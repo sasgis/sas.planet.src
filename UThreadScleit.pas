@@ -1,0 +1,576 @@
+unit UThreadScleit;
+interface
+
+uses Windows,Forms,SysUtils,Classes,Dialogs,Graphics,GR32,UMapType, math,
+     ECWWrite, UImgFun,Jpeg,UGeoFun,bmpUtil,UResStrings,unit4;
+
+type
+  ThreadScleit = class(TThread)
+    Poly:array of TPoint;
+    Zoom:byte;
+    typemap,Htypemap:PMapType;
+    typeRect:1..3;
+    ty: pchar;
+    colors:byte;
+    Fprogress: TFprogress2;
+    numTlg:integer;
+    numTlv:integer;
+    ToOzi:boolean;
+    ToTab:boolean;
+    ToWorld:boolean;
+    ecw:TECWWrite;
+    btmm:TBitmap32;
+    btmh:TBitmap32;
+    usedReColor:boolean;
+    FName:string;
+    prStr1,prStr2,prCaption:string;
+    prBar:integer;
+    ProcessTiles:integer;
+    PolyMin:TPoint;
+    PolyMax:TPoint;
+  private
+    Message_:string;
+  protected
+    procedure UpdateProgressFormCapt;
+    procedure UpdateProgressFormBar;
+    procedure UpdateProgressFormStr1;
+    procedure UpdateProgressFormStr2;
+    procedure SynShowMessage;
+    procedure Execute; override;
+    procedure saveRECT;
+  public
+    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:PMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+  end;
+
+type
+  PRow = ^TRow;
+  TRow = array[0..0] of byte;
+
+  TBGR = record
+   b,g,r:byte;
+  end;
+
+  PArrayBGR = ^TArrayBGR;
+  TArrayBGR = array [0..0] of TBGR;
+
+  P256ArrayBGR = ^T256ArrayBGR;
+  T256ArrayBGR = array[0..255] of PArrayBGR;
+
+  P256rgb = ^T256rgb;
+  T256rgb = array[0..255] of PRow;
+
+var
+    Poly0:TPoint;
+    Poly1:TPoint;
+    Rarr:P256rgb;
+    Garr:P256rgb;
+    Barr:P256rgb;
+    Array256BGR:P256ArrayBGR;
+    sx,ex,sy,ey:integer;
+
+implementation
+uses unit1,usaveas, uozi, StrUtils, ECWWriter,ECWReader;
+
+procedure ThreadScleit.SynShowMessage;
+begin
+ ShowMessage(Message_);
+end;
+
+procedure ThreadScleit.UpdateProgressFormCapt;
+begin
+ fprogress.Caption:=prCaption;
+end;
+
+procedure ThreadScleit.UpdateProgressFormStr1;
+begin
+ fprogress.MemoInfo.Lines[0]:=prStr1;
+end;
+
+procedure ThreadScleit.UpdateProgressFormStr2;
+begin
+ fprogress.MemoInfo.Lines[1]:=prStr2;
+end;
+
+procedure ThreadScleit.UpdateProgressFormBar;
+begin
+ fprogress.ProgressBar1.Progress1:=prBar;
+end;
+
+
+function ReadLineBMP(Sender:TObject;Line:cardinal;var LineRGB:PLineRGBb):boolean;
+var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
+    p_h:TPoint;
+    path,pathhib:string;
+    p:PColor32array;
+begin
+ if line<(256-sy) then starttile:=sy+line
+                  else starttile:=(line-(256-sy)) mod 256;
+ if (starttile=0)or(line=0) then
+  begin
+   ThreadScleit(Sender).prBar:=line;
+   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormBar);
+   if line=0 then ThreadScleit(Sender).prStr2:=SAS_STR_CreateFile
+             else ThreadScleit(Sender).prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormStr2);
+   p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
+   p_x:=poly0.x-(poly0.x mod 256);
+   p_h:=ConvertPosM2M(Point(p_x,p_y),ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap,ThreadScleit(Sender).Htypemap);
+   lrarri:=0;
+   if line>(255-sy) then Asy:=0 else Asy:=sy;
+   if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+   Asx:=sx;
+   Aex:=255;
+   while p_x<=poly1.x do
+    begin
+     path:=ffpath(p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap^,false);
+     if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
+     else
+     begin
+     if (Tileexists(path)) then try
+                                 LoadTilefromCache(ThreadScleit(Sender).btmm,path) ;
+                                except
+                                 Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+                                end
+                           else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+     if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
+     if ThreadScleit(Sender).Htypemap<>nil then
+      begin
+       pathhib:=ffpath(p_h.x,p_h.y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+       ThreadScleit(Sender).btmh.Clear(clBlack);
+       ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
+       if (Tileexists(pathhib)) then try
+                                      LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
+                                     except
+                                     end;
+       ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
+       if p_h.y<>p_y then
+        begin
+         pathhib:=ffpath(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+         ThreadScleit(Sender).btmh.Clear(clBlack);
+         ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
+         if (Tileexists(pathhib)) then try
+                                        LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
+                                       except
+                                       end;
+         ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
+        end;
+      end;
+     end;
+     if (p_x+256)>poly1.x
+      then Aex:=ex;
+     for j:=Asy to Aey do
+      begin
+       p:=ThreadScleit(Sender).btmm.ScanLine[j];
+       rarri:=lrarri;
+       for i:=Asx to Aex do
+        begin
+         CopyMemory(@Array256BGR[j]^[rarri],Pointer(integer(p)+(i*4)),3);
+         inc(rarri);
+        end;
+      end;
+     lrarri:=rarri;
+     Asx:=0;
+     inc(p_x,256);
+     inc(p_h.x,256);
+    end;
+  end;
+ CopyMemory(LineRGB,Array256BGR^[starttile],(poly1.x-poly0.x)*3);
+end;
+
+function ReadLine(Sender:TObject;Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
+var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
+    p_h:TPoint;
+    path,pathhib:string;
+    p:PColor32array;
+begin
+ if line<(256-sy) then starttile:=sy+line
+                  else starttile:=(line-(256-sy)) mod 256;
+ if (starttile=0)or(line=0) then
+  begin
+   ThreadScleit(Sender).prBar:=line;
+   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormBar);
+   ThreadScleit(Sender).prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormStr2);
+   p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
+   p_x:=poly0.x-(poly0.x mod 256);
+   p_h:=ConvertPosM2M(Point(p_x,p_y),ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap,ThreadScleit(Sender).Htypemap);
+   lrarri:=0;
+   if line>(255-sy) then Asy:=0 else Asy:=sy;
+   if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+   Asx:=sx;
+   Aex:=255;
+   while p_x<=poly1.x do
+    begin
+     path:=ffpath(p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap^,false);
+     if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
+     else
+     begin
+     if (Tileexists(path)) then try
+                                 LoadTilefromCache(ThreadScleit(Sender).btmm,path) ;
+                                except
+                                 Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+                                end
+                           else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+     if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
+     if ThreadScleit(Sender).Htypemap<>nil then
+      begin
+       pathhib:=ffpath(p_h.x,p_h.y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+       ThreadScleit(Sender).btmh.Clear(clBlack);
+       ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
+       if (Tileexists(pathhib)) then try
+                                      LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
+                                     except
+                                     end;
+       ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
+       if p_h.y<>p_y then
+        begin
+         pathhib:=ffpath(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+         ThreadScleit(Sender).btmh.Clear(clBlack);
+         ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
+         if (Tileexists(pathhib)) then try
+                                        LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
+                                       except
+                                       end;
+         ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
+        end;
+      end;
+     end;
+     if (p_x+256)>poly1.x
+      then Aex:=ex;
+     for j:=Asy to Aey do
+      begin
+       p:=ThreadScleit(Sender).btmm.ScanLine[j];
+       rarri:=lrarri;
+       for i:=Asx to Aex do
+        begin
+         Rarr^[j]^[rarri]:=((cardinal(p^[i]) shl 8) shr 24);
+         Garr^[j]^[rarri]:=((cardinal(p^[i]) shl 16) shr 24);
+         Barr^[j]^[rarri]:=((cardinal(p^[i]) shl 24) shr 24);
+         inc(rarri);
+        end;
+      end;
+     lrarri:=rarri;
+     Asx:=0;
+     inc(p_x,256);
+     inc(p_h.x,256);
+    end;
+  end;
+ for i:=0 to (poly1.x-poly0.x)-1 do
+  begin
+   LineR^[i]:=Rarr^[starttile]^[i];
+   LineG^[i]:=Garr^[starttile]^[i];
+   LineB^[i]:=Barr^[starttile]^[i];
+  end;
+end;
+
+procedure ThreadScleit.saveRECT;
+var p_x,p_y,i,j,k,errecw:integer;
+    p_h:TPoint;
+    scachano:integer;
+    btm:TBitmap32;
+    err,path,Fnamebuf:string;
+    //Tlbfull,TlbTile:TLinearBitmap;
+    jpg:TJpegImage;
+    Datum,Proj:string;
+    CellIncrementX,CellIncrementY,OriginX,OriginY:extended;
+    Tlbfull,TlbTile:TBitmap32;
+    b:TBitmap;
+begin
+ prCaption:='Ñךכוטעü: '+inttostr((PolyMax.x-PolyMin.x) div 256+1)+'x'
+                       +inttostr((PolyMax.y-PolyMin.y) div 256+1)
+                       +'('+inttostr(ProcessTiles)+') '+SAS_STR_files;
+// fprogress.Repaint;
+ Synchronize(UpdateProgressFormCapt);
+ prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(numTlg*numTlv)+' '+SAS_STR_files;
+ Synchronize(UpdateProgressFormStr1);
+// fprogress.ProgrInfo1.Repaint;
+
+ FProgress.ProgressBar1.Max:=0;
+ for i:=1 to numTlg do
+  for j:=1 to numTlv do
+   begin
+    Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
+    Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
+    Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
+    Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
+    FProgress.ProgressBar1.Max:=FProgress.ProgressBar1.Max+(((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
+   end;
+ prBar:=0;
+ Synchronize(UpdateProgressFormBar);
+ prStr2:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
+ Synchronize(UpdateProgressFormStr2);
+
+ Fnamebuf:=fname;
+ for i:=1 to numTlg do
+  for j:=1 to numTlv do
+  begin
+   Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
+   Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
+   Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
+   Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
+
+   fname:=Fnamebuf;
+   if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
+
+   if toOzi then toOziMap(fname,poly0,poly1,zoom,typemap);
+   if toTab then toTabMap(fname,poly0,poly1,zoom,typemap);
+   if toWorld then begin
+                    toWorldFiles(fname,poly0,poly1,zoom,typemap);
+                    toPrj(fname,typemap);
+                    toAuxXml(fname,typemap);
+                   end;
+
+   if (UpperCase(ExtractFileExt(fname))='.ECW')or(UpperCase(ExtractFileExt(fname))='.JP2') then
+   begin
+   sx:=(Poly0.X mod 256);
+   sy:=(Poly0.Y mod 256);
+   ex:=(Poly1.X mod 256);
+   ey:=(Poly1.Y mod 256);
+   try
+   ecw:=TECWWrite.Create;
+   btmm:=TBitmap32.Create;
+   btmh:=TBitmap32.Create;
+   btmm.Width:=256;
+   btmm.Height:=256;
+   btmh.Width:=256;
+   btmh.Height:=256;
+   getmem(Rarr,256*sizeof(PRow));
+   for k:=0 to 255 do getmem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+   getmem(Garr,256*sizeof(PRow));
+   for k:=0 to 255 do getmem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+   getmem(Barr,256*sizeof(PRow));
+   for k:=0 to 255 do getmem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+   FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+   prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
+   Synchronize(UpdateProgressFormStr1);
+   CalculateMercatorCoordinates(GPos2LonLat(Poly0,Zoom,typemap),GPos2LonLat(Poly1,Zoom,typemap),
+                                Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY);
+   case TypeMap.projection of
+    1: begin
+        Datum:='GOOGLE';
+        Proj:='MRAFRICA';
+       end;
+    2: begin
+        Datum:='WGS84';
+        Proj:='MRWORLD2';
+       end;
+    3: begin
+        Datum:='WGS84';
+        Proj:='MRAFRICA';
+       end;
+   end;
+   errecw:=ecw.Encode(self,fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, @ReadLine, nil,
+             Datum,Proj,ECW_CELL_UNITS_METERS,CellIncrementX,CellIncrementY,OriginX,OriginY);
+   if (errecw>0)and(errecw<>52) then
+    begin
+     Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw);
+     Synchronize(SynShowMessage);
+    end;
+   finally
+   {$IFDEF VER80}
+   for k:=0 to 255 do freemem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+   freemem(Rarr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+   for k:=0 to 255 do freemem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+   freemem(Garr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+   for k:=0 to 255 do freemem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+   freemem(Barr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+   {$ELSE}
+   for k:=0 to 255 do freemem(Rarr[k]);
+   FreeMem(Rarr);
+   for k:=0 to 255 do freemem(Garr[k]);
+   FreeMem(Garr);
+   for k:=0 to 255 do freemem(Barr[k]);
+   FreeMem(Barr);
+   {$ENDIF}
+   btmm.Free;
+   btmh.Free;
+   ecw.Free;
+   end;
+   continue;
+   end;
+
+   if (UpperCase(ExtractFileExt(fname))='.BMP') then
+   begin
+   sx:=(Poly0.X mod 256);
+   sy:=(Poly0.Y mod 256);
+   ex:=(Poly1.X mod 256);
+   ey:=(Poly1.Y mod 256);
+   try
+   btmm:=TBitmap32.Create;
+   btmh:=TBitmap32.Create;
+   btmm.Width:=256;
+   btmm.Height:=256;
+   btmh.Width:=256;
+   btmh.Height:=256;
+   getmem(Array256BGR,256*sizeof(P256ArrayBGR));
+   for k:=0 to 255 do getmem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
+   FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+   prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
+   Synchronize(UpdateProgressFormStr1);
+   SaveBMP(self, Poly1.X-Poly0.X,Poly1.y-Poly0.y, fname,@ReadLineBMP);
+   finally
+   {$IFDEF VER80}
+   for k:=0 to 255 do freemem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
+   freemem(Array256BGR,256*((Poly1.X-Poly0.X+1)*3));
+   {$ELSE}
+   for k:=0 to 255 do freemem(Array256BGR[k]);
+   FreeMem(Array256BGR);
+   {$ENDIF}
+   btmm.Free;
+   btmh.Free;
+   ecw.Free;
+   end;
+   continue;
+   end;
+
+
+   try
+    Tlbfull:=TBitmap32.Create;
+    Tlbfull.Width:=(poly1.x-poly0.x);
+    Tlbfull.Height:=(poly1.y-poly0.y);
+    TlbTile:=TBitmap32.Create;
+    btm:=TBitmap32.Create;
+    btm.Width:=256;btm.Height:=256;
+   except
+    err:=SysErrorMessage(GetLastError);
+    fprogress.MemoInfo.Lines[0]:=err;
+    exit;
+   end;
+
+   p_x:=poly0.x+1;
+   while p_x<=poly1.x+256 do
+    begin
+     p_y:=poly0.y+1;
+     while p_y<=poly1.y+256 do
+      begin
+       if not(FProgress.Visible) then
+                         begin
+                          TlbTile.Free;
+                          Tlbfull.Free;
+                          btm.Free;
+                          exit;
+                         end;
+       path:=ffpath(p_x,p_y,zoom,typemap^,false);
+       if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then btm.Clear(clSilver)
+        else
+       if (Tileexists(path)) then try
+                                   LoadTilefromCache(btm,path)
+                                  except
+                                   Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
+                                  end
+                             else Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
+       if Htypemap<>nil then
+        begin
+         p_h:=ConvertPosM2M(point(p_x,p_y),zoom,typemap,Htypemap);
+         path:=ffpath(p_h.x,p_h.y,zoom,Htypemap^,false);
+         spr.Canvas.CopyRect(bounds(0,0,255,255),Tlbfull.Canvas,bounds((p_h.x-poly0.x)-(p_h.x mod 256),(p_h.y-poly0.y)-(p_h.y mod 256),256,256));
+         if (Tileexists(path)) then try
+                                     LoadTilefromCache(spr,path)
+                                    except
+//                                     Tlbfull.PaintToCanvas(spr.Canvas,bounds((p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256),256,256));
+                                     spr.Canvas.CopyRect(bounds(0,0,255,255),Tlbfull.Canvas,bounds((p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256),256,256));
+                                     //Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
+                                    end
+                               //else //Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
+        end;
+       try
+       TlbTile.Assign(btm);
+       {case colors of
+        1: Tlbfull.PixelFormat:=pf8bit;
+        2: Tlbfull.PixelFormat:=pf24bit;
+        3: Tlbfull.PixelFormat:=pf32bit;
+       end; }
+       except
+        err:=SysErrorMessage(GetLastError);
+        fprogress.MemoInfo.Lines[0]:=err;
+        TlbTile.Free;
+        Tlbfull.Free;
+        btm.Free;
+        exit;
+       end;
+       if (TlbTile.Width>0)and(TlbTile.Height>0) then
+         try
+          //if not(TlbTile.PixelFormat in [pf8bit,pf24bit,pf32bit]) then TlbTile.PixelFormat:=pf24bit;
+          //Tlbfull.PixelFormat:=TlbTile.PixelFormat;
+          //Tlbfull.Palette:=TlbTile.Palette;
+          Tlbfull.Draw((p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256),TlbTile);
+//          Tlbfull.PasteImage(TlbTile,(p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256));
+         except
+          err:=SysErrorMessage(GetLastError);
+          fprogress.MemoInfo.Lines[0]:=err;
+          TlbTile.Free;
+          Tlbfull.Free;
+          btm.Free;
+          exit;
+          end;
+       prStr1:=SAS_STR_Resolution+': '+inttostr((poly[1].x-poly[0].x))+'x'+inttostr((poly[1].y-poly[0].y))+'; פאיכ ¹'+inttostr(i)+'-'+inttostr(j);
+       Synchronize(UpdateProgressFormStr1);
+       inc(scachano);
+       if (scachano mod 5)=0 then prBar:=scachano;
+       Synchronize(UpdateProgressFormBar);
+       prStr2:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
+       Synchronize(UpdateProgressFormStr2);
+       inc(p_y,256);
+      end;
+     inc(p_x,256);
+    end;
+   prStr1:=SAS_STR_SaveFileNum+' '+inttostr(i)+'-'+inttostr(j)+'...';
+   Synchronize(UpdateProgressFormStr1);
+   jpg:=TJPEGImage.Create;
+   jpg.CompressionQuality:=FSaveAs.QualitiEdit.Value;
+   jpg.Performance:=jpBestSpeed;
+   b:=TBitmap.Create;
+   b.Assign(Tlbfull);
+   jpg.Assign(b);
+   Tlbfull.Free;
+   //try
+  {  JPEGLoader.Default.Quality:=FSaveAs.QualitiEdit.Value;
+   except
+    err:=SysErrorMessage(GetLastError);
+    fprogress.MemoInfo.Lines[0]:=err;
+   end;}
+   try
+    jpg.SaveToFile(fname);
+   except
+    err:=SysErrorMessage(GetLastError);
+    prStr1:=err;
+    Synchronize(UpdateProgressFormStr1);
+   end;
+   TlbTile.Free;
+//   Tlbfull.Free;
+   btm.Free;
+  end;
+  //end;
+ fprogress.Close;
+end;
+
+constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:PMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+var i:integer;
+begin
+  inherited Create(CrSusp);
+  Application.CreateForm(TFProgress2, FProgress);
+  FProgress.Visible:=true;
+  FName:=AFName;
+  numTlg:=numTilesG;
+  numTlv:=numTilesV;
+  ToWorld:=AToWorld;
+  ToOzi:=AToOzi;
+  ToTab:=AToTab;
+  usedReColor:=AusedReColor;
+  for i:=1 to length(APolygon_) do
+   begin
+    setlength(Poly,i);
+    poly[i-1]:=Apolygon_[i-1];
+   end;
+  zoom:=Azoom;
+  typemap:=Atypemap;
+  Htypemap:=AHtypemap;
+  colors:=Acolors;
+end;
+
+procedure ThreadScleit.Execute;
+begin
+ saveRECT;
+end;
+
+end.

@@ -1,0 +1,221 @@
+unit UOpGenPreviousZoom;
+
+interface
+uses Windows,Forms,SysUtils,Classes,UMapType,UImgFun,UGeoFun,unit4,UResStrings,
+     GR32,GR32_Layers,GR32_Resamplers,math,Graphics,Dialogs;
+
+type
+  TOpGenPreviousZoom = class(TThread)
+    InZooms:array of byte;
+    FromZoom:byte;
+    typemap:PMapType;
+    PolygLL:array of TExtendedPoint;
+    max,min:TPoint;
+    ProcessTiles:integer;
+    Resampler:integer;
+    Replace:boolean;
+    savefull:boolean;
+  private
+    polyg:array of TPoint;
+    Fprogress: TFprogress2;
+    TileInProc:integer;
+    CurrentTile:integer;
+    path:string;
+    pathfrom:string;
+    bmp_ex:TBitmap32;
+    bmp:TBitmap32;
+  protected
+    procedure GenPreviousZoom;
+    procedure SetProgressForm;
+    procedure UpdateProgressForm;
+    procedure CloseProgressForm;
+    procedure Execute; override;
+    procedure SaveTileOp;
+    procedure LoadMainTileOp;
+    procedure LoadChildTileOp;
+    procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
+  public
+    destructor destroy; override;
+    constructor Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
+  end;
+
+implementation
+uses unit1,USaveas;
+
+constructor TOpGenPreviousZoom.Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
+begin
+ bmp_ex:=TBitmap32.Create;
+ bmp:=TBitmap32.Create;
+ TileInProc:=0;
+ FromZoom:=Azoom;
+ typemap:=Atypemap;
+ inherited Create(CrSusp);
+end;
+
+destructor TOpGenPreviousZoom.destroy;
+begin
+ bmp_ex.Free;
+ bmp.Free;
+ Synchronize(CloseProgressForm);
+ inherited ;
+end;
+
+procedure TOpGenPreviousZoom.Execute;
+var i:integer;
+begin
+ setlength(polyg,length(PolygLL));
+ ProcessTiles:=0;
+ for i:=length(InZooms)-1 downto 0 do
+   begin
+    Fsaveas.formatepoligon(typemap,InZooms[i],PolygLL,polyg);
+    inc(ProcessTiles,Fsaveas.GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])));
+   end;
+ Synchronize(SetProgressForm);
+ GenPreviousZoom;
+end;
+
+procedure TOpGenPreviousZoom.CloseFProgress(Sender: TObject; var Action: TCloseAction);
+begin
+ if not(Terminated) then Terminate;
+end;
+
+procedure TOpGenPreviousZoom.CloseProgressForm;
+begin
+ fprogress.Free;
+ Fmain.generate_im(nilLastLoad,'');
+end;
+
+procedure TOpGenPreviousZoom.UpdateProgressForm;
+begin
+  fprogress.MemoInfo.Lines[0]:=SAS_STR_Saves+': '+inttostr(TileInProc)+' '+SAS_STR_files;
+  FProgress.ProgressBar1.Progress1:=CurrentTile;
+  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(CurrentTile);
+end;
+
+procedure TOpGenPreviousZoom.SetProgressForm;
+begin
+  Application.CreateForm(TFProgress2, FProgress);
+  FProgress.OnClose:=CloseFProgress;
+  FProgress.Visible:=true;
+  fprogress.Caption:=SAS_STR_ProcessedNoMore+': '+inttostr(ProcessTiles)+' '+SAS_STR_files;
+  fprogress.MemoInfo.Lines[0]:=SAS_STR_Processed+' 0';
+  fprogress.MemoInfo.Lines[1]:=SAS_STR_Saves+': 0';
+  FProgress.ProgressBar1.Progress1:=0;
+  FProgress.ProgressBar1.Max:=ProcessTiles;
+end;
+
+procedure TOpGenPreviousZoom.SaveTileOp;
+begin
+ try
+  Fmain.createdirif(path);
+  SaveTileInCache(bmp_ex,path);
+  inc(TileInProc);
+ except
+  ShowMessage(SAS_ERR_Write);
+  Terminate;
+ end;
+end;
+
+procedure TOpGenPreviousZoom.LoadMainTileOp;
+begin
+ LoadTilefromCache(bmp_Ex,path);
+end;
+
+procedure TOpGenPreviousZoom.LoadChildTileOp;
+begin
+ LoadTilefromCache(bmp,pathfrom);
+end;
+
+procedure TOpGenPreviousZoom.GenPreviousZoom;
+var bmp2:TBitmap32;
+    i,c_d,p_x,p_y,d2562,p_i,p_j,p_x_x,p_y_y:integer;
+    save_len_tile:integer;
+begin
+ bmp2:=TBitmap32.Create;
+ if Resampler=1
+  then bmp.Resampler:=TLinearResampler.Create
+  else begin
+        bmp.Resampler:=TKernelResampler.Create;
+        case Resampler of
+         0: TKernelResampler(bmp.Resampler).Kernel:=TBoxKernel.Create;
+         2: TKernelResampler(bmp.Resampler).Kernel:=TCosineKernel.Create;
+         3: TKernelResampler(bmp.Resampler).Kernel:=TSplineKernel.Create;
+         4: TKernelResampler(bmp.Resampler).Kernel:=TMitchellKernel.Create;
+         5: TKernelResampler(bmp.Resampler).Kernel:=TCubicKernel.Create;
+         6: TKernelResampler(bmp.Resampler).Kernel:=THermiteKernel.Create;
+         7: TKernelResampler(bmp.Resampler).Kernel:=TLanczosKernel.Create;
+         8: TKernelResampler(bmp.Resampler).Kernel:=TGaussianKernel.Create;
+         9: TKernelResampler(bmp.Resampler).Kernel:=TBlackmanKernel.Create;
+         10:TKernelResampler(bmp.Resampler).Kernel:=THannKernel.Create;
+         11:TKernelResampler(bmp.Resampler).Kernel:=THammingKernel.Create;
+         12:TKernelResampler(bmp.Resampler).Kernel:=TSinshKernel.Create;
+        end;
+       end;
+ TileInProc:=0;
+ CurrentTile:=0;
+ for i:=length(InZooms)-1 downto 0 do
+  begin
+   if Terminated then continue;
+   Fsaveas.formatepoligon(typemap,InZooms[i],PolygLL,polyg);
+   c_d:=round(power(2,FromZoom-InZooms[i]));
+   Fsaveas.GetDwnlNum(min,max,Polyg,false);
+   p_x:=min.x;
+   while (p_x<max.X)and(not Terminated) do
+    begin
+     p_y:=min.y;
+     while (p_y<max.y)and(not Terminated) do
+      begin
+       if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
+                                                   inc(p_y,256);
+                                                   continue;
+                                                  end;
+       path:=ffpath(p_x,p_y,InZooms[i],typemap^,false);
+       if TileExists(Path)then begin
+                                if not(Replace)
+                                 then begin
+                                       Synchronize(UpdateProgressForm);
+                                       inc(p_y,256);
+                                       continue;
+                                      end;
+                                Synchronize(LoadMainTileOp);
+                               end
+                          else begin
+                                bmp_ex.width:=256;
+                                bmp_ex.Height:=256;
+                                bmp_ex.Canvas.Brush.Color:=clSilver;
+                                bmp_ex.Canvas.FillRect(bmp_ex.Canvas.ClipRect);
+                               end;
+       d2562:=256 div c_d;
+       save_len_tile:=0;
+       for p_i:=1 to c_d do
+        for p_j:=1 to c_d do
+         begin
+          if Terminated then continue;
+          p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
+          p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
+          pathfrom:=ffpath(p_x_x,p_y_y,FromZoom,typemap^,false);
+          if TileExists(pathfrom) then
+           begin
+            Synchronize(LoadChildTileOp);
+            bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);
+            inc(save_len_tile);
+           end;
+          inc(CurrentTile);
+          if (CurrentTile mod 30 = 0) then Synchronize(UpdateProgressForm);
+         end;
+       if ((savefull)and(save_len_tile<>c_d*c_d))or(save_len_tile=0) then
+        begin
+         inc(p_y,256);
+         continue;
+        end;
+       Synchronize(SaveTileOp);
+       inc(p_y,256);
+      end;
+     inc(p_x,256);
+    end;
+  end;
+ bmp2.Free;
+end;
+
+end.
+ 
