@@ -22,7 +22,7 @@ type
     btmm:TBitmap32;
     btmh:TBitmap32;
     usedReColor:boolean;
-    FName:string;
+    path,FName:string;
     prStr1,prStr2,prCaption:string;
     prBar:integer;
     ProcessTiles:integer;
@@ -126,10 +126,9 @@ begin
      if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
      else
      begin
-     if (Tileexists(path)) then try
-                                 LoadTilefromCache(ThreadScleit(Sender).btmm,path) ;
-                                except
-                                 Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+     if (Tileexists(path)) then begin
+                                 if not(LoadTilefromCache(ThreadScleit(Sender).btmm,path))
+                                  then Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
                                 end
                            else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
      if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
@@ -138,20 +137,14 @@ begin
        pathhib:=ffpath(p_h.x,p_h.y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
        ThreadScleit(Sender).btmh.Clear(clBlack);
        ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-       if (Tileexists(pathhib)) then try
-                                      LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
-                                     except
-                                     end;
+       if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
        ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
        if p_h.y<>p_y then
         begin
          pathhib:=ffpath(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
          ThreadScleit(Sender).btmh.Clear(clBlack);
          ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-         if (Tileexists(pathhib)) then try
-                                        LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
-                                       except
-                                       end;
+         if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
          ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
         end;
       end;
@@ -180,7 +173,7 @@ end;
 function ReadLine(Sender:TObject;Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
 var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
-    path,pathhib:string;
+    pathhib:string;
     p:PColor32array;
 begin
  if line<(256-sy) then starttile:=sy+line
@@ -201,36 +194,30 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
-     path:=ffpath(p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap^,false);
+     ThreadScleit(Sender).path:=ffpath(p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap^,false);
      if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
      else
      begin
-     if (Tileexists(path)) then try
-                                 LoadTilefromCache(ThreadScleit(Sender).btmm,path) ;
-                                except
-                                 Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
-                                end
-                           else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+     if (Tileexists(ThreadScleit(Sender).path))
+      then begin
+            if not(LoadTilefromCache(ThreadScleit(Sender).btmm,ThreadScleit(Sender).path))
+             then Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+           end
+      else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
      if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
      if ThreadScleit(Sender).Htypemap<>nil then
       begin
        pathhib:=ffpath(p_h.x,p_h.y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
        ThreadScleit(Sender).btmh.Clear(clBlack);
        ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-       if (Tileexists(pathhib)) then try
-                                      LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
-                                     except
-                                     end;
+       if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
        ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
        if p_h.y<>p_y then
         begin
          pathhib:=ffpath(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
          ThreadScleit(Sender).btmh.Clear(clBlack);
          ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-         if (Tileexists(pathhib)) then try
-                                        LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
-                                       except
-                                       end;
+         if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib);
          ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
         end;
       end;
@@ -275,6 +262,7 @@ var p_x,p_y,i,j,k,errecw:integer;
     CellIncrementX,CellIncrementY,OriginX,OriginY:extended;
     Tlbfull,TlbTile:TBitmap32;
     b:TBitmap;
+    Units:CellSizeUnits;
 begin
  prCaption:='Ñךכוטעü: '+inttostr((PolyMax.x-PolyMin.x) div 256+1)+'x'
                        +inttostr((PolyMax.y-PolyMin.y) div 256+1)
@@ -343,27 +331,30 @@ begin
    FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
    prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
    Synchronize(UpdateProgressFormStr1);
-   CalculateMercatorCoordinates(GPos2LonLat(Poly0,Zoom,typemap),GPos2LonLat(Poly1,Zoom,typemap),
-                                Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY);
    case TypeMap.projection of
     1: begin
-        Datum:='GOOGLE';
-        Proj:='MRAFRICA';
+        Datum:='EPSG:7059';
+        Proj:='EPSG:3785';
+        Units:=ECW_CELL_UNITS_METERS;
        end;
     2: begin
-        Datum:='WGS84';
-        Proj:='MRWORLD2';
+        Datum:='EPSG:3395';
+        Proj:='EPSG:3395';
+        Units:=ECW_CELL_UNITS_METERS;
        end;
     3: begin
-        Datum:='WGS84';
-        Proj:='MRAFRICA';
+        Datum:='EPSG:4326';
+        Proj:='EPSG:4326';
+        Units:=ECW_CELL_UNITS_DEGREES;
        end;
    end;
+   CalculateMercatorCoordinates(GPos2LonLat(Poly0,Zoom,typemap),GPos2LonLat(Poly1,Zoom,typemap),
+                                Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY,Units);
    errecw:=ecw.Encode(self,fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, @ReadLine, nil,
-             Datum,Proj,ECW_CELL_UNITS_METERS,CellIncrementX,CellIncrementY,OriginX,OriginY);
+             Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
    if (errecw>0)and(errecw<>52) then
     begin
-     Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw);
+     Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+self.path;
      Synchronize(SynShowMessage);
     end;
    finally
@@ -453,10 +444,9 @@ begin
        path:=ffpath(p_x,p_y,zoom,typemap^,false);
        if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then btm.Clear(clSilver)
         else
-       if (Tileexists(path)) then try
-                                   LoadTilefromCache(btm,path)
-                                  except
-                                   Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
+       if (Tileexists(path)) then begin
+                                   if not(LoadTilefromCache(btm,path))
+                                    then Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
                                   end
                              else Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
        if Htypemap<>nil then
@@ -464,14 +454,8 @@ begin
          p_h:=ConvertPosM2M(point(p_x,p_y),zoom,typemap,Htypemap);
          path:=ffpath(p_h.x,p_h.y,zoom,Htypemap^,false);
          spr.Canvas.CopyRect(bounds(0,0,255,255),Tlbfull.Canvas,bounds((p_h.x-poly0.x)-(p_h.x mod 256),(p_h.y-poly0.y)-(p_h.y mod 256),256,256));
-         if (Tileexists(path)) then try
-                                     LoadTilefromCache(spr,path)
-                                    except
-//                                     Tlbfull.PaintToCanvas(spr.Canvas,bounds((p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256),256,256));
-                                     spr.Canvas.CopyRect(bounds(0,0,255,255),Tlbfull.Canvas,bounds((p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256),256,256));
-                                     //Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
-                                    end
-                               //else //Fmain.loadpre(btm,p_x,p_y,zoom,typemap);
+         if (Tileexists(path)) then if not(LoadTilefromCache(spr,path))
+                                     then spr.Canvas.CopyRect(bounds(0,0,255,255),Tlbfull.Canvas,bounds((p_x-poly0.x)-(p_x mod 256),(p_y-poly0.y)-(p_y mod 256),256,256));
         end;
        try
        TlbTile.Assign(btm);
@@ -503,7 +487,7 @@ begin
           btm.Free;
           exit;
           end;
-       prStr1:=SAS_STR_Resolution+': '+inttostr((poly[1].x-poly[0].x))+'x'+inttostr((poly[1].y-poly[0].y))+'; פאיכ ¹'+inttostr(i)+'-'+inttostr(j);
+       prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y))+'; פאיכ ¹'+inttostr(i)+'-'+inttostr(j);
        Synchronize(UpdateProgressFormStr1);
        inc(scachano);
        if (scachano mod 5)=0 then prBar:=scachano;

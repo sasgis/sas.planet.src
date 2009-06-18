@@ -75,11 +75,13 @@ begin
  Fmain.ldm.Clear;
  Fmain.dlm.Clear;
  Fmain.NSubMenuSmItem.Clear;
- for i:=0 to Fmain.NLayerSel.Count-3 do Fmain.NLayerSel.Items[2].Free;
- for i:=0 to Fmain.TBLayerSel.Count-3 do Fmain.TBLayerSel.Items[2].Free;
+ for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
+ for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
  for i:=0 to Fmain.PopupMSmM.Items.Count-3 do Fmain.PopupMSmM.Items.Items[2].Free;
 
  sm_map.maptype:=nil;
+ i:=length(MapType)-1;
+ if i>0 then
  for i:=0 to length(MapType)-1 do
   With MapType[i] do
   begin
@@ -121,7 +123,7 @@ begin
          end;
    Fmain.MapIcons24.AddMasked(bmp24,RGB(255,0,255));
    Fmain.MapIcons18.AddMasked(bmp18,RGB(255,0,255));
-   TBItem.Name:='TBMapN'+ inttostr(id);
+   TBItem.Name:='TBMapN'+inttostr(id);
    TBItem.ImageIndex:=i;
    TBItem.Caption:=name;
    TBItem.OnClick:=Fmain.TBmap1Click;

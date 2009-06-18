@@ -49,8 +49,27 @@ var
   zu, zum1, yy : extended;
 begin
   TilesAtZoom := 1 shl Azoom;
+  if TilesAtZoom>1 then
+  begin
 //  XY.x := XY.x mod TilesAtZoom;
   if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
+  if (XY.y>TilesAtZoom/2)
+       then yy:=(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2))
+       else yy:=XY.y;
+  Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
+  Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
+  Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+  Zu := result.y / (180 / Pi);
+  yy := (yy - TilesAtZoom / 2);
+  repeat
+   Zum1 := Zu;
+   Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
+  until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
+  if not(isNAN(Zu)) then
+   if XY.y>TilesAtZoom/2 then result.Y:=-zu*180/Pi
+                         else result.Y:=zu*180/Pi;
+	end;
+{	
   Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
   Result.Y := (XY.y - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
@@ -62,7 +81,7 @@ begin
   until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
   if not(isNAN(Zu)) then begin
     Result.Y:=zu*180/Pi;
-  end;
+}
 end;
 
 end.

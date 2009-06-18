@@ -10,9 +10,9 @@ type
     KMLFileName:string;
     num_blok:string;
     description:string;
-    coordinates:array of TRealpoint;
-    coordinatesLT:TRealpoint;
-    coordinatesRD:TRealpoint;
+    coordinates:array of TExtendedPoint;
+    coordinatesLT:TExtendedPoint;
+    coordinatesRD:TExtendedPoint;
     LT,RD:Tpoint;
     AarrKt:array of TPoint;
     visiblelayer:boolean;
@@ -190,7 +190,7 @@ begin
  Ini.Free;
  ShowKML;
  Fmain.map.EndUpdate;
- Fmain.map.Refresh;
+ Fmain.map.Refresh;   
 end;
 
 procedure TKMLLayer.Show_;

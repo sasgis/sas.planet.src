@@ -86,11 +86,11 @@ ConsoleApp=1
 DebugInfo=0
 RemoteSymbols=0
 MinStackSize=16384
-MaxStackSize=1048576
+MaxStackSize=16777216
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=.\.bin
+OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -110,23 +110,27 @@ Item0=Английский (США)*$00000409*ENU*ENU
 Item1=Русский*$00000419*RUS*RUS
 [RDP Source Files]
 Item0=Unit3.dfm
-Item1=Unit1.dfm
-Item2=Unit2.dfm
-Item3=Unit7.dfm
-Item4=Usettings.dfm
-Item5=USaveas.dfm
-Item6=UProgress.dfm
-Item7=UaddPoint.dfm
-Item8=Unit4.dfm
-Item9=ULogo.dfm
-Item10=USelLonLat.dfm
-Item11=Ubrowser.dfm
-Item12=UKMLExplorer.dfm
-Item13=UaddLine.dfm
-Item14=UaddPoly.dfm
-Item15=UEditMap.dfm
-Item16=USearchResult.dfm
-Item17=SASPlanet.drc
+Item1=UKMLExplorer.dfm
+Item2=Unit7.dfm
+Item3=Unit1.dfm
+Item4=Unit2.dfm
+Item5=UAbout.dfm
+Item6=Usettings.dfm
+Item7=USaveas.dfm
+Item8=UProgress.dfm
+Item9=UaddPoint.dfm
+Item10=Unit4.dfm
+Item11=ULogo.dfm
+Item12=USelLonLat.dfm
+Item13=Ubrowser.dfm
+Item14=UaddLine.dfm
+Item15=UaddPoly.dfm
+Item16=UEditMap.dfm
+Item17=USearchResult.dfm
+Item18=UMarksExplorer.dfm
+Item19=UImport.dfm
+Item20=UAddCategory.dfm
+Item21=SASPlanet.drc
 [Language]
 ActiveLang=
 ProjectLang=$00000419
@@ -134,7 +138,7 @@ RootDir=
 [Version Info]
 IncludeVerInfo=1
 AutoIncBuild=0
-MajorVer=1
+MajorVer=0
 MinorVer=0
 Release=0
 Build=0
@@ -148,20 +152,12 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=SAS Group
 FileDescription=
-FileVersion=1.0.0.0
+FileVersion=0.0.0.0
 InternalName=SAS.Планета
 LegalCopyright=Группа SAS
 LegalTrademarks=SAS.Планета
 OriginalFilename=SASPlanet
 ProductName=SAS.Планета
-ProductVersion=90119
-[HistoryLists\hlUnitAliases]
-Count=1
-Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlUnitOutputDirectory]
-Count=1
-Item0=.\.dcu
-[HistoryLists\hlOutputDirectorry]
-Count=2
-Item0=..\.bin
-Item1=.\.bin
+ProductVersion=1.0.0.0
+[Excluded Packages]
+c:\program files\borland\delphi7\Projects\Bpl\EmbeddedWBD7.bpl=MSHTML Edit helper

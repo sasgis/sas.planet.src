@@ -71,10 +71,6 @@ type
     Bevel12: TBevel;
     SpinEdit3: TSpinEdit;
     Label69: TLabel;
-    TabSheet7: TTabSheet;
-    EditKML_Path: TEdit;
-    Label70: TLabel;
-    Button10: TButton;
     CB_GPSlog: TCheckBox;
     TabSheet8: TTabSheet;
     CBWMainColor: TColorBox;
@@ -240,7 +236,6 @@ begin
  Ini.WriteInteger('POSITION','x',POS.x);
  Ini.WriteInteger('POSITION','y',POS.y);
  Ini.WriteInteger('POSITION','y',POS.y);
- Ini.Writebool('POSITION','KMLShow',KMLShow);
  Ini.Writebool('VIEW','line',Fmain.ShowLine.Checked);
  Ini.Writeinteger('VIEW','DefCache',DefCache);
  Ini.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
@@ -278,7 +273,6 @@ begin
  Ini.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
  Ini.Writeinteger('Wikimapia','MainColor',Wikim_set.MainColor);
  Ini.Writeinteger('Wikimapia','FonColor',Wikim_set.FonColor);
- Ini.Writeinteger('HOTKEY','KML',Fmain.NKMLShow.ShortCut);
  Ini.Writeinteger('HOTKEY','ZoomIn',Fmain.NzoomIn.ShortCut);
  Ini.Writeinteger('HOTKEY','ZoomOut',Fmain.NzoomOut.ShortCut);
  Ini.Writeinteger('HOTKEY','GoTo',Fmain.N14.ShortCut);
@@ -354,7 +348,6 @@ begin
      Ini.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),poly_save[i-1].y);
     end;
   end;
- Ini.Writestring('KML','path',KML_Path);
  ini.UpdateFile;
  Ini.Free;
  TBiniSavePositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
@@ -428,7 +421,6 @@ begin
  OldCPath_:=IncludeTrailingBackslash(OldCPath.Text);
  ESCPath_:=IncludeTrailingBackslash(EScPath.Text);
  GMTilesPath_:=IncludeTrailingBackslash(GMTilesPath.Text);
- KML_Path:=IncludeTrailingBackslash(EditKML_Path.Text);
  gamman:=TrBarGamma.Position;
  Contrastn:=TrBarContrast.Position;
  num_format:=ComboBox1.ItemIndex;
@@ -487,6 +479,8 @@ begin
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMapNal.Bitmap.Width:=xhgpx;
  LayerMapNal.Bitmap.Height:=yhgpx;
+ LayerMapMarks.Bitmap.Width:=xhgpx;
+ LayerMapMarks.Bitmap.Height:=yhgpx;
  LayerMapWiki.Bitmap.Height:=yhgpx;
  LayerMapWiki.Bitmap.Width:=xhgpx;
  LayerMapGPS.Bitmap.Height:=yhgpx;
@@ -524,7 +518,6 @@ begin
     if (sender as TButton).Tag=2 then NewCpath.Text:=String(TempPath)+'\';
     if (sender as TButton).Tag=3 then ESCpath.Text:=String(TempPath)+'\';
     if (sender as TButton).Tag=4 then GMTilesPath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=5 then EditKML_Path.Text:=String(TempPath)+'\';
   end;
 end;
 
@@ -560,7 +553,6 @@ begin
  CBShowmapname.Checked:=ShowMapName;
  CB_llstrType.ItemIndex:=llStrType;
  SpinEditMiniMap.Value:=sm_map.alpha;
- EditKML_Path.Text:=KML_Path;
  OldCPath.text:=OldCPath_;
  NewCPath.text:=NewCPath_;
  ESCPath.text:=ESCPath_;

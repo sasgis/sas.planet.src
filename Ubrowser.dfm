@@ -1,8 +1,8 @@
 object Fbrowser: TFbrowser
-  Left = 208
-  Top = 190
-  Width = 558
-  Height = 352
+  Left = 517
+  Top = 199
+  Width = 566
+  Height = 334
   BorderStyle = bsSizeToolWin
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,8 +18,8 @@ object Fbrowser: TFbrowser
   object EmbeddedWB1: TEmbeddedWB
     Left = 0
     Top = 0
-    Width = 550
-    Height = 318
+    Width = 558
+    Height = 300
     Align = alClient
     TabOrder = 0
     DownloadOptions = [DownloadImages, DownloadVideos, DownloadBGSounds]

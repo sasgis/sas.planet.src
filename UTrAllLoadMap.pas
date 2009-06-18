@@ -26,7 +26,7 @@ type
     SecondLoadTNE:boolean;
     path,url_ifban,err,link:string;
     typeRect:1..3;
-    ty: pchar;
+    ty: string;
     FDate:TDateTime;
     OperBegin:TDateTime;
     UPos:TPoint;
@@ -107,13 +107,13 @@ begin
    zamena:=Ini.ReadBool('Session','zamena',false);
    raz:=Ini.ReadBool('Session','raz',false);
    zdate:=Ini.ReadBool('Session','zdate',false);
-   Fdate:=Ini.ReadDate('Session','Fdate',now);
+   Fdate:=Ini.ReadDate('Session','FDate',now);
    scachano:=Ini.ReadInteger('Session','scachano',0);
    obrab:=Ini.ReadInteger('Session','obrab',0);
    dwnb:=Ini.ReadFloat('Session','dwnb',0);
    SecondLoadTNE:=Ini.ReadBool('Session','SecondLoadTNE',false);
    mapsload:=false;
-   FDate:=Now;
+   //FDate:=Now;
    if LastSuccessful then
          begin
           StartPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
@@ -375,7 +375,7 @@ var hFile:HInternet;
     BufferLen:LongWord;
     err:boolean;
     head:string;
-    dwindex, dwcodelen,dwReserv: dword;
+    dwindex,i, dwcodelen,dwReserv: dword;
     dwtype,dwlen: array [1..20] of char;
     len: pchar;
 begin
@@ -424,7 +424,7 @@ begin
       if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_LENGTH, @dwlen,dwcodelen,dwindex)
         then len:=PChar(@dwlen);
       err:=false;
-      if (ty[0]<>#0)and(PosEx(ty,MT.Content_type,0)>0) then
+      if (ty<>#0)and(PosEx(ty,MT.Content_type,0)>0) then
        repeat
         if (raz)and(razlen=strtoint(len)) then begin
                                                  result:=-10;
@@ -742,14 +742,14 @@ begin
  begin
  createdirif(path);
  DeleteFile(copy(path,1,length(path)-3)+'tne');
- if (copy(ty,1,8)='text/xml')and(typemap.ext='.kml')then
+ if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(typemap.ext='.kml')then
   try
    UnZip:=TVCLUnZip.Create(Fmain);
    UnZip.ArchiveStream:=TMemoryStream.Create;
    filebuf.SaveToStream(UnZip.ArchiveStream);
    UnZip.ReadZip;
    filebuf.Position:=0;
-   UnZip.UnZipToStream(filebuf,'ge.kml');
+   UnZip.UnZipToStream(filebuf,UnZip.Filename[0]);
    UnZip.Free;
    SaveTileInCache(filebuf,path);
    ban_pg_ld:=true;
@@ -767,38 +767,39 @@ begin
   begin
     btmsrc:=TBitmap32.Create;
     btmDest:=TBitmap32.Create;
-   try
     btmSrc.Resampler:=TLinearResampler.Create;
-    LoadTilefromCache(btmsrc,path);
-    btmDest.SetSize(256,256);
-    btmdest.Draw(bounds(0,0,256,256),typemap.TileRect,btmSrc);
-    SaveTileInCache(btmDest,path);
-   finally
-    btmSrc.Free;
-    btmDest.Free;
-   end;
+    if LoadTilefromCache(btmsrc,path)
+     then begin
+           btmDest.SetSize(256,256);
+           btmdest.Draw(bounds(0,0,256,256),typemap.TileRect,btmSrc);
+           SaveTileInCache(btmDest,path);
+          end
+     else begin
+           btmSrc.Free;
+           btmDest.Free;
+          end;
   end;
 
  ban_pg_ld:=true;
  if (ty='image/png')and(typemap.ext='.jpg')
   then
-   try
+   begin
     btm:=TBitmap.Create;
     png:=TBitmap32.Create;
     jpg:=TJPEGImage.Create;
     RenameFile(path,copy(path,1,length(path)-4)+'.png');
-    LoadTilefromCache(png,copy(path,1,length(path)-4)+'.png');
-    btm.Assign(png);
-    jpg.Assign(btm);
-    SaveTileInCache(jpg,path);
-    DelFile(copy(path,1,length(path)-4)+'.png');
-    btm.Free;
-    jpg.Free;
-    png.Free;
-   except
-   end;
+    if LoadTilefromCache(png,copy(path,1,length(path)-4)+'.png')
+     then begin
+           btm.Assign(png);
+           jpg.Assign(btm);
+           SaveTileInCache(jpg,path);
+           DelFile(copy(path,1,length(path)-4)+'.png');
+           btm.Free;
+           jpg.Free;
+           png.Free;
+          end;
+    end;
  end;
-
 
  if (not(typeRect in [2,3]))and(Fmain.Enabled)then
   begin

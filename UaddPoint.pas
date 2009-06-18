@@ -4,7 +4,8 @@ interface
 
 uses
   Windows,SysUtils,Classes,Controls,Forms,rxToolEdit,rxCurrEdit,ugeofun,ExtCtrls,StdCtrls,Mask,
-  ColorGrd, Buttons, Spin,DBClient, DB, GR32, Dialogs, graphics,GR32_Resamplers,pngimage, UResStrings;
+  ColorGrd, Buttons, Spin,DBClient, DB, GR32, Dialogs, graphics,GR32_Resamplers,pngimage, UResStrings,
+  DBCtrls, UMarksExplorer;
 
 type
   TFaddPoint = class(TForm)
@@ -36,7 +37,6 @@ type
     SpinEdit1: TSpinEdit;
     Label5: TLabel;
     ColorBox2: TColorBox;
-    OpenDialog1: TOpenDialog;
     ComboBox1: TComboBox;
     Label6: TLabel;
     SpinEdit2: TSpinEdit;
@@ -45,12 +45,13 @@ type
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
     ColorDialog1: TColorDialog;
+    Label8: TLabel;
+    CBKateg: TComboBox;
     procedure BaddClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
     procedure EditCommentKeyPress(Sender: TObject; var Key: Char);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormActivate(Sender: TObject);
     procedure ComboBox1DrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure SpeedButton1Click(Sender: TObject);
@@ -58,13 +59,12 @@ type
   private
     { Private declarations }
   public
-   procedure show_(Sender:TObject;aLL:TExtendedPoint;new:boolean);
+   function show_(aLL:TExtendedPoint;new:boolean):boolean;
   end;
 
 var
   FaddPoint: TFaddPoint;
   new_:boolean;
-  Sender_: TObject;
   iconName:string;
 
 implementation
@@ -72,17 +72,20 @@ implementation
 uses Unit1, Unit2, Math;
 
 {$R *.dfm}
-procedure TFaddPoint.show_(Sender:TObject;aLL:TExtendedPoint;new:boolean);
+function TFaddPoint.show_(aLL:TExtendedPoint;new:boolean):boolean;
 var DMS:TDMS;
     ms:TMemoryStream;
     arrLL:PArrLL;
+    namecatbuf:string;
 begin
- Sender_:=Sender;
  new_:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewMark;
- TForm(sender).Enabled := false;
- FaddPoint.Visible:=true;
+ namecatbuf:=CBKateg.Text;
+ CBKateg.Clear;
+ Kategory2Strings(CBKateg.Items);
+ CBKateg.Text:=namecatbuf;
+ ComboBox1.Items.Assign(marksicons);
  if new then begin
               If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
               faddPoint.Caption:=SAS_STR_AddNewMark;
@@ -108,6 +111,8 @@ begin
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
               ComboBox1.ItemIndex:=marksicons.IndexOf(Fmain.CDSmarkspicname.AsString);
+              Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
+              CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
              end;
  DMS:=D2DMS(aLL.y);
  lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
@@ -115,18 +120,20 @@ begin
  DMS:=D2DMS(aLL.x);
  lon1.Value:=DMS.D; lon2.Value:=DMS.M; lon3.Value:=DMS.S;
  if DMS.N then Lon_we.ItemIndex:=1 else Lon_we.ItemIndex:=0;
+ ShowModal;
+ result:=ModalResult=mrOk;
 end;
 
 procedure TFaddPoint.BaddClick(Sender: TObject);
-var Apos:TPoint;
+var //Apos:TPoint;
     ms:TMemoryStream;
-    All,alltl,allbr:TExtendedPoint;
+    All{,alltl,allbr}:TExtendedPoint;
 begin
  ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
- APos:=GLonLat2Pos(ALL,zoom_size,sat_map_both);
- alltl:=GPos2LonLat(Point(APos.x-(SpinEdit2.Value div 2),APos.y-SpinEdit2.Value),zoom_size,sat_map_both);
- allbr:=GPos2LonLat(Point(APos.x+(SpinEdit2.Value div 2),APos.y),zoom_size,sat_map_both);
+// APos:=GLonLat2Pos(ALL,zoom_size,sat_map_both);
+// alltl:=GPos2LonLat(Point(APos.x-(SpinEdit2.Value div 2),APos.y-SpinEdit2.Value),zoom_size,sat_map_both);
+// allbr:=GPos2LonLat(Point(APos.x+(SpinEdit2.Value div 2),APos.y),zoom_size,sat_map_both);
 
  if new_ then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;
@@ -146,18 +153,19 @@ begin
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=ALL.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=ALL.x;
  Fmain.CDSmarks.FieldByName('LatB').AsFloat:=ALL.y;
+ if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
+  then AddKategory(CBKateg.Text);
+ Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.xml');
+ Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
  close;
- Fmain.generate_im(nilLastLoad,'');
+ ModalResult:=mrOk;
 end;
 
 procedure TFaddPoint.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  if aoper=add_point then Fmain.setalloperationfalse(movemap);
- TForm(sender_).Enabled := true;
- Fmain.generate_im(nilLastLoad,'');
 end;
 
 procedure TFaddPoint.Button2Click(Sender: TObject);
@@ -178,11 +186,6 @@ procedure TFaddPoint.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftStat
 begin
  if Key=VK_ESCAPE then close;
  if Key=VK_RETURN then BaddClick(Sender);
-end;
-
-procedure TFaddPoint.FormActivate(Sender: TObject);
-begin
- ComboBox1.Items.Assign(marksicons);
 end;
 
 procedure TFaddPoint.ComboBox1DrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);

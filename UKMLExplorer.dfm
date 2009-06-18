@@ -1,6 +1,6 @@
 object FKMLExplorer: TFKMLExplorer
-  Left = 106
-  Top = 197
+  Left = 234
+  Top = 101
   BorderStyle = bsDialog
   Caption = #1041#1080#1073#1083#1080#1086#1090#1077#1082#1072' KML'
   ClientHeight = 358

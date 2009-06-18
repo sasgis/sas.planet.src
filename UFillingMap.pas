@@ -61,9 +61,9 @@ end;
 
 procedure TFillingMap.SetupLayer;
 begin
+ LayerMap.bitmap.Clear(clBlack);
  LayerMap.Bitmap.Width:=xhgpx;
  LayerMap.Bitmap.Height:=yhgpx;
- LayerMap.bitmap.Clear(clBlack);
  LayerMap.Location:=Unit1.LayerMap.Location;
  LayerMap.Visible:=true;
  dZoom:=zoom_mapzap-zoom_size;

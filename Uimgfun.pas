@@ -165,6 +165,15 @@ begin
  CopyFile(Pchar(pathfrom),Pchar(pathto),zamena);
 end;
 
+function GetFileSize(namefile: string): Integer;
+var InfoFile: TSearchRec;
+begin
+  if FindFirst(namefile, faAnyFile, InfoFile) <> 0
+    then Result := -1
+    else Result := InfoFile.Size;
+  SysUtils.FindClose(InfoFile);
+end;
+
 function LoadTilefromCache(btm:Tobject;path:string):boolean;
 //var str:TMemoryStream;
    // fsize, hFile:integer;
@@ -179,15 +188,19 @@ begin
   if ExtractFileExt(path)='.jpg' then begin
                                        jpg:=TJPEGImage.Create;
                                        jpg.LoadFromStream(str); }
-                                       if (btm is TBitmap32) then TBitmap32(btm).LoadFromFile(path){Assign(jpg)} else
-                                       if (btm is TGraphic) then TGraphic(btm).LoadFromFile(path) else
-                                       if (btm is TPicture) then TPicture(btm).LoadFromFile(path) else
-                                       if (btm is TJPEGimage) then TJPEGimage(btm).LoadFromFile(path) else
-                                       if (btm is TPNGObject) then TPNGObject(btm).LoadFromFile(path);
- if sat_map_both.DelAfterShow then delFile(path);
+  result:=false;
+  if GetFileSize(path)=0 then exit;
+  try
+   if (btm is TBitmap32) then TBitmap32(btm).LoadFromFile(path){Assign(jpg)} else
+   if (btm is TGraphic) then TGraphic(btm).LoadFromFile(path) else
+   if (btm is TPicture) then TPicture(btm).LoadFromFile(path) else
+   if (btm is TJPEGimage) then TJPEGimage(btm).LoadFromFile(path) else
+   if (btm is TPNGObject) then TPNGObject(btm).LoadFromFile(path);
+   result:=true;
+  except
+  end;
 {                                       jpg.Free;
                                       end;
-
   str.Free;
   FileClose(hFile);      }
 end;

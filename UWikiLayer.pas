@@ -16,9 +16,8 @@ var WikiLayer:array of TWikiLayer;
 
     old_x,old_y:integer;
     kml:TKML;
-    idload:TStringList;
     procedure destroyWL;
-    procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TRealPoint;coordinates: Array of TRealPoint);
+    procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
     procedure loadWL(Alayer:PMapType);
     procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 
@@ -30,8 +29,8 @@ var i,j:integer;
     l:integer;
 begin
  for i:=0 to length(Wikilayer)-1 do
-   if (xy.x>Wikilayer[i].lt.X-3)and(xy.x<Wikilayer[i].rd.X+3)and
-      (xy.y>Wikilayer[i].lt.Y-3)and(xy.y<Wikilayer[i].rd.Y+3) then
+   if (xy.x>Wikilayer[i].lt.X-5)and(xy.x<Wikilayer[i].rd.X+5)and
+      (xy.y>Wikilayer[i].lt.Y-5)and(xy.y<Wikilayer[i].rd.Y+5) then
    begin
     if length(Wikilayer[i].AarrKt)=1 then
      begin
@@ -96,7 +95,6 @@ begin
  LayerMapWiki.Visible:=true;
  AmapType:=TmapType.Create;
  AmapType.projection:=1;
- idload:=TStringList.Create;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
@@ -107,21 +105,15 @@ begin
     Ay:=APos.y-pr_y+(j shl 8);
     path:=ffpath(Ax,Ay,Azoom,Alayer^,false);
     KML:=TKML.Create;
-     if kml.loadFromFile(path)
-      then for ii:=0 to length(KML.Data)-1 do
-            begin
-             if idload.IndexOf(KML.Data[ii].PlacemarkID)<=0 then
-              addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
-             idload.Add(KML.Data[ii].PlacemarkID);
-            end
-      else ;
+    if kml.loadFromFile(path) then
+     for ii:=0 to length(KML.Data)-1 do
+      addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
     KML.Free;
    end;
  AmapType.Free;
- idload.Free;
 end;
 
-procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TRealPoint;coordinates: Array of TRealPoint);
+procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
 var i,lenLay:integer;
 begin
  Delete(descript,posEx('#ge',descript,0),1);
@@ -132,7 +124,7 @@ begin
   begin
    if coordinatesLT.X=coordinatesRD.x then
     begin
-     LT.X:=Fmain.Lon2X(coordinatesLT.X)-2;
+     LT.X:=Fmain.Lon2X(coordinatesLT.X)-3;
      RD.x:=Fmain.Lon2X(coordinatesRD.x)+3;
     end else
     begin
@@ -141,7 +133,7 @@ begin
     end;
    if coordinatesLT.y=coordinatesRD.y then
     begin
-     LT.Y:=Fmain.Lat2y(coordinatesLT.Y)-2;
+     LT.Y:=Fmain.Lat2y(coordinatesLT.Y)-3;
      RD.Y:=Fmain.Lat2y(coordinatesRD.Y)+3;
     end else
     begin
@@ -149,7 +141,7 @@ begin
      RD.Y:=Fmain.Lat2y(coordinatesRD.Y);
     end;
    if(((RD.x-LT.x)<=1)or((RD.y-LT.y)<=1)or
-     ((LT.y>Fmain.map.Height)or(RD.y<0)or(LT.x>Fmain.map.Width)or(RD.x<0)))and(length(coordinates)>1) then
+     ((LT.y>Fmain.map.Height)or(RD.y<0)or(LT.x>Fmain.map.Width)or(RD.x<0))){and(length(coordinates)>1)} then
      begin
       LT.X:=LT.X+(pr_x-mWd2);
       RD.x:=RD.x+(pr_x-mWd2);
@@ -168,11 +160,11 @@ begin
    if length(coordinates)=1 then
     begin
      setLength(AarrKt,5);
-     WikiLayer[lenLay-1].AarrKt[0]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)-2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)-2);
-     WikiLayer[lenLay-1].AarrKt[1]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)+2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)-2);
-     WikiLayer[lenLay-1].AarrKt[2]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)+2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)+2);
-     WikiLayer[lenLay-1].AarrKt[3]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)-2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)+2);
-     WikiLayer[lenLay-1].AarrKt[4]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)-2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)-2);
+     AarrKt[0]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)-2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)-2);
+     AarrKt[1]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)+2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)-2);
+     AarrKt[2]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)+2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)+2);
+     AarrKt[3]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)-2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)+2);
+     AarrKt[4]:=Point(Fmain.Lon2X(coordinates[0].X)+(pr_x-mWd2)-2,Fmain.Lat2Y(coordinates[0].Y)+(pr_y-mHd2)-2);
     end
    else
    for i:=0 to length(coordinates)-1 do

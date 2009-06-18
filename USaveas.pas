@@ -215,8 +215,8 @@ var i:integer;
 begin
  for i:=0 to length(APolyg)-1 do
   begin
-   resAPolyg[i]:=GLonLat2Pos(Apolyg[i],zoom_size,Atype);
-   resAPolyg[i]:=Point(round(resAPolyg[i].X*intpower(2,Anewzoom-zoom_size)),round(resAPolyg[i].Y*intpower(2,Anewzoom-zoom_size)));
+   resAPolyg[i]:=GLonLat2Pos(Apolyg[i],Anewzoom,Atype);
+//   resAPolyg[i]:=Point(round(resAPolyg[i].X*intpower(2,Anewzoom-zoom_rect)),round(resAPolyg[i].Y*intpower(2,Anewzoom-zoom_rect)));
 //   if resAPolyg[i].x<0 then resAPolyg[i].x:=1;
    if resAPolyg[i].y<0 then resAPolyg[i].y:=1;
 //   if resAPolyg[i].x>zoom[AnewZoom] then resAPolyg[i].x:=zoom[AnewZoom]-1;
@@ -390,7 +390,7 @@ end;
 procedure TFsaveas.genbacksatREG(APolyLL:array of TExtendedPoint);
 var i:integer;
 begin
- with TOpGenPreviousZoom.Create(true,ComboBox.ItemIndex+2,PMapType(CBmapDel.Items.Objects[CBmtForm.ItemIndex])) do
+ with TOpGenPreviousZoom.Create(true,ComboBox.ItemIndex+2,PMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
   begin
    //OnTerminate:=Fmain.ThreadExportDone;
    Priority := tpLowest;
@@ -436,16 +436,19 @@ end;
 
 procedure TFsaveas.Button1Click(Sender: TObject);
 begin
- if (PageControl1.ActivePage.Tag=3)then
-  if (MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES)
-   then delRegion(PolygonLL)
-   else exit;
- if PageControl1.ActivePage.Tag=1 then scleitRECT(PolygonLL);
- Fmain.Enabled:=true;
- if CBCloseWithStart.Checked then close;
- if PageControl1.ActivePage.Tag=0 then LoadRegion(PolygonLL);
- if PageControl1.ActivePage.Tag=2 then genbacksatREG(PolygonLL);
- if PageControl1.ActivePage.Tag=4 then savefilesREG(PolygonLL);
+ case PageControl1.ActivePage.Tag of
+  0: LoadRegion(PolygonLL);
+  1: scleitRECT(PolygonLL);
+  2: genbacksatREG(PolygonLL);
+  3: if (MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES)
+      then delRegion(PolygonLL);
+  4: savefilesREG(PolygonLL);
+ end;
+ if CBCloseWithStart.Checked then
+  begin
+   Fmain.Enabled:=true;
+   close;
+  end;
 end;
 
 procedure TFsaveas.ComboBoxChange(Sender: TObject);
@@ -558,8 +561,8 @@ begin
  zagran:=false;
  for i:=0 to length(polygonLL)-1 do
    if {((polygonLL[i].X>=-180)and(polygonLL[i].X<=180))and }
-      ((GLonLat2Pos(polygonLL[i],zoom_size,sat_map_both).y>=0)and
-      (GLonLat2Pos(polygonLL[i],zoom_size,sat_map_both).y<=zoom[zoom_size]))then vramkah:=true
+      ((GLonLat2Pos(polygonLL[i],zoom_rect,sat_map_both).y>=0)and
+      (GLonLat2Pos(polygonLL[i],zoom_rect,sat_map_both).y<=zoom[zoom_rect]))then vramkah:=true
                                               else zagran:=true;
  if not(vramkah)
   then begin

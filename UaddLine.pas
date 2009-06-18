@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Controls, Forms,
   Dialogs, Spin, StdCtrls, ExtCtrls, UGeofun,DBClient, DB, GR32, Unit1,
-  Buttons, UResStrings;
+  Buttons, UResStrings, UMarksExplorer;
 
 type
   TFaddLine = class(TForm)
@@ -29,6 +29,8 @@ type
     Label4: TLabel;
     ColorDialog1: TColorDialog;
     SpeedButton1: TSpeedButton;
+    Label7: TLabel;
+    CBKateg: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -36,7 +38,7 @@ type
   private
     { Private declarations }
   public
-    procedure show_(Sender:TObject;aLL:array of TExtendedPoint;new:boolean);
+    function show_(aLL:array of TExtendedPoint;new:boolean):boolean;
   end;
 
 var
@@ -44,25 +46,26 @@ var
   arrLL:PArrLL;
   lenarr:integer;
   new_:boolean;
-  Sender_: TObject;
 
 implementation
 
 
 {$R *.dfm}
-procedure TFaddLine.show_(Sender:TObject;aLL:array of TExtendedPoint;new:boolean);
+function TFaddLine.show_(aLL:array of TExtendedPoint;new:boolean):boolean;
 var DMS:TDMS;
     i:integer;
+    namecatbuf:string;
 begin
  getmem(arrLL,length(all)*SizeOf(TExtendedPoint));
  lenarr:=length(aLL);
  for i:=0 to lenarr-1 do arrLL^[i]:=aLL[i];
- Sender_:=Sender;
  new_:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewPath;
- TForm(sender).Enabled := false;
- FaddLine.Visible:=true;
+ namecatbuf:=CBKateg.Text;
+ CBKateg.Clear;
+ Kategory2Strings(CBKateg.Items);
+ CBKateg.Text:=namecatbuf;
  if new then begin
               faddLine.Caption:=SAS_STR_AddNewPath;
               Badd.Caption:=SAS_STR_Add;
@@ -77,13 +80,16 @@ begin
               SpinEdit1.Value:=Fmain.CDSmarks.FieldByName('Scale1').AsInteger;
               ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
+              Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
+              CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
              end;
+ FaddLine.ShowModal;
+ result:=ModalResult=mrOk;
 end;
 
 procedure TFaddLine.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  FreeMem(ArrLL);
- TForm(sender_).Enabled := true;
 end;
 
 procedure TFaddLine.BaddClick(Sender: TObject);
@@ -116,17 +122,19 @@ begin
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
  Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
+ if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
+  then AddKategory(CBKateg.Text);
+ Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.xml');
+ Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
  close;
- if aoper=add_line then Fmain.setalloperationfalse(movemap);
- Fmain.generate_im(nilLastLoad,'');
+ ModalResult:=mrOk;
+ //if aoper=add_line then Fmain.setalloperationfalse(movemap);
 end;
 
 procedure TFaddLine.Button2Click(Sender: TObject);
 begin
- Fmain.generate_im(nilLastLoad,'');
  close;
 end;
 

@@ -1,7 +1,7 @@
 unit Ugeofun;
 
 interface              
-uses StrUtils,SysUtils,Types,Math,UMapType;
+uses StrUtils,SysUtils,Types,Math,UMapType,ECWReader;
 type
  TDMS = record
   D,M,S: extended;
@@ -24,6 +24,7 @@ type
    descr:String;
   end;
 
+ RUnits = (SUmeter,SUdegrees);
 var
   her:boolean;
   function DMS2G(D,M,S:extended;N:boolean):extended;
@@ -41,11 +42,11 @@ var
   function PolygonSquare(Poly:array of TPoint): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:PMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
+            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
  function LonLat2Metr(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
- function LonLat2Metr2(LL:TRealPoint;TypeMap:PMapType):TRealPoint;
+ function LonLat2Metr2(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
  function CalcS(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
- function CalcS2(polygon:array of TRealPoint;TypeMap:PMapType):extended;
+ function CalcS2(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
 
 implementation
@@ -57,10 +58,10 @@ const Roman: array[1..36] of string[6] = ('I','II','III','IV','V','VI','VII','VI
              'XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI');
 
 var Lon,Lat:int64;
-
+    p:integer;
  function GetNameAtom(divr,modl:integer):integer;
  begin
-  result:=((Lon div round(6/divr*prec))mod modl)+(abs(integer(LL.Y>0)*(divr-1)-((Lat div round(4/divr*prec))mod modl)))*modl;
+  result:=((Lon div round(6/divr*prec))mod modl)+(abs(integer(LL.Y>0)*(modl-1)-((Lat div round(4/divr*prec))mod modl)))*modl;
  end;
 
 begin
@@ -95,7 +96,7 @@ begin
  result:=0.5*abs(result)/1000000;
 end;
 
-function CalcS2(polygon:array of TRealPoint;TypeMap:PMapType):extended;
+function CalcS2(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
 var L,i:integer;
     XYMetr:TExtendedPoint;
 begin
@@ -114,7 +115,7 @@ begin
  result:=0.5*abs(result)/1000000;
 end;
 
-function LonLat2Metr2(LL:TRealPoint;TypeMap:PMapType):TRealPoint;
+function LonLat2Metr2(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
 begin
   ll.x:=ll.x*D2R;
   ll.y:=ll.y*D2R;
@@ -132,10 +133,13 @@ begin
 end;
 
 procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:PMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
+            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
 var FN,FE:integer;
     k0,E1,N1,E2,N2,f:double;
 begin
+ case Units of
+  ECW_CELL_UNITS_METERS:
+  begin
   k0:= 1;
   FN:= 0; // False northing
   FE:= 0; // False easting
@@ -150,8 +154,17 @@ begin
       Power((1-typemap.exct*Sin(ll2.y))/(1+typemap.exct*Sin(ll2.y)),typemap.exct/2));
   OriginX:=E1;
   OriginY:=N1;
-  CellIncrementX:=(E2-E1+1)/ImageWidth;
-  CellIncrementY:=(N2-N1+1)/ImageHeight;
+  CellIncrementX:=(E2-E1)/ImageWidth;
+  CellIncrementY:=(N2-N1)/ImageHeight;
+  end;
+  ECW_CELL_UNITS_DEGREES:
+  begin
+  OriginX:=ll1.x;
+  OriginY:=ll1.y;
+  CellIncrementX:=(ll2.x-ll1.x)/ImageWidth;
+  CellIncrementY:=-CellIncrementX;
+  end;
+ end;
 end;
 
 function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
@@ -291,15 +304,20 @@ begin
       result.Y:=(2*arctan(exp(result.Y))-PI/2)*180/PI;
      end;
   2: begin
-      result.Y:=((XY.y)-zoom[Azoom]/2)/-(zoom[Azoom]/(2*PI));
+      if (XY.y>zoom[Azoom]/2)
+       then yy:=(zoom[Azoom] div 2) - (XY.y mod (zoom[Azoom] div 2))
+       else yy:=XY.y;
+      result.Y:=((yy)-zoom[Azoom]/2)/-(zoom[Azoom]/(2*PI));
       result.Y:=(2*arctan(exp(result.Y))-PI/2)*180/PI;
       Zu:=result.y/(180/Pi);
-      yy:=((XY.y)-zoom[Azoom]/2);
+      yy:=((yy)-zoom[Azoom]/2);
       repeat
        Zum1:=Zu;
        Zu:=arcsin(1-((1+Sin(Zum1))*power(1-MT.exct*sin(Zum1),MT.exct))/(exp((2*yy)/-(zoom[Azoom]/(2*Pi)))*power(1+MT.exct*sin(Zum1),MT.exct)));
-      until (abs(Zum1-Zu)<MerkElipsK)or(isNAN(Zu));
-      if not(isNAN(Zu)) then result.Y:=zu*180/Pi;
+      until ((abs(Zum1-Zu)<MerkElipsK) or (isNAN(Zu)));
+      if not(isNAN(Zu)) then
+       if XY.y>zoom[Azoom]/2 then result.Y:=-zu*180/Pi
+                             else result.Y:=zu*180/Pi;
      end;
   3: begin
       result.y:=(-((XY.y)-zoom[Azoom]/2)/((zoom[Azoom]/2)/180));

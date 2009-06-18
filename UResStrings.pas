@@ -73,12 +73,15 @@ ResourceString
  SAS_STR_NewPath='Новый путь';
  SAS_STR_NewMark='Новая метка';
  SAS_STR_NewPoly='Новый полигон';
+ SAS_STR_NewCategory='Новая категория';
  SAS_STR_AddNewPath='Добавить новый путь';
  SAS_STR_AddNewMark='Добавить новую метку';
  SAS_STR_AddNewPoly='Добавить новый полигон';
+ SAS_STR_AddNewCategory='Добавить новую категорию';
  SAS_STR_EditPath='Изменить путь';
  SAS_STR_EditMark='Изменить метку';
  SAS_STR_EditPoly='Изменить полигон';
+ SAS_STR_EditCategory='Изменить категорию';
  SAS_STR_Add='Добавить';
  SAS_STR_Edit='Изменить';
  SAS_STR_EditMap='Редактировать описание карты:';
