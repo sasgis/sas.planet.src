@@ -425,12 +425,4 @@ object FImport: TFImport
     Left = 472
     Top = 8
   end
-  object OpenDialog: TOpenDialog
-    DefaultExt = '*.kml'
-    Filter = 
-      'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt'
-    Left = 440
-    Top = 8
-  end
 end

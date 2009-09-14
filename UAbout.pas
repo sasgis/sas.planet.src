@@ -6,7 +6,6 @@ uses
 
 type
   TFabout = class(TForm)
-    Panel1: TPanel;
     Bevel1: TBevel;
     Button1: TButton;
     Label1: TLabel;
@@ -21,9 +20,14 @@ type
     Edit6: TEdit;
     Label7: TLabel;
     LabelVer: TLabel;
-    procedure Panel1Click(Sender: TObject);
+    Label2: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label10: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Label10Click(Sender: TObject);
+    procedure Label8Click(Sender: TObject);
   private
   public
   end;
@@ -37,11 +41,6 @@ uses UProgress, Unit1;
 
 {$R *.dfm}
 
-procedure TFabout.Panel1Click(Sender: TObject);
-begin
- Fmain.ShowCaptcha('http://sasgis.ru');
-end;
-
 procedure TFabout.Button1Click(Sender: TObject);
 begin
  close;
@@ -50,6 +49,16 @@ end;
 procedure TFabout.FormCreate(Sender: TObject);
 begin
  LabelVer.Caption:=SASVersion;
+end;
+
+procedure TFabout.Label10Click(Sender: TObject);
+begin
+ Fmain.ShowCaptcha('http://sasgis.ru');
+end;
+
+procedure TFabout.Label8Click(Sender: TObject);
+begin
+ Fmain.ShowCaptcha('mailto:'+Label8.Caption);
 end;
 
 end.

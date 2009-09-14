@@ -70,6 +70,7 @@ begin
               faddLine.Caption:=SAS_STR_AddNewPath;
               Badd.Caption:=SAS_STR_Add;
               CheckBox2.Checked:=true;
+              if marshrutcomment<>'' then faddLine.EditComment.Text:=marshrutcomment;
              end
         else begin
               faddLine.Caption:=SAS_STR_EditPath;

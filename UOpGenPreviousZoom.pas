@@ -9,6 +9,7 @@ type
     InZooms:array of byte;
     FromZoom:byte;
     typemap:PMapType;
+    GenFormPrev:boolean;
     PolygLL:array of TExtendedPoint;
     max,min:TPoint;
     ProcessTiles:integer;
@@ -65,10 +66,12 @@ var i:integer;
 begin
  setlength(polyg,length(PolygLL));
  ProcessTiles:=0;
- for i:=length(InZooms)-1 downto 0 do
+ for i:=0 to length(InZooms)-1 do
    begin
     Fsaveas.formatepoligon(typemap,InZooms[i],PolygLL,polyg);
-    inc(ProcessTiles,Fsaveas.GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])));
+    if (not GenFormPrev)or(i=0) then
+    {if i=0 then }inc(ProcessTiles,Fsaveas.GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])))
+             else inc(ProcessTiles,Fsaveas.GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,InZooms[i-1]-InZooms[i])));
    end;
  Synchronize(SetProgressForm);
  GenPreviousZoom;
@@ -82,6 +85,7 @@ end;
 procedure TOpGenPreviousZoom.CloseProgressForm;
 begin
  fprogress.Free;
+ ClearCache;
  Fmain.generate_im(nilLastLoad,'');
 end;
 
@@ -118,12 +122,12 @@ end;
 
 procedure TOpGenPreviousZoom.LoadMainTileOp;
 begin
- LoadTilefromCache(bmp_Ex,path);
+ LoadTilefromCache(bmp_Ex,path,false);
 end;
 
 procedure TOpGenPreviousZoom.LoadChildTileOp;
 begin
- LoadTilefromCache(bmp,pathfrom);
+ LoadTilefromCache(bmp,pathfrom,false);
 end;
 
 procedure TOpGenPreviousZoom.GenPreviousZoom;
@@ -153,11 +157,13 @@ begin
        end;
  TileInProc:=0;
  CurrentTile:=0;
- for i:=length(InZooms)-1 downto 0 do
+ for i:=0 to length(InZooms)-1 do
   begin
    if Terminated then continue;
    Fsaveas.formatepoligon(typemap,InZooms[i],PolygLL,polyg);
-   c_d:=round(power(2,FromZoom-InZooms[i]));
+   if (not GenFormPrev)or(i=0) then
+   {if i=0 then }c_d:=round(power(2,FromZoom-InZooms[i]))
+            else c_d:=round(power(2,InZooms[i-1]-InZooms[i]));
    Fsaveas.GetDwnlNum(min,max,Polyg,false);
    p_x:=min.x;
    while (p_x<max.X)and(not Terminated) do
@@ -193,7 +199,9 @@ begin
           if Terminated then continue;
           p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
           p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
-          pathfrom:=ffpath(p_x_x,p_y_y,FromZoom,typemap^,false);
+          if (not GenFormPrev)or(i=0) then
+          {if i=0 then }pathfrom:=ffpath(p_x_x,p_y_y,FromZoom,typemap^,false)
+                   else pathfrom:=ffpath(p_x_x,p_y_y,InZooms[i-1],typemap^,false);
           if TileExists(pathfrom) then
            begin
             Synchronize(LoadChildTileOp);

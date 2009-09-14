@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 229
-  Top = 132
+  Left = 208
+  Top = 170
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 416
@@ -12,7 +12,7 @@ object FSettings: TFSettings
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   ShowHint = True
   OnCreate = FormCreate
   OnShow = FormShow
@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet9
+    ActivePage = TabSheet2
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -91,37 +91,60 @@ object FSettings: TFSettings
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
       end
+      object Button18: TButton
+        Left = 544
+        Top = 112
+        Width = 75
+        Height = 25
+        Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
+        TabOrder = 4
+        OnClick = Button18Click
+      end
     end
     object TabSheet2: TTabSheet
-      Caption = #1055#1091#1090#1080
+      Caption = #1050#1101#1096
       ImageIndex = 1
       object Label2: TLabel
-        Left = 16
+        Left = 8
         Top = 40
         Width = 117
         Height = 13
         Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GoogleMV:'
       end
       object Label15: TLabel
-        Left = 16
+        Left = 8
         Top = 16
         Width = 120
         Height = 13
         Caption = #1055#1091#1090#1100' '#1082' "'#1088#1086#1076#1085#1086#1084#1091'" '#1082#1101#1096#1091':'
       end
       object Label1: TLabel
-        Left = 16
+        Left = 8
         Top = 64
         Width = 117
         Height = 13
         Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSliser:'
       end
       object Label19: TLabel
-        Left = 16
+        Left = 8
         Top = 88
         Width = 109
         Height = 13
         Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GM Tiles:'
+      end
+      object Label30: TLabel
+        Left = 8
+        Top = 208
+        Width = 281
+        Height = 13
+        Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1090#1072#1081#1083#1086#1074' '#1082#1101#1096#1080#1088#1091#1077#1084#1086#1077' '#1074' '#1086#1087#1077#1088#1072#1090#1080#1074#1085#1091#1102' '#1087#1072#1084#1103#1090#1100
+      end
+      object Label31: TLabel
+        Left = 8
+        Top = 112
+        Width = 129
+        Height = 13
+        Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' Google Earth:'
       end
       object OldCpath: TEdit
         Left = 144
@@ -206,17 +229,18 @@ object FSettings: TFSettings
       end
       object RadioGroup1: TRadioGroup
         Left = 8
-        Top = 120
+        Top = 152
         Width = 609
         Height = 41
         Caption = ' '#1050#1101#1096' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102' '
-        Columns = 4
+        Columns = 5
         ItemIndex = 1
         Items.Strings = (
           'GoogleMV'
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'EarthSlicer 1.95'
-          'Googe maps tiles')
+          'Googe maps tiles'
+          'Google Earth')
         TabOrder = 9
       end
       object GMTilesPath: TEdit
@@ -246,6 +270,43 @@ object FSettings: TFSettings
         TabOrder = 12
         OnClick = Button5Click
       end
+      object SETilesOCache: TSpinEdit
+        Left = 296
+        Top = 205
+        Width = 65
+        Height = 22
+        MaxValue = 10000
+        MinValue = 0
+        TabOrder = 13
+        Value = 0
+      end
+      object GECachePath: TEdit
+        Left = 144
+        Top = 108
+        Width = 432
+        Height = 21
+        TabOrder = 14
+      end
+      object Button10: TButton
+        Tag = 5
+        Left = 576
+        Top = 108
+        Width = 21
+        Height = 21
+        Caption = '<>'
+        TabOrder = 15
+        OnClick = Button4Click
+      end
+      object Button17: TButton
+        Tag = 5
+        Left = 596
+        Top = 108
+        Width = 21
+        Height = 21
+        Caption = '...'
+        TabOrder = 16
+        OnClick = Button5Click
+      end
     end
     object TabSheet1: TTabSheet
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
@@ -273,7 +334,7 @@ object FSettings: TFSettings
       object RBWinCon: TRadioButton
         Left = 17
         Top = 32
-        Width = 241
+        Width = 344
         Height = 17
         Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
         Checked = True
@@ -595,111 +656,110 @@ object FSettings: TFSettings
           Top = 16
           Width = 297
           Height = 241
-          VertScrollBar.Position = 86
           Color = clWhite
           ParentColor = False
           TabOrder = 1
           object Label75: TLabel
             Left = 4
-            Top = 201
+            Top = 287
             Width = 114
             Height = 13
             Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1080#1077' '
           end
           object Label74: TLabel
             Left = 4
-            Top = 181
+            Top = 267
             Width = 113
             Height = 13
             Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1088#1077#1082' '#1074' KML'
           end
           object Label73: TLabel
             Left = 4
-            Top = 161
+            Top = 247
             Width = 103
             Height = 13
             Caption = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
           end
           object Label72: TLabel
             Left = 4
-            Top = 141
+            Top = 227
             Width = 88
             Height = 13
             Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1090#1088#1077#1082
           end
           object Label71: TLabel
             Left = 4
-            Top = 121
+            Top = 207
             Width = 140
             Height = 13
             Caption = #1055#1086#1076#1082#1083#1102#1095#1080#1090#1100' GPS '#1087#1088#1080#1077#1084#1085#1080#1082
           end
           object Label60: TLabel
             Left = 4
-            Top = 81
+            Top = 167
             Width = 97
             Height = 13
             Caption = #1047#1072#1094#1080#1082#1083#1080#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
           end
           object Label54: TLabel
             Left = 4
-            Top = 1
+            Top = 87
             Width = 73
             Height = 13
             Caption = #1042#1086' '#1074#1077#1089#1100' '#1101#1082#1088#1072#1085
           end
           object Label53: TLabel
             Left = 4
-            Top = 101
+            Top = 187
             Width = 124
             Height = 13
             Caption = #1057#1082#1088#1099#1090#1100'/'#1087#1086#1082#1072#1079#1072#1090#1100' '#1096#1082#1072#1083#1091
           end
           object Label52: TLabel
             Left = 4
-            Top = 61
+            Top = 147
             Width = 168
             Height = 13
             Caption = #1040#1085#1080#1084#1072#1094#1080#1103' '#1087#1088#1080' '#1084#1072#1089#1096#1090#1072#1073#1080#1088#1086#1074#1072#1085#1080#1080
           end
           object Label51: TLabel
             Left = 4
-            Top = 41
+            Top = 127
             Width = 178
             Height = 13
             Caption = #1041#1088#1072#1090#1100' '#1090#1072#1081#1083#1099' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1093' '#1089#1083#1086#1077#1074
           end
           object Label50: TLabel
             Left = 4
-            Top = 21
+            Top = 107
             Width = 185
             Height = 13
             Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100' '#1082' '#1082#1091#1088#1089#1086#1088#1091' '#1087#1088#1080' '#1084#1072#1089#1096'-'#1080#1080
           end
           object Label49: TLabel
             Left = 4
-            Top = -19
+            Top = 67
             Width = 69
             Height = 13
             Caption = #1050#1072#1088#1090#1072' '#1086#1073#1079#1086#1088#1072
           end
           object Label48: TLabel
             Left = 4
-            Top = -39
+            Top = 47
             Width = 44
             Height = 13
             Caption = #1051#1080#1085#1077#1081#1082#1072
           end
           object Label47: TLabel
             Left = 4
-            Top = -59
+            Top = 27
             Width = 78
             Height = 13
             Caption = #1057#1090#1088#1086#1082#1072' '#1089#1090#1072#1090#1091#1089#1072
           end
           object Label7: TLabel
             Left = 3
-            Top = -83
+            Top = 3
             Width = 37
             Height = 13
             Caption = #1044#1088#1091#1075#1086#1077
@@ -712,14 +772,21 @@ object FSettings: TFSettings
           end
           object Label9: TLabel
             Left = 4
-            Top = 221
+            Top = 307
             Width = 74
             Height = 13
             Caption = #1053#1086#1095#1085#1086#1081' '#1088#1077#1078#1080#1084
           end
+          object Label18: TLabel
+            Left = 4
+            Top = 327
+            Width = 93
+            Height = 13
+            Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1082#1072#1088#1090#1099
+          end
           object HotKey39: THotKey
             Left = 192
-            Top = 198
+            Top = 284
             Width = 83
             Height = 19
             HotKey = 80
@@ -728,7 +795,7 @@ object FSettings: TFSettings
           end
           object HotKey38: THotKey
             Left = 192
-            Top = 178
+            Top = 264
             Width = 83
             Height = 19
             HotKey = 80
@@ -737,7 +804,7 @@ object FSettings: TFSettings
           end
           object HotKey37: THotKey
             Left = 192
-            Top = 158
+            Top = 244
             Width = 83
             Height = 19
             HotKey = 80
@@ -746,7 +813,7 @@ object FSettings: TFSettings
           end
           object HotKey36: THotKey
             Left = 192
-            Top = 138
+            Top = 224
             Width = 83
             Height = 19
             HotKey = 80
@@ -755,7 +822,7 @@ object FSettings: TFSettings
           end
           object HotKey35: THotKey
             Left = 192
-            Top = 118
+            Top = 204
             Width = 83
             Height = 19
             HotKey = 80
@@ -764,7 +831,7 @@ object FSettings: TFSettings
           end
           object HotKey32: THotKey
             Left = 192
-            Top = 98
+            Top = 184
             Width = 83
             Height = 19
             HotKey = 80
@@ -773,7 +840,7 @@ object FSettings: TFSettings
           end
           object HotKey31: THotKey
             Left = 192
-            Top = 78
+            Top = 164
             Width = 83
             Height = 19
             HotKey = 80
@@ -782,7 +849,7 @@ object FSettings: TFSettings
           end
           object HotKey30: THotKey
             Left = 192
-            Top = 58
+            Top = 144
             Width = 83
             Height = 19
             HotKey = 80
@@ -791,7 +858,7 @@ object FSettings: TFSettings
           end
           object HotKey29: THotKey
             Left = 192
-            Top = 38
+            Top = 124
             Width = 83
             Height = 19
             HotKey = 80
@@ -800,7 +867,7 @@ object FSettings: TFSettings
           end
           object HotKey28: THotKey
             Left = 192
-            Top = 18
+            Top = 104
             Width = 83
             Height = 19
             HotKey = 80
@@ -809,7 +876,7 @@ object FSettings: TFSettings
           end
           object HotKey27: THotKey
             Left = 192
-            Top = -2
+            Top = 84
             Width = 83
             Height = 19
             HotKey = 80
@@ -818,7 +885,7 @@ object FSettings: TFSettings
           end
           object HotKey26: THotKey
             Left = 192
-            Top = -22
+            Top = 64
             Width = 83
             Height = 19
             HotKey = 80
@@ -827,7 +894,7 @@ object FSettings: TFSettings
           end
           object HotKey25: THotKey
             Left = 192
-            Top = -42
+            Top = 44
             Width = 83
             Height = 19
             HotKey = 80
@@ -836,7 +903,7 @@ object FSettings: TFSettings
           end
           object HotKey24: THotKey
             Left = 192
-            Top = -62
+            Top = 24
             Width = 83
             Height = 19
             HotKey = 71
@@ -845,12 +912,21 @@ object FSettings: TFSettings
           end
           object HotKey40: THotKey
             Left = 192
-            Top = 218
+            Top = 304
             Width = 83
             Height = 19
             HotKey = 80
             Modifiers = []
             TabOrder = 14
+          end
+          object HotKey41: THotKey
+            Left = 192
+            Top = 324
+            Width = 83
+            Height = 19
+            HotKey = 80
+            Modifiers = []
+            TabOrder = 15
           end
         end
       end
@@ -866,10 +942,11 @@ object FSettings: TFSettings
         Shape = bsBottomLine
       end
       object Label3: TLabel
-        Left = 8
+        Left = 13
         Top = 23
         Width = 198
         Height = 13
+        Alignment = taRightJustify
         Caption = #1060#1086#1088#1084#1072#1090' '#1095#1080#1089#1077#1083' '#1086#1090#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1084#1072#1089#1096#1090#1072#1073#1072
       end
       object Bevel2: TBevel
@@ -901,10 +978,11 @@ object FSettings: TFSettings
         Shape = bsBottomLine
       end
       object Label14: TLabel
-        Left = 8
+        Left = 11
         Top = 103
         Width = 241
         Height = 13
+        Alignment = taRightJustify
         Caption = #1056#1072#1079#1085#1086#1089#1090#1100' '#1084#1072#1089#1096#1090#1072#1073#1086#1074' '#1082#1072#1088#1090#1099' '#1086#1073#1079#1086#1088#1072' '#1080' '#1086#1089#1085#1086#1074#1085#1086#1081
       end
       object Bevel4: TBevel
@@ -919,6 +997,7 @@ object FSettings: TFSettings
         Top = 248
         Width = 193
         Height = 13
+        Alignment = taRightJustify
         Caption = #1040#1083#1075#1086#1088#1080#1090#1084' '#1088#1072#1089#1090#1103#1075#1080#1074#1072#1085#1080#1103' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103
       end
       object Bevel5: TBevel
@@ -933,6 +1012,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 145
         Height = 13
+        Alignment = taRightJustify
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' '#1082#1072#1088#1090#1099' '#1086#1073#1079#1086#1088#1072
       end
       object Bevel6: TBevel
@@ -961,6 +1041,7 @@ object FSettings: TFSettings
         Top = 51
         Width = 255
         Height = 13
+        Alignment = taRightJustify
         Caption = #1050#1086#1083'-'#1074#1086' '#1090#1072#1081#1083#1086#1074' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093' '#1079#1072' '#1075#1088#1072#1085#1080#1094#1077#1081' '#1101#1082#1088#1072#1085#1072
       end
       object Bevel8: TBevel
@@ -971,10 +1052,11 @@ object FSettings: TFSettings
         Shape = bsBottomLine
       end
       object Label84: TLabel
-        Left = 8
+        Left = 9
         Top = 55
         Width = 178
         Height = 13
+        Alignment = taRightJustify
         Caption = #1060#1086#1088#1084#1072#1090' '#1087#1088#1077#1076#1089#1090#1072#1074#1083#1077#1085#1080#1103' '#1082#1086#1086#1088#1076#1080#1085#1072#1090
       end
       object Bevel13: TBevel
@@ -999,10 +1081,11 @@ object FSettings: TFSettings
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100
       end
       object Label8: TLabel
-        Left = 320
+        Left = 440
         Top = 120
         Width = 28
         Height = 13
+        Alignment = taRightJustify
         Caption = #1071#1079#1099#1082
       end
       object Bevel10: TBevel
@@ -1034,11 +1117,26 @@ object FSettings: TFSettings
         Caption = #1062#1074#1077#1090
       end
       object Label29: TLabel
-        Left = 448
+        Left = 502
         Top = 168
         Width = 72
         Height = 13
+        Alignment = taRightJustify
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100
+      end
+      object Bevel9: TBevel
+        Left = 320
+        Top = 184
+        Width = 297
+        Height = 9
+        Shape = bsBottomLine
+      end
+      object Bevel11: TBevel
+        Left = 320
+        Top = 216
+        Width = 297
+        Height = 9
+        Shape = bsBottomLine
       end
       object ComboBox1: TComboBox
         Left = 216
@@ -1192,18 +1290,16 @@ object FSettings: TFSettings
         TabOrder = 11
       end
       object CBoxLocal: TComboBox
-        Left = 360
+        Left = 472
         Top = 117
         Width = 145
         Height = 21
         Style = csDropDownList
         ItemHeight = 13
-        ItemIndex = 0
         TabOrder = 12
-        Text = #1056#1091#1089#1089#1082#1080#1081
         Items.Strings = (
           #1056#1091#1089#1089#1082#1080#1081
-          'English (USA)')
+          'English')
       end
       object ChBoxFirstLat: TCheckBox
         Left = 8
@@ -1231,7 +1327,7 @@ object FSettings: TFSettings
         TabOrder = 15
       end
       object MapZapAlphaEdit: TSpinEdit
-        Left = 522
+        Left = 578
         Top = 164
         Width = 41
         Height = 22
@@ -1239,6 +1335,22 @@ object FSettings: TFSettings
         MinValue = 0
         TabOrder = 16
         Value = 255
+      end
+      object CBlock_toolbars: TCheckBox
+        Left = 320
+        Top = 200
+        Width = 193
+        Height = 17
+        Caption = #1047#1072#1082#1088#1077#1087#1080#1090#1100' '#1087#1072#1085#1077#1083#1080' '#1080#1085#1089#1090#1088#1091#1084#1077#1085#1090#1086#1074
+        TabOrder = 17
+      end
+      object CBShowHintOnMarks: TCheckBox
+        Left = 320
+        Top = 232
+        Width = 297
+        Height = 17
+        Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1077' '#1084#1077#1090#1082#1080' '#1087#1088#1080' '#1085#1072#1074#1077#1076#1077#1085#1080#1080' '#1082#1091#1088#1089#1086#1088#1072
+        TabOrder = 18
       end
     end
     object TabSheet5: TTabSheet
@@ -1252,38 +1364,43 @@ object FSettings: TFSettings
         Caption = 'COM-'#1087#1086#1088#1090
       end
       object Label6: TLabel
-        Left = 8
+        Left = 40
         Top = 83
         Width = 226
         Height = 13
+        Alignment = taRightJustify
         Caption = #1042#1088#1077#1084#1103' '#1086#1078#1080#1076#1072#1085#1080#1103' '#1086#1090#1074#1077#1090#1072' '#1086#1090' '#1087#1088#1080#1077#1084#1085#1080#1082#1072' ('#1089#1077#1082'.)'
       end
       object Label11: TLabel
-        Left = 72
+        Left = 106
         Top = 107
         Width = 160
         Height = 13
+        Alignment = taRightJustify
         Caption = #1055#1077#1088#1080#1086#1076' '#1086#1073#1085#1086#1074#1083#1077#1085#1080#1103' ('#1089#1077#1082'./1000)'
       end
       object Label10: TLabel
-        Left = 8
+        Left = 40
         Top = 275
         Width = 166
         Height = 13
+        Alignment = taRightJustify
         Caption = #1056#1072#1079#1084#1077#1088' '#1091#1082#1072#1079#1072#1090#1077#1083#1103' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1103':'
       end
       object Label12: TLabel
-        Left = 240
+        Left = 296
         Top = 275
         Width = 47
         Height = 13
+        Alignment = taRightJustify
         Caption = #1045#1075#1086' '#1094#1074#1077#1090':'
       end
       object Label20: TLabel
-        Left = 100
+        Left = 132
         Top = 299
         Width = 74
         Height = 13
+        Alignment = taRightJustify
         Caption = #1064#1080#1088#1080#1085#1072' '#1090#1088#1077#1082#1072':'
       end
       object Label65: TLabel
@@ -1303,7 +1420,7 @@ object FSettings: TFSettings
         Text = 'COM1'
       end
       object SpinEdit1: TSpinEdit
-        Left = 240
+        Left = 272
         Top = 104
         Width = 57
         Height = 22
@@ -1313,7 +1430,7 @@ object FSettings: TFSettings
         Value = 100
       end
       object SpinEdit2: TSpinEdit
-        Left = 240
+        Left = 272
         Top = 80
         Width = 57
         Height = 22
@@ -1513,7 +1630,7 @@ object FSettings: TFSettings
         TabOrder = 4
       end
       object SESizeStr: TSpinEdit
-        Left = 176
+        Left = 208
         Top = 272
         Width = 57
         Height = 22
@@ -1523,7 +1640,7 @@ object FSettings: TFSettings
         Value = 100
       end
       object ColorBoxGPSstr: TColorBox
-        Left = 288
+        Left = 344
         Top = 272
         Width = 105
         Height = 22
@@ -1532,7 +1649,7 @@ object FSettings: TFSettings
         TabOrder = 6
       end
       object SESizeTrack: TSpinEdit
-        Left = 176
+        Left = 208
         Top = 296
         Width = 57
         Height = 22
@@ -1546,7 +1663,6 @@ object FSettings: TFSettings
         Top = 40
         Width = 89
         Height = 21
-        Style = csDropDownList
         ItemHeight = 13
         ItemIndex = 5
         TabOrder = 8
@@ -1562,9 +1678,8 @@ object FSettings: TFSettings
           '14400'
           '19200'
           '38400'
-          '56000'
-          '128000'
-          '256000')
+          '57600'
+          '115200')
       end
       object Button16: TButton
         Left = 160
@@ -1595,28 +1710,30 @@ object FSettings: TFSettings
       Caption = 'Wikimapia'
       ImageIndex = 7
       object Label76: TLabel
-        Left = 16
+        Left = 38
         Top = 20
         Width = 76
         Height = 13
+        Alignment = taRightJustify
         Caption = #1054#1089#1085#1086#1074#1085#1086#1081' '#1094#1074#1077#1090
       end
       object Label77: TLabel
-        Left = 16
+        Left = 24
         Top = 44
         Width = 90
         Height = 13
+        Alignment = taRightJustify
         Caption = #1062#1074#1077#1090' '#1086#1082#1072#1081#1084#1083#1077#1085#1080#1103
       end
       object Label78: TLabel
-        Left = 280
-        Top = 16
+        Left = 120
+        Top = 64
         Width = 303
         Height = 13
         Caption = '*'#1055#1088#1080' '#1074#1099#1073#1086#1088#1077' '#1095#1077#1088#1085#1086#1075#1086' '#1094#1074#1077#1090#1072' '#1074#1099' '#1087#1086#1083#1091#1095#1080#1090#1077' '#1087#1088#1086#1079#1088#1072#1095#1085#1091#1102' '#1083#1080#1085#1080#1102
       end
       object CBWMainColor: TColorBox
-        Left = 112
+        Left = 120
         Top = 16
         Width = 145
         Height = 22
@@ -1625,7 +1742,7 @@ object FSettings: TFSettings
         TabOrder = 0
       end
       object CBWFonColor: TColorBox
-        Left = 112
+        Left = 120
         Top = 40
         Width = 145
         Height = 22
@@ -1661,7 +1778,7 @@ object FSettings: TFSettings
     Top = 384
     Width = 75
     Height = 25
-    Caption = #1055#1088#1080#1085#1103#1090#1100
+    Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
     TabOrder = 3
     OnClick = Button3Click
   end

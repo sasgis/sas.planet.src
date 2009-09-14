@@ -1,6 +1,6 @@
 object Fbrowser: TFbrowser
-  Left = 517
-  Top = 199
+  Left = 442
+  Top = 206
   Width = 566
   Height = 334
   BorderStyle = bsSizeToolWin
@@ -13,6 +13,7 @@ object Fbrowser: TFbrowser
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
   object EmbeddedWB1: TEmbeddedWB
@@ -22,11 +23,19 @@ object Fbrowser: TFbrowser
     Height = 300
     Align = alClient
     TabOrder = 0
-    DownloadOptions = [DownloadImages, DownloadVideos, DownloadBGSounds]
-    UserInterfaceOptions = []
-    About = ' Embedded Web Browser from: http://bsalsa.com/'
+    Silent = False
+    DisableCtrlShortcuts = 'N'
+    UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
+    OnAuthenticate = EmbeddedWB1Authenticate
+    About = ' EmbeddedWB http://bsalsa.com/'
+    PrintOptions.Margins.Left = 19.050000000000000000
+    PrintOptions.Margins.Right = 19.050000000000000000
+    PrintOptions.Margins.Top = 19.050000000000000000
+    PrintOptions.Margins.Bottom = 19.050000000000000000
+    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
+    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = ' Embedded Web Browser from: http://bsalsa.com/'
     ControlData = {

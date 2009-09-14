@@ -84,6 +84,8 @@ begin
 // Fmain.CDSmarks.Filter:='( LonR>'+floattostr(Fmain.X2Lon(xy.x+2))+')and(LonL<'+floattostr(Fmain.X2Lon(xy.x-2))+
 //                  ')and(LatB<'+floattostr(Fmain.Y2Lat(xy.y+2))+')and(LatT>'+floattostr(Fmain.Y2Lat(xy.y-2))+')';
  //Fmain.CDSmarks.Filter:='';
+ Fmain.CDSKategory.Filtered:=true;
+ if Fmain.CDSKategory.Eof then exit;
  Fmain.CDSmarks.Filtered:=true;
  Fmain.CDSmarks.First;
  while (not(Fmain.CDSmarks.Eof))and((Fmain.CDSmarksvisible.AsBoolean)or(show_point=1)) do
@@ -110,6 +112,7 @@ begin
       PWL.descr:=Fmain.CDSmarksdescr.AsString;
       PWL.numid:=Fmain.CDSmarksid.AsString;
       PWL.find:=true;
+      PWL.type_:=ROTpoint;
       Setlength(arLL,0);
       freeMem(arrLL);
       ms.Free;
@@ -126,6 +129,7 @@ begin
                  PWL.descr:=Fmain.CDSmarksdescr.AsString;
                  PWL.numid:=Fmain.CDSmarksid.AsString;
                  PWL.find:=true;
+                 PWL.type_:=ROTline;
                  Setlength(arLL,0);
                  freeMem(arrLL);
                  ms.Free;
@@ -140,8 +144,9 @@ begin
        PWL.name:=Fmain.CDSmarksname.AsString;
        PWL.descr:=Fmain.CDSmarksdescr.AsString;
        PWL.numid:=Fmain.CDSmarksid.AsString;
-       PWL.descr:=PWL.descr+'<BR>'+SAS_STR_S+': '+RoundEx(CalcS(poly,sat_map_both),2)+' '+SAS_UNITS_km2; //Fmain.R2ShortStr(CalcS(poly,sat_map_both),4,' '+SAS_UNITS_km+'.',' '+SAS_UNITS_m);
+       //PWL.descr:=PWL.descr+'<BR>'+SAS_STR_S+': '+RoundEx(CalcS(poly,sat_map_both),2)+' '+SAS_UNITS_km2; //Fmain.R2ShortStr(CalcS(poly,sat_map_both),4,' '+SAS_UNITS_km+'.',' '+SAS_UNITS_m);
        PWL.find:=true;
+       PWL.type_:=ROTPoly;
       end;
    Setlength(arLL,0);
    freeMem(arrLL);

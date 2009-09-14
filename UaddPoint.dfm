@@ -68,10 +68,11 @@ object FaddPoint: TFaddPoint
     Shape = bsBottomLine
   end
   object Label21: TLabel
-    Left = 34
+    Left = 41
     Top = 75
     Width = 41
     Height = 13
+    Alignment = taRightJustify
     Caption = #1064#1080#1088#1086#1090#1072':'
     Color = clBtnFace
     Font.Charset = RUSSIAN_CHARSET
@@ -83,10 +84,11 @@ object FaddPoint: TFaddPoint
     ParentFont = False
   end
   object Label22: TLabel
-    Left = 30
+    Left = 36
     Top = 97
     Width = 46
     Height = 13
+    Alignment = taRightJustify
     Caption = #1044#1086#1083#1075#1086#1090#1072':'
     Color = clBtnFace
     Font.Charset = RUSSIAN_CHARSET
@@ -98,17 +100,19 @@ object FaddPoint: TFaddPoint
     ParentFont = False
   end
   object Label3: TLabel
-    Left = 16
+    Left = 19
     Top = 272
     Width = 62
     Height = 13
+    Alignment = taRightJustify
     Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
   end
   object Label4: TLabel
-    Left = 16
+    Left = 30
     Top = 296
     Width = 51
     Height = 13
+    Alignment = taRightJustify
     Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
   end
   object Label5: TLabel
@@ -116,13 +120,15 @@ object FaddPoint: TFaddPoint
     Top = 272
     Width = 81
     Height = 13
+    Alignment = taRightJustify
     Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
   end
   object Label6: TLabel
-    Left = 160
+    Left = 163
     Top = 296
     Width = 78
     Height = 13
+    Alignment = taRightJustify
     Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
   end
   object Label7: TLabel
@@ -130,10 +136,11 @@ object FaddPoint: TFaddPoint
     Top = 320
     Width = 83
     Height = 13
+    Alignment = taRightJustify
     Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
   end
   object SpeedButton1: TSpeedButton
-    Left = 118
+    Left = 126
     Top = 269
     Width = 17
     Height = 22
@@ -141,7 +148,7 @@ object FaddPoint: TFaddPoint
     OnClick = SpeedButton1Click
   end
   object SpeedButton2: TSpeedButton
-    Left = 118
+    Left = 126
     Top = 293
     Width = 17
     Height = 22
@@ -201,7 +208,7 @@ object FaddPoint: TFaddPoint
   object CheckBox2: TCheckBox
     Left = 8
     Top = 347
-    Width = 217
+    Width = 289
     Height = 17
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
@@ -351,7 +358,7 @@ object FaddPoint: TFaddPoint
       'W')
   end
   object ColorBox1: TColorBox
-    Left = 80
+    Left = 88
     Top = 269
     Width = 38
     Height = 22
@@ -377,7 +384,7 @@ object FaddPoint: TFaddPoint
     Value = 11
   end
   object ColorBox2: TColorBox
-    Left = 80
+    Left = 88
     Top = 293
     Width = 38
     Height = 22

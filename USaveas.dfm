@@ -1,6 +1,6 @@
 object Fsaveas: TFsaveas
-  Left = 181
-  Top = 210
+  Left = 243
+  Top = 315
   BorderStyle = bsDialog
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
   ClientHeight = 242
@@ -68,7 +68,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 481
     Height = 201
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
@@ -90,10 +90,11 @@ object Fsaveas: TFsaveas
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
       end
       object Label3: TLabel
-        Left = 368
+        Left = 372
         Top = 26
         Width = 49
         Height = 13
+        Alignment = taRightJustify
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
       end
       object Label6: TLabel
@@ -156,11 +157,12 @@ object Fsaveas: TFsaveas
         TabOrder = 3
       end
       object CBMapLoad: TComboBox
-        Left = 72
+        Left = 88
         Top = 24
-        Width = 161
+        Width = 241
         Height = 21
         Style = csDropDownList
+        DropDownCount = 16
         ItemHeight = 13
         TabOrder = 4
       end
@@ -258,10 +260,11 @@ object Fsaveas: TFsaveas
         Caption = #1057#1086#1079#1076#1072#1074#1072#1090#1100' '#1092#1072#1081#1083' '#1087#1088#1080#1074#1103#1079#1082#1080
       end
       object Label28: TLabel
-        Left = 189
+        Left = 198
         Top = 26
         Width = 54
         Height = 13
+        Alignment = taRightJustify
         Caption = #1053#1072#1083#1086#1078#1080#1090#1100':'
       end
       object CBscleit: TComboBox
@@ -270,6 +273,7 @@ object Fsaveas: TFsaveas
         Width = 121
         Height = 21
         Style = csDropDownList
+        DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
       end
@@ -342,7 +346,7 @@ object Fsaveas: TFsaveas
         TabOrder = 4
       end
       object CBSclHib: TComboBox
-        Left = 248
+        Left = 256
         Top = 24
         Width = 113
         Height = 21
@@ -437,7 +441,7 @@ object Fsaveas: TFsaveas
       end
       object CBzamena: TCheckBox
         Left = 8
-        Top = 128
+        Top = 112
         Width = 209
         Height = 17
         Caption = #1048#1079#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1092#1072#1081#1083#1099
@@ -445,7 +449,7 @@ object Fsaveas: TFsaveas
       end
       object CBsavefull: TCheckBox
         Left = 8
-        Top = 152
+        Top = 128
         Width = 281
         Height = 17
         Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1087#1086#1083#1085#1086#1089#1090#1100#1102' '#1079#1072#1087#1086#1083#1085#1077#1085#1085#1099#1077' '#1090#1072#1081#1083#1099
@@ -457,6 +461,7 @@ object Fsaveas: TFsaveas
         Width = 161
         Height = 21
         Style = csDropDownList
+        DropDownCount = 16
         ItemHeight = 13
         TabOrder = 4
       end
@@ -495,6 +500,14 @@ object Fsaveas: TFsaveas
         TabOrder = 6
         OnChange = ComboBoxChange
       end
+      object CBGenFromPrev: TCheckBox
+        Left = 8
+        Top = 144
+        Width = 393
+        Height = 17
+        Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1078#1076#1099#1081' '#1074#1099#1073#1088#1072#1085#1085#1099#1081' '#1084#1072#1089#1096#1090#1072#1073' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1077#1075#1086' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086
+        TabOrder = 7
+      end
     end
     object TabSheet4: TTabSheet
       Tag = 3
@@ -524,11 +537,12 @@ object Fsaveas: TFsaveas
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
       end
       object CBmapDel: TComboBox
-        Left = 64
+        Left = 88
         Top = 24
         Width = 217
         Height = 21
         Style = csDropDownList
+        DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
       end
@@ -559,9 +573,9 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         ItemHeight = 13
-        ItemIndex = 0
+        ItemIndex = 1
         TabOrder = 0
-        Text = 'GoogleMV'
+        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
         OnChange = CBFormatChange
         Items.Strings = (
           'GoogleMV'
@@ -793,6 +807,7 @@ object Fsaveas: TFsaveas
           Width = 145
           Height = 21
           Style = csDropDownList
+          DropDownCount = 16
           ItemHeight = 13
           TabOrder = 4
         end
@@ -802,6 +817,7 @@ object Fsaveas: TFsaveas
           Width = 145
           Height = 21
           Style = csDropDownList
+          DropDownCount = 16
           ItemHeight = 13
           TabOrder = 5
         end
@@ -811,6 +827,7 @@ object Fsaveas: TFsaveas
           Width = 145
           Height = 21
           Style = csDropDownList
+          DropDownCount = 16
           ItemHeight = 13
           TabOrder = 6
         end
@@ -947,6 +964,7 @@ object Fsaveas: TFsaveas
           Width = 217
           Height = 21
           Style = csDropDownList
+          DropDownCount = 16
           ItemHeight = 13
           TabOrder = 4
         end

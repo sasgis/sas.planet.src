@@ -1,10 +1,10 @@
 unit UMapType;
 
 interface
-uses Forms,sysutils,Classes,iniFiles,Windows,Uprogress,Dialogs,Menus,TB2Toolbar,
-     TB2Item,Graphics,uPSCompiler,uPSRuntime,StdCtrls,ComCtrls,
+uses Forms,sysutils,Classes,iniFiles,Windows,Uprogress,Dialogs,Menus,
+     TBX,Graphics,uPSCompiler,uPSRuntime,StdCtrls,ComCtrls,
      uPSR_std,uPSR_forms,uPSUtils,math,ExtCtrls, VCLZip,
-     u_CoordConverterAbstract,u_UrlGenerator;
+     u_CoordConverterAbstract,u_UrlGenerator,UResStrings;
 
 type
  PMapType = ^TMapType;
@@ -17,7 +17,10 @@ type
     id,pos:integer;
     filename,guids:string;
     active:boolean;
+    info:string;
+    showinfo:boolean;
     ShowOnSmMap:boolean;
+    //ShowOnFillingMap:boolean;
     asLayer:boolean;
     name: string;
     Icon24Name,Icon18Name:string;
@@ -41,10 +44,9 @@ type
     radiusa,radiusb,exct:extended;
     ext,ParentSubMenu:string;
     DefParentSubMenu:string;
-    TBItem:TTBItem;
-    TBSubMenuItem:TTBSubmenuItem;
-    NItem,NSmItem,NDwnItem,NDelItem:TMenuItem;
-    NSubMenuItem:TMenuItem;
+    NSmItem,TBItem,NLayerParamsItem,TBFillingItem:TTBXItem;
+    TBSubMenuItem:TTBXSubmenuItem;
+    NDwnItem,NDelItem:TMenuItem;
     NameInCache:string;
     DefNameInCache:string;
     bmp18,bmp24:TBitmap;
@@ -58,15 +60,26 @@ var
   procedure LoadMaps;
   procedure SaveMaps;
   procedure CreateMapUI;
+  function GetMapFromID(id:string):PMapType;
 
 implementation
-uses Usettings,unit1,UGeoFun, DateUtils, u_CoordConverterMercatorOnSphere,
+uses Usettings,unit1,UGeoFun, UFillingMap, DateUtils, u_CoordConverterMercatorOnSphere,
      u_CoordConverterMercatorOnEllipsoid, u_CoordConverterSimpleLonLat;
+
+function GetMapFromID(id:string):PMapType;
+var i:integer;
+begin
+ for i:=0 to length(MapType)-1 do
+  if MapType[i].guids=id then begin
+                               result:=@MapType[i];
+                               exit;
+                              end;
+ result:=nil;
+end;
 
 procedure CreateMapUI;
 var i,j:integer;
 begin
- fmain.XPMenu.Active:=false;
  FSettings.MapList.Clear;
  Fmain.MapIcons24.Clear;
  Fmain.MapIcons18.Clear;
@@ -74,77 +87,69 @@ begin
  Fmain.NSMB.Clear;
  Fmain.ldm.Clear;
  Fmain.dlm.Clear;
+ Fmain.NLayerParams.Clear;
  Fmain.NSubMenuSmItem.Clear;
  for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
  for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
+ for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
  for i:=0 to Fmain.PopupMSmM.Items.Count-3 do Fmain.PopupMSmM.Items.Items[2].Free;
 
  sm_map.maptype:=nil;
+ fillingmaptype:=nil;
  i:=length(MapType)-1;
  if i>0 then
  for i:=0 to length(MapType)-1 do
   With MapType[i] do
   begin
-   TBItem:=TTBItem.Create(Fmain.TBSMB);
-   NItem:=TMenuItem.Create(Fmain.NSMB);
+   TBItem:=TTBXItem.Create(Fmain.TBSMB);
    if ParentSubMenu=''
-    then begin
-          if asLayer then begin
-                            Fmain.NLayerSel.Add(NItem);
-                            Fmain.TBLayerSel.Add(TBItem)
-                          end
-                     else begin
-                            Fmain.NSMB.Add(NItem);
-                            Fmain.TBSMB.Add(TBItem)
-                          end;
-         end
+    then if asLayer then Fmain.TBLayerSel.Add(TBItem)
+                    else Fmain.TBSMB.Add(TBItem)
     else begin
           j:=0;
           While MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
-          TBSubMenuItem:=TTBSubmenuItem.Create(Fmain.TBSMB);
-          NSubMenuItem:=TMenuItem.Create(Fmain.NSMB);
+          TBSubMenuItem:=TTBXSubmenuItem.Create(Fmain.TBSMB);
           TBSubMenuItem.caption:=ParentSubMenu;
-          NSubMenuItem.caption:=ParentSubMenu;
           TBSubMenuItem.Images:=Fmain.MapIcons18;
-          NSubMenuItem.SubMenuImages:=Fmain.MapIcons18;
           if j=i then
           begin
-          if asLayer then begin
-                            Fmain.NLayerSel.Add(NSubMenuItem);
-                            Fmain.TBLayerSel.Add(TBSubMenuItem)
-                          end
-                     else begin
-                            Fmain.TBSMB.Add(TBSubMenuItem);
-                            Fmain.NSMB.Add(NSubMenuItem);
-                          end;
+          if asLayer then Fmain.TBLayerSel.Add(TBSubMenuItem)
+                     else Fmain.TBSMB.Add(TBSubMenuItem);
           end;
           MapType[j].TBSubMenuItem.Add(TBItem);
-          MapType[j].NSubMenuItem.Add(NItem);
          end;
    Fmain.MapIcons24.AddMasked(bmp24,RGB(255,0,255));
    Fmain.MapIcons18.AddMasked(bmp18,RGB(255,0,255));
    TBItem.Name:='TBMapN'+inttostr(id);
+   TBItem.ShortCut:=HotKey;
    TBItem.ImageIndex:=i;
    TBItem.Caption:=name;
+   TBItem.OnAdjustFont:=Fmain.AdjustFont;
    TBItem.OnClick:=Fmain.TBmap1Click;
-   NItem.Name:='NMapN'+inttostr(id);
-   NItem.ImageIndex:=i;
-   NItem.Caption:=name;
-   NItem.ShortCut:=HotKey;
-   NItem.OnClick:=Fmain.TBmap1Click;
+
+   TBFillingItem:=TTBXItem.Create(Fmain.TBFillingTypeMap);
+   TBFillingItem.name:='TBMapFM'+inttostr(id);
+   TBFillingItem.ImageIndex:=i;
+   TBFillingItem.Caption:=name;
+   TBFillingItem.OnAdjustFont:=Fmain.AdjustFont;
+   TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
+   //if ShowOnFillingMap then TBFillingItem.Checked:=true;
+   Fmain.TBFillingTypeMap.Add(TBFillingItem);
+
    if ext<>'.kml' then
     begin
      if not(asLayer) then begin
-                           NSmItem:=TMenuItem.Create(Fmain.PopupMSmM);
+                           NSmItem:=TTBXITem.Create(Fmain.PopupMSmM);
                            Fmain.PopupMSmM.Items.Add(NSmItem)
                           end
                      else begin
-                           NSmItem:=TMenuItem.Create(Fmain.NSubMenuSmItem);
+                           NSmItem:=TTBXITem.Create(Fmain.NSubMenuSmItem);
                            Fmain.NSubMenuSmItem.Add(NSmItem);
                           end;
      NSmItem.Name:='NSmMapN'+inttostr(id);
      NSmItem.ImageIndex:=i;
      NSmItem.Caption:=name;
+     NSmItem.OnAdjustFont:=Fmain.AdjustFont;
      NSmItem.OnClick:=Fmain.NMMtype_0Click;
      if ShowOnSmMap then NSmItem.Checked:=true;
     end;
@@ -160,39 +165,42 @@ begin
      NDelItem.ImageIndex:=i;
      NDelItem.OnClick:=Fmain.NDelClick;
      Fmain.dlm.Add(NDelItem);
+     NLayerParamsItem:=TTBXItem.Create(Fmain.NLayerParams);
+     NLayerParamsItem.Caption:=name;
+     NLayerParamsItem.ImageIndex:=i;
+     NLayerParamsItem.OnClick:=Fmain.NMapParamsClick;
+     Fmain.NLayerParams.Add(NLayerParamsItem);
     end;
-   if (asLayer)and(active) then begin
-                                  TBItem.Checked:=true;
-                                  NItem.Checked:=true;
-                                end;
+   if (asLayer)and(active) then TBItem.Checked:=true;
    if separator then
     begin
-     TBItem.Parent.Add(TTBSeparatorItem.Create(Fmain.TBSMB));
-     NItem.Parent.InsertNewLineAfter(NItem);
-     if NSmItem<>NIL  then  NSmItem.Parent.InsertNewLineAfter(NSmItem);
+     TBItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
+     if NSmItem<>NIL  then  NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
+     TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
     end;
    if (active)and(MapType[i].asLayer=false) then sat_map_both:=@MapType[i];
    if (ShowOnSmMap)and(not(asLayer)) then sm_map.maptype:=@MapType[i];
+   //if ShowOnFillingMap then fillingmaptype:=@MapType[i];
    TBItem.Tag:=Longint(@MapType[i]);
-   NItem.Tag:=Longint(@MapType[i]);
+   TBFillingItem.Tag:=Longint(@MapType[i]);
    if ext<>'.kml' then NSmItem.Tag:=Longint(@MapType[i]);
    if asLayer then
     begin
      NDwnItem.Tag:=longint(@MapType[i]);
      NDelItem.Tag:=longint(@MapType[i]);
+     NLayerParamsItem.Tag:=longint(@MapType[i]);
     end;
    FSettings.MapList.AddItem(MapType[i].name,nil);
    FSettings.MapList.Items.Item[i].Data:=@MapType[i];
    FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].NameInCache);
-   if MapType[i].asLayer then FSettings.MapList.Items.Item[i].SubItems.Add('Слои\'+MapType[i].ParentSubMenu)
-                         else FSettings.MapList.Items.Item[i].SubItems.Add('Карты\'+MapType[i].ParentSubMenu);
+   if MapType[i].asLayer then FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+MapType[i].ParentSubMenu)
+                         else FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+MapType[i].ParentSubMenu);
    FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(MapType[i].HotKey));
    FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].filename);
   end;
  if FSettings.MapList.Items.Count>0 then FSettings.MapList.Items.Item[0].Selected:=true;
  if longint(sm_map.maptype)=0 then Fmain.NMMtype_0.Checked:=true;
  if (sat_map_both=nil)and(@MapType[0]<>nil) then sat_map_both:=@MapType[0];
- fmain.XPMenu.Active:=true;
 end;
 
 procedure LoadMaps;
@@ -226,16 +234,18 @@ begin
            id:=Ini.ReadInteger(GUIDs,'pnum',0);
            active:=ini.ReadBool(GUIDs,'active',false);
            ShowOnSmMap:=ini.ReadBool(GUIDs,'ShowOnSmMap',true);
+           //ShowOnFillingMap:=ini.ReadBool(GUIDs,'ShowOnFillingMap',false);
            URLBase:=ini.ReadString(GUIDs,'URLBase',URLBase);
            CacheType:=ini.ReadInteger(GUIDs,'CacheType',cachetype);
            NameInCache:=ini.ReadString(GUIDs,'NameInCache',NameInCache);
            HotKey:=ini.ReadInteger(GUIDs,'HotKey',HotKey);
-           sleep:=ini.ReadInteger(GUIDs,'sleep',sleep);
            ParentSubMenu:=ini.ReadString(GUIDs,'ParentSubMenu',ParentSubMenu);
+           Sleep:=ini.ReadInteger(GUIDs,'Sleep',Sleep);
            separator:=ini.ReadBool(GUIDs,'separator',separator);
           end
     else With MapType[pnum] do
           begin
+           showinfo:=true;
            if pos < 0 then pos := i;
            id := pos;
            dec(i);
@@ -280,6 +290,7 @@ begin
          ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
          ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
          ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
+         //ini.WriteBool(MapType[i].guids,'ShowOnFillingMap',MapType[i].ShowOnFillingMap);
          if MapType[i].URLBase<>MapType[i].DefURLBase then
           ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase)
           else Ini.DeleteKey(MapType[i].guids,'URLBase');
@@ -289,15 +300,15 @@ begin
          if MapType[i].cachetype<>MapType[i].defcachetype then
           ini.WriteInteger(MapType[i].guids,'CacheType',MapType[i].CacheType)
           else Ini.DeleteKey(MapType[i].guids,'CacheType');
-         if MapType[i].Sleep<>MapType[i].defSleep then
-          ini.WriteInteger(MapType[i].guids,'sleep',MapType[i].sleep)
-          else Ini.DeleteKey(MapType[i].guids,'sleep');
          if MapType[i].separator<>MapType[i].Defseparator then
           ini.WriteBool(MapType[i].guids,'separator',MapType[i].separator)
           else Ini.DeleteKey(MapType[i].guids,'separator');
          if MapType[i].NameInCache<>MapType[i].DefNameInCache then
           ini.WriteString(MapType[i].guids,'NameInCache',MapType[i].NameInCache)
           else Ini.DeleteKey(MapType[i].guids,'NameInCache');
+         if MapType[i].Sleep<>MapType[i].DefSleep then
+          ini.WriteInteger(MapType[i].guids,'Sleep',MapType[i].sleep)
+          else Ini.DeleteKey(MapType[i].guids,'Sleep');
          if MapType[i].ParentSubMenu<>MapType[i].DefParentSubMenu then
           ini.WriteString(MapType[i].guids,'ParentSubMenu',MapType[i].ParentSubMenu)
           else Ini.DeleteKey(MapType[i].guids,'ParentSubMenu');
@@ -348,6 +359,20 @@ begin
       guidstr:=iniparams.ReadString('PARAMS','ID',GUIDToString(GUID));
       name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
       name:=iniparams.ReadString('PARAMS','name_'+inttostr(localization),name);
+
+
+      MapParams:=TMemoryStream.Create;
+      try
+      if (UnZip.UnZipToStream(MapParams,'info_'+inttostr(localization)+'.txt')>0)or(UnZip.UnZipToStream(MapParams,'info.txt')>0) then
+       begin
+        SetLength(info,MapParams.size);
+        MapParams.Position:=0;
+        MapParams.ReadBuffer(info[1],MapParams.size);
+       end;
+      finally
+        FreeAndNil(MapParams);
+      end;
+
       MapParams:=TMemoryStream.Create;
       try
         //KaZip.ExtractToStream(KaZip.Entries.Items[KaZip.Entries.IndexOf('GetUrlScript.txt')],MapParams);
@@ -406,7 +431,6 @@ begin
       CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
       DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
-      DefSleep:=Sleep;
       BanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       CONTENT_TYPE:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
       Ext:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
@@ -425,15 +449,15 @@ begin
       exct:=sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa;
       pos:=iniparams.ReadInteger('PARAMS','pnum',-1);
       case projection of
-        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create();
-        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(exct);
+        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(Exct,radiusa,radiusb);
+        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(Exct,radiusa,radiusb);
         3: FCoordConverter := TCoordConverterSimpleLonLat.Create();
         else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
       end;
       try
       FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + GetURLScript, FCoordConverter);
       FUrlGenerator.GetURLBase := URLBase;
-      GetLink(0,0,1);
+      //GetLink(0,0,0);
       except
         on E: Exception do begin
           ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
@@ -452,16 +476,16 @@ begin
 end;
 
 function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
-var xx,yy:integer;
-    zz:byte;
+//var xx,yy:integer;
+//    zz:byte;
 begin
   if (FUrlGenerator = nil) then result:='';
-  xx:=x div 256;
-  yy:=y div 256;
+  //xx:=x div 256;
+  //yy:=y div 256;
   if not(Azoom in [1..24]) then raise Exception.Create('Ошибочный Zoom');
-  zz:=Azoom-1;
+  //zz:=Azoom-1;
   FUrlGenerator.GetURLBase:=URLBase;
-  Result:=FUrlGenerator.GenLink(xx,yy,zz);
+  Result:=FUrlGenerator.GenLink(x,y,Azoom-1);
 end;
 
 function TMapType.GetMapSize(zoom:byte):longint;

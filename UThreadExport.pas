@@ -107,14 +107,23 @@ var bmp322:TBitmap32;
     pathfrom:string;
 begin
  bmp322:=TBitmap32.Create;
+ bmp322.DrawMode:=dmBlend;
  png:=TPngObject.Create;
             try
+            // bmp.LoadFromFile(path);
              if TypeMapArr.ext='.png' then
               begin
-               png.LoadFromFile(path);
+               LoadTilefromCache(png,path,false);
                PNGintoBitmap32(bmp,png);
               end
-              else bmp.LoadFromFile(path);
+              else LoadTilefromCache(bmp,path,false);
+             {p := @spr.Bits[0];
+             for H:=0 to spr.Height-1 do
+              for W:=0 to spr.Width-1 do
+               begin
+                if p^=$FF5f5f5f then p^:=$00000000;
+                inc(p);
+               end; }
             except
              bmp.width:=256;
              bmp.Height:=256;
@@ -126,10 +135,10 @@ begin
               try
                if TypeMapArr.ext='.png' then
                 begin
-                 png.LoadFromFile(pathfrom);
+                 LoadTilefromCache(png,pathfrom,false);
                  PNGintoBitmap32(bmp322,png);
                 end
-               else bmp322.LoadFromFile(pathfrom);
+               else LoadTilefromCache(bmp322,pathfrom,false);
               except
                bmp322.width:=256;
                bmp322.Height:=256;
@@ -166,7 +175,7 @@ begin
  if TypeMapArr[0]<>nil then Fsaveas.formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
   else if TypeMapArr[1]<>nil then Fsaveas.formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
         else if TypeMapArr[2]<>nil then Fsaveas.formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
- Fsaveas.GetMinMax(min,max,polyg);
+ Fsaveas.GetMinMax(min,max,polyg,true);
  if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
   else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
         else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
@@ -206,10 +215,11 @@ begin
  png.Assign(bmp);
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
- bmp32.DrawMode:=dmTransparent;
-// bmp32.CombineMode:=cmBlend;
+ bmp32.DrawMode:=dmBlend;
+// bmp32.DrawMode:=dmTransparent;
  bmp322:=TBitmap32.Create;
-// bmp322.CombineMode:=cmBlend;
+ bmp322.DrawMode:=dmBlend;
+
  bmp32crop:=TBitmap32.Create;
  bmp32crop.Width:=sizeim;
  bmp32crop.Height:=sizeim;
@@ -301,6 +311,7 @@ begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
             pathfrom:=ffpath(p_h.x,p_h.y,i+1,TypeMapArr[0]^,false);
             if TileExists(pathfrom) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
+            bmp322.SaveToFile('c:\123.bmp');
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
@@ -310,7 +321,9 @@ begin
             UniLoadTile(bmp32,pathfrom,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
             if (j=2)and(TypeMapArr[0]<>nil) then
               begin
+               bmp322.SaveToFile('c:\123.bmp');
                bmp322.Draw(0,0,bmp32);
+               bmp32.SaveToFile('c:\123.bmp');
                bmp32.Draw(0,0,bmp322);
               end;
             if j=2 then
@@ -338,6 +351,7 @@ begin
                   jpg.CompressionQuality:=chib;
                   //jpg.Compress;
                   jpg.SaveToStream(TileStream);
+                  jpg.SaveToFile('c:\123.jpg');
                   //jpg.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(xi)+'-'+inttostr(p_y)+'_'+inttostr(xi)+'h.jpg');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,6,TileStream.Size);
                 end;
@@ -403,11 +417,22 @@ begin
  end;
 end;
 
+function RetDate(inDate: TDateTime; inTip: integer): integer;
+var xYear, xMonth, xDay: word;
+begin
+  DecodeDate(inDate, xYear, xMonth, xDay);
+  case inTip of
+   1: Result := xYear;  // год
+   2: Result := xMonth; // месяц
+   3: Result := xDay;   // день
+  end;
+end;
+
 procedure ThreadExport.savefilesREG(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
     num_dwn,scachano,obrab:integer;
     polyg:array of TPoint;
-    pathfrom,pathto,persl,perzoom,kti:string;
+    pathfrom,pathto,persl,perzoom,kti,datestr:string;
     max,min:TPoint;
     AMapType:TMapType;
 begin
@@ -416,6 +441,7 @@ begin
  SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
+ datestr:=inttostr(RetDate(now,3))+'.'+inttostr(RetDate(now,2))+'.'+inttostr(RetDate(now,1));
  for i:=0 to length(TypeMapArr)-1 do
   begin
    persl:=persl+TypeMapArr[i].NameInCache+'_';
@@ -441,7 +467,7 @@ begin
                 Zip.Recurse := False;
                 Zip.StorePaths := true; // Путь не сохраняем
                 Zip.PackLevel := 0; // Уровень сжатия
-                Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+DateTostr(now)+'.ZIP';
+                Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
                 //Zip.ZipComment:='Дата создания: '+DateTimeToStr(now);
                                // 'Количество карт: '+inttostr(length(TypeMapArr))+#13#10+
                                 //'Типы карт: '+persl+#13#10+
@@ -508,7 +534,7 @@ begin
      end;
  if ziped then
   begin
-   fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+DateTostr(now)+'.ZIP';
+   fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
    if FileExists(Zip.ZipName) then DeleteFile(Zip.ZipName);
    If Zip.Zip=0 then
     Application.MessageBox(PChar(SAS_ERR_CreateArh),PChar(SAS_MSG_coution),48);
@@ -526,7 +552,7 @@ procedure ThreadExport.Export2KML(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
     num_dwn,scachano,obrab:integer;
     polyg:array of TPoint;
-    pathfrom,pathto,persl,perzoom,kti,ToFile:string;
+    pathfrom,pathto,persl,perzoom,kti,ToFile,datestr:string;
     max,min:TPoint;
     AMapType:TMapType;
     KMLFile:TextFile;
@@ -582,6 +608,7 @@ begin
  SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
+ datestr:=inttostr(RetDate(now,3))+'.'+inttostr(RetDate(now,2))+'.'+inttostr(RetDate(now,1));
  persl:=persl+TypeMapArr[0].NameInCache+'_';
  perzoom:='';
  for j:=0 to 23 do
@@ -604,7 +631,7 @@ begin
                 Zip.Recurse := False;
                 Zip.StorePaths := true; // Путь не сохраняем
                 Zip.PackLevel := 0; // Уровень сжатия
-                Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+DateTostr(now)+'.ZIP';
+                Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
                 //Zip.ZipComment:='Дата создания: '+DateTimeToStr(now);
                                // 'Количество карт: '+inttostr(length(TypeMapArr))+#13#10+
                                 //'Типы карт: '+persl+#13#10+
@@ -670,7 +697,7 @@ begin
    end;
  if ziped then
   begin
-   fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+DateTostr(now)+'.ZIP';
+   fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
    if FileExists(Zip.ZipName) then DeleteFile(Zip.ZipName);
    If Zip.Zip=0 then
     Application.MessageBox(PChar(SAS_ERR_CreateArh),PChar(SAS_MSG_coution),48);

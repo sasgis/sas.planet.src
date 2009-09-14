@@ -28,11 +28,11 @@ var f:TextFile;
      result:=copy(result,1,i+8);
     end;
 begin
- assignfile(f,copy(fname,1,length(fname)-4)+'.map');
+ assignfile(f,ChangeFileExt(fname,'.map'));
  rewrite(f);
  writeln(f,'OziExplorer Map Data File Version 2.2');
- writeln(f,copy(fname,LastDelimiter('\',fname)+1,length(fname)-1));
- writeln(f,fname);
+ writeln(f,'Created by SAS.Planet');
+ writeln(f,ExtractFileName(fname));
  writeln(f,'1 ,Map Code,'+#13#10+'WGS 84,,   0.0000,   0.0000,WGS 84'+#13#10+'Reserved 1'+#13#10+
            'Reserved 2'+#13#10+'Magnetic Variation,,,E'+#13#10+'Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No');
 

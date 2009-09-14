@@ -125,6 +125,7 @@ type
     SpeedButton2: TSpeedButton;
     CBLastSuccess: TCheckBox;
     Label32: TLabel;
+    CBGenFromPrev: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -155,7 +156,7 @@ type
     procedure scleitRECT(APolyLL:array of TExtendedPoint);
     procedure savefilesREG(APolyLL:array of TExtendedPoint);
     function GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
-    procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint);
+    procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
    end;
 
 var
@@ -224,7 +225,7 @@ begin
   end;
 end;
 
-Procedure TFsaveas.GetMinMax(var min,max:TPoint; Polyg:array of Tpoint);
+Procedure TFsaveas.GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
 var i:integer;
 begin
  max:=Polyg[0];
@@ -240,22 +241,24 @@ begin
    //Polyg[i].x:=(Polyg[i].x-(Polyg[i].x mod 256)+128) div 128;
    //Polyg[i].y:=(Polyg[i].y-(Polyg[i].y mod 256)+128) div 128;
   end;
- max.X:=max.X-1;
- max.Y:=max.Y-1;
- min.X:=min.X+1;
- min.Y:=min.Y+1;
- min.X:=min.x-(min.X mod 256)+128;
- max.X:=max.x-(max.X mod 256)+128;//max.X+(256-((max.X) mod 256))-128;
- min.y:=min.y-(min.y mod 256)+128;
- max.y:=max.y-(max.y mod 256)+128;//max.y+(256-((max.y) mod 256))-128;
+ if round_ then
+  begin
+   max.X:=max.X-1;
+   max.Y:=max.Y-1;
+   min.X:=min.X+1;
+   min.Y:=min.Y+1;
+   min.X:=min.x-(min.X mod 256)+128;
+   max.X:=max.x-(max.X mod 256)+128;//max.X+(256-((max.X) mod 256))-128;
+   min.y:=min.y-(min.y mod 256)+128;
+   max.y:=max.y-(max.y mod 256)+128;//max.y+(256-((max.y) mod 256))-128;
+  end;
 end;
 
 function TFsaveas.GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
-var i,j,n:integer;
-    r:real;
+var i,j:integer;
     prefalse:boolean;
 begin
- GetMinMax(min,max,polyg);
+ GetMinMax(min,max,polyg,true);
  result:=0;
  if getNum then
   if (length(Polyg)=5)and(Polyg[0].x=Polyg[3].x)and(Polyg[1].x=Polyg[2].x)
@@ -397,6 +400,7 @@ begin
    FreeOnTerminate:=true;
    Replace:=CBzamena.Checked;
    savefull:=CBsavefull.Checked;
+   GenFormPrev:=CBGenFromPrev.Checked;
    SetLength(PolygLL,length(APolyLL));
    CopyMemory(@PolygLL[0],@APolyLL[0],length(APolyLL)*sizeOf(TExtendedPoint));
    for i:=0 to FromZoom-2 do
@@ -422,10 +426,11 @@ begin
    with ThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg{[polyg[0],polyg[2]]},EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CB2Ozi.Checked,CB2Tab.Checked,CBtoWorld.Checked,CBusedReColor.Checked) do
     begin
      ProcessTiles:=GetDwnlNum(PolyMin,polyMax,polyg,true);
-     dec(PolyMin.X,128);
+     GetMinMax(PolyMin,polyMax,polyg,false);
+     {dec(PolyMin.X,128);
      dec(PolyMin.Y,128);
      inc(PolyMax.X,127);
-     inc(PolyMax.Y,127);
+     inc(PolyMax.Y,127); }
      OnTerminate:=Fmain.ThreadSclDone;
      Priority := tpLower;
      FreeOnTerminate:=true;
@@ -486,13 +491,13 @@ begin
  CBmapDel.Items.Clear;
  CheckListBox1.Items.Clear;
  CBSclHib.Items.Clear;
- CBSclHib.Items.Add('Нет');
+ CBSclHib.Items.Add(SAS_STR_No);
  CmBExpSat.items.Clear;
  CmBExpMap.items.Clear;
  CmBExpHib.items.Clear;
- CmBExpSat.Items.AddObject('Нет',nil);
- CmBExpMap.Items.AddObject('Нет',nil);
- CmBExpHib.Items.AddObject('Нет',nil);
+ CmBExpSat.Items.AddObject(SAS_STR_No,nil);
+ CmBExpMap.Items.AddObject(SAS_STR_No,nil);
+ CmBExpHib.Items.AddObject(SAS_STR_No,nil);
  For i:=0 to length(MapType)-1 do
   begin
    if (MapType[i].Usedwn) then
@@ -654,13 +659,10 @@ begin
 end;
 
 procedure TFsaveas.CBZoomloadChange(Sender: TObject);
-var b2:string;
-    polyg:array of Tpoint;
+var polyg:array of Tpoint;
     min,max:TPoint;
     numd:integer;
-    tik:Longint;
 begin
- tik:=GetTickCount;
  SetLength(polyg,length(PolygonLL));
  formatePoligon(PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]),CBZoomload.ItemIndex+1,polygonLL,polyg);
  numd:=GetDwnlNum(min,max,polyg,true);

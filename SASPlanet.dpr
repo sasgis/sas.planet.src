@@ -38,16 +38,19 @@ uses
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
-  UPLT in 'UPLT.pas';
+  UPLT in 'UPLT.pas',
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
+  UNetRadar in 'UNetRadar.pas';
 
 var Ini: Tinifile;
     loc:integer;
-{$R *.res} {$R SASPlanetIcons.Res} {$R 0map.res} {$R Icons.RES}
+   {$R *.res}{$R SASR.RES}
 begin
   Ini:=TiniFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
   if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
                                        else loc:=LANG_RUSSIAN;
   localization:=Ini.Readinteger('VIEW','localization',loc);
+  sparam:=Ini.ReadBool('NPARAM','stat',true);
   Application.Initialize;
   Application.Title := 'SAS.Планета';
   //logo
@@ -71,12 +74,14 @@ begin
   Application.CreateForm(TFMarksExplorer, FMarksExplorer);
   Application.CreateForm(TFImport, FImport);
   Application.CreateForm(TFAddCategory, FAddCategory);
-  //  Application.CreateForm(TFProgress, FProgress);
+  Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TFaddPoint, FaddPoint);
   Application.CreateForm(TFprogress2, Fprogress2);
   Application.CreateForm(TFbrowser, Fbrowser);
   Application.CreateForm(TFaddLine, FaddLine);
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
+  Fmain.WebBrowser1.Navigate('about:blank');
+  Fbrowser.EmbeddedWB1.Navigate('about:blank');
   Application.Run;
 end.

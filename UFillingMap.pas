@@ -17,7 +17,7 @@ type
     dZoom:Byte;
     y_draw,x_draw:longint;
     Ahg_x,Ahg_y,Apr_x,Apr_y,ppaprx,ppapry:integer;
-    d2562,x2:integer;
+    d2562,x2,xyTiles:integer;
     procedure DrawPixel;
     procedure SetupLayer;
     procedure UpdateLayer;
@@ -27,6 +27,8 @@ type
     destructor destroy; override;
     constructor Create(CrSusp:Boolean);
   end;
+
+var fillingmaptype:PMapType;
 
 implementation
 uses unit1,USaveas;
@@ -70,6 +72,12 @@ begin
  x2:=trunc(power(2,dZoom));
  ClMZ:=SetAlpha(Color32(MapZapColor),MapZapAlpha);
  d2562:=256 shr dZoom;
+ xyTiles:=1;
+ if d2562=0 then
+  begin
+   xyTiles:=trunc(power(2,(dZoom-8)));
+   d2562:=1;
+  end;
  Ahg_x:=(FMain.map.Width div d2562)+1;
  Ahg_y:=(FMain.map.Height div d2562)+1;
 { LayerMap.Bitmap.Width:=(xhgpx div d2562)+1;
@@ -78,18 +86,18 @@ begin
  LayerMap.Location:=Unit1.LayerMap.Location;  }
  Apr_x:=(d2562*Ahg_x)div 2;
  Apr_y:=(d2562*Ahg_y)div 2;
- x_draw:=((d2562+((pos.x-Apr_x)mod d2562))mod d2562)-((pr_x-Apr_x));
- y_draw:=((d2562+((pos.y-Apr_y)mod d2562))mod d2562)-((pr_y-Apr_y));
- ppaprx:=pos.x-Apr_x;
- ppapry:=pos.y-Apr_y;
+ x_draw:=((d2562+((FMain.pos.x-Apr_x)mod d2562))mod d2562)-((pr_x-Apr_x));
+ y_draw:=((d2562+((FMain.pos.y-Apr_y)mod d2562))mod d2562)-((pr_y-Apr_y));
+ ppaprx:=FMain.pos.x-Apr_x;
+ ppapry:=FMain.pos.y-Apr_y;
 end;
 
 procedure TFillingMap.Execute;
 var Path:String;
     fn,fo:string;
     bo,bb:boolean;
-    i,j,ii,jj:integer;
-    imd256x,imd256y,xx,yy,x1,y1:longint;
+    i,j,ii,jj,ixT,jxT:integer;
+    imd256x,imd256y,xx,yy,xx1,yy1,x1,y1:longint;
 begin
  repeat
  bo:=true;
@@ -97,69 +105,65 @@ begin
  ppaprx:=ppaprx*x2;
  ppapry:=ppapry*x2;
  imd256x:=0;
-
-{ bb:=false;
+ bb:=true;
  for i:=0 to Ahg_x do
   begin
-   xx:=ppaprx+(imd256x shl dZoom);
-   if (Terminated)or(needRepaint)or(stop)or(xx<0)or(xx>=zoom[zoom_mapzap]) then continue;
+   //xx:=ppaprx+(imd256x shl dZoom);
    imd256y:=0;
+   if (Terminated)or(needRepaint)or(stop) then continue;
    for j:=0 to Ahg_y do
     begin
-     yy:=ppapry+(imd256y shl dZoom);
-     if (Terminated)or(needRepaint)or(stop)or(yy<0)or(yy>=zoom[zoom_mapzap]) then continue;
-     Path:=ffpath(xx,yy,zoom_mapzap,sat_map_both,false);
-     fn:=ExtractFilePath(path);
-     if not(bb)
-      then begin
-            x1:=imd256x-x_draw; y1:=imd256y-y_draw;
-            //ii:=i-(x_draw div d2562);jj:=j-(y_draw div d2562);
-            for ii:=x1 to x1+(d2562-1) do
-             for jj:=y1 to y1+(d2562-1) do
-               LayerMap.Bitmap.PixelS[ii,jj]:=clMZ;
-           end;
-     inc(imd256y,d2562)
-    end;
-   if ((i+1) mod 25 = 0 ) then
-    begin
-     Synchronize(UpdateLayer);
-    end;
-   inc(imd256x,d2562)
-  end;    }
- for i:=0 to Ahg_x do
-  begin
-   xx:=ppaprx+(imd256x shl dZoom);
-   if (Terminated)or(needRepaint)or(stop)or(xx<0)or(xx>=zoom[zoom_mapzap]) then
-    begin
-     inc(imd256x,d2562);
-     continue;
-    end;
-   imd256y:=0;
-   for j:=0 to Ahg_y do
-    begin
-     yy:=ppapry+(imd256y shl dZoom);
-     if (Terminated)or(needRepaint)or(stop)or(yy<0)or(yy>=zoom[zoom_mapzap]) then
+     //yy:=ppapry+(imd256y shl dZoom);
+     if (Terminated)or(needRepaint)or(stop) then continue;
+     ixT:=0;
+     While ixT<(xyTiles) do
       begin
-       inc(imd256y,d2562);
-       continue;
-      end;
-     Path:=ffpath(xx,yy,zoom_mapzap,sat_map_both^,false);
-     fn:=ExtractFilePath(path);
-     if fn=fo then if bo then bb:=TileExists(path)
-                         else bb:=false
-              else begin
-                    bo:=DirectoryExists(fn);
-                    if bo then bb:=TileExists(path)
+       xx:=ppaprx+(imd256x shl dZoom)+(ixT*256);
+       if (Terminated)or(needRepaint)or(stop)or(xx<0)or(xx>=zoom[zoom_mapzap]) then
+        begin
+         inc(ixT);
+         //inc(imd256x,d2562);
+         continue;
+        end;
+       jxT:=0;
+       While jxT<(xyTiles) do
+        begin
+         yy:=ppapry+(imd256y shl dZoom)+(jxT*256);
+         if (Terminated)or(needRepaint)or(stop)or(yy<0)or(yy>=zoom[zoom_mapzap]) then
+          begin
+           bb:=true;
+           inc(jxT);
+           //inc(imd256y,d2562);
+           continue;
+          end;
+         if fillingmaptype=nil then Path:=ffpath(xx,yy,zoom_mapzap,sat_map_both^,false)
+                               else Path:=ffpath(xx,yy,zoom_mapzap,fillingmaptype^,false);
+         fn:=ExtractFilePath(path);
+         if fn=fo then if bo then bb:=TileExists(path)
+                             else bb:=false
+                  else begin
+                        bo:=DirectoryExists(fn);
+                        if bo then bb:=TileExists(path)
                           else bb:=false;
-                   end;
-     fo:=fn;
+                       end;
+         fo:=fn;
+         if bb then
+               begin
+                ixT:=xyTiles;
+                jxT:=xyTiles;
+               end;
+         inc(jxT);
+        end;
+        inc(ixT);
+       end;
      if not(bb)
       then begin
             x1:=imd256x-x_draw; y1:=imd256y-y_draw;
-            //ii:=i-(x_draw div d2562);jj:=j-(y_draw div d2562);
+            if (x1<x1+(d2562-1))and(y1<y1+(d2562-1)) then
             for ii:=x1 to x1+(d2562-1) do
              for jj:=y1 to y1+(d2562-1) do
-               LayerMap.Bitmap.PixelS[ii,jj]:=clMZ;
+               LayerMap.Bitmap.PixelS[ii,jj]:=clMZ
+            else LayerMap.Bitmap.PixelS[x1,y1]:=clMZ;
            end;
      inc(imd256y,d2562)
     end;

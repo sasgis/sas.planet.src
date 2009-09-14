@@ -32,6 +32,7 @@ type
     Button3: TButton;
     BtnAddCategory: TSpeedButton;
     SBNavOnMark: TSpeedButton;
+    OpenDialog1: TOpenDialog;
     procedure FormShow(Sender: TObject);
     procedure KategoryListBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -67,6 +68,7 @@ end;
 TMarkId = class
  name:string;
  id:integer;
+ visible:boolean;
 end;
 
 var
@@ -77,6 +79,8 @@ var
   procedure Kategory2Strings(strings:TStrings);
   function EditMark(id:integer):boolean;
   procedure GoToMark(id:integer;zoom:byte);
+  function GetMarkLength(id:integer):extended;
+  function GetMarkSq(id:integer):extended;
 
 implementation
 
@@ -155,12 +159,15 @@ begin
    //KategoryId.Free;
    Fmain.CDSKategory.Next;
   end;
+ SBNavOnMark.Down:=NavOnMark<>nil;
 end;
 
 procedure TFMarksExplorer.KategoryListBoxMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var MarkId:TMarkId;
     i:integer;
+    items:TStringList;
+    ch:array of boolean;
 begin
  if KategoryListBox.ItemIndex<0 then exit;
  Fmain.CDSmarks.Filtered:=false;
@@ -169,15 +176,20 @@ begin
  Fmain.CDSmarks.First;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
+ items:=TStringList.Create;
  while not(Fmain.CDSmarks.Eof) do
   begin
    MarkId:=TMarkId.Create;
    MarkId.name:=Fmain.CDSmarks.fieldbyname('name').AsString;
    MarkId.id:=Fmain.CDSmarks.fieldbyname('id').AsInteger;
-   MarksListBox.AddItem(Fmain.CDSmarks.fieldbyname('name').AsString,MarkId);
-   MarksListBox.Checked[MarksListBox.Items.IndexOfObject(MarkId)]:=Fmain.CDSmarks.fieldbyname('visible').AsBoolean;
+   MarkId.visible:=Fmain.CDSmarks.fieldbyname('visible').AsBoolean;
+   items.AddObject(Fmain.CDSmarks.fieldbyname('name').AsString,MarkId);
    Fmain.CDSmarks.Next;
   end;
+ MarksListBox.Items.Assign(items);
+ FreeAndNil(items);
+ for i:=0 to MarksListBox.Count-1 do
+  MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
 end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
@@ -200,6 +212,55 @@ begin
  Fmain.CDSmarks.MergeChangeLog;
  Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
  result:=true;
+end;
+
+function GetMarkLength(id:integer):extended;
+var arrLL:PArrLL;
+    arLL:array of TExtendedPoint;
+    ms:TMemoryStream;
+    i:integer;
+begin
+ Result:=0;
+ Fmain.CDSmarks.Locate('id',id,[]);
+ ms:=TMemoryStream.Create;
+ TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
+ GetMem(arrLL,ms.size);
+ SetLength(arLL,ms.size div 24);
+ ms.Position:=0;
+ ms.ReadBuffer(arrLL^,ms.size);
+ for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
+ if (ms.Size>24)
+     then begin
+           for i:=0 to length(arLL)-2 do
+            result:=result+Fmain.find_length(arLL[i].y,arLL[i+1].y,arLL[i].x,arLL[i+1].x);
+          end;
+ freeMem(arrLL);
+ SetLength(arLL,0);
+ ms.Free;
+end;
+
+function GetMarkSq(id:integer):extended;
+var arrLL:PArrLL;
+    arLL:array of TExtendedPoint;
+    ms:TMemoryStream;
+    i:integer;
+begin
+ Result:=0;
+ Fmain.CDSmarks.Locate('id',id,[]);
+ ms:=TMemoryStream.Create;
+ TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
+ GetMem(arrLL,ms.size);
+ SetLength(arLL,ms.size div 24);
+ ms.Position:=0;
+ ms.ReadBuffer(arrLL^,ms.size);
+ for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
+ if (ms.Size>24)
+     then begin
+           result:=CalcS(arLL,sat_map_both)
+          end;
+ freeMem(arrLL);
+ SetLength(arLL,0);
+ ms.Free;
 end;
 
 function OperationMark(id:integer):boolean;
@@ -357,8 +418,13 @@ end;
 
 procedure TFMarksExplorer.Button1Click(Sender: TObject);
 begin
- FImport.ShowModal;
- FMarksExplorer.FormShow(sender);
+ If (OpenDialog1.Execute) then
+  if (FileExists(OpenDialog1.FileName)) then
+   begin
+    FImport.FileName:=OpenDialog1.FileName;
+    FImport.ShowModal;
+    FMarksExplorer.FormShow(sender);
+   end;
 end;
 
 procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
@@ -470,7 +536,8 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
-  if MarksListBox.ItemIndex>=0 then
+ if (SBNavOnMark.Down) then
+  if (MarksListBox.ItemIndex>=0) then
   begin
    id:=TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
    if NavOnMark<>nil then NavOnMark.Free;
@@ -495,7 +562,9 @@ begin
    NavOnMark.id:=id;
    NavOnMark.LL:=LL;
    NavOnMark.width:=25;
-  end;
+  end
+  else SBNavOnMark.Down:=not SBNavOnMark.Down
+ else FreeAndNil(NavOnMark);
 end;
 
 end.

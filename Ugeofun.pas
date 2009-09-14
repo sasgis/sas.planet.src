@@ -15,8 +15,11 @@ type
  TExtendedPoint = record
    X, Y: Extended;
  end;
- 
+
+ TResObjType = (ROTpoint,ROTline,ROTPoly);
+
   TResObj = record
+   type_:TResObjType;
    find:boolean;
    S:Extended;
    numid:String;
@@ -44,9 +47,7 @@ var
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:PMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
  function LonLat2Metr(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
- function LonLat2Metr2(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
  function CalcS(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
- function CalcS2(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
 
 implementation
@@ -96,33 +97,6 @@ begin
  result:=0.5*abs(result)/1000000;
 end;
 
-function CalcS2(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
-var L,i:integer;
-    XYMetr:TExtendedPoint;
-begin
- result:=0;
- l:=length(polygon);
- for i:=1 to L do polygon[i-1]:=LonLat2Metr2(polygon[i-1],TypeMap);
-{ for i:=0 to L-2 do
-  begin
-   if i=0 then result:=result+polygon[i].x*(polygon[i+1].y-polygon[L-2].y)
-          else result:=result+polygon[i].x*(polygon[i+1].y-polygon[i-1].y)
-  end;}
- for i:=0 to L-2 do
-  begin
-   result:=result+(polygon[i].x+polygon[i+1].x)*(polygon[i].y-polygon[i+1].y);
-  end;
- result:=0.5*abs(result)/1000000;
-end;
-
-function LonLat2Metr2(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
-begin
-  ll.x:=ll.x*D2R;
-  ll.y:=ll.y*D2R;
-  result.x:=typemap.radiusa*ll.x/2;
-  result.y:=typemap.radiusa*Ln(Tan(PI/4+ll.y/2)*
-            Power((1-typemap.exct*Sin(ll.y))/(1+typemap.exct*Sin(ll.y)),typemap.exct/2))/2;
-end;
 
 function LonLat2Metr(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
 begin
@@ -154,6 +128,8 @@ begin
       Power((1-typemap.exct*Sin(ll2.y))/(1+typemap.exct*Sin(ll2.y)),typemap.exct/2));
   OriginX:=E1;
   OriginY:=N1;
+
+//  CellIncrementX:= 1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(ll.y*deg)))
   CellIncrementX:=(E2-E1)/ImageWidth;
   CellIncrementY:=(N2-N1)/ImageHeight;
   end;
@@ -305,7 +281,7 @@ begin
      end;
   2: begin
       if (XY.y>zoom[Azoom]/2)
-       then yy:=(zoom[Azoom] div 2) - (XY.y mod (zoom[Azoom] div 2))
+       then yy:=(zoom[Azoom])-XY.y//(zoom[Azoom] div 2) - (XY.y mod (zoom[Azoom] div 2))
        else yy:=XY.y;
       result.Y:=((yy)-zoom[Azoom]/2)/-(zoom[Azoom]/(2*PI));
       result.Y:=(2*arctan(exp(result.Y))-PI/2)*180/PI;
@@ -338,6 +314,7 @@ begin
       z:=sin(Ll.y*deg);
       c:=(zoom[Azoom]/(2*Pi));
       result.y:=round(zoom[Azoom]/2-0.5*ln((1+z)/(1-z))*c);
+//      result.y:=round(zoom[Azoom]/2-Ln(tan(z)+sec(z)) *c);
      end;
   2: begin
       z:=sin(Ll.y*deg);

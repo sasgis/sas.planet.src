@@ -41,13 +41,14 @@ end;
 
 function TPLT.loadFromFile(FileName:string):boolean;
 var pltstr:TStringList;
-    str:string;
+    str,trackname:string;
     i,j:integer;
 begin
  if FileExists(FileName) then
   begin
    pltstr:=TStringList.Create;
    pltstr.LoadFromFile(FileName);
+   trackname:=copy(ExtractFileName(FileName),1,length(ExtractFileName(FileName))-4);
    for i:=6 to pltstr.Count-1 do
     try
      j:=1;
@@ -58,7 +59,7 @@ begin
      if (GetWord(pltstr[i], ',', 3)='1')or(i=6) then
       begin
        SetLength(Data,length(Data)+1);
-       Data[length(Data)-1].Name:='Section '+inttostr(length(Data));
+       Data[length(Data)-1].Name:=trackname+', section '+inttostr(length(Data));
       end;
      SetLength(Data[length(Data)-1].coordinates,length(Data[length(Data)-1].coordinates)+1);
      Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].y:=Fmain.str2r(GetWord(str, ',', 1));

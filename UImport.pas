@@ -52,7 +52,6 @@ type
     Button1: TButton;
     Button2: TButton;
     Label17: TLabel;
-    OpenDialog: TOpenDialog;
     CBMarkIgnor: TCheckBox;
     CBPathIgnor: TCheckBox;
     CBPolyIgnor: TCheckBox;
@@ -68,7 +67,7 @@ type
   private
     { Private declarations }
   public
-    { Public declarations }
+    FileName:string;
   end;
 
 var
@@ -153,15 +152,13 @@ begin
  markignor:=CBMarkIgnor.Checked;
  pathignor:=CBPathIgnor.Checked;
  polyignor:=CBPolyIgnor.Checked;
- If (OpenDialog.Execute) then
-  if (FileExists(OpenDialog.FileName)) then
   begin
    if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
     then AddKategory(CBKateg.Text);
-   if LowerCase(ExtractFileExt(OpenDialog.FileName))='.kml' then
+   if LowerCase(ExtractFileExt(FileName))='.kml' then
     begin
      KML:=TKML.Create;
-     KML.loadFromFile(OpenDialog.FileName);
+     KML.loadFromFile(FileName);
      for i:=0 to length(KML.Data)-1 do
       begin
        lenarr:=length(KML.Data[i].coordinates);
@@ -255,10 +252,10 @@ begin
       end;
      KML.Free;
     end;
-   if LowerCase(ExtractFileExt(OpenDialog.FileName))='.plt' then
+   if LowerCase(ExtractFileExt(FileName))='.plt' then
     begin
      PLT:=TPLT.Create;
-     PLT.loadFromFile(OpenDialog.FileName);
+     PLT.loadFromFile(FileName);
      for i:=0 to length(PLT.Data)-1 do
       begin
        lenarr:=length(PLT.Data[i].coordinates);
