@@ -2,18 +2,32 @@ unit u_CoordConverterMercatorOnSphere;
 
 interface
 uses
-  Types,
+  Types, Math,
   u_CoordConverterAbstract;
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
+  protected
+    D2R:Double;
+    FExct,FRadiusa,FRadiusb : Extended;
   public
+    constructor Create(AExct,Aradiusa,Aradiusb : Extended);
     function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint; override;
     function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint; override;
+    function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; override;
   end;
 
 implementation
 
 { TCoordConverterMercatorOnSphere }
+
+constructor TCoordConverterMercatorOnSphere.Create(AExct,Aradiusa,Aradiusb: Extended);
+begin
+  inherited Create();
+  D2R:=0.017453292519943295769236907684886;
+  FExct := AExct;
+  Fradiusa:=Aradiusa;
+  Fradiusb:=Aradiusb;
+end;
 
 function TCoordConverterMercatorOnSphere.LonLat2Pos(Ll: TExtendedPoint;
   Azoom: byte): Tpoint;
@@ -21,7 +35,7 @@ var
   TilesAtZoom : Integer;
   z, c : Extended;
 begin
-  TilesAtZoom := 1 shl Azoom;
+  TilesAtZoom := (1 shl Azoom)*256;
   Result.x := round(TilesAtZoom / 2 + Ll.x * (TilesAtZoom / 360));
   z := sin(Ll.y * Pi / 180);
   c := (TilesAtZoom / (2 * Pi));
@@ -33,12 +47,21 @@ function TCoordConverterMercatorOnSphere.Pos2LonLat(XY: TPoint;
 var
   TilesAtZoom : Integer;
 begin
-  TilesAtZoom := 1 shl Azoom;
+  TilesAtZoom := (1 shl Azoom)*256;
 //  XY.x := XY.x mod TilesAtZoom;
   if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
   Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
   Result.Y := (XY.y - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+end;
+
+function TCoordConverterMercatorOnSphere.LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;
+var exct:extended;
+begin
+  ll.x:=ll.x*D2R;
+  ll.y:=ll.y*D2R;
+  result.x:=Fradiusa*ll.x;
+  result.y:=Fradiusa*Ln(Tan(PI/4+ll.y/2));
 end;
 
 end.

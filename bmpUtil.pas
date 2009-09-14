@@ -40,7 +40,7 @@ type
   PlineRGBb = ^TlineRGBb;
   TlineRGBb = array[0..0] of TBGR;
 
-  TBMPRead = function(Sender:TObject;Line:cardinal; var InputArray:PLineRGBb):boolean;
+  TBMPRead = function(Sender:TObject;Line:cardinal;InputArray:PLineRGBb):boolean;
 
 Var
     CountEmptyTiles : integer;

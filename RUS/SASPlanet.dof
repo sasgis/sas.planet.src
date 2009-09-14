@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\.bin
+OutputDir=..\..\GAZ_new
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -129,7 +129,7 @@ RootDir=
 [Version Info]
 IncludeVerInfo=1
 AutoIncBuild=0
-MajorVer=1
+MajorVer=0
 MinorVer=0
 Release=0
 Build=0
@@ -143,20 +143,13 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=SAS Group
 FileDescription=
-FileVersion=1.0.0.0
+FileVersion=0.0.0.0
 InternalName=SAS.Планета
 LegalCopyright=Группа SAS
 LegalTrademarks=SAS.Планета
 OriginalFilename=SASPlanet
 ProductName=SAS.Планета
 ProductVersion=90119
-[HistoryLists\hlUnitAliases]
-Count=1
-Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlUnitOutputDirectory]
-Count=1
-Item0=.\.dcu
-[HistoryLists\hlOutputDirectorry]
-Count=2
-Item0=..\.bin
-Item1=.\.bin
+[Excluded Packages]
+c:\program files\borland\delphi7\Projects\Bpl\SL_D5.bpl=SQLite for Delphi Components
+E:\Delphi\components\gis\datamap7\VkaMap7.bpl=DataMap packages from VKA software

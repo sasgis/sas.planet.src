@@ -26,7 +26,7 @@ type
     SecondLoadTNE:boolean;
     path,url_ifban,err,link:string;
     typeRect:1..3;
-    ty: pchar;
+    ty: string;
     FDate:TDateTime;
     OperBegin:TDateTime;
     UPos:TPoint;
@@ -74,12 +74,6 @@ implementation
 uses Unit1, UImgfun,SysUtils, Graphics, math, DateUtils,  UWikilayer, StrUtils, UGeoFun, Usaveas,
   Controls;
 
-{function ThreadAllLoadMap.OpenConnection(lpszServerName,lpszLogin,lpszPassword:string;port:Word):boolean;
-begin
- hConnect:=InternetConnect(hSession,PChar(lpszServerName),port,PChar(lpszLogin),PChar(lpszPassword),INTERNET_SERVICE_HTTP,0,1);
- result:=InternetSetOption(hSession, INTERNET_OPTION_PROXY_USERNAME,PChar(lpszLogin), length(lpszLogin));
- result:=InternetSetOption(hSession, INTERNET_OPTION_PROXY_PASSWORD,PChar(lpszPassword), length(lpszPassword));
-end;    }
 procedure ThreadAllLoadMap.ButtonSaveClick(Sender: TObject);
 begin
  Synchronize(SaveSessionToFile);
@@ -107,13 +101,13 @@ begin
    zamena:=Ini.ReadBool('Session','zamena',false);
    raz:=Ini.ReadBool('Session','raz',false);
    zdate:=Ini.ReadBool('Session','zdate',false);
-   Fdate:=Ini.ReadDate('Session','Fdate',now);
+   Fdate:=Ini.ReadDate('Session','FDate',now);
    scachano:=Ini.ReadInteger('Session','scachano',0);
    obrab:=Ini.ReadInteger('Session','obrab',0);
    dwnb:=Ini.ReadFloat('Session','dwnb',0);
    SecondLoadTNE:=Ini.ReadBool('Session','SecondLoadTNE',false);
    mapsload:=false;
-   FDate:=Now;
+   //FDate:=Now;
    if LastSuccessful then
          begin
           StartPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
@@ -298,19 +292,24 @@ procedure ThreadAllLoadMap.addDwnforban;
 begin
  if hSession=nil then
   begin
-  if InetConnect.userwinset
-    then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0{INTERNET_FLAG_KEEP_CONNECTION})
-    else if InetConnect.proxyused
+  {if InetConnect.userwinset
+    then }hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+ {   else if InetConnect.proxyused
           then begin
-                 hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0{INTERNET_FLAG_KEEP_CONNECTION});
+                 hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0);
                 try
                  Fmain.WebBrowser1.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
                  Fmain.WebBrowser1.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
+                 if InetConnect.uselogin then
+                  begin
+                   Fmain.WebBrowser1.ProxySettings.UserName:=InetConnect.loginstr;
+                   Fmain.WebBrowser1.ProxySettings.Password:=InetConnect.passstr;
+                  end;
                 except
                  ShowMessage(SAS_ERR_ProxyStrFormat);
                 end;
                end
-          else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0{INTERNET_FLAG_KEEP_CONNECTION});
+          else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);}
   end;
   if (mapsload=false)and(typemap.UseAntiBan>0)and(typeRect<>1) then
    begin
@@ -375,7 +374,7 @@ var hFile:HInternet;
     BufferLen:LongWord;
     err:boolean;
     head:string;
-    dwindex, dwcodelen,dwReserv: dword;
+    dwindex,i, dwcodelen,dwReserv: dword;
     dwtype,dwlen: array [1..20] of char;
     len: pchar;
 begin
@@ -386,35 +385,31 @@ begin
   if Assigned(hSession)then
    begin
     hFile:=InternetOpenURL(hSession,PChar(AURL),PChar(head),length(head), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_NO_CACHE_WRITE or{INTERNET_FLAG_KEEP_CONNECTION or} INTERNET_FLAG_RELOAD,0);
-//    keep_alive:=300;
-//    InternetSetOption (hFile, INTERNET_OPTION_CONNECT_TIME,@keep_alive, sizeof(keep_alive));
-//    err:=InternetSetOption (hFile, INTERNET_OPTION_KEEP_CONNECTION,@keep_alive, sizeof(keep_alive));
-    dwcodelen:=SizeOf(dwindex);
-    if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
-     begin
-    	result:=0; InternetCloseHandle(hFile); exit;
-     end;
-    if (not InetConnect.userwinset)and(InetConnect.uselogin) then
-     begin
-      err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-      err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
-      if not(err) then //Неверные пароль логин
-       begin
-       	result:=-3; InternetCloseHandle(hFile); exit;
-       end;
-      if not(HttpSendRequest(hFile, nil, 0,Nil, 0)) then
-       begin
-       	result:=-3; InternetCloseHandle(hFile); exit;
-       end;
-      HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER,@dwindex, dwcodelen, dwReserv);
-      if ( dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then
-       begin
-       	result:=-3; InternetCloseHandle(hFile); exit;
-       end;
-     end;
     err:=false;
     if Assigned(hFile)then
      begin
+      dwcodelen:=150; dwReserv:=0; dwindex:=0;
+      if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+       then dwindex:=strtoint(pchar(@dwtype));
+      if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
+       begin
+        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+         begin
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+          HttpSendRequest(hFile, nil, 0,Nil, 0);
+         end;
+        dwcodelen:=150; dwReserv:=0; dwindex:=0;
+        if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+         then dwindex:=strtoint(pchar(@dwtype));
+        if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
+         begin
+         	result:=-3;
+          InternetCloseHandle(hFile);
+          exit;
+         end;
+       end;
+
       dwindex:=0; dwcodelen:=150; ty:='';
       fillchar(dwtype,sizeof(dwtype),0);
       if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
@@ -424,7 +419,7 @@ begin
       if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_LENGTH, @dwlen,dwcodelen,dwindex)
         then len:=PChar(@dwlen);
       err:=false;
-      if (ty[0]<>#0)and(PosEx(ty,MT.Content_type,0)>0) then
+      if (ty<>'')and(PosEx(ty,MT.Content_type,0)>0) then
        repeat
         if (raz)and(razlen=strtoint(len)) then begin
                                                  result:=-10;
@@ -478,7 +473,7 @@ end;
 
 procedure ThreadAllLoadMap.GetPos;
 begin
- Upos:=pos;
+ Upos:=FMain.pos;
 end;
 
 function ThreadAllLoadMap.GetErrStr(Aerr:integer):string;
@@ -541,7 +536,7 @@ begin
       lastload.X:=XX-(abs(XX) mod 256);
       lastload.Y:=YY-(abs(YY) mod 256);
       lastload.z:=zoom_size; lastLoad.mt:=@MapType[ii]; lastLoad.use:=true;
-      if (source=1)or((source=3)and(not(TileExists(Path)))) then
+      if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(TileExists(Path)))) then
        begin
          If (MapType[ii].UseAntiBan>1) then
           begin
@@ -742,14 +737,14 @@ begin
  begin
  createdirif(path);
  DeleteFile(copy(path,1,length(path)-3)+'tne');
- if (copy(ty,1,8)='text/xml')and(typemap.ext='.kml')then
+ if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(typemap.ext='.kml')then
   try
    UnZip:=TVCLUnZip.Create(Fmain);
    UnZip.ArchiveStream:=TMemoryStream.Create;
    filebuf.SaveToStream(UnZip.ArchiveStream);
    UnZip.ReadZip;
    filebuf.Position:=0;
-   UnZip.UnZipToStream(filebuf,'ge.kml');
+   UnZip.UnZipToStream(filebuf,UnZip.Filename[0]);
    UnZip.Free;
    SaveTileInCache(filebuf,path);
    ban_pg_ld:=true;
@@ -767,38 +762,42 @@ begin
   begin
     btmsrc:=TBitmap32.Create;
     btmDest:=TBitmap32.Create;
-   try
-    btmSrc.Resampler:=TLinearResampler.Create;
-    LoadTilefromCache(btmsrc,path);
-    btmDest.SetSize(256,256);
-    btmdest.Draw(bounds(0,0,256,256),typemap.TileRect,btmSrc);
-    SaveTileInCache(btmDest,path);
-   finally
+    try
+     btmSrc.Resampler:=TLinearResampler.Create;
+     if LoadTilefromCache(btmsrc,path,false)
+      then begin
+            btmDest.SetSize(256,256);
+//            if btmSrc.Width<typemap.TileRect.Right then typemap.TileRect.Right:=btmSrc.Width;
+//            if btmSrc.Height<typemap.TileRect.Bottom then typemap.TileRect.Bottom:=btmSrc.Height;
+            btmdest.Draw(bounds(0,0,256,256),typemap.TileRect,btmSrc);
+            SaveTileInCache(btmDest,path);
+           end;
+    except
+    end;
     btmSrc.Free;
     btmDest.Free;
-   end;
   end;
 
  ban_pg_ld:=true;
  if (ty='image/png')and(typemap.ext='.jpg')
   then
-   try
+   begin
     btm:=TBitmap.Create;
     png:=TBitmap32.Create;
     jpg:=TJPEGImage.Create;
     RenameFile(path,copy(path,1,length(path)-4)+'.png');
-    LoadTilefromCache(png,copy(path,1,length(path)-4)+'.png');
-    btm.Assign(png);
-    jpg.Assign(btm);
-    SaveTileInCache(jpg,path);
-    DelFile(copy(path,1,length(path)-4)+'.png');
-    btm.Free;
-    jpg.Free;
-    png.Free;
-   except
-   end;
+    if LoadTilefromCache(png,copy(path,1,length(path)-4)+'.png',false)
+     then begin
+           btm.Assign(png);
+           jpg.Assign(btm);
+           SaveTileInCache(jpg,path);
+           DelFile(copy(path,1,length(path)-4)+'.png');
+           btm.Free;
+           jpg.Free;
+           png.Free;
+          end;
+    end;
  end;
-
 
  if (not(typeRect in [2,3]))and(Fmain.Enabled)then
   begin

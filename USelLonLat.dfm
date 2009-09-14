@@ -47,6 +47,7 @@ object FSelLonLat: TFSelLonLat
       Top = 19
       Width = 41
       Height = 13
+      Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -62,6 +63,7 @@ object FSelLonLat: TFSelLonLat
       Top = 41
       Width = 46
       Height = 13
+      Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -229,6 +231,7 @@ object FSelLonLat: TFSelLonLat
       Top = 19
       Width = 41
       Height = 13
+      Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -244,6 +247,7 @@ object FSelLonLat: TFSelLonLat
       Top = 41
       Width = 46
       Height = 13
+      Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET

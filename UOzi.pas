@@ -1,6 +1,6 @@
 unit UOzi;             
 interface
-uses Types, SysUtils, GR32, math,Ugeofun,UMapType, classes;
+uses Types, SysUtils, GR32, math,Ugeofun,UMapType, classes, ECWReader;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
 procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
@@ -28,11 +28,11 @@ var f:TextFile;
      result:=copy(result,1,i+8);
     end;
 begin
- assignfile(f,copy(fname,1,length(fname)-4)+'.map');
+ assignfile(f,ChangeFileExt(fname,'.map'));
  rewrite(f);
  writeln(f,'OziExplorer Map Data File Version 2.2');
- writeln(f,copy(fname,LastDelimiter('\',fname)+1,length(fname)-1));
- writeln(f,fname);
+ writeln(f,'Created by SAS.Planet');
+ writeln(f,ExtractFileName(fname));
  writeln(f,'1 ,Map Code,'+#13#10+'WGS 84,,   0.0000,   0.0000,WGS 84'+#13#10+'Reserved 1'+#13#10+
            'Reserved 2'+#13#10+'Magnetic Variation,,,E'+#13#10+'Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No');
 
@@ -104,7 +104,7 @@ begin
  case Atype.projection of
   1: str:=str+AnsiToUtf8('PROJCS["WGS_1984_Web_Mercator",GEOGCS["GCS_WGS_1984_Major_Auxiliary_Sphere",DATUM["WGS_1984_Major_Auxiliary_Sphere",SPHEROID["WGS_1984_Major_Auxiliary_Sphere",6378137.0,0.0]],PRIMEM["Greenwich",0.0],')+AnsiToUtf8('UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
   2: str:=str+AnsiToUtf8('PROJCS["World_Mercator",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0]')+AnsiToUtf8(',UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
-  else str:=str+AnsiToUtf8('PROJCS["WGS_1984_Web_Mercator",GEOGCS["GCS_WGS_1984_Major_Auxiliary_Sphere",DATUM["WGS_1984_Major_Auxiliary_Sphere",SPHEROID["WGS_1984_Major_Auxiliary_Sphere",6378137.0,0.0]],PRIMEM["Greenwich",0.0],')+AnsiToUtf8('UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
+  else str:=str+AnsiToUtf8('GEOGCS["Geographic Coordinate System",DATUM["WGS84",SPHEROID["WGS84",6378137,298.257223560493]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]');
  end;
  str:=str+AnsiToUtf8('</SRS>'+#13#10+'<Metadata>'+#13#10+'<MDI key="PyramidResamplingType">NEAREST</MDI>'+#13#10+'</Metadata>'+#13#10+'</PAMDataset>');
  AuxXmkfile.Write(str[1],length(str));
@@ -120,7 +120,7 @@ begin
  case Atype.projection of
   1: writeln(f,'PROJCS["Mercator_1SP",GEOGCS["Geographic Coordinate System",DATUM["GOOGLE",SPHEROID["Sphere Radius 6378137 m",6378137,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER'+'["scale_factor",1],PARAMETER["central_meridian",0],PARAMETER["latitude_of_origin",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]');
   2: writeln(f,'PROJCS["World_Mercator",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0]'+',UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
-  else writeln(f,'PROJCS["WGS_1984_Web_Mercator",GEOGCS["GCS_WGS_1984_Major_Auxiliary_Sphere",DATUM["WGS_1984_Major_Auxiliary_Sphere",SPHEROID["WGS_1984_Major_Auxiliary_Sphere",6378137.0,0.0]],PRIMEM["Greenwich",0.0],'+'UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
+  else writeln(f,'GEOGCS["Geographic Coordinate System",DATUM["WGS84",SPHEROID["WGS84",6378137,298.257223560493]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]');
  end;
  closefile(f);
 end;
@@ -174,7 +174,11 @@ begin
  fname:=fname+'w';
  ll1:=GPos2LonLat(xy1,Azoom,Atype);
  ll2:=GPos2LonLat(xy2,Azoom,Atype);
- CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY);
+ case Atype.projection of
+  1,2:CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
+  3: CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_DEGREES);
+ end;
+ //CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
  assignfile(f,fname);
  rewrite(f);
  writeln(f,R2StrPoint(CellX));

@@ -13,7 +13,7 @@ object Fprogress2: TFprogress2
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnClose = FormClose
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96

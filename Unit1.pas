@@ -1,14 +1,16 @@
 unit Unit1;
 interface
 uses
-  Windows, Registry, Messages, SysUtils, Forms, GR32, GR32_Resamplers,GR32_Layers,
+  Windows, Registry, Messages, SysUtils, Forms, GR32,GR32_Resamplers,GR32_Layers,
   GR32_Polygons, TB2Item,  TB2Dock, TB2Toolbar, math, ShellApi, inifiles,
   UTrAllLoadMap,  Classes, Menus,  RXSlider, UThreadScleit, Ugeofun, UWikiLayer,
-  UKMLmap, MSHTML,variants, ActiveX, ComCtrls, ShlObj, ComObj, GR32_Filters,
+  MSHTML,variants, ActiveX, ComCtrls, ShlObj, ComObj, GR32_Filters,
   EmbeddedWB, TB2ExtItems, midaslib, ULogo, UMapType, Graphics, StdCtrls,
   DB, UThreadExport, GR32_Image, UResStrings, WinInet, SHDocVw_EWB, DBClient,
-  MXPMenu, ZylCustomGPSReceiver, ZylGPSReceiver, BMSearch, EwbCore, ImgList,
-  Dialogs, Controls, OleCtrls, UFillingMap;
+  OleCtrls, EwbCore, TBX, Controls,
+  ZylGPSReceiver, Dialogs, BMSearch,  UFillingMap, PNGimage,
+   Buttons, ZylCustomGPSReceiver, ImgMaker,
+  ImgList, TB2ToolWindow, TBXToolPals {UNetRadar,};
 
 type
   TlastLoad = record
@@ -17,6 +19,8 @@ type
     mt:Longint;
     use:boolean;
   end;
+
+  TTileSource = (tsInternet,tsCache,tsCacheInternet);
 
   TArrLL = array [0..0] of TExtendedPoint;
   PArrLL = ^TArrLL;
@@ -46,43 +50,6 @@ type
     N25: TMenuItem;
     NDel: TMenuItem;
     TBImageList1: TTBImageList;
-    MainMenu: TMainMenu;
-    N2: TMenuItem;
-    NZoomIn: TMenuItem;
-    NZoomOut: TMenuItem;   
-    N12: TMenuItem;
-    N14: TMenuItem;
-    NCalcRast: TMenuItem;
-    N5: TMenuItem;
-    N8: TMenuItem;
-    N9: TMenuItem;
-    N6: TMenuItem;
-    N1: TMenuItem;
-    N4: TMenuItem;
-    N17: TMenuItem;
-    N18: TMenuItem;
-    N011: TMenuItem;
-    N021: TMenuItem;
-    N031: TMenuItem;
-    N041: TMenuItem;
-    N051: TMenuItem;
-    N061: TMenuItem;
-    N071: TMenuItem;
-    N081: TMenuItem;
-    N19: TMenuItem;
-    NFoolSize: TMenuItem;
-    NGoToCur: TMenuItem;
-    Nbackload: TMenuItem;
-    Nanimate: TMenuItem;
-    NShowGran: TMenuItem;
-    N10: TMenuItem;
-    NSRCinet: TMenuItem;
-    NSRCesh: TMenuItem;
-    NSRCic: TMenuItem;
-    NSMB: TMenuItem;
-    N3: TMenuItem;
-    N16: TMenuItem;
-    NCiclMap: TMenuItem;
     N28: TMenuItem;
     N012: TMenuItem;
     N022: TMenuItem;
@@ -108,136 +75,41 @@ type
     N221: TMenuItem;
     N231: TMenuItem;
     N241: TMenuItem;
-    N29: TMenuItem;
-    NMainToolBarShow: TMenuItem;
-    NZoomToolBarShow: TMenuItem;
-    NsrcToolBarShow: TMenuItem;
-    EmbeddedWB1_: TEmbeddedWB;
-    N000: TMenuItem;
-    N001: TMenuItem;
-    N002: TMenuItem;
-    N003: TMenuItem;
-    N004: TMenuItem;
-    N005: TMenuItem;
-    N006: TMenuItem;
-    N007: TMenuItem;
-    NGPSToolBarShow: TMenuItem;
     N30: TMenuItem;
-    N31: TMenuItem;
-    Showstatus: TMenuItem;
-    ShowMiniMap: TMenuItem;
-    ShowLine: TMenuItem;
-    PopupMSmM: TPopupMenu;
-    NMMtype_0: TMenuItem;
-    N32: TMenuItem;
-    NKMLShow: TMenuItem;
     ImagesSrc24: TImageList;
-    N37: TMenuItem;
-    N38: TMenuItem;
-    NRECT: TMenuItem;
-    NREGION: TMenuItem;
-    N41: TMenuItem;
-    N42: TMenuItem;
     Google1: TMenuItem;
     N43: TMenuItem;
-    TBDockLeft: TTBDock;
-    TBDock: TTBDock;
-    TBMainToolBar: TTBToolbar;
-    TBmove: TTBItem;
-    TBRectSave: TTBSubmenuItem;
-    TBRECT: TTBItem;
-    TBREGION: TTBItem;
-    TBItem4: TTBItem;
-    TBItem1: TTBItem;
-    TBCalcRas: TTBItem;
-    TBSeparatorItem1: TTBSeparatorItem;
-    TBMapZap: TTBSubmenuItem;
-    TBMapZap0: TTBItem;
-    TBMapZap1: TTBItem;
-    TBMapZap2: TTBItem;
-    TBMapZap3: TTBItem;
-    TBMapZap4: TTBItem;
-    TBMapZap5: TTBItem;
-    TBMapZap6: TTBItem;
-    TBMapZap7: TTBItem;
-    TBMapZap8: TTBItem;
-    TBGoTo: TTBSubmenuItem;
-    EditGoogleSrch: TTBEditItem;
-    TBSeparatorItem3: TTBSeparatorItem;
-    TBFullSize: TTBItem;
-    SrcToolbar: TTBToolbar;
-    TBSrc: TTBSubmenuItem;
-    TBinet: TTBItem;
-    TBcache: TTBItem;
-    TBcin: TTBItem;
-    TBSMB: TTBSubmenuItem;
-    TBExit: TTBToolbar;
-    TBItem2: TTBItem;
-    GPSToolbar: TTBToolbar;
-    TBGPSconn: TTBItem;
-    TBGPSPath: TTBSubmenuItem;
-    TBItem3: TTBItem;
-    TBGPSToPoint: TTBItem;
-    TBDockBottom: TTBDock;
-    TBDockRight: TTBDock;
     TBImageList2: TTBImageList;
-    TBLoadSelFromFile: TTBItem;
-    NLoadSelFromFile: TMenuItem;
-    TBEditItem1: TTBEditItem;
-    KML1: TMenuItem;
-    KMLexplorer1: TMenuItem;
-    GPS1: TMenuItem;
-    NGPSconn: TMenuItem;
-    NGPSPath: TMenuItem;
-    NGPSToPoint: TMenuItem;
-    N48: TMenuItem;
-    NSaveTreck: TMenuItem;
     OpenDialog1: TOpenDialog;
     YaLink: TMenuItem;
     kosmosnimkiru1: TMenuItem;
     N51: TMenuItem;
-    TBLayerSel: TTBSubmenuItem;
-    TBKMLShow: TTBItem;
     MapIcons24: TImageList;
-    NLayerSel: TMenuItem;
-    NKMLShow1: TMenuItem;
-    TBSeparatorItem4: TTBSeparatorItem;
-    N7: TMenuItem;
     MapIcons18: TImageList;
-    Ninvertcolor: TMenuItem;
-    TBMarksToolbar: TTBToolbar;
-    TBAdd_Poly: TTBItem;
-    TBAdd_Line: TTBItem;
-    TBAdd_Point: TTBItem;
     DataSource1: TDataSource;
-    TBItem5: TTBItem;
     NMarkDel: TMenuItem;
     NMarkEdit: TMenuItem;
     NMarkSep: TMenuItem;
-    NMarksBarShow: TMenuItem;
     NMarkOper: TMenuItem;
     livecom1: TMenuItem;
     N13: TMenuItem;
-    TBSubmenuItem1: TTBSubmenuItem;
-    TBMarksShowAll: TTBItem;
-    TBMarksShowDef: TTBItem;
-    TBMarksShowNo: TTBItem;
-    ImageList1: TImageList;
-    TBSeparatorItem5: TTBSeparatorItem;
     ImageAtlas1: TMenuItem;
     SaveDialog1: TSaveDialog;
     N26: TMenuItem;
     N27: TMenuItem;
     DigitalGlobe1: TMenuItem;
-    NSubMenuSmItem: TMenuItem;
     ldm: TMenuItem;
     dlm: TMenuItem;
-    TBControlItem3: TTBControlItem;
-    Label1: TLabel;
     GPSReceiver: TZylGPSReceiver;
-    N33: TMenuItem;
-    NMapParams: TMenuItem;
+    SaveLink: TSaveDialog;
+    DSKategory: TDataSource;
+    CDSKategory: TClientDataSet;
     CDSmarks: TClientDataSet;
+    CDSKategoryid: TAutoIncField;
+    CDSKategoryname: TStringField;
+    CDSKategoryvisible: TBooleanField;
+    CDSKategoryAfterScale: TSmallintField;
+    CDSKategoryBeforeScale: TSmallintField;
     CDSmarksid: TAutoIncField;
     CDSmarksname: TStringField;
     CDSmarksdescr: TMemoField;
@@ -252,38 +124,175 @@ type
     CDSmarkscolor2: TIntegerField;
     CDSmarksvisible: TBooleanField;
     CDSmarkspicname: TStringField;
-    N34: TMenuItem;
-    N35: TMenuItem;
-    SaveLink: TSaveDialog;
+    CDSmarkscategoryid: TIntegerField;
+    NSRTM3: TMenuItem;
+    N47: TMenuItem;
+    N49: TMenuItem;
+    NGTOPO30: TMenuItem;
+    NMarkNav: TMenuItem;
+    TBDock: TTBXDock;
+    TBMainToolBar: TTBXToolbar;
+    TBDockBottom: TTBXDock;
+    TBDockLeft: TTBXDock;
+    TBmove: TTBItem;
+    TBRectSave: TTBSubmenuItem;
+    TBRECT: TTBItem;
+    TBREGION: TTBItem;
+    TBCOORD: TTBItem;
+    TBPrevious: TTBItem;
+    TBLoadSelFromFile: TTBItem;
+    TBCalcRas: TTBItem;
+    TBSeparatorItem1: TTBSeparatorItem;
+    TBMapZap: TTBSubmenuItem;
+    TBGoTo: TTBSubmenuItem;
     TBEditItem2: TTBEditItem;
+    TBEditItem1: TTBEditItem;
+    EditGoogleSrch: TTBEditItem;
+    TBSeparatorItem3: TTBSeparatorItem;
+    TBFullSize: TTBItem;
+    SrcToolbar: TTBXToolbar;
+    TBSrc: TTBSubmenuItem;
+    TBSMB: TTBSubmenuItem;
+    TBLayerSel: TTBSubmenuItem;
+    TBMarksToolbar: TTBXToolbar;
+    GPSToolbar: TTBXToolbar;
+    TBGPSconn: TTBItem;
+    TBGPSPath: TTBSubmenuItem;
+    TBItem3: TTBItem;
+    TBItem5: TTBItem;
     TBItemDelTrack: TTBItem;
-    N36: TMenuItem;
-    N39: TMenuItem;
-    N40: TMenuItem;
-    NGShScale0: TMenuItem;
-    NGShScale1000000: TMenuItem;
-    NGShScale500000: TMenuItem;
-    NGShScale200000: TMenuItem;
-    NGShScale100000: TMenuItem;
-    NGShScale50000: TMenuItem;
-    NGShScale25000: TMenuItem;
-    NGShScale10000: TMenuItem;
-    TBEditPath: TTBToolbar;
-    TBEditPathSave: TTBItem;
-    TBEditPathLabel: TTBItem;
-    TBEditPathDel: TTBItem;
-    WebBrowser1: TEmbeddedWB;
-    ZoomToolBar: TTBToolbar;
+    TBGPSToPoint: TTBItem;
+    TBControlItem3: TTBControlItem;
+    Label1: TLabel;
+    TBExit: TTBXToolbar;
+    TBItem2: TTBItem;
+    ZoomToolBar: TTBXToolbar;
+    TBZoomIn: TTBItem;
     TBZoom_out: TTBItem;
     TBControlItem1: TTBControlItem;
-    TBZoomIn: TTBItem;
-    TBSeparatorItemtr: TTBSeparatorItem;
+    RxSlider1: TRxSlider;
     TBControlItem2: TTBControlItem;
     labZoom: TLabel;
-    RxSlider1: TRxSlider;
-    N44: TMenuItem;
-    NGoToForum: TMenuItem;
-    NGoToSite: TMenuItem;
+    TBEditPath: TTBXToolbar;
+    TBEditPathDel: TTBItem;
+    TBEditPathLabel: TTBItem;
+    TBEditPathSave: TTBItem;
+    TBEditPathMarsh: TTBSubmenuItem;
+    TBItem8: TTBItem;
+    TBItem9: TTBItem;
+    TBItem7: TTBItem;
+    TBDockRight: TTBXDock;
+    TBXSeparatorItem1: TTBXSeparatorItem;
+    TBXSeparatorItem2: TTBXSeparatorItem;
+    TBXSeparatorItem3: TTBXSeparatorItem;
+    TBXMainMenu: TTBXToolbar;
+    NSMB: TTBXSubmenuItem;
+    NLayerSel: TTBXSubmenuItem;
+    NOperations: TTBXSubmenuItem;
+    N35: TTBItem;
+    N34: TTBSeparatorItem;
+    NZoomIn: TTBItem;
+    NZoomOut: TTBItem;
+    N12: TTBSeparatorItem;
+    N14: TTBItem;
+    NCalcRast: TTBItem;
+    N5: TTBSeparatorItem;
+    N38: TTBSubmenuItem;
+    N37: TTBSeparatorItem;
+    N6: TTBItem;
+    NView: TTBXSubmenuItem;
+    N4: TTBSubmenuItem;
+    NMainToolBarShow: TTBItem;
+    NZoomToolBarShow: TTBItem;
+    NsrcToolBarShow: TTBItem;
+    NGPSToolBarShow: TTBItem;
+    NMarksBarShow: TTBItem;
+    N31: TTBSubmenuItem;
+    Showstatus: TTBItem;
+    ShowMiniMap: TTBItem;
+    ShowLine: TTBItem;
+    NFillMap: TTBSubmenuItem;
+    NShowGran: TTBSubmenuItem;
+    N000: TTBItem;
+    N001: TTBItem;
+    N002: TTBItem;
+    N003: TTBItem;
+    N004: TTBItem;
+    N005: TTBItem;
+    N006: TTBItem;
+    N007: TTBItem;
+    N40: TTBSubmenuItem;
+    N19: TTBSeparatorItem;
+    NFoolSize: TTBItem;
+    NGoToCur: TTBItem;
+    Nbackload: TTBItem;
+    Nanimate: TTBItem;
+    NCiclMap: TTBItem;
+    N32: TTBItem;
+    Ninvertcolor: TTBItem;
+    NSources: TTBXSubmenuItem;
+    NSRCesh: TTBItem;
+    NSRCinet: TTBItem;
+    NSRCic: TTBItem;
+    NMarks: TTBXSubmenuItem;
+    NGPS: TTBXSubmenuItem;
+    NGPSconn: TTBItem;
+    NGPSPath: TTBItem;
+    NGPSToPoint: TTBItem;
+    N48: TTBSeparatorItem;
+    NSaveTreck: TTBItem;
+    N36: TTBItem;
+    N39: TTBItem;
+    NParams: TTBXSubmenuItem;
+    NMapParams: TTBItem;
+    NLayerParams: TTBXSubmenuItem;
+    N53: TTBSeparatorItem;
+    N8: TTBItem;
+    NHelp: TTBXSubmenuItem;
+    N29: TTBItem;
+    N16: TTBItem;
+    N44: TTBSeparatorItem;
+    NGoToSite: TTBItem;
+    NGoToForum: TTBItem;
+    NGShScale0: TTBXItem;
+    NGShScale1000000: TTBXItem;
+    NGShScale500000: TTBXItem;
+    NGShScale200000: TTBXItem;
+    NGShScale100000: TTBXItem;
+    NGShScale50000: TTBXItem;
+    NGShScale25000: TTBXItem;
+    NGShScale10000: TTBXItem;
+    PopupMSmM: TTBXPopupMenu;
+    NSubMenuSmItem: TTBXSubmenuItem;
+    NMMtype_0: TTBXItem;
+    TBAdd_Point: TTBItem;
+    TBAdd_Line: TTBItem;
+    TBAdd_Poly: TTBItem;
+    TBSeparatorItem24: TTBSeparatorItem;
+    TBItem6: TTBItem;
+    TBFillingTypeMap: TTBXSubmenuItem;
+    TBfillMapAsMain: TTBXItem;
+    NMarksCalcs: TMenuItem;
+    NMarksCalcsLen: TMenuItem;
+    NMarksCalcsSq: TMenuItem;
+    NMarksCalcsPer: TMenuItem;
+    TBXToolWindow1: TTBXToolWindow;
+    TreeView1: TTreeView;
+    SpeedButton1: TSpeedButton;
+    MemoObjectInfo: TMemo;
+    TBSeparatorItem2: TTBSeparatorItem;
+    TBEditPathOk: TTBItem;
+    TBLang: TTBSubmenuItem;
+    TBItem1: TTBItem;
+    TBItem4: TTBItem;
+    WebBrowser1: TEmbeddedWB;
+    ImageList1: TImageList;
+    N1: TMenuItem;
+    NMapInfo: TMenuItem;
+    TBXToolPalette1: TTBXToolPalette;
+    TBImageList1_24: TTBImageList;
+    PMNRObject: TPopupMenu;
+    NGoHim: TMenuItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -311,16 +320,13 @@ type
     procedure NDelClick(Sender: TObject);
     procedure TBREGIONClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
-    procedure N18Click(Sender: TObject);
-    procedure N17Click(Sender: TObject);
+    procedure NFillMapClick(Sender: TObject);
     procedure ThreadDone(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure N16Click(Sender: TObject);
     procedure TBRECTClick(Sender: TObject);
     procedure TBRectSaveClick(Sender: TObject);
-    procedure TBItem1Click(Sender: TObject);
-    procedure TBMapZapPopup(Sender: TTBCustomItem; FromLink: Boolean);
-    procedure TBMapZap1Click(Sender: TObject);
+    procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
     procedure NCiclMapClick(Sender: TObject);
     procedure N012Click(Sender: TObject);
@@ -329,7 +335,6 @@ type
     procedure NZoomToolBarShowClick(Sender: TObject);
     procedure NsrcToolBarShowClick(Sender: TObject);
     procedure EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-    procedure EmbeddedWB1_DocumentComplete(ASender: TObject; const pDisp: IDispatch; var URL: OleVariant);
     procedure TBSubmenuItem1Click(Sender: TObject);
     procedure TBMainToolBarClose(Sender: TObject);
     procedure N000Click(Sender: TObject);
@@ -339,19 +344,17 @@ type
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
     procedure N30Click(Sender: TObject);
-    procedure TBItem4Click(Sender: TObject);
+    procedure TBCOORDClick(Sender: TObject);
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
     procedure NMMtype_0Click(Sender: TObject);
     procedure N32Click(Sender: TObject);
-    procedure TBKMLShowClick(Sender: TObject);
     procedure TBItem3Click(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure TBLoadSelFromFileClick(Sender: TObject);
     procedure TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-    procedure KMLexplorer1Click(Sender: TObject);
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
@@ -367,41 +370,64 @@ type
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
     procedure N13Click(Sender: TObject);
-    procedure TBMarksShowNoClick(Sender: TObject);
     procedure ImageAtlas1Click(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure RxSlider1Changed(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure GPSReceiver1SatellitesReceive(Sender: TObject);
     procedure GPSReceiverReceive(Sender: TObject);
-    procedure GPSReceiverDisconnect(Sender: TObject;
-      const Port: TCommPort);
+    procedure GPSReceiverDisconnect(Sender: TObject; const Port: TCommPort);
     procedure GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
     procedure GPSReceiverTimeout(Sender: TObject);
     procedure NMapParamsClick(Sender: TObject);
-    procedure mapMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-    procedure mapMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-    procedure mapMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer; Layer: TCustomLayer);
+    procedure mapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure N35Click(Sender: TObject);
-    procedure TBEditItem2AcceptText(Sender: TObject; var NewText: String;
-      var Accept: Boolean);
+    procedure TBEditItem2AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBItemDelTrackClick(Sender: TObject);
-    procedure NGShScale0Click(Sender: TObject);
+    procedure NGShScale01Click(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
     procedure NGoToForumClick(Sender: TObject);
     procedure NGoToSiteClick(Sender: TObject);
+    procedure TBItem6Click(Sender: TObject);
+    procedure NSRTM3Click(Sender: TObject);
+    procedure NGTOPO30Click(Sender: TObject);
+    procedure NMarkNavClick(Sender: TObject);
+    procedure TBEditPathMarshClick(Sender: TObject);
+    procedure AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
+    procedure NParamsClick(Sender: TObject);
+    procedure TBfillMapAsMainClick(Sender: TObject);
+    procedure NMarksCalcsLenClick(Sender: TObject);
+    procedure NMarksCalcsSqClick(Sender: TObject);
+    procedure NMarksCalcsPerClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure TBEditPathOkClick(Sender: TObject);
+    procedure TBItem1Click(Sender: TObject);
+    procedure NMapInfoClick(Sender: TObject);
+    procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;
+      var ACol, ARow: Integer; var AllowChange: Boolean);
+    procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB;
+      var hwnd: HWND; var szUserName, szPassWord: WideString;
+      var Rezult: HRESULT);
   private
    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
+   procedure Set_lock_toolbars(const Value: boolean);
+   procedure Set_TileSource(const Value:TTileSource);
+   procedure Set_Pos(const Value:TPoint);
+  protected
+   Flock_toolbars:boolean;
+   FTileSource:TTileSource;
+   FPos:TPoint;
   public
    FillingMap:TFillingMap;
-   XPMenu:TMXPMenu;
+   property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
+   property TileSource:TTileSource read FTileSource write Set_TileSource;
+   property Pos:TPoint read FPos write Set_Pos;
    procedure createdirif(path:string);
    procedure generate_im(lastload:TLastLoad;err:string);
    procedure sm_im_reset(x,y:integer);
@@ -414,7 +440,7 @@ type
    function  Lon2Xf(Lon:real):real;
    function  Lat2Yf(lat:real):real;
    procedure topos(lat,lon:real;zoom_:byte;draw:boolean);
-   function  R2ShortStr(r:real;z:byte;s1,s2:string):string;
+   function  R2ShortStr(r:real;z:byte):string;
    procedure zooming(x:byte;move:boolean);
    function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
    function  timezone(lon,lat:real):TDateTime;
@@ -442,11 +468,13 @@ type
    procedure insertinpath(pos:integer);
    procedure delfrompath(pos:integer);
    procedure ThreadExportDone(Sender: TObject);
-   procedure generate_lonlan(dx,dy:integer);
    procedure DrawGenShBorders;
    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
    procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
    procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+   procedure SetStatusBarVisible(visible:boolean);
+   procedure SetLineScaleVisible(visible:boolean);
+   procedure SetMiniMapVisible(visible:boolean);
   end;
 
   TName = record
@@ -480,8 +508,16 @@ type
     proxystr,loginstr,passstr:string;
   end;
 
+  TNavOnMark = class
+   id:integer;
+   ll:TExtendedPoint;
+   width:integer;
+   public
+   procedure draw;
+  end;
+
 const
-  SASVersion='90519';
+  SASVersion='90914';
   ENU=LANG_ENGLISH;
   RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
@@ -495,20 +531,18 @@ const
 
 var
   Fmain:TFmain;
-  KML_Path:string;
   PWL:TResObj;
-  //exct,ra,rb:extended;
-  zoom_size,zoom_mapzap,source,num_format,show_point,zoom_line,
-  poly_zoom_save,resampling,llStrType:byte;
+  zoom_size,zoom_mapzap,num_format,show_point,zoom_line,poly_zoom_save,resampling,llStrType:byte;
   All_Dwn_Kb:Currency;
-  ShowActivHint:boolean;
+  ShowActivHint,ShowHintOnMarks:boolean;
   GPS_enab:boolean;
-  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale,
+  marshrutcomment:string;
+  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale, TilesOCache,
     zoom_in,mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
-  move,m_up,m_m,POS,oldPOS,moveTrue:Tpoint;
-  notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,KMLshow,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
+  move,m_up,m_m,oldPOS,moveTrue{,POS}:Tpoint;
+  notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
     mouse_inv,sparam,ban_pg_ld,LenShow,CiclMap,Maximized,GPS_path,GPS_go,sizing,dblDwnl,SaveTileNotExists:boolean;
-  spr,mapbuf:TBitmap32;
+  spr:TBitmap32;
   DefCache:byte;
   BorderColor,MapZapColor:TColor;
   BorderAlpha,MapZapAlpha:byte;
@@ -524,7 +558,7 @@ var
   //x
   aoper:TAOperation;
   Deg:real;
-  NewCPath_,OldCPath_,ESCpath_,GMTilespath_,dwnlstr,GPS_COM:string;
+  NewCPath_,OldCPath_,ESCpath_,GMTilespath_,GECachepath_,dwnlstr,GPS_COM:string;
   GPS_arr_speed:array of real;
   length_arr,add_line_arr,GPS_arr:array of TExtendedPoint;
   GPS_popr:TExtendedPoint;
@@ -537,30 +571,308 @@ var
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
-  LayerMap,LayerMapWiki,LayerMapScale,layerLineM,LayerMinMap,LayerStatBar,LayerMapNal,LayerMapGPS: TBitmapLayer;
+  LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMinMap,LayerStatBar,LayerMapNal,LayerMapGPS: TBitmapLayer;
   h: THintWindow;
   oldLayerIndex:integer;
   curBuf:TCursor;
   OldFormWH:TPoint;
   Wikim_set:TWikim_set;
-  TilesLoad:TStringList;
+//  TilesLoad:TStringList;
   nilLastLoad:TLastLoad;
   change_scene:boolean;
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
   localization:integer;
   ProgrammPath:string;
+  NavOnMark:TNavOnMark;
+  PosLL:TExtendedPoint;
+ // NetRadar:TNetRadar;
+  hres:HRESULT;
   function  ffpath(x,y:longint;Azoom:byte;AMap:TMapType;short:boolean):string;
   procedure Gamma(Bitmap: TBitmap32);
   function c_GetTempPath: string;
-  procedure CopyStringToClipboard(s: string);
+  procedure CopyStringToClipboard(s: Widestring);
   procedure CopyBtmToClipboard(btm:TBitmap);
+  function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+  function EncodeDG(S: string): string;
+  function Encode64(S: string): string;
+  function URLDecode(const S: string): string;
+  function URLEncode(const S: string): string;
 
 implementation
-uses Unit2,Unit7,Usettings,USaveas,UProgress,UaddPoint,Unit4,
-  USelLonLat, StrUtils,UImgFun, UKMLExplorer, UtimeZones, PNGimage,
-  UaddLine, UaddPoly, DateUtils, UEditMap, Ubrowser, Types;
-{$R *.dfm}
+uses Unit2,UAbout,Usettings,USaveas,UProgress,UaddPoint,Unit4, USelLonLat, StrUtils, UImgFun,
+     UtimeZones, UaddLine, UaddPoly, DateUtils, UEditMap, Ubrowser, Types,UMarksExplorer,UFDGAvailablePic,
+  USearchResult, UImport, UAddCategory;
+{$R *.dfm} //{$R 0map.res} {$R Icons.RES}
+procedure TFMain.Set_Pos(const Value:TPoint);
+begin
+ FPos:=Value;
+// PosLL:=
+end;
+
+function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
+var
+  hData: HGlobal;
+begin
+  Result := True;
+  if OpenClipboard(Wnd) then
+  begin
+    try
+      hData := GetClipboardData(CF_TEXT);
+      if hData <> 0 then
+      begin
+        try
+          SetString(Str, PChar(GlobalLock(hData)), GlobalSize(hData));
+        finally
+          GlobalUnlock(hData);
+        end;
+      end
+      else
+        Result := False;
+      Str := PChar(@Str[1]);
+    finally
+      CloseClipboard;
+    end;
+  end
+  else
+    Result := False;
+end;
+
+procedure TFMain.Set_TileSource(const Value:TTileSource);
+begin
+ FTileSource:=Value;
+ TBSrc.ImageIndex:=integer(Value);
+ case Value of
+  tsInternet: NSRCinet.Checked:=true;
+  tsCache: NSRCesh.Checked:=true;
+  tsCacheInternet: NSRCic.Checked:=true;
+ end;
+ if (value=tsCache) then
+  if (THLoadMap1<>nil) then THLoadMap1.Terminate
+                       else
+  else if (THLoadMap1<>nil) then change_scene:=true
+                            else
+  begin
+   change_scene:=true;
+   THLoadMap1:=ThreadAllLoadMap.Create(False,[],4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
+   THLoadMap1.FreeOnTerminate:=true;
+   THLoadMap1.Priority:=tpLower;
+   THLoadMap1.OnTerminate:=ThreadDone;
+  end
+{ if THLoadMap1<>nil then THLoadMap1.Terminate;
+ if value<>tsCache then
+  begin
+   change_scene:=true;
+   While THLoadMap1<>nil do Application.ProcessMessages;
+   THLoadMap1:=ThreadAllLoadMap.Create(False,[],4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
+   THLoadMap1.FreeOnTerminate:=true;
+   THLoadMap1.Priority:=tpLower;
+   THLoadMap1.OnTerminate:=ThreadDone;
+  end               }
+end;
+
+procedure TFMain.Set_lock_toolbars(const Value: boolean);
+begin
+ TBDock.AllowDrag:=not value;
+ TBDockLeft.AllowDrag:=not value;
+ TBDockRight.AllowDrag:=not value;
+ TBDockBottom.AllowDrag:=not value;
+ Flock_toolbars:=value;
+end;
+
+procedure TNavOnMark.draw;
+var Polygon:TPolygon32;
+    ke,ks:TExtendedPoint;
+    pe:TPoint;
+    dl:integer;
+    r,TanOfAngle,D,Angle:Extended;
+begin
+ Polygon := TPolygon32.Create;
+ Polygon.Antialiased := true;
+ polygon.AntialiasMode:=am4times;
+
+  ke:=extpoint(Fmain.Lon2Xf(ll.x),Fmain.lat2Yf(ll.y));
+  ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
+  pe:=Point(round(ke.x),round(ke.y));
+  ks:=extPoint(pr_x,pr_y);
+  dl:=GPS_SizeStr;
+  //R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
+  if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
+               else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
+  D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
+  r:=D/2-(dl div 2);
+  if mWd2>mHd2 then if R>mHd2 then r:=mHd2-(dl div 2) else
+               else if R>mWd2 then r:=mWd2-(dl div 2);
+  //ke.x:=ke.X+(ke.X-ks.X);
+  //ke.y:=ke.y+(ke.y-ks.y);
+  ke.x:=Round((R*kE.x+(D-R)*kS.X)/D);
+  ke.y:=Round((R*kE.y+(D-R)*kS.Y)/D);
+  Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
+  Angle:=ArcTan(TanOfAngle)+0.28;
+  if ks.X < ke.X then Angle:=Angle+Pi;
+  Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+  Angle:=ArcTan(TanOfAngle)-0.28;
+  if ks.X < ke.X then Angle:=Angle+Pi;
+  Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+  if D>dl+1
+   then Polygon.DrawFill(LayerMap.Bitmap, SetAlpha(Color32(GPS_colorStr), 150))
+   else begin
+         LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GPS_colorStr), 150));
+         LayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GPS_colorStr), 150));
+        end;
+ Polygon.Free;
+end;
+
+function DigitToHex(Digit: Integer): Char;
+begin
+  case Digit of
+    0..9: Result := Chr(Digit + Ord('0'));
+    10..15: Result := Chr(Digit - 10 + Ord('A'));
+    else Result := '0';
+  end;
+end; // DigitToHex
+
+function EncodeDG(S: string): string;
+var i:integer;
+begin
+ result:=S;
+ for i:=1 to length(s) do
+  if ord(s[i]) mod 2 = 0 then result[i]:=chr(ord(s[i])+1)
+                         else result[i]:=chr(ord(s[i])-1);
+end;
+
+function Encode64(S: string): string;
+const Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+var i,a,x,b: Integer;
+begin
+ Result:='';
+ a:=0;
+ b:=0;
+ for i := 1 to Length(s) do
+  begin
+   x:=Ord(s[i]);
+   b:=b*256+x;
+   a:=a+8;
+   while a >= 6 do
+    begin
+     a := a-6;
+     x := b div (1 shl a);
+     b := b mod (1 shl a);
+     Result := Result + Codes64[x + 1];
+    end;
+  end;
+ if a>0 then Result:=Result+Codes64[(b shl (6-a))+1];
+end;
+
+function Decode64(S: string): string;
+const Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+var i,a,x,b: Integer;
+begin
+ Result := '';
+ a := 0;
+ b := 0;
+ for i := 1 to Length(s) do
+  begin
+   x := System.Pos(s[i], codes64) - 1;
+   if x>=0 then begin
+                 b := b * 64 + x;
+                 a := a + 6;
+                 if a >= 8 then
+                  begin
+                   a := a - 8;
+                   x := b shr a;
+                   b := b mod (1 shl a);
+                   x := x mod 256;
+                   Result := Result + chr(x);
+                  end;
+               end
+           else Exit;
+   end;
+end;
+
+function URLEncode(const S: string): string;
+var i, idx, len: Integer;
+begin
+  len := 0;
+  for i := 1 to Length(S) do
+   if ((S[i] >= '0') and (S[i] <= '9')) or
+      ((S[i] >= 'A') and (S[i] <= 'Z')) or
+      ((S[i] >= 'a') and (S[i] <= 'z')) or (S[i] = ' ') or
+      (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.')
+      then len := len + 1
+      else len := len + 3;
+  SetLength(Result, len);
+  idx := 1;
+  for i := 1 to Length(S) do
+    if S[i] = ' ' then
+    begin
+      Result[idx] := '+';
+      idx := idx + 1;
+    end
+    else if ((S[i] >= '0') and (S[i] <= '9')) or
+    ((S[i] >= 'A') and (S[i] <= 'Z')) or
+    ((S[i] >= 'a') and (S[i] <= 'z')) or
+    (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.') then
+    begin
+      Result[idx] := S[i];
+      idx := idx + 1;
+    end
+    else
+    begin
+      Result[idx] := '%';
+      Result[idx + 1] := DigitToHex(Ord(S[i]) div 16);
+      Result[idx + 2] := DigitToHex(Ord(S[i]) mod 16);
+      idx := idx + 3;
+    end;
+end; // URLEncode
+
+function URLDecode(const S: string): string;
+var i, idx, len, n_coded: Integer;
+  function WebHexToInt(HexChar: Char): Integer;
+  begin
+    if HexChar < '0' then
+      Result := Ord(HexChar) + 256 - Ord('0')
+    else if HexChar <= Chr(Ord('A') - 1) then
+      Result := Ord(HexChar) - Ord('0')
+    else if HexChar <= Chr(Ord('a') - 1) then
+      Result := Ord(HexChar) - Ord('A') + 10
+    else Result := Ord(HexChar) - Ord('a') + 10;
+  end;
+begin
+  len := 0;
+  n_coded := 0;
+  for i := 1 to Length(S) do
+    if n_coded >= 1 then
+    begin
+      n_coded := n_coded + 1;
+      if n_coded >= 3 then n_coded := 0;
+    end
+    else
+    begin
+      len := len + 1;
+      if S[i] = '%' then n_coded := 1;
+    end;
+  SetLength(Result, len);
+  idx := 0;
+  n_coded := 0;
+  for i := 1 to Length(S) do
+    if n_coded >= 1 then
+    begin
+      n_coded := n_coded + 1;
+      if n_coded >= 3 then
+      begin
+        Result[idx] := Chr((WebHexToInt(S[i - 1]) * 16 + WebHexToInt(S[i])) mod 256);
+        n_coded := 0;
+      end;
+    end
+    else
+    begin
+      idx := idx + 1;
+      if S[i] = '%' then n_coded := 1;
+      if S[i] = '+' then Result[idx] := ' '
+                    else Result[idx] := S[i];
+    end;
+end;
 
 procedure CopyBtmToClipboard(btm:TBitmap);
 var hSourcDC, hDestDC, hBM, hbmOld: THandle;
@@ -580,7 +892,7 @@ begin
   DeleteDC(hSourcDC);
 end;
 
-procedure CopyStringToClipboard(s: string);
+procedure CopyStringToClipboard(s: Widestring);
 var hg: THandle;
     P: PChar;
 begin
@@ -678,6 +990,7 @@ procedure TFmain.setalloperationfalse(newop:TAOperation);
 begin
  if aoper=newop then newop:=movemap;
  LayerMapNal.Bitmap.Clear(clBlack);
+ marshrutcomment:='';
  LayerMapNal.Visible:=newop<>movemap;
  TBmove.Checked:=newop=movemap;
  TBCalcRas.Checked:=newop=line;
@@ -687,7 +1000,9 @@ begin
  TBAdd_Poly.Checked:=newop=Add_Poly;
  TBEditPath.Visible:=false;
  TBEditPathSave.Visible:=(newop=Add_line)or(newop=Add_Poly);
+ TBEditPathOk.Visible:=(newop=reg);
  TBEditPathLabel.Visible:=(newop=line);
+ TBEditPathMarsh.Visible:=(newop=Add_line);
  rect_dwn:=false;
  setlength(length_arr,0);
  setlength(add_line_arr,0);
@@ -716,8 +1031,11 @@ begin
 end;
 var os,prer:TPoint;
     i,ct:byte;
-    sbuf,name:String;
+    sbuf,name,fname:String;
+    ms:TMemoryStream;
+    SearchRec:TSearchRec;
 begin
+
  if (AMap.CacheType=0) then ct:=DefCache
                        else ct:=AMap.CacheType;
  if x>=0 then x:=x mod zoom[Azoom]
@@ -768,7 +1086,7 @@ begin
                 else result:='';
   x:=x shr 8;
   y:=y shr 8;
-  result:=result+AMap.NameInCache+format('\z%d\%d\x%d\%d\y%d'+AMap.ext,[Azoom,x shr 10,x,y shr 10,y]);
+  result:=result+AMap.NameInCache+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+AMap.ext;
  end;
  3:
  begin
@@ -777,13 +1095,14 @@ begin
                  else result:='';
    name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
    if Azoom<7
-    then result:=result+AMap.NameInCache+'\'+sbuf+'\'+name+AMap.ext
+    then result:=result+AMap.NameInCache+'\'+sbuf+'\'
     else if Azoom<11
           then result:=result+AMap.NameInCache+'\'+sbuf+'\'+Chr(59+Azoom)+
-                       full((x shr 8)div 32,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'+name+AMap.ext
+                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'
           else result:=result+AMap.NameInCache+'\'+'10'+'-'+full((x shr (Azoom-10))shr 8,10)+'-'+
-                       full((y div (Azoom-10))shr 8,10)+'\'+sbuf+'\'+Chr(59+Azoom)+
-                       full((x shr 8)div 32,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'+name+AMap.ext;
+                       full((y shr (Azoom-10))shr 8,10)+'\'+sbuf+'\'+Chr(59+Azoom)+
+                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\';
+   result:=result+name+AMap.ext;
  end;
  4,41:
  begin
@@ -794,6 +1113,32 @@ begin
   if ct=4 then result:=result+AMap.NameInCache+format('\z%d\%d\%d'+AMap.ext,[Azoom-1,Y,X])
           else result:=result+AMap.NameInCache+format('\z%d\%d_%d'+AMap.ext,[Azoom-1,Y,X]);
  end;
+ 5:
+ begin
+  if not(short) then result:=GECachepath_
+                 else result:='';
+  result:=result+AMap.NameInCache;
+  fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
+  if not(short)and(result[2]<>'\')and(system.pos(':',result)=0)
+   then result:=ProgrammPath+result;
+  if (not FileExists(result+'\'+fname))and(FileExists(result+'\dbCache.dat'))and(FileExists(result+'\dbCache.dat.index'))then
+  try
+   x:=x shr 8;
+   y:=y shr 8;
+   if FindFirst(result+'\*.jpg', faAnyFile, SearchRec) = 0 then
+    repeat
+     if (SearchRec.Attr and faDirectory) <> faDirectory then
+       DeleteFile(result+'\'+SearchRec.Name);
+    until FindNext(SearchRec) <> 0;
+   FindClose(SearchRec);
+
+   if GetMerkatorGETile(ms,result+'\dbCache.dat',x,y,Azoom,AMap)
+    then ms.SaveToFile(result+'\'+fname);
+   FreeAndNil(ms);
+  except
+  end;
+  result:=result+'\'+fname;
+ end;
  end;
  if not(short)and(result[2]<>'\')and(system.pos(':',result)=0)
    then result:=ProgrammPath+result;
@@ -802,6 +1147,20 @@ end;
 function TFmain.mouseXY2Pos(Pnt:TPoint):TPoint;
 begin
  Result:=Point(Pos.x-(mWd2-Pnt.X),Pos.y-(mHd2-Pnt.y));
+end;
+
+procedure Rotate1( var Nx, Ny: Integer; x_c, y_c: Integer; RotAng: Double);
+var
+   SinVal: Double;
+   CosVal: Double;
+begin
+   Nx:=Nx - x_c;
+   Ny:=Ny - y_c;
+   RotAng := RotAng * 0.0174532925199;
+   SinVal := Sin(RotAng);
+   CosVal := Cos(RotAng);
+   Nx :=round(x_c+ (Nx * CosVal - Ny * SinVal));
+   Ny :=round(y_c+ (Ny * CosVal + Nx * SinVal));
 end;
 
 
@@ -833,6 +1192,7 @@ end;
 //Обработка нажатий кнопоки и калесика
 procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 var z:integer;
+    POSb:TPoint;
 begin
 
  if Fmain.Active then
@@ -845,15 +1205,19 @@ begin
                                   else Fmain.zooming(Zoom_size+(1*z),NGoToCur.Checked);
                  end;
    WM_KEYFIRST: begin
-                 if Msg.wParam=VK_RIGHT then pos.x:=pos.x+128;
-                 if Msg.wParam=VK_Left then pos.x:=pos.x-128;
-                 if Msg.wParam=VK_Down then pos.y:=pos.y+128;
-                 if Msg.wParam=VK_Up then pos.y:=pos.y-128;
+                 POSb:=POS;
+                 if Msg.wParam=VK_RIGHT then pos:=Point(pos.x+64,pos.y);
+                 if Msg.wParam=VK_Left then pos:=Point(pos.x-64,pos.y);
+                 if Msg.wParam=VK_Down then pos:=Point(pos.x,pos.y+64);
+                 if Msg.wParam=VK_Up then pos:=Point(pos.x,pos.y-64);
+                 //rotate(POS.x,POS.y,POSb.x,POSb.y,DegToRad(-20));
                  if (Msg.wParam=VK_RIGHT)or(Msg.wParam=VK_Left)or
                     (Msg.wParam=VK_Down)or(Msg.wParam=VK_Up)then
                     generate_im(nilLastLoad,'');
                 end;
    WM_KEYUP:begin
+//             if (Msg.lParam=VK_LCONTROL)and(Msg.wParam=VkKeyScan('c')) then
+
              if (Msg.wParam=VK_Delete)and(aoper=line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
@@ -867,9 +1231,11 @@ begin
              if (Msg.wParam=VK_Delete)and(aoper in [add_line,add_poly]) then
               if length(add_line_arr)>0 then
                begin
-                setlength(add_line_arr,length(add_line_arr)-1);
-                dec(lastpoint);
+                delfrompath(lastpoint);
                 drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
+                {setlength(add_line_arr,length(add_line_arr)-1);
+                dec(lastpoint);
+                drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);}
                end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=Reg) then
               if length(reg_arr)=0 then TBmoveClick(Fmain)
@@ -900,9 +1266,21 @@ begin
                                                drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=add_Poly)and(length(add_line_arr)>1) then
-               FaddPoly.show_(self,add_line_arr,true);
+              begin
+               if FaddPoly.show_(add_line_arr,true) then
+                begin
+                 setalloperationfalse(movemap);
+                 generate_im(nilLastLoad,'');
+                end; 
+              end;
              if (Msg.wParam=13)and(aoper=add_line)and(length(add_line_arr)>1) then
-               FaddLine.show_(self,add_line_arr,true);
+              begin
+               if FaddLine.show_(add_line_arr,true) then
+                begin
+                 setalloperationfalse(movemap);
+                 generate_im(nilLastLoad,'');
+                end;
+              end;
             end;
   end;
 end;
@@ -921,45 +1299,6 @@ begin
  if kb>1048576 then result:=float2str(kb/1048576)+' '+SAS_UNITS_gb;
 end;
 
-procedure Highlight(aSource:TBitmap32; r,g,b:byte);
-const
-  trr = 0.33;
-  trg = 0.35;
-  trb = 0.31;
-var i, j, rc,gc,bc,rgbc: Integer;
-    rp,gp,bp:single;
-    s: PColor32Array;
-begin
-   rc:=0;
-   gc:=0;
-   bc:=0;
-   for i := 0 to aSource.Height - 1 do
-   begin
-     s := ASource.Scanline[i];
-     for j := 0 to aSource.Width - 1 do
-     begin
-       rc:=rc+RedComponent(s^[0]);
-       gc:=gc+GreenComponent(s^[0]);
-       bc:=bc+BlueComponent(s^[0]);
-       inc(s);
-     end;
-   end;
-   rgbc:=rc+gc+bc;
-   rp:=1+trr-(rc/rgbc);
-   gp:=1+trg-(gc/rgbc);
-   bp:=1+trb-(bc/rgbc);
-   for i := 0 to aSource.Height - 1 do
-   begin
-     s := ASource.Scanline[i];
-     for j := 0 to aSource.Width - 1 do
-     begin
-       s^[0]:=GR32.Color32(round(rp*RedComponent(s^[0])) mod 256,
-                           round(gp*GreenComponent(s^[0])) mod 256,
-                           round(bp*BlueComponent(s^[0])) mod 256);
-       inc(s);
-     end;
-   end;
-end;
 
 procedure Contrast(Bitmap: TBitmap32; Value: double);
  function BLimit(B:Integer):Byte;
@@ -1040,20 +1379,12 @@ end;
 function TFmain.str2r(inp:string):real;
 var p:integer;
 begin
- p:=System.pos('.',inp);
- if (p>0)and(DecimalSeparator=',') then
-   begin
-    inp[p]:=',';
-    result:=strtofloat(inp);
-    exit;
-   end;
- p:=System.pos(',',inp);
- if (p>0)and(DecimalSeparator='.') then
-   begin
-    inp[p]:='.';
-    result:=strtofloat(inp);
-    exit;
-   end;
+ p:=System.pos(DecimalSeparator,inp);
+ if p=0 then begin
+              if DecimalSeparator='.' then p:=System.pos(',',inp)
+                                      else p:=System.pos('.',inp);
+              inp[p]:=DecimalSeparator;
+             end;
  result:=strtofloat(inp);
 end;
 
@@ -1081,18 +1412,13 @@ begin
         THLoadMap1:=nil;
         exit;
        end;
-   //ThreadAllLoadMap(sender):=nil;
-{   if ThreadAllLoadMap(sender)=THLdMap_RightCl_1 then
-     THLdMap_RightCl_1:=nil;
-   if ThreadAllLoadMap(sender)=THLdMap_RightCl_2 then
-     THLdMap_RightCl_2:=nil;}
    if ThreadAllLoadMap(sender).typeRect in [2,3] then
     begin
-     //ThreadAllLoadMap(sender)._FProgress.Free;
      ThreadAllLoadMap(sender):=nil;
      if not((dwn)or(anim_zoom=1)) then
        begin
         move.X:=m_up.x;
+        ClearCache;
         Fmain.generate_im(nilLastLoad,'');
        end; 
      exit;
@@ -1209,6 +1535,7 @@ var i:integer;
 //    Outline: TPolygon32;
 begin
  LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ TBEditPath.Visible:=(length(reg_arr)>1);
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
  Polygon.AntialiasMode := am32times;
@@ -1255,7 +1582,7 @@ begin
    k2:=Point(k2.X+(pr_x-mWd2),k2.y+(pr_y-mHd2));
    LayerMapNal.Bitmap.FillRectS(k2.X-3,k2.Y-3,k2.X+3,k2.Y+3,SetAlpha(ClRed32,255));
   end;
- if length(reg_arr)>2 then
+{ if length(reg_arr)>2 then
   begin
    k1:=point(Lon2X(reg_arr[0].x),lat2Y(reg_arr[0].y));
    k2:=point(Lon2X(reg_arr[length(reg_arr)-1].x),Lat2Y(reg_arr[length(reg_arr)-1].y));
@@ -1267,22 +1594,20 @@ begin
           LayerMapNal.Bitmap.Clear(clBlack);
           Fsaveas.Show_(zoom_size,reg_arr);
          end;
-  end;
+  end;  }
  //LayerMapNal.BringToFront;
  Polygon.Free;
 end;
 
 procedure TFmain.drawLineGPS;
-var i,j,speed,adp,SizeTrackd2:integer;
-    k1,k2,k4:TPoint;
-    ke,ks,k3:TExtendedPoint;
+var i,speed,SizeTrackd2:integer;
+    k1,k2:TPoint;
+    ke,ks:TExtendedPoint;
     TanOfAngle,Angle,D,R: Currency;
     dl: integer;
     Polygon: TPolygon32;
-    s_speed_w,s_avgspeed_w,s_len_w,s_speed_h,s_avgspeed_h,s_len_h:integer;
-    s_speed,s_avgspeed,s_len:string;
-    polygon_line,Polygon_line2,Polygon_lineOutline: TPolygon32;
-  //  Clr:TColor32;
+    s_speed,s_len,n_len:string;
+    polygon_line: TPolygon32;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
@@ -1311,41 +1636,19 @@ begin
  with LayerMapGPS.Bitmap do
  if GPS_path then
  begin
-{  for i:=0 to length(GPS_arr)-1 do
-   begin
-    k1:=point(Lon2X(GPS_arr[i].x)+(pr_x-mWd2),Lat2Y(GPS_arr[i].y)+(pr_y-mHd2));
-    if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
-      polygon_line.Add(FixedPoint(k1));
-    if i<length(GPS_arr)-1 then
-     begin
-      k2:=point(Lon2X(GPS_arr[i+1].x)+(pr_x-mWd2),Lat2Y(GPS_arr[i+1].y)+(pr_y-mHd2));
-      if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
-                                 else adp:=(k2.y-k1.y)div 32767+2;
-      k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
-      if adp>2 then
-       for j:=1 to adp-1 do
-        begin
-         k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
-         if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then polygon_line.Add(FixedPoint(k4.x,k4.y));
-        end;
-     end;
-    end;   }
   for i:=0 to length(GPS_arr)-2 do
    begin
     k1:=point(Lon2X(GPS_arr[i].x),lat2Y(GPS_arr[i].y));
     k2:=point(Lon2X(GPS_arr[i+1].x),Lat2Y(GPS_arr[i+1].y));
-    //k4:=point(Lon2X(GPS_arr[i+2].x),Lat2Y(GPS_arr[i+2].y));
     k1:=Point(k1.X+(pr_x-mWd2),k1.y+(pr_y-mHd2));
     k2:=Point(k2.X+(pr_x-mWd2),k2.y+(pr_y-mHd2));
-    //k4:=Point(k4.X+(pr_x-mWd2),k4.y+(pr_y-mHd2));
-    if GPS_arr_speed[i]>0 then speed:= round(255/(GPSpar.maxspeed/GPS_arr_speed[i]))
+    if (GPS_arr_speed[i]>0)and(GPSpar.maxspeed>0)
+                          then speed:=round(255/(GPSpar.maxspeed/GPS_arr_speed[i]))
                           else speed:=0;
-    //Clr:=Color32(speed,0,256-speed,0);
     if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
       begin
        polygon_line.Add(FixedPoint(k1));
        polygon_line.Add(FixedPoint(k2));
-       //polygon_line.Add(FixedPoint(k4));
       end;
 
     with Polygon_line.Outline do
@@ -1358,24 +1661,11 @@ begin
       free;
      end;
     Polygon_line.Clear;
-    {Polygon_lineOutline:=Polygon_line.Outline;
-    Polygon_line2:=Polygon_lineOutline.Grow(Fixed(GPS_SizeTrack / 2), 0.5);
-    FreeAndNil(Polygon_lineOutline);
-    Polygon_line2.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
-    FreeAndNil(Polygon_line2);}
-
-    {with Polygon_line.Outline.Grow(Fixed(GPS_SizeTrack / 2), 0.5) do
-     begin
-      //FillMode:=pfWinding;
-      //DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
-      Free;
-     end;}
-  //  LineAS(k1.X,k1.Y,k2.X,k2.Y,SetAlpha(Clr,180));
    end;
  end;
 
  if length(GPS_arr)>1 then
- begin
+ try
   ke:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-1].x),lat2Yf(GPS_arr[length(GPS_arr)-1].y));
   ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
   ks:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-2].x),Lat2Yf(GPS_arr[length(GPS_arr)-2].y));
@@ -1397,6 +1687,7 @@ begin
   if ks.X < ke.X then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GPS_colorStr), 150));
+ except
  end;
 
  if length(GPS_arr)>0 then
@@ -1414,13 +1705,21 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+10,SAS_STR_Speed+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+24,s_speed, 4, clBlack32);
- s_len:=R2ShortStr(GPSpar.len,4,' '+SAS_UNITS_km+' ',' '+SAS_UNITS_m);
+ s_len:=R2ShortStr(GPSpar.len,4);
  LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+59,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5,(pr_y-mHd2)+106,SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+64,SAS_STR_LenPath+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
-
+ if (NavOnMark<>nil) then
+  begin
+   n_len:=R2ShortStr(find_length(GPS_arr[length(GPS_arr)-1].Y,NavOnMark.ll.Y,GPS_arr[length(GPS_arr)-1].x,NavOnMark.ll.x),4);
+   LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
+   LayerMapGPS.Bitmap.Font.Size:=8;
+   LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
+   LayerMapGPS.Bitmap.Font.Size:=16;
+   LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+132,n_len, 4, clBlack32);
+  end;
  LayerMapGPS.BringToFront;
  FreeAndNil(Polygon);
  FreeAndNil(Polygon_line);
@@ -1443,6 +1742,7 @@ begin
  polygon.Antialiased:=true;
  polygon.AntialiasMode:=am4times;
  polygon.Closed:=poly;
+ LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  map.Bitmap.BeginUpdate;
  if length(pathll)>0 then
  with LayerMap.Bitmap do
@@ -1467,14 +1767,14 @@ begin
      end;
    end;
   if poly then if new then Polygon.DrawFill(LayerMapNal.Bitmap, color2)
-                      else Polygon.DrawFill(LayerMap.Bitmap, color2);
+                      else Polygon.DrawFill(LayerMapMarks.Bitmap, color2);
   with Polygon.Outline do
    begin
     with Grow(Fixed(linew / 2), 0.5) do
      begin
       FillMode := pfWinding;
       if new then DrawFill(LayerMapNal.Bitmap, color1)
-             else DrawFill(LayerMap.Bitmap, color1);
+             else DrawFill(LayerMapMarks.Bitmap, color1);
       free;
      end;
     free;
@@ -1485,7 +1785,6 @@ begin
 //    if new then DrawFill(LayerMapNal.Bitmap, color1)
 //           else DrawFill(LayerMap.Bitmap, color1);
 //   end;
-  polygon.Free;
   if new then
   for i:=0 to length(pathll)-1 do
    begin
@@ -1494,6 +1793,7 @@ begin
     LayerMapNal.Bitmap.FillRectS(k1.X-4,k1.y-4,k1.X+4,k1.y+4,SetAlpha(clYellow32,150));
    end;
  end;
+ polygon.Free;
  if new then
   begin
    k1:=point(Lon2X(pathll[0].x),lat2Y(pathll[0].y));
@@ -1590,7 +1890,7 @@ begin
      begin
       len:=0;
       for j:=0 to i do len:=len+find_length(length_arr[j].y,length_arr[j+1].y,length_arr[j].X,length_arr[j+1].x);
-      text:=SAS_STR_Whole+': '+R2ShortStr(len,2,SAS_UNITS_km+'. ',SAS_UNITS_m+'.');
+      text:=SAS_STR_Whole+': '+R2ShortStr(len,2);
       Font.Size:=9;
       textW:=TextWidth(text)+11;
       FillRectS(k2.x+12,k2.y,k2.X+textW,k2.y+15,SetAlpha(ClWhite32,110));
@@ -1599,7 +1899,7 @@ begin
     else
      if LenShow then
       begin
-       text:=R2ShortStr(find_length(length_arr[i].y,length_arr[i+1].y,length_arr[i].x,length_arr[i+1].x),2,SAS_UNITS_km+'. ',SAS_UNITS_m+'.');
+       text:=R2ShortStr(find_length(length_arr[i].y,length_arr[i+1].y,length_arr[i].x,length_arr[i+1].x),2);
        LayerMapNal.Bitmap.Font.Size:=7;
        textW:=TextWidth(text)+11;
        FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
@@ -1630,19 +1930,65 @@ var lon_l,lon_r,lat_t,lat_d:real;
     ms:TMemoryStream;
     indexmi:integer;
     imw,texth:integer;
+    marksFilter:string;
 begin
- if (show_point=3) then exit;
- LayerMap.Bitmap.Font.Name:='Tahoma';
- LayerMap.Bitmap.Font.Style:=[];
+ if (show_point=3) then
+  begin
+   LayerMapMarks.Visible:=false;
+   exit;
+  end;
+// btm.Resampler:=TKernelResampler.Create;
+// TKernelResampler(btm.Resampler).Kernel:=TCubicKernel.Create;
  lon_l:=X2Lon(-(pr_x-mWd2));
  lon_r:=X2Lon(pr_x+mWd2);
  lat_t:=Y2Lat(-(pr_y-mHd2));
  lat_d:=Y2Lat(pr_y+mHd2);
- CDSmarks.Filter:='(not( LonR<'+floattostr(lon_l)+' or LonL>'+floattostr(lon_R)+
-                  ' or LatB>'+floattostr(lat_t)+' or LatT<'+floattostr(lat_d)+'))';
- if show_point=2 then CDSmarks.Filter:=CDSmarks.Filter+' and visible=1';
+ marksFilter:='';
+// CDSmarks.Filtered:=false;
+ if show_point=2 then
+  begin
+   CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(zoom_size)+' and BeforeScale >= '+inttostr(zoom_size)+' )';
+   CDSKategory.Filtered:=true;
+   marksFilter:=marksFilter+'visible=1';
+   CDSKategory.First;
+   if CDSKategory.Eof then begin
+                            //CDSKategory.Filtered:=false;
+                            LayerMapMarks.Visible:=false;
+                            CDSKategory.Filtered:=false;
+                            exit;
+                           end;
+   if not(CDSKategory.Eof) then
+    begin
+     marksFilter:=marksFilter+' and (';
+     while not(CDSKategory.Eof) do
+      begin
+       marksFilter:=marksFilter+'categoryid='+CDSKategory.fieldbyname('id').AsString;
+       CDSKategory.Next;
+       if not(CDSKategory.Eof) then marksFilter:=marksFilter+' or ';
+      end;
+     marksFilter:=marksFilter+')';
+    end;
+   CDSKategory.Filtered:=false;
+   marksFilter:=marksFilter+' and ';
+  end;
+ marksFilter:=marksFilter+'( LonR>'+floattostr(lon_l)+' and LonL<'+floattostr(lon_R)+
+              ' and LatB<'+floattostr(lat_t)+' and LatT>'+floattostr(lat_d)+')';
+ CDSmarks.Filter:=marksFilter;
  CDSmarks.Filtered:=true;
  CDSmarks.First;
+ if CDSmarks.Eof then begin
+                       LayerMapMarks.Visible:=false;
+                       CDSmarks.Filtered:=false;
+                       exit;
+                      end
+                 else begin
+                       LayerMapMarks.Bitmap.Clear(clBlack);
+                       LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+                       LayerMapMarks.Visible:=true;
+                      end;
+ btm:=TBitmap32.Create;
+ btm.DrawMode:=dmBlend;
+ btm.Resampler:=TLinearResampler.Create;
  While not(CDSmarks.Eof) do
   begin
      ms:=TMemoryStream.Create;
@@ -1657,50 +2003,33 @@ begin
        if (abs(TestArrLenP1.X-TestArrLenP2.X)>CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>CDSmarksScale1.AsInteger+2) then
         begin
          SetLength(buf_line_arr,(ms.size div 24));
-         for i:=0 to (ms.size div 24)-1 do
-          buf_line_arr[i]:=arrLL^[i];
+         for i:=0 to (ms.size div 24)-1 do buf_line_arr[i]:=arrLL^[i];
          drawPath(buf_line_arr,false,TColor32(CDSmarksColor1.AsInteger),TColor32(CDSmarksColor2.AsInteger),CDSmarksScale1.asInteger,
                  (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
          SetLength(buf_line_arr,0);
         end;
       end;
-    ms.free;
-    FreeMem(arrLL);
-    CDSmarks.Next;
-  end;
- CDSmarks.First;
- btm:=TBitmap32.Create;
- btm.DrawMode:=dmBlend;
- btm.Resampler:=TKernelResampler.Create;
- TKernelResampler(btm.Resampler).Kernel:=TCubicKernel.Create;
- While not(CDSmarks.Eof) do
-  begin
-     ms:=TMemoryStream.Create;
-     TBlobField(CDSmarksLonLatArr).SaveToStream(ms);
-     ms.Position:=0;
-     GetMem(arrLL,ms.size);
-     ms.ReadBuffer(arrLL^,ms.size);
      if (ms.size)=24 then
       begin
        xy:=Point(Lon2X(arrLL^[0].x)+(pr_x-mWd2),lat2Y(arrLL^[0].y)+(pr_y-mHd2));
-       imw:=CDSmarksScale2.AsInteger;
-       indexmi:=marksicons.IndexOf(CDSmarkspicname.AsString);
+       imw:=CDSmarks.FieldByName('Scale2').AsInteger;
+       indexmi:=marksicons.IndexOf(CDSmarks.FieldByName('picname').AsString);
        if(indexmi=-1)and(marksicons.Count>0) then indexmi:=0;
        if(indexmi>-1)then begin
                            PNGintoBitmap32(btm,TPNGObject(marksicons.Objects[indexmi]));
-                           LayerMap.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
+                           LayerMapMarks.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
                           end;
-       if CDSmarksScale1.AsInteger>0 then
+       if CDSmarks.FieldByName('Scale1').AsInteger>0 then
         begin
-         LayerMap.Bitmap.Font.Size:=CDSmarksScale1.AsInteger;
+         LayerMapMarks.Bitmap.Font.Size:=CDSmarksScale1.AsInteger;
          texth:=LayerMap.Bitmap.TextHeight(CDSmarksname.asString) div 2;
-         LayerMap.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,CDSmarksname.AsString,1,TColor32(CDSmarksColor2.AsInteger));
-         LayerMap.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,CDSmarksname.AsString,1,TColor32(CDSmarksColor1.AsInteger));
+         LayerMapMarks.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,CDSmarksname.AsString,1,TColor32(CDSmarksColor2.AsInteger));
+         LayerMapMarks.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,CDSmarksname.AsString,1,TColor32(CDSmarksColor1.AsInteger));
         end;
       end;
-    ms.free;
-    FreeMem(arrLL);
-    CDSmarks.Next;
+     ms.free;
+     FreeMem(arrLL);
+     CDSmarks.Next;
   end;
  CDSmarks.Filtered:=false;
  btm.Free;
@@ -1732,15 +2061,24 @@ begin
       result:=(2*arctan(exp(result))-Pi/2)*180/Pi;
      end;
   2: begin
-      result:=((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2) /-(zoom[zoom_size]/(2*Pi));
+      yy:=POS.y-(map.Height/2-Y);
+      if ((POS.y-(map.Height/2-Y))>(zoom[zoom_size]/2))
+       then yy:=(zoom[zoom_size])-yy;
+       {yy:=(zoom[zoom_size])-POS.y//(zoom[zoom_size] div 2) - ((POS.y-((map.Height div 2)-Y)) mod (zoom[zoom_size] div 2))
+       else yy:=POS.y-(map.Height/2-Y);}
+  //    yy:=POS.y-((map.Height/2)-Y);
+      result:=((yy)-zoom[zoom_size]/2) /-(zoom[zoom_size]/(2*Pi));
       result:=(2*arctan(exp(result))-Pi/2)*180/Pi;
       Zu:=result/(180/Pi);
-      yy:=((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2);
+      yy:=((yy)-zoom[zoom_size]/2);
       repeat
        Zum1:=Zu;
        Zu:=arcsin(1-((1+Sin(Zum1))*power(1-sat_map_both.exct*sin(Zum1),sat_map_both.exct))/(exp((2*yy)/-(zoom[zoom_size]/(2*Pi)))*power(1+sat_map_both.exct*sin(Zum1),sat_map_both.exct)));
-      until (abs(Zum1-Zu)<MerkElipsK)or(isNAN(Zu));
-      if not(isNAN(Zu)) then result:=zu*180/Pi;
+      until ((abs(Zum1-Zu)<MerkElipsK) or (isNAN(Zu)));
+      if not(isNAN(Zu)) then
+       if ((POS.y-(map.Height/2-Y))>(zoom[zoom_size]/2))
+         then result:=-zu*180/Pi
+         else result:=zu*180/Pi;
      end;
   3: result:=-((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2)/(zoom[zoom_size]/360);
  end; 
@@ -1823,11 +2161,11 @@ begin
  POS:=GLonLat2pos(ExtPoint(lon,lat),zoom_,sat_map_both);
  zoom_size:=zoom_;
  zooming(zoom_,false);
- TilesLoad.Clear;
+// TilesLoad.Clear;
  if draw then LayerMap.Bitmap.Draw(pr_x-7,pr_y-6,GOToSelIcon);
-end;                     
+end;
 
-function TFmain.R2ShortStr(r:real;z:byte;s1,s2:string):string;
+function TFmain.R2ShortStr(r:real;z:byte):string;
 var s:string;
 begin
  case num_format of
@@ -1835,13 +2173,13 @@ begin
      result:='';
      s:=floattostr(int(r));
      result:=copy(s,1,length(s)-3);
-     if length(result)>0 then result:=result+s1;
+     if length(result)>0 then result:=result+SAS_UNITS_km+'. ';
      result:=result+inttostr(strtoint(copy(s,length(s)-2,3)));
      s:=floattostr(frac(r));
-     result:=result+','+copy(s,3,2)+s2;
+     result:=result+','+copy(s,3,2)+SAS_UNITS_m+'.';
     end;
- 1: if r<10000 then result:=floattostr(int(r))+','+copy(floattostr(frac(r)),3,2)+s2
-               else result:=floattostr(int(r/1000))+','+copy(floattostr(frac(r/1000)),3,2)+s1+'/пикс.';
+ 1: if r<10000 then result:=floattostr(int(r))+','+copy(floattostr(frac(r)),3,2)+SAS_UNITS_m+'.'
+               else result:=floattostr(int(r/1000))+','+copy(floattostr(frac(r/1000)),3,2)+SAS_UNITS_km+'.';
  end;
 end;
 
@@ -1850,6 +2188,7 @@ var rnum,len_p,textstrt,textwidth:integer;
     s,se:string;
     temp,num:real;
 begin
+ if not(LayerLineM.visible) then exit; 
  num:=106/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*deg)));
  if num>10000 then begin
                     num:=num/1000;
@@ -1878,7 +2217,8 @@ begin
  len_p:=round(106/(num/rnum));
  textwidth:=LayerLineM.bitmap.TextWidth(s);
  LayerLineM.Bitmap.Width:=len_p;
- With LayerLineM do Location:=floatrect(bounds(round(Location.left),round(Location.top),len_p,15));
+ if LayerStatBar.Visible then With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23-17,len_p,15))
+                         else With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23,len_p,15));
  LayerLineM.Bitmap.Clear(SetAlpha(clWhite32,135));
  LayerLineM.bitmap.LineS(0,0,0,15,SetAlpha(clBlack32,256));
  LayerLineM.bitmap.LineS(LayerLineM.bitmap.Width-1,0,LayerLineM.bitmap.Width-1,15,SetAlpha(clBlack32,256));
@@ -1935,7 +2275,7 @@ begin
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2:=R2ShortStr(1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(ll.y*deg))),4,' '+SAS_UNITS_km+'.',' '+SAS_UNITS_mperp);
+ subs2:=R2ShortStr(1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(ll.y*deg))),4)+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
@@ -1943,34 +2283,41 @@ begin
  subs2:=ffpath(X2absX(pos.x-(mWd2-m_m.x),zoom_size),pos.y-(mHd2-m_m.y),zoom_size,sat_map_both^,false);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
- LayerStatBar.BringToFront;
- //if LayerMinMap.Visible then LayerMinMap.BringToFront;
+ if LayerStatBar.Visible then LayerStatBar.BringToFront;
+ if LayerMinMap.Visible then LayerMinMap.BringToFront;
 end;
 
 
 function TFmain.loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:PMapType):boolean;
-var i,c_x,c_y,c_d:integer;
+var i,c_x,c_y,dZ:integer;
     ss:string;
-    bmp,bmp2:TBitmap32;
+    bmp:TBitmap32;
 begin
  result:=false;
- if not(Nbackload.Checked) then
+ if not(backload) then
   begin
-   spr.Clear(clSilver);
+   spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
  for i:=(Azoom-1) downto 1 do
   begin
-   c_d:=round(power(2,Azoom-i));
-   ss:=ffpath(x div c_d,y div c_d,i,AMap^,false);
+   dZ:=(Azoom-i);
+   ss:=ffpath(x shr dZ,y shr dZ,i,AMap^,false);
    if TileExists(ss) then break;
   end;
- if not(tileExists(ss))or(c_d>=512) then
+ if not(tileExists(ss))or(dZ>9) then
   begin
-   spr.Clear(clSilver);
+   spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
  bmp:=TBitmap32.Create;
+ if not(LoadTilefromCache(bmp,ss,true))then
+  begin
+   spr.Clear(Color32(clSilver) xor $00000000);
+   exit;
+//   bmp.SetSize(256,256);
+//   bmp.Clear(Color32(clSilver) xor $00000000);
+  end;
  if resampling=1
   then bmp.Resampler:=TLinearResampler.Create
   else begin
@@ -1990,72 +2337,23 @@ begin
          12:TKernelResampler(bmp.Resampler).Kernel:=TSinshKernel.Create;
         end;
        end;
+ c_x:=((x-(x mod 256))shr dZ)mod 256;
+ c_y:=((y-(y mod 256))shr dZ)mod 256;
  try
-  LoadTilefromCache(bmp,ss);
- except
-  bmp.SetSize(256,256);
-  bmp.Clear(Color32(clSilver) xor $00000000);
- end;
- c_x:=((x-(x mod 256))div c_d)mod 256;
- c_y:=((y-(y mod 256))div c_d)mod 256;
- bmp2:=TBitmap32.Create;
- bmp2.SetSize(256,256);
- try
- bmp2.Draw(bounds(-c_x*c_d,-c_y*c_d,256*c_d,256*c_d),bounds(0,0,256,256),bmp);
- spr.Assign(bmp2);
+  spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
  except
  end;
  bmp.Free;
- bmp2.Free;
  result:=true;
 end;
 
-procedure TFmain.generate_lonlan(dx,dy:integer);
-var xyDraw:TPoint;
-    xx,yy,xx1,yy1,fxy,dxy:extended;
-    i,j:integer;
-    xy1,xy2,xy1res:TExtendedPoint;
-    src:TRect;
-    d2562,x2,x1,y1,zl:integer;
-begin
- xy1:=GPos2LonLat(Point((pos.x-pr_x+dx),(pos.y-pr_y)+dy),zoom_size,sat_map_both);
- xy2:=GPos2LonLat(Point((pos.x+pr_x+dx),(pos.y+pr_y)+dy),zoom_size,sat_map_both);
- yy:=xy1.y-xy2.y;
- fxy:=yy/10;
- i:=0;
- While (yy)<100 do
-  begin
-   yy:=yy * 10;
-   inc(i);
-  end;
- if i=0 then dxy:=1
-        else dxy:=power(10,i);
-// fxy:=round(fxy*(dxy*100))/(dxy*100);
-// xy1.Y:=round(xy1.Y * (dxy))/(dxy);
- for i:=1 to 10 do
-  begin
-   xy1.Y:=xy1.Y-fxy;
-   xy1res:=ExtPoint(xy1.X,ROUND(xy1.y*dxy)/dxy);
-   xyDraw:=GLonLat2Pos(xy1res,zoom_size,sat_map_both);
-   xyDraw.y:=pr_y-(pos.y-xyDraw.y);
-   LayerMap.Bitmap.Textout(pr_x,xyDraw.Y-10,floattostr(xy1res.y));
-   LayerMap.bitmap.LineAS(0,xyDraw.Y,pr_x*2,xyDraw.Y,SetAlpha(Color32(BorderColor),BorderAlpha));
-  end;
-end;
-
-
-
-
-
-
 procedure TFmain.DrawGenShBorders;
-var i,j:integer;
-    LonLatLT,LonLatRD:TExtendedPoint;
+var LonLatLT,LonLatRD:TExtendedPoint;
     bufLonLT:Extended;
-    PosLT,pos10k,pos1k,pos05k,pos025k,posCurr:TPoint;
+    PosLT:TPoint;
     zLonR,zLatR:extended;
     x2,x1,y1,y2,X1b,twidth,theight:integer;
-    ListName:string;
+    ListName:WideString;
 begin
  if GShScale=0 then exit;
  case GShScale of
@@ -2144,7 +2442,7 @@ begin
        twidth:=LayerMap.bitmap.TextWidth(ListName);
        theight:=LayerMap.bitmap.TextHeight(ListName);
        if (twidth+4<x2-x1)and(theight+4<y2-y1) then
-        LayerMap.bitmap.RenderText(x1+(x2-x1)div 2-(twidth div 2),y1+(y2-y1)div 2-(theight div 2),ListName,0,SetAlpha(Color32(BorderColor),BorderAlpha));
+        LayerMap.bitmap.RenderTextW(x1+(x2-x1)div 2-(twidth div 2),y1+(y2-y1)div 2-(theight div 2),ListName,0,SetAlpha(Color32(BorderColor),BorderAlpha));
       end;
      X1:=X2;
     end;
@@ -2214,7 +2512,6 @@ begin
      if BorderText then
        begin
         LayerMap.bitmap.Font.Size:=8;
-        LayerMap.bitmap.Font.Color:=BorderColor;
         LayerMap.bitmap.Font.Name:='Arial';
         textoutx:='x='+inttostr(((pos.x-pr_x+x1)*x2)div 256);
         textouty:='y='+inttostr(((pos.y-pr_y+y1)*x2)div 256);
@@ -2223,8 +2520,8 @@ begin
         if ((twidthx+6)<d2562)and((twidthy+6)<d2562) then
          begin
           theight:=LayerMap.bitmap.TextHeight(textoutx);
-          LayerMap.bitmap.Textout((x1+d2562 div 2)-tWidthx div 2,(y1+d2562 div 2)-theight,textoutx);
-          LayerMap.bitmap.Textout((x1+d2562 div 2)-tWidthy div 2,(y1+d2562 div 2),textouty);
+          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthx div 2,(y1+d2562 div 2)-theight,textoutx,0,Color32(BorderColor));
+          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthy div 2,(y1+d2562 div 2),textouty,0,Color32(BorderColor));
          end;
        end;
     end;
@@ -2232,7 +2529,7 @@ end;
 
 procedure TFmain.generate_mapzap;
 begin
- if (zoom_mapzap<=zoom_size)or(zoom_mapzap-zoom_size>8) then begin
+ if (zoom_mapzap<=zoom_size){or(zoom_mapzap-zoom_size>10)} then begin
                                                               FillingMap.stop:=true;
                                                               FillingMap.LayerMap.Visible:=false;
                                                              end
@@ -2240,53 +2537,88 @@ begin
                                                               FillingMap.stop:=false;
                                                               FillingMap.needRepaint:=true;
                                                               FillingMap.Suspended:=false;
+                                                              FillingMap.LayerMap.bitmap.Clear(clBlack);;
                                                              end
 end;
 
 procedure BadDraw(var spr:TBitmap32);
 begin
+ spr.SetSize(256,256);
  spr.Clear(Color32(clSilver) xor $00000000);
- spr.Canvas.Brush.Color:=Color32(clSilver) xor $00000000;
- spr.Canvas.Rectangle(0,0,256,256);
- spr.Textout(87,120,SAS_ERR_BadFile)
+ spr.RenderText(87,120,SAS_ERR_BadFile,0,clBlack32);
 end;
+
+{procedure ScaleRot(Alpha: Single; src,dst:TBitmap32);
+var
+  SrcR: Integer;
+  SrcB: Integer;
+  T: TAffineTransformation;
+  Sx, Sy, Scale: Single;
+  bBtm:TBitmap32;
+begin
+  SrcR := Src.Width - 1;
+  SrcB := Src.Height - 1;
+  T := TAffineTransformation.Create;
+  T.SrcRect := FloatRect(0, 0, SrcR + 1, SrcB + 1);
+  try
+    // shift the origin
+    T.Clear;
+    // move the origin to a center for scaling and rotation
+ //   T.Translate(-SrcR / 2, -SrcB / 2);
+    T.Rotate(SrcR/2, SrcB/2, Alpha);
+    Alpha := Alpha * PI / 180;
+   // get the width and height of rotated image (without scaling)
+    Sx := Abs(SrcR * Cos(Alpha)) + Abs(SrcB * Sin(Alpha));
+    Sy := Abs(SrcR * Sin(Alpha)) + Abs(SrcB * Cos(Alpha));
+    // calculate a new scale so that the image fits in original boundaries
+    Sx := Src.Width / Sx;
+    Sy := Src.Height / Sy;
+    scale := Min(Sx, Sy);
+//    T.Scale(Scale, Scale);
+    // move the origin back
+//    T.Translate(SrcR / 2, SrcB / 2);
+    // transform the bitmap
+    bBtm:=TBitmap32.Create;
+    bBtm.Assign(Src);
+    Dst.Clear(clSilver);
+    Transform(Dst, bBtm, T);
+  finally
+    T.Free;
+  end;
+end;     }
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var Path:String;
-    y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,xmov,ymov,size,ii,jj:longint;
+    y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,size,ii,jj:longint;
     i,j:byte;
-    Leyi:integer;
+    Leyi,NinCache:integer;
     AcrBuf:Tcursor;
-    posN,opmp:TPoint;
-    ATilesLoad:TStringList;
+    posN:TPoint;
     ts:Cardinal;
     lok:string;
+    png:TPNGObject;
+    p:PColor32;
+    W,H:Integer;
 begin
  if notpaint then exit;
  ts:=GetTickCount;
+ if (lastload.use) then
+  begin
+   NinCache:=CacheList.IndexOf(AnsiUpperCase(ffpath(lastload.x,lastload.y,lastload.z,PMapType(Pointer(lastload.mt))^,false)));
+   if NinCache>=0 then begin
+                 TBitmap32(CacheList.Objects[NinCache]).Free;
+                 CacheList.Delete(NinCache);
+                end;
+  end;
+ if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
- ATilesLoad:=TStringList.Create;
  AcrBuf:=map.Cursor;
  if not(lastload.use) then map.Cursor:=crAppStart;
  y_draw:=(256+((pos.y-pr_y)mod 256))mod 256;
  x_draw:=(256+((pos.x-pr_x)mod 256))mod 256;
- xmov:=(OldPos.x-Pos.x);
- ymov:=(OldPos.y-Pos.y);
- if (xmov=0)and(ymov=0) then TilesLoad.Clear;
- opmp:=Point(0,0);
- if ((OldPos.x-pr_x>0)and(Pos.x-pr_x<0)) then opmp.x:=256;
- if ((OldPos.x-pr_x<0)and(Pos.x-pr_x>0)) then opmp.x:=-256;
- if ((OldPos.y-pr_y>0)and(Pos.y-pr_y<0)) then opmp.y:=256;
- if ((OldPos.y-pr_y<0)and(Pos.y-pr_y>0)) then opmp.y:=-256;
- mapbuf.roll(((((OldPos.x-(pr_x)) div 256)-((Pos.x-(pr_x)) div 256))*256)+opmp.x,
-             ((((OldPos.y-(pr_y)) div 256)-((Pos.y-(pr_y)) div 256))*256)+opmp.y,false,clBlack32);
-// LayerMap.bitmap.roll(xmov,ymov,false,clBlack32);
- FillingMap.LayerMap.Bitmap.Clear(clBlack);
  LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if aoper<>movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
- LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
- LayerMapWiki.Bitmap.Clear(clBlack);
  destroyWL;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
@@ -2298,38 +2630,28 @@ begin
              else xx:=xx-(256-(abs(xx) mod 256));
     if yy>=0 then yy:=yy-(yy mod 256)
              else yy:=yy-(256-(abs(yy) mod 256));
+//    spr.Clear(Color32(clSilver) xor $00000000);
     if (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then
       begin
         spr.Clear(Color32(clSilver) xor $00000000);
-        mapbuf.Draw((i shl 8),(j shl 8), spr);
+        LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
         spr.Clear;
         continue;
       end;
     Path:=ffpath(xx,yy,zoom_size,sat_map_both^,false);
-    lok:=inttostr(xx)+'-'+inttostr(yy)+'-'+inttostr(zoom_size)+'-'+inttostr(sat_map_both.id);
-    {if ((i<>0)and(j<>0)and(i<>hg_x)and(j<>hg_y)) then }ATilesLoad.Add(' '+lok);
-    if (TilesLoad.IndexOf(lok)>-1)and(LastLoad.use=false) then continue;
-    if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or
-       ((lastload.y<yy-128)or(lastload.y>yy+128))) then continue;
-    if TileExists(path) then
-     begin
-      try
-       LoadTilefromCache(spr,path);
-      except
-       BadDraw(spr);
-      end;
-     end
-    else begin
-          {if }loadpre(spr,xx,yy,zoom_size,sat_map_both)
-            {then begin
-                 end
-            else begin
-                  spr.Clear(Color32(clSilver) xor $00000000);
-                 end;   }
-         end;
+//    if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-128)or(lastload.y>yy+128))) then continue;
+    if (TileExists(path))
+     then begin
+           if LoadTilefromCache(spr,path,true)
+             then begin
+                    if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path)
+                  end
+             else BadDraw(spr);
+          end
+     else loadpre(spr,xx,yy,zoom_size,sat_map_both);
     Gamma(spr);
-    mapbuf.Draw((i shl 8),(j shl 8),bounds(0,0,256,256),spr);
-    if err<>'' then mapbuf.Textout((i shl 8)+15,(j shl 8)+124,err);
+    LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
+    //if err<>'' then LayerMap.bitmap.Textout((i shl 8)+15-x_draw,(j shl 8)+124-y_draw,err);
    end;
   spr.SetSize(256,256);
   for Leyi:=0 to length(MapType)-1 do
@@ -2337,6 +2659,11 @@ begin
     begin
     if MapType[Leyi].ext='.kml' then
      begin
+      if not(LayerMapWiki.Visible) then
+       begin
+        LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+        LayerMapWiki.Bitmap.Clear(clBlack);
+       end;
       loadWL(@MapType[Leyi]);
       continue;
      end;
@@ -2356,67 +2683,74 @@ begin
                   else xx:=pos.x-pr_x+(i shl 8);
        yy:=pos.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
-       lok:=inttostr(xx)+'-'+inttostr(yy)+'-'+inttostr(zoom_size)+'-'+inttostr(MapType[Leyi].id);
-       if (sat_map_both.projection=MapType[Leyi].projection)or((j>0)and(j<hg_y)) then ATilesLoad.Add(' '+lok);
-       if (TilesLoad.IndexOf(lok)>-1)and(lastload.use=false) then continue;
-       if (lastload.use)and(
-          (lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-256)and(lastload.y>yy+256)) ) then continue;
-       spr.Draw(0,0,bounds((i shl 8)-x_drawN,(j shl 8)-y_drawN,256,256),mapbuf);
-       InvertBitmap(spr);
-       if TileExists(Path)then
+ //      if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-256)and(lastload.y>yy+256)) ) then continue;
+       if (TileExists(Path)) then
         begin
-         try
-          //if MapType[Leyi].ext='.png' then LoadPNGintoBitmap32(spr,Path)
-          //                            else LoadTilefromCache(spr,Path);
-          LoadTilefromCache(spr,Path);
-          spr.ResetAlpha;
-         except
-          BadDraw(spr);
-         end;
+         spr.DrawMode:=dmBlend;
+         if LowerCase(MapType[Leyi].ext)='.png' then
+          begin
+           png:=TPNGObject.create;
+           spr.Clear;
+           if LoadTilefromCache(png,Path,true)
+            then begin
+                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
+                  PNGintoBitmap32(spr,png);
+                  if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path);
+                 end
+            else BadDraw(spr);
+           png.Free;
+          end
+         else
+          begin
+           spr.Clear($005f5f5f);
+           if LoadTilefromCache(spr,Path,true)
+           then begin
+                 if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
+                 spr.DrawMode:=dmBlend;
+                 p := @spr.Bits[0];
+                 for H:=0 to spr.Height-1 do
+                  for W:=0 to spr.Width-1 do
+                   begin
+                    if p^=$FF5f5f5f then p^:=$00000000;
+                    inc(p);
+                   end;
+                end
+           else BadDraw(spr);
+          end;
          InvertBitmap(spr);
-         mapbuf.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
+         LayerMap.bitmap.Draw((i shl 8)-x_drawN-x_draw,(j shl 8)-y_drawN-y_draw, spr);
+         spr.DrawMode:=dmOpaque;
         end
       end;
     end;
-  LayerMap.bitmap.Draw(-x_draw,-y_draw, mapbuf);
-//  LayerMap.bitmap.Draw(500,0,mapbuf);
-{
-       if not(sat_map_both in [mtYaSat,mtYaSat,mtKSat]) then
-       if ((i>0)and(j>0)and(i<hg_x)and(j<hg_y)) then ATilesLoad.Add(' '+lok);
-       if (sat_map_both in [mtYaSat,mtYaSat,mtKSat]) then
-       if ((i>1)and(j>1)and(i<hg_x-1)and(j<hg_y-1)) then ATilesLoad.Add(' '+lok);
-       if (TilesLoad.IndexOf(lok)>-1)and(lastload.use=false) then continue;
-       if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or
-          ((lastload.y<yy-256)and(lastload.y>yy+256))) then continue;
-  }
- TilesLoad.Clear;
- if ATilesLoad.Count>1 then
- for i:=0 to ATilesLoad.Count-1 do TilesLoad.Add(ATilesLoad.ValueFromIndex[i]);
- ATilesLoad.Free;
+ if (lastload.use)and(err<>'') then
+   LayerMap.Bitmap.RenderText(pr_x+(lastload.x-pos.x)+15,pr_y+(lastload.y-pos.y)+124,err,0,clBlack32);
  generate_granica;
  DrawGenShBorders;
-// generate_lonlan(0,0);
- paint_Line;
- if aoper=line then drawLineCalc;
- if aoper=reg then drawReg;
- if aoper=rect then drawRect([]);
- if GPS_enab then drawLineGPS;
- if aoper in [add_line,add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
- try
- draw_point;
- except
- end;
- if not(lastload.use) then generate_mapzap;
+ if NavOnMark<>nil then NavOnMark.draw;
+ if not(lastload.use) then
+   begin
+    paint_Line;
+ //   if NetRadar<>nil then NetRadar.DrawLayer;
+    if aoper=line then drawLineCalc;
+    if aoper=reg then drawReg;
+    if aoper=rect then drawRect([]);
+    if GPS_enab then drawLineGPS;
+    if aoper in [add_line,add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
+    try
+     draw_point;
+    except
+    end;
+    sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+   end;
  m_up.x:=move.X;
  m_up.y:=move.y;
  toSh;
- if KMLShow then ShowKML;
- sm_im_reset(sm_map.width div 2,sm_map.height div 2);
  Label1.caption := IntToStr(GetTickCount-ts);
  map.Cursor:=AcrBuf;
+// ScaleRot(20,LayerMap.Bitmap,LayerMap.Bitmap);
  OldPos:=Pos;
 end;
-
 
 procedure loadMarksIcons;
 var SearchRec: TSearchRec;
@@ -2445,7 +2779,12 @@ var  Ini: TMeminifile;
      param:string;
 begin
  if start=false then exit;
- //Fmain.Enabled:=false;
+ Fmain.Enabled:=false;
+ if FileExists(extractfilepath(paramstr(0))+'SASPlanet.RUS') then
+  begin
+   DeleteFile(extractfilepath(paramstr(0))+'SASPlanet.RUS');
+  end;
+
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
  Maximized:=Ini.Readbool('VIEW','Maximized',true);
  vo_ves_ecran:=Ini.Readbool('VIEW','FullScreen',false);
@@ -2471,10 +2810,20 @@ begin
    Fmain.Close;
    exit;
   end;
- if FileExists(extractfilepath(paramstr(0))+'marks.xml')
-  then CDSMarks.LoadFromFile(extractfilepath(paramstr(0))+'marks.xml');
- CDSMarks.Open;
- TilesLoad:=TStringList.Create;
+ if FileExists(extractfilepath(paramstr(0))+'marks.sml')
+  then begin
+        CDSMarks.LoadFromFile(extractfilepath(paramstr(0))+'marks.sml');
+        if CDSMarks.RecordCount>0 then
+         CopyFile(PChar(extractfilepath(paramstr(0))+'marks.sml'),PChar(extractfilepath(paramstr(0))+'marks.~sml'),false);
+//         CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.~sml',dfXMLUTF8);
+       end;
+ if FileExists(extractfilepath(paramstr(0))+'Categorymarks.sml')
+  then begin
+        CDSKategory.LoadFromFile(extractfilepath(paramstr(0))+'Categorymarks.sml');
+        if CDSKategory.RecordCount>0 then
+         CopyFile(PChar(extractfilepath(paramstr(0))+'Categorymarks.sml'),PChar(extractfilepath(paramstr(0))+'Categorymarks.~sml'),false);
+       end;
+ Fmain.Enabled:=true;
  nilLastLoad.use:=false;
  notpaint:=true;
  SetDefoultMap;
@@ -2511,16 +2860,12 @@ begin
  setlength(poly_save,0);
 
  Map.Cursor:=crDefault;
- map.Color:=TColor32(clSilver);
+ map.Color:=clSilver;
  LayerMap:=TBitmapLayer.Create(map.Layers);
  LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  LayerMap.Bitmap.Width:=xhgpx;
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
-// LayerMap.bitmap.Resampler:=TDraftResampler.Create;
- mapbuf:=TBitmap32.Create;
- mapbuf.Width:=xhgpx+256;
- mapbuf.Height:=yhgpx+256;
 
  LayerMapScale:=TBitmapLayer.Create(map.Layers);
  LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
@@ -2572,6 +2917,16 @@ begin
  LayerMapNal.bitmap.Font.Charset:=RUSSIAN_CHARSET;
  LayerMapNal.Visible:=false;
 
+ LayerMapMarks:=TBitmapLayer.Create(map.Layers);
+ LayerMapMarks.Bitmap.Width:=xhgpx;
+ LayerMapMarks.Bitmap.Height:=yhgpx;
+ LayerMapMarks.Bitmap.DrawMode:=dmBlend;
+ LayerMapMarks.Bitmap.CombineMode:=cmMerge;
+ LayerMapMarks.bitmap.Font.Charset:=RUSSIAN_CHARSET;
+ LayerMapMarks.Bitmap.Font.Name:='Tahoma';
+ LayerMapMarks.Bitmap.Font.Style:=[];
+ LayerMapMarks.Visible:=false;
+
  LayerMapWiki:=TBitmapLayer.Create(map.Layers);
  LayerMapWiki.Bitmap.Width:=xhgpx;
  LayerMapWiki.Bitmap.Height:=yhgpx;
@@ -2616,6 +2971,16 @@ begin
  LayerStatBar.bitmap.Font.Name := 'arial';
  LayerStatBar.bitmap.Font.Size := 10;
 
+ InetConnect.userwinset:=Ini.Readbool('INTERNET','userwinset',true);
+ InetConnect.uselogin:=Ini.Readbool('INTERNET','uselogin',false);
+ InetConnect.Proxyused:=Ini.Readbool('INTERNET','used_proxy',false);
+ InetConnect.proxystr:=Ini.Readstring('INTERNET','proxy','');
+ InetConnect.loginstr:=Ini.Readstring('INTERNET','login','');
+ InetConnect.passstr:=Ini.Readstring('INTERNET','password','');
+ SaveTileNotExists:=Ini.ReadBool('INTERNET','SaveTileNotExists',false);
+ dblDwnl:=Ini.ReadBool('INTERNET','DblDwnl',true);
+ GoNextTile:=Ini.ReadBool('INTERNET','GoNextTile',false);
+
  ShowMapName:=Ini.readBool('VIEW','ShowMapNameOnPanel',true);
  sm_map.width:=Ini.readInteger('VIEW','SmMapW',160);
  sm_map.height:=Ini.readInteger('VIEW','SmMapH',160);
@@ -2623,12 +2988,11 @@ begin
  sm_map.Alpha:=Ini.readInteger('VIEW','SmMapAlpha',220);
  show_point:=Ini.readinteger('VIEW','ShowPointType',2);
  Zoom_Size:=Ini.ReadInteger('POSITION','zoom_size',1);
- KMLShow:=not(Ini.Readbool('POSITION','KMLShow',false));
  DefCache:=Ini.readinteger('VIEW','DefCache',2);
  zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
  zoom_line:=Ini.readinteger('VIEW','grid',0);
  mouse_inv:=Ini.readbool('VIEW','invert_mouse',false);
- source:=Ini.Readinteger('VIEW','SourceType',2);
+ TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
  num_format:=Ini.Readinteger('VIEW','NumberFormat',0);
  CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
  resampling:=Ini.Readinteger('VIEW','ResamlingType',1);
@@ -2640,6 +3004,10 @@ begin
  GShScale:=Ini.Readinteger('VIEW','GShScale',0);
  MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
  MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
+ lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
+ TilesOCache:=Ini.ReadInteger('VIEW','TilesOCache',150);
+ Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
+ ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
  Wikim_set.MainColor:=Ini.Readinteger('Wikimapia','MainColor',$FFFFFF);
  Wikim_set.FonColor:=Ini.Readinteger('Wikimapia','FonColor',$000001);
 
@@ -2654,7 +3022,7 @@ begin
  GPS_Log:=Ini.Readbool('GPS','log',true);
  GPS_SizeStr:=Ini.ReadInteger('GPS','SizeStr',25);
  GPS_SizeTrack:=Ini.ReadInteger('GPS','SizeTrack',5);
- GPS_colorStr:=Ini.ReadInteger('GPS','ColorStr',-16776961); //clBlue32
+ GPS_colorStr:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961}); //clBlue32
  GPS_popr:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
  GPS_path:=Ini.ReadBool('GPS','path',true);
  GPS_go:=Ini.ReadBool('GPS','go',true);
@@ -2662,47 +3030,38 @@ begin
  NewCpath_:=Ini.Readstring('PATHtoCACHE','SASC','cache\');
  ESCpath_:=Ini.Readstring('PATHtoCACHE','ESC','cache_ES\');
  GMTilesPath_:=Ini.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
- POS.x:=Ini.ReadInteger('POSITION','x',zoom[zoom_size]div 2 +1);
- POS.y:=Ini.ReadInteger('POSITION','y',zoom[zoom_size]div 2 +1);
+ GECachePath_:=Ini.Readstring('PATHtoCACHE','GECache','cache_GE\');
+ POS:=Point(Ini.ReadInteger('POSITION','x',zoom[zoom_size]div 2 +1),
+            Ini.ReadInteger('POSITION','y',zoom[zoom_size]div 2 +1));
  oldPOS:=pos;
- InetConnect.userwinset:=Ini.Readbool('INTERNET','userwinset',true);
- InetConnect.uselogin:=Ini.Readbool('INTERNET','uselogin',true);
- InetConnect.Proxyused:=Ini.Readbool('INTERNET','used_proxy',false);
- InetConnect.proxystr:=Ini.Readstring('INTERNET','proxy','');
- InetConnect.loginstr:=Ini.Readstring('INTERNET','login','');
- InetConnect.passstr:=Ini.Readstring('INTERNET','password','');
- SaveTileNotExists:=Ini.ReadBool('INTERNET','SaveTileNotExists',false);
- dblDwnl:=Ini.ReadBool('INTERNET','DblDwnl',true);
- GoNextTile:=Ini.ReadBool('INTERNET','GoNextTile',false);
+
  backload:=Ini.Readbool('VIEW','back_load',true);
  animate:=Ini.Readbool('VIEW','animate',true);
- sparam:=Ini.ReadBool('NPARAM','stat',true);
+ Fillingmaptype:=GetMapFromID(Ini.ReadString('VIEW','FillingMap','0'));
+ if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
+                        else TBfillMapAsMain.Checked:=true;
  i:=1;
- while Ini.ReadFloat('HIGHLIGHTING','pointx_'+inttostr(i),2147483647)<>2147483647 do
+ while str2r(Ini.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do
   begin
    setlength(poly_save,i);
-   poly_save[i-1].x:=Ini.ReadFloat('HIGHLIGHTING','pointx_'+inttostr(i),2147483647);
-   poly_save[i-1].y:=Ini.ReadFloat('HIGHLIGHTING','pointy_'+inttostr(i),2147483647);
+   poly_save[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
+   poly_save[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
    inc(i);
   end;
  if length(poly_save)>0 then poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
 
- KML_Path:=Ini.Readstring('KML','path','KML\');
- ShowLine.Checked:=Ini.readbool('VIEW','line',true);
  LayerMapScale.Visible:=Ini.readbool('VIEW','showscale',false);
- ShowMiniMap.Checked:=Ini.readbool('VIEW','minimap',true);
- ShowStatus.Checked:=Ini.readbool('VIEW','statusbar',true);
- LayerMapScale.Visible:=Ini.readbool('VIEW','showscale',false);
-
- NKMLShow.ShortCut:=Ini.Readinteger('HOTKEY','KML',16459);
+ SetMiniMapVisible(Ini.readbool('VIEW','minimap',true));
+ SetLineScaleVisible(Ini.readbool('VIEW','line',true));
+ SetStatusBarVisible(Ini.readbool('VIEW','statusbar',true));
  NzoomIn.ShortCut:=Ini.Readinteger('HOTKEY','ZoomIn',33);
  NzoomOut.ShortCut:=Ini.Readinteger('HOTKEY','ZoomOut',34);
  N14.ShortCut:=Ini.Readinteger('HOTKEY','GoTo',16455);
  NCalcRast.ShortCut:=Ini.Readinteger('HOTKEY','CalcRast',16460);
- NRECT.ShortCut:=Ini.Readinteger('HOTKEY','Rect',32850);
- NRegion.ShortCut:=Ini.Readinteger('HOTKEY','Polyg',32848);
- N41.ShortCut:=Ini.Readinteger('HOTKEY','Coord',16451);
- N42.ShortCut:=Ini.Readinteger('HOTKEY','Previous',16450);
+ TBRECT.ShortCut:=Ini.Readinteger('HOTKEY','Rect',32850);
+ TBRegion.ShortCut:=Ini.Readinteger('HOTKEY','Polyg',32848);
+ TBCOORD.ShortCut:=Ini.Readinteger('HOTKEY','Coord',16451);
+ TBPREVIOUS.ShortCut:=Ini.Readinteger('HOTKEY','Previous',16450);
  NSRCinet.ShortCut:=Ini.Readinteger('HOTKEY','inet',32841);
  NSRCesh.ShortCut:=Ini.Readinteger('HOTKEY','Cache',32835);
  NSRCic.ShortCut:=Ini.Readinteger('HOTKEY','CachInet',32834);
@@ -2720,16 +3079,10 @@ begin
  NGPSToPoint.ShortCut:=Ini.Readinteger('HOTKEY','GPSToPoint',0);
  NSaveTreck.ShortCut:=Ini.Readinteger('HOTKEY','SaveTreck',16467);
  Ninvertcolor.ShortCut:=Ini.Readinteger('HOTKEY','InvertColor',32846);
- NLoadSelFromFile.ShortCut:=Ini.Readinteger('HOTKEY','LoadSelFromFile',0);
+ TBLoadSelFromFile.ShortCut:=Ini.Readinteger('HOTKEY','LoadSelFromFile',0);
+ NMapParams.ShortCut:=Ini.Readinteger('HOTKEY','MapParams',16464);
 
- TMenuItem(FindComponent('NGShScale'+IntToStr(GShScale))).Checked:=true;
- case show_point of
-  1:TBMarksShowAll.Checked:=true;
-  2:TBMarksShowDef.Checked:=true;
-  3:TBMarksShowNo.Checked:=true;
- end;
- TBKMLShow.Checked:=KMLShow;
- NKMLShow.Checked:=KMLShow;
+ TTBXItem(FindComponent('NGShScale'+IntToStr(GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
  Ninvertcolor.Checked:=invertcolor;
  TBGPSconn.Checked:=GPS_enab;
@@ -2743,7 +3096,6 @@ begin
 
  if not(FileExists(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini')) then
   begin
-   //ZoomToolBar.Dock(TBDockLeft,bounds(0,0,1,1));
    TBEditPath.Floating:=true;
    TBEditPath.MoveOnScreen(true);
    TBEditPath.FloatingPosition:=Point(Fmain.Left+map.Left+30,Fmain.Top+map.Top+70);
@@ -2752,7 +3104,6 @@ begin
  NMainToolBarShow.Checked:=TBMainToolBar.Visible;
  NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
  NsrcToolBarShow.Checked:=SrcToolbar.Visible;
- NGPSToolBarShow.Checked:=GPSToolBar.Visible;
  NGPSToolBarShow.Checked:=GPSToolBar.Visible;
  NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
@@ -2763,19 +3114,10 @@ begin
  start:=false;
 
  Ini.Free;
- case source of
-   1: NSRCinetClick(NSRCinet);
-   2: NSRCinetClick(NSRCesh);
-   3: NSRCinetClick(NSRCic);
- end;
  if zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(zoom_mapzap)
                    else TBMapZap.Caption:='';
  selectMap(sat_map_both);
- ShowLine.OnClick(sender);
- ShowMiniMap.OnClick(sender);
- ShowStatus.OnClick(sender);
  RxSlider1.Value:=Zoom_size-1;
- TBKMLShowClick(TBKMLShow);
  notpaint:=false;
 
  if ParamCount > 1 then
@@ -2789,18 +3131,13 @@ begin
  zooming(Zoom_size,false);
  dwn:=false;
  Fsaveas.PageControl1.ActivePageIndex:=0;
- if InetConnect.proxyused then
-  try
-   EmbeddedWB1_.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
-   EmbeddedWB1_.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
-  except
-   ShowMessage(SAS_ERR_ProxyStrFormat);
-  end;
- if sparam then EmbeddedWB1_.Navigate('http://sasgis.ru/stat/index.html');
+
+ SetProxy;
+
+ if sparam then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
  Fmain.Enabled:=true;
  Fmain.SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
-
 end;
 
 procedure TFmain.sm_im_reset_type2(x,y:integer);
@@ -2816,7 +3153,8 @@ begin
  Sm_Map.SmMapBitmap.Width:=256;
  Sm_Map.SmMapBitmap.Height:=256;
  Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
- pos_sm:=Point(pos.X div round(power(2,(zoom_size-sm_map.zoom))),pos.y div round(power(2,zoom_size-sm_map.zoom)));
+// pos_sm:=Point(pos.X div round(power(2,(zoom_size-sm_map.zoom))),pos.y div round(power(2,zoom_size-sm_map.zoom)));
+ pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
  if longint(sm_map.maptype)=0 then m_t:=sat_map_both
                               else m_t:=sm_map.maptype;
  Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,m_t);
@@ -2837,10 +3175,9 @@ begin
        path:=ffpath(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,m_t^,false);
        bm.Clear(Color32(clSilver) xor $00000000);
        if (tileexists(path))
-        then try
-              LoadTilefromCache(bm,path);
-             except
-              bm.Clear(Color32(clSilver) xor $00000000);
+        then begin
+              if not(LoadTilefromCache(bm,path,true))
+               then bm.Clear(Color32(clSilver) xor $00000000);
              end
         else loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
        Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
@@ -2853,7 +3190,8 @@ begin
  for iLay:=0 to length(MapType)-1 do
   if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
   begin
-   pos_sm:=Point(Pos.X div round(power(2,(zoom_size-sm_map.zoom))),Pos.y div round(power(2,zoom_size-sm_map.zoom)));
+   //pos_sm:=Point(Pos.X div round(power(2,(zoom_size-sm_map.zoom))),Pos.y div round(power(2,zoom_size-sm_map.zoom)));
+   pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
    Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,@MapType[iLay]);
    d:=Point((pos_sm.X-128),(pos_sm.y-128));
    if d.x<0 then d.x:=256+d.x;
@@ -2872,10 +3210,7 @@ begin
          bm.Clear(Color32(clSilver) xor $00000000);
          bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
          if (tileexists(path))and(not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
-          then try
-                LoadTilefromCache(bm,path);
-               except
-               end;
+          then LoadTilefromCache(bm,path,true);
          Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
         end;
        inc(y128,256);
@@ -2905,16 +3240,17 @@ begin
         sm_map.pos:=Point(x,y);
        end
   else begin
-        try
          if (longint(sm_map.maptype)=0)
-           then LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,sat_map_both^,false))
-           else LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,sm_map.maptype^,false));
+           then begin
+                 if not(LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,sat_map_both^,false),true))
+                  then Sm_Map.SmMapBitmap.Assign(DefoultMap);
+                end
+           else if not(LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,sm_map.maptype^,false),true))
+                 then Sm_Map.SmMapBitmap.Assign(DefoultMap);
          for iLay:=0 to length(MapType)-1 do
           if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-            LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,@MapType[iLay],false));
-        except
-         Sm_Map.SmMapBitmap.Assign(DefoultMap);
-        end;
+            if not(LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,MapType[iLay],false),false))
+              then Sm_Map.SmMapBitmap.Assign(DefoultMap);
         if (x=sm_map.width div 2)and(y=sm_map.height div 2)
          then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[zoom_size])),round(pos.y*(sm_map.height/zoom[zoom_size])))
          else sm_map.pos:=Point(x,y);
@@ -2963,7 +3299,9 @@ begin
 end;
 
 procedure TFmain.zooming(x:byte;move:boolean);
-var w,w1,i:integer;
+var w,i,steps:integer;
+    w1:extended;
+    Posll:TExtendedPoint;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -2976,19 +3314,23 @@ begin
  labZoom.caption:=' '+inttostr(zoom_size)+'x ';
  labZoom.caption:=' '+inttostr(x)+'x ';
  RxSlider1.Value:=x-1;
+ steps:=9;
  if zoom_size>x
   then begin
          zoom_in:=-1;
-         w:=-20;
-         w1:=-10;
+         w:=-steps*2;
+         w1:=-steps;
+
          POS:=Point(trunc(pos.x/power(2,zoom_size-x)),trunc(pos.y/power(2,zoom_size-x)));
          if (move)and(abs(x-zoom_size)=1) then
            POS:=Point(pos.x+(mWd2-m_m.X)div 2,pos.y+(mHd2-m_m.y)div 2);
        end
   else begin
          zoom_in:=1;
-         w:=10;
-         w1:=5;
+         w:=steps;
+         w1:=steps / 2;
+         //Posll:=GPos2LonLat(pos,zoom_size,sat_map_both);
+         //POS:=GLonLat2Pos(Posll,x-zoom_size,sat_map_both)
          POS:=Point(trunc(pos.x*power(2,x-zoom_size)),trunc(pos.y*power(2,x-zoom_size)));
          if (move)and(abs(x-zoom_size)=1) then
            POS:=Point(pos.x-(mWd2-m_m.X),pos.y-(mHd2-m_m.y));
@@ -2997,19 +3339,27 @@ begin
  LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
  if (abs(x-zoom_size)=1)and(Nanimate.Checked)
-   then for i:=0 to 10 do
+   then for i:=0 to steps do
          begin
+          if (i>0) then if (zoom_size>x) then sleep(15) else sleep(10);
           if (move)and(Nanimate.Checked) then
+{           LayerMap.Bitmap.Draw(bounds(0,0,xhgpx,yhgpx),
+                                bounds(round(+(pr_x/w)+((mWd2-m_m.X)/w1/2)),
+                                       round(+(pr_y/w)+((mHd2-m_m.y)/w1/2)),
+                                       xhgpx-round(pr_x/w*2),yhgpx-round(pr_y/w*2)),LayerMap.Bitmap)
+}
            LayerMap.Location:=
-              floatrect(bounds(mWd2-pr_x-round(((xhgpx shr 1)/w)*i)+round(((mWd2-m_m.X)/w1/2)*i),
-                               mHd2-pr_y-round(((yhgpx shr 1)/w)*i)+round(((mHd2-m_m.y)/w1/2)*i),
-                               xhgpx+round(((xhgpx shr 1)/w)*i*2),yhgpx+round(((yhgpx shr 1)/w)*i*2)))
+              floatrect(bounds(round(mWd2-pr_x-(pr_x/w*i)+((mWd2-m_m.X)/w1/2*i)),
+                               round(mHd2-pr_y-(pr_y/w*i)+((mHd2-m_m.y)/w1/2*i)),
+                               xhgpx+round(pr_x/w*i*2),yhgpx+round(pr_y/w*i*2)))
            else
              if (Nanimate.Checked)and(not(move)) then
               LayerMap.Location:=
-              floatrect(bounds(mWd2-pr_x-round(((xhgpx shr 1)/w)*i),mHd2-pr_y-round(((yhgpx shr 1)/w)*i),
-                               xhgpx+round(((xhgpx shr 1)/w)*i*2),yhgpx+round(((yhgpx shr 1)/w)*i*2)));
+              floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
+                               xhgpx+round((pr_x/w)*i*2),yhgpx+round((pr_y/w)*i*2)));
           if (FillingMap.LayerMap<>nil)and(FillingMap.LayerMap.Visible) then FillingMap.LayerMap.Location:=LayerMap.Location;
+ //        if (NetRadar<>nil)and(NetRadar.LayerMap.Visible) then NetRadar.LayerMap.Location:=LayerMap.Location;
+          if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
           application.ProcessMessages;
          end;
  zoom_size:=x;
@@ -3030,26 +3380,22 @@ end;
 
 procedure TFmain.FormCreate(Sender: TObject);
 begin
+ CacheList:=TStringList.Create;
  ProgrammPath:=ExtractFilePath(ParamStr(0));
  Application.Title:=Fmain.Caption;
  TBiniLoadPositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
  TBEditPath.Visible:=false;
  Fmain.Caption:=Fmain.Caption+' '+SASVersion;
  start:=true;
- XPMenu:=TMXPMenu.Create(Fmain);
- XPMenu.Active:=false;
- XPMenu.IconBackColor:=clBtnFace;
- XPMenu.BackColor:=clWhite;
 end;
 
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- if GPSReceiver.IsConnected <> spNone then GPSReceiver.Close();
- FreeAndNil(XPMenu);
+// if GPSReceiver.IsConnected <> spNone then GPSReceiver.Close();
  close_:=true;
  if length(MapType)<>0 then FSettings.Save;
  marksicons.free;
- TilesLoad.Free;
+// TilesLoad.Free;
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -3082,6 +3428,10 @@ begin
  NFoolSize.Checked:=TBFullSize.Checked;
  TBexit.Visible:=TBFullSize.Checked;
  vo_ves_ecran:=TBFullSize.Checked;
+ TBDock.Parent:=Fmain;
+ TBDockLeft.Parent:=Fmain;
+ TBDockBottom.Parent:=Fmain;
+ TBDockRight.Parent:=Fmain;
  TBDock.Visible:=not(TBFullSize.Checked);
  TBDockLeft.Visible:=not(TBFullSize.Checked);
  TBDockBottom.Visible:=not(TBFullSize.Checked);
@@ -3096,6 +3446,20 @@ begin
 // generate_im(nilLastLoad,'');
 end;
 
+procedure TextToHTMLDoc(Text: string; var Document: IHTMLDocument2);
+var
+  //Document: IHTMLDocument2;
+  V: OleVariant;
+begin
+  try
+   V:=VarArrayCreate([0, 0], varVariant);
+   V[0]:=Text;
+   Document.Write(PSafeArray(TVarData(v).VArray));
+  finally
+   Document.Close;
+  end;
+end;
+
 procedure TextToWebBrowser(Text: string; var WB: TEmbeddedWB);
 var
   Document: IHTMLDocument2;
@@ -3105,10 +3469,13 @@ begin
   while WB.Document = nil do
     Application.ProcessMessages;
   Document := WB.Document as IHtmlDocument2;
-  V := VarArrayCreate([0, 0], varVariant);
-  V[0] := Text;
-  Document.Write(PSafeArray(TVarData(v).VArray));
-  Document.Close;
+  try
+   V:=VarArrayCreate([0, 0], varVariant);
+   V[0]:=Text;
+   Document.Write(PSafeArray(TVarData(v).VArray));
+  finally
+   Document.Close;
+  end;
 end;
 
 procedure TFmain.ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
@@ -3116,13 +3483,13 @@ begin
  if (DockingTo=TBDockLeft)or(DockingTo=TBDockRight)
    then begin
          RxSlider1.Orientation:=RxSlider.soVertical;
-         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),2);
+         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),4);
          TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),0);
         end
    else begin
          RxSlider1.Orientation:=RxSlider.soHorizontal;
          TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),0);
-         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),2);
+         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),4);
         end
 end;
 
@@ -3177,8 +3544,8 @@ end;
 
 procedure TFmain.TBmap1Click(Sender: TObject);
 begin
- if sender is TTBItem then selectMap(PMapType(TMenuItem(sender).tag))
-                      else selectMap(PMapType(TMenuItem(sender).tag));
+ if sender is TTBItem then selectMap(PMapType(TTBXItem(sender).tag))
+                      else selectMap(PMapType(TTBXItem(sender).tag));
 end;
 
 procedure TFmain.N8Click(Sender: TObject);
@@ -3188,12 +3555,14 @@ end;
 
 procedure TFmain.NbackloadClick(Sender: TObject);
 begin
+ backload:=Nbackload.Checked;
  generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
- FAddPoint.show_(self,extPoint(X2Lon(m_up.x),Y2Lat(m_up.y)),true);
+ if FAddPoint.show_(extPoint(X2Lon(m_up.x),Y2Lat(m_up.y)),true) then
+  generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.N20Click(Sender: TObject);
@@ -3201,15 +3570,14 @@ var btm:TBitmap32;
     btm1:TBitmap;
 begin
  btm:=TBitmap32.Create;
- LoadTilefromCache(btm,ffpath(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size,sat_map_both^,false));
- btm1:=TBitmap.Create;
- btm1.Width:=256; btm1.Height:=256;
- btm.DrawTo(btm1.Canvas.Handle,0,0);
- CopyBtmToClipboard(btm1);
- btm1.Free;
- // CopyBitmap32ToClipboard(btm);
- //SetClipboardText(Fmain.Handle, btm.Bits,(btm.Width*btm.Height)*4,CF_BITMAP);
-// Clipboard.Assign(btm);
+ if LoadTilefromCache(btm,ffpath(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size,sat_map_both^,false),false)
+  then begin
+        btm1:=TBitmap.Create;
+        btm1.Width:=256; btm1.Height:=256;
+        btm.DrawTo(btm1.Canvas.Handle,0,0);
+        CopyBtmToClipboard(btm1);
+        btm1.Free;
+       end;
  btm.Free;
 end;
 
@@ -3218,7 +3586,7 @@ var ll:TExtendedPoint;
 begin
  ll:=GPos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),zoom_size,sat_map_both);
  if FirstLat then CopyStringToClipboard(lat2str(ll.y)+' '+lon2str(ll.x))
-             else CopyStringToClipboard(lat2str(ll.x)+' '+lon2str(ll.y));
+             else CopyStringToClipboard(lon2str(ll.x)+' '+lat2str(ll.y));
 end;
 
 procedure TFmain.N15Click(Sender: TObject);
@@ -3291,9 +3659,8 @@ end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
 begin
- if (sender is TMenuItem)
-  then source:=TMenuItem(Sender).Tag
-  else source:=TTBItem(Sender).Tag;
+ Tilesource:=TTileSource(TTBItem(Sender).Tag);
+{ source:=TTBItem(Sender).Tag;
  TBSrc.ImageIndex:=source-1;
  case source of
    1: NSRCinet.Checked:=true;
@@ -3309,9 +3676,9 @@ begin
    THLoadMap1.FreeOnTerminate:=true;
    THLoadMap1.Priority:=tpLower;
    THLoadMap1.OnTerminate:=ThreadDone;
-  end
+  end}
 end;
-             
+
 procedure TFmain.N16Click(Sender: TObject);
 begin
  fabout.ShowModal;
@@ -3337,56 +3704,23 @@ begin
                             else setalloperationfalse(reg)
 end;
 
-procedure TFmain.TBItem1Click(Sender: TObject);
+procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
  if length(poly_save)>0 then fsaveas.Show_(poly_zoom_save,poly_save)
                         else showmessage(SAS_MSG_NeedHL);
 end;
 
 //карта заполнения в основном окне
-procedure TFmain.TBMapZapPopup(Sender: TTBCustomItem; FromLink: Boolean);
-var i:integer;
+procedure TFmain.NFillMapClick(Sender: TObject);
 begin
- if zoom_mapzap=0 then TBMapZap.Items[0].Checked:=true;
- for i:=1 to 8 do
-  if zoom_size+i<24 then begin
-                          TBMapZap.Items[i].Caption:=SAS_STR_InMainWindowFor+' х'+inttostr(zoom_size+i);
-                          TBMapZap.Items[i].Visible:=true;
-                          TBMapZap.Items[i].Tag:=zoom_size+i;
-                          if TBMapZap.Items[i].Tag=zoom_mapzap then TBMapZap.Items[i].Checked:=true
-                                                               else TBMapZap.Items[i].Checked:=false;
-                         end
-                    else TBMapZap.Items[i].Visible:=false;
+ TBXToolPalette1.SelectedCell:=Point(zoom_mapzap mod 5,zoom_mapzap div 5);
 end;
 
-procedure TFmain.N17Click(Sender: TObject);
-var i:byte;
+procedure TFmain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
 begin
- if zoom_mapzap=0 then N17.Items[0].Checked:=true;
- for i:=1 to 8 do
-  if zoom_size+i<24 then begin
-                          N17.Items[i].Caption:=SAS_STR_for+' х'+inttostr(zoom_size+i);
-                          N17.Items[i].Visible:=true;
-                          N17.Items[i].Tag:=zoom_size+i;
-                          if N17.Items[i].Tag=zoom_mapzap then N17.Items[i].Checked:=true
-                                                          else N17.Items[i].Checked:=false;
-                         end
-                    else N17.Items[i].Visible:=false;
-end;
-
-procedure TFmain.TBMapZap1Click(Sender: TObject);
-begin
- zoom_mapzap:=TTBItem(Sender).Tag;
- if TTBItem(Sender).Tag<>0 then TBMapZap.Caption:='x'+inttostr(TTBItem(Sender).Tag)
-                           else TBMapZap.Caption:='';
- generate_im(nilLastLoad,'');
-end;
-
-procedure TFmain.N18Click(Sender: TObject);
-begin
- zoom_mapzap:=TMenuItem(sender).tag;
- if TMenuItem(Sender).Tag<>0 then TBMapZap.Caption:='x'+inttostr(TMenuItem(Sender).Tag)
-                             else TBMapZap.Caption:='';
+ zoom_mapzap:=(5*ARow)+ACol;
+ if zoom_mapzap>0 then TBMapZap.Caption:='x'+inttostr(zoom_mapzap)
+                  else TBMapZap.Caption:='';
  generate_im(nilLastLoad,'');
 end;
 //X-карта заполнения в основном окне
@@ -3416,17 +3750,21 @@ procedure TFmain.selectMap(num:PMapType);
 var lat,lon:real;
     i:integer;
 begin
+ if anim_zoom=1 then exit;
  lat:=Y2Lat(mHd2);
  Lon:=X2Lon(mWd2);
  if not(PMapType(num).asLayer) then
   begin
+   if (num.showinfo)and(num.info<>'') then
+    begin
+     ShowMessage(num.info);
+     num.showinfo:=false;
+    end;
    PMapType(sat_map_both).TBItem.Checked:=false;
-   PMapType(sat_map_both).NItem.Checked:=false;
    PMapType(sat_map_both).active:=false;
    sat_map_both:=num;
    TBSMB.ImageIndex:=TMapType(Pointer(sat_map_both)^).TBItem.ImageIndex;
    PMapType(sat_map_both).TBItem.Checked:=true;
-   PMapType(sat_map_both).NItem.Checked:=true;
    PMapType(sat_map_both).active:=true;
    if Showmapname then TBSMB.Caption:=PMapType(sat_map_both).name
                   else TBSMB.Caption:='';
@@ -3437,95 +3775,131 @@ begin
     if maptype[i].asLayer then
     begin
      MapType[i].TBItem.Checked:=MapType[i].active;
-     MapType[i].NItem.Checked:=MapType[i].active;
     end;
   end;
  topos(lat,lon,zoom_size,false);
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-begin
- ld:=1;
- if InetConnect.proxyused then
-  try
-   EmbeddedWB1_.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
-   EmbeddedWB1_.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
-  except
-   ShowMessage(SAS_ERR_ProxyStrFormat);
-  end;
- EmbeddedWB1_.Navigate('http://maps.google.ru/maps?f=q&hl=ru&geocode=&q='+NewText);
-end;
-
-procedure TFmain.EmbeddedWB1_DocumentComplete(ASender: TObject;
-  const pDisp: IDispatch; var URL: OleVariant);
-var s,slat,slon,sname:string;
-    i,j,k:integer;
+var s,slat,slon,par:string;
+    i,j:integer;
+    err:boolean;
     lat,lon:real;
+    Buffer:array [1..64535] of char;
+    BufferLen:LongWord;
+    hSession,hFile:Pointer;
+    dwindex, dwcodelen,dwReserv: dword;
+    dwtype: array [1..20] of char;
+    strr:string;
 begin
- if ld<2 then begin
-                inc(ld);
-                exit;
-              end;
- ld:=1;
- s:=EmbeddedWB1_.DocumentSource;
- for i:=1 to length(s) do
-  if copy(s,i,17)='viewport:{center:'
-   then begin
-         j:=i;
-         Break;
-        end;
- j:=j+22;
- slat:='';
- while s[j]<>',' do
-  begin
-   slat:=slat+s[j];
-   inc(j);
-  end;
- j:=j+5;
- slon:='';
- while s[j]<>'}' do
-  begin
-   slon:=slon+s[j];
-   inc(j);
-  end;
- try
-  lat:=Fmain.str2r(slat);
-  lon:=Fmain.str2r(slon);
- except
-  ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или google изменил формат.');
-  form2.Enabled:=true;
-  exit;
- end;
- j:=length(s);
- for i:=1 to length(s) do
-  if copy(s,i,7)='laddr:"'
-   then begin
-         j:=i;
-         Break;
-        end;
- for i:=j+6 to length(s) do
-  if copy(s,i,2)='",'
-   then begin
-         k:=i;
-         Break;
-        end;
- if j=length(s) then
-  begin
-   ShowMessage(SAS_STR_notfound);
-   form2.Enabled:=true;
-   exit;
-  end;
- sname:=copy(s,j+6,k-j-5);
- form2.Enabled:=true;
- form2.Close;
- Fmain.toPos(lat,lon,zoom_size{CBzoom.ItemIndex+1},true);
- ShowMessage(sname);
+ s:='';
+ {if InetConnect.userwinset
+  then }hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+ { else if InetConnect.proxyused
+        then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0)
+        else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);}
+ if Assigned(hSession)
+  then begin
+        for i:=1 to length(NewText) do
+         if NewText[i]=' ' then NewText[i]:='+';
+//        strr:='qweqwe';
+
+        strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=';
+        hFile:=InternetOpenUrl(hSession,PChar(strr),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
+     {   dwcodelen:=SizeOf(dwindex);
+        if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
+         begin
+        	ShowMessage(SAS_ERR_Noconnectionstointernet);
+          InternetCloseHandle(hFile);
+          InternetCloseHandle(hSession);
+          exit;
+         end;
+        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+         begin
+          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
+          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+          if (not(err))or(HttpSendRequest(hFile, nil, 0,Nil, 0)) then //Неверные пароль логин
+           begin
+           	ShowMessage(SAS_ERR_Authorization);
+            InternetCloseHandle(hFile);
+            InternetCloseHandle(hSession);
+            exit;
+           end;
+          HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER,@dwindex, dwcodelen, dwReserv);
+          if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then
+           begin
+           	ShowMessage(SAS_ERR_Authorization);
+            InternetCloseHandle(hFile);
+            InternetCloseHandle(hSession);
+            exit;
+           end;
+         end;       }
+        err:=false;
+        if Assigned(hFile)then
+         begin
+          dwcodelen:=150; dwReserv:=0; dwindex:=0;
+          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+           then dwindex:=strtoint(pchar(@dwtype));
+          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
+           begin
+            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+             begin
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              HttpSendRequest(hFile, nil, 0,Nil, 0);
+             end;
+            dwcodelen:=150; dwReserv:=0; dwindex:=0;
+            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+             then dwindex:=strtoint(pchar(@dwtype));
+            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
+             begin
+             	ShowMessage(SAS_ERR_Authorization);
+              InternetCloseHandle(hFile);
+              InternetCloseHandle(hSession);
+              exit;
+             end;
+           end;
+
+          repeat
+           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
+           s:=s+Buffer;
+          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false);
+
+          if PosEx(AnsiToUtf8('Placemark'),s)<1 then
+           begin
+            ShowMessage(SAS_STR_notfound);
+            exit;
+           end;
+          i:=PosEx('<address>',s);
+          j:=PosEx('</address>',s);
+          strr:=Utf8ToAnsi(Copy(s,i+9,j-(i+9)));
+          i:=PosEx('<coordinates>',s);
+          j:=PosEx(',',s,i+13);
+          slon:=Copy(s,i+13,j-(i+13));
+          i:=PosEx(',0</coordinates>',s,j);
+          slat:=Copy(s,j+1,i-(j+1));
+          if slat[1]='\' then delete(slat,1,1);
+          if slon[1]='\' then delete(slon,1,1);
+          try
+           lat:=Fmain.str2r(slat);
+           lon:=Fmain.str2r(slon);
+          except
+           ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
+           exit;
+          end;
+          Fmain.toPos(lat,lon,zoom_size,true);
+          ShowMessage(SAS_STR_foundplace+' "'+strr+'"');
+         end
+        else ShowMessage(SAS_ERR_Noconnectionstointernet);
+       end
+  else ShowMessage(SAS_ERR_Noconnectionstointernet);
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
 begin
- form2.Visible:=true;
- Fmain.Enabled:=false;
+ FGoTo.ShowModal;
+// Visible:=true;
+// Fmain.Enabled:=false;
 end;
 
 procedure TFmain.TBMainToolBarClose(Sender: TObject);
@@ -3567,8 +3941,9 @@ end;
 
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
- if sender is TTBitem then NGPSconn.Checked:=TTBitem(sender).Checked
-                      else TBGPSconn.Checked:=TMenuItem(sender).Checked;
+ try
+ NGPSconn.Checked:=TTBXitem(sender).Checked;
+ TBGPSconn.Checked:=TTBXitem(sender).Checked;
  LayerMapGPS.Visible:=NGPSconn.Checked;
  GPS_enab:=TBGPSconn.Checked;
  if GPS_enab then
@@ -3576,34 +3951,37 @@ begin
    GPSReceiver.Delay:=GPS_update;
    GPSReceiver.ConnectionTimeout:=GPS_timeout;
    GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GPS_COM);
-   GPSReceiver.BaudRate := GPSReceiver.IntToBaudRate(BaudRate);
+   if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(BaudRate) then
+     GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(BaudRate);
    GPSReceiver.NeedSynchronization:=true;
    try
     GPSReceiver.Open;
    except
     ShowMessage(SAS_ERR_PortOpen);
-    GPSReceiverDisconnect(nil,TCommPort(nil));
+    GPSReceiver.Close;
    end;
   end
   else GPSReceiver.Close;
+ except
+ end;
 end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
- if sender is TTBSubMenuitem then NGPSPath.Checked:=TTBitem(sender).Checked
-                             else TBGPSPath.Checked:=TMenuItem(sender).Checked;
+ NGPSPath.Checked:=TTBXitem(sender).Checked;
+ TBGPSPath.Checked:=TTBXitem(sender).Checked;
  GPS_path:=TBGPSPath.Checked;
 // if not(GPS_path) then setlength(GPS_arr,0);
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
 begin
- if sender is TTBitem then NGPSToPoint.Checked:=TTBitem(sender).Checked
-                      else TBGPSToPoint.Checked:=TMenuItem(sender).Checked;
+ NGPSToPoint.Checked:=TTBXitem(sender).Checked;
+ TBGPSToPoint.Checked:=TTBXitem(sender).Checked;
  GPS_go:=TBGPSToPoint.Checked;
 end;
 
-procedure TFmain.TBItem4Click(Sender: TObject);
+procedure TFmain.TBCOORDClick(Sender: TObject);
 begin
  FSelLonLat:= TFSelLonLat.Create(Self);
         Try
@@ -3617,38 +3995,57 @@ begin
  TBmoveClick(Sender);
 end;
 
+procedure TFmain.SetStatusBarVisible(visible:boolean);
+begin
+ LayerStatBar.Visible:=visible;
+ mapResize(nil);
+ Showstatus.Checked:=visible;
+end;
+
+procedure TFmain.SetLineScaleVisible(visible:boolean);
+begin
+ LayerLineM.visible:=visible;
+ paint_Line;
+ ShowLine.Checked:=visible;
+end;
+
+procedure TFmain.SetMiniMapVisible(visible:boolean);
+begin
+ LayerMinMap.Visible:= visible;
+ if LayerMinMap.Visible then LayerMinMap.BringToFront
+                        else LayerMinMap.SendToBack;
+ sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+ ShowMiniMap.Checked:=visible;
+end;
+
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
- LayerStatBar.Visible:= Showstatus.Checked;
- mapResize(Sender);
+ SetStatusBarVisible(Showstatus.Checked)
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
 begin
- LayerMinMap.Visible:= ShowMiniMap.Checked;
- if LayerMinMap.Visible then LayerMinMap.BringToFront
-                        else LayerMinMap.SendToBack;
- sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+ SetMiniMapVisible(ShowMiniMap.Checked);
 end;
 
 procedure TFmain.ShowLineClick(Sender: TObject);
 begin
- LayerLineM.visible:=ShowLine.Checked;
+ SetLineScaleVisible(ShowLine.Checked)
 end;
 
 procedure TFmain.NMMtype_0Click(Sender: TObject);
 begin
- if TMenuItem(sender).Tag=0 then begin
+ if TTBXItem(sender).Tag=0 then begin
                                   sm_map.MapType.ShowOnSmMap:=false;
                                   sm_map.MapType.NSmItem.Checked:=false;
                                   sm_map.maptype:=0;
                                   NMMtype_0.Checked:=true;
                                  end
  else
- if PMapType(TMenuItem(sender).Tag).asLayer then
+ if PMapType(TTBXItem(sender).Tag).asLayer then
    begin
-    PMapType(TMenuItem(sender).Tag).ShowOnSmMap:=not(PMapType(TMenuItem(sender).Tag).ShowOnSmMap);
-    TMenuItem(sender).Checked:=PMapType(TMenuItem(sender).Tag).ShowOnSmMap;
+    PMapType(TTBXItem(sender).Tag).ShowOnSmMap:=not(PMapType(TTBXItem(sender).Tag).ShowOnSmMap);
+    TTBXItem(sender).Checked:=PMapType(TTBXItem(sender).Tag).ShowOnSmMap;
    end else
    begin
     NMMtype_0.Checked:=false;
@@ -3656,7 +4053,7 @@ begin
                                         sm_map.MapType.ShowOnSmMap:=false;
                                         sm_map.MapType.NSmItem.Checked:=false;
                                        end;
-    sm_map.maptype:=PMapType(TMenuItem(sender).Tag);
+    sm_map.maptype:=PMapType(TTBXItem(sender).Tag);
     sm_map.maptype.NSmItem.Checked:=true;
     sm_map.maptype.ShowOnSmMap:=true;
    end;
@@ -3665,21 +4062,9 @@ end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- LayerMapScale.Visible:=TMenuItem(sender).Checked;
+ LayerMapScale.Visible:=TTBXItem(sender).Checked;
  if LayerMapScale.Visible then LayerMapScale.BringToFront
                           else LayerMapScale.SendToBack;
-end;
-
-procedure TFmain.TBKMLShowClick(Sender: TObject);
-begin
- KMLShow:=not(KMLShow);
- NKMLShow.Checked:=KMLShow;
- NKMLShow1.Checked:=KMLShow;
- TBKMLShow.Checked:=KMLShow;
- KMLexplorer1.Enabled:=KMLShow;
- if KMLShow then loadKML
-            else FKMLExplorer.Hide;
- generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);
@@ -3744,7 +4129,13 @@ end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
 begin
- if length(GPS_arr)>1 then FaddLine.show_(self,GPS_arr,true)
+ if length(GPS_arr)>1 then begin
+                            if FaddLine.show_(GPS_arr,true) then
+                             begin
+                              setalloperationfalse(movemap);
+                              generate_im(nilLastLoad,'');
+                             end; 
+                           end
                       else ShowMessage(SAS_ERR_Nopoints);
 end;
 
@@ -3766,7 +4157,6 @@ end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
 var Apos:tExtendedPoint;
-    s:string;
 begin
  Apos:=GPos2LonLat(pos,zoom_size,sat_map_both);
  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(Apos.x)+'&y='+R2StrPoint(Apos.y)+'&z='+inttostr(zoom_size-1)+'&fullscreen=false&mode=satellite');
@@ -3791,7 +4181,9 @@ begin
          end;
    LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    FillingMap.LayerMap.Location:=LayerMap.Location;
+ //  if (NetRadar<>nil)and(NetRadar.LayerMap.Visible) then NetRadar.LayerMap.Location:=LayerMap.Location;
    LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+   LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
@@ -3801,20 +4193,18 @@ begin
 end;
 
 procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
-var ini:TIniFile;
+var ini:TMemIniFile;
     i:integer;
 begin
- fsaveas.Visible:=true;
  if (OpenDialog1.Execute)and(OpenDialog1.FileName<>'') then
   begin
-   ini:=TIniFile.Create(OpenDialog1.FileName);
-   fprogress2.MemoInfo.Lines[0]:=SAS_STR_loadhl;
+   ini:=TMemIniFile.Create(OpenDialog1.FileName);
    i:=1;
-   while Ini.ReadFloat('HIGHLIGHTING','PointLon_'+inttostr(i),2147483647)<>2147483647 do
+   while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
     begin
      setlength(poly_save,i);
-     poly_save[i-1].x:=Ini.ReadFloat('HIGHLIGHTING','PointLon_'+inttostr(i),2147483647);
-     poly_save[i-1].y:=Ini.ReadFloat('HIGHLIGHTING','PointLat_'+inttostr(i),2147483647);
+     poly_save[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+     poly_save[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
      inc(i);
     end;
    if length(poly_save)>0 then
@@ -3823,7 +4213,109 @@ begin
      fsaveas.Show_(poly_zoom_save,poly_save);
     end;
   end
- else fsaveas.Visible:=false;
+end;
+
+function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+var par,ty:string;
+    err:boolean;
+    Buffer:array [1..64535] of char;
+    BufferLen:LongWord;
+    hSession,hFile:Pointer;
+    qn,qd:string;
+    l:cardinal;
+    dwtype: array [1..20] of char;
+    dwindex, dwcodelen,dwReserv: dword;
+begin
+ {if InetConnect.userwinset
+  then }hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+ { else if InetConnect.proxyused
+        then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0)
+        else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);}
+ if Assigned(hSession)
+  then begin
+//        par:='Allow: POST'+#13#10;
+//        par:=par+'Content-Length: 62'+#13#10;
+        //par:=par+'Posting 62 bytes...'+#13;
+        //par:=par+'username=test'+#13#10+'userpass=test'+#13#10+'userlogin=%D0%92%D1%85%D0%BE%D0%B4';
+
+        hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
+
+      {  hConnect = InternetConnect( internetOpenHandle, hostName,
+          hostPort, 0, 0, INTERNET_SERVICE_HTTP, 0, 0 );
+       { hFile = HttpOpenRequest(hConnect, "POST",
+      _T("FormActionHere"), NULL, NULL, accept, 0, 1);  }
+
+
+       { dwcodelen:=SizeOf(dwindex);
+        if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
+         begin
+        	result:=0;
+          InternetCloseHandle(hFile);
+          InternetCloseHandle(hSession);
+          exit;
+         end;
+        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+         begin
+          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
+          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+          if (not(err))or(HttpSendRequest(hFile, nil, 0,Nil, 0)) then //Неверные пароль логин
+           begin
+           	result:=-3;
+            InternetCloseHandle(hFile);
+            InternetCloseHandle(hSession);
+            exit;
+           end;
+          HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER,@dwindex, dwcodelen, dwReserv);
+          if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then
+           begin
+           	result:=-3;
+            InternetCloseHandle(hFile);
+            InternetCloseHandle(hSession);
+            exit;
+           end;
+         end;      }
+        err:=false;
+        if Assigned(hFile)then
+         begin
+          dwcodelen:=150; dwReserv:=0; dwindex:=0;
+          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+           then dwindex:=strtoint(pchar(@dwtype));
+          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
+           begin
+            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+             begin
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              HttpSendRequest(hFile, nil, 0,Nil, 0);
+             end;
+            dwcodelen:=150; dwReserv:=0; dwindex:=0;
+            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+             then dwindex:=strtoint(pchar(@dwtype));
+            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
+             begin
+            	result:=-3;
+              InternetCloseHandle(hFile);
+              InternetCloseHandle(hSession);
+              exit
+             end;
+           end;
+          result:=0;
+          dwindex:=0; dwcodelen:=150; ty:='';
+          fillchar(dwtype,sizeof(dwtype),0);
+          if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
+           then ty:=PChar(@dwtype);
+          if (PosEx(conttype,ty,0)>0) then
+          repeat
+           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
+           ms.Write(Buffer,BufferLen);
+           inc(result,BufferLen)
+          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
+          else result:=-1;
+         end
+        else result:=0;
+       end
+  else result:=0;
+  ms.Position:=0;
 end;
 
 procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -3834,21 +4326,20 @@ var s,slat,slon,par:string;
     Buffer:array [1..64535] of char;
     BufferLen:LongWord;
     hSession,hFile:Pointer;
+    dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
 begin
  s:='';
- if InetConnect.userwinset
-  then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0)
-  else if InetConnect.proxyused
+{ if InetConnect.userwinset
+  then }hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+ { else if InetConnect.proxyused
         then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0)
-        else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);
+        else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);}
  if Assigned(hSession)
   then begin
-        for i:=1 to length(NewText) do
-         if NewText[i]=' ' then NewText[i]:='+';
-        hFile:=InternetOpenURL(hSession,PChar('http://beta-maps.yandex.ru/?text='+AnsiToUtf8(NewText)),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
+        hFile:=InternetOpenURL(hSession,PChar('http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(NewText))),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
         dwcodelen:=SizeOf(dwindex);
-        if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
+       { if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
          begin
         	ShowMessage(SAS_ERR_Noconnectionstointernet);
           InternetCloseHandle(hFile);
@@ -3874,10 +4365,33 @@ begin
             InternetCloseHandle(hSession);
             exit;
            end;
-         end;
+         end;      }
         err:=false;
         if Assigned(hFile)then
          begin
+          dwcodelen:=150; dwReserv:=0; dwindex:=0;
+          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+           then dwindex:=strtoint(pchar(@dwtype));
+          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
+           begin
+            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+             begin
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              HttpSendRequest(hFile, nil, 0,Nil, 0);
+             end;
+            dwcodelen:=150; dwReserv:=0; dwindex:=0;
+            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+             then dwindex:=strtoint(pchar(@dwtype));
+            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
+             begin
+             	ShowMessage(SAS_ERR_Authorization);
+              InternetCloseHandle(hFile);
+              InternetCloseHandle(hSession);
+              exit;
+             end;
+           end;
+
           repeat
            err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
            s:=s+Buffer;
@@ -3888,7 +4402,7 @@ begin
             ShowMessage(SAS_STR_notfound);
             exit;
            end;
-          i:=PosEx('this,[',s);
+          i:=PosEx('"ll":[',s);
           j:=PosEx(',',s,i+6);
           slon:=Copy(s,i+6,j-(i+6));
           i:=PosEx(']',s,j);
@@ -3908,11 +4422,6 @@ begin
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
        end
   else ShowMessage(SAS_ERR_Noconnectionstointernet);
-end;
-
-procedure TFmain.KMLexplorer1Click(Sender: TObject);
-begin
- FKMLExplorer.Show;
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);
@@ -3978,38 +4487,16 @@ begin
 end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
-var arrLL:PArrLL;
-    arLL:array of TExtendedPoint;
-    ms:TMemoryStream;
-    i:integer;
 begin
- CDSmarks.Locate('id',PWL.numid,[]);
- ms:=TMemoryStream.Create;
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
- GetMem(arrLL,ms.size);
- SetLength(arLL,ms.size div 24);
- ms.Position:=0;
- ms.ReadBuffer(arrLL^,ms.size);
- for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
- if ms.Size=24 then FaddPoint.show_(self,arLL[0],false);
- if (ms.Size>24) then
-  if compare2EP(arLL[0],arLL[length(arLL)-1]) then FaddPoly.show_(self,arLL,false)
-                                              else FaddLine.show_(self,arLL,false);
- freeMem(arrLL);
- SetLength(arLL,0);
- ms.Free;
+ MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- CDSmarks.Locate('id',PWL.numid,[]);
- if MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDNO
-  then exit;
- CDSmarks.Delete;
- CDSmarks.ApplyRange;
- CDSmarks.MergeChangeLog;
- CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.xml');
- generate_im(nilLastLoad,'');
+ MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ if DeleteMark(StrToInt(PWL.numid),Fmain.Handle) then
+  generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarksBarShowClick(Sender: TObject);
@@ -4018,25 +4505,9 @@ begin
 end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
-var arrLL:PArrLL;
-    arLL:array of TExtendedPoint;
-    ms:TMemoryStream;
-    i:integer;
 begin
- CDSmarks.Locate('id',PWL.numid,[]);
- ms:=TMemoryStream.Create;
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
- GetMem(arrLL,ms.size);
- SetLength(arLL,ms.size div 24);
- ms.Position:=0;
- ms.ReadBuffer(arrLL^,ms.size);
- for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
- if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
-     then Fsaveas.Show_(zoom_size,arLL)
-     else ShowMessage(SAS_MSG_FunExForPoly);
- freeMem(arrLL);
- SetLength(arLL,0);
- ms.Free;
+ MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ OperationMark(strtoint(PWL.numid));
 end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
@@ -4051,14 +4522,6 @@ begin
  CopyStringToClipboard(sat_map_both.GetLink(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size));
 end;
 
-procedure TFmain.TBMarksShowNoClick(Sender: TObject);
-begin
- if Sender=TBMarksShowAll then show_point:=1;
- if Sender=TBMarksShowDef then show_point:=2;
- if Sender=TBMarksShowNo then show_point:=3;
- generate_im(nillastload,'');
-end;
-
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
@@ -4067,97 +4530,9 @@ begin
 end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
-{var s,slat,slon,par:string;
-    i,j,ls:integer;
-    err:boolean;
-    lat,lon:real;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwindex, dwcodelen,dwReserv: dword;
-    Apos:tExtendedPoint;
-    mpp:extended;
-    hi,wi:integer;
 begin
- Apos:=GPos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),zoom_size,sat_map_both);
- hi:=20;
- wi:=20;
- mpp:=1;
- TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
- Fbrowser.Visible:=true;
-
- s:='';
-
- if InetConnect.userwinset
-  then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0)
-  else if InetConnect.proxyused
-        then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0)
-        else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);
- if Assigned(hSession)
-  then
-   for ls:=1 to 53 do
-    if lsAndid[ls,2]<>0 then
-        begin
-        s:=s+'<BR><b>Для параметра l = '+inttostr(lsAndid[ls,1])+' и id = '+inttostr(lsAndid[ls,2])+'</b><BR>';
-        hFile:=InternetOpenURL(hSession,PChar('http://image.globexplorer.com/gexservlets/gex?cmd=info&id='+inttostr(lsAndid[ls,2])+'&appid=020100S&ls='+inttostr(lsAndid[ls,1])+'&xc='+R2StrPoint(Apos.x)+'&yc='+R2StrPoint(Apos.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        dwcodelen:=SizeOf(dwindex);
-        if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
-         begin
-        	ShowMessage(SAS_ERR_Noconnectionstointernet);
-          InternetCloseHandle(hFile);
-          InternetCloseHandle(hSession);
-          exit;
-         end;
-        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
-         begin
-          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
-          if (not(err))or(HttpSendRequest(hFile, nil, 0,Nil, 0)) then //Неверные пароль логин
-           begin
-           	ShowMessage(SAS_ERR_Authorization);
-            InternetCloseHandle(hFile);
-            InternetCloseHandle(hSession);
-            exit;
-           end;
-          HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER,@dwindex, dwcodelen, dwReserv);
-          if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-           	ShowMessage(SAS_ERR_Authorization);
-            InternetCloseHandle(hFile);
-            InternetCloseHandle(hSession);
-            exit;
-           end;
-         end;
-        err:=false;
-        if Assigned(hFile)then
-         begin
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           s:=s+copy(Buffer,0,BufferLen);
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false);
-         end
-        else ShowMessage(SAS_ERR_Noconnectionstointernet);
-       end  else
-  else ShowMessage(SAS_ERR_Noconnectionstointernet);
- TextToWebBrowser(s,Fbrowser.EmbeddedWB1); }
-var Apos:tExtendedPoint;
-    mpp:extended;
-    hi,wi:integer;
-begin
- Apos:=GPos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),zoom_size,sat_map_both);
- mpp:=1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(APos.y*deg)));
- hi:=round(mpp*15);
- wi:=round(mpp*15);
- if hi>3500 then hi:=3500;
- if wi>3500 then wi:=3500;
- if hi<mHd2*2 then hi:=256;
- if wi<mWd2*2 then wi:=256;
- if mpp>8 then mpp:=8;
- TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
- Fbrowser.Visible:=true;
- Fbrowser.EmbeddedWB1.Navigate('http://image.globexplorer.com/gexservlets/gex?cmd=info&id=227400001&appid=020100S&ls=19&xc='+R2StrPoint(Apos.x)+'&yc='+R2StrPoint(Apos.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all');
- Fbrowser.EmbeddedWB1.DocumentSourceText;
-// Fbrowser.EmbeddedWB1.Navigate('http://image.globexplorer.com/gexservlets/gex?cmd=info&id=2136000901&appid=020100S&ls=1&xc='+R2StrPoint(Apos.x)+'&yc='+R2StrPoint(Apos.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all');}
+ if FDGAvailablePic.Visible then FDGAvailablePic.setup
+                            else FDGAvailablePic.Show;
 end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
@@ -4180,11 +4555,14 @@ procedure TFmain.GPSReceiverReceive(Sender: TObject);
 var s2f,sb:string;
     len:integer;
     bPos:TPoint;
+    xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
 begin
-  if (GPSReceiver.IsFix=0)or((GPSReceiver.GetLongitudeAsDecimalDegrees=0)and(GPSReceiver.GetLatitudeAsDecimalDegrees=0)) then exit;
-  setlength(GPS_arr,length(GPS_arr)+1);
-  len:=length(GPS_arr);
-  GPS_arr[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GPS_popr.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GPS_popr.y);
+ if (GPSReceiver.IsFix=0){or((GPSReceiver.GetLongitudeAsDecimalDegrees=0)and(GPSReceiver.GetLatitudeAsDecimalDegrees=0))} then exit;
+ setlength(GPS_arr,length(GPS_arr)+1);
+ len:=length(GPS_arr);
+ GPS_arr[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GPS_popr.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GPS_popr.y);
+ if (GPS_arr[len-1].x<>0)or(GPS_arr[len-1].y<>0) then
+  begin
   setlength(GPS_arr_speed,len);
   GPS_arr_speed[len-1]:=FMain.GPSReceiver.GetSpeed_KMH;
   if len>1 then
@@ -4206,10 +4584,15 @@ begin
   if GPS_Log then
    begin
     if length(GPS_arr)=1 then sb:='1' else sb:='0';
+    DecodeDate(Date, xYear, xMonth, xDay);
+    DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
     s2f:=R2StrPoint(round(GPS_arr[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GPS_arr[len-1].x*10000000)/10000000)+','+sb+','+'-777'+','+
-                    floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+DateToStr(Date)+','+TimeToStr(GetTime);
+                    floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','+
+                    inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
     Writeln(GPS_logfile,s2f);
    end;
+  end
+  else setlength(GPS_arr,length(GPS_arr)-1);
 end;
 
 procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
@@ -4239,8 +4622,6 @@ begin
   s:=ExtractFilePath(paramstr(0))+'TRECKLOG\'+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
   AssignFile(GPS_LogFile,s);
   rewrite(GPS_LogFile);
-  TimeSeparator:=':';
-  DateSeparator:='.';
  except
   GPS_Log:=false;
  end;
@@ -4255,7 +4636,8 @@ end;
 
 procedure TFmain.NMapParamsClick(Sender: TObject);
 begin
- FEditMap.AmapType:=sat_map_both;
+ if TTBXItem(sender).Tag=0 then FEditMap.AmapType:=sat_map_both
+                           else FEditMap.AmapType:=PMapType(TTBXItem(sender).Tag);
  FEditMap.ShowModal;
 end;
 
@@ -4324,12 +4706,19 @@ end;
 
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var ll,lt,i:integer;
+var i:integer;
 begin
+   if (h<>nil) then
+    begin
+     H.ReleaseHandle;
+     FreeAndNil(H);
+     oldLayerIndex:=0;
+    end;
  if (layer=LayerMinMap) then exit;
  if (ssDouble in Shift)or(anim_zoom=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
-    or(HiWord(GetKeyState(VK_INSERT))<>0) then exit;
+    or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
  Screen.ActiveForm.SetFocusedControl(map);
+ Layer.Cursor:=curBuf;
  if (Button=mbLeft)and(aoper<>movemap) then
   begin
    if (aoper=line)then begin
@@ -4354,7 +4743,7 @@ begin
                   rect_dwn:=not(rect_dwn);
                   drawRect(Shift);
                  end;
-   if (aoper=add_point) then FAddPoint.show_(self,extPoint(X2Lon(x),Y2Lat(y)),true);
+   if (aoper=add_point)and(FAddPoint.show_(extPoint(X2Lon(x),Y2Lat(y)),true)) then generate_im(nilLastLoad,'');
    if (aoper in [add_line,add_poly]) then
       begin
         for i:=0 to length(add_line_arr)-1 do
@@ -4385,6 +4774,17 @@ begin
         NMarkDel.Visible:=PWL.find;
         NMarkSep.Visible:=PWL.find;
         NMarkOper.Visible:=PWL.find;
+        NMarkNav.Visible:=PWL.find;
+        if (PWL.find)and(PWL.type_<>ROTpoint) then begin
+                                                    NMarksCalcsSq.Visible:=(PWL.type_=ROTPoly);
+                                                    NMarksCalcsPer.Visible:=(PWL.type_=ROTPoly);
+                                                    NMarksCalcsLen.Visible:=(PWL.type_=ROTline);
+                                                    NMarksCalcs.Visible:=true;
+                                                   end
+                                              else NMarksCalcs.Visible:=false;
+        if (NavOnMark<>nil)and(NavOnMark.id=strtoint(PWL.numid))
+         then NMarkNav.Checked:=true
+         else NMarkNav.Checked:=false;
         map.PopupMenu:=PopupMenu1;
        end
   else begin
@@ -4397,21 +4797,25 @@ end;
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var PWL:TResObj;
+    posB:TPoint;
     stw,path:String;
 begin
  if (layer=LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
  dwn:=false;
  if HiWord(GetKeyState(VK_DELETE))<>0 then
+  if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
+     ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
    DelFile(ffpath(Pos.x-(mWd2-X),Pos.y-(mHd2-y),zoom_size,sat_map_both^,false));
    generate_im(nilLastLoad,'');
    exit;
   end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then
+  if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
+     ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
    path:=ffpath(Pos.x-(mWd2-x),Pos.y-(mHd2-y),zoom_size,sat_map_both^,false);
-  // if ((not(tileExists(path)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
     with ThreadAllLoadMap.Create(False,[Point(pos.x-(mWd2-x),pos.y-(mHd2-y))],1,true,false,false,true,zoom_size,sat_map_both,date) do
      begin
       FreeOnTerminate:=true;
@@ -4419,10 +4823,12 @@ begin
      end;
    exit;
   end;
-// btn_visib.Visible:=aoper=line;
-// btn_close.Visible:=aoper=line;
-// btn_ok.Visible:=(aoper in [add_line,add_poly])and(length(add_line_arr)>1);
-// btn_delpath.Visible:=(aoper in [add_line,add_poly])and(length(add_line_arr)>1);
+ if HiWord(GetKeyState(VK_F5))<>0 then
+  begin
+   if FDGAvailablePic.Visible then FDGAvailablePic.setup
+                              else FDGAvailablePic.Show;
+   exit;
+  end;
 
  if movepoint>-1 then begin movepoint:=-1; end;
  if (((aoper<>movemap)and(Button=mbLeft))or
@@ -4438,7 +4844,10 @@ begin
     layer.Cursor:=curBuf;
     exit;
    end;
+
+ POSb:=POS;
  POS:=Point(pos.x+(move.x-x),pos.y+(move.y-y));
+// rotate(POS.x,POS.y,POSb.x,POSb.y,DegToRad(-20));
  m_up:=Point(x,y);
  layer.Cursor:=curBuf;
  if ((move.x<>m_up.x)or(move.y<>m_up.y))
@@ -4457,9 +4866,10 @@ begin
  if (y=move.y)and(x=move.x)and(aoper=movemap)and(button=mbLeft) then
   begin
     layer.Cursor:=curBuf;
+    PWL.S:=0;
     PWL.find:=false;
-    MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
-    MouseOnRegKML(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
+    if (LayerMapWiki.Visible) then
+     MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
@@ -4473,12 +4883,88 @@ begin
   end;
 end;
 
-procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer; Layer: TCustomLayer);
+function HTML2Txt(OrigHTML: String): String;
+var
+  NoHTML: String;
+function MidStr(const pString, pAbre, pFecha: String; pInclui: boolean): string;
+var
+  lIni, lFim : integer;
+begin
+  if (pInclui = False) then begin
+    lIni := System.Pos(UpperCase(pAbre), UpperCase(pString)) + Length(pAbre);
+    lFim := PosEx(UpperCase(pFecha),UpperCase(pString),lIni)+1;
+  end else begin
+    lIni := System.Pos(UpperCase(pAbre), UpperCase(pString));
+    lFim := PosEx(UpperCase(pFecha),UpperCase(pString),lIni + Length(pAbre))+1;
+  end;
+  result := Copy(pString, lIni, lFim - lIni);
+end;
+function mid(str:string; pos:integer):string;
+begin
+ result:=copy(str,pos, length(str)-pos+1);
+end;
+begin
+  if System.Pos('<body', LowerCase(OrigHTML)) > 0 Then begin
+    OrigHTML := Mid(OrigHTML, System.Pos('<body', LowerCase(OrigHTML)));
+    OrigHTML := Mid(OrigHTML, System.Pos('>', OrigHTML) + 1);
+    if System.Pos('</body>', LowerCase(OrigHTML)) > 0 Then
+      OrigHTML := Copy(OrigHTML,1 , System.Pos('</body>', LowerCase(OrigHTML)) - 1);
+  end;
+  OrigHTML := StringReplace(OrigHTML, Chr(13), '', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, Chr(10), '', [rfReplaceAll]);
+  while System.Pos('  ', OrigHTML) > 0 do
+    OrigHTML := StringReplace(OrigHTML, '  ', ' ', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '<br>', #13#10, [rfReplaceAll, rfIgnoreCase]);
+  OrigHTML := StringReplace(OrigHTML, '</div>', #13#10#13#10, [rfReplaceAll, rfIgnoreCase]);
+  while System.Pos('<p', OrigHTML) > 0 do begin
+    NoHTML   := MidStr(OrigHTML, '<p', '>', True);
+    OrigHTML := StringReplace(OrigHTML, NoHTML, (#13#10#13#10), [rfReplaceAll, rfIgnoreCase]);
+  end;
+  while System.Pos('<', OrigHTML) > 0 do begin
+    NoHTML   := MidStr(OrigHTML, '<', '>', True);
+    OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
+  end;
+  OrigHTML := StringReplace(OrigHTML, '&#36;',     '$', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '#37;',      '%', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&#187;',    '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&aacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&atilde;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&ccedil;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&eacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&ecirc;',   '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&iacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&oacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&ocirc;',   '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&otilde;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Aacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Atilde;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Ccedil;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Eacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Ecirc;',   '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Iacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Oacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Ocirc;',   '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Otilde;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&amp;',     '&', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&quot;',    '"', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&lt;',      '<', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&gt;',      '>', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&nbsp;',    ' ', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&copy;',    '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&reg;',     '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&raquo;',   '»', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&laquo;',   '«', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&Uacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&uacute;',  '?', [rfReplaceAll]);
+  OrigHTML := StringReplace(OrigHTML, '&uuml;',    '?', [rfReplaceAll]);
+  result := OrigHTML;
+end;
+
+
+procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var i,j:integer;
     nms:string;
     hintrect:TRect;
-    Document: IHTMLDocument2;
     CState: Integer;
 begin
  if (Layer=LayerMinMap)or(anim_zoom>0)or(
@@ -4504,51 +4990,86 @@ begin
  if dwn then layer.Cursor:=3;
 
  if vo_ves_ecran then begin
-                       TBDock.Visible:=y<10;
-                       TBDockLeft.Visible:=x<10;
-                       TBDockBottom.Visible:=y>Map.Height-10;
-                       TBDockRight.Visible:=x>Map.Width-10;
+                       if y<10 then begin
+                                     TBDock.Parent:=map;
+                                     TBDock.Visible:=true;
+                                    end
+                               else begin
+                                     TBDock.Visible:=false;
+                                     TBDock.Parent:=Fmain;
+                                    end;
+                       if x<10 then begin
+                                     TBDockLeft.Parent:=map;
+                                     TBDockLeft.Visible:=true;
+                                    end
+                               else begin
+                                     TBDockLeft.Visible:=false;
+                                     TBDockLeft.Parent:=Fmain;
+                                    end;
+                       if y>Map.Height-10 then begin
+                                     TBDockBottom.Parent:=map;
+                                     TBDockBottom.Visible:=true;
+                                    end
+                               else begin
+                                     TBDockBottom.Visible:=false;
+                                     TBDockBottom.Parent:=Fmain;
+                                    end;
+                       if x>Map.Width-10 then begin
+                                     TBDockRight.Parent:=map;
+                                     TBDockRight.Visible:=true;
+                                    end
+                               else begin
+                                     TBDockRight.Visible:=false;
+                                     TBDockRight.Parent:=Fmain;
+                                    end;
                       end;
  if anim_zoom=1 then exit;
  if dwn then begin
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               if (FillingMap.LayerMap<>nil)and(FillingMap.LayerMap.Visible) then FillingMap.LayerMap.Location:=LayerMap.Location;
+  //            if (NetRadar<>nil)and(NetRadar.LayerMap.Visible) then NetRadar.LayerMap.Location:=LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
+              if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               if (LayerMapGPS.Visible)and(GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
              end
         else m_m:=point(x,y);
  if not(dwn) then toSh;
 
- if (h<>nil)and(not ShowActivHint) then
+ if (not ShowActivHint) then
   begin
-   H.ReleaseHandle;
-   FreeAndNil(H);
-   oldLayerIndex:=0;
+   if (h<>nil) then
+    begin
+     H.ReleaseHandle;
+     FreeAndNil(H);
+     oldLayerIndex:=0;
+    end;
    Layer.Cursor:=curBuf;
-   //ShowActivHint:=false;
   end;
  ShowActivHint:=false;
- if not(dwn)and((moveTrue.x<>X) or (moveTrue.y<>y)) then
+ if not(dwn)and((moveTrue.x<>X)or(moveTrue.y<>y))and(ShowHintOnMarks) then
   begin
    PWL.S:=0;
    PWL.find:=false;
    if (LayerMapWiki.Visible) then
-    begin
      MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
-     MouseOnRegKML(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
-    end;
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
      if h<>nil then H.ReleaseHandle;
-     nms:='<HTML><BODY>'+PWL.name;
-     if PWL.descr<>'' then nms:=nms+'<BR>'+PWL.descr;
-     nms:=nms+'<HTML><BODY>';
-     TextToWebBrowser(nms,EmbeddedWB1_);
-     Document:=EmbeddedWB1_.Document as IHtmlDocument2;
-     nms:=(Document.all.Item(NULL, 0) as IHTMLElement).outerText;
+     if (length(PWL.name)>0) then
+      begin
+       if System.Pos('<',PWL.name)>0 then nms:=HTML2Txt(PWL.name)
+                                     else nms:=PWL.name;
+      end;
+     if (length(PWL.descr)>0) then
+      begin
+       if length(nms)>0 then nms:=nms+#13#10;
+       if System.Pos('<',PWL.descr)>0 then nms:=nms+HTML2Txt(PWL.descr)
+                                      else nms:=nms+PWL.descr;
+      end;
      i:=1;
+     j:=0;
      while (i<length(nms))and(i<>0) do
       begin
        inc(j);
@@ -4569,19 +5090,23 @@ begin
        inc(i);
       end;
      oldLayerIndex:=layer.Index;
-     if h=nil then
-      begin
-       H:=THintWindow.Create(Fmain);
-       H.Brush.Color:=clInfoBk;
-       H.Font.Charset:=RUSSIAN_CHARSET;
-      end;
      layer.Cursor:=crHandPoint;
-     hintrect:=H.CalcHintRect(Screen.Width, nms, nil);
-     H.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
-     H.Repaint;
+     if nms<>'' then
+     begin
+      if h=nil then
+       begin
+        H:=THintWindow.Create(Fmain);
+        H.Brush.Color:=clInfoBk;
+        H.Font.Charset:=RUSSIAN_CHARSET;
+       end;
+      hintrect:=H.CalcHintRect(Screen.Width, nms, nil);
+      H.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
+      H.Repaint;
+     end;
      ShowActivHint:=true;
     end;
   end;
+// rotate(x,y,mWd2,mHd2,20);
  moveTrue:=point(x,y);
 end;
 
@@ -4606,16 +5131,13 @@ end;
 procedure TFmain.N35Click(Sender: TObject);
 var Apos:TExtendedPoint;
     param:string;
-    i:integer;
 begin
-Fprogress2.Visible:=True;
 if SaveLink.Execute then
  begin
    Apos:=GPos2LonLat(Point(pos.x,pos.y),zoom_size,sat_map_both);
    param:=' '+sat_map_both.guids+' '+inttostr(zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
    CreateLink(ParamStr(0),SaveLink.filename, '', param)
  end;
-Fprogress2.Visible:=false;
 end;
 
 procedure TFmain.TBEditItem2AcceptText(Sender: TObject;
@@ -4636,9 +5158,9 @@ begin
  GPSpar.sspeed:=0;
 end;
 
-procedure TFmain.NGShScale0Click(Sender: TObject);
+procedure TFmain.NGShScale01Click(Sender: TObject);
 begin
- GShScale:=TMenuItem(sender).Tag;
+ GShScale:=TTBXItem(sender).Tag;
  generate_im(nilLastLoad,'');
 end;
 
@@ -4648,6 +5170,10 @@ begin
   line: begin
          if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
          drawLineCalc;
+        end;
+  Reg : begin
+         if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
+         drawReg;
         end;
   add_poly,add_line:
         begin
@@ -4664,11 +5190,17 @@ begin
 end;
 
 procedure TFmain.TBEditPathSaveClick(Sender: TObject);
+var result:boolean;
 begin
  case aoper of
-  add_Poly: FaddPoly.show_(self,add_line_arr,true);
-  add_Line: FaddLine.show_(self,add_line_arr,true);
+  add_Poly: result:=FaddPoly.show_(add_line_arr,true);
+  add_Line: result:=FaddLine.show_(add_line_arr,true);
  end;
+ if result then
+  begin
+   setalloperationfalse(movemap);
+   Fmain.generate_im(nilLastLoad,'');
+  end;
 end;
 
 procedure TFmain.TBEditPathClose(Sender: TObject);
@@ -4684,6 +5216,270 @@ end;
 procedure TFmain.NGoToSiteClick(Sender: TObject);
 begin
  Fmain.ShowCaptcha('http://sasgis.ru/');
+end;
+
+procedure TFmain.TBItem6Click(Sender: TObject);
+begin
+ Fmain.Enabled:=false;
+ FMarksExplorer.ShowModal;
+ Fmain.Enabled:=true;
+ generate_im(nilLastLoad,'');
+end;
+
+procedure TFmain.NSRTM3Click(Sender: TObject);
+var Apos:TExtendedPoint;
+begin
+ Apos:=GPos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),zoom_size,sat_map_both);
+ TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
+ Fbrowser.Visible:=true;
+ Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
+end;
+
+procedure TFmain.NGTOPO30Click(Sender: TObject);
+var Apos:TExtendedPoint;
+begin
+ Apos:=GPos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),zoom_size,sat_map_both);
+ TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
+ Fbrowser.Visible:=true;
+ Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
+end;
+
+procedure TFmain.NMarkNavClick(Sender: TObject);
+var ms:TMemoryStream;
+    LL:TExtendedPoint;
+    arrLL:PArrLL;
+    id:integer;
+begin
+ MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ if (not NMarkNav.Checked) then
+  begin
+   id:=strtoint(PWL.numid);
+   if NavOnMark<>nil then FreeAndNil(NavOnMark);
+   if not(Fmain.CDSmarks.Locate('id',id,[])) then exit;
+   ms:=TMemoryStream.Create;
+   TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
+   ms.Position:=0;
+   GetMem(arrLL,ms.size);
+   ms.ReadBuffer(arrLL^,ms.size);
+   if (arrLL^[0].Y=arrLL^[ms.size div 24-1].Y)and
+      (arrLL^[0].X=arrLL^[ms.size div 24-1].X)
+      then begin
+            LL.X:=Fmain.CDSmarks.FieldByName('LonL').AsFloat+(Fmain.CDSmarks.FieldByName('LonR').AsFloat-Fmain.CDSmarks.FieldByName('LonL').AsFloat)/2;
+            LL.Y:=Fmain.CDSmarks.FieldByName('LatB').AsFloat+(Fmain.CDSmarks.FieldByName('LatT').AsFloat-Fmain.CDSmarks.FieldByName('LatB').AsFloat)/2;
+           end
+      else begin
+            LL:=arrLL^[0];
+           end;
+   ms.Free;
+   FreeMem(arrLL);
+   NavOnMark:=TNavOnMark.create;
+   NavOnMark.id:=id;
+   NavOnMark.LL:=LL;
+   NavOnMark.width:=25;
+  end
+ else FreeAndNil(NavOnMark);
+ generate_im(nilLastLoad,'');
+end;
+
+function SecondToTime(const Seconds: Cardinal): Double;
+const
+  SecPerDay = 86400;
+  SecPerHour = 3600;
+  SecPerMinute = 60;
+var
+  ms, ss, mm, hh, dd: Cardinal; 
+begin 
+  dd := Seconds div SecPerDay;
+  hh := (Seconds mod SecPerDay) div SecPerHour; 
+  mm := ((Seconds mod SecPerDay) mod SecPerHour) div SecPerMinute; 
+  ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute; 
+  ms := 0; 
+  Result := dd + EncodeTime(hh, mm, ss, ms); 
+end; 
+
+
+
+procedure TFmain.TBEditPathMarshClick(Sender: TObject);
+var ms:TMemoryStream;
+    pathstr,timeT1:string;
+    url:string;
+    i,posit,posit2,endpos,dd,seconds,meters:integer;
+    Buffer:array [1..64535] of char;
+    BufferLen:LongWord;
+    dateT1:TDateTime;
+begin
+ ms:=TMemoryStream.Create;
+ case TTBItem(Sender).tag of
+  1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
+  2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
+  3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
+ end;
+ for i:=0 to length(add_line_arr)-1 do
+  url:=url+'&x'+inttostr(i)+'='+R2StrPoint(add_line_arr[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(add_line_arr[i].y);
+ if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then
+  begin
+   ms.Position:=0;
+   pathstr:='';
+   repeat
+    BufferLen:=ms.Read(Buffer,SizeOf(Buffer));
+    pathstr:=pathstr+Buffer;
+   until (BufferLen=0)or(BufferLen<SizeOf(Buffer));
+
+   SetLength(add_line_arr,0);
+   meters:=0;
+   seconds:=0;
+
+   try
+   posit:=PosEx('"totalLength"',pathstr,0);
+   While (posit>0) do
+    begin
+     try
+      //posit:=PosEx('"totalLength"',pathstr,posit);
+      posit2:=PosEx('"',pathstr,posit+17);
+      meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
+      posit:=PosEx('"totalTime"',pathstr,posit);
+      posit2:=PosEx('"',pathstr,posit+15);
+      seconds:=seconds+strtoint(copy(pathstr,posit+15,posit2-(posit+15)));
+     except
+     end;
+     posit:=PosEx('"points"',pathstr,posit);
+     endpos:=PosEx(']',pathstr,posit);
+      while (posit>0)and(posit<endpos) do
+       try
+        SetLength(add_line_arr,length(add_line_arr)+1);
+        posit:=PosEx('"x" : "',pathstr,posit);
+        posit2:=PosEx('", "y" : "',pathstr,posit);
+        add_line_arr[length(add_line_arr)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
+        posit:=PosEx('"',pathstr,posit2+10);
+        add_line_arr[length(add_line_arr)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
+        posit:=PosEx('{',pathstr,posit);
+       except
+        SetLength(add_line_arr,length(add_line_arr)-1);
+        dec(lastpoint);
+       end;
+     posit:=PosEx('"totalLength"',pathstr,posit);
+    end;
+   except
+   end;
+
+   lastpoint:=length(add_line_arr)-1;
+   if meters>1000 then marshrutcomment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km
+                  else marshrutcomment:=SAS_STR_MarshLen+inttostr(meters)+' '+SAS_UNITS_m;
+   DateT1:=SecondToTime(seconds);
+   dd:=DaysBetween(0,DateT1);
+   timeT1:='';
+   if dd>0 then timeT1:=inttostr(dd)+' дней, ';
+   timeT1:=timeT1+TimeToStr(DateT1);
+   marshrutcomment:=marshrutcomment+#13#10+SAS_STR_Marshtime+timeT1;
+  end
+ else ShowMessage('Connect error!');
+ drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
+end;
+
+procedure TFmain.AdjustFont(Item: TTBCustomItem;
+  Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
+begin
+ if TTBXItem(Item).Checked then TTBXItem(Item).FontSettings.Bold:=tsTrue
+                           else TTBXItem(Item).FontSettings.Bold:=tsDefault;
+end;
+
+procedure TFmain.NParamsClick(Sender: TObject);
+var i:Integer;
+begin
+ NLayerParams.Visible:=false;
+ For i:=0 to length(MapType)-1 do
+  if (MapType[i].asLayer) then
+   begin
+    MapType[i].NLayerParamsItem.Visible:=MapType[i].active;
+    if MapType[i].active then begin
+                                NLayerParams.Visible:=true;
+                              end
+   end;
+
+end;
+
+procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
+begin
+  if TTBXItem(sender).Tag=0 then begin
+                                 if fillingmaptype<>nil then
+                                  begin
+                                   fillingmaptype.TBFillingItem.Checked:=false;
+                                   fillingmaptype:=nil;
+                                  end;
+                                 TBfillMapAsMain.Checked:=true;
+                                end
+  else
+  begin
+    TBfillMapAsMain.Checked:=false;
+    if fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=false;
+    fillingmaptype:=PMapType(TTBXItem(sender).Tag);
+    fillingmaptype.TBFillingItem.Checked:=true;
+ end;
+ generate_mapzap;
+end;
+
+procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
+begin
+ MessageBox(FMain.Handle,pchar(SAS_STR_L+' - '+R2ShortStr(GetMarkLength(strtoint(PWL.numid)),2)),pchar(PWL.name),0);
+end;
+
+procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
+begin
+ MessageBox(Handle,pchar(SAS_STR_S+' - '+RoundEx(GetMarkSq(strtoint(PWL.numid)),2)+' '+SAS_UNITS_km+'2'),pchar(PWL.name),0);
+end;
+
+procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
+begin
+ MessageBox(Handle,pchar(SAS_STR_P+' - '+R2ShortStr(GetMarkLength(strtoint(PWL.numid)),2)),pchar(PWL.name),0);
+end;
+
+procedure TFmain.SpeedButton1Click(Sender: TObject);
+begin
+{ if NetRadar<>nil then
+  begin
+   //NetRadar.GetFromServer;
+  end
+ else begin
+       NetRadar:=TNetRadar.create(false,TreeView1,MemoObjectInfo);
+      end;    } 
+end;
+
+procedure TFmain.TBEditPathOkClick(Sender: TObject);
+begin
+  case aoper of
+   reg: begin
+         SetLength(reg_arr,length(reg_arr)+1);
+         reg_arr[length(reg_arr)-1]:=reg_arr[0];
+         LayerMapNal.Bitmap.Clear(clBlack);
+         Fsaveas.Show_(zoom_size,reg_arr);
+         setalloperationfalse(movemap);
+        end;
+  end;
+end;
+
+procedure TFmain.TBItem1Click(Sender: TObject);
+begin
+ if ((localization<>RUS)and(TTBItem(Sender).tag=0))or
+    ((localization<>ENU)and(TTBItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
+ case TTBItem(Sender).tag of
+  0:localization:=RUS;
+  1:localization:=ENU;
+ end;
+
+end;
+
+procedure TFmain.NMapInfoClick(Sender: TObject);
+begin
+ ShowMessage(sat_map_both.info);
+end;
+
+procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
+begin
+ if InetConnect.uselogin then
+  begin
+   szUserName:=InetConnect.loginstr;
+   szPassWord:=InetConnect.passstr;
+  end;
 end;
 
 end.

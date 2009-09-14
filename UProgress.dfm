@@ -13,7 +13,7 @@ object FProgress: TFProgress
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poScreenCenter
   ScreenSnap = True
   OnCreate = FormCreate
   OnPaint = FormPaint

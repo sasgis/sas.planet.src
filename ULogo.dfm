@@ -1,6 +1,6 @@
 object FLogo: TFLogo
-  Left = 462
-  Top = 191
+  Left = 221
+  Top = 174
   AutoSize = True
   BorderStyle = bsNone
   Caption = 'Logo'

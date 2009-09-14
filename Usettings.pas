@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,SysUtils,Classes,Controls,Forms,StdCtrls, Graphics, filectrl,
-  XPMan, Mask, rxToolEdit, rxCurrEdit, ExtCtrls, ComCtrls, Spin,
+  XPMan, Mask, rxToolEdit, rxCurrEdit, ExtCtrls, ComCtrls, Spin,strutils, IEConst,urlmon, wininet,
   Ugeofun, DBCtrlsEh, UMapType, GR32, inifiles, TB2Dock, Dialogs, UResStrings,ZylGPSReceiver;
 
 type
@@ -71,10 +71,6 @@ type
     Bevel12: TBevel;
     SpinEdit3: TSpinEdit;
     Label69: TLabel;
-    TabSheet7: TTabSheet;
-    EditKML_Path: TEdit;
-    Label70: TLabel;
-    Button10: TButton;
     CB_GPSlog: TCheckBox;
     TabSheet8: TTabSheet;
     CBWMainColor: TColorBox;
@@ -196,6 +192,19 @@ type
     MapZapColorBox: TColorBox;
     Label29: TLabel;
     MapZapAlphaEdit: TSpinEdit;
+    HotKey41: THotKey;
+    Label18: TLabel;
+    Bevel9: TBevel;
+    CBlock_toolbars: TCheckBox;
+    Label30: TLabel;
+    SETilesOCache: TSpinEdit;
+    Bevel11: TBevel;
+    CBShowHintOnMarks: TCheckBox;
+    GECachePath: TEdit;
+    Button10: TButton;
+    Button17: TButton;
+    Label31: TLabel;
+    Button18: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -214,6 +223,7 @@ type
       var DefaultDraw: Boolean);
     procedure PaintBox1Paint(Sender: TObject);
     procedure Button16Click(Sender: TObject);
+    procedure Button18Click(Sender: TObject);
   private
   public
     procedure Save;
@@ -222,25 +232,27 @@ type
 var
   FSettings: TFSettings;
   activ:boolean=true;
-
+  procedure SetProxy;
 implementation
 
-uses Unit1, Math, UEditMap;
+uses Unit1, Math, UEditMap, UFillingMap, Ubrowser, Unit2, UAbout, USaveas,
+  USearchResult, UImport, UAddCategory, UFDGAvailablePic, UaddPoint, Unit4,
+  UaddLine, UaddPoly;
 {$R *.dfm}
 
 procedure TFSettings.Save;
 var Ini: TMeminifile;
     i:integer;
+    lock_tb_b:boolean;
 begin
  try
  SaveMaps;
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
  Ini.WriteBool('VIEW','ShowMapNameOnPanel',ShowMapName);
  Ini.WriteInteger('POSITION','zoom_size',Zoom_Size);
- Ini.WriteInteger('POSITION','x',POS.x);
- Ini.WriteInteger('POSITION','y',POS.y);
- Ini.WriteInteger('POSITION','y',POS.y);
- Ini.Writebool('POSITION','KMLShow',KMLShow);
+ Ini.WriteInteger('POSITION','x',FMain.POS.x);
+ Ini.WriteInteger('POSITION','y',FMain.POS.y);
+ Ini.WriteInteger('POSITION','y',FMain.POS.y);
  Ini.Writebool('VIEW','line',Fmain.ShowLine.Checked);
  Ini.Writeinteger('VIEW','DefCache',DefCache);
  Ini.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
@@ -248,14 +260,14 @@ begin
  Ini.WriteInteger('VIEW','TilesOut',TilesOut);
  Ini.Writeinteger('VIEW','grid',zoom_line);
  Ini.Writebool('VIEW','invert_mouse',mouse_inv);
- Ini.Writebool('VIEW','back_load',Fmain.Nbackload.Checked);
+ Ini.Writebool('VIEW','back_load',backload);
  Ini.Writebool('VIEW','animate',Fmain.Nanimate.Checked);
  Ini.Writebool('VIEW','FullScreen',vo_ves_ecran);
  ini.WriteInteger('VIEW','FLeft',Fmain.Left);
  ini.WriteInteger('VIEW','FTop',Fmain.Top);
  ini.WriteInteger('VIEW','FWidth',Fmain.Width);
  ini.WriteInteger('VIEW','FHeight',Fmain.Height);
- Ini.WriteInteger('VIEW','SourceType',source);
+ Ini.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
  Ini.WriteInteger('VIEW','SmMapW',sm_map.width);
  Ini.WriteInteger('VIEW','SmMapH',sm_map.height);
  if LayerMapScale<>nil then Ini.Writebool('VIEW','showscale',LayerMapScale.Visible);
@@ -276,17 +288,22 @@ begin
  Ini.Writeinteger('VIEW','GShScale',GShScale);
  Ini.Writeinteger('VIEW','MapZapColor',MapZapColor);
  Ini.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
+ Ini.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
+ Ini.WriteInteger('VIEW','TilesOCache',TilesOCache);
+ Ini.WriteBool('VIEW','ShowHintOnMarks',ShowHintOnMarks);
+
+ if Fillingmaptype=nil then Ini.WriteString('VIEW','FillingMap','0')
+                       else Ini.WriteString('VIEW','FillingMap',Fillingmaptype.guids);
  Ini.Writeinteger('Wikimapia','MainColor',Wikim_set.MainColor);
  Ini.Writeinteger('Wikimapia','FonColor',Wikim_set.FonColor);
- Ini.Writeinteger('HOTKEY','KML',Fmain.NKMLShow.ShortCut);
  Ini.Writeinteger('HOTKEY','ZoomIn',Fmain.NzoomIn.ShortCut);
  Ini.Writeinteger('HOTKEY','ZoomOut',Fmain.NzoomOut.ShortCut);
  Ini.Writeinteger('HOTKEY','GoTo',Fmain.N14.ShortCut);
  Ini.Writeinteger('HOTKEY','CalcRast',Fmain.NCalcRast.ShortCut);
- Ini.Writeinteger('HOTKEY','Rect',Fmain.NRECT.ShortCut);
- Ini.Writeinteger('HOTKEY','Polyg',Fmain.NRegion.ShortCut);
- Ini.Writeinteger('HOTKEY','Coord',Fmain.N41.ShortCut);
- Ini.Writeinteger('HOTKEY','Previous',Fmain.N42.ShortCut);
+ Ini.Writeinteger('HOTKEY','Rect',Fmain.TBRECT.ShortCut);
+ Ini.Writeinteger('HOTKEY','Polyg',Fmain.TBRegion.ShortCut);
+ Ini.Writeinteger('HOTKEY','Coord',Fmain.TBCOORD.ShortCut);
+ Ini.Writeinteger('HOTKEY','Previous',Fmain.TBPrevious.ShortCut);
  Ini.Writeinteger('HOTKEY','inet',Fmain.NSRCinet.ShortCut);
  Ini.Writeinteger('HOTKEY','Cache',Fmain.NSRCesh.ShortCut);
  Ini.Writeinteger('HOTKEY','CachInet',Fmain.NSRCic.ShortCut);
@@ -303,8 +320,9 @@ begin
  Ini.Writeinteger('HOTKEY','GPSPath',Fmain.NGPSPath.ShortCut);
  Ini.Writeinteger('HOTKEY','GPSToPoint',Fmain.NGPSToPoint.ShortCut);
  Ini.Writeinteger('HOTKEY','SaveTreck',Fmain.NSaveTreck.ShortCut);
- Ini.Writeinteger('HOTKEY','LoadSelFromFile',Fmain.NLoadSelFromFile.ShortCut);
+ Ini.Writeinteger('HOTKEY','LoadSelFromFile',Fmain.TBLoadSelFromFile.ShortCut);
  Ini.Writeinteger('HOTKEY','InvertColor',Fmain.Ninvertcolor.ShortCut);
+ Ini.Writeinteger('HOTKEY','MapParams',Fmain.NMapParams.ShortCut);
 
  Ini.Writeinteger('COLOR_LEVELS','gamma',gamman);
  Ini.Writeinteger('COLOR_LEVELS','contrast',contrastn);
@@ -327,6 +345,7 @@ begin
  Ini.Writestring('PATHtoCACHE','SASC',NewCpath_);
  Ini.Writestring('PATHtoCACHE','ESC',ESCpath_);
  Ini.Writestring('PATHtoCACHE','GMTiles',GMTilesPath_);
+ Ini.Writestring('PATHtoCACHE','GECache',GECachePath_);
  Ini.Writebool('INTERNET','userwinset',InetConnect.userwinset);
  Ini.Writebool('INTERNET','uselogin',InetConnect.uselogin);
  Ini.Writebool('INTERNET','used_proxy',InetConnect.Proxyused);
@@ -339,7 +358,7 @@ begin
  Ini.Writebool('NPARAM','stat',sparam);
 
  i:=1;
- while Ini.ReadFloat('HIGHLIGHTING','pointx_'+inttostr(i),2147483647)<>2147483647 do
+ while Ini.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647')<>'2147483647' do
   begin
    Ini.DeleteKey('HIGHLIGHTING','pointx_'+inttostr(i));
    Ini.DeleteKey('HIGHLIGHTING','pointy_'+inttostr(i));
@@ -354,10 +373,12 @@ begin
      Ini.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),poly_save[i-1].y);
     end;
   end;
- Ini.Writestring('KML','path',KML_Path);
  ini.UpdateFile;
  Ini.Free;
+ lock_tb_b:=Fmain.lock_toolbars;
+ Fmain.lock_toolbars:=false;
  TBiniSavePositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
+ Fmain.lock_toolbars:=lock_tb_b;
  except
  end;
 end;
@@ -365,6 +386,32 @@ end;
 procedure TFSettings.Button1Click(Sender: TObject);
 begin
  Close
+end;
+
+
+procedure SetProxy;
+var PIInfo : PInternetProxyInfo;
+begin
+ New (PIInfo) ;
+ if not(InetConnect.userwinset) then
+  begin
+   if InetConnect.proxyused then
+    begin
+     PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
+     PIInfo^.lpszProxy := PChar(InetConnect.proxystr);
+     PIInfo^.lpszProxyBypass := nil;
+     UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    end
+   else
+    begin
+     PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
+     PIInfo^.lpszProxy := nil; 
+     PIInfo^.lpszProxyBypass := nil;
+     UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    end;
+   UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
+  end;
+ Dispose (PIInfo) ;
 end;
 
 procedure TFSettings.Button3Click(Sender: TObject);
@@ -392,6 +439,8 @@ begin
     end;
    k:=k shr 1;
   end;
+ ShowHintOnMarks:=CBShowHintOnMarks.checked;
+ TilesOCache:=SETilesOCache.value;
  MapZapColor:=MapZapColorBox.Selected;
  MapZapAlpha:=MapZapAlphaEdit.Value;
  FirstLat:=ChBoxFirstLat.Checked;
@@ -413,9 +462,11 @@ begin
  GPS_timeout:=SpinEdit2.Value;
  GPS_Log:=CB_GPSlog.Checked;
  GPS_update:=SpinEdit1.Value;
+ FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GPS_com:={'\\.\'+}ComboBoxCOM.Text;
  BaudRate:=StrToint(ComboBoxBoudRate.Text);
  sm_map.z1mz2:=smmapdif.Value;
+ if (RBWinCon.Checked)and(not InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  InetConnect.userwinset:=RBWinCon.Checked;
  InetConnect.proxyused:=CBProxyused.Checked;
  InetConnect.uselogin:=CBLogin.Checked;
@@ -428,7 +479,7 @@ begin
  OldCPath_:=IncludeTrailingBackslash(OldCPath.Text);
  ESCPath_:=IncludeTrailingBackslash(EScPath.Text);
  GMTilesPath_:=IncludeTrailingBackslash(GMTilesPath.Text);
- KML_Path:=IncludeTrailingBackslash(EditKML_Path.Text);
+ GECachePath_:=IncludeTrailingBackslash(GECachePath.Text);
  gamman:=TrBarGamma.Position;
  Contrastn:=TrBarContrast.Position;
  num_format:=ComboBox1.ItemIndex;
@@ -440,10 +491,10 @@ begin
  NzoomOut.ShortCut:=HotKey13.HotKey;
  N14.ShortCut:=HotKey15.HotKey;
  NCalcRast.ShortCut:=HotKey16.HotKey;
- NRECT.ShortCut:=HotKey17.HotKey;
- NRegion.ShortCut:=HotKey18.HotKey;
- N41.ShortCut:=HotKey19.HotKey;
- N42.ShortCut:=HotKey20.HotKey;
+ TBRECT.ShortCut:=HotKey17.HotKey;
+ TBRegion.ShortCut:=HotKey18.HotKey;
+ TBCOORD.ShortCut:=HotKey19.HotKey;
+ TBPREVIOUS.ShortCut:=HotKey20.HotKey;
  NSRCinet.ShortCut:=HotKey21.HotKey;
  NSRCesh.ShortCut:=HotKey22.HotKey;
  NSRCic.ShortCut:=HotKey23.HotKey;
@@ -460,8 +511,9 @@ begin
  NGPSPath.ShortCut:=HotKey36.HotKey;
  NGPSToPoint.ShortCut:=HotKey37.HotKey;
  NSaveTreck.ShortCut:=HotKey38.HotKey;
- NLoadSelFromFile.ShortCut:=HotKey39.HotKey;
+ TBLoadSelFromFile.ShortCut:=HotKey39.HotKey;
  Ninvertcolor.ShortCut:=HotKey40.HotKey;
+ NMapParams.ShortCut:=HotKey41.HotKey;
  end;
 
  if ((localization<>RUS)and(CBoxLocal.ItemIndex=0))or
@@ -481,18 +533,53 @@ begin
  pr_y:=(256*hg_y)div 2;
  yhgpx:=256*hg_y;
  xhgpx:=256*hg_x;
- mapbuf.Width:=xhgpx+256;
- mapbuf.Height:=yhgpx+256;
  LayerMap.Bitmap.Width:=xhgpx;
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMapNal.Bitmap.Width:=xhgpx;
  LayerMapNal.Bitmap.Height:=yhgpx;
+ LayerMapMarks.Bitmap.Width:=xhgpx;
+ LayerMapMarks.Bitmap.Height:=yhgpx;
  LayerMapWiki.Bitmap.Height:=yhgpx;
  LayerMapWiki.Bitmap.Width:=xhgpx;
  LayerMapGPS.Bitmap.Height:=yhgpx;
  LayerMapGPS.Bitmap.Width:=xhgpx;
  //
- TilesLoad.Clear;
+// TilesLoad.Clear;
+
+ SetProxy;
+// if not(InetConnect.userwinset) then
+//  begin
+//   if InetConnect.uselogin then SetProxy('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)',{InetConnect.proxystr}copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1),InetConnect.loginstr,
+//                                         InetConnect.passstr,strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr))))
+//                           else SetProxy('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)',InetConnect.proxystr);
+//  end;
+
+{ New (PIInfo) ;
+ PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
+ PIInfo^.lpszProxy := PChar('192.168.50.2:3128'); // ага, здесь пишем прокси.
+ PIInfo^.lpszProxyBypass := PChar(''); // а тут адреса, доступ к которым возможен, минуя прокси
+ UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+ Dispose (PIInfo) ;
+ UrlMkSetSessionOption(INTERNET_OPTION_PROXY_USERNAME, PChar('nord\az'), SizeOf('nord\az'), 0);
+ UrlMkSetSessionOption(INTERNET_OPTION_PROXY_PASSWORD, PChar('678727'), SizeOf('678727'), 0);    }
+{ if not(InetConnect.userwinset) then
+  if InetConnect.proxyused then
+   try
+    Fmain.EmbeddedWB1_.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
+    Fmain.EmbeddedWB1_.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
+    Fbrowser.EmbeddedWB1.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
+    Fbrowser.EmbeddedWB1.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
+    if InetConnect.uselogin then
+     begin
+      Fmain.EmbeddedWB1_.ProxySettings.UserName:=InetConnect.loginstr;
+      Fmain.EmbeddedWB1_.ProxySettings.Password:=InetConnect.passstr;
+      Fbrowser.EmbeddedWB1.ProxySettings.UserName:=InetConnect.loginstr;
+      Fbrowser.EmbeddedWB1.ProxySettings.Password:=InetConnect.passstr;
+     end;
+   except
+    ShowMessage(SAS_ERR_ProxyStrFormat);
+   end;    }
+
  if sender=Button2 then
   begin
    Fmain.Enabled:=true;
@@ -513,6 +600,7 @@ begin
  if (sender as TButton).Tag=2 then NewCpath.Text:='cache\';
  if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es\';
  if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt\';
+ if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge\';
 end;
 
 procedure TFSettings.Button5Click(Sender: TObject);
@@ -524,7 +612,7 @@ begin
     if (sender as TButton).Tag=2 then NewCpath.Text:=String(TempPath)+'\';
     if (sender as TButton).Tag=3 then ESCpath.Text:=String(TempPath)+'\';
     if (sender as TButton).Tag=4 then GMTilesPath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=5 then EditKML_Path.Text:=String(TempPath)+'\';
+    if (sender as TButton).Tag=5 then GECachePath.Text:=String(TempPath)+'\';
   end;
 end;
 
@@ -537,10 +625,13 @@ begin
   RUS:CBoxLocal.ItemIndex:=0;
   ENU:CBoxLocal.ItemIndex:=1;
  end;
+ CBShowHintOnMarks.Checked:=ShowHintOnMarks;
+ SETilesOCache.Value:=TilesOCache;
  MapZapColorBox.Selected:=MapZapColor;
  MapZapAlphaEdit.Value:=MapZapAlpha;
  CBDblDwnl.Checked:=DblDwnl;
  ChBoxFirstLat.Checked:=FirstLat;
+ CBlock_toolbars.Checked:=FMain.lock_toolbars;
  CkBGoNextTile.Checked:=GoNextTile;
  RBWinCon.Checked:=InetConnect.userwinset;
  RBMyCon.Checked:=not(InetConnect.userwinset);
@@ -560,11 +651,11 @@ begin
  CBShowmapname.Checked:=ShowMapName;
  CB_llstrType.ItemIndex:=llStrType;
  SpinEditMiniMap.Value:=sm_map.alpha;
- EditKML_Path.Text:=KML_Path;
  OldCPath.text:=OldCPath_;
  NewCPath.text:=NewCPath_;
  ESCPath.text:=ESCPath_;
  GMTilesPath.text:=GMTilesPath_;
+ GECachePath.text:=GECachePath_;
  SpinEdit2.Value:=GPS_timeout;
  CB_GPSlog.Checked:=GPS_Log;
  SpinEdit1.Value:=GPS_update;
@@ -574,7 +665,7 @@ begin
  smmapdif.Value:=sm_map.z1mz2;
  ComboBox2.ItemIndex:=resampling;
  ComboBoxCOM.Text:=GPS_com;
- ComboBoxBoudRate.ItemIndex:=ComboBoxBoudRate.Items.IndexOf(inttostr(BaudRate));
+ ComboBoxBoudRate.Text:=inttostr(BaudRate);
  TrBarGamma.Position:=gamman;
  if gamman<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman*2)/100)+')'
               else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman-40)/10)+')';
@@ -589,10 +680,10 @@ begin
  HotKey13.HotKey:=NzoomOut.ShortCut;
  HotKey15.HotKey:=N14.ShortCut;
  HotKey16.HotKey:=NCalcRast.ShortCut;
- HotKey17.HotKey:=NRECT.ShortCut;
- HotKey18.HotKey:=NRegion.ShortCut;
- HotKey19.HotKey:=N41.ShortCut;
- HotKey20.HotKey:=N42.ShortCut;
+ HotKey17.HotKey:=TBRECT.ShortCut;
+ HotKey18.HotKey:=TBRegion.ShortCut;
+ HotKey19.HotKey:=TBCOORD.ShortCut;
+ HotKey20.HotKey:=TBPREVIOUS.ShortCut;
  HotKey21.HotKey:=NSRCinet.ShortCut;
  HotKey22.HotKey:=NSRCesh.ShortCut;
  HotKey23.HotKey:=NSRCic.ShortCut;
@@ -609,8 +700,9 @@ begin
  HotKey36.HotKey:=NGPSconn.ShortCut;
  HotKey37.HotKey:=NGPSToPoint.ShortCut;
  HotKey38.HotKey:=NSaveTreck.ShortCut;
- HotKey39.HotKey:=NLoadSelFromFile.ShortCut;
+ HotKey39.HotKey:=TBLoadSelFromFile.ShortCut;
  HotKey40.HotKey:=Ninvertcolor.ShortCut;
+ HotKey41.HotKey:=NMapParams.ShortCut;
  end;
  DMS:=D2DMS(GPS_popr.Y);
  lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
@@ -712,6 +804,11 @@ begin
    ShowMessage('Ok');
   end
   else ShowMessage(SAS_MSG_NoGPSdetected);
+end;
+
+procedure TFSettings.Button18Click(Sender: TObject);
+begin
+ showMessage(PMapType(MapList.Selected.Data).info);
 end;
 
 end.

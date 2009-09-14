@@ -1,11 +1,11 @@
-object Form2: TForm2
-  Left = 266
-  Top = 81
+object FGoTo: TFGoTo
+  Left = 205
+  Top = 94
   Hint = 'Close'
   AlphaBlendValue = 220
   BorderStyle = bsToolWindow
   Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082'...'
-  ClientHeight = 368
+  ClientHeight = 216
   ClientWidth = 313
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
@@ -22,7 +22,7 @@ object Form2: TForm2
   TextHeight = 13
   object Label9: TLabel
     Left = 8
-    Top = 332
+    Top = 188
     Width = 57
     Height = 13
     Caption = #1052#1072#1089#1096#1090#1072#1073': x'
@@ -35,9 +35,9 @@ object Form2: TForm2
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 76
+    Top = 4
     Width = 297
-    Height = 189
+    Height = 45
     Caption = ' '
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
@@ -46,95 +46,33 @@ object Form2: TForm2
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    object Button3: TButton
-      Left = 120
-      Top = 166
-      Width = 65
-      Height = 17
-      Hint = #1048#1079#1084#1077#1085#1080#1090#1100' '#1090#1086#1095#1082#1091
-      Caption = #1048#1079#1084#1077#1085#1080#1090#1100
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
-      OnClick = Button3Click
-    end
-    object Button2: TButton
-      Left = 224
-      Top = 166
-      Width = 65
-      Height = 17
-      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1090#1086#1095#1082#1091
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-      OnClick = Button2Click
-    end
-    object BDel: TButton
-      Left = 8
-      Top = 166
-      Width = 65
-      Height = 17
-      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1090#1086#1095#1082#1091
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-      OnClick = BDelClick
-    end
-    object DBGrid2: TDBGrid
-      Left = 8
-      Top = 40
-      Width = 281
-      Height = 121
-      Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
-      ReadOnly = True
-      TabOrder = 3
-      TitleFont.Charset = RUSSIAN_CHARSET
-      TitleFont.Color = clWindowText
-      TitleFont.Height = -11
-      TitleFont.Name = 'MS Sans Serif'
-      TitleFont.Style = []
-      OnDrawColumnCell = DBGrid2DrawColumnCell
-      OnEnter = DBGrid2Enter
-      Columns = <
-        item
-          Expanded = False
-          FieldName = 'name'
-          Title.Caption = #1053#1072#1079#1074#1072#1085#1080#1077
-          Width = 111
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'descr'
-          Title.Caption = #1054#1087#1080#1089#1072#1085#1080#1077
-          Width = 144
-          Visible = True
-        end>
-    end
     object ComboBox1: TComboBox
       Left = 8
       Top = 16
       Width = 281
       Height = 21
       ItemHeight = 13
-      TabOrder = 4
-      OnChange = ComboBox1Change
+      TabOrder = 0
       OnEnter = ComboBox1Enter
     end
   end
   object RB3: TRadioButton
     Left = 19
-    Top = 74
+    Top = 2
     Width = 124
     Height = 17
-    Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1085#1099#1077' '#1084#1077#1089#1090#1072
+    Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 2
   end
   object BGo: TButton
     Left = 230
-    Top = 328
+    Top = 184
     Width = 75
     Height = 25
     Hint = #1055#1077#1088#1077#1081#1090#1080' '#1074' '#1079#1072#1076#1072#1085#1085#1091#1102' '#1090#1086#1095#1082#1091
@@ -153,7 +91,7 @@ object Form2: TForm2
   end
   object GroupBox3: TGroupBox
     Left = 8
-    Top = 272
+    Top = 56
     Width = 297
     Height = 49
     Caption = ' '
@@ -175,15 +113,17 @@ object Form2: TForm2
   end
   object RB2: TRadioButton
     Left = 19
-    Top = 269
+    Top = 53
     Width = 62
     Height = 17
     Caption = 'Google!'
+    Checked = True
     TabOrder = 5
+    TabStop = True
   end
   object GroupBox1: TGroupBox
     Left = 8
-    Top = 5
+    Top = 109
     Width = 297
     Height = 68
     Caption = ' '
@@ -193,6 +133,7 @@ object Form2: TForm2
       Top = 19
       Width = 41
       Height = 13
+      Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -208,6 +149,7 @@ object Form2: TForm2
       Top = 41
       Width = 46
       Height = 13
+      Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -373,11 +315,10 @@ object Form2: TForm2
   end
   object RB1: TRadioButton
     Left = 19
-    Top = 3
+    Top = 107
     Width = 85
     Height = 17
     Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
-    Checked = True
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -385,11 +326,10 @@ object Form2: TForm2
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    TabStop = True
   end
   object CBzoom: TComboBox
     Left = 72
-    Top = 329
+    Top = 185
     Width = 41
     Height = 21
     ItemHeight = 13
@@ -424,7 +364,7 @@ object Form2: TForm2
   end
   object RB4: TRadioButton
     Left = 80
-    Top = 269
+    Top = 53
     Width = 65
     Height = 17
     Caption = #1071#1085#1076#1077#1082#1089

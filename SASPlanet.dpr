@@ -7,8 +7,8 @@ uses
   sysutils,
   windows,
   Unit1 in 'Unit1.pas' {Fmain},
-  Unit2 in 'Unit2.pas' {Form2},
-  Unit7 in 'Unit7.pas' {Fabout},
+  Unit2 in 'Unit2.pas' {FGoTo},
+  UAbout in 'UAbout.pas' {Fabout},
   Usettings in 'Usettings.pas' {FSettings},
   USaveas in 'USaveas.pas' {Fsaveas},
   UProgress in 'UProgress.pas' {FProgress},
@@ -22,9 +22,7 @@ uses
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   Ugeofun in 'Ugeofun.pas',
   UKmlParse in 'UKmlParse.pas',
-  UKMLmap in 'UKMLmap.pas',
   Ubrowser in 'Ubrowser.pas' {Fbrowser},
-  UKMLExplorer in 'UKMLExplorer.pas' {FKMLExplorer},
   Uimgfun in 'Uimgfun.pas',
   UMapType in 'UMapType.pas',
   UTimeZones in 'UTimeZones.pas',
@@ -36,13 +34,23 @@ uses
   USearchResult in 'USearchResult.pas' {FSearchResult},
   UOpDelTiles in 'UOpDelTiles.pas',
   UOpGenPreviousZoom in 'UOpGenPreviousZoom.pas',
-  UFillingMap in 'UFillingMap.pas';
+  UFillingMap in 'UFillingMap.pas',
+  UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
+  UImport in 'UImport.pas' {FImport},
+  UAddCategory in 'UAddCategory.pas' {FAddCategory},
+  UPLT in 'UPLT.pas',
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
+  UNetRadar in 'UNetRadar.pas';
 
 var Ini: Tinifile;
-{$R *.res} {$R SASPlanetIcons.Res} {$R 0map.res} {$R Icons.RES}
+    loc:integer;
+   {$R *.res}{$R SASR.RES}
 begin
   Ini:=TiniFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
-  localization:=Ini.Readinteger('VIEW','localization',SysLocale.PriLangID);
+  if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
+                                       else loc:=LANG_RUSSIAN;
+  localization:=Ini.Readinteger('VIEW','localization',loc);
+  sparam:=Ini.ReadBool('NPARAM','stat',true);
   Application.Initialize;
   Application.Title := 'SAS.Планета';
   //logo
@@ -58,18 +66,22 @@ begin
   //xLogo
   Application.HelpFile := '';
   Application.CreateForm(TFmain, Fmain);
-  Application.CreateForm(TForm2, Form2);
+  Application.CreateForm(TFGoTo, FGoTo);
   Application.CreateForm(TFabout, Fabout);
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFsaveas, Fsaveas);
   Application.CreateForm(TFSearchResult, FSearchResult);
-  //  Application.CreateForm(TFProgress, FProgress);
+  Application.CreateForm(TFMarksExplorer, FMarksExplorer);
+  Application.CreateForm(TFImport, FImport);
+  Application.CreateForm(TFAddCategory, FAddCategory);
+  Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TFaddPoint, FaddPoint);
   Application.CreateForm(TFprogress2, Fprogress2);
   Application.CreateForm(TFbrowser, Fbrowser);
-  Application.CreateForm(TFKMLExplorer, FKMLExplorer);
   Application.CreateForm(TFaddLine, FaddLine);
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
+  Fmain.WebBrowser1.Navigate('about:blank');
+  Fbrowser.EmbeddedWB1.Navigate('about:blank');
   Application.Run;
 end.

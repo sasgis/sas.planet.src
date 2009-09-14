@@ -3,8 +3,8 @@ unit UaddPoly;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Spin, StdCtrls, ExtCtrls, Buttons, UGeoFun, GR32, DB, Unit1, UResStrings;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, DBClient,
+  Dialogs, Spin, StdCtrls, ExtCtrls, Buttons, UGeoFun, GR32, DB, Unit1, UResStrings, UMarksExplorer;
 
 type
   TFAddPoly = class(TForm)
@@ -35,6 +35,8 @@ type
     Label9: TLabel;
     Label10: TLabel;
     ColorDialog1: TColorDialog;
+    Label7: TLabel;
+    CBKateg: TComboBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -43,7 +45,7 @@ type
   private
     { Private declarations }
   public
-   procedure show_(Sender:TObject;aLL:array of TExtendedPoint;new:boolean);
+   function show_(aLL:array of TExtendedPoint;new:boolean):boolean;
   end;
 
 var
@@ -51,14 +53,14 @@ var
   arrLL:PArrLL;
   lenarr:integer;
   new_:boolean;
-  Sender_: TObject;
 
 implementation
 {$R *.dfm}
 
-procedure TFAddPoly.show_(Sender:TObject;aLL:array of TExtendedPoint;new:boolean);
+function TFAddPoly.show_(aLL:array of TExtendedPoint;new:boolean):boolean;
 var DMS:TDMS;
     i:integer;
+    namecatbuf:string;
 begin
  lenarr:=length(aLL);
  if (aLL[0].x<>aLL[length(all)-1].x)or(aLL[0].y<>aLL[length(all)-1].y)
@@ -72,12 +74,13 @@ begin
         getmem(arrLL,length(all)*SizeOf(TExtendedPoint));
         for i:=0 to lenarr-1 do arrLL^[i]:=aLL[i];
        end;
- Sender_:=Sender;
  new_:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewPoly;
- TForm(sender).Enabled := false;
- FaddPoly.Visible:=true;
+ namecatbuf:=CBKateg.Text;
+ CBKateg.Clear;
+ Kategory2Strings(CBKateg.Items);
+ CBKateg.Text:=namecatbuf;
  if new then begin
               faddPoly.Caption:=SAS_STR_AddNewPoly;
               Badd.Caption:=SAS_STR_Add;
@@ -94,13 +97,16 @@ begin
               ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
+              Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
+              CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
              end;
+  FaddPoly.ShowModal;
+  result:=ModalResult=mrOk;
 end;
 
 procedure TFAddPoly.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  FreeMem(ArrLL);
- TForm(sender_).Enabled := true;
 end;
 
 procedure TFAddPoly.BaddClick(Sender: TObject);
@@ -135,17 +141,19 @@ begin
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
  Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
+ if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
+  then AddKategory(CBKateg.Text);
+ Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.xml');
+ Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
  close;
- if aoper=add_Poly then Fmain.setalloperationfalse(movemap);
- Fmain.generate_im(nilLastLoad,'');
+ ModalResult:=mrOk;
+ //if aoper=add_Poly then Fmain.setalloperationfalse(movemap);
 end;
 
 procedure TFAddPoly.Button2Click(Sender: TObject);
 begin
- Fmain.generate_im(nilLastLoad,'');
  close;
 end;
 

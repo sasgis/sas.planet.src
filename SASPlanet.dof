@@ -76,9 +76,9 @@ LocaleToUnicode=1
 ImagebaseMultiple=1
 SuspiciousTypecast=1
 PrivatePropAccessor=1
-UnsafeType=1
-UnsafeCode=1
-UnsafeCast=1
+UnsafeType=0
+UnsafeCode=0
+UnsafeCast=0
 [Linker]
 MapFile=0
 OutputObjs=0
@@ -90,12 +90,12 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=.\.bin
+OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=
-Packages=vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;vcldb;dsnap;soaprtl;VclSmp;dbexpress;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOfficeXP;tb2k_d7;EhLibClx;CoolTrayIcon_D6;vclactnband;BSFD7;EhLib70;rxctl;PFolderDialogs;GR32_D7;GR32_DSGN_D7;EmbeddedWebBrowser_D7;mysqlproc;SMLPack_DT;SMLPack_RT;PDJ_XD7;TMSD7;tmsexd7;tmswizd7;tmsxlsd7;daADPhysADSD7;daADPhysODBCD7;daADPhysD7;daADComID7;daADPhysDBExpD7;daADPhysASAD7;daADPhysOraclD7;daADPhysMySQLD7;daADPhysDb2D7;daADPhysMSSQLD7;daADPhysMSAccD7;daADGUIxFormsD7;daADCompD7;dsnapcon;dbxcds;inetdb
+Packages=vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOfficeXP;GeckoSDK;GeckoComponents;EmbeddedWebBrowser_D7;GR32_D7;GR32_DSGN_D7;ZylGPSRecPack;DISQLite3_D7;tb2k_d7;tbx_d7;EhLib70
 Conditionals=
 DebugSourceDirs=
 UsePackages=0
@@ -107,26 +107,27 @@ UseLauncher=0
 DebugCWD=
 [Resource DLL Projects]
 Item0=Английский (США)*$00000409*ENU*ENU
-Item1=Русский*$00000419*RUS*RUS
 [RDP Source Files]
-Item0=Unit3.dfm
-Item1=Unit1.dfm
-Item2=Unit2.dfm
-Item3=Unit7.dfm
-Item4=Usettings.dfm
-Item5=USaveas.dfm
-Item6=UProgress.dfm
-Item7=UaddPoint.dfm
-Item8=Unit4.dfm
-Item9=ULogo.dfm
-Item10=USelLonLat.dfm
-Item11=Ubrowser.dfm
-Item12=UKMLExplorer.dfm
-Item13=UaddLine.dfm
-Item14=UaddPoly.dfm
-Item15=UEditMap.dfm
-Item16=USearchResult.dfm
-Item17=SASPlanet.drc
+Item0=Unit1.dfm
+Item1=Unit2.dfm
+Item2=UAbout.dfm
+Item3=Usettings.dfm
+Item4=USaveas.dfm
+Item5=UProgress.dfm
+Item6=UaddPoint.dfm
+Item7=Unit4.dfm
+Item8=ULogo.dfm
+Item9=USelLonLat.dfm
+Item10=Ubrowser.dfm
+Item11=UaddLine.dfm
+Item12=UaddPoly.dfm
+Item13=UEditMap.dfm
+Item14=USearchResult.dfm
+Item15=UMarksExplorer.dfm
+Item16=UImport.dfm
+Item17=UAddCategory.dfm
+Item18=UFDGAvailablePic.dfm
+Item19=SASPlanet.drc
 [Language]
 ActiveLang=
 ProjectLang=$00000419
@@ -146,22 +147,15 @@ DLL=0
 Locale=1049
 CodePage=1251
 [Version Info Keys]
-CompanyName=SAS Group
+CompanyName=
 FileDescription=
 FileVersion=1.0.0.0
-InternalName=SAS.Планета
-LegalCopyright=Группа SAS
-LegalTrademarks=SAS.Планета
-OriginalFilename=SASPlanet
-ProductName=SAS.Планета
-ProductVersion=90119
-[HistoryLists\hlUnitAliases]
-Count=1
-Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlUnitOutputDirectory]
-Count=1
-Item0=.\.dcu
-[HistoryLists\hlOutputDirectorry]
-Count=2
-Item0=..\.bin
-Item1=.\.bin
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+[Excluded Packages]
+c:\program files\borland\delphi7\Projects\Bpl\EmbeddedWBD7.bpl=MSHTML Edit helper

@@ -3,7 +3,8 @@ unit UResStrings;
 interface
 
 ResourceString
- SAS_MSG_need_reload_application='Необходимо перезапустить приложение,'+#13#10+'чтобы изменения вступили в силу.';
+ SAS_MSG_need_reload_application='Necessary to reload application,'+#13#10+'that change have took effect.';
+ SAS_MSG_need_reload_application_curln='Для того чтобы изменения вступили в силу'+#13#10+'необходимо перезапустить программу.';
  SAS_MSG_needselect='Необходимо сначало выделить объект';
  SAS_MSG_coution='Внимание!';
  SAS_MSG_youasure='Подтвердите факт удаления';
@@ -39,13 +40,17 @@ ResourceString
  SAS_ERR_Noconnectionstointernet='Отсутствует подключение к интернет!';
  SAS_ERR_RepeatProcess='Пытаемся повторить обработку';
  SAS_ERR_FileExistsShort='Данный файл уже имеется в кеше';
+ SAS_ERR_Memory='Невозможно выделить память для данной операции';
 
+ SAS_STR_MarshLen='Длина маршрута: ';
+ SAS_STR_Marshtime='Время в пути: ';
  SAS_STR_coordinates='Координаты';
  SAS_STR_time='Время';
  SAS_STR_load='Скачано';
  SAS_STR_Scale='Масштаб';
  SAS_STR_Speed='Скорость';
  SAS_STR_LenPath='Длина пути';
+ SAS_STR_LenToMark='Расстояние до метки';
  SAS_STR_filesnum='Количество файлов не более';
  SAS_STR_activescale='Активный масштаб';
  SAS_STR_for='Для';
@@ -66,19 +71,22 @@ ResourceString
  SAS_STR_AllSaves='Всего сохранить:';
  SAS_STR_files='файлов';
  SAS_STR_file='файл';
+ SAS_STR_No='Нет';
  SAS_STR_Deleted='Удаляет:';
  SAS_STR_Gamma='Цветовая гамма';
  SAS_STR_Contrast='Контраст';
- SAS_STR_InMainWindowFor='В главном окне для';
  SAS_STR_NewPath='Новый путь';
  SAS_STR_NewMark='Новая метка';
  SAS_STR_NewPoly='Новый полигон';
+ SAS_STR_NewCategory='Новая категория';
  SAS_STR_AddNewPath='Добавить новый путь';
  SAS_STR_AddNewMark='Добавить новую метку';
  SAS_STR_AddNewPoly='Добавить новый полигон';
+ SAS_STR_AddNewCategory='Добавить новую категорию';
  SAS_STR_EditPath='Изменить путь';
  SAS_STR_EditMark='Изменить метку';
  SAS_STR_EditPoly='Изменить полигон';
+ SAS_STR_EditCategory='Изменить категорию';
  SAS_STR_Add='Добавить';
  SAS_STR_Edit='Изменить';
  SAS_STR_EditMap='Редактировать описание карты:';
@@ -98,18 +106,23 @@ ResourceString
  SAS_STR_ProcessedFile='Обработка файла';
  SAS_STR_Wite='Ждем';
  SAS_STR_S='Площадь';
+ SAS_STR_L='Длина';
+ SAS_STR_P='Периметр';
  SAS_STR_Whole='Всего';
+ SAS_STR_Maps='Карты';
+ SAS_STR_Layers='Слои';
  SAS_UNITS_kb='Кб';
  SAS_UNITS_mb='Мб';
  SAS_UNITS_gb='Гб';
  SAS_UNITS_kmperh='км/час';
- SAS_UNITS_mperp='м./пикс.';
+ SAS_UNITS_mperp='/пикс.';
  SAS_UNITS_km='км';
  SAS_UNITS_sm='см';
  SAS_UNITS_m='м';
  SAS_UNITS_m2='м2';
  SAS_UNITS_km2='км2';
  SAS_UNITS_Secund='секунд';
+ SAS_UNITS_Min='мин.';
 implementation
 
 end.
