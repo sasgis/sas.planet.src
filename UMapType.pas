@@ -431,6 +431,7 @@ begin
       CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
       DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
+      DefSleep:=Sleep;
       BanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       CONTENT_TYPE:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
       Ext:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
