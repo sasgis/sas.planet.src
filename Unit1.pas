@@ -2529,16 +2529,11 @@ end;
 
 procedure TFmain.generate_mapzap;
 begin
- if (zoom_mapzap<=zoom_size){or(zoom_mapzap-zoom_size>10)} then begin
-                                                              FillingMap.stop:=true;
-                                                              FillingMap.LayerMap.Visible:=false;
-                                                             end
-                                                        else begin
-                                                              FillingMap.stop:=false;
-                                                              FillingMap.needRepaint:=true;
-                                                              FillingMap.Suspended:=false;
-                                                              FillingMap.LayerMap.bitmap.Clear(clBlack);;
-                                                             end
+  if (zoom_mapzap<=zoom_size){or(zoom_mapzap-zoom_size>10)} then begin
+    FillingMap.StopDrow;
+  end else begin
+    FillingMap.StartDrow;
+  end;
 end;
 
 procedure BadDraw(var spr:TBitmap32);
@@ -3357,7 +3352,7 @@ begin
               LayerMap.Location:=
               floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
                                xhgpx+round((pr_x/w)*i*2),yhgpx+round((pr_y/w)*i*2)));
-          if (FillingMap.LayerMap<>nil)and(FillingMap.LayerMap.Visible) then FillingMap.LayerMap.Location:=LayerMap.Location;
+              FillingMap.Location:=LayerMap.Location;
  //        if (NetRadar<>nil)and(NetRadar.LayerMap.Visible) then NetRadar.LayerMap.Location:=LayerMap.Location;
           if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
           application.ProcessMessages;
@@ -4180,7 +4175,7 @@ begin
           with LayerLineM do location:=floatrect(location.left,map.Height-23,location.right,map.Height-8);
          end;
    LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
-   FillingMap.LayerMap.Location:=LayerMap.Location;
+   FillingMap.Location:=LayerMap.Location;
  //  if (NetRadar<>nil)and(NetRadar.LayerMap.Visible) then NetRadar.LayerMap.Location:=LayerMap.Location;
    LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
@@ -5026,7 +5021,7 @@ begin
  if anim_zoom=1 then exit;
  if dwn then begin
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
-              if (FillingMap.LayerMap<>nil)and(FillingMap.LayerMap.Visible) then FillingMap.LayerMap.Location:=LayerMap.Location;
+              FillingMap.Location := LayerMap.Location;
   //            if (NetRadar<>nil)and(NetRadar.LayerMap.Visible) then NetRadar.LayerMap.Location:=LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
