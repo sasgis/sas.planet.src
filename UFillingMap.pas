@@ -28,13 +28,11 @@ type
     needRepaint:boolean;
     stop:boolean;
 
-    DrawPos:TPoint;
     ClMZ:TColor32;
     dZoom:Byte;
     y_draw,x_draw:longint;
     Ahg_x,Ahg_y,Apr_x,Apr_y,ppaprx,ppapry:integer;
     d2562,x2,xyTiles:integer;
-    procedure DrawPixel;
     procedure SetupLayer;
     procedure UpdateLayer;
     procedure SetLocation(const Value: TFloatRect);
@@ -71,11 +69,6 @@ begin
   inherited;
 end;
 
-procedure TFillingMap.DrawPixel;
-begin
-  LayerMap.Bitmap.PixelS[DrawPos.x,DrawPos.y]:=clMZ;
-end;
-
 procedure TFillingMap.UpdateLayer;
 begin
   LayerMap.Update;
@@ -110,18 +103,20 @@ end;
 procedure TFillingMap.Execute;
 var
   Path:String;
-  fn,fo:string;
-  bo,bb:boolean;
+  VCurrFolderName:string;
+  VPrevFolderName:string;
+  VPrevTileFolderExist:boolean;
+  VTileExist:boolean;
   i,j,ii,jj,ixT,jxT:integer;
-  imd256x,imd256y,xx,yy,xx1,yy1,x1,y1:longint;
+  imd256x,imd256y,xx,yy,x1,y1:longint;
 begin
   repeat
-    bo:=true;
     Synchronize(SetupLayer);
     ppaprx:=ppaprx*x2;
     ppapry:=ppapry*x2;
+    VPrevTileFolderExist:=true;
     imd256x:=0;
-    bb:=true;
+    VTileExist:=true;
     for i:=0 to Ahg_x do begin
       imd256y:=0;
       if (Terminated)or(needRepaint)or(stop) then begin
@@ -142,7 +137,7 @@ begin
           While jxT<(xyTiles) do begin
             yy:=ppapry+(imd256y shl dZoom)+(jxT*256);
             if (Terminated)or(needRepaint)or(stop)or(yy<0)or(yy>=zoom[zoom_mapzap]) then begin
-              bb:=true;
+              VTileExist:=true;
               inc(jxT);
               continue;
             end;
@@ -151,23 +146,23 @@ begin
             end else begin
               Path:=ffpath(xx,yy,zoom_mapzap,fillingmaptype^,false);
             end;
-            fn:=ExtractFilePath(path);
-            if fn=fo then begin
-              if bo then begin
-                bb:=TileExists(path)
+            VCurrFolderName:=ExtractFilePath(path);
+            if VCurrFolderName=VPrevFolderName then begin
+              if VPrevTileFolderExist then begin
+                VTileExist:=TileExists(path)
               end else begin
-                bb:=false
+                VTileExist:=false
               end;
             end else begin
-              bo:=DirectoryExists(fn);
-              if bo then begin
-                bb:=TileExists(path)
+              VPrevTileFolderExist:=DirectoryExists(VCurrFolderName);
+              if VPrevTileFolderExist then begin
+                VTileExist:=TileExists(path)
               end else begin
-                bb:=false;
+                VTileExist:=false;
               end;
             end;
-            fo:=fn;
-            if bb then begin
+            VPrevFolderName:=VCurrFolderName;
+            if VTileExist then begin
               ixT:=xyTiles;
               jxT:=xyTiles;
             end;
@@ -175,7 +170,7 @@ begin
           end;
           inc(ixT);
         end;
-        if not(bb) then begin
+        if not(VTileExist) then begin
           x1:=imd256x-x_draw; y1:=imd256y-y_draw;
           if (x1<x1+(d2562-1))and(y1<y1+(d2562-1)) then begin
             for ii:=x1 to x1+(d2562-1) do begin
