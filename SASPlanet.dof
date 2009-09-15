@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=
+OutputDir=.\.bin
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -135,7 +135,7 @@ RootDir=
 [Version Info]
 IncludeVerInfo=1
 AutoIncBuild=0
-MajorVer=1
+MajorVer=0
 MinorVer=0
 Release=0
 Build=0
@@ -147,15 +147,20 @@ DLL=0
 Locale=1049
 CodePage=1251
 [Version Info Keys]
-CompanyName=
+CompanyName=SAS Group
 FileDescription=
-FileVersion=1.0.0.0
-InternalName=
-LegalCopyright=
-LegalTrademarks=
-OriginalFilename=
-ProductName=
+FileVersion=0.0.0.0
+InternalName=SAS.Планета
+LegalCopyright=Группа SAS
+LegalTrademarks=SAS.Планета
+OriginalFilename=SASPlanet
+ProductName=SAS.Планета
 ProductVersion=1.0.0.0
-Comments=
 [Excluded Packages]
 c:\program files\borland\delphi7\Projects\Bpl\EmbeddedWBD7.bpl=MSHTML Edit helper
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlOutputDirectorry]
+Count=1
+Item0=..\.bin

@@ -13,6 +13,7 @@ library SASPlanet;
 {ITE} {DFMFileType} {UaddPoly.dfm}
 {ITE} {DFMFileType} {Ubrowser.dfm}
 {ITE} {DFMFileType} {UEditMap.dfm}
+{ITE} {DFMFileType} {UFDGAvailablePic.dfm}
 {ITE} {DFMFileType} {UImport.dfm}
 {ITE} {DFMFileType} {ULogo.dfm}
 {ITE} {DFMFileType} {UMarksExplorer.dfm}
@@ -35,6 +36,7 @@ library SASPlanet;
 {$R 'UaddPoly.dfm' FAddPoly:TForm}
 {$R 'Ubrowser.dfm' Fbrowser:TForm}
 {$R 'UEditMap.dfm' FEditMap:TForm}
+{$R 'UFDGAvailablePic.dfm' FDGAvailablePic:TForm}
 {$R 'UImport.dfm' FImport:TForm}
 {$R 'ULogo.dfm' FLogo:TForm}
 {$R 'UMarksExplorer.dfm' FMarksExplorer:TForm}
