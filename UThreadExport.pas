@@ -131,7 +131,7 @@ begin
             end;
             if MapTypeMerS.projection<>TypeMapArr.projection then
              begin
-              pathfrom:=ffpath(p_h.x,p_h.y+256,zoom+1,TypeMapArr^,false);
+              pathfrom:=TypeMapArr.GetTileFileName(p_h.x,p_h.y+256,zoom+1);
               try
                if TypeMapArr.ext='.png' then
                 begin
@@ -309,13 +309,13 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
-            pathfrom:=ffpath(p_h.x,p_h.y,i+1,TypeMapArr[0]^,false);
+            pathfrom:=TypeMapArr[0].GetTileFileName(p_h.x,p_h.y,i+1);
             if TileExists(pathfrom) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
             bmp322.SaveToFile('c:\123.bmp');
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
-          pathfrom:=ffpath(p_h.x,p_h.y,i+1,TypeMapArr[j]^,false);
+          pathfrom:=TypeMapArr[j].GetTileFileName(p_h.x,p_h.y,i+1);
           if TileExists(pathfrom) then
            begin
             UniLoadTile(bmp32,pathfrom,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
@@ -507,7 +507,7 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
-          pathfrom:=ffpath(p_x,p_y,i+1,TypeMapArr[j]^,false);
+          pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
           if TileExists(pathfrom) then
            begin
             inc(scachano);
@@ -515,7 +515,7 @@ begin
                            Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-                           pathto:=PATH+ffpath(p_x,p_y,i+1,AMapType,true);
+                           pathto:=PATH+AMapType.GetTileFileName(p_x,p_y,i+1);
                            Fmain.createdirif(pathto);
                            Copy_File(Pchar(pathfrom),PChar(pathto),not(replace));
                            if move then DelFile(pathfrom);
@@ -562,7 +562,7 @@ var xym256lt,xym256rb:TPoint;
     i,nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
 begin
-  savepath:=ffpath(x,y,z,TypeMapArr[0]^,false);
+  savepath:=TypeMapArr[0].GetTileFileName(x,y,z);
   if (Replace)and(not(TileExists(savepath))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
@@ -675,22 +675,7 @@ begin
                                                   inc(p_y,256);
                                                   CONTINUE;
                                                  end;
-     //pathfrom:=ffpath(p_x,p_y,i+1,TypeMapArr[j],false);
      KmlFileWrite(p_x,p_y,i+1,1);
-     {if TileExists(pathfrom) then
-      begin
-       inc(scachano);
-       if ziped then begin
-                      Zip.FilesList.Add(pathfrom);
-                     end
-                else begin
-                      pathto:=PATH+ffpath(p_x,p_y,i+1,AMapType,true);
-                      Fmain.createdirif(pathto);
-                      Copy_File(Pchar(pathfrom),PChar(pathto),not(replace));
-                      if move then DelFile(pathfrom);
-                     end;
-      end;       }
-
      inc(p_y,256);
     end;
     inc(p_x,256);

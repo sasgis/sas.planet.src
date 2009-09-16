@@ -129,7 +129,7 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
-     path:=ffpath(p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap^,false);
+     path:=ThreadScleit(Sender).typemap.GetTileFileName(p_x,p_y,ThreadScleit(Sender).zoom);
      if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
      else
      begin
@@ -142,14 +142,14 @@ begin
      if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
      if ThreadScleit(Sender).Htypemap<>nil then
       begin
-       pathhib:=ffpath(p_h.x,p_h.y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+       pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y,ThreadScleit(Sender).zoom);
        ThreadScleit(Sender).btmh.Clear(clBlack);
        ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
        if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
        ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
        if p_h.y<>p_y then
         begin
-         pathhib:=ffpath(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+         pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom);
          ThreadScleit(Sender).btmh.Clear(clBlack);
          ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
          if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
@@ -202,7 +202,7 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
-     ThreadScleit(Sender).path:=ffpath(p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap^,false);
+     ThreadScleit(Sender).path:=ThreadScleit(Sender).typemap.GetTileFileName(p_x,p_y,ThreadScleit(Sender).zoom);
      if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
      else
      begin
@@ -216,14 +216,14 @@ begin
      if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
      if ThreadScleit(Sender).Htypemap<>nil then
       begin
-       pathhib:=ffpath(p_h.x,p_h.y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+       pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y,ThreadScleit(Sender).zoom);
        ThreadScleit(Sender).btmh.Clear(clBlack);
        ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
        if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
        ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
        if p_h.y<>p_y then
         begin
-         pathhib:=ffpath(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom,ThreadScleit(Sender).Htypemap^,false);
+         pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom);
          ThreadScleit(Sender).btmh.Clear(clBlack);
          ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
          if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);

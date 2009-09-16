@@ -175,7 +175,7 @@ begin
                                                    inc(p_y,256);
                                                    continue;
                                                   end;
-       path:=ffpath(p_x,p_y,InZooms[i],typemap^,false);
+       path:=typemap.GetTileFileName(p_x,p_y,InZooms[i]);
        if TileExists(Path)then begin
                                 if not(Replace)
                                  then begin
@@ -200,8 +200,8 @@ begin
           p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
           p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
           if (not GenFormPrev)or(i=0) then
-          {if i=0 then }pathfrom:=ffpath(p_x_x,p_y_y,FromZoom,typemap^,false)
-                   else pathfrom:=ffpath(p_x_x,p_y_y,InZooms[i-1],typemap^,false);
+                        pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,FromZoom)
+                   else pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,InZooms[i-1]);
           if TileExists(pathfrom) then
            begin
             Synchronize(LoadChildTileOp);

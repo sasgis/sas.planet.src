@@ -103,7 +103,7 @@ begin
     if CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
-    path:=ffpath(Ax,Ay,Azoom,Alayer^,false);
+    path:=Alayer.GetTileFileName(Ax,Ay,Azoom);
     KML:=TKML.Create;
     if kml.loadFromFile(path) then
      for ii:=0 to length(KML.Data)-1 do
