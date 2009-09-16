@@ -7,10 +7,24 @@ uses
   sysutils,
   Classes,
   IniFiles,
-  Uprogress,Dialogs,Menus,
-     TBX,Graphics,uPSCompiler,uPSRuntime,StdCtrls,ComCtrls,
-     uPSR_std,uPSR_forms,uPSUtils,math,ExtCtrls, VCLZip,
-     u_CoordConverterAbstract,u_UrlGenerator,UResStrings;
+  Dialogs,
+  Graphics,
+  StdCtrls,
+  ComCtrls,
+  Menus,
+  math,
+  ExtCtrls,
+  Uprogress,
+  TBX,
+  uPSCompiler,
+  uPSRuntime,
+  uPSR_std,
+  uPSR_forms,
+  uPSUtils,
+  VCLZip,
+  u_CoordConverterAbstract,
+  u_UrlGenerator,
+  UResStrings;
 
 type
  PMapType = ^TMapType;
@@ -486,20 +500,14 @@ begin
     end;
   finally
     FreeAndNil(AZipFile);
-//    FreeAndNil(KaZip);
     FreeAndNil(UnZip);
   end;
 end;
 
 function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
-//var xx,yy:integer;
-//    zz:byte;
 begin
   if (FUrlGenerator = nil) then result:='';
-  //xx:=x div 256;
-  //yy:=y div 256;
   if not(Azoom in [1..24]) then raise Exception.Create('Ошибочный Zoom');
-  //zz:=Azoom-1;
   FUrlGenerator.GetURLBase:=URLBase;
   Result:=FUrlGenerator.GenLink(x,y,Azoom-1);
 end;

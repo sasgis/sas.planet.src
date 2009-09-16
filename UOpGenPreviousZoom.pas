@@ -85,7 +85,7 @@ end;
 procedure TOpGenPreviousZoom.CloseProgressForm;
 begin
  fprogress.Free;
- ClearCache;
+ MainFileCache.Clear;
  Fmain.generate_im(nilLastLoad,'');
 end;
 
@@ -122,12 +122,12 @@ end;
 
 procedure TOpGenPreviousZoom.LoadMainTileOp;
 begin
- LoadTilefromCache(bmp_Ex,path,false);
+  MainFileCache.LoadFile(bmp_Ex,path,false);
 end;
 
 procedure TOpGenPreviousZoom.LoadChildTileOp;
 begin
- LoadTilefromCache(bmp,pathfrom,false);
+  MainFileCache.LoadFile(bmp,pathfrom,false);
 end;
 
 procedure TOpGenPreviousZoom.GenPreviousZoom;

@@ -135,7 +135,7 @@ begin
      begin
      ThreadScleit(Sender).btmm.Clear(clSilver);
      if (Tileexists(path)) then begin
-                                 if not(LoadTilefromCache(ThreadScleit(Sender).btmm,path,false))
+                                 if not(MainFileCache.LoadFile(ThreadScleit(Sender).btmm,path,false))
                                   then Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
                                 end
                            else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
@@ -145,14 +145,14 @@ begin
        pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y,ThreadScleit(Sender).zoom);
        ThreadScleit(Sender).btmh.Clear(clBlack);
        ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-       if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
+       if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
        ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
        if p_h.y<>p_y then
         begin
          pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom);
          ThreadScleit(Sender).btmh.Clear(clBlack);
          ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-         if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
+         if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
          ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
         end;
       end;
@@ -209,7 +209,7 @@ begin
      ThreadScleit(Sender).btmm.Clear(clSilver);
      if (Tileexists(ThreadScleit(Sender).path))
       then begin
-            if not(LoadTilefromCache(ThreadScleit(Sender).btmm,ThreadScleit(Sender).path,false))
+            if not(MainFileCache.LoadFile(ThreadScleit(Sender).btmm,ThreadScleit(Sender).path,false))
              then Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
            end
       else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
@@ -219,14 +219,14 @@ begin
        pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y,ThreadScleit(Sender).zoom);
        ThreadScleit(Sender).btmh.Clear(clBlack);
        ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-       if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
+       if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
        ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
        if p_h.y<>p_y then
         begin
          pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom);
          ThreadScleit(Sender).btmh.Clear(clBlack);
          ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-         if (Tileexists(pathhib)) then LoadTilefromCache(ThreadScleit(Sender).btmh,pathhib,false);
+         if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
          ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
         end;
       end;

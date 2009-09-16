@@ -289,7 +289,7 @@ begin
  Ini.Writeinteger('VIEW','MapZapColor',MapZapColor);
  Ini.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
  Ini.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
- Ini.WriteInteger('VIEW','TilesOCache',TilesOCache);
+ Ini.WriteInteger('VIEW','TilesOCache', MainFileCache.CacheElemensMaxCnt);
  Ini.WriteBool('VIEW','ShowHintOnMarks',ShowHintOnMarks);
 
  if Fillingmaptype=nil then Ini.WriteString('VIEW','FillingMap','0')
@@ -440,7 +440,7 @@ begin
    k:=k shr 1;
   end;
  ShowHintOnMarks:=CBShowHintOnMarks.checked;
- TilesOCache:=SETilesOCache.value;
+ MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  MapZapColor:=MapZapColorBox.Selected;
  MapZapAlpha:=MapZapAlphaEdit.Value;
  FirstLat:=ChBoxFirstLat.Checked;
@@ -626,7 +626,7 @@ begin
   ENU:CBoxLocal.ItemIndex:=1;
  end;
  CBShowHintOnMarks.Checked:=ShowHintOnMarks;
- SETilesOCache.Value:=TilesOCache;
+ SETilesOCache.Value:=MainFileCache.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=MapZapColor;
  MapZapAlphaEdit.Value:=MapZapAlpha;
  CBDblDwnl.Checked:=DblDwnl;

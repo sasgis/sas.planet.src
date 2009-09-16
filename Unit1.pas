@@ -9,7 +9,7 @@ uses
   DB, UThreadExport, GR32_Image, UResStrings, WinInet, SHDocVw_EWB, DBClient,
   OleCtrls, EwbCore, TBX, Controls,
   ZylGPSReceiver, Dialogs, BMSearch,  UFillingMap, PNGimage,
-   Buttons, ZylCustomGPSReceiver, ImgMaker,
+   Buttons, ZylCustomGPSReceiver, ImgMaker, u_MemFileCache,
   ImgList, TB2ToolWindow, TBXToolPals {UNetRadar,};
 
 type
@@ -537,7 +537,7 @@ var
   ShowActivHint,ShowHintOnMarks:boolean;
   GPS_enab:boolean;
   marshrutcomment:string;
-  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale, TilesOCache,
+  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale,
     zoom_in,mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
   move,m_up,m_m,oldPOS,moveTrue{,POS}:Tpoint;
   notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
@@ -586,6 +586,9 @@ var
   ProgrammPath:string;
   NavOnMark:TNavOnMark;
   PosLL:TExtendedPoint;
+
+  MainFileCache: TMemFileCache;
+
  // NetRadar:TNetRadar;
   hres:HRESULT;
   procedure Gamma(Bitmap: TBitmap32);
@@ -1291,7 +1294,7 @@ begin
      if not((dwn)or(anim_zoom=1)) then
        begin
         move.X:=m_up.x;
-        ClearCache;
+        MainFileCache.Clear;
         Fmain.generate_im(nilLastLoad,'');
        end; 
      exit;
@@ -2184,7 +2187,7 @@ begin
    exit;
   end;
  bmp:=TBitmap32.Create;
- if not(LoadTilefromCache(bmp,ss,true))then
+ if not(MainFileCache.LoadFile(bmp,ss,true))then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
@@ -2472,11 +2475,7 @@ begin
  ts:=GetTickCount;
  if (lastload.use) then
   begin
-   NinCache:=CacheList.IndexOf(AnsiUpperCase(PMapType(Pointer(lastload.mt)).GetTileFileName(lastload.x,lastload.y,lastload.z)));
-   if NinCache>=0 then begin
-                 TBitmap32(CacheList.Objects[NinCache]).Free;
-                 CacheList.Delete(NinCache);
-                end;
+    MainFileCache.DeleteFileFromCache(PMapType(Pointer(lastload.mt)).GetTileFileName(lastload.x,lastload.y,lastload.z));
   end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
@@ -2510,7 +2509,7 @@ begin
 //    if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-128)or(lastload.y>yy+128))) then continue;
     if (TileExists(path))
      then begin
-           if LoadTilefromCache(spr,path,true)
+           if MainFileCache.LoadFile(spr,path,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path)
                   end
@@ -2559,7 +2558,7 @@ begin
           begin
            png:=TPNGObject.create;
            spr.Clear;
-           if LoadTilefromCache(png,Path,true)
+           if MainFileCache.LoadFile(png,Path,true)
             then begin
                   if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
                   PNGintoBitmap32(spr,png);
@@ -2571,7 +2570,7 @@ begin
          else
           begin
            spr.Clear($005f5f5f);
-           if LoadTilefromCache(spr,Path,true)
+           if MainFileCache.LoadFile(spr,Path,true)
            then begin
                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
                  spr.DrawMode:=dmBlend;
@@ -2873,7 +2872,7 @@ begin
  MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
  MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
- TilesOCache:=Ini.ReadInteger('VIEW','TilesOCache',150);
+ MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
  ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
  Wikim_set.MainColor:=Ini.Readinteger('Wikimapia','MainColor',$FFFFFF);
@@ -3044,7 +3043,7 @@ begin
        bm.Clear(Color32(clSilver) xor $00000000);
        if (tileexists(path))
         then begin
-              if not(LoadTilefromCache(bm,path,true))
+              if not(MainFileCache.LoadFile(bm,path,true))
                then bm.Clear(Color32(clSilver) xor $00000000);
              end
         else loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
@@ -3078,7 +3077,7 @@ begin
          bm.Clear(Color32(clSilver) xor $00000000);
          bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
          if (tileexists(path))and(not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
-          then LoadTilefromCache(bm,path,true);
+          then MainFileCache.LoadFile(bm,path,true);
          Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
         end;
        inc(y128,256);
@@ -3110,14 +3109,14 @@ begin
   else begin
          if (longint(sm_map.maptype)=0)
            then begin
-                 if not(LoadTilefromCache(Sm_Map.SmMapBitmap,sat_map_both.GetTileFileName(128,128,1),true))
+                 if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,sat_map_both.GetTileFileName(128,128,1),true))
                   then Sm_Map.SmMapBitmap.Assign(DefoultMap);
                 end
-           else if not(LoadTilefromCache(Sm_Map.SmMapBitmap,sm_map.maptype.GetTileFileName(128,128,1),true))
+           else if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,sm_map.maptype.GetTileFileName(128,128,1),true))
                  then Sm_Map.SmMapBitmap.Assign(DefoultMap);
          for iLay:=0 to length(MapType)-1 do
           if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-            if not(LoadTilefromCache(Sm_Map.SmMapBitmap,MapType[iLay].GetTileFileName(128,128,1),false))
+            if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,MapType[iLay].GetTileFileName(128,128,1),false))
               then Sm_Map.SmMapBitmap.Assign(DefoultMap);
         if (x=sm_map.width div 2)and(y=sm_map.height div 2)
          then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[zoom_size])),round(pos.y*(sm_map.height/zoom[zoom_size])))
@@ -3248,7 +3247,7 @@ end;
 
 procedure TFmain.FormCreate(Sender: TObject);
 begin
- CacheList:=TStringList.Create;
+  MainFileCache := TMemFileCache.Create;
  ProgrammPath:=ExtractFilePath(ParamStr(0));
  Application.Title:=Fmain.Caption;
  TBiniLoadPositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
@@ -3438,7 +3437,7 @@ var btm:TBitmap32;
     btm1:TBitmap;
 begin
  btm:=TBitmap32.Create;
- if LoadTilefromCache(btm,sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size),false)
+ if MainFileCache.LoadFile(btm,sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size),false)
   then begin
         btm1:=TBitmap.Create;
         btm1.Width:=256; btm1.Height:=256;

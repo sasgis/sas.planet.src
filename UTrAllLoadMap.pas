@@ -764,7 +764,7 @@ begin
     btmDest:=TBitmap32.Create;
     try
      btmSrc.Resampler:=TLinearResampler.Create;
-     if LoadTilefromCache(btmsrc,path,false)
+     if MainFileCache.LoadFile(btmsrc,path,false)
       then begin
             btmDest.SetSize(256,256);
 //            if btmSrc.Width<typemap.TileRect.Right then typemap.TileRect.Right:=btmSrc.Width;
@@ -786,7 +786,7 @@ begin
     png:=TBitmap32.Create;
     jpg:=TJPEGImage.Create;
     RenameFile(path,copy(path,1,length(path)-4)+'.png');
-    if LoadTilefromCache(png,copy(path,1,length(path)-4)+'.png',false)
+    if MainFileCache.LoadFile(png,copy(path,1,length(path)-4)+'.png',false)
      then begin
            btm.Assign(png);
            jpg.Assign(btm);

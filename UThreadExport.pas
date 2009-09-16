@@ -113,10 +113,10 @@ begin
             // bmp.LoadFromFile(path);
              if TypeMapArr.ext='.png' then
               begin
-               LoadTilefromCache(png,path,false);
+               MainFileCache.LoadFile(png,path,false);
                PNGintoBitmap32(bmp,png);
               end
-              else LoadTilefromCache(bmp,path,false);
+              else MainFileCache.LoadFile(bmp,path,false);
              {p := @spr.Bits[0];
              for H:=0 to spr.Height-1 do
               for W:=0 to spr.Width-1 do
@@ -135,10 +135,10 @@ begin
               try
                if TypeMapArr.ext='.png' then
                 begin
-                 LoadTilefromCache(png,pathfrom,false);
+                 MainFileCache.LoadFile(png,pathfrom,false);
                  PNGintoBitmap32(bmp322,png);
                 end
-               else LoadTilefromCache(bmp322,pathfrom,false);
+               else MainFileCache.LoadFile(bmp322,pathfrom,false);
               except
                bmp322.width:=256;
                bmp322.Height:=256;
