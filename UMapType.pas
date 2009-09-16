@@ -74,6 +74,7 @@ type
     function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     function GetTileFileName(x,y:longint;Azoom:byte):string;
+    function TileExists(x,y:longint;Azoom:byte): Boolean;
   end;
 var
   MapType:array of TMapType;
@@ -636,6 +637,14 @@ begin
  end;
  if (result[2]<>'\')and(system.pos(':',result)=0)
    then result:=ProgrammPath+result;
+end;
+
+function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  Result := Fileexists(VPath);
 end;
 
 end.

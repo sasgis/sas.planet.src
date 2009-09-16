@@ -2168,6 +2168,7 @@ function TFmain.loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:PMapType):
 var i,c_x,c_y,dZ:integer;
     ss:string;
     bmp:TBitmap32;
+    VTileExists: Boolean;
 begin
  result:=false;
  if not(backload) then
@@ -2175,17 +2176,21 @@ begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
+  VTileExists := false;
  for i:=(Azoom-1) downto 1 do
   begin
    dZ:=(Azoom-i);
-   ss:=AMap.GetTileFileName(x shr dZ,y shr dZ,i);
-   if TileExists(ss) then break;
+   if AMap.TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileExists := true;
+    break;
+   end;
   end;
- if not(tileExists(ss))or(dZ>9) then
+ if not(VTileExists)or(dZ>9) then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
+  ss := AMap.GetTileFileName(x shr dZ,y shr dZ, Azoom - dZ);
  bmp:=TBitmap32.Create;
  if not(MainFileCache.LoadFile(bmp,ss,true))then
   begin
@@ -2507,8 +2512,9 @@ begin
       end;
     Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
 //    if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-128)or(lastload.y>yy+128))) then continue;
-    if (TileExists(path))
+    if (sat_map_both.TileExists(xx,yy,zoom_size))
      then begin
+           Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
            if MainFileCache.LoadFile(spr,path,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path)
@@ -2545,14 +2551,14 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then continue;
-       Path:=MapType[Leyi].GetTileFileName(xx,yy,zoom_size);
        if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),zoom_size)
                   else xx:=pos.x-pr_x+(i shl 8);
        yy:=pos.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
  //      if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-256)and(lastload.y>yy+256)) ) then continue;
-       if (TileExists(Path)) then
+       if (MapType[Leyi].TileExists(xx,yy,zoom_size)) then
         begin
+         Path:=MapType[Leyi].GetTileFileName(xx,yy,zoom_size);
          spr.DrawMode:=dmBlend;
          if LowerCase(MapType[Leyi].ext)='.png' then
           begin
@@ -3039,10 +3045,10 @@ begin
     begin
      if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
       begin
-       path:=m_t.GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
        bm.Clear(Color32(clSilver) xor $00000000);
-       if (tileexists(path))
+       if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom))
         then begin
+             path:=m_t.GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
               if not(MainFileCache.LoadFile(bm,path,true))
                then bm.Clear(Color32(clSilver) xor $00000000);
              end
@@ -3073,11 +3079,13 @@ begin
       begin
        if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
         begin
-         path:=MapType[iLay].GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
          bm.Clear(Color32(clSilver) xor $00000000);
          bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
-         if (tileexists(path))and(not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
-          then MainFileCache.LoadFile(bm,path,true);
+         if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
+            and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
+          path:=MapType[iLay].GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
+          MainFileCache.LoadFile(bm,path,true);
+         end;
          Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
         end;
        inc(y128,256);
