@@ -21,8 +21,11 @@ type
     destructor Destroy; override;
     procedure Clear;
     function LoadFile(btm:Tobject;path:string;caching:boolean):boolean;
-    property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
     procedure DeleteFileFromCache(path:string);
+    procedure AddTileToCache(btm:Tobject; APath:string);
+    function TryLoadFileFromCache(btm:Tobject; APath:string):boolean;
+
+    property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
   end;
 
 implementation
@@ -66,9 +69,6 @@ end;
 
 function TMemFileCache.LoadFile(btm: Tobject; path: string;
   caching: boolean): boolean;
-var
-  btmcache:TObject;
-  i:integer;
 begin
   result:=false;
   if GetFileSize(path)=0 then begin
@@ -87,17 +87,7 @@ begin
         end;
         result:=true;
       end else begin
-        FSync.BeginRead;
-        try
-          i:=FCacheList.IndexOf(AnsiUpperCase(path));
-          if i>=0 then begin
-            TBitmap32(btm).Assign(TBitmap32(FCacheList.Objects[i]));
-            result:=true;
-          end;
-        finally
-          FSync.EndRead;
-        end;
-        if i<0 then begin
+        if not TryLoadFileFromCache(btm, path) then begin
           if ExtractFileExt(path)='.jpg' then begin
             if not(LoadJPG32(path,TBitmap32(btm))) then begin
               result:=false;
@@ -106,19 +96,7 @@ begin
           end else begin
             TBitmap32(btm).LoadFromFile(path);
           end;
-          btmcache:=TBitmap32.Create;
-          TBitmap32(btmcache).Assign(TBitmap32(btm));
-          if FSync.BeginWrite then begin
-            try
-              FCacheList.AddObject(AnsiUpperCase(path), btmcache);
-              if FCacheList.Count > FCacheElemensMaxCnt then begin
-                FCacheList.Objects[0].Free;
-                FCacheList.Delete(0);
-              end;
-            finally
-              FSync.EndWrite;
-            end;
-          end;
+          AddTileToCache(btm, path);
         end;
       end;
     end else begin
@@ -246,6 +224,53 @@ begin
     end;
   end;
 
+end;
+
+procedure TMemFileCache.AddTileToCache(btm: Tobject; APath: string);
+var
+  btmcache:TObject;
+  i:integer;
+  VPath: string;
+begin
+  VPath := AnsiUpperCase(APath);
+  btmcache:=TBitmap32.Create;
+  TBitmap32(btmcache).Assign(TBitmap32(btm));
+  if FSync.BeginWrite then begin
+    try
+      i:=FCacheList.IndexOf(VPath);
+      if i < 0 then begin
+        FCacheList.AddObject(VPath, btmcache);
+        if FCacheList.Count > FCacheElemensMaxCnt then begin
+          FCacheList.Objects[0].Free;
+          FCacheList.Delete(0);
+        end;
+      end else begin
+        FreeAndNil(btmcache);
+      end;
+    finally
+      FSync.EndWrite;
+    end;
+  end;
+end;
+
+function TMemFileCache.TryLoadFileFromCache(btm: Tobject;
+  APath: string): boolean;
+var
+  i: integer;
+  VPath: string;
+begin
+  Result := false;
+  VPath := AnsiUpperCase(APath);
+  FSync.BeginRead;
+  try
+    i:=FCacheList.IndexOf(VPath);
+    if i>=0 then begin
+      TBitmap32(btm).Assign(TBitmap32(FCacheList.Objects[i]));
+      result:=true;
+    end;
+  finally
+    FSync.EndRead;
+  end;
 end;
 
 end.
