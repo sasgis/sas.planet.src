@@ -2190,7 +2190,7 @@ begin
    exit;
   end;
  bmp:=TBitmap32.Create;
- if not(MainFileCache.LoadFile(bmp,AMap.GetTileFileName(x shr dZ,y shr dZ, Azoom - dZ),true))then
+ if not(AMap.LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
@@ -2513,7 +2513,7 @@ begin
     if (sat_map_both.TileExists(xx,yy,zoom_size))
      then begin
            Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
-           if MainFileCache.LoadFile(spr,path,true)
+           if sat_map_both.LoadTile(spr,xx,yy,zoom_size,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path)
                   end
@@ -2562,7 +2562,7 @@ begin
           begin
            png:=TPNGObject.create;
            spr.Clear;
-           if MainFileCache.LoadFile(png,Path,true)
+           if MapType[Leyi].LoadTile(png,xx,yy,zoom_size,true)
             then begin
                   if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
                   PNGintoBitmap32(spr,png);
@@ -2574,7 +2574,7 @@ begin
          else
           begin
            spr.Clear($005f5f5f);
-           if MainFileCache.LoadFile(spr,Path,true)
+           if MapType[Leyi].LoadTile(png,xx,yy,zoom_size,true)
            then begin
                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
                  spr.DrawMode:=dmBlend;
@@ -3049,7 +3049,7 @@ begin
        if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom))
         then begin
              path:=m_t.GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
-              if not(MainFileCache.LoadFile(bm,path,true))
+              if not(m_t.LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true))
                then bm.Clear(Color32(clSilver) xor $00000000);
              end
         else loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
@@ -3084,7 +3084,7 @@ begin
          if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
             and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
           path:=MapType[iLay].GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
-          MainFileCache.LoadFile(bm,path,true);
+          MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true);
          end;
          Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
         end;
@@ -3117,14 +3117,14 @@ begin
   else begin
          if (longint(sm_map.maptype)=0)
            then begin
-                 if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,sat_map_both.GetTileFileName(128,128,1),true))
+                 if not(sat_map_both.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true))
                   then Sm_Map.SmMapBitmap.Assign(DefoultMap);
                 end
-           else if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,sm_map.maptype.GetTileFileName(128,128,1),true))
+           else if not(sm_map.maptype.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true))
                  then Sm_Map.SmMapBitmap.Assign(DefoultMap);
          for iLay:=0 to length(MapType)-1 do
           if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-            if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,MapType[iLay].GetTileFileName(128,128,1),false))
+            if not(MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false))
               then Sm_Map.SmMapBitmap.Assign(DefoultMap);
         if (x=sm_map.width div 2)and(y=sm_map.height div 2)
          then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[zoom_size])),round(pos.y*(sm_map.height/zoom[zoom_size])))
@@ -3445,7 +3445,7 @@ var btm:TBitmap32;
     btm1:TBitmap;
 begin
  btm:=TBitmap32.Create;
- if MainFileCache.LoadFile(btm,sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size),false)
+ if sat_map_both.LoadTile(btm,X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size,false)
   then begin
         btm1:=TBitmap.Create;
         btm1.Width:=256; btm1.Height:=256;

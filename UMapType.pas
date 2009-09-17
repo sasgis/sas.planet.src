@@ -75,6 +75,7 @@ type
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     function GetTileFileName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
+    function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
   end;
 var
   MapType:array of TMapType;
@@ -86,6 +87,10 @@ var
 
 implementation
 uses
+  pngimage,
+  IJL,
+  jpeg,
+  GR32,
   Usettings,
   unit1,
   UGeoFun,
@@ -645,6 +650,145 @@ var
 begin
   VPath := GetTileFileName(x, y, Azoom);
   Result := Fileexists(VPath);
+end;
+
+function GetFileSize(namefile: string): Integer;
+var
+  InfoFile: TSearchRec;
+begin
+  if FindFirst(namefile, faAnyFile, InfoFile) <> 0 then begin
+    Result := -1;
+  end else begin
+    Result := InfoFile.Size;
+  end;
+  SysUtils.FindClose(InfoFile);
+end;
+
+function LoadJPG32(FileName: string; Btm: TBitmap32): boolean;
+  procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
+  var W, H : Integer;
+      p : PInteger;
+  begin
+    p := PInteger(pData);
+    for H := 0 to Height-1 do
+    begin
+      for W := 0 to Width-1 do
+      begin
+        p^:= (byte(p^ shr 24) shl 24) or byte(p^ shr 16) or
+            (integer(byte(p^ shr 8)) shl 8) or (integer(byte(p^)) shl 16);
+        Inc(p);
+      end;
+    end;
+  end;
+const
+  sRead : array [Boolean] of String = ('JFILE_READ = ','JBUFF_READ = ');
+var
+  iWidth, iHeight, iNChannels : Integer;
+  iStatus : Integer;
+  jcprops : TJPEG_CORE_PROPERTIES;
+begin
+ try
+    result:=true;
+    iStatus := ijlInit(@jcprops);
+    if iStatus < 0 then
+     begin
+      result:=false;
+      exit;
+     end;
+    jcprops.JPGFile := PChar(FileName);
+    iStatus := ijlRead(@jcprops,IJL_JFILE_READPARAMS);
+    if iStatus < 0 then
+     begin
+      result:=false;
+      exit;
+     end;
+    iWidth := jcprops.JPGWidth;
+    iHeight := jcprops.JPGHeight;
+    iNChannels := 4;
+    Btm.SetSize(iWidth,iHeight);
+    jcprops.DIBWidth := iWidth;
+    jcprops.DIBHeight := iHeight;
+    jcprops.DIBChannels := iNChannels;
+    jcprops.DIBColor := IJL_RGBA_FPX;
+    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
+    jcprops.DIBBytes := PByte(Btm.Bits);// PByte(DIB.dsBm.bmBits);
+    if (jcprops.JPGChannels = 3) then
+      jcprops.JPGColor := IJL_YCBCR
+    else if (jcprops.JPGChannels = 4) then
+      jcprops.JPGColor := IJL_YCBCRA_FPX
+    else if (jcprops.JPGChannels = 1) then
+      jcprops.JPGColor := IJL_G
+    else
+    begin
+      jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
+      jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
+    end;
+    iStatus := ijlRead(@jcprops,IJL_JFILE_READWHOLEIMAGE);
+    if iStatus < 0 then
+     begin
+      result:=false;
+      exit;
+     end;
+    if jcprops.DIBColor = IJL_RGBA_FPX then
+      RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
+    ijlFree(@jcprops);
+  except
+    on E: Exception do
+    begin
+      result:=false;
+      ijlFree(@jcprops);
+    end;
+  end;
+end;
+
+function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
+  caching: boolean): boolean;
+var
+  path: string;
+begin
+  result:=false;
+  path := GetTileFileName(x, y, Azoom);
+  if GetFileSize(path)=0 then begin
+    exit;
+  end;
+  try
+    if (btm is TBitmap32) then begin
+      if not(caching) then begin
+        if ExtractFileExt(path)='.jpg' then begin
+          if not(LoadJPG32(path,TBitmap32(btm))) then begin
+            result:=false;
+            exit;
+          end;
+        end else begin
+          TBitmap32(btm).LoadFromFile(path);
+        end;
+        result:=true;
+      end else begin
+        if not MainFileCache.TryLoadFileFromCache(btm, path) then begin
+          if ExtractFileExt(path)='.jpg' then begin
+            if not(LoadJPG32(path,TBitmap32(btm))) then begin
+              result:=false;
+              exit;
+            end
+          end else begin
+            TBitmap32(btm).LoadFromFile(path);
+          end;
+          MainFileCache.AddTileToCache(btm, path);
+        end;
+      end;
+    end else begin
+      if (btm is TGraphic) then
+        TGraphic(btm).LoadFromFile(path)
+      else if (btm is TPicture) then
+        TPicture(btm).LoadFromFile(path)
+      else if (btm is TJPEGimage) then
+        TJPEGimage(btm).LoadFromFile(path)
+      else if (btm is TPNGObject) then
+        TPNGObject(btm).LoadFromFile(path);
+    end;
+    result:=true;
+  except
+  end;
 end;
 
 end.

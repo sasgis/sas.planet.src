@@ -138,7 +138,7 @@ begin
      begin
      VThread.btmm.Clear(clSilver);
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom)) then begin
-                                 if not(MainFileCache.LoadFile(VThread.btmm,path,false))
+                                 if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
                                   then Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
                                 end
                            else Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
@@ -148,14 +148,14 @@ begin
        pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y,VThread.zoom);
        VThread.btmh.Clear(clBlack);
        VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
-       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
          pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y+256,VThread.zoom);
          VThread.btmh.Clear(clBlack);
          VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
-         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
         end;
       end;
@@ -214,7 +214,7 @@ begin
      VThread.btmm.Clear(clSilver);
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom))
       then begin
-            if not(MainFileCache.LoadFile(VThread.btmm,VThread.path,false))
+            if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
              then Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
            end
       else Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
@@ -224,14 +224,14 @@ begin
        pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y,VThread.zoom);
        VThread.btmh.Clear(clBlack);
        VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
-       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
          pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y+256,VThread.zoom);
          VThread.btmh.Clear(clBlack);
          VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
-         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
         end;
       end;

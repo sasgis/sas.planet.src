@@ -135,10 +135,10 @@ begin
               try
                if TypeMapArr.ext='.png' then
                 begin
-                 MainFileCache.LoadFile(png,pathfrom,false);
+                 TypeMapArr.LoadTile(png,p_h.x,p_h.y+256,zoom+1,false);
                  PNGintoBitmap32(bmp322,png);
                 end
-               else MainFileCache.LoadFile(bmp322,pathfrom,false);
+               else TypeMapArr.LoadTile(bmp322,p_h.x,p_h.y+256,zoom+1,false);
               except
                bmp322.width:=256;
                bmp322.Height:=256;
