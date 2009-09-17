@@ -90,8 +90,6 @@ implementation
 uses unit1;
 
 function GPos2LonLat3(XY:TPoint;Level:byte):TExtendedPoint;
-var //i:longint;
-z,c:real;
 begin
     result.x:=((XY.x)-zoom[Level]/2)/(zoom[Level]/360);
     result.y:=-((XY.y)-zoom[Level]/2)/(zoom[Level]/360);      // Долгота/широта
@@ -107,17 +105,7 @@ inBuf:Boolean;
 begin
      result:=0;
      inBuf:=false;
-     // EnterCriticalSection(Merkator);
      try
-        { for i := BMP_Bufer.Count downto 1 do
-           if (SourcePoint.X=BMP_Bufer.MerkatorSourceXY[i].X) and
-              (SourcePoint.Y=BMP_Bufer.MerkatorSourceXY[i].Y) then
-           begin
-             result:=i;
-             inBuf:=true;
-             break;
-           end;        }
-
          if not inBuf then
          begin
              TileStream:=GEGetTile(cachepath,x*256,y*256,z);
@@ -167,7 +155,6 @@ begin
              end;
          end;
      finally
-      // LeaveCriticalSection(Merkator);
      end;
 end;
 
@@ -184,117 +171,12 @@ begin
     result:=Point(0,0);
 end;
 
-procedure FillBitmap_Optimazed(var FillingLines: array of byte; var FillCount:byte; var bitmap:TBitmap);
-var j,z,k,n,y1,y2:byte;
-    StepCount:smallint;
-    Pclr0,Pclr1,Pclr2:PRGBTriple;
-    BGR:TRGBTriple;
-    i:integer;
-    R,G,B,r1,g1,b1,r2,g2,b2:array [0..255] of smallint;
-    bmp,bmpres:TBitmap32;
-begin
- bmp:=TBitmap32.Create;
- bmpres:=TBitmap32.Create;
- bmp.Width:=256;
- bmp.Height:=2;
- bmp.Resampler:=TLinearResampler.Create;
- bmpres.Width:=256;
- bmpres.Height:=256;
- bmpres.Assign(bitmap);
- for i:=0 to FillCount-1 do
-  begin
-   y1:=FillingLines[i];
-   y2:=FillingLines[i+1];
-   if y2-y1<>1 then
-   begin
-   bmp.Draw(bounds(0,0,256,1),bounds(0,y1,256,1),bitmap.Canvas.Handle);
-   bmp.Draw(bounds(0,1,256,1),bounds(0,y2,256,1),bitmap.Canvas.Handle);
-   if y2>y1 then bmpres.Draw(bounds(0,y1,256,y2-y1),bounds(0,0,256,2),bmp)
-            else bmpres.Draw(bounds(0,y1,256,256-y1),bounds(0,0,256,1),bmp);
-   end;
-//   bmp.Canvas.CopyRect(bounds(0,0,256,1),bitmap.Canvas,bounds(0,y1,256,1));
-//   bmp.Canvas.CopyRect(bounds(0,1,256,1),bitmap.Canvas,bounds(0,y2,256,1));
-  { if y2>y1 then bmpres.Canvas.CopyRect(bounds(0,y1,256,y2-y1+1),bmp.Canvas,bounds(0,0,256,2))
-            else bmpres.Canvas.CopyRect(bounds(0,y1,256,256-y1+1),bmp.Canvas,bounds(0,0,256,1));}
-  end;
- bmp.Free;
- bitmap.Assign(bmpres);
- bmpres.Free;
-{   n:=FillCount;
-   if FillCount>0 then
-   for j := 0 to FillCount-1 do
-    begin
-     z:=1;
-     for k:=FillingLines[j]+1 to FillingLines[j+1]-1 do
-      if FillingLines[j]<=254 then
-       begin
-        StepCount:=abs(FillingLines[j+1]-FillingLines[j]);
-        if StepCount=0 then Continue;
-        Pclr1:=bitmap.ScanLine[FillingLines[j]];
-        Pclr2:=bitmap.ScanLine[FillingLines[j+1]];
-        for i := 0 to 255 do
-         begin
-          R1[i]:=Pclr1.rgbtRed;
-          G1[i]:=Pclr1.rgbtGreen;
-          B1[i]:=Pclr1.rgbtBlue;
-          R2[i]:=Pclr2.rgbtRed;
-          G2[i]:=Pclr2.rgbtGreen;
-          B2[i]:=Pclr2.rgbtBlue;
-          if StepCount>0 then
-           begin
-            R[i]:=(R2[i]-R1[i]) div StepCount;
-            G[i]:=(G2[i]-G1[i]) div StepCount;
-            B[i]:=(B2[i]-B1[i]) div StepCount;
-           end
-          else
-           begin
-            R[i]:=(R2[i]-R1[i]);
-            G[i]:=(G2[i]-G1[i]);
-            B[i]:=(B2[i]-B1[i]);
-           end;
-          inc(Pclr1);
-          inc(Pclr2);
-         end;
-        Pclr0:=Pointer(integer(bitmap.ScanLine[FillingLines[j]+z])+3);
-
-        for i := 1 to 254 do
-         begin
-          BGR.rgbtRed:=(R1[i-1]+R1[i]+R1[i+1]+(R[i]+R[i-1]+R[i+1])*z) div 3;
-          BGR.rgbtGreen:=(G1[i-1]+G1[i]+G1[i+1]+(G[i]+G[i-1]+G[i+1])*z) div 3;
-          BGR.rgbtBlue:=(B1[i-1]+B1[i]+B1[i+1]+(B[i]+B[i-1]+B[i+1])*z) div 3;
-          Pclr0^:=BGR;
-          inc(Pclr0);
-         end;
-        BGR.rgbtRed:=(R1[254]+R1[255]+(R[254]+R[255])*z) shr 1;
-        BGR.rgbtGreen:=(G1[254]+G1[255]+(G[254]+G[255])*z) shr 1;
-        BGR.rgbtBlue:=(B1[254]+B1[255]+(B[254]+B[255])*z) shr 1;
-        Pclr0^:=BGR;
-
-        BGR.rgbtRed:=(R1[0]+R1[1]+(R[0]+R[1])*z) shr 1;
-        BGR.rgbtGreen:=(G1[0]+G1[1]+(G[0]+G[1])*z) shr 1;
-        BGR.rgbtBlue:=(B1[0]+B1[1]+(B[0]+B[1])*z) shr 1;
-
-        dec(Pclr0,255);
-        Pclr0^:=BGR;
-
-        inc(z);
-        inc(n);
-       end;
-    end;
-   while n<>0 do
-   begin
-     Bitmap.Canvas.CopyRect( classes.rect(0,n,256,n+1), Bitmap.Canvas, classes.rect(0,n-1,256,n) );
-     inc(n);
-   end;      }
-end;
-
 function MakeInterlaseTile(UpXY:TPoint;Level,id1,id2:byte;MT:TMapType):TMemoryStream;
 var LineCoord:TExtendedPoint;
     bitmap:Tbitmap;
     Jpeg2:TjpegImage;
     J_GE:Tpoint;
     J_GM,LastPix:byte;
-    FillingLines: array [0..255] of byte;
     FillCount:byte;
 begin
      result:=nil;
@@ -316,17 +198,13 @@ begin
           if (J_GE.X=0) and (id2<>0) then
           J_GE:=GetPixNum(LineCoord,id2);
           if J_GE.X<>0 then
-           //if LastPix<>J_GE.Y then
            begin
               TRGBTripleArr(Bitmap.ScanLine[J_GM]^):=TRGBTripleArr(BMP_Bufer.BMPTile[J_GE.X].ScanLine[J_GE.Y]^);
-              //Bitmap.Canvas.CopyRect( classes.rect(0,J_GM,256,J_GM+1), BMP_Bufer.BMPTile[J_GE.X].Canvas, classes.rect(0,J_GE.Y,256,J_GE.Y+1) );
-              //FillingLines[FillCount]:=J_GM;
               inc(FillCount);
            end;
           LastPix:=J_GE.Y;
           inc(UpXY.Y);
        end;
-        //FillBitmap_Optimazed(FillingLines,FillCount,bitmap);
         result:=TMemoryStream.Create;
         try
           Jpeg2:= TjpegImage.Create;
@@ -394,35 +272,7 @@ begin
 end;
 
 
-
 //----------------------
-
-
-
-function Byte2tn(b:string):string;
-var i:byte;
-begin
- result:='';
- for i:=1 to 2 do
- case UpCase(b[i]) of
-  '0': result:=result+'00';
-  '1': result:=result+'01';
-  '2': result:=result+'02';
-  '3': result:=result+'03';
-  '4': result:=result+'10';
-  '5': result:=result+'11';
-  '6': result:=result+'12';
-  '7': result:=result+'13';
-  '8': result:=result+'20';
-  '9': result:=result+'21';
-  'A': result:=result+'22';
-  'B': result:=result+'23';
-  'C': result:=result+'30';
-  'D': result:=result+'31';
-  'E': result:=result+'32';
-  'F': result:=result+'33';
- end;
-end;
 
 function HexToInt(HexStr : string) : Int64;
 var RetVar : Int64;
@@ -534,11 +384,40 @@ begin
     end;
 end;
 
+function Hex2GEName(HexName:string; Level:byte):string;
+var
+i:byte;
+begin
+ result:='0';
+ for i:=1 to  Level div 2 do
+  case HexName[i] of
+   '0': result:=result+'00';
+   '1': result:=result+'01';
+   '2': result:=result+'02';
+   '3': result:=result+'03';
+   '4': result:=result+'10';
+   '5': result:=result+'11';
+   '6': result:=result+'12';
+   '7': result:=result+'13';
+   '8': result:=result+'20';
+   '9': result:=result+'21';
+   'A': result:=result+'22';
+   'B': result:=result+'23';
+   'C': result:=result+'30';
+   'D': result:=result+'31';
+   'E': result:=result+'32';
+   'F': result:=result+'33';
+  end;
+ result:=copy(result,1,level);
+end;
+
+
 function GEFindTileAdr(indexpath:string;x,y:integer;z:byte; var size:integer):integer;
 var ms:TMemoryStream;
     iblock:array [0..31] of byte;
-    i:integer;
-    Tname,FindName:string;
+    i,name1,name2:integer;
+    XY:TPoint;
+    Tname,s,FindName:string;
 begin
  result:=0;
  ms:=TMemoryStream.Create;
@@ -546,24 +425,20 @@ begin
  ms.Position:=0;
  FindName:=GEXYZtoTileName(x,y,z);
  Tname:='';
- While (Tname<>FindName)and(ms.Position<ms.Size) do
+ While ((Tname<>FindName))and(ms.Position<ms.Size) do
   begin
    ms.Read(iblock,32);
-   if (iblock[6]=130)and(z=iblock[8]+1)and(iblock[14]=0) then
+   if (iblock[6]=130)and(z=iblock[8]+1)and(iblock[20]=0) then
     begin
-     Tname:='';
-     for i:=15 downto 12 do
-       Tname:=Tname+Byte2tn(IntToHex(iblock[i],2));
-     if iblock[8]>15 then
-     for i:=19 downto 16 do
-       Tname:=Tname+Byte2tn(IntToHex(iblock[i],2));
-     Tname:='0'+copy(Tname,1,iblock[8]);
+     name1:=(iblock[12]or(iblock[13]shl 8)or(iblock[14]shl 16)or(iblock[15]shl 24));
+     name2:=(iblock[16]or(iblock[17]shl 8)or(iblock[18]shl 16)or(iblock[19]shl 24));
+     Tname:=Hex2GEName((inttohex((name1),8)+inttohex((name2),8)),z);
     end;
   end;
  if Tname=FindName then
   begin
-   result:=(iblock[24] or (iblock[25] shl 8) or (iblock[26] shl 16) or (iblock[27] shl 24));
-   size:=(iblock[28] or (iblock[29] shl 8) or (iblock[30] shl 16) or (iblock[31] shl 24));
+   result:=(iblock[24]or(iblock[25]shl 8)or(iblock[26]shl 16)or(iblock[27]shl 24));
+   size:=(iblock[28]or(iblock[29]shl 8)or(iblock[30]shl 16)or(iblock[31]shl 24));
   end;
  ms.Free;
 end;

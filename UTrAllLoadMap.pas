@@ -292,24 +292,7 @@ procedure ThreadAllLoadMap.addDwnforban;
 begin
  if hSession=nil then
   begin
-  {if InetConnect.userwinset
-    then }hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- {   else if InetConnect.proxyused
-          then begin
-                 hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0);
-                try
-                 Fmain.WebBrowser1.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
-                 Fmain.WebBrowser1.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
-                 if InetConnect.uselogin then
-                  begin
-                   Fmain.WebBrowser1.ProxySettings.UserName:=InetConnect.loginstr;
-                   Fmain.WebBrowser1.ProxySettings.Password:=InetConnect.passstr;
-                  end;
-                except
-                 ShowMessage(SAS_ERR_ProxyStrFormat);
-                end;
-               end
-          else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);}
+   hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
   end;
   if (mapsload=false)and(typemap.UseAntiBan>0)and(typeRect<>1) then
    begin

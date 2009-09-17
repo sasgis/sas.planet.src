@@ -2862,6 +2862,8 @@ begin
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
+ //map.Bitmap.Free;
+
  LayerMapScale:=TBitmapLayer.Create(map.Layers);
  LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
  LayerMapScale.Bitmap.Width:=290;
