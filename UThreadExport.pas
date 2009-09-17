@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure UniLoadTile(var bmp:TBitmap32; path:string; TypeMapArr:PmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
+procedure UniLoadTile(var bmp:TBitmap32; TypeMapArr:PmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
 var bmp322:TBitmap32;
     png:TPngObject;
 begin
@@ -109,20 +109,13 @@ begin
  bmp322.DrawMode:=dmBlend;
  png:=TPngObject.Create;
             try
-            // bmp.LoadFromFile(path);
              if TypeMapArr.ext='.png' then
               begin
-               MainFileCache.LoadFile(png,path,false);
+               TypeMapArr.LoadTile(png,p_h.x,p_h.y,zoom+1,false);
                PNGintoBitmap32(bmp,png);
               end
-              else MainFileCache.LoadFile(bmp,path,false);
-             {p := @spr.Bits[0];
-             for H:=0 to spr.Height-1 do
-              for W:=0 to spr.Width-1 do
-               begin
-                if p^=$FF5f5f5f then p^:=$00000000;
-                inc(p);
-               end; }
+              else
+                TypeMapArr.LoadTile(bmp,p_h.x,p_h.y,zoom+1,false);
             except
              bmp.width:=256;
              bmp.Height:=256;
@@ -153,7 +146,7 @@ procedure ThreadExport.export2iMaps(APolyLL:array of TExtendedPoint);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:array of TPoint;
-    pathfrom,pathto,persl,perzoom,kti:string;
+    pathto,persl,perzoom,kti:string;
     max,min,p_h:TPoint;
     MapTypeMerS:TMapType;
     png:TPngObject;
@@ -307,18 +300,14 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
-//TODO: Разобраться и избавиться от путей.
-            pathfrom:=TypeMapArr[0].GetTileFileName(p_h.x,p_h.y,i+1);
-            if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
+            if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
             bmp322.SaveToFile('c:\123.bmp');
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
-//TODO: Разобраться и избавиться от путей.
-          pathfrom:=TypeMapArr[j].GetTileFileName(p_h.x,p_h.y,i+1);
           if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
-            UniLoadTile(bmp32,pathfrom,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
+            UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
             if (j=2)and(TypeMapArr[0]<>nil) then
               begin
                bmp322.SaveToFile('c:\123.bmp');
@@ -554,7 +543,7 @@ procedure ThreadExport.Export2KML(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
     num_dwn,scachano,obrab:integer;
     polyg:array of TPoint;
-    pathfrom,pathto,persl,perzoom,kti,ToFile,datestr:string;
+    persl,perzoom,kti,ToFile,datestr:string;
     max,min:TPoint;
     AMapType:TMapType;
     KMLFile:TextFile;

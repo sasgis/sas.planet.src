@@ -22,9 +22,13 @@ type
     TileInProc:integer;
     CurrentTile:integer;
     path:string;
-    pathfrom:string;
+    FMainTileXY: TPoint;
+    FMainTileZoom: byte;
+    FChildeTileXY: TPoint;
+    FChildeTileZoom: byte;
     bmp_ex:TBitmap32;
     bmp:TBitmap32;
+
   protected
     procedure GenPreviousZoom;
     procedure SetProgressForm;
@@ -122,12 +126,12 @@ end;
 
 procedure TOpGenPreviousZoom.LoadMainTileOp;
 begin
-  MainFileCache.LoadFile(bmp_Ex,path,false);
+  typemap.LoadTile(bmp_Ex, FMainTileXY.X, FMainTileXY.y, FMainTileZoom, false);
 end;
 
 procedure TOpGenPreviousZoom.LoadChildTileOp;
 begin
-  MainFileCache.LoadFile(bmp,pathfrom,false);
+  typemap.LoadTile(bmp, FChildeTileXY.X, FChildeTileXY.Y, FChildeTileZoom, false);
 end;
 
 procedure TOpGenPreviousZoom.GenPreviousZoom;
@@ -176,7 +180,7 @@ begin
                                                    inc(p_y,256);
                                                    continue;
                                                   end;
-//TODO: Разобраться и избавиться от путей.
+//TODO: Путь нужен для сохранения тайлов.
        path:=typemap.GetTileFileName(p_x,p_y,InZooms[i]);
        if typemap.TileExists(p_x,p_y,InZooms[i])then begin
                                 if not(Replace)
@@ -185,6 +189,9 @@ begin
                                        inc(p_y,256);
                                        continue;
                                       end;
+                                 FMainTileXY.X := p_x;
+                                 FMainTileXY.Y := p_y;
+                                 FMainTileZoom := InZooms[i];
                                 Synchronize(LoadMainTileOp);
                                end
                           else begin
@@ -205,11 +212,11 @@ begin
           if (not GenFormPrev)or(i=0) then
                         VZoom := FromZoom
                    else VZoom := InZooms[i-1];
-//TODO: Разобраться и избавиться от путей.
-          pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,VZoom);
-
           if typemap.TileExists(p_x_x,p_y_y,VZoom) then
            begin
+            FChildeTileXY.X := p_x;
+            FChildeTileXY.Y := p_y;
+            FChildeTileZoom := VZoom;
             Synchronize(LoadChildTileOp);
             bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);
             inc(save_len_tile);
@@ -232,4 +239,3 @@ begin
 end;
 
 end.
- 

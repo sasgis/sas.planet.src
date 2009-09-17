@@ -701,12 +701,6 @@ begin
  if typeRect in [2,3] then dwnReg;
  if typeRect=4 then DwnInFon;
  closeSession;
- //if _FProgress<>nil then _FProgress.Close;
-{ if typeRect in [2,3] then
-  begin
-//   While _FProgress.Visible do sleep(100);
-   //_FProgress.Free;
-  end; }
 end;
 
 procedure ThreadAllLoadMap.WriteToFile;
@@ -751,8 +745,6 @@ begin
      if MainFileCache.LoadFile(btmsrc,path,false)
       then begin
             btmDest.SetSize(256,256);
-//            if btmSrc.Width<typemap.TileRect.Right then typemap.TileRect.Right:=btmSrc.Width;
-//            if btmSrc.Height<typemap.TileRect.Bottom then typemap.TileRect.Bottom:=btmSrc.Height;
             btmdest.Draw(bounds(0,0,256,256),typemap.TileRect,btmSrc);
             SaveTileInCache(btmDest,path);
            end;
