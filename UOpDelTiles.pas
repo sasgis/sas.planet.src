@@ -58,7 +58,7 @@ end;
 procedure TOpDelTiles.CloseProgressForm;
 begin
  fprogress.Free;
- ClearCache;
+ MainFileCache.Clear;
  Fmain.generate_im(nilLastLoad,'');
 end;
 
@@ -100,7 +100,7 @@ begin
               inc(J,256);
               CONTINUE;
              end;
-     path:=ffpath(i,j,zoom,typemap^,false);
+     path:=typemap.GetTileFileName(i,j,zoom);
      if TileExists(path) then begin
                                Synchronize(DelTileOp);
                                inc(TileInProc);

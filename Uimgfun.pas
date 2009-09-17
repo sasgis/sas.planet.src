@@ -1,5 +1,5 @@
 unit Uimgfun;
-                               
+
 interface
 uses IJL,Classes,pngimage,StrUtils,SysUtils,Windows,Types,UMaptype,RxGIF,Math,GR32,jpeg,graphics;
 
@@ -7,18 +7,18 @@ const
   FILE_DOES_NOT_EXIST = DWORD(-1);
 
 var
-  CacheList:TStringList;
+//  CacheList:TStringList;
   defoultMap:TBitmap;// TPNGObject;
   function SaveTileInCache(btm:TObject;path:string):boolean;
   function TileExists(path:string):boolean;
-  function LoadTilefromCache(btm:Tobject;path:string;caching:boolean):boolean;
+//  function LoadTilefromCache(btm:Tobject;path:string;caching:boolean):boolean;
   function DelFile(path:string):boolean;
   function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
   procedure SetDefoultMap;
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
   function InStr(I: Integer): string;
-  Procedure ClearCache;
+//  Procedure ClearCache;
 
 implementation
 uses unit1;
@@ -293,89 +293,4 @@ begin
     end;
   end;
 end;
-
-Procedure ClearCache;
-var i:integer;
-begin
- for i:=0 to CacheList.Count-1 do
-   TBitmap32(CacheList.Objects[i]).Free;
- CacheList.Clear;
-end;
-
-function LoadTilefromCache(btm:Tobject;path:string;caching:boolean):boolean;
-//var str:TMemoryStream;
-   // fsize, hFile:integer;
-//    jpg:TJPEGImage;
-var btmcache:TObject;
-    s,i:integer;
-    p1,p2:Pointer;
-begin
-{  str:=TMemoryStream.Create;
-  hFile := FileOpen(path,fmOpenRead);
-  fSize := FileSeek(hFile,0,2);
-  FileSeek(hFile,0,0);
-  str.SetSize(fsize);
-  FileRead(hFile,str.Memory^,fSize);
-  if ExtractFileExt(path)='.jpg' then begin
-                                       jpg:=TJPEGImage.Create;
-                                       jpg.LoadFromStream(str); }
-  result:=false;
-
-  if GetFileSize(path)=0 then exit;
-  try
-   if (btm is TBitmap32) then
-    begin
-      if not(caching) then
-       begin
-        if ExtractFileExt(path)='.jpg'
-         then begin
-               if not(LoadJPG32(path,TBitmap32(btm))) then begin result:=false; exit; end
-              end
-         else TBitmap32(btm).LoadFromFile(path);
-        result:=true;
-        exit;
-       end;
-      i:=CacheList.IndexOf(AnsiUpperCase(path));
-      if i<0 then
-       begin
-        if ExtractFileExt(path)='.jpg'
-         then begin
-                if not(LoadJPG32(path,TBitmap32(btm))) then begin result:=false; exit; end
-              end
-         else TBitmap32(btm).LoadFromFile(path);
-        btmcache:=TBitmap32.Create;
-        TBitmap32(btmcache).Assign(TBitmap32(btm));
-        CacheList.AddObject(AnsiUpperCase(path), btmcache);
-        if CacheList.Count > TilesOCache then
-         begin
-          CacheList.Objects[0].Free;
-//          TBitmap32(CacheList.Objects[0]).Free;
-          CacheList.Delete(0);
-         end;
-       end
-      else
-       begin
-        TBitmap32(btm).Assign(TBitmap32(CacheList.Objects[i]));
-        result:=true;
-        exit;
-       end;
-     end
-   else
-   if (btm is TGraphic) then
-    TGraphic(btm).LoadFromFile(path) else
-   if (btm is TPicture) then
-    TPicture(btm).LoadFromFile(path) else
-   if (btm is TJPEGimage) then
-    TJPEGimage(btm).LoadFromFile(path) else
-   if (btm is TPNGObject) then
-    TPNGObject(btm).LoadFromFile(path);
-   result:=true;
-  except
-  end;
-{                                       jpg.Free;
-                                      end;
-  str.Free;
-  FileClose(hFile);      }
-end;
-
 end.

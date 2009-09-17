@@ -102,7 +102,7 @@ end;
 
 procedure TFillingMap.Execute;
 var
-  Path:String;
+  VTileFileName:String;
   VCurrFolderName:string;
   VPrevFolderName:string;
   VPrevTileFolderExist:boolean;
@@ -142,21 +142,21 @@ begin
               continue;
             end;
             if fillingmaptype=nil then begin
-              Path:=ffpath(xx,yy,zoom_mapzap,sat_map_both^,false);
+              VTileFileName:=sat_map_both.GetTileFileName(xx,yy,zoom_mapzap);
             end else begin
-              Path:=ffpath(xx,yy,zoom_mapzap,fillingmaptype^,false);
+              VTileFileName:=fillingmaptype.GetTileFileName(xx,yy,zoom_mapzap);
             end;
-            VCurrFolderName:=ExtractFilePath(path);
+            VCurrFolderName:=ExtractFilePath(VTileFileName);
             if VCurrFolderName=VPrevFolderName then begin
               if VPrevTileFolderExist then begin
-                VTileExist:=TileExists(path)
+                VTileExist:=TileExists(VTileFileName)
               end else begin
                 VTileExist:=false
               end;
             end else begin
               VPrevTileFolderExist:=DirectoryExists(VCurrFolderName);
               if VPrevTileFolderExist then begin
-                VTileExist:=TileExists(path)
+                VTileExist:=TileExists(VTileFileName)
               end else begin
                 VTileExist:=false;
               end;

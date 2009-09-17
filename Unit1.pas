@@ -9,7 +9,7 @@ uses
   DB, UThreadExport, GR32_Image, UResStrings, WinInet, SHDocVw_EWB, DBClient,
   OleCtrls, EwbCore, TBX, Controls,
   ZylGPSReceiver, Dialogs, BMSearch,  UFillingMap, PNGimage,
-   Buttons, ZylCustomGPSReceiver, ImgMaker,
+   Buttons, ZylCustomGPSReceiver, ImgMaker, u_MemFileCache,
   ImgList, TB2ToolWindow, TBXToolPals {UNetRadar,};
 
 type
@@ -537,7 +537,7 @@ var
   ShowActivHint,ShowHintOnMarks:boolean;
   GPS_enab:boolean;
   marshrutcomment:string;
-  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale, TilesOCache,
+  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale,
     zoom_in,mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
   move,m_up,m_m,oldPOS,moveTrue{,POS}:Tpoint;
   notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
@@ -586,9 +586,11 @@ var
   ProgrammPath:string;
   NavOnMark:TNavOnMark;
   PosLL:TExtendedPoint;
+
+  MainFileCache: TMemFileCache;
+
  // NetRadar:TNetRadar;
   hres:HRESULT;
-  function  ffpath(x,y:longint;Azoom:byte;AMap:TMapType;short:boolean):string;
   procedure Gamma(Bitmap: TBitmap32);
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
@@ -1018,132 +1020,6 @@ begin
  aoper:=newop;
 end;
 
-function ffpath(x,y:longint;Azoom:byte;AMap:TMapType;short:boolean):string;
-function full(int,z:integer):string;
-var s,s1:string;
-    i:byte;
-begin
- result:='';
- s:=inttostr(int);
- s1:=inttostr(zoom[z] div 256);
- for i:=length(s) to length(s1)-1 do result:=result+'0';
- result:=result+s;
-end;
-var os,prer:TPoint;
-    i,ct:byte;
-    sbuf,name,fname:String;
-    ms:TMemoryStream;
-    SearchRec:TSearchRec;
-begin
-
- if (AMap.CacheType=0) then ct:=DefCache
-                       else ct:=AMap.CacheType;
- if x>=0 then x:=x mod zoom[Azoom]
-         else x:=zoom[Azoom]+(x mod zoom[Azoom]);
- case ct of
- 1:
- begin
-   sbuf:=Format('%.*d', [2, Azoom]);
-   if not(short) then result:=OldCpath_
-                 else result:='';
-   result:=result+AMap.NameInCache+'\'+sbuf+'\t';
-   os.X:=zoom[Azoom]shr 1;
-   os.Y:=zoom[Azoom]shr 1;
-   prer:=os;
-   for i:=2 to Azoom do
-    begin
-    prer.X:=prer.X shr 1;
-    prer.Y:=prer.Y shr 1;
-    if x<os.X
-     then begin
-           os.X:=os.X-prer.X;
-           if y<os.y then begin
-                            os.Y:=os.Y-prer.Y;
-                            result:=result+'q';
-                           end
-                      else begin
-                            os.Y:=os.Y+prer.Y;
-                            result:=result+'t';
-                           end;
-          end
-     else begin
-           os.X:=os.X+prer.X;
-           if y<os.y then begin
-                           os.Y:=os.Y-prer.Y;
-                           result:=result+'r';
-                          end
-                     else begin
-                           os.Y:=os.Y+prer.Y;
-                           result:=result+'s';
-                          end;
-         end;
-    end;
-  result:=result+AMap.ext;
- end;
- 2:
- begin
-  if not(short) then result:=NewCpath_
-                else result:='';
-  x:=x shr 8;
-  y:=y shr 8;
-  result:=result+AMap.NameInCache+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+AMap.ext;
- end;
- 3:
- begin
-   sbuf:=Format('%.*d', [2, Azoom]);
-   if not(short) then result:=ESCpath_
-                 else result:='';
-   name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
-   if Azoom<7
-    then result:=result+AMap.NameInCache+'\'+sbuf+'\'
-    else if Azoom<11
-          then result:=result+AMap.NameInCache+'\'+sbuf+'\'+Chr(59+Azoom)+
-                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'
-          else result:=result+AMap.NameInCache+'\'+'10'+'-'+full((x shr (Azoom-10))shr 8,10)+'-'+
-                       full((y shr (Azoom-10))shr 8,10)+'\'+sbuf+'\'+Chr(59+Azoom)+
-                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\';
-   result:=result+name+AMap.ext;
- end;
- 4,41:
- begin
-  if not(short) then result:=GMTilespath_
-                else result:='';
-  x:=x shr 8;
-  y:=y shr 8;
-  if ct=4 then result:=result+AMap.NameInCache+format('\z%d\%d\%d'+AMap.ext,[Azoom-1,Y,X])
-          else result:=result+AMap.NameInCache+format('\z%d\%d_%d'+AMap.ext,[Azoom-1,Y,X]);
- end;
- 5:
- begin
-  if not(short) then result:=GECachepath_
-                 else result:='';
-  result:=result+AMap.NameInCache;
-  fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
-  if not(short)and(result[2]<>'\')and(system.pos(':',result)=0)
-   then result:=ProgrammPath+result;
-  if (not FileExists(result+'\'+fname))and(FileExists(result+'\dbCache.dat'))and(FileExists(result+'\dbCache.dat.index'))then
-  try
-   x:=x shr 8;
-   y:=y shr 8;
-   if FindFirst(result+'\*.jpg', faAnyFile, SearchRec) = 0 then
-    repeat
-     if (SearchRec.Attr and faDirectory) <> faDirectory then
-       DeleteFile(result+'\'+SearchRec.Name);
-    until FindNext(SearchRec) <> 0;
-   FindClose(SearchRec);
-
-   if GetMerkatorGETile(ms,result+'\dbCache.dat',x,y,Azoom,AMap)
-    then ms.SaveToFile(result+'\'+fname);
-   FreeAndNil(ms);
-  except
-  end;
-  result:=result+'\'+fname;
- end;
- end;
- if not(short)and(result[2]<>'\')and(system.pos(':',result)=0)
-   then result:=ProgrammPath+result;
-end;
-
 function TFmain.mouseXY2Pos(Pnt:TPoint):TPoint;
 begin
  Result:=Point(Pos.x-(mWd2-Pnt.X),Pos.y-(mHd2-Pnt.y));
@@ -1418,7 +1294,7 @@ begin
      if not((dwn)or(anim_zoom=1)) then
        begin
         move.X:=m_up.x;
-        ClearCache;
+        MainFileCache.Clear;
         Fmain.generate_im(nilLastLoad,'');
        end; 
      exit;
@@ -2280,7 +2156,7 @@ begin
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
- subs2:=ffpath(X2absX(pos.x-(mWd2-m_m.x),zoom_size),pos.y-(mHd2-m_m.y),zoom_size,sat_map_both^,false);
+ subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),zoom_size),pos.y-(mHd2-m_m.y),zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
@@ -2292,6 +2168,7 @@ function TFmain.loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:PMapType):
 var i,c_x,c_y,dZ:integer;
     ss:string;
     bmp:TBitmap32;
+    VTileExists: Boolean;
 begin
  result:=false;
  if not(backload) then
@@ -2299,19 +2176,23 @@ begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
+  VTileExists := false;
  for i:=(Azoom-1) downto 1 do
   begin
    dZ:=(Azoom-i);
-   ss:=ffpath(x shr dZ,y shr dZ,i,AMap^,false);
-   if TileExists(ss) then break;
+   if AMap.TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileExists := true;
+    break;
+   end;
   end;
- if not(tileExists(ss))or(dZ>9) then
+ if not(VTileExists)or(dZ>9) then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
+  ss := AMap.GetTileFileName(x shr dZ,y shr dZ, Azoom - dZ);
  bmp:=TBitmap32.Create;
- if not(LoadTilefromCache(bmp,ss,true))then
+ if not(MainFileCache.LoadFile(bmp,ss,true))then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
@@ -2599,11 +2480,7 @@ begin
  ts:=GetTickCount;
  if (lastload.use) then
   begin
-   NinCache:=CacheList.IndexOf(AnsiUpperCase(ffpath(lastload.x,lastload.y,lastload.z,PMapType(Pointer(lastload.mt))^,false)));
-   if NinCache>=0 then begin
-                 TBitmap32(CacheList.Objects[NinCache]).Free;
-                 CacheList.Delete(NinCache);
-                end;
+    MainFileCache.DeleteFileFromCache(PMapType(Pointer(lastload.mt)).GetTileFileName(lastload.x,lastload.y,lastload.z));
   end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
@@ -2633,11 +2510,12 @@ begin
         spr.Clear;
         continue;
       end;
-    Path:=ffpath(xx,yy,zoom_size,sat_map_both^,false);
+    Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
 //    if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-128)or(lastload.y>yy+128))) then continue;
-    if (TileExists(path))
+    if (sat_map_both.TileExists(xx,yy,zoom_size))
      then begin
-           if LoadTilefromCache(spr,path,true)
+           Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
+           if MainFileCache.LoadFile(spr,path,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path)
                   end
@@ -2673,20 +2551,20 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then continue;
-       Path:=ffpath(xx,yy,zoom_size,MapType[Leyi],false);
        if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),zoom_size)
                   else xx:=pos.x-pr_x+(i shl 8);
        yy:=pos.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
  //      if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-256)and(lastload.y>yy+256)) ) then continue;
-       if (TileExists(Path)) then
+       if (MapType[Leyi].TileExists(xx,yy,zoom_size)) then
         begin
+         Path:=MapType[Leyi].GetTileFileName(xx,yy,zoom_size);
          spr.DrawMode:=dmBlend;
          if LowerCase(MapType[Leyi].ext)='.png' then
           begin
            png:=TPNGObject.create;
            spr.Clear;
-           if LoadTilefromCache(png,Path,true)
+           if MainFileCache.LoadFile(png,Path,true)
             then begin
                   if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
                   PNGintoBitmap32(spr,png);
@@ -2698,7 +2576,7 @@ begin
          else
           begin
            spr.Clear($005f5f5f);
-           if LoadTilefromCache(spr,Path,true)
+           if MainFileCache.LoadFile(spr,Path,true)
            then begin
                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
                  spr.DrawMode:=dmBlend;
@@ -3002,7 +2880,7 @@ begin
  MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
  MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
- TilesOCache:=Ini.ReadInteger('VIEW','TilesOCache',150);
+ MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
  ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
  Wikim_set.MainColor:=Ini.Readinteger('Wikimapia','MainColor',$FFFFFF);
@@ -3169,11 +3047,11 @@ begin
     begin
      if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
       begin
-       path:=ffpath(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,m_t^,false);
        bm.Clear(Color32(clSilver) xor $00000000);
-       if (tileexists(path))
+       if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom))
         then begin
-              if not(LoadTilefromCache(bm,path,true))
+             path:=m_t.GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
+              if not(MainFileCache.LoadFile(bm,path,true))
                then bm.Clear(Color32(clSilver) xor $00000000);
              end
         else loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
@@ -3203,11 +3081,13 @@ begin
       begin
        if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
         begin
-         path:=ffpath(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,MapType[iLay],false);
          bm.Clear(Color32(clSilver) xor $00000000);
          bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
-         if (tileexists(path))and(not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
-          then LoadTilefromCache(bm,path,true);
+         if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
+            and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
+          path:=MapType[iLay].GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
+          MainFileCache.LoadFile(bm,path,true);
+         end;
          Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
         end;
        inc(y128,256);
@@ -3239,14 +3119,14 @@ begin
   else begin
          if (longint(sm_map.maptype)=0)
            then begin
-                 if not(LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,sat_map_both^,false),true))
+                 if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,sat_map_both.GetTileFileName(128,128,1),true))
                   then Sm_Map.SmMapBitmap.Assign(DefoultMap);
                 end
-           else if not(LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,sm_map.maptype^,false),true))
+           else if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,sm_map.maptype.GetTileFileName(128,128,1),true))
                  then Sm_Map.SmMapBitmap.Assign(DefoultMap);
          for iLay:=0 to length(MapType)-1 do
           if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-            if not(LoadTilefromCache(Sm_Map.SmMapBitmap,ffpath(128,128,1,MapType[iLay],false),false))
+            if not(MainFileCache.LoadFile(Sm_Map.SmMapBitmap,MapType[iLay].GetTileFileName(128,128,1),false))
               then Sm_Map.SmMapBitmap.Assign(DefoultMap);
         if (x=sm_map.width div 2)and(y=sm_map.height div 2)
          then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[zoom_size])),round(pos.y*(sm_map.height/zoom[zoom_size])))
@@ -3377,7 +3257,7 @@ end;
 
 procedure TFmain.FormCreate(Sender: TObject);
 begin
- CacheList:=TStringList.Create;
+  MainFileCache := TMemFileCache.Create;
  ProgrammPath:=ExtractFilePath(ParamStr(0));
  Application.Title:=Fmain.Caption;
  TBiniLoadPositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
@@ -3567,7 +3447,7 @@ var btm:TBitmap32;
     btm1:TBitmap;
 begin
  btm:=TBitmap32.Create;
- if LoadTilefromCache(btm,ffpath(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size,sat_map_both^,false),false)
+ if MainFileCache.LoadFile(btm,sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size),false)
   then begin
         btm1:=TBitmap.Create;
         btm1.Width:=256; btm1.Height:=256;
@@ -3588,7 +3468,7 @@ end;
 
 procedure TFmain.N15Click(Sender: TObject);
 begin
- CopyStringToClipboard(ffpath(X2AbsX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size,sat_map_both^,false));
+ CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size));
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
@@ -3599,7 +3479,7 @@ begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=PMapType(TMenuItem(sender).Tag);
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
- path:=ffpath(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size,AMapType^,false);
+ path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if ((not(tileExists(path)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
    with ThreadAllLoadMap.Create(False,[Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y))],1,true,false,false,true,zoom_size,AMapType,date) do
    begin
@@ -3625,14 +3505,14 @@ end;
 
 procedure TFmain.NopendirClick(Sender: TObject);
 begin
- ShellExecute(0,'open',PChar(ffpath(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size,sat_map_both^,false)),nil,nil,SW_SHOWNORMAL);
+ ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size)),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.N25Click(Sender: TObject);
 var s:string;
     i:integer;
 begin
- s:=ffpath(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size,sat_map_both^,false);
+ s:=sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size);
  for i:=length(s) downto 0 do if s[i]='\'then break;
  ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
 end;
@@ -3645,7 +3525,7 @@ begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=PMapType(TMenuItem(sender).Tag);
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
- s:=ffpath(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size,AMapType^,false);
+ s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
         if TileExists(s) then DelFile(s);
@@ -4804,7 +4684,7 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
-   DelFile(ffpath(Pos.x-(mWd2-X),Pos.y-(mHd2-y),zoom_size,sat_map_both^,false));
+   DelFile(sat_map_both.GetTileFileName(Pos.x-(mWd2-X),Pos.y-(mHd2-y),zoom_size));
    generate_im(nilLastLoad,'');
    exit;
   end;
@@ -4812,7 +4692,7 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
-   path:=ffpath(Pos.x-(mWd2-x),Pos.y-(mHd2-y),zoom_size,sat_map_both^,false);
+   path:=sat_map_both.GetTileFileName(Pos.x-(mWd2-x),Pos.y-(mHd2-y),zoom_size);
     with ThreadAllLoadMap.Create(False,[Point(pos.x-(mWd2-x),pos.y-(mHd2-y))],1,true,false,false,true,zoom_size,sat_map_both,date) do
      begin
       FreeOnTerminate:=true;

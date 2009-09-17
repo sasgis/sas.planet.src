@@ -40,7 +40,8 @@ uses
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UPLT in 'UPLT.pas',
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UNetRadar in 'UNetRadar.pas';
+  UNetRadar in 'UNetRadar.pas',
+  u_MemFileCache in 'u_MemFileCache.pas';
 
 var Ini: Tinifile;
     loc:integer;

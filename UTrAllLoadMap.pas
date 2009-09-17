@@ -438,7 +438,7 @@ begin
   lastload.X:=poly[i].X-(abs(poly[i].X) mod 256);
   lastload.Y:=poly[i].Y-(abs(poly[i].Y) mod 256);
   lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
-  path:=ffpath(poly[i].X,poly[i].y,zoom,typemap,false);
+  path:=typemap.GetTileFileName(poly[i].X,poly[i].y,zoom);
   FileBuf:=TMemoryStream.Create;
   if typemap.UseDwn then begin
                            res:=DownloadFile(PMapType(@typemap).GetLink(poly[i].X,poly[i].y,zoom),typemap);
@@ -514,7 +514,7 @@ begin
       BPos:=ConvertPosM2M(Upos,zoom_size,bSMP,@MapType[ii]);
       xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom_size);
       yy:=BPos.y-pr_y+(y shl 8);
-      Path:=ffpath(xx,yy,zoom_size,MapType[ii],false);
+      Path:=MapType[ii].GetTileFileName(xx,yy,zoom_size);
       link:=MapType[ii].getLink(XX,YY,zoom_size);
       lastload.X:=XX-(abs(XX) mod 256);
       lastload.Y:=YY-(abs(YY) mod 256);
@@ -574,7 +574,7 @@ begin
                                                 inc(p_y,256);
                                                 continue;
                                                end;
-     path:=ffpath(p_x,p_y,zoom,typeMap,false);
+     path:=typeMap.GetTileFileName(p_x,p_y,zoom);
      lastload.X:=p_x-(abs(p_x) mod 256);
      lastload.Y:=p_y-(abs(p_y) mod 256);
      lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
@@ -747,7 +747,7 @@ begin
     btmDest:=TBitmap32.Create;
     try
      btmSrc.Resampler:=TLinearResampler.Create;
-     if LoadTilefromCache(btmsrc,path,false)
+     if MainFileCache.LoadFile(btmsrc,path,false)
       then begin
             btmDest.SetSize(256,256);
 //            if btmSrc.Width<typemap.TileRect.Right then typemap.TileRect.Right:=btmSrc.Width;
@@ -769,7 +769,7 @@ begin
     png:=TBitmap32.Create;
     jpg:=TJPEGImage.Create;
     RenameFile(path,copy(path,1,length(path)-4)+'.png');
-    if LoadTilefromCache(png,copy(path,1,length(path)-4)+'.png',false)
+    if MainFileCache.LoadFile(png,copy(path,1,length(path)-4)+'.png',false)
      then begin
            btm.Assign(png);
            jpg.Assign(btm);

@@ -1,10 +1,30 @@
 unit UMapType;
 
 interface
-uses Forms,sysutils,Classes,iniFiles,Windows,Uprogress,Dialogs,Menus,
-     TBX,Graphics,uPSCompiler,uPSRuntime,StdCtrls,ComCtrls,
-     uPSR_std,uPSR_forms,uPSUtils,math,ExtCtrls, VCLZip,
-     u_CoordConverterAbstract,u_UrlGenerator,UResStrings;
+uses
+  Windows,
+  Forms,
+  sysutils,
+  Classes,
+  IniFiles,
+  Dialogs,
+  Graphics,
+  StdCtrls,
+  ComCtrls,
+  Menus,
+  math,
+  ExtCtrls,
+  Uprogress,
+  TBX,
+  uPSCompiler,
+  uPSRuntime,
+  uPSR_std,
+  uPSR_forms,
+  uPSUtils,
+  VCLZip,
+  u_CoordConverterAbstract,
+  u_UrlGenerator,
+  UResStrings;
 
 type
  PMapType = ^TMapType;
@@ -53,6 +73,8 @@ type
     function GetLink(x,y:longint;Azoom:byte):string;
     function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
+    function GetTileFileName(x,y:longint;Azoom:byte):string;
+    function TileExists(x,y:longint;Azoom:byte): Boolean;
   end;
 var
   MapType:array of TMapType;
@@ -63,8 +85,16 @@ var
   function GetMapFromID(id:string):PMapType;
 
 implementation
-uses Usettings,unit1,UGeoFun, UFillingMap, DateUtils, u_CoordConverterMercatorOnSphere,
-     u_CoordConverterMercatorOnEllipsoid, u_CoordConverterSimpleLonLat;
+uses
+  Usettings,
+  unit1,
+  UGeoFun,
+  UFillingMap,
+  DateUtils,
+  ImgMaker,
+  u_CoordConverterMercatorOnSphere,
+  u_CoordConverterMercatorOnEllipsoid,
+  u_CoordConverterSimpleLonLat;
 
 function GetMapFromID(id:string):PMapType;
 var i:integer;
@@ -471,20 +501,14 @@ begin
     end;
   finally
     FreeAndNil(AZipFile);
-//    FreeAndNil(KaZip);
     FreeAndNil(UnZip);
   end;
 end;
 
 function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
-//var xx,yy:integer;
-//    zz:byte;
 begin
   if (FUrlGenerator = nil) then result:='';
-  //xx:=x div 256;
-  //yy:=y div 256;
   if not(Azoom in [1..24]) then raise Exception.Create('Ошибочный Zoom');
-  //zz:=Azoom-1;
   FUrlGenerator.GetURLBase:=URLBase;
   Result:=FUrlGenerator.GenLink(x,y,Azoom-1);
 end;
@@ -492,6 +516,135 @@ end;
 function TMapType.GetMapSize(zoom:byte):longint;
 begin
  result:=round(intpower(2,zoom))*256;
+end;
+
+function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
+function full(int,z:integer):string;
+var s,s1:string;
+    i:byte;
+begin
+ result:='';
+ s:=inttostr(int);
+ s1:=inttostr(zoom[z] div 256);
+ for i:=length(s) to length(s1)-1 do result:=result+'0';
+ result:=result+s;
+end;
+var os,prer:TPoint;
+    i,ct:byte;
+    sbuf,name,fname:String;
+    ms:TMemoryStream;
+    SearchRec:TSearchRec;
+begin
+
+ if (CacheType=0) then ct:=DefCache
+                       else ct:=CacheType;
+ if x>=0 then x:=x mod zoom[Azoom]
+         else x:=zoom[Azoom]+(x mod zoom[Azoom]);
+ case ct of
+ 1:
+ begin
+   sbuf:=Format('%.*d', [2, Azoom]);
+   result:=OldCpath_;
+   result:=result + NameInCache+'\'+sbuf+'\t';
+   os.X:=zoom[Azoom]shr 1;
+   os.Y:=zoom[Azoom]shr 1;
+   prer:=os;
+   for i:=2 to Azoom do
+    begin
+    prer.X:=prer.X shr 1;
+    prer.Y:=prer.Y shr 1;
+    if x<os.X
+     then begin
+           os.X:=os.X-prer.X;
+           if y<os.y then begin
+                            os.Y:=os.Y-prer.Y;
+                            result:=result+'q';
+                           end
+                      else begin
+                            os.Y:=os.Y+prer.Y;
+                            result:=result+'t';
+                           end;
+          end
+     else begin
+           os.X:=os.X+prer.X;
+           if y<os.y then begin
+                           os.Y:=os.Y-prer.Y;
+                           result:=result+'r';
+                          end
+                     else begin
+                           os.Y:=os.Y+prer.Y;
+                           result:=result+'s';
+                          end;
+         end;
+    end;
+  result:=result + ext;
+ end;
+ 2:
+ begin
+  result:=NewCpath_;
+  x:=x shr 8;
+  y:=y shr 8;
+  result:=result+NameInCache+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+ext;
+ end;
+ 3:
+ begin
+   sbuf:=Format('%.*d', [2, Azoom]);
+   result:=ESCpath_;
+   name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
+   if Azoom<7
+    then result:=result+NameInCache+'\'+sbuf+'\'
+    else if Azoom<11
+          then result:=result+NameInCache+'\'+sbuf+'\'+Chr(59+Azoom)+
+                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'
+          else result:=result+NameInCache+'\'+'10'+'-'+full((x shr (Azoom-10))shr 8,10)+'-'+
+                       full((y shr (Azoom-10))shr 8,10)+'\'+sbuf+'\'+Chr(59+Azoom)+
+                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\';
+   result:=result+name+ext;
+ end;
+ 4,41:
+ begin
+  result:=GMTilespath_;
+  x:=x shr 8;
+  y:=y shr 8;
+  if ct=4 then result:=result+NameInCache+format('\z%d\%d\%d'+ext,[Azoom-1,Y,X])
+          else result:=result+NameInCache+format('\z%d\%d_%d'+ext,[Azoom-1,Y,X]);
+ end;
+ 5:
+ begin
+  result:=GECachepath_;
+  result:=result+NameInCache;
+  fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
+  if (result[2]<>'\')and(system.pos(':',result)=0)
+   then result:=ProgrammPath+result;
+  if (not FileExists(result+'\'+fname))and(FileExists(result+'\dbCache.dat'))and(FileExists(result+'\dbCache.dat.index'))then
+  try
+   x:=x shr 8;
+   y:=y shr 8;
+   if FindFirst(result+'\*.jpg', faAnyFile, SearchRec) = 0 then
+    repeat
+     if (SearchRec.Attr and faDirectory) <> faDirectory then
+       DeleteFile(result+'\'+SearchRec.Name);
+    until FindNext(SearchRec) <> 0;
+   FindClose(SearchRec);
+
+   if GetMerkatorGETile(ms,result+'\dbCache.dat',x,y,Azoom, Self)
+    then ms.SaveToFile(result+'\'+fname);
+   FreeAndNil(ms);
+  except
+  end;
+  result:=result+'\'+fname;
+ end;
+ end;
+ if (result[2]<>'\')and(system.pos(':',result)=0)
+   then result:=ProgrammPath+result;
+end;
+
+function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  Result := Fileexists(VPath);
 end;
 
 end.
