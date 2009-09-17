@@ -7,18 +7,14 @@ const
   FILE_DOES_NOT_EXIST = DWORD(-1);
 
 var
-//  CacheList:TStringList;
   defoultMap:TBitmap;// TPNGObject;
   function SaveTileInCache(btm:TObject;path:string):boolean;
-  function TileExists(path:string):boolean;
-//  function LoadTilefromCache(btm:Tobject;path:string;caching:boolean):boolean;
   function DelFile(path:string):boolean;
   function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
   procedure SetDefoultMap;
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
   function InStr(I: Integer): string;
-//  Procedure ClearCache;
 
 implementation
 uses unit1;
@@ -177,12 +173,6 @@ begin
   InStr := S;
 end;
 
-function TileExists(path:string):boolean;
-begin
-//  result:=GetFileAttributes(@path[1])<>FILE_DOES_NOT_EXIST;
-  result:=Fileexists(path);
-end;
-
 function DelFile(path:string):boolean;
 begin
  result:=DeleteFile(PChar(path));
@@ -191,106 +181,5 @@ end;
 function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
 begin
  CopyFile(Pchar(pathfrom),Pchar(pathto),zamena);
-end;
-
-function GetFileSize(namefile: string): Integer;
-var InfoFile: TSearchRec;
-begin
-  if FindFirst(namefile, faAnyFile, InfoFile) <> 0
-    then Result := -1
-    else Result := InfoFile.Size;
-  SysUtils.FindClose(InfoFile);
-end;
-
-//ABGR
-//ARGB
-procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
-var W, H : Integer;
-    p : PInteger;
-begin
-  p := PInteger(pData);
-  for H := 0 to Height-1 do
-  begin
-    for W := 0 to Width-1 do
-    begin
-//      p^:=(integer(byte(p^ shr 24)) shl 24) or byte(p^ shr 16) or
-//          (integer(byte(p^ shr 8)) shl 8) or (integer(byte(p^)) shl 16);
-      p^:= (byte(p^ shr 24) shl 24) or byte(p^ shr 16) or
-          (integer(byte(p^ shr 8)) shl 8) or (integer(byte(p^)) shl 16);
-      Inc(p);
-    end;
-  end;
-end;
-
-function LoadJPG32(FileName : string;Btm:TBitmap32):boolean;
-const
-  sRead : array [Boolean] of String = ('JFILE_READ = ','JBUFF_READ = ');
-var
-  iWidth, iHeight, iNChannels : Integer;
-  iStatus : Integer;
-  pBuf : PByte;
-  iIndex : Integer;
-  R : TRect;
-  pfd: PIXELFORMATDESCRIPTOR;
-  jcprops : TJPEG_CORE_PROPERTIES;
-//  DIB : TDIBSection;
-begin
- try
-    result:=true;
-    iStatus := ijlInit(@jcprops);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-//      raise Exception.Create('Own: Error in IJL function.');
-    iIndex := 0;
-    jcprops.JPGFile := PChar(FileName);
-    iStatus := ijlRead(@jcprops,IJL_JFILE_READPARAMS);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-//      raise Exception.Create('Own: Error in IJL function.');
-    iWidth := jcprops.JPGWidth;
-    iHeight := jcprops.JPGHeight;
-    iNChannels := 4;
-    Btm.SetSize(iWidth,iHeight);
-//    GetObject(Btm.BitmapHandle,SizeOf(DIB),@DIB);
-    jcprops.DIBWidth := iWidth;
-    jcprops.DIBHeight := iHeight;
-    jcprops.DIBChannels := iNChannels;
-    jcprops.DIBColor := IJL_RGBA_FPX;
-    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
-    jcprops.DIBBytes := PByte(Btm.Bits);// PByte(DIB.dsBm.bmBits);
-    if (jcprops.JPGChannels = 3) then
-      jcprops.JPGColor := IJL_YCBCR
-    else if (jcprops.JPGChannels = 4) then
-      jcprops.JPGColor := IJL_YCBCRA_FPX
-    else if (jcprops.JPGChannels = 1) then
-      jcprops.JPGColor := IJL_G
-    else
-    begin
-      jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
-      jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
-    end;
-    iStatus := ijlRead(@jcprops,IJL_JFILE_READWHOLEIMAGE);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-//      raise Exception.Create('Own: Error in IJL function.');
-    if jcprops.DIBColor = IJL_RGBA_FPX then
-      RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
-    ijlFree(@jcprops);
-  except
-    on E: Exception do
-    begin
-      result:=false;
-      ijlFree(@jcprops);
-    end;
-  end;
 end;
 end.

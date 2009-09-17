@@ -101,7 +101,7 @@ begin
               CONTINUE;
              end;
      path:=typemap.GetTileFileName(i,j,zoom);
-     if TileExists(path) then begin
+     if typemap.TileExists(i,j,zoom) then begin
                                Synchronize(DelTileOp);
                                inc(TileInProc);
                               end;

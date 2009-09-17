@@ -109,6 +109,8 @@ var
   VTileExist:boolean;
   i,j,ii,jj,ixT,jxT:integer;
   imd256x,imd256y,xx,yy,x1,y1:longint;
+
+  VMapType:PMapType;
 begin
   repeat
     Synchronize(SetupLayer);
@@ -126,6 +128,11 @@ begin
         if (Terminated)or(needRepaint)or(stop) then begin
           continue;
         end;
+        if fillingmaptype=nil then begin
+          VMapType := sat_map_both;
+        end else begin
+          VMapType := fillingmaptype;
+        end;
         ixT:=0;
         While ixT<(xyTiles) do begin
           xx:=ppaprx+(imd256x shl dZoom)+(ixT*256);
@@ -141,22 +148,18 @@ begin
               inc(jxT);
               continue;
             end;
-            if fillingmaptype=nil then begin
-              VTileFileName:=sat_map_both.GetTileFileName(xx,yy,zoom_mapzap);
-            end else begin
-              VTileFileName:=fillingmaptype.GetTileFileName(xx,yy,zoom_mapzap);
-            end;
-            VCurrFolderName:=ExtractFilePath(VTileFileName);
+            VTileFileName := VMapType.GetTileFileName(xx,yy,zoom_mapzap);
+            VCurrFolderName := ExtractFilePath(VTileFileName);
             if VCurrFolderName=VPrevFolderName then begin
               if VPrevTileFolderExist then begin
-                VTileExist:=TileExists(VTileFileName)
+                VTileExist:=VMapType.TileExists(xx,yy,zoom_mapzap)
               end else begin
                 VTileExist:=false
               end;
             end else begin
               VPrevTileFolderExist:=DirectoryExists(VCurrFolderName);
               if VPrevTileFolderExist then begin
-                VTileExist:=TileExists(VTileFileName)
+                VTileExist:=VMapType.TileExists(xx,yy,zoom_mapzap)
               end else begin
                 VTileExist:=false;
               end;

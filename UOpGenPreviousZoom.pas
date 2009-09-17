@@ -134,6 +134,7 @@ procedure TOpGenPreviousZoom.GenPreviousZoom;
 var bmp2:TBitmap32;
     i,c_d,p_x,p_y,d2562,p_i,p_j,p_x_x,p_y_y:integer;
     save_len_tile:integer;
+    VZoom: Integer;
 begin
  bmp2:=TBitmap32.Create;
  if Resampler=1
@@ -176,7 +177,7 @@ begin
                                                    continue;
                                                   end;
        path:=typemap.GetTileFileName(p_x,p_y,InZooms[i]);
-       if TileExists(Path)then begin
+       if typemap.TileExists(p_x,p_y,InZooms[i])then begin
                                 if not(Replace)
                                  then begin
                                        Synchronize(UpdateProgressForm);
@@ -199,10 +200,13 @@ begin
           if Terminated then continue;
           p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
           p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
+
           if (not GenFormPrev)or(i=0) then
-                        pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,FromZoom)
-                   else pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,InZooms[i-1]);
-          if TileExists(pathfrom) then
+                        VZoom := FromZoom
+                   else VZoom := InZooms[i-1];
+          pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,VZoom);
+
+          if typemap.TileExists(p_x_x,p_y_y,VZoom) then
            begin
             Synchronize(LoadChildTileOp);
             bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);

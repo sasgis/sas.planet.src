@@ -310,13 +310,13 @@ begin
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
             pathfrom:=TypeMapArr[0].GetTileFileName(p_h.x,p_h.y,i+1);
-            if TileExists(pathfrom) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
+            if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
             bmp322.SaveToFile('c:\123.bmp');
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
           pathfrom:=TypeMapArr[j].GetTileFileName(p_h.x,p_h.y,i+1);
-          if TileExists(pathfrom) then
+          if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
             UniLoadTile(bmp32,pathfrom,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
             if (j=2)and(TypeMapArr[0]<>nil) then
@@ -508,7 +508,7 @@ begin
                                                  CONTINUE;
                                                 end;
           pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
-          if TileExists(pathfrom) then
+          if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
            begin
             inc(scachano);
             if ziped then begin
@@ -563,7 +563,7 @@ var xym256lt,xym256rb:TPoint;
     savepath,north,south,east,west:string;
 begin
   savepath:=TypeMapArr[0].GetTileFileName(x,y,z);
-  if (Replace)and(not(TileExists(savepath))) then exit;
+  if (Replace)and(not(TypeMapArr[0].TileExists(x,y,z))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));

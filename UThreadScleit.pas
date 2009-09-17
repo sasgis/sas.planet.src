@@ -109,19 +109,22 @@ var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
     path,pathhib:string;
     p:PColor32array;
+    VThread: ThreadScleit;
 begin
  if line<(256-sy) then starttile:=sy+line
                   else starttile:=(line-(256-sy)) mod 256;
  if (starttile=0)or(line=0) then
   begin
-   ThreadScleit(Sender).prBar:=line;
-   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormBar);
-   if line=0 then ThreadScleit(Sender).prStr2:=SAS_STR_CreateFile
-             else ThreadScleit(Sender).prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
-   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormStr2);
+    VThread := ThreadScleit(Sender);
+
+   VThread.prBar:=line;
+   VThread.Synchronize(VThread.UpdateProgressFormBar);
+   if line=0 then VThread.prStr2:=SAS_STR_CreateFile
+             else VThread.prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+   VThread.Synchronize(VThread.UpdateProgressFormStr2);
    p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
    p_x:=poly0.x-(poly0.x mod 256);
-   p_h:=ConvertPosM2M(Point(p_x,p_y),ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap,ThreadScleit(Sender).Htypemap);
+   p_h:=ConvertPosM2M(Point(p_x,p_y),VThread.zoom,VThread.typemap,VThread.Htypemap);
    lrarri:=0;
    if line>(255-sy) then Asy:=0 else Asy:=sy;
    if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
@@ -129,31 +132,31 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
-     path:=ThreadScleit(Sender).typemap.GetTileFileName(p_x,p_y,ThreadScleit(Sender).zoom);
-     if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
+     path:=VThread.typemap.GetTileFileName(p_x,p_y,VThread.zoom);
+     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
      else
      begin
-     ThreadScleit(Sender).btmm.Clear(clSilver);
-     if (Tileexists(path)) then begin
-                                 if not(MainFileCache.LoadFile(ThreadScleit(Sender).btmm,path,false))
-                                  then Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+     VThread.btmm.Clear(clSilver);
+     if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom)) then begin
+                                 if not(MainFileCache.LoadFile(VThread.btmm,path,false))
+                                  then Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
                                 end
-                           else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
-     if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
-     if ThreadScleit(Sender).Htypemap<>nil then
+                           else Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+     if VThread.usedReColor then Gamma(VThread.btmm);
+     if VThread.Htypemap<>nil then
       begin
-       pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y,ThreadScleit(Sender).zoom);
-       ThreadScleit(Sender).btmh.Clear(clBlack);
-       ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-       if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
-       ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
+       pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y,VThread.zoom);
+       VThread.btmh.Clear(clBlack);
+       VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
+       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+       VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
-         pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom);
-         ThreadScleit(Sender).btmh.Clear(clBlack);
-         ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-         if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
-         ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
+         pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y+256,VThread.zoom);
+         VThread.btmh.Clear(clBlack);
+         VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
+         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+         VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
         end;
       end;
      end;
@@ -161,7 +164,7 @@ begin
       then Aex:=ex;
      for j:=Asy to Aey do
       begin
-       p:=ThreadScleit(Sender).btmm.ScanLine[j];
+       p:=VThread.btmm.ScanLine[j];
        rarri:=lrarri;
        for i:=Asx to Aex do
         begin
@@ -183,18 +186,20 @@ var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
     pathhib:string;
     p:PColor32array;
+    VThread: ThreadScleit;
 begin
  if line<(256-sy) then starttile:=sy+line
                   else starttile:=(line-(256-sy)) mod 256;
  if (starttile=0)or(line=0) then
   begin
-   ThreadScleit(Sender).prBar:=line;
-   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormBar);
-   ThreadScleit(Sender).prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
-   ThreadScleit(Sender).Synchronize(ThreadScleit(Sender).UpdateProgressFormStr2);
+    VThread := ThreadScleit(Sender);
+   VThread.prBar:=line;
+   VThread.Synchronize(VThread.UpdateProgressFormBar);
+   VThread.prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+   VThread.Synchronize(VThread.UpdateProgressFormStr2);
    p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
    p_x:=poly0.x-(poly0.x mod 256);
-   p_h:=ConvertPosM2M(Point(p_x,p_y),ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap,ThreadScleit(Sender).Htypemap);
+   p_h:=ConvertPosM2M(Point(p_x,p_y),VThread.zoom,VThread.typemap,VThread.Htypemap);
    lrarri:=0;
    if line>(255-sy) then Asy:=0 else Asy:=sy;
    if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
@@ -202,32 +207,32 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
-     ThreadScleit(Sender).path:=ThreadScleit(Sender).typemap.GetTileFileName(p_x,p_y,ThreadScleit(Sender).zoom);
-     if not(RgnAndRgn(ThreadScleit(Sender).Poly,p_x+128,p_y+128,false)) then ThreadScleit(Sender).btmm.Clear(clSilver)
+     VThread.path:=VThread.typemap.GetTileFileName(p_x,p_y,VThread.zoom);
+     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
      else
      begin
-     ThreadScleit(Sender).btmm.Clear(clSilver);
-     if (Tileexists(ThreadScleit(Sender).path))
+     VThread.btmm.Clear(clSilver);
+     if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom))
       then begin
-            if not(MainFileCache.LoadFile(ThreadScleit(Sender).btmm,ThreadScleit(Sender).path,false))
-             then Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
+            if not(MainFileCache.LoadFile(VThread.btmm,VThread.path,false))
+             then Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
            end
-      else Fmain.loadpre(ThreadScleit(Sender).btmm,p_x,p_y,ThreadScleit(Sender).zoom,ThreadScleit(Sender).typemap);
-     if ThreadScleit(Sender).usedReColor then Gamma(ThreadScleit(Sender).btmm);
-     if ThreadScleit(Sender).Htypemap<>nil then
+      else Fmain.loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+     if VThread.usedReColor then Gamma(VThread.btmm);
+     if VThread.Htypemap<>nil then
       begin
-       pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y,ThreadScleit(Sender).zoom);
-       ThreadScleit(Sender).btmh.Clear(clBlack);
-       ThreadScleit(Sender).btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-       if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
-       ThreadScleit(Sender).btmm.Draw(0,0-((p_h.y mod 256)),ThreadScleit(Sender).btmh);
+       pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y,VThread.zoom);
+       VThread.btmh.Clear(clBlack);
+       VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
+       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+       VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
-         pathhib:=ThreadScleit(Sender).Htypemap.GetTileFileName(p_h.x,p_h.y+256,ThreadScleit(Sender).zoom);
-         ThreadScleit(Sender).btmh.Clear(clBlack);
-         ThreadScleit(Sender).btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),ThreadScleit(Sender).btmm);
-         if (Tileexists(pathhib)) then MainFileCache.LoadFile(ThreadScleit(Sender).btmh,pathhib,false);
-         ThreadScleit(Sender).btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),ThreadScleit(Sender).btmh);
+         pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y+256,VThread.zoom);
+         VThread.btmh.Clear(clBlack);
+         VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
+         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then MainFileCache.LoadFile(VThread.btmh,pathhib,false);
+         VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
         end;
       end;
      end;
@@ -235,7 +240,7 @@ begin
       then Aex:=ex;
      for j:=Asy to Aey do
       begin
-       p:=ThreadScleit(Sender).btmm.ScanLine[j];
+       p:=VThread.btmm.ScanLine[j];
        rarri:=lrarri;
        for i:=Asx to Aex do
         begin

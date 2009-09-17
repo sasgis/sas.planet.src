@@ -2166,7 +2166,6 @@ end;
 
 function TFmain.loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:PMapType):boolean;
 var i,c_x,c_y,dZ:integer;
-    ss:string;
     bmp:TBitmap32;
     VTileExists: Boolean;
 begin
@@ -2190,9 +2189,8 @@ begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
-  ss := AMap.GetTileFileName(x shr dZ,y shr dZ, Azoom - dZ);
  bmp:=TBitmap32.Create;
- if not(MainFileCache.LoadFile(bmp,ss,true))then
+ if not(MainFileCache.LoadFile(bmp,AMap.GetTileFileName(x shr dZ,y shr dZ, Azoom - dZ),true))then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
@@ -3480,7 +3478,7 @@ begin
                             else AMapType:=PMapType(TMenuItem(sender).Tag);
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
- if ((not(tileExists(path)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
+ if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
    with ThreadAllLoadMap.Create(False,[Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y))],1,true,false,false,true,zoom_size,AMapType,date) do
    begin
     FreeOnTerminate:=true;
@@ -3528,7 +3526,7 @@ begin
  s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
-        if TileExists(s) then DelFile(s);
+        if AMapType.TileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size) then DelFile(s);
         generate_im(nilLastLoad,'');
        end;
        

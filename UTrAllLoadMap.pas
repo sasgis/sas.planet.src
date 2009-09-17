@@ -519,7 +519,7 @@ begin
       lastload.X:=XX-(abs(XX) mod 256);
       lastload.Y:=YY-(abs(YY) mod 256);
       lastload.z:=zoom_size; lastLoad.mt:=@MapType[ii]; lastLoad.use:=true;
-      if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(TileExists(Path)))) then
+      if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(MapType[ii].TileExists(xx,yy,zoom_size)))) then
        begin
          If (MapType[ii].UseAntiBan>1) then
           begin
@@ -582,13 +582,13 @@ begin
      TimeEnd:=GetTimeEnd(num_dwn,obrab);
      LenEnd:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
      Synchronize(UpdateProgressForm);
-     if not(TileExists(path))or(zamena) then
+     if not(typeMap.TileExists(p_x,p_y,zoom))or(zamena) then
       begin
        FileBuf:=TMemoryStream.Create;
-       if TileExists(path) then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'//_FProgress.Memo1.Lines.Add(SAS_STR_LoadProcessRepl+' ...')
+       if typeMap.TileExists(p_x,p_y,zoom) then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'//_FProgress.Memo1.Lines.Add(SAS_STR_LoadProcessRepl+' ...')
                            else AddToMemo:=SAS_STR_LoadProcess+'...';//_FProgress.Memo1.Lines.Add(SAS_STR_LoadProcess+'...');
        Synchronize(UpdateMemoProgressForm);
-       if (zDate)and(TileExists(path))and(FileDateToDateTime(FileAge(path))>=FDate) then
+       if (zDate)and(typeMap.TileExists(p_x,p_y,zoom))and(FileDateToDateTime(FileAge(path))>=FDate) then
         begin
          AddToMemo:=AddToMemo+#13#10+SAS_MSG_FileBeCreateTime;
          Synchronize(UpdateMemoProgressForm);
