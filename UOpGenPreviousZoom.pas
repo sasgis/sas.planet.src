@@ -176,6 +176,7 @@ begin
                                                    inc(p_y,256);
                                                    continue;
                                                   end;
+//TODO: Разобраться и избавиться от путей.
        path:=typemap.GetTileFileName(p_x,p_y,InZooms[i]);
        if typemap.TileExists(p_x,p_y,InZooms[i])then begin
                                 if not(Replace)
@@ -204,6 +205,7 @@ begin
           if (not GenFormPrev)or(i=0) then
                         VZoom := FromZoom
                    else VZoom := InZooms[i-1];
+//TODO: Разобраться и избавиться от путей.
           pathfrom:=typemap.GetTileFileName(p_x_x,p_y_y,VZoom);
 
           if typemap.TileExists(p_x_x,p_y_y,VZoom) then

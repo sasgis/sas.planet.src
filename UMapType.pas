@@ -76,6 +76,7 @@ type
     function GetTileFileName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
+    function DeleteTile(x,y:longint;Azoom:byte): Boolean;
   end;
 var
   MapType:array of TMapType;
@@ -788,6 +789,18 @@ begin
     end;
     result:=true;
   except
+  end;
+end;
+
+function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
+var
+  VPath: string;
+begin
+  try
+    VPath := GetTileFileName(x, y, Azoom);
+    result:=DeleteFile(PChar(VPath));
+  except
+    Result := false;
   end;
 end;
 

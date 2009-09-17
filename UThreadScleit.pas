@@ -107,7 +107,6 @@ end;
 function ReadLineBMP(Sender:TObject;Line:cardinal;LineRGB:PLineRGBb):boolean;
 var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
-    path,pathhib:string;
     p:PColor32array;
     VThread: ThreadScleit;
 begin
@@ -132,7 +131,6 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
-     path:=VThread.typemap.GetTileFileName(p_x,p_y,VThread.zoom);
      if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
      else
      begin
@@ -145,14 +143,12 @@ begin
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
-       pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y,VThread.zoom);
        VThread.btmh.Clear(clBlack);
        VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
        if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
-         pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y+256,VThread.zoom);
          VThread.btmh.Clear(clBlack);
          VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
          if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
@@ -184,7 +180,6 @@ end;
 function ReadLine(Sender:TObject;Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
 var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
-    pathhib:string;
     p:PColor32array;
     VThread: ThreadScleit;
 begin
@@ -207,6 +202,7 @@ begin
    Aex:=255;
    while p_x<=poly1.x do
     begin
+      //TODO: Сейчас, по сути, испольуется только для вывода сообщения об ошибке. Нужно убрать вызов из цикла.
      VThread.path:=VThread.typemap.GetTileFileName(p_x,p_y,VThread.zoom);
      if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
      else
@@ -221,14 +217,12 @@ begin
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
-       pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y,VThread.zoom);
        VThread.btmh.Clear(clBlack);
        VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
        if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
-         pathhib:=VThread.Htypemap.GetTileFileName(p_h.x,p_h.y+256,VThread.zoom);
          VThread.btmh.Clear(clBlack);
          VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
          if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);

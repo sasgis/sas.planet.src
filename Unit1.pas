@@ -2462,7 +2462,7 @@ begin
 end;     }
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
-var Path:String;
+var
     y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,size,ii,jj:longint;
     i,j:byte;
     Leyi,NinCache:integer;
@@ -2478,6 +2478,7 @@ begin
  ts:=GetTickCount;
  if (lastload.use) then
   begin
+   //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
     MainFileCache.DeleteFileFromCache(PMapType(Pointer(lastload.mt)).GetTileFileName(lastload.x,lastload.y,lastload.z));
   end;
  if not(lastload.use) then generate_mapzap;
@@ -2508,14 +2509,12 @@ begin
         spr.Clear;
         continue;
       end;
-    Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
 //    if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-128)or(lastload.y>yy+128))) then continue;
     if (sat_map_both.TileExists(xx,yy,zoom_size))
      then begin
-           Path:=sat_map_both.GetTileFileName(xx,yy,zoom_size);
            if sat_map_both.LoadTile(spr,xx,yy,zoom_size,true)
              then begin
-                    if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path)
+                    if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,zoom_size);
                   end
              else BadDraw(spr);
           end
@@ -2556,7 +2555,6 @@ begin
  //      if (lastload.use)and((lastload.x<>xx)or(lastload.z<>zoom_size)or((lastload.y<yy-256)and(lastload.y>yy+256)) ) then continue;
        if (MapType[Leyi].TileExists(xx,yy,zoom_size)) then
         begin
-         Path:=MapType[Leyi].GetTileFileName(xx,yy,zoom_size);
          spr.DrawMode:=dmBlend;
          if LowerCase(MapType[Leyi].ext)='.png' then
           begin
@@ -2564,9 +2562,9 @@ begin
            spr.Clear;
            if MapType[Leyi].LoadTile(png,xx,yy,zoom_size,true)
             then begin
-                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
+                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,zoom_size);
                   PNGintoBitmap32(spr,png);
-                  if (sat_map_both.DelAfterShow)and(not lastload.use) then delFile(path);
+                  if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,zoom_size);
                  end
             else BadDraw(spr);
            png.Free;
@@ -2576,7 +2574,7 @@ begin
            spr.Clear($005f5f5f);
            if MapType[Leyi].LoadTile(png,xx,yy,zoom_size,true)
            then begin
-                 if (MapType[Leyi].DelAfterShow)and(not lastload.use) then delFile(path);
+                 if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,zoom_size);
                  spr.DrawMode:=dmBlend;
                  p := @spr.Bits[0];
                  for H:=0 to spr.Height-1 do
@@ -3016,7 +3014,6 @@ end;
 procedure TFmain.sm_im_reset_type2(x,y:integer);
 var bm:TBitmap32;
     pos_sm,d:TPoint;
-    path:string;
     x128,y128,ilay:integer;
     m_t:PMapType;
 begin
@@ -3048,7 +3045,6 @@ begin
        bm.Clear(Color32(clSilver) xor $00000000);
        if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom))
         then begin
-             path:=m_t.GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
               if not(m_t.LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true))
                then bm.Clear(Color32(clSilver) xor $00000000);
              end
@@ -3083,7 +3079,6 @@ begin
          bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
          if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
             and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
-          path:=MapType[iLay].GetTileFileName(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom);
           MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true);
          end;
          Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
@@ -3526,7 +3521,8 @@ begin
  s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
-        if AMapType.TileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size) then DelFile(s);
+        if AMapType.TileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size) then
+          AMapType.DeleteTile(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
         generate_im(nilLastLoad,'');
        end;
        
@@ -4673,7 +4669,7 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var PWL:TResObj;
     posB:TPoint;
-    stw,path:String;
+    stw:String;
 begin
  if (layer=LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
@@ -4682,7 +4678,7 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
-   DelFile(sat_map_both.GetTileFileName(Pos.x-(mWd2-X),Pos.y-(mHd2-y),zoom_size));
+   sat_map_both.DeleteTile(Pos.x-(mWd2-X),Pos.y-(mHd2-y),zoom_size);
    generate_im(nilLastLoad,'');
    exit;
   end;
@@ -4690,7 +4686,6 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
-   path:=sat_map_both.GetTileFileName(Pos.x-(mWd2-x),Pos.y-(mHd2-y),zoom_size);
     with ThreadAllLoadMap.Create(False,[Point(pos.x-(mWd2-x),pos.y-(mHd2-y))],1,true,false,false,true,zoom_size,sat_map_both,date) do
      begin
       FreeOnTerminate:=true;

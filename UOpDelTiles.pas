@@ -13,7 +13,7 @@ type
   private
     Fprogress: TFprogress2;
     TileInProc:integer;
-    path:string;
+    Fx, Fy: Integer;
   protected
     procedure DeleteTiles;
     procedure SetProgressForm;
@@ -83,7 +83,7 @@ end;
 
 procedure TOpDelTiles.DelTileOp;
 begin
- DelFile(path);
+  typemap.DeleteTile(fx, fy, Zoom)
 end;
 
 procedure TOpDelTiles.DeleteTiles;
@@ -100,8 +100,9 @@ begin
               inc(J,256);
               CONTINUE;
              end;
-     path:=typemap.GetTileFileName(i,j,zoom);
      if typemap.TileExists(i,j,zoom) then begin
+                               Fx := i;
+                               FY := j;
                                Synchronize(DelTileOp);
                                inc(TileInProc);
                               end;
@@ -113,4 +114,3 @@ begin
 end;
 
 end.
- 

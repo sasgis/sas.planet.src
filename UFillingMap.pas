@@ -148,6 +148,7 @@ begin
               inc(jxT);
               continue;
             end;
+            //TODO: ¬еро€тно придетс€ отказатьс€ от такой оптимизации и позволить карте делать все самой.
             VTileFileName := VMapType.GetTileFileName(xx,yy,zoom_mapzap);
             VCurrFolderName := ExtractFilePath(VTileFileName);
             if VCurrFolderName=VPrevFolderName then begin

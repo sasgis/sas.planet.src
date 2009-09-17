@@ -104,7 +104,6 @@ end;
 procedure UniLoadTile(var bmp:TBitmap32; path:string; TypeMapArr:PmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
 var bmp322:TBitmap32;
     png:TPngObject;
-    pathfrom:string;
 begin
  bmp322:=TBitmap32.Create;
  bmp322.DrawMode:=dmBlend;
@@ -131,7 +130,6 @@ begin
             end;
             if MapTypeMerS.projection<>TypeMapArr.projection then
              begin
-              pathfrom:=TypeMapArr.GetTileFileName(p_h.x,p_h.y+256,zoom+1);
               try
                if TypeMapArr.ext='.png' then
                 begin
@@ -309,12 +307,14 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
+//TODO: Разобраться и избавиться от путей.
             pathfrom:=TypeMapArr[0].GetTileFileName(p_h.x,p_h.y,i+1);
             if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
             bmp322.SaveToFile('c:\123.bmp');
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
+//TODO: Разобраться и избавиться от путей.
           pathfrom:=TypeMapArr[j].GetTileFileName(p_h.x,p_h.y,i+1);
           if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
@@ -507,6 +507,7 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
+//TODO: Разобраться и избавиться от путей.
           pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
           if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
            begin
@@ -515,6 +516,7 @@ begin
                            Zip.FilesList.Add(pathfrom);
                           end
                      else begin
+//TODO: Разобраться и избавиться от путей.
                            pathto:=PATH+AMapType.GetTileFileName(p_x,p_y,i+1);
                            Fmain.createdirif(pathto);
                            Copy_File(Pchar(pathfrom),PChar(pathto),not(replace));
@@ -562,6 +564,7 @@ var xym256lt,xym256rb:TPoint;
     i,nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
 begin
+  //TODO: Нужно думать на случай когда тайлы будут в базе данных
   savepath:=TypeMapArr[0].GetTileFileName(x,y,z);
   if (Replace)and(not(TypeMapArr[0].TileExists(x,y,z))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);

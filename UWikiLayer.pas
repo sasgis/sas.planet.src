@@ -103,6 +103,7 @@ begin
     if CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
+    //TODO: Нужно будет добавить в LoadTile загрузку TKML.
     path:=Alayer.GetTileFileName(Ax,Ay,Azoom);
     KML:=TKML.Create;
     if kml.loadFromFile(path) then
