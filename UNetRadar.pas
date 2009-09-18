@@ -53,7 +53,6 @@ type
   public
    constructor create(CrSusp:Boolean;ATreeView:Pointer; AMemoObjectInfo:TMemo);
    destructor destroy; override;
-   //  procedure GetFromServer;
    procedure DrawLayer;
    procedure PopUpGoHim(Sender: TObject);
    procedure SetGoHim(Sender: TObject);
@@ -100,7 +99,6 @@ begin
      DSObject.fieldByName('GoHim').AsInteger:=-1;
      DSObject.ApplyRange;
      DSObject.ApplyUpdates(0);
-//     Fmain.topos(DSObject.FieldByName('lat').AsFloat,DSObject.FieldByName('lon').AsFloat,zoom_size,false);
     end;
   end;
 end;
@@ -174,9 +172,6 @@ end;
 
 destructor TNetRadar.destroy;
 begin
-// Synchronize(ClearBtmp);
- //terminate;
- //WaitFor;
  LayerMap.Free;
  inherited ;
 end;
@@ -255,8 +250,6 @@ begin
     db.Execute('CREATE TABLE track('+
                               '"ID" INTEGER PRIMARY KEY,' + #13#10 +
                               '"ObjectID" FLOAT,' + #13#10 +
-//                              '"info" TEXT,' + #13#10 +
-//                              '"LonLatArr" BLOB,' + #13#10 +
                               '"visible" FLOAT,' + #13#10 +
                               '"LatT" FLOAT,' + #13#10 +
                               '"LatB" FLOAT,' + #13#10 +
@@ -288,7 +281,6 @@ begin
  UDTrack.SelectSQL:='SELECT TRIM(ID) as ID,ObjectID,visible,LatT,LatB,LonL,LonR FROM track';
  UDTrack.InsertSQL:='insert into track (ObjectID,visible,LatT,LatB,LonL,LonR) values (:ObjectID,:visible,:LatT,:LatB,:LonL,:LonR)';
  UDTrack.ModifySQL:='update track set ObjectID=:ObjectID,visible=:visible,LatT=:LatT,LatB=:LatB,LonL=:LonL,LonR=:LonR';
-// UDTrack.DeleteSQL :='delete from track where id=:ID;';
  UDTrackID:=TDISQLite3UniDirQuery.Create(nil);
  UDTrackID.Database:=db;
  UDTrackID.SelectSQL:='SELECT ID,ObjectID FROM track';
@@ -330,11 +322,7 @@ begin
  DSstopover:=TClientDataSet.Create(nil);
  DSstopover.SetProvider(DSPstopover);
  DSstopover.Open;
-// Synchronize(DrawTree);
-// Synchronize(DrawLayer);
  inherited Create(CrSusp);
- //GetFromServer;
-// new:=false;
 end;
 
 procedure TNetRadar.drawPath(pathll:array of TExtendedPoint;color1:TColor32;linew:integer);
@@ -392,7 +380,6 @@ var lon_l,lon_r,lat_t,lat_d:real;
     btm:TBitmap32;
     png:TPNGObject;
     TestArrLenP1,TestArrLenP2:TPoint;
-    //arrLL:PArrLL;
     buf_line_arr:array of TExtendedPoint;
     ms:TMemoryStream;
     indexmi:integer;
@@ -404,7 +391,6 @@ begin
  lat_t:=Fmain.Y2Lat(-(pr_y-mHd2));
  lat_d:=Fmain.Y2Lat(pr_y+mHd2);
  marksFilter:='';
-// CDSmarks.Filtered:=false;
  if show_point=2 then
   begin
    DSCategory.Filter:='visible = 1 and ( ShowAfterScale <= '+inttostr(zoom_size)+' and ShowBeforeScale >= '+inttostr(zoom_size)+' )';
@@ -450,7 +436,6 @@ begin
       begin
        DSTrPoint.Filter:='TrackID='+DSTrack.fieldByname('ID').AsString;
        DSTrPoint.Filtered:=true;
-       //if DSTrPoint.RecordCount>1 then
        While not(DSTrPoint.Eof) do
         begin
           SetLength(buf_line_arr,length(buf_line_arr)+1);
@@ -505,7 +490,7 @@ begin
   begin
    next:=false;
    ms:=TMemoryStream.Create;
-   TBlobField(DSObject.fieldByName('img')).SaveToStream(ms);// GetFromObject(Stmt,3).asStream;
+   TBlobField(DSObject.fieldByName('img')).SaveToStream(ms);
    ms.Position:=0;
    png:=TPNGObject.Create;
    png.LoadFromStream(ms);
@@ -564,7 +549,6 @@ begin
    nodeTr:=TTreeView(TreeView).items.AddChild(nodeB,'Треки');
    nodeTr.ImageIndex:=-1;
    nodeTr.SelectedIndex:=-1;
-//   nodeTr.StateIndex:=2;
    if DSObject.fieldByName('trvisible').asInteger=0 then nodeTr.StateIndex:=1
                                                     else nodeTr.StateIndex:=2;
    nodeTr.Data:=GetMemory(4);

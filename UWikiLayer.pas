@@ -15,7 +15,6 @@ var WikiLayer:array of TWikiLayer;
 
 
     old_x,old_y:integer;
-    kml:TKML;
     procedure destroyWL;
     procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
     procedure loadWL(Alayer:PMapType);
@@ -66,7 +65,6 @@ begin
        PWL.S:=PolygonSquare(Wikilayer[i].AarrKt);
        PWL.name:=Wikilayer[i].name_blok;
        PWL.descr:=Wikilayer[i].description;
-      // PWL.descr:=PWL.descr+#13#10+SAS_STR_S+': '+RoundEx(CalcS( ,sat_map_both),2)+' '+SAS_UNITS_m2; //Fmain.R2ShortStr(CalcS(poly,sat_map_both),4,' '+SAS_UNITS_km+'.',' '+SAS_UNITS_m);
        PWL.numid:=Wikilayer[i].num_blok;
        PWL.find:=true;
       end
@@ -83,18 +81,15 @@ begin
   end;
  SetLength(WikiLayer,0);
  LayerMapWiki.Visible:=false;
-// LayerMapWiki.Bitmap.Clear(clBlack);
 end;
 
 procedure loadWL(Alayer:PMapType);
 var path:string;
     Ax,Ay,i,j,ii,Azoom:integer;
     APos:TPoint;
-    AmapType:TMapType;
+    kml:TKML;
 begin
  LayerMapWiki.Visible:=true;
- AmapType:=TmapType.Create;
- AmapType.projection:=1;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
@@ -111,7 +106,6 @@ begin
       addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
     KML.Free;
    end;
- AmapType.Free;
 end;
 
 procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
@@ -172,7 +166,6 @@ begin
     begin
      AarrKt[i].X:=Fmain.Lon2X(coordinates[i].X)+(pr_x-mWd2);
      AarrKt[i].Y:=Fmain.Lat2Y(coordinates[i].Y)+(pr_y-mHd2);
-     //Polyg.Add(FixedPoint(WikiLayer[lenLay-1].AarrKt[i].X+(pr_x-mWd2),WikiLayer[lenLay-1].AarrKt[i].Y+(pr_y-mHd2)));
     end;
      LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
      LayerMapWiki.Bitmap.Canvas.Pen.Color:=Wikim_set.FonColor;
@@ -183,12 +176,6 @@ begin
      if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
                               else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
   end;
-{ Outli := Polyg.Outline.Grow(Fixed(1.5), 0.5);
- Outli.FillMode := pfWinding;
- Outli.DrawFill(LayerMapWiki.Bitmap, SetAlpha(clBlack32, 110)); //WikiLayer[lenLay-1].Bitmap.Canvas.Polyline(WikiLayer[lenLay-1].AarrKt);
-{ Outli := Polyg.Outline.Grow(Fixed(0.6), 0.5);
- Outli.DrawFill(LayerMapWiki.Bitmap, SetAlpha(clWhite32, 255)); //WikiLayer[lenLay-1].Bitmap.Canvas.Polyline(WikiLayer[lenLay-1].AarrKt);
- Outli.Free;}
 end;
 
 end.

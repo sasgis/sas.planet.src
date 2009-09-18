@@ -173,7 +173,7 @@ begin
     jcprops.DIBChannels := iNChannels;
     jcprops.DIBColor := IJL_RGBA_FPX;
     jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
-    jcprops.DIBBytes := PByte(Btm.Bits);// PByte(DIB.dsBm.bmBits);
+    jcprops.DIBBytes := PByte(Btm.Bits);
     if (jcprops.JPGChannels = 3) then
       jcprops.JPGColor := IJL_YCBCR
     else if (jcprops.JPGChannels = 4) then

@@ -59,7 +59,6 @@ const Roman: array[1..36] of string[6] = ('I','II','III','IV','V','VI','VII','VI
              'XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI');
 
 var Lon,Lat:int64;
-    p:integer;
  function GetNameAtom(divr,modl:integer):integer;
  begin
   result:=((Lon div round(6/divr*prec))mod modl)+(abs(integer(LL.Y>0)*(modl-1)-((Lat div round(4/divr*prec))mod modl)))*modl;
@@ -80,7 +79,6 @@ end;
 
 function CalcS(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
 var L,i:integer;
-    XYMetr:TExtendedPoint;
 begin
  result:=0;
  l:=length(polygon);
@@ -104,7 +102,7 @@ end;
 procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:PMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
 var FN,FE:integer;
-    k0,E1,N1,E2,N2,f:double;
+    k0,E1,N1,E2,N2:double;
 begin
  case Units of
   ECW_CELL_UNITS_METERS:
@@ -124,7 +122,6 @@ begin
   OriginX:=E1;
   OriginY:=N1;
 
-//  CellIncrementX:= 1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(ll.y*deg)))
   CellIncrementX:=(E2-E1)/ImageWidth;
   CellIncrementY:=(N2-N1)/ImageHeight;
   end;
@@ -179,10 +176,8 @@ function RoundEx(chislo: extended; Precision: Integer): string;
 var ChisloInStr: string;
     ChisloInCurr: extended;
 begin
-//  ChisloInCurr:=(Round(chislo*(10*Precision))/(10*Precision));
   ChisloInCurr := chislo;
   Str(ChisloInCurr: 20: Precision, ChisloInStr);
-//  ChisloInStr:=floattostr(ChisloInCurr);
   if System.Pos(',', ChisloInStr)>0 then
   ChisloInStr[System.Pos(',', ChisloInStr)] := '.';
   RoundEx := Trim(ChisloInStr);
@@ -276,7 +271,7 @@ begin
      end;
   2: begin
       if (XY.y>zoom[Azoom]/2)
-       then yy:=(zoom[Azoom])-XY.y//(zoom[Azoom] div 2) - (XY.y mod (zoom[Azoom] div 2))
+       then yy:=(zoom[Azoom])-XY.y
        else yy:=XY.y;
       result.Y:=((yy)-zoom[Azoom]/2)/-(zoom[Azoom]/(2*PI));
       result.Y:=(2*arctan(exp(result.Y))-PI/2)*180/PI;
@@ -292,8 +287,6 @@ begin
      end;
   3: begin
       result.y:=(-((XY.y)-zoom[Azoom]/2)/((zoom[Azoom]/2)/180));
-      //if result.Y<-85 then result.Y:=-85;
-      //if result.Y>85 then result.Y:=85;
      end;
  end;
 end;

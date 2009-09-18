@@ -61,7 +61,6 @@ type
     procedure GetSmb;
     procedure DwnInFon;
     procedure SaveTileNotExists;
-//    function OpenConnection(lpszServerName,lpszLogin,lpszPassword:string;port:Word):boolean;
   public
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
@@ -107,7 +106,6 @@ begin
    dwnb:=Ini.ReadFloat('Session','dwnb',0);
    SecondLoadTNE:=Ini.ReadBool('Session','SecondLoadTNE',false);
    mapsload:=false;
-   //FDate:=Now;
    if LastSuccessful then
          begin
           StartPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
@@ -202,7 +200,6 @@ begin
    _FProgress.RProgr.Progress1:=obrab;
    _FProgress.RProgr.Progress2:=scachano;
   end;
-// _FProgress.Update;
 end;
 
 procedure ThreadAllLoadMap.UpdateMemoProgressForm;
@@ -240,7 +237,7 @@ begin
                     result:='~ Κα';
                     exit;
                  end;
-  Result:=Fmain.kb2KbMbGb((len/loaded)*(loadAll-obrab));//Fmain.kb2KbMbGb((len*(loadAll/load))-len);
+  Result:=Fmain.kb2KbMbGb((len/loaded)*(loadAll-obrab));
 end;
 
 function ThreadAllLoadMap.GetTimeEnd(loadAll,load:integer):String;
@@ -336,7 +333,6 @@ begin
    end;
   if AtypeRect in [2,3] then
    begin
-    //_FProgress:=TFProgress.Create(nil{fmain});
     Application.CreateForm(TFProgress, _FProgress);
     _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
     num_dwn:=Fsaveas.GetDwnlNum(min,max,poly,true);
@@ -357,7 +353,7 @@ var hFile:HInternet;
     BufferLen:LongWord;
     err:boolean;
     head:string;
-    dwindex,i, dwcodelen,dwReserv: dword;
+    dwindex, dwcodelen,dwReserv: dword;
     dwtype,dwlen: array [1..20] of char;
     len: pchar;
 begin
@@ -368,7 +364,6 @@ begin
   if Assigned(hSession)then
    begin
     hFile:=InternetOpenURL(hSession,PChar(AURL),PChar(head),length(head), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_NO_CACHE_WRITE or{INTERNET_FLAG_KEEP_CONNECTION or} INTERNET_FLAG_RELOAD,0);
-    err:=false;
     if Assigned(hFile)then
      begin
       dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -511,7 +506,6 @@ begin
      if MapType[ii].active then
      begin
       BPos:=UPos;
-      //typemap:=MapType[ii];
       BPos:=ConvertPosM2M(Upos,zoom_size,bSMP,@MapType[ii]);
       xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom_size);
       yy:=BPos.y-pr_y+(y shl 8);
@@ -586,8 +580,8 @@ begin
      if not(typeMap.TileExists(p_x,p_y,zoom))or(zamena) then
       begin
        FileBuf:=TMemoryStream.Create;
-       if typeMap.TileExists(p_x,p_y,zoom) then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'//_FProgress.Memo1.Lines.Add(SAS_STR_LoadProcessRepl+' ...')
-                           else AddToMemo:=SAS_STR_LoadProcess+'...';//_FProgress.Memo1.Lines.Add(SAS_STR_LoadProcess+'...');
+       if typeMap.TileExists(p_x,p_y,zoom) then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'
+                           else AddToMemo:=SAS_STR_LoadProcess+'...';
        Synchronize(UpdateMemoProgressForm);
        if (zDate)and(typeMap.TileExists(p_x,p_y,zoom))and(FileDateToDateTime(FileAge(path))>=FDate) then
         begin
@@ -599,7 +593,7 @@ begin
          continue;
         end;
 
-       razlen:=GetFileSize(path); ///
+       razlen:=GetFileSize(path);
 
        if (not(SecondLoadTNE))and(FileExists(copy(path,1,length(path)-3)+'tne'))
         then res:=-1
@@ -623,7 +617,7 @@ begin
             inc(obrab);
             FileBuf.Free;
             continue;
-          end;          ////
+          end;
        if res=-3 then
         begin
          AddToMemo:=SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...';
@@ -694,8 +688,6 @@ begin
 end;
 
 procedure ThreadAllLoadMap.Execute;
-var ms:TMemoryStream;
-    size:integer;
 begin
  if typeRect=1 then dwnOne;
  if typeRect in [2,3] then dwnReg;
@@ -793,7 +785,6 @@ begin
    Rewrite(F);
    Writeln(f,DateTimeToStr(now));
    CloseFile(f);
-   //FileCreate(copy(path,1,length(path)-3)+'tne');
   end;
 end;
 

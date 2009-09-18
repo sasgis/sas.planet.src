@@ -56,7 +56,6 @@ begin
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;
-var exct:extended;
 begin
   ll.x:=ll.x*D2R;
   ll.y:=ll.y*D2R;

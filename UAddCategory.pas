@@ -36,8 +36,6 @@ uses Unit1, DB;
 
 {$R *.dfm}
 procedure TFAddCategory.show_(new:boolean);
-var DMS:TDMS;
-    i:integer;
 begin
  new_:=new;
  EditName.Text:=SAS_STR_NewPoly;

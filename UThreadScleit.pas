@@ -39,7 +39,6 @@ type
     procedure SynShowMessage;
     procedure Execute; override;
     procedure saveRECT;
-    procedure SaveJPG;
   public
     constructor Create(CrSusp:Boolean;AFName:string; APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:PMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
   end;
@@ -264,25 +263,21 @@ var p_x,p_y,i,j,k,errecw:integer;
     scachano:integer;
     btm:TBitmap32;
     err,path,Fnamebuf:string;
-    //Tlbfull,TlbTile:TLinearBitmap;
     jpg:TJpegImage;
     Datum,Proj:string;
     CellIncrementX,CellIncrementY,OriginX,OriginY:extended;
     Tlbfull,TlbTile:TBitmap32;
     b:TBitmap;
     Units:CellSizeUnits;
-//    LineRGB:PLineRGBb;
     jcprops : TJPEG_CORE_PROPERTIES;
     iNChannels,iWidth,iHeight:integer;
 begin
  prCaption:='Ñךכוטעü: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
                        +inttostr((PolyMax.y-PolyMin.y-1) div 256+1)
                        +'('+inttostr(ProcessTiles)+') '+SAS_STR_files;
-// fprogress.Repaint;
  Synchronize(UpdateProgressFormCapt);
  prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(numTlg*numTlv)+' '+SAS_STR_files;
  Synchronize(UpdateProgressFormStr1);
-// fprogress.ProgrInfo1.Repaint;
 
  FProgress.ProgressBar1.Max:=0;
  for i:=1 to numTlg do
@@ -456,7 +451,6 @@ begin
     if jcprops.DIBBytes<>nil then
     for k:=0 to iHeight-1 do
      begin
-//       ReadLineBMP(self,k,Pointer((iHeight-k-1)*(iWidth*3+ (iWidth mod 4) )));
        ReadLineBMP(self,k,Pointer(integer(jcprops.DIBBytes)+(((iWidth*3+ (iWidth mod 4))*iHeight)-(iWidth*3+ (iWidth mod 4))*(k+1))));
        if not(Fprogress.Visible) then break;
      end
@@ -514,12 +508,6 @@ begin
   typemap:=Atypemap;
   Htypemap:=AHtypemap;
   colors:=Acolors;
-end;
-
-procedure ThreadScleit.SaveJPG;
-var btm:TBitmap32;
-begin
- btm:=TBitmap32.Create;
 end;
 
 procedure ThreadScleit.Execute;

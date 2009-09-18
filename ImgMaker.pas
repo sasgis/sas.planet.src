@@ -176,8 +176,7 @@ var LineCoord:TExtendedPoint;
     bitmap:Tbitmap;
     Jpeg2:TjpegImage;
     J_GE:Tpoint;
-    J_GM,LastPix:byte;
-    FillCount:byte;
+    J_GM:byte;
 begin
      result:=nil;
      if id1<>0 then
@@ -189,8 +188,6 @@ begin
        bitmap.Height:=256;
        UpXY.X:=UpXY.X*256;
        UpXY.Y:=UpXY.Y*256;
-       LastPix:=255;
-       FillCount:=0;
        for J_GM := 0 to 255 do
        begin
           LineCoord:=GPos2LonLat(UpXY,Level,@MT);
@@ -200,9 +197,7 @@ begin
           if J_GE.X<>0 then
            begin
               TRGBTripleArr(Bitmap.ScanLine[J_GM]^):=TRGBTripleArr(BMP_Bufer.BMPTile[J_GE.X].ScanLine[J_GE.Y]^);
-              inc(FillCount);
            end;
-          LastPix:=J_GE.Y;
           inc(UpXY.Y);
        end;
         result:=TMemoryStream.Create;
@@ -223,7 +218,7 @@ begin
 end;
 
 function GLonLat2Pos3(Point:TExtendedPoint;Level:byte):TPoint;
-var c:real;
+var
 i:longint;
 begin
   i:=zoom[Level];
@@ -239,7 +234,6 @@ abort:boolean;
 begin
    if ResTile=nil then ResTile:=TMemoryStream.Create;
    abort:=false;
-   id1:=0;
    id2:=0;
    UpXY.X:=X;
    UpXY.Y:=Y;
@@ -305,7 +299,6 @@ begin
   Orig_File_Size:=Mem_Orig.Size;
   keystart:=16;
   keylen:=$3f8;
-  i:=0;
   j:=16;
   for i:=0 to Orig_File_Size-1 do
   begin
@@ -415,9 +408,8 @@ end;
 function GEFindTileAdr(indexpath:string;x,y:integer;z:byte; var size:integer):integer;
 var ms:TMemoryStream;
     iblock:array [0..31] of byte;
-    i,name1,name2:integer;
-    XY:TPoint;
-    Tname,s,FindName:string;
+    name1,name2:integer;
+    Tname,FindName:string;
 begin
  result:=0;
  ms:=TMemoryStream.Create;

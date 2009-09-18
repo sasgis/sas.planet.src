@@ -52,7 +52,7 @@ implementation
 
 {$R *.dfm}
 function TFaddLine.show_(aLL:array of TExtendedPoint;new:boolean):boolean;
-var DMS:TDMS;
+var
     i:integer;
     namecatbuf:string;
 begin
@@ -131,7 +131,6 @@ begin
  Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
  close;
  ModalResult:=mrOk;
- //if aoper=add_line then Fmain.setalloperationfalse(movemap);
 end;
 
 procedure TFaddLine.Button2Click(Sender: TObject);

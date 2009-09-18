@@ -25,11 +25,8 @@ implementation
 
 procedure TFLogo.Image1Click(Sender: TObject);
 begin
-// if timer1.Enabled then
-//  begin
    FLogo.Close;
    timer1.Enabled:=false;
-//  end;
 end;
 
 procedure TFLogo.Timer1Timer(Sender: TObject);

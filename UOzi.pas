@@ -99,7 +99,6 @@ var AuxXmkfile:TMemoryStream;
     str:UTF8String;
 begin
  AuxXmkfile:=TMemoryStream.create;
-// str:=AnsiToUtf8('<?xml version="1.0" encoding="UTF-8" ?>'+#13#10);
  str:=AnsiToUtf8('<PAMDataset>'+#13#10+'<SRS>');
  case Atype.projection of
   1: str:=str+AnsiToUtf8('PROJCS["WGS_1984_Web_Mercator",GEOGCS["GCS_WGS_1984_Major_Auxiliary_Sphere",DATUM["WGS_1984_Major_Auxiliary_Sphere",SPHEROID["WGS_1984_Major_Auxiliary_Sphere",6378137.0,0.0]],PRIMEM["Greenwich",0.0],')+AnsiToUtf8('UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
@@ -178,7 +177,6 @@ begin
   1,2:CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
   3: CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_DEGREES);
  end;
- //CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
  assignfile(f,fname);
  rewrite(f);
  writeln(f,R2StrPoint(CellX));

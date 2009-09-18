@@ -156,7 +156,6 @@ begin
    KategoryId.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
    KategoryListBox.AddItem(Fmain.CDSKategory.fieldbyname('name').AsString,KategoryId);
    KategoryListBox.Checked[KategoryListBox.Items.IndexOfObject(KategoryId)]:=Fmain.CDSKategory.fieldbyname('visible').AsBoolean;
-   //KategoryId.Free;
    Fmain.CDSKategory.Next;
   end;
  SBNavOnMark.Down:=NavOnMark<>nil;
@@ -167,7 +166,6 @@ procedure TFMarksExplorer.KategoryListBoxMouseUp(Sender: TObject;
 var MarkId:TMarkId;
     i:integer;
     items:TStringList;
-    ch:array of boolean;
 begin
  if KategoryListBox.ItemIndex<0 then exit;
  Fmain.CDSmarks.Filtered:=false;
@@ -291,7 +289,6 @@ end;
 
 procedure GoToMark(id:integer;zoom:byte);
 var ms:TMemoryStream;
-    //arrLL:TExtendedPoint;
     LL:TExtendedPoint;
     arrLL:PArrLL;
 begin
@@ -351,7 +348,6 @@ procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
 begin
  if MarksListBox.ItemIndex>=0 then
   begin
-  // close;
    GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,zoom_size);
   end;
 end;

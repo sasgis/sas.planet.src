@@ -40,7 +40,6 @@ type
     info:string;
     showinfo:boolean;
     ShowOnSmMap:boolean;
-    //ShowOnFillingMap:boolean;
     asLayer:boolean;
     name: string;
     Icon24Name,Icon18Name:string;
@@ -77,6 +76,8 @@ type
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
+  private
+    function LoadFile(btm:Tobject; path: string; caching:boolean):boolean;
   end;
 var
   MapType:array of TMapType;
@@ -169,7 +170,6 @@ begin
    TBFillingItem.Caption:=name;
    TBFillingItem.OnAdjustFont:=Fmain.AdjustFont;
    TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
-   //if ShowOnFillingMap then TBFillingItem.Checked:=true;
    Fmain.TBFillingTypeMap.Add(TBFillingItem);
 
    if ext<>'.kml' then
@@ -216,7 +216,6 @@ begin
     end;
    if (active)and(MapType[i].asLayer=false) then sat_map_both:=@MapType[i];
    if (ShowOnSmMap)and(not(asLayer)) then sm_map.maptype:=@MapType[i];
-   //if ShowOnFillingMap then fillingmaptype:=@MapType[i];
    TBItem.Tag:=Longint(@MapType[i]);
    TBFillingItem.Tag:=Longint(@MapType[i]);
    if ext<>'.kml' then NSmItem.Tag:=Longint(@MapType[i]);
@@ -270,7 +269,6 @@ begin
            id:=Ini.ReadInteger(GUIDs,'pnum',0);
            active:=ini.ReadBool(GUIDs,'active',false);
            ShowOnSmMap:=ini.ReadBool(GUIDs,'ShowOnSmMap',true);
-           //ShowOnFillingMap:=ini.ReadBool(GUIDs,'ShowOnFillingMap',false);
            URLBase:=ini.ReadString(GUIDs,'URLBase',URLBase);
            CacheType:=ini.ReadInteger(GUIDs,'CacheType',cachetype);
            NameInCache:=ini.ReadString(GUIDs,'NameInCache',NameInCache);
@@ -326,7 +324,6 @@ begin
          ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
          ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
          ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
-         //ini.WriteBool(MapType[i].guids,'ShowOnFillingMap',MapType[i].ShowOnFillingMap);
          if MapType[i].URLBase<>MapType[i].DefURLBase then
           ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase)
           else Ini.DeleteKey(MapType[i].guids,'URLBase');
@@ -355,7 +352,6 @@ end;
 
 procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
 var
-//  KaZip:TKaZip;
   MapParams:TMemoryStream;
   AZipFile:TFileStream;
   ParamsTempFile : String;
@@ -373,16 +369,12 @@ begin
     raise Exception.Create('Файл ' + AZipFileName + ' не найден');
   end;
   filename := AZipFileName;
-  //KaZip:=TKaZip.Create(nil);
   UnZip:=TVCLZip.Create(nil);
   try
     AZipFile:=TFileStream.Create(AZipFileName,fmOpenRead or fmShareDenyNone);
-    //KaZip.Open(AZipFile);
     UnZip.ZipName:=AZipFileName;
     MapParams:=TMemoryStream.Create;
     try
-//      KaZip.ExtractToStream(KaZip.Entries.Items[KaZip.Entries.IndexOf('params.txt')],MapParams);
-//      UnZip.UnZipToStream(MapParams,'params.txt');
       UnZip.UnZip;
       UnZip.UnZipToStream(MapParams,'params.txt');
       ParamsTempFile := c_GetTempPath+'params.~txt';
@@ -411,7 +403,6 @@ begin
 
       MapParams:=TMemoryStream.Create;
       try
-        //KaZip.ExtractToStream(KaZip.Entries.Items[KaZip.Entries.IndexOf('GetUrlScript.txt')],MapParams);
         UnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
         MapParams.Position:=0;
         repeat
@@ -425,7 +416,6 @@ begin
       MapParams:=TMemoryStream.Create;
       try
         try
-         // KaZip.ExtractToStream(KaZip.Entries.Items[KaZip.Entries.IndexOf('24.bmp')],MapParams);
           UnZip.UnZipToStream(MapParams,'24.bmp');
           MapParams.Position:=0;
           bmp24.LoadFromStream(MapParams);
@@ -439,7 +429,6 @@ begin
       MapParams:=TMemoryStream.Create;
       try
         try
-         // KaZip.ExtractToStream(KaZip.Entries.Items[KaZip.Entries.IndexOf('18.bmp')],MapParams);
           UnZip.UnZipToStream(MapParams,'18.bmp');
           MapParams.Position:=0;
           bmp18.LoadFromStream(MapParams);
@@ -712,7 +701,7 @@ begin
     jcprops.DIBChannels := iNChannels;
     jcprops.DIBColor := IJL_RGBA_FPX;
     jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
-    jcprops.DIBBytes := PByte(Btm.Bits);// PByte(DIB.dsBm.bmBits);
+    jcprops.DIBBytes := PByte(Btm.Bits);
     if (jcprops.JPGChannels = 3) then
       jcprops.JPGColor := IJL_YCBCR
     else if (jcprops.JPGChannels = 4) then
@@ -747,8 +736,25 @@ function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
 var
   path: string;
 begin
-  result:=false;
   path := GetTileFileName(x, y, Azoom);
+  result:= LoadFile(btm, path, caching);
+end;
+
+function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
+var
+  VPath: string;
+begin
+  try
+    VPath := GetTileFileName(x, y, Azoom);
+    result:=DeleteFile(PChar(VPath));
+  except
+    Result := false;
+  end;
+end;
+
+function TMapType.LoadFile(btm: Tobject; path: string; caching:boolean): boolean;
+begin
+  Result := false;
   if GetFileSize(path)=0 then begin
     exit;
   end;
@@ -789,18 +795,6 @@ begin
     end;
     result:=true;
   except
-  end;
-end;
-
-function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
-var
-  VPath: string;
-begin
-  try
-    VPath := GetTileFileName(x, y, Azoom);
-    result:=DeleteFile(PChar(VPath));
-  except
-    Result := false;
   end;
 end;
 

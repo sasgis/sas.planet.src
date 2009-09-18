@@ -207,7 +207,6 @@ begin
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
  bmp32.DrawMode:=dmBlend;
-// bmp32.DrawMode:=dmTransparent;
  bmp322:=TBitmap32.Create;
  bmp322.DrawMode:=dmBlend;
 
@@ -402,7 +401,7 @@ end;
 
 procedure ThreadExport.savefilesREG(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
-    num_dwn,scachano,obrab:integer;
+    num_dwn,obrab:integer;
     polyg:array of TPoint;
     pathfrom,pathto,persl,perzoom,kti,datestr:string;
     max,min:TPoint;
@@ -440,12 +439,6 @@ begin
                 Zip.StorePaths := true; // Путь не сохраняем
                 Zip.PackLevel := 0; // Уровень сжатия
                 Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-                //Zip.ZipComment:='Дата создания: '+DateTimeToStr(now);
-                               // 'Количество карт: '+inttostr(length(TypeMapArr))+#13#10+
-                                //'Типы карт: '+persl+#13#10+
-                                //'Масштабы: '+perzoom+#13#10+
-                                //'Граничные координаты: '+kti+#13#10+
-                                //'Тип кэша: '+CacheTypeStr[format];
                end
           else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
@@ -453,7 +446,6 @@ begin
  FProgress.ProgressBar1.Max:=100;
  FProgress.ProgressBar1.Progress1:=0;
  obrab:=0;
- scachano:=0;
  for i:=0 to 23 do //по масштабу
   if zoomarr[i] then
    for j:=0 to length(TypeMapArr)-1 do //по типу
@@ -483,7 +475,6 @@ begin
           pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
           if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
            begin
-            inc(scachano);
             if ziped then begin
                            Zip.FilesList.Add(pathfrom);
                           end
@@ -524,7 +515,7 @@ end;
 
 procedure ThreadExport.Export2KML(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
-    num_dwn,scachano,obrab:integer;
+    num_dwn,obrab:integer;
     polyg:array of TPoint;
     persl,perzoom,kti,ToFile,datestr:string;
     max,min:TPoint;
@@ -607,12 +598,6 @@ begin
                 Zip.StorePaths := true; // Путь не сохраняем
                 Zip.PackLevel := 0; // Уровень сжатия
                 Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-                //Zip.ZipComment:='Дата создания: '+DateTimeToStr(now);
-                               // 'Количество карт: '+inttostr(length(TypeMapArr))+#13#10+
-                                //'Типы карт: '+persl+#13#10+
-                                //'Масштабы: '+perzoom+#13#10+
-                                //'Граничные координаты: '+kti+#13#10+
-                                //'Тип кэша: '+CacheTypeStr[format];
                end
           else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
@@ -620,7 +605,6 @@ begin
  FProgress.ProgressBar1.Max:=100;
  FProgress.ProgressBar1.Progress1:=0;
  obrab:=0;
- scachano:=0;
  i:=0;
  AssignFile(KMLFile,path);
  Rewrite(KMLFile);

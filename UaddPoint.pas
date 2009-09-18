@@ -125,15 +125,12 @@ begin
 end;
 
 procedure TFaddPoint.BaddClick(Sender: TObject);
-var //Apos:TPoint;
+var
     ms:TMemoryStream;
-    All{,alltl,allbr}:TExtendedPoint;
+    All:TExtendedPoint;
 begin
  ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
-// APos:=GLonLat2Pos(ALL,zoom_size,sat_map_both);
-// alltl:=GPos2LonLat(Point(APos.x-(SpinEdit2.Value div 2),APos.y-SpinEdit2.Value),zoom_size,sat_map_both);
-// allbr:=GPos2LonLat(Point(APos.x+(SpinEdit2.Value div 2),APos.y),zoom_size,sat_map_both);
 
  if new_ then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;
@@ -190,9 +187,7 @@ end;
 
 procedure TFaddPoint.ComboBox1DrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var Bitmap,Bitmap2: TBitmap32;
-    Offset: Integer;
 begin
-   offset := 0;
    with ComboBox1.Canvas do
    begin
      FillRect(Rect);
@@ -209,7 +204,6 @@ begin
      begin
       CopyRect(Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
                Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
-      Offset := Bitmap.Width + 8;
       Bitmap.Free;
      end;
      Bitmap2.Free;

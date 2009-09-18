@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -166,7 +167,6 @@ object Fmain: TFmain
         object TBEditItem2: TTBEditItem
           EditCaption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
           Visible = False
-          OnAcceptText = TBEditItem2AcceptText
           Caption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
           Hint = ''
           EditCaption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
@@ -1765,7 +1765,6 @@ object Fmain: TFmain
         Caption = 'C'
         Flat = True
         Visible = False
-        OnClick = SpeedButton1Click
       end
       object TreeView1: TTreeView
         Left = 7

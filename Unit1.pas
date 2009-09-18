@@ -384,7 +384,6 @@ type
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure N35Click(Sender: TObject);
-    procedure TBEditItem2AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBItemDelTrackClick(Sender: TObject);
     procedure NGShScale01Click(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
@@ -404,7 +403,6 @@ type
     procedure NMarksCalcsLenClick(Sender: TObject);
     procedure NMarksCalcsSqClick(Sender: TObject);
     procedure NMarksCalcsPerClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure TBEditPathOkClick(Sender: TObject);
     procedure TBItem1Click(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
@@ -2970,7 +2968,6 @@ end;
 procedure TFmain.zooming(x:byte;move:boolean);
 var w,i,steps:integer;
     w1:extended;
-    Posll:TExtendedPoint;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -3442,7 +3439,6 @@ begin
 
         strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=';
         hFile:=InternetOpenUrl(hSession,PChar(strr),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3825,8 +3821,6 @@ var par,ty:string;
     Buffer:array [1..64535] of char;
     BufferLen:LongWord;
     hSession,hFile:Pointer;
-    qn,qd:string;
-    l:cardinal;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
 begin
@@ -3834,7 +3828,6 @@ begin
  if Assigned(hSession)
   then begin
         hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3895,7 +3888,6 @@ begin
   then begin
         hFile:=InternetOpenURL(hSession,PChar('http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(NewText))),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
         dwcodelen:=SizeOf(dwindex);
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -4652,13 +4644,6 @@ if SaveLink.Execute then
  end;
 end;
 
-procedure TFmain.TBEditItem2AcceptText(Sender: TObject;
-  var NewText: String; var Accept: Boolean);
-var SearchBM:TSearchBM;
-begin
-SearchBM:=TSearchBM.Create;
-end;
-
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
  setlength(GPS_arr_speed,0);
@@ -4940,10 +4925,6 @@ end;
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 begin
  MessageBox(Handle,pchar(SAS_STR_P+' - '+R2ShortStr(GetMarkLength(strtoint(PWL.numid)),2)),pchar(PWL.name),0);
-end;
-
-procedure TFmain.SpeedButton1Click(Sender: TObject);
-begin
 end;
 
 procedure TFmain.TBEditPathOkClick(Sender: TObject);
