@@ -74,10 +74,19 @@ type
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     function GetTileFileName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
+    function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
+    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
+    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
+    procedure SaveTileNotExists(x,y:longint;Azoom:byte);
+    function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
+    function TileSize(x,y:longint;Azoom:byte): integer;
   private
-    function LoadFile(btm:Tobject; path: string; caching:boolean):boolean;
+    err: string;
+    function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
+    procedure CreateDirIfNotExists(APath:string);
+    procedure SaveTileInCache(btm:TObject;path:string);
   end;
 var
   MapType:array of TMapType;
@@ -92,7 +101,10 @@ uses
   pngimage,
   IJL,
   jpeg,
+  RxGIF,
   GR32,
+  GR32_Resamplers,
+  VCLUnZip,
   Usettings,
   unit1,
   UGeoFun,
@@ -752,50 +764,224 @@ begin
   end;
 end;
 
-function TMapType.LoadFile(btm: Tobject; path: string; caching:boolean): boolean;
+function TMapType.LoadFile(btm: Tobject; APath: string; caching:boolean): boolean;
 begin
   Result := false;
-  if GetFileSize(path)=0 then begin
+  if GetFileSize(Apath)=0 then begin
     exit;
   end;
   try
     if (btm is TBitmap32) then begin
       if not(caching) then begin
-        if ExtractFileExt(path)='.jpg' then begin
-          if not(LoadJPG32(path,TBitmap32(btm))) then begin
+        if ExtractFileExt(Apath)='.jpg' then begin
+          if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
             result:=false;
             exit;
           end;
         end else begin
-          TBitmap32(btm).LoadFromFile(path);
+          TBitmap32(btm).LoadFromFile(Apath);
         end;
         result:=true;
       end else begin
-        if not MainFileCache.TryLoadFileFromCache(btm, path) then begin
-          if ExtractFileExt(path)='.jpg' then begin
-            if not(LoadJPG32(path,TBitmap32(btm))) then begin
+        if not MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
+          if ExtractFileExt(Apath)='.jpg' then begin
+            if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
               result:=false;
               exit;
             end
           end else begin
-            TBitmap32(btm).LoadFromFile(path);
+            TBitmap32(btm).LoadFromFile(Apath);
           end;
-          MainFileCache.AddTileToCache(btm, path);
+          MainFileCache.AddTileToCache(btm, Apath);
         end;
       end;
     end else begin
       if (btm is TGraphic) then
-        TGraphic(btm).LoadFromFile(path)
+        TGraphic(btm).LoadFromFile(Apath)
       else if (btm is TPicture) then
-        TPicture(btm).LoadFromFile(path)
+        TPicture(btm).LoadFromFile(Apath)
       else if (btm is TJPEGimage) then
-        TJPEGimage(btm).LoadFromFile(path)
+        TJPEGimage(btm).LoadFromFile(Apath)
       else if (btm is TPNGObject) then
-        TPNGObject(btm).LoadFromFile(path);
+        TPNGObject(btm).LoadFromFile(Apath);
     end;
     result:=true;
   except
   end;
+end;
+
+function TMapType.TileNotExistsOnServer(x, y: Integer;
+  Azoom: byte): Boolean;
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  Result := Fileexists(copy(VPath,1,length(VPath)-3)+'tne');
+end;
+
+procedure TMapType.CreateDirIfNotExists(APath:string);
+var i:integer;
+begin
+ i := LastDelimiter('\', Apath);
+ Apath:=copy(Apath, 1, i);
+ if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
+end;
+
+
+procedure TMapType.SaveTileDownload(x, y: Integer; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+var
+  VPath: String;
+    jpg:TJPEGImage;
+    btm:TBitmap;
+    png:TBitmap32;
+    btmSrc:TBitmap32;
+    btmDest:TBitmap32;
+    UnZip:TVCLUnZip;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  CreateDirIfNotExists(VPath);
+  DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
+  if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(ext='.kml')then begin
+    try
+      UnZip:=TVCLUnZip.Create(Fmain);
+      UnZip.ArchiveStream:=TMemoryStream.Create;
+      ATileStream.SaveToStream(UnZip.ArchiveStream);
+      UnZip.ReadZip;
+      ATileStream.Position:=0;
+      UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+      UnZip.Free;
+      SaveTileInCache(ATileStream,Vpath);
+      ban_pg_ld:=true;
+    except
+      try
+        SaveTileInCache(ATileStream,Vpath);
+      except
+        err:=SAS_ERR_BadFile;
+      end;
+    end;
+  end;
+
+  SaveTileInCache(ATileStream,Vpath);
+  if (TileRect.Left<>0)or(TileRect.Top<>0)or
+    (TileRect.Right<>0)or(TileRect.Bottom<>0) then begin
+    btmsrc:=TBitmap32.Create;
+    btmDest:=TBitmap32.Create;
+    try
+      btmSrc.Resampler:=TLinearResampler.Create;
+      if LoadFile(btmsrc,Vpath,false) then begin
+        btmDest.SetSize(256,256);
+        btmdest.Draw(bounds(0,0,256,256),TileRect,btmSrc);
+        SaveTileInCache(btmDest,Vpath);
+      end;
+    except
+    end;
+    btmSrc.Free;
+    btmDest.Free;
+  end;
+
+  ban_pg_ld:=true;
+  if (ty='image/png')and(ext='.jpg') then begin
+    btm:=TBitmap.Create;
+    png:=TBitmap32.Create;
+    jpg:=TJPEGImage.Create;
+    RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
+    if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
+      btm.Assign(png);
+      jpg.Assign(btm);
+      SaveTileInCache(jpg,Vpath);
+      DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
+      btm.Free;
+      jpg.Free;
+      png.Free;
+    end;
+  end;
+end;
+
+procedure TMapType.SaveTileInCache(btm:TObject;path:string);
+var
+    Jpg_ex:TJpegImage;
+    png_ex:TPNGObject;
+    Gif_ex:TGIFImage;
+    btm_ex:TBitmap;
+begin
+ if (btm is TBitmap32) then
+  begin
+   btm_ex:=TBitmap.Create;
+   btm_ex.Assign(btm as TBitmap32);
+   if UpperCase(ExtractFileExt(path))='.JPG' then
+    begin
+     Jpg_ex:=TJpegImage.Create;
+     Jpg_ex.CompressionQuality:=85;
+     Jpg_ex.Assign(btm_ex);
+     Jpg_ex.SaveToFile(path);
+     Jpg_ex.Free;
+    end;
+   if UpperCase(ExtractFileExt(path))='.GIF' then
+    begin
+     Gif_ex:=TGifImage.Create;
+     Gif_ex.Assign(btm_ex);
+     Gif_ex.SaveToFile(path);
+     Gif_ex.Free;
+    end;
+   if UpperCase(ExtractFileExt(path))='.PNG' then
+    begin
+     PNG_ex:=TPNGObject.Create;
+     PNG_ex.Assign(btm_ex);
+     PNG_ex.SaveToFile(path);
+     PNG_ex.Free;
+    end;
+   if UpperCase(ExtractFileExt(path))='.BMP' then btm_ex.SaveToFile(path);
+   btm_ex.Free;
+  end;
+ if (btm is TJPEGimage) then TJPEGimage(btm).SaveToFile(path) else
+ if (btm is TPNGObject) then TPNGObject(btm).SaveToFile(path) else
+ if (btm is TMemoryStream) then TMemoryStream(btm).SaveToFile(path) else
+ if (btm is TPicture) then TPicture(btm).SaveToFile(path);
+end;
+
+
+function TMapType.TileLoadDate(x, y: Integer; Azoom: byte): TDateTime;
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  Result := FileDateToDateTime(FileAge(VPath));
+end;
+
+function TMapType.TileSize(x, y: Integer; Azoom: byte): integer;
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  Result := GetFileSize(VPath);
+end;
+
+procedure TMapType.SaveTileNotExists(x, y: Integer; Azoom: byte);
+var
+  VPath: String;
+  F:textfile;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+ if not(FileExists(copy(Vpath,1,length(Vpath)-3)+'tne')) then
+  begin
+   CreateDirIfNotExists(copy(Vpath,1,length(Vpath)-3)+'tne');
+   AssignFile(f,copy(Vpath,1,length(Vpath)-3)+'tne');
+   Rewrite(F);
+   Writeln(f,DateTimeToStr(now));
+   CloseFile(f);
+  end;
+end;
+
+procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
+  btm:TObject);
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  CreateDirIfNotExists(VPath);
+  DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
+  SaveTileInCache(btm,Vpath);
 end;
 
 end.

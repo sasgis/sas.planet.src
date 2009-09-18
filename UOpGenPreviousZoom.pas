@@ -1,8 +1,22 @@
 unit UOpGenPreviousZoom;
 
 interface
-uses Windows,Forms,SysUtils,Classes,UMapType,UImgFun,UGeoFun,unit4,UResStrings,
-     GR32,GR32_Layers,GR32_Resamplers,math,Graphics,Dialogs;
+
+uses
+  Windows,
+  Forms,
+  SysUtils,
+  Classes,
+  math,
+  Graphics,
+  Dialogs,
+  GR32,
+  GR32_Layers,
+  GR32_Resamplers,
+  UMapType,
+  UGeoFun,
+  unit4,
+  UResStrings;
 
 type
   TOpGenPreviousZoom = class(TThread)
@@ -17,11 +31,12 @@ type
     Replace:boolean;
     savefull:boolean;
   private
+
+
     polyg:array of TPoint;
     Fprogress: TFprogress2;
     TileInProc:integer;
     CurrentTile:integer;
-    path:string;
     FMainTileXY: TPoint;
     FMainTileZoom: byte;
     FChildeTileXY: TPoint;
@@ -41,20 +56,22 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
+    constructor Create(Azoom:byte;Atypemap:PMapType);
   end;
 
 implementation
-uses unit1,USaveas;
+uses
+  unit1,
+  USaveas;
 
-constructor TOpGenPreviousZoom.Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
+constructor TOpGenPreviousZoom.Create(Azoom:byte;Atypemap:PMapType);
 begin
+ inherited Create(true);
  bmp_ex:=TBitmap32.Create;
  bmp:=TBitmap32.Create;
  TileInProc:=0;
  FromZoom:=Azoom;
  typemap:=Atypemap;
- inherited Create(CrSusp);
 end;
 
 destructor TOpGenPreviousZoom.destroy;
@@ -72,10 +89,10 @@ begin
  ProcessTiles:=0;
  for i:=0 to length(InZooms)-1 do
    begin
-    Fsaveas.formatepoligon(typemap,InZooms[i],PolygLL,polyg);
+    formatepoligon(typemap,InZooms[i],PolygLL,polyg);
     if (not GenFormPrev)or(i=0) then
-    {if i=0 then }inc(ProcessTiles,Fsaveas.GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])))
-             else inc(ProcessTiles,Fsaveas.GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,InZooms[i-1]-InZooms[i])));
+    {if i=0 then }inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])))
+             else inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,InZooms[i-1]-InZooms[i])));
    end;
  Synchronize(SetProgressForm);
  GenPreviousZoom;
@@ -115,8 +132,7 @@ end;
 procedure TOpGenPreviousZoom.SaveTileOp;
 begin
  try
-  Fmain.createdirif(path);
-  SaveTileInCache(bmp_ex,path);
+  typemap.SaveTileSimple(FMainTileXY.X, FMainTileXY.Y, FMainTileZoom,bmp_ex);
   inc(TileInProc);
  except
   ShowMessage(SAS_ERR_Write);
@@ -165,11 +181,11 @@ begin
  for i:=0 to length(InZooms)-1 do
   begin
    if Terminated then continue;
-   Fsaveas.formatepoligon(typemap,InZooms[i],PolygLL,polyg);
+   formatepoligon(typemap,InZooms[i],PolygLL,polyg);
    if (not GenFormPrev)or(i=0) then
    {if i=0 then }c_d:=round(power(2,FromZoom-InZooms[i]))
             else c_d:=round(power(2,InZooms[i-1]-InZooms[i]));
-   Fsaveas.GetDwnlNum(min,max,Polyg,false);
+   GetDwnlNum(min,max,Polyg,false);
    p_x:=min.x;
    while (p_x<max.X)and(not Terminated) do
     begin
@@ -180,8 +196,9 @@ begin
                                                    inc(p_y,256);
                                                    continue;
                                                   end;
-//TODO: Путь нужен для сохранения тайлов.
-       path:=typemap.GetTileFileName(p_x,p_y,InZooms[i]);
+       FMainTileXY.X := p_x;
+       FMainTileXY.Y := p_y;
+       FMainTileZoom := InZooms[i];
        if typemap.TileExists(p_x,p_y,InZooms[i])then begin
                                 if not(Replace)
                                  then begin
@@ -189,9 +206,6 @@ begin
                                        inc(p_y,256);
                                        continue;
                                       end;
-                                 FMainTileXY.X := p_x;
-                                 FMainTileXY.Y := p_y;
-                                 FMainTileZoom := InZooms[i];
                                 Synchronize(LoadMainTileOp);
                                end
                           else begin
@@ -214,8 +228,8 @@ begin
                    else VZoom := InZooms[i-1];
           if typemap.TileExists(p_x_x,p_y_y,VZoom) then
            begin
-            FChildeTileXY.X := p_x;
-            FChildeTileXY.Y := p_y;
+            FChildeTileXY.X := p_x_x;
+            FChildeTileXY.Y := p_y_y;
             FChildeTileZoom := VZoom;
             Synchronize(LoadChildTileOp);
             bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);

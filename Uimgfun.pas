@@ -8,7 +8,6 @@ const
 
 var
   defoultMap:TBitmap;
-  function SaveTileInCache(btm:TObject;path:string):boolean;
   function DelFile(path:string):boolean;
   function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
   procedure SetDefoultMap;
@@ -119,47 +118,6 @@ begin
  FreeAndNil(b);
 end;
 
-function SaveTileInCache(btm:TObject;path:string):boolean;
-var
-    Jpg_ex:TJpegImage;
-    png_ex:TPNGObject;
-    Gif_ex:TGIFImage;
-    btm_ex:TBitmap;
-begin
- if (btm is TBitmap32) then
-  begin
-   btm_ex:=TBitmap.Create;
-   btm_ex.Assign(btm as TBitmap32);
-   if UpperCase(ExtractFileExt(path))='.JPG' then
-    begin
-     Jpg_ex:=TJpegImage.Create;
-     Jpg_ex.CompressionQuality:=85;
-     Jpg_ex.Assign(btm_ex);
-     Jpg_ex.SaveToFile(path);
-     Jpg_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.GIF' then
-    begin
-     Gif_ex:=TGifImage.Create;
-     Gif_ex.Assign(btm_ex);
-     Gif_ex.SaveToFile(path);
-     Gif_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.PNG' then
-    begin
-     PNG_ex:=TPNGObject.Create;
-     PNG_ex.Assign(btm_ex);
-     PNG_ex.SaveToFile(path);
-     PNG_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.BMP' then btm_ex.SaveToFile(path);
-   btm_ex.Free;
-  end;
- if (btm is TJPEGimage) then TJPEGimage(btm).SaveToFile(path) else
- if (btm is TPNGObject) then TPNGObject(btm).SaveToFile(path) else
- if (btm is TMemoryStream) then TMemoryStream(btm).SaveToFile(path) else
- if (btm is TPicture) then TPicture(btm).SaveToFile(path);
-end;
 
 function InStr(I: Integer): string;
 var

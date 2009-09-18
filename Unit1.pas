@@ -3265,11 +3265,21 @@ begin
 end;
 
 procedure TFmain.N11Click(Sender: TObject);
-var WindirP: PChar;
+var
+  WindirP: PChar;
+  btm_ex:TBitmap;
+  path: string;
 begin
   WinDirP:=StrAlloc(MAX_PATH);
   GetWindowsDirectory(WinDirP, MAX_PATH);
-  SaveTileInCache(LayerMap.bitmap,StrPas(WinDirP)+'\SASwallpaper.bmp');
+  path := StrPas(WinDirP)+'\SASwallpaper.bmp';
+  btm_ex:=TBitmap.Create;
+  try
+    btm_ex.Assign(LayerMap.bitmap);
+    btm_ex.SaveToFile(path);
+  finally
+    btm_ex.Free;
+  end;
   with TRegIniFile.Create('Control Panel') do
    begin
     WriteString('desktop', 'Wallpaper', StrPas(WinDirP)+'\SASwallpaper.bmp');

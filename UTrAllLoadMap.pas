@@ -25,6 +25,7 @@ type
     mapsload:boolean;
     SecondLoadTNE:boolean;
     path,url_ifban,err,link:string;
+    LoadXY: TPoint;
     typeRect:1..3;
     ty: string;
     FDate:TDateTime;
@@ -51,7 +52,6 @@ type
     procedure dwnOne;
     procedure addDwnforban;
     procedure WriteToFile;
-    procedure createdirif(path:string);
     procedure addDwnTiles;
     procedure ban;
     function GetFileSize(namefile: string): Integer;
@@ -126,7 +126,7 @@ begin
    if length(poly)=0 then Terminate;
    ini.Free;
   end;
- num_dwn:=Fsaveas.GetDwnlNum(min,max,poly,true);
+ num_dwn:=GetDwnlNum(min,max,poly,true);
  vsego:=num_dwn;
  Synchronize(SetProgressForm);
  _FProgress.Visible:=true;
@@ -304,14 +304,6 @@ begin
  all_dwn_kb:=all_dwn_kb+(res/1024);
 end;
 
-procedure ThreadAllLoadMap.createdirif(path:string);
-var i:integer;
-begin
- i := LastDelimiter('\', path);
- path:=copy(path, 1, i);
- if not(DirectoryExists(path)) then ForceDirectories(path);
-end;
-
 constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:PMapType;AFDate:TDateTime);
 var i:integer;
 begin
@@ -335,7 +327,7 @@ begin
    begin
     Application.CreateForm(TFProgress, _FProgress);
     _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
-    num_dwn:=Fsaveas.GetDwnlNum(min,max,poly,true);
+    num_dwn:=GetDwnlNum(min,max,poly,true);
     vsego:=num_dwn;
     scachano:=0;
     obrab:=0;
@@ -426,6 +418,7 @@ end;
 
 procedure ThreadAllLoadMap.dwnOne;
 var i:integer;
+  url: string;
 begin
  res:=1;
  for i:=0 to length(poly)-1 do
@@ -434,11 +427,14 @@ begin
   lastload.Y:=poly[i].Y-(abs(poly[i].Y) mod 256);
   lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
   //TODO: Избавится от пути, должен быть вызов добавления тайла в конкретную карту
-  path:=typemap.GetTileFileName(poly[i].X,poly[i].y,zoom);
+  LoadXY.X := poly[i].X;
+  LoadXY.Y := poly[i].Y;
+  path:=typemap.GetTileFileName(LoadXY.X,LoadXY.y,zoom);
   FileBuf:=TMemoryStream.Create;
   if typemap.UseDwn then begin
-                           res:=DownloadFile(PMapType(@typemap).GetLink(poly[i].X,poly[i].y,zoom),typemap);
-                           if (res<=0)and(dblDwnl) then res:=DownloadFile(PMapType(@typemap).GetLink(poly[i].X,poly[i].y,zoom),typemap);
+                           url := typemap.GetLink(LoadXY.X,LoadXY.y,zoom);
+                           res :=DownloadFile(url, typemap);
+                           if (res<=0)and(dblDwnl) then res:=DownloadFile(url,typemap);
                            err:=GetErrStr(res);
                          end
                     else err:=SAS_ERR_NotLoads;
@@ -510,6 +506,9 @@ begin
       xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom_size);
       yy:=BPos.y-pr_y+(y shl 8);
       Path:=MapType[ii].GetTileFileName(xx,yy,zoom_size);
+      zoom := zoom_size;
+      LoadXY.X := xx;
+      LoadXY.Y := yy;
       link:=MapType[ii].getLink(XX,YY,zoom_size);
       lastload.X:=XX-(abs(XX) mod 256);
       lastload.Y:=YY-(abs(YY) mod 256);
@@ -570,6 +569,8 @@ begin
                                                 continue;
                                                end;
      path:=typeMap.GetTileFileName(p_x,p_y,zoom);
+    LoadXY.X := p_x;
+    LoadXY.Y := p_y;
      lastload.X:=p_x-(abs(p_x) mod 256);
      lastload.Y:=p_y-(abs(p_y) mod 256);
      lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
@@ -583,7 +584,7 @@ begin
        if typeMap.TileExists(p_x,p_y,zoom) then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'
                            else AddToMemo:=SAS_STR_LoadProcess+'...';
        Synchronize(UpdateMemoProgressForm);
-       if (zDate)and(typeMap.TileExists(p_x,p_y,zoom))and(FileDateToDateTime(FileAge(path))>=FDate) then
+       if (zDate)and(typeMap.TileExists(p_x,p_y,zoom))and(typeMap.TileLoadDate(p_x,p_y,zoom)>=FDate) then
         begin
          AddToMemo:=AddToMemo+#13#10+SAS_MSG_FileBeCreateTime;
          Synchronize(UpdateMemoProgressForm);
@@ -593,9 +594,9 @@ begin
          continue;
         end;
 
-       razlen:=GetFileSize(path);
+       razlen:=typeMap.TileSize(p_x,p_y,zoom);
 
-       if (not(SecondLoadTNE))and(FileExists(copy(path,1,length(path)-3)+'tne'))
+       if (not(SecondLoadTNE))and(typemap.TileNotExistsOnServer(p_x,p_y,zoom))
         then res:=-1
         else
          begin
@@ -659,7 +660,7 @@ begin
           else begin
                 inc(p_y,256);
                 inc(obrab);
-               end; 
+               end;
          Synchronize(UpdateMemoProgressForm);
          continue;
         end;
@@ -696,77 +697,10 @@ begin
 end;
 
 procedure ThreadAllLoadMap.WriteToFile;
-var jpg:TJPEGImage;
-    btm:TBitmap;
-    png:TBitmap32;
-    btmSrc:TBitmap32;
-    btmDest:TBitmap32;
-    UnZip:TVCLUnZip;
 begin
- if err='' then
- begin
- createdirif(path);
- DeleteFile(copy(path,1,length(path)-3)+'tne');
- if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(typemap.ext='.kml')then
-  try
-   UnZip:=TVCLUnZip.Create(Fmain);
-   UnZip.ArchiveStream:=TMemoryStream.Create;
-   filebuf.SaveToStream(UnZip.ArchiveStream);
-   UnZip.ReadZip;
-   filebuf.Position:=0;
-   UnZip.UnZipToStream(filebuf,UnZip.Filename[0]);
-   UnZip.Free;
-   SaveTileInCache(filebuf,path);
-   ban_pg_ld:=true;
-  except
-   try
-    SaveTileInCache(filebuf,path);
-   except
-    err:=SAS_ERR_BadFile;
-   end;
-  end;
-
- SaveTileInCache(filebuf,path);
- if (typemap.TileRect.Left<>0)or(typemap.TileRect.Top<>0)or
-    (typemap.TileRect.Right<>0)or(typemap.TileRect.Bottom<>0) then
-  begin
-    btmsrc:=TBitmap32.Create;
-    btmDest:=TBitmap32.Create;
-    try
-     btmSrc.Resampler:=TLinearResampler.Create;
-     if MainFileCache.LoadFile(btmsrc,path,false)
-      then begin
-            btmDest.SetSize(256,256);
-            btmdest.Draw(bounds(0,0,256,256),typemap.TileRect,btmSrc);
-            SaveTileInCache(btmDest,path);
-           end;
-    except
-    end;
-    btmSrc.Free;
-    btmDest.Free;
-  end;
-
- ban_pg_ld:=true;
- if (ty='image/png')and(typemap.ext='.jpg')
-  then
-   begin
-    btm:=TBitmap.Create;
-    png:=TBitmap32.Create;
-    jpg:=TJPEGImage.Create;
-    RenameFile(path,copy(path,1,length(path)-4)+'.png');
-    if MainFileCache.LoadFile(png,copy(path,1,length(path)-4)+'.png',false)
-     then begin
-           btm.Assign(png);
-           jpg.Assign(btm);
-           SaveTileInCache(jpg,path);
-           DelFile(copy(path,1,length(path)-4)+'.png');
-           btm.Free;
-           jpg.Free;
-           png.Free;
-          end;
-    end;
+ if err='' then begin
+  typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
  end;
-
  if (not(typeRect in [2,3]))and(Fmain.Enabled)then
   begin
    move.X:=m_up.x;
@@ -776,16 +710,8 @@ begin
 end;
 
 procedure ThreadAllLoadMap.SaveTileNotExists;
-var F:textfile;
 begin
- if not(FileExists(copy(path,1,length(path)-3)+'tne')) then
-  begin
-   createdirif(copy(path,1,length(path)-3)+'tne');
-   AssignFile(f,copy(path,1,length(path)-3)+'tne');
-   Rewrite(F);
-   Writeln(f,DateTimeToStr(now));
-   CloseFile(f);
-  end;
+  typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
 end;
 
 procedure ThreadAllLoadMap.GetSMB;

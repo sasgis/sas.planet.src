@@ -163,10 +163,10 @@ begin
  i:=0;
  While not(zoomarr[i]) do inc(i);
  SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then Fsaveas.formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then Fsaveas.formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then Fsaveas.formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
- Fsaveas.GetMinMax(min,max,polyg,true);
+ if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
+  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
+        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ GetMinMax(min,max,polyg,true);
  if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
   else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
         else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
@@ -231,8 +231,8 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      Fsaveas.formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
-      num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
       kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
@@ -279,8 +279,8 @@ begin
    for j:=0 to 2 do //по типу
     if TypeMapArr[j]<>nil then
      begin
-      Fsaveas.formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
-      Fsaveas.GetDwnlNum(min,max,Polyg,false);
+      formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
+      GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
       while p_x<max.x do
@@ -420,8 +420,8 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      Fsaveas.formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
-      num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
       kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
@@ -450,11 +450,11 @@ begin
   if zoomarr[i] then
    for j:=0 to length(TypeMapArr)-1 do //по типу
      begin
-      Fsaveas.formatepoligon(TypeMapArr[j],i+1,APolyLL,polyg);
+      formatepoligon(TypeMapArr[j],i+1,APolyLL,polyg);
       AMapType.ext:=TypeMapArr[j].ext;
       AMapType.NameInCache:=TypeMapArr[j].NameInCache;
       AMapType.CacheType:=format;
-      Fsaveas.GetDwnlNum(min,max,Polyg,false);
+      GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
       while p_x<max.x do
        begin
@@ -580,8 +580,8 @@ begin
  for j:=0 to 23 do
   if zoomarr[j] then
    begin
-    Fsaveas.formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
-    num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+    formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
+    num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
     perzoom:=perzoom+inttostr(j+1)+'_';
     kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).x,4);
     kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).y,4);
@@ -613,11 +613,11 @@ begin
  Write(KMLFile,ToFile);
 
  while not(zoomarr[i])or(i>23) do inc(i);
- Fsaveas.formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg);
+ formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg);
  AMapType.ext:=TypeMapArr[0].ext;
  AMapType.NameInCache:=TypeMapArr[0].NameInCache;
  AMapType.CacheType:=format;
- Fsaveas.GetDwnlNum(min,max,Polyg,false);
+ GetDwnlNum(min,max,Polyg,false);
  p_x:=min.x;
  while p_x<max.x do
   begin

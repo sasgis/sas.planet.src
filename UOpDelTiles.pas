@@ -28,7 +28,7 @@ type
   end;
 
 implementation
-uses unit1,USaveas;
+uses unit1,Ugeofun;
 
 constructor TOpDelTiles.Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
 begin
