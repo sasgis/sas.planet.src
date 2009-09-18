@@ -128,17 +128,7 @@ begin
                            else DSObject.FieldByName('visible').AsInteger:=0;
       DSObject.ApplyRange;
       DSObject.ApplyUpdates(0);
-//      DrawTree;
      end;
-{    if TNodeParams(node.Data^).type_=ndTrack then
-     begin
-      DSTrack.Locate('id',TNodeParams(node.Data^).id,[]);
-      DSTrack.Edit;
-      if Node.StateIndex=2 then DSTrack.FieldByName('visible').AsInteger:=-1
-                           else DSTrack.FieldByName('visible').AsInteger:=0;
-      DSObject.ApplyRange;
-      DSObject.ApplyUpdates(0);
-     end;                                          }
     if TNodeParams(node.Data^).type_=ndTrackList then
      begin
       DSObject.Locate('id',TNodeParams(node.Data^).id,[]);
@@ -147,7 +137,6 @@ begin
                            else DSObject.FieldByName('trvisible').AsInteger:=0;
       DSObject.ApplyRange;
       DSObject.ApplyUpdates(0);
-//      DrawTree;
      end;
     Synchronize(DrawLayer);
    end;
@@ -234,10 +223,6 @@ begin
  SetWindowLong(TTreeView(TreeView).Handle,GWL_STYLE,GetWindowLong(TTreeView(TreeView).Handle,GWL_STYLE) or TVS_CHECKBOXES);
  sqlite3_initialize;
  db:=TDISQLite3Database.Create(nil);
-{ SelectSQL := 'Select no,Title from Tasks;';
-ModifySQL := 'update Tasks set Title=:Title where no=:no;';
-InsertSQL := 'insert into Tasks (no,Title) values (:no,:Title);';
-DeleteSQL := 'delete from Tasks where no=:no;'; }
  db.DatabaseName:=ExtractFilePath(ParamStr(0))+'NetRadar.sqlitedb';
  if not(FileExists(db.DatabaseName))
   then
@@ -439,8 +424,6 @@ begin
     end;
    DSCategory.Filtered:=false;
   end;
-{ marksFilter:=marksFilter+' and ( LonR>'+floattostr(lon_l)+' and LonL<'+floattostr(lon_R)+
-              ' and LatB<'+floattostr(lat_t)+' and LatT>'+floattostr(lat_d)+')';  }
  DSObject.Filter:=marksFilter;
  DSObject.Filtered:=true;
  DSObject.First;
@@ -474,16 +457,6 @@ begin
           lenTrArr:=length(buf_line_arr);
           buf_line_arr[lenTrArr-1].X:=DSTrPoint.fieldByName('lon').AsFloat;
           buf_line_arr[lenTrArr-1].Y:=DSTrPoint.fieldByName('lat').AsFloat;
-{          if (lenTrArr=1)and()
-          if (lenTrArr>2) then
-           if((buf_line_arr[lenTrArr-1].X<lon_l)and
-             (buf_line_arr[lenTrArr-2].X<lon_l))or
-             ((buf_line_arr[lenTrArr-1].X>lon_r)and
-             (buf_line_arr[lenTrArr-2].X>lon_r))or
-             ((buf_line_arr[lenTrArr-1].Y<lat_t)and
-             (buf_line_arr[lenTrArr-2].Y<lat_t))or
-             ((buf_line_arr[lenTrArr-1].Y<lat_d)and
-             (buf_line_arr[lenTrArr-2].Y<lat_d)) then SetLength(buf_line_arr,lenTrArr-1); }
           DSTrPoint.Next;
         end;
        drawPath(buf_line_arr,TColor(DSObject.fieldByname('trcl').AsInteger),3);
@@ -555,14 +528,7 @@ begin
     end;
    btm:=TBitmap.Create;
    btm.Assign(Bitmap2);
-{   if DSObject.fieldByName('GoHim').AsInteger=-1 then
-    begin
-     btm.Canvas.Pen.Color:=clRed;
-     btm.Canvas.Brush.Color:=clRed;
-//     btm.Canvas.Ellipse(12,12,16,16);
-     btm.Canvas.Polygon([Point(11,11),Point(11,16),Point(16,13)]);
-    end;         }
-   imahelist.AddMasked(btm,clBlack);
+  imahelist.AddMasked(btm,clBlack);
    Bitmap2.Free;
    Bitmap.Free;
    btm.Free;
@@ -653,19 +619,10 @@ begin
        DSObject.FieldByName('GoHim').AsInteger:=0;
        DSObject.FieldByName('Trvisible').AsInteger:=-1;
 
-
-{         DSTrack.Edit;
-         DSTrack.FieldByName('LonL').AsFloat:=1;
-         DSTrack.ApplyRange;
-         DSTrack.ApplyUpdates(0);   }
-
        DSTrack.Insert;
        DSTrack.FieldByName('ObjectID').AsInteger:=DSObject.FieldByName('id').AsInteger;
        DSTrack.FieldByName('visible').AsInteger:=-1;
-      // DSTrack.ApplyRange;
-      // DSTrack.ApplyUpdates(0);
        DSTrack.ApplyUpdates(-1);
-//       DSTrack.Refresh;
       end;
      DSObject.FieldByName('name').AsString:=Utf8ToAnsi(params[6][i]);
      DSObject.FieldByName('ut').AsString:=params[7][i];
@@ -717,7 +674,7 @@ begin
          DSTrack.ApplyUpdates(0);
          DSTrack.Refresh;
         end;
-       if {(not(DSTrPoint.Eof))and}((DSTrPoint.FieldByName('lon').AsFloat<>Fmain.Str2r(params[9][i]))or
+       if ((DSTrPoint.FieldByName('lon').AsFloat<>Fmain.Str2r(params[9][i]))or
           (DSTrPoint.FieldByName('lat').AsFloat<>Fmain.Str2r(params[8][i]))) then
          begin
            DSTrPoint.Insert;
@@ -785,10 +742,6 @@ var ms,mspic:TMemoryStream;
     CM    : TidCookieManager;
 begin
 
-// GetDlgItemText(hDlg, IDC_LOGIN, (LPSTR)login, 32);
-// GetDlgItemText(FMain.Handle, ICU_USERNAME, PChar(passw), 32);
-
-// IdHTTP1.ProtocolVersion:=pv1_1;
  IdHTTP1.AllowCookies:=true;
  poststr:= 'username=test&userpass=test&userlogin='+URLEncode(AnsiToUtf8('¬ход'));
  post:=TMemoryStream.Create;

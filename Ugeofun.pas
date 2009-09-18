@@ -85,11 +85,6 @@ begin
  result:=0;
  l:=length(polygon);
  for i:=1 to L do polygon[i-1]:=LonLat2Metr(polygon[i-1],TypeMap);
-{ for i:=0 to L-2 do
-  begin
-   if i=0 then result:=result+polygon[i].x*(polygon[i+1].y-polygon[L-2].y)
-          else result:=result+polygon[i].x*(polygon[i+1].y-polygon[i-1].y)
-  end;}
  for i:=0 to L-2 do
   begin
    result:=result+(polygon[i].x+polygon[i+1].x)*(polygon[i].y-polygon[i+1].y);
@@ -301,8 +296,6 @@ begin
       //if result.Y>85 then result.Y:=85;
      end;
  end;
-{ if result.Y<-85 then result.Y:=-85;
- if result.Y>85 then result.Y:=85; }
 end;
 
 function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:PMapType):Tpoint;
@@ -314,7 +307,6 @@ begin
       z:=sin(Ll.y*deg);
       c:=(zoom[Azoom]/(2*Pi));
       result.y:=round(zoom[Azoom]/2-0.5*ln((1+z)/(1-z))*c);
-//      result.y:=round(zoom[Azoom]/2-Ln(tan(z)+sec(z)) *c);
      end;
   2: begin
       z:=sin(Ll.y*deg);

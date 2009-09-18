@@ -184,25 +184,6 @@ begin
      close;
      GoToMark(TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id,CBzoom.ItemIndex+1);
     end;
-{   Fmain.CDSmarks.Locate('id',inttostr(TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id),[])
-   ms:=TMemoryStream.Create;
-   TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-   ms.Position:=0;
-   GetMem(arrLL,ms.size);
-   ms.ReadBuffer(arrLL^,ms.size);
-   if (arrLL^[0].Y=arrLL^[ms.size div 24-1].Y)and
-      (arrLL^[0].X=arrLL^[ms.size div 24-1].X)
-      then begin
-            LL.X:=Fmain.CDSmarks.FieldByName('LonL').AsFloat+(Fmain.CDSmarks.FieldByName('LonR').AsFloat-Fmain.CDSmarks.FieldByName('LonL').AsFloat)/2;
-            LL.Y:=Fmain.CDSmarks.FieldByName('LatB').AsFloat+(Fmain.CDSmarks.FieldByName('LatT').AsFloat-Fmain.CDSmarks.FieldByName('LatB').AsFloat)/2;
-           end
-      else begin
-            LL:=arrLL^[0];
-           end;
-   ms.Free;
-   FreeMem(arrLL);
-   Close;
-   Fmain.toPos(LL.y,LL.x,CBzoom.ItemIndex+1,true); }
   end;
  if RB1.Checked then
   begin

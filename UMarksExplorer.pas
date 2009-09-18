@@ -314,13 +314,6 @@ begin
    ms.Free;
    FreeMem(arrLL);
    Fmain.toPos(LL.y,LL.x,zoom,true);
-{ Fmain.CDSmarks.Locate('id',id,[]);
- ms:=TMemoryStream.Create;
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
- ms.Position:=0;
- ms.ReadBuffer(arrLL,24);
- Fmain.toPos(arrLL.y,arrLL.x,zoom_size,true);
- ms.Free;   }
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);

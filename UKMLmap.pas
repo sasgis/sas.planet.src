@@ -101,15 +101,6 @@ end;
 procedure HideKML;
 begin
  LayerMapWiki.Visible:=false;
-{ for j:=0 to length(KMLFile)-1 do
-  begin
-   len:=length(KMLFile[j].KMLLayer);
-   for i:=1 to len do
-    begin
-     KMLFile[j].KMLLayer[i-1].Visible:=false;
-     KMLFile[j].KMLLayer[i-1].SendToBack;
-    end;
-  end;  }
 end;
 
 procedure ShowKML;

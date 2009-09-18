@@ -33,11 +33,8 @@ type
     procedure FormPaint(Sender: TObject);
   private
     FTempParent: TWinControl;
-  protected
-    //procedure Loaded; override;
   public
     stop:boolean;
-    //constructor Create(AOwner: TComponent; AParent: TWinControl); reintroduce; overload;
   end;
 
 var
@@ -46,21 +43,6 @@ implementation
 
 {$R *.dfm}
 
-{procedure TFProgress.Loaded;
-begin
-  inherited;
-  //BorderStyle:=bsToolWindow;
-  //Parent:=FTempParent;
-  //Left:=(FTempParent.Width div 2) - (Width div 2);
-  //top:=(FTempParent.Height div 2) - (Height div 2);
-  //Position:=poDesigned;
-end; }
-
-{constructor TFProgress.Create(AOwner: TComponent; AParent: TWinControl);
-begin
-  FTempParent := aParent;
-  inherited Create(AOwner);
-end; }
 
 procedure TFProgress.Button2Click(Sender: TObject);
 begin

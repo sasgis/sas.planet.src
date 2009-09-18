@@ -319,29 +319,14 @@ begin
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  //bmp32Crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
-                  //png:=tpngobject.createblank(6, 8,sizeim, sizeim);
-                  {for crj:=0 to sizeim-1 do
-                   begin
-                    Color32arr:=bmp32Crop.ScanLine[crj];
-                    for cri:=0 to sizeim-1 do
-                     Color32ToRGBA(Color32arr^[cri],TRGBLine(png.Scanline[crj]^)[cri].rgbtRed,
-                                                    TRGBLine(png.Scanline[crj]^)[cri].rgbtGreen,
-                                                    TRGBLine(png.Scanline[crj]^)[cri].rgbtBlue,
-                                                    png.AlphaScanline[crj]^[cri]);
-
-                   end;  }
                   bmp32crop.Clear; 
                   bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
-                  //bmp.Canvas.CopyRect(bounds(0,0,sizeim,sizeim),bmp32.Canvas,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim));
                   bmp.Assign(bmp32Crop);
                   jpg.Assign(bmp);
                   TileStream.Clear;
                   jpg.CompressionQuality:=chib;
-                  //jpg.Compress;
                   jpg.SaveToStream(TileStream);
                   jpg.SaveToFile('c:\123.jpg');
-                  //jpg.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(xi)+'-'+inttostr(p_y)+'_'+inttostr(xi)+'h.jpg');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,6,TileStream.Size);
                 end;
             if j=1 then
@@ -352,7 +337,6 @@ begin
                   TileStream.Clear;
                   png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
-                  //png.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(p_y)+'-'+inttostr(xi)+'_'+inttostr(yi)+'.png');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,2,TileStream.Size);
                 end;
             if j=0 then
@@ -365,7 +349,6 @@ begin
                   TileStream.Clear;
                   jpg.CompressionQuality:=cSat;
                   jpg.SaveToStream(TileStream);
-                  //jpg.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(xi)+'-'+inttostr(p_y)+'_'+inttostr(xi)+'.jpg');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,3,TileStream.Size);
                 end;
             inc(scachano);

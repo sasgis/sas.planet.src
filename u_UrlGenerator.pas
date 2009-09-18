@@ -108,9 +108,7 @@ end;
 
 function RoundEx(chislo: Extended; Precision: Integer): string;
 var VFormatSettings : TFormatSettings;
-    dg:integer;
 begin
-//  dg:=Precision+round(Log10(abs(chislo)))+1;
   VFormatSettings.DecimalSeparator := '.';
   Result := FloatToStrF(chislo, ffFixed, Precision,Precision, VFormatSettings);
 end;
@@ -173,15 +171,6 @@ begin
   FCoordConverter := nil;
   inherited;
 end;
-
-{function LonLat2Metr2(LL:TExtendedPoint):TExtendedPoint;
-var exct:extended;
-begin
-  ll.x:=ll.x*D2R;
-  ll.y:=ll.y*D2R;
-  result.x:=6378137*ll.x;
-  result.y:=6378137*Ln(Tan(PI/4+ll.y/2));
-end;         }
 
 procedure TUrlGenerator.SetVar;
 var XY : TPoint;

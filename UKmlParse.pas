@@ -107,34 +107,12 @@ begin
   str.ReadBuffer(buffer[1],str.Size);
   str.Free;
   buffer:=Sha_SpaceCompress(buffer);
-{  fillchar(buff,sizeof(buff),0);
-  buffer:='';
-  repeat
-   size:=str.Read(buff,sizeOf(buff));
-   buffer:=buffer+buff;
-  until size<sizeOf(buff);  }
   position:=1;
   PosStartPlace:=1;
   PosEndPlace:=1;
   ii:=0;
-  //placeN:=length(buffer);
   placeN:=0;
   Data:=nil;
-{  While (position>0)and(PosStartPlace>0)and(PosEndPlace>0)and(result) do
-   try
-    Style.Create;
-    PosStartPlace:=PosEx('<StyleMap',buffer,position);
-    if PosStartPlace<1 then continue;
-    PosEndPlace:=PosEx('</<StyleMap>',buffer,PosStartPlace);
-    if PosEndPlace<1 then continue;
-    position:=PosEx('id=',buffer,PosStartPlace);
-    if (position<PosEndPlace)and(position>PosStartPlace)
-     then Style.ID:=copy(buffer,position+4,PosEx('">',buffer,position)-(position+6))
-     else continue;
-     normal
-    Styles=
-   except
-   end;    }
   While (position>0)and(PosStartPlace>0)and(PosEndPlace>0)and(result) do
    try
     SetLength(Data,placeN+1);
@@ -178,26 +156,6 @@ begin
              end;
           end
      else Data[PlaceN].description:='';
-{    PosTag1:=PosEx('<LatLonAltBox',buffer,PosStartPlace); PosTag2:=PosEx('</LatLonAltBox>',buffer,PosTag1);
-    if (PosTag1>PosStartPlace)and(PosTag1<PosEndPlace)and(PosTag2>PosStartPlace)and(PosTag2<PosEndPlace)and(PosTag2>PosTag1)
-     then begin
-           PosTag1:=PosEx('<north>',buffer,PosStartPlace); PosTag2:=PosEx('</north>',buffer,PosTag1);
-           if (PosTag1>PosStartPlace)and(PosTag1<PosEndPlace)and(PosTag2>PosStartPlace)and(PosTag2<PosEndPlace)and(PosTag2>PosTag1)
-            then LatLonAltBoxLT.Y:=form1.str2r(copy(buffer,PosTag1+7,PosTag2-(PosTag1+7)))
-            else LatLonAltBoxLT.Y:=-1000;
-           PosTag1:=PosEx('<south>',buffer,PosStartPlace); PosTag2:=PosEx('</south>',buffer,PosTag1);
-           if (PosTag1>PosStartPlace)and(PosTag1<PosEndPlace)and(PosTag2>PosStartPlace)and(PosTag2<PosEndPlace)and(PosTag2>PosTag1)
-            then LatLonAltBoxRD.Y:=form1.str2r(copy(buffer,PosTag1+7,PosTag2-(PosTag1+7)))
-            else LatLonAltBoxRD.Y:=-1000;
-           PosTag1:=PosEx('<east>',buffer,PosStartPlace); PosTag2:=PosEx('</east>',buffer,PosTag1);
-           if (PosTag1>PosStartPlace)and(PosTag1<PosEndPlace)and(PosTag2>PosStartPlace)and(PosTag2<PosEndPlace)and(PosTag2>PosTag1)
-            then LatLonAltBoxRD.X:=form1.str2r(copy(buffer,PosTag1+6,PosTag2-(PosTag1+6)))
-            else LatLonAltBoxRD.X:=-1000;
-           PosTag1:=PosEx('<west>',buffer,PosStartPlace); PosTag2:=PosEx('</west>',buffer,PosTag1);
-           if (PosTag1>PosStartPlace)and(PosTag1<PosEndPlace)and(PosTag2>PosStartPlace)and(PosTag2<PosEndPlace)and(PosTag2>PosTag1)
-            then LatLonAltBoxLT.X:=form1.str2r(copy(buffer,PosTag1+6,PosTag2-(PosTag1+6)))
-            else LatLonAltBoxLT.X:=-1000;
-          end;    }
     PosTag1:=PosEx('<coordinates',buffer,PosStartPlace); PosTag2:=PosEx('</coordinates',buffer,PosTag1);
     if (PosTag1>PosStartPlace)and(PosTag1<PosEndPlace)and(PosTag2>PosStartPlace)and(PosTag2<PosEndPlace)and(PosTag2>PosTag1)
      then begin
@@ -208,14 +166,12 @@ begin
            while ii<=length(koord) do
             begin
              if koord[ii]=' ' then inc(ii);
-             //while (not(koord[ii]in ['0'..'9','.','-']))and(ii<=length(koord)) do inc(ii);
              if ii>length(koord) then continue;
              setLength(coordinates,jj+1);
              iip:=posEx(',',koord,ii);
              coordinates[jj].x:=Fmain.str2r(copy(koord,ii,iip-ii));
              ii:=iip+1;
              if koord[ii]=' ' then inc(ii);
-//             while (not(koord[ii]in ['0'..'9','.','-']))and(ii<=length(koord)) do inc(ii);
              iip:=posEx(',',koord,ii);
              iip_:=posEx(' ',koord,ii);
              if (iip_>0)and(iip_<iip) then iip:=iip_ ;

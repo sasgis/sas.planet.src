@@ -463,7 +463,7 @@ begin
  GPS_Log:=CB_GPSlog.Checked;
  GPS_update:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
- GPS_com:={'\\.\'+}ComboBoxCOM.Text;
+ GPS_com:=ComboBoxCOM.Text;
  BaudRate:=StrToint(ComboBoxBoudRate.Text);
  sm_map.z1mz2:=smmapdif.Value;
  if (RBWinCon.Checked)and(not InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
@@ -543,16 +543,8 @@ begin
  LayerMapWiki.Bitmap.Width:=xhgpx;
  LayerMapGPS.Bitmap.Height:=yhgpx;
  LayerMapGPS.Bitmap.Width:=xhgpx;
- //
-// TilesLoad.Clear;
 
  SetProxy;
-// if not(InetConnect.userwinset) then
-//  begin
-//   if InetConnect.uselogin then SetProxy('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)',{InetConnect.proxystr}copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1),InetConnect.loginstr,
-//                                         InetConnect.passstr,strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr))))
-//                           else SetProxy('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)',InetConnect.proxystr);
-//  end;
 
 { New (PIInfo) ;
  PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;

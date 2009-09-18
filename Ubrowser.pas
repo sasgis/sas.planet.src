@@ -15,7 +15,6 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
   protected
-//    procedure Loaded; override;
   public
     { Public declarations }
   end;
@@ -28,19 +27,6 @@ implementation
 uses SysUtils, Unit1;
 
 {$R *.dfm}
-
-
-{procedure TFbrowser.Loaded;
-var r:TPoint;
-begin
-  inherited;
-  BorderStyle:=bsSizeToolWin;
-  Parent:=Fmain.map;
-  r:=Fmain.map.ScreenToClient(Mouse.CursorPos);
-  Left:=r.x - (Width div 2);
-  top:=r.y - (Height div 2);
-  Position:=poDesigned;
-end;     }
 
 procedure TFbrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 begin
