@@ -32,10 +32,12 @@ type
    protected
     FCoordConverter : ICoordConverter;
     FUrlGenerator : TUrlGenerator;
-   public
     TileRect:TRect;
-    id,pos:integer;
-    filename,guids:string;
+    pos: integer;
+    filename: string;
+   public
+    id: integer;
+    guids: string;
     active:boolean;
     info:string;
     showinfo:boolean;

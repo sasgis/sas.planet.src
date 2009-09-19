@@ -40,7 +40,12 @@ uses
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UPLT in 'UPLT.pas',
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  u_MemFileCache in 'u_MemFileCache.pas';
+  u_MemFileCache in 'u_MemFileCache.pas',
+  u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
+  u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
+  u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
+  u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
+  u_UrlGenerator in 'u_UrlGenerator.pas';
 
 var Ini: Tinifile;
     loc:integer;

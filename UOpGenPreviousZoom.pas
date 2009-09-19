@@ -61,8 +61,7 @@ type
 
 implementation
 uses
-  unit1,
-  USaveas;
+  unit1;
 
 constructor TOpGenPreviousZoom.Create(Azoom:byte;Atypemap:PMapType);
 begin

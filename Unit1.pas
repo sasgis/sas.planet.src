@@ -475,10 +475,6 @@ type
    procedure SetMiniMapVisible(visible:boolean);
   end;
 
-  TName = record
-   FileURL, FileName: String;
-  end;
-
   Tsm_map = record
    size_dw,zooming,m_dwn:boolean;
    width,height,dx,dy:integer;
@@ -563,7 +559,6 @@ var
   GPS_colorStr:TColor;
   GPS_LogFile:TextFile;
   reg_arr,poly_save:array of TExtendedPoint;
-  Names:TName;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
@@ -918,54 +913,6 @@ begin
  CopyMemory(@add_line_arr[pos],Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
  SetLength(add_line_arr,length(add_line_arr)-1);
  Dec(lastpoint);
-end;
-
-function LoadPNGintoBitmap32(destBitmap: TBitmap32; filename: String): boolean;
-var PNGObject: TPNGObject;
-    TransparentColor: TColor32;
-    PixelPtr: PColor32;
-    AlphaPtr: PByte;
-    X, Y: Integer;
-begin
-  PNGObject := nil;
-  try
-    result := false;
-    PNGObject:=TPngObject.Create;
-    PNGObject.LoadFromFile(filename);
-    destBitmap.Assign(PNGObject);
-    destBitmap.ResetAlpha;
-    case PNGObject.TransparencyMode of
-      ptmPartial:
-          if (PNGObject.Header.ColorType in [COLOR_GRAYSCALEALPHA,COLOR_RGBALPHA]) then
-          begin
-            PixelPtr := PColor32(@destBitmap.Bits[0]);
-            for Y := 0 to destBitmap.Height - 1 do
-            begin
-              AlphaPtr := PByte(PNGObject.AlphaScanline[Y]);
-              for X := 0 to destBitmap.Width - 1 do
-              begin
-                PixelPtr^:=(PixelPtr^ and $00FFFFFF) or (TColor32(AlphaPtr^) shl 24);
-                Inc(PixelPtr);
-                Inc(AlphaPtr);
-              end;
-            end;
-          end;
-      ptmBit:
-        begin
-          TransparentColor := Color32(PNGObject.TransparentColor);
-          PixelPtr := PColor32(@destBitmap.Bits[0]);
-          for X := 0 to (destBitmap.Height - 1) * (destBitmap.Width - 1) do
-          begin
-            if PixelPtr^ = TransparentColor then
-              PixelPtr^ := PixelPtr^ and $00FFFFFF;
-            Inc(PixelPtr);
-          end;
-        end;
-    end;
-    result := true;
-  finally
-    if Assigned(PNGObject) then FreeAndNil(PNGObject);
-  end;
 end;
 
 procedure TFmain.setalloperationfalse(newop:TAOperation);
