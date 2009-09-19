@@ -1,7 +1,19 @@
 unit UTrAllLoadMap;
 interface
 
-uses Forms,Classes,Windows,Uprogress,IniFiles,Wininet,VCLUnZip,Dialogs,UMapType,Jpeg,GR32, UResStrings, GR32_Resamplers;
+uses
+  Windows,
+  Forms,
+  Classes,
+  IniFiles,
+  Wininet,
+  Dialogs,
+  Jpeg,
+  GR32,
+  GR32_Resamplers,
+  Uprogress,
+  UMapType,
+  UResStrings;
 
 type
   TlastLoad_ = record
@@ -11,6 +23,7 @@ type
     use:boolean;
   end;
   ThreadAllLoadMap = class(TThread)
+  private
     fileBuf:TMemoryStream;
     Poly:array of TPoint;
     Zoom:byte;
@@ -24,20 +37,19 @@ type
     Zdate:boolean;
     mapsload:boolean;
     SecondLoadTNE:boolean;
-    path,url_ifban,err,link:string;
+    url_ifban,err:string;
     LoadXY: TPoint;
-    typeRect:1..3;
     ty: string;
     FDate:TDateTime;
     OperBegin:TDateTime;
     UPos:TPoint;
-    hSession,hConnect:HInternet;
+    hSession:HInternet;
     _FProgress:TFProgress;
     lastLoad:TlastLoad_;
     max,min:TPoint;
     scachano,num_dwn,obrab,vsego:integer;
     dwnb:real;
-    obrabstr,AddToMemo,TimeEnd,LenEnd:string;
+    AddToMemo,TimeEnd,LenEnd:string;
   private
     function GetErrStr(Aerr: integer): string;
   protected
@@ -62,6 +74,7 @@ type
     procedure DwnInFon;
     procedure SaveTileNotExists;
   public
+    typeRect:1..3;
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
     procedure closeSession;
@@ -70,8 +83,17 @@ type
   end;
 
 implementation
-uses Unit1, UImgfun,SysUtils, Graphics, math, DateUtils,  UWikilayer, StrUtils, UGeoFun, Usaveas,
-  Controls;
+uses
+  SysUtils,
+  Graphics,
+  DateUtils,
+  StrUtils,
+  Math,
+  Unit1,
+  UImgfun,
+  UWikilayer,
+  UGeoFun,
+  Usaveas;
 
 procedure ThreadAllLoadMap.ButtonSaveClick(Sender: TObject);
 begin
@@ -179,6 +201,8 @@ begin
 end;
 
 procedure ThreadAllLoadMap.UpdateProgressForm;
+var
+  path: string;
 begin
  if (_FProgress.stop) then
    begin
@@ -193,6 +217,7 @@ begin
  _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+Fmain.kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
  _FProgress.LabelValue3.Caption:=TimeEnd;
  _FProgress.LabelValue4.Caption:=LenEnd;
+  path:=typemap.GetTileFileName(LoadXY.X,LoadXY.y,zoom);
  _FProgress.Memo1.Lines.Add(SAS_STR_ProcessedFile+': '+path+'...');
  Application.ProcessMessages;
  if (obrab mod 10 = 0)or(num_dwn<100) then
@@ -429,7 +454,6 @@ begin
   //TODO: Избавится от пути, должен быть вызов добавления тайла в конкретную карту
   LoadXY.X := poly[i].X;
   LoadXY.Y := poly[i].Y;
-  path:=typemap.GetTileFileName(LoadXY.X,LoadXY.y,zoom);
   FileBuf:=TMemoryStream.Create;
   if typemap.UseDwn then begin
                            url := typemap.GetLink(LoadXY.X,LoadXY.y,zoom);
@@ -505,7 +529,6 @@ begin
       BPos:=ConvertPosM2M(Upos,zoom_size,bSMP,@MapType[ii]);
       xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom_size);
       yy:=BPos.y-pr_y+(y shl 8);
-      Path:=MapType[ii].GetTileFileName(xx,yy,zoom_size);
       zoom := zoom_size;
       LoadXY.X := xx;
       LoadXY.Y := yy;
@@ -568,7 +591,6 @@ begin
                                                 inc(p_y,256);
                                                 continue;
                                                end;
-     path:=typeMap.GetTileFileName(p_x,p_y,zoom);
     LoadXY.X := p_x;
     LoadXY.Y := p_y;
      lastload.X:=p_x-(abs(p_x) mod 256);
