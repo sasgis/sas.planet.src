@@ -375,7 +375,7 @@ var hFile:HInternet;
     dwtype,dwlen: array [1..20] of char;
     len: pchar;
 begin
-  sleep(typemap.Sleep);
+  sleep(MT.Sleep);
   result:=0;
   if close_ then exit;
   ty:='';len:='0';
