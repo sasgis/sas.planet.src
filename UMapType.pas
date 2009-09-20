@@ -16,12 +16,8 @@ uses
   ExtCtrls,
   Uprogress,
   TBX,
-  uPSCompiler,
-  uPSRuntime,
-  uPSR_std,
-  uPSR_forms,
-  uPSUtils,
   VCLZip,
+  GR32,
   u_CoordConverterAbstract,
   u_UrlGenerator,
   UResStrings;
@@ -78,6 +74,9 @@ type
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
+    // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
+    // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
+    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
     procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
     procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
@@ -104,7 +103,6 @@ uses
   IJL,
   jpeg,
   RxGIF,
-  GR32,
   GR32_Resamplers,
   VCLUnZip,
   Usettings,
@@ -984,6 +982,12 @@ begin
   CreateDirIfNotExists(VPath);
   DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
   SaveTileInCache(btm,Vpath);
+end;
+
+function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
+  ASourceZoom: byte; IsStop: PBoolean): boolean;
+begin
+
 end;
 
 end.
