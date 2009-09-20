@@ -111,6 +111,7 @@ uses
   UFillingMap,
   DateUtils,
   ImgMaker,
+  UKmlParse,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
@@ -803,7 +804,9 @@ begin
       else if (btm is TJPEGimage) then
         TJPEGimage(btm).LoadFromFile(Apath)
       else if (btm is TPNGObject) then
-        TPNGObject(btm).LoadFromFile(Apath);
+        TPNGObject(btm).LoadFromFile(Apath)
+      else if (btm is TKML) then
+        TKML(btm).LoadFromFile(Apath);
     end;
     result:=true;
   except

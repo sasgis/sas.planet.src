@@ -84,7 +84,7 @@ begin
 end;
 
 procedure loadWL(Alayer:PMapType);
-var path:string;
+var
     Ax,Ay,i,j,ii,Azoom:integer;
     APos:TPoint;
     kml:TKML;
@@ -98,10 +98,8 @@ begin
     if CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
-    //TODO: Нужно будет добавить в LoadTile загрузку TKML.
-    path:=Alayer.GetTileFileName(Ax,Ay,Azoom);
     KML:=TKML.Create;
-    if kml.loadFromFile(path) then
+    if Alayer.LoadTile(kml, Ax,Ay,Azoom, false) then
      for ii:=0 to length(KML.Data)-1 do
       addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
     KML.Free;

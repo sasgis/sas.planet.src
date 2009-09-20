@@ -451,7 +451,6 @@ begin
   lastload.X:=poly[i].X-(abs(poly[i].X) mod 256);
   lastload.Y:=poly[i].Y-(abs(poly[i].Y) mod 256);
   lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
-  //TODO: Избавится от пути, должен быть вызов добавления тайла в конкретную карту
   LoadXY.X := poly[i].X;
   LoadXY.Y := poly[i].Y;
   FileBuf:=TMemoryStream.Create;
