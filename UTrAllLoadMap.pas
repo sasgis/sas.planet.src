@@ -66,7 +66,6 @@ type
     procedure WriteToFile;
     procedure addDwnTiles;
     procedure ban;
-    function GetFileSize(namefile: string): Integer;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
     procedure GetPos;
@@ -279,27 +278,6 @@ begin
   Result:='';
   if dd>0 then Result:=inttostr(dd)+' дней, ';
   Result:=Result+TimeToStr((Time1*(loadAll / load))-Time1);
-end;
-
-function ThreadAllLoadMap.GetFileSize(namefile: string): Integer;
-var InfoFile: TSearchRec;
-begin
-  if FindFirst(namefile, faAnyFile, InfoFile) <> 0
-    then Result := -1
-    else Result := InfoFile.Size;
-  FindClose(InfoFile);
-end;
-
-function full(int,z:integer):string;
-var s,s1:string;
-    i:byte;
-begin
- result:='';
- s:=inttostr(int);
- s1:=inttostr(zoom[z] div 256);
- for i:=length(s) to length(s1)-1 do
-  result:=result+'0';
- result:=result+s;
 end;
 
 procedure ThreadAllLoadMap.ban;
