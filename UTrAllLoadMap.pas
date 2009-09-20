@@ -507,11 +507,10 @@ begin
         for ii:=0 to length(MapType)-1 do begin
           if MapType[ii].active then begin
             BPos:=UPos;
-            BPos:=ConvertPosM2M(Upos,zoom_size,bSMP,@MapType[ii]);
-            xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom_size);
+            BPos:=ConvertPosM2M(Upos,zoom,bSMP,@MapType[ii]);
+            xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
             yy:=BPos.y-pr_y+(y shl 8);
 
-            zoom := zoom_size;
             LoadXY.X := xx;
             LoadXY.Y := yy;
 
@@ -538,7 +537,6 @@ begin
               if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
               if (res=-1)and(Unit1.SaveTileNotExists) then Synchronize(SaveTileNotExists);
               typemap:=MapType[ii];
-              While (dwn)or(anim_zoom=1) do Sleep(10);
               if err='' then begin
                 MapType[ii].SaveTileDownload(xx, yy, zoom, fileBuf, ty);
               end;
@@ -546,6 +544,7 @@ begin
               typemap:=bSMP^;
               sleep(100);
               FileBuf.Free;
+              While (dwn)or(anim_zoom=1) do Sleep(10);
             end;
           end;
         end;
