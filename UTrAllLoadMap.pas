@@ -39,7 +39,7 @@ type
     SecondLoadTNE:boolean;
     url_ifban,err:string;
     LoadXY: TPoint;
-    ty: string;
+
     FDate:TDateTime;
     OperBegin:TDateTime;
     UPos:TPoint;
@@ -58,7 +58,7 @@ type
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    function DownloadFile(Aurl:string;MT:TMapType):integer;
+    function DownloadFile(Aurl:string;MT:TMapType; out ty: string):integer;
     procedure Execute; override;
     procedure dwnReg;
     procedure dwnOne;
@@ -365,7 +365,7 @@ begin
   randomize;
 end;
 
-function ThreadAllLoadMap.DownloadFile(Aurl:string;MT:TMapType):integer;
+function ThreadAllLoadMap.DownloadFile(Aurl:string;MT:TMapType; out ty: string):integer;
 var hFile:HInternet;
     Buffer:array [1..64535] of Byte;
     BufferLen:LongWord;
@@ -445,6 +445,7 @@ end;
 procedure ThreadAllLoadMap.dwnOne;
 var i:integer;
   url: string;
+  ty: string;
 begin
  res:=1;
  for i:=0 to length(poly)-1 do
@@ -457,14 +458,17 @@ begin
   FileBuf:=TMemoryStream.Create;
   if typemap.UseDwn then begin
                            url := typemap.GetLink(LoadXY.X,LoadXY.y,zoom);
-                           res :=DownloadFile(url, typemap);
-                           if (res<=0)and(dblDwnl) then res:=DownloadFile(url,typemap);
+                           res :=DownloadFile(url, typemap,ty);
+                           if (res<=0)and(dblDwnl) then res:=DownloadFile(url,typemap,ty);
                            err:=GetErrStr(res);
                          end
                     else err:=SAS_ERR_NotLoads;
   if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
   if (res=-1)and(Unit1.SaveTileNotExists) then Synchronize(SaveTileNotExists);
   While (dwn)or(anim_zoom=1) do Sleep(10);
+  if err='' then begin
+    typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
+  end;
   Synchronize(WriteToFile);
   FileBuf.Free;
  end;
@@ -491,6 +495,7 @@ var i,j,ii,k,r,XX,YY,g,x,y,m1,num_dwn:integer;
     link:string;
     Bpos:TPoint;
     bSMP:PMapType;
+    ty: string;
 begin
  num_dwn:=0;
  repeat
@@ -529,14 +534,16 @@ begin
       BPos:=ConvertPosM2M(Upos,zoom_size,bSMP,@MapType[ii]);
       xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom_size);
       yy:=BPos.y-pr_y+(y shl 8);
+
       zoom := zoom_size;
       LoadXY.X := xx;
       LoadXY.Y := yy;
-      link:=MapType[ii].getLink(XX,YY,zoom_size);
+
+      link:=MapType[ii].getLink(XX,YY,zoom);
       lastload.X:=XX-(abs(XX) mod 256);
       lastload.Y:=YY-(abs(YY) mod 256);
-      lastload.z:=zoom_size; lastLoad.mt:=@MapType[ii]; lastLoad.use:=true;
-      if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(MapType[ii].TileExists(xx,yy,zoom_size)))) then
+      lastload.z:=zoom; lastLoad.mt:=@MapType[ii]; lastLoad.use:=true;
+      if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(MapType[ii].TileExists(xx,yy,zoom)))) then
        begin
          If (MapType[ii].UseAntiBan>1) then
           begin
@@ -546,8 +553,8 @@ begin
           end;
          FileBuf:=TMemoryStream.Create;
          if MapType[ii].UseDwn then begin
-                                     res:=DownloadFile(link,MapType[ii]);
-                                     if (res<=0)and(dblDwnl) then res:=DownloadFile(link,MapType[ii]);
+                                     res:=DownloadFile(link,MapType[ii],ty);
+                                     if (res<=0)and(dblDwnl) then res:=DownloadFile(link,MapType[ii],ty);
                                      err:=GetErrStr(res);
                                     end
                                else err:=SAS_ERR_NotLoads;
@@ -555,6 +562,9 @@ begin
          if (res=-1)and(Unit1.SaveTileNotExists) then Synchronize(SaveTileNotExists);
          typemap:=MapType[ii];
          While (dwn)or(anim_zoom=1) do Sleep(10);
+         if err='' then begin
+          MapType[ii].SaveTileDownload(xx, yy, zoom, fileBuf, ty);
+         end;
          Synchronize(WriteToFile);
          typemap:=bSMP^;
          sleep(100);
@@ -568,6 +578,8 @@ end;
 
 procedure ThreadAllLoadMap.dwnReg;
 var p_x,p_y,dwnkb:integer;
+  url: string;
+  ty: string;
 begin
  OperBegin:=now;
  dwnkb:=round(dwnb*1024);
@@ -622,8 +634,9 @@ begin
         then res:=-1
         else
          begin
-          res:=DownloadFile(typemap.getLink(p_x,p_y,zoom),typemap);
-          if (res<=0)and(dblDwnl) then res:=DownloadFile(typemap.getLink(p_x,p_y,zoom),typemap);
+          url := typemap.getLink(p_x,p_y,zoom);
+          res:=DownloadFile(url,typemap,ty);
+          if (res<=0)and(dblDwnl) then res:=DownloadFile(url,typemap,ty);
          end;
 
        If (typemap.UseAntiBan>1)and((scachano>0)and((scachano mod typemap.UseAntiBan)=0)) then
@@ -686,6 +699,9 @@ begin
          Synchronize(UpdateMemoProgressForm);
          continue;
         end;
+        if err='' then begin
+          typemap.SaveTileDownload(p_x, p_y, Zoom, fileBuf, ty);
+        end;
        Synchronize(addDwnTiles);
        Synchronize(WriteToFile);
        FileBuf.Free;
@@ -720,9 +736,6 @@ end;
 
 procedure ThreadAllLoadMap.WriteToFile;
 begin
- if err='' then begin
-  typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
- end;
  if (not(typeRect in [2,3]))and(Fmain.Enabled)then
   begin
    move.X:=m_up.x;
