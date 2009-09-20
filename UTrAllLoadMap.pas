@@ -542,7 +542,9 @@ begin
       link:=MapType[ii].getLink(XX,YY,zoom);
       lastload.X:=XX-(abs(XX) mod 256);
       lastload.Y:=YY-(abs(YY) mod 256);
-      lastload.z:=zoom; lastLoad.mt:=@MapType[ii]; lastLoad.use:=true;
+      lastload.z:=zoom;
+      lastLoad.mt:=@MapType[ii];
+      lastLoad.use:=true;
       if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(MapType[ii].TileExists(xx,yy,zoom)))) then
        begin
          If (MapType[ii].UseAntiBan>1) then
@@ -580,6 +582,7 @@ procedure ThreadAllLoadMap.dwnReg;
 var p_x,p_y,dwnkb:integer;
   url: string;
   ty: string;
+  VTileExists: boolean;
 begin
  OperBegin:=now;
  dwnkb:=round(dwnb*1024);
@@ -597,14 +600,14 @@ begin
       begin
        Synchronize(UpdateProgressForm);
        While (_FProgress.stop)and(_FProgress.Visible) do sleep(100);
-      end; 
+      end;
      if not(_FProgress.Visible) then exit;
      if not(RgnAndRgn(Poly,p_x,p_y,false)) then begin
                                                 inc(p_y,256);
                                                 continue;
                                                end;
-    LoadXY.X := p_x;
-    LoadXY.Y := p_y;
+     LoadXY.X := p_x;
+     LoadXY.Y := p_y;
      lastload.X:=p_x-(abs(p_x) mod 256);
      lastload.Y:=p_y-(abs(p_y) mod 256);
      lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
@@ -612,13 +615,14 @@ begin
      TimeEnd:=GetTimeEnd(num_dwn,obrab);
      LenEnd:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
      Synchronize(UpdateProgressForm);
-     if not(typeMap.TileExists(p_x,p_y,zoom))or(zamena) then
+     VTileExists := typeMap.TileExists(p_x,p_y,zoom);
+     if (zamena) or not(VTileExists) then
       begin
        FileBuf:=TMemoryStream.Create;
-       if typeMap.TileExists(p_x,p_y,zoom) then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'
+       if VTileExists then AddToMemo:=SAS_STR_LoadProcessRepl+' ...'
                            else AddToMemo:=SAS_STR_LoadProcess+'...';
        Synchronize(UpdateMemoProgressForm);
-       if (zDate)and(typeMap.TileExists(p_x,p_y,zoom))and(typeMap.TileLoadDate(p_x,p_y,zoom)>=FDate) then
+       if (zDate)and(VTileExists)and(typeMap.TileLoadDate(p_x,p_y,zoom)>=FDate) then
         begin
          AddToMemo:=AddToMemo+#13#10+SAS_MSG_FileBeCreateTime;
          Synchronize(UpdateMemoProgressForm);
