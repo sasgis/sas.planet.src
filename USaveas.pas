@@ -184,7 +184,7 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL:array of TExtendedPoint);
 begin
- with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,PMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])) do
+ with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,PMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])^) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
@@ -199,7 +199,7 @@ procedure TFsaveas.savefilesREG(APolyLL:array of TExtendedPoint);
 var i:integer;
     path:string;
     Zoomarr:array [0..23] of boolean;
-    typemaparr:array of PMapType;
+    typemaparr:array of TMapType;
     ziped:boolean;
     RelativePath,Replace:boolean;
 begin
@@ -213,9 +213,9 @@ begin
           PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]).active:=RBMapSel.Checked;
         if CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]<>nil then
           PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]).active:=RBHibSel.Checked;
-        typemaparr[0]:=PMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
-        typemaparr[1]:=PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
-        typemaparr[2]:=PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
+        typemaparr[0]:=PMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex])^;
+        typemaparr[1]:=PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex])^;
+        typemaparr[2]:=PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex])^;
         path:=EditPath2.Text;
         RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
@@ -223,7 +223,7 @@ begin
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
         setlength(typemaparr,3);
-        typemaparr[0]:=PMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex]);
+        typemaparr[0]:=PMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex])^;
         ziped:=false;
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
@@ -235,7 +235,7 @@ begin
          if CheckListBox1.Checked[i] then
           begin
            setlength(typemaparr,length(typemaparr)+1);
-           typemaparr[length(typemaparr)-1]:=PMapType(CheckListBox1.Items.Objects[i]);
+           typemaparr[length(typemaparr)-1]:=PMapType(CheckListBox1.Items.Objects[i])^;
           end;
         ziped:=CBZipped.Checked;
         path:=EditPath.Text;
@@ -252,10 +252,10 @@ begin
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL:array of TExtendedPoint);
-var smb:PMapType;
+var smb:TMapType;
     polyg:array of TPoint;
 begin
- smb:=PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
+ smb:=PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex])^;
  setlength(polyg,length(APolyLL));
  formatepoligon(smb,CBZoomload.ItemIndex+1,APolyLL,polyg);
  with ThreadAllLoadMap.Create(false,Polyg,3,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
@@ -269,7 +269,7 @@ end;
 procedure TFsaveas.genbacksatREG(APolyLL:array of TExtendedPoint);
 var i:integer;
 begin
- with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,PMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
+ with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,PMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])^) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
@@ -289,11 +289,11 @@ begin
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL:array of TExtendedPoint);
-var Amt,Hmt:PMapType;
+var Amt,Hmt:TMapType;
     polyg:array of TPoint;
 begin
- Amt:=PMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
- Hmt:=PMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
+ Amt:=PMapType(CBscleit.Items.Objects[CBscleit.ItemIndex])^;
+ Hmt:=PMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex])^;
  setLength(polyg,length(APolyLL));
  formatepoligon(Amt,CBZoomload.ItemIndex+1,APolyLL,polyg);
  if (FMain.SaveDialog1.Execute)then
@@ -521,7 +521,7 @@ var polyg:array of Tpoint;
     numd:integer;
 begin
  SetLength(polyg,length(PolygonLL));
- formatePoligon(PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]),CBZoomload.ItemIndex+1,polygonLL,polyg);
+ formatePoligon(PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex])^,CBZoomload.ItemIndex+1,polygonLL,polyg);
  numd:=GetDwnlNum(min,max,polyg,true);
  label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';

@@ -17,7 +17,7 @@ var WikiLayer:array of TWikiLayer;
     old_x,old_y:integer;
     procedure destroyWL;
     procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
-    procedure loadWL(Alayer:PMapType);
+    procedure loadWL(Alayer: TMapType);
     procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 
 implementation
@@ -83,7 +83,7 @@ begin
  LayerMapWiki.Visible:=false;
 end;
 
-procedure loadWL(Alayer:PMapType);
+procedure loadWL(Alayer:TMapType);
 var
     Ax,Ay,i,j,ii,Azoom:integer;
     APos:TPoint;

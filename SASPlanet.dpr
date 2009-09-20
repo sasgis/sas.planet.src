@@ -68,6 +68,7 @@ begin
     Application.ProcessMessages;
    end;
   Ini.Free;
+  LoadMaps;
   //xLogo
   Application.HelpFile := '';
   Application.CreateForm(TFmain, Fmain);

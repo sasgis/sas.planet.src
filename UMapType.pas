@@ -96,7 +96,7 @@ var
   procedure LoadMaps;
   procedure SaveMaps;
   procedure CreateMapUI;
-  function GetMapFromID(id:string):PMapType;
+  function GetMapFromID(id:string):TMapType;
 
 implementation
 uses
@@ -117,12 +117,12 @@ uses
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
 
-function GetMapFromID(id:string):PMapType;
+function GetMapFromID(id:string):TMapType;
 var i:integer;
 begin
  for i:=0 to length(MapType)-1 do
   if MapType[i].guids=id then begin
-                               result:=@MapType[i];
+                               result:=MapType[i];
                                exit;
                               end;
  result:=nil;
@@ -228,8 +228,8 @@ begin
      if NSmItem<>NIL  then  NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
      TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
     end;
-   if (active)and(MapType[i].asLayer=false) then sat_map_both:=@MapType[i];
-   if (ShowOnSmMap)and(not(asLayer)) then sm_map.maptype:=@MapType[i];
+   if (active)and(MapType[i].asLayer=false) then sat_map_both:=MapType[i];
+   if (ShowOnSmMap)and(not(asLayer)) then sm_map.maptype:=MapType[i];
    TBItem.Tag:=Longint(@MapType[i]);
    TBFillingItem.Tag:=Longint(@MapType[i]);
    if ext<>'.kml' then NSmItem.Tag:=Longint(@MapType[i]);
@@ -249,7 +249,7 @@ begin
   end;
  if FSettings.MapList.Items.Count>0 then FSettings.MapList.Items.Item[0].Selected:=true;
  if longint(sm_map.maptype)=0 then Fmain.NMMtype_0.Checked:=true;
- if (sat_map_both=nil)and(@MapType[0]<>nil) then sat_map_both:=@MapType[0];
+ if (sat_map_both=nil)and(MapType[0]<>nil) then sat_map_both:=MapType[0];
 end;
 
 procedure LoadMaps;
@@ -325,7 +325,6 @@ begin
  MTb:=nil;
  MTb.Free;
  for i:=0 to length(MapType)-1 do begin MapType[i].id:=i+1; end;
- CreateMapUI;
 end;
 
 procedure SaveMaps;

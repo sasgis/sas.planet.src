@@ -7,7 +7,7 @@ type
   ThreadExport = class(TThread)
     PolygLL:array of TExtendedpoint;
     Zoomarr:array [0..23] of boolean;
-    typemaparr:array of PMapType;
+    typemaparr:array of TMapType;
     format:byte;
     Fprogress: TFprogress2;
     Move,ziped:boolean;
@@ -27,7 +27,7 @@ type
     procedure Export2KML(APolyLL:array of TExtendedPoint);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
   public
-    constructor Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of PMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+    constructor Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
   end;
 
 implementation
@@ -38,7 +38,7 @@ begin
  if Zippu then Zip.CancelTheOperation;
 end;
 
-constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of PMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure UniLoadTile(var bmp:TBitmap32; TypeMapArr:PmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
+procedure UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
 var bmp322:TBitmap32;
     png:TPngObject;
 begin
@@ -279,7 +279,7 @@ begin
    for j:=0 to 2 do //по типу
     if TypeMapArr[j]<>nil then
      begin
-      formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
+      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
       GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
@@ -298,12 +298,12 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
+            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
             if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
             bmp322.SaveToFile('c:\123.bmp');
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
+          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
           if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
             UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);

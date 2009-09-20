@@ -22,7 +22,7 @@ type
   TOpGenPreviousZoom = class(TThread)
     InZooms:array of byte;
     FromZoom:byte;
-    typemap:PMapType;
+    typemap:TMapType;
     GenFormPrev:boolean;
     PolygLL:array of TExtendedPoint;
     max,min:TPoint;
@@ -56,14 +56,14 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(Azoom:byte;Atypemap:PMapType);
+    constructor Create(Azoom:byte;Atypemap:TMapType);
   end;
 
 implementation
 uses
   unit1;
 
-constructor TOpGenPreviousZoom.Create(Azoom:byte;Atypemap:PMapType);
+constructor TOpGenPreviousZoom.Create(Azoom:byte;Atypemap:TMapType);
 begin
  inherited Create(true);
  bmp_ex:=TBitmap32.Create;

@@ -53,7 +53,7 @@ type
     Poly1:TPoint;
     Poly:array of TPoint;
     Zoom:byte;
-    typemap,Htypemap:PMapType;
+    typemap,Htypemap:TMapType;
     colors:byte;
     numTlg:integer;
     numTlv:integer;
@@ -79,7 +79,7 @@ type
     procedure Execute; override;
     procedure saveRECT;
   public
-    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:PMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
   end;
 
 implementation
@@ -509,7 +509,7 @@ begin
   end;
 end;
 
-constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:PMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);

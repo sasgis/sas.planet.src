@@ -19,7 +19,7 @@ type
   TlastLoad_ = record
     x,y:longint;
     z:byte;
-    mt:PMapType;
+    mt:TMapType;
     use:boolean;
   end;
   ThreadAllLoadMap = class(TThread)
@@ -77,7 +77,7 @@ type
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
     procedure closeSession;
-    constructor Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:PMapType;AFDate:TDateTime);overload;
+    constructor Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
     constructor Create(CrSusp:Boolean;FileName:string;LastSuccessful:boolean); overload;
   end;
 
@@ -113,7 +113,6 @@ begin
    For i:=0 to length(MapType)-1 do
     if MapType[i].guids=Guids then
      begin
-      typemap:=TMapType.Create;
       typemap:=MapType[i];
      end;
    if typemap=nil then Terminate;
@@ -306,7 +305,7 @@ begin
  all_dwn_kb:=all_dwn_kb+(res/1024);
 end;
 
-constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:PMapType;AFDate:TDateTime);
+constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -314,8 +313,7 @@ begin
   zamena:=Azamena;
   zoom:=AZoom;
   raz:=Azraz;
-  typemap:=TMapType.Create;
-  typemap:=Atypemap^;
+  typemap:=Atypemap;
   typeRect:=AtypeRect;
   FDate:=AFDate;
   Zdate:=AzDate;
@@ -507,7 +505,7 @@ begin
           VMap := MapType[ii];
           if VMap.active then begin
             BPos:=UPos;
-            BPos:=ConvertPosM2M(Upos,zoom,@typemap,@VMap);
+            BPos:=ConvertPosM2M(Upos,zoom,typemap,VMap);
             xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
             yy:=BPos.y-pr_y+(y shl 8);
 
@@ -517,7 +515,7 @@ begin
             lastload.X:=XX-(abs(XX) mod 256);
             lastload.Y:=YY-(abs(YY) mod 256);
             lastload.z:=zoom;
-            lastLoad.mt:=@MapType[ii];
+            lastLoad.mt:=MapType[ii];
             lastLoad.use:=true;
             if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(xx,yy,zoom)))) then begin
               If (VMap.UseAntiBan>1) then begin
@@ -586,7 +584,7 @@ begin
      LoadXY.Y := p_y;
      lastload.X:=p_x-(abs(p_x) mod 256);
      lastload.Y:=p_y-(abs(p_y) mod 256);
-     lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
+     lastload.z:=zoom; lastLoad.mt:=typemap; lastLoad.use:=true;
      dwnb:=dwnkb/1024;
      TimeEnd:=GetTimeEnd(num_dwn,obrab);
      LenEnd:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
@@ -730,7 +728,7 @@ end;
 
 procedure ThreadAllLoadMap.GetSMB;
 begin
- TypeMap:=Sat_map_Both^;
+ TypeMap:=Sat_map_Both;
 end;
 
 end.

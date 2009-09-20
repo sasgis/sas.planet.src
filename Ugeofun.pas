@@ -33,9 +33,9 @@ var
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
-  function ConvertPosM2M(pos:TPoint;Azoom:byte;MS,MD:PMapType):TPoint;
-  function GPos2LonLat(XY:TPoint;Azoom:byte;MT:PMapType):TExtendedPoint;
-  function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:PMapType):Tpoint;
+  function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; var MD:TMapType):TPoint;
+  function GPos2LonLat(XY:TPoint;Azoom:byte;MT:TMapType):TExtendedPoint;
+  function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:TMapType):Tpoint;
   function R2StrPoint(r:extended):string;
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:array of TPoint;P:TPoint):boolean;
@@ -44,12 +44,12 @@ var
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:array of TPoint): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-  procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:PMapType;
+  procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
- function LonLat2Metr(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
- function CalcS(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
+ function LonLat2Metr(LL:TExtendedPoint;TypeMap:TMapType):TExtendedPoint;
+ function CalcS(polygon:array of TExtendedPoint;TypeMap:TMapType):extended;
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
-  procedure formatePoligon(AType:PMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
+  procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
   Procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
   function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
@@ -128,7 +128,7 @@ begin
  max.Y:=max.Y+1;
 end;
 
-procedure formatePoligon(AType:PMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
+procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
 var i:integer;
 begin
  for i:=0 to length(APolyg)-1 do
@@ -163,7 +163,7 @@ begin
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
 end;
 
-function CalcS(polygon:array of TExtendedPoint;TypeMap:PMapType):extended;
+function CalcS(polygon:array of TExtendedPoint;TypeMap:TMapType):extended;
 var L,i:integer;
 begin
  result:=0;
@@ -177,7 +177,7 @@ begin
 end;
 
 
-function LonLat2Metr(LL:TExtendedPoint;TypeMap:PMapType):TExtendedPoint;
+function LonLat2Metr(LL:TExtendedPoint;TypeMap:TMapType):TExtendedPoint;
 begin
   ll:=ExtPoint(ll.x*D2R,ll.y*D2R);
   result.x:=typemap.radiusa*ll.x/2;
@@ -185,7 +185,7 @@ begin
             Power((1-typemap.exct*Sin(ll.y))/(1+typemap.exct*Sin(ll.y)),typemap.exct/2))/2;
 end;
 
-procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:PMapType;
+procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
 var FN,FE:integer;
     k0,E1,N1,E2,N2:double;
@@ -341,7 +341,7 @@ begin
   result.S:=Frac(Frac(G)*60)*60;
 end;
 
-function GPos2LonLat(XY:TPoint;Azoom:byte;MT:PMapType):TExtendedPoint;
+function GPos2LonLat(XY:TPoint;Azoom:byte;MT:TMapType):TExtendedPoint;
 var zu,zum1,yy:extended;
 begin
  If CiclMap then
@@ -377,7 +377,7 @@ begin
  end;
 end;
 
-function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:PMapType):Tpoint;
+function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:TMapType):Tpoint;
 var z,c:real;
 begin
  result.x:=round(zoom[Azoom]/2+ll.x*(zoom[Azoom]/360));
@@ -396,9 +396,9 @@ begin
  end;
 end;
 
-function ConvertPosM2M(pos:TPoint;Azoom:byte;MS,MD:PMapType):TPoint;
+function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; var MD:TMapType):TPoint;
 begin
- if longint(MD)=0 then MD:=MS;
+ if MD=nil then MD:=MS;
  result:=GLonLat2Pos(GPos2LonLat(pos,Azoom,MS),Azoom,MD);
 end;
 

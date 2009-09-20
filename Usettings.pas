@@ -755,7 +755,7 @@ end;
 
 procedure TFSettings.Button15Click(Sender: TObject);
 begin
- FEditMap.AmapType:=PMapType(MapList.Selected.Data);
+ FEditMap.AmapType:=PMapType(MapList.Selected.Data)^;
  FEditMap.ShowModal;
 end;
 
