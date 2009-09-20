@@ -952,41 +952,6 @@ begin
  Result:=Point(Pos.x-(mWd2-Pnt.X),Pos.y-(mHd2-Pnt.y));
 end;
 
-procedure Rotate1( var Nx, Ny: Integer; x_c, y_c: Integer; RotAng: Double);
-var
-   SinVal: Double;
-   CosVal: Double;
-begin
-   Nx:=Nx - x_c;
-   Ny:=Ny - y_c;
-   RotAng := RotAng * 0.0174532925199;
-   SinVal := Sin(RotAng);
-   CosVal := Cos(RotAng);
-   Nx :=round(x_c+ (Nx * CosVal - Ny * SinVal));
-   Ny :=round(y_c+ (Ny * CosVal + Nx * SinVal));
-end;
-
-
-procedure rotate(var x,y:integer;c_x,c_y:integer;a_:real);
-var s_,c_,r_:extended;
-begin
- s_:=0; c_:=0;
- r_ := sqrt(sqr(y - c_y) + sqr(x - c_x));
- SinCos(a_ + arctan2((x - c_x), (y - c_y)), s_, c_);
- y:= round(c_y + r_ * c_);
- x:= round(c_x + r_ * s_);
-end;
-
-procedure Perspective(const X, Y, Z, Height, Basis: Double; var XP, YP: Double);
-var Den: Double;
-begin
-  Den := Y + Basis;
-  if Abs(Den) < 1E-100 then
-    Den := 1E-100;
-  XP := Basis * X / Den;
-  YP := (Basis * Z + Height * Y) / Den;
-end;
-
 procedure TFmain.ShowCaptcha(URL:string);
 begin
  ShellExecute(Handle, nil, PChar(URL), nil, nil, SW_RESTORE);
@@ -2776,7 +2741,7 @@ begin
  Sm_Map.SmMapBitmap.Height:=256;
  Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
  pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
- if longint(sm_map.maptype)=0 then m_t:=sat_map_both
+ if sm_map.maptype=nil then m_t:=sat_map_both
                               else m_t:=sm_map.maptype;
  Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,m_t);
  d:=Point((pos_sm.X-128),(pos_sm.y-128));

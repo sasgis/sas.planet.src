@@ -33,7 +33,7 @@ var
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
-  function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; var MD:TMapType):TPoint;
+  function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType;MD:TMapType):TPoint;
   function GPos2LonLat(XY:TPoint;Azoom:byte;MT:TMapType):TExtendedPoint;
   function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:TMapType):Tpoint;
   function R2StrPoint(r:extended):string;
@@ -396,7 +396,7 @@ begin
  end;
 end;
 
-function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; var MD:TMapType):TPoint;
+function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; MD:TMapType):TPoint;
 begin
  if MD=nil then MD:=MS;
  result:=GLonLat2Pos(GPos2LonLat(pos,Azoom,MS),Azoom,MD);
