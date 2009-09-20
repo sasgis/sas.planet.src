@@ -83,6 +83,7 @@ type
     procedure SaveTileNotExists(x,y:longint;Azoom:byte);
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
     function TileSize(x,y:longint;Azoom:byte): integer;
+    function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
   private
     err: string;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
@@ -985,6 +986,16 @@ begin
   CreateDirIfNotExists(VPath);
   DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
   SaveTileInCache(btm,Vpath);
+end;
+
+function TMapType.TileExportToFile(x, y: Integer; Azoom: byte;
+  AFileName: string; OverWrite: boolean): boolean;
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(x, y, Azoom);
+  CreateDirIfNotExists(AFileName);
+  Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
 end;
 
 function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,

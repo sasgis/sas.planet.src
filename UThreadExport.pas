@@ -146,7 +146,7 @@ procedure ThreadExport.export2iMaps(APolyLL:array of TExtendedPoint);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:array of TPoint;
-    pathto,persl,perzoom,kti:string;
+    persl,perzoom,kti:string;
     max,min,p_h:TPoint;
     MapTypeMerS:TMapType;
     png:TPngObject;
@@ -471,19 +471,19 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
-//TODO: Разобраться и избавиться от путей.
-          pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
           if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
            begin
             if ziped then begin
-                           Zip.FilesList.Add(pathfrom);
+//TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
+                            pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
+                            Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-//TODO: Разобраться и избавиться от путей.
+//TODO: Для создания путей для экспорта нужно создать новый класс.
                            pathto:=PATH+AMapType.GetTileFileName(p_x,p_y,i+1);
-                           Fmain.createdirif(pathto);
-                           Copy_File(Pchar(pathfrom),PChar(pathto),not(replace));
-                           if move then DelFile(pathfrom);
+                           if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
+                             if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
+                           end;
                           end;
            end;
           inc(obrab);

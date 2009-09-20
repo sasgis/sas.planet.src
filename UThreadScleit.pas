@@ -64,10 +64,11 @@ type
     btmm:TBitmap32;
     btmh:TBitmap32;
     usedReColor:boolean;
-    path,FName:string;
+    FName:string;
     prStr1,prStr2,prCaption:string;
     prBar:integer;
     Message_:string;
+    LastXY: TPoint;
   protected
     procedure UpdateProgressFormCapt;
     procedure UpdateProgressFormBar;
@@ -219,8 +220,9 @@ begin
    Aex:=255;
    while p_x<=VThread.poly1.x do
     begin
-      //TODO: Сейчас, по сути, испольуется только для вывода сообщения об ошибке. Нужно убрать вызов из цикла.
-     VThread.path:=VThread.typemap.GetTileFileName(p_x,p_y,VThread.zoom);
+     // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
+     VThread.LastXY.X := p_x;
+     VThread.LastXY.Y := p_y;
      if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
      else
      begin
@@ -289,6 +291,7 @@ var p_x,p_y,i,j,k,errecw:integer;
     Units:CellSizeUnits;
     jcprops : TJPEG_CORE_PROPERTIES;
     iNChannels,iWidth,iHeight:integer;
+    path: string;
 begin
  prCaption:='Склеить: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
                        +inttostr((PolyMax.y-PolyMin.y-1) div 256+1)
@@ -378,7 +381,9 @@ begin
              Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
    if (errecw>0)and(errecw<>52) then
     begin
-     Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+self.path;
+     //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
+     path:=typemap.GetTileFileName(LastXY.x, LastXY.Y, zoom);
+     Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
      Synchronize(SynShowMessage);
     end;
    finally

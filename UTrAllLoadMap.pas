@@ -217,6 +217,7 @@ begin
  _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+Fmain.kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
  _FProgress.LabelValue3.Caption:=TimeEnd;
  _FProgress.LabelValue4.Caption:=LenEnd;
+ //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
   path:=typemap.GetTileFileName(LoadXY.X,LoadXY.y,zoom);
  _FProgress.Memo1.Lines.Add(SAS_STR_ProcessedFile+': '+path+'...');
  Application.ProcessMessages;
