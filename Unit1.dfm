@@ -1,5 +1,5 @@
 object Fmain: TFmain
-  Left = 504
+  Left = 311
   Top = 123
   Width = 969
   Height = 575
@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
