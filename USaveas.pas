@@ -203,7 +203,7 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL:array of TExtendedPoint);
 begin
- with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,PMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])^) do
+ with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
@@ -227,14 +227,14 @@ begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
         setlength(typemaparr,3);
         if CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]<>nil then
-          PMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]).active:=RBSatSel.Checked;
+          TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]).active:=RBSatSel.Checked;
         if CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]<>nil then
-          PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]).active:=RBMapSel.Checked;
+          TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]).active:=RBMapSel.Checked;
         if CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]<>nil then
-          PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]).active:=RBHibSel.Checked;
-        typemaparr[0]:=PMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex])^;
-        typemaparr[1]:=PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex])^;
-        typemaparr[2]:=PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex])^;
+          TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]).active:=RBHibSel.Checked;
+        typemaparr[0]:=TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
+        typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
+        typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
         path:=EditPath2.Text;
         RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
@@ -242,9 +242,9 @@ begin
     7: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
         setlength(typemaparr,3);
-        typemaparr[0]:=PMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex])^;
-        typemaparr[1]:=PMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex])^;
-        typemaparr[2]:=PMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex])^;
+        typemaparr[0]:=TMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
+        typemaparr[1]:=TMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex]);
+        typemaparr[2]:=TMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
         path:=EditPath4.Text;
         RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;
@@ -252,7 +252,7 @@ begin
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
         setlength(typemaparr,3);
-        typemaparr[0]:=PMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex])^;
+        typemaparr[0]:=TMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex]);
         ziped:=false;
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
@@ -264,7 +264,7 @@ begin
          if CheckListBox1.Checked[i] then
           begin
            setlength(typemaparr,length(typemaparr)+1);
-           typemaparr[length(typemaparr)-1]:=PMapType(CheckListBox1.Items.Objects[i])^;
+           typemaparr[length(typemaparr)-1]:=TMapType(CheckListBox1.Items.Objects[i]);
           end;
         ziped:=CBZipped.Checked;
         path:=EditPath.Text;
@@ -284,7 +284,7 @@ procedure TFsaveas.LoadRegion(APolyLL:array of TExtendedPoint);
 var smb:TMapType;
     polyg:array of TPoint;
 begin
- smb:=PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex])^;
+ smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
  setlength(polyg,length(APolyLL));
  formatepoligon(smb,CBZoomload.ItemIndex+1,APolyLL,polyg);
  with ThreadAllLoadMap.Create(false,Polyg,3,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
@@ -298,7 +298,7 @@ end;
 procedure TFsaveas.genbacksatREG(APolyLL:array of TExtendedPoint);
 var i:integer;
 begin
- with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,PMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])^) do
+ with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
@@ -321,8 +321,8 @@ procedure TFsaveas.scleitRECT(APolyLL:array of TExtendedPoint);
 var Amt,Hmt:TMapType;
     polyg:array of TPoint;
 begin
- Amt:=PMapType(CBscleit.Items.Objects[CBscleit.ItemIndex])^;
- Hmt:=PMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex])^;
+ Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
+ Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
  setLength(polyg,length(APolyLL));
  formatepoligon(Amt,CBZoomload.ItemIndex+1,APolyLL,polyg);
  if (FMain.SaveDialog1.Execute)then
@@ -410,53 +410,53 @@ begin
   begin
    if (MapType[i].Usedwn) then
     begin
-     CBMapLoad.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBMapLoad.ItemIndex:=CBMapLoad.Items.IndexOfObject(@MapType[i]);
+     CBMapLoad.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBMapLoad.ItemIndex:=CBMapLoad.Items.IndexOfObject(MapType[i]);
     end;
    if MapType[i].Usestick then
     begin
-     CBscleit.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].asLayer)and(MapType[i].ext<>'.kml') then CBSclHib.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBscleit.ItemIndex:=CBscleit.Items.IndexOfObject(@MapType[i]);
+     CBscleit.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].asLayer)and(MapType[i].ext<>'.kml') then CBSclHib.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBscleit.ItemIndex:=CBscleit.Items.IndexOfObject(MapType[i]);
     end;
    if (MapType[i].UseGenPrevious) then
     begin
-     CBmtForm.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBmtForm.ItemIndex:=CBmtForm.Items.IndexOfObject(@MapType[i]);
+     CBmtForm.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBmtForm.ItemIndex:=CBmtForm.Items.IndexOfObject(MapType[i]);
     end;
    if (MapType[i].Usedel) then
     begin
-     CBmapDel.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBmapDel.ItemIndex:=CBmapDel.Items.IndexOfObject(@MapType[i]);
+     CBmapDel.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBmapDel.ItemIndex:=CBmapDel.Items.IndexOfObject(MapType[i]);
     end;
    if (MapType[i].UseSave) then
     begin
      if((MapType[i].ext='.jpg')or(MapType[i].ext='.png')or(MapType[i].ext='.gif')) then
       if (not(MapType[i].asLayer)) then begin
-                                         CmBExpSat.Items.AddObject(MapType[i].name,@MapType[i]);
-                                         CmBExpMap.Items.AddObject(MapType[i].name,@MapType[i]);
-                                         CmBExpSatYa.Items.AddObject(MapType[i].name,@MapType[i]);
-                                         CmBExpMapYa.Items.AddObject(MapType[i].name,@MapType[i]);
+                                         CmBExpSat.Items.AddObject(MapType[i].name,MapType[i]);
+                                         CmBExpMap.Items.AddObject(MapType[i].name,MapType[i]);
+                                         CmBExpSatYa.Items.AddObject(MapType[i].name,MapType[i]);
+                                         CmBExpMapYa.Items.AddObject(MapType[i].name,MapType[i]);
                                          if MapType[i].active then begin
-                                                                    CmBExpSat.ItemIndex:=CmBExpSat.Items.IndexOfObject(@MapType[i]);
-                                                                    CmBExpMap.ItemIndex:=CmBExpSat.Items.IndexOfObject(@MapType[i]);
-                                                                    CmBExpSatYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(@MapType[i]);
-                                                                    CmBExpMapYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(@MapType[i]);
+                                                                    CmBExpSat.ItemIndex:=CmBExpSat.Items.IndexOfObject(MapType[i]);
+                                                                    CmBExpMap.ItemIndex:=CmBExpSat.Items.IndexOfObject(MapType[i]);
+                                                                    CmBExpSatYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(MapType[i]);
+                                                                    CmBExpMapYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(MapType[i]);
                                                                    end;
                                         end
                                    else if(MapType[i].ext='.png') then
                                         begin
-                                         CmBExpHib.Items.AddObject(MapType[i].name,@MapType[i]);
-                                         CmBExpHibYa.Items.AddObject(MapType[i].name,@MapType[i]);
+                                         CmBExpHib.Items.AddObject(MapType[i].name,MapType[i]);
+                                         CmBExpHibYa.Items.AddObject(MapType[i].name,MapType[i]);
                                          if (MapType[i].active)and(CmBExpHib.ItemIndex=-1) then begin
-                                           CmBExpHib.ItemIndex:=CmBExpHib.Items.IndexOfObject(@MapType[i]);
-                                           CmBExpHibYa.ItemIndex:=CmBExpHibYa.Items.IndexOfObject(@MapType[i]);
+                                           CmBExpHib.ItemIndex:=CmBExpHib.Items.IndexOfObject(MapType[i]);
+                                           CmBExpHibYa.ItemIndex:=CmBExpHibYa.Items.IndexOfObject(MapType[i]);
                                          end;
                                         end;
-     CheckListBox1.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].active)and(not(MapType[i].asLayer)) then CheckListBox1.Checked[CheckListBox1.Items.IndexOfObject(@MapType[i])]:=true;
-     CBoxMaps2Save.Items.AddObject(MapType[i].name,@MapType[i]);
-     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBoxMaps2Save.ItemIndex:=CheckListBox1.Items.IndexOfObject(@MapType[i]);
+     CheckListBox1.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].active)and(not(MapType[i].asLayer)) then CheckListBox1.Checked[CheckListBox1.Items.IndexOfObject(MapType[i])]:=true;
+     CBoxMaps2Save.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].active)and(not(MapType[i].asLayer)) then CBoxMaps2Save.ItemIndex:=CheckListBox1.Items.IndexOfObject(MapType[i]);
     end;
   end;
  if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
@@ -570,7 +570,7 @@ var polyg:array of Tpoint;
     numd:integer;
 begin
  SetLength(polyg,length(PolygonLL));
- formatePoligon(PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex])^,CBZoomload.ItemIndex+1,polygonLL,polyg);
+ formatePoligon(TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]),CBZoomload.ItemIndex+1,polygonLL,polyg);
  numd:=GetDwnlNum(min,max,polyg,true);
  label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';

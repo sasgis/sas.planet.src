@@ -23,7 +23,6 @@ uses
   UResStrings;
 
 type
- PMapType = ^TMapType;
  TMapType = class
    protected
     FCoordConverter : ICoordConverter;
@@ -230,17 +229,17 @@ begin
     end;
    if (active)and(MapType[i].asLayer=false) then sat_map_both:=MapType[i];
    if (ShowOnSmMap)and(not(asLayer)) then sm_map.maptype:=MapType[i];
-   TBItem.Tag:=Longint(@MapType[i]);
-   TBFillingItem.Tag:=Longint(@MapType[i]);
-   if ext<>'.kml' then NSmItem.Tag:=Longint(@MapType[i]);
+   TBItem.Tag:=Longint(MapType[i]);
+   TBFillingItem.Tag:=Longint(MapType[i]);
+   if ext<>'.kml' then NSmItem.Tag:=Longint(MapType[i]);
    if asLayer then
     begin
-     NDwnItem.Tag:=longint(@MapType[i]);
-     NDelItem.Tag:=longint(@MapType[i]);
-     NLayerParamsItem.Tag:=longint(@MapType[i]);
+     NDwnItem.Tag:=longint(MapType[i]);
+     NDelItem.Tag:=longint(MapType[i]);
+     NLayerParamsItem.Tag:=longint(MapType[i]);
     end;
    FSettings.MapList.AddItem(MapType[i].name,nil);
-   FSettings.MapList.Items.Item[i].Data:=@MapType[i];
+   FSettings.MapList.Items.Item[i].Data:=MapType[i];
    FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].NameInCache);
    if MapType[i].asLayer then FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+MapType[i].ParentSubMenu)
                          else FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+MapType[i].ParentSubMenu);

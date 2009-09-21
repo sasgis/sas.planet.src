@@ -3110,8 +3110,8 @@ end;
 
 procedure TFmain.TBmap1Click(Sender: TObject);
 begin
- if sender is TTBItem then selectMap(PMapType(TTBXItem(sender).tag)^)
-                      else selectMap(PMapType(TTBXItem(sender).tag)^);
+ if sender is TTBItem then selectMap(TMapType(TTBXItem(sender).tag))
+                      else selectMap(TMapType(TTBXItem(sender).tag));
 end;
 
 procedure TFmain.N8Click(Sender: TObject);
@@ -3167,7 +3167,7 @@ var path:string;
     AMapType:TMapType;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=PMapType(TMenuItem(sender).Tag)^;
+                            else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
@@ -3226,7 +3226,7 @@ var s:string;
     APos:TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=PMapType(TMenuItem(sender).Tag)^;
+                            else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
@@ -3571,10 +3571,10 @@ begin
                                   NMMtype_0.Checked:=true;
                                  end
  else
- if PMapType(TTBXItem(sender).Tag).asLayer then
+ if TMapType(TTBXItem(sender).Tag).asLayer then
    begin
-    PMapType(TTBXItem(sender).Tag).ShowOnSmMap:=not(PMapType(TTBXItem(sender).Tag).ShowOnSmMap);
-    TTBXItem(sender).Checked:=PMapType(TTBXItem(sender).Tag).ShowOnSmMap;
+    TMapType(TTBXItem(sender).Tag).ShowOnSmMap:=not(TMapType(TTBXItem(sender).Tag).ShowOnSmMap);
+    TTBXItem(sender).Checked:=TMapType(TTBXItem(sender).Tag).ShowOnSmMap;
    end else
    begin
     NMMtype_0.Checked:=false;
@@ -3582,7 +3582,7 @@ begin
                                         sm_map.MapType.ShowOnSmMap:=false;
                                         sm_map.MapType.NSmItem.Checked:=false;
                                        end;
-    sm_map.maptype:=PMapType(TTBXItem(sender).Tag)^;
+    sm_map.maptype:=TMapType(TTBXItem(sender).Tag);
     sm_map.maptype.NSmItem.Checked:=true;
     sm_map.maptype.ShowOnSmMap:=true;
    end;
@@ -4074,7 +4074,7 @@ end;
 procedure TFmain.NMapParamsClick(Sender: TObject);
 begin
  if TTBXItem(sender).Tag=0 then FEditMap.AmapType:=sat_map_both
-                           else FEditMap.AmapType:=PMapType(TTBXItem(sender).Tag)^;
+                           else FEditMap.AmapType:=TMapType(TTBXItem(sender).Tag);
  FEditMap.ShowModal;
 end;
 
@@ -4834,7 +4834,7 @@ begin
   begin
     TBfillMapAsMain.Checked:=false;
     if fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=false;
-    fillingmaptype:=PMapType(TTBXItem(sender).Tag)^;
+    fillingmaptype:=TMapType(TTBXItem(sender).Tag);
     fillingmaptype.TBFillingItem.Checked:=true;
  end;
  generate_mapzap;

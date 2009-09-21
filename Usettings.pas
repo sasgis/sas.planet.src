@@ -420,7 +420,7 @@ var i,k,j:integer;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
-   PMapType(MapList.Items.Item[i].data).id:=i+1;
+   TMapType(MapList.Items.Item[i].data).id:=i+1;
   end;
   k := length(MapType) shr 1;
  while k>0 do
@@ -755,7 +755,7 @@ end;
 
 procedure TFSettings.Button15Click(Sender: TObject);
 begin
- FEditMap.AmapType:=PMapType(MapList.Selected.Data)^;
+ FEditMap.AmapType:=TMapType(MapList.Selected.Data);
  FEditMap.ShowModal;
 end;
 
@@ -767,7 +767,7 @@ end;
 procedure TFSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
 begin
  if item = nil then EXIT;
- if PMapType(Item.Data).separator then
+ if TMapType(Item.Data).separator then
   begin
    sender.canvas.Pen.Color:=clGray;
    sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
@@ -799,7 +799,7 @@ end;
 
 procedure TFSettings.Button18Click(Sender: TObject);
 begin
- showMessage(PMapType(MapList.Selected.Data).info);
+ showMessage(TMapType(MapList.Selected.Data).info);
 end;
 
 end.
