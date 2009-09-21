@@ -161,10 +161,6 @@ c:\program files\borland\delphi7\Projects\Bpl\EmbeddedWBD7.bpl=MSHTML Edit helpe
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlUnitOutputDirectory]
-Count=1
-Item0=.\.dcu
 [HistoryLists\hlOutputDirectorry]
-Count=2
-Item0=.\.bin
-Item1=..\.bin
+Count=1
+Item0=..\.bin

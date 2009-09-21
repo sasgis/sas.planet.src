@@ -41,7 +41,8 @@ uses
   UPLT in 'UPLT.pas',
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   UNetRadar in 'UNetRadar.pas',
-  u_MemFileCache in 'u_MemFileCache.pas';
+  u_MemFileCache in 'u_MemFileCache.pas',
+  UYaMobile in 'UYaMobile.pas';
 
 var Ini: Tinifile;
     loc:integer;

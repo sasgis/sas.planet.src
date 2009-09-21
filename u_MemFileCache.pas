@@ -100,14 +100,14 @@ begin
         end;
       end;
     end else begin
-      if (btm is TGraphic) then
-        TGraphic(btm).LoadFromFile(path)
-      else if (btm is TPicture) then
+      if (btm is TPicture) then
         TPicture(btm).LoadFromFile(path)
       else if (btm is TJPEGimage) then
         TJPEGimage(btm).LoadFromFile(path)
       else if (btm is TPNGObject) then
-        TPNGObject(btm).LoadFromFile(path);
+        TPNGObject(btm).LoadFromFile(path)
+      else if (btm is TGraphic) then
+        TGraphic(btm).LoadFromFile(path);
     end;
     result:=true;
   except

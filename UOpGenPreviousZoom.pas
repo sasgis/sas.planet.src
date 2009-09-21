@@ -189,9 +189,9 @@ begin
                                        inc(p_y,256);
                                        continue;
                                       end;
-                                 FMainTileXY.X := p_x;
-                                 FMainTileXY.Y := p_y;
-                                 FMainTileZoom := InZooms[i];
+                                FMainTileXY.X := p_x;
+                                FMainTileXY.Y := p_y;
+                                FMainTileZoom := InZooms[i];
                                 Synchronize(LoadMainTileOp);
                                end
                           else begin
@@ -214,8 +214,8 @@ begin
                    else VZoom := InZooms[i-1];
           if typemap.TileExists(p_x_x,p_y_y,VZoom) then
            begin
-            FChildeTileXY.X := p_x;
-            FChildeTileXY.Y := p_y;
+            FChildeTileXY.X := p_x_x;
+            FChildeTileXY.Y := p_y_y;
             FChildeTileZoom := VZoom;
             Synchronize(LoadChildTileOp);
             bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);

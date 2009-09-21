@@ -1,6 +1,6 @@
 object Fsaveas: TFsaveas
-  Left = 243
-  Top = 315
+  Left = 196
+  Top = 280
   BorderStyle = bsDialog
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
   ClientHeight = 242
@@ -68,7 +68,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 481
     Height = 201
-    ActivePage = TabSheet2
+    ActivePage = TabSheet5
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
@@ -163,7 +163,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 4
       end
       object CBZoomload: TComboBox
@@ -172,7 +172,7 @@ object Fsaveas: TFsaveas
         Width = 41
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 5
         OnChange = CBZoomloadChange
       end
@@ -274,7 +274,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object QualitiEdit: TSpinEdit
@@ -462,7 +462,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 4
       end
       object CBalhForm: TComboBox
@@ -496,7 +496,7 @@ object Fsaveas: TFsaveas
         Width = 57
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 6
         OnChange = ComboBoxChange
       end
@@ -543,7 +543,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end
@@ -584,7 +584,8 @@ object Fsaveas: TFsaveas
           'GMT (GlobalMapper >=10.02)'
           'iPhone (2.2 '#1080' '#1074#1099#1096#1077' 128'#1093'128) '
           'iPhone ('#1053#1080#1078#1077' v2.2 64'#1093'64)'
-          'KML ('#1044#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' GE)')
+          'KML ('#1044#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' GE)'
+          #1052#1086#1073#1080#1083#1100#1085#1099#1077' '#1071#1085#1076#1077#1082#1089'.'#1050#1072#1088#1090#1099' ('#1074#1077#1088#1089#1080#1103' 3)')
       end
       object Panel1: TPanel
         Left = 0
@@ -985,6 +986,163 @@ object Fsaveas: TFsaveas
           Height = 17
           Caption = #1053#1077' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1087#1091#1090#1080' '#1082' '#1085#1077#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1084' '#1090#1072#1081#1083#1072#1084
           TabOrder = 6
+        end
+      end
+      object Panel4: TPanel
+        Left = 0
+        Top = 36
+        Width = 473
+        Height = 133
+        BevelOuter = bvNone
+        TabOrder = 4
+        Visible = False
+        object Label36: TLabel
+          Left = 5
+          Top = 42
+          Width = 147
+          Height = 13
+          Caption = #1042#1082#1083#1102#1095#1080#1090#1100' '#1089#1083#1077#1076#1091#1102#1097#1080#1077' '#1082#1072#1088#1090#1099':'
+        end
+        object Label38: TLabel
+          Left = 8
+          Top = 2
+          Width = 82
+          Height = 13
+          Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+        end
+        object Label39: TLabel
+          Left = 407
+          Top = 42
+          Width = 57
+          Height = 13
+          Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        end
+        object Label40: TLabel
+          Left = 11
+          Top = 83
+          Width = 41
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1057#1087#1091#1090#1085#1080#1082
+        end
+        object Label41: TLabel
+          Left = 21
+          Top = 59
+          Width = 30
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1050#1072#1088#1090#1072
+        end
+        object Label42: TLabel
+          Left = 2
+          Top = 107
+          Width = 51
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1053#1072#1083#1086#1078#1080#1090#1100
+        end
+        object Label43: TLabel
+          Left = 240
+          Top = 42
+          Width = 41
+          Height = 13
+          Caption = #1057#1078#1072#1090#1080#1077':'
+        end
+        object Label44: TLabel
+          Left = 293
+          Top = 83
+          Width = 52
+          Height = 13
+          Caption = '100..1 max'
+        end
+        object Label45: TLabel
+          Left = 293
+          Top = 59
+          Width = 40
+          Height = 13
+          Caption = '0..9 max'
+        end
+        object Button6: TButton
+          Left = 448
+          Top = 0
+          Width = 21
+          Height = 21
+          Caption = '...'
+          TabOrder = 0
+          OnClick = Button2Click
+        end
+        object EditPath4: TEdit
+          Left = 96
+          Top = 0
+          Width = 352
+          Height = 21
+          TabOrder = 1
+        end
+        object CkLZoomSelYa: TCheckListBox
+          Left = 408
+          Top = 56
+          Width = 55
+          Height = 73
+          ItemHeight = 13
+          TabOrder = 2
+        end
+        object CmBExpSatYa: TComboBox
+          Left = 56
+          Top = 80
+          Width = 177
+          Height = 21
+          Style = csDropDownList
+          DropDownCount = 16
+          ItemHeight = 13
+          TabOrder = 3
+        end
+        object CmBExpMapYa: TComboBox
+          Left = 56
+          Top = 56
+          Width = 177
+          Height = 21
+          Style = csDropDownList
+          DropDownCount = 16
+          ItemHeight = 13
+          TabOrder = 4
+        end
+        object CmBExpHibYa: TComboBox
+          Left = 56
+          Top = 104
+          Width = 177
+          Height = 21
+          Style = csDropDownList
+          DropDownCount = 16
+          ItemHeight = 13
+          TabOrder = 5
+        end
+        object SpinEdit1: TSpinEdit
+          Left = 240
+          Top = 80
+          Width = 49
+          Height = 22
+          MaxValue = 100
+          MinValue = 1
+          TabOrder = 6
+          Value = 85
+        end
+        object SpinEdit2: TSpinEdit
+          Left = 240
+          Top = 56
+          Width = 49
+          Height = 22
+          MaxValue = 9
+          MinValue = 0
+          TabOrder = 7
+          Value = 2
+        end
+        object CkBNotReplaseYa: TCheckBox
+          Left = 96
+          Top = 23
+          Width = 185
+          Height = 17
+          Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
+          TabOrder = 8
         end
       end
     end

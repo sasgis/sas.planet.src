@@ -206,7 +206,7 @@ procedure ThreadExport.export2iMaps(APolyLL:array of TExtendedPoint);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:array of TPoint;
-    pathto,persl,perzoom,kti:string;
+    pathfrom,pathto,persl,perzoom,kti:string;
     max,min,p_h:TPoint;
     MapTypeMerS:TMapType;
     png:TPngObject;
@@ -360,13 +360,15 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
-            if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
+            pathfrom:=TypeMapArr[0].GetTileFileName(p_h.x,p_h.y,i+1);
+            if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
-          if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
+          pathfrom:=TypeMapArr[j].GetTileFileName(p_h.x,p_h.y,i+1);
+          if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then
            begin
-            UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
+            UniLoadTile(bmp32,pathfrom,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
             if (j=2)and(TypeMapArr[0]<>nil) then
               begin
                bmp322.Draw(0,0,bmp32);
@@ -376,13 +378,28 @@ begin
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
+                  //bmp32Crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
+                  //png:=tpngobject.createblank(6, 8,sizeim, sizeim);
+                  {for crj:=0 to sizeim-1 do
+                   begin
+                    Color32arr:=bmp32Crop.ScanLine[crj];
+                    for cri:=0 to sizeim-1 do
+                     Color32ToRGBA(Color32arr^[cri],TRGBLine(png.Scanline[crj]^)[cri].rgbtRed,
+                                                    TRGBLine(png.Scanline[crj]^)[cri].rgbtGreen,
+                                                    TRGBLine(png.Scanline[crj]^)[cri].rgbtBlue,
+                                                    png.AlphaScanline[crj]^[cri]);
+
+                   end;  }
                   bmp32crop.Clear; 
                   bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
+                  //bmp.Canvas.CopyRect(bounds(0,0,sizeim,sizeim),bmp32.Canvas,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim));
                   bmp.Assign(bmp32Crop);
                   jpg.Assign(bmp);
                   TileStream.Clear;
                   jpg.CompressionQuality:=chib;
+                  //jpg.Compress;
                   jpg.SaveToStream(TileStream);
+                  //jpg.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(xi)+'-'+inttostr(p_y)+'_'+inttostr(xi)+'h.jpg');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,6,TileStream.Size);
                 end;
             if j=1 then
@@ -393,6 +410,7 @@ begin
                   TileStream.Clear;
                   png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
+                  //png.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(p_y)+'-'+inttostr(xi)+'_'+inttostr(yi)+'.png');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,2,TileStream.Size);
                 end;
             if j=0 then
@@ -536,7 +554,6 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
-//TODO: Разобраться и избавиться от путей.
           pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
           if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
            begin
@@ -545,7 +562,6 @@ begin
                            Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-//TODO: Разобраться и избавиться от путей.
                            pathto:=PATH+AMapType.GetTileFileName(p_x,p_y,i+1);
                            Fmain.createdirif(pathto);
                            Copy_File(Pchar(pathfrom),PChar(pathto),not(replace));
@@ -583,7 +599,7 @@ procedure ThreadExport.Export2KML(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
     num_dwn,scachano,obrab:integer;
     polyg:array of TPoint;
-    persl,perzoom,kti,ToFile,datestr:string;
+    pathfrom,pathto,persl,perzoom,kti,ToFile,datestr:string;
     max,min:TPoint;
     AMapType:TMapType;
     KMLFile:TextFile;
@@ -593,7 +609,6 @@ var xym256lt,xym256rb:TPoint;
     i,nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
 begin
-  //TODO: Нужно думать на случай когда тайлы будут в базе данных
   savepath:=TypeMapArr[0].GetTileFileName(x,y,z);
   if (Replace)and(not(TypeMapArr[0].TileExists(x,y,z))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);

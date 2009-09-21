@@ -87,13 +87,17 @@ begin
         AlphaPtr:=PByte(PNGObject.Scanline[Y]);
         for X:=0 to (destBitmap.Width-1) do
          begin
-          if AlphaPtr^=0 then PixelPtr^:=PixelPtr^ and $00000000
+          if PNGObject.Pixels[X,Y]=0 then PixelPtr^:=PixelPtr^ and $00000000
                          else PixelPtr^:=Color32(PNGObject.Pixels[X,Y]);
           Inc(PixelPtr);
-          Inc(AlphaPtr);
+          //Inc(AlphaPtr);
          end;
         end;
       end;
+     ptmNone:
+       begin
+        destBitmap.Assign(PNGObject);
+       end;
   end;
   result:=true;
  except

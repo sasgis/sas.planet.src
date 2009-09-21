@@ -404,7 +404,6 @@ type
     procedure NMarksCalcsLenClick(Sender: TObject);
     procedure NMarksCalcsSqClick(Sender: TObject);
     procedure NMarksCalcsPerClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure TBEditPathOkClick(Sender: TObject);
     procedure TBItem1Click(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
@@ -517,7 +516,7 @@ type
   end;
 
 const
-  SASVersion='90914';
+  SASVersion='90919';
   ENU=LANG_ENGLISH;
   RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
@@ -2383,7 +2382,7 @@ begin
          else
           begin
            spr.Clear($005f5f5f);
-           if MapType[Leyi].LoadTile(png,xx,yy,zoom_size,true)
+           if MapType[Leyi].LoadTile(spr,xx,yy,zoom_size,true)
            then begin
                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,zoom_size);
                  spr.DrawMode:=dmBlend;
@@ -4940,10 +4939,6 @@ end;
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 begin
  MessageBox(Handle,pchar(SAS_STR_P+' - '+R2ShortStr(GetMarkLength(strtoint(PWL.numid)),2)),pchar(PWL.name),0);
-end;
-
-procedure TFmain.SpeedButton1Click(Sender: TObject);
-begin
 end;
 
 procedure TFmain.TBEditPathOkClick(Sender: TObject);

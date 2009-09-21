@@ -126,6 +126,25 @@ type
     CBLastSuccess: TCheckBox;
     Label32: TLabel;
     CBGenFromPrev: TCheckBox;
+    Panel4: TPanel;
+    Label36: TLabel;
+    Label38: TLabel;
+    Label39: TLabel;
+    Label40: TLabel;
+    Label41: TLabel;
+    Label42: TLabel;
+    Label43: TLabel;
+    Label44: TLabel;
+    Label45: TLabel;
+    Button6: TButton;
+    EditPath4: TEdit;
+    CkLZoomSelYa: TCheckListBox;
+    CmBExpSatYa: TComboBox;
+    CmBExpMapYa: TComboBox;
+    CmBExpHibYa: TComboBox;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    CkBNotReplaseYa: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -308,6 +327,16 @@ begin
         RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
        end;
+    7: begin
+        for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
+        setlength(typemaparr,3);
+        typemaparr[0]:=PMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
+        typemaparr[1]:=PMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex]);
+        typemaparr[2]:=PMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
+        path:=EditPath4.Text;
+        RelativePath:=false;
+        Replace:=CkBNotReplaseYa.Checked;
+       end;
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
         setlength(typemaparr,3);
@@ -331,7 +360,7 @@ begin
         Replace:=CBReplace.Checked;
        end;
  end;
- with ThreadExport.Create(false,path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,cSatEdit.Value,cMapEdit.Value,cHybEdit.Value,RelativePath) do
+ with ThreadExport.Create(false,IncludeTrailingBackslash(path),APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,cSatEdit.Value,cMapEdit.Value,cHybEdit.Value,RelativePath) do
   begin
    OnTerminate:=Fmain.ThreadExportDone;
    Priority := tpLowest;
@@ -435,6 +464,7 @@ begin
  ComboBox.Items.Clear;
  CkLZoomSel.Items.Clear;
  CheckListBox2.Items.Clear;
+ CkLZoomSelYa.Items.Clear;
  for i:=1 to 24 do
   begin
    CBZoomload.Items.Add(inttostr(i));
@@ -442,6 +472,7 @@ begin
    CkLZoomSel.Items.Add(inttostr(i));
    CkLZoomSel3.Items.Add(inttostr(i));
    CheckListBox2.Items.Add(inttostr(i));
+   CkLZoomSelYa.Items.Add(inttostr(i));
   end;
  DateDo.Date:=now;
  CBMapLoad.Items.Clear;
@@ -457,6 +488,12 @@ begin
  CmBExpSat.Items.AddObject(SAS_STR_No,nil);
  CmBExpMap.Items.AddObject(SAS_STR_No,nil);
  CmBExpHib.Items.AddObject(SAS_STR_No,nil);
+ CmBExpSatYa.items.Clear;
+ CmBExpMapYa.items.Clear;
+ CmBExpHibYa.items.Clear;
+ CmBExpSatYa.Items.AddObject(SAS_STR_No,nil);
+ CmBExpMapYa.Items.AddObject(SAS_STR_No,nil);
+ CmBExpHibYa.Items.AddObject(SAS_STR_No,nil);
  For i:=0 to length(MapType)-1 do
   begin
    if (MapType[i].Usedwn) then
@@ -486,15 +523,23 @@ begin
       if (not(MapType[i].asLayer)) then begin
                                          CmBExpSat.Items.AddObject(MapType[i].name,@MapType[i]);
                                          CmBExpMap.Items.AddObject(MapType[i].name,@MapType[i]);
+                                         CmBExpSatYa.Items.AddObject(MapType[i].name,@MapType[i]);
+                                         CmBExpMapYa.Items.AddObject(MapType[i].name,@MapType[i]);
                                          if MapType[i].active then begin
                                                                     CmBExpSat.ItemIndex:=CmBExpSat.Items.IndexOfObject(@MapType[i]);
                                                                     CmBExpMap.ItemIndex:=CmBExpSat.Items.IndexOfObject(@MapType[i]);
+                                                                    CmBExpSatYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(@MapType[i]);
+                                                                    CmBExpMapYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(@MapType[i]);
                                                                    end;
                                         end
                                    else if(MapType[i].ext='.png') then
                                         begin
                                          CmBExpHib.Items.AddObject(MapType[i].name,@MapType[i]);
-                                         if (MapType[i].active)and(CmBExpHib.ItemIndex=-1) then CmBExpHib.ItemIndex:=CmBExpHib.Items.IndexOfObject(@MapType[i]);
+                                         CmBExpHibYa.Items.AddObject(MapType[i].name,@MapType[i]);
+                                         if (MapType[i].active)and(CmBExpHib.ItemIndex=-1) then begin
+                                           CmBExpHib.ItemIndex:=CmBExpHib.Items.IndexOfObject(@MapType[i]);
+                                           CmBExpHibYa.ItemIndex:=CmBExpHibYa.Items.IndexOfObject(@MapType[i]);
+                                         end;
                                         end;
      CheckListBox1.Items.AddObject(MapType[i].name,@MapType[i]);
      if (MapType[i].active)and(not(MapType[i].asLayer)) then CheckListBox1.Checked[CheckListBox1.Items.IndexOfObject(@MapType[i])]:=true;
@@ -509,6 +554,9 @@ begin
  if CmBExpSat.ItemIndex=-1 then CmBExpSat.ItemIndex:=1;
  if CmBExpMap.ItemIndex=-1 then CmBExpMap.ItemIndex:=0;
  if CmBExpHib.ItemIndex=-1 then CmBExpHib.ItemIndex:=0;
+ if CmBExpSatYa.ItemIndex=-1 then CmBExpSatYa.ItemIndex:=1;
+ if CmBExpMapYa.ItemIndex=-1 then CmBExpMapYa.ItemIndex:=0;
+ if CmBExpHibYa.ItemIndex=-1 then CmBExpHibYa.ItemIndex:=0;
  CBSclHib.ItemIndex:=0;
  zoom_rect:=Azoom;
  setlength(polygonLL,0);
@@ -566,6 +614,7 @@ begin
    EditPath.Text := String(TempPath)+'\';
    EditPath2.Text := String(TempPath)+'\';
    EditPath3.Text := String(TempPath)+'\';
+   EditPath4.Text := String(TempPath)+'\';
   end;
 end;
 
@@ -665,6 +714,7 @@ end;
 
 procedure TFsaveas.CBFormatChange(Sender: TObject);
 begin
+ Panel4.Visible:=(CBFormat.ItemIndex in [7]);
  Panel3.Visible:=(CBFormat.ItemIndex in [6]);
  Panel2.Visible:=(CBFormat.ItemIndex in [4,5]);
  Panel1.Visible:=(CBFormat.ItemIndex in [0,1,2,3]);
