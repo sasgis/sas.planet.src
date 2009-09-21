@@ -525,7 +525,7 @@ begin
 
  GPS_popr:=Extpoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                       DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
- //
+
  TilesOut:=SpinEdit3.Value;
  hg_x:=(Screen.Width div 256)+(integer((Screen.Width mod 256)>0))+TilesOut;
  hg_y:=(Screen.Height div 256)+(integer((Screen.Height mod 256)>0))+TilesOut;
@@ -610,7 +610,6 @@ end;
 
 procedure TFSettings.FormShow(Sender: TObject);
 var DMS:TDMS;
-    i:integer;
 begin
  MapsEdit:=false;
  case localization  of
@@ -756,7 +755,7 @@ end;
 
 procedure TFSettings.Button15Click(Sender: TObject);
 begin
- FEditMap.AmapType:=PMapType(MapList.Selected.Data);
+ FEditMap.AmapType:=PMapType(MapList.Selected.Data)^;
  FEditMap.ShowModal;
 end;
 

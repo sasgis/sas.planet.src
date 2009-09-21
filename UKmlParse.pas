@@ -86,10 +86,9 @@ end;
 
 function TKML.loadFromFile(FileName:string):boolean;
 var buffer,koord:string;
-    buff:array [0..64535]of char;
-    position,PosStartPlace,PosTag1,PosTag2,PosEndPlace,size,ii,jj,placeN,iip:integer;
+    position,PosStartPlace,PosTag1,PosTag2,PosEndPlace,ii,jj,placeN,iip:integer;
     str:TMemoryStream;
-    pb,iip_,iipA:integer;
+    pb,iip_:integer;
 begin
   result:=true;
   error_:='';
@@ -110,7 +109,6 @@ begin
   position:=1;
   PosStartPlace:=1;
   PosEndPlace:=1;
-  ii:=0;
   placeN:=0;
   Data:=nil;
   While (position>0)and(PosStartPlace>0)and(PosEndPlace>0)and(result) do

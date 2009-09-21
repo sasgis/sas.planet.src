@@ -91,9 +91,7 @@ end;
 procedure TFImport.ComboBox1DrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
 var Bitmap,Bitmap2: TBitmap32;
-    Offset: Integer;
 begin
-   offset := 0;
    with ComboBox1.Canvas do
    begin
      FillRect(Rect);
@@ -110,7 +108,6 @@ begin
      begin
       CopyRect(Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
                Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
-      Offset := Bitmap.Width + 8;
       Bitmap.Free;
      end;
      Bitmap2.Free;
@@ -133,7 +130,6 @@ procedure TFImport.FormShow(Sender: TObject);
 begin
  CBKateg.Clear;
  Kategory2Strings(CBKateg.Items);
-// ComboBox1.ItemIndex:=0;
 end;
 
 procedure TFImport.Button2Click(Sender: TObject);

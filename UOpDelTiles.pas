@@ -6,7 +6,7 @@ uses Windows,Forms,SysUtils,Classes,UMapType,UImgFun,unit4,UResStrings;
 type
   TOpDelTiles = class(TThread)
     Zoom:byte;
-    typemap:PMapType;
+    typemap:TMapType;
     polyg:array of TPoint;
     max,min:TPoint;
     ProcessTiles:integer;
@@ -24,13 +24,13 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
+    constructor Create(CrSusp:Boolean;Azoom:byte;Atypemap:TMapType);
   end;
 
 implementation
-uses unit1,USaveas;
+uses unit1,Ugeofun;
 
-constructor TOpDelTiles.Create(CrSusp:Boolean;Azoom:byte;Atypemap:PMapType);
+constructor TOpDelTiles.Create(CrSusp:Boolean;Azoom:byte;Atypemap:TMapType);
 begin
   TileInProc:=0;
   zoom:=Azoom;

@@ -198,8 +198,6 @@ begin
 end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
-var XY : TPoint;
-    Ll : TExtendedPoint;
 begin
   EnterCriticalSection(FCS);
   try

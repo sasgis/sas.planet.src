@@ -47,7 +47,7 @@ type
   end;
 
 var
-  fillingmaptype:PMapType;
+  fillingmaptype:TMapType;
 
 implementation
 
@@ -110,7 +110,7 @@ var
   i,j,ii,jj,ixT,jxT:integer;
   imd256x,imd256y,xx,yy,x1,y1:longint;
 
-  VMapType:PMapType;
+  VMapType:TMapType;
 begin
   repeat
     Synchronize(SetupLayer);

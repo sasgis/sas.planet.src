@@ -53,10 +53,7 @@ Var
   BMPRead:TBMPRead;
 
 function SaveBMPHeader(filename:string;W : longint;H : longint): bmHeader;
-var f : file;
-    Z : byte;
 begin
-   z:=255;
    Result.i.Size:=$28; //40;
    Result.i.Widt:=W;
    Result.i.Heig:=H;
@@ -70,7 +67,6 @@ begin
    Result.i.NCoL:=0;
    Result.i.NCoI:=0;
 
-  // Result.f.Typf:=$4D42;
    Result.f.Res1:=0;
    Result.f.Res2:=0;
    Result.f.OfBm:=$36;        // $36 = 54  // смещение витмапа от начала файла
@@ -79,7 +75,7 @@ end;
 
 procedure SaveBMP(Sender:TObject; W, H : integer; tPath : string; readcallback:TBMPRead);  // Запись на диск файла
 Var f : file;
-    i ,nNextLine: integer;
+    nNextLine: integer;
     InputArray:PlineRGBb;
     TypeBmp:Word;
     Header: bmHeader;

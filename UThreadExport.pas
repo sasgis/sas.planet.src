@@ -7,7 +7,7 @@ type
   ThreadExport = class(TThread)
     PolygLL:array of TExtendedpoint;
     Zoomarr:array [0..23] of boolean;
-    typemaparr:array of PMapType;
+    typemaparr:array of TMapType;
     format:byte;
     Fprogress: TFprogress2;
     Move,ziped:boolean;
@@ -28,7 +28,7 @@ type
     procedure Export2KML(APolyLL:array of TExtendedPoint);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
   public
-    constructor Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of PMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+    constructor Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
   end;
 
 implementation
@@ -39,7 +39,7 @@ begin
  if Zippu then Zip.CancelTheOperation;
 end;
 
-constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of PMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -103,7 +103,7 @@ begin
   end;
 end;
 
-function UniLoadTile(var bmp:TBitmap32; path:string; TypeMapArr:PmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
+procedure UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
 var bmp2,bmp1:TBitmap32;
     png:TPngObject;
     err1,err2:boolean;
@@ -125,7 +125,7 @@ begin
               begin
                bmp1.width:=256;
                bmp1.Height:=256;
-               if MainFileCache.LoadFile(png,path,false)
+               if TypeMapArr.LoadTile(png,p_h.x, p_h.y, zoom+1,false)
                 then PNGintoBitmap32(bmp1,png)
                 else begin
                        bmp1.width:=256;
@@ -134,7 +134,7 @@ begin
                        err1:=true;
                      end;
               end
-              else if (not(MainFileCache.LoadFile(bmp1,path,false)))
+              else if (not(TypeMapArr.LoadTile(bmp1,,p_h.x, p_h.y, zoom+1,false)))
                     then begin
                            bmp1.width:=256;
                            bmp1.Height:=256;
@@ -154,13 +154,12 @@ begin
 
             if MapTypeMerS.projection<>TypeMapArr.projection then
              begin
-              pathfrom:=TypeMapArr.GetTileFileName(p_h.x,p_h.y+256,zoom+1);
               try
                if TypeMapArr.ext='.png' then
                 begin
                  bmp2.width:=256;
                  bmp2.Height:=256;
-                 if MainFileCache.LoadFile(png,pathfrom,false)
+                 if TypeMapArr.LoadTile(png,p_h.x,p_h.y+256,zoom+1,false)
                    then PNGintoBitmap32(bmp2,png)
                    else begin
                          bmp2.width:=256;
@@ -169,7 +168,7 @@ begin
                          err2:=true;
                         end;
                 end
-               else if (not(MainFileCache.LoadFile(bmp2,pathfrom,false)))
+               else if (not(TypeMapArr.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false)))
                     then begin
                            bmp2.width:=256;
                            bmp2.Height:=256;
@@ -206,7 +205,7 @@ procedure ThreadExport.export2iMaps(APolyLL:array of TExtendedPoint);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:array of TPoint;
-    pathto,persl,perzoom,kti:string;
+    persl,perzoom,kti:string;
     max,min,p_h:TPoint;
     MapTypeMerS:TMapType;
     png:TPngObject;
@@ -223,10 +222,10 @@ begin
  i:=0;
  While not(zoomarr[i]) do inc(i);
  SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then Fsaveas.formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then Fsaveas.formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then Fsaveas.formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
- Fsaveas.GetMinMax(min,max,polyg,true);
+ if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
+  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
+        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ GetMinMax(min,max,polyg,true);
  if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
   else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
         else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
@@ -267,7 +266,6 @@ begin
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
  bmp32.DrawMode:=dmBlend;
-// bmp32.DrawMode:=dmTransparent;
  bmp322:=TBitmap32.Create;
  bmp322.DrawMode:=dmBlend;
 
@@ -292,8 +290,8 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      Fsaveas.formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
-      num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
       kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
@@ -340,8 +338,8 @@ begin
    for j:=0 to 2 do //по типу
     if TypeMapArr[j]<>nil then
      begin
-      Fsaveas.formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
-      Fsaveas.GetDwnlNum(min,max,Polyg,false);
+      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
+      GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
       while p_x<max.x do
@@ -359,11 +357,11 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
+            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
             if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
+          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
           if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
             UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
@@ -405,7 +403,6 @@ begin
                   TileStream.Clear;
                   jpg.CompressionQuality:=cSat;
                   jpg.SaveToStream(TileStream);
-                 //jpg.SaveToFile('c:\1\'+inttostr(p_x)+'_'+inttostr(xi)+'-'+inttostr(p_y)+'_'+inttostr(xi)+'.jpg');
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,3,TileStream.Size);
                 end;
             inc(scachano);
@@ -459,7 +456,7 @@ end;
 
 procedure ThreadExport.savefilesREG(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
-    num_dwn,scachano,obrab:integer;
+    num_dwn,obrab:integer;
     polyg:array of TPoint;
     pathfrom,pathto,persl,perzoom,kti,datestr:string;
     max,min:TPoint;
@@ -478,8 +475,8 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      Fsaveas.formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
-      num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
       kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
@@ -497,12 +494,6 @@ begin
                 Zip.StorePaths := true; // Путь не сохраняем
                 Zip.PackLevel := 0; // Уровень сжатия
                 Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-                //Zip.ZipComment:='Дата создания: '+DateTimeToStr(now);
-                               // 'Количество карт: '+inttostr(length(TypeMapArr))+#13#10+
-                                //'Типы карт: '+persl+#13#10+
-                                //'Масштабы: '+perzoom+#13#10+
-                                //'Граничные координаты: '+kti+#13#10+
-                                //'Тип кэша: '+CacheTypeStr[format];
                end
           else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
@@ -510,16 +501,15 @@ begin
  FProgress.ProgressBar1.Max:=100;
  FProgress.ProgressBar1.Progress1:=0;
  obrab:=0;
- scachano:=0;
  for i:=0 to 23 do //по масштабу
   if zoomarr[i] then
    for j:=0 to length(TypeMapArr)-1 do //по типу
      begin
-      Fsaveas.formatepoligon(TypeMapArr[j],i+1,APolyLL,polyg);
+      formatepoligon(TypeMapArr[j],i+1,APolyLL,polyg);
       AMapType.ext:=TypeMapArr[j].ext;
       AMapType.NameInCache:=TypeMapArr[j].NameInCache;
       AMapType.CacheType:=format;
-      Fsaveas.GetDwnlNum(min,max,Polyg,false);
+      GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
       while p_x<max.x do
        begin
@@ -536,20 +526,19 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
-//TODO: Разобраться и избавиться от путей.
-          pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
           if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
            begin
-            inc(scachano);
             if ziped then begin
-                           Zip.FilesList.Add(pathfrom);
+//TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
+                            pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
+                            Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-//TODO: Разобраться и избавиться от путей.
+//TODO: Для создания путей для экспорта нужно создать новый класс.
                            pathto:=PATH+AMapType.GetTileFileName(p_x,p_y,i+1);
-                           Fmain.createdirif(pathto);
-                           Copy_File(Pchar(pathfrom),PChar(pathto),not(replace));
-                           if move then DelFile(pathfrom);
+                           if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
+                             if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
+                           end;
                           end;
            end;
           inc(obrab);
@@ -581,7 +570,7 @@ end;
 
 procedure ThreadExport.Export2KML(APolyLL:array of TExtendedPoint);
 var p_x,p_y,i,j:integer;
-    num_dwn,scachano,obrab:integer;
+    num_dwn,obrab:integer;
     polyg:array of TPoint;
     persl,perzoom,kti,ToFile,datestr:string;
     max,min:TPoint;
@@ -646,8 +635,8 @@ begin
  for j:=0 to 23 do
   if zoomarr[j] then
    begin
-    Fsaveas.formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
-    num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+    formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
+    num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
     perzoom:=perzoom+inttostr(j+1)+'_';
     kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).x,4);
     kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).y,4);
@@ -664,12 +653,6 @@ begin
                 Zip.StorePaths := true; // Путь не сохраняем
                 Zip.PackLevel := 0; // Уровень сжатия
                 Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-                //Zip.ZipComment:='Дата создания: '+DateTimeToStr(now);
-                               // 'Количество карт: '+inttostr(length(TypeMapArr))+#13#10+
-                                //'Типы карт: '+persl+#13#10+
-                                //'Масштабы: '+perzoom+#13#10+
-                                //'Граничные координаты: '+kti+#13#10+
-                                //'Тип кэша: '+CacheTypeStr[format];
                end
           else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
@@ -677,7 +660,6 @@ begin
  FProgress.ProgressBar1.Max:=100;
  FProgress.ProgressBar1.Progress1:=0;
  obrab:=0;
- scachano:=0;
  i:=0;
  AssignFile(KMLFile,path);
  Rewrite(KMLFile);
@@ -686,11 +668,11 @@ begin
  Write(KMLFile,ToFile);
 
  while not(zoomarr[i])or(i>23) do inc(i);
- Fsaveas.formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg);
+ formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg);
  AMapType.ext:=TypeMapArr[0].ext;
  AMapType.NameInCache:=TypeMapArr[0].NameInCache;
  AMapType.CacheType:=format;
- Fsaveas.GetDwnlNum(min,max,Polyg,false);
+ GetDwnlNum(min,max,Polyg,false);
  p_x:=min.x;
  while p_x<max.x do
   begin

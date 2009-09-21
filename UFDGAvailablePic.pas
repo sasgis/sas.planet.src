@@ -177,43 +177,10 @@ var par,ty:string;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
 begin
- {if InetConnect.userwinset
-  then }hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- { else if InetConnect.proxyused
-        then hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PROXY,PChar(InetConnect.proxystr),nil,0)
-        else hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_DIRECT,nil,nil,0);}
+  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  if Assigned(hSession)
   then begin
         hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-       { dwcodelen:=SizeOf(dwindex);
-        if not(InternetQueryOption(hFile, INTERNET_OPTION_HANDLE_TYPE,@dwindex, dwcodelen)) then
-         begin
-        	result:=0;
-          InternetCloseHandle(hFile);
-          InternetCloseHandle(hSession);
-          exit;
-         end;
-        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
-         begin
-          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-          err:=InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
-          if (not(err))or(HttpSendRequest(hFile, nil, 0,Nil, 0)) then //Неверные пароль логин
-           begin
-           	result:=-3;
-            InternetCloseHandle(hFile);
-            InternetCloseHandle(hSession);
-            exit;
-           end;
-          HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER,@dwindex, dwcodelen, dwReserv);
-          if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-           	result:=-3;
-            InternetCloseHandle(hFile);
-            InternetCloseHandle(hSession);
-            exit;
-           end;
-         end;      }
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -258,7 +225,7 @@ begin
 end;
 
 procedure TGetList.ShowList;
-var str,trackname,datesat:string;
+var datesat:string;
     i,j:integer;
     added:boolean;
     node:TTreeNode;
@@ -290,7 +257,6 @@ begin
   except
   end;
  FDGAvailablePic.TreeView1.AlphaSort();
-// for j:=0 to TreeView1.Items.Count-1 do TreeView1.Items.Item[j].Expanded:=true;
 end;
 
 procedure TGetList.Execute;
@@ -314,7 +280,7 @@ end;
 
 procedure TFDGAvailablePic.CreateTree;
 var pltstr:TStringList;
-    str,trackname,datesat:string;
+    datesat:string;
     i,j:integer;
     added:boolean;
     node:TTreeNode;
@@ -348,7 +314,6 @@ begin
   except
   end;
  TreeView1.AlphaSort();
-// for j:=0 to TreeView1.Items.Count-1 do TreeView1.Items.Item[j].Expanded:=true;
  pltstr.Free;
 end;
 
@@ -395,13 +360,12 @@ begin
  else
  if TreeView1.Selected.Parent.GetLastChild<>TreeView1.Selected then
   if TreeView1.Selected.GetNext<>TreeView1.Selected.Parent.GetLastChild
-//  TreeView1.Selected.GetNext.GetNext<>nil
    then TreeView1.Selected.MoveTo(TreeView1.Selected.GetNext.GetNext,naInsert)
    else TreeView1.Selected.MoveTo(TreeView1.Selected.GetNext,naAdd)
 end;
 
 procedure TFDGAvailablePic.FormTidList;
-var node:TTreeNode;
+var
     i:integer;
     added:boolean;
 begin
@@ -459,7 +423,7 @@ begin
 end;
 
 procedure TFDGAvailablePic.ComboBox2Change(Sender: TObject);
-var i:integer;
+var
     encrypt:string;
 begin
  TIDs:='';

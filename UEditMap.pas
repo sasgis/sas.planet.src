@@ -41,7 +41,7 @@ type
     procedure Button8Click(Sender: TObject);
   private
   public
-    AmapType:PMapType;
+    AmapType:TMapType;
   end;
 
 var

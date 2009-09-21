@@ -171,18 +171,14 @@ type
     procedure Show_(Azoom:byte;Polygon_:array of TExtendedPoint);
     procedure DelRegion(APolyLL:array of TExtendedPoint);
     procedure genbacksatREG(APolyLL:array of TExtendedPoint);
-    procedure formatePoligon(AType:PMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
     procedure scleitRECT(APolyLL:array of TExtendedPoint);
     procedure savefilesREG(APolyLL:array of TExtendedPoint);
-    function GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
-    procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
    end;
 
 var
   type_reg_:byte;
   Fsaveas: TFsaveas;
   PolygonLL:array of TExtendedPoint;
-  function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
 
 implementation
 uses unit1, Gauges, Unit4, UImgFun;
@@ -205,99 +201,15 @@ begin
   Result := Abs(Result) / 2;
 end;
 
-function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
-var i,xm128,ym128,xp128,yp128:integer;
-begin
- xm128:=x-128;
- ym128:=y-128;
- if (prefalse=false)and(PtInPolygon(Point(xm128,ym128),polyg)) then begin result:=true; exit; end;
- xp128:=x+128;
- if (prefalse=false)and(PtInPolygon(Point(xp128,ym128),polyg)) then begin result:=true; exit; end;
- yp128:=y+128;
- if PtInPolygon(Point(xp128,yp128),polyg) then begin result:=true; exit; end;
- if PtInPolygon(Point(xm128,yp128),polyg) then begin result:=true; exit; end;
- for i:=0 to length(polyg)-2 do
-  begin
-   if (polyg[i].x<xp128)and(polyg[i].x>xm128)and(polyg[i].y<yp128)and(polyg[i].y>ym128)
-    then begin result:=true; exit; end;
-  end;
- result:=false;
-end;
-
-procedure TFsaveas.formatePoligon(AType:PMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
-var i:integer;
-begin
- for i:=0 to length(APolyg)-1 do
-  begin
-   resAPolyg[i]:=GLonLat2Pos(Apolyg[i],Anewzoom,Atype);
-   if resAPolyg[i].y<0 then resAPolyg[i].y:=1;
-   if resAPolyg[i].y>zoom[AnewZoom] then resAPolyg[i].y:=zoom[AnewZoom]-1;
-  end;
-end;
-
-Procedure TFsaveas.GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
-var i:integer;
-begin
- max:=Polyg[0];
- min:=Polyg[0];
- for i:=1 to length(Polyg)-1 do
-  begin
-   if min.x>Polyg[i].x then min.x:=Polyg[i].x;
-   if min.y>Polyg[i].y then min.y:=Polyg[i].y;
-   if max.x<Polyg[i].x then max.x:=Polyg[i].x;
-   if max.y<Polyg[i].y then max.y:=Polyg[i].y;
-  end;
- if round_ then
-  begin
-   max.X:=max.X-1;
-   max.Y:=max.Y-1;
-   min.X:=min.X+1;
-   min.Y:=min.Y+1;
-   min.X:=min.x-(min.X mod 256)+128;
-   max.X:=max.x-(max.X mod 256)+128;
-   min.y:=min.y-(min.y mod 256)+128;
-   max.y:=max.y-(max.y mod 256)+128;
-  end;
-end;
-
-function TFsaveas.GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
-var i,j:integer;
-    prefalse:boolean;
-begin
- GetMinMax(min,max,polyg,true);
- result:=0;
- if getNum then
-  if (length(Polyg)=5)and(Polyg[0].x=Polyg[3].x)and(Polyg[1].x=Polyg[2].x)
-                      and(Polyg[0].y=Polyg[1].y)and(Polyg[2].y=Polyg[3].y)
-    then result:=((max.X-min.X) div 256+1)*((max.Y-min.Y) div 256+1)
-    else begin
-          i:=min.X;
-          while i<=max.x do
-          begin
-           j:=min.y;
-           prefalse:=false;
-           while j<=max.y do
-            begin
-             prefalse:=not(RgnAndRgn(Polyg,i,j,prefalse));
-             if not(prefalse) then inc(result);
-             inc(j,256);
-            end;
-           inc(i,256);
-          end;
-         end;
- max.X:=max.X+1;
- max.Y:=max.Y+1;
-end;
-
 procedure TFsaveas.DelRegion(APolyLL:array of TExtendedPoint);
 begin
- with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,PMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])) do
+ with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,PMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])^) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
    SetLength(Polyg,length(APolyLL));
-   Fsaveas.formatepoligon(typemap,zoom,APolyLL,polyg);
-   ProcessTiles:=Fsaveas.GetDwnlNum(min,max,Polyg,true);
+   formatepoligon(typemap,zoom,APolyLL,polyg);
+   ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
    Suspended:=false;
   end;
 end;
@@ -306,7 +218,7 @@ procedure TFsaveas.savefilesREG(APolyLL:array of TExtendedPoint);
 var i:integer;
     path:string;
     Zoomarr:array [0..23] of boolean;
-    typemaparr:array of PMapType;
+    typemaparr:array of TMapType;
     ziped:boolean;
     RelativePath,Replace:boolean;
 begin
@@ -320,9 +232,9 @@ begin
           PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]).active:=RBMapSel.Checked;
         if CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]<>nil then
           PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]).active:=RBHibSel.Checked;
-        typemaparr[0]:=PMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
-        typemaparr[1]:=PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
-        typemaparr[2]:=PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
+        typemaparr[0]:=PMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex])^;
+        typemaparr[1]:=PMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex])^;
+        typemaparr[2]:=PMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex])^;
         path:=EditPath2.Text;
         RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
@@ -340,7 +252,7 @@ begin
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
         setlength(typemaparr,3);
-        typemaparr[0]:=PMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex]);
+        typemaparr[0]:=PMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex])^;
         ziped:=false;
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
@@ -352,7 +264,7 @@ begin
          if CheckListBox1.Checked[i] then
           begin
            setlength(typemaparr,length(typemaparr)+1);
-           typemaparr[length(typemaparr)-1]:=PMapType(CheckListBox1.Items.Objects[i]);
+           typemaparr[length(typemaparr)-1]:=PMapType(CheckListBox1.Items.Objects[i])^;
           end;
         ziped:=CBZipped.Checked;
         path:=EditPath.Text;
@@ -369,10 +281,10 @@ begin
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL:array of TExtendedPoint);
-var smb:PMapType;
+var smb:TMapType;
     polyg:array of TPoint;
 begin
- smb:=PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
+ smb:=PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex])^;
  setlength(polyg,length(APolyLL));
  formatepoligon(smb,CBZoomload.ItemIndex+1,APolyLL,polyg);
  with ThreadAllLoadMap.Create(false,Polyg,3,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
@@ -386,7 +298,7 @@ end;
 procedure TFsaveas.genbacksatREG(APolyLL:array of TExtendedPoint);
 var i:integer;
 begin
- with TOpGenPreviousZoom.Create(true,ComboBox.ItemIndex+2,PMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
+ with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,PMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])^) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
@@ -406,11 +318,11 @@ begin
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL:array of TExtendedPoint);
-var Amt,Hmt:PMapType;
+var Amt,Hmt:TMapType;
     polyg:array of TPoint;
 begin
- Amt:=PMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
- Hmt:=PMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
+ Amt:=PMapType(CBscleit.Items.Objects[CBscleit.ItemIndex])^;
+ Hmt:=PMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex])^;
  setLength(polyg,length(APolyLL));
  formatepoligon(Amt,CBZoomload.ItemIndex+1,APolyLL,polyg);
  if (FMain.SaveDialog1.Execute)then
@@ -658,7 +570,7 @@ var polyg:array of Tpoint;
     numd:integer;
 begin
  SetLength(polyg,length(PolygonLL));
- formatePoligon(PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]),CBZoomload.ItemIndex+1,polygonLL,polyg);
+ formatePoligon(PMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex])^,CBZoomload.ItemIndex+1,polygonLL,polyg);
  numd:=GetDwnlNum(min,max,polyg,true);
  label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';

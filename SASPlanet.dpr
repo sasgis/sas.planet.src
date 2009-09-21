@@ -40,9 +40,12 @@ uses
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UPLT in 'UPLT.pas',
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UNetRadar in 'UNetRadar.pas',
   u_MemFileCache in 'u_MemFileCache.pas',
-  UYaMobile in 'UYaMobile.pas';
+  UYaMobile in 'UYaMobile.pas',
+  u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
+  u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
+  u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
+  u_UrlGenerator in 'u_UrlGenerator.pas';
 
 var Ini: Tinifile;
     loc:integer;
@@ -65,6 +68,7 @@ begin
     Application.ProcessMessages;
    end;
   Ini.Free;
+  LoadMaps;
   //xLogo
   Application.HelpFile := '';
   Application.CreateForm(TFmain, Fmain);

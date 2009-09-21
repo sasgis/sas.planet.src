@@ -7,8 +7,7 @@ const
   FILE_DOES_NOT_EXIST = DWORD(-1);
 
 var
-  defoultMap:TBitmap;// TPNGObject;
-  function SaveTileInCache(btm:TObject;path:string):boolean;
+  defoultMap:TBitmap;
   function DelFile(path:string):boolean;
   function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
   procedure SetDefoultMap;
@@ -33,14 +32,13 @@ begin
 end;
 
 function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
-var TransparentColor: TColor32;
+var
     PixelPtr: PColor32;
     AlphaPtr: PByte;
     X, Y: Integer;
 begin
  try
   result:=false;
-  //destBitmap.ResetAlpha;
   case PNGObject.TransparencyMode of
     ptmPartial:
      begin
@@ -61,7 +59,6 @@ begin
        end;
       if (PNGObject.Header.ColorType in [COLOR_PALETTE]) then
        begin
-        TransparentColor:=Color32(PNGObject.TransparentColor);
         if PNGObject.Chunks.Item[3].Index=0 then destBitmap.Height:=destBitmap.Height;
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
@@ -79,7 +76,6 @@ begin
      end;
     ptmBit:
       begin
-        TransparentColor:=Color32(PNGObject.TransparentColor);
         if PNGObject.Chunks.Item[3].Index=0 then destBitmap.Height:=destBitmap.Height;
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
@@ -126,48 +122,6 @@ begin
  FreeAndNil(b);
 end;
 
-function SaveTileInCache(btm:TObject;path:string):boolean;
-var
-    Jpg_ex:TJpegImage;
-    png_ex:TPNGObject;
-    Gif_ex:TGIFImage;
-    btm_ex:TBitmap;
-begin
- if (btm is TBitmap32) then
-  begin
-   btm_ex:=TBitmap.Create;
-   btm_ex.Assign(btm as TBitmap32);
-   if UpperCase(ExtractFileExt(path))='.JPG' then
-    begin
-     Jpg_ex:=TJpegImage.Create;
-     Jpg_ex.CompressionQuality:=85;
-     Jpg_ex.Assign(btm_ex);
-     Jpg_ex.SaveToFile(path);
-     Jpg_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.GIF' then
-    begin
-     Gif_ex:=TGifImage.Create;
-     Gif_ex.Assign(btm_ex);
-     Gif_ex.SaveToFile(path);
-     Gif_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.PNG' then
-    begin
-     PNG_ex:=TPNGObject.Create;
-     PNG_ex.Assign(btm_ex);
-     PNG_ex.SaveToFile(path);
-     PNG_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.BMP' then btm_ex.SaveToFile(path);
-   btm_ex.Free;
-  end;
- if (btm is TJPEGimage) then TJPEGimage(btm).SaveToFile(path) else
- if (btm is TPNGObject) then TPNGObject(btm).SaveToFile(path) else
- if (btm is TMemoryStream) then TMemoryStream(btm).SaveToFile(path) else
-// if (btm is TLinearBitmap) then TLinearBitmap(btm).SaveToFile(path);
- if (btm is TPicture) then TPicture(btm).SaveToFile(path);
-end;
 
 function InStr(I: Integer): string;
 var

@@ -16,7 +16,7 @@ type
   TlastLoad = record
     x,y:longint;
     z:byte;
-    mt:Longint;
+    mt:TMapType;
     use:boolean;
   end;
 
@@ -384,7 +384,6 @@ type
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure N35Click(Sender: TObject);
-    procedure TBEditItem2AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBItemDelTrackClick(Sender: TObject);
     procedure NGShScale01Click(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
@@ -427,11 +426,11 @@ type
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
    property Pos:TPoint read FPos write Set_Pos;
-   procedure createdirif(path:string);
+class   procedure createdirif(path:string);
    procedure generate_im(lastload:TLastLoad;err:string);
    procedure sm_im_reset(x,y:integer);
    function  toSh:string;
-   function  X2AbsX(Ax:integer;Azoom:byte):integer;
+class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    function  X2Lon(X:integer):extended;
    function  Y2Lat(Y:integer):extended;
    function  Lon2X(Lon:real):integer;
@@ -439,23 +438,23 @@ type
    function  Lon2Xf(Lon:real):real;
    function  Lat2Yf(lat:real):real;
    procedure topos(lat,lon:real;zoom_:byte;draw:boolean);
-   function  R2ShortStr(r:real;z:byte):string;
+class   function  R2ShortStr(r:real;z:byte):string;
    procedure zooming(x:byte;move:boolean);
-   function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
-   function  timezone(lon,lat:real):TDateTime;
+class   function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
+class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
    procedure drawPath(pathll:array of TExtendedPoint;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
    procedure drawReg;
-   function  loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:PMapType):boolean;
+   function  loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
    procedure generate_mapzap;
    procedure draw_point;
-   function  str2r(inp:string):real;
+class   function  str2r(inp:string):real;
    procedure ThreadSclDone(Sender: TObject);
    procedure paint_Line;
-   procedure selectMap(num:PMapType);
-   function lon2str(Alon:real):string;
-   function lat2str(Alat:real):string;
-   function kb2KbMbGb(kb:real):string;
+   procedure selectMap(num:TMapType);
+class   function lon2str(Alon:real):string;
+class   function lat2str(Alat:real):string;
+class   function kb2KbMbGb(kb:real):string;
    procedure generate_granica;
    procedure drawLineGPS;
    procedure sm_im_reset_type2(x,y:integer);
@@ -464,8 +463,8 @@ type
    procedure ShowErrScript(DATA:string);
    function mouseXY2Pos(Pnt:TPoint):TPoint;
    procedure setalloperationfalse(newop:TAOperation);
-   procedure insertinpath(pos:integer);
-   procedure delfrompath(pos:integer);
+class   procedure insertinpath(pos:integer);
+class   procedure delfrompath(pos:integer);
    procedure ThreadExportDone(Sender: TObject);
    procedure DrawGenShBorders;
    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -476,16 +475,12 @@ type
    procedure SetMiniMapVisible(visible:boolean);
   end;
 
-  TName = record
-   FileURL, FileName: String;
-  end;
-
   Tsm_map = record
    size_dw,zooming,m_dwn:boolean;
    width,height,dx,dy:integer;
    pos:TPoint;
    alpha,zoom,z1mz2:byte;
-   maptype:PMapType;
+   maptype:TMapType;
    PlusButton,MinusButton,SmMapBitmap:TBitmap32;
   end;
 
@@ -545,7 +540,7 @@ var
   DefCache:byte;
   BorderColor,MapZapColor:TColor;
   BorderAlpha,MapZapAlpha:byte;
-  sat_map_both:PMapType;
+  sat_map_both:TMapType;
   marksicons:TStringList;
   movepoint,lastpoint:integer;
   TilesOut,BaudRate:integer;
@@ -564,7 +559,6 @@ var
   GPS_colorStr:TColor;
   GPS_LogFile:TextFile;
   reg_arr,poly_save:array of TExtendedPoint;
-  Names:TName;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
@@ -902,7 +896,7 @@ begin
   end
 end;
 
-procedure TFmain.insertinpath(pos:integer);
+class procedure TFmain.insertinpath(pos:integer);
 begin
  SetLength(add_line_arr,length(add_line_arr)+1);
  CopyMemory(Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),@add_line_arr[pos],(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
@@ -914,59 +908,11 @@ begin
   SetString(Result, Buffer, GetTempPath(Sizeof(Buffer) - 1,Buffer));
 end;
 
-procedure TFmain.delfrompath(pos:integer);
+class procedure TFmain.delfrompath(pos:integer);
 begin
  CopyMemory(@add_line_arr[pos],Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
  SetLength(add_line_arr,length(add_line_arr)-1);
  Dec(lastpoint);
-end;
-
-function LoadPNGintoBitmap32(destBitmap: TBitmap32; filename: String): boolean;
-var PNGObject: TPNGObject;
-    TransparentColor: TColor32;
-    PixelPtr: PColor32;
-    AlphaPtr: PByte;
-    X, Y: Integer;
-begin
-  PNGObject := nil;
-  try
-    result := false;
-    PNGObject:=TPngObject.Create;
-    PNGObject.LoadFromFile(filename);
-    destBitmap.Assign(PNGObject);
-    destBitmap.ResetAlpha;
-    case PNGObject.TransparencyMode of
-      ptmPartial:
-          if (PNGObject.Header.ColorType in [COLOR_GRAYSCALEALPHA,COLOR_RGBALPHA]) then
-          begin
-            PixelPtr := PColor32(@destBitmap.Bits[0]);
-            for Y := 0 to destBitmap.Height - 1 do
-            begin
-              AlphaPtr := PByte(PNGObject.AlphaScanline[Y]);
-              for X := 0 to destBitmap.Width - 1 do
-              begin
-                PixelPtr^:=(PixelPtr^ and $00FFFFFF) or (TColor32(AlphaPtr^) shl 24);
-                Inc(PixelPtr);
-                Inc(AlphaPtr);
-              end;
-            end;
-          end;
-      ptmBit:
-        begin
-          TransparentColor := Color32(PNGObject.TransparentColor);
-          PixelPtr := PColor32(@destBitmap.Bits[0]);
-          for X := 0 to (destBitmap.Height - 1) * (destBitmap.Width - 1) do
-          begin
-            if PixelPtr^ = TransparentColor then
-              PixelPtr^ := PixelPtr^ and $00FFFFFF;
-            Inc(PixelPtr);
-          end;
-        end;
-    end;
-    result := true;
-  finally
-    if Assigned(PNGObject) then FreeAndNil(PNGObject);
-  end;
 end;
 
 procedure TFmain.setalloperationfalse(newop:TAOperation);
@@ -1004,41 +950,6 @@ end;
 function TFmain.mouseXY2Pos(Pnt:TPoint):TPoint;
 begin
  Result:=Point(Pos.x-(mWd2-Pnt.X),Pos.y-(mHd2-Pnt.y));
-end;
-
-procedure Rotate1( var Nx, Ny: Integer; x_c, y_c: Integer; RotAng: Double);
-var
-   SinVal: Double;
-   CosVal: Double;
-begin
-   Nx:=Nx - x_c;
-   Ny:=Ny - y_c;
-   RotAng := RotAng * 0.0174532925199;
-   SinVal := Sin(RotAng);
-   CosVal := Cos(RotAng);
-   Nx :=round(x_c+ (Nx * CosVal - Ny * SinVal));
-   Ny :=round(y_c+ (Ny * CosVal + Nx * SinVal));
-end;
-
-
-procedure rotate(var x,y:integer;c_x,c_y:integer;a_:real);
-var s_,c_,r_:extended;
-begin
- s_:=0; c_:=0;
- r_ := sqrt(sqr(y - c_y) + sqr(x - c_x));
- SinCos(a_ + arctan2((x - c_x), (y - c_y)), s_, c_);
- y:= round(c_y + r_ * c_);
- x:= round(c_x + r_ * s_);
-end;
-
-procedure Perspective(const X, Y, Z, Height, Basis: Double; var XP, YP: Double);
-var Den: Double;
-begin
-  Den := Y + Basis;
-  if Abs(Den) < 1E-100 then
-    Den := 1E-100;
-  XP := Basis * X / Den;
-  YP := (Basis * Z + Height * Y) / Den;
 end;
 
 procedure TFmain.ShowCaptcha(URL:string);
@@ -1143,7 +1054,7 @@ begin
               else result:=inttostr(Trunc(r));
 end;                          
 
-function TFmain.kb2KbMbGb(kb:real):string;
+class function TFmain.kb2KbMbGb(kb:real):string;
 begin
  result:=float2str(kb)+' '+SAS_UNITS_kb;
  if kb>1024 then result:=float2str(kb/1024)+' '+SAS_UNITS_mb;
@@ -1219,13 +1130,13 @@ begin
    end;
 end;
 
-function TFmain.X2AbsX(Ax:integer;Azoom:byte):integer;
+class function TFmain.X2AbsX(Ax:integer;Azoom:byte):integer;
 begin
  if Ax>=0 then result:=Ax mod zoom[Azoom]
           else result:=zoom[Azoom]+(Ax mod zoom[Azoom])
 end;
 
-function TFmain.str2r(inp:string):real;
+class function TFmain.str2r(inp:string):real;
 var p:integer;
 begin
  p:=System.pos(DecimalSeparator,inp);
@@ -1237,7 +1148,7 @@ begin
  result:=strtofloat(inp);
 end;
 
-procedure TFmain.createdirif(path:string);
+class procedure TFmain.createdirif(path:string);
 begin
  path:=copy(path, 1, LastDelimiter('\', path));
  if not(DirectoryExists(path)) then ForceDirectories(path);
@@ -1839,7 +1750,7 @@ begin
  btm.Free;
 end;
 
-function TFmain.timezone(lon,lat:real):TDateTime;
+class function TFmain.timezone(lon,lat:real):TDateTime;
 var prH,prM:integer;
     tz:real;
     st:TSystemTime;
@@ -1931,14 +1842,14 @@ begin
  end;
 end;
 
-function TFmain.find_length(StartLat,EndLat,StartLong,EndLong:double):real;
+class function TFmain.find_length(StartLat,EndLat,StartLong,EndLong:double):real;
 var fPhimean,fdLambda,fdPhi,fAlpha,fRho,fNu,fR,fz,fTemp,a,e2:Double;
 const
   f: Double = 0.003352810664747; // Выравнивание эллипсоида
 begin
   result:=0;
   e2:=sat_map_both.exct*sat_map_both.exct;
-  a:=PMapType(sat_map_both).radiusa;
+  a:=sat_map_both.radiusa;
   if (StartLong=EndLong)and(StartLat=EndLat)then exit;
   fdLambda := (StartLong - EndLong) * D2R;
   fdPhi := (StartLat - EndLat) * D2R;
@@ -1962,7 +1873,7 @@ begin
  if draw then LayerMap.Bitmap.Draw(pr_x-7,pr_y-6,GOToSelIcon);
 end;
 
-function TFmain.R2ShortStr(r:real;z:byte):string;
+class function TFmain.R2ShortStr(r:real;z:byte):string;
 var s:string;
 begin
  case num_format of
@@ -2023,7 +1934,7 @@ begin
  LayerLineM.bitmap.RenderText(textstrt,0,s, 2, clBlack32);
 end;
 
-function TFmain.lon2str(Alon:real):string;
+class function TFmain.lon2str(Alon:real):string;
 var num:real;
 begin
  if ALon>0 then if llStrType<3 then result:='E' else
@@ -2039,7 +1950,7 @@ begin
  end;
 end;
 
-function TFmain.lat2str(Alat:real):string;
+class function TFmain.lat2str(Alat:real):string;
 var num:real;
 begin
  if Alat>0 then if llStrType<3 then result:='N' else
@@ -2072,11 +1983,12 @@ begin
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2:=R2ShortStr(1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(ll.y*deg))),4)+SAS_UNITS_mperp;
+ subs2:=R2ShortStr(1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))),4)+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
+ // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
  subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),zoom_size),pos.y-(mHd2-m_m.y),zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
@@ -2085,7 +1997,7 @@ begin
 end;
 
 
-function TFmain.loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:PMapType):boolean;
+function TFmain.loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
 var i,c_x,c_y,dZ:integer;
     bmp:TBitmap32;
     VTileExists: Boolean;
@@ -2293,7 +2205,7 @@ begin
  if (lastload.use) then
   begin
    //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
-    MainFileCache.DeleteFileFromCache(PMapType(Pointer(lastload.mt)).GetTileFileName(lastload.x,lastload.y,lastload.z));
+    MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
   end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
@@ -2345,10 +2257,10 @@ begin
         LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
         LayerMapWiki.Bitmap.Clear(clBlack);
        end;
-      loadWL(@MapType[Leyi]);
+      loadWL(MapType[Leyi]);
       continue;
      end;
-   posN:=ConvertPosM2M(POS,zoom_size,sat_map_both,@MapType[Leyi]);
+   posN:=ConvertPosM2M(POS,zoom_size,sat_map_both,MapType[Leyi]);
    y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256)-y_draw);
    x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256)-x_draw);
    for i:=0 to hg_x do
@@ -2479,7 +2391,7 @@ begin
                              end;
 
  movepoint:=-1;
- LoadMaps;
+ CreateMapUI;
  loadMarksIcons;
  if length(MapType)=0 then
   begin
@@ -2799,7 +2711,7 @@ begin
  if ParamCount > 1 then
  begin
   param:=paramstr(1);
-  if param<>'' then For i:=0 to length(MapType)-1 do if MapType[i].guids=param then sat_map_both:=@MapType[i];
+  if param<>'' then For i:=0 to length(MapType)-1 do if MapType[i].guids=param then sat_map_both:=MapType[i];
   if paramstr(2)<>'' then zoom_size:=strtoint(paramstr(2));
   if (paramstr(3)<>'')and(paramstr(4)<>'') then POS:=GLonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),zoom_size,sat_map_both);
  end;
@@ -2820,7 +2732,7 @@ procedure TFmain.sm_im_reset_type2(x,y:integer);
 var bm:TBitmap32;
     pos_sm,d:TPoint;
     x128,y128,ilay:integer;
-    m_t:PMapType;
+    m_t:TMapType;
 begin
  bm:=TBitmap32.Create;
  bm.Width:=256;
@@ -2829,7 +2741,7 @@ begin
  Sm_Map.SmMapBitmap.Height:=256;
  Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
  pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
- if longint(sm_map.maptype)=0 then m_t:=sat_map_both
+ if sm_map.maptype=nil then m_t:=sat_map_both
                               else m_t:=sm_map.maptype;
  Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,m_t);
  d:=Point((pos_sm.X-128),(pos_sm.y-128));
@@ -2864,7 +2776,7 @@ begin
   if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
   begin
    pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
-   Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,@MapType[iLay]);
+   Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,MapType[iLay]);
    d:=Point((pos_sm.X-128),(pos_sm.y-128));
    if d.x<0 then d.x:=256+d.x;
    if d.y<0 then d.y:=256+d.y;
@@ -2969,7 +2881,6 @@ end;
 procedure TFmain.zooming(x:byte;move:boolean);
 var w,i,steps:integer;
     w1:extended;
-    Posll:TExtendedPoint;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -3199,8 +3110,8 @@ end;
 
 procedure TFmain.TBmap1Click(Sender: TObject);
 begin
- if sender is TTBItem then selectMap(PMapType(TTBXItem(sender).tag))
-                      else selectMap(PMapType(TTBXItem(sender).tag));
+ if sender is TTBItem then selectMap(PMapType(TTBXItem(sender).tag)^)
+                      else selectMap(PMapType(TTBXItem(sender).tag)^);
 end;
 
 procedure TFmain.N8Click(Sender: TObject);
@@ -3246,17 +3157,19 @@ end;
 
 procedure TFmain.N15Click(Sender: TObject);
 begin
+ // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
  CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size));
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
 var path:string;
     APos:TPoint;
-    AMapType:PMapType;
+    AMapType:TMapType;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=PMapType(TMenuItem(sender).Tag);
+                            else AMapType:=PMapType(TMenuItem(sender).Tag)^;
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
+ //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
    with ThreadAllLoadMap.Create(False,[Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y))],1,true,false,false,true,zoom_size,AMapType,date) do
@@ -3267,11 +3180,21 @@ begin
 end;
 
 procedure TFmain.N11Click(Sender: TObject);
-var WindirP: PChar;
+var
+  WindirP: PChar;
+  btm_ex:TBitmap;
+  path: string;
 begin
   WinDirP:=StrAlloc(MAX_PATH);
   GetWindowsDirectory(WinDirP, MAX_PATH);
-  SaveTileInCache(LayerMap.bitmap,StrPas(WinDirP)+'\SASwallpaper.bmp');
+  path := StrPas(WinDirP)+'\SASwallpaper.bmp';
+  btm_ex:=TBitmap.Create;
+  try
+    btm_ex.Assign(LayerMap.bitmap);
+    btm_ex.SaveToFile(path);
+  finally
+    btm_ex.Free;
+  end;
   with TRegIniFile.Create('Control Panel') do
    begin
     WriteString('desktop', 'Wallpaper', StrPas(WinDirP)+'\SASwallpaper.bmp');
@@ -3283,6 +3206,7 @@ end;
 
 procedure TFmain.NopendirClick(Sender: TObject);
 begin
+  // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
  ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size)),nil,nil,SW_SHOWNORMAL);
 end;
 
@@ -3292,17 +3216,19 @@ var s:string;
 begin
  s:=sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size);
  for i:=length(s) downto 0 do if s[i]='\'then break;
+ // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
  ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.NDelClick(Sender: TObject);
 var s:string;
-    AMapType:PMapType;
+    AMapType:TMapType;
     APos:TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=PMapType(TMenuItem(sender).Tag);
+                            else AMapType:=PMapType(TMenuItem(sender).Tag)^;
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
+ //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
@@ -3385,31 +3311,31 @@ begin
  ShellExecute(0,'open',PChar(ExtractFilePath(ParamStr(0))+'help.chm'),nil,nil,SW_SHOWNORMAL);
 end;
 
-procedure TFmain.selectMap(num:PMapType);
+procedure TFmain.selectMap(num:TMapType);
 var lat,lon:real;
     i:integer;
 begin
  if anim_zoom=1 then exit;
  lat:=Y2Lat(mHd2);
  Lon:=X2Lon(mWd2);
- if not(PMapType(num).asLayer) then
+ if not(num.asLayer) then
   begin
    if (num.showinfo)and(num.info<>'') then
     begin
      ShowMessage(num.info);
      num.showinfo:=false;
     end;
-   PMapType(sat_map_both).TBItem.Checked:=false;
-   PMapType(sat_map_both).active:=false;
+   sat_map_both.TBItem.Checked:=false;
+   sat_map_both.active:=false;
    sat_map_both:=num;
-   TBSMB.ImageIndex:=TMapType(Pointer(sat_map_both)^).TBItem.ImageIndex;
-   PMapType(sat_map_both).TBItem.Checked:=true;
-   PMapType(sat_map_both).active:=true;
-   if Showmapname then TBSMB.Caption:=PMapType(sat_map_both).name
+   TBSMB.ImageIndex:=sat_map_both.TBItem.ImageIndex;
+   sat_map_both.TBItem.Checked:=true;
+   sat_map_both.active:=true;
+   if Showmapname then TBSMB.Caption:=sat_map_both.name
                   else TBSMB.Caption:='';
   end else
   begin
-   PMapType(num).active:=not(PMapType(num).active);
+   num.active:=not(num.active);
    For i:=0 to length(MapType)-1 do
     if maptype[i].asLayer then
     begin
@@ -3441,7 +3367,6 @@ begin
 
         strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=';
         hFile:=InternetOpenUrl(hSession,PChar(strr),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3642,7 +3567,7 @@ begin
  if TTBXItem(sender).Tag=0 then begin
                                   sm_map.MapType.ShowOnSmMap:=false;
                                   sm_map.MapType.NSmItem.Checked:=false;
-                                  sm_map.maptype:=0;
+                                  sm_map.maptype:=nil;
                                   NMMtype_0.Checked:=true;
                                  end
  else
@@ -3657,7 +3582,7 @@ begin
                                         sm_map.MapType.ShowOnSmMap:=false;
                                         sm_map.MapType.NSmItem.Checked:=false;
                                        end;
-    sm_map.maptype:=PMapType(TTBXItem(sender).Tag);
+    sm_map.maptype:=PMapType(TTBXItem(sender).Tag)^;
     sm_map.maptype.NSmItem.Checked:=true;
     sm_map.maptype.ShowOnSmMap:=true;
    end;
@@ -3824,8 +3749,6 @@ var par,ty:string;
     Buffer:array [1..64535] of char;
     BufferLen:LongWord;
     hSession,hFile:Pointer;
-    qn,qd:string;
-    l:cardinal;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
 begin
@@ -3833,7 +3756,6 @@ begin
  if Assigned(hSession)
   then begin
         hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3894,7 +3816,6 @@ begin
   then begin
         hFile:=InternetOpenURL(hSession,PChar('http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(NewText))),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
         dwcodelen:=SizeOf(dwindex);
-        err:=false;
         if Assigned(hFile)then
          begin
           dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -4153,7 +4074,7 @@ end;
 procedure TFmain.NMapParamsClick(Sender: TObject);
 begin
  if TTBXItem(sender).Tag=0 then FEditMap.AmapType:=sat_map_both
-                           else FEditMap.AmapType:=PMapType(TTBXItem(sender).Tag);
+                           else FEditMap.AmapType:=PMapType(TTBXItem(sender).Tag)^;
  FEditMap.ShowModal;
 end;
 
@@ -4651,13 +4572,6 @@ if SaveLink.Execute then
  end;
 end;
 
-procedure TFmain.TBEditItem2AcceptText(Sender: TObject;
-  var NewText: String; var Accept: Boolean);
-var SearchBM:TSearchBM;
-begin
-SearchBM:=TSearchBM.Create;
-end;
-
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
  setlength(GPS_arr_speed,0);
@@ -4920,7 +4834,7 @@ begin
   begin
     TBfillMapAsMain.Checked:=false;
     if fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=false;
-    fillingmaptype:=PMapType(TTBXItem(sender).Tag);
+    fillingmaptype:=PMapType(TTBXItem(sender).Tag)^;
     fillingmaptype.TBFillingItem.Checked:=true;
  end;
  generate_mapzap;

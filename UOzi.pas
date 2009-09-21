@@ -2,16 +2,16 @@ unit UOzi;
 interface
 uses Types, SysUtils, GR32, math,Ugeofun,UMapType, classes, ECWReader;
 
-procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
-procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
-procedure toWorldFiles(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
-procedure toPrj(fname:string;Atype:PMapType);
-procedure toAuxXml(fname:string;Atype:PMapType);
+procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
+procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
+procedure toWorldFiles(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
+procedure toPrj(fname:string;Atype:TMapType);
+procedure toAuxXml(fname:string;Atype:TMapType);
 
 implementation
 uses unit1;
 
-procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
+procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 var f:TextFile;
     xy:TPoint;
     rad:real;
@@ -85,7 +85,7 @@ begin
  writeln(f,'MMPLL,3, '+fs(lon[3])+', '+fs(lat[3]));
  writeln(f,'MMPLL,4, '+fs(lon[1])+', '+fs(lat[3]));
 
- rad:=PMapType(Atype).radiusa;
+ rad:=Atype.radiusa;
 
  writeln(f,'MM1B,'+fs(1/((zoom[Azoom]/(2*PI))/(rad*cos(lat[2]*deg)))));
  writeln(f,'MOP,Map Open Position,0,0');
@@ -94,12 +94,11 @@ begin
  closefile(f);
 end;
 
-procedure toAuxXml(fname:string;Atype:PMapType);
+procedure toAuxXml(fname:string;Atype:TMapType);
 var AuxXmkfile:TMemoryStream;
     str:UTF8String;
 begin
  AuxXmkfile:=TMemoryStream.create;
-// str:=AnsiToUtf8('<?xml version="1.0" encoding="UTF-8" ?>'+#13#10);
  str:=AnsiToUtf8('<PAMDataset>'+#13#10+'<SRS>');
  case Atype.projection of
   1: str:=str+AnsiToUtf8('PROJCS["WGS_1984_Web_Mercator",GEOGCS["GCS_WGS_1984_Major_Auxiliary_Sphere",DATUM["WGS_1984_Major_Auxiliary_Sphere",SPHEROID["WGS_1984_Major_Auxiliary_Sphere",6378137.0,0.0]],PRIMEM["Greenwich",0.0],')+AnsiToUtf8('UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
@@ -112,7 +111,7 @@ begin
  AuxXmkfile.Free;
 end;
 
-procedure toPrj(fname:string;Atype:PMapType);
+procedure toPrj(fname:string;Atype:TMapType);
 var f:TextFile;
 begin
  assignfile(f,copy(fname,1,length(fname)-4)+'.prj');
@@ -125,7 +124,7 @@ begin
  closefile(f);
 end;
 
-procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
+procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 var f:TextFile;
     xy:TPoint;
     lat,lon:array[1..3] of real;
@@ -166,7 +165,7 @@ begin
  closefile(f);
 end;
 
-procedure toWorldFiles(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:PMapType);
+procedure toWorldFiles(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 var f:TextFile;
     ll1,ll2:TExtendedPoint;
     CellX,CellY,OrigX,OrigY:extended;
@@ -178,7 +177,6 @@ begin
   1,2:CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
   3: CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_DEGREES);
  end;
- //CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
  assignfile(f,fname);
  rewrite(f);
  writeln(f,R2StrPoint(CellX));

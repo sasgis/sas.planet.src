@@ -165,7 +165,6 @@ object Fmain: TFmain
         object TBEditItem2: TTBEditItem
           EditCaption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
           Visible = False
-          OnAcceptText = TBEditItem2AcceptText
           Caption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
           Hint = ''
           EditCaption = #1051#1086#1082#1072#1083#1100#1085#1099#1081

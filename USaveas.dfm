@@ -809,7 +809,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 4
         end
         object CmBExpMap: TComboBox
@@ -819,7 +819,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 5
         end
         object CmBExpHib: TComboBox
@@ -829,7 +829,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 6
         end
         object RBSatSel: TRadioButton
@@ -966,7 +966,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 4
         end
         object ChBoxRelativePath: TCheckBox
