@@ -507,8 +507,7 @@ begin
             BPos:=UPos;
             BPos:=ConvertPosM2M(Upos,zoom,typemap,VMap);
             xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
-            yy:=BPos.y-pr_y+(y shl 8);
-
+            yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),zoom);
             LoadXY.X := xx;
             LoadXY.Y := yy;
 
