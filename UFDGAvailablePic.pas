@@ -320,7 +320,7 @@ end;
 procedure TFDGAvailablePic.setup;
 begin
  Apos:=GPos2LonLat(Point(FMain.pos.x-(mWd2-moveTrue.x),FMain.pos.y-(mHd2-moveTrue.y)),zoom_size,sat_map_both);
- mpp:=1/((zoom[zoom_size]/(2*PI))/(PMapType(sat_map_both).radiusa*cos(APos.y*deg)));
+ mpp:=1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(APos.y*deg)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
  if hi>3500 then hi:=3500;
