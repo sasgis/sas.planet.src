@@ -242,9 +242,9 @@ begin
     7: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
         setlength(typemaparr,3);
-        typemaparr[0]:=PMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
-        typemaparr[1]:=PMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex]);
-        typemaparr[2]:=PMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
+        typemaparr[0]:=TMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
+        typemaparr[1]:=TMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex]);
+        typemaparr[2]:=TMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
         path:=EditPath4.Text;
         RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;

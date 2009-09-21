@@ -103,7 +103,7 @@ begin
   end;
 end;
 
-procedure UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte);
+function UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
 var bmp2,bmp1:TBitmap32;
     png:TPngObject;
     err1,err2:boolean;
@@ -134,7 +134,7 @@ begin
                        err1:=true;
                      end;
               end
-              else if (not(TypeMapArr.LoadTile(bmp1,,p_h.x, p_h.y, zoom+1,false)))
+              else if (not(TypeMapArr.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false)))
                     then begin
                            bmp1.width:=256;
                            bmp1.Height:=256;
@@ -717,7 +717,7 @@ procedure ThreadExport.export2YaMaps(APolyLL:array of TExtendedPoint);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:array of TPoint;
-    pathfrom,pathto,persl,perzoom,kti:string;
+    pathto,persl,perzoom,kti:string;
     max,min,p_h:TPoint;
     MapTypeMerS:TMapType;
     png:TPngObject;
@@ -734,10 +734,10 @@ begin
  i:=0;
  While not(zoomarr[i]) do inc(i);
  SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then Fsaveas.formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then Fsaveas.formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then Fsaveas.formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
- Fsaveas.GetMinMax(min,max,polyg,true);
+ if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
+  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
+        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ GetMinMax(min,max,polyg,true);
  if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
   else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
         else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
@@ -780,8 +780,8 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      Fsaveas.formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
-      num_dwn:=num_dwn+Fsaveas.GetDwnlNum(min,max,Polyg,true);
+      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
       kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
@@ -804,8 +804,8 @@ begin
    for j:=0 to 2 do //по типу
     if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then
      begin
-      Fsaveas.formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
-      Fsaveas.GetDwnlNum(min,max,Polyg,false);
+      formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
+      GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
       while p_x<max.x do
@@ -824,21 +824,18 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
-            pathfrom:=TypeMapArr[0].GetTileFileName(p_h.x,p_h.y,i+1);
             {if TileExists(pathfrom) then }
-            UniLoadTile(bmp322,pathfrom,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
+            UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
           p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
-          pathfrom:=TypeMapArr[j].GetTileFileName(p_h.x,p_h.y,i+1);
-          if UniLoadTile(bmp32,pathfrom,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i) then
+          if UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i) then
            begin
             if (j=2)and(TypeMapArr[0]<>nil) then
               begin
                bmp322.Draw(0,0,bmp32);
                bmp32.Draw(0,0,bmp322);
               end;
-//            bmp32.SaveToFile('c:\bmp32.bmp');
             if j=2 then
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
@@ -861,13 +858,11 @@ begin
                   png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
-                  //png.SaveToFile('c:\1.png');
                 end;
             if j=0 then
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  //bmp32.SaveToFile('c:\1\1.bmp');
                   bmp32crop.Clear;
                   bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                   bmp.Assign(bmp32crop);
@@ -876,7 +871,6 @@ begin
                   jpg.CompressionQuality:=cSat;
                   jpg.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
-                 // jpg.SaveToFile('c:\1\1.jpg');
                 end;
             inc(scachano);
            end;
