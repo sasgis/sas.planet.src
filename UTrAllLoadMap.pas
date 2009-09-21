@@ -427,7 +427,7 @@ begin
  for i:=0 to length(poly)-1 do begin
   lastload.X:=poly[i].X-(abs(poly[i].X) mod 256);
   lastload.Y:=poly[i].Y-(abs(poly[i].Y) mod 256);
-  lastload.z:=zoom; lastLoad.mt:=@typemap; lastLoad.use:=true;
+  lastload.z:=zoom; lastLoad.mt:=typemap; lastLoad.use:=true;
   LoadXY.X := poly[i].X;
   LoadXY.Y := poly[i].Y;
   if typemap.UseDwn then begin

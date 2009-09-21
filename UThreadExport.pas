@@ -804,7 +804,7 @@ begin
    for j:=0 to 2 do //по типу
     if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then
      begin
-      formatepoligon(@MapTypeMerS,i+1,APolyLL,polyg);
+      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
       GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
@@ -823,12 +823,12 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[0]);
+            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
             {if TileExists(pathfrom) then }
             UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,@MapTypeMerS,TypeMapArr[j]);
+          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
           if UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i) then
            begin
             if (j=2)and(TypeMapArr[0]<>nil) then
