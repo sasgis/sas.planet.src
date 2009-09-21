@@ -1,16 +1,64 @@
 unit Unit1;
 interface
 uses
-  Windows, Registry, Messages, SysUtils, Forms, GR32,GR32_Resamplers,GR32_Layers,
-  GR32_Polygons, TB2Item,  TB2Dock, TB2Toolbar, math, ShellApi, inifiles,
-  UTrAllLoadMap,  Classes, Menus,  RXSlider, UThreadScleit, Ugeofun, UWikiLayer,
-  MSHTML,variants, ActiveX, ComCtrls, ShlObj, ComObj, GR32_Filters,
-  EmbeddedWB, TB2ExtItems, midaslib, ULogo, UMapType, Graphics, StdCtrls,
-  DB, UThreadExport, GR32_Image, UResStrings, WinInet, SHDocVw_EWB, DBClient,
-  OleCtrls, EwbCore, TBX, Controls,
-  ZylGPSReceiver, Dialogs, BMSearch,  UFillingMap, PNGimage,
-   Buttons, ZylCustomGPSReceiver, ImgMaker, u_MemFileCache,
-  ImgList, TB2ToolWindow, TBXToolPals;
+  Windows,
+  Registry,
+  Messages,
+  SysUtils,
+  Forms,
+  Math,
+  ShellApi,
+  IniFiles,
+  Classes,
+  Menus,
+  MSHTML,
+  Variants,
+  ActiveX,
+  ComCtrls,
+  ShlObj,
+  ComObj,
+  Graphics,
+  StdCtrls,
+  OleCtrls,
+  Controls,
+  Buttons,
+  DB,
+  DBClient,
+  WinInet,
+  Dialogs,
+  ImgList,
+  GR32,
+  GR32_Resamplers,
+  GR32_Layers,
+  GR32_Polygons,
+  GR32_Filters,
+  GR32_Image,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  RXSlider,
+  EmbeddedWB,
+  TB2ExtItems,
+  SHDocVw_EWB,
+  TB2ToolWindow,
+  TBXToolPals,
+  EwbCore,
+  TBX,
+  ZylGPSReceiver,
+  ZylCustomGPSReceiver,
+  PNGimage,
+
+  ImgMaker,
+  UTrAllLoadMap,
+  UThreadScleit,
+  Ugeofun,
+  UWikiLayer,
+  ULogo,
+  UMapType,
+  UThreadExport,
+  UResStrings,
+  UFillingMap,
+  u_MemFileCache;
 
 type
   TlastLoad = record
@@ -594,7 +642,7 @@ implementation
 uses Unit2,UAbout,Usettings,USaveas,UProgress,UaddPoint,Unit4, USelLonLat, StrUtils, UImgFun,
      UtimeZones, UaddLine, UaddPoly, DateUtils, UEditMap, Ubrowser, Types,UMarksExplorer,UFDGAvailablePic,
   USearchResult, UImport, UAddCategory;
-{$R *.dfm} //{$R 0map.res} {$R Icons.RES}
+{$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
 begin
  FPos:=Value;

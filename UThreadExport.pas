@@ -120,7 +120,6 @@ begin
  bmp1.DrawMode:=dmBlend;
  png:=TPngObject.Create;
             try
-            // bmp.LoadFromFile(path);
              if TypeMapArr.ext='.png' then
               begin
                bmp1.width:=256;
@@ -147,10 +146,8 @@ begin
              bmp1.Height:=256;
              bmp1.Clear(clSilver);
             end;
-            //bmp1.SaveToFile('c:\bmp1.bmp');
             if p_h.Y<0 then bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp1)
                        else bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp1);
-            //bmp1.SaveToFile('c:\bmp.bmp');
 
             if MapTypeMerS.projection<>TypeMapArr.projection then
              begin
@@ -181,19 +178,8 @@ begin
                bmp2.Height:=256;
                bmp2.Clear(clSilver);
               end;
-              //bmp1.SaveToFile('c:\bmp2.bmp');
               if p_h.Y<0 then bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2)
                          else bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);
-              //bmp1.SaveToFile('c:\bmp.bmp');
-             { if p_h.Y<0 then
-               begin
-                bmp.Roll(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),false,SetAlpha(clSilver,256));
-                bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2);
-               end else
-               begin
-                bmp.Roll(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),false,SetAlpha(clSilver,256));
-                bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);
-               end; }
              end;
  result:=not(err1 and err2);
  png.Free;
@@ -824,7 +810,6 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
-            {if TileExists(pathfrom) then }
             UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;

@@ -357,7 +357,7 @@ begin
   ty:='';len:='0';
   if Assigned(hSession)then
    begin
-    hFile:=InternetOpenURL(hSession,PChar(VURL),PChar(head),length(head), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_NO_CACHE_WRITE or{INTERNET_FLAG_KEEP_CONNECTION or} INTERNET_FLAG_RELOAD,0);
+    hFile:=InternetOpenURL(hSession,PChar(VURL),PChar(head),length(head), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD,0);
     if Assigned(hFile)then
      begin
       dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -688,7 +688,7 @@ begin
        Synchronize(UpdateMemoAddProgressForm);
       end
       else begin
-            AddToMemo:={AddToMemo+#13#10+}SAS_ERR_FileExistsShort+';';
+            AddToMemo:=SAS_ERR_FileExistsShort+';';
             Synchronize(UpdateMemoProgressForm);
            end;
      inc(obrab);

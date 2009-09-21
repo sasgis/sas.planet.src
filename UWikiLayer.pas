@@ -134,7 +134,7 @@ begin
      RD.Y:=Fmain.Lat2y(coordinatesRD.Y);
     end;
    if(((RD.x-LT.x)<=1)or((RD.y-LT.y)<=1)or
-     ((LT.y>Fmain.map.Height)or(RD.y<0)or(LT.x>Fmain.map.Width)or(RD.x<0))){and(length(coordinates)>1)} then
+     ((LT.y>Fmain.map.Height)or(RD.y<0)or(LT.x>Fmain.map.Width)or(RD.x<0))) then
      begin
       LT.X:=LT.X+(pr_x-mWd2);
       RD.x:=RD.x+(pr_x-mWd2);

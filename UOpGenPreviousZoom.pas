@@ -90,7 +90,7 @@ begin
    begin
     formatepoligon(typemap,InZooms[i],PolygLL,polyg);
     if (not GenFormPrev)or(i=0) then
-    {if i=0 then }inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])))
+                  inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])))
              else inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,InZooms[i-1]-InZooms[i])));
    end;
  Synchronize(SetProgressForm);
@@ -182,7 +182,7 @@ begin
    if Terminated then continue;
    formatepoligon(typemap,InZooms[i],PolygLL,polyg);
    if (not GenFormPrev)or(i=0) then
-   {if i=0 then }c_d:=round(power(2,FromZoom-InZooms[i]))
+                 c_d:=round(power(2,FromZoom-InZooms[i]))
             else c_d:=round(power(2,InZooms[i-1]-InZooms[i]));
    GetDwnlNum(min,max,Polyg,false);
    p_x:=min.x;
