@@ -2261,7 +2261,8 @@ begin
       continue;
      end;
    posN:=ConvertPosM2M(POS,zoom_size,sat_map_both,MapType[Leyi]);
-   y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256)-y_draw);
+   if (posN.y div 256>pos.Y div 256) then y_drawN:=(((256-((posN.y-pr_y)mod 256)) mod 256)-y_draw)
+                   else y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256)-y_draw);
    x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256)-x_draw);
    for i:=0 to hg_x do
     for j:=0 to hg_y do
