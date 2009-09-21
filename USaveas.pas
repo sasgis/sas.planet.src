@@ -272,9 +272,8 @@ begin
         Replace:=CBReplace.Checked;
        end;
  end;
- with ThreadExport.Create(false,IncludeTrailingBackslash(path),APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,cSatEdit.Value,cMapEdit.Value,cHybEdit.Value,RelativePath) do
+ with ThreadExport.Create(false,IncludeTrailingPathDelimiter(path),APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,cSatEdit.Value,cMapEdit.Value,cHybEdit.Value,RelativePath) do
   begin
-   OnTerminate:=Fmain.ThreadExportDone;
    Priority := tpLowest;
    FreeOnTerminate:=true;
   end;
@@ -331,7 +330,6 @@ begin
     begin
      ProcessTiles:=GetDwnlNum(PolyMin,polyMax,polyg,true);
      GetMinMax(PolyMin,polyMax,polyg,false);
-     OnTerminate:=Fmain.ThreadSclDone;
      Priority := tpLower;
      FreeOnTerminate:=true;
      Suspended:=false;

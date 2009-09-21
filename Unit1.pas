@@ -497,7 +497,6 @@ class   function  timezone(lon,lat:real):TDateTime;
    procedure generate_mapzap;
    procedure draw_point;
 class   function  str2r(inp:string):real;
-   procedure ThreadSclDone(Sender: TObject);
    procedure paint_Line;
    procedure selectMap(num:TMapType);
 class   function lon2str(Alon:real):string;
@@ -513,7 +512,6 @@ class   function kb2KbMbGb(kb:real):string;
    procedure setalloperationfalse(newop:TAOperation);
 class   procedure insertinpath(pos:integer);
 class   procedure delfrompath(pos:integer);
-   procedure ThreadExportDone(Sender: TObject);
    procedure DrawGenShBorders;
    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
    procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -1202,16 +1200,6 @@ begin
  if not(DirectoryExists(path)) then ForceDirectories(path);
 end;
 
-procedure TFmain.ThreadSclDone(Sender: TObject);
-begin
- ThreadScleit(sender):=nil;
-end;
-
-procedure TFmain.ThreadExportDone(Sender: TObject);
-begin
- ThreadExport(sender):=nil;
-end;
-
 procedure TFmain.ThreadDone(Sender: TObject);
 begin
   ThreadAllLoadMap(sender).closeSession;
@@ -1222,16 +1210,14 @@ begin
        end;
    if ThreadAllLoadMap(sender).typeRect in [2,3] then
     begin
-     ThreadAllLoadMap(sender):=nil;
      if not((dwn)or(anim_zoom=1)) then
        begin
         move.X:=m_up.x;
         MainFileCache.Clear;
         Fmain.generate_im(nilLastLoad,'');
-       end; 
+       end;
      exit;
     end;
-   ThreadAllLoadMap(sender):=nil;
 end;
 
 procedure TFmain.drawRect(Shift:TShiftState);

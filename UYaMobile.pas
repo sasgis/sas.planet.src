@@ -73,7 +73,7 @@ end;
 procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
 var MobileFilePath:string;
     MobileFile:TFileStream;
-    TablePos,i:integer;
+    TablePos:integer;
     Adr,RAdr:integer;
     Len:Smallint;
 begin

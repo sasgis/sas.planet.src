@@ -107,7 +107,6 @@ function UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; MapTypeMerS:TMapTyp
 var bmp2,bmp1:TBitmap32;
     png:TPngObject;
     err1,err2:boolean;
-    pathfrom:string;
 begin
  bmp.width:=256;
  bmp.Height:=256;
@@ -293,7 +292,6 @@ begin
  FProgress.ProgressBar1.Max:=100;
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
  obrab:=0;
- scachano:=0;
 
  sqlite3_initialize;
  DISQLite3Database:=TDISQLite3Database.Create(nil);
@@ -391,7 +389,6 @@ begin
                   jpg.SaveToStream(TileStream);
                   Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,3,TileStream.Size);
                 end;
-            inc(scachano);
            end;
           inc(obrab);
           if ((num_dwn<100)and(obrab mod 5 = 0))or
@@ -783,7 +780,6 @@ begin
  FProgress.ProgressBar1.Max:=100;
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
  obrab:=0;
- scachano:=0;
 
  for i:=0 to 23 do //по масштабу
   if zoomarr[i] then
@@ -799,8 +795,6 @@ begin
         p_y:=min.Y;
         while p_y<max.Y do
          begin
-          p_xd256:=p_x div 256;
-          p_yd256:=p_y div 256;
           if (FProgress.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false)))
                                            then begin
                                                  inc(p_y,256);
@@ -857,7 +851,6 @@ begin
                   jpg.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
                 end;
-            inc(scachano);
            end;
           inc(obrab);
           if ((num_dwn<100)and(obrab mod 5 = 0))or

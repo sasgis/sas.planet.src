@@ -8,12 +8,9 @@ const
 
 var
   defoultMap:TBitmap;
-  function DelFile(path:string):boolean;
-  function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
   procedure SetDefoultMap;
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
-  function InStr(I: Integer): string;
 
 implementation
 uses unit1;
@@ -80,7 +77,6 @@ begin
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
         begin
-        AlphaPtr:=PByte(PNGObject.Scanline[Y]);
         for X:=0 to (destBitmap.Width-1) do
          begin
           if PNGObject.Pixels[X,Y]=0 then PixelPtr^:=PixelPtr^ and $00000000
@@ -122,22 +118,4 @@ begin
  FreeAndNil(b);
 end;
 
-
-function InStr(I: Integer): string;
-var
-  S: string;
-begin
-  Str(I, S);
-  InStr := S;
-end;
-
-function DelFile(path:string):boolean;
-begin
- result:=DeleteFile(PChar(path));
-end;
-
-function Copy_File(pathfrom,pathto:string;zamena:boolean):boolean;
-begin
- CopyFile(Pchar(pathfrom),Pchar(pathto),zamena);
-end;
 end.
