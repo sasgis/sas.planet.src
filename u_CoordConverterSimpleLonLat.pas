@@ -6,7 +6,10 @@ uses
   u_CoordConverterAbstract;
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterAbstract)
+  protected
+    FRadiusa : Extended;
   public
+    constructor Create(Aradiusa: Extended);
     function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint; override;
     function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint; override;
 	  function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; override;
@@ -15,6 +18,11 @@ type
 implementation
 
 { TCoordConverterSimpleLonLat }
+
+constructor TCoordConverterSimpleLonLat.Create(Aradiusa: Extended);
+begin
+  FRadiusa := Aradiusa;
+end;
 
 function TCoordConverterSimpleLonLat.LonLat2Pos(Ll: TExtendedPoint;
   Azoom: byte): Tpoint;

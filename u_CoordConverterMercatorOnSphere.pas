@@ -7,26 +7,22 @@ uses
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
   protected
-    D2R:Double;
-    FExct,FRadiusa,FRadiusb : Extended;
+    FRadiusa : Extended;
   public
-    constructor Create(AExct,Aradiusa,Aradiusb : Extended);
-    function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint; override;
-    function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint; override;
-    function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; override;
+    constructor Create(Aradiusa: Extended);
+    function Pos2LonLat(XY: TPoint; Azoom : byte): TExtendedPoint; override;
+    function LonLat2Pos(Ll: TExtendedPoint; Azoom: byte): Tpoint; override;
+    function LonLat2Metr(Ll: TExtendedPoint): TExtendedPoint; override;
   end;
 
 implementation
 
 { TCoordConverterMercatorOnSphere }
 
-constructor TCoordConverterMercatorOnSphere.Create(AExct,Aradiusa,Aradiusb: Extended);
+constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Extended);
 begin
   inherited Create();
-  D2R:=0.017453292519943295769236907684886;
-  FExct := AExct;
   Fradiusa:=Aradiusa;
-  Fradiusb:=Aradiusb;
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2Pos(Ll: TExtendedPoint;
@@ -57,8 +53,8 @@ end;
 
 function TCoordConverterMercatorOnSphere.LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;
 begin
-  ll.x:=ll.x*D2R;
-  ll.y:=ll.y*D2R;
+  ll.x:=ll.x*(Pi/180);
+  ll.y:=ll.y*(Pi/180);
   result.x:=Fradiusa*ll.x;
   result.y:=Fradiusa*Ln(Tan(PI/4+ll.y/2));
 end;

@@ -83,6 +83,7 @@ type
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
+    property GeoConvert: ICoordConverter read FCoordConverter;
   private
     err: string;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
@@ -487,9 +488,9 @@ begin
       exct:=sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa;
       pos:=iniparams.ReadInteger('PARAMS','pnum',-1);
       case projection of
-        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(Exct,radiusa,radiusb);
+        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(radiusa);
         2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(Exct,radiusa,radiusb);
-        3: FCoordConverter := TCoordConverterSimpleLonLat.Create();
+        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(radiusa);
         else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
       end;
       try

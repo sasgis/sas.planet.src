@@ -7,7 +7,6 @@ uses
 type
   TCoordConverterMercatorOnEllipsoid = class(TCoordConverterAbstract)
   protected
-    D2R:Double;
     FExct,FRadiusa,FRadiusb : Extended;
   public
     constructor Create(AExct,Aradiusa,Aradiusb : Extended);
@@ -27,7 +26,6 @@ const
 constructor TCoordConverterMercatorOnEllipsoid.Create(AExct,Aradiusa,Aradiusb: Extended);
 begin
   inherited Create();
-  D2R:=0.017453292519943295769236907684886;
   FExct := AExct;
   Fradiusa:=Aradiusa;
   Fradiusb:=Aradiusb;
@@ -76,8 +74,8 @@ end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;
 begin
-  ll.x:=ll.x*D2R;
-  ll.y:=ll.y*D2R;
+  ll.x:=ll.x*(Pi/180);
+  ll.y:=ll.y*(Pi/180);
   result.x:=Fradiusa*ll.x;
   result.y:=Fradiusa*Ln(Tan(PI/4+ll.y/2));
 end;
