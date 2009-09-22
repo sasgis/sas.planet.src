@@ -2305,10 +2305,6 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then continue;
-    {     if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),zoom_size)
-                    else xx:=pos.x-pr_x+(i shl 8);
-         yy:=pos.y-pr_y+(j shl 8);
-         xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);}
        if (MapType[Leyi].TileExists(xx,yy,zoom_size)) then
         begin
          spr.DrawMode:=dmBlend;
