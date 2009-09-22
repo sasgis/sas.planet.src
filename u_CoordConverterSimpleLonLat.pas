@@ -9,7 +9,7 @@ type
   public
     function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint; override;
     function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint; override;
-	function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; override;
+	  function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; override;
   end;
 
 implementation
@@ -21,7 +21,7 @@ function TCoordConverterSimpleLonLat.LonLat2Pos(Ll: TExtendedPoint;
 var
   TilesAtZoom : Integer;
 begin
-  TilesAtZoom := (1 shl (Azoom+8))*256;
+  TilesAtZoom := (1 shl Azoom)*256;
   Result.x := round(TilesAtZoom / 2 + Ll.x * (TilesAtZoom / 360));
   Result.y := round(TilesAtZoom / 2 - Ll.y * (TilesAtZoom / 360));
 end;
