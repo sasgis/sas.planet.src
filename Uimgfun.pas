@@ -31,19 +31,20 @@ end;
 function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
 var
     PixelPtr: PColor32;
+    TransparentColor: TColor32;
     AlphaPtr: PByte;
     X, Y: Integer;
 begin
  try
   result:=false;
+  destBitmap.Clear;
+  destBitmap.Width:=PNGObject.Width;
+  destBitmap.Height:=PNGObject.Height;
   case PNGObject.TransparencyMode of
     ptmPartial:
      begin
       if (PNGObject.Header.ColorType in [COLOR_GRAYSCALEALPHA,COLOR_RGBALPHA]) then
        begin
-        destBitmap.Clear;
-        destBitmap.Width:=PNGObject.Width;
-        destBitmap.Height:=PNGObject.Height;
         destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);// Assign(PNGObject);
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
@@ -59,14 +60,13 @@ begin
        end;
       if (PNGObject.Header.ColorType in [COLOR_PALETTE]) then
        begin
-        if PNGObject.Chunks.Item[3].Index=0 then destBitmap.Height:=destBitmap.Height;
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
         begin
         AlphaPtr:=PByte(PNGObject.Scanline[Y]);
         for X:=0 to (destBitmap.Width-1) do
          begin
-          if AlphaPtr^=0 then PixelPtr^:=PixelPtr^ and $00000000
+          if AlphaPtr^=0 then PixelPtr^:=(PixelPtr^ and $00000000)
                          else PixelPtr^:=Color32(PNGObject.Pixels[X,Y]);
           Inc(PixelPtr);
           Inc(AlphaPtr);
@@ -76,16 +76,23 @@ begin
      end;
     ptmBit:
       begin
-        if PNGObject.Chunks.Item[3].Index=0 then destBitmap.Height:=destBitmap.Height;
+//          destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);// Assign(PNGObject);
+          {TransparentColor := Color32(PNGObject.TransparentColor);
+          PixelPtr := PColor32(@destBitmap.Bits[0]);
+          for X := 0 to (destBitmap.Height - 1) * (destBitmap.Width - 1) do
+          begin
+            if PixelPtr^ = 0  then
+              PixelPtr^ := PixelPtr^ and $00000000;
+            Inc(PixelPtr);
+          end; }
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
         begin
         for X:=0 to (destBitmap.Width-1) do
          begin
-          if PNGObject.Pixels[X,Y]=0 then PixelPtr^:=PixelPtr^ and $00000000
+          if PNGObject.Pixels[X,Y]=PNGObject.TransparentColor then PixelPtr^:=PixelPtr^ and $00000000
                          else PixelPtr^:=Color32(PNGObject.Pixels[X,Y]);
           Inc(PixelPtr);
-          //Inc(AlphaPtr);
          end;
         end;
       end;

@@ -825,6 +825,7 @@ begin
                   jpg.Assign(bmp);
                   TileStream.Clear;
                   jpg.CompressionQuality:=chib;
+                  jpg.Compress;
                   jpg.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
                 end;

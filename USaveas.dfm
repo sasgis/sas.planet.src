@@ -163,7 +163,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBZoomload: TComboBox
@@ -172,7 +172,7 @@ object Fsaveas: TFsaveas
         Width = 41
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = CBZoomloadChange
       end
@@ -274,7 +274,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object QualitiEdit: TSpinEdit
@@ -462,7 +462,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBalhForm: TComboBox
@@ -496,7 +496,7 @@ object Fsaveas: TFsaveas
         Width = 57
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 6
         OnChange = ComboBoxChange
       end
@@ -543,7 +543,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
     end
@@ -1116,7 +1116,7 @@ object Fsaveas: TFsaveas
           ItemHeight = 13
           TabOrder = 5
         end
-        object SpinEdit1: TSpinEdit
+        object cSatEditYa: TSpinEdit
           Left = 240
           Top = 80
           Width = 49
@@ -1126,7 +1126,7 @@ object Fsaveas: TFsaveas
           TabOrder = 6
           Value = 85
         end
-        object SpinEdit2: TSpinEdit
+        object cMapEditYa: TSpinEdit
           Left = 240
           Top = 56
           Width = 49

@@ -142,8 +142,8 @@ type
     CmBExpSatYa: TComboBox;
     CmBExpMapYa: TComboBox;
     CmBExpHibYa: TComboBox;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
+    cSatEditYa: TSpinEdit;
+    cMapEditYa: TSpinEdit;
     CkBNotReplaseYa: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
@@ -220,6 +220,7 @@ var i:integer;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
     ziped:boolean;
+    comprSat,comprMap,comprHyb:byte;
     RelativePath,Replace:boolean;
 begin
  case CBFormat.ItemIndex of
@@ -232,6 +233,9 @@ begin
           TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]).active:=RBMapSel.Checked;
         if CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]<>nil then
           TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]).active:=RBHibSel.Checked;
+        comprSat:=cSatEdit.Value;
+        comprMap:=cMapEdit.Value;
+        comprHyb:=cHybEdit.Value;
         typemaparr[0]:=TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
         typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
         typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
@@ -245,6 +249,9 @@ begin
         typemaparr[0]:=TMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
         typemaparr[1]:=TMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex]);
         typemaparr[2]:=TMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
+        comprSat:=cSatEditYa.Value;
+        comprMap:=cMapEditYa.Value;
+        comprHyb:=cSatEditYa.Value;
         path:=EditPath4.Text;
         RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;
@@ -272,7 +279,7 @@ begin
         Replace:=CBReplace.Checked;
        end;
  end;
- with ThreadExport.Create(false,IncludeTrailingPathDelimiter(path),APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,cSatEdit.Value,cMapEdit.Value,cHybEdit.Value,RelativePath) do
+ with ThreadExport.Create(false,IncludeTrailingPathDelimiter(path),APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
