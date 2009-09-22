@@ -796,16 +796,16 @@ begin
         end;
       end;
     end else begin
-      if (btm is TGraphic) then
-        TGraphic(btm).LoadFromFile(Apath)
-      else if (btm is TPicture) then
+      if (btm is TPicture) then
         TPicture(btm).LoadFromFile(Apath)
       else if (btm is TJPEGimage) then
         TJPEGimage(btm).LoadFromFile(Apath)
       else if (btm is TPNGObject) then
         TPNGObject(btm).LoadFromFile(Apath)
       else if (btm is TKML) then
-        TKML(btm).LoadFromFile(Apath);
+        TKML(btm).LoadFromFile(Apath)
+      else if (btm is TGraphic) then
+        TGraphic(btm).LoadFromFile(Apath);
     end;
     result:=true;
   except

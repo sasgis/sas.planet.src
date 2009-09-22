@@ -41,7 +41,10 @@ begin
      begin
       if (PNGObject.Header.ColorType in [COLOR_GRAYSCALEALPHA,COLOR_RGBALPHA]) then
        begin
-        destBitmap.Assign(PNGObject);
+        destBitmap.Clear;
+        destBitmap.Width:=PNGObject.Width;
+        destBitmap.Height:=PNGObject.Height;
+        destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);// Assign(PNGObject);
         PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
          begin

@@ -2295,9 +2295,8 @@ begin
       continue;
      end;
    posN:=ConvertPosM2M(POS,zoom_size,sat_map_both,MapType[Leyi]);
-   if (posN.y div 256>pos.Y div 256) then y_drawN:=(((256-((posN.y-pr_y)mod 256)) mod 256)-y_draw)
-                   else y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256)-y_draw);
-   x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256)-x_draw);
+   y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
+   x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
    for i:=0 to hg_x do
     for j:=0 to hg_y do
       begin
@@ -2306,10 +2305,10 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then continue;
-       if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),zoom_size)
-                  else xx:=pos.x-pr_x+(i shl 8);
-       yy:=pos.y-pr_y+(j shl 8);
-       xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
+    {     if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),zoom_size)
+                    else xx:=pos.x-pr_x+(i shl 8);
+         yy:=pos.y-pr_y+(j shl 8);
+         xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);}
        if (MapType[Leyi].TileExists(xx,yy,zoom_size)) then
         begin
          spr.DrawMode:=dmBlend;
@@ -2344,7 +2343,7 @@ begin
            else BadDraw(spr);
           end;
          InvertBitmap(spr);
-         LayerMap.bitmap.Draw((i shl 8)-x_drawN-x_draw,(j shl 8)-y_drawN-y_draw, spr);
+         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
          spr.DrawMode:=dmOpaque;
         end
       end;
