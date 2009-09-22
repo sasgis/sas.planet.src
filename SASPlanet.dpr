@@ -42,10 +42,11 @@ uses
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   u_MemFileCache in 'u_MemFileCache.pas',
   UYaMobile in 'UYaMobile.pas',
+  u_UrlGenerator in 'u_UrlGenerator.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
   u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
-  u_UrlGenerator in 'u_UrlGenerator.pas';
+  u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas';
 
 var Ini: Tinifile;
     loc:integer;
