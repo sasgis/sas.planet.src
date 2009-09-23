@@ -9,7 +9,10 @@ procedure toPrj(fname:string;Atype:TMapType);
 procedure toAuxXml(fname:string;Atype:TMapType);
 
 implementation
-uses unit1;
+
+uses
+  unit1,
+  u_CoordConverterAbstract;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 var f:TextFile;

@@ -3,9 +3,26 @@ unit UaddLine;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Controls, Forms,
-  Dialogs, Spin, StdCtrls, ExtCtrls, UGeofun,DBClient, DB, GR32, Unit1,
-  Buttons, UResStrings, UMarksExplorer;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Buttons,
+  Classes,
+  Controls,
+  Forms,
+  Dialogs,
+  DBClient,
+  DB,
+  Spin,
+  StdCtrls,
+  ExtCtrls,
+  GR32,
+  UGeofun,
+  Unit1,
+  UResStrings,
+  UMarksExplorer,
+  u_CoordConverterAbstract;
 
 type
   TFaddLine = class(TForm)

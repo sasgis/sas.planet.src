@@ -1,8 +1,27 @@
 unit UThreadExport;
+
 interface
 
-uses Windows,Forms,SysUtils,Classes,UMapType,UImgFun,UGeoFun,unit4, VCLZIp, Graphics,
-     DISQLite3Database, DISQLite3Api, PNGImage, JPEG, GR32, UResStrings, UYaMobile,gifimage;
+uses
+  Windows,
+  Forms,
+  SysUtils,
+  Classes,
+  Graphics,
+  gifimage,
+  VCLZIp,
+  DISQLite3Database,
+  DISQLite3Api,
+  PNGImage,
+  JPEG,
+  GR32,
+  UMapType,
+  UImgFun,
+  UGeoFun,
+  unit4,
+  UResStrings,
+  UYaMobile,
+  u_CoordConverterAbstract;
 type
   ThreadExport = class(TThread)
     PolygLL:array of TExtendedpoint;

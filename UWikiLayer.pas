@@ -1,6 +1,17 @@
 unit UWikiLayer;
+
 interface
-uses Classes,GR32,UgeoFun,math,UKmlParse,UMapType, UResStrings;
+
+uses
+  Classes,
+  math,
+  GR32,
+  UgeoFun,
+  UKmlParse,
+  UMapType,
+  UResStrings,
+  u_CoordConverterAbstract;
+
 type
   TWikiLayer = class
    public

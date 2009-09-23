@@ -3,8 +3,27 @@ unit UaddPoly;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, DBClient,
-  Dialogs, Spin, StdCtrls, ExtCtrls, Buttons, UGeoFun, GR32, DB, Unit1, UResStrings, UMarksExplorer;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  DBClient,
+  Dialogs,
+  Spin,
+  StdCtrls,
+  ExtCtrls,
+  Buttons,
+  DB,
+  GR32,
+  UGeoFun,
+  Unit1,
+  UResStrings,
+  UMarksExplorer,
+  u_CoordConverterAbstract;
 
 type
   TFAddPoly = class(TForm)

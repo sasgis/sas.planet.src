@@ -1,6 +1,19 @@
 unit ImgMaker;
+
 interface
-uses Windows,Classes,SysUtils,Math,Jpeg,Graphics,UMapType,UGeoFun,GR32,GR32_Resamplers;
+
+uses
+  Windows,
+  Classes,
+  SysUtils,
+  Graphics,
+  Math,
+  Jpeg,
+  GR32,
+  GR32_Resamplers,
+  UMapType,
+  UGeoFun,
+  u_CoordConverterAbstract;
 
 type
 TExtended = record Lat: Extended;

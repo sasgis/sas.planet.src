@@ -3,8 +3,19 @@ unit USearchResult;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, UGeoFun, Unit1;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  UGeoFun,
+  Unit1,
+  u_CoordConverterAbstract;
 
 type
   TFSearchResult = class(TForm)

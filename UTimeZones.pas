@@ -1,6 +1,11 @@
 unit UTimeZones;
+
 interface
-uses UGeoFun,Types;
+
+uses
+  Types,
+  UGeoFun,
+  u_CoordConverterAbstract;
 
 var
 timezone_m12:array [0..15,0..1]of smallint = (

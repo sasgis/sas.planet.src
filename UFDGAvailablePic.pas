@@ -3,8 +3,26 @@ unit UFDGAvailablePic;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, wininet,
-  Dialogs, StdCtrls, ComCtrls, ExtCtrls, UGeoFun, Unit1, UMapType,CommCtrl, Jpeg, UResStrings;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  wininet,
+  Dialogs,
+  StdCtrls,
+  ComCtrls,
+  CommCtrl,
+  ExtCtrls,
+  Jpeg,
+  UGeoFun,
+  Unit1,
+  UMapType,
+  UResStrings,
+  u_CoordConverterAbstract;
 
 type
   TFDGAvailablePic = class(TForm)

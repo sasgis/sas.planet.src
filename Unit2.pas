@@ -1,8 +1,23 @@
 unit Unit2;
+
 interface
+
 uses
- Windows,SysUtils,Forms,Dialogs,Classes,Ugeofun, StdCtrls, Controls, rxToolEdit, rxCurrEdit,
- DB, Mask,UResStrings, UMarksExplorer;
+  Windows,
+  SysUtils,
+  Forms,
+  Dialogs,
+  Classes,
+  DB,
+  Mask,
+  StdCtrls,
+  Controls,
+  rxToolEdit,
+  rxCurrEdit,
+  Ugeofun,
+  UResStrings,
+  UMarksExplorer,
+  u_CoordConverterAbstract;
 
 type
 

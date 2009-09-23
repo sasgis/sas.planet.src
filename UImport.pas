@@ -3,9 +3,29 @@ unit UImport;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, uGeoFun, DB,
-  Dialogs, StdCtrls, Spin, ExtCtrls, Buttons, GR32, PNGImage, GR32_Resamplers, Unit1, UKMLParse,
-  UMarksExplorer, DBClient, UPLT;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  DBClient,
+  DB,
+  Dialogs,
+  StdCtrls,
+  Spin,
+  ExtCtrls,
+  Buttons,
+  PNGImage,
+  GR32,
+  GR32_Resamplers,
+  uGeoFun,
+  Unit1,
+  UKMLParse,
+  UMarksExplorer,
+  UPLT;
 
 type
   TFImport = class(TForm)
@@ -75,7 +95,9 @@ var
 
 implementation
 
-uses Math;
+uses
+  Math,
+  u_CoordConverterAbstract;
 {$R *.dfm}
 
 procedure TFImport.SpeedButton1Click(Sender: TObject);

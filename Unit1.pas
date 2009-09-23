@@ -47,7 +47,6 @@ uses
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   PNGimage,
-
   ImgMaker,
   UTrAllLoadMap,
   UThreadScleit,
@@ -58,7 +57,8 @@ uses
   UThreadExport,
   UResStrings,
   UFillingMap,
-  u_MemFileCache;
+  u_MemFileCache,
+  u_CoordConverterAbstract;
 
 type
   TlastLoad = record

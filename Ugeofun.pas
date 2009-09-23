@@ -1,7 +1,16 @@
 unit Ugeofun;
 
-interface              
-uses StrUtils,SysUtils,Types,Math,UMapType,ECWReader;
+interface
+
+uses
+  StrUtils,
+  SysUtils,
+  Types,
+  Math,
+  UMapType,
+  ECWReader,
+  u_CoordConverterAbstract;
+  
 type
  TDMS = record
   D,M,S: extended;
@@ -10,10 +19,6 @@ type
 
  TRealPoint = record
    X, Y: Real;
- end;
-
- TExtendedPoint = record
-   X, Y: Extended;
  end;
 
  TResObjType = (ROTpoint,ROTline,ROTPoly);

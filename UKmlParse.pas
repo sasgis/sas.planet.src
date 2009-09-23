@@ -1,6 +1,17 @@
 unit UKmlParse;
+
 interface
-uses Classes,SysUtils,GR32,StrUtils,Ugeofun,Windows, UResStrings, Graphics;
+
+uses
+  Windows,
+  Classes,
+  Graphics,
+  StrUtils,
+  SysUtils,
+  GR32,
+  Ugeofun,
+  UResStrings,
+  u_CoordConverterAbstract;
 
 type
  TStyle = class

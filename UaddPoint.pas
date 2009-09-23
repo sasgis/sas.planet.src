@@ -3,9 +3,31 @@ unit UaddPoint;
 interface
 
 uses
-  Windows,SysUtils,Classes,Controls,Forms,rxToolEdit,rxCurrEdit,ugeofun,ExtCtrls,StdCtrls,Mask,
-  ColorGrd, Buttons, Spin,DBClient, DB, GR32, Dialogs, graphics,GR32_Resamplers,pngimage, UResStrings,
-  DBCtrls, UMarksExplorer;
+  Windows,
+  SysUtils,
+  Classes,
+  Controls,
+  Forms,
+  Dialogs,
+  graphics,
+  ExtCtrls,
+  StdCtrls,
+  Mask,
+  ColorGrd,
+  Buttons,
+  Spin,
+  DB,
+  DBClient,
+  DBCtrls,
+  rxToolEdit,
+  rxCurrEdit,
+  pngimage,
+  ugeofun,
+  GR32,
+  GR32_Resamplers,
+  UResStrings,
+  UMarksExplorer,
+  u_CoordConverterAbstract;
 
 type
   TFaddPoint = class(TForm)

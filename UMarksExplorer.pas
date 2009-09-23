@@ -84,8 +84,17 @@ var
 
 implementation
 
-uses Unit1, DB, USaveas, UaddPoint, UaddPoly, UaddLine, UImport,
-  UAddCategory, Math;
+uses
+  Math,
+  DB,
+  Unit1,
+  USaveas,
+  UaddPoint,
+  UaddPoly,
+  UaddLine,
+  UImport,
+  UAddCategory,
+  u_CoordConverterAbstract;
 
 {$R *.dfm}
 function EditMark(id:integer):boolean;
