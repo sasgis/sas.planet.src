@@ -37,7 +37,7 @@ var
   TilesAtZoom : Integer;
   z, c : Extended;
 begin
-  TilesAtZoom := (1 shl Azoom)*256;
+  TilesAtZoom := (1 shl Azoom);
   Result.x := round(TilesAtZoom / 2 + Ll.x * (TilesAtZoom / 360));
   z := sin(Ll.y * Pi / 180);
   c := (TilesAtZoom / (2 * Pi));
@@ -50,26 +50,38 @@ var
   TilesAtZoom : Integer;
   zu, zum1, yy : extended;
 begin
-  TilesAtZoom := (1 shl Azoom)*256;
-  if TilesAtZoom>1 then
-  begin
-  if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
-  if (XY.y>TilesAtZoom/2)
-       then yy:=(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2))
-       else yy:=XY.y;
-  Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
-  Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
-  Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
-  Zu := result.y / (180 / Pi);
-  yy := (yy - TilesAtZoom / 2);
-  repeat
-   Zum1 := Zu;
-   Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
-  until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
-  if not(isNAN(Zu)) then
-   if XY.y>TilesAtZoom/2 then result.Y:=-zu*180/Pi
-                         else result.Y:=zu*180/Pi;
-	end;
+  if Azoom < 31 then begin
+
+    TilesAtZoom := (1 shl Azoom);
+
+    if TilesAtZoom>1 then begin
+      if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
+      if (XY.y>TilesAtZoom/2) then begin
+        yy:=(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2));
+      end else begin
+        yy:=XY.y;
+      end;
+      Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
+      Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
+      Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+      Zu := result.y / (180 / Pi);
+      yy := (yy - TilesAtZoom / 2);
+      repeat
+        Zum1 := Zu;
+        Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
+      until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
+      if not(isNAN(Zu)) then begin
+        if XY.y>TilesAtZoom/2 then begin
+          result.Y:=-zu*180/Pi;
+        end else begin
+          result.Y:=zu*180/Pi;
+        end;
+      end;
+    end;
+  end else begin
+    Result.X := 0;
+    Result.Y := 0;
+  end;
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;

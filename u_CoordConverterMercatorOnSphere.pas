@@ -31,7 +31,7 @@ var
   TilesAtZoom : Integer;
   z, c : Extended;
 begin
-  TilesAtZoom := (1 shl Azoom)*256;
+  TilesAtZoom := (1 shl Azoom);
   Result.x := round(TilesAtZoom / 2 + Ll.x * (TilesAtZoom / 360));
   z := sin(Ll.y * Pi / 180);
   c := (TilesAtZoom / (2 * Pi));
@@ -43,9 +43,7 @@ function TCoordConverterMercatorOnSphere.Pos2LonLat(XY: TPoint;
 var
   TilesAtZoom : Integer;
 begin
-  TilesAtZoom := (1 shl Azoom)*256;
-//  XY.x := XY.x mod TilesAtZoom;
-  if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
+  TilesAtZoom := (1 shl Azoom);
   Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
   Result.Y := (XY.y - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
