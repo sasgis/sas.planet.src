@@ -4923,4 +4923,27 @@ begin
   end;
 end;
 
+{
+procedure MergeBitmaps(BM1, BM2, BM3 : TBitmap; Alpha : byte);
+var
+  bf:TBlendFunction;
+begin
+//if not Assigned(BM3) then BM3:= TBitmap32.Create;
+BM3.Assign(BM1);
+bf.BlendOp:=AC_SRC_OVER;
+bf.BlendFlags:=0;
+bf.SourceConstantAlpha:=Alpha;//0-255
+bf.AlphaFormat:=0;// not use alpha-channel of bmp2
+ 
+//if sizes of your source bmps are different, try uncomment
+// and see result
+//BM2.Width:=BM3.Width;
+//BM2.Height:=BM3.Height;
+ 
+AlphaBlend(BM3.Canvas.Handle,0,0,BM3.Width,BM3.Height,
+   BM2.canvas.handle,0,0,BM2.Width,BM2.Height,bf);
+end;
+ 
+
+}
 end.

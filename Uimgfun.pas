@@ -33,6 +33,7 @@ var
     PixelPtr: PColor32;
     TransparentColor: TColor32;
     AlphaPtr: PByte;
+    png:TPNGObject;
     X, Y: Integer;
 begin
  try

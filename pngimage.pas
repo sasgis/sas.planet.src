@@ -5188,6 +5188,7 @@ procedure TPngObject.AssignTo(Dest: TPersistent);
   end;
 var
   TRNS: TChunkTRNS;
+  PLTE: TChunkPLTE;
 {$ENDIF}
 begin
   {If the destination is also a TPNGObject make it assign}

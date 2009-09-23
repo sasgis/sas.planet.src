@@ -2,7 +2,7 @@ unit UThreadExport;
 interface
 
 uses Windows,Forms,SysUtils,Classes,UMapType,UImgFun,UGeoFun,unit4, VCLZIp, Graphics,
-     DISQLite3Database, DISQLite3Api, PNGImage, JPEG, GR32, UResStrings, UYaMobile;
+     DISQLite3Database, DISQLite3Api, PNGImage, JPEG, GR32, UResStrings, UYaMobile,gifimage;
 type
   ThreadExport = class(TThread)
     PolygLL:array of TExtendedpoint;
@@ -711,6 +711,7 @@ var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     TileStream : TMemoryStream;
     PList:Text;
     LLCenter:TExtendedPoint;
+    gif:TGIFImage;
 begin
  try
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
@@ -733,7 +734,7 @@ begin
  bmp:=TBitmap.Create;
  bmp.Width:=sizeim;
  bmp.Height:=sizeim;
- png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
+ png:=tpngobject.createblank(COLOR_RGB, 8, sizeim,sizeim);
  ///png.Assign(bmp);
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
@@ -745,6 +746,9 @@ begin
  bmp32crop:=TBitmap32.Create;
  bmp32crop.Width:=sizeim;
  bmp32crop.Height:=sizeim;
+
+ gif:=TGIFImage.Create;
+ GIF.ColorReduction := rmQuantizeWindows;
 
  MapTypeMerS:=TMapType.Create;
  MapTypeMerS.projection:=2;
@@ -825,20 +829,29 @@ begin
                   jpg.Assign(bmp);
                   TileStream.Clear;
                   jpg.CompressionQuality:=chib;
-                  jpg.Compress;
                   jpg.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
                 end;
             if j=1 then
+             begin
+              bmp.Assign(bmp32);
+              gif.Assign(bmp);
+              bmp.Width:=png.Width;
+              bmp.Height:=png.Height;
+              bmp.PixelFormat:=pf8bit;
+              bmp.Palette:=GIF.Bitmap.Palette;
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  png.Canvas.CopyRect(Bounds(0,0,sizeim,sizeim),bmp32.Canvas,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim));
+                  bmp.Canvas.CopyRect(Bounds(0,0,sizeim,sizeim),GIF.Bitmap.Canvas,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim));
+                  png.Assign(bmp);
+//                  png.SaveToFile('c:\1.png');
                   TileStream.Clear;
                   png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
                 end;
+             end;
             if j=0 then
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
@@ -870,6 +883,7 @@ begin
  finally
   FProgress.Close;
   png.Free;
+  gif.Free;
   jpg.Free;
   bmp.Free;
   bmp32.Free;
