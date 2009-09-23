@@ -58,8 +58,11 @@ var
   Procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
   function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
+
 implementation
-uses Unit1;
+
+uses
+  Unit1;
 
 function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;

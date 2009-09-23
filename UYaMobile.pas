@@ -1,6 +1,10 @@
 unit UYaMobile;
+
 interface
-uses SysUtils,classes;
+
+uses
+  SysUtils,
+  classes;
 
 const
  TableOffset=1024;
@@ -14,7 +18,10 @@ var
  procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
 
 implementation
-uses Unit1;
+
+uses
+  Unit1;
+  
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
 begin

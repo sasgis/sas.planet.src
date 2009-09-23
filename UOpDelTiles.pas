@@ -1,7 +1,16 @@
 unit UOpDelTiles;
 
 interface
-uses Windows,Forms,SysUtils,Classes,UMapType,UImgFun,unit4,UResStrings;
+
+uses
+  Windows,
+  Forms,
+  SysUtils,
+  Classes,
+  UMapType,
+  UImgFun,
+  unit4,
+  UResStrings;
 
 type
   TOpDelTiles = class(TThread)
@@ -28,7 +37,10 @@ type
   end;
 
 implementation
-uses unit1,Ugeofun;
+
+uses
+  unit1,
+  Ugeofun;
 
 constructor TOpDelTiles.Create(CrSusp:Boolean;Azoom:byte;Atypemap:TMapType);
 begin

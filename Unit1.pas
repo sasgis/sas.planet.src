@@ -637,9 +637,30 @@ var
   function URLEncode(const S: string): string;
 
 implementation
-uses Unit2,UAbout,Usettings,USaveas,UProgress,UaddPoint,Unit4, USelLonLat, StrUtils, UImgFun,
-     UtimeZones, UaddLine, UaddPoly, DateUtils, UEditMap, Ubrowser, Types,UMarksExplorer,UFDGAvailablePic,
-  USearchResult, UImport, UAddCategory;
+uses
+  StrUtils,
+  DateUtils,
+  Types,
+  Unit2,
+  UAbout,
+  Usettings,
+  USaveas,
+  UProgress,
+  UaddPoint,
+  Unit4,
+  USelLonLat,
+  UImgFun,
+  UtimeZones,
+  UaddLine,
+  UaddPoly,
+  UEditMap,
+  Ubrowser,
+  UMarksExplorer,
+  UFDGAvailablePic,
+  USearchResult,
+  UImport,
+  UAddCategory;
+
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
 begin

@@ -91,7 +91,10 @@ var
 
 implementation
 
-uses Unit1, Unit2, Math;
+uses
+  Math,
+  Unit1,
+  Unit2;
 
 {$R *.dfm}
 function TFaddPoint.show_(aLL:TExtendedPoint;new:boolean):boolean;

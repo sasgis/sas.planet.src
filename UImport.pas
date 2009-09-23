@@ -98,6 +98,7 @@ implementation
 uses
   Math,
   u_CoordConverterAbstract;
+  
 {$R *.dfm}
 
 procedure TFImport.SpeedButton1Click(Sender: TObject);

@@ -3,8 +3,21 @@ unit UEditMap;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, UMapType, Spin, ComCtrls, UResStrings;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  ComCtrls,
+  Spin,
+  UMapType,
+  UResStrings;
 
 type
   TFEditMap = class(TForm)
@@ -48,7 +61,10 @@ var
   FEditMap: TFEditMap;
 
 implementation
-uses unit1;
+
+uses
+  unit1;
+
 {$R *.dfm}
 
 procedure TFEditMap.FormShow(Sender: TObject);

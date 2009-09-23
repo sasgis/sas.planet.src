@@ -1,6 +1,7 @@
 unit UMapType;
 
 interface
+
 uses
   Windows,
   Forms,
@@ -99,6 +100,7 @@ var
   function GetMapFromID(id:string):TMapType;
 
 implementation
+
 uses
   pngimage,
   IJL,

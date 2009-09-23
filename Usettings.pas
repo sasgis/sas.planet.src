@@ -3,9 +3,34 @@ unit Usettings;
 interface
 
 uses
-  Windows,SysUtils,Classes,Controls,Forms,StdCtrls, Graphics, filectrl,
-  XPMan, Mask, rxToolEdit, rxCurrEdit, ExtCtrls, ComCtrls, Spin,strutils, IEConst,urlmon, wininet,
-  Ugeofun, DBCtrlsEh, UMapType, GR32, inifiles, TB2Dock, Dialogs, UResStrings,ZylGPSReceiver;
+  Windows,
+  SysUtils,
+  Classes,
+  Controls,
+  Forms,
+  StdCtrls,
+  Graphics,
+  inifiles,
+  filectrl,
+  ExtCtrls,
+  ComCtrls,
+  Dialogs,
+  Spin,
+  strutils,
+  DBCtrlsEh,
+  IEConst,
+  Mask,
+  urlmon,
+  wininet,
+  GR32,
+  XPMan,
+  ZylGPSReceiver,
+  TB2Dock,
+  rxToolEdit,
+  rxCurrEdit,
+  Ugeofun,
+  UMapType,
+  UResStrings;
 
 type
   TFSettings = class(TForm)
@@ -233,11 +258,27 @@ var
   FSettings: TFSettings;
   activ:boolean=true;
   procedure SetProxy;
+
 implementation
 
-uses Unit1, Math, UEditMap, UFillingMap, Ubrowser, Unit2, UAbout, USaveas,
-  USearchResult, UImport, UAddCategory, UFDGAvailablePic, UaddPoint, Unit4,
-  UaddLine, UaddPoly;
+uses
+  Math,
+  Unit1,
+  UEditMap,
+  UFillingMap,
+  Ubrowser,
+  Unit2,
+  UAbout,
+  USaveas,
+  USearchResult,
+  UImport,
+  UAddCategory,
+  UFDGAvailablePic,
+  UaddPoint,
+  Unit4,
+  UaddLine,
+  UaddPoly;
+
 {$R *.dfm}
 
 procedure TFSettings.Save;

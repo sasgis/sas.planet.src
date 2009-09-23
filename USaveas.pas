@@ -205,7 +205,13 @@ var
   PolygonLL:array of TExtendedPoint;
 
 implementation
-uses unit1, Gauges, Unit4, UImgFun;
+
+uses
+  Gauges,
+  unit1,
+  Unit4,
+  UImgFun;
+  
 {$R *.dfm}
 
 function PolygonSquare(Poly:array of TPoint): Double;

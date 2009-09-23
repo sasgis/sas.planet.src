@@ -64,7 +64,12 @@ var
   procedure MouseOnMyReg(var PWL:TResObj;xy:TPoint);
 
 implementation
-uses unit1, UaddPoint, UaddLine, UaddPoly;
+uses
+  unit1,
+  UaddPoint,
+  UaddLine,
+  UaddPoly;
+
 {$R *.dfm}
 
 function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;

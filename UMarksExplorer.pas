@@ -3,9 +3,23 @@ unit UMarksExplorer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, CheckLst, Buttons, ComCtrls,UResStrings, UGeoFun,
-  ExtCtrls, DBClient;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  CheckLst,
+  Buttons,
+  ComCtrls,
+  ExtCtrls,
+  DBClient,
+  UResStrings,
+  UGeoFun;
 
 type
   TFMarksExplorer = class(TForm)
