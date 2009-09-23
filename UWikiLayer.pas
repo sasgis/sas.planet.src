@@ -32,7 +32,12 @@ var WikiLayer:array of TWikiLayer;
     procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 
 implementation
-uses unit1, SysUtils, StrUtils, UImgFun;
+
+uses
+  SysUtils,
+  StrUtils,
+  unit1,
+  UImgFun;
 
 procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 var i,j:integer;

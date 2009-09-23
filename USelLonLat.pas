@@ -3,8 +3,19 @@ unit USelLonLat;
 interface
 
 uses
-  Windows,SysUtils,Classes,Controls,Forms,Dialogs,Mask,unit1,rxCurrEdit,StdCtrls,Ugeofun, UResStrings,
-  rxToolEdit;
+  Windows,
+  SysUtils,
+  Classes,
+  Controls,
+  Forms,
+  Dialogs,
+  Mask,
+  StdCtrls,
+  rxCurrEdit,
+  rxToolEdit,
+  unit1,
+  Ugeofun,
+  UResStrings;
 
 type
   TFSelLonLat = class(TForm)
@@ -45,7 +56,8 @@ var
 
 implementation
 
-uses USaveas;
+uses
+  USaveas;
 
 {$R *.dfm}
 

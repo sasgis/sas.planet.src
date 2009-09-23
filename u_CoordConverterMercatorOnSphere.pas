@@ -1,9 +1,12 @@
 unit u_CoordConverterMercatorOnSphere;
 
 interface
+
 uses
-  Types, Math,
+  Types,
+  Math,
   u_CoordConverterAbstract;
+
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
   protected

@@ -3,8 +3,15 @@ unit Ubrowser;
 interface
 
 uses
-  Forms, EwbCore, EmbeddedWB, SHDocVw_EWB, Classes, Controls, Windows,
-  OleCtrls, StdCtrls;
+  Windows,
+  Forms,
+  Classes,
+  Controls,
+  OleCtrls,
+  StdCtrls,
+  EwbCore,
+  EmbeddedWB,
+  SHDocVw_EWB;
 
 type
   TFbrowser = class(TForm)
@@ -24,7 +31,9 @@ var
 
 implementation
 
-uses SysUtils, Unit1;
+uses
+  SysUtils,
+  Unit1;
 
 {$R *.dfm}
 

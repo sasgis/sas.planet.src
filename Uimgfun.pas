@@ -1,7 +1,21 @@
 unit Uimgfun;
 
 interface
-uses IJL,Classes,pngimage,StrUtils,SysUtils,Windows,Types,UMaptype,RxGIF,Math,GR32,jpeg,graphics;
+
+uses
+  Windows,
+  Classes,
+  graphics,
+  StrUtils,
+  SysUtils,
+  Math,
+  Types,
+  jpeg,
+  GR32,
+  pngimage,
+  IJL,
+  RxGIF,
+  UMaptype;
 
 const
   FILE_DOES_NOT_EXIST = DWORD(-1);
@@ -13,7 +27,9 @@ var
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
 
 implementation
-uses unit1;
+
+uses
+  unit1;
 
 procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
 var p:TPNGObject;

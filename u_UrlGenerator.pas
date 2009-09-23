@@ -2,7 +2,14 @@ unit u_UrlGenerator;
 
 interface
 Uses
-  Windows, SysUtils, uPSRuntime, uPSCompiler, u_CoordConverterAbstract,uPSC_dll, uPSR_dll, DateUtils;
+  Windows,
+  SysUtils,
+  DateUtils,
+  uPSC_dll,
+  uPSR_dll,
+  uPSRuntime,
+  uPSCompiler,
+  u_CoordConverterAbstract;
 
 type
   EUrlGeneratorScriptCompileError = class(Exception);
@@ -41,8 +48,9 @@ type
   end;
 
 implementation
+
 uses
-  Math, Unit1;
+  Math;
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
 var

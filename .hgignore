@@ -7,3 +7,4 @@ syntax: glob
 *.dsk
 *.bpg
 *.drc
+*.orig

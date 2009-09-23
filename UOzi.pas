@@ -1,6 +1,16 @@
-unit UOzi;             
+unit UOzi;
+
 interface
-uses Types, SysUtils, GR32, math,Ugeofun,UMapType, classes, ECWReader;
+
+uses
+  Types,
+  SysUtils,
+  classes,
+  math,
+  GR32,
+  ECWReader,
+  Ugeofun,
+  UMapType;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);

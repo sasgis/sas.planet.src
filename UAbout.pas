@@ -1,8 +1,14 @@
 unit UAbout;
+
 interface
 
-uses                    
-  Windows, Forms, Classes, Controls, StdCtrls, ExtCtrls;
+uses
+  Windows,
+  Forms,
+  Classes,
+  Controls,
+  StdCtrls,
+  ExtCtrls;
 
 type
   TFabout = class(TForm)
@@ -35,9 +41,10 @@ type
 var
   Fabout: TFabout;
 
-implementation 
+implementation
 
-uses UProgress, Unit1;
+uses
+  Unit1;
 
 {$R *.dfm}
 

@@ -1,9 +1,11 @@
 unit u_CoordConverterMercatorOnEllipsoid;
 
 interface
+
 uses
   Types,
   u_CoordConverterAbstract;
+
 type
   TCoordConverterMercatorOnEllipsoid = class(TCoordConverterAbstract)
   protected
@@ -16,8 +18,10 @@ type
   end;
 
 implementation
+
 uses
   Math;
+  
 const
   MerkElipsK=0.0000001;
 

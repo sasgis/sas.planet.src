@@ -3,8 +3,21 @@ unit UAddCategory;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Spin, UResStrings, UGeoFun, DBClient;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  Spin,
+  DBClient,
+  UResStrings,
+  UGeoFun;
 
 type
   TFAddCategory = class(TForm)
@@ -32,7 +45,9 @@ var
 
 implementation
 
-uses Unit1, DB;
+uses
+  Unit1,
+  DB;
 
 {$R *.dfm}
 procedure TFAddCategory.show_(new:boolean);

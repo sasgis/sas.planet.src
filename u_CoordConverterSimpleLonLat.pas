@@ -1,9 +1,11 @@
 unit u_CoordConverterSimpleLonLat;
 
 interface
+
 uses
   Types,
   u_CoordConverterAbstract;
+
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterAbstract)
   protected

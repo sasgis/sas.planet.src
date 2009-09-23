@@ -48,8 +48,11 @@ type
 
 var Style:TStyle;
     StyleMap:TStyleMap;
+
 implementation
-uses unit1;
+
+uses
+  unit1;
 
 function Sha_SpaceCompress(const s: string): string;
 var p, q, t: pchar;

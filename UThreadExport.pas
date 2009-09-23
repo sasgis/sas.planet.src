@@ -22,6 +22,7 @@ uses
   UResStrings,
   UYaMobile,
   u_CoordConverterAbstract;
+
 type
   ThreadExport = class(TThread)
     PolygLL:array of TExtendedpoint;
@@ -51,7 +52,11 @@ type
   end;
 
 implementation
-uses unit1,usaveas, Math;
+
+uses
+  Math,
+  unit1,
+  usaveas;
 
 procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin

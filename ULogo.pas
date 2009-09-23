@@ -3,7 +3,12 @@ unit ULogo;
 interface
 
 uses
-  Forms, jpeg, StdCtrls, ExtCtrls, Controls, Classes;
+  Forms,
+  StdCtrls,
+  ExtCtrls,
+  Controls,
+  Classes,
+  jpeg;
 
 type
   TFLogo = class(TForm)
