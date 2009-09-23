@@ -44,6 +44,7 @@ var pltstr:TStringList;
     str,trackname:string;
     i,j:integer;
 begin
+ Result := false;
  if FileExists(FileName) then
   begin
    pltstr:=TStringList.Create;

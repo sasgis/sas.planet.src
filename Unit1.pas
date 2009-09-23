@@ -4645,6 +4645,7 @@ end;
 procedure TFmain.TBEditPathSaveClick(Sender: TObject);
 var result:boolean;
 begin
+  result := false;
  case aoper of
   add_Poly: result:=FaddPoly.show_(add_line_arr,true);
   add_Line: result:=FaddLine.show_(add_line_arr,true);

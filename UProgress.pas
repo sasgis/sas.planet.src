@@ -30,9 +30,6 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormPaint(Sender: TObject);
-  private
-    FTempParent: TWinControl;
   public
     stop:boolean;
   end;
@@ -70,10 +67,4 @@ procedure TFProgress.FormCreate(Sender: TObject);
 begin
  stop:=false;
 end;
-
-procedure TFProgress.FormPaint(Sender: TObject);
-begin
-/// application.RestoreTopMosts;
-end;
-
 end.

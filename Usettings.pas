@@ -475,11 +475,11 @@ begin
  InetConnect.passstr:=EditPass.Text;
  SaveTileNotExists:=CBSaveTileNotExists.Checked;
  Mouse_inv:=ScrolInvert.Checked;
- NewCPath_:=IncludeTrailingBackslash(NewCPath.Text);
- OldCPath_:=IncludeTrailingBackslash(OldCPath.Text);
- ESCPath_:=IncludeTrailingBackslash(EScPath.Text);
- GMTilesPath_:=IncludeTrailingBackslash(GMTilesPath.Text);
- GECachePath_:=IncludeTrailingBackslash(GECachePath.Text);
+ NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
+ OldCPath_:=IncludeTrailingPathDelimiter(OldCPath.Text);
+ ESCPath_:=IncludeTrailingPathDelimiter(EScPath.Text);
+ GMTilesPath_:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
+ GECachePath_:=IncludeTrailingPathDelimiter(GECachePath.Text);
  gamman:=TrBarGamma.Position;
  Contrastn:=TrBarContrast.Position;
  num_format:=ComboBox1.ItemIndex;
