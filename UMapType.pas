@@ -525,7 +525,7 @@ begin
               else y:=zoom[Azoom]+(y mod zoom[Azoom]);
 
   FUrlGenerator.GetURLBase:=URLBase;
-  Result:=FUrlGenerator.GenLink(x shr 8,y shr 8,Azoom-1);
+  Result:=FUrlGenerator.GenLink(x,y,Azoom-1);
 end;
 
 function TMapType.GetMapSize(zoom:byte):longint;
