@@ -1296,7 +1296,7 @@ begin
     LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if LonLatLT.X<0 then LonLatLT.X:=LonLatLT.X-zLonR;
     if LonLatLT.Y>0 then LonLatLT.Y:=LonLatLT.Y+zLatR;
-    xy1:=GLonLat2Pos(LonLatLT,zoom_size,sat_map_both);
+    xy1:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT, (zoom_size - 1) + 8);
     xy1:=Point(mWd2-(pos.x-xy1.x),mHd2-(pos.y-xy1.y));
 
     LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8);
@@ -1304,7 +1304,7 @@ begin
     LonLatRD.Y:=LonLatRD.Y-(round(LonLatRD.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if LonLatRD.X>=0 then LonLatRD.X:=LonLatRD.X+zLonR;
     if LonLatRD.Y<=0 then LonLatRD.Y:=LonLatRD.Y-zLatR;
-    xy2:=GLonLat2Pos(LonLatRD,zoom_size,sat_map_both);
+    xy2:=sat_map_both.GeoConvert.LonLat2Pos(LonLatRD,(zoom_size - 1) + 8);
     xy2:=Point(mWd2-(pos.x-xy2.x),mHd2-(pos.y-xy2.y));
     if (rect_p2) then
      begin
@@ -1769,8 +1769,8 @@ begin
      ms.ReadBuffer(arrLL^,ms.size);
      if (ms.size)>24 then
       begin
-       TestArrLenP1:=GLonLat2Pos(ExtPoint(CDSmarksLonL.AsFloat,CDSmarksLatT.AsFloat),zoom_size,sat_map_both);
-       TestArrLenP2:=GLonLat2Pos(ExtPoint(CDSmarksLonR.AsFloat,CDSmarksLatB.AsFloat),zoom_size,sat_map_both);
+       TestArrLenP1:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(CDSmarksLonL.AsFloat,CDSmarksLatT.AsFloat),(zoom_size - 1) + 8);
+       TestArrLenP2:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(CDSmarksLonR.AsFloat,CDSmarksLatB.AsFloat),(zoom_size - 1) + 8);
        if (abs(TestArrLenP1.X-TestArrLenP2.X)>CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>CDSmarksScale1.AsInteger+2) then
         begin
          SetLength(buf_line_arr,(ms.size div 24));
@@ -1923,7 +1923,7 @@ end;
 
 procedure TFmain.topos(lat,lon:real;zoom_:byte;draw:boolean);
 begin
- POS:=GLonLat2pos(ExtPoint(lon,lat),zoom_,sat_map_both);
+ POS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(lon,lat),(zoom_ - 1) + 8);
  zoom_size:=zoom_;
  zooming(zoom_,false);
  if draw then LayerMap.Bitmap.Draw(pr_x-7,pr_y-6,GOToSelIcon);
@@ -2143,8 +2143,8 @@ begin
  LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
  LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
 
- PosLT:=GLonLat2Pos(LonLatLT,zoom_size,sat_map_both);
- if GLonLat2Pos(ExtPoint(LonLatLT.x+zLonR,LonLatLT.y+zLatR),zoom_size,sat_map_both).x-PosLT.x<4 then exit;
+ PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
+ if sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(LonLatLT.x+zLonR,LonLatLT.y+zLatR),(zoom_size - 1) + 8).x-PosLT.x<4 then exit;
  bufLonLT:=LonLatLT.X;
 
  Y1:=pr_Y-(Pos.Y-PosLT.Y);
@@ -2152,14 +2152,14 @@ begin
   begin
    LonLatLT.Y:=LonLatLT.Y-zLatR;
    LonLatLT.X:=bufLonLT;
-   PosLT:=GLonLat2Pos(LonLatLT,zoom_size,sat_map_both);
+   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
    Y2:=pr_Y-(Pos.Y-PosLT.Y);
    X1:=pr_x-(Pos.X-PosLT.X);
    X1b:=X1;
    while (LonLatLT.X+zLonR/2<LonLatRD.x) do
     begin
      LonLatLT.X:=LonLatLT.X+zLonR;
-     PosLT:=GLonLat2Pos(LonLatLT,zoom_size,sat_map_both);
+     PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
      X2:=pr_x-(Pos.X-PosLT.X);
      LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(BorderColor),BorderAlpha));
      if ((x2-x1>30)and(y2-y1>7))and(BorderText) then
@@ -2174,7 +2174,7 @@ begin
     end;
    LayerMap.bitmap.LineAS(x1b,y1,x2,y1,SetAlpha(Color32(BorderColor),BorderAlpha));
    LonLatLT.X:=LonLatLT.X+zLonR;
-   PosLT:=GLonLat2Pos(LonLatLT,zoom_size,sat_map_both);
+   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
    LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(BorderColor),BorderAlpha));
    y1:=y2;
   end;
@@ -2765,7 +2765,7 @@ begin
   param:=paramstr(1);
   if param<>'' then For i:=0 to length(MapType)-1 do if MapType[i].guids=param then sat_map_both:=MapType[i];
   if paramstr(2)<>'' then zoom_size:=strtoint(paramstr(2));
-  if (paramstr(3)<>'')and(paramstr(4)<>'') then POS:=GLonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),zoom_size,sat_map_both);
+  if (paramstr(3)<>'')and(paramstr(4)<>'') then POS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(zoom_size - 1) + 8);
  end;
 
  zooming(Zoom_size,false);
@@ -4063,7 +4063,7 @@ begin
                 GPS_arr[length(GPS_arr)-2].x,GPS_arr[len-1].x);
   if not((dwn)or(anim_zoom=1))and(Fmain.Active) then
    begin
-    bPOS:=GLonLat2pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),zoom_size,sat_map_both);
+    bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),(zoom_size - 1) + 8);
     if (GPS_go)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
      then begin
            POS:=bpos;

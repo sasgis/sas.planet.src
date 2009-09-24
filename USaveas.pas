@@ -519,8 +519,8 @@ begin
  vramkah:=false;
  zagran:=false;
  for i:=0 to length(polygonLL)-1 do
-   if ((GLonLat2Pos(polygonLL[i],zoom_rect,sat_map_both).y>=0)and
-      (GLonLat2Pos(polygonLL[i],zoom_rect,sat_map_both).y<=zoom[zoom_rect]))then vramkah:=true
+   if ((sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y>=0)and
+      (sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y<=zoom[zoom_rect]))then vramkah:=true
                                               else zagran:=true;
  if not(vramkah)
   then begin

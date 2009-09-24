@@ -39,8 +39,6 @@ var
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
   function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType;MD:TMapType):TPoint;
-//  function GPos2LonLat(XY:TPoint;Azoom:byte;MT:TMapType):TExtendedPoint;
-  function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:TMapType):Tpoint;
   function R2StrPoint(r:extended):string;
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:array of TPoint;P:TPoint):boolean;
@@ -141,7 +139,7 @@ var i:integer;
 begin
  for i:=0 to length(APolyg)-1 do
   begin
-   resAPolyg[i]:=GLonLat2Pos(Apolyg[i],Anewzoom,Atype);
+   resAPolyg[i]:=Atype.GeoConvert.LonLat2Pos(Apolyg[i], (Anewzoom - 1) + 8);
    if resAPolyg[i].y<0 then resAPolyg[i].y:=1;
    if resAPolyg[i].y>zoom[AnewZoom] then resAPolyg[i].y:=zoom[AnewZoom]-1;
   end;
@@ -349,65 +347,10 @@ begin
   result.S:=Frac(Frac(G)*60)*60;
 end;
 
-function GPos2LonLat(XY:TPoint;Azoom:byte;MT:TMapType):TExtendedPoint;
-var zu,zum1,yy:extended;
-begin
- If CiclMap then
-  begin
-   if XY.x>=0 then XY.x:=XY.x mod zoom[Azoom]
-              else XY.x:=zoom[Azoom]+(XY.x mod zoom[Azoom]);
-  end;
- result.X:=((XY.x)-zoom[Azoom]/2)/(zoom[Azoom]/360);
- case MT.projection of
-  1: begin
-      result.Y:=((XY.y)-zoom[Azoom]/2)/-(zoom[Azoom]/(2*PI));
-      result.Y:=(2*arctan(exp(result.Y))-PI/2)*180/PI;
-     end;
-  2: begin
-      if (XY.y>zoom[Azoom]/2)
-       then yy:=(zoom[Azoom])-XY.y
-       else yy:=XY.y;
-      result.Y:=((yy)-zoom[Azoom]/2)/-(zoom[Azoom]/(2*PI));
-      result.Y:=(2*arctan(exp(result.Y))-PI/2)*180/PI;
-      Zu:=result.y/(180/Pi);
-      yy:=((yy)-zoom[Azoom]/2);
-      repeat
-       Zum1:=Zu;
-       Zu:=arcsin(1-((1+Sin(Zum1))*power(1-MT.exct*sin(Zum1),MT.exct))/(exp((2*yy)/-(zoom[Azoom]/(2*Pi)))*power(1+MT.exct*sin(Zum1),MT.exct)));
-      until ((abs(Zum1-Zu)<MerkElipsK) or (isNAN(Zu)));
-      if not(isNAN(Zu)) then
-       if XY.y>zoom[Azoom]/2 then result.Y:=-zu*180/Pi
-                             else result.Y:=zu*180/Pi;
-     end;
-  3: begin
-      result.y:=(-((XY.y)-zoom[Azoom]/2)/((zoom[Azoom]/2)/180));
-     end;
- end;
-end;
-
-function GLonLat2Pos(Ll:TExtendedPoint;Azoom:byte;MT:TMapType):Tpoint;
-var z,c:real;
-begin
- result.x:=round(zoom[Azoom]/2+ll.x*(zoom[Azoom]/360));
- case MT.projection of
-  1: begin
-      z:=sin(Ll.y*deg);
-      c:=(zoom[Azoom]/(2*Pi));
-      result.y:=round(zoom[Azoom]/2-0.5*ln((1+z)/(1-z))*c);
-     end;
-  2: begin
-      z:=sin(Ll.y*deg);
-      c:=(zoom[Azoom]/(2*Pi));
-      result.y:=round(zoom[Azoom]/2-c*(ArcTanh(z)-MT.exct*ArcTanh(MT.exct*z)) )
-     end;
-  3: result.y:=round(zoom[Azoom]/2-ll.y*((zoom[Azoom]/2)/180));
- end;
-end;
-
 function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; MD:TMapType):TPoint;
 begin
  if MD=nil then MD:=MS;
- result:=GLonLat2Pos(MS.GeoConvert.Pos2LonLat(pos,(Azoom - 1) + 8),Azoom,MD);
+ result:=MD.GeoConvert.LonLat2Pos(MS.GeoConvert.Pos2LonLat(pos,(Azoom - 1) + 8),(Azoom - 1) + 8);
 end;
 
 {
