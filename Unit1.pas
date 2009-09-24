@@ -58,7 +58,8 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
-  u_CoordConverterAbstract;
+  u_CoordConverterAbstract,
+  midaslib;
 
 type
   TlastLoad = record
