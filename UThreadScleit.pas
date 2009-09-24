@@ -376,7 +376,7 @@ begin
         Units:=ECW_CELL_UNITS_DEGREES;
        end;
    end;
-   CalculateMercatorCoordinates(GPos2LonLat(Poly0,Zoom,typemap),GPos2LonLat(Poly1,Zoom,typemap),
+   CalculateMercatorCoordinates(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
                                 Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY,Units);
    errecw:=ecw.Encode(self,fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, @ReadLine, nil,
              Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);

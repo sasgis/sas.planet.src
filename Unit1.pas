@@ -1291,7 +1291,7 @@ begin
         25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
         10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
     end;
-    LonLatLT:=GPos2LonLat(pxy1,zoom_size,sat_map_both);
+    LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8);
     LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
     LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if LonLatLT.X<0 then LonLatLT.X:=LonLatLT.X-zLonR;
@@ -1299,7 +1299,7 @@ begin
     xy1:=GLonLat2Pos(LonLatLT,zoom_size,sat_map_both);
     xy1:=Point(mWd2-(pos.x-xy1.x),mHd2-(pos.y-xy1.y));
 
-    LonLatRD:=GPos2LonLat(pxy2,zoom_size,sat_map_both);
+    LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8);
     LonLatRD.X:=LonLatRD.X-(round(LonLatRD.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
     LonLatRD.Y:=LonLatRD.Y-(round(LonLatRD.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if LonLatRD.X>=0 then LonLatRD.X:=LonLatRD.X+zLonR;
@@ -1315,11 +1315,11 @@ begin
    end;
   if (rect_p2) then
    begin
-    fsaveas.Show_(zoom_size,[GPos2LonLat(pxy1,zoom_size,sat_map_both),
-                             GPos2LonLat(Point(pxy2.X,pxy1.Y),zoom_size,sat_map_both),
-                             GPos2LonLat(pxy2,zoom_size,sat_map_both),
-                             GPos2LonLat(Point(pxy1.X,pxy2.Y),zoom_size,sat_map_both),
-                             GPos2LonLat(pxy1,zoom_size,sat_map_both)]);
+    fsaveas.Show_(zoom_size,[sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8),
+                             sat_map_both.GeoConvert.Pos2LonLat(Point(pxy2.X,pxy1.Y),(zoom_size - 1) + 8),
+                             sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8),
+                             sat_map_both.GeoConvert.Pos2LonLat(Point(pxy1.X,pxy2.Y),(zoom_size - 1) + 8),
+                             sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8)]);
     rect_p2:=false;
     exit;
    end;
@@ -2029,7 +2029,7 @@ var ll:TextendedPoint;
     TameTZ:TDateTime;
 begin
  labZoom.caption:=' '+inttostr(zoom_size)+'x ';
- ll:=GPos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),zoom_size,sat_map_both);
+ ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(zoom_size - 1) + 8);
  if FirstLat then result:=lat2str(ll.y)+' '+lon2str(ll.x)
              else result:=lon2str(ll.x)+' '+lat2str(ll.y);
  LayerStatBar.Bitmap.Width:=map.Width;
@@ -2132,11 +2132,11 @@ begin
     10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
  end;
 
- LonLatRD:=GPos2LonLat(Point(pos.x+pr_x,pos.y+pr_y),zoom_size,sat_map_both);
+ LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x+pr_x,pos.y+pr_y), (zoom_size - 1) + 8);
  LonLatRD:=ExtPoint(LonLatRD.x+zLonR,LonLatRD.y-zLatR);
  if LonLatRD.y<-90 then LonLatRD.y:=-90;
  if LonLatRD.x>180 then LonLatRd.x:=180;
- LonLatLT:=GPos2LonLat(Point(pos.x-pr_x,pos.y-pr_y),zoom_size,sat_map_both);
+ LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-pr_x,pos.y-pr_y), (zoom_size - 1) + 8);
  LonLatLT:=ExtPoint(LonLatLT.X-zLonR,LonLatLT.Y+zLatR);
  if LonLatLT.y>90 then LonLatLT.y:=90;
  if LonLatLT.x<-180 then LonLatLT.x:=-180;
@@ -3202,7 +3202,7 @@ end;
 procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
- ll:=GPos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),zoom_size,sat_map_both);
+ ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(zoom_size - 1) + 8);
  if FirstLat then CopyStringToClipboard(lat2str(ll.y)+' '+lon2str(ll.x))
              else CopyStringToClipboard(lon2str(ll.x)+' '+lat2str(ll.y));
 end;
@@ -3723,23 +3723,23 @@ end;
 procedure TFmain.Google1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=GPos2LonLat(pos,zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(Apos.y)+','+R2StrPoint(Apos.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(zoom_size-1));
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
 var Apos,AposLT,AposRD:tExtendedPoint;
 begin
- Apos:=GPos2LonLat(pos,zoom_size,sat_map_both);
- AposLT:=GPos2LonLat(Point(pos.X-mWd2,pos.Y-mHd2),zoom_size,sat_map_both);
- AposRD:=GPos2LonLat(Point(pos.X+mWd2,pos.Y+mHd2),zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
+ AposLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.X-mWd2,pos.Y-mHd2),(zoom_size - 1) + 8);
+ AposRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.X+mWd2,pos.Y+mHd2),(zoom_size - 1) + 8);
  CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Apos.x*100000)/100000)+'%2C'+R2StrPoint(round(Apos.y*100000)/100000)+'&spn='+R2StrPoint(abs(AposLT.x-AposRD.x))+'%2C'+R2StrPoint(abs(AposLT.y-AposRD.y))+'&l=sat');
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=GPos2LonLat(pos,zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(Apos.x)+'&y='+R2StrPoint(Apos.y)+'&z='+inttostr(zoom_size-1)+'&fullscreen=false&mode=satellite');
 end;
 
@@ -4007,7 +4007,7 @@ end;
 procedure TFmain.livecom1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=GPos2LonLat(pos,zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(Apos.y)+'~'+R2StrPoint(Apos.x)+'&style=h&lvl='+inttostr(zoom_size-1));
 end;
 
@@ -4019,7 +4019,7 @@ end;
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=GPos2LonLat(pos,zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
  CopyStringToClipboard('http://imageatlas.digitalglobe.com/ia-webapp/?lat='+R2StrPoint(Apos.y)+'&lon='+R2StrPoint(Apos.x)+'&zoom='+inttostr(zoom_size-1));
 end;
 
@@ -4618,7 +4618,7 @@ var Apos:TExtendedPoint;
 begin
 if SaveLink.Execute then
  begin
-   Apos:=GPos2LonLat(Point(pos.x,pos.y),zoom_size,sat_map_both);
+   Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
    param:=' '+sat_map_both.guids+' '+inttostr(zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
    CreateLink(ParamStr(0),SaveLink.filename, '', param)
  end;
@@ -4705,7 +4705,7 @@ end;
 procedure TFmain.NSRTM3Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
- Apos:=GPos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),(zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
@@ -4714,7 +4714,7 @@ end;
 procedure TFmain.NGTOPO30Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
- Apos:=GPos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),zoom_size,sat_map_both);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),(zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));

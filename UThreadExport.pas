@@ -235,9 +235,9 @@ begin
   else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
         else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
  GetMinMax(min,max,polyg,true);
- if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
-  else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
-        else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
+ if TypeMapArr[0]<>nil then LLCenter:= TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8);
  AssignFile(Plist,PATH+'com.apple.Maps.plist');
  Rewrite(PList);
  Writeln(PList,'<plist>');
@@ -302,10 +302,10 @@ begin
       formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).y,4);
+      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);
@@ -485,10 +485,10 @@ begin
       formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).y,4);
+      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);
@@ -595,10 +595,10 @@ begin
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
-  north:=R2StrPoint(GPos2LonLat(xym256lt,z,TypeMapArr[0]).y);
-  south:=R2StrPoint(GPos2LonLat(xym256rb,z,TypeMapArr[0]).y);
-  east:=R2StrPoint(GPos2LonLat(xym256rb,z,TypeMapArr[0]).x);
-  west:=R2StrPoint(GPos2LonLat(xym256lt,z,TypeMapArr[0]).x);
+  north:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256lt,(z - 1) + 8).y);
+  south:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256rb,(z - 1) + 8).y);
+  east:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256rb,(z - 1) + 8).x);
+  west:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256lt,(z - 1) + 8).x);
   ToFile:=#13#10+'<Folder>'+#13#10+{'  <name></name>'+#13#10+}'  <Region>'+#13#10+'    <LatLonAltBox>'+#13#10+
           '      <north>'+north+'</north>'+#13#10+'      <south>'+south+'</south>'+#13#10+'      <east>'+east+'</east>'+#13#10+
           '      <west>'+west+'</west>'+#13#10+'    </LatLonAltBox>'+#13#10+'    <Lod>';
@@ -645,10 +645,10 @@ begin
     formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
     perzoom:=perzoom+inttostr(j+1)+'_';
-    kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).x,4);
-    kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).y,4);
-    kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[0]).x,4);
-    kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[0]).y,4);
+    kti:=RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+    kti:=kti+'_'+RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+    kti:=kti+'_'+RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+    kti:=kti+'_'+RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(max,j + 8).y,4);
    end;
  persl:=copy(persl,1,length(persl)-1);
  perzoom:=copy(perzoom,1,length(perzoom)-1);
@@ -746,9 +746,9 @@ begin
   else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
         else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
  GetMinMax(min,max,polyg,true);
- if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
-  else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
-        else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
+ if TypeMapArr[0]<>nil then LLCenter:=TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8);
 
  hxyi:=1;
  sizeim:=128;
@@ -794,10 +794,10 @@ begin
       formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).y,4);
+      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);
