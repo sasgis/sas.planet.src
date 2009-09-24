@@ -47,6 +47,7 @@ uses
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   PNGimage,
+  MidasLib,
   ImgMaker,
   UTrAllLoadMap,
   UThreadScleit,
