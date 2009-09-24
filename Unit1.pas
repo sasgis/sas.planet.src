@@ -558,7 +558,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='90919';
+  SASVersion='90923';
   ENU=LANG_ENGLISH;
   RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
