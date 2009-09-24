@@ -82,14 +82,12 @@ type
     procedure ShowList;
     procedure ShowError;
   public
-    constructor Create(CrSusp:Boolean;ALink:string);
+    constructor Create(ALink:string);
   end;
 
 
 var
   FDGAvailablePic: TFDGAvailablePic;
-  GetList:TGetList;
-  TIDs:string;
   Stacks : array [0..13,0..3] of string =
             (
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
@@ -147,6 +145,11 @@ var
              );  }
 implementation
 
+uses Math;
+
+var
+  GetListThId:Longint;
+
 {$R *.dfm}
 function GetWord(Str, Smb: string; WordNmbr: Byte): string;
 var SWord: string;
@@ -169,10 +172,12 @@ begin
                    else Result := '';
 end;
 
-constructor TGetList.Create(CrSusp:Boolean;ALink:string);
+constructor TGetList.Create(ALink:string);
 begin
+  inherited Create(True);
+  FreeOnTerminate:=true;
+  Priority:=tpLower;
   Link:=ALink;
-  inherited Create(CrSusp);
 end;
 
 procedure TGetList.ShowError;
@@ -183,7 +188,6 @@ begin
    0: ShowMessage(SAS_ERR_Noconnectionstointernet);
    else ShowMessage(SAS_ERR_Noconnectionstointernet);
  end;
-
 end;
 
 function TGetList.GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
@@ -248,6 +252,8 @@ var datesat:string;
     added:boolean;
     node:TTreeNode;
 begin
+ if ThreadID=GetListThId then
+ begin
  for i:=0 to list.Count-1 do
   try
    datesat:=GetWord(list[i], ',', 2);
@@ -275,6 +281,7 @@ begin
   except
   end;
  FDGAvailablePic.TreeView1.AlphaSort();
+ end;
 end;
 
 procedure TGetList.Execute;
@@ -399,7 +406,6 @@ begin
                      tids:=tids+TDGPicture(TreeView1.Items.Item[i].Data).tid;
                     end;
   end;
- TIDs:=tids;
 end;
 
 
@@ -454,10 +460,11 @@ begin
  GetWord(ComboBox2.Text, ',', 1);
  encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(Apos.x)+'&yc='+R2StrPoint(Apos.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
 
- if GetList<>nil then GetList.Terminate;
- GetList:=TGetList.Create(false,{'http://anonymouse.org/cgi-bin/anon-www.cgi/}'http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt);
- GetList.FreeOnTerminate:=true;
- GetList.Priority := tpLower;
+ with TGetList.Create('http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt) do
+  begin
+   GetListThId:=ThreadID;
+   Resume;
+  end;
 end;
 
 procedure TFDGAvailablePic.Button3Click(Sender: TObject);

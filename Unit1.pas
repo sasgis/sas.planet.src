@@ -47,6 +47,7 @@ uses
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   PNGimage,
+  MidasLib,
   ImgMaker,
   UTrAllLoadMap,
   UThreadScleit,
@@ -557,7 +558,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='90919';
+  SASVersion='90923';
   ENU=LANG_ENGLISH;
   RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
@@ -1848,7 +1849,7 @@ begin
          else result:=zu*180/Pi;
      end;
   3: result:=-((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2)/(zoom[zoom_size]/360);
- end; 
+ end;
 end;
 
 function TFmain.Lon2X(lon:real):integer;
