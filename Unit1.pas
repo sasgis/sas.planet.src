@@ -47,7 +47,7 @@ uses
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   PNGimage,
-
+  MidasLib,
   ImgMaker,
   UTrAllLoadMap,
   UThreadScleit,
@@ -557,7 +557,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='90919';
+  SASVersion='90923';
   ENU=LANG_ENGLISH;
   RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
@@ -2399,11 +2399,6 @@ var  Ini: TMeminifile;
 begin
  if start=false then exit;
  Fmain.Enabled:=false;
- if FileExists(extractfilepath(paramstr(0))+'SASPlanet.RUS') then
-  begin
-   DeleteFile(extractfilepath(paramstr(0))+'SASPlanet.RUS');
-  end;
-
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
  Maximized:=Ini.Readbool('VIEW','Maximized',true);
  vo_ves_ecran:=Ini.Readbool('VIEW','FullScreen',false);
