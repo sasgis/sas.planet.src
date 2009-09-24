@@ -89,6 +89,7 @@ type
 var
   FDGAvailablePic: TFDGAvailablePic;
   GetList:TGetList;
+  GetListThId:Longint;
   TIDs:string;
   Stacks : array [0..13,0..3] of string =
             (
@@ -147,6 +148,8 @@ var
              );  }
 implementation
 
+uses Math;
+
 {$R *.dfm}
 function GetWord(Str, Smb: string; WordNmbr: Byte): string;
 var SWord: string;
@@ -173,6 +176,8 @@ constructor TGetList.Create(CrSusp:Boolean;ALink:string);
 begin
   Link:=ALink;
   inherited Create(CrSusp);
+  FreeOnTerminate:=true;
+  Priority:=tpLower;
 end;
 
 procedure TGetList.ShowError;
@@ -183,7 +188,6 @@ begin
    0: ShowMessage(SAS_ERR_Noconnectionstointernet);
    else ShowMessage(SAS_ERR_Noconnectionstointernet);
  end;
-
 end;
 
 function TGetList.GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
@@ -248,6 +252,8 @@ var datesat:string;
     added:boolean;
     node:TTreeNode;
 begin
+ if ThreadID=GetListThId then
+ begin
  for i:=0 to list.Count-1 do
   try
    datesat:=GetWord(list[i], ',', 2);
@@ -275,6 +281,7 @@ begin
   except
   end;
  FDGAvailablePic.TreeView1.AlphaSort();
+ end;
 end;
 
 procedure TGetList.Execute;
@@ -454,10 +461,11 @@ begin
  GetWord(ComboBox2.Text, ',', 1);
  encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(Apos.x)+'&yc='+R2StrPoint(Apos.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
 
- if GetList<>nil then GetList.Terminate;
- GetList:=TGetList.Create(false,{'http://anonymouse.org/cgi-bin/anon-www.cgi/}'http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt);
- GetList.FreeOnTerminate:=true;
- GetList.Priority := tpLower;
+ with TGetList.Create(true,'http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt) do
+  begin
+   GetListThId:=ThreadID;
+   Resume;
+  end;
 end;
 
 procedure TFDGAvailablePic.Button3Click(Sender: TObject);

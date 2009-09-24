@@ -59,8 +59,7 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
-  u_CoordConverterAbstract,
-  midaslib;
+  u_CoordConverterAbstract;
 
 type
   TlastLoad = record
@@ -1850,7 +1849,7 @@ begin
          else result:=zu*180/Pi;
      end;
   3: result:=-((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2)/(zoom[zoom_size]/360);
- end; 
+ end;
 end;
 
 function TFmain.Lon2X(lon:real):integer;
