@@ -46,7 +46,8 @@ uses
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
   u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
-  u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas';
+  u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
+  ImgMaker in 'ImgMaker.pas';
 
 var Ini: Tinifile;
     loc:integer;
