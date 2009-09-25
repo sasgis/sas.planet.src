@@ -16,7 +16,6 @@ object FProgress: TFProgress
   Position = poScreenCenter
   ScreenSnap = True
   OnCreate = FormCreate
-  OnPaint = FormPaint
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
