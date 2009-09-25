@@ -56,7 +56,7 @@ implementation
 uses
   Math,
   unit1,
-  usaveas;
+  usaveas, u_CoordConverterAbstract;
 
 procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin
@@ -230,10 +230,9 @@ begin
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
  i:=0;
  While not(zoomarr[i]) do inc(i);
- SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ if TypeMapArr[0]<>nil then polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL)
+  else if TypeMapArr[1]<>nil then polyg := TypeMapArr[1].GeoConvert.PoligonProject(i + 8, APolyLL)
+        else if TypeMapArr[2]<>nil then polyg := TypeMapArr[2].GeoConvert.PoligonProject(i + 8, APolyLL);
  GetMinMax(min,max,polyg,true);
  if TypeMapArr[0]<>nil then LLCenter:= TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
   else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
@@ -288,7 +287,6 @@ begin
  MapTypeMerS.radiusb:=6356752;
  MapTypeMerS.exct:=sqrt(sqr(MapTypeMerS.radiusa)-sqr(MapTypeMerS.radiusb))/MapTypeMerS.radiusa;
  num_dwn:=0;
- SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
  for i:=0 to length(TypeMapArr)-1 do
@@ -299,7 +297,7 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
@@ -346,7 +344,7 @@ begin
    for j:=0 to 2 do //по типу
     if TypeMapArr[j]<>nil then
      begin
-      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
+      Polyg := MapTypeMerS.GeoConvert.PoligonProject(i + 8, APolyLL);
       GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
@@ -482,7 +480,7 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
@@ -512,7 +510,7 @@ begin
   if zoomarr[i] then
    for j:=0 to length(TypeMapArr)-1 do //по типу
      begin
-      formatepoligon(TypeMapArr[j],i+1,APolyLL,polyg);
+      polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
       AMapType.ext:=TypeMapArr[j].ext;
       AMapType.NameInCache:=TypeMapArr[j].NameInCache;
       AMapType.CacheType:=format;
@@ -642,7 +640,7 @@ begin
  for j:=0 to 23 do
   if zoomarr[j] then
    begin
-    formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
+    polyg := TypeMapArr[0].GeoConvert.PoligonProject(j + 8, APolyLL);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
     perzoom:=perzoom+inttostr(j+1)+'_';
     kti:=RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(min,j + 8).x,4);
@@ -675,7 +673,7 @@ begin
  Write(KMLFile,ToFile);
 
  while not(zoomarr[i])or(i>23) do inc(i);
- formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg);
+ polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL);
  AMapType.ext:=TypeMapArr[0].ext;
  AMapType.NameInCache:=TypeMapArr[0].NameInCache;
  AMapType.CacheType:=format;
@@ -742,9 +740,9 @@ begin
  i:=0;
  While not(zoomarr[i]) do inc(i);
  SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ if TypeMapArr[0]<>nil then polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL)
+  else if TypeMapArr[1]<>nil then polyg := TypeMapArr[1].GeoConvert.PoligonProject(i + 8, APolyLL)
+        else if TypeMapArr[2]<>nil then  polyg := TypeMapArr[2].GeoConvert.PoligonProject(i + 8, APolyLL);
  GetMinMax(min,max,polyg,true);
  if TypeMapArr[0]<>nil then LLCenter:=TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
   else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
@@ -791,7 +789,7 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
@@ -814,7 +812,7 @@ begin
    for j:=0 to 2 do //по типу
     if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then
      begin
-      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
+      polyg := MapTypeMerS.GeoConvert.PoligonProject(i + 8, APolyLL);
       GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;

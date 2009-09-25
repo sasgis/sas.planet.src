@@ -85,8 +85,6 @@ type
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
-
-    function CalcPoligonArea(polygon:TExtendedPointArray):extended;
     property GeoConvert: ICoordConverter read FCoordConverter;
   private
     err: string;
@@ -1011,24 +1009,6 @@ function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
 begin
 
-end;
-
-function TMapType.CalcPoligonArea(
-  polygon: TExtendedPointArray): extended;
-var
-  L,i:integer;
-  LLPrev, LLCurr: TExtendedPoint;
-begin
-  result:=0;
-  l:=length(polygon);
-  // for i:=0 to L - 1 do polygon[i]:=GeoConvert.LonLat2Metr(polygon[i]);
-  LLPrev := GeoConvert.LonLat2Metr(polygon[0]);
-  for i:=1 to L-1 do begin
-    LLCurr := GeoConvert.LonLat2Metr(polygon[i]);
-    result := result + (LLPrev.x + LLCurr.x)*(LLPrev.y - LLCurr.y);
-    LLPrev := LLCurr;
-  end;
-  result := 0.5*abs(result)/1000000;
 end;
 
 end.

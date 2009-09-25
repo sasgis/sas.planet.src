@@ -49,7 +49,6 @@ var
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
-  procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg: TExtendedPointArray; var resApolyg:TPointArray);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
@@ -129,17 +128,6 @@ begin
          end;
  max.X:=max.X+1;
  max.Y:=max.Y+1;
-end;
-
-procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg: TExtendedPointArray; var resApolyg:TPointArray);
-var i:integer;
-begin
- for i:=0 to length(APolyg)-1 do
-  begin
-   resAPolyg[i]:=Atype.GeoConvert.LonLat2Pos(Apolyg[i], (Anewzoom - 1) + 8);
-   if resAPolyg[i].y<0 then resAPolyg[i].y:=1;
-   if resAPolyg[i].y>zoom[AnewZoom] then resAPolyg[i].y:=zoom[AnewZoom]-1;
-  end;
 end;
 
 function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
