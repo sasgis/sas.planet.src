@@ -712,7 +712,7 @@ begin
                             else
   begin
    change_scene:=true;
-   THLoadMap1:=ThreadAllLoadMap.Create(False,[],4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
+   THLoadMap1:=ThreadAllLoadMap.Create(False,nil,4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
    THLoadMap1.FreeOnTerminate:=true;
    THLoadMap1.Priority:=tpLower;
    THLoadMap1.OnTerminate:=ThreadDone;
@@ -3217,14 +3217,17 @@ procedure TFmain.N21Click(Sender: TObject);
 var path:string;
     APos:TPoint;
     AMapType:TMapType;
+    Poly: TPointArray;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
+ SetLength(Poly, 1);
+ Poly[0] := Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y));
  if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
-   with ThreadAllLoadMap.Create(False,[Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y))],1,true,false,false,true,zoom_size,AMapType,date) do
+   with ThreadAllLoadMap.Create(False, Poly, 1,true,false,false,true,zoom_size,AMapType,date) do
    begin
     FreeOnTerminate:=true;
     OnTerminate:=ThreadDone;
@@ -4288,6 +4291,7 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
 var PWL:TResObj;
     posB:TPoint;
     stw:String;
+    Poly: TPointArray;
 begin
  if (layer=LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
@@ -4304,7 +4308,9 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
-    with ThreadAllLoadMap.Create(False,[Point(pos.x-(mWd2-x),pos.y-(mHd2-y))],1,true,false,false,true,zoom_size,sat_map_both,date) do
+    SetLength(Poly, 1);
+    Poly[0] := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
+    with ThreadAllLoadMap.Create(False, Poly,1,true,false,false,true,zoom_size,sat_map_both,date) do
      begin
       FreeOnTerminate:=true;
       OnTerminate:=ThreadDone;

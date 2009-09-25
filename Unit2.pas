@@ -97,7 +97,7 @@ var i:integer;
     ll1,ll2:TPoint;
     ms:TMemoryStream;
     arrLL:PArrLL;
-    arLL:array of TPoint;
+    arLL: TPointArray;
     poly:array of TExtendedPoint;
 begin
  if show_point=3 then exit;

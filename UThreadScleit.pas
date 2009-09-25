@@ -18,6 +18,7 @@ uses
   UImgFun,
   UGeoFun,
   bmpUtil,
+  t_GeoTypes,
   UResStrings,
   unit4;
 
@@ -52,7 +53,7 @@ type
     Barr:P256rgb;
     Poly0:TPoint;
     Poly1:TPoint;
-    Poly:array of TPoint;
+    Poly:TPointArray;
     Zoom:byte;
     typemap,Htypemap:TMapType;
     colors:byte;
@@ -80,7 +81,7 @@ type
     procedure Execute; override;
     procedure saveRECT;
   public
-    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
   end;
 
 implementation
@@ -510,7 +511,7 @@ begin
   end;
 end;
 
-constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:array of TPoint;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);

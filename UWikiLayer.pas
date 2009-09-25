@@ -19,7 +19,7 @@ type
     num_blok:string;
     description:string;
     LT,RD:Tpoint;
-    AarrKt:array of TPoint;
+    AarrKt:TPointArray;
   end;
   PWikiLayer = ^TWikilayer;
 var WikiLayer:array of TWikiLayer;

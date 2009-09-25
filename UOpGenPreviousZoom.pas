@@ -34,7 +34,7 @@ type
   private
 
 
-    polyg:array of TPoint;
+    polyg:TPointArray;
     Fprogress: TFprogress2;
     TileInProc:integer;
     CurrentTile:integer;

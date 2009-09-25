@@ -214,7 +214,7 @@ uses
   
 {$R *.dfm}
 
-function PolygonSquare(Poly:array of TPoint): Double;
+function PolygonSquare(Poly:TPointArray): Double;
 var
   I, J, HP: Integer;
 begin
@@ -318,7 +318,7 @@ end;
 
 procedure TFsaveas.LoadRegion(APolyLL:array of TExtendedPoint);
 var smb:TMapType;
-    polyg:array of TPoint;
+    polyg:TPointArray;
 begin
  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
  setlength(polyg,length(APolyLL));
@@ -355,7 +355,7 @@ end;
 
 procedure TFsaveas.scleitRECT(APolyLL:array of TExtendedPoint);
 var Amt,Hmt:TMapType;
-    polyg:array of TPoint;
+    polyg:TPointArray;
 begin
  Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
  Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
@@ -600,7 +600,7 @@ begin
 end;
 
 procedure TFsaveas.CBZoomloadChange(Sender: TObject);
-var polyg:array of Tpoint;
+var polyg:TPointArray;
     min,max:TPoint;
     numd:integer;
 begin

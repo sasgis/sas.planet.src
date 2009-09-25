@@ -7,6 +7,7 @@ uses
   Forms,
   SysUtils,
   Classes,
+  t_GeoTypes,
   UMapType,
   UImgFun,
   unit4,
@@ -16,7 +17,7 @@ type
   TOpDelTiles = class(TThread)
     Zoom:byte;
     typemap:TMapType;
-    polyg:array of TPoint;
+    polyg:TPointArray;
     max,min:TPoint;
     ProcessTiles:integer;
   private
