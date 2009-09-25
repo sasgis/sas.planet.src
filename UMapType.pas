@@ -19,6 +19,7 @@ uses
   TBX,
   VCLZip,
   GR32,
+  t_GeoTypes,
   u_CoordConverterAbstract,
   u_UrlGenerator,
   UResStrings;
@@ -85,7 +86,7 @@ type
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
 
-    function CalcPoligonArea(polygon:array of TExtendedPoint):extended;
+    function CalcPoligonArea(polygon:TExtendedPointArray):extended;
     property GeoConvert: ICoordConverter read FCoordConverter;
   private
     err: string;
@@ -1013,7 +1014,7 @@ begin
 end;
 
 function TMapType.CalcPoligonArea(
-  polygon: array of TExtendedPoint): extended;
+  polygon: TExtendedPointArray): extended;
 var
   L,i:integer;
   LLPrev, LLCurr: TExtendedPoint;
