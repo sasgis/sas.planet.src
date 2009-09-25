@@ -492,7 +492,7 @@ class   function  R2ShortStr(r:real;z:byte):string;
 class   function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
 class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
-   procedure drawPath(pathll:array of TExtendedPoint;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
+   procedure drawPath(pathll:TExtendedPointArray; new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
    procedure drawReg;
    function  loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
    procedure generate_mapzap;
@@ -599,13 +599,13 @@ var
   Deg:real;
   NewCPath_,OldCPath_,ESCpath_,GMTilespath_,GECachepath_,dwnlstr,GPS_COM:string;
   GPS_arr_speed:array of real;
-  length_arr,add_line_arr,GPS_arr:array of TExtendedPoint;
+  length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
   GPS_popr:TExtendedPoint;
   GPS_Log:boolean;
   GPS_SizeStr:integer;
   GPS_colorStr:TColor;
   GPS_LogFile:TextFile;
-  reg_arr,poly_save:array of TExtendedPoint;
+  reg_arr,poly_save:TExtendedPointArray;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
@@ -1247,6 +1247,7 @@ var i,d256,kz,jj,j,bxy:integer;
     xy1,xy2,pxy1,pxy2:TPoint;
     zLonR,zLatR:extended;
     LonLatLT,LonLatRD:TExtendedPoint;
+    Poly:  TExtendedPointArray;
 begin
   xy1:=Point(Lon2X(rect_arr[0].x),Lat2Y(rect_arr[0].y) );
   xy2:=Point(Lon2X(rect_arr[1].x),Lat2Y(rect_arr[1].y) );
@@ -1308,18 +1309,29 @@ begin
     xy2:=Point(mWd2-(pos.x-xy2.x),mHd2-(pos.y-xy2.y));
     if (rect_p2) then
      begin
-      fsaveas.Show_(zoom_size,[LonLatLT,extPoint(LonLatRD.X,LonLatLT.Y),LonLatRD,extPoint(LonLatLT.X,LonLatRD.Y),LonLatLT]);
+      SetLength(Poly, 5);
+      Poly[0] := LonLatLT;
+      Poly[1] := extPoint(LonLatRD.X,LonLatLT.Y);
+      Poly[2] := LonLatRD;
+      Poly[3] := extPoint(LonLatLT.X,LonLatRD.Y);
+      Poly[4] := LonLatLT;
+      fsaveas.Show_(zoom_size,Poly);
+      Poly := nil;
       rect_p2:=false;
       exit;
      end;
    end;
   if (rect_p2) then
    begin
-    fsaveas.Show_(zoom_size,[GPos2LonLat(pxy1,zoom_size,sat_map_both),
-                             GPos2LonLat(Point(pxy2.X,pxy1.Y),zoom_size,sat_map_both),
-                             GPos2LonLat(pxy2,zoom_size,sat_map_both),
-                             GPos2LonLat(Point(pxy1.X,pxy2.Y),zoom_size,sat_map_both),
-                             GPos2LonLat(pxy1,zoom_size,sat_map_both)]);
+      SetLength(Poly, 5);
+      Poly[0] := GPos2LonLat(pxy1,zoom_size,sat_map_both);
+      Poly[1] := GPos2LonLat(Point(pxy2.X,pxy1.Y),zoom_size,sat_map_both);
+      Poly[2] := GPos2LonLat(pxy2,zoom_size,sat_map_both);
+      Poly[3] := GPos2LonLat(Point(pxy1.X,pxy2.Y),zoom_size,sat_map_both);
+      Poly[4] := GPos2LonLat(pxy1,zoom_size,sat_map_both);
+
+    fsaveas.Show_(zoom_size, Poly);
+    Poly := nil;
     rect_p2:=false;
     exit;
    end;
@@ -1523,7 +1535,7 @@ begin
  toSh;
 end;
 
-procedure TFmain.drawPath(pathll:array of TExtendedPoint;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
+procedure TFmain.drawPath(pathll:TExtendedPointArray;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
 var i,adp,j:integer;
     k1,k2,k4:TPoint;
     k3:TextendedPoint;
@@ -1701,7 +1713,7 @@ var lon_l,lon_r,lat_t,lat_d:real;
     btm:TBitmap32;
     TestArrLenP1,TestArrLenP2:TPoint;
     arrLL:PArrLL;
-    buf_line_arr:array of TExtendedPoint;
+    buf_line_arr:TExtendedPointArray;
     ms:TMemoryStream;
     indexmi:integer;
     imw,texth:integer;
@@ -3566,12 +3578,21 @@ begin
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
+var
+  Poly: TExtendedPointArray;
 begin
  FSelLonLat:= TFSelLonLat.Create(Self);
         Try
           if FSelLonLat.Execute Then
              Begin
-              fsaveas.Show_(zoom_size,[ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k),ExtPoint(FSelLonLat.lon_k,FSelLonLat._lat_k),ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k),ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k),ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k)]);
+              SetLength(Poly, 5);
+              Poly[0] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
+              Poly[1] := ExtPoint(FSelLonLat.lon_k,FSelLonLat._lat_k);
+              Poly[2] := ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k);
+              Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
+              Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
+              fsaveas.Show_(zoom_size, Poly);
+              Poly := nil;
              End;
         Finally
           FSelLonLat.Free;

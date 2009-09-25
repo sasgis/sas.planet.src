@@ -191,18 +191,18 @@ type
   private
     zoom_rect:byte;
   public
-    procedure LoadRegion(APolyLL:array of TExtendedPoint);
-    procedure Show_(Azoom:byte;Polygon_:array of TExtendedPoint);
-    procedure DelRegion(APolyLL:array of TExtendedPoint);
-    procedure genbacksatREG(APolyLL:array of TExtendedPoint);
-    procedure scleitRECT(APolyLL:array of TExtendedPoint);
-    procedure savefilesREG(APolyLL:array of TExtendedPoint);
+    procedure LoadRegion(APolyLL: TExtendedPointArray);
+    procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
+    procedure DelRegion(APolyLL: TExtendedPointArray);
+    procedure genbacksatREG(APolyLL: TExtendedPointArray);
+    procedure scleitRECT(APolyLL: TExtendedPointArray);
+    procedure savefilesREG(APolyLL: TExtendedPointArray);
    end;
 
 var
   type_reg_:byte;
   Fsaveas: TFsaveas;
-  PolygonLL:array of TExtendedPoint;
+  PolygonLL: TExtendedPointArray;
 
 implementation
 
@@ -231,7 +231,7 @@ begin
   Result := Abs(Result) / 2;
 end;
 
-procedure TFsaveas.DelRegion(APolyLL:array of TExtendedPoint);
+procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
  with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])) do
   begin
@@ -244,7 +244,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.savefilesREG(APolyLL:array of TExtendedPoint);
+procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
 var i:integer;
     path:string;
     Zoomarr:array [0..23] of boolean;
@@ -316,7 +316,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.LoadRegion(APolyLL:array of TExtendedPoint);
+procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
 var smb:TMapType;
     polyg:TPointArray;
 begin
@@ -331,7 +331,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.genbacksatREG(APolyLL:array of TExtendedPoint);
+procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
 var i:integer;
 begin
  with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
@@ -353,7 +353,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.scleitRECT(APolyLL:array of TExtendedPoint);
+procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
 var Amt,Hmt:TMapType;
     polyg:TPointArray;
 begin
@@ -401,7 +401,7 @@ begin
   CheckList.ItemEnabled[i]:=false;
 end;
 
-procedure TFsaveas.Show_(Azoom:byte;Polygon_:array of TExtendedPoint);
+procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
 var i:integer;
     XX:tpOINT;
     vramkah,zagran:boolean;

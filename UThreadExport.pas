@@ -25,7 +25,7 @@ uses
 
 type
   ThreadExport = class(TThread)
-    PolygLL:array of TExtendedpoint;
+    PolygLL:TExtendedPointArray;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
     format:byte;
@@ -40,15 +40,15 @@ type
     csat,cmap,chib:byte;
   private
   protected
-    procedure savefilesREG(APolyLL:array of TExtendedPoint);
+    procedure savefilesREG(APolyLL:TExtendedPointArray);
     procedure Execute; override;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
-    procedure export2iMaps(APolyLL:array of TExtendedPoint);
-    procedure export2YaMaps(APolyLL:array of TExtendedPoint);
-    procedure Export2KML(APolyLL:array of TExtendedPoint);
+    procedure export2iMaps(APolyLL:TExtendedPointArray);
+    procedure export2YaMaps(APolyLL:TExtendedPointArray);
+    procedure Export2KML(APolyLL:TExtendedPointArray);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
   public
-    constructor Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+    constructor Create(CrSusp:Boolean;APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
   end;
 
 implementation
@@ -63,7 +63,7 @@ begin
  if Zippu then Zip.CancelTheOperation;
 end;
 
-constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:array of TExtendedPoint;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -210,7 +210,7 @@ begin
  bmp1.Free;
 end;
 
-procedure ThreadExport.export2iMaps(APolyLL:array of TExtendedPoint);
+procedure ThreadExport.export2iMaps(APolyLL:TExtendedPointArray);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg: TPointArray;
@@ -461,7 +461,7 @@ begin
   end;
 end;
 
-procedure ThreadExport.savefilesREG(APolyLL:array of TExtendedPoint);
+procedure ThreadExport.savefilesREG(APolyLL:TExtendedPointArray);
 var p_x,p_y,i,j:integer;
     num_dwn,obrab:integer;
     polyg:TPointArray;
@@ -575,7 +575,7 @@ begin
 end;
 
 
-procedure ThreadExport.Export2KML(APolyLL:array of TExtendedPoint);
+procedure ThreadExport.Export2KML(APolyLL:TExtendedPointArray);
 var p_x,p_y,i,j:integer;
     num_dwn,obrab:integer;
     polyg:TPointArray;
@@ -720,7 +720,7 @@ begin
 end;
 
 
-procedure ThreadExport.export2YaMaps(APolyLL:array of TExtendedPoint);
+procedure ThreadExport.export2YaMaps(APolyLL:TExtendedPointArray);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:TPointArray;

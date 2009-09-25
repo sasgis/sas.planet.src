@@ -98,7 +98,7 @@ var i:integer;
     ms:TMemoryStream;
     arrLL:PArrLL;
     arLL: TPointArray;
-    poly:array of TExtendedPoint;
+    poly:TExtendedPointArray;
 begin
  if show_point=3 then exit;
  Fmain.CDSKategory.Filtered:=true;

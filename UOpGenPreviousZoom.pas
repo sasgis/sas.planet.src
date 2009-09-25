@@ -25,7 +25,7 @@ type
     FromZoom:byte;
     typemap:TMapType;
     GenFormPrev:boolean;
-    PolygLL:array of TExtendedPoint;
+    PolygLL: TExtendedPointArray;
     max,min:TPoint;
     ProcessTiles:integer;
     Resampler:integer;

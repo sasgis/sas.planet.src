@@ -52,9 +52,9 @@ var
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
  function LonLat2Metr(LL:TExtendedPoint;TypeMap:TMapType):TExtendedPoint;
- function CalcS(polygon:array of TExtendedPoint;TypeMap:TMapType):extended;
+ function CalcS(polygon: TExtendedPointArray;TypeMap:TMapType):extended;
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
-  procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:TPointArray);
+  procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg: TExtendedPointArray; var resApolyg:TPointArray);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
@@ -136,7 +136,7 @@ begin
  max.Y:=max.Y+1;
 end;
 
-procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:TPointArray);
+procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg: TExtendedPointArray; var resApolyg:TPointArray);
 var i:integer;
 begin
  for i:=0 to length(APolyg)-1 do
@@ -171,7 +171,7 @@ begin
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
 end;
 
-function CalcS(polygon:array of TExtendedPoint;TypeMap:TMapType):extended;
+function CalcS(polygon: TExtendedPointArray;TypeMap:TMapType):extended;
 var L,i:integer;
 begin
  result:=0;
