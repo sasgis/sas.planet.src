@@ -13,7 +13,7 @@ uses
   GR32_Resamplers,
   UMapType,
   UGeoFun,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
 TExtended = record Lat: Extended;

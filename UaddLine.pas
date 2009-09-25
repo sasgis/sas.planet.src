@@ -22,7 +22,7 @@ uses
   Unit1,
   UResStrings,
   UMarksExplorer,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TFaddLine = class(TForm)

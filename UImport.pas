@@ -97,7 +97,7 @@ implementation
 
 uses
   Math,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
   
 {$R *.dfm}
 

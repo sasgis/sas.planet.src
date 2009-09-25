@@ -28,7 +28,7 @@ uses
   UResStrings,
   UOpDelTiles,
   UOpGenPreviousZoom,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TFsaveas = class(TForm)

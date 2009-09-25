@@ -9,7 +9,7 @@ uses
   Math,
   UMapType,
   ECWReader,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
   
 type
  TDMS = record

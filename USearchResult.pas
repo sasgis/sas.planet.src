@@ -15,7 +15,7 @@ uses
   StdCtrls,
   UGeoFun,
   Unit1,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TFSearchResult = class(TForm)

@@ -59,7 +59,7 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TlastLoad = record

@@ -17,7 +17,7 @@ uses
   UGeoFun,
   unit4,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TOpGenPreviousZoom = class(TThread)

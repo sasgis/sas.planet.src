@@ -11,7 +11,7 @@ uses
   GR32,
   Ugeofun,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
  TStyle = class

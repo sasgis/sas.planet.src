@@ -10,7 +10,7 @@ uses
   UKmlParse,
   UMapType,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TWikiLayer = class

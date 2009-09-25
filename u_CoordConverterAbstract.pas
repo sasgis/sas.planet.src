@@ -3,13 +3,10 @@ unit u_CoordConverterAbstract;
 interface
 
 uses
-  Types;
+  Types,
+  t_GeoTypes;
 
 type
-  TExtendedPoint = record
-   X, Y: Extended;
-  end;
-
   ICoordConverter = interface
   ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
     function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint;

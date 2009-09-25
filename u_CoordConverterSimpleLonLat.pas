@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  t_GeoTypes,
   u_CoordConverterAbstract;
 
 type

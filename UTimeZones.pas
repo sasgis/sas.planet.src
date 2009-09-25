@@ -4,8 +4,7 @@ interface
 
 uses
   Types,
-  UGeoFun,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 var
 timezone_m12:array [0..15,0..1]of smallint = (

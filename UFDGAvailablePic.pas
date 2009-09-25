@@ -22,7 +22,7 @@ uses
   Unit1,
   UMapType,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TFDGAvailablePic = class(TForm)

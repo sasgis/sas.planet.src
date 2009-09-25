@@ -108,7 +108,7 @@ uses
   UaddLine,
   UImport,
   UAddCategory,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 {$R *.dfm}
 function EditMark(id:integer):boolean;

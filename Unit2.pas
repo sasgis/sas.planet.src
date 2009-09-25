@@ -16,8 +16,7 @@ uses
   rxCurrEdit,
   Ugeofun,
   UResStrings,
-  UMarksExplorer,
-  u_CoordConverterAbstract;
+  UMarksExplorer;
 
 type
 
@@ -65,6 +64,7 @@ var
 
 implementation
 uses
+  t_GeoTypes,
   unit1,
   UaddPoint,
   UaddLine,

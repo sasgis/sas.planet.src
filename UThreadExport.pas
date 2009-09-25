@@ -21,7 +21,7 @@ uses
   unit4,
   UResStrings,
   UYaMobile,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   ThreadExport = class(TThread)
