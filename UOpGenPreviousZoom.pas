@@ -17,7 +17,7 @@ uses
   UGeoFun,
   unit4,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TOpGenPreviousZoom = class(TThread)
@@ -25,7 +25,7 @@ type
     FromZoom:byte;
     typemap:TMapType;
     GenFormPrev:boolean;
-    PolygLL:array of TExtendedPoint;
+    PolygLL: TExtendedPointArray;
     max,min:TPoint;
     ProcessTiles:integer;
     Resampler:integer;
@@ -34,7 +34,7 @@ type
   private
 
 
-    polyg:array of TPoint;
+    polyg:TPointArray;
     Fprogress: TFprogress2;
     TileInProc:integer;
     CurrentTile:integer;

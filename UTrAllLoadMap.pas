@@ -12,6 +12,7 @@ uses
   GR32,
   GR32_Resamplers,
   Uprogress,
+  t_GeoTypes,
   UMapType,
   UResStrings;
 
@@ -25,7 +26,7 @@ type
   ThreadAllLoadMap = class(TThread)
   private
 
-    Poly:array of TPoint;
+    Poly:TPointArray;
     Zoom:byte;
     typemap:TMapType;
     zamena:boolean;
@@ -77,7 +78,7 @@ type
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
     procedure closeSession;
-    constructor Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
+    constructor Create(CrSusp:Boolean;APolygon_:TPointArray; Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
     constructor Create(CrSusp:Boolean;FileName:string;LastSuccessful:boolean); overload;
   end;
 
@@ -305,7 +306,7 @@ begin
  all_dwn_kb:=all_dwn_kb+(res/1024);
 end;
 
-constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:array of TPoint;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
+constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var i:integer;
 begin
   inherited Create(CrSusp);

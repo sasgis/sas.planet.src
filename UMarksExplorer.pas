@@ -108,7 +108,7 @@ uses
   UaddLine,
   UImport,
   UAddCategory,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 {$R *.dfm}
 function EditMark(id:integer):boolean;
@@ -274,7 +274,7 @@ end;
 
 function GetMarkSq(id:integer):extended;
 var arrLL:PArrLL;
-    arLL:array of TExtendedPoint;
+    arLL: TExtendedPointArray;
     ms:TMemoryStream;
     i:integer;
 begin
@@ -298,7 +298,7 @@ end;
 
 function OperationMark(id:integer):boolean;
 var arrLL:PArrLL;
-    arLL:array of TExtendedPoint;
+    arLL: TExtendedPointArray;
     ms:TMemoryStream;
     i:integer;
 begin

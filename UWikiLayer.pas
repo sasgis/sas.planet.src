@@ -10,7 +10,7 @@ uses
   UKmlParse,
   UMapType,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TWikiLayer = class
@@ -19,7 +19,7 @@ type
     num_blok:string;
     description:string;
     LT,RD:Tpoint;
-    AarrKt:array of TPoint;
+    AarrKt:TPointArray;
   end;
   PWikiLayer = ^TWikilayer;
 var WikiLayer:array of TWikiLayer;
@@ -27,7 +27,7 @@ var WikiLayer:array of TWikiLayer;
 
     old_x,old_y:integer;
     procedure destroyWL;
-    procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
+    procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates:  TExtendedPointArray);
     procedure loadWL(Alayer: TMapType);
     procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 
@@ -122,7 +122,7 @@ begin
    end;
 end;
 
-procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates: Array of TExtendedPoint);
+procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates:  TExtendedPointArray);
 var i,lenLay:integer;
 begin
  Delete(descript,posEx('#ge',descript,0),1);

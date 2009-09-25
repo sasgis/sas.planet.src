@@ -50,7 +50,8 @@ type
 implementation
 
 uses
-  Math;
+  Math,
+  t_GeoTypes;
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
 var

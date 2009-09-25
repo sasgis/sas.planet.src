@@ -59,7 +59,7 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TlastLoad = record
@@ -492,7 +492,7 @@ class   function  R2ShortStr(r:real;z:byte):string;
 class   function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
 class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
-   procedure drawPath(pathll:array of TExtendedPoint;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
+   procedure drawPath(pathll:TExtendedPointArray; new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
    procedure drawReg;
    function  loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
    procedure generate_mapzap;
@@ -599,13 +599,13 @@ var
   Deg:real;
   NewCPath_,OldCPath_,ESCpath_,GMTilespath_,GECachepath_,dwnlstr,GPS_COM:string;
   GPS_arr_speed:array of real;
-  length_arr,add_line_arr,GPS_arr:array of TExtendedPoint;
+  length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
   GPS_popr:TExtendedPoint;
   GPS_Log:boolean;
   GPS_SizeStr:integer;
   GPS_colorStr:TColor;
   GPS_LogFile:TextFile;
-  reg_arr,poly_save:array of TExtendedPoint;
+  reg_arr,poly_save:TExtendedPointArray;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
@@ -712,7 +712,7 @@ begin
                             else
   begin
    change_scene:=true;
-   THLoadMap1:=ThreadAllLoadMap.Create(False,[],4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
+   THLoadMap1:=ThreadAllLoadMap.Create(False,nil,4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
    THLoadMap1.FreeOnTerminate:=true;
    THLoadMap1.Priority:=tpLower;
    THLoadMap1.OnTerminate:=ThreadDone;
@@ -1247,6 +1247,7 @@ var i,d256,kz,jj,j,bxy:integer;
     xy1,xy2,pxy1,pxy2:TPoint;
     zLonR,zLatR:extended;
     LonLatLT,LonLatRD:TExtendedPoint;
+    Poly:  TExtendedPointArray;
 begin
   xy1:=Point(Lon2X(rect_arr[0].x),Lat2Y(rect_arr[0].y) );
   xy2:=Point(Lon2X(rect_arr[1].x),Lat2Y(rect_arr[1].y) );
@@ -1308,18 +1309,29 @@ begin
     xy2:=Point(mWd2-(pos.x-xy2.x),mHd2-(pos.y-xy2.y));
     if (rect_p2) then
      begin
-      fsaveas.Show_(zoom_size,[LonLatLT,extPoint(LonLatRD.X,LonLatLT.Y),LonLatRD,extPoint(LonLatLT.X,LonLatRD.Y),LonLatLT]);
+      SetLength(Poly, 5);
+      Poly[0] := LonLatLT;
+      Poly[1] := extPoint(LonLatRD.X,LonLatLT.Y);
+      Poly[2] := LonLatRD;
+      Poly[3] := extPoint(LonLatLT.X,LonLatRD.Y);
+      Poly[4] := LonLatLT;
+      fsaveas.Show_(zoom_size,Poly);
+      Poly := nil;
       rect_p2:=false;
       exit;
      end;
    end;
   if (rect_p2) then
    begin
-    fsaveas.Show_(zoom_size,[sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8),
-                             sat_map_both.GeoConvert.Pos2LonLat(Point(pxy2.X,pxy1.Y),(zoom_size - 1) + 8),
-                             sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8),
-                             sat_map_both.GeoConvert.Pos2LonLat(Point(pxy1.X,pxy2.Y),(zoom_size - 1) + 8),
-                             sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8)]);
+      SetLength(Poly, 5);
+      Poly[0] := sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8);
+      Poly[1] := sat_map_both.GeoConvert.Pos2LonLat(Point(pxy2.X,pxy1.Y),(zoom_size - 1) + 8);
+      Poly[2] := sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8);
+      Poly[3] := sat_map_both.GeoConvert.Pos2LonLat(Point(pxy1.X,pxy2.Y),(zoom_size - 1) + 8);
+      Poly[4] := sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8);
+
+    fsaveas.Show_(zoom_size, Poly);
+    Poly := nil;
     rect_p2:=false;
     exit;
    end;
@@ -1523,7 +1535,7 @@ begin
  toSh;
 end;
 
-procedure TFmain.drawPath(pathll:array of TExtendedPoint;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
+procedure TFmain.drawPath(pathll:TExtendedPointArray;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
 var i,adp,j:integer;
     k1,k2,k4:TPoint;
     k3:TextendedPoint;
@@ -1701,7 +1713,7 @@ var lon_l,lon_r,lat_t,lat_d:real;
     btm:TBitmap32;
     TestArrLenP1,TestArrLenP2:TPoint;
     arrLL:PArrLL;
-    buf_line_arr:array of TExtendedPoint;
+    buf_line_arr:TExtendedPointArray;
     ms:TMemoryStream;
     indexmi:integer;
     imw,texth:integer;
@@ -3217,14 +3229,17 @@ procedure TFmain.N21Click(Sender: TObject);
 var path:string;
     APos:TPoint;
     AMapType:TMapType;
+    Poly: TPointArray;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
+ SetLength(Poly, 1);
+ Poly[0] := Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y));
  if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
-   with ThreadAllLoadMap.Create(False,[Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y))],1,true,false,false,true,zoom_size,AMapType,date) do
+   with ThreadAllLoadMap.Create(False, Poly, 1,true,false,false,true,zoom_size,AMapType,date) do
    begin
     FreeOnTerminate:=true;
     OnTerminate:=ThreadDone;
@@ -3563,12 +3578,21 @@ begin
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
+var
+  Poly: TExtendedPointArray;
 begin
  FSelLonLat:= TFSelLonLat.Create(Self);
         Try
           if FSelLonLat.Execute Then
              Begin
-              fsaveas.Show_(zoom_size,[ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k),ExtPoint(FSelLonLat.lon_k,FSelLonLat._lat_k),ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k),ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k),ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k)]);
+              SetLength(Poly, 5);
+              Poly[0] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
+              Poly[1] := ExtPoint(FSelLonLat.lon_k,FSelLonLat._lat_k);
+              Poly[2] := ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k);
+              Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
+              Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
+              fsaveas.Show_(zoom_size, Poly);
+              Poly := nil;
              End;
         Finally
           FSelLonLat.Free;
@@ -4288,6 +4312,7 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
 var PWL:TResObj;
     posB:TPoint;
     stw:String;
+    Poly: TPointArray;
 begin
  if (layer=LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
@@ -4304,7 +4329,9 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
   begin
-    with ThreadAllLoadMap.Create(False,[Point(pos.x-(mWd2-x),pos.y-(mHd2-y))],1,true,false,false,true,zoom_size,sat_map_both,date) do
+    SetLength(Poly, 1);
+    Poly[0] := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
+    with ThreadAllLoadMap.Create(False, Poly,1,true,false,false,true,zoom_size,sat_map_both,date) do
      begin
       FreeOnTerminate:=true;
       OnTerminate:=ThreadDone;

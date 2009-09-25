@@ -16,8 +16,7 @@ uses
   rxCurrEdit,
   Ugeofun,
   UResStrings,
-  UMarksExplorer,
-  u_CoordConverterAbstract;
+  UMarksExplorer;
 
 type
 
@@ -65,6 +64,7 @@ var
 
 implementation
 uses
+  t_GeoTypes,
   unit1,
   UaddPoint,
   UaddLine,
@@ -97,8 +97,8 @@ var i:integer;
     ll1,ll2:TPoint;
     ms:TMemoryStream;
     arrLL:PArrLL;
-    arLL:array of TPoint;
-    poly:array of TExtendedPoint;
+    arLL: TPointArray;
+    poly:TExtendedPointArray;
 begin
  if show_point=3 then exit;
  Fmain.CDSKategory.Filtered:=true;

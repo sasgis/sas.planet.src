@@ -9,7 +9,7 @@ uses
   Math,
   UMapType,
   ECWReader,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
   
 type
  TDMS = record
@@ -40,26 +40,26 @@ var
   function ExtPoint(X, Y: extended): TExtendedPoint;
   function R2StrPoint(r:extended):string;
   function compare2P(p1,p2:TPoint):boolean;
-  function PtInRgn(Polyg:array of TPoint;P:TPoint):boolean;
-  function PtInPolygon(const Pt: TPoint; const Points:array of TPoint): Boolean;
+  function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
+  function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
   function RoundEx(chislo: extended; Precision: Integer): string;
   function compare2EP(p1,p2:TExtendedPoint):boolean;
-  function PolygonSquare(Poly:array of TPoint): Double;
+  function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
-  procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
-  Procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
-  function GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
-  function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
+  procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg: TExtendedPointArray; var resApolyg:TPointArray);
+  Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
+  function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
+  function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 
 implementation
 
 uses
   Unit1;
 
-function RgnAndRgn(Polyg:array of TPoint;x,y:integer;prefalse:boolean):boolean;
+function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;
 begin
  xm128:=x-128;
@@ -78,7 +78,7 @@ begin
  result:=false;
 end;
 
-Procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
+Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
 var i:integer;
 begin
  max:=Polyg[0];
@@ -102,7 +102,7 @@ begin
    max.y:=max.y-(max.y mod 256)+128;
   end;
 end;
-function GetDwnlNum(var min,max:TPoint; Polyg:array of Tpoint; getNum:boolean):longint;
+function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
 var i,j:integer;
     prefalse:boolean;
 begin
@@ -131,7 +131,7 @@ begin
  max.Y:=max.Y+1;
 end;
 
-procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
+procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg: TExtendedPointArray; var resApolyg:TPointArray);
 var i:integer;
 begin
  for i:=0 to length(APolyg)-1 do
@@ -222,7 +222,7 @@ begin
   Result:=((dy>-d)and(dy<d)and(dx>-d)and(dx<len+d));
 end;
 
-function PolygonSquare(Poly:array of TPoint): Double;
+function PolygonSquare(Poly:TPointArray): Double;
 var
   I, J, HP: Integer;
 begin
@@ -250,7 +250,7 @@ begin
   RoundEx := Trim(ChisloInStr);
 end;
 
-function PtInPolygon(const Pt: TPoint; const Points:array of TPoint): Boolean;
+function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
 var I:Integer;
     iPt,jPt:PPoint;
 begin
@@ -266,7 +266,7 @@ begin
   end;
 end;
 
-function PtInRgn(Polyg:array of TPoint;P:TPoint):boolean;
+function PtInRgn(Polyg:TPointArray;P:TPoint):boolean;
 var i,j:integer;
 begin
   result:=false;

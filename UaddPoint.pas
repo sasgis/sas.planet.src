@@ -27,7 +27,7 @@ uses
   GR32_Resamplers,
   UResStrings,
   UMarksExplorer,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
   TFaddPoint = class(TForm)

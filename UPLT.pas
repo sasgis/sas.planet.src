@@ -12,7 +12,7 @@ uses
   Ugeofun,
   UResStrings,
   unit1,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
  TPLTData = record

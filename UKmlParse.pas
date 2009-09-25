@@ -11,7 +11,7 @@ uses
   GR32,
   Ugeofun,
   UResStrings,
-  u_CoordConverterAbstract;
+  t_GeoTypes;
 
 type
  TStyle = class
@@ -33,7 +33,7 @@ type
   description:string;
   LatLonAltBoxLT:TExtendedPoint;
   LatLonAltBoxRD:TExtendedPoint;
-  coordinates:array of TExtendedpoint;
+  coordinates:TExtendedPointArray;
   coordinatesLT:TExtendedPoint;
   coordinatesRD:TExtendedPoint;
  end;
