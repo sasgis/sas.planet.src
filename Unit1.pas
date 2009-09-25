@@ -2316,7 +2316,7 @@ begin
       loadWL(MapType[Leyi]);
       continue;
      end;
-   posN:=ConvertPosM2M(POS,zoom_size,sat_map_both,MapType[Leyi]);
+   posN:=sat_map_both.GeoConvert.Pos2OtherMap(POS,(zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
    y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
    x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
    for i:=0 to hg_x do
@@ -2795,7 +2795,7 @@ begin
  pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
  if sm_map.maptype=nil then m_t:=sat_map_both
                               else m_t:=sm_map.maptype;
- Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,m_t);
+ Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, m_t.GeoConvert);
  d:=Point((pos_sm.X-128),(pos_sm.y-128));
  if d.x<0 then d.x:=256+d.x;
  if d.y<0 then d.y:=256+d.y;
@@ -2828,7 +2828,7 @@ begin
   if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
   begin
    pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
-   Pos_sm:=ConvertPosM2M(Pos_sm,sm_map.zoom,sat_map_both,MapType[iLay]);
+   Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, MapType[iLay].GeoConvert);
    d:=Point((pos_sm.X-128),(pos_sm.y-128));
    if d.x<0 then d.x:=256+d.x;
    if d.y<0 then d.y:=256+d.y;
@@ -3220,7 +3220,7 @@ var path:string;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
- APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
+ APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
@@ -3279,7 +3279,7 @@ var s:string;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
- APos:=ConvertPosM2M(pos,zoom_size,sat_map_both,AMapType);
+ APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)

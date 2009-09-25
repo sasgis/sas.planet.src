@@ -38,7 +38,6 @@ var
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
-  function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType;MD:TMapType):TPoint;
   function R2StrPoint(r:extended):string;
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:array of TPoint;P:TPoint):boolean;
@@ -49,8 +48,6 @@ var
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
- function LonLat2Metr(LL:TExtendedPoint;TypeMap:TMapType):TExtendedPoint;
- function CalcS(polygon:array of TExtendedPoint;TypeMap:TMapType):extended;
  function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
   procedure formatePoligon(AType:TMapType;Anewzoom:byte;Apolyg:array of TExtendedPoint; var resApolyg:array of TPoint);
   Procedure GetMinMax(var min,max:TPoint; Polyg:array of Tpoint;round_:boolean);
@@ -167,28 +164,6 @@ begin
  if Scale<=50000  then result:=result+'-'+chr(192+GetNameAtom(24,2));
  if Scale<=25000  then result:=result+'-'+chr(224+GetNameAtom(48,2));
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
-end;
-
-function CalcS(polygon:array of TExtendedPoint;TypeMap:TMapType):extended;
-var L,i:integer;
-begin
- result:=0;
- l:=length(polygon);
- for i:=1 to L do polygon[i-1]:=LonLat2Metr(polygon[i-1],TypeMap);
- for i:=0 to L-2 do
-  begin
-   result:=result+(polygon[i].x+polygon[i+1].x)*(polygon[i].y-polygon[i+1].y);
-  end;
- result:=0.5*abs(result)/1000000;
-end;
-
-
-function LonLat2Metr(LL:TExtendedPoint;TypeMap:TMapType):TExtendedPoint;
-begin
-  ll:=ExtPoint(ll.x*D2R,ll.y*D2R);
-  result.x:=typemap.radiusa*ll.x/2;
-  result.y:=typemap.radiusa*Ln(Tan(PI/4+ll.y/2)*
-            Power((1-typemap.exct*Sin(ll.y))/(1+typemap.exct*Sin(ll.y)),typemap.exct/2))/2;
 end;
 
 procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
@@ -345,12 +320,6 @@ begin
   result.D:=int(G);
   result.M:=int(Frac(G)*60);
   result.S:=Frac(Frac(G)*60)*60;
-end;
-
-function ConvertPosM2M(pos:TPoint;Azoom:byte;MS:TMapType; MD:TMapType):TPoint;
-begin
- if MD=nil then MD:=MS;
- result:=MD.GeoConvert.LonLat2Pos(MS.GeoConvert.Pos2LonLat(pos,(Azoom - 1) + 8),(Azoom - 1) + 8);
 end;
 
 {

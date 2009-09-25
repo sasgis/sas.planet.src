@@ -505,7 +505,7 @@ begin
           VMap := MapType[ii];
           if VMap.active then begin
             BPos:=UPos;
-            BPos:=ConvertPosM2M(Upos,zoom,typemap,VMap);
+            BPos := typemap.GeoConvert.Pos2OtherMap(Upos, (zoom - 1) + 8, VMap.GeoConvert);
             xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
             yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),zoom);
             LoadXY.X := xx;

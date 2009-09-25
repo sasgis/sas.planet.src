@@ -142,7 +142,7 @@ begin
    VThread.Synchronize(VThread.UpdateProgressFormStr2);
    p_y:=(VThread.Poly0.Y+line)-((VThread.Poly0.Y+line) mod 256);
    p_x:=VThread.poly0.x-(VThread.poly0.x mod 256);
-   p_h:=ConvertPosM2M(Point(p_x,p_y),VThread.zoom,VThread.typemap,VThread.Htypemap);
+   p_h := VThread.typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (VThread.zoom - 1) + 8, VThread.Htypemap.GeoConvert);
    lrarri:=0;
    if line>(255-VThread.sy) then Asy:=0 else Asy:=VThread.sy;
    if (p_y div 256)=(VThread.poly1.y div 256) then Aey:=VThread.ey else Aey:=255;
@@ -213,7 +213,7 @@ begin
    VThread.Synchronize(VThread.UpdateProgressFormStr2);
    p_y:=(VThread.Poly0.Y+line)-((VThread.Poly0.Y+line) mod 256);
    p_x:=VThread.poly0.x-(VThread.poly0.x mod 256);
-   p_h:=ConvertPosM2M(Point(p_x,p_y),VThread.zoom,VThread.typemap,VThread.Htypemap);
+   p_h := VThread.typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (VThread.zoom - 1) + 8, VThread.Htypemap.GeoConvert);
    lrarri:=0;
    if line>(255-VThread.sy) then Asy:=0 else Asy:=VThread.sy;
    if (p_y div 256)=(VThread.poly1.y div 256) then Aey:=VThread.ey else Aey:=255;

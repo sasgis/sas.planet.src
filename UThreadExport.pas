@@ -365,11 +365,11 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
+            p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
             if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
+          p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
           if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
             UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
@@ -831,11 +831,11 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
+            p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
             UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
+          p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
           if UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i) then
            begin
             if (j=2)and(TypeMapArr[0]<>nil) then

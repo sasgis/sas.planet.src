@@ -289,7 +289,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)
      then begin
-           result:=CalcS(arLL,sat_map_both)
+           result:= sat_map_both.CalcPoligonArea(arLL);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
