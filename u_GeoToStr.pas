@@ -4,12 +4,15 @@ interface
 
 uses
   t_GeoTypes;
+
 type
   { Способ отображения расстояний
   dsfKmAndM - в виде 12 км 299 м
   dsfSimpleKM - в виед 12.299 км
   }
   TDistStrFormat = (dsfKmAndM = 0, dsfSimpleKM = 1);
+
+  TDegrShowFormat = (dshDegrMinSec = 0, dshDegrMin = 1, dshDegr = 2);
 
 function RoundEx(chislo: Extended; Precision: Integer): string;
 function R2StrPoint(r: Extended): string;
@@ -99,6 +102,49 @@ begin
   end;
 end;
 
+function Degris2str(Alon: real; AFormatType: TDegrShowFormat): string;
+var
+  num: real;
+begin
+  Alon := abs(Alon);
+  case AFormatType of
+    dshDegrMinSec: begin
+      result := result + IntToStr(trunc(ALon)) + '°';
+      num := Frac(ALon) * 60;
+      result := result + IntToStr(trunc(num)) + '''';
+      num := Frac(num) * 60;
+      Result := Result + RoundEx(Num, 5) + '"';
+    end;
+    dshDegrMin: begin
+      result := result + IntToStr(trunc(ALon))+'°';
+      num := Frac(ALon) * 60;
+      result := result + RoundEx(num, 7) + '''';
+    end;
+    dshDegr: begin
+      result := result + RoundEx(ALon, 9) + '°';
+    end;
+  end;
+end;
+
+function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
+begin
+  if ALon > 0 then begin
+    result := 'E';
+  end else begin
+    result := 'W';
+  end;
+  Result := Result + Degris2str(Alon, AFormatType);
+end;
+
+function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
+begin
+  if ALat > 0 then begin
+    result := 'N';
+  end else begin
+    result := 'S';
+  end;
+  Result := Result + Degris2str(Alat, AFormatType);
+end;
 
 initialization
   GFormatSettings.DecimalSeparator := '.';

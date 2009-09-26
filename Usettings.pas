@@ -263,6 +263,7 @@ implementation
 
 uses
   Math,
+  u_GeoToStr,
   Unit1,
   UEditMap,
   UFillingMap,
@@ -316,7 +317,7 @@ begin
  Ini.WriteInteger('VIEW','SmMapAlpha',sm_map.alpha);
  Ini.WriteInteger('VIEW','ShowPointType',show_point);
  Ini.Writeinteger('VIEW','MapZap',zoom_mapzap);
- Ini.Writeinteger('VIEW','NumberFormat',num_format);
+ Ini.Writeinteger('VIEW','NumberFormat',byte(num_format));
  Ini.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  Ini.Writebool('VIEW','CiclMap',CiclMap);
  Ini.Writeinteger('VIEW','ResamlingType',resampling);
@@ -523,7 +524,7 @@ begin
  GECachePath_:=IncludeTrailingPathDelimiter(GECachePath.Text);
  gamman:=TrBarGamma.Position;
  Contrastn:=TrBarContrast.Position;
- num_format:=ComboBox1.ItemIndex;
+ num_format := TDistStrFormat(ComboBox1.ItemIndex);
  Wikim_set.MainColor:=CBWMainColor.Selected;
  Wikim_set.FonColor:=CBWFonColor.Selected;
  With Fmain do
@@ -703,7 +704,7 @@ begin
               else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman-40)/10)+')';
  TrBarcontrast.Position:=contrastn;
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(contrastn)+')';
- ComboBox1.ItemIndex:=num_format;
+ ComboBox1.ItemIndex := byte(num_format);
  CBWMainColor.Selected:=Wikim_set.MainColor;
  CBWFonColor.Selected:=Wikim_set.FonColor;
  With Fmain do
