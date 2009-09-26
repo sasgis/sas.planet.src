@@ -10,7 +10,7 @@ uses
   UMapType,
   ECWReader,
   t_GeoTypes;
-  
+
 type
  TDMS = record
   D,M,S: extended;
@@ -42,7 +42,6 @@ var
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
-  function RoundEx(chislo: extended; Precision: Integer): string;
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
@@ -227,17 +226,6 @@ begin
   Result := Abs(Result) / 2;
 end;
 
-function RoundEx(chislo: extended; Precision: Integer): string;
-var ChisloInStr: string;
-    ChisloInCurr: extended;
-begin
-  ChisloInCurr := chislo;
-  Str(ChisloInCurr: 20: Precision, ChisloInStr);
-  if System.Pos(',', ChisloInStr)>0 then
-  ChisloInStr[System.Pos(',', ChisloInStr)] := '.';
-  RoundEx := Trim(ChisloInStr);
-end;
-
 function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
 var I:Integer;
     iPt,jPt:PPoint;
@@ -284,9 +272,11 @@ begin
 end;
 
 function R2StrPoint(r:extended):string;
+var
+  Format: TFormatSettings;
 begin
- result:=floattostr(r);
- if posex(',',result,1)>0 then result[posex(',',result,1)]:='.';
+  Format.DecimalSeparator := '.';
+  result:=floattostr(r, Format);
 end;
 
 function ExtPoint(X, Y: extended): TExtendedPoint;

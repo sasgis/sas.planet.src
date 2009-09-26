@@ -48,7 +48,8 @@ uses
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   ImgMaker in 'ImgMaker.pas',
-  t_GeoTypes in 't_GeoTypes.pas';
+  t_GeoTypes in 't_GeoTypes.pas',
+  u_GeoToStr in 'u_GeoToStr.pas';
 
 var Ini: Tinifile;
     loc:integer;

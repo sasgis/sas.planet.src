@@ -51,6 +51,7 @@ implementation
 
 uses
   Math,
+  u_GeoToStr,
   t_GeoTypes;
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
@@ -97,13 +98,6 @@ end;
 function GetUnixTime(x:integer):int64;
 begin
  Result:=DateTimeToUnix(now);
-end;
-
-function RoundEx(chislo: Extended; Precision: Integer): string;
-var VFormatSettings : TFormatSettings;
-begin
-  VFormatSettings.DecimalSeparator := '.';
-  Result := FloatToStrF(chislo, ffFixed, Precision,Precision, VFormatSettings);
 end;
 
 { TUrlGenerator }

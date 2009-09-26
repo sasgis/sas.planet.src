@@ -55,8 +55,10 @@ implementation
 
 uses
   Math,
+  u_GeoToStr,
   unit1,
-  usaveas, u_CoordConverterAbstract;
+  usaveas,
+  u_CoordConverterAbstract;
 
 procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin

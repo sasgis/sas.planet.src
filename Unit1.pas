@@ -642,6 +642,7 @@ uses
   StrUtils,
   DateUtils,
   Types,
+  u_GeoToStr,
   Unit2,
   UAbout,
   Usettings,
