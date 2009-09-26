@@ -89,6 +89,7 @@ uses
   DateUtils,
   StrUtils,
   Math,
+  u_GeoToStr,
   Unit1,
   UImgfun,
   UWikilayer,
@@ -213,7 +214,7 @@ begin
  _FProgress.Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(obrab/vsego*100))+'%)';
  Application.ProcessMessages;
  _FProgress.LabelValue1.Caption:=inttostr(obrab)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+Fmain.kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
+ _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
  _FProgress.LabelValue3.Caption:=TimeEnd;
  _FProgress.LabelValue4.Caption:=LenEnd;
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
@@ -243,7 +244,7 @@ begin
  _FProgress.Memo1.Lines.Add(SAS_MSG_ProcessFilesComplete);
  _FProgress.Caption:=SAS_MSG_LoadComplete+' ('+inttostr(round(obrab/vsego*100))+'%)';
  _FProgress.LabelValue1.Caption:=inttostr(obrab)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+Fmain.kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
+ _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
  _FProgress.LabelValue3.Caption:=GetTimeEnd(num_dwn,obrab);
  _FProgress.LabelValue4.Caption:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
  _FProgress.RProgr.Progress1:=obrab;
@@ -262,7 +263,7 @@ begin
                     result:='~ Кб';
                     exit;
                  end;
-  Result:=Fmain.kb2KbMbGb((len/loaded)*(loadAll-obrab));
+  Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
 end;
 
 function ThreadAllLoadMap.GetTimeEnd(loadAll,load:integer):String;

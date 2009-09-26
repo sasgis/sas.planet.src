@@ -22,6 +22,7 @@ implementation
 
 uses
   unit1,
+  u_GeoToStr,
   t_GeoTypes;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);

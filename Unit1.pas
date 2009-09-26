@@ -475,7 +475,6 @@ type
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
    property Pos:TPoint read FPos write Set_Pos;
-class   procedure createdirif(path:string);
    procedure generate_im(lastload:TLastLoad;err:string);
    procedure sm_im_reset(x,y:integer);
    function  toSh:string;
@@ -487,7 +486,6 @@ class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    function  Lon2Xf(Lon:real):real;
    function  Lat2Yf(lat:real):real;
    procedure topos(lat,lon:real;zoom_:byte;draw:boolean);
-class   function  R2ShortStr(r:real;z:byte):string;
    procedure zooming(x:byte;move:boolean);
 class   function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
 class   function  timezone(lon,lat:real):TDateTime;
@@ -502,7 +500,6 @@ class   function  str2r(inp:string):real;
    procedure selectMap(num:TMapType);
 class   function lon2str(Alon:real):string;
 class   function lat2str(Alat:real):string;
-class   function kb2KbMbGb(kb:real):string;
    procedure generate_granica;
    procedure drawLineGPS;
    procedure sm_im_reset_type2(x,y:integer);
@@ -1116,21 +1113,6 @@ begin
   end;
 end;
 
-
-function Float2Str(r:real):string;
-begin
- if Frac(r)>0 then result:=inttostr(Trunc(r))+'.'+copy(floattostr(Frac(r)),3,1)
-              else result:=inttostr(Trunc(r));
-end;                          
-
-class function TFmain.kb2KbMbGb(kb:real):string;
-begin
- result:=float2str(kb)+' '+SAS_UNITS_kb;
- if kb>1024 then result:=float2str(kb/1024)+' '+SAS_UNITS_mb;
- if kb>1048576 then result:=float2str(kb/1048576)+' '+SAS_UNITS_gb;
-end;
-
-
 procedure Contrast(Bitmap: TBitmap32; Value: double);
  function BLimit(B:Integer):Byte;
   begin
@@ -1215,12 +1197,6 @@ begin
               inp[p]:=DecimalSeparator;
              end;
  result:=strtofloat(inp);
-end;
-
-class procedure TFmain.createdirif(path:string);
-begin
- path:=copy(path, 1, LastDelimiter('\', path));
- if not(DirectoryExists(path)) then ForceDirectories(path);
 end;
 
 procedure TFmain.ThreadDone(Sender: TObject);
@@ -1515,7 +1491,7 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+10,SAS_STR_Speed+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+24,s_speed, 4, clBlack32);
- s_len:=R2ShortStr(GPSpar.len,4);
+ s_len := DistToStrWithUnits(GPSpar.len, TDistStrFormat(num_format));
  LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+59,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5,(pr_y-mHd2)+106,SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+64,SAS_STR_LenPath+':', 0, clBlack32);
@@ -1523,7 +1499,7 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
  if (NavOnMark<>nil) then
   begin
-   n_len:=R2ShortStr(find_length(GPS_arr[length(GPS_arr)-1].Y,NavOnMark.ll.Y,GPS_arr[length(GPS_arr)-1].x,NavOnMark.ll.x),4);
+   n_len:=DistToStrWithUnits(find_length(GPS_arr[length(GPS_arr)-1].Y,NavOnMark.ll.Y,GPS_arr[length(GPS_arr)-1].x,NavOnMark.ll.x), TDistStrFormat(num_format));
    LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
    LayerMapGPS.Bitmap.Font.Size:=8;
    LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
@@ -1678,7 +1654,7 @@ begin
      begin
       len:=0;
       for j:=0 to i do len:=len+find_length(length_arr[j].y,length_arr[j+1].y,length_arr[j].X,length_arr[j+1].x);
-      text:=SAS_STR_Whole+': '+R2ShortStr(len,2);
+      text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, TDistStrFormat(num_format));
       Font.Size:=9;
       textW:=TextWidth(text)+11;
       FillRectS(k2.x+12,k2.y,k2.X+textW,k2.y+15,SetAlpha(ClWhite32,110));
@@ -1687,7 +1663,7 @@ begin
     else
      if LenShow then
       begin
-       text:=R2ShortStr(find_length(length_arr[i].y,length_arr[i+1].y,length_arr[i].x,length_arr[i+1].x),2);
+       text:=DistToStrWithUnits(find_length(length_arr[i].y,length_arr[i+1].y,length_arr[i].x,length_arr[i+1].x), TDistStrFormat(num_format));
        LayerMapNal.Bitmap.Font.Size:=7;
        textW:=TextWidth(text)+11;
        FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
@@ -1942,24 +1918,6 @@ begin
  if draw then LayerMap.Bitmap.Draw(pr_x-7,pr_y-6,GOToSelIcon);
 end;
 
-class function TFmain.R2ShortStr(r:real;z:byte):string;
-var s:string;
-begin
- case num_format of
- 0: begin
-     result:='';
-     s:=floattostr(int(r));
-     result:=copy(s,1,length(s)-3);
-     if length(result)>0 then result:=result+SAS_UNITS_km+'. ';
-     result:=result+inttostr(strtoint(copy(s,length(s)-2,3)));
-     s:=floattostr(frac(r));
-     result:=result+','+copy(s,3,2)+SAS_UNITS_m+'.';
-    end;
- 1: if r<10000 then result:=floattostr(int(r))+','+copy(floattostr(frac(r)),3,2)+SAS_UNITS_m+'.'
-               else result:=floattostr(int(r/1000))+','+copy(floattostr(frac(r/1000)),3,2)+SAS_UNITS_km+'.';
- end;
-end;
-
 procedure TFmain.paint_Line;
 var rnum,len_p,textstrt,textwidth:integer;
     s,se:string;
@@ -2052,7 +2010,7 @@ begin
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2:=R2ShortStr(1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))),4)+SAS_UNITS_mperp;
+ subs2 := DistToStrWithUnits(1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), TDistStrFormat(num_format))+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
@@ -4923,7 +4881,7 @@ end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 begin
- MessageBox(FMain.Handle,pchar(SAS_STR_L+' - '+R2ShortStr(GetMarkLength(strtoint(PWL.numid)),2)),pchar(PWL.name),0);
+ MessageBox(FMain.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), TDistStrFormat(num_format))),pchar(PWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
@@ -4933,7 +4891,7 @@ end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 begin
- MessageBox(Handle,pchar(SAS_STR_P+' - '+R2ShortStr(GetMarkLength(strtoint(PWL.numid)),2)),pchar(PWL.name),0);
+ MessageBox(Handle,pchar(SAS_STR_P+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), TDistStrFormat(num_format))),pchar(PWL.name),0);
 end;
 
 procedure TFmain.TBEditPathOkClick(Sender: TObject);

@@ -60,12 +60,18 @@ begin
           +((y and $01) shl 3)+((x and $01) shl 2);
 end;
 
+procedure createdirif(path:string);
+begin
+ path:=copy(path, 1, LastDelimiter('\', path));
+ if not(DirectoryExists(path)) then ForceDirectories(path);
+end;
+
 procedure CreateNilFile(path:string);
 var f:File;
     n:byte;
     i:integer;
 begin
- Fmain.createdirif(path);
+ createdirif(path);
  AssignFile(f,path);
  Rewrite(f,1);
  BlockWrite(f,Head,8);

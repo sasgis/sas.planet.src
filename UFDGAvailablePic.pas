@@ -145,7 +145,9 @@ var
              );  }
 implementation
 
-uses Math;
+uses
+  Math,
+  u_GeoToStr;
 
 var
   GetListThId:Longint;

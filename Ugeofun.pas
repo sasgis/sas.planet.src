@@ -38,7 +38,6 @@ var
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
-  function R2StrPoint(r:extended):string;
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
@@ -47,7 +46,6 @@ var
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
- function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
@@ -127,30 +125,6 @@ begin
          end;
  max.X:=max.X+1;
  max.Y:=max.Y+1;
-end;
-
-function LonLat2GShListName(LL:TExtendedPoint; Scale:integer; Prec:integer):string;
-const Roman: array[1..36] of string[6] = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
-             'XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV',
-             'XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI');
-
-var Lon,Lat:int64;
- function GetNameAtom(divr,modl:integer):integer;
- begin
-  result:=((Lon div round(6/divr*prec))mod modl)+(abs(integer(LL.Y>0)*(modl-1)-((Lat div round(4/divr*prec))mod modl)))*modl;
- end;
-
-begin
- Lon:=round((LL.X+180)*prec);
- Lat:=round(abs(LL.Y*prec));
- result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)));
- if LL.Y<0 then result:='x'+result;
- if Scale=500000  then result:=result+'-'+chr(192+GetNameAtom(2,2));
- if Scale=200000  then result:=result+'-'+Roman[1+GetNameAtom(6,6)];
- if Scale<=100000 then result:=result+'-'+inttostr(1+GetNameAtom(12,12));
- if Scale<=50000  then result:=result+'-'+chr(192+GetNameAtom(24,2));
- if Scale<=25000  then result:=result+'-'+chr(224+GetNameAtom(48,2));
- if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
 end;
 
 procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
@@ -269,14 +243,6 @@ function compare2EP(p1,p2:TExtendedPoint):boolean;
 begin
  if (p1.x=p2.X)and(p1.y=p2.y) then result:=true
                               else result:=false;
-end;
-
-function R2StrPoint(r:extended):string;
-var
-  Format: TFormatSettings;
-begin
-  Format.DecimalSeparator := '.';
-  result:=floattostr(r, Format);
 end;
 
 function ExtPoint(X, Y: extended): TExtendedPoint;
