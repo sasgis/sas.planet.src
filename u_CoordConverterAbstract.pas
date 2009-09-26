@@ -15,6 +15,7 @@ type
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
+    function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended;
   end;
 
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
@@ -25,6 +26,7 @@ type
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
+    function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
   end;
 
 implementation

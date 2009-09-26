@@ -487,7 +487,6 @@ class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    function  Lat2Yf(lat:real):real;
    procedure topos(lat,lon:real;zoom_:byte;draw:boolean);
    procedure zooming(x:byte;move:boolean);
-class   function  find_length(StartLat,EndLat,StartLong,EndLong:double):real;
 class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
    procedure drawPath(pathll:TExtendedPointArray; new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
@@ -1499,7 +1498,7 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
  if (NavOnMark<>nil) then
   begin
-   n_len:=DistToStrWithUnits(find_length(GPS_arr[length(GPS_arr)-1].Y,NavOnMark.ll.Y,GPS_arr[length(GPS_arr)-1].x,NavOnMark.ll.x), TDistStrFormat(num_format));
+   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GPS_arr[length(GPS_arr)-1],NavOnMark.ll), TDistStrFormat(num_format));
    LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
    LayerMapGPS.Bitmap.Font.Size:=8;
    LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
@@ -1653,7 +1652,7 @@ begin
     if i=length(length_arr)-2 then
      begin
       len:=0;
-      for j:=0 to i do len:=len+find_length(length_arr[j].y,length_arr[j+1].y,length_arr[j].X,length_arr[j+1].x);
+      for j:=0 to i do len:=len+sat_map_both.GeoConvert.CalcDist(length_arr[j], length_arr[j+1]);
       text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, TDistStrFormat(num_format));
       Font.Size:=9;
       textW:=TextWidth(text)+11;
@@ -1663,7 +1662,7 @@ begin
     else
      if LenShow then
       begin
-       text:=DistToStrWithUnits(find_length(length_arr[i].y,length_arr[i+1].y,length_arr[i].x,length_arr[i+1].x), TDistStrFormat(num_format));
+       text:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(length_arr[i], length_arr[i+1]), TDistStrFormat(num_format));
        LayerMapNal.Bitmap.Font.Size:=7;
        textW:=TextWidth(text)+11;
        FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
@@ -1885,29 +1884,6 @@ begin
      end;
   3: result:=(mWd2-(POS.y-(zoom[zoom_size]/2+Lat*(zoom[zoom_size]/360))));
  end;
-end;
-
-class function TFmain.find_length(StartLat,EndLat,StartLong,EndLong:double):real;
-var fPhimean,fdLambda,fdPhi,fAlpha,fRho,fNu,fR,fz,fTemp,a,e2:Double;
-const
-  f: Double = 0.003352810664747; // Выравнивание эллипсоида
-begin
-  result:=0;
-  e2:=sat_map_both.exct*sat_map_both.exct;
-  a:=sat_map_both.radiusa;
-  if (StartLong=EndLong)and(StartLat=EndLat)then exit;
-  fdLambda := (StartLong - EndLong) * D2R;
-  fdPhi := (StartLat - EndLat) * D2R;
-  fPhimean := ((StartLat + EndLat) / 2.0) * D2R;
-  fTemp := 1 - e2 * (Power(Sin(fPhimean), 2));
-  fRho := (a * (1 - e2)) / Power(fTemp, 1.5);
-  fNu := a / (Sqrt(1 - e2 * (Sin(fPhimean) * Sin(fPhimean))));
-  fz:=Sqrt(Power(Sin(fdPhi/2),2)+Cos(EndLat*D2R)*Cos(StartLat*D2R)*Power(Sin(fdLambda/2),2));
-  fz := 2*ArcSin(fz);
-  fAlpha := Cos(EndLat * D2R) * Sin(fdLambda) * 1 / Sin(fz);
-  fAlpha := ArcSin(fAlpha);
-  fR:=(fRho*fNu)/((fRho*Power(Sin(fAlpha),2))+(fNu*Power(Cos(fAlpha),2)));
-  result := (fz * fR);
 end;
 
 procedure TFmain.topos(lat,lon:real;zoom_:byte;draw:boolean);
@@ -4042,8 +4018,7 @@ begin
   setlength(GPS_arr_speed,len);
   GPS_arr_speed[len-1]:=FMain.GPSReceiver.GetSpeed_KMH;
   if len>1 then
-    GPSpar.len:=GPSpar.len+Fmain.find_length(GPS_arr[len-2].y,GPS_arr[len-1].y,
-                GPS_arr[length(GPS_arr)-2].x,GPS_arr[len-1].x);
+    GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GPS_arr[len-2], GPS_arr[len-1]);
   if not((dwn)or(anim_zoom=1))and(Fmain.Active) then
    begin
     bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),(zoom_size - 1) + 8);

@@ -265,7 +265,7 @@ begin
  if (ms.Size>24)
      then begin
            for i:=0 to length(arLL)-2 do
-            result:=result+Fmain.find_length(arLL[i].y,arLL[i+1].y,arLL[i].x,arLL[i+1].x);
+            result:=result+ sat_map_both.GeoConvert.CalcDist(arLL[i],arLL[i+1]);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);

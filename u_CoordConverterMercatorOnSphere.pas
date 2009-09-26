@@ -17,6 +17,7 @@ type
     function Pos2LonLat(XY: TPoint; Azoom : byte): TExtendedPoint; override;
     function LonLat2Pos(Ll: TExtendedPoint; Azoom: byte): Tpoint; override;
     function LonLat2Metr(Ll: TExtendedPoint): TExtendedPoint; override;
+    function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
   end;
 
 implementation
@@ -59,6 +60,30 @@ begin
   ll.y:=ll.y*(Pi/180);
   result.x:=Fradiusa*ll.x;
   result.y:=Fradiusa*Ln(Tan(PI/4+ll.y/2));
+end;
+
+function TCoordConverterMercatorOnSphere.CalcDist(AStart,
+  AFinish: TExtendedPoint): Extended;
+const
+  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
+var
+  fdLambda,fdPhi,fz,a:Double;
+  VStart, VFinish: TExtendedPoint; // Координаты в радианах
+begin
+  result := 0;
+  if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then exit;
+  a := FRadiusa;
+
+  VStart.X := AStart.X * D2R;
+  VStart.Y := AStart.Y * D2R;
+  VFinish.X := AFinish.X * D2R;
+  VFinish.Y := AFinish.Y * D2R;
+
+  fdLambda := VStart.X - VFinish.X;
+  fdPhi := VStart.Y - VFinish.Y;
+  fz:=Sqrt(Power(Sin(fdPhi/2),2)+Cos(VFinish.Y)*Cos(VStart.Y)*Power(Sin(fdLambda/2),2));
+  fz := 2*ArcSin(fz);
+  result := (fz * a);
 end;
 
 end.
