@@ -19,6 +19,8 @@ function R2StrPoint(r: Extended): string;
 function LonLat2GShListName(LL: TExtendedPoint; Scale: integer; Prec: integer):string;
 function kb2KbMbGb(kb: real): string;
 function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
+function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
+function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
 
 implementation
 

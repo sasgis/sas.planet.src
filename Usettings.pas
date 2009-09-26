@@ -321,7 +321,7 @@ begin
  Ini.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  Ini.Writebool('VIEW','CiclMap',CiclMap);
  Ini.Writeinteger('VIEW','ResamlingType',resampling);
- Ini.Writeinteger('VIEW','llStrType',llStrType);
+ Ini.Writeinteger('VIEW','llStrType',byte(llStrType));
  Ini.WriteBool('VIEW','FirstLat',FirstLat);
  Ini.Writeinteger('VIEW','BorderAlpha',BorderAlpha);
  Ini.Writeinteger('VIEW','BorderColor',BorderColor);
@@ -495,7 +495,7 @@ begin
  BorderText:=CBBorderText.Checked;
  DefCache:=RadioGroup1.itemindex+1;
  ShowMapName:=CBShowmapname.Checked;
- llStrType:=CB_llstrType.ItemIndex;
+ llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  sm_map.alpha:=SpinEditMiniMap.Value;
  resampling:=ComboBox2.ItemIndex;
 
@@ -682,7 +682,7 @@ begin
  CBBorderText.Checked:=BorderText;
  RadioGroup1.ItemIndex:=DefCache-1;
  CBShowmapname.Checked:=ShowMapName;
- CB_llstrType.ItemIndex:=llStrType;
+ CB_llstrType.ItemIndex:=byte(llStrType);
  SpinEditMiniMap.Value:=sm_map.alpha;
  OldCPath.text:=OldCPath_;
  NewCPath.text:=NewCPath_;

@@ -498,8 +498,6 @@ class   function  timezone(lon,lat:real):TDateTime;
 class   function  str2r(inp:string):real;
    procedure paint_Line;
    procedure selectMap(num:TMapType);
-class   function lon2str(Alon:real):string;
-class   function lat2str(Alat:real):string;
    procedure generate_granica;
    procedure drawLineGPS;
    procedure sm_im_reset_type2(x,y:integer);
@@ -571,7 +569,8 @@ var
   Fmain:TFmain;
   PWL:TResObj;
   num_format: TDistStrFormat;
-  zoom_size,zoom_mapzap,show_point,zoom_line,poly_zoom_save,resampling,llStrType:byte;
+  llStrType: TDegrShowFormat;
+  zoom_size,zoom_mapzap,show_point,zoom_line,poly_zoom_save,resampling:byte;
   All_Dwn_Kb:Currency;
   ShowActivHint,ShowHintOnMarks:boolean;
   GPS_enab:boolean;
@@ -1938,38 +1937,6 @@ begin
  LayerLineM.bitmap.RenderText(textstrt,0,s, 2, clBlack32);
 end;
 
-class function TFmain.lon2str(Alon:real):string;
-var num:real;
-begin
- if ALon>0 then if llStrType<3 then result:='E' else
-           else if llStrType<3 then result:='W' else result:='-';
- Alon:=abs(Alon);
- case (llStrType mod 3) of
-  0:begin
-     result:=result+R2StrPoint(int(ALon))+'°'; num:=Frac(ALon)*60;
-     result:=result+R2StrPoint(int(num))+''''+Copy(R2StrPoint(Frac(Num)*60),1,5)+'"';
-    end;
-  1:result:=result+R2StrPoint(int(ALon))+'°'+Copy(R2StrPoint(Frac(ALon)*60),1,7)+'''';
-  2:result:=result+Copy(R2StrPoint(ALon),1,9)+'°';
- end;
-end;
-
-class function TFmain.lat2str(Alat:real):string;
-var num:real;
-begin
- if Alat>0 then if llStrType<3 then result:='N' else
-           else if llStrType<3 then result:='S' else result:='-';
- Alat:=abs(Alat);
- case (llStrType mod 3) of
-  0:begin
-     result:=result+R2StrPoint(int(Alat))+'°'; num:=Frac(Alat)*60;
-     result:=result+R2StrPoint(int(num))+''''+Copy(R2StrPoint(Frac(Num)*60),1,5)+'"';
-    end;
-  1:result:=result+R2StrPoint(int(Alat))+'°'+Copy(R2StrPoint(Frac(Alat)*60),1,7)+'''';
-  2:result:=result+Copy(R2StrPoint(Alat),1,9)+'°';
- end;
-end;
-
 function TFmain.toSh:string;
 var ll:TextendedPoint;
     subs2:string;
@@ -1978,8 +1945,8 @@ var ll:TextendedPoint;
 begin
  labZoom.caption:=' '+inttostr(zoom_size)+'x ';
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(zoom_size - 1) + 8);
- if FirstLat then result:=lat2str(ll.y)+' '+lon2str(ll.x)
-             else result:=lon2str(ll.x)+' '+lat2str(ll.y);
+ if FirstLat then result:=lat2str(ll.y, llStrType)+' '+lon2str(ll.x, llStrType)
+             else result:=lon2str(ll.x, llStrType)+' '+lat2str(ll.y, llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
  LayerStatBar.Bitmap.Clear(SetAlpha(clWhite32,160));
  LayerStatBar.Bitmap.Line(0,0,map.Width,0,SetAlpha(clBlack32,256));
@@ -2584,7 +2551,7 @@ begin
  num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
  CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
  resampling:=Ini.Readinteger('VIEW','ResamlingType',1);
- llStrType:=Ini.Readinteger('VIEW','llStrType',0);
+ llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
  FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
  BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
  BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
@@ -3151,8 +3118,8 @@ procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(zoom_size - 1) + 8);
- if FirstLat then CopyStringToClipboard(lat2str(ll.y)+' '+lon2str(ll.x))
-             else CopyStringToClipboard(lon2str(ll.x)+' '+lat2str(ll.y));
+ if FirstLat then CopyStringToClipboard(lat2str(ll.y, llStrType)+' '+lon2str(ll.x, llStrType))
+             else CopyStringToClipboard(lon2str(ll.x, llStrType)+' '+lat2str(ll.y, llStrType));
 end;
 
 procedure TFmain.N15Click(Sender: TObject);
