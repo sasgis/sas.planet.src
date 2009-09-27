@@ -45,6 +45,14 @@ type
     InvertColor: boolean;
 
     show_point: TMarksShowType;
+    FirstLat: Boolean;
+    ShowMapName: Boolean;
+    //Использовать тайлы предыдущих уровней для отображения
+    UsePrevZoom: Boolean;
+    //Инвертировать направление при зуме колесом мышки
+    MouseWheelInv: Boolean;
+    //Анимированный зум
+    AnimateZoom: Boolean;
 
 
     NewCPath_: string;

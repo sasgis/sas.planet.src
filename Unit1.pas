@@ -461,6 +461,7 @@ type
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB;
       var hwnd: HWND; var szUserName, szPassWord: WideString;
       var Rezult: HRESULT);
+    procedure NanimateClick(Sender: TObject);
   private
     ShowActivHint:boolean;
    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
@@ -577,11 +578,18 @@ var
   dwn,
   start,
   close_,
-  ShowMapName,
   GoNextTile,
-  FirstLat,
-  backload,animate,BorderText,
-    mouse_inv,sparam,ban_pg_ld,LenShow,CiclMap,Maximized,GPS_path,GPS_go,sizing,dblDwnl,SaveTileNotExists:boolean;
+  BorderText,
+  sparam,
+  ban_pg_ld,
+  LenShow,
+  CiclMap,
+  Maximized,
+  GPS_path,
+  GPS_go,
+  sizing,
+  dblDwnl,
+  SaveTileNotExists:boolean;
   spr:TBitmap32;
   sat_map_both:TMapType;
   marksicons:TStringList;
@@ -592,7 +600,7 @@ var
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
   Deg:real;
-  dwnlstr,GPS_COM:string;
+  GPS_COM:string;
   GPS_arr_speed:array of real;
   length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
   GPS_popr:TExtendedPoint;
@@ -1032,7 +1040,7 @@ begin
    WM_MOUSEWHEEL:if anim_zoom=0 then
                  begin
                   m_m:=moveTrue;
-                  if mouse_inv then z:=-1 else z:=1;
+                  if GState.MouseWheelInv then z:=-1 else z:=1;
                   if Msg.wParam<0 then Fmain.zooming(GState.Zoom_size-(1*z),NGoToCur.Checked)
                                   else Fmain.zooming(GState.Zoom_size+(1*z),NGoToCur.Checked);
                  end;
@@ -1944,7 +1952,7 @@ var ll:TextendedPoint;
 begin
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(GState.zoom_size - 1) + 8);
- if FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
+ if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
              else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
  LayerStatBar.Bitmap.Clear(SetAlpha(clWhite32,160));
@@ -1973,7 +1981,7 @@ var i,c_x,c_y,dZ:integer;
     VTileExists: Boolean;
 begin
  result:=false;
- if not(backload) then
+ if not(GState.UsePrevZoom) then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
@@ -2516,7 +2524,7 @@ begin
  dblDwnl:=Ini.ReadBool('INTERNET','DblDwnl',true);
  GoNextTile:=Ini.ReadBool('INTERNET','GoNextTile',false);
 
- ShowMapName:=Ini.readBool('VIEW','ShowMapNameOnPanel',true);
+ GState.ShowMapName:=Ini.readBool('VIEW','ShowMapNameOnPanel',true);
  sm_map.width:=Ini.readInteger('VIEW','SmMapW',160);
  sm_map.height:=Ini.readInteger('VIEW','SmMapH',160);
  sm_map.z1mz2:=Ini.readInteger('VIEW','SmMapDifference',4);
@@ -2526,13 +2534,13 @@ begin
  GState.DefCache:=Ini.readinteger('VIEW','DefCache',2);
  GState.zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
  zoom_line:=Ini.readinteger('VIEW','grid',0);
- mouse_inv:=Ini.readbool('VIEW','invert_mouse',false);
+ GState.MouseWheelInv:=Ini.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
  GState.num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
  CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
  GState.Resampling := TTileResamplingType(Ini.Readinteger('VIEW','ResamlingType',1));
  GState.llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
- FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
+ GState.FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
  GState.BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
  GState.BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
  BorderText:=Ini.ReadBool('VIEW','BorderText',true);
@@ -2570,8 +2578,8 @@ begin
             Ini.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
  oldPOS:=pos;
 
- backload:=Ini.Readbool('VIEW','back_load',true);
- animate:=Ini.Readbool('VIEW','animate',true);
+  GState.UsePrevZoom := Ini.Readbool('VIEW','back_load',true);
+ GState.AnimateZoom:=Ini.Readbool('VIEW','animate',true);
  Fillingmaptype:=GetMapFromID(Ini.ReadString('VIEW','FillingMap','0'));
  if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
                         else TBfillMapAsMain.Checked:=true;
@@ -2626,8 +2634,8 @@ begin
  NGPSPath.Checked:=GPS_path;
  TBGPSToPoint.Checked:=GPS_go;
  NGPSToPoint.Checked:=GPS_go;
- Nbackload.Checked:=backload;
- Nanimate.Checked:=animate;
+ Nbackload.Checked:=GState.UsePrevZoom;
+ Nanimate.Checked:=GState.AnimateZoom;
 
  if not(FileExists(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini')) then
   begin
@@ -2860,17 +2868,17 @@ begin
  LayerMapNal.Bitmap.Clear(clBlack);
  LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
- if (abs(x-GState.zoom_size)=1)and(Nanimate.Checked)
+ if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom)
    then for i:=0 to steps do
          begin
           if (i>0) then if (GState.zoom_size>x) then sleep(15) else sleep(10);
-          if (move)and(Nanimate.Checked) then
+          if (move)and(GState.AnimateZoom) then
            LayerMap.Location:=
               floatrect(bounds(round(mWd2-pr_x-(pr_x/w*i)+((mWd2-m_m.X)/w1/2*i)),
                                round(mHd2-pr_y-(pr_y/w*i)+((mHd2-m_m.y)/w1/2*i)),
                                xhgpx+round(pr_x/w*i*2),yhgpx+round(pr_y/w*i*2)))
            else
-             if (Nanimate.Checked)and(not(move)) then
+             if (GState.AnimateZoom)and(not(move)) then
               LayerMap.Location:=
               floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
                                xhgpx+round((pr_x/w)*i*2),yhgpx+round((pr_y/w)*i*2)));
@@ -3066,7 +3074,7 @@ end;
 
 procedure TFmain.NbackloadClick(Sender: TObject);
 begin
- backload:=Nbackload.Checked;
+ GState.UsePrevZoom := Nbackload.Checked;
  generate_im(nilLastLoad,'');
 end;
 
@@ -3096,7 +3104,7 @@ procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(GState.zoom_size - 1) + 8);
- if FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
+ if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
 
@@ -3279,7 +3287,7 @@ begin
    TBSMB.ImageIndex:=sat_map_both.TBItem.ImageIndex;
    sat_map_both.TBItem.Checked:=true;
    sat_map_both.active:=true;
-   if Showmapname then TBSMB.Caption:=sat_map_both.name
+   if GState.Showmapname then TBSMB.Caption:=sat_map_both.name
                   else TBSMB.Caption:='';
   end else
   begin
@@ -4876,4 +4884,9 @@ end;
  
 
 }
+procedure TFmain.NanimateClick(Sender: TObject);
+begin
+  GState.AnimateZoom := Nanimate.Checked;
+end;
+
 end.

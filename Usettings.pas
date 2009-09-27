@@ -292,7 +292,7 @@ begin
  try
  SaveMaps;
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
- Ini.WriteBool('VIEW','ShowMapNameOnPanel',ShowMapName);
+ Ini.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  Ini.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
  Ini.WriteInteger('POSITION','x',FMain.POS.x);
  Ini.WriteInteger('POSITION','y',FMain.POS.y);
@@ -303,9 +303,9 @@ begin
  Ini.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
  Ini.WriteInteger('VIEW','TilesOut',TilesOut);
  Ini.Writeinteger('VIEW','grid',zoom_line);
- Ini.Writebool('VIEW','invert_mouse',mouse_inv);
- Ini.Writebool('VIEW','back_load',backload);
- Ini.Writebool('VIEW','animate',Fmain.Nanimate.Checked);
+ Ini.Writebool('VIEW','invert_mouse',GState.MouseWheelInv);
+ Ini.Writebool('VIEW','back_load',GState.UsePrevZoom);
+ Ini.Writebool('VIEW','animate',GState.AnimateZoom);
  Ini.Writebool('VIEW','FullScreen',GState.FullScrean);
  ini.WriteInteger('VIEW','FLeft',Fmain.Left);
  ini.WriteInteger('VIEW','FTop',Fmain.Top);
@@ -324,7 +324,7 @@ begin
  Ini.Writebool('VIEW','CiclMap',CiclMap);
  Ini.Writeinteger('VIEW','ResamlingType',byte(GState.resampling));
  Ini.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
- Ini.WriteBool('VIEW','FirstLat',FirstLat);
+ Ini.WriteBool('VIEW','FirstLat',GState.FirstLat);
  Ini.Writeinteger('VIEW','BorderAlpha',GState.BorderAlpha);
  Ini.Writeinteger('VIEW','BorderColor',GState.BorderColor);
  Ini.WriteBool('VIEW','BorderText',BorderText);
@@ -487,7 +487,7 @@ begin
  MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
- FirstLat:=ChBoxFirstLat.Checked;
+ GState.FirstLat:=ChBoxFirstLat.Checked;
  DblDwnl:=CBDblDwnl.Checked;
  GoNextTile:=CkBGoNextTile.Checked;
  GPS_colorStr:=ColorBoxGPSstr.selected;
@@ -496,7 +496,7 @@ begin
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  BorderText:=CBBorderText.Checked;
  GState.DefCache:=RadioGroup1.itemindex+1;
- ShowMapName:=CBShowmapname.Checked;
+ GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  sm_map.alpha:=SpinEditMiniMap.Value;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
@@ -518,7 +518,7 @@ begin
  GState.InetConnect.loginstr:=EditLogin.Text;
  GState.InetConnect.passstr:=EditPass.Text;
  SaveTileNotExists:=CBSaveTileNotExists.Checked;
- Mouse_inv:=ScrolInvert.Checked;
+ GState.MouseWheelInv:=ScrolInvert.Checked;
  GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
  GState.OldCPath_:=IncludeTrailingPathDelimiter(OldCPath.Text);
  GState.ESCPath_:=IncludeTrailingPathDelimiter(EScPath.Text);
@@ -665,7 +665,7 @@ begin
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=DblDwnl;
- ChBoxFirstLat.Checked:=FirstLat;
+ ChBoxFirstLat.Checked:=GState.FirstLat;
  CBlock_toolbars.Checked:=FMain.lock_toolbars;
  CkBGoNextTile.Checked:=GoNextTile;
  RBWinCon.Checked:=GState.InetConnect.userwinset;
@@ -683,7 +683,7 @@ begin
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=BorderText;
  RadioGroup1.ItemIndex:=GState.DefCache-1;
- CBShowmapname.Checked:=ShowMapName;
+ CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
  SpinEditMiniMap.Value:=sm_map.alpha;
  OldCPath.text:=GState.OldCPath_;
@@ -696,7 +696,7 @@ begin
  SpinEdit1.Value:=GPS_update;
  SESizeStr.Value:=GPS_SizeStr;
  SESizeTrack.Value:=GPS_SizeTrack;
- ScrolInvert.Checked:=mouse_inv;
+ ScrolInvert.Checked:=GState.MouseWheelInv;
  smmapdif.Value:=sm_map.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:=GPS_com;
