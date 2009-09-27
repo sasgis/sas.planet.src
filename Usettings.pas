@@ -263,6 +263,7 @@ implementation
 
 uses
   Math,
+  u_GlobalState,
   u_GeoToStr,
   Unit1,
   UEditMap,
@@ -317,11 +318,11 @@ begin
  Ini.WriteInteger('VIEW','SmMapAlpha',sm_map.alpha);
  Ini.WriteInteger('VIEW','ShowPointType',show_point);
  Ini.Writeinteger('VIEW','MapZap',zoom_mapzap);
- Ini.Writeinteger('VIEW','NumberFormat',byte(num_format));
+ Ini.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  Ini.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  Ini.Writebool('VIEW','CiclMap',CiclMap);
  Ini.Writeinteger('VIEW','ResamlingType',resampling);
- Ini.Writeinteger('VIEW','llStrType',byte(llStrType));
+ Ini.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
  Ini.WriteBool('VIEW','FirstLat',FirstLat);
  Ini.Writeinteger('VIEW','BorderAlpha',BorderAlpha);
  Ini.Writeinteger('VIEW','BorderColor',BorderColor);
@@ -495,7 +496,7 @@ begin
  BorderText:=CBBorderText.Checked;
  DefCache:=RadioGroup1.itemindex+1;
  ShowMapName:=CBShowmapname.Checked;
- llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
+ GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  sm_map.alpha:=SpinEditMiniMap.Value;
  resampling:=ComboBox2.ItemIndex;
 
@@ -524,7 +525,7 @@ begin
  GECachePath_:=IncludeTrailingPathDelimiter(GECachePath.Text);
  gamman:=TrBarGamma.Position;
  Contrastn:=TrBarContrast.Position;
- num_format := TDistStrFormat(ComboBox1.ItemIndex);
+ GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
  Wikim_set.MainColor:=CBWMainColor.Selected;
  Wikim_set.FonColor:=CBWFonColor.Selected;
  With Fmain do
@@ -682,7 +683,7 @@ begin
  CBBorderText.Checked:=BorderText;
  RadioGroup1.ItemIndex:=DefCache-1;
  CBShowmapname.Checked:=ShowMapName;
- CB_llstrType.ItemIndex:=byte(llStrType);
+ CB_llstrType.ItemIndex:=byte(GState.llStrType);
  SpinEditMiniMap.Value:=sm_map.alpha;
  OldCPath.text:=OldCPath_;
  NewCPath.text:=NewCPath_;
@@ -704,7 +705,7 @@ begin
               else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman-40)/10)+')';
  TrBarcontrast.Position:=contrastn;
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(contrastn)+')';
- ComboBox1.ItemIndex := byte(num_format);
+ ComboBox1.ItemIndex := byte(GState.num_format);
  CBWMainColor.Selected:=Wikim_set.MainColor;
  CBWFonColor.Selected:=Wikim_set.FonColor;
  With Fmain do

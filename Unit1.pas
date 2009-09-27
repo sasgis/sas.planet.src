@@ -568,8 +568,6 @@ const
 var
   Fmain:TFmain;
   PWL:TResObj;
-  num_format: TDistStrFormat;
-  llStrType: TDegrShowFormat;
   zoom_size,zoom_mapzap,show_point,zoom_line,poly_zoom_save,resampling:byte;
   All_Dwn_Kb:Currency;
   ShowActivHint,ShowHintOnMarks:boolean;
@@ -639,6 +637,7 @@ uses
   StrUtils,
   DateUtils,
   Types,
+  u_GlobalState,
   Unit2,
   UAbout,
   Usettings,
@@ -1490,7 +1489,7 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+10,SAS_STR_Speed+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+24,s_speed, 4, clBlack32);
- s_len := DistToStrWithUnits(GPSpar.len, num_format);
+ s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
  LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+59,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5,(pr_y-mHd2)+106,SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+64,SAS_STR_LenPath+':', 0, clBlack32);
@@ -1498,7 +1497,7 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
  if (NavOnMark<>nil) then
   begin
-   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GPS_arr[length(GPS_arr)-1],NavOnMark.ll), num_format);
+   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GPS_arr[length(GPS_arr)-1],NavOnMark.ll), GState.num_format);
    LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
    LayerMapGPS.Bitmap.Font.Size:=8;
    LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
@@ -1653,7 +1652,7 @@ begin
      begin
       len:=0;
       for j:=0 to i do len:=len+sat_map_both.GeoConvert.CalcDist(length_arr[j], length_arr[j+1]);
-      text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, num_format);
+      text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, GState.num_format);
       Font.Size:=9;
       textW:=TextWidth(text)+11;
       FillRectS(k2.x+12,k2.y,k2.X+textW,k2.y+15,SetAlpha(ClWhite32,110));
@@ -1662,7 +1661,7 @@ begin
     else
      if LenShow then
       begin
-       text:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(length_arr[i], length_arr[i+1]), num_format);
+       text:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(length_arr[i], length_arr[i+1]), GState.num_format);
        LayerMapNal.Bitmap.Font.Size:=7;
        textW:=TextWidth(text)+11;
        FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
@@ -1945,8 +1944,8 @@ var ll:TextendedPoint;
 begin
  labZoom.caption:=' '+inttostr(zoom_size)+'x ';
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(zoom_size - 1) + 8);
- if FirstLat then result:=lat2str(ll.y, llStrType)+' '+lon2str(ll.x, llStrType)
-             else result:=lon2str(ll.x, llStrType)+' '+lat2str(ll.y, llStrType);
+ if FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
+             else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
  LayerStatBar.Bitmap.Clear(SetAlpha(clWhite32,160));
  LayerStatBar.Bitmap.Line(0,0,map.Width,0,SetAlpha(clBlack32,256));
@@ -1954,7 +1953,7 @@ begin
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2 := DistToStrWithUnits(1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), num_format)+SAS_UNITS_mperp;
+ subs2 := DistToStrWithUnits(1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), GState.num_format)+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
@@ -2548,10 +2547,10 @@ begin
  zoom_line:=Ini.readinteger('VIEW','grid',0);
  mouse_inv:=Ini.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
- num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
+ GState.num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
  CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
  resampling:=Ini.Readinteger('VIEW','ResamlingType',1);
- llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
+ GState.llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
  FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
  BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
  BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
@@ -3118,8 +3117,8 @@ procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(zoom_size - 1) + 8);
- if FirstLat then CopyStringToClipboard(lat2str(ll.y, llStrType)+' '+lon2str(ll.x, llStrType))
-             else CopyStringToClipboard(lon2str(ll.x, llStrType)+' '+lat2str(ll.y, llStrType));
+ if FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
+             else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
 
 procedure TFmain.N15Click(Sender: TObject);
@@ -4824,7 +4823,7 @@ end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 begin
- MessageBox(FMain.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), num_format)),pchar(PWL.name),0);
+ MessageBox(FMain.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), GState.num_format)),pchar(PWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
@@ -4834,7 +4833,7 @@ end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 begin
- MessageBox(Handle,pchar(SAS_STR_P+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), num_format)),pchar(PWL.name),0);
+ MessageBox(Handle,pchar(SAS_STR_P+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), GState.num_format)),pchar(PWL.name),0);
 end;
 
 procedure TFmain.TBEditPathOkClick(Sender: TObject);
