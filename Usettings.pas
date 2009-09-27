@@ -376,13 +376,13 @@ begin
                 else Ini.WriteBool('GPS','enbl',false);
  Ini.WriteBool('GPS','path',GPS_path);
  Ini.WriteBool('GPS','go',GPS_go);
- Ini.WriteString('GPS','COM',GPS_com);
- Ini.WriteInteger('GPS','BaudRate',BaudRate);
- Ini.WriteFloat('GPS','popr_lon',GPS_popr.x);
- Ini.WriteFloat('GPS','popr_lat',GPS_popr.y);
+ Ini.WriteString('GPS','COM',GState.GPS_COM);
+ Ini.WriteInteger('GPS','BaudRate',GState.GPS_BaudRate);
+ Ini.WriteFloat('GPS','popr_lon',GState.GPS_Correction.x);
+ Ini.WriteFloat('GPS','popr_lat',GState.GPS_Correction.y);
  Ini.Writeinteger('GPS','update',GPS_update);
  Ini.WriteBool('GPS','log',GPS_Log);
- Ini.WriteInteger('GPS','SizeStr',GPS_SizeStr);
+ Ini.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  Ini.WriteInteger('GPS','SizeTrack',GPS_SizeTrack);
  Ini.WriteInteger('GPS','ColorStr',GPS_colorStr);
  Ini.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
@@ -501,14 +501,14 @@ begin
  sm_map.alpha:=SpinEditMiniMap.Value;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
- GPS_SizeStr:=SESizeStr.Value;
+ GState.GPS_ArrowSize:=SESizeStr.Value;
  GPS_SizeTrack:=SESizeTrack.Value;
  GPS_timeout:=SpinEdit2.Value;
  GPS_Log:=CB_GPSlog.Checked;
  GPS_update:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
- GPS_com:=ComboBoxCOM.Text;
- BaudRate:=StrToint(ComboBoxBoudRate.Text);
+ GState.GPS_COM:=ComboBoxCOM.Text;
+ GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
  sm_map.z1mz2:=smmapdif.Value;
  if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.userwinset:=RBWinCon.Checked;
@@ -567,7 +567,7 @@ begin
   1:localization:=ENU;
  end;
 
- GPS_popr:=Extpoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
+ GState.GPS_Correction:=Extpoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                       DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
  TilesOut:=SpinEdit3.Value;
@@ -694,13 +694,13 @@ begin
  SpinEdit2.Value:=GPS_timeout;
  CB_GPSlog.Checked:=GPS_Log;
  SpinEdit1.Value:=GPS_update;
- SESizeStr.Value:=GPS_SizeStr;
+ SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GPS_SizeTrack;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  smmapdif.Value:=sm_map.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
- ComboBoxCOM.Text:=GPS_com;
- ComboBoxBoudRate.Text:=inttostr(BaudRate);
+ ComboBoxCOM.Text:=GState.GPS_COM;
+ ComboBoxBoudRate.Text:=inttostr(GState.GPS_BaudRate);
  TrBarGamma.Position:=gamman;
  if gamman<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman*2)/100)+')'
               else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman-40)/10)+')';
@@ -739,10 +739,10 @@ begin
  HotKey40.HotKey:=Ninvertcolor.ShortCut;
  HotKey41.HotKey:=NMapParams.ShortCut;
  end;
- DMS:=D2DMS(GPS_popr.Y);
+ DMS:=D2DMS(GState.GPS_Correction.Y);
  lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
  if DMS.N then Lat_ns.ItemIndex:=1 else Lat_ns.ItemIndex:=0;
- DMS:=D2DMS(GPS_popr.X);
+ DMS:=D2DMS(GState.GPS_Correction.X);
  lon1.Value:=DMS.D; lon2.Value:=DMS.M; lon3.Value:=DMS.S;
  if DMS.N then Lon_we.ItemIndex:=1 else Lon_we.ItemIndex:=0;
 

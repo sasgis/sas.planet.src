@@ -591,18 +591,15 @@ var
   sat_map_both:TMapType;
   marksicons:TStringList;
   movepoint,lastpoint:integer;
-  TilesOut,BaudRate:integer;
+  TilesOut:integer;
   Find_Zoom:byte;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
   Deg:real;
-  GPS_COM:string;
   GPS_arr_speed:array of real;
   length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
-  GPS_popr:TExtendedPoint;
   GPS_Log:boolean;
-  GPS_SizeStr:integer;
   GPS_colorStr:TColor;
   GPS_LogFile:TextFile;
   reg_arr,poly_save:TExtendedPointArray;
@@ -744,7 +741,7 @@ begin
   ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
   pe:=Point(round(ke.x),round(ke.y));
   ks:=extPoint(pr_x,pr_y);
-  dl:=GPS_SizeStr;
+  dl:=GState.GPS_ArrowSize;
   if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
@@ -1459,7 +1456,7 @@ begin
   ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
   ks:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-2].x),Lat2Yf(GPS_arr[length(GPS_arr)-2].y));
   ks:=extPoint(ks.X+(pr_x-mWd2),ks.y+(pr_y-mHd2));
-  dl:=GPS_SizeStr;
+  dl:=GState.GPS_ArrowSize;
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
   if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
@@ -1483,7 +1480,7 @@ begin
   begin
    ke:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-1].x),lat2Yf(GPS_arr[length(GPS_arr)-1].y));
    ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
-   SizeTrackd2:=GPS_SizeStr div 6;
+   SizeTrackd2:=GState.GPS_ArrowSize div 6;
    LayerMapGPS.Bitmap.FillRectS(round(ke.x-SizeTrackd2),round(ke.y-SizeTrackd2),round(ke.x+SizeTrackd2),round(ke.y+SizeTrackd2),SetAlpha(clRed32, 200));
   end;
 
@@ -2554,16 +2551,16 @@ begin
  gamman:=Ini.Readinteger('COLOR_LEVELS','gamma',50);
  contrastn:=Ini.Readinteger('COLOR_LEVELS','contrast',0);
  GState.InvertColor:=Ini.ReadBool('COLOR_LEVELS','InvertColor',false);
- GPS_COM:=Ini.ReadString('GPS','com','COM0');
- BaudRate:=Ini.ReadInteger('GPS','BaudRate',4800);
+ GState.GPS_COM:=Ini.ReadString('GPS','com','COM0');
+ GState.GPS_BaudRate:=Ini.ReadInteger('GPS','BaudRate',4800);
  GPS_timeout:=Ini.ReadInteger('GPS','timeout',15);
  GPS_update:=Ini.ReadInteger('GPS','update',1000);
  GState.GPS_enab:=Ini.ReadBool('GPS','enbl',false);
  GPS_Log:=Ini.Readbool('GPS','log',true);
- GPS_SizeStr:=Ini.ReadInteger('GPS','SizeStr',25);
+ GState.GPS_ArrowSize:=Ini.ReadInteger('GPS','SizeStr',25);
  GPS_SizeTrack:=Ini.ReadInteger('GPS','SizeTrack',5);
  GPS_colorStr:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961}); //clBlue32
- GPS_popr:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
+ GState.GPS_Correction:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
  GPS_path:=Ini.ReadBool('GPS','path',true);
  GPS_go:=Ini.ReadBool('GPS','go',true);
  GState.OldCpath_:=Ini.Readstring('PATHtoCACHE','GMVC','cache_old\');
@@ -3433,9 +3430,9 @@ begin
   begin
    GPSReceiver.Delay:=GPS_update;
    GPSReceiver.ConnectionTimeout:=GPS_timeout;
-   GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GPS_COM);
-   if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(BaudRate) then
-     GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(BaudRate);
+   GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPS_COM);
+   if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(GState.GPS_BaudRate) then
+     GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(GState.GPS_BaudRate);
    GPSReceiver.NeedSynchronization:=true;
    try
     GPSReceiver.Open;
@@ -3963,7 +3960,7 @@ begin
  if (GPSReceiver.IsFix=0) then exit;
  setlength(GPS_arr,length(GPS_arr)+1);
  len:=length(GPS_arr);
- GPS_arr[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GPS_popr.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GPS_popr.y);
+ GPS_arr[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GState.GPS_Correction.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GState.GPS_Correction.y);
  if (GPS_arr[len-1].x<>0)or(GPS_arr[len-1].y<>0) then
   begin
   setlength(GPS_arr_speed,len);

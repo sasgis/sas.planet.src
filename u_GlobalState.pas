@@ -4,6 +4,7 @@ interface
 
 uses
   Graphics,
+  t_GeoTypes,
   u_GeoToStr,
   Uimgfun;
 type
@@ -38,6 +39,15 @@ type
     DefCache: byte;
 
     GPS_enab: Boolean;
+    //Скорость GPS COM порта
+    GPS_BaudRate: Integer;
+    //COM-порт, к которому подключен GPS
+    GPS_COM: string;
+    //Поправка GPS
+    GPS_Correction: TExtendedPoint;
+    //Размер указателя направления при GPS-навигации
+    GPS_ArrowSize: Integer;
+
 
     BorderColor: TColor;
     BorderAlpha: byte;
