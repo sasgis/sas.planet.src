@@ -33,8 +33,9 @@ var
 
 function RoundEx(chislo: Extended; Precision: Integer): string;
 begin
-  Result := FloatToStrF(chislo, ffFixed, Precision,Precision, GFormatSettings);
+  Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
 end;
+
 
 function R2StrPoint(r: Extended): string;
 begin
@@ -81,15 +82,15 @@ end;
 
 function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
 var
-  VKmDist: Integer;
+  VKmDist: Real;
 begin
   Result := '';
   case AFormat of
     dsfKmAndM: begin
       if r > 1000 then begin
-        VKmDist := Trunc(r/1000);
-        Result := IntToStr(VKmDist) +SAS_UNITS_km + ' ';
-        Result := Result + RoundEx(r - VKmDist*1000, 2) + SAS_UNITS_m
+        VKmDist :=r/1000;
+        Result := IntToStr(Trunc(VKmDist)) +SAS_UNITS_km + ' ';
+        Result := Result + RoundEx(frac(VKmDist)*1000, 2) + SAS_UNITS_m
       end else begin
         Result := RoundEx(r, 2) + SAS_UNITS_m;
       end;
@@ -115,15 +116,15 @@ begin
       num := Frac(ALon) * 60;
       result := result + IntToStr(trunc(num)) + '''';
       num := Frac(num) * 60;
-      Result := Result + RoundEx(Num, 5) + '"';
+      Result := Result + RoundEx(Num, 2) + '"';
     end;
     dshDegrMin: begin
       result := result + IntToStr(trunc(ALon))+'°';
       num := Frac(ALon) * 60;
-      result := result + RoundEx(num, 7) + '''';
+      result := result + RoundEx(num, 4) + '''';
     end;
     dshDegr: begin
-      result := result + RoundEx(ALon, 9) + '°';
+      result := result + RoundEx(ALon, 6) + '°';
     end;
   end;
 end;
