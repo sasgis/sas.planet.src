@@ -65,7 +65,7 @@ begin
   if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
                                        else loc:=LANG_RUSSIAN;
   localization:=Ini.Readinteger('VIEW','localization',loc);
-  sparam:=Ini.ReadBool('NPARAM','stat',true);
+  GState.WebReportToAuthor:=Ini.ReadBool('NPARAM','stat',true);
   Application.Initialize;
   Application.Title := 'SAS.Планета';
   //logo

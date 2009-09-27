@@ -321,13 +321,13 @@ begin
  Ini.Writeinteger('VIEW','MapZap',GState.zoom_mapzap);
  Ini.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  Ini.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
- Ini.Writebool('VIEW','CiclMap',CiclMap);
+ Ini.Writebool('VIEW','CiclMap',GState.CiclMap);
  Ini.Writeinteger('VIEW','ResamlingType',byte(GState.resampling));
  Ini.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
  Ini.WriteBool('VIEW','FirstLat',GState.FirstLat);
  Ini.Writeinteger('VIEW','BorderAlpha',GState.BorderAlpha);
  Ini.Writeinteger('VIEW','BorderColor',GState.BorderColor);
- Ini.WriteBool('VIEW','BorderText',BorderText);
+ Ini.WriteBool('VIEW','BorderText',GState.ShowBorderText);
  Ini.Writeinteger('VIEW','localization',localization);
  Ini.Writeinteger('VIEW','GShScale',GShScale);
  Ini.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
@@ -399,7 +399,7 @@ begin
  Ini.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
  Ini.WriteBool('INTERNET','DblDwnl',dblDwnl);
  Ini.Writebool('INTERNET','GoNextTile',GoNextTile);
- Ini.Writebool('NPARAM','stat',sparam);
+ Ini.Writebool('NPARAM','stat',GState.WebReportToAuthor);
 
  i:=1;
  while Ini.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647')<>'2147483647' do
@@ -494,7 +494,7 @@ begin
  GState.InvertColor:=CBinvertcolor.Checked;
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
- BorderText:=CBBorderText.Checked;
+ GState.ShowBorderText:=CBBorderText.Checked;
  GState.DefCache:=RadioGroup1.itemindex+1;
  GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
@@ -681,7 +681,7 @@ begin
  PageControl1.ActivePageIndex:=0;
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
- CBBorderText.Checked:=BorderText;
+ CBBorderText.Checked:=GState.ShowBorderText;
  RadioGroup1.ItemIndex:=GState.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);

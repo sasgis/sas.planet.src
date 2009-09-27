@@ -579,11 +579,8 @@ var
   start,
   close_,
   GoNextTile,
-  BorderText,
-  sparam,
   ban_pg_ld,
   LenShow,
-  CiclMap,
   Maximized,
   GPS_path,
   GPS_go,
@@ -2066,7 +2063,7 @@ begin
      PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
      X2:=pr_x-(Pos.X-PosLT.X);
      LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-     if ((x2-x1>30)and(y2-y1>7))and(BorderText) then
+     if ((x2-x1>30)and(y2-y1>7))and(GState.ShowBorderText) then
       begin
        ListName:=LonLat2GShListName(ExtPoint(LonLatLT.X-zLonR/2,LonLatLT.Y+zLatR/2),GShScale,GSHprec);
         twidth:=LayerMap.bitmap.TextWidth(ListName);
@@ -2113,7 +2110,7 @@ begin
      y1:=(j*d2562)-y_draw;
      LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
      LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-     if BorderText then
+     if GState.ShowBorderText then
        begin
         LayerMap.bitmap.Font.Size:=8;
         LayerMap.bitmap.Font.Name:='Arial';
@@ -2180,7 +2177,7 @@ begin
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
-    if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),GState.zoom_size)
+    if GState.CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),GState.zoom_size)
                else xx:=pos.x-pr_x+(i shl 8);
     yy:=pos.y-pr_y+(j shl 8);
     if xx>=0 then xx:=xx-(xx mod 256)
@@ -2226,7 +2223,7 @@ begin
    for i:=0 to hg_x do
     for j:=0 to hg_y do
       begin
-       if CiclMap then xx:=X2AbsX(posN.x-pr_x+(i shl 8),GState.zoom_size)
+       if GState.CiclMap then xx:=X2AbsX(posN.x-pr_x+(i shl 8),GState.zoom_size)
                   else xx:=posN.x-pr_x+(i shl 8);
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
@@ -2537,13 +2534,13 @@ begin
  GState.MouseWheelInv:=Ini.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
  GState.num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
- CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
+ GState.CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
  GState.Resampling := TTileResamplingType(Ini.Readinteger('VIEW','ResamlingType',1));
  GState.llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
  GState.FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
  GState.BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
  GState.BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
- BorderText:=Ini.ReadBool('VIEW','BorderText',true);
+ GState.ShowBorderText:=Ini.ReadBool('VIEW','BorderText',true);
  GShScale:=Ini.Readinteger('VIEW','GShScale',0);
  GState.MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
  GState.MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
@@ -2651,7 +2648,7 @@ begin
  NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
  TBFullSize.Checked:=GState.FullScrean;
- NCiclMap.Checked:=CiclMap;
+ NCiclMap.Checked:=GState.CiclMap;
 
  toSh;
  start:=false;
@@ -2677,7 +2674,7 @@ begin
 
  SetProxy;
 
- if sparam then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
+ if GState.WebReportToAuthor then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
  Fmain.Enabled:=true;
  Fmain.SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
@@ -2708,7 +2705,7 @@ begin
  while (x128<=128) do
   begin
    y128:=-128;
-   if (CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then
+   if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then
    while (y128<=128) do
     begin
      if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
@@ -2740,7 +2737,7 @@ begin
    while (x128<=128) do
     begin
      y128:=-128;
-     if (CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then
+     if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then
      while (y128<=128) do
       begin
        if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
@@ -3253,7 +3250,7 @@ end;
 
 procedure TFmain.NCiclMapClick(Sender: TObject);
 begin
- ciclmap:=NCiclMap.Checked;
+ GState.ciclmap:=NCiclMap.Checked;
  generate_im(nilLastLoad,'');
 end;
 

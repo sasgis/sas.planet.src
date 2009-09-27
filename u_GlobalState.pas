@@ -20,6 +20,9 @@ type
   public
     // Параметры программы
 
+    // Заходить на сайт автора при старте программы
+    WebReportToAuthor: Boolean;
+
     // Способ отображения расстояний, и в частности масштаба
     num_format: TDistStrFormat;
     // Способ отображения координат в градусах
@@ -47,14 +50,21 @@ type
     show_point: TMarksShowType;
     FirstLat: Boolean;
     ShowMapName: Boolean;
+
+    //Зацикливать карту по горизонтали
+    CiclMap: Boolean;
+
     //Использовать тайлы предыдущих уровней для отображения
     UsePrevZoom: Boolean;
     //Инвертировать направление при зуме колесом мышки
     MouseWheelInv: Boolean;
     //Анимированный зум
     AnimateZoom: Boolean;
+    //При отображении сетки тайлов выводить подписи
+    ShowBorderText: Boolean;
 
 
+    //Пути к кешам разных типов
     NewCPath_: string;
     OldCPath_: string;
     ESCpath_: string;
