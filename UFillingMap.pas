@@ -82,7 +82,7 @@ begin
   LayerMap.Bitmap.Height:=yhgpx;
   LayerMap.Location:=Unit1.LayerMap.Location;
   LayerMap.Visible:=true;
-  dZoom:=zoom_mapzap-GState.zoom_size;
+  dZoom:=GState.zoom_mapzap-GState.zoom_size;
   x2:=trunc(power(2,dZoom));
   ClMZ:=SetAlpha(Color32(MapZapColor),MapZapAlpha);
   d2562:=256 shr dZoom;
@@ -137,31 +137,31 @@ begin
         ixT:=0;
         While ixT<(xyTiles) do begin
           xx:=ppaprx+(imd256x shl dZoom)+(ixT*256);
-          if (Terminated)or(needRepaint)or(stop)or(xx<0)or(xx>=zoom[zoom_mapzap]) then begin
+          if (Terminated)or(needRepaint)or(stop)or(xx<0)or(xx>=zoom[GState.zoom_mapzap]) then begin
             inc(ixT);
             continue;
           end;
           jxT:=0;
           While jxT<(xyTiles) do begin
             yy:=ppapry+(imd256y shl dZoom)+(jxT*256);
-            if (Terminated)or(needRepaint)or(stop)or(yy<0)or(yy>=zoom[zoom_mapzap]) then begin
+            if (Terminated)or(needRepaint)or(stop)or(yy<0)or(yy>=zoom[GState.zoom_mapzap]) then begin
               VTileExist:=true;
               inc(jxT);
               continue;
             end;
             //TODO: ¬еро€тно придетс€ отказатьс€ от такой оптимизации и позволить карте делать все самой.
-            VTileFileName := VMapType.GetTileFileName(xx,yy,zoom_mapzap);
+            VTileFileName := VMapType.GetTileFileName(xx,yy,GState.zoom_mapzap);
             VCurrFolderName := ExtractFilePath(VTileFileName);
             if VCurrFolderName=VPrevFolderName then begin
               if VPrevTileFolderExist then begin
-                VTileExist:=VMapType.TileExists(xx,yy,zoom_mapzap)
+                VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
               end else begin
                 VTileExist:=false
               end;
             end else begin
               VPrevTileFolderExist:=DirectoryExists(VCurrFolderName);
               if VPrevTileFolderExist then begin
-                VTileExist:=VMapType.TileExists(xx,yy,zoom_mapzap)
+                VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
               end else begin
                 VTileExist:=false;
               end;

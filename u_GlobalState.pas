@@ -12,12 +12,14 @@ type
     proxystr,loginstr,passstr:string;
   end;
 
-
+  TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
 
   TGlobalState = class
   private
 
   public
+    // Параметры программы
+
     // Способ отображения расстояний, и в частности масштаба
     num_format: TDistStrFormat;
     // Способ отображения координат в градусах
@@ -33,13 +35,23 @@ type
     DefCache: byte;
 
     GPS_enab: Boolean;
-    // Текущий зумм
-    zoom_size: byte;
 
     BorderColor: TColor;
     BorderAlpha: byte;
+
+    show_point: TMarksShowType;
+
     //????
     ShowHintOnMarks: Boolean;
+
+    // Параетры касающиеся именно главного окна
+
+    // Текущий зумм
+    zoom_size: byte;
+
+    // Зум карты заполения
+    zoom_mapzap: byte;
+
 
     constructor Create;
 

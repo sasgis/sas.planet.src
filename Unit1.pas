@@ -565,8 +565,6 @@ var
   Fmain:TFmain;
   PWL:TResObj;
 
-  zoom_mapzap,
-  show_point,
   zoom_line,
   poly_zoom_save:byte;
   marshrutcomment:string;
@@ -1689,7 +1687,7 @@ var lon_l,lon_r,lat_t,lat_d:real;
     imw,texth:integer;
     marksFilter:string;
 begin
- if (show_point=3) then
+ if (GState.show_point = mshNone) then
   begin
    LayerMapMarks.Visible:=false;
    exit;
@@ -1699,7 +1697,7 @@ begin
  lat_t:=Y2Lat(-(pr_y-mHd2));
  lat_d:=Y2Lat(pr_y+mHd2);
  marksFilter:='';
- if show_point=2 then
+ if GState.show_point = mshChecked then
   begin
    CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(GState.zoom_size)+' and BeforeScale >= '+inttostr(GState.zoom_size)+' )';
    CDSKategory.Filtered:=true;
@@ -2120,7 +2118,7 @@ end;
 
 procedure TFmain.generate_mapzap;
 begin
-  if (zoom_mapzap<=GState.zoom_size) then begin
+  if (GState.zoom_mapzap<=GState.zoom_size) then begin
     FillingMap.StopDrow;
   end else begin
     FillingMap.StartDrow;
@@ -2516,10 +2514,10 @@ begin
  sm_map.height:=Ini.readInteger('VIEW','SmMapH',160);
  sm_map.z1mz2:=Ini.readInteger('VIEW','SmMapDifference',4);
  sm_map.Alpha:=Ini.readInteger('VIEW','SmMapAlpha',220);
- show_point:=Ini.readinteger('VIEW','ShowPointType',2);
+ GState.show_point := TMarksShowType(Ini.readinteger('VIEW','ShowPointType',2));
  GState.Zoom_Size:=Ini.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=Ini.readinteger('VIEW','DefCache',2);
- zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
+ GState.zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
  zoom_line:=Ini.readinteger('VIEW','grid',0);
  mouse_inv:=Ini.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
@@ -2644,7 +2642,7 @@ begin
  start:=false;
 
  Ini.Free;
- if zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(zoom_mapzap)
+ if GState.zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
                    else TBMapZap.Caption:='';
  selectMap(sat_map_both);
  RxSlider1.Value:=GState.Zoom_size-1;
@@ -3223,13 +3221,13 @@ end;
 //карта заполнения в основном окне
 procedure TFmain.NFillMapClick(Sender: TObject);
 begin
- TBXToolPalette1.SelectedCell:=Point(zoom_mapzap mod 5,zoom_mapzap div 5);
+ TBXToolPalette1.SelectedCell:=Point(GState.zoom_mapzap mod 5,GState.zoom_mapzap div 5);
 end;
 
 procedure TFmain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
 begin
- zoom_mapzap:=(5*ARow)+ACol;
- if zoom_mapzap>0 then TBMapZap.Caption:='x'+inttostr(zoom_mapzap)
+ GState.zoom_mapzap:=(5*ARow)+ACol;
+ if GState.zoom_mapzap>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
                   else TBMapZap.Caption:='';
  generate_im(nilLastLoad,'');
 end;

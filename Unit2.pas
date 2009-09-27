@@ -101,12 +101,12 @@ var i:integer;
     arLL: TPointArray;
     poly:TExtendedPointArray;
 begin
- if show_point=3 then exit;
+ if GState.show_point = mshNone then exit;
  Fmain.CDSKategory.Filtered:=true;
  if Fmain.CDSKategory.Eof then exit;
  Fmain.CDSmarks.Filtered:=true;
  Fmain.CDSmarks.First;
- while (not(Fmain.CDSmarks.Eof))and((Fmain.CDSmarksvisible.AsBoolean)or(show_point=1)) do
+ while (not(Fmain.CDSmarks.Eof))and((Fmain.CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
   ll1:=Point(FMain.Lon2X(Fmain.CDSmarkslonL.AsFloat),FMain.Lat2y(Fmain.CDSmarkslatT.AsFloat));
   ll2:=Point(FMain.Lon2X(Fmain.CDSmarkslonR.AsFloat),FMain.Lat2y(Fmain.CDSmarkslatB.AsFloat));

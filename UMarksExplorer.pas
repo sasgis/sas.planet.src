@@ -174,10 +174,10 @@ procedure TFMarksExplorer.FormShow(Sender: TObject);
 var KategoryId:TCategoryId;
     i:integer;
 begin
- case show_point of
-  1: RBall.Checked:=true;
-  2: RBchecked.Checked:=true;
-  3: RBnot.Checked:=true;
+ case GState.show_point of
+  mshAll: RBall.Checked:=true;
+  mshChecked: RBchecked.Checked:=true;
+  mshNone: RBnot.Checked:=true;
  end;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
@@ -228,9 +228,9 @@ end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
- if RBall.Checked then show_point:=1;
- if RBchecked.Checked then show_point:=2;
- if RBnot.Checked then show_point:=3;
+ if RBall.Checked then GState.show_point := mshAll;
+ if RBchecked.Checked then GState.show_point := mshChecked;
+ if RBnot.Checked then GState.show_point := mshNone;
  close;
 end;
 

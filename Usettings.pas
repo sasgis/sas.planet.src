@@ -317,8 +317,8 @@ begin
  if LayerMapScale<>nil then Ini.Writebool('VIEW','showscale',LayerMapScale.Visible);
  Ini.WriteInteger('VIEW','SmMapDifference',sm_map.z1mz2);
  Ini.WriteInteger('VIEW','SmMapAlpha',sm_map.alpha);
- Ini.WriteInteger('VIEW','ShowPointType',show_point);
- Ini.Writeinteger('VIEW','MapZap',zoom_mapzap);
+ Ini.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
+ Ini.Writeinteger('VIEW','MapZap',GState.zoom_mapzap);
  Ini.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  Ini.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  Ini.Writebool('VIEW','CiclMap',CiclMap);
