@@ -568,8 +568,11 @@ const
 var
   Fmain:TFmain;
   PWL:TResObj;
-  zoom_size,zoom_mapzap,show_point,zoom_line,poly_zoom_save,resampling:byte;
-  All_Dwn_Kb:Currency;
+  zoom_size,
+  zoom_mapzap,
+  show_point,
+  zoom_line,
+  poly_zoom_save:byte;
   ShowActivHint,ShowHintOnMarks:boolean;
   GPS_enab:boolean;
   marshrutcomment:string;
@@ -1960,7 +1963,7 @@ begin
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
  // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
  subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),zoom_size),pos.y-(mHd2-m_m.y),zoom_size);
- LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
+ LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
  if LayerMinMap.Visible then LayerMinMap.BringToFront;
@@ -1998,25 +2001,7 @@ begin
    spr.Clear(Color32(clSilver) xor $00000000);
    exit;
   end;
- if resampling=1
-  then bmp.Resampler:=TLinearResampler.Create
-  else begin
-        bmp.Resampler:=TKernelResampler.Create;
-        case resampling of
-         0: TKernelResampler(bmp.Resampler).Kernel:=TBoxKernel.Create;
-         2: TKernelResampler(bmp.Resampler).Kernel:=TCosineKernel.Create;
-         3: TKernelResampler(bmp.Resampler).Kernel:=TSplineKernel.Create;
-         4: TKernelResampler(bmp.Resampler).Kernel:=TMitchellKernel.Create;
-         5: TKernelResampler(bmp.Resampler).Kernel:=TCubicKernel.Create;
-         6: TKernelResampler(bmp.Resampler).Kernel:=THermiteKernel.Create;
-         7: TKernelResampler(bmp.Resampler).Kernel:=TLanczosKernel.Create;
-         8: TKernelResampler(bmp.Resampler).Kernel:=TGaussianKernel.Create;
-         9: TKernelResampler(bmp.Resampler).Kernel:=TBlackmanKernel.Create;
-         10:TKernelResampler(bmp.Resampler).Kernel:=THannKernel.Create;
-         11:TKernelResampler(bmp.Resampler).Kernel:=THammingKernel.Create;
-         12:TKernelResampler(bmp.Resampler).Kernel:=TSinshKernel.Create;
-        end;
-       end;
+  bmp.Resampler := CreateResampler(GState.Resampling);
  c_x:=((x-(x mod 256))shr dZ)mod 256;
  c_y:=((y-(y mod 256))shr dZ)mod 256;
  try
@@ -2387,7 +2372,6 @@ begin
  ban_pg_ld:=true;
  mWd2:=map.Width shr 1;
  mHd2:=map.Height shr 1;
- All_Dwn_Kb:=0;
  All_Dwn_Tiles:=0;
  Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
  Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
@@ -2549,7 +2533,7 @@ begin
  TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
  GState.num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
  CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
- resampling:=Ini.Readinteger('VIEW','ResamlingType',1);
+ GState.Resampling := TTileResamplingType(Ini.Readinteger('VIEW','ResamlingType',1));
  GState.llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
  FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
  BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);

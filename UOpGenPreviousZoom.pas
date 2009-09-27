@@ -17,23 +17,23 @@ uses
   UGeoFun,
   unit4,
   UResStrings,
+  Uimgfun,
   t_GeoTypes;
 
 type
   TOpGenPreviousZoom = class(TThread)
-    InZooms:array of byte;
-    FromZoom:byte;
-    typemap:TMapType;
-    GenFormPrev:boolean;
-    PolygLL: TExtendedPointArray;
-    max,min:TPoint;
-    ProcessTiles:integer;
-    Resampler:integer;
     Replace:boolean;
     savefull:boolean;
+    GenFormPrev:boolean;
+    PolygLL: TExtendedPointArray;
+    FromZoom:byte;
+    InZooms:array of byte;
   private
+    typemap:TMapType;
+    max,min:TPoint;
+    ProcessTiles:integer;
 
-
+    Resampler:TTileResamplingType;
     polyg:TPointArray;
     Fprogress: TFprogress2;
     TileInProc:integer;
@@ -63,6 +63,7 @@ type
 implementation
 
 uses
+  u_GlobalState,
   unit1;
 
 constructor TOpGenPreviousZoom.Create(Azoom:byte;Atypemap:TMapType);
@@ -73,6 +74,7 @@ begin
  TileInProc:=0;
  FromZoom:=Azoom;
  typemap:=Atypemap;
+ Resampler := GState.Resampling;
 end;
 
 destructor TOpGenPreviousZoom.destroy;
@@ -158,25 +160,7 @@ var bmp2:TBitmap32;
     VZoom: Integer;
 begin
  bmp2:=TBitmap32.Create;
- if Resampler=1
-  then bmp.Resampler:=TLinearResampler.Create
-  else begin
-        bmp.Resampler:=TKernelResampler.Create;
-        case Resampler of
-         0: TKernelResampler(bmp.Resampler).Kernel:=TBoxKernel.Create;
-         2: TKernelResampler(bmp.Resampler).Kernel:=TCosineKernel.Create;
-         3: TKernelResampler(bmp.Resampler).Kernel:=TSplineKernel.Create;
-         4: TKernelResampler(bmp.Resampler).Kernel:=TMitchellKernel.Create;
-         5: TKernelResampler(bmp.Resampler).Kernel:=TCubicKernel.Create;
-         6: TKernelResampler(bmp.Resampler).Kernel:=THermiteKernel.Create;
-         7: TKernelResampler(bmp.Resampler).Kernel:=TLanczosKernel.Create;
-         8: TKernelResampler(bmp.Resampler).Kernel:=TGaussianKernel.Create;
-         9: TKernelResampler(bmp.Resampler).Kernel:=TBlackmanKernel.Create;
-         10:TKernelResampler(bmp.Resampler).Kernel:=THannKernel.Create;
-         11:TKernelResampler(bmp.Resampler).Kernel:=THammingKernel.Create;
-         12:TKernelResampler(bmp.Resampler).Kernel:=TSinshKernel.Create;
-        end;
-       end;
+ bmp.Resampler := CreateResampler(Resampler);
  TileInProc:=0;
  CurrentTile:=0;
  for i:=0 to length(InZooms)-1 do

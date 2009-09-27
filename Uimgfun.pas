@@ -10,26 +10,76 @@ uses
   SysUtils,
   Math,
   Types,
-  jpeg,
   GR32,
-  pngimage,
-  IJL,
-  RxGIF,
-  UMaptype;
+  pngimage;
 
 const
   FILE_DOES_NOT_EXIST = DWORD(-1);
+
+type
+  TTileResamplingType = (
+    trtBox = 0,
+    trtLinear = 1,
+    trtCosine = 2,
+    trtSpline = 3,
+    trtMitchell = 4,
+    trtCubic = 5,
+    trtHermite = 6,
+    trtLanczos = 7,
+    trtGaussian = 8,
+    trtBlackman = 9,
+    trtHannKernel = 10,
+    trtHamming = 11,
+    trtSinsh = 12
+  );
 
 var
   defoultMap:TBitmap;
   procedure SetDefoultMap;
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
+  function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
 
 implementation
 
 uses
+  GR32_Resamplers,
   unit1;
+
+function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
+begin
+  if AResampling = trtLinear then begin
+    Result := TLinearResampler.Create;
+  end else begin
+    Result:=TKernelResampler.Create;
+    case AResampling of
+      trtBox:
+        TKernelResampler(Result).Kernel:=TBoxKernel.Create;
+      trtCosine:
+        TKernelResampler(Result).Kernel:=TCosineKernel.Create;
+      trtSpline:
+        TKernelResampler(Result).Kernel:=TSplineKernel.Create;
+      trtMitchell:
+        TKernelResampler(Result).Kernel:=TMitchellKernel.Create;
+      trtCubic:
+        TKernelResampler(Result).Kernel:=TCubicKernel.Create;
+      trtHermite:
+        TKernelResampler(Result).Kernel:=THermiteKernel.Create;
+      trtLanczos:
+        TKernelResampler(Result).Kernel:=TLanczosKernel.Create;
+      trtGaussian:
+        TKernelResampler(Result).Kernel:=TGaussianKernel.Create;
+      trtBlackman:
+        TKernelResampler(Result).Kernel:=TBlackmanKernel.Create;
+      trtHannKernel:
+        TKernelResampler(Result).Kernel:=THannKernel.Create;
+      trtHamming:
+        TKernelResampler(Result).Kernel:=THammingKernel.Create;
+      trtSinsh:
+        TKernelResampler(Result).Kernel:=TSinshKernel.Create;
+    end;
+  end;
+end;
 
 procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
 var p:TPNGObject;

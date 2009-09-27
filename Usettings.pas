@@ -265,6 +265,7 @@ uses
   Math,
   u_GlobalState,
   u_GeoToStr,
+  Uimgfun,
   Unit1,
   UEditMap,
   UFillingMap,
@@ -321,7 +322,7 @@ begin
  Ini.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  Ini.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  Ini.Writebool('VIEW','CiclMap',CiclMap);
- Ini.Writeinteger('VIEW','ResamlingType',resampling);
+ Ini.Writeinteger('VIEW','ResamlingType',byte(GState.resampling));
  Ini.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
  Ini.WriteBool('VIEW','FirstLat',FirstLat);
  Ini.Writeinteger('VIEW','BorderAlpha',BorderAlpha);
@@ -498,7 +499,7 @@ begin
  ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  sm_map.alpha:=SpinEditMiniMap.Value;
- resampling:=ComboBox2.ItemIndex;
+ GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
  GPS_SizeStr:=SESizeStr.Value;
  GPS_SizeTrack:=SESizeTrack.Value;
@@ -697,7 +698,7 @@ begin
  SESizeTrack.Value:=GPS_SizeTrack;
  ScrolInvert.Checked:=mouse_inv;
  smmapdif.Value:=sm_map.z1mz2;
- ComboBox2.ItemIndex:=resampling;
+ ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:=GPS_com;
  ComboBoxBoudRate.Text:=inttostr(BaudRate);
  TrBarGamma.Position:=gamman;

@@ -89,6 +89,7 @@ uses
   DateUtils,
   StrUtils,
   Math,
+  u_GlobalState,
   u_GeoToStr,
   Unit1,
   UImgfun,
@@ -304,7 +305,7 @@ end;
 procedure ThreadAllLoadMap.addDwnTiles;
 begin
  inc(all_dwn_tiles);
- all_dwn_kb:=all_dwn_kb+(res/1024);
+ GState.all_dwn_kb := GState.all_dwn_kb + (res/1024);
 end;
 
 constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
