@@ -3,6 +3,7 @@ unit u_GlobalState;
 interface
 
 uses
+  Graphics,
   u_GeoToStr,
   Uimgfun;
 type
@@ -16,10 +17,17 @@ type
     llStrType: TDegrShowFormat;
     // Количество скачаных данных в килобайтах
     All_Dwn_Kb: Currency;
-
+    // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
+    //Способ храения кеша по-умолчанию.
+    DefCache: byte;
 
-//    PWL:TResObj;
+    GPS_enab: Boolean;
+
+    BorderColor: TColor;
+    BorderAlpha: byte;
+    //????
+    ShowHintOnMarks: Boolean;
 
     constructor Create;
 

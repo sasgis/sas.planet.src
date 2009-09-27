@@ -109,6 +109,7 @@ uses
   RxGIF,
   GR32_Resamplers,
   VCLUnZip,
+  u_GlobalState,
   Usettings,
   unit1,
   UGeoFun,
@@ -552,7 +553,7 @@ var os,prer:TPoint;
     SearchRec:TSearchRec;
 begin
 
- if (CacheType=0) then ct:=DefCache
+ if (CacheType=0) then ct:=GState.DefCache
                        else ct:=CacheType;
  if x>=0 then x:=x mod zoom[Azoom]
          else x:=zoom[Azoom]+(x mod zoom[Azoom]);

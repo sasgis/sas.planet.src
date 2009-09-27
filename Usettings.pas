@@ -298,7 +298,7 @@ begin
  Ini.WriteInteger('POSITION','y',FMain.POS.y);
  Ini.WriteInteger('POSITION','y',FMain.POS.y);
  Ini.Writebool('VIEW','line',Fmain.ShowLine.Checked);
- Ini.Writeinteger('VIEW','DefCache',DefCache);
+ Ini.Writeinteger('VIEW','DefCache',GState.DefCache);
  Ini.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
  Ini.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
  Ini.WriteInteger('VIEW','TilesOut',TilesOut);
@@ -325,8 +325,8 @@ begin
  Ini.Writeinteger('VIEW','ResamlingType',byte(GState.resampling));
  Ini.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
  Ini.WriteBool('VIEW','FirstLat',FirstLat);
- Ini.Writeinteger('VIEW','BorderAlpha',BorderAlpha);
- Ini.Writeinteger('VIEW','BorderColor',BorderColor);
+ Ini.Writeinteger('VIEW','BorderAlpha',GState.BorderAlpha);
+ Ini.Writeinteger('VIEW','BorderColor',GState.BorderColor);
  Ini.WriteBool('VIEW','BorderText',BorderText);
  Ini.Writeinteger('VIEW','localization',localization);
  Ini.Writeinteger('VIEW','GShScale',GShScale);
@@ -334,7 +334,7 @@ begin
  Ini.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
  Ini.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
  Ini.WriteInteger('VIEW','TilesOCache', MainFileCache.CacheElemensMaxCnt);
- Ini.WriteBool('VIEW','ShowHintOnMarks',ShowHintOnMarks);
+ Ini.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
  if Fillingmaptype=nil then Ini.WriteString('VIEW','FillingMap','0')
                        else Ini.WriteString('VIEW','FillingMap',Fillingmaptype.guids);
@@ -372,7 +372,7 @@ begin
  Ini.Writeinteger('COLOR_LEVELS','contrast',contrastn);
  Ini.WriteBool('COLOR_LEVELS','InvertColor',invertcolor);
 
- if GPS_enab then Ini.WriteBool('GPS','enbl',true)
+ if GState.GPS_enab then Ini.WriteBool('GPS','enbl',true)
                 else Ini.WriteBool('GPS','enbl',false);
  Ini.WriteBool('GPS','path',GPS_path);
  Ini.WriteBool('GPS','go',GPS_go);
@@ -483,7 +483,7 @@ begin
     end;
    k:=k shr 1;
   end;
- ShowHintOnMarks:=CBShowHintOnMarks.checked;
+ GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  MapZapColor:=MapZapColorBox.Selected;
  MapZapAlpha:=MapZapAlphaEdit.Value;
@@ -492,10 +492,10 @@ begin
  GoNextTile:=CkBGoNextTile.Checked;
  GPS_colorStr:=ColorBoxGPSstr.selected;
  invertcolor:=CBinvertcolor.Checked;
- BorderColor:=ColorBoxBorder.Selected;
- BorderAlpha:=SpinEditBorderAlpha.Value;
+ GState.BorderColor:=ColorBoxBorder.Selected;
+ GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  BorderText:=CBBorderText.Checked;
- DefCache:=RadioGroup1.itemindex+1;
+ GState.DefCache:=RadioGroup1.itemindex+1;
  ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  sm_map.alpha:=SpinEditMiniMap.Value;
@@ -660,7 +660,7 @@ begin
   RUS:CBoxLocal.ItemIndex:=0;
   ENU:CBoxLocal.ItemIndex:=1;
  end;
- CBShowHintOnMarks.Checked:=ShowHintOnMarks;
+ CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=MainFileCache.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=MapZapColor;
  MapZapAlphaEdit.Value:=MapZapAlpha;
@@ -679,10 +679,10 @@ begin
  ColorBoxGPSstr.Selected:=GPS_colorStr;
  CBinvertcolor.Checked:=invertcolor;
  PageControl1.ActivePageIndex:=0;
- ColorBoxBorder.Selected:=BorderColor;
- SpinEditBorderAlpha.Value:=BorderAlpha;
+ ColorBoxBorder.Selected:=GState.BorderColor;
+ SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=BorderText;
- RadioGroup1.ItemIndex:=DefCache-1;
+ RadioGroup1.ItemIndex:=GState.DefCache-1;
  CBShowmapname.Checked:=ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
  SpinEditMiniMap.Value:=sm_map.alpha;

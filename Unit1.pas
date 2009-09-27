@@ -462,6 +462,7 @@ type
       var hwnd: HWND; var szUserName, szPassWord: WideString;
       var Rezult: HRESULT);
   private
+    ShowActivHint:boolean;
    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
    procedure Set_lock_toolbars(const Value: boolean);
@@ -573,8 +574,6 @@ var
   show_point,
   zoom_line,
   poly_zoom_save:byte;
-  ShowActivHint,ShowHintOnMarks:boolean;
-  GPS_enab:boolean;
   marshrutcomment:string;
   mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale,
     zoom_in,mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
@@ -582,9 +581,8 @@ var
   notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
     mouse_inv,sparam,ban_pg_ld,LenShow,CiclMap,Maximized,GPS_path,GPS_go,sizing,dblDwnl,SaveTileNotExists:boolean;
   spr:TBitmap32;
-  DefCache:byte;
-  BorderColor,MapZapColor:TColor;
-  BorderAlpha,MapZapAlpha:byte;
+  MapZapColor:TColor;
+  MapZapAlpha:byte;
   sat_map_both:TMapType;
   marksicons:TStringList;
   movepoint,lastpoint:integer;
@@ -2060,21 +2058,21 @@ begin
      LonLatLT.X:=LonLatLT.X+zLonR;
      PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
      X2:=pr_x-(Pos.X-PosLT.X);
-     LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(BorderColor),BorderAlpha));
+     LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
      if ((x2-x1>30)and(y2-y1>7))and(BorderText) then
       begin
        ListName:=LonLat2GShListName(ExtPoint(LonLatLT.X-zLonR/2,LonLatLT.Y+zLatR/2),GShScale,GSHprec);
         twidth:=LayerMap.bitmap.TextWidth(ListName);
        theight:=LayerMap.bitmap.TextHeight(ListName);
        if (twidth+4<x2-x1)and(theight+4<y2-y1) then
-        LayerMap.bitmap.RenderTextW(x1+(x2-x1)div 2-(twidth div 2),y1+(y2-y1)div 2-(theight div 2),ListName,0,SetAlpha(Color32(BorderColor),BorderAlpha));
+        LayerMap.bitmap.RenderTextW(x1+(x2-x1)div 2-(twidth div 2),y1+(y2-y1)div 2-(theight div 2),ListName,0,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
       end;
      X1:=X2;
     end;
-   LayerMap.bitmap.LineAS(x1b,y1,x2,y1,SetAlpha(Color32(BorderColor),BorderAlpha));
+   LayerMap.bitmap.LineAS(x1b,y1,x2,y1,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
    LonLatLT.X:=LonLatLT.X+zLonR;
    PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
-   LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(BorderColor),BorderAlpha));
+   LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
    y1:=y2;
   end;
 end;
@@ -2106,8 +2104,8 @@ begin
      if (xx<0)or(yy<0)or(yy>=zoom[zl])or(xx>=zoom[zl]) then Continue;
      x1:=(i*d2562)-x_draw;
      y1:=(j*d2562)-y_draw;
-     LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,SetAlpha(Color32(BorderColor),BorderAlpha));
-     LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,SetAlpha(Color32(BorderColor),BorderAlpha));
+     LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
+     LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
      if BorderText then
        begin
         LayerMap.bitmap.Font.Size:=8;
@@ -2119,8 +2117,8 @@ begin
         if ((twidthx+6)<d2562)and((twidthy+6)<d2562) then
          begin
           theight:=LayerMap.bitmap.TextHeight(textoutx);
-          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthx div 2,(y1+d2562 div 2)-theight,textoutx,0,Color32(BorderColor));
-          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthy div 2,(y1+d2562 div 2),textouty,0,Color32(BorderColor));
+          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthx div 2,(y1+d2562 div 2)-theight,textoutx,0,Color32(GState.BorderColor));
+          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthy div 2,(y1+d2562 div 2),textouty,0,Color32(GState.BorderColor));
          end;
        end;
     end;
@@ -2170,7 +2168,7 @@ begin
  x_draw:=(256+((pos.x-pr_x)mod 256))mod 256;
  LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if aoper<>movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
- if GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ if GState.GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  destroyWL;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
@@ -2276,7 +2274,7 @@ begin
     if aoper=line then drawLineCalc;
     if aoper=reg then drawReg;
     if aoper=rect then drawRect([]);
-    if GPS_enab then drawLineGPS;
+    if GState.GPS_enab then drawLineGPS;
     if aoper in [add_line,add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
     try
      draw_point;
@@ -2526,7 +2524,7 @@ begin
  sm_map.Alpha:=Ini.readInteger('VIEW','SmMapAlpha',220);
  show_point:=Ini.readinteger('VIEW','ShowPointType',2);
  Zoom_Size:=Ini.ReadInteger('POSITION','zoom_size',1);
- DefCache:=Ini.readinteger('VIEW','DefCache',2);
+ GState.DefCache:=Ini.readinteger('VIEW','DefCache',2);
  zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
  zoom_line:=Ini.readinteger('VIEW','grid',0);
  mouse_inv:=Ini.readbool('VIEW','invert_mouse',false);
@@ -2536,8 +2534,8 @@ begin
  GState.Resampling := TTileResamplingType(Ini.Readinteger('VIEW','ResamlingType',1));
  GState.llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
  FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
- BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
- BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
+ GState.BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
+ GState.BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
  BorderText:=Ini.ReadBool('VIEW','BorderText',true);
  GShScale:=Ini.Readinteger('VIEW','GShScale',0);
  MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
@@ -2545,7 +2543,7 @@ begin
  lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
  MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
- ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
+ GState.ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
  Wikim_set.MainColor:=Ini.Readinteger('Wikimapia','MainColor',$FFFFFF);
  Wikim_set.FonColor:=Ini.Readinteger('Wikimapia','FonColor',$000001);
 
@@ -2556,7 +2554,7 @@ begin
  BaudRate:=Ini.ReadInteger('GPS','BaudRate',4800);
  GPS_timeout:=Ini.ReadInteger('GPS','timeout',15);
  GPS_update:=Ini.ReadInteger('GPS','update',1000);
- GPS_enab:=Ini.ReadBool('GPS','enbl',false);
+ GState.GPS_enab:=Ini.ReadBool('GPS','enbl',false);
  GPS_Log:=Ini.Readbool('GPS','log',true);
  GPS_SizeStr:=Ini.ReadInteger('GPS','SizeStr',25);
  GPS_SizeTrack:=Ini.ReadInteger('GPS','SizeTrack',5);
@@ -2623,8 +2621,8 @@ begin
  TTBXItem(FindComponent('NGShScale'+IntToStr(GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
  Ninvertcolor.Checked:=invertcolor;
- TBGPSconn.Checked:=GPS_enab;
- if GPS_enab then TBGPSconnClick(TBGPSconn);
+ TBGPSconn.Checked := GState.GPS_enab;
+ if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
  TBGPSPath.Checked:=GPS_path;
  NGPSPath.Checked:=GPS_path;
  TBGPSToPoint.Checked:=GPS_go;
@@ -3428,8 +3426,8 @@ begin
  NGPSconn.Checked:=TTBXitem(sender).Checked;
  TBGPSconn.Checked:=TTBXitem(sender).Checked;
  LayerMapGPS.Visible:=NGPSconn.Checked;
- GPS_enab:=TBGPSconn.Checked;
- if GPS_enab then
+ GState.GPS_enab := TBGPSconn.Checked;
+ if GState.GPS_enab then
   begin
    GPSReceiver.Delay:=GPS_update;
    GPSReceiver.ConnectionTimeout:=GPS_timeout;
@@ -4005,7 +4003,7 @@ begin
  except
  end;
  LayerMapGPS.Bitmap.Clear(clBlack);
- GPS_enab:=false;
+ GState.GPS_enab:=false;
  LayerMapGPS.Visible:=false;
  NGPSconn.Checked:=false;
  TBGPSconn.Checked:=false;
@@ -4258,7 +4256,7 @@ begin
    if aoper=line then drawLineCalc;
    if aoper=reg then drawReg;
    if aoper=rect then drawRect([]);
-   if GPS_enab then drawLineGPS;
+   if GState.GPS_enab then drawLineGPS;
    if aoper in [add_line,add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
   end;
  if (y=move.y)and(x=move.x)and(aoper=movemap)and(button=mbLeft) then
@@ -4427,7 +4425,7 @@ begin
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
-              if (LayerMapGPS.Visible)and(GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
+              if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
              end
         else m_m:=point(x,y);
@@ -4444,7 +4442,7 @@ begin
    Layer.Cursor:=curBuf;
   end;
  ShowActivHint:=false;
- if not(dwn)and((moveTrue.x<>X)or(moveTrue.y<>y))and(ShowHintOnMarks) then
+ if not(dwn)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
    PWL.S:=0;
    PWL.find:=false;
