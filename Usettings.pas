@@ -306,7 +306,7 @@ begin
  Ini.Writebool('VIEW','invert_mouse',mouse_inv);
  Ini.Writebool('VIEW','back_load',backload);
  Ini.Writebool('VIEW','animate',Fmain.Nanimate.Checked);
- Ini.Writebool('VIEW','FullScreen',vo_ves_ecran);
+ Ini.Writebool('VIEW','FullScreen',GState.FullScrean);
  ini.WriteInteger('VIEW','FLeft',Fmain.Left);
  ini.WriteInteger('VIEW','FTop',Fmain.Top);
  ini.WriteInteger('VIEW','FWidth',Fmain.Width);
@@ -370,7 +370,7 @@ begin
 
  Ini.Writeinteger('COLOR_LEVELS','gamma',gamman);
  Ini.Writeinteger('COLOR_LEVELS','contrast',contrastn);
- Ini.WriteBool('COLOR_LEVELS','InvertColor',invertcolor);
+ Ini.WriteBool('COLOR_LEVELS','InvertColor',GState.InvertColor);
 
  if GState.GPS_enab then Ini.WriteBool('GPS','enbl',true)
                 else Ini.WriteBool('GPS','enbl',false);
@@ -491,7 +491,7 @@ begin
  DblDwnl:=CBDblDwnl.Checked;
  GoNextTile:=CkBGoNextTile.Checked;
  GPS_colorStr:=ColorBoxGPSstr.selected;
- invertcolor:=CBinvertcolor.Checked;
+ GState.InvertColor:=CBinvertcolor.Checked;
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  BorderText:=CBBorderText.Checked;
@@ -677,7 +677,7 @@ begin
  EditLogin.Text:=GState.InetConnect.loginstr;
  EditPass.Text:=GState.InetConnect.passstr;
  ColorBoxGPSstr.Selected:=GPS_colorStr;
- CBinvertcolor.Checked:=invertcolor;
+ CBinvertcolor.Checked:=GState.InvertColor;
  PageControl1.ActivePageIndex:=0;
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;

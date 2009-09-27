@@ -571,9 +571,16 @@ var
   poly_zoom_save:byte;
   marshrutcomment:string;
   mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale,
-    zoom_in,mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
+    mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
   move,m_up,m_m,oldPOS,moveTrue:Tpoint;
-  notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
+  notpaint,
+  dwn,
+  start,
+  close_,
+  ShowMapName,
+  GoNextTile,
+  FirstLat,
+  backload,animate,BorderText,
     mouse_inv,sparam,ban_pg_ld,LenShow,CiclMap,Maximized,GPS_path,GPS_go,sizing,dblDwnl,SaveTileNotExists:boolean;
   spr:TBitmap32;
   sat_map_both:TMapType;
@@ -1139,7 +1146,7 @@ end;
 
 procedure InvertBitmap(Bitmap: TBitmap32);
 begin
- if invertcolor then InvertRGB(Bitmap,Bitmap);
+ if GState.InvertColor then InvertRGB(Bitmap,Bitmap);
 end;
 
 procedure Gamma(Bitmap: TBitmap32);
@@ -2317,9 +2324,9 @@ begin
 
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
  Maximized:=Ini.Readbool('VIEW','Maximized',true);
- vo_ves_ecran:=Ini.Readbool('VIEW','FullScreen',false);
- TBFullSize.Checked:=vo_ves_ecran;
-  if vo_ves_ecran then TBFullSizeClick(TBFullSize)
+ GState.FullScrean:=Ini.Readbool('VIEW','FullScreen',false);
+ TBFullSize.Checked:=GState.FullScrean;
+  if GState.FullScrean then TBFullSizeClick(TBFullSize)
                   else if Maximized
                         then Fmain.WindowState:=wsMaximized
                         else begin
@@ -2541,7 +2548,7 @@ begin
 
  gamman:=Ini.Readinteger('COLOR_LEVELS','gamma',50);
  contrastn:=Ini.Readinteger('COLOR_LEVELS','contrast',0);
- invertcolor:=Ini.ReadBool('COLOR_LEVELS','InvertColor',false);
+ GState.InvertColor:=Ini.ReadBool('COLOR_LEVELS','InvertColor',false);
  GPS_COM:=Ini.ReadString('GPS','com','COM0');
  BaudRate:=Ini.ReadInteger('GPS','BaudRate',4800);
  GPS_timeout:=Ini.ReadInteger('GPS','timeout',15);
@@ -2612,7 +2619,7 @@ begin
 
  TTBXItem(FindComponent('NGShScale'+IntToStr(GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
- Ninvertcolor.Checked:=invertcolor;
+ Ninvertcolor.Checked:=GState.InvertColor;
  TBGPSconn.Checked := GState.GPS_enab;
  if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
  TBGPSPath.Checked:=GPS_path;
@@ -2635,7 +2642,7 @@ begin
  NGPSToolBarShow.Checked:=GPSToolBar.Visible;
  NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
- TBFullSize.Checked:=vo_ves_ecran;
+ TBFullSize.Checked:=GState.FullScrean;
  NCiclMap.Checked:=CiclMap;
 
  toSh;
@@ -2836,7 +2843,6 @@ begin
  steps:=9;
  if GState.zoom_size>x
   then begin
-         zoom_in:=-1;
          w:=-steps*2;
          w1:=-steps;
 
@@ -2845,7 +2851,6 @@ begin
            POS:=Point(pos.x+(mWd2-m_m.X)div 2,pos.y+(mHd2-m_m.y)div 2);
        end
   else begin
-         zoom_in:=1;
          w:=steps;
          w1:=steps / 2;
          POS:=Point(trunc(pos.x*power(2,x-GState.zoom_size)),trunc(pos.y*power(2,x-GState.zoom_size)));
@@ -2935,7 +2940,7 @@ procedure TFmain.TBFullSizeClick(Sender:TObject);
 begin
  NFoolSize.Checked:=TBFullSize.Checked;
  TBexit.Visible:=TBFullSize.Checked;
- vo_ves_ecran:=TBFullSize.Checked;
+ GState.FullScrean:=TBFullSize.Checked;
  TBDock.Parent:=Fmain;
  TBDockLeft.Parent:=Fmain;
  TBDockBottom.Parent:=Fmain;
@@ -3849,7 +3854,7 @@ end;
 
 procedure TFmain.NinvertcolorClick(Sender: TObject);
 begin
- invertcolor:=Ninvertcolor.Checked;
+ GState.InvertColor:=Ninvertcolor.Checked;
  generate_im(nilLastLoad,''); 
 end;
 
@@ -4377,7 +4382,7 @@ begin
               end;
  if dwn then layer.Cursor:=3;
 
- if vo_ves_ecran then begin
+ if GState.FullScrean then begin
                        if y<10 then begin
                                      TBDock.Parent:=map;
                                      TBDock.Visible:=true;

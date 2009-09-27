@@ -42,7 +42,10 @@ type
     MapZapColor:TColor;
     MapZapAlpha:byte;
 
+    InvertColor: boolean;
+
     show_point: TMarksShowType;
+
 
     NewCPath_: string;
     OldCPath_: string;
@@ -54,6 +57,8 @@ type
     ShowHintOnMarks: Boolean;
 
     // Параетры касающиеся именно главного окна
+
+    FullScrean: Boolean;
 
     // Текущий зумм
     zoom_size: byte;
