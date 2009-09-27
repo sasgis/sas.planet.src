@@ -330,8 +330,8 @@ begin
  Ini.WriteBool('VIEW','BorderText',BorderText);
  Ini.Writeinteger('VIEW','localization',localization);
  Ini.Writeinteger('VIEW','GShScale',GShScale);
- Ini.Writeinteger('VIEW','MapZapColor',MapZapColor);
- Ini.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
+ Ini.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
+ Ini.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  Ini.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
  Ini.WriteInteger('VIEW','TilesOCache', MainFileCache.CacheElemensMaxCnt);
  Ini.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
@@ -485,8 +485,8 @@ begin
   end;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
- MapZapColor:=MapZapColorBox.Selected;
- MapZapAlpha:=MapZapAlphaEdit.Value;
+ GState.MapZapColor:=MapZapColorBox.Selected;
+ GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  FirstLat:=ChBoxFirstLat.Checked;
  DblDwnl:=CBDblDwnl.Checked;
  GoNextTile:=CkBGoNextTile.Checked;
@@ -662,8 +662,8 @@ begin
  end;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=MainFileCache.CacheElemensMaxCnt;
- MapZapColorBox.Selected:=MapZapColor;
- MapZapAlphaEdit.Value:=MapZapAlpha;
+ MapZapColorBox.Selected:=GState.MapZapColor;
+ MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=DblDwnl;
  ChBoxFirstLat.Checked:=FirstLat;
  CBlock_toolbars.Checked:=FMain.lock_toolbars;

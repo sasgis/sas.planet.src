@@ -84,7 +84,7 @@ begin
   LayerMap.Visible:=true;
   dZoom:=GState.zoom_mapzap-GState.zoom_size;
   x2:=trunc(power(2,dZoom));
-  ClMZ:=SetAlpha(Color32(MapZapColor),MapZapAlpha);
+  ClMZ:=SetAlpha(Color32(GState.MapZapColor),GState.MapZapAlpha);
   d2562:=256 shr dZoom;
   xyTiles:=1;
   if d2562=0 then begin

@@ -39,6 +39,9 @@ type
     BorderColor: TColor;
     BorderAlpha: byte;
 
+    MapZapColor:TColor;
+    MapZapAlpha:byte;
+
     show_point: TMarksShowType;
 
     //????

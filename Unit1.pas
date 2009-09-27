@@ -472,6 +472,7 @@ type
    Flock_toolbars:boolean;
    FTileSource:TTileSource;
    FPos:TPoint;
+   LayerStatBar: TBitmapLayer;
   public
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
@@ -574,8 +575,6 @@ var
   notpaint,invertcolor,dwn,start,close_,vo_ves_ecran,ShowMapName, GoNextTile, FirstLat,backload,animate,BorderText,
     mouse_inv,sparam,ban_pg_ld,LenShow,CiclMap,Maximized,GPS_path,GPS_go,sizing,dblDwnl,SaveTileNotExists:boolean;
   spr:TBitmap32;
-  MapZapColor:TColor;
-  MapZapAlpha:byte;
   sat_map_both:TMapType;
   marksicons:TStringList;
   movepoint,lastpoint:integer;
@@ -597,7 +596,7 @@ var
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
-  LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMinMap,LayerStatBar,LayerMapNal,LayerMapGPS: TBitmapLayer;
+  LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMinMap,LayerMapNal,LayerMapGPS: TBitmapLayer;
   h: THintWindow;
   oldLayerIndex:integer;
   curBuf:TCursor;
@@ -2530,8 +2529,8 @@ begin
  GState.BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
  BorderText:=Ini.ReadBool('VIEW','BorderText',true);
  GShScale:=Ini.Readinteger('VIEW','GShScale',0);
- MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
- MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
+ GState.MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
+ GState.MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
  MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
