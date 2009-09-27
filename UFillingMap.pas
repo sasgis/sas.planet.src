@@ -52,6 +52,7 @@ var
 implementation
 
 uses
+  u_GlobalState,
   unit1,
   USaveas;
 
@@ -81,7 +82,7 @@ begin
   LayerMap.Bitmap.Height:=yhgpx;
   LayerMap.Location:=Unit1.LayerMap.Location;
   LayerMap.Visible:=true;
-  dZoom:=zoom_mapzap-zoom_size;
+  dZoom:=zoom_mapzap-GState.zoom_size;
   x2:=trunc(power(2,dZoom));
   ClMZ:=SetAlpha(Color32(MapZapColor),MapZapAlpha);
   d2562:=256 shr dZoom;

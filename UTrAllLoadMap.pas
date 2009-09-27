@@ -119,7 +119,7 @@ begin
       typemap:=MapType[i];
      end;
    if typemap=nil then Terminate;
-   zoom:=Ini.ReadInteger('Session','zoom',zoom_size);
+   zoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
    zamena:=Ini.ReadBool('Session','zamena',false);
    raz:=Ini.ReadBool('Session','raz',false);
    zdate:=Ini.ReadBool('Session','zdate',false);
@@ -368,10 +368,10 @@ begin
        then dwindex:=strtoint(pchar(@dwtype));
       if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
        begin
-        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+        if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
          begin
-          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
           HttpSendRequest(hFile, nil, 0,Nil, 0);
          end;
         dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -457,7 +457,7 @@ end;
 procedure ThreadAllLoadMap.GetPos;
 begin
  Upos:= FMain.pos;
- Zoom:= zoom_size;
+ Zoom:= GState.zoom_size;
 end;
 
 function ThreadAllLoadMap.GetErrStr(Aerr:integer):string;

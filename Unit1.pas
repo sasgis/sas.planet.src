@@ -540,11 +540,6 @@ class   procedure delfrompath(pos:integer);
    nap:integer;
   end;
 
-  TInetConnect = record
-    proxyused,userwinset,uselogin:boolean;
-    proxystr,loginstr,passstr:string;
-  end;
-
   TNavOnMark = class
    id:integer;
    ll:TExtendedPoint;
@@ -569,7 +564,7 @@ const
 var
   Fmain:TFmain;
   PWL:TResObj;
-  zoom_size,
+
   zoom_mapzap,
   show_point,
   zoom_line,
@@ -590,7 +585,6 @@ var
   Find_Zoom:byte;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
-  InetConnect:TInetConnect;
   aoper:TAOperation;
   Deg:real;
   NewCPath_,OldCPath_,ESCpath_,GMTilespath_,GECachepath_,dwnlstr,GPS_COM:string;
@@ -709,7 +703,7 @@ begin
                             else
   begin
    change_scene:=true;
-   THLoadMap1:=ThreadAllLoadMap.Create(False,nil,4,NSRCinet.Checked,false,false,true,zoom_size,sat_map_both,date);
+   THLoadMap1:=ThreadAllLoadMap.Create(False,nil,4,NSRCinet.Checked,false,false,true,GState.zoom_size,sat_map_both,date);
    THLoadMap1.FreeOnTerminate:=true;
    THLoadMap1.Priority:=tpLower;
    THLoadMap1.OnTerminate:=ThreadDone;
@@ -1034,8 +1028,8 @@ begin
                  begin
                   m_m:=moveTrue;
                   if mouse_inv then z:=-1 else z:=1;
-                  if Msg.wParam<0 then Fmain.zooming(Zoom_size-(1*z),NGoToCur.Checked)
-                                  else Fmain.zooming(Zoom_size+(1*z),NGoToCur.Checked);
+                  if Msg.wParam<0 then Fmain.zooming(GState.Zoom_size-(1*z),NGoToCur.Checked)
+                                  else Fmain.zooming(GState.Zoom_size+(1*z),NGoToCur.Checked);
                  end;
    WM_KEYFIRST: begin
                  POSb:=POS;
@@ -1229,9 +1223,9 @@ begin
   xy2:=Point(Lon2X(rect_arr[1].x),Lat2Y(rect_arr[1].y) );
   LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
   LayerMapNal.Bitmap.Clear(clBlack);
-  if (zoom_line in [99,0])or(zoom_line<zoom_size)
+  if (zoom_line in [99,0])or(zoom_line<GState.zoom_size)
    then d256:=256
-   else d256:=256 div round(power(2,zoom_line-zoom_size));
+   else d256:=256 div round(power(2,zoom_line-GState.zoom_size));
   if xy1.x>xy2.x then begin
                        bxy:=xy2.x;
                        xy2.x:=xy1.x;
@@ -1268,20 +1262,20 @@ begin
         25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
         10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
     end;
-    LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8);
+    LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(pxy1,(GState.zoom_size - 1) + 8);
     LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
     LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if LonLatLT.X<0 then LonLatLT.X:=LonLatLT.X-zLonR;
     if LonLatLT.Y>0 then LonLatLT.Y:=LonLatLT.Y+zLatR;
-    xy1:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT, (zoom_size - 1) + 8);
+    xy1:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT, (GState.zoom_size - 1) + 8);
     xy1:=Point(mWd2-(pos.x-xy1.x),mHd2-(pos.y-xy1.y));
 
-    LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8);
+    LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(pxy2,(GState.zoom_size - 1) + 8);
     LonLatRD.X:=LonLatRD.X-(round(LonLatRD.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
     LonLatRD.Y:=LonLatRD.Y-(round(LonLatRD.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if LonLatRD.X>=0 then LonLatRD.X:=LonLatRD.X+zLonR;
     if LonLatRD.Y<=0 then LonLatRD.Y:=LonLatRD.Y-zLatR;
-    xy2:=sat_map_both.GeoConvert.LonLat2Pos(LonLatRD,(zoom_size - 1) + 8);
+    xy2:=sat_map_both.GeoConvert.LonLat2Pos(LonLatRD,(GState.zoom_size - 1) + 8);
     xy2:=Point(mWd2-(pos.x-xy2.x),mHd2-(pos.y-xy2.y));
     if (rect_p2) then
      begin
@@ -1291,7 +1285,7 @@ begin
       Poly[2] := LonLatRD;
       Poly[3] := extPoint(LonLatLT.X,LonLatRD.Y);
       Poly[4] := LonLatLT;
-      fsaveas.Show_(zoom_size,Poly);
+      fsaveas.Show_(GState.zoom_size,Poly);
       Poly := nil;
       rect_p2:=false;
       exit;
@@ -1300,13 +1294,13 @@ begin
   if (rect_p2) then
    begin
       SetLength(Poly, 5);
-      Poly[0] := sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8);
-      Poly[1] := sat_map_both.GeoConvert.Pos2LonLat(Point(pxy2.X,pxy1.Y),(zoom_size - 1) + 8);
-      Poly[2] := sat_map_both.GeoConvert.Pos2LonLat(pxy2,(zoom_size - 1) + 8);
-      Poly[3] := sat_map_both.GeoConvert.Pos2LonLat(Point(pxy1.X,pxy2.Y),(zoom_size - 1) + 8);
-      Poly[4] := sat_map_both.GeoConvert.Pos2LonLat(pxy1,(zoom_size - 1) + 8);
+      Poly[0] := sat_map_both.GeoConvert.Pos2LonLat(pxy1,(GState.zoom_size - 1) + 8);
+      Poly[1] := sat_map_both.GeoConvert.Pos2LonLat(Point(pxy2.X,pxy1.Y),(GState.zoom_size - 1) + 8);
+      Poly[2] := sat_map_both.GeoConvert.Pos2LonLat(pxy2,(GState.zoom_size - 1) + 8);
+      Poly[3] := sat_map_both.GeoConvert.Pos2LonLat(Point(pxy1.X,pxy2.Y),(GState.zoom_size - 1) + 8);
+      Poly[4] := sat_map_both.GeoConvert.Pos2LonLat(pxy1,(GState.zoom_size - 1) + 8);
 
-    fsaveas.Show_(zoom_size, Poly);
+    fsaveas.Show_(GState.zoom_size, Poly);
     Poly := nil;
     rect_p2:=false;
     exit;
@@ -1327,7 +1321,7 @@ begin
     jj:= round(Log2(kz))-5;
     LayerMapNal.Bitmap.FrameRectS(i-jj,j-jj,i+((xy2.x+kz-i)div kz)*kz+jj,j+((xy2.y+kz-j)div kz)*kz+jj,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
     LayerMapNal.Bitmap.Font.Size:=11;
-    LayerMapNal.Bitmap.RenderText(xy2.x-((xy2.x-xy1.x)div 2)-42+jj*26,xy2.y-((xy2.y-xy1.y)div 2)-6,'x'+inttostr(zoom_size+3-jj),3,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
+    LayerMapNal.Bitmap.RenderText(xy2.x-((xy2.x-xy1.x)div 2)-42+jj*26,xy2.y-((xy2.y-xy1.y)div 2)-6,'x'+inttostr(GState.zoom_size+3-jj),3,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
     kz:=kz div 2;
    end;
 end;
@@ -1707,7 +1701,7 @@ begin
  marksFilter:='';
  if show_point=2 then
   begin
-   CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(zoom_size)+' and BeforeScale >= '+inttostr(zoom_size)+' )';
+   CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(GState.zoom_size)+' and BeforeScale >= '+inttostr(GState.zoom_size)+' )';
    CDSKategory.Filtered:=true;
    marksFilter:=marksFilter+'visible=1';
    CDSKategory.First;
@@ -1757,8 +1751,8 @@ begin
      ms.ReadBuffer(arrLL^,ms.size);
      if (ms.size)>24 then
       begin
-       TestArrLenP1:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(CDSmarksLonL.AsFloat,CDSmarksLatT.AsFloat),(zoom_size - 1) + 8);
-       TestArrLenP2:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(CDSmarksLonR.AsFloat,CDSmarksLatB.AsFloat),(zoom_size - 1) + 8);
+       TestArrLenP1:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(CDSmarksLonL.AsFloat,CDSmarksLatT.AsFloat),(GState.zoom_size - 1) + 8);
+       TestArrLenP2:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(CDSmarksLonR.AsFloat,CDSmarksLatB.AsFloat),(GState.zoom_size - 1) + 8);
        if (abs(TestArrLenP1.X-TestArrLenP2.X)>CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>CDSmarksScale1.AsInteger+2) then
         begin
          SetLength(buf_line_arr,(ms.size div 24));
@@ -1808,7 +1802,7 @@ end;
 
 function TFmain.X2Lon(X:integer):extended;
 begin
- result:=((POS.x-(map.Width/2-X))-zoom[zoom_size]/2)/(zoom[zoom_size]/360);
+ result:=((POS.x-(map.Width/2-X))-zoom[GState.zoom_size]/2)/(zoom[GState.zoom_size]/360);
 end;
 
 function TFmain.Y2Lat(Y:integer):extended;
@@ -1816,38 +1810,38 @@ var Zum1,Zu,yy:extended;
 begin
  case sat_map_both.projection of
   1: begin
-      result:=((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2) /-(zoom[zoom_size]/(2*Pi));
+      result:=((POS.y-(map.Height/2-Y))-zoom[GState.zoom_size]/2) /-(zoom[GState.zoom_size]/(2*Pi));
       result:=(2*arctan(exp(result))-Pi/2)*180/Pi;
      end;
   2: begin
       yy:=POS.y-(map.Height/2-Y);
-      if ((POS.y-(map.Height/2-Y))>(zoom[zoom_size]/2))
-       then yy:=(zoom[zoom_size])-yy;
-      result:=((yy)-zoom[zoom_size]/2) /-(zoom[zoom_size]/(2*Pi));
+      if ((POS.y-(map.Height/2-Y))>(zoom[GState.zoom_size]/2))
+       then yy:=(zoom[GState.zoom_size])-yy;
+      result:=((yy)-zoom[GState.zoom_size]/2) /-(zoom[GState.zoom_size]/(2*Pi));
       result:=(2*arctan(exp(result))-Pi/2)*180/Pi;
       Zu:=result/(180/Pi);
-      yy:=((yy)-zoom[zoom_size]/2);
+      yy:=((yy)-zoom[GState.zoom_size]/2);
       repeat
        Zum1:=Zu;
-       Zu:=arcsin(1-((1+Sin(Zum1))*power(1-sat_map_both.exct*sin(Zum1),sat_map_both.exct))/(exp((2*yy)/-(zoom[zoom_size]/(2*Pi)))*power(1+sat_map_both.exct*sin(Zum1),sat_map_both.exct)));
+       Zu:=arcsin(1-((1+Sin(Zum1))*power(1-sat_map_both.exct*sin(Zum1),sat_map_both.exct))/(exp((2*yy)/-(zoom[GState.zoom_size]/(2*Pi)))*power(1+sat_map_both.exct*sin(Zum1),sat_map_both.exct)));
       until ((abs(Zum1-Zu)<MerkElipsK) or (isNAN(Zu)));
       if not(isNAN(Zu)) then
-       if ((POS.y-(map.Height/2-Y))>(zoom[zoom_size]/2))
+       if ((POS.y-(map.Height/2-Y))>(zoom[GState.zoom_size]/2))
          then result:=-zu*180/Pi
          else result:=zu*180/Pi;
      end;
-  3: result:=-((POS.y-(map.Height/2-Y))-zoom[zoom_size]/2)/(zoom[zoom_size]/360);
+  3: result:=-((POS.y-(map.Height/2-Y))-zoom[GState.zoom_size]/2)/(zoom[GState.zoom_size]/360);
  end;
 end;
 
 function TFmain.Lon2X(lon:real):integer;
 begin
- result:=mWd2-(POS.x-round(zoom[zoom_size]/2+Lon*(zoom[zoom_size]/360)));
+ result:=mWd2-(POS.x-round(zoom[GState.zoom_size]/2+Lon*(zoom[GState.zoom_size]/360)));
 end;
 
 function TFmain.Lon2Xf(lon:real):real;
 begin
- result:=mWd2-(POS.x-(zoom[zoom_size]/2+Lon*(zoom[zoom_size]/360)));
+ result:=mWd2-(POS.x-(zoom[GState.zoom_size]/2+Lon*(zoom[GState.zoom_size]/360)));
 end;
 
 function TFmain.Lat2Y(lat:real):integer;
@@ -1856,15 +1850,15 @@ begin
  case sat_map_both.projection of
   1: begin
       z:=sin(Lat*deg);
-      c:=(zoom[zoom_size]/(2*Pi));
-      result:=mHd2-(POS.y-round(zoom[zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
+      c:=(zoom[GState.zoom_size]/(2*Pi));
+      result:=mHd2-(POS.y-round(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
      end;
   2: begin
       z:=sin(Lat*deg);
-      c:=(zoom[zoom_size]/(2*Pi));
-      result:=mHd2-(POS.y-round(zoom[zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
+      c:=(zoom[GState.zoom_size]/(2*Pi));
+      result:=mHd2-(POS.y-round(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
      end;
-  3: result:=(mHd2-(POS.y-round(zoom[zoom_size]/2-Lat*(zoom[zoom_size]/360))));
+  3: result:=(mHd2-(POS.y-round(zoom[GState.zoom_size]/2-Lat*(zoom[GState.zoom_size]/360))));
  end;
 end;
 
@@ -1874,22 +1868,22 @@ begin
  case sat_map_both.projection of
   1: begin
       z:=sin(Lat*deg);
-      c:=(zoom[zoom_size]/(2*Pi));
-      result:=mHd2-(POS.y-(zoom[zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
+      c:=(zoom[GState.zoom_size]/(2*Pi));
+      result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
      end;
   2: begin
       z:=sin(Lat*deg);
-      c:=(zoom[zoom_size]/(2*Pi));
-      result:=mHd2-(POS.y-(zoom[zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
+      c:=(zoom[GState.zoom_size]/(2*Pi));
+      result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
      end;
-  3: result:=(mWd2-(POS.y-(zoom[zoom_size]/2+Lat*(zoom[zoom_size]/360))));
+  3: result:=(mWd2-(POS.y-(zoom[GState.zoom_size]/2+Lat*(zoom[GState.zoom_size]/360))));
  end;
 end;
 
 procedure TFmain.topos(lat,lon:real;zoom_:byte;draw:boolean);
 begin
  POS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(lon,lat),(zoom_ - 1) + 8);
- zoom_size:=zoom_;
+ GState.zoom_size:=zoom_;
  zooming(zoom_,false);
  if draw then LayerMap.Bitmap.Draw(pr_x-7,pr_y-6,GOToSelIcon);
 end;
@@ -1900,7 +1894,7 @@ var rnum,len_p,textstrt,textwidth:integer;
     temp,num:real;
 begin
  if not(LayerLineM.visible) then exit; 
- num:=106/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*deg)));
+ num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*deg)));
  if num>10000 then begin
                     num:=num/1000;
                     se:=' '+SAS_UNITS_km+'.';
@@ -1943,24 +1937,24 @@ var ll:TextendedPoint;
     posnext:integer;
     TameTZ:TDateTime;
 begin
- labZoom.caption:=' '+inttostr(zoom_size)+'x ';
- ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(zoom_size - 1) + 8);
+ labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
+ ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(GState.zoom_size - 1) + 8);
  if FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
              else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
  LayerStatBar.Bitmap.Clear(SetAlpha(clWhite32,160));
  LayerStatBar.Bitmap.Line(0,0,map.Width,0,SetAlpha(clBlack32,256));
- LayerStatBar.bitmap.RenderText(4,1,inttostr(zoom_size)+'x', 0, clBlack32);
+ LayerStatBar.bitmap.RenderText(4,1,inttostr(GState.zoom_size)+'x', 0, clBlack32);
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2 := DistToStrWithUnits(1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), GState.num_format)+SAS_UNITS_mperp;
+ subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), GState.num_format)+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
  // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
- subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),zoom_size),pos.y-(mHd2-m_m.y),zoom_size);
+ subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),GState.zoom_size),pos.y-(mHd2-m_m.y),GState.zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
@@ -2029,19 +2023,19 @@ begin
     10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
  end;
 
- LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x+pr_x,pos.y+pr_y), (zoom_size - 1) + 8);
+ LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x+pr_x,pos.y+pr_y), (GState.zoom_size - 1) + 8);
  LonLatRD:=ExtPoint(LonLatRD.x+zLonR,LonLatRD.y-zLatR);
  if LonLatRD.y<-90 then LonLatRD.y:=-90;
  if LonLatRD.x>180 then LonLatRd.x:=180;
- LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-pr_x,pos.y-pr_y), (zoom_size - 1) + 8);
+ LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-pr_x,pos.y-pr_y), (GState.zoom_size - 1) + 8);
  LonLatLT:=ExtPoint(LonLatLT.X-zLonR,LonLatLT.Y+zLatR);
  if LonLatLT.y>90 then LonLatLT.y:=90;
  if LonLatLT.x<-180 then LonLatLT.x:=-180;
  LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
  LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
 
- PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
- if sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(LonLatLT.x+zLonR,LonLatLT.y+zLatR),(zoom_size - 1) + 8).x-PosLT.x<4 then exit;
+ PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
+ if sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(LonLatLT.x+zLonR,LonLatLT.y+zLatR),(GState.zoom_size - 1) + 8).x-PosLT.x<4 then exit;
  bufLonLT:=LonLatLT.X;
 
  Y1:=pr_Y-(Pos.Y-PosLT.Y);
@@ -2049,14 +2043,14 @@ begin
   begin
    LonLatLT.Y:=LonLatLT.Y-zLatR;
    LonLatLT.X:=bufLonLT;
-   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
+   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
    Y2:=pr_Y-(Pos.Y-PosLT.Y);
    X1:=pr_x-(Pos.X-PosLT.X);
    X1b:=X1;
    while (LonLatLT.X+zLonR/2<LonLatRD.x) do
     begin
      LonLatLT.X:=LonLatLT.X+zLonR;
-     PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
+     PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
      X2:=pr_x-(Pos.X-PosLT.X);
      LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
      if ((x2-x1>30)and(y2-y1>7))and(BorderText) then
@@ -2071,7 +2065,7 @@ begin
     end;
    LayerMap.bitmap.LineAS(x1b,y1,x2,y1,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
    LonLatLT.X:=LonLatLT.X+zLonR;
-   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(zoom_size - 1) + 8);
+   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
    LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
    y1:=y2;
   end;
@@ -2084,10 +2078,10 @@ var y_draw,x_draw,xx,yy,xx1,yy1:longint;
     textoutx,textouty:string;
     d2562,x2,x1,y1,zl,twidthx,twidthy,theight:integer;
 begin
- if zoom_line=99 then zl:=zoom_size
+ if zoom_line=99 then zl:=GState.zoom_size
                  else zl:=zoom_line;
- if (zl<zoom_size)or(zl-zoom_size>5) then exit;
- x2:=trunc(power(2,zl-zoom_size));
+ if (zl<GState.zoom_size)or(zl-GState.zoom_size>5) then exit;
+ x2:=trunc(power(2,zl-GState.zoom_size));
  d2562:=256 div x2;
  src:=bounds(0,0,d2562,d2562);
  y_draw:=(256+((pos.y-pr_y)mod 256))mod 256;
@@ -2126,7 +2120,7 @@ end;
 
 procedure TFmain.generate_mapzap;
 begin
-  if (zoom_mapzap<=zoom_size) then begin
+  if (zoom_mapzap<=GState.zoom_size) then begin
     FillingMap.StopDrow;
   end else begin
     FillingMap.StartDrow;
@@ -2173,29 +2167,29 @@ begin
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
-    if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),zoom_size)
+    if CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),GState.zoom_size)
                else xx:=pos.x-pr_x+(i shl 8);
     yy:=pos.y-pr_y+(j shl 8);
     if xx>=0 then xx:=xx-(xx mod 256)
              else xx:=xx-(256-(abs(xx) mod 256));
     if yy>=0 then yy:=yy-(yy mod 256)
              else yy:=yy-(256-(abs(yy) mod 256));
-    if (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then
+    if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then
       begin
         spr.Clear(Color32(clSilver) xor $00000000);
         LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
         spr.Clear;
         continue;
       end;
-    if (sat_map_both.TileExists(xx,yy,zoom_size))
+    if (sat_map_both.TileExists(xx,yy,GState.zoom_size))
      then begin
-           if sat_map_both.LoadTile(spr,xx,yy,zoom_size,true)
+           if sat_map_both.LoadTile(spr,xx,yy,GState.zoom_size,true)
              then begin
-                    if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,zoom_size);
+                    if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
                   end
              else BadDraw(spr);
           end
-     else loadpre(spr,xx,yy,zoom_size,sat_map_both);
+     else loadpre(spr,xx,yy,GState.zoom_size,sat_map_both);
     Gamma(spr);
     LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
    end;
@@ -2213,29 +2207,29 @@ begin
       loadWL(MapType[Leyi]);
       continue;
      end;
-   posN:=sat_map_both.GeoConvert.Pos2OtherMap(POS,(zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
+   posN:=sat_map_both.GeoConvert.Pos2OtherMap(POS,(GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
    y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
    x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
    for i:=0 to hg_x do
     for j:=0 to hg_y do
       begin
-       if CiclMap then xx:=X2AbsX(posN.x-pr_x+(i shl 8),zoom_size)
+       if CiclMap then xx:=X2AbsX(posN.x-pr_x+(i shl 8),GState.zoom_size)
                   else xx:=posN.x-pr_x+(i shl 8);
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
-       if  (xx<0)or(yy<0)or(yy>=zoom[zoom_size])or(xx>=zoom[zoom_size]) then continue;
-       if (MapType[Leyi].TileExists(xx,yy,zoom_size)) then
+       if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+       if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then
         begin
          spr.DrawMode:=dmBlend;
          if LowerCase(MapType[Leyi].ext)='.png' then
           begin
            png:=TPNGObject.create;
            spr.Clear;
-           if MapType[Leyi].LoadTile(png,xx,yy,zoom_size,true)
+           if MapType[Leyi].LoadTile(png,xx,yy,GState.zoom_size,true)
             then begin
-                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,zoom_size);
+                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
                   PNGintoBitmap32(spr,png);
-                  if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,zoom_size);
+                  if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
                  end
             else BadDraw(spr);
            png.Free;
@@ -2243,9 +2237,9 @@ begin
          else
           begin
            spr.Clear($005f5f5f);
-           if MapType[Leyi].LoadTile(spr,xx,yy,zoom_size,true)
+           if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true)
            then begin
-                 if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,zoom_size);
+                 if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
                  spr.DrawMode:=dmBlend;
                  p := @spr.Bits[0];
                  for H:=0 to spr.Height-1 do
@@ -2507,12 +2501,12 @@ begin
  LayerStatBar.bitmap.Font.Name := 'arial';
  LayerStatBar.bitmap.Font.Size := 10;
 
- InetConnect.userwinset:=Ini.Readbool('INTERNET','userwinset',true);
- InetConnect.uselogin:=Ini.Readbool('INTERNET','uselogin',false);
- InetConnect.Proxyused:=Ini.Readbool('INTERNET','used_proxy',false);
- InetConnect.proxystr:=Ini.Readstring('INTERNET','proxy','');
- InetConnect.loginstr:=Ini.Readstring('INTERNET','login','');
- InetConnect.passstr:=Ini.Readstring('INTERNET','password','');
+ GState.InetConnect.userwinset:=Ini.Readbool('INTERNET','userwinset',true);
+ GState.InetConnect.uselogin:=Ini.Readbool('INTERNET','uselogin',false);
+ GState.InetConnect.Proxyused:=Ini.Readbool('INTERNET','used_proxy',false);
+ GState.InetConnect.proxystr:=Ini.Readstring('INTERNET','proxy','');
+ GState.InetConnect.loginstr:=Ini.Readstring('INTERNET','login','');
+ GState.InetConnect.passstr:=Ini.Readstring('INTERNET','password','');
  SaveTileNotExists:=Ini.ReadBool('INTERNET','SaveTileNotExists',false);
  dblDwnl:=Ini.ReadBool('INTERNET','DblDwnl',true);
  GoNextTile:=Ini.ReadBool('INTERNET','GoNextTile',false);
@@ -2523,7 +2517,7 @@ begin
  sm_map.z1mz2:=Ini.readInteger('VIEW','SmMapDifference',4);
  sm_map.Alpha:=Ini.readInteger('VIEW','SmMapAlpha',220);
  show_point:=Ini.readinteger('VIEW','ShowPointType',2);
- Zoom_Size:=Ini.ReadInteger('POSITION','zoom_size',1);
+ GState.Zoom_Size:=Ini.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=Ini.readinteger('VIEW','DefCache',2);
  zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
  zoom_line:=Ini.readinteger('VIEW','grid',0);
@@ -2567,8 +2561,8 @@ begin
  ESCpath_:=Ini.Readstring('PATHtoCACHE','ESC','cache_ES\');
  GMTilesPath_:=Ini.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
  GECachePath_:=Ini.Readstring('PATHtoCACHE','GECache','cache_GE\');
- POS:=Point(Ini.ReadInteger('POSITION','x',zoom[zoom_size]div 2 +1),
-            Ini.ReadInteger('POSITION','y',zoom[zoom_size]div 2 +1));
+ POS:=Point(Ini.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
+            Ini.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
  oldPOS:=pos;
 
  backload:=Ini.Readbool('VIEW','back_load',true);
@@ -2653,18 +2647,18 @@ begin
  if zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(zoom_mapzap)
                    else TBMapZap.Caption:='';
  selectMap(sat_map_both);
- RxSlider1.Value:=Zoom_size-1;
+ RxSlider1.Value:=GState.Zoom_size-1;
  notpaint:=false;
 
  if ParamCount > 1 then
  begin
   param:=paramstr(1);
   if param<>'' then For i:=0 to length(MapType)-1 do if MapType[i].guids=param then sat_map_both:=MapType[i];
-  if paramstr(2)<>'' then zoom_size:=strtoint(paramstr(2));
-  if (paramstr(3)<>'')and(paramstr(4)<>'') then POS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(zoom_size - 1) + 8);
+  if paramstr(2)<>'' then GState.zoom_size:=strtoint(paramstr(2));
+  if (paramstr(3)<>'')and(paramstr(4)<>'') then POS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(GState.zoom_size - 1) + 8);
  end;
 
- zooming(Zoom_size,false);
+ zooming(GState.Zoom_size,false);
  dwn:=false;
  Fsaveas.PageControl1.ActivePageIndex:=0;
 
@@ -2688,7 +2682,7 @@ begin
  Sm_Map.SmMapBitmap.Width:=256;
  Sm_Map.SmMapBitmap.Height:=256;
  Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
- pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
+ pos_sm:=Point(pos.X shr (GState.zoom_size-sm_map.zoom),pos.y shr (GState.zoom_size-sm_map.zoom));
  if sm_map.maptype=nil then m_t:=sat_map_both
                               else m_t:=sm_map.maptype;
  Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, m_t.GeoConvert);
@@ -2723,7 +2717,7 @@ begin
  for iLay:=0 to length(MapType)-1 do
   if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
   begin
-   pos_sm:=Point(pos.X shr (zoom_size-sm_map.zoom),pos.y shr (zoom_size-sm_map.zoom));
+   pos_sm:=Point(pos.X shr (GState.zoom_size-sm_map.zoom),pos.y shr (GState.zoom_size-sm_map.zoom));
    Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, MapType[iLay].GeoConvert);
    d:=Point((pos_sm.X-128),(pos_sm.y-128));
    if d.x<0 then d.x:=256+d.x;
@@ -2763,13 +2757,13 @@ begin
                          else LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height,sm_map.width+5,sm_map.height));
  LayerMinMap.Bitmap.Width:=sm_map.width+5;
  LayerMinMap.Bitmap.Height:=sm_map.height+5;
- sm_map.zoom:=zoom_size-sm_map.z1mz2;
- if zoom_size-sm_map.z1mz2<=0 then sm_map.zoom:=1;
+ sm_map.zoom:=GState.zoom_size-sm_map.z1mz2;
+ if GState.zoom_size-sm_map.z1mz2<=0 then sm_map.zoom:=1;
  if sm_map.zoom>1
   then begin
         if ((x=sm_map.width div 2)and(y=sm_map.height div 2))and(not sm_map.size_dw) then sm_im_reset_type2(x,y);
-        sm_map.dx:=round((sm_map.width/256)*((Fmain.map.Width/zoom[zoom_size])*zoom[sm_map.zoom]) );
-        sm_map.dy:=round((sm_map.height/256)*((Fmain.map.Height/zoom[zoom_size])*zoom[sm_map.zoom]) );
+        sm_map.dx:=round((sm_map.width/256)*((Fmain.map.Width/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
+        sm_map.dy:=round((sm_map.height/256)*((Fmain.map.Height/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
         sm_map.pos:=Point(x,y);
        end
   else begin
@@ -2785,10 +2779,10 @@ begin
             if not(MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false))
               then Sm_Map.SmMapBitmap.Assign(DefoultMap);
         if (x=sm_map.width div 2)and(y=sm_map.height div 2)
-         then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[zoom_size])),round(pos.y*(sm_map.height/zoom[zoom_size])))
+         then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[GState.zoom_size])),round(pos.y*(sm_map.height/zoom[GState.zoom_size])))
          else sm_map.pos:=Point(x,y);
-        sm_map.dx:=round(sm_map.width*(map.Width/zoom[zoom_size]));
-        sm_map.dy:=round(sm_map.height*(map.Height/zoom[zoom_size]));
+        sm_map.dx:=round(sm_map.width*(map.Width/zoom[GState.zoom_size]));
+        sm_map.dy:=round(sm_map.height*(map.Height/zoom[GState.zoom_size]));
        end;
  LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
  gamma(LayerMinMap.bitmap);
@@ -2804,12 +2798,12 @@ begin
     with Grow(Fixed(3.2 / 2), 0.5) do
      begin
       FillMode := pfWinding;
-      DrawFill(LayerMinMap.bitmap,SetAlpha(clNavy32,(zoom_size-sm_map.zoom)*43));
+      DrawFill(LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-sm_map.zoom)*43));
       free;
      end;
     free;
    end;
- Polygon.DrawFill(LayerMinMap.bitmap,SetAlpha(clWhite32,(zoom_size-sm_map.zoom)*35));
+ Polygon.DrawFill(LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
  Polygon.Free;
 
  LayerMinMap.bitmap.Canvas.brush.Color:=$e0e0e0;
@@ -2822,7 +2816,7 @@ begin
  LayerMinMap.bitmap.DrawMode:=dmBlend;
  LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
  if sm_map.z1mz2>1 then LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
- if zoom_size-sm_map.z1mz2>1 then LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
+ if GState.zoom_size-sm_map.z1mz2>1 then LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
  LayerMinMap.BringToFront;
 end;
 
@@ -2838,35 +2832,35 @@ begin
  NZoomOut.Enabled:=TBZoom_Out.Enabled;
  if (anim_zoom=1)or(dwn)or(x<1)or(x>24) then exit;
  anim_zoom:=1;
- labZoom.caption:=' '+inttostr(zoom_size)+'x ';
+ labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  labZoom.caption:=' '+inttostr(x)+'x ';
  RxSlider1.Value:=x-1;
  steps:=9;
- if zoom_size>x
+ if GState.zoom_size>x
   then begin
          zoom_in:=-1;
          w:=-steps*2;
          w1:=-steps;
 
-         POS:=Point(trunc(pos.x/power(2,zoom_size-x)),trunc(pos.y/power(2,zoom_size-x)));
-         if (move)and(abs(x-zoom_size)=1) then
+         POS:=Point(trunc(pos.x/power(2,GState.zoom_size-x)),trunc(pos.y/power(2,GState.zoom_size-x)));
+         if (move)and(abs(x-GState.zoom_size)=1) then
            POS:=Point(pos.x+(mWd2-m_m.X)div 2,pos.y+(mHd2-m_m.y)div 2);
        end
   else begin
          zoom_in:=1;
          w:=steps;
          w1:=steps / 2;
-         POS:=Point(trunc(pos.x*power(2,x-zoom_size)),trunc(pos.y*power(2,x-zoom_size)));
-         if (move)and(abs(x-zoom_size)=1) then
+         POS:=Point(trunc(pos.x*power(2,x-GState.zoom_size)),trunc(pos.y*power(2,x-GState.zoom_size)));
+         if (move)and(abs(x-GState.zoom_size)=1) then
            POS:=Point(pos.x-(mWd2-m_m.X),pos.y-(mHd2-m_m.y));
        end;
  LayerMapNal.Bitmap.Clear(clBlack);
  LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
- if (abs(x-zoom_size)=1)and(Nanimate.Checked)
+ if (abs(x-GState.zoom_size)=1)and(Nanimate.Checked)
    then for i:=0 to steps do
          begin
-          if (i>0) then if (zoom_size>x) then sleep(15) else sleep(10);
+          if (i>0) then if (GState.zoom_size>x) then sleep(15) else sleep(10);
           if (move)and(Nanimate.Checked) then
            LayerMap.Location:=
               floatrect(bounds(round(mWd2-pr_x-(pr_x/w*i)+((mWd2-m_m.X)/w1/2*i)),
@@ -2881,7 +2875,7 @@ begin
           if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
           application.ProcessMessages;
          end;
- zoom_size:=x;
+ GState.zoom_size:=x;
  generate_im(nilLastLoad,'');
  anim_zoom:=0;
  toSh;
@@ -2889,12 +2883,12 @@ end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
 begin
- zooming(zoom_size+1,false);
+ zooming(GState.zoom_size+1,false);
 end;
 
 procedure TFmain.NZoomOutClick(Sender: TObject);
 begin
- zooming(zoom_size-1,false);
+ zooming(GState.zoom_size-1,false);
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -2922,12 +2916,12 @@ end;
 
 procedure TFmain.TBZoom_outClick(Sender: TObject);
 begin
- zooming(Zoom_size-1,false);
+ zooming(GState.Zoom_size-1,false);
 end;
 
 procedure TFmain.TBZoomInClick(Sender: TObject);
 begin
- zooming(Zoom_size+1,false);
+ zooming(GState.Zoom_size+1,false);
 end;
 
 procedure TFmain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
@@ -3084,7 +3078,7 @@ var btm:TBitmap32;
     btm1:TBitmap;
 begin
  btm:=TBitmap32.Create;
- if sat_map_both.LoadTile(btm,X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size,false)
+ if sat_map_both.LoadTile(btm,X2absX(pos.x-(mWd2-move.x),GState.zoom_size),pos.y-(mHd2-move.y),GState.zoom_size,false)
   then begin
         btm1:=TBitmap.Create;
         btm1.Width:=256; btm1.Height:=256;
@@ -3098,7 +3092,7 @@ end;
 procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
- ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(zoom_size - 1) + 8);
+ ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(GState.zoom_size - 1) + 8);
  if FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
@@ -3106,7 +3100,7 @@ end;
 procedure TFmain.N15Click(Sender: TObject);
 begin
  // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
- CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size));
+ CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(pos.x-(mWd2-move.x),GState.zoom_size),pos.y-(mHd2-move.y),GState.zoom_size));
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
@@ -3117,13 +3111,13 @@ var path:string;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
- APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (zoom_size - 1) + 8, AMapType.GeoConvert);
+ APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (GState.zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
- path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
+ path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
  SetLength(Poly, 1);
  Poly[0] := Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y));
- if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
-   with ThreadAllLoadMap.Create(False, Poly, 1,true,false,false,true,zoom_size,AMapType,date) do
+ if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
+   with ThreadAllLoadMap.Create(False, Poly, 1,true,false,false,true,GState.zoom_size,AMapType,date) do
    begin
     FreeOnTerminate:=true;
     OnTerminate:=ThreadDone;
@@ -3158,14 +3152,14 @@ end;
 procedure TFmain.NopendirClick(Sender: TObject);
 begin
   // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
- ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size)),nil,nil,SW_SHOWNORMAL);
+ ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.N25Click(Sender: TObject);
 var s:string;
     i:integer;
 begin
- s:=sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),zoom_size);
+ s:=sat_map_both.GetTileFileName(pos.x-(mWd2-m_m.x),pos.y-(mHd2-m_m.y),GState.zoom_size);
  for i:=length(s) downto 0 do if s[i]='\'then break;
  // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
  ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
@@ -3178,13 +3172,13 @@ var s:string;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
- APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (zoom_size - 1) + 8, AMapType.GeoConvert);
+ APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (GState.zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
- s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
+ s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
-        if AMapType.TileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size) then
-          AMapType.DeleteTile(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),zoom_size);
+        if AMapType.TileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size) then
+          AMapType.DeleteTile(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
         generate_im(nilLastLoad,'');
        end;
        
@@ -3293,7 +3287,7 @@ begin
      MapType[i].TBItem.Checked:=MapType[i].active;
     end;
   end;
- topos(lat,lon,zoom_size,false);
+ topos(lat,lon,GState.zoom_size,false);
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -3325,10 +3319,10 @@ begin
            then dwindex:=strtoint(pchar(@dwtype));
           if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
            begin
-            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
              begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
               HttpSendRequest(hFile, nil, 0,Nil, 0);
              end;
             dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3370,7 +3364,7 @@ begin
            ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
            exit;
           end;
-          Fmain.toPos(lat,lon,zoom_size,true);
+          Fmain.toPos(lat,lon,GState.zoom_size,true);
           ShowMessage(SAS_STR_foundplace+' "'+strr+'"');
          end
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -3403,12 +3397,12 @@ var i:integer;
 begin
  if zoom_line=0 then NShowGran.Items[0].Checked:=true;
  if zoom_line=99 then NShowGran.Items[1].Checked:=true;
- NShowGran.Items[1].Caption:=SAS_STR_activescale+' (х'+inttostr(zoom_size)+')';
+ NShowGran.Items[1].Caption:=SAS_STR_activescale+' (х'+inttostr(GState.zoom_size)+')';
  for i:=2 to 7 do
-  if zoom_size+i-2<24 then begin
-                            NShowGran.Items[i].Caption:=SAS_STR_for+' х'+inttostr(zoom_size+i-2);
+  if GState.zoom_size+i-2<24 then begin
+                            NShowGran.Items[i].Caption:=SAS_STR_for+' х'+inttostr(GState.zoom_size+i-2);
                             NShowGran.Items[i].Visible:=true;
-                            NShowGran.Items[i].Tag:=zoom_size+i-2;
+                            NShowGran.Items[i].Tag:=GState.zoom_size+i-2;
                             if NShowGran.Items[i].Tag=zoom_line then NShowGran.Items[i].Checked:=true
                                                                 else NShowGran.Items[i].Checked:=false;
                            end
@@ -3475,7 +3469,7 @@ begin
               Poly[2] := ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k);
               Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
               Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
-              fsaveas.Show_(zoom_size, Poly);
+              fsaveas.Show_(GState.zoom_size, Poly);
               Poly := nil;
              End;
         Finally
@@ -3631,24 +3625,24 @@ end;
 procedure TFmain.Google1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
- CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(Apos.y)+','+R2StrPoint(Apos.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(zoom_size-1));
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(GState.zoom_size - 1) + 8);
+ CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(Apos.y)+','+R2StrPoint(Apos.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(GState.zoom_size-1));
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
 var Apos,AposLT,AposRD:tExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
- AposLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.X-mWd2,pos.Y-mHd2),(zoom_size - 1) + 8);
- AposRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.X+mWd2,pos.Y+mHd2),(zoom_size - 1) + 8);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(GState.zoom_size - 1) + 8);
+ AposLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.X-mWd2,pos.Y-mHd2),(GState.zoom_size - 1) + 8);
+ AposRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.X+mWd2,pos.Y+mHd2),(GState.zoom_size - 1) + 8);
  CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Apos.x*100000)/100000)+'%2C'+R2StrPoint(round(Apos.y*100000)/100000)+'&spn='+R2StrPoint(abs(AposLT.x-AposRD.x))+'%2C'+R2StrPoint(abs(AposLT.y-AposRD.y))+'&l=sat');
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
- CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(Apos.x)+'&y='+R2StrPoint(Apos.y)+'&z='+inttostr(zoom_size-1)+'&fullscreen=false&mode=satellite');
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(GState.zoom_size - 1) + 8);
+ CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(Apos.x)+'&y='+R2StrPoint(Apos.y)+'&z='+inttostr(GState.zoom_size-1)+'&fullscreen=false&mode=satellite');
 end;
 
 procedure TFmain.mapResize(Sender: TObject);
@@ -3723,10 +3717,10 @@ begin
            then dwindex:=strtoint(pchar(@dwtype));
           if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
            begin
-            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
              begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
               HttpSendRequest(hFile, nil, 0,Nil, 0);
              end;
             dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3783,10 +3777,10 @@ begin
            then dwindex:=strtoint(pchar(@dwtype));
           if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
            begin
-            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
              begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
               HttpSendRequest(hFile, nil, 0,Nil, 0);
              end;
             dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -3825,7 +3819,7 @@ begin
            ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
            exit;
           end;
-          Fmain.toPos(lat,lon,zoom_size,true);
+          Fmain.toPos(lat,lon,GState.zoom_size,true);
           ShowMessage(SAS_STR_foundplace+' "'+NewText+'"');
          end
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -3915,20 +3909,20 @@ end;
 procedure TFmain.livecom1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
- CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(Apos.y)+'~'+R2StrPoint(Apos.x)+'&style=h&lvl='+inttostr(zoom_size-1));
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(GState.zoom_size - 1) + 8);
+ CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(Apos.y)+'~'+R2StrPoint(Apos.x)+'&style=h&lvl='+inttostr(GState.zoom_size-1));
 end;
 
 procedure TFmain.N13Click(Sender: TObject);
 begin
- CopyStringToClipboard(sat_map_both.GetLink(X2absX(pos.x-(mWd2-move.x),zoom_size),pos.y-(mHd2-move.y),zoom_size));
+ CopyStringToClipboard(sat_map_both.GetLink(X2absX(pos.x-(mWd2-move.x),GState.zoom_size),pos.y-(mHd2-move.y),GState.zoom_size));
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
 var Apos:tExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
- CopyStringToClipboard('http://imageatlas.digitalglobe.com/ia-webapp/?lat='+R2StrPoint(Apos.y)+'&lon='+R2StrPoint(Apos.x)+'&zoom='+inttostr(zoom_size-1));
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(GState.zoom_size - 1) + 8);
+ CopyStringToClipboard('http://imageatlas.digitalglobe.com/ia-webapp/?lat='+R2StrPoint(Apos.y)+'&lon='+R2StrPoint(Apos.x)+'&zoom='+inttostr(GState.zoom_size-1));
 end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
@@ -3970,7 +3964,7 @@ begin
     GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GPS_arr[len-2], GPS_arr[len-1]);
   if not((dwn)or(anim_zoom=1))and(Fmain.Active) then
    begin
-    bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),(zoom_size - 1) + 8);
+    bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),(GState.zoom_size - 1) + 8);
     if (GPS_go)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
      then begin
            POS:=bpos;
@@ -4057,7 +4051,7 @@ begin
                    else if (x>ll+19)and(x<ll+33)and(y>lt+5)and(y<lt+15)
                          then begin
                                sm_map.zooming:=true;
-                               if zoom_size-sm_map.z1mz2>1 then inc(sm_map.z1mz2);
+                               if GState.zoom_size-sm_map.z1mz2>1 then inc(sm_map.z1mz2);
                                sm_im_reset(sm_map.width div 2,sm_map.height div 2);
                               end
                          else if (x>ll+5)and(y>lt) then
@@ -4077,9 +4071,9 @@ begin
  if (not(sm_map.size_dw))and(not(sm_map.zooming))and((x>LayerMinMap.Location.Left+5)and(y>LayerMinMap.Location.Top))
   then begin
         if sm_map.zoom>1 then
-         pos:=Point(pos.x+round((-(128-(sm_map.pos.x*(256/sm_map.width))))*power(2,zoom_size-sm_map.zoom)),
-              pos.y+round((-(128-(sm_map.pos.y*(256/sm_map.height))))*power(2,zoom_size-sm_map.zoom)))
-         else pos:=Point(round(sm_map.pos.X*(256/sm_map.height)*power(2,zoom_size-sm_map.zoom)),round((sm_map.pos.Y*(256/sm_map.height))*power(2,zoom_size-sm_map.zoom)));
+         pos:=Point(pos.x+round((-(128-(sm_map.pos.x*(256/sm_map.width))))*power(2,GState.zoom_size-sm_map.zoom)),
+              pos.y+round((-(128-(sm_map.pos.y*(256/sm_map.height))))*power(2,GState.zoom_size-sm_map.zoom)))
+         else pos:=Point(round(sm_map.pos.X*(256/sm_map.height)*power(2,GState.zoom_size-sm_map.zoom)),round((sm_map.pos.Y*(256/sm_map.height))*power(2,GState.zoom_size-sm_map.zoom)));
         Fmain.generate_im(nilLastLoad,'');
        end
   else sm_map.zooming:=false;
@@ -4201,20 +4195,20 @@ begin
  if (ssDouble in Shift) then exit;
  dwn:=false;
  if HiWord(GetKeyState(VK_DELETE))<>0 then
-  if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
-     ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
+  if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[GState.zoom_size])and
+     ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
   begin
-   sat_map_both.DeleteTile(Pos.x-(mWd2-X),Pos.y-(mHd2-y),zoom_size);
+   sat_map_both.DeleteTile(Pos.x-(mWd2-X),Pos.y-(mHd2-y),GState.zoom_size);
    generate_im(nilLastLoad,'');
    exit;
   end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then
-  if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[zoom_size])and
-     ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[zoom_size]) then
+  if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[GState.zoom_size])and
+     ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
   begin
     SetLength(Poly, 1);
     Poly[0] := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
-    with ThreadAllLoadMap.Create(False, Poly,1,true,false,false,true,zoom_size,sat_map_both,date) do
+    with ThreadAllLoadMap.Create(False, Poly,1,true,false,false,true,GState.zoom_size,sat_map_both,date) do
      begin
       FreeOnTerminate:=true;
       OnTerminate:=ThreadDone;
@@ -4528,8 +4522,8 @@ var Apos:TExtendedPoint;
 begin
 if SaveLink.Execute then
  begin
-   Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(zoom_size - 1) + 8);
-   param:=' '+sat_map_both.guids+' '+inttostr(zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
+   Apos:=sat_map_both.GeoConvert.Pos2LonLat(pos,(GState.zoom_size - 1) + 8);
+   param:=' '+sat_map_both.guids+' '+inttostr(GState.zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
    CreateLink(ParamStr(0),SaveLink.filename, '', param)
  end;
 end;
@@ -4615,7 +4609,7 @@ end;
 procedure TFmain.NSRTM3Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),(zoom_size - 1) + 8);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),(GState.zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
@@ -4624,7 +4618,7 @@ end;
 procedure TFmain.NGTOPO30Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),(zoom_size - 1) + 8);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(pos.x-(mWd2-move.x),pos.y-(mHd2-move.y)),(GState.zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
@@ -4825,7 +4819,7 @@ begin
          SetLength(reg_arr,length(reg_arr)+1);
          reg_arr[length(reg_arr)-1]:=reg_arr[0];
          LayerMapNal.Bitmap.Clear(clBlack);
-         Fsaveas.Show_(zoom_size,reg_arr);
+         Fsaveas.Show_(GState.zoom_size,reg_arr);
          setalloperationfalse(movemap);
         end;
   end;
@@ -4849,10 +4843,10 @@ end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 begin
- if InetConnect.uselogin then
+ if GState.InetConnect.uselogin then
   begin
-   szUserName:=InetConnect.loginstr;
-   szPassWord:=InetConnect.passstr;
+   szUserName:=GState.InetConnect.loginstr;
+   szPassWord:=GState.InetConnect.passstr;
   end;
 end;
 

@@ -7,6 +7,13 @@ uses
   u_GeoToStr,
   Uimgfun;
 type
+  TInetConnect = record
+    proxyused,userwinset,uselogin:boolean;
+    proxystr,loginstr,passstr:string;
+  end;
+
+
+
   TGlobalState = class
   private
 
@@ -17,12 +24,17 @@ type
     llStrType: TDegrShowFormat;
     // Количество скачаных данных в килобайтах
     All_Dwn_Kb: Currency;
+
+    InetConnect:TInetConnect;
+
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
     //Способ храения кеша по-умолчанию.
     DefCache: byte;
 
     GPS_enab: Boolean;
+    // Текущий зумм
+    zoom_size: byte;
 
     BorderColor: TColor;
     BorderAlpha: byte;

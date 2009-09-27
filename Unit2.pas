@@ -64,6 +64,7 @@ var
 
 implementation
 uses
+  u_GlobalState, 
   t_GeoTypes,
   unit1,
   UaddPoint,
@@ -175,7 +176,7 @@ end;
 procedure TFGoTo.FormActivate(Sender: TObject);
 begin
  if not(sender is TForm) then exit;
- CBzoom.ItemIndex:=zoom_size-1;
+ CBzoom.ItemIndex:=GState.zoom_size-1;
 end;
 
 procedure TFGoTo.FormClose(Sender: TObject; var Action: TCloseAction);

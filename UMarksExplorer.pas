@@ -101,6 +101,7 @@ implementation
 uses
   Math,
   DB,
+  u_GlobalState,
   Unit1,
   USaveas,
   UaddPoint,
@@ -313,7 +314,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
      then begin
-           Fsaveas.Show_(zoom_size,arLL);
+           Fsaveas.Show_(GState.zoom_size,arLL);
            Result:=true;
           end
      else ShowMessage(SAS_MSG_FunExForPoly);
@@ -383,7 +384,7 @@ procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
 begin
  if MarksListBox.ItemIndex>=0 then
   begin
-   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,zoom_size);
+   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.zoom_size);
   end;
 end;
 

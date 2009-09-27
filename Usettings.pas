@@ -293,7 +293,7 @@ begin
  SaveMaps;
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
  Ini.WriteBool('VIEW','ShowMapNameOnPanel',ShowMapName);
- Ini.WriteInteger('POSITION','zoom_size',Zoom_Size);
+ Ini.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
  Ini.WriteInteger('POSITION','x',FMain.POS.x);
  Ini.WriteInteger('POSITION','y',FMain.POS.y);
  Ini.WriteInteger('POSITION','y',FMain.POS.y);
@@ -390,12 +390,12 @@ begin
  Ini.Writestring('PATHtoCACHE','ESC',ESCpath_);
  Ini.Writestring('PATHtoCACHE','GMTiles',GMTilesPath_);
  Ini.Writestring('PATHtoCACHE','GECache',GECachePath_);
- Ini.Writebool('INTERNET','userwinset',InetConnect.userwinset);
- Ini.Writebool('INTERNET','uselogin',InetConnect.uselogin);
- Ini.Writebool('INTERNET','used_proxy',InetConnect.Proxyused);
- Ini.Writestring('INTERNET','proxy',InetConnect.proxystr);
- Ini.Writestring('INTERNET','login',InetConnect.loginstr);
- Ini.Writestring('INTERNET','password',InetConnect.passstr);
+ Ini.Writebool('INTERNET','userwinset',GState.InetConnect.userwinset);
+ Ini.Writebool('INTERNET','uselogin',GState.InetConnect.uselogin);
+ Ini.Writebool('INTERNET','used_proxy',GState.InetConnect.Proxyused);
+ Ini.Writestring('INTERNET','proxy',GState.InetConnect.proxystr);
+ Ini.Writestring('INTERNET','login',GState.InetConnect.loginstr);
+ Ini.Writestring('INTERNET','password',GState.InetConnect.passstr);
  Ini.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
  Ini.WriteBool('INTERNET','DblDwnl',dblDwnl);
  Ini.Writebool('INTERNET','GoNextTile',GoNextTile);
@@ -437,19 +437,19 @@ procedure SetProxy;
 var PIInfo : PInternetProxyInfo;
 begin
  New (PIInfo) ;
- if not(InetConnect.userwinset) then
+ if not(GState.InetConnect.userwinset) then
   begin
-   if InetConnect.proxyused then
+   if GState.InetConnect.proxyused then
     begin
      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
-     PIInfo^.lpszProxy := PChar(InetConnect.proxystr);
+     PIInfo^.lpszProxy := PChar(GState.InetConnect.proxystr);
      PIInfo^.lpszProxyBypass := nil;
      UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     end
    else
     begin
      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
-     PIInfo^.lpszProxy := nil; 
+     PIInfo^.lpszProxy := nil;
      PIInfo^.lpszProxyBypass := nil;
      UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     end;
@@ -510,13 +510,13 @@ begin
  GPS_com:=ComboBoxCOM.Text;
  BaudRate:=StrToint(ComboBoxBoudRate.Text);
  sm_map.z1mz2:=smmapdif.Value;
- if (RBWinCon.Checked)and(not InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
- InetConnect.userwinset:=RBWinCon.Checked;
- InetConnect.proxyused:=CBProxyused.Checked;
- InetConnect.uselogin:=CBLogin.Checked;
- InetConnect.proxystr:=EditIP.Text;
- InetConnect.loginstr:=EditLogin.Text;
- InetConnect.passstr:=EditPass.Text;
+ if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
+ GState.InetConnect.userwinset:=RBWinCon.Checked;
+ GState.InetConnect.proxyused:=CBProxyused.Checked;
+ GState.InetConnect.uselogin:=CBLogin.Checked;
+ GState.InetConnect.proxystr:=EditIP.Text;
+ GState.InetConnect.loginstr:=EditLogin.Text;
+ GState.InetConnect.passstr:=EditPass.Text;
  SaveTileNotExists:=CBSaveTileNotExists.Checked;
  Mouse_inv:=ScrolInvert.Checked;
  NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
@@ -668,14 +668,14 @@ begin
  ChBoxFirstLat.Checked:=FirstLat;
  CBlock_toolbars.Checked:=FMain.lock_toolbars;
  CkBGoNextTile.Checked:=GoNextTile;
- RBWinCon.Checked:=InetConnect.userwinset;
- RBMyCon.Checked:=not(InetConnect.userwinset);
- CBProxyused.Checked:=InetConnect.proxyused;
- CBLogin.Checked:=InetConnect.uselogin;
+ RBWinCon.Checked:=GState.InetConnect.userwinset;
+ RBMyCon.Checked:=not(GState.InetConnect.userwinset);
+ CBProxyused.Checked:=GState.InetConnect.proxyused;
+ CBLogin.Checked:=GState.InetConnect.uselogin;
  CBSaveTileNotExists.Checked:=SaveTileNotExists;
- EditIP.Text:=InetConnect.proxystr;
- EditLogin.Text:=InetConnect.loginstr;
- EditPass.Text:=InetConnect.passstr;
+ EditIP.Text:=GState.InetConnect.proxystr;
+ EditLogin.Text:=GState.InetConnect.loginstr;
+ EditPass.Text:=GState.InetConnect.passstr;
  ColorBoxGPSstr.Selected:=GPS_colorStr;
  CBinvertcolor.Checked:=invertcolor;
  PageControl1.ActivePageIndex:=0;

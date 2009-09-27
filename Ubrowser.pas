@@ -33,16 +33,17 @@ implementation
 
 uses
   SysUtils,
+  u_GlobalState,
   Unit1;
 
 {$R *.dfm}
 
 procedure TFbrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 begin
- if InetConnect.uselogin then
+ if GState.InetConnect.uselogin then
   begin
-   szUserName:=InetConnect.loginstr;
-   szPassWord:=InetConnect.passstr;
+   szUserName:=GState.InetConnect.loginstr;
+   szPassWord:=GState.InetConnect.passstr;
   end;
 end;
 
