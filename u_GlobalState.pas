@@ -44,6 +44,12 @@ type
 
     show_point: TMarksShowType;
 
+    NewCPath_: string;
+    OldCPath_: string;
+    ESCpath_: string;
+    GMTilespath_: string;
+    GECachepath_: string;
+
     //????
     ShowHintOnMarks: Boolean;
 

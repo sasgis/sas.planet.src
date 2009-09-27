@@ -473,6 +473,7 @@ type
    FTileSource:TTileSource;
    FPos:TPoint;
    LayerStatBar: TBitmapLayer;
+   LayerMinMap: TBitmapLayer;
   public
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
@@ -584,7 +585,7 @@ var
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
   Deg:real;
-  NewCPath_,OldCPath_,ESCpath_,GMTilespath_,GECachepath_,dwnlstr,GPS_COM:string;
+  dwnlstr,GPS_COM:string;
   GPS_arr_speed:array of real;
   length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
   GPS_popr:TExtendedPoint;
@@ -596,7 +597,7 @@ var
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
-  LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMinMap,LayerMapNal,LayerMapGPS: TBitmapLayer;
+  LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   h: THintWindow;
   oldLayerIndex:integer;
   curBuf:TCursor;
@@ -2553,11 +2554,11 @@ begin
  GPS_popr:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
  GPS_path:=Ini.ReadBool('GPS','path',true);
  GPS_go:=Ini.ReadBool('GPS','go',true);
- OldCpath_:=Ini.Readstring('PATHtoCACHE','GMVC','cache_old\');
- NewCpath_:=Ini.Readstring('PATHtoCACHE','SASC','cache\');
- ESCpath_:=Ini.Readstring('PATHtoCACHE','ESC','cache_ES\');
- GMTilesPath_:=Ini.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
- GECachePath_:=Ini.Readstring('PATHtoCACHE','GECache','cache_GE\');
+ GState.OldCpath_:=Ini.Readstring('PATHtoCACHE','GMVC','cache_old\');
+ GState.NewCpath_:=Ini.Readstring('PATHtoCACHE','SASC','cache\');
+ GState.ESCpath_:=Ini.Readstring('PATHtoCACHE','ESC','cache_ES\');
+ GState.GMTilesPath_:=Ini.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
+ GState.GECachePath_:=Ini.Readstring('PATHtoCACHE','GECache','cache_GE\');
  POS:=Point(Ini.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
             Ini.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
  oldPOS:=pos;

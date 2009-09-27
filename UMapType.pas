@@ -561,7 +561,7 @@ begin
  1:
  begin
    sbuf:=Format('%.*d', [2, Azoom]);
-   result:=OldCpath_;
+   result:=GState.OldCpath_;
    result:=result + NameInCache+'\'+sbuf+'\t';
    os.X:=zoom[Azoom]shr 1;
    os.Y:=zoom[Azoom]shr 1;
@@ -598,7 +598,7 @@ begin
  end;
  2:
  begin
-  result:=NewCpath_;
+  result:=GState.NewCpath_;
   x:=x shr 8;
   y:=y shr 8;
   result:=result+NameInCache+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+ext;
@@ -606,7 +606,7 @@ begin
  3:
  begin
    sbuf:=Format('%.*d', [2, Azoom]);
-   result:=ESCpath_;
+   result:=GState.ESCpath_;
    name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
    if Azoom<7
     then result:=result+NameInCache+'\'+sbuf+'\'
@@ -620,7 +620,7 @@ begin
  end;
  4,41:
  begin
-  result:=GMTilespath_;
+  result:=GState.GMTilespath_;
   x:=x shr 8;
   y:=y shr 8;
   if ct=4 then result:=result+NameInCache+format('\z%d\%d\%d'+ext,[Azoom-1,Y,X])
@@ -628,7 +628,7 @@ begin
  end;
  5:
  begin
-  result:=GECachepath_;
+  result:=GState.GECachepath_;
   result:=result+NameInCache;
   fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
   if (result[2]<>'\')and(system.pos(':',result)=0)
