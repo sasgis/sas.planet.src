@@ -58,6 +58,9 @@ uses
   u_GeoToStr,
   unit1,
   usaveas,
+  u_CoordConverterMercatorOnSphere,
+  u_CoordConverterMercatorOnEllipsoid,
+  u_CoordConverterSimpleLonLat,
   u_CoordConverterAbstract;
 
 procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
@@ -286,8 +289,10 @@ begin
  MapTypeMerS:=TMapType.Create;
  MapTypeMerS.projection:=1;
  MapTypeMerS.radiusa:=6378137;
- MapTypeMerS.radiusb:=6356752;
+ MapTypeMerS.radiusb:=6378137;
  MapTypeMerS.exct:=sqrt(sqr(MapTypeMerS.radiusa)-sqr(MapTypeMerS.radiusb))/MapTypeMerS.radiusa;
+ MapTypeMerS.FCoordConverter:=TCoordConverterMercatorOnSphere.Create(MapTypeMerS.radiusa);
+
  num_dwn:=0;
  persl:='';
  kti:='';
@@ -779,6 +784,7 @@ begin
  MapTypeMerS.radiusa:=6378137;
  MapTypeMerS.radiusb:=6356752;
  MapTypeMerS.exct:=sqrt(sqr(MapTypeMerS.radiusa)-sqr(MapTypeMerS.radiusb))/MapTypeMerS.radiusa;
+ MapTypeMerS.FCoordConverter:= TCoordConverterMercatorOnEllipsoid.Create(MapTypeMerS.Exct,MapTypeMerS.radiusa,MapTypeMerS.radiusb);
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
  persl:='';

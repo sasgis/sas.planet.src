@@ -27,7 +27,6 @@ uses
 type
  TMapType = class
    protected
-    FCoordConverter : ICoordConverter;
     FUrlGenerator : TUrlGenerator;
     TileRect:TRect;
     pos: integer;
@@ -68,6 +67,7 @@ type
     NameInCache:string;
     DefNameInCache:string;
     bmp18,bmp24:TBitmap;
+    FCoordConverter : ICoordConverter;
     function GetLink(x,y:longint;Azoom:byte):string;
     function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
