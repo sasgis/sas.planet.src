@@ -595,9 +595,7 @@ var
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
   Deg:real;
-  GPS_arr_speed:array of real;
-  length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
-  GPS_colorStr:TColor;
+  length_arr,add_line_arr:TExtendedPointArray;
   reg_arr,poly_save:TExtendedPointArray;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
@@ -754,10 +752,10 @@ begin
   if ks.X < ke.X then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   if D>dl+1
-   then Polygon.DrawFill(LayerMap.Bitmap, SetAlpha(Color32(GPS_colorStr), 150))
+   then Polygon.DrawFill(LayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
    else begin
-         LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GPS_colorStr), 150));
-         LayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GPS_colorStr), 150));
+         LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+         LayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
         end;
  Polygon.Free;
 end;
@@ -1402,30 +1400,30 @@ begin
  LayerMapGPS.Bitmap.Canvas.Pen.Style:=psSolid;
  LayerMapGPS.Bitmap.Canvas.Pen.Color:=clBlue;
  LayerMapGPS.Bitmap.Clear(clBlack);
- if length(GPS_arr_speed)>3 then
+ if length(GState.GPS_ArrayOfSpeed)>3 then
   begin
-   GPSpar.speed:=GPS_arr_speed[length(GPS_arr_speed)-1];
+   GPSpar.speed:=GState.GPS_ArrayOfSpeed[length(GState.GPS_ArrayOfSpeed)-1];
    GPSpar.sspeed:=0;
-   GPSpar.maxspeed:=GPS_arr_speed[1];
-   for i:=3 to length(GPS_arr_speed)-1 do
+   GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[1];
+   for i:=3 to length(GState.GPS_ArrayOfSpeed)-1 do
     begin
-     GPSpar.sspeed:=GPSpar.sspeed+GPS_arr_speed[i];
-     if GPS_arr_speed[i]>GPSpar.maxspeed then GPSpar.maxspeed:=GPS_arr_speed[i];
+     GPSpar.sspeed:=GPSpar.sspeed+GState.GPS_ArrayOfSpeed[i];
+     if GState.GPS_ArrayOfSpeed[i]>GPSpar.maxspeed then GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[i];
     end;
-   GPSpar.sspeed:=GPSpar.sspeed/(length(GPS_arr_speed)-3);
+   GPSpar.sspeed:=GPSpar.sspeed/(length(GState.GPS_ArrayOfSpeed)-3);
   end;
 
  with LayerMapGPS.Bitmap do
  if GState.GPS_ShowPath then
  begin
-  for i:=0 to length(GPS_arr)-2 do
+  for i:=0 to length(GState.GPS_TrackPoints)-2 do
    begin
-    k1:=point(Lon2X(GPS_arr[i].x),lat2Y(GPS_arr[i].y));
-    k2:=point(Lon2X(GPS_arr[i+1].x),Lat2Y(GPS_arr[i+1].y));
+    k1:=point(Lon2X(GState.GPS_TrackPoints[i].x),lat2Y(GState.GPS_TrackPoints[i].y));
+    k2:=point(Lon2X(GState.GPS_TrackPoints[i+1].x),Lat2Y(GState.GPS_TrackPoints[i+1].y));
     k1:=Point(k1.X+(pr_x-mWd2),k1.y+(pr_y-mHd2));
     k2:=Point(k2.X+(pr_x-mWd2),k2.y+(pr_y-mHd2));
-    if (GPS_arr_speed[i]>0)and(GPSpar.maxspeed>0)
-                          then speed:=round(255/(GPSpar.maxspeed/GPS_arr_speed[i]))
+    if (GState.GPS_ArrayOfSpeed[i]>0)and(GPSpar.maxspeed>0)
+                          then speed:=round(255/(GPSpar.maxspeed/GState.GPS_ArrayOfSpeed[i]))
                           else speed:=0;
     if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
       begin
@@ -1446,11 +1444,11 @@ begin
    end;
  end;
 
- if length(GPS_arr)>1 then
+ if length(GState.GPS_TrackPoints)>1 then
  try
-  ke:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-1].x),lat2Yf(GPS_arr[length(GPS_arr)-1].y));
+  ke:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].x),lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].y));
   ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
-  ks:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-2].x),Lat2Yf(GPS_arr[length(GPS_arr)-2].y));
+  ks:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2].x),Lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2].y));
   ks:=extPoint(ks.X+(pr_x-mWd2),ks.y+(pr_y-mHd2));
   dl:=GState.GPS_ArrowSize;
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
@@ -1468,13 +1466,13 @@ begin
   Angle:=ArcTan(TanOfAngle)-0.28;
   if ks.X < ke.X then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-  Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GPS_colorStr), 150));
+  Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
  except
  end;
 
- if length(GPS_arr)>0 then
+ if length(GState.GPS_TrackPoints)>0 then
   begin
-   ke:=extpoint(Lon2Xf(GPS_arr[length(GPS_arr)-1].x),lat2Yf(GPS_arr[length(GPS_arr)-1].y));
+   ke:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].x),lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].y));
    ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
    SizeTrackd2:=GState.GPS_ArrowSize div 6;
    LayerMapGPS.Bitmap.FillRectS(round(ke.x-SizeTrackd2),round(ke.y-SizeTrackd2),round(ke.x+SizeTrackd2),round(ke.y+SizeTrackd2),SetAlpha(clRed32, 200));
@@ -1495,7 +1493,7 @@ begin
  LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
  if (NavOnMark<>nil) then
   begin
-   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GPS_arr[length(GPS_arr)-1],NavOnMark.ll), GState.num_format);
+   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
    LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
    LayerMapGPS.Bitmap.Font.Size:=8;
    LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
@@ -2555,7 +2553,7 @@ begin
  GState.GPS_WriteLog:=Ini.Readbool('GPS','log',true);
  GState.GPS_ArrowSize:=Ini.ReadInteger('GPS','SizeStr',25);
  GPS_SizeTrack:=Ini.ReadInteger('GPS','SizeTrack',5);
- GPS_colorStr:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961}); //clBlue32
+ GState.GPS_ArrowColor:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961});
  GState.GPS_Correction:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
  GState.GPS_ShowPath:=Ini.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=Ini.ReadBool('GPS','go',true);
@@ -3597,8 +3595,8 @@ if (SaveDlg.Execute)and(SaveDlg.FileName<>'') then
 	Writeln(f,'	<altitudeMode>absolute</altitudeMode>');
 	Writeln(f,' <coordinates>');
   Fprogress2.ProgressBar1.Progress1:=80;
-  for i:=0 to length(GPS_arr)-1 do
-   Writeln(f,R2strPoint(GPS_arr[i].x),',',R2strPoint(GPS_arr[i].y),',0');
+  for i:=0 to length(GState.GPS_TrackPoints)-1 do
+   Writeln(f,R2strPoint(GState.GPS_TrackPoints[i].x),',',R2strPoint(GState.GPS_TrackPoints[i].y),',0');
   Writeln(f,' </coordinates>');
   Fprogress2.ProgressBar1.Progress1:=90;
 	Writeln(f,'</LineString>');
@@ -3613,8 +3611,8 @@ end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
 begin
- if length(GPS_arr)>1 then begin
-                            if FaddLine.show_(GPS_arr,true) then
+ if length(GState.GPS_TrackPoints)>1 then begin
+                            if FaddLine.show_(GState.GPS_TrackPoints,true) then
                              begin
                               setalloperationfalse(movemap);
                               generate_im(nilLastLoad,'');
@@ -3954,18 +3952,18 @@ var s2f,sb:string;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
 begin
  if (GPSReceiver.IsFix=0) then exit;
- setlength(GPS_arr,length(GPS_arr)+1);
- len:=length(GPS_arr);
- GPS_arr[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GState.GPS_Correction.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GState.GPS_Correction.y);
- if (GPS_arr[len-1].x<>0)or(GPS_arr[len-1].y<>0) then
+ setlength(GState.GPS_TrackPoints,length(GState.GPS_TrackPoints)+1);
+ len:=length(GState.GPS_TrackPoints);
+ GState.GPS_TrackPoints[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GState.GPS_Correction.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GState.GPS_Correction.y);
+ if (GState.GPS_TrackPoints[len-1].x<>0)or(GState.GPS_TrackPoints[len-1].y<>0) then
   begin
-  setlength(GPS_arr_speed,len);
-  GPS_arr_speed[len-1]:=FMain.GPSReceiver.GetSpeed_KMH;
+  setlength(GState.GPS_ArrayOfSpeed,len);
+  GState.GPS_ArrayOfSpeed[len-1]:=FMain.GPSReceiver.GetSpeed_KMH;
   if len>1 then
-    GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GPS_arr[len-2], GPS_arr[len-1]);
+    GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
   if not((dwn)or(anim_zoom=1))and(Fmain.Active) then
    begin
-    bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),(GState.zoom_size - 1) + 8);
+    bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
     if (GState.GPS_MapMove)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
      then begin
            POS:=bpos;
@@ -3978,16 +3976,16 @@ begin
    end;
   if GState.GPS_WriteLog then
    begin
-    if length(GPS_arr)=1 then sb:='1' else sb:='0';
+    if length(GState.GPS_TrackPoints)=1 then sb:='1' else sb:='0';
     DecodeDate(Date, xYear, xMonth, xDay);
     DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
-    s2f:=R2StrPoint(round(GPS_arr[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GPS_arr[len-1].x*10000000)/10000000)+','+sb+','+'-777'+','+
+    s2f:=R2StrPoint(round(GState.GPS_TrackPoints[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GState.GPS_TrackPoints[len-1].x*10000000)/10000000)+','+sb+','+'-777'+','+
                     floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','+
                     inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
     Writeln(GState.GPS_LogFile,s2f);
    end;
   end
-  else setlength(GPS_arr,length(GPS_arr)-1);
+  else setlength(GState.GPS_TrackPoints,length(GState.GPS_TrackPoints)-1);
 end;
 
 procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
@@ -4531,8 +4529,8 @@ end;
 
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
- setlength(GPS_arr_speed,0);
- setlength(GPS_arr,0);
+ setlength(GState.GPS_ArrayOfSpeed,0);
+ setlength(GState.GPS_TrackPoints,0);
  GPSpar.len:=0;
  GPSpar.speed:=0;
  GPSpar.sspeed:=0;

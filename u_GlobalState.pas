@@ -47,6 +47,8 @@ type
     GPS_Correction: TExtendedPoint;
     //Размер указателя направления при GPS-навигации
     GPS_ArrowSize: Integer;
+    //Цвет указателя направления при навигацци
+    GPS_ArrowColor: TColor;
     //Отображать GPS трек
     GPS_ShowPath: Boolean;
     //Центрировать карту на GPS позиции
@@ -55,8 +57,10 @@ type
     GPS_WriteLog: boolean;
     //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
     GPS_LogFile: TextFile;
-
-
+    //Массив со значенимя скоростей полученными от GPS
+    GPS_ArrayOfSpeed: array of Real;
+    //Точки GPS трека
+    GPS_TrackPoints: TExtendedPointArray;
 
     BorderColor: TColor;
     BorderAlpha: byte;

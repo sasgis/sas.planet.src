@@ -384,7 +384,7 @@ begin
  Ini.WriteBool('GPS','log',GState.GPS_WriteLog);
  Ini.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  Ini.WriteInteger('GPS','SizeTrack',GPS_SizeTrack);
- Ini.WriteInteger('GPS','ColorStr',GPS_colorStr);
+ Ini.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  Ini.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  Ini.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
  Ini.Writestring('PATHtoCACHE','ESC',GState.ESCpath_);
@@ -490,7 +490,7 @@ begin
  GState.FirstLat:=ChBoxFirstLat.Checked;
  DblDwnl:=CBDblDwnl.Checked;
  GoNextTile:=CkBGoNextTile.Checked;
- GPS_colorStr:=ColorBoxGPSstr.selected;
+ GState.GPS_ArrowColor:=ColorBoxGPSstr.selected;
  GState.InvertColor:=CBinvertcolor.Checked;
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
@@ -676,7 +676,7 @@ begin
  EditIP.Text:=GState.InetConnect.proxystr;
  EditLogin.Text:=GState.InetConnect.loginstr;
  EditPass.Text:=GState.InetConnect.passstr;
- ColorBoxGPSstr.Selected:=GPS_colorStr;
+ ColorBoxGPSstr.Selected:=GState.GPS_ArrowColor;
  CBinvertcolor.Checked:=GState.InvertColor;
  PageControl1.ActivePageIndex:=0;
  ColorBoxBorder.Selected:=GState.BorderColor;
