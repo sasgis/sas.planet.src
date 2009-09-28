@@ -380,7 +380,7 @@ begin
  Ini.WriteInteger('GPS','BaudRate',GState.GPS_BaudRate);
  Ini.WriteFloat('GPS','popr_lon',GState.GPS_Correction.x);
  Ini.WriteFloat('GPS','popr_lat',GState.GPS_Correction.y);
- Ini.Writeinteger('GPS','update',GPS_update);
+ Ini.Writeinteger('GPS','update',GState.GPS_Delay);
  Ini.WriteBool('GPS','log',GState.GPS_WriteLog);
  Ini.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  Ini.WriteInteger('GPS','SizeTrack',GPS_SizeTrack);
@@ -503,9 +503,9 @@ begin
 
  GState.GPS_ArrowSize:=SESizeStr.Value;
  GPS_SizeTrack:=SESizeTrack.Value;
- GPS_timeout:=SpinEdit2.Value;
+ GState.GPS_TimeOut:=SpinEdit2.Value;
  GState.GPS_WriteLog:=CB_GPSlog.Checked;
- GPS_update:=SpinEdit1.Value;
+ GState.GPS_Delay:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPS_COM:=ComboBoxCOM.Text;
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
@@ -691,9 +691,9 @@ begin
  ESCPath.text:=GState.ESCPath_;
  GMTilesPath.text:=GState.GMTilesPath_;
  GECachePath.text:=GState.GECachePath_;
- SpinEdit2.Value:=GPS_timeout;
+ SpinEdit2.Value:=GState.GPS_TimeOut;
  CB_GPSlog.Checked:=GState.GPS_WriteLog;
- SpinEdit1.Value:=GPS_update;
+ SpinEdit1.Value:=GState.GPS_Delay;
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GPS_SizeTrack;
  ScrolInvert.Checked:=GState.MouseWheelInv;

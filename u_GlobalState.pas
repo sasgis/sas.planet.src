@@ -50,10 +50,15 @@ type
     DefCache: byte;
 
     GPS_enab: Boolean;
-    //Скорость GPS COM порта
-    GPS_BaudRate: Integer;
+
     //COM-порт, к которому подключен GPS
     GPS_COM: string;
+    //Скорость GPS COM порта
+    GPS_BaudRate: Integer;
+    // Максимальное время ожидания данных от GPS
+    GPS_TimeOut: integer;
+    // Интервал между точками от GPS
+    GPS_Delay: Integer;
     //Поправка GPS
     GPS_Correction: TExtendedPoint;
     //Размер указателя направления при GPS-навигации

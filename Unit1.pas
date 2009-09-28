@@ -578,7 +578,15 @@ var
   vo_ves_ecr,
   anim_zoom,
   GShScale,
-    mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
+  mWd2,
+  mHd2,
+  yhgpx,
+  xhgpx,
+  hg_x,
+  hg_y,
+  pr_x,
+  pr_y,
+  GPS_SizeTrack:integer;
   move,m_up,m_m,oldPOS,moveTrue:Tpoint;
   notpaint,
   dwn,
@@ -2546,8 +2554,8 @@ begin
  GState.InvertColor:=Ini.ReadBool('COLOR_LEVELS','InvertColor',false);
  GState.GPS_COM:=Ini.ReadString('GPS','com','COM0');
  GState.GPS_BaudRate:=Ini.ReadInteger('GPS','BaudRate',4800);
- GPS_timeout:=Ini.ReadInteger('GPS','timeout',15);
- GPS_update:=Ini.ReadInteger('GPS','update',1000);
+ GState.GPS_TimeOut:=Ini.ReadInteger('GPS','timeout',15);
+ GState.GPS_Delay:=Ini.ReadInteger('GPS','update',1000);
  GState.GPS_enab:=Ini.ReadBool('GPS','enbl',false);
  GState.GPS_WriteLog:=Ini.Readbool('GPS','log',true);
  GState.GPS_ArrowSize:=Ini.ReadInteger('GPS','SizeStr',25);
@@ -3420,8 +3428,8 @@ begin
  GState.GPS_enab := TBGPSconn.Checked;
  if GState.GPS_enab then
   begin
-   GPSReceiver.Delay:=GPS_update;
-   GPSReceiver.ConnectionTimeout:=GPS_timeout;
+   GPSReceiver.Delay:=GState.GPS_Delay;
+   GPSReceiver.ConnectionTimeout:=GState.GPS_TimeOut;
    GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPS_COM);
    if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(GState.GPS_BaudRate) then
      GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(GState.GPS_BaudRate);
