@@ -63,7 +63,7 @@ begin
     if TilesAtZoom>1 then begin
       if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
       if (XY.y>TilesAtZoom/2) then begin
-        yy:=(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2));
+        yy:=(TilesAtZoom)-XY.y;//(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2));
       end else begin
         yy:=XY.y;
       end;

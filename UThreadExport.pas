@@ -726,7 +726,7 @@ end;
 
 
 procedure ThreadExport.export2YaMaps(APolyLL:TExtendedPointArray);
-var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
+var p_x,p_y,p_xd256,p_yd256,i,j,ci,cj,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:TPointArray;
     pathto,persl,perzoom,kti:string;
@@ -741,6 +741,8 @@ var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     PList:Text;
     LLCenter:TExtendedPoint;
     gif:TGIFImage;
+    tic:longint;
+    BtmRGB,PngRGB:PByte;
 begin
  try
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
@@ -763,8 +765,9 @@ begin
  bmp:=TBitmap.Create;
  bmp.Width:=sizeim;
  bmp.Height:=sizeim;
- png:=tpngobject.createblank(COLOR_RGB, 8, sizeim,sizeim);
- ///png.Assign(bmp);
+ png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
+ png.CompressionLevel:=cMap;
+///png.Assign(bmp);
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
  bmp32.DrawMode:=dmBlend;
@@ -865,19 +868,21 @@ begin
             if j=1 then
              begin
               bmp.Assign(bmp32);
-              gif.Assign(bmp);
-              bmp.Width:=png.Width;
-              bmp.Height:=png.Height;
-              bmp.PixelFormat:=pf8bit;
-              bmp.Palette:=GIF.Bitmap.Palette;
+              bmp:=ReduceColors(bmp, rmQuantize, dmNearest, 6, bmp.Palette);
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  bmp.Canvas.CopyRect(Bounds(0,0,sizeim,sizeim),GIF.Bitmap.Canvas,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim));
-                  png.Assign(bmp);
-//                  png.SaveToFile('c:\1.png');
+                  BtmRGB:=Pointer(integer(bmp.Scanline[(sizeim*yi)])+(sizeim*xi));
+                  PngRGB:=png.Scanline[0];
+                  for cj:=(sizeim*yi) to (sizeim*yi)+(sizeim-1) do
+                   begin
+                    CopyMemory(PngRGB,BtmRGB,sizeim);
+                    DEC(BtmRGB, bmp.Width);
+                    DEC(PngRGB, png.Width);
+                   end;
+                  png.Palette:=bmp.Palette;
+                  //png.SaveToFile('c:\1.png');
                   TileStream.Clear;
-                  png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
                 end;
