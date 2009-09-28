@@ -47,6 +47,15 @@ type
     GPS_Correction: TExtendedPoint;
     //Размер указателя направления при GPS-навигации
     GPS_ArrowSize: Integer;
+    //Отображать GPS трек
+    GPS_ShowPath: Boolean;
+    //Центрировать карту на GPS позиции
+    GPS_MapMove: Boolean;
+    //Заисывать GPS трек в файл
+    GPS_WriteLog: boolean;
+    //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
+    GPS_LogFile: TextFile;
+
 
 
     BorderColor: TColor;

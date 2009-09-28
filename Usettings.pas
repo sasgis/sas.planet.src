@@ -374,14 +374,14 @@ begin
 
  if GState.GPS_enab then Ini.WriteBool('GPS','enbl',true)
                 else Ini.WriteBool('GPS','enbl',false);
- Ini.WriteBool('GPS','path',GPS_path);
- Ini.WriteBool('GPS','go',GPS_go);
+ Ini.WriteBool('GPS','path',GState.GPS_ShowPath);
+ Ini.WriteBool('GPS','go',GState.GPS_MapMove);
  Ini.WriteString('GPS','COM',GState.GPS_COM);
  Ini.WriteInteger('GPS','BaudRate',GState.GPS_BaudRate);
  Ini.WriteFloat('GPS','popr_lon',GState.GPS_Correction.x);
  Ini.WriteFloat('GPS','popr_lat',GState.GPS_Correction.y);
  Ini.Writeinteger('GPS','update',GPS_update);
- Ini.WriteBool('GPS','log',GPS_Log);
+ Ini.WriteBool('GPS','log',GState.GPS_WriteLog);
  Ini.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  Ini.WriteInteger('GPS','SizeTrack',GPS_SizeTrack);
  Ini.WriteInteger('GPS','ColorStr',GPS_colorStr);
@@ -504,7 +504,7 @@ begin
  GState.GPS_ArrowSize:=SESizeStr.Value;
  GPS_SizeTrack:=SESizeTrack.Value;
  GPS_timeout:=SpinEdit2.Value;
- GPS_Log:=CB_GPSlog.Checked;
+ GState.GPS_WriteLog:=CB_GPSlog.Checked;
  GPS_update:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPS_COM:=ComboBoxCOM.Text;
@@ -692,7 +692,7 @@ begin
  GMTilesPath.text:=GState.GMTilesPath_;
  GECachePath.text:=GState.GECachePath_;
  SpinEdit2.Value:=GPS_timeout;
- CB_GPSlog.Checked:=GPS_Log;
+ CB_GPSlog.Checked:=GState.GPS_WriteLog;
  SpinEdit1.Value:=GPS_update;
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GPS_SizeTrack;

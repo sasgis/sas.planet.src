@@ -582,8 +582,6 @@ var
   ban_pg_ld,
   LenShow,
   Maximized,
-  GPS_path,
-  GPS_go,
   sizing,
   dblDwnl,
   SaveTileNotExists:boolean;
@@ -599,9 +597,7 @@ var
   Deg:real;
   GPS_arr_speed:array of real;
   length_arr,add_line_arr,GPS_arr:TExtendedPointArray;
-  GPS_Log:boolean;
   GPS_colorStr:TColor;
-  GPS_LogFile:TextFile;
   reg_arr,poly_save:TExtendedPointArray;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
@@ -1420,7 +1416,7 @@ begin
   end;
 
  with LayerMapGPS.Bitmap do
- if GPS_path then
+ if GState.GPS_ShowPath then
  begin
   for i:=0 to length(GPS_arr)-2 do
    begin
@@ -2556,13 +2552,13 @@ begin
  GPS_timeout:=Ini.ReadInteger('GPS','timeout',15);
  GPS_update:=Ini.ReadInteger('GPS','update',1000);
  GState.GPS_enab:=Ini.ReadBool('GPS','enbl',false);
- GPS_Log:=Ini.Readbool('GPS','log',true);
+ GState.GPS_WriteLog:=Ini.Readbool('GPS','log',true);
  GState.GPS_ArrowSize:=Ini.ReadInteger('GPS','SizeStr',25);
  GPS_SizeTrack:=Ini.ReadInteger('GPS','SizeTrack',5);
  GPS_colorStr:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961}); //clBlue32
  GState.GPS_Correction:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
- GPS_path:=Ini.ReadBool('GPS','path',true);
- GPS_go:=Ini.ReadBool('GPS','go',true);
+ GState.GPS_ShowPath:=Ini.ReadBool('GPS','path',true);
+ GState.GPS_MapMove:=Ini.ReadBool('GPS','go',true);
  GState.OldCpath_:=Ini.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=Ini.Readstring('PATHtoCACHE','SASC','cache\');
  GState.ESCpath_:=Ini.Readstring('PATHtoCACHE','ESC','cache_ES\');
@@ -2624,10 +2620,10 @@ begin
  Ninvertcolor.Checked:=GState.InvertColor;
  TBGPSconn.Checked := GState.GPS_enab;
  if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
- TBGPSPath.Checked:=GPS_path;
- NGPSPath.Checked:=GPS_path;
- TBGPSToPoint.Checked:=GPS_go;
- NGPSToPoint.Checked:=GPS_go;
+ TBGPSPath.Checked:=GState.GPS_ShowPath;
+ NGPSPath.Checked:=GState.GPS_ShowPath;
+ TBGPSToPoint.Checked:=GState.GPS_MapMove;
+ NGPSToPoint.Checked:=GState.GPS_MapMove;
  Nbackload.Checked:=GState.UsePrevZoom;
  Nanimate.Checked:=GState.AnimateZoom;
 
@@ -3450,14 +3446,14 @@ procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
  NGPSPath.Checked:=TTBXitem(sender).Checked;
  TBGPSPath.Checked:=TTBXitem(sender).Checked;
- GPS_path:=TBGPSPath.Checked;
+ GState.GPS_ShowPath:=TBGPSPath.Checked;
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
 begin
  NGPSToPoint.Checked:=TTBXitem(sender).Checked;
  TBGPSToPoint.Checked:=TTBXitem(sender).Checked;
- GPS_go:=TBGPSToPoint.Checked;
+ GState.GPS_MapMove:=TBGPSToPoint.Checked;
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
@@ -3970,7 +3966,7 @@ begin
   if not((dwn)or(anim_zoom=1))and(Fmain.Active) then
    begin
     bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GPS_arr[len-1].X,GPS_arr[len-1].Y),(GState.zoom_size - 1) + 8);
-    if (GPS_go)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
+    if (GState.GPS_MapMove)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
      then begin
            POS:=bpos;
            generate_im(nilLastLoad,'');
@@ -3980,7 +3976,7 @@ begin
            toSh;
           end;
    end;
-  if GPS_Log then
+  if GState.GPS_WriteLog then
    begin
     if length(GPS_arr)=1 then sb:='1' else sb:='0';
     DecodeDate(Date, xYear, xMonth, xDay);
@@ -3988,7 +3984,7 @@ begin
     s2f:=R2StrPoint(round(GPS_arr[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GPS_arr[len-1].x*10000000)/10000000)+','+sb+','+'-777'+','+
                     floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','+
                     inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
-    Writeln(GPS_logfile,s2f);
+    Writeln(GState.GPS_LogFile,s2f);
    end;
   end
   else setlength(GPS_arr,length(GPS_arr)-1);
@@ -3998,7 +3994,7 @@ procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
   const Port: TCommPort);
 begin
  try
- if GPS_Log then CloseFile(GPS_LogFile);
+ if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
  except
  end;
  LayerMapGPS.Bitmap.Clear(clBlack);
@@ -4011,16 +4007,16 @@ end;
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
 var S:string;
 begin
- if GPS_Log then
+ if GState.GPS_WriteLog then
  try
   TimeSeparator:='-';
   DateSeparator:='-';
   CreateDir(ExtractFilePath(paramstr(0))+'TRECKLOG');
   s:=ExtractFilePath(paramstr(0))+'TRECKLOG\'+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
-  AssignFile(GPS_LogFile,s);
-  rewrite(GPS_LogFile);
+  AssignFile(GState.GPS_LogFile,s);
+  rewrite(GState.GPS_LogFile);
  except
-  GPS_Log:=false;
+  GState.GPS_WriteLog:=false;
  end;
 end;
 
