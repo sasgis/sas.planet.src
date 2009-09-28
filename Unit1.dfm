@@ -664,6 +664,7 @@ object Fmain: TFmain
         object Nanimate: TTBItem
           AutoCheck = True
           Checked = True
+          OnClick = NanimateClick
           Caption = '&'#1040#1085#1080#1084#1072#1094#1080#1103' '#1087#1088#1080' '#1084#1072#1089#1096#1090#1072#1073#1080#1088#1086#1074#1072#1085#1080#1080
           Hint = ''
         end

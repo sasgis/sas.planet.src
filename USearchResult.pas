@@ -40,6 +40,9 @@ var
 
 implementation
 
+uses
+  u_GlobalState;
+
 {$R *.dfm}
 
 procedure TFSearchResult.Button1Click(Sender: TObject);
@@ -47,7 +50,7 @@ begin
  if assigned(ListBox1.Items.Objects[ListBox1.ItemIndex])
   then Fmain.topos(TSearthResult(ListBox1.Items.Objects[ListBox1.ItemIndex]).ll.y,
                    TSearthResult(ListBox1.Items.Objects[ListBox1.ItemIndex]).ll.y,
-                   zoom_size, true);
+                   GState.zoom_size, true);
 end;
 
 end.

@@ -48,12 +48,15 @@ uses
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   ImgMaker in 'ImgMaker.pas',
-  t_GeoTypes in 't_GeoTypes.pas';
+  t_GeoTypes in 't_GeoTypes.pas',
+  u_GeoToStr in 'u_GeoToStr.pas',
+  u_GlobalState in 'u_GlobalState.pas';
 
 var Ini: Tinifile;
     loc:integer;
    {$R *.res}{$R SASR.RES}
 begin
+  GState := TGlobalState.Create;
   if FileExists(extractfilepath(paramstr(0))+'SASPlanet.RUS') then
    begin
     RenameFile(extractfilepath(paramstr(0))+'SASPlanet.RUS',extractfilepath(paramstr(0))+'SASPlanet.~RUS');
@@ -62,7 +65,7 @@ begin
   if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
                                        else loc:=LANG_RUSSIAN;
   localization:=Ini.Readinteger('VIEW','localization',loc);
-  sparam:=Ini.ReadBool('NPARAM','stat',true);
+  GState.WebReportToAuthor:=Ini.ReadBool('NPARAM','stat',true);
   Application.Initialize;
   Application.Title := 'SAS.Планета';
   //logo
@@ -97,4 +100,5 @@ begin
   Fmain.WebBrowser1.Navigate('about:blank');
   Fbrowser.EmbeddedWB1.Navigate('about:blank');
   Application.Run;
+  FreeAndNil(GState);
 end.

@@ -145,7 +145,10 @@ var
              );  }
 implementation
 
-uses Math;
+uses
+  Math,
+  u_GlobalState,
+  u_GeoToStr;
 
 var
   GetListThId:Longint;
@@ -210,10 +213,10 @@ begin
            then dwindex:=strtoint(pchar(@dwtype));
           if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
            begin
-            if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
              begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
               HttpSendRequest(hFile, nil, 0,Nil, 0);
              end;
             dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -344,8 +347,8 @@ end;
 
 procedure TFDGAvailablePic.setup;
 begin
- Apos:=GPos2LonLat(Point(FMain.pos.x-(mWd2-moveTrue.x),FMain.pos.y-(mHd2-moveTrue.y)),zoom_size,sat_map_both);
- mpp:=1/((zoom[zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(APos.y*deg)));
+ Apos:= sat_map_both.GeoConvert.Pos2LonLat(Point(FMain.pos.x-(mWd2-moveTrue.x),FMain.pos.y-(mHd2-moveTrue.y)),(GState.zoom_size - 1) + 8);
+ mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(APos.y*deg)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
  if hi>3500 then hi:=3500;

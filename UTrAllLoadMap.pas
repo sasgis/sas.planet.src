@@ -89,6 +89,8 @@ uses
   DateUtils,
   StrUtils,
   Math,
+  u_GlobalState,
+  u_GeoToStr,
   Unit1,
   UImgfun,
   UWikilayer,
@@ -117,7 +119,7 @@ begin
       typemap:=MapType[i];
      end;
    if typemap=nil then Terminate;
-   zoom:=Ini.ReadInteger('Session','zoom',zoom_size);
+   zoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
    zamena:=Ini.ReadBool('Session','zamena',false);
    raz:=Ini.ReadBool('Session','raz',false);
    zdate:=Ini.ReadBool('Session','zdate',false);
@@ -213,7 +215,7 @@ begin
  _FProgress.Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(obrab/vsego*100))+'%)';
  Application.ProcessMessages;
  _FProgress.LabelValue1.Caption:=inttostr(obrab)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+Fmain.kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
+ _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
  _FProgress.LabelValue3.Caption:=TimeEnd;
  _FProgress.LabelValue4.Caption:=LenEnd;
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
@@ -243,7 +245,7 @@ begin
  _FProgress.Memo1.Lines.Add(SAS_MSG_ProcessFilesComplete);
  _FProgress.Caption:=SAS_MSG_LoadComplete+' ('+inttostr(round(obrab/vsego*100))+'%)';
  _FProgress.LabelValue1.Caption:=inttostr(obrab)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+Fmain.kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
+ _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
  _FProgress.LabelValue3.Caption:=GetTimeEnd(num_dwn,obrab);
  _FProgress.LabelValue4.Caption:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
  _FProgress.RProgr.Progress1:=obrab;
@@ -262,7 +264,7 @@ begin
                     result:='~ Кб';
                     exit;
                  end;
-  Result:=Fmain.kb2KbMbGb((len/loaded)*(loadAll-obrab));
+  Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
 end;
 
 function ThreadAllLoadMap.GetTimeEnd(loadAll,load:integer):String;
@@ -303,7 +305,7 @@ end;
 procedure ThreadAllLoadMap.addDwnTiles;
 begin
  inc(all_dwn_tiles);
- all_dwn_kb:=all_dwn_kb+(res/1024);
+ GState.all_dwn_kb := GState.all_dwn_kb + (res/1024);
 end;
 
 constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
@@ -366,10 +368,10 @@ begin
        then dwindex:=strtoint(pchar(@dwtype));
       if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
        begin
-        if (not InetConnect.userwinset)and(InetConnect.uselogin) then
+        if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
          begin
-          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(InetConnect.loginstr), length(InetConnect.loginstr));
-          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(InetConnect.passstr), length(InetConnect.Passstr));
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
           HttpSendRequest(hFile, nil, 0,Nil, 0);
          end;
         dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -455,7 +457,7 @@ end;
 procedure ThreadAllLoadMap.GetPos;
 begin
  Upos:= FMain.pos;
- Zoom:= zoom_size;
+ Zoom:= GState.zoom_size;
 end;
 
 function ThreadAllLoadMap.GetErrStr(Aerr:integer):string;
@@ -506,7 +508,7 @@ begin
           VMap := MapType[ii];
           if VMap.active then begin
             BPos:=UPos;
-            BPos:=ConvertPosM2M(Upos,zoom,typemap,VMap);
+            BPos := typemap.GeoConvert.Pos2OtherMap(Upos, (zoom - 1) + 8, VMap.GeoConvert);
             xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
             yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),zoom);
             LoadXY.X := xx;

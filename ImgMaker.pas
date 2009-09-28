@@ -203,7 +203,7 @@ begin
        UpXY.Y:=UpXY.Y*256;
        for J_GM := 0 to 255 do
        begin
-          LineCoord:=GPos2LonLat(UpXY,Level,MT);
+          LineCoord:=MT.GeoConvert.Pos2LonLat(UpXY,(Level - 1) + 8);
           J_GE:=GetPixNum(LineCoord,id1); // номер строки на GE тайле
           if (J_GE.X=0) and (id2<>0) then
           J_GE:=GetPixNum(LineCoord,id2);
@@ -250,10 +250,10 @@ begin
    id2:=0;
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=GPos2LonLat(Point(UpXY.x*256,UpXY.y*256),Z,mt);     // долота/штрота верхней левой точки
+   Up:=mt.GeoConvert.Pos2LonLat(Point(UpXY.x*256,UpXY.y*256),(Z - 1) + 8);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=GPos2LonLat(Point(DownXY.x*256,DownXY.y*256),Z,mt);   // долота/штрота Ќ»∆Ќ≈… левой точки
+   Down:=mt.GeoConvert.Pos2LonLat(Point(DownXY.x*256,DownXY.y*256),(Z - 1) + 8);   // долота/штрота Ќ»∆Ќ≈… левой точки
    gXY1:=GLonLat2Pos3(Up,Z);   // x,y тайла GE куда попала верхн€€ точка
    gXY2:=GLonLat2Pos3(Down,Z); // x,y тайла GE куда попала Ќ»∆Ќяя точка
    gXY1:=Point(gXY1.x div 256,gXY1.y div 256);

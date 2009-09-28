@@ -19,6 +19,7 @@ uses
   TBX,
   VCLZip,
   GR32,
+  t_GeoTypes,
   u_CoordConverterAbstract,
   u_UrlGenerator,
   UResStrings;
@@ -26,7 +27,6 @@ uses
 type
  TMapType = class
    protected
-    FCoordConverter : ICoordConverter;
     FUrlGenerator : TUrlGenerator;
     TileRect:TRect;
     pos: integer;
@@ -67,6 +67,7 @@ type
     NameInCache:string;
     DefNameInCache:string;
     bmp18,bmp24:TBitmap;
+    FCoordConverter : ICoordConverter;
     function GetLink(x,y:longint;Azoom:byte):string;
     function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
@@ -108,6 +109,7 @@ uses
   RxGIF,
   GR32_Resamplers,
   VCLUnZip,
+  u_GlobalState,
   Usettings,
   unit1,
   UGeoFun,
@@ -525,7 +527,7 @@ begin
               else y:=zoom[Azoom]+(y mod zoom[Azoom]);
 
   FUrlGenerator.GetURLBase:=URLBase;
-  Result:=FUrlGenerator.GenLink(x,y,Azoom-1);
+  Result:=FUrlGenerator.GenLink(x shr 8,y shr 8,Azoom-1);
 end;
 
 function TMapType.GetMapSize(zoom:byte):longint;
@@ -551,7 +553,7 @@ var os,prer:TPoint;
     SearchRec:TSearchRec;
 begin
 
- if (CacheType=0) then ct:=DefCache
+ if (CacheType=0) then ct:=GState.DefCache
                        else ct:=CacheType;
  if x>=0 then x:=x mod zoom[Azoom]
          else x:=zoom[Azoom]+(x mod zoom[Azoom]);
@@ -559,7 +561,7 @@ begin
  1:
  begin
    sbuf:=Format('%.*d', [2, Azoom]);
-   result:=OldCpath_;
+   result:=GState.OldCpath_;
    result:=result + NameInCache+'\'+sbuf+'\t';
    os.X:=zoom[Azoom]shr 1;
    os.Y:=zoom[Azoom]shr 1;
@@ -596,7 +598,7 @@ begin
  end;
  2:
  begin
-  result:=NewCpath_;
+  result:=GState.NewCpath_;
   x:=x shr 8;
   y:=y shr 8;
   result:=result+NameInCache+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+ext;
@@ -604,7 +606,7 @@ begin
  3:
  begin
    sbuf:=Format('%.*d', [2, Azoom]);
-   result:=ESCpath_;
+   result:=GState.ESCpath_;
    name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
    if Azoom<7
     then result:=result+NameInCache+'\'+sbuf+'\'
@@ -618,7 +620,7 @@ begin
  end;
  4,41:
  begin
-  result:=GMTilespath_;
+  result:=GState.GMTilespath_;
   x:=x shr 8;
   y:=y shr 8;
   if ct=4 then result:=result+NameInCache+format('\z%d\%d\%d'+ext,[Azoom-1,Y,X])
@@ -626,7 +628,7 @@ begin
  end;
  5:
  begin
-  result:=GECachepath_;
+  result:=GState.GECachepath_;
   result:=result+NameInCache;
   fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
   if (result[2]<>'\')and(system.pos(':',result)=0)

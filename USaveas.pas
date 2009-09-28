@@ -237,8 +237,7 @@ begin
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;
-   SetLength(Polyg,length(APolyLL));
-   formatepoligon(typemap,zoom,APolyLL,polyg);
+   polyg := typemap.GeoConvert.PoligonProject((Zoom - 1) + 8, APolyLL);
    ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
    Suspended:=false;
   end;
@@ -319,16 +318,18 @@ end;
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
 var smb:TMapType;
     polyg:TPointArray;
+    VZoom: byte;
 begin
  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
- setlength(polyg,length(APolyLL));
- formatepoligon(smb,CBZoomload.ItemIndex+1,APolyLL,polyg);
+ VZoom := CBZoomload.ItemIndex;
+ polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
  with ThreadAllLoadMap.Create(false,Polyg,3,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
   begin
    OnTerminate:=Fmain.ThreadDone;
    Priority := tpLower;
    FreeOnTerminate:=true;
   end;
+  polyg := nil;
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
@@ -356,11 +357,12 @@ end;
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
 var Amt,Hmt:TMapType;
     polyg:TPointArray;
+    VZoom: byte;
 begin
  Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
  Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
- setLength(polyg,length(APolyLL));
- formatepoligon(Amt,CBZoomload.ItemIndex+1,APolyLL,polyg);
+ VZoom := CBZoomload.ItemIndex;
+ polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
  if (FMain.SaveDialog1.Execute)then
   begin
    with ThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CB2Ozi.Checked,CB2Tab.Checked,CBtoWorld.Checked,CBusedReColor.Checked) do
@@ -372,6 +374,7 @@ begin
      Suspended:=false;
     end;
   end;
+  Polyg := nil;
 end;
 
 procedure TFsaveas.Button1Click(Sender: TObject);
@@ -519,8 +522,8 @@ begin
  vramkah:=false;
  zagran:=false;
  for i:=0 to length(polygonLL)-1 do
-   if ((GLonLat2Pos(polygonLL[i],zoom_rect,sat_map_both).y>=0)and
-      (GLonLat2Pos(polygonLL[i],zoom_rect,sat_map_both).y<=zoom[zoom_rect]))then vramkah:=true
+   if ((sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y>=0)and
+      (sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y<=zoom[zoom_rect]))then vramkah:=true
                                               else zagran:=true;
  if not(vramkah)
   then begin
@@ -603,11 +606,14 @@ procedure TFsaveas.CBZoomloadChange(Sender: TObject);
 var polyg:TPointArray;
     min,max:TPoint;
     numd:integer;
+    Vmt: TMapType;
+    VZoom: byte;
 begin
- SetLength(polyg,length(PolygonLL));
- formatePoligon(TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]),CBZoomload.ItemIndex+1,polygonLL,polyg);
- numd:=GetDwnlNum(min,max,polyg,true);
- label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
+  Vmt := TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
+  VZoom := CBZoomload.ItemIndex;
+  polyg := Vmt.GeoConvert.PoligonProject(VZoom + 8, PolygonLL);
+  numd:=GetDwnlNum(min,max,polyg,true);
+  label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
 end;
 

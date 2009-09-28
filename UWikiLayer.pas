@@ -36,6 +36,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  u_GlobalState,
   unit1,
   UImgFun;
 
@@ -109,9 +110,9 @@ begin
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
-    Azoom:=zoom_size;
-    APos:=ConvertPosM2M(FMain.pos,Azoom,sat_map_both,Alayer);
-    if CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),zoom_size)
+    Azoom:=GState.zoom_size;
+    APos := sat_map_both.GeoConvert.Pos2OtherMap(FMain.pos, (Azoom - 1) + 8, Alayer.GeoConvert);
+    if GState.CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),GState.zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
     KML:=TKML.Create;

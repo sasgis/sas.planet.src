@@ -143,7 +143,7 @@ begin
    VThread.Synchronize(VThread.UpdateProgressFormStr2);
    p_y:=(VThread.Poly0.Y+line)-((VThread.Poly0.Y+line) mod 256);
    p_x:=VThread.poly0.x-(VThread.poly0.x mod 256);
-   p_h:=ConvertPosM2M(Point(p_x,p_y),VThread.zoom,VThread.typemap,VThread.Htypemap);
+   p_h := VThread.typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (VThread.zoom - 1) + 8, VThread.Htypemap.GeoConvert);
    lrarri:=0;
    if line>(255-VThread.sy) then Asy:=0 else Asy:=VThread.sy;
    if (p_y div 256)=(VThread.poly1.y div 256) then Aey:=VThread.ey else Aey:=255;
@@ -214,7 +214,7 @@ begin
    VThread.Synchronize(VThread.UpdateProgressFormStr2);
    p_y:=(VThread.Poly0.Y+line)-((VThread.Poly0.Y+line) mod 256);
    p_x:=VThread.poly0.x-(VThread.poly0.x mod 256);
-   p_h:=ConvertPosM2M(Point(p_x,p_y),VThread.zoom,VThread.typemap,VThread.Htypemap);
+   p_h := VThread.typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (VThread.zoom - 1) + 8, VThread.Htypemap.GeoConvert);
    lrarri:=0;
    if line>(255-VThread.sy) then Asy:=0 else Asy:=VThread.sy;
    if (p_y div 256)=(VThread.poly1.y div 256) then Aey:=VThread.ey else Aey:=255;
@@ -377,7 +377,7 @@ begin
         Units:=ECW_CELL_UNITS_DEGREES;
        end;
    end;
-   CalculateMercatorCoordinates(GPos2LonLat(Poly0,Zoom,typemap),GPos2LonLat(Poly1,Zoom,typemap),
+   CalculateMercatorCoordinates(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
                                 Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY,Units);
    errecw:=ecw.Encode(self,fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, @ReadLine, nil,
              Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);

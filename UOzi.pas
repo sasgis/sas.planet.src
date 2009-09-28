@@ -22,6 +22,7 @@ implementation
 
 uses
   unit1,
+  u_GeoToStr,
   t_GeoTypes;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
@@ -49,14 +50,14 @@ begin
  writeln(f,'1 ,Map Code,'+#13#10+'WGS 84,,   0.0000,   0.0000,WGS 84'+#13#10+'Reserved 1'+#13#10+
            'Reserved 2'+#13#10+'Magnetic Variation,,,E'+#13#10+'Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No');
 
- lon[1]:=GPos2LonLat(xy1,Azoom,Atype).X;
- lat[1]:=GPos2LonLat(xy1,Azoom,Atype).Y;
- lon[3]:=GPos2LonLat(xy2,Azoom,Atype).X;
- lat[3]:=GPos2LonLat(xy2,Azoom,Atype).Y;
+ lon[1]:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8).X;
+ lat[1]:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8).Y;
+ lon[3]:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8).X;
+ lat[3]:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8).Y;
  lon[2]:=lon[3]-(lon[3]-lon[1])/2;
  xy.Y:=(xy2.y-((xy2.Y-xy1.Y)div 2));
  xy.X:=(xy2.x-((xy2.x-xy1.x)div 2));
- lat[2]:=GPos2LonLat(xy,Azoom,Atype).Y;
+ lat[2]:=Atype.GeoConvert.Pos2LonLat(xy,(Azoom - 1) + 8).Y;
 
  for i:=1 to 3 do
   begin
@@ -151,14 +152,14 @@ begin
  writeln(f,'File "'+copy(fname,LastDelimiter('\',fname)+1,length(fname)-1)+'"');
  writeln(f,'Type "RASTER"');
 
- lon[1]:=GPos2LonLat(xy1,Azoom,Atype).X;
- lat[1]:=GPos2LonLat(xy1,Azoom,Atype).Y;
- lon[3]:=GPos2LonLat(xy2,Azoom,Atype).X;
- lat[3]:=GPos2LonLat(xy2,Azoom,Atype).Y;
+ lon[1]:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8).X;
+ lat[1]:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8).Y;
+ lon[3]:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8).X;
+ lat[3]:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8).Y;
  lon[2]:=lon[3]-(lon[3]-lon[1])/2;
  xy.Y:=(xy2.y-((xy2.Y-xy1.Y)div 2));
  xy.X:=(xy2.x-((xy2.x-xy1.x)div 2));
- lat[2]:=GPos2LonLat(xy,Azoom,Atype).Y;
+ lat[2]:=Atype.GeoConvert.Pos2LonLat(xy,(Azoom - 1) + 8).Y;
 
  xy2:=Point(xy2.X-xy1.X,xy2.y-xy1.y);
  xy1:=Point(0,0);
@@ -184,8 +185,8 @@ var f:TextFile;
     CellX,CellY,OrigX,OrigY:extended;
 begin
  fname:=fname+'w';
- ll1:=GPos2LonLat(xy1,Azoom,Atype);
- ll2:=GPos2LonLat(xy2,Azoom,Atype);
+ ll1:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8);
+ ll2:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8);
  case Atype.projection of
   1,2:CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
   3: CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_DEGREES);

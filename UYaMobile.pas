@@ -7,8 +7,8 @@ uses
   classes;
 
 const
- TableOffset=1024;
- Head:int64 = 288230381927550553;
+ TableOffset=8;
+ Head:int64 =$6000158444E59; //288230381927550553;
 
 var
  TableSize:integer;
@@ -25,21 +25,20 @@ uses
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
 begin
-    result:='';
     result:=IntToStr(Z)+'\';
     if(Z>15) then
     begin
       Mask:=(1 shl (Z-15))-1;
       Num:=(((X shr 15) and Mask) shl 4)+(((Y shr 15) and Mask));
       result:=result+IntToHex(Num,2)+'\';
-    end;
+    end else
     if(Z>11) then
     begin
       Mask:=(1 shl (Z-11))-1;
       Mask:=Mask and $F;
       Num:=(((X shr 11) and Mask) shl 4)+(((Y shr 11) and Mask));
       result:=result+IntToHex(Num,2)+'\';
-    end;
+    end else
     if(Z>7) then
     begin
       Mask:=(1 shl (Z-7))-1;
@@ -60,12 +59,29 @@ begin
           +((y and $01) shl 3)+((x and $01) shl 2);
 end;
 
+procedure createdirif(path:string);
+begin
+ path:=copy(path, 1, LastDelimiter('\', path));
+ if not(DirectoryExists(path)) then ForceDirectories(path);
+end;
+
 procedure CreateNilFile(path:string);
 var f:File;
     n:byte;
     i:integer;
+    ms:TMemoryStream;
 begin
- Fmain.createdirif(path);
+ createdirif(path);
+ ms:=TMemoryStream.Create;
+ ms.WriteBuffer(Head,8);
+ n:=0;
+{ for i:=0 to TableOffset-1-8 do
+  ms.WriteBuffer(n,1); }
+ for i:=0 to sqr(TableSize)-1 do
+  ms.WriteBuffer(tileinfo,6);
+ ms.SaveToFile(path);
+ ms.Free;
+{ createdirif(path);
  AssignFile(f,path);
  Rewrite(f,1);
  BlockWrite(f,Head,8);
@@ -74,7 +90,7 @@ begin
   BlockWrite(f,n,1);
  for i:=0 to sqr(TableSize)-1 do
   BlockWrite(f,tileinfo,6);
- CloseFile(f);
+ CloseFile(f);}
 end;
 
 procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
@@ -86,16 +102,15 @@ var MobileFilePath:string;
 begin
  dec(Z);
  if z>7 then TableSize:=256
-         else TableSize:=2 shl Z;
+        else TableSize:=2 shl Z;
  DataOffset:=TableOffset+sqr(TableSize)*6;
  MobileFilePath:=cache_path+GetMobileFile(X,Y,Z,Mt);
  if not(FileExists(MobileFilePath))
   then CreateNilFile(MobileFilePath);
  MobileFile:=TFileStream.Create(MobileFilePath,fmOpenReadWrite);
 
- TablePos:=GetMobileFilePos(X,Y,Z)*6;
+ TablePos:=GetMobileFilePos(X,Y,Z)*6+sm_xy*6;
 
- TablePos:=TablePos+6*sm_xy;
  Adr:=MobileFile.Size;
  Len:=tile.Size;
  MobileFile.Position:=TableOffset+TablePos;

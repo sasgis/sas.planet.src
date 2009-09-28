@@ -55,8 +55,13 @@ implementation
 
 uses
   Math,
+  u_GeoToStr,
   unit1,
-  usaveas;
+  usaveas,
+  u_CoordConverterMercatorOnSphere,
+  u_CoordConverterMercatorOnEllipsoid,
+  u_CoordConverterSimpleLonLat,
+  u_CoordConverterAbstract;
 
 procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin
@@ -230,14 +235,13 @@ begin
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
  i:=0;
  While not(zoomarr[i]) do inc(i);
- SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ if TypeMapArr[0]<>nil then polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL)
+  else if TypeMapArr[1]<>nil then polyg := TypeMapArr[1].GeoConvert.PoligonProject(i + 8, APolyLL)
+        else if TypeMapArr[2]<>nil then polyg := TypeMapArr[2].GeoConvert.PoligonProject(i + 8, APolyLL);
  GetMinMax(min,max,polyg,true);
- if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
-  else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
-        else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
+ if TypeMapArr[0]<>nil then LLCenter:= TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8);
  AssignFile(Plist,PATH+'com.apple.Maps.plist');
  Rewrite(PList);
  Writeln(PList,'<plist>');
@@ -285,10 +289,11 @@ begin
  MapTypeMerS:=TMapType.Create;
  MapTypeMerS.projection:=1;
  MapTypeMerS.radiusa:=6378137;
- MapTypeMerS.radiusb:=6356752;
+ MapTypeMerS.radiusb:=6378137;
  MapTypeMerS.exct:=sqrt(sqr(MapTypeMerS.radiusa)-sqr(MapTypeMerS.radiusb))/MapTypeMerS.radiusa;
+ MapTypeMerS.FCoordConverter:=TCoordConverterMercatorOnSphere.Create(MapTypeMerS.radiusa);
+
  num_dwn:=0;
- SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
  for i:=0 to length(TypeMapArr)-1 do
@@ -299,13 +304,13 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).y,4);
+      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);
@@ -346,7 +351,7 @@ begin
    for j:=0 to 2 do //по типу
     if TypeMapArr[j]<>nil then
      begin
-      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
+      Polyg := MapTypeMerS.GeoConvert.PoligonProject(i + 8, APolyLL);
       GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
@@ -365,11 +370,11 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
+            p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
             if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
+          p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
           if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
            begin
             UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i);
@@ -482,13 +487,13 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).y,4);
+      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);
@@ -512,7 +517,7 @@ begin
   if zoomarr[i] then
    for j:=0 to length(TypeMapArr)-1 do //по типу
      begin
-      formatepoligon(TypeMapArr[j],i+1,APolyLL,polyg);
+      polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
       AMapType.ext:=TypeMapArr[j].ext;
       AMapType.NameInCache:=TypeMapArr[j].NameInCache;
       AMapType.CacheType:=format;
@@ -595,10 +600,10 @@ begin
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
-  north:=R2StrPoint(GPos2LonLat(xym256lt,z,TypeMapArr[0]).y);
-  south:=R2StrPoint(GPos2LonLat(xym256rb,z,TypeMapArr[0]).y);
-  east:=R2StrPoint(GPos2LonLat(xym256rb,z,TypeMapArr[0]).x);
-  west:=R2StrPoint(GPos2LonLat(xym256lt,z,TypeMapArr[0]).x);
+  north:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256lt,(z - 1) + 8).y);
+  south:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256rb,(z - 1) + 8).y);
+  east:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256rb,(z - 1) + 8).x);
+  west:=R2StrPoint(TypeMapArr[0].GeoConvert.Pos2LonLat(xym256lt,(z - 1) + 8).x);
   ToFile:=#13#10+'<Folder>'+#13#10+{'  <name></name>'+#13#10+}'  <Region>'+#13#10+'    <LatLonAltBox>'+#13#10+
           '      <north>'+north+'</north>'+#13#10+'      <south>'+south+'</south>'+#13#10+'      <east>'+east+'</east>'+#13#10+
           '      <west>'+west+'</west>'+#13#10+'    </LatLonAltBox>'+#13#10+'    <Lod>';
@@ -642,13 +647,13 @@ begin
  for j:=0 to 23 do
   if zoomarr[j] then
    begin
-    formatepoligon(TypeMapArr[0],j+1,APolyLL,polyg);
+    polyg := TypeMapArr[0].GeoConvert.PoligonProject(j + 8, APolyLL);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
     perzoom:=perzoom+inttostr(j+1)+'_';
-    kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).x,4);
-    kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[0]).y,4);
-    kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[0]).x,4);
-    kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[0]).y,4);
+    kti:=RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+    kti:=kti+'_'+RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+    kti:=kti+'_'+RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+    kti:=kti+'_'+RoundEx(TypeMapArr[0].GeoConvert.Pos2LonLat(max,j + 8).y,4);
    end;
  persl:=copy(persl,1,length(persl)-1);
  perzoom:=copy(perzoom,1,length(perzoom)-1);
@@ -675,7 +680,7 @@ begin
  Write(KMLFile,ToFile);
 
  while not(zoomarr[i])or(i>23) do inc(i);
- formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg);
+ polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL);
  AMapType.ext:=TypeMapArr[0].ext;
  AMapType.NameInCache:=TypeMapArr[0].NameInCache;
  AMapType.CacheType:=format;
@@ -721,7 +726,7 @@ end;
 
 
 procedure ThreadExport.export2YaMaps(APolyLL:TExtendedPointArray);
-var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
+var p_x,p_y,p_xd256,p_yd256,i,j,ci,cj,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:TPointArray;
     pathto,persl,perzoom,kti:string;
@@ -736,19 +741,21 @@ var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     PList:Text;
     LLCenter:TExtendedPoint;
     gif:TGIFImage;
+    tic:longint;
+    BtmRGB,PngRGB:PByte;
 begin
  try
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
  i:=0;
  While not(zoomarr[i]) do inc(i);
  SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then formatepoligon(TypeMapArr[0],i+1,APolyLL,polyg)
-  else if TypeMapArr[1]<>nil then formatepoligon(TypeMapArr[1],i+1,APolyLL,polyg)
-        else if TypeMapArr[2]<>nil then formatepoligon(TypeMapArr[2],i+1,APolyLL,polyg);
+ if TypeMapArr[0]<>nil then polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL)
+  else if TypeMapArr[1]<>nil then polyg := TypeMapArr[1].GeoConvert.PoligonProject(i + 8, APolyLL)
+        else if TypeMapArr[2]<>nil then  polyg := TypeMapArr[2].GeoConvert.PoligonProject(i + 8, APolyLL);
  GetMinMax(min,max,polyg,true);
- if TypeMapArr[0]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[0])
-  else if TypeMapArr[1]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[1])
-        else if TypeMapArr[2]<>nil then LLCenter:=GPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i+1,TypeMapArr[2]);
+ if TypeMapArr[0]<>nil then LLCenter:=TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
+        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8);
 
  hxyi:=1;
  sizeim:=128;
@@ -758,8 +765,9 @@ begin
  bmp:=TBitmap.Create;
  bmp.Width:=sizeim;
  bmp.Height:=sizeim;
- png:=tpngobject.createblank(COLOR_RGB, 8, sizeim,sizeim);
- ///png.Assign(bmp);
+ png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
+ png.CompressionLevel:=cMap;
+///png.Assign(bmp);
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
  bmp32.DrawMode:=dmBlend;
@@ -779,6 +787,7 @@ begin
  MapTypeMerS.radiusa:=6378137;
  MapTypeMerS.radiusb:=6356752;
  MapTypeMerS.exct:=sqrt(sqr(MapTypeMerS.radiusa)-sqr(MapTypeMerS.radiusb))/MapTypeMerS.radiusa;
+ MapTypeMerS.FCoordConverter:= TCoordConverterMercatorOnEllipsoid.Create(MapTypeMerS.Exct,MapTypeMerS.radiusa,MapTypeMerS.radiusb);
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
  persl:='';
@@ -791,13 +800,13 @@ begin
    for j:=0 to 23 do
     if zoomarr[j] then
      begin
-      formatepoligon(TypeMapArr[i],j+1,APolyLL,polyg);
+      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(min,j+1,TypeMapArr[i]).y,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).x,4);
-      kti:=kti+'_'+RoundEx(GPos2LonLat(max,j+1,TypeMapArr[i]).y,4);
+      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
+      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);
@@ -814,7 +823,7 @@ begin
    for j:=0 to 2 do //по типу
     if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then
      begin
-      formatepoligon(MapTypeMerS,i+1,APolyLL,polyg);
+      polyg := MapTypeMerS.GeoConvert.PoligonProject(i + 8, APolyLL);
       GetDwnlNum(min,max,Polyg,false);
 
       p_x:=min.x;
@@ -831,11 +840,11 @@ begin
           bmp322.Clear;
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
-            p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[0]);
+            p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
             UniLoadTile(bmp322,TypeMapArr[0],MapTypeMerS,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
-          p_h:=ConvertPosM2M(Point(p_x,p_y-(p_y mod 256)),i+1,MapTypeMerS,TypeMapArr[j]);
+          p_h := MapTypeMerS.GeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
           if UniLoadTile(bmp32,TypeMapArr[j],MapTypeMerS,p_h,p_x,p_y,i) then
            begin
             if (j=2)and(TypeMapArr[0]<>nil) then
@@ -859,19 +868,21 @@ begin
             if j=1 then
              begin
               bmp.Assign(bmp32);
-              gif.Assign(bmp);
-              bmp.Width:=png.Width;
-              bmp.Height:=png.Height;
-              bmp.PixelFormat:=pf8bit;
-              bmp.Palette:=GIF.Bitmap.Palette;
+              bmp:=ReduceColors(bmp, rmQuantize, dmNearest, 6, bmp.Palette);
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  bmp.Canvas.CopyRect(Bounds(0,0,sizeim,sizeim),GIF.Bitmap.Canvas,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim));
-                  png.Assign(bmp);
-//                  png.SaveToFile('c:\1.png');
+                  BtmRGB:=Pointer(integer(bmp.Scanline[(sizeim*yi)])+(sizeim*xi));
+                  PngRGB:=png.Scanline[0];
+                  for cj:=(sizeim*yi) to (sizeim*yi)+(sizeim-1) do
+                   begin
+                    CopyMemory(PngRGB,BtmRGB,sizeim);
+                    DEC(BtmRGB, bmp.Width);
+                    DEC(PngRGB, png.Width);
+                   end;
+                  png.Palette:=bmp.Palette;
+                  //png.SaveToFile('c:\1.png');
                   TileStream.Clear;
-                  png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
                 end;

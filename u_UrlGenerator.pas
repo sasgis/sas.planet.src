@@ -17,10 +17,6 @@ type
   TUrlGenerator = class
   private
     procedure SetGetURLBase(const Value: string);
-    procedure SetdLpix(const d:integer);
-    procedure SetdRpix(const d:integer);
-    procedure SetdTpix(const d:integer);
-    procedure SetdBpix(const d:integer);
   protected
     posxp:integer;
     posyp:integer;
@@ -41,25 +37,13 @@ type
     FpGetRMetr: PPSVariantExtended;
     FpGetTMetr: PPSVariantExtended;
     FpGetBMetr: PPSVariantExtended;
-    FpdLpix : PPSVariantS32;
-    FpdTpix : PPSVariantS32;
-    FpdBpix : PPSVariantS32;
-    FpdRpix : PPSVariantS32;
-    FdLpix : integer;
-    FdTpix : integer;
-    FdBpix : integer;
-    FdRpix : integer;
     FGetURLScript : string;
     FGetURLBase : String;
+    procedure SetVar;
   public
     constructor Create(AGetURLScript : string; ACoordConverter : ICoordConverter);
     destructor Destroy; override;
     function GenLink(Ax, Ay : longint; Azoom : byte) : string;
-    procedure SetVar;
-    property dLpix : integer read FdLpix write SetdLpix;
-    property dRpix : integer read FdRpix write SetdRpix;
-    property dTpix : integer read FdTpix write SetdTpix;
-    property dBpix : integer read FdBpix write SetdBpix;
     property GetURLBase : string read FGetURLBase write SetGetURLBase;
   end;
 
@@ -67,6 +51,7 @@ implementation
 
 uses
   Math,
+  u_GeoToStr,
   t_GeoTypes;
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
@@ -115,13 +100,6 @@ begin
  Result:=DateTimeToUnix(now);
 end;
 
-function RoundEx(chislo: Extended; Precision: Integer): string;
-var VFormatSettings : TFormatSettings;
-begin
-  VFormatSettings.DecimalSeparator := '.';
-  Result := FloatToStrF(chislo, ffFixed, Precision,Precision, VFormatSettings);
-end;
-
 { TUrlGenerator }
 constructor TUrlGenerator.Create(AGetURLScript : string; ACoordConverter : ICoordConverter);
 var i:integer;
@@ -166,10 +144,6 @@ begin
   FpGetTmetr := PPSVariantExtended(FExec.GetVar2('GetTmetr'));
   FpGetBmetr := PPSVariantExtended(FExec.GetVar2('GetBmetr'));
   FpGetRmetr := PPSVariantExtended(FExec.GetVar2('GetRmetr'));
-  FpdLpix := PPSVariantS32(FExec.GetVar2('dLpix'));
-  FpdRpix := PPSVariantS32(FExec.GetVar2('dRpix'));
-  FpdTpix := PPSVariantS32(FExec.GetVar2('dTpix'));
-  FpdBpix := PPSVariantS32(FExec.GetVar2('dBpix'));
   InitializeCriticalSection(FCS);
 end;
 
@@ -185,19 +159,19 @@ procedure TUrlGenerator.SetVar;
 var XY : TPoint;
     Ll : TExtendedPoint;
 begin
-    FpGetX.Data := posxp div 256;
-    FpGetY.Data := posyp div 256;
+    FpGetX.Data := posxp;
+    FpGetY.Data := posyp;
     FpGetZ.Data := zoom + 1;
-    XY.X := posxp-(posxp mod 256)+fpdLpix.Data;
-    XY.Y := posyp-(posyp mod 256)+fpdTpix.Data;
+    XY.X := posxp;
+    XY.Y := posyp;
     Ll := FCoordConverter.Pos2LonLat(XY, zoom);
     FpGetLlon.Data := Ll.X;
     FpGetTLat.Data := Ll.Y;
     Ll:= FCoordConverter.LonLat2Metr(LL);
     FpGetLMetr.Data := Ll.X;
     FpGetTMetr.Data := Ll.Y;
-    XY.X := (posxp + 256-(posxp mod 256))+fpdRpix.Data;
-    XY.Y := (posyp + 256-(posyp mod 256))+fpdBpix.Data;
+    XY.X := (posxp + 1);
+    XY.Y := (posyp + 1);
     Ll := FCoordConverter.Pos2LonLat(XY, zoom);
     FpGetRLon.Data := Ll.X;
     FpGetBLat.Data := Ll.Y;
@@ -226,34 +200,6 @@ begin
   finally
     LeaveCriticalSection(FCS);
   end;
-end;
-
-procedure TUrlGenerator.SetdLpix(const d:integer);
-begin
-  FdLpix:=d;
-  FpdLpix.Data:=d;
-  SetVar;
-end;
-
-procedure TUrlGenerator.SetdRpix(const d:integer);
-begin
-  FdRpix:=d;
-  FpdRpix.Data:=d;
-  SetVar;
-end;
-
-procedure TUrlGenerator.SetdTpix(const d:integer);
-begin
-  FdTpix:=d;
-  FpdTpix.Data:=d;
-  SetVar;
-end;
-
-procedure TUrlGenerator.SetdBpix(const d:integer);
-begin
-  FdBpix:=d;
-  FpdBpix.Data:=d;
-  SetVar;
 end;
 
 procedure TUrlGenerator.SetGetURLBase(const Value: string);

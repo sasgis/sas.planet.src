@@ -101,6 +101,7 @@ implementation
 uses
   Math,
   DB,
+  u_GlobalState,
   Unit1,
   USaveas,
   UaddPoint,
@@ -173,10 +174,10 @@ procedure TFMarksExplorer.FormShow(Sender: TObject);
 var KategoryId:TCategoryId;
     i:integer;
 begin
- case show_point of
-  1: RBall.Checked:=true;
-  2: RBchecked.Checked:=true;
-  3: RBnot.Checked:=true;
+ case GState.show_point of
+  mshAll: RBall.Checked:=true;
+  mshChecked: RBchecked.Checked:=true;
+  mshNone: RBnot.Checked:=true;
  end;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
@@ -227,9 +228,9 @@ end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
- if RBall.Checked then show_point:=1;
- if RBchecked.Checked then show_point:=2;
- if RBnot.Checked then show_point:=3;
+ if RBall.Checked then GState.show_point := mshAll;
+ if RBchecked.Checked then GState.show_point := mshChecked;
+ if RBnot.Checked then GState.show_point := mshNone;
  close;
 end;
 
@@ -265,7 +266,7 @@ begin
  if (ms.Size>24)
      then begin
            for i:=0 to length(arLL)-2 do
-            result:=result+Fmain.find_length(arLL[i].y,arLL[i+1].y,arLL[i].x,arLL[i+1].x);
+            result:=result+ sat_map_both.GeoConvert.CalcDist(arLL[i],arLL[i+1]);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
@@ -289,7 +290,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)
      then begin
-           result:=CalcS(arLL,sat_map_both)
+           result:= sat_map_both.GeoConvert.CalcPoligonArea(arLL);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
@@ -313,7 +314,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
      then begin
-           Fsaveas.Show_(zoom_size,arLL);
+           Fsaveas.Show_(GState.zoom_size,arLL);
            Result:=true;
           end
      else ShowMessage(SAS_MSG_FunExForPoly);
@@ -383,7 +384,7 @@ procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
 begin
  if MarksListBox.ItemIndex>=0 then
   begin
-   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,zoom_size);
+   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.zoom_size);
   end;
 end;
 
