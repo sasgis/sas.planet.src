@@ -60,7 +60,8 @@ begin
   begin
   if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
   if (XY.y>TilesAtZoom/2)
-       then yy:=(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2))
+       then
+        yy:=(TilesAtZoom)-XY.y;
        else yy:=XY.y;
   Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
   Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
