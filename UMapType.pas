@@ -68,6 +68,8 @@ type
     DefNameInCache:string;
     bmp18,bmp24:TBitmap;
     FCoordConverter : ICoordConverter;
+    //Для борьбы с капчей
+    ban_pg_ld: Boolean;
     function GetLink(x,y:longint;Azoom:byte):string;
     function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
@@ -281,6 +283,7 @@ begin
    if (SearchRec.Attr and faDirectory) = faDirectory then continue;
    MapType[pnum]:=TMapType.Create;
    MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+   MapType[pnum].ban_pg_ld := true;
    if Ini.SectionExists(MapType[pnum].GUIDs)
     then With MapType[pnum] do
           begin
@@ -793,7 +796,7 @@ begin
         end;
         result:=true;
       end else begin
-        if not MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
+        if not GState.MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
           if ExtractFileExt(Apath)='.jpg' then begin
             if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
               result:=false;
@@ -802,7 +805,7 @@ begin
           end else begin
             TBitmap32(btm).LoadFromFile(Apath);
           end;
-          MainFileCache.AddTileToCache(btm, Apath);
+          GState.MainFileCache.AddTileToCache(btm, Apath);
         end;
       end;
     end else begin

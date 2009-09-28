@@ -284,10 +284,10 @@ end;
 
 procedure ThreadAllLoadMap.ban;
 begin
- if ban_pg_ld then
+ if typemap.ban_pg_ld then
   begin
    Fmain.ShowCaptcha(url_ifban);
-   ban_pg_ld:=false;
+   typemap.ban_pg_ld:=false;
   end;
 end;
 
@@ -304,7 +304,7 @@ end;
 
 procedure ThreadAllLoadMap.addDwnTiles;
 begin
- inc(all_dwn_tiles);
+ inc(GState.all_dwn_tiles);
  GState.all_dwn_kb := GState.all_dwn_kb + (res/1024);
 end;
 
@@ -437,10 +437,10 @@ begin
     FileBuf:=TMemoryStream.Create;
     try
       res :=DownloadFile(LoadXY, Zoom, typemap,ty, fileBuf);
-      if (res<=0)and(dblDwnl) then res:=DownloadFile(LoadXY, Zoom,typemap,ty,fileBuf);
+      if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadFile(LoadXY, Zoom,typemap,ty,fileBuf);
       err:=GetErrStr(res);
       if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
-      if (res=-1)and(Unit1.SaveTileNotExists) then Synchronize(SaveTileNotExists);
+      if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
       if err='' then begin
         typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
       end;
@@ -530,10 +530,10 @@ begin
                 FileBuf:=TMemoryStream.Create;
                 try
                   res:=DownloadFile(LoadXY, Zoom, VMap,ty, fileBuf);
-                  if (res<=0)and(dblDwnl) then res:=DownloadFile(LoadXY, Zoom, VMap,ty, fileBuf);
+                  if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadFile(LoadXY, Zoom, VMap,ty, fileBuf);
                   err:=GetErrStr(res);
                   if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
-                  if (res=-1)and(Unit1.SaveTileNotExists) then Synchronize(SaveTileNotExists);
+                  if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
                   if err='' then begin
                     VMap.SaveTileDownload(xx, yy, zoom, fileBuf, ty);
                   end;
@@ -615,7 +615,7 @@ begin
         else
          begin
           res:=DownloadFile(LoadXY, Zoom,typemap,ty, fileBuf);
-          if (res<=0)and(dblDwnl) then res:=DownloadFile(LoadXY, Zoom,typemap,ty, fileBuf);
+          if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadFile(LoadXY, Zoom,typemap,ty, fileBuf);
          end;
 
        If (typemap.UseAntiBan>1)and((scachano>0)and((scachano mod typemap.UseAntiBan)=0)) then
@@ -658,14 +658,14 @@ begin
          FileBuf.Free;
          inc(p_y,256);
          inc(obrab);
-         if (Unit1.SaveTileNotExists) then Synchronize(SaveTileNotExists);
+         if (GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
          continue;
         end;
        if res=0 then
         begin
          AddToMemo:=SAS_ERR_Noconnectionstointernet;
          FileBuf.Free;
-         if not(GoNextTile)
+         if not(GState.GoNextTileIfDownloadError)
           then begin
                 AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
                 sleep(5000);

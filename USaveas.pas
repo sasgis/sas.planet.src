@@ -208,6 +208,7 @@ implementation
 
 uses
   Gauges,
+  u_GlobalState,
   unit1,
   Unit4,
   UImgFun;
@@ -409,7 +410,7 @@ var i:integer;
     XX:tpOINT;
     vramkah,zagran:boolean;
 begin
- CBSecondLoadTNE.Enabled:=SaveTileNotExists;
+ CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
  CBZoomload.Items.Clear;
  ComboBox.Items.Clear;
  CkLZoomSel.Items.Clear;

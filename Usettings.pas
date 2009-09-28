@@ -333,7 +333,7 @@ begin
  Ini.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
  Ini.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  Ini.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
- Ini.WriteInteger('VIEW','TilesOCache', MainFileCache.CacheElemensMaxCnt);
+ Ini.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
  Ini.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
  if Fillingmaptype=nil then Ini.WriteString('VIEW','FillingMap','0')
@@ -396,9 +396,9 @@ begin
  Ini.Writestring('INTERNET','proxy',GState.InetConnect.proxystr);
  Ini.Writestring('INTERNET','login',GState.InetConnect.loginstr);
  Ini.Writestring('INTERNET','password',GState.InetConnect.passstr);
- Ini.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
- Ini.WriteBool('INTERNET','DblDwnl',dblDwnl);
- Ini.Writebool('INTERNET','GoNextTile',GoNextTile);
+ Ini.WriteBool('INTERNET','SaveTileNotExists',GState.SaveTileNotExists);
+ Ini.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
+ Ini.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
  Ini.Writebool('NPARAM','stat',GState.WebReportToAuthor);
 
  i:=1;
@@ -484,12 +484,12 @@ begin
    k:=k shr 1;
   end;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
- MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
+ GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.FirstLat:=ChBoxFirstLat.Checked;
- DblDwnl:=CBDblDwnl.Checked;
- GoNextTile:=CkBGoNextTile.Checked;
+ GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
+ GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
  GState.GPS_ArrowColor:=ColorBoxGPSstr.selected;
  GState.InvertColor:=CBinvertcolor.Checked;
  GState.BorderColor:=ColorBoxBorder.Selected;
@@ -517,7 +517,7 @@ begin
  GState.InetConnect.proxystr:=EditIP.Text;
  GState.InetConnect.loginstr:=EditLogin.Text;
  GState.InetConnect.passstr:=EditPass.Text;
- SaveTileNotExists:=CBSaveTileNotExists.Checked;
+ GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
  GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
  GState.OldCPath_:=IncludeTrailingPathDelimiter(OldCPath.Text);
@@ -661,18 +661,18 @@ begin
   ENU:CBoxLocal.ItemIndex:=1;
  end;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
- SETilesOCache.Value:=MainFileCache.CacheElemensMaxCnt;
+ SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
- CBDblDwnl.Checked:=DblDwnl;
+ CBDblDwnl.Checked:=GState.TwoDownloadAttempt;
  ChBoxFirstLat.Checked:=GState.FirstLat;
  CBlock_toolbars.Checked:=FMain.lock_toolbars;
- CkBGoNextTile.Checked:=GoNextTile;
+ CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  RBWinCon.Checked:=GState.InetConnect.userwinset;
  RBMyCon.Checked:=not(GState.InetConnect.userwinset);
  CBProxyused.Checked:=GState.InetConnect.proxyused;
  CBLogin.Checked:=GState.InetConnect.uselogin;
- CBSaveTileNotExists.Checked:=SaveTileNotExists;
+ CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
  EditIP.Text:=GState.InetConnect.proxystr;
  EditLogin.Text:=GState.InetConnect.loginstr;
  EditPass.Text:=GState.InetConnect.passstr;

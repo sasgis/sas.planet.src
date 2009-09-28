@@ -571,20 +571,22 @@ var
   zoom_line,
   poly_zoom_save:byte;
   marshrutcomment:string;
-  mx,my,All_Dwn_Tiles,gamman,contrastn,vo_ves_ecr,anim_zoom, GShScale,
+  mx,
+  my,
+  gamman,
+  contrastn,
+  vo_ves_ecr,
+  anim_zoom,
+  GShScale,
     mWd2,mHd2,yhgpx,xhgpx,hg_x,hg_y,pr_x,pr_y,GPS_timeout,GPS_update,GPS_SizeTrack:integer;
   move,m_up,m_m,oldPOS,moveTrue:Tpoint;
   notpaint,
   dwn,
   start,
   close_,
-  GoNextTile,
-  ban_pg_ld,
   LenShow,
   Maximized,
-  sizing,
-  dblDwnl,
-  SaveTileNotExists:boolean;
+  sizing: boolean;
   spr:TBitmap32;
   sat_map_both:TMapType;
   marksicons:TStringList;
@@ -615,7 +617,6 @@ var
   NavOnMark:TNavOnMark;
   PosLL:TExtendedPoint;
 
-  MainFileCache: TMemFileCache;
 
   hres:HRESULT;
   procedure Gamma(Bitmap: TBitmap32);
@@ -1206,7 +1207,7 @@ begin
      if not((dwn)or(anim_zoom=1)) then
        begin
         move.X:=m_up.x;
-        MainFileCache.Clear;
+        GState.MainFileCache.Clear;
         Fmain.generate_im(nilLastLoad,'');
        end;
      exit;
@@ -1956,7 +1957,7 @@ begin
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
  // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
  subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),GState.zoom_size),pos.y-(mHd2-m_m.y),GState.zoom_size);
- LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
+ LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
  if LayerMinMap.Visible then LayerMinMap.BringToFront;
@@ -2153,7 +2154,7 @@ begin
  if (lastload.use) then
   begin
    //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
-    MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
+    GState.MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
   end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
@@ -2362,10 +2363,8 @@ begin
  Application.OnMessage := DoMessageEvent;
  Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
  LenShow:=true;
- ban_pg_ld:=true;
  mWd2:=map.Width shr 1;
  mHd2:=map.Height shr 1;
- All_Dwn_Tiles:=0;
  Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
  Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
  Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
@@ -2508,9 +2507,9 @@ begin
  GState.InetConnect.proxystr:=Ini.Readstring('INTERNET','proxy','');
  GState.InetConnect.loginstr:=Ini.Readstring('INTERNET','login','');
  GState.InetConnect.passstr:=Ini.Readstring('INTERNET','password','');
- SaveTileNotExists:=Ini.ReadBool('INTERNET','SaveTileNotExists',false);
- dblDwnl:=Ini.ReadBool('INTERNET','DblDwnl',true);
- GoNextTile:=Ini.ReadBool('INTERNET','GoNextTile',false);
+ GState.SaveTileNotExists:=Ini.ReadBool('INTERNET','SaveTileNotExists',false);
+ GState.TwoDownloadAttempt:=Ini.ReadBool('INTERNET','DblDwnl',true);
+ GState.GoNextTileIfDownloadError:=Ini.ReadBool('INTERNET','GoNextTile',false);
 
  GState.ShowMapName:=Ini.readBool('VIEW','ShowMapNameOnPanel',true);
  sm_map.width:=Ini.readInteger('VIEW','SmMapW',160);
@@ -2536,7 +2535,7 @@ begin
  GState.MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
  GState.MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
- MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
+ GState.MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
  Wikim_set.MainColor:=Ini.Readinteger('Wikimapia','MainColor',$FFFFFF);
@@ -2892,7 +2891,6 @@ end;
 
 procedure TFmain.FormCreate(Sender: TObject);
 begin
-  MainFileCache := TMemFileCache.Create;
  ProgrammPath:=ExtractFilePath(ParamStr(0));
  Application.Title:=Fmain.Caption;
  TBiniLoadPositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
