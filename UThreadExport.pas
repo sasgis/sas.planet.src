@@ -223,7 +223,7 @@ procedure ThreadExport.export2iMaps(APolyLL:TExtendedPointArray);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg: TPointArray;
-    persl,perzoom,kti:string;
+    perzoom,kti:string;
     max,min,p_h:TPoint;
     MapTypeMerS:TMapType;
     png:TPngObject;
@@ -298,12 +298,10 @@ begin
  MapTypeMerS.FCoordConverter:=TCoordConverterMercatorOnSphere.Create(MapTypeMerS.radiusa);
 
  num_dwn:=0;
- persl:='';
  kti:='';
  for i:=0 to length(TypeMapArr)-1 do
   if TypeMapArr[i]<>nil then
   begin
-   persl:=persl+TypeMapArr[i].NameInCache+'_';
    perzoom:='';
    for j:=0 to 23 do
     if zoomarr[j] then
@@ -317,7 +315,6 @@ begin
       kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
      end;
   end;
- persl:=copy(persl,1,length(persl)-1);
  perzoom:=copy(perzoom,1,length(perzoom)-1);
  fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_files;
@@ -486,7 +483,7 @@ begin
  datestr:=inttostr(RetDate(now,3))+'.'+inttostr(RetDate(now,2))+'.'+inttostr(RetDate(now,1));
  for i:=0 to length(TypeMapArr)-1 do
   begin
-   persl:=persl+TypeMapArr[i].NameInCache+'_';
+   persl:=persl+ TypeMapArr[i].GetShortFolderName+'_';
    perzoom:='';
    for j:=0 to 23 do
     if zoomarr[j] then
@@ -523,7 +520,7 @@ begin
      begin
       polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
       AMapType.ext:=TypeMapArr[j].ext;
-      AMapType.NameInCache:=IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].NameInCache;
+      AMapType.NameInCache:=IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].GetShortFolderName;
       AMapType.CacheType:=format;
       GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
@@ -590,7 +587,6 @@ var p_x,p_y,i,j:integer;
     polyg:TPointArray;
     persl,perzoom,kti,ToFile,datestr:string;
     max,min:TPoint;
-    AMapType:TMapType;
     KMLFile:TextFile;
 
 procedure KmlFileWrite(x,y:integer;z,level:byte);
@@ -640,13 +636,12 @@ begin
 end;
 
 begin
- AMapType:=TMapType.Create;
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
  datestr:=inttostr(RetDate(now,3))+'.'+inttostr(RetDate(now,2))+'.'+inttostr(RetDate(now,1));
- persl:=persl+TypeMapArr[0].NameInCache+'_';
+ persl:=persl+ TypeMapArr[0].GetShortFolderName+'_';
  perzoom:='';
  for j:=0 to 23 do
   if zoomarr[j] then
@@ -685,9 +680,6 @@ begin
 
  while not(zoomarr[i])or(i>23) do inc(i);
  polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL);
- AMapType.ext:=TypeMapArr[0].ext;
- AMapType.NameInCache:=TypeMapArr[0].NameInCache;
- AMapType.CacheType:=format;
  GetDwnlNum(min,max,Polyg,false);
  p_x:=min.x;
  while p_x<max.x do
@@ -724,7 +716,6 @@ begin
  CloseFile(KMLFile);
  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
- AMapType.Destroy;
  FProgress.Close;
 end;
 
@@ -796,7 +787,7 @@ begin
  for i:=0 to length(TypeMapArr)-1 do
   if TypeMapArr[i]<>nil then
   begin
-   persl:=persl+TypeMapArr[i].NameInCache+'_';
+   persl:=persl+TypeMapArr[i].GetShortFolderName+'_';
    perzoom:='';
    for j:=0 to 23 do
     if zoomarr[j] then

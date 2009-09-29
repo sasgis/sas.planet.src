@@ -87,6 +87,7 @@ type
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
+    function GetShortFolderName: string;
     property GeoConvert: ICoordConverter read FCoordConverter;
   private
     err: string;
@@ -1044,6 +1045,11 @@ function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
 begin
 
+end;
+
+function TMapType.GetShortFolderName: string;
+begin
+  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(NameInCache)));
 end;
 
 end.
