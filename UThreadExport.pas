@@ -523,7 +523,7 @@ begin
      begin
       polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
       AMapType.ext:=TypeMapArr[j].ext;
-      AMapType.NameInCache:=TypeMapArr[j].NameInCache;
+      AMapType.NameInCache:=IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].NameInCache;
       AMapType.CacheType:=format;
       GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
@@ -551,7 +551,7 @@ begin
                           end
                      else begin
 //TODO: Для создания путей для экспорта нужно создать новый класс.
-                           pathto:=PATH+AMapType.GetTileFileName(p_x,p_y,i+1);
+                           pathto:=AMapType.GetTileFileName(p_x,p_y,i+1);
                            if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
                              if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
                            end;

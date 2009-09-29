@@ -93,6 +93,7 @@ type
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
+    function GetBasePath: string;
   end;
 var
   MapType:array of TMapType;
@@ -537,6 +538,41 @@ function TMapType.GetMapSize(zoom:byte):longint;
 begin
  result:=round(intpower(2,zoom))*256;
 end;
+function TMapType.GetBasePath: string;
+var
+  ct:byte;
+begin
+ if (CacheType=0) then ct:=GState.DefCache
+                       else ct:=CacheType;
+ result := NameInCache;
+ if (result[2]<>'\')and(system.pos(':',result)=0) then begin
+   case ct of
+     1:
+     begin
+       result:=GState.OldCpath_ + Result;
+     end;
+     2:
+     begin
+      result:=GState.NewCpath_+Result;
+     end;
+     3:
+     begin
+       result:=GState.ESCpath_+Result;
+     end;
+     4,41:
+     begin
+      result:=GState.GMTilespath_+Result;
+     end;
+     5:
+     begin
+      result:=GState.GECachepath_+Result;
+     end;
+   end;
+ end;
+ if (result[2]<>'\')and(system.pos(':',result)=0)
+   then result:=ProgrammPath+result;
+end;
+
 
 function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
 function full(int,z:integer):string;
@@ -560,12 +596,12 @@ begin
                        else ct:=CacheType;
  if x>=0 then x:=x mod zoom[Azoom]
          else x:=zoom[Azoom]+(x mod zoom[Azoom]);
+ Result := GetBasePath;
  case ct of
  1:
  begin
    sbuf:=Format('%.*d', [2, Azoom]);
-   result:=GState.OldCpath_;
-   result:=result + NameInCache+'\'+sbuf+'\t';
+   result:=result+'\'+sbuf+'\t';
    os.X:=zoom[Azoom]shr 1;
    os.Y:=zoom[Azoom]shr 1;
    prer:=os;
@@ -601,38 +637,33 @@ begin
  end;
  2:
  begin
-  result:=GState.NewCpath_;
   x:=x shr 8;
   y:=y shr 8;
-  result:=result+NameInCache+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+ext;
+  result:=result+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+ext;
  end;
  3:
  begin
    sbuf:=Format('%.*d', [2, Azoom]);
-   result:=GState.ESCpath_;
    name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
    if Azoom<7
-    then result:=result+NameInCache+'\'+sbuf+'\'
+    then result:=result+'\'+sbuf+'\'
     else if Azoom<11
-          then result:=result+NameInCache+'\'+sbuf+'\'+Chr(59+Azoom)+
+          then result:=result+'\'+sbuf+'\'+Chr(59+Azoom)+
                        full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'
-          else result:=result+NameInCache+'\'+'10'+'-'+full((x shr (Azoom-10))shr 8,10)+'-'+
+          else result:=result+'\'+'10'+'-'+full((x shr (Azoom-10))shr 8,10)+'-'+
                        full((y shr (Azoom-10))shr 8,10)+'\'+sbuf+'\'+Chr(59+Azoom)+
                        full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\';
    result:=result+name+ext;
  end;
  4,41:
  begin
-  result:=GState.GMTilespath_;
   x:=x shr 8;
   y:=y shr 8;
-  if ct=4 then result:=result+NameInCache+format('\z%d\%d\%d'+ext,[Azoom-1,Y,X])
-          else result:=result+NameInCache+format('\z%d\%d_%d'+ext,[Azoom-1,Y,X]);
+  if ct=4 then result:=result+format('\z%d\%d\%d'+ext,[Azoom-1,Y,X])
+          else result:=result+format('\z%d\%d_%d'+ext,[Azoom-1,Y,X]);
  end;
  5:
  begin
-  result:=GState.GECachepath_;
-  result:=result+NameInCache;
   fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
   if (result[2]<>'\')and(system.pos(':',result)=0)
    then result:=ProgrammPath+result;
