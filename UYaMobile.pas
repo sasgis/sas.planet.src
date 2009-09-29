@@ -7,12 +7,13 @@ uses
   classes;
 
 const
- TableOffset=8;
- Head:int64 =$6000158444E59; //288230381927550553;
+ TableOffset=10;
+ Head:int64 = $000A000158444E59;//288230381927550553;
 
 var
  TableSize:integer;
  DataOffset:integer;
+ Header:array [0..7] of byte;
  tileinfo:array [0..5] of byte;
 
  procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
@@ -66,31 +67,19 @@ begin
 end;
 
 procedure CreateNilFile(path:string);
-var f:File;
-    n:byte;
-    i:integer;
+var i:integer;
     ms:TMemoryStream;
+    n:array [0..TableOffset-8-1] of byte;
 begin
  createdirif(path);
  ms:=TMemoryStream.Create;
- ms.WriteBuffer(Head,8);
- n:=0;
-{ for i:=0 to TableOffset-1-8 do
-  ms.WriteBuffer(n,1); }
+ ms.Write(Head,8);
+ FillChar(n,TableOffset-8,0);
+ ms.Write(n,TableOffset-8);
  for i:=0 to sqr(TableSize)-1 do
-  ms.WriteBuffer(tileinfo,6);
+  ms.Write(tileinfo,6);
  ms.SaveToFile(path);
  ms.Free;
-{ createdirif(path);
- AssignFile(f,path);
- Rewrite(f,1);
- BlockWrite(f,Head,8);
- n:=0;
- for i:=0 to TableOffset-1-8 do
-  BlockWrite(f,n,1);
- for i:=0 to sqr(TableSize)-1 do
-  BlockWrite(f,tileinfo,6);
- CloseFile(f);}
 end;
 
 procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
@@ -99,6 +88,7 @@ var MobileFilePath:string;
     TablePos:integer;
     Adr,RAdr:integer;
     Len:Smallint;
+    realTableOffset:integer;
 begin
  dec(Z);
  if z>7 then TableSize:=256
@@ -109,19 +99,21 @@ begin
   then CreateNilFile(MobileFilePath);
  MobileFile:=TFileStream.Create(MobileFilePath,fmOpenReadWrite);
 
+ MobileFile.Read(Header,8);
+ realTableOffset:=(header[6]or(header[7]shl 8));
  TablePos:=GetMobileFilePos(X,Y,Z)*6+sm_xy*6;
 
  Adr:=MobileFile.Size;
  Len:=tile.Size;
- MobileFile.Position:=TableOffset+TablePos;
- MobileFile.ReadBuffer(RAdr,4);
+ MobileFile.Position:=realTableOffset+TablePos;
+ MobileFile.Read(RAdr,4);
  if (RAdr=0)or(replace) then
   begin
-   MobileFile.Position:=TableOffset+TablePos;
-   MobileFile.WriteBuffer(Adr,4);
-   MobileFile.WriteBuffer(Len,2);
+   MobileFile.Position:=realTableOffset+TablePos;
+   MobileFile.Write(Adr,4);
+   MobileFile.Write(Len,2);
    MobileFile.Position:=MobileFile.Size;
-   MobileFile.WriteBuffer(tile.Memory^,tile.Size);
+   MobileFile.Write(tile.Memory^,tile.Size);
   end;
  MobileFile.Free;
 end;

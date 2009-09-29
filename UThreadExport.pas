@@ -135,19 +135,20 @@ end;
 function UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; MapTypeMerS:TMapType;p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
 var bmp2,bmp1:TBitmap32;
     png:TPngObject;
-    err1,err2:boolean;
+    res1,res2:boolean;
 begin
+ res1:=false;
+ res2:=false;
  bmp.width:=256;
  bmp.Height:=256;
  bmp.Clear(clSilver);
- err1:=false;
- err2:=false;
  bmp2:=TBitmap32.Create;
  bmp2.DrawMode:=dmBlend;
  bmp1:=TBitmap32.Create;
  bmp1.DrawMode:=dmBlend;
  png:=TPngObject.Create;
             try
+             res1:=true;
              if TypeMapArr.ext='.png' then
               begin
                bmp1.width:=256;
@@ -155,21 +156,22 @@ begin
                if TypeMapArr.LoadTile(png,p_h.x, p_h.y, zoom+1,false)
                 then PNGintoBitmap32(bmp1,png)
                 else begin
+                       res1:=false;
                        bmp1.width:=256;
                        bmp1.Height:=256;
                        bmp1.Clear(clSilver);
-                       err1:=true;
                      end;
               end
               else if (not(TypeMapArr.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false)))
                     then begin
+                           res1:=false;
                            bmp1.width:=256;
                            bmp1.Height:=256;
                            bmp1.Clear(clSilver);
-                           err1:=true;
                          end;
+
             except
-             err1:=true;
+             res1:=false;
              bmp1.width:=256;
              bmp1.Height:=256;
              bmp1.Clear(clSilver);
@@ -180,6 +182,7 @@ begin
             if MapTypeMerS.projection<>TypeMapArr.projection then
              begin
               try
+               res2:=true;
                if TypeMapArr.ext='.png' then
                 begin
                  bmp2.width:=256;
@@ -187,21 +190,22 @@ begin
                  if TypeMapArr.LoadTile(png,p_h.x,p_h.y+256,zoom+1,false)
                    then PNGintoBitmap32(bmp2,png)
                    else begin
+                         res2:=false;
                          bmp2.width:=256;
                          bmp2.Height:=256;
                          bmp2.Clear(clSilver);
-                         err2:=true;
                         end;
                 end
                else if (not(TypeMapArr.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false)))
                     then begin
+                           res2:=false;
                            bmp2.width:=256;
                            bmp2.Height:=256;
                            bmp2.Clear(clSilver);
-                           err2:=true;
                          end;
+               res2:=true;
               except
-               err2:=true;
+               res2:=false;
                bmp2.width:=256;
                bmp2.Height:=256;
                bmp2.Clear(clSilver);
@@ -209,7 +213,7 @@ begin
               if p_h.Y<0 then bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2)
                          else bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);
              end;
- result:=not(err1 and err2);
+ result:=(res1 or res2);
  png.Free;
  bmp2.Free;
  bmp1.Free;
@@ -736,11 +740,10 @@ var p_x,p_y,p_xd256,p_yd256,i,j,ci,cj,xi,yi,hxyi,sizeim,cri,crj:integer;
     Color32arr:PColor32Array;
     bmp32,bmp322,bmp32crop:TBitmap32;
     jpg:TJpegImage;
-    bmp,bb:TBitmap;
+    bmp,bb,bmp8b:TBitmap;
     TileStream : TMemoryStream;
     PList:Text;
     LLCenter:TExtendedPoint;
-    gif:TGIFImage;
     tic:longint;
     BtmRGB,PngRGB:PByte;
 begin
@@ -763,6 +766,7 @@ begin
  try
  jpg:=TJpegImage.Create;
  bmp:=TBitmap.Create;
+ bmp8b:=TBitmap.Create;
  bmp.Width:=sizeim;
  bmp.Height:=sizeim;
  png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
@@ -778,9 +782,6 @@ begin
  bmp32crop:=TBitmap32.Create;
  bmp32crop.Width:=sizeim;
  bmp32crop.Height:=sizeim;
-
- gif:=TGIFImage.Create;
- GIF.ColorReduction := rmQuantizeWindows;
 
  MapTypeMerS:=TMapType.Create;
  MapTypeMerS.projection:=2;
@@ -868,24 +869,25 @@ begin
             if j=1 then
              begin
               bmp.Assign(bmp32);
-              bmp:=ReduceColors(bmp, rmQuantize, dmNearest, 6, bmp.Palette);
+              bmp8b:=ReduceColors(bmp, rmQuantize, dmNearest, 8, bmp.Palette);
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  BtmRGB:=Pointer(integer(bmp.Scanline[(sizeim*yi)])+(sizeim*xi));
+                  BtmRGB:=Pointer(integer(bmp8b.Scanline[(sizeim*yi)])+(sizeim*xi));
                   PngRGB:=png.Scanline[0];
                   for cj:=(sizeim*yi) to (sizeim*yi)+(sizeim-1) do
                    begin
                     CopyMemory(PngRGB,BtmRGB,sizeim);
-                    DEC(BtmRGB, bmp.Width);
+                    DEC(BtmRGB, bmp8b.Width);
                     DEC(PngRGB, png.Width);
                    end;
-                  png.Palette:=bmp.Palette;
-                  //png.SaveToFile('c:\1.png');
+                  png.Palette:=bmp8b.Palette;
+//                  png.SaveToFile('c:\1.png');
                   TileStream.Clear;
                   png.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
                 end;
+              bmp8b.Free;
              end;
             if j=0 then
               for xi:=0 to hxyi do
@@ -918,7 +920,7 @@ begin
  finally
   FProgress.Close;
   png.Free;
-  gif.Free;
+  if bmp8b<>nil then bmp8b.Free;
   jpg.Free;
   bmp.Free;
   bmp32.Free;
