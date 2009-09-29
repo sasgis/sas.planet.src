@@ -771,11 +771,11 @@ begin
  bmp.Height:=sizeim;
  png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
  png.CompressionLevel:=cMap;
+ png.AddtEXt('src','SAS.Planet'+SASVersion);
 ///png.Assign(bmp);
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
  bmp32.DrawMode:=dmBlend;
-// bmp32.DrawMode:=dmTransparent;
  bmp322:=TBitmap32.Create;
  bmp322.DrawMode:=dmBlend;
 
@@ -920,7 +920,6 @@ begin
  finally
   FProgress.Close;
   png.Free;
-  if bmp8b<>nil then bmp8b.Free;
   jpg.Free;
   bmp.Free;
   bmp32.Free;

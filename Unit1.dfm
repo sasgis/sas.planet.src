@@ -1,7 +1,7 @@
 object Fmain: TFmain
-  Left = 284
-  Top = 109
-  Width = 969
+  Left = 517
+  Top = 65
+  Width = 961
   Height = 575
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -60,7 +59,7 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 57
-    Width = 721
+    Width = 713
     Height = 475
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -82,11 +81,13 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 961
+    Width = 953
     Height = 57
     object TBMainToolBar: TTBXToolbar
       Left = 0
       Top = 23
+      DockPos = -8
+      DockRow = 2
       Images = TBImageList2
       Stretch = True
       TabOrder = 0
@@ -200,9 +201,10 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 240
+      Left = 238
       Top = 23
-      DockPos = 240
+      DockPos = 216
+      DockRow = 2
       Images = ImagesSrc24
       Stretch = True
       TabOrder = 1
@@ -234,9 +236,10 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 367
+      Left = 365
       Top = 23
-      DockPos = 304
+      DockPos = 360
+      DockRow = 2
       Images = TBImageList2
       LinkSubitems = NMarks
       Stretch = True
@@ -245,9 +248,10 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 507
+      Left = 505
       Top = 23
       DockPos = 488
+      DockRow = 2
       Images = TBImageList2
       Stretch = True
       TabOrder = 3
@@ -311,9 +315,10 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 926
+      Left = 918
       Top = 23
-      DockPos = 5000
+      DockPos = 918
+      DockRow = 2
       TabOrder = 4
       Visible = False
       object TBItem2: TTBItem
@@ -893,7 +898,7 @@ object Fmain: TFmain
   object TBDockBottom: TTBXDock
     Left = 0
     Top = 532
-    Width = 961
+    Width = 953
     Height = 9
     Position = dpBottom
   end
@@ -1741,7 +1746,7 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 757
+    Left = 749
     Top = 57
     Width = 204
     Height = 475
