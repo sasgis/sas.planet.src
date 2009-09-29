@@ -40,6 +40,7 @@ type
 implementation
 
 uses
+  u_GlobalState,
   unit1,
   Ugeofun;
 
@@ -71,7 +72,7 @@ end;
 procedure TOpDelTiles.CloseProgressForm;
 begin
  fprogress.Free;
- MainFileCache.Clear;
+ GState.MainFileCache.Clear;
  Fmain.generate_im(nilLastLoad,'');
 end;
 

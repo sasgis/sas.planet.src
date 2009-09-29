@@ -6,7 +6,8 @@ uses
   Graphics,
   t_GeoTypes,
   u_GeoToStr,
-  Uimgfun;
+  Uimgfun,
+  u_MemFileCache;
 type
   TInetConnect = record
     proxyused,userwinset,uselogin:boolean;
@@ -19,6 +20,8 @@ type
   private
 
   public
+    MainFileCache: TMemFileCache;
+
     // Параметры программы
 
     // Заходить на сайт автора при старте программы
@@ -30,8 +33,16 @@ type
     llStrType: TDegrShowFormat;
     // Количество скачаных данных в килобайтах
     All_Dwn_Kb: Currency;
+    // Количество скачанных тайлов
+    All_Dwn_Tiles: Cardinal;
 
     InetConnect:TInetConnect;
+    //Записывать информацию о тайлах отсутствующих на сервере
+    SaveTileNotExists: Boolean;
+    // Делать вторую попытку скачать файл при ошибке скачивания
+    TwoDownloadAttempt: Boolean;
+    // Переходить к следующему тайлу если произошла ошибка закачки
+    GoNextTileIfDownloadError: Boolean;
 
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
@@ -39,15 +50,33 @@ type
     DefCache: byte;
 
     GPS_enab: Boolean;
-    //Скорость GPS COM порта
-    GPS_BaudRate: Integer;
+
     //COM-порт, к которому подключен GPS
     GPS_COM: string;
+    //Скорость GPS COM порта
+    GPS_BaudRate: Integer;
+    // Максимальное время ожидания данных от GPS
+    GPS_TimeOut: integer;
+    // Интервал между точками от GPS
+    GPS_Delay: Integer;
     //Поправка GPS
     GPS_Correction: TExtendedPoint;
     //Размер указателя направления при GPS-навигации
     GPS_ArrowSize: Integer;
-
+    //Цвет указателя направления при навигацци
+    GPS_ArrowColor: TColor;
+    //Отображать GPS трек
+    GPS_ShowPath: Boolean;
+    //Центрировать карту на GPS позиции
+    GPS_MapMove: Boolean;
+    //Заисывать GPS трек в файл
+    GPS_WriteLog: boolean;
+    //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
+    GPS_LogFile: TextFile;
+    //Массив со значенимя скоростей полученными от GPS
+    GPS_ArrayOfSpeed: array of Real;
+    //Точки GPS трека
+    GPS_TrackPoints: TExtendedPointArray;
 
     BorderColor: TColor;
     BorderAlpha: byte;
@@ -96,18 +125,29 @@ type
 
 
     constructor Create;
-
+    destructor Destroy; override;
   end;
 
 var
   GState: TGlobalState;
 implementation
 
+uses
+  SysUtils;
+
 { TGlobalState }
 
 constructor TGlobalState.Create;
 begin
   All_Dwn_Kb := 0;
+  All_Dwn_Tiles:=0;
+  MainFileCache := TMemFileCache.Create;
+end;
+
+destructor TGlobalState.Destroy;
+begin
+  FreeAndNil(MainFileCache);
+  inherited;
 end;
 
 end.

@@ -333,7 +333,7 @@ begin
  Ini.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
  Ini.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  Ini.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
- Ini.WriteInteger('VIEW','TilesOCache', MainFileCache.CacheElemensMaxCnt);
+ Ini.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
  Ini.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
  if Fillingmaptype=nil then Ini.WriteString('VIEW','FillingMap','0')
@@ -374,17 +374,17 @@ begin
 
  if GState.GPS_enab then Ini.WriteBool('GPS','enbl',true)
                 else Ini.WriteBool('GPS','enbl',false);
- Ini.WriteBool('GPS','path',GPS_path);
- Ini.WriteBool('GPS','go',GPS_go);
+ Ini.WriteBool('GPS','path',GState.GPS_ShowPath);
+ Ini.WriteBool('GPS','go',GState.GPS_MapMove);
  Ini.WriteString('GPS','COM',GState.GPS_COM);
  Ini.WriteInteger('GPS','BaudRate',GState.GPS_BaudRate);
  Ini.WriteFloat('GPS','popr_lon',GState.GPS_Correction.x);
  Ini.WriteFloat('GPS','popr_lat',GState.GPS_Correction.y);
- Ini.Writeinteger('GPS','update',GPS_update);
- Ini.WriteBool('GPS','log',GPS_Log);
+ Ini.Writeinteger('GPS','update',GState.GPS_Delay);
+ Ini.WriteBool('GPS','log',GState.GPS_WriteLog);
  Ini.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  Ini.WriteInteger('GPS','SizeTrack',GPS_SizeTrack);
- Ini.WriteInteger('GPS','ColorStr',GPS_colorStr);
+ Ini.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  Ini.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  Ini.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
  Ini.Writestring('PATHtoCACHE','ESC',GState.ESCpath_);
@@ -396,9 +396,9 @@ begin
  Ini.Writestring('INTERNET','proxy',GState.InetConnect.proxystr);
  Ini.Writestring('INTERNET','login',GState.InetConnect.loginstr);
  Ini.Writestring('INTERNET','password',GState.InetConnect.passstr);
- Ini.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
- Ini.WriteBool('INTERNET','DblDwnl',dblDwnl);
- Ini.Writebool('INTERNET','GoNextTile',GoNextTile);
+ Ini.WriteBool('INTERNET','SaveTileNotExists',GState.SaveTileNotExists);
+ Ini.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
+ Ini.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
  Ini.Writebool('NPARAM','stat',GState.WebReportToAuthor);
 
  i:=1;
@@ -484,13 +484,13 @@ begin
    k:=k shr 1;
   end;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
- MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
+ GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.FirstLat:=ChBoxFirstLat.Checked;
- DblDwnl:=CBDblDwnl.Checked;
- GoNextTile:=CkBGoNextTile.Checked;
- GPS_colorStr:=ColorBoxGPSstr.selected;
+ GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
+ GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
+ GState.GPS_ArrowColor:=ColorBoxGPSstr.selected;
  GState.InvertColor:=CBinvertcolor.Checked;
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
@@ -503,9 +503,9 @@ begin
 
  GState.GPS_ArrowSize:=SESizeStr.Value;
  GPS_SizeTrack:=SESizeTrack.Value;
- GPS_timeout:=SpinEdit2.Value;
- GPS_Log:=CB_GPSlog.Checked;
- GPS_update:=SpinEdit1.Value;
+ GState.GPS_TimeOut:=SpinEdit2.Value;
+ GState.GPS_WriteLog:=CB_GPSlog.Checked;
+ GState.GPS_Delay:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPS_COM:=ComboBoxCOM.Text;
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
@@ -517,7 +517,7 @@ begin
  GState.InetConnect.proxystr:=EditIP.Text;
  GState.InetConnect.loginstr:=EditLogin.Text;
  GState.InetConnect.passstr:=EditPass.Text;
- SaveTileNotExists:=CBSaveTileNotExists.Checked;
+ GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
  GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
  GState.OldCPath_:=IncludeTrailingPathDelimiter(OldCPath.Text);
@@ -661,22 +661,22 @@ begin
   ENU:CBoxLocal.ItemIndex:=1;
  end;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
- SETilesOCache.Value:=MainFileCache.CacheElemensMaxCnt;
+ SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
- CBDblDwnl.Checked:=DblDwnl;
+ CBDblDwnl.Checked:=GState.TwoDownloadAttempt;
  ChBoxFirstLat.Checked:=GState.FirstLat;
  CBlock_toolbars.Checked:=FMain.lock_toolbars;
- CkBGoNextTile.Checked:=GoNextTile;
+ CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  RBWinCon.Checked:=GState.InetConnect.userwinset;
  RBMyCon.Checked:=not(GState.InetConnect.userwinset);
  CBProxyused.Checked:=GState.InetConnect.proxyused;
  CBLogin.Checked:=GState.InetConnect.uselogin;
- CBSaveTileNotExists.Checked:=SaveTileNotExists;
+ CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
  EditIP.Text:=GState.InetConnect.proxystr;
  EditLogin.Text:=GState.InetConnect.loginstr;
  EditPass.Text:=GState.InetConnect.passstr;
- ColorBoxGPSstr.Selected:=GPS_colorStr;
+ ColorBoxGPSstr.Selected:=GState.GPS_ArrowColor;
  CBinvertcolor.Checked:=GState.InvertColor;
  PageControl1.ActivePageIndex:=0;
  ColorBoxBorder.Selected:=GState.BorderColor;
@@ -691,9 +691,9 @@ begin
  ESCPath.text:=GState.ESCPath_;
  GMTilesPath.text:=GState.GMTilesPath_;
  GECachePath.text:=GState.GECachePath_;
- SpinEdit2.Value:=GPS_timeout;
- CB_GPSlog.Checked:=GPS_Log;
- SpinEdit1.Value:=GPS_update;
+ SpinEdit2.Value:=GState.GPS_TimeOut;
+ CB_GPSlog.Checked:=GState.GPS_WriteLog;
+ SpinEdit1.Value:=GState.GPS_Delay;
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GPS_SizeTrack;
  ScrolInvert.Checked:=GState.MouseWheelInv;

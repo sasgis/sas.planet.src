@@ -96,9 +96,9 @@ end;
 
 function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
 var
-    PixelPtr: PColor32;
+    RGBPtr:PColor32Array;
     TransparentColor: TColor32;
-    AlphaPtr: PByte;
+    AlphaPtr: pByteArray;
     png:TPNGObject;
     X, Y: Integer;
 begin
@@ -113,56 +113,42 @@ begin
       if (PNGObject.Header.ColorType in [COLOR_GRAYSCALEALPHA,COLOR_RGBALPHA]) then
        begin
         destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);// Assign(PNGObject);
-        PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
          begin
-          AlphaPtr:=PByte(PNGObject.AlphaScanline[Y]);
-          for X:=0 to destBitmap.Width-1 do
-           begin
-            PixelPtr^:=(PixelPtr^ and $00FFFFFF)or(TColor32(AlphaPtr^)shl 24);
-            Inc(PixelPtr);
-            Inc(AlphaPtr);
-           end;
+          RGBPtr:=destBitmap.ScanLine[Y];
+          AlphaPtr:=PNGObject.AlphaScanline[Y];
+          for X:=0 to destBitmap.Width-1 do begin
+           RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
+          end;
          end;
        end;
       if (PNGObject.Header.ColorType in [COLOR_PALETTE]) then
        begin
-        PixelPtr:=PColor32(@destBitmap.Bits[0]);
         for Y:=0 to destBitmap.Height-1 do
-        begin
-        AlphaPtr:=PByte(PNGObject.Scanline[Y]);
-        for X:=0 to (destBitmap.Width-1) do
          begin
-          if AlphaPtr^=0 then PixelPtr^:=(PixelPtr^ and $00000000)
-                         else PixelPtr^:=Color32(PNGObject.Pixels[X,Y]);
-          Inc(PixelPtr);
-          Inc(AlphaPtr);
+          RGBPtr:=destBitmap.ScanLine[Y];
+          AlphaPtr:=PNGObject.Scanline[Y];
+          for X:=0 to (destBitmap.Width-1) do begin
+            RGBPtr^[x]:=TColor32(integer(TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE)).Item[AlphaPtr^[X]])
+             or TChunktRNS(PNGObject.Chunks.ItemFromClass(TChunktRNS)).PaletteValues[AlphaPtr^[X]] shl 24);
+          end;
          end;
-        end;
        end;
-     end;
-    ptmBit:
-      begin
-//          destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);// Assign(PNGObject);
-          {TransparentColor := Color32(PNGObject.TransparentColor);
-          PixelPtr := PColor32(@destBitmap.Bits[0]);
-          for X := 0 to (destBitmap.Height - 1) * (destBitmap.Width - 1) do
-          begin
-            if PixelPtr^ = 0  then
-              PixelPtr^ := PixelPtr^ and $00000000;
-            Inc(PixelPtr);
-          end; }
-        PixelPtr:=PColor32(@destBitmap.Bits[0]);
-        for Y:=0 to destBitmap.Height-1 do
-        begin
-        for X:=0 to (destBitmap.Width-1) do
-         begin
-          if PNGObject.Pixels[X,Y]=PNGObject.TransparentColor then PixelPtr^:=PixelPtr^ and $00000000
-                         else PixelPtr^:=Color32(PNGObject.Pixels[X,Y]);
-          Inc(PixelPtr);
-         end;
-        end;
       end;
+    ptmBit:
+      if (PNGObject.Header.ColorType in [COLOR_PALETTE]) then
+       begin
+        for Y:=0 to destBitmap.Height-1 do
+         begin
+          RGBPtr:=destBitmap.ScanLine[Y];
+          AlphaPtr:=PNGObject.Scanline[Y];
+          for X:=0 to (destBitmap.Width-1) do begin
+           if PNGObject.Pixels[X,Y]=PNGObject.TransparentColor
+            then RGBPtr^[x]:=RGBPtr^[x] and $00000000
+            else RGBPtr^[x]:=Color32(PNGObject.Pixels[X,Y]);
+          end
+         end;
+       end;
      ptmNone:
        begin
         destBitmap.Assign(PNGObject);
