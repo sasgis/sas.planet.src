@@ -13,9 +13,9 @@ type
     FRadiusa : Extended;
   public
     constructor Create(Aradiusa: Extended);
-    function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint; override;
-    function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint; override;
-	  function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; override;
+    function Pos2LonLat(const AXY : TPoint; Azoom : byte) : TExtendedPoint; override;
+    function LonLat2Pos(const ALl : TExtendedPoint; Azoom : byte) : Tpoint; override;
+	  function LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
   end;
 
@@ -31,29 +31,35 @@ begin
   FRadiusa := Aradiusa;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2Pos(Ll: TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2Pos(const ALl: TExtendedPoint;
   Azoom: byte): Tpoint;
 var
   TilesAtZoom : Integer;
+  VLl: TExtendedPoint;
 begin
   TilesAtZoom := (1 shl Azoom);
-  Result.x := round(TilesAtZoom / 2 + Ll.x * (TilesAtZoom / 360));
-  Result.y := round(TilesAtZoom / 2 - Ll.y * (TilesAtZoom / 360));
+  VLL := ALl;
+  Result.x := round(TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360));
+  Result.y := round(TilesAtZoom / 2 - VLl.y * (TilesAtZoom / 360));
 end;
 
-function TCoordConverterSimpleLonLat.Pos2LonLat(XY: TPoint;
+function TCoordConverterSimpleLonLat.Pos2LonLat(const AXY: TPoint;
   Azoom: byte): TExtendedPoint;
 var
   TilesAtZoom : Integer;
+  VXY: TPoint;
 begin
   TilesAtZoom := (1 shl Azoom);
+  VXY := AXY;
   //XY.x := XY.x mod TilesAtZoom;
-  if XY.x < 0 then XY.x := XY.x + TilesAtZoom;
-  Result.X := (XY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
-  Result.y := -(XY.y - TilesAtZoom / 2) / (TilesAtZoom / 360);
+  if VXY.x < 0 then VXY.x := VXY.x + TilesAtZoom;
+  Result.X := (VXY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
+  Result.y := -(VXY.y - TilesAtZoom / 2) / (TilesAtZoom / 360);
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;
+var
+  VLl : TExtendedPoint;
 begin
   result.x:=0;
   result.y:=0;

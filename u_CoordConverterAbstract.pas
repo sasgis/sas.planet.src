@@ -9,9 +9,9 @@ uses
 type
   ICoordConverter = interface
   ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
-    function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint;
-    function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint;
-    function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint;
+    function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
+    function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; stdcall;
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
@@ -20,9 +20,9 @@ type
 
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
   public
-    function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; abstract;
-    function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; abstract;
-    function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint; virtual; abstract;
+    function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
+    function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall; abstract;
+    function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;

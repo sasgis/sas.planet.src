@@ -37,6 +37,7 @@ type
     FpGetRMetr: PPSVariantExtended;
     FpGetTMetr: PPSVariantExtended;
     FpGetBMetr: PPSVariantExtended;
+    FpConverter: PPSVariantInterface;
     FGetURLScript : string;
     FGetURLBase : String;
     procedure SetVar;
@@ -51,15 +52,54 @@ implementation
 
 uses
   Math,
+  uPSUtils,
   u_GeoToStr,
   t_GeoTypes;
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
 var
   T : TPSType;
+  RecT: TPSRecordType;
 begin
   if Name = 'SYSTEM' then
   begin
+    T := Sender.FindType('integer');
+    RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
+    with RecT.AddRecVal do begin
+      FieldOrgName := 'x';
+      aType := t;
+    end;
+
+    with RecT.AddRecVal do begin
+      FieldOrgName := 'y';
+      aType := t;
+    end;
+
+    T := Sender.FindType('extended');
+    RecT := TPSRecordType(Sender.AddType('TExtendedPoint', btRecord));
+    with RecT.AddRecVal do begin
+      FieldOrgName := 'x';
+      aType := t;
+    end;
+
+    with RecT.AddRecVal do begin
+      FieldOrgName := 'y';
+      aType := t;
+    end;
+
+    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverter, 'ICoordConverter') do
+    begin
+      RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint', cdStdCall);
+      RegisterMethod('function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint', cdStdCall);
+      RegisterMethod('function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint', cdStdCall);
+      RegisterDummyMethod; // Pos2OtherMap
+      RegisterDummyMethod; // CalcPoligonArea
+      RegisterDummyMethod; // PoligonProject
+      RegisterDummyMethod; // CalcDist
+    end;
+    T := Sender.FindType('ICoordConverter');
+    Sender.AddUsedVariable('Converter', t);
+
     T := Sender.FindType('string');
     Sender.AddUsedVariable('ResultURL', t);
     Sender.AddUsedVariable('GetURLBase', t);
@@ -144,6 +184,7 @@ begin
   FpGetTmetr := PPSVariantExtended(FExec.GetVar2('GetTmetr'));
   FpGetBmetr := PPSVariantExtended(FExec.GetVar2('GetBmetr'));
   FpGetRmetr := PPSVariantExtended(FExec.GetVar2('GetRmetr'));
+  FpConverter := PPSVariantInterface(FExec.GetVar2('Converter'));
   InitializeCriticalSection(FCS);
 end;
 
@@ -159,6 +200,8 @@ procedure TUrlGenerator.SetVar;
 var XY : TPoint;
     Ll : TExtendedPoint;
 begin
+
+
     FpGetX.Data := posxp;
     FpGetY.Data := posyp;
     FpGetZ.Data := zoom + 1;
@@ -178,6 +221,7 @@ begin
     Ll:=FCoordConverter.LonLat2Metr(LL);
     FpGetRMetr.Data := Ll.X;
     FpGetBMetr.Data := Ll.Y;
+    FpConverter.Data := FCoordConverter;
 end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
