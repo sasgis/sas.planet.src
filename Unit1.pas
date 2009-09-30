@@ -522,7 +522,7 @@ class   procedure delfrompath(pos:integer);
    size_dw,zooming,m_dwn:boolean;
    width,height,dx,dy:integer;
    pos:TPoint;
-   alpha,zoom,z1mz2:byte;
+   alpha,zoom,z1mz2:integer;
    maptype:TMapType;
    PlusButton,MinusButton,SmMapBitmap:TBitmap32;
   end;
@@ -2398,7 +2398,7 @@ begin
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
-  LayerMapScale:=TBitmapLayer.Create(map.Layers);
+ LayerMapScale:=TBitmapLayer.Create(map.Layers);
  LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
  LayerMapScale.Bitmap.Width:=290;
  LayerMapScale.Bitmap.Height:=290;
@@ -2485,13 +2485,16 @@ begin
  sm_map.SmMapBitmap:=TBitmap32.Create;
  Sm_Map.SmMapBitmap.CombineMode:=cmMerge;
  Sm_Map.SmMapBitmap.MasterAlpha:=100;
- Sm_Map.SmMapBitmap.Resampler:=TKernelResampler.Create;
- TKernelResampler(Sm_Map.SmMapBitmap.Resampler).Kernel:=TLinearKernel.Create;
+ //TKernelResampler.Create;
+ //TKernelResampler(Sm_Map.SmMapBitmap.Resampler).Kernel:=TLinearKernel.Create;
  LayerMinMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
  LayerMinMap.Cursor:=crHandPoint;
  LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
  LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
  LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
+ LayerMinMap.bitmap.DrawMode:=dmBlend;
+ LayerMinMap.bitmap.Canvas.brush.Color:=$e0e0e0;
+ LayerMinMap.bitmap.Canvas.Pen.Color:=ClBlack;
 
  LayerStatBar:=TBitmapLayer.Create(map.Layers);
  LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
@@ -2756,8 +2759,9 @@ begin
                          else LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height,sm_map.width+5,sm_map.height));
  LayerMinMap.Bitmap.Width:=sm_map.width+5;
  LayerMinMap.Bitmap.Height:=sm_map.height+5;
+ Sm_Map.SmMapBitmap.Resampler:=CreateResampler(GState.Resampling);
  sm_map.zoom:=GState.zoom_size-sm_map.z1mz2;
- if GState.zoom_size-sm_map.z1mz2<=0 then sm_map.zoom:=1;
+ if sm_map.zoom<1 then sm_map.zoom:=1;
  if sm_map.zoom>1
   then begin
         if ((x=sm_map.width div 2)and(y=sm_map.height div 2))and(not sm_map.size_dw) then sm_im_reset_type2(x,y);
@@ -2766,7 +2770,7 @@ begin
         sm_map.pos:=Point(x,y);
        end
   else begin
-         if (longint(sm_map.maptype)=0)
+        if (longint(sm_map.maptype)=0)
            then begin
                  if not(sat_map_both.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true))
                   then Sm_Map.SmMapBitmap.Assign(DefoultMap);
@@ -2775,14 +2779,14 @@ begin
                  then Sm_Map.SmMapBitmap.Assign(DefoultMap);
          for iLay:=0 to length(MapType)-1 do
           if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-            if not(MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false))
-              then Sm_Map.SmMapBitmap.Assign(DefoultMap);
+            MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false);
         if (x=sm_map.width div 2)and(y=sm_map.height div 2)
          then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[GState.zoom_size])),round(pos.y*(sm_map.height/zoom[GState.zoom_size])))
          else sm_map.pos:=Point(x,y);
         sm_map.dx:=round(sm_map.width*(map.Width/zoom[GState.zoom_size]));
         sm_map.dy:=round(sm_map.height*(map.Height/zoom[GState.zoom_size]));
        end;
+
  LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
  gamma(LayerMinMap.bitmap);
 
@@ -2805,17 +2809,14 @@ begin
  Polygon.DrawFill(LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
  Polygon.Free;
 
- LayerMinMap.bitmap.Canvas.brush.Color:=$e0e0e0;
- LayerMinMap.bitmap.Canvas.Pen.Color:=ClBlack;
  LayerMinMap.bitmap.Canvas.Polygon([point(0,sm_map.height+5),point(0,0),point(sm_map.width+5,0),point(sm_map.width+5,4),point(4,4),point(4,sm_map.height+5)]);
  LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-6]:=clBlack;
  LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-2]:=clBlack;
  LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+2]:=clBlack;
  LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+6]:=clBlack;
- LayerMinMap.bitmap.DrawMode:=dmBlend;
  LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
  if sm_map.z1mz2>1 then LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
- if GState.zoom_size-sm_map.z1mz2>1 then LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
+ if sm_map.zoom>1 then LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
  LayerMinMap.BringToFront;
 end;
 
