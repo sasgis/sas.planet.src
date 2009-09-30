@@ -4904,7 +4904,6 @@ begin
 
   {Draws the new bitmap on the foreground}
   BitBlt(DC, Rect.Left, Rect.Top, W, H, BufferDC, 0, 0, SRCCOPY);
-
   {Free bitmap}
   SelectObject(BufferDC, OldBitmap);
   DeleteObject(BufferBitmap);

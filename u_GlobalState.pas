@@ -110,7 +110,7 @@ type
     GMTilespath_: string;
     GECachepath_: string;
 
-    //????
+    // ѕоказывать хинты при нахождении мыши над меткой
     ShowHintOnMarks: Boolean;
 
     // ѕараетры касающиес€ именно главного окна

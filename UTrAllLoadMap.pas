@@ -715,9 +715,8 @@ end;
 
 procedure ThreadAllLoadMap.WriteToFile;
 begin
- if (not(typeRect in [2,3]))and(Fmain.Enabled)then
+ if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(dwn))and(not(anim_zoom=1)) then
   begin
-   move.X:=m_up.x;
    Fmain.generate_im(TLastLoad(lastload),err);
   end
  else Fmain.toSh;
