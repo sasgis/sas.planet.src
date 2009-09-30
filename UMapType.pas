@@ -31,6 +31,7 @@ type
     TileRect:TRect;
     pos: integer;
     filename: string;
+    function GetCoordConverter: ICoordConverter;
    public
     id: integer;
     guids: string;
@@ -88,7 +89,7 @@ type
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
     function GetShortFolderName: string;
-    property GeoConvert: ICoordConverter read FCoordConverter;
+    property GeoConvert: ICoordConverter read GetCoordConverter;
   private
     err: string;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
@@ -1045,6 +1046,14 @@ end;
 function TMapType.GetShortFolderName: string;
 begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(NameInCache)));
+end;
+
+
+function TMapType.GetCoordConverter: ICoordConverter;
+begin
+ if Self=nil
+  then Result:= nil
+  else Result:= FCoordConverter;
 end;
 
 end.

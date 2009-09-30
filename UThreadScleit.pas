@@ -364,6 +364,8 @@ begin
     1: begin
         Datum:='EPSG:7059';
         Proj:='EPSG:3785';
+//        Datum:='EPSG:3857'; На будущее
+//        Proj:='EPSG:3857';
         Units:=ECW_CELL_UNITS_METERS;
        end;
     2: begin
