@@ -456,14 +456,11 @@ type
     procedure TBEditPathOkClick(Sender: TObject);
     procedure TBItem1Click(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
-    procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;
-      var ACol, ARow: Integer; var AllowChange: Boolean);
-    procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB;
-      var hwnd: HWND; var szUserName, szPassWord: WideString;
-      var Rezult: HRESULT);
+    procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
+    procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
     procedure NanimateClick(Sender: TObject);
   private
-    ShowActivHint:boolean;
+   ShowActivHint:boolean;
    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
    procedure Set_lock_toolbars(const Value: boolean);
@@ -571,11 +568,8 @@ var
   zoom_line,
   poly_zoom_save:byte;
   marshrutcomment:string;
-  mx,
-  my,
   gamman,
   contrastn,
-  vo_ves_ecr,
   anim_zoom,
   GShScale,
   mWd2,
@@ -587,7 +581,7 @@ var
   pr_x,
   pr_y,
   GPS_SizeTrack:integer;
-  move,m_up,m_m,oldPOS,moveTrue:Tpoint;
+  move,m_up,m_m,moveTrue:Tpoint;
   notpaint,
   dwn,
   start,
@@ -600,19 +594,16 @@ var
   marksicons:TStringList;
   movepoint,lastpoint:integer;
   TilesOut:integer;
-  Find_Zoom:byte;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
   Deg:real;
-  length_arr,add_line_arr:TExtendedPointArray;
-  reg_arr,poly_save:TExtendedPointArray;
+  length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
   sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   h: THintWindow;
-  oldLayerIndex:integer;
   curBuf:TCursor;
   OldFormWH:TPoint;
   Wikim_set:TWikim_set;
@@ -623,8 +614,6 @@ var
   localization:integer;
   ProgrammPath:string;
   NavOnMark:TNavOnMark;
-  PosLL:TExtendedPoint;
-
 
   hres:HRESULT;
   procedure Gamma(Bitmap: TBitmap32);
@@ -1214,7 +1203,7 @@ begin
     begin
      if not((dwn)or(anim_zoom=1)) then
        begin
-        move.X:=m_up.x;
+        //move.X:=m_up.x;
         GState.MainFileCache.Clear;
         Fmain.generate_im(nilLastLoad,'');
        end;
@@ -2001,9 +1990,10 @@ begin
  if not(AMap.LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
   begin
    spr.Clear(Color32(clSilver) xor $00000000);
+   bmp.Free;
    exit;
   end;
-  bmp.Resampler := CreateResampler(GState.Resampling);
+ bmp.Resampler := CreateResampler(GState.Resampling);
  c_x:=((x-(x mod 256))shr dZ)mod 256;
  c_y:=((y-(y mod 256))shr dZ)mod 256;
  try
@@ -2085,6 +2075,7 @@ procedure TFmain.generate_granica;
 var y_draw,x_draw,xx,yy,xx1,yy1:longint;
     i,j:integer;
     src:TRect;
+    drawcolor:TColor32;
     textoutx,textouty:string;
     d2562,x2,x1,y1,zl,twidthx,twidthy,theight:integer;
 begin
@@ -2100,6 +2091,7 @@ begin
                    else xx1:=((pos.x-pr_x)-256-((pos.x-pr_x)mod 256))*x2;
  if (pos.y-pr_y)>0 then yy1:=((pos.y-pr_y)-((pos.y-pr_y)mod 256))*x2
                    else yy1:=((pos.y-pr_y)-256-((pos.y-pr_y)mod 256))*x2;
+ drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
  for i:=0 to hg_x*(x2)+(x_draw div d2562) do
   for j:=0 to hg_y*(x2)+(y_draw div d2562) do
     begin
@@ -2108,21 +2100,23 @@ begin
      if (xx<0)or(yy<0)or(yy>=zoom[zl])or(xx>=zoom[zl]) then Continue;
      x1:=(i*d2562)-x_draw;
      y1:=(j*d2562)-y_draw;
-     LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-     LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-     if GState.ShowBorderText then
+     LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,drawcolor);
+     LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,drawcolor);
+     x1:=(x1+d2562 div 2);
+     y1:=(y1+d2562 div 2);
+     if (GState.ShowBorderText)and(x1>0)and(y1>0)and(x1<xhgpx)and(y1<yhgpx) then
        begin
         LayerMap.bitmap.Font.Size:=8;
         LayerMap.bitmap.Font.Name:='Arial';
         textoutx:='x='+inttostr(((pos.x-pr_x+x1)*x2)div 256);
         textouty:='y='+inttostr(((pos.y-pr_y+y1)*x2)div 256);
-        twidthx:=LayerMap.bitmap.TextWidth(textoutx);
-        twidthy:=LayerMap.bitmap.TextWidth(textouty);
+        twidthx:=LayerMap.bitmap.TextWidth(textoutx) div 2;
+        twidthy:=LayerMap.bitmap.TextWidth(textouty) div 2;
         if ((twidthx+6)<d2562)and((twidthy+6)<d2562) then
          begin
           theight:=LayerMap.bitmap.TextHeight(textoutx);
-          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthx div 2,(y1+d2562 div 2)-theight,textoutx,0,Color32(GState.BorderColor));
-          LayerMap.bitmap.RenderText((x1+d2562 div 2)-tWidthy div 2,(y1+d2562 div 2),textouty,0,Color32(GState.BorderColor));
+          LayerMap.bitmap.RenderText(x1-tWidthx,y1-theight,textoutx,0, drawcolor);
+          LayerMap.bitmap.RenderText(x1-tWidthy,y1,textouty,0,drawcolor);
          end;
        end;
     end;
@@ -2147,14 +2141,15 @@ end;
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
     y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,size,ii,jj:longint;
-    i,j:byte;
-    Leyi,NinCache:integer;
+    i,j,idr:byte;
+    Leyi,NinCache,xofs,yofs:integer;
     AcrBuf:Tcursor;
     posN:TPoint;
     ts:Cardinal;
     lok:string;
     png:TPNGObject;
     p:PColor32;
+    pbtm,pbtm2:PByte;
     W,H:Integer;
 begin
  if notpaint then exit;
@@ -2174,6 +2169,7 @@ begin
  if aoper<>movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  destroyWL;
+ spr.DrawMode:=dmOpaque;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
@@ -2224,7 +2220,7 @@ begin
     for j:=0 to hg_y do
       begin
        if GState.CiclMap then xx:=X2AbsX(posN.x-pr_x+(i shl 8),GState.zoom_size)
-                  else xx:=posN.x-pr_x+(i shl 8);
+                         else xx:=posN.x-pr_x+(i shl 8);
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
@@ -2234,7 +2230,6 @@ begin
          if LowerCase(MapType[Leyi].ext)='.png' then
           begin
            png:=TPNGObject.create;
-           spr.Clear;
            if MapType[Leyi].LoadTile(png,xx,yy,GState.zoom_size,true)
             then begin
                   if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
@@ -2286,12 +2281,11 @@ begin
     end;
     sm_im_reset(sm_map.width div 2,sm_map.height div 2);
    end;
- m_up.x:=move.X;
- m_up.y:=move.y;
- toSh;
  Label1.caption := IntToStr(GetTickCount-ts);
+{ m_up.x:=move.X;
+ m_up.y:=move.y;   }
+ toSh;
  map.Cursor:=AcrBuf;
- OldPos:=Pos;
 end;
 
 procedure loadMarksIcons;
@@ -2390,7 +2384,6 @@ begin
  yhgpx:=256*hg_y;
  xhgpx:=256*hg_x;
 
- vo_ves_ecr:=-3;
  Deg:=pi/180;
  spr:=TBitmap32.Create;
  spr.Width:=256;
@@ -2571,9 +2564,7 @@ begin
  GState.GECachePath_:=Ini.Readstring('PATHtoCACHE','GECache','cache_GE\');
  POS:=Point(Ini.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
             Ini.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
- oldPOS:=pos;
-
-  GState.UsePrevZoom := Ini.Readbool('VIEW','back_load',true);
+ GState.UsePrevZoom := Ini.Readbool('VIEW','back_load',true);
  GState.AnimateZoom:=Ini.Readbool('VIEW','animate',true);
  Fillingmaptype:=GetMapFromID(Ini.ReadString('VIEW','FillingMap','0'));
  if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
@@ -3942,7 +3933,6 @@ begin
   begin
    H.ReleaseHandle;
    FreeAndNil(H);
-   oldLayerIndex:=0;
   end;
 end;
 
@@ -4107,7 +4097,6 @@ begin
     begin
      H.ReleaseHandle;
      FreeAndNil(H);
-     oldLayerIndex:=0;
     end;
  if (layer=LayerMinMap) then exit;
  if (ssDouble in Shift)or(anim_zoom=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
@@ -4230,7 +4219,7 @@ begin
  if movepoint>-1 then begin movepoint:=-1; end;
  if (((aoper<>movemap)and(Button=mbLeft))or
      ((aoper=movemap)and(Button=mbRight))) then exit;
- m_up:=move;
+// m_up:=move;
  if (anim_zoom=1) then exit;
  map.Enabled:=false;
  map.Enabled:=true;
@@ -4436,7 +4425,6 @@ begin
     begin
      H.ReleaseHandle;
      FreeAndNil(H);
-     oldLayerIndex:=0;
     end;
    Layer.Cursor:=curBuf;
   end;
@@ -4483,7 +4471,6 @@ begin
         end;
        inc(i);
       end;
-     oldLayerIndex:=layer.Index;
      layer.Cursor:=crHandPoint;
      if nms<>'' then
      begin

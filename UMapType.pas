@@ -714,21 +714,16 @@ end;
 function LoadJPG32(FileName: string; Btm: TBitmap32): boolean;
   procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
   var W, H : Integer;
-      p : PInteger;
+      p : PIntegerArray;
   begin
-    p := PInteger(pData);
-    for H := 0 to Height-1 do
-    begin
-      for W := 0 to Width-1 do
-      begin
-        p^:= (byte(p^ shr 24) shl 24) or byte(p^ shr 16) or
-            (integer(byte(p^ shr 8)) shl 8) or (integer(byte(p^)) shl 16);
-        Inc(p);
+    p := PIntegerArray(pData);
+    for H := 0 to Height-1 do begin
+      for W := 0 to Width-1 do begin
+        p^[W]:=(p^[W] and $FF000000)or((p^[W] and $00FF0000) shr 16)or(p^[W] and $0000FF00)or((p^[W] and $000000FF) shl 16);
       end;
+      inc(p,width)
     end;
   end;
-const
-  sRead : array [Boolean] of String = ('JFILE_READ = ','JBUFF_READ = ');
 var
   iWidth, iHeight, iNChannels : Integer;
   iStatus : Integer;
@@ -759,6 +754,7 @@ begin
     jcprops.DIBColor := IJL_RGBA_FPX;
     jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
     jcprops.DIBBytes := PByte(Btm.Bits);
+
     if (jcprops.JPGChannels = 3) then
       jcprops.JPGColor := IJL_YCBCR
     else if (jcprops.JPGChannels = 4) then
@@ -776,8 +772,7 @@ begin
       result:=false;
       exit;
      end;
-    if jcprops.DIBColor = IJL_RGBA_FPX then
-      RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
+    RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
     ijlFree(@jcprops);
   except
     on E: Exception do
