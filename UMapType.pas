@@ -841,8 +841,16 @@ begin
         TPicture(btm).LoadFromFile(Apath)
       else if (btm is TJPEGimage) then
         TJPEGimage(btm).LoadFromFile(Apath)
-      else if (btm is TPNGObject) then
-        TPNGObject(btm).LoadFromFile(Apath)
+      else if (btm is TPNGObject) then begin
+       if not(caching) then begin
+         TPNGObject(btm).LoadFromFile(Apath)
+       end else begin
+         if not GState.MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
+          TPNGObject(btm).LoadFromFile(Apath);
+          GState.MainFileCache.AddTileToCache(btm, Apath);
+         end;
+       end
+      end
       else if (btm is TKML) then
         TKML(btm).LoadFromFile(Apath)
       else if (btm is TGraphic) then

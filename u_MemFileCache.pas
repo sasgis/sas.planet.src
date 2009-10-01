@@ -27,7 +27,8 @@ type
 implementation
 
 uses
-  GR32;
+  GR32,
+  PNGImage;
 
 { TMemFileCache }
 
@@ -90,8 +91,14 @@ var
   VPath: string;
 begin
   VPath := AnsiUpperCase(APath);
-  btmcache:=TBitmap32.Create;
-  TBitmap32(btmcache).Assign(TBitmap32(btm));
+  if btm is TBitmap32 then begin
+    btmcache:=TBitmap32.Create;
+    TBitmap32(btmcache).Assign(TBitmap32(btm));
+  end;
+  if btm is TPNGObject then begin
+    btmcache:=TPNGObject.Create;
+    TPNGObject(btmcache).Assign(TPNGObject(btm));
+  end;
   if FSync.BeginWrite then begin
     try
       i:=FCacheList.IndexOf(VPath);
@@ -122,7 +129,10 @@ begin
   try
     i:=FCacheList.IndexOf(VPath);
     if i>=0 then begin
-      TBitmap32(btm).Assign(TBitmap32(FCacheList.Objects[i]));
+      if btm is TBitmap32 then
+        TBitmap32(btm).Assign(TBitmap32(FCacheList.Objects[i]));
+      if btm is TPNGObject then
+        TPNGObject(btm).Assign(TPNGObject(FCacheList.Objects[i]));
       result:=true;
     end;
   finally
