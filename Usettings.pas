@@ -383,7 +383,7 @@ begin
  Ini.Writeinteger('GPS','update',GState.GPS_Delay);
  Ini.WriteBool('GPS','log',GState.GPS_WriteLog);
  Ini.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
- Ini.WriteInteger('GPS','SizeTrack',GPS_SizeTrack);
+ Ini.WriteInteger('GPS','SizeTrack',GState.GPS_TrackWidth);
  Ini.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  Ini.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  Ini.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
@@ -502,7 +502,7 @@ begin
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
  GState.GPS_ArrowSize:=SESizeStr.Value;
- GPS_SizeTrack:=SESizeTrack.Value;
+ GState.GPS_TrackWidth:=SESizeTrack.Value;
  GState.GPS_TimeOut:=SpinEdit2.Value;
  GState.GPS_WriteLog:=CB_GPSlog.Checked;
  GState.GPS_Delay:=SpinEdit1.Value;
@@ -695,7 +695,7 @@ begin
  CB_GPSlog.Checked:=GState.GPS_WriteLog;
  SpinEdit1.Value:=GState.GPS_Delay;
  SESizeStr.Value:=GState.GPS_ArrowSize;
- SESizeTrack.Value:=GPS_SizeTrack;
+ SESizeTrack.Value:=GState.GPS_TrackWidth;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  smmapdif.Value:=sm_map.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);

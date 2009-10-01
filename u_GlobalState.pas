@@ -67,6 +67,8 @@ type
     GPS_ArrowColor: TColor;
     //Отображать GPS трек
     GPS_ShowPath: Boolean;
+    // Толщина отображемого GPS трека
+    GPS_TrackWidth: Integer;
     //Центрировать карту на GPS позиции
     GPS_MapMove: Boolean;
     //Заисывать GPS трек в файл

@@ -579,8 +579,7 @@ var
   hg_x,
   hg_y,
   pr_x,
-  pr_y,
-  GPS_SizeTrack:integer;
+  pr_y:integer;
   dWhenMovingButton:integer = 3;
   move,m_up,m_m,moveTrue:Tpoint;
   notpaint,
@@ -1438,7 +1437,7 @@ begin
 
     with Polygon_line.Outline do
      begin
-      with Grow(Fixed(GPS_SizeTrack / 2), 0.5) do
+      with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do
        begin
         DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
         free;
@@ -2562,7 +2561,7 @@ begin
  GState.GPS_enab:=Ini.ReadBool('GPS','enbl',false);
  GState.GPS_WriteLog:=Ini.Readbool('GPS','log',true);
  GState.GPS_ArrowSize:=Ini.ReadInteger('GPS','SizeStr',25);
- GPS_SizeTrack:=Ini.ReadInteger('GPS','SizeTrack',5);
+ GState.GPS_TrackWidth:=Ini.ReadInteger('GPS','SizeTrack',5);
  GState.GPS_ArrowColor:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961});
  GState.GPS_Correction:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
  GState.GPS_ShowPath:=Ini.ReadBool('GPS','path',true);
