@@ -45,8 +45,7 @@ begin
   Result.y := round(TilesAtZoom / 2 - 0.5 * ln((1 + z) / (1 - z)) * c);
 end;
 
-function TCoordConverterMercatorOnSphere.Pos2LonLat(const AXY: TPoint;
-  Azoom: byte): TExtendedPoint;
+function TCoordConverterMercatorOnSphere.Pos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint;
 var
   TilesAtZoom : Integer;
   VXY: TPoint;

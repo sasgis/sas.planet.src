@@ -549,7 +549,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='90923';
+  SASVersion='91001';
   ENU=LANG_ENGLISH;
   RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
@@ -581,6 +581,7 @@ var
   pr_x,
   pr_y,
   GPS_SizeTrack:integer;
+  dWhenMovingButton:integer = 3;
   move,m_up,m_m,moveTrue:Tpoint;
   notpaint,
   dwn,
@@ -1019,6 +1020,7 @@ end;
 procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 var z:integer;
     POSb:TPoint;
+    dWMB:integer;
 begin
 
  if Fmain.Active then
@@ -1032,15 +1034,20 @@ begin
                  end;
    WM_KEYFIRST: begin
                  POSb:=POS;
-                 if Msg.wParam=VK_RIGHT then pos:=Point(pos.x+64,pos.y);
-                 if Msg.wParam=VK_Left then pos:=Point(pos.x-64,pos.y);
-                 if Msg.wParam=VK_Down then pos:=Point(pos.x,pos.y+64);
-                 if Msg.wParam=VK_Up then pos:=Point(pos.x,pos.y-64);
+                 if (dWhenMovingButton<30) then begin
+                  inc(dWhenMovingButton);
+                 end;
+                 dWMB:=trunc(Power(dWhenMovingButton*0.6,1.2));
+                 if Msg.wParam=VK_RIGHT then pos:=Point(pos.x+dWMB,pos.y);
+                 if Msg.wParam=VK_Left then pos:=Point(pos.x-dWMB,pos.y);
+                 if Msg.wParam=VK_Down then pos:=Point(pos.x,pos.y+dWMB);
+                 if Msg.wParam=VK_Up then pos:=Point(pos.x,pos.y-dWMB);
                  if (Msg.wParam=VK_RIGHT)or(Msg.wParam=VK_Left)or
                     (Msg.wParam=VK_Down)or(Msg.wParam=VK_Up)then
                     generate_im(nilLastLoad,'');
                 end;
    WM_KEYUP:begin
+             dWhenMovingButton:=3;
              if (Msg.wParam=VK_Delete)and(aoper=line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
@@ -2161,8 +2168,8 @@ begin
   end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
- AcrBuf:=map.Cursor;
- if not(lastload.use) then map.Cursor:=crAppStart;
+ //AcrBuf:=map.Cursor;
+ //if not(lastload.use) then map.Cursor:=crAppStart;
  y_draw:=(256+((pos.y-pr_y)mod 256))mod 256;
  x_draw:=(256+((pos.x-pr_x)mod 256))mod 256;
  LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
@@ -2285,7 +2292,7 @@ begin
 { m_up.x:=move.X;
  m_up.y:=move.y;   }
  toSh;
- map.Cursor:=AcrBuf;
+ //map.Cursor:=AcrBuf;
 end;
 
 procedure loadMarksIcons;

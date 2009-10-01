@@ -200,8 +200,6 @@ procedure TUrlGenerator.SetVar;
 var XY : TPoint;
     Ll : TExtendedPoint;
 begin
-
-
     FpGetX.Data := posxp;
     FpGetY.Data := posyp;
     FpGetZ.Data := zoom + 1;
