@@ -593,7 +593,6 @@ var
   sat_map_both:TMapType;
   marksicons:TStringList;
   movepoint,lastpoint:integer;
-  TilesOut:integer;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
@@ -2343,10 +2342,10 @@ begin
  m_up:=point(0,0);
  anim_zoom:=0;
 
- TilesOut:=Ini.readInteger('VIEW','TilesOut',0);
+ GState.TilesOut:=Ini.readInteger('VIEW','TilesOut',0);
 
- hg_x:=round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+TilesOut;
- hg_y:=round(Screen.Height / 256)+(integer((Screen.Height mod 256)>0))+TilesOut;
+ hg_x:=round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
+ hg_y:=round(Screen.Height / 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
  pr_x:=(256*hg_x)div 2;
  pr_y:=(256*hg_y)div 2;
  yhgpx:=256*hg_y;

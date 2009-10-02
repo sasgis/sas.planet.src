@@ -301,7 +301,7 @@ begin
  Ini.Writeinteger('VIEW','DefCache',GState.DefCache);
  Ini.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
  Ini.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
- Ini.WriteInteger('VIEW','TilesOut',TilesOut);
+ Ini.WriteInteger('VIEW','TilesOut',GState.TilesOut);
  Ini.Writeinteger('VIEW','grid',zoom_line);
  Ini.Writebool('VIEW','invert_mouse',GState.MouseWheelInv);
  Ini.Writebool('VIEW','back_load',GState.UsePrevZoom);
@@ -570,9 +570,9 @@ begin
  GState.GPS_Correction:=Extpoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                       DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
- TilesOut:=SpinEdit3.Value;
- hg_x:=(Screen.Width div 256)+(integer((Screen.Width mod 256)>0))+TilesOut;
- hg_y:=(Screen.Height div 256)+(integer((Screen.Height mod 256)>0))+TilesOut;
+ GState.TilesOut:=SpinEdit3.Value;
+ hg_x:=(Screen.Width div 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
+ hg_y:=(Screen.Height div 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
  pr_x:=(256*hg_x)div 2;
  pr_y:=(256*hg_y)div 2;
  yhgpx:=256*hg_y;
@@ -746,7 +746,7 @@ begin
  lon1.Value:=DMS.D; lon2.Value:=DMS.M; lon3.Value:=DMS.S;
  if DMS.N then Lon_we.ItemIndex:=1 else Lon_we.ItemIndex:=0;
 
- SpinEdit3.Value:=TilesOut;
+ SpinEdit3.Value:=GState.TilesOut;
 end;
 
 procedure TFSettings.FormCreate(Sender: TObject);
