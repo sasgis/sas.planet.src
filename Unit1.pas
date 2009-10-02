@@ -1118,29 +1118,25 @@ procedure Contrast(Bitmap: TBitmap32; Value: double);
           else if B>255 then Result:=255
                         else Result:=B;
   end;
-var Dest: PColor32Array;
-    x,y,mr,mg,mb,W,H:Integer;
+var Dest: PColor32;
+    x,y,mr,mg,mb:Integer;
     vd: Double;
 begin
   if Value=0 then Exit;
   Value:=Value/10;
-  W:= Bitmap.Width-1;
-  H:= Bitmap.Height-1;
   mR:=128;
   mG:=128;
   mB:=128;
   if Value>0 then vd:=1+(Value/10)
              else vd:=1-(Sqrt(-Value)/10);
-  for y:=0 to H do
+  Dest:=@Bitmap.Bits[0];
+  for y:=0 to Bitmap.Width*Bitmap.Height-1 do
    begin
-    Dest:=Bitmap.ScanLine[y];
-    for x:=0 to W do
-     begin
-      Dest^[0]:=GR32.Color32(BLimit(mR+Trunc((RedComponent(dest^[0])-mR)*vd)),
-                             BLimit(mG+Trunc((GreenComponent(dest^[0])-mG)*vd)),
-                             BLimit(mB+Trunc((BlueComponent(dest^[0])-mB)*vd)));
+      Dest^:=GR32.Color32(BLimit(mR+Trunc((RedComponent(dest^)-mR)*vd)),
+                             BLimit(mG+Trunc((GreenComponent(dest^)-mG)*vd)),
+                             BLimit(mB+Trunc((BlueComponent(dest^)-mB)*vd)),
+                             AlphaComponent(dest^));
       Inc(Dest);
-     end;
    end;
 end;
 
@@ -1154,27 +1150,24 @@ procedure Gamma(Bitmap: TBitmap32);
   begin
     Result := Exp(Exponent * Ln(Base));
   end;
-var Dest: PColor32Array;
+var Dest: PColor32;
     X,Y: integer;
-    GT: array[0..255] of Byte;
+    GammaTable:array[0..255] of byte;
     L:Double;
 begin
   Contrast(Bitmap, contrastn);
   InvertBitmap(Bitmap);
   if gamman<>50 then
    begin
-    if gamman<50 then L:=(gamman*2)/100
-                 else L:=(gamman-40)/10;
-    GT[0]:=0;
-    for X := 1 to 255 do GT[X]:=Round(255*Power(X/255,1/L));
-    for Y := 0 to Bitmap.Height-1 do
+    if gamman<50 then L:=1/((gamman*2)/100)
+                 else L:=1/((gamman-40)/10);
+    GammaTable[0]:=0;
+    for X := 1 to 255 do GammaTable[X]:=round(255*Power(X/255,L));
+    Dest:=@Bitmap.Bits[0];
+    for Y := 0 to Bitmap.Height*Bitmap.Width-1 do
      begin
-      Dest:=Bitmap.ScanLine[y];
-      for X := 0 to Bitmap.Width-1 do
-       begin
-        Dest^[0]:= GR32.Color32(GT[RedComponent(dest^[0])],GT[GreenComponent(dest^[0])],GT[BlueComponent(dest^[0])]);
-        Inc(Dest);
-       end;
+      Dest^:= GR32.Color32(GammaTable[RedComponent(dest^)],GammaTable[GreenComponent(dest^)],GammaTable[BlueComponent(dest^)],AlphaComponent(dest^));
+      Inc(Dest);
      end;
    end;
 end;
@@ -1975,7 +1968,7 @@ begin
  result:=false;
  if not(GState.UsePrevZoom) then
   begin
-   spr.Clear(Color32(clSilver) xor $00000000);
+   spr.Clear(SetAlpha(Color32(clSilver),0));
    exit;
   end;
   VTileExists := false;
@@ -1989,13 +1982,13 @@ begin
   end;
  if not(VTileExists)or(dZ>9) then
   begin
-   spr.Clear(Color32(clSilver) xor $00000000);
+   spr.Clear(SetAlpha(Color32(clSilver),0));
    exit;
   end;
  bmp:=TBitmap32.Create;
  if not(AMap.LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
   begin
-   spr.Clear(Color32(clSilver) xor $00000000);
+   spr.Clear(SetAlpha(Color32(clSilver),0));
    bmp.Free;
    exit;
   end;
@@ -2230,41 +2223,21 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+       spr.DrawMode:=dmBlend;
        if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-         spr.DrawMode:=dmBlend;
-         if LowerCase(MapType[Leyi].ext)='.png' then
-          begin
-           png:=TPNGObject.create;
-           if MapType[Leyi].LoadTile(png,xx,yy,GState.zoom_size,true)
-            then begin
-                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
-                  PNGintoBitmap32(spr,png);
-                  if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
-                 end
-            else BadDraw(spr);
-           png.Free;
-          end
-         else
-          begin
-           spr.Clear($005f5f5f);
-           if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true)
+         if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true)
            then begin
                  if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
-                 spr.DrawMode:=dmBlend;
-                 p := @spr.Bits[0];
-                 for H:=0 to spr.Height-1 do
-                  for W:=0 to spr.Width-1 do
-                   begin
-                    if p^=$FF5f5f5f then p^:=$00000000;
-                    inc(p);
-                   end;
+                 if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
                 end
            else BadDraw(spr);
-          end;
-         InvertBitmap(spr);
-         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
-         spr.DrawMode:=dmOpaque;
+          Gamma(spr);
         end
+       else if loadpre(spr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
+          Gamma(spr);
+       end;
+       LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
+       spr.DrawMode:=dmOpaque;
       end;
     end;
  if (lastload.use)and(err<>'') then
