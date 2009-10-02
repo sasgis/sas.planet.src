@@ -9,9 +9,21 @@ uses
 type
   ICoordConverter = interface
   ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
+    // ѕреобразует позицию тайла на заданном зуме в георафически координаты его верхнего левого угла
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
+    // ?????????
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; stdcall;
+    // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+    function TilePosToPosTRect(const XY : TPoint; Azoom : byte): TRect; stdcall;
+    // ѕреобразует позицию тайла заданного зума в географические координаты его углов
+    function TilePosToLonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
+    // ¬озвращает количество тайлов в заданном зуме
+    function TilesAtZoom(AZoom: byte): Longint; stdcall;
+    // ¬озвращает общее количество пикселей на заданном зуме
+    function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
@@ -23,6 +35,10 @@ type
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall; abstract;
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
+    function TilePosToPosTRect(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
+    function TilePosToLonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+    function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
+    function PixelsAtZoom(AZoom: byte): Longint; virtual; stdcall;
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
@@ -50,6 +66,15 @@ begin
   result := 0.5*abs(result)/1000000;
 end;
 
+function TCoordConverterAbstract.TilePosToPosTRect(const XY: TPoint;
+  Azoom: byte): TRect;
+begin
+  Result.Left := XY.X shl 8;
+  Result.Top := XY.Y shl 8;
+  Result.Right := Result.Left + ((1 shl 8) - 1);
+  Result.Bottom := Result.Top + ((1 shl 8) - 1);
+end;
+
 function TCoordConverterAbstract.PoligonProject(AZoom: byte;
   APolyg: TExtendedPointArray): TPointArray;
 var
@@ -73,6 +98,26 @@ begin
   end else begin
     Result := AOtherMapCoordConv.LonLat2Pos(Pos2LonLat(XY, Azoom), Azoom);
   end;
+end;
+
+function TCoordConverterAbstract.TilePosToLonLatRect(const XY: TPoint;
+  Azoom: byte): TExtendedRect;
+var
+  VRect: TRect;
+begin
+  VRect := TilePosToPosTRect(XY, Azoom);
+  Result.TopLeft := Pos2LonLat(VRect.TopLeft, Azoom + 8);
+  Result.BottomRight := Pos2LonLat(VRect.BottomRight, Azoom + 8);
+end;
+
+function TCoordConverterAbstract.PixelsAtZoom(AZoom: byte): Longint;
+begin
+  Result := 1 shl AZoom;
+end;
+
+function TCoordConverterAbstract.TilesAtZoom(AZoom: byte): Longint;
+begin
+  Result := 1 shl (AZoom + 8);
 end;
 
 end.
