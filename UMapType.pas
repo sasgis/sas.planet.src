@@ -271,11 +271,11 @@ var  Ini: TMeminifile;
 begin
  SetLength(MapType,0);
  sm_map.maptype:=nil;
- CreateDir(extractfilepath(paramstr(0))+'Maps');
- Ini:=TMeminiFile.Create(extractfilepath(paramstr(0))+'Maps\Maps.ini');
+ CreateDir(GState.ProgramPath+'Maps');
+ Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
  i:=0;
  pnum:=0;
- startdir:=extractfilepath(paramstr(0))+'maps\';
+ startdir:=GState.ProgramPath+'maps\';
  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then
   repeat
    inc(i);
@@ -342,7 +342,7 @@ procedure SaveMaps;
 var  Ini: TMeminifile;
        i: integer;
 begin
- Ini:=TMeminiFile.Create(extractfilepath(paramstr(0))+'Maps\Maps.ini');
+ Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
  for i:=0 to length(MapType)-1 do
        begin
          ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
@@ -573,7 +573,7 @@ begin
    end;
  end;
  if (result[2]<>'\')and(system.pos(':',result)=0)
-   then result:=ProgrammPath+result;
+   then result:=GState.ProgramPath+result;
 end;
 
 
@@ -668,8 +668,6 @@ begin
  5:
  begin
   fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
-  if (result[2]<>'\')and(system.pos(':',result)=0)
-   then result:=ProgrammPath+result;
   if (not FileExists(result+'\'+fname))and(FileExists(result+'\dbCache.dat'))and(FileExists(result+'\dbCache.dat.index'))then
   try
    x:=x shr 8;
@@ -689,8 +687,6 @@ begin
   result:=result+'\'+fname;
  end;
  end;
- if (result[2]<>'\')and(system.pos(':',result)=0)
-   then result:=ProgrammPath+result;
 end;
 
 function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;

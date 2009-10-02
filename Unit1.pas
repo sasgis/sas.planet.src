@@ -587,8 +587,7 @@ var
   start,
   close_,
   LenShow,
-  Maximized,
-  sizing: boolean;
+  Maximized: boolean;
   spr:TBitmap32;
   sat_map_both:TMapType;
   marksicons:TStringList;
@@ -611,7 +610,6 @@ var
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
   localization:integer;
-  ProgrammPath:string;
   NavOnMark:TNavOnMark;
 
   hres:HRESULT;
@@ -2262,7 +2260,7 @@ var SearchRec: TSearchRec;
 begin
  marksicons:=TStringList.Create;
  i:=0;
- startdir:=extractfilepath(paramstr(0))+'marksicons\';
+ startdir:=GState.ProgramPath+'marksicons\';
  if FindFirst(startdir+'*.png', faAnyFile, SearchRec) = 0 then
     repeat
      if (SearchRec.Attr and faDirectory) <> faDirectory then
@@ -2283,9 +2281,9 @@ var  Ini: TMeminifile;
 begin
  if start=false then exit;
  Fmain.Enabled:=false;
- if FileExists(extractfilepath(paramstr(0))+'SASPlanet.RUS') then
+ if FileExists(GState.ProgramPath+'SASPlanet.RUS') then
   begin
-   DeleteFile(extractfilepath(paramstr(0))+'SASPlanet.RUS');
+   DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
   end;
 
  Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
@@ -2313,17 +2311,17 @@ begin
    Fmain.Close;
    exit;
   end;
- if FileExists(extractfilepath(paramstr(0))+'marks.sml')
+ if FileExists(GState.ProgramPath+'marks.sml')
   then begin
-        CDSMarks.LoadFromFile(extractfilepath(paramstr(0))+'marks.sml');
+        CDSMarks.LoadFromFile(GState.ProgramPath+'marks.sml');
         if CDSMarks.RecordCount>0 then
-         CopyFile(PChar(extractfilepath(paramstr(0))+'marks.sml'),PChar(extractfilepath(paramstr(0))+'marks.~sml'),false);
+         CopyFile(PChar(GState.ProgramPath+'marks.sml'),PChar(GState.ProgramPath+'marks.~sml'),false);
        end;
- if FileExists(extractfilepath(paramstr(0))+'Categorymarks.sml')
+ if FileExists(GState.ProgramPath+'Categorymarks.sml')
   then begin
-        CDSKategory.LoadFromFile(extractfilepath(paramstr(0))+'Categorymarks.sml');
+        CDSKategory.LoadFromFile(GState.ProgramPath+'Categorymarks.sml');
         if CDSKategory.RecordCount>0 then
-         CopyFile(PChar(extractfilepath(paramstr(0))+'Categorymarks.sml'),PChar(extractfilepath(paramstr(0))+'Categorymarks.~sml'),false);
+         CopyFile(PChar(GState.ProgramPath+'Categorymarks.sml'),PChar(GState.ProgramPath+'Categorymarks.~sml'),false);
        end;
  Fmain.Enabled:=true;
  nilLastLoad.use:=false;
@@ -2858,7 +2856,6 @@ end;
 
 procedure TFmain.FormCreate(Sender: TObject);
 begin
- ProgrammPath:=ExtractFilePath(ParamStr(0));
  Application.Title:=Fmain.Caption;
  TBiniLoadPositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
  TBEditPath.Visible:=false;
@@ -3217,7 +3214,7 @@ end;
 
 procedure TFmain.N29Click(Sender: TObject);
 begin
- ShellExecute(0,'open',PChar(ExtractFilePath(ParamStr(0))+'help.chm'),nil,nil,SW_SHOWNORMAL);
+ ShellExecute(0,'open',PChar(GState.ProgramPath+'help.chm'),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.selectMap(num:TMapType);
@@ -3973,8 +3970,8 @@ begin
  try
   TimeSeparator:='-';
   DateSeparator:='-';
-  CreateDir(ExtractFilePath(paramstr(0))+'TRECKLOG');
-  s:=ExtractFilePath(paramstr(0))+'TRECKLOG\'+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
+  CreateDir(GState.ProgramPath+'TRECKLOG');
+  s:=GState.ProgramPath+'TRECKLOG\'+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
   AssignFile(GState.GPS_LogFile,s);
   rewrite(GState.GPS_LogFile);
  except

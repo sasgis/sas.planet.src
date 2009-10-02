@@ -167,7 +167,7 @@ begin
  Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=18;
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(extractfilepath(paramstr(0))+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
 end;
 
 procedure TFMarksExplorer.FormShow(Sender: TObject);
@@ -244,7 +244,7 @@ begin
  Fmain.CDSmarks.Delete;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
  result:=true;
 end;
 
@@ -368,7 +368,7 @@ begin
  Fmain.CDSmarks.FieldByName('visible').AsBoolean:=MarksListBox.Checked[MarksListBox.ItemIndex];
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -395,7 +395,7 @@ begin
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=KategoryListBox.Checked[KategoryListBox.ItemIndex];
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(extractfilepath(paramstr(0))+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
 end;
 
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
@@ -412,11 +412,11 @@ begin
    Fmain.CDSmarks.Delete;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
  Fmain.CDSKategory.Delete;
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(extractfilepath(paramstr(0))+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
  KategoryListBox.Items.Objects[KategoryListBox.ItemIndex].Free;
  KategoryListBox.DeleteSelected;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
@@ -491,11 +491,11 @@ begin
    Fmain.CDSmarks.Delete;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
  Fmain.CDSKategory.Delete;
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(extractfilepath(paramstr(0))+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
  KategoryListBox.DeleteSelected;
  end;
 end;
@@ -513,7 +513,7 @@ begin
   end;
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(extractfilepath(paramstr(0))+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
 end;
 
 procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
@@ -531,7 +531,7 @@ begin
   end;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
  Fmain.CDSmarks.Filtered:=False;
 end;
 

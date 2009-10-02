@@ -97,6 +97,7 @@ implementation
 
 uses
   Math,
+  u_GlobalState,
   t_GeoTypes;
   
 {$R *.dfm}
@@ -370,7 +371,7 @@ begin
     end;
    Fmain.CDSmarks.ApplyRange;
    Fmain.CDSmarks.MergeChangeLog;
-   Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+   Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
   end;
  close;
 end;

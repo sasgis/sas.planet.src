@@ -74,6 +74,10 @@ var
   new_:boolean;
 
 implementation
+
+uses
+  u_GlobalState;
+
 {$R *.dfm}
 
 function TFAddPoly.show_(aLL:array of TExtendedPoint;new:boolean):boolean;
@@ -165,7 +169,7 @@ begin
  Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(extractfilepath(paramstr(0))+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
  close;
  ModalResult:=mrOk;
 end;

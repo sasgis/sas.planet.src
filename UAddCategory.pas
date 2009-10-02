@@ -47,7 +47,7 @@ implementation
 
 uses
   Unit1,
-  DB;
+  u_GlobalState;
 
 {$R *.dfm}
 procedure TFAddCategory.show_(new:boolean);
@@ -79,7 +79,7 @@ begin
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CBShow.Checked;
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(extractfilepath(paramstr(0))+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
 end;
 
 end.

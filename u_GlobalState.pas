@@ -23,6 +23,7 @@ type
     MainFileCache: TMemFileCache;
 
     // Параметры программы
+    ProgramPath: string;
 
     // Заходить на сайт автора при старте программы
     WebReportToAuthor: Boolean;
@@ -146,6 +147,7 @@ constructor TGlobalState.Create;
 begin
   All_Dwn_Kb := 0;
   All_Dwn_Tiles:=0;
+  ProgramPath:=ExtractFilePath(ParamStr(0));
   MainFileCache := TMemFileCache.Create;
 end;
 

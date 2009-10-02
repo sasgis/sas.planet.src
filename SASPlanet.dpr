@@ -57,9 +57,9 @@ var Ini: Tinifile;
    {$R *.res}{$R SASR.RES}
 begin
   GState := TGlobalState.Create;
-  if FileExists(extractfilepath(paramstr(0))+'SASPlanet.RUS') then
+  if FileExists(GState.ProgramPath+'SASPlanet.RUS') then
    begin
-    RenameFile(extractfilepath(paramstr(0))+'SASPlanet.RUS',extractfilepath(paramstr(0))+'SASPlanet.~RUS');
+    RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
    end;
   Ini:=TiniFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
   if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
