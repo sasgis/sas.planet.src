@@ -2286,7 +2286,7 @@ begin
    DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
   end;
 
- Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
+ Ini:=TMeminiFile.Create(GState.MainConfigFileName);
  Maximized:=Ini.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=Ini.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
@@ -2591,7 +2591,7 @@ begin
  Nbackload.Checked:=GState.UsePrevZoom;
  Nanimate.Checked:=GState.AnimateZoom;
 
- if not(FileExists(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini')) then
+ if not(FileExists(GState.MainConfigFileName)) then
   begin
    TBEditPath.Floating:=true;
    TBEditPath.MoveOnScreen(true);
@@ -2857,7 +2857,7 @@ end;
 procedure TFmain.FormCreate(Sender: TObject);
 begin
  Application.Title:=Fmain.Caption;
- TBiniLoadPositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
+ TBiniLoadPositions(Fmain,GState.MainConfigFileName,'PANEL_');
  TBEditPath.Visible:=false;
  Fmain.Caption:=Fmain.Caption+' '+SASVersion;
  start:=true;

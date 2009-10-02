@@ -26,6 +26,7 @@ type
     function GetMapsPath: string;
     function GetTrackLogPath: string;
     function GetHelpFileName: string;
+    function GetMainConfigFileName: string;
 
   public
     MainFileCache: TMemFileCache;
@@ -153,7 +154,9 @@ type
     // Путь к папке с треками
     property TrackLogPath: string read GetTrackLogPath;
     // Имя файла со справкой по программе
-    property HelpFileName: string read GetHelpFileName; 
+    property HelpFileName: string read GetHelpFileName;
+    // Имя основного файла конфигурации
+    property MainConfigFileName: string read GetMainConfigFileName;
 
     constructor Create;
     destructor Destroy; override;
@@ -220,6 +223,11 @@ end;
 function TGlobalState.GetHelpFileName: string;
 begin
   Result := ProgramPath + 'help.chm';
+end;
+
+function TGlobalState.GetMainConfigFileName: string;
+begin
+  Result := ChangeFileExt(ParamStr(0), '.ini');
 end;
 
 end.

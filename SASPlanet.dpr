@@ -61,7 +61,7 @@ begin
    begin
     RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
    end;
-  Ini:=TiniFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
+  Ini:=TiniFile.Create(GState.MainConfigFileName);
   if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
                                        else loc:=LANG_RUSSIAN;
   localization:=Ini.Readinteger('VIEW','localization',loc);

@@ -291,7 +291,7 @@ var Ini: TMeminifile;
 begin
  try
  SaveMaps;
- Ini:=TMeminiFile.Create(copy(paramstr(0),1,length(paramstr(0))-4)+'.ini');
+ Ini:=TMeminiFile.Create(GState.MainConfigFileName);
  Ini.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  Ini.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
  Ini.WriteInteger('POSITION','x',FMain.POS.x);
@@ -421,7 +421,7 @@ begin
  Ini.Free;
  lock_tb_b:=Fmain.lock_toolbars;
  Fmain.lock_toolbars:=false;
- TBiniSavePositions(Fmain,copy(paramstr(0),1,length(paramstr(0))-4)+'.ini','PANEL_');
+ TBiniSavePositions(Fmain,GState.MainConfigFileName,'PANEL_');
  Fmain.lock_toolbars:=lock_tb_b;
  except
  end;
