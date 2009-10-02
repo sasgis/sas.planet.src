@@ -68,11 +68,11 @@ end;
 
 function kb2KbMbGb(kb: real): string;
 begin
-  if kb > (1 shl 20) then begin
-    result := RoundEx(kb/(1 shl 20), 1) + ' ' + SAS_UNITS_gb;
+  if kb > 1048576 then begin
+    result := RoundEx(kb/1048576, 1) + ' ' + SAS_UNITS_gb;
   end else begin
-    if kb > (1 shl 10) then begin
-      result := RoundEx(kb/(1 shl 20), 1) + ' ' + SAS_UNITS_mb;
+    if kb > 1024 then begin
+      result := RoundEx(kb/1024, 1) + ' ' + SAS_UNITS_mb;
     end else begin
       result := RoundEx(kb, 1) + ' ' + SAS_UNITS_kb;
     end;
