@@ -550,8 +550,9 @@ class   procedure delfrompath(pos:integer);
 
 const
   SASVersion='91001';
-  ENU=LANG_ENGLISH;
-  RUS=LANG_RUSSIAN;// $00000419;
+  CProgram_Lang_Default = LANG_RUSSIAN;
+//  ENU=LANG_ENGLISH;
+//  RUS=LANG_RUSSIAN;// $00000419;
   MerkElipsK=0.0000001;
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; //  онстанта дл€ преобразовани€ радиан в градусы
@@ -609,7 +610,6 @@ var
   change_scene:boolean;
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
-  localization:integer;
   NavOnMark:TNavOnMark;
 
   hres:HRESULT;
@@ -4784,11 +4784,11 @@ end;
 
 procedure TFmain.TBItem1Click(Sender: TObject);
 begin
- if ((localization<>RUS)and(TTBItem(Sender).tag=0))or
-    ((localization<>ENU)and(TTBItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
+ if ((GState.Localization<>LANG_RUSSIAN)and(TTBItem(Sender).tag=0))or
+    ((GState.Localization<>LANG_ENGLISH)and(TTBItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
  case TTBItem(Sender).tag of
-  0:localization:=RUS;
-  1:localization:=ENU;
+  0:GState.Localization:=LANG_RUSSIAN;
+  1:GState.Localization:=LANG_ENGLISH;
  end;
 
 end;

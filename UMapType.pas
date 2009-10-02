@@ -410,12 +410,12 @@ begin
     try
       guidstr:=iniparams.ReadString('PARAMS','ID',GUIDToString(GUID));
       name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
-      name:=iniparams.ReadString('PARAMS','name_'+inttostr(localization),name);
+      name:=iniparams.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
 
 
       MapParams:=TMemoryStream.Create;
       try
-      if (UnZip.UnZipToStream(MapParams,'info_'+inttostr(localization)+'.txt')>0)or(UnZip.UnZipToStream(MapParams,'info.txt')>0) then
+      if (UnZip.UnZipToStream(MapParams,'info_'+inttostr(GState.Localization)+'.txt')>0)or(UnZip.UnZipToStream(MapParams,'info.txt')>0) then
        begin
         SetLength(info,MapParams.size);
         MapParams.Position:=0;
@@ -492,7 +492,7 @@ begin
       HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
       DefHotKey:=HotKey;
       ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
-      ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu_'+inttostr(localization),ParentSubMenu);
+      ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
       DefParentSubMenu:=ParentSubMenu;
       separator:=iniparams.ReadBool('PARAMS','separator',false);
       Defseparator:=separator;

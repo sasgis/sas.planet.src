@@ -62,14 +62,14 @@ begin
     RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
    end;
   Ini:=TiniFile.Create(GState.MainConfigFileName);
-  if SysLocale.PriLangID<>LANG_RUSSIAN then loc:=LANG_ENGLISH
-                                       else loc:=LANG_RUSSIAN;
-  localization:=Ini.Readinteger('VIEW','localization',loc);
+  if SysLocale.PriLangID<>CProgram_Lang_Default then loc:=LANG_ENGLISH
+                                       else loc:=CProgram_Lang_Default;
+  GState.Localization:=Ini.Readinteger('VIEW','localization',loc);
   GState.WebReportToAuthor:=Ini.ReadBool('NPARAM','stat',true);
   Application.Initialize;
   Application.Title := 'SAS.Планета';
   //logo
-  LoadNewResourceModule(localization);
+  LoadNewResourceModule(GState.Localization);
   if Ini.ReadBool('VIEW','Show_logo',true) then
    begin
     FLogo:=TFLogo.Create(application);

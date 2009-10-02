@@ -33,6 +33,8 @@ type
 
     // ѕараметры программы
     ProgramPath: string;
+    // язык интерфейса программы
+    Localization: Integer;
 
     // «аходить на сайт автора при старте программы
     WebReportToAuthor: Boolean;
