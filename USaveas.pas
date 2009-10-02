@@ -269,7 +269,7 @@ begin
         typemaparr[0]:=TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
         typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
         typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
-        path:=EditPath2.Text;
+        path:=IncludeTrailingPathDelimiter(EditPath2.Text);
         RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
        end;
@@ -282,7 +282,7 @@ begin
         comprSat:=cSatEditYa.Value;
         comprMap:=cMapEditYa.Value;
         comprHyb:=cSatEditYa.Value;
-        path:=EditPath4.Text;
+        path:=IncludeTrailingPathDelimiter(EditPath4.Text);
         RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;
        end;
@@ -304,12 +304,12 @@ begin
            typemaparr[length(typemaparr)-1]:=TMapType(CheckListBox1.Items.Objects[i]);
           end;
         ziped:=CBZipped.Checked;
-        path:=EditPath.Text;
+        path:=IncludeTrailingPathDelimiter(EditPath.Text);
         RelativePath:=false;
         Replace:=CBReplace.Checked;
        end;
  end;
- with ThreadExport.Create(false,IncludeTrailingPathDelimiter(path),APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath) do
+ with ThreadExport.Create(false,path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath) do
   begin
    Priority := tpLowest;
    FreeOnTerminate:=true;

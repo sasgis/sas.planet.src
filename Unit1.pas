@@ -2231,8 +2231,7 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-       if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then
-        begin
+       if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
          spr.DrawMode:=dmBlend;
          if LowerCase(MapType[Leyi].ext)='.png' then
           begin
