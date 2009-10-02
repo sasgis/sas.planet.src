@@ -865,7 +865,7 @@ begin
         end;
         result:=true;
       end else begin
-        if not GState.MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
+        if not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath) then begin
           if ExtractFileExt(Apath)='.jpg' then begin
             if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
               result:=false;
@@ -880,7 +880,7 @@ begin
           end else begin
             TBitmap32(btm).LoadFromFile(Apath);
           end;
-          GState.MainFileCache.AddTileToCache(btm, Apath);
+          GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
         end;
       end;
     end else begin

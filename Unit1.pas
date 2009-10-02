@@ -1119,7 +1119,8 @@ procedure Contrast(Bitmap: TBitmap32; Value: double);
                         else Result:=B;
   end;
 var Dest: PColor32;
-    x,y,mr,mg,mb:Integer;
+    x,y,mr,mg,mb,i:Integer;
+    ContrastTable:array [0..255] of byte;
     vd: Double;
 begin
   if Value=0 then Exit;
@@ -1129,13 +1130,16 @@ begin
   mB:=128;
   if Value>0 then vd:=1+(Value/10)
              else vd:=1-(Sqrt(-Value)/10);
+  for i:=0 to 255 do begin
+    ContrastTable[i]:=BLimit(mR+Trunc((i-mR)*vd));
+  end;
+
   Dest:=@Bitmap.Bits[0];
   for y:=0 to Bitmap.Width*Bitmap.Height-1 do
    begin
-      Dest^:=GR32.Color32(BLimit(mR+Trunc((RedComponent(dest^)-mR)*vd)),
-                             BLimit(mG+Trunc((GreenComponent(dest^)-mG)*vd)),
-                             BLimit(mB+Trunc((BlueComponent(dest^)-mB)*vd)),
-                             AlphaComponent(dest^));
+      Dest^:=GR32.Color32(ContrastTable[RedComponent(dest^)],
+                          ContrastTable[GreenComponent(dest^)],
+                          ContrastTable[BlueComponent(dest^)],AlphaComponent(dest^));
       Inc(Dest);
    end;
 end;
@@ -1980,7 +1984,7 @@ begin
     break;
    end;
   end;
- if not(VTileExists)or(dZ>9) then
+ if not(VTileExists)or(dZ>8) then
   begin
    spr.Clear(SetAlpha(Color32(clSilver),0));
    exit;
@@ -2223,7 +2227,7 @@ begin
        yy:=posN.y-pr_y+(j shl 8);
        xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
        if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-       spr.DrawMode:=dmBlend;
+       //spr.Clear($00000000);
        if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
          if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true)
            then begin
@@ -2236,6 +2240,7 @@ begin
        else if loadpre(spr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
           Gamma(spr);
        end;
+       spr.DrawMode:=dmBlend;
        LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
        spr.DrawMode:=dmOpaque;
       end;
