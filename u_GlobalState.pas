@@ -18,6 +18,14 @@ type
 
   TGlobalState = class
   private
+    function GetMarkIconsPath: string;
+    function GetMarksFileName: string;
+    function GetMarksBackUpFileName: string;
+    function GetMarksCategoryBackUpFileName: string;
+    function GetMarksCategoryFileName: string;
+    function GetMapsPath: string;
+    function GetTrackLogPath: string;
+    function GetHelpFileName: string;
 
   public
     MainFileCache: TMemFileCache;
@@ -129,6 +137,23 @@ type
     // Зум карты заполения
     zoom_mapzap: byte;
 
+    // Путь к иконкам меток
+    property MarkIconsPath: string read GetMarkIconsPath;
+    // Имя файла с метками
+    property MarksFileName: string read GetMarksFileName;
+    // Име резервной копии файла с метками
+    property MarksBackUpFileName: string read GetMarksBackUpFileName;
+
+    // Имя файла с категориями меток
+    property MarksCategoryFileName: string read GetMarksCategoryFileName;
+    // Име резервной копии файла с категориями меток
+    property MarksCategoryBackUpFileName: string read GetMarksCategoryBackUpFileName;
+    // Путь к папке с картами
+    property MapsPath: string read GetMapsPath;
+    // Путь к папке с треками
+    property TrackLogPath: string read GetTrackLogPath;
+    // Имя файла со справкой по программе
+    property HelpFileName: string read GetHelpFileName; 
 
     constructor Create;
     destructor Destroy; override;
@@ -155,6 +180,46 @@ destructor TGlobalState.Destroy;
 begin
   FreeAndNil(MainFileCache);
   inherited;
+end;
+
+function TGlobalState.GetMarkIconsPath: string;
+begin
+  Result := ProgramPath + 'marksicons\';
+end;
+
+function TGlobalState.GetMarksBackUpFileName: string;
+begin
+  Result := ProgramPath + 'marks.~sml';
+end;
+function TGlobalState.GetMarksFileName: string;
+begin
+  Result := ProgramPath + 'marks.sml';
+end;
+
+
+function TGlobalState.GetMarksCategoryBackUpFileName: string;
+begin
+  Result := ProgramPath + 'Categorymarks.~sml';
+end;
+
+function TGlobalState.GetMarksCategoryFileName: string;
+begin
+  Result := ProgramPath + 'Categorymarks.sml';
+end;
+
+function TGlobalState.GetMapsPath: string;
+begin
+  Result := ProgramPath + 'Maps\';
+end;
+
+function TGlobalState.GetTrackLogPath: string;
+begin
+  Result := ProgramPath + 'TrackLog\';
+end;
+
+function TGlobalState.GetHelpFileName: string;
+begin
+  Result := ProgramPath + 'help.chm';
 end;
 
 end.

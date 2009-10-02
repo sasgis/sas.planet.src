@@ -181,7 +181,7 @@ begin
  Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
  Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.ProgramPath+'marks.sml',dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
  close;
  ModalResult:=mrOk;
 end;

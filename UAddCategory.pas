@@ -79,7 +79,7 @@ begin
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CBShow.Checked;
  Fmain.CDSKategory.ApplyRange;
  Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.ProgramPath+'Categorymarks.sml',dfXMLUTF8);
+ Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
 end;
 
 end.

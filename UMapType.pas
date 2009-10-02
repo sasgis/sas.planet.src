@@ -271,11 +271,11 @@ var  Ini: TMeminifile;
 begin
  SetLength(MapType,0);
  sm_map.maptype:=nil;
- CreateDir(GState.ProgramPath+'Maps');
+ CreateDir(GState.MapsPath);
  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
  i:=0;
  pnum:=0;
- startdir:=GState.ProgramPath+'maps\';
+ startdir:=GState.MapsPath;
  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then
   repeat
    inc(i);

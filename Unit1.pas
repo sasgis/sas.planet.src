@@ -2260,7 +2260,7 @@ var SearchRec: TSearchRec;
 begin
  marksicons:=TStringList.Create;
  i:=0;
- startdir:=GState.ProgramPath+'marksicons\';
+ startdir:=GState.MarkIconsPath;
  if FindFirst(startdir+'*.png', faAnyFile, SearchRec) = 0 then
     repeat
      if (SearchRec.Attr and faDirectory) <> faDirectory then
@@ -2311,17 +2311,17 @@ begin
    Fmain.Close;
    exit;
   end;
- if FileExists(GState.ProgramPath+'marks.sml')
+ if FileExists(GState.MarksFileName)
   then begin
-        CDSMarks.LoadFromFile(GState.ProgramPath+'marks.sml');
+        CDSMarks.LoadFromFile(GState.MarksFileName);
         if CDSMarks.RecordCount>0 then
-         CopyFile(PChar(GState.ProgramPath+'marks.sml'),PChar(GState.ProgramPath+'marks.~sml'),false);
+         CopyFile(PChar(GState.MarksFileName),PChar(GState.MarksBackUpFileName),false);
        end;
- if FileExists(GState.ProgramPath+'Categorymarks.sml')
+ if FileExists(GState.MarksCategoryFileName)
   then begin
-        CDSKategory.LoadFromFile(GState.ProgramPath+'Categorymarks.sml');
+        CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
         if CDSKategory.RecordCount>0 then
-         CopyFile(PChar(GState.ProgramPath+'Categorymarks.sml'),PChar(GState.ProgramPath+'Categorymarks.~sml'),false);
+         CopyFile(PChar(GState.MarksCategoryFileName),PChar(GState.MarksCategoryBackUpFileName),false);
        end;
  Fmain.Enabled:=true;
  nilLastLoad.use:=false;
@@ -3214,7 +3214,7 @@ end;
 
 procedure TFmain.N29Click(Sender: TObject);
 begin
- ShellExecute(0,'open',PChar(GState.ProgramPath+'help.chm'),nil,nil,SW_SHOWNORMAL);
+ ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.selectMap(num:TMapType);
@@ -3970,8 +3970,8 @@ begin
  try
   TimeSeparator:='-';
   DateSeparator:='-';
-  CreateDir(GState.ProgramPath+'TRECKLOG');
-  s:=GState.ProgramPath+'TRECKLOG\'+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
+  CreateDir(GState.TrackLogPath);
+  s:=GState.TrackLogPath+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
   AssignFile(GState.GPS_LogFile,s);
   rewrite(GState.GPS_LogFile);
  except
