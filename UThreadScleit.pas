@@ -163,15 +163,25 @@ begin
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
-       VThread.btmh.Clear(clBlack);
-       VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
-       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
+       VThread.btmh.Clear($FF000000);
+       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
+        if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
+         then Fmain.loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+       end else begin
+         Fmain.loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+       end;
+       VThread.btmh.DrawMode:=dmBlend;
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
-         VThread.btmh.Clear(clBlack);
-         VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
-         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
+         VThread.btmh.Clear($FF000000);
+         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
+          if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
+           then Fmain.loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+         end else begin
+          Fmain.loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+         end;
+         VThread.btmh.DrawMode:=dmBlend;
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
         end;
       end;
@@ -238,15 +248,25 @@ begin
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
-       VThread.btmh.Clear(clBlack);
-       VThread.btmh.Draw(0,(p_h.y mod 256),bounds(0,0,256,256-(p_h.y mod 256)),VThread.btmm);
-       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
+       VThread.btmh.Clear($FF000000);
+       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
+        if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
+         then Fmain.loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+       end else begin
+         Fmain.loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+       end;
+       VThread.btmh.DrawMode:=dmBlend;
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
        if p_h.y<>p_y then
         begin
-         VThread.btmh.Clear(clBlack);
-         VThread.btmh.Draw(0,0,bounds(0,256-(p_h.y mod 256),256,(p_h.y mod 256)),VThread.btmm);
-         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
+         VThread.btmh.Clear($FF000000);
+         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
+          if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
+           then Fmain.loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+         end else begin
+          Fmain.loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+         end;
+         VThread.btmh.DrawMode:=dmBlend;
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
         end;
       end;
@@ -259,9 +279,9 @@ begin
        rarri:=lrarri;
        for i:=Asx to Aex do
         begin
-         VThread.Rarr^[j]^[rarri]:=((cardinal(p^[i]) shl 8) shr 24);
-         VThread.Garr^[j]^[rarri]:=((cardinal(p^[i]) shl 16) shr 24);
-         VThread.Barr^[j]^[rarri]:=((cardinal(p^[i]) shl 24) shr 24);
+         VThread.Rarr^[j]^[rarri]:=(cardinal(p^[i]) shr 16);
+         VThread.Garr^[j]^[rarri]:=(cardinal(p^[i]) shr 8);
+         VThread.Barr^[j]^[rarri]:=(cardinal(p^[i]));
          inc(rarri);
         end;
       end;

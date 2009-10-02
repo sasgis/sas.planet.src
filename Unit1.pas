@@ -2215,6 +2215,7 @@ begin
          if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
          yy:=posN.y-pr_y+(j shl 8);
          if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+         spr.Clear($FF000000);
          if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
            if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true) then begin
              if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
