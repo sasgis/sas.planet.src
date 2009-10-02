@@ -719,32 +719,44 @@ var gif:TGIFImage;
     c:TColor32;
     h,w:integer;
 begin
- gif:=TGIFImage.Create;
- gif.LoadFromFile(FileName);
- If (gif.isTransparent) then begin
-   c:=Color32(gif.Images[0].GraphicControlExtension.TransparentColor);
-   gif.Images[0].GraphicControlExtension.Transparent:=false;
-   Btm.Assign(gif);
-   p := @Btm.Bits[0];
-   for H:=0 to Btm.Height-1 do
-    for W:=0 to Btm.Width-1 do
-     begin
-      if p^=c then p^:=$00000000;
-      inc(p);
-     end;
- end else begin
-   Btm.Assign(gif);
+ try
+   result:=true;
+   gif:=TGIFImage.Create;
+   gif.LoadFromFile(FileName);
+   Btm.DrawMode:=dmOpaque;
+   If (gif.isTransparent) then begin
+     c:=Color32(gif.Images[0].GraphicControlExtension.TransparentColor);
+     gif.Images[0].GraphicControlExtension.Transparent:=false;
+     Btm.Assign(gif);
+     p := @Btm.Bits[0];
+     for H:=0 to Btm.Height-1 do
+      for W:=0 to Btm.Width-1 do
+       begin
+        if p^=c then p^:=$00000000;
+        inc(p);
+       end;
+   end else begin
+     Btm.Assign(gif);
+   end;
+   gif.Free;
+ except
+   result:=false;
  end;
- gif.Free;
 end;
 
 function LoadPNG(FileName: string; Btm: TBitmap32): boolean;
 var png:TPNGObject;
 begin
- png:=TPNGObject.Create;
- png.LoadFromFile(FileName);
- PNGintoBitmap32(btm,png);
- png.Free;
+ try
+   result:=true;
+   png:=TPNGObject.Create;
+   png.LoadFromFile(FileName);
+   Btm.DrawMode:=dmOpaque;
+   PNGintoBitmap32(btm,png);
+   png.Free;
+ except
+   result:=false;
+ end;
 end;
 
 function LoadJPG32(FileName: string; Btm: TBitmap32): boolean;
@@ -848,7 +860,7 @@ begin
   end;
   try
     if (btm is TBitmap32) then begin
-      if not(caching) then begin
+      if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath)) then begin
         if ExtractFileExt(Apath)='.jpg' then begin
           if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
             result:=false;
@@ -856,15 +868,22 @@ begin
           end;
         end else
         if ExtractFileExt(Apath)='.png' then begin
-          LoadPNG(Apath,TBitmap32(btm));
+          if not(LoadPNG(Apath,TBitmap32(btm))) then begin
+            result:=false;
+            exit;
+          end;
         end else
         if ExtractFileExt(Apath)='.gif' then begin
-          LoadGif(Apath,TBitmap32(btm));
+          if not(LoadGif(Apath,TBitmap32(btm))) then begin
+            result:=false;
+            exit;
+          end;
         end else begin
           TBitmap32(btm).LoadFromFile(Apath);
         end;
         result:=true;
-      end else begin
+        if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
+      end{ else begin
         if not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath) then begin
           if ExtractFileExt(Apath)='.jpg' then begin
             if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
@@ -873,16 +892,21 @@ begin
             end
           end else
           if ExtractFileExt(Apath)='.png' then begin
-            LoadPNG(Apath,TBitmap32(btm));
+            if not(LoadPNG(Apath,TBitmap32(btm))) then begin
+              result:=false;
+              exit;
+            end;
           end else
           if ExtractFileExt(Apath)='.gif' then begin
-            LoadGif(Apath,TBitmap32(btm));
+            if not(LoadGif(Apath,TBitmap32(btm))) then begin
+              result:=false;
+              exit;
+            end;
           end else begin
-            TBitmap32(btm).LoadFromFile(Apath);
+            GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
           end;
-          GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
         end;
-      end;
+      end;}
     end else begin
       if (btm is TPicture) then
         TPicture(btm).LoadFromFile(Apath)

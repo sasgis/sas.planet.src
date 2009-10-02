@@ -580,7 +580,7 @@ var
   hg_y,
   pr_x,
   pr_y:integer;
-  dWhenMovingButton:integer = 3;
+  dWhenMovingButton:integer = 5;
   move,m_up,m_m,moveTrue:Tpoint;
   notpaint,
   dwn,
@@ -1033,7 +1033,7 @@ begin
                  end;
    WM_KEYFIRST: begin
                  POSb:=POS;
-                 if (dWhenMovingButton<30) then begin
+                 if (dWhenMovingButton<35) then begin
                   inc(dWhenMovingButton);
                  end;
                  dWMB:=trunc(Power(dWhenMovingButton*0.6,1.2));
@@ -1046,7 +1046,7 @@ begin
                     generate_im(nilLastLoad,'');
                 end;
    WM_KEYUP:begin
-             dWhenMovingButton:=3;
+             dWhenMovingButton:=5;
              if (Msg.wParam=VK_Delete)and(aoper=line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
@@ -1895,7 +1895,7 @@ var rnum,len_p,textstrt,textwidth:integer;
     s,se:string;
     temp,num:real;
 begin
- if not(LayerLineM.visible) then exit; 
+ if not(LayerLineM.visible) then exit;
  num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*deg)));
  if num>10000 then begin
                     num:=num/1000;
@@ -1939,10 +1939,11 @@ var ll:TextendedPoint;
     posnext:integer;
     TameTZ:TDateTime;
 begin
+ If not(LayerStatBar.Visible) then exit;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(GState.zoom_size - 1) + 8);
  if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
-             else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
+                    else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
  LayerStatBar.Bitmap.Clear(SetAlpha(clWhite32,160));
  LayerStatBar.Bitmap.Line(0,0,map.Width,0,SetAlpha(clBlack32,256));
@@ -2134,10 +2135,11 @@ begin
   end;
 end;
 
-procedure BadDraw(var spr:TBitmap32);
+procedure BadDraw(var spr:TBitmap32; transparent:boolean);
 begin
  spr.SetSize(256,256);
- spr.Clear(Color32(clSilver) xor $00000000);
+ if transparent then spr.Clear(SetAlpha(Color32(clSilver),0))
+                else spr.Clear(Color32(clSilver) xor $00000000);
  spr.RenderText(87,120,SAS_ERR_BadFile,0,clBlack32);
 end;
 
@@ -2160,7 +2162,7 @@ begin
  if (lastload.use) then
   begin
    //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
-    GState.MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
+   GState.MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
   end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
@@ -2169,34 +2171,24 @@ begin
  y_draw:=(256+((pos.y-pr_y)mod 256))mod 256;
  x_draw:=(256+((pos.x-pr_x)mod 256))mod 256;
  LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ LayerMap.Bitmap.Clear(clSilver);
  if aoper<>movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  destroyWL;
- spr.DrawMode:=dmOpaque;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
-    if GState.CiclMap then xx:=X2AbsX(pos.x-pr_x+(i shl 8),GState.zoom_size)
-               else xx:=pos.x-pr_x+(i shl 8);
+    xx:=pos.x-pr_x+(i shl 8);
+    if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
     yy:=pos.y-pr_y+(j shl 8);
-    if xx>=0 then xx:=xx-(xx mod 256)
-             else xx:=xx-(256-(abs(xx) mod 256));
-    if yy>=0 then yy:=yy-(yy mod 256)
-             else yy:=yy-(256-(abs(yy) mod 256));
-    if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then
-      begin
-        spr.Clear(Color32(clSilver) xor $00000000);
-        LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
-        spr.Clear;
-        continue;
-      end;
+    if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
     if (sat_map_both.TileExists(xx,yy,GState.zoom_size))
      then begin
            if sat_map_both.LoadTile(spr,xx,yy,GState.zoom_size,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
                   end
-             else BadDraw(spr);
+             else BadDraw(spr,false);
           end
      else loadpre(spr,xx,yy,GState.zoom_size,sat_map_both);
     Gamma(spr);
@@ -2204,47 +2196,39 @@ begin
    end;
   spr.SetSize(256,256);
   for Leyi:=0 to length(MapType)-1 do
-   if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then
-    begin
-    if MapType[Leyi].ext='.kml' then
-     begin
-      if not(LayerMapWiki.Visible) then
-       begin
-        LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
-        LayerMapWiki.Bitmap.Clear(clBlack);
+   if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
+     if MapType[Leyi].ext='.kml' then begin
+       if not(LayerMapWiki.Visible) then begin
+         LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+         LayerMapWiki.Bitmap.Clear(clBlack);
        end;
-      loadWL(MapType[Leyi]);
-      continue;
+       loadWL(MapType[Leyi]);
+       continue;
      end;
-   posN:=sat_map_both.GeoConvert.Pos2OtherMap(POS,(GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
-   y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
-   x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
-   for i:=0 to hg_x do
-    for j:=0 to hg_y do
-      begin
-       if GState.CiclMap then xx:=X2AbsX(posN.x-pr_x+(i shl 8),GState.zoom_size)
-                         else xx:=posN.x-pr_x+(i shl 8);
-       yy:=posN.y-pr_y+(j shl 8);
-       xx:=xx-(abs(xx) mod 256); yy:=yy-(abs(yy) mod 256);
-       if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-       //spr.Clear($00000000);
-       if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-         if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true)
-           then begin
-                 if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
-                 if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
-                end
-           else BadDraw(spr);
-          Gamma(spr);
-        end
-       else if loadpre(spr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
-          Gamma(spr);
+     posN:=sat_map_both.GeoConvert.Pos2OtherMap(POS,(GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
+     y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
+     x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
+     for i:=0 to hg_x do
+      for j:=0 to hg_y do
+       begin
+         xx:=pos.x-pr_x+(i shl 8);
+         if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
+         yy:=posN.y-pr_y+(j shl 8);
+         if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+         if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
+           if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true) then begin
+             if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
+           end
+           else BadDraw(spr,true);
+           Gamma(spr);
+         end
+         else if loadpre(spr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
+           Gamma(spr);
+         end;
+         spr.DrawMode:=dmBlend;
+         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
        end;
-       spr.DrawMode:=dmBlend;
-       LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
-       spr.DrawMode:=dmOpaque;
-      end;
-    end;
+   end;
  if (lastload.use)and(err<>'') then
    LayerMap.Bitmap.RenderText(pr_x+(lastload.x-pos.x)+15,pr_y+(lastload.y-pos.y)+124,err,0,clBlack32);
  generate_granica;
@@ -2264,10 +2248,10 @@ begin
     end;
     sm_im_reset(sm_map.width div 2,sm_map.height div 2);
    end;
- Label1.caption := IntToStr(GetTickCount-ts);
 { m_up.x:=move.X;
  m_up.y:=move.y;   }
  toSh;
+ Label1.caption := IntToStr(GetTickCount-ts);
  //map.Cursor:=AcrBuf;
 end;
 
