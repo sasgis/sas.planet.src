@@ -109,6 +109,8 @@ type
     show_point: TMarksShowType;
     FirstLat: Boolean;
     ShowMapName: Boolean;
+    // Покаызвать строку статуса
+    ShowStatusBar: Boolean;
 
     //Зацикливать карту по горизонтали
     CiclMap: Boolean;

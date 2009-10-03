@@ -258,7 +258,7 @@ begin
    FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].filename);
   end;
  if FSettings.MapList.Items.Count>0 then FSettings.MapList.Items.Item[0].Selected:=true;
- if longint(sm_map.maptype)=0 then Fmain.NMMtype_0.Checked:=true;
+ if sm_map.maptype=nil then Fmain.NMMtype_0.Checked:=true;
  if (sat_map_both=nil)and(MapType[0]<>nil) then sat_map_both:=MapType[0];
 end;
 

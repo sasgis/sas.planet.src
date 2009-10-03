@@ -512,7 +512,7 @@ class   procedure delfrompath(pos:integer);
    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
    procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
    procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-   procedure SetStatusBarVisible(visible:boolean);
+   procedure SetStatusBarVisible();
    procedure SetLineScaleVisible(visible:boolean);
    procedure SetMiniMapVisible(visible:boolean);
   end;
@@ -1920,7 +1920,7 @@ begin
  len_p:=round(106/(num/rnum));
  textwidth:=LayerLineM.bitmap.TextWidth(s);
  LayerLineM.Bitmap.Width:=len_p;
- if LayerStatBar.Visible then With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23-17,len_p,15))
+ if GState.ShowStatusBar then With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23-17,len_p,15))
                          else With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23,len_p,15));
  LayerLineM.Bitmap.Clear(SetAlpha(clWhite32,135));
  LayerLineM.bitmap.LineS(0,0,0,15,SetAlpha(clBlack32,256));
@@ -1935,7 +1935,7 @@ var ll:TextendedPoint;
     posnext:integer;
     TameTZ:TDateTime;
 begin
- If not(LayerStatBar.Visible) then exit;
+ If not(GState.ShowStatusBar) then exit;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(GState.zoom_size - 1) + 8);
  if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
@@ -1956,7 +1956,7 @@ begin
  subs2:=sat_map_both.GetTileFileName(X2absX(pos.x-(mWd2-m_m.x),GState.zoom_size),pos.y-(mHd2-m_m.y),GState.zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
- if LayerStatBar.Visible then LayerStatBar.BringToFront;
+ if GState.ShowStatusBar then LayerStatBar.BringToFront;
  if sm_map.LayerMinMap.Visible then sm_map.LayerMinMap.BringToFront;
 end;
 
@@ -2527,7 +2527,8 @@ begin
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
  SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
- SetStatusBarVisible(GState.MainIni.readbool('VIEW','statusbar',true));
+ GState.ShowStatusBar := GState.MainIni.readbool('VIEW','statusbar',true);
+ SetStatusBarVisible();
  NzoomIn.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomIn',33);
  NzoomOut.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomOut',34);
  N14.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GoTo',16455);
@@ -2696,7 +2697,7 @@ var Polygon: TPolygon32;
     iLay:integer;
 begin
  if sm_map.LayerMinMap.Visible=false then exit;
- if LayerStatBar.Visible then sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height-17,sm_map.width+5,sm_map.height))
+ if GState.ShowStatusBar then sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height-17,sm_map.width+5,sm_map.height))
                          else sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height,sm_map.width+5,sm_map.height));
  sm_map.LayerMinMap.Bitmap.Width:=sm_map.width+5;
  sm_map.LayerMinMap.Bitmap.Height:=sm_map.height+5;
@@ -2711,7 +2712,7 @@ begin
         sm_map.pos:=Point(x,y);
        end
   else begin
-        if (longint(sm_map.maptype)=0)
+        if (sm_map.maptype = nil)
            then begin
                  if not(sat_map_both.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true))
                   then Sm_Map.SmMapBitmap.Assign(DefoultMap);
@@ -3414,11 +3415,11 @@ begin
  TBmoveClick(Sender);
 end;
 
-procedure TFmain.SetStatusBarVisible(visible:boolean);
+procedure TFmain.SetStatusBarVisible();
 begin
- LayerStatBar.Visible:=visible;
+ LayerStatBar.Visible:=GState.ShowStatusBar;
  mapResize(nil);
- Showstatus.Checked:=visible;
+ Showstatus.Checked:=GState.ShowStatusBar;
 end;
 
 procedure TFmain.SetLineScaleVisible(visible:boolean);
@@ -3439,7 +3440,8 @@ end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
- SetStatusBarVisible(Showstatus.Checked)
+  GState.ShowStatusBar := Showstatus.Checked;
+  SetStatusBarVisible();
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
@@ -3468,7 +3470,7 @@ begin
    end else
    begin
     NMMtype_0.Checked:=false;
-    if longint(sm_map.maptype)<>0 then begin
+    if sm_map.maptype<>nil then begin
                                         sm_map.MapType.ShowOnSmMap:=false;
                                         sm_map.MapType.NSmItem.Checked:=false;
                                        end;
@@ -3589,7 +3591,7 @@ begin
    mWd2:=map.Width shr 1;
    mHd2:=map.Height shr 1;
    LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
-   if LayerStatBar.Visible
+   if GState.ShowStatusBar
     then begin
           sm_map.LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height-17,map.Width,map.Height-17);
           with LayerLineM do location:=floatrect(location.left,map.Height-23-17,location.right,map.Height-8-17);
