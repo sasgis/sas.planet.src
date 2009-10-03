@@ -4,6 +4,8 @@ interface
 
 uses
   Graphics,
+  Classes,
+  IniFiles,
   t_GeoTypes,
   u_GeoToStr,
   Uimgfun,
@@ -27,12 +29,16 @@ type
     function GetTrackLogPath: string;
     function GetHelpFileName: string;
     function GetMainConfigFileName: string;
-
+    procedure LoadMarkIcons;
   public
     MainFileCache: TMemFileCache;
-
+    // Ini-файл с основными настройками
+    MainIni: TMeminifile;
     // ѕараметры программы
     ProgramPath: string;
+    // »конки дл€ меток
+    MarkIcons: TStringList;
+
     // язык интерфейса программы
     Localization: Integer;
 
@@ -169,7 +175,8 @@ var
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  pngimage;
 
 { TGlobalState }
 
@@ -178,12 +185,17 @@ begin
   All_Dwn_Kb := 0;
   All_Dwn_Tiles:=0;
   ProgramPath:=ExtractFilePath(ParamStr(0));
+  MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
+  LoadMarkIcons;
 end;
 
 destructor TGlobalState.Destroy;
 begin
+  MainIni.UpdateFile;
+  FreeAndNil(MainIni);
   FreeAndNil(MainFileCache);
+  FreeAndNil(MarkIcons);
   inherited;
 end;
 
@@ -230,6 +242,27 @@ end;
 function TGlobalState.GetMainConfigFileName: string;
 begin
   Result := ChangeFileExt(ParamStr(0), '.ini');
+end;
+
+procedure TGlobalState.LoadMarkIcons;
+var
+  SearchRec: TSearchRec;
+  VPng: TPNGObject;
+begin
+  MarkIcons := TStringList.Create;
+  if FindFirst(MarkIconsPath +'*.png', faAnyFile, SearchRec) = 0 then begin
+    try
+      repeat
+        if (SearchRec.Attr and faDirectory) <> faDirectory then begin
+          VPng := TPNGObject.Create;
+          VPng.LoadFromFile(MarkIconsPath+SearchRec.Name);
+          MarkIcons.AddObject(SearchRec.Name, VPng);
+        end;
+      until FindNext(SearchRec) <> 0;
+    finally
+      FindClose(SearchRec);
+    end;
+  end;
 end;
 
 end.

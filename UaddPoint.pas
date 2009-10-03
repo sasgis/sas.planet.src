@@ -111,7 +111,7 @@ begin
  CBKateg.Clear;
  Kategory2Strings(CBKateg.Items);
  CBKateg.Text:=namecatbuf;
- ComboBox1.Items.Assign(marksicons);
+ ComboBox1.Items.Assign(GState.MarkIcons);
  if new then begin
               If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
               faddPoint.Caption:=SAS_STR_AddNewMark;
@@ -136,7 +136,7 @@ begin
               ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
-              ComboBox1.ItemIndex:=marksicons.IndexOf(Fmain.CDSmarkspicname.AsString);
+              ComboBox1.ItemIndex:=GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString);
               Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
               CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
              end;

@@ -471,7 +471,6 @@ type
    FTileSource:TTileSource;
    FPos:TPoint;
    LayerStatBar: TBitmapLayer;
-   LayerMinMap: TBitmapLayer;
   public
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
@@ -525,6 +524,7 @@ class   procedure delfrompath(pos:integer);
    alpha,zoom,z1mz2:integer;
    maptype:TMapType;
    PlusButton,MinusButton,SmMapBitmap:TBitmap32;
+   LayerMinMap: TBitmapLayer;
   end;
 
   TWikim_set = record
@@ -591,7 +591,6 @@ var
   Maximized: boolean;
   spr:TBitmap32;
   sat_map_both:TMapType;
-  marksicons:TStringList;
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
@@ -1765,10 +1764,10 @@ begin
       begin
        xy:=Point(Lon2X(arrLL^[0].x)+(pr_x-mWd2),lat2Y(arrLL^[0].y)+(pr_y-mHd2));
        imw:=CDSmarks.FieldByName('Scale2').AsInteger;
-       indexmi:=marksicons.IndexOf(CDSmarks.FieldByName('picname').AsString);
-       if(indexmi=-1)and(marksicons.Count>0) then indexmi:=0;
+       indexmi:=GState.MarkIcons.IndexOf(CDSmarks.FieldByName('picname').AsString);
+       if(indexmi=-1)and(GState.MarkIcons.Count>0) then indexmi:=0;
        if(indexmi>-1)then begin
-                           PNGintoBitmap32(btm,TPNGObject(marksicons.Objects[indexmi]));
+                           PNGintoBitmap32(btm,TPNGObject(GState.MarkIcons.Objects[indexmi]));
                            LayerMapMarks.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
                           end;
        if CDSmarks.FieldByName('Scale1').AsInteger>0 then
@@ -1958,7 +1957,7 @@ begin
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
- if LayerMinMap.Visible then LayerMinMap.BringToFront;
+ if sm_map.LayerMinMap.Visible then sm_map.LayerMinMap.BringToFront;
 end;
 
 
@@ -2253,28 +2252,8 @@ begin
  //map.Cursor:=AcrBuf;
 end;
 
-procedure loadMarksIcons;
-var SearchRec: TSearchRec;
-    startdir:string;
-    i:integer;
-begin
- marksicons:=TStringList.Create;
- i:=0;
- startdir:=GState.MarkIconsPath;
- if FindFirst(startdir+'*.png', faAnyFile, SearchRec) = 0 then
-    repeat
-     if (SearchRec.Attr and faDirectory) <> faDirectory then
-      begin
-        marksicons.AddObject(SearchRec.Name,TPNGObject.Create);
-        TPNGObject(marksicons.Objects[i]).LoadFromFile(startdir+SearchRec.Name);
-        inc(i);
-      end;
-    until FindNext(SearchRec) <> 0;
- FindClose(SearchRec);
-end;
-
 procedure TFmain.FormActivate(Sender: TObject);
-var  Ini: TMeminifile;
+var
      i,j,r:integer;
      xy,xy1:Tpoint;
      param:string;
@@ -2286,25 +2265,23 @@ begin
    DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
   end;
 
- Ini:=TMeminiFile.Create(GState.MainConfigFileName);
- Maximized:=Ini.Readbool('VIEW','Maximized',true);
- GState.FullScrean:=Ini.Readbool('VIEW','FullScreen',false);
+ Maximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
+ GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
   if GState.FullScrean then TBFullSizeClick(TBFullSize)
                   else if Maximized
                         then Fmain.WindowState:=wsMaximized
                         else begin
                               Fmain.SetBounds(
-                              ini.ReadInteger('VIEW','FLeft',Fmain.Left),
-                              ini.ReadInteger('VIEW','FTop',Fmain.Top),
-                              ini.ReadInteger('VIEW','FWidth',Fmain.Width),
-                              ini.ReadInteger('VIEW','FHeight',Fmain.Height)
+                              GState.MainIni.ReadInteger('VIEW','FLeft',Fmain.Left),
+                              GState.MainIni.ReadInteger('VIEW','FTop',Fmain.Top),
+                              GState.MainIni.ReadInteger('VIEW','FWidth',Fmain.Width),
+                              GState.MainIni.ReadInteger('VIEW','FHeight',Fmain.Height)
                               )
                              end;
 
  movepoint:=-1;
  CreateMapUI;
- loadMarksIcons;
  if length(MapType)=0 then
   begin
    ShowMessage(SAS_ERR_NoMaps);
@@ -2340,7 +2317,7 @@ begin
  m_up:=point(0,0);
  anim_zoom:=0;
 
- GState.TilesOut:=Ini.readInteger('VIEW','TilesOut',0);
+ GState.TilesOut:=GState.MainIni.readInteger('VIEW','TilesOut',0);
 
  hg_x:=round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
  hg_y:=round(Screen.Height / 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
@@ -2446,20 +2423,20 @@ begin
  LayerLineM.bitmap.Font.Name := 'Arial';
  LayerLineM.bitmap.Font.Size := 10;
 
- LayerMinMap:=TBitmapLayer.Create(map.Layers);
+ sm_map.LayerMinMap:=TBitmapLayer.Create(map.Layers);
  sm_map.SmMapBitmap:=TBitmap32.Create;
  Sm_Map.SmMapBitmap.CombineMode:=cmMerge;
  Sm_Map.SmMapBitmap.MasterAlpha:=100;
  //TKernelResampler.Create;
  //TKernelResampler(Sm_Map.SmMapBitmap.Resampler).Kernel:=TLinearKernel.Create;
- LayerMinMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- LayerMinMap.Cursor:=crHandPoint;
- LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
- LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
- LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
- LayerMinMap.bitmap.DrawMode:=dmBlend;
- LayerMinMap.bitmap.Canvas.brush.Color:=$e0e0e0;
- LayerMinMap.bitmap.Canvas.Pen.Color:=ClBlack;
+ sm_map.LayerMinMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
+ sm_map.LayerMinMap.Cursor:=crHandPoint;
+ sm_map.LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
+ sm_map.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
+ sm_map.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
+ sm_map.LayerMinMap.bitmap.DrawMode:=dmBlend;
+ sm_map.LayerMinMap.bitmap.Canvas.brush.Color:=$e0e0e0;
+ sm_map.LayerMinMap.bitmap.Canvas.Pen.Color:=ClBlack;
 
  LayerStatBar:=TBitmapLayer.Create(map.Layers);
  LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
@@ -2470,114 +2447,114 @@ begin
  LayerStatBar.bitmap.Font.Name := 'arial';
  LayerStatBar.bitmap.Font.Size := 10;
 
- GState.InetConnect.userwinset:=Ini.Readbool('INTERNET','userwinset',true);
- GState.InetConnect.uselogin:=Ini.Readbool('INTERNET','uselogin',false);
- GState.InetConnect.Proxyused:=Ini.Readbool('INTERNET','used_proxy',false);
- GState.InetConnect.proxystr:=Ini.Readstring('INTERNET','proxy','');
- GState.InetConnect.loginstr:=Ini.Readstring('INTERNET','login','');
- GState.InetConnect.passstr:=Ini.Readstring('INTERNET','password','');
- GState.SaveTileNotExists:=Ini.ReadBool('INTERNET','SaveTileNotExists',false);
- GState.TwoDownloadAttempt:=Ini.ReadBool('INTERNET','DblDwnl',true);
- GState.GoNextTileIfDownloadError:=Ini.ReadBool('INTERNET','GoNextTile',false);
+ GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
+ GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
+ GState.InetConnect.Proxyused:=GState.MainIni.Readbool('INTERNET','used_proxy',false);
+ GState.InetConnect.proxystr:=GState.MainIni.Readstring('INTERNET','proxy','');
+ GState.InetConnect.loginstr:=GState.MainIni.Readstring('INTERNET','login','');
+ GState.InetConnect.passstr:=GState.MainIni.Readstring('INTERNET','password','');
+ GState.SaveTileNotExists:=GState.MainIni.ReadBool('INTERNET','SaveTileNotExists',false);
+ GState.TwoDownloadAttempt:=GState.MainIni.ReadBool('INTERNET','DblDwnl',true);
+ GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
 
- GState.ShowMapName:=Ini.readBool('VIEW','ShowMapNameOnPanel',true);
- sm_map.width:=Ini.readInteger('VIEW','SmMapW',160);
- sm_map.height:=Ini.readInteger('VIEW','SmMapH',160);
- sm_map.z1mz2:=Ini.readInteger('VIEW','SmMapDifference',4);
- sm_map.Alpha:=Ini.readInteger('VIEW','SmMapAlpha',220);
- GState.show_point := TMarksShowType(Ini.readinteger('VIEW','ShowPointType',2));
- GState.Zoom_Size:=Ini.ReadInteger('POSITION','zoom_size',1);
- GState.DefCache:=Ini.readinteger('VIEW','DefCache',2);
- GState.zoom_mapzap:=Ini.readinteger('VIEW','MapZap',0);
- zoom_line:=Ini.readinteger('VIEW','grid',0);
- GState.MouseWheelInv:=Ini.readbool('VIEW','invert_mouse',false);
- TileSource:=TTileSource(Ini.Readinteger('VIEW','TileSource',1));
- GState.num_format:= TDistStrFormat(Ini.Readinteger('VIEW','NumberFormat',0));
- GState.CiclMap:=Ini.Readbool('VIEW','CiclMap',false);
- GState.Resampling := TTileResamplingType(Ini.Readinteger('VIEW','ResamlingType',1));
- GState.llStrType:=TDegrShowFormat(Ini.Readinteger('VIEW','llStrType',0));
- GState.FirstLat:=Ini.ReadBool('VIEW','FirstLat',false);
- GState.BorderAlpha:=Ini.Readinteger('VIEW','BorderAlpha',150);
- GState.BorderColor:=Ini.Readinteger('VIEW','BorderColor',$FFFFFF);
- GState.ShowBorderText:=Ini.ReadBool('VIEW','BorderText',true);
- GShScale:=Ini.Readinteger('VIEW','GShScale',0);
- GState.MapZapColor:=Ini.Readinteger('VIEW','MapZapColor',clBlack);
- GState.MapZapAlpha:=Ini.Readinteger('VIEW','MapZapAlpha',110);
- lock_toolbars:=Ini.ReadBool('VIEW','lock_toolbars',false);
- GState.MainFileCache.CacheElemensMaxCnt:=Ini.ReadInteger('VIEW','TilesOCache',150);
- Label1.Visible:=Ini.ReadBool('VIEW','time_rendering',false);
- GState.ShowHintOnMarks:=Ini.ReadBool('VIEW','ShowHintOnMarks',true);
- Wikim_set.MainColor:=Ini.Readinteger('Wikimapia','MainColor',$FFFFFF);
- Wikim_set.FonColor:=Ini.Readinteger('Wikimapia','FonColor',$000001);
+ GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
+ sm_map.width:=GState.MainIni.readInteger('VIEW','SmMapW',160);
+ sm_map.height:=GState.MainIni.readInteger('VIEW','SmMapH',160);
+ sm_map.z1mz2:=GState.MainIni.readInteger('VIEW','SmMapDifference',4);
+ sm_map.Alpha:=GState.MainIni.readInteger('VIEW','SmMapAlpha',220);
+ GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
+ GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
+ GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
+ GState.zoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',0);
+ zoom_line:=GState.MainIni.readinteger('VIEW','grid',0);
+ GState.MouseWheelInv:=GState.MainIni.readbool('VIEW','invert_mouse',false);
+ TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
+ GState.num_format:= TDistStrFormat(GState.MainIni.Readinteger('VIEW','NumberFormat',0));
+ GState.CiclMap:=GState.MainIni.Readbool('VIEW','CiclMap',false);
+ GState.Resampling := TTileResamplingType(GState.MainIni.Readinteger('VIEW','ResamlingType',1));
+ GState.llStrType:=TDegrShowFormat(GState.MainIni.Readinteger('VIEW','llStrType',0));
+ GState.FirstLat:=GState.MainIni.ReadBool('VIEW','FirstLat',false);
+ GState.BorderAlpha:=GState.MainIni.Readinteger('VIEW','BorderAlpha',150);
+ GState.BorderColor:=GState.MainIni.Readinteger('VIEW','BorderColor',$FFFFFF);
+ GState.ShowBorderText:=GState.MainIni.ReadBool('VIEW','BorderText',true);
+ GShScale:=GState.MainIni.Readinteger('VIEW','GShScale',0);
+ GState.MapZapColor:=GState.MainIni.Readinteger('VIEW','MapZapColor',clBlack);
+ GState.MapZapAlpha:=GState.MainIni.Readinteger('VIEW','MapZapAlpha',110);
+ lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
+ GState.MainFileCache.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
+ Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
+ GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
+ Wikim_set.MainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
+ Wikim_set.FonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
- gamman:=Ini.Readinteger('COLOR_LEVELS','gamma',50);
- contrastn:=Ini.Readinteger('COLOR_LEVELS','contrast',0);
- GState.InvertColor:=Ini.ReadBool('COLOR_LEVELS','InvertColor',false);
- GState.GPS_COM:=Ini.ReadString('GPS','com','COM0');
- GState.GPS_BaudRate:=Ini.ReadInteger('GPS','BaudRate',4800);
- GState.GPS_TimeOut:=Ini.ReadInteger('GPS','timeout',15);
- GState.GPS_Delay:=Ini.ReadInteger('GPS','update',1000);
- GState.GPS_enab:=Ini.ReadBool('GPS','enbl',false);
- GState.GPS_WriteLog:=Ini.Readbool('GPS','log',true);
- GState.GPS_ArrowSize:=Ini.ReadInteger('GPS','SizeStr',25);
- GState.GPS_TrackWidth:=Ini.ReadInteger('GPS','SizeTrack',5);
- GState.GPS_ArrowColor:=Ini.ReadInteger('GPS','ColorStr',clRed{-16776961});
- GState.GPS_Correction:=extpoint(Ini.ReadFloat('GPS','popr_lon',0),Ini.ReadFloat('GPS','popr_lat',0));
- GState.GPS_ShowPath:=Ini.ReadBool('GPS','path',true);
- GState.GPS_MapMove:=Ini.ReadBool('GPS','go',true);
- GState.OldCpath_:=Ini.Readstring('PATHtoCACHE','GMVC','cache_old\');
- GState.NewCpath_:=Ini.Readstring('PATHtoCACHE','SASC','cache\');
- GState.ESCpath_:=Ini.Readstring('PATHtoCACHE','ESC','cache_ES\');
- GState.GMTilesPath_:=Ini.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
- GState.GECachePath_:=Ini.Readstring('PATHtoCACHE','GECache','cache_GE\');
- POS:=Point(Ini.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
-            Ini.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
- GState.UsePrevZoom := Ini.Readbool('VIEW','back_load',true);
- GState.AnimateZoom:=Ini.Readbool('VIEW','animate',true);
- Fillingmaptype:=GetMapFromID(Ini.ReadString('VIEW','FillingMap','0'));
+ gamman:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
+ contrastn:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
+ GState.InvertColor:=GState.MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
+ GState.GPS_COM:=GState.MainIni.ReadString('GPS','com','COM0');
+ GState.GPS_BaudRate:=GState.MainIni.ReadInteger('GPS','BaudRate',4800);
+ GState.GPS_TimeOut:=GState.MainIni.ReadInteger('GPS','timeout',15);
+ GState.GPS_Delay:=GState.MainIni.ReadInteger('GPS','update',1000);
+ GState.GPS_enab:=GState.MainIni.ReadBool('GPS','enbl',false);
+ GState.GPS_WriteLog:=GState.MainIni.Readbool('GPS','log',true);
+ GState.GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
+ GState.GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
+ GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed{-16776961});
+ GState.GPS_Correction:=extpoint(GState.MainIni.ReadFloat('GPS','popr_lon',0),GState.MainIni.ReadFloat('GPS','popr_lat',0));
+ GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
+ GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
+ GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
+ GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
+ GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
+ GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
+ GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
+ POS:=Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
+            GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
+ GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
+ GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
+ Fillingmaptype:=GetMapFromID(GState.MainIni.ReadString('VIEW','FillingMap','0'));
  if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
                         else TBfillMapAsMain.Checked:=true;
  i:=1;
- while str2r(Ini.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do
+ while str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do
   begin
    setlength(poly_save,i);
-   poly_save[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
-   poly_save[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
+   poly_save[i-1].x:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
+   poly_save[i-1].y:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
    inc(i);
   end;
- if length(poly_save)>0 then poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
+ if length(poly_save)>0 then poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
 
- LayerMapScale.Visible:=Ini.readbool('VIEW','showscale',false);
- SetMiniMapVisible(Ini.readbool('VIEW','minimap',true));
- SetLineScaleVisible(Ini.readbool('VIEW','line',true));
- SetStatusBarVisible(Ini.readbool('VIEW','statusbar',true));
- NzoomIn.ShortCut:=Ini.Readinteger('HOTKEY','ZoomIn',33);
- NzoomOut.ShortCut:=Ini.Readinteger('HOTKEY','ZoomOut',34);
- N14.ShortCut:=Ini.Readinteger('HOTKEY','GoTo',16455);
- NCalcRast.ShortCut:=Ini.Readinteger('HOTKEY','CalcRast',16460);
- TBRECT.ShortCut:=Ini.Readinteger('HOTKEY','Rect',32850);
- TBRegion.ShortCut:=Ini.Readinteger('HOTKEY','Polyg',32848);
- TBCOORD.ShortCut:=Ini.Readinteger('HOTKEY','Coord',16451);
- TBPREVIOUS.ShortCut:=Ini.Readinteger('HOTKEY','Previous',16450);
- NSRCinet.ShortCut:=Ini.Readinteger('HOTKEY','inet',32841);
- NSRCesh.ShortCut:=Ini.Readinteger('HOTKEY','Cache',32835);
- NSRCic.ShortCut:=Ini.Readinteger('HOTKEY','CachInet',32834);
- Showstatus.ShortCut:=Ini.Readinteger('HOTKEY','Showstatus',32851);
- ShowLine.ShortCut:=Ini.Readinteger('HOTKEY','ShowLine',32844);
- ShowMiniMap.ShortCut:=Ini.Readinteger('HOTKEY','ShowMiniMap',32845);
- NFoolSize.ShortCut:=Ini.Readinteger('HOTKEY','FoolSize',122);
- NGoToCur.ShortCut:=Ini.Readinteger('HOTKEY','GoToCur',49219);
- Nbackload.ShortCut:=Ini.Readinteger('HOTKEY','backload',49218);
- Nanimate.ShortCut:=Ini.Readinteger('HOTKEY','animate',49217);
- NCiclMap.ShortCut:=Ini.Readinteger('HOTKEY','CiclMap',49242);
- N32.ShortCut:=Ini.Readinteger('HOTKEY','ShowScale',49235);
- NGPSconn.ShortCut:=Ini.Readinteger('HOTKEY','GPSconn',49223);
- NGPSPath.ShortCut:=Ini.Readinteger('HOTKEY','GPSPath',49236);
- NGPSToPoint.ShortCut:=Ini.Readinteger('HOTKEY','GPSToPoint',0);
- NSaveTreck.ShortCut:=Ini.Readinteger('HOTKEY','SaveTreck',16467);
- Ninvertcolor.ShortCut:=Ini.Readinteger('HOTKEY','InvertColor',32846);
- TBLoadSelFromFile.ShortCut:=Ini.Readinteger('HOTKEY','LoadSelFromFile',0);
- NMapParams.ShortCut:=Ini.Readinteger('HOTKEY','MapParams',16464);
+ LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
+ SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
+ SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
+ SetStatusBarVisible(GState.MainIni.readbool('VIEW','statusbar',true));
+ NzoomIn.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomIn',33);
+ NzoomOut.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomOut',34);
+ N14.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GoTo',16455);
+ NCalcRast.ShortCut:=GState.MainIni.Readinteger('HOTKEY','CalcRast',16460);
+ TBRECT.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Rect',32850);
+ TBRegion.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Polyg',32848);
+ TBCOORD.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Coord',16451);
+ TBPREVIOUS.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Previous',16450);
+ NSRCinet.ShortCut:=GState.MainIni.Readinteger('HOTKEY','inet',32841);
+ NSRCesh.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Cache',32835);
+ NSRCic.ShortCut:=GState.MainIni.Readinteger('HOTKEY','CachInet',32834);
+ Showstatus.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Showstatus',32851);
+ ShowLine.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ShowLine',32844);
+ ShowMiniMap.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ShowMiniMap',32845);
+ NFoolSize.ShortCut:=GState.MainIni.Readinteger('HOTKEY','FoolSize',122);
+ NGoToCur.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GoToCur',49219);
+ Nbackload.ShortCut:=GState.MainIni.Readinteger('HOTKEY','backload',49218);
+ Nanimate.ShortCut:=GState.MainIni.Readinteger('HOTKEY','animate',49217);
+ NCiclMap.ShortCut:=GState.MainIni.Readinteger('HOTKEY','CiclMap',49242);
+ N32.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ShowScale',49235);
+ NGPSconn.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GPSconn',49223);
+ NGPSPath.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GPSPath',49236);
+ NGPSToPoint.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GPSToPoint',0);
+ NSaveTreck.ShortCut:=GState.MainIni.Readinteger('HOTKEY','SaveTreck',16467);
+ Ninvertcolor.ShortCut:=GState.MainIni.Readinteger('HOTKEY','InvertColor',32846);
+ TBLoadSelFromFile.ShortCut:=GState.MainIni.Readinteger('HOTKEY','LoadSelFromFile',0);
+ NMapParams.ShortCut:=GState.MainIni.Readinteger('HOTKEY','MapParams',16464);
 
  TTBXItem(FindComponent('NGShScale'+IntToStr(GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
@@ -2610,7 +2587,6 @@ begin
  toSh;
  start:=false;
 
- Ini.Free;
  if GState.zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
                    else TBMapZap.Caption:='';
  selectMap(sat_map_both);
@@ -2719,11 +2695,11 @@ procedure TFmain.sm_im_reset(x,y:integer);
 var Polygon: TPolygon32;
     iLay:integer;
 begin
- if LayerMinMap.Visible=false then exit;
- if LayerStatBar.Visible then LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height-17,sm_map.width+5,sm_map.height))
-                         else LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height,sm_map.width+5,sm_map.height));
- LayerMinMap.Bitmap.Width:=sm_map.width+5;
- LayerMinMap.Bitmap.Height:=sm_map.height+5;
+ if sm_map.LayerMinMap.Visible=false then exit;
+ if LayerStatBar.Visible then sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height-17,sm_map.width+5,sm_map.height))
+                         else sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height,sm_map.width+5,sm_map.height));
+ sm_map.LayerMinMap.Bitmap.Width:=sm_map.width+5;
+ sm_map.LayerMinMap.Bitmap.Height:=sm_map.height+5;
  Sm_Map.SmMapBitmap.Resampler:=CreateResampler(GState.Resampling);
  sm_map.zoom:=GState.zoom_size-sm_map.z1mz2;
  if sm_map.zoom<1 then sm_map.zoom:=1;
@@ -2752,8 +2728,8 @@ begin
         sm_map.dy:=round(sm_map.height*(map.Height/zoom[GState.zoom_size]));
        end;
 
- LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
- gamma(LayerMinMap.bitmap);
+ sm_map.LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
+ gamma(sm_map.LayerMinMap.bitmap);
 
  Polygon := TPolygon32.Create;
  Polygon.Antialiased:=true;
@@ -2766,23 +2742,23 @@ begin
     with Grow(Fixed(3.2 / 2), 0.5) do
      begin
       FillMode := pfWinding;
-      DrawFill(LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-sm_map.zoom)*43));
+      DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-sm_map.zoom)*43));
       free;
      end;
     free;
    end;
- Polygon.DrawFill(LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
+ Polygon.DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
  Polygon.Free;
 
- LayerMinMap.bitmap.Canvas.Polygon([point(0,sm_map.height+5),point(0,0),point(sm_map.width+5,0),point(sm_map.width+5,4),point(4,4),point(4,sm_map.height+5)]);
- LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-6]:=clBlack;
- LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-2]:=clBlack;
- LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+2]:=clBlack;
- LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+6]:=clBlack;
- LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
- if sm_map.z1mz2>1 then LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
- if sm_map.zoom>1 then LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
- LayerMinMap.BringToFront;
+ sm_map.LayerMinMap.bitmap.Canvas.Polygon([point(0,sm_map.height+5),point(0,0),point(sm_map.width+5,0),point(sm_map.width+5,4),point(4,4),point(4,sm_map.height+5)]);
+ sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-6]:=clBlack;
+ sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-2]:=clBlack;
+ sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+2]:=clBlack;
+ sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+6]:=clBlack;
+ sm_map.LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
+ if sm_map.z1mz2>1 then sm_map.LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
+ if sm_map.zoom>1 then sm_map.LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
+ sm_map.LayerMinMap.BringToFront;
 end;
 
 procedure TFmain.zooming(x:byte;move:boolean);
@@ -2857,7 +2833,7 @@ end;
 procedure TFmain.FormCreate(Sender: TObject);
 begin
  Application.Title:=Fmain.Caption;
- TBiniLoadPositions(Fmain,GState.MainConfigFileName,'PANEL_');
+ TBiniLoadPositions(Fmain,GState.MainIni,'PANEL_');
  TBEditPath.Visible:=false;
  Fmain.Caption:=Fmain.Caption+' '+SASVersion;
  start:=true;
@@ -2867,7 +2843,6 @@ procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  close_:=true;
  if length(MapType)<>0 then FSettings.Save;
- marksicons.free;
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -3455,9 +3430,9 @@ end;
 
 procedure TFmain.SetMiniMapVisible(visible:boolean);
 begin
- LayerMinMap.Visible:= visible;
- if LayerMinMap.Visible then LayerMinMap.BringToFront
-                        else LayerMinMap.SendToBack;
+ sm_map.LayerMinMap.Visible:= visible;
+ if sm_map.LayerMinMap.Visible then sm_map.LayerMinMap.BringToFront
+                        else sm_map.LayerMinMap.SendToBack;
  sm_im_reset(sm_map.width div 2,sm_map.height div 2);
  ShowMiniMap.Checked:=visible;
 end;
@@ -3616,11 +3591,11 @@ begin
    LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
    if LayerStatBar.Visible
     then begin
-          LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height-17,map.Width,map.Height-17);
+          sm_map.LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height-17,map.Width,map.Height-17);
           with LayerLineM do location:=floatrect(location.left,map.Height-23-17,location.right,map.Height-8-17);
          end
     else begin
-          LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height,map.Width,map.Height);
+          sm_map.LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height,map.Width,map.Height);
           with LayerLineM do location:=floatrect(location.left,map.Height-23,location.right,map.Height-8);
          end;
    LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
@@ -3998,8 +3973,8 @@ begin
  case button of
    mbRight: map.PopupMenu:=PopupMSmM;
    mbLeft: begin
-            ll:=round(LayerMinMap.Location.Left);
-            lt:=round(LayerMinMap.Location.top);
+            ll:=round(sm_map.LayerMinMap.Location.Left);
+            lt:=round(sm_map.LayerMinMap.Location.top);
             if (x<ll+5)
              then sm_map.size_dw:=true
              else if (x>ll+6)and(x<ll+17)and(y>lt+5)and(y<lt+15)
@@ -4017,7 +3992,7 @@ begin
                          else if (x>ll+5)and(y>lt) then
                                begin
                                 sm_map.m_dwn:=true;
-                                sm_im_reset(round(x-(LayerMinMap.Location.Left+5)),round(y-(LayerMinMap.Location.top)));
+                                sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)));
                                end;
            end;
  end;
@@ -4028,7 +4003,7 @@ begin
  if (anim_zoom=1) then exit;
  sm_map.m_dwn:=false;
  sm_map.size_dw:=false;
- if (not(sm_map.size_dw))and(not(sm_map.zooming))and((x>LayerMinMap.Location.Left+5)and(y>LayerMinMap.Location.Top))
+ if (not(sm_map.size_dw))and(not(sm_map.zooming))and((x>sm_map.LayerMinMap.Location.Left+5)and(y>sm_map.LayerMinMap.Location.Top))
   then begin
         if sm_map.zoom>1 then
          pos:=Point(pos.x+round((-(128-(sm_map.pos.x*(256/sm_map.width))))*power(2,GState.zoom_size-sm_map.zoom)),
@@ -4042,16 +4017,16 @@ end;
 
 procedure TFmain.LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
- if (x<LayerMinMap.Location.Left+5)and(map.Cursor<>crSizeNWSE) then LayerMinMap.Cursor:=crSizeNWSE
-                                                               else LayerMinMap.Cursor:=crHandPoint;
+ if (x<sm_map.LayerMinMap.Location.Left+5)and(map.Cursor<>crSizeNWSE) then sm_map.LayerMinMap.Cursor:=crSizeNWSE
+                                                               else sm_map.LayerMinMap.Cursor:=crHandPoint;
  if (sm_map.size_dw)and((map.Width-x-5)>40)
   then begin
         sm_map.width:=(map.Width-x-5);
         sm_map.height:=(map.Width-x-5);
         sm_im_reset(sm_map.width div 2,sm_map.height div 2)
        end;
- if (sm_map.m_dwn)and(x>LayerMinMap.Location.Left+5)and(y>LayerMinMap.Location.top+5)
-  then sm_im_reset(round(x-(LayerMinMap.Location.Left+5)),round(y-(LayerMinMap.Location.top)));
+ if (sm_map.m_dwn)and(x>sm_map.LayerMinMap.Location.Left+5)and(y>sm_map.LayerMinMap.Location.top+5)
+  then sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)));
 end;
 
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
@@ -4063,7 +4038,7 @@ begin
      H.ReleaseHandle;
      FreeAndNil(H);
     end;
- if (layer=LayerMinMap) then exit;
+ if (layer=sm_map.LayerMinMap) then exit;
  if (ssDouble in Shift)or(anim_zoom=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
     or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
  Screen.ActiveForm.SetFocusedControl(map);
@@ -4150,7 +4125,7 @@ var PWL:TResObj;
     stw:String;
     Poly: TPointArray;
 begin
- if (layer=LayerMinMap) then exit;
+ if (layer=sm_map.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
  dwn:=false;
  if HiWord(GetKeyState(VK_DELETE))<>0 then
@@ -4316,7 +4291,7 @@ var i,j:integer;
     hintrect:TRect;
     CState: Integer;
 begin
- if (Layer=LayerMinMap)or(anim_zoom>0)or(
+ if (Layer=sm_map.LayerMinMap)or(anim_zoom>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
    then begin
          moveTrue:=point(x,y);
@@ -4331,7 +4306,7 @@ begin
    drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
    exit;
   end;
- if (aoper=rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>LayerMinMap)
+ if (aoper=rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>sm_map.LayerMinMap)
          then begin
                rect_arr[1]:=extPoint(X2Lon(x),Y2Lat(y));
                drawRect(Shift);

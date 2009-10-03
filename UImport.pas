@@ -140,7 +140,7 @@ end;
 
 procedure TFImport.FormActivate(Sender: TObject);
 begin
- ComboBox1.Items.Assign(marksicons);
+ ComboBox1.Items.Assign(GState.MarkIcons);
  ComboBox1.Repaint;
  ComboBox1.ItemIndex:=0;
 end;

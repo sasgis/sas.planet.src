@@ -52,8 +52,8 @@ uses
   u_GeoToStr in 'u_GeoToStr.pas',
   u_GlobalState in 'u_GlobalState.pas';
 
-var Ini: Tinifile;
-    loc:integer;
+var
+  loc:integer;
    {$R *.res}{$R SASR.RES}
 begin
   GState := TGlobalState.Create;
@@ -61,23 +61,21 @@ begin
    begin
     RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
    end;
-  Ini:=TiniFile.Create(GState.MainConfigFileName);
   if SysLocale.PriLangID<>CProgram_Lang_Default then loc:=LANG_ENGLISH
                                        else loc:=CProgram_Lang_Default;
-  GState.Localization:=Ini.Readinteger('VIEW','localization',loc);
-  GState.WebReportToAuthor:=Ini.ReadBool('NPARAM','stat',true);
+  GState.Localization:= GState.MainIni.Readinteger('VIEW','localization',loc);
+  GState.WebReportToAuthor:=GState.MainIni.ReadBool('NPARAM','stat',true);
   Application.Initialize;
   Application.Title := 'SAS.Планета';
   //logo
   LoadNewResourceModule(GState.Localization);
-  if Ini.ReadBool('VIEW','Show_logo',true) then
+  if GState.MainIni.ReadBool('VIEW','Show_logo',true) then
    begin
     FLogo:=TFLogo.Create(application);
     FLogo.Label1.Caption:='v '+SASVersion;
     FLogo.Show;
     Application.ProcessMessages;
    end;
-  Ini.Free;
   LoadMaps;
   //xLogo
   Application.HelpFile := '';
