@@ -2559,7 +2559,7 @@ begin
               end;
             end else begin
               loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
-            end
+            end;
             Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
           end;
           inc(y128,256);
@@ -3891,33 +3891,28 @@ end;
 procedure TFmain.LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var ll,lt:integer;
 begin
- map.PopupMenu:=nil;
- case button of
-   mbRight: map.PopupMenu:=GMiniMapPopupMenu;
-   mbLeft: begin
-            ll:=round(sm_map.LayerMinMap.Location.Left);
-            lt:=round(sm_map.LayerMinMap.Location.top);
-            if (x<ll+5)
-             then sm_map.size_dw:=true
-             else if (x>ll+6)and(x<ll+17)and(y>lt+5)and(y<lt+15)
-                   then begin
-                         sm_map.zooming:=true;
-                         if sm_map.z1mz2>1 then dec(sm_map.z1mz2);
-                         sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
-                        end
-                   else if (x>ll+19)and(x<ll+33)and(y>lt+5)and(y<lt+15)
-                         then begin
-                               sm_map.zooming:=true;
-                               if GState.zoom_size-sm_map.z1mz2>1 then inc(sm_map.z1mz2);
-                               sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
-                              end
-                         else if (x>ll+5)and(y>lt) then
-                               begin
-                                sm_map.m_dwn:=true;
-                                sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)), Pos);
-                               end;
-           end;
- end;
+  map.PopupMenu:=nil;
+  case button of
+    mbRight: map.PopupMenu:=GMiniMapPopupMenu;
+    mbLeft: begin
+      ll:=round(sm_map.LayerMinMap.Location.Left);
+      lt:=round(sm_map.LayerMinMap.Location.top);
+      if (x<ll+5) then begin
+        sm_map.size_dw:=true
+      end else if (x>ll+6)and(x<ll+17)and(y>lt+5)and(y<lt+15) then begin
+        sm_map.zooming:=true;
+        if sm_map.z1mz2>1 then dec(sm_map.z1mz2);
+        sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
+      end else if (x>ll+19)and(x<ll+33)and(y>lt+5)and(y<lt+15) then begin
+        sm_map.zooming:=true;
+        if GState.zoom_size-sm_map.z1mz2>1 then inc(sm_map.z1mz2);
+        sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
+      end else if (x>ll+5)and(y>lt) then begin
+        sm_map.m_dwn:=true;
+        sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)), Pos);
+      end;
+    end;
+  end;
 end;
 
 procedure TFmain.LayerMinMapMouseUp(Sender:TObject; Button:TMouseButton; Shift:TShiftState; X,Y:Integer);
