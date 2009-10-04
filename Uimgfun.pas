@@ -11,7 +11,8 @@ uses
   Math,
   Types,
   GR32,
-  pngimage;
+  pngimage,
+  UMapType;
 
 const
   FILE_DOES_NOT_EXIST = DWORD(-1);
@@ -33,17 +34,20 @@ type
     trtSinsh = 12
   );
 
-var
-  defoultMap:TBitmap;
   procedure SetDefoultMap;
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
+  procedure Gamma(Bitmap: TBitmap32);
+  function loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
+  procedure Contrast(Bitmap: TBitmap32; Value: double);
 
 implementation
 
 uses
   GR32_Resamplers,
+  GR32_Filters,
+  u_GlobalState,
   unit1;
 
 function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
@@ -164,8 +168,8 @@ var b:TPNGObject;
 begin
  b:=TPNGObject.Create;
  b.LoadFromResourceName(HInstance, 'MAINMAP');
- DefoultMap:=TBitmap.Create;
- DefoultMap.Assign(b);
+ Sm_Map.DefoultMap:=TBitmap.Create;
+ Sm_Map.DefoultMap.Assign(b);
  b.LoadFromResourceName(HInstance, 'ICONI');
  Sm_Map.PlusButton:=TBitmap32.Create;
  PNGintoBitmap32(Sm_Map.PlusButton,b);
@@ -179,6 +183,114 @@ begin
  PNGintoBitmap32(GOToSelIcon,b);
  GOToSelIcon.DrawMode:=dmBlend;
  FreeAndNil(b);
+end;
+
+procedure Contrast(Bitmap: TBitmap32; Value: double);
+ function BLimit(B:Integer):Byte;
+  begin
+   if B<0 then Result:=0
+          else if B>255 then Result:=255
+                        else Result:=B;
+  end;
+var Dest: PColor32;
+    x,y,mr,mg,mb,i:Integer;
+    ContrastTable:array [0..255] of byte;
+    vd: Double;
+begin
+  if Value=0 then Exit;
+  Value:=Value/10;
+  mR:=128;
+  mG:=128;
+  mB:=128;
+  if Value>0 then vd:=1+(Value/10)
+             else vd:=1-(Sqrt(-Value)/10);
+  for i:=0 to 255 do begin
+    ContrastTable[i]:=BLimit(mR+Trunc((i-mR)*vd));
+  end;
+
+  Dest:=@Bitmap.Bits[0];
+  for y:=0 to Bitmap.Width*Bitmap.Height-1 do
+   begin
+      Dest^:=GR32.Color32(ContrastTable[RedComponent(dest^)],
+                          ContrastTable[GreenComponent(dest^)],
+                          ContrastTable[BlueComponent(dest^)],AlphaComponent(dest^));
+      Inc(Dest);
+   end;
+end;
+
+procedure InvertBitmap(Bitmap: TBitmap32);
+begin
+ if GState.InvertColor then InvertRGB(Bitmap,Bitmap);
+end;
+
+procedure Gamma(Bitmap: TBitmap32);
+  function Power(Base, Exponent: Extended): Extended;
+  begin
+    Result := Exp(Exponent * Ln(Base));
+  end;
+var Dest: PColor32;
+    X,Y: integer;
+    GammaTable:array[0..255] of byte;
+    L:Double;
+begin
+  Contrast(Bitmap, GState.ContrastN);
+  InvertBitmap(Bitmap);
+  if GState.GammaN<>50 then
+   begin
+    if GState.GammaN<50 then L:=1/((GState.GammaN*2)/100)
+                 else L:=1/((GState.GammaN-40)/10);
+    GammaTable[0]:=0;
+    for X := 1 to 255 do GammaTable[X]:=round(255*Power(X/255,L));
+    Dest:=@Bitmap.Bits[0];
+    for Y := 0 to Bitmap.Height*Bitmap.Width-1 do
+     begin
+      Dest^:= GR32.Color32(GammaTable[RedComponent(dest^)],GammaTable[GreenComponent(dest^)],GammaTable[BlueComponent(dest^)],AlphaComponent(dest^));
+      Inc(Dest);
+     end;
+   end;
+end;
+
+function loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
+var i,c_x,c_y,dZ:integer;
+    bmp:TBitmap32;
+    VTileExists: Boolean;
+begin
+ result:=false;
+ if not(GState.UsePrevZoom) then
+  begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+  end;
+  VTileExists := false;
+ for i:=(Azoom-1) downto 1 do
+  begin
+   dZ:=(Azoom-i);
+   if AMap.TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileExists := true;
+    break;
+   end;
+  end;
+ if not(VTileExists)or(dZ>8) then
+  begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+  end;
+ bmp:=TBitmap32.Create;
+ if not(AMap.LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
+  begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   bmp.Free;
+   exit;
+  end;
+ bmp.Resampler := CreateResampler(GState.Resampling);
+ c_x:=((x-(x mod 256))shr dZ)mod 256;
+ c_y:=((y-(y mod 256))shr dZ)mod 256;
+ try
+  spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
+ except
+ end;
+ bmp.Free;
+ result:=true;
 end;
 
 end.

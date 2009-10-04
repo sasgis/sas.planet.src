@@ -108,6 +108,7 @@ uses
   UaddPoly,
   UaddLine,
   UImport,
+  UMapType,
   UAddCategory,
   t_GeoTypes;
 

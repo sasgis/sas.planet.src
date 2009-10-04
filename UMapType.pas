@@ -100,6 +100,8 @@ type
 var
   MapType:array of TMapType;
   MapsEdit:boolean;
+  sat_map_both:TMapType;
+  
   procedure LoadMaps;
   procedure SaveMaps;
   procedure CreateMapUI;
