@@ -2153,7 +2153,7 @@ begin
    DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
   end;
  dWhenMovingButton := 5;
-
+  GMiniMapPopupMenu := PopupMSmM;
  Maximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
@@ -3880,7 +3880,7 @@ var ll,lt:integer;
 begin
  map.PopupMenu:=nil;
  case button of
-   mbRight: map.PopupMenu:=PopupMSmM;
+   mbRight: map.PopupMenu:=GMiniMapPopupMenu;
    mbLeft: begin
             ll:=round(sm_map.LayerMinMap.Location.Left);
             lt:=round(sm_map.LayerMinMap.Location.top);
