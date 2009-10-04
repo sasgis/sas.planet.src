@@ -367,8 +367,8 @@ begin
  GState.MainIni.Writeinteger('HOTKEY','InvertColor',Fmain.Ninvertcolor.ShortCut);
  GState.MainIni.Writeinteger('HOTKEY','MapParams',Fmain.NMapParams.ShortCut);
 
- GState.MainIni.Writeinteger('COLOR_LEVELS','gamma',gamman);
- GState.MainIni.Writeinteger('COLOR_LEVELS','contrast',contrastn);
+ GState.MainIni.Writeinteger('COLOR_LEVELS','gamma', GState.GammaN);
+ GState.MainIni.Writeinteger('COLOR_LEVELS','contrast',GState.ContrastN);
  GState.MainIni.WriteBool('COLOR_LEVELS','InvertColor',GState.InvertColor);
 
  if GState.GPS_enab then GState.MainIni.WriteBool('GPS','enbl',true)
@@ -522,8 +522,8 @@ begin
  GState.ESCPath_:=IncludeTrailingPathDelimiter(EScPath.Text);
  GState.GMTilesPath_:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.GECachePath_:=IncludeTrailingPathDelimiter(GECachePath.Text);
- gamman:=TrBarGamma.Position;
- Contrastn:=TrBarContrast.Position;
+ GState.GammaN:=TrBarGamma.Position;
+ GState.ContrastN:=TrBarContrast.Position;
  GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
  Wikim_set.MainColor:=CBWMainColor.Selected;
  Wikim_set.FonColor:=CBWFonColor.Selected;
@@ -699,11 +699,11 @@ begin
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:=GState.GPS_COM;
  ComboBoxBoudRate.Text:=inttostr(GState.GPS_BaudRate);
- TrBarGamma.Position:=gamman;
- if gamman<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman*2)/100)+')'
-              else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((gamman-40)/10)+')';
- TrBarcontrast.Position:=contrastn;
- LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(contrastn)+')';
+ TrBarGamma.Position:=GState.GammaN;
+ if GState.GammaN<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((GState.GammaN*2)/100)+')'
+              else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((GState.GammaN-40)/10)+')';
+ TrBarcontrast.Position:=GState.ContrastN;
+ LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(GState.ContrastN)+')';
  ComboBox1.ItemIndex := byte(GState.num_format);
  CBWMainColor.Selected:=Wikim_set.MainColor;
  CBWFonColor.Selected:=Wikim_set.FonColor;

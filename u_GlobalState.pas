@@ -105,6 +105,11 @@ type
     MapZapAlpha:byte;
 
     InvertColor: boolean;
+    // Число для гамма преобразования тайлов перед отображением
+    GammaN: Integer;
+    // Число для изменения контрастности тайлов перед отображением
+    ContrastN: Integer;
+
 
     show_point: TMarksShowType;
     FirstLat: Boolean;

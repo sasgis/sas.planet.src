@@ -461,6 +461,7 @@ type
     procedure NanimateClick(Sender: TObject);
   private
    ShowActivHint:boolean;
+   h: THintWindow;
    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
    procedure Set_lock_toolbars(const Value: boolean);
@@ -569,8 +570,6 @@ var
   zoom_line,
   poly_zoom_save:byte;
   marshrutcomment:string;
-  gamman,
-  contrastn,
   anim_zoom,
   GShScale,
   mWd2,
@@ -601,7 +600,6 @@ var
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
-  h: THintWindow;
   curBuf:TCursor;
   OldFormWH:TPoint;
   Wikim_set:TWikim_set;
@@ -1155,12 +1153,12 @@ var Dest: PColor32;
     GammaTable:array[0..255] of byte;
     L:Double;
 begin
-  Contrast(Bitmap, contrastn);
+  Contrast(Bitmap, GState.ContrastN);
   InvertBitmap(Bitmap);
-  if gamman<>50 then
+  if GState.GammaN<>50 then
    begin
-    if gamman<50 then L:=1/((gamman*2)/100)
-                 else L:=1/((gamman-40)/10);
+    if GState.GammaN<50 then L:=1/((GState.GammaN*2)/100)
+                 else L:=1/((GState.GammaN-40)/10);
     GammaTable[0]:=0;
     for X := 1 to 255 do GammaTable[X]:=round(255*Power(X/255,L));
     Dest:=@Bitmap.Bits[0];
@@ -2487,8 +2485,8 @@ begin
  Wikim_set.MainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
  Wikim_set.FonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
- gamman:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
- contrastn:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
+ GState.GammaN:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
+ GState.ContrastN:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
  GState.InvertColor:=GState.MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
  GState.GPS_COM:=GState.MainIni.ReadString('GPS','com','COM0');
  GState.GPS_BaudRate:=GState.MainIni.ReadInteger('GPS','BaudRate',4800);
