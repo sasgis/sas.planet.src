@@ -18,6 +18,7 @@ type
 
   TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
 
+
   TGlobalState = class
   private
     function GetMarkIconsPath: string;
@@ -131,6 +132,8 @@ type
     AnimateZoom: Boolean;
     //При отображении сетки тайлов выводить подписи
     ShowBorderText: Boolean;
+    // Масштаб отображаемой сетки генштаба
+    GShScale: integer;
 
 
     //Пути к кешам разных типов

@@ -472,7 +472,10 @@ type
    FTileSource:TTileSource;
    FPos:TPoint;
    LayerStatBar: TBitmapLayer;
+   dWhenMovingButton:integer;
   public
+   MapMoving: Boolean;
+   MapZoomAnimtion: Integer;
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
@@ -570,8 +573,6 @@ var
   zoom_line,
   poly_zoom_save:byte;
   marshrutcomment:string;
-  anim_zoom,
-  GShScale,
   mWd2,
   mHd2,
   yhgpx,
@@ -580,10 +581,8 @@ var
   hg_y,
   pr_x,
   pr_y:integer;
-  dWhenMovingButton:integer = 5;
   move,m_up,m_m,moveTrue:Tpoint;
   notpaint,
-  dwn,
   start,
   close_,
   LenShow,
@@ -1018,7 +1017,7 @@ begin
 
  if Fmain.Active then
   case Msg.message of
-   WM_MOUSEWHEEL:if anim_zoom=0 then
+   WM_MOUSEWHEEL:if MapZoomAnimtion=0 then
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
@@ -1198,7 +1197,7 @@ begin
        end;
    if ThreadAllLoadMap(sender).typeRect in [2,3] then
     begin
-     if not((dwn)or(anim_zoom=1)) then
+     if not((MapMoving)or(MapZoomAnimtion=1)) then
        begin
         //move.X:=m_up.x;
         GState.MainFileCache.Clear;
@@ -1247,9 +1246,9 @@ begin
     pxy2.y:=((pxy2.y+d256)-((pxy2.y+d256) mod d256));
     xy2.y:=mHd2-(pos.y-pxy2.y);
    end;
-  if (ssShift in Shift)and(GShScale>0) then
+  if (ssShift in Shift)and(GState.GShScale>0) then
    begin
-    case GShScale of
+    case GState.GShScale of
       1000000: begin zLonR:=6; zLatR:=4; end;
        500000: begin zLonR:=3; zLatR:=2; end;
        200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
@@ -2010,8 +2009,8 @@ var LonLatLT,LonLatRD:TExtendedPoint;
     x2,x1,y1,y2,X1b,twidth,theight:integer;
     ListName:WideString;
 begin
- if GShScale=0 then exit;
- case GShScale of
+ if GState.GShScale=0 then exit;
+ case GState.GShScale of
   1000000: begin zLonR:=6; zLatR:=4; end;
    500000: begin zLonR:=3; zLatR:=2; end;
    200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
@@ -2053,7 +2052,7 @@ begin
      LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
      if ((x2-x1>30)and(y2-y1>7))and(GState.ShowBorderText) then
       begin
-       ListName:=LonLat2GShListName(ExtPoint(LonLatLT.X-zLonR/2,LonLatLT.Y+zLatR/2),GShScale,GSHprec);
+       ListName:=LonLat2GShListName(ExtPoint(LonLatLT.X-zLonR/2,LonLatLT.Y+zLatR/2),GState.GShScale,GSHprec);
         twidth:=LayerMap.bitmap.TextWidth(ListName);
        theight:=LayerMap.bitmap.TextHeight(ListName);
        if (twidth+4<x2-x1)and(theight+4<y2-y1) then
@@ -2262,6 +2261,7 @@ begin
   begin
    DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
   end;
+ dWhenMovingButton := 5;
 
  Maximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
@@ -2313,7 +2313,7 @@ begin
  Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
  move:=point(0,0);
  m_up:=point(0,0);
- anim_zoom:=0;
+ MapZoomAnimtion:=0;
 
  GState.TilesOut:=GState.MainIni.readInteger('VIEW','TilesOut',0);
 
@@ -2475,7 +2475,25 @@ begin
  GState.BorderAlpha:=GState.MainIni.Readinteger('VIEW','BorderAlpha',150);
  GState.BorderColor:=GState.MainIni.Readinteger('VIEW','BorderColor',$FFFFFF);
  GState.ShowBorderText:=GState.MainIni.ReadBool('VIEW','BorderText',true);
- GShScale:=GState.MainIni.Readinteger('VIEW','GShScale',0);
+ GState.GShScale:=GState.MainIni.Readinteger('VIEW','GShScale',0);
+ if GState.GShScale >= 1000000 then begin
+  GState.GShScale := 1000000;
+ end else if GState.GShScale >= 500000 then begin
+  GState.GShScale := 500000;
+ end else if GState.GShScale >= 200000 then begin
+  GState.GShScale := 200000;
+ end else if GState.GShScale >= 100000 then begin
+  GState.GShScale := 100000;
+ end else if GState.GShScale >= 50000 then begin
+  GState.GShScale := 50000;
+ end else if GState.GShScale >= 25000 then begin
+  GState.GShScale := 25000;
+ end else if GState.GShScale >= 10000 then begin
+  GState.GShScale := 10000;
+ end else begin
+  GState.GShScale := 0;
+ end;
+
  GState.MapZapColor:=GState.MainIni.Readinteger('VIEW','MapZapColor',clBlack);
  GState.MapZapAlpha:=GState.MainIni.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
@@ -2555,7 +2573,7 @@ begin
  TBLoadSelFromFile.ShortCut:=GState.MainIni.Readinteger('HOTKEY','LoadSelFromFile',0);
  NMapParams.ShortCut:=GState.MainIni.Readinteger('HOTKEY','MapParams',16464);
 
- TTBXItem(FindComponent('NGShScale'+IntToStr(GShScale))).Checked:=true;
+ TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
  Ninvertcolor.Checked:=GState.InvertColor;
  TBGPSconn.Checked := GState.GPS_enab;
@@ -2601,7 +2619,7 @@ begin
  end;
 
  zooming(GState.Zoom_size,false);
- dwn:=false;
+ MapMoving:=false;
  Fsaveas.PageControl1.ActivePageIndex:=0;
 
  SetProxy;
@@ -2770,8 +2788,8 @@ begin
           else TBZoomIn.Enabled:=true;
  NZoomIn.Enabled:=TBZoomIn.Enabled;
  NZoomOut.Enabled:=TBZoom_Out.Enabled;
- if (anim_zoom=1)or(dwn)or(x<1)or(x>24) then exit;
- anim_zoom:=1;
+ if (MapZoomAnimtion=1)or(MapMoving)or(x<1)or(x>24) then exit;
+ MapZoomAnimtion:=1;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  labZoom.caption:=' '+inttostr(x)+'x ';
  RxSlider1.Value:=x-1;
@@ -2815,7 +2833,7 @@ begin
          end;
  GState.zoom_size:=x;
  generate_im(nilLastLoad,'');
- anim_zoom:=0;
+ MapZoomAnimtion:=0;
  toSh;
 end;
 
@@ -3195,7 +3213,7 @@ procedure TFmain.selectMap(num:TMapType);
 var lat,lon:real;
     i:integer;
 begin
- if anim_zoom=1 then exit;
+ if MapZoomAnimtion=1 then exit;
  lat:=Y2Lat(mHd2);
  Lon:=X2Lon(mWd2);
  if not(num.asLayer) then
@@ -3794,7 +3812,7 @@ end;
 procedure TFmain.mapDblClick(Sender: TObject);
 var r:TPoint;
 begin
- dwn:=false;
+ MapMoving:=false;
  if (aoper=movemap) then
   begin
    r:=map.ScreenToClient(Mouse.CursorPos);
@@ -3897,7 +3915,7 @@ begin
   GState.GPS_ArrayOfSpeed[len-1]:=FMain.GPSReceiver.GetSpeed_KMH;
   if len>1 then
     GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-  if not((dwn)or(anim_zoom=1))and(Fmain.Active) then
+  if not((MapMoving)or(MapZoomAnimtion=1))and(Fmain.Active) then
    begin
     bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
     if (GState.GPS_MapMove)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
@@ -4000,7 +4018,7 @@ end;
 
 procedure TFmain.LayerMinMapMouseUp(Sender:TObject; Button:TMouseButton; Shift:TShiftState; X,Y:Integer);
 begin
- if (anim_zoom=1) then exit;
+ if (MapZoomAnimtion=1) then exit;
  sm_map.m_dwn:=false;
  sm_map.size_dw:=false;
  if (not(sm_map.size_dw))and(not(sm_map.zooming))and((x>sm_map.LayerMinMap.Location.Left+5)and(y>sm_map.LayerMinMap.Location.Top))
@@ -4039,7 +4057,7 @@ begin
      FreeAndNil(H);
     end;
  if (layer=sm_map.LayerMinMap) then exit;
- if (ssDouble in Shift)or(anim_zoom=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
+ if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
     or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
  Screen.ActiveForm.SetFocusedControl(map);
  Layer.Cursor:=curBuf;
@@ -4087,8 +4105,8 @@ begin
       end;
    exit;
   end;
- if dwn then exit;
- if (Button=mbright)and(aoper=movemap)and(not dwn)
+ if MapMoving then exit;
+ if (Button=mbright)and(aoper=movemap)
   then begin
         m_up:=point(x,y);
         PWL.find:=false;
@@ -4112,7 +4130,7 @@ begin
         map.PopupMenu:=PopupMenu1;
        end
   else begin
-        dwn:=true;
+        MapMoving:=true;
         map.PopupMenu:=nil;
        end;
  move:=Point(x,y);
@@ -4127,7 +4145,7 @@ var PWL:TResObj;
 begin
  if (layer=sm_map.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
- dwn:=false;
+ MapMoving:=false;
  if HiWord(GetKeyState(VK_DELETE))<>0 then
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[GState.zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
@@ -4160,7 +4178,7 @@ begin
  if (((aoper<>movemap)and(Button=mbLeft))or
      ((aoper=movemap)and(Button=mbRight))) then exit;
 // m_up:=move;
- if (anim_zoom=1) then exit;
+ if (MapZoomAnimtion=1) then exit;
  map.Enabled:=false;
  map.Enabled:=true;
  if button=mbMiddle then
@@ -4291,7 +4309,7 @@ var i,j:integer;
     hintrect:TRect;
     CState: Integer;
 begin
- if (Layer=sm_map.LayerMinMap)or(anim_zoom>0)or(
+ if (Layer=sm_map.LayerMinMap)or(MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
    then begin
          moveTrue:=point(x,y);
@@ -4311,7 +4329,7 @@ begin
                rect_arr[1]:=extPoint(X2Lon(x),Y2Lat(y));
                drawRect(Shift);
               end;
- if dwn then layer.Cursor:=3;
+ if MapMoving then layer.Cursor:=3;
 
  if GState.FullScrean then begin
                        if y<10 then begin
@@ -4347,8 +4365,8 @@ begin
                                      TBDockRight.Parent:=Fmain;
                                     end;
                       end;
- if anim_zoom=1 then exit;
- if dwn then begin
+ if MapZoomAnimtion=1 then exit;
+ if MapMoving then begin
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
@@ -4357,7 +4375,7 @@ begin
               if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
              end
         else m_m:=point(x,y);
- if not(dwn) then toSh;
+ if not(MapMoving) then toSh;
 
  if (not ShowActivHint) then
   begin
@@ -4369,7 +4387,7 @@ begin
    Layer.Cursor:=curBuf;
   end;
  ShowActivHint:=false;
- if not(dwn)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
+ if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
    PWL.S:=0;
    PWL.find:=false;
@@ -4471,7 +4489,26 @@ end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
 begin
- GShScale:=TTBXItem(sender).Tag;
+ GState.GShScale:=TTBXItem(sender).Tag;
+
+ if GState.GShScale >= 1000000 then begin
+  GState.GShScale := 1000000;
+ end else if GState.GShScale >= 500000 then begin
+  GState.GShScale := 500000;
+ end else if GState.GShScale >= 200000 then begin
+  GState.GShScale := 200000;
+ end else if GState.GShScale >= 100000 then begin
+  GState.GShScale := 100000;
+ end else if GState.GShScale >= 50000 then begin
+  GState.GShScale := 50000;
+ end else if GState.GShScale >= 25000 then begin
+  GState.GShScale := 25000;
+ end else if GState.GShScale >= 10000 then begin
+  GState.GShScale := 10000;
+ end else begin
+  GState.GShScale := 0;
+ end;
+
  generate_im(nilLastLoad,'');
 end;
 

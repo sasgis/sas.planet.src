@@ -328,7 +328,7 @@ begin
  GState.MainIni.Writeinteger('VIEW','BorderColor',GState.BorderColor);
  GState.MainIni.WriteBool('VIEW','BorderText',GState.ShowBorderText);
  GState.MainIni.Writeinteger('VIEW','localization',GState.Localization);
- GState.MainIni.Writeinteger('VIEW','GShScale',GShScale);
+ GState.MainIni.Writeinteger('VIEW','GShScale',GState.GShScale);
  GState.MainIni.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
  GState.MainIni.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);

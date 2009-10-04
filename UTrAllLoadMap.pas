@@ -545,7 +545,7 @@ begin
                 err:=SAS_ERR_NotLoads;
               end;
               sleep(100);
-              While (dwn)or(anim_zoom=1) do Sleep(10);
+              While (FMain.MapMoving)or(FMain.MapZoomAnimtion=1) do Sleep(10);
             end;
           end;
         end;
@@ -715,7 +715,7 @@ end;
 
 procedure ThreadAllLoadMap.WriteToFile;
 begin
- if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(dwn))and(not(anim_zoom=1)) then
+ if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
   begin
    Fmain.generate_im(TLastLoad(lastload),err);
   end
