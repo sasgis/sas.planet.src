@@ -481,7 +481,7 @@ type
    property TileSource:TTileSource read FTileSource write Set_TileSource;
    property Pos:TPoint read FPos write Set_Pos;
    procedure generate_im(lastload:TLastLoad;err:string);
-   procedure sm_im_reset(x,y:integer);
+class   procedure sm_im_reset(x,y:integer; MainMapPos: TPoint);
    function  toSh:string;
 class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    function  X2Lon(X:integer):extended;
@@ -503,7 +503,7 @@ class   function  str2r(inp:string):real;
    procedure selectMap(num:TMapType);
    procedure generate_granica;
    procedure drawLineGPS;
-   procedure sm_im_reset_type2(x,y:integer);
+class   procedure sm_im_reset_type2(x1,y1:integer);
    procedure ShowCaptcha(URL:string);
    procedure drawRect(Shift:TShiftState);
    procedure ShowErrScript(DATA:string);
@@ -2131,7 +2131,7 @@ begin
      draw_point;
     except
     end;
-    sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+    sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
    end;
 { m_up.x:=move.X;
  m_up.y:=move.y;   }
@@ -2521,152 +2521,165 @@ begin
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
 end;
 
-procedure TFmain.sm_im_reset_type2(x,y:integer);
+class procedure TFmain.sm_im_reset_type2(x1,y1:integer);
 var bm:TBitmap32;
     pos_sm,d:TPoint;
     x128,y128,ilay:integer;
     m_t:TMapType;
 begin
- bm:=TBitmap32.Create;
- bm.Width:=256;
- bm.Height:=256;
- Sm_Map.SmMapBitmap.Width:=256;
- Sm_Map.SmMapBitmap.Height:=256;
- Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
- pos_sm:=Point(pos.X shr (GState.zoom_size-sm_map.zoom),pos.y shr (GState.zoom_size-sm_map.zoom));
- if sm_map.maptype=nil then m_t:=sat_map_both
-                              else m_t:=sm_map.maptype;
- Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, m_t.GeoConvert);
- d:=Point((pos_sm.X-128),(pos_sm.y-128));
- if d.x<0 then d.x:=256+d.x;
- if d.y<0 then d.y:=256+d.y;
- d:=Point((d.x mod 256),(d.y mod 256));
-
- x128:=-128;
- while (x128<=128) do
-  begin
-   y128:=-128;
-   if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then
-   while (y128<=128) do
-    begin
-     if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
-      begin
-       bm.Clear(Color32(clSilver) xor $00000000);
-       if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom))
-        then begin
-              if not(m_t.LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true))
-               then bm.Clear(Color32(clSilver) xor $00000000);
-             end
-        else loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
-       Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
-      end;
-     inc(y128,256);
+  bm := TBitmap32.Create;
+  try
+    bm.Width := 256;
+    bm.Height := 256;
+    Sm_Map.SmMapBitmap.Width := 256;
+    Sm_Map.SmMapBitmap.Height := 256;
+    Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
+    pos_sm := Point(x1 shr (GState.zoom_size-sm_map.zoom),y1 shr (GState.zoom_size-sm_map.zoom));
+    if sm_map.maptype = nil then begin
+      m_t:=sat_map_both;
+    end else begin
+      m_t:=sm_map.maptype;
     end;
-   inc(x128,256);
-  end;
+    Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, m_t.GeoConvert);
+    d := Point((pos_sm.X-128),(pos_sm.y-128));
+    if d.x < 0 then d.x := 256+d.x;
+    if d.y < 0 then d.y := 256+d.y;
+    d := Point((d.x mod 256),(d.y mod 256));
 
- for iLay:=0 to length(MapType)-1 do
-  if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-  begin
-   pos_sm:=Point(pos.X shr (GState.zoom_size-sm_map.zoom),pos.y shr (GState.zoom_size-sm_map.zoom));
-   Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, MapType[iLay].GeoConvert);
-   d:=Point((pos_sm.X-128),(pos_sm.y-128));
-   if d.x<0 then d.x:=256+d.x;
-   if d.y<0 then d.y:=256+d.y;
-   d:=Point((d.x mod 256),(d.y mod 256));
-   x128:=-128;
-   while (x128<=128) do
-    begin
-     y128:=-128;
-     if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then
-     while (y128<=128) do
-      begin
-       if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then
-        begin
-         bm.Clear(Color32(clSilver) xor $00000000);
-         bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
-         if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
-            and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
-          MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true);
-         end;
-         Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
+    x128 := -128;
+    while (x128<=128) do begin
+      y128:=-128;
+      if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then begin
+        while (y128<=128) do begin
+          if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then begin
+            bm.Clear(Color32(clSilver) xor $00000000);
+            if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
+              if not(m_t.LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true)) then begin
+                bm.Clear(Color32(clSilver) xor $00000000);
+              end;
+            end else begin
+              loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
+            end
+            Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
+          end;
+          inc(y128,256);
         end;
-       inc(y128,256);
       end;
-     inc(x128,256);
+      inc(x128,256);
     end;
+
+    for iLay := 0 to length(MapType)-1 do begin
+      if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then begin
+        pos_sm := Point(X1 shr (GState.zoom_size-sm_map.zoom),y1 shr (GState.zoom_size-sm_map.zoom));
+        Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, MapType[iLay].GeoConvert);
+        d := Point((pos_sm.X-128),(pos_sm.y-128));
+        if d.x < 0 then d.x := 256 + d.x;
+        if d.y < 0 then d.y := 256 + d.y;
+        d := Point((d.x mod 256),(d.y mod 256));
+        x128 := -128;
+        while (x128<=128) do begin
+          y128:=-128;
+          if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then begin
+            while (y128<=128) do  begin
+              if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then begin
+                bm.Clear(Color32(clSilver) xor $00000000);
+                bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
+                if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
+                  and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then
+                begin
+                  MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true);
+                end;
+                Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
+              end;
+              inc(y128,256);
+            end;
+          end;
+          inc(x128,256);
+        end;
+      end;
+    end;
+  finally
+    bm.Free;
   end;
-  bm.Free;
 end;
 
-procedure TFmain.sm_im_reset(x,y:integer);
+class procedure TFmain.sm_im_reset(x,y:integer; MainMapPos: TPoint);
 var Polygon: TPolygon32;
     iLay:integer;
 begin
- if sm_map.LayerMinMap.Visible=false then exit;
- if GState.ShowStatusBar then sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height-17,sm_map.width+5,sm_map.height))
-                         else sm_map.LayerMinMap.location:=floatrect(bounds(map.Width-sm_map.width-5,map.Height-sm_map.height,sm_map.width+5,sm_map.height));
- sm_map.LayerMinMap.Bitmap.Width:=sm_map.width+5;
- sm_map.LayerMinMap.Bitmap.Height:=sm_map.height+5;
- Sm_Map.SmMapBitmap.Resampler:=CreateResampler(GState.Resampling);
- sm_map.zoom:=GState.zoom_size-sm_map.z1mz2;
- if sm_map.zoom<1 then sm_map.zoom:=1;
- if sm_map.zoom>1
-  then begin
-        if ((x=sm_map.width div 2)and(y=sm_map.height div 2))and(not sm_map.size_dw) then sm_im_reset_type2(x,y);
-        sm_map.dx:=round((sm_map.width/256)*((Fmain.map.Width/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
-        sm_map.dy:=round((sm_map.height/256)*((Fmain.map.Height/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
-        sm_map.pos:=Point(x,y);
-       end
-  else begin
-        if (sm_map.maptype = nil)
-           then begin
-                 if not(sat_map_both.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true))
-                  then Sm_Map.SmMapBitmap.Assign(Sm_Map.DefoultMap);
-                end
-           else if not(sm_map.maptype.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true))
-                 then Sm_Map.SmMapBitmap.Assign(Sm_Map.DefoultMap);
-         for iLay:=0 to length(MapType)-1 do
-          if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then
-            MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false);
-        if (x=sm_map.width div 2)and(y=sm_map.height div 2)
-         then sm_map.pos:=Point(round(pos.x*(sm_map.width/zoom[GState.zoom_size])),round(pos.y*(sm_map.height/zoom[GState.zoom_size])))
-         else sm_map.pos:=Point(x,y);
-        sm_map.dx:=round(sm_map.width*(map.Width/zoom[GState.zoom_size]));
-        sm_map.dy:=round(sm_map.height*(map.Height/zoom[GState.zoom_size]));
-       end;
+  if sm_map.LayerMinMap.Visible=false then exit;
+  if GState.ShowStatusBar then begin
+    sm_map.LayerMinMap.location:=floatrect(bounds(FMain.map.Width-sm_map.width-5,FMain.map.Height-sm_map.height-17,sm_map.width+5,sm_map.height));
+  end else begin
+    sm_map.LayerMinMap.location:=floatrect(bounds(FMain.map.Width-sm_map.width-5,FMain.map.Height-sm_map.height,sm_map.width+5,sm_map.height));
+  end;
+  sm_map.LayerMinMap.Bitmap.Width:=sm_map.width+5;
+  sm_map.LayerMinMap.Bitmap.Height:=sm_map.height+5;
+  Sm_Map.SmMapBitmap.Resampler:=CreateResampler(GState.Resampling);
+  sm_map.zoom:=GState.zoom_size-sm_map.z1mz2;
+  if sm_map.zoom<1 then sm_map.zoom:=1;
+  if sm_map.zoom>1 then begin
+    if ((x=sm_map.width div 2)and(y=sm_map.height div 2))and(not sm_map.size_dw) then begin
+      sm_im_reset_type2(MainMapPos.x,MainMapPos.y);
+    end;
+    sm_map.dx:=round((sm_map.width/256)*((Fmain.map.Width/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
+    sm_map.dy:=round((sm_map.height/256)*((Fmain.map.Height/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
+    sm_map.pos:=Point(x,y);
+  end else begin
+    if (sm_map.maptype = nil) then begin
+      if not(sat_map_both.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true)) then begin
+        Sm_Map.SmMapBitmap.Assign(Sm_Map.DefoultMap);
+      end;
+    end else begin
+      if not(sm_map.maptype.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true)) then begin
+        Sm_Map.SmMapBitmap.Assign(Sm_Map.DefoultMap);
+      end;
+    end;
+    for iLay:=0 to length(MapType)-1 do begin
+      if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then begin
+        MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false);
+      end;
+    end;
+    if (x=sm_map.width div 2)and(y=sm_map.height div 2) then begin
+      sm_map.pos:=Point(round(MainMapPos.x*(sm_map.width/zoom[GState.zoom_size])),round(MainMapPos.y*(sm_map.height/zoom[GState.zoom_size])));
+    end else begin
+      sm_map.pos:=Point(x,y);
+    end;
+    sm_map.dx:=round(sm_map.width*(FMain.map.Width/zoom[GState.zoom_size]));
+    sm_map.dy:=round(sm_map.height*(Fmain.map.Height/zoom[GState.zoom_size]));
+  end;
 
- sm_map.LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
- gamma(sm_map.LayerMinMap.bitmap);
+  sm_map.LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
+  gamma(sm_map.LayerMinMap.bitmap);
 
- Polygon := TPolygon32.Create;
- Polygon.Antialiased:=true;
- Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+4-2,(sm_map.pos.y-sm_map.dy div 2)+4-2));
- Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+sm_map.dx+4+2,(sm_map.pos.y-sm_map.dy div 2)+4-2));
- Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+sm_map.dx+4+2,(sm_map.pos.y-sm_map.dy div 2)+sm_map.dy+4+2));
- Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+4-2,(sm_map.pos.y-sm_map.dy div 2)+sm_map.dy+4+2));
-  with Polygon.Outline do
-   begin
-    with Grow(Fixed(3.2 / 2), 0.5) do
-     begin
+  Polygon := TPolygon32.Create;
+  Polygon.Antialiased:=true;
+  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+4-2,(sm_map.pos.y-sm_map.dy div 2)+4-2));
+  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+sm_map.dx+4+2,(sm_map.pos.y-sm_map.dy div 2)+4-2));
+  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+sm_map.dx+4+2,(sm_map.pos.y-sm_map.dy div 2)+sm_map.dy+4+2));
+  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+4-2,(sm_map.pos.y-sm_map.dy div 2)+sm_map.dy+4+2));
+  with Polygon.Outline do try
+    with Grow(Fixed(3.2 / 2), 0.5) do try
       FillMode := pfWinding;
       DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-sm_map.zoom)*43));
-      free;
-     end;
-    free;
-   end;
- Polygon.DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
- Polygon.Free;
+    finally
+      Free;
+    end;
+  finally
+    Free;
+  end;
+  Polygon.DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
+  Polygon.Free;
 
- sm_map.LayerMinMap.bitmap.Canvas.Polygon([point(0,sm_map.height+5),point(0,0),point(sm_map.width+5,0),point(sm_map.width+5,4),point(4,4),point(4,sm_map.height+5)]);
- sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-6]:=clBlack;
- sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-2]:=clBlack;
- sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+2]:=clBlack;
- sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+6]:=clBlack;
- sm_map.LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
- if sm_map.z1mz2>1 then sm_map.LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
- if sm_map.zoom>1 then sm_map.LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
- sm_map.LayerMinMap.BringToFront;
+  sm_map.LayerMinMap.bitmap.Canvas.Polygon([point(0,sm_map.height+5),point(0,0),point(sm_map.width+5,0),point(sm_map.width+5,4),point(4,4),point(4,sm_map.height+5)]);
+  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-6]:=clBlack;
+  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-2]:=clBlack;
+  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+2]:=clBlack;
+  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+6]:=clBlack;
+  sm_map.LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
+  if sm_map.z1mz2>1 then sm_map.LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
+  if sm_map.zoom>1 then sm_map.LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
+  sm_map.LayerMinMap.BringToFront;
 end;
 
 procedure TFmain.zooming(x:byte;move:boolean);
@@ -3341,7 +3354,7 @@ begin
  sm_map.LayerMinMap.Visible:= visible;
  if sm_map.LayerMinMap.Visible then sm_map.LayerMinMap.BringToFront
                         else sm_map.LayerMinMap.SendToBack;
- sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+ sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
  ShowMiniMap.Checked:=visible;
 end;
 
@@ -3385,7 +3398,7 @@ begin
     sm_map.maptype.NSmItem.Checked:=true;
     sm_map.maptype.ShowOnSmMap:=true;
    end;
- sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+ sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
 end;
 
 procedure TFmain.N32Click(Sender: TObject);
@@ -3515,7 +3528,7 @@ begin
    LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
    toSh;
-   sm_im_reset(sm_map.width div 2,sm_map.height div 2)
+   sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos)
   end;
 end;
 
@@ -3890,18 +3903,18 @@ begin
                    then begin
                          sm_map.zooming:=true;
                          if sm_map.z1mz2>1 then dec(sm_map.z1mz2);
-                         sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+                         sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
                         end
                    else if (x>ll+19)and(x<ll+33)and(y>lt+5)and(y<lt+15)
                          then begin
                                sm_map.zooming:=true;
                                if GState.zoom_size-sm_map.z1mz2>1 then inc(sm_map.z1mz2);
-                               sm_im_reset(sm_map.width div 2,sm_map.height div 2);
+                               sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
                               end
                          else if (x>ll+5)and(y>lt) then
                                begin
                                 sm_map.m_dwn:=true;
-                                sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)));
+                                sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)), Pos);
                                end;
            end;
  end;
@@ -3932,10 +3945,10 @@ begin
   then begin
         sm_map.width:=(map.Width-x-5);
         sm_map.height:=(map.Width-x-5);
-        sm_im_reset(sm_map.width div 2,sm_map.height div 2)
+        sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos)
        end;
  if (sm_map.m_dwn)and(x>sm_map.LayerMinMap.Location.Left+5)and(y>sm_map.LayerMinMap.Location.top+5)
-  then sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)));
+  then sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)), Pos);
 end;
 
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
