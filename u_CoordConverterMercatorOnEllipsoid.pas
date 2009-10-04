@@ -17,6 +17,8 @@ type
     function LonLat2Pos(const ALL : TExtendedPoint; Azoom : byte) : Tpoint; override;
     function LonLat2Metr(const ALL : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   end;
 
 implementation
@@ -135,6 +137,50 @@ begin
   fAlpha := ArcSin(fAlpha);
   fR:=(fRho*fNu)/((fRho*Power(Sin(fAlpha),2))+(fNu*Power(Cos(fAlpha),2)));
   result := (fz * fR);
+end;
+
+function TCoordConverterMercatorOnEllipsoid.LonLatToRelative(
+  const XY: TExtendedPoint): TExtendedPoint;
+begin
+
+end;
+
+function TCoordConverterMercatorOnEllipsoid.RelativeToLonLat(
+  const XY: TExtendedPoint): TExtendedPoint;
+var
+  zu, zum1, yy : extended;
+  VXY: TExtendedPoint;
+begin
+  VXY.X := XY.x - 0.5;
+  if XY.Y > 0.5 then begin
+    VXY.Y := XY.Y - 0.5;
+  end else begin
+    VXY.Y := 0.5 - XY.Y;
+  end;
+{
+  if VXY.x < 0 then VXY.x := VXY.x + TilesAtZoom;
+  if (VXY.y>TilesAtZoom/2) then begin
+    yy:=(TilesAtZoom)-VXY.y;//(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2));
+  end else begin
+    yy:=VXY.y;
+  end;
+  Result.X := (VXY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
+  Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
+  Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+  Zu := result.y / (180 / Pi);
+  yy := (yy - TilesAtZoom / 2);
+  repeat
+    Zum1 := Zu;
+    Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
+  until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
+  if not(isNAN(Zu)) then begin
+    if VXY.y>TilesAtZoom/2 then begin
+      result.Y:=-zu*180/Pi;
+    end else begin
+      result.Y:=zu*180/Pi;
+    end;
+  end;
+}
 end;
 
 end.
