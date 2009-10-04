@@ -469,6 +469,7 @@ type
    procedure Set_Pos(const Value:TPoint);
   protected
    Flock_toolbars:boolean;
+   notpaint: boolean;
    FTileSource:TTileSource;
    FPos:TPoint;
    LayerStatBar: TBitmapLayer;
@@ -569,7 +570,6 @@ var
   pr_x,
   pr_y:integer;
   move,m_up,m_m,moveTrue:Tpoint;
-  notpaint,
   start,
   close_,
   LenShow,
@@ -1000,14 +1000,14 @@ var z:integer;
     dWMB:integer;
 begin
 
- if Fmain.Active then
+ if Active then
   case Msg.message of
    WM_MOUSEWHEEL:if MapZoomAnimtion=0 then
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
-                  if Msg.wParam<0 then Fmain.zooming(GState.Zoom_size-(1*z),NGoToCur.Checked)
-                                  else Fmain.zooming(GState.Zoom_size+(1*z),NGoToCur.Checked);
+                  if Msg.wParam<0 then zooming(GState.Zoom_size-(1*z),NGoToCur.Checked)
+                                  else zooming(GState.Zoom_size+(1*z),NGoToCur.Checked);
                  end;
    WM_KEYFIRST: begin
                  POSb:=POS;
@@ -1042,13 +1042,13 @@ begin
                 drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
                end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=Reg) then
-              if length(reg_arr)=0 then TBmoveClick(Fmain)
+              if length(reg_arr)=0 then TBmoveClick(self)
                                    else begin
                                          setlength(reg_arr,0);
                                          drawreg;
                                         end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=line) then
-              if length(length_arr)=0 then TBmoveClick(Fmain)
+              if length(length_arr)=0 then TBmoveClick(self)
                                       else begin
                                             setlength(length_arr,0);
                                             drawLineCalc;
@@ -1122,7 +1122,7 @@ begin
        begin
         //move.X:=m_up.x;
         GState.MainFileCache.Clear;
-        Fmain.generate_im(nilLastLoad,'');
+        generate_im(nilLastLoad,'');
        end;
      exit;
     end;
@@ -2134,7 +2134,7 @@ var
      param:string;
 begin
  if start=false then exit;
- Fmain.Enabled:=false;
+ Enabled:=false;
  if FileExists(GState.ProgramPath+'SASPlanet.RUS') then
   begin
    DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
@@ -2146,13 +2146,13 @@ begin
  TBFullSize.Checked:=GState.FullScrean;
   if GState.FullScrean then TBFullSizeClick(TBFullSize)
                   else if Maximized
-                        then Fmain.WindowState:=wsMaximized
+                        then WindowState:=wsMaximized
                         else begin
-                              Fmain.SetBounds(
-                              GState.MainIni.ReadInteger('VIEW','FLeft',Fmain.Left),
-                              GState.MainIni.ReadInteger('VIEW','FTop',Fmain.Top),
-                              GState.MainIni.ReadInteger('VIEW','FWidth',Fmain.Width),
-                              GState.MainIni.ReadInteger('VIEW','FHeight',Fmain.Height)
+                              Self.SetBounds(
+                              GState.MainIni.ReadInteger('VIEW','FLeft',Left),
+                              GState.MainIni.ReadInteger('VIEW','FTop',Top),
+                              GState.MainIni.ReadInteger('VIEW','FWidth',Width),
+                              GState.MainIni.ReadInteger('VIEW','FHeight',Height)
                               )
                              end;
 
@@ -2162,13 +2162,13 @@ begin
  GMiniMap.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
  GMiniMap.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
 
- CreateMapUI;
  if length(MapType)=0 then
   begin
    ShowMessage(SAS_ERR_NoMaps);
-   Fmain.Close;
+   Close;
    exit;
   end;
+ CreateMapUI;
  if FileExists(GState.MarksFileName)
   then begin
         CDSMarks.LoadFromFile(GState.MarksFileName);
@@ -2181,7 +2181,7 @@ begin
         if CDSKategory.RecordCount>0 then
          CopyFile(PChar(GState.MarksCategoryFileName),PChar(GState.MarksCategoryBackUpFileName),false);
        end;
- Fmain.Enabled:=true;
+ Enabled:=true;
  nilLastLoad.use:=false;
  notpaint:=true;
  SetDefoultMap;
@@ -2454,8 +2454,8 @@ begin
   begin
    TBEditPath.Floating:=true;
    TBEditPath.MoveOnScreen(true);
-   TBEditPath.FloatingPosition:=Point(Fmain.Left+map.Left+30,Fmain.Top+map.Top+70);
-  end;  
+   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
+  end;
 
  NMainToolBarShow.Checked:=TBMainToolBar.Visible;
  NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
@@ -2490,8 +2490,8 @@ begin
  SetProxy;
 
  if GState.WebReportToAuthor then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
- Fmain.Enabled:=true;
- Fmain.SetFocus;
+ Enabled:=true;
+ SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
 end;
 
@@ -2566,10 +2566,10 @@ end;
 
 procedure TFmain.FormCreate(Sender: TObject);
 begin
- Application.Title:=Fmain.Caption;
- TBiniLoadPositions(Fmain,GState.MainIni,'PANEL_');
+ Application.Title:=Caption;
+ TBiniLoadPositions(Self,GState.MainIni,'PANEL_');
  TBEditPath.Visible:=false;
- Fmain.Caption:=Fmain.Caption+' '+SASVersion;
+ Caption:=Caption+' '+SASVersion;
  start:=true;
 end;
 
@@ -2609,10 +2609,10 @@ begin
  NFoolSize.Checked:=TBFullSize.Checked;
  TBexit.Visible:=TBFullSize.Checked;
  GState.FullScrean:=TBFullSize.Checked;
- TBDock.Parent:=Fmain;
- TBDockLeft.Parent:=Fmain;
- TBDockBottom.Parent:=Fmain;
- TBDockRight.Parent:=Fmain;
+ TBDock.Parent:=Self;
+ TBDockLeft.Parent:=Self;
+ TBDockBottom.Parent:=Self;
+ TBDockRight.Parent:=Self;
  TBDock.Visible:=not(TBFullSize.Checked);
  TBDockLeft.Visible:=not(TBFullSize.Checked);
  TBDockBottom.Visible:=not(TBFullSize.Checked);
@@ -2681,7 +2681,7 @@ end;
 procedure TFmain.RxSlider1Changed(Sender: TObject);
 begin
  zooming(RxSlider1.Value+1,false);
- fmain.SetFocusedControl(map);
+ SetFocusedControl(map);
 end;
 
 procedure TFmain.NMainToolBarShowClick(Sender: TObject);
@@ -3029,13 +3029,13 @@ begin
           if slat[1]='\' then delete(slat,1,1);
           if slon[1]='\' then delete(slon,1,1);
           try
-           lat:=Fmain.str2r(slat);
-           lon:=Fmain.str2r(slon);
+           lat:=str2r(slat);
+           lon:=str2r(slon);
           except
            ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
            exit;
           end;
-          Fmain.toPos(lat,lon,GState.zoom_size,true);
+          toPos(lat,lon,GState.zoom_size,true);
           ShowMessage(SAS_STR_foundplace+' "'+strr+'"');
          end
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -3324,11 +3324,9 @@ begin
    LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
    if GState.ShowStatusBar
     then begin
-          GMiniMap.LayerMinMap.Location:=floatrect(map.Width-GMiniMap.width-5,map.Height-GMiniMap.height-17,map.Width,map.Height-17);
           with LayerLineM do location:=floatrect(location.left,map.Height-23-17,location.right,map.Height-8-17);
          end
     else begin
-          GMiniMap.LayerMinMap.Location:=floatrect(map.Width-GMiniMap.width-5,map.Height-GMiniMap.height,map.Width,map.Height);
           with LayerLineM do location:=floatrect(location.left,map.Height-23,location.right,map.Height-8);
          end;
    LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
@@ -3482,13 +3480,13 @@ begin
           if slat[1]='\' then delete(slat,1,1);
           if slon[1]='\' then delete(slon,1,1);
           try
-           lat:=Fmain.str2r(slat);
-           lon:=Fmain.str2r(slon);
+           lat:=str2r(slat);
+           lon:=str2r(slon);
           except
            ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
            exit;
           end;
-          Fmain.toPos(lat,lon,GState.zoom_size,true);
+          toPos(lat,lon,GState.zoom_size,true);
           ShowMessage(SAS_STR_foundplace+' "'+NewText+'"');
          end
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -3560,7 +3558,7 @@ end;
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
  MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
- if DeleteMark(StrToInt(PWL.numid),Fmain.Handle) then
+ if DeleteMark(StrToInt(PWL.numid),Handle) then
   generate_im(nilLastLoad,'');
 end;
 
@@ -3627,10 +3625,10 @@ begin
  if (GState.GPS_TrackPoints[len-1].x<>0)or(GState.GPS_TrackPoints[len-1].y<>0) then
   begin
   setlength(GState.GPS_ArrayOfSpeed,len);
-  GState.GPS_ArrayOfSpeed[len-1]:=FMain.GPSReceiver.GetSpeed_KMH;
+  GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
   if len>1 then
     GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-  if not((MapMoving)or(MapZoomAnimtion=1))and(Fmain.Active) then
+  if not((MapMoving)or(MapZoomAnimtion=1))and(Self.Active) then
    begin
     bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
     if (GState.GPS_MapMove)and((bpos.X<>pos.x)or(bpos.y<>pos.y))
@@ -3751,7 +3749,7 @@ begin
          pos:=Point(pos.x+round((-(128-(GMiniMap.pos.x*(256/GMiniMap.width))))*power(2,GState.zoom_size-GMiniMap.zoom)),
               pos.y+round((-(128-(GMiniMap.pos.y*(256/GMiniMap.height))))*power(2,GState.zoom_size-GMiniMap.zoom)))
          else pos:=Point(round(GMiniMap.pos.X*(256/GMiniMap.height)*power(2,GState.zoom_size-GMiniMap.zoom)),round((GMiniMap.pos.Y*(256/GMiniMap.height))*power(2,GState.zoom_size-GMiniMap.zoom)));
-        Fmain.generate_im(nilLastLoad,'');
+        generate_im(nilLastLoad,'');
        end
   else GMiniMap.zooming:=false;
  toSh;
@@ -4048,7 +4046,7 @@ begin
                                     end
                                else begin
                                      TBDock.Visible:=false;
-                                     TBDock.Parent:=Fmain;
+                                     TBDock.Parent:=Self;
                                     end;
                        if x<10 then begin
                                      TBDockLeft.Parent:=map;
@@ -4056,7 +4054,7 @@ begin
                                     end
                                else begin
                                      TBDockLeft.Visible:=false;
-                                     TBDockLeft.Parent:=Fmain;
+                                     TBDockLeft.Parent:=Self;
                                     end;
                        if y>Map.Height-10 then begin
                                      TBDockBottom.Parent:=map;
@@ -4064,7 +4062,7 @@ begin
                                     end
                                else begin
                                      TBDockBottom.Visible:=false;
-                                     TBDockBottom.Parent:=Fmain;
+                                     TBDockBottom.Parent:=Self;
                                     end;
                        if x>Map.Width-10 then begin
                                      TBDockRight.Parent:=map;
@@ -4072,7 +4070,7 @@ begin
                                     end
                                else begin
                                      TBDockRight.Visible:=false;
-                                     TBDockRight.Parent:=Fmain;
+                                     TBDockRight.Parent:=Self;
                                     end;
                       end;
  if MapZoomAnimtion=1 then exit;
@@ -4144,7 +4142,7 @@ begin
      begin
       if h=nil then
        begin
-        H:=THintWindow.Create(Fmain);
+        H:=THintWindow.Create(Self);
         H.Brush.Color:=clInfoBk;
         H.Font.Charset:=RUSSIAN_CHARSET;
        end;
@@ -4258,7 +4256,7 @@ begin
  if result then
   begin
    setalloperationfalse(movemap);
-   Fmain.generate_im(nilLastLoad,'');
+   generate_im(nilLastLoad,'');
   end;
 end;
 
@@ -4269,19 +4267,19 @@ end;
 
 procedure TFmain.NGoToForumClick(Sender: TObject);
 begin
- Fmain.ShowCaptcha('http://sasgis.ru/forum');
+  ShowCaptcha('http://sasgis.ru/forum');
 end;
 
 procedure TFmain.NGoToSiteClick(Sender: TObject);
 begin
- Fmain.ShowCaptcha('http://sasgis.ru/');
+  ShowCaptcha('http://sasgis.ru/');
 end;
 
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
- Fmain.Enabled:=false;
+ Self.Enabled:=false;
  FMarksExplorer.ShowModal;
- Fmain.Enabled:=true;
+ Self.Enabled:=true;
  generate_im(nilLastLoad,'');
 end;
 
@@ -4314,17 +4312,17 @@ begin
   begin
    id:=strtoint(PWL.numid);
    if NavOnMark<>nil then FreeAndNil(NavOnMark);
-   if not(Fmain.CDSmarks.Locate('id',id,[])) then exit;
+   if not(CDSmarks.Locate('id',id,[])) then exit;
    ms:=TMemoryStream.Create;
-   TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
+   TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
    ms.Position:=0;
    GetMem(arrLL,ms.size);
    ms.ReadBuffer(arrLL^,ms.size);
    if (arrLL^[0].Y=arrLL^[ms.size div 24-1].Y)and
       (arrLL^[0].X=arrLL^[ms.size div 24-1].X)
       then begin
-            LL.X:=Fmain.CDSmarks.FieldByName('LonL').AsFloat+(Fmain.CDSmarks.FieldByName('LonR').AsFloat-Fmain.CDSmarks.FieldByName('LonL').AsFloat)/2;
-            LL.Y:=Fmain.CDSmarks.FieldByName('LatB').AsFloat+(Fmain.CDSmarks.FieldByName('LatT').AsFloat-Fmain.CDSmarks.FieldByName('LatB').AsFloat)/2;
+            LL.X:=CDSmarks.FieldByName('LonL').AsFloat+(CDSmarks.FieldByName('LonR').AsFloat-CDSmarks.FieldByName('LonL').AsFloat)/2;
+            LL.Y:=CDSmarks.FieldByName('LatB').AsFloat+(CDSmarks.FieldByName('LatT').AsFloat-CDSmarks.FieldByName('LatB').AsFloat)/2;
            end
       else begin
             LL:=arrLL^[0];
@@ -4478,7 +4476,7 @@ end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 begin
- MessageBox(FMain.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), GState.num_format)),pchar(PWL.name),0);
+ MessageBox(Self.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), GState.num_format)),pchar(PWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);

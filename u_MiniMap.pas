@@ -131,8 +131,8 @@ begin
     if ((x=width div 2)and(y=height div 2))and(not size_dw) then begin
       sm_im_reset_type2(MainMapPos.x,MainMapPos.y);
     end;
-    dx:=round((width/256)*((FParentMap.Width/zoom_Sizes[GState.zoom_size])*zoom_Sizes[zoom]) );
-    dy:=round((height/256)*((FParentMap.Height/zoom_Sizes[GState.zoom_size])*zoom_Sizes[zoom]) );
+    dx:=round(width*(FParentMap.Width/(1 shl (GState.zoom_size - zoom + 8))));
+    dy:=round(height*(FParentMap.Height/(1 shl (GState.zoom_size - zoom + 8))));
     pos:=Point(x,y);
   end else begin
     if (maptype = nil) then begin
