@@ -280,6 +280,7 @@ uses
   UaddPoint,
   Unit4,
   UaddLine,
+  u_MiniMap,
   UaddPoly;
 
 {$R *.dfm}
@@ -311,11 +312,11 @@ begin
  GState.MainIni.WriteInteger('VIEW','FWidth',Fmain.Width);
  GState.MainIni.WriteInteger('VIEW','FHeight',Fmain.Height);
  GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
- GState.MainIni.WriteInteger('VIEW','SmMapW',sm_map.width);
- GState.MainIni.WriteInteger('VIEW','SmMapH',sm_map.height);
+ GState.MainIni.WriteInteger('VIEW','SmMapW',GMiniMap.width);
+ GState.MainIni.WriteInteger('VIEW','SmMapH',GMiniMap.height);
  if LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale',LayerMapScale.Visible);
- GState.MainIni.WriteInteger('VIEW','SmMapDifference',sm_map.z1mz2);
- GState.MainIni.WriteInteger('VIEW','SmMapAlpha',sm_map.alpha);
+ GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
+ GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
  GState.MainIni.Writeinteger('VIEW','MapZap',GState.zoom_mapzap);
  GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
@@ -496,7 +497,7 @@ begin
  GState.DefCache:=RadioGroup1.itemindex+1;
  GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
- sm_map.alpha:=SpinEditMiniMap.Value;
+ GMiniMap.alpha:=SpinEditMiniMap.Value;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
  GState.GPS_ArrowSize:=SESizeStr.Value;
@@ -507,7 +508,7 @@ begin
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPS_COM:=ComboBoxCOM.Text;
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
- sm_map.z1mz2:=smmapdif.Value;
+ GMiniMap.z1mz2:=smmapdif.Value;
  if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.userwinset:=RBWinCon.Checked;
  GState.InetConnect.proxyused:=CBProxyused.Checked;
@@ -683,7 +684,7 @@ begin
  RadioGroup1.ItemIndex:=GState.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
- SpinEditMiniMap.Value:=sm_map.alpha;
+ SpinEditMiniMap.Value:=GMiniMap.alpha;
  OldCPath.text:=GState.OldCPath_;
  NewCPath.text:=GState.NewCPath_;
  ESCPath.text:=GState.ESCPath_;
@@ -695,7 +696,7 @@ begin
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPS_TrackWidth;
  ScrolInvert.Checked:=GState.MouseWheelInv;
- smmapdif.Value:=sm_map.z1mz2;
+ smmapdif.Value:=GMiniMap.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:=GState.GPS_COM;
  ComboBoxBoudRate.Text:=inttostr(GState.GPS_BaudRate);

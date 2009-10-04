@@ -126,6 +126,7 @@ uses
   DateUtils,
   ImgMaker,
   UKmlParse,
+  u_MiniMap,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
@@ -158,7 +159,7 @@ begin
  for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
  for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
 
- sm_map.maptype:=nil;
+ GMiniMap.maptype:=nil;
  fillingmaptype:=nil;
  i:=length(MapType)-1;
  if i>0 then
@@ -242,7 +243,7 @@ begin
      TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
     end;
    if (active)and(MapType[i].asLayer=false) then sat_map_both:=MapType[i];
-   if (ShowOnSmMap)and(not(asLayer)) then sm_map.maptype:=MapType[i];
+   if (ShowOnSmMap)and(not(asLayer)) then GMiniMap.maptype:=MapType[i];
    TBItem.Tag:=Longint(MapType[i]);
    TBFillingItem.Tag:=Longint(MapType[i]);
    if ext<>'.kml' then NSmItem.Tag:=Longint(MapType[i]);
@@ -261,7 +262,7 @@ begin
    FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].filename);
   end;
  if FSettings.MapList.Items.Count>0 then FSettings.MapList.Items.Item[0].Selected:=true;
- if sm_map.maptype=nil then Fmain.NMMtype_0.Checked:=true;
+ if GMiniMap.maptype=nil then Fmain.NMMtype_0.Checked:=true;
  if (sat_map_both=nil)and(MapType[0]<>nil) then sat_map_both:=MapType[0];
 end;
 
@@ -273,7 +274,6 @@ var  Ini: TMeminifile;
      MTb:TMapType;
 begin
  SetLength(MapType,0);
- sm_map.maptype:=nil;
  CreateDir(GState.MapsPath);
  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
  i:=0;

@@ -50,7 +50,8 @@ uses
   ImgMaker in 'ImgMaker.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
-  u_GlobalState in 'u_GlobalState.pas';
+  u_GlobalState in 'u_GlobalState.pas',
+  u_MiniMap in 'u_MiniMap.pas';
 
 var
   loc:integer;

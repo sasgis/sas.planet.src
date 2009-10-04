@@ -481,7 +481,6 @@ type
    property TileSource:TTileSource read FTileSource write Set_TileSource;
    property Pos:TPoint read FPos write Set_Pos;
    procedure generate_im(lastload:TLastLoad;err:string);
-class   procedure sm_im_reset(x,y:integer; MainMapPos: TPoint);
    function  toSh:string;
 class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    function  X2Lon(X:integer):extended;
@@ -503,7 +502,6 @@ class   function  str2r(inp:string):real;
    procedure selectMap(num:TMapType);
    procedure generate_granica;
    procedure drawLineGPS;
-class   procedure sm_im_reset_type2(x1,y1:integer);
    procedure ShowCaptcha(URL:string);
    procedure drawRect(Shift:TShiftState);
    procedure ShowErrScript(DATA:string);
@@ -518,17 +516,6 @@ class   procedure delfrompath(pos:integer);
    procedure SetStatusBarVisible();
    procedure SetLineScaleVisible(visible:boolean);
    procedure SetMiniMapVisible(visible:boolean);
-  end;
-
-  Tsm_map = record
-   size_dw,zooming,m_dwn:boolean;
-   width,height,dx,dy:integer;
-   pos:TPoint;
-   alpha,zoom,z1mz2:integer;
-   maptype:TMapType;
-   PlusButton,MinusButton,SmMapBitmap:TBitmap32;
-   LayerMinMap: TBitmapLayer;
-   defoultMap:TBitmap;
   end;
 
   TWikim_set = record
@@ -594,7 +581,6 @@ var
   aoper:TAOperation;
   Deg:real;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
-  sm_map:Tsm_map;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
@@ -623,6 +609,7 @@ uses
   DateUtils,
   Types,
   u_GlobalState,
+  u_MiniMap,
   Unit2,
   UAbout,
   Usettings,
@@ -1888,7 +1875,7 @@ begin
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if GState.ShowStatusBar then LayerStatBar.BringToFront;
- if sm_map.LayerMinMap.Visible then sm_map.LayerMinMap.BringToFront;
+ if GMiniMap.LayerMinMap.Visible then GMiniMap.LayerMinMap.BringToFront;
 end;
 
 
@@ -2131,7 +2118,7 @@ begin
      draw_point;
     except
     end;
-    sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
+    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, Pos);
    end;
 { m_up.x:=move.X;
  m_up.y:=move.y;   }
@@ -2170,6 +2157,11 @@ begin
                              end;
 
  movepoint:=-1;
+ GMiniMap := TMiniMap.Create(Map);
+ GMiniMap.LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
+ GMiniMap.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
+ GMiniMap.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
+
  CreateMapUI;
  if length(MapType)=0 then
   begin
@@ -2312,20 +2304,6 @@ begin
  LayerLineM.bitmap.Font.Name := 'Arial';
  LayerLineM.bitmap.Font.Size := 10;
 
- sm_map.LayerMinMap:=TBitmapLayer.Create(map.Layers);
- sm_map.SmMapBitmap:=TBitmap32.Create;
- Sm_Map.SmMapBitmap.CombineMode:=cmMerge;
- Sm_Map.SmMapBitmap.MasterAlpha:=100;
- //TKernelResampler.Create;
- //TKernelResampler(Sm_Map.SmMapBitmap.Resampler).Kernel:=TLinearKernel.Create;
- sm_map.LayerMinMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- sm_map.LayerMinMap.Cursor:=crHandPoint;
- sm_map.LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
- sm_map.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
- sm_map.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
- sm_map.LayerMinMap.bitmap.DrawMode:=dmBlend;
- sm_map.LayerMinMap.bitmap.Canvas.brush.Color:=$e0e0e0;
- sm_map.LayerMinMap.bitmap.Canvas.Pen.Color:=ClBlack;
 
  LayerStatBar:=TBitmapLayer.Create(map.Layers);
  LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
@@ -2347,10 +2325,6 @@ begin
  GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
 
  GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
- sm_map.width:=GState.MainIni.readInteger('VIEW','SmMapW',160);
- sm_map.height:=GState.MainIni.readInteger('VIEW','SmMapH',160);
- sm_map.z1mz2:=GState.MainIni.readInteger('VIEW','SmMapDifference',4);
- sm_map.Alpha:=GState.MainIni.readInteger('VIEW','SmMapAlpha',220);
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
  GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
@@ -2521,167 +2495,6 @@ begin
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
 end;
 
-class procedure TFmain.sm_im_reset_type2(x1,y1:integer);
-var bm:TBitmap32;
-    pos_sm,d:TPoint;
-    x128,y128,ilay:integer;
-    m_t:TMapType;
-begin
-  bm := TBitmap32.Create;
-  try
-    bm.Width := 256;
-    bm.Height := 256;
-    Sm_Map.SmMapBitmap.Width := 256;
-    Sm_Map.SmMapBitmap.Height := 256;
-    Sm_Map.SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
-    pos_sm := Point(x1 shr (GState.zoom_size-sm_map.zoom),y1 shr (GState.zoom_size-sm_map.zoom));
-    if sm_map.maptype = nil then begin
-      m_t:=sat_map_both;
-    end else begin
-      m_t:=sm_map.maptype;
-    end;
-    Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, m_t.GeoConvert);
-    d := Point((pos_sm.X-128),(pos_sm.y-128));
-    if d.x < 0 then d.x := 256+d.x;
-    if d.y < 0 then d.y := 256+d.y;
-    d := Point((d.x mod 256),(d.y mod 256));
-
-    x128 := -128;
-    while (x128<=128) do begin
-      y128:=-128;
-      if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then begin
-        while (y128<=128) do begin
-          if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then begin
-            bm.Clear(Color32(clSilver) xor $00000000);
-            if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then begin
-              if not(m_t.LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true)) then begin
-                bm.Clear(Color32(clSilver) xor $00000000);
-              end;
-            end else begin
-              loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,sm_map.zoom,m_t);
-            end;
-            Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
-          end;
-          inc(y128,256);
-        end;
-      end;
-      inc(x128,256);
-    end;
-
-    for iLay := 0 to length(MapType)-1 do begin
-      if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then begin
-        pos_sm := Point(X1 shr (GState.zoom_size-sm_map.zoom),y1 shr (GState.zoom_size-sm_map.zoom));
-        Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (sm_map.zoom - 1) + 8, MapType[iLay].GeoConvert);
-        d := Point((pos_sm.X-128),(pos_sm.y-128));
-        if d.x < 0 then d.x := 256 + d.x;
-        if d.y < 0 then d.y := 256 + d.y;
-        d := Point((d.x mod 256),(d.y mod 256));
-        x128 := -128;
-        while (x128<=128) do begin
-          y128:=-128;
-          if (GState.CiclMap)or((pos_sm.X+x128<=zoom[sm_map.zoom])and(pos_sm.X+x128>=0)) then begin
-            while (y128<=128) do  begin
-              if (pos_sm.y+y128<=zoom[sm_map.zoom])and(pos_sm.y+y128>=0) then begin
-                bm.Clear(Color32(clSilver) xor $00000000);
-                bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),Sm_Map.SmMapBitmap);
-                if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom[sm_map.zoom])) )
-                  and (MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom)) then
-                begin
-                  MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,sm_map.zoom,true);
-                end;
-                Sm_Map.SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
-              end;
-              inc(y128,256);
-            end;
-          end;
-          inc(x128,256);
-        end;
-      end;
-    end;
-  finally
-    bm.Free;
-  end;
-end;
-
-class procedure TFmain.sm_im_reset(x,y:integer; MainMapPos: TPoint);
-var Polygon: TPolygon32;
-    iLay:integer;
-begin
-  if sm_map.LayerMinMap.Visible=false then exit;
-  if GState.ShowStatusBar then begin
-    sm_map.LayerMinMap.location:=floatrect(bounds(FMain.map.Width-sm_map.width-5,FMain.map.Height-sm_map.height-17,sm_map.width+5,sm_map.height));
-  end else begin
-    sm_map.LayerMinMap.location:=floatrect(bounds(FMain.map.Width-sm_map.width-5,FMain.map.Height-sm_map.height,sm_map.width+5,sm_map.height));
-  end;
-  sm_map.LayerMinMap.Bitmap.Width:=sm_map.width+5;
-  sm_map.LayerMinMap.Bitmap.Height:=sm_map.height+5;
-  Sm_Map.SmMapBitmap.Resampler:=CreateResampler(GState.Resampling);
-  sm_map.zoom:=GState.zoom_size-sm_map.z1mz2;
-  if sm_map.zoom<1 then sm_map.zoom:=1;
-  if sm_map.zoom>1 then begin
-    if ((x=sm_map.width div 2)and(y=sm_map.height div 2))and(not sm_map.size_dw) then begin
-      sm_im_reset_type2(MainMapPos.x,MainMapPos.y);
-    end;
-    sm_map.dx:=round((sm_map.width/256)*((Fmain.map.Width/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
-    sm_map.dy:=round((sm_map.height/256)*((Fmain.map.Height/zoom[GState.zoom_size])*zoom[sm_map.zoom]) );
-    sm_map.pos:=Point(x,y);
-  end else begin
-    if (sm_map.maptype = nil) then begin
-      if not(sat_map_both.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true)) then begin
-        Sm_Map.SmMapBitmap.Assign(Sm_Map.DefoultMap);
-      end;
-    end else begin
-      if not(sm_map.maptype.LoadTile(Sm_Map.SmMapBitmap,128,128,1,true)) then begin
-        Sm_Map.SmMapBitmap.Assign(Sm_Map.DefoultMap);
-      end;
-    end;
-    for iLay:=0 to length(MapType)-1 do begin
-      if (MapType[iLay].asLayer)and(MapType[iLay].ShowOnSmMap)and(MapType[iLay].ext<>'.kml') then begin
-        MapType[iLay].LoadTile(Sm_Map.SmMapBitmap,128,128,1,false);
-      end;
-    end;
-    if (x=sm_map.width div 2)and(y=sm_map.height div 2) then begin
-      sm_map.pos:=Point(round(MainMapPos.x*(sm_map.width/zoom[GState.zoom_size])),round(MainMapPos.y*(sm_map.height/zoom[GState.zoom_size])));
-    end else begin
-      sm_map.pos:=Point(x,y);
-    end;
-    sm_map.dx:=round(sm_map.width*(FMain.map.Width/zoom[GState.zoom_size]));
-    sm_map.dy:=round(sm_map.height*(Fmain.map.Height/zoom[GState.zoom_size]));
-  end;
-
-  sm_map.LayerMinMap.bitmap.Draw(bounds(5,5,sm_map.width,sm_map.height),bounds(0,0,256,256),Sm_Map.SmMapBitmap);
-  gamma(sm_map.LayerMinMap.bitmap);
-
-  Polygon := TPolygon32.Create;
-  Polygon.Antialiased:=true;
-  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+4-2,(sm_map.pos.y-sm_map.dy div 2)+4-2));
-  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+sm_map.dx+4+2,(sm_map.pos.y-sm_map.dy div 2)+4-2));
-  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+sm_map.dx+4+2,(sm_map.pos.y-sm_map.dy div 2)+sm_map.dy+4+2));
-  Polygon.Add(FixedPoint((sm_map.pos.x-sm_map.dx div 2)+4-2,(sm_map.pos.y-sm_map.dy div 2)+sm_map.dy+4+2));
-  with Polygon.Outline do try
-    with Grow(Fixed(3.2 / 2), 0.5) do try
-      FillMode := pfWinding;
-      DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-sm_map.zoom)*43));
-    finally
-      Free;
-    end;
-  finally
-    Free;
-  end;
-  Polygon.DrawFill(sm_map.LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-sm_map.zoom)*35));
-  Polygon.Free;
-
-  sm_map.LayerMinMap.bitmap.Canvas.Polygon([point(0,sm_map.height+5),point(0,0),point(sm_map.width+5,0),point(sm_map.width+5,4),point(4,4),point(4,sm_map.height+5)]);
-  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-6]:=clBlack;
-  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)-2]:=clBlack;
-  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+2]:=clBlack;
-  sm_map.LayerMinMap.bitmap.Canvas.Pixels[2,((sm_map.height+5) div 2)+6]:=clBlack;
-  sm_map.LayerMinMap.bitmap.ResetAlpha(sm_map.alpha);
-  if sm_map.z1mz2>1 then sm_map.LayerMinMap.bitmap.Draw(6,6,Sm_Map.PlusButton);
-  if sm_map.zoom>1 then sm_map.LayerMinMap.bitmap.Draw(19,6,Sm_Map.MinusButton);
-  sm_map.LayerMinMap.BringToFront;
-end;
-
 procedure TFmain.zooming(x:byte;move:boolean);
 var w,i,steps:integer;
     w1:extended;
@@ -2764,6 +2577,7 @@ procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  close_:=true;
  if length(MapType)<>0 then FSettings.Save;
+ FreeAndNil(GMiniMap);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -3351,11 +3165,8 @@ end;
 
 procedure TFmain.SetMiniMapVisible(visible:boolean);
 begin
- sm_map.LayerMinMap.Visible:= visible;
- if sm_map.LayerMinMap.Visible then sm_map.LayerMinMap.BringToFront
-                        else sm_map.LayerMinMap.SendToBack;
- sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
- ShowMiniMap.Checked:=visible;
+  GMiniMap.SetMiniMapVisible(visible, Pos);
+  ShowMiniMap.Checked:=visible;
 end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
@@ -3377,9 +3188,9 @@ end;
 procedure TFmain.NMMtype_0Click(Sender: TObject);
 begin
  if TTBXItem(sender).Tag=0 then begin
-                                  sm_map.MapType.ShowOnSmMap:=false;
-                                  sm_map.MapType.NSmItem.Checked:=false;
-                                  sm_map.maptype:=nil;
+                                  GMiniMap.MapType.ShowOnSmMap:=false;
+                                  GMiniMap.MapType.NSmItem.Checked:=false;
+                                  GMiniMap.maptype:=nil;
                                   NMMtype_0.Checked:=true;
                                  end
  else
@@ -3390,15 +3201,15 @@ begin
    end else
    begin
     NMMtype_0.Checked:=false;
-    if sm_map.maptype<>nil then begin
-                                        sm_map.MapType.ShowOnSmMap:=false;
-                                        sm_map.MapType.NSmItem.Checked:=false;
+    if GMiniMap.maptype<>nil then begin
+                                        GMiniMap.MapType.ShowOnSmMap:=false;
+                                        GMiniMap.MapType.NSmItem.Checked:=false;
                                        end;
-    sm_map.maptype:=TMapType(TTBXItem(sender).Tag);
-    sm_map.maptype.NSmItem.Checked:=true;
-    sm_map.maptype.ShowOnSmMap:=true;
+    GMiniMap.maptype:=TMapType(TTBXItem(sender).Tag);
+    GMiniMap.maptype.NSmItem.Checked:=true;
+    GMiniMap.maptype.ShowOnSmMap:=true;
    end;
- sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
+  GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, Pos);
 end;
 
 procedure TFmain.N32Click(Sender: TObject);
@@ -3513,11 +3324,11 @@ begin
    LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
    if GState.ShowStatusBar
     then begin
-          sm_map.LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height-17,map.Width,map.Height-17);
+          GMiniMap.LayerMinMap.Location:=floatrect(map.Width-GMiniMap.width-5,map.Height-GMiniMap.height-17,map.Width,map.Height-17);
           with LayerLineM do location:=floatrect(location.left,map.Height-23-17,location.right,map.Height-8-17);
          end
     else begin
-          sm_map.LayerMinMap.Location:=floatrect(map.Width-sm_map.width-5,map.Height-sm_map.height,map.Width,map.Height);
+          GMiniMap.LayerMinMap.Location:=floatrect(map.Width-GMiniMap.width-5,map.Height-GMiniMap.height,map.Width,map.Height);
           with LayerLineM do location:=floatrect(location.left,map.Height-23,location.right,map.Height-8);
          end;
    LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
@@ -3528,7 +3339,7 @@ begin
    LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
    LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
    toSh;
-   sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos)
+   GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, Pos)
   end;
 end;
 
@@ -3895,55 +3706,55 @@ begin
   case button of
     mbRight: map.PopupMenu:=GMiniMapPopupMenu;
     mbLeft: begin
-      ll:=round(sm_map.LayerMinMap.Location.Left);
-      lt:=round(sm_map.LayerMinMap.Location.top);
+      ll:=round(GMiniMap.LayerMinMap.Location.Left);
+      lt:=round(GMiniMap.LayerMinMap.Location.top);
       if (x<ll+5) then begin
-        sm_map.size_dw:=true
+        GMiniMap.size_dw:=true
       end else if (x>ll+6)and(x<ll+17)and(y>lt+5)and(y<lt+15) then begin
-        sm_map.zooming:=true;
-        if sm_map.z1mz2>1 then dec(sm_map.z1mz2);
-        sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
+        GMiniMap.zooming:=true;
+        if GMiniMap.z1mz2>1 then dec(GMiniMap.z1mz2);
+        GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, Pos);
       end else if (x>ll+19)and(x<ll+33)and(y>lt+5)and(y<lt+15) then begin
-        sm_map.zooming:=true;
-        if GState.zoom_size-sm_map.z1mz2>1 then inc(sm_map.z1mz2);
-        sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos);
+        GMiniMap.zooming:=true;
+        if GState.zoom_size-GMiniMap.z1mz2>1 then inc(GMiniMap.z1mz2);
+        GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, Pos);
       end else if (x>ll+5)and(y>lt) then begin
-        sm_map.m_dwn:=true;
-        sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)), Pos);
+        GMiniMap.m_dwn:=true;
+        GMiniMap.sm_im_reset(round(x-(GMiniMap.LayerMinMap.Location.Left+5)),round(y-(GMiniMap.LayerMinMap.Location.top)), Pos);
       end;
     end;
   end;
 end;
 
+procedure TFmain.LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+ if (x<GMiniMap.LayerMinMap.Location.Left+5)and(map.Cursor<>crSizeNWSE) then GMiniMap.LayerMinMap.Cursor:=crSizeNWSE
+                                                               else GMiniMap.LayerMinMap.Cursor:=crHandPoint;
+ if (GMiniMap.size_dw)and((map.Width-x-5)>40)
+  then begin
+        GMiniMap.width:=(map.Width-x-5);
+        GMiniMap.height:=(map.Width-x-5);
+        GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, Pos)
+       end;
+ if (GMiniMap.m_dwn)and(x>GMiniMap.LayerMinMap.Location.Left+5)and(y>GMiniMap.LayerMinMap.Location.top+5)
+  then GMiniMap.sm_im_reset(round(x-(GMiniMap.LayerMinMap.Location.Left+5)),round(y-(GMiniMap.LayerMinMap.Location.top)), Pos);
+end;
+
 procedure TFmain.LayerMinMapMouseUp(Sender:TObject; Button:TMouseButton; Shift:TShiftState; X,Y:Integer);
 begin
  if (MapZoomAnimtion=1) then exit;
- sm_map.m_dwn:=false;
- sm_map.size_dw:=false;
- if (not(sm_map.size_dw))and(not(sm_map.zooming))and((x>sm_map.LayerMinMap.Location.Left+5)and(y>sm_map.LayerMinMap.Location.Top))
+ GMiniMap.m_dwn:=false;
+ GMiniMap.size_dw:=false;
+ if (not(GMiniMap.size_dw))and(not(GMiniMap.zooming))and((x>GMiniMap.LayerMinMap.Location.Left+5)and(y>GMiniMap.LayerMinMap.Location.Top))
   then begin
-        if sm_map.zoom>1 then
-         pos:=Point(pos.x+round((-(128-(sm_map.pos.x*(256/sm_map.width))))*power(2,GState.zoom_size-sm_map.zoom)),
-              pos.y+round((-(128-(sm_map.pos.y*(256/sm_map.height))))*power(2,GState.zoom_size-sm_map.zoom)))
-         else pos:=Point(round(sm_map.pos.X*(256/sm_map.height)*power(2,GState.zoom_size-sm_map.zoom)),round((sm_map.pos.Y*(256/sm_map.height))*power(2,GState.zoom_size-sm_map.zoom)));
+        if GMiniMap.zoom>1 then
+         pos:=Point(pos.x+round((-(128-(GMiniMap.pos.x*(256/GMiniMap.width))))*power(2,GState.zoom_size-GMiniMap.zoom)),
+              pos.y+round((-(128-(GMiniMap.pos.y*(256/GMiniMap.height))))*power(2,GState.zoom_size-GMiniMap.zoom)))
+         else pos:=Point(round(GMiniMap.pos.X*(256/GMiniMap.height)*power(2,GState.zoom_size-GMiniMap.zoom)),round((GMiniMap.pos.Y*(256/GMiniMap.height))*power(2,GState.zoom_size-GMiniMap.zoom)));
         Fmain.generate_im(nilLastLoad,'');
        end
-  else sm_map.zooming:=false;
+  else GMiniMap.zooming:=false;
  toSh;
-end;
-
-procedure TFmain.LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-begin
- if (x<sm_map.LayerMinMap.Location.Left+5)and(map.Cursor<>crSizeNWSE) then sm_map.LayerMinMap.Cursor:=crSizeNWSE
-                                                               else sm_map.LayerMinMap.Cursor:=crHandPoint;
- if (sm_map.size_dw)and((map.Width-x-5)>40)
-  then begin
-        sm_map.width:=(map.Width-x-5);
-        sm_map.height:=(map.Width-x-5);
-        sm_im_reset(sm_map.width div 2,sm_map.height div 2, Pos)
-       end;
- if (sm_map.m_dwn)and(x>sm_map.LayerMinMap.Location.Left+5)and(y>sm_map.LayerMinMap.Location.top+5)
-  then sm_im_reset(round(x-(sm_map.LayerMinMap.Location.Left+5)),round(y-(sm_map.LayerMinMap.Location.top)), Pos);
 end;
 
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
@@ -3955,7 +3766,7 @@ begin
      H.ReleaseHandle;
      FreeAndNil(H);
     end;
- if (layer=sm_map.LayerMinMap) then exit;
+ if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
     or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
  Screen.ActiveForm.SetFocusedControl(map);
@@ -4042,7 +3853,7 @@ var PWL:TResObj;
     stw:String;
     Poly: TPointArray;
 begin
- if (layer=sm_map.LayerMinMap) then exit;
+ if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
  MapMoving:=false;
  if HiWord(GetKeyState(VK_DELETE))<>0 then
@@ -4208,7 +4019,7 @@ var i,j:integer;
     hintrect:TRect;
     CState: Integer;
 begin
- if (Layer=sm_map.LayerMinMap)or(MapZoomAnimtion>0)or(
+ if (Layer=GMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
    then begin
          moveTrue:=point(x,y);
@@ -4223,7 +4034,7 @@ begin
    drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
    exit;
   end;
- if (aoper=rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>sm_map.LayerMinMap)
+ if (aoper=rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
                rect_arr[1]:=extPoint(X2Lon(x),Y2Lat(y));
                drawRect(Shift);

@@ -167,17 +167,6 @@ procedure SetDefoultMap;
 var b:TPNGObject;
 begin
  b:=TPNGObject.Create;
- b.LoadFromResourceName(HInstance, 'MAINMAP');
- Sm_Map.DefoultMap:=TBitmap.Create;
- Sm_Map.DefoultMap.Assign(b);
- b.LoadFromResourceName(HInstance, 'ICONI');
- Sm_Map.PlusButton:=TBitmap32.Create;
- PNGintoBitmap32(Sm_Map.PlusButton,b);
- Sm_Map.PlusButton.DrawMode:=dmTransparent;
- b.LoadFromResourceName(HInstance, 'ICONII');
- Sm_Map.MinusButton:=TBitmap32.Create;
- Sm_Map.MinusButton.DrawMode:=dmTransparent;
- PNGintoBitmap32(Sm_Map.MinusButton,b);
  b.LoadFromResourceName(HInstance, 'ICONIII');
  GOToSelIcon:=TBitmap32.Create;
  PNGintoBitmap32(GOToSelIcon,b);
