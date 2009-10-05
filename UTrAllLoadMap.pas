@@ -356,7 +356,7 @@ begin
   Vurl := MT.GetLink(AXY.X, AXY.Y, AZoom);
   sleep(MT.Sleep);
   result:=0;
-  if close_ then exit;
+  if terminated then exit;
   ty:='';len:='0';
   if Assigned(hSession)then
    begin

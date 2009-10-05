@@ -478,6 +478,8 @@ type
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
    change_scene:boolean;
+   ProgramStart: Boolean;
+   ProgramClose: Boolean;
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
@@ -571,8 +573,6 @@ var
   pr_x,
   pr_y:integer;
   move,m_up,m_m,moveTrue:Tpoint;
-  start,
-  close_,
   LenShow: boolean;
   Gspr:TBitmap32;
   movepoint,lastpoint:integer;
@@ -584,7 +584,6 @@ var
   THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   curBuf:TCursor;
-  OldFormWH:TPoint;
   Wikim_set:TWikim_set;
   nilLastLoad:TLastLoad;
   GPSpar:TGPSpar;
@@ -2131,14 +2130,10 @@ var
      param:string;
      MainWindowMaximized: Boolean;
 begin
- if start=false then exit;
+ if ProgramStart=false then exit;
  Enabled:=false;
- if FileExists(GState.ProgramPath+'SASPlanet.RUS') then
-  begin
-   DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
-  end;
  dWhenMovingButton := 5;
-  GMiniMapPopupMenu := PopupMSmM;
+ GMiniMapPopupMenu := PopupMSmM;
  MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
@@ -2464,7 +2459,7 @@ begin
  NCiclMap.Checked:=GState.CiclMap;
 
  toSh;
- start:=false;
+ ProgramStart:=false;
 
  if GState.zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
                    else TBMapZap.Caption:='';
@@ -2567,12 +2562,12 @@ begin
  TBiniLoadPositions(Self,GState.MainIni,'PANEL_');
  TBEditPath.Visible:=false;
  Caption:=Caption+' '+SASVersion;
- start:=true;
+ ProgramStart:=true;
 end;
 
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- close_:=true;
+ ProgramClose:=true;
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
 end;
@@ -3313,9 +3308,8 @@ end;
 
 procedure TFmain.mapResize(Sender: TObject);
 begin
- if (close_<>true)and(not(start))then
+ if (ProgramClose<>true)and(not(ProgramStart))then
   begin
-   OldFormWH:=point(mWd2,mHd2);
    mWd2:=map.Width shr 1;
    mHd2:=map.Height shr 1;
    LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
