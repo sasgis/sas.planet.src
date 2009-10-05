@@ -100,8 +100,7 @@ var
   z, c : Extended;
   VLl: TExtendedPoint;
 begin
-  TilesAtZoom := (1 shl Azoom);
-  VLl := ALl;
+  VLl := XY;
   Result.x := 0.5 + XY.x  / 360;
   z := sin(XY.y * Pi / 180);
   c := 1 / (2 * Pi);
@@ -112,7 +111,7 @@ function TCoordConverterMercatorOnSphere.RelativeToLonLat(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
   Result.X := (XY.x - 0.5) * 360;
-  Result.Y := -(VXY.y - 0.5) *(2*PI);
+  Result.Y := -(XY.y - 0.5) *(2*PI);
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
 end;
 

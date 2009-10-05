@@ -158,7 +158,7 @@ var
   zu, zum1, yy : extended;
   VXY: TExtendedPoint;
 begin
-      VXY := AXY;
+      VXY := XY;
       if VXY.x < 0 then VXY.x := VXY.x + 1;
       if (VXY.y>0.5) then begin
         yy:=1-VXY.y;
@@ -172,7 +172,7 @@ begin
       yy := (yy - 0.5);
       repeat
         Zum1 := Zu;
-        Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
+        Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp(-(2*yy)*(2*Pi))*power(1+FExct*sin(Zum1),FExct)));
       until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
       if not(isNAN(Zu)) then begin
         if VXY.y>0.5 then begin
