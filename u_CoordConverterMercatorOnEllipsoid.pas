@@ -158,29 +158,29 @@ var
   zu, zum1, yy : extended;
   VXY: TExtendedPoint;
 begin
-      VXY := XY;
-      if VXY.x < 0 then VXY.x := VXY.x + 1;
-      if (VXY.y>0.5) then begin
-        yy:=1-VXY.y;
-      end else begin
-        yy:=VXY.y;
-      end;
-      Result.X := (VXY.x - 0.5) * 360;
-      Result.Y := -(yy - 0.5) * (2*PI);
-      Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
-      Zu := result.y / (180 / Pi);
-      yy := (yy - 0.5);
-      repeat
-        Zum1 := Zu;
-        Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp(-(2*yy)*(2*Pi))*power(1+FExct*sin(Zum1),FExct)));
-      until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
-      if not(isNAN(Zu)) then begin
-        if VXY.y>0.5 then begin
-          result.Y:=-zu*180/Pi;
-        end else begin
-          result.Y:=zu*180/Pi;
-        end;
-      end;
+  VXY := XY;
+  if VXY.x < 0 then VXY.x := VXY.x + 1;
+  if (VXY.y>0.5) then begin
+    yy:=VXY.y - 0.5;
+  end else begin
+    yy:=0.5 - VXY.y;
+  end;
+  Result.X := (VXY.x - 0.5) * 360;
+  Result.Y := yy * (2*PI);
+  Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+  Zu := result.y / (180 / Pi);
+  yy := (yy - 0.5);
+  repeat
+    Zum1 := Zu;
+    Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp(-(2*yy)*(2*Pi))*power(1+FExct*sin(Zum1),FExct)));
+  until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
+  if not(isNAN(Zu)) then begin
+    if VXY.y>0.5 then begin
+      result.Y:=-zu*180/Pi;
+    end else begin
+      result.Y:=zu*180/Pi;
+    end;
+  end;
 end;
 
 end.

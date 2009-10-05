@@ -98,9 +98,7 @@ function TCoordConverterMercatorOnSphere.LonLatToRelative(
   const XY: TExtendedPoint): TExtendedPoint;
 var
   z, c : Extended;
-  VLl: TExtendedPoint;
 begin
-  VLl := XY;
   Result.x := 0.5 + XY.x  / 360;
   z := sin(XY.y * Pi / 180);
   c := 1 / (2 * Pi);
