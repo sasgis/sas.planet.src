@@ -141,8 +141,15 @@ end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLatToRelative(
   const XY: TExtendedPoint): TExtendedPoint;
+var
+  z, c : Extended;
+  VLL: TExtendedPoint;
 begin
-
+  VLL := XY;
+  Result.x := (0.5 + VLl.x / 360);
+  z := sin(VLl.y * Pi / 180);
+  c := (1 / (2 * Pi));
+  Result.y := (0.5 - c*(ArcTanh(z)-FExct*ArcTanh(FExct*z)));
 end;
 
 function TCoordConverterMercatorOnEllipsoid.RelativeToLonLat(
@@ -151,36 +158,29 @@ var
   zu, zum1, yy : extended;
   VXY: TExtendedPoint;
 begin
-  VXY.X := XY.x - 0.5;
-  if XY.Y > 0.5 then begin
-    VXY.Y := XY.Y - 0.5;
-  end else begin
-    VXY.Y := 0.5 - XY.Y;
-  end;
-{
-  if VXY.x < 0 then VXY.x := VXY.x + TilesAtZoom;
-  if (VXY.y>TilesAtZoom/2) then begin
-    yy:=(TilesAtZoom)-VXY.y;//(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2));
-  end else begin
-    yy:=VXY.y;
-  end;
-  Result.X := (VXY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
-  Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
-  Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
-  Zu := result.y / (180 / Pi);
-  yy := (yy - TilesAtZoom / 2);
-  repeat
-    Zum1 := Zu;
-    Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
-  until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
-  if not(isNAN(Zu)) then begin
-    if VXY.y>TilesAtZoom/2 then begin
-      result.Y:=-zu*180/Pi;
-    end else begin
-      result.Y:=zu*180/Pi;
-    end;
-  end;
-}
+      VXY := AXY;
+      if VXY.x < 0 then VXY.x := VXY.x + 1;
+      if (VXY.y>0.5) then begin
+        yy:=1-VXY.y;
+      end else begin
+        yy:=VXY.y;
+      end;
+      Result.X := (VXY.x - 0.5) * 360;
+      Result.Y := -(yy - 0.5) * (2*PI);
+      Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+      Zu := result.y / (180 / Pi);
+      yy := (yy - 0.5);
+      repeat
+        Zum1 := Zu;
+        Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
+      until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
+      if not(isNAN(Zu)) then begin
+        if VXY.y>0.5 then begin
+          result.Y:=-zu*180/Pi;
+        end else begin
+          result.Y:=zu*180/Pi;
+        end;
+      end;
 end;
 
 end.

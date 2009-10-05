@@ -94,13 +94,15 @@ end;
 function TCoordConverterSimpleLonLat.LonLatToRelative(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
-
+  Result.x := (0.5 + XY.x / 360);
+  Result.y := (0.5 - VLl.y / 360);
 end;
 
 function TCoordConverterSimpleLonLat.RelativeToLonLat(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
-
+  Result.X := (VXY.x - 0.5) * 360;
+  Result.y := -(VXY.y - 0.5) * 360;
 end;
 
 end.
