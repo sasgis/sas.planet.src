@@ -477,6 +477,7 @@ type
   public
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
+   change_scene:boolean;
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
@@ -572,14 +573,12 @@ var
   move,m_up,m_m,moveTrue:Tpoint;
   start,
   close_,
-  LenShow,
-  Maximized: boolean;
-  spr:TBitmap32;
+  LenShow: boolean;
+  Gspr:TBitmap32;
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
-  Deg:real;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
@@ -588,12 +587,10 @@ var
   OldFormWH:TPoint;
   Wikim_set:TWikim_set;
   nilLastLoad:TLastLoad;
-  change_scene:boolean;
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
   NavOnMark:TNavOnMark;
 
-  hres:HRESULT;
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
   procedure CopyBtmToClipboard(btm:TBitmap);
@@ -1765,12 +1762,12 @@ var z,c:real;
 begin
  case sat_map_both.projection of
   1: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-round(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
      end;
   2: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-round(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
      end;
@@ -1783,12 +1780,12 @@ var z,c:real;
 begin
  case sat_map_both.projection of
   1: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
      end;
   2: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
      end;
@@ -1810,7 +1807,7 @@ var rnum,len_p,textstrt,textwidth:integer;
     temp,num:real;
 begin
  if not(LayerLineM.visible) then exit;
- num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*deg)));
+ num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*D2R)));
  if num>10000 then begin
                     num:=num/1000;
                     se:=' '+SAS_UNITS_km+'.';
@@ -1865,7 +1862,7 @@ begin
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), GState.num_format)+SAS_UNITS_mperp;
+ subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
@@ -2055,17 +2052,17 @@ begin
     if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
     if (sat_map_both.TileExists(xx,yy,GState.zoom_size))
      then begin
-           if sat_map_both.LoadTile(spr,xx,yy,GState.zoom_size,true)
+           if sat_map_both.LoadTile(Gspr,xx,yy,GState.zoom_size,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
                   end
-             else BadDraw(spr,false);
+             else BadDraw(Gspr,false);
           end
-     else loadpre(spr,xx,yy,GState.zoom_size,sat_map_both);
-    Gamma(spr);
-    LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
+     else loadpre(Gspr,xx,yy,GState.zoom_size,sat_map_both);
+    Gamma(Gspr);
+    LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
    end;
-  spr.SetSize(256,256);
+  Gspr.SetSize(256,256);
   for Leyi:=0 to length(MapType)-1 do
    if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
      if MapType[Leyi].ext='.kml' then begin
@@ -2086,19 +2083,19 @@ begin
          if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
          yy:=posN.y-pr_y+(j shl 8);
          if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-         spr.Clear($FF000000);
+         Gspr.Clear($FF000000);
          if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-           if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true) then begin
+           if MapType[Leyi].LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
              if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
            end
-           else BadDraw(spr,true);
-           Gamma(spr);
+           else BadDraw(Gspr,true);
+           Gamma(Gspr);
          end
-         else if loadpre(spr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
-           Gamma(spr);
+         else if loadpre(Gspr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
+           Gamma(Gspr);
          end;
-         spr.DrawMode:=dmBlend;
-         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
+         Gspr.DrawMode:=dmBlend;
+         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Gspr);
        end;
    end;
  if (lastload.use)and(err<>'') then
@@ -2132,6 +2129,7 @@ var
      i,j,r:integer;
      xy,xy1:Tpoint;
      param:string;
+     MainWindowMaximized: Boolean;
 begin
  if start=false then exit;
  Enabled:=false;
@@ -2141,11 +2139,11 @@ begin
   end;
  dWhenMovingButton := 5;
   GMiniMapPopupMenu := PopupMSmM;
- Maximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
+ MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
   if GState.FullScrean then TBFullSizeClick(TBFullSize)
-                  else if Maximized
+                  else if MainWindowMaximized
                         then WindowState:=wsMaximized
                         else begin
                               Self.SetBounds(
@@ -2207,10 +2205,9 @@ begin
  yhgpx:=256*hg_y;
  xhgpx:=256*hg_x;
 
- Deg:=pi/180;
- spr:=TBitmap32.Create;
- spr.Width:=256;
- spr.Height:=256;
+ Gspr:=TBitmap32.Create;
+ Gspr.Width:=256;
+ Gspr.Height:=256;
  setlength(poly_save,0);
 
  Map.Cursor:=crDefault;
@@ -2619,11 +2616,11 @@ begin
  TBDockRight.Visible:=not(TBFullSize.Checked);
  if TBFullSize.Checked then
   begin
-   RectWindow:=BoundsRect;
+   RectWindow:=Self.BoundsRect;
    SetBounds(Left-ClientOrigin.X,Top-ClientOrigin.Y,GetDeviceCaps(Canvas.handle,
    HORZRES)+(Width-ClientWidth),GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight));
   end
-  else BoundsRect:=RectWindow;
+  else Self.BoundsRect:=RectWindow;
 end;
 
 procedure TextToHTMLDoc(Text: string; var Document: IHTMLDocument2);
