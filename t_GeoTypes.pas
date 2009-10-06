@@ -12,7 +12,7 @@ type
 
   TExtendedRect = packed record
     case Integer of
-      0: (Left, Top, Right, Bottom: Extended);
+      0: (Left, Top: Extended; Reserved:Longint; Right, Bottom: Extended);
       1: (TopLeft, BottomRight: TExtendedPoint);
   end;
 
