@@ -58,6 +58,7 @@ type
     cachetype:byte;
     defcachetype:byte;
     CONTENT_TYPE:string;
+    STATUS_CODE:string;
     BanIfLen:integer;
     radiusa,radiusb,exct:extended;
     ext,ParentSubMenu:string;
@@ -486,6 +487,7 @@ begin
       DefSleep:=Sleep;
       BanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       CONTENT_TYPE:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
+      STATUS_CODE:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
       Ext:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
       NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
       DefNameInCache:=NameInCache;

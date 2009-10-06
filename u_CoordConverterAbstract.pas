@@ -23,6 +23,14 @@ type
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     // ¬озвращает общее количество пикселей на заданном зуме
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+    // ѕреобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
+    function PixelToRelative(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // ѕреобразует географические коодинаты в относительные координаты на карте
+    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; stdcall;
+    // ѕеробразует относительные координаты на карте в координаты пиксела
+    function RelativeToPixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
+    // ѕеробразует относительные координаты на карте в географические
+    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; stdcall;
 
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
@@ -39,6 +47,10 @@ type
     function TilePosToLonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; virtual; stdcall;
+    function PixelToRelative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function RelativeToPixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
+    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
@@ -118,6 +130,26 @@ end;
 function TCoordConverterAbstract.TilesAtZoom(AZoom: byte): Longint;
 begin
   Result := 1 shl (AZoom + 8);
+end;
+
+function TCoordConverterAbstract.PixelToRelative(const XY: TPoint;
+  Azoom: byte): TExtendedPoint;
+var
+  VPixelsAtZoom: Longint;
+begin
+  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  Result.X := XY.X / VPixelsAtZoom;
+  Result.Y := XY.Y / VPixelsAtZoom;
+end;
+
+function TCoordConverterAbstract.RelativeToPixel(const XY: TExtendedPoint;
+  Azoom: byte): TPoint;
+var
+  VPixelsAtZoom: Longint;
+begin
+  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  Result.X := Trunc(XY.X * VPixelsAtZoom);
+  Result.Y := Trunc(XY.Y * VPixelsAtZoom);
 end;
 
 end.

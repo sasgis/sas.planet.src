@@ -350,7 +350,7 @@ var hFile:HInternet;
     head:string;
     dwindex, dwcodelen,dwReserv: dword;
     dwtype,dwlen: array [1..20] of char;
-    len: pchar;
+    len,StatusCode: pchar;
     Vurl: string;
 begin
   Vurl := MT.GetLink(AXY.X, AXY.Y, AZoom);
@@ -393,8 +393,12 @@ begin
       fillchar(dwlen,sizeof(dwlen),0);
       if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_LENGTH, @dwlen,dwcodelen,dwindex)
         then len:=PChar(@dwlen);
+      {dwindex:=0; dwcodelen:=150; StatusCode:='0';
+      fillchar(dwlen,sizeof(dwlen),0);
+      if HttpQueryInfo(hfile,HTTP_QUERY_STATUS_CODE, @dwlen,dwcodelen,dwindex)
+        then StatusCode:=PChar(@dwlen);}
       err:=false;
-      if (ty<>'')and(PosEx(ty,MT.Content_type,0)>0) then
+      if (ty<>'')and(PosEx(ty,MT.Content_type,0)>0){and(PosEx(StatusCode,MT.STATUS_CODE,0)>0)} then
        repeat
         if (raz)and(razlen=strtoint(len)) then begin
                                                  result:=-10;
