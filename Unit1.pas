@@ -477,6 +477,9 @@ type
   public
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
+   change_scene:boolean;
+   ProgramStart: Boolean;
+   ProgramClose: Boolean;
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
@@ -570,30 +573,23 @@ var
   pr_x,
   pr_y:integer;
   move,m_up,m_m,moveTrue:Tpoint;
-  start,
-  close_,
-  LenShow,
-  Maximized: boolean;
-  spr:TBitmap32;
+  LenShow: boolean;
+  Gspr:TBitmap32;
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   rect_dwn,rect_p2:boolean;
   aoper:TAOperation;
-  Deg:real;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
   RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   curBuf:TCursor;
-  OldFormWH:TPoint;
   Wikim_set:TWikim_set;
   nilLastLoad:TLastLoad;
-  change_scene:boolean;
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
   NavOnMark:TNavOnMark;
 
-  hres:HRESULT;
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
   procedure CopyBtmToClipboard(btm:TBitmap);
@@ -1765,12 +1761,12 @@ var z,c:real;
 begin
  case sat_map_both.projection of
   1: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-round(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
      end;
   2: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-round(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
      end;
@@ -1783,12 +1779,12 @@ var z,c:real;
 begin
  case sat_map_both.projection of
   1: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
      end;
   2: begin
-      z:=sin(Lat*deg);
+      z:=sin(Lat*D2R);
       c:=(zoom[GState.zoom_size]/(2*Pi));
       result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
      end;
@@ -1810,7 +1806,7 @@ var rnum,len_p,textstrt,textwidth:integer;
     temp,num:real;
 begin
  if not(LayerLineM.visible) then exit;
- num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*deg)));
+ num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*D2R)));
  if num>10000 then begin
                     num:=num/1000;
                     se:=' '+SAS_UNITS_km+'.';
@@ -1865,7 +1861,7 @@ begin
  LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
 
  TameTZ:=timezone(ll.x,ll.y);
- subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*deg))), GState.num_format)+SAS_UNITS_mperp;
+ subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
  LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
@@ -2016,7 +2012,7 @@ end;
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
-    y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,size,ii,jj:longint;
+    y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,size,ii,jj,hg_y_:longint;
     i,j,idr:byte;
     Leyi,NinCache,xofs,yofs:integer;
     AcrBuf:Tcursor;
@@ -2046,8 +2042,12 @@ begin
  if aoper<>movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  destroyWL;
+{ if abs(y_draw)>(yhgpx-Screen.Height)
+  then hg_y_:=hg_y -1
+  else }hg_y_:=hg_y;
+
  for i:=0 to hg_x do
-  for j:=0 to hg_y do
+  for j:=0 to hg_y_ do
    begin
     xx:=pos.x-pr_x+(i shl 8);
     if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
@@ -2055,17 +2055,17 @@ begin
     if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
     if (sat_map_both.TileExists(xx,yy,GState.zoom_size))
      then begin
-           if sat_map_both.LoadTile(spr,xx,yy,GState.zoom_size,true)
+           if sat_map_both.LoadTile(Gspr,xx,yy,GState.zoom_size,true)
              then begin
                     if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
                   end
-             else BadDraw(spr,false);
+             else BadDraw(Gspr,false);
           end
-     else loadpre(spr,xx,yy,GState.zoom_size,sat_map_both);
-    Gamma(spr);
-    LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),spr);
+     else loadpre(Gspr,xx,yy,GState.zoom_size,sat_map_both);
+    Gamma(Gspr);
+    LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
    end;
-  spr.SetSize(256,256);
+  Gspr.SetSize(256,256);
   for Leyi:=0 to length(MapType)-1 do
    if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
      if MapType[Leyi].ext='.kml' then begin
@@ -2086,19 +2086,19 @@ begin
          if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
          yy:=posN.y-pr_y+(j shl 8);
          if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-         spr.Clear($FF000000);
+         //Gspr.Clear($FF000000);
          if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-           if MapType[Leyi].LoadTile(spr,xx,yy,GState.zoom_size,true) then begin
+           if MapType[Leyi].LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
              if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
            end
-           else BadDraw(spr,true);
-           Gamma(spr);
+           else BadDraw(Gspr,true);
+           Gamma(Gspr);
          end
-         else if loadpre(spr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
-           Gamma(spr);
+         else if loadpre(Gspr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
+           Gamma(Gspr);
          end;
-         spr.DrawMode:=dmBlend;
-         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, spr);
+         Gspr.DrawMode:=dmBlend;
+         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Gspr);
        end;
    end;
  if (lastload.use)and(err<>'') then
@@ -2132,20 +2132,17 @@ var
      i,j,r:integer;
      xy,xy1:Tpoint;
      param:string;
+     MainWindowMaximized: Boolean;
 begin
- if start=false then exit;
+ if ProgramStart=false then exit;
  Enabled:=false;
- if FileExists(GState.ProgramPath+'SASPlanet.RUS') then
-  begin
-   DeleteFile(GState.ProgramPath+'SASPlanet.RUS');
-  end;
  dWhenMovingButton := 5;
-  GMiniMapPopupMenu := PopupMSmM;
- Maximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
+ GMiniMapPopupMenu := PopupMSmM;
+ MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
   if GState.FullScrean then TBFullSizeClick(TBFullSize)
-                  else if Maximized
+                  else if MainWindowMaximized
                         then WindowState:=wsMaximized
                         else begin
                               Self.SetBounds(
@@ -2202,15 +2199,19 @@ begin
 
  hg_x:=round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
  hg_y:=round(Screen.Height / 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
- pr_x:=(256*hg_x)div 2;
- pr_y:=(256*hg_y)div 2;
- yhgpx:=256*hg_y;
- xhgpx:=256*hg_x;
+ if GState.TilesOut=0 then begin
+   yhgpx:=Screen.Height;
+   xhgpx:=Screen.Width;
+ end else begin
+   yhgpx:=256*hg_y;
+   xhgpx:=256*hg_x;
+ end;
+ pr_y:=(yhgpx)div 2;
+ pr_x:=(xhgpx)div 2;
 
- Deg:=pi/180;
- spr:=TBitmap32.Create;
- spr.Width:=256;
- spr.Height:=256;
+ Gspr:=TBitmap32.Create;
+ Gspr.Width:=256;
+ Gspr.Height:=256;
  setlength(poly_save,0);
 
  Map.Cursor:=crDefault;
@@ -2467,7 +2468,7 @@ begin
  NCiclMap.Checked:=GState.CiclMap;
 
  toSh;
- start:=false;
+ ProgramStart:=false;
 
  if GState.zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
                    else TBMapZap.Caption:='';
@@ -2570,12 +2571,12 @@ begin
  TBiniLoadPositions(Self,GState.MainIni,'PANEL_');
  TBEditPath.Visible:=false;
  Caption:=Caption+' '+SASVersion;
- start:=true;
+ ProgramStart:=true;
 end;
 
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- close_:=true;
+ ProgramClose:=true;
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
 end;
@@ -2619,11 +2620,11 @@ begin
  TBDockRight.Visible:=not(TBFullSize.Checked);
  if TBFullSize.Checked then
   begin
-   RectWindow:=BoundsRect;
+   RectWindow:=Self.BoundsRect;
    SetBounds(Left-ClientOrigin.X,Top-ClientOrigin.Y,GetDeviceCaps(Canvas.handle,
    HORZRES)+(Width-ClientWidth),GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight));
   end
-  else BoundsRect:=RectWindow;
+  else Self.BoundsRect:=RectWindow;
 end;
 
 procedure TextToHTMLDoc(Text: string; var Document: IHTMLDocument2);
@@ -3316,9 +3317,8 @@ end;
 
 procedure TFmain.mapResize(Sender: TObject);
 begin
- if (close_<>true)and(not(start))then
+ if (ProgramClose<>true)and(not(ProgramStart))then
   begin
-   OldFormWH:=point(mWd2,mHd2);
    mWd2:=map.Width shr 1;
    mHd2:=map.Height shr 1;
    LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
@@ -4075,12 +4075,12 @@ begin
                       end;
  if MapZoomAnimtion=1 then exit;
  if MapMoving then begin
-              LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
+              LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
               FillingMap.Location := LayerMap.Location;
-              if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
-              if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
-              if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
-              if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),hg_x shl 8,hg_y shl 8));
+              if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
+              if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
+              if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
+              if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;

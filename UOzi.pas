@@ -101,7 +101,7 @@ begin
 
  rad:=Atype.radiusa;
 
- writeln(f,'MM1B,'+fs(1/((zoom[Azoom]/(2*PI))/(rad*cos(lat[2]*deg)))));
+ writeln(f,'MM1B,'+fs(1/((zoom[Azoom]/(2*PI))/(rad*cos(lat[2]*D2R)))));
  writeln(f,'MOP,Map Open Position,0,0');
  writeln(f,'IWH,Map Image Width/Height,'+inttostr(xy2.X)+','+inttostr(xy2.y));
 
