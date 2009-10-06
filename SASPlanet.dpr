@@ -28,7 +28,7 @@ uses
   UTimeZones in 'UTimeZones.pas',
   UaddLine in 'UaddLine.pas' {FaddLine},
   UaddPoly in 'UaddPoly.pas' {FAddPoly},
-  UThreadExport in 'UThreadExport.pas',
+  UThreadExport in 'C:\UThreadExport.pas',
   UEditMap in 'UEditMap.pas' {FEditMap},
   UResStrings in 'UResStrings.pas',
   USearchResult in 'USearchResult.pas' {FSearchResult},
