@@ -17,8 +17,8 @@ type
     function LonLat2Pos(const ALL : TExtendedPoint; Azoom : byte) : Tpoint; override;
     function LonLat2Metr(const ALL : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
-    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   end;
 
 implementation
@@ -139,7 +139,7 @@ begin
   result := (fz * fR);
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLatToRelative(
+function TCoordConverterMercatorOnEllipsoid.LonLat2Relative(
   const XY: TExtendedPoint): TExtendedPoint;
 var
   z, c : Extended;
@@ -152,7 +152,7 @@ begin
   Result.y := (0.5 - c*(ArcTanh(z)-FExct*ArcTanh(FExct*z)));
 end;
 
-function TCoordConverterMercatorOnEllipsoid.RelativeToLonLat(
+function TCoordConverterMercatorOnEllipsoid.Relative2LonLat(
   const XY: TExtendedPoint): TExtendedPoint;
 var
   zu, zum1, yy : extended;
