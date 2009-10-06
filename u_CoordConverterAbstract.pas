@@ -176,12 +176,12 @@ end;
 
 function TCoordConverterAbstract.PixelsAtZoom(AZoom: byte): Longint;
 begin
-  Result := 1 shl AZoom;
+  Result := 1 shl (AZoom + 8);
 end;
 
 function TCoordConverterAbstract.TilesAtZoom(AZoom: byte): Longint;
 begin
-  Result := 1 shl (AZoom + 8);
+  Result := 1 shl AZoom;
 end;
 
 function TCoordConverterAbstract.PixelPos2Relative(const XY: TPoint;
