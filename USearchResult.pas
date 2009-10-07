@@ -48,9 +48,7 @@ uses
 procedure TFSearchResult.Button1Click(Sender: TObject);
 begin
  if assigned(ListBox1.Items.Objects[ListBox1.ItemIndex])
-  then Fmain.topos(TSearthResult(ListBox1.Items.Objects[ListBox1.ItemIndex]).ll.y,
-                   TSearthResult(ListBox1.Items.Objects[ListBox1.ItemIndex]).ll.y,
-                   GState.zoom_size, true);
+  then Fmain.topos(TSearthResult(ListBox1.Items.Objects[ListBox1.ItemIndex]).ll,GState.zoom_size, true);
 end;
 
 end.

@@ -17,8 +17,8 @@ type
     function LonLat2Pos(const ALl : TExtendedPoint; Azoom : byte) : Tpoint; override;
 	  function LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
-    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   end;
 
 implementation
@@ -91,16 +91,18 @@ begin
   result := (fz * a);
 end;
 
-function TCoordConverterSimpleLonLat.LonLatToRelative(
+function TCoordConverterSimpleLonLat.LonLat2Relative(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
-
+  Result.x := (0.5 + XY.x / 360);
+  Result.y := (0.5 - XY.y / 360);
 end;
 
-function TCoordConverterSimpleLonLat.RelativeToLonLat(
+function TCoordConverterSimpleLonLat.Relative2LonLat(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
-
+  Result.X := (XY.x - 0.5) * 360;
+  Result.y := -(XY.y - 0.5) * 360;
 end;
 
 end.

@@ -15,22 +15,53 @@ type
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
     // ?????????
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; stdcall;
-    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
-    function TilePosToPosTRect(const XY : TPoint; Azoom : byte): TRect; stdcall;
-    // Преобразует позицию тайла заданного зума в географические координаты его углов
-    function TilePosToLonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
+
     // Возвращает количество тайлов в заданном зуме
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     // Возвращает общее количество пикселей на заданном зуме
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+
+    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+    function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; stdcall;
+    // Преобразует позицию тайла заданного зума в географические координаты его углов
+    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
+    // Преобразует координаты тайла в географические координаты
+    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // Преобразует координаты тайла в относительные координаты на карте (x/PixelsAtZoom)
+    function TilePos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+    function TilePos2RelativeRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
+    // вычисляет координты пикселей вершин прямоугольника тайлов
+    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; stdcall;
+
+    // Преобразует координаты пиксела в географические координаты
+    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // Преобразует координаты пиксела в  координаты тайда cодержащего пиксель
+    function PixelPos2TilePos(const XY : TPoint; Azoom : byte) : TPoint; stdcall;
     // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
-    function PixelToRelative(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    function PixelPos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // вычисляет прямоугольник тайлов покрывающий прямоугольник пикселов
+    function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; stdcall;
+    // Преобразует координаты прямоугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
+    function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
+
+    // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
+    function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
+    // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
+    function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
     // Преобразует географические коодинаты в относительные координаты на карте
-    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; stdcall;
+    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; stdcall;
+    // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
+    function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; stdcall;
+
     // Перобразует относительные координаты на карте в координаты пиксела
-    function RelativeToPixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
+    function Relative2Pixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
+    // Перобразует относительные координаты на карте в координаты тайла
+    function Relative2Tile(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
     // Перобразует относительные координаты на карте в географические
-    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; stdcall;
+    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; stdcall;
+    // Перобразует прямоугольник с относительными координатами на карте в географические
+    function RelativeRect2LonLatRect(const XY : TExtendedRect): TExtendedRect; stdcall;
 
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
@@ -43,14 +74,35 @@ type
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall; abstract;
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
-    function TilePosToPosTRect(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
-    function TilePosToLonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; virtual; stdcall;
-    function PixelToRelative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLatToRelative(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
-    function RelativeToPixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function RelativeToLonLat(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+
+
+    function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
+    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
+    function TilePos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function TilePos2RelativeRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+
+    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function PixelPos2TilePos(const XY : TPoint; Azoom : byte) : TPoint; virtual; stdcall;
+    function PixelPos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
+    function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+
+
+    function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
+    function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
+    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
+
+    function Relative2Pixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
+    function Relative2Tile(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
+    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function RelativeRect2LonLatRect(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
+
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
@@ -78,7 +130,7 @@ begin
   result := 0.5*abs(result)/1000000;
 end;
 
-function TCoordConverterAbstract.TilePosToPosTRect(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2PixelRect(const XY: TPoint;
   Azoom: byte): TRect;
 begin
   Result.Left := XY.X shl 8;
@@ -112,27 +164,27 @@ begin
   end;
 end;
 
-function TCoordConverterAbstract.TilePosToLonLatRect(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2LonLatRect(const XY: TPoint;
   Azoom: byte): TExtendedRect;
 var
   VRect: TRect;
 begin
-  VRect := TilePosToPosTRect(XY, Azoom);
-  Result.TopLeft := Pos2LonLat(VRect.TopLeft, Azoom + 8);
-  Result.BottomRight := Pos2LonLat(VRect.BottomRight, Azoom + 8);
+  VRect := TilePos2PixelRect(XY, Azoom);
+  Result.TopLeft := PixelPos2LonLat(VRect.TopLeft, Azoom);
+  Result.BottomRight := PixelPos2LonLat(VRect.BottomRight, Azoom);
 end;
 
 function TCoordConverterAbstract.PixelsAtZoom(AZoom: byte): Longint;
 begin
-  Result := 1 shl AZoom;
+  Result := 1 shl (AZoom + 8);
 end;
 
 function TCoordConverterAbstract.TilesAtZoom(AZoom: byte): Longint;
 begin
-  Result := 1 shl (AZoom + 8);
+  Result := 1 shl AZoom;
 end;
 
-function TCoordConverterAbstract.PixelToRelative(const XY: TPoint;
+function TCoordConverterAbstract.PixelPos2Relative(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 var
   VPixelsAtZoom: Longint;
@@ -142,7 +194,7 @@ begin
   Result.Y := XY.Y / VPixelsAtZoom;
 end;
 
-function TCoordConverterAbstract.RelativeToPixel(const XY: TExtendedPoint;
+function TCoordConverterAbstract.Relative2Pixel(const XY: TExtendedPoint;
   Azoom: byte): TPoint;
 var
   VPixelsAtZoom: Longint;
@@ -150,6 +202,108 @@ begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
   Result.X := Trunc(XY.X * VPixelsAtZoom);
   Result.Y := Trunc(XY.Y * VPixelsAtZoom);
+end;
+
+function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
+  Azoom: byte): Tpoint;
+begin
+  Result := LonLat2Pos(LL, AZoom + 8);
+end;
+
+function TCoordConverterAbstract.LonLat2TilePos(const Ll: TExtendedPoint;
+  Azoom: byte): Tpoint;
+begin
+  Result := LonLat2Pos(LL, AZoom);
+end;
+
+function TCoordConverterAbstract.PixelPos2LonLat(const XY: TPoint;
+  Azoom: byte): TExtendedPoint;
+begin
+  Result := Pos2LonLat(XY, Azoom + 8);
+end;
+
+function TCoordConverterAbstract.TilePos2LonLat(const XY: TPoint;
+  Azoom: byte): TExtendedPoint;
+begin
+  Result := Pos2LonLat(XY, Azoom);
+end;
+
+function TCoordConverterAbstract.TilePos2Relative(const XY: TPoint;
+  Azoom: byte): TExtendedPoint;
+var
+  VTilesAtZoom: Longint;
+begin
+  VTilesAtZoom := TilesAtZoom(Azoom);
+  Result.X := XY.X / VTilesAtZoom;
+  Result.Y := XY.Y / VTilesAtZoom;
+end;
+
+function TCoordConverterAbstract.TilePos2RelativeRect(const XY: TPoint;
+  Azoom: byte): TExtendedRect;
+var
+  VTilesAtZoom: Longint;
+begin
+  VTilesAtZoom := TilesAtZoom(Azoom);
+  Result.Left := XY.X / VTilesAtZoom;
+  Result.Top := XY.Y / VTilesAtZoom;
+  Result.Right := (XY.X + 1) / VTilesAtZoom;
+  Result.Bottom := (XY.Y + 1) / VTilesAtZoom;
+end;
+
+function TCoordConverterAbstract.LonLatRect2RelativeRect(
+  const XY: TExtendedRect): TExtendedRect;
+begin
+  Result.TopLeft := LonLat2Relative(XY.TopLeft);
+  Result.BottomRight := LonLat2Relative(XY.BottomRight);
+end;
+
+function TCoordConverterAbstract.Relative2Tile(const XY: TExtendedPoint;
+  Azoom: byte): TPoint;
+var
+  VTilesAtZoom: Longint;
+begin
+  VTilesAtZoom := TilesAtZoom(Azoom);
+  Result.X := Trunc(XY.X * VTilesAtZoom);
+  Result.Y := Trunc(XY.Y * VTilesAtZoom);
+end;
+
+function TCoordConverterAbstract.RelativeRect2LonLatRect(
+  const XY: TExtendedRect): TExtendedRect;
+begin
+  Result.TopLeft := Relative2LonLat(XY.TopLeft);
+  Result.BottomRight := Relative2LonLat(XY.BottomRight);
+end;
+
+function TCoordConverterAbstract.PixelPos2TilePos(const XY: TPoint;
+  Azoom: byte): TPoint;
+begin
+  Result.X := XY.X shr 8;
+  Result.Y := XY.Y shr 8;
+end;
+
+function TCoordConverterAbstract.PixelRect2TileRect(const XY: TRect;
+  AZoom: byte): TRect;
+begin
+  Result.Left := XY.Left shr 8;
+  Result.Top := XY.Top shr 8;
+  Result.Right := XY.Right shr 8;
+  Result.Bottom := XY.Bottom shr 8;
+end;
+
+function TCoordConverterAbstract.TileRect2PixelRect(const XY: TRect;
+  AZoom: byte): TRect;
+begin
+  Result.Left := XY.Left shl 8;
+  Result.Top := XY.Top shl 8;
+  Result.Right := (XY.Right + 1) shl 8 - 1;
+  Result.Bottom := (XY.Bottom + 1) shl 8 - 1;
+end;
+
+function TCoordConverterAbstract.PixelRect2RelativeRect(const XY: TRect;
+  AZoom: byte): TExtendedRect;
+begin
+  Result.TopLeft := PixelPos2Relative(XY.TopLeft, AZoom);
+  Result.BottomRight := PixelPos2Relative(XY.BottomRight, AZoom);
 end;
 
 end.

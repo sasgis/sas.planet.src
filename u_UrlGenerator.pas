@@ -92,16 +92,11 @@ begin
       RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint', cdStdCall);
       RegisterMethod('function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint', cdStdCall);
       RegisterMethod('function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint', cdStdCall);
-      RegisterMethod('function TilePosToPosTRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
-      RegisterDummyMethod; // TilePosToLonLatRect
-//    function TilePosToLonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
+
       RegisterMethod('function TilesAtZoom(AZoom: byte): Longint', cdStdCall);
       RegisterMethod('function PixelsAtZoom(AZoom: byte): Longint', cdStdCall);
 
-      RegisterDummyMethod; // Pos2OtherMap
-      RegisterDummyMethod; // CalcPoligonArea
-      RegisterDummyMethod; // PoligonProject
-      RegisterDummyMethod; // CalcDist
+      RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
     end;
     T := Sender.FindType('ICoordConverter');
     Sender.AddUsedVariable('Converter', t);
