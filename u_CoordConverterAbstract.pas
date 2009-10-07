@@ -21,6 +21,8 @@ type
     // ¬озвращает общее количество пикселей на заданном зуме
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
 
+    // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
+    function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint; stdcall;
     // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; stdcall;
     // ѕреобразует позицию тайла заданного зума в географические координаты его углов
@@ -79,6 +81,7 @@ type
     function PixelsAtZoom(AZoom: byte): Longint; virtual; stdcall;
 
 
+    function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint; virtual; stdcall;
     function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
     function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
     function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
@@ -190,8 +193,13 @@ var
   VPixelsAtZoom: Longint;
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
-  Result.X := XY.X / VPixelsAtZoom;
-  Result.Y := XY.Y / VPixelsAtZoom;
+  if VPixelsAtZoom < 0 then begin
+    Result.X := - XY.X / VPixelsAtZoom;
+    Result.Y := - XY.Y / VPixelsAtZoom;
+  end else begin
+    Result.X := XY.X / VPixelsAtZoom;
+    Result.Y := XY.Y / VPixelsAtZoom;
+  end;
 end;
 
 function TCoordConverterAbstract.Relative2Pixel(const XY: TExtendedPoint;
@@ -200,8 +208,13 @@ var
   VPixelsAtZoom: Longint;
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
-  Result.X := Trunc(XY.X * VPixelsAtZoom);
-  Result.Y := Trunc(XY.Y * VPixelsAtZoom);
+  if VPixelsAtZoom < 0 then begin
+    Result.X := - Trunc(XY.X * VPixelsAtZoom);
+    Result.Y := - Trunc(XY.Y * VPixelsAtZoom);
+  end else begin
+    Result.X := Trunc(XY.X * VPixelsAtZoom);
+    Result.Y := Trunc(XY.Y * VPixelsAtZoom);
+  end;
 end;
 
 function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
@@ -301,9 +314,20 @@ end;
 
 function TCoordConverterAbstract.PixelRect2RelativeRect(const XY: TRect;
   AZoom: byte): TExtendedRect;
+var
+  VBottomRight: TPoint;
 begin
   Result.TopLeft := PixelPos2Relative(XY.TopLeft, AZoom);
-  Result.BottomRight := PixelPos2Relative(XY.BottomRight, AZoom);
+  VBottomRight.X := XY.Right + 1;
+  VBottomRight.Y := XY.Bottom + 1;
+  Result.BottomRight := PixelPos2Relative(VBottomRight, AZoom);
+end;
+
+function TCoordConverterAbstract.TilePos2PixelPos(const XY: TPoint;
+  Azoom: byte): TPoint;
+begin
+  Result.X := XY.X shl 8;
+  Result.Y := XY.Y shl 8;
 end;
 
 end.
