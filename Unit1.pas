@@ -487,13 +487,11 @@ type
    procedure generate_im(lastload:TLastLoad;err:string);
    function  toSh:string;
 class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
-   function  X2Lon(X:integer):extended;
-   function  Y2Lat(Y:integer):extended;
    function  Lon2X(Lon:real):integer;
    function  Lat2Y(lat:real):integer;
    function  Lon2Xf(Lon:real):real;
    function  Lat2Yf(lat:real):real;
-   procedure topos(lat,lon:real;zoom_:byte;draw:boolean);
+   procedure topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
    procedure zooming(x:byte;move:boolean);
 class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
@@ -1589,7 +1587,7 @@ begin
 end;
 
 procedure TFmain.draw_point;
-var lon_l,lon_r,lat_t,lat_d:real;
+var LLRect:TExtendedRect;
     i:integer;
     xy:Tpoint;
     btm:TBitmap32;
@@ -1606,10 +1604,8 @@ begin
    LayerMapMarks.Visible:=false;
    exit;
   end;
- lon_l:=X2Lon(-(pr_x-mWd2));
- lon_r:=X2Lon(pr_x+mWd2);
- lat_t:=Y2Lat(-(pr_y-mHd2));
- lat_d:=Y2Lat(pr_y+mHd2);
+ LLRect.TopLeft:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2,pos.Y-mHd2),GState.zoom_size-1);
+ LLRect.BottomRight:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x+mWd2,pos.Y+mHd2),GState.zoom_size-1);
  marksFilter:='';
  if GState.show_point = mshChecked then
   begin
@@ -1636,8 +1632,8 @@ begin
    CDSKategory.Filtered:=false;
    marksFilter:=marksFilter+' and ';
   end;
- marksFilter:=marksFilter+'( LonR>'+floattostr(lon_l)+' and LonL<'+floattostr(lon_R)+
-              ' and LatB<'+floattostr(lat_t)+' and LatT>'+floattostr(lat_d)+')';
+ marksFilter:=marksFilter+'( LonR>'+floattostr(LLRect.Left)+' and LonL<'+floattostr(LLRect.Right)+
+              ' and LatB<'+floattostr(LLRect.Top)+' and LatT>'+floattostr(LLRect.Bottom)+')';
  CDSmarks.Filter:=marksFilter;
  CDSmarks.Filtered:=true;
  CDSmarks.First;
@@ -1712,40 +1708,6 @@ begin
  result:=EncodeTime(abs(st.wHour+prH+24)mod 24,abs(st.wMinute+prM+60)mod 60,0,0);
 end;
 
-function TFmain.X2Lon(X:integer):extended;
-begin
- result:=((POS.x-(map.Width/2-X))-zoom[GState.zoom_size]/2)/(zoom[GState.zoom_size]/360);
-end;
-
-function TFmain.Y2Lat(Y:integer):extended;
-var Zum1,Zu,yy:extended;
-begin
- case sat_map_both.projection of
-  1: begin
-      result:=((POS.y-(map.Height/2-Y))-zoom[GState.zoom_size]/2) /-(zoom[GState.zoom_size]/(2*Pi));
-      result:=(2*arctan(exp(result))-Pi/2)*180/Pi;
-     end;
-  2: begin
-      yy:=POS.y-(map.Height/2-Y);
-      if ((POS.y-(map.Height/2-Y))>(zoom[GState.zoom_size]/2))
-       then yy:=(zoom[GState.zoom_size])-yy;
-      result:=((yy)-zoom[GState.zoom_size]/2) /-(zoom[GState.zoom_size]/(2*Pi));
-      result:=(2*arctan(exp(result))-Pi/2)*180/Pi;
-      Zu:=result/(180/Pi);
-      yy:=((yy)-zoom[GState.zoom_size]/2);
-      repeat
-       Zum1:=Zu;
-       Zu:=arcsin(1-((1+Sin(Zum1))*power(1-sat_map_both.exct*sin(Zum1),sat_map_both.exct))/(exp((2*yy)/-(zoom[GState.zoom_size]/(2*Pi)))*power(1+sat_map_both.exct*sin(Zum1),sat_map_both.exct)));
-      until ((abs(Zum1-Zu)<MerkElipsK) or (isNAN(Zu)));
-      if not(isNAN(Zu)) then
-       if ((POS.y-(map.Height/2-Y))>(zoom[GState.zoom_size]/2))
-         then result:=-zu*180/Pi
-         else result:=zu*180/Pi;
-     end;
-  3: result:=-((POS.y-(map.Height/2-Y))-zoom[GState.zoom_size]/2)/(zoom[GState.zoom_size]/360);
- end;
-end;
-
 function TFmain.Lon2X(lon:real):integer;
 begin
  result:=mWd2-(POS.x-round(zoom[GState.zoom_size]/2+Lon*(zoom[GState.zoom_size]/360)));
@@ -1792,9 +1754,9 @@ begin
  end;
 end;
 
-procedure TFmain.topos(lat,lon:real;zoom_:byte;draw:boolean);
+procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
- POS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(lon,lat),(zoom_ - 1) + 8);
+ POS:=sat_map_both.GeoConvert.LonLat2Pos(LL,(zoom_ - 1) + 8);
  GState.zoom_size:=zoom_;
  zooming(zoom_,false);
  if draw then LayerMap.Bitmap.Draw(pr_x-7,pr_y-6,GOToSelIcon);
@@ -1803,10 +1765,12 @@ end;
 procedure TFmain.paint_Line;
 var rnum,len_p,textstrt,textwidth:integer;
     s,se:string;
+    LL:TExtendedPoint;
     temp,num:real;
 begin
  if not(LayerLineM.visible) then exit;
- num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(y2Lat(mHd2)*D2R)));
+ LL:=sat_map_both.FCoordConverter.PixelPos2LonLat(Pos,GState.zoom_size-1);
+ num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(LL.y*D2R)));
  if num>10000 then begin
                     num:=num/1000;
                     se:=' '+SAS_UNITS_km+'.';
@@ -2741,7 +2705,7 @@ end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
- if FAddPoint.show_(extPoint(X2Lon(m_up.x),Y2Lat(m_up.y)),true) then
+ if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+m_up.x,pos.Y-mHd2+m_up.y),GState.zoom_size-1),true) then
   generate_im(nilLastLoad,'');
 end;
 
@@ -2920,7 +2884,7 @@ end;
 
 procedure TFmain.N012Click(Sender: TObject);
 begin
- topos(Y2Lat(m_up.Y),X2Lon(m_up.X),TMenuItem(sender).tag,true);
+ topos(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+m_up.X,pos.Y-mHd2+m_up.Y),GState.zoom_size-1),TMenuItem(sender).tag,true);
 end;
 
 procedure TFmain.N29Click(Sender: TObject);
@@ -2929,12 +2893,11 @@ begin
 end;
 
 procedure TFmain.selectMap(num:TMapType);
-var lat,lon:real;
+var ll:TExtendedPoint;
     i:integer;
 begin
  if MapZoomAnimtion=1 then exit;
- lat:=Y2Lat(mHd2);
- Lon:=X2Lon(mWd2);
+ LL:=sat_map_both.FCoordConverter.PixelPos2LonLat(pos,GState.zoom_size-1);
  if not(num.asLayer) then
   begin
    if (num.showinfo)and(num.info<>'') then
@@ -2959,7 +2922,7 @@ begin
      MapType[i].TBItem.Checked:=MapType[i].active;
     end;
   end;
- topos(lat,lon,GState.zoom_size,false);
+ topos(ll,GState.zoom_size,false);
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -3036,7 +2999,7 @@ begin
            ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
            exit;
           end;
-          toPos(lat,lon,GState.zoom_size,true);
+          toPos(ExtPoint(lon,lat),GState.zoom_size,true);
           ShowMessage(SAS_STR_foundplace+' "'+strr+'"');
          end
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -3486,7 +3449,7 @@ begin
            ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
            exit;
           end;
-          toPos(lat,lon,GState.zoom_size,true);
+          toPos(ExtPoint(lon,lat),GState.zoom_size,true);
           ShowMessage(SAS_STR_foundplace+' "'+NewText+'"');
          end
         else ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -3773,27 +3736,27 @@ begin
   begin
    if (aoper=line)then begin
                   setlength(length_arr,length(length_arr)+1);
-                  length_arr[length(length_arr)-1]:=extpoint(X2Lon(X),Y2Lat(Y));
+                  length_arr[length(length_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                   drawLineCalc;
                  end;
    if (aoper=Reg) then begin
                   setlength(reg_arr,length(reg_arr)+1);
-                  reg_arr[length(reg_arr)-1]:=extpoint(X2Lon(X),Y2Lat(Y));
+                  reg_arr[length(reg_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                   drawReg;
                  end;
    if (aoper=rect)then begin
                   if rect_dwn then begin
-                                    rect_arr[1]:=extPoint(X2Lon(x),Y2Lat(y));
+                                    rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                                     rect_p2:=true;
                                    end
                               else begin
-                                    rect_arr[0]:=extPoint(X2Lon(x),Y2Lat(y));
+                                    rect_arr[0]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                                     rect_arr[1]:=rect_arr[0];
                                    end;
                   rect_dwn:=not(rect_dwn);
                   drawRect(Shift);
                  end;
-   if (aoper=add_point)and(FAddPoint.show_(extPoint(X2Lon(x),Y2Lat(y)),true)) then generate_im(nilLastLoad,'');
+   if (aoper=add_point)and(FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1),true)) then generate_im(nilLastLoad,'');
    if (aoper in [add_line,add_poly]) then
       begin
         for i:=0 to length(add_line_arr)-1 do
@@ -3808,7 +3771,7 @@ begin
         inc(lastpoint);
         movepoint:=lastpoint;
         insertinpath(lastpoint);
-        add_line_arr[lastpoint]:=extpoint(X2Lon(X),Y2Lat(Y));
+        add_line_arr[lastpoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
         drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
       end;
    exit;
@@ -4028,13 +3991,13 @@ begin
  sleep(1);
  if movepoint>-1 then
   begin
-   add_line_arr[movepoint]:=extpoint(X2Lon(X),Y2Lat(Y));
+   add_line_arr[movepoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
    drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
    exit;
   end;
  if (aoper=rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
-               rect_arr[1]:=extPoint(X2Lon(x),Y2Lat(y));
+               rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                drawRect(Shift);
               end;
  if MapMoving then layer.Cursor:=3;

@@ -201,8 +201,8 @@ begin
   end;
  if RB1.Checked then
   begin
-   Close;
-   Fmain.toPos(DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1),DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),CBzoom.ItemIndex+1,true);
+   Close;   
+   Fmain.toPos(ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1)),CBzoom.ItemIndex+1,true);
   end;
  if RB2.Checked then
   begin
