@@ -1600,7 +1600,7 @@ var lon_l,lon_r,lat_t,lat_d:real;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
-begin
+begin                     
  if (GState.show_point = mshNone) then
   begin
    LayerMapMarks.Visible:=false;
