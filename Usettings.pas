@@ -572,10 +572,17 @@ begin
  GState.TilesOut:=SpinEdit3.Value;
  hg_x:=(Screen.Width div 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
  hg_y:=(Screen.Height div 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
- pr_x:=(256*hg_x)div 2;
- pr_y:=(256*hg_y)div 2;
- yhgpx:=256*hg_y;
- xhgpx:=256*hg_x;
+
+ if GState.TilesOut=0 then begin
+   yhgpx:=Screen.Height;
+   xhgpx:=Screen.Width;
+ end else begin
+   yhgpx:=256*hg_y;
+   xhgpx:=256*hg_x;
+ end;
+ pr_x:=(xhgpx)div 2;
+ pr_y:=(yhgpx)div 2;
+
  LayerMap.Bitmap.Width:=xhgpx;
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMapNal.Bitmap.Width:=xhgpx;
