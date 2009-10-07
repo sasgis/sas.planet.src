@@ -26,6 +26,7 @@ type
     procedure Check_PixelRect2TileRect; virtual;
     procedure Check_PixelRect2RelativeRect; virtual;
 
+    procedure Check_Relative2Pixel; virtual;
 
 
     procedure CheckConverter; virtual;
@@ -110,6 +111,14 @@ begin
   except
     on E: Exception do begin
       raise Exception.Create('Ошибка при тестировании функции PixelRect2RelativeRect:' + E.Message);
+    end;
+  end;
+
+  try
+    Check_Relative2Pixel;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании функции Relative2Pixel:' + E.Message);
     end;
   end;
 
@@ -200,7 +209,25 @@ begin
   if not CheckExtended(Res.Bottom, 1/256) then
     raise Exception.Create('Z = 0. Ошибка в Bottom');
 
+  Res := FConverter.PixelRect2RelativeRect(Rect(0,0,255,255), 0);
+  if not CheckExtended(Res.Left, 0) then
+    raise Exception.Create('Z = 0. Ошибка в Left');
+  if not CheckExtended(Res.Top, 0) then
+    raise Exception.Create('Z = 0. Ошибка в Top');
+  if not CheckExtended(Res.Right, 1) then
+    raise Exception.Create('Z = 0. Ошибка в Right');
+  if not CheckExtended(Res.Bottom, 1) then
+    raise Exception.Create('Z = 0. Ошибка в Bottom');
 
+  Res := FConverter.PixelRect2RelativeRect(Rect(0, 1 shl 30, 255, 2147483392 + 255),23);
+  if not CheckExtended(Res.Left, 0) then
+    raise Exception.Create('Z = 23. Ошибка в Left');
+  if not CheckExtended(Res.Top, 0.5) then
+    raise Exception.Create('Z = 23. Ошибка в Top');
+  if not CheckExtended(Res.Right, 1/(1 shl 23)) then
+    raise Exception.Create('Z = 23. Ошибка в Right');
+  if not CheckExtended(Res.Bottom, 1) then
+    raise Exception.Create('Z = 23. Ошибка в Bottom');
 end;
 
 procedure TTesterCoordConverterAbstract.Check_PixelRect2TileRect;
@@ -266,6 +293,36 @@ begin
     raise Exception.Create('Z = 23. Ошибка в Right прямоугольника');
   if Res.Bottom <> 8388607 then
     raise Exception.Create('Z = 23. Ошибка в Bottom прямоугольника');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_Relative2Pixel;
+var
+  Res: TPoint;
+  Source: TExtendedPoint;
+begin
+  Source.X := 1/256;
+  Source.Y := 1/500;
+  Res := FConverter.Relative2Pixel(Source, 0);
+  if Res.X <> 1 then
+    raise Exception.Create('Z = 0. Ошибка в x координате');
+  if Res.Y <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в y координате');
+
+  Source.X := 1;
+  Source.Y := 1;
+  Res := FConverter.Relative2Pixel(Source, 0);
+  if Res.X <> 256 then
+    raise Exception.Create('Z = 0. Ошибка в x координате');
+  if Res.Y <> 256 then
+    raise Exception.Create('Z = 0. Ошибка в y координате');
+
+  Source.X := 1;
+  Source.Y := 1;
+  Res := FConverter.Relative2Pixel(Source, 23);
+  if Res.X <> 1 shl 31 then
+    raise Exception.Create('Z = 0. Ошибка в x координате');
+  if Res.Y <> 1 shl 31 then
+    raise Exception.Create('Z = 0. Ошибка в y координате');
 end;
 
 procedure TTesterCoordConverterAbstract.Check_TilePos2PixelPos;
