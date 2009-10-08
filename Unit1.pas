@@ -1909,7 +1909,7 @@ var
     Leyi,NinCache,xofs,yofs:integer;
     AcrBuf:Tcursor;
     posN:TPoint;
-    ts:Cardinal;
+    ts2,ts3,fr:int64;
     lok:string;
     png:TPNGObject;
     p:PColor32;
@@ -1917,7 +1917,7 @@ var
     W,H:Integer;
 begin
  if notpaint then exit;
- ts:=GetTickCount;
+ QueryPerformanceCounter(ts2);
  if (lastload.use) then
   begin
    //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
@@ -2012,7 +2012,9 @@ begin
 { m_up.x:=move.X;
  m_up.y:=move.y;   }
  toSh;
- Label1.caption := IntToStr(GetTickCount-ts);
+ QueryPerformanceCounter(ts3);
+ QueryPerformanceFrequency(fr);
+ Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
  //map.Cursor:=AcrBuf;
 end;
 
@@ -2386,8 +2388,10 @@ begin
 end;
 
 procedure TFmain.zooming(x:byte;move:boolean);
-var w,i,steps:integer;
+var w,i,steps,d_moveH,d_moveW:integer;
     w1:extended;
+    s:string;
+    ts1,ts2,fr:int64;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -2400,44 +2404,59 @@ begin
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  labZoom.caption:=' '+inttostr(x)+'x ';
  RxSlider1.Value:=x-1;
- steps:=9;
+ steps:=10;
+ d_moveH:=0;
+ d_moveW:=0;
  if GState.zoom_size>x
   then begin
          w:=-steps*2;
          w1:=-steps;
-
          POS:=Point(trunc(pos.x/power(2,GState.zoom_size-x)),trunc(pos.y/power(2,GState.zoom_size-x)));
-         if (move)and(abs(x-GState.zoom_size)=1) then
+         if (move)and(abs(x-GState.zoom_size)=1) then begin
            POS:=Point(pos.x+(mWd2-m_m.X)div 2,pos.y+(mHd2-m_m.y)div 2);
+           d_moveW:=((mWd2-m_m.X) div 2);
+           d_moveH:=((mHd2-m_m.Y) div 2);
+         end;
        end
   else begin
          w:=steps;
          w1:=steps / 2;
          POS:=Point(trunc(pos.x*power(2,x-GState.zoom_size)),trunc(pos.y*power(2,x-GState.zoom_size)));
-         if (move)and(abs(x-GState.zoom_size)=1) then
+         if (move)and(abs(x-GState.zoom_size)=1) then begin
            POS:=Point(pos.x-(mWd2-m_m.X),pos.y-(mHd2-m_m.y));
+           d_moveW:=(mWd2-m_m.X);
+           d_moveH:=(mHd2-m_m.Y);
+         end;
        end;
  LayerMapNal.Bitmap.Clear(clBlack);
  LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
- if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom)
-   then for i:=0 to steps do
-         begin
-          if (i>0) then if (GState.zoom_size>x) then sleep(15) else sleep(10);
-          if (move)and(GState.AnimateZoom) then
-           LayerMap.Location:=
+ if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
+   for i:=0 to steps-1 do begin
+     QueryPerformanceCounter(ts1);
+     if (move)
+      then LayerMap.Location:=
               floatrect(bounds(round(mWd2-pr_x-(pr_x/w*i)+((mWd2-m_m.X)/w1/2*i)),
                                round(mHd2-pr_y-(pr_y/w*i)+((mHd2-m_m.y)/w1/2*i)),
                                xhgpx+round(pr_x/w*i*2),yhgpx+round(pr_y/w*i*2)))
-           else
-             if (GState.AnimateZoom)and(not(move)) then
-              LayerMap.Location:=
+      else LayerMap.Location:=
               floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
                                xhgpx+round((pr_x/w)*i*2),yhgpx+round((pr_y/w)*i*2)));
               FillingMap.Location:=LayerMap.Location;
-          if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
-          application.ProcessMessages;
-         end;
+     if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
+     application.ProcessMessages;
+     QueryPerformanceCounter(ts2);
+     QueryPerformanceFrequency(fr);
+     ts1:=round((ts2-ts1)/(fr/1000));
+     if (i>0)and(22-ts1>0) then begin
+       sleep(22-ts1);
+     end;
+   end;
+   if GState.zoom_size<x
+    then LayerMap.Location:=floatrect(bounds(mWd2-pr_x*2+d_moveW,mHd2-pr_y*2+d_moveH,xhgpx*2,yhgpx*2))
+    else LayerMap.Location:=floatrect(bounds(mWd2-pr_x div 2-d_moveW,mHd2-pr_y div 2-d_moveH,xhgpx div 2,yhgpx div 2));
+   application.ProcessMessages;
+ end;
  GState.zoom_size:=x;
  generate_im(nilLastLoad,'');
  MapZoomAnimtion:=0;
