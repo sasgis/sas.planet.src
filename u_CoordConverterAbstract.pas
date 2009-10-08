@@ -25,19 +25,17 @@ type
     function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint; stdcall;
     // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; stdcall;
-    // ѕреобразует позицию тайла заданного зума в географические координаты его углов
-    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
-    // ѕреобразует координаты тайла в географические координаты
-    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ѕреобразует координаты тайла в относительные координаты на карте (x/PixelsAtZoom)
     function TilePos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2RelativeRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
     // вычисл€ет координты пикселей вершин пр€моугольника тайлов
     function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; stdcall;
+    // ѕреобразует координаты тайла в географические координаты
+    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    // ѕреобразует позицию тайла заданного зума в географические координаты его углов
+    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
 
-    // ѕреобразует координаты пиксела в географические координаты
-    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ѕреобразует координаты пиксела в  координаты тайда cодержащего пиксель
     function PixelPos2TilePos(const XY : TPoint; Azoom : byte) : TPoint; stdcall;
     // ѕреобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
@@ -46,6 +44,8 @@ type
     function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; stdcall;
     // ѕреобразует координаты пр€моугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
+    // ѕреобразует координаты пиксела в географические координаты
+    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
 
     // ѕреобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
     function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
