@@ -27,6 +27,7 @@ type
     procedure Check_PixelRect2RelativeRect; virtual;
 
     procedure Check_Relative2Pixel; virtual;
+    procedure Check_Relative2Tile; virtual;
 
 
     procedure CheckConverter; virtual;
@@ -119,6 +120,14 @@ begin
   except
     on E: Exception do begin
       raise Exception.Create('Ошибка при тестировании функции Relative2Pixel:' + E.Message);
+    end;
+  end;
+
+  try
+    Check_Relative2Tile;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании функции Relative2Tile:' + E.Message);
     end;
   end;
 
@@ -322,6 +331,36 @@ begin
   if Res.X <> 1 shl 31 then
     raise Exception.Create('Z = 0. Ошибка в x координате');
   if Res.Y <> 1 shl 31 then
+    raise Exception.Create('Z = 0. Ошибка в y координате');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_Relative2Tile;
+var
+  Res: TPoint;
+  Source: TExtendedPoint;
+begin
+  Source.X := 1/256;
+  Source.Y := 1/500;
+  Res := FConverter.Relative2Tile(Source, 0);
+  if Res.X <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в x координате');
+  if Res.Y <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в y координате');
+
+  Source.X := 1;
+  Source.Y := 1;
+  Res := FConverter.Relative2Tile(Source, 0);
+  if Res.X <> 1 then
+    raise Exception.Create('Z = 0. Ошибка в x координате');
+  if Res.Y <> 1 then
+    raise Exception.Create('Z = 0. Ошибка в y координате');
+
+  Source.X := 1;
+  Source.Y := 1;
+  Res := FConverter.Relative2Tile(Source, 23);
+  if Res.X <> 1 shl 23 then
+    raise Exception.Create('Z = 0. Ошибка в x координате');
+  if Res.Y <> 1 shl 23 then
     raise Exception.Create('Z = 0. Ошибка в y координате');
 end;
 
