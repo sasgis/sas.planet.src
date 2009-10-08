@@ -69,6 +69,7 @@ uses
   unit1,
   UaddPoint,
   UaddLine,
+  UMapType,
   UaddPoly;
 
 {$R *.dfm}
@@ -108,8 +109,10 @@ begin
  Fmain.CDSmarks.First;
  while (not(Fmain.CDSmarks.Eof))and((Fmain.CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
-  ll1:=Point(FMain.Lon2X(Fmain.CDSmarkslonL.AsFloat),FMain.Lat2y(Fmain.CDSmarkslatT.AsFloat));
-  ll2:=Point(FMain.Lon2X(Fmain.CDSmarkslonR.AsFloat),FMain.Lat2y(Fmain.CDSmarkslatB.AsFloat));
+  LL1:=sat_map_both.FCoordConverter.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonL.AsFloat,Fmain.CDSmarkslatT.AsFloat),GState.zoom_size-1);
+  LL1:=Point(mWd2-(FMain.pos.x-LL1.x),mHd2-(FMain.pos.y-LL1.y));
+  LL2:=sat_map_both.FCoordConverter.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonR.AsFloat,Fmain.CDSmarkslatB.AsFloat),GState.zoom_size-1);
+  LL2:=Point(mWd2-(FMain.pos.x-LL2.x),mHd2-(FMain.pos.y-LL2.y));
   if (xy.x+8>ll1.x)and(xy.x-8<ll2.x)and(xy.y+16>ll1.y)and(xy.y-16<ll2.y) then
   begin
     ms:=TMemoryStream.Create;
@@ -120,10 +123,10 @@ begin
     SetLength(arLL,ms.size div 24);
     setlength(poly,ms.size div 24);
     for i:=0 to length(arLL)-1 do begin
-                                   arLL[i].x:=Fmain.Lon2X(arrLL^[i].x);
-                                   arLL[i].y:=Fmain.Lat2y(arrLL^[i].y);
-                                   poly[i]:=arrLL^[i];
-                                  end;
+      arLL[i]:=sat_map_both.FCoordConverter.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
+      arLL[i]:=Point(mWd2-(FMain.pos.x-arLL[i].x),mHd2-(FMain.pos.y-arLL[i].y));
+      poly[i]:=arrLL^[i];
+    end;
     if length(arLL)=1 then
      begin
       PWL.name:=Fmain.CDSmarksname.AsString;
