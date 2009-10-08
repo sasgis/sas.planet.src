@@ -31,6 +31,9 @@ type
     procedure Check_RelativeRect2PixelRect; virtual;
     procedure Check_RelativeRect2TileRect; virtual;
 
+    procedure Check_TilePos2LonLat; virtual;
+
+    procedure Check_TilePos2LonLat2TilePos; virtual;
 
     procedure CheckConverter; virtual;
   end;
@@ -149,6 +152,21 @@ begin
     end;
   end;
 
+  try
+    Check_TilePos2LonLat;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании функции TilePos2LonLat:' + E.Message);
+    end;
+  end;
+
+  try
+    Check_TilePos2LonLat2TilePos;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании двойного преобразования:' + E.Message);
+    end;
+  end;
 end;
 
 function TTesterCoordConverterAbstract.CheckExtended(E1,
@@ -448,6 +466,95 @@ begin
     raise Exception.Create('Z = 23. Ошибка в Right прямоугольника');
   if Res.Bottom <> 511 shl 14 - 1 then
     raise Exception.Create('Z = 23. Ошибка в Bottom прямоугольника');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_TilePos2LonLat;
+var
+  Res: TExtendedPoint;
+  Res1: TExtendedPoint;
+begin
+  Res := FConverter.TilePos2LonLat(Point(0, 0), 8);
+  Res1 := FConverter.Pos2LonLat(Point(0, 0), 8);
+  if not CheckExtended(Res.X, Res1.X) then
+    raise Exception.Create('Ошибка на Z=0');
+  if not CheckExtended(Res.Y, Res1.Y) then
+    raise Exception.Create('Ошибка на Z=0');
+
+  Res := FConverter.TilePos2LonLat(Point(1, 2), 8);
+  Res1 := FConverter.Pos2LonLat(Point(1, 2), 8);
+  if not CheckExtended(Res.X, Res1.X) then
+    raise Exception.Create('Ошибка на Z=0');
+  if not CheckExtended(Res.Y, Res1.Y) then
+    raise Exception.Create('Ошибка на Z=0');
+
+  Res := FConverter.TilePos2LonLat(Point(256, 256), 8);
+  Res1 := FConverter.Pos2LonLat(Point(256, 256), 8);
+  if not CheckExtended(Res.X, Res1.X) then
+    raise Exception.Create('Ошибка на Z=0');
+  if not CheckExtended(Res.Y, Res1.Y) then
+    raise Exception.Create('Ошибка на Z=0');
+
+  Res := FConverter.TilePos2LonLat(Point(255, 255), 8);
+  Res1 := FConverter.Pos2LonLat(Point(255, 255), 8);
+  if not CheckExtended(Res.X, Res1.X) then
+    raise Exception.Create('Ошибка на Z=0');
+  if not CheckExtended(Res.Y, Res1.Y) then
+    raise Exception.Create('Ошибка на Z=0');
+
+  Res := FConverter.TilePos2LonLat(Point(13123, 2231), 23);
+  Res1 := FConverter.Pos2LonLat(Point(13123, 2231), 23);
+  if not CheckExtended(Res.X, Res1.X) then
+    raise Exception.Create('Ошибка на Z=0');
+  if not CheckExtended(Res.Y, Res1.Y) then
+    raise Exception.Create('Ошибка на Z=0');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_TilePos2LonLat2TilePos;
+var
+  Source, Res: TPoint;
+  Zoom: byte;
+  VTemp: TExtendedPoint;
+  VTempOld: TExtendedPoint;
+  ResOld: TPoint;
+begin
+  Source := Point(10, 99);
+  Zoom := 8;
+  VTemp := FConverter.TilePos2LonLat(Source, Zoom);
+  VTempOld := FConverter.Pos2LonLat(Source, Zoom);
+  Res := FConverter.LonLat2TilePos(VTemp, Zoom);
+  ResOld := FConverter.LonLat2Pos(VTempOld, Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 0. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 0. Ошибка в x координате Y');
+
+  Zoom := 10;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 10. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 10. Ошибка в x координате Y');
+
+  Zoom := 14;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 14. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 14. Ошибка в x координате Y');
+
+  Zoom := 20;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 20. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 20. Ошибка в x координате Y');
+
+  Zoom := 23;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 23. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 23. Ошибка в x координате Y');
 end;
 
 procedure TTesterCoordConverterAbstract.Check_TilePos2PixelPos;

@@ -169,7 +169,7 @@ end;
 function TCoordConverterAbstract.Pos2OtherMap(XY: TPoint; Azoom: byte;
   AOtherMapCoordConv: ICoordConverter): TPoint;
 begin
-  if (AOtherMapCoordConv = nil) then begin
+  if (Self = nil) or (AOtherMapCoordConv = nil) then begin
     Result := XY;
   end else begin
     Result := AOtherMapCoordConv.LonLat2Pos(Pos2LonLat(XY, Azoom), Azoom);
@@ -178,12 +178,8 @@ end;
 
 function TCoordConverterAbstract.TilePos2LonLatRect(const XY: TPoint;
   Azoom: byte): TExtendedRect;
-var
-  VRect: TRect;
 begin
-  VRect := TilePos2PixelRect(XY, Azoom);
-  Result.TopLeft := PixelPos2LonLat(VRect.TopLeft, Azoom);
-  Result.BottomRight := PixelPos2LonLat(VRect.BottomRight, Azoom);
+  Result := RelativeRect2LonLatRect(TilePos2RelativeRect(XY, Azoom));
 end;
 
 function TCoordConverterAbstract.PixelsAtZoom(AZoom: byte): Longint;
@@ -229,25 +225,25 @@ end;
 function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
   Azoom: byte): Tpoint;
 begin
-  Result := LonLat2Pos(LL, AZoom + 8);
+  Result := Relative2Pixel(LonLat2Relative(LL), AZoom);
 end;
 
 function TCoordConverterAbstract.LonLat2TilePos(const Ll: TExtendedPoint;
   Azoom: byte): Tpoint;
 begin
-  Result := LonLat2Pos(LL, AZoom);
+  Result := Relative2Tile(LonLat2Relative(LL), AZoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2LonLat(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 begin
-  Result := Pos2LonLat(XY, Azoom + 8);
+  Result := Relative2LonLat(PixelPos2LonLat(XY, Azoom));
 end;
 
 function TCoordConverterAbstract.TilePos2LonLat(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 begin
-  Result := Pos2LonLat(XY, Azoom);
+  Result := Relative2LonLat(TilePos2Relative(XY, Azoom));
 end;
 
 function TCoordConverterAbstract.TilePos2Relative(const XY: TPoint;
