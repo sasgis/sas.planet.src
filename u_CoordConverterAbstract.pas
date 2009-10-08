@@ -30,11 +30,11 @@ type
     // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2RelativeRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
     // вычисляет координты пикселей вершин прямоугольника тайлов
-    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; stdcall;
+    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
     // Преобразует координаты тайла в географические координаты
-    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
+    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;//TODO: Автотест
     // Преобразует позицию тайла заданного зума в географические координаты его углов
-    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;
+    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; stdcall;//TODO: Автотест
 
     // Преобразует координаты пиксела в  координаты тайда cодержащего пиксель
     function PixelPos2TilePos(const XY : TPoint; Azoom : byte) : TPoint; stdcall;
@@ -45,29 +45,29 @@ type
     // Преобразует координаты прямоугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
     // Преобразует координаты пиксела в географические координаты
-    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
-
-    // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
-    function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
-    // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
-    function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
-    // Преобразует географические коодинаты в относительные координаты на карте
-    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; stdcall;
-    // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
-    function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; stdcall;
+    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;//TODO: Автотест
 
     // Перобразует относительные координаты на карте в координаты пиксела
     function Relative2Pixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
     // Перобразует относительные координаты на карте в координаты тайла
     function Relative2Tile(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
     // Перобразует относительные координаты на карте в географические
-    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; stdcall;
-    // Перобразует прямоугольник с относительными координатами на карте в географические
-    function RelativeRect2LonLatRect(const XY : TExtendedRect): TExtendedRect; stdcall;
-    // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
-    function RelativeRect2TileRect(const XY : TExtendedRect; Azoom : byte) : TRect; stdcall;
+    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
     // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
     function RelativeRect2PixelRect(const XY : TExtendedRect; Azoom : byte) : TRect; stdcall;
+    // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
+    function RelativeRect2TileRect(const XY : TExtendedRect; Azoom : byte) : TRect; stdcall;
+    // Перобразует прямоугольник с относительными координатами на карте в географические
+    function RelativeRect2LonLatRect(const XY : TExtendedRect): TExtendedRect; stdcall;//TODO: Автотест
+
+    // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
+    function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;//TODO: Автотест
+    // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
+    function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;//TODO: Автотест
+    // Преобразует географические коодинаты в относительные координаты на карте
+    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
+    // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
+    function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; stdcall;//TODO: Автотест
 
     function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
@@ -119,7 +119,7 @@ type
   end;
 
 const
-  CTileRelativeEpsilon = 1/(1 shl 30 + (1 shl 30 - 1));
+  CTileRelativeEpsilon = (1/(1 shl 30 + (1 shl 30 - 1)))/2;
 
 implementation
 

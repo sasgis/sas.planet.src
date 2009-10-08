@@ -28,6 +28,8 @@ type
 
     procedure Check_Relative2Pixel; virtual;
     procedure Check_Relative2Tile; virtual;
+    procedure Check_RelativeRect2PixelRect; virtual;
+    procedure Check_RelativeRect2TileRect; virtual;
 
 
     procedure CheckConverter; virtual;
@@ -128,6 +130,22 @@ begin
   except
     on E: Exception do begin
       raise Exception.Create('Ошибка при тестировании функции Relative2Tile:' + E.Message);
+    end;
+  end;
+
+  try
+    Check_RelativeRect2PixelRect;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании функции RelativeRect2PixelRect:' + E.Message);
+    end;
+  end;
+
+  try
+    Check_RelativeRect2TileRect;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании функции RelativeRect2TileRect:' + E.Message);
     end;
   end;
 
@@ -362,6 +380,74 @@ begin
     raise Exception.Create('Z = 0. Ошибка в x координате');
   if Res.Y <> 1 shl 23 then
     raise Exception.Create('Z = 0. Ошибка в y координате');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_RelativeRect2PixelRect;
+var
+  Res: TRect;
+  Source: TExtendedRect;
+begin
+  Source.Left := 0;
+  Source.Top := 1/256;
+  Source.Right := 1;
+  Source.Bottom := 511/512;
+  Res := FConverter.RelativeRect2PixelRect(Source, 0);
+  if Res.Left <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в Left прямоугольника');
+  if Res.Top <> 1 then
+    raise Exception.Create('Z = 0. Ошибка в Top прямоугольника');
+  if Res.Right <> 255 then
+    raise Exception.Create('Z = 0. Ошибка в Right прямоугольника');
+  if Res.Bottom <> 255 then
+    raise Exception.Create('Z = 0. Ошибка в Bottom прямоугольника');
+
+  Source.Left := 0;
+  Source.Top := 1/256;
+  Source.Right := 1;
+  Source.Bottom := 511/512;
+  Res := FConverter.RelativeRect2PixelRect(Source, 23);
+  if Res.Left <> 0 then
+    raise Exception.Create('Z = 23. Ошибка в Left прямоугольника');
+  if Res.Top <> 1 shl 23 then
+    raise Exception.Create('Z = 23. Ошибка в Top прямоугольника');
+  if Res.Right <> 2147483647 then
+    raise Exception.Create('Z = 23. Ошибка в Right прямоугольника');
+  if Res.Bottom <> 511 shl 22 - 1 then
+    raise Exception.Create('Z = 23. Ошибка в Bottom прямоугольника');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_RelativeRect2TileRect;
+var
+  Res: TRect;
+  Source: TExtendedRect;
+begin
+  Source.Left := 0;
+  Source.Top := 1/256;
+  Source.Right := 1;
+  Source.Bottom := 511/512;
+  Res := FConverter.RelativeRect2TileRect(Source, 0);
+  if Res.Left <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в Left прямоугольника');
+  if Res.Top <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в Top прямоугольника');
+  if Res.Right <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в Right прямоугольника');
+  if Res.Bottom <> 0 then
+    raise Exception.Create('Z = 0. Ошибка в Bottom прямоугольника');
+
+  Source.Left := 0;
+  Source.Top := 1/256;
+  Source.Right := 1;
+  Source.Bottom := 511/512;
+  Res := FConverter.RelativeRect2TileRect(Source, 23);
+  if Res.Left <> 0 then
+    raise Exception.Create('Z = 23. Ошибка в Left прямоугольника');
+  if Res.Top <> 1 shl 15 then
+    raise Exception.Create('Z = 23. Ошибка в Top прямоугольника');
+  if Res.Right <> 1 shl 23 - 1 then
+    raise Exception.Create('Z = 23. Ошибка в Right прямоугольника');
+  if Res.Bottom <> 511 shl 14 - 1 then
+    raise Exception.Create('Z = 23. Ошибка в Bottom прямоугольника');
 end;
 
 procedure TTesterCoordConverterAbstract.Check_TilePos2PixelPos;
