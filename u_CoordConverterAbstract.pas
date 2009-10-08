@@ -13,6 +13,7 @@ type
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
+    function LonLat2Posf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ?????????
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; stdcall;
 
@@ -47,6 +48,7 @@ type
 
     // ѕреобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
     function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
+    function LonLat2PixelPosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
     // ѕреобразует географические коодинаты в относительные координаты на карте
@@ -73,6 +75,7 @@ type
   public
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall; abstract;
+    function LonLat2Posf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
 
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
@@ -94,6 +97,7 @@ type
 
 
     function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
+    function LonLat2PixelPosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
     function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
@@ -208,6 +212,12 @@ function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
   Azoom: byte): Tpoint;
 begin
   Result := LonLat2Pos(LL, AZoom + 8);
+end;
+
+function TCoordConverterAbstract.LonLat2PixelPosf(const Ll: TExtendedPoint;
+  Azoom: byte): TExtendedPoint;
+begin
+  Result := LonLat2Posf(LL, AZoom + 8);
 end;
 
 function TCoordConverterAbstract.LonLat2TilePos(const Ll: TExtendedPoint;

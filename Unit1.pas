@@ -487,8 +487,6 @@ type
    procedure generate_im(lastload:TLastLoad;err:string);
    function  toSh:string;
 class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
-   function  Lon2Xf(Lon:real):real;
-   function  Lat2Yf(lat:real):real;
    procedure topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
    procedure zooming(x:byte;move:boolean);
 class   function  timezone(lon,lat:real):TDateTime;
@@ -699,10 +697,10 @@ begin
  Polygon.Antialiased := true;
  polygon.AntialiasMode:=am4times;
 
-  ke:=extpoint(Fmain.Lon2Xf(ll.x),Fmain.lat2Yf(ll.y));
-  ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
+  ke:=sat_map_both.FCoordConverter.LonLat2PixelPosf(ll,GState.zoom_size-1);
+  ke:=ExtPoint(pr_x-(FMain.pos.x-ke.x),pr_y-(FMain.pos.y-ke.y));
   pe:=Point(round(ke.x),round(ke.y));
-  ks:=extPoint(pr_x,pr_y);
+  ks:=ExtPoint(pr_x,pr_y);
   dl:=GState.GPS_ArrowSize;
   if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
@@ -714,12 +712,12 @@ begin
   ke.y:=Round((R*kE.y+(D-R)*kS.Y)/D);
   Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
   Angle:=ArcTan(TanOfAngle)+0.28;
-  if ks.X < ke.X then Angle:=Angle+Pi;
+  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   Angle:=ArcTan(TanOfAngle)-0.28;
-  if ks.X < ke.X then Angle:=Angle+Pi;
+  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-  if D>dl+1
+  if D>dl
    then Polygon.DrawFill(LayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
    else begin
          LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
@@ -1327,10 +1325,14 @@ begin
 
  if length(GState.GPS_TrackPoints)>1 then
  try
-  ke:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].x),lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].y));
-  ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
-  ks:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2].x),Lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2].y));
-  ks:=extPoint(ks.X+(pr_x-mWd2),ks.y+(pr_y-mHd2));
+  ke:=sat_map_both.FCoordConverter.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
+  ke:=ExtPoint(pr_x-(FMain.pos.x-ke.x),pr_y-(FMain.pos.y-ke.y));
+  ks:=sat_map_both.FCoordConverter.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
+  ks:=ExtPoint(pr_x-(FMain.pos.x-ks.x),pr_y-(FMain.pos.y-ks.y));
+//  ke:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].x),lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].y));
+//  ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
+//  ks:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2].x),Lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2].y));
+//  ks:=extPoint(ks.X+(pr_x-mWd2),ks.y+(pr_y-mHd2));
   dl:=GState.GPS_ArrowSize;
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
   if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
@@ -1342,10 +1344,12 @@ begin
   ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
   Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
   Angle:=ArcTan(TanOfAngle)+0.28;
-  if ks.X < ke.X then Angle:=Angle+Pi;
+  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
+//  if ks.X < ke.X then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   Angle:=ArcTan(TanOfAngle)-0.28;
-  if ks.X < ke.X then Angle:=Angle+Pi;
+  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
+//  if ks.X < ke.X then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
  except
@@ -1353,10 +1357,10 @@ begin
 
  if length(GState.GPS_TrackPoints)>0 then
   begin
-   ke:=extpoint(Lon2Xf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].x),lat2Yf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1].y));
-   ke:=extPoint(ke.X+(pr_x-mWd2),ke.y+(pr_y-mHd2));
+   k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
+   k1:=Point(pr_x-(FMain.pos.x-k1.x),pr_y-(FMain.pos.y-k1.y));
    SizeTrackd2:=GState.GPS_ArrowSize div 6;
-   LayerMapGPS.Bitmap.FillRectS(round(ke.x-SizeTrackd2),round(ke.y-SizeTrackd2),round(ke.x+SizeTrackd2),round(ke.y+SizeTrackd2),SetAlpha(clRed32, 200));
+   LayerMapGPS.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
   end;
 
  s_speed:=RoundEx(GPSpar.speed,2)+' ('+RoundEx(GPSpar.sspeed,1)+') '+SAS_UNITS_kmperh;
@@ -1676,29 +1680,6 @@ begin
  prH:=trunc(tz);
  prM:=round(60*frac(TZ));
  result:=EncodeTime(abs(st.wHour+prH+24)mod 24,abs(st.wMinute+prM+60)mod 60,0,0);
-end;
-
-function TFmain.Lon2Xf(lon:real):real;
-begin
- result:=mWd2-(POS.x-(zoom[GState.zoom_size]/2+Lon*(zoom[GState.zoom_size]/360)));
-end;
-
-function TFmain.Lat2Yf(lat:real):real;
-var z,c:real;
-begin
- case sat_map_both.projection of
-  1: begin
-      z:=sin(Lat*D2R);
-      c:=(zoom[GState.zoom_size]/(2*Pi));
-      result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-0.5*ln((1+z)/(1-z))*c));
-     end;
-  2: begin
-      z:=sin(Lat*D2R);
-      c:=(zoom[GState.zoom_size]/(2*Pi));
-      result:=mHd2-(POS.y-(zoom[GState.zoom_size]/2-c*(ArcTanh(z)-sat_map_both.exct*ArcTanh(sat_map_both.exct*z)) ) )
-     end;
-  3: result:=(mWd2-(POS.y-(zoom[GState.zoom_size]/2+Lat*(zoom[GState.zoom_size]/360))));
- end;
 end;
 
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
