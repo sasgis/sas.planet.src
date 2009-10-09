@@ -28,7 +28,7 @@ uses
   Math;
   
 const
-  MerkElipsK=0.0000001;
+  MerkElipsK=0.000000001;
 
 { TCoordConverterMercatorOnEllipsoid }
 
