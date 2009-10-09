@@ -32,14 +32,14 @@ begin
       Mask:=(1 shl (Z-15))-1;
       Num:=(((X shr 15) and Mask) shl 4)+(((Y shr 15) and Mask));
       result:=result+IntToHex(Num,2)+'\';
-    end else
+    end;
     if(Z>11) then
     begin
       Mask:=(1 shl (Z-11))-1;
       Mask:=Mask and $F;
       Num:=(((X shr 11) and Mask) shl 4)+(((Y shr 11) and Mask));
       result:=result+IntToHex(Num,2)+'\';
-    end else
+    end;
     if(Z>7) then
     begin
       Mask:=(1 shl (Z-7))-1;

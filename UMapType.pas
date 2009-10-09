@@ -553,7 +553,7 @@ begin
  if (CacheType=0) then ct:=GState.DefCache
                        else ct:=CacheType;
  result := NameInCache;
- if (result[2]<>'\')and(system.pos(':',result)=0) then begin
+ if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0)) then begin
    case ct of
      1:
      begin
@@ -577,7 +577,7 @@ begin
      end;
    end;
  end;
- if (result[2]<>'\')and(system.pos(':',result)=0)
+ if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0))
    then result:=GState.ProgramPath+result;
 end;
 

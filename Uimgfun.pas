@@ -58,7 +58,7 @@ begin
     Result:=TKernelResampler.Create;
     case AResampling of
       trtBox:
-        TKernelResampler(Result).Kernel:=TBoxKernel.Create;
+        result:=nil;
       trtCosine:
         TKernelResampler(Result).Kernel:=TCosineKernel.Create;
       trtSpline:

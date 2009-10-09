@@ -16,6 +16,7 @@ type
     constructor Create(Aradiusa: Extended);
     function Pos2LonLat(const AXY: TPoint; Azoom : byte): TExtendedPoint; override;
     function LonLat2Pos(const ALl: TExtendedPoint; Azoom: byte): Tpoint; override;
+    function LonLat2Posf(const ALl: TExtendedPoint; Azoom: byte): TExtendedPoint; override;
     function LonLat2Metr(const ALl: TExtendedPoint): TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
@@ -45,6 +46,20 @@ begin
   z := sin(VLl.y * Pi / 180);
   c := (TilesAtZoom / (2 * Pi));
   Result.y := round(TilesAtZoom / 2 - 0.5 * ln((1 + z) / (1 - z)) * c);
+end;
+
+function TCoordConverterMercatorOnSphere.LonLat2Posf(const ALl: TExtendedPoint; Azoom: byte): TExtendedPoint;
+var
+  TilesAtZoom : Integer;
+  z, c : Extended;
+  VLl: TExtendedPoint;
+begin
+  TilesAtZoom := (1 shl Azoom);
+  VLl := ALl;
+  Result.x := TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360);
+  z := sin(VLl.y * Pi / 180);
+  c := (TilesAtZoom / (2 * Pi));
+  Result.y := TilesAtZoom / 2 - 0.5 * ln((1 + z) / (1 - z)) * c;
 end;
 
 function TCoordConverterMercatorOnSphere.Pos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint;
