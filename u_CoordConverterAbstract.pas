@@ -199,31 +199,23 @@ end;
 function TCoordConverterAbstract.PixelPos2Relative(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 var
-  VPixelsAtZoom: Longint;
+  VPixelsAtZoom: Extended;
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
-  if VPixelsAtZoom < 0 then begin
-    Result.X := - XY.X / VPixelsAtZoom;
-    Result.Y := - XY.Y / VPixelsAtZoom;
-  end else begin
-    Result.X := XY.X / VPixelsAtZoom;
-    Result.Y := XY.Y / VPixelsAtZoom;
-  end;
+  VPixelsAtZoom := abs(VPixelsAtZoom);
+  Result.X := XY.X / VPixelsAtZoom;
+  Result.Y := XY.Y / VPixelsAtZoom;
 end;
 
 function TCoordConverterAbstract.Relative2Pixel(const XY: TExtendedPoint;
   Azoom: byte): TPoint;
 var
-  VPixelsAtZoom: Longint;
+  VPixelsAtZoom: Extended;
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
-  if VPixelsAtZoom < 0 then begin
-    Result.X := - Trunc(XY.X * VPixelsAtZoom);
-    Result.Y := - Trunc(XY.Y * VPixelsAtZoom);
-  end else begin
-    Result.X := Trunc(XY.X * VPixelsAtZoom);
-    Result.Y := Trunc(XY.Y * VPixelsAtZoom);
-  end;
+  VPixelsAtZoom := abs(VPixelsAtZoom);
+  Result.X := Trunc(XY.X * VPixelsAtZoom);
+  Result.Y := Trunc(XY.Y * VPixelsAtZoom);
 end;
 
 function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
@@ -247,7 +239,7 @@ end;
 function TCoordConverterAbstract.PixelPos2LonLat(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 begin
-  Result := Relative2LonLat(PixelPos2LonLat(XY, Azoom));
+  Result := Relative2LonLat(PixelPos2Relative(XY, Azoom));
 end;
 
 function TCoordConverterAbstract.TilePos2LonLat(const XY: TPoint;
@@ -259,7 +251,7 @@ end;
 function TCoordConverterAbstract.TilePos2Relative(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 var
-  VTilesAtZoom: Longint;
+  VTilesAtZoom: Extended;
 begin
   VTilesAtZoom := TilesAtZoom(Azoom);
   Result.X := XY.X / VTilesAtZoom;
@@ -269,7 +261,7 @@ end;
 function TCoordConverterAbstract.TilePos2RelativeRect(const XY: TPoint;
   Azoom: byte): TExtendedRect;
 var
-  VTilesAtZoom: Longint;
+  VTilesAtZoom: Extended;
 begin
   VTilesAtZoom := TilesAtZoom(Azoom);
   Result.Left := XY.X / VTilesAtZoom;
@@ -288,7 +280,7 @@ end;
 function TCoordConverterAbstract.Relative2Tile(const XY: TExtendedPoint;
   Azoom: byte): TPoint;
 var
-  VTilesAtZoom: Longint;
+  VTilesAtZoom: Extended;
 begin
   VTilesAtZoom := TilesAtZoom(Azoom);
   Result.X := Trunc(XY.X * VTilesAtZoom);
@@ -305,33 +297,27 @@ end;
 function TCoordConverterAbstract.RelativeRect2PixelRect(const XY: TExtendedRect;
   Azoom: byte): TRect;
 var
-  VPixelsAtZoom: Longint;
+  VPixelsAtZoom: Extended;
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
-  if VPixelsAtZoom < 0 then begin
-    Result.Left := -Trunc(XY.Left * VPixelsAtZoom);
-    Result.Top := -Trunc(XY.Top * VPixelsAtZoom);
+  VPixelsAtZoom := abs(VPixelsAtZoom);
 
-    Result.Right := -Trunc((XY.Right - CTileRelativeEpsilon) * VPixelsAtZoom);
-    Result.Bottom := -Trunc((XY.Bottom - CTileRelativeEpsilon) * VPixelsAtZoom);
-  end else begin
-    Result.Left := Trunc(XY.Left * VPixelsAtZoom);
-    Result.Top := Trunc(XY.Top * VPixelsAtZoom);
+  Result.Left := Trunc((XY.Left + CTileRelativeEpsilon) * VPixelsAtZoom);
+  Result.Top := Trunc((XY.Top + CTileRelativeEpsilon) * VPixelsAtZoom);
 
-    Result.Right := Trunc((XY.Right - CTileRelativeEpsilon) * VPixelsAtZoom);
-    Result.Bottom := Trunc((XY.Bottom - CTileRelativeEpsilon) * VPixelsAtZoom);
-  end;
+  Result.Right := Trunc((XY.Right - CTileRelativeEpsilon) * VPixelsAtZoom);
+  Result.Bottom := Trunc((XY.Bottom - CTileRelativeEpsilon) * VPixelsAtZoom);
 end;
 
 function TCoordConverterAbstract.RelativeRect2TileRect(const XY: TExtendedRect;
   Azoom: byte): TRect;
 var
-  VTilesAtZoom: Longint;
+  VTilesAtZoom: Extended;
 begin
   VTilesAtZoom := TilesAtZoom(Azoom);
 
-  Result.Left := Trunc(XY.Left * VTilesAtZoom);
-  Result.Top := Trunc(XY.Top * VTilesAtZoom);
+  Result.Left := Trunc((XY.Left + CTileRelativeEpsilon) * VTilesAtZoom);
+  Result.Top := Trunc((XY.Top + CTileRelativeEpsilon) * VTilesAtZoom);
 
   Result.Right := Trunc((XY.Right - CTileRelativeEpsilon) * VTilesAtZoom);
   Result.Bottom := Trunc((XY.Bottom - CTileRelativeEpsilon) * VTilesAtZoom);

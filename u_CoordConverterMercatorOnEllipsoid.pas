@@ -174,10 +174,9 @@ var
   zu, zum1, yy : extended;
   VXY: TExtendedPoint;
   VSin: Extended;
+  e_y: Extended;
 begin
   VXY := XY;
-  if VXY.x < 0 then VXY.x := VXY.x + 1;
-
   Result.X := (VXY.x - 0.5) * 360;
 
   if (VXY.y>0.5) then begin
@@ -187,11 +186,12 @@ begin
   end;
   yy := yy * (2*PI);
   Zu := 2 * arctan(exp(yy)) - PI / 2;
+  e_y := exp(2*yy);
   Result.Y := Zu * (180 / Pi);
   repeat
     Zum1 := Zu;
     VSin := Sin(Zum1);
-    Zu := arcsin(1-((1+VSin)*power(1-FExct*VSin,FExct))/(exp(2*yy)*power(1+FExct*VSin,FExct)));
+    Zu := arcsin(1 - (1 + VSin)*power((1 - FExct*VSin)/(1 + FExct*VSin),FExct)/e_y);
   until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
   if not(isNAN(Zu)) then begin
     if VXY.y>0.5 then begin

@@ -541,6 +541,13 @@ begin
     raise Exception.Create('Ошибка на Z=0');
   if not CheckExtended(Res.Y, Res1.Y) then
     raise Exception.Create('Ошибка на Z=0');
+
+  Res := FConverter.PixelPos2LonLat(Point(13123, 2231), 22);
+  Res1 := FConverter.Pos2LonLat(Point(13123, 2231), 30);
+  if not CheckExtended(Res.X, Res1.X) then
+    raise Exception.Create('Ошибка на Z=0');
+  if not CheckExtended(Res.Y, Res1.Y) then
+    raise Exception.Create('Ошибка на Z=0');
 end;
 
 procedure TTesterCoordConverterAbstract.Check_TilePos2LonLat2TilePos;
