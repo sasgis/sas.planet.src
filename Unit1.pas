@@ -1904,17 +1904,11 @@ end;
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
-    y_draw,x_draw,y_drawN,x_drawN,xx,yy,x_,x_1,y_,y_1,size,ii,jj:longint;
-    i,j,idr:byte;
-    Leyi,NinCache,xofs,yofs:integer;
-    AcrBuf:Tcursor;
+    y_draw,x_draw,y_drawN,x_drawN,xx,yy:longint;
+    i,j:byte;
+    Leyi:integer;
     posN:TPoint;
     ts2,ts3,fr:int64;
-    lok:string;
-    png:TPNGObject;
-    p:PColor32;
-    pbtm,pbtm2:PByte;
-    W,H:Integer;
 begin
  if notpaint then exit;
  QueryPerformanceCounter(ts2);
@@ -2020,7 +2014,7 @@ end;
 
 procedure TFmain.FormActivate(Sender: TObject);
 var
-     i,j,r:integer;
+     i,r:integer;
      xy,xy1:Tpoint;
      param:string;
      MainWindowMaximized: Boolean;
@@ -2401,8 +2395,7 @@ procedure TFmain.zooming(x:byte;move:boolean);
    end;
   end;
 var w,i,steps,d_moveH,d_moveW:integer;
-    w1,k:extended;
-    s:string;
+    w1:extended;
     ts1,ts2,fr:int64;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
@@ -2443,7 +2436,6 @@ begin
  LayerMapNal.Bitmap.Clear(clBlack);
  LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
- k:=0;
  if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
