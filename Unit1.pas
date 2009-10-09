@@ -538,7 +538,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='91001';
+  SASVersion='91009';
   CProgram_Lang_Default = LANG_RUSSIAN;
 //  ENU=LANG_ENGLISH;
 //  RUS=LANG_RUSSIAN;// $00000419;
@@ -1840,6 +1840,7 @@ var y_draw,x_draw,xx,yy,xx1,yy1:longint;
     src:TRect;
     drawcolor:TColor32;
     textoutx,textouty:string;
+    Sz1,Sz2: TSize;
     d2562,x2,x1,y1,zl,twidthx,twidthy,theight:integer;
 begin
  if zoom_line=99 then zl:=GState.zoom_size
@@ -1855,6 +1856,8 @@ begin
  if (pos.y-pr_y)>0 then yy1:=((pos.y-pr_y)-((pos.y-pr_y)mod 256))*x2
                    else yy1:=((pos.y-pr_y)-256-((pos.y-pr_y)mod 256))*x2;
  drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
+ LayerMap.bitmap.Font.Size:=8;
+ LayerMap.bitmap.Font.Name:='Arial';
  for i:=0 to hg_x*(x2)+(x_draw div d2562) do
   for j:=0 to hg_y*(x2)+(y_draw div d2562) do
     begin
@@ -1865,21 +1868,18 @@ begin
      y1:=(j*d2562)-y_draw;
      LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,drawcolor);
      LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,drawcolor);
-     x1:=(x1+d2562 div 2);
-     y1:=(y1+d2562 div 2);
+     x1:=(x1+d2562 shr 1);
+     y1:=(y1+d2562 shr 1);
      if (GState.ShowBorderText)and(x1>0)and(y1>0)and(x1<xhgpx)and(y1<yhgpx) then
        begin
-        LayerMap.bitmap.Font.Size:=8;
-        LayerMap.bitmap.Font.Name:='Arial';
-        textoutx:='x='+inttostr(((pos.x-pr_x+x1)*x2)div 256);
-        textouty:='y='+inttostr(((pos.y-pr_y+y1)*x2)div 256);
-        twidthx:=LayerMap.bitmap.TextWidth(textoutx) div 2;
-        twidthy:=LayerMap.bitmap.TextWidth(textouty) div 2;
-        if ((twidthx+6)<d2562)and((twidthy+6)<d2562) then
+        textoutx:='x='+inttostr(((pos.x-pr_x+x1)*x2) shr 8);
+        textouty:='y='+inttostr(((pos.y-pr_y+y1)*x2) shr 8);
+        Sz1:=LayerMap.bitmap.TextExtent(textoutx);
+        Sz2:=LayerMap.bitmap.TextExtent(textouty);
+        if ((Sz1.cx)<d2562)and(Sz2.cx<d2562) then
          begin
-          theight:=LayerMap.bitmap.TextHeight(textoutx);
-          LayerMap.bitmap.RenderText(x1-tWidthx,y1-theight,textoutx,0, drawcolor);
-          LayerMap.bitmap.RenderText(x1-tWidthy,y1,textouty,0,drawcolor);
+          LayerMap.bitmap.RenderText(x1-(Sz1.cx shr 1)+1,y1-Sz2.cy,textoutx,0, drawcolor);
+          LayerMap.bitmap.RenderText(x1-(Sz2.cx shr 1)+1,y1,textouty,0,drawcolor);
          end;
        end;
     end;
@@ -3798,7 +3798,7 @@ begin
      end;
    exit;
   end;
- if HiWord(GetKeyState(VK_F5))<>0 then
+ if HiWord(GetKeyState(VK_F6))<>0 then
   begin
    if FDGAvailablePic.Visible then FDGAvailablePic.setup
                               else FDGAvailablePic.Show;
