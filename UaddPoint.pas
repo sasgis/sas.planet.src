@@ -188,7 +188,7 @@ end;
 
 procedure TFaddPoint.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- if aoper=add_point then Fmain.setalloperationfalse(movemap);
+ if Fmain.aoper=ao_add_point then Fmain.setalloperationfalse(ao_movemap);
 end;
 
 procedure TFaddPoint.Button2Click(Sender: TObject);

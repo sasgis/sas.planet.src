@@ -16,6 +16,7 @@ type
     proxystr,loginstr,passstr:string;
   end;
 
+
   TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
 
 
@@ -104,6 +105,9 @@ type
 
     MapZapColor:TColor;
     MapZapAlpha:byte;
+
+    WikiMapMainColor:TColor;
+    WikiMapFonColor:TColor;
 
     InvertColor: boolean;
     // Число для гамма преобразования тайлов перед отображением

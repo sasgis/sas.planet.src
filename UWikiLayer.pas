@@ -168,11 +168,11 @@ begin
      AarrKt[i]:=Point(pr_x-(FMain.pos.x-AarrKt[i].x),pr_y-(FMain.pos.y-AarrKt[i].y));
    end;
    LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
-   LayerMapWiki.Bitmap.Canvas.Pen.Color:=Wikim_set.FonColor;
+   LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;
    if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
                             else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
    LayerMapWiki.Bitmap.Canvas.Pen.Width:=1;
-   LayerMapWiki.Bitmap.Canvas.Pen.Color:=Wikim_set.MainColor;
+   LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapMainColor;
    if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
                             else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
   end;

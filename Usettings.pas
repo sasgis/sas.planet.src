@@ -338,8 +338,8 @@ begin
 
  if Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
                        else GState.MainIni.WriteString('VIEW','FillingMap',Fillingmaptype.guids);
- GState.MainIni.Writeinteger('Wikimapia','MainColor',Wikim_set.MainColor);
- GState.MainIni.Writeinteger('Wikimapia','FonColor',Wikim_set.FonColor);
+ GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
+ GState.MainIni.Writeinteger('Wikimapia','FonColor',GState.WikiMapFonColor);
  GState.MainIni.Writeinteger('HOTKEY','ZoomIn',Fmain.NzoomIn.ShortCut);
  GState.MainIni.Writeinteger('HOTKEY','ZoomOut',Fmain.NzoomOut.ShortCut);
  GState.MainIni.Writeinteger('HOTKEY','GoTo',Fmain.N14.ShortCut);
@@ -526,8 +526,8 @@ begin
  GState.GammaN:=TrBarGamma.Position;
  GState.ContrastN:=TrBarContrast.Position;
  GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
- Wikim_set.MainColor:=CBWMainColor.Selected;
- Wikim_set.FonColor:=CBWFonColor.Selected;
+ GState.WikiMapMainColor:=CBWMainColor.Selected;
+ GState.WikiMapFonColor:=CBWFonColor.Selected;
  With Fmain do
  begin
  NzoomIn.ShortCut:=HotKey12.HotKey;
@@ -713,8 +713,8 @@ begin
  TrBarcontrast.Position:=GState.ContrastN;
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(GState.ContrastN)+')';
  ComboBox1.ItemIndex := byte(GState.num_format);
- CBWMainColor.Selected:=Wikim_set.MainColor;
- CBWFonColor.Selected:=Wikim_set.FonColor;
+ CBWMainColor.Selected:=GState.WikiMapMainColor;
+ CBWFonColor.Selected:=GState.WikiMapFonColor;
  With Fmain do
  begin
  HotKey12.HotKey:=NzoomIn.ShortCut;

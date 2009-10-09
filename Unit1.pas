@@ -76,13 +76,13 @@ type
   PArrLL = ^TArrLL;
 
   TAOperation = (
-    movemap,
-    add_line ,
-    add_poly,
-    add_point,
-    line,
-    rect,
-    reg
+    ao_movemap,
+    ao_add_line ,
+    ao_add_poly,
+    ao_add_point,
+    ao_line,
+    ao_rect,
+    ao_reg
   );
 
   TFmain = class(TForm)
@@ -470,16 +470,21 @@ type
   protected
    Flock_toolbars:boolean;
    notpaint: boolean;
+   rect_dwn: Boolean;
+   rect_p2:boolean;
    FTileSource:TTileSource;
    FPos:TPoint;
    LayerStatBar: TBitmapLayer;
    dWhenMovingButton:integer;
+   LenShow: boolean;
+   RectWindow:TRect;
   public
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
    change_scene:boolean;
    ProgramStart: Boolean;
    ProgramClose: Boolean;
+   aoper:TAOperation;
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
@@ -514,11 +519,6 @@ class   procedure delfrompath(pos:integer);
    procedure SetStatusBarVisible();
    procedure SetLineScaleVisible(visible:boolean);
    procedure SetMiniMapVisible(visible:boolean);
-  end;
-
-  TWikim_set = record
-   MainColor:TColor;
-   FonColor:TColor;
   end;
 
   TGPSpar = record
@@ -567,18 +567,13 @@ var
   pr_x,
   pr_y:integer;
   move,m_up,m_m,moveTrue:Tpoint;
-  LenShow: boolean;
   Gspr:TBitmap32;
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
-  rect_dwn,rect_p2:boolean;
-  aoper:TAOperation;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
-  RectWindow:TRect=(Left:0;Top:0;Right:0;Bottom:0);
   THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   curBuf:TCursor;
-  Wikim_set:TWikim_set;
   nilLastLoad:TLastLoad;
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
@@ -943,21 +938,21 @@ end;
 
 procedure TFmain.setalloperationfalse(newop:TAOperation);
 begin
- if aoper=newop then newop:=movemap;
+ if aoper=newop then newop:=ao_movemap;
  LayerMapNal.Bitmap.Clear(clBlack);
  marshrutcomment:='';
- LayerMapNal.Visible:=newop<>movemap;
- TBmove.Checked:=newop=movemap;
- TBCalcRas.Checked:=newop=line;
- TBRectSave.Checked:=(newop=reg)or(newop=rect);
- TBAdd_Point.Checked:=newop=Add_Point;
- TBAdd_Line.Checked:=newop=Add_line;
- TBAdd_Poly.Checked:=newop=Add_Poly;
+ LayerMapNal.Visible:=newop<>ao_movemap;
+ TBmove.Checked:=newop=ao_movemap;
+ TBCalcRas.Checked:=newop=ao_line;
+ TBRectSave.Checked:=(newop=ao_reg)or(newop=ao_rect);
+ TBAdd_Point.Checked:=newop=ao_Add_Point;
+ TBAdd_Line.Checked:=newop=ao_Add_line;
+ TBAdd_Poly.Checked:=newop=ao_Add_Poly;
  TBEditPath.Visible:=false;
- TBEditPathSave.Visible:=(newop=Add_line)or(newop=Add_Poly);
- TBEditPathOk.Visible:=(newop=reg);
- TBEditPathLabel.Visible:=(newop=line);
- TBEditPathMarsh.Visible:=(newop=Add_line);
+ TBEditPathSave.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly);
+ TBEditPathOk.Visible:=(newop=ao_reg);
+ TBEditPathLabel.Visible:=(newop=ao_line);
+ TBEditPathMarsh.Visible:=(newop=ao_Add_line);
  rect_dwn:=false;
  setlength(length_arr,0);
  setlength(add_line_arr,0);
@@ -965,10 +960,10 @@ begin
  rect_p2:=false;
  lastpoint:=-1;
  case newop of
-  movemap:  map.Cursor:=crDefault;
-  line:     map.Cursor:=2;
-  reg,rect: map.Cursor:=crDrag;
-  Add_Point,Add_Poly,Add_Line: map.Cursor:=4;
+  ao_movemap:  map.Cursor:=crDefault;
+  ao_line:     map.Cursor:=2;
+  ao_reg,ao_rect: map.Cursor:=crDrag;
+  ao_Add_Point,ao_Add_Poly,ao_Add_Line: map.Cursor:=4;
  end;
  aoper:=newop;
 end;
@@ -1015,63 +1010,63 @@ begin
                 end;
    WM_KEYUP:begin
              dWhenMovingButton:=5;
-             if (Msg.wParam=VK_Delete)and(aoper=line) then
+             if (Msg.wParam=VK_Delete)and(aoper=ao_line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
                 drawLineCalc;
                end;
-             if (Msg.wParam=VK_Delete)and(aoper=reg) then
+             if (Msg.wParam=VK_Delete)and(aoper=ao_reg) then
                begin
                 if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
                 drawReg;
                end;
-             if (Msg.wParam=VK_Delete)and(aoper in [add_line,add_poly]) then
+             if (Msg.wParam=VK_Delete)and(aoper in [ao_add_line,ao_add_poly]) then
               if length(add_line_arr)>0 then
                begin
                 delfrompath(lastpoint);
-                drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
+                drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
                end;
-             if (Msg.wParam=VK_ESCAPE)and(aoper=Reg) then
+             if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Reg) then
               if length(reg_arr)=0 then TBmoveClick(self)
                                    else begin
                                          setlength(reg_arr,0);
                                          drawreg;
                                         end;
-             if (Msg.wParam=VK_ESCAPE)and(aoper=line) then
+             if (Msg.wParam=VK_ESCAPE)and(aoper=ao_line) then
               if length(length_arr)=0 then TBmoveClick(self)
                                       else begin
                                             setlength(length_arr,0);
                                             drawLineCalc;
                                            end;
-             if (Msg.wParam=VK_ESCAPE)and(aoper=rect) then
+             if (Msg.wParam=VK_ESCAPE)and(aoper=ao_rect) then
               begin
                if rect_dwn then begin
-                                 setalloperationfalse(movemap);
-                                 setalloperationfalse(rect);
+                                 setalloperationfalse(ao_movemap);
+                                 setalloperationfalse(ao_rect);
                                 end
-                           else setalloperationfalse(movemap);     
+                           else setalloperationfalse(ao_movemap);
               end;
-             if (Msg.wParam=VK_ESCAPE)and(aoper=Add_Point) then setalloperationfalse(movemap);
-             if (Msg.wParam=VK_ESCAPE)and(aoper in [add_line,add_poly]) then
-               if length(add_line_arr)=0 then setalloperationfalse(movemap)
+             if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Add_Point) then setalloperationfalse(ao_movemap);
+             if (Msg.wParam=VK_ESCAPE)and(aoper in [ao_add_line,ao_add_poly]) then
+               if length(add_line_arr)=0 then setalloperationfalse(ao_movemap)
                                          else begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
-                                               drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
+                                               drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
-             if (Msg.wParam=13)and(aoper=add_Poly)and(length(add_line_arr)>1) then
+             if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
               begin
                if FaddPoly.show_(add_line_arr,true) then
                 begin
-                 setalloperationfalse(movemap);
+                 setalloperationfalse(ao_movemap);
                  generate_im(nilLastLoad,'');
                 end; 
               end;
-             if (Msg.wParam=13)and(aoper=add_line)and(length(add_line_arr)>1) then
+             if (Msg.wParam=13)and(aoper=ao_add_line)and(length(add_line_arr)>1) then
               begin
                if FaddLine.show_(add_line_arr,true) then
                 begin
-                 setalloperationfalse(movemap);
+                 setalloperationfalse(ao_movemap);
                  generate_im(nilLastLoad,'');
                 end;
               end;
@@ -1925,7 +1920,7 @@ begin
  x_draw:=(256+((pos.x-pr_x)mod 256))mod 256;
  LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  LayerMap.Bitmap.Clear(clSilver);
- if aoper<>movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
  destroyWL;
 
@@ -1992,11 +1987,11 @@ begin
  if not(lastload.use) then
    begin
     paint_Line;
-    if aoper=line then drawLineCalc;
-    if aoper=reg then drawReg;
-    if aoper=rect then drawRect([]);
+    if aoper=ao_line then drawLineCalc;
+    if aoper=ao_reg then drawReg;
+    if aoper=ao_rect then drawRect([]);
     if GState.GPS_enab then drawLineGPS;
-    if aoper in [add_line,add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
+    if aoper in [ao_add_line,ao_add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
     try
      draw_point;
     except
@@ -2020,6 +2015,7 @@ var
      MainWindowMaximized: Boolean;
 begin
  if ProgramStart=false then exit;
+ RectWindow := Types.Rect(0, 0, 0, 0);
  Enabled:=false;
  dWhenMovingButton := 5;
  GMiniMapPopupMenu := PopupMSmM;
@@ -2251,8 +2247,8 @@ begin
  GState.MainFileCache.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
- Wikim_set.MainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
- Wikim_set.FonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
+ GState.WikiMapMainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
+ GState.WikiMapFonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
  GState.GammaN:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
  GState.ContrastN:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
@@ -2497,7 +2493,7 @@ end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
 begin
- setalloperationfalse(movemap);
+ setalloperationfalse(ao_movemap);
 end;
 
 procedure TFmain.TBZoom_outClick(Sender: TObject);
@@ -2784,20 +2780,20 @@ procedure TFmain.TBREGIONClick(Sender: TObject);
 begin
  TBRectSave.ImageIndex:=9;
  TBRectSave.Checked:=true;
- setalloperationfalse(reg);
+ setalloperationfalse(ao_reg);
 end;
 
 procedure TFmain.TBRECTClick(Sender: TObject);
 begin
  TBRectSave.ImageIndex:=6;
  TBRectSave.Checked:=true;
- setalloperationfalse(rect);
+ setalloperationfalse(ao_rect);
 end;
 
 procedure TFmain.TBRectSaveClick(Sender: TObject);
 begin
- if TBRectSave.ImageIndex=6 then setalloperationfalse(rect)
-                            else setalloperationfalse(reg)
+ if TBRectSave.ImageIndex=6 then setalloperationfalse(ao_rect)
+                            else setalloperationfalse(ao_reg)
 end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
@@ -2823,7 +2819,7 @@ end;
 
 procedure TFmain.TBCalcRasClick(Sender: TObject);
 begin
- setalloperationfalse(line);
+ setalloperationfalse(ao_line);
 end;
 
 procedure TFmain.NCiclMapClick(Sender: TObject);
@@ -3198,7 +3194,7 @@ begin
  if length(GState.GPS_TrackPoints)>1 then begin
                             if FaddLine.show_(GState.GPS_TrackPoints,true) then
                              begin
-                              setalloperationfalse(movemap);
+                              setalloperationfalse(ao_movemap);
                               generate_im(nilLastLoad,'');
                              end; 
                            end
@@ -3439,7 +3435,7 @@ procedure TFmain.mapDblClick(Sender: TObject);
 var r:TPoint;
 begin
  MapMoving:=false;
- if (aoper=movemap) then
+ if (aoper=ao_movemap) then
   begin
    r:=map.ScreenToClient(Mouse.CursorPos);
    POS:=Point(pos.x+(r.x-mWd2),pos.y+(r.y-mHd2));
@@ -3449,17 +3445,17 @@ end;
 
 procedure TFmain.TBAdd_PointClick(Sender: TObject);
 begin
- setalloperationfalse(add_point);
+ setalloperationfalse(ao_add_point);
 end;
 
 procedure TFmain.TBAdd_LineClick(Sender: TObject);
 begin
- setalloperationfalse(add_Line);
+ setalloperationfalse(ao_add_Line);
 end;
 
 procedure TFmain.TBAdd_PolyClick(Sender: TObject);
 begin
- setalloperationfalse(add_poly);
+ setalloperationfalse(ao_add_poly);
 end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
@@ -3683,19 +3679,19 @@ begin
     or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
  Screen.ActiveForm.SetFocusedControl(map);
  Layer.Cursor:=curBuf;
- if (Button=mbLeft)and(aoper<>movemap) then
+ if (Button=mbLeft)and(aoper<>ao_movemap) then
   begin
-   if (aoper=line)then begin
+   if (aoper=ao_line)then begin
                   setlength(length_arr,length(length_arr)+1);
                   length_arr[length(length_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                   drawLineCalc;
                  end;
-   if (aoper=Reg) then begin
+   if (aoper=ao_Reg) then begin
                   setlength(reg_arr,length(reg_arr)+1);
                   reg_arr[length(reg_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                   drawReg;
                  end;
-   if (aoper=rect)then begin
+   if (aoper=ao_rect)then begin
                   if rect_dwn then begin
                                     rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                                     rect_p2:=true;
@@ -3707,8 +3703,8 @@ begin
                   rect_dwn:=not(rect_dwn);
                   drawRect(Shift);
                  end;
-   if (aoper=add_point)and(FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1),true)) then generate_im(nilLastLoad,'');
-   if (aoper in [add_line,add_poly]) then
+   if (aoper=ao_add_point)and(FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1),true)) then generate_im(nilLastLoad,'');
+   if (aoper in [ao_add_line,ao_add_poly]) then
       begin
         for i:=0 to length(add_line_arr)-1 do begin
          xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(add_line_arr[i],GState.zoom_size-1);
@@ -3716,7 +3712,7 @@ begin
          if (X<xy.x+5)and(X>xy.x-5)and(Y<xy.y+5)and(Y>xy.y-5) then begin
            movepoint:=i;
            lastpoint:=i;
-           drawPath(add_line_arr,true,SetAlpha(ClRed32,150),SetAlpha(ClWhite32,50),3,aoper=add_poly);
+           drawPath(add_line_arr,true,SetAlpha(ClRed32,150),SetAlpha(ClWhite32,50),3,aoper=ao_add_poly);
            exit;
          end;
         end;
@@ -3724,12 +3720,12 @@ begin
         movepoint:=lastpoint;
         insertinpath(lastpoint);
         add_line_arr[lastpoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
-        drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
+        drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
       end;
    exit;
   end;
  if MapMoving then exit;
- if (Button=mbright)and(aoper=movemap)
+ if (Button=mbright)and(aoper=ao_movemap)
   then begin
         m_up:=point(x,y);
         PWL.find:=false;
@@ -3798,8 +3794,8 @@ begin
   end;
 
  if movepoint>-1 then begin movepoint:=-1; end;
- if (((aoper<>movemap)and(Button=mbLeft))or
-     ((aoper=movemap)and(Button=mbRight))) then exit;
+ if (((aoper<>ao_movemap)and(Button=mbLeft))or
+     ((aoper=ao_movemap)and(Button=mbRight))) then exit;
 // m_up:=move;
  if (MapZoomAnimtion=1) then exit;
  map.Enabled:=false;
@@ -3822,13 +3818,13 @@ begin
   begin
    toSh;
    paint_Line;
-   if aoper=line then drawLineCalc;
-   if aoper=reg then drawReg;
-   if aoper=rect then drawRect([]);
+   if aoper=ao_line then drawLineCalc;
+   if aoper=ao_reg then drawReg;
+   if aoper=ao_rect then drawRect([]);
    if GState.GPS_enab then drawLineGPS;
-   if aoper in [add_line,add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
+   if aoper in [ao_add_line,ao_add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
   end;
- if (y=move.y)and(x=move.x)and(aoper=movemap)and(button=mbLeft) then
+ if (y=move.y)and(x=move.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
     layer.Cursor:=curBuf;
     PWL.S:=0;
@@ -3944,10 +3940,10 @@ begin
  if movepoint>-1 then
   begin
    add_line_arr[movepoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
-   drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
+   drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
    exit;
   end;
- if (aoper=rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
+ if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
                rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+x,pos.Y-mHd2+y),GState.zoom_size-1);
                drawRect(Shift);
@@ -3992,7 +3988,7 @@ begin
  if MapMoving then begin
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
               FillingMap.Location := LayerMap.Location;
-              if (LayerMapNal.Visible)and(aoper<>movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
+              if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
               if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
               if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
               if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(move.X-x),mHd2-pr_y-(move.Y-y),xhgpx,yhgpx));
@@ -4138,18 +4134,18 @@ end;
 procedure TFmain.TBEditPathDelClick(Sender: TObject);
 begin
  case aoper of
-  line: begin
+  ao_line: begin
          if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
          drawLineCalc;
         end;
-  Reg : begin
+  ao_Reg : begin
          if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
          drawReg;
         end;
-  add_poly,add_line:
+  ao_add_poly,ao_add_line:
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
-         drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=add_poly);
+         drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
         end;
  end;
 end;
@@ -4165,19 +4161,19 @@ var result:boolean;
 begin
   result := false;
  case aoper of
-  add_Poly: result:=FaddPoly.show_(add_line_arr,true);
-  add_Line: result:=FaddLine.show_(add_line_arr,true);
+  ao_add_Poly: result:=FaddPoly.show_(add_line_arr,true);
+  ao_add_Line: result:=FaddLine.show_(add_line_arr,true);
  end;
  if result then
   begin
-   setalloperationfalse(movemap);
+   setalloperationfalse(ao_movemap);
    generate_im(nilLastLoad,'');
   end;
 end;
 
 procedure TFmain.TBEditPathClose(Sender: TObject);
 begin
- setalloperationfalse(movemap);
+ setalloperationfalse(ao_movemap);
 end;
 
 procedure TFmain.NGoToForumClick(Sender: TObject);
@@ -4344,7 +4340,7 @@ begin
    marshrutcomment:=marshrutcomment+#13#10+SAS_STR_Marshtime+timeT1;
   end
  else ShowMessage('Connect error!');
- drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=add_poly);
+ drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
 procedure TFmain.AdjustFont(Item: TTBCustomItem;
@@ -4407,12 +4403,12 @@ end;
 procedure TFmain.TBEditPathOkClick(Sender: TObject);
 begin
   case aoper of
-   reg: begin
+   ao_reg: begin
          SetLength(reg_arr,length(reg_arr)+1);
          reg_arr[length(reg_arr)-1]:=reg_arr[0];
          LayerMapNal.Bitmap.Clear(clBlack);
          Fsaveas.Show_(GState.zoom_size,reg_arr);
-         setalloperationfalse(movemap);
+         setalloperationfalse(ao_movemap);
         end;
   end;
 end;

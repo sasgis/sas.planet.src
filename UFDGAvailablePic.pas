@@ -151,7 +151,7 @@ uses
   u_GeoToStr;
 
 var
-  GetListThId:Longint;
+  GetListThId:THandle;
 
 {$R *.dfm}
 function GetWord(Str, Smb: string; WordNmbr: Byte): string;
