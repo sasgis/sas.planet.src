@@ -33,6 +33,7 @@ type
 
     procedure Check_TilePos2LonLat; virtual;
 
+    procedure Check_Relative2LonLat2Relative; virtual;
     procedure Check_TilePos2LonLat2TilePos; virtual;
 
     procedure CheckConverter; virtual;
@@ -164,7 +165,15 @@ begin
     Check_TilePos2LonLat2TilePos;
   except
     on E: Exception do begin
-      raise Exception.Create('Ошибка при тестировании двойного преобразования:' + E.Message);
+      raise Exception.Create('Ошибка при тестировании двойного преобразования TilePos2LonLat2TilePos:' + E.Message);
+    end;
+  end;
+
+  try
+    Check_Relative2LonLat2Relative;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании двойного преобразования Relative2LonLat2Relative:' + E.Message);
     end;
   end;
 end;
@@ -338,6 +347,31 @@ begin
     raise Exception.Create('Z = 23. Ошибка в Right прямоугольника');
   if Res.Bottom <> 8388607 then
     raise Exception.Create('Z = 23. Ошибка в Bottom прямоугольника');
+end;
+
+procedure TTesterCoordConverterAbstract.Check_Relative2LonLat2Relative;
+var
+  Source, Temp, Res: TExtendedPoint;
+  Delta: Extended;
+  MaxDelta: Extended;
+const
+  Step: Double = 0.00001;
+begin
+  Source.X := 1/256;
+  Source.Y := 0;
+  MaxDelta := 0;
+  while Source.Y <= 1 do begin
+    Temp := FConverter.Relative2LonLat(Source);
+    Res := FConverter.LonLat2Relative(Temp);
+    Delta := Source.Y - Res.Y;
+    if abs(Delta) > abs(MaxDelta) then
+      MaxDelta := Delta;
+    if abs(Delta)> 1e-8 then
+      raise Exception.Create('Слишком большая погрешность');
+    Source.Y := Source.Y + Step;
+  end;
+  if abs(MaxDelta)> 2.3283064365e-10 then
+    raise Exception.Create('Слишком большая погрешность ' + FloatToStr(MaxDelta));
 end;
 
 procedure TTesterCoordConverterAbstract.Check_Relative2Pixel;
