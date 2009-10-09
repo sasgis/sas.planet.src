@@ -2387,9 +2387,21 @@ begin
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
 end;
 
+
 procedure TFmain.zooming(x:byte;move:boolean);
+  procedure usleep(mils:integer);
+  var startTS,endTS,freqTS:int64;
+  begin
+   if mils>0 then begin
+     QueryPerformanceCounter(startTS);
+     repeat
+       QueryPerformanceCounter(endTS);
+       QueryPerformanceFrequency(freqTS);
+     until ((endTS-startTS)/(freqTS/1000))>mils;
+   end;
+  end;
 var w,i,steps,d_moveH,d_moveW:integer;
-    w1:extended;
+    w1,k:extended;
     s:string;
     ts1,ts2,fr:int64;
 begin
@@ -2431,6 +2443,7 @@ begin
  LayerMapNal.Bitmap.Clear(clBlack);
  LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
+ k:=0;
  if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
@@ -2448,8 +2461,8 @@ begin
      QueryPerformanceCounter(ts2);
      QueryPerformanceFrequency(fr);
      ts1:=round((ts2-ts1)/(fr/1000));
-     if (i>0)and(22-ts1>0) then begin
-       sleep(22-ts1);
+     if (22-ts1>0) then begin
+       usleep(22-ts1);
      end;
    end;
    if GState.zoom_size<x
@@ -2457,6 +2470,7 @@ begin
     else LayerMap.Location:=floatrect(bounds(mWd2-pr_x div 2-d_moveW,mHd2-pr_y div 2-d_moveH,xhgpx div 2,yhgpx div 2));
    application.ProcessMessages;
  end;
+
  GState.zoom_size:=x;
  generate_im(nilLastLoad,'');
  MapZoomAnimtion:=0;
