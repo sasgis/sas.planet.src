@@ -15,7 +15,6 @@ type
     constructor Create(Aradiusa: Extended);
     function Pos2LonLat(const AXY : TPoint; Azoom : byte) : TExtendedPoint; override;
     function LonLat2Pos(const ALl : TExtendedPoint; Azoom : byte) : Tpoint; override;
-    function LonLat2Posf(const ALl : TExtendedPoint; Azoom : byte) : TExtendedPoint; override;
 	  function LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
@@ -44,18 +43,6 @@ begin
   VLL := ALl;
   Result.x := round(TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360));
   Result.y := round(TilesAtZoom / 2 - VLl.y * (TilesAtZoom / 360));
-end;
-
-function TCoordConverterSimpleLonLat.LonLat2Posf(const ALl: TExtendedPoint;
-  Azoom: byte): TExtendedPoint;
-var
-  TilesAtZoom : Integer;
-  VLl: TExtendedPoint;
-begin
-  TilesAtZoom := (1 shl Azoom);
-  VLL := ALl;
-  Result.x := TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360);
-  Result.y := TilesAtZoom / 2 - VLl.y * (TilesAtZoom / 360);
 end;
 
 function TCoordConverterSimpleLonLat.Pos2LonLat(const AXY: TPoint;

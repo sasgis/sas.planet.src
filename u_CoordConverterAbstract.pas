@@ -13,7 +13,6 @@ type
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;
-    function LonLat2Posf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // ?????????
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; stdcall;
 
@@ -47,7 +46,6 @@ type
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
     // Преобразует координаты пиксела в географические координаты
     function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; stdcall;//TODO: Автотест
-    function LonLat2PixelPosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; stdcall;
 
     // Перобразует относительные координаты на карте в координаты пиксела
     function Relative2Pixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; stdcall;
@@ -64,8 +62,10 @@ type
 
     // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
     function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;//TODO: Автотест
+    function LonLat2PixelPosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; stdcall;//TODO: Автотест
+    function LonLat2TilePosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; stdcall;
     // Преобразует географические коодинаты в относительные координаты на карте
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
@@ -81,7 +81,6 @@ type
   public
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall; abstract;
-    function LonLat2Posf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
 
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
@@ -106,6 +105,7 @@ type
     function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
     function LonLat2PixelPosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
+    function LonLat2TilePosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
     function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
 
@@ -226,8 +226,15 @@ end;
 
 function TCoordConverterAbstract.LonLat2PixelPosf(const Ll: TExtendedPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VPixelsAtZoom: Extended;
 begin
-  Result := LonLat2Posf(LL, AZoom + 8);
+  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  VPixelsAtZoom := abs(VPixelsAtZoom);
+
+  Result := LonLat2Relative(LL);
+  Result.X := Result.X * VPixelsAtZoom;
+  Result.Y := Result.Y * VPixelsAtZoom;
 end;
 
 function TCoordConverterAbstract.LonLat2TilePos(const Ll: TExtendedPoint;
@@ -364,6 +371,17 @@ function TCoordConverterAbstract.TilePos2PixelPos(const XY: TPoint;
 begin
   Result.X := XY.X shl 8;
   Result.Y := XY.Y shl 8;
+end;
+
+function TCoordConverterAbstract.LonLat2TilePosf(const Ll: TExtendedPoint;
+  Azoom: byte): TExtendedPoint;
+var
+  VTilesAtZoom: Extended;
+begin
+  VTilesAtZoom := TilesAtZoom(Azoom);
+  Result := LonLat2Relative(Ll);
+  Result.X := Result.X * VTilesAtZoom;
+  Result.Y := Result.Y * VTilesAtZoom;
 end;
 
 end.
