@@ -13,8 +13,6 @@ type
     FRadiusa : Extended;
   public
     constructor Create(Aradiusa: Extended);
-    function Pos2LonLat(const AXY : TPoint; Azoom : byte) : TExtendedPoint; override;
-    function LonLat2Pos(const ALl : TExtendedPoint; Azoom : byte) : Tpoint; override;
 	  function LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
@@ -31,32 +29,6 @@ uses
 constructor TCoordConverterSimpleLonLat.Create(Aradiusa: Extended);
 begin
   FRadiusa := Aradiusa;
-end;
-
-function TCoordConverterSimpleLonLat.LonLat2Pos(const ALl: TExtendedPoint;
-  Azoom: byte): Tpoint;
-var
-  TilesAtZoom : Integer;
-  VLl: TExtendedPoint;
-begin
-  TilesAtZoom := (1 shl Azoom);
-  VLL := ALl;
-  Result.x := round(TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360));
-  Result.y := round(TilesAtZoom / 2 - VLl.y * (TilesAtZoom / 360));
-end;
-
-function TCoordConverterSimpleLonLat.Pos2LonLat(const AXY: TPoint;
-  Azoom: byte): TExtendedPoint;
-var
-  TilesAtZoom : Integer;
-  VXY: TPoint;
-begin
-  TilesAtZoom := (1 shl Azoom);
-  VXY := AXY;
-  //XY.x := XY.x mod TilesAtZoom;
-  if VXY.x < 0 then VXY.x := VXY.x + TilesAtZoom;
-  Result.X := (VXY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
-  Result.y := -(VXY.y - TilesAtZoom / 2) / (TilesAtZoom / 360);
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;

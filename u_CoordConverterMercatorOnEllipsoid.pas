@@ -13,8 +13,6 @@ type
     FExct,FRadiusa,FRadiusb : Extended;
   public
     constructor Create(AExct,Aradiusa,Aradiusb : Extended);
-    function Pos2LonLat(const AXY : TPoint; Azoom : byte) : TExtendedPoint; override; stdcall;
-    function LonLat2Pos(const ALL : TExtendedPoint; Azoom : byte) : Tpoint; override;
     function LonLat2Metr(const ALL : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
@@ -37,63 +35,6 @@ begin
   FExct := AExct;
   Fradiusa:=Aradiusa;
   Fradiusb:=Aradiusb;
-end;
-
-function TCoordConverterMercatorOnEllipsoid.LonLat2Pos(const ALL: TExtendedPoint;
-  Azoom: byte): Tpoint;
-var
-  TilesAtZoom : Integer;
-  z, c : Extended;
-  VLL: TExtendedPoint;
-begin
-  VLL := ALL;
-  TilesAtZoom := (1 shl Azoom);
-  Result.x := round(TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360));
-  z := sin(VLl.y * Pi / 180);
-  c := (TilesAtZoom / (2 * Pi));
-  Result.y := round(TilesAtZoom / 2 - c*(ArcTanh(z)-FExct*ArcTanh(FExct*z)));
-end;
-
-function TCoordConverterMercatorOnEllipsoid.Pos2LonLat(const AXY: TPoint;
-  Azoom: byte): TExtendedPoint;
-var
-  TilesAtZoom : Integer;
-  zu, zum1, yy : extended;
-  VXY: TPoint;
-begin
-  if Azoom < 31 then begin
-
-    TilesAtZoom := (1 shl Azoom);
-
-    if TilesAtZoom>1 then begin
-      VXY := AXY;
-      if VXY.x < 0 then VXY.x := VXY.x + TilesAtZoom;
-      if (VXY.y>TilesAtZoom/2) then begin
-        yy:=(TilesAtZoom)-VXY.y;//(TilesAtZoom div 2) - (XY.y mod (TilesAtZoom div 2));
-      end else begin
-        yy:=VXY.y;
-      end;
-      Result.X := (VXY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
-      Result.Y := (yy - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
-      Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
-      Zu := result.y / (180 / Pi);
-      yy := (yy - TilesAtZoom / 2);
-      repeat
-        Zum1 := Zu;
-        Zu := arcsin(1-((1+Sin(Zum1))*power(1-FExct*sin(Zum1),FExct))/(exp((2*yy)/-(TilesAtZoom/(2*Pi)))*power(1+FExct*sin(Zum1),FExct)));
-      until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
-      if not(isNAN(Zu)) then begin
-        if VXY.y>TilesAtZoom/2 then begin
-          result.Y:=-zu*180/Pi;
-        end else begin
-          result.Y:=zu*180/Pi;
-        end;
-      end;
-    end;
-  end else begin
-    Result.X := 0;
-    Result.Y := 0;
-  end;
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;

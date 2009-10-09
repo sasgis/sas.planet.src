@@ -79,8 +79,8 @@ type
 
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
   public
-    function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall; abstract;
-    function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall; abstract;
+    function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
     function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
 
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
@@ -382,6 +382,26 @@ begin
   Result := LonLat2Relative(Ll);
   Result.X := Result.X * VTilesAtZoom;
   Result.Y := Result.Y * VTilesAtZoom;
+end;
+
+function TCoordConverterAbstract.LonLat2Pos(const Ll: TExtendedPoint;
+  Azoom: byte): Tpoint;
+begin
+  if Azoom > 23 then begin
+    Result := LonLat2PixelPos(Ll, Azoom - 8);
+  end else begin
+    Result := LonLat2TilePos(Ll, Azoom);
+  end;
+end;
+
+function TCoordConverterAbstract.Pos2LonLat(const XY: TPoint;
+  Azoom: byte): TExtendedPoint;
+begin
+  if Azoom > 23 then begin
+    Result := PixelPos2LonLat(XY, Azoom - 8);
+  end else begin
+    Result := TilePos2LonLat(XY, Azoom);
+  end;
 end;
 
 end.
