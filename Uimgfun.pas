@@ -101,13 +101,10 @@ end;
 function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
 var
     RGBPtr:PColor32Array;
-    TransparentColor: TColor32;
     AlphaPtr: pByteArray;
-    png:TPNGObject;
     X, Y: Integer;
 begin
  try
-  result:=false;
   destBitmap.Clear;
   destBitmap.Width:=PNGObject.Width;
   destBitmap.Height:=PNGObject.Height;
@@ -145,7 +142,6 @@ begin
         for Y:=0 to destBitmap.Height-1 do
          begin
           RGBPtr:=destBitmap.ScanLine[Y];
-          AlphaPtr:=PNGObject.Scanline[Y];
           for X:=0 to (destBitmap.Width-1) do begin
            if PNGObject.Pixels[X,Y]=PNGObject.TransparentColor
             then RGBPtr^[x]:=RGBPtr^[x] and $00000000
@@ -160,6 +156,7 @@ begin
   end;
   result:=true;
  except
+  result:=false;
  end;
 end;
 
@@ -182,15 +179,13 @@ procedure Contrast(Bitmap: TBitmap32; Value: double);
                         else Result:=B;
   end;
 var Dest: PColor32;
-    x,y,mr,mg,mb,i:Integer;
+    y,mr,i:Integer;
     ContrastTable:array [0..255] of byte;
     vd: Double;
 begin
   if Value=0 then Exit;
   Value:=Value/10;
   mR:=128;
-  mG:=128;
-  mB:=128;
   if Value>0 then vd:=1+(Value/10)
              else vd:=1-(Sqrt(-Value)/10);
   for i:=0 to 255 do begin

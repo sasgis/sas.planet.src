@@ -756,7 +756,6 @@ begin
  try
  jpg:=TJpegImage.Create;
  bmp:=TBitmap.Create;
- bmp8b:=TBitmap.Create;
  bmp.Width:=sizeim;
  bmp.Height:=sizeim;
  png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);

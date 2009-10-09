@@ -73,8 +73,6 @@ begin
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;
-var
-  VLl : TExtendedPoint;
 begin
   result.x:=0;
   result.y:=0;
