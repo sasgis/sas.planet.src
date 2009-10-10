@@ -96,6 +96,7 @@ begin
       RegisterMethod('function TilesAtZoom(AZoom: byte): Longint', cdStdCall);
       RegisterMethod('function PixelsAtZoom(AZoom: byte): Longint', cdStdCall);
 
+      RegisterMethod('function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint', cdStdCall);
       RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
     end;
     T := Sender.FindType('ICoordConverter');
