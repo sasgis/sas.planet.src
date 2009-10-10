@@ -59,7 +59,8 @@ type
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    function DownloadFile(AXY: TPoint; AZoom: byte;MT:TMapType; out ty: string; fileBuf:TMemoryStream):integer;
+    class function DownloadFile(AXY: TPoint; AZoom: byte;MT:TMapType; hSession:HInternet; ARaz: Boolean; ArazLen: Integer; out AUrl: string; out ty: string; fileBuf:TMemoryStream):integer;
+    function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType;out ty: string; fileBuf:TMemoryStream):integer;
     procedure Execute; override;
     procedure dwnReg;
     procedure dwnOne;
@@ -341,8 +342,21 @@ begin
   Synchronize(addDwnforban);
   randomize;
 end;
+function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;
+  MT: TMapType; out ty: string; fileBuf: TMemoryStream): integer;
+begin
+  result:=0;
+  sleep(MT.Sleep);
+  if terminated then exit;
 
-function ThreadAllLoadMap.DownloadFile(AXY: TPoint; AZoom: byte;MT:TMapType; out ty: string; fileBuf:TMemoryStream):integer;
+  Result := DownloadFile(AXY, AZoom, MT, hSession, raz, razlen, url_ifban, ty, fileBuf);
+  if Result = -2 then begin
+    Synchronize(Ban);
+  end;
+end;
+
+
+class function ThreadAllLoadMap.DownloadFile(AXY: TPoint; AZoom: byte;MT:TMapType; hSession:HInternet;ARaz: Boolean; ArazLen: integer;out AUrl: string; out ty: string; fileBuf:TMemoryStream):integer;
 var hFile:HInternet;
     Buffer:array [1..64535] of Byte;
     BufferLen:LongWord;
@@ -351,78 +365,76 @@ var hFile:HInternet;
     dwindex, dwcodelen,dwReserv: dword;
     dwtype,dwlen: array [1..20] of char;
     len,StatusCode: pchar;
-    Vurl: string;
 begin
-  Vurl := MT.GetLink(AXY.X, AXY.Y, AZoom);
-  sleep(MT.Sleep);
-  result:=0;
-  if terminated then exit;
-  ty:='';len:='0';
-  if Assigned(hSession)then
-   begin
-    hFile:=InternetOpenURL(hSession,PChar(VURL),PChar(head),length(head), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD,0);
-    if Assigned(hFile)then
-     begin
-      dwcodelen:=150; dwReserv:=0; dwindex:=0;
-      if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-       then dwindex:=strtoint(pchar(@dwtype));
-      if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-       begin
-        if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
-         begin
+  Aurl := MT.GetLink(AXY.X, AXY.Y, AZoom);
+  ty:='';
+  len:='0';
+  if Assigned(hSession)then begin
+    hFile:=InternetOpenURL(hSession,PChar(AURL),PChar(head),length(head), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD,0);
+    if Assigned(hFile)then begin
+      dwcodelen:=150;
+      dwReserv:=0;
+      dwindex:=0;
+      if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv) then dwindex:=strtoint(pchar(@dwtype));
+      if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then begin
+        if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then begin
           InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
           InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
           HttpSendRequest(hFile, nil, 0,Nil, 0);
-         end;
+        end;
         dwcodelen:=150; dwReserv:=0; dwindex:=0;
-        if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-         then dwindex:=strtoint(pchar(@dwtype));
-        if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-         begin
-         	result:=-3;
+        if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv) then dwindex:=strtoint(pchar(@dwtype));
+        if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then begin
+          //Неверные пароль логин
+          result:=-3;
           InternetCloseHandle(hFile);
           exit;
-         end;
-       end;
+        end;
+      end;
 
-      dwindex:=0; dwcodelen:=150; ty:='';
+      dwindex:=0;
+      dwcodelen:=150;
+      ty:='';
       fillchar(dwtype,sizeof(dwtype),0);
-      if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
-       then ty:=PChar(@dwtype);
-      dwindex:=0; dwcodelen:=150; len:='0';
+      if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex) then ty:=PChar(@dwtype);
+      dwindex:=0;
+      dwcodelen:=150;
+      len:='0';
       fillchar(dwlen,sizeof(dwlen),0);
-      if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_LENGTH, @dwlen,dwcodelen,dwindex)
-        then len:=PChar(@dwlen);
-      {dwindex:=0; dwcodelen:=150; StatusCode:='0';
-      fillchar(dwlen,sizeof(dwlen),0);
-      if HttpQueryInfo(hfile,HTTP_QUERY_STATUS_CODE, @dwlen,dwcodelen,dwindex)
-        then StatusCode:=PChar(@dwlen);}
+      if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_LENGTH, @dwlen,dwcodelen,dwindex) then len:=PChar(@dwlen);
       err:=false;
-      if (ty<>'')and(PosEx(ty,MT.Content_type,0)>0){and(PosEx(StatusCode,MT.STATUS_CODE,0)>0)} then
-       repeat
-        if (raz)and(razlen=strtoint(len)) then begin
-                                                 result:=-10;
-                                                 InternetCloseHandle(hFile);
-                                                 exit;
-                                                end;
-        err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-        filebuf.Write(Buffer,BufferLen);
-       until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
-      else result:=-1;
-      if (err) then Result:=0
-               else if filebuf.size<>0 then Result:=filebuf.size
-                                       else Result:=-1;
+      if (ty<>'')and(PosEx(ty,MT.Content_type,0)>0) then begin
+        repeat
+          if (Araz)and(Arazlen=strtoint(len)) then begin
+            result:=-10;
+            InternetCloseHandle(hFile);
+            exit;
+          end;
+          err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
+          filebuf.Write(Buffer,BufferLen);
+        until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
+      end else begin
+        result:=-1;
+      end;
+      if (err) then begin
+        Result:=0
+      end else begin
+        if filebuf.size<>0 then begin
+          Result:=filebuf.size;
+        end else begin
+          Result:=-1;
+        end;
+      end;
       InternetCloseHandle(hFile);
-     end
-     else result:=0;
-   end
-   else result:=0;
-  if (ty<>MT.Content_type)and(strtoint(len)<>0)and(MT.BanIfLen<>0)and((strtoint(len)<(MT.BanIfLen+50))and(strtoint(len)>(MT.BanIfLen-50)))
-                               then begin
-                                     result:=-2;
-                                     url_ifban:=VUrl;
-                                     Synchronize(Ban);
-                                    end;
+    end else begin
+      result:=0;
+    end;
+  end else begin
+    result:=0;
+  end;
+  if (ty<>MT.Content_type)and(strtoint(len)<>0)and(MT.BanIfLen<>0)and((strtoint(len)<(MT.BanIfLen+50))and(strtoint(len)>(MT.BanIfLen-50))) then begin
+    result:=-2;
+  end;
 end;
 
 procedure ThreadAllLoadMap.dwnOne;
@@ -440,8 +452,8 @@ begin
   if typemap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
-      res :=DownloadFile(LoadXY, Zoom, typemap,ty, fileBuf);
-      if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadFile(LoadXY, Zoom,typemap,ty,fileBuf);
+      res :=DownloadTile(LoadXY, Zoom, typemap,ty, fileBuf);
+      if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap,ty,fileBuf);
       err:=GetErrStr(res);
       if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
       if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
@@ -533,8 +545,8 @@ begin
               if VMap.UseDwn then begin
                 FileBuf:=TMemoryStream.Create;
                 try
-                  res:=DownloadFile(LoadXY, Zoom, VMap,ty, fileBuf);
-                  if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadFile(LoadXY, Zoom, VMap,ty, fileBuf);
+                  res:=DownloadTile(LoadXY, Zoom, VMap,ty, fileBuf);
+                  if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom, VMap,ty, fileBuf);
                   err:=GetErrStr(res);
                   if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
                   if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
@@ -618,8 +630,8 @@ begin
         then res:=-1
         else
          begin
-          res:=DownloadFile(LoadXY, Zoom,typemap,ty, fileBuf);
-          if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadFile(LoadXY, Zoom,typemap,ty, fileBuf);
+          res:=DownloadTile(LoadXY, Zoom,typemap,ty, fileBuf);
+          if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap,ty, fileBuf);
          end;
 
        If (typemap.UseAntiBan>1)and((scachano>0)and((scachano mod typemap.UseAntiBan)=0)) then
