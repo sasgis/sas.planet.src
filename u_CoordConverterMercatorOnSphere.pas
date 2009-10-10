@@ -14,9 +14,6 @@ type
     FRadiusa : Extended;
   public
     constructor Create(Aradiusa: Extended);
-    function Pos2LonLat(const AXY: TPoint; Azoom : byte): TExtendedPoint; override;
-    function LonLat2Pos(const ALl: TExtendedPoint; Azoom: byte): Tpoint; override;
-    function LonLat2Posf(const ALl: TExtendedPoint; Azoom: byte): TExtendedPoint; override;
     function LonLat2Metr(const ALl: TExtendedPoint): TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
     function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
@@ -31,47 +28,6 @@ constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Extended);
 begin
   inherited Create();
   Fradiusa:=Aradiusa;
-end;
-
-function TCoordConverterMercatorOnSphere.LonLat2Pos(const ALl: TExtendedPoint;
-  Azoom: byte): Tpoint;
-var
-  TilesAtZoom : Integer;
-  z, c : Extended;
-  VLl: TExtendedPoint;
-begin
-  TilesAtZoom := (1 shl Azoom);
-  VLl := ALl;
-  Result.x := round(TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360));
-  z := sin(VLl.y * Pi / 180);
-  c := (TilesAtZoom / (2 * Pi));
-  Result.y := round(TilesAtZoom / 2 - 0.5 * ln((1 + z) / (1 - z)) * c);
-end;
-
-function TCoordConverterMercatorOnSphere.LonLat2Posf(const ALl: TExtendedPoint; Azoom: byte): TExtendedPoint;
-var
-  TilesAtZoom : Integer;
-  z, c : Extended;
-  VLl: TExtendedPoint;
-begin
-  TilesAtZoom := (1 shl Azoom);
-  VLl := ALl;
-  Result.x := TilesAtZoom / 2 + VLl.x * (TilesAtZoom / 360);
-  z := sin(VLl.y * Pi / 180);
-  c := (TilesAtZoom / (2 * Pi));
-  Result.y := TilesAtZoom / 2 - 0.5 * ln((1 + z) / (1 - z)) * c;
-end;
-
-function TCoordConverterMercatorOnSphere.Pos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint;
-var
-  TilesAtZoom : Integer;
-  VXY: TPoint;
-begin
-  TilesAtZoom := (1 shl Azoom);
-  VXY := AXY;
-  Result.X := (VXY.x - TilesAtZoom / 2) / (TilesAtZoom / 360);
-  Result.Y := (VXY.y - TilesAtZoom / 2) / -(TilesAtZoom / (2*PI));
-  Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;

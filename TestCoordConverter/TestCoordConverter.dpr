@@ -14,8 +14,23 @@ uses
 procedure Test;
 var
   VTester: TTesterCoordConverterAbstract;
+  radiusa, radiusb: double;
 begin
-  VTester := TTesterCoordConverterAbstract.Create(TCoordConverterMercatorOnSphere.Create(1));
+  radiusa := 6378137;
+  radiusb := 6356752;
+
+  VTester := TTesterCoordConverterAbstract.Create(TCoordConverterMercatorOnSphere.Create(radiusa));
+  try
+    VTester.CheckConverter;
+    Writeln('Ok');
+  except
+    on E:Exception do begin
+      writeln(E.Message);
+      writeln('Fail');
+    end;
+  end;
+
+  VTester := TTesterCoordConverterAbstract.Create(TCoordConverterMercatorOnEllipsoid.Create(sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa,radiusa,radiusb));
   try
     VTester.CheckConverter;
     Writeln('Ok');
