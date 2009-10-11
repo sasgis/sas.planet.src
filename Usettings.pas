@@ -596,32 +596,6 @@ begin
 
  SetProxy;
 
-{ New (PIInfo) ;
- PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
- PIInfo^.lpszProxy := PChar('192.168.50.2:3128'); // ага, здесь пишем прокси.
- PIInfo^.lpszProxyBypass := PChar(''); // а тут адреса, доступ к которым возможен, минуя прокси
- UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
- Dispose (PIInfo) ;
- UrlMkSetSessionOption(INTERNET_OPTION_PROXY_USERNAME, PChar('nord\az'), SizeOf('nord\az'), 0);
- UrlMkSetSessionOption(INTERNET_OPTION_PROXY_PASSWORD, PChar('678727'), SizeOf('678727'), 0);    }
-{ if not(InetConnect.userwinset) then
-  if InetConnect.proxyused then
-   try
-    Fmain.EmbeddedWB1_.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
-    Fmain.EmbeddedWB1_.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
-    Fbrowser.EmbeddedWB1.ProxySettings.Address:=copy(InetConnect.proxystr,1,PosEx(':',InetConnect.proxystr)-1);
-    Fbrowser.EmbeddedWB1.ProxySettings.Port:=strtoint(copy(InetConnect.proxystr,PosEx(':',InetConnect.proxystr)+1,length(InetConnect.proxystr)-PosEx(':',InetConnect.proxystr)));
-    if InetConnect.uselogin then
-     begin
-      Fmain.EmbeddedWB1_.ProxySettings.UserName:=InetConnect.loginstr;
-      Fmain.EmbeddedWB1_.ProxySettings.Password:=InetConnect.passstr;
-      Fbrowser.EmbeddedWB1.ProxySettings.UserName:=InetConnect.loginstr;
-      Fbrowser.EmbeddedWB1.ProxySettings.Password:=InetConnect.passstr;
-     end;
-   except
-    ShowMessage(SAS_ERR_ProxyStrFormat);
-   end;    }
-
  if sender=Button2 then
   begin
    Fmain.Enabled:=true;
