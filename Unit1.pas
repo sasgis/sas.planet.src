@@ -538,7 +538,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='91009';
+  SASVersion='91010';
   CProgram_Lang_Default = LANG_RUSSIAN;
 //  ENU=LANG_ENGLISH;
 //  RUS=LANG_RUSSIAN;// $00000419;

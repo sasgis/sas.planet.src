@@ -12,8 +12,13 @@ uses
   u_MemFileCache;
 type
   TInetConnect = record
-    proxyused,userwinset,uselogin:boolean;
-    proxystr,loginstr,passstr:string;
+    userwinset: boolean;
+    proxyused: boolean;
+    proxystr: string;
+    ProxyBypass: string;
+    uselogin: boolean;
+    loginstr: string;
+    passstr: string;
   end;
 
 

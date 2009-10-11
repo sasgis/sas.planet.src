@@ -38,7 +38,7 @@ type
     Zdate:boolean;
     mapsload:boolean;
     SecondLoadTNE:boolean;
-    url_ifban,err:string;
+    url_ifban,ErrorString:string;
     LoadXY: TPoint;
 
     FDate:TDateTime;
@@ -59,7 +59,7 @@ type
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    class function DownloadFile(AXY: TPoint; AZoom: byte;MT:TMapType; hSession:HInternet; ARaz: Boolean; ArazLen: Integer; out AUrl: string; out ty: string; fileBuf:TMemoryStream):integer;
+    class function DownloadFile(AUrl: string; ExpectedMIMETypes: string; MT:TMapType; hSession:HInternet; ARaz: Boolean; ArazLen: Integer; out ty: string; fileBuf:TMemoryStream):integer;
     function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType;out ty: string; fileBuf:TMemoryStream):integer;
     procedure Execute; override;
     procedure dwnReg;
@@ -348,25 +348,26 @@ begin
   result:=0;
   sleep(MT.Sleep);
   if terminated then exit;
+  url_ifban := MT.GetLink(AXY.X, AXY.Y, AZoom);
 
-  Result := DownloadFile(AXY, AZoom, MT, hSession, raz, razlen, url_ifban, ty, fileBuf);
+  Result := DownloadFile(url_ifban, MT.CONTENT_TYPE, MT, hSession, raz, razlen, ty, fileBuf);
   if Result = -2 then begin
     Synchronize(Ban);
   end;
 end;
 
 
-class function ThreadAllLoadMap.DownloadFile(AXY: TPoint; AZoom: byte;MT:TMapType; hSession:HInternet;ARaz: Boolean; ArazLen: integer;out AUrl: string; out ty: string; fileBuf:TMemoryStream):integer;
-var hFile:HInternet;
+class function ThreadAllLoadMap.DownloadFile(AUrl: string; ExpectedMIMETypes: string; MT:TMapType; hSession:HInternet;ARaz: Boolean; ArazLen: integer;out ty: string; fileBuf:TMemoryStream):integer;
+var
+  hFile:HInternet;
     Buffer:array [1..64535] of Byte;
     BufferLen:LongWord;
     err:boolean;
     head:string;
     dwindex, dwcodelen,dwReserv: dword;
-    dwtype,dwlen: array [1..20] of char;
+    dwtype,dwlen: array [1..160] of char;
     len,StatusCode: pchar;
 begin
-  Aurl := MT.GetLink(AXY.X, AXY.Y, AZoom);
   ty:='';
   len:='0';
   if Assigned(hSession)then begin
@@ -403,7 +404,7 @@ begin
       fillchar(dwlen,sizeof(dwlen),0);
       if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_LENGTH, @dwlen,dwcodelen,dwindex) then len:=PChar(@dwlen);
       err:=false;
-      if (ty<>'')and(PosEx(ty,MT.Content_type,0)>0) then begin
+      if (ty<>'')and(PosEx(ty,ExpectedMIMETypes,0)>0) then begin
         repeat
           if (Araz)and(Arazlen=strtoint(len)) then begin
             result:=-10;
@@ -454,10 +455,10 @@ begin
     try
       res :=DownloadTile(LoadXY, Zoom, typemap,ty, fileBuf);
       if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap,ty,fileBuf);
-      err:=GetErrStr(res);
+      ErrorString:=GetErrStr(res);
       if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
       if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
-      if err='' then begin
+      if ErrorString='' then begin
         typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
       end;
       Synchronize(WriteToFile);
@@ -465,7 +466,7 @@ begin
       FileBuf.Free;
     end;
   end else begin
-    err:=SAS_ERR_NotLoads;
+    ErrorString:=SAS_ERR_NotLoads;
   end;
  end;
 end;
@@ -547,10 +548,10 @@ begin
                 try
                   res:=DownloadTile(LoadXY, Zoom, VMap,ty, fileBuf);
                   if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom, VMap,ty, fileBuf);
-                  err:=GetErrStr(res);
+                  ErrorString:=GetErrStr(res);
                   if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
                   if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
-                  if err='' then begin
+                  if ErrorString='' then begin
                     VMap.SaveTileDownload(xx, yy, zoom, fileBuf, ty);
                   end;
                   Synchronize(WriteToFile);
@@ -558,7 +559,7 @@ begin
                   FileBuf.Free;
                 end;
               end else begin
-                err:=SAS_ERR_NotLoads;
+                ErrorString:=SAS_ERR_NotLoads;
               end;
               sleep(100);
               While (FMain.MapMoving)or(FMain.MapZoomAnimtion=1) do Sleep(10);
@@ -694,7 +695,7 @@ begin
          Synchronize(UpdateMemoProgressForm);
          continue;
         end;
-        if err='' then begin
+        if ErrorString='' then begin
           typemap.SaveTileDownload(p_x, p_y, Zoom, fileBuf, ty);
         end;
        Synchronize(addDwnTiles);
@@ -733,7 +734,7 @@ procedure ThreadAllLoadMap.WriteToFile;
 begin
  if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
   begin
-   Fmain.generate_im(TLastLoad(lastload),err);
+   Fmain.generate_im(TLastLoad(lastload),ErrorString);
   end
  else Fmain.toSh;
 end;
