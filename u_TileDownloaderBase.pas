@@ -17,9 +17,12 @@ type
     FExpectedMIMETypes: string;
     FDownloadTryCount: Integer;
     FConnectionSettings: TInetConnect;
+    FUserAgentString: string;
     FSessionHandle: HInternet;
     FSessionOpenError: Cardinal;
     FCS: TCriticalSection;
+    FSleepOnResetConnection: Cardinal;
+    procedure ResetConnetction;
     function BuildHeader(AUrl: string): string; virtual;
     function TryDownload(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal;  fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
@@ -50,7 +53,9 @@ begin
   FDownloadTryCount := ADownloadTryCount;
   FConnectionSettings := AConnectionSettings;
   FCS := TCriticalSection.Create;
-  FSessionHandle := InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+  FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
+  FSleepOnResetConnection := 200;
+  FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
   end else begin
@@ -78,10 +83,14 @@ begin
     Result := dtrErrorInternetOpen;
     exit;
   end;
+  Result := dtrOK;
   FCS.Acquire;
   try
     VTryCount := 0;
     repeat
+      if Result = dtrDownloadError then begin
+        ResetConnetction;
+      end;
       Result := TryDownload(AUrl, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType);
       Inc(VTryCount);
     until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
@@ -93,14 +102,31 @@ end;
 function TTileDownloaderBase.GetData(AFileHandle: HInternet;
   fileBuf: TMemoryStream): TDownloadTileResult;
 var
-  VBuffer:array [1..64535] of Byte;
-  VBufferLen:LongWord;
+  VBuffer: array [1..64535] of Byte;
+  VBufferLen: LongWord;
+  VLastError: Cardinal;
 begin
   repeat
     if InternetReadFile(AFileHandle, @VBuffer, SizeOf(VBuffer), VBufferLen) then begin
       filebuf.Write(VBuffer, VBufferLen);
     end else begin
-      Result := dtrDownloadError;
+      VLastError := GetLastError;
+      case VLastError of
+        ERROR_INTERNET_CONNECTION_RESET,
+        ERROR_INTERNET_CANNOT_CONNECT,
+        ERROR_HTTP_INVALID_SERVER_RESPONSE,
+        ERROR_INTERNET_DISCONNECTED,
+        ERROR_INTERNET_FORCE_RETRY,
+        ERROR_INTERNET_OPERATION_CANCELLED,
+        ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
+        ERROR_INTERNET_SERVER_UNREACHABLE,
+        ERROR_INTERNET_SHUTDOWN,
+        ERROR_INTERNET_TIMEOUT: begin
+          Result := dtrDownloadError;
+        end;
+        else
+          Result := dtrUnknownError;
+      end;
       Exit;
     end;
   until (VBufferLen=0);
@@ -135,7 +161,7 @@ begin
     end;
   end;
   AContentType := trim(AContentType);
-  if (AContentType = '') or (PosEx(AContentType, FExpectedMIMETypes, 0)>0) then begin
+  if (AContentType = '') or (PosEx(AContentType, FExpectedMIMETypes, 0)<=0) then begin
     Result := dtrErrorMIMEType;
     exit;
   end;
@@ -152,6 +178,20 @@ begin
   Result := GetData(AFileHandle, fileBuf);
 end;
 
+procedure TTileDownloaderBase.ResetConnetction;
+begin
+  if Assigned(FSessionHandle) then begin
+    InternetCloseHandle(FSessionHandle);
+  end;
+  Sleep(FSessionOpenError);
+  FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+  if Assigned(FSessionHandle) then begin
+    FSessionOpenError := 0;
+  end else begin
+    FSessionOpenError := GetLastError;
+  end;
+end;
+
 function TTileDownloaderBase.TryDownload(AUrl: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
@@ -161,6 +201,7 @@ var
   VHeader: String;
   VBufSize: Cardinal;
   dwIndex: Cardinal;
+  VLastError: Cardinal;
 begin
   VHeader := BuildHeader(AUrl);
   VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD, 0);
@@ -172,8 +213,24 @@ begin
     VBufSize := sizeof(AStatusCode);
     dwIndex := 0;
     if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
-      Result := dtrUnknownError;
-      exit;
+      VLastError := GetLastError;
+      case VLastError of
+        ERROR_INTERNET_CONNECTION_RESET,
+        ERROR_HTTP_INVALID_SERVER_RESPONSE,
+        ERROR_INTERNET_CANNOT_CONNECT,
+        ERROR_INTERNET_DISCONNECTED,
+        ERROR_INTERNET_FORCE_RETRY,
+        ERROR_INTERNET_OPERATION_CANCELLED,
+        ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
+        ERROR_INTERNET_SERVER_UNREACHABLE,
+        ERROR_INTERNET_SHUTDOWN,
+        ERROR_INTERNET_TIMEOUT: begin
+          Result := dtrDownloadError;
+        end;
+        else
+          Result := dtrUnknownError;
+      end;
+      Exit;
     end;
     if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
       if (not FConnectionSettings.userwinset)and(FConnectionSettings.uselogin) then begin
