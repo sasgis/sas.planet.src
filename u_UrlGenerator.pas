@@ -91,6 +91,7 @@ begin
     begin
       RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint', cdStdCall);
       RegisterMethod('function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint', cdStdCall);
+      RegisterMethod('function LonLat2Posf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint;', cdStdCall);
       RegisterMethod('function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint', cdStdCall);
 
       RegisterMethod('function TilesAtZoom(AZoom: byte): Longint', cdStdCall);

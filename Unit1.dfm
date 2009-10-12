@@ -1,7 +1,7 @@
 object Fmain: TFmain
-  Left = 272
+  Left = 271
   Top = 131
-  Width = 961
+  Width = 962
   Height = 575
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -60,7 +59,7 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 57
-    Width = 713
+    Width = 714
     Height = 475
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -82,7 +81,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 953
+    Width = 954
     Height = 57
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -899,7 +898,7 @@ object Fmain: TFmain
   object TBDockBottom: TTBXDock
     Left = 0
     Top = 532
-    Width = 953
+    Width = 954
     Height = 9
     Position = dpBottom
   end
@@ -1747,7 +1746,7 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 749
+    Left = 750
     Top = 57
     Width = 204
     Height = 475
