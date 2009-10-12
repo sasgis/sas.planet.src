@@ -7,7 +7,7 @@ uses
   WinInet,
   SyncObjs,
   Classes,
-  u_GlobalState;
+  t_CommonTypes;
 
 type
   TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrUnknownError);

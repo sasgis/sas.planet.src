@@ -593,6 +593,7 @@ uses
   StrUtils,
   DateUtils,
   Types,
+  t_CommonTypes,
   u_GlobalState,
   u_MiniMap,
   Unit2,

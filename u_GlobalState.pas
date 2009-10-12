@@ -7,24 +7,11 @@ uses
   Classes,
   IniFiles,
   t_GeoTypes,
+  t_CommonTypes,
   u_GeoToStr,
   Uimgfun,
   u_MemFileCache;
 type
-  TInetConnect = record
-    userwinset: boolean;
-    proxyused: boolean;
-    proxystr: string;
-    ProxyBypass: string;
-    uselogin: boolean;
-    loginstr: string;
-    passstr: string;
-  end;
-
-
-  TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
-
-
   TGlobalState = class
   private
     function GetMarkIconsPath: string;
