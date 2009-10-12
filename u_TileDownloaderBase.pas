@@ -10,7 +10,7 @@ uses
   t_CommonTypes;
 
 type
-  TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrUnknownError);
+  TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrUnknownError);
 
   TTileDownloaderBase = class
   protected
@@ -197,10 +197,23 @@ begin
       end;
     end;
     case AStatusCode of
-      200, 201, 202, 203, 205, 206: begin
+      HTTP_STATUS_OK,
+      HTTP_STATUS_CREATED,
+      HTTP_STATUS_ACCEPTED,
+      HTTP_STATUS_PARTIAL,
+      HTTP_STATUS_RESET_CONTENT,
+      HTTP_STATUS_PARTIAL_CONTENT: begin
         Result := ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType);
       end;
-      500, 501, 502, 503, 504: begin
+      HTTP_STATUS_NO_CONTENT,
+      HTTP_STATUS_NOT_FOUND: begin
+        Result := dtrTileNotExists;
+      end;
+      HTTP_STATUS_SERVER_ERROR,
+      HTTP_STATUS_NOT_SUPPORTED,
+      HTTP_STATUS_BAD_GATEWAY,
+      HTTP_STATUS_SERVICE_UNAVAIL,
+      HTTP_STATUS_GATEWAY_TIMEOUT: begin
         Result := dtrDownloadError;
       end;
       else
