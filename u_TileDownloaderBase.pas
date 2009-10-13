@@ -22,7 +22,9 @@ type
     FSessionOpenError: Cardinal;
     FCS: TCriticalSection;
     FSleepOnResetConnection: Cardinal;
-    procedure ResetConnetction;
+    procedure ResetConnetction; virtual;
+    procedure OpenSession; virtual;
+    procedure CloseSession; virtual;
     function BuildHeader(AUrl: string): string; virtual;
     function TryDownload(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal;  fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
@@ -46,6 +48,13 @@ begin
   Result := '';
 end;
 
+procedure TTileDownloaderBase.CloseSession;
+begin
+  if Assigned(FSessionHandle) then begin
+    InternetCloseHandle(FSessionHandle);
+  end;
+end;
+
 constructor TTileDownloaderBase.Create(AExpectedMIMETypes: string;
   ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
 begin
@@ -55,20 +64,13 @@ begin
   FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FSleepOnResetConnection := 200;
-  FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-  if Assigned(FSessionHandle) then begin
-    FSessionOpenError := 0;
-  end else begin
-    FSessionOpenError := GetLastError;
-  end;
+  OpenSession;
 end;
 
 destructor TTileDownloaderBase.Destroy;
 begin
   FreeAndNil(FCS);
-  if Assigned(FSessionHandle) then begin
-    InternetCloseHandle(FSessionHandle);
-  end;
+  CloseSession;
   inherited;
 end;
 
@@ -133,6 +135,16 @@ begin
   Result := dtrOK;
 end;
 
+procedure TTileDownloaderBase.OpenSession;
+begin
+  FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+  if Assigned(FSessionHandle) then begin
+    FSessionOpenError := 0;
+  end else begin
+    FSessionOpenError := GetLastError;
+  end;
+end;
+
 function TTileDownloaderBase.ProcessDataRequest(AFileHandle: HInternet;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult;
@@ -180,16 +192,9 @@ end;
 
 procedure TTileDownloaderBase.ResetConnetction;
 begin
-  if Assigned(FSessionHandle) then begin
-    InternetCloseHandle(FSessionHandle);
-  end;
+  CloseSession;
   Sleep(FSessionOpenError);
-  FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-  if Assigned(FSessionHandle) then begin
-    FSessionOpenError := 0;
-  end else begin
-    FSessionOpenError := GetLastError;
-  end;
+  OpenSession;
 end;
 
 function TTileDownloaderBase.TryDownload(AUrl: string;
