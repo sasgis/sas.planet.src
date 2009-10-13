@@ -103,6 +103,7 @@ var
     RGBPtr:PColor32Array;
     AlphaPtr: pByteArray;
     X, Y: Integer;
+    trColor:TColor32;
 begin
  try
   destBitmap.Clear;
@@ -137,15 +138,15 @@ begin
        end;
       end;
     ptmBit:
-      if (PNGObject.Header.ColorType in [COLOR_PALETTE]) then
        begin
+        destBitmap.Assign(PNGObject);
+        trColor:=Color32(PNGObject.TransparentColor);
         for Y:=0 to destBitmap.Height-1 do
          begin
           RGBPtr:=destBitmap.ScanLine[Y];
           for X:=0 to (destBitmap.Width-1) do begin
-           if PNGObject.Pixels[X,Y]=PNGObject.TransparentColor
-            then RGBPtr^[x]:=RGBPtr^[x] and $00000000
-            else RGBPtr^[x]:=Color32(PNGObject.Pixels[X,Y]);
+           if RGBPtr^[x]=trColor
+            then RGBPtr^[x]:=RGBPtr^[x] and $00000000;
           end
          end;
        end;
