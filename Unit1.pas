@@ -1908,11 +1908,6 @@ var
 begin
  if notpaint then exit;
  QueryPerformanceCounter(ts2);
- if (lastload.use) then
-  begin
-   //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
-   GState.MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
-  end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
  //AcrBuf:=map.Cursor;

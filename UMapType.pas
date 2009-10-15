@@ -963,6 +963,7 @@ var
     UnZip:TVCLUnZip;
 begin
   VPath := GetTileFileName(x, y, Azoom);
+
   CreateDirIfNotExists(VPath);
   DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
   if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(ext='.kml')then begin
@@ -1019,6 +1020,7 @@ begin
       png.Free;
     end;
   end;
+  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileInCache(btm:TObject;path:string);
