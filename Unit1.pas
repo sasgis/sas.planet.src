@@ -1096,7 +1096,6 @@ end;
 
 procedure TFmain.ThreadDone(Sender: TObject);
 begin
-  ThreadAllLoadMap(sender).closeSession;
   if ThreadAllLoadMap(sender)=THLoadMap1 then
        begin
         THLoadMap1:=nil;
