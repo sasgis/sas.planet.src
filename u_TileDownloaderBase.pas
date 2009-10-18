@@ -22,6 +22,10 @@ type
     FSessionOpenError: Cardinal;
     FCS: TCriticalSection;
     FSleepOnResetConnection: Cardinal;
+    function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
+    function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
+    function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean; virtual;
+    function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean; virtual;
     procedure ResetConnetction; virtual;
     procedure OpenSession; virtual;
     procedure CloseSession; virtual;
@@ -113,26 +117,81 @@ begin
       filebuf.Write(VBuffer, VBufferLen);
     end else begin
       VLastError := GetLastError;
-      case VLastError of
-        ERROR_INTERNET_CONNECTION_RESET,
-        ERROR_INTERNET_CANNOT_CONNECT,
-        ERROR_HTTP_INVALID_SERVER_RESPONSE,
-        ERROR_INTERNET_DISCONNECTED,
-        ERROR_INTERNET_FORCE_RETRY,
-        ERROR_INTERNET_OPERATION_CANCELLED,
-        ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
-        ERROR_INTERNET_SERVER_UNREACHABLE,
-        ERROR_INTERNET_SHUTDOWN,
-        ERROR_INTERNET_TIMEOUT: begin
-          Result := dtrDownloadError;
-        end;
-        else
-          Result := dtrUnknownError;
+      if IsDownloadError(VLastError) then begin
+        Result := dtrDownloadError;
+      end else begin
+        Result := dtrUnknownError;
       end;
       Exit;
     end;
   until (VBufferLen=0);
   Result := dtrOK;
+end;
+
+function TTileDownloaderBase.IsDownloadError(
+  ALastError: Cardinal): Boolean;
+begin
+  case ALastError of
+    ERROR_INTERNET_CONNECTION_RESET,
+    ERROR_INTERNET_CANNOT_CONNECT,
+    ERROR_HTTP_INVALID_SERVER_RESPONSE,
+    ERROR_INTERNET_DISCONNECTED,
+    ERROR_INTERNET_FORCE_RETRY,
+    ERROR_INTERNET_OPERATION_CANCELLED,
+    ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
+    ERROR_INTERNET_SERVER_UNREACHABLE,
+    ERROR_INTERNET_SHUTDOWN,
+    ERROR_INTERNET_TIMEOUT: begin
+      Result := true;
+    end;
+    else
+      Result := false;
+  end;
+end;
+
+function TTileDownloaderBase.IsDownloadErrorStatus(
+  AStatusCode: Cardinal): Boolean;
+begin
+  case AStatusCode of
+    HTTP_STATUS_SERVER_ERROR,
+    HTTP_STATUS_NOT_SUPPORTED,
+    HTTP_STATUS_BAD_GATEWAY,
+    HTTP_STATUS_SERVICE_UNAVAIL,
+    HTTP_STATUS_GATEWAY_TIMEOUT: begin
+      Result := True;
+    end;
+    else
+      Result := False;
+  end;
+end;
+
+function TTileDownloaderBase.IsOkStatus(AStatusCode: Cardinal): Boolean;
+begin
+  case AStatusCode of
+    HTTP_STATUS_OK,
+    HTTP_STATUS_CREATED,
+    HTTP_STATUS_ACCEPTED,
+    HTTP_STATUS_PARTIAL,
+    HTTP_STATUS_RESET_CONTENT,
+    HTTP_STATUS_PARTIAL_CONTENT: begin
+      Result := True;
+    end;
+    else
+      Result := False;
+  end;
+end;
+
+function TTileDownloaderBase.IsTileNotExistStatus(
+  AStatusCode: Cardinal): Boolean;
+begin
+  case AStatusCode of
+    HTTP_STATUS_NO_CONTENT,
+    HTTP_STATUS_NOT_FOUND: begin
+      Result := True;
+    end;
+    else
+      Result := False;
+  end;
 end;
 
 procedure TTileDownloaderBase.OpenSession;
@@ -219,21 +278,10 @@ begin
     dwIndex := 0;
     if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
       VLastError := GetLastError;
-      case VLastError of
-        ERROR_INTERNET_CONNECTION_RESET,
-        ERROR_HTTP_INVALID_SERVER_RESPONSE,
-        ERROR_INTERNET_CANNOT_CONNECT,
-        ERROR_INTERNET_DISCONNECTED,
-        ERROR_INTERNET_FORCE_RETRY,
-        ERROR_INTERNET_OPERATION_CANCELLED,
-        ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
-        ERROR_INTERNET_SERVER_UNREACHABLE,
-        ERROR_INTERNET_SHUTDOWN,
-        ERROR_INTERNET_TIMEOUT: begin
-          Result := dtrDownloadError;
-        end;
-        else
-          Result := dtrUnknownError;
+      if IsDownloadError(VLastError) then begin
+        Result := dtrDownloadError;
+      end else begin
+        Result := dtrUnknownError;
       end;
       Exit;
     end;
@@ -258,28 +306,14 @@ begin
         Exit;
       end;
     end;
-    case AStatusCode of
-      HTTP_STATUS_OK,
-      HTTP_STATUS_CREATED,
-      HTTP_STATUS_ACCEPTED,
-      HTTP_STATUS_PARTIAL,
-      HTTP_STATUS_RESET_CONTENT,
-      HTTP_STATUS_PARTIAL_CONTENT: begin
-        Result := ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType);
-      end;
-      HTTP_STATUS_NO_CONTENT,
-      HTTP_STATUS_NOT_FOUND: begin
-        Result := dtrTileNotExists;
-      end;
-      HTTP_STATUS_SERVER_ERROR,
-      HTTP_STATUS_NOT_SUPPORTED,
-      HTTP_STATUS_BAD_GATEWAY,
-      HTTP_STATUS_SERVICE_UNAVAIL,
-      HTTP_STATUS_GATEWAY_TIMEOUT: begin
-        Result := dtrDownloadError;
-      end;
-      else
-        Result := dtrUnknownError;
+    if IsOkStatus(AStatusCode) then begin
+      Result := ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType);
+    end else if IsDownloadErrorStatus(AStatusCode) then begin
+      Result := dtrDownloadError;
+    end else if IsTileNotExistStatus(AStatusCode) then begin
+      Result := dtrTileNotExists;
+    end else begin
+      Result := dtrUnknownError;
     end;
   finally
     InternetCloseHandle(VFileHandle);
