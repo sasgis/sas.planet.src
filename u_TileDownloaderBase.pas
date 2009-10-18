@@ -37,6 +37,8 @@ type
     constructor Create(AExpectedMIMETypes: string; ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
     destructor Destroy; override;
     function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
+    property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
+    property ExpectedMIMETypes: string read FExpectedMIMETypes write FExpectedMIMETypes; 
   end;
 
 implementation
@@ -252,7 +254,7 @@ end;
 procedure TTileDownloaderBase.ResetConnetction;
 begin
   CloseSession;
-  Sleep(FSessionOpenError);
+  Sleep(FSleepOnResetConnection);
   OpenSession;
 end;
 
