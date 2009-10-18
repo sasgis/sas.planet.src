@@ -32,9 +32,8 @@ type
     zamena:boolean;
     StartPoint:TPoint;
     LastSuccessfulPoint:TPoint;
-    res:integer;
-    raz:boolean;
-    razlen:integer;
+    LastLoadTileSize: integer;
+    CheckExistTileSize: boolean;
     Zdate:boolean;
     mapsload:boolean;
     SecondLoadTNE:boolean;
@@ -59,27 +58,25 @@ type
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    class function DownloadFile(AUrl: string; ExpectedMIMETypes: string; MT:TMapType; hSession:HInternet; ARaz: Boolean; ArazLen: Integer; out ty: string; fileBuf:TMemoryStream):integer;
-    function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType;out ty: string; fileBuf:TMemoryStream):integer;
+    class function DownloadFile(AUrl: string; ExpectedMIMETypes: string; MT:TMapType; hSession:HInternet; ARaz: Boolean; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream):integer;
+    function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream):integer;
     procedure Execute; override;
     procedure dwnReg;
     procedure dwnOne;
     procedure addDwnforban;
-    procedure WriteToFile;
+    procedure AfterWriteToFile;
     procedure addDwnTiles;
     procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
-    procedure GetPos;
-    procedure GetSmb;
+    procedure GetCurrentMapAndPos;
     procedure DwnInFon;
-    procedure SaveTileNotExists;
   public
     typeRect:1..4;
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
     procedure closeSession;
-    constructor Create(CrSusp:Boolean;APolygon_:TPointArray; Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
+    constructor Create(CrSusp:Boolean;APolygon_:TPointArray; Atyperect:byte;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
     constructor Create(CrSusp:Boolean;FileName:string;LastSuccessful:boolean); overload;
   end;
 
@@ -122,7 +119,7 @@ begin
    if typemap=nil then Terminate;
    zoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
    zamena:=Ini.ReadBool('Session','zamena',false);
-   raz:=Ini.ReadBool('Session','raz',false);
+   CheckExistTileSize := Ini.ReadBool('Session','raz',false);
    zdate:=Ini.ReadBool('Session','zdate',false);
    Fdate:=Ini.ReadDate('Session','FDate',now);
    scachano:=Ini.ReadInteger('Session','scachano',0);
@@ -169,7 +166,7 @@ begin
    Ini.WriteString('Session','MapGUID',typemap.guids);
    Ini.WriteInteger('Session','zoom',zoom);
    Ini.WriteBool('Session','zamena',zamena);
-   Ini.WriteBool('Session','raz',raz);
+   Ini.WriteBool('Session','raz', CheckExistTileSize);
    Ini.WriteBool('Session','zdate',zdate);
    Ini.WriteDate('Session','FDate',FDate);
    Ini.WriteBool('Session','SecondLoadTNE',SecondLoadTNE);
@@ -306,17 +303,17 @@ end;
 procedure ThreadAllLoadMap.addDwnTiles;
 begin
  inc(GState.all_dwn_tiles);
- GState.all_dwn_kb := GState.all_dwn_kb + (res/1024);
+ GState.all_dwn_kb := GState.all_dwn_kb + (LastLoadTileSize/1024);
 end;
 
-constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,Azraz,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
+constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var i:integer;
 begin
   inherited Create(CrSusp);
   mapsload:=false;
   zamena:=Azamena;
   zoom:=AZoom;
-  raz:=Azraz;
+  CheckExistTileSize := ACheckExistTileSize;
   typemap:=Atypemap;
   typeRect:=AtypeRect;
   FDate:=AFDate;
@@ -343,21 +340,21 @@ begin
   randomize;
 end;
 function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;
-  MT: TMapType; out ty: string; fileBuf: TMemoryStream): integer;
+  MT: TMapType; AOldTileSize: Integer; out ty: string; fileBuf: TMemoryStream): integer;
 begin
   result:=0;
   sleep(MT.Sleep);
   if terminated then exit;
   url_ifban := MT.GetLink(AXY.X, AXY.Y, AZoom);
 
-  Result := DownloadFile(url_ifban, MT.CONTENT_TYPE, MT, hSession, raz, razlen, ty, fileBuf);
+  Result := DownloadFile(url_ifban, MT.CONTENT_TYPE, MT, hSession, CheckExistTileSize, AOldTileSize, ty, fileBuf);
   if Result = -2 then begin
     Synchronize(Ban);
   end;
 end;
 
 
-class function ThreadAllLoadMap.DownloadFile(AUrl: string; ExpectedMIMETypes: string; MT:TMapType; hSession:HInternet;ARaz: Boolean; ArazLen: integer;out ty: string; fileBuf:TMemoryStream):integer;
+class function ThreadAllLoadMap.DownloadFile(AUrl: string; ExpectedMIMETypes: string; MT:TMapType; hSession:HInternet;ARaz: Boolean; AOldTileSize: integer; out ty: string; fileBuf:TMemoryStream):integer;
 var
   hFile:HInternet;
     Buffer:array [1..64535] of Byte;
@@ -366,7 +363,7 @@ var
     head:string;
     dwindex, dwcodelen,dwReserv: dword;
     dwtype,dwlen: array [1..160] of char;
-    len,StatusCode: pchar;
+    len: pchar;
 begin
   ty:='';
   len:='0';
@@ -406,7 +403,7 @@ begin
       err:=false;
       if (ty<>'')and(PosEx(ty,ExpectedMIMETypes,0)>0) then begin
         repeat
-          if (Araz)and(Arazlen=strtoint(len)) then begin
+          if (Araz)and(AOldTileSize=strtoint(len)) then begin
             result:=-10;
             InternetCloseHandle(hFile);
             exit;
@@ -442,8 +439,8 @@ procedure ThreadAllLoadMap.dwnOne;
 var i:integer;
   ty: string;
   fileBuf:TMemoryStream;
+  res: integer;
 begin
- res:=1;
  for i:=0 to length(poly)-1 do begin
   lastload.X:=poly[i].X-(abs(poly[i].X) mod 256);
   lastload.Y:=poly[i].Y-(abs(poly[i].Y) mod 256);
@@ -453,15 +450,20 @@ begin
   if typemap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
-      res :=DownloadTile(LoadXY, Zoom, typemap,ty, fileBuf);
-      if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap,ty,fileBuf);
+      res :=DownloadTile(LoadXY, Zoom, typemap, 0, ty, fileBuf);
+      if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap, 0, ty,fileBuf);
       ErrorString:=GetErrStr(res);
-      if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
-      if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
+      if (res<>-2)and(res<>-1)and(res<>0) then begin
+        LastLoadTileSize := res;
+        Synchronize(addDwnTiles);
+      end;
+      if (res=-1)and(GState.SaveTileNotExists) then begin
+        typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+      end;
       if ErrorString='' then begin
         typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
       end;
-      Synchronize(WriteToFile);
+      Synchronize(AfterWriteToFile);
     finally
       FileBuf.Free;
     end;
@@ -471,15 +473,9 @@ begin
  end;
 end;
 
-procedure ThreadAllLoadMap.GetPos;
-begin
- Upos:= FMain.pos;
- Zoom:= GState.zoom_size;
-end;
-
 function ThreadAllLoadMap.GetErrStr(Aerr:integer):string;
 begin
- case res of
+ case Aerr of
   -3: result:=SAS_ERR_Authorization;
   -2: result:=SAS_ERR_Ban;
   -1: result:=SAS_ERR_TileNotExists;
@@ -494,6 +490,7 @@ var i,j,ii,k,r,XX,YY,g,x,y,m1,num_dwn:integer;
     ty: string;
     fileBuf:TMemoryStream;
     VMap: TMapType;
+    res: integer;
 begin
   num_dwn:=0;
   repeat
@@ -502,8 +499,8 @@ begin
       continue;
     end;
     FMain.change_scene:=false;
-    Synchronize(GetSmb);
-    addDwnforban;
+    Synchronize(GetCurrentMapAndPos);
+    Synchronize(addDwnforban);
     j:=0;
     i:=-1;
     for r:=1 to (hg_x div 2)+2 do begin
@@ -519,8 +516,7 @@ begin
         x:=(hg_x div 2)+i;
         y:=(hg_y div 2)+j;
         if(FMain.change_scene) then continue;
-        Synchronize(getsmb);
-        Synchronize(getpos);
+        Synchronize(GetCurrentMapAndPos);
         for ii:=0 to length(MapType)-1 do begin
           VMap := MapType[ii];
           if VMap.active then begin
@@ -546,15 +542,20 @@ begin
               if VMap.UseDwn then begin
                 FileBuf:=TMemoryStream.Create;
                 try
-                  res:=DownloadTile(LoadXY, Zoom, VMap,ty, fileBuf);
-                  if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom, VMap,ty, fileBuf);
+                  res:=DownloadTile(LoadXY, Zoom, VMap, 0, ty, fileBuf);
+                  if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom, VMap, 0, ty, fileBuf);
                   ErrorString:=GetErrStr(res);
-                  if (res<>-2)and(res<>-1)and(res<>0) then Synchronize(addDwnTiles);
-                  if (res=-1)and(GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
+                  if (res<>-2)and(res<>-1)and(res<>0) then begin
+                    LastLoadTileSize := res;
+                    Synchronize(addDwnTiles);
+                  end;
+                  if (res=-1)and(GState.SaveTileNotExists) then begin
+                    VMap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+                  end;
                   if ErrorString='' then begin
                     VMap.SaveTileDownload(xx, yy, zoom, fileBuf, ty);
                   end;
-                  Synchronize(WriteToFile);
+                  Synchronize(AfterWriteToFile);
                 finally
                   FileBuf.Free;
                 end;
@@ -576,6 +577,8 @@ var p_x,p_y,dwnkb:integer;
   ty: string;
   VTileExists: boolean;
   fileBuf:TMemoryStream;
+  res: integer;
+  razlen: integer;
 begin
  OperBegin:=now;
  dwnkb:=round(dwnb*1024);
@@ -631,17 +634,17 @@ begin
         then res:=-1
         else
          begin
-          res:=DownloadTile(LoadXY, Zoom,typemap,ty, fileBuf);
-          if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap,ty, fileBuf);
+          res:=DownloadTile(LoadXY, Zoom,typemap, razlen, ty, fileBuf);
+          if (res<=0)and(GState.TwoDownloadAttempt) then res:=DownloadTile(LoadXY, Zoom,typemap, razlen, ty, fileBuf);
          end;
 
        If (typemap.UseAntiBan>1)and((scachano>0)and((scachano mod typemap.UseAntiBan)=0)) then
         begin
          mapsload:=false;
-         addDwnforban;
+         Synchronize(addDwnforban);
         end;
 
-       if (raz)and(res=-10) then
+       if (CheckExistTileSize)and(res=-10) then
           begin
             AddToMemo:=SAS_MSG_FileBeCreateLen;
             Synchronize(UpdateMemoProgressForm);
@@ -675,7 +678,9 @@ begin
          FileBuf.Free;
          inc(p_y,256);
          inc(obrab);
-         if (GState.SaveTileNotExists) then Synchronize(SaveTileNotExists);
+         if (GState.SaveTileNotExists) then begin
+          typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+         end;
          continue;
         end;
        if res=0 then
@@ -698,8 +703,9 @@ begin
         if ErrorString='' then begin
           typemap.SaveTileDownload(p_x, p_y, Zoom, fileBuf, ty);
         end;
+       LastLoadTileSize := res;
        Synchronize(addDwnTiles);
-       Synchronize(WriteToFile);
+       Synchronize(AfterWriteToFile);
        FileBuf.Free;
        dwnkb:=dwnkb+res;
        inc(scachano);
@@ -730,7 +736,7 @@ begin
  closeSession;
 end;
 
-procedure ThreadAllLoadMap.WriteToFile;
+procedure ThreadAllLoadMap.AfterWriteToFile;
 begin
  if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
   begin
@@ -739,14 +745,11 @@ begin
  else Fmain.toSh;
 end;
 
-procedure ThreadAllLoadMap.SaveTileNotExists;
-begin
-  typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
-end;
-
-procedure ThreadAllLoadMap.GetSMB;
+procedure ThreadAllLoadMap.GetCurrentMapAndPos;
 begin
  TypeMap:=Sat_map_Both;
+ Upos:= FMain.pos;
+ Zoom:= GState.zoom_size;
 end;
 
 end.
