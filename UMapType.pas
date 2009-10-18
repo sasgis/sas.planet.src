@@ -73,22 +73,24 @@ type
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     function GetLink(x,y:longint;Azoom:byte):string;
-    function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
+    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
+
     function GetTileFileName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
-    // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
-    // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
-    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
     procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
     procedure SaveTileNotExists(x,y:longint;Azoom:byte);
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
+
+    // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
+    // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
+    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
+
     function GetShortFolderName: string;
     property GeoConvert: ICoordConverter read GetCoordConverter;
   private
@@ -542,10 +544,6 @@ begin
   Result:=FUrlGenerator.GenLink(x shr 8,y shr 8,Azoom-1);
 end;
 
-function TMapType.GetMapSize(zoom:byte):longint;
-begin
- result:=round(intpower(2,zoom))*256;
-end;
 function TMapType.GetBasePath: string;
 var
   ct:byte;
