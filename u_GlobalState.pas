@@ -48,7 +48,7 @@ type
     // Количество скачанных тайлов
     All_Dwn_Tiles: Cardinal;
 
-    InetConnect:TInetConnect;
+    InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
@@ -189,8 +189,9 @@ uses
 constructor TGlobalState.Create;
 begin
   All_Dwn_Kb := 0;
-  All_Dwn_Tiles:=0;
-  ProgramPath:=ExtractFilePath(ParamStr(0));
+  All_Dwn_Tiles := 0;
+  InetConnect := TInetConnect.Create;
+  ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
   LoadMarkIcons;
@@ -202,6 +203,7 @@ begin
   FreeAndNil(MainIni);
   FreeAndNil(MainFileCache);
   FreeAndNil(MarkIcons);
+  FreeAndNil(InetConnect);
   inherited;
 end;
 

@@ -3,7 +3,8 @@ unit t_CommonTypes;
 interface
 
 type
-  TInetConnect = record
+  TInetConnect = class
+  public
     userwinset: boolean;
     proxyused: boolean;
     proxystr: string;
