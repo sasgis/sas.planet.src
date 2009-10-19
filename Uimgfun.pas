@@ -282,12 +282,12 @@ var i,c_x,c_y,dZ:integer;
     VTileExists: Boolean;
 begin
  result:=false;
- if not(GState.UsePrevZoom) then
-  begin
+ if (not(GState.UsePrevZoom) and (Amap.asLayer=false)) or
+    (not(GState.UsePrevZoomLayer) and (Amap.asLayer=true)) then begin
    spr.Clear(SetAlpha(Color32(clSilver),0));
    exit;
-  end;
-  VTileExists := false;
+ end;
+ VTileExists := false;
  for i:=(Azoom-1) downto 1 do
   begin
    dZ:=(Azoom-i);

@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -665,7 +664,14 @@ object Fmain: TFmain
           AutoCheck = True
           Checked = True
           OnClick = NbackloadClick
-          Caption = '&'#1041#1088#1072#1090#1100' '#1091#1095#1072#1089#1090#1082#1080' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1093' '#1089#1083#1086#1077#1074
+          Caption = #1041#1088#1072#1090#1100' '#1082#1072#1088#1090#1099' '#1080#1079' '#1084#1077#1085#1100#1096#1080#1093' '#1084#1072#1089#1096#1090#1072#1073#1086#1074
+          Hint = ''
+        end
+        object NbackloadLayer: TTBItem
+          AutoCheck = True
+          Checked = True
+          OnClick = NbackloadLayerClick
+          Caption = #1041#1088#1072#1090#1100' '#1089#1083#1086#1080' '#1080#1079' '#1084#1077#1085#1100#1096#1080#1093' '#1084#1072#1089#1096#1090#1072#1073#1086#1074
           Hint = ''
         end
         object Nanimate: TTBItem

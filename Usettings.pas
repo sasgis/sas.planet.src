@@ -305,6 +305,7 @@ begin
  GState.MainIni.Writeinteger('VIEW','grid',zoom_line);
  GState.MainIni.Writebool('VIEW','invert_mouse',GState.MouseWheelInv);
  GState.MainIni.Writebool('VIEW','back_load',GState.UsePrevZoom);
+ GState.MainIni.Writebool('VIEW','back_load_layer',GState.UsePrevZoomLayer);
  GState.MainIni.Writebool('VIEW','animate',GState.AnimateZoom);
  GState.MainIni.Writebool('VIEW','FullScreen',GState.FullScrean);
  GState.MainIni.WriteInteger('VIEW','FLeft',Fmain.Left);

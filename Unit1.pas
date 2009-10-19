@@ -343,6 +343,7 @@ type
     TBImageList1_24: TTBImageList;
     PMNRObject: TPopupMenu;
     NGoHim: TMenuItem;
+    NbackloadLayer: TTBItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -459,6 +460,7 @@ type
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
     procedure NanimateClick(Sender: TObject);
+    procedure NbackloadLayerClick(Sender: TObject);
   private
    ShowActivHint:boolean;
    h: THintWindow;
@@ -2268,6 +2270,7 @@ begin
  POS:=Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
             GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
  GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
+ GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
  GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
  Fillingmaptype:=GetMapFromID(GState.MainIni.ReadString('VIEW','FillingMap','0'));
  if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
@@ -2325,6 +2328,7 @@ begin
  TBGPSToPoint.Checked:=GState.GPS_MapMove;
  NGPSToPoint.Checked:=GState.GPS_MapMove;
  Nbackload.Checked:=GState.UsePrevZoom;
+ NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
  Nanimate.Checked:=GState.AnimateZoom;
 
  if not(FileExists(GState.MainConfigFileName)) then
@@ -2641,6 +2645,12 @@ end;
 procedure TFmain.NbackloadClick(Sender: TObject);
 begin
  GState.UsePrevZoom := Nbackload.Checked;
+ generate_im(nilLastLoad,'');
+end;
+
+procedure TFmain.NbackloadLayerClick(Sender: TObject);
+begin
+ GState.UsePrevZoomLayer := NbackloadLayer.Checked;
  generate_im(nilLastLoad,'');
 end;
 
@@ -4460,5 +4470,7 @@ procedure TFmain.NanimateClick(Sender: TObject);
 begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
+
+
 
 end.
