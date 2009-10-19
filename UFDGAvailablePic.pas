@@ -85,6 +85,8 @@ type
     constructor Create(ALink:string);
   end;
 
+const
+  maxReqSize = 3000;
 
 var
   FDGAvailablePic: TFDGAvailablePic;
@@ -93,19 +95,19 @@ var
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
              ('227400001','2','USGS 1:24k Topo Stack','020100S'),
              ('2133000801','4','GlobeXplorer Premium Portal Stack','060100W'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','6','APUSA Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','7','DigitalGlobe Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','11','CitiPix by GlobeXplorer ODI stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','13','DOQQ Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','14','I-cubed Image Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','18','CitiPix by GlobeXplorer ODI plus RDI stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','6','APUSA Stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','7','DigitalGlobe Stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','11','CitiPix by GlobeXplorer ODI stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','13','DOQQ Stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','14','I-cubed Image Stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','18','CitiPix by GlobeXplorer ODI plus RDI stack','020100S'),
              ('227400001','19','WMS Premium','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','20','National Map Data Stack','020100S'),
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','20','National Map Data Stack','020100S'),
              ('227400001','27','NAIP Stack','020100S'),
              ('2133000801','32','Current Events Stack','060100W'),
 //             ('4844000213','33', 'GlobeXplorer Deluxe Stack','030603A'),
 //             ('4844000213','34', 'GlobeXplorer Deluxe Portal Stack','030603A'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','49','Country Coverage','020100S')
+             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','49','Country Coverage','020100S')
              );
 { Stacks : array [0..32,0..3] of string =
             (
@@ -351,8 +353,8 @@ begin
  mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(APos.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
- if hi>3500 then hi:=3500;
- if wi>3500 then wi:=3500;
+ if hi>maxReqSize then hi:=maxReqSize;
+ if wi>maxReqSize then wi:=maxReqSize;
  if hi<mHd2*2 then hi:=256;
  if wi<mWd2*2 then wi:=256;
  if mpp>8 then mpp:=8;
