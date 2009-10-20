@@ -13,15 +13,15 @@ uses
 type
   TTileDownloaderUI = class(TThread)
   private
-    Zoom:byte;
-    typemap:TMapType;
-    UPos:TPoint;
-    LoadXY: TPoint;
+    FZoom: byte;
+    FTypeMap: TMapType;
+    UPos: TPoint;
+    FLoadXY: TPoint;
     FDownloader: TTileDownloaderBase;
-    lastLoad:TlastLoad;
-    mapsload:boolean;
-    ErrorString:string;
-    url_ifban: string;
+    FLastLoad: TlastLoad;
+    Fmapsload: boolean;
+    FErrorString: string;
+    FLoadUrl: string;
     procedure GetCurrentMapAndPos;
     procedure addDwnforban;
     procedure AfterWriteToFile;
@@ -45,16 +45,16 @@ uses
 
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
- TypeMap:=Sat_map_Both;
+ FTypeMap:=Sat_map_Both;
  Upos:= FMain.pos;
- Zoom:= GState.zoom_size;
+ FZoom:= GState.zoom_size;
 end;
 
 procedure TTileDownloaderUI.addDwnforban;
 begin
-  if (mapsload=false)and(typemap.UseAntiBan>0) then begin
+  if (Fmapsload=false)and(FTypeMap.UseAntiBan>0) then begin
     Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
-    mapsload:=true;
+    Fmapsload:=true;
   end;
 end;
 
@@ -65,10 +65,10 @@ var
 begin
   Result := dtrUnknownError;
   if terminated then exit;
-  url_ifban := MT.GetLink(AXY.X, AXY.Y, AZoom);
+  FLoadUrl := MT.GetLink(AXY.X, AXY.Y, AZoom);
   FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
   FDownloader.SleepOnResetConnection := MT.Sleep;
-  Result := FDownloader.DownloadTile(url_ifban, false, 0, fileBuf, StatusCode, ty);
+  Result := FDownloader.DownloadTile(FLoadUrl, false, 0, fileBuf, StatusCode, ty);
   if (ty <> MT.Content_type)
     and(fileBuf.Size <> 0)
     and(MT.BanIfLen <> 0)
@@ -82,6 +82,7 @@ begin
     Synchronize(Ban);
   end;
 end;
+
 function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
 begin
  case Aerr of
@@ -100,7 +101,7 @@ end;
 procedure TTileDownloaderUI.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
-   Fmain.generate_im(lastload,ErrorString);
+   Fmain.generate_im(FLastLoad, FErrorString);
  end else begin
   Fmain.toSh;
  end;
@@ -108,10 +109,10 @@ end;
 
 procedure TTileDownloaderUI.ban;
 begin
- if typemap.ban_pg_ld then
+ if FTypeMap.ban_pg_ld then
   begin
-   Fmain.ShowCaptcha(url_ifban);
-   typemap.ban_pg_ld:=false;
+   Fmain.ShowCaptcha(FLoadUrl);
+   FTypeMap.ban_pg_ld:=false;
   end;
 end;
 
@@ -121,7 +122,7 @@ var
 begin
   inherited Create(False);
   Priority := tpLower;
-  mapsload := false;
+  Fmapsload := false;
   if GState.TwoDownloadAttempt then begin
     VDownloadTryCount := 2;
   end else begin
@@ -155,7 +156,7 @@ begin
       end else begin
         FMain.change_scene:=false;
         Synchronize(GetCurrentMapAndPos);
-        if typemap = nil then begin
+        if FTypeMap = nil then begin
           Sleep(1000);
         end else begin
           Synchronize(addDwnforban);
@@ -184,46 +185,46 @@ begin
                 VMap := MapType[ii];
                 if VMap.active then begin
                   BPos:=UPos;
-                  BPos := typemap.GeoConvert.Pos2OtherMap(Upos, (zoom - 1) + 8, VMap.GeoConvert);
-                  xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
-                  yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),zoom);
-                  LoadXY.X := xx;
-                  LoadXY.Y := yy;
+                  BPos := FTypeMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
+                  xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),Fzoom);
+                  yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),Fzoom);
+                  FLoadXY.X := xx;
+                  FLoadXY.Y := yy;
 
-                  lastload.X:=XX-(abs(XX) mod 256);
-                  lastload.Y:=YY-(abs(YY) mod 256);
-                  lastload.z:=zoom;
-                  lastLoad.mt:=MapType[ii];
-                  lastLoad.use:=true;
-                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(xx,yy,zoom)))) then begin
+                  Flastload.X:=XX-(abs(XX) mod 256);
+                  Flastload.Y:=YY-(abs(YY) mod 256);
+                  Flastload.z:=Fzoom;
+                  FlastLoad.mt:=VMap;
+                  FlastLoad.use:=true;
+                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(xx,yy,Fzoom)))) then begin
                     If (VMap.UseAntiBan>1) then begin
                       inc(num_dwn);
                       If ((num_dwn>0)and((num_dwn mod VMap.UseAntiBan)=0)) then begin
-                        mapsload:=false;
+                        Fmapsload:=false;
                       end;
                     end;
                     if VMap.UseDwn then begin
                       FileBuf:=TMemoryStream.Create;
                       try
-                        res:=DownloadTile(LoadXY, Zoom, VMap, 0, ty, fileBuf);
-                        ErrorString:=GetErrStr(res);
+                        res:=DownloadTile(FLoadXY, FZoom, VMap, 0, ty, fileBuf);
+                        FErrorString:=GetErrStr(res);
                         if (res = dtrOK) or (res = dtrSameTileSize) then begin
                           GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                         end;
                         if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                          VMap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+                          VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
                         end;
                         if res = dtrOK then begin
-                          VMap.SaveTileDownload(xx, yy, zoom, fileBuf, ty);
+                          VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
                         end;
                         Synchronize(AfterWriteToFile);
                       finally
                         FileBuf.Free;
                       end;
                     end else begin
-                      ErrorString:=SAS_ERR_NotLoads;
+                      FErrorString:=SAS_ERR_NotLoads;
                     end;
-                    sleep(typemap.Sleep);
+                    sleep(FTypeMap.Sleep);
                   end;
                 end;
               end;
