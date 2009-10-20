@@ -6,17 +6,11 @@ uses
   Windows,
   Classes,
   Types,
+  t_LoadEvent,
   u_TileDownloaderBase,
   UMapType;
 
 type
-  TlastLoad_ = record
-    x,y:longint;
-    z:byte;
-    mt:TMapType;
-    use:boolean;
-  end;
-
   TTileDownloaderUI = class(TThread)
   private
     Zoom:byte;
@@ -24,7 +18,7 @@ type
     UPos:TPoint;
     LoadXY: TPoint;
     FDownloader: TTileDownloaderBase;
-    lastLoad:TlastLoad_;
+    lastLoad:TlastLoad;
     mapsload:boolean;
     ErrorString:string;
     url_ifban: string;
@@ -106,7 +100,7 @@ end;
 procedure TTileDownloaderUI.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
-   Fmain.generate_im(TLastLoad(lastload),ErrorString);
+   Fmain.generate_im(lastload,ErrorString);
  end else begin
   Fmain.toSh;
  end;

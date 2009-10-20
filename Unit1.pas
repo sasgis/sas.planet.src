@@ -49,6 +49,7 @@ uses
   PNGimage,
   MidasLib,
   ImgMaker,
+  t_LoadEvent,
   u_GeoToStr,
   UTrAllLoadMap,
   UThreadScleit,
@@ -64,13 +65,6 @@ uses
   t_GeoTypes;
 
 type
-  TlastLoad = record
-    x,y:longint;
-    z:byte;
-    mt:TMapType;
-    use:boolean;
-  end;
-
   TTileSource = (tsInternet,tsCache,tsCacheInternet);
 
   TArrLL = array [0..0] of TExtendedPoint;

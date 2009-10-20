@@ -13,17 +13,12 @@ uses
   GR32_Resamplers,
   Uprogress,
   t_GeoTypes,
+  t_LoadEvent,
   UMapType,
   u_TileDownloaderBase,
   UResStrings;
 
 type
-  TlastLoad_ = record
-    x,y:longint;
-    z:byte;
-    mt:TMapType;
-    use:boolean;
-  end;
   ThreadAllLoadMap = class(TThread)
   private
     Poly:TPointArray;
@@ -43,7 +38,7 @@ type
     OperBegin:TDateTime;
     FDownloader: TTileDownloaderBase;
     _FProgress:TFProgress;
-    lastLoad:TlastLoad_;
+    lastLoad:TlastLoad;
     max,min:TPoint;
     scachano,num_dwn,obrab,vsego:integer;
     dwnb:real;
@@ -580,7 +575,7 @@ procedure ThreadAllLoadMap.AfterWriteToFile;
 begin
  if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
   begin
-   Fmain.generate_im(TLastLoad(lastload),ErrorString);
+   Fmain.generate_im(lastload,ErrorString);
   end
  else Fmain.toSh;
 end;
