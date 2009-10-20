@@ -297,21 +297,20 @@ begin
   FDate:=AFDate;
   Zdate:=AzDate;
   SecondLoadTNE:=ASecondLoadTNE;
-  for i:=1 to length(APolygon_) do
-   begin
-    setlength(Poly,i);
-    poly[i-1]:=Apolygon_[i-1];
-   end;
-    Application.CreateForm(TFProgress, _FProgress);
-    _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
-    num_dwn:=GetDwnlNum(min,max,poly,true);
-    vsego:=num_dwn;
-    scachano:=0;
-    obrab:=0;
-    dwnb:=0;
-    Synchronize(SetProgressForm);
-    _FProgress.Visible:=true;
-  Synchronize(addDwnforban);
+  setlength(Poly,length(APolygon_));
+  for i:=0 to length(APolygon_) - 1 do begin
+    poly[i]:=Apolygon_[i];
+  end;
+  Application.CreateForm(TFProgress, _FProgress);
+  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
+  num_dwn:=GetDwnlNum(min,max,poly,true);
+  vsego:=num_dwn;
+  scachano:=0;
+  obrab:=0;
+  dwnb:=0;
+  SetProgressForm;
+  _FProgress.Visible:=true;
+  addDwnforban;
   randomize;
 end;
 function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;

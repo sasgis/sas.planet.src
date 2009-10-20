@@ -13,12 +13,12 @@ uses
 type
   TTileDownloaderUIOneTile = class(TThread)
   private
-    lastLoad:TlastLoad;
-    typemap:TMapType;
-    LoadXY: TPoint;
-    Zoom:byte;
-    ErrorString:string;
-    url_ifban: string;
+    FLastLoad: TlastLoad;
+    FTypeMap: TMapType;
+    FLoadXY: TPoint;
+    FZoom: byte;
+    FErrorString: string;
+    FLoadUrl: string;
     FDownloader: TTileDownloaderBase;
     function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
     procedure ban;
@@ -62,10 +62,10 @@ var
 begin
   Result := dtrUnknownError;
   if terminated then exit;
-  url_ifban := MT.GetLink(AXY.X, AXY.Y, AZoom);
+  FLoadUrl := MT.GetLink(AXY.X, AXY.Y, AZoom);
   FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
   FDownloader.SleepOnResetConnection := MT.Sleep;
-  Result := FDownloader.DownloadTile(url_ifban, false, 0, fileBuf, StatusCode, ty);
+  Result := FDownloader.DownloadTile(FLoadUrl, false, 0, fileBuf, StatusCode, ty);
   if (ty <> MT.Content_type)
     and(fileBuf.Size <> 0)
     and(MT.BanIfLen <> 0)
@@ -84,17 +84,17 @@ procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
   begin
-   Fmain.generate_im(lastload,ErrorString);
+   Fmain.generate_im(FLastLoad, FErrorString);
   end
  else Fmain.toSh;
 end;
 
 procedure TTileDownloaderUIOneTile.ban;
 begin
- if typemap.ban_pg_ld then
+ if FTypeMap.ban_pg_ld then
   begin
-   Fmain.ShowCaptcha(url_ifban);
-   typemap.ban_pg_ld:=false;
+   Fmain.ShowCaptcha(FLoadUrl);
+   FTypeMap.ban_pg_ld:=false;
   end;
 end;
 
@@ -103,9 +103,9 @@ var
   VDownloadTryCount: Integer;
 begin
   inherited Create(False);
-  LoadXY := AXY;
-  Zoom := AZoom;
-  typemap := MT;
+  FLoadXY := AXY;
+  FZoom := AZoom;
+  FTypeMap := MT;
 
   Priority := tpLower;
   FreeOnTerminate := true;
@@ -130,30 +130,30 @@ var
   fileBuf:TMemoryStream;
   res: TDownloadTileResult;
 begin
-  lastload.X:=LoadXY.X-(abs(LoadXY.X) mod 256);
-  lastload.Y:=LoadXY.Y-(abs(LoadXY.Y) mod 256);
-  lastload.z:=zoom;
-  lastLoad.mt:=typemap;
-  lastLoad.use:=true;
-  if typemap.UseDwn then begin
+  Flastload.X := FLoadXY.X-(abs(FLoadXY.X) mod 256);
+  Flastload.Y := FLoadXY.Y-(abs(FLoadXY.Y) mod 256);
+  Flastload.z := Fzoom;
+  FlastLoad.mt := Ftypemap;
+  FlastLoad.use :=true;
+  if FTypeMap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
-      res :=DownloadTile(LoadXY, Zoom, typemap, 0, ty, fileBuf);
-      ErrorString:=GetErrStr(res);
+      res :=DownloadTile(FLoadXY, FZoom, FTypeMap, 0, ty, fileBuf);
+      FErrorString:=GetErrStr(res);
       if (res = dtrOK) or (res = dtrSameTileSize) then begin
         GState.IncrementDownloaded(fileBuf.Size/1024, 1);
       end;
       if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
-        typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+        FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
       end;
       if res = dtrOK then begin
-        typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
+        FTypeMap.SaveTileDownload(FLoadXY.X, FLoadXY.Y, FZoom, fileBuf, ty);
       end;
     finally
       FileBuf.Free;
     end;
   end else begin
-    ErrorString:=SAS_ERR_NotLoads;
+    FErrorString:=SAS_ERR_NotLoads;
   end;
   Synchronize(AfterWriteToFile);
 end;
