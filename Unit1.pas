@@ -611,7 +611,9 @@ uses
   UFDGAvailablePic,
   USearchResult,
   UImport,
-  UAddCategory, u_CoordConverterAbstract;
+  UAddCategory,
+  u_TileDownloaderUIOneTile,
+  u_CoordConverterAbstract;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -2677,21 +2679,21 @@ procedure TFmain.N21Click(Sender: TObject);
 var path:string;
     APos:TPoint;
     AMapType:TMapType;
-    Poly: TPointArray;
+    VLoadPoint: TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (GState.zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
- SetLength(Poly, 1);
- Poly[0] := Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y));
- if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
-   with ThreadAllLoadMap.Create(False, Poly, 1,true,false,false,true,GState.zoom_size,AMapType,date) do
-   begin
-    FreeOnTerminate:=true;
-    OnTerminate:=ThreadDone;
-   end;
+ VLoadPoint.x := Apos.x-(mWd2-m_up.x);
+ VLoadPoint.y := Apos.y-(mHd2-m_up.y);
+
+ if ((not(AMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
+  (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
+ then begin
+  TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, AMapType);
+ end;
 end;
 
 procedure TFmain.N11Click(Sender: TObject);
@@ -3748,7 +3750,7 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
 var PWL:TResObj;
     posB:TPoint;
     stw:String;
-    Poly: TPointArray;
+    VLoadPoint: TPoint;
 begin
  if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
@@ -3765,14 +3767,9 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[GState.zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
   begin
-    SetLength(Poly, 1);
-    Poly[0] := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
-    with ThreadAllLoadMap.Create(False, Poly,1,true,false,false,true,GState.zoom_size,sat_map_both,date) do
-     begin
-      FreeOnTerminate:=true;
-      OnTerminate:=ThreadDone;
-     end;
-   exit;
+    VLoadPoint := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
+    TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, sat_map_both);
+    exit;
   end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin

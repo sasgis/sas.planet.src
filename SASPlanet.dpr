@@ -55,7 +55,8 @@ uses
   u_MiniMap in 'u_MiniMap.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
-  t_LoadEvent in 't_LoadEvent.pas';
+  t_LoadEvent in 't_LoadEvent.pas',
+  u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas';
 
 var
   loc:integer;
