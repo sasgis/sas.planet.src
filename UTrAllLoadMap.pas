@@ -41,7 +41,6 @@ type
 
     FDate:TDateTime;
     OperBegin:TDateTime;
-    UPos:TPoint;
     FDownloader: TTileDownloaderBase;
     _FProgress:TFProgress;
     lastLoad:TlastLoad_;
@@ -49,16 +48,13 @@ type
     scachano,num_dwn,obrab,vsego:integer;
     dwnb:real;
     AddToMemo,TimeEnd,LenEnd:string;
-  private
     function GetErrStr(Aerr: TDownloadTileResult): string;
-  protected
     procedure UpdateMemoProgressForm;
     procedure UpdateMemoAddProgressForm;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
     function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
-    procedure Execute; override;
     procedure dwnReg;
     procedure dwnOne;
     procedure addDwnforban;
@@ -66,8 +62,8 @@ type
     procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
-    procedure GetCurrentMapAndPos;
-    procedure DwnInFon;
+  protected
+    procedure Execute; override;
   public
     typeRect:1..4;
     procedure ButtonSaveClick(Sender: TObject);
@@ -412,92 +408,6 @@ begin
  end;
 end;
 
-procedure ThreadAllLoadMap.DwnInFon;
-var i,j,ii,k,r,XX,YY,g,x,y,m1,num_dwn:integer;
-    Bpos:TPoint;
-    ty: string;
-    fileBuf:TMemoryStream;
-    VMap: TMapType;
-    res: TDownloadTileResult;
-begin
-  num_dwn:=0;
-  repeat
-    if(not FMain.change_scene)then begin
-      sleep(100);
-      continue;
-    end;
-    FMain.change_scene:=false;
-    Synchronize(GetCurrentMapAndPos);
-    Synchronize(addDwnforban);
-    j:=0;
-    i:=-1;
-    for r:=1 to (hg_x div 2)+2 do begin
-      g:=(r*2-2);
-      if r=1 then m1:=0 else m1:=1;
-      for k:=0 to g*4-m1 do begin
-        if (k=0) then inc(i);
-        if (k>0)and(k<g) then inc(j);
-        if (k>=g)and(k<g*2) then dec(i);
-        if (k>=g*2)and(k<g*3) then dec(j);
-        if (k>=g*3) then inc(i);
-        if g=0 then i:=0;
-        x:=(hg_x div 2)+i;
-        y:=(hg_y div 2)+j;
-        if(FMain.change_scene) then continue;
-        Synchronize(GetCurrentMapAndPos);
-        for ii:=0 to length(MapType)-1 do begin
-          VMap := MapType[ii];
-          if VMap.active then begin
-            BPos:=UPos;
-            BPos := typemap.GeoConvert.Pos2OtherMap(Upos, (zoom - 1) + 8, VMap.GeoConvert);
-            xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),zoom);
-            yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),zoom);
-            LoadXY.X := xx;
-            LoadXY.Y := yy;
-
-            lastload.X:=XX-(abs(XX) mod 256);
-            lastload.Y:=YY-(abs(YY) mod 256);
-            lastload.z:=zoom;
-            lastLoad.mt:=MapType[ii];
-            lastLoad.use:=true;
-            if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(xx,yy,zoom)))) then begin
-              If (VMap.UseAntiBan>1) then begin
-                inc(num_dwn);
-                If ((num_dwn>0)and((num_dwn mod VMap.UseAntiBan)=0)) then begin
-                  mapsload:=false;
-                end;
-              end;
-              if VMap.UseDwn then begin
-                FileBuf:=TMemoryStream.Create;
-                try
-                  res:=DownloadTile(LoadXY, Zoom, VMap, 0, ty, fileBuf);
-                  ErrorString:=GetErrStr(res);
-                  if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                    GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                  end;
-                  if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                    VMap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
-                  end;
-                  if res = dtrOK then begin
-                    VMap.SaveTileDownload(xx, yy, zoom, fileBuf, ty);
-                  end;
-                  Synchronize(AfterWriteToFile);
-                finally
-                  FileBuf.Free;
-                end;
-              end else begin
-                ErrorString:=SAS_ERR_NotLoads;
-              end;
-              sleep(typemap.Sleep);
-              While (FMain.MapMoving)or(FMain.MapZoomAnimtion=1) do Sleep(10);
-            end;
-          end;
-        end;
-      end;
-    end;
-  until Terminated;
-end;
-
 procedure ThreadAllLoadMap.dwnReg;
 var
   p_x,p_y: integer;
@@ -664,7 +574,6 @@ procedure ThreadAllLoadMap.Execute;
 begin
  if typeRect=1 then dwnOne;
  if typeRect in [2,3] then dwnReg;
- if typeRect=4 then DwnInFon;
 end;
 
 procedure ThreadAllLoadMap.AfterWriteToFile;
@@ -674,13 +583,6 @@ begin
    Fmain.generate_im(TLastLoad(lastload),ErrorString);
   end
  else Fmain.toSh;
-end;
-
-procedure ThreadAllLoadMap.GetCurrentMapAndPos;
-begin
- TypeMap:=Sat_map_Both;
- Upos:= FMain.pos;
- Zoom:= GState.zoom_size;
 end;
 
 destructor ThreadAllLoadMap.Destroy;
