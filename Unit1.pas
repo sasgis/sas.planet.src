@@ -60,7 +60,6 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
-  u_TileDownloaderUI,
   t_GeoTypes;
 
 type
@@ -481,7 +480,6 @@ type
    dWhenMovingButton:integer;
    LenShow: boolean;
    RectWindow:TRect;
-   FUIDownLoader: TTileDownloaderUI;
   public
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
@@ -575,6 +573,7 @@ var
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
+  THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   curBuf:TCursor;
   nilLastLoad:TLastLoad;
@@ -662,7 +661,18 @@ begin
   tsCache: NSRCesh.Checked:=true;
   tsCacheInternet: NSRCic.Checked:=true;
  end;
- change_scene:=true
+ if (value=tsCache) then
+  if (THLoadMap1<>nil) then THLoadMap1.Terminate
+                       else
+  else if (THLoadMap1<>nil) then change_scene:=true
+                            else
+  begin
+   change_scene:=true;
+   THLoadMap1:=ThreadAllLoadMap.Create(False,nil,4,NSRCinet.Checked,false,false,true,GState.zoom_size,sat_map_both,date);
+   THLoadMap1.FreeOnTerminate:=true;
+   THLoadMap1.Priority:=tpLower;
+   THLoadMap1.OnTerminate:=ThreadDone;
+  end
 end;
 
 procedure TFMain.Set_lock_toolbars(const Value: boolean);
@@ -1088,6 +1098,11 @@ end;
 
 procedure TFmain.ThreadDone(Sender: TObject);
 begin
+  if ThreadAllLoadMap(sender)=THLoadMap1 then
+       begin
+        THLoadMap1:=nil;
+        exit;
+       end;
    if ThreadAllLoadMap(sender).typeRect in [2,3] then
     begin
      if not((MapMoving)or(MapZoomAnimtion=1)) then
@@ -2359,7 +2374,6 @@ begin
  Enabled:=true;
  SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
- FUIDownLoader := TTileDownloaderUI.Create;
 end;
 
 
@@ -2472,9 +2486,6 @@ end;
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  ProgramClose:=true;
- FUIDownLoader.Terminate;
- WaitForSingleObject(FUIDownLoader.Handle, 0);
- FreeAndNil(FUIDownLoader);
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
 end;
@@ -3989,7 +4000,6 @@ begin
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
-
  if (not ShowActivHint) then
   begin
    if (h<>nil) then
@@ -4420,7 +4430,7 @@ end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
 begin
- ShowMessage(sat_map_both.info);
+ ShowMessage('Τΰιλ: '+sat_map_both.zmpfilename+#13#10+sat_map_both.info);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);

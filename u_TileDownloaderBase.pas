@@ -7,7 +7,8 @@ uses
   WinInet,
   SyncObjs,
   Classes,
-  t_CommonTypes;
+  t_CommonTypes,
+  urlMon;
 
 type
   TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
@@ -33,6 +34,7 @@ type
     function TryDownload(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal;  fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
+    function IsGlobalOffline: Boolean;
   public
     constructor Create(AExpectedMIMETypes: string; ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
     destructor Destroy; override;
@@ -258,6 +260,16 @@ begin
   OpenSession;
 end;
 
+function TTileDownloaderBase.IsGlobalOffline: Boolean;
+var State, Size: DWORD;
+begin
+  Result:=False;
+  State:=0;
+  Size:=SizeOf(DWORD);
+  if InternetQueryOption(nil, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then
+    if (State and INTERNET_STATE_DISCONNECTED_BY_USER) <> 0 then Result := True;
+end;
+
 function TTileDownloaderBase.TryDownload(AUrl: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
@@ -268,10 +280,15 @@ var
   VBufSize: Cardinal;
   dwIndex: Cardinal;
   VLastError: Cardinal;
+  ci: INTERNET_CONNECTED_INFO;
 begin
   VHeader := BuildHeader(AUrl);
-  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD, 0);
-  if  not Assigned(VFileHandle) then begin
+  if IsGlobalOffline then begin
+    ci.dwConnectedState := INTERNET_STATE_CONNECTED;
+    InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
+  end;
+  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD , 0);
+  if not Assigned(VFileHandle) then begin
     Result := dtrErrorInternetOpenURL;
     exit;
   end;

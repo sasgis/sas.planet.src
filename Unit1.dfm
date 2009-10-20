@@ -1,8 +1,8 @@
 object Fmain: TFmain
-  Left = 271
+  Left = 273
   Top = 131
-  Width = 962
-  Height = 575
+  Width = 956
+  Height = 569
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -59,8 +59,8 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 57
-    Width = 714
-    Height = 475
+    Width = 708
+    Height = 469
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -81,7 +81,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 954
+    Width = 948
     Height = 57
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -315,7 +315,7 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 918
+      Left = 913
       Top = 23
       DockPos = 918
       DockRow = 2
@@ -904,8 +904,8 @@ object Fmain: TFmain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 532
-    Width = 954
+    Top = 526
+    Width = 948
     Height = 9
     Position = dpBottom
   end
@@ -913,7 +913,7 @@ object Fmain: TFmain
     Left = 0
     Top = 57
     Width = 36
-    Height = 475
+    Height = 469
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1753,22 +1753,22 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 750
+    Left = 744
     Top = 57
     Width = 204
-    Height = 475
+    Height = 469
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 465
+      ClientAreaHeight = 459
       ClientAreaWidth = 200
       Stretch = True
       TabOrder = 0
       Visible = False
       DesignSize = (
         200
-        465)
+        459)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1783,7 +1783,7 @@ object Fmain: TFmain
         Left = 7
         Top = 32
         Width = 186
-        Height = 347
+        Height = 341
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1798,7 +1798,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 386
+        Top = 380
         Width = 185
         Height = 73
         Anchors = [akLeft, akRight, akBottom]

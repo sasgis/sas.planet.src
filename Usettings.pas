@@ -432,7 +432,6 @@ begin
  Close
 end;
 
-
 procedure SetProxy;
 var PIInfo : PInternetProxyInfo;
 begin

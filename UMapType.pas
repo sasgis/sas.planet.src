@@ -35,6 +35,7 @@ type
    public
     id: integer;
     guids: string;
+    zmpfilename:string;
     active:boolean;
     info:string;
     showinfo:boolean;
@@ -292,6 +293,7 @@ begin
   repeat
    if (SearchRec.Attr and faDirectory) = faDirectory then continue;
    MapType[pnum]:=TMapType.Create;
+   MapType[pnum].zmpfilename:=SearchRec.Name;
    MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
    MapType[pnum].ban_pg_ld := true;
    if Ini.SectionExists(MapType[pnum].GUIDs)
