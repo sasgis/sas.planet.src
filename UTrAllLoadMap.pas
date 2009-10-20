@@ -32,7 +32,6 @@ type
     zamena:boolean;
     StartPoint:TPoint;
     LastSuccessfulPoint:TPoint;
-    LastLoadTileSize: integer;
     CheckExistTileSize: boolean;
     Zdate:boolean;
     mapsload:boolean;
@@ -64,7 +63,6 @@ type
     procedure dwnOne;
     procedure addDwnforban;
     procedure AfterWriteToFile;
-    procedure addDwnTiles;
     procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
@@ -305,12 +303,6 @@ begin
   end;
 end;
 
-procedure ThreadAllLoadMap.addDwnTiles;
-begin
- inc(GState.all_dwn_tiles);
- GState.all_dwn_kb := GState.all_dwn_kb + (LastLoadTileSize/1024);
-end;
-
 constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var i:integer;
 begin
@@ -387,8 +379,7 @@ begin
       res :=DownloadTile(LoadXY, Zoom, typemap, 0, ty, fileBuf);
       ErrorString:=GetErrStr(res);
       if (res = dtrOK) or (res = dtrSameTileSize) then begin
-        LastLoadTileSize := fileBuf.Size;
-        Synchronize(addDwnTiles);
+        GState.IncrementDownloaded(fileBuf.Size/1024, 1);
       end;
       if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
         typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
@@ -482,8 +473,7 @@ begin
                   res:=DownloadTile(LoadXY, Zoom, VMap, 0, ty, fileBuf);
                   ErrorString:=GetErrStr(res);
                   if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                    LastLoadTileSize := fileBuf.Size;
-                    Synchronize(addDwnTiles);
+                    GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                   end;
                   if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
                     VMap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
@@ -580,9 +570,8 @@ begin
               end;
               case res of
                 dtrSameTileSize: begin
-                  LastLoadTileSize := razlen;
-                  Synchronize(addDwnTiles);
-                  dwnb := dwnb + (LastLoadTileSize / 1024);
+                  GState.IncrementDownloaded(razlen/1024, 1);
+                  dwnb := dwnb + (razlen / 1024);
                   AddToMemo:=SAS_MSG_FileBeCreateLen;
                   Synchronize(UpdateMemoProgressForm);
                   inc(obrab);
@@ -627,11 +616,10 @@ begin
                 end;
                 dtrOK : begin
                   typemap.SaveTileDownload(p_x, p_y, Zoom, fileBuf, ty);
-                  LastLoadTileSize := fileBuf.Size;
-                  Synchronize(addDwnTiles);
+                  GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                   inc(obrab);
                   Synchronize(AfterWriteToFile);
-                  dwnb := dwnb + (LastLoadTileSize / 1024);
+                  dwnb := dwnb + (fileBuf.Size / 1024);
                   inc(scachano);
                   AddToMemo:='(Ok!)';
                   LastSuccessfulPoint:=Point(p_x,p_y);
@@ -644,6 +632,7 @@ begin
                   AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
                   Synchronize(UpdateMemoProgressForm);
                   sleep(5000);
+                  VGotoNextTile := false;
                 end;
               end;
             finally

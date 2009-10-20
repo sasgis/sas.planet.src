@@ -28,10 +28,8 @@ type
     mapsload:boolean;
     ErrorString:string;
     url_ifban: string;
-    LastLoadTileSize: integer;
     procedure GetCurrentMapAndPos;
     procedure addDwnforban;
-    procedure addDwnTiles;
     procedure AfterWriteToFile;
     procedure ban;
     function GetErrStr(Aerr: TDownloadTileResult): string;
@@ -103,11 +101,6 @@ begin
   dtrUnknownError: Result := 'Неизвестная ошибка при скачивании'
   else result:='';
  end;
-end;
-procedure TTileDownloaderUI.addDwnTiles;
-begin
- inc(GState.all_dwn_tiles);
- GState.all_dwn_kb := GState.all_dwn_kb + (LastLoadTileSize/1024);
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;
@@ -219,8 +212,7 @@ begin
                           res:=DownloadTile(LoadXY, Zoom, VMap, 0, ty, fileBuf);
                           ErrorString:=GetErrStr(res);
                           if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                            LastLoadTileSize := fileBuf.Size;
-                            Synchronize(addDwnTiles);
+                            GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                           end;
                           if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
                             VMap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);

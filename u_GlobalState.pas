@@ -6,6 +6,7 @@ uses
   Graphics,
   Classes,
   IniFiles,
+  SyncObjs,
   t_GeoTypes,
   t_CommonTypes,
   u_GeoToStr,
@@ -14,6 +15,7 @@ uses
 type
   TGlobalState = class
   private
+    FDwnCS: TCriticalSection;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -176,6 +178,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
+    procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
   end;
 
 var
@@ -190,6 +193,7 @@ uses
 
 constructor TGlobalState.Create;
 begin
+  FDwnCS := TCriticalSection.Create;
   All_Dwn_Kb := 0;
   All_Dwn_Tiles := 0;
   InetConnect := TInetConnect.Create;
@@ -201,6 +205,7 @@ end;
 
 destructor TGlobalState.Destroy;
 begin
+  FreeAndNil(FDwnCS);
   MainIni.UpdateFile;
   FreeAndNil(MainIni);
   FreeAndNil(MainFileCache);
@@ -272,6 +277,18 @@ begin
     finally
       FindClose(SearchRec);
     end;
+  end;
+end;
+
+procedure TGlobalState.IncrementDownloaded(ADwnSize: Currency;
+  ADwnCnt: Cardinal);
+begin
+  FDwnCS.Acquire;
+  try
+    All_Dwn_Kb := All_Dwn_Kb + ADwnSize;
+    All_Dwn_Tiles := All_Dwn_Tiles + ADwnCnt;
+  finally
+    FDwnCS.Release;
   end;
 end;
 
