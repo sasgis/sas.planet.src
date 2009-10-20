@@ -8,9 +8,6 @@ uses
   IniFiles,
   Wininet,
   Dialogs,
-  Jpeg,
-  GR32,
-  GR32_Resamplers,
   Uprogress,
   t_GeoTypes,
   t_LoadEvent,
@@ -50,20 +47,16 @@ type
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
     function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
-    procedure dwnReg;
-    procedure dwnOne;
     procedure addDwnforban;
-    procedure AfterWriteToFile;
     procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
   protected
     procedure Execute; override;
   public
-    typeRect:1..4;
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
-    constructor Create(CrSusp:Boolean;APolygon_:TPointArray; Atyperect:byte;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
+    constructor Create(CrSusp:Boolean;APolygon_:TPointArray; Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
     constructor Create(CrSusp:Boolean;FileName:string;LastSuccessful:boolean); overload;
     destructor Destroy; override;
   end;
@@ -71,7 +64,6 @@ type
 implementation
 uses
   SysUtils,
-  Graphics,
   DateUtils,
   StrUtils,
   Math,
@@ -79,7 +71,6 @@ uses
   u_GeoToStr,
   Unit1,
   UImgfun,
-  UWikilayer,
   UGeoFun,
   Usaveas;
 
@@ -95,7 +86,6 @@ var Ini: Tinifile;
 begin
  Application.CreateForm(TFProgress, _FProgress);
  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
- typeRect:=3;
   begin
    Ini:=TiniFile.Create(FileName);
    Guids:=Ini.ReadString('Session','MapGUID','');
@@ -218,6 +208,7 @@ end;
 procedure ThreadAllLoadMap.UpdateMemoProgressForm;
 begin
  _FProgress.Memo1.Lines.Add(AddToMemo);
+ Fmain.toSh;
 end;
 
 procedure ThreadAllLoadMap.UpdateMemoAddProgressForm;
@@ -288,13 +279,13 @@ begin
     end;
     FDownloader := TTileDownloaderBase.Create(VExpectedMIMETypes, VDownloadTryCount, GState.InetConnect);
   end;
-  if (mapsload=false)and(typemap.UseAntiBan>0)and(typeRect<>1) then begin
+  if (mapsload=false)and(typemap.UseAntiBan>0) then begin
     Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
     mapsload:=true;
   end;
 end;
 
-constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Atyperect:byte;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
+constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -303,7 +294,6 @@ begin
   zoom:=AZoom;
   CheckExistTileSize := ACheckExistTileSize;
   typemap:=Atypemap;
-  typeRect:=AtypeRect;
   FDate:=AFDate;
   Zdate:=AzDate;
   SecondLoadTNE:=ASecondLoadTNE;
@@ -312,8 +302,6 @@ begin
     setlength(Poly,i);
     poly[i-1]:=Apolygon_[i-1];
    end;
-  if AtypeRect in [2,3] then
-   begin
     Application.CreateForm(TFProgress, _FProgress);
     _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
     num_dwn:=GetDwnlNum(min,max,poly,true);
@@ -323,7 +311,6 @@ begin
     dwnb:=0;
     Synchronize(SetProgressForm);
     _FProgress.Visible:=true;
-   end;
   Synchronize(addDwnforban);
   randomize;
 end;
@@ -352,42 +339,6 @@ begin
   end;
 end;
 
-procedure ThreadAllLoadMap.dwnOne;
-var i:integer;
-  ty: string;
-  fileBuf:TMemoryStream;
-  res: TDownloadTileResult;
-begin
- for i:=0 to length(poly)-1 do begin
-  lastload.X:=poly[i].X-(abs(poly[i].X) mod 256);
-  lastload.Y:=poly[i].Y-(abs(poly[i].Y) mod 256);
-  lastload.z:=zoom; lastLoad.mt:=typemap; lastLoad.use:=true;
-  LoadXY.X := poly[i].X;
-  LoadXY.Y := poly[i].Y;
-  if typemap.UseDwn then begin
-    FileBuf:=TMemoryStream.Create;
-    try
-      res :=DownloadTile(LoadXY, Zoom, typemap, 0, ty, fileBuf);
-      ErrorString:=GetErrStr(res);
-      if (res = dtrOK) or (res = dtrSameTileSize) then begin
-        GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-      end;
-      if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
-        typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
-      end;
-      if res = dtrOK then begin
-        typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
-      end;
-      Synchronize(AfterWriteToFile);
-    finally
-      FileBuf.Free;
-    end;
-  end else begin
-    ErrorString:=SAS_ERR_NotLoads;
-  end;
- end;
-end;
-
 function ThreadAllLoadMap.GetErrStr(Aerr: TDownloadTileResult): string;
 begin
  case Aerr of
@@ -403,7 +354,7 @@ begin
  end;
 end;
 
-procedure ThreadAllLoadMap.dwnReg;
+procedure ThreadAllLoadMap.Execute;
 var
   p_x,p_y: integer;
   ty: string;
@@ -523,7 +474,6 @@ begin
                   typemap.SaveTileDownload(p_x, p_y, Zoom, fileBuf, ty);
                   GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                   inc(obrab);
-                  Synchronize(AfterWriteToFile);
                   dwnb := dwnb + (fileBuf.Size / 1024);
                   inc(scachano);
                   AddToMemo:='(Ok!)';
@@ -563,21 +513,6 @@ begin
     StartPoint.X:=p_x;
   end;
   Synchronize(CloseProgressForm);
-end;
-
-procedure ThreadAllLoadMap.Execute;
-begin
- if typeRect=1 then dwnOne;
- if typeRect in [2,3] then dwnReg;
-end;
-
-procedure ThreadAllLoadMap.AfterWriteToFile;
-begin
- if (not(typeRect in [2,3]))and(Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
-  begin
-   Fmain.generate_im(lastload,ErrorString);
-  end
- else Fmain.toSh;
 end;
 
 destructor ThreadAllLoadMap.Destroy;

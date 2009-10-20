@@ -20,7 +20,6 @@ type
     ErrorString:string;
     url_ifban: string;
     FDownloader: TTileDownloaderBase;
-    procedure dwnOne;
     function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
     procedure ban;
     function GetErrStr(Aerr: TDownloadTileResult): string;
@@ -54,40 +53,6 @@ begin
   dtrUnknownError: Result := 'Неизвестная ошибка при скачивании'
   else result:='';
  end;
-end;
-
-procedure TTileDownloaderUIOneTile.dwnOne;
-var
-  ty: string;
-  fileBuf:TMemoryStream;
-  res: TDownloadTileResult;
-begin
-  lastload.X:=LoadXY.X-(abs(LoadXY.X) mod 256);
-  lastload.Y:=LoadXY.Y-(abs(LoadXY.Y) mod 256);
-  lastload.z:=zoom;
-  lastLoad.mt:=typemap;
-  lastLoad.use:=true;
-  if typemap.UseDwn then begin
-    FileBuf:=TMemoryStream.Create;
-    try
-      res :=DownloadTile(LoadXY, Zoom, typemap, 0, ty, fileBuf);
-      ErrorString:=GetErrStr(res);
-      if (res = dtrOK) or (res = dtrSameTileSize) then begin
-        GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-      end;
-      if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
-        typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
-      end;
-      if res = dtrOK then begin
-        typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
-      end;
-    finally
-      FileBuf.Free;
-    end;
-  end else begin
-    ErrorString:=SAS_ERR_NotLoads;
-  end;
-  Synchronize(AfterWriteToFile);
 end;
 
 function TTileDownloaderUIOneTile.DownloadTile(AXY: TPoint; AZoom: byte;
@@ -160,9 +125,37 @@ begin
 end;
 
 procedure TTileDownloaderUIOneTile.Execute;
+var
+  ty: string;
+  fileBuf:TMemoryStream;
+  res: TDownloadTileResult;
 begin
-  inherited;
-  dwnOne;
+  lastload.X:=LoadXY.X-(abs(LoadXY.X) mod 256);
+  lastload.Y:=LoadXY.Y-(abs(LoadXY.Y) mod 256);
+  lastload.z:=zoom;
+  lastLoad.mt:=typemap;
+  lastLoad.use:=true;
+  if typemap.UseDwn then begin
+    FileBuf:=TMemoryStream.Create;
+    try
+      res :=DownloadTile(LoadXY, Zoom, typemap, 0, ty, fileBuf);
+      ErrorString:=GetErrStr(res);
+      if (res = dtrOK) or (res = dtrSameTileSize) then begin
+        GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+      end;
+      if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
+        typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+      end;
+      if res = dtrOK then begin
+        typemap.SaveTileDownload(LoadXY.X, LoadXY.Y, Zoom, fileBuf, ty);
+      end;
+    finally
+      FileBuf.Free;
+    end;
+  end else begin
+    ErrorString:=SAS_ERR_NotLoads;
+  end;
+  Synchronize(AfterWriteToFile);
 end;
 
 end.

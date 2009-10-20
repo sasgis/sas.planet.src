@@ -328,7 +328,7 @@ begin
  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
  VZoom := CBZoomload.ItemIndex;
  polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
- with ThreadAllLoadMap.Create(false,Polyg,3,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
+ with ThreadAllLoadMap.Create(false,Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
   begin
    OnTerminate:=Fmain.ThreadDone;
    Priority := tpLower;

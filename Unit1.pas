@@ -51,7 +51,6 @@ uses
   ImgMaker,
   t_LoadEvent,
   u_GeoToStr,
-  UTrAllLoadMap,
   UThreadScleit,
   Ugeofun,
   UWikiLayer,
@@ -1084,16 +1083,10 @@ end;
 
 procedure TFmain.ThreadDone(Sender: TObject);
 begin
-   if ThreadAllLoadMap(sender).typeRect in [2,3] then
-    begin
-     if not((MapMoving)or(MapZoomAnimtion=1)) then
-       begin
-        //move.X:=m_up.x;
-        GState.MainFileCache.Clear;
-        generate_im(nilLastLoad,'');
-       end;
-     exit;
-    end;
+  if not((MapMoving)or(MapZoomAnimtion=1)) then begin
+    GState.MainFileCache.Clear;
+    generate_im(nilLastLoad,'');
+  end;
 end;
 
 procedure TFmain.drawRect(Shift:TShiftState);
