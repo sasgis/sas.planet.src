@@ -19,11 +19,9 @@ type
     FLoadXY: TPoint;
     FDownloader: TTileDownloaderBase;
     FLastLoad: TlastLoad;
-    Fmapsload: boolean;
     FErrorString: string;
     FLoadUrl: string;
     procedure GetCurrentMapAndPos;
-    procedure addDwnforban;
     procedure AfterWriteToFile;
     procedure ban;
     function GetErrStr(Aerr: TDownloadTileResult): string;
@@ -48,7 +46,6 @@ var
 begin
   inherited Create(False);
   Priority := tpLower;
-  Fmapsload := false;
   if GState.TwoDownloadAttempt then begin
     VDownloadTryCount := 2;
   end else begin
@@ -70,14 +67,6 @@ begin
  FTypeMap:=Sat_map_Both;
  Upos:= FMain.pos;
  FZoom:= GState.zoom_size;
-end;
-
-procedure TTileDownloaderUI.addDwnforban;
-begin
-  if (Fmapsload=false)and(FTypeMap.UseAntiBan>0) then begin
-    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
-    Fmapsload:=true;
-  end;
 end;
 
 function TTileDownloaderUI.DownloadTile(AXY: TPoint; AZoom: byte;
@@ -130,14 +119,13 @@ begin
 end;
 
 procedure TTileDownloaderUI.Execute;
-var i,j,ii,k,r,XX,YY,g,x,y,m1,num_dwn:integer;
+var i,j,ii,k,r,XX,YY,g,x,y,m1:integer;
     Bpos:TPoint;
     ty: string;
     fileBuf:TMemoryStream;
     VMap: TMapType;
     res: TDownloadTileResult;
 begin
-  num_dwn:=0;
   repeat
     if Fmain.TileSource = tsCache then begin
       Sleep(1000);
@@ -150,7 +138,6 @@ begin
         if FTypeMap = nil then begin
           Sleep(1000);
         end else begin
-          Synchronize(addDwnforban);
           j:=0;
           i:=-1;
           for r:=1 to (hg_x div 2)+2 do begin
@@ -188,12 +175,6 @@ begin
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
                   if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(xx,yy,Fzoom)))) then begin
-                    If (VMap.UseAntiBan>1) then begin
-                      inc(num_dwn);
-                      If ((num_dwn>0)and((num_dwn mod VMap.UseAntiBan)=0)) then begin
-                        Fmapsload:=false;
-                      end;
-                    end;
                     if VMap.UseDwn then begin
                       FileBuf:=TMemoryStream.Create;
                       try
@@ -204,6 +185,17 @@ begin
                         FErrorString:=GetErrStr(res);
                         if (res = dtrOK) or (res = dtrSameTileSize) then begin
                           GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                        end;
+                        case res of
+                          dtrOK,
+                          dtrSameTileSize,
+                          dtrErrorMIMEType,
+                          dtrTileNotExists,
+                          dtrBanError: begin
+                            if VMap.IncDownloadedAndCheckAntiBan then begin
+                              Synchronize(FTypeMap.addDwnforban);
+                            end;
+                          end;
                         end;
                         if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
                           VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);

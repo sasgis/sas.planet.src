@@ -30,7 +30,6 @@ type
     LastSuccessfulPoint:TPoint;
     CheckExistTileSize: boolean;
     Zdate:boolean;
-    mapsload:boolean;
     SecondLoadTNE:boolean;
 
     FDate:TDateTime;
@@ -47,7 +46,6 @@ type
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
     function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
-    procedure addDwnforban;
     procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
@@ -76,13 +74,14 @@ uses
   Usaveas;
 
 constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
-var i:integer;
+var
+  i: integer;
+  VDownloadTryCount: Integer;
 begin
   inherited Create(false);
   OnTerminate:=Fmain.ThreadDone;
   Priority := tpLower;
   FreeOnTerminate:=true;
-  mapsload:=false;
   zamena:=Azamena;
   Fzoom:=AZoom;
   CheckExistTileSize := ACheckExistTileSize;
@@ -100,19 +99,27 @@ begin
   obrab:=0;
   dwnb:=0;
 
+  if GState.TwoDownloadAttempt then begin
+    VDownloadTryCount := 2;
+  end else begin
+    VDownloadTryCount := 1;
+  end;
+  FDownloader := TTileDownloaderBase.Create(FTypeMap.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
+
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
   _FProgress.Visible:=true;
 
-  addDwnforban;
   randomize;
 end;
 
 constructor ThreadAllLoadMap.Create(FileName:string;LastSuccessful:boolean);
-var Ini: Tinifile;
-    i:integer;
-    Guids:string;
+var
+  Ini: Tinifile;
+  i: integer;
+  Guids: string;
+  VDownloadTryCount: Integer;
 begin
   inherited Create(false);
   OnTerminate:=Fmain.ThreadDone;
@@ -155,16 +162,21 @@ begin
   end;
   if FTypeMap = nil then Terminate;
   if length(poly)=0 then Terminate;
-  mapsload:=false;
   num_dwn:=GetDwnlNum(min,max,poly,true);
   vsego:=num_dwn;
+
+  if GState.TwoDownloadAttempt then begin
+    VDownloadTryCount := 2;
+  end else begin
+    VDownloadTryCount := 1;
+  end;
+  FDownloader := TTileDownloaderBase.Create(FTypeMap.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
 
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
   _FProgress.Visible:=true;
 
-  addDwnforban;
   randomize;
 end;
 
@@ -308,28 +320,6 @@ begin
   end;
 end;
 
-procedure ThreadAllLoadMap.addDwnforban;
-var
-  VExpectedMIMETypes: string;
-  VDownloadTryCount: Integer;
-begin
-  if FDownloader=nil then begin
-    if GState.TwoDownloadAttempt then begin
-      VDownloadTryCount := 2;
-    end else begin
-      VDownloadTryCount := 1;
-    end;
-    if FTypeMap <> nil then begin
-      VExpectedMIMETypes := FTypeMap.CONTENT_TYPE;
-    end;
-    FDownloader := TTileDownloaderBase.Create(VExpectedMIMETypes, VDownloadTryCount, GState.InetConnect);
-  end;
-  if (mapsload=false)and(FTypeMap.UseAntiBan>0) then begin
-    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
-    mapsload:=true;
-  end;
-end;
-
 function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;
   MT: TMapType; AOldTileSize: Integer; out ty: string; fileBuf: TMemoryStream): TDownloadTileResult;
 var
@@ -421,12 +411,19 @@ begin
               end else begin
                 sleep(FTypeMap.Sleep);
                 res:=DownloadTile(FLoadXY, FZoom, FTypeMap, razlen, ty, fileBuf);
+                case res of
+                  dtrOK,
+                  dtrSameTileSize,
+                  dtrErrorMIMEType,
+                  dtrTileNotExists,
+                  dtrBanError: begin
+                    if FTypeMap.IncDownloadedAndCheckAntiBan then begin
+                      Synchronize(FTypeMap.addDwnforban);
+                    end;
+                  end;
+                end;
               end;
 
-              If (FTypeMap.UseAntiBan>1)and((scachano>0)and((scachano mod FTypeMap.UseAntiBan)=0)) then begin
-                mapsload:=false;
-                Synchronize(addDwnforban);
-              end;
               case res of
                 dtrSameTileSize: begin
                   GState.IncrementDownloaded(razlen/1024, 1);

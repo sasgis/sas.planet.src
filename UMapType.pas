@@ -95,9 +95,13 @@ type
     function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
 
     function GetShortFolderName: string;
+
+    function IncDownloadedAndCheckAntiBan: Boolean;
+    procedure addDwnforban;
     property GeoConvert: ICoordConverter read GetCoordConverter;
+
   private
-    err: string;
+    FDownloadTilesCount: Longint;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
@@ -983,7 +987,6 @@ begin
       try
         SaveTileInCache(ATileStream,Vpath);
       except
-        err:=SAS_ERR_BadFile;
       end;
     end;
   end;
@@ -1150,6 +1153,25 @@ begin
     and(fileBuf.Size >(BanIfLen-50)) then
   begin
     result := true;
+  end;
+end;
+
+function TMapType.IncDownloadedAndCheckAntiBan: Boolean;
+var
+  cnt: Integer;
+begin
+  cnt := InterlockedIncrement(FDownloadTilesCount);
+  if (UseAntiBan > 1) then begin
+    Result := (cnt mod UseAntiBan) = 0;
+  end else begin
+    Result := (UseAntiBan > 0) and  (cnt = 1);
+  end;
+end;
+
+procedure TMapType.addDwnforban;
+begin
+  if (UseAntiBan>0) then begin
+    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
   end;
 end;
 
