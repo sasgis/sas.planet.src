@@ -22,9 +22,9 @@ type
     pos:TPoint;
     alpha,zoom,z1mz2:integer;
     maptype: TMapType;
-    PlusButton,MinusButton,SmMapBitmap:TBitmap32;
+    PlusButton,MinusButton,SmMapBitmap,SmMapLayerBitmap:TBitmap32;
     LayerMinMap: TBitmapLayer;
-    defoultMap:TBitmap;
+    defoultMap:TBitmap32;
     constructor Create(AParentMap: TImage32);
     destructor Destroy; override;
     procedure sm_im_reset(x,y:integer; MainMapPos: TPoint);
@@ -64,8 +64,6 @@ begin
 
   LayerMinMap := TBitmapLayer.Create(FParentMap.Layers);
   SmMapBitmap := TBitmap32.Create;
-  SmMapBitmap.CombineMode := cmMerge;
-  SmMapBitmap.MasterAlpha := 100;
 
   LayerMinMap.bitmap.Font.Charset := RUSSIAN_CHARSET;
   LayerMinMap.Cursor := crHandPoint;
@@ -89,7 +87,7 @@ begin
   b := TPNGObject.Create;
   try
     b.LoadFromResourceName(HInstance, 'MAINMAP');
-    DefoultMap := TBitmap.Create;
+    DefoultMap := TBitmap32.Create;
     DefoultMap.Assign(b);
     b.LoadFromResourceName(HInstance, 'ICONI');
     PlusButton := TBitmap32.Create;
@@ -115,6 +113,7 @@ end;
 procedure TMiniMap.sm_im_reset(x, y: integer; MainMapPos: TPoint);
 var Polygon: TPolygon32;
     iLay:integer;
+    btm:TBitmap32;
 begin
   if LayerMinMap.Visible=false then exit;
   if GState.ShowStatusBar then begin
@@ -135,6 +134,7 @@ begin
     dy:=round(height*(FParentMap.Height/(1 shl (GState.zoom_size - zoom + 8))));
     pos:=Point(x,y);
   end else begin
+    btm:=TBitmap32.Create;
     if (maptype = nil) then begin
       if not(sat_map_both.LoadTile(SmMapBitmap,128,128,1,true)) then begin
         SmMapBitmap.Assign(DefoultMap);
@@ -146,7 +146,9 @@ begin
     end;
     for iLay:=0 to length(UMapType.MapType)-1 do begin
       if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap)and(UMapType.MapType[iLay].ext<>'.kml') then begin
-        UMapType.MapType[iLay].LoadTile(SmMapBitmap,128,128,1,false);
+        UMapType.MapType[iLay].LoadTile(btm,128,128,1,false);
+        btm.DrawMode:=dmBlend;
+        SmMapBitmap.Draw(bounds(0,0,SmMapBitmap.width,SmMapBitmap.height),bounds(0,0,256,256),btm);
       end;
     end;
     if (x=width div 2)and(y=height div 2) then begin
@@ -156,9 +158,10 @@ begin
     end;
     dx:=round(width*(FParentMap.Width/zoom_Sizes[GState.zoom_size]));
     dy:=round(height*(FParentMap.Height/zoom_Sizes[GState.zoom_size]));
+    btm.Free;
   end;
-
   LayerMinMap.bitmap.Draw(bounds(5,5,width,height),bounds(0,0,256,256),SmMapBitmap);
+
   gamma(LayerMinMap.bitmap);
 
   Polygon := TPolygon32.Create;
@@ -198,6 +201,7 @@ var bm:TBitmap32;
     m_t:TMapType;
 begin
   bm := TBitmap32.Create;
+  bm.DrawMode:=dmOpaque;
   try
     bm.Width := 256;
     bm.Height := 256;
@@ -237,7 +241,6 @@ begin
       end;
       inc(x128,256);
     end;
-
     for iLay := 0 to length(UMapType.MapType)-1 do begin
       if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap)and(UMapType.MapType[iLay].ext<>'.kml') then begin
         pos_sm := Point(X shr (GState.zoom_size-zoom),y shr (GState.zoom_size-zoom));
@@ -259,6 +262,7 @@ begin
                 begin
                   UMapType.MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,zoom,true);
                 end;
+                bm.DrawMode:=dmBlend;
                 SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
               end;
               inc(y128,256);

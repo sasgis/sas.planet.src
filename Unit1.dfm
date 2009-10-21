@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -1763,6 +1764,7 @@ object Fmain: TFmain
       Top = 0
       ClientAreaHeight = 459
       ClientAreaWidth = 200
+      DockPos = 0
       Stretch = True
       TabOrder = 0
       Visible = False
