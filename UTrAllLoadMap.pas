@@ -54,11 +54,12 @@ type
   protected
     procedure Execute; override;
   public
+    constructor Create(APolygon_:TPointArray; Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
+    constructor Create(FileName:string;LastSuccessful:boolean); overload;
+    destructor Destroy; override;
+
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
-    constructor Create(CrSusp:Boolean;APolygon_:TPointArray; Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
-    constructor Create(CrSusp:Boolean;FileName:string;LastSuccessful:boolean); overload;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -74,18 +75,51 @@ uses
   UGeoFun,
   Usaveas;
 
-procedure ThreadAllLoadMap.ButtonSaveClick(Sender: TObject);
+constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
+var i:integer;
 begin
- Synchronize(SaveSessionToFile);
+  inherited Create(false);
+   OnTerminate:=Fmain.ThreadDone;
+   Priority := tpLower;
+   FreeOnTerminate:=true;
+
+  mapsload:=false;
+  zamena:=Azamena;
+  zoom:=AZoom;
+  CheckExistTileSize := ACheckExistTileSize;
+  typemap:=Atypemap;
+  FDate:=AFDate;
+  Zdate:=AzDate;
+  SecondLoadTNE:=ASecondLoadTNE;
+  setlength(Poly,length(APolygon_));
+  for i:=0 to length(APolygon_) - 1 do begin
+    poly[i]:=Apolygon_[i];
+  end;
+  Application.CreateForm(TFProgress, _FProgress);
+  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
+  num_dwn:=GetDwnlNum(min,max,poly,true);
+  vsego:=num_dwn;
+  scachano:=0;
+  obrab:=0;
+  dwnb:=0;
+  SetProgressForm;
+  _FProgress.Visible:=true;
+  addDwnforban;
+  randomize;
 end;
 
-constructor ThreadAllLoadMap.Create(CrSusp:Boolean;FileName:string;LastSuccessful:boolean);
+constructor ThreadAllLoadMap.Create(FileName:string;LastSuccessful:boolean);
 var Ini: Tinifile;
     i:integer;
     Guids:string;
 begin
- Application.CreateForm(TFProgress, _FProgress);
- _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
+  inherited Create(false);
+  OnTerminate:=Fmain.ThreadDone;
+  Priority := tpLower;
+  FreeOnTerminate:=true;
+
+  Application.CreateForm(TFProgress, _FProgress);
+  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   begin
    Ini:=TiniFile.Create(FileName);
    Guids:=Ini.ReadString('Session','MapGUID','');
@@ -131,7 +165,12 @@ begin
  _FProgress.Visible:=true;
  Synchronize(addDwnforban);
  randomize;
- inherited Create(CrSusp);
+end;
+
+destructor ThreadAllLoadMap.Destroy;
+begin
+  FreeAndNil(FDownloader);
+  inherited;
 end;
 
 procedure ThreadAllLoadMap.SaveSessionToFile;
@@ -162,6 +201,11 @@ begin
     end;
    ini.Free;
   end;
+end;
+
+procedure ThreadAllLoadMap.ButtonSaveClick(Sender: TObject);
+begin
+ Synchronize(SaveSessionToFile);
 end;
 
 procedure ThreadAllLoadMap.SetProgressForm;
@@ -285,34 +329,6 @@ begin
   end;
 end;
 
-constructor ThreadAllLoadMap.Create(CrSusp:Boolean;APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
-var i:integer;
-begin
-  inherited Create(CrSusp);
-  mapsload:=false;
-  zamena:=Azamena;
-  zoom:=AZoom;
-  CheckExistTileSize := ACheckExistTileSize;
-  typemap:=Atypemap;
-  FDate:=AFDate;
-  Zdate:=AzDate;
-  SecondLoadTNE:=ASecondLoadTNE;
-  setlength(Poly,length(APolygon_));
-  for i:=0 to length(APolygon_) - 1 do begin
-    poly[i]:=Apolygon_[i];
-  end;
-  Application.CreateForm(TFProgress, _FProgress);
-  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
-  num_dwn:=GetDwnlNum(min,max,poly,true);
-  vsego:=num_dwn;
-  scachano:=0;
-  obrab:=0;
-  dwnb:=0;
-  SetProgressForm;
-  _FProgress.Visible:=true;
-  addDwnforban;
-  randomize;
-end;
 function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;
   MT: TMapType; AOldTileSize: Integer; out ty: string; fileBuf: TMemoryStream): TDownloadTileResult;
 var
@@ -331,10 +347,6 @@ begin
     and(fileBuf.Size >(MT.BanIfLen-50)) then
   begin
     result := dtrBanError;
-  end;
-
-  if Result = dtrBanError  then begin
-    Synchronize(Ban);
   end;
 end;
 
@@ -440,6 +452,7 @@ begin
                   VGotoNextTile := false;
                 end;
                 dtrBanError: begin
+                  Synchronize(Ban);
                   AddToMemo:=SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...';
                   sleep(10000);
                   AddToMemo:=AddToMemo+#13#10+SAS_ERR_RepeatProcess;
@@ -512,12 +525,6 @@ begin
     StartPoint.X:=p_x;
   end;
   Synchronize(CloseProgressForm);
-end;
-
-destructor ThreadAllLoadMap.Destroy;
-begin
-  FreeAndNil(FDownloader);
-  inherited;
 end;
 
 end.

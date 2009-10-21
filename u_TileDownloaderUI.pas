@@ -42,6 +42,28 @@ uses
   UResStrings,
   Unit1;
 
+constructor TTileDownloaderUI.Create;
+var
+  VDownloadTryCount: Integer;
+begin
+  inherited Create(False);
+  Priority := tpLower;
+  Fmapsload := false;
+  if GState.TwoDownloadAttempt then begin
+    VDownloadTryCount := 2;
+  end else begin
+    VDownloadTryCount := 1;
+  end;
+  FDownloader := TTileDownloaderBase.Create('', VDownloadTryCount, GState.InetConnect);
+  randomize;
+end;
+
+destructor TTileDownloaderUI.Destroy;
+begin
+  FreeAndNil(FDownloader);
+  inherited;
+end;
+
 
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
@@ -77,10 +99,6 @@ begin
   begin
     result := dtrBanError;
   end;
-
-  if Result = dtrBanError  then begin
-    Synchronize(Ban);
-  end;
 end;
 
 function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
@@ -114,28 +132,6 @@ begin
    Fmain.ShowCaptcha(FLoadUrl);
    FTypeMap.ban_pg_ld:=false;
   end;
-end;
-
-constructor TTileDownloaderUI.Create;
-var
-  VDownloadTryCount: Integer;
-begin
-  inherited Create(False);
-  Priority := tpLower;
-  Fmapsload := false;
-  if GState.TwoDownloadAttempt then begin
-    VDownloadTryCount := 2;
-  end else begin
-    VDownloadTryCount := 1;
-  end;
-  FDownloader := TTileDownloaderBase.Create('', VDownloadTryCount, GState.InetConnect);
-  randomize;
-end;
-
-destructor TTileDownloaderUI.Destroy;
-begin
-  FreeAndNil(FDownloader);
-  inherited;
 end;
 
 procedure TTileDownloaderUI.Execute;
@@ -207,6 +203,9 @@ begin
                       FileBuf:=TMemoryStream.Create;
                       try
                         res:=DownloadTile(FLoadXY, FZoom, VMap, 0, ty, fileBuf);
+                        if Res = dtrBanError  then begin
+                          Synchronize(Ban);
+                        end;
                         FErrorString:=GetErrStr(res);
                         if (res = dtrOK) or (res = dtrSameTileSize) then begin
                           GState.IncrementDownloaded(fileBuf.Size/1024, 1);

@@ -40,6 +40,33 @@ uses
   UResStrings,
   Unit1;
 
+constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; MT:TMapType);
+var
+  VDownloadTryCount: Integer;
+begin
+  inherited Create(False);
+  FLoadXY := AXY;
+  FZoom := AZoom;
+  FTypeMap := MT;
+
+  Priority := tpLower;
+  FreeOnTerminate := true;
+  if GState.TwoDownloadAttempt then begin
+    VDownloadTryCount := 2;
+  end else begin
+    VDownloadTryCount := 1;
+  end;
+  FDownloader := TTileDownloaderBase.Create(MT.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
+  randomize;
+end;
+
+destructor TTileDownloaderUIOneTile.Destroy;
+begin
+  FreeAndNil(FDownloader);
+  inherited;
+end;
+
+
 function TTileDownloaderUIOneTile.GetErrStr(Aerr: TDownloadTileResult): string;
 begin
  case Aerr of
@@ -74,10 +101,6 @@ begin
   begin
     result := dtrBanError;
   end;
-
-  if Result = dtrBanError  then begin
-    Synchronize(Ban);
-  end;
 end;
 
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
@@ -98,32 +121,6 @@ begin
   end;
 end;
 
-constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; MT:TMapType);
-var
-  VDownloadTryCount: Integer;
-begin
-  inherited Create(False);
-  FLoadXY := AXY;
-  FZoom := AZoom;
-  FTypeMap := MT;
-
-  Priority := tpLower;
-  FreeOnTerminate := true;
-  if GState.TwoDownloadAttempt then begin
-    VDownloadTryCount := 2;
-  end else begin
-    VDownloadTryCount := 1;
-  end;
-  FDownloader := TTileDownloaderBase.Create(MT.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
-  randomize;
-end;
-
-destructor TTileDownloaderUIOneTile.Destroy;
-begin
-  FreeAndNil(FDownloader);
-  inherited;
-end;
-
 procedure TTileDownloaderUIOneTile.Execute;
 var
   ty: string;
@@ -139,6 +136,9 @@ begin
     FileBuf:=TMemoryStream.Create;
     try
       res :=DownloadTile(FLoadXY, FZoom, FTypeMap, 0, ty, fileBuf);
+      if res = dtrBanError  then begin
+        Synchronize(Ban);
+      end;
       FErrorString:=GetErrStr(res);
       if (res = dtrOK) or (res = dtrSameTileSize) then begin
         GState.IncrementDownloaded(fileBuf.Size/1024, 1);

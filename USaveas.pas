@@ -328,13 +328,8 @@ begin
  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
  VZoom := CBZoomload.ItemIndex;
  polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
- with ThreadAllLoadMap.Create(false,Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
-  begin
-   OnTerminate:=Fmain.ThreadDone;
-   Priority := tpLower;
-   FreeOnTerminate:=true;
-  end;
-  polyg := nil;
+ ThreadAllLoadMap.Create(Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime);
+ polyg := nil;
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
@@ -689,12 +684,7 @@ begin
  if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then
   begin
    Fmain.Enabled:=true;
-   with ThreadAllLoadMap.Create(false,OpenSessionDialog.FileName,CBLastSuccess.Checked) do
-    begin
-     OnTerminate:=Fmain.ThreadDone;
-     Priority := tpLower;
-     FreeOnTerminate:=true;
-    end;
+   ThreadAllLoadMap.Create(OpenSessionDialog.FileName,CBLastSuccess.Checked);
    if CBCloseWithStart.Checked then close;
   end;
 end;
