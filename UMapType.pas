@@ -76,6 +76,8 @@ type
     function GetLink(x,y:longint;Azoom:byte):string;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
+    function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
+
 
     function GetTileFileName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
@@ -1136,6 +1138,19 @@ begin
  if Self=nil
   then Result:= nil
   else Result:= FCoordConverter;
+end;
+
+function TMapType.CheckIsBan(AXY: TPoint; AZoom: byte;
+  StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
+begin
+  if (ty <> Content_type)
+    and(fileBuf.Size <> 0)
+    and(BanIfLen <> 0)
+    and(fileBuf.Size < (BanIfLen + 50))
+    and(fileBuf.Size >(BanIfLen-50)) then
+  begin
+    result := true;
+  end;
 end;
 
 end.

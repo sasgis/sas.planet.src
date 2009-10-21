@@ -93,12 +93,7 @@ begin
   FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
   FDownloader.SleepOnResetConnection := MT.Sleep;
   Result := FDownloader.DownloadTile(FLoadUrl, false, 0, fileBuf, StatusCode, ty);
-  if (ty <> MT.Content_type)
-    and(fileBuf.Size <> 0)
-    and(MT.BanIfLen <> 0)
-    and(fileBuf.Size < (MT.BanIfLen + 50))
-    and(fileBuf.Size >(MT.BanIfLen-50)) then
-  begin
+  if MT.CheckIsBan(AXY, AZoom, StatusCode, ty, fileBuf) then begin
     result := dtrBanError;
   end;
 end;
