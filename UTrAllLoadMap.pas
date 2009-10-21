@@ -313,11 +313,7 @@ end;
 
 procedure ThreadAllLoadMap.ban;
 begin
- if FTypeMap.ban_pg_ld then
-  begin
-   Fmain.ShowCaptcha(FLoadUrl);
-   FTypeMap.ban_pg_ld:=false;
-  end;
+  FTypeMap.ExecOnBan(FLoadUrl);
 end;
 
 function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;

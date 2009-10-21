@@ -98,6 +98,7 @@ type
 
     function IncDownloadedAndCheckAntiBan: Boolean;
     procedure addDwnforban;
+    procedure ExecOnBan(ALastUrl: string);
     property GeoConvert: ICoordConverter read GetCoordConverter;
 
   private
@@ -1172,6 +1173,14 @@ procedure TMapType.addDwnforban;
 begin
   if (UseAntiBan>0) then begin
     Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+  end;
+end;
+
+procedure TMapType.ExecOnBan(ALastUrl: string);
+begin
+  if ban_pg_ld then begin
+    Fmain.ShowCaptcha(ALastUrl);
+    ban_pg_ld:=false;
   end;
 end;
 

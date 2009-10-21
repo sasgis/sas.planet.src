@@ -111,11 +111,7 @@ end;
 
 procedure TTileDownloaderUI.ban;
 begin
- if FTypeMap.ban_pg_ld then
-  begin
-   Fmain.ShowCaptcha(FLoadUrl);
-   FTypeMap.ban_pg_ld:=false;
-  end;
+  FTypeMap.ExecOnBan(FLoadUrl);
 end;
 
 procedure TTileDownloaderUI.Execute;
@@ -124,6 +120,7 @@ var i,j,ii,k,r,XX,YY,g,x,y,m1:integer;
     ty: string;
     fileBuf:TMemoryStream;
     VMap: TMapType;
+    VMainMap: TMapType;
     res: TDownloadTileResult;
 begin
   repeat
@@ -135,7 +132,8 @@ begin
       end else begin
         FMain.change_scene:=false;
         Synchronize(GetCurrentMapAndPos);
-        if FTypeMap = nil then begin
+        VMainMap := FTypeMap;
+        if VMainMap = nil then begin
           Sleep(1000);
         end else begin
           j:=0;
@@ -156,14 +154,13 @@ begin
               if g=0 then i:=0;
               x:=(hg_x div 2)+i;
               y:=(hg_y div 2)+j;
-              Synchronize(GetCurrentMapAndPos);
               for ii:=0 to length(MapType)-1 do begin
                 if Terminated then break;
                 if FMain.change_scene then Break;
                 VMap := MapType[ii];
                 if VMap.active then begin
                   BPos:=UPos;
-                  BPos := FTypeMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
+                  BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
                   xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),Fzoom);
                   yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),Fzoom);
                   FLoadXY.X := xx;
@@ -178,8 +175,10 @@ begin
                     if VMap.UseDwn then begin
                       FileBuf:=TMemoryStream.Create;
                       try
+                        sleep(VMap.Sleep);
                         res:=DownloadTile(FLoadXY, FZoom, VMap, 0, ty, fileBuf);
                         if Res = dtrBanError  then begin
+                          FTypeMap := VMap;
                           Synchronize(Ban);
                         end;
                         FErrorString:=GetErrStr(res);
@@ -193,7 +192,7 @@ begin
                           dtrTileNotExists,
                           dtrBanError: begin
                             if VMap.IncDownloadedAndCheckAntiBan then begin
-                              Synchronize(FTypeMap.addDwnforban);
+                              Synchronize(VMap.addDwnforban);
                             end;
                           end;
                         end;
@@ -210,7 +209,6 @@ begin
                     end else begin
                       FErrorString:=SAS_ERR_NotLoads;
                     end;
-                    sleep(FTypeMap.Sleep);
                   end;
                 end;
               end;

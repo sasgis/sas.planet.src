@@ -109,11 +109,7 @@ end;
 
 procedure TTileDownloaderUIOneTile.ban;
 begin
- if FTypeMap.ban_pg_ld then
-  begin
-   Fmain.ShowCaptcha(FLoadUrl);
-   FTypeMap.ban_pg_ld:=false;
-  end;
+  FTypeMap.ExecOnBan(FLoadUrl);
 end;
 
 procedure TTileDownloaderUIOneTile.Execute;
