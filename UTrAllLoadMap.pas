@@ -18,9 +18,13 @@ uses
 type
   ThreadAllLoadMap = class(TThread)
   private
+    FTypeMap: TMapType;
+    FLoadXY: TPoint;
+    FZoom:byte;
+    FLoadUrl: string;
+    FDownloader: TTileDownloaderBase;
+
     Poly:TPointArray;
-    Zoom:byte;
-    typemap:TMapType;
     zamena:boolean;
     StartPoint:TPoint;
     LastSuccessfulPoint:TPoint;
@@ -28,14 +32,10 @@ type
     Zdate:boolean;
     mapsload:boolean;
     SecondLoadTNE:boolean;
-    url_ifban,ErrorString:string;
-    LoadXY: TPoint;
 
     FDate:TDateTime;
     OperBegin:TDateTime;
-    FDownloader: TTileDownloaderBase;
     _FProgress:TFProgress;
-    lastLoad:TlastLoad;
     max,min:TPoint;
     scachano,num_dwn,obrab,vsego:integer;
     dwnb:real;
@@ -84,15 +84,15 @@ begin
   FreeOnTerminate:=true;
   mapsload:=false;
   zamena:=Azamena;
-  zoom:=AZoom;
+  Fzoom:=AZoom;
   CheckExistTileSize := ACheckExistTileSize;
-  typemap:=Atypemap;
+  FTypeMap:=Atypemap;
   FDate:=AFDate;
   Zdate:=AzDate;
   SecondLoadTNE:=ASecondLoadTNE;
   setlength(Poly,length(APolygon_));
   for i:=0 to length(APolygon_) - 1 do begin
-  poly[i]:=Apolygon_[i];
+    poly[i]:=Apolygon_[i];
   end;
   num_dwn:=GetDwnlNum(min,max,poly,true);
   vsego:=num_dwn;
@@ -122,7 +122,7 @@ begin
   Ini:=TiniFile.Create(FileName);
   try
     Guids:=Ini.ReadString('Session','MapGUID','');
-    zoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
+    Fzoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
     zamena:=Ini.ReadBool('Session','zamena',false);
     CheckExistTileSize := Ini.ReadBool('Session','raz',false);
     zdate:=Ini.ReadBool('Session','zdate',false);
@@ -150,10 +150,10 @@ begin
   end;
   For i:=0 to length(MapType)-1 do begin
     if MapType[i].guids=Guids then begin
-      typemap:=MapType[i];
+      FTypeMap := MapType[i];
     end;
   end;
-  if typemap=nil then Terminate;
+  if FTypeMap = nil then Terminate;
   if length(poly)=0 then Terminate;
   mapsload:=false;
   num_dwn:=GetDwnlNum(min,max,poly,true);
@@ -181,8 +181,8 @@ begin
  if (_FProgress.SaveSessionDialog.Execute)and(_FProgress.SaveSessionDialog.FileName<>'') then
   begin
    Ini:=TiniFile.Create(_FProgress.SaveSessionDialog.FileName);
-   Ini.WriteString('Session','MapGUID',typemap.guids);
-   Ini.WriteInteger('Session','zoom',zoom);
+   Ini.WriteString('Session','MapGUID', FTypeMap.guids);
+   Ini.WriteInteger('Session','zoom',Fzoom);
    Ini.WriteBool('Session','zamena',zamena);
    Ini.WriteBool('Session','raz', CheckExistTileSize);
    Ini.WriteBool('Session','zdate',zdate);
@@ -215,7 +215,7 @@ begin
  _FProgress.RProgr.Progress1:=scachano;
  _FProgress.RProgr.Progress2:=obrab;
  _FProgress.LabelName0.Caption:=SAS_STR_ProcessedNoMore+':';
- _FProgress.LabelValue0.Caption:=inttostr(num_dwn)+' '+SAS_STR_files+' (х'+inttostr(zoom)+')';
+ _FProgress.LabelValue0.Caption:=inttostr(num_dwn)+' '+SAS_STR_files+' (х'+inttostr(Fzoom)+')';
  _FProgress.LabelName1.Caption:=SAS_STR_AllProcessed;
  _FProgress.LabelName2.Caption:=SAS_STR_AllLoad;
  _FProgress.LabelName3.Caption:=SAS_STR_TimeRemained;
@@ -240,7 +240,7 @@ begin
  _FProgress.LabelValue3.Caption:=TimeEnd;
  _FProgress.LabelValue4.Caption:=LenEnd;
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
-  path:=typemap.GetTileFileName(LoadXY.X,LoadXY.y,zoom);
+  path := FTypeMap.GetTileFileName(FLoadXY.X, FLoadXY.y, Fzoom);
  _FProgress.Memo1.Lines.Add(SAS_STR_ProcessedFile+': '+path+'...');
  Application.ProcessMessages;
  if (obrab mod 10 = 0)or(num_dwn<100) then
@@ -301,10 +301,10 @@ end;
 
 procedure ThreadAllLoadMap.ban;
 begin
- if typemap.ban_pg_ld then
+ if FTypeMap.ban_pg_ld then
   begin
-   Fmain.ShowCaptcha(url_ifban);
-   typemap.ban_pg_ld:=false;
+   Fmain.ShowCaptcha(FLoadUrl);
+   FTypeMap.ban_pg_ld:=false;
   end;
 end;
 
@@ -319,12 +319,12 @@ begin
     end else begin
       VDownloadTryCount := 1;
     end;
-    if typemap <> nil then begin
-      VExpectedMIMETypes := typemap.CONTENT_TYPE;
+    if FTypeMap <> nil then begin
+      VExpectedMIMETypes := FTypeMap.CONTENT_TYPE;
     end;
     FDownloader := TTileDownloaderBase.Create(VExpectedMIMETypes, VDownloadTryCount, GState.InetConnect);
   end;
-  if (mapsload=false)and(typemap.UseAntiBan>0) then begin
+  if (mapsload=false)and(FTypeMap.UseAntiBan>0) then begin
     Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
     mapsload:=true;
   end;
@@ -337,10 +337,10 @@ var
 begin
   Result := dtrUnknownError;
   if terminated then exit;
-  url_ifban := MT.GetLink(AXY.X, AXY.Y, AZoom);
+  FLoadUrl := MT.GetLink(AXY.X, AXY.Y, AZoom);
   FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
   FDownloader.SleepOnResetConnection := MT.Sleep;
-  Result := FDownloader.DownloadTile(url_ifban, CheckExistTileSize, AOldTileSize, fileBuf, StatusCode, ty);
+  Result := FDownloader.DownloadTile(FLoadUrl, CheckExistTileSize, AOldTileSize, fileBuf, StatusCode, ty);
   if (ty <> MT.Content_type)
     and(fileBuf.Size <> 0)
     and(MT.BanIfLen <> 0)
@@ -397,17 +397,13 @@ begin
       end;
       if not(_FProgress.Visible) then exit;
       if RgnAndRgn(Poly,p_x,p_y,false) then begin
-        LoadXY.X := p_x;
-        LoadXY.Y := p_y;
-        lastload.X:=p_x-(abs(p_x) mod 256);
-        lastload.Y:=p_y-(abs(p_y) mod 256);
-        lastload.z:=zoom;
-        lastLoad.mt:=typemap;
-        lastLoad.use:=true;
+        FLoadXY.X := p_x;
+        FLoadXY.Y := p_y;
+
         TimeEnd:=GetTimeEnd(num_dwn,obrab);
         LenEnd:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
         Synchronize(UpdateProgressForm);
-        VTileExists := typeMap.TileExists(p_x,p_y,zoom);
+        VTileExists := FTypeMap.TileExists(FLoadXY.x, FLoadXY.y, Fzoom);
         if (zamena) or not(VTileExists) then begin
           if VTileExists then begin
             AddToMemo:=SAS_STR_LoadProcessRepl+' ...';
@@ -415,24 +411,24 @@ begin
             AddToMemo:=SAS_STR_LoadProcess+'...';
           end;
           Synchronize(UpdateMemoProgressForm);
-          if (zDate)and(VTileExists)and(typeMap.TileLoadDate(p_x,p_y,zoom)>=FDate) then   begin
+          if (zDate)and(VTileExists)and(FTypeMap.TileLoadDate(FLoadXY.x, FLoadXY.y, Fzoom)>=FDate) then   begin
             AddToMemo:=AddToMemo+#13#10+SAS_MSG_FileBeCreateTime;
             Synchronize(UpdateMemoProgressForm);
             VGotoNextTile := True;
             inc(obrab);
           end else begin
-            razlen:=typeMap.TileSize(p_x,p_y,zoom);
+            razlen := FTypeMap.TileSize(FLoadXY.x, FLoadXY.y, Fzoom);
 
             FileBuf:=TMemoryStream.Create;
             try
-              if (not(SecondLoadTNE))and(typemap.TileNotExistsOnServer(p_x,p_y,zoom)) then begin
+              if (not(SecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom)) then begin
                 res := dtrTileNotExists;
               end else begin
-                sleep(typemap.Sleep);
-                res:=DownloadTile(LoadXY, Zoom, typemap, razlen, ty, fileBuf);
+                sleep(FTypeMap.Sleep);
+                res:=DownloadTile(FLoadXY, FZoom, FTypeMap, razlen, ty, fileBuf);
               end;
 
-              If (typemap.UseAntiBan>1)and((scachano>0)and((scachano mod typemap.UseAntiBan)=0)) then begin
+              If (FTypeMap.UseAntiBan>1)and((scachano>0)and((scachano mod FTypeMap.UseAntiBan)=0)) then begin
                 mapsload:=false;
                 Synchronize(addDwnforban);
               end;
@@ -465,7 +461,7 @@ begin
                   Synchronize(UpdateMemoProgressForm);
                   inc(obrab);
                   if (GState.SaveTileNotExists) then begin
-                    typemap.SaveTileNotExists(LoadXY.X, LoadXY.Y, Zoom);
+                    FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
                   end;
                   VGotoNextTile := True;
                 end;
@@ -484,19 +480,18 @@ begin
                   continue;
                 end;
                 dtrOK : begin
-                  typemap.SaveTileDownload(p_x, p_y, Zoom, fileBuf, ty);
+                  FTypeMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, FZoom, fileBuf, ty);
                   GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                   inc(obrab);
                   dwnb := dwnb + (fileBuf.Size / 1024);
                   inc(scachano);
                   AddToMemo:='(Ok!)';
-                  LastSuccessfulPoint:=Point(p_x,p_y);
+                  LastSuccessfulPoint := FLoadXY;
                   Synchronize(UpdateMemoAddProgressForm);
                   VGotoNextTile := True;
                 end;
                 else begin
-                  ErrorString:=GetErrStr(res);
-                  AddToMemo:=ErrorString;
+                  AddToMemo:=GetErrStr(res);
                   AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
                   Synchronize(UpdateMemoProgressForm);
                   sleep(5000);
