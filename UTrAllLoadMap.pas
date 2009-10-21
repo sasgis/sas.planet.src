@@ -79,10 +79,9 @@ constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTil
 var i:integer;
 begin
   inherited Create(false);
-   OnTerminate:=Fmain.ThreadDone;
-   Priority := tpLower;
-   FreeOnTerminate:=true;
-
+  OnTerminate:=Fmain.ThreadDone;
+  Priority := tpLower;
+  FreeOnTerminate:=true;
   mapsload:=false;
   zamena:=Azamena;
   zoom:=AZoom;
@@ -93,17 +92,19 @@ begin
   SecondLoadTNE:=ASecondLoadTNE;
   setlength(Poly,length(APolygon_));
   for i:=0 to length(APolygon_) - 1 do begin
-    poly[i]:=Apolygon_[i];
+  poly[i]:=Apolygon_[i];
   end;
-  Application.CreateForm(TFProgress, _FProgress);
-  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   num_dwn:=GetDwnlNum(min,max,poly,true);
   vsego:=num_dwn;
   scachano:=0;
   obrab:=0;
   dwnb:=0;
+
+  Application.CreateForm(TFProgress, _FProgress);
+  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
   _FProgress.Visible:=true;
+
   addDwnforban;
   randomize;
 end;
@@ -118,53 +119,53 @@ begin
   Priority := tpLower;
   FreeOnTerminate:=true;
 
+  Ini:=TiniFile.Create(FileName);
+  try
+    Guids:=Ini.ReadString('Session','MapGUID','');
+    zoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
+    zamena:=Ini.ReadBool('Session','zamena',false);
+    CheckExistTileSize := Ini.ReadBool('Session','raz',false);
+    zdate:=Ini.ReadBool('Session','zdate',false);
+    Fdate:=Ini.ReadDate('Session','FDate',now);
+    scachano:=Ini.ReadInteger('Session','scachano',0);
+    obrab:=Ini.ReadInteger('Session','obrab',0);
+    dwnb:=Ini.ReadFloat('Session','dwnb',0);
+    SecondLoadTNE:=Ini.ReadBool('Session','SecondLoadTNE',false);
+    if LastSuccessful then begin
+      StartPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
+      StartPoint.Y:=Ini.ReadInteger('Session','LastSuccessfulStartY',-1);
+    end else begin
+      StartPoint.X:=Ini.ReadInteger('Session','StartX',-1);
+      StartPoint.Y:=Ini.ReadInteger('Session','StartY',-1);
+    end;
+    i:=1;
+    while Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647)<>2147483647 do begin
+      setlength(poly,i);
+      poly[i-1].x:=Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647);
+      poly[i-1].y:=Ini.ReadInteger('Session','PointY_'+inttostr(i),2147483647);
+      inc(i);
+    end;
+  finally
+    ini.Free;
+  end;
+  For i:=0 to length(MapType)-1 do begin
+    if MapType[i].guids=Guids then begin
+      typemap:=MapType[i];
+    end;
+  end;
+  if typemap=nil then Terminate;
+  if length(poly)=0 then Terminate;
+  mapsload:=false;
+  num_dwn:=GetDwnlNum(min,max,poly,true);
+  vsego:=num_dwn;
+
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
-  begin
-   Ini:=TiniFile.Create(FileName);
-   Guids:=Ini.ReadString('Session','MapGUID','');
-   For i:=0 to length(MapType)-1 do
-    if MapType[i].guids=Guids then
-     begin
-      typemap:=MapType[i];
-     end;
-   if typemap=nil then Terminate;
-   zoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
-   zamena:=Ini.ReadBool('Session','zamena',false);
-   CheckExistTileSize := Ini.ReadBool('Session','raz',false);
-   zdate:=Ini.ReadBool('Session','zdate',false);
-   Fdate:=Ini.ReadDate('Session','FDate',now);
-   scachano:=Ini.ReadInteger('Session','scachano',0);
-   obrab:=Ini.ReadInteger('Session','obrab',0);
-   dwnb:=Ini.ReadFloat('Session','dwnb',0);
-   SecondLoadTNE:=Ini.ReadBool('Session','SecondLoadTNE',false);
-   mapsload:=false;
-   if LastSuccessful then
-         begin
-          StartPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
-          StartPoint.Y:=Ini.ReadInteger('Session','LastSuccessfulStartY',-1);
-         end
-    else begin
-          StartPoint.X:=Ini.ReadInteger('Session','StartX',-1);
-          StartPoint.Y:=Ini.ReadInteger('Session','StartY',-1);
-         end;
-   i:=1;
-   while Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647)<>2147483647 do
-    begin
-     setlength(poly,i);
-     poly[i-1].x:=Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647);
-     poly[i-1].y:=Ini.ReadInteger('Session','PointY_'+inttostr(i),2147483647);
-     inc(i);
-    end;
-   if length(poly)=0 then Terminate;
-   ini.Free;
-  end;
- num_dwn:=GetDwnlNum(min,max,poly,true);
- vsego:=num_dwn;
- Synchronize(SetProgressForm);
- _FProgress.Visible:=true;
- Synchronize(addDwnforban);
- randomize;
+  SetProgressForm;
+  _FProgress.Visible:=true;
+
+  addDwnforban;
+  randomize;
 end;
 
 destructor ThreadAllLoadMap.Destroy;
