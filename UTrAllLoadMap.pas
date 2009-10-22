@@ -45,7 +45,6 @@ type
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
     procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
@@ -316,22 +315,6 @@ begin
   FTypeMap.ExecOnBan(FLoadUrl);
 end;
 
-function ThreadAllLoadMap.DownloadTile(AXY: TPoint; AZoom: byte;
-  MT: TMapType; AOldTileSize: Integer; out ty: string; fileBuf: TMemoryStream): TDownloadTileResult;
-var
-  StatusCode: Cardinal;
-begin
-  Result := dtrUnknownError;
-  if terminated then exit;
-  FLoadUrl := MT.GetLink(AXY.X, AXY.Y, AZoom);
-  FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
-  FDownloader.SleepOnResetConnection := MT.Sleep;
-  Result := FDownloader.DownloadTile(FLoadUrl, CheckExistTileSize, AOldTileSize, fileBuf, StatusCode, ty);
-  if MT.CheckIsBan(AXY, AZoom, StatusCode, ty, fileBuf) then begin
-    result := dtrBanError;
-  end;
-end;
-
 function ThreadAllLoadMap.GetErrStr(Aerr: TDownloadTileResult): string;
 begin
  case Aerr of
@@ -406,7 +389,7 @@ begin
                 res := dtrTileNotExists;
               end else begin
                 sleep(FTypeMap.Sleep);
-                res:=DownloadTile(FLoadXY, FZoom, FTypeMap, razlen, ty, fileBuf);
+                res:=FTypeMap.DownloadTile(FLoadXY, FZoom, CheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                 case res of
                   dtrOK,
                   dtrSameTileSize,

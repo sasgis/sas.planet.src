@@ -12,6 +12,7 @@ uses
   Graphics,
   StdCtrls,
   ComCtrls,
+  SyncObjs,
   Menus,
   math,
   ExtCtrls,
@@ -21,6 +22,7 @@ uses
   GR32,
   t_GeoTypes,
   u_CoordConverterAbstract,
+  u_TileDownloaderBase,
   u_UrlGenerator,
   UResStrings;
 
@@ -99,14 +101,21 @@ type
     function IncDownloadedAndCheckAntiBan: Boolean;
     procedure addDwnforban;
     procedure ExecOnBan(ALastUrl: string);
+    function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf:TMemoryStream): TDownloadTileResult;
+
     property GeoConvert: ICoordConverter read GetCoordConverter;
 
+    constructor Create;
+    destructor Destroy; override;
   private
     FDownloadTilesCount: Longint;
+    FInitDownloadCS: TCriticalSection;
+    FDownloader: TTileDownloaderBase;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
     function GetBasePath: string;
+    function GetDownloader: TTileDownloaderBase;
   end;
 var
   MapType:array of TMapType;
@@ -1147,6 +1156,7 @@ end;
 function TMapType.CheckIsBan(AXY: TPoint; AZoom: byte;
   StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
 begin
+  Result := false;
   if (ty <> Content_type)
     and(fileBuf.Size <> 0)
     and(BanIfLen <> 0)
@@ -1181,6 +1191,47 @@ begin
   if ban_pg_ld then begin
     Fmain.ShowCaptcha(ALastUrl);
     ban_pg_ld:=false;
+  end;
+end;
+
+constructor TMapType.Create;
+begin
+  FInitDownloadCS := TCriticalSection.Create;
+end;
+
+destructor TMapType.Destroy;
+begin
+  FreeAndNil(FInitDownloadCS);
+  inherited;
+end;
+
+function TMapType.GetDownloader: TTileDownloaderBase;
+begin
+  if FDownloader = nil then begin
+    FInitDownloadCS.Acquire;
+    try
+      if FDownloader = nil then begin
+        FDownloader := TTileDownloaderBase.Create(CONTENT_TYPE, 1, GState.InetConnect);
+        FDownloader.SleepOnResetConnection := Sleep;
+      end;
+    finally
+      FInitDownloadCS.Release;
+    end;
+  end;
+  Result := FDownloader;
+end;
+
+function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
+  ACheckTileSize: Boolean; AOldTileSize: Integer;
+  out AUrl: string; out AContentType: string;
+  fileBuf: TMemoryStream): TDownloadTileResult;
+var
+  StatusCode: Cardinal;
+begin
+  AUrl := GetLink(AXY.X, AXY.Y, AZoom);
+  Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+  if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
+    result := dtrBanError;
   end;
 end;
 

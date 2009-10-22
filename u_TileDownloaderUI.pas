@@ -25,7 +25,6 @@ type
     procedure AfterWriteToFile;
     procedure ban;
     function GetErrStr(Aerr: TDownloadTileResult): string;
-    function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
   protected
     procedure Execute; override;
   public
@@ -67,22 +66,6 @@ begin
  FTypeMap:=Sat_map_Both;
  Upos:= FMain.pos;
  FZoom:= GState.zoom_size;
-end;
-
-function TTileDownloaderUI.DownloadTile(AXY: TPoint; AZoom: byte;
-  MT: TMapType; AOldTileSize: Integer; out ty: string; fileBuf: TMemoryStream): TDownloadTileResult;
-var
-  StatusCode: Cardinal;
-begin
-  Result := dtrUnknownError;
-  if terminated then exit;
-  FLoadUrl := MT.GetLink(AXY.X, AXY.Y, AZoom);
-  FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
-  FDownloader.SleepOnResetConnection := MT.Sleep;
-  Result := FDownloader.DownloadTile(FLoadUrl, false, 0, fileBuf, StatusCode, ty);
-  if MT.CheckIsBan(AXY, AZoom, StatusCode, ty, fileBuf) then begin
-    result := dtrBanError;
-  end;
 end;
 
 function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
@@ -176,7 +159,7 @@ begin
                       FileBuf:=TMemoryStream.Create;
                       try
                         sleep(VMap.Sleep);
-                        res:=DownloadTile(FLoadXY, FZoom, VMap, 0, ty, fileBuf);
+                        res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
                         if Res = dtrBanError  then begin
                           FTypeMap := VMap;
                           Synchronize(Ban);

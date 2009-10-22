@@ -20,7 +20,6 @@ type
     FErrorString: string;
     FLoadUrl: string;
     FDownloader: TTileDownloaderBase;
-    function DownloadTile(AXY: TPoint; AZoom: byte;MT:TMapType; AOldTileSize: Integer; out ty: string; fileBuf:TMemoryStream): TDownloadTileResult;
     procedure ban;
     function GetErrStr(Aerr: TDownloadTileResult): string;
     procedure AfterWriteToFile;
@@ -82,22 +81,6 @@ begin
  end;
 end;
 
-function TTileDownloaderUIOneTile.DownloadTile(AXY: TPoint; AZoom: byte;
-  MT: TMapType; AOldTileSize: Integer; out ty: string; fileBuf: TMemoryStream): TDownloadTileResult;
-var
-  StatusCode: Cardinal;
-begin
-  Result := dtrUnknownError;
-  if terminated then exit;
-  FLoadUrl := MT.GetLink(AXY.X, AXY.Y, AZoom);
-  FDownloader.ExpectedMIMETypes := MT.CONTENT_TYPE;
-  FDownloader.SleepOnResetConnection := MT.Sleep;
-  Result := FDownloader.DownloadTile(FLoadUrl, false, 0, fileBuf, StatusCode, ty);
-  if MT.CheckIsBan(AXY, AZoom, StatusCode, ty, fileBuf) then begin
-    result := dtrBanError;
-  end;
-end;
-
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then
@@ -126,7 +109,7 @@ begin
   if FTypeMap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
-      res :=DownloadTile(FLoadXY, FZoom, FTypeMap, 0, ty, fileBuf);
+      res :=FTypeMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
       if res = dtrBanError  then begin
         Synchronize(Ban);
       end;
