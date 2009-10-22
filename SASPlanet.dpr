@@ -56,7 +56,8 @@ uses
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   t_LoadEvent in 't_LoadEvent.pas',
-  u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas';
+  u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
+  u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas';
 
 var
   loc:integer;

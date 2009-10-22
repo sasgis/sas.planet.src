@@ -13,16 +13,12 @@ uses
   t_LoadEvent,
   UMapType,
   u_TileDownloaderBase,
+  u_TileDownloaderThreadBase,
   UResStrings;
 
 type
-  ThreadAllLoadMap = class(TThread)
+  ThreadAllLoadMap = class(TTileDownloaderThreadBase)
   private
-    FTypeMap: TMapType;
-    FLoadXY: TPoint;
-    FZoom:byte;
-    FLoadUrl: string;
-
     Poly:TPointArray;
     zamena:boolean;
     StartPoint:TPoint;
@@ -38,13 +34,11 @@ type
     scachano,num_dwn,obrab,vsego:integer;
     dwnb:real;
     AddToMemo,TimeEnd,LenEnd:string;
-    function GetErrStr(Aerr: TDownloadTileResult): string;
     procedure UpdateMemoProgressForm;
     procedure UpdateMemoAddProgressForm;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    procedure ban;
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
   protected
@@ -290,26 +284,6 @@ begin
   Result:='';
   if dd>0 then Result:=inttostr(dd)+' дней, ';
   Result:=Result+TimeToStr((Time1*(loadAll / load))-Time1);
-end;
-
-procedure ThreadAllLoadMap.ban;
-begin
-  FTypeMap.ExecOnBan(FLoadUrl);
-end;
-
-function ThreadAllLoadMap.GetErrStr(Aerr: TDownloadTileResult): string;
-begin
- case Aerr of
-  dtrProxyAuthError: result:=SAS_ERR_Authorization;
-  dtrBanError: result:=SAS_ERR_Ban;
-  dtrTileNotExists: result:=SAS_ERR_TileNotExists;
-  dtrDownloadError,
-  dtrErrorInternetOpen,
-  dtrErrorInternetOpenURL: result:=SAS_ERR_Noconnectionstointernet;
-  dtrErrorMIMEType: result := 'Ошибочный тип данных'; //TODO: Заменить на ресурсную строку
-  dtrUnknownError: Result := 'Неизвестная ошибка при скачивании'
-  else result:='';
- end;
 end;
 
 procedure ThreadAllLoadMap.Execute;

@@ -8,22 +8,17 @@ uses
   Types,
   t_LoadEvent,
   u_TileDownloaderBase,
+  u_TileDownloaderThreadBase,
   UMapType;
 
 type
-  TTileDownloaderUI = class(TThread)
+  TTileDownloaderUI = class(TTileDownloaderThreadBase)
   private
-    FZoom: byte;
-    FTypeMap: TMapType;
     UPos: TPoint;
-    FLoadXY: TPoint;
     FLastLoad: TlastLoad;
     FErrorString: string;
-    FLoadUrl: string;
     procedure GetCurrentMapAndPos;
     procedure AfterWriteToFile;
-    procedure ban;
-    function GetErrStr(Aerr: TDownloadTileResult): string;
   protected
     procedure Execute; override;
   public
@@ -58,21 +53,6 @@ begin
  FZoom:= GState.zoom_size;
 end;
 
-function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
-begin
- case Aerr of
-  dtrProxyAuthError: result:=SAS_ERR_Authorization;
-  dtrBanError: result:=SAS_ERR_Ban;
-  dtrTileNotExists: result:=SAS_ERR_TileNotExists;
-  dtrDownloadError,
-  dtrErrorInternetOpen,
-  dtrErrorInternetOpenURL: result:=SAS_ERR_Noconnectionstointernet;
-  dtrErrorMIMEType: result := 'Ошибочный тип данных'; //TODO: Заменить на ресурсную строку
-  dtrUnknownError: Result := 'Неизвестная ошибка при скачивании'
-  else result:='';
- end;
-end;
-
 procedure TTileDownloaderUI.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
@@ -80,11 +60,6 @@ begin
  end else begin
   Fmain.toSh;
  end;
-end;
-
-procedure TTileDownloaderUI.ban;
-begin
-  FTypeMap.ExecOnBan(FLoadUrl);
 end;
 
 procedure TTileDownloaderUI.Execute;
