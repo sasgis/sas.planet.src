@@ -19,7 +19,6 @@ type
     FZoom: byte;
     FErrorString: string;
     FLoadUrl: string;
-    FDownloader: TTileDownloaderBase;
     procedure ban;
     function GetErrStr(Aerr: TDownloadTileResult): string;
     procedure AfterWriteToFile;
@@ -40,8 +39,6 @@ uses
   Unit1;
 
 constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; MT:TMapType);
-var
-  VDownloadTryCount: Integer;
 begin
   inherited Create(False);
   FLoadXY := AXY;
@@ -50,18 +47,11 @@ begin
 
   Priority := tpLower;
   FreeOnTerminate := true;
-  if GState.TwoDownloadAttempt then begin
-    VDownloadTryCount := 2;
-  end else begin
-    VDownloadTryCount := 1;
-  end;
-  FDownloader := TTileDownloaderBase.Create(MT.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
   randomize;
 end;
 
 destructor TTileDownloaderUIOneTile.Destroy;
 begin
-  FreeAndNil(FDownloader);
   inherited;
 end;
 

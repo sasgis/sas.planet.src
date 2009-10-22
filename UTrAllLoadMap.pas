@@ -22,7 +22,6 @@ type
     FLoadXY: TPoint;
     FZoom:byte;
     FLoadUrl: string;
-    FDownloader: TTileDownloaderBase;
 
     Poly:TPointArray;
     zamena:boolean;
@@ -75,7 +74,6 @@ uses
 constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var
   i: integer;
-  VDownloadTryCount: Integer;
 begin
   inherited Create(false);
   OnTerminate:=Fmain.ThreadDone;
@@ -98,13 +96,6 @@ begin
   obrab:=0;
   dwnb:=0;
 
-  if GState.TwoDownloadAttempt then begin
-    VDownloadTryCount := 2;
-  end else begin
-    VDownloadTryCount := 1;
-  end;
-  FDownloader := TTileDownloaderBase.Create(FTypeMap.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
-
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
@@ -118,7 +109,6 @@ var
   Ini: Tinifile;
   i: integer;
   Guids: string;
-  VDownloadTryCount: Integer;
 begin
   inherited Create(false);
   OnTerminate:=Fmain.ThreadDone;
@@ -164,13 +154,6 @@ begin
   num_dwn:=GetDwnlNum(min,max,poly,true);
   vsego:=num_dwn;
 
-  if GState.TwoDownloadAttempt then begin
-    VDownloadTryCount := 2;
-  end else begin
-    VDownloadTryCount := 1;
-  end;
-  FDownloader := TTileDownloaderBase.Create(FTypeMap.CONTENT_TYPE, VDownloadTryCount, GState.InetConnect);
-
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
@@ -181,7 +164,6 @@ end;
 
 destructor ThreadAllLoadMap.Destroy;
 begin
-  FreeAndNil(FDownloader);
   inherited;
 end;
 

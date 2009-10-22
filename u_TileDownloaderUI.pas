@@ -17,7 +17,6 @@ type
     FTypeMap: TMapType;
     UPos: TPoint;
     FLoadXY: TPoint;
-    FDownloader: TTileDownloaderBase;
     FLastLoad: TlastLoad;
     FErrorString: string;
     FLoadUrl: string;
@@ -40,23 +39,14 @@ uses
   Unit1;
 
 constructor TTileDownloaderUI.Create;
-var
-  VDownloadTryCount: Integer;
 begin
   inherited Create(False);
   Priority := tpLower;
-  if GState.TwoDownloadAttempt then begin
-    VDownloadTryCount := 2;
-  end else begin
-    VDownloadTryCount := 1;
-  end;
-  FDownloader := TTileDownloaderBase.Create('', VDownloadTryCount, GState.InetConnect);
   randomize;
 end;
 
 destructor TTileDownloaderUI.Destroy;
 begin
-  FreeAndNil(FDownloader);
   inherited;
 end;
 
