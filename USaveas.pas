@@ -615,6 +615,11 @@ begin
   numd:=GetDwnlNum(min,max,polyg,true);
   label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
+  if PageControl1.TabIndex=1 then begin
+    GetMinMax(min,max,polyg,false);
+    label6.Caption:=label6.Caption+', '+inttostr(max.x-min.x)+'x'
+                  +inttostr(max.y-min.y);
+  end;
 end;
 
 procedure TFsaveas.SpeedButton1Click(Sender: TObject);

@@ -1,6 +1,6 @@
 object Fsaveas: TFsaveas
-  Left = 196
-  Top = 280
+  Left = 304
+  Top = 246
   BorderStyle = bsDialog
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
   ClientHeight = 242
@@ -68,7 +68,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 481
     Height = 201
-    ActivePage = TabSheet5
+    ActivePage = TabSheet1
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet

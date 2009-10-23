@@ -110,7 +110,6 @@ var
   VTileExist:boolean;
   i,j,ii,jj,ixT,jxT:integer;
   imd256x,imd256y,xx,yy,x1,y1:longint;
-
   VMapType:TMapType;
 begin
   repeat
@@ -135,9 +134,11 @@ begin
           VMapType := fillingmaptype;
         end;
         ixT:=0;
+
         While ixT<(xyTiles) do begin
           xx:=ppaprx+(imd256x shl dZoom)+(ixT*256);
           if (Terminated)or(needRepaint)or(stop)or(xx<0)or(xx>=zoom[GState.zoom_mapzap]) then begin
+            VTileExist:=true;
             inc(ixT);
             continue;
           end;

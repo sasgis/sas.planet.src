@@ -168,8 +168,10 @@ begin
    end;
    FindName:=GEXYZtoHexTileName(x,y,z);
    While ((FindName<>name))and(i<indexfile.Size) do begin
-     copymemory(@iblock,Pointer(longint(indexfile.Memory)+i),32);
-     if (iblock[6]=130)and(z=iblock[8]+1)and(iblock[20]=0) then begin
+     if (Pbyte(longint(indexfile.Memory)+i+6)^=130)and
+        (z=Pbyte(longint(indexfile.Memory)+i+8)^+1)and
+        (Pbyte(longint(indexfile.Memory)+i+20)^=0) then begin
+       copymemory(@iblock,Pointer(longint(indexfile.Memory)+i),32);
        name:=(int64(iblock[12])shl 32)or(int64(iblock[13])shl 40)or(int64(iblock[14])shl 48)or(int64(iblock[15])shl 56)or
              (iblock[16])or(iblock[17]shl 8)or(iblock[18]shl 16)or(iblock[19]shl 24);
      end;

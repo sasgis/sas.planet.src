@@ -214,8 +214,8 @@ var
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
   VPixelsAtZoom := abs(VPixelsAtZoom);
-  Result.X := Trunc(XY.X * VPixelsAtZoom);
-  Result.Y := Trunc(XY.Y * VPixelsAtZoom);
+  Result.X := trunc(XY.X * VPixelsAtZoom);
+  Result.Y := trunc(XY.Y * VPixelsAtZoom);
 end;
 
 function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
