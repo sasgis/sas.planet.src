@@ -62,7 +62,14 @@ begin
 end;
 
 procedure TMemFileCache.SetCacheElemensMaxCnt(const Value: integer);
+var i:integer;
 begin
+  if Value<FCacheList.Count then begin
+    for i:=0 to (FCacheList.Count-Value)-1 do begin
+      FCacheList.Objects[0].Free;
+      FCacheList.Delete(0);
+    end;
+  end;
   FCacheElemensMaxCnt := Value;
 end;
 
@@ -102,7 +109,7 @@ begin
   if FSync.BeginWrite then begin
     try
       i:=FCacheList.IndexOf(VPath);
-      if i < 0 then begin
+      if i<0 then begin
         FCacheList.AddObject(VPath, btmcache);
         if FCacheList.Count > FCacheElemensMaxCnt then begin
           FCacheList.Objects[0].Free;

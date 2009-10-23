@@ -679,24 +679,7 @@ begin
  end;
  5:
  begin
-  fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
-  if (not FileExists(result+'\'+fname))and(FileExists(result+'\dbCache.dat'))and(FileExists(result+'\dbCache.dat.index'))then
-  try
-   x:=x shr 8;
-   y:=y shr 8;
-   if FindFirst(result+'\*.jpg', faAnyFile, SearchRec) = 0 then
-    repeat
-     if (SearchRec.Attr and faDirectory) <> faDirectory then
-       DeleteFile(result+'\'+SearchRec.Name);
-    until FindNext(SearchRec) <> 0;
-   FindClose(SearchRec);
-
-   if GetMerkatorGETile(ms,result+'\dbCache.dat',x,y,Azoom, Self)
-    then ms.SaveToFile(result+'\'+fname);
-   FreeAndNil(ms);
-  except
-  end;
-  result:=result+'\'+fname;
+  result:=result+'\dbCache.dat';
  end;
  end;
 end;
@@ -704,9 +687,14 @@ end;
 function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
 var
   VPath: String;
+  bsize:integer;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
-  Result := Fileexists(VPath);
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    result:=GETileExists(GetBasePath+'\dbCache.dat.index',x shr 8,y shr 8,Azoom,self);
+  end else begin
+    VPath := GetTileFileName(x, y, Azoom);
+    Result := Fileexists(VPath);
+  end;
 end;
 
 function GetFileSize(namefile: string): Integer;
@@ -841,10 +829,17 @@ end;
 
 function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
-var
-  path: string;
+var path: string;
 begin
   path := GetTileFileName(x, y, Azoom);
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
+      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
+      if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+    end else begin
+      result:=true;
+    end;
+  end else
   result:= LoadFile(btm, path, caching);
 end;
 
@@ -891,30 +886,7 @@ begin
         end;
         result:=true;
         if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
-      end{ else begin
-        if not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath) then begin
-          if ExtractFileExt(Apath)='.jpg' then begin
-            if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
-              result:=false;
-              exit;
-            end
-          end else
-          if ExtractFileExt(Apath)='.png' then begin
-            if not(LoadPNG(Apath,TBitmap32(btm))) then begin
-              result:=false;
-              exit;
-            end;
-          end else
-          if ExtractFileExt(Apath)='.gif' then begin
-            if not(LoadGif(Apath,TBitmap32(btm))) then begin
-              result:=false;
-              exit;
-            end;
-          end else begin
-            GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
-          end;
-        end;
-      end;}
+      end
     end else begin
       if (btm is TPicture) then
         TPicture(btm).LoadFromFile(Apath)

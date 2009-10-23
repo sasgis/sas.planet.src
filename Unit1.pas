@@ -1040,6 +1040,7 @@ begin
                                          else begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
+                                               //LayerMapNal.Bitmap.Clear(clBlack);
                                                drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
@@ -1420,7 +1421,7 @@ begin
   end;
 
  polygon.Free;
- if new then begin
+ if (new)and(length(pathll)>0) then begin
    k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[0],GState.zoom_size-1);
    k1:=Point(pr_x-(pos.x-k1.x)-4,pr_y-(pos.y-k1.y)-4);
    LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
