@@ -54,10 +54,13 @@ type
 
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
+
     property TotalInRegion: Cardinal read FTotalInRegion;
     property Downloaded: Cardinal read FDownloaded;
     property Processed: Cardinal read FProcessed;
     property DownloadSize: Double read FDownloadSize;
+    property ElapsedTime: TDateTime read FElapsedTime;
+    property StartTime: TDateTime read FStartTime;
   end;
 
 implementation
@@ -240,8 +243,8 @@ begin
  Application.ProcessMessages;
  _FProgress.LabelValue1.Caption:=inttostr(FProcessed)+' '+SAS_STR_files;
  _FProgress.LabelValue2.Caption:=inttostr(FDownloaded)+' ('+kb2KbMbGb(FDownloadSize)+') '+SAS_STR_Files;
- _FProgress.LabelValue3.Caption:=TimeEnd;
- _FProgress.LabelValue4.Caption:=LenEnd;
+ _FProgress.LabelValue3.Caption:=GetTimeEnd(FTotalInRegion,FProcessed);
+ _FProgress.LabelValue4.Caption:=GetLenEnd(FTotalInRegion, FProcessed, FDownloaded, FDownloadSize);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
   path := FTypeMap.GetTileFileName(FLoadXY.X, FLoadXY.y, Fzoom);
  _FProgress.Memo1.Lines.Add(SAS_STR_ProcessedFile+': '+path+'...');
@@ -338,8 +341,6 @@ begin
         FLoadXY.X := p_x;
         FLoadXY.Y := p_y;
 
-        TimeEnd:=GetTimeEnd(FTotalInRegion,FProcessed);
-        LenEnd:=GetLenEnd(FTotalInRegion, FProcessed, FDownloaded, FDownloadSize);
         Synchronize(UpdateProgressForm);
         VTileExists := FTypeMap.TileExists(FLoadXY.x, FLoadXY.y, Fzoom);
         if (FReplaceExistTiles) or not(VTileExists) then begin
