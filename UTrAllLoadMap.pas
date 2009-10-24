@@ -34,7 +34,8 @@ type
     FDownloadSize: Double;
     FProcessed: Cardinal;
 
-    OperBegin:TDateTime;
+    FElapsedTime: TDateTime;
+    FStartTime: TDateTime;
     _FProgress:TFProgress;
     AddToMemo,TimeEnd,LenEnd:string;
     procedure UpdateMemoProgressForm;
@@ -53,6 +54,10 @@ type
 
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
+    property TotalInRegion: Cardinal read FTotalInRegion;
+    property Downloaded: Cardinal read FDownloaded;
+    property Processed: Cardinal read FProcessed;
+    property DownloadSize: Double read FDownloadSize;
   end;
 
 implementation
@@ -91,7 +96,7 @@ begin
   FDownloaded := 0;
   FProcessed := 0;
   FDownloadSize := 0;
-
+  FElapsedTime := 0;
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
@@ -137,6 +142,7 @@ begin
       FRegionPoly[i-1].y := Ini.ReadInteger('Session','PointY_'+inttostr(i),2147483647);
       inc(i);
     end;
+    FElapsedTime := Ini.ReadFloat('Session', 'ElapsedTime', 0);
   finally
     ini.Free;
   end;
@@ -163,32 +169,41 @@ begin
 end;
 
 procedure ThreadAllLoadMap.SaveSessionToFile;
-var Ini: Tinifile;
-    i:integer;
+var
+  Ini: Tinifile;
+  i:integer;
+  VElapsedTime: TDateTime;
 begin
- if (_FProgress.SaveSessionDialog.Execute)and(_FProgress.SaveSessionDialog.FileName<>'') then
-  begin
-   Ini:=TiniFile.Create(_FProgress.SaveSessionDialog.FileName);
-   Ini.WriteString('Session', 'MapGUID', FTypeMap.guids);
-   Ini.WriteInteger('Session', 'zoom', Fzoom);
-   Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
-   Ini.WriteBool('Session', 'raz', FCheckExistTileSize);
-   Ini.WriteBool('Session', 'zdate', FCheckExistTileDate);
-   Ini.WriteDate('Session', 'FDate', FCheckTileDate);
-   Ini.WriteBool('Session', 'SecondLoadTNE', FSecondLoadTNE);
-   Ini.WriteInteger('Session', 'scachano', FDownloaded);
-   Ini.WriteInteger('Session', 'obrab', FProcessed);
-   Ini.WriteFloat('Session', 'dwnb', FDownloadSize);
-   Ini.WriteInteger('Session', 'StartX', FLastProcessedPoint.X);
-   Ini.WriteInteger('Session', 'StartY', FLastProcessedPoint.Y);
-   Ini.WriteInteger('Session', 'LastSuccessfulStartX', FLastSuccessfulPoint.X);
-   Ini.WriteInteger('Session', 'LastSuccessfulStartY', FLastSuccessfulPoint.Y);
-   for i := 1 to length(FRegionPoly) do
-    begin
-     Ini.WriteInteger('Session', 'PointX_'+inttostr(i), FRegionPoly[i-1].x);
-     Ini.WriteInteger('Session', 'PointY_'+inttostr(i), FRegionPoly[i-1].y);
+  if (_FProgress.SaveSessionDialog.Execute)and(_FProgress.SaveSessionDialog.FileName<>'') then begin
+    Ini:=TiniFile.Create(_FProgress.SaveSessionDialog.FileName);
+    try
+      Ini.WriteString('Session', 'MapGUID', FTypeMap.guids);
+      Ini.WriteInteger('Session', 'zoom', Fzoom);
+      Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
+      Ini.WriteBool('Session', 'raz', FCheckExistTileSize);
+      Ini.WriteBool('Session', 'zdate', FCheckExistTileDate);
+      Ini.WriteDate('Session', 'FDate', FCheckTileDate);
+      Ini.WriteBool('Session', 'SecondLoadTNE', FSecondLoadTNE);
+      Ini.WriteInteger('Session', 'scachano', FDownloaded);
+      Ini.WriteInteger('Session', 'obrab', FProcessed);
+      Ini.WriteFloat('Session', 'dwnb', FDownloadSize);
+      Ini.WriteInteger('Session', 'StartX', FLastProcessedPoint.X);
+      Ini.WriteInteger('Session', 'StartY', FLastProcessedPoint.Y);
+      Ini.WriteInteger('Session', 'LastSuccessfulStartX', FLastSuccessfulPoint.X);
+      Ini.WriteInteger('Session', 'LastSuccessfulStartY', FLastSuccessfulPoint.Y);
+      for i := 1 to length(FRegionPoly) do begin
+        Ini.WriteInteger('Session', 'PointX_'+inttostr(i), FRegionPoly[i-1].x);
+        Ini.WriteInteger('Session', 'PointY_'+inttostr(i), FRegionPoly[i-1].y);
+      end;
+      if (_FProgress.stop) then begin
+        VElapsedTime := FElapsedTime;
+      end else begin
+        VElapsedTime := FElapsedTime + (Now - FStartTime);
+      end;
+      Ini.WriteFloat('Session', 'ElapsedTime', VElapsedTime);
+    finally
+      ini.Free;
     end;
-   ini.Free;
   end;
 end;
 
@@ -266,25 +281,25 @@ end;
 function ThreadAllLoadMap.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
 begin
   if loaded=0 then begin
-                    result:='~ Κα';
-                    exit;
-                 end;
+    result:='~ Κα';
+    exit;
+  end;
   Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
 end;
 
 function ThreadAllLoadMap.GetTimeEnd(loadAll,load:integer):String;
 var dd:integer;
-    Time1:TDateTime;
+    VElapsedTime: TDateTime;
 begin
   if load=0 then begin
-                    result:='~';
-                    exit;
-                 end;
-  Time1:=now-OperBegin;
-  dd:=DaysBetween(Time1,(Time1*(loadAll/load)));
+    result:='~';
+    exit;
+  end;
+  VElapsedTime := FElapsedTime + (Now - FStartTime);;
+  dd:=DaysBetween(VElapsedTime,(VElapsedTime*(loadAll/load)));
   Result:='';
   if dd>0 then Result:=inttostr(dd)+' δνει, ';
-  Result:=Result+TimeToStr((Time1*(loadAll / load))-Time1);
+  Result:=Result+TimeToStr((VElapsedTime*(loadAll / load))-VElapsedTime);
 end;
 
 procedure ThreadAllLoadMap.Execute;
@@ -297,7 +312,7 @@ var
   razlen: integer;
   VGotoNextTile: Boolean;
 begin
-  OperBegin:=now;
+  FStartTime := Now;
   FLastSuccessfulPoint := Point(-1,-1);
   if FRegionRect.Left < FLastProcessedPoint.x then begin
     p_x := FLastProcessedPoint.x;
@@ -313,8 +328,10 @@ begin
     while p_y < FRegionRect.Bottom do begin
       sleep(1);
       if (_FProgress.stop) then begin
+        FElapsedTime := FElapsedTime + (Now - FStartTime);
         Synchronize(UpdateProgressForm);
         While (_FProgress.stop)and(_FProgress.Visible) do sleep(100);
+        FStartTime := now;
       end;
       if not(_FProgress.Visible) then exit;
       if RgnAndRgn(FRegionPoly, p_x, p_y, false) then begin
