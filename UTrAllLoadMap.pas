@@ -8,6 +8,7 @@ uses
   IniFiles,
   Wininet,
   Dialogs,
+  i_ILogForTaskThread,
   Uprogress,
   t_GeoTypes,
   t_LoadEvent,
@@ -37,9 +38,11 @@ type
     FElapsedTime: TDateTime;
     FStartTime: TDateTime;
     _FProgress:TFProgress;
-    AddToMemo,TimeEnd,LenEnd:string;
+
+    FLog: ILogForTaskThread;
+    FLogID: Cardinal;
+
     procedure UpdateMemoProgressForm;
-    procedure UpdateMemoAddProgressForm;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
@@ -69,18 +72,21 @@ uses
   DateUtils,
   StrUtils,
   Math,
+  Types,
   u_GlobalState,
   u_GeoToStr,
+  u_LogForTaskThread,
   Unit1,
   UImgfun,
   UGeoFun,
-  Usaveas, Types;
+  Usaveas;
 
 constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var
   i: integer;
 begin
   inherited Create(false);
+  FLog := TLogForTaskThread.Create(5000, 0);
   OnTerminate:=Fmain.ThreadDone;
   Priority := tpLower;
   FreeOnTerminate:=true;
@@ -101,9 +107,7 @@ begin
   FDownloadSize := 0;
   FElapsedTime := 0;
   Application.CreateForm(TFProgress, _FProgress);
-  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
-  _FProgress.Visible:=true;
 
   randomize;
 end;
@@ -115,6 +119,7 @@ var
   Guids: string;
 begin
   inherited Create(false);
+  FLog := TLogForTaskThread.Create(5000, 0);
   OnTerminate:=Fmain.ThreadDone;
   Priority := tpLower;
   FreeOnTerminate:=true;
@@ -159,10 +164,7 @@ begin
   FTotalInRegion := GetDwnlNum(FRegionRect.TopLeft, FRegionRect.BottomRight, FRegionPoly, true);
 
   Application.CreateForm(TFProgress, _FProgress);
-  _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
-  _FProgress.Visible:=true;
-
   randomize;
 end;
 
@@ -217,6 +219,7 @@ end;
 
 procedure ThreadAllLoadMap.SetProgressForm;
 begin
+ _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
  _FProgress.RProgr.Max := FTotalInRegion;
  _FProgress.RProgr.Progress1 := FDownloaded;
  _FProgress.RProgr.Progress2 := FProcessed;
@@ -226,46 +229,45 @@ begin
  _FProgress.LabelName2.Caption := SAS_STR_AllLoad;
  _FProgress.LabelName3.Caption := SAS_STR_TimeRemained;
  _FProgress.LabelName4.Caption := SAS_STR_LoadRemained;
+ _FProgress.Visible:=true;
+
 end;
 
 procedure ThreadAllLoadMap.UpdateProgressForm;
-var
-  path: string;
 begin
- if (_FProgress.stop) then
-   begin
-    _FProgress.Memo1.Lines.Add(SAS_STR_UserStop);
-    _FProgress.Caption:=SAS_STR_Stop1+'... ('+inttostr(round(FProcessed/FTotalInRegion*100))+'%)';
-    exit;
-   end;
- if _FProgress.Memo1.Lines.Count>5000 then _FProgress.Memo1.Lines.Clear;
- _FProgress.Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(FProcessed/FTotalInRegion*100))+'%)';
- Application.ProcessMessages;
- _FProgress.LabelValue1.Caption:=inttostr(FProcessed)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(FDownloaded)+' ('+kb2KbMbGb(FDownloadSize)+') '+SAS_STR_Files;
- _FProgress.LabelValue3.Caption:=GetTimeEnd(FTotalInRegion,FProcessed);
- _FProgress.LabelValue4.Caption:=GetLenEnd(FTotalInRegion, FProcessed, FDownloaded, FDownloadSize);
- //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
-  path := FTypeMap.GetTileFileName(FLoadXY.X, FLoadXY.y, Fzoom);
- _FProgress.Memo1.Lines.Add(SAS_STR_ProcessedFile+': '+path+'...');
- Application.ProcessMessages;
- if (FProcessed mod 10 = 0)or(FTotalInRegion<100) then
-  begin
-   _FProgress.RProgr.Progress1 := FProcessed;
-   _FProgress.RProgr.Progress2 := FDownloaded;
+  if (_FProgress.stop) then begin
+    UpdateMemoProgressForm;
+    _FProgress.Caption:=SAS_STR_Stop1+'... ('+inttostr(round(Processed/TotalInRegion*100))+'%)';
+  end else begin
+    UpdateMemoProgressForm;
+    _FProgress.Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(Processed/TotalInRegion*100))+'%)';
+    Application.ProcessMessages;
+    _FProgress.LabelValue1.Caption:=inttostr(Processed)+' '+SAS_STR_files;
+    _FProgress.LabelValue2.Caption:=inttostr(Downloaded)+' ('+kb2KbMbGb(DownloadSize)+') '+SAS_STR_Files;
+    _FProgress.LabelValue3.Caption:=GetTimeEnd(TotalInRegion, Processed);
+    _FProgress.LabelValue4.Caption:=GetLenEnd(TotalInRegion, Processed, Downloaded, DownloadSize);
+    UpdateMemoProgressForm;
+    Application.ProcessMessages;
+    if (Processed mod 10 = 0)or(TotalInRegion<100) then begin
+      _FProgress.RProgr.Progress1 := Processed;
+      _FProgress.RProgr.Progress2 := Downloaded;
+    end;
   end;
 end;
 
 procedure ThreadAllLoadMap.UpdateMemoProgressForm;
+var
+  i: Cardinal;
+  VAddToMemo: String;
 begin
- _FProgress.Memo1.Lines.Add(AddToMemo);
- Fmain.toSh;
-end;
-
-procedure ThreadAllLoadMap.UpdateMemoAddProgressForm;
-begin
- _FProgress.Memo1.Lines.strings[_FProgress.Memo1.Lines.Count-1]:=
-   _FProgress.Memo1.Lines.strings[_FProgress.Memo1.Lines.Count-1]+AddToMemo;
+  VAddToMemo := FLog.GetLastMessages(100, FLogID, i);
+  if i > 0 then begin
+    if _FProgress.Memo1.Lines.Count>5000 then begin
+      _FProgress.Memo1.Lines.Clear;
+    end;
+   _FProgress.Memo1.Lines.Add(VAddToMemo);
+  end;
+  Fmain.toSh;
 end;
 
 procedure ThreadAllLoadMap.CloseProgressForm;
@@ -332,29 +334,30 @@ begin
       sleep(1);
       if (_FProgress.stop) then begin
         FElapsedTime := FElapsedTime + (Now - FStartTime);
+        FLog.WriteText(SAS_STR_UserStop, 10);
         Synchronize(UpdateProgressForm);
-        While (_FProgress.stop)and(_FProgress.Visible) do sleep(100);
+        While (_FProgress.stop)and(_FProgress.Visible) and (not Terminated) do sleep(100);
         FStartTime := now;
       end;
-      if not(_FProgress.Visible) then exit;
+      if (not _FProgress.Visible) or Terminated then exit;
       if RgnAndRgn(FRegionPoly, p_x, p_y, false) then begin
         FLoadXY.X := p_x;
         FLoadXY.Y := p_y;
-
+        FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FTypeMap.GetTileShowName(FLoadXY.X, FLoadXY.y, Fzoom) + '...', 0);
         Synchronize(UpdateProgressForm);
         VTileExists := FTypeMap.TileExists(FLoadXY.x, FLoadXY.y, Fzoom);
         if (FReplaceExistTiles) or not(VTileExists) then begin
           if VTileExists then begin
-            AddToMemo:=SAS_STR_LoadProcessRepl+' ...';
+            FLog.WriteText(SAS_STR_LoadProcessRepl+' ...', 0);
           end else begin
-            AddToMemo:=SAS_STR_LoadProcess+'...';
+            FLog.WriteText(SAS_STR_LoadProcess+'...', 0);
           end;
           Synchronize(UpdateMemoProgressForm);
           if (FCheckExistTileDate)
             and (VTileExists)
             and (FTypeMap.TileLoadDate(FLoadXY.x, FLoadXY.y, Fzoom) >= FCheckTileDate) then
           begin
-            AddToMemo:=AddToMemo+#13#10+SAS_MSG_FileBeCreateTime;
+            FLog.WriteText(SAS_MSG_FileBeCreateTime, 0);
             Synchronize(UpdateMemoProgressForm);
             VGotoNextTile := True;
           end else begin
@@ -386,27 +389,27 @@ begin
                   FDownloadSize := FDownloadSize + (razlen / 1024);
                   inc(FDownloaded);
                   FLastSuccessfulPoint := FLoadXY;
-                  AddToMemo:=SAS_MSG_FileBeCreateLen;
+                  FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
                   Synchronize(UpdateMemoProgressForm);
                   VGotoNextTile := True;
                 end;
                 dtrProxyAuthError: begin
-                  AddToMemo:=SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...';
+                  FLog.WriteText(SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...', 10);
+                  Synchronize(UpdateMemoProgressForm);
                   sleep(5000);
-                  AddToMemo:=AddToMemo+#13#10+SAS_ERR_RepeatProcess;
                   Synchronize(UpdateMemoProgressForm);
                   VGotoNextTile := false;
                 end;
                 dtrBanError: begin
                   Synchronize(Ban);
-                  AddToMemo:=SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...';
+                  FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
+                  Synchronize(UpdateMemoProgressForm);
                   sleep(10000);
-                  AddToMemo:=AddToMemo+#13#10+SAS_ERR_RepeatProcess;
                   Synchronize(UpdateMemoProgressForm);
                   VGotoNextTile := false;
                 end;
                 dtrTileNotExists: begin
-                  AddToMemo:=SAS_ERR_TileNotExists;
+                  FLog.WriteText(SAS_ERR_TileNotExists, 1);
                   Synchronize(UpdateMemoProgressForm);
                   if (GState.SaveTileNotExists) then begin
                     FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
@@ -414,13 +417,13 @@ begin
                   VGotoNextTile := True;
                 end;
                 dtrDownloadError: begin
-                  AddToMemo:=SAS_ERR_Noconnectionstointernet;
+                  FLog.WriteText(SAS_ERR_Noconnectionstointernet, 10);
                   if GState.GoNextTileIfDownloadError then begin
                     VGotoNextTile := True;
                   end else begin
-                    AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
+                    FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
+                    Synchronize(UpdateMemoProgressForm);
                     sleep(5000);
-                    AddToMemo:=AddToMemo+#13#10+SAS_ERR_RepeatProcess;
                     VGotoNextTile := false;
                   end;
                   Synchronize(UpdateMemoProgressForm);
@@ -432,13 +435,13 @@ begin
                   GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                   FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
                   inc(FDownloaded);
-                  AddToMemo:='(Ok!)';
-                  Synchronize(UpdateMemoAddProgressForm);
+                  FLog.WriteText('(Ok!)', 0);
+                  Synchronize(UpdateMemoProgressForm);
                   VGotoNextTile := True;
                 end;
                 else begin
-                  AddToMemo:=GetErrStr(res);
-                  AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
+                  FLog.WriteText(GetErrStr(res), 10);
+                  FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
                   Synchronize(UpdateMemoProgressForm);
                   sleep(5000);
                   VGotoNextTile := false;
@@ -449,7 +452,7 @@ begin
             end;
           end;
         end else begin
-          AddToMemo:=SAS_ERR_FileExistsShort+';';
+          FLog.WriteText(SAS_ERR_FileExistsShort+';', 0);
           Synchronize(UpdateMemoProgressForm);
           VGotoNextTile := True;
         end;
@@ -461,6 +464,8 @@ begin
       end;
       if VGotoNextTile then begin
         inc(p_y,256);
+      end else begin
+        FLog.WriteText(SAS_ERR_RepeatProcess, 0);
       end;
       FLastProcessedPoint.Y := p_y;
     end;
