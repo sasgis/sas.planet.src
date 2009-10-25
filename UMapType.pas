@@ -82,6 +82,7 @@ type
 
 
     function GetTileFileName(x,y:longint;Azoom:byte):string;
+    function GetTileShowName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
@@ -1202,6 +1203,11 @@ begin
   if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
     result := dtrBanError;
   end;
+end;
+
+function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
+begin
+  Result := NameInCache + '\z=' +  IntToStr(Azoom) + '\x=' +  IntToStr(x shr 8) + '\y=' +  IntToStr(y shr 8);
 end;
 
 end.
