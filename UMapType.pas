@@ -16,7 +16,6 @@ uses
   Menus,
   math,
   ExtCtrls,
-  Uprogress,
   TBX,
   VCLZip,
   GR32,
