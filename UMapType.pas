@@ -611,9 +611,7 @@ begin
 end;
 var os,prer:TPoint;
     i,ct:byte;
-    sbuf,name,fname:String;
-    ms:TMemoryStream;
-    SearchRec:TSearchRec;
+    sbuf,name:String;
 begin
 
  if (CacheType=0) then ct:=GState.DefCache
@@ -696,7 +694,6 @@ end;
 function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
 var
   VPath: String;
-  bsize:integer;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     result:=GETileExists(GetBasePath+'\dbCache.dat.index',x shr 8,y shr 8,Azoom,self);
@@ -1109,7 +1106,7 @@ end;
 function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
 begin
-
+  //TODO: Нужно таки сделать реализацию этой функции
 end;
 
 function TMapType.GetShortFolderName: string;
