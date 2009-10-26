@@ -12,6 +12,7 @@ uses
   Graphics,
   StdCtrls,
   ComCtrls,
+  SyncObjs,
   Menus,
   math,
   ExtCtrls,
@@ -21,6 +22,7 @@ uses
   GR32,
   t_GeoTypes,
   u_CoordConverterAbstract,
+  u_TileDownloaderBase,
   u_UrlGenerator,
   UResStrings;
 
@@ -35,6 +37,7 @@ type
    public
     id: integer;
     guids: string;
+    zmpfilename:string;
     active:boolean;
     info:string;
     showinfo:boolean;
@@ -73,30 +76,47 @@ type
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     function GetLink(x,y:longint;Azoom:byte):string;
-    function GetMapSize(zoom:byte):longint;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
+    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
+    function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
+
+
     function GetTileFileName(x,y:longint;Azoom:byte):string;
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
-    // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
-    // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
+    function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
-    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
     procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
     procedure SaveTileNotExists(x,y:longint;Azoom:byte);
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
     function TileSize(x,y:longint;Azoom:byte): integer;
     function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
+
+    // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
+    // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
+    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
+
     function GetShortFolderName: string;
+
+    function IncDownloadedAndCheckAntiBan: Boolean;
+    procedure addDwnforban;
+    procedure ExecOnBan(ALastUrl: string);
+    function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf:TMemoryStream): TDownloadTileResult;
+
     property GeoConvert: ICoordConverter read GetCoordConverter;
+
+    constructor Create;
+    destructor Destroy; override;
   private
-    err: string;
+    FDownloadTilesCount: Longint;
+    FInitDownloadCS: TCriticalSection;
+    FDownloader: TTileDownloaderBase;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
     function GetBasePath: string;
+    function GetDownloader: TTileDownloaderBase;
   end;
 var
   MapType:array of TMapType;
@@ -290,6 +310,7 @@ begin
   repeat
    if (SearchRec.Attr and faDirectory) = faDirectory then continue;
    MapType[pnum]:=TMapType.Create;
+   MapType[pnum].zmpfilename:=SearchRec.Name;
    MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
    MapType[pnum].ban_pg_ld := true;
    if Ini.SectionExists(MapType[pnum].GUIDs)
@@ -542,10 +563,6 @@ begin
   Result:=FUrlGenerator.GenLink(x shr 8,y shr 8,Azoom-1);
 end;
 
-function TMapType.GetMapSize(zoom:byte):longint;
-begin
- result:=round(intpower(2,zoom))*256;
-end;
 function TMapType.GetBasePath: string;
 var
   ct:byte;
@@ -672,24 +689,7 @@ begin
  end;
  5:
  begin
-  fname:='buf'+GEXYZtoTileName(x,y,Azoom)+'.jpg';
-  if (not FileExists(result+'\'+fname))and(FileExists(result+'\dbCache.dat'))and(FileExists(result+'\dbCache.dat.index'))then
-  try
-   x:=x shr 8;
-   y:=y shr 8;
-   if FindFirst(result+'\*.jpg', faAnyFile, SearchRec) = 0 then
-    repeat
-     if (SearchRec.Attr and faDirectory) <> faDirectory then
-       DeleteFile(result+'\'+SearchRec.Name);
-    until FindNext(SearchRec) <> 0;
-   FindClose(SearchRec);
-
-   if GetMerkatorGETile(ms,result+'\dbCache.dat',x,y,Azoom, Self)
-    then ms.SaveToFile(result+'\'+fname);
-   FreeAndNil(ms);
-  except
-  end;
-  result:=result+'\'+fname;
+  result:=result+'\dbCache.dat';
  end;
  end;
 end;
@@ -697,9 +697,14 @@ end;
 function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
 var
   VPath: String;
+  bsize:integer;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
-  Result := Fileexists(VPath);
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    result:=GETileExists(GetBasePath+'\dbCache.dat.index',x shr 8,y shr 8,Azoom,self);
+  end else begin
+    VPath := GetTileFileName(x, y, Azoom);
+    Result := Fileexists(VPath);
+  end;
 end;
 
 function GetFileSize(namefile: string): Integer;
@@ -832,12 +837,67 @@ begin
   end;
 end;
 
+function TMapType.LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
+var i,c_x,c_y,dZ:integer;
+    bmp:TBitmap32;
+    VTileExists: Boolean;
+    key:string;
+begin
+ result:=false;
+ if (not(GState.UsePrevZoom) and (asLayer=false)) or
+    (not(GState.UsePrevZoomLayer) and (asLayer=true)) then begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+ end;
+ VTileExists := false;
+ for i:=(Azoom-1) downto 1 do
+  begin
+   dZ:=(Azoom-i);
+   if TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileExists := true;
+    break;
+   end;
+  end;
+ if not(VTileExists)or(dZ>8) then
+  begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+  end;
+ key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+ if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
+   bmp:=TBitmap32.Create;
+   if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
+    begin
+     spr.Clear(SetAlpha(Color32(clSilver),0));
+     bmp.Free;
+     exit;
+    end;
+   bmp.Resampler := CreateResampler(GState.Resampling);
+   c_x:=((x-(x mod 256))shr dZ)mod 256;
+   c_y:=((y-(y mod 256))shr dZ)mod 256;
+   try
+    spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
+    GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
+   except
+   end;
+   bmp.Free;
+ end;
+ result:=true;
+end;
+
 function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
-var
-  path: string;
+var path: string;
 begin
   path := GetTileFileName(x, y, Azoom);
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
+      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
+      if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+    end else begin
+      result:=true;
+    end;
+  end else
   result:= LoadFile(btm, path, caching);
 end;
 
@@ -884,30 +944,7 @@ begin
         end;
         result:=true;
         if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
-      end{ else begin
-        if not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath) then begin
-          if ExtractFileExt(Apath)='.jpg' then begin
-            if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
-              result:=false;
-              exit;
-            end
-          end else
-          if ExtractFileExt(Apath)='.png' then begin
-            if not(LoadPNG(Apath,TBitmap32(btm))) then begin
-              result:=false;
-              exit;
-            end;
-          end else
-          if ExtractFileExt(Apath)='.gif' then begin
-            if not(LoadGif(Apath,TBitmap32(btm))) then begin
-              result:=false;
-              exit;
-            end;
-          end else begin
-            GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
-          end;
-        end;
-      end;}
+      end
     end else begin
       if (btm is TPicture) then
         TPicture(btm).LoadFromFile(Apath)
@@ -963,6 +1000,7 @@ var
     UnZip:TVCLUnZip;
 begin
   VPath := GetTileFileName(x, y, Azoom);
+
   CreateDirIfNotExists(VPath);
   DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
   if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(ext='.kml')then begin
@@ -980,7 +1018,6 @@ begin
       try
         SaveTileInCache(ATileStream,Vpath);
       except
-        err:=SAS_ERR_BadFile;
       end;
     end;
   end;
@@ -1019,6 +1056,7 @@ begin
       png.Free;
     end;
   end;
+  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileInCache(btm:TObject;path:string);
@@ -1134,6 +1172,88 @@ begin
  if Self=nil
   then Result:= nil
   else Result:= FCoordConverter;
+end;
+
+function TMapType.CheckIsBan(AXY: TPoint; AZoom: byte;
+  StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
+begin
+  Result := false;
+  if (ty <> Content_type)
+    and(fileBuf.Size <> 0)
+    and(BanIfLen <> 0)
+    and(fileBuf.Size < (BanIfLen + 50))
+    and(fileBuf.Size >(BanIfLen-50)) then
+  begin
+    result := true;
+  end;
+end;
+
+function TMapType.IncDownloadedAndCheckAntiBan: Boolean;
+var
+  cnt: Integer;
+begin
+  cnt := InterlockedIncrement(FDownloadTilesCount);
+  if (UseAntiBan > 1) then begin
+    Result := (cnt mod UseAntiBan) = 0;
+  end else begin
+    Result := (UseAntiBan > 0) and  (cnt = 1);
+  end;
+end;
+
+procedure TMapType.addDwnforban;
+begin
+  if (UseAntiBan>0) then begin
+    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+  end;
+end;
+
+procedure TMapType.ExecOnBan(ALastUrl: string);
+begin
+  if ban_pg_ld then begin
+    Fmain.ShowCaptcha(ALastUrl);
+    ban_pg_ld:=false;
+  end;
+end;
+
+constructor TMapType.Create;
+begin
+  FInitDownloadCS := TCriticalSection.Create;
+end;
+
+destructor TMapType.Destroy;
+begin
+  FreeAndNil(FInitDownloadCS);
+  inherited;
+end;
+
+function TMapType.GetDownloader: TTileDownloaderBase;
+begin
+  if FDownloader = nil then begin
+    FInitDownloadCS.Acquire;
+    try
+      if FDownloader = nil then begin
+        FDownloader := TTileDownloaderBase.Create(CONTENT_TYPE, 1, GState.InetConnect);
+        FDownloader.SleepOnResetConnection := Sleep;
+      end;
+    finally
+      FInitDownloadCS.Release;
+    end;
+  end;
+  Result := FDownloader;
+end;
+
+function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
+  ACheckTileSize: Boolean; AOldTileSize: Integer;
+  out AUrl: string; out AContentType: string;
+  fileBuf: TMemoryStream): TDownloadTileResult;
+var
+  StatusCode: Cardinal;
+begin
+  AUrl := GetLink(AXY.X, AXY.Y, AZoom);
+  Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+  if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
+    result := dtrBanError;
+  end;
 end;
 
 end.

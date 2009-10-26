@@ -6,22 +6,16 @@ uses
   Graphics,
   Classes,
   IniFiles,
+  SyncObjs,
   t_GeoTypes,
+  t_CommonTypes,
   u_GeoToStr,
   Uimgfun,
   u_MemFileCache;
 type
-  TInetConnect = record
-    proxyused,userwinset,uselogin:boolean;
-    proxystr,loginstr,passstr:string;
-  end;
-
-
-  TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
-
-
   TGlobalState = class
   private
+    FDwnCS: TCriticalSection;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -56,7 +50,7 @@ type
     // Количество скачанных тайлов
     All_Dwn_Tiles: Cardinal;
 
-    InetConnect:TInetConnect;
+    InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
@@ -130,6 +124,8 @@ type
 
     //Использовать тайлы предыдущих уровней для отображения
     UsePrevZoom: Boolean;
+    //Использовать тайлы предыдущих уровней для отображения (для слоев)
+    UsePrevZoomLayer: Boolean;
     //Инвертировать направление при зуме колесом мышки
     MouseWheelInv: Boolean;
     //Анимированный зум
@@ -182,6 +178,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
+    procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
   end;
 
 var
@@ -196,9 +193,11 @@ uses
 
 constructor TGlobalState.Create;
 begin
+  FDwnCS := TCriticalSection.Create;
   All_Dwn_Kb := 0;
-  All_Dwn_Tiles:=0;
-  ProgramPath:=ExtractFilePath(ParamStr(0));
+  All_Dwn_Tiles := 0;
+  InetConnect := TInetConnect.Create;
+  ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
   LoadMarkIcons;
@@ -206,10 +205,12 @@ end;
 
 destructor TGlobalState.Destroy;
 begin
+  FreeAndNil(FDwnCS);
   MainIni.UpdateFile;
   FreeAndNil(MainIni);
   FreeAndNil(MainFileCache);
   FreeAndNil(MarkIcons);
+  FreeAndNil(InetConnect);
   inherited;
 end;
 
@@ -276,6 +277,18 @@ begin
     finally
       FindClose(SearchRec);
     end;
+  end;
+end;
+
+procedure TGlobalState.IncrementDownloaded(ADwnSize: Currency;
+  ADwnCnt: Cardinal);
+begin
+  FDwnCS.Acquire;
+  try
+    All_Dwn_Kb := All_Dwn_Kb + ADwnSize;
+    All_Dwn_Tiles := All_Dwn_Tiles + ADwnCnt;
+  finally
+    FDwnCS.Release;
   end;
 end;
 

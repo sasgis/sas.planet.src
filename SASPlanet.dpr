@@ -49,9 +49,15 @@ uses
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   ImgMaker in 'ImgMaker.pas',
   t_GeoTypes in 't_GeoTypes.pas',
+  t_CommonTypes in 't_CommonTypes.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   u_GlobalState in 'u_GlobalState.pas',
-  u_MiniMap in 'u_MiniMap.pas';
+  u_MiniMap in 'u_MiniMap.pas',
+  u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
+  u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
+  t_LoadEvent in 't_LoadEvent.pas',
+  u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
+  u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas';
 
 var
   loc:integer;

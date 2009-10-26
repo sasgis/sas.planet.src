@@ -13,26 +13,25 @@ uses
   GR32_Resamplers,
   UMapType,
   UGeoFun,
-  t_GeoTypes;
+  u_CoordConverterSimpleLonLat,
+  t_GeoTypes,
+  IJL;
 
 type
-TExtended = record Lat: Extended;
-					         Lon: Extended; end;
+TBMPbuf = record BMPTile: array [1..2] of TBitmap32;
+                 UpLatLon: array [1..2] of TExtendedPoint;
+                 DownLatLon: array [1..2] of TExtendedPoint;
+                 TileRez: array [1..2] of Extended;
+                 count:byte; end;
 
-TBMPbuf = record BMPTile: array [1..2] of TBitmap;
-                   UpLatLon: array [1..2] of TExtendedPoint;
-                   DownLatLon: array [1..2] of TExtendedPoint;
-                   TileRez: array [1..2] of Extended;
-                   MerkatorSourceXY: array [1..2] of TPoint;
-                   count:byte; end;
-TRGBTripleArr = array [0..255] of TRGBTriple;
-
-function GetMerkatorGETile(var ResTile:TMemoryStream;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GetGETile(ResTile:TBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GETileExists(cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
 function GEGetTile(cachepath:string;x,y:integer;z:byte):TMemoryStream;
-function GEXYZtoTileName(x,y:integer;z:byte):string;
 
 var BMP_Bufer: TBMPbuf;
     Tile:integer;
+    indexfilename:string;
+    indexfile:TMemoryStream;
     key: array[0..1023] of byte = (
 	$94, $64, $87, $4E, $66, $00, $72, $42, $45, $F4, $BD, $0B, $79, $E2, $6A, $45,
 	$22, $05, $92, $2C, $17, $CD, $06, $71, $F8, $49, $10, $46, $67, $51, $00, $42,
@@ -100,21 +99,173 @@ var BMP_Bufer: TBMPbuf;
 	$35, $A8, $FF, $28, $31, $07, $2D, $12, $C8, $DC, $88, $46, $7C, $8A, $5B, $22);
 
 implementation
-uses unit1;
+uses unit1,
+     u_CoordConverterAbstract;
 
-function GPos2LonLat3(XY:TPoint;Level:byte):TExtendedPoint;
+function GEXYZtoHexTileName(x,y:integer;z:byte):int64;
+var os,prer:TPoint;
+    i:byte;
+    bytename:byte;
 begin
-    result.x:=((XY.x)-zoom[Level]/2)/(zoom[Level]/360);
-    result.y:=-((XY.y)-zoom[Level]/2)/(zoom[Level]/360);      // Долгота/широта
+   if (x<0)or(x>=zoom[z])or(y<0)or(y>=zoom[z]) then
+    begin
+     exit;
+    end;
+   os.X:=zoom[z]shr 1;
+   os.Y:=zoom[z]shr 1;
+   prer:=os;
+   result:=0;
+   bytename:=0;
+   for i:=2 to z do begin
+     prer.X:=prer.X shr 1;
+     prer.Y:=prer.Y shr 1;
+     if x<os.X then begin
+       os.X:=os.X-prer.X;
+       if y<os.y then begin
+         os.Y:=os.Y-prer.Y;
+         if (i mod 2)=0 then bytename:=12
+                        else bytename:=bytename+3;
+       end else begin
+         os.Y:=os.Y+prer.Y;
+         if (i mod 2)=0 then bytename:=0
+                        else bytename:=bytename+0;
+       end;
+     end else begin
+       os.X:=os.X+prer.X;
+       if y<os.y then begin
+         os.Y:=os.Y-prer.Y;
+         if (i mod 2)=0 then bytename:=8
+                        else bytename:=bytename+2;
+       end else begin
+         os.Y:=os.Y+prer.Y;
+         if (i mod 2)=0 then bytename:=4
+                        else bytename:=bytename+1;
+       end;
+     end;
+     if (i mod 2)<>0 then begin
+       result:=result or (int64(bytename) shl (64-4*(i div 2)));
+     end;
+   end;
+   if (z mod 2)=0 then begin
+     result:=result or (int64(bytename) shl (64-4*(i div 2)));
+   end
 end;
 
-function FillBuff(cachepath:string;var x,y:integer;var z:byte;SourcePoint:TPoint;MT:TMapType):byte;
+function GEFindTileAdr(indexpath:string;x,y:integer;z:byte; var size:integer):integer;
+var iblock:array [0..31] of byte;
+    name,FindName:int64;
+    i:integer;
+begin
+ result:=0;
+ size:=0;
+ i:=0;
+ if FileExists(indexpath) then
+ try
+   if (indexfilename<>indexpath)or(indexfile=nil) then begin
+     indexfile:=TMemoryStream.Create;
+     indexfile.LoadFromFile(indexpath);
+     indexfilename:=indexpath;
+   end;
+   FindName:=GEXYZtoHexTileName(x,y,z);
+   While ((FindName<>name))and(i<indexfile.Size) do begin
+     if (Pbyte(longint(indexfile.Memory)+i+6)^=130)and
+        (z=Pbyte(longint(indexfile.Memory)+i+8)^+1)and
+        (Pbyte(longint(indexfile.Memory)+i+20)^=0) then begin
+       copymemory(@iblock,Pointer(longint(indexfile.Memory)+i),32);
+       name:=(int64(iblock[12])shl 32)or(int64(iblock[13])shl 40)or(int64(iblock[14])shl 48)or(int64(iblock[15])shl 56)or
+             (iblock[16])or(iblock[17]shl 8)or(iblock[18]shl 16)or(iblock[19]shl 24);
+     end;
+     inc(i,32);
+   end;
+   if FindName=name then begin
+     result:=(iblock[24]or(iblock[25]shl 8)or(iblock[26]shl 16)or(iblock[27]shl 24));
+     size:=(iblock[28]or(iblock[29]shl 8)or(iblock[30]shl 16)or(iblock[31]shl 24));
+   end;
+ except
+  result:=0;
+  size:=0;
+ end;
+end;
+
+function LoadJPG32(jpg_file: TMemoryStream; Btm: TBitmap32): boolean;
+  procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
+  var W, H : Integer;
+      p : PIntegerArray;
+  begin
+    p := PIntegerArray(pData);
+    for H := 0 to Height-1 do begin
+      for W := 0 to Width-1 do begin
+        p^[W]:=(p^[W] and $FF000000)or((p^[W] and $00FF0000) shr 16)or(p^[W] and $0000FF00)or((p^[W] and $000000FF) shl 16);
+      end;
+      inc(p,width)
+    end;
+  end;
+var
+  iWidth, iHeight, iNChannels : Integer;
+  iStatus : Integer;
+  jcprops : TJPEG_CORE_PROPERTIES;
+begin
+ try
+    result:=true;
+    iStatus := ijlInit(@jcprops);
+    if iStatus < 0 then
+     begin
+      result:=false;
+      exit;
+     end;
+    jcprops.JPGBytes:=PByte(jpg_file.Memory);
+    jcprops.JPGSizeBytes:=jpg_file.Size;
+    iStatus := ijlRead(@jcprops,IJL_JBUFF_READPARAMS);
+    if iStatus < 0 then
+     begin
+      result:=false;
+      exit;
+     end;
+    iWidth := jcprops.JPGWidth;
+    iHeight := jcprops.JPGHeight;
+    iNChannels := 4;
+    Btm.SetSize(iWidth,iHeight);
+    jcprops.DIBWidth := iWidth;
+    jcprops.DIBHeight := iHeight;
+    jcprops.DIBChannels := iNChannels;
+    jcprops.DIBColor := IJL_RGBA_FPX;
+    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
+    jcprops.DIBBytes := PByte(Btm.Bits);
+
+    if (jcprops.JPGChannels = 3) then
+      jcprops.JPGColor := IJL_YCBCR
+    else if (jcprops.JPGChannels = 4) then
+      jcprops.JPGColor := IJL_YCBCRA_FPX
+    else if (jcprops.JPGChannels = 1) then
+      jcprops.JPGColor := IJL_G
+    else
+    begin
+      jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
+      jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
+    end;
+    iStatus := ijlRead(@jcprops,IJL_JBUFF_READWHOLEIMAGE);
+    if iStatus < 0 then
+     begin
+      result:=false;
+      exit;
+     end;
+    RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
+    ijlFree(@jcprops);
+  except
+    on E: Exception do
+    begin
+      result:=false;
+      ijlFree(@jcprops);
+    end;
+  end;
+end;
+
+function FillBuff(cachepath:string;var x,y:integer;var z:byte;SourcePoint:TPoint;MT:TMapType;CoordConverter:ICoordConverter):byte;
 var TileStream:TmemoryStream;
-JpegImg: TJpegImage;
-XY:TPoint;
-LatLon:TExtendedPoint;
-i:byte;
-inBuf:Boolean;
+    XY:TPoint;
+    LatLon:TExtendedPoint;
+    i:byte;
+    inBuf:Boolean;
 begin
      result:=0;
      inBuf:=false;
@@ -124,40 +275,26 @@ begin
              TileStream:=GEGetTile(cachepath,x*256,y*256,z);
              if (TileStream<>nil) then
              begin
-               JpegImg:= TjpegImage.Create;
-               TileStream.Position:=0;
-               JpegImg.LoadFromStream(TileStream);
-               TileStream.Free;
-
                i:=BMP_Bufer.Count+1;
                if i=3 then i:=1;
 
                if BMP_Bufer.BMPTile[i]<>nil then
                begin
-                 BMP_Bufer.BMPTile[i].Canvas.Unlock;
                  FreeAndNil(BMP_Bufer.BMPTile[i]);
-
                end;
 
-               BMP_Bufer.BMPTile[i]:=TBitmap.Create;
-               BMP_Bufer.BMPTile[i].Canvas.Lock;
-               BMP_Bufer.BMPTile[i].Width:=256;
-               BMP_Bufer.BMPTile[i].Height:=256;
-               BMP_Bufer.BMPTile[i].Assign(JpegImg);
-
-               JpegImg.Destroy;
-
-               BMP_Bufer.MerkatorSourceXY[i].X:=SourcePoint.X;
-               BMP_Bufer.MerkatorSourceXY[i].Y:=SourcePoint.Y;
+               BMP_Bufer.BMPTile[i]:=TBitmap32.Create;
+               LoadJPG32(TileStream,BMP_Bufer.BMPTile[i]);
+               TileStream.Free;
 
                XY.X:=X;
                XY.Y:=Y;
-               LatLon:=GPos2LonLat3(Point(XY.x*256,XY.y*256),Z);
+               LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
                BMP_Bufer.UpLatLon[i].y:=LatLon.y;
                BMP_Bufer.UpLatLon[i].x:=LatLon.x;
 
                inc(XY.Y);
-               LatLon:=GPos2LonLat3(Point(XY.x*256,XY.y*256),Z);
+               LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
                BMP_Bufer.DownLatLon[i].y:=LatLon.y;
                BMP_Bufer.DownLatLon[i].x:=LatLon.x;
 
@@ -184,276 +321,149 @@ begin
     result:=Point(0,0);
 end;
 
-function MakeInterlaseTile(UpXY:TPoint;Level,id1,id2:byte;MT:TMapType):TMemoryStream;
+procedure MakeInterlaseTile(ResTile:TBitmap32;UpXY:TPoint;Level,id1,id2:byte;MT:TMapType);
 var LineCoord:TExtendedPoint;
-    bitmap:Tbitmap;
-    Jpeg2:TjpegImage;
     J_GE:Tpoint;
     J_GM:byte;
 begin
-     result:=nil;
-     if id1<>0 then
-     begin
-       bitmap:=TBitmap.Create;
-       bitmap.PixelFormat:=pf24bit;
-       bitmap.Canvas.Lock;
-       bitmap.Width:=256;
-       bitmap.Height:=256;
-       UpXY.X:=UpXY.X*256;
-       UpXY.Y:=UpXY.Y*256;
-       for J_GM := 0 to 255 do
-       begin
-          LineCoord:=MT.GeoConvert.Pos2LonLat(UpXY,(Level - 1) + 8);
-          J_GE:=GetPixNum(LineCoord,id1); // номер строки на GE тайле
-          if (J_GE.X=0) and (id2<>0) then
-          J_GE:=GetPixNum(LineCoord,id2);
-          if J_GE.X<>0 then
-           begin
-              TRGBTripleArr(Bitmap.ScanLine[J_GM]^):=TRGBTripleArr(BMP_Bufer.BMPTile[J_GE.X].ScanLine[J_GE.Y]^);
-           end;
-          inc(UpXY.Y);
-       end;
-        result:=TMemoryStream.Create;
-        try
-          Jpeg2:= TjpegImage.Create;
-          jpeg2.CompressionQuality := 100;
-          Jpeg2.PixelFormat := jf24Bit;
-          jpeg2.Compress;
-          Jpeg2.Assign(bitmap);
-          Jpeg2.SaveToStream(result);
-        finally
-           Jpeg2.Free;
-           bitmap.Canvas.UnLock;
-           Bitmap.Free;
-           if result.Size=0 then FreeAndNil(result);
-        end;
+  if id1<>0 then begin
+    ResTile.SetSize(256,256);
+    UpXY.X:=UpXY.X*256;
+    UpXY.Y:=UpXY.Y*256;
+    for J_GM:=0 to 255 do begin
+      LineCoord:=MT.GeoConvert.PixelPos2LonLat(UpXY,(Level-1));
+      J_GE:=GetPixNum(LineCoord,id1);
+      if (J_GE.X=0)and(id2<>0) then begin
+        J_GE:=GetPixNum(LineCoord,id2);
       end;
+      if J_GE.X<>0 then begin
+        CopyMemory(ResTile.ScanLine[J_GM],BMP_Bufer.BMPTile[J_GE.X].ScanLine[J_GE.Y],256*sizeof(TColor32));
+      end;
+      inc(UpXY.Y);
+    end;
+  end;
 end;
 
-function GLonLat2Pos3(Point:TExtendedPoint;Level:byte):TPoint;
-var
-i:longint;
-begin
-  i:=zoom[Level];
-  result.X:=round(i/2+Point.x*(i/360));
-  result.Y:=round(i/2-Point.y*(i/360));
-end;
-
-function GetMerkatorGETile(var ResTile:TMemoryStream;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GetGETile(ResTile:TBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
 var Up,Down:TExtendedPoint;
-UpXY,DownXY,gXY1,gXY2:TPoint;
-id1,id2:byte;
-abort:boolean;
+    UpXY,DownXY,gXY1,gXY2:TPoint;
+    id1,id2:byte;
+    abort:boolean;
+    CoordConverter:ICoordConverter;
 begin
-   if ResTile=nil then ResTile:=TMemoryStream.Create;
+   CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137);
    abort:=false;
    id2:=0;
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.Pos2LonLat(Point(UpXY.x*256,UpXY.y*256),(Z - 1) + 8);     // долота/штрота верхней левой точки
+   Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.Pos2LonLat(Point(DownXY.x*256,DownXY.y*256),(Z - 1) + 8);   // долота/штрота НИЖНЕЙ левой точки
-   gXY1:=GLonLat2Pos3(Up,Z);   // x,y тайла GE куда попала верхняя точка
-   gXY2:=GLonLat2Pos3(Down,Z); // x,y тайла GE куда попала НИЖНЯЯ точка
-   gXY1:=Point(gXY1.x div 256,gXY1.y div 256);
-   gXY2:=Point(gXY2.x div 256,gXY2.y div 256);
-   X:=gXY1.X;
-   Y:=gXY1.Y;
-   id1:=FillBuff(cachepath,x,y,z,UpXY,MT);
+   Down:=mt.GeoConvert.Pos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   gXY1:=CoordConverter.LonLat2Pos(Up,Z-1);
+   gXY2:=CoordConverter.LonLat2Pos(Down,Z-1);
+   id1:=FillBuff(cachepath,gXY1.x,gXY1.y,z,UpXY,MT,CoordConverter);
    if id1=0 then abort:=true;
    if (gXY1.X<>gXY2.X)or(gXY1.Y<>gXY2.Y) then
    begin
-      X:=gXY2.X;
-      Y:=gXY2.Y;
-      id2:=FillBuff(cachepath,x,y,z,DownXY,MT);
+      id2:=FillBuff(cachepath,gXY2.x,gXY2.y,z,DownXY,MT,CoordConverter);
       if id2=0 then abort:=true;
    end;
-   if not abort then begin
-                      ResTile:=MakeInterlaseTile(UpXY,Z,id1,id2,MT);
-                      Result:=true;
-                     end
-                else begin
-                      result:=false;
-                     end;
+   CoordConverter:=nil;
+   if (not abort) then begin
+     MakeInterlaseTile(ResTile,UpXY,Z,id1,id2,MT);
+     Result:=true;
+   end
+   else begin
+     result:=false;
+   end;
+end;
+
+function GETileExists(cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+var Up,Down:TExtendedPoint;
+    UpXY,DownXY,gXY1,gXY2:TPoint;
+    bsize:integer;
+    CoordConverter:ICoordConverter;
+begin
+   result:=false;
+   CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137);
+   UpXY.X:=X;
+   UpXY.Y:=Y;
+   Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   DownXY.X:=X;
+   DownXY.Y:=Y+1;
+   Down:=mt.GeoConvert.Pos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   gXY1:=CoordConverter.LonLat2Pos(Up,Z-1);
+   gXY2:=CoordConverter.LonLat2Pos(Down,Z-1);
+   CoordConverter:=nil;
+   if GEFindTileAdr(cachepath,gXY1.X*256,gXY1.Y*256,z,bsize)=0 then begin
+     exit;
+   end;
+   if (gXY1.X<>gXY2.X)or(gXY1.Y<>gXY2.Y) then begin
+     if GEFindTileAdr(cachepath,gXY2.X*256,gXY2.Y*256,z,bsize)=0 then begin
+       exit;
+     end;
+   end;
+   result:=true;
 end;
 
 
 //----------------------
-
-function HexToInt(HexStr : string) : Int64;
-var RetVar : Int64;
-    i : byte;
-begin
-  HexStr := UpperCase(HexStr);
-  if HexStr[length(HexStr)] = 'H' then  Delete(HexStr,length(HexStr),1);
-  RetVar := 0;
-  for i := 1 to length(HexStr) do
-    begin
-      RetVar := RetVar shl 4;
-      if HexStr[i] in ['0'..'9'] then
-         RetVar := RetVar + (byte(HexStr[i]) - 48)
-      else if HexStr[i] in ['A'..'F'] then RetVar := RetVar + (byte(HexStr[i]) - 55)
-             else begin
-                    Retvar := 0;
-                    break;
-                  end;
-    end;
-  Result := RetVar;
-end;
-
-
-function GEDecrypt(Mem_Orig:TMemoryStream):TMemoryStream;
+function GEDecryptTile(var Tile:TMemoryStream):boolean;
 var i,j,keystart,keylen,Orig_File_Size: integer;
-    lBuf,fBuf: byte;
-    Mem_Dcr:TMemoryStream;
+    bt:PByte;
 begin
-  Mem_Dcr:=TMemoryStream.Create;
-  Orig_File_Size:=Mem_Orig.Size;
+  Orig_File_Size:=Tile.Size;
   keystart:=16;
   keylen:=$3f8;
-  j:=16;
-  for i:=0 to Orig_File_Size-1 do
-  begin
-       Mem_Orig.Seek(i,0);
-       Mem_Dcr.Seek(i,0);
-       Mem_Orig.ReadBuffer(lBuf,1);
-       fBuf:=lBuf xor key[j+8];
-       Mem_Dcr.WriteBuffer(fBuf,1);
-       j:=j+1;
-       if (j mod 8) = 0 then j:=j+16;
-       if j >= keylen then
-       begin
-            keystart:=(keystart+8) Mod 24;
-            j:=keystart;
-       end;
+  j:=keystart;
+  for i:=0 to Orig_File_Size-1 do begin
+    bt:=Pointer(Longint(Tile.Memory)+i);
+    bt^:=bt^ xor key[j+8];
+    inc(j);
+    if (j mod 8) = 0 then begin
+      inc(j,16);
+    end;
+    if j >= keylen then begin
+      keystart:=(keystart+8) Mod 24;
+      j:=keystart;
+    end;
   end;
-  result:=Mem_Dcr;
 end;
 
-function GetTile(adr:integer;len:integer;cachepath:string):TMemoryStream;
+function GetTile(var tile:TMemoryStream; adr:integer;len:integer;cachepath:string):boolean;
 var f:File;
-    buf:Pointer;
 begin
- AssignFile(f,cachepath);
- Reset(f,1);
- Seek(f,adr);
- GetMem(buf,len);
- BlockRead(f,buf^,len);
- CloseFile(f);
- result:=TMemoryStream.Create;
- result.WriteBuffer(buf^,len);
- result.Position:=0;
-end;
-
-
-function GEXYZtoTileName(x,y:integer;z:byte):string;
-var os,prer:TPoint;
-    i:byte;
-begin
-   if (x<0)or(x>=zoom[z])or(y<0)or(y>=zoom[z]) then
-    begin
-     result:='';
-     exit;
-    end;
-   os.X:=zoom[z]shr 1;
-   os.Y:=zoom[z]shr 1;
-   prer:=os;
-   result:='0';
-   for i:=2 to z do
-    begin
-    prer.X:=prer.X shr 1;
-    prer.Y:=prer.Y shr 1;
-    if x<os.X
-     then begin
-           os.X:=os.X-prer.X;
-           if y<os.y then begin
-                            os.Y:=os.Y-prer.Y;
-                            result:=result+'3';
-                           end
-                      else begin
-                            os.Y:=os.Y+prer.Y;
-                            result:=result+'0';
-                           end;
-          end
-     else begin
-           os.X:=os.X+prer.X;
-           if y<os.y then begin
-                           os.Y:=os.Y-prer.Y;
-                           result:=result+'2';
-                          end
-                     else begin
-                           os.Y:=os.Y+prer.Y;
-                           result:=result+'1';
-                          end;
-         end;
-    end;
-end;
-
-function Hex2GEName(HexName:string; Level:byte):string;
-var
-i:byte;
-begin
- result:='0';
- for i:=1 to  Level div 2 do
-  case HexName[i] of
-   '0': result:=result+'00';
-   '1': result:=result+'01';
-   '2': result:=result+'02';
-   '3': result:=result+'03';
-   '4': result:=result+'10';
-   '5': result:=result+'11';
-   '6': result:=result+'12';
-   '7': result:=result+'13';
-   '8': result:=result+'20';
-   '9': result:=result+'21';
-   'A': result:=result+'22';
-   'B': result:=result+'23';
-   'C': result:=result+'30';
-   'D': result:=result+'31';
-   'E': result:=result+'32';
-   'F': result:=result+'33';
-  end;
- result:=copy(result,1,level);
-end;
-
-
-function GEFindTileAdr(indexpath:string;x,y:integer;z:byte; var size:integer):integer;
-var ms:TMemoryStream;
-    iblock:array [0..31] of byte;
-    name1,name2:integer;
-    Tname,FindName:string;
-begin
- result:=0;
- ms:=TMemoryStream.Create;
- ms.LoadFromFile(indexpath);
- ms.Position:=0;
- FindName:=GEXYZtoTileName(x,y,z);
- Tname:='';
- While ((Tname<>FindName))and(ms.Position<ms.Size) do
-  begin
-   ms.Read(iblock,32);
-   if (iblock[6]=130)and(z=iblock[8]+1)and(iblock[20]=0) then
-    begin
-     name1:=(iblock[12]or(iblock[13]shl 8)or(iblock[14]shl 16)or(iblock[15]shl 24));
-     name2:=(iblock[16]or(iblock[17]shl 8)or(iblock[18]shl 16)or(iblock[19]shl 24));
-     Tname:=Hex2GEName((inttohex((name1),8)+inttohex((name2),8)),z);
-    end;
-  end;
- if Tname=FindName then
-  begin
-   result:=(iblock[24]or(iblock[25]shl 8)or(iblock[26]shl 16)or(iblock[27]shl 24));
-   size:=(iblock[28]or(iblock[29]shl 8)or(iblock[30]shl 16)or(iblock[31]shl 24));
-  end;
- ms.Free;
+ if FileExists(cachepath) then
+ try
+   try
+     AssignFile(f,cachepath);
+     Reset(f,1);
+     Seek(f,adr);
+     tile:=TMemoryStream.Create;
+     tile.SetSize(len);
+     BlockRead(f,tile.memory^,len);
+     Result:=true;
+   finally
+     CloseFile(f);
+   end;
+ except
+   result:=False;
+ end;
 end;
 
 function GEGetTile(cachepath:string;x,y:integer;z:byte):TMemoryStream;
 var adr,len:integer;
 begin
  adr:=GEFindTileAdr(cachepath+'.index',x,y,z,len);
- if adr>0 then result:=GEDecrypt(GetTile(adr+36,len,cachepath))
-          else result:=nil;
+ if adr>0 then begin
+   if GetTile(result,adr+36,len,cachepath) then begin
+    GEDecryptTile(result);
+   end else begin
+    result:=nil;
+   end;
+ end
+ else result:=nil;
 end;
 
 end.

@@ -157,18 +157,18 @@ begin
      VThread.btmm.Clear(clSilver);
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom)) then begin
                                  if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
-                                  then loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+                                  then VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
                                 end
-                           else loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+                           else VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
        VThread.btmh.Clear($FF000000);
        if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
         if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
-         then loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end else begin
-         loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end;
        VThread.btmh.DrawMode:=dmBlend;
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
@@ -177,9 +177,9 @@ begin
          VThread.btmh.Clear($FF000000);
          if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
           if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
-           then loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+           then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end else begin
-          loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+          VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end;
          VThread.btmh.DrawMode:=dmBlend;
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
@@ -242,18 +242,18 @@ begin
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom))
       then begin
             if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
-             then loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+             then VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
            end
-      else loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+      else VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
        VThread.btmh.Clear($FF000000);
        if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
         if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
-         then loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end else begin
-         loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end;
        VThread.btmh.DrawMode:=dmBlend;
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
@@ -262,9 +262,9 @@ begin
          VThread.btmh.Clear($FF000000);
          if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
           if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
-           then loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+           then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end else begin
-          loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+          VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end;
          VThread.btmh.DrawMode:=dmBlend;
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);

@@ -562,8 +562,9 @@ begin
   Zoom := 8;
   VTemp := FConverter.TilePos2LonLat(Source, Zoom);
   VTempOld := FConverter.Pos2LonLat(Source, Zoom);
-  Res := FConverter.LonLat2TilePos(VTemp, Zoom);
   ResOld := FConverter.LonLat2Pos(VTempOld, Zoom);
+
+  Res := FConverter.LonLat2TilePos(VTemp, Zoom);
   if Res.X <> Source.X then
     raise Exception.Create('Z = 0. Ошибка в x координате X');
   if Res.Y <> Source.Y then
@@ -591,6 +592,42 @@ begin
     raise Exception.Create('Z = 20. Ошибка в x координате Y');
 
   Zoom := 23;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 23. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 23. Ошибка в x координате Y');
+
+  Source := Point(1024, 768);
+  Zoom := 10;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 10. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 10. Ошибка в x координате Y');
+
+  Zoom := 11;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 10. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 10. Ошибка в x координате Y');
+
+  Zoom := 14;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 14. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 14. Ошибка в x координате Y');
+
+  Zoom := 20;
+  Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
+  if Res.X <> Source.X then
+    raise Exception.Create('Z = 20. Ошибка в x координате X');
+  if Res.Y <> Source.Y then
+    raise Exception.Create('Z = 20. Ошибка в x координате Y');
+
+  Zoom := 22;
   Res := FConverter.LonLat2TilePos(FConverter.TilePos2LonLat(Source, Zoom), Zoom);
   if Res.X <> Source.X then
     raise Exception.Create('Z = 23. Ошибка в x координате X');

@@ -40,12 +40,16 @@ end;
 function TCoordConverterMercatorOnEllipsoid.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;
 var
   VLL: TExtendedPoint;
+  b,bs:extended;
 begin
   VLL := ALL;
   Vll.x:=Vll.x*(Pi/180);
   Vll.y:=Vll.y*(Pi/180);
   result.x:=Fradiusa*Vll.x;
-  result.y:=Fradiusa*Ln(Tan(PI/4+Vll.y/2));
+
+  bs:=FExct*sin(VLl.y);
+  b:=Tan((Vll.y+PI/2)/2) * power((1-bs)/(1+bs),(FExct/2));
+  result.y:=Fradiusa*Ln(b);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.CalcDist(AStart,

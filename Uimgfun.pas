@@ -39,7 +39,6 @@ type
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
   procedure Gamma(Bitmap: TBitmap32);
-  function loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
   procedure Contrast(Bitmap: TBitmap32; Value: double);
 
 implementation
@@ -138,8 +137,7 @@ var
 begin
  try
   destBitmap.Clear;
-  destBitmap.Width:=PNGObject.Width;
-  destBitmap.Height:=PNGObject.Height;
+  destBitmap.SetSize(PNGObject.Width,PNGObject.Height);
   case PNGObject.TransparencyMode of
     ptmPartial:
      begin
@@ -165,9 +163,10 @@ begin
           AlphaPtr:=PNGObject.Scanline[Y];
           for X:=0 to (destBitmap.Width-1) do begin
             with ChunkPLTE.Item[AlphaPtr^[X]] do
-              RGBPtr^[x]:=color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen], PNGObject.GammaTable[rgbBlue], ChunktRNS.PaletteValues[AlphaPtr^[X]]);
-{           RGBPtr^[x]:=TColor32(integer(ChunkPLTE.Item[AlphaPtr^[X]])
-             or ChunktRNS.PaletteValues[AlphaPtr^[X]] shl 24);         }
+              RGBPtr^[x]:=color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen],
+                                  PNGObject.GammaTable[rgbBlue], ChunktRNS.PaletteValues[AlphaPtr^[X]]);
+           {RGBPtr^[x]:=TColor32(integer(ChunkPLTE.Item[AlphaPtr^[X]])
+             or ChunktRNS.PaletteValues[AlphaPtr^[X]] shl 24); }
           end;
          end;
        end;
@@ -274,49 +273,6 @@ begin
       Inc(Dest);
      end;
    end;
-end;
-
-function loadpre(var spr:TBitmap32;x,y:integer;Azoom:byte;Amap:TMapType):boolean;
-var i,c_x,c_y,dZ:integer;
-    bmp:TBitmap32;
-    VTileExists: Boolean;
-begin
- result:=false;
- if not(GState.UsePrevZoom) then
-  begin
-   spr.Clear(SetAlpha(Color32(clSilver),0));
-   exit;
-  end;
-  VTileExists := false;
- for i:=(Azoom-1) downto 1 do
-  begin
-   dZ:=(Azoom-i);
-   if AMap.TileExists(x shr dZ,y shr dZ,i) then begin
-    VTileExists := true;
-    break;
-   end;
-  end;
- if not(VTileExists)or(dZ>8) then
-  begin
-   spr.Clear(SetAlpha(Color32(clSilver),0));
-   exit;
-  end;
- bmp:=TBitmap32.Create;
- if not(AMap.LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
-  begin
-   spr.Clear(SetAlpha(Color32(clSilver),0));
-   bmp.Free;
-   exit;
-  end;
- bmp.Resampler := CreateResampler(GState.Resampling);
- c_x:=((x-(x mod 256))shr dZ)mod 256;
- c_y:=((y-(y mod 256))shr dZ)mod 256;
- try
-  spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
- except
- end;
- bmp.Free;
- result:=true;
 end;
 
 end.

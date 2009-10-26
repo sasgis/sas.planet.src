@@ -49,8 +49,8 @@ uses
   PNGimage,
   MidasLib,
   ImgMaker,
+  t_LoadEvent,
   u_GeoToStr,
-  UTrAllLoadMap,
   UThreadScleit,
   Ugeofun,
   UWikiLayer,
@@ -60,16 +60,10 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
+  u_TileDownloaderUI,
   t_GeoTypes;
 
 type
-  TlastLoad = record
-    x,y:longint;
-    z:byte;
-    mt:TMapType;
-    use:boolean;
-  end;
-
   TTileSource = (tsInternet,tsCache,tsCacheInternet);
 
   TArrLL = array [0..0] of TExtendedPoint;
@@ -343,6 +337,7 @@ type
     TBImageList1_24: TTBImageList;
     PMNRObject: TPopupMenu;
     NGoHim: TMenuItem;
+    NbackloadLayer: TTBItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -459,6 +454,7 @@ type
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
     procedure NanimateClick(Sender: TObject);
+    procedure NbackloadLayerClick(Sender: TObject);
   private
    ShowActivHint:boolean;
    h: THintWindow;
@@ -478,6 +474,7 @@ type
    dWhenMovingButton:integer;
    LenShow: boolean;
    RectWindow:TRect;
+   FUIDownLoader: TTileDownloaderUI;
   public
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
@@ -538,7 +535,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='91010';
+  SASVersion='91026';
   CProgram_Lang_Default = LANG_RUSSIAN;
 //  ENU=LANG_ENGLISH;
 //  RUS=LANG_RUSSIAN;// $00000419;
@@ -571,7 +568,6 @@ var
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
-  THLoadMap1: ThreadAllLoadMap;
   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   curBuf:TCursor;
   nilLastLoad:TLastLoad;
@@ -593,6 +589,7 @@ uses
   StrUtils,
   DateUtils,
   Types,
+  t_CommonTypes,
   u_GlobalState,
   u_MiniMap,
   Unit2,
@@ -613,7 +610,9 @@ uses
   UFDGAvailablePic,
   USearchResult,
   UImport,
-  UAddCategory, u_CoordConverterAbstract;
+  UAddCategory,
+  u_TileDownloaderUIOneTile,
+  u_CoordConverterAbstract;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -658,18 +657,7 @@ begin
   tsCache: NSRCesh.Checked:=true;
   tsCacheInternet: NSRCic.Checked:=true;
  end;
- if (value=tsCache) then
-  if (THLoadMap1<>nil) then THLoadMap1.Terminate
-                       else
-  else if (THLoadMap1<>nil) then change_scene:=true
-                            else
-  begin
-   change_scene:=true;
-   THLoadMap1:=ThreadAllLoadMap.Create(False,nil,4,NSRCinet.Checked,false,false,true,GState.zoom_size,sat_map_both,date);
-   THLoadMap1.FreeOnTerminate:=true;
-   THLoadMap1.Priority:=tpLower;
-   THLoadMap1.OnTerminate:=ThreadDone;
-  end
+ change_scene:=true
 end;
 
 procedure TFMain.Set_lock_toolbars(const Value: boolean);
@@ -1052,6 +1040,7 @@ begin
                                          else begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
+                                               //LayerMapNal.Bitmap.Clear(clBlack);
                                                drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
@@ -1095,22 +1084,10 @@ end;
 
 procedure TFmain.ThreadDone(Sender: TObject);
 begin
-  ThreadAllLoadMap(sender).closeSession;
-  if ThreadAllLoadMap(sender)=THLoadMap1 then
-       begin
-        THLoadMap1:=nil;
-        exit;
-       end;
-   if ThreadAllLoadMap(sender).typeRect in [2,3] then
-    begin
-     if not((MapMoving)or(MapZoomAnimtion=1)) then
-       begin
-        //move.X:=m_up.x;
-        GState.MainFileCache.Clear;
-        generate_im(nilLastLoad,'');
-       end;
-     exit;
-    end;
+  if not((MapMoving)or(MapZoomAnimtion=1)) then begin
+    GState.MainFileCache.Clear;
+    generate_im(nilLastLoad,'');
+  end;
 end;
 
 procedure TFmain.drawRect(Shift:TShiftState);
@@ -1444,7 +1421,7 @@ begin
   end;
 
  polygon.Free;
- if new then begin
+ if (new)and(length(pathll)>0) then begin
    k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[0],GState.zoom_size-1);
    k1:=Point(pr_x-(pos.x-k1.x)-4,pr_y-(pos.y-k1.y)-4);
    LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
@@ -1907,11 +1884,6 @@ var
 begin
  if notpaint then exit;
  QueryPerformanceCounter(ts2);
- if (lastload.use) then
-  begin
-   //TODO: Что-то нужно сделать, может добавить в TMapType функцию удаления из кеша
-   GState.MainFileCache.DeleteFileFromCache(lastload.mt.GetTileFileName(lastload.x,lastload.y,lastload.z));
-  end;
  if not(lastload.use) then generate_mapzap;
  if not(lastload.use) then change_scene:=true;
  //AcrBuf:=map.Cursor;
@@ -1939,7 +1911,7 @@ begin
                   end
              else BadDraw(Gspr,false);
           end
-     else loadpre(Gspr,xx,yy,GState.zoom_size,sat_map_both);
+     else sat_map_both.LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true);
     Gamma(Gspr);
     LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
    end;
@@ -1972,7 +1944,7 @@ begin
            else BadDraw(Gspr,true);
            Gamma(Gspr);
          end
-         else if loadpre(Gspr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
+         else if MapType[Leyi].LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true) then begin
            Gamma(Gspr);
          end;
          Gspr.DrawMode:=dmBlend;
@@ -2273,6 +2245,7 @@ begin
  POS:=Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
             GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
  GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
+ GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
  GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
  Fillingmaptype:=GetMapFromID(GState.MainIni.ReadString('VIEW','FillingMap','0'));
  if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
@@ -2330,6 +2303,7 @@ begin
  TBGPSToPoint.Checked:=GState.GPS_MapMove;
  NGPSToPoint.Checked:=GState.GPS_MapMove;
  Nbackload.Checked:=GState.UsePrevZoom;
+ NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
  Nanimate.Checked:=GState.AnimateZoom;
 
  if not(FileExists(GState.MainConfigFileName)) then
@@ -2375,6 +2349,7 @@ begin
  Enabled:=true;
  SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
+ FUIDownLoader := TTileDownloaderUI.Create;
 end;
 
 
@@ -2487,6 +2462,9 @@ end;
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  ProgramClose:=true;
+ FUIDownLoader.Terminate;
+ WaitForSingleObject(FUIDownLoader.Handle, 0);
+ FreeAndNil(FUIDownLoader);
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
 end;
@@ -2649,6 +2627,12 @@ begin
  generate_im(nilLastLoad,'');
 end;
 
+procedure TFmain.NbackloadLayerClick(Sender: TObject);
+begin
+ GState.UsePrevZoomLayer := NbackloadLayer.Checked;
+ generate_im(nilLastLoad,'');
+end;
+
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
  if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2+m_up.x,pos.Y-mHd2+m_up.y),GState.zoom_size-1),true) then
@@ -2689,21 +2673,21 @@ procedure TFmain.N21Click(Sender: TObject);
 var path:string;
     APos:TPoint;
     AMapType:TMapType;
-    Poly: TPointArray;
+    VLoadPoint: TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos := sat_map_both.GeoConvert.Pos2OtherMap(pos, (GState.zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
- SetLength(Poly, 1);
- Poly[0] := Point(Apos.x-(mWd2-m_up.x),Apos.y-(mHd2-m_up.y));
- if ((not(AMapType.tileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size)))or(MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES)) then
-   with ThreadAllLoadMap.Create(False, Poly, 1,true,false,false,true,GState.zoom_size,AMapType,date) do
-   begin
-    FreeOnTerminate:=true;
-    OnTerminate:=ThreadDone;
-   end;
+ VLoadPoint.x := Apos.x-(mWd2-m_up.x);
+ VLoadPoint.y := Apos.y-(mHd2-m_up.y);
+
+ if ((not(AMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
+  (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
+ then begin
+  TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, AMapType);
+ end;
 end;
 
 procedure TFmain.N11Click(Sender: TObject);
@@ -2891,7 +2875,7 @@ begin
         for i:=1 to length(NewText) do
          if NewText[i]=' ' then NewText[i]:='+';
 
-        strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=';
+        strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA';
         hFile:=InternetOpenUrl(hSession,PChar(strr),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
         if Assigned(hFile)then
          begin
@@ -3760,7 +3744,7 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
 var PWL:TResObj;
     posB:TPoint;
     stw:String;
-    Poly: TPointArray;
+    VLoadPoint: TPoint;
 begin
  if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
@@ -3777,14 +3761,9 @@ begin
   if ((Pos.x-(mWd2-x))>0)and((Pos.x-(mWd2-x))<Zoom[GState.zoom_size])and
      ((pos.y-(mHd2-y))>0)and((pos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
   begin
-    SetLength(Poly, 1);
-    Poly[0] := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
-    with ThreadAllLoadMap.Create(False, Poly,1,true,false,false,true,GState.zoom_size,sat_map_both,date) do
-     begin
-      FreeOnTerminate:=true;
-      OnTerminate:=ThreadDone;
-     end;
-   exit;
+    VLoadPoint := Point(pos.x-(mWd2-x),pos.y-(mHd2-y));
+    TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, sat_map_both);
+    exit;
   end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin
@@ -4426,7 +4405,7 @@ end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
 begin
- ShowMessage(sat_map_both.info);
+ ShowMessage('Файл: '+sat_map_both.zmpfilename+#13#10+sat_map_both.info);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
@@ -4465,5 +4444,7 @@ procedure TFmain.NanimateClick(Sender: TObject);
 begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
+
+
 
 end.

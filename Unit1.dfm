@@ -1,8 +1,8 @@
 object Fmain: TFmain
-  Left = 272
-  Top = 131
-  Width = 961
-  Height = 575
+  Left = 402
+  Top = 167
+  Width = 865
+  Height = 569
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -60,8 +59,8 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 57
-    Width = 713
-    Height = 475
+    Width = 617
+    Height = 469
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -82,7 +81,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 953
+    Width = 857
     Height = 57
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -316,7 +315,7 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 918
+      Left = 822
       Top = 23
       DockPos = 918
       DockRow = 2
@@ -665,7 +664,14 @@ object Fmain: TFmain
           AutoCheck = True
           Checked = True
           OnClick = NbackloadClick
-          Caption = '&'#1041#1088#1072#1090#1100' '#1091#1095#1072#1089#1090#1082#1080' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1093' '#1089#1083#1086#1077#1074
+          Caption = #1041#1088#1072#1090#1100' '#1082#1072#1088#1090#1099' '#1080#1079' '#1084#1077#1085#1100#1096#1080#1093' '#1084#1072#1089#1096#1090#1072#1073#1086#1074
+          Hint = ''
+        end
+        object NbackloadLayer: TTBItem
+          AutoCheck = True
+          Checked = True
+          OnClick = NbackloadLayerClick
+          Caption = #1041#1088#1072#1090#1100' '#1089#1083#1086#1080' '#1080#1079' '#1084#1077#1085#1100#1096#1080#1093' '#1084#1072#1089#1096#1090#1072#1073#1086#1074
           Hint = ''
         end
         object Nanimate: TTBItem
@@ -898,8 +904,8 @@ object Fmain: TFmain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 532
-    Width = 953
+    Top = 526
+    Width = 857
     Height = 9
     Position = dpBottom
   end
@@ -907,7 +913,7 @@ object Fmain: TFmain
     Left = 0
     Top = 57
     Width = 36
-    Height = 475
+    Height = 469
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1747,22 +1753,23 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 749
+    Left = 653
     Top = 57
     Width = 204
-    Height = 475
+    Height = 469
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 465
+      ClientAreaHeight = 459
       ClientAreaWidth = 200
+      DockPos = 0
       Stretch = True
       TabOrder = 0
       Visible = False
       DesignSize = (
         200
-        465)
+        459)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1777,7 +1784,7 @@ object Fmain: TFmain
         Left = 7
         Top = 32
         Width = 186
-        Height = 347
+        Height = 341
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1792,7 +1799,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 386
+        Top = 380
         Width = 185
         Height = 73
         Anchors = [akLeft, akRight, akBottom]

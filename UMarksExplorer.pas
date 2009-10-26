@@ -101,6 +101,7 @@ implementation
 uses
   Math,
   DB,
+  t_CommonTypes,
   u_GlobalState,
   Unit1,
   USaveas,

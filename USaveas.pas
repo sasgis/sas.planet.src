@@ -328,13 +328,8 @@ begin
  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
  VZoom := CBZoomload.ItemIndex;
  polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
- with ThreadAllLoadMap.Create(false,Polyg,3,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime) do
-  begin
-   OnTerminate:=Fmain.ThreadDone;
-   Priority := tpLower;
-   FreeOnTerminate:=true;
-  end;
-  polyg := nil;
+ ThreadAllLoadMap.Create(Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime);
+ polyg := nil;
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
@@ -610,7 +605,7 @@ end;
 procedure TFsaveas.CBZoomloadChange(Sender: TObject);
 var polyg:TPointArray;
     min,max:TPoint;
-    numd:integer;
+    numd:int64 ;
     Vmt: TMapType;
     VZoom: byte;
 begin
@@ -620,6 +615,11 @@ begin
   numd:=GetDwnlNum(min,max,polyg,true);
   label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
+  if PageControl1.TabIndex=1 then begin
+    GetMinMax(min,max,polyg,false);
+    label6.Caption:=label6.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
+                  +inttostr(max.y-min.y);
+  end;
 end;
 
 procedure TFsaveas.SpeedButton1Click(Sender: TObject);
@@ -689,12 +689,7 @@ begin
  if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then
   begin
    Fmain.Enabled:=true;
-   with ThreadAllLoadMap.Create(false,OpenSessionDialog.FileName,CBLastSuccess.Checked) do
-    begin
-     OnTerminate:=Fmain.ThreadDone;
-     Priority := tpLower;
-     FreeOnTerminate:=true;
-    end;
+   ThreadAllLoadMap.Create(OpenSessionDialog.FileName,CBLastSuccess.Checked);
    if CBCloseWithStart.Checked then close;
   end;
 end;

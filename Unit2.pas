@@ -64,7 +64,8 @@ var
 
 implementation
 uses
-  u_GlobalState, 
+  u_GlobalState,
+  t_CommonTypes, 
   t_GeoTypes,
   unit1,
   UaddPoint,

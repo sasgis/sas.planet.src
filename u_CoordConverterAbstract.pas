@@ -127,6 +127,9 @@ const
 
 implementation
 
+uses
+  Math;
+
 { TCoordConverterAbstract }
 
 function TCoordConverterAbstract.CalcPoligonArea(
@@ -199,12 +202,21 @@ end;
 function TCoordConverterAbstract.PixelPos2Relative(const XY: TPoint;
   Azoom: byte): TExtendedPoint;
 var
-  VPixelsAtZoom: Extended;
+  VPixelsAtZoomExt: Extended;
+  VPixelsAtZoom: Integer;
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
-  VPixelsAtZoom := abs(VPixelsAtZoom);
-  Result.X := XY.X / VPixelsAtZoom;
-  Result.Y := XY.Y / VPixelsAtZoom;
+  VPixelsAtZoomExt := VPixelsAtZoom;
+  VPixelsAtZoomExt := abs(VPixelsAtZoomExt);
+  if XY.X = VPixelsAtZoom then
+    Result.X := 1
+  else
+    Result.X := XY.X / VPixelsAtZoomExt;
+
+  if XY.Y = VPixelsAtZoom then
+    Result.Y := 1
+  else
+    Result.Y := XY.Y / VPixelsAtZoomExt;
 end;
 
 function TCoordConverterAbstract.Relative2Pixel(const XY: TExtendedPoint;
@@ -214,8 +226,8 @@ var
 begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
   VPixelsAtZoom := abs(VPixelsAtZoom);
-  Result.X := Trunc(XY.X * VPixelsAtZoom);
-  Result.Y := Trunc(XY.Y * VPixelsAtZoom);
+  Result.X := Trunc(RoundTo(XY.X * VPixelsAtZoom, -2));
+  Result.Y := Trunc(RoundTo(XY.Y * VPixelsAtZoom, -2));
 end;
 
 function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
@@ -290,8 +302,8 @@ var
   VTilesAtZoom: Extended;
 begin
   VTilesAtZoom := TilesAtZoom(Azoom);
-  Result.X := Trunc(XY.X * VTilesAtZoom);
-  Result.Y := Trunc(XY.Y * VTilesAtZoom);
+  Result.X := Trunc(RoundTo(XY.X * VTilesAtZoom, -2));
+  Result.Y := Trunc(RoundTo(XY.Y * VTilesAtZoom, -2));
 end;
 
 function TCoordConverterAbstract.RelativeRect2LonLatRect(
