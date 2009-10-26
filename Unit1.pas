@@ -1911,7 +1911,7 @@ begin
                   end
              else BadDraw(Gspr,false);
           end
-     else loadpre(Gspr,xx,yy,GState.zoom_size,sat_map_both);
+     else sat_map_both.LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true);
     Gamma(Gspr);
     LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
    end;
@@ -1944,7 +1944,7 @@ begin
            else BadDraw(Gspr,true);
            Gamma(Gspr);
          end
-         else if loadpre(Gspr,xx,yy,GState.zoom_size,MapType[Leyi]) then begin
+         else if MapType[Leyi].LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true) then begin
            Gamma(Gspr);
          end;
          Gspr.DrawMode:=dmBlend;

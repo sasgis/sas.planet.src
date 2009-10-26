@@ -605,7 +605,7 @@ end;
 procedure TFsaveas.CBZoomloadChange(Sender: TObject);
 var polyg:TPointArray;
     min,max:TPoint;
-    numd:integer;
+    numd:int64 ;
     Vmt: TMapType;
     VZoom: byte;
 begin
@@ -617,7 +617,7 @@ begin
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
   if PageControl1.TabIndex=1 then begin
     GetMinMax(min,max,polyg,false);
-    label6.Caption:=label6.Caption+', '+inttostr(max.x-min.x)+'x'
+    label6.Caption:=label6.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
                   +inttostr(max.y-min.y);
   end;
 end;

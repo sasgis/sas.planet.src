@@ -85,6 +85,7 @@ type
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
+    function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
     procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
     procedure SaveTileNotExists(x,y:longint;Azoom:byte);
@@ -834,6 +835,54 @@ begin
       ijlFree(@jcprops);
     end;
   end;
+end;
+
+function TMapType.LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
+var i,c_x,c_y,dZ:integer;
+    bmp:TBitmap32;
+    VTileExists: Boolean;
+    key:string;
+begin
+ result:=false;
+ if (not(GState.UsePrevZoom) and (asLayer=false)) or
+    (not(GState.UsePrevZoomLayer) and (asLayer=true)) then begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+ end;
+ VTileExists := false;
+ for i:=(Azoom-1) downto 1 do
+  begin
+   dZ:=(Azoom-i);
+   if TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileExists := true;
+    break;
+   end;
+  end;
+ if not(VTileExists)or(dZ>8) then
+  begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+  end;
+ key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+ if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
+   bmp:=TBitmap32.Create;
+   if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
+    begin
+     spr.Clear(SetAlpha(Color32(clSilver),0));
+     bmp.Free;
+     exit;
+    end;
+   bmp.Resampler := CreateResampler(GState.Resampling);
+   c_x:=((x-(x mod 256))shr dZ)mod 256;
+   c_y:=((y-(y mod 256))shr dZ)mod 256;
+   try
+    spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
+    GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
+   except
+   end;
+   bmp.Free;
+ end;
+ result:=true;
 end;
 
 function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;

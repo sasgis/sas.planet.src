@@ -47,7 +47,7 @@ var
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
-  function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
+  function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 
 implementation
@@ -98,7 +98,8 @@ begin
    max.y:=max.y-(max.y mod 256)+128;
   end;
 end;
-function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):longint;
+
+function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
 var i,j:integer;
     prefalse:boolean;
 begin
@@ -107,7 +108,9 @@ begin
  if getNum then
   if (length(Polyg)=5)and(Polyg[0].x=Polyg[3].x)and(Polyg[1].x=Polyg[2].x)
                       and(Polyg[0].y=Polyg[1].y)and(Polyg[2].y=Polyg[3].y)
-    then result:=((max.X-min.X) div 256+1)*((max.Y-min.Y) div 256+1)
+    then begin
+          result:=int64((max.X-min.X) div 256+1)*int64((max.Y-min.Y) div 256+1);
+         end
     else begin
           i:=min.X;
           while i<=max.x do

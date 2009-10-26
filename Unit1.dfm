@@ -1,7 +1,7 @@
 object Fmain: TFmain
-  Left = 268
-  Top = 106
-  Width = 975
+  Left = 402
+  Top = 329
+  Width = 865
   Height = 569
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -42,10 +42,8 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -60,7 +58,7 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 57
-    Width = 727
+    Width = 617
     Height = 469
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -82,7 +80,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 967
+    Width = 857
     Height = 57
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -316,7 +314,7 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 918
+      Left = 822
       Top = 23
       DockPos = 918
       DockRow = 2
@@ -906,7 +904,7 @@ object Fmain: TFmain
   object TBDockBottom: TTBXDock
     Left = 0
     Top = 526
-    Width = 967
+    Width = 857
     Height = 9
     Position = dpBottom
   end
@@ -1754,7 +1752,7 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 763
+    Left = 653
     Top = 57
     Width = 204
     Height = 469
