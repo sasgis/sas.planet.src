@@ -19,20 +19,24 @@ uses
 type
   ThreadAllLoadMap = class(TTileDownloaderThreadBase)
   private
-    Poly:TPointArray;
-    zamena:boolean;
-    StartPoint:TPoint;
-    LastSuccessfulPoint:TPoint;
-    CheckExistTileSize: boolean;
-    Zdate:boolean;
-    SecondLoadTNE:boolean;
+    FRegionPoly: TPointArray;
+    FSecondLoadTNE:boolean;
+    FReplaceExistTiles: boolean;
+    FCheckExistTileSize: boolean;
+    FCheckExistTileDate: boolean;
+    FCheckTileDate: TDateTime;
+    FLastProcessedPoint: TPoint;
+    FLastSuccessfulPoint: TPoint;
+    FRegionRect: TRect;
 
-    FDate:TDateTime;
-    OperBegin:TDateTime;
+    FTotalInRegion: Cardinal;
+    FDownloaded: Cardinal;
+    FDownloadSize: Double;
+    FProcessed: Cardinal;
+
+    FElapsedTime: TDateTime;
+    FStartTime: TDateTime;
     _FProgress:TFProgress;
-    max,min:TPoint;
-    scachano,num_dwn,obrab,vsego:integer;
-    dwnb:real;
     AddToMemo,TimeEnd,LenEnd:string;
     procedure UpdateMemoProgressForm;
     procedure UpdateMemoAddProgressForm;
@@ -50,6 +54,13 @@ type
 
     procedure ButtonSaveClick(Sender: TObject);
     procedure SaveSessionToFile;
+
+    property TotalInRegion: Cardinal read FTotalInRegion;
+    property Downloaded: Cardinal read FDownloaded;
+    property Processed: Cardinal read FProcessed;
+    property DownloadSize: Double read FDownloadSize;
+    property ElapsedTime: TDateTime read FElapsedTime;
+    property StartTime: TDateTime read FStartTime;
   end;
 
 implementation
@@ -63,7 +74,7 @@ uses
   Unit1,
   UImgfun,
   UGeoFun,
-  Usaveas;
+  Usaveas, Types;
 
 constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var
@@ -73,23 +84,22 @@ begin
   OnTerminate:=Fmain.ThreadDone;
   Priority := tpLower;
   FreeOnTerminate:=true;
-  zamena:=Azamena;
+  FReplaceExistTiles:=Azamena;
   Fzoom:=AZoom;
-  CheckExistTileSize := ACheckExistTileSize;
-  FTypeMap:=Atypemap;
-  FDate:=AFDate;
-  Zdate:=AzDate;
-  SecondLoadTNE:=ASecondLoadTNE;
-  setlength(Poly,length(APolygon_));
-  for i:=0 to length(APolygon_) - 1 do begin
-    poly[i]:=Apolygon_[i];
+  FCheckExistTileSize := ACheckExistTileSize;
+  FTypeMap := Atypemap;
+  FCheckTileDate := AFDate;
+  FCheckExistTileDate := AzDate;
+  FSecondLoadTNE := ASecondLoadTNE;
+  SetLength(FRegionPoly, length(APolygon_));
+  for i := 0 to length(APolygon_) - 1 do begin
+    FRegionPoly[i] := Apolygon_[i];
   end;
-  num_dwn:=GetDwnlNum(min,max,poly,true);
-  vsego:=num_dwn;
-  scachano:=0;
-  obrab:=0;
-  dwnb:=0;
-
+  FTotalInRegion := GetDwnlNum(FRegionRect.TopLeft, FRegionRect.BottomRight, FRegionPoly, true);
+  FDownloaded := 0;
+  FProcessed := 0;
+  FDownloadSize := 0;
+  FElapsedTime := 0;
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
   SetProgressForm;
@@ -112,29 +122,30 @@ begin
   Ini:=TiniFile.Create(FileName);
   try
     Guids:=Ini.ReadString('Session','MapGUID','');
-    Fzoom:=Ini.ReadInteger('Session','zoom',GState.zoom_size);
-    zamena:=Ini.ReadBool('Session','zamena',false);
-    CheckExistTileSize := Ini.ReadBool('Session','raz',false);
-    zdate:=Ini.ReadBool('Session','zdate',false);
-    Fdate:=Ini.ReadDate('Session','FDate',now);
-    scachano:=Ini.ReadInteger('Session','scachano',0);
-    obrab:=Ini.ReadInteger('Session','obrab',0);
-    dwnb:=Ini.ReadFloat('Session','dwnb',0);
-    SecondLoadTNE:=Ini.ReadBool('Session','SecondLoadTNE',false);
+    Fzoom := Ini.ReadInteger('Session', 'zoom', GState.zoom_size);
+    FReplaceExistTiles := Ini.ReadBool('Session', 'zamena', false);
+    FCheckExistTileSize := Ini.ReadBool('Session','raz', false);
+    FCheckExistTileDate := Ini.ReadBool('Session','zdate', false);
+    FCheckTileDate := Ini.ReadDate('Session', 'FDate', now);
+    FDownloaded := Ini.ReadInteger('Session', 'scachano', 0);
+    FProcessed := Ini.ReadInteger('Session', 'obrab', 0);
+    FDownloadSize := Ini.ReadFloat('Session','dwnb', 0);
+    FSecondLoadTNE:=Ini.ReadBool('Session', 'SecondLoadTNE', false);
     if LastSuccessful then begin
-      StartPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
-      StartPoint.Y:=Ini.ReadInteger('Session','LastSuccessfulStartY',-1);
+      FLastProcessedPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
+      FLastProcessedPoint.Y:=Ini.ReadInteger('Session','LastSuccessfulStartY',-1);
     end else begin
-      StartPoint.X:=Ini.ReadInteger('Session','StartX',-1);
-      StartPoint.Y:=Ini.ReadInteger('Session','StartY',-1);
+      FLastProcessedPoint.X:=Ini.ReadInteger('Session','StartX',-1);
+      FLastProcessedPoint.Y:=Ini.ReadInteger('Session','StartY',-1);
     end;
     i:=1;
     while Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647)<>2147483647 do begin
-      setlength(poly,i);
-      poly[i-1].x:=Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647);
-      poly[i-1].y:=Ini.ReadInteger('Session','PointY_'+inttostr(i),2147483647);
+      setlength(FRegionPoly, i);
+      FRegionPoly[i-1].x := Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647);
+      FRegionPoly[i-1].y := Ini.ReadInteger('Session','PointY_'+inttostr(i),2147483647);
       inc(i);
     end;
+    FElapsedTime := Ini.ReadFloat('Session', 'ElapsedTime', 0);
   finally
     ini.Free;
   end;
@@ -144,9 +155,8 @@ begin
     end;
   end;
   if FTypeMap = nil then Terminate;
-  if length(poly)=0 then Terminate;
-  num_dwn:=GetDwnlNum(min,max,poly,true);
-  vsego:=num_dwn;
+  if length(FRegionPoly) = 0 then Terminate;
+  FTotalInRegion := GetDwnlNum(FRegionRect.TopLeft, FRegionRect.BottomRight, FRegionPoly, true);
 
   Application.CreateForm(TFProgress, _FProgress);
   _FProgress.ButtonSave.OnClick:=ButtonSaveClick;
@@ -162,32 +172,41 @@ begin
 end;
 
 procedure ThreadAllLoadMap.SaveSessionToFile;
-var Ini: Tinifile;
-    i:integer;
+var
+  Ini: Tinifile;
+  i:integer;
+  VElapsedTime: TDateTime;
 begin
- if (_FProgress.SaveSessionDialog.Execute)and(_FProgress.SaveSessionDialog.FileName<>'') then
-  begin
-   Ini:=TiniFile.Create(_FProgress.SaveSessionDialog.FileName);
-   Ini.WriteString('Session','MapGUID', FTypeMap.guids);
-   Ini.WriteInteger('Session','zoom',Fzoom);
-   Ini.WriteBool('Session','zamena',zamena);
-   Ini.WriteBool('Session','raz', CheckExistTileSize);
-   Ini.WriteBool('Session','zdate',zdate);
-   Ini.WriteDate('Session','FDate',FDate);
-   Ini.WriteBool('Session','SecondLoadTNE',SecondLoadTNE);
-   Ini.WriteInteger('Session','scachano',scachano);
-   Ini.WriteInteger('Session','obrab',obrab);
-   Ini.WriteFloat('Session','dwnb',dwnb);
-   Ini.WriteInteger('Session','StartX',StartPoint.X);
-   Ini.WriteInteger('Session','StartY',StartPoint.Y);
-   Ini.WriteInteger('Session','LastSuccessfulStartX',LastSuccessfulPoint.X);
-   Ini.WriteInteger('Session','LastSuccessfulStartY',LastSuccessfulPoint.Y);
-   for i:=1 to length(Poly) do
-    begin
-     Ini.WriteInteger('Session','PointX_'+inttostr(i),Poly[i-1].x);
-     Ini.WriteInteger('Session','PointY_'+inttostr(i),Poly[i-1].y);
+  if (_FProgress.SaveSessionDialog.Execute)and(_FProgress.SaveSessionDialog.FileName<>'') then begin
+    Ini:=TiniFile.Create(_FProgress.SaveSessionDialog.FileName);
+    try
+      Ini.WriteString('Session', 'MapGUID', FTypeMap.guids);
+      Ini.WriteInteger('Session', 'zoom', Fzoom);
+      Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
+      Ini.WriteBool('Session', 'raz', FCheckExistTileSize);
+      Ini.WriteBool('Session', 'zdate', FCheckExistTileDate);
+      Ini.WriteDate('Session', 'FDate', FCheckTileDate);
+      Ini.WriteBool('Session', 'SecondLoadTNE', FSecondLoadTNE);
+      Ini.WriteInteger('Session', 'scachano', FDownloaded);
+      Ini.WriteInteger('Session', 'obrab', FProcessed);
+      Ini.WriteFloat('Session', 'dwnb', FDownloadSize);
+      Ini.WriteInteger('Session', 'StartX', FLastProcessedPoint.X);
+      Ini.WriteInteger('Session', 'StartY', FLastProcessedPoint.Y);
+      Ini.WriteInteger('Session', 'LastSuccessfulStartX', FLastSuccessfulPoint.X);
+      Ini.WriteInteger('Session', 'LastSuccessfulStartY', FLastSuccessfulPoint.Y);
+      for i := 1 to length(FRegionPoly) do begin
+        Ini.WriteInteger('Session', 'PointX_'+inttostr(i), FRegionPoly[i-1].x);
+        Ini.WriteInteger('Session', 'PointY_'+inttostr(i), FRegionPoly[i-1].y);
+      end;
+      if (_FProgress.stop) then begin
+        VElapsedTime := FElapsedTime;
+      end else begin
+        VElapsedTime := FElapsedTime + (Now - FStartTime);
+      end;
+      Ini.WriteFloat('Session', 'ElapsedTime', VElapsedTime);
+    finally
+      ini.Free;
     end;
-   ini.Free;
   end;
 end;
 
@@ -198,15 +217,15 @@ end;
 
 procedure ThreadAllLoadMap.SetProgressForm;
 begin
- _FProgress.RProgr.Max:=vsego;
- _FProgress.RProgr.Progress1:=scachano;
- _FProgress.RProgr.Progress2:=obrab;
- _FProgress.LabelName0.Caption:=SAS_STR_ProcessedNoMore+':';
- _FProgress.LabelValue0.Caption:=inttostr(num_dwn)+' '+SAS_STR_files+' (х'+inttostr(Fzoom)+')';
- _FProgress.LabelName1.Caption:=SAS_STR_AllProcessed;
- _FProgress.LabelName2.Caption:=SAS_STR_AllLoad;
- _FProgress.LabelName3.Caption:=SAS_STR_TimeRemained;
- _FProgress.LabelName4.Caption:=SAS_STR_LoadRemained;
+ _FProgress.RProgr.Max := FTotalInRegion;
+ _FProgress.RProgr.Progress1 := FDownloaded;
+ _FProgress.RProgr.Progress2 := FProcessed;
+ _FProgress.LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
+ _FProgress.LabelValue0.Caption := inttostr(FTotalInRegion)+' '+SAS_STR_files+' (х'+inttostr(Fzoom)+')';
+ _FProgress.LabelName1.Caption := SAS_STR_AllProcessed;
+ _FProgress.LabelName2.Caption := SAS_STR_AllLoad;
+ _FProgress.LabelName3.Caption := SAS_STR_TimeRemained;
+ _FProgress.LabelName4.Caption := SAS_STR_LoadRemained;
 end;
 
 procedure ThreadAllLoadMap.UpdateProgressForm;
@@ -216,24 +235,24 @@ begin
  if (_FProgress.stop) then
    begin
     _FProgress.Memo1.Lines.Add(SAS_STR_UserStop);
-    _FProgress.Caption:=SAS_STR_Stop1+'... ('+inttostr(round(obrab/vsego*100))+'%)';
+    _FProgress.Caption:=SAS_STR_Stop1+'... ('+inttostr(round(FProcessed/FTotalInRegion*100))+'%)';
     exit;
    end;
  if _FProgress.Memo1.Lines.Count>5000 then _FProgress.Memo1.Lines.Clear;
- _FProgress.Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(obrab/vsego*100))+'%)';
+ _FProgress.Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(FProcessed/FTotalInRegion*100))+'%)';
  Application.ProcessMessages;
- _FProgress.LabelValue1.Caption:=inttostr(obrab)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
- _FProgress.LabelValue3.Caption:=TimeEnd;
- _FProgress.LabelValue4.Caption:=LenEnd;
+ _FProgress.LabelValue1.Caption:=inttostr(FProcessed)+' '+SAS_STR_files;
+ _FProgress.LabelValue2.Caption:=inttostr(FDownloaded)+' ('+kb2KbMbGb(FDownloadSize)+') '+SAS_STR_Files;
+ _FProgress.LabelValue3.Caption:=GetTimeEnd(FTotalInRegion,FProcessed);
+ _FProgress.LabelValue4.Caption:=GetLenEnd(FTotalInRegion, FProcessed, FDownloaded, FDownloadSize);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
   path := FTypeMap.GetTileFileName(FLoadXY.X, FLoadXY.y, Fzoom);
  _FProgress.Memo1.Lines.Add(SAS_STR_ProcessedFile+': '+path+'...');
  Application.ProcessMessages;
- if (obrab mod 10 = 0)or(num_dwn<100) then
+ if (FProcessed mod 10 = 0)or(FTotalInRegion<100) then
   begin
-   _FProgress.RProgr.Progress1:=obrab;
-   _FProgress.RProgr.Progress2:=scachano;
+   _FProgress.RProgr.Progress1 := FProcessed;
+   _FProgress.RProgr.Progress2 := FDownloaded;
   end;
 end;
 
@@ -252,38 +271,38 @@ end;
 procedure ThreadAllLoadMap.CloseProgressForm;
 begin
  _FProgress.Memo1.Lines.Add(SAS_MSG_ProcessFilesComplete);
- _FProgress.Caption:=SAS_MSG_LoadComplete+' ('+inttostr(round(obrab/vsego*100))+'%)';
- _FProgress.LabelValue1.Caption:=inttostr(obrab)+' '+SAS_STR_files;
- _FProgress.LabelValue2.Caption:=inttostr(scachano)+' ('+kb2KbMbGb(dwnb)+') '+SAS_STR_Files;
- _FProgress.LabelValue3.Caption:=GetTimeEnd(num_dwn,obrab);
- _FProgress.LabelValue4.Caption:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
- _FProgress.RProgr.Progress1:=obrab;
- _FProgress.RProgr.Progress2:=scachano;
+ _FProgress.Caption := SAS_MSG_LoadComplete+' ('+inttostr(round(FProcessed/FTotalInRegion*100))+'%)';
+ _FProgress.LabelValue1.Caption := inttostr(FProcessed)+' '+SAS_STR_files;
+ _FProgress.LabelValue2.Caption := inttostr(FDownloaded)+' ('+kb2KbMbGb(FDownloadSize)+') '+SAS_STR_Files;
+ _FProgress.LabelValue3.Caption := GetTimeEnd(FTotalInRegion, FProcessed);
+ _FProgress.LabelValue4.Caption := GetLenEnd(FTotalInRegion, FProcessed, FDownloaded, FDownloadSize);
+ _FProgress.RProgr.Progress1 := FProcessed;
+ _FProgress.RProgr.Progress2 := FDownloaded;
  _FProgress.Repaint;
 end;
 
 function ThreadAllLoadMap.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
 begin
   if loaded=0 then begin
-                    result:='~ Кб';
-                    exit;
-                 end;
+    result:='~ Кб';
+    exit;
+  end;
   Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
 end;
 
 function ThreadAllLoadMap.GetTimeEnd(loadAll,load:integer):String;
 var dd:integer;
-    Time1:TDateTime;
+    VElapsedTime: TDateTime;
 begin
   if load=0 then begin
-                    result:='~';
-                    exit;
-                 end;
-  Time1:=now-OperBegin;
-  dd:=DaysBetween(Time1,(Time1*(loadAll/load)));
+    result:='~';
+    exit;
+  end;
+  VElapsedTime := FElapsedTime + (Now - FStartTime);;
+  dd:=DaysBetween(VElapsedTime,(VElapsedTime*(loadAll/load)));
   Result:='';
   if dd>0 then Result:=inttostr(dd)+' дней, ';
-  Result:=Result+TimeToStr((Time1*(loadAll / load))-Time1);
+  Result:=Result+TimeToStr((VElapsedTime*(loadAll / load))-VElapsedTime);
 end;
 
 procedure ThreadAllLoadMap.Execute;
@@ -296,56 +315,58 @@ var
   razlen: integer;
   VGotoNextTile: Boolean;
 begin
-  OperBegin:=now;
-  LastSuccessfulPoint:=Point(-1,-1);
-  if min.x<StartPoint.x then begin
-    p_x:=StartPoint.x;
+  FStartTime := Now;
+  FLastSuccessfulPoint := Point(-1,-1);
+  if FRegionRect.Left < FLastProcessedPoint.x then begin
+    p_x := FLastProcessedPoint.x;
   end else begin
-    p_x:=min.x;
+    p_x := FRegionRect.Left;
   end;
-  if min.y<StartPoint.y then begin
-    p_y:=StartPoint.Y
+  if FRegionRect.Top < FLastProcessedPoint.y then begin
+    p_y := FLastProcessedPoint.Y
   end else begin
-    p_y:=min.Y;
+    p_y := FRegionRect.Top;
   end;
-  while p_x<max.X do begin
-    while p_y<max.y do begin
+  while p_x < FRegionRect.Right do begin
+    while p_y < FRegionRect.Bottom do begin
       sleep(1);
       if (_FProgress.stop) then begin
+        FElapsedTime := FElapsedTime + (Now - FStartTime);
         Synchronize(UpdateProgressForm);
         While (_FProgress.stop)and(_FProgress.Visible) do sleep(100);
+        FStartTime := now;
       end;
       if not(_FProgress.Visible) then exit;
-      if RgnAndRgn(Poly,p_x,p_y,false) then begin
+      if RgnAndRgn(FRegionPoly, p_x, p_y, false) then begin
         FLoadXY.X := p_x;
         FLoadXY.Y := p_y;
 
-        TimeEnd:=GetTimeEnd(num_dwn,obrab);
-        LenEnd:=GetLenEnd(num_dwn,obrab,scachano,dwnb);
         Synchronize(UpdateProgressForm);
         VTileExists := FTypeMap.TileExists(FLoadXY.x, FLoadXY.y, Fzoom);
-        if (zamena) or not(VTileExists) then begin
+        if (FReplaceExistTiles) or not(VTileExists) then begin
           if VTileExists then begin
             AddToMemo:=SAS_STR_LoadProcessRepl+' ...';
           end else begin
             AddToMemo:=SAS_STR_LoadProcess+'...';
           end;
           Synchronize(UpdateMemoProgressForm);
-          if (zDate)and(VTileExists)and(FTypeMap.TileLoadDate(FLoadXY.x, FLoadXY.y, Fzoom)>=FDate) then   begin
+          if (FCheckExistTileDate)
+            and (VTileExists)
+            and (FTypeMap.TileLoadDate(FLoadXY.x, FLoadXY.y, Fzoom) >= FCheckTileDate) then
+          begin
             AddToMemo:=AddToMemo+#13#10+SAS_MSG_FileBeCreateTime;
             Synchronize(UpdateMemoProgressForm);
             VGotoNextTile := True;
-            inc(obrab);
           end else begin
             razlen := FTypeMap.TileSize(FLoadXY.x, FLoadXY.y, Fzoom);
 
             FileBuf:=TMemoryStream.Create;
             try
-              if (not(SecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom)) then begin
+              if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom)) then begin
                 res := dtrTileNotExists;
               end else begin
                 sleep(FTypeMap.Sleep);
-                res:=FTypeMap.DownloadTile(FLoadXY, FZoom, CheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                res:=FTypeMap.DownloadTile(FLoadXY, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                 case res of
                   dtrOK,
                   dtrSameTileSize,
@@ -362,10 +383,11 @@ begin
               case res of
                 dtrSameTileSize: begin
                   GState.IncrementDownloaded(razlen/1024, 1);
-                  dwnb := dwnb + (razlen / 1024);
+                  FDownloadSize := FDownloadSize + (razlen / 1024);
+                  inc(FDownloaded);
+                  FLastSuccessfulPoint := FLoadXY;
                   AddToMemo:=SAS_MSG_FileBeCreateLen;
                   Synchronize(UpdateMemoProgressForm);
-                  inc(obrab);
                   VGotoNextTile := True;
                 end;
                 dtrProxyAuthError: begin
@@ -386,7 +408,6 @@ begin
                 dtrTileNotExists: begin
                   AddToMemo:=SAS_ERR_TileNotExists;
                   Synchronize(UpdateMemoProgressForm);
-                  inc(obrab);
                   if (GState.SaveTileNotExists) then begin
                     FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
                   end;
@@ -395,7 +416,6 @@ begin
                 dtrDownloadError: begin
                   AddToMemo:=SAS_ERR_Noconnectionstointernet;
                   if GState.GoNextTileIfDownloadError then begin
-                    inc(obrab);
                     VGotoNextTile := True;
                   end else begin
                     AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
@@ -408,12 +428,11 @@ begin
                 end;
                 dtrOK : begin
                   FTypeMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, FZoom, fileBuf, ty);
+                  FLastSuccessfulPoint := FLoadXY;
                   GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                  inc(obrab);
-                  dwnb := dwnb + (fileBuf.Size / 1024);
-                  inc(scachano);
+                  FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
+                  inc(FDownloaded);
                   AddToMemo:='(Ok!)';
-                  LastSuccessfulPoint := FLoadXY;
                   Synchronize(UpdateMemoAddProgressForm);
                   VGotoNextTile := True;
                 end;
@@ -430,10 +449,12 @@ begin
             end;
           end;
         end else begin
-          inc(obrab);
           AddToMemo:=SAS_ERR_FileExistsShort+';';
           Synchronize(UpdateMemoProgressForm);
           VGotoNextTile := True;
+        end;
+        if VGotoNextTile then begin
+          inc(FProcessed);
         end;
       end else begin
         VGotoNextTile := True;
@@ -441,11 +462,11 @@ begin
       if VGotoNextTile then begin
         inc(p_y,256);
       end;
-      StartPoint.Y:=p_y;
+      FLastProcessedPoint.Y := p_y;
     end;
-    p_y:=min.Y;
+    p_y := FRegionRect.Top;
     inc(p_x,256);
-    StartPoint.X:=p_x;
+    FLastProcessedPoint.X := p_x;
   end;
   Synchronize(CloseProgressForm);
 end;
