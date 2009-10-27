@@ -407,9 +407,11 @@ var
   iniparams: TMeminifile;
   GUID:TGUID;
   guidstr : string;
+  bfloat:string;
   bb:array [1..2048] of char;
   NumRead : integer;
   UnZip:TVCLZip;
+  b:double;
 begin
   if AZipFileName = '' then begin
     raise Exception.Create('Пустое имя файла с настройками карты');
@@ -513,8 +515,10 @@ begin
       NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
       DefNameInCache:=NameInCache;
       projection:=iniparams.ReadInteger('PARAMS','projection',1);
-      radiusa:=iniparams.ReadFloat('PARAMS','sradiusa',1);
-      radiusb:=iniparams.ReadFloat('PARAMS','sradiusb',radiusa);
+      bfloat:=iniparams.ReadString('PARAMS','sradiusa','6378137');
+      radiusa:=str2r(bfloat);
+      bfloat:=iniparams.ReadString('PARAMS','sradiusb',FloatToStr(radiusa));
+      radiusb:=str2r(bfloat);
       HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
       DefHotKey:=HotKey;
       ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
@@ -788,6 +792,7 @@ begin
       result:=false;
       exit;
      end;
+
     jcprops.JPGFile := PChar(FileName);
     iStatus := ijlRead(@jcprops,IJL_JFILE_READPARAMS);
     if iStatus < 0 then

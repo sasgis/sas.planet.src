@@ -40,6 +40,7 @@ type
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
   procedure Gamma(Bitmap: TBitmap32);
   procedure Contrast(Bitmap: TBitmap32; Value: double);
+  function str2r(inp:string):Extended;
 
 implementation
 
@@ -48,6 +49,18 @@ uses
   GR32_Filters,
   u_GlobalState,
   unit1;
+
+function str2r(inp:string):Extended;
+var p:integer;
+begin
+ p:=System.pos(DecimalSeparator,inp);
+ if p=0 then begin
+              if DecimalSeparator='.' then p:=System.pos(',',inp)
+                                      else p:=System.pos('.',inp);
+              inp[p]:=DecimalSeparator;
+             end;
+ result:=strtofloat(inp);
+end;
 
 function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
 begin
@@ -163,17 +176,14 @@ begin
           AlphaPtr:=PNGObject.Scanline[Y];
           for X:=0 to (destBitmap.Width-1) do begin
             with ChunkPLTE.Item[AlphaPtr^[X]] do
-              RGBPtr^[x]:=color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen],
+             RGBPtr^[x]:=color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen],
                                   PNGObject.GammaTable[rgbBlue], ChunktRNS.PaletteValues[AlphaPtr^[X]]);
-           {RGBPtr^[x]:=TColor32(integer(ChunkPLTE.Item[AlphaPtr^[X]])
-             or ChunktRNS.PaletteValues[AlphaPtr^[X]] shl 24); }
           end;
          end;
        end;
       end;
     ptmBit:
       begin
-       //destBitmap.Assign(PNGObject);
        ChunkPLTE:=TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE));
        DataDepth:=PNGObject.Header.BitDepth;
        ColorType:=PNGObject.Header.ColorType;
