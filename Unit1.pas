@@ -183,7 +183,6 @@ type
     TBControlItem3: TTBControlItem;
     Label1: TLabel;
     TBExit: TTBXToolbar;
-    TBItem2: TTBItem;
     ZoomToolBar: TTBXToolbar;
     TBControlItem1: TTBControlItem;
     RxSlider1: TRxSlider;
@@ -207,24 +206,12 @@ type
     NSources: TTBXSubmenuItem;
     NMarks: TTBXSubmenuItem;
     NGPS: TTBXSubmenuItem;
-    NGPSconn: TTBItem;
-    NGPSPath: TTBItem;
-    NGPSToPoint: TTBItem;
     N48: TTBSeparatorItem;
-    NSaveTreck: TTBItem;
-    N36: TTBItem;
-    N39: TTBItem;
     NParams: TTBXSubmenuItem;
-    NMapParams: TTBItem;
     NLayerParams: TTBXSubmenuItem;
     N53: TTBSeparatorItem;
-    N8: TTBItem;
     NHelp: TTBXSubmenuItem;
-    N29: TTBItem;
-    N16: TTBItem;
     N44: TTBSeparatorItem;
-    NGoToSite: TTBItem;
-    NGoToForum: TTBItem;
     PopupMSmM: TTBXPopupMenu;
     NSubMenuSmItem: TTBXSubmenuItem;
     NMMtype_0: TTBXItem;
@@ -237,9 +224,6 @@ type
     TreeView1: TTreeView;
     SpeedButton1: TSpeedButton;
     MemoObjectInfo: TMemo;
-    TBLang: TTBSubmenuItem;
-    TBItem1: TTBItem;
-    TBItem4: TTBItem;
     WebBrowser1: TEmbeddedWB;
     ImageList1: TImageList;
     N1: TMenuItem;
@@ -267,11 +251,6 @@ type
     TBmove: TTBXItem;
     TBCalcRas: TTBXItem;
     TBRectSave: TTBXSubmenuItem;
-    TBRECT: TTBItem;
-    TBREGION: TTBItem;
-    TBCOORD: TTBItem;
-    TBPrevious: TTBItem;
-    TBLoadSelFromFile: TTBItem;
     TBMapZap: TTBXSubmenuItem;
     TBGoTo: TTBXSubmenuItem;
     TBEditItem2: TTBEditItem;
@@ -306,29 +285,13 @@ type
     N32: TTBXItem;
     Ninvertcolor: TTBXItem;
     N4: TTBXSubmenuItem;
-    NMainToolBarShow: TTBItem;
-    NZoomToolBarShow: TTBItem;
-    NsrcToolBarShow: TTBItem;
-    NGPSToolBarShow: TTBItem;
-    NMarksBarShow: TTBItem;
     N31: TTBXSubmenuItem;
-    Showstatus: TTBItem;
-    ShowMiniMap: TTBItem;
-    ShowLine: TTBItem;
     NFillMap: TTBXSubmenuItem;
     TBFillingTypeMap: TTBXSubmenuItem;
     TBfillMapAsMain: TTBXItem;
     TBSeparatorItem2: TTBSeparatorItem;
     TBXToolPalette1: TTBXToolPalette;
     NShowGran: TTBXSubmenuItem;
-    N000: TTBItem;
-    N001: TTBItem;
-    N002: TTBItem;
-    N003: TTBItem;
-    N004: TTBItem;
-    N005: TTBItem;
-    N006: TTBItem;
-    N007: TTBItem;
     N40: TTBXSubmenuItem;
     NGShScale0: TTBXItem;
     NGShScale1000000: TTBXItem;
@@ -338,6 +301,43 @@ type
     NGShScale50000: TTBXItem;
     NGShScale25000: TTBXItem;
     NGShScale10000: TTBXItem;
+    N29: TTBXItem;
+    N16: TTBXItem;
+    NGoToSite: TTBXItem;
+    NGoToForum: TTBXItem;
+    NMapParams: TTBXItem;
+    N8: TTBXItem;
+    TBLang: TTBXSubmenuItem;
+    TBXLangRus: TTBXItem;
+    TBXLangEng: TTBXItem;
+    NGPSconn: TTBXItem;
+    NGPSPath: TTBXItem;
+    NGPSToPoint: TTBXItem;
+    NSaveTreck: TTBXItem;
+    N36: TTBXItem;
+    N39: TTBXItem;
+    NMainToolBarShow: TTBXItem;
+    NZoomToolBarShow: TTBXItem;
+    NsrcToolBarShow: TTBXItem;
+    NGPSToolBarShow: TTBXItem;
+    NMarksBarShow: TTBXItem;
+    Showstatus: TTBXItem;
+    ShowMiniMap: TTBXItem;
+    ShowLine: TTBXItem;
+    N000: TTBXItem;
+    N001: TTBXItem;
+    N002: TTBXItem;
+    N003: TTBXItem;
+    N004: TTBXItem;
+    N005: TTBXItem;
+    N006: TTBXItem;
+    N007: TTBXItem;
+    TBRECT: TTBXItem;
+    TBREGION: TTBXItem;
+    TBCOORD: TTBXItem;
+    TBPrevious: TTBXItem;
+    TBLoadSelFromFile: TTBXItem;
+    TBXExit: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -2612,8 +2612,7 @@ end;
 
 procedure TFmain.TBmap1Click(Sender: TObject);
 begin
- if sender is TTBItem then selectMap(TMapType(TTBXItem(sender).tag))
-                      else selectMap(TMapType(TTBXItem(sender).tag));
+ selectMap(TMapType(TTBXItem(sender).tag));
 end;
 
 procedure TFmain.N8Click(Sender: TObject);
@@ -2752,7 +2751,7 @@ end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
 begin
- Tilesource:=TTileSource(TTBItem(Sender).Tag);
+ Tilesource:=TTileSource(TTBXItem(Sender).Tag);
 end;
 
 procedure TFmain.N16Click(Sender: TObject);
@@ -4244,8 +4243,6 @@ begin
   Result := dd + EncodeTime(hh, mm, ss, ms); 
 end; 
 
-
-
 procedure TFmain.TBEditPathMarshClick(Sender: TObject);
 var ms:TMemoryStream;
     pathstr,timeT1:string;
@@ -4256,7 +4253,7 @@ var ms:TMemoryStream;
     dateT1:TDateTime;
 begin
  ms:=TMemoryStream.Create;
- case TTBItem(Sender).tag of
+ case TTBXItem(Sender).tag of
   1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
   2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
   3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
@@ -4394,13 +4391,12 @@ end;
 
 procedure TFmain.TBItem1Click(Sender: TObject);
 begin
- if ((GState.Localization<>LANG_RUSSIAN)and(TTBItem(Sender).tag=0))or
-    ((GState.Localization<>LANG_ENGLISH)and(TTBItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
- case TTBItem(Sender).tag of
+ if ((GState.Localization<>LANG_RUSSIAN)and(TTBXItem(Sender).tag=0))or
+    ((GState.Localization<>LANG_ENGLISH)and(TTBXItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
+ case TTBXItem(Sender).tag of
   0:GState.Localization:=LANG_RUSSIAN;
   1:GState.Localization:=LANG_ENGLISH;
  end;
-
 end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
