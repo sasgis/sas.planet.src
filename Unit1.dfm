@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 213
-  Top = 151
+  Left = 204
+  Top = 130
   Width = 865
   Height = 569
   HorzScrollBar.Visible = False
@@ -145,7 +145,7 @@ object Fmain: TFmain
         Caption = ''
         Hint = #1048#1079#1084#1077#1088#1080#1090#1100' '#1088#1072#1089#1089#1090#1086#1103#1085#1080#1077
       end
-      object TBSeparatorItem1: TTBSeparatorItem
+      object TBXSeparatorItem4: TTBXSeparatorItem
         Caption = ''
         Hint = ''
       end
@@ -188,7 +188,7 @@ object Fmain: TFmain
           EditCaption = 'Google!'
         end
       end
-      object TBSeparatorItem3: TTBSeparatorItem
+      object TBXSeparatorItem5: TTBXSeparatorItem
         Caption = ''
         Hint = ''
       end
@@ -237,7 +237,7 @@ object Fmain: TFmain
     object TBMarksToolbar: TTBXToolbar
       Left = 369
       Top = 23
-      DockPos = 360
+      DockPos = 336
       DockRow = 2
       Images = TBImageList2
       LinkSubitems = NMarks
@@ -348,7 +348,7 @@ object Fmain: TFmain
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1103#1088#1083#1099#1082
           Hint = ''
         end
-        object N34: TTBSeparatorItem
+        object TBXSeparatorItem6: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -366,7 +366,7 @@ object Fmain: TFmain
           Caption = #1059#1084#1077#1085#1100#1096#1080#1090#1100
           Hint = ''
         end
-        object N12: TTBSeparatorItem
+        object TBXSeparatorItem7: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -384,7 +384,7 @@ object Fmain: TFmain
           Caption = #1048#1079#1084#1077#1088#1080#1090#1100' '#1088#1072#1089#1089#1090#1086#1103#1085#1080#1077
           Hint = ''
         end
-        object N5: TTBSeparatorItem
+        object TBXSeparatorItem8: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -393,7 +393,7 @@ object Fmain: TFmain
           Caption = #1042#1099#1076#1077#1083#1080#1090#1100
           Hint = ''
         end
-        object N37: TTBSeparatorItem
+        object TBXSeparatorItem9: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -486,7 +486,7 @@ object Fmain: TFmain
               Hint = ''
             end
           end
-          object TBSeparatorItem2: TTBSeparatorItem
+          object TBXSeparatorItem11: TTBXSeparatorItem
             Caption = ''
             Hint = ''
           end
@@ -644,7 +644,7 @@ object Fmain: TFmain
             Hint = ''
           end
         end
-        object N19: TTBSeparatorItem
+        object TBXSeparatorItem10: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -772,7 +772,7 @@ object Fmain: TFmain
           Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1083#1080#1075#1086#1085
           Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1083#1080#1075#1086#1085
         end
-        object TBSeparatorItem24: TTBSeparatorItem
+        object TBXSeparatorItem12: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -806,7 +806,7 @@ object Fmain: TFmain
           Caption = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
           Hint = ''
         end
-        object N48: TTBSeparatorItem
+        object TBXSeparatorItem13: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -843,7 +843,7 @@ object Fmain: TFmain
           Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1089#1083#1086#1103
           Hint = ''
         end
-        object N53: TTBSeparatorItem
+        object TBXSeparatorItem14: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
@@ -886,7 +886,7 @@ object Fmain: TFmain
           Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
           Hint = ''
         end
-        object N44: TTBSeparatorItem
+        object TBXSeparatorItem15: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end

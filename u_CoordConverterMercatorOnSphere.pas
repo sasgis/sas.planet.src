@@ -65,8 +65,7 @@ begin
   result := (fz * a);
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2Relative(
-  const XY: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnSphere.LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint;
 var
   z, c : Extended;
 begin
