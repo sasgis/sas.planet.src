@@ -890,7 +890,7 @@ begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
       result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
-      if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
     end else begin
       result:=true;
     end;
