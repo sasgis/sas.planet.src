@@ -30,6 +30,7 @@ uses
   rxCurrEdit,
   Ugeofun,
   UMapType,
+  TBX,
   UResStrings;
 
 type
@@ -281,7 +282,7 @@ uses
   Unit4,
   UaddLine,
   u_MiniMap,
-  UaddPoly;
+  UaddPoly, TB2Item;
 
 {$R *.dfm}
 
@@ -634,6 +635,8 @@ end;
 
 procedure TFSettings.FormShow(Sender: TObject);
 var DMS:TDMS;
+    i,j:integer;
+    ParentNode:TTreeNode;
 begin
  MapsEdit:=false;
  case GState.Localization  of
@@ -689,6 +692,7 @@ begin
  ComboBox1.ItemIndex := byte(GState.num_format);
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;
+
  With Fmain do
  begin
  HotKey12.HotKey:=NzoomIn.ShortCut;

@@ -83,14 +83,11 @@ type
     Label19: TLabel;
     Label20: TLabel;
     EditNTv: TSpinEdit;
-    CB2Ozi: TCheckBox;
     Label27: TLabel;
-    CB2Tab: TCheckBox;
     CBSclHib: TComboBox;
     Label28: TLabel;
     SaveSelDialog: TSaveDialog;
     CBusedReColor: TCheckBox;
-    CBtoWorld: TCheckBox;
     Panel1: TPanel;
     Label11: TLabel;
     Label13: TLabel;
@@ -169,6 +166,7 @@ type
     cSatEditYa: TSpinEdit;
     cMapEditYa: TSpinEdit;
     CkBNotReplaseYa: TCheckBox;
+    PrTypesBox: TCheckListBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -211,7 +209,8 @@ uses
   u_GlobalState,
   unit1,
   Unit4,
-  UImgFun;
+  UImgFun,
+  UOzi;
   
 {$R *.dfm}
 
@@ -358,6 +357,7 @@ procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
 var Amt,Hmt:TMapType;
     polyg:TPointArray;
     VZoom: byte;
+    i:integer;
 begin
  Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
  Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
@@ -365,16 +365,21 @@ begin
  polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
  if (FMain.SaveDialog1.Execute)then
   begin
-   with ThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CB2Ozi.Checked,CB2Tab.Checked,CBtoWorld.Checked,CBusedReColor.Checked) do
+   with ThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked) do
     begin
      ProcessTiles:=GetDwnlNum(PolyMin,polyMax,polyg,true);
      GetMinMax(PolyMin,polyMax,polyg,false);
      Priority := tpLower;
      FreeOnTerminate:=true;
+     for i:=0 to PrTypesBox.Items.Count-1 do
+      if PrTypesBox.ItemEnabled[i] then begin
+        SetLength(PrTypes,length(PrTypes)+1);
+        PrTypes[i]:=TPrType(i);
+      end;
      Suspended:=false;
     end;
   end;
-  Polyg := nil;
+ Polyg := nil;
 end;
 
 procedure TFsaveas.Button1Click(Sender: TObject);

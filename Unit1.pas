@@ -987,7 +987,7 @@ begin
                  if (dWhenMovingButton<35) then begin
                   inc(dWhenMovingButton);
                  end;
-                 dWMB:=trunc(Power(dWhenMovingButton*0.6,1.2));
+                 dWMB:=trunc(Power(dWhenMovingButton,1.5));
                  if Msg.wParam=VK_RIGHT then pos:=Point(pos.x+dWMB,pos.y);
                  if Msg.wParam=VK_Left then pos:=Point(pos.x-dWMB,pos.y);
                  if Msg.wParam=VK_Down then pos:=Point(pos.x,pos.y+dWMB);

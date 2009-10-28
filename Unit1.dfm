@@ -1,8 +1,8 @@
 object Fmain: TFmain
-  Left = 204
-  Top = 130
+  Left = 371
+  Top = 121
   Width = 865
-  Height = 569
+  Height = 573
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -60,7 +60,7 @@ object Fmain: TFmain
     Left = 36
     Top = 57
     Width = 617
-    Height = 469
+    Height = 473
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -905,7 +905,7 @@ object Fmain: TFmain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 526
+    Top = 530
     Width = 857
     Height = 9
     Position = dpBottom
@@ -914,7 +914,7 @@ object Fmain: TFmain
     Left = 0
     Top = 57
     Width = 36
-    Height = 469
+    Height = 473
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1763,12 +1763,12 @@ object Fmain: TFmain
     Left = 653
     Top = 57
     Width = 204
-    Height = 469
+    Height = 473
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 459
+      ClientAreaHeight = 463
       ClientAreaWidth = 200
       DockPos = 0
       Stretch = True
@@ -1776,7 +1776,7 @@ object Fmain: TFmain
       Visible = False
       DesignSize = (
         200
-        459)
+        463)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1791,7 +1791,7 @@ object Fmain: TFmain
         Left = 7
         Top = 32
         Width = 186
-        Height = 341
+        Height = 345
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1806,7 +1806,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 380
+        Top = 384
         Width = 185
         Height = 73
         Anchors = [akLeft, akRight, akBottom]
