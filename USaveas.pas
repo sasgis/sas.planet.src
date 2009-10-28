@@ -372,7 +372,7 @@ begin
      Priority := tpLower;
      FreeOnTerminate:=true;
      for i:=0 to PrTypesBox.Items.Count-1 do
-      if PrTypesBox.ItemEnabled[i] then begin
+      if PrTypesBox.Checked[i] then begin
         SetLength(PrTypes,length(PrTypes)+1);
         PrTypes[i]:=TPrType(i);
       end;
