@@ -10,10 +10,10 @@ uses
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterAbstract)
   protected
-    FRadiusa : Extended;
-	  function LonLat2MetrInternal(const ALl : TExtendedPoint) : TExtendedPoint; override;
-    function LonLat2RelativeInternal(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLatInternal(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    FRadiusa: Extended;
+	  function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
+    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
+    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
     constructor Create(Aradiusa: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
@@ -32,7 +32,7 @@ begin
   FRadiusa := Aradiusa;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl : TExtendedPoint) : TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
 begin
   result.x:=0;
   result.y:=0;

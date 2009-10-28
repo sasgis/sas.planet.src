@@ -14,83 +14,83 @@ type
   protected
     function GetValidLonLatRect: TExtendedRect; virtual;
 
-    function Pos2LonLatInternal(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLat2PosInternal(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
-    function LonLat2MetrInternal(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall; abstract;
+    function Pos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2PosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2MetrInternal(const Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
 
     function TilesAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
     function PixelsAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
 
 
-    function TilePos2PixelPosInternal(const XY : TPoint; Azoom : byte): TPoint; virtual; stdcall;
-    function TilePos2PixelRectInternal(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
-    function TilePos2LonLatRectInternal(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
-    function TilePos2LonLatInternal(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function TilePos2PixelPosInternal(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function TilePos2PixelRectInternal(const XY: TPoint; Azoom: byte): TRect; virtual; stdcall;
+    function TilePos2LonLatRectInternal(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
+    function TilePos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function TileRect2PixelRectInternal(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
-    function TilePos2RelativeInternal(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function TilePos2RelativeRectInternal(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+    function TilePos2RelativeInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function TilePos2RelativeRectInternal(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
 
-    function PixelPos2LonLatInternal(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function PixelPos2TilePosInternal(const XY : TPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function PixelPos2RelativeInternal(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function PixelPos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function PixelPos2TilePosInternal(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function PixelPos2RelativeInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function PixelRect2TileRectInternal(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
 
-    function LonLat2PixelPosInternal(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
-    function LonLat2PixelPosfInternal(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLat2TilePosInternal(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
-    function LonLat2TilePosfInternal(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLat2RelativeInternal(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
-    function LonLatRect2RelativeRectInternal(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
+    function LonLat2PixelPosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2PixelPosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2TilePosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2TilePosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function LonLatRect2RelativeRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
 
-    function Relative2PixelInternal(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function Relative2TileInternal(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function Relative2LonLatInternal(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
-    function RelativeRect2LonLatRectInternal(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
-    function RelativeRect2TileRectInternal(const XY : TExtendedRect; Azoom : byte) : TRect; virtual; stdcall;
-    function RelativeRect2PixelRectInternal(const XY : TExtendedRect; Azoom : byte) : TRect; virtual; stdcall;
+    function Relative2PixelInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2TileInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function RelativeRect2LonLatRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
+    function RelativeRect2TileRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
+    function RelativeRect2PixelRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
   public
     constructor Create;
 
-    function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
-    function LonLat2Metr(const Ll : TExtendedPoint) : TExtendedPoint; virtual; stdcall;
+    function Pos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2Pos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall;
 
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; virtual; stdcall;
 
 
-    function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint; virtual; stdcall;
-    function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
-    function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
-    function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function TilePos2PixelRect(const XY: TPoint; Azoom: byte): TRect; virtual; stdcall;
+    function TilePos2LonLatRect(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
+    function TilePos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
-    function TilePos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function TilePos2RelativeRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+    function TilePos2Relative(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function TilePos2RelativeRect(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
 
-    function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function PixelPos2TilePos(const XY : TPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function PixelPos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
+    function PixelPos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function PixelPos2TilePos(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function PixelPos2Relative(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
 
-    function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
-    function LonLat2PixelPosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLat2TilePos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
-    function LonLat2TilePosf(const Ll : TExtendedPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall;
-    function LonLatRect2RelativeRect(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
+    function LonLat2PixelPos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2PixelPosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2TilePos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2TilePosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
+    function LonLatRect2RelativeRect(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
 
-    function Relative2Pixel(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function Relative2Tile(const XY : TExtendedPoint; Azoom : byte) : TPoint; virtual; stdcall;
-    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; virtual; stdcall;
-    function RelativeRect2LonLatRect(const XY : TExtendedRect): TExtendedRect; virtual; stdcall;
-    function RelativeRect2TileRect(const XY : TExtendedRect; Azoom : byte) : TRect; virtual; stdcall;
-    function RelativeRect2PixelRect(const XY : TExtendedRect; Azoom : byte) : TRect; virtual; stdcall;
+    function Relative2Pixel(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2Tile(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2LonLat(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
+    function RelativeRect2LonLatRect(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
+    function RelativeRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
+    function RelativeRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
 
-    function Pos2OtherMap(XY : TPoint; Azoom : byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
+    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
