@@ -14,6 +14,23 @@ type
   protected
     function GetValidLonLatRect: TExtendedRect; virtual;
 
+    procedure CheckZoom(var AZoom: Byte); virtual;
+    procedure CheckTilePos(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckTilePosStrict(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckTileRect(var XY: TRect; var Azoom: byte); virtual;
+
+    procedure CheckPixelPos(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckPixelPosStrict(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckPixelRect(var XY: TRect; var Azoom: byte); virtual;
+
+    procedure CheckRelativePos(var XY: TExtendedPoint); virtual;
+    procedure CheckRelativeRect(var XY: TExtendedRect); virtual;
+
+    procedure CheckLonLatPos(var XY: TExtendedPoint); virtual;
+    procedure CheckLonLatRect(var XY: TExtendedRect); virtual;
+
+
+
     function Pos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function LonLat2PosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
     function LonLat2MetrInternal(const Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
@@ -36,6 +53,13 @@ type
     function PixelRect2TileRectInternal(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
+    function Relative2PixelInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2TileInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function RelativeRect2LonLatRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
+    function RelativeRect2TileRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
+    function RelativeRect2PixelRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
+
 
     function LonLat2PixelPosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
     function LonLat2PixelPosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
@@ -43,52 +67,45 @@ type
     function LonLat2TilePosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
     function LonLatRect2RelativeRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
-
-    function Relative2PixelInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function Relative2TileInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
-    function RelativeRect2LonLatRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
-    function RelativeRect2TileRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
-    function RelativeRect2PixelRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
   public
     constructor Create;
 
-    function Pos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function LonLat2Pos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
-    function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall;
+    function Pos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2Pos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2Metr(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
 
     function TilesAtZoom(AZoom: byte): Longint; virtual; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; virtual; stdcall;
 
 
-    function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function TilePos2PixelRect(const XY: TPoint; Azoom: byte): TRect; virtual; stdcall;
-    function TilePos2LonLatRect(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
-    function TilePos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
-    function TilePos2Relative(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function TilePos2RelativeRect(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
+    function TilePos2PixelPos(const AXY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function TilePos2PixelRect(const AXY: TPoint; Azoom: byte): TRect; virtual; stdcall;
+    function TilePos2LonLatRect(const AXY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
+    function TilePos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function TilePos2Relative(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function TilePos2RelativeRect(const AXY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall;
+    function TileRect2PixelRect(const AXY: TRect; AZoom: byte): TRect; virtual; stdcall;
 
-    function PixelPos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function PixelPos2TilePos(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function PixelPos2Relative(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
-    function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+    function PixelPos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function PixelPos2TilePos(const AXY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function PixelPos2Relative(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function PixelRect2TileRect(const AXY: TRect; AZoom: byte): TRect; virtual; stdcall;
+    function PixelRect2RelativeRect(const AXY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
 
-    function LonLat2PixelPos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
-    function LonLat2PixelPosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function LonLat2TilePos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
-    function LonLat2TilePosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
-    function LonLatRect2RelativeRect(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
+    function LonLat2PixelPos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2PixelPosf(const AXY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2TilePos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function LonLat2TilePosf(const AXY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+    function LonLat2Relative(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
+    function LonLatRect2RelativeRect(const AXY: TExtendedRect): TExtendedRect; virtual; stdcall;
 
-    function Relative2Pixel(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function Relative2Tile(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function Relative2LonLat(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
-    function RelativeRect2LonLatRect(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
-    function RelativeRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
-    function RelativeRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
+    function Relative2Pixel(const AXY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2Tile(const AXY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+    function Relative2LonLat(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
+    function RelativeRect2LonLatRect(const AXY: TExtendedRect): TExtendedRect; virtual; stdcall;
+    function RelativeRect2TileRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
+    function RelativeRect2PixelRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
 
     function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
@@ -102,6 +119,7 @@ const
 implementation
 
 uses
+  SysUtils,
   Math;
 
 { TCoordConverterAbstract }
@@ -158,6 +176,123 @@ begin
     Result := AOtherMapCoordConv.LonLat2Pos(Pos2LonLatInternal(XY, Azoom), Azoom);
   end;
 end;
+
+
+//------------------------------------------------------------------------------
+procedure TCoordConverterAbstract.CheckZoom(var AZoom: Byte);
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckTilePos(var XY: TPoint; var Azoom: byte);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  if XY.X < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.X := 0;
+  end else begin
+    if XY.X > VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.X := VTilesAtZoom;
+    end;
+  end;
+  //TODO: Добавить остальные проверки
+
+end;
+procedure TCoordConverterAbstract.CheckTileRect(var XY: TRect; var Azoom: byte);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  if XY.Left < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.Left := 0;
+  end else begin
+    if XY.Left >= VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
+      XY.Left := VTilesAtZoom - 1;
+    end;
+  end;
+  //TODO: Добавить остальные проверки
+end;
+procedure TCoordConverterAbstract.CheckTilePosStrict(var XY: TPoint; var Azoom: byte);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  if XY.X < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.X := 0;
+  end else begin
+    if XY.X >= VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.X := VTilesAtZoom - 1;
+    end;
+  end;
+  //TODO: Добавить остальные проверки
+end;
+
+procedure TCoordConverterAbstract.CheckPixelPos(var XY: TPoint; var Azoom: byte);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+end;
+procedure TCoordConverterAbstract.CheckPixelRect(var XY: TRect; var Azoom: byte);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+end;
+procedure TCoordConverterAbstract.CheckPixelPosStrict(var XY: TPoint; var Azoom: byte);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+end;
+
+procedure TCoordConverterAbstract.CheckRelativePos(var XY: TExtendedPoint);
+begin
+end;
+procedure TCoordConverterAbstract.CheckRelativeRect(var XY: TExtendedRect);
+begin
+end;
+
+procedure TCoordConverterAbstract.CheckLonLatPos(var XY: TExtendedPoint);
+begin
+end;
+procedure TCoordConverterAbstract.CheckLonLatRect(var XY: TExtendedRect);
+begin
+end;
+
 
 //------------------------------------------------------------------------------
 function TCoordConverterAbstract.TilePos2PixelRectInternal(const XY: TPoint;
@@ -404,176 +539,344 @@ end;
 
 
 //------------------------------------------------------------------------------
-function TCoordConverterAbstract.TilePos2PixelRect(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2PixelRect(const AXY: TPoint;
   Azoom: byte): TRect;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := TilePos2PixelRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePosStrict(VXY, VZoom);
+  Result := TilePos2PixelRectInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.TilePos2LonLatRect(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2LonLatRect(const AXY: TPoint;
   Azoom: byte): TExtendedRect;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := TilePos2LonLatRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePosStrict(VXY, VZoom);
+  Result := TilePos2LonLatRectInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.PixelsAtZoom(AZoom: byte): Longint;
+var
+  VZoom: Byte;
 begin
-  Result := PixelsAtZoomInternal(Azoom);
+  VZoom := AZoom;
+  CheckZoom(VZoom);
+  Result := PixelsAtZoomInternal(Vzoom);
 end;
 
 function TCoordConverterAbstract.TilesAtZoom(AZoom: byte): Longint;
+var
+  VZoom: Byte;
 begin
-  Result := TilesAtZoomInternal(Azoom);
+  VZoom := AZoom;
+  CheckZoom(VZoom);
+  Result := TilesAtZoomInternal(Vzoom);
 end;
 
-function TCoordConverterAbstract.PixelPos2Relative(const XY: TPoint;
+function TCoordConverterAbstract.PixelPos2Relative(const AXY: TPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := PixelPos2RelativeInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelPos(VXY, VZoom);
+  Result := PixelPos2RelativeInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.Relative2LonLat(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const AXY: TExtendedPoint): TExtendedPoint;
+var
+  VXY: TExtendedPoint;
 begin
-  Result := Relative2LonLatInternal(XY);
+  VXY := AXY;
+  CheckRelativePos(VXY);
+  Result := Relative2LonLatInternal(VXY);
 end;
 
-function TCoordConverterAbstract.Relative2Pixel(const XY: TExtendedPoint;
+function TCoordConverterAbstract.Relative2Pixel(const AXY: TExtendedPoint;
   Azoom: byte): TPoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := Relative2PixelInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckRelativePos(VXY);
+  CheckZoom(VZoom);
+  Result := Relative2PixelInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLat2Metr(
-  const Ll: TExtendedPoint): TExtendedPoint;
+  const AXY: TExtendedPoint): TExtendedPoint;
+var
+  VXY: TExtendedPoint;
 begin
-  Result := LonLat2MetrInternal(LL);
+  VXY := AXY;
+  CheckLonLatPos(VXY);
+  Result := LonLat2MetrInternal(VXY);
 end;
 
-function TCoordConverterAbstract.LonLat2PixelPos(const Ll: TExtendedPoint;
+function TCoordConverterAbstract.LonLat2PixelPos(const AXY: TExtendedPoint;
   Azoom: byte): Tpoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := LonLat2PixelPosInternal(LL, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckLonLatPos(VXY);
+  Result := LonLat2PixelPosInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.LonLat2PixelPosf(const Ll: TExtendedPoint;
+function TCoordConverterAbstract.LonLat2PixelPosf(const AXY: TExtendedPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := LonLat2PixelPosfInternal(LL, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckLonLatPos(VXY);
+  CheckZoom(VZoom);
+  Result := LonLat2PixelPosfInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.PixelPos2LonLat(const XY: TPoint;
+function TCoordConverterAbstract.PixelPos2LonLat(const AXY: TPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := PixelPos2LonLatInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelPos(VXY, VZoom);
+  Result := PixelPos2LonLatInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.TilePos2LonLat(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2LonLat(const AXY: TPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := TilePos2LonLatInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePos(VXY, VZoom);
+  Result := TilePos2LonLatInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.TilePos2Relative(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2Relative(const AXY: TPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := TilePos2RelativeInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePos(VXY, VZoom);
+  Result := TilePos2RelativeInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.TilePos2RelativeRect(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2RelativeRect(const AXY: TPoint;
   Azoom: byte): TExtendedRect;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := TilePos2RelativeRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePosStrict(VXY, VZoom);
+  Result := TilePos2RelativeRectInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLatRect2RelativeRect(
-  const XY: TExtendedRect): TExtendedRect;
+  const AXY: TExtendedRect): TExtendedRect;
+var
+  VXY: TExtendedRect;
 begin
-  Result := LonLatRect2RelativeRectInternal(XY);
+  VXY := AXY;
+  CheckLonLatRect(VXY);
+  Result := LonLatRect2RelativeRectInternal(VXY);
 end;
 
-function TCoordConverterAbstract.Relative2Tile(const XY: TExtendedPoint;
+function TCoordConverterAbstract.Relative2Tile(const AXY: TExtendedPoint;
   Azoom: byte): TPoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := Relative2TileInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckRelativePos(VXY);
+  CheckZoom(VZoom);
+  Result := Relative2TileInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.RelativeRect2LonLatRect(
-  const XY: TExtendedRect): TExtendedRect;
+  const AXY: TExtendedRect): TExtendedRect;
+var
+  VXY: TExtendedRect;
 begin
-  Result := RelativeRect2LonLatRectInternal(XY);
+  VXY := AXY;
+  CheckRelativeRect(VXY);
+  Result := RelativeRect2LonLatRectInternal(VXY);
 end;
 
-function TCoordConverterAbstract.RelativeRect2PixelRect(const XY: TExtendedRect;
+function TCoordConverterAbstract.RelativeRect2PixelRect(const AXY: TExtendedRect;
   Azoom: byte): TRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
 begin
-  Result := RelativeRect2PixelRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckRelativeRect(VXY);
+  CheckZoom(VZoom);
+  Result := RelativeRect2PixelRectInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.RelativeRect2TileRect(const XY: TExtendedRect;
+function TCoordConverterAbstract.RelativeRect2TileRect(const AXY: TExtendedRect;
   Azoom: byte): TRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
 begin
-  Result := RelativeRect2TileRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckRelativeRect(VXY);
+  CheckZoom(VZoom);
+  Result := RelativeRect2TileRectInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.PixelPos2TilePos(const XY: TPoint;
+function TCoordConverterAbstract.PixelPos2TilePos(const AXY: TPoint;
   Azoom: byte): TPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := PixelPos2TilePosInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelPos(VXY, VZoom);
+  Result := PixelPos2TilePosInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.PixelRect2TileRect(const XY: TRect;
+function TCoordConverterAbstract.PixelRect2TileRect(const AXY: TRect;
   AZoom: byte): TRect;
+var
+  VXY: TRect;
+  VZoom: Byte;
 begin
-  Result := PixelRect2TileRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelRect(VXY, VZoom);
+  Result := PixelRect2TileRectInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.TileRect2PixelRect(const XY: TRect;
+function TCoordConverterAbstract.TileRect2PixelRect(const AXY: TRect;
   AZoom: byte): TRect;
+var
+  VXY: TRect;
+  VZoom: Byte;
 begin
-  Result := TileRect2PixelRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTileRect(VXY, VZoom);
+  Result := TileRect2PixelRectInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.PixelRect2RelativeRect(const XY: TRect;
+function TCoordConverterAbstract.PixelRect2RelativeRect(const AXY: TRect;
   AZoom: byte): TExtendedRect;
+var
+  VXY: TRect;
+  VZoom: Byte;
 begin
-  Result := PixelRect2RelativeRectInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelRect(VXY, VZoom);
+  Result := PixelRect2RelativeRectInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.TilePos2PixelPos(const XY: TPoint;
+function TCoordConverterAbstract.TilePos2PixelPos(const AXY: TPoint;
   Azoom: byte): TPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := TilePos2PixelPosInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePos(VXY, VZoom);
+  Result := TilePos2PixelPosInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.LonLat2TilePos(const Ll: TExtendedPoint;
+function TCoordConverterAbstract.LonLat2TilePos(const AXY: TExtendedPoint;
   Azoom: byte): Tpoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := LonLat2TilePosInternal(LL, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckLonLatPos(VXY);
+  CheckZoom(VZoom);
+  Result := LonLat2TilePosInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.LonLat2TilePosf(const Ll: TExtendedPoint;
+function TCoordConverterAbstract.LonLat2TilePosf(const AXY: TExtendedPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := LonLat2TilePosfInternal(LL, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckLonLatPos(VXY);
+  CheckZoom(VZoom);
+  Result := LonLat2TilePosfInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.LonLat2Pos(const Ll: TExtendedPoint;
+function TCoordConverterAbstract.LonLat2Pos(const AXY: TExtendedPoint;
   Azoom: byte): Tpoint;
+var
+  VXY: TExtendedPoint;
+  VZoom: Byte;
 begin
-  Result := LonLat2PosInternal(LL, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckLonLatPos(VXY);
+  CheckZoom(VZoom);
+  Result := LonLat2PosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLat2Relative(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const AXY: TExtendedPoint): TExtendedPoint;
+var
+  VXY: TExtendedPoint;
 begin
-  Result := LonLat2RelativeInternal(XY);
+  VXY := AXY;
+  CheckLonLatPos(VXY);
+  Result := LonLat2RelativeInternal(VXY);
 end;
 
-function TCoordConverterAbstract.Pos2LonLat(const XY: TPoint;
+function TCoordConverterAbstract.Pos2LonLat(const AXY: TPoint;
   Azoom: byte): TExtendedPoint;
+var
+  VXY: TPoint;
+  VZoom: Byte;
 begin
-  Result := Pos2LonLatInternal(XY, Azoom);
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelPos(VXY, VZoom);
+  Result := Pos2LonLatInternal(VXY, Vzoom);
 end;
 
 end.
