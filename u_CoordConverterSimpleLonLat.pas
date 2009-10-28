@@ -11,12 +11,12 @@ type
   TCoordConverterSimpleLonLat = class(TCoordConverterAbstract)
   protected
     FRadiusa : Extended;
+	  function LonLat2MetrInternal(const ALl : TExtendedPoint) : TExtendedPoint; override;
+    function LonLat2RelativeInternal(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
+    function Relative2LonLatInternal(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   public
     constructor Create(Aradiusa: Extended);
-	  function LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   end;
 
 implementation
@@ -28,10 +28,11 @@ uses
 
 constructor TCoordConverterSimpleLonLat.Create(Aradiusa: Extended);
 begin
+  inherited Create;
   FRadiusa := Aradiusa;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl : TExtendedPoint) : TExtendedPoint;
 begin
   result.x:=0;
   result.y:=0;
@@ -61,14 +62,14 @@ begin
   result := (fz * a);
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2Relative(
+function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
   Result.x := (0.5 + XY.x / 360);
   Result.y := (0.5 - XY.y / 360);
 end;
 
-function TCoordConverterSimpleLonLat.Relative2LonLat(
+function TCoordConverterSimpleLonLat.Relative2LonLatInternal(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
   Result.X := (XY.x - 0.5) * 360;
