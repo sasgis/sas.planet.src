@@ -345,20 +345,133 @@ begin
     AZoom := 23;
   end;
   VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+  if XY.X < 0 then begin
+    Assert(False, ' оордината X пиксела не может быть меньше нул€');
+    XY.X := 0;
+  end else begin
+    if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+      Assert(False, ' оордината X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
+      XY.X := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Assert(False, ' оордината Y пиксела не может быть меньше нул€');
+    XY.Y := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      Assert(False, ' оордината Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
+      XY.Y := VPixelsAtZoom - 1;
+    end;
+  end;
 end;
 
 procedure TCoordConverterAbstract.CheckRelativePos(var XY: TExtendedPoint);
 begin
+  if XY.X < 0 then begin
+    Assert(False, 'ќтносительна€ координата X не может быть меньше нул€');
+    XY.X := 0;
+  end else begin
+    if XY.X > 1 then begin
+      Assert(False, 'ќтносительна€ координата X не может быть больше единицы');
+      XY.X := 1;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Assert(False, 'ќтносительна€ координата Y не может быть меньше нул€');
+    XY.Y := 0;
+  end else begin
+    if XY.Y > 1 then begin
+      Assert(False, 'ќтносительна€ координата Y не может быть больше единицы');
+      XY.Y := 1;
+    end;
+  end;
 end;
 procedure TCoordConverterAbstract.CheckRelativeRect(var XY: TExtendedRect);
 begin
+  if XY.Left < 0 then begin
+    Assert(False, 'ќтносительна€ координата X не может быть меньше нул€');
+    XY.Left := 0;
+  end else begin
+    if XY.Left > 1 then begin
+      Assert(False, 'ќтносительна€ координата X не может быть больше единицы');
+      XY.Left := 1;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Assert(False, 'ќтносительна€ координата Y не может быть меньше нул€');
+    XY.Top := 0;
+  end else begin
+    if XY.Top > 1 then begin
+      Assert(False, 'ќтносительна€ координата Y не может быть больше единицы');
+      XY.Top := 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Assert(False, 'ќтносительна€ координата X не может быть меньше нул€');
+    XY.Right := 0;
+  end else begin
+    if XY.Right > 1 then begin
+      Assert(False, 'ќтносительна€ координата X не может быть больше единицы');
+      XY.Right := 1;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Assert(False, 'ќтносительна€ координата Y не может быть меньше нул€');
+    XY.Bottom := 0;
+  end else begin
+    if XY.Bottom > 1 then begin
+      Assert(False, 'ќтносительна€ координата Y не может быть больше единицы');
+      XY.Bottom := 1;
+    end;
+  end;
 end;
 
 procedure TCoordConverterAbstract.CheckLonLatPos(var XY: TExtendedPoint);
 begin
+  if XY.X < FValidLonLatRect.Left then begin
+    Assert(False, 'ƒолгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
+    XY.X := FValidLonLatRect.Left;
+  end else begin
+    if XY.X > FValidLonLatRect.Right then begin
+      Assert(False, 'ƒолгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
+      XY.X := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Y < FValidLonLatRect.Bottom then begin
+    Assert(False, 'Ўирота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
+    XY.Y := FValidLonLatRect.Bottom;
+  end else begin
+    if XY.Y > FValidLonLatRect.Top then begin
+      Assert(False, 'Ўирота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
+      XY.Y := FValidLonLatRect.Top;
+    end;
+  end;
 end;
 procedure TCoordConverterAbstract.CheckLonLatRect(var XY: TExtendedRect);
 begin
+  if XY.X < FValidLonLatRect.Left then begin
+    Assert(False, 'ƒолгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
+    XY.X := FValidLonLatRect.Left;
+  end else begin
+    if XY.X > FValidLonLatRect.Right then begin
+      Assert(False, 'ƒолгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
+      XY.X := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Y < FValidLonLatRect.Bottom then begin
+    Assert(False, 'Ўирота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
+    XY.Y := FValidLonLatRect.Bottom;
+  end else begin
+    if XY.Y > FValidLonLatRect.Top then begin
+      Assert(False, 'Ўирота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
+      XY.Y := FValidLonLatRect.Top;
+    end;
+  end;
 end;
 
 
