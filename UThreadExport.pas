@@ -60,8 +60,7 @@ uses
   usaveas,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
-  u_CoordConverterSimpleLonLat,
-  u_CoordConverterAbstract;
+  u_CoordConverterSimpleLonLat;
 
 procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin

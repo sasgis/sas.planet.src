@@ -612,7 +612,7 @@ uses
   UImport,
   UAddCategory,
   u_TileDownloaderUIOneTile,
-  u_CoordConverterAbstract;
+  i_ICoordConverter;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
