@@ -20,7 +20,8 @@ uses
   bmpUtil,
   t_GeoTypes,
   UResStrings,
-  unit4;
+  unit4,
+  uozi;
 
 type
   PRow = ^TRow;
@@ -45,6 +46,7 @@ type
     PolyMin:TPoint;
     PolyMax:TPoint;
     Fprogress: TFprogress2;
+    PrTypes:array of TPrType;
   private
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
@@ -81,7 +83,7 @@ type
     procedure Execute; override;
     procedure saveRECT;
   public
-    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
   end;
 
 implementation
@@ -90,8 +92,7 @@ uses
   ECWWriter,
   ECWReader,
   unit1,
-  usaveas,
-  uozi;
+  usaveas;
 
 procedure ThreadScleit.SynShowMessage;
 begin
@@ -157,18 +158,18 @@ begin
      VThread.btmm.Clear(clSilver);
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom)) then begin
                                  if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
-                                  then loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+                                  then VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
                                 end
-                           else loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+                           else VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
        VThread.btmh.Clear($FF000000);
        if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
         if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
-         then loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end else begin
-         loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end;
        VThread.btmh.DrawMode:=dmBlend;
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
@@ -177,9 +178,9 @@ begin
          VThread.btmh.Clear($FF000000);
          if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
           if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
-           then loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+           then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end else begin
-          loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+          VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end;
          VThread.btmh.DrawMode:=dmBlend;
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
@@ -242,18 +243,18 @@ begin
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom))
       then begin
             if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
-             then loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+             then VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
            end
-      else loadpre(VThread.btmm,p_x,p_y,VThread.zoom,VThread.typemap);
+      else VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
      if VThread.usedReColor then Gamma(VThread.btmm);
      if VThread.Htypemap<>nil then
       begin
        VThread.btmh.Clear($FF000000);
        if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
         if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
-         then loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end else begin
-         loadpre(VThread.btmh,p_h.x,p_h.y,VThread.zoom,VThread.Htypemap);
+         VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
        end;
        VThread.btmh.DrawMode:=dmBlend;
        VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
@@ -262,9 +263,9 @@ begin
          VThread.btmh.Clear($FF000000);
          if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
           if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
-           then loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+           then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end else begin
-          loadpre(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,VThread.Htypemap);
+          VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
          end;
          VThread.btmh.DrawMode:=dmBlend;
          VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
@@ -300,7 +301,7 @@ begin
 end;
 
 procedure ThreadScleit.saveRECT;
-var p_x,p_y,i,j,k,errecw:integer;
+var p_x,p_y,i,j,k,errecw,pti:integer;
     p_h:TPoint;
     scachano:integer;
     btm:TBitmap32;
@@ -349,13 +350,18 @@ begin
    fname:=Fnamebuf;
    if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
 
-   if toOzi then toOziMap(fname,poly0,poly1,zoom,typemap);
-   if toTab then toTabMap(fname,poly0,poly1,zoom,typemap);
-   if toWorld then begin
-                    toWorldFiles(fname,poly0,poly1,zoom,typemap);
-                    toPrj(fname,typemap);
-                    toAuxXml(fname,typemap);
-                   end;
+   for pti:=0 to length(PrTypes) do
+    case TPrType(pti) of
+     ptMap: toOziMap(fname,poly0,poly1,zoom,typemap);
+     ptTab: toTabMap(fname,poly0,poly1,zoom,typemap);
+     ptW:   begin
+              toWorldFiles(fname,poly0,poly1,zoom,typemap);
+              toPrj(fname,typemap);
+              toAuxXml(fname,typemap);
+            end;
+     ptKml: toKml(fname,poly0,poly1,zoom,typemap);
+     ptDat: toDat(fname,poly0,poly1,zoom,typemap);
+    end;
 
    if (UpperCase(ExtractFileExt(fname))='.ECW')or(UpperCase(ExtractFileExt(fname))='.JP2') then
    begin
@@ -532,7 +538,7 @@ begin
   end;
 end;
 
-constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AToOzi,AToTab,AToWorld,AusedReColor:boolean);
+constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -541,9 +547,6 @@ begin
   FName:=AFName;
   numTlg:=numTilesG;
   numTlv:=numTilesV;
-  ToWorld:=AToWorld;
-  ToOzi:=AToOzi;
-  ToTab:=AToTab;
   usedReColor:=AusedReColor;
   for i:=1 to length(APolygon_) do
    begin

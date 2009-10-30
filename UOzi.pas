@@ -12,18 +12,23 @@ uses
   Ugeofun,
   UMapType;
 
+type
+  TPrType = (ptMap,ptTab,ptW,ptKml,ptDat);
+
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 procedure toWorldFiles(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 procedure toPrj(fname:string;Atype:TMapType);
 procedure toAuxXml(fname:string;Atype:TMapType);
+procedure toDat(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
+procedure toKml(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 
 implementation
 
 uses
   unit1,
   u_GeoToStr,
-  t_GeoTypes;
+  t_GeoTypes, u_CoordConverterAbstract;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 var f:TextFile;
@@ -128,7 +133,7 @@ end;
 procedure toPrj(fname:string;Atype:TMapType);
 var f:TextFile;
 begin
- assignfile(f,copy(fname,1,length(fname)-4)+'.prj');
+ assignfile(f,ChangeFileExt(fname,'.prj'));
  rewrite(f);
  case Atype.projection of
   1: writeln(f,'PROJCS["Mercator_1SP",GEOGCS["Geographic Coordinate System",DATUM["GOOGLE",SPHEROID["Sphere Radius 6378137 m",6378137,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER'+'["scale_factor",1],PARAMETER["central_meridian",0],PARAMETER["latitude_of_origin",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]');
@@ -138,12 +143,51 @@ begin
  closefile(f);
 end;
 
+procedure toDat(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
+var f:TextFile;
+    LL1,LL2:TExtendedPoint;
+begin
+ assignfile(f,ChangeFileExt(fname,'.dat'));
+ rewrite(f);
+ writeln(f,'2');
+ LL1:=Atype.GeoConvert.PixelPos2LonLat(xy1,Azoom-1);
+ LL2:=Atype.GeoConvert.PixelPos2LonLat(xy2,Azoom-1);
+ writeln(f,R2StrPoint(LL1.x)+','+R2StrPoint(LL1.y));
+ writeln(f,R2StrPoint(LL2.x)+','+R2StrPoint(LL1.y));
+ writeln(f,R2StrPoint(LL2.x)+','+R2StrPoint(LL2.y));
+ writeln(f,R2StrPoint(LL1.x)+','+R2StrPoint(LL2.y));
+ writeln(f,Atype.name+' (SASPlanet)');
+ closefile(f);
+end;
+
+procedure toKml(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
+var f:TextFile;
+    LL1,LL2:TExtendedPoint;
+    str:UTF8String;
+begin
+ assignfile(f,ChangeFileExt(fname,'.kml'));
+ rewrite(f);
+ str:=ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>'+#13#10);
+ str:=str+ansiToUTF8('<kml><GroundOverlay><name>'+ExtractFileName(fname)+'</name><color>88ffffff</color><Icon>'+#13#10);
+ str:=str+ansiToUTF8('<href>'+ExtractFileName(fname)+'</href>'+#13#10);
+ str:=str+ansiToUTF8('<viewBoundScale>0.75</viewBoundScale></Icon><LatLonBox>'+#13#10);
+ LL1:=Atype.GeoConvert.PixelPos2LonLat(xy1,Azoom-1);
+ LL2:=Atype.GeoConvert.PixelPos2LonLat(xy2,Azoom-1);
+ str:=str+ansiToUTF8('<north>'+R2StrPoint(LL1.y)+'</north>'+#13#10);
+ str:=str+ansiToUTF8('<south>'+R2StrPoint(LL2.y)+'</south>'+#13#10);
+ str:=str+ansiToUTF8('<east>'+R2StrPoint(LL2.x)+'</east>'+#13#10);
+ str:=str+ansiToUTF8('<west>'+R2StrPoint(LL1.x)+'</west>'+#13#10);
+ str:=str+ansiToUTF8('</LatLonBox></GroundOverlay></kml>');
+ writeln(f,str);
+ closefile(f);
+end;
+
 procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 var f:TextFile;
     xy:TPoint;
     lat,lon:array[1..3] of real;
 begin
- assignfile(f,copy(fname,1,length(fname)-4)+'.tab');
+ assignfile(f,ChangeFileExt(fname,'.tab'));
  rewrite(f);
  writeln(f,'!table');
  writeln(f,'!version 300');

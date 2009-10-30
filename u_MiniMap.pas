@@ -232,7 +232,7 @@ begin
                 bm.Clear(Color32(clSilver) xor $00000000);
               end;
             end else begin
-              loadpre(bm,pos_sm.x+x128,pos_sm.y+y128,zoom,m_t);
+              m_t.LoadTileFromPreZ(bm,pos_sm.x+x128,pos_sm.y+y128,zoom,true);
             end;
             SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);
           end;

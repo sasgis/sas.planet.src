@@ -85,6 +85,7 @@ type
     function TileExists(x,y:longint;Azoom:byte): Boolean;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
+    function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
     function DeleteTile(x,y:longint;Azoom:byte): Boolean;
     procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
     procedure SaveTileNotExists(x,y:longint;Azoom:byte);
@@ -406,9 +407,11 @@ var
   iniparams: TMeminifile;
   GUID:TGUID;
   guidstr : string;
+  bfloat:string;
   bb:array [1..2048] of char;
   NumRead : integer;
   UnZip:TVCLZip;
+  b:double;
 begin
   if AZipFileName = '' then begin
     raise Exception.Create('Пустое имя файла с настройками карты');
@@ -512,8 +515,10 @@ begin
       NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
       DefNameInCache:=NameInCache;
       projection:=iniparams.ReadInteger('PARAMS','projection',1);
-      radiusa:=iniparams.ReadFloat('PARAMS','sradiusa',1);
-      radiusb:=iniparams.ReadFloat('PARAMS','sradiusb',radiusa);
+      bfloat:=iniparams.ReadString('PARAMS','sradiusa','6378137');
+      radiusa:=str2r(bfloat);
+      bfloat:=iniparams.ReadString('PARAMS','sradiusb',FloatToStr(radiusa));
+      radiusb:=str2r(bfloat);
       HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
       DefHotKey:=HotKey;
       ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
@@ -787,6 +792,7 @@ begin
       result:=false;
       exit;
      end;
+
     jcprops.JPGFile := PChar(FileName);
     iStatus := ijlRead(@jcprops,IJL_JFILE_READPARAMS);
     if iStatus < 0 then
@@ -833,6 +839,54 @@ begin
   end;
 end;
 
+function TMapType.LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
+var i,c_x,c_y,dZ:integer;
+    bmp:TBitmap32;
+    VTileExists: Boolean;
+    key:string;
+begin
+ result:=false;
+ if (not(GState.UsePrevZoom) and (asLayer=false)) or
+    (not(GState.UsePrevZoomLayer) and (asLayer=true)) then begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+ end;
+ VTileExists := false;
+ for i:=(Azoom-1) downto 1 do
+  begin
+   dZ:=(Azoom-i);
+   if TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileExists := true;
+    break;
+   end;
+  end;
+ if not(VTileExists)or(dZ>8) then
+  begin
+   spr.Clear(SetAlpha(Color32(clSilver),0));
+   exit;
+  end;
+ key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+ if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
+   bmp:=TBitmap32.Create;
+   if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
+    begin
+     spr.Clear(SetAlpha(Color32(clSilver),0));
+     bmp.Free;
+     exit;
+    end;
+   bmp.Resampler := CreateResampler(GState.Resampling);
+   c_x:=((x-(x mod 256))shr dZ)mod 256;
+   c_y:=((y-(y mod 256))shr dZ)mod 256;
+   try
+    spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
+    GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
+   except
+   end;
+   bmp.Free;
+ end;
+ result:=true;
+end;
+
 function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 var path: string;
@@ -841,7 +895,7 @@ begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
       result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
-      if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
     end else begin
       result:=true;
     end;

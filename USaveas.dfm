@@ -231,8 +231,8 @@ object Fsaveas: TFsaveas
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
       end
       object Label26: TLabel
-        Left = 5
-        Top = 115
+        Left = 8
+        Top = 99
         Width = 144
         Height = 13
         Caption = #1050#1072#1095#1077#1089#1090#1074#1086' ('#1076#1083#1103' JPEG '#1080' ECW):'
@@ -254,10 +254,10 @@ object Fsaveas: TFsaveas
       end
       object Label27: TLabel
         Left = 8
-        Top = 145
-        Width = 134
+        Top = 121
+        Width = 137
         Height = 13
-        Caption = #1057#1086#1079#1076#1072#1074#1072#1090#1100' '#1092#1072#1081#1083' '#1087#1088#1080#1074#1103#1079#1082#1080
+        Caption = #1057#1086#1079#1076#1072#1074#1072#1090#1100' '#1092#1072#1081#1083' '#1087#1088#1080#1074#1103#1079#1082#1080':'
       end
       object Label28: TLabel
         Left = 198
@@ -278,9 +278,9 @@ object Fsaveas: TFsaveas
         TabOrder = 0
       end
       object QualitiEdit: TSpinEdit
-        Left = 152
-        Top = 111
-        Width = 57
+        Left = 160
+        Top = 95
+        Width = 73
         Height = 22
         MaxValue = 100
         MinValue = 1
@@ -289,7 +289,7 @@ object Fsaveas: TFsaveas
       end
       object GroupBox1: TGroupBox
         Left = 304
-        Top = 88
+        Top = 96
         Width = 161
         Height = 73
         Caption = ' '#1056#1072#1079#1073#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077' '
@@ -329,22 +329,6 @@ object Fsaveas: TFsaveas
           Value = 1
         end
       end
-      object CB2Ozi: TCheckBox
-        Left = 152
-        Top = 144
-        Width = 49
-        Height = 17
-        Caption = '.map'
-        TabOrder = 3
-      end
-      object CB2Tab: TCheckBox
-        Left = 200
-        Top = 144
-        Width = 41
-        Height = 17
-        Caption = '.tab'
-        TabOrder = 4
-      end
       object CBSclHib: TComboBox
         Left = 256
         Top = 24
@@ -353,26 +337,32 @@ object Fsaveas: TFsaveas
         Style = csDropDownList
         ItemHeight = 13
         ItemIndex = 0
-        TabOrder = 5
+        TabOrder = 3
         Text = #1053#1077#1090
         Items.Strings = (
           #1053#1077#1090)
       end
       object CBusedReColor: TCheckBox
         Left = 8
-        Top = 80
+        Top = 72
         Width = 169
         Height = 17
         Caption = #1055#1088#1080#1084#1077#1085#1103#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1094#1074#1077#1090#1072
-        TabOrder = 6
+        TabOrder = 4
       end
-      object CBtoWorld: TCheckBox
-        Left = 248
-        Top = 144
-        Width = 41
-        Height = 17
-        Caption = '.w'
-        TabOrder = 7
+      object PrTypesBox: TCheckListBox
+        Left = 160
+        Top = 120
+        Width = 73
+        Height = 49
+        ItemHeight = 13
+        Items.Strings = (
+          '.map'
+          '.tab'
+          '.w'
+          '.dat'
+          '.kml')
+        TabOrder = 5
       end
     end
     object TabSheet3: TTabSheet
