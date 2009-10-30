@@ -52,6 +52,7 @@ type
     function PixelPos2RelativeInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function PixelRect2TileRectInternal(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+    function PixelRect2LonLatRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
     function Relative2PixelInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
     function Relative2TileInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
@@ -89,6 +90,7 @@ type
     function PixelPos2Relative(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function PixelRect2TileRect(const AXY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRect(const AXY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+    function PixelRect2LonLatRect(const AXY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
 
     function LonLat2PixelPos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
@@ -738,6 +740,12 @@ begin
   Result.BottomRight := PixelPos2RelativeInternal(VBottomRight, AZoom);
 end;
 
+function TCoordConverterAbstract.PixelRect2LonLatRectInternal(
+  const XY: TRect; AZoom: byte): TExtendedRect;
+begin
+  Result := RelativeRect2LonLatRectInternal(PixelRect2RelativeRectInternal(XY, AZoom));
+end;
+
 function TCoordConverterAbstract.TilePos2PixelPosInternal(const XY: TPoint;
   Azoom: byte): TPoint;
 begin
@@ -1008,6 +1016,19 @@ begin
   CheckPixelPos(VXY, VZoom);
   Result := PixelPos2TilePosInternal(VXY, Vzoom);
 end;
+
+function TCoordConverterAbstract.PixelRect2LonLatRect(const AXY: TRect;
+  AZoom: byte): TExtendedRect;
+var
+  VXY: TRect;
+  VZoom: Byte;
+begin
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckPixelRect(VXY, VZoom);
+  Result := PixelRect2LonLatRectInternal(VXY, Vzoom);
+end;
+
 
 function TCoordConverterAbstract.PixelRect2TileRect(const AXY: TRect;
   AZoom: byte): TRect;

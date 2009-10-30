@@ -40,12 +40,14 @@ type
     function PixelPos2TilePos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
     // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
     function PixelPos2Relative(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;
+    // Преобразует координаты пиксела в географические координаты
+    function PixelPos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
     // вычисляет прямоугольник тайлов покрывающий прямоугольник пикселов
     function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; stdcall;
     // Преобразует координаты прямоугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
-    // Преобразует координаты пиксела в географические координаты
-    function PixelPos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    // Преобразует координаты прямоугольника пикселов в географические координаты на карте
+    function PixelRect2LonLatRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
 
     // Перобразует относительные координаты на карте в координаты пиксела
     function Relative2Pixel(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;
