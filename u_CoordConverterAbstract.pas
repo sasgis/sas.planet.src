@@ -68,8 +68,6 @@ type
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
     function LonLatRect2RelativeRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall;
   public
-    constructor Create;
-
     function Pos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function LonLat2Pos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
     function LonLat2Metr(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
@@ -111,6 +109,7 @@ type
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
+    procedure AfterConstruction; override;
   end;
 
 const
@@ -124,15 +123,15 @@ uses
 
 { TCoordConverterAbstract }
 
-
-constructor TCoordConverterAbstract.Create;
-begin
-  FValidLonLatRect := GetValidLonLatRect;
-end;
-
 function TCoordConverterAbstract.GetValidLonLatRect: TExtendedRect;
 begin
   Result := TilePos2LonLatRectInternal(Point(0, 0), 0);
+end;
+
+procedure TCoordConverterAbstract.AfterConstruction;
+begin
+  inherited;
+  FValidLonLatRect := GetValidLonLatRect;
 end;
 
 function TCoordConverterAbstract.CalcPoligonArea(
@@ -335,6 +334,46 @@ begin
     AZoom := 23;
   end;
   VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+
+  if XY.Left < 0 then begin
+    Assert(False, ' оордината X пиксела не может быть меньше нул€');
+    XY.Left := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Left >= VPixelsAtZoom) then begin
+      Assert(False, ' оордината X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
+      XY.Left := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Assert(False, ' оордината Y пиксела не может быть меньше нул€');
+    XY.Top := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+      Assert(False, ' оордината Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
+      XY.Top := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Assert(False, ' оордината X пиксела не может быть меньше нул€');
+    XY.Right := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Right >= VPixelsAtZoom) then begin
+      Assert(False, ' оордината X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
+      XY.Right := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Assert(False, ' оордината Y пиксела не может быть меньше нул€');
+    XY.Bottom := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+      Assert(False, ' оордината Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
+      XY.Bottom := VPixelsAtZoom - 1;
+    end;
+  end;
 end;
 procedure TCoordConverterAbstract.CheckPixelPosStrict(var XY: TPoint; var Azoom: byte);
 var
@@ -454,22 +493,41 @@ begin
 end;
 procedure TCoordConverterAbstract.CheckLonLatRect(var XY: TExtendedRect);
 begin
-  if XY.X < FValidLonLatRect.Left then begin
+  if XY.Left < FValidLonLatRect.Left then begin
     Assert(False, 'ƒолгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
-    XY.X := FValidLonLatRect.Left;
+    XY.Left := FValidLonLatRect.Left;
   end else begin
-    if XY.X > FValidLonLatRect.Right then begin
+    if XY.Left > FValidLonLatRect.Right then begin
       Assert(False, 'ƒолгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
-      XY.X := FValidLonLatRect.Right;
+      XY.Left := FValidLonLatRect.Right;
     end;
   end;
-  if XY.Y < FValidLonLatRect.Bottom then begin
+  if XY.Bottom < FValidLonLatRect.Bottom then begin
     Assert(False, 'Ўирота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
-    XY.Y := FValidLonLatRect.Bottom;
+    XY.Bottom := FValidLonLatRect.Bottom;
   end else begin
-    if XY.Y > FValidLonLatRect.Top then begin
+    if XY.Bottom > FValidLonLatRect.Top then begin
       Assert(False, 'Ўирота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
-      XY.Y := FValidLonLatRect.Top;
+      XY.Bottom := FValidLonLatRect.Top;
+    end;
+  end;
+
+  if XY.Right < FValidLonLatRect.Right then begin
+    Assert(False, 'ƒолгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Right));
+    XY.Right := FValidLonLatRect.Right;
+  end else begin
+    if XY.Right > FValidLonLatRect.Right then begin
+      Assert(False, 'ƒолгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
+      XY.Right := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Top < FValidLonLatRect.Top then begin
+    Assert(False, 'Ўирота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Top));
+    XY.Top := FValidLonLatRect.Top;
+  end else begin
+    if XY.Top > FValidLonLatRect.Top then begin
+      Assert(False, 'Ўирота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
+      XY.Top := FValidLonLatRect.Top;
     end;
   end;
 end;
