@@ -100,7 +100,7 @@ var BMP_Bufer: TBMPbuf;
 
 implementation
 uses unit1,
-     u_CoordConverterAbstract;
+     i_ICoordConverter;
 
 function GEXYZtoHexTileName(x,y:integer;z:byte):int64;
 var os,prer:TPoint;

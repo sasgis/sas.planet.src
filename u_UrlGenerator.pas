@@ -9,7 +9,7 @@ Uses
   uPSR_dll,
   uPSRuntime,
   uPSCompiler,
-  u_CoordConverterAbstract;
+  i_ICoordConverter;
 
 type
   EUrlGeneratorScriptCompileError = class(Exception);
