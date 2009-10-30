@@ -1543,16 +1543,17 @@ var LLRect:TExtendedRect;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
-begin                     
+    ScreenRect: TRect;
+begin
  if (GState.show_point = mshNone) then
   begin
    LayerMapMarks.Visible:=false;
    exit;
   end;
- LLRect.TopLeft:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x-mWd2,pos.Y-mHd2),GState.zoom_size-1);
- LLRect.BottomRight:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(Pos.x+mWd2,pos.Y+mHd2),GState.zoom_size-1);
- marksFilter:='';
- if GState.show_point = mshChecked then
+  ScreenRect := Rect(Pos.x-mWd2, pos.Y-mHd2, Pos.x+mWd2, pos.Y+mHd2);
+  LLRect := sat_map_both.FCoordConverter.PixelRect2LonLatRect(ScreenRect, GState.zoom_size - 1);
+  marksFilter:='';
+  if GState.show_point = mshChecked then
   begin
    CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(GState.zoom_size)+' and BeforeScale >= '+inttostr(GState.zoom_size)+' )';
    CDSKategory.Filtered:=true;
