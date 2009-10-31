@@ -10,13 +10,13 @@ uses
 type
   TCoordConverterMercatorOnEllipsoid = class(TCoordConverterAbstract)
   protected
-    FExct,FRadiusa,FRadiusb : Extended;
+    FExct,FRadiusa,FRadiusb: Extended;
+    function LonLat2MetrInternal(const ALL: TExtendedPoint): TExtendedPoint; override;
+    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
+    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
-    constructor Create(AExct,Aradiusa,Aradiusb : Extended);
-    function LonLat2Metr(const ALL : TExtendedPoint) : TExtendedPoint; override;
+    constructor Create(AExct,Aradiusa,Aradiusb: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   end;
 
 implementation
@@ -31,13 +31,13 @@ const
 
 constructor TCoordConverterMercatorOnEllipsoid.Create(AExct,Aradiusa,Aradiusb: Extended);
 begin
-  inherited Create();
+  inherited Create;
   FExct := AExct;
   Fradiusa:=Aradiusa;
   Fradiusb:=Aradiusb;
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;
+function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
 var
   VLL: TExtendedPoint;
   b,bs:extended;
@@ -84,10 +84,10 @@ begin
   result := (fz * fR);
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2Relative(
+function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(
   const XY: TExtendedPoint): TExtendedPoint;
 var
-  z, c : Extended;
+  z, c: Extended;
   VLL: TExtendedPoint;
 begin
   VLL := XY;
@@ -97,10 +97,10 @@ begin
   Result.y := (0.5 - c*(ArcTanh(z)-FExct*ArcTanh(FExct*z)));
 end;
 
-function TCoordConverterMercatorOnEllipsoid.Relative2LonLat(
+function TCoordConverterMercatorOnEllipsoid.Relative2LonLatInternal(
   const XY: TExtendedPoint): TExtendedPoint;
 var
-  zu, zum1, yy : extended;
+  zu, zum1, yy: extended;
   VXY: TExtendedPoint;
   VSin: Extended;
   e_y: Extended;

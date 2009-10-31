@@ -11,13 +11,13 @@ uses
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
   protected
-    FRadiusa : Extended;
+    FRadiusa: Extended;
+    function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
+    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
+    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
     constructor Create(Aradiusa: Extended);
-    function LonLat2Metr(const ALl: TExtendedPoint): TExtendedPoint; override;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function LonLat2Relative(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLat(const XY : TExtendedPoint): TExtendedPoint; override; stdcall;
   end;
 
 implementation
@@ -26,13 +26,13 @@ implementation
 
 constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Extended);
 begin
-  inherited Create();
+  inherited Create;
   Fradiusa:=Aradiusa;
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2Metr(const ALl : TExtendedPoint) : TExtendedPoint;
+function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
 var
-  VLl : TExtendedPoint;
+  VLl: TExtendedPoint;
 begin
   VLl := ALl;
   Vll.x:=Vll.x*(Pi/180);
@@ -65,9 +65,9 @@ begin
   result := (fz * a);
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint;
 var
-  z, c : Extended;
+  z, c: Extended;
 begin
   Result.x := 0.5 + XY.x  / 360;
   z := sin(XY.y * Pi / 180);
@@ -75,7 +75,7 @@ begin
   Result.y := 0.5 - 0.5 * ln((1 + z) / (1 - z)) * c;
 end;
 
-function TCoordConverterMercatorOnSphere.Relative2LonLat(
+function TCoordConverterMercatorOnSphere.Relative2LonLatInternal(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
   Result.X := (XY.x - 0.5) * 360;
