@@ -463,6 +463,12 @@ type
    procedure Set_lock_toolbars(const Value: boolean);
    procedure Set_TileSource(const Value:TTileSource);
    procedure Set_Pos(const Value:TPoint);
+    function GetLoadedPixelRect: TRect;
+    function GetVisiblePixelRect: TRect;
+    function GetLoadedSizeInPixel: TPoint;
+    function GetLoadedSizeInTile: TPoint;
+    function GetVisibleTopLeft: TPoint;
+    function GetVisibleSizeInPixel: TPoint;
   protected
    Flock_toolbars:boolean;
    notpaint: boolean;
@@ -516,6 +522,12 @@ class   procedure delfrompath(pos:integer);
    procedure SetStatusBarVisible();
    procedure SetLineScaleVisible(visible:boolean);
    procedure SetMiniMapVisible(visible:boolean);
+   property VisibleTopLeft: TPoint read GetVisibleTopLeft;
+   property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
+   property VisiblePixelRect: TRect read GetVisiblePixelRect;
+   property LoadedPixelRect: TRect read GetLoadedPixelRect;
+   property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
+   property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
   end;
 
   TGPSpar = record
@@ -4436,6 +4448,56 @@ begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
 
+function TFmain.GetVisiblePixelRect: TRect;
+begin
+  Result.Left := ScreenCenterPos.X - map.Width div 2;
+  Result.Top := ScreenCenterPos.Y - map.Height div 2;
+  Result.Right := ScreenCenterPos.X + map.Width div 2;
+  Result.Bottom := ScreenCenterPos.Y + map.Height div 2;
+end;
+
+function TFmain.GetVisibleSizeInPixel: TPoint;
+begin
+  Result.X := map.Width;
+  Result.Y := map.Height;
+end;
+
+function TFmain.GetVisibleTopLeft: TPoint;
+begin
+  Result.X := ScreenCenterPos.X - map.Width div 2;
+  Result.Y := ScreenCenterPos.Y - map.Height div 2;
+end;
+
+function TFmain.GetLoadedPixelRect: TRect;
+var
+  VSizeInPixel: TPoint;
+begin
+  VSizeInPixel := LoadedSizeInPixel;
+  Result.Left := ScreenCenterPos.X - VSizeInPixel.X div 2;
+  Result.Top := ScreenCenterPos.Y - VSizeInPixel.Y div 2;
+  Result.Right := ScreenCenterPos.X + VSizeInPixel.X div 2;
+  Result.Bottom := ScreenCenterPos.Y + VSizeInPixel.Y div 2;
+end;
+
+function TFmain.GetLoadedSizeInPixel: TPoint;
+var
+  VSizeInTile: TPoint;
+begin
+  if GState.TilesOut=0 then begin
+    Result.X := Screen.Width;
+    Result.Y := Screen.Height;
+  end else begin
+    VSizeInTile := LoadedSizeInTile;
+    Result.X := VSizeInTile.X * 256;
+    Result.Y := VSizeInTile.Y * 256;
+  end;
+end;
+
+function TFmain.GetLoadedSizeInTile: TPoint;
+begin
+ Result.X := Ceil(Screen.Width / 256) + GState.TilesOut;
+ Result.Y := Ceil(Screen.Height / 256) + GState.TilesOut;
+end;
 
 
 end.
