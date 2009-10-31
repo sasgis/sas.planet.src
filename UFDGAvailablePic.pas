@@ -349,7 +349,7 @@ end;
 
 procedure TFDGAvailablePic.setup;
 begin
- Apos:= sat_map_both.GeoConvert.Pos2LonLat(Point(FMain.pos.x-(mWd2-moveTrue.x),FMain.pos.y-(mHd2-moveTrue.y)),(GState.zoom_size - 1) + 8);
+ Apos:= sat_map_both.GeoConvert.Pos2LonLat(Point(FMain.ScreenCenterPos.x-(mWd2-moveTrue.x),FMain.ScreenCenterPos.y-(mHd2-moveTrue.y)),(GState.zoom_size - 1) + 8);
  mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(APos.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);

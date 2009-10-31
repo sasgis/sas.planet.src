@@ -295,9 +295,8 @@ begin
  SaveMaps;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
- GState.MainIni.WriteInteger('POSITION','x',FMain.POS.x);
- GState.MainIni.WriteInteger('POSITION','y',FMain.POS.y);
- GState.MainIni.WriteInteger('POSITION','y',FMain.POS.y);
+ GState.MainIni.WriteInteger('POSITION','x',FMain.ScreenCenterPos.x);
+ GState.MainIni.WriteInteger('POSITION','y',FMain.ScreenCenterPos.y);
  GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
  GState.MainIni.Writeinteger('VIEW','DefCache',GState.DefCache);
  GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);

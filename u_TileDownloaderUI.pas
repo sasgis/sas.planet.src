@@ -49,7 +49,7 @@ end;
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
  FTypeMap:=Sat_map_Both;
- Upos:= FMain.pos;
+ Upos:= FMain.ScreenCenterPos;
  FZoom:= GState.zoom_size;
 end;
 
