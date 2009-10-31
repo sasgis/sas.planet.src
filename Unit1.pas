@@ -457,7 +457,7 @@ type
     procedure NbackloadLayerClick(Sender: TObject);
   private
    ShowActivHint:boolean;
-   h: THintWindow;
+   HintWindow: THintWindow;
    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
    procedure Set_lock_toolbars(const Value: boolean);
@@ -469,7 +469,7 @@ type
    rect_dwn: Boolean;
    rect_p2:boolean;
    FTileSource:TTileSource;
-   FPos:TPoint;
+   FScreenCenterPos: TPoint;
    LayerStatBar: TBitmapLayer;
    dWhenMovingButton:integer;
    LenShow: boolean;
@@ -485,7 +485,7 @@ type
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
-   property ScreenCenterPos: TPoint read FPos write Set_Pos;
+   property ScreenCenterPos: TPoint read FScreenCenterPos write Set_Pos;
    procedure generate_im(lastload:TLastLoad;err:string);
    function  toSh:string;
 class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
@@ -616,7 +616,7 @@ uses
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
 begin
- FPos:=Value;
+ FScreenCenterPos:=Value;
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
@@ -3487,10 +3487,10 @@ end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
 begin
- if (h<>nil) then
+ if (HintWindow<>nil) then
   begin
-   H.ReleaseHandle;
-   FreeAndNil(H);
+   HintWindow.ReleaseHandle;
+   FreeAndNil(HintWindow);
   end;
 end;
 
@@ -3647,10 +3647,10 @@ procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
 var i:integer;
     xy:TPoint;
 begin
-   if (h<>nil) then
+   if (HintWindow<>nil) then
     begin
-     H.ReleaseHandle;
-     FreeAndNil(H);
+     HintWindow.ReleaseHandle;
+     FreeAndNil(HintWindow);
     end;
  if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
@@ -3971,10 +3971,10 @@ begin
 
  if (not ShowActivHint) then
   begin
-   if (h<>nil) then
+   if (HintWindow<>nil) then
     begin
-     H.ReleaseHandle;
-     FreeAndNil(H);
+     HintWindow.ReleaseHandle;
+     FreeAndNil(HintWindow);
     end;
    Layer.Cursor:=curBuf;
   end;
@@ -3988,7 +3988,7 @@ begin
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
-     if h<>nil then H.ReleaseHandle;
+     if HintWindow<>nil then HintWindow.ReleaseHandle;
      if (length(PWL.name)>0) then
       begin
        if System.Pos('<',PWL.name)>0 then nms:=HTML2Txt(PWL.name)
@@ -4024,15 +4024,15 @@ begin
      layer.Cursor:=crHandPoint;
      if nms<>'' then
      begin
-      if h=nil then
+      if HintWindow=nil then
        begin
-        H:=THintWindow.Create(Self);
-        H.Brush.Color:=clInfoBk;
-        H.Font.Charset:=RUSSIAN_CHARSET;
+        HintWindow:=THintWindow.Create(Self);
+        HintWindow.Brush.Color:=clInfoBk;
+        HintWindow.Font.Charset:=RUSSIAN_CHARSET;
        end;
-      hintrect:=H.CalcHintRect(Screen.Width, nms, nil);
-      H.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
-      H.Repaint;
+      hintrect:=HintWindow.CalcHintRect(Screen.Width, nms, nil);
+      HintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
+      HintWindow.Repaint;
      end;
      ShowActivHint:=true;
     end;
@@ -4424,11 +4424,11 @@ bf.AlphaFormat:=0;// not use alpha-channel of bmp2
 // and see result
 //BM2.Width:=BM3.Width;
 //BM2.Height:=BM3.Height;
- 
+
 AlphaBlend(BM3.Canvas.Handle,0,0,BM3.Width,BM3.Height,
    BM2.canvas.handle,0,0,BM2.Width,BM2.Height,bf);
 end;
- 
+
 
 }
 procedure TFmain.NanimateClick(Sender: TObject);
