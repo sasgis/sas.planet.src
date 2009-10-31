@@ -21,7 +21,7 @@ uses
   VCLZip,
   GR32,
   t_GeoTypes,
-  u_CoordConverterAbstract,
+  i_ICoordConverter,
   u_TileDownloaderBase,
   u_UrlGenerator,
   UResStrings;

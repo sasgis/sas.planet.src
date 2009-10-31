@@ -13,7 +13,6 @@ uses
   GR32_Resamplers,
   UMapType,
   UGeoFun,
-  u_CoordConverterSimpleLonLat,
   t_GeoTypes,
   IJL;
 
@@ -99,8 +98,10 @@ var BMP_Bufer: TBMPbuf;
 	$35, $A8, $FF, $28, $31, $07, $2D, $12, $C8, $DC, $88, $46, $7C, $8A, $5B, $22);
 
 implementation
-uses unit1,
-     u_CoordConverterAbstract;
+uses
+  unit1,
+  u_CoordConverterSimpleLonLat,
+  i_ICoordConverter;
 
 function GEXYZtoHexTileName(x,y:integer;z:byte):int64;
 var os,prer:TPoint;

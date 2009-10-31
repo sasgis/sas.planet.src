@@ -611,8 +611,7 @@ uses
   USearchResult,
   UImport,
   UAddCategory,
-  u_TileDownloaderUIOneTile,
-  u_CoordConverterAbstract;
+  u_TileDownloaderUIOneTile;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
