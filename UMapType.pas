@@ -75,9 +75,12 @@ type
     FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
+
     function GetLink(x,y:longint;Azoom:byte):string;overload;
     function GetLink(AXY: TPoint;Azoom:byte):string;overload;
+
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
+
     procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
     procedure SaveTileDownload(AXY: TPoint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
@@ -88,10 +91,16 @@ type
 
     function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
     function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
-    function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
+
+    function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean; overload;
+    function TileNotExistsOnServer(AXY: TPoint;Azoom:byte): Boolean; overload;
+
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
     function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
-    function DeleteTile(x,y:longint;Azoom:byte): Boolean;
+
+    function DeleteTile(x,y:longint; Azoom:byte): Boolean; overload;
+    function DeleteTile(AXY: TPoint; Azoom:byte): Boolean; overload;
+
     procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
     procedure SaveTileNotExists(x,y:longint;Azoom:byte);
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
@@ -719,7 +728,7 @@ end;
 
 function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
 begin
-  Result := Self.TileExists(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom), Azoom);
+  Result := Self.TileExists(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom - 1), Azoom - 1);
 end;
 
 function GetFileSize(namefile: string): Integer;
@@ -917,16 +926,21 @@ begin
   result:= LoadFile(btm, path, caching);
 end;
 
-function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
+function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: string;
 begin
   try
-    VPath := GetTileFileName(x, y, Azoom);
-    result:=DeleteFile(PChar(VPath));
+    VPath := GetTileFileName(AXY, Azoom);
+    result := DeleteFile(PChar(VPath));
   except
     Result := false;
   end;
+end;
+
+function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
+begin
+  Result := Self.DeleteTile(x shr 8, y shr 8, Azoom - 1);
 end;
 
 function TMapType.LoadFile(btm: Tobject; APath: string; caching:boolean): boolean;
@@ -986,13 +1000,18 @@ begin
   end;
 end;
 
-function TMapType.TileNotExistsOnServer(x, y: Integer;
-  Azoom: byte): Boolean;
+function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
-  Result := Fileexists(copy(VPath,1,length(VPath)-3)+'tne');
+  VPath := GetTileFileName(AXY, Azoom);
+  Result := Fileexists(ChangeFileExt(VPath, '.tne'));
+end;
+
+function TMapType.TileNotExistsOnServer(x, y: Integer;
+  Azoom: byte): Boolean;
+begin
+  Result := Self.TileNotExistsOnServer(x shr 8, y shr 8, Azoom - 1);
 end;
 
 procedure TMapType.CreateDirIfNotExists(APath:string);
@@ -1277,6 +1296,7 @@ begin
     result := dtrBanError;
   end;
 end;
+
 
 
 end.
