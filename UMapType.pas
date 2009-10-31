@@ -83,6 +83,7 @@ type
 
     procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
     procedure SaveTileDownload(AXY: TPoint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
+
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
 
 
@@ -113,13 +114,16 @@ type
     function TileLoadDate(x,y:longint;Azoom:byte): TDateTime; overload;
     function TileLoadDate(AXY: TPoint; Azoom:byte): TDateTime; overload;
 
-    function TileSize(x,y:longint;Azoom:byte): integer;
+    function TileSize(x,y:longint;Azoom:byte): integer; overload;
+    function TileSize(AXY: TPoint; Azoom:byte): integer; overload;
 
-    function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
+    function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean; overload;
+    function TileExportToFile(AXY: TPoint; Azoom:byte; AFileName: string; OverWrite: boolean): boolean; overload;
 
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
+    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean; overload;
+    function LoadFillingMap(btm:TBitmap32; AXY: TPoint; Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean; overload;
 
     function GetShortFolderName: string;
 
@@ -1177,12 +1181,17 @@ begin
   Result := Self.TileLoadDate(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
-function TMapType.TileSize(x, y: Integer; Azoom: byte): integer;
+function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  VPath := GetTileFileName(AXY, Azoom);
   Result := GetFileSize(VPath);
+end;
+
+function TMapType.TileSize(x, y: Integer; Azoom: byte): integer;
+begin
+  Result := Self.TileSize(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
@@ -1222,20 +1231,32 @@ begin
   Self.SaveTileSimple(Point(x shr 8, y shr 8), Azoom - 1, btm);
 end;
 
-function TMapType.TileExportToFile(x, y: Integer; Azoom: byte;
+function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
   AFileName: string; OverWrite: boolean): boolean;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  VPath := GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(AFileName);
   Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
+end;
+
+function TMapType.TileExportToFile(x, y: Integer; Azoom: byte;
+  AFileName: string; OverWrite: boolean): boolean;
+begin
+  Result := Self.TileExportToFile(Point(x shr 8, y shr 8), Azoom - 1, AFileName, OverWrite);
+end;
+
+function TMapType.LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom,
+  ASourceZoom: byte; IsStop: PBoolean): boolean;
+begin
+  //TODO: Нужно таки сделать реализацию этой функции
 end;
 
 function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
 begin
-  //TODO: Нужно таки сделать реализацию этой функции
+  Result := Self.LoadFillingMap(btm, Point(x shr 8, y shr 8), Azoom - 1, ASourceZoom - 1, IsStop);
 end;
 
 function TMapType.GetShortFolderName: string;
