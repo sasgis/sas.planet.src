@@ -75,14 +75,19 @@ type
     FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
-    function GetLink(x,y:longint;Azoom:byte):string;
+    function GetLink(x,y:longint;Azoom:byte):string;overload;
+    function GetLink(AXY: TPoint;Azoom:byte):string;overload;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
-    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
+    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileDownload(AXY: TPoint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
 
 
-    function GetTileFileName(x,y:longint;Azoom:byte):string;
-    function TileExists(x,y:longint;Azoom:byte): Boolean;
+    function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
+    function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
+
+    function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
+    function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
     function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
     function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
@@ -554,17 +559,17 @@ begin
   end;
 end;
 
-function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
+function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   if (FUrlGenerator = nil) then result:='';
-  if not(Azoom in [1..24]) then raise Exception.Create('Ошибочный Zoom');
-  if x>=0 then x:=x mod zoom[Azoom]
-          else x:=zoom[Azoom]+(x mod zoom[Azoom]);
-  if y>=0 then y:=y mod zoom[Azoom]
-              else y:=zoom[Azoom]+(y mod zoom[Azoom]);
-
+  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
   FUrlGenerator.GetURLBase:=URLBase;
-  Result:=FUrlGenerator.GenLink(x shr 8,y shr 8,Azoom-1);
+  Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
+end;
+
+function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
+begin
+  Result := Self.GetLink(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom - 1), Azoom - 1)
 end;
 
 function TMapType.GetBasePath: string;
@@ -602,6 +607,10 @@ begin
    then result:=GState.ProgramPath+result;
 end;
 
+function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := Self.GetTileFileName(AXY.X shl 8, AXY.Y shl 8, Azoom + 1);
+end;
 
 function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
 function full(int,z:integer):string;
@@ -696,16 +705,21 @@ begin
  end;
 end;
 
-function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
+function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: String;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    result:=GETileExists(GetBasePath+'\dbCache.dat.index',x shr 8,y shr 8,Azoom,self);
+    result:=GETileExists(GetBasePath+'\dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
   end else begin
-    VPath := GetTileFileName(x, y, Azoom);
+    VPath := GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
   end;
+end;
+
+function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
+begin
+  Result := Self.TileExists(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom), Azoom);
 end;
 
 function GetFileSize(namefile: string): Integer;
@@ -989,6 +1003,12 @@ begin
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
 end;
 
+procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+begin
+  Self.SaveTileDownload(AXY.X shl 8, AXY.Y shl 8, Azoom + 1, ATileStream, ty);
+end;
+
 
 procedure TMapType.SaveTileDownload(x, y: Integer; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
@@ -1257,5 +1277,6 @@ begin
     result := dtrBanError;
   end;
 end;
+
 
 end.
