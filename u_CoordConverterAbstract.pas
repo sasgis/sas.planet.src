@@ -12,6 +12,25 @@ type
   protected
     FValidLonLatRect: TExtendedRect;
     function GetValidLonLatRect: TExtendedRect; virtual;
+
+    procedure CheckZoomInternal(var AZoom: Byte); virtual;
+    procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); virtual;
+
+    procedure CheckPixelPosInternal(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckPixelPosStrictInternal(var XY: TPoint; var Azoom: byte); virtual;
+    procedure CheckPixelRectInternal(var XY: TRect; var Azoom: byte); virtual;
+
+    procedure CheckRelativePosInternal(var XY: TExtendedPoint); virtual;
+    procedure CheckRelativeRectInternal(var XY: TExtendedRect); virtual;
+
+    procedure CheckLonLatPosInternal(var XY: TExtendedPoint); virtual;
+    procedure CheckLonLatRectInternal(var XY: TExtendedRect); virtual;
+
+    function TilesAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
+    function PixelsAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
+
   public
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
@@ -25,15 +44,16 @@ type
     function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect; virtual; stdcall;
     function TilePos2LonLatRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
     function TilePos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
-    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function TilePos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function TilePos2RelativeRect(const XY : TPoint; Azoom : byte): TExtendedRect; virtual; stdcall;
+    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
 
     function PixelPos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function PixelPos2TilePos(const XY : TPoint; Azoom : byte) : TPoint; virtual; stdcall;
     function PixelPos2Relative(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+    function PixelRect2LonLatRect(const AXY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
 
 
     function LonLat2PixelPos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
@@ -94,6 +114,362 @@ begin
   inherited;
   FValidLonLatRect := GetValidLonLatRect;
 end;
+
+//------------------------------------------------------------------------------
+procedure TCoordConverterAbstract.CheckZoomInternal(var AZoom: Byte);
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckTilePosInternal(var XY: TPoint; var Azoom: byte);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  if XY.X < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.X := 0;
+  end else begin
+    if XY.X > VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.X := VTilesAtZoom;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    XY.Y := 0;
+  end else begin
+    if XY.Y > VTilesAtZoom then begin
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.Y := VTilesAtZoom;
+    end;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckTileRectInternal(var XY: TRect; var Azoom: byte);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  if XY.Left < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.Left := 0;
+  end else begin
+    if XY.Left >= VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
+      XY.Left := VTilesAtZoom - 1;
+    end;
+  end;
+  if XY.Top < 0 then begin
+    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    XY.Top := 0;
+  end else begin
+    if XY.Top >= VTilesAtZoom then begin
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
+      XY.Top := VTilesAtZoom - 1;
+    end;
+  end;
+  if XY.Right < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.Right := 0;
+  end else begin
+    if XY.Right >= VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
+      XY.Right := VTilesAtZoom - 1;
+    end;
+  end;
+  if XY.Bottom < 0 then begin
+    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    XY.Bottom := 0;
+  end else begin
+    if XY.Bottom >= VTilesAtZoom then begin
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
+      XY.Bottom := VTilesAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  if XY.X < 0 then begin
+    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    XY.X := 0;
+  end else begin
+    if XY.X >= VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равной ' + IntToStr(VTilesAtZoom));
+      XY.X := VTilesAtZoom - 1;
+    end;
+  end;
+  if XY.Y < 0 then begin
+    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    XY.Y := 0;
+  end else begin
+    if XY.Y >= VTilesAtZoom then begin
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равной ' + IntToStr(VTilesAtZoom));
+      XY.Y := VTilesAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckPixelPosInternal(var XY: TPoint; var Azoom: byte);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+
+  if XY.X < 0 then begin
+    if (Azoom < 23) or (XY.X <> VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела не может быть меньше нуля');
+      XY.X := 0;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
+      XY.X := VPixelsAtZoom;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    if (Azoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
+      Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+      XY.Y := 0;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
+      XY.Y := VPixelsAtZoom;
+    end;
+  end;
+
+end;
+procedure TCoordConverterAbstract.CheckPixelRectInternal(var XY: TRect; var Azoom: byte);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+
+  if XY.Left < 0 then begin
+    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    XY.Left := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Left >= VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
+      XY.Left := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    XY.Top := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
+      XY.Top := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    XY.Right := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Right >= VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
+      XY.Right := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    XY.Bottom := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
+      XY.Bottom := VPixelsAtZoom - 1;
+    end;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckPixelPosStrictInternal(var XY: TPoint; var Azoom: byte);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+  if XY.X < 0 then begin
+    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    XY.X := 0;
+  end else begin
+    if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
+      XY.X := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    XY.Y := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
+      XY.Y := VPixelsAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckRelativePosInternal(var XY: TExtendedPoint);
+begin
+  if XY.X < 0 then begin
+    Assert(False, 'Относительная координата X не может быть меньше нуля');
+    XY.X := 0;
+  end else begin
+    if XY.X > 1 then begin
+      Assert(False, 'Относительная координата X не может быть больше единицы');
+      XY.X := 1;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Assert(False, 'Относительная координата Y не может быть меньше нуля');
+    XY.Y := 0;
+  end else begin
+    if XY.Y > 1 then begin
+      Assert(False, 'Относительная координата Y не может быть больше единицы');
+      XY.Y := 1;
+    end;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckRelativeRectInternal(var XY: TExtendedRect);
+begin
+  if XY.Left < 0 then begin
+    Assert(False, 'Относительная координата X не может быть меньше нуля');
+    XY.Left := 0;
+  end else begin
+    if XY.Left > 1 then begin
+      Assert(False, 'Относительная координата X не может быть больше единицы');
+      XY.Left := 1;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Assert(False, 'Относительная координата Y не может быть меньше нуля');
+    XY.Top := 0;
+  end else begin
+    if XY.Top > 1 then begin
+      Assert(False, 'Относительная координата Y не может быть больше единицы');
+      XY.Top := 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Assert(False, 'Относительная координата X не может быть меньше нуля');
+    XY.Right := 0;
+  end else begin
+    if XY.Right > 1 then begin
+      Assert(False, 'Относительная координата X не может быть больше единицы');
+      XY.Right := 1;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Assert(False, 'Относительная координата Y не может быть меньше нуля');
+    XY.Bottom := 0;
+  end else begin
+    if XY.Bottom > 1 then begin
+      Assert(False, 'Относительная координата Y не может быть больше единицы');
+      XY.Bottom := 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckLonLatPosInternal(var XY: TExtendedPoint);
+begin
+  if XY.X < FValidLonLatRect.Left then begin
+    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
+    XY.X := FValidLonLatRect.Left;
+  end else begin
+    if XY.X > FValidLonLatRect.Right then begin
+      Assert(False, 'Долгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
+      XY.X := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Y < FValidLonLatRect.Bottom then begin
+    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
+    XY.Y := FValidLonLatRect.Bottom;
+  end else begin
+    if XY.Y > FValidLonLatRect.Top then begin
+      Assert(False, 'Широта не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
+      XY.Y := FValidLonLatRect.Top;
+    end;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckLonLatRectInternal(var XY: TExtendedRect);
+begin
+  if XY.Left < FValidLonLatRect.Left then begin
+    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
+    XY.Left := FValidLonLatRect.Left;
+  end else begin
+    if XY.Left > FValidLonLatRect.Right then begin
+      Assert(False, 'Долгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
+      XY.Left := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Bottom < FValidLonLatRect.Bottom then begin
+    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
+    XY.Bottom := FValidLonLatRect.Bottom;
+  end else begin
+    if XY.Bottom > FValidLonLatRect.Top then begin
+      Assert(False, 'Широта не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
+      XY.Bottom := FValidLonLatRect.Top;
+    end;
+  end;
+
+  if XY.Right < FValidLonLatRect.Right then begin
+    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Right));
+    XY.Right := FValidLonLatRect.Right;
+  end else begin
+    if XY.Right > FValidLonLatRect.Right then begin
+      Assert(False, 'Долгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
+      XY.Right := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Top < FValidLonLatRect.Top then begin
+    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Top));
+    XY.Top := FValidLonLatRect.Top;
+  end else begin
+    if XY.Top > FValidLonLatRect.Top then begin
+      Assert(False, 'Широта не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
+      XY.Top := FValidLonLatRect.Top;
+    end;
+  end;
+end;
+
 
 //------------------------------------------------------------------------------
 procedure TCoordConverterAbstract.CheckZoom(var AZoom: Byte);
@@ -469,7 +845,18 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+function TCoordConverterAbstract.PixelsAtZoomInternal(AZoom: byte): Longint;
+begin
+  Result := 1 shl (AZoom + 8);
+end;
 
+function TCoordConverterAbstract.TilesAtZoomInternal(AZoom: byte): Longint;
+begin
+  Result := 1 shl AZoom;
+end;
+
+//------------------------------------------------------------------------------
 
 function TCoordConverterAbstract.CalcPoligonArea(
   polygon: TExtendedPointArray): extended;
@@ -715,6 +1102,12 @@ begin
   VBottomRight.X := XY.Right + 1;
   VBottomRight.Y := XY.Bottom + 1;
   Result.BottomRight := PixelPos2Relative(VBottomRight, AZoom);
+end;
+
+function TCoordConverterAbstract.PixelRect2LonLatRect(
+  const AXY: TRect; AZoom: byte): TExtendedRect;
+begin
+  Result := RelativeRect2LonLatRect(PixelRect2RelativeRect(AXY, AZoom));
 end;
 
 function TCoordConverterAbstract.TilePos2PixelPos(const XY: TPoint;
