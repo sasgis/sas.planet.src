@@ -552,7 +552,6 @@ const
   CProgram_Lang_Default = LANG_RUSSIAN;
 //  ENU=LANG_ENGLISH;
 //  RUS=LANG_RUSSIAN;// $00000419;
-  MerkElipsK=0.0000001;
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; // Константа для преобразования радиан в градусы
   zoom:array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
@@ -2685,9 +2684,10 @@ begin
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos := sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8, AMapType.GeoConvert);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
- path:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
  VLoadPoint.x := Apos.x-(mWd2-m_up.x);
  VLoadPoint.y := Apos.y-(mHd2-m_up.y);
+
+ path:=AMapType.GetTileFileName(VLoadPoint.x, VLoadPoint.Y,GState.zoom_size);
 
  if ((not(AMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
   (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
@@ -2741,16 +2741,19 @@ procedure TFmain.NDelClick(Sender: TObject);
 var s:string;
     AMapType:TMapType;
     APos:TPoint;
+    VLoadPoint: TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  APos := sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8, AMapType.GeoConvert);
+ VLoadPoint.X := APos.x-(mWd2-m_up.x);
+ VLoadPoint.Y := APos.y-(mHd2-m_up.y);
  //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
- s:=AMapType.GetTileFileName(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
+ s:=AMapType.GetTileFileName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
-        if AMapType.TileExists(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size) then
-          AMapType.DeleteTile(APos.x-(mWd2-m_up.x),APos.y-(mHd2-m_up.y),GState.zoom_size);
+        if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then
+          AMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
         generate_im(nilLastLoad,'');
        end;
        
