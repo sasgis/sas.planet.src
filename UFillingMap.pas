@@ -80,7 +80,7 @@ begin
   LayerMap.bitmap.Clear(clBlack);
   LayerMap.Bitmap.Width:=xhgpx;
   LayerMap.Bitmap.Height:=yhgpx;
-  LayerMap.Location:=Unit1.LayerMap.Location;
+  LayerMap.Location:=FMain.LayerMap.Location;
   LayerMap.Visible:=true;
   dZoom:=GState.zoom_mapzap-GState.zoom_size;
   x2:=trunc(power(2,dZoom));

@@ -482,6 +482,7 @@ type
    RectWindow:TRect;
    FUIDownLoader: TTileDownloaderUI;
   public
+   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
    change_scene:boolean;
@@ -580,7 +581,6 @@ var
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
-  LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
   curBuf:TCursor;
   nilLastLoad:TLastLoad;
   GPSpar:TGPSpar;
@@ -712,10 +712,10 @@ begin
   if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   if D>dl
-   then Polygon.DrawFill(LayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
+   then Polygon.DrawFill(FMain.LayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
    else begin
-         LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-         LayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+         FMain.LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+         FMain.LayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
         end;
  Polygon.Free;
 end;

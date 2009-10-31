@@ -97,7 +97,7 @@ begin
    Wikilayer[i]:=nil;
   end;
  SetLength(WikiLayer,0);
- LayerMapWiki.Visible:=false;
+ FMain.LayerMapWiki.Visible:=false;
 end;
 
 procedure loadWL(Alayer:TMapType);
@@ -106,7 +106,7 @@ var
     APos:TPoint;
     kml:TKML;
 begin
- LayerMapWiki.Visible:=true;
+ FMain.LayerMapWiki.Visible:=true;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
@@ -167,14 +167,14 @@ begin
      AarrKt[i]:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
      AarrKt[i]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[i].x),pr_y-(FMain.ScreenCenterPos.y-AarrKt[i].y));
    end;
-   LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
-   LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;
-   if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
-                            else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
-   LayerMapWiki.Bitmap.Canvas.Pen.Width:=1;
-   LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapMainColor;
-   if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
-                            else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;
+   if length(coordinates)=1 then FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
+                            else FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=1;
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapMainColor;
+   if length(coordinates)=1 then FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
+                            else FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
   end;
 end;
 
