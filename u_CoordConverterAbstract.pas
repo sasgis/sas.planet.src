@@ -75,9 +75,28 @@ type
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended;
+
+    procedure CheckZoom(var AZoom: Byte); stdcall;
+    procedure CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); stdcall;
+
+    procedure CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); stdcall;
+
+    procedure CheckRelativePos(var XY: TExtendedPoint); stdcall;
+    procedure CheckRelativeRect(var XY: TExtendedRect); stdcall;
+
+    procedure CheckLonLatPos(var XY: TExtendedPoint); stdcall;
+    procedure CheckLonLatRect(var XY: TExtendedRect); stdcall;
+
   end;
 
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
+  protected
+    FValidLonLatRect: TExtendedRect;
+    function GetValidLonLatRect: TExtendedRect; virtual;
   public
     function Pos2LonLat(const XY : TPoint; Azoom : byte) : TExtendedPoint; virtual; stdcall;
     function LonLat2Pos(const Ll : TExtendedPoint; Azoom : byte) : Tpoint; virtual; stdcall;
@@ -120,6 +139,23 @@ type
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
+
+    procedure CheckZoom(var AZoom: Byte); virtual; stdcall;
+    procedure CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+    procedure CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+    procedure CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+
+    procedure CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+    procedure CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+    procedure CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+
+    procedure CheckRelativePos(var XY: TExtendedPoint); virtual; stdcall;
+    procedure CheckRelativeRect(var XY: TExtendedRect); virtual; stdcall;
+
+    procedure CheckLonLatPos(var XY: TExtendedPoint); virtual; stdcall;
+    procedure CheckLonLatRect(var XY: TExtendedRect); virtual; stdcall;
+
+    procedure AfterConstruction; override;
   end;
 
 const
@@ -128,9 +164,397 @@ const
 implementation
 
 uses
+  SysUtils,
   Math;
 
 { TCoordConverterAbstract }
+
+function TCoordConverterAbstract.GetValidLonLatRect: TExtendedRect;
+begin
+  Result := TilePos2LonLatRect(Point(0, 0), 0);
+end;
+
+procedure TCoordConverterAbstract.AfterConstruction;
+begin
+  inherited;
+  FValidLonLatRect := GetValidLonLatRect;
+end;
+
+//------------------------------------------------------------------------------
+procedure TCoordConverterAbstract.CheckZoom(var AZoom: Byte);
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoom(Azoom);
+
+  if XY.X < 0 then begin
+    if ACicleMap  then begin
+      XY.X := XY.X mod VTilesAtZoom + VTilesAtZoom;
+    end else begin
+      XY.X := 0;
+    end;
+  end else begin
+    if XY.X > VTilesAtZoom then begin
+      if ACicleMap  then begin
+        XY.X := XY.X mod VTilesAtZoom;
+      end else begin
+        XY.X := VTilesAtZoom;
+      end;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    XY.Y := 0;
+  end else begin
+    if XY.Y > VTilesAtZoom then begin
+      XY.Y := VTilesAtZoom;
+    end;
+  end;
+end;
+procedure TCoordConverterAbstract.CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoom(Azoom);
+
+  if XY.Left < 0 then begin
+    if ACicleMap  then begin
+      XY.Left := XY.Left mod VTilesAtZoom + VTilesAtZoom;
+    end else begin
+      XY.Left := 0;
+    end;
+  end else begin
+    if XY.Left >= VTilesAtZoom then begin
+      if ACicleMap  then begin
+        XY.Left := XY.Left mod VTilesAtZoom;
+      end else begin
+        XY.Left := VTilesAtZoom - 1;
+      end;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    XY.Top := 0;
+  end else begin
+    if XY.Top >= VTilesAtZoom then begin
+      XY.Top := VTilesAtZoom - 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    if ACicleMap  then begin
+      XY.Right := XY.Right mod VTilesAtZoom + VTilesAtZoom;
+    end else begin
+      XY.Right := 0;
+    end;
+  end else begin
+    if XY.Right >= VTilesAtZoom then begin
+      if ACicleMap  then begin
+        XY.Right := XY.Right mod VTilesAtZoom;
+      end else begin
+        XY.Right := VTilesAtZoom - 1;
+      end;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    XY.Bottom := 0;
+  end else begin
+    if XY.Bottom >= VTilesAtZoom then begin
+      XY.Bottom := VTilesAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+var
+  VTilesAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+  VTilesAtZoom := TilesAtZoom(Azoom);
+
+  if XY.X < 0 then begin
+    if ACicleMap  then begin
+      XY.X := XY.X mod VTilesAtZoom + VTilesAtZoom;
+    end else begin
+      XY.X := 0;
+    end;
+  end else begin
+    if XY.X >= VTilesAtZoom then begin
+      if ACicleMap  then begin
+        XY.X := XY.X mod VTilesAtZoom;
+      end else begin
+        XY.X := VTilesAtZoom - 1;
+      end;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    XY.Y := 0;
+  end else begin
+    if XY.Y >= VTilesAtZoom then begin
+      XY.Y := VTilesAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoom(Azoom);
+
+  if XY.X < 0 then begin
+    if (Azoom < 23) then begin
+      if ACicleMap  then begin
+        XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
+      end else begin
+        XY.X := 0;
+      end;
+    end else begin
+      if (XY.X <> VPixelsAtZoom) then begin
+        if ACicleMap  then begin
+          XY.X := VPixelsAtZoom - XY.X;
+        end else begin
+          XY.X := 0;
+        end;
+      end;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
+      XY.X := VPixelsAtZoom;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    if (Azoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
+      XY.Y := 0;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      if ACicleMap  then begin
+        XY.X := XY.X mod VPixelsAtZoom;
+      end else begin
+        XY.X := VPixelsAtZoom;
+      end;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoom(Azoom);
+
+  if XY.Left < 0 then begin
+    if ACicleMap then begin
+      XY.Left := XY.Left mod VPixelsAtZoom + VPixelsAtZoom;
+    end else begin
+      XY.Left := 0;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.Left >= VPixelsAtZoom) then begin
+      if ACicleMap then begin
+        XY.Left := XY.Left mod VPixelsAtZoom;
+      end else begin
+        XY.Left := VPixelsAtZoom - 1;
+      end;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    XY.Top := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+      XY.Top := VPixelsAtZoom - 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    if ACicleMap then begin
+      XY.Right := XY.Right mod VPixelsAtZoom + VPixelsAtZoom;
+    end else begin
+      XY.Right := 0;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.Right >= VPixelsAtZoom) then begin
+      if ACicleMap then begin
+        XY.Right := XY.Right mod VPixelsAtZoom;
+      end else begin
+        XY.Right := VPixelsAtZoom - 1;
+      end;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    XY.Bottom := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+      XY.Bottom := VPixelsAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+var
+  VPixelsAtZoom: Integer;
+begin
+  if AZoom > 23 then begin
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  if XY.X < 0 then begin
+    if ACicleMap  then begin
+      XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
+    end else begin
+      XY.X := 0;
+    end;
+  end else begin
+    if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+      if ACicleMap  then begin
+        XY.X := XY.X mod VPixelsAtZoom;
+      end else begin
+        XY.X := VPixelsAtZoom - 1;
+      end;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    XY.Y := 0;
+  end else begin
+    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      XY.Y := VPixelsAtZoom - 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckRelativePos(var XY: TExtendedPoint);
+begin
+  if XY.X < 0 then begin
+    XY.X := 0;
+  end else begin
+    if XY.X > 1 then begin
+      XY.X := 1;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    XY.Y := 0;
+  end else begin
+    if XY.Y > 1 then begin
+      XY.Y := 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckRelativeRect(var XY: TExtendedRect);
+begin
+  if XY.Left < 0 then begin
+    XY.Left := 0;
+  end else begin
+    if XY.Left > 1 then begin
+      XY.Left := 1;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    XY.Top := 0;
+  end else begin
+    if XY.Top > 1 then begin
+      XY.Top := 1;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    XY.Right := 0;
+  end else begin
+    if XY.Right > 1 then begin
+      XY.Right := 1;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    XY.Bottom := 0;
+  end else begin
+    if XY.Bottom > 1 then begin
+      XY.Bottom := 1;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckLonLatPos(var XY: TExtendedPoint);
+begin
+  if XY.X < FValidLonLatRect.Left then begin
+    XY.X := FValidLonLatRect.Left;
+  end else begin
+    if XY.X > FValidLonLatRect.Right then begin
+      XY.X := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Y < FValidLonLatRect.Bottom then begin
+    XY.Y := FValidLonLatRect.Bottom;
+  end else begin
+    if XY.Y > FValidLonLatRect.Top then begin
+      XY.Y := FValidLonLatRect.Top;
+    end;
+  end;
+end;
+
+procedure TCoordConverterAbstract.CheckLonLatRect(var XY: TExtendedRect);
+begin
+  if XY.Left < FValidLonLatRect.Left then begin
+    XY.Left := FValidLonLatRect.Left;
+  end else begin
+    if XY.Left > FValidLonLatRect.Right then begin
+      XY.Left := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Bottom < FValidLonLatRect.Bottom then begin
+    XY.Bottom := FValidLonLatRect.Bottom;
+  end else begin
+    if XY.Bottom > FValidLonLatRect.Top then begin
+      XY.Bottom := FValidLonLatRect.Top;
+    end;
+  end;
+
+  if XY.Right < FValidLonLatRect.Right then begin
+    XY.Right := FValidLonLatRect.Right;
+  end else begin
+    if XY.Right > FValidLonLatRect.Right then begin
+      XY.Right := FValidLonLatRect.Right;
+    end;
+  end;
+  if XY.Top < FValidLonLatRect.Top then begin
+    XY.Top := FValidLonLatRect.Top;
+  end else begin
+    if XY.Top > FValidLonLatRect.Top then begin
+      XY.Top := FValidLonLatRect.Top;
+    end;
+  end;
+end;
+
+
 
 function TCoordConverterAbstract.CalcPoligonArea(
   polygon: TExtendedPointArray): extended;
