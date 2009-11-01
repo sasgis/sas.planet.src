@@ -4535,8 +4535,10 @@ end;
 
 function TFmain.GetLoadedSizeInTile: TPoint;
 begin
- Result.X := Ceil(Screen.Width / 256) + GState.TilesOut;
- Result.Y := Ceil(Screen.Height / 256) + GState.TilesOut;
+// Result.X := Ceil(Screen.Width / 256) + GState.TilesOut;
+  Result.X := round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
+// Result.Y := Ceil(Screen.Height / 256) + GState.TilesOut;
+  Result.Y := round(Screen.Height / 256)+(integer((Screen.height mod 256)>0))+GState.TilesOut;
 end;
 
 
@@ -4549,7 +4551,7 @@ begin
   VVisibleSize := GetVisibleSizeInPixel;
   Result := bounds(
     (VVisibleSize.X - VLoadedSize.X) div 2,
-    (VVisibleSize.X - VLoadedSize.X) div 2,
+    (VVisibleSize.Y - VLoadedSize.Y) div 2,
     VLoadedSize.X,
     VLoadedSize.Y
   );
