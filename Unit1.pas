@@ -469,6 +469,8 @@ type
     function GetLoadedSizeInTile: TPoint;
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
+    function GetMapLayerLocationRect: TRect;
+    function GetLoadedTopLeft: TPoint;
   protected
    Flock_toolbars:boolean;
    notpaint: boolean;
@@ -512,7 +514,6 @@ class   function  str2r(inp:string):real;
    procedure ShowCaptcha(URL:string);
    procedure drawRect(Shift:TShiftState);
    procedure ShowErrScript(DATA:string);
-   function mouseXY2Pos(Pnt:TPoint):TPoint;
    procedure setalloperationfalse(newop:TAOperation);
 class   procedure insertinpath(pos:integer);
 class   procedure delfrompath(pos:integer);
@@ -523,12 +524,22 @@ class   procedure delfrompath(pos:integer);
    procedure SetStatusBarVisible();
    procedure SetLineScaleVisible(visible:boolean);
    procedure SetMiniMapVisible(visible:boolean);
+
+   function VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
+   function MapPixel2VisiblePixel(Pnt:TPoint):TPoint;
+
+   function LoadedPixel2MapPixel(Pnt:TPoint):TPoint;
+   function MapPixel2LoadedPixel(Pnt:TPoint):TPoint;
+
    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
    property VisiblePixelRect: TRect read GetVisiblePixelRect;
+
+   property LoadedTopLeft: TPoint read GetLoadedTopLeft;
    property LoadedPixelRect: TRect read GetLoadedPixelRect;
    property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
    property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
+   property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
   end;
 
   TGPSpar = record
@@ -966,11 +977,6 @@ begin
  aoper:=newop;
 end;
 
-function TFmain.mouseXY2Pos(Pnt:TPoint):TPoint;
-begin
- Result:=Point(ScreenCenterPos.x-(mWd2-Pnt.X),ScreenCenterPos.y-(mHd2-Pnt.y));
-end;
-
 procedure TFmain.ShowCaptcha(URL:string);
 begin
  ShellExecute(Handle, nil, PChar(URL), nil, nil, SW_RESTORE);
@@ -1109,7 +1115,7 @@ var i,d256,kz,jj,j,bxy:integer;
 begin
   xy1:=sat_map_both.GeoConvert.LonLat2PixelPos(rect_arr[0],GState.zoom_size-1);
   xy2:=sat_map_both.GeoConvert.LonLat2PixelPos(rect_arr[1],GState.zoom_size-1);
-  LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+  LayerMapNal.Location:=floatrect(MapLayerLocationRect);
   LayerMapNal.Bitmap.Clear(clBlack);
   if (zoom_line in [99,0])or(zoom_line<GState.zoom_size)
    then d256:=256
@@ -1204,7 +1210,7 @@ var i:integer;
     k1:TPoint;
     Polygon: TPolygon32;
 begin
- LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ LayerMapNal.Location:=floatrect(MapLayerLocationRect);
  TBEditPath.Visible:=(length(reg_arr)>1);
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
@@ -1719,10 +1725,12 @@ var ll:TextendedPoint;
     subs2:string;
     posnext:integer;
     TameTZ:TDateTime;
+    VPoint: TPoint;
 begin
  If not(GState.ShowStatusBar) then exit;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
- ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(m_m.X,m_m.Y)),(GState.zoom_size - 1) + 8);
+ VPoint := VisiblePixel2MapPixel(m_m);
+ ll:=sat_map_both.GeoConvert.Pos2LonLat(VPoint,(GState.zoom_size - 1) + 8);
  if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
                     else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
@@ -1738,7 +1746,7 @@ begin
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
  // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
- subs2:=sat_map_both.GetTileFileName(X2absX(ScreenCenterPos.x-(mWd2-m_m.x),GState.zoom_size),ScreenCenterPos.y-(mHd2-m_m.y),GState.zoom_size);
+ subs2:=sat_map_both.GetTileFileName(X2absX(VPoint.X,GState.zoom_size),VPoint.Y,GState.zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if GState.ShowStatusBar then LayerStatBar.BringToFront;
@@ -2076,7 +2084,7 @@ begin
  Map.Cursor:=crDefault;
  map.Color:=clSilver;
  LayerMap:=TBitmapLayer.Create(map.Layers);
- LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ LayerMap.Location:=floatrect(MapLayerLocationRect);
  LayerMap.Bitmap.Width:=xhgpx;
  LayerMap.Bitmap.Height:=yhgpx;
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
@@ -2640,16 +2648,18 @@ end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
- if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+m_up.x,ScreenCenterPos.Y-mHd2+m_up.y),GState.zoom_size-1),true) then
-  generate_im(nilLastLoad,'');
+  if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(m_up), GState.zoom_size-1), true) then
+    generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.N20Click(Sender: TObject);
 var btm:TBitmap32;
     btm1:TBitmap;
+    VPoint: TPoint;
 begin
+  VPoint := VisiblePixel2MapPixel(move);
  btm:=TBitmap32.Create;
- if sat_map_both.LoadTile(btm,X2absX(ScreenCenterPos.x-(mWd2-move.x),GState.zoom_size),ScreenCenterPos.y-(mHd2-move.y),GState.zoom_size,false)
+ if sat_map_both.LoadTile(btm,X2absX(VPoint.X,GState.zoom_size), VPoint.Y, GState.zoom_size,false)
   then begin
         btm1:=TBitmap.Create;
         btm1.Width:=256; btm1.Height:=256;
@@ -2663,15 +2673,18 @@ end;
 procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
- ll:=sat_map_both.GeoConvert.Pos2LonLat(mouseXY2Pos(Point(move.X,move.Y)),(GState.zoom_size - 1) + 8);
+ ll:=sat_map_both.GeoConvert.Pos2LonLat(VisiblePixel2MapPixel(move),(GState.zoom_size - 1) + 8);
  if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
 
 procedure TFmain.N15Click(Sender: TObject);
+var
+  VPoint: TPoint;
 begin
+  VPoint := VisiblePixel2MapPixel(move);
  // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
- CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(ScreenCenterPos.x-(mWd2-move.x),GState.zoom_size),ScreenCenterPos.y-(mHd2-move.y),GState.zoom_size));
+ CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(VPoint.X,GState.zoom_size), VPoint.Y, GState.zoom_size));
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
@@ -2722,16 +2735,21 @@ begin
 end;
 
 procedure TFmain.NopendirClick(Sender: TObject);
+var
+  VPoint: TPoint;
 begin
+  VPoint := VisiblePixel2MapPixel(m_m);
   // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
- ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(ScreenCenterPos.x-(mWd2-m_m.x),ScreenCenterPos.y-(mHd2-m_m.y),GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
+ ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.N25Click(Sender: TObject);
 var s:string;
     i:integer;
+  VPoint: TPoint;
 begin
- s:=sat_map_both.GetTileFileName(ScreenCenterPos.x-(mWd2-m_m.x),ScreenCenterPos.y-(mHd2-m_m.y),GState.zoom_size);
+  VPoint := VisiblePixel2MapPixel(m_m);
+  s:=sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
  for i:=length(s) downto 0 do if s[i]='\'then break;
  // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
  ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
@@ -2822,8 +2840,12 @@ begin
 end;
 
 procedure TFmain.N012Click(Sender: TObject);
+var
+  VPoint: TPoint;
 begin
- topos(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+m_up.X, ScreenCenterPos.Y-mHd2+m_up.Y),GState.zoom_size-1),TMenuItem(sender).tag,true);
+  VPoint := VisiblePixel2MapPixel(m_up);
+
+ topos(sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, GState.zoom_size-1),TMenuItem(sender).tag,true);
 end;
 
 procedure TFmain.N29Click(Sender: TObject);
@@ -3231,12 +3253,12 @@ begin
     else begin
           with LayerLineM do location:=floatrect(location.left,map.Height-23,location.right,map.Height-8);
          end;
-   LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+   LayerMap.Location:=floatrect(MapLayerLocationRect);
    FillingMap.Location:=LayerMap.Location;
-   LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
-   LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
-   LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
-   LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+   LayerMapNal.Location:=floatrect(MapLayerLocationRect);
+   LayerMapMarks.Location:=floatrect(MapLayerLocationRect);
+   LayerMapGPS.Location:=floatrect(MapLayerLocationRect);
+   LayerMapWiki.Location:=floatrect(MapLayerLocationRect);
    LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
@@ -3431,7 +3453,7 @@ begin
  if (aoper=ao_movemap) then
   begin
    r:=map.ScreenToClient(Mouse.CursorPos);
-   ScreenCenterPos := Point(ScreenCenterPos.x+(r.x-mWd2),ScreenCenterPos.y+(r.y-mHd2));
+   ScreenCenterPos := VisiblePixel2MapPixel(r);
    generate_im(nilLastLoad,'');
   end;
 end;
@@ -3483,8 +3505,11 @@ begin
 end;
 
 procedure TFmain.N13Click(Sender: TObject);
+var
+  VPoint: TPoint;
 begin
- CopyStringToClipboard(sat_map_both.GetLink(X2absX(ScreenCenterPos.x-(mWd2-move.x),GState.zoom_size),ScreenCenterPos.y-(mHd2-move.y),GState.zoom_size));
+  VPoint := VisiblePixel2MapPixel(move);
+ CopyStringToClipboard(sat_map_both.GetLink(X2absX(VPoint.X,GState.zoom_size),VPoint.Y,GState.zoom_size));
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
@@ -3676,27 +3701,27 @@ begin
   begin
    if (aoper=ao_line)then begin
                   setlength(length_arr,length(length_arr)+1);
-                  length_arr[length(length_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+                  length_arr[length(length_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                   drawLineCalc;
                  end;
    if (aoper=ao_Reg) then begin
                   setlength(reg_arr,length(reg_arr)+1);
-                  reg_arr[length(reg_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+                  reg_arr[length(reg_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                   drawReg;
                  end;
    if (aoper=ao_rect)then begin
                   if rect_dwn then begin
-                                    rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+                                    rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                                     rect_p2:=true;
                                    end
                               else begin
-                                    rect_arr[0]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+                                    rect_arr[0]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                                     rect_arr[1]:=rect_arr[0];
                                    end;
                   rect_dwn:=not(rect_dwn);
                   drawRect(Shift);
                  end;
-   if (aoper=ao_add_point)and(FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1),true)) then generate_im(nilLastLoad,'');
+   if (aoper=ao_add_point)and(FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1),true)) then generate_im(nilLastLoad,'');
    if (aoper in [ao_add_line,ao_add_poly]) then
       begin
         for i:=0 to length(add_line_arr)-1 do begin
@@ -3712,7 +3737,7 @@ begin
         inc(lastpoint);
         movepoint:=lastpoint;
         insertinpath(lastpoint);
-        add_line_arr[lastpoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x, ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+        add_line_arr[lastpoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
         drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
       end;
    exit;
@@ -3753,25 +3778,25 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
 var PWL:TResObj;
     posB:TPoint;
     stw:String;
-    VLoadPoint: TPoint;
+    VPoint: TPoint;
 begin
  if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
  MapMoving:=false;
+ VPoint := VisiblePixel2MapPixel(Point(x, y));
  if HiWord(GetKeyState(VK_DELETE))<>0 then
-  if ((ScreenCenterPos.x-(mWd2-x))>0)and((ScreenCenterPos.x-(mWd2-x))<Zoom[GState.zoom_size])and
-     ((ScreenCenterPos.y-(mHd2-y))>0)and((ScreenCenterPos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
+  if (VPoint.X > 0)and(VPoint.X < Zoom[GState.zoom_size])and
+     (VPoint.Y > 0)and(VPoint.Y < Zoom[GState.zoom_size]) then
   begin
-   sat_map_both.DeleteTile(ScreenCenterPos.x-(mWd2-X),ScreenCenterPos.y-(mHd2-y),GState.zoom_size);
+   sat_map_both.DeleteTile(VPoint.X, VPoint.Y, GState.zoom_size);
    generate_im(nilLastLoad,'');
    exit;
   end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then
-  if ((ScreenCenterPos.x-(mWd2-x))>0)and((ScreenCenterPos.x-(mWd2-x))<Zoom[GState.zoom_size])and
-     ((ScreenCenterPos.y-(mHd2-y))>0)and((ScreenCenterPos.y-(mHd2-y))<Zoom[GState.zoom_size]) then
+  if (VPoint.X > 0)and(VPoint.X < Zoom[GState.zoom_size])and
+     (VPoint.Y > 0)and(VPoint.Y < Zoom[GState.zoom_size]) then
   begin
-    VLoadPoint := Point(ScreenCenterPos.x-(mWd2-x),ScreenCenterPos.y-(mHd2-y));
-    TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, sat_map_both);
+    TTileDownloaderUIOneTile.Create(VPoint, GState.zoom_size, sat_map_both);
     exit;
   end;
  if HiWord(GetKeyState(VK_F6))<>0 then
@@ -3927,13 +3952,13 @@ begin
  sleep(1);
  if movepoint>-1 then
   begin
-   add_line_arr[movepoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+   add_line_arr[movepoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x,y)), GState.zoom_size-1);
    drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
-               rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2+x,ScreenCenterPos.Y-mHd2+y),GState.zoom_size-1);
+               rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x,y)), GState.zoom_size-1);
                drawRect(Shift);
               end;
  if MapMoving then layer.Cursor:=3;
@@ -4185,7 +4210,7 @@ end;
 procedure TFmain.NSRTM3Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(ScreenCenterPos.x-(mWd2-move.x),ScreenCenterPos.y-(mHd2-move.y)),(GState.zoom_size - 1) + 8);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(VisiblePixel2MapPixel(move), (GState.zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
@@ -4194,7 +4219,7 @@ end;
 procedure TFmain.NGTOPO30Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
- Apos:=sat_map_both.GeoConvert.Pos2LonLat(Point(ScreenCenterPos.x-(mWd2-move.x), ScreenCenterPos.y-(mHd2-move.y)),(GState.zoom_size - 1) + 8);
+ Apos:=sat_map_both.GeoConvert.Pos2LonLat(VisiblePixel2MapPixel(move), (GState.zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
@@ -4475,7 +4500,7 @@ function TFmain.GetLoadedPixelRect: TRect;
 var
   VSizeInPixel: TPoint;
 begin
-  VSizeInPixel := LoadedSizeInPixel;
+  VSizeInPixel := GetLoadedSizeInPixel;
   Result.Left := ScreenCenterPos.X - VSizeInPixel.X div 2;
   Result.Top := ScreenCenterPos.Y - VSizeInPixel.Y div 2;
   Result.Right := ScreenCenterPos.X + VSizeInPixel.X div 2;
@@ -4490,7 +4515,7 @@ begin
     Result.X := Screen.Width;
     Result.Y := Screen.Height;
   end else begin
-    VSizeInTile := LoadedSizeInTile;
+    VSizeInTile := GetLoadedSizeInTile;
     Result.X := VSizeInTile.X * 256;
     Result.Y := VSizeInTile.Y * 256;
   end;
@@ -4502,5 +4527,63 @@ begin
  Result.Y := Ceil(Screen.Height / 256) + GState.TilesOut;
 end;
 
+
+function TFmain.GetMapLayerLocationRect: TRect;
+var
+  VLoadedSize: TPoint;
+  VVisibleSize: TPoint;
+begin
+  VLoadedSize := GetLoadedSizeInPixel;
+  VVisibleSize := GetVisibleSizeInPixel;
+  Result := bounds(
+    (VVisibleSize.X - VLoadedSize.X) div 2,
+    (VVisibleSize.X - VLoadedSize.X) div 2,
+    VLoadedSize.X,
+    VLoadedSize.Y
+  );
+end;
+
+function TFmain.GetLoadedTopLeft: TPoint;
+var
+  VSizeInPixel: TPoint;
+begin
+  VSizeInPixel := GetLoadedSizeInPixel;
+  Result.X := ScreenCenterPos.X - VSizeInPixel.X div 2;
+  Result.Y := ScreenCenterPos.Y - VSizeInPixel.Y div 2;
+end;
+
+
+function TFmain.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
+begin
+  Result := GetVisibleTopLeft;
+  Result.X := Result.X + Pnt.X;
+  Result.Y := Result.Y + Pnt.y;
+end;
+
+
+function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
+var
+  VVisibleSize: TPoint;
+begin
+  VVisibleSize := GetVisibleSizeInPixel;
+  Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
+  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
+end;
+
+function TFmain.LoadedPixel2MapPixel(Pnt: TPoint): TPoint;
+begin
+  Result := GetLoadedTopLeft;
+  Result.X := Result.X + Pnt.X;
+  Result.Y := Result.Y + Pnt.y;
+end;
+
+function TFmain.MapPixel2LoadedPixel(Pnt: TPoint): TPoint;
+var
+  VSize: TPoint;
+begin
+  VSize := GetLoadedSizeInPixel;
+  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X div 2);
+  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y div 2);
+end;
 
 end.
