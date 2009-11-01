@@ -133,9 +133,9 @@ begin
  With WikiLayer[lenLay-1] do
   begin
    LT:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
-   LT:=Point(pr_x-(FMain.ScreenCenterPos.x-LT.x),pr_y-(FMain.ScreenCenterPos.y-LT.y));
+   LT := Fmain.MapPixel2LoadedPixel(LT);
    RD:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinatesRD,GState.zoom_size-1);
-   RD:=Point(pr_x-(FMain.ScreenCenterPos.x-RD.x),pr_y-(FMain.ScreenCenterPos.y-RD.y));
+   RD := Fmain.MapPixel2LoadedPixel(RD);
    if coordinatesLT.X=coordinatesRD.x then begin
      LT.X:=LT.X-3;
      RD.x:=RD.x+3;
@@ -156,11 +156,12 @@ begin
     begin
      setLength(AarrKt,5);
      AarrKt[0]:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinates[0],GState.zoom_size-1);
-     AarrKt[1]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[0].x)+2,pr_y-(FMain.ScreenCenterPos.y-AarrKt[0].y)-2);
-     AarrKt[2]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[0].x)+2,pr_y-(FMain.ScreenCenterPos.y-AarrKt[0].y)+2);
-     AarrKt[3]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[0].x)-2,pr_y-(FMain.ScreenCenterPos.y-AarrKt[0].y)+2);
-     AarrKt[4]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[0].x)-2,pr_y-(FMain.ScreenCenterPos.y-AarrKt[0].y)-2);
-     AarrKt[0]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[0].x)-2,pr_y-(FMain.ScreenCenterPos.y-AarrKt[0].y)-2);
+     AarrKt[0] := Fmain.MapPixel2LoadedPixel(AarrKt[0]);
+     AarrKt[1]:=Point(AarrKt[0].x+2,AarrKt[0].y-2);
+     AarrKt[2]:=Point(AarrKt[0].x+2,AarrKt[0].y+2);
+     AarrKt[3]:=Point(AarrKt[0].x-2,AarrKt[0].y+2);
+     AarrKt[4]:=Point(AarrKt[0].x-2,AarrKt[0].y-2);
+     AarrKt[0]:=Point(AarrKt[0].x-2,AarrKt[0].y-2);
     end
    else
    for i:=0 to length(coordinates)-1 do begin

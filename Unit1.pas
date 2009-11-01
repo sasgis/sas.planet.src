@@ -1230,7 +1230,7 @@ begin
    Canvas.Pen.Width:=1;
    for i:=0 to length(reg_arr)-1 do begin
      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(reg_arr[i],GState.zoom_size-1);
-     k1:=Point((pr_x-(ScreenCenterPos.x-k1.x)),(pr_y-(ScreenCenterPos.y-k1.y)));
+     k1:=MapPixel2LoadedPixel(k1);
      Polygon.add(FixedPoint(k1.x, k1.Y));
    end;
  end;
@@ -1247,11 +1247,13 @@ begin
  if length(reg_arr)>0 then
   begin
    k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(reg_arr[0],GState.zoom_size-1);
-   k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-3,pr_y-(ScreenCenterPos.y-k1.y)-3);
+   k1:=MapPixel2LoadedPixel(k1);
+   k1:=Point(k1.x-3,k1.y-3);
    LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.Y,6,6),SetAlpha(ClGreen32,255));
    if length(reg_arr)>1 then begin
      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(reg_arr[length(reg_arr)-1],GState.zoom_size-1);
-     k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-3,pr_y-(ScreenCenterPos.y-k1.y)-3);
+     k1:=MapPixel2LoadedPixel(k1);
+     k1:=Point(k1.x-3,k1.y-3);
      LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.Y,6,6),SetAlpha(ClRed32,255));
    end;
   end;
@@ -1297,9 +1299,9 @@ begin
   for i:=0 to length(GState.GPS_TrackPoints)-2 do
    begin
     k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(GState.GPS_TrackPoints[i],GState.zoom_size-1);
-    k1:=Point(pr_x-(ScreenCenterPos.x-k1.x),pr_y-(ScreenCenterPos.y-k1.y));
+    k1:=MapPixel2LoadedPixel(k1);
     k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],GState.zoom_size-1);
-    k2:=Point(pr_x-(ScreenCenterPos.x-k2.x),pr_y-(ScreenCenterPos.y-k2.y));
+    k2:=MapPixel2LoadedPixel(k2);
     if (GState.GPS_ArrayOfSpeed[i]>0)and(GPSpar.maxspeed>0)
       then speed:=round(255/(GPSpar.maxspeed/GState.GPS_ArrayOfSpeed[i]))
       else speed:=0;
@@ -1321,9 +1323,9 @@ begin
  if length(GState.GPS_TrackPoints)>1 then
  try
   ke:=sat_map_both.FCoordConverter.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
-  ke:=ExtPoint(pr_x-(FMain.ScreenCenterPos.x-ke.x),pr_y-(FMain.ScreenCenterPos.y-ke.y));
+  ke:=MapPixel2LoadedPixel(ke);
   ks:=sat_map_both.FCoordConverter.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
-  ks:=ExtPoint(pr_x-(FMain.ScreenCenterPos.x-ks.x),pr_y-(FMain.ScreenCenterPos.y-ks.y));
+  ks:=MapPixel2LoadedPixel(ks);
 
   dl:=GState.GPS_ArrowSize;
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
@@ -1350,7 +1352,7 @@ begin
  if length(GState.GPS_TrackPoints)>0 then
   begin
    k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
-   k1:=Point(pr_x-(FMain.ScreenCenterPos.x-k1.x),pr_y-(FMain.ScreenCenterPos.y-k1.y));
+   k1:=MapPixel2LoadedPixel(k1);
    SizeTrackd2:=GState.GPS_ArrowSize div 6;
    LayerMapGPS.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
   end;
@@ -1404,12 +1406,12 @@ begin
   with LayerMap.Bitmap do begin
    for i:=0 to length(pathll)-1 do begin
      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
-     k1:=Point(pr_x-(ScreenCenterPos.x-k1.x),pr_y-(ScreenCenterPos.y-k1.y));
+     k1:=MapPixel2LoadedPixel(k1);
      if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
        polygon.Add(FixedPoint(k1));
      if i<length(pathll)-1 then begin
        k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
-       k2:=Point(pr_x-(ScreenCenterPos.x-k2.x),pr_y-(ScreenCenterPos.y-k2.y));
+       k2:=MapPixel2LoadedPixel(k2);
        if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
                                   else adp:=(k2.y-k1.y)div 32767+2;
        k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
@@ -1434,7 +1436,8 @@ begin
    if new then begin
      for i:=1 to length(pathll)-2 do begin
        k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
-       k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-4,pr_y-(ScreenCenterPos.y-k1.y)-4);
+       k1:=MapPixel2LoadedPixel(k1);
+       k1:=Point(k1.x-4,k1.y-4);
        LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(clYellow32,150));
      end;
    end;
@@ -1443,10 +1446,12 @@ begin
  polygon.Free;
  if (new)and(length(pathll)>0) then begin
    k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[0],GState.zoom_size-1);
-   k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-4,pr_y-(ScreenCenterPos.y-k1.y)-4);
+   k1:=MapPixel2LoadedPixel(k1);
+   k1:=Point(k1.x-4,k1.y-4);
    LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
    k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[length(pathll)-1],GState.zoom_size-1);
-   k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-4,pr_y-(ScreenCenterPos.y-k1.y)-4);
+   k1:=MapPixel2LoadedPixel(k1);
+   k1:=Point(k1.x-4,k1.y-4);
    LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClRed32,255));
  end;
  map.Bitmap.endUpdate;
@@ -1480,13 +1485,13 @@ begin
   for i:=0 to length(length_arr)-1 do
    begin
     k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
-    k1:=Point(pr_x-(ScreenCenterPos.x-k1.x),pr_y-(ScreenCenterPos.y-k1.y));
+    k1:=MapPixel2LoadedPixel(k1);
     if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
       polygon.Add(FixedPoint(k1));
     if i<length(length_arr)-1 then
      begin
       k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
-      k1:=Point(pr_x-(ScreenCenterPos.x-k1.x),pr_y-(ScreenCenterPos.y-k1.y));
+      k1:=MapPixel2LoadedPixel(k1);
       if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
                                  else adp:=(k2.y-k1.y)div 32767+2;
       k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
@@ -1512,9 +1517,9 @@ begin
   for i:=0 to length(length_arr)-2 do
    begin
     k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
-    k1:=Point(pr_x-(ScreenCenterPos.x-k1.x),pr_y-(ScreenCenterPos.y-k1.y));
+    k1:=MapPixel2LoadedPixel(k1);
     k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
-    k2:=Point(pr_x-(ScreenCenterPos.x-k2.x),pr_y-(ScreenCenterPos.y-k2.y));
+    k2:=MapPixel2LoadedPixel(k2);
     if not((k2.x>0)and(k2.y>0))and((k2.x<xhgpx)and(k2.y<yhgpx))then continue;
     FrameRectS(k2.x-3,k2.y-3,k2.X+3,k2.Y+3,SetAlpha(ClRed32,150));
     FillRectS(k1.x-2,k1.y-2,k1.X+2,k1.y+2,SetAlpha(ClWhite32,150));
@@ -1539,10 +1544,12 @@ begin
       end;
    end;
   k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[0],GState.zoom_size-1);
-  k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-3,pr_y-(ScreenCenterPos.y-k1.y)-3);
+  k1:=MapPixel2LoadedPixel(k1);
+  k1:=Point(k1.x-3,k1.y-3);
   FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClGreen32,255));
   k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[length(length_arr)-1],GState.zoom_size-1);
-  k1:=Point(pr_x-(ScreenCenterPos.x-k1.x)-3,pr_y-(ScreenCenterPos.y-k1.y)-3);
+  k1:=MapPixel2LoadedPixel(k1);
+  k1:=Point(k1.x-3,k1.y-3);
   FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClRed32,255));
  end;
  map.Bitmap.endUpdate;
@@ -1569,9 +1576,8 @@ begin
    LayerMapMarks.Visible:=false;
    exit;
   end;
- LLRect.TopLeft:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x-mWd2,ScreenCenterPos.Y-mHd2),GState.zoom_size-1);
- LLRect.BottomRight:=sat_map_both.FCoordConverter.PixelPos2LonLat(Point(ScreenCenterPos.x+mWd2,ScreenCenterPos.Y+mHd2),GState.zoom_size-1);
- marksFilter:='';
+  LLRect := sat_map_both.FCoordConverter.PixelRect2LonLatRect(VisiblePixelRect, GState.zoom_size-1);
+  marksFilter:='';
  if GState.show_point = mshChecked then
   begin
    CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(GState.zoom_size)+' and BeforeScale >= '+inttostr(GState.zoom_size)+' )';
@@ -1638,7 +1644,8 @@ begin
      if (ms.size)=24 then
       begin
        xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(arrLL^[0],GState.zoom_size-1);
-       xy:=Point(pr_x-(ScreenCenterPos.x-xy.x)-3,pr_y-(ScreenCenterPos.y-xy.y)-3);
+       xy := MapPixel2LoadedPixel(xy);
+       xy:=Point(xy.x-3,xy.y-3);
        imw:=CDSmarks.FieldByName('Scale2').AsInteger;
        indexmi:=GState.MarkIcons.IndexOf(CDSmarks.FieldByName('picname').AsString);
        if(indexmi=-1)and(GState.MarkIcons.Count>0) then indexmi:=0;
@@ -3231,12 +3238,12 @@ begin
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
-var Apos,AposLT,AposRD:tExtendedPoint;
+var Apos:tExtendedPoint;
+  VRect: TExtendedRect;
 begin
  Apos:=sat_map_both.GeoConvert.Pos2LonLat(ScreenCenterPos, (GState.zoom_size - 1) + 8);
- AposLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(ScreenCenterPos.X-mWd2, ScreenCenterPos.Y-mHd2),(GState.zoom_size - 1) + 8);
- AposRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(ScreenCenterPos.X+mWd2, ScreenCenterPos.Y+mHd2),(GState.zoom_size - 1) + 8);
- CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Apos.x*100000)/100000)+'%2C'+R2StrPoint(round(Apos.y*100000)/100000)+'&spn='+R2StrPoint(abs(AposLT.x-AposRD.x))+'%2C'+R2StrPoint(abs(AposLT.y-AposRD.y))+'&l=sat');
+ VRect := sat_map_both.GeoConvert.PixelRect2LonLatRect(VisiblePixelRect, (GState.zoom_size - 1));
+ CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Apos.x*100000)/100000)+'%2C'+R2StrPoint(round(Apos.y*100000)/100000)+'&spn='+R2StrPoint(abs(VRect.Left-VRect.Right))+'%2C'+R2StrPoint(abs(VRect.Top-VRect.Bottom))+'&l=sat');
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
@@ -3733,7 +3740,7 @@ begin
       begin
         for i:=0 to length(add_line_arr)-1 do begin
          xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(add_line_arr[i],GState.zoom_size-1);
-         xy:=Point(mWd2-(FMain.ScreenCenterPos.x-xy.x),mHd2-(FMain.ScreenCenterPos.y-xy.y));
+         xy := MapPixel2VisiblePixel(xy);
          if (X<xy.x+5)and(X>xy.x-5)and(Y<xy.y+5)and(Y>xy.y-5) then begin
            movepoint:=i;
            lastpoint:=i;
