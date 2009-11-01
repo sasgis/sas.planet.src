@@ -525,11 +525,15 @@ class   procedure delfrompath(pos:integer);
    procedure SetLineScaleVisible(visible:boolean);
    procedure SetMiniMapVisible(visible:boolean);
 
-   function VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
-   function MapPixel2VisiblePixel(Pnt:TPoint):TPoint;
+   function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
+   function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+   function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
+   function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
-   function LoadedPixel2MapPixel(Pnt:TPoint):TPoint;
-   function MapPixel2LoadedPixel(Pnt:TPoint):TPoint;
+   function LoadedPixel2MapPixel(Pnt: TPoint): TPoint; overload;
+   function LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+   function MapPixel2LoadedPixel(Pnt: TPoint): TPoint; overload;
+   function MapPixel2LoadedPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
@@ -702,7 +706,7 @@ begin
  polygon.AntialiasMode:=am4times;
 
   ke:=sat_map_both.FCoordConverter.LonLat2PixelPosf(ll,GState.zoom_size-1);
-  ke:=ExtPoint(pr_x-(FMain.ScreenCenterPos.x-ke.x),pr_y-(FMain.ScreenCenterPos.y-ke.y));
+  ke := Fmain.MapPixel2LoadedPixel(ke);
   pe:=Point(round(ke.x),round(ke.y));
   ks:=ExtPoint(pr_x,pr_y);
   dl:=GState.GPS_ArrowSize;
@@ -1186,10 +1190,13 @@ begin
     exit;
   end;
   if not(rect_dwn) then exit;
-  xy1.x:=(pr_x-(ScreenCenterPos.x-xy1.x))+1;
-  xy1.y:=(pr_y-(ScreenCenterPos.y-xy1.y))+1;
-  xy2.x:=(pr_x-(ScreenCenterPos.x-xy2.x))-1;
-  xy2.y:=(pr_y-(ScreenCenterPos.y-xy2.y))-1;
+  xy1 := MapPixel2LoadedPixel(xy1);
+  xy1.x:=xy1.x+1;
+  xy1.y:=xy1.y+1;
+  xy2 := MapPixel2LoadedPixel(xy2);
+  xy2.x:=xy2.x-1;
+  xy2.y:=xy2.y-1;
+
   LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
   LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
   LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
@@ -4584,6 +4591,42 @@ begin
   VSize := GetLoadedSizeInPixel;
   Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X div 2);
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y div 2);
+end;
+
+function TFmain.LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VTopLeft: TPoint;
+begin
+  VTopLeft := GetLoadedTopLeft;
+  Result.X := VTopLeft.X + Pnt.X;
+  Result.Y := VTopLeft.Y + Pnt.y;
+end;
+
+function TFmain.MapPixel2LoadedPixel(Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VSize: TPoint;
+begin
+  VSize := GetLoadedSizeInPixel;
+  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
+  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
+end;
+
+function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VSize: TPoint;
+begin
+  VSize := GetVisibleSizeInPixel;
+  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
+  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
+end;
+
+function TFmain.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VTopLeft: TPoint;
+begin
+  VTopLeft := GetVisibleTopLeft;
+  Result.X := VTopLeft.X + Pnt.X;
+  Result.Y := VTopLeft.Y + Pnt.y;
 end;
 
 end.
