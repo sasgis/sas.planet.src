@@ -1400,7 +1400,7 @@ begin
  polygon.Antialiased:=true;
  polygon.AntialiasMode:=am4times;
  polygon.Closed:=poly;
- LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
  map.Bitmap.BeginUpdate;
  if length(pathll)>0 then
   with LayerMap.Bitmap do begin
@@ -1474,7 +1474,7 @@ begin
  polygon.Antialiased:=true;
  polygon.AntialiasMode:=am4times;
  polygon.Closed:=false;
- LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
  map.Bitmap.BeginUpdate;
  TBEditPath.Visible:=(length(length_arr)>1);
  LayerMapNal.Bitmap.Font.Name:='Tahoma';
@@ -1615,7 +1615,7 @@ begin
                       end
                  else begin
                        LayerMapMarks.Bitmap.Clear(clBlack);
-                       LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+                       LayerMapMarks.Location:=floatrect(GetMapLayerLocationRect);
                        LayerMapMarks.Visible:=true;
                       end;
  btm:=TBitmap32.Create;
@@ -1918,10 +1918,10 @@ begin
 
  y_draw:=(256+((ScreenCenterPos.y-pr_y)mod 256))mod 256;
  x_draw:=(256+((ScreenCenterPos.x-pr_x)mod 256))mod 256;
- LayerMap.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ LayerMap.Location:=floatrect(GetMapLayerLocationRect);
  LayerMap.Bitmap.Clear(clSilver);
- if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
- if GState.GPS_enab then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+ if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
+ if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
  destroyWL;
 
  for i:=0 to hg_x do
@@ -1948,7 +1948,7 @@ begin
    if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
      if MapType[Leyi].ext='.kml' then begin
        if not(LayerMapWiki.Visible) then begin
-         LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));
+         LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
          LayerMapWiki.Bitmap.Clear(clBlack);
        end;
        loadWL(MapType[Leyi]);
