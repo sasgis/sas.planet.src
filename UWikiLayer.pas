@@ -97,7 +97,7 @@ begin
    Wikilayer[i]:=nil;
   end;
  SetLength(WikiLayer,0);
- LayerMapWiki.Visible:=false;
+ FMain.LayerMapWiki.Visible:=false;
 end;
 
 procedure loadWL(Alayer:TMapType);
@@ -106,12 +106,12 @@ var
     APos:TPoint;
     kml:TKML;
 begin
- LayerMapWiki.Visible:=true;
+ FMain.LayerMapWiki.Visible:=true;
  for i:=0 to hg_x do
   for j:=0 to hg_y do
    begin
     Azoom:=GState.zoom_size;
-    APos := sat_map_both.GeoConvert.Pos2OtherMap(FMain.pos, (Azoom - 1) + 8, Alayer.GeoConvert);
+    APos := sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
     if GState.CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),GState.zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
@@ -133,9 +133,9 @@ begin
  With WikiLayer[lenLay-1] do
   begin
    LT:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
-   LT:=Point(pr_x-(FMain.pos.x-LT.x),pr_y-(FMain.pos.y-LT.y));
+   LT := Fmain.MapPixel2LoadedPixel(LT);
    RD:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinatesRD,GState.zoom_size-1);
-   RD:=Point(pr_x-(FMain.pos.x-RD.x),pr_y-(FMain.pos.y-RD.y));
+   RD := Fmain.MapPixel2LoadedPixel(RD);
    if coordinatesLT.X=coordinatesRD.x then begin
      LT.X:=LT.X-3;
      RD.x:=RD.x+3;
@@ -156,25 +156,26 @@ begin
     begin
      setLength(AarrKt,5);
      AarrKt[0]:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinates[0],GState.zoom_size-1);
-     AarrKt[1]:=Point(pr_x-(FMain.pos.x-AarrKt[0].x)+2,pr_y-(FMain.pos.y-AarrKt[0].y)-2);
-     AarrKt[2]:=Point(pr_x-(FMain.pos.x-AarrKt[0].x)+2,pr_y-(FMain.pos.y-AarrKt[0].y)+2);
-     AarrKt[3]:=Point(pr_x-(FMain.pos.x-AarrKt[0].x)-2,pr_y-(FMain.pos.y-AarrKt[0].y)+2);
-     AarrKt[4]:=Point(pr_x-(FMain.pos.x-AarrKt[0].x)-2,pr_y-(FMain.pos.y-AarrKt[0].y)-2);
-     AarrKt[0]:=Point(pr_x-(FMain.pos.x-AarrKt[0].x)-2,pr_y-(FMain.pos.y-AarrKt[0].y)-2);
+     AarrKt[0] := Fmain.MapPixel2LoadedPixel(AarrKt[0]);
+     AarrKt[1]:=Point(AarrKt[0].x+2,AarrKt[0].y-2);
+     AarrKt[2]:=Point(AarrKt[0].x+2,AarrKt[0].y+2);
+     AarrKt[3]:=Point(AarrKt[0].x-2,AarrKt[0].y+2);
+     AarrKt[4]:=Point(AarrKt[0].x-2,AarrKt[0].y-2);
+     AarrKt[0]:=Point(AarrKt[0].x-2,AarrKt[0].y-2);
     end
    else
    for i:=0 to length(coordinates)-1 do begin
      AarrKt[i]:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
-     AarrKt[i]:=Point(pr_x-(FMain.pos.x-AarrKt[i].x),pr_y-(FMain.pos.y-AarrKt[i].y));
+     AarrKt[i]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[i].x),pr_y-(FMain.ScreenCenterPos.y-AarrKt[i].y));
    end;
-   LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
-   LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;
-   if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
-                            else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
-   LayerMapWiki.Bitmap.Canvas.Pen.Width:=1;
-   LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapMainColor;
-   if length(coordinates)=1 then LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
-                            else LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;
+   if length(coordinates)=1 then FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
+                            else FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=1;
+   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapMainColor;
+   if length(coordinates)=1 then FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
+                            else FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
   end;
 end;
 

@@ -295,9 +295,8 @@ begin
  SaveMaps;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
- GState.MainIni.WriteInteger('POSITION','x',FMain.POS.x);
- GState.MainIni.WriteInteger('POSITION','y',FMain.POS.y);
- GState.MainIni.WriteInteger('POSITION','y',FMain.POS.y);
+ GState.MainIni.WriteInteger('POSITION','x',FMain.ScreenCenterPos.x);
+ GState.MainIni.WriteInteger('POSITION','y',FMain.ScreenCenterPos.y);
  GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
  GState.MainIni.Writeinteger('VIEW','DefCache',GState.DefCache);
  GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
@@ -316,7 +315,7 @@ begin
  GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
  GState.MainIni.WriteInteger('VIEW','SmMapW',GMiniMap.width);
  GState.MainIni.WriteInteger('VIEW','SmMapH',GMiniMap.height);
- if LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale',LayerMapScale.Visible);
+ if FMain.LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
@@ -584,16 +583,16 @@ begin
  pr_x:=(xhgpx)div 2;
  pr_y:=(yhgpx)div 2;
 
- LayerMap.Bitmap.Width:=xhgpx;
- LayerMap.Bitmap.Height:=yhgpx;
- LayerMapNal.Bitmap.Width:=xhgpx;
- LayerMapNal.Bitmap.Height:=yhgpx;
- LayerMapMarks.Bitmap.Width:=xhgpx;
- LayerMapMarks.Bitmap.Height:=yhgpx;
- LayerMapWiki.Bitmap.Height:=yhgpx;
- LayerMapWiki.Bitmap.Width:=xhgpx;
- LayerMapGPS.Bitmap.Height:=yhgpx;
- LayerMapGPS.Bitmap.Width:=xhgpx;
+ FMain.LayerMap.Bitmap.Width:=xhgpx;
+ FMain.LayerMap.Bitmap.Height:=yhgpx;
+ FMain.LayerMapNal.Bitmap.Width:=xhgpx;
+ FMain.LayerMapNal.Bitmap.Height:=yhgpx;
+ FMain.LayerMapMarks.Bitmap.Width:=xhgpx;
+ FMain.LayerMapMarks.Bitmap.Height:=yhgpx;
+ FMain.LayerMapWiki.Bitmap.Height:=yhgpx;
+ FMain.LayerMapWiki.Bitmap.Width:=xhgpx;
+ FMain.LayerMapGPS.Bitmap.Height:=yhgpx;
+ FMain.LayerMapGPS.Bitmap.Width:=xhgpx;
 
  SetProxy;
 

@@ -77,6 +77,22 @@ type
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended;
+
+    procedure CheckZoom(var AZoom: Byte); stdcall;
+    procedure CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); stdcall;
+
+    procedure CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    procedure CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); stdcall;
+
+    procedure CheckRelativePos(var XY: TExtendedPoint); stdcall;
+    procedure CheckRelativeRect(var XY: TExtendedRect); stdcall;
+
+    procedure CheckLonLatPos(var XY: TExtendedPoint); stdcall;
+    procedure CheckLonLatRect(var XY: TExtendedRect); stdcall;
+
   end;
 
 implementation

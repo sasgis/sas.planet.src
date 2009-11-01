@@ -74,28 +74,56 @@ type
     FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
-    function GetLink(x,y:longint;Azoom:byte):string;
+
+    function GetLink(x,y:longint;Azoom:byte):string;overload;
+    function GetLink(AXY: TPoint;Azoom:byte):string;overload;
+
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
-    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string);
+
+    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileDownload(AXY: TPoint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
+
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
 
 
-    function GetTileFileName(x,y:longint;Azoom:byte):string;
+    function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
+    function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
     function GetTileShowName(x,y:longint;Azoom:byte):string;
-    function TileExists(x,y:longint;Azoom:byte): Boolean;
-    function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean;
-    function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean;
-    function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
-    function DeleteTile(x,y:longint;Azoom:byte): Boolean;
-    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject);
-    procedure SaveTileNotExists(x,y:longint;Azoom:byte);
-    function TileLoadDate(x,y:longint;Azoom:byte): TDateTime;
-    function TileSize(x,y:longint;Azoom:byte): integer;
-    function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean;
+
+    function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
+    function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
+
+    function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean; overload;
+    function TileNotExistsOnServer(AXY: TPoint;Azoom:byte): Boolean; overload;
+
+    function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:Tobject; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+
+    function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTileFromPreZ(spr:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+
+    function DeleteTile(x,y:longint; Azoom:byte): Boolean; overload;
+    function DeleteTile(AXY: TPoint; Azoom:byte): Boolean; overload;
+
+    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject); overload;
+    procedure SaveTileSimple(AXY: TPoint; Azoom:byte; btm:TObject); overload;
+
+    procedure SaveTileNotExists(x,y:longint;Azoom:byte); overload;
+    procedure SaveTileNotExists(AXY: TPoint; Azoom:byte); overload;
+
+    function TileLoadDate(x,y:longint;Azoom:byte): TDateTime; overload;
+    function TileLoadDate(AXY: TPoint; Azoom:byte): TDateTime; overload;
+
+    function TileSize(x,y:longint;Azoom:byte): integer; overload;
+    function TileSize(AXY: TPoint; Azoom:byte): integer; overload;
+
+    function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean; overload;
+    function TileExportToFile(AXY: TPoint; Azoom:byte; AFileName: string; OverWrite: boolean): boolean; overload;
 
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean;
+    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean; overload;
+    function LoadFillingMap(btm:TBitmap32; AXY: TPoint; Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean; overload;
 
     function GetShortFolderName: string;
 
@@ -554,17 +582,17 @@ begin
   end;
 end;
 
-function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
+function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   if (FUrlGenerator = nil) then result:='';
-  if not(Azoom in [1..24]) then raise Exception.Create('Ошибочный Zoom');
-  if x>=0 then x:=x mod zoom[Azoom]
-          else x:=zoom[Azoom]+(x mod zoom[Azoom]);
-  if y>=0 then y:=y mod zoom[Azoom]
-              else y:=zoom[Azoom]+(y mod zoom[Azoom]);
-
+  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
   FUrlGenerator.GetURLBase:=URLBase;
-  Result:=FUrlGenerator.GenLink(x shr 8,y shr 8,Azoom-1);
+  Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
+end;
+
+function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
+begin
+  Result := Self.GetLink(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom - 1), Azoom - 1)
 end;
 
 function TMapType.GetBasePath: string;
@@ -602,6 +630,10 @@ begin
    then result:=GState.ProgramPath+result;
 end;
 
+function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := Self.GetTileFileName(AXY.X shl 8, AXY.Y shl 8, Azoom + 1);
+end;
 
 function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
 function full(int,z:integer):string;
@@ -696,16 +728,21 @@ begin
  end;
 end;
 
-function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
+function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: String;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    result:=GETileExists(GetBasePath+'\dbCache.dat.index',x shr 8,y shr 8,Azoom,self);
+    result:=GETileExists(GetBasePath+'\dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
   end else begin
-    VPath := GetTileFileName(x, y, Azoom);
+    VPath := GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
   end;
+end;
+
+function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
+begin
+  Result := Self.TileExists(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom - 1), Azoom - 1);
 end;
 
 function GetFileSize(namefile: string): Integer;
@@ -839,6 +876,12 @@ begin
   end;
 end;
 
+function TMapType.LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint;
+  Azoom: byte; caching: boolean): boolean;
+begin
+  Result := Self.LoadTileFromPreZ(spr, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
+end;
+
 function TMapType.LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
 var i,c_x,c_y,dZ:integer;
     bmp:TBitmap32;
@@ -887,6 +930,12 @@ begin
  result:=true;
 end;
 
+function TMapType.LoadTile(btm: Tobject; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+begin
+  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
+end;
+
 function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 var path: string;
@@ -903,16 +952,21 @@ begin
   result:= LoadFile(btm, path, caching);
 end;
 
-function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
+function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: string;
 begin
   try
-    VPath := GetTileFileName(x, y, Azoom);
-    result:=DeleteFile(PChar(VPath));
+    VPath := GetTileFileName(AXY, Azoom);
+    result := DeleteFile(PChar(VPath));
   except
     Result := false;
   end;
+end;
+
+function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
+begin
+  Result := Self.DeleteTile(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.LoadFile(btm: Tobject; APath: string; caching:boolean): boolean;
@@ -972,13 +1026,18 @@ begin
   end;
 end;
 
-function TMapType.TileNotExistsOnServer(x, y: Integer;
-  Azoom: byte): Boolean;
+function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
-  Result := Fileexists(copy(VPath,1,length(VPath)-3)+'tne');
+  VPath := GetTileFileName(AXY, Azoom);
+  Result := Fileexists(ChangeFileExt(VPath, '.tne'));
+end;
+
+function TMapType.TileNotExistsOnServer(x, y: Integer;
+  Azoom: byte): Boolean;
+begin
+  Result := Self.TileNotExistsOnServer(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 procedure TMapType.CreateDirIfNotExists(APath:string);
@@ -987,6 +1046,12 @@ begin
  i := LastDelimiter('\', Apath);
  Apath:=copy(Apath, 1, i);
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
+end;
+
+procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+begin
+  Self.SaveTileDownload(AXY.X shl 8, AXY.Y shl 8, Azoom + 1, ATileStream, ty);
 end;
 
 
@@ -1103,64 +1168,95 @@ begin
  if (btm is TPicture) then TPicture(btm).SaveToFile(path);
 end;
 
-
-function TMapType.TileLoadDate(x, y: Integer; Azoom: byte): TDateTime;
+function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  VPath := GetTileFileName(AXY, Azoom);
   Result := FileDateToDateTime(FileAge(VPath));
 end;
 
-function TMapType.TileSize(x, y: Integer; Azoom: byte): integer;
+function TMapType.TileLoadDate(x, y: Integer; Azoom: byte): TDateTime;
+begin
+  Result := Self.TileLoadDate(Point(x shr 8, y shr 8), Azoom - 1);
+end;
+
+function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  VPath := GetTileFileName(AXY, Azoom);
   Result := GetFileSize(VPath);
 end;
 
-procedure TMapType.SaveTileNotExists(x, y: Integer; Azoom: byte);
+function TMapType.TileSize(x, y: Integer; Azoom: byte): integer;
+begin
+  Result := Self.TileSize(Point(x shr 8, y shr 8), Azoom - 1);
+end;
+
+procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
 var
   VPath: String;
   F:textfile;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
- if not(FileExists(copy(Vpath,1,length(Vpath)-3)+'tne')) then
-  begin
-   CreateDirIfNotExists(copy(Vpath,1,length(Vpath)-3)+'tne');
-   AssignFile(f,copy(Vpath,1,length(Vpath)-3)+'tne');
-   Rewrite(F);
-   Writeln(f,DateTimeToStr(now));
-   CloseFile(f);
+  VPath := GetTileFileName(AXY, Azoom);
+  VPath := ChangeFileExt(VPath, '.tne');
+  if not FileExists(VPath) then begin
+    CreateDirIfNotExists(VPath);
+    AssignFile(f,VPath);
+    Rewrite(F);
+    Writeln(f,DateTimeToStr(now));
+    CloseFile(f);
   end;
+end;
+
+procedure TMapType.SaveTileNotExists(x, y: Integer; Azoom: byte);
+begin
+  Self.SaveTileNotExists(Point(x shr 8, y shr 8), Azoom - 1);
+end;
+
+procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TObject);
+var
+  VPath: String;
+begin
+  VPath := GetTileFileName(AXY, Azoom);
+  CreateDirIfNotExists(VPath);
+  DeleteFile(ChangeFileExt(Vpath,'.tne'));
+  SaveTileInCache(btm, Vpath);
 end;
 
 procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
   btm:TObject);
-var
-  VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
-  CreateDirIfNotExists(VPath);
-  DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
-  SaveTileInCache(btm,Vpath);
+  Self.SaveTileSimple(Point(x shr 8, y shr 8), Azoom - 1, btm);
 end;
 
-function TMapType.TileExportToFile(x, y: Integer; Azoom: byte;
+function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
   AFileName: string; OverWrite: boolean): boolean;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  VPath := GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(AFileName);
   Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
+end;
+
+function TMapType.TileExportToFile(x, y: Integer; Azoom: byte;
+  AFileName: string; OverWrite: boolean): boolean;
+begin
+  Result := Self.TileExportToFile(Point(x shr 8, y shr 8), Azoom - 1, AFileName, OverWrite);
+end;
+
+function TMapType.LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom,
+  ASourceZoom: byte; IsStop: PBoolean): boolean;
+begin
+  //TODO: Нужно таки сделать реализацию этой функции
 end;
 
 function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
 begin
-  //TODO: Нужно таки сделать реализацию этой функции
+  Result := Self.LoadFillingMap(btm, Point(x shr 8, y shr 8), Azoom - 1, ASourceZoom - 1, IsStop);
 end;
 
 function TMapType.GetShortFolderName: string;
