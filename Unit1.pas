@@ -3081,9 +3081,11 @@ end;
 procedure TFmain.NMMtype_0Click(Sender: TObject);
 begin
  if TTBXItem(sender).Tag=0 then begin
-                                  GMiniMap.MapType.ShowOnSmMap:=false;
-                                  GMiniMap.MapType.NSmItem.Checked:=false;
-                                  GMiniMap.maptype:=nil;
+                                  if GMiniMap.MapType<>nil then begin
+                                    GMiniMap.MapType.ShowOnSmMap:=false;
+                                    GMiniMap.MapType.NSmItem.Checked:=false;
+                                    GMiniMap.maptype:=nil;
+                                  end;  
                                   NMMtype_0.Checked:=true;
                                  end
  else
