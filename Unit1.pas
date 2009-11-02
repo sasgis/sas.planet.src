@@ -2013,6 +2013,7 @@ var
      xy,xy1:Tpoint;
      param:string;
      MainWindowMaximized: Boolean;
+     VLoadedSizeInPixel: TPoint;
 begin
  if ProgramStart=false then exit;
  RectWindow := Types.Rect(0, 0, 0, 0);
@@ -2097,10 +2098,13 @@ begin
 
  Map.Cursor:=crDefault;
  map.Color:=clSilver;
+ VLoadedSizeInPixel := LoadedSizeInPixel;
  LayerMap:=TBitmapLayer.Create(map.Layers);
  LayerMap.Location:=floatrect(MapLayerLocationRect);
- LayerMap.Bitmap.Width:=xhgpx;
- LayerMap.Bitmap.Height:=yhgpx;
+
+ LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
+ LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
+
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
  LayerMapScale:=TBitmapLayer.Create(map.Layers);
@@ -2146,16 +2150,16 @@ begin
  FillingMap.Priority:=tpLowest;
 
  LayerMapNal:=TBitmapLayer.Create(map.Layers);
- LayerMapNal.Bitmap.Width:=xhgpx;
- LayerMapNal.Bitmap.Height:=yhgpx;
+ LayerMapNal.Bitmap.Width := VLoadedSizeInPixel.X;
+ LayerMapNal.Bitmap.Height := VLoadedSizeInPixel.Y;
  LayerMapNal.Bitmap.DrawMode:=dmBlend;
  LayerMapNal.Bitmap.CombineMode:=cmMerge;
  LayerMapNal.bitmap.Font.Charset:=RUSSIAN_CHARSET;
  LayerMapNal.Visible:=false;
 
  LayerMapMarks:=TBitmapLayer.Create(map.Layers);
- LayerMapMarks.Bitmap.Width:=xhgpx;
- LayerMapMarks.Bitmap.Height:=yhgpx;
+ LayerMapMarks.Bitmap.Width := VLoadedSizeInPixel.X;
+ LayerMapMarks.Bitmap.Height := VLoadedSizeInPixel.Y;
  LayerMapMarks.Bitmap.DrawMode:=dmBlend;
  LayerMapMarks.Bitmap.CombineMode:=cmMerge;
  LayerMapMarks.bitmap.Font.Charset:=RUSSIAN_CHARSET;
@@ -2164,14 +2168,14 @@ begin
  LayerMapMarks.Visible:=false;
 
  LayerMapWiki:=TBitmapLayer.Create(map.Layers);
- LayerMapWiki.Bitmap.Width:=xhgpx;
- LayerMapWiki.Bitmap.Height:=yhgpx;
+ LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
+ LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
  LayerMapWiki.Bitmap.DrawMode:=dmTransparent;
  LayerMapWiki.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
  LayerMapGPS:=TBitmapLayer.Create(map.Layers);
- LayerMapGPS.Bitmap.Width:=xhgpx;
- LayerMapGPS.Bitmap.Height:=yhgpx;
+ LayerMapGPS.Bitmap.Width := VLoadedSizeInPixel.X;
+ LayerMapGPS.Bitmap.Height := VLoadedSizeInPixel.Y;
  LayerMapGPS.Bitmap.DrawMode:=dmBlend;
  LayerMapGPS.Bitmap.CombineMode:=cmMerge;
  LayerMapGPS.bitmap.Font.Charset:=RUSSIAN_CHARSET;

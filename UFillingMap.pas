@@ -76,10 +76,13 @@ begin
 end;
 
 procedure TFillingMap.SetupLayer;
+var
+  VLoadedSizeInPixel: TPoint;
 begin
+  VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
   LayerMap.bitmap.Clear(clBlack);
-  LayerMap.Bitmap.Width:=xhgpx;
-  LayerMap.Bitmap.Height:=yhgpx;
+  LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
+  LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
   LayerMap.Location:=FMain.LayerMap.Location;
   LayerMap.Visible:=true;
   dZoom:=GState.zoom_mapzap-GState.zoom_size;
