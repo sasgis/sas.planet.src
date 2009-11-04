@@ -350,7 +350,7 @@ begin
    fname:=Fnamebuf;
    if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
 
-   for pti:=0 to length(PrTypes) do
+   for pti:=0 to length(PrTypes)-1 do
     case TPrType(pti) of
      ptMap: toOziMap(fname,poly0,poly1,zoom,typemap);
      ptTab: toTabMap(fname,poly0,poly1,zoom,typemap);

@@ -282,7 +282,7 @@ uses
   Unit4,
   UaddLine,
   u_MiniMap,
-  UaddPoly, TB2Item;
+  UaddPoly, TB2Item, Types;
 
 {$R *.dfm}
 
@@ -460,6 +460,7 @@ end;
 procedure TFSettings.Button3Click(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
+    VLoadedSizeInPixel: TPoint;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
@@ -583,16 +584,17 @@ begin
  pr_x:=(xhgpx)div 2;
  pr_y:=(yhgpx)div 2;
 
- FMain.LayerMap.Bitmap.Width:=xhgpx;
- FMain.LayerMap.Bitmap.Height:=yhgpx;
- FMain.LayerMapNal.Bitmap.Width:=xhgpx;
- FMain.LayerMapNal.Bitmap.Height:=yhgpx;
- FMain.LayerMapMarks.Bitmap.Width:=xhgpx;
- FMain.LayerMapMarks.Bitmap.Height:=yhgpx;
- FMain.LayerMapWiki.Bitmap.Height:=yhgpx;
- FMain.LayerMapWiki.Bitmap.Width:=xhgpx;
- FMain.LayerMapGPS.Bitmap.Height:=yhgpx;
- FMain.LayerMapGPS.Bitmap.Width:=xhgpx;
+ VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
+ FMain.LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
+ FMain.LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
+ FMain.LayerMapNal.Bitmap.Width := VLoadedSizeInPixel.X;
+ FMain.LayerMapNal.Bitmap.Height := VLoadedSizeInPixel.Y;
+ FMain.LayerMapMarks.Bitmap.Width := VLoadedSizeInPixel.X;
+ FMain.LayerMapMarks.Bitmap.Height := VLoadedSizeInPixel.Y;
+ FMain.LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
+ FMain.LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
+ FMain.LayerMapGPS.Bitmap.Width := VLoadedSizeInPixel.X;
+ FMain.LayerMapGPS.Bitmap.Height := VLoadedSizeInPixel.Y;
 
  SetProxy;
 
