@@ -637,7 +637,7 @@ uses
   USearchResult,
   UImport,
   UAddCategory,
-  u_TileDownloaderUIOneTile;
+  u_TileDownloaderUIOneTile, i_ICoordConverter;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -1852,6 +1852,7 @@ var
     VTileCenter: TPoint;
     VTileSize: TPoint;
     VGridZoom: Byte;
+    VTilesLineRect: TRect;
 begin
   VCurrentZoom := GState.zoom_size - 1;
   if zoom_line=99 then begin
@@ -1868,20 +1869,34 @@ begin
 
   drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
 
+  VTilesLineRect.Left := VTilesRect.Left;
+  VTilesLineRect.Right := VTilesRect.Right;
   for i := VTilesRect.Top to VTilesRect.Bottom do begin
-    VTileIndex.Y := i;
-    for j := VTilesRect.Left to VTilesRect.Right do begin
-      VTileIndex.X := j;
-      VTileRelativeRect := sat_map_both.GeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-      VTileRect := sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
-      LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-        VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
-      LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-        VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
-    end;
+    VTilesLineRect.Top := i;
+    VTilesLineRect.Bottom := i;
+
+    VTileRelativeRect := sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+    VTileRect := sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+    VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
+    VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
+    LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
+      VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
   end;
+
+  VTilesLineRect.Top := VTilesRect.Top;
+  VTilesLineRect.Bottom := VTilesRect.Bottom;
+  for j := VTilesRect.Left to VTilesRect.Right do begin
+    VTilesLineRect.Left := j;
+    VTilesLineRect.Right := j;
+
+    VTileRelativeRect := sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+    VTileRect := sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+    VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
+    VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
+    LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
+      VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
+  end;
+
   if not (GState.ShowBorderText) then exit;
   if VGridZoom - VCurrentZoom > 2 then exit;
 
