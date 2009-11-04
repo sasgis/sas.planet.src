@@ -1843,10 +1843,47 @@ var y_draw,x_draw,xx,yy,xx1,yy1:longint;
     textoutx,textouty:string;
     Sz1,Sz2: TSize;
     d2562,x2,x1,y1,zl,twidthx,twidthy,theight:integer;
+    VLoadedRect: TRect;
+    VLoadedRelativeRect: TExtendedRect;
+    VCurrentZoom: Byte;
+    VTilesRect: TRect;
+    VTileRelativeRect: TExtendedRect;
+    VTileRect: TRect;
+    VTileIndex: TPoint;
+    VTileScreenRect: TRect;
 begin
- if zoom_line=99 then zl:=GState.zoom_size
-                 else zl:=zoom_line;
- if (zl<GState.zoom_size)or(zl-GState.zoom_size>5) then exit;
+  VCurrentZoom := GState.zoom_size - 1;
+ if zoom_line=99 then zl:=VCurrentZoom
+                 else zl:=zoom_line - 1;
+ if (zl<VCurrentZoom)or(zl-VCurrentZoom>5) then exit;
+
+  VLoadedRect := LoadedPixelRect;
+  sat_map_both.GeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom, False);
+  VLoadedRelativeRect := sat_map_both.GeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
+  VTilesRect := sat_map_both.GeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, zl);
+
+  drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
+
+  for i := VTilesRect.Top to VTilesRect.Bottom do begin
+    VTileIndex.Y := i;
+    for j := VTilesRect.Left to VTilesRect.Right do begin
+      VTileIndex.X := j;
+      VTileRelativeRect := sat_map_both.GeoConvert.TilePos2RelativeRect(VTileIndex, zl);
+      VTileRect := sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
+      VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
+      LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
+        VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
+      LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
+        VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
+    end;
+  end;
+ zl := zl + 1;
+ if not (GState.ShowBorderText) then exit;
+ if (zl<VCurrentZoom)or(zl-GState.zoom_size>3) then exit;
+ LayerMap.bitmap.Font.Size:=8;
+ LayerMap.bitmap.Font.Name:='Arial';
+
  x2:=trunc(power(2,zl-GState.zoom_size));
  d2562:=256 div x2;
  src:=bounds(0,0,d2562,d2562);
@@ -1856,9 +1893,6 @@ begin
                    else xx1:=((ScreenCenterPos.x-pr_x)-256-((ScreenCenterPos.x-pr_x)mod 256))*x2;
  if (ScreenCenterPos.y-pr_y)>0 then yy1:=((ScreenCenterPos.y-pr_y)-((ScreenCenterPos.y-pr_y)mod 256))*x2
                    else yy1:=((ScreenCenterPos.y-pr_y)-256-((ScreenCenterPos.y-pr_y)mod 256))*x2;
- drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
- LayerMap.bitmap.Font.Size:=8;
- LayerMap.bitmap.Font.Name:='Arial';
  for i:=0 to hg_x*(x2)+(x_draw div d2562) do
   for j:=0 to hg_y*(x2)+(y_draw div d2562) do
     begin
@@ -1867,8 +1901,6 @@ begin
      if (xx<0)or(yy<0)or(yy>=zoom[zl])or(xx>=zoom[zl]) then Continue;
      x1:=(i*d2562)-x_draw;
      y1:=(j*d2562)-y_draw;
-     LayerMap.bitmap.LineAS(x1,y1,x1+d2562,y1,drawcolor);
-     LayerMap.bitmap.LineAS(x1+d2562,y1,x1+d2562,y1+d2562,drawcolor);
      x1:=(x1+d2562 shr 1);
      y1:=(y1+d2562 shr 1);
      if (GState.ShowBorderText)and(x1>0)and(y1>0)and(x1<xhgpx)and(y1<yhgpx) then
