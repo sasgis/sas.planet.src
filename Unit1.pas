@@ -1944,106 +1944,107 @@ end;
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
-    y_draw,x_draw,y_drawN,x_drawN,xx,yy:longint;
-    i,j:byte;
-    Leyi:integer;
-    posN:TPoint;
-    ts2,ts3,fr:int64;
+  y_draw,x_draw,y_drawN,x_drawN,xx,yy:longint;
+  i,j:byte;
+  Leyi:integer;
+  posN:TPoint;
+  ts2,ts3,fr:int64;
 begin
- if notpaint then exit;
- QueryPerformanceCounter(ts2);
- if not(lastload.use) then generate_mapzap;
- if not(lastload.use) then change_scene:=true;
+  if notpaint then exit;
+  QueryPerformanceCounter(ts2);
+  if not(lastload.use) then generate_mapzap;
+  if not(lastload.use) then change_scene:=true;
 
- y_draw:=(256+((ScreenCenterPos.y-pr_y)mod 256))mod 256;
- x_draw:=(256+((ScreenCenterPos.x-pr_x)mod 256))mod 256;
- LayerMap.Location:=floatrect(GetMapLayerLocationRect);
- LayerMap.Bitmap.Clear(clSilver);
- if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
- if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
- destroyWL;
+  y_draw:=(256+((ScreenCenterPos.y-pr_y)mod 256))mod 256;
+  x_draw:=(256+((ScreenCenterPos.x-pr_x)mod 256))mod 256;
+  LayerMap.Location:=floatrect(GetMapLayerLocationRect);
+  LayerMap.Bitmap.Clear(clSilver);
+  if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
+  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
+  destroyWL;
 
- for i:=0 to hg_x do
-  for j:=0 to hg_y do
-   begin
-    xx:=ScreenCenterPos.x-pr_x+(i shl 8);
-    if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-    yy:=ScreenCenterPos.y-pr_y+(j shl 8);
-    if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-    if (sat_map_both.TileExists(xx,yy,GState.zoom_size))
-     then begin
-           if sat_map_both.LoadTile(Gspr,xx,yy,GState.zoom_size,true)
-             then begin
-                    if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
-                  end
-             else BadDraw(Gspr,false);
-          end
-     else sat_map_both.LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true);
-    Gamma(Gspr);
-    LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
-   end;
+  for i:=0 to hg_x do begin
+    for j:=0 to hg_y do begin
+      xx:=ScreenCenterPos.x-pr_x+(i shl 8);
+      if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
+      yy:=ScreenCenterPos.y-pr_y+(j shl 8);
+      if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+      if (sat_map_both.TileExists(xx,yy,GState.zoom_size)) then begin
+        if sat_map_both.LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
+          if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
+        end else begin
+          BadDraw(Gspr,false);
+        end;
+      end else begin
+        sat_map_both.LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true);
+      end;
+      Gamma(Gspr);
+      LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
+    end;
+  end;
   Gspr.SetSize(256,256);
-  for Leyi:=0 to length(MapType)-1 do
-   if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
-     if MapType[Leyi].ext='.kml' then begin
-       if not(LayerMapWiki.Visible) then begin
-         LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
-         LayerMapWiki.Bitmap.Clear(clBlack);
-       end;
-       loadWL(MapType[Leyi]);
-       continue;
-     end;
-     posN:=sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
-     y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
-     x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
-     for i:=0 to hg_x do
-      for j:=0 to hg_y do
-       begin
-         xx:=ScreenCenterPos.x-pr_x+(i shl 8);
-         if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-         yy:=posN.y-pr_y+(j shl 8);
-         if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-         //Gspr.Clear($FF000000);
-         if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-           if MapType[Leyi].LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
-             if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
-           end
-           else BadDraw(Gspr,true);
-           Gamma(Gspr);
-         end
-         else if MapType[Leyi].LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true) then begin
-           Gamma(Gspr);
-         end;
-         Gspr.DrawMode:=dmBlend;
-         LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Gspr);
-       end;
-   end;
- if (lastload.use)and(err<>'') then
-   LayerMap.Bitmap.RenderText(pr_x+(lastload.x-ScreenCenterPos.x)+15,pr_y+(lastload.y-ScreenCenterPos.y)+124,err,0,clBlack32);
- generate_granica;
- DrawGenShBorders;
- if NavOnMark<>nil then NavOnMark.draw;
- if not(lastload.use) then
-   begin
+  for Leyi:=0 to length(MapType)-1 do begin
+    if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
+      if MapType[Leyi].ext='.kml' then begin
+        if not(LayerMapWiki.Visible) then begin
+          LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
+          LayerMapWiki.Bitmap.Clear(clBlack);
+        end;
+        loadWL(MapType[Leyi]);
+        continue;
+      end;
+      posN:=sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
+      y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
+      x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
+      for i:=0 to hg_x do begin
+        for j:=0 to hg_y do begin
+          xx:=ScreenCenterPos.x-pr_x+(i shl 8);
+          if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
+          yy:=posN.y-pr_y+(j shl 8);
+          if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+          if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
+            if MapType[Leyi].LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
+              if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
+            end else begin
+              BadDraw(Gspr,true);
+            end;
+            Gamma(Gspr);
+          end else begin
+            if MapType[Leyi].LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true) then begin
+              Gamma(Gspr);
+            end;
+          end;
+          Gspr.DrawMode:=dmBlend;
+          LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Gspr);
+        end;
+      end;
+    end;
+  end;
+  if (lastload.use)and(err<>'') then begin
+    LayerMap.Bitmap.RenderText(pr_x+(lastload.x-ScreenCenterPos.x)+15,pr_y+(lastload.y-ScreenCenterPos.y)+124,err,0,clBlack32);
+  end;
+  generate_granica;
+  DrawGenShBorders;
+  if NavOnMark<>nil then NavOnMark.draw;
+  if not(lastload.use) then begin
     paint_Line;
     if aoper=ao_line then drawLineCalc;
     if aoper=ao_reg then drawReg;
     if aoper=ao_rect then drawRect([]);
     if GState.GPS_enab then drawLineGPS;
-    if aoper in [ao_add_line,ao_add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+    if aoper in [ao_add_line,ao_add_poly] then begin
+      drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+    end;
     try
-     draw_point;
+      draw_point;
     except
     end;
     GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
-   end;
-{ m_up.x:=move.X;
- m_up.y:=move.y;   }
- toSh;
- QueryPerformanceCounter(ts3);
- QueryPerformanceFrequency(fr);
- Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
- //map.Cursor:=AcrBuf;
+  end;
+  toSh;
+  QueryPerformanceCounter(ts3);
+  QueryPerformanceFrequency(fr);
+  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
