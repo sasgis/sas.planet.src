@@ -3,6 +3,7 @@ unit u_TesterCoordConvertAbstract;
 interface
 
 uses
+  i_ICoordConverter,
   u_CoordConverterAbstract;
 
 type
