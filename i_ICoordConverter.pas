@@ -76,6 +76,8 @@ type
     function LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
     function LonLatRect2RelativeRect(const XY: TExtendedRect): TExtendedRect; stdcall;//TODO: Автотест
+    function LonLatRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
+    function LonLatRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
 
     function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
