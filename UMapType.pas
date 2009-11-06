@@ -139,6 +139,8 @@ type
   private
     FDownloadTilesCount: Longint;
     FInitDownloadCS: TCriticalSection;
+    FCSSaveTile: TCriticalSection;
+    FCSSaveTNF: TCriticalSection;
     FDownloader: TTileDownloaderBase;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
@@ -958,7 +960,12 @@ var
 begin
   try
     VPath := GetTileFileName(AXY, Azoom);
+    FCSSaveTile.Acquire;
+    try
     result := DeleteFile(PChar(VPath));
+    finally
+      FCSSaveTile.Release;
+    end;
   except
     Result := false;
   end;
@@ -1069,7 +1076,6 @@ begin
   VPath := GetTileFileName(x, y, Azoom);
 
   CreateDirIfNotExists(VPath);
-  DeleteFile(copy(Vpath,1,length(Vpath)-3)+'tne');
   if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(ext='.kml')then begin
     try
       UnZip:=TVCLUnZip.Create(Fmain);
@@ -1162,10 +1168,15 @@ begin
    if UpperCase(ExtractFileExt(path))='.BMP' then btm_ex.SaveToFile(path);
    btm_ex.Free;
   end;
+ FCSSaveTile.Acquire;
+ try
  if (btm is TJPEGimage) then TJPEGimage(btm).SaveToFile(path) else
  if (btm is TPNGObject) then TPNGObject(btm).SaveToFile(path) else
  if (btm is TMemoryStream) then TMemoryStream(btm).SaveToFile(path) else
  if (btm is TPicture) then TPicture(btm).SaveToFile(path);
+ finally
+  FCSSaveTile.Release;
+ end;
 end;
 
 function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
@@ -1201,12 +1212,17 @@ var
 begin
   VPath := GetTileFileName(AXY, Azoom);
   VPath := ChangeFileExt(VPath, '.tne');
+  FCSSaveTNF.Acquire;
+  try
   if not FileExists(VPath) then begin
     CreateDirIfNotExists(VPath);
     AssignFile(f,VPath);
     Rewrite(F);
     Writeln(f,DateTimeToStr(now));
     CloseFile(f);
+  end;
+  finally
+    FCSSaveTNF.Release;
   end;
 end;
 
@@ -1316,11 +1332,15 @@ end;
 constructor TMapType.Create;
 begin
   FInitDownloadCS := TCriticalSection.Create;
+  FCSSaveTile := TCriticalSection.Create;
+  FCSSaveTNF := TCriticalSection.Create;
 end;
 
 destructor TMapType.Destroy;
 begin
   FreeAndNil(FInitDownloadCS);
+  FreeAndNil(FCSSaveTile);
+  FreeAndNil(FCSSaveTNF);
   inherited;
 end;
 
