@@ -15,6 +15,7 @@ type
   TTileDownloaderUI = class(TTileDownloaderThreadBase)
   private
     UPos: TPoint;
+    FSizeInTile: TPoint;
     FLastLoad: TlastLoad;
     FErrorString: string;
     procedure GetCurrentMapAndPos;
@@ -51,6 +52,7 @@ begin
  FTypeMap:=Sat_map_Both;
  Upos:= FMain.ScreenCenterPos;
  FZoom:= GState.zoom_size;
+ FSizeInTile := Fmain.LoadedSizeInTile;
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;
@@ -86,7 +88,7 @@ begin
         end else begin
           j:=0;
           i:=-1;
-          for r:=1 to (hg_x div 2)+2 do begin
+          for r:=1 to (FSizeInTile.x div 2)+2 do begin
             if Terminated then break;
             if FMain.change_scene then Break;
             g:=(r*2-2);
@@ -100,8 +102,8 @@ begin
               if (k>=g*2)and(k<g*3) then dec(j);
               if (k>=g*3) then inc(i);
               if g=0 then i:=0;
-              x:=(hg_x div 2)+i;
-              y:=(hg_y div 2)+j;
+              x:=(FSizeInTile.x div 2)+i;
+              y:=(FSizeInTile.y div 2)+j;
               for ii:=0 to length(MapType)-1 do begin
                 if Terminated then break;
                 if FMain.change_scene then Break;

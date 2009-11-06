@@ -700,15 +700,17 @@ var Polygon:TPolygon32;
     pe:TPoint;
     dl:integer;
     r,TanOfAngle,D,Angle:Extended;
+    VSizeInPixel: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
  polygon.AntialiasMode:=am4times;
 
+  VSizeInPixel := Fmain.LoadedSizeInPixel;
   ke:=sat_map_both.FCoordConverter.LonLat2PixelPosf(ll,GState.zoom_size-1);
   ke := Fmain.MapPixel2LoadedPixel(ke);
   pe:=Point(round(ke.x),round(ke.y));
-  ks:=ExtPoint(pr_x,pr_y);
+  ks:=ExtPoint(VSizeInPixel.X/2,VSizeInPixel.y/2);
   dl:=GState.GPS_ArrowSize;
   if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
@@ -1949,6 +1951,7 @@ var
     Leyi:integer;
     posN:TPoint;
     ts2,ts3,fr:int64;
+  VSizeInTile: TPoint;
 begin
  if notpaint then exit;
  QueryPerformanceCounter(ts2);
@@ -1963,8 +1966,9 @@ begin
  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
  destroyWL;
 
- for i:=0 to hg_x do
-  for j:=0 to hg_y do
+ VSizeInTile := LoadedSizeInTile;
+ for i:=0 to VSizeInTile.X do
+  for j:=0 to VSizeInTile.Y do
    begin
     xx:=ScreenCenterPos.x-pr_x+(i shl 8);
     if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
@@ -1996,8 +2000,8 @@ begin
      posN:=sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
      y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
      x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
-     for i:=0 to hg_x do
-      for j:=0 to hg_y do
+     for i:=0 to VSizeInTile.X do
+      for j:=0 to VSizeInTile.Y do
        begin
          xx:=ScreenCenterPos.x-pr_x+(i shl 8);
          if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
