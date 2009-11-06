@@ -1162,8 +1162,8 @@ begin
   VTilesAtZoom := TilesAtZoomInternal(Azoom);
   Result.Left := XY.Left / VTilesAtZoom;
   Result.Top := XY.Top / VTilesAtZoom;
-  Result.Right := XY.Right / VTilesAtZoom;
-  Result.Bottom := XY.Bottom / VTilesAtZoom;
+  Result.Right := (XY.Right + 1) / VTilesAtZoom;
+  Result.Bottom := (XY.Bottom + 1) / VTilesAtZoom;
 end;
 
 function TCoordConverterAbstract.PixelRect2RelativeRectInternal(const XY: TRect;
