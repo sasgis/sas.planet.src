@@ -529,6 +529,7 @@ class   procedure delfrompath(pos:integer);
    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+   function VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
 
    function LoadedPixel2MapPixel(Pnt: TPoint): TPoint; overload;
    function LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
@@ -3621,13 +3622,13 @@ end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if DeleteMark(StrToInt(PWL.numid),Handle) then
   generate_im(nilLastLoad,'');
 end;
@@ -3639,7 +3640,7 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  OperationMark(strtoint(PWL.numid));
 end;
 
@@ -3989,7 +3990,7 @@ begin
     PWL.S:=0;
     PWL.find:=false;
     if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
+     MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
@@ -4170,7 +4171,7 @@ begin
    PWL.S:=0;
    PWL.find:=false;
    if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
+     MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
@@ -4768,6 +4769,18 @@ begin
   VTopLeft := GetVisibleTopLeft;
   Result.X := VTopLeft.X + Pnt.X;
   Result.Y := VTopLeft.Y + Pnt.y;
+end;
+
+function TFmain.VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
+var
+  VVisibleSize: TPoint;
+  VLoadedSize: TPoint;
+begin
+  VVisibleSize := GetVisibleSizeInPixel;
+  VLoadedSize := GetLoadedSizeInPixel;
+
+  Result.X := Pnt.X + (VLoadedSize.X - VVisibleSize.X) div 2;
+  Result.Y := Pnt.Y + (VLoadedSize.Y - VVisibleSize.Y) div 2;
 end;
 
 end.
