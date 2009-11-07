@@ -546,18 +546,18 @@ begin
     end;
   end;
 
-  if XY.Right < FValidLonLatRect.Right then begin
-    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Right));
-    XY.Right := FValidLonLatRect.Right;
+  if XY.Right < FValidLonLatRect.Left then begin
+    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
+    XY.Right := FValidLonLatRect.Left;
   end else begin
     if XY.Right > FValidLonLatRect.Right then begin
       Assert(False, 'Долгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
       XY.Right := FValidLonLatRect.Right;
     end;
   end;
-  if XY.Top < FValidLonLatRect.Top then begin
-    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Top));
-    XY.Top := FValidLonLatRect.Top;
+  if XY.Top < FValidLonLatRect.Bottom then begin
+    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
+    XY.Top := FValidLonLatRect.Bottom;
   end else begin
     if XY.Top > FValidLonLatRect.Top then begin
       Assert(False, 'Широта не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
@@ -925,15 +925,15 @@ begin
     end;
   end;
 
-  if XY.Right < FValidLonLatRect.Right then begin
-    XY.Right := FValidLonLatRect.Right;
+  if XY.Right < FValidLonLatRect.Left then begin
+    XY.Right := FValidLonLatRect.Left;
   end else begin
     if XY.Right > FValidLonLatRect.Right then begin
       XY.Right := FValidLonLatRect.Right;
     end;
   end;
-  if XY.Top < FValidLonLatRect.Top then begin
-    XY.Top := FValidLonLatRect.Top;
+  if XY.Top < FValidLonLatRect.Bottom then begin
+    XY.Top := FValidLonLatRect.Bottom;
   end else begin
     if XY.Top > FValidLonLatRect.Top then begin
       XY.Top := FValidLonLatRect.Top;
