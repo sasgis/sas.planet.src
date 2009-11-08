@@ -726,7 +726,11 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
-      XY.X := VPixelsAtZoom;
+      if ACicleMap  then begin
+        XY.X := XY.X mod VPixelsAtZoom;
+      end else begin
+        XY.X := VPixelsAtZoom;
+      end;
     end;
   end;
 
@@ -736,11 +740,7 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
-      if ACicleMap  then begin
-        XY.X := XY.X mod VPixelsAtZoom;
-      end else begin
-        XY.X := VPixelsAtZoom;
-      end;
+      XY.Y := VPixelsAtZoom;
     end;
   end;
 end;
