@@ -147,7 +147,7 @@ begin
      RD.Y:=RD.Y+3;
    end;
    if(((RD.x-LT.x)<=1)or((RD.y-LT.y)<=1)or
-     ((LT.y>Fmain.map.Height+(pr_y-mHd2))or(RD.y<(pr_y-mHd2))or(LT.x>Fmain.map.Width+(pr_x-mWd2))or(RD.x<(pr_x-mWd2)))) then begin
+     ((LT.y>(pr_y + mHd2))or(RD.y<(pr_y-mHd2))or(LT.x>(pr_x + mWd2))or(RD.x<(pr_x-mWd2)))) then begin
      exit;
    end;
    name_blok:=name;

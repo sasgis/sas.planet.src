@@ -545,6 +545,7 @@ class   procedure delfrompath(pos:integer);
    property LoadedPixelRect: TRect read GetLoadedPixelRect;
    property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
    property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
+
    property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
   end;
 
@@ -2926,8 +2927,11 @@ end;
 procedure TFmain.NopendirClick(Sender: TObject);
 var
   VPoint: TPoint;
+  VZoomCurr: Byte;
 begin
   VPoint := VisiblePixel2MapPixel(m_m);
+  VZoomCurr := GState.zoom_size - 1;
+  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
  ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
 end;
@@ -2936,8 +2940,11 @@ procedure TFmain.N25Click(Sender: TObject);
 var s:string;
     i:integer;
   VPoint: TPoint;
+  VZoomCurr: Byte;
 begin
   VPoint := VisiblePixel2MapPixel(m_m);
+  VZoomCurr := GState.zoom_size - 1;
+  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   s:=sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
  for i:=length(s) downto 0 do if s[i]='\'then break;
  // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
@@ -4194,10 +4201,10 @@ begin
  if MapMoving then begin
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
               FillingMap.Location := LayerMap.Location;
-              if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
-              if (LayerMapMarks.Visible) then LayerMapMarks.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
-              if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
-              if LayerMapWiki.Visible then LayerMapWiki.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
+              if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
+              if (LayerMapMarks.Visible) then LayerMapMarks.Location := LayerMap.Location;
+              if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location := LayerMap.Location;
+              if LayerMapWiki.Visible then LayerMapWiki.Location := LayerMap.Location;
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
