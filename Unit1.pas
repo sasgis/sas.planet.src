@@ -2814,21 +2814,30 @@ begin
 end;
 
 procedure TFmain.N20Click(Sender: TObject);
-var btm:TBitmap32;
-    btm1:TBitmap;
-    VPoint: TPoint;
+var
+  btm:TBitmap32;
+  btm1:TBitmap;
+  VPoint: TPoint;
+  VZoomCurr: Byte;
 begin
   VPoint := VisiblePixel2MapPixel(move);
- btm:=TBitmap32.Create;
- if sat_map_both.LoadTile(btm,X2absX(VPoint.X,GState.zoom_size), VPoint.Y, GState.zoom_size,false)
-  then begin
-        btm1:=TBitmap.Create;
+  VZoomCurr := GState.zoom_size;
+  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  btm:=TBitmap32.Create;
+  try
+    if sat_map_both.LoadTile(btm, VPoint.X, VPoint.Y, GState.zoom_size, false) then begin
+      btm1:=TBitmap.Create;
+      try
         btm1.Width:=256; btm1.Height:=256;
         btm.DrawTo(btm1.Canvas.Handle,0,0);
         CopyBtmToClipboard(btm1);
+      finally
         btm1.Free;
-       end;
- btm.Free;
+      end;
+    end;
+  finally
+    btm.Free;
+  end;
 end;
 
 procedure TFmain.N30Click(Sender: TObject);
@@ -2842,10 +2851,13 @@ end;
 procedure TFmain.N15Click(Sender: TObject);
 var
   VPoint: TPoint;
+  VZoomCurr: Byte;
 begin
   VPoint := VisiblePixel2MapPixel(move);
+  VZoomCurr := GState.zoom_size;
+  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
  // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
- CopyStringToClipboard(sat_map_both.GetTileFileName(X2AbsX(VPoint.X,GState.zoom_size), VPoint.Y, GState.zoom_size));
+ CopyStringToClipboard(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size));
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
@@ -3670,9 +3682,12 @@ end;
 procedure TFmain.N13Click(Sender: TObject);
 var
   VPoint: TPoint;
+  VZoomCurr: Byte;
 begin
   VPoint := VisiblePixel2MapPixel(move);
- CopyStringToClipboard(sat_map_both.GetLink(X2absX(VPoint.X,GState.zoom_size),VPoint.Y,GState.zoom_size));
+  VZoomCurr := GState.zoom_size;
+  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  CopyStringToClipboard(sat_map_both.GetLink(VPoint.X, VPoint.Y, GState.zoom_size));
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
