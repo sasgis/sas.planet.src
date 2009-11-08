@@ -105,10 +105,12 @@ var
     Ax,Ay,i,j,ii,Azoom:integer;
     APos:TPoint;
     kml:TKML;
+    VSizeInTile: TPoint;
 begin
  FMain.LayerMapWiki.Visible:=true;
- for i:=0 to hg_x do
-  for j:=0 to hg_y do
+ VSizeInTile := Fmain.LoadedSizeInTile;
+ for i:=0 to VSizeInTile.X do
+  for j:=0 to VSizeInTile.Y do
    begin
     Azoom:=GState.zoom_size;
     APos := sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
@@ -166,7 +168,7 @@ begin
    else
    for i:=0 to length(coordinates)-1 do begin
      AarrKt[i]:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
-     AarrKt[i]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[i].x),pr_y-(FMain.ScreenCenterPos.y-AarrKt[i].y));
+     AarrKt[i]:=Fmain.MapPixel2LoadedPixel(AarrKt[i]);
    end;
    FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
    FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;

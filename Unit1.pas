@@ -529,6 +529,7 @@ class   procedure delfrompath(pos:integer);
    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+   function VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
 
    function LoadedPixel2MapPixel(Pnt: TPoint): TPoint; overload;
    function LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
@@ -700,15 +701,17 @@ var Polygon:TPolygon32;
     pe:TPoint;
     dl:integer;
     r,TanOfAngle,D,Angle:Extended;
+    VSizeInPixel: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
  polygon.AntialiasMode:=am4times;
 
+  VSizeInPixel := Fmain.LoadedSizeInPixel;
   ke:=sat_map_both.FCoordConverter.LonLat2PixelPosf(ll,GState.zoom_size-1);
   ke := Fmain.MapPixel2LoadedPixel(ke);
   pe:=Point(round(ke.x),round(ke.y));
-  ks:=ExtPoint(pr_x,pr_y);
+  ks:=ExtPoint(VSizeInPixel.X/2,VSizeInPixel.y/2);
   dl:=GState.GPS_ArrowSize;
   if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
@@ -1111,35 +1114,44 @@ begin
 end;
 
 procedure TFmain.drawRect(Shift:TShiftState);
-var i,d256,kz,jj,j,bxy:integer;
+var kz,jj,bxy:integer;
     xy1,xy2:TPoint;
     zLonR,zLatR:extended;
-    LonLatLT,LonLatRD:TExtendedPoint;
     Poly:  TExtendedPointArray;
+    VSelectedLonLat: TExtendedRect;
+    VSelectedPixels: TRect;
+    VZoomCurr: Byte;
+    VSelectedTiles: TRect;
+    VZoomDelta: Byte;
+    VSelectedRelative: TExtendedRect;
+    VColor: TColor32;
 begin
-  xy1:=sat_map_both.GeoConvert.LonLat2PixelPos(rect_arr[0],GState.zoom_size-1);
-  xy2:=sat_map_both.GeoConvert.LonLat2PixelPos(rect_arr[1],GState.zoom_size-1);
+  VSelectedLonLat.TopLeft := rect_arr[0];
+  VSelectedLonLat.BottomRight := rect_arr[1];
+  VZoomCurr := GState.zoom_size - 1;
+  VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
+
   LayerMapNal.Location:=floatrect(MapLayerLocationRect);
   LayerMapNal.Bitmap.Clear(clBlack);
-  if (zoom_line in [99,0])or(zoom_line<GState.zoom_size)
-   then d256:=256
-   else d256:=256 div round(power(2,zoom_line-GState.zoom_size));
-  if xy1.x>xy2.x then begin
-    bxy:=xy2.x;
-    xy2.x:=xy1.x;
-    xy1.x:=bxy;
+
+  if VSelectedPixels.Left > VSelectedPixels.Right then begin
+    bxy := VSelectedPixels.Left;
+    VSelectedPixels.Left := VSelectedPixels.Right;
+    VSelectedPixels.Right := bxy;
   end;
-  if xy1.y>xy2.y then begin
-    bxy:=xy2.y;
-    xy2.y:=xy1.y;
-    xy1.y:=bxy;
+
+  if VSelectedPixels.Top > VSelectedPixels.Bottom then begin
+    bxy := VSelectedPixels.Top;
+    VSelectedPixels.Top := VSelectedPixels.Bottom;
+    VSelectedPixels.Bottom := bxy;
   end;
+
   if (ssCtrl in Shift) then begin
-    xy1.x:=(xy1.x-(xy1.x mod d256));
-    xy1.y:=(xy1.y-(xy1.y mod d256));
-    xy2.x:=((xy2.x+d256)-((xy2.x+d256) mod d256));
-    xy2.y:=((xy2.y+d256)-((xy2.y+d256) mod d256));
+    VSelectedTiles := sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
+    VSelectedPixels := sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
   end;
+  VSelectedLonLat := sat_map_both.GeoConvert.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
+
   if (ssShift in Shift)and(GState.GShScale>0) then begin
     case GState.GShScale of
       1000000: begin zLonR:=6; zLatR:=4; end;
@@ -1149,66 +1161,78 @@ begin
         50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
         25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
         10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
+      else begin zLonR:=6; zLatR:=4; end
     end;
-    LonLatLT:=sat_map_both.GeoConvert.PixelPos2LonLat(xy1,GState.zoom_size-1);
-    LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-    LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-    if LonLatLT.X<0 then LonLatLT.X:=LonLatLT.X-zLonR;
-    if LonLatLT.Y>0 then LonLatLT.Y:=LonLatLT.Y+zLatR;
-    xy1:=sat_map_both.GeoConvert.LonLat2PixelPos(LonLatLT,GState.zoom_size-1);
 
-    LonLatRD:=sat_map_both.GeoConvert.PixelPos2LonLat(xy2,GState.zoom_size-1);
-    LonLatRD.X:=LonLatRD.X-(round(LonLatRD.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-    LonLatRD.Y:=LonLatRD.Y-(round(LonLatRD.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-    if LonLatRD.X>=0 then LonLatRD.X:=LonLatRD.X+zLonR;
-    if LonLatRD.Y<=0 then LonLatRD.Y:=LonLatRD.Y-zLatR;
-    xy2:=sat_map_both.GeoConvert.LonLat2PixelPos(LonLatRD,GState.zoom_size-1);
-    if (rect_p2) then
-     begin
-      SetLength(Poly, 5);
-      Poly[0]:=LonLatLT;
-      Poly[1]:=extPoint(LonLatRD.X,LonLatLT.Y);
-      Poly[2]:=LonLatRD;
-      Poly[3]:=extPoint(LonLatLT.X,LonLatRD.Y);
-      Poly[4]:=LonLatLT;
-      fsaveas.Show_(GState.zoom_size,Poly);
-      Poly := nil;
-      rect_p2:=false;
-      exit;
-     end;
+    VSelectedLonLat.Left := VSelectedLonLat.Left-(round(VSelectedLonLat.Left*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Left < 0 then VSelectedLonLat.Left := VSelectedLonLat.Left-zLonR;
+
+    VSelectedLonLat.Top := VSelectedLonLat.Top-(round(VSelectedLonLat.Top*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Top > 0 then VSelectedLonLat.Top := VSelectedLonLat.Top+zLatR;
+
+    VSelectedLonLat.Right := VSelectedLonLat.Right-(round(VSelectedLonLat.Right*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Right >= 0 then VSelectedLonLat.Right := VSelectedLonLat.Right+zLonR;
+
+    VSelectedLonLat.Bottom := VSelectedLonLat.Bottom-(round(VSelectedLonLat.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Bottom <= 0 then VSelectedLonLat.Bottom := VSelectedLonLat.Bottom-zLatR;
+
+    VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
   end;
   if (rect_p2) then begin
     SetLength(Poly, 5);
-    Poly[0]:=sat_map_both.GeoConvert.PixelPos2LonLat(xy1,GState.zoom_size-1);
-    Poly[1]:=sat_map_both.GeoConvert.PixelPos2LonLat(Point(xy2.X,xy1.Y),GState.zoom_size-1);
-    Poly[2]:=sat_map_both.GeoConvert.PixelPos2LonLat(xy2,GState.zoom_size-1);
-    Poly[3]:=sat_map_both.GeoConvert.PixelPos2LonLat(Point(xy1.X,xy2.Y),GState.zoom_size-1);
-    Poly[4]:=sat_map_both.GeoConvert.PixelPos2LonLat(xy1,GState.zoom_size-1);
+    Poly[0] := VSelectedLonLat.TopLeft;
+    Poly[1] := ExtPoint(VSelectedLonLat.Right, VSelectedLonLat.Top);
+    Poly[2] := VSelectedLonLat.BottomRight;
+    Poly[3] := ExtPoint(VSelectedLonLat.Left, VSelectedLonLat.Bottom);
+    Poly[4] := VSelectedLonLat.TopLeft;
     fsaveas.Show_(GState.zoom_size, Poly);
     Poly := nil;
     rect_p2:=false;
     exit;
   end;
   if not(rect_dwn) then exit;
-  xy1 := MapPixel2LoadedPixel(xy1);
+
+  xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
   xy1.x:=xy1.x+1;
   xy1.y:=xy1.y+1;
-  xy2 := MapPixel2LoadedPixel(xy2);
+  xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
   xy2.x:=xy2.x-1;
   xy2.y:=xy2.y-1;
 
   LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
   LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
   LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
-  kz:=256;
-  while kz>=32 do begin
-    i:=xy1.x-kz; while ((ScreenCenterPos.X-(pr_x-i))mod kz)<>0 do inc(i);
-    j:=xy1.y-kz; while ((ScreenCenterPos.Y-(pr_y-j))mod kz)<>0 do inc(j);
-    jj:= round(Log2(kz))-5;
-    LayerMapNal.Bitmap.FrameRectS(i-jj,j-jj,i+((xy2.x+kz-i)div kz)*kz+jj,j+((xy2.y+kz-j)div kz)*kz+jj,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
+
+  VSelectedRelative := sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+
+  jj := VZoomCurr;
+  VZoomDelta := 0;
+  while (VZoomDelta < 3) and (jj < 24) do begin
+    VSelectedTiles := sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
+    VSelectedPixels := sat_map_both.GeoConvert.RelativeRect2PixelRect(
+      sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles,jj), VZoomCurr
+    );
+
+    xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
+    xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+
+    kz := 256 shr VZoomDelta;
+    VColor := SetAlpha(RGB(kz-1,kz-1,kz-1),255);
+
+    LayerMapNal.Bitmap.FrameRectS(
+      xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
+      xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
+      VColor
+    );
+
     LayerMapNal.Bitmap.Font.Size:=11;
-    LayerMapNal.Bitmap.RenderText(xy2.x-((xy2.x-xy1.x)div 2)-42+jj*26,xy2.y-((xy2.y-xy1.y)div 2)-6,'x'+inttostr(GState.zoom_size+3-jj),3,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
-    kz:=kz div 2;
+    LayerMapNal.Bitmap.RenderText(
+      xy2.x-((xy2.x-xy1.x)div 2)-42 + VZoomDelta*26,
+      xy2.y-((xy2.y-xy1.y)div 2)-6,
+      'x'+inttostr(jj+1),3,VColor
+    );
+    Inc(jj);
+    Inc(VZoomDelta);
   end;
 end;
 
@@ -1269,6 +1293,7 @@ var i,speed,SizeTrackd2:integer;
     Polygon: TPolygon32;
     s_speed,s_len,n_len:string;
     polygon_line: TPolygon32;
+    VPoint1, VPoint2: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
@@ -1358,27 +1383,39 @@ begin
   end;
 
  s_speed:=RoundEx(GPSpar.speed,2)+' ('+RoundEx(GPSpar.sspeed,1)+') '+SAS_UNITS_kmperh;
+
  LayerStatBar.Bitmap.FillRectS(10,-40,10,-20,SetAlpha(clWhite32, 140));
- LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+5,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),(pr_y-mHd2)+52,SetAlpha(clWhite32, 140));
+ VPoint1 := VisiblePixel2LoadedPixel(Point(5,5));
+ VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),52));
+ LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+10,SAS_STR_Speed+':', 0, clBlack32);
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10,10));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_Speed+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+24,s_speed, 4, clBlack32);
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10, 24));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_speed, 4, clBlack32);
  s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
- LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+59,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5,(pr_y-mHd2)+106,SetAlpha(clWhite32, 140));
+ VPoint1 := VisiblePixel2LoadedPixel(Point(5, 59));
+ VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5, 106));
+ LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+64,SAS_STR_LenPath+':', 0, clBlack32);
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10, 64));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_LenPath+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
- if (NavOnMark<>nil) then
-  begin
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10, 78));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_len, 4, clBlack32);
+ if (NavOnMark<>nil) then begin
    n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
-   LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
+   VPoint1 := VisiblePixel2LoadedPixel(Point(5,113));
+   VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5, 160));
+   LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
    LayerMapGPS.Bitmap.Font.Size:=8;
-   LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
+   VPoint1 := VisiblePixel2LoadedPixel(Point(10,118));
+   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y,SAS_STR_LenToMark+':', 0, clBlack32);
    LayerMapGPS.Bitmap.Font.Size:=16;
-   LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+132,n_len, 4, clBlack32);
-  end;
+   VPoint1 := VisiblePixel2LoadedPixel(Point(10,132));
+   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, n_len, 4, clBlack32);
+ end;
  LayerMapGPS.BringToFront;
  FreeAndNil(Polygon);
  FreeAndNil(Polygon_line);
@@ -1741,11 +1778,14 @@ var ll:TextendedPoint;
     posnext:integer;
     TameTZ:TDateTime;
     VPoint: TPoint;
+    VZoomCurr: Byte;
 begin
  If not(GState.ShowStatusBar) then exit;
+ VZoomCurr := GState.zoom_size - 1;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  VPoint := VisiblePixel2MapPixel(m_m);
- ll:=sat_map_both.GeoConvert.Pos2LonLat(VPoint,(GState.zoom_size - 1) + 8);
+ sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+ ll:=sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
  if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
                     else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
@@ -1760,7 +1800,7 @@ begin
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
- subs2:=sat_map_both.GetTileShowName(X2absX(VPoint.X,GState.zoom_size),VPoint.Y,GState.zoom_size);
+ subs2:=sat_map_both.GetTileShowName(VPoint.X, VPoint.Y, GState.zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if GState.ShowStatusBar then LayerStatBar.BringToFront;
@@ -1769,69 +1809,131 @@ end;
 
 
 procedure TFmain.DrawGenShBorders;
-var LonLatLT,LonLatRD:TExtendedPoint;
-    bufLonLT:Extended;
-    PosLT:TPoint;
-    zLonR,zLatR:extended;
-    x2,x1,y1,y2,X1b,twidth,theight:integer;
-    ListName:WideString;
+var
+  zLonR,zLatR:extended;
+  twidth,theight:integer;
+  ListName:WideString;
+  VZoomCurr: Byte;
+  VLoadedRect: TRect;
+  VLoadedLonLatRect: TExtendedRect;
+  VGridLonLatRect: TExtendedRect;
+  VGridRect: TRect;
+  VDrawLonLatRect: TExtendedRect;
+  VDrawRect: TRect;
+  VColor: TColor32;
+  VDrawScreenRect: TRect;
+  VShowText: Boolean;
 begin
- if GState.GShScale=0 then exit;
- case GState.GShScale of
-  1000000: begin zLonR:=6; zLatR:=4; end;
-   500000: begin zLonR:=3; zLatR:=2; end;
-   200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
-   100000: begin zLonR:=0.5; zLatR:=0.33333333333333333333333333333333; end;
-    50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
-    25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
-    10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
- end;
+  if GState.GShScale=0 then exit;
+  case GState.GShScale of
+    1000000: begin zLonR:=6; zLatR:=4; end;
+     500000: begin zLonR:=3; zLatR:=2; end;
+     200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
+     100000: begin zLonR:=0.5; zLatR:=0.33333333333333333333333333333333; end;
+      50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
+      25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
+      10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
+    else begin zLonR:=6; zLatR:=4; end;
+  end;
+  VZoomCurr := GState.zoom_size - 1;
+  VLoadedRect := LoadedPixelRect;
+  sat_map_both.GeoConvert.CheckPixelRect(VLoadedRect, VZoomCurr, False);
+  VLoadedLonLatRect := sat_map_both.GeoConvert.PixelRect2LonLatRect(VLoadedRect, VZoomCurr);
 
- LonLatRD:=sat_map_both.GeoConvert.Pos2LonLat(Point(ScreenCenterPos.x+pr_x,ScreenCenterPos.y+pr_y), (GState.zoom_size - 1) + 8);
- LonLatRD:=ExtPoint(LonLatRD.x+zLonR,LonLatRD.y-zLatR);
- if LonLatRD.y<-90 then LonLatRD.y:=-90;
- if LonLatRD.x>180 then LonLatRd.x:=180;
- LonLatLT:=sat_map_both.GeoConvert.Pos2LonLat(Point(ScreenCenterPos.x-pr_x,ScreenCenterPos.y-pr_y), (GState.zoom_size - 1) + 8);
- LonLatLT:=ExtPoint(LonLatLT.X-zLonR,LonLatLT.Y+zLatR);
- if LonLatLT.y>90 then LonLatLT.y:=90;
- if LonLatLT.x<-180 then LonLatLT.x:=-180;
- LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
- LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+  VGridLonLatRect.Left := VLoadedLonLatRect.Left-zLonR;
+  VGridLonLatRect.Top := VLoadedLonLatRect.Top+zLatR;
+  VGridLonLatRect.Right := VLoadedLonLatRect.Right+zLonR;
+  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom-zLatR;
+  sat_map_both.GeoConvert.CheckLonLatRect(VGridLonLatRect);
 
- PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
- if sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(LonLatLT.x+zLonR,LonLatLT.y+zLatR),(GState.zoom_size - 1) + 8).x-PosLT.x<4 then exit;
- bufLonLT:=LonLatLT.X;
+  VGridLonLatRect.Left := VGridLonLatRect.Left-(round(VGridLonLatRect.Left*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
+  VGridLonLatRect.Top := VGridLonLatRect.Top-(round(VGridLonLatRect.Top*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom-(round(VGridLonLatRect.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
 
- Y1:=pr_Y-(ScreenCenterPos.Y-PosLT.Y);
- while (LonLatLT.Y>LonLatRD.y) do
-  begin
-   LonLatLT.Y:=LonLatLT.Y-zLatR;
-   LonLatLT.X:=bufLonLT;
-   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
-   Y2:=pr_Y-(ScreenCenterPos.Y-PosLT.Y);
-   X1:=pr_x-(ScreenCenterPos.X-PosLT.X);
-   X1b:=X1;
-   while (LonLatLT.X+zLonR/2<LonLatRD.x) do
-    begin
-     LonLatLT.X:=LonLatLT.X+zLonR;
-     PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
-     X2:=pr_x-(ScreenCenterPos.X-PosLT.X);
-     LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-     if ((x2-x1>30)and(y2-y1>7))and(GState.ShowBorderText) then
-      begin
-       ListName:=LonLat2GShListName(ExtPoint(LonLatLT.X-zLonR/2,LonLatLT.Y+zLatR/2),GState.GShScale,GSHprec);
-        twidth:=LayerMap.bitmap.TextWidth(ListName);
-       theight:=LayerMap.bitmap.TextHeight(ListName);
-       if (twidth+4<x2-x1)and(theight+4<y2-y1) then
-        LayerMap.bitmap.RenderTextW(x1+(x2-x1)div 2-(twidth div 2),y1+(y2-y1)div 2-(theight div 2),ListName,0,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-      end;
-     X1:=X2;
+  VGridRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoomCurr);
+
+  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left+zLonR, VGridLonLatRect.Bottom);
+  VDrawRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+
+  if abs(VDrawRect.Right - VDrawRect.Left) < 4 then exit;
+
+  if (abs(VDrawRect.Right - VDrawRect.Left) > 30)and(GState.ShowBorderText) then begin
+    VShowText := true;
+  end else begin
+    VShowText := false;
+  end;
+
+  VColor := SetAlpha(Color32(GState.BorderColor), GState.BorderAlpha);
+
+  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+  VDrawLonLatRect.Right := VGridLonLatRect.Left;
+  VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
+
+  while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
+    VDrawRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+
+    VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
+    VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
+    LayerMap.bitmap.LineAS(
+      VDrawScreenRect.Left, VDrawScreenRect.Top,
+      VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
+    );
+
+    VDrawLonLatRect.Left := VDrawLonLatRect.Left+zLonR;
+    VDrawLonLatRect.Right := VDrawLonLatRect.Left;
+  end;
+
+  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+  VDrawLonLatRect.Right := VGridLonLatRect.Right;
+  VDrawLonLatRect.Bottom := VGridLonLatRect.Top;
+
+  while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
+    VDrawRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+
+    VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
+    VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
+    LayerMap.bitmap.LineAS(
+      VDrawScreenRect.Left, VDrawScreenRect.Top,
+      VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
+    );
+
+
+    VDrawLonLatRect.Top := VDrawLonLatRect.Top-zLatR;
+    VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
+  end;
+
+  if not VShowText then exit;
+
+  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+  VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
+  VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - zLatR;
+  while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
+    while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
+      VDrawRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+      ListName := LonLat2GShListName(
+        ExtPoint(VDrawLonLatRect.Left - zLonR/2, VDrawLonLatRect.Top + zLatR/2),
+        GState.GShScale, GSHprec
+      );
+      twidth := LayerMap.bitmap.TextWidth(ListName);
+      theight := LayerMap.bitmap.TextHeight(ListName);
+
+      VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
+      VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
+
+      LayerMap.bitmap.RenderTextW(
+        VDrawScreenRect.Left + (VDrawScreenRect.Right - VDrawScreenRect.Left) div 2 - (twidth div 2),
+        VDrawScreenRect.Top + (VDrawScreenRect.Bottom - VDrawScreenRect.Top) div 2 - (theight div 2),
+        ListName, 0, VColor
+      );
+
+      VDrawLonLatRect.Left := VDrawLonLatRect.Right;
+      VDrawLonLatRect.Right := VDrawLonLatRect.Right + zLonR;
     end;
-   LayerMap.bitmap.LineAS(x1b,y1,x2,y1,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-   LonLatLT.X:=LonLatLT.X+zLonR;
-   PosLT:=sat_map_both.GeoConvert.LonLat2Pos(LonLatLT,(GState.zoom_size - 1) + 8);
-   LayerMap.bitmap.LineAS(x1,y1,x1,y2,SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha));
-   y1:=y2;
+    VDrawLonLatRect.Left := VGridLonLatRect.Left;
+    VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
+    VDrawLonLatRect.Top := VDrawLonLatRect.Bottom;
+    VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom-zLatR;
   end;
 end;
 
@@ -1949,6 +2051,7 @@ var
   Leyi:integer;
   posN:TPoint;
   ts2,ts3,fr:int64;
+  VSizeInTile: TPoint;
 begin
   if notpaint then exit;
   QueryPerformanceCounter(ts2);
@@ -1963,8 +2066,9 @@ begin
   if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
   destroyWL;
 
-  for i:=0 to hg_x do begin
-    for j:=0 to hg_y do begin
+ VSizeInTile := LoadedSizeInTile;
+ for i:=0 to VSizeInTile.X do begin
+  for j:=0 to VSizeInTile.Y do begin
       xx:=ScreenCenterPos.x-pr_x+(i shl 8);
       if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
       yy:=ScreenCenterPos.y-pr_y+(j shl 8);
@@ -1996,8 +2100,8 @@ begin
       posN:=sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,MapType[Leyi].GeoConvert);
       y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
       x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
-      for i:=0 to hg_x do begin
-        for j:=0 to hg_y do begin
+     for i:=0 to VSizeInTile.X do begin
+      for j:=0 to VSizeInTile.Y do begin
           xx:=ScreenCenterPos.x-pr_x+(i shl 8);
           if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
           yy:=posN.y-pr_y+(j shl 8);
@@ -3533,13 +3637,13 @@ end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if DeleteMark(StrToInt(PWL.numid),Handle) then
   generate_im(nilLastLoad,'');
 end;
@@ -3551,7 +3655,7 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  OperationMark(strtoint(PWL.numid));
 end;
 
@@ -3901,7 +4005,7 @@ begin
     PWL.S:=0;
     PWL.find:=false;
     if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
+     MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
@@ -4082,7 +4186,7 @@ begin
    PWL.S:=0;
    PWL.find:=false;
    if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL,Point(x+(pr_x-mWd2),y+(pr_y-mHd2)));
+     MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
@@ -4289,7 +4393,7 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
  if (not NMarkNav.Checked) then
   begin
    id:=strtoint(PWL.numid);
@@ -4680,6 +4784,18 @@ begin
   VTopLeft := GetVisibleTopLeft;
   Result.X := VTopLeft.X + Pnt.X;
   Result.Y := VTopLeft.Y + Pnt.y;
+end;
+
+function TFmain.VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
+var
+  VVisibleSize: TPoint;
+  VLoadedSize: TPoint;
+begin
+  VVisibleSize := GetVisibleSizeInPixel;
+  VLoadedSize := GetLoadedSizeInPixel;
+
+  Result.X := Pnt.X + (VLoadedSize.X - VVisibleSize.X) div 2;
+  Result.Y := Pnt.Y + (VLoadedSize.Y - VVisibleSize.Y) div 2;
 end;
 
 end.

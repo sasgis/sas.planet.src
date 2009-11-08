@@ -546,18 +546,18 @@ begin
     end;
   end;
 
-  if XY.Right < FValidLonLatRect.Right then begin
-    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Right));
-    XY.Right := FValidLonLatRect.Right;
+  if XY.Right < FValidLonLatRect.Left then begin
+    Assert(False, 'Долгота не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Left));
+    XY.Right := FValidLonLatRect.Left;
   end else begin
     if XY.Right > FValidLonLatRect.Right then begin
       Assert(False, 'Долгота не может быть больше чем ' + FloatToStr(FValidLonLatRect.Right));
       XY.Right := FValidLonLatRect.Right;
     end;
   end;
-  if XY.Top < FValidLonLatRect.Top then begin
-    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Top));
-    XY.Top := FValidLonLatRect.Top;
+  if XY.Top < FValidLonLatRect.Bottom then begin
+    Assert(False, 'Широта не может быть меньше чем ' + FloatToStr(FValidLonLatRect.Bottom));
+    XY.Top := FValidLonLatRect.Bottom;
   end else begin
     if XY.Top > FValidLonLatRect.Top then begin
       Assert(False, 'Широта не может быть больше чем ' + FloatToStr(FValidLonLatRect.Top));
@@ -726,7 +726,11 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
-      XY.X := VPixelsAtZoom;
+      if ACicleMap  then begin
+        XY.X := XY.X mod VPixelsAtZoom;
+      end else begin
+        XY.X := VPixelsAtZoom;
+      end;
     end;
   end;
 
@@ -736,11 +740,7 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
-      if ACicleMap  then begin
-        XY.X := XY.X mod VPixelsAtZoom;
-      end else begin
-        XY.X := VPixelsAtZoom;
-      end;
+      XY.Y := VPixelsAtZoom;
     end;
   end;
 end;
@@ -925,15 +925,15 @@ begin
     end;
   end;
 
-  if XY.Right < FValidLonLatRect.Right then begin
-    XY.Right := FValidLonLatRect.Right;
+  if XY.Right < FValidLonLatRect.Left then begin
+    XY.Right := FValidLonLatRect.Left;
   end else begin
     if XY.Right > FValidLonLatRect.Right then begin
       XY.Right := FValidLonLatRect.Right;
     end;
   end;
-  if XY.Top < FValidLonLatRect.Top then begin
-    XY.Top := FValidLonLatRect.Top;
+  if XY.Top < FValidLonLatRect.Bottom then begin
+    XY.Top := FValidLonLatRect.Bottom;
   end else begin
     if XY.Top > FValidLonLatRect.Top then begin
       XY.Top := FValidLonLatRect.Top;
@@ -1162,8 +1162,8 @@ begin
   VTilesAtZoom := TilesAtZoomInternal(Azoom);
   Result.Left := XY.Left / VTilesAtZoom;
   Result.Top := XY.Top / VTilesAtZoom;
-  Result.Right := XY.Right / VTilesAtZoom;
-  Result.Bottom := XY.Bottom / VTilesAtZoom;
+  Result.Right := (XY.Right + 1) / VTilesAtZoom;
+  Result.Bottom := (XY.Bottom + 1) / VTilesAtZoom;
 end;
 
 function TCoordConverterAbstract.PixelRect2RelativeRectInternal(const XY: TRect;
