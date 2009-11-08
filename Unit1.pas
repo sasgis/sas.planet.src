@@ -1293,6 +1293,7 @@ var i,speed,SizeTrackd2:integer;
     Polygon: TPolygon32;
     s_speed,s_len,n_len:string;
     polygon_line: TPolygon32;
+    VPoint1, VPoint2: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
@@ -1382,27 +1383,39 @@ begin
   end;
 
  s_speed:=RoundEx(GPSpar.speed,2)+' ('+RoundEx(GPSpar.sspeed,1)+') '+SAS_UNITS_kmperh;
+
  LayerStatBar.Bitmap.FillRectS(10,-40,10,-20,SetAlpha(clWhite32, 140));
- LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+5,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),(pr_y-mHd2)+52,SetAlpha(clWhite32, 140));
+ VPoint1 := VisiblePixel2LoadedPixel(Point(5,5));
+ VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),52));
+ LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+10,SAS_STR_Speed+':', 0, clBlack32);
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10,10));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_Speed+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+24,s_speed, 4, clBlack32);
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10, 24));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_speed, 4, clBlack32);
  s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
- LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+59,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5,(pr_y-mHd2)+106,SetAlpha(clWhite32, 140));
+ VPoint1 := VisiblePixel2LoadedPixel(Point(5, 59));
+ VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5, 106));
+ LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
  LayerMapGPS.Bitmap.Font.Size:=8;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+64,SAS_STR_LenPath+':', 0, clBlack32);
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10, 64));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_LenPath+':', 0, clBlack32);
  LayerMapGPS.Bitmap.Font.Size:=16;
- LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+78,s_len, 4, clBlack32);
- if (NavOnMark<>nil) then
-  begin
+ VPoint1 := VisiblePixel2LoadedPixel(Point(10, 78));
+ LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_len, 4, clBlack32);
+ if (NavOnMark<>nil) then begin
    n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
-   LayerMapGPS.Bitmap.FillRectS((pr_x-mWd2)+5,(pr_y-mHd2)+113,(pr_x-mWd2)+round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5,(pr_y-mHd2)+160,SetAlpha(clWhite32, 140));
+   VPoint1 := VisiblePixel2LoadedPixel(Point(5,113));
+   VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5, 160));
+   LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
    LayerMapGPS.Bitmap.Font.Size:=8;
-   LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+118,SAS_STR_LenToMark+':', 0, clBlack32);
+   VPoint1 := VisiblePixel2LoadedPixel(Point(10,118));
+   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y,SAS_STR_LenToMark+':', 0, clBlack32);
    LayerMapGPS.Bitmap.Font.Size:=16;
-   LayerMapGPS.Bitmap.RenderText((pr_x-mWd2)+10,(pr_y-mHd2)+132,n_len, 4, clBlack32);
-  end;
+   VPoint1 := VisiblePixel2LoadedPixel(Point(10,132));
+   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, n_len, 4, clBlack32);
+ end;
  LayerMapGPS.BringToFront;
  FreeAndNil(Polygon);
  FreeAndNil(Polygon_line);
@@ -1764,11 +1777,14 @@ var ll:TextendedPoint;
     posnext:integer;
     TameTZ:TDateTime;
     VPoint: TPoint;
+    VZoomCurr: Byte;
 begin
  If not(GState.ShowStatusBar) then exit;
+ VZoomCurr := GState.zoom_size - 1;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  VPoint := VisiblePixel2MapPixel(m_m);
- ll:=sat_map_both.GeoConvert.Pos2LonLat(VPoint,(GState.zoom_size - 1) + 8);
+ sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+ ll:=sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
  if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
                     else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
  LayerStatBar.Bitmap.Width:=map.Width;
@@ -1784,7 +1800,7 @@ begin
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
  // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
- subs2:=sat_map_both.GetTileFileName(X2absX(VPoint.X,GState.zoom_size),VPoint.Y,GState.zoom_size);
+ subs2:=sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if GState.ShowStatusBar then LayerStatBar.BringToFront;
@@ -4378,7 +4394,7 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
- MouseOnReg(PWL,Point(moveTrue.x+(pr_x-mWd2),moveTrue.y+(pr_y-mHd2)));
+ MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
  if (not NMarkNav.Checked) then
   begin
    id:=strtoint(PWL.numid);

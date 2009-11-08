@@ -168,7 +168,7 @@ begin
    else
    for i:=0 to length(coordinates)-1 do begin
      AarrKt[i]:=sat_map_both.FCoordConverter.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
-     AarrKt[i]:=Point(pr_x-(FMain.ScreenCenterPos.x-AarrKt[i].x),pr_y-(FMain.ScreenCenterPos.y-AarrKt[i].y));
+     AarrKt[i]:=Fmain.MapPixel2LoadedPixel(AarrKt[i]);
    end;
    FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
    FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color:=GState.WikiMapFonColor;
