@@ -646,8 +646,14 @@ uses
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
+var
+  VPoint: TPoint;
+  VZoomCurr: Byte;
 begin
- FScreenCenterPos:=Value;
+  VPoint := Value;
+  VZoomCurr := GState.zoom_size - 1;
+  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  FScreenCenterPos := VPoint;
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
