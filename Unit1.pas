@@ -60,6 +60,7 @@ uses
   UResStrings,
   UFillingMap,
   u_MemFileCache,
+  u_CenterScale,
   u_TileDownloaderUI,
   t_GeoTypes;
 
@@ -484,7 +485,8 @@ type
    RectWindow:TRect;
    FUIDownLoader: TTileDownloaderUI;
   public
-   LayerMap,LayerMapWiki,LayerMapMarks,LayerMapScale,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
+   LayerMap,LayerMapWiki,LayerMapMarks,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
+   LayerMapScale: TCenterScale;
    MouseDownPoint, MouseUpPoint: TPoint;
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
@@ -2264,43 +2266,7 @@ begin
 
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
- LayerMapScale:=TBitmapLayer.Create(map.Layers);
- LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
- LayerMapScale.Bitmap.Width:=290;
- LayerMapScale.Bitmap.Height:=290;
- LayerMapScale.Bitmap.DrawMode:=dmBlend;
- LayerMapScale.Bitmap.CombineMode:=cmMerge;
- LayerMapScale.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- i:=0;
- LayerMapScale.Bitmap.Clear(clBlack);
- LayerMapScale.Bitmap.Canvas.Pen.Color:=clRed;
- LayerMapScale.Bitmap.Font.Size:=6;
- While i<360 do
-  begin
-   LayerMapScale.Bitmap.Font.Size:=6;
-   if (i mod 90) = 0 then begin
-                           r:=0;
-                           LayerMapScale.Bitmap.Font.Size:=10;
-                          end
-    else if (i mod 45) = 0 then begin
-                                 r:=80;
-                                 LayerMapScale.Bitmap.Font.Size:=8;
-                                end
-     else r:=110;
-   xy.x := round(145 + 120 * cos(i*(Pi/180)));
-   xy.y := round(145 + 120 * sin(i*(Pi/180)));
-   xy1.x := round(145 + r * cos(i*(Pi/180)));
-   xy1.y := round(145 + r * sin(i*(Pi/180)));
-   LayerMapScale.Bitmap.LineFS(xy.x,xy.y,xy1.x,xy1.y,SetAlpha(clRed32,180));
-   if (i mod 15) = 0 then
-    begin
-     xy1.x := round(145 + 132* cos(i*(Pi/180)))-LayerMapScale.Bitmap.TextWidth(inttostr((i+90)mod 360)+'°')div 2;
-     xy1.y := round(145 + 132* sin(i*(Pi/180)))-2-LayerMapScale.Bitmap.Font.size div 2;
-     LayerMapScale.Bitmap.RenderText(xy1.x+1,xy1.y+1,inttostr((i+90)mod 360)+'°',3,SetAlpha(clWhite32,250) );
-     LayerMapScale.Bitmap.RenderText(xy1.x,xy1.y,inttostr((i+90)mod 360)+'°',3,SetAlpha(clBlue32,250) );
-    end;
-   inc(i,5);
-  end;
+ LayerMapScale := TCenterScale.Create(map);
 
  FillingMap:=TFillingMap.create(true);
  FillingMap.FreeOnTerminate:=true;
@@ -2659,6 +2625,7 @@ begin
  FreeAndNil(FUIDownLoader);
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
+ FreeAndNil(LayerMapScale);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -3338,8 +3305,6 @@ end;
 procedure TFmain.N32Click(Sender: TObject);
 begin
  LayerMapScale.Visible:=TTBXItem(sender).Checked;
- if LayerMapScale.Visible then LayerMapScale.BringToFront
-                          else LayerMapScale.SendToBack;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);
@@ -3457,7 +3422,7 @@ begin
    LayerMapMarks.Location:=floatrect(MapLayerLocationRect);
    LayerMapGPS.Location:=floatrect(MapLayerLocationRect);
    LayerMapWiki.Location:=floatrect(MapLayerLocationRect);
-   LayerMapScale.location:=floatrect(bounds(mWd2-145,mHd2-145,290,290));
+   LayerMapScale.Resize;
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
   end;
