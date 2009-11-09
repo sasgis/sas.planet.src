@@ -2799,6 +2799,7 @@ end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
+	//TODO: Добавить проверки координат
   if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(MouseUpPoint), GState.zoom_size-1), true) then
     generate_im(nilLastLoad,'');
 end;
@@ -2833,6 +2834,7 @@ end;
 procedure TFmain.N30Click(Sender: TObject);
 var ll:TExtendedPoint;
 begin
+	//TODO: Добавить проверки координат
  ll:=sat_map_both.GeoConvert.Pos2LonLat(VisiblePixel2MapPixel(MouseDownPoint),(GState.zoom_size - 1) + 8);
  if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
@@ -3013,7 +3015,7 @@ var
   VPoint: TPoint;
 begin
   VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-
+	//TODO: Добавить проверки координат
  topos(sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, GState.zoom_size-1),TMenuItem(sender).tag,true);
 end;
 
@@ -3873,26 +3875,31 @@ begin
   begin
    if (aoper=ao_line)then begin
                   setlength(length_arr,length(length_arr)+1);
+	//TODO: Добавить проверки координат
                   length_arr[length(length_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                   drawLineCalc;
                  end;
    if (aoper=ao_Reg) then begin
                   setlength(reg_arr,length(reg_arr)+1);
+	//TODO: Добавить проверки координат
                   reg_arr[length(reg_arr)-1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                   drawReg;
                  end;
    if (aoper=ao_rect)then begin
                   if rect_dwn then begin
+	//TODO: Добавить проверки координат
                                     rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                                     rect_p2:=true;
                                    end
                               else begin
+	//TODO: Добавить проверки координат
                                     rect_arr[0]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
                                     rect_arr[1]:=rect_arr[0];
                                    end;
                   rect_dwn:=not(rect_dwn);
                   drawRect(Shift);
                  end;
+	//TODO: Добавить проверки координат
    if (aoper=ao_add_point)and(FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1),true)) then generate_im(nilLastLoad,'');
    if (aoper in [ao_add_line,ao_add_poly]) then
       begin
@@ -3909,6 +3916,7 @@ begin
         inc(lastpoint);
         movepoint:=lastpoint;
         insertinpath(lastpoint);
+	//TODO: Добавить проверки координат
         add_line_arr[lastpoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x, y)),GState.zoom_size-1);
         drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
       end;
@@ -3956,6 +3964,7 @@ begin
  if (ssDouble in Shift) then exit;
  MapMoving:=false;
  VPoint := VisiblePixel2MapPixel(Point(x, y));
+	//TODO: Добавить проверки координат
  if HiWord(GetKeyState(VK_DELETE))<>0 then
   if (VPoint.X > 0)and(VPoint.X < Zoom[GState.zoom_size])and
      (VPoint.Y > 0)and(VPoint.Y < Zoom[GState.zoom_size]) then
@@ -4123,12 +4132,14 @@ begin
  sleep(1);
  if movepoint>-1 then
   begin
+	//TODO: Добавить проверки координат
    add_line_arr[movepoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x,y)), GState.zoom_size-1);
    drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
+	//TODO: Добавить проверки координат
                rect_arr[1]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VisiblePixel2MapPixel(Point(x,y)), GState.zoom_size-1);
                drawRect(Shift);
               end;
@@ -4381,6 +4392,7 @@ end;
 procedure TFmain.NSRTM3Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
+	//TODO: Добавить проверки координат
  Apos:=sat_map_both.GeoConvert.Pos2LonLat(VisiblePixel2MapPixel(MouseDownPoint), (GState.zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
@@ -4390,6 +4402,7 @@ end;
 procedure TFmain.NGTOPO30Click(Sender: TObject);
 var Apos:TExtendedPoint;
 begin
+	//TODO: Добавить проверки координат
  Apos:=sat_map_both.GeoConvert.Pos2LonLat(VisiblePixel2MapPixel(MouseDownPoint), (GState.zoom_size - 1) + 8);
  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
  Fbrowser.Visible:=true;
