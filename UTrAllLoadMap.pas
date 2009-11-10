@@ -152,6 +152,8 @@ end;
 
 destructor ThreadAllLoadMap.Destroy;
 begin
+  FRegionPoly := nil;
+  FLog := nil;
   inherited;
 end;
 

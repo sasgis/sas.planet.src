@@ -44,6 +44,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure UpdateTimerTimer(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FDownloadThread: ThreadAllLoadMap;
     FLog: ILogForTaskThread;
@@ -80,7 +81,6 @@ begin
   FDownloadThread.Terminate;
   FDownloadThread.WaitFor;
   close;
-  Self.Free;
 end;
 
 procedure TFProgress.Button3Click(Sender: TObject);
@@ -121,6 +121,7 @@ begin
   FDownloadThread.Terminate;
   FDownloadThread.WaitFor;
   FreeAndNil(FDownloadThread);
+  FLog := nil;
   inherited;
 end;
 procedure TFProgress.SetProgressForm;
@@ -225,10 +226,16 @@ end;
 
 procedure TFProgress.ThreadFinish;
 begin
+
   if not((FMain.MapMoving)or(FMain.MapZoomAnimtion=1)) then begin
     GState.MainFileCache.Clear;
     FMain.generate_im(nilLastLoad,'');
   end;
+end;
+
+procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := caFree;
 end;
 
 end.

@@ -15,6 +15,7 @@ object FProgress: TFProgress
   OldCreateOrder = False
   Position = poScreenCenter
   ScreenSnap = True
+  OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
