@@ -1818,8 +1818,7 @@ begin
  posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
  posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
- // Вывод в имени файла в статусную строку. Заменить на обобщенное имя тайла.
- subs2:=sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
+ subs2:=sat_map_both.GetTileShowName(VPoint.X, VPoint.Y, GState.zoom_size);
  LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 
  if GState.ShowStatusBar then LayerStatBar.BringToFront;
@@ -2876,11 +2875,10 @@ begin
  VPoint := ScreenCenterPos;
  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
  APos := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
- //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  VLoadPoint.x := Apos.x-(mWd2-MouseUpPoint.x);
  VLoadPoint.y := Apos.y-(mHd2-MouseUpPoint.y);
  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
- path:=AMapType.GetTileFileName(VLoadPoint.x, VLoadPoint.Y,GState.zoom_size);
+ path:=AMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
 
  if ((not(AMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
   (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
@@ -2958,8 +2956,7 @@ begin
  VLoadPoint.X := APos.x-(mWd2-MouseUpPoint.x);
  VLoadPoint.Y := APos.y-(mHd2-MouseUpPoint.y);
  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
- //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
- s:=AMapType.GetTileFileName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+ s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
         if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then

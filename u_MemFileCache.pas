@@ -127,9 +127,8 @@ end;
 function TMemFileCache.TryLoadFileFromCache(btm: Tobject;
   APath: string): boolean;
 var
-  i,s: integer;
+  i: integer;
   VPath: string;
-  st:TMemoryStream;
 begin
   Result := false;
   VPath := AnsiUpperCase(APath);

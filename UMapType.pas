@@ -16,7 +16,6 @@ uses
   Menus,
   math,
   ExtCtrls,
-  Uprogress,
   TBX,
   VCLZip,
   GR32,
@@ -89,6 +88,7 @@ type
 
     function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
     function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
+    function GetTileShowName(x,y:longint;Azoom:byte):string;
 
     function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
     function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
@@ -1374,7 +1374,9 @@ begin
   end;
 end;
 
-
-
+function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
+begin
+  Result := GetTileFileName(x, y, Azoom);
+end;
 
 end.

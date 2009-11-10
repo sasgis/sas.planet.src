@@ -636,8 +636,6 @@ end;
 
 procedure TFSettings.FormShow(Sender: TObject);
 var DMS:TDMS;
-    i,j:integer;
-    ParentNode:TTreeNode;
 begin
  MapsEdit:=false;
  case GState.Localization  of

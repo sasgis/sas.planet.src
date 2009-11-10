@@ -411,8 +411,7 @@ begin
              Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
    if (errecw>0)and(errecw<>52) then
     begin
-     //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
-     path:=typemap.GetTileFileName(LastXY.x, LastXY.Y, zoom);
+     path:=typemap.GetTileShowName(LastXY.x, LastXY.Y, zoom);
      Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
      Synchronize(SynShowMessage);
     end;
