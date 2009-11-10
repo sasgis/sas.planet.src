@@ -348,15 +348,18 @@ begin
 end;
 
 procedure TFDGAvailablePic.setup;
+var
+  VSize: TPoint;
 begin
+  VSize := Fmain.VisibleSizeInPixel;
  Apos:= sat_map_both.GeoConvert.Pos2LonLat(FMain.VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1) + 8);
  mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(APos.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
  if hi>maxReqSize then hi:=maxReqSize;
  if wi>maxReqSize then wi:=maxReqSize;
- if hi<mHd2*2 then hi:=256;
- if wi<mWd2*2 then wi:=256;
+ if hi<VSize.Y then hi:=256;
+ if wi<VSize.X then wi:=256;
  if mpp>8 then mpp:=8;
  ComboBox2Change(nil);
 end;

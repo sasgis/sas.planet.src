@@ -686,7 +686,7 @@ begin
     begin
      if FProgress.Visible=false then
       begin
-        Unit1.m_up:=Unit1.move;
+        FMain.MouseUpPoint:= Fmain.MouseDownPoint;
         Fmain.generate_im(nilLastLoad,'');
         exit;
       end;
