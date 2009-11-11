@@ -195,7 +195,11 @@ begin
   if (Self = nil) or (AOtherMapCoordConv = nil) then begin
     Result := XY;
   end else begin
-    Result := AOtherMapCoordConv.LonLat2Pos(Pos2LonLatInternal(XY, Azoom), Azoom);
+    if Azoom > 23 then begin
+      Result := AOtherMapCoordConv.LonLat2PixelPos(PixelPos2LonLat(XY, Azoom - 8), Azoom - 8);
+    end else begin
+      Result := AOtherMapCoordConv.LonLat2TilePos(TilePos2LonLat(XY, Azoom), Azoom);
+    end;
   end;
 end;
 
