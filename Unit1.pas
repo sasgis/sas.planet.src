@@ -568,7 +568,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='91026';
+  SASVersion='91111';
   CProgram_Lang_Default = LANG_RUSSIAN;
 //  ENU=LANG_ENGLISH;
 //  RUS=LANG_RUSSIAN;// $00000419;
@@ -4018,19 +4018,19 @@ begin
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x, y));
  VSourcePoint := VPoint;
- sat_map_both.GeoConvert.CheckTilePosStrict(VPoint, VZoomCurr, GState.CiclMap);
+ sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
  if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-  if (VPoint.X <> VSourcePoint.X) or (VPoint.Y <> VSourcePoint.Y) then begin
+  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
    sat_map_both.DeleteTile(VPoint.X, VPoint.Y, GState.zoom_size);
    generate_im(nilLastLoad,'');
-   exit;
   end;
+  exit;
  end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-  if (VPoint.X <> VSourcePoint.X) or (VPoint.Y <> VSourcePoint.Y) then begin
+  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
     TTileDownloaderUIOneTile.Create(VPoint, GState.zoom_size, sat_map_both);
-    exit;
   end;
+  exit;
  end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin
