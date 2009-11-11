@@ -36,6 +36,7 @@ type
     FZoom: Byte;
     FDownloadPause: Boolean;
     FFinished: Boolean;
+    function GetElapsedTime: TDateTime;
 
   protected
     procedure Execute; override;
@@ -52,7 +53,7 @@ type
     property Downloaded: Cardinal read FDownloaded;
     property Processed: Cardinal read FProcessed;
     property DownloadSize: Double read FDownloadSize;
-    property ElapsedTime: TDateTime read FElapsedTime;
+    property ElapsedTime: TDateTime read GetElapsedTime;
     property StartTime: TDateTime read FStartTime;
     property Zoom: Byte read FZoom;
     property Finished: Boolean read FFinished;
@@ -360,6 +361,15 @@ end;
 procedure ThreadAllLoadMap.DownloadResume;
 begin
   FDownloadPause := False;
+end;
+
+function ThreadAllLoadMap.GetElapsedTime: TDateTime;
+begin
+  if FFinished or FDownloadPause then begin
+    Result := FElapsedTime;
+  end else begin
+    Result := FElapsedTime + (Now - FStartTime);
+  end;
 end;
 
 end.
