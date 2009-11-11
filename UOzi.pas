@@ -13,7 +13,7 @@ uses
   UMapType;
 
 type
-  TPrType = (ptMap,ptTab,ptW,ptKml,ptDat);
+  TPrType = (ptMap,ptTab,ptW,ptDat,ptKml);
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);

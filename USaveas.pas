@@ -371,10 +371,11 @@ begin
      GetMinMax(PolyMin,polyMax,polyg,false);
      Priority := tpLower;
      FreeOnTerminate:=true;
+     SetLength(PrTypes,0);
      for i:=0 to PrTypesBox.Items.Count-1 do
       if PrTypesBox.Checked[i] then begin
         SetLength(PrTypes,length(PrTypes)+1);
-        PrTypes[i]:=TPrType(i);
+        PrTypes[length(PrTypes)-1]:=TPrType(i);
       end;
      Suspended:=false;
     end;

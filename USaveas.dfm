@@ -68,7 +68,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 481
     Height = 201
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet

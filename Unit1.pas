@@ -1927,10 +1927,10 @@ begin
   VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
   VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - zLatR;
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
+    while VDrawLonLatRect.Left + zLonR/2 <=VGridLonLatRect.Right do begin
       VDrawRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
       ListName := LonLat2GShListName(
-        ExtPoint(VDrawLonLatRect.Left - zLonR/2, VDrawLonLatRect.Top + zLatR/2),
+        ExtPoint(VDrawLonLatRect.Left + zLonR/2, VDrawLonLatRect.Top - zLatR/2),
         GState.GShScale, GSHprec
       );
       twidth := LayerMap.bitmap.TextWidth(ListName);

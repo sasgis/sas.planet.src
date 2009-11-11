@@ -433,7 +433,7 @@ procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
 var
   MapParams:TMemoryStream;
   AZipFile:TFileStream;
-  ParamsTempFile : String;
+  IniStrings:TStringList;
   iniparams: TMeminifile;
   GUID:TGUID;
   guidstr : string;
@@ -455,20 +455,22 @@ begin
     AZipFile:=TFileStream.Create(AZipFileName,fmOpenRead or fmShareDenyNone);
     UnZip.ZipName:=AZipFileName;
     MapParams:=TMemoryStream.Create;
+    IniStrings:=TStringList.Create;
     try
       UnZip.UnZip;
       UnZip.UnZipToStream(MapParams,'params.txt');
-      ParamsTempFile := c_GetTempPath+'params.~txt';
-      MapParams.SaveToFile(ParamsTempFile);
-      iniparams:=TMemIniFile.Create(ParamsTempFile);
+      MapParams.Position:=0;
+      iniparams:=TMemIniFile.Create('');
+      IniStrings.LoadFromStream(MapParams);
+      iniparams.SetStrings(IniStrings);
     finally
+      FreeAndNil(IniStrings);
       FreeAndNil(MapParams);
     end;
     try
       guidstr:=iniparams.ReadString('PARAMS','ID',GUIDToString(GUID));
       name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
       name:=iniparams.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
-
 
       MapParams:=TMemoryStream.Create;
       try

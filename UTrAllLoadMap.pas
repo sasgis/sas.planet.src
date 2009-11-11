@@ -437,11 +437,17 @@ begin
                   VGotoNextTile := True;
                 end;
                 else begin
-                  AddToMemo:=GetErrStr(res);
+                  {AddToMemo:=GetErrStr(res);
                   AddToMemo:=AddToMemo+#13#10+SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...';
                   Synchronize(UpdateMemoProgressForm);
                   sleep(5000);
-                  VGotoNextTile := false;
+                  VGotoNextTile := false;    }
+                  AddToMemo:=GetErrStr(res);
+                  Synchronize(UpdateMemoProgressForm);
+                  if (GState.SaveTileNotExists) then begin
+                    FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+                  end;
+                  VGotoNextTile := True;
                 end;
               end;
             finally
