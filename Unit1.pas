@@ -1617,13 +1617,18 @@ var LLRect:TExtendedRect;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
-begin                     
+    VZoomCurr: Byte;
+    VRect: TRect;
+begin
  if (GState.show_point = mshNone) then
   begin
    LayerMapMarks.Visible:=false;
    exit;
   end;
-  LLRect := sat_map_both.FCoordConverter.PixelRect2LonLatRect(VisiblePixelRect, GState.zoom_size-1);
+  VZoomCurr := GState.zoom_size - 1;
+  VRect := VisiblePixelRect;
+  sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
+  LLRect := sat_map_both.GeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
   marksFilter:='';
  if GState.show_point = mshChecked then
   begin
