@@ -286,7 +286,8 @@ begin
                   sleep(10000);
                   VGotoNextTile := false;
                 end;
-                dtrTileNotExists: begin
+                dtrTileNotExists,
+                dtrErrorMIMEType: begin
                   FLog.WriteText(SAS_ERR_TileNotExists, 1);
                   if (GState.SaveTileNotExists) then begin
                     FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);

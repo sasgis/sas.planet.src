@@ -568,7 +568,7 @@ class   procedure delfrompath(pos:integer);
   end;
 
 const
-  SASVersion='91026';
+  SASVersion='91111';
   CProgram_Lang_Default = LANG_RUSSIAN;
 //  ENU=LANG_ENGLISH;
 //  RUS=LANG_RUSSIAN;// $00000419;
@@ -1617,7 +1617,6 @@ var LLRect:TExtendedRect;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
-    ScreenRect: TRect;
 begin
  if (GState.show_point = mshNone) then
   begin
@@ -1928,10 +1927,10 @@ begin
   VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
   VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - zLatR;
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
+    while VDrawLonLatRect.Left + zLonR/2 <=VGridLonLatRect.Right do begin
       VDrawRect := sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
       ListName := LonLat2GShListName(
-        ExtPoint(VDrawLonLatRect.Left - zLonR/2, VDrawLonLatRect.Top + zLatR/2),
+        ExtPoint(VDrawLonLatRect.Left + zLonR/2, VDrawLonLatRect.Top - zLatR/2),
         GState.GShScale, GSHprec
       );
       twidth := LayerMap.bitmap.TextWidth(ListName);
@@ -2959,7 +2958,6 @@ begin
  VLoadPoint.X := APos.x-(mWd2-MouseUpPoint.x);
  VLoadPoint.Y := APos.y-(mHd2-MouseUpPoint.y);
  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
- //Имя файла для вывода в сообщении. Заменить на обобобщенное имя тайла
  s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
   then begin
@@ -4022,19 +4020,19 @@ begin
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x, y));
  VSourcePoint := VPoint;
- sat_map_both.GeoConvert.CheckTilePosStrict(VPoint, VZoomCurr, GState.CiclMap);
+ sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
  if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-  if (VPoint.X <> VSourcePoint.X) or (VPoint.Y <> VSourcePoint.Y) then begin
+  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
    sat_map_both.DeleteTile(VPoint.X, VPoint.Y, GState.zoom_size);
    generate_im(nilLastLoad,'');
-   exit;
   end;
+  exit;
  end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-  if (VPoint.X <> VSourcePoint.X) or (VPoint.Y <> VSourcePoint.Y) then begin
+  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
     TTileDownloaderUIOneTile.Create(VPoint, GState.zoom_size, sat_map_both);
-    exit;
   end;
+  exit;
  end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin
