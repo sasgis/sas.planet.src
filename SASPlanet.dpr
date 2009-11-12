@@ -62,6 +62,7 @@ uses
   u_GlobalState in 'u_GlobalState.pas',
   u_MiniMap in 'u_MiniMap.pas',
   u_CenterScale in 'u_CenterScale.pas',
+  u_MapLayerBasic in 'u_MapLayerBasic.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   t_LoadEvent in 't_LoadEvent.pas',
