@@ -1,10 +1,10 @@
 object FaddPoint: TFaddPoint
-  Left = 197
-  Top = 130
+  Left = 353
+  Top = 211
   BorderStyle = bsDialog
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
   ClientHeight = 406
-  ClientWidth = 304
+  ClientWidth = 344
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -27,7 +27,7 @@ object FaddPoint: TFaddPoint
   end
   object Label2: TLabel
     Left = 8
-    Top = 124
+    Top = 132
     Width = 53
     Height = 13
     Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
@@ -35,40 +35,40 @@ object FaddPoint: TFaddPoint
   object Bevel1: TBevel
     Left = 8
     Top = 56
-    Width = 289
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
   object Bevel2: TBevel
     Left = 8
     Top = 336
-    Width = 289
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
   object Bevel3: TBevel
     Left = 8
     Top = 112
-    Width = 289
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
   object Bevel4: TBevel
     Left = 8
     Top = 252
-    Width = 289
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
   object Bevel5: TBevel
     Left = 8
     Top = 360
-    Width = 289
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
   object Label21: TLabel
-    Left = 41
+    Left = 65
     Top = 75
     Width = 41
     Height = 13
@@ -84,7 +84,7 @@ object FaddPoint: TFaddPoint
     ParentFont = False
   end
   object Label22: TLabel
-    Left = 36
+    Left = 60
     Top = 97
     Width = 46
     Height = 13
@@ -116,7 +116,7 @@ object FaddPoint: TFaddPoint
     Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
   end
   object Label5: TLabel
-    Left = 160
+    Left = 192
     Top = 272
     Width = 81
     Height = 13
@@ -124,7 +124,7 @@ object FaddPoint: TFaddPoint
     Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
   end
   object Label6: TLabel
-    Left = 163
+    Left = 195
     Top = 296
     Width = 78
     Height = 13
@@ -132,7 +132,7 @@ object FaddPoint: TFaddPoint
     Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
   end
   object Label7: TLabel
-    Left = 80
+    Left = 112
     Top = 320
     Width = 83
     Height = 13
@@ -165,7 +165,7 @@ object FaddPoint: TFaddPoint
   object EditName: TEdit
     Left = 104
     Top = 32
-    Width = 193
+    Width = 233
     Height = 21
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
@@ -178,15 +178,16 @@ object FaddPoint: TFaddPoint
   end
   object EditComment: TMemo
     Left = 8
-    Top = 138
-    Width = 289
-    Height = 113
+    Top = 152
+    Width = 329
+    Height = 99
     ScrollBars = ssVertical
     TabOrder = 1
+    OnKeyDown = EditCommentKeyDown
     OnKeyPress = EditCommentKeyPress
   end
   object Badd: TButton
-    Left = 144
+    Left = 184
     Top = 376
     Width = 73
     Height = 25
@@ -195,7 +196,7 @@ object FaddPoint: TFaddPoint
     OnClick = BaddClick
   end
   object Button2: TButton
-    Left = 224
+    Left = 264
     Top = 376
     Width = 73
     Height = 25
@@ -208,13 +209,13 @@ object FaddPoint: TFaddPoint
   object CheckBox2: TCheckBox
     Left = 8
     Top = 347
-    Width = 289
+    Width = 329
     Height = 17
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
   end
   object lat_ns: TComboBox
-    Left = 88
+    Left = 112
     Top = 72
     Width = 33
     Height = 21
@@ -241,7 +242,7 @@ object FaddPoint: TFaddPoint
       'S')
   end
   object Lat1: TCurrencyEdit
-    Left = 121
+    Left = 145
     Top = 72
     Width = 48
     Height = 21
@@ -256,7 +257,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 6
   end
   object lat2: TCurrencyEdit
-    Left = 169
+    Left = 193
     Top = 72
     Width = 48
     Height = 21
@@ -271,7 +272,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 7
   end
   object lat3: TCurrencyEdit
-    Left = 217
+    Left = 241
     Top = 72
     Width = 48
     Height = 21
@@ -286,7 +287,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 8
   end
   object lon1: TCurrencyEdit
-    Left = 121
+    Left = 145
     Top = 94
     Width = 48
     Height = 21
@@ -301,7 +302,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 9
   end
   object lon2: TCurrencyEdit
-    Left = 169
+    Left = 193
     Top = 94
     Width = 48
     Height = 21
@@ -316,7 +317,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 10
   end
   object lon3: TCurrencyEdit
-    Left = 217
+    Left = 241
     Top = 94
     Width = 48
     Height = 21
@@ -331,7 +332,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 11
   end
   object Lon_we: TComboBox
-    Left = 88
+    Left = 112
     Top = 94
     Width = 33
     Height = 21
@@ -374,7 +375,7 @@ object FaddPoint: TFaddPoint
     TabOrder = 13
   end
   object SpinEdit1: TSpinEdit
-    Left = 248
+    Left = 280
     Top = 269
     Width = 41
     Height = 22
@@ -412,7 +413,7 @@ object FaddPoint: TFaddPoint
     OnDrawItem = ComboBox1DrawItem
   end
   object SpinEdit2: TSpinEdit
-    Left = 248
+    Left = 280
     Top = 293
     Width = 41
     Height = 22
@@ -422,7 +423,7 @@ object FaddPoint: TFaddPoint
     Value = 32
   end
   object SEtransp: TSpinEdit
-    Left = 168
+    Left = 200
     Top = 317
     Width = 41
     Height = 22
@@ -434,11 +435,76 @@ object FaddPoint: TFaddPoint
   object CBKateg: TComboBox
     Left = 136
     Top = 8
-    Width = 161
+    Width = 201
     Height = 21
     ItemHeight = 13
     TabOrder = 19
     Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
+  end
+  object TBXToolbar1: TTBXToolbar
+    Left = 164
+    Top = 125
+    Width = 173
+    Height = 22
+    Images = Fmain.EditCommentsImgs
+    TabOrder = 20
+    Caption = 'TBXToolbar1'
+    object TBXItem3: TTBXItem
+      ImageIndex = 0
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem2: TTBXItem
+      Tag = 1
+      ImageIndex = 1
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem1: TTBXItem
+      Tag = 2
+      ImageIndex = 2
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXSeparatorItem1: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem4: TTBXItem
+      Tag = 3
+      ImageIndex = 3
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem5: TTBXItem
+      Tag = 4
+      ImageIndex = 4
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem6: TTBXItem
+      Tag = 5
+      ImageIndex = 5
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXSeparatorItem2: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem7: TTBXItem
+      Tag = 6
+      ImageIndex = 7
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
   end
   object ColorDialog1: TColorDialog
     Left = 40
