@@ -60,6 +60,7 @@ uses
   t_CommonTypes in 't_CommonTypes.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   u_GlobalState in 'u_GlobalState.pas',
+  u_WindowLayerBasic in 'u_WindowLayerBasic.pas',
   u_MiniMap in 'u_MiniMap.pas',
   u_CenterScale in 'u_CenterScale.pas',
   u_MapLayerBasic in 'u_MapLayerBasic.pas',
