@@ -59,6 +59,7 @@ uses
   UThreadExport,
   UResStrings,
   UFillingMap,
+  u_LayerStatBar,
   u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
@@ -479,7 +480,7 @@ type
    rect_p2:boolean;
    FTileSource:TTileSource;
    FScreenCenterPos: TPoint;
-   LayerStatBar: TBitmapLayer;
+   LayerStatBar: TLayerStatBar;
    dWhenMovingButton:integer;
    LenShow: boolean;
    RectWindow:TRect;
@@ -1804,29 +1805,9 @@ var ll:TextendedPoint;
     VZoomCurr: Byte;
 begin
  If not(GState.ShowStatusBar) then exit;
+ LayerStatBar.Redraw;
  VZoomCurr := GState.zoom_size - 1;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
- VPoint := VisiblePixel2MapPixel(m_m);
- sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- ll:=sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
- if GState.FirstLat then result:=lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType)
-                    else result:=lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType);
- LayerStatBar.Bitmap.Width:=map.Width;
- LayerStatBar.Bitmap.Clear(SetAlpha(clWhite32,160));
- LayerStatBar.Bitmap.Line(0,0,map.Width,0,SetAlpha(clBlack32,256));
- LayerStatBar.bitmap.RenderText(4,1,inttostr(GState.zoom_size)+'x', 0, clBlack32);
- LayerStatBar.bitmap.RenderText(29,1,'| '+SAS_STR_coordinates+' '+result, 0, clBlack32);
-
- TameTZ:=timezone(ll.x,ll.y);
- subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
- LayerStatBar.bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
- posnext:=273+LayerStatBar.Bitmap.TextWidth(subs2)+70;
- LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
- posnext:=posnext+LayerStatBar.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
- subs2:=sat_map_both.GetTileShowName(VPoint.X, VPoint.Y, GState.zoom_size);
- LayerStatBar.bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
-
- if GState.ShowStatusBar then LayerStatBar.BringToFront;
  if GMiniMap.LayerMinMap.Visible then GMiniMap.LayerMinMap.BringToFront;
 end;
 
@@ -2326,14 +2307,7 @@ begin
  LayerLineM.bitmap.Font.Size := 10;
 
 
- LayerStatBar:=TBitmapLayer.Create(map.Layers);
- LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
- LayerStatBar.Bitmap.Width:=map.Width;
- LayerStatBar.Bitmap.Height:=17;
- LayerStatBar.Bitmap.DrawMode:=dmBlend;
- LayerStatBar.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- LayerStatBar.bitmap.Font.Name := 'arial';
- LayerStatBar.bitmap.Font.Size := 10;
+ LayerStatBar:=TLayerStatBar.Create(map);
 
  GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
  GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
@@ -3472,7 +3446,7 @@ begin
   begin
    mWd2:=map.Width shr 1;
    mHd2:=map.Height shr 1;
-   LayerStatBar.Location:=floatrect(0,map.Height-17,map.Width,map.Height);
+   LayerStatBar.Resize;
    if GState.ShowStatusBar
     then begin
           with LayerLineM do location:=floatrect(location.left,map.Height-23-17,location.right,map.Height-8-17);

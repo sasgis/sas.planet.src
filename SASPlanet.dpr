@@ -63,6 +63,7 @@ uses
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',
   u_MiniMap in 'u_MiniMap.pas',
   u_CenterScale in 'u_CenterScale.pas',
+  u_LayerStatBar in 'u_LayerStatBar.pas',
   u_MapLayerBasic in 'u_MapLayerBasic.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
