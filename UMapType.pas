@@ -1078,57 +1078,62 @@ begin
   VPath := GetTileFileName(x, y, Azoom);
 
   CreateDirIfNotExists(VPath);
-  if ((copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kmz'))and(ext='.kml')then begin
-    try
-      UnZip:=TVCLUnZip.Create(Fmain);
-      UnZip.ArchiveStream:=TMemoryStream.Create;
-      ATileStream.SaveToStream(UnZip.ArchiveStream);
-      UnZip.ReadZip;
-      ATileStream.Position:=0;
-      UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-      UnZip.Free;
+  if ext='.kml' then begin
+    if (ty='application/vnd.google-earth.kmz') then begin
+      try
+        UnZip:=TVCLUnZip.Create(Fmain);
+        UnZip.ArchiveStream:=TMemoryStream.Create;
+        ATileStream.SaveToStream(UnZip.ArchiveStream);
+        UnZip.ReadZip;
+        ATileStream.Position:=0;
+        UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+        UnZip.Free;
+        SaveTileInCache(ATileStream,Vpath);
+        ban_pg_ld:=true;
+      except
+        try
+          SaveTileInCache(ATileStream,Vpath);
+        except
+        end;
+      end;
+    end else if (copy(ty,1,8)='text/xml') then begin
       SaveTileInCache(ATileStream,Vpath);
       ban_pg_ld:=true;
-    except
+    end;
+  end else begin
+    SaveTileInCache(ATileStream,Vpath);
+    if (TileRect.Left<>0)or(TileRect.Top<>0)or
+      (TileRect.Right<>0)or(TileRect.Bottom<>0) then begin
+      btmsrc:=TBitmap32.Create;
+      btmDest:=TBitmap32.Create;
       try
-        SaveTileInCache(ATileStream,Vpath);
+        btmSrc.Resampler:=TLinearResampler.Create;
+        if LoadFile(btmsrc,Vpath,false) then begin
+          btmDest.SetSize(256,256);
+          btmdest.Draw(bounds(0,0,256,256),TileRect,btmSrc);
+          SaveTileInCache(btmDest,Vpath);
+        end;
       except
       end;
+      btmSrc.Free;
+      btmDest.Free;
     end;
-  end;
 
-  SaveTileInCache(ATileStream,Vpath);
-  if (TileRect.Left<>0)or(TileRect.Top<>0)or
-    (TileRect.Right<>0)or(TileRect.Bottom<>0) then begin
-    btmsrc:=TBitmap32.Create;
-    btmDest:=TBitmap32.Create;
-    try
-      btmSrc.Resampler:=TLinearResampler.Create;
-      if LoadFile(btmsrc,Vpath,false) then begin
-        btmDest.SetSize(256,256);
-        btmdest.Draw(bounds(0,0,256,256),TileRect,btmSrc);
-        SaveTileInCache(btmDest,Vpath);
+    ban_pg_ld:=true;
+    if (ty='image/png')and(ext='.jpg') then begin
+      btm:=TBitmap.Create;
+      png:=TBitmap32.Create;
+      jpg:=TJPEGImage.Create;
+      RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
+      if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
+        btm.Assign(png);
+        jpg.Assign(btm);
+        SaveTileInCache(jpg,Vpath);
+        DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
+        btm.Free;
+        jpg.Free;
+        png.Free;
       end;
-    except
-    end;
-    btmSrc.Free;
-    btmDest.Free;
-  end;
-
-  ban_pg_ld:=true;
-  if (ty='image/png')and(ext='.jpg') then begin
-    btm:=TBitmap.Create;
-    png:=TBitmap32.Create;
-    jpg:=TJPEGImage.Create;
-    RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
-    if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
-      btm.Assign(png);
-      jpg.Assign(btm);
-      SaveTileInCache(jpg,Vpath);
-      DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
-      btm.Free;
-      jpg.Free;
-      png.Free;
     end;
   end;
   GState.MainFileCache.DeleteFileFromCache(Vpath);
