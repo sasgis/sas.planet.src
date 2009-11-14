@@ -2630,10 +2630,15 @@ begin
 end;
 
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  VWaitResult: DWORD;
 begin
  ProgramClose:=true;
  FUIDownLoader.Terminate;
- WaitForSingleObject(FUIDownLoader.Handle, 0);
+ VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
+ if VWaitResult = WAIT_TIMEOUT then begin
+   TerminateThread(FUIDownLoader.Handle, 0);
+ end;
  FreeAndNil(FUIDownLoader);
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
