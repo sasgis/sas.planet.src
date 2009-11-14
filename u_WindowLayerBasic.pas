@@ -17,13 +17,13 @@ type
     FScreenCenterPos: TPoint;
     FScale: Double;
     FScaleCenter: TPoint;
-    FCenterMove: TPoint;
 
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
     function GetBitmapSizeInPixel: TPoint; virtual;
     function GetVisibleSizeInPixel: TPoint; virtual;
+    function GetCenterMove: TPoint; virtual;
 
     function GetMapLayerLocationRect: TRect; virtual;
 
@@ -136,12 +136,14 @@ function TWindowLayerBasic.VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint;
 var
   VVisibleSize: TPoint;
   VBitmapSize: TPoint;
+  VCenterMove: TPoint;
 begin
   VVisibleSize := GetVisibleSizeInPixel;
   VBitmapSize := GetBitmapSizeInPixel;
+  VCenterMove := GetCenterMove;
 
-  Result.X := Trunc(((Pnt.X + FCenterMove.X) - FScaleCenter.X) / FScale + FScaleCenter.X + (VBitmapSize.X - VVisibleSize.X) / 2);
-  Result.Y := Trunc(((Pnt.Y + FCenterMove.Y) - FScaleCenter.Y) / FScale + FScaleCenter.Y + (VBitmapSize.Y - VVisibleSize.Y) / 2);
+  Result.X := Trunc(((Pnt.X + VCenterMove.X) - FScaleCenter.X) / FScale + FScaleCenter.X + (VBitmapSize.X - VVisibleSize.X) / 2);
+  Result.Y := Trunc(((Pnt.Y + VCenterMove.Y) - FScaleCenter.Y) / FScale + FScaleCenter.Y + (VBitmapSize.Y - VVisibleSize.Y) / 2);
 end;
 
 function TWindowLayerBasic.VisiblePixel2BitmapPixel(
@@ -149,24 +151,28 @@ function TWindowLayerBasic.VisiblePixel2BitmapPixel(
 var
   VVisibleSize: TPoint;
   VBitmapSize: TPoint;
+  VCenterMove: TPoint;
 begin
   VVisibleSize := GetVisibleSizeInPixel;
   VBitmapSize := GetBitmapSizeInPixel;
+  VCenterMove := GetCenterMove;
 
-  Result.X := ((Pnt.X + FCenterMove.X) - FScaleCenter.X) / FScale + FScaleCenter.X + (VBitmapSize.X - VVisibleSize.X) / 2;
-  Result.Y := ((Pnt.Y + FCenterMove.Y) - FScaleCenter.Y) / FScale + FScaleCenter.Y + (VBitmapSize.Y - VVisibleSize.Y) / 2;
+  Result.X := ((Pnt.X + VCenterMove.X) - FScaleCenter.X) / FScale + FScaleCenter.X + (VBitmapSize.X - VVisibleSize.X) / 2;
+  Result.Y := ((Pnt.Y + VCenterMove.Y) - FScaleCenter.Y) / FScale + FScaleCenter.Y + (VBitmapSize.Y - VVisibleSize.Y) / 2;
 end;
 
 function TWindowLayerBasic.BitmapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
   VVisibleSize: TPoint;
   VBitmapSize: TPoint;
+  VCenterMove: TPoint;
 begin
   VVisibleSize := GetVisibleSizeInPixel;
   VBitmapSize := GetBitmapSizeInPixel;
+  VCenterMove := GetCenterMove;
 
-  Result.X := trunc(((Pnt.X - (VBitmapSize.X - VVisibleSize.X) / 2) - FScaleCenter.X) * FScale + FScaleCenter.X - FCenterMove.X);
-  Result.Y := trunc(((Pnt.Y - (VBitmapSize.Y - VVisibleSize.Y) / 2) - FScaleCenter.Y) * FScale + FScaleCenter.Y - FCenterMove.Y);
+  Result.X := trunc(((Pnt.X - (VBitmapSize.X - VVisibleSize.X) / 2) - FScaleCenter.X) * FScale + FScaleCenter.X - VCenterMove.X);
+  Result.Y := trunc(((Pnt.Y - (VBitmapSize.Y - VVisibleSize.Y) / 2) - FScaleCenter.Y) * FScale + FScaleCenter.Y - VCenterMove.Y);
 end;
 
 function TWindowLayerBasic.BitmapPixel2VisiblePixel(
@@ -174,12 +180,19 @@ function TWindowLayerBasic.BitmapPixel2VisiblePixel(
 var
   VVisibleSize: TPoint;
   VBitmapSize: TPoint;
+  VCenterMove: TPoint;
 begin
   VVisibleSize := GetVisibleSizeInPixel;
   VBitmapSize := GetBitmapSizeInPixel;
+  VCenterMove := GetCenterMove;
 
-  Result.X := ((Pnt.X - (VBitmapSize.X - VVisibleSize.X) / 2) - FScaleCenter.X) * FScale + FScaleCenter.X - FCenterMove.X;
-  Result.Y := ((Pnt.Y - (VBitmapSize.Y - VVisibleSize.Y) / 2) - FScaleCenter.Y) * FScale + FScaleCenter.Y - FCenterMove.Y;
+  Result.X := ((Pnt.X - (VBitmapSize.X - VVisibleSize.X) / 2) - FScaleCenter.X) * FScale + FScaleCenter.X - VCenterMove.X;
+  Result.Y := ((Pnt.Y - (VBitmapSize.Y - VVisibleSize.Y) / 2) - FScaleCenter.Y) * FScale + FScaleCenter.Y - VCenterMove.Y;
+end;
+
+function TWindowLayerBasic.GetCenterMove: TPoint;
+begin
+  Result := Point(0, 0);
 end;
 
 end.

@@ -14,7 +14,9 @@ uses
 type
   TMapLayerBasic =  class(TWindowLayerBasic)
   protected
+    FCenterMove: TPoint;
     FScreenCenterPos: TPoint;
+    function GetCenterMove: TPoint; override;
     procedure SetScreenCenterPos(const Value: TPoint);
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload; virtual;
@@ -30,7 +32,6 @@ type
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); virtual;
-    property Visible: Boolean read GetVisible write SetVisible;
     property ScreenCenterPos: TPoint read FScreenCenterPos write SetScreenCenterPos;
   end;
 implementation
@@ -139,5 +140,11 @@ begin
   FScale := AScale;
   Resize;
 end;
+
+function TMapLayerBasic.GetCenterMove: TPoint;
+begin
+  Result := FCenterMove;
+end;
+
 
 end.
