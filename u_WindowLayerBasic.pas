@@ -38,6 +38,7 @@ type
     procedure Hide; virtual;
     procedure Redraw; virtual; abstract;
     property Visible: Boolean read GetVisible write SetVisible;
+    property MapLayerVisibleLocationRect: TRect read GetMapLayerLocationRect;
   end;
 
 
