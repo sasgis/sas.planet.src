@@ -65,6 +65,7 @@ uses
   u_CenterScale in 'u_CenterScale.pas',
   u_LayerStatBar in 'u_LayerStatBar.pas',
   u_MapLayerBasic in 'u_MapLayerBasic.pas',
+  u_SelectionLayer in 'u_SelectionLayer.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   t_LoadEvent in 't_LoadEvent.pas',

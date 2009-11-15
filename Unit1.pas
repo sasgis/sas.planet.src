@@ -63,6 +63,7 @@ uses
   u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
+  u_SelectionLayer,
   t_GeoTypes;
 
 type
@@ -488,6 +489,7 @@ type
   public
    LayerMap,LayerMapWiki,LayerMapMarks,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
    LayerMapScale: TCenterScale;
+   LayerSelection: TSelectionLayer;
    MouseDownPoint, MouseUpPoint: TPoint;
    MapMoving: Boolean;
    MapZoomAnimtion: Integer;
@@ -655,6 +657,7 @@ begin
   VZoomCurr := GState.zoom_size - 1;
   sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
+  LayerSelection.ScreenCenterPos := VPoint;
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
@@ -1199,6 +1202,7 @@ begin
     fsaveas.Show_(GState.zoom_size, Poly);
     Poly := nil;
     rect_p2:=false;
+    LayerSelection.Redraw;
     exit;
   end;
   if not(rect_dwn) then exit;
@@ -1395,7 +1399,6 @@ begin
 
  s_speed:=RoundEx(GPSpar.speed,2)+' ('+RoundEx(GPSpar.sspeed,1)+') '+SAS_UNITS_kmperh;
 
- LayerStatBar.Bitmap.FillRectS(10,-40,10,-20,SetAlpha(clWhite32, 140));
  VPoint1 := VisiblePixel2LoadedPixel(Point(5,5));
  VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),52));
  LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
@@ -2383,6 +2386,10 @@ begin
  GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
+
+ LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
+ LayerSelection.Visible := true;
+
  ScreenCenterPos := Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
                           GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
  GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
@@ -2563,6 +2570,19 @@ begin
                                xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
               FillingMap.Location:=LayerMap.Location;
      if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
+     if move then begin
+       if GState.zoom_size>x then begin
+         LayerSelection.ScaleTo(1/(1 + i/steps), m_m);
+       end else begin
+         LayerSelection.ScaleTo(1 + i/steps, m_m);
+       end;
+     end else begin
+       if GState.zoom_size>x then begin
+         LayerSelection.ScaleTo(1/(1 + i/steps), Point(mWd2, mHd2));
+       end else begin
+         LayerSelection.ScaleTo(1 + i/steps, Point(mWd2, mHd2));
+       end;
+     end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
      QueryPerformanceFrequency(fr);
@@ -4224,6 +4244,7 @@ begin
                       end;
  if MapZoomAnimtion=1 then exit;
  if MapMoving then begin
+              LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
