@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 232
-  Top = 99
+  Left = 462
+  Top = 97
   Width = 854
   Height = 573
   HorzScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -333,7 +332,7 @@ object Fmain: TFmain
       Left = 0
       Top = 0
       CloseButton = False
-      DockPos = 0
+      DockPos = 24
       FullSize = True
       MenuBar = True
       ProcessShortCuts = True
@@ -1790,7 +1789,14 @@ object Fmain: TFmain
         Images = TBImageList1
         Options = [tboDropdownArrow]
         Caption = ''
-        Hint = #1055#1088#1086#1083#1086#1078#1080#1090#1100' '#1084#1072#1088#1096#1088#1091#1090' '#1089#1088#1077#1076#1089#1090#1074#1072#1084#1080' '#1050#1072#1088#1090#1099'@mail'
+        Hint = #1055#1088#1086#1083#1086#1078#1080#1090#1100' '#1084#1072#1088#1096#1088#1091#1090
+        object TBXLabelItem2: TTBXLabelItem
+          FontSettings.Bold = tsTrue
+          Margin = 4
+          ShowAccelChar = False
+          Caption = #1057#1088#1077#1076#1089#1090#1074#1072#1084#1080' '#1050#1072#1088#1090#1099'@mail.ru'
+          Hint = ''
+        end
         object TBItem8: TTBXItem
           Tag = 1
           OnClick = TBEditPathMarshClick
@@ -1807,6 +1813,37 @@ object Fmain: TFmain
           Tag = 3
           OnClick = TBEditPathMarshClick
           Caption = #1055#1086' '#1074#1088#1077#1084#1077#1085#1080' '#1089' '#1091#1095#1077#1090#1086#1084' '#1087#1088#1086#1073#1086#1082
+          Hint = ''
+        end
+        object TBXLabelItem1: TTBXLabelItem
+          FontSettings.Bold = tsTrue
+          Margin = 4
+          ShowAccelChar = False
+          Caption = #1057#1088#1077#1076#1089#1090#1074#1072#1084#1080' yournavigation.org (OSM)'
+          Hint = ''
+        end
+        object TBXItem1: TTBXItem
+          Tag = 1
+          OnClick = TBXItem1Click
+          Caption = #1053#1072' '#1072#1074#1090#1086#1084#1086#1073#1080#1083#1077' ('#1087#1086' '#1089#1082#1086#1088#1086#1089#1090#1080')'
+          Hint = ''
+        end
+        object TBXItem2: TTBXItem
+          Tag = 11
+          OnClick = TBXItem1Click
+          Caption = #1053#1072' '#1072#1074#1090#1086#1084#1086#1073#1080#1083#1077' ('#1087#1086' '#1076#1083#1080#1085#1077')'
+          Hint = ''
+        end
+        object TBXItem4: TTBXItem
+          Tag = 2
+          OnClick = TBXItem1Click
+          Caption = #1053#1072' '#1074#1077#1083#1086#1089#1080#1087#1077#1076#1077' ('#1087#1086' '#1089#1082#1086#1088#1086#1089#1090#1080')'
+          Hint = ''
+        end
+        object TBXItem3: TTBXItem
+          Tag = 22
+          OnClick = TBXItem1Click
+          Caption = #1053#1072' '#1074#1077#1083#1086#1089#1080#1087#1077#1076#1077' ('#1087#1086' '#1076#1083#1080#1085#1077')'
           Hint = ''
         end
       end

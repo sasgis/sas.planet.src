@@ -43,7 +43,9 @@ type
   Styles:TStringList;
   StyleMaps:TStringList;
   Error_:string;
+  function parse(buffer:string):boolean;
   function loadFromFile(FileName:string):boolean;
+  function loadFromStream(str:TMemoryStream):boolean;
  end;
 
 var Style:TStyle;
@@ -99,12 +101,9 @@ begin
 end;
 
 function TKML.loadFromFile(FileName:string):boolean;
-var buffer,koord:string;
-    position,PosStartPlace,PosTag1,PosTag2,PosEndPlace,ii,jj,placeN,iip:integer;
+var buffer:string;
     str:TMemoryStream;
-    pb,iip_:integer;
 begin
-  result:=true;
   error_:='';
   if not(FileExists(FileName)) then
    begin
@@ -112,13 +111,48 @@ begin
     error_:=SAS_ERR_FileNotFound;
     exit;
    end;
+  try
+    try
+      str:=TMemoryStream.Create;
+      str.LoadFromFile(FileName);
+      str.Position:=0;
+      SetLength(buffer,str.Size);
+      str.ReadBuffer(buffer[1],str.Size);
+      result:=parse(buffer);
+    finally
+      str.Free;
+      SetLength(buffer,0);
+    end;
+  except
+    result:=false;
+  end;
+end;
 
-  str:=TMemoryStream.Create;
-  str.LoadFromFile(FileName);
-  str.Position:=0;
-  SetLength(buffer,str.Size);
-  str.ReadBuffer(buffer[1],str.Size);
-  str.Free;
+function TKML.loadFromStream(str:TMemoryStream):boolean;
+var buffer:string;
+begin
+  error_:='';
+  try
+    try
+      str.Position:=0;
+      SetLength(buffer,str.Size);
+      str.ReadBuffer(buffer[1],str.Size);
+      result:=parse(buffer);
+    finally
+      SetLength(buffer,0);
+    end;
+  except
+    result:=false;
+  end;
+end;
+
+function TKML.parse(buffer:string):boolean;
+var koord:string;
+    position,PosStartPlace,PosTag1,PosTag2,PosEndPlace,ii,jj,placeN,iip:integer;
+    pb,iip_:integer;
+begin
+  result:=true;
+  error_:='';
   buffer:=Sha_SpaceCompress(buffer);
   position:=1;
   PosStartPlace:=1;

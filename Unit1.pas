@@ -62,7 +62,7 @@ uses
   u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
-  t_GeoTypes, ExtDlgs, TBXControls;
+  t_GeoTypes, ExtDlgs, TBXControls, TBXExtItems;
 
 type
   TTileSource = (tsInternet,tsCache,tsCacheInternet);
@@ -374,6 +374,12 @@ type
     NSensorSpeedBar: TTBXItem;
     NSensorBattaryBar: TTBXItem;
     TBXPopupMenuSensors: TTBXPopupMenu;
+    TBXItem1: TTBXItem;
+    TBXLabelItem1: TTBXLabelItem;
+    TBXLabelItem2: TTBXLabelItem;
+    TBXItem2: TTBXItem;
+    TBXItem3: TTBXItem;
+    TBXItem4: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -494,6 +500,7 @@ type
     procedure SBClearSensorClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
     procedure NSensorsBarClick(Sender: TObject);
+    procedure TBXItem1Click(Sender: TObject);
   private
    ShowActivHint:boolean;
    HintWindow: THintWindow;
@@ -682,7 +689,8 @@ uses
   USearchResult,
   UImport,
   UAddCategory,
-  u_TileDownloaderUIOneTile, i_ICoordConverter;
+  u_TileDownloaderUIOneTile, i_ICoordConverter,
+  UKMLParse;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -4977,6 +4985,55 @@ end;
 procedure TFmain.NSensorsBarClick(Sender: TObject);
 begin
   TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
+end;
+
+procedure TFmain.TBXItem1Click(Sender: TObject);
+var ms:TMemoryStream;
+    pathstr,timeT1:string;
+    url:string;
+    i,posit,posit2,endpos,dd,seconds,meters:integer;
+    Buffer:array [1..64535] of char;
+    BufferLen:LongWord;
+    dateT1:TDateTime;
+    kml:TKml;
+    s,l:integer;
+    conerr:boolean;
+    add_line_arr_b:TExtendedPointArray;
+begin
+ ms:=TMemoryStream.Create;
+ case TTBXItem(sender).Tag of
+    1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
+   11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
+    2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
+   22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
+ end;
+ conerr:=false;
+ for i:=0 to length(add_line_arr)-2 do begin
+ if conerr then Continue;
+ url:=url+'&flat='+R2StrPoint(add_line_arr[i].y)+'&flon='+R2StrPoint(add_line_arr[i].x)+
+          '&tlat='+R2StrPoint(add_line_arr[i+1].y)+'&tlon='+R2StrPoint(add_line_arr[i+1].x);
+ if GetStreamFromURL(ms,url,'text/xml')>0 then
+  begin
+   kml:=TKml.Create;
+   kml.loadFromStream(ms);
+   ms.SetSize(0);
+   if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
+     s:=length(add_line_arr_b);
+     l:=length(kml.Data[0].coordinates);
+     SetLength(add_line_arr_b,(s+l));
+     Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TExtendedPoint));
+   end;
+   kml.Free;
+  end
+ else conerr:=true;
+ end;
+ ms.Free;
+ if conerr then ShowMessage('Connect error!');
+ if (not conerr)and(length(add_line_arr_b)>0) then begin
+   add_line_arr:=add_line_arr_b;
+   SetLength(add_line_arr_b,0);
+ end;
+ drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
 end.
