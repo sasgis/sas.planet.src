@@ -344,17 +344,17 @@ type
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
     TBXDock1: TTBXDock;
-    TBXToolWindow3: TTBXToolWindow;
+    TBXSensorSpeedAvgBar: TTBXToolWindow;
     TBXSensorSpeedAvg: TTBXLabel;
-    TBXToolWindow4: TTBXToolWindow;
+    TBXSensorSpeedBar: TTBXToolWindow;
     TBXSensorSpeed: TTBXLabel;
-    TBXToolWindow5: TTBXToolWindow;
+    TBXsensorOdometrBar: TTBXToolWindow;
     TBXSensorOdometr: TTBXLabel;
-    TBXToolWindow6: TTBXToolWindow;
+    TBXSensorPathBar: TTBXToolWindow;
     TBXOdometrNow: TTBXLabel;
-    TBXToolWindow7: TTBXToolWindow;
+    TBXSensorBattaryBar: TTBXToolWindow;
     TBXSensorBattary: TTBXLabel;
-    TBXToolWindow8: TTBXToolWindow;
+    TBXSensorLenToMarkBar: TTBXToolWindow;
     TBXSensorLenToMark: TTBXLabel;
     TBXLabel8: TTBXLabel;
     TBXLabel9: TTBXLabel;
@@ -365,13 +365,15 @@ type
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SBClearSensor: TSpeedButton;
-    NSensorsBarShow: TTBXItem;
-    TBXSubmenuItem1: TTBXSubmenuItem;
-    TBXItem1: TTBXItem;
-    TBXItem2: TTBXItem;
-    TBXItem3: TTBXItem;
-    TBXItem4: TTBXItem;
-    TBXItem5: TTBXItem;
+    NSensorsBar: TTBXItem;
+    NSensors: TTBXSubmenuItem;
+    NSensorLenToMarkBar: TTBXItem;
+    NsensorOdometrBar: TTBXItem;
+    NSensorPathBar: TTBXItem;
+    NSensorSpeedAvgBar: TTBXItem;
+    NSensorSpeedBar: TTBXItem;
+    NSensorBattaryBar: TTBXItem;
+    TBXPopupMenuSensors: TTBXPopupMenu;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -491,7 +493,7 @@ type
     procedure NbackloadLayerClick(Sender: TObject);
     procedure SBClearSensorClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure NSensorsBarShowClick(Sender: TObject);
+    procedure NSensorsBarClick(Sender: TObject);
   private
    ShowActivHint:boolean;
    HintWindow: THintWindow;
@@ -1370,11 +1372,16 @@ begin
    TBXSensorOdometr.Caption:=DistToStrWithUnits(GPSpar.Odometr, GState.num_format);
    //батарея
    GetSystemPowerStatus(sps);
-   case sps.BatteryFlag of
-     128: TBXSensorBattary.Caption:='От сети';
-       8: TBXSensorBattary.Caption:='Заряжается';
-     else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:='Неизвестно'
-                                        else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
+   if sps.ACLineStatus=0 then begin
+     case sps.BatteryFlag of
+       128: TBXSensorBattary.Caption:='От сети';
+         8: TBXSensorBattary.Caption:='Заряжается';
+       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:='Неизвестно'
+                                          else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
+     end
+   end
+   else begin
+     TBXSensorBattary.Caption:='От сети';
    end;
  except
  end;
@@ -1401,18 +1408,6 @@ begin
  LayerMapGPS.Bitmap.Canvas.Pen.Style:=psSolid;
  LayerMapGPS.Bitmap.Canvas.Pen.Color:=clBlue;
  LayerMapGPS.Bitmap.Clear(clBlack);
-{ if length(GState.GPS_ArrayOfSpeed)>3 then
-  begin
-   GPSpar.speed:=GState.GPS_ArrayOfSpeed[length(GState.GPS_ArrayOfSpeed)-1];
-   GPSpar.sspeed:=0;
-   GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[1];
-   for i:=3 to length(GState.GPS_ArrayOfSpeed)-1 do
-    begin
-     GPSpar.sspeed:=GPSpar.sspeed+GState.GPS_ArrayOfSpeed[i];
-     if GState.GPS_ArrayOfSpeed[i]>GPSpar.maxspeed then GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[i];
-    end;
-   GPSpar.sspeed:=GPSpar.sspeed/(length(GState.GPS_ArrayOfSpeed)-3);
-  end;       }
 
  with LayerMapGPS.Bitmap do
  if GState.GPS_ShowPath then
@@ -1477,41 +1472,6 @@ begin
    SizeTrackd2:=GState.GPS_ArrowSize div 6;
    LayerMapGPS.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
   end;
-
-{ s_speed:=RoundEx(GPSpar.speed,2)+' ('+RoundEx(GPSpar.sspeed,1)+') '+SAS_UNITS_kmperh;
-
- LayerStatBar.Bitmap.FillRectS(10,-40,10,-20,SetAlpha(clWhite32, 140));
- VPoint1 := VisiblePixel2LoadedPixel(Point(5,5));
- VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),52));
- LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
- LayerMapGPS.Bitmap.Font.Size:=8;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10,10));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_Speed+':', 0, clBlack32);
- LayerMapGPS.Bitmap.Font.Size:=16;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10, 24));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_speed, 4, clBlack32);
- s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
- VPoint1 := VisiblePixel2LoadedPixel(Point(5, 59));
- VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5, 106));
- LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
- LayerMapGPS.Bitmap.Font.Size:=8;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10, 64));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_LenPath+':', 0, clBlack32);
- LayerMapGPS.Bitmap.Font.Size:=16;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10, 78));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_len, 4, clBlack32);
- if (NavOnMark<>nil) then begin
-   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
-   VPoint1 := VisiblePixel2LoadedPixel(Point(5,113));
-   VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5, 160));
-   LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
-   LayerMapGPS.Bitmap.Font.Size:=8;
-   VPoint1 := VisiblePixel2LoadedPixel(Point(10,118));
-   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y,SAS_STR_LenToMark+':', 0, clBlack32);
-   LayerMapGPS.Bitmap.Font.Size:=16;
-   VPoint1 := VisiblePixel2LoadedPixel(Point(10,132));
-   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, n_len, 4, clBlack32);
- end;                   }
 
  UpdateGPSsensors;
  LayerMapGPS.BringToFront;
@@ -2493,6 +2453,7 @@ begin
  GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
  GPSpar.Odometr:=GState.MainIni.ReadFloat('GPS','Odometr',0);
+ GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
  GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
  GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
@@ -3915,6 +3876,7 @@ begin
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
  except
  end;
+ if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
  LayerMapGPS.Bitmap.Clear(clBlack);
  GState.GPS_enab:=false;
  LayerMapGPS.Visible:=false;
@@ -3926,6 +3888,7 @@ procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
 var S:string;
     ts,ds:char;
 begin
+ if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
  if GState.GPS_WriteLog then
  try
   ts:=TimeSeparator;
@@ -5008,14 +4971,12 @@ end;
 procedure TFmain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
   UpdateGPSsensors;
-  NSensorsBarShow.Checked:=TTBXToolWindow(sender).Visible;
+  TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
 end;
 
-procedure TFmain.NSensorsBarShowClick(Sender: TObject);
+procedure TFmain.NSensorsBarClick(Sender: TObject);
 begin
- if TTBXItem(sender).Name='NSensorsBarShow' then
-  TBXSensorsBar.Visible:=TTBXItem(sender).Checked;
-
+  TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
 end.

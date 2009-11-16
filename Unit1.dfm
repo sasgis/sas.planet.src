@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 365
-  Top = 160
+  Left = 232
+  Top = 99
   Width = 854
   Height = 573
   HorzScrollBar.Visible = False
@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -41,8 +42,10 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
+    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
+    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -445,33 +448,55 @@ object Fmain: TFmain
             Caption = #1052#1077#1090#1082#1080
             Hint = ''
           end
-          object NSensorsBarShow: TTBXItem
+          object NSensorsBar: TTBXItem
             AutoCheck = True
-            OnClick = NSensorsBarShowClick
+            OnClick = NSensorsBarClick
             Caption = #1055#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
             Hint = ''
           end
-          object TBXSubmenuItem1: TTBXSubmenuItem
+          object NSensors: TTBXSubmenuItem
             Caption = #1044#1072#1090#1095#1080#1082#1080
             Hint = ''
-            object TBXItem5: TTBXItem
+            object NSensorSpeedBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
               Caption = #1057#1082#1086#1088#1086#1089#1090#1100
               Hint = ''
             end
-            object TBXItem4: TTBXItem
+            object NSensorSpeedAvgBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
               Caption = #1057#1082#1086#1088#1086#1089#1090#1100' '#1089#1088#1077#1076#1085#1103#1103
               Hint = ''
             end
-            object TBXItem3: TTBXItem
-              Caption = ''
+            object NSensorPathBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1055#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100
               Hint = ''
             end
-            object TBXItem2: TTBXItem
-              Caption = ''
+            object NsensorOdometrBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1054#1076#1086#1084#1077#1090#1088
               Hint = ''
             end
-            object TBXItem1: TTBXItem
-              Caption = ''
+            object NSensorLenToMarkBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1056#1072#1089#1089#1090#1086#1103#1085#1080#1077' '#1076#1086' '#1084#1077#1090#1082#1080
+              Hint = ''
+            end
+            object NSensorBattaryBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1041#1072#1090#1072#1088#1077#1103
               Hint = ''
             end
           end
@@ -1847,6 +1872,7 @@ object Fmain: TFmain
       ClientAreaHeight = 286
       ClientAreaWidth = 160
       DockPos = 0
+      PopupMenu = TBXPopupMenuSensors
       Stretch = True
       TabOrder = 1
       Visible = False
@@ -1869,7 +1895,7 @@ object Fmain: TFmain
           Top = 0
           Width = 160
           Height = 216
-          object TBXToolWindow3: TTBXToolWindow
+          object TBXSensorSpeedAvgBar: TTBXToolWindow
             Left = 0
             Top = 36
             ClientAreaHeight = 32
@@ -1878,6 +1904,7 @@ object Fmain: TFmain
             DockRow = 1
             Stretch = True
             TabOrder = 0
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1888,6 +1915,7 @@ object Fmain: TFmain
               Top = 1
               Width = 17
               Height = 12
+              Hint = #1057#1073#1088#1086#1089#1080#1090#1100
               Anchors = [akTop, akRight]
               Flat = True
               Glyph.Data = {
@@ -1938,13 +1966,14 @@ object Fmain: TFmain
               Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1088#1077#1076#1085#1102#1102' '#1089#1082#1086#1088#1086#1089#1090#1100' '#1076#1074#1080#1078#1077#1085#1080#1103
             end
           end
-          object TBXToolWindow4: TTBXToolWindow
+          object TBXSensorSpeedBar: TTBXToolWindow
             Left = 0
             Top = 0
             ClientAreaHeight = 32
             ClientAreaWidth = 150
             Stretch = True
             TabOrder = 1
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1975,7 +2004,7 @@ object Fmain: TFmain
               Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1090#1077#1082#1091#1097#1091#1102' '#1089#1082#1086#1088#1086#1089#1090#1100' '#1076#1074#1080#1078#1077#1085#1080#1103
             end
           end
-          object TBXToolWindow5: TTBXToolWindow
+          object TBXsensorOdometrBar: TTBXToolWindow
             Left = 0
             Top = 108
             ClientAreaHeight = 32
@@ -1984,6 +2013,7 @@ object Fmain: TFmain
             DockRow = 3
             Stretch = True
             TabOrder = 2
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1994,6 +2024,7 @@ object Fmain: TFmain
               Top = 1
               Width = 17
               Height = 12
+              Hint = #1057#1073#1088#1086#1089#1080#1090#1100
               Anchors = [akTop, akRight]
               Flat = True
               Glyph.Data = {
@@ -2044,7 +2075,7 @@ object Fmain: TFmain
               Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1074#1077#1089#1100' '#1087#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100
             end
           end
-          object TBXToolWindow6: TTBXToolWindow
+          object TBXSensorPathBar: TTBXToolWindow
             Left = 0
             Top = 72
             ClientAreaHeight = 32
@@ -2053,6 +2084,7 @@ object Fmain: TFmain
             DockRow = 2
             Stretch = True
             TabOrder = 3
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -2063,6 +2095,7 @@ object Fmain: TFmain
               Top = 1
               Width = 17
               Height = 12
+              Hint = #1057#1073#1088#1086#1089#1080#1090#1100
               Anchors = [akTop, akRight]
               Flat = True
               Glyph.Data = {
@@ -2115,7 +2148,7 @@ object Fmain: TFmain
                 #1080#1082#1091
             end
           end
-          object TBXToolWindow7: TTBXToolWindow
+          object TBXSensorBattaryBar: TTBXToolWindow
             Left = 0
             Top = 180
             Align = alTop
@@ -2125,6 +2158,7 @@ object Fmain: TFmain
             DockRow = 6
             Stretch = True
             TabOrder = 4
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -2153,7 +2187,7 @@ object Fmain: TFmain
               Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1086#1089#1090#1086#1103#1085#1080#1077' '#1087#1080#1090#1072#1085#1080#1103
             end
           end
-          object TBXToolWindow8: TTBXToolWindow
+          object TBXSensorLenToMarkBar: TTBXToolWindow
             Left = 0
             Top = 144
             ClientAreaHeight = 32
@@ -2162,6 +2196,7 @@ object Fmain: TFmain
             DockRow = 5
             Stretch = True
             TabOrder = 5
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -5171,7 +5206,7 @@ object Fmain: TFmain
   object TBImageList1_24: TTBImageList
     Height = 17
     Width = 17
-    Left = 412
+    Left = 372
     Top = 225
     Bitmap = {
       494C010119001D00040011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
@@ -7721,5 +7756,10 @@ object Fmain: TFmain
   object OpenPictureDialog: TOpenPictureDialog
     Left = 244
     Top = 81
+  end
+  object TBXPopupMenuSensors: TTBXPopupMenu
+    LinkSubitems = NSensors
+    Left = 730
+    Top = 289
   end
 end

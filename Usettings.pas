@@ -231,6 +231,7 @@ type
     Button17: TButton;
     Label31: TLabel;
     Button18: TButton;
+    CBSensorsBarAutoShow: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -387,6 +388,7 @@ begin
  GState.MainIni.WriteInteger('GPS','SizeTrack',GState.GPS_TrackWidth);
  GState.MainIni.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  GState.MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
+ GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
  GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','ESC',GState.ESCpath_);
@@ -510,6 +512,7 @@ begin
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPS_COM:=ComboBoxCOM.Text;
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
+ GState.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
  GMiniMap.z1mz2:=smmapdif.Value;
  if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.userwinset:=RBWinCon.Checked;

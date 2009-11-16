@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet9
+    ActivePage = TabSheet5
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1415,7 +1415,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
@@ -1704,6 +1704,14 @@ object FSettings: TFSettings
           Height = 201
           OnPaint = PaintBox1Paint
         end
+      end
+      object CBSensorsBarAutoShow: TCheckBox
+        Left = 8
+        Top = 152
+        Width = 305
+        Height = 17
+        Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100'/'#1089#1082#1088#1099#1074#1072#1090#1100' '#1087#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
+        TabOrder = 11
       end
     end
     object TabSheet8: TTabSheet
