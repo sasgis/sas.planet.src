@@ -93,6 +93,8 @@ type
     GPS_ArrayOfSpeed: array of Real;
     //Точки GPS трека
     GPS_TrackPoints: TExtendedPointArray;
+    //Скрывать/показывать панель датчиков при подключении/отключении GPS
+    GPS_SensorsAutoShow: boolean;
 
     BorderColor: TColor;
     BorderAlpha: byte;

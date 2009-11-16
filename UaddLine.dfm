@@ -1,10 +1,10 @@
 object FaddLine: TFaddLine
-  Left = 452
-  Top = 241
+  Left = 166
+  Top = 361
   BorderStyle = bsDialog
   Caption = 'FaddLine'
   ClientHeight = 310
-  ClientWidth = 321
+  ClientWidth = 343
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,7 +25,7 @@ object FaddLine: TFaddLine
   end
   object Label2: TLabel
     Left = 8
-    Top = 68
+    Top = 76
     Width = 53
     Height = 13
     Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
@@ -33,14 +33,14 @@ object FaddLine: TFaddLine
   object Bevel2: TBevel
     Left = 8
     Top = 240
-    Width = 305
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
   object Bevel3: TBevel
     Left = 8
     Top = 56
-    Width = 305
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
@@ -54,7 +54,7 @@ object FaddLine: TFaddLine
   object Bevel5: TBevel
     Left = 8
     Top = 264
-    Width = 305
+    Width = 329
     Height = 9
     Shape = bsBottomLine
   end
@@ -66,14 +66,14 @@ object FaddLine: TFaddLine
     Caption = #1062#1074#1077#1090
   end
   object Label5: TLabel
-    Left = 98
+    Left = 114
     Top = 216
     Width = 39
     Height = 13
     Caption = #1064#1080#1088#1080#1085#1072
   end
   object Label4: TLabel
-    Left = 186
+    Left = 210
     Top = 216
     Width = 83
     Height = 13
@@ -97,7 +97,7 @@ object FaddLine: TFaddLine
   object EditName: TEdit
     Left = 40
     Top = 32
-    Width = 273
+    Width = 297
     Height = 21
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
@@ -109,14 +109,15 @@ object FaddLine: TFaddLine
   end
   object EditComment: TMemo
     Left = 8
-    Top = 83
-    Width = 305
-    Height = 113
+    Top = 96
+    Width = 329
+    Height = 100
     ScrollBars = ssVertical
     TabOrder = 1
+    OnKeyDown = EditCommentKeyDown
   end
   object Badd: TButton
-    Left = 160
+    Left = 184
     Top = 280
     Width = 73
     Height = 25
@@ -125,7 +126,7 @@ object FaddLine: TFaddLine
     OnClick = BaddClick
   end
   object Button2: TButton
-    Left = 240
+    Left = 264
     Top = 280
     Width = 73
     Height = 25
@@ -139,7 +140,7 @@ object FaddLine: TFaddLine
   object CheckBox2: TCheckBox
     Left = 8
     Top = 251
-    Width = 217
+    Width = 329
     Height = 17
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
@@ -161,7 +162,7 @@ object FaddLine: TFaddLine
     TabOrder = 5
   end
   object SpinEdit1: TSpinEdit
-    Left = 141
+    Left = 157
     Top = 213
     Width = 41
     Height = 22
@@ -171,7 +172,7 @@ object FaddLine: TFaddLine
     Value = 2
   end
   object SEtransp: TSpinEdit
-    Left = 272
+    Left = 296
     Top = 213
     Width = 41
     Height = 22
@@ -183,11 +184,76 @@ object FaddLine: TFaddLine
   object CBKateg: TComboBox
     Left = 72
     Top = 8
-    Width = 241
+    Width = 265
     Height = 21
     ItemHeight = 13
     TabOrder = 8
     Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
+  end
+  object TBXToolbar1: TTBXToolbar
+    Left = 164
+    Top = 69
+    Width = 173
+    Height = 22
+    Images = Fmain.EditCommentsImgs
+    TabOrder = 9
+    Caption = 'TBXToolbar1'
+    object TBXItem3: TTBXItem
+      ImageIndex = 0
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem2: TTBXItem
+      Tag = 1
+      ImageIndex = 1
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem1: TTBXItem
+      Tag = 2
+      ImageIndex = 2
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXSeparatorItem1: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem4: TTBXItem
+      Tag = 3
+      ImageIndex = 3
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem5: TTBXItem
+      Tag = 4
+      ImageIndex = 4
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem6: TTBXItem
+      Tag = 5
+      ImageIndex = 5
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
+    object TBXSeparatorItem2: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object TBXItem7: TTBXItem
+      Tag = 6
+      ImageIndex = 7
+      OnClick = TBXItem3Click
+      Caption = ''
+      Hint = ''
+    end
   end
   object OpenDialog1: TOpenDialog
     Filter = 'PNG|*.png'

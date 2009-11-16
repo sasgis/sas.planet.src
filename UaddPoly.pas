@@ -23,7 +23,7 @@ uses
   Unit1,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes;
+  t_GeoTypes, TB2Item, TBX, TB2Dock, TB2Toolbar;
 
 type
   TFAddPoly = class(TForm)
@@ -56,16 +56,31 @@ type
     ColorDialog1: TColorDialog;
     Label7: TLabel;
     CBKateg: TComboBox;
+    TBXToolbar1: TTBXToolbar;
+    TBXItem3: TTBXItem;
+    TBXItem2: TTBXItem;
+    TBXItem1: TTBXItem;
+    TBXSeparatorItem1: TTBXSeparatorItem;
+    TBXItem4: TTBXItem;
+    TBXItem5: TTBXItem;
+    TBXItem6: TTBXItem;
+    TBXSeparatorItem2: TTBXSeparatorItem;
+    TBXItem7: TTBXItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure TBXItem3Click(Sender: TObject);
+    procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
   public
    function show_(aLL:array of TExtendedPoint;new:boolean):boolean;
   end;
+
+  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
 
 var
   FAddPoly: TFAddPoly;
@@ -187,6 +202,65 @@ end;
 procedure TFAddPoly.SpeedButton2Click(Sender: TObject);
 begin
  if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
+end;
+
+procedure TFAddPoly.TBXItem3Click(Sender: TObject);
+var s:string;
+    seli:integer;
+begin
+ s:=EditComment.Text;
+ seli:=EditComment.SelStart;
+ case TEditBtn(TTBXItem(sender).Tag) of
+  ebB: begin
+        Insert('<b>',s,EditComment.SelStart+1);
+        Insert('</b>',s,EditComment.SelStart+EditComment.SelLength+3+1);
+       end;
+  ebI: begin
+        Insert('<i>',s,EditComment.SelStart+1);
+        Insert('</i>',s,EditComment.SelStart+EditComment.SelLength+3+1);
+       end;
+  ebU: begin
+        Insert('<u>',s,EditComment.SelStart+1);
+        Insert('</u>',s,EditComment.SelStart+EditComment.SelLength+3+1);
+       end;
+  ebImg:
+       begin
+        if (FMain.OpenPictureDialog.Execute)and(FMain.OpenPictureDialog.FileName<>'') then begin
+         Insert('<img src="'+FMain.OpenPictureDialog.FileName+'"/>',s,EditComment.SelStart+1);
+        end;
+       end;
+  ebCenter:
+       begin
+        Insert('<CENTER>',s,EditComment.SelStart+1);
+        Insert('</CENTER>',s,EditComment.SelStart+EditComment.SelLength+8+1);
+       end;
+  ebLeft:
+       begin
+        Insert('<div ALIGN=LEFT>',s,EditComment.SelStart+1);
+        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+16+1);
+       end;
+  ebRight:
+       begin
+        Insert('<div ALIGN=RIGHT>',s,EditComment.SelStart+1);
+        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+17+1);
+       end;
+ end;
+ EditComment.Text:=s;
+ EditComment.SelStart:=seli;
+end;
+
+procedure TFAddPoly.EditCommentKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var s:string;
+    seli:integer;
+begin
+ if Key=13 then begin
+   Key:=0;
+   s:=EditComment.Text;
+   seli:=EditComment.SelStart;
+   Insert('<BR>',s,EditComment.SelStart+1);
+   EditComment.Text:=s;
+   EditComment.SelStart:=seli+4;
+ end;
 end;
 
 end.

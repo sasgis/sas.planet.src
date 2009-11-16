@@ -64,6 +64,7 @@ uses
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
+  ExtDlgs, TBXControls, TBXExtItems,
   t_GeoTypes;
 
 type
@@ -341,6 +342,47 @@ type
     TBXSeparatorItem13: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
+    EditCommentsImgs: TImageList;
+    OpenPictureDialog: TOpenPictureDialog;
+    TBXSensorsBar: TTBXToolWindow;
+    ScrollBox1: TScrollBox;
+    TBXDock1: TTBXDock;
+    TBXSensorSpeedAvgBar: TTBXToolWindow;
+    TBXSensorSpeedAvg: TTBXLabel;
+    TBXSensorSpeedBar: TTBXToolWindow;
+    TBXSensorSpeed: TTBXLabel;
+    TBXsensorOdometrBar: TTBXToolWindow;
+    TBXSensorOdometr: TTBXLabel;
+    TBXSensorPathBar: TTBXToolWindow;
+    TBXOdometrNow: TTBXLabel;
+    TBXSensorBattaryBar: TTBXToolWindow;
+    TBXSensorBattary: TTBXLabel;
+    TBXSensorLenToMarkBar: TTBXToolWindow;
+    TBXSensorLenToMark: TTBXLabel;
+    TBXLabel8: TTBXLabel;
+    TBXLabel9: TTBXLabel;
+    TBXLabel10: TTBXLabel;
+    TBXLabel11: TTBXLabel;
+    TBXLabel13: TTBXLabel;
+    TBXLabel14: TTBXLabel;
+    SpeedButton2: TSpeedButton;
+    SpeedButton3: TSpeedButton;
+    SBClearSensor: TSpeedButton;
+    NSensorsBar: TTBXItem;
+    NSensors: TTBXSubmenuItem;
+    NSensorLenToMarkBar: TTBXItem;
+    NsensorOdometrBar: TTBXItem;
+    NSensorPathBar: TTBXItem;
+    NSensorSpeedAvgBar: TTBXItem;
+    NSensorSpeedBar: TTBXItem;
+    NSensorBattaryBar: TTBXItem;
+    TBXPopupMenuSensors: TTBXPopupMenu;
+    TBXItem1: TTBXItem;
+    TBXLabelItem1: TTBXLabelItem;
+    TBXLabelItem2: TTBXLabelItem;
+    TBXItem2: TTBXItem;
+    TBXItem3: TTBXItem;
+    TBXItem4: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -458,6 +500,10 @@ type
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
     procedure NanimateClick(Sender: TObject);
     procedure NbackloadLayerClick(Sender: TObject);
+    procedure SBClearSensorClick(Sender: TObject);
+    procedure TBXSensorsBarVisibleChanged(Sender: TObject);
+    procedure NSensorsBarClick(Sender: TObject);
+    procedure TBXItem1Click(Sender: TObject);
   private
    ShowActivHint:boolean;
    HintWindow: THintWindow;
@@ -552,6 +598,7 @@ class   procedure delfrompath(pos:integer);
    property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
 
    property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
+   procedure UpdateGPSsensors;
   end;
 
   TGPSpar = record
@@ -560,6 +607,7 @@ class   procedure delfrompath(pos:integer);
    sspeed:real;
    maxspeed:real;
    nap:integer;
+   Odometr:extended;
   end;
 
   TNavOnMark = class
@@ -645,7 +693,8 @@ uses
   USearchResult,
   UImport,
   UAddCategory,
-  u_TileDownloaderUIOneTile, i_ICoordConverter;
+  u_TileDownloaderUIOneTile, i_ICoordConverter,
+  UKMLParse;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -1299,6 +1348,59 @@ begin
  Polygon.Free;
 end;
 
+procedure TFmain.UpdateGPSsensors;
+var i:integer;
+    s_len,n_len:string;
+    VPoint1,VPoint2:TPoint;
+    sps:_SYSTEM_POWER_STATUS;
+begin
+ try
+   //скорость и средняя скорость
+   if length(GState.GPS_ArrayOfSpeed)>3 then begin
+     GPSpar.speed:=GState.GPS_ArrayOfSpeed[length(GState.GPS_ArrayOfSpeed)-1];
+     GPSpar.sspeed:=0;
+     GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[1];
+     for i:=3 to length(GState.GPS_ArrayOfSpeed)-1 do begin
+       GPSpar.sspeed:=GPSpar.sspeed+GState.GPS_ArrayOfSpeed[i];
+       if GState.GPS_ArrayOfSpeed[i]>GPSpar.maxspeed then GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[i];
+     end;
+     GPSpar.sspeed:=GPSpar.sspeed/(length(GState.GPS_ArrayOfSpeed)-3);
+     TBXSensorSpeed.Caption:=R2StrPoint(GPSpar.speed);
+     TBXSensorSpeedAvg.Caption:=R2StrPoint(GPSpar.sspeed);
+   end else begin
+     TBXSensorSpeed.Caption:='-';
+     TBXSensorSpeedAvg.Caption:='-';
+   end;
+
+   //пройденный путь
+   s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
+   TBXOdometrNow.Caption:=s_len;
+   //расстояние до метки
+   if (NavOnMark<>nil) then begin
+     n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
+     TBXSensorLenToMark.Caption:=n_len;
+   end else begin
+     TBXSensorLenToMark.Caption:='-';
+   end;
+   //одометр
+   TBXSensorOdometr.Caption:=DistToStrWithUnits(GPSpar.Odometr, GState.num_format);
+   //батарея
+   GetSystemPowerStatus(sps);
+   if sps.ACLineStatus=0 then begin
+     case sps.BatteryFlag of
+       128: TBXSensorBattary.Caption:='От сети';
+         8: TBXSensorBattary.Caption:='Заряжается';
+       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:='Неизвестно'
+                                          else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
+     end
+   end
+   else begin
+     TBXSensorBattary.Caption:='От сети';
+   end;
+ except
+ end;
+end;
+
 procedure TFmain.drawLineGPS;
 var i,speed,SizeTrackd2:integer;
     k1,k2:TPoint;
@@ -1320,18 +1422,6 @@ begin
  LayerMapGPS.Bitmap.Canvas.Pen.Style:=psSolid;
  LayerMapGPS.Bitmap.Canvas.Pen.Color:=clBlue;
  LayerMapGPS.Bitmap.Clear(clBlack);
- if length(GState.GPS_ArrayOfSpeed)>3 then
-  begin
-   GPSpar.speed:=GState.GPS_ArrayOfSpeed[length(GState.GPS_ArrayOfSpeed)-1];
-   GPSpar.sspeed:=0;
-   GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[1];
-   for i:=3 to length(GState.GPS_ArrayOfSpeed)-1 do
-    begin
-     GPSpar.sspeed:=GPSpar.sspeed+GState.GPS_ArrayOfSpeed[i];
-     if GState.GPS_ArrayOfSpeed[i]>GPSpar.maxspeed then GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[i];
-    end;
-   GPSpar.sspeed:=GPSpar.sspeed/(length(GState.GPS_ArrayOfSpeed)-3);
-  end;
 
  with LayerMapGPS.Bitmap do
  if GState.GPS_ShowPath then
@@ -1397,39 +1487,7 @@ begin
    LayerMapGPS.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
   end;
 
- s_speed:=RoundEx(GPSpar.speed,2)+' ('+RoundEx(GPSpar.sspeed,1)+') '+SAS_UNITS_kmperh;
-
- VPoint1 := VisiblePixel2LoadedPixel(Point(5,5));
- VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_speed)*1.3),52));
- LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
- LayerMapGPS.Bitmap.Font.Size:=8;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10,10));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_Speed+':', 0, clBlack32);
- LayerMapGPS.Bitmap.Font.Size:=16;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10, 24));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_speed, 4, clBlack32);
- s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
- VPoint1 := VisiblePixel2LoadedPixel(Point(5, 59));
- VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(s_len)*1.3)+5, 106));
- LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
- LayerMapGPS.Bitmap.Font.Size:=8;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10, 64));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, SAS_STR_LenPath+':', 0, clBlack32);
- LayerMapGPS.Bitmap.Font.Size:=16;
- VPoint1 := VisiblePixel2LoadedPixel(Point(10, 78));
- LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, s_len, 4, clBlack32);
- if (NavOnMark<>nil) then begin
-   n_len:=DistToStrWithUnits(sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
-   VPoint1 := VisiblePixel2LoadedPixel(Point(5,113));
-   VPoint2 := VisiblePixel2LoadedPixel(Point(round(LayerMapGPS.Bitmap.TextWidthW(n_len)*1.3)+5, 160));
-   LayerMapGPS.Bitmap.FillRectS(VPoint1.X, VPoint1.Y, VPoint2.X, VPoint2.Y, SetAlpha(clWhite32, 140));
-   LayerMapGPS.Bitmap.Font.Size:=8;
-   VPoint1 := VisiblePixel2LoadedPixel(Point(10,118));
-   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y,SAS_STR_LenToMark+':', 0, clBlack32);
-   LayerMapGPS.Bitmap.Font.Size:=16;
-   VPoint1 := VisiblePixel2LoadedPixel(Point(10,132));
-   LayerMapGPS.Bitmap.RenderText(VPoint1.X, VPoint1.Y, n_len, 4, clBlack32);
- end;
+ UpdateGPSsensors;
  LayerMapGPS.BringToFront;
  FreeAndNil(Polygon);
  FreeAndNil(Polygon_line);
@@ -2381,6 +2439,8 @@ begin
  GState.GPS_Correction:=extpoint(GState.MainIni.ReadFloat('GPS','popr_lon',0),GState.MainIni.ReadFloat('GPS','popr_lat',0));
  GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
+ GPSpar.Odometr:=GState.MainIni.ReadFloat('GPS','Odometr',0);
+ GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
  GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
  GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
@@ -3787,8 +3847,10 @@ begin
   begin
   setlength(GState.GPS_ArrayOfSpeed,len);
   GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
-  if len>1 then
+  if len>1 then begin
     GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.Odometr:=GPSpar.Odometr+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+  end;
   if not((MapMoving)or(MapZoomAnimtion=1))and(Self.Active) then
    begin
     bPOS:=sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
@@ -3823,6 +3885,7 @@ begin
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
  except
  end;
+ if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
  LayerMapGPS.Bitmap.Clear(clBlack);
  GState.GPS_enab:=false;
  LayerMapGPS.Visible:=false;
@@ -3832,13 +3895,19 @@ end;
 
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
 var S:string;
+    ts,ds:char;
 begin
+ if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
  if GState.GPS_WriteLog then
  try
+  ts:=TimeSeparator;
+  ds:=DateSeparator;
   TimeSeparator:='-';
   DateSeparator:='-';
   CreateDir(GState.TrackLogPath);
   s:=GState.TrackLogPath+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
+  TimeSeparator:=ts;
+  DateSeparator:=ds;
   AssignFile(GState.GPS_LogFile,s);
   rewrite(GState.GPS_LogFile);
  except
@@ -4895,6 +4964,78 @@ begin
 
   Result.X := Pnt.X + (VLoadedSize.X - VVisibleSize.X) div 2;
   Result.Y := Pnt.Y + (VLoadedSize.Y - VVisibleSize.Y) div 2;
+end;
+
+procedure TFmain.SBClearSensorClick(Sender: TObject);
+begin
+ if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+   case TSpeedButton(sender).Tag of
+    1: GPSpar.sspeed:=0;
+    2: GPSpar.len:=0;
+    3: GPSpar.Odometr:=0;
+   end;
+   UpdateGPSsensors;
+ end;
+end;
+
+procedure TFmain.TBXSensorsBarVisibleChanged(Sender: TObject);
+begin
+  UpdateGPSsensors;
+  TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
+end;
+
+procedure TFmain.NSensorsBarClick(Sender: TObject);
+begin
+  TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
+end;
+
+procedure TFmain.TBXItem1Click(Sender: TObject);
+var ms:TMemoryStream;
+    pathstr,timeT1:string;
+    url:string;
+    i,posit,posit2,endpos,dd,seconds,meters:integer;
+    Buffer:array [1..64535] of char;
+    BufferLen:LongWord;
+    dateT1:TDateTime;
+    kml:TKml;
+    s,l:integer;
+    conerr:boolean;
+    add_line_arr_b:TExtendedPointArray;
+begin
+ ms:=TMemoryStream.Create;
+ case TTBXItem(sender).Tag of
+    1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
+   11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
+    2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
+   22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
+ end;
+ conerr:=false;
+ for i:=0 to length(add_line_arr)-2 do begin
+ if conerr then Continue;
+ url:=url+'&flat='+R2StrPoint(add_line_arr[i].y)+'&flon='+R2StrPoint(add_line_arr[i].x)+
+          '&tlat='+R2StrPoint(add_line_arr[i+1].y)+'&tlon='+R2StrPoint(add_line_arr[i+1].x);
+ if GetStreamFromURL(ms,url,'text/xml')>0 then
+  begin
+   kml:=TKml.Create;
+   kml.loadFromStream(ms);
+   ms.SetSize(0);
+   if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
+     s:=length(add_line_arr_b);
+     l:=length(kml.Data[0].coordinates);
+     SetLength(add_line_arr_b,(s+l));
+     Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TExtendedPoint));
+   end;
+   kml.Free;
+  end
+ else conerr:=true;
+ end;
+ ms.Free;
+ if conerr then ShowMessage('Connect error!');
+ if (not conerr)and(length(add_line_arr_b)>0) then begin
+   add_line_arr:=add_line_arr_b;
+   SetLength(add_line_arr_b,0);
+ end;
+ drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
 end.
