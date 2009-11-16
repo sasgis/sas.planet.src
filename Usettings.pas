@@ -386,6 +386,7 @@ begin
  GState.MainIni.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  GState.MainIni.WriteInteger('GPS','SizeTrack',GState.GPS_TrackWidth);
  GState.MainIni.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
+ GState.MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
  GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','ESC',GState.ESCpath_);
@@ -593,8 +594,6 @@ begin
  FMain.LayerMapMarks.Bitmap.Height := VLoadedSizeInPixel.Y;
  FMain.LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
  FMain.LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
- FMain.LayerMapGPS.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.LayerMapGPS.Bitmap.Height := VLoadedSizeInPixel.Y;
 
  SetProxy;
 

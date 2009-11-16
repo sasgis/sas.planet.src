@@ -1,7 +1,7 @@
 object Fmain: TFmain
-  Left = 298
-  Top = 107
-  Width = 865
+  Left = 365
+  Top = 160
+  Width = 854
   Height = 573
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -41,10 +41,8 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -59,7 +57,7 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 57
-    Width = 617
+    Width = 646
     Height = 473
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -81,7 +79,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 857
+    Width = 846
     Height = 57
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -314,7 +312,7 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 822
+      Left = 811
       Top = 23
       DockPos = 918
       DockRow = 2
@@ -446,6 +444,36 @@ object Fmain: TFmain
             OnClick = NMarksBarShowClick
             Caption = #1052#1077#1090#1082#1080
             Hint = ''
+          end
+          object NSensorsBarShow: TTBXItem
+            AutoCheck = True
+            OnClick = NSensorsBarShowClick
+            Caption = #1055#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
+            Hint = ''
+          end
+          object TBXSubmenuItem1: TTBXSubmenuItem
+            Caption = #1044#1072#1090#1095#1080#1082#1080
+            Hint = ''
+            object TBXItem5: TTBXItem
+              Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+              Hint = ''
+            end
+            object TBXItem4: TTBXItem
+              Caption = #1057#1082#1086#1088#1086#1089#1090#1100' '#1089#1088#1077#1076#1085#1103#1103
+              Hint = ''
+            end
+            object TBXItem3: TTBXItem
+              Caption = ''
+              Hint = ''
+            end
+            object TBXItem2: TTBXItem
+              Caption = ''
+              Hint = ''
+            end
+            object TBXItem1: TTBXItem
+              Caption = ''
+              Hint = ''
+            end
           end
         end
         object N31: TTBXSubmenuItem
@@ -906,7 +934,7 @@ object Fmain: TFmain
   object TBDockBottom: TTBXDock
     Left = 0
     Top = 530
-    Width = 857
+    Width = 846
     Height = 9
     Position = dpBottom
   end
@@ -1760,23 +1788,23 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 653
+    Left = 682
     Top = 57
-    Width = 204
+    Width = 164
     Height = 473
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
-      Top = 0
-      ClientAreaHeight = 463
-      ClientAreaWidth = 200
-      DockPos = 0
+      Top = 296
+      ClientAreaHeight = 167
+      ClientAreaWidth = 160
+      DockPos = 296
       Stretch = True
       TabOrder = 0
       Visible = False
       DesignSize = (
-        200
-        463)
+        160
+        167)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1790,8 +1818,8 @@ object Fmain: TFmain
       object TreeView1: TTreeView
         Left = 7
         Top = 32
-        Width = 186
-        Height = 345
+        Width = 146
+        Height = 49
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1806,11 +1834,363 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 384
-        Width = 185
+        Top = 88
+        Width = 145
         Height = 73
         Anchors = [akLeft, akRight, akBottom]
         TabOrder = 1
+      end
+    end
+    object TBXSensorsBar: TTBXToolWindow
+      Left = 0
+      Top = 0
+      ClientAreaHeight = 286
+      ClientAreaWidth = 160
+      DockPos = 0
+      Stretch = True
+      TabOrder = 1
+      Visible = False
+      OnVisibleChanged = TBXSensorsBarVisibleChanged
+      Caption = #1044#1072#1090#1095#1080#1082#1080
+      object ScrollBox1: TScrollBox
+        Left = 0
+        Top = 0
+        Width = 160
+        Height = 216
+        Align = alTop
+        AutoScroll = False
+        AutoSize = True
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
+        TabOrder = 0
+        object TBXDock1: TTBXDock
+          Left = 0
+          Top = 0
+          Width = 160
+          Height = 216
+          object TBXToolWindow3: TTBXToolWindow
+            Left = 0
+            Top = 36
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 34
+            DockRow = 1
+            Stretch = True
+            TabOrder = 0
+            DesignSize = (
+              150
+              32)
+            Caption = #1057#1082#1086#1088#1086#1089#1090#1100' '#1089#1088#1077#1076#1085#1103#1103
+            object SBClearSensor: TSpeedButton
+              Tag = 1
+              Left = 132
+              Top = 1
+              Width = 17
+              Height = 12
+              Anchors = [akTop, akRight]
+              Flat = True
+              Glyph.Data = {
+                46020000424D460200000000000036000000280000000F0000000B0000000100
+                1800000000001002000000000000000000000000000000000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FF8FCD7F80CC80FF00FFFF00FFFF00FFFF00FFFF00
+                FFFF00FFFF00FF000000FF00FFFF00FFFF00FFFF00FF40B340109F108FD28CFF
+                00FFAFDFA640B34040B34040B34040B34040B34040B340000000FF00FFFF00FF
+                FF00FF109F10009900FF00FFFF00FFFF00FF80CC7D0099000099000099000099
+                0020A620FF00FF000000FF00FFFF00FF00990000990080CC80FF00FFFF00FFFF
+                00FF70C670009900009900009900009900009900FF00FF000000FF00FF50B950
+                009900009900FF00FFFF00FFFF00FFFF00FF40B3400099000099000099000099
+                000099008FD28E000000FF00FF009900009900009900FF00FFAFDFAB109F10FF
+                00FF40B34030AC30FF00FF40B34000990000990080CC7B000000FF00FF009900
+                00990000990020A620009900009900FF00FF70C66EFF00FFFF00FF80CC800099
+                00009900AFDFA3000000FF00FF40B340009900009900009900009900009900FF
+                00FFFF00FFFF00FFFF00FF20A62000990020A620FF00FF000000FF00FF80CB7C
+                009900009900009900009900009900FF00FFFF00FFFF00FF8FD189009900109F
+                10FF00FFFF00FF00000060BE5C00990000990000990000990000990040B340FF
+                00FFFF00FF8FCE8300990030AC30FF00FFFF00FFFF00FF000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FFFF00FFAFD69850B95050B9509FD28DFF00FFFF00
+                FFFF00FFFF00FF000000}
+              Margin = 0
+              Spacing = 0
+              OnClick = SBClearSensorClick
+            end
+            object TBXSensorSpeedAvg: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel9: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 113
+              Height = 13
+              Caption = #1057#1082#1086#1088#1086#1089#1090#1100' '#1089#1088#1077#1076'., '#1082#1084'/'#1095':'
+              Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1088#1077#1076#1085#1102#1102' '#1089#1082#1086#1088#1086#1089#1090#1100' '#1076#1074#1080#1078#1077#1085#1080#1103
+            end
+          end
+          object TBXToolWindow4: TTBXToolWindow
+            Left = 0
+            Top = 0
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            Stretch = True
+            TabOrder = 1
+            DesignSize = (
+              150
+              32)
+            Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+            object TBXSensorSpeed: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel8: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 81
+              Height = 13
+              ParentShowHint = False
+              ShowHint = True
+              Caption = #1057#1082#1086#1088#1086#1089#1090#1100', '#1082#1084'/'#1095':'
+              Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1090#1077#1082#1091#1097#1091#1102' '#1089#1082#1086#1088#1086#1089#1090#1100' '#1076#1074#1080#1078#1077#1085#1080#1103
+            end
+          end
+          object TBXToolWindow5: TTBXToolWindow
+            Left = 0
+            Top = 108
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 42
+            DockRow = 3
+            Stretch = True
+            TabOrder = 2
+            DesignSize = (
+              150
+              32)
+            Caption = #1054#1076#1086#1084#1077#1090#1088
+            object SpeedButton2: TSpeedButton
+              Tag = 3
+              Left = 132
+              Top = 1
+              Width = 17
+              Height = 12
+              Anchors = [akTop, akRight]
+              Flat = True
+              Glyph.Data = {
+                46020000424D460200000000000036000000280000000F0000000B0000000100
+                1800000000001002000000000000000000000000000000000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FF8FCD7F80CC80FF00FFFF00FFFF00FFFF00FFFF00
+                FFFF00FFFF00FF000000FF00FFFF00FFFF00FFFF00FF40B340109F108FD28CFF
+                00FFAFDFA640B34040B34040B34040B34040B34040B340000000FF00FFFF00FF
+                FF00FF109F10009900FF00FFFF00FFFF00FF80CC7D0099000099000099000099
+                0020A620FF00FF000000FF00FFFF00FF00990000990080CC80FF00FFFF00FFFF
+                00FF70C670009900009900009900009900009900FF00FF000000FF00FF50B950
+                009900009900FF00FFFF00FFFF00FFFF00FF40B3400099000099000099000099
+                000099008FD28E000000FF00FF009900009900009900FF00FFAFDFAB109F10FF
+                00FF40B34030AC30FF00FF40B34000990000990080CC7B000000FF00FF009900
+                00990000990020A620009900009900FF00FF70C66EFF00FFFF00FF80CC800099
+                00009900AFDFA3000000FF00FF40B340009900009900009900009900009900FF
+                00FFFF00FFFF00FFFF00FF20A62000990020A620FF00FF000000FF00FF80CB7C
+                009900009900009900009900009900FF00FFFF00FFFF00FF8FD189009900109F
+                10FF00FFFF00FF00000060BE5C00990000990000990000990000990040B340FF
+                00FFFF00FF8FCE8300990030AC30FF00FFFF00FFFF00FF000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FFFF00FFAFD69850B95050B9509FD28DFF00FFFF00
+                FFFF00FFFF00FF000000}
+              Margin = 0
+              Spacing = 0
+              OnClick = SBClearSensorClick
+            end
+            object TBXSensorOdometr: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel11: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 73
+              Height = 13
+              Caption = #1054#1076#1086#1084#1077#1090#1088', '#1082#1084':'
+              Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1074#1077#1089#1100' '#1087#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100
+            end
+          end
+          object TBXToolWindow6: TTBXToolWindow
+            Left = 0
+            Top = 72
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 0
+            DockRow = 2
+            Stretch = True
+            TabOrder = 3
+            DesignSize = (
+              150
+              32)
+            Caption = #1055#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100
+            object SpeedButton3: TSpeedButton
+              Tag = 2
+              Left = 132
+              Top = 1
+              Width = 17
+              Height = 12
+              Anchors = [akTop, akRight]
+              Flat = True
+              Glyph.Data = {
+                46020000424D460200000000000036000000280000000F0000000B0000000100
+                1800000000001002000000000000000000000000000000000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FF8FCD7F80CC80FF00FFFF00FFFF00FFFF00FFFF00
+                FFFF00FFFF00FF000000FF00FFFF00FFFF00FFFF00FF40B340109F108FD28CFF
+                00FFAFDFA640B34040B34040B34040B34040B34040B340000000FF00FFFF00FF
+                FF00FF109F10009900FF00FFFF00FFFF00FF80CC7D0099000099000099000099
+                0020A620FF00FF000000FF00FFFF00FF00990000990080CC80FF00FFFF00FFFF
+                00FF70C670009900009900009900009900009900FF00FF000000FF00FF50B950
+                009900009900FF00FFFF00FFFF00FFFF00FF40B3400099000099000099000099
+                000099008FD28E000000FF00FF009900009900009900FF00FFAFDFAB109F10FF
+                00FF40B34030AC30FF00FF40B34000990000990080CC7B000000FF00FF009900
+                00990000990020A620009900009900FF00FF70C66EFF00FFFF00FF80CC800099
+                00009900AFDFA3000000FF00FF40B340009900009900009900009900009900FF
+                00FFFF00FFFF00FFFF00FF20A62000990020A620FF00FF000000FF00FF80CB7C
+                009900009900009900009900009900FF00FFFF00FFFF00FF8FD189009900109F
+                10FF00FFFF00FF00000060BE5C00990000990000990000990000990040B340FF
+                00FFFF00FF8FCE8300990030AC30FF00FFFF00FFFF00FF000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FFFF00FFAFD69850B95050B9509FD28DFF00FFFF00
+                FFFF00FFFF00FF000000}
+              Margin = 0
+              Spacing = 0
+              OnClick = SBClearSensorClick
+            end
+            object TBXOdometrNow: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel10: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 97
+              Height = 13
+              Caption = #1055#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100':'
+              Hint_W = 
+                #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1087#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100' '#1089#1095#1080#1090#1072#1077#1084#1099#1081' '#1086#1090' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1082' GPS-'#1087#1088#1080#1077#1084#1085 +
+                #1080#1082#1091
+            end
+          end
+          object TBXToolWindow7: TTBXToolWindow
+            Left = 0
+            Top = 180
+            Align = alTop
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 34
+            DockRow = 6
+            Stretch = True
+            TabOrder = 4
+            DesignSize = (
+              150
+              32)
+            Caption = #1041#1072#1090#1072#1088#1077#1103
+            object TBXSensorBattary: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel14: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 49
+              Height = 13
+              Caption = #1041#1072#1090#1072#1088#1077#1103':'
+              Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1086#1089#1090#1086#1103#1085#1080#1077' '#1087#1080#1090#1072#1085#1080#1103
+            end
+          end
+          object TBXToolWindow8: TTBXToolWindow
+            Left = 0
+            Top = 144
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = -8
+            DockRow = 5
+            Stretch = True
+            TabOrder = 5
+            DesignSize = (
+              150
+              32)
+            Caption = #1056#1072#1089#1089#1090#1086#1103#1085#1080#1077' '#1076#1086' '#1084#1077#1090#1082#1080
+            object TBXSensorLenToMark: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel13: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 113
+              Height = 13
+              Caption = #1056#1072#1089#1089#1090#1086#1103#1085#1080#1077' '#1076#1086' '#1084#1077#1090#1082#1080':'
+              Hint_W = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1088#1072#1089#1089#1090#1086#1103#1085#1080#1077' '#1076#1086' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1084#1077#1090#1082#1080
+            end
+          end
+        end
       end
     end
   end
