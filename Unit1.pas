@@ -550,7 +550,8 @@ class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    procedure zooming(x:byte;move:boolean);
 class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
-   procedure drawPath(pathll:TExtendedPointArray; new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
+   procedure drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+   procedure drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
    procedure drawReg;
    procedure generate_mapzap;
    procedure draw_point;
@@ -1093,7 +1094,7 @@ begin
               if length(add_line_arr)>0 then
                begin
                 delfrompath(lastpoint);
-                drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
+                drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
                end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Reg) then
               if length(reg_arr)=0 then TBmoveClick(self)
@@ -1122,7 +1123,7 @@ begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
                                                //LayerMapNal.Bitmap.Clear(clBlack);
-                                               drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+                                               drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
               begin
@@ -1487,80 +1488,149 @@ begin
  FreeAndNil(Polygon_line);
  toSh;
 end;
-
-procedure TFmain.drawPath(pathll:TExtendedPointArray;new:boolean;color1,color2:TColor32;linew:integer;poly:boolean);
-var i,adp,j:integer;
-    k1,k2,k4:TPoint;
-    k3:TextendedPoint;
-    polygon: TPolygon32;
+procedure TFmain.drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+var
+  i,adp,j:integer;
+  k1,k2,k4:TPoint;
+  k3:TextendedPoint;
+  polygon: TPolygon32;
 begin
- try
- if new then begin
-   LayerMapNal.Bitmap.Clear(clBlack);
-   TBEditPath.Visible:=(new)and(length(pathll)>1);
- end;
- polygon:=TPolygon32.Create;
- polygon.Antialiased:=true;
- polygon.AntialiasMode:=am4times;
- polygon.Closed:=poly;
- LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
- map.Bitmap.BeginUpdate;
- if length(pathll)>0 then
-  with LayerMap.Bitmap do begin
-   for i:=0 to length(pathll)-1 do begin
-     k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
-     k1:=MapPixel2LoadedPixel(k1);
-     if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
-       polygon.Add(FixedPoint(k1));
-     if i<length(pathll)-1 then begin
-       k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
-       k2:=MapPixel2LoadedPixel(k2);
-       if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
-                                  else adp:=(k2.y-k1.y)div 32767+2;
-       k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
-       if adp>2 then
-         for j:=1 to adp-1 do begin
-           k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
-           if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then polygon.Add(FixedPoint(k4.x,k4.y));
-         end;
-     end;
-   end;
-   if poly then if new then Polygon.DrawFill(LayerMapNal.Bitmap, color2)
-                       else Polygon.DrawFill(LayerMapMarks.Bitmap, color2);
-   with Polygon.Outline do begin
-     with Grow(Fixed(linew / 2), 0.5) do begin
-       FillMode := pfWinding;
-       if new then DrawFill(LayerMapNal.Bitmap, color1)
-              else DrawFill(LayerMapMarks.Bitmap, color1);
-       free;
-     end;
-     free;
-   end;
-   if new then begin
-     for i:=1 to length(pathll)-2 do begin
-       k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
-       k1:=MapPixel2LoadedPixel(k1);
-       k1:=Point(k1.x-4,k1.y-4);
-       LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(clYellow32,150));
-     end;
-   end;
+  try
+    LayerMapNal.Bitmap.Clear(clBlack);
+    TBEditPath.Visible:=(length(pathll)>1);
+    polygon:=TPolygon32.Create;
+    try
+      polygon.Antialiased:=true;
+      polygon.AntialiasMode:=am4times;
+      polygon.Closed:=poly;
+      LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
+      map.Bitmap.BeginUpdate;
+      if length(pathll)>0 then begin
+        for i:=0 to length(pathll)-1 do begin
+          k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
+          k1:=MapPixel2LoadedPixel(k1);
+          if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
+            polygon.Add(FixedPoint(k1));
+          end;
+          if i<length(pathll)-1 then begin
+            k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
+            k2:=MapPixel2LoadedPixel(k2);
+            if (k2.x-k1.x)>(k2.y-k1.y) then begin
+              adp:=(k2.x-k1.x)div 32767+2
+            end else begin
+              adp:=(k2.y-k1.y)div 32767+2;
+            end;
+            k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
+            if adp>2 then begin
+              for j:=1 to adp-1 do begin
+                k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
+                if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
+                  polygon.Add(FixedPoint(k4.x,k4.y));
+                end;
+              end;
+            end;
+          end;
+        end;
+        if poly then begin
+          Polygon.DrawFill(LayerMapNal.Bitmap, color2);
+        end;
+        with Polygon.Outline do try
+          with Grow(Fixed(linew / 2), 0.5) do try
+            FillMode := pfWinding;
+            DrawFill(LayerMapNal.Bitmap, color1);
+          finally
+            free;
+          end;
+        finally
+          free;
+        end;
+        for i:=1 to length(pathll)-2 do begin
+          k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
+          k1:=MapPixel2LoadedPixel(k1);
+          k1:=Point(k1.x-4,k1.y-4);
+          LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(clYellow32,150));
+        end;
+      end;
+    finally
+      polygon.Free;
+    end;
+    if (length(pathll)>0) then begin
+      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[0],GState.zoom_size-1);
+      k1:=MapPixel2LoadedPixel(k1);
+      k1:=Point(k1.x-4,k1.y-4);
+      LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
+      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[length(pathll)-1],GState.zoom_size-1);
+      k1:=MapPixel2LoadedPixel(k1);
+      k1:=Point(k1.x-4,k1.y-4);
+      LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClRed32,255));
+    end;
+    map.Bitmap.endUpdate;
+    map.Bitmap.Changed;
+  except
   end;
+end;
 
- polygon.Free;
- if (new)and(length(pathll)>0) then begin
-   k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[0],GState.zoom_size-1);
-   k1:=MapPixel2LoadedPixel(k1);
-   k1:=Point(k1.x-4,k1.y-4);
-   LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
-   k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[length(pathll)-1],GState.zoom_size-1);
-   k1:=MapPixel2LoadedPixel(k1);
-   k1:=Point(k1.x-4,k1.y-4);
-   LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClRed32,255));
- end;
- map.Bitmap.endUpdate;
- map.Bitmap.Changed;
- except
- end;
+procedure TFmain.drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+var
+  i,adp,j:integer;
+  k1,k2,k4:TPoint;
+  k3:TextendedPoint;
+  polygon: TPolygon32;
+begin
+  try
+    polygon:=TPolygon32.Create;
+    try
+      polygon.Antialiased:=true;
+      polygon.AntialiasMode:=am4times;
+      polygon.Closed:=poly;
+      map.Bitmap.BeginUpdate;
+      if length(pathll)>0 then begin
+        for i:=0 to length(pathll)-1 do begin
+          k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
+          k1:=MapPixel2LoadedPixel(k1);
+          if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
+            polygon.Add(FixedPoint(k1));
+          end;
+          if i<length(pathll)-1 then begin
+            k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
+            k2:=MapPixel2LoadedPixel(k2);
+            if (k2.x-k1.x)>(k2.y-k1.y) then begin
+              adp:=(k2.x-k1.x)div 32767+2;
+            end else begin
+              adp:=(k2.y-k1.y)div 32767+2;
+            end;
+            k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
+            if adp>2 then begin
+              for j:=1 to adp-1 do begin
+                k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
+                if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
+                  polygon.Add(FixedPoint(k4.x,k4.y));
+                end;
+              end;
+            end;
+          end;
+        end;
+        if poly then begin
+          Polygon.DrawFill(LayerMapMarks.Bitmap, color2);
+        end;
+        with Polygon.Outline do try
+          with Grow(Fixed(linew / 2), 0.5) do try
+            FillMode := pfWinding;
+            DrawFill(LayerMapMarks.Bitmap, color1);
+          finally
+            free;
+          end;
+        finally
+          free;
+        end;
+      end;
+      map.Bitmap.endUpdate;
+      map.Bitmap.Changed;
+    finally
+      polygon.Free;
+    end;
+  except
+  end;
 end;
 
 
@@ -1744,7 +1814,7 @@ begin
         begin
          SetLength(buf_line_arr,(ms.size div 24));
          for i:=0 to (ms.size div 24)-1 do buf_line_arr[i]:=arrLL^[i];
-         drawPath(buf_line_arr,false,TColor32(CDSmarksColor1.AsInteger),TColor32(CDSmarksColor2.AsInteger),CDSmarksScale1.asInteger,
+         drawPath(buf_line_arr,TColor32(CDSmarksColor1.AsInteger),TColor32(CDSmarksColor2.AsInteger),CDSmarksScale1.asInteger,
                  (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
          SetLength(buf_line_arr,0);
         end;
@@ -2220,7 +2290,7 @@ begin
     if aoper=ao_rect then drawRect([]);
     if GState.GPS_enab then drawLineGPS;
     if aoper in [ao_add_line,ao_add_poly] then begin
-      drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+      drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
     end;
     try
       draw_point;
@@ -4033,7 +4103,7 @@ begin
         if (X<xy.x+5)and(X>xy.x-5)and(Y<xy.y+5)and(Y>xy.y-5) then begin
           movepoint:=i;
           lastpoint:=i;
-          drawPath(add_line_arr,true,SetAlpha(ClRed32,150),SetAlpha(ClWhite32,50),3,aoper=ao_add_poly);
+          drawNewPath(add_line_arr,SetAlpha(ClRed32,150),SetAlpha(ClWhite32,50),3,aoper=ao_add_poly);
           exit;
         end;
       end;
@@ -4041,7 +4111,7 @@ begin
       movepoint:=lastpoint;
       insertinpath(lastpoint);
       add_line_arr[lastpoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr);
-      drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
+      drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
     end;
     exit;
   end;
@@ -4143,7 +4213,7 @@ begin
    if aoper=ao_reg then drawReg;
    if aoper=ao_rect then drawRect([]);
    if GState.GPS_enab then drawLineGPS;
-   if aoper in [ao_add_line,ao_add_poly] then drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+   if aoper in [ao_add_line,ao_add_poly] then drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
@@ -4266,7 +4336,7 @@ begin
  if movepoint>-1 then
   begin
    add_line_arr[movepoint]:=sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr);
-   drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
+   drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
@@ -4476,7 +4546,7 @@ begin
   ao_add_poly,ao_add_line:
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
-         drawPath(add_line_arr,true,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
+         drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
         end;
  end;
 end;
@@ -4679,7 +4749,7 @@ begin
    marshrutcomment:=marshrutcomment+#13#10+SAS_STR_Marshtime+timeT1;
   end
  else ShowMessage('Connect error!');
- drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+ drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
 procedure TFmain.AdjustFont(Item: TTBCustomItem;
@@ -5033,7 +5103,7 @@ begin
    add_line_arr:=add_line_arr_b;
    SetLength(add_line_arr_b,0);
  end;
- drawPath(add_line_arr,true,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+ drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
 end.
