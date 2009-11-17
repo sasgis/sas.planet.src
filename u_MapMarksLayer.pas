@@ -3,12 +3,14 @@ unit u_MapMarksLayer;
 interface
 
 uses
+  GR32,
+  t_GeoTypes,
   u_MapLayerBasic;
 
 type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
-
+    procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
   public
     procedure Redraw; override;
 
@@ -22,10 +24,9 @@ uses
   Db,
   Classes,
   SysUtils,
-  GR32,
   GR32_Resamplers,
+  GR32_Polygons,
   pngimage,
-  t_GeoTypes,
   t_CommonTypes,
   u_GlobalState,
   Ugeofun,
@@ -35,6 +36,55 @@ uses
   u_WindowLayerBasic;
 
 { TMapMarksLayer }
+
+procedure TMapMarksLayer.drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+var i,adp,j:integer;
+    k1,k2,k4:TPoint;
+    k3:TextendedPoint;
+    polygon: TPolygon32;
+begin
+ try
+ polygon:=TPolygon32.Create;
+ polygon.Antialiased:=true;
+ polygon.AntialiasMode:=am4times;
+ polygon.Closed:=poly;
+ FParentMap.Bitmap.BeginUpdate;
+ if length(pathll)>0 then begin
+   for i:=0 to length(pathll)-1 do begin
+     k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
+     k1:=MapPixel2BitmapPixel(k1);
+     if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
+       polygon.Add(FixedPoint(k1));
+     if i<length(pathll)-1 then begin
+       k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
+       k2:=MapPixel2BitmapPixel(k2);
+       if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
+                                  else adp:=(k2.y-k1.y)div 32767+2;
+       k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
+       if adp>2 then
+         for j:=1 to adp-1 do begin
+           k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
+           if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then polygon.Add(FixedPoint(k4.x,k4.y));
+         end;
+     end;
+   end;
+   if poly then Polygon.DrawFill(FLayer.Bitmap, color2);
+   with Polygon.Outline do begin
+     with Grow(Fixed(linew / 2), 0.5) do begin
+       FillMode := pfWinding;
+       DrawFill(FLayer.Bitmap, color1);
+       free;
+     end;
+     free;
+   end;
+  end;
+
+ polygon.Free;
+ FParentMap.Bitmap.endUpdate;
+ FParentMap.Bitmap.Changed;
+ except
+ end;
+end;
 
 procedure TMapMarksLayer.Redraw;
 var
@@ -115,8 +165,8 @@ begin
         for i:=0 to (ms.size div 24)-1 do begin
           buf_line_arr[i]:=arrLL^[i];
         end;
-        //drawPath(buf_line_arr,false,TColor32(CDSmarksColor1.AsInteger),TColor32(CDSmarksColor2.AsInteger),CDSmarksScale1.asInteger,
-        //(buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
+        drawPath(buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
+          (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
         SetLength(buf_line_arr,0);
       end;
     end;
