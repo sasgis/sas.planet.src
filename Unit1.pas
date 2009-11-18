@@ -60,6 +60,7 @@ uses
   UResStrings,
   UFillingMap,
   u_LayerStatBar,
+  u_MapMarksLayer,
   u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
@@ -548,7 +549,8 @@ type
    RectWindow:TRect;
    FUIDownLoader: TTileDownloaderUI;
   public
-   LayerMap,LayerMapWiki,LayerMapMarks,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
+   LayerMap,LayerMapWiki,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
+   LayerMapMarks: TMapMarksLayer;
    LayerMapScale: TCenterScale;
    LayerSelection: TSelectionLayer;
    MouseDownPoint, MouseUpPoint: TPoint;
@@ -569,7 +571,6 @@ class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
    procedure zooming(x:byte;move:boolean);
 class   function  timezone(lon,lat:real):TDateTime;
    procedure drawLineCalc;
-   procedure drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
    procedure drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
    procedure drawReg;
    procedure generate_mapzap;
@@ -726,6 +727,7 @@ begin
   sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
   LayerSelection.ScreenCenterPos := VPoint;
+  LayerMapMarks.ScreenCenterPos := VPoint;
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
@@ -1588,70 +1590,6 @@ begin
   end;
 end;
 
-procedure TFmain.drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
-var
-  i,adp,j:integer;
-  k1,k2,k4:TPoint;
-  k3:TextendedPoint;
-  polygon: TPolygon32;
-begin
-  try
-    polygon:=TPolygon32.Create;
-    try
-      polygon.Antialiased:=true;
-      polygon.AntialiasMode:=am4times;
-      polygon.Closed:=poly;
-      map.Bitmap.BeginUpdate;
-      if length(pathll)>0 then begin
-        for i:=0 to length(pathll)-1 do begin
-          k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
-          k1:=MapPixel2LoadedPixel(k1);
-          if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-            polygon.Add(FixedPoint(k1));
-          end;
-          if i<length(pathll)-1 then begin
-            k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
-            k2:=MapPixel2LoadedPixel(k2);
-            if (k2.x-k1.x)>(k2.y-k1.y) then begin
-              adp:=(k2.x-k1.x)div 32767+2;
-            end else begin
-              adp:=(k2.y-k1.y)div 32767+2;
-            end;
-            k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
-            if adp>2 then begin
-              for j:=1 to adp-1 do begin
-                k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
-                if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
-                  polygon.Add(FixedPoint(k4.x,k4.y));
-                end;
-              end;
-            end;
-          end;
-        end;
-        if poly then begin
-          Polygon.DrawFill(LayerMapMarks.Bitmap, color2);
-        end;
-        with Polygon.Outline do try
-          with Grow(Fixed(linew / 2), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(LayerMapMarks.Bitmap, color1);
-          finally
-            free;
-          end;
-        finally
-          free;
-        end;
-      end;
-      map.Bitmap.endUpdate;
-      map.Bitmap.Changed;
-    finally
-      polygon.Free;
-    end;
-  except
-  end;
-end;
-
-
 procedure TFmain.drawLineCalc;
 var i,j,textW,l,adp:integer;
     k1,k2,k4:TPoint;
@@ -1769,115 +1707,7 @@ begin
    LayerMapMarks.Visible:=false;
    exit;
   end;
-  VZoomCurr := GState.zoom_size - 1;
-  VRect := VisiblePixelRect;
-  sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
-  LLRect := sat_map_both.GeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
-  marksFilter:='';
-  if GState.show_point = mshChecked then
-  begin
-   CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(GState.zoom_size)+' and BeforeScale >= '+inttostr(GState.zoom_size)+' )';
-   CDSKategory.Filtered:=true;
-   marksFilter:=marksFilter+'visible=1';
-   CDSKategory.First;
-   if CDSKategory.Eof then begin
-                            LayerMapMarks.Visible:=false;
-                            CDSKategory.Filtered:=false;
-                            exit;
-                           end;
-   if not(CDSKategory.Eof) then
-    begin
-     marksFilter:=marksFilter+' and (';
-     while not(CDSKategory.Eof) do
-      begin
-       marksFilter:=marksFilter+'categoryid='+CDSKategory.fieldbyname('id').AsString;
-       CDSKategory.Next;
-       if not(CDSKategory.Eof) then marksFilter:=marksFilter+' or ';
-      end;
-     marksFilter:=marksFilter+')';
-    end;
-   CDSKategory.Filtered:=false;
-   marksFilter:=marksFilter+' and ';
-  end;
- marksFilter:=marksFilter+'( LonR>'+floattostr(LLRect.Left)+' and LonL<'+floattostr(LLRect.Right)+
-              ' and LatB<'+floattostr(LLRect.Top)+' and LatT>'+floattostr(LLRect.Bottom)+')';
-
- CDSmarks.Filter:=marksFilter;
- CDSmarks.Filtered:=true;
-{ CDSmarks.SetRangeStart;
- CDSmarks.FieldValues['LonR']:=LLRect.Left;
- CDSmarks.FieldValues['LatT']:=LLRect.Bottom;
- CDSmarks.FieldValues['LonL']:=LLRect.Left;
- CDSmarks.FieldValues['LatB']:=LLRect.Bottom;
- CDSmarks.FieldValues['visible']:=1;
- CDSmarks.SetRangeEnd;
- CDSmarks.FieldValues['LonR']:=LLRect.Right;
- CDSmarks.FieldValues['LatT']:=LLRect.Top;
- CDSmarks.FieldValues['LonL']:=LLRect.Right;
- CDSmarks.FieldValues['LatB']:=LLRect.Top;
- CDSmarks.FieldValues['visible']:=1;
- CDSmarks.ApplyRange;  }
-
- CDSmarks.First;
- if CDSmarks.Eof then begin
-                       LayerMapMarks.Visible:=false;
-                       CDSmarks.Filtered:=false;
-                       exit;
-                      end
-                 else begin
-                       LayerMapMarks.Bitmap.Clear(clBlack);
-                       LayerMapMarks.Location:=floatrect(GetMapLayerLocationRect);
-                       LayerMapMarks.Visible:=true;
-                      end;
- btm:=TBitmap32.Create;
- btm.DrawMode:=dmBlend;
- btm.Resampler:=TLinearResampler.Create;
- While not(CDSmarks.Eof) do
-  begin
-     ms:=TMemoryStream.Create;
-     TBlobField(CDSmarksLonLatArr).SaveToStream(ms);
-     ms.Position:=0;
-     GetMem(arrLL,ms.size);
-     ms.ReadBuffer(arrLL^,ms.size);
-     if (ms.size)>24 then
-      begin
-       TestArrLenP1:=sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarksLonL.AsFloat,CDSmarksLatT.AsFloat),(GState.zoom_size - 1));
-       TestArrLenP2:=sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarksLonR.AsFloat,CDSmarksLatB.AsFloat),(GState.zoom_size - 1));
-       if (abs(TestArrLenP1.X-TestArrLenP2.X)>CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>CDSmarksScale1.AsInteger+2) then
-        begin
-         SetLength(buf_line_arr,(ms.size div 24));
-         for i:=0 to (ms.size div 24)-1 do buf_line_arr[i]:=arrLL^[i];
-         drawPath(buf_line_arr,TColor32(CDSmarksColor1.AsInteger),TColor32(CDSmarksColor2.AsInteger),CDSmarksScale1.asInteger,
-                 (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
-         SetLength(buf_line_arr,0);
-        end;
-      end;
-     if (ms.size)=24 then
-      begin
-       xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(arrLL^[0],GState.zoom_size-1);
-       xy := MapPixel2LoadedPixel(xy);
-       xy:=Point(xy.x-3,xy.y-3);
-       imw:=CDSmarks.FieldByName('Scale2').AsInteger;
-       indexmi:=GState.MarkIcons.IndexOf(CDSmarks.FieldByName('picname').AsString);
-       if(indexmi=-1)and(GState.MarkIcons.Count>0) then indexmi:=0;
-       if(indexmi>-1)then begin
-                           PNGintoBitmap32(btm,TPNGObject(GState.MarkIcons.Objects[indexmi]));
-                           LayerMapMarks.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
-                          end;
-       if CDSmarks.FieldByName('Scale1').AsInteger>0 then
-        begin
-         LayerMapMarks.Bitmap.Font.Size:=CDSmarksScale1.AsInteger;
-         texth:=LayerMap.Bitmap.TextHeight(CDSmarksname.asString) div 2;
-         LayerMapMarks.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,CDSmarksname.AsString,1,TColor32(CDSmarksColor2.AsInteger));
-         LayerMapMarks.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,CDSmarksname.AsString,1,TColor32(CDSmarksColor1.AsInteger));
-        end;
-      end;
-     ms.free;
-     FreeMem(arrLL);
-     CDSmarks.Next;
-  end;
- CDSmarks.Filtered:=false;
- btm.Free;
+  LayerMapMarks.Visible:=true;
 end;
 
 class function TFmain.timezone(lon,lat:real):TDateTime;
@@ -2431,16 +2261,6 @@ begin
  LayerMapNal.bitmap.Font.Charset:=RUSSIAN_CHARSET;
  LayerMapNal.Visible:=false;
 
- LayerMapMarks:=TBitmapLayer.Create(map.Layers);
- LayerMapMarks.Bitmap.Width := VLoadedSizeInPixel.X;
- LayerMapMarks.Bitmap.Height := VLoadedSizeInPixel.Y;
- LayerMapMarks.Bitmap.DrawMode:=dmBlend;
- LayerMapMarks.Bitmap.CombineMode:=cmMerge;
- LayerMapMarks.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- LayerMapMarks.Bitmap.Font.Name:='Tahoma';
- LayerMapMarks.Bitmap.Font.Style:=[];
- LayerMapMarks.Visible:=false;
-
  LayerMapWiki:=TBitmapLayer.Create(map.Layers);
  LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
  LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
@@ -2546,6 +2366,8 @@ begin
 
  LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
  LayerSelection.Visible := true;
+
+ LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
 
  ScreenCenterPos := Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
                           GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
@@ -2675,6 +2497,7 @@ var w,i,steps,d_moveH,d_moveW:integer;
     ts1,ts2,fr:int64;
     VExtPoint: TExtendedPoint;
     VNewScreenCenterPos: TPoint;
+    Scale: Extended;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -2725,20 +2548,18 @@ begin
       else LayerMap.Location:=
               floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
                                xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
-              FillingMap.Location:=LayerMap.Location;
-     if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
+      FillingMap.Location:=LayerMap.Location;
+      if GState.zoom_size>x then begin
+        Scale := 1/(1 + i/(steps - 1));
+      end else begin
+        Scale := 1 +  1/(steps - 1);
+      end;
      if move then begin
-       if GState.zoom_size>x then begin
-         LayerSelection.ScaleTo(1/(1 + i/steps), m_m);
-       end else begin
-         LayerSelection.ScaleTo(1 + i/steps, m_m);
-       end;
+         LayerSelection.ScaleTo(Scale, m_m);
+         LayerMapMarks.ScaleTo(Scale, m_m);
      end else begin
-       if GState.zoom_size>x then begin
-         LayerSelection.ScaleTo(1/(1 + i/steps), Point(mWd2, mHd2));
-       end else begin
-         LayerSelection.ScaleTo(1 + i/steps, Point(mWd2, mHd2));
-       end;
+         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
+         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
      end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -3635,7 +3456,7 @@ begin
    LayerMap.Location:=floatrect(MapLayerLocationRect);
    FillingMap.Location:=LayerMap.Location;
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
-   LayerMapMarks.Location:=floatrect(MapLayerLocationRect);
+   LayerMapMarks.Resize;
    LayerMapGPS.Location:=floatrect(MapLayerLocationRect);
    LayerMapWiki.Location:=floatrect(MapLayerLocationRect);
    LayerMapScale.Resize;
@@ -4426,7 +4247,7 @@ begin
               LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
-              if (LayerMapMarks.Visible) then LayerMapMarks.Location := LayerMap.Location;
+              LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location := LayerMap.Location;
               if LayerMapWiki.Visible then LayerMapWiki.Location := LayerMap.Location;
              end

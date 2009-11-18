@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  GR32_Image,
   t_GeoTypes,
   u_MapLayerBasic;
 
@@ -12,6 +13,7 @@ type
   protected
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
   public
+    constructor Create(AParentMap: TImage32; ACenter: TPoint);
     procedure Redraw; override;
 
   end;
@@ -36,6 +38,13 @@ uses
   u_WindowLayerBasic;
 
 { TMapMarksLayer }
+
+constructor TMapMarksLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+begin
+  inherited Create(AParentMap, ACenter);
+  FLayer.Bitmap.Font.Name:='Tahoma';
+  FLayer.Bitmap.Font.Style:=[];
+end;
 
 procedure TMapMarksLayer.drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
 var i,adp,j:integer;
