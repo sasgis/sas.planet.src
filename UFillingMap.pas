@@ -114,6 +114,7 @@ var
   i,j,ii,jj,ixT,jxT:integer;
   imd256x,imd256y,xx,yy,x1,y1:longint;
   VMapType:TMapType;
+  tc:longint;
 begin
   repeat
     Synchronize(SetupLayer);
@@ -122,6 +123,7 @@ begin
     VPrevTileFolderExist:=true;
     imd256x:=0;
     VTileExist:=true;
+    tc:=GetTickCount;
     for i:=0 to Ahg_x do begin
       imd256y:=0;
       if (Terminated)or(needRepaint)or(stop) then begin
@@ -193,7 +195,8 @@ begin
         end;
         inc(imd256y,d2562)
       end;
-      if ((i+1) mod 30 = 0 ) then begin
+      if (GetTickCount-tc>1000){((i+1) mod 30 = 0 )} then begin
+        tc:=GetTickCount;
         Synchronize(UpdateLayer);
       end;
       inc(imd256x,d2562)
