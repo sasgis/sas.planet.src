@@ -195,7 +195,11 @@ begin
   if (Self = nil) or (AOtherMapCoordConv = nil) then begin
     Result := XY;
   end else begin
-    Result := AOtherMapCoordConv.LonLat2Pos(Pos2LonLatInternal(XY, Azoom), Azoom);
+    if Azoom > 23 then begin
+      Result := AOtherMapCoordConv.LonLat2PixelPos(PixelPos2LonLat(XY, Azoom - 8), Azoom - 8);
+    end else begin
+      Result := AOtherMapCoordConv.LonLat2TilePos(TilePos2LonLat(XY, Azoom), Azoom);
+    end;
   end;
 end;
 
@@ -1549,8 +1553,14 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckLonLatPosInternal(VXY);
-  CheckZoomInternal(VZoom);
-  Result := LonLat2PosInternal(VXY, Vzoom);
+  if Azoom > 23 then begin
+    VZoom := VZoom - 8;
+    CheckZoomInternal(VZoom);
+    Result := LonLat2PixelPosInternal(VXY, Vzoom);
+  end else begin
+    CheckZoomInternal(VZoom);
+    Result := LonLat2TilePosInternal(VXY, Vzoom);
+  end;
 end;
 
 function TCoordConverterAbstract.LonLat2Relative(
@@ -1571,8 +1581,14 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  CheckPixelPosInternal(VXY, VZoom);
-  Result := Pos2LonLatInternal(VXY, Vzoom);
+  if Azoom > 23 then begin
+    VZoom := VZoom - 8;
+    CheckPixelPosInternal(VXY, VZoom);
+    Result := PixelPos2LonLatInternal(VXY, Vzoom);
+  end else begin
+    CheckTilePosInternal(VXY, VZoom);
+    Result := TilePos2LonLatInternal(VXY, Vzoom);
+  end;
 end;
 
 function TCoordConverterAbstract.TileRect2LonLatRect(const AXY: TRect;
