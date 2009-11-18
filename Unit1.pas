@@ -380,6 +380,20 @@ type
     TBXItem2: TTBXItem;
     TBXItem3: TTBXItem;
     TBXItem4: TTBXItem;
+    TBXSensorAltitudeBar: TTBXToolWindow;
+    SpeedButton4: TSpeedButton;
+    TBXSensorAltitude: TTBXLabel;
+    TBXLabel2: TTBXLabel;
+    NSensorAltitudeBar: TTBXItem;
+    TBXSensorSpeedMaxBar: TTBXToolWindow;
+    SpeedButton5: TSpeedButton;
+    TBXSensorSpeedMax: TTBXLabel;
+    TBXLabel3: TTBXLabel;
+    NSensorSpeedMaxBar: TTBXItem;
+    SpeedButton6: TSpeedButton;
+    TBXItem5: TTBXItem;
+    TBXSeparatorItem16: TTBXSeparatorItem;
+    TBXSeparatorItem17: TTBXSeparatorItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -501,6 +515,7 @@ type
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
     procedure NSensorsBarClick(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
+    procedure TBXItem5Click(Sender: TObject);
   private
    ShowActivHint:boolean;
    HintWindow: THintWindow;
@@ -601,7 +616,10 @@ class   procedure delfrompath(pos:integer);
   TGPSpar = record
    speed:real;
    len:extended;
-   sspeed:real;
+   sspeed:extended;
+   allspeed:extended;
+   sspeednumentr:integer;
+   altitude:extended;
    maxspeed:real;
    nap:integer;
    Odometr:extended;
@@ -1350,23 +1368,14 @@ var i:integer;
     sps:_SYSTEM_POWER_STATUS;
 begin
  try
-   //скорость и средняя скорость
-   if length(GState.GPS_ArrayOfSpeed)>3 then begin
-     GPSpar.speed:=GState.GPS_ArrayOfSpeed[length(GState.GPS_ArrayOfSpeed)-1];
-     GPSpar.sspeed:=0;
-     GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[1];
-     for i:=3 to length(GState.GPS_ArrayOfSpeed)-1 do begin
-       GPSpar.sspeed:=GPSpar.sspeed+GState.GPS_ArrayOfSpeed[i];
-       if GState.GPS_ArrayOfSpeed[i]>GPSpar.maxspeed then GPSpar.maxspeed:=GState.GPS_ArrayOfSpeed[i];
-     end;
-     GPSpar.sspeed:=GPSpar.sspeed/(length(GState.GPS_ArrayOfSpeed)-3);
-     TBXSensorSpeed.Caption:=R2StrPoint(GPSpar.speed);
-     TBXSensorSpeedAvg.Caption:=R2StrPoint(GPSpar.sspeed);
-   end else begin
-     TBXSensorSpeed.Caption:='-';
-     TBXSensorSpeedAvg.Caption:='-';
-   end;
-
+   //скорость
+   TBXSensorSpeed.Caption:=RoundEx(GPSpar.speed,2);
+   //средняя скорость
+   TBXSensorSpeedAvg.Caption:=RoundEx(GPSpar.sspeed,2);
+   //максимальная скорость
+   TBXSensorSpeedMax.Caption:=RoundEx(GPSpar.maxspeed,2);
+   //высота
+   TBXSensorAltitude.Caption:=RoundEx(GPSpar.altitude,2);
    //пройденный путь
    s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
    TBXOdometrNow.Caption:=s_len;
@@ -1400,7 +1409,8 @@ procedure TFmain.drawLineGPS;
 var i,speed,SizeTrackd2:integer;
     k1,k2:TPoint;
     ke,ks:TExtendedPoint;
-    TanOfAngle,Angle,D,R: Currency;
+    Angle,D,R: Currency;
+    TanOfAngle:Extended;
     dl: integer;
     Polygon: TPolygon32;
     s_speed,s_len,n_len:string;
@@ -1454,7 +1464,9 @@ begin
 
   dl:=GState.GPS_ArrowSize;
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
-  if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
+  if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
+                                         else TanOfAngle:=MaxExtended/100
+              //TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
   ke.x:=ke.X+(ke.X-ks.X);
@@ -1783,8 +1795,23 @@ begin
   end;
  marksFilter:=marksFilter+'( LonR>'+floattostr(LLRect.Left)+' and LonL<'+floattostr(LLRect.Right)+
               ' and LatB<'+floattostr(LLRect.Top)+' and LatT>'+floattostr(LLRect.Bottom)+')';
+
  CDSmarks.Filter:=marksFilter;
  CDSmarks.Filtered:=true;
+{ CDSmarks.SetRangeStart;
+ CDSmarks.FieldValues['LonR']:=LLRect.Left;
+ CDSmarks.FieldValues['LatT']:=LLRect.Bottom;
+ CDSmarks.FieldValues['LonL']:=LLRect.Left;
+ CDSmarks.FieldValues['LatB']:=LLRect.Bottom;
+ CDSmarks.FieldValues['visible']:=1;
+ CDSmarks.SetRangeEnd;
+ CDSmarks.FieldValues['LonR']:=LLRect.Right;
+ CDSmarks.FieldValues['LatT']:=LLRect.Top;
+ CDSmarks.FieldValues['LonL']:=LLRect.Right;
+ CDSmarks.FieldValues['LatB']:=LLRect.Top;
+ CDSmarks.FieldValues['visible']:=1;
+ CDSmarks.ApplyRange;  }
+
  CDSmarks.First;
  if CDSmarks.Eof then begin
                        LayerMapMarks.Visible:=false;
@@ -3542,7 +3569,7 @@ begin
                              begin
                               setalloperationfalse(ao_movemap);
                               generate_im(nilLastLoad,'');
-                             end; 
+                             end;
                            end
                       else ShowMessage(SAS_ERR_Nopoints);
 end;
@@ -3915,9 +3942,15 @@ begin
  if (GState.GPS_TrackPoints[len-1].x<>0)or(GState.GPS_TrackPoints[len-1].y<>0) then
   begin
   setlength(GState.GPS_ArrayOfSpeed,len);
+  GPSpar.speed:=GPSReceiver.GetSpeed_KMH;
+  if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
+  inc(GPSpar.sspeednumentr);
+  GPSpar.allspeed:=GPSpar.allspeed+GPSpar.speed;
+  GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
   GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
+  GPSpar.altitude:=GPSReceiver.GetAltitude;
   if len>1 then begin
-    GPSpar.len:=GPSpar.len+ sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.len:=GPSpar.len+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.Odometr:=GPSpar.Odometr+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
   end;
   if not((MapMoving)or(MapZoomAnimtion=1))and(Self.Active) then
@@ -3966,6 +3999,11 @@ procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
 var S:string;
     ts,ds:char;
 begin
+ GPSpar.allspeed:=0;
+ GPSpar.sspeed:=0;
+ GPSpar.speed:=0;
+ GPSpar.maxspeed:=0;
+ GPSpar.sspeednumentr:=0;
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
  if GState.GPS_WriteLog then
  try
@@ -4502,9 +4540,6 @@ procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
  setlength(GState.GPS_ArrayOfSpeed,0);
  setlength(GState.GPS_TrackPoints,0);
- GPSpar.len:=0;
- GPSpar.speed:=0;
- GPSpar.sspeed:=0;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
@@ -5041,6 +5076,7 @@ begin
     1: GPSpar.sspeed:=0;
     2: GPSpar.len:=0;
     3: GPSpar.Odometr:=0;
+    4: GPSpar.maxspeed:=0;
    end;
    UpdateGPSsensors;
  end;
@@ -5104,6 +5140,21 @@ begin
    SetLength(add_line_arr_b,0);
  end;
  drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+end;
+
+procedure TFmain.TBXItem5Click(Sender: TObject);
+var
+  VPointEx: TExtendedPoint;
+  VPoint:TPoint;
+  VZoomCurr: Byte;
+begin
+  if GState.GPS_enab then begin
+    VZoomCurr := GState.zoom_size - 1;
+    VPoint :=  sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],VZoomCurr);
+    sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+    if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr), true) then
+      generate_im(nilLastLoad,'');
+  end;
 end;
 
 end.
