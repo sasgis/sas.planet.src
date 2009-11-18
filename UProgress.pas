@@ -57,6 +57,7 @@ type
     function GetTimeEnd(loadAll,load:integer):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
     procedure ThreadFinish;
+    procedure StopThread;
   public
     constructor Create(AOwner: TComponent; ADownloadThread: ThreadAllLoadMap; ALog: ILogForTaskThread); reintroduce; virtual;
     destructor Destroy; override;
@@ -78,8 +79,8 @@ uses
 
 procedure TFProgress.Button2Click(Sender: TObject);
 begin
-  FDownloadThread.Terminate;
-  FDownloadThread.WaitFor;
+  StopThread;
+  UpdateTimer.Enabled := false;
   close;
 end;
 
@@ -118,8 +119,7 @@ end;
 
 destructor TFProgress.Destroy;
 begin
-  FDownloadThread.Terminate;
-  FDownloadThread.WaitFor;
+  StopThread;
   FreeAndNil(FDownloadThread);
   FLog := nil;
   inherited;
@@ -235,7 +235,20 @@ end;
 
 procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  UpdateTimer.Enabled := false;
   Action := caFree;
+end;
+
+procedure TFProgress.StopThread;
+var
+  VWaitResult: DWORD;
+begin
+  FDownloadThread.Terminate;
+  Application.ProcessMessages;
+  VWaitResult := WaitForSingleObject(FDownloadThread.Handle, 10000);
+  if VWaitResult = WAIT_TIMEOUT then begin
+    TerminateThread(FDownloadThread.Handle, 0);
+  end;
 end;
 
 end.
