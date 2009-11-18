@@ -66,7 +66,7 @@ var
 begin
   VSizeInPixel := GetBitmapSizeInPixel;
   Result.X := ScreenCenterPos.X - VSizeInPixel.X div 2 + Pnt.X;
-  Result.Y := ScreenCenterPos.X - VSizeInPixel.X div 2 + Pnt.y;
+  Result.Y := ScreenCenterPos.Y - VSizeInPixel.Y div 2 + Pnt.y;
 end;
 
 function TMapLayerBasic.BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
@@ -75,7 +75,7 @@ var
 begin
   VSizeInPixel := GetBitmapSizeInPixel;
   Result.X := ScreenCenterPos.X - VSizeInPixel.X / 2 + Pnt.X;
-  Result.Y := ScreenCenterPos.X - VSizeInPixel.X / 2 + Pnt.y;
+  Result.Y := ScreenCenterPos.Y - VSizeInPixel.Y / 2 + Pnt.y;
 end;
 
 function TMapLayerBasic.MapPixel2BitmapPixel(Pnt: TPoint): TPoint;
