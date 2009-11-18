@@ -75,15 +75,22 @@ var i,j,ii,k,r,XX,YY,g,x,y,m1:integer;
 begin
   repeat
     if Fmain.TileSource = tsCache then begin
+      if Terminated then break;
       Sleep(1000);
+      if Terminated then break;
     end else begin
       if(not FMain.change_scene)then begin
+        if Terminated then break;
         sleep(100);
+        if Terminated then break;
       end else begin
+        if Terminated then break;
         FMain.change_scene:=false;
         Synchronize(GetCurrentMapAndPos);
+        if Terminated then break;
         VMainMap := FTypeMap;
         if VMainMap = nil then begin
+          if Terminated then break;
           Sleep(1000);
         end else begin
           j:=0;
@@ -141,7 +148,7 @@ begin
                           dtrErrorMIMEType,
                           dtrTileNotExists,
                           dtrBanError: begin
-                            if VMap.IncDownloadedAndCheckAntiBan then begin
+                            if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
                               Synchronize(VMap.addDwnforban);
                             end;
                           end;
@@ -152,6 +159,7 @@ begin
                         if res = dtrOK then begin
                           VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
                         end;
+                        if Terminated then break;
                         Synchronize(AfterWriteToFile);
                       finally
                         FileBuf.Free;
