@@ -2552,7 +2552,7 @@ begin
       if GState.zoom_size>x then begin
         Scale := 1/(1 + i/(steps - 1));
       end else begin
-        Scale := 1 +  1/(steps - 1);
+        Scale := 1 +  i/(steps - 1);
       end;
      if move then begin
          LayerSelection.ScaleTo(Scale, m_m);
