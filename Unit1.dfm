@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 246
-  Top = 106
+  Left = 400
+  Top = 124
   Width = 854
   Height = 573
   HorzScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]

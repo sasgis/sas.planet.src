@@ -2604,7 +2604,12 @@ end;
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   VWaitResult: DWORD;
+  i:integer;
 begin
+ for i := 0 to Screen.FormCount - 1 do
+  if (Screen.Forms[i]<>Application.MainForm) then
+   Screen.Forms[i].Close;
+
  ProgramClose:=true;
  FUIDownLoader.Terminate;
  Application.ProcessMessages;
@@ -2612,6 +2617,7 @@ begin
  if VWaitResult = WAIT_TIMEOUT then begin
    TerminateThread(FUIDownLoader.Handle, 0);
  end;
+
  FreeAndNil(FUIDownLoader);
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
