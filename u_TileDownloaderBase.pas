@@ -199,10 +199,30 @@ begin
 end;
 
 procedure TTileDownloaderBase.OpenSession;
+var
+  VTimeOut: DWORD;
 begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
+    VTimeOut := 5000;
+    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+      FSessionOpenError := GetLastError;
+    end;
+    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+      FSessionOpenError := GetLastError;
+    end;
+    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+      FSessionOpenError := GetLastError;
+    end;
+    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+      FSessionOpenError := GetLastError;
+    end;
+    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+      FSessionOpenError := GetLastError;
+    end;
+
+
   end else begin
     FSessionOpenError := GetLastError;
   end;
