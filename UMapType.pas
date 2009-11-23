@@ -1153,7 +1153,6 @@ begin
    if UpperCase(ExtractFileExt(path))='.JPG' then
     begin
      Jpg_ex:=TJpegImage.Create;
-     Jpg_ex.CompressionQuality:=85;
      Jpg_ex.Assign(btm_ex);
      Jpg_ex.SaveToFile(path);
      Jpg_ex.Free;
