@@ -19,7 +19,9 @@ uses
   ExtCtrls,
   DBClient,
   UResStrings,
-  UGeoFun;
+  UGeoFun,
+  DB,
+  t_GeoTypes;
 
 type
   TFMarksExplorer = class(TForm)
@@ -95,12 +97,14 @@ var
   procedure GoToMark(id:integer;zoom:byte);
   function GetMarkLength(id:integer):extended;
   function GetMarkSq(id:integer):extended;
+  function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+  function SaveMarks2File:boolean;
+  function SaveCategory2File:boolean;
 
 implementation
 
 uses
   Math,
-  DB,
   t_CommonTypes,
   u_GlobalState,
   Unit1,
@@ -111,9 +115,35 @@ uses
   UImport,
   UMapType,
   UAddCategory,
-  t_GeoTypes;
+  DBTables;
 
 {$R *.dfm}
+function SaveMarks2File:boolean;
+var ms:TMemoryStream;
+begin
+ Fmain.CDSmarks.MergeChangeLog;
+ ms:=TMemoryStream.Create;
+ ms.Write(Fmain.CDSmarks.XMLData[1],length(Fmain.CDSmarks.XMLData));
+ ms.SaveToFile(GState.MarksFileName);
+ ms.Free;
+end;
+
+function SaveCategory2File:boolean;
+var ms:TMemoryStream;
+begin
+ Fmain.CDSKategory.MergeChangeLog;
+ ms:=TMemoryStream.Create;
+ ms.Write(Fmain.CDSKategory.XMLData[1],length(Fmain.CDSKategory.XMLData));
+ ms.SaveToFile(GState.MarksCategoryFileName);
+ ms.Free;
+end;
+
+function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+begin
+  SetLength(result,TBlobfield(BlobField).BlobSize div 24);
+  CopyMemory(@result[0],@TBlobfield(Blobfield).Value[1],TBlobfield(BlobField).BlobSize);
+end;
+
 function EditMark(id:integer):boolean;
 var arrLL:PArrLL;
     arLL:array of TExtendedPoint;
@@ -167,9 +197,8 @@ begin
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=true;
  Fmain.CDSKategory.FieldByName('AfterScale').AsInteger:=3;
  Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=18;
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+ Fmain.CDSKategory.post;
+ SaveCategory2File;
 end;
 
 procedure TFMarksExplorer.FormShow(Sender: TObject);
@@ -230,6 +259,7 @@ end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
+ SaveMarks2File;
  if RBall.Checked then GState.show_point := mshAll;
  if RBchecked.Checked then GState.show_point := mshChecked;
  if RBnot.Checked then GState.show_point := mshNone;
@@ -244,9 +274,7 @@ begin
   then exit;
  Fmain.CDSmarks.Locate('id',id,[]);
  Fmain.CDSmarks.Delete;
- Fmain.CDSmarks.ApplyRange;
- Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ SaveMarks2File;
  result:=true;
 end;
 
@@ -368,9 +396,10 @@ begin
  Fmain.CDSmarks.Locate('id',TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,[]);
  Fmain.CDSmarks.Edit;
  Fmain.CDSmarks.FieldByName('visible').AsBoolean:=MarksListBox.Checked[MarksListBox.ItemIndex];
- Fmain.CDSmarks.ApplyRange;
+ Fmain.CDSmarks.Post;
+{ Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);   }
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -395,9 +424,8 @@ begin
  Fmain.CDSKategory.Locate('id',TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id,[]);
  Fmain.CDSKategory.Edit;
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=KategoryListBox.Checked[KategoryListBox.ItemIndex];
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+ Fmain.CDSKategory.post;
+ SaveCategory2File;
 end;
 
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
@@ -412,13 +440,11 @@ begin
  Fmain.CDSmarks.First;
  while not(Fmain.CDSmarks.Eof) do
    Fmain.CDSmarks.Delete;
- Fmain.CDSmarks.ApplyRange;
+{ Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);  }
  Fmain.CDSKategory.Delete;
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+ SaveCategory2File;
  KategoryListBox.Items.Objects[KategoryListBox.ItemIndex].Free;
  KategoryListBox.DeleteSelected;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
@@ -491,13 +517,12 @@ begin
  Fmain.CDSmarks.First;
  while not(Fmain.CDSmarks.Eof) do
    Fmain.CDSmarks.Delete;
- Fmain.CDSmarks.ApplyRange;
+ Fmain.CDSmarks.Post;
+{ Fmain.CDSmarks.ApplyRange;
  Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);    }
  Fmain.CDSKategory.Delete;
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ SaveCategory2File;
  KategoryListBox.DeleteSelected;
  end;
 end;
@@ -505,40 +530,41 @@ end;
 procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
 var i:integer;
 begin
- for i:=0 to KategoryListBox.Count-1 do KategoryListBox.Checked[i]:=CheckBox2.Checked;
- Fmain.CDSKategory.First;
- while not(Fmain.CDSKategory.Eof) do
-  begin
-   Fmain.CDSKategory.Edit;
-   Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CheckBox2.Checked;
-   Fmain.CDSKategory.Next;
-  end;
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+ if KategoryListBox.Count>0 then begin
+   for i:=0 to KategoryListBox.Count-1 do KategoryListBox.Checked[i]:=CheckBox2.Checked;
+   Fmain.CDSKategory.First;
+   while not(Fmain.CDSKategory.Eof) do
+    begin
+     Fmain.CDSKategory.Edit;
+     Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CheckBox2.Checked;
+     Fmain.CDSKategory.Post;
+     Fmain.CDSKategory.Next;
+    end;
+  SaveCategory2File;
+ end;
 end;
 
 procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
 var i:integer;
 begin
- for i:=0 to MarksListBox.Count-1 do MarksListBox.Checked[i]:=CheckBox1.Checked;
- Fmain.CDSmarks.Filter:='categoryid = '+inttostr(TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id);
- Fmain.CDSmarks.Filtered:=true;
- Fmain.CDSmarks.First;
- while not(Fmain.CDSmarks.Eof) do
-  begin
-   Fmain.CDSmarks.Edit;
-   Fmain.CDSmarks.FieldByName('visible').AsBoolean:=CheckBox1.Checked;
-   Fmain.CDSmarks.Next;
-  end;
- Fmain.CDSmarks.ApplyRange;
- Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
- Fmain.CDSmarks.Filtered:=False;
+ if MarksListBox.Count>0 then begin
+   for i:=0 to MarksListBox.Count-1 do MarksListBox.Checked[i]:=CheckBox1.Checked;
+   Fmain.CDSmarks.Filter:='categoryid = '+inttostr(TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id);
+   Fmain.CDSmarks.Filtered:=true;
+   Fmain.CDSmarks.First;
+   while not(Fmain.CDSmarks.Eof) do begin
+     Fmain.CDSmarks.Edit;
+     Fmain.CDSmarks.FieldByName('visible').AsBoolean:=CheckBox1.Checked;
+     Fmain.CDSmarks.Post;
+     Fmain.CDSmarks.Next;
+    end;
+   Fmain.CDSmarks.Filtered:=False;
+ end
 end;
 
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
 begin
+ SaveMarks2File;
  fmain.generate_im(nilLastLoad,'');
 end;
 

@@ -671,6 +671,7 @@ var
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
   NavOnMark:TNavOnMark;
+  paintMark:boolean;
 
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
@@ -1749,20 +1750,23 @@ var LLRect:TExtendedRect;
     xy:Tpoint;
     btm:TBitmap32;
     TestArrLenP1,TestArrLenP2:TPoint;
-    arrLL:PArrLL;
+    //arrLL:PArrLL;
     buf_line_arr:TExtendedPointArray;
-    ms:TMemoryStream;
+    //ms:TMemoryStream;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
     VZoomCurr: Byte;
     VRect: TRect;
+    bd:TBlobByteData;
 begin
  if (GState.show_point = mshNone) then
   begin
    LayerMapMarks.Visible:=false;
    exit;
   end;
+  if CDSmarks.State <> dsBrowse then exit;
+  paintMark:=true;
   VZoomCurr := GState.zoom_size - 1;
   VRect := VisiblePixelRect;
   sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
@@ -1828,27 +1832,21 @@ begin
  btm.Resampler:=TLinearResampler.Create;
  While not(CDSmarks.Eof) do
   begin
-     ms:=TMemoryStream.Create;
-     TBlobField(CDSmarksLonLatArr).SaveToStream(ms);
-     ms.Position:=0;
-     GetMem(arrLL,ms.size);
-     ms.ReadBuffer(arrLL^,ms.size);
-     if (ms.size)>24 then
+     buf_line_arr:=Blob2ExtArr(CDSmarks.FieldByName('lonlatarr'));
+     if length(buf_line_arr)>1 then
       begin
        TestArrLenP1:=sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarksLonL.AsFloat,CDSmarksLatT.AsFloat),(GState.zoom_size - 1));
        TestArrLenP2:=sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarksLonR.AsFloat,CDSmarksLatB.AsFloat),(GState.zoom_size - 1));
        if (abs(TestArrLenP1.X-TestArrLenP2.X)>CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>CDSmarksScale1.AsInteger+2) then
         begin
-         SetLength(buf_line_arr,(ms.size div 24));
-         for i:=0 to (ms.size div 24)-1 do buf_line_arr[i]:=arrLL^[i];
          drawPath(buf_line_arr,TColor32(CDSmarksColor1.AsInteger),TColor32(CDSmarksColor2.AsInteger),CDSmarksScale1.asInteger,
                  (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
-         SetLength(buf_line_arr,0);
         end;
       end;
-     if (ms.size)=24 then
+     if length(buf_line_arr)=1 then
       begin
-       xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(arrLL^[0],GState.zoom_size-1);
+       buf_line_arr:=Blob2ExtArr(CDSmarks.FieldByName('lonlatarr'));
+       xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
        xy := MapPixel2LoadedPixel(xy);
        xy:=Point(xy.x-3,xy.y-3);
        imw:=CDSmarks.FieldByName('Scale2').AsInteger;
@@ -1866,12 +1864,11 @@ begin
          LayerMapMarks.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,CDSmarksname.AsString,1,TColor32(CDSmarksColor1.AsInteger));
         end;
       end;
-     ms.free;
-     FreeMem(arrLL);
      CDSmarks.Next;
   end;
  CDSmarks.Filtered:=false;
  btm.Free;
+ paintMark:=false;
 end;
 
 class function TFmain.timezone(lon,lat:real):TDateTime;
@@ -2742,7 +2739,7 @@ begin
       else LayerMap.Location:=
               floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
                                xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
-              FillingMap.Location:=LayerMap.Location;
+     FillingMap.Location:=LayerMap.Location;
      if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -2755,6 +2752,8 @@ begin
    if GState.zoom_size<x
     then LayerMap.Location:=floatrect(bounds(mWd2-pr_x*2+d_moveW,mHd2-pr_y*2+d_moveH,xhgpx*2,yhgpx*2))
     else LayerMap.Location:=floatrect(bounds(mWd2-pr_x div 2-d_moveW,mHd2-pr_y div 2-d_moveH,xhgpx div 2,yhgpx div 2));
+   FillingMap.Location:=LayerMap.Location;
+   if (LayerMapMarks.Visible) then LayerMapMarks.Location:=LayerMap.Location;
    application.ProcessMessages;
  end;
 

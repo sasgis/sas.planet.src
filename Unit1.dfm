@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 246
-  Top = 106
+  Left = 175
+  Top = 121
   Width = 854
   Height = 573
   HorzScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -5318,7 +5317,6 @@ object Fmain: TFmain
     Top = 176
   end
   object GPSReceiver: TZylGPSReceiver
-    Priority = tpIdle
     Commands = [GPAAM, GPBWC, GPGGA, GPGLL, GPMSS, GPRMB, GPRMC, GPGSA, GPGSV, GPVTG, GPZDA, GPWPL, GPRTE, GPXTE, AllNMEA]
     Delay = 2000
     IdleInterval = 20
