@@ -73,7 +73,8 @@ uses
   i_Marks in 'i_Marks.pas',
   u_MarkBasic in 'u_MarkBasic.pas',
   u_MarkCategory in 'u_MarkCategory.pas',
-  u_MarksDb in 'u_MarksDb.pas',
+  u_MarksDb in 'u_MarksDb.pas' {DMMarksDb: TDataModule},
+  u_EnumUnknownEmpty in 'u_EnumUnknownEmpty.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas';
 
@@ -120,6 +121,7 @@ begin
   Application.CreateForm(TFaddLine, FaddLine);
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
+  Application.CreateForm(TDMMarksDb, DMMarksDb);
   Fmain.WebBrowser1.Navigate('about:blank');
   Fbrowser.EmbeddedWB1.Navigate('about:blank');
   Application.Run;

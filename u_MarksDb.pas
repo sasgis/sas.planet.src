@@ -3,14 +3,40 @@ unit u_MarksDb;
 interface
 
 uses
+  SysUtils,
+  Classes,
   ActiveX,
+  DB,
+  DBClient,
   t_GeoTypes,
   i_Marks;
 
 type
-  TMarksDb = class(TInterfacedObject, IMarksDb)
+  TDMMarksDb = class(TDataModule, IMarksDb)
+    CDSKategory: TClientDataSet;
+    CDSKategoryid: TAutoIncField;
+    CDSKategoryname: TStringField;
+    CDSKategoryvisible: TBooleanField;
+    CDSKategoryAfterScale: TSmallintField;
+    CDSKategoryBeforeScale: TSmallintField;
+    CDSmarks: TClientDataSet;
+    CDSmarksid: TAutoIncField;
+    CDSmarksname: TStringField;
+    CDSmarksdescr: TMemoField;
+    CDSmarksscale1: TIntegerField;
+    CDSmarksscale2: TIntegerField;
+    CDSmarkslonlatarr: TBlobField;
+    CDSmarkslonL: TFloatField;
+    CDSmarkslatT: TFloatField;
+    CDSmarksLonR: TFloatField;
+    CDSmarksLatB: TFloatField;
+    CDSmarkscolor1: TIntegerField;
+    CDSmarkscolor2: TIntegerField;
+    CDSmarksvisible: TBooleanField;
+    CDSmarkspicname: TStringField;
+    CDSmarkscategoryid: TIntegerField;
   private
-
+    { Private declarations }
   public
     function AddMark(AMark: IMarkBasic): integer;
     function GetMark(IdMark: integer): IMarkBasic;
@@ -28,105 +54,85 @@ type
     function GetMarksVisibleInRect(ALonLat: TExtendedRect): IEnumUnknown;
   end;
 
+var
+  DMMarksDb: TDMMarksDb;
+
 implementation
 
-type
-  TEmptyEnum = class(TInterfacedObject, IEnumUnknown)
-    function Next(celt: Longint; out elt;
-      pceltFetched: PLongint): HResult; stdcall;
-    function Skip(celt: Longint): HResult; stdcall;
-    function Reset: HResult; stdcall;
-    function Clone(out enm: IEnumUnknown): HResult; stdcall;
-  end;
+uses
+  u_GlobalState;
+{$R *.dfm}
 
-{ TMarksDb }
+{ TDataModule3 }
 
-function TMarksDb.AddCategory(ACategory: IMarkCategory): integer;
+function TDMMarksDb.AddCategory(ACategory: IMarkCategory): integer;
+begin
+  CDSKategory.Insert;
+  CDSKategoryname.AsString := ACategory.Name;
+  CDSKategoryvisible.AsBoolean := ACategory.Visible;
+  CDSKategoryAfterScale.AsInteger := ACategory.AfterScale;
+  CDSKategoryBeforeScale.AsInteger := ACategory.BeforeScale;
+  CDSKategory.Post;
+  Result := CDSKategoryid.Value;
+  CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+end;
+
+function TDMMarksDb.AddMark(AMark: IMarkBasic): integer;
 begin
 
 end;
 
-function TMarksDb.AddMark(AMark: IMarkBasic): integer;
+procedure TDMMarksDb.DeleteCategory(IdCategory: integer);
 begin
 
 end;
 
-procedure TMarksDb.DeleteCategory(IdCategory: integer);
+procedure TDMMarksDb.DeleteMark(IdMark: integer);
 begin
 
 end;
 
-procedure TMarksDb.DeleteMark(IdMark: integer);
+function TDMMarksDb.GetAllCategories: IEnumUnknown;
 begin
 
 end;
 
-function TMarksDb.GetAllCategories: IEnumUnknown;
-begin
-
-end;
-
-function TMarksDb.GetAllMarksOfCategory(
+function TDMMarksDb.GetAllMarksOfCategory(
   ACategoryId: integer): IEnumUnknown;
 begin
 
 end;
 
-function TMarksDb.GetCategory(IdCategory: integer): IMarkCategory;
+function TDMMarksDb.GetCategory(IdCategory: integer): IMarkCategory;
 begin
 
 end;
 
-function TMarksDb.GetMark(IdMark: integer): IMarkBasic;
+function TDMMarksDb.GetMark(IdMark: integer): IMarkBasic;
 begin
 
 end;
 
-function TMarksDb.GetMarksVisibleInRect(
+function TDMMarksDb.GetMarksVisibleInRect(
   ALonLat: TExtendedRect): IEnumUnknown;
 begin
 
 end;
 
-function TMarksDb.GetVisibleCategories: IEnumUnknown;
+function TDMMarksDb.GetVisibleCategories: IEnumUnknown;
 begin
 
 end;
 
-procedure TMarksDb.ReplaceCategory(IdCategory: integer;
+procedure TDMMarksDb.ReplaceCategory(IdCategory: integer;
   ACategory: IMarkCategory);
 begin
 
 end;
 
-procedure TMarksDb.ReplaceMark(IdMark: integer; AMark: IMarkBasic);
+procedure TDMMarksDb.ReplaceMark(IdMark: integer; AMark: IMarkBasic);
 begin
 
-end;
-
-{ TEmptyEnum }
-
-function TEmptyEnum.Clone(out enm: IEnumUnknown): HResult;
-begin
-  enm := Self;
-  Result := S_OK;
-end;
-
-function TEmptyEnum.Next(celt: Integer; out elt;
-  pceltFetched: PLongint): HResult;
-begin
-  pceltFetched^ := 0;
-  Result := S_FALSE;
-end;
-
-function TEmptyEnum.Reset: HResult;
-begin
-  Result := S_OK;
-end;
-
-function TEmptyEnum.Skip(celt: Integer): HResult;
-begin
-  Result := S_FALSE;
 end;
 
 end.
