@@ -12,6 +12,8 @@ type
   protected
     FRadius: Integer;
     function GetBitmapSizeInPixel: TPoint; override;
+    function GetFreezePointInVisualPixel: TPoint; override;
+    function GetFreezePointInBitmapPixel: TPoint; override;
   public
     constructor Create(AParentMap: TImage32);
     procedure Redraw; override;
@@ -38,9 +40,24 @@ begin
 end;
 
 
+function TCenterScale.GetFreezePointInBitmapPixel: TPoint;
+var
+  VBitmapSize: TPoint;
+begin
+  VBitmapSize := GetBitmapSizeInPixel;
+  Result := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
+end;
+
+function TCenterScale.GetFreezePointInVisualPixel: TPoint;
+var
+  VVisibleSize: TPoint;
+begin
+  VVisibleSize := GetVisibleSizeInPixel;
+  Result := Point(VVisibleSize.X div 2, VVisibleSize.Y div 2);
+end;
+
 procedure TCenterScale.Redraw;
 var
-//  VMapCenter: TPoint;
   VRect: TRect;
   VHalfSize: TPoint;
   i: integer;

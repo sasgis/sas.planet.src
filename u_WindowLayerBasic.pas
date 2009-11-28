@@ -14,23 +14,34 @@ type
   protected
     FParentMap: TImage32;
     FLayer: TBitmapLayer;
-    FScreenCenterPos: TPoint;
-    FScale: Double;
-    FScaleCenter: TPoint;
-
+{
+ Используемые системы координат:
+ VisualPixel - координаты в пикселах компонента ParentMap
+ BitmapPixel - координаты в пикселах битмапа текущего слоя
+}
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
-    function GetBitmapSizeInPixel: TPoint; virtual;
+    // Получает размер отображаемого изображения. По сути коордниаты картинки в системе VisualPixel
     function GetVisibleSizeInPixel: TPoint; virtual;
-    function GetCenterMove: TPoint; virtual;
+    // Размеры битмапки текущего слоя. по сути координаты правого нижнего угла картинки в системе BitmapPixel
+    function GetBitmapSizeInPixel: TPoint; virtual; abstract;
 
-    function GetMapLayerLocationRect: TRect; virtual;
+    // Коэффициент масштабирования
+    function GetScale: double; virtual;
+
+    // Координаты зафиксированной точки в сисетме VisualPixel
+    function GetFreezePointInVisualPixel: TPoint; virtual; abstract;
+    // Координаты зафиксированной точки в сисетме BitmapPixel
+    function GetFreezePointInBitmapPixel: TPoint; virtual; abstract;
 
     function BitmapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload; virtual;
     function BitmapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
     function VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function VisiblePixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+
+    // Переводит координаты прямоугольника битмапки в координаты VisualPixel
+    function GetMapLayerLocationRect: TRect; virtual;
   public
     constructor Create(AParentMap: TImage32);
     procedure Resize; virtual;
@@ -38,7 +49,6 @@ type
     procedure Hide; virtual;
     procedure Redraw; virtual; abstract;
     property Visible: Boolean read GetVisible write SetVisible;
-    property MapLayerVisibleLocationRect: TRect read GetMapLayerLocationRect;
   end;
 
 
@@ -46,20 +56,13 @@ implementation
 
 uses
   Forms,
-  u_GlobalState;
+  u_GlobalState, Types;
 
 constructor TWindowLayerBasic.Create(AParentMap: TImage32);
-var
-  VBitmapSizeInPixel: TPoint;
 begin
-  FScale := 1;
   FParentMap := AParentMap;
   FLayer := TBitmapLayer.Create(FParentMap.Layers);
 
-  VBitmapSizeInPixel := GetBitmapSizeInPixel;
-
-  FLayer.Bitmap.Width := VBitmapSizeInPixel.X;
-  FLayer.Bitmap.Height := VBitmapSizeInPixel.Y;
   FLayer.Bitmap.DrawMode:=dmBlend;
   FLayer.Bitmap.CombineMode:=cmMerge;
   FLayer.bitmap.Font.Charset:=RUSSIAN_CHARSET;
@@ -80,8 +83,15 @@ begin
 end;
 
 procedure TWindowLayerBasic.Resize;
+var
+  VBitmapSizeInPixel: TPoint;
 begin
   if FLayer.Visible then begin
+    VBitmapSizeInPixel := GetBitmapSizeInPixel;
+
+    FLayer.Bitmap.Width := VBitmapSizeInPixel.X;
+    FLayer.Bitmap.Height := VBitmapSizeInPixel.Y;
+
     FLayer.Location := floatrect(GetMapLayerLocationRect);
   end;
 end;
@@ -96,14 +106,7 @@ begin
 end;
 
 procedure TWindowLayerBasic.Show;
-var
-  VBitmapSizeInPixel: TPoint;
 begin
-  VBitmapSizeInPixel := GetBitmapSizeInPixel;
-
-  FLayer.Bitmap.Width := VBitmapSizeInPixel.X;
-  FLayer.Bitmap.Height := VBitmapSizeInPixel.Y;
-
   FLayer.Visible := True;
   FLayer.BringToFront;
   Resize;
@@ -117,12 +120,6 @@ begin
   Result.Y := FParentMap.Height;
 end;
 
-function TWindowLayerBasic.GetBitmapSizeInPixel: TPoint;
-begin
-  Result.X := Screen.Width + 2 * 256 * GState.TilesOut;
-  Result.Y := Screen.Height + 2 * 256 * GState.TilesOut;
-end;
-
 function TWindowLayerBasic.GetMapLayerLocationRect: TRect;
 var
   VBitmapSize: TPoint;
@@ -133,67 +130,68 @@ begin
 end;
 
 
-function TWindowLayerBasic.VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint;
-var
-  VVisibleSize: TPoint;
-  VBitmapSize: TPoint;
-  VCenterMove: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  VBitmapSize := GetBitmapSizeInPixel;
-  VCenterMove := GetCenterMove;
-
-  Result.X := Trunc(((Pnt.X + VCenterMove.X) - FScaleCenter.X) / FScale + FScaleCenter.X + (VBitmapSize.X - VVisibleSize.X) / 2);
-  Result.Y := Trunc(((Pnt.Y + VCenterMove.Y) - FScaleCenter.Y) / FScale + FScaleCenter.Y + (VBitmapSize.Y - VVisibleSize.Y) / 2);
-end;
-
 function TWindowLayerBasic.VisiblePixel2BitmapPixel(
   Pnt: TExtendedPoint): TExtendedPoint;
 var
-  VVisibleSize: TPoint;
-  VBitmapSize: TPoint;
-  VCenterMove: TPoint;
+  VFreezePointInVisualPixel: TPoint;
+  VFreezePointInBitmapPixel: TPoint;
+  VScale: double;
 begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  VBitmapSize := GetBitmapSizeInPixel;
-  VCenterMove := GetCenterMove;
+  VFreezePointInVisualPixel := GetFreezePointInVisualPixel;
+  VFreezePointInBitmapPixel := GetFreezePointInBitmapPixel;
+  VScale := GetScale;
 
-  Result.X := ((Pnt.X + VCenterMove.X) - FScaleCenter.X) / FScale + FScaleCenter.X + (VBitmapSize.X - VVisibleSize.X) / 2;
-  Result.Y := ((Pnt.Y + VCenterMove.Y) - FScaleCenter.Y) / FScale + FScaleCenter.Y + (VBitmapSize.Y - VVisibleSize.Y) / 2;
+  Result.X := (Pnt.X - VFreezePointInVisualPixel.X) / VScale + VFreezePointInBitmapPixel.X;
+  Result.Y := (Pnt.Y - VFreezePointInVisualPixel.Y) / VScale + VFreezePointInBitmapPixel.Y;
 end;
+
+function TWindowLayerBasic.VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint;
+var
+  VFreezePointInVisualPixel: TPoint;
+  VFreezePointInBitmapPixel: TPoint;
+  VScale: double;
+begin
+  VFreezePointInVisualPixel := GetFreezePointInVisualPixel;
+  VFreezePointInBitmapPixel := GetFreezePointInBitmapPixel;
+  VScale := GetScale;
+
+  Result.X := Trunc((Pnt.X - VFreezePointInVisualPixel.X) / VScale + VFreezePointInBitmapPixel.X);
+  Result.Y := Trunc((Pnt.Y - VFreezePointInVisualPixel.Y) / VScale + VFreezePointInBitmapPixel.Y);
+end;
+
 
 function TWindowLayerBasic.BitmapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
-  VVisibleSize: TPoint;
-  VBitmapSize: TPoint;
-  VCenterMove: TPoint;
+  VFreezePointInVisualPixel: TPoint;
+  VFreezePointInBitmapPixel: TPoint;
+  VScale: double;
 begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  VBitmapSize := GetBitmapSizeInPixel;
-  VCenterMove := GetCenterMove;
+  VFreezePointInVisualPixel := GetFreezePointInVisualPixel;
+  VFreezePointInBitmapPixel := GetFreezePointInBitmapPixel;
+  VScale := GetScale;
 
-  Result.X := trunc(((Pnt.X - (VBitmapSize.X - VVisibleSize.X) / 2) - FScaleCenter.X) * FScale + FScaleCenter.X - VCenterMove.X);
-  Result.Y := trunc(((Pnt.Y - (VBitmapSize.Y - VVisibleSize.Y) / 2) - FScaleCenter.Y) * FScale + FScaleCenter.Y - VCenterMove.Y);
+  Result.X := Trunc((Pnt.X - VFreezePointInBitmapPixel.X) * VScale + VFreezePointInVisualPixel.X);
+  Result.Y := Trunc((Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y);
 end;
 
 function TWindowLayerBasic.BitmapPixel2VisiblePixel(
   Pnt: TExtendedPoint): TExtendedPoint;
 var
-  VVisibleSize: TPoint;
-  VBitmapSize: TPoint;
-  VCenterMove: TPoint;
+  VFreezePointInVisualPixel: TPoint;
+  VFreezePointInBitmapPixel: TPoint;
+  VScale: double;
 begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  VBitmapSize := GetBitmapSizeInPixel;
-  VCenterMove := GetCenterMove;
+  VFreezePointInVisualPixel := GetFreezePointInVisualPixel;
+  VFreezePointInBitmapPixel := GetFreezePointInBitmapPixel;
+  VScale := GetScale;
 
-  Result.X := ((Pnt.X - (VBitmapSize.X - VVisibleSize.X) / 2) - FScaleCenter.X) * FScale + FScaleCenter.X - VCenterMove.X;
-  Result.Y := ((Pnt.Y - (VBitmapSize.Y - VVisibleSize.Y) / 2) - FScaleCenter.Y) * FScale + FScaleCenter.Y - VCenterMove.Y;
+  Result.X := (Pnt.X - VFreezePointInBitmapPixel.X) * VScale + VFreezePointInVisualPixel.X;
+  Result.Y := (Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y;
 end;
 
-function TWindowLayerBasic.GetCenterMove: TPoint;
+function TWindowLayerBasic.GetScale: double;
 begin
-  Result := Point(0, 0);
+  Result := 1;
 end;
 
 end.

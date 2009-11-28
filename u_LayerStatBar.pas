@@ -11,7 +11,8 @@ type
   TLayerStatBar = class(TWindowLayerBasic)
   protected
     function GetBitmapSizeInPixel: TPoint; override;
-    function GetCenterMove: TPoint; override;
+    function GetFreezePointInVisualPixel: TPoint; override;
+    function GetFreezePointInBitmapPixel: TPoint; override;
   public
     constructor Create(AParentMap: TImage32);
     procedure Redraw; override;
@@ -44,10 +45,20 @@ begin
   Result.Y := 17;
 end;
 
-function TLayerStatBar.GetCenterMove: TPoint;
+function TLayerStatBar.GetFreezePointInBitmapPixel: TPoint;
+var
+  VBitmapSize: TPoint;
 begin
-  Result.X := 0;
-  Result.Y := (17 - FParentMap.Height) div 2;
+  VBitmapSize := GetBitmapSizeInPixel;
+  Result := Point(0, VBitmapSize.Y);
+end;
+
+function TLayerStatBar.GetFreezePointInVisualPixel: TPoint;
+var
+  VVisibleSize: TPoint;
+begin
+  VVisibleSize := GetVisibleSizeInPixel;
+  Result := Point(0, VVisibleSize.Y);
 end;
 
 procedure TLayerStatBar.Redraw;
@@ -88,4 +99,3 @@ begin
 end;
 
 end.
- 

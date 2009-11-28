@@ -14,10 +14,18 @@ uses
 type
   TMapLayerBasic =  class(TWindowLayerBasic)
   protected
+
+    FScale: Double;
+    FScaleCenterInVisualPixel: TPoint;
+    FScaleCenterInBitmapPixel: TPoint;
+    FFreezeInCenter: Boolean;
     FCenterMove: TPoint;
     FScreenCenterPos: TPoint;
-    function GetCenterMove: TPoint; override;
-    procedure SetScreenCenterPos(const Value: TPoint);
+
+    function GetBitmapSizeInPixel: TPoint; override;
+    function GetFreezePointInVisualPixel: TPoint; override;
+    function GetFreezePointInBitmapPixel: TPoint; override;
+    function GetScale: double; override;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
@@ -32,7 +40,8 @@ type
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); virtual;
-    property ScreenCenterPos: TPoint read FScreenCenterPos write SetScreenCenterPos;
+    procedure SetScreenCenterPos(const Value: TPoint); virtual;
+    property ScreenCenterPos: TPoint read FScreenCenterPos;
   end;
 implementation
 
@@ -52,12 +61,20 @@ begin
 end;
 
 procedure TMapLayerBasic.SetScreenCenterPos(const Value: TPoint);
+var
+  VBitmapSize: TPoint;
+  VVisualSize: TPoint;
 begin
   FScreenCenterPos := Value;
-  FCenterMove := Point(0, 0);
   FScale := 1;
-  Redraw;
-  Resize;
+  FCenterMove := Point(0, 0);
+
+  FFreezeInCenter := True;
+
+  if Visible then begin
+    Redraw;
+    Resize;
+  end;
 end;
 
 function TMapLayerBasic.BitmapPixel2MapPixel(Pnt: TPoint): TPoint;
@@ -130,21 +147,58 @@ end;
 
 procedure TMapLayerBasic.MoveTo(Pnt: TPoint);
 begin
-  FCenterMove := Pnt;
-  Resize;
+  if Visible then begin
+    FCenterMove := Pnt;
+    FFreezeInCenter := True;
+    Resize;
+  end;
 end;
 
 procedure TMapLayerBasic.ScaleTo(AScale: Double; ACenterPoint: TPoint);
 begin
-  FScaleCenter := ACenterPoint;
-  FScale := AScale;
-  Resize;
+  if Visible then begin
+    FScaleCenterInBitmapPixel := VisiblePixel2BitmapPixel(ACenterPoint);
+    FScaleCenterInVisualPixel := ACenterPoint;
+    FScale := AScale;
+    FFreezeInCenter := False;
+    Resize;
+  end;
 end;
 
-function TMapLayerBasic.GetCenterMove: TPoint;
+
+function TMapLayerBasic.GetFreezePointInBitmapPixel: TPoint;
+var
+  VBitmapSize: TPoint;
 begin
-  Result := FCenterMove;
+  if FFreezeInCenter then begin
+    VBitmapSize := GetBitmapSizeInPixel;
+    Result := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
+  end else begin
+    Result := FScaleCenterInBitmapPixel;
+  end;
 end;
 
+function TMapLayerBasic.GetFreezePointInVisualPixel: TPoint;
+var
+  VVisibleSize: TPoint;
+begin
+  if FFreezeInCenter then begin
+    VVisibleSize := GetVisibleSizeInPixel;
+    Result := Point(VVisibleSize.X div 2 - FCenterMove.X, VVisibleSize.Y div 2 - FCenterMove.Y);
+  end else begin
+    Result := Point(FScaleCenterInVisualPixel.X - FCenterMove.X, FScaleCenterInVisualPixel.Y - FCenterMove.Y);
+  end;
+end;
+
+function TMapLayerBasic.GetScale: double;
+begin
+  Result := FScale;
+end;
+
+function TMapLayerBasic.GetBitmapSizeInPixel: TPoint;
+begin
+  Result.X := Screen.Width + 2 * 256 * GState.TilesOut;
+  Result.Y := Screen.Height + 2 * 256 * GState.TilesOut;
+end;
 
 end.
