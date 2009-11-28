@@ -70,6 +70,10 @@ uses
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   t_LoadEvent in 't_LoadEvent.pas',
+  i_Marks in 'i_Marks.pas',
+  u_MarkBasic in 'u_MarkBasic.pas',
+  u_MarkCategory in 'u_MarkCategory.pas',
+  u_MarksDb in 'u_MarksDb.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas';
 
