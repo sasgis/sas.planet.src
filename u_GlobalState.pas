@@ -158,6 +158,9 @@ type
     // Зум карты заполения
     zoom_mapzap: byte;
 
+    // Отображать сетку тайлов для заданного зума
+    TileGridZoom: byte;
+
     // Путь к иконкам меток
     property MarkIconsPath: string read GetMarkIconsPath;
     // Имя файла с метками
