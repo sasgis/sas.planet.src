@@ -1205,6 +1205,8 @@ begin
   VSelectedLonLat.TopLeft := rect_arr[0];
   VSelectedLonLat.BottomRight := rect_arr[1];
   VZoomCurr := GState.zoom_size - 1;
+  sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
+  sat_map_both.GeoConvert.CheckLonLatRect(VSelectedLonLat);
   VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
 
   LayerMapNal.Location:=floatrect(MapLayerLocationRect);
