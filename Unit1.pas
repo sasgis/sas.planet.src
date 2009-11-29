@@ -1201,6 +1201,7 @@ var kz,jj,bxy:integer;
     VZoomDelta: Byte;
     VSelectedRelative: TExtendedRect;
     VColor: TColor32;
+    VTileGridZoom: byte;
 begin
   VSelectedLonLat.TopLeft := rect_arr[0];
   VSelectedLonLat.BottomRight := rect_arr[1];
@@ -1225,8 +1226,17 @@ begin
   end;
 
   if (ssCtrl in Shift) then begin
-    VSelectedTiles := sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
-    VSelectedPixels := sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
+    if (GState.TileGridZoom = 0) or (GState.TileGridZoom = 99) then begin
+      VSelectedTiles := sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
+      VSelectedPixels := sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
+    end else begin
+      VTileGridZoom := GState.TileGridZoom - 1;
+      sat_map_both.GeoConvert.CheckZoom(VTileGridZoom);
+      VSelectedRelative := sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+      VSelectedTiles := sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
+      VSelectedRelative := sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
+      VSelectedPixels := sat_map_both.GeoConvert.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
+    end;
   end;
   VSelectedLonLat := sat_map_both.GeoConvert.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
 
