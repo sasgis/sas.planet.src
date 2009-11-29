@@ -36,7 +36,12 @@ type
     CDSmarkspicname: TStringField;
     CDSmarkscategoryid: TIntegerField;
   private
-    { Private declarations }
+    function GetMarkIconsPath: string;
+    function GetMarksBackUpFileName: string;
+    function GetMarksCategoryBackUpFileName: string;
+    function GetMarksCategoryFileName: string;
+    function GetMarksFileName: string;
+
   public
     function AddMark(AMark: IMarkBasic): integer;
     function GetMark(IdMark: integer): IMarkBasic;
@@ -52,6 +57,18 @@ type
     function GetVisibleCategories: IEnumUnknown;
     function GetAllMarksOfCategory(ACategoryId: integer): IEnumUnknown;
     function GetMarksVisibleInRect(ALonLat: TExtendedRect): IEnumUnknown;
+
+    // Путь к иконкам меток
+    property MarkIconsPath: string read GetMarkIconsPath;
+    // Имя файла с метками
+    property MarksFileName: string read GetMarksFileName;
+    // Име резервной копии файла с метками
+    property MarksBackUpFileName: string read GetMarksBackUpFileName;
+
+    // Имя файла с категориями меток
+    property MarksCategoryFileName: string read GetMarksCategoryFileName;
+    // Име резервной копии файла с категориями меток
+    property MarksCategoryBackUpFileName: string read GetMarksCategoryBackUpFileName;
   end;
 
 var
@@ -74,7 +91,7 @@ begin
   CDSKategoryBeforeScale.AsInteger := ACategory.BeforeScale;
   CDSKategory.Post;
   Result := CDSKategoryid.Value;
-  CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+  CDSKategory.SaveToFile(MarksCategoryFileName,dfXMLUTF8);
 end;
 
 function TDMMarksDb.AddMark(AMark: IMarkBasic): integer;
@@ -111,6 +128,31 @@ end;
 function TDMMarksDb.GetMark(IdMark: integer): IMarkBasic;
 begin
 
+end;
+
+function TDMMarksDb.GetMarkIconsPath: string;
+begin
+  Result := GState.MarkIconsPath;
+end;
+
+function TDMMarksDb.GetMarksBackUpFileName: string;
+begin
+  Result := GState.MarksBackUpFileName;
+end;
+
+function TDMMarksDb.GetMarksCategoryBackUpFileName: string;
+begin
+  Result := GState.MarksCategoryBackUpFileName;
+end;
+
+function TDMMarksDb.GetMarksCategoryFileName: string;
+begin
+  Result := GState.MarksCategoryFileName;
+end;
+
+function TDMMarksDb.GetMarksFileName: string;
+begin
+  Result := GState.MarksFileName;
 end;
 
 function TDMMarksDb.GetMarksVisibleInRect(
