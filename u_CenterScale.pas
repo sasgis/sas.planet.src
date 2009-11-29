@@ -12,7 +12,9 @@ type
   TCenterScale = class
   private
     FRadius: Integer;
+    FDigitsOffset: Integer;
     FSize: TPoint;
+    FFontSize: Integer;
     FParentMap: TImage32;
     LayerMapScale: TBitmapLayer;
     function GetVisible: Boolean;
@@ -42,10 +44,18 @@ var
   i: integer;
   r: Double;
   xy, xy1: TPoint;
+  textWdth:integer;
 begin
   FParentMap := AParentMap;
-  FRadius := 120;
-  FSize := Point(290, 290);
+  FRadius := 115;
+  FDigitsOffset:= 20;
+  FFontSize:=12;
+
+  LayerMapScale := TBitmapLayer.Create(FParentMap.Layers);
+
+  LayerMapScale.Bitmap.Font.Size:=FFontSize;
+  textWdth:=LayerMapScale.Bitmap.TextWidth('270°');
+  FSize := Point((FRadius*2)+(FDigitsOffset*2)+(textWdth*2), (FRadius*2)+(FDigitsOffset*2)+(textWdth*2));
   VHalfSize := Point(FSize.X div 2, FSize.Y div 2);
   VMapCenter := Point(FParentMap.Width div 2, FParentMap.Height div 2);
 
@@ -54,7 +64,6 @@ begin
   VRect.Right := VMapCenter.X + VHalfSize.X;
   VRect.Bottom := VMapCenter.Y + VHalfSize.Y;
 
-  LayerMapScale := TBitmapLayer.Create(FParentMap.Layers);
   LayerMapScale.location := floatrect(VRect);
   LayerMapScale.Bitmap.Width := FSize.x;
   LayerMapScale.Bitmap.Height := FSize.Y;
@@ -63,18 +72,17 @@ begin
   LayerMapScale.bitmap.Font.Charset := RUSSIAN_CHARSET;
   i:=0;
   LayerMapScale.Bitmap.Clear(clBlack);
-  LayerMapScale.Bitmap.Canvas.Pen.Color := clRed;
-  LayerMapScale.Bitmap.Font.Size := 6;
+  LayerMapScale.Bitmap.Font.Size := FFontSize-3;
   While i<360 do begin
-    LayerMapScale.Bitmap.Font.Size:=6;
+    LayerMapScale.Bitmap.Font.Size:=FFontSize-3;
     if (i mod 90) = 0 then begin
       r:=0;
-      LayerMapScale.Bitmap.Font.Size:=10;
+      LayerMapScale.Bitmap.Font.Size:=FFontSize;
     end else if (i mod 45) = 0 then begin
-      r:=80;
-      LayerMapScale.Bitmap.Font.Size:=8;
+      r:=FRadius-40;
+      LayerMapScale.Bitmap.Font.Size:=FFontSize-1;
     end else begin
-      r:=110;
+      r:=FRadius-10;
     end;
     xy.x := round(VHalfSize.X + FRadius * cos(i*(Pi/180)));
     xy.y := round(VHalfSize.Y + FRadius * sin(i*(Pi/180)));
@@ -82,10 +90,10 @@ begin
     xy1.y := round(VHalfSize.Y + r * sin(i*(Pi/180)));
     LayerMapScale.Bitmap.LineFS(xy.x,xy.y,xy1.x,xy1.y,SetAlpha(clRed32,180));
     if (i mod 15) = 0 then begin
-      xy1.x := round(VHalfSize.X + 132* cos(i*(Pi/180)))-LayerMapScale.Bitmap.TextWidth(inttostr((i+90)mod 360)+'°')div 2;
-      xy1.y := round(VHalfSize.X + 132* sin(i*(Pi/180)))-2-LayerMapScale.Bitmap.Font.size div 2;
-      LayerMapScale.Bitmap.RenderText(xy1.x+1,xy1.y+1,inttostr((i+90)mod 360)+'°',3,SetAlpha(clWhite32,250) );
-      LayerMapScale.Bitmap.RenderText(xy1.x,xy1.y,inttostr((i+90)mod 360)+'°',3,SetAlpha(clBlue32,250) );
+      xy1.x := round(VHalfSize.X + (FRadius+FDigitsOffset)* cos(i*(Pi/180)))-LayerMapScale.Bitmap.TextWidth(inttostr((i+90)mod 360)+'°')div 2;
+      xy1.y := round(VHalfSize.X + (FRadius+FDigitsOffset)* sin(i*(Pi/180)))-2-LayerMapScale.Bitmap.Font.size div 2;
+      LayerMapScale.Bitmap.RenderText(xy1.x+1,xy1.y+1,inttostr((i+90)mod 360)+'°',3,SetAlpha(clWhite32,150) );
+      LayerMapScale.Bitmap.RenderText(xy1.x,xy1.y,inttostr((i+90)mod 360)+'°',3,SetAlpha(clBlue32,210) );
     end;
     inc(i,5);
   end;

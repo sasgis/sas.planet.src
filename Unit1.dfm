@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 175
-  Top = 121
+  Left = 255
+  Top = 242
   Width = 854
   Height = 573
   HorzScrollBar.Visible = False
@@ -41,10 +41,8 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -2228,7 +2226,7 @@ object Fmain: TFmain
             ClientAreaHeight = 32
             ClientAreaWidth = 150
             DockPos = 0
-            DockRow = 6
+            DockRow = 7
             Stretch = True
             TabOrder = 4
             OnVisibleChanged = TBXSensorsBarVisibleChanged
@@ -2308,8 +2306,9 @@ object Fmain: TFmain
             Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1074#1099#1089#1086#1090#1091' '#1085#1072#1076' '#1091#1088#1086#1074#1085#1077#1084' '#1084#1086#1088#1103' '#1087#1086' '#1076#1072#1085#1085#1099#1084' GPS-'#1087#1088#1080#1077#1084#1085#1080#1082#1072
             ClientAreaHeight = 32
             ClientAreaWidth = 150
-            DockPos = 64
-            DockRow = 5
+            DockPos = 10
+            DockRow = 6
+            Stretch = True
             TabOrder = 6
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (

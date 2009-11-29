@@ -2788,6 +2788,10 @@ var
  VWaitResult: DWORD;
 begin
  ProgramClose:=true;
+ //останавливаем GPS
+ GPSReceiver.OnDisconnect:=nil;
+ GPSReceiver.Close;
+ //-
  FUIDownLoader.Terminate;
  WaitForSingleObject(FUIDownLoader.Handle, 0);
  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
@@ -3990,14 +3994,14 @@ procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
 begin
  try
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
- except
- end;
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
  LayerMapGPS.Bitmap.Clear(clBlack);
  GState.GPS_enab:=false;
  LayerMapGPS.Visible:=false;
  NGPSconn.Checked:=false;
  TBGPSconn.Checked:=false;
+ except
+ end;
 end;
 
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
@@ -5150,14 +5154,9 @@ end;
 procedure TFmain.TBXItem5Click(Sender: TObject);
 var
   VPointEx: TExtendedPoint;
-  VPoint:TPoint;
-  VZoomCurr: Byte;
 begin
   if GState.GPS_enab then begin
-    VZoomCurr := GState.zoom_size - 1;
-    VPoint :=  sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],VZoomCurr);
-    sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-    if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr), true) then
+    if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then
       generate_im(nilLastLoad,'');
   end;
 end;
