@@ -1273,6 +1273,8 @@ begin
     Poly[2] := VSelectedLonLat.BottomRight;
     Poly[3] := ExtPoint(VSelectedLonLat.Left, VSelectedLonLat.Bottom);
     Poly[4] := VSelectedLonLat.TopLeft;
+    rect_arr[0] := VSelectedLonLat.TopLeft;
+    rect_arr[1] := VSelectedLonLat.BottomRight;
     fsaveas.Show_(GState.zoom_size, Poly);
     Poly := nil;
     rect_p2:=false;
