@@ -11,6 +11,7 @@ uses
   Graphics,
   Controls,
   Forms,
+  DB,
   Dialogs,
   StdCtrls,
   CheckLst,
@@ -20,7 +21,6 @@ uses
   DBClient,
   UResStrings,
   UGeoFun,
-  DB,
   t_GeoTypes;
 
 type
@@ -105,6 +105,7 @@ implementation
 
 uses
   Math,
+  DBTables,
   t_CommonTypes,
   u_GlobalState,
   Unit1,
@@ -114,8 +115,7 @@ uses
   UaddLine,
   UImport,
   UMapType,
-  UAddCategory,
-  DBTables;
+  UAddCategory;
 
 {$R *.dfm}
 function SaveMarks2File:boolean;

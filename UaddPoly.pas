@@ -19,11 +19,15 @@ uses
   Buttons,
   DB,
   GR32,
+  TB2Item,
+  TBX,
+  TB2Dock,
+  TB2Toolbar,
   UGeoFun,
   Unit1,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes, TB2Item, TBX, TB2Dock, TB2Toolbar;
+  t_GeoTypes;
 
 type
   TFAddPoly = class(TForm)

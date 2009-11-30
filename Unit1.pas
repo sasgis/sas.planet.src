@@ -26,6 +26,7 @@ uses
   DBClient,
   WinInet,
   Dialogs,
+  ExtDlgs,
   ImgList,
   GR32,
   GR32_Resamplers,
@@ -44,6 +45,8 @@ uses
   TBXToolPals,
   EwbCore,
   TBX,
+  TBXControls,
+  TBXExtItems,
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   PNGimage,
@@ -62,7 +65,7 @@ uses
   u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
-  t_GeoTypes, ExtDlgs, TBXControls, TBXExtItems;
+  t_GeoTypes;
 
 type
   TTileSource = (tsInternet,tsCache,tsCacheInternet);
@@ -706,7 +709,8 @@ uses
   USearchResult,
   UImport,
   UAddCategory,
-  u_TileDownloaderUIOneTile, i_ICoordConverter,
+  u_TileDownloaderUIOneTile,
+  i_ICoordConverter,
   UKMLParse;
 
 {$R *.dfm}

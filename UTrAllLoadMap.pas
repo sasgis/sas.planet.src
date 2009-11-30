@@ -66,6 +66,7 @@ type
 implementation
 uses
   SysUtils,
+  Types,
   DateUtils,
   StrUtils,
   Math,
@@ -74,7 +75,7 @@ uses
   Unit1,
   UImgfun,
   UGeoFun,
-  Usaveas, Types;
+  Usaveas;
 
 constructor ThreadAllLoadMap.Create(APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
 var

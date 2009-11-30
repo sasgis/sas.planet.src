@@ -15,6 +15,7 @@ uses
   ExtCtrls,
   ComCtrls,
   Dialogs,
+  Buttons,
   Spin,
   strutils,
   DBCtrlsEh,
@@ -26,12 +27,12 @@ uses
   XPMan,
   ZylGPSReceiver,
   TB2Dock,
+  TBX,
   rxToolEdit,
   rxCurrEdit,
   Ugeofun,
   UMapType,
-  TBX,
-  UResStrings, Buttons;
+  UResStrings;
 
 type
   TFSettings = class(TForm)
@@ -265,6 +266,8 @@ implementation
 
 uses
   Math,
+  Types,
+  TB2Item,
   u_GlobalState,
   u_GeoToStr,
   Uimgfun,
@@ -283,7 +286,7 @@ uses
   Unit4,
   UaddLine,
   u_MiniMap,
-  UaddPoly, TB2Item, Types;
+  UaddPoly;
 
 {$R *.dfm}
 

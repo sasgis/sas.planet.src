@@ -12,6 +12,7 @@ uses
   u_GeoToStr,
   Uimgfun,
   u_MemFileCache;
+  
 type
   TGlobalState = class
   private

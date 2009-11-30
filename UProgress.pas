@@ -3,8 +3,16 @@ unit UProgress;
 interface
 
 uses
-  Forms, windows, messages, ExtCtrls,RarProgress, StdCtrls, Controls, Classes, UResStrings,
-  Dialogs;
+  Forms,
+  windows,
+  messages,
+  Dialogs,
+  ExtCtrls,
+  StdCtrls,
+  Controls,
+  Classes,
+  RarProgress,
+  UResStrings;
 
 type
   TFProgress = class(TForm)

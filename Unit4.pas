@@ -3,8 +3,14 @@ unit Unit4;
 interface
 
 uses
-   Windows,Classes, Forms, Controls, StdCtrls, Dialogs, RarProgress;
-                              
+   Windows,
+   Classes,
+   Forms,
+   Controls,
+   StdCtrls,
+   Dialogs,
+   RarProgress;
+
 type
   TFprogress2 = class(TForm)
     ProgressBar1: TRarProgress;
@@ -22,14 +28,15 @@ var Fprogress2: TFprogress2;
 
 implementation
 
-uses Unit1;
+uses
+  Unit1;
+
 {$R *.dfm}
 procedure TFProgress2.Loaded;
 begin
   inherited;
   Enabled:=true;
   BorderStyle:=bsToolWindow;
-  //Parent:=Fmain;
 end;
 
 procedure TFprogress2.FormKeyUp(Sender: TObject; var Key: Word;
