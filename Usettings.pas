@@ -303,7 +303,7 @@ begin
  GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
  GState.MainIni.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
  GState.MainIni.WriteInteger('VIEW','TilesOut',GState.TilesOut);
- GState.MainIni.Writeinteger('VIEW','grid',zoom_line);
+ GState.MainIni.Writeinteger('VIEW','grid', GState.TileGridZoom);
  GState.MainIni.Writebool('VIEW','invert_mouse',GState.MouseWheelInv);
  GState.MainIni.Writebool('VIEW','back_load',GState.UsePrevZoom);
  GState.MainIni.Writebool('VIEW','back_load_layer',GState.UsePrevZoomLayer);
