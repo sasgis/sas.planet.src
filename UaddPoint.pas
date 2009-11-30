@@ -21,13 +21,17 @@ uses
   DBCtrls,
   rxToolEdit,
   rxCurrEdit,
+  TB2Item,
+  TBX,
+  TB2Dock,
+  TB2Toolbar,
   pngimage,
   ugeofun,
   GR32,
   GR32_Resamplers,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes, TB2Item, TBX, TB2Dock, TB2Toolbar;
+  t_GeoTypes;
 
 type
   TFaddPoint = class(TForm)

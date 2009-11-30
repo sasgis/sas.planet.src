@@ -61,9 +61,6 @@ type
     colors:byte;
     numTlg:integer;
     numTlv:integer;
-    ToOzi:boolean;
-    ToTab:boolean;
-    ToWorld:boolean;
     ecw:TECWWrite;
     btmm:TBitmap32;
     btmh:TBitmap32;

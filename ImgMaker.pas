@@ -9,12 +9,12 @@ uses
   Graphics,
   Math,
   Jpeg,
+  IJL,
   GR32,
   GR32_Resamplers,
   UMapType,
   UGeoFun,
-  t_GeoTypes,
-  IJL;
+  t_GeoTypes;
 
 type
 TBMPbuf = record BMPTile: array [1..2] of TBitmap32;

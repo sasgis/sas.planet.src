@@ -15,6 +15,7 @@ uses
   ExtCtrls,
   ComCtrls,
   Dialogs,
+  Buttons,
   Spin,
   strutils,
   DBCtrlsEh,
@@ -26,11 +27,11 @@ uses
   XPMan,
   ZylGPSReceiver,
   TB2Dock,
+  TBX,
   rxToolEdit,
   rxCurrEdit,
   Ugeofun,
   UMapType,
-  TBX,
   UResStrings;
 
 type
@@ -207,7 +208,6 @@ type
     SESizeTrack: TSpinEdit;
     ComboBoxBoudRate: TComboBox;
     Label65: TLabel;
-    Button16: TButton;
     GroupBox3: TGroupBox;
     PaintBox1: TPaintBox;
     CBSaveTileNotExists: TCheckBox;
@@ -232,6 +232,7 @@ type
     Label31: TLabel;
     Button18: TButton;
     CBSensorsBarAutoShow: TCheckBox;
+    SBGetComNum: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -249,8 +250,8 @@ type
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
     procedure PaintBox1Paint(Sender: TObject);
-    procedure Button16Click(Sender: TObject);
     procedure Button18Click(Sender: TObject);
+    procedure SBGetComNumClick(Sender: TObject);
   private
   public
     procedure Save;
@@ -265,6 +266,8 @@ implementation
 
 uses
   Math,
+  Types,
+  TB2Item,
   u_GlobalState,
   u_GeoToStr,
   Uimgfun,
@@ -283,7 +286,7 @@ uses
   Unit4,
   UaddLine,
   u_MiniMap,
-  UaddPoly, TB2Item, Types;
+  UaddPoly;
 
 {$R *.dfm}
 
@@ -810,11 +813,17 @@ begin
     TPaintBox(Sender).Parent.Brush.Color, clBlack);
 end;
 
-procedure TFSettings.Button16Click(Sender: TObject);
+procedure TFSettings.Button18Click(Sender: TObject);
+begin
+ showMessage(TMapType(MapList.Selected.Data).info);
+end;
+
+procedure TFSettings.SBGetComNumClick(Sender: TObject);
 var
   pPort: TCommPort;
   pBaudRate: TBaudRate;
 begin
+ SBGetComNum.Enabled:=false;
  if Fmain.GPSReceiver.FastDetectGPS(pPort, pBaudRate) then
   begin
    ComboBoxCOM.Text := Fmain.GPSReceiver.CommPortToString(pPort);
@@ -822,11 +831,7 @@ begin
    ShowMessage('Ok');
   end
   else ShowMessage(SAS_MSG_NoGPSdetected);
-end;
-
-procedure TFSettings.Button18Click(Sender: TObject);
-begin
- showMessage(TMapType(MapList.Selected.Data).info);
+ SBGetComNum.Enabled:=true;
 end;
 
 end.

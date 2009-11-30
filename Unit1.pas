@@ -26,6 +26,7 @@ uses
   DBClient,
   WinInet,
   Dialogs,
+  ExtDlgs,
   ImgList,
   GR32,
   GR32_Resamplers,
@@ -44,6 +45,8 @@ uses
   TBXToolPals,
   EwbCore,
   TBX,
+  TBXControls,
+  TBXExtItems,
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   PNGimage,
@@ -65,7 +68,6 @@ uses
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
-  ExtDlgs, TBXControls, TBXExtItems,
   t_GeoTypes;
 
 type
@@ -641,8 +643,6 @@ class   procedure delfrompath(pos:integer);
 const
   SASVersion='91111';
   CProgram_Lang_Default = LANG_RUSSIAN;
-//  ENU=LANG_ENGLISH;
-//  RUS=LANG_RUSSIAN;// $00000419;
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; // Константа для преобразования радиан в градусы
   zoom:array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
@@ -713,7 +713,8 @@ uses
   USearchResult,
   UImport,
   UAddCategory,
-  u_TileDownloaderUIOneTile, i_ICoordConverter,
+  u_TileDownloaderUIOneTile,
+  i_ICoordConverter,
   UKMLParse;
 
 {$R *.dfm}
@@ -1147,7 +1148,6 @@ begin
                                          else begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
-                                               //LayerMapNal.Bitmap.Clear(clBlack);
                                                drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
@@ -1384,9 +1384,8 @@ begin
 end;
 
 procedure TFmain.UpdateGPSsensors;
-var i:integer;
+var
     s_len,n_len:string;
-    VPoint1,VPoint2:TPoint;
     sps:_SYSTEM_POWER_STATUS;
 begin
  try
@@ -1435,9 +1434,7 @@ var i,speed,SizeTrackd2:integer;
     TanOfAngle:Extended;
     dl: integer;
     Polygon: TPolygon32;
-    s_speed,s_len,n_len:string;
     polygon_line: TPolygon32;
-    VPoint1, VPoint2: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
@@ -1488,7 +1485,6 @@ begin
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
   if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
                                          else TanOfAngle:=MaxExtended/100
-              //TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
   ke.x:=ke.X+(ke.X-ks.X);
@@ -1703,13 +1699,10 @@ end;
 
 procedure TFmain.draw_point;
 var LLRect:TExtendedRect;
-    i:integer;
     xy:Tpoint;
     btm:TBitmap32;
     TestArrLenP1,TestArrLenP2:TPoint;
-    arrLL:PArrLL;
     buf_line_arr:TExtendedPointArray;
-    ms:TMemoryStream;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
@@ -2163,8 +2156,7 @@ end;
 
 procedure TFmain.FormActivate(Sender: TObject);
 var
-     i,r:integer;
-     xy,xy1:Tpoint;
+     i:integer;
      param:string;
      MainWindowMaximized: Boolean;
      VLoadedSizeInPixel: TPoint;
@@ -2509,7 +2501,6 @@ procedure TFmain.zooming(x:byte;move:boolean);
 var w,i,steps,d_moveH,d_moveW:integer;
     w1:extended;
     ts1,ts2,fr:int64;
-    VExtPoint: TExtendedPoint;
     VNewScreenCenterPos: TPoint;
     Scale: Extended;
 begin
@@ -2586,6 +2577,7 @@ begin
    if GState.zoom_size<x
     then LayerMap.Location:=floatrect(bounds(mWd2-pr_x*2+d_moveW,mHd2-pr_y*2+d_moveH,xhgpx*2,yhgpx*2))
     else LayerMap.Location:=floatrect(bounds(mWd2-pr_x div 2-d_moveW,mHd2-pr_y div 2-d_moveH,xhgpx div 2,yhgpx div 2));
+   FillingMap.Location:=LayerMap.Location;
    application.ProcessMessages;
  end;
 
@@ -2625,6 +2617,10 @@ begin
    Screen.Forms[i].Close;
 
  ProgramClose:=true;
+ //останавливаем GPS
+ GPSReceiver.OnDisconnect:=nil;
+ GPSReceiver.Close;
+ //-
  FUIDownLoader.Terminate;
  Application.ProcessMessages;
  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
@@ -3828,14 +3824,14 @@ procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
 begin
  try
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
- except
- end;
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
  LayerMapGPS.Bitmap.Clear(clBlack);
  GState.GPS_enab:=false;
  LayerMapGPS.Visible:=false;
  NGPSconn.Checked:=false;
  TBGPSconn.Checked:=false;
+ except
+ end;
 end;
 
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
@@ -4725,29 +4721,6 @@ begin
   end;
 end;
 
-{
-procedure MergeBitmaps(BM1, BM2, BM3 : TBitmap; Alpha : byte);
-var
-  bf:TBlendFunction;
-begin
-//if not Assigned(BM3) then BM3:= TBitmap32.Create;
-BM3.Assign(BM1);
-bf.BlendOp:=AC_SRC_OVER;
-bf.BlendFlags:=0;
-bf.SourceConstantAlpha:=Alpha;//0-255
-bf.AlphaFormat:=0;// not use alpha-channel of bmp2
- 
-//if sizes of your source bmps are different, try uncomment
-// and see result
-//BM2.Width:=BM3.Width;
-//BM2.Height:=BM3.Height;
-
-AlphaBlend(BM3.Canvas.Handle,0,0,BM3.Width,BM3.Height,
-   BM2.canvas.handle,0,0,BM2.Width,BM2.Height,bf);
-end;
-
-
-}
 procedure TFmain.NanimateClick(Sender: TObject);
 begin
   GState.AnimateZoom := Nanimate.Checked;
@@ -4939,12 +4912,8 @@ end;
 
 procedure TFmain.TBXItem1Click(Sender: TObject);
 var ms:TMemoryStream;
-    pathstr,timeT1:string;
     url:string;
-    i,posit,posit2,endpos,dd,seconds,meters:integer;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    dateT1:TDateTime;
+    i:integer;
     kml:TKml;
     s,l:integer;
     conerr:boolean;
@@ -4987,16 +4956,9 @@ begin
 end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
-var
-  VPointEx: TExtendedPoint;
-  VPoint:TPoint;
-  VZoomCurr: Byte;
 begin
   if GState.GPS_enab then begin
-    VZoomCurr := GState.zoom_size - 1;
-    VPoint :=  sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],VZoomCurr);
-    sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-    if FAddPoint.show_(sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr), true) then
+    if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then
       generate_im(nilLastLoad,'');
   end;
 end;

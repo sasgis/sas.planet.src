@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 195
-  Top = 100
+  Left = 214
+  Top = 321
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 414
@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet5
+    ActivePage = TabSheet9
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1364,51 +1364,56 @@ object FSettings: TFSettings
         Caption = 'COM-'#1087#1086#1088#1090
       end
       object Label6: TLabel
-        Left = 40
-        Top = 83
+        Left = 8
+        Top = 51
         Width = 226
         Height = 13
-        Alignment = taRightJustify
         Caption = #1042#1088#1077#1084#1103' '#1086#1078#1080#1076#1072#1085#1080#1103' '#1086#1090#1074#1077#1090#1072' '#1086#1090' '#1087#1088#1080#1077#1084#1085#1080#1082#1072' ('#1089#1077#1082'.)'
       end
       object Label11: TLabel
-        Left = 106
-        Top = 107
+        Left = 8
+        Top = 91
         Width = 160
         Height = 13
-        Alignment = taRightJustify
         Caption = #1055#1077#1088#1080#1086#1076' '#1086#1073#1085#1086#1074#1083#1077#1085#1080#1103' ('#1089#1077#1082'./1000)'
       end
       object Label10: TLabel
-        Left = 40
-        Top = 275
+        Left = 8
+        Top = 139
         Width = 166
         Height = 13
-        Alignment = taRightJustify
         Caption = #1056#1072#1079#1084#1077#1088' '#1091#1082#1072#1079#1072#1090#1077#1083#1103' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1103':'
       end
       object Label12: TLabel
-        Left = 296
-        Top = 275
-        Width = 47
+        Left = 8
+        Top = 219
+        Width = 60
         Height = 13
-        Alignment = taRightJustify
-        Caption = #1045#1075#1086' '#1094#1074#1077#1090':'
+        Caption = #1062#1074#1077#1090' '#1090#1088#1077#1082#1072':'
       end
       object Label20: TLabel
-        Left = 132
-        Top = 299
+        Left = 8
+        Top = 179
         Width = 74
         Height = 13
-        Alignment = taRightJustify
         Caption = #1064#1080#1088#1080#1085#1072' '#1090#1088#1077#1082#1072':'
       end
       object Label65: TLabel
-        Left = 8
-        Top = 43
+        Left = 200
+        Top = 19
         Width = 48
         Height = 13
+        Alignment = taRightJustify
         Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+      end
+      object SBGetComNum: TSpeedButton
+        Left = 156
+        Top = 16
+        Width = 21
+        Height = 21
+        Caption = '?'
+        Margin = 5
+        OnClick = SBGetComNumClick
       end
       object ComboBoxCOM: TComboBox
         Left = 64
@@ -1420,8 +1425,8 @@ object FSettings: TFSettings
         Text = 'COM1'
       end
       object SpinEdit1: TSpinEdit
-        Left = 272
-        Top = 104
+        Left = 8
+        Top = 106
         Width = 57
         Height = 22
         MaxValue = 3600000
@@ -1430,8 +1435,8 @@ object FSettings: TFSettings
         Value = 100
       end
       object SpinEdit2: TSpinEdit
-        Left = 272
-        Top = 80
+        Left = 8
+        Top = 67
         Width = 57
         Height = 22
         MaxValue = 86400
@@ -1440,9 +1445,9 @@ object FSettings: TFSettings
         Value = 1
       end
       object GroupBox2: TGroupBox
-        Left = 8
-        Top = 181
-        Width = 265
+        Left = 376
+        Top = 261
+        Width = 241
         Height = 68
         Caption = ' '#1055#1086#1087#1088#1072#1074#1082#1072' '
         TabOrder = 3
@@ -1533,7 +1538,7 @@ object FSettings: TFSettings
         object lat2: TCurrencyEdit
           Left = 153
           Top = 16
-          Width = 48
+          Width = 40
           Height = 21
           AutoSize = False
           BorderStyle = bsNone
@@ -1546,9 +1551,9 @@ object FSettings: TFSettings
           TabOrder = 2
         end
         object lat3: TCurrencyEdit
-          Left = 201
+          Left = 193
           Top = 16
-          Width = 48
+          Width = 40
           Height = 21
           AutoSize = False
           BorderStyle = bsNone
@@ -1578,7 +1583,7 @@ object FSettings: TFSettings
         object lon2: TCurrencyEdit
           Left = 153
           Top = 38
-          Width = 48
+          Width = 40
           Height = 21
           AutoSize = False
           BorderStyle = bsNone
@@ -1591,9 +1596,9 @@ object FSettings: TFSettings
           TabOrder = 6
         end
         object lon3: TCurrencyEdit
-          Left = 201
+          Left = 193
           Top = 38
-          Width = 48
+          Width = 40
           Height = 21
           AutoSize = False
           BorderStyle = bsNone
@@ -1623,15 +1628,15 @@ object FSettings: TFSettings
       end
       object CB_GPSlog: TCheckBox
         Left = 8
-        Top = 136
+        Top = 272
         Width = 201
         Height = 17
         Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080
         TabOrder = 4
       end
       object SESizeStr: TSpinEdit
-        Left = 208
-        Top = 272
+        Left = 8
+        Top = 154
         Width = 57
         Height = 22
         MaxValue = 150
@@ -1640,8 +1645,8 @@ object FSettings: TFSettings
         Value = 100
       end
       object ColorBoxGPSstr: TColorBox
-        Left = 344
-        Top = 272
+        Left = 8
+        Top = 234
         Width = 105
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
@@ -1649,8 +1654,8 @@ object FSettings: TFSettings
         TabOrder = 6
       end
       object SESizeTrack: TSpinEdit
-        Left = 208
-        Top = 296
+        Left = 8
+        Top = 194
         Width = 57
         Height = 22
         MaxValue = 50
@@ -1659,8 +1664,8 @@ object FSettings: TFSettings
         Value = 50
       end
       object ComboBoxBoudRate: TComboBox
-        Left = 64
-        Top = 40
+        Left = 256
+        Top = 16
         Width = 89
         Height = 21
         ItemHeight = 13
@@ -1681,37 +1686,28 @@ object FSettings: TFSettings
           '57600'
           '115200')
       end
-      object Button16: TButton
-        Left = 160
-        Top = 16
-        Width = 75
-        Height = 21
-        Caption = #1054#1087#1088#1077#1076#1077#1083#1080#1090#1100
-        TabOrder = 9
-        OnClick = Button16Click
-      end
       object GroupBox3: TGroupBox
-        Left = 400
+        Left = 376
         Top = 8
-        Width = 217
-        Height = 225
+        Width = 241
+        Height = 249
         Caption = ' C'#1087#1091#1090#1085#1080#1082#1080' '
-        TabOrder = 10
+        TabOrder = 9
         object PaintBox1: TPaintBox
           Left = 8
           Top = 16
-          Width = 201
-          Height = 201
+          Width = 225
+          Height = 225
           OnPaint = PaintBox1Paint
         end
       end
       object CBSensorsBarAutoShow: TCheckBox
         Left = 8
-        Top = 152
+        Top = 288
         Width = 305
         Height = 17
         Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100'/'#1089#1082#1088#1099#1074#1072#1090#1100' '#1087#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
-        TabOrder = 11
+        TabOrder = 10
       end
     end
     object TabSheet8: TTabSheet

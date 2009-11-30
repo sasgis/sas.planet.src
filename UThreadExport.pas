@@ -759,7 +759,6 @@ begin
  png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
  png.CompressionLevel:=cMap;
  png.AddtEXt('src','SAS.Planet'+SASVersion);
-///png.Assign(bmp);
  TileStream:=TMemoryStream.Create;
  bmp32:=TBitmap32.Create;
  bmp32.DrawMode:=dmBlend;
@@ -869,7 +868,6 @@ begin
                     DEC(PngRGB, png.Width);
                    end;
                   png.Palette:=bmp8b.Palette;
-//                  png.SaveToFile('c:\1.png');
                   TileStream.Clear;
                   png.SaveToStream(TileStream);
                   WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)

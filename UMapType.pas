@@ -442,7 +442,6 @@ var
   bb:array [1..2048] of char;
   NumRead : integer;
   UnZip:TVCLZip;
-  b:double;
 begin
   if AZipFileName = '' then begin
     raise Exception.Create('Пустое имя файла с настройками карты');

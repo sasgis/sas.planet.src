@@ -1,9 +1,9 @@
 object FMarksExplorer: TFMarksExplorer
-  Left = 385
-  Top = 226
+  Left = 559
+  Top = 248
   BorderStyle = bsDialog
   Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
-  ClientHeight = 428
+  ClientHeight = 424
   ClientWidth = 577
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -470,7 +470,7 @@ object FMarksExplorer: TFMarksExplorer
       Top = 16
       Width = 29
       Height = 29
-      Hint = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100
       Glyph.Data = {
         B6050000424DB605000000000000360000002800000015000000160000000100
         1800000000008005000000000000000000000000000000000000FF00FFFF00FF

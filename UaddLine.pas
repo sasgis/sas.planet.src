@@ -17,12 +17,16 @@ uses
   Spin,
   StdCtrls,
   ExtCtrls,
+  TB2Item,
+  TBX,
+  TB2Dock,
+  TB2Toolbar,
   GR32,
   UGeofun,
   Unit1,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes, TB2Item, TBX, TB2Dock, TB2Toolbar;
+  t_GeoTypes;
 
 type
   TFaddLine = class(TForm)

@@ -11,6 +11,7 @@ uses
   GR32_Image,
   GR32_Layers,
   UMapType;
+
 type
   TMiniMap = class
   private
@@ -39,10 +40,11 @@ implementation
 
 uses
   Types,
+  SysUtils,
   GR32_Polygons,
   pngimage,
   UImgfun,
-  u_GlobalState, SysUtils;
+  u_GlobalState;
 
 const
 

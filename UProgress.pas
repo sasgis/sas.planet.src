@@ -5,8 +5,8 @@ interface
 uses
   Forms,
   windows,
-  Dialogs,
   messages,
+  Dialogs,
   ExtCtrls,
   StdCtrls,
   Controls,

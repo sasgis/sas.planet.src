@@ -138,6 +138,7 @@ begin
       Setlength(arLL,0);
       freeMem(arrLL);
       ms.Free;
+      Fmain.CDSmarks.Filtered:=false;
       exit;
      end;
     j:=1;
@@ -155,6 +156,7 @@ begin
                  Setlength(arLL,0);
                  freeMem(arrLL);
                  ms.Free;
+                 Fmain.CDSmarks.Filtered:=false;
                  exit;
                 end;
         inc(j);
@@ -175,6 +177,7 @@ begin
   end;
   Fmain.CDSmarks.Next;
  end;
+ Fmain.CDSmarks.Filtered:=false;
 end;
 
 procedure TFGoTo.FormActivate(Sender: TObject);
