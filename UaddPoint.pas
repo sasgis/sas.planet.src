@@ -166,7 +166,7 @@ begin
 end;
 
 procedure TFaddPoint.BaddClick(Sender: TObject);
-var s:string;
+var
     ms:TMemoryStream;
     All:TExtendedPoint;
 begin

@@ -1376,9 +1376,8 @@ begin
 end;
 
 procedure TFmain.UpdateGPSsensors;
-var i:integer;
+var
     s_len,n_len:string;
-    VPoint1,VPoint2:TPoint;
     sps:_SYSTEM_POWER_STATUS;
 begin
  try
@@ -1427,9 +1426,7 @@ var i,speed,SizeTrackd2:integer;
     TanOfAngle:Extended;
     dl: integer;
     Polygon: TPolygon32;
-    s_speed,s_len,n_len:string;
     polygon_line: TPolygon32;
-    VPoint1, VPoint2: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
@@ -1759,7 +1756,6 @@ end;
 
 procedure TFmain.draw_point;
 var LLRect:TExtendedRect;
-    i:integer;
     xy:Tpoint;
     btm:TBitmap32;
     TestArrLenP1,TestArrLenP2:TPoint;
@@ -1771,7 +1767,6 @@ var LLRect:TExtendedRect;
     marksFilter:string;
     VZoomCurr: Byte;
     VRect: TRect;
-    bd:TBlobByteData;
 begin
  if (GState.show_point = mshNone) then
   begin
@@ -2343,8 +2338,7 @@ end;
 
 procedure TFmain.FormActivate(Sender: TObject);
 var
-     i,r:integer;
-     xy,xy1:Tpoint;
+     i:integer;
      param:string;
      MainWindowMaximized: Boolean;
      VLoadedSizeInPixel: TPoint;
@@ -2700,7 +2694,6 @@ procedure TFmain.zooming(x:byte;move:boolean);
 var w,i,steps,d_moveH,d_moveW:integer;
     w1:extended;
     ts1,ts2,fr:int64;
-    VExtPoint: TExtendedPoint;
     VNewScreenCenterPos: TPoint;
 begin
  if x<=1  then TBZoom_Out.Enabled:=false
@@ -5117,12 +5110,8 @@ end;
 
 procedure TFmain.TBXItem1Click(Sender: TObject);
 var ms:TMemoryStream;
-    pathstr,timeT1:string;
     url:string;
-    i,posit,posit2,endpos,dd,seconds,meters:integer;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    dateT1:TDateTime;
+    i:integer;
     kml:TKml;
     s,l:integer;
     conerr:boolean;
@@ -5165,8 +5154,6 @@ begin
 end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
-var
-  VPointEx: TExtendedPoint;
 begin
   if GState.GPS_enab then begin
     if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then

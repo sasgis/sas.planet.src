@@ -37,7 +37,7 @@ type
     FElapsedTime: TDateTime;
     FStartTime: TDateTime;
     _FProgress:TFProgress;
-    AddToMemo,TimeEnd,LenEnd:string;
+    AddToMemo:string;
     procedure UpdateMemoProgressForm;
     procedure UpdateMemoAddProgressForm;
     procedure SetProgressForm;
