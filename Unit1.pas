@@ -636,8 +636,6 @@ class   procedure delfrompath(pos:integer);
 const
   SASVersion='91111';
   CProgram_Lang_Default = LANG_RUSSIAN;
-//  ENU=LANG_ENGLISH;
-//  RUS=LANG_RUSSIAN;// $00000419;
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; //  онстанта дл€ преобразовани€ радиан в градусы
   zoom:array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
@@ -1140,7 +1138,6 @@ begin
                                          else begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
-                                               //LayerMapNal.Bitmap.Clear(clBlack);
                                                drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
@@ -1477,7 +1474,6 @@ begin
   R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
   if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
                                          else TanOfAngle:=MaxExtended/100
-              //TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
   ke.x:=ke.X+(ke.X-ks.X);
@@ -1759,9 +1755,7 @@ var LLRect:TExtendedRect;
     xy:Tpoint;
     btm:TBitmap32;
     TestArrLenP1,TestArrLenP2:TPoint;
-    //arrLL:PArrLL;
     buf_line_arr:TExtendedPointArray;
-    //ms:TMemoryStream;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
@@ -4896,29 +4890,6 @@ begin
   end;
 end;
 
-{
-procedure MergeBitmaps(BM1, BM2, BM3 : TBitmap; Alpha : byte);
-var
-  bf:TBlendFunction;
-begin
-//if not Assigned(BM3) then BM3:= TBitmap32.Create;
-BM3.Assign(BM1);
-bf.BlendOp:=AC_SRC_OVER;
-bf.BlendFlags:=0;
-bf.SourceConstantAlpha:=Alpha;//0-255
-bf.AlphaFormat:=0;// not use alpha-channel of bmp2
- 
-//if sizes of your source bmps are different, try uncomment
-// and see result
-//BM2.Width:=BM3.Width;
-//BM2.Height:=BM3.Height;
-
-AlphaBlend(BM3.Canvas.Handle,0,0,BM3.Width,BM3.Height,
-   BM2.canvas.handle,0,0,BM2.Width,BM2.Height,bf);
-end;
-
-
-}
 procedure TFmain.NanimateClick(Sender: TObject);
 begin
   GState.AnimateZoom := Nanimate.Checked;
