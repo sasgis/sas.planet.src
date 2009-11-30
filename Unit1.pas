@@ -1191,105 +1191,127 @@ begin
   end;
 end;
 
-
 procedure TFmain.drawRect(Shift:TShiftState);
-var  i,d256,kz,jj,j,bxy:integer;
-     xy1,xy2:TPoint;
-     zLonR,zLatR:extended;
-     LonLatLT,LonLatRD:TExtendedPoint;
-     Poly:  TExtendedPointArray;
+var kz,jj,bxy:integer;
+    xy1,xy2:TPoint;
+    zLonR,zLatR:extended;
+    Poly:  TExtendedPointArray;
+    VSelectedLonLat: TExtendedRect;
+    VSelectedPixels: TRect;
+    VZoomCurr: Byte;
+    VSelectedTiles: TRect;
+    VZoomDelta: Byte;
+    VSelectedRelative: TExtendedRect;
+    VColor: TColor32;
 begin
-  xy1:=sat_map_both.GeoConvert.LonLat2PixelPos(rect_arr[0],GState.zoom_size-1);
-  xy2:=sat_map_both.GeoConvert.LonLat2PixelPos(rect_arr[1],GState.zoom_size-1);
+  VSelectedLonLat.TopLeft := rect_arr[0];
+  VSelectedLonLat.BottomRight := rect_arr[1];
+  VZoomCurr := GState.zoom_size - 1;
+  VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
+
   LayerMapNal.Location:=floatrect(MapLayerLocationRect);
   LayerMapNal.Bitmap.Clear(clBlack);
-  if (zoom_line in [99,0])or(zoom_line<GState.zoom_size)
-   then d256:=256
-   else d256:=256 div round(power(2,zoom_line-GState.zoom_size));
-  if xy1.x>xy2.x then begin
-    bxy:=xy2.x;
-    xy2.x:=xy1.x;
-    xy1.x:=bxy;
+
+  if VSelectedPixels.Left > VSelectedPixels.Right then begin
+    bxy := VSelectedPixels.Left;
+    VSelectedPixels.Left := VSelectedPixels.Right;
+    VSelectedPixels.Right := bxy;
   end;
-  if xy1.y>xy2.y then begin
-    bxy:=xy2.y;
-    xy2.y:=xy1.y;
-    xy1.y:=bxy;
+
+  if VSelectedPixels.Top > VSelectedPixels.Bottom then begin
+    bxy := VSelectedPixels.Top;
+    VSelectedPixels.Top := VSelectedPixels.Bottom;
+    VSelectedPixels.Bottom := bxy;
   end;
+
   if (ssCtrl in Shift) then begin
-    xy1.x:=(xy1.x-(xy1.x mod d256));
-    xy1.y:=(xy1.y-(xy1.y mod d256));
-    xy2.x:=((xy2.x+d256)-((xy2.x+d256) mod d256));
-    xy2.y:=((xy2.y+d256)-((xy2.y+d256) mod d256));
+    VSelectedTiles := sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
+    VSelectedPixels := sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
   end;
+  VSelectedLonLat := sat_map_both.GeoConvert.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
 
   if (ssShift in Shift)and(GState.GShScale>0) then begin
     case GState.GShScale of
-       1000000: begin zLonR:=6; zLatR:=4; end;
-         50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
-         25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
-         10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
+      1000000: begin zLonR:=6; zLatR:=4; end;
+       500000: begin zLonR:=3; zLatR:=2; end;
+       200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
+       100000: begin zLonR:=0.5; zLatR:=0.33333333333333333333333333333333; end;
+        50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
+        25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
+        10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
+      else begin zLonR:=6; zLatR:=4; end
     end;
-    LonLatLT:=sat_map_both.GeoConvert.PixelPos2LonLat(xy1,GState.zoom_size-1);
-    LonLatLT.X:=LonLatLT.X-(round(LonLatLT.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-    LonLatLT.Y:=LonLatLT.Y-(round(LonLatLT.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-    if LonLatLT.X<0 then LonLatLT.X:=LonLatLT.X-zLonR;
-    if LonLatLT.Y>0 then LonLatLT.Y:=LonLatLT.Y+zLatR;
-    xy1:=sat_map_both.GeoConvert.LonLat2PixelPos(LonLatLT,GState.zoom_size-1);
 
-    LonLatRD:=sat_map_both.GeoConvert.PixelPos2LonLat(xy2,GState.zoom_size-1);
-    LonLatRD.X:=LonLatRD.X-(round(LonLatRD.X*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-    LonLatRD.Y:=LonLatRD.Y-(round(LonLatRD.Y*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-    if LonLatRD.X>=0 then LonLatRD.X:=LonLatRD.X+zLonR;
-    if LonLatRD.Y<=0 then LonLatRD.Y:=LonLatRD.Y-zLatR;
-    xy2:=sat_map_both.GeoConvert.LonLat2PixelPos(LonLatRD,GState.zoom_size-1);
-    if (rect_p2) then
-     begin
-      SetLength(Poly, 5);
-      Poly[0]:=LonLatLT;
-      Poly[1]:=extPoint(LonLatRD.X,LonLatLT.Y);
-      Poly[2]:=LonLatRD;
-      Poly[3]:=extPoint(LonLatLT.X,LonLatRD.Y);
-      Poly[4]:=LonLatLT;
-      fsaveas.Show_(GState.zoom_size,Poly);
-      Poly := nil;
-      rect_p2:=false;
-      exit;
-     end;
+    VSelectedLonLat.Left := VSelectedLonLat.Left-(round(VSelectedLonLat.Left*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Left < 0 then VSelectedLonLat.Left := VSelectedLonLat.Left-zLonR;
+
+    VSelectedLonLat.Top := VSelectedLonLat.Top-(round(VSelectedLonLat.Top*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Top > 0 then VSelectedLonLat.Top := VSelectedLonLat.Top+zLatR;
+
+    VSelectedLonLat.Right := VSelectedLonLat.Right-(round(VSelectedLonLat.Right*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Right >= 0 then VSelectedLonLat.Right := VSelectedLonLat.Right+zLonR;
+
+    VSelectedLonLat.Bottom := VSelectedLonLat.Bottom-(round(VSelectedLonLat.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+    if VSelectedLonLat.Bottom <= 0 then VSelectedLonLat.Bottom := VSelectedLonLat.Bottom-zLatR;
+
+    VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
   end;
   if (rect_p2) then begin
     SetLength(Poly, 5);
-    Poly[0]:=sat_map_both.GeoConvert.PixelPos2LonLat(xy1,GState.zoom_size-1);
-    Poly[1]:=sat_map_both.GeoConvert.PixelPos2LonLat(Point(xy2.X,xy1.Y),GState.zoom_size-1);
-    Poly[2]:=sat_map_both.GeoConvert.PixelPos2LonLat(xy2,GState.zoom_size-1);
-    Poly[3]:=sat_map_both.GeoConvert.PixelPos2LonLat(Point(xy1.X,xy2.Y),GState.zoom_size-1);
-    Poly[4]:=sat_map_both.GeoConvert.PixelPos2LonLat(xy1,GState.zoom_size-1);
+    Poly[0] := VSelectedLonLat.TopLeft;
+    Poly[1] := ExtPoint(VSelectedLonLat.Right, VSelectedLonLat.Top);
+    Poly[2] := VSelectedLonLat.BottomRight;
+    Poly[3] := ExtPoint(VSelectedLonLat.Left, VSelectedLonLat.Bottom);
+    Poly[4] := VSelectedLonLat.TopLeft;
     fsaveas.Show_(GState.zoom_size, Poly);
     Poly := nil;
     rect_p2:=false;
     exit;
   end;
   if not(rect_dwn) then exit;
-  xy1 := MapPixel2LoadedPixel(xy1);
+
+  xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
   xy1.x:=xy1.x+1;
   xy1.y:=xy1.y+1;
-  xy2 := MapPixel2LoadedPixel(xy2);
+  xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
   xy2.x:=xy2.x-1;
   xy2.y:=xy2.y-1;
 
   LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
   LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
   LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
-  kz:=256;
-  while kz>=32 do begin
-    i:=xy1.x-kz; while ((ScreenCenterPos.X-(pr_x-i))mod kz)<>0 do inc(i);
-    j:=xy1.y-kz; while ((ScreenCenterPos.Y-(pr_y-j))mod kz)<>0 do inc(j);
-    jj:= round(Log2(kz))-5;
-    LayerMapNal.Bitmap.FrameRectS(i-jj,j-jj,i+((xy2.x+kz-i)div kz)*kz+jj,j+((xy2.y+kz-j)div kz)*kz+jj,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
+
+  VSelectedRelative := sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+
+  jj := VZoomCurr;
+  VZoomDelta := 0;
+  while (VZoomDelta < 3) and (jj < 24) do begin
+    VSelectedTiles := sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
+    VSelectedPixels := sat_map_both.GeoConvert.RelativeRect2PixelRect(
+      sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles,jj), VZoomCurr
+    );
+
+    xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
+    xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+
+    kz := 256 shr VZoomDelta;
+    VColor := SetAlpha(RGB(kz-1,kz-1,kz-1),255);
+
+    LayerMapNal.Bitmap.FrameRectS(
+      xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
+      xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
+      VColor
+    );
+
     LayerMapNal.Bitmap.Font.Size:=11;
-    LayerMapNal.Bitmap.RenderText(xy2.x-((xy2.x-xy1.x)div 2)-42+jj*26,xy2.y-((xy2.y-xy1.y)div 2)-6,'x'+inttostr(GState.zoom_size+3-jj),3,SetAlpha(RGB(kz-1,kz-1,kz-1),255));
-    kz:=kz div 2;
-   end;
+    LayerMapNal.Bitmap.RenderText(
+      xy2.x-((xy2.x-xy1.x)div 2)-42 + VZoomDelta*26,
+      xy2.y-((xy2.y-xy1.y)div 2)-6,
+      'x'+inttostr(jj+1),3,VColor
+    );
+    Inc(jj);
+    Inc(VZoomDelta);
+  end;
 end;
 
 procedure TFmain.drawReg;
