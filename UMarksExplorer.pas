@@ -397,9 +397,6 @@ begin
  Fmain.CDSmarks.Edit;
  Fmain.CDSmarks.FieldByName('visible').AsBoolean:=MarksListBox.Checked[MarksListBox.ItemIndex];
  Fmain.CDSmarks.Post;
-{ Fmain.CDSmarks.ApplyRange;
- Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);   }
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -440,9 +437,6 @@ begin
  Fmain.CDSmarks.First;
  while not(Fmain.CDSmarks.Eof) do
    Fmain.CDSmarks.Delete;
-{ Fmain.CDSmarks.ApplyRange;
- Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);  }
  Fmain.CDSKategory.Delete;
  SaveCategory2File;
  KategoryListBox.Items.Objects[KategoryListBox.ItemIndex].Free;

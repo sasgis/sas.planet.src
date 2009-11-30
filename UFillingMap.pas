@@ -195,7 +195,7 @@ begin
         end;
         inc(imd256y,d2562)
       end;
-      if (GetTickCount-tc>1000){((i+1) mod 30 = 0 )} then begin
+      if (GetTickCount-tc>1000) then begin
         tc:=GetTickCount;
         Synchronize(UpdateLayer);
       end;

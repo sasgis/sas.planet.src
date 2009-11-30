@@ -1804,19 +1804,6 @@ begin
 
  CDSmarks.Filter:=marksFilter;
  CDSmarks.Filtered:=true;
-{ CDSmarks.SetRangeStart;
- CDSmarks.FieldValues['LonR']:=LLRect.Left;
- CDSmarks.FieldValues['LatT']:=LLRect.Bottom;
- CDSmarks.FieldValues['LonL']:=LLRect.Left;
- CDSmarks.FieldValues['LatB']:=LLRect.Bottom;
- CDSmarks.FieldValues['visible']:=1;
- CDSmarks.SetRangeEnd;
- CDSmarks.FieldValues['LonR']:=LLRect.Right;
- CDSmarks.FieldValues['LatT']:=LLRect.Top;
- CDSmarks.FieldValues['LonL']:=LLRect.Right;
- CDSmarks.FieldValues['LatB']:=LLRect.Top;
- CDSmarks.FieldValues['visible']:=1;
- CDSmarks.ApplyRange;  }
 
  CDSmarks.First;
  if CDSmarks.Eof then begin
