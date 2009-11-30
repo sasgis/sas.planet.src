@@ -47,6 +47,7 @@ implementation
 
 uses
   Unit1,
+  UMarksExplorer,
   u_GlobalState;
 
 {$R *.dfm}
@@ -77,9 +78,8 @@ begin
  Fmain.CDSKategory.FieldByName('AfterScale').AsInteger:=EditS1.Value;
  Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=EditS2.Value;
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CBShow.Checked;
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+ Fmain.CDSKategory.Post;
+ SaveCategory2File;
 end;
 
 end.

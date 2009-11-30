@@ -11,6 +11,7 @@ uses
   Graphics,
   Controls,
   Forms,
+  DB,
   Dialogs,
   StdCtrls,
   CheckLst,
@@ -19,7 +20,8 @@ uses
   ExtCtrls,
   DBClient,
   UResStrings,
-  UGeoFun;
+  UGeoFun,
+  t_GeoTypes;
 
 type
   TFMarksExplorer = class(TForm)
@@ -95,12 +97,14 @@ var
   procedure GoToMark(id:integer;zoom:byte);
   function GetMarkLength(id:integer):extended;
   function GetMarkSq(id:integer):extended;
+  function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+  function SaveMarks2File:boolean;
+  function SaveCategory2File:boolean;
 
 implementation
 
 uses
   Math,
-  DB,
   t_CommonTypes,
   u_GlobalState,
   Unit1,
@@ -110,10 +114,35 @@ uses
   UaddLine,
   UImport,
   UMapType,
-  UAddCategory,
-  t_GeoTypes;
+  UAddCategory;
 
 {$R *.dfm}
+function SaveMarks2File:boolean;
+var ms:TMemoryStream;
+begin
+ Fmain.CDSmarks.MergeChangeLog;
+ ms:=TMemoryStream.Create;
+ ms.Write(Fmain.CDSmarks.XMLData[1],length(Fmain.CDSmarks.XMLData));
+ ms.SaveToFile(GState.MarksFileName);
+ ms.Free;
+end;
+
+function SaveCategory2File:boolean;
+var ms:TMemoryStream;
+begin
+ Fmain.CDSKategory.MergeChangeLog;
+ ms:=TMemoryStream.Create;
+ ms.Write(Fmain.CDSKategory.XMLData[1],length(Fmain.CDSKategory.XMLData));
+ ms.SaveToFile(GState.MarksCategoryFileName);
+ ms.Free;
+end;
+
+function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+begin
+  SetLength(result,TBlobfield(BlobField).BlobSize div 24);
+  CopyMemory(@result[0],@TBlobfield(Blobfield).Value[1],TBlobfield(BlobField).BlobSize);
+end;
+
 function EditMark(id:integer):boolean;
 var arrLL:PArrLL;
     arLL:array of TExtendedPoint;
@@ -167,9 +196,8 @@ begin
  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=true;
  Fmain.CDSKategory.FieldByName('AfterScale').AsInteger:=3;
  Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=18;
- Fmain.CDSKategory.ApplyRange;
- Fmain.CDSKategory.MergeChangeLog;
- Fmain.CDSKategory.SaveToFile(GState.MarksCategoryFileName,dfXMLUTF8);
+ Fmain.CDSKategory.post;
+ SaveCategory2File;
 end;
 
 procedure TFMarksExplorer.FormShow(Sender: TObject);
@@ -230,6 +258,7 @@ end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
+ SaveMarks2File;
  if RBall.Checked then GState.show_point := mshAll;
  if RBchecked.Checked then GState.show_point := mshChecked;
  if RBnot.Checked then GState.show_point := mshNone;
@@ -244,9 +273,7 @@ begin
   then exit;
  Fmain.CDSmarks.Locate('id',id,[]);
  Fmain.CDSmarks.Delete;
- Fmain.CDSmarks.ApplyRange;
- Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ SaveMarks2File;
  result:=true;
 end;
 
@@ -539,6 +566,7 @@ end;
 
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
 begin
+ SaveMarks2File;
  fmain.generate_im(nilLastLoad,'');
 end;
 

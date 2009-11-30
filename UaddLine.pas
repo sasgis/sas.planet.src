@@ -160,9 +160,8 @@ begin
  if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
   then AddKategory(CBKateg.Text);
  Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
- Fmain.CDSmarks.ApplyRange;
- Fmain.CDSmarks.MergeChangeLog;
- Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
+ Fmain.CDSmarks.Post;
+ SaveMarks2File;
  close;
  ModalResult:=mrOk;
 end;

@@ -675,6 +675,7 @@ var
   GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
   NavOnMark:TNavOnMark;
+  paintMark:boolean;
 
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
