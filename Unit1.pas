@@ -650,7 +650,6 @@ var
   Fmain:TFmain;
   PWL:TResObj;
 
-  zoom_line,
   poly_zoom_save:byte;
   marshrutcomment:string;
   mWd2,
@@ -1203,10 +1202,13 @@ var kz,jj,bxy:integer;
     VZoomDelta: Byte;
     VSelectedRelative: TExtendedRect;
     VColor: TColor32;
+    VTileGridZoom: byte;
 begin
   VSelectedLonLat.TopLeft := rect_arr[0];
   VSelectedLonLat.BottomRight := rect_arr[1];
   VZoomCurr := GState.zoom_size - 1;
+  sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
+  sat_map_both.GeoConvert.CheckLonLatRect(VSelectedLonLat);
   VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
 
   LayerMapNal.Location:=floatrect(MapLayerLocationRect);
@@ -1225,8 +1227,17 @@ begin
   end;
 
   if (ssCtrl in Shift) then begin
-    VSelectedTiles := sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
-    VSelectedPixels := sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
+    if (GState.TileGridZoom = 0) or (GState.TileGridZoom = 99) then begin
+      VSelectedTiles := sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
+      VSelectedPixels := sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
+    end else begin
+      VTileGridZoom := GState.TileGridZoom - 1;
+      sat_map_both.GeoConvert.CheckZoom(VTileGridZoom);
+      VSelectedRelative := sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+      VSelectedTiles := sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
+      VSelectedRelative := sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
+      VSelectedPixels := sat_map_both.GeoConvert.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
+    end;
   end;
   VSelectedLonLat := sat_map_both.GeoConvert.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
 
@@ -1263,6 +1274,8 @@ begin
     Poly[2] := VSelectedLonLat.BottomRight;
     Poly[3] := ExtPoint(VSelectedLonLat.Left, VSelectedLonLat.Bottom);
     Poly[4] := VSelectedLonLat.TopLeft;
+    rect_arr[0] := VSelectedLonLat.TopLeft;
+    rect_arr[1] := VSelectedLonLat.BottomRight;
     fsaveas.Show_(GState.zoom_size, Poly);
     Poly := nil;
     rect_p2:=false;
@@ -2130,10 +2143,10 @@ var
     VTilesLineRect: TRect;
 begin
   VCurrentZoom := GState.zoom_size - 1;
-  if zoom_line=99 then begin
+  if GState.TileGridZoom=99 then begin
     VGridZoom := VCurrentZoom;
   end else begin
-    VGridZoom := zoom_line - 1;
+    VGridZoom := GState.TileGridZoom - 1;
   end;
   if (VGridZoom < VCurrentZoom) or (VGridZoom - VCurrentZoom > 5) then exit;
 
@@ -2500,7 +2513,7 @@ begin
  GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
  GState.zoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',0);
- zoom_line:=GState.MainIni.readinteger('VIEW','grid',0);
+ GState.TileGridZoom:=GState.MainIni.readinteger('VIEW','grid',0);
  GState.MouseWheelInv:=GState.MainIni.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
  GState.num_format:= TDistStrFormat(GState.MainIni.Readinteger('VIEW','NumberFormat',0));
@@ -3351,22 +3364,22 @@ end;
 
 procedure TFmain.N000Click(Sender: TObject);
 begin
- zoom_line:=TMenuItem(Sender).Tag;
+ GState.TileGridZoom:=TMenuItem(Sender).Tag;
  generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NShowGranClick(Sender: TObject);
 var i:integer;
 begin
- if zoom_line=0 then NShowGran.Items[0].Checked:=true;
- if zoom_line=99 then NShowGran.Items[1].Checked:=true;
+ if GState.TileGridZoom=0 then NShowGran.Items[0].Checked:=true;
+ if GState.TileGridZoom=99 then NShowGran.Items[1].Checked:=true;
  NShowGran.Items[1].Caption:=SAS_STR_activescale+' (õ'+inttostr(GState.zoom_size)+')';
  for i:=2 to 7 do
   if GState.zoom_size+i-2<24 then begin
                             NShowGran.Items[i].Caption:=SAS_STR_for+' õ'+inttostr(GState.zoom_size+i-2);
                             NShowGran.Items[i].Visible:=true;
                             NShowGran.Items[i].Tag:=GState.zoom_size+i-2;
-                            if NShowGran.Items[i].Tag=zoom_line then NShowGran.Items[i].Checked:=true
+                            if NShowGran.Items[i].Tag=GState.TileGridZoom then NShowGran.Items[i].Checked:=true
                                                                 else NShowGran.Items[i].Checked:=false;
                            end
                       else NShowGran.Items[i].Visible:=false;
