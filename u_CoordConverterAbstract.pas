@@ -117,20 +117,20 @@ type
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
 
-    procedure CheckZoom(var AZoom: Byte); virtual; stdcall;
-    procedure CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
-    procedure CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
-    procedure CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+    function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall;
+    function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall;
+    function CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall;
+    function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall;
 
-    procedure CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
-    procedure CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
-    procedure CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); virtual; stdcall;
+    function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall;
+    function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall;
+    function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall;
 
-    procedure CheckRelativePos(var XY: TExtendedPoint); virtual; stdcall;
-    procedure CheckRelativeRect(var XY: TExtendedRect); virtual; stdcall;
+    function CheckRelativePos(var XY: TExtendedPoint): boolean; virtual; stdcall;
+    function CheckRelativeRect(var XY: TExtendedRect): boolean; virtual; stdcall;
 
-    procedure CheckLonLatPos(var XY: TExtendedPoint); virtual; stdcall;
-    procedure CheckLonLatRect(var XY: TExtendedRect); virtual; stdcall;
+    function CheckLonLatPos(var XY: TExtendedPoint): boolean; virtual; stdcall;
+    function CheckLonLatRect(var XY: TExtendedRect): boolean; virtual; stdcall;
 
     procedure AfterConstruction; override;
   end;
@@ -572,22 +572,27 @@ end;
 
 
 //------------------------------------------------------------------------------
-procedure TCoordConverterAbstract.CheckZoom(var AZoom: Byte);
+function TCoordConverterAbstract.CheckZoom(var AZoom: Byte): boolean;
 begin
+  Result := True;
   if AZoom > 23 then begin
     AZoom := 23;
+    Result := False;
   end;
 end;
-procedure TCoordConverterAbstract.CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+function TCoordConverterAbstract.CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VTilesAtZoom: Integer;
 begin
+  Result := True;
   if AZoom > 23 then begin
     AZoom := 23;
+    Result := False;
   end;
   VTilesAtZoom := TilesAtZoom(Azoom);
 
   if XY.X < 0 then begin
+    Result := False;
     if ACicleMap  then begin
       XY.X := XY.X mod VTilesAtZoom + VTilesAtZoom;
     end else begin
@@ -595,6 +600,7 @@ begin
     end;
   end else begin
     if XY.X > VTilesAtZoom then begin
+      Result := False;
       if ACicleMap  then begin
         XY.X := XY.X mod VTilesAtZoom;
       end else begin
@@ -604,23 +610,28 @@ begin
   end;
 
   if XY.Y < 0 then begin
+    Result := False;
     XY.Y := 0;
   end else begin
     if XY.Y > VTilesAtZoom then begin
+      Result := False;
       XY.Y := VTilesAtZoom;
     end;
   end;
 end;
-procedure TCoordConverterAbstract.CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean);
+function TCoordConverterAbstract.CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VTilesAtZoom: Integer;
 begin
+  Result := True;
   if AZoom > 23 then begin
+    Result := False;
     AZoom := 23;
   end;
   VTilesAtZoom := TilesAtZoom(Azoom);
 
   if XY.Left < 0 then begin
+    Result := False;
     if ACicleMap  then begin
       XY.Left := XY.Left mod VTilesAtZoom + VTilesAtZoom;
     end else begin
@@ -628,6 +639,7 @@ begin
     end;
   end else begin
     if XY.Left >= VTilesAtZoom then begin
+      Result := False;
       if ACicleMap  then begin
         XY.Left := XY.Left mod VTilesAtZoom;
       end else begin
@@ -637,14 +649,17 @@ begin
   end;
 
   if XY.Top < 0 then begin
+    Result := False;
     XY.Top := 0;
   end else begin
     if XY.Top >= VTilesAtZoom then begin
+      Result := False;
       XY.Top := VTilesAtZoom - 1;
     end;
   end;
 
   if XY.Right < 0 then begin
+    Result := False;
     if ACicleMap  then begin
       XY.Right := XY.Right mod VTilesAtZoom + VTilesAtZoom;
     end else begin
@@ -652,6 +667,7 @@ begin
     end;
   end else begin
     if XY.Right >= VTilesAtZoom then begin
+      Result := False;
       if ACicleMap  then begin
         XY.Right := XY.Right mod VTilesAtZoom;
       end else begin
@@ -661,24 +677,29 @@ begin
   end;
 
   if XY.Bottom < 0 then begin
+    Result := False;
     XY.Bottom := 0;
   end else begin
     if XY.Bottom >= VTilesAtZoom then begin
+      Result := False;
       XY.Bottom := VTilesAtZoom - 1;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+function TCoordConverterAbstract.CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VTilesAtZoom: Integer;
 begin
+  Result := True;
   if AZoom > 23 then begin
+    Result := False;
     AZoom := 23;
   end;
   VTilesAtZoom := TilesAtZoom(Azoom);
 
   if XY.X < 0 then begin
+    Result := False;
     if ACicleMap  then begin
       XY.X := XY.X mod VTilesAtZoom + VTilesAtZoom;
     end else begin
@@ -686,6 +707,7 @@ begin
     end;
   end else begin
     if XY.X >= VTilesAtZoom then begin
+      Result := False;
       if ACicleMap  then begin
         XY.X := XY.X mod VTilesAtZoom;
       end else begin
@@ -695,24 +717,29 @@ begin
   end;
 
   if XY.Y < 0 then begin
+    Result := False;
     XY.Y := 0;
   end else begin
     if XY.Y >= VTilesAtZoom then begin
+      Result := False;
       XY.Y := VTilesAtZoom - 1;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+function TCoordConverterAbstract.CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VPixelsAtZoom: Integer;
 begin
+  Result := True;
   if AZoom > 23 then begin
+    Result := False;
     AZoom := 23;
   end;
   VPixelsAtZoom := PixelsAtZoom(Azoom);
 
   if XY.X < 0 then begin
+    Result := False;
     if (Azoom < 23) then begin
       if ACicleMap  then begin
         XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
@@ -730,6 +757,7 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
+      Result := False;
       if ACicleMap  then begin
         XY.X := XY.X mod VPixelsAtZoom;
       end else begin
@@ -739,26 +767,31 @@ begin
   end;
 
   if XY.Y < 0 then begin
+    Result := False;
     if (Azoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
       XY.Y := 0;
     end;
   end else begin
     if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      Result := False;
       XY.Y := VPixelsAtZoom;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean);
+function TCoordConverterAbstract.CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VPixelsAtZoom: Integer;
 begin
+  Result := True;
   if AZoom > 23 then begin
+    Result := False;
     AZoom := 23;
   end;
   VPixelsAtZoom := PixelsAtZoom(Azoom);
 
   if XY.Left < 0 then begin
+    Result := False;
     if ACicleMap then begin
       XY.Left := XY.Left mod VPixelsAtZoom + VPixelsAtZoom;
     end else begin
@@ -766,6 +799,7 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.Left >= VPixelsAtZoom) then begin
+      Result := False;
       if ACicleMap then begin
         XY.Left := XY.Left mod VPixelsAtZoom;
       end else begin
@@ -775,14 +809,17 @@ begin
   end;
 
   if XY.Top < 0 then begin
+    Result := False;
     XY.Top := 0;
   end else begin
     if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+      Result := False;
       XY.Top := VPixelsAtZoom - 1;
     end;
   end;
 
   if XY.Right < 0 then begin
+    Result := False;
     if ACicleMap then begin
       XY.Right := XY.Right mod VPixelsAtZoom + VPixelsAtZoom;
     end else begin
@@ -790,6 +827,7 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.Right >= VPixelsAtZoom) then begin
+      Result := False;
       if ACicleMap then begin
         XY.Right := XY.Right mod VPixelsAtZoom;
       end else begin
@@ -799,23 +837,28 @@ begin
   end;
 
   if XY.Bottom < 0 then begin
+    Result := False;
     XY.Bottom := 0;
   end else begin
     if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+      Result := False;
       XY.Bottom := VPixelsAtZoom - 1;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean);
+function TCoordConverterAbstract.CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VPixelsAtZoom: Integer;
 begin
+  Result := True;
   if AZoom > 23 then begin
+    Result := False;
     AZoom := 23;
   end;
   VPixelsAtZoom := PixelsAtZoom(Azoom);
   if XY.X < 0 then begin
+    Result := False;
     if ACicleMap  then begin
       XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
     end else begin
@@ -823,6 +866,7 @@ begin
     end;
   end else begin
     if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+      Result := False;
       if ACicleMap  then begin
         XY.X := XY.X mod VPixelsAtZoom;
       end else begin
@@ -832,114 +876,144 @@ begin
   end;
 
   if XY.Y < 0 then begin
+    Result := False;
     XY.Y := 0;
   end else begin
     if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+      Result := False;
       XY.Y := VPixelsAtZoom - 1;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckRelativePos(var XY: TExtendedPoint);
+function TCoordConverterAbstract.CheckRelativePos(var XY: TExtendedPoint): boolean;
 begin
+  Result := True;
   if XY.X < 0 then begin
+    Result := False;
     XY.X := 0;
   end else begin
     if XY.X > 1 then begin
+      Result := False;
       XY.X := 1;
     end;
   end;
 
   if XY.Y < 0 then begin
+    Result := False;
     XY.Y := 0;
   end else begin
     if XY.Y > 1 then begin
+      Result := False;
       XY.Y := 1;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckRelativeRect(var XY: TExtendedRect);
+function TCoordConverterAbstract.CheckRelativeRect(var XY: TExtendedRect): boolean;
 begin
+  Result := True;
   if XY.Left < 0 then begin
+    Result := False;
     XY.Left := 0;
   end else begin
     if XY.Left > 1 then begin
+      Result := False;
       XY.Left := 1;
     end;
   end;
 
   if XY.Top < 0 then begin
+    Result := False;
     XY.Top := 0;
   end else begin
     if XY.Top > 1 then begin
+      Result := False;
       XY.Top := 1;
     end;
   end;
 
   if XY.Right < 0 then begin
+    Result := False;
     XY.Right := 0;
   end else begin
     if XY.Right > 1 then begin
+      Result := False;
       XY.Right := 1;
     end;
   end;
 
   if XY.Bottom < 0 then begin
+    Result := False;
     XY.Bottom := 0;
   end else begin
     if XY.Bottom > 1 then begin
+      Result := False;
       XY.Bottom := 1;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckLonLatPos(var XY: TExtendedPoint);
+function TCoordConverterAbstract.CheckLonLatPos(var XY: TExtendedPoint): boolean;
 begin
+  Result := True;
   if XY.X < FValidLonLatRect.Left then begin
+    Result := False;
     XY.X := FValidLonLatRect.Left;
   end else begin
     if XY.X > FValidLonLatRect.Right then begin
+      Result := False;
       XY.X := FValidLonLatRect.Right;
     end;
   end;
   if XY.Y < FValidLonLatRect.Bottom then begin
+    Result := False;
     XY.Y := FValidLonLatRect.Bottom;
   end else begin
     if XY.Y > FValidLonLatRect.Top then begin
+      Result := False;
       XY.Y := FValidLonLatRect.Top;
     end;
   end;
 end;
 
-procedure TCoordConverterAbstract.CheckLonLatRect(var XY: TExtendedRect);
+function TCoordConverterAbstract.CheckLonLatRect(var XY: TExtendedRect): boolean;
 begin
+  Result := True;
   if XY.Left < FValidLonLatRect.Left then begin
+    Result := False;
     XY.Left := FValidLonLatRect.Left;
   end else begin
     if XY.Left > FValidLonLatRect.Right then begin
+      Result := False;
       XY.Left := FValidLonLatRect.Right;
     end;
   end;
   if XY.Bottom < FValidLonLatRect.Bottom then begin
+    Result := False;
     XY.Bottom := FValidLonLatRect.Bottom;
   end else begin
     if XY.Bottom > FValidLonLatRect.Top then begin
+      Result := False;
       XY.Bottom := FValidLonLatRect.Top;
     end;
   end;
 
   if XY.Right < FValidLonLatRect.Left then begin
+    Result := False;
     XY.Right := FValidLonLatRect.Left;
   end else begin
     if XY.Right > FValidLonLatRect.Right then begin
+      Result := False;
       XY.Right := FValidLonLatRect.Right;
     end;
   end;
   if XY.Top < FValidLonLatRect.Bottom then begin
+    Result := False;
     XY.Top := FValidLonLatRect.Bottom;
   end else begin
     if XY.Top > FValidLonLatRect.Top then begin
+      Result := False;
       XY.Top := FValidLonLatRect.Top;
     end;
   end;

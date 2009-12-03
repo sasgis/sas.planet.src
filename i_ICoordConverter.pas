@@ -84,20 +84,20 @@ type
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended;
 
-    procedure CheckZoom(var AZoom: Byte); stdcall;
-    procedure CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
-    procedure CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
-    procedure CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    function CheckZoom(var AZoom: Byte): boolean; stdcall;
+    function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
+    function CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
+    function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
 
-    procedure CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
-    procedure CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean); stdcall;
-    procedure CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean); stdcall;
+    function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
+    function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
+    function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
 
-    procedure CheckRelativePos(var XY: TExtendedPoint); stdcall;
-    procedure CheckRelativeRect(var XY: TExtendedRect); stdcall;
+    function CheckRelativePos(var XY: TExtendedPoint): boolean; stdcall;
+    function CheckRelativeRect(var XY: TExtendedRect): boolean; stdcall;
 
-    procedure CheckLonLatPos(var XY: TExtendedPoint); stdcall;
-    procedure CheckLonLatRect(var XY: TExtendedRect); stdcall;
+    function CheckLonLatPos(var XY: TExtendedPoint): boolean; stdcall;
+    function CheckLonLatRect(var XY: TExtendedRect): boolean; stdcall;
 
   end;
 
