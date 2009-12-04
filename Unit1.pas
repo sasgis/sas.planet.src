@@ -397,6 +397,10 @@ type
     TBXItem5: TTBXItem;
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
+    TBXSensorAzimutBar: TTBXToolWindow;
+    TBXSensorAzimut: TTBXLabel;
+    TBXLabel4: TTBXLabel;
+    NSensorAzimutBar: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -625,6 +629,7 @@ class   procedure delfrompath(pos:integer);
    altitude:extended;
    maxspeed:real;
    nap:integer;
+   azimut:integer;
    Odometr:extended;
   end;
 
@@ -1415,6 +1420,8 @@ begin
    else begin
      TBXSensorBattary.Caption:='От сети';
    end;
+   //Азимут
+   TBXSensorAzimut.Caption:=inttostr(GPSpar.azimut);
  except
  end;
 end;
@@ -2325,6 +2332,8 @@ procedure TFmain.FormActivate(Sender: TObject);
 var
      i:integer;
      param:string;
+     ms:TMemoryStream;
+     XML:string;
      MainWindowMaximized: Boolean;
      VLoadedSizeInPixel: TPoint;
 begin
@@ -3957,6 +3966,7 @@ begin
   if len>1 then begin
     GPSpar.len:=GPSpar.len+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.Odometr:=GPSpar.Odometr+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.azimut:=round(RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x)))+90;
   end;
   if not((MapMoving)or(MapZoomAnimtion=1))and(Self.Active) then
    begin

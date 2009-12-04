@@ -525,6 +525,13 @@ object Fmain: TFmain
               Caption = #1042#1099#1089#1086#1090#1072
               Hint = ''
             end
+            object NSensorAzimutBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1040#1079#1080#1084#1091#1090
+              Hint = ''
+            end
           end
         end
         object N31: TTBXSubmenuItem
@@ -1884,16 +1891,16 @@ object Fmain: TFmain
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
-      Top = 296
-      ClientAreaHeight = 167
+      Top = 336
+      ClientAreaHeight = 127
       ClientAreaWidth = 160
-      DockPos = 296
+      DockPos = 336
       Stretch = True
       TabOrder = 0
       Visible = False
       DesignSize = (
         160
-        167)
+        127)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1908,7 +1915,7 @@ object Fmain: TFmain
         Left = 7
         Top = 32
         Width = 146
-        Height = 49
+        Height = 9
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1923,7 +1930,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 88
+        Top = 48
         Width = 145
         Height = 73
         Anchors = [akLeft, akRight, akBottom]
@@ -1933,7 +1940,7 @@ object Fmain: TFmain
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 286
+      ClientAreaHeight = 326
       ClientAreaWidth = 160
       DockPos = 0
       PopupMenu = TBXPopupMenuSensors
@@ -1946,7 +1953,7 @@ object Fmain: TFmain
         Left = 0
         Top = 0
         Width = 160
-        Height = 288
+        Height = 324
         Align = alTop
         AutoScroll = False
         AutoSize = True
@@ -1958,7 +1965,7 @@ object Fmain: TFmain
           Left = 0
           Top = 0
           Width = 160
-          Height = 288
+          Height = 324
           object TBXSensorSpeedAvgBar: TTBXToolWindow
             Left = 0
             Top = 36
@@ -2072,79 +2079,6 @@ object Fmain: TFmain
               Caption = #1057#1082#1086#1088#1086#1089#1090#1100', '#1082#1084'/'#1095':'
             end
           end
-          object TBXsensorOdometrBar: TTBXToolWindow
-            Left = 0
-            Top = 144
-            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1074#1077#1089#1100' '#1087#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100
-            ClientAreaHeight = 32
-            ClientAreaWidth = 150
-            DockPos = 18
-            DockRow = 4
-            Stretch = True
-            TabOrder = 2
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
-            DesignSize = (
-              150
-              32)
-            Caption = #1054#1076#1086#1084#1077#1090#1088
-            object SpeedButton2: TSpeedButton
-              Tag = 3
-              Left = 132
-              Top = 1
-              Width = 17
-              Height = 12
-              Hint = #1057#1073#1088#1086#1089#1080#1090#1100
-              Anchors = [akTop, akRight]
-              Flat = True
-              Glyph.Data = {
-                46020000424D460200000000000036000000280000000F0000000B0000000100
-                1800000000001002000000000000000000000000000000000000FF00FFFF00FF
-                FF00FFFF00FFFF00FFFF00FF8FCD7F80CC80FF00FFFF00FFFF00FFFF00FFFF00
-                FFFF00FFFF00FF000000FF00FFFF00FFFF00FFFF00FF40B340109F108FD28CFF
-                00FFAFDFA640B34040B34040B34040B34040B34040B340000000FF00FFFF00FF
-                FF00FF109F10009900FF00FFFF00FFFF00FF80CC7D0099000099000099000099
-                0020A620FF00FF000000FF00FFFF00FF00990000990080CC80FF00FFFF00FFFF
-                00FF70C670009900009900009900009900009900FF00FF000000FF00FF50B950
-                009900009900FF00FFFF00FFFF00FFFF00FF40B3400099000099000099000099
-                000099008FD28E000000FF00FF009900009900009900FF00FFAFDFAB109F10FF
-                00FF40B34030AC30FF00FF40B34000990000990080CC7B000000FF00FF009900
-                00990000990020A620009900009900FF00FF70C66EFF00FFFF00FF80CC800099
-                00009900AFDFA3000000FF00FF40B340009900009900009900009900009900FF
-                00FFFF00FFFF00FFFF00FF20A62000990020A620FF00FF000000FF00FF80CB7C
-                009900009900009900009900009900FF00FFFF00FFFF00FF8FD189009900109F
-                10FF00FFFF00FF00000060BE5C00990000990000990000990000990040B340FF
-                00FFFF00FF8FCE8300990030AC30FF00FFFF00FFFF00FF000000FF00FFFF00FF
-                FF00FFFF00FFFF00FFFF00FFFF00FFAFD69850B95050B9509FD28DFF00FFFF00
-                FFFF00FFFF00FF000000}
-              Margin = 0
-              Spacing = 0
-              OnClick = SBClearSensorClick
-            end
-            object TBXSensorOdometr: TTBXLabel
-              Left = 0
-              Top = 13
-              Width = 145
-              Height = 19
-              Anchors = [akLeft, akTop, akRight]
-              Font.Charset = RUSSIAN_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -16
-              Font.Name = 'Arial'
-              Font.Style = [fsBold]
-              ParentFont = False
-              Wrapping = twEndEllipsis
-              Caption = '-'
-            end
-            object TBXLabel11: TTBXLabel
-              Left = 0
-              Top = 0
-              Width = 129
-              Height = 13
-              Anchors = [akLeft, akTop, akRight]
-              Wrapping = twEndEllipsis
-              Caption = #1054#1076#1086#1084#1077#1090#1088', '#1082#1084':'
-            end
-          end
           object TBXSensorPathBar: TTBXToolWindow
             Left = 0
             Top = 108
@@ -2156,7 +2090,7 @@ object Fmain: TFmain
             DockPos = 10
             DockRow = 3
             Stretch = True
-            TabOrder = 3
+            TabOrder = 2
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
@@ -2230,7 +2164,7 @@ object Fmain: TFmain
             DockPos = 0
             DockRow = 7
             Stretch = True
-            TabOrder = 4
+            TabOrder = 3
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
@@ -2271,7 +2205,7 @@ object Fmain: TFmain
             DockPos = 0
             DockRow = 5
             Stretch = True
-            TabOrder = 5
+            TabOrder = 4
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
@@ -2311,7 +2245,7 @@ object Fmain: TFmain
             DockPos = 10
             DockRow = 6
             Stretch = True
-            TabOrder = 6
+            TabOrder = 5
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
@@ -2384,7 +2318,7 @@ object Fmain: TFmain
             DockPos = 0
             DockRow = 2
             Stretch = True
-            TabOrder = 7
+            TabOrder = 6
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
               150
@@ -2479,6 +2413,120 @@ object Fmain: TFmain
               Anchors = [akLeft, akTop, akRight]
               Wrapping = twEndEllipsis
               Caption = #1057#1082#1086#1088#1086#1089#1090#1100' '#1084#1072#1082#1089'., '#1082#1084'/'#1095':'
+            end
+          end
+          object TBXsensorOdometrBar: TTBXToolWindow
+            Left = 0
+            Top = 144
+            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1074#1077#1089#1100' '#1087#1088#1086#1081#1076#1077#1085#1085#1099#1081' '#1087#1091#1090#1100
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 18
+            DockRow = 4
+            Stretch = True
+            TabOrder = 7
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            DesignSize = (
+              150
+              32)
+            Caption = #1054#1076#1086#1084#1077#1090#1088
+            object SpeedButton2: TSpeedButton
+              Tag = 3
+              Left = 132
+              Top = 1
+              Width = 17
+              Height = 12
+              Hint = #1057#1073#1088#1086#1089#1080#1090#1100
+              Anchors = [akTop, akRight]
+              Flat = True
+              Glyph.Data = {
+                46020000424D460200000000000036000000280000000F0000000B0000000100
+                1800000000001002000000000000000000000000000000000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FF8FCD7F80CC80FF00FFFF00FFFF00FFFF00FFFF00
+                FFFF00FFFF00FF000000FF00FFFF00FFFF00FFFF00FF40B340109F108FD28CFF
+                00FFAFDFA640B34040B34040B34040B34040B34040B340000000FF00FFFF00FF
+                FF00FF109F10009900FF00FFFF00FFFF00FF80CC7D0099000099000099000099
+                0020A620FF00FF000000FF00FFFF00FF00990000990080CC80FF00FFFF00FFFF
+                00FF70C670009900009900009900009900009900FF00FF000000FF00FF50B950
+                009900009900FF00FFFF00FFFF00FFFF00FF40B3400099000099000099000099
+                000099008FD28E000000FF00FF009900009900009900FF00FFAFDFAB109F10FF
+                00FF40B34030AC30FF00FF40B34000990000990080CC7B000000FF00FF009900
+                00990000990020A620009900009900FF00FF70C66EFF00FFFF00FF80CC800099
+                00009900AFDFA3000000FF00FF40B340009900009900009900009900009900FF
+                00FFFF00FFFF00FFFF00FF20A62000990020A620FF00FF000000FF00FF80CB7C
+                009900009900009900009900009900FF00FFFF00FFFF00FF8FD189009900109F
+                10FF00FFFF00FF00000060BE5C00990000990000990000990000990040B340FF
+                00FFFF00FF8FCE8300990030AC30FF00FFFF00FFFF00FF000000FF00FFFF00FF
+                FF00FFFF00FFFF00FFFF00FFFF00FFAFD69850B95050B9509FD28DFF00FFFF00
+                FFFF00FFFF00FF000000}
+              Margin = 0
+              Spacing = 0
+              OnClick = SBClearSensorClick
+            end
+            object TBXSensorOdometr: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel11: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 129
+              Height = 13
+              Anchors = [akLeft, akTop, akRight]
+              Wrapping = twEndEllipsis
+              Caption = #1054#1076#1086#1084#1077#1090#1088', '#1082#1084':'
+            end
+          end
+          object TBXSensorAzimutBar: TTBXToolWindow
+            Left = 0
+            Top = 288
+            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1086#1089#1090#1086#1103#1085#1080#1077' '#1087#1080#1090#1072#1085#1080#1103
+            Align = alTop
+            ClientAreaHeight = 32
+            ClientAreaWidth = 160
+            DockPos = 40
+            DockRow = 8
+            TabOrder = 8
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            DesignSize = (
+              160
+              32)
+            Caption = #1041#1072#1090#1072#1088#1077#1103
+            object TBXSensorAzimut: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel4: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 145
+              Height = 13
+              Anchors = [akLeft, akTop, akRight]
+              AutoSize = False
+              Wrapping = twEndEllipsis
+              Caption = #1040#1079#1080#1084#1091#1090':'
             end
           end
         end
