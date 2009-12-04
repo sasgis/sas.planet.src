@@ -126,6 +126,7 @@ begin
     Sender.AddDelphiFunction('function GetUnixTime:int64');
     Sender.AddDelphiFunction('function RoundEx(chislo: Extended; Precision: Integer): string');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
+    Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): string');
     Result := True;
   end else begin
     Result := False;
@@ -169,6 +170,7 @@ begin
   FExec.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
   FExec.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
   FExec.RegisterDelphiFunction(@Rand, 'Random', cdRegister);
+  FExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
 
   if not  FExec.LoadData(VData) then begin // Load the data from the Data string.
     raise Exception.Create('Ошибка при загрузке байткода');

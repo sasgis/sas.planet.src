@@ -2776,8 +2776,13 @@ end;
 
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
- VWaitResult: DWORD;
+  VWaitResult: DWORD;
+  i:integer;
 begin
+ for i := 0 to Screen.FormCount - 1 do begin
+  if (Screen.Forms[i]<>Application.MainForm) then
+   Screen.Forms[i].Close;
+ end;
  ProgramClose:=true;
  //останавливаем GPS
  GPSReceiver.OnDisconnect:=nil;
