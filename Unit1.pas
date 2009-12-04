@@ -629,7 +629,7 @@ class   procedure delfrompath(pos:integer);
    altitude:extended;
    maxspeed:real;
    nap:integer;
-   azimut:integer;
+   azimut:extended;
    Odometr:extended;
   end;
 
@@ -1421,7 +1421,7 @@ begin
      TBXSensorBattary.Caption:='От сети';
    end;
    //Азимут
-   TBXSensorAzimut.Caption:=inttostr(GPSpar.azimut);
+   TBXSensorAzimut.Caption:=RoundEx(GPSpar.azimut,2)+'°';
  except
  end;
 end;
@@ -1480,25 +1480,22 @@ begin
   ke:=MapPixel2LoadedPixel(ke);
   ks:=sat_map_both.FCoordConverter.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
   ks:=MapPixel2LoadedPixel(ks);
-
   dl:=GState.GPS_ArrowSize;
-  R:=sqrt(sqr(ks.X-ke.X)+sqr(ks.Y-ke.Y))/2-(dl div 2);
-  if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
-                                         else TanOfAngle:=MaxExtended/100
-               else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
+  R:=D/2-(dl div 2);
   ke.x:=ke.X+(ke.X-ks.X);
   ke.y:=ke.y+(ke.y-ks.y);
   ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
   ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
+  if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
+                                         else TanOfAngle:=MaxExtended/100
+               else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
   Angle:=ArcTan(TanOfAngle)+0.28;
-  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
-
+  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   Angle:=ArcTan(TanOfAngle)-0.28;
-  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
-
+  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
  except
@@ -3966,7 +3963,7 @@ begin
   if len>1 then begin
     GPSpar.len:=GPSpar.len+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.Odometr:=GPSpar.Odometr+sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-    GPSpar.azimut:=round(RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x)))+90;
+    GPSpar.azimut:=RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x))+90;
   end;
   if not((MapMoving)or(MapZoomAnimtion=1))and(Self.Active) then
    begin
