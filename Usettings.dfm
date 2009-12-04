@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 214
-  Top = 321
+  Left = 301
+  Top = 170
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 414
@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet9
+    ActivePage = TabSheet1
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -331,6 +331,13 @@ object FSettings: TFSettings
         Height = 9
         Shape = bsBottomLine
       end
+      object Label32: TLabel
+        Left = 8
+        Top = 248
+        Width = 175
+        Height = 13
+        Caption = #1058#1072#1081#1084#1072#1091#1090' '#1085#1072' '#1089#1077#1090#1077#1074#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080', '#1084#1089
+      end
       object RBWinCon: TRadioButton
         Left = 17
         Top = 32
@@ -425,6 +432,16 @@ object FSettings: TFSettings
         Height = 17
         Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1072' '#1085#1072' '#1089#1077#1088#1074#1077#1088#1077
         TabOrder = 5
+      end
+      object SETimeOut: TSpinEdit
+        Left = 192
+        Top = 245
+        Width = 73
+        Height = 22
+        MaxValue = 0
+        MinValue = 0
+        TabOrder = 6
+        Value = 0
       end
     end
     object TabSheet3: TTabSheet

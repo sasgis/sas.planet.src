@@ -12,6 +12,7 @@ type
     uselogin: boolean;
     loginstr: string;
     passstr: string;
+    TimeOut: cardinal;
   end;
 
   TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);

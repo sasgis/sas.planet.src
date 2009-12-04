@@ -233,6 +233,8 @@ type
     Button18: TButton;
     CBSensorsBarAutoShow: TCheckBox;
     SBGetComNum: TSpeedButton;
+    Label32: TLabel;
+    SETimeOut: TSpinEdit;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -406,6 +408,7 @@ begin
  GState.MainIni.WriteBool('INTERNET','SaveTileNotExists',GState.SaveTileNotExists);
  GState.MainIni.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
  GState.MainIni.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
+ GState.MainIni.WriteInteger('INTERNET','TimeOut',GState.InetConnect.TimeOut);
  GState.MainIni.Writebool('NPARAM','stat',GState.WebReportToAuthor);
 
  i:=1;
@@ -524,6 +527,7 @@ begin
  GState.InetConnect.proxystr:=EditIP.Text;
  GState.InetConnect.loginstr:=EditLogin.Text;
  GState.InetConnect.passstr:=EditPass.Text;
+ GState.InetConnect.TimeOut:=SETimeOut.Value;
  GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
  GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
@@ -647,6 +651,7 @@ begin
   LANG_RUSSIAN:CBoxLocal.ItemIndex:=0;
   LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
  end;
+ SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=GState.MapZapColor;
