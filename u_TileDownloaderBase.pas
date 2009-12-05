@@ -23,6 +23,7 @@ type
     FSessionOpenError: Cardinal;
     FCS: TCriticalSection;
     FSleepOnResetConnection: Cardinal;
+    FLastDownloadResult: TDownloadTileResult;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean; virtual;
@@ -46,6 +47,7 @@ type
 implementation
 
 uses
+  u_GlobalState,
   StrUtils,
   SysUtils;
 
@@ -72,6 +74,7 @@ begin
   FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FSleepOnResetConnection := 200;
+  FLastDownloadResult := dtrOK;
   OpenSession;
 end;
 
@@ -93,10 +96,10 @@ begin
     Result := dtrErrorInternetOpen;
     exit;
   end;
-  Result := dtrOK;
   FCS.Acquire;
   try
     VTryCount := 0;
+    Result := FLastDownloadResult;
     repeat
       if Result = dtrDownloadError then begin
         ResetConnetction;
@@ -104,6 +107,7 @@ begin
       Result := TryDownload(AUrl, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType);
       Inc(VTryCount);
     until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
+    FLastDownloadResult := Result;
   finally
     FCS.Release;
   end;
@@ -205,7 +209,7 @@ begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
-    VTimeOut := 5000;
+    VTimeOut:=GState.InetConnect.TimeOut;
     if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
       FSessionOpenError := GetLastError;
     end;

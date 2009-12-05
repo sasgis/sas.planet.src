@@ -50,8 +50,7 @@ type
     SBNavOnMark: TSpeedButton;
     OpenDialog1: TOpenDialog;
     procedure FormShow(Sender: TObject);
-    procedure KategoryListBoxMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure KategoryListBoxMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
@@ -62,10 +61,8 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
-    procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure KategoryListBoxKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure KategoryListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -120,22 +117,42 @@ uses
 {$R *.dfm}
 function SaveMarks2File:boolean;
 var ms:TMemoryStream;
+    XML:string;
 begin
- Fmain.CDSmarks.MergeChangeLog;
+ result:=true;
  ms:=TMemoryStream.Create;
- ms.Write(Fmain.CDSmarks.XMLData[1],length(Fmain.CDSmarks.XMLData));
- ms.SaveToFile(GState.MarksFileName);
- ms.Free;
+ try
+   try
+     Fmain.CDSmarks.MergeChangeLog;
+     XML:=Fmain.CDSmarks.XMLData;
+     ms.Write(XML[1],length(XML));
+     ms.SaveToFile(GState.MarksFileName);
+   except
+     result:=false;
+   end;
+ finally
+   ms.Free;
+ end;
 end;
 
 function SaveCategory2File:boolean;
 var ms:TMemoryStream;
+    XML:string;
 begin
- Fmain.CDSKategory.MergeChangeLog;
+ result:=true;
  ms:=TMemoryStream.Create;
- ms.Write(Fmain.CDSKategory.XMLData[1],length(Fmain.CDSKategory.XMLData));
- ms.SaveToFile(GState.MarksCategoryFileName);
- ms.Free;
+ try
+   try
+     Fmain.CDSKategory.MergeChangeLog;
+     XML:=Fmain.CDSKategory.XMLData;
+     ms.Write(XML[1],length(XML));
+     ms.SaveToFile(GState.MarksCategoryFileName);
+   except
+     result:=false;
+   end;
+ finally
+   ms.Free;
+ end;
 end;
 
 function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
