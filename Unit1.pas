@@ -54,6 +54,7 @@ uses
   ImgMaker,
   t_LoadEvent,
   u_GeoToStr,
+  t_CommonTypes,
   UThreadScleit,
   Ugeofun,
   UWikiLayer,
@@ -82,6 +83,14 @@ type
     ao_rect,
     ao_reg
   );
+
+  TNavOnMark = class
+   id:integer;
+   ll:TExtendedPoint;
+   width:integer;
+   public
+   procedure draw;
+  end;
 
   TFmain = class(TForm)
     map: TImage32;
@@ -551,6 +560,7 @@ type
    LenShow: boolean;
    RectWindow:TRect;
    FUIDownLoader: TTileDownloaderUI;
+   curBuf:TCursor;
   public
    LayerMap,LayerMapWiki,LayerMapMarks,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
    LayerMapScale: TCenterScale;
@@ -561,6 +571,8 @@ type
    ProgramStart: Boolean;
    ProgramClose: Boolean;
    aoper:TAOperation;
+   GPSpar: TGPSpar;
+   NavOnMark:TNavOnMark;
    FillingMap:TFillingMap;
    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
    property TileSource:TTileSource read FTileSource write Set_TileSource;
@@ -620,27 +632,6 @@ class   procedure delfrompath(pos:integer);
    procedure UpdateGPSsensors;
   end;
 
-  TGPSpar = record
-   speed:real;
-   len:extended;
-   sspeed:extended;
-   allspeed:extended;
-   sspeednumentr:integer;
-   altitude:extended;
-   maxspeed:real;
-   nap:integer;
-   azimut:extended;
-   Odometr:extended;
-  end;
-
-  TNavOnMark = class
-   id:integer;
-   ll:TExtendedPoint;
-   width:integer;
-   public
-   procedure draw;
-  end;
-
 const
   SASVersion='91111';
   CProgram_Lang_Default = LANG_RUSSIAN;
@@ -667,15 +658,11 @@ var
   pr_x,
   pr_y:integer;
   m_m, moveTrue: Tpoint;
-  Gspr:TBitmap32;
   movepoint,lastpoint:integer;
   rect_arr:array [0..1] of TextendedPoint;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
-  curBuf:TCursor;
   nilLastLoad:TLastLoad;
-  GPSpar:TGPSpar;
   GOToSelIcon:TBitmap32;
-  NavOnMark:TNavOnMark;
   paintMark:boolean;
 
   function c_GetTempPath: string;
@@ -692,7 +679,6 @@ uses
   StrUtils,
   DateUtils,
   Types,
-  t_CommonTypes,
   u_GlobalState,
   u_MiniMap,
   Unit2,
@@ -2223,6 +2209,7 @@ var
   ts2,ts3,fr:int64;
   VSizeInTile: TPoint;
   VPoint: TPoint;
+  Vspr:TBitmap32;
 begin
   if notpaint then exit;
   QueryPerformanceCounter(ts2);
@@ -2236,7 +2223,8 @@ begin
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
   destroyWL;
-
+  Vspr := TBitmap32.Create;
+  try
  VSizeInTile := LoadedSizeInTile;
  for i:=0 to VSizeInTile.X do begin
   for j:=0 to VSizeInTile.Y do begin
@@ -2245,19 +2233,19 @@ begin
       yy:=ScreenCenterPos.y-pr_y+(j shl 8);
       if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
       if (sat_map_both.TileExists(xx,yy,GState.zoom_size)) then begin
-        if sat_map_both.LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
+        if sat_map_both.LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
           if (sat_map_both.DelAfterShow)and(not lastload.use) then sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
         end else begin
-          BadDraw(Gspr,false);
+          BadDraw(Vspr,false);
         end;
       end else begin
-        sat_map_both.LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true);
+        sat_map_both.LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true);
       end;
-      Gamma(Gspr);
-      LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Gspr);
+      Gamma(Vspr);
+      LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Vspr);
     end;
   end;
-  Gspr.SetSize(256,256);
+  Vspr.SetSize(256,256);
   for Leyi:=0 to length(MapType)-1 do begin
     if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
       if MapType[Leyi].ext='.kml' then begin
@@ -2278,22 +2266,25 @@ begin
           yy:=posN.y-pr_y+(j shl 8);
           if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
           if (MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-            if MapType[Leyi].LoadTile(Gspr,xx,yy,GState.zoom_size,true) then begin
+            if MapType[Leyi].LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
               if (MapType[Leyi].DelAfterShow)and(not lastload.use) then MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
             end else begin
-              BadDraw(Gspr,true);
+              BadDraw(Vspr,true);
             end;
-            Gamma(Gspr);
+            Gamma(Vspr);
           end else begin
-            if MapType[Leyi].LoadTileFromPreZ(Gspr,xx,yy,GState.zoom_size,true) then begin
-              Gamma(Gspr);
+            if MapType[Leyi].LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true) then begin
+              Gamma(Vspr);
             end;
           end;
-          Gspr.DrawMode:=dmBlend;
-          LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Gspr);
+          Vspr.DrawMode:=dmBlend;
+          LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
         end;
       end;
     end;
+  end;
+  finally
+    FreeAndNil(Vspr);
   end;
   if (lastload.use)and(err<>'') then begin
     VPoint := MapPixel2LoadedPixel(Point(lastload.x, lastload.y));
@@ -2329,8 +2320,6 @@ procedure TFmain.FormActivate(Sender: TObject);
 var
      i:integer;
      param:string;
-     ms:TMemoryStream;
-     XML:string;
      MainWindowMaximized: Boolean;
      VLoadedSizeInPixel: TPoint;
 begin
@@ -2410,9 +2399,6 @@ begin
  pr_y:=(yhgpx)div 2;
  pr_x:=(xhgpx)div 2;
 
- Gspr:=TBitmap32.Create;
- Gspr.Width:=256;
- Gspr.Height:=256;
  setlength(poly_save,0);
 
  Map.Cursor:=crDefault;
