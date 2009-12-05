@@ -7,6 +7,7 @@ uses
   Classes,
   IniFiles,
   SyncObjs,
+  GR32,
   t_GeoTypes,
   t_CommonTypes,
   u_GeoToStr,
@@ -27,6 +28,7 @@ type
     function GetHelpFileName: string;
     function GetMainConfigFileName: string;
     procedure LoadMarkIcons;
+    procedure LoadResources;
   public
     MainFileCache: TMemFileCache;
     // Ini-файл с основными настройками
@@ -35,6 +37,8 @@ type
     ProgramPath: string;
     // »конки дл€ меток
     MarkIcons: TStringList;
+    // »конка дл€ указани€ на точку куда выполнен переход.
+    GOToSelIcon: TBitmap32;
 
     // язык интерфейса программы
     Localization: Integer;
@@ -206,6 +210,7 @@ begin
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
+  LoadResources;
   LoadMarkIcons;
 end;
 
@@ -296,6 +301,21 @@ begin
   finally
     FDwnCS.Release;
   end;
+end;
+
+procedure TGlobalState.LoadResources;
+var
+  b: TPNGObject;
+begin
+ b := TPNGObject.Create;
+ try
+   b.LoadFromResourceName(HInstance, 'ICONIII');
+   GOToSelIcon := TBitmap32.Create;
+   PNGintoBitmap32(GOToSelIcon, b);
+   GOToSelIcon.DrawMode := dmBlend;
+ finally
+   FreeAndNil(b);
+ end;
 end;
 
 end.
