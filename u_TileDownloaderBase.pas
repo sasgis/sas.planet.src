@@ -23,6 +23,7 @@ type
     FSessionOpenError: Cardinal;
     FCS: TCriticalSection;
     FSleepOnResetConnection: Cardinal;
+    FLastDownloadResult: TDownloadTileResult;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean; virtual;
@@ -73,6 +74,7 @@ begin
   FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FSleepOnResetConnection := 200;
+  FLastDownloadResult := dtrOK;
   OpenSession;
 end;
 
@@ -94,10 +96,10 @@ begin
     Result := dtrErrorInternetOpen;
     exit;
   end;
-  Result := dtrOK;
   FCS.Acquire;
   try
     VTryCount := 0;
+    Result := FLastDownloadResult;
     repeat
       if Result = dtrDownloadError then begin
         ResetConnetction;
@@ -105,6 +107,7 @@ begin
       Result := TryDownload(AUrl, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType);
       Inc(VTryCount);
     until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
+    FLastDownloadResult := Result;
   finally
     FCS.Release;
   end;
