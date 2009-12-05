@@ -2796,7 +2796,7 @@ begin
  GPSReceiver.Close;
  //-
  FUIDownLoader.Terminate;
- WaitForSingleObject(FUIDownLoader.Handle, 0);
+ Application.ProcessMessages;
  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
  if VWaitResult = WAIT_TIMEOUT then begin
   TerminateThread(FUIDownLoader.Handle, 0);
