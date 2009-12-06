@@ -2225,6 +2225,7 @@ begin
   destroyWL;
   Vspr := TBitmap32.Create;
   try
+    Vspr.SetSize(256,256);
  VSizeInTile := LoadedSizeInTile;
  for i:=0 to VSizeInTile.X do begin
   for j:=0 to VSizeInTile.Y do begin
