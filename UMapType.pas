@@ -102,7 +102,8 @@ type
 
     function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
     function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
-    function GetTileShowName(x,y:longint;Azoom:byte):string;
+    function GetTileShowName(x,y:longint;Azoom:byte):string; overload;
+    function GetTileShowName(AXY: TPoint;Azoom:byte):string; overload;
 
     function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
     function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
@@ -1397,6 +1398,11 @@ end;
 function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
 begin
   Result := GetTileFileName(x, y, Azoom);
+end;
+
+function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := GetTileFileName(AXY, Azoom)
 end;
 
 end.
