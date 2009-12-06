@@ -1,5 +1,7 @@
 unit Unit1;
+
 interface
+
 uses
   Windows,
   Registry,
@@ -536,13 +538,13 @@ type
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
   private
-   ShowActivHint:boolean;
-   HintWindow: THintWindow;
-   procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-   procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
-   procedure Set_lock_toolbars(const Value: boolean);
-   procedure Set_TileSource(const Value:TTileSource);
-   procedure Set_Pos(const Value:TPoint);
+    ShowActivHint:boolean;
+    HintWindow: THintWindow;
+    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
+    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
+    procedure Set_lock_toolbars(const Value: boolean);
+    procedure Set_TileSource(const Value:TTileSource);
+    procedure Set_Pos(const Value:TPoint);
     function GetLoadedPixelRect: TRect;
     function GetVisiblePixelRect: TRect;
     function GetLoadedSizeInPixel: TPoint;
@@ -552,88 +554,88 @@ type
     function GetMapLayerLocationRect: TRect;
     function GetLoadedTopLeft: TPoint;
   protected
-   Flock_toolbars:boolean;
-   notpaint: boolean;
-   rect_dwn: Boolean;
-   rect_p2:boolean;
-   FTileSource:TTileSource;
-   FScreenCenterPos: TPoint;
-   LayerStatBar: TLayerStatBar;
-   dWhenMovingButton:integer;
-   LenShow: boolean;
-   RectWindow:TRect;
-   FUIDownLoader: TTileDownloaderUI;
-   curBuf:TCursor;
+    Flock_toolbars:boolean;
+    notpaint: boolean;
+    rect_dwn: Boolean;
+    rect_p2:boolean;
+    FTileSource:TTileSource;
+    FScreenCenterPos: TPoint;
+    LayerStatBar: TLayerStatBar;
+    dWhenMovingButton:integer;
+    LenShow: boolean;
+    RectWindow:TRect;
+    FUIDownLoader: TTileDownloaderUI;
+    curBuf:TCursor;
   public
-   LayerMap,LayerMapWiki,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
-   LayerMapMarks: TMapMarksLayer;
-   LayerMapScale: TCenterScale;
-   LayerSelection: TSelectionLayer;
-   MouseDownPoint, MouseUpPoint: TPoint;
-   MapMoving: Boolean;
-   MapZoomAnimtion: Integer;
-   change_scene:boolean;
-   ProgramStart: Boolean;
-   ProgramClose: Boolean;
-   aoper:TAOperation;
-   GPSpar: TGPSpar;
-   NavOnMark:TNavOnMark;
-   FillingMap:TFillingMap;
-   property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
-   property TileSource:TTileSource read FTileSource write Set_TileSource;
-   property ScreenCenterPos: TPoint read FScreenCenterPos write Set_Pos;
-   procedure generate_im(lastload:TLastLoad;err:string);
-   function  toSh:string;
-class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
-   procedure topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
-   procedure zooming(x:byte;move:boolean);
-class   function  timezone(lon,lat:real):TDateTime;
-   procedure drawLineCalc;
-   procedure drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
-   procedure drawReg;
-   procedure generate_mapzap;
-   procedure draw_point;
-class   function  str2r(inp:string):real;
-   procedure paint_Line;
-   procedure selectMap(num:TMapType);
-   procedure generate_granica;
-   procedure drawLineGPS;
-   procedure ShowCaptcha(URL:string);
-   procedure drawRect(Shift:TShiftState);
-   procedure ShowErrScript(DATA:string);
-   procedure setalloperationfalse(newop:TAOperation);
-class   procedure insertinpath(pos:integer);
-class   procedure delfrompath(pos:integer);
-   procedure DrawGenShBorders;
-   procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-   procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-   procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-   procedure SetStatusBarVisible();
-   procedure SetLineScaleVisible(visible:boolean);
-   procedure SetMiniMapVisible(visible:boolean);
+    LayerMap,LayerMapWiki,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
+    LayerMapMarks: TMapMarksLayer;
+    LayerMapScale: TCenterScale;
+    LayerSelection: TSelectionLayer;
+    MouseDownPoint, MouseUpPoint: TPoint;
+    MapMoving: Boolean;
+    MapZoomAnimtion: Integer;
+    change_scene:boolean;
+    ProgramStart: Boolean;
+    ProgramClose: Boolean;
+    aoper:TAOperation;
+    GPSpar: TGPSpar;
+    NavOnMark:TNavOnMark;
+    FillingMap:TFillingMap;
+    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
+    property TileSource:TTileSource read FTileSource write Set_TileSource;
+    property ScreenCenterPos: TPoint read FScreenCenterPos write Set_Pos;
+    procedure generate_im(lastload:TLastLoad;err:string);
+    function  toSh:string;
+    class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
+    procedure topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
+    procedure zooming(x:byte;move:boolean);
+    class   function  timezone(lon,lat:real):TDateTime;
+    procedure drawLineCalc;
+    procedure drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+    procedure drawReg;
+    procedure generate_mapzap;
+    procedure draw_point;
+    class   function  str2r(inp:string):real;
+    procedure paint_Line;
+    procedure selectMap(num:TMapType);
+    procedure generate_granica;
+    procedure drawLineGPS;
+    procedure ShowCaptcha(URL:string);
+    procedure drawRect(Shift:TShiftState);
+    procedure ShowErrScript(DATA:string);
+    procedure setalloperationfalse(newop:TAOperation);
+    class   procedure insertinpath(pos:integer);
+    class   procedure delfrompath(pos:integer);
+    procedure DrawGenShBorders;
+    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure SetStatusBarVisible();
+    procedure SetLineScaleVisible(visible:boolean);
+    procedure SetMiniMapVisible(visible:boolean);
 
-   function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
-   function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-   function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
-   function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-   function VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
+    function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
+    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
+    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
 
-   function LoadedPixel2MapPixel(Pnt: TPoint): TPoint; overload;
-   function LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-   function MapPixel2LoadedPixel(Pnt: TPoint): TPoint; overload;
-   function MapPixel2LoadedPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function LoadedPixel2MapPixel(Pnt: TPoint): TPoint; overload;
+    function LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function MapPixel2LoadedPixel(Pnt: TPoint): TPoint; overload;
+    function MapPixel2LoadedPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
-   property VisibleTopLeft: TPoint read GetVisibleTopLeft;
-   property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
-   property VisiblePixelRect: TRect read GetVisiblePixelRect;
+    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
+    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
+    property VisiblePixelRect: TRect read GetVisiblePixelRect;
 
-   property LoadedTopLeft: TPoint read GetLoadedTopLeft;
-   property LoadedPixelRect: TRect read GetLoadedPixelRect;
-   property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
-   property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
+    property LoadedTopLeft: TPoint read GetLoadedTopLeft;
+    property LoadedPixelRect: TRect read GetLoadedPixelRect;
+    property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
+    property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
 
-   property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
-   procedure UpdateGPSsensors;
+    property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
+    procedure UpdateGPSsensors;
   end;
 
 const

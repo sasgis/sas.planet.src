@@ -122,7 +122,7 @@ begin
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
                   FLoadXY.X := BPos.x-pr_x+(x shl 8);
                   FLoadXY.Y := BPos.y-pr_y+(y shl 8);
-                  VMap.GeoConvert.CheckPixelPos(FLoadXY, VZoom, True);
+                  VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
 
                   Flastload.X:=FLoadXY.X-(abs(FLoadXY.X) mod 256);
                   Flastload.Y:=FLoadXY.Y-(abs(FLoadXY.Y) mod 256);
