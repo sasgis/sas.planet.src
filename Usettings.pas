@@ -261,7 +261,6 @@ type
 
 var
   FSettings: TFSettings;
-  activ:boolean=true;
   procedure SetProxy;
 
 implementation
@@ -392,7 +391,7 @@ begin
  GState.MainIni.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  GState.MainIni.WriteInteger('GPS','SizeTrack',GState.GPS_TrackWidth);
  GState.MainIni.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
- GState.MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
+ GState.MainIni.WriteFloat('GPS','Odometr',FMain.GPSpar.Odometr);
  GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
  GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);

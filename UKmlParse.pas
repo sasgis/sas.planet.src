@@ -112,8 +112,8 @@ begin
     exit;
    end;
   try
+    str:=TMemoryStream.Create;
     try
-      str:=TMemoryStream.Create;
       str.LoadFromFile(FileName);
       str.Position:=0;
       SetLength(buffer,str.Size);

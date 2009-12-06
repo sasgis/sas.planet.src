@@ -188,6 +188,7 @@ type
     procedure SpeedButton2Click(Sender: TObject);
   private
     zoom_rect:byte;
+    PolygonLL: TExtendedPointArray;
   public
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
@@ -198,9 +199,7 @@ type
    end;
 
 var
-  type_reg_:byte;
   Fsaveas: TFsaveas;
-  PolygonLL: TExtendedPointArray;
 
 implementation
 

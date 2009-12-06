@@ -58,8 +58,6 @@ type
 
 var
   FGoTo: TFGoTo;
-  j:integer;
-  lon_k,lat_k:real;
   procedure MouseOnMyReg(var PWL:TResObj;xy:TPoint);
 
 implementation
@@ -96,12 +94,14 @@ begin
 end;
 
 procedure MouseOnMyReg(var PWL:TResObj;xy:TPoint);
-var i:integer;
-    ll1,ll2:TPoint;
-    ms:TMemoryStream;
-    arrLL:PArrLL;
-    arLL: TPointArray;
-    poly:TExtendedPointArray;
+var
+  j:integer;
+  i:integer;
+  ll1,ll2:TPoint;
+  ms:TMemoryStream;
+  arrLL:PArrLL;
+  arLL: TPointArray;
+  poly:TExtendedPointArray;
 begin
  if GState.show_point = mshNone then exit;
  Fmain.CDSKategory.Filtered:=true;

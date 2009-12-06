@@ -34,7 +34,6 @@ type
     trtSinsh = 12
   );
 
-  procedure SetDefoultMap;
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
   procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
@@ -209,17 +208,6 @@ begin
  except
   result:=false;
  end;
-end;
-
-procedure SetDefoultMap;
-var b:TPNGObject;
-begin
- b:=TPNGObject.Create;
- b.LoadFromResourceName(HInstance, 'ICONIII');
- GOToSelIcon:=TBitmap32.Create;
- PNGintoBitmap32(GOToSelIcon,b);
- GOToSelIcon.DrawMode:=dmBlend;
- FreeAndNil(b);
 end;
 
 procedure Contrast(Bitmap: TBitmap32; Value: double);

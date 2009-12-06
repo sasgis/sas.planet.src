@@ -96,7 +96,7 @@ type
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
-    { Private declarations }
+    new_:boolean;
   public
    function show_(aLL:TExtendedPoint;new:boolean):boolean;
   end;
@@ -105,8 +105,6 @@ type
 
 var
   FaddPoint: TFaddPoint;
-  new_:boolean;
-  iconName:string;
 
 implementation
 
