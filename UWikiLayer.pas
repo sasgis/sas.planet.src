@@ -25,7 +25,6 @@ type
 var WikiLayer:array of TWikiLayer;
 
 
-    old_x,old_y:integer;
     procedure destroyWL;
     procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates:  TExtendedPointArray);
     procedure loadWL(Alayer: TMapType);
