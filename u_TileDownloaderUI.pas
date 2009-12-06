@@ -65,13 +65,14 @@ begin
 end;
 
 procedure TTileDownloaderUI.Execute;
-var i,j,ii,k,r,XX,YY,g,x,y,m1:integer;
+var i,j,ii,k,r,g,x,y,m1:integer;
     Bpos:TPoint;
     ty: string;
     fileBuf:TMemoryStream;
     VMap: TMapType;
     VMainMap: TMapType;
     res: TDownloadTileResult;
+    VZoom: Byte;
 begin
   repeat
     if Fmain.TileSource = tsCache then begin
@@ -117,18 +118,18 @@ begin
                 VMap := MapType[ii];
                 if VMap.active then begin
                   BPos:=UPos;
+                  VZoom := FZoom - 1;
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
-                  xx:=Fmain.X2AbsX(BPos.x-pr_x+(x shl 8),Fzoom);
-                  yy:=Fmain.X2AbsX(BPos.y-pr_y+(y shl 8),Fzoom);
-                  FLoadXY.X := xx;
-                  FLoadXY.Y := yy;
+                  FLoadXY.X := BPos.x-pr_x+(x shl 8);
+                  FLoadXY.Y := BPos.y-pr_y+(y shl 8);
+                  VMap.GeoConvert.CheckPixelPos(FLoadXY, VZoom, True);
 
-                  Flastload.X:=XX-(abs(XX) mod 256);
-                  Flastload.Y:=YY-(abs(YY) mod 256);
+                  Flastload.X:=FLoadXY.X-(abs(FLoadXY.X) mod 256);
+                  Flastload.Y:=FLoadXY.Y-(abs(FLoadXY.Y) mod 256);
                   Flastload.z:=Fzoom;
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
-                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(xx,yy,Fzoom)))) then begin
+                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y,Fzoom)))) then begin
                     if VMap.UseDwn then begin
                       FileBuf:=TMemoryStream.Create;
                       try

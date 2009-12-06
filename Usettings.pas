@@ -261,7 +261,6 @@ type
 
 var
   FSettings: TFSettings;
-  activ:boolean=true;
   procedure SetProxy;
 
 implementation

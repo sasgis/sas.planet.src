@@ -28,7 +28,6 @@ function GETileExists(cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
 function GEGetTile(cachepath:string;x,y:integer;z:byte):TMemoryStream;
 
 var BMP_Bufer: TBMPbuf;
-    Tile:integer;
     indexfilename:string;
     indexfile:TMemoryStream;
     key: array[0..1023] of byte = (

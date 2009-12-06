@@ -79,7 +79,9 @@ type
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
-    { Private declarations }
+    arrLL:PArrLL;
+    lenarr:integer;
+    new_:boolean;
   public
    function show_(aLL:array of TExtendedPoint;new:boolean):boolean;
   end;
@@ -88,9 +90,6 @@ type
 
 var
   FAddPoly: TFAddPoly;
-  arrLL:PArrLL;
-  lenarr:integer;
-  new_:boolean;
 
 implementation
 

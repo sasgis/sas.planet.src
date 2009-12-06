@@ -662,7 +662,6 @@ var
   rect_arr:array [0..1] of TextendedPoint;
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
   nilLastLoad:TLastLoad;
-  GOToSelIcon:TBitmap32;
   paintMark:boolean;
 
   function c_GetTempPath: string;
@@ -1879,7 +1878,7 @@ begin
     VPoint.X := VPoint.X - 7;
     VPoint.Y := VPoint.Y - 6;
     VPoint := MapPixel2LoadedPixel(VPoint);
-    LayerMap.Bitmap.Draw(VPoint.X, VPoint.Y, GOToSelIcon);
+    LayerMap.Bitmap.Draw(VPoint.X, VPoint.Y, GState.GOToSelIcon);
   end
 end;
 
@@ -2372,7 +2371,6 @@ begin
  Enabled:=true;
  nilLastLoad.use:=false;
  notpaint:=true;
- SetDefoultMap;
  Application.OnMessage := DoMessageEvent;
  Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
  LenShow:=true;

@@ -33,8 +33,7 @@ type
   end;
 
  RUnits = (SUmeter,SUdegrees);
-var
-  her:boolean;
+
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;

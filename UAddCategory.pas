@@ -34,14 +34,13 @@ type
     Button2: TButton;
     procedure BaddClick(Sender: TObject);
   private
-    { Private declarations }
+    new_:boolean;
   public
    procedure show_(new:boolean);
   end;
 
 var
   FAddCategory: TFAddCategory;
-  new_:boolean;
 
 implementation
 
