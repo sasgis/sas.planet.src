@@ -1,6 +1,6 @@
 object FaddLine: TFaddLine
-  Left = 166
-  Top = 361
+  Left = 185
+  Top = 187
   BorderStyle = bsDialog
   Caption = 'FaddLine'
   ClientHeight = 310
