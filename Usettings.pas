@@ -526,7 +526,9 @@ begin
  GState.InetConnect.proxystr:=EditIP.Text;
  GState.InetConnect.loginstr:=EditLogin.Text;
  GState.InetConnect.passstr:=EditPass.Text;
+ if (GState.InetConnect.TimeOut<>SETimeOut.Value) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.TimeOut:=SETimeOut.Value;
+
  GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
  GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
