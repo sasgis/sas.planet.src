@@ -560,6 +560,7 @@ object FMarksExplorer: TFMarksExplorer
     Top = 80
     Width = 75
     Height = 25
+    Cancel = True
     Caption = #1047#1072#1082#1088#1099#1090#1100
     TabOrder = 3
     OnClick = Button2Click

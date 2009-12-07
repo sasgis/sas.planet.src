@@ -27,7 +27,7 @@ uses
 
 type
  TMapType = class
-   protected
+   private
     FUrlGenerator : TUrlGenerator;
     TileRect:TRect;
     pos: integer;
@@ -36,41 +36,55 @@ type
    public
     id: integer;
     guids: string;
-    zmpfilename:string;
-    active:boolean;
-    info:string;
-    showinfo:boolean;
-    ShowOnSmMap:boolean;
-    asLayer:boolean;
+    zmpfilename: string;
+    active: boolean;
+    info: string;
+    showinfo: boolean;
+    ShowOnSmMap: boolean;
+    asLayer: boolean;
     name: string;
-    Icon24Name,Icon18Name:string;
-    HotKey:TShortCut;
-    DefHotKey:TShortCut;
+    Icon24Name: string;
+    Icon18Name: string;
+    HotKey: TShortCut;
+    DefHotKey: TShortCut;
     URLBase: string;
     DefURLBase: string;
-    UseDwn,Usestick,UseGenPrevious,Usedel,Usesave:boolean;
-    UseSubDomain:boolean;
-    UseAntiBan:integer;
-    Sleep,DefSleep:Integer;
-    separator:boolean;
-    Defseparator:boolean;
-    DelAfterShow:boolean;
-    GetURLScript:string;
-    projection:byte;
-    cachetype:byte;
-    defcachetype:byte;
-    CONTENT_TYPE:string;
-    STATUS_CODE:string;
-    BanIfLen:integer;
-    radiusa,radiusb,exct:extended;
-    ext,ParentSubMenu:string;
+    UseDwn: boolean;
+    Usestick: boolean;
+    UseGenPrevious: boolean;
+    Usedel: boolean;
+    Usesave: boolean;
+    UseSubDomain: boolean;
+    UseAntiBan: integer;
+    Sleep: Integer;
+    DefSleep: Integer;
+    separator: boolean;
+    Defseparator: boolean;
+    DelAfterShow: boolean;
+    GetURLScript: string;
+    projection: byte;
+    cachetype: byte;
+    defcachetype: byte;
+    CONTENT_TYPE: string;
+    STATUS_CODE: string;
+    BanIfLen: integer;
+    radiusa: extended;
+    radiusb: extended;
+    exct: extended;
+    ext: string;
+    ParentSubMenu: string;
     DefParentSubMenu:string;
-    NSmItem,TBItem,NLayerParamsItem,TBFillingItem:TTBXItem;
-    TBSubMenuItem:TTBXSubmenuItem;
-    NDwnItem,NDelItem:TMenuItem;
+    NSmItem: TTBXItem;
+    TBItem: TTBXItem;
+    NLayerParamsItem: TTBXItem;
+    TBFillingItem: TTBXItem;
+    TBSubMenuItem: TTBXSubmenuItem;
+    NDwnItem: TMenuItem;
+    NDelItem: TMenuItem;
     NameInCache:string;
     DefNameInCache:string;
-    bmp18,bmp24:TBitmap;
+    bmp18: TBitmap;
+    bmp24: TBitmap;
     FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
@@ -88,7 +102,8 @@ type
 
     function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
     function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
-    function GetTileShowName(x,y:longint;Azoom:byte):string;
+    function GetTileShowName(x,y:longint;Azoom:byte):string; overload;
+    function GetTileShowName(AXY: TPoint;Azoom:byte):string; overload;
 
     function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
     function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
@@ -1447,6 +1462,11 @@ end;
 function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
 begin
   Result := GetTileFileName(x, y, Azoom);
+end;
+
+function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := GetTileFileName(AXY, Azoom)
 end;
 
 end.

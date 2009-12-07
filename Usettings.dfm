@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 301
-  Top = 170
+  Left = 205
+  Top = 76
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 414

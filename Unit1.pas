@@ -415,6 +415,12 @@ type
     TBXSensorAzimut: TTBXLabel;
     TBXLabel4: TTBXLabel;
     NSensorAzimutBar: TTBXItem;
+    TBXToolBarSearch: TTBXToolbar;
+    TBXSearchEdit: TTBXEditItem;
+    TBXSelectSrchType: TTBXSubmenuItem;
+    TBXSelectGoogleSrch: TTBXItem;
+    TBXSelectYandexSrch: TTBXItem;
+    NToolBarSearch: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -537,6 +543,9 @@ type
     procedure NSensorsBarClick(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
+    procedure TBXSelectYandexSrchClick(Sender: TObject);
+    procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
+      var Accept: Boolean);
   private
     ShowActivHint:boolean;
     HintWindow: THintWindow;
@@ -638,8 +647,9 @@ type
     procedure UpdateGPSsensors;
   end;
 
+
 const
-  SASVersion='91111';
+  SASVersion='91207';
   CProgram_Lang_Default = LANG_RUSSIAN;
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; //  онстанта дл€ преобразовани€ радиан в градусы
@@ -1565,7 +1575,7 @@ begin
         finally
           free;
         end;
-        for i:=1 to length(pathll)-2 do begin
+        for i:=1 to length(pathll)-1 do begin
           k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
           k1:=MapPixel2LoadedPixel(k1);
           k1:=Point(k1.x-4,k1.y-4);
@@ -1580,7 +1590,7 @@ begin
       k1:=MapPixel2LoadedPixel(k1);
       k1:=Point(k1.x-4,k1.y-4);
       LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
-      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[length(pathll)-1],GState.zoom_size-1);
+      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[lastpoint],GState.zoom_size-1);
       k1:=MapPixel2LoadedPixel(k1);
       k1:=Point(k1.x-4,k1.y-4);
       LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClRed32,255));
@@ -2295,7 +2305,7 @@ begin
  GState.SaveTileNotExists:=GState.MainIni.ReadBool('INTERNET','SaveTileNotExists',false);
  GState.TwoDownloadAttempt:=GState.MainIni.ReadBool('INTERNET','DblDwnl',true);
  GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
- GState.InetConnect.TimeOut:=GState.MainIni.ReadInteger('INTERNET','TimeOut',10000);
+ GState.InetConnect.TimeOut:=GState.MainIni.ReadInteger('INTERNET','TimeOut',40000);
 
  GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
@@ -2338,6 +2348,7 @@ begin
  GState.MainFileCache.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
+ GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
  GState.WikiMapMainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
  GState.WikiMapFonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
@@ -2471,6 +2482,11 @@ begin
  Fsaveas.PageControl1.ActivePageIndex:=0;
 
  SetProxy;
+
+ case GState.SrchType of
+  stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
+  stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
+ end;
 
  if GState.WebReportToAuthor then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
  Enabled:=true;
@@ -4956,6 +4972,22 @@ begin
     if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then
       generate_im(nilLastLoad,'');
   end;
+end;
+
+procedure TFmain.TBXSelectYandexSrchClick(Sender: TObject);
+begin
+ TTBXItem(Sender).Checked:=true;
+ GState.SrchType:=TSrchType(TTBXItem(Sender).tag);
+ TBXSelectSrchType.Caption:=TTBXItem(Sender).Caption;
+end;
+
+procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
+  var NewText: String; var Accept: Boolean);
+begin
+ case GState.SrchType of
+  stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
+  stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
+ end;
 end;
 
 end.

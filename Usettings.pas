@@ -344,6 +344,7 @@ begin
 
  if Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
                        else GState.MainIni.WriteString('VIEW','FillingMap',Fillingmaptype.guids);
+ GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
  GState.MainIni.Writeinteger('Wikimapia','FonColor',GState.WikiMapFonColor);
  GState.MainIni.Writeinteger('HOTKEY','ZoomIn',Fmain.NzoomIn.ShortCut);
@@ -526,7 +527,9 @@ begin
  GState.InetConnect.proxystr:=EditIP.Text;
  GState.InetConnect.loginstr:=EditLogin.Text;
  GState.InetConnect.passstr:=EditPass.Text;
+ if (GState.InetConnect.TimeOut<>SETimeOut.Value) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.TimeOut:=SETimeOut.Value;
+
  GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
  GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
