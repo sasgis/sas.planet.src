@@ -576,7 +576,11 @@ type
     FUIDownLoader: TTileDownloaderUI;
     curBuf:TCursor;
   public
-    LayerMap,LayerMapWiki,layerLineM,LayerMapNal,LayerMapGPS: TBitmapLayer;
+    LayerMap: TBitmapLayer;
+    LayerMapWiki: TBitmapLayer;
+    layerLineM: TBitmapLayer;
+    LayerMapNal: TBitmapLayer;
+    LayerMapGPS: TBitmapLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
