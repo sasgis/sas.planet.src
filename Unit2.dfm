@@ -1,6 +1,6 @@
 object FGoTo: TFGoTo
-  Left = 205
-  Top = 94
+  Left = 293
+  Top = 177
   Hint = 'Close'
   AlphaBlendValue = 220
   BorderStyle = bsToolWindow
