@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 240
-  Top = 87
+  Left = 299
+  Top = 119
   Width = 854
   Height = 573
   HorzScrollBar.Visible = False
@@ -59,9 +59,9 @@ object Fmain: TFmain
   end
   object map: TImage32
     Left = 36
-    Top = 59
+    Top = 82
     Width = 646
-    Height = 471
+    Height = 448
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -83,10 +83,10 @@ object Fmain: TFmain
     Left = 0
     Top = 0
     Width = 846
-    Height = 59
+    Height = 82
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 25
+      Top = 48
       DockPos = -8
       DockRow = 2
       Images = TBImageList2
@@ -203,7 +203,7 @@ object Fmain: TFmain
     end
     object SrcToolbar: TTBXToolbar
       Left = 242
-      Top = 25
+      Top = 48
       DockPos = 240
       DockRow = 2
       Images = ImagesSrc24
@@ -237,7 +237,7 @@ object Fmain: TFmain
     end
     object TBMarksToolbar: TTBXToolbar
       Left = 369
-      Top = 25
+      Top = 48
       DockPos = 336
       DockRow = 2
       Images = TBImageList2
@@ -249,7 +249,7 @@ object Fmain: TFmain
     end
     object GPSToolbar: TTBXToolbar
       Left = 509
-      Top = 25
+      Top = 48
       DockPos = 488
       DockRow = 2
       Images = TBImageList2
@@ -329,7 +329,7 @@ object Fmain: TFmain
     end
     object TBExit: TTBXToolbar
       Left = 811
-      Top = 25
+      Top = 48
       DockPos = 918
       DockRow = 2
       TabOrder = 4
@@ -347,6 +347,10 @@ object Fmain: TFmain
       Top = 0
       CloseButton = False
       DockPos = 0
+      FullSize = True
+      MenuBar = True
+      ProcessShortCuts = True
+      ShrinkMode = tbsmWrap
       TabOrder = 5
       Caption = #1043#1083#1072#1074#1085#1086#1077' '#1084#1077#1085#1102
       object NOperations: TTBXSubmenuItem
@@ -459,7 +463,6 @@ object Fmain: TFmain
           end
           object NToolBarSearch: TTBXItem
             AutoCheck = True
-            Checked = True
             OnClick = NSensorsBarClick
             Caption = #1055#1072#1085#1077#1083#1100' '#1087#1086#1080#1089#1082#1072
             Hint = ''
@@ -993,11 +996,12 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 423
-      Top = 0
+      Left = 0
+      Top = 23
       DockPos = 424
       Stretch = True
       TabOrder = 6
+      Visible = False
       OnVisibleChanged = TBXSensorsBarVisibleChanged
       Caption = #1055#1072#1085#1077#1083#1100' '#1087#1086#1080#1089#1082#1072
       object TBXSelectSrchType: TTBXSubmenuItem
@@ -1020,11 +1024,6 @@ object Fmain: TFmain
           Hint = ''
         end
       end
-      object TBXSeparatorItem18: TTBXSeparatorItem
-        Blank = True
-        Caption = ''
-        Hint = ''
-      end
       object TBXSearchEdit: TTBXEditItem
         EditCaption = #1055#1086#1080#1089#1082
         EditWidth = 150
@@ -1044,9 +1043,9 @@ object Fmain: TFmain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 59
+    Top = 82
     Width = 36
-    Height = 471
+    Height = 448
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1931,14 +1930,14 @@ object Fmain: TFmain
   end
   object TBDockRight: TTBXDock
     Left = 682
-    Top = 59
+    Top = 82
     Width = 164
-    Height = 471
+    Height = 448
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 336
-      ClientAreaHeight = 125
+      ClientAreaHeight = 102
       ClientAreaWidth = 160
       DockPos = 336
       Stretch = True
@@ -1946,7 +1945,7 @@ object Fmain: TFmain
       Visible = False
       DesignSize = (
         160
-        125)
+        102)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1961,7 +1960,7 @@ object Fmain: TFmain
         Left = 7
         Top = 32
         Width = 146
-        Height = 7
+        Height = 0
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1976,7 +1975,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 46
+        Top = 23
         Width = 145
         Height = 73
         Anchors = [akLeft, akRight, akBottom]

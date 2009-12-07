@@ -417,7 +417,6 @@ type
     TBXSelectSrchType: TTBXSubmenuItem;
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
-    TBXSeparatorItem18: TTBXSeparatorItem;
     NToolBarSearch: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -646,7 +645,7 @@ type
 
 
 const
-  SASVersion='91111';
+  SASVersion='91207';
   CProgram_Lang_Default = LANG_RUSSIAN;
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; //  онстанта дл€ преобразовани€ радиан в градусы
