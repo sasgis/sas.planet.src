@@ -12,9 +12,9 @@ type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
-    procedure Redraw; override;
 
   end;
 
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.Redraw;
+procedure TMapMarksLayer.DoRedraw;
 var
   LLRect:TExtendedRect;
   xy:Tpoint;
@@ -125,8 +125,6 @@ var
   VBitmapSize: TPoint;
 begin
   inherited;
-  if not Visible then exit;
-
   if FMain.CDSmarks.State <> dsBrowse then exit;
   paintMark:=true;
   try

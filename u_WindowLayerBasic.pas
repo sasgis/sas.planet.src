@@ -42,12 +42,15 @@ type
 
     // Переводит координаты прямоугольника битмапки в координаты VisualPixel
     function GetMapLayerLocationRect: TRect; virtual;
+
+    procedure  DoRedraw; virtual; abstract;
+    procedure  DoResize; virtual;
   public
     constructor Create(AParentMap: TImage32);
     procedure Resize; virtual;
     procedure Show; virtual;
     procedure Hide; virtual;
-    procedure Redraw; virtual; abstract;
+    procedure Redraw; virtual;
     property Visible: Boolean read GetVisible write SetVisible;
   end;
 
@@ -78,21 +81,13 @@ procedure TWindowLayerBasic.Hide;
 begin
   FLayer.Visible := False;
   FLayer.SendToBack;
-  FLayer.Bitmap.Width := 0;
-  FLayer.Bitmap.Height := 0;
+  FLayer.Bitmap.SetSize(0, 0);
 end;
 
 procedure TWindowLayerBasic.Resize;
-var
-  VBitmapSizeInPixel: TPoint;
 begin
   if FLayer.Visible then begin
-    VBitmapSizeInPixel := GetBitmapSizeInPixel;
-
-    FLayer.Bitmap.Width := VBitmapSizeInPixel.X;
-    FLayer.Bitmap.Height := VBitmapSizeInPixel.Y;
-
-    FLayer.Location := floatrect(GetMapLayerLocationRect);
+    DoResize;
   end;
 end;
 
@@ -113,6 +108,26 @@ begin
   Redraw;
 end;
 
+function TWindowLayerBasic.GetScale: double;
+begin
+  Result := 1;
+end;
+
+procedure TWindowLayerBasic.Redraw;
+begin
+  if Visible then begin
+    DoRedraw;
+  end;
+end;
+
+procedure TWindowLayerBasic.DoResize;
+var
+  VBitmapSizeInPixel: TPoint;
+begin
+  VBitmapSizeInPixel := GetBitmapSizeInPixel;
+  FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+  FLayer.Location := floatrect(GetMapLayerLocationRect);
+end;
 
 function TWindowLayerBasic.GetVisibleSizeInPixel: TPoint;
 begin
@@ -187,11 +202,6 @@ begin
 
   Result.X := (Pnt.X - VFreezePointInBitmapPixel.X) * VScale + VFreezePointInVisualPixel.X;
   Result.Y := (Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y;
-end;
-
-function TWindowLayerBasic.GetScale: double;
-begin
-  Result := 1;
 end;
 
 end.

@@ -13,9 +13,9 @@ type
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
     function GetFreezePointInBitmapPixel: TPoint; override;
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32);
-    procedure Redraw; override;
   end;
 
 implementation
@@ -61,7 +61,7 @@ begin
   Result := Point(0, VVisibleSize.Y);
 end;
 
-procedure TLayerStatBar.Redraw;
+procedure TLayerStatBar.DoRedraw;
 var
   ll:TextendedPoint;
   subs2:string;

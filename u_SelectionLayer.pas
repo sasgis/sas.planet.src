@@ -8,10 +8,8 @@ uses
 type
   TSelectionLayer = class(TMapLayerBasic)
   protected
-
+    procedure DoRedraw; override;
   public
-    procedure Redraw; override;
-
   end;
 
 implementation
@@ -27,7 +25,7 @@ uses
 
 { TSelectionLayer }
 
-procedure TSelectionLayer.Redraw;
+procedure TSelectionLayer.DoRedraw;
 var
     VSelectedLonLat: TExtendedRect;
     VZoomCurr: Byte;
@@ -56,4 +54,3 @@ begin
 end;
 
 end.
- 

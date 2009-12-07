@@ -17,10 +17,9 @@ type
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
     function GetFreezePointInBitmapPixel: TPoint; override;
-
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32);
-    procedure Redraw; override;
   end;
 
 implementation
@@ -66,7 +65,7 @@ begin
   Result := Point(VVisibleSize.X div 2, VVisibleSize.Y div 2);
 end;
 
-procedure TCenterScale.Redraw;
+procedure TCenterScale.DoRedraw;
 var
   VRect: TRect;
   VHalfSize: TPoint;
