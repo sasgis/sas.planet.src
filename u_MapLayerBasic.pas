@@ -61,9 +61,6 @@ begin
 end;
 
 procedure TMapLayerBasic.SetScreenCenterPos(const Value: TPoint);
-var
-  VBitmapSize: TPoint;
-  VVisualSize: TPoint;
 begin
   FScreenCenterPos := Value;
   FScale := 1;
