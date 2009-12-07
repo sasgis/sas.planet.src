@@ -15,6 +15,8 @@ uses
   u_MemFileCache;
   
 type
+  TSrchType = (stGoogle,stYandex);
+
   TGlobalState = class
   private
     FDwnCS: TCriticalSection;
@@ -165,6 +167,9 @@ type
 
     // Отображать сетку тайлов для заданного зума
     TileGridZoom: byte;
+
+    //Способ поиска
+    SrchType: TSrchType;
 
     // Путь к иконкам меток
     property MarkIconsPath: string read GetMarkIconsPath;

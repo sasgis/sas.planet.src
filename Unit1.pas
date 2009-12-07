@@ -412,6 +412,13 @@ type
     TBXSensorAzimut: TTBXLabel;
     TBXLabel4: TTBXLabel;
     NSensorAzimutBar: TTBXItem;
+    TBXToolBarSearch: TTBXToolbar;
+    TBXSearchEdit: TTBXEditItem;
+    TBXSelectSrchType: TTBXSubmenuItem;
+    TBXSelectGoogleSrch: TTBXItem;
+    TBXSelectYandexSrch: TTBXItem;
+    TBXSeparatorItem18: TTBXSeparatorItem;
+    NToolBarSearch: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -534,6 +541,9 @@ type
     procedure NSensorsBarClick(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
+    procedure TBXSelectYandexSrchClick(Sender: TObject);
+    procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
+      var Accept: Boolean);
   private
     ShowActivHint:boolean;
     HintWindow: THintWindow;
@@ -633,6 +643,7 @@ type
     property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
     procedure UpdateGPSsensors;
   end;
+
 
 const
   SASVersion='91111';
@@ -2522,6 +2533,7 @@ begin
  GState.MainFileCache.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
+ GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
  GState.WikiMapMainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
  GState.WikiMapFonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
@@ -2649,6 +2661,11 @@ begin
  Fsaveas.PageControl1.ActivePageIndex:=0;
 
  SetProxy;
+
+ case GState.SrchType of
+  stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
+  stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
+ end;
 
  if GState.WebReportToAuthor then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
  Enabled:=true;
@@ -5121,6 +5138,22 @@ begin
     if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then
       generate_im(nilLastLoad,'');
   end;
+end;
+
+procedure TFmain.TBXSelectYandexSrchClick(Sender: TObject);
+begin
+ TTBXItem(Sender).Checked:=true;
+ GState.SrchType:=TSrchType(TTBXItem(Sender).tag);
+ TBXSelectSrchType.Caption:=TTBXItem(Sender).Caption;
+end;
+
+procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
+  var NewText: String; var Accept: Boolean);
+begin
+ case GState.SrchType of
+  stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
+  stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
+ end;
 end;
 
 end.

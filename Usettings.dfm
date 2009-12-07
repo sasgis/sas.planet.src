@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 275
-  Top = 245
+  Left = 205
+  Top = 76
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 414
@@ -1437,7 +1437,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
