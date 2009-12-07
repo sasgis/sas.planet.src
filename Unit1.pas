@@ -1558,7 +1558,7 @@ begin
         finally
           free;
         end;
-        for i:=1 to length(pathll)-2 do begin
+        for i:=1 to length(pathll)-1 do begin
           k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
           k1:=MapPixel2LoadedPixel(k1);
           k1:=Point(k1.x-4,k1.y-4);
@@ -1573,7 +1573,7 @@ begin
       k1:=MapPixel2LoadedPixel(k1);
       k1:=Point(k1.x-4,k1.y-4);
       LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClGreen32,255));
-      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[length(pathll)-1],GState.zoom_size-1);
+      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[lastpoint],GState.zoom_size-1);
       k1:=MapPixel2LoadedPixel(k1);
       k1:=Point(k1.x-4,k1.y-4);
       LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.y,8,8),SetAlpha(ClRed32,255));
