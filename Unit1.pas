@@ -3044,21 +3044,19 @@ begin
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
-var path:string;
-    APos:TPoint;
-    AMapType:TMapType;
-    VLoadPoint: TPoint;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+var
+  path:string;
+  AMapType:TMapType;
+  VLoadPoint: TPoint;
+  VZoomCurr: Byte;
+  VPoint: TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  VZoomCurr := GState.zoom_size - 1;
- VPoint := ScreenCenterPos;
+ VPoint := VisiblePixel2MapPixel(MouseUpPoint);
  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- APos := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
- VLoadPoint.x := Apos.x-(mWd2-MouseUpPoint.x);
- VLoadPoint.y := Apos.y-(mHd2-MouseUpPoint.y);
+ VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
  path:=AMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
 
@@ -3122,30 +3120,30 @@ begin
 end;
 
 procedure TFmain.NDelClick(Sender: TObject);
-var s:string;
-    AMapType:TMapType;
-    APos:TPoint;
-    VLoadPoint: TPoint;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+var
+  s:string;
+  AMapType:TMapType;
+  VLoadPoint: TPoint;
+  VZoomCurr: Byte;
+  VPoint: TPoint;
 begin
- if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=TMapType(TMenuItem(sender).Tag);
- VZoomCurr := GState.zoom_size - 1;
- VPoint := ScreenCenterPos;
- sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- APos := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
- VLoadPoint.X := APos.x-(mWd2-MouseUpPoint.x);
- VLoadPoint.Y := APos.y-(mHd2-MouseUpPoint.y);
- AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
- s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
- if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
-  then begin
-        if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then
-          AMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
-        generate_im(nilLastLoad,'');
-       end;
-
+  if TMenuItem(sender).Tag=0 then begin
+    AMapType:=sat_map_both;
+  end else begin
+    AMapType:=TMapType(TMenuItem(sender).Tag);
+  end;
+  VZoomCurr := GState.zoom_size - 1;
+  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
+  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
+  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
+  s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+    if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then begin
+      AMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+    end;
+    generate_im(nilLastLoad,'');
+  end;
 end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
