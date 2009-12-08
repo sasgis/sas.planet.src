@@ -60,6 +60,7 @@ uses
   t_LoadEvent in 't_LoadEvent.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
+  CPDrv in 'src\CPDrv.pas',
   UGSM in 'UGSM.pas';
 
 var
