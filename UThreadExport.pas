@@ -58,6 +58,8 @@ uses
   u_GeoToStr,
   unit1,
   usaveas,
+  i_ITileFileNameGenerator,
+  u_GlobalState,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid;
 
@@ -471,9 +473,10 @@ var p_x,p_y,i,j:integer;
     polyg:TPointArray;
     pathfrom,pathto,persl,perzoom,kti,datestr:string;
     max,min:TPoint;
-    AMapType:TMapType;
+    VTileNameGen: ITileFileNameGenerator;
+    VExt: string;
+    VPath: string;
 begin
- AMapType:=TMapType.Create;
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
  persl:='';
@@ -517,9 +520,9 @@ begin
    for j:=0 to length(TypeMapArr)-1 do //по типу
      begin
       polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
-      AMapType.ext:=TypeMapArr[j].ext;
-      AMapType.NameInCache:=IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].GetShortFolderName;
-      AMapType.CacheType:=format;
+      VExt := TypeMapArr[j].ext;
+      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].GetShortFolderName);
+      VTileNameGen := GState.TileNameGenerator.GetGenerator(format);
       GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
       while p_x<max.x do
@@ -545,7 +548,7 @@ begin
                           end
                      else begin
 //TODO: Для создания путей для экспорта нужно создать новый класс.
-                           pathto:=AMapType.GetTileFileName(p_x,p_y,i+1);
+                           pathto:= VPath + VTileNameGen.GetTileFileName(Point(p_x shr 8,p_y shr 8), i) + VExt;
                            if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
                              if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
                            end;
@@ -573,7 +576,7 @@ begin
   end;
  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
- AMapType.Destroy;
+ VTileNameGen := nil;
  FProgress.Close;
 end;
 
