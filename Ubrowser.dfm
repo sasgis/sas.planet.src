@@ -1,8 +1,8 @@
 object Fbrowser: TFbrowser
-  Left = 442
-  Top = 206
-  Width = 566
-  Height = 334
+  Left = 444
+  Top = 208
+  Width = 562
+  Height = 330
   BorderStyle = bsSizeToolWin
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,11 +19,10 @@ object Fbrowser: TFbrowser
   object EmbeddedWB1: TEmbeddedWB
     Left = 0
     Top = 0
-    Width = 558
-    Height = 300
+    Width = 554
+    Height = 296
     Align = alClient
     TabOrder = 0
-    Silent = False
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     OnAuthenticate = EmbeddedWB1Authenticate
@@ -32,10 +31,8 @@ object Fbrowser: TFbrowser
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = ' Embedded Web Browser from: http://bsalsa.com/'
     ControlData = {

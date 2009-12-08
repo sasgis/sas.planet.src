@@ -1,8 +1,8 @@
 object FSearchResult: TFSearchResult
-  Left = 226
-  Top = 206
-  Width = 289
-  Height = 314
+  Left = 228
+  Top = 208
+  Width = 285
+  Height = 310
   Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090#1099' '#1087#1086#1080#1089#1082#1072
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

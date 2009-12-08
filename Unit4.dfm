@@ -1,10 +1,10 @@
 object Fprogress2: TFprogress2
-  Left = 205
-  Top = 159
+  Left = 207
+  Top = 161
   BorderStyle = bsToolWindow
   Caption = #1055#1086#1078#1072#1083#1091#1081#1089#1090#1072' '#1087#1086#1076#1086#1078#1076#1080#1090#1077'...'
-  ClientHeight = 51
-  ClientWidth = 329
+  ClientHeight = 47
+  ClientWidth = 325
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText

@@ -1,10 +1,10 @@
 object FaddLine: TFaddLine
-  Left = 185
-  Top = 187
+  Left = 187
+  Top = 189
   BorderStyle = bsDialog
   Caption = 'FaddLine'
-  ClientHeight = 310
-  ClientWidth = 343
+  ClientHeight = 306
+  ClientWidth = 339
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

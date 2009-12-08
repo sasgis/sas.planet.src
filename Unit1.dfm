@@ -1,8 +1,8 @@
 object Fmain: TFmain
-  Left = 299
-  Top = 119
-  Width = 854
-  Height = 573
+  Left = 428
+  Top = 166
+  Width = 850
+  Height = 569
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -42,10 +41,8 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -60,8 +57,8 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 82
-    Width = 646
-    Height = 448
+    Width = 642
+    Height = 444
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -82,7 +79,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 846
+    Width = 842
     Height = 82
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -202,7 +199,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 240
       Top = 48
       DockPos = 240
       DockRow = 2
@@ -236,7 +233,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 367
       Top = 48
       DockPos = 336
       DockRow = 2
@@ -248,7 +245,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 509
+      Left = 507
       Top = 48
       DockPos = 488
       DockRow = 2
@@ -319,7 +316,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 106
+        Left = 104
         Top = 8
         Width = 32
         Height = 13
@@ -328,7 +325,7 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 811
+      Left = 807
       Top = 48
       DockPos = 918
       DockRow = 2
@@ -1036,8 +1033,8 @@ object Fmain: TFmain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 530
-    Width = 846
+    Top = 526
+    Width = 842
     Height = 9
     Position = dpBottom
   end
@@ -1045,7 +1042,7 @@ object Fmain: TFmain
     Left = 0
     Top = 82
     Width = 36
-    Height = 448
+    Height = 444
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1929,15 +1926,15 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 682
+    Left = 678
     Top = 82
     Width = 164
-    Height = 448
+    Height = 444
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 336
-      ClientAreaHeight = 102
+      ClientAreaHeight = 98
       ClientAreaWidth = 160
       DockPos = 336
       Stretch = True
@@ -1945,7 +1942,7 @@ object Fmain: TFmain
       Visible = False
       DesignSize = (
         160
-        102)
+        98)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1975,7 +1972,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 23
+        Top = 19
         Width = 145
         Height = 73
         Anchors = [akLeft, akRight, akBottom]

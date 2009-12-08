@@ -2790,7 +2790,7 @@ var
   i:integer;
 begin
  for i := 0 to Screen.FormCount - 1 do begin
-  if (Screen.Forms[i]<>Application.MainForm) then
+  if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
    Screen.Forms[i].Close;
  end;
  ProgramClose:=true;
@@ -4595,6 +4595,7 @@ begin
          drawReg;
         end;
   ao_add_poly,ao_add_line:
+        if lastpoint>0 then
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
          drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
@@ -5127,6 +5128,7 @@ begin
  if (not conerr)and(length(add_line_arr_b)>0) then begin
    add_line_arr:=add_line_arr_b;
    SetLength(add_line_arr_b,0);
+   lastpoint:=length(add_line_arr)-1;
  end;
  drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
