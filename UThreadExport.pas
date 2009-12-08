@@ -547,7 +547,6 @@ begin
                             Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-//TODO: Для создания путей для экспорта нужно создать новый класс.
                            pathto:= VPath + VTileNameGen.GetTileFileName(Point(p_x shr 8,p_y shr 8), i) + VExt;
                            if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
                              if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
