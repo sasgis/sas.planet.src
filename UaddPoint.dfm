@@ -1,10 +1,10 @@
 object FaddPoint: TFaddPoint
-  Left = 353
-  Top = 211
+  Left = 355
+  Top = 213
   BorderStyle = bsDialog
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
-  ClientHeight = 406
-  ClientWidth = 344
+  ClientHeight = 402
+  ClientWidth = 340
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText

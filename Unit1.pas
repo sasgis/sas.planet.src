@@ -421,6 +421,8 @@ type
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
     NToolBarSearch: TTBXItem;
+    TBXSeparatorItem18: TTBXSeparatorItem;
+    TBXItem7: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -546,6 +548,7 @@ type
     procedure TBXSelectYandexSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
+    procedure TBXItem7Click(Sender: TObject);
   private
     ShowActivHint:boolean;
     HintWindow: THintWindow;
@@ -721,7 +724,8 @@ uses
   UAddCategory,
   u_TileDownloaderUIOneTile,
   i_ICoordConverter,
-  UKMLParse;
+  UKMLParse,
+  UGSM;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -2373,6 +2377,11 @@ begin
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
  GPSpar.Odometr:=GState.MainIni.ReadFloat('GPS','Odometr',0);
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
+
+ GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
+ GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
+ GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
+
  GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
  GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
@@ -2627,7 +2636,7 @@ var
   i:integer;
 begin
  for i := 0 to Screen.FormCount - 1 do begin
-  if (Screen.Forms[i]<>Application.MainForm) then
+  if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
    Screen.Forms[i].Close;
  end;
  ProgramClose:=true;
@@ -2877,21 +2886,19 @@ begin
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
-var path:string;
-    APos:TPoint;
-    AMapType:TMapType;
-    VLoadPoint: TPoint;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+var
+  path:string;
+  AMapType:TMapType;
+  VLoadPoint: TPoint;
+  VZoomCurr: Byte;
+  VPoint: TPoint;
 begin
  if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
                             else AMapType:=TMapType(TMenuItem(sender).Tag);
  VZoomCurr := GState.zoom_size - 1;
- VPoint := ScreenCenterPos;
+ VPoint := VisiblePixel2MapPixel(MouseUpPoint);
  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- APos := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
- VLoadPoint.x := Apos.x-(mWd2-MouseUpPoint.x);
- VLoadPoint.y := Apos.y-(mHd2-MouseUpPoint.y);
+ VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
  path:=AMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
 
@@ -2955,30 +2962,30 @@ begin
 end;
 
 procedure TFmain.NDelClick(Sender: TObject);
-var s:string;
-    AMapType:TMapType;
-    APos:TPoint;
-    VLoadPoint: TPoint;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+var
+  s:string;
+  AMapType:TMapType;
+  VLoadPoint: TPoint;
+  VZoomCurr: Byte;
+  VPoint: TPoint;
 begin
- if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=TMapType(TMenuItem(sender).Tag);
- VZoomCurr := GState.zoom_size - 1;
- VPoint := ScreenCenterPos;
- sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- APos := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
- VLoadPoint.X := APos.x-(mWd2-MouseUpPoint.x);
- VLoadPoint.Y := APos.y-(mHd2-MouseUpPoint.y);
- AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
- s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
- if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES)
-  then begin
-        if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then
-          AMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
-        generate_im(nilLastLoad,'');
-       end;
-
+  if TMenuItem(sender).Tag=0 then begin
+    AMapType:=sat_map_both;
+  end else begin
+    AMapType:=TMapType(TMenuItem(sender).Tag);
+  end;
+  VZoomCurr := GState.zoom_size - 1;
+  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
+  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
+  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
+  s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+    if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then begin
+      AMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+    end;
+    generate_im(nilLastLoad,'');
+  end;
 end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
@@ -4434,6 +4441,7 @@ begin
          drawReg;
         end;
   ao_add_poly,ao_add_line:
+        if lastpoint>0 then
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
          drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
@@ -4966,6 +4974,7 @@ begin
  if (not conerr)and(length(add_line_arr_b)>0) then begin
    add_line_arr:=add_line_arr_b;
    SetLength(add_line_arr_b,0);
+   lastpoint:=length(add_line_arr)-1;
  end;
  drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
@@ -4991,6 +5000,19 @@ begin
  case GState.SrchType of
   stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
   stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
+ end;
+end;
+
+procedure TFmain.TBXItem7Click(Sender: TObject);
+var PosFromGPS:TPosFromGPS;
+    LL:TExtendedPoint;
+begin
+ PosFromGPS:=TPosFromGPS.Create;
+ PosFromGPS.Port:='\\.\'+GState.GSMpar.Port;
+ PosFromGPS.BaundRate:=GState.GSMpar.BaudRate;
+ PosFromGPS.OnToPos:=topos;
+ if not(PosFromGPS.GetPos) then begin
+   ShowMessage(SAS_ERR_PortOpen);
  end;
 end;
 

@@ -1,10 +1,10 @@
 object FSettings: TFSettings
-  Left = 205
-  Top = 76
+  Left = 220
+  Top = 167
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
-  ClientHeight = 414
-  ClientWidth = 643
+  ClientHeight = 416
+  ClientWidth = 647
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet1
+    ActivePage = TabSheet6
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1770,6 +1770,77 @@ object FSettings: TFSettings
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         ItemHeight = 16
         TabOrder = 1
+      end
+    end
+    object TabSheet6: TTabSheet
+      Caption = 'GSM'
+      ImageIndex = 7
+      object Label33: TLabel
+        Left = 8
+        Top = 19
+        Width = 50
+        Height = 13
+        Caption = 'COM-'#1087#1086#1088#1090
+      end
+      object Label34: TLabel
+        Left = 200
+        Top = 19
+        Width = 48
+        Height = 13
+        Alignment = taRightJustify
+        Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+      end
+      object CBGSMComPort: TComboBox
+        Left = 64
+        Top = 16
+        Width = 89
+        Height = 21
+        ItemHeight = 13
+        TabOrder = 0
+        Text = 'COM1'
+      end
+      object CBGSMBaundRate: TComboBox
+        Left = 256
+        Top = 16
+        Width = 89
+        Height = 21
+        ItemHeight = 13
+        ItemIndex = 5
+        TabOrder = 1
+        Text = '4800'
+        Items.Strings = (
+          '110'
+          '300'
+          '600'
+          '1200'
+          '2400'
+          '4800'
+          '9600'
+          '14400'
+          '19200'
+          '38400'
+          '57600'
+          '115200')
+      end
+      object RBGSMAuto: TRadioButton
+        Left = 8
+        Top = 56
+        Width = 473
+        Height = 17
+        Caption = 
+          #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1086#1087#1088#1077#1076#1077#1083#1103#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1099' '#1073#1072#1079#1086#1074#1099#1093' '#1089#1090#1072#1085#1094#1080#1081' '#1095#1077#1088#1077#1079' '#1087#1086#1076#1082#1083#1102#1095 +
+          #1077#1085#1085#1099#1081' '#1090#1077#1083#1077#1092#1086#1085
+        Checked = True
+        TabOrder = 2
+        TabStop = True
+      end
+      object RBGSMManual: TRadioButton
+        Left = 8
+        Top = 72
+        Width = 273
+        Height = 17
+        Caption = #1042#1074#1086#1076#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1099' '#1073#1072#1079#1086#1074#1099#1093' '#1089#1090#1072#1085#1094#1080#1081' '#1074#1088#1091#1095#1085#1091#1102
+        TabOrder = 3
       end
     end
   end

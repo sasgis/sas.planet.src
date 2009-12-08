@@ -1,8 +1,8 @@
 object Fmain: TFmain
-  Left = 299
-  Top = 119
-  Width = 854
-  Height = 573
+  Left = 400
+  Top = 114
+  Width = 850
+  Height = 569
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -60,8 +60,8 @@ object Fmain: TFmain
   object map: TImage32
     Left = 36
     Top = 82
-    Width = 646
-    Height = 448
+    Width = 642
+    Height = 444
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -82,7 +82,7 @@ object Fmain: TFmain
   object TBDock: TTBXDock
     Left = 0
     Top = 0
-    Width = 846
+    Width = 842
     Height = 82
     object TBMainToolBar: TTBXToolbar
       Left = 0
@@ -328,7 +328,7 @@ object Fmain: TFmain
       end
     end
     object TBExit: TTBXToolbar
-      Left = 811
+      Left = 807
       Top = 48
       DockPos = 918
       DockRow = 2
@@ -921,6 +921,15 @@ object Fmain: TFmain
           Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1088#1077#1082
           Hint = ''
         end
+        object TBXSeparatorItem18: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object TBXItem7: TTBXItem
+          OnClick = TBXItem7Click
+          Caption = #1054#1087#1088#1077#1076#1077#1083#1080#1090#1100' '#1087#1086#1079#1080#1094#1080#1102' '#1087#1086' '#1073#1072#1079#1086#1074#1099#1084' '#1089#1090#1072#1085#1094#1080#1103#1084
+          Hint = ''
+        end
       end
       object NParams: TTBXSubmenuItem
         SubMenuImages = TBImageList1
@@ -1036,8 +1045,8 @@ object Fmain: TFmain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 530
-    Width = 846
+    Top = 526
+    Width = 842
     Height = 9
     Position = dpBottom
   end
@@ -1045,7 +1054,7 @@ object Fmain: TFmain
     Left = 0
     Top = 82
     Width = 36
-    Height = 448
+    Height = 444
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1929,15 +1938,15 @@ object Fmain: TFmain
     end
   end
   object TBDockRight: TTBXDock
-    Left = 682
+    Left = 678
     Top = 82
     Width = 164
-    Height = 448
+    Height = 444
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 336
-      ClientAreaHeight = 102
+      ClientAreaHeight = 98
       ClientAreaWidth = 160
       DockPos = 336
       Stretch = True
@@ -1945,7 +1954,7 @@ object Fmain: TFmain
       Visible = False
       DesignSize = (
         160
-        102)
+        98)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1975,7 +1984,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 23
+        Top = 19
         Width = 145
         Height = 73
         Anchors = [akLeft, akRight, akBottom]

@@ -77,7 +77,8 @@ uses
   u_MarksDb in 'u_MarksDb.pas' {DMMarksDb: TDataModule},
   u_EnumUnknownEmpty in 'u_EnumUnknownEmpty.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
-  u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas';
+  u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
+  UGSM in 'UGSM.pas';
 
 var
   loc:integer;

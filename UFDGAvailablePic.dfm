@@ -1,10 +1,10 @@
 object FDGAvailablePic: TFDGAvailablePic
-  Left = 728
-  Top = 245
+  Left = 730
+  Top = 247
   BorderStyle = bsDialog
   Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1076#1086#1089#1090#1091#1087#1085#1099#1093' '#1089#1085#1080#1084#1082#1072#1093' '#1085#1072' DigitalGlobe'
-  ClientHeight = 403
-  ClientWidth = 360
+  ClientHeight = 399
+  ClientWidth = 356
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
