@@ -10,6 +10,7 @@ uses
   GR32,
   t_GeoTypes,
   t_CommonTypes,
+  i_ITileFileNameGeneratorsList,
   u_GeoToStr,
   Uimgfun,
   u_MemFileCache;
@@ -20,6 +21,7 @@ type
   TGlobalState = class
   private
     FDwnCS: TCriticalSection;
+    FTileNameGenerator: ITileFileNameGeneratorsList;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -174,6 +176,8 @@ type
     //параметры определения позиции по GSM
     GSMpar:TGSMpar;
 
+    // Список генераторов имен файлов с тайлами
+    property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Путь к иконкам меток
     property MarkIconsPath: string read GetMarkIconsPath;
     // Имя файла с метками
@@ -205,7 +209,8 @@ implementation
 
 uses
   SysUtils,
-  pngimage;
+  pngimage,
+  u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
 
@@ -218,6 +223,7 @@ begin
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
+  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   LoadResources;
   LoadMarkIcons;
 end;
@@ -230,6 +236,7 @@ begin
   FreeAndNil(MainFileCache);
   FreeAndNil(MarkIcons);
   FreeAndNil(InetConnect);
+  FTileNameGenerator := nil;
   inherited;
 end;
 
