@@ -1,9 +1,9 @@
 object FEditMap: TFEditMap
-  Left = 286
-  Top = 300
+  Left = 288
+  Top = 302
   BorderStyle = bsDialog
-  ClientHeight = 280
-  ClientWidth = 442
+  ClientHeight = 276
+  ClientWidth = 438
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

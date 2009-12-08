@@ -1,10 +1,10 @@
 object FAddCategory: TFAddCategory
-  Left = 206
-  Top = 316
+  Left = 208
+  Top = 318
   BorderStyle = bsDialog
   Caption = 'FAddCategory'
-  ClientHeight = 149
-  ClientWidth = 386
+  ClientHeight = 145
+  ClientWidth = 382
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

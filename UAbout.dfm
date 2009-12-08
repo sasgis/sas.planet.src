@@ -1,10 +1,10 @@
 object Fabout: TFabout
-  Left = 266
-  Top = 255
+  Left = 268
+  Top = 257
   BorderStyle = bsToolWindow
   Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
-  ClientHeight = 223
-  ClientWidth = 321
+  ClientHeight = 219
+  ClientWidth = 317
   Color = clWhite
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
