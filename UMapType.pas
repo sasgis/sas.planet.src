@@ -651,100 +651,16 @@ end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := Self.GetTileFileName(AXY.X shl 8, AXY.Y shl 8, Azoom + 1);
+  Result := GetBasePath;
+  if Result <> '' then begin
+    Result := IncludeTrailingPathDelimiter(Result);
+  end;
+  Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
 end;
 
 function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
-function full(int,z:integer):string;
-var s,s1:string;
-    i:byte;
 begin
- result:='';
- s:=inttostr(int);
- s1:=inttostr(zoom[z] div 256);
- for i:=length(s) to length(s1)-1 do result:=result+'0';
- result:=result+s;
-end;
-var os,prer:TPoint;
-    i,ct:byte;
-    sbuf,name:String;
-begin
-
- if (CacheType=0) then ct:=GState.DefCache
-                       else ct:=CacheType;
- if x>=0 then x:=x mod zoom[Azoom]
-         else x:=zoom[Azoom]+(x mod zoom[Azoom]);
- Result := GetBasePath;
- case ct of
- 1:
- begin
-   sbuf:=Format('%.*d', [2, Azoom]);
-   result:=result+'\'+sbuf+'\t';
-   os.X:=zoom[Azoom]shr 1;
-   os.Y:=zoom[Azoom]shr 1;
-   prer:=os;
-   for i:=2 to Azoom do
-    begin
-    prer.X:=prer.X shr 1;
-    prer.Y:=prer.Y shr 1;
-    if x<os.X
-     then begin
-           os.X:=os.X-prer.X;
-           if y<os.y then begin
-                            os.Y:=os.Y-prer.Y;
-                            result:=result+'q';
-                           end
-                      else begin
-                            os.Y:=os.Y+prer.Y;
-                            result:=result+'t';
-                           end;
-          end
-     else begin
-           os.X:=os.X+prer.X;
-           if y<os.y then begin
-                           os.Y:=os.Y-prer.Y;
-                           result:=result+'r';
-                          end
-                     else begin
-                           os.Y:=os.Y+prer.Y;
-                           result:=result+'s';
-                          end;
-         end;
-    end;
-  result:=result + ext;
- end;
- 2:
- begin
-  x:=x shr 8;
-  y:=y shr 8;
-  result:=result+format('\z%d\%d\x%d\%d\y%d',[Azoom,x shr 10,x,y shr 10,y])+ext;
- end;
- 3:
- begin
-   sbuf:=Format('%.*d', [2, Azoom]);
-   name:=sbuf+'-'+full(x shr 8,Azoom)+'-'+full(y shr 8,Azoom);
-   if Azoom<7
-    then result:=result+'\'+sbuf+'\'
-    else if Azoom<11
-          then result:=result+'\'+sbuf+'\'+Chr(59+Azoom)+
-                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\'
-          else result:=result+'\'+'10'+'-'+full((x shr (Azoom-10))shr 8,10)+'-'+
-                       full((y shr (Azoom-10))shr 8,10)+'\'+sbuf+'\'+Chr(59+Azoom)+
-                       full((x shr 8)shr 5,Azoom-5)+full((y shr 8)shr 5,Azoom-5)+'\';
-   result:=result+name+ext;
- end;
- 4,41:
- begin
-  x:=x shr 8;
-  y:=y shr 8;
-  if ct=4 then result:=result+format('\z%d\%d\%d'+ext,[Azoom-1,Y,X])
-          else result:=result+format('\z%d\%d_%d'+ext,[Azoom-1,Y,X]);
- end;
- 5:
- begin
-  result:=result+'\dbCache.dat';
- end;
- end;
+  Result := GetTileFileName(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
