@@ -171,6 +171,9 @@ type
     //Способ поиска
     SrchType: TSrchType;
 
+    //параметры определения позиции по GSM
+    GSMpar:TGSMpar;
+
     // Путь к иконкам меток
     property MarkIconsPath: string read GetMarkIconsPath;
     // Имя файла с метками

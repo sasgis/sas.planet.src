@@ -418,6 +418,8 @@ type
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
     NToolBarSearch: TTBXItem;
+    TBXSeparatorItem18: TTBXSeparatorItem;
+    TBXItem7: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -543,6 +545,7 @@ type
     procedure TBXSelectYandexSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
+    procedure TBXItem7Click(Sender: TObject);
   private
     ShowActivHint:boolean;
     HintWindow: THintWindow;
@@ -718,7 +721,8 @@ uses
   UAddCategory,
   u_TileDownloaderUIOneTile,
   i_ICoordConverter,
-  UKMLParse;
+  UKMLParse,
+  UGSM;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const Value:TPoint);
@@ -2558,6 +2562,11 @@ begin
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
  GPSpar.Odometr:=GState.MainIni.ReadFloat('GPS','Odometr',0);
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
+
+ GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
+ GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
+ GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
+
  GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
  GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
@@ -5157,6 +5166,19 @@ begin
  case GState.SrchType of
   stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
   stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
+ end;
+end;
+
+procedure TFmain.TBXItem7Click(Sender: TObject);
+var PosFromGPS:TPosFromGPS;
+    LL:TExtendedPoint;
+begin
+ PosFromGPS:=TPosFromGPS.Create;
+ PosFromGPS.Port:='\\.\'+GState.GSMpar.Port;
+ PosFromGPS.BaundRate:=GState.GSMpar.BaudRate;
+ PosFromGPS.OnToPos:=topos;
+ if not(PosFromGPS.GetPos) then begin
+   ShowMessage(SAS_ERR_PortOpen);
  end;
 end;
 

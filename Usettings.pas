@@ -235,6 +235,13 @@ type
     SBGetComNum: TSpeedButton;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
+    TabSheet6: TTabSheet;
+    Label33: TLabel;
+    CBGSMComPort: TComboBox;
+    Label34: TLabel;
+    CBGSMBaundRate: TComboBox;
+    RBGSMAuto: TRadioButton;
+    RBGSMManual: TRadioButton;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -394,6 +401,11 @@ begin
  GState.MainIni.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  GState.MainIni.WriteFloat('GPS','Odometr',FMain.GPSpar.Odometr);
  GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
+
+ GState.MainIni.WriteString('GSM','port',GState.GSMpar.Port);
+ GState.MainIni.WriteInteger('GSM','BaudRate',GState.GSMpar.BaudRate);
+ GState.MainIni.WriteBool('GSM','Auto',GState.GSMpar.auto);
+
  GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','ESC',GState.ESCpath_);
@@ -492,6 +504,10 @@ begin
     end;
    k:=k shr 1;
   end;
+
+ GState.GSMpar.BaudRate:=strtoint(CBGSMBaundRate.text);
+ GState.GSMpar.Port:=CBGSMComPort.Text;
+ GState.GSMpar.auto:=RBGSMAuto.Checked;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
@@ -653,6 +669,10 @@ begin
   LANG_RUSSIAN:CBoxLocal.ItemIndex:=0;
   LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
  end;
+
+ CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
+ CBGSMComPort.Text:=GState.GSMpar.Port;
+ RBGSMAuto.Checked:=GState.GSMpar.auto;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;
@@ -748,7 +768,10 @@ procedure TFSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
   ComboBoxCOM.Items.Clear;
-  for i:=1 to 64 do ComboBoxCOM.Items.Add('COM'+inttostr(i));
+  for i:=1 to 64 do begin
+    CBGSMComPort.Items.Add('COM'+inttostr(i));
+    ComboBoxCOM.Items.Add('COM'+inttostr(i));
+  end;
 end;
 
 procedure TFSettings.TrBarGammaChange(Sender: TObject);

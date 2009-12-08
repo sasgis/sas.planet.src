@@ -28,6 +28,11 @@ type
    Odometr:extended;
   end;
 
+  TGSMpar = record
+   BaudRate:integer;
+   Port:string;
+   auto:boolean;
+  end;
 
   TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
 implementation

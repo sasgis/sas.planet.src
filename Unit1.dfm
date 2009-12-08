@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 428
-  Top = 166
+  Left = 400
+  Top = 114
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -41,8 +41,10 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
+    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
+    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -199,7 +201,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 240
+      Left = 242
       Top = 48
       DockPos = 240
       DockRow = 2
@@ -233,7 +235,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 367
+      Left = 369
       Top = 48
       DockPos = 336
       DockRow = 2
@@ -245,7 +247,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 507
+      Left = 509
       Top = 48
       DockPos = 488
       DockRow = 2
@@ -316,7 +318,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 104
+        Left = 106
         Top = 8
         Width = 32
         Height = 13
@@ -916,6 +918,15 @@ object Fmain: TFmain
           ImageIndex = 11
           OnClick = TBItemDelTrackClick
           Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1088#1077#1082
+          Hint = ''
+        end
+        object TBXSeparatorItem18: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object TBXItem7: TTBXItem
+          OnClick = TBXItem7Click
+          Caption = #1054#1087#1088#1077#1076#1077#1083#1080#1090#1100' '#1087#1086#1079#1080#1094#1080#1102' '#1087#1086' '#1073#1072#1079#1086#1074#1099#1084' '#1089#1090#1072#1085#1094#1080#1103#1084
           Hint = ''
         end
       end
