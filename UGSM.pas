@@ -127,23 +127,68 @@ begin
  end;
 end;
 
+function GetWord(Str, Smb: string; WordNmbr: Byte): string;
+var SWord: string;
+    StrLen, N: Byte;
+begin
+  StrLen := SizeOf(Str);
+  N := 1;
+  while ((WordNmbr >= N) and (StrLen <> 0)) do
+  begin
+    StrLen := System.Pos(Smb, str);
+    if StrLen <> 0 then
+    begin
+      SWord := Copy(Str, 1, StrLen - 1);
+      Delete(Str, 1, StrLen);
+      Inc(N);
+    end
+    else SWord := Str;
+  end;
+  if WordNmbr <= N then Result := SWord
+                   else Result := '';
+end;
+
+
 function TPosFromGPS.GetPos:boolean;
-var
+var paramss:string;
+    pos:integer;
     LL:TExtendedPoint;
 begin
- CommPortDriver:=TCommPortDriver.Create(nil);
- CommPortDriver.PortName:=Port;
- CommPortDriver.BaudRateValue:=BaundRate;
- CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
- CommPortDriver.Connect;
- if CommPortDriver.Connected then begin
-   if CommPortDriver.SendString('AT+CREG=2'+#13) then begin
-     CommPortDriver.SendString('AT+CREG?'+#13);
-     CommPortDriver.SendString('AT+COPS?'+#13);
+ if GState.GSMpar.auto then begin
+   CommPortDriver:=TCommPortDriver.Create(nil);
+   CommPortDriver.PortName:=Port;
+   CommPortDriver.BaudRateValue:=BaundRate;
+   CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
+   CommPortDriver.Connect;
+   if CommPortDriver.Connected then begin
+     if CommPortDriver.SendString('AT+CREG=2'+#13) then begin
+       CommPortDriver.SendString('AT+CREG?'+#13);
+       CommPortDriver.SendString('AT+COPS?'+#13);
+       Result:=true;
+     end;
+   end else begin
+     Result:=false;
    end;
  end else begin
-   Result:=false;
- end;        
+   if InputQuery('Ввод параметров','Введите через запятую Код страны, Код сети, LAC, CellID',paramss) then begin
+     try
+     CC:=GetWord(paramss,',',1);
+     NC:=GetWord(paramss,',',2);
+     LAC:= IntToHex(strtoint(GetWord(paramss,',',3)),4);
+     CellID:= IntToHex(strtoint(GetWord(paramss,',',4)),4);
+     if GetCoordFromGoogle(LL) then begin
+        OnToPos(LL,GState.zoom_size,true);
+        Result:=true;
+     end else begin
+        ShowMessage(SAS_ERR_Communication);
+        Result:=false;
+     end;
+     except
+       ShowMessage(SAS_ERR_ParamsInput);
+       Result:=false;
+     end;
+   end;
+ end;
 end;
 
 end.
