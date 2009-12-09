@@ -3,8 +3,8 @@ object Fsaveas: TFsaveas
   Top = 248
   BorderStyle = bsDialog
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
-  ClientHeight = 238
-  ClientWidth = 492
+  ClientHeight = 245
+  ClientWidth = 496
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText

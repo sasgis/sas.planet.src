@@ -190,7 +190,7 @@ begin
         if length(buf_line_arr)=1 then begin
           xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
           xy := MapPixel2BitmapPixel(xy);
-          xy:=Point(xy.x-3,xy.y-3);
+          xy:=Point(xy.x,xy.y);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
           indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);
           if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin

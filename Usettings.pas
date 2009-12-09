@@ -671,6 +671,7 @@ begin
  CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
  CBGSMComPort.Text:=GState.GSMpar.Port;
  RBGSMAuto.Checked:=GState.GSMpar.auto;
+ RBGSMManual.Checked:=not GState.GSMpar.auto;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;

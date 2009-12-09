@@ -2506,6 +2506,8 @@ begin
  SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
  FUIDownLoader := TTileDownloaderUI.Create;
+
+ TBXMainMenu.ProcessShortCuts:=true;
 end;
 
 
@@ -2878,11 +2880,15 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
- // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
- CopyStringToClipboard(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size));
+  if sat_map_both.IsFileCache then begin
+    VPoint := VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.zoom_size - 1;
+    sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+   // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
+   CopyStringToClipboard(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size));
+  end else begin
+    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+  end;
 end;
 
 procedure TFmain.N21Click(Sender: TObject);
@@ -2939,11 +2945,15 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  VPoint := VisiblePixel2MapPixel(m_m);
-  VZoomCurr := GState.zoom_size - 1;
-  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
- ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
+  if sat_map_both.IsFileCache then begin
+    VPoint := VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.zoom_size - 1;
+    sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+    // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
+   ShellExecute(0,'open',PChar(sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
+  end else begin
+    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+  end;
 end;
 
 procedure TFmain.N25Click(Sender: TObject);
@@ -2952,13 +2962,17 @@ var s:string;
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  VPoint := VisiblePixel2MapPixel(m_m);
-  VZoomCurr := GState.zoom_size - 1;
-  sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  s:=sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
- for i:=length(s) downto 0 do if s[i]='\'then break;
- // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
- ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
+  if sat_map_both.IsFileCache then begin
+    VPoint := VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.zoom_size - 1;
+    sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+    s:=sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
+    for i:=length(s) downto 0 do if s[i]='\'then break;
+    // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
+    ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
+  end else begin
+    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+  end;
 end;
 
 procedure TFmain.NDelClick(Sender: TObject);
@@ -3116,6 +3130,7 @@ var s,slat,slon,par:string;
     dwtype: array [1..20] of char;
     strr:string;
 begin
+ if NewText='' then exit;
  s:='';
  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  
@@ -3592,6 +3607,7 @@ var s,slat,slon,par:string;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
 begin
+ if NewText='' then exit;
  s:='';
  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  if Assigned(hSession)
@@ -4222,6 +4238,7 @@ var i,j:integer;
 begin
  if (Layer=GMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
+    or(HiWord(GetKeyState(VK_F6))<>0)
    then begin
          moveTrue:=point(x,y);
          exit;

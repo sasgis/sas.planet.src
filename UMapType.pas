@@ -33,6 +33,7 @@ type
     pos: integer;
     filename: string;
     function GetCoordConverter: ICoordConverter;
+    function GetIsFileCache: Boolean;
    public
     id: integer;
     guids: string;
@@ -148,6 +149,7 @@ type
     function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf:TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
+    property IsFileCache: Boolean read GetIsFileCache;
 
     constructor Create;
     destructor Destroy; override;
@@ -1383,6 +1385,15 @@ end;
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := GetTileFileName(AXY, Azoom)
+end;
+
+function TMapType.GetIsFileCache: Boolean;
+begin
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    Result := false;
+  end else begin
+    Result := true;
+  end;
 end;
 
 end.
