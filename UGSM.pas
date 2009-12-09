@@ -2,8 +2,8 @@ unit UGSM;
 
 interface
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, CPDrv, StrUtils, idHttp, t_GeoTypes, u_GlobalState, unit1, UResStrings;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,  SwinHttp,
+  Dialogs, StdCtrls, CPDrv, StrUtils, t_GeoTypes, u_GlobalState, unit1, UResStrings;
 
 type
   TToPos = procedure (LL:TExtendedPoint;zoom_:byte;draw:boolean) of object;
@@ -35,20 +35,21 @@ var
   b: byte;
   sTmp, sTmp2: string;
   iCntr: Integer;
-  HTTP: TIdHTTP;
+  SwinHttp: TSwinHttp;
+  post:string;
 begin
   Result := true;
   strA := '000E00000000000000000000000000001B0000000000000000000000030000';
   strB := '0000' + CellID + '0000' + LAC;
   strC := '000000' + IntToHex(strtoint(NC), 2) + '000000' + IntToHex(strtoint(CC), 2);
   strAll := strA + strB + strC + 'FFFFFFFF00000000';
-  HTTP := TIdHTTP.Create(nil);
-  if GState.InetConnect.proxyused then begin
-    HTTP.ProxyParams.ProxyServer:=Copy(GState.InetConnect.proxystr,1,pos(':',GState.InetConnect.proxystr)-1);
-    HTTP.ProxyParams.ProxyPort:=strtoint(Copy(GState.InetConnect.proxystr,pos(':',GState.InetConnect.proxystr)+1,4));
-  end;
-  HTTP.Request.ContentType := 'application/x-www-form-urlencoded';
-  HTTP.Request.ContentLength := Length(strAll) div 2; 
+  SwinHttp:=TSwinHttp.Create(nil);
+  SwinHttp.InThread:=false;
+  SwinHttp.Request.Headers.Clear;
+  SwinHttp.Request.Headers.Add('Content-Type: application/x-www-form-urlencoded');
+  SwinHttp.Request.Headers.Add('Content-Length: '+inttostr(Length(strAll) div 2));
+  SwinHttp.Request.Headers.Add('Accept: text/html, */*');
+
   ms := TMemoryStream.Create;
   try
     iCntr := 1; 
@@ -59,9 +60,13 @@ begin
     end;
     ms.Seek(0, soFromBeginning);
     try
-     // GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')
-      sResult := HTTP.Post('http://www.google.com/glm/mmap', ms);
-      if Length(sResult) > 14 then begin
+      ms.Position:=0;
+      setLength(post,ms.Size);
+      ms.Read(post[1],ms.Size);
+      SwinHttp.Post('http://www.google.com/glm/mmap',post);
+      SetLength(sResult,SwinHttp.Response.Content.Size);
+      SwinHttp.Response.Content.ReadBuffer(sResult[1],SwinHttp.Response.Content.Size);
+      if (SwinHttp.Error=0)and(Length(sResult) > 14) then begin
         sTmp := '0x';
         for i := 1 to 5 do begin
           sTmp2 := Copy(sResult, i + 6, 1);
@@ -82,7 +87,7 @@ begin
       result:=false;
     end;
   finally
-    HTTP.Free;
+    SwinHttp.Free;
     ms.Free;
   end;
 end;
@@ -123,6 +128,8 @@ begin
 end;
 
 function TPosFromGPS.GetPos:boolean;
+var
+    LL:TExtendedPoint;
 begin
  CommPortDriver:=TCommPortDriver.Create(nil);
  CommPortDriver.PortName:=Port;
@@ -136,7 +143,7 @@ begin
    end;
  end else begin
    Result:=false;
- end;
+ end;        
 end;
 
 end.
