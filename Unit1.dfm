@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -42,10 +41,8 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -59,9 +56,9 @@ object Fmain: TFmain
   end
   object map: TImage32
     Left = 36
-    Top = 82
+    Top = 59
     Width = 642
-    Height = 444
+    Height = 467
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -83,10 +80,10 @@ object Fmain: TFmain
     Left = 0
     Top = 0
     Width = 842
-    Height = 82
+    Height = 59
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 48
+      Top = 25
       DockPos = -8
       DockRow = 2
       Images = TBImageList2
@@ -203,7 +200,7 @@ object Fmain: TFmain
     end
     object SrcToolbar: TTBXToolbar
       Left = 242
-      Top = 48
+      Top = 25
       DockPos = 240
       DockRow = 2
       Images = ImagesSrc24
@@ -237,7 +234,7 @@ object Fmain: TFmain
     end
     object TBMarksToolbar: TTBXToolbar
       Left = 369
-      Top = 48
+      Top = 25
       DockPos = 336
       DockRow = 2
       Images = TBImageList2
@@ -249,7 +246,7 @@ object Fmain: TFmain
     end
     object GPSToolbar: TTBXToolbar
       Left = 509
-      Top = 48
+      Top = 25
       DockPos = 488
       DockRow = 2
       Images = TBImageList2
@@ -329,7 +326,7 @@ object Fmain: TFmain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 48
+      Top = 25
       DockPos = 918
       DockRow = 2
       TabOrder = 4
@@ -345,12 +342,8 @@ object Fmain: TFmain
     object TBXMainMenu: TTBXToolbar
       Left = 0
       Top = 0
-      CloseButton = False
       DockPos = 0
-      FullSize = True
-      MenuBar = True
-      ProcessShortCuts = True
-      ShrinkMode = tbsmWrap
+      Stretch = True
       TabOrder = 5
       Caption = #1043#1083#1072#1074#1085#1086#1077' '#1084#1077#1085#1102
       object NOperations: TTBXSubmenuItem
@@ -1005,8 +998,8 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 0
-      Top = 23
+      Left = 424
+      Top = 0
       DockPos = 424
       Stretch = True
       TabOrder = 6
@@ -1052,9 +1045,9 @@ object Fmain: TFmain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 82
+    Top = 59
     Width = 36
-    Height = 444
+    Height = 467
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1939,14 +1932,14 @@ object Fmain: TFmain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 82
+    Top = 59
     Width = 164
-    Height = 444
+    Height = 467
     Position = dpRight
     object TBXToolWindow1: TTBXToolWindow
       Left = 0
       Top = 336
-      ClientAreaHeight = 98
+      ClientAreaHeight = 121
       ClientAreaWidth = 160
       DockPos = 336
       Stretch = True
@@ -1954,7 +1947,7 @@ object Fmain: TFmain
       Visible = False
       DesignSize = (
         160
-        98)
+        121)
       Caption = 'TBXToolWindow1'
       object SpeedButton1: TSpeedButton
         Left = 8
@@ -1969,7 +1962,7 @@ object Fmain: TFmain
         Left = 7
         Top = 32
         Width = 146
-        Height = 0
+        Height = 23
         Anchors = [akLeft, akTop, akRight, akBottom]
         HideSelection = False
         Images = TBImageList1
@@ -1984,7 +1977,7 @@ object Fmain: TFmain
       end
       object MemoObjectInfo: TMemo
         Left = 8
-        Top = 19
+        Top = 42
         Width = 145
         Height = 73
         Anchors = [akLeft, akRight, akBottom]

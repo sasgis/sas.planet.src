@@ -76,7 +76,8 @@ begin
         iLon := StrToInt(sTmp);
         LL.y := iLat/1000000;
         LL.x := iLon/1000000;
-      end; 
+      end
+      else result:=false;
     except
       result:=false;
     end;
