@@ -1851,7 +1851,7 @@ begin
        buf_line_arr:=Blob2ExtArr(CDSmarks.FieldByName('lonlatarr'));
        xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
        xy := MapPixel2LoadedPixel(xy);
-       xy:=Point(xy.x-3,xy.y-3);
+       xy:=Point(xy.x,xy.y);
        imw:=CDSmarks.FieldByName('Scale2').AsInteger;
        indexmi:=GState.MarkIcons.IndexOf(CDSmarks.FieldByName('picname').AsString);
        if(indexmi=-1)and(GState.MarkIcons.Count>0) then indexmi:=0;
@@ -2685,6 +2685,8 @@ begin
  SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
  FUIDownLoader := TTileDownloaderUI.Create;
+
+ TBXMainMenu.ProcessShortCuts:=true;
 end;
 
 
