@@ -683,6 +683,7 @@ var
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
   nilLastLoad:TLastLoad;
   paintMark:boolean;
+  GMiniMapPopupMenu: TTBXPopupMenu;
 
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
@@ -3260,9 +3261,9 @@ begin
  LL:=sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr);
  if not(num.asLayer) then
   begin
-   if (num.showinfo)and(num.info<>'') then
+   if (num.showinfo)and(num.MapInfo<>'') then
     begin
-     ShowMessage(num.info);
+     ShowMessage(num.MapInfo);
      num.showinfo:=false;
     end;
    sat_map_both.TBItem.Checked:=false;
@@ -4915,7 +4916,7 @@ end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
 begin
- ShowMessage('Τΰιλ: '+sat_map_both.zmpfilename+#13#10+sat_map_both.info);
+ ShowMessage('Τΰιλ: '+sat_map_both.zmpfilename+#13#10+sat_map_both.MapInfo);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);

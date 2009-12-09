@@ -28,33 +28,38 @@ uses
 type
  TMapType = class
    private
-    FUrlGenerator : TUrlGenerator;
-    TileRect:TRect;
-    pos: integer;
-    filename: string;
+    FTileRect:TRect;
+    Fpos: integer;
+    FFileName: string;
+    FUseDwn: boolean;
+    FUseDel: boolean;
+    FUseSave: boolean;
+    FGetURLScript: string;
+    Fbmp18: TBitmap;
+    Fbmp24: TBitmap;
+    FContent_Type: string;
+    FStatus_Code: string;
+    FBanIfLen: integer;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean;
+    function GetUseDwn: Boolean;
+    function GetUseDel: boolean;
+    function GetUseSave: boolean;
+    function GetZmpFileName: string;
    public
     id: integer;
     guids: string;
-    zmpfilename: string;
-    active: boolean;
-    info: string;
+    MapInfo: string;
     showinfo: boolean;
     ShowOnSmMap: boolean;
     asLayer: boolean;
     name: string;
-    Icon24Name: string;
-    Icon18Name: string;
     HotKey: TShortCut;
     DefHotKey: TShortCut;
     URLBase: string;
     DefURLBase: string;
-    UseDwn: boolean;
     Usestick: boolean;
     UseGenPrevious: boolean;
-    Usedel: boolean;
-    Usesave: boolean;
     UseSubDomain: boolean;
     UseAntiBan: integer;
     Sleep: Integer;
@@ -62,19 +67,18 @@ type
     separator: boolean;
     Defseparator: boolean;
     DelAfterShow: boolean;
-    GetURLScript: string;
     projection: byte;
     cachetype: byte;
     defcachetype: byte;
-    CONTENT_TYPE: string;
-    STATUS_CODE: string;
-    BanIfLen: integer;
     radiusa: extended;
     radiusb: extended;
     exct: extended;
     ext: string;
     ParentSubMenu: string;
     DefParentSubMenu:string;
+    NameInCache:string;
+    DefNameInCache:string;
+
     NSmItem: TTBXItem;
     TBItem: TTBXItem;
     NLayerParamsItem: TTBXItem;
@@ -82,13 +86,10 @@ type
     TBSubMenuItem: TTBXSubmenuItem;
     NDwnItem: TMenuItem;
     NDelItem: TMenuItem;
-    NameInCache:string;
-    DefNameInCache:string;
-    bmp18: TBitmap;
-    bmp24: TBitmap;
     FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
+    active: boolean;
 
     function GetLink(x,y:longint;Azoom:byte):string;overload;
     function GetLink(AXY: TPoint;Azoom:byte):string;overload;
@@ -151,6 +152,10 @@ type
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property IsFileCache: Boolean read GetIsFileCache;
 
+    property UseDwn: Boolean read GetUseDwn;
+    property UseDel: boolean read GetUseDel;
+    property UseSave: boolean read GetUseSave;
+    property ZmpFileName: string read GetZmpFileName;
     constructor Create;
     destructor Destroy; override;
   private
@@ -159,6 +164,7 @@ type
     FCSSaveTile: TCriticalSection;
     FCSSaveTNF: TCriticalSection;
     FDownloader: TTileDownloaderBase;
+    FUrlGenerator : TUrlGenerator;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
@@ -169,7 +175,6 @@ var
   MapType:array of TMapType;
   MapsEdit:boolean;
   sat_map_both:TMapType;
-  GMiniMapPopupMenu: TTBXPopupMenu;
 
   procedure LoadMaps;
   procedure SaveMaps;
@@ -251,8 +256,8 @@ begin
           end;
           MapType[j].TBSubMenuItem.Add(TBItem);
          end;
-   Fmain.MapIcons24.AddMasked(bmp24,RGB(255,0,255));
-   Fmain.MapIcons18.AddMasked(bmp18,RGB(255,0,255));
+   Fmain.MapIcons24.AddMasked(Fbmp24,RGB(255,0,255));
+   Fmain.MapIcons18.AddMasked(Fbmp18,RGB(255,0,255));
    TBItem.Name:='TBMapN'+inttostr(id);
    TBItem.ShortCut:=HotKey;
    TBItem.ImageIndex:=i;
@@ -327,7 +332,7 @@ begin
    if MapType[i].asLayer then FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+MapType[i].ParentSubMenu)
                          else FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+MapType[i].ParentSubMenu);
    FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(MapType[i].HotKey));
-   FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].filename);
+   FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].FFilename);
   end;
  if FSettings.MapList.Items.Count>0 then FSettings.MapList.Items.Item[0].Selected:=true;
  if GMiniMap.maptype=nil then Fmain.NMMtype_0.Checked:=true;
@@ -357,7 +362,6 @@ begin
   repeat
    if (SearchRec.Attr and faDirectory) = faDirectory then continue;
    MapType[pnum]:=TMapType.Create;
-   MapType[pnum].zmpfilename:=SearchRec.Name;
    MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
    MapType[pnum].ban_pg_ld := true;
    if Ini.SectionExists(MapType[pnum].GUIDs)
@@ -377,8 +381,8 @@ begin
     else With MapType[pnum] do
           begin
            showinfo:=true;
-           if pos < 0 then pos := i;
-           id := pos;
+           if Fpos < 0 then Fpos := i;
+           id := Fpos;
            dec(i);
            active:=false;
            ShowOnSmMap:=false;
@@ -465,7 +469,7 @@ begin
   if not FileExists(AZipFileName) then begin
     raise Exception.Create('Файл ' + AZipFileName + ' не найден');
   end;
-  filename := AZipFileName;
+  Ffilename := AZipFileName;
   UnZip:=TVCLZip.Create(nil);
   try
     AZipFile:=TFileStream.Create(AZipFileName,fmOpenRead or fmShareDenyNone);
@@ -492,9 +496,9 @@ begin
       try
       if (UnZip.UnZipToStream(MapParams,'info_'+inttostr(GState.Localization)+'.txt')>0)or(UnZip.UnZipToStream(MapParams,'info.txt')>0) then
        begin
-        SetLength(info,MapParams.size);
+        SetLength(MapInfo, MapParams.size);
         MapParams.Position:=0;
-        MapParams.ReadBuffer(info[1],MapParams.size);
+        MapParams.ReadBuffer(Mapinfo[1],MapParams.size);
        end;
       finally
         FreeAndNil(MapParams);
@@ -506,33 +510,39 @@ begin
         MapParams.Position:=0;
         repeat
           NumRead:=MapParams.Read(bb,SizeOf(bb));
-          GetURLScript:=GetURLScript+copy(bb,1, NumRead);
+          FGetURLScript:=FGetURLScript+copy(bb,1, NumRead);
         until (NumRead = 0);
       finally
         FreeAndNil(MapParams);
       end;
-      bmp24:=TBitmap.create;
+      Fbmp24:=TBitmap.create;
       MapParams:=TMemoryStream.Create;
       try
         try
           UnZip.UnZipToStream(MapParams,'24.bmp');
           MapParams.Position:=0;
-          bmp24.LoadFromStream(MapParams);
+          Fbmp24.LoadFromStream(MapParams);
         except
-          bmp24.Canvas.FillRect(bmp24.Canvas.ClipRect); bmp24.Width:=24; bmp24.Height:=24; bmp24.Canvas.TextOut(7,3,copy(name,1,1))
+          Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
+          Fbmp24.Width:=24;
+          Fbmp24.Height:=24;
+          Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
         end;
       finally
         FreeAndNil(MapParams);
       end;
-      bmp18:=TBitmap.create;
+      Fbmp18:=TBitmap.create;
       MapParams:=TMemoryStream.Create;
       try
         try
           UnZip.UnZipToStream(MapParams,'18.bmp');
           MapParams.Position:=0;
-          bmp18.LoadFromStream(MapParams);
+          Fbmp18.LoadFromStream(MapParams);
         except
-          bmp18.Canvas.FillRect(bmp18.Canvas.ClipRect); bmp18.Width:=18; bmp18.Height:=18; bmp18.Canvas.TextOut(3,2,copy(name,1,1))
+          Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
+          Fbmp18.Width:=18;
+          Fbmp18.Height:=18;
+          Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
         end;
       finally
         FreeAndNil(MapParams);
@@ -541,24 +551,24 @@ begin
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
       DefUrlBase:=URLBase;
-      TileRect.Left:=iniparams.ReadInteger('PARAMS','TileRLeft',0);
-      TileRect.Top:=iniparams.ReadInteger('PARAMS','TileRTop',0);
-      TileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
-      TileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
-      UseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
+      FTileRect.Left:=iniparams.ReadInteger('PARAMS','TileRLeft',0);
+      FTileRect.Top:=iniparams.ReadInteger('PARAMS','TileRTop',0);
+      FTileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
+      FTileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
+      FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
       Usestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
-      Usedel:=iniparams.ReadBool('PARAMS','Usedel',true);
+      FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
       DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
-      Usesave:=iniparams.ReadBool('PARAMS','Usesave',true);
+      FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
       UseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
       CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
       DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
       DefSleep:=Sleep;
-      BanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
-      CONTENT_TYPE:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
-      STATUS_CODE:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
+      FBanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
+      FContent_Type:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
+      FStatus_Code:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
       Ext:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
       NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
       DefNameInCache:=NameInCache;
@@ -575,7 +585,7 @@ begin
       separator:=iniparams.ReadBool('PARAMS','separator',false);
       Defseparator:=separator;
       exct:=sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa;
-      pos:=iniparams.ReadInteger('PARAMS','pnum',-1);
+      Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
       case projection of
         1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(radiusa);
         2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(Exct,radiusa,radiusb);
@@ -583,7 +593,7 @@ begin
         else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
       end;
       try
-      FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + GetURLScript, FCoordConverter);
+      FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
       FUrlGenerator.GetURLBase := URLBase;
       //GetLink(0,0,0);
       except
@@ -1034,15 +1044,15 @@ begin
     end;
   end else begin
     SaveTileInCache(ATileStream,Vpath);
-    if (TileRect.Left<>0)or(TileRect.Top<>0)or
-      (TileRect.Right<>0)or(TileRect.Bottom<>0) then begin
+    if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
+      (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
       btmsrc:=TBitmap32.Create;
       btmDest:=TBitmap32.Create;
       try
         btmSrc.Resampler:=TLinearResampler.Create;
         if LoadFile(btmsrc,Vpath,false) then begin
           btmDest.SetSize(256,256);
-          btmdest.Draw(bounds(0,0,256,256),TileRect,btmSrc);
+          btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
           SaveTileInCache(btmDest,Vpath);
         end;
       except
@@ -1231,11 +1241,11 @@ function TMapType.CheckIsBan(AXY: TPoint; AZoom: byte;
   StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
 begin
   Result := false;
-  if (ty <> Content_type)
+  if (ty <> FContent_type)
     and(fileBuf.Size <> 0)
-    and(BanIfLen <> 0)
-    and(fileBuf.Size < (BanIfLen + 50))
-    and(fileBuf.Size >(BanIfLen-50)) then
+    and(FBanIfLen <> 0)
+    and(fileBuf.Size < (FBanIfLen + 50))
+    and(fileBuf.Size >(FBanIfLen-50)) then
   begin
     result := true;
   end;
@@ -1289,7 +1299,7 @@ begin
     FInitDownloadCS.Acquire;
     try
       if FDownloader = nil then begin
-        FDownloader := TTileDownloaderBase.Create(CONTENT_TYPE, 1, GState.InetConnect);
+        FDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
         FDownloader.SleepOnResetConnection := Sleep;
       end;
     finally
@@ -1330,6 +1340,26 @@ begin
   end else begin
     Result := true;
   end;
+end;
+
+function TMapType.GetUseDwn: Boolean;
+begin
+  Result := FUseDwn;
+end;
+
+function TMapType.GetUseDel: boolean;
+begin
+  Result := FUseDel;
+end;
+
+function TMapType.GetUseSave: boolean;
+begin
+  Result := FUseSave;
+end;
+
+function TMapType.GetZmpFileName: string;
+begin
+  Result := ExtractFileName(FFileName);
 end;
 
 end.

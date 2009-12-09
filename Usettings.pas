@@ -848,7 +848,7 @@ end;
 
 procedure TFSettings.Button18Click(Sender: TObject);
 begin
- showMessage(TMapType(MapList.Selected.Data).info);
+ showMessage(TMapType(MapList.Selected.Data).MapInfo);
 end;
 
 procedure TFSettings.SBGetComNumClick(Sender: TObject);
