@@ -3297,6 +3297,7 @@ var s,slat,slon,par:string;
     dwtype: array [1..20] of char;
     strr:string;
 begin
+ if NewText='' then exit;
  s:='';
  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  
@@ -3773,6 +3774,7 @@ var s,slat,slon,par:string;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
 begin
+ if NewText='' then exit;
  s:='';
  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  if Assigned(hSession)
@@ -4403,6 +4405,7 @@ var i,j:integer;
 begin
  if (Layer=GMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
+    or(HiWord(GetKeyState(VK_F6))<>0)
    then begin
          moveTrue:=point(x,y);
          exit;

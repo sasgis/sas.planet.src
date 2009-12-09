@@ -170,7 +170,7 @@ begin
      Result:=false;
    end;
  end else begin
-   if InputQuery('Ввод параметров','Введите через запятую Код страны, Код сети, LAC, CellID',paramss) then begin
+   if InputQuery(SAS_STR_InputLacitpCaption,SAS_STR_InputLacitp,paramss) then begin
      try
      CC:=GetWord(paramss,',',1);
      NC:=GetWord(paramss,',',2);
