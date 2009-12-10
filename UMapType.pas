@@ -171,6 +171,7 @@ type
     function GetBasePath: string;
     function GetDownloader: TTileDownloaderBase;
   end;
+
 var
   MapType:array of TMapType;
   MapsEdit:boolean;
@@ -205,14 +206,16 @@ uses
   u_CoordConverterSimpleLonLat;
 
 function GetMapFromID(id:string):TMapType;
-var i:integer;
+var
+  i:integer;
 begin
- for i:=0 to length(MapType)-1 do
-  if MapType[i].guids=id then begin
-                               result:=MapType[i];
-                               exit;
-                              end;
- result:=nil;
+  Result:=nil;
+  for i:=0 to length(MapType)-1 do begin
+    if MapType[i].guids=id then begin
+      result:=MapType[i];
+      exit;
+    end;
+  end;
 end;
 
 procedure CreateMapUI;
