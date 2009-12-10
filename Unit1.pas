@@ -1697,8 +1697,8 @@ begin
       polygon.Add(FixedPoint(k1));
     if i<length(length_arr)-1 then
      begin
-      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
-      k1:=MapPixel2LoadedPixel(k1);
+      k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
+      k2:=MapPixel2LoadedPixel(k2);
       if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
                                  else adp:=(k2.y-k1.y)div 32767+2;
       k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
