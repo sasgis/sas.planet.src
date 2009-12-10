@@ -686,6 +686,7 @@ var
   length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
   nilLastLoad:TLastLoad;
   paintMark:boolean;
+  GMiniMapPopupMenu: TTBXPopupMenu;
 
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
@@ -1638,8 +1639,8 @@ begin
       polygon.Add(FixedPoint(k1));
     if i<length(length_arr)-1 then
      begin
-      k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
-      k1:=MapPixel2LoadedPixel(k1);
+      k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
+      k2:=MapPixel2LoadedPixel(k2);
       if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
                                  else adp:=(k2.y-k1.y)div 32767+2;
       k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
@@ -3093,9 +3094,9 @@ begin
  LL:=sat_map_both.FCoordConverter.PixelPos2LonLat(VPoint, VZoomCurr);
  if not(num.asLayer) then
   begin
-   if (num.showinfo)and(num.info<>'') then
+   if (num.showinfo)and(num.MapInfo<>'') then
     begin
-     ShowMessage(num.info);
+     ShowMessage(num.MapInfo);
      num.showinfo:=false;
     end;
    sat_map_both.TBItem.Checked:=false;
@@ -4749,7 +4750,7 @@ end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
 begin
- ShowMessage('Τΰιλ: '+sat_map_both.zmpfilename+#13#10+sat_map_both.info);
+ ShowMessage('Τΰιλ: '+sat_map_both.zmpfilename+#13#10+sat_map_both.MapInfo);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
