@@ -141,11 +141,6 @@ type
     ChBoxNotSaveIfNotExists: TCheckBox;
     CBSecondLoadTNE: TCheckBox;
     CBCloseWithStart: TCheckBox;
-    OpenSessionDialog: TOpenDialog;
-    GroupBox2: TGroupBox;
-    SpeedButton2: TSpeedButton;
-    CBLastSuccess: TCheckBox;
-    Label32: TLabel;
     CBGenFromPrev: TCheckBox;
     Panel4: TPanel;
     Label36: TLabel;
@@ -185,7 +180,6 @@ type
     procedure CBZippedClick(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
     procedure Button5Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
   private
     zoom_rect:byte;
     PolygonLL: TExtendedPointArray;
@@ -687,16 +681,6 @@ procedure TFsaveas.Button5Click(Sender: TObject);
 begin
  if SaveKMLDialog.Execute then
   EditPath3.Text:=SaveKMLDialog.FileName;
-end;
-
-procedure TFsaveas.SpeedButton2Click(Sender: TObject);
-begin
- if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then
-  begin
-   Fmain.Enabled:=true;
-   ThreadAllLoadMap.Create(OpenSessionDialog.FileName,CBLastSuccess.Checked);
-   if CBCloseWithStart.Checked then close;
-  end;
 end;
 
 end.

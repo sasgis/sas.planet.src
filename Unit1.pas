@@ -420,6 +420,8 @@ type
     NToolBarSearch: TTBXItem;
     TBXSeparatorItem18: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
+    TBXItem6: TTBXItem;
+    OpenSessionDialog: TOpenDialog;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -546,6 +548,7 @@ type
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
     procedure TBXItem7Click(Sender: TObject);
+    procedure TBXItem6Click(Sender: TObject);
   private
     ShowActivHint:boolean;
     HintWindow: THintWindow;
@@ -723,6 +726,7 @@ uses
   u_TileDownloaderUIOneTile,
   i_ICoordConverter,
   UKMLParse,
+  UTrAllLoadMap,
   UGSM;
 
 {$R *.dfm}
@@ -2501,6 +2505,7 @@ begin
  GState.TwoDownloadAttempt:=GState.MainIni.ReadBool('INTERNET','DblDwnl',true);
  GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
  GState.InetConnect.TimeOut:=GState.MainIni.ReadInteger('INTERNET','TimeOut',40000);
+ GState.SessionLastSuccess:=GState.MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
  GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
@@ -5202,6 +5207,14 @@ begin
  if not(PosFromGPS.GetPos) then begin
    ShowMessage(SAS_ERR_PortOpen);
  end;
+end;
+
+procedure TFmain.TBXItem6Click(Sender: TObject);
+begin
+ if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then
+  begin
+   ThreadAllLoadMap.Create(OpenSessionDialog.FileName,GState.SessionLastSuccess);
+  end;
 end;
 
 end.

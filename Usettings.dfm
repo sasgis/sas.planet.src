@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 220
-  Top = 167
+  Left = 309
+  Top = 98
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 416
@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet4
+    ActivePage = TabSheet9
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -338,6 +338,13 @@ object FSettings: TFSettings
         Height = 13
         Caption = #1058#1072#1081#1084#1072#1091#1090' '#1085#1072' '#1089#1077#1090#1077#1074#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080', '#1084#1089
       end
+      object Bevel16: TBevel
+        Left = 8
+        Top = 272
+        Width = 609
+        Height = 9
+        Shape = bsBottomLine
+      end
       object RBWinCon: TRadioButton
         Left = 17
         Top = 32
@@ -442,6 +449,16 @@ object FSettings: TFSettings
         MinValue = 0
         TabOrder = 6
         Value = 0
+      end
+      object CBLastSuccess: TCheckBox
+        Left = 8
+        Top = 288
+        Width = 609
+        Height = 17
+        Caption = 
+          #1053#1072#1095#1072#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086' '#1091#1076#1072#1095#1085#1086' '#1079#1072#1075#1088#1091#1078#1077#1085#1085 +
+          #1086#1075#1086' '#1090#1072#1081#1083#1072
+        TabOrder = 7
       end
     end
     object TabSheet3: TTabSheet
@@ -1460,7 +1477,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
@@ -1818,7 +1835,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
