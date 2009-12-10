@@ -217,7 +217,7 @@ begin
   stop:=false;
   needRepaint:=true;
   Suspended:=false;
-  LayerMap.bitmap.Clear(clBlack);;
+  LayerMap.bitmap.Clear(clBlack);
 end;
 
 procedure TFillingMap.StopDrow;

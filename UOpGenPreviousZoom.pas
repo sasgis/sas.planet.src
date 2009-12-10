@@ -196,7 +196,7 @@ begin
                           else begin
                                 bmp_ex.width:=256;
                                 bmp_ex.Height:=256;
-                                bmp_ex.Canvas.Brush.Color:=clSilver;
+                                bmp_ex.Canvas.Brush.Color:=GState.BGround;
                                 bmp_ex.Canvas.FillRect(bmp_ex.Canvas.ClipRect);
                                end;
        d2562:=256 div c_d;

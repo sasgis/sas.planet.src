@@ -176,6 +176,12 @@ type
     //параметры определения позиции по GSM
     GSMpar:TGSMpar;
 
+    //Цвет фона
+    BGround:TColor;
+
+    //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
+    SessionLastSuccess:boolean;
+
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Путь к иконкам меток

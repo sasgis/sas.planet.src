@@ -1,6 +1,6 @@
 object Fsaveas: TFsaveas
-  Left = 306
-  Top = 248
+  Left = 234
+  Top = 298
   BorderStyle = bsDialog
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
   ClientHeight = 245
@@ -68,7 +68,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 481
     Height = 201
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
@@ -163,7 +163,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBZoomload: TComboBox
@@ -172,7 +172,7 @@ object Fsaveas: TFsaveas
         Width = 41
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = CBZoomloadChange
       end
@@ -184,38 +184,6 @@ object Fsaveas: TFsaveas
         Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
         TabOrder = 6
         OnClick = CheckBox2Click
-      end
-      object GroupBox2: TGroupBox
-        Left = 0
-        Top = 96
-        Width = 145
-        Height = 73
-        Caption = ' '#1057#1086#1093#1088#1072#1085#1077#1085#1085#1072#1103' '#1089#1077#1089#1089#1080#1103' '
-        TabOrder = 7
-        object SpeedButton2: TSpeedButton
-          Left = 8
-          Top = 48
-          Width = 129
-          Height = 19
-          Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1088#1072#1085#1077#1077' '#1089#1086#1093#1088#1072#1085#1077#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080
-          Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
-          OnClick = SpeedButton2Click
-        end
-        object Label32: TLabel
-          Left = 27
-          Top = 32
-          Width = 103
-          Height = 13
-          Caption = #1079#1072#1075#1088#1091#1078#1077#1085#1085#1086#1075#1086' '#1090#1072#1081#1083#1072
-        end
-        object CBLastSuccess: TCheckBox
-          Left = 8
-          Top = 16
-          Width = 129
-          Height = 17
-          Caption = #1053#1072#1095#1072#1090#1100' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086
-          TabOrder = 0
-        end
       end
     end
     object TabSheet2: TTabSheet
@@ -452,7 +420,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBalhForm: TComboBox
@@ -486,7 +454,7 @@ object Fsaveas: TFsaveas
         Width = 57
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 6
         OnChange = ComboBoxChange
       end
@@ -533,7 +501,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
     end
@@ -799,7 +767,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object CmBExpMap: TComboBox
@@ -809,7 +777,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 5
         end
         object CmBExpHib: TComboBox
@@ -819,7 +787,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 6
         end
         object RBSatSel: TRadioButton
@@ -956,7 +924,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object ChBoxRelativePath: TCheckBox
@@ -1083,7 +1051,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 3
         end
         object CmBExpMapYa: TComboBox
@@ -1093,7 +1061,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object CmBExpHibYa: TComboBox
@@ -1103,7 +1071,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 5
         end
         object cSatEditYa: TSpinEdit
@@ -1167,12 +1135,6 @@ object Fsaveas: TFsaveas
     DefaultExt = '*.kml'
     Filter = 'KML |*.kml'
     Left = 272
-    Top = 208
-  end
-  object OpenSessionDialog: TOpenDialog
-    DefaultExt = '*.sls'
-    Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
-    Left = 208
     Top = 208
   end
 end
