@@ -242,6 +242,11 @@ type
     CBGSMBaundRate: TComboBox;
     RBGSMAuto: TRadioButton;
     RBGSMManual: TRadioButton;
+    Bevel15: TBevel;
+    Label35: TLabel;
+    ColorBoxBackGround: TColorBox;
+    CBLastSuccess: TCheckBox;
+    Bevel16: TBevel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -352,6 +357,7 @@ begin
  if Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
                        else GState.MainIni.WriteString('VIEW','FillingMap',Fillingmaptype.guids);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
+ GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
  GState.MainIni.Writeinteger('Wikimapia','FonColor',GState.WikiMapFonColor);
  GState.MainIni.Writeinteger('HOTKEY','ZoomIn',Fmain.NzoomIn.ShortCut);
@@ -421,6 +427,8 @@ begin
  GState.MainIni.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
  GState.MainIni.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
  GState.MainIni.WriteInteger('INTERNET','TimeOut',GState.InetConnect.TimeOut);
+ GState.MainIni.WriteBool('INTERNET','SessionLastSuccess',GState.SessionLastSuccess);
+
  GState.MainIni.Writebool('NPARAM','stat',GState.WebReportToAuthor);
 
  i:=1;
@@ -505,6 +513,9 @@ begin
    k:=k shr 1;
   end;
 
+ GState.SessionLastSuccess:=CBLastSuccess.Checked;
+ GState.BGround:=ColorBoxBackGround.Selected;
+ FMain.map.Color:=GState.BGround;
  GState.GSMpar.BaudRate:=strtoint(CBGSMBaundRate.text);
  GState.GSMpar.Port:=CBGSMComPort.Text;
  GState.GSMpar.auto:=RBGSMAuto.Checked;
@@ -670,6 +681,8 @@ begin
   LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
  end;
 
+ CBLastSuccess.Checked:=GState.SessionLastSuccess;
+ ColorBoxBackGround.Selected:=GState.BGround;
  CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
  CBGSMComPort.Text:=GState.GSMpar.Port;
  RBGSMAuto.Checked:=GState.GSMpar.auto;

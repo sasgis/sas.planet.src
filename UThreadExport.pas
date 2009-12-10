@@ -142,7 +142,7 @@ begin
  res2:=false;
  bmp.width:=256;
  bmp.Height:=256;
- bmp.Clear(clSilver);
+ bmp.Clear(Color32(GState.BGround));
  bmp2:=TBitmap32.Create;
  bmp2.DrawMode:=dmBlend;
  bmp1:=TBitmap32.Create;
@@ -160,7 +160,7 @@ begin
                        res1:=false;
                        bmp1.width:=256;
                        bmp1.Height:=256;
-                       bmp1.Clear(clSilver);
+                       bmp1.Clear(color32(GState.BGround));
                      end;
               end
               else if (not(TypeMapArr.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false)))
@@ -168,14 +168,14 @@ begin
                            res1:=false;
                            bmp1.width:=256;
                            bmp1.Height:=256;
-                           bmp1.Clear(clSilver);
+                           bmp1.Clear(Color32(GState.BGround));
                          end;
 
             except
              res1:=false;
              bmp1.width:=256;
              bmp1.Height:=256;
-             bmp1.Clear(clSilver);
+             bmp1.Clear(Color32(GState.BGround));
             end;
             if p_h.Y<0 then bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp1)
                        else bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp1);
@@ -194,7 +194,7 @@ begin
                          res2:=false;
                          bmp2.width:=256;
                          bmp2.Height:=256;
-                         bmp2.Clear(clSilver);
+                         bmp2.Clear(Color32(GState.BGround));
                         end;
                 end
                else if (not(TypeMapArr.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false)))
@@ -202,14 +202,14 @@ begin
                            res2:=false;
                            bmp2.width:=256;
                            bmp2.Height:=256;
-                           bmp2.Clear(clSilver);
+                           bmp2.Clear(Color32(GState.BGround));
                          end;
                res2:=true;
               except
                res2:=false;
                bmp2.width:=256;
                bmp2.Height:=256;
-               bmp2.Clear(clSilver);
+               bmp2.Clear(Color32(GState.BGround));
               end;
               if p_h.Y<0 then bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2)
                          else bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);

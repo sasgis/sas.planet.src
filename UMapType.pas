@@ -840,7 +840,7 @@ begin
  result:=false;
  if (not(GState.UsePrevZoom) and (asLayer=false)) or
     (not(GState.UsePrevZoomLayer) and (asLayer=true)) then begin
-   spr.Clear(Color32(clSilver));
+   spr.Clear(Color32(GState.BGround));
    exit;
  end;
  VTileExists := false;
@@ -854,7 +854,7 @@ begin
   end;
  if not(VTileExists)or(dZ>8) then
   begin
-   spr.Clear(Color32(clSilver));
+   spr.Clear(Color32(GState.BGround));
    exit;
   end;
  key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
@@ -862,7 +862,7 @@ begin
    bmp:=TBitmap32.Create;
    if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
     begin
-     spr.Clear(SetAlpha(Color32(clSilver),0));
+     spr.Clear(Color32(GState.BGround));
      bmp.Free;
      exit;
     end;

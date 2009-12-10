@@ -420,6 +420,8 @@ type
     NToolBarSearch: TTBXItem;
     TBXSeparatorItem18: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
+    TBXItem6: TTBXItem;
+    OpenSessionDialog: TOpenDialog;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -546,6 +548,7 @@ type
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
     procedure TBXItem7Click(Sender: TObject);
+    procedure TBXItem6Click(Sender: TObject);
   private
     ShowActivHint:boolean;
     HintWindow: THintWindow;
@@ -723,6 +726,7 @@ uses
   u_TileDownloaderUIOneTile,
   i_ICoordConverter,
   UKMLParse,
+  UTrAllLoadMap,
   UGSM;
 
 {$R *.dfm}
@@ -2216,8 +2220,8 @@ end;
 procedure BadDraw(var spr:TBitmap32; transparent:boolean);
 begin
  spr.SetSize(256,256);
- if transparent then spr.Clear(SetAlpha(Color32(clSilver),0))
-                else spr.Clear(Color32(clSilver));
+ if transparent then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+                else spr.Clear(Color32(GState.BGround));
  spr.RenderText(87,120,SAS_ERR_BadFile,0,clBlack32);
 end;
 
@@ -2241,7 +2245,7 @@ begin
   x_draw:=(256+((ScreenCenterPos.x-pr_x)mod 256))mod 256;
   LayerMap.Location:=floatrect(GetMapLayerLocationRect);
 
-  LayerMap.Bitmap.Clear(Color32(clSilver));
+  LayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
   destroyWL;
@@ -2424,7 +2428,6 @@ begin
  setlength(poly_save,0);
 
  Map.Cursor:=crDefault;
- map.Color:=clSilver;
  VLoadedSizeInPixel := LoadedSizeInPixel;
  LayerMap:=TBitmapLayer.Create(map.Layers);
  LayerMap.Location:=floatrect(MapLayerLocationRect);
@@ -2502,6 +2505,7 @@ begin
  GState.TwoDownloadAttempt:=GState.MainIni.ReadBool('INTERNET','DblDwnl',true);
  GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
  GState.InetConnect.TimeOut:=GState.MainIni.ReadInteger('INTERNET','TimeOut',40000);
+ GState.SessionLastSuccess:=GState.MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
  GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
@@ -2545,6 +2549,7 @@ begin
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
  GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
+ GState.BGround:=GState.MainIni.ReadInteger('VIEW','Background',clSilver);
  GState.WikiMapMainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
  GState.WikiMapFonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
@@ -2663,6 +2668,8 @@ begin
  selectMap(sat_map_both);
  RxSlider1.Value:=GState.Zoom_size-1;
  notpaint:=false;
+
+ map.Color:=GState.BGround;
 
  if ParamCount > 1 then
  begin
@@ -5200,6 +5207,14 @@ begin
  if not(PosFromGPS.GetPos) then begin
    ShowMessage(SAS_ERR_PortOpen);
  end;
+end;
+
+procedure TFmain.TBXItem6Click(Sender: TObject);
+begin
+ if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then
+  begin
+   ThreadAllLoadMap.Create(OpenSessionDialog.FileName,GState.SessionLastSuccess);
+  end;
 end;
 
 end.

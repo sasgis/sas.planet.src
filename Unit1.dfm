@@ -358,6 +358,13 @@ object Fmain: TFmain
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1103#1088#1083#1099#1082
           Hint = ''
         end
+        object TBXItem6: TTBXItem
+          ImageIndex = 6
+          Images = TBImageList1
+          OnClick = TBXItem6Click
+          Caption = #1054#1090#1082#1088#1099#1090#1100' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080
+          Hint = ''
+        end
         object TBXSeparatorItem6: TTBXSeparatorItem
           Caption = ''
           Hint = ''
@@ -8230,5 +8237,11 @@ object Fmain: TFmain
     LinkSubitems = NSensors
     Left = 778
     Top = 297
+  end
+  object OpenSessionDialog: TOpenDialog
+    DefaultExt = '*.sls'
+    Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
+    Left = 208
+    Top = 208
   end
 end
