@@ -2217,7 +2217,7 @@ procedure BadDraw(var spr:TBitmap32; transparent:boolean);
 begin
  spr.SetSize(256,256);
  if transparent then spr.Clear(SetAlpha(Color32(clSilver),0))
-                else spr.Clear(Color32(clSilver) xor $00000000);
+                else spr.Clear(Color32(clSilver));
  spr.RenderText(87,120,SAS_ERR_BadFile,0,clBlack32);
 end;
 
@@ -2240,7 +2240,8 @@ begin
   y_draw:=(256+((ScreenCenterPos.y-pr_y)mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-pr_x)mod 256))mod 256;
   LayerMap.Location:=floatrect(GetMapLayerLocationRect);
-  LayerMap.Bitmap.Clear(clSilver);
+
+  LayerMap.Bitmap.Clear(Color32(clSilver));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
   destroyWL;
@@ -2430,6 +2431,7 @@ begin
 
  LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
  LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
+ LayerMap.Bitmap.CombineMode:=cmBlend;
 
  LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
