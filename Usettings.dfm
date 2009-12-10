@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet8
+    ActivePage = TabSheet4
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1155,6 +1155,20 @@ object FSettings: TFSettings
         Height = 9
         Shape = bsBottomLine
       end
+      object Bevel15: TBevel
+        Left = 320
+        Top = 248
+        Width = 297
+        Height = 9
+        Shape = bsBottomLine
+      end
+      object Label35: TLabel
+        Left = 320
+        Top = 264
+        Width = 54
+        Height = 13
+        Caption = #1062#1074#1077#1090' '#1092#1086#1085#1072
+      end
       object ComboBox1: TComboBox
         Left = 216
         Top = 21
@@ -1369,6 +1383,15 @@ object FSettings: TFSettings
         Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1077' '#1084#1077#1090#1082#1080' '#1087#1088#1080' '#1085#1072#1074#1077#1076#1077#1085#1080#1080' '#1082#1091#1088#1089#1086#1088#1072
         TabOrder = 18
       end
+      object ColorBoxBackGround: TColorBox
+        Left = 383
+        Top = 260
+        Width = 78
+        Height = 22
+        Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+        ItemHeight = 16
+        TabOrder = 19
+      end
     end
     object TabSheet5: TTabSheet
       Caption = 'GPS'
@@ -1437,7 +1460,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'COM1'
       end
@@ -1795,7 +1818,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'COM1'
       end

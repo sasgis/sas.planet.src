@@ -209,7 +209,7 @@ begin
     bm.Height := 256;
     SmMapBitmap.Width := 256;
     SmMapBitmap.Height := 256;
-    SmMapBitmap.Clear(Color32(clSilver) xor $00000000);
+    SmMapBitmap.Clear(Color32(GState.BGround));
     pos_sm := Point(x shr (GState.zoom_size-zoom),y shr (GState.zoom_size-zoom));
     if maptype = nil then begin
       m_t:=sat_map_both;
@@ -228,10 +228,10 @@ begin
       if (GState.CiclMap)or((pos_sm.X+x128<=zoom_Sizes[zoom])and(pos_sm.X+x128>=0)) then begin
         while (y128<=128) do begin
           if (pos_sm.y+y128<=zoom_Sizes[zoom])and(pos_sm.y+y128>=0) then begin
-            bm.Clear(Color32(clSilver) xor $00000000);
+            bm.Clear(Color32(GState.BGround));
             if (m_t.tileexists(pos_sm.X+x128,pos_sm.y+y128,zoom)) then begin
               if not(m_t.LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,zoom,true)) then begin
-                bm.Clear(Color32(clSilver) xor $00000000);
+                bm.Clear(Color32(GState.BGround));
               end;
             end else begin
               m_t.LoadTileFromPreZ(bm,pos_sm.x+x128,pos_sm.y+y128,zoom,true);
@@ -257,7 +257,7 @@ begin
           if (GState.CiclMap)or((pos_sm.X+x128<=zoom_Sizes[zoom])and(pos_sm.X+x128>=0)) then begin
             while (y128<=128) do  begin
               if (pos_sm.y+y128<=zoom_Sizes[zoom])and(pos_sm.y+y128>=0) then begin
-                bm.Clear(Color32(clSilver) xor $00000000);
+                bm.Clear(Color32(GState.BGround));
                 bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),SmMapBitmap);
                 if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom_Sizes[zoom])) )
                   and (UMapType.MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,zoom)) then

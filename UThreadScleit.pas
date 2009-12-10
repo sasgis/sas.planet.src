@@ -89,6 +89,7 @@ uses
   ECWWriter,
   ECWReader,
   unit1,
+  u_GlobalState,
   usaveas;
 
 procedure ThreadScleit.SynShowMessage;
@@ -149,10 +150,10 @@ begin
    Aex:=255;
    while p_x<=VThread.poly1.x do
     begin
-     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
+     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(Color32(GState.BGround))
      else
      begin
-     VThread.btmm.Clear(clSilver);
+     VThread.btmm.Clear(Color32(GState.BGround));
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom)) then begin
                                  if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
                                   then VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
@@ -233,10 +234,10 @@ begin
      // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
      VThread.LastXY.X := p_x;
      VThread.LastXY.Y := p_y;
-     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(clSilver)
+     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(Color32(GState.BGround))
      else
      begin
-     VThread.btmm.Clear(clSilver);
+     VThread.btmm.Clear(Color32(GState.BGround));
      if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom))
       then begin
             if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
