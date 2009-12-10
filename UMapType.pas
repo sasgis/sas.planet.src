@@ -1038,7 +1038,7 @@ begin
         except
         end;
       end;
-    end else if (copy(ty,1,8)='text/xml') then begin
+    end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
       SaveTileInCache(ATileStream,Vpath);
       ban_pg_ld:=true;
     end;
