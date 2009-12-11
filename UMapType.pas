@@ -97,8 +97,6 @@ type
     TBSubMenuItem: TTBXSubmenuItem;
     NDwnItem: TMenuItem;
     NDelItem: TMenuItem;
-    //Для борьбы с капчей
-    ban_pg_ld: Boolean;
     active: boolean;
     showinfo: boolean;
 
@@ -178,6 +176,8 @@ type
     FDownloader: TTileDownloaderBase;
     FUrlGenerator : TUrlGenerator;
     FCoordConverter : ICoordConverter;
+    //Для борьбы с капчей
+    ban_pg_ld: Boolean;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
