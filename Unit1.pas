@@ -3057,7 +3057,7 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  if sat_map_both.IsFileCache then begin
+  if sat_map_both.IsStoreFileCache then begin
     VPoint := VisiblePixel2MapPixel(MouseDownPoint);
     VZoomCurr := GState.zoom_size - 1;
     sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
@@ -3122,7 +3122,7 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  if sat_map_both.IsFileCache then begin
+  if sat_map_both.IsStoreFileCache then begin
     VPoint := VisiblePixel2MapPixel(m_m);
     VZoomCurr := GState.zoom_size - 1;
     sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
@@ -3139,7 +3139,7 @@ var s:string;
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  if sat_map_both.IsFileCache then begin
+  if sat_map_both.IsStoreFileCache then begin
     VPoint := VisiblePixel2MapPixel(m_m);
     VZoomCurr := GState.zoom_size - 1;
     sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);

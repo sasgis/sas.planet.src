@@ -33,6 +33,7 @@ type
     FFileName: string;
     FUseDwn: boolean;
     FUseDel: boolean;
+    FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
     FGetURLScript: string;
     Fbmp18: TBitmap;
@@ -41,11 +42,12 @@ type
     FStatus_Code: string;
     FBanIfLen: integer;
     function GetCoordConverter: ICoordConverter;
-    function GetIsFileCache: Boolean;
+    function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
     function GetUseDel: boolean;
     function GetUseSave: boolean;
     function GetZmpFileName: string;
+    function GetIsStoreReadOnly: boolean;
    public
     id: integer;
     guids: string;
@@ -150,11 +152,12 @@ type
     function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf:TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
-    property IsFileCache: Boolean read GetIsFileCache;
+    property IsStoreFileCache: Boolean read GetIsStoreFileCache;
 
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
+    property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property ZmpFileName: string read GetZmpFileName;
     constructor Create;
     destructor Destroy; override;
@@ -562,6 +565,7 @@ begin
       Usestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
+      FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
       DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
       FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
       UseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
@@ -665,11 +669,15 @@ end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := GetBasePath;
-  if Result <> '' then begin
-    Result := IncludeTrailingPathDelimiter(Result);
+  if IsStoreFileCache then begin
+    Result := GetBasePath;
+    if Result <> '' then begin
+      Result := IncludeTrailingPathDelimiter(Result);
+    end;
+    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
+  end else begin
+    raise Exception.Create('Ошибка. Это не файловый кеш');
   end;
-  Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
 end;
 
 function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
@@ -1297,13 +1305,16 @@ begin
 end;
 
 function TMapType.GetDownloader: TTileDownloaderBase;
+var
+  VDownloader: TTileDownloaderBase;
 begin
   if FDownloader = nil then begin
     FInitDownloadCS.Acquire;
     try
       if FDownloader = nil then begin
-        FDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
-        FDownloader.SleepOnResetConnection := Sleep;
+        VDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
+        VDownloader.SleepOnResetConnection := Sleep;
+        FDownloader := VDownloader;
       end;
     finally
       FInitDownloadCS.Release;
@@ -1336,7 +1347,7 @@ begin
   Result := GetTileFileName(AXY, Azoom)
 end;
 
-function TMapType.GetIsFileCache: Boolean;
+function TMapType.GetIsStoreFileCache: Boolean;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     Result := false;
@@ -1347,22 +1358,43 @@ end;
 
 function TMapType.GetUseDwn: Boolean;
 begin
-  Result := FUseDwn;
+  if IsStoreReadOnly then begin
+    Result := false;
+  end else begin
+    Result := FUseDwn;
+  end;
 end;
 
 function TMapType.GetUseDel: boolean;
 begin
-  Result := FUseDel;
+  if IsStoreReadOnly then begin
+    Result := false;
+  end else begin
+    Result := FUseDel;
+  end;
 end;
 
 function TMapType.GetUseSave: boolean;
 begin
-  Result := FUseSave;
+  if IsStoreReadOnly then begin
+    Result := false;
+  end else begin
+    Result := FUseSave;
+  end;
 end;
 
 function TMapType.GetZmpFileName: string;
 begin
   Result := ExtractFileName(FFileName);
+end;
+
+function TMapType.GetIsStoreReadOnly: boolean;
+begin
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    Result := True;
+  end else begin
+    Result := FIsStoreReadOnly;
+  end;
 end;
 
 end.
