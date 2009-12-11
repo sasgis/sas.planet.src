@@ -105,16 +105,12 @@ type
     function GetLink(x,y:longint;Azoom:byte):string;overload;
     function GetLink(AXY: TPoint;Azoom:byte):string;overload;
 
-    procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
-
     procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
     procedure SaveTileDownload(AXY: TPoint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
 
-    function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
-
-
     function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
     function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
+
     function GetTileShowName(x,y:longint;Azoom:byte):string; overload;
     function GetTileShowName(AXY: TPoint;Azoom:byte):string; overload;
 
@@ -162,7 +158,6 @@ type
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
-
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
@@ -173,6 +168,7 @@ type
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     constructor Create;
+    procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     destructor Destroy; override;
   private
     FDownloadTilesCount: Longint;
@@ -185,6 +181,7 @@ type
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
+    function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
     function GetDownloader: TTileDownloaderBase;
   end;
@@ -236,238 +233,288 @@ begin
 end;
 
 procedure CreateMapUI;
-var i,j:integer;
+var
+  i,j: integer;
 begin
- FSettings.MapList.Clear;
- Fmain.MapIcons24.Clear;
- Fmain.MapIcons18.Clear;
- Fmain.TBSMB.Clear;
- Fmain.NSMB.Clear;
- Fmain.ldm.Clear;
- Fmain.dlm.Clear;
- Fmain.NLayerParams.Clear;
- Fmain.NSubMenuSmItem.Clear;
- for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
- for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
- for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
- for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
+  FSettings.MapList.Clear;
+  Fmain.MapIcons24.Clear;
+  Fmain.MapIcons18.Clear;
+  Fmain.TBSMB.Clear;
+  Fmain.NSMB.Clear;
+  Fmain.ldm.Clear;
+  Fmain.dlm.Clear;
+  Fmain.NLayerParams.Clear;
+  Fmain.NSubMenuSmItem.Clear;
+  for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
+  for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
+  for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
+  for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
 
- GMiniMap.maptype:=nil;
- fillingmaptype:=nil;
- i:=length(MapType)-1;
- if i>0 then
- for i:=0 to length(MapType)-1 do
-  With MapType[i] do
-  begin
-   TBItem:=TTBXItem.Create(Fmain.TBSMB);
-   if ParentSubMenu=''
-    then if asLayer then Fmain.TBLayerSel.Add(TBItem)
-                    else Fmain.TBSMB.Add(TBItem)
-    else begin
+  GMiniMap.maptype:=nil;
+  fillingmaptype:=nil;
+  i:=length(MapType)-1;
+
+  if i>0 then begin
+    for i:=0 to length(MapType)-1 do begin
+      With MapType[i] do begin
+        TBItem:=TTBXItem.Create(Fmain.TBSMB);
+        if ParentSubMenu='' then begin
+          if asLayer then begin
+            Fmain.TBLayerSel.Add(TBItem);
+          end else begin
+            Fmain.TBSMB.Add(TBItem);
+          end;
+        end else begin
           j:=0;
           While MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
           TBSubMenuItem:=TTBXSubmenuItem.Create(Fmain.TBSMB);
           TBSubMenuItem.caption:=ParentSubMenu;
           TBSubMenuItem.Images:=Fmain.MapIcons18;
-          if j=i then
-          begin
-          if asLayer then Fmain.TBLayerSel.Add(TBSubMenuItem)
-                     else Fmain.TBSMB.Add(TBSubMenuItem);
+          if j=i then begin
+            if asLayer then begin
+              Fmain.TBLayerSel.Add(TBSubMenuItem)
+            end else begin
+              Fmain.TBSMB.Add(TBSubMenuItem);
+            end;
           end;
           MapType[j].TBSubMenuItem.Add(TBItem);
-         end;
-   Fmain.MapIcons24.AddMasked(Fbmp24,RGB(255,0,255));
-   Fmain.MapIcons18.AddMasked(Fbmp18,RGB(255,0,255));
-   TBItem.Name:='TBMapN'+inttostr(id);
-   TBItem.ShortCut:=HotKey;
-   TBItem.ImageIndex:=i;
-   TBItem.Caption:=name;
-   TBItem.OnAdjustFont:=Fmain.AdjustFont;
-   TBItem.OnClick:=Fmain.TBmap1Click;
+        end;
+        Fmain.MapIcons24.AddMasked(Fbmp24,RGB(255,0,255));
+        Fmain.MapIcons18.AddMasked(Fbmp18,RGB(255,0,255));
+        TBItem.Name:='TBMapN'+inttostr(id);
+        TBItem.ShortCut:=HotKey;
+        TBItem.ImageIndex:=i;
+        TBItem.Caption:=name;
+        TBItem.OnAdjustFont:=Fmain.AdjustFont;
+        TBItem.OnClick:=Fmain.TBmap1Click;
 
-   TBFillingItem:=TTBXItem.Create(Fmain.TBFillingTypeMap);
-   TBFillingItem.name:='TBMapFM'+inttostr(id);
-   TBFillingItem.ImageIndex:=i;
-   TBFillingItem.Caption:=name;
-   TBFillingItem.OnAdjustFont:=Fmain.AdjustFont;
-   TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
-   Fmain.TBFillingTypeMap.Add(TBFillingItem);
+        TBFillingItem:=TTBXItem.Create(Fmain.TBFillingTypeMap);
+        TBFillingItem.name:='TBMapFM'+inttostr(id);
+        TBFillingItem.ImageIndex:=i;
+        TBFillingItem.Caption:=name;
+        TBFillingItem.OnAdjustFont:=Fmain.AdjustFont;
+        TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
+        Fmain.TBFillingTypeMap.Add(TBFillingItem);
 
-   if ext<>'.kml' then
-    begin
-     if not(asLayer) then begin
-                           NSmItem:=TTBXITem.Create(GMiniMapPopupMenu);
-                           GMiniMapPopupMenu.Items.Add(NSmItem)
-                          end
-                     else begin
-                           NSmItem:=TTBXITem.Create(Fmain.NSubMenuSmItem);
-                           Fmain.NSubMenuSmItem.Add(NSmItem);
-                          end;
-     NSmItem.Name:='NSmMapN'+inttostr(id);
-     NSmItem.ImageIndex:=i;
-     NSmItem.Caption:=name;
-     NSmItem.OnAdjustFont:=Fmain.AdjustFont;
-     NSmItem.OnClick:=Fmain.NMMtype_0Click;
-     if ShowOnSmMap then NSmItem.Checked:=true;
+        if ext<>'.kml' then begin
+          if not(asLayer) then begin
+            NSmItem:=TTBXITem.Create(GMiniMapPopupMenu);
+            GMiniMapPopupMenu.Items.Add(NSmItem)
+          end else begin
+            NSmItem:=TTBXITem.Create(Fmain.NSubMenuSmItem);
+            Fmain.NSubMenuSmItem.Add(NSmItem);
+          end;
+          NSmItem.Name:='NSmMapN'+inttostr(id);
+          NSmItem.ImageIndex:=i;
+          NSmItem.Caption:=name;
+          NSmItem.OnAdjustFont:=Fmain.AdjustFont;
+          NSmItem.OnClick:=Fmain.NMMtype_0Click;
+          if ShowOnSmMap then begin
+            NSmItem.Checked:=true;
+          end;
+        end;
+        if asLayer then begin
+          NDwnItem:=TMenuItem.Create(nil);
+          NDwnItem.Caption:=name;
+          NDwnItem.ImageIndex:=i;
+          NDwnItem.OnClick:=Fmain.N21Click;
+          Fmain.ldm.Add(NDwnItem);
+          NDelItem:=TMenuItem.Create(nil);
+          NDelItem.Caption:=name;
+          NDelItem.ImageIndex:=i;
+          NDelItem.OnClick:=Fmain.NDelClick;
+          Fmain.dlm.Add(NDelItem);
+          NLayerParamsItem:=TTBXItem.Create(Fmain.NLayerParams);
+          NLayerParamsItem.Caption:=name;
+          NLayerParamsItem.ImageIndex:=i;
+          NLayerParamsItem.OnClick:=Fmain.NMapParamsClick;
+          Fmain.NLayerParams.Add(NLayerParamsItem);
+        end;
+        if (asLayer)and(active) then begin
+          TBItem.Checked:=true;
+        end;
+        if separator then begin
+          TBItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
+          if NSmItem<>NIL  then begin
+            NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
+          end;
+          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
+        end;
+        if (active)and(MapType[i].asLayer=false) then begin
+          sat_map_both:=MapType[i];
+        end;
+        if (ShowOnSmMap)and(not(asLayer)) then begin
+          GMiniMap.maptype:=MapType[i];
+        end;
+        TBItem.Tag:=Longint(MapType[i]);
+        TBFillingItem.Tag:=Longint(MapType[i]);
+        if ext<>'.kml' then begin
+          NSmItem.Tag:=Longint(MapType[i]);
+        end;
+        if asLayer then begin
+          NDwnItem.Tag:=longint(MapType[i]);
+          NDelItem.Tag:=longint(MapType[i]);
+          NLayerParamsItem.Tag:=longint(MapType[i]);
+        end;
+        FSettings.MapList.AddItem(MapType[i].name,nil);
+        FSettings.MapList.Items.Item[i].Data:=MapType[i];
+        FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].NameInCache);
+        if MapType[i].asLayer then begin
+          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+MapType[i].ParentSubMenu);
+        end else begin
+          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+MapType[i].ParentSubMenu);
+        end;
+        FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(MapType[i].HotKey));
+        FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].FFilename);
+      end;
     end;
-   if asLayer then
-    begin
-     NDwnItem:=TMenuItem.Create(nil);
-     NDwnItem.Caption:=name;
-     NDwnItem.ImageIndex:=i;
-     NDwnItem.OnClick:=Fmain.N21Click;
-     Fmain.ldm.Add(NDwnItem);
-     NDelItem:=TMenuItem.Create(nil);
-     NDelItem.Caption:=name;
-     NDelItem.ImageIndex:=i;
-     NDelItem.OnClick:=Fmain.NDelClick;
-     Fmain.dlm.Add(NDelItem);
-     NLayerParamsItem:=TTBXItem.Create(Fmain.NLayerParams);
-     NLayerParamsItem.Caption:=name;
-     NLayerParamsItem.ImageIndex:=i;
-     NLayerParamsItem.OnClick:=Fmain.NMapParamsClick;
-     Fmain.NLayerParams.Add(NLayerParamsItem);
-    end;
-   if (asLayer)and(active) then TBItem.Checked:=true;
-   if separator then
-    begin
-     TBItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
-     if NSmItem<>NIL  then  NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
-     TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
-    end;
-   if (active)and(MapType[i].asLayer=false) then sat_map_both:=MapType[i];
-   if (ShowOnSmMap)and(not(asLayer)) then GMiniMap.maptype:=MapType[i];
-   TBItem.Tag:=Longint(MapType[i]);
-   TBFillingItem.Tag:=Longint(MapType[i]);
-   if ext<>'.kml' then NSmItem.Tag:=Longint(MapType[i]);
-   if asLayer then
-    begin
-     NDwnItem.Tag:=longint(MapType[i]);
-     NDelItem.Tag:=longint(MapType[i]);
-     NLayerParamsItem.Tag:=longint(MapType[i]);
-    end;
-   FSettings.MapList.AddItem(MapType[i].name,nil);
-   FSettings.MapList.Items.Item[i].Data:=MapType[i];
-   FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].NameInCache);
-   if MapType[i].asLayer then FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+MapType[i].ParentSubMenu)
-                         else FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+MapType[i].ParentSubMenu);
-   FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(MapType[i].HotKey));
-   FSettings.MapList.Items.Item[i].SubItems.Add(MapType[i].FFilename);
   end;
- if FSettings.MapList.Items.Count>0 then FSettings.MapList.Items.Item[0].Selected:=true;
- if GMiniMap.maptype=nil then Fmain.NMMtype_0.Checked:=true;
- if (sat_map_both=nil)and(MapType[0]<>nil) then sat_map_both:=MapType[0];
+  if FSettings.MapList.Items.Count>0 then begin
+    FSettings.MapList.Items.Item[0].Selected:=true;
+  end;
+  if GMiniMap.maptype=nil then begin
+    Fmain.NMMtype_0.Checked:=true;
+  end;
+  if (sat_map_both=nil)and(MapType[0]<>nil) then begin
+    sat_map_both:=MapType[0];
+  end;
 end;
 
 procedure LoadMaps;
-var  Ini: TMeminifile;
-     i,j,k,pnum: integer;
-     startdir : string;
-     SearchRec: TSearchRec;
-     MTb:TMapType;
+var
+  Ini: TMeminifile;
+  i,j,k,pnum: integer;
+  startdir : string;
+  SearchRec: TSearchRec;
+  MTb: TMapType;
 begin
- SetLength(MapType,0);
- CreateDir(GState.MapsPath);
- Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
- i:=0;
- pnum:=0;
- startdir:=GState.MapsPath;
- if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then
-  repeat
-   inc(i);
-  until FindNext(SearchRec) <> 0;
- SysUtils.FindClose(SearchRec);
- SetLength(MapType,i);
- if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then
-  repeat
-   if (SearchRec.Attr and faDirectory) = faDirectory then continue;
-   MapType[pnum]:=TMapType.Create;
-   MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
-   MapType[pnum].ban_pg_ld := true;
-   if Ini.SectionExists(MapType[pnum].GUIDs)
-    then With MapType[pnum] do
-          begin
-           id:=Ini.ReadInteger(GUIDs,'pnum',0);
-           active:=ini.ReadBool(GUIDs,'active',false);
-           ShowOnSmMap:=ini.ReadBool(GUIDs,'ShowOnSmMap',true);
-           URLBase:=ini.ReadString(GUIDs,'URLBase',URLBase);
-           CacheType:=ini.ReadInteger(GUIDs,'CacheType',cachetype);
-           NameInCache:=ini.ReadString(GUIDs,'NameInCache',NameInCache);
-           HotKey:=ini.ReadInteger(GUIDs,'HotKey',HotKey);
-           ParentSubMenu:=ini.ReadString(GUIDs,'ParentSubMenu',ParentSubMenu);
-           Sleep:=ini.ReadInteger(GUIDs,'Sleep',Sleep);
-           separator:=ini.ReadBool(GUIDs,'separator',separator);
-          end
-    else With MapType[pnum] do
-          begin
-           showinfo:=true;
-           if Fpos < 0 then Fpos := i;
-           id := Fpos;
-           dec(i);
-           active:=false;
-           ShowOnSmMap:=false;
-          end;
-   inc(pnum);
-  until FindNext(SearchRec) <> 0;
- SysUtils.FindClose(SearchRec);
- ini.Free;
+  SetLength(MapType,0);
+  CreateDir(GState.MapsPath);
+  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
+  i:=0;
+  pnum:=0;
+  startdir:=GState.MapsPath;
+  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
+    repeat
+      inc(i);
+    until FindNext(SearchRec) <> 0;
+  end;
+  SysUtils.FindClose(SearchRec);
+  SetLength(MapType,i);
+  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
+    repeat
+      if (SearchRec.Attr and faDirectory) = faDirectory then continue;
+      MapType[pnum]:=TMapType.Create;
+      MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+      MapType[pnum].ban_pg_ld := true;
+      if Ini.SectionExists(MapType[pnum].GUIDs)then begin
+        With MapType[pnum] do begin
+          id:=Ini.ReadInteger(GUIDs,'pnum',0);
+          active:=ini.ReadBool(GUIDs,'active',false);
+          ShowOnSmMap:=ini.ReadBool(GUIDs,'ShowOnSmMap',true);
+          URLBase:=ini.ReadString(GUIDs,'URLBase',URLBase);
+          CacheType:=ini.ReadInteger(GUIDs,'CacheType',cachetype);
+          NameInCache:=ini.ReadString(GUIDs,'NameInCache',NameInCache);
+          HotKey:=ini.ReadInteger(GUIDs,'HotKey',HotKey);
+          ParentSubMenu:=ini.ReadString(GUIDs,'ParentSubMenu',ParentSubMenu);
+          Sleep:=ini.ReadInteger(GUIDs,'Sleep',Sleep);
+          separator:=ini.ReadBool(GUIDs,'separator',separator);
+        end;
+      end else begin
+        With MapType[pnum] do begin
+          showinfo:=true;
+          if Fpos < 0 then Fpos := i;
+          id := Fpos;
+          dec(i);
+          active:=false;
+          ShowOnSmMap:=false;
+        end;
+      end;
+      inc(pnum);
+    until FindNext(SearchRec) <> 0;
+  end;
+  SysUtils.FindClose(SearchRec);
+  ini.Free;
 
- k := length(MapType) shr 1;
- while k>0 do
-  begin
-   for i:=0 to length(MapType)-k-1 do
-    begin
+  k := length(MapType) shr 1;
+  while k>0 do begin
+    for i:=0 to length(MapType)-k-1 do begin
       j:=i;
-      while (j>=0)and(MapType[j].id>MapType[j+k].id) do
-      begin
+      while (j>=0)and(MapType[j].id>MapType[j+k].id) do begin
         MTb:=MapType[j];
         MapType[j]:=MapType[j+k];
         MapType[j+k]:=MTb;
-        if j>k then Dec(j,k)
-               else j:=0;
+        if j>k then begin
+          Dec(j,k);
+        end else begin
+          j:=0;
+        end;
       end;
     end;
-   k:=k shr 1;
+    k:=k shr 1;
   end;
- MTb:=nil;
- MTb.Free;
- for i:=0 to length(MapType)-1 do begin MapType[i].id:=i+1; end;
+  MTb:=nil;
+  MTb.Free;
+  for i:=0 to length(MapType)-1 do begin
+    MapType[i].id:=i+1;
+  end;
 end;
 
 procedure SaveMaps;
-var  Ini: TMeminifile;
-       i: integer;
+var
+  Ini: TMeminifile;
+  i: integer;
 begin
- Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
- for i:=0 to length(MapType)-1 do
-       begin
-         ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
-         ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
-         ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
-         if MapType[i].URLBase<>MapType[i].DefURLBase then
-          ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase)
-          else Ini.DeleteKey(MapType[i].guids,'URLBase');
-         if MapType[i].HotKey<>MapType[i].DefHotKey then
-          ini.WriteInteger(MapType[i].guids,'HotKey',MapType[i].HotKey)
-          else Ini.DeleteKey(MapType[i].guids,'HotKey');
-         if MapType[i].cachetype<>MapType[i].defcachetype then
-          ini.WriteInteger(MapType[i].guids,'CacheType',MapType[i].CacheType)
-          else Ini.DeleteKey(MapType[i].guids,'CacheType');
-         if MapType[i].separator<>MapType[i].Defseparator then
-          ini.WriteBool(MapType[i].guids,'separator',MapType[i].separator)
-          else Ini.DeleteKey(MapType[i].guids,'separator');
-         if MapType[i].NameInCache<>MapType[i].DefNameInCache then
-          ini.WriteString(MapType[i].guids,'NameInCache',MapType[i].NameInCache)
-          else Ini.DeleteKey(MapType[i].guids,'NameInCache');
-         if MapType[i].Sleep<>MapType[i].DefSleep then
-          ini.WriteInteger(MapType[i].guids,'Sleep',MapType[i].sleep)
-          else Ini.DeleteKey(MapType[i].guids,'Sleep');
-         if MapType[i].ParentSubMenu<>MapType[i].DefParentSubMenu then
-          ini.WriteString(MapType[i].guids,'ParentSubMenu',MapType[i].ParentSubMenu)
-          else Ini.DeleteKey(MapType[i].guids,'ParentSubMenu');
-       end;
- Ini.UpdateFile;
- ini.Free;
+  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
+  for i:=0 to length(MapType)-1 do begin
+    ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
+    ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
+    ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
+
+    if MapType[i].URLBase<>MapType[i].DefURLBase then begin
+      ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'URLBase');
+    end;
+
+    if MapType[i].HotKey<>MapType[i].DefHotKey then begin
+      ini.WriteInteger(MapType[i].guids,'HotKey',MapType[i].HotKey);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'HotKey');
+    end;
+
+    if MapType[i].cachetype<>MapType[i].defcachetype then begin
+      ini.WriteInteger(MapType[i].guids,'CacheType',MapType[i].CacheType);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'CacheType');
+    end;
+
+    if MapType[i].separator<>MapType[i].Defseparator then begin
+      ini.WriteBool(MapType[i].guids,'separator',MapType[i].separator);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'separator');
+    end;
+
+    if MapType[i].NameInCache<>MapType[i].DefNameInCache then begin
+      ini.WriteString(MapType[i].guids,'NameInCache',MapType[i].NameInCache);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'NameInCache');
+    end;
+
+    if MapType[i].Sleep<>MapType[i].DefSleep then begin
+      ini.WriteInteger(MapType[i].guids,'Sleep',MapType[i].sleep);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'Sleep');
+    end;
+
+    if MapType[i].ParentSubMenu<>MapType[i].DefParentSubMenu then begin
+      ini.WriteString(MapType[i].guids,'ParentSubMenu',MapType[i].ParentSubMenu);
+    end else begin
+      Ini.DeleteKey(MapType[i].guids,'ParentSubMenu');
+    end;
+  end;
+  Ini.UpdateFile;
+  ini.Free;
 end;
 
 procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
