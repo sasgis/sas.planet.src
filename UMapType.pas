@@ -897,7 +897,6 @@ function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 var path: string;
 begin
-  path := GetTileFileName(x, y, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
       result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
@@ -905,8 +904,10 @@ begin
     end else begin
       result:=true;
     end;
-  end else
-  result:= LoadFile(btm, path, caching);
+  end else begin
+    path := GetTileFileName(x, y, Azoom);
+    result:= LoadFile(btm, path, caching);
+  end;
 end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
