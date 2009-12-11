@@ -63,13 +63,13 @@ begin
       FParentMap.Bitmap.BeginUpdate;
       if length(pathll)>0 then begin
         for i:=0 to length(pathll)-1 do begin
-          k1:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
+          k1:=sat_map_both.GeoConvert.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
           k1:=MapPixel2BitmapPixel(k1);
           if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
             polygon.Add(FixedPoint(k1));
           end;
           if i<length(pathll)-1 then begin
-            k2:=sat_map_both.FCoordConverter.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
+            k2:=sat_map_both.GeoConvert.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
             k2:=MapPixel2BitmapPixel(k2);
             if (k2.x-k1.x)>(k2.y-k1.y) then begin
               adp:=(k2.x-k1.x)div 32767+2;
@@ -188,7 +188,7 @@ begin
           end;
         end;
         if length(buf_line_arr)=1 then begin
-          xy:=sat_map_both.FCoordConverter.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
+          xy:=sat_map_both.GeoConvert.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
           xy := MapPixel2BitmapPixel(xy);
           xy:=Point(xy.x,xy.y);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;

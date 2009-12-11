@@ -467,7 +467,7 @@ begin
    if MapType[i].Usestick then
     begin
      CBscleit.Items.AddObject(MapType[i].name,MapType[i]);
-     if (MapType[i].asLayer)and(MapType[i].ext<>'.kml') then CBSclHib.Items.AddObject(MapType[i].name,MapType[i]);
+     if (MapType[i].asLayer) then CBSclHib.Items.AddObject(MapType[i].name,MapType[i]);
      if (MapType[i].active)and(not(MapType[i].asLayer)) then CBscleit.ItemIndex:=CBscleit.Items.IndexOfObject(MapType[i]);
     end;
    if (MapType[i].UseGenPrevious) then

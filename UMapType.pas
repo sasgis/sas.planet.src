@@ -33,51 +33,62 @@ type
     FFileName: string;
     FUseDwn: boolean;
     FUseDel: boolean;
+    FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
+    FShowOnSmMap: boolean;
+    FUseStick: boolean;
     FGetURLScript: string;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
     FContent_Type: string;
     FStatus_Code: string;
     FBanIfLen: integer;
+    FUseAntiBan: integer;
     function GetCoordConverter: ICoordConverter;
-    function GetIsFileCache: Boolean;
+    function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
     function GetUseDel: boolean;
     function GetUseSave: boolean;
     function GetZmpFileName: string;
+    function GetIsStoreReadOnly: boolean;
+    function GetIsCanShowOnSmMap: boolean;
+    function GetUseStick: boolean;
+    function GetShowOnSmMap: boolean;
+    procedure SetShowOnSmMap(const Value: boolean);
    public
     id: integer;
     guids: string;
+    ext: string;
     MapInfo: string;
-    showinfo: boolean;
-    ShowOnSmMap: boolean;
     asLayer: boolean;
     name: string;
-    HotKey: TShortCut;
-    DefHotKey: TShortCut;
-    URLBase: string;
-    DefURLBase: string;
-    Usestick: boolean;
-    UseGenPrevious: boolean;
-    UseSubDomain: boolean;
-    UseAntiBan: integer;
-    Sleep: Integer;
-    DefSleep: Integer;
-    separator: boolean;
-    Defseparator: boolean;
     DelAfterShow: boolean;
     projection: byte;
-    cachetype: byte;
-    defcachetype: byte;
     radiusa: extended;
     radiusb: extended;
     exct: extended;
-    ext: string;
-    ParentSubMenu: string;
+    UseGenPrevious: boolean;
+
+    DefHotKey: TShortCut;
+    HotKey: TShortCut;
+
+    DefURLBase: string;
+    URLBase: string;
+
+    DefSleep: Integer;
+    Sleep: Integer;
+
+    Defseparator: boolean;
+    separator: boolean;
+
+    defcachetype: byte;
+    cachetype: byte;
+
     DefParentSubMenu:string;
-    NameInCache:string;
+    ParentSubMenu: string;
+
     DefNameInCache:string;
+    NameInCache:string;
 
     NSmItem: TTBXItem;
     TBItem: TTBXItem;
@@ -86,10 +97,10 @@ type
     TBSubMenuItem: TTBXSubmenuItem;
     NDwnItem: TMenuItem;
     NDelItem: TMenuItem;
-    FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     active: boolean;
+    showinfo: boolean;
 
     function GetLink(x,y:longint;Azoom:byte):string;overload;
     function GetLink(AXY: TPoint;Azoom:byte):string;overload;
@@ -150,11 +161,16 @@ type
     function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf:TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
-    property IsFileCache: Boolean read GetIsFileCache;
+    property IsStoreFileCache: Boolean read GetIsStoreFileCache;
 
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
+    property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
+    property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
+    property UseStick: boolean read GetUseStick;
+
+    property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     constructor Create;
     destructor Destroy; override;
@@ -165,6 +181,7 @@ type
     FCSSaveTNF: TCriticalSection;
     FDownloader: TTileDownloaderBase;
     FUrlGenerator : TUrlGenerator;
+    FCoordConverter : ICoordConverter;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
@@ -560,12 +577,13 @@ begin
       FTileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
       FTileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
       FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
-      Usestick:=iniparams.ReadBool('PARAMS','Usestick',true);
+      FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
+      FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
       DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
       FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
-      UseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
+      FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
       CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
       DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
@@ -666,11 +684,15 @@ end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := GetBasePath;
-  if Result <> '' then begin
-    Result := IncludeTrailingPathDelimiter(Result);
+  if IsStoreFileCache then begin
+    Result := GetBasePath;
+    if Result <> '' then begin
+      Result := IncludeTrailingPathDelimiter(Result);
+    end;
+    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
+  end else begin
+    raise Exception.Create('Ошибка. Это не файловый кеш');
   end;
-  Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
 end;
 
 function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
@@ -890,7 +912,6 @@ function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 var path: string;
 begin
-  path := GetTileFileName(x, y, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
       result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
@@ -898,24 +919,31 @@ begin
     end else begin
       result:=true;
     end;
-  end else
-  result:= LoadFile(btm, path, caching);
+  end else begin
+    path := GetTileFileName(x, y, Azoom);
+    result:= LoadFile(btm, path, caching);
+  end;
 end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: string;
 begin
-  try
-    VPath := GetTileFileName(AXY, Azoom);
-    FCSSaveTile.Acquire;
+  Result := false;
+  if UseDel then begin
     try
-    result := DeleteFile(PChar(VPath));
-    finally
-      FCSSaveTile.Release;
+      VPath := GetTileFileName(AXY, Azoom);
+      FCSSaveTile.Acquire;
+      try
+      result := DeleteFile(PChar(VPath));
+      finally
+        FCSSaveTile.Release;
+      end;
+    except
+      Result := false;
     end;
-  except
-    Result := false;
+  end else begin
+    Exception.Create('Для этой карты запрещено удаление тайлов.');
   end;
 end;
 
@@ -1021,68 +1049,72 @@ var
     btmDest:TBitmap32;
     UnZip:TVCLUnZip;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  if UseSave then begin
+    VPath := GetTileFileName(x, y, Azoom);
 
-  CreateDirIfNotExists(VPath);
-  if ext='.kml' then begin
-    if (ty='application/vnd.google-earth.kmz') then begin
-      try
-        UnZip:=TVCLUnZip.Create(Fmain);
-        UnZip.ArchiveStream:=TMemoryStream.Create;
-        ATileStream.SaveToStream(UnZip.ArchiveStream);
-        UnZip.ReadZip;
-        ATileStream.Position:=0;
-        UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-        UnZip.Free;
+    CreateDirIfNotExists(VPath);
+    if ext='.kml' then begin
+      if (ty='application/vnd.google-earth.kmz') then begin
+        try
+          UnZip:=TVCLUnZip.Create(Fmain);
+          UnZip.ArchiveStream:=TMemoryStream.Create;
+          ATileStream.SaveToStream(UnZip.ArchiveStream);
+          UnZip.ReadZip;
+          ATileStream.Position:=0;
+          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+          UnZip.Free;
+          SaveTileInCache(ATileStream,Vpath);
+          ban_pg_ld:=true;
+        except
+          try
+            SaveTileInCache(ATileStream,Vpath);
+          except
+          end;
+        end;
+      end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
         SaveTileInCache(ATileStream,Vpath);
         ban_pg_ld:=true;
-      except
+      end;
+    end else begin
+      SaveTileInCache(ATileStream,Vpath);
+      if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
+        (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
+        btmsrc:=TBitmap32.Create;
+        btmDest:=TBitmap32.Create;
         try
-          SaveTileInCache(ATileStream,Vpath);
+          btmSrc.Resampler:=TLinearResampler.Create;
+          if LoadFile(btmsrc,Vpath,false) then begin
+            btmDest.SetSize(256,256);
+            btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
+            SaveTileInCache(btmDest,Vpath);
+          end;
         except
         end;
+        btmSrc.Free;
+        btmDest.Free;
       end;
-    end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-      SaveTileInCache(ATileStream,Vpath);
-      ban_pg_ld:=true;
-    end;
-  end else begin
-    SaveTileInCache(ATileStream,Vpath);
-    if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
-      (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
-      btmsrc:=TBitmap32.Create;
-      btmDest:=TBitmap32.Create;
-      try
-        btmSrc.Resampler:=TLinearResampler.Create;
-        if LoadFile(btmsrc,Vpath,false) then begin
-          btmDest.SetSize(256,256);
-          btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
-          SaveTileInCache(btmDest,Vpath);
-        end;
-      except
-      end;
-      btmSrc.Free;
-      btmDest.Free;
-    end;
 
-    ban_pg_ld:=true;
-    if (ty='image/png')and(ext='.jpg') then begin
-      btm:=TBitmap.Create;
-      png:=TBitmap32.Create;
-      jpg:=TJPEGImage.Create;
-      RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
-      if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
-        btm.Assign(png);
-        jpg.Assign(btm);
-        SaveTileInCache(jpg,Vpath);
-        DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
-        btm.Free;
-        jpg.Free;
-        png.Free;
+      ban_pg_ld:=true;
+      if (ty='image/png')and(ext='.jpg') then begin
+        btm:=TBitmap.Create;
+        png:=TBitmap32.Create;
+        jpg:=TJPEGImage.Create;
+        RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
+        if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
+          btm.Assign(png);
+          jpg.Assign(btm);
+          SaveTileInCache(jpg,Vpath);
+          DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
+          btm.Free;
+          jpg.Free;
+          png.Free;
+        end;
       end;
     end;
+    GState.MainFileCache.DeleteFileFromCache(Vpath);
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
-  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileInCache(btm:TObject;path:string);
@@ -1188,10 +1220,14 @@ procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TObject);
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(VPath);
-  DeleteFile(ChangeFileExt(Vpath,'.tne'));
-  SaveTileInCache(btm, Vpath);
+  if UseSave then begin
+    VPath := GetTileFileName(AXY, Azoom);
+    CreateDirIfNotExists(VPath);
+    DeleteFile(ChangeFileExt(Vpath,'.tne'));
+    SaveTileInCache(btm, Vpath);
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
+  end;
 end;
 
 procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
@@ -1323,16 +1359,16 @@ var
   cnt: Integer;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (UseAntiBan > 1) then begin
-    Result := (cnt mod UseAntiBan) = 0;
+  if (FUseAntiBan > 1) then begin
+    Result := (cnt mod FUseAntiBan) = 0;
   end else begin
-    Result := (UseAntiBan > 0) and  (cnt = 1);
+    Result := (FUseAntiBan > 0) and  (cnt = 1);
   end;
 end;
 
 procedure TMapType.addDwnforban;
 begin
-  if (UseAntiBan>0) then begin
+  if (FUseAntiBan>0) then begin
     Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
   end;
 end;
@@ -1361,13 +1397,16 @@ begin
 end;
 
 function TMapType.GetDownloader: TTileDownloaderBase;
+var
+  VDownloader: TTileDownloaderBase;
 begin
   if FDownloader = nil then begin
     FInitDownloadCS.Acquire;
     try
       if FDownloader = nil then begin
-        FDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
-        FDownloader.SleepOnResetConnection := Sleep;
+        VDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
+        VDownloader.SleepOnResetConnection := Sleep;
+        FDownloader := VDownloader;
       end;
     finally
       FInitDownloadCS.Release;
@@ -1383,24 +1422,32 @@ function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
 var
   StatusCode: Cardinal;
 begin
-  AUrl := GetLink(AXY.X, AXY.Y, AZoom);
-  Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-  if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
-    result := dtrBanError;
+  if Self.UseDwn then begin
+    AUrl := GetLink(AXY.X, AXY.Y, AZoom);
+    Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+    if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
+      result := dtrBanError;
+    end;
+  end else begin
+    raise Exception.Create('Для этой карты загрузка запрещена.');
   end;
 end;
 
 function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
 begin
-  Result := GetTileFileName(x, y, Azoom);
+  Result := Self.GetTileShowName(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := GetTileFileName(AXY, Azoom)
+  if Self.IsStoreFileCache then begin
+    Result := GetTileFileName(AXY, Azoom)
+  end else begin
+    Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
+  end;
 end;
 
-function TMapType.GetIsFileCache: Boolean;
+function TMapType.GetIsStoreFileCache: Boolean;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     Result := false;
@@ -1411,22 +1458,75 @@ end;
 
 function TMapType.GetUseDwn: Boolean;
 begin
-  Result := FUseDwn;
+  if Self.UseSave then begin
+    Result := false;
+  end else begin
+    Result := FUseDwn;
+  end;
 end;
 
 function TMapType.GetUseDel: boolean;
 begin
-  Result := FUseDel;
+  if IsStoreReadOnly then begin
+    Result := false;
+  end else begin
+    Result := FUseDel;
+  end;
 end;
 
 function TMapType.GetUseSave: boolean;
 begin
-  Result := FUseSave;
+  if IsStoreReadOnly then begin
+    Result := false;
+  end else begin
+    Result := FUseSave;
+  end;
 end;
 
 function TMapType.GetZmpFileName: string;
 begin
   Result := ExtractFileName(FFileName);
+end;
+
+function TMapType.GetIsStoreReadOnly: boolean;
+begin
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    Result := True;
+  end else begin
+    Result := FIsStoreReadOnly;
+  end;
+end;
+
+function TMapType.GetUseStick: boolean;
+begin
+  if ext<>'.kml' then begin
+    Result := FUseStick;
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TMapType.GetIsCanShowOnSmMap: boolean;
+begin
+  if ext<>'.kml' then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TMapType.GetShowOnSmMap: boolean;
+begin
+  if Self.IsCanShowOnSmMap then begin
+    Result := FShowOnSmMap;
+  end else begin
+    Result := False
+  end;
+end;
+
+procedure TMapType.SetShowOnSmMap(const Value: boolean);
+begin
+  FShowOnSmMap := Value;
 end;
 
 end.
