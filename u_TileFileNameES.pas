@@ -60,8 +60,8 @@ begin
       Chr(60 + Azoom)+ FullInt(AXY.X shr 5, Azoom - 5)
       + FullInt(AXY.Y shr 5, Azoom - 5)+'\';
   end else begin
-    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 10)
-      + '-' + FullInt(AXY.Y shr (AZoom - 9), 10) + '\' + VZoomStr + '\'
+    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9)
+      + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + '\' + VZoomStr + '\'
       + Chr(60 + Azoom)+ FullInt(AXY.X shr 5, Azoom - 5)
       + FullInt(AXY.Y shr 5, Azoom - 5) + '\';
   end;
