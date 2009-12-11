@@ -155,24 +155,27 @@ begin
               inc(jxT);
               continue;
             end;
-            //TODO: ¬еро€тно придетс€ отказатьс€ от такой оптимизации и позволить карте делать все самой.
-            VTileFileName := VMapType.GetTileFileName(xx,yy,GState.zoom_mapzap);
-            VCurrFolderName := ExtractFilePath(VTileFileName);
-            if VCurrFolderName=VPrevFolderName then begin
-              if VPrevTileFolderExist then begin
-                VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
+            if VMapType.IsStoreFileCache then begin
+              VTileFileName := VMapType.GetTileFileName(xx,yy,GState.zoom_mapzap);
+              VCurrFolderName := ExtractFilePath(VTileFileName);
+              if VCurrFolderName=VPrevFolderName then begin
+                if VPrevTileFolderExist then begin
+                  VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
+                end else begin
+                  VTileExist:=false
+                end;
               end else begin
-                VTileExist:=false
+                VPrevTileFolderExist:=DirectoryExists(VCurrFolderName);
+                if VPrevTileFolderExist then begin
+                  VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
+                end else begin
+                  VTileExist:=false;
+                end;
               end;
+              VPrevFolderName:=VCurrFolderName;
             end else begin
-              VPrevTileFolderExist:=DirectoryExists(VCurrFolderName);
-              if VPrevTileFolderExist then begin
-                VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
-              end else begin
-                VTileExist:=false;
-              end;
+              VTileExist:=VMapType.TileExists(xx,yy,GState.zoom_mapzap)
             end;
-            VPrevFolderName:=VCurrFolderName;
             if VTileExist then begin
               ixT:=xyTiles;
               jxT:=xyTiles;
