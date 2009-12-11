@@ -39,6 +39,8 @@ var
   post:string;
 begin
   Result := true;
+  NC:='0'+NC;
+  CC:='0'+CC;
   strA := '000E00000000000000000000000000001B0000000000000000000000030000';
   strB := '0000' + CellID + '0000' + LAC;
   strC := '000000' + IntToHex(strtoint(NC), 2) + '000000' + IntToHex(strtoint(CC), 2);

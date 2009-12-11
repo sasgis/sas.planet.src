@@ -113,7 +113,7 @@ ResourceString
  SAS_STR_Whole='Всего';
  SAS_STR_Maps='Карты';
  SAS_STR_Layers='Слои';
- SAS_STR_InputLacitp='Введите через запятую Код страны, Код сети, LAC, CellID (Например: 02,250,17023,13023)';
+ SAS_STR_InputLacitp='Введите через запятую mcc, mnc, LAC, CellID (Например: 02,250,17023,13023)';
  SAS_STR_InputLacitpCaption='Ввод параметров';
  SAS_UNITS_kb='Кб';
  SAS_UNITS_mb='Мб';
