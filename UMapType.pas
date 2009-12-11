@@ -914,16 +914,21 @@ function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: string;
 begin
-  try
-    VPath := GetTileFileName(AXY, Azoom);
-    FCSSaveTile.Acquire;
+  Result := false;
+  if UseDel then begin
     try
-    result := DeleteFile(PChar(VPath));
-    finally
-      FCSSaveTile.Release;
+      VPath := GetTileFileName(AXY, Azoom);
+      FCSSaveTile.Acquire;
+      try
+      result := DeleteFile(PChar(VPath));
+      finally
+        FCSSaveTile.Release;
+      end;
+    except
+      Result := false;
     end;
-  except
-    Result := false;
+  end else begin
+    Exception.Create('Для этой карты запрещено удаление тайлов.');
   end;
 end;
 
@@ -1029,68 +1034,72 @@ var
     btmDest:TBitmap32;
     UnZip:TVCLUnZip;
 begin
-  VPath := GetTileFileName(x, y, Azoom);
+  if UseSave then begin
+    VPath := GetTileFileName(x, y, Azoom);
 
-  CreateDirIfNotExists(VPath);
-  if ext='.kml' then begin
-    if (ty='application/vnd.google-earth.kmz') then begin
-      try
-        UnZip:=TVCLUnZip.Create(Fmain);
-        UnZip.ArchiveStream:=TMemoryStream.Create;
-        ATileStream.SaveToStream(UnZip.ArchiveStream);
-        UnZip.ReadZip;
-        ATileStream.Position:=0;
-        UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-        UnZip.Free;
+    CreateDirIfNotExists(VPath);
+    if ext='.kml' then begin
+      if (ty='application/vnd.google-earth.kmz') then begin
+        try
+          UnZip:=TVCLUnZip.Create(Fmain);
+          UnZip.ArchiveStream:=TMemoryStream.Create;
+          ATileStream.SaveToStream(UnZip.ArchiveStream);
+          UnZip.ReadZip;
+          ATileStream.Position:=0;
+          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+          UnZip.Free;
+          SaveTileInCache(ATileStream,Vpath);
+          ban_pg_ld:=true;
+        except
+          try
+            SaveTileInCache(ATileStream,Vpath);
+          except
+          end;
+        end;
+      end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
         SaveTileInCache(ATileStream,Vpath);
         ban_pg_ld:=true;
-      except
+      end;
+    end else begin
+      SaveTileInCache(ATileStream,Vpath);
+      if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
+        (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
+        btmsrc:=TBitmap32.Create;
+        btmDest:=TBitmap32.Create;
         try
-          SaveTileInCache(ATileStream,Vpath);
+          btmSrc.Resampler:=TLinearResampler.Create;
+          if LoadFile(btmsrc,Vpath,false) then begin
+            btmDest.SetSize(256,256);
+            btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
+            SaveTileInCache(btmDest,Vpath);
+          end;
         except
         end;
+        btmSrc.Free;
+        btmDest.Free;
       end;
-    end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-      SaveTileInCache(ATileStream,Vpath);
-      ban_pg_ld:=true;
-    end;
-  end else begin
-    SaveTileInCache(ATileStream,Vpath);
-    if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
-      (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
-      btmsrc:=TBitmap32.Create;
-      btmDest:=TBitmap32.Create;
-      try
-        btmSrc.Resampler:=TLinearResampler.Create;
-        if LoadFile(btmsrc,Vpath,false) then begin
-          btmDest.SetSize(256,256);
-          btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
-          SaveTileInCache(btmDest,Vpath);
-        end;
-      except
-      end;
-      btmSrc.Free;
-      btmDest.Free;
-    end;
 
-    ban_pg_ld:=true;
-    if (ty='image/png')and(ext='.jpg') then begin
-      btm:=TBitmap.Create;
-      png:=TBitmap32.Create;
-      jpg:=TJPEGImage.Create;
-      RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
-      if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
-        btm.Assign(png);
-        jpg.Assign(btm);
-        SaveTileInCache(jpg,Vpath);
-        DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
-        btm.Free;
-        jpg.Free;
-        png.Free;
+      ban_pg_ld:=true;
+      if (ty='image/png')and(ext='.jpg') then begin
+        btm:=TBitmap.Create;
+        png:=TBitmap32.Create;
+        jpg:=TJPEGImage.Create;
+        RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
+        if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
+          btm.Assign(png);
+          jpg.Assign(btm);
+          SaveTileInCache(jpg,Vpath);
+          DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
+          btm.Free;
+          jpg.Free;
+          png.Free;
+        end;
       end;
     end;
+    GState.MainFileCache.DeleteFileFromCache(Vpath);
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
-  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileInCache(btm:TObject;path:string);
@@ -1196,10 +1205,14 @@ procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TObject);
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(VPath);
-  DeleteFile(ChangeFileExt(Vpath,'.tne'));
-  SaveTileInCache(btm, Vpath);
+  if UseSave then begin
+    VPath := GetTileFileName(AXY, Azoom);
+    CreateDirIfNotExists(VPath);
+    DeleteFile(ChangeFileExt(Vpath,'.tne'));
+    SaveTileInCache(btm, Vpath);
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
+  end;
 end;
 
 procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
@@ -1340,12 +1353,16 @@ end;
 
 function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
 begin
-  Result := GetTileFileName(x, y, Azoom);
+  Result := Self.GetTileShowName(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := GetTileFileName(AXY, Azoom)
+  if Self.IsStoreFileCache then begin
+    Result := GetTileFileName(AXY, Azoom)
+  end else begin
+    Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
+  end;
 end;
 
 function TMapType.GetIsStoreFileCache: Boolean;
