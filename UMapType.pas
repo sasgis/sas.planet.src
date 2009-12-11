@@ -35,12 +35,15 @@ type
     FUseDel: boolean;
     FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
+    FShowOnSmMap: boolean;
+    FUseStick: boolean;
     FGetURLScript: string;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
     FContent_Type: string;
     FStatus_Code: string;
     FBanIfLen: integer;
+    FUseAntiBan: integer;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -48,38 +51,44 @@ type
     function GetUseSave: boolean;
     function GetZmpFileName: string;
     function GetIsStoreReadOnly: boolean;
+    function GetIsCanShowOnSmMap: boolean;
+    function GetUseStick: boolean;
+    function GetShowOnSmMap: boolean;
+    procedure SetShowOnSmMap(const Value: boolean);
    public
     id: integer;
     guids: string;
+    ext: string;
     MapInfo: string;
-    showinfo: boolean;
-    ShowOnSmMap: boolean;
     asLayer: boolean;
     name: string;
-    HotKey: TShortCut;
-    DefHotKey: TShortCut;
-    URLBase: string;
-    DefURLBase: string;
-    Usestick: boolean;
-    UseGenPrevious: boolean;
-    UseSubDomain: boolean;
-    UseAntiBan: integer;
-    Sleep: Integer;
-    DefSleep: Integer;
-    separator: boolean;
-    Defseparator: boolean;
     DelAfterShow: boolean;
     projection: byte;
-    cachetype: byte;
-    defcachetype: byte;
     radiusa: extended;
     radiusb: extended;
     exct: extended;
-    ext: string;
-    ParentSubMenu: string;
+    UseGenPrevious: boolean;
+
+    DefHotKey: TShortCut;
+    HotKey: TShortCut;
+
+    DefURLBase: string;
+    URLBase: string;
+
+    DefSleep: Integer;
+    Sleep: Integer;
+
+    Defseparator: boolean;
+    separator: boolean;
+
+    defcachetype: byte;
+    cachetype: byte;
+
     DefParentSubMenu:string;
-    NameInCache:string;
+    ParentSubMenu: string;
+
     DefNameInCache:string;
+    NameInCache:string;
 
     NSmItem: TTBXItem;
     TBItem: TTBXItem;
@@ -88,10 +97,10 @@ type
     TBSubMenuItem: TTBXSubmenuItem;
     NDwnItem: TMenuItem;
     NDelItem: TMenuItem;
-    FCoordConverter : ICoordConverter;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     active: boolean;
+    showinfo: boolean;
 
     function GetLink(x,y:longint;Azoom:byte):string;overload;
     function GetLink(AXY: TPoint;Azoom:byte):string;overload;
@@ -158,6 +167,10 @@ type
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
     property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
+    property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
+    property UseStick: boolean read GetUseStick;
+
+    property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     constructor Create;
     destructor Destroy; override;
@@ -168,6 +181,7 @@ type
     FCSSaveTNF: TCriticalSection;
     FDownloader: TTileDownloaderBase;
     FUrlGenerator : TUrlGenerator;
+    FCoordConverter : ICoordConverter;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
@@ -562,13 +576,13 @@ begin
       FTileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
       FTileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
       FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
-      Usestick:=iniparams.ReadBool('PARAMS','Usestick',true);
+      FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
       FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
       DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
       FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
-      UseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
+      FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
       CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
       DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
@@ -1281,16 +1295,16 @@ var
   cnt: Integer;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (UseAntiBan > 1) then begin
-    Result := (cnt mod UseAntiBan) = 0;
+  if (FUseAntiBan > 1) then begin
+    Result := (cnt mod FUseAntiBan) = 0;
   end else begin
-    Result := (UseAntiBan > 0) and  (cnt = 1);
+    Result := (FUseAntiBan > 0) and  (cnt = 1);
   end;
 end;
 
 procedure TMapType.addDwnforban;
 begin
-  if (UseAntiBan>0) then begin
+  if (FUseAntiBan>0) then begin
     Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
   end;
 end;
@@ -1344,10 +1358,14 @@ function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
 var
   StatusCode: Cardinal;
 begin
-  AUrl := GetLink(AXY.X, AXY.Y, AZoom);
-  Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-  if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
-    result := dtrBanError;
+  if Self.UseDwn then begin
+    AUrl := GetLink(AXY.X, AXY.Y, AZoom);
+    Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+    if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
+      result := dtrBanError;
+    end;
+  end else begin
+    raise Exception.Create('Для этой карты загрузка запрещена.');
   end;
 end;
 
@@ -1376,7 +1394,7 @@ end;
 
 function TMapType.GetUseDwn: Boolean;
 begin
-  if IsStoreReadOnly then begin
+  if Self.UseSave then begin
     Result := false;
   end else begin
     Result := FUseDwn;
@@ -1413,6 +1431,38 @@ begin
   end else begin
     Result := FIsStoreReadOnly;
   end;
+end;
+
+function TMapType.GetUseStick: boolean;
+begin
+  if ext<>'.kml' then begin
+    Result := FUseStick;
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TMapType.GetIsCanShowOnSmMap: boolean;
+begin
+  if ext<>'.kml' then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TMapType.GetShowOnSmMap: boolean;
+begin
+  if Self.IsCanShowOnSmMap then begin
+    Result := FShowOnSmMap;
+  end else begin
+    Result := False
+  end;
+end;
+
+procedure TMapType.SetShowOnSmMap(const Value: boolean);
+begin
+  FShowOnSmMap := Value;
 end;
 
 end.

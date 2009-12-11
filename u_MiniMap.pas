@@ -147,7 +147,7 @@ begin
       end;
     end;
     for iLay:=0 to length(UMapType.MapType)-1 do begin
-      if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap)and(UMapType.MapType[iLay].ext<>'.kml') then begin
+      if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap) then begin
         UMapType.MapType[iLay].LoadTile(btm,128,128,1,false);
         btm.DrawMode:=dmBlend;
         SmMapBitmap.Draw(bounds(0,0,SmMapBitmap.width,SmMapBitmap.height),bounds(0,0,256,256),btm);
@@ -244,7 +244,7 @@ begin
       inc(x128,256);
     end;
     for iLay := 0 to length(UMapType.MapType)-1 do begin
-      if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap)and(UMapType.MapType[iLay].ext<>'.kml') then begin
+      if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap) then begin
         pos_sm := Point(X shr (GState.zoom_size-zoom),y shr (GState.zoom_size-zoom));
         Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (zoom - 1) + 8, UMapType.MapType[iLay].GeoConvert);
         d := Point((pos_sm.X-128),(pos_sm.y-128));
