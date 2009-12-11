@@ -466,55 +466,58 @@ var
   i: integer;
 begin
   Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
-  for i:=0 to length(MapType)-1 do begin
-    ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
-    ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
-    ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
+  try
+    for i:=0 to length(MapType)-1 do begin
+      ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
+      ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
+      ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
 
-    if MapType[i].URLBase<>MapType[i].DefURLBase then begin
-      ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'URLBase');
-    end;
+      if MapType[i].URLBase<>MapType[i].DefURLBase then begin
+        ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'URLBase');
+      end;
 
-    if MapType[i].HotKey<>MapType[i].DefHotKey then begin
-      ini.WriteInteger(MapType[i].guids,'HotKey',MapType[i].HotKey);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'HotKey');
-    end;
+      if MapType[i].HotKey<>MapType[i].DefHotKey then begin
+        ini.WriteInteger(MapType[i].guids,'HotKey',MapType[i].HotKey);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'HotKey');
+      end;
 
-    if MapType[i].cachetype<>MapType[i].defcachetype then begin
-      ini.WriteInteger(MapType[i].guids,'CacheType',MapType[i].CacheType);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'CacheType');
-    end;
+      if MapType[i].cachetype<>MapType[i].defcachetype then begin
+        ini.WriteInteger(MapType[i].guids,'CacheType',MapType[i].CacheType);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'CacheType');
+      end;
 
-    if MapType[i].separator<>MapType[i].Defseparator then begin
-      ini.WriteBool(MapType[i].guids,'separator',MapType[i].separator);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'separator');
-    end;
+      if MapType[i].separator<>MapType[i].Defseparator then begin
+        ini.WriteBool(MapType[i].guids,'separator',MapType[i].separator);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'separator');
+      end;
 
-    if MapType[i].NameInCache<>MapType[i].DefNameInCache then begin
-      ini.WriteString(MapType[i].guids,'NameInCache',MapType[i].NameInCache);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'NameInCache');
-    end;
+      if MapType[i].NameInCache<>MapType[i].DefNameInCache then begin
+        ini.WriteString(MapType[i].guids,'NameInCache',MapType[i].NameInCache);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'NameInCache');
+      end;
 
-    if MapType[i].Sleep<>MapType[i].DefSleep then begin
-      ini.WriteInteger(MapType[i].guids,'Sleep',MapType[i].sleep);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'Sleep');
-    end;
+      if MapType[i].Sleep<>MapType[i].DefSleep then begin
+        ini.WriteInteger(MapType[i].guids,'Sleep',MapType[i].sleep);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'Sleep');
+      end;
 
-    if MapType[i].ParentSubMenu<>MapType[i].DefParentSubMenu then begin
-      ini.WriteString(MapType[i].guids,'ParentSubMenu',MapType[i].ParentSubMenu);
-    end else begin
-      Ini.DeleteKey(MapType[i].guids,'ParentSubMenu');
+      if MapType[i].ParentSubMenu<>MapType[i].DefParentSubMenu then begin
+        ini.WriteString(MapType[i].guids,'ParentSubMenu',MapType[i].ParentSubMenu);
+      end else begin
+        Ini.DeleteKey(MapType[i].guids,'ParentSubMenu');
+      end;
     end;
+    Ini.UpdateFile;
+  finally
+    ini.Free;
   end;
-  Ini.UpdateFile;
-  ini.Free;
 end;
 
 procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
