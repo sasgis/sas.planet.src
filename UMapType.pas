@@ -1445,9 +1445,9 @@ end;
 function TMapType.GetUseDwn: Boolean;
 begin
   if Self.UseSave then begin
-    Result := false;
-  end else begin
     Result := FUseDwn;
+  end else begin
+    Result := false;
   end;
 end;
 
