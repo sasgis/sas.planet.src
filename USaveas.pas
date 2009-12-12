@@ -482,7 +482,7 @@ begin
     end;
    if (MapType[i].UseSave) then
     begin
-     if((MapType[i].ext='.jpg')or(MapType[i].ext='.png')or(MapType[i].ext='.gif')) then
+     if((MapType[i].TileFileExt='.jpg')or(MapType[i].TileFileExt='.png')or(MapType[i].TileFileExt='.gif')) then
       if (not(MapType[i].asLayer)) then begin
                                          CmBExpSat.Items.AddObject(MapType[i].name,MapType[i]);
                                          CmBExpMap.Items.AddObject(MapType[i].name,MapType[i]);
@@ -495,7 +495,7 @@ begin
                                                                     CmBExpMapYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(MapType[i]);
                                                                    end;
                                         end
-                                   else if(MapType[i].ext='.png') then
+                                   else if(MapType[i].TileFileExt='.png') then
                                         begin
                                          CmBExpHib.Items.AddObject(MapType[i].name,MapType[i]);
                                          CmBExpHibYa.Items.AddObject(MapType[i].name,MapType[i]);

@@ -59,7 +59,7 @@ type
    public
     id: integer;
     guids: string;
-    ext: string;
+    TileFileExt: string;
     MapInfo: string;
     asLayer: boolean;
     name: string;
@@ -642,7 +642,7 @@ begin
       FBanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       FContent_Type:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
       FStatus_Code:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
-      Ext:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
+      TileFileExt:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
       NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
       DefNameInCache:=NameInCache;
       projection:=iniparams.ReadInteger('PARAMS','projection',1);
@@ -740,7 +740,7 @@ begin
     if Result <> '' then begin
       Result := IncludeTrailingPathDelimiter(Result);
     end;
-    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
+    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + TileFileExt;
   end else begin
     raise Exception.Create('Ошибка. Это не файловый кеш');
   end;
@@ -1104,7 +1104,7 @@ begin
     VPath := GetTileFileName(x, y, Azoom);
 
     CreateDirIfNotExists(VPath);
-    if ext='.kml' then begin
+    if TileFileExt='.kml' then begin
       if (ty='application/vnd.google-earth.kmz') then begin
         try
           UnZip:=TVCLUnZip.Create(Fmain);
@@ -1146,7 +1146,7 @@ begin
       end;
 
       ban_pg_ld:=true;
-      if (ty='image/png')and(ext='.jpg') then begin
+      if (ty='image/png')and(TileFileExt='.jpg') then begin
         btm:=TBitmap.Create;
         png:=TBitmap32.Create;
         jpg:=TJPEGImage.Create;
@@ -1553,7 +1553,7 @@ end;
 
 function TMapType.GetUseStick: boolean;
 begin
-  if ext<>'.kml' then begin
+  if TileFileExt<>'.kml' then begin
     Result := FUseStick;
   end else begin
     Result := False;
@@ -1562,7 +1562,7 @@ end;
 
 function TMapType.GetIsCanShowOnSmMap: boolean;
 begin
-  if ext<>'.kml' then begin
+  if TileFileExt<>'.kml' then begin
     Result := FIsCanShowOnSmMap;
   end else begin
     Result := False;

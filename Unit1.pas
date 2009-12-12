@@ -2093,7 +2093,7 @@ begin
   Vspr.SetSize(256,256);
   for Leyi:=0 to length(MapType)-1 do begin
     if (MapType[Leyi].asLayer)and(MapType[Leyi].active) then begin
-      if MapType[Leyi].ext='.kml' then begin
+      if MapType[Leyi].TileFileExt='.kml' then begin
         if not(LayerMapWiki.Visible) then begin
           LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
           LayerMapWiki.Bitmap.Clear(clBlack);
