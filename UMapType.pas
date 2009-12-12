@@ -36,6 +36,7 @@ type
     FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
     FShowOnSmMap: boolean;
+    FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FGetURLScript: string;
     Fbmp18: TBitmap;
@@ -296,7 +297,7 @@ begin
         TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
         Fmain.TBFillingTypeMap.Add(TBFillingItem);
 
-        if ext<>'.kml' then begin
+        if IsCanShowOnSmMap then begin
           if not(asLayer) then begin
             NSmItem:=TTBXITem.Create(GMiniMapPopupMenu);
             GMiniMapPopupMenu.Items.Add(NSmItem)
@@ -348,7 +349,7 @@ begin
         end;
         TBItem.Tag:=Longint(MapType[i]);
         TBFillingItem.Tag:=Longint(MapType[i]);
-        if ext<>'.kml' then begin
+        if IsCanShowOnSmMap then begin
           NSmItem.Tag:=Longint(MapType[i]);
         end;
         if asLayer then begin
@@ -630,6 +631,7 @@ begin
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
       FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
+      FIsCanShowOnSmMap := iniparams.ReadBool('PARAMS','CanShowOnSmMap', true);
       DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
       FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
       FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
@@ -1561,7 +1563,7 @@ end;
 function TMapType.GetIsCanShowOnSmMap: boolean;
 begin
   if ext<>'.kml' then begin
-    Result := True;
+    Result := FIsCanShowOnSmMap;
   end else begin
     Result := False;
   end;
