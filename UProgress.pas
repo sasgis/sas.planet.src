@@ -11,8 +11,11 @@ uses
   StdCtrls,
   Controls,
   Classes,
+  DateUtils,
   RarProgress,
-  UResStrings;
+  i_ILogForTaskThread,
+  UResStrings,
+  UTrAllLoadMap;
 
 type
   TFProgress = class(TForm)
@@ -34,45 +37,218 @@ type
     LabelValue4: TLabel;
     SaveSessionDialog: TSaveDialog;
     ButtonSave: TButton;
+    UpdateTimer: TTimer;
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure UpdateTimerTimer(Sender: TObject);
+    procedure ButtonSaveClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    FDownloadThread: ThreadAllLoadMap;
+    FLog: ILogForTaskThread;
+    FLastLogID: Cardinal;
+    FStoped: boolean;
+    FFinished: Boolean;
+    procedure SetProgressForm;
+    procedure UpdateProgressForm;
+    procedure UpdateMemoProgressForm;
+    function GetTimeEnd(loadAll,load:integer):String;
+    function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
+    procedure ThreadFinish;
+    procedure StopThread;
   public
-    stop:boolean;
+    constructor Create(AOwner: TComponent; ADownloadThread: ThreadAllLoadMap; ALog: ILogForTaskThread); reintroduce; virtual;
+    destructor Destroy; override;
+
+    property DownloadThread: ThreadAllLoadMap read FDownloadThread;
+  public
   end;
 
-var
-  FProgress: TFProgress;
 implementation
+
+uses
+  SysUtils,
+  Unit1,
+  u_GlobalState,
+  u_GeoToStr;
 
 {$R *.dfm}
 
 
 procedure TFProgress.Button2Click(Sender: TObject);
 begin
- close;
+  StopThread;
+  UpdateTimer.Enabled := false;
+  close;
 end;
 
 procedure TFProgress.Button3Click(Sender: TObject);
 begin
- Perform(wm_SysCommand, SC_MINIMIZE, 0)
+  Perform(wm_SysCommand, SC_MINIMIZE, 0)
 end;
 
 procedure TFProgress.Button1Click(Sender: TObject);
 begin
- if stop then begin
-               stop:=false;
-               button1.Caption:=SAS_STR_Stop;
-              end
-         else begin
-               stop:=true;
-               button1.Caption:=SAS_STR_Continue;
-              end
+  if FStoped then begin
+    FDownloadThread.DownloadResume;
+    FStoped := false;
+    button1.Caption := SAS_STR_Stop;
+  end else begin
+    FDownloadThread.DownloadPause;
+    FStoped := true;
+    button1.Caption := SAS_STR_Continue;
+  end
 end;
 
 procedure TFProgress.FormCreate(Sender: TObject);
 begin
- stop:=false;
+  FStoped := false;
+  FFinished := False;
 end;
+
+constructor TFProgress.Create(AOwner: TComponent;
+  ADownloadThread: ThreadAllLoadMap; ALog: ILogForTaskThread);
+begin
+  inherited Create(AOwner);
+  FDownloadThread := ADownloadThread;
+  FLog := ALog;
+  SetProgressForm;
+end;
+
+destructor TFProgress.Destroy;
+begin
+  StopThread;
+  FreeAndNil(FDownloadThread);
+  FLog := nil;
+  inherited;
+end;
+procedure TFProgress.SetProgressForm;
+begin
+  RProgr.Max := FDownloadThread.TotalInRegion;
+  RProgr.Progress1 := FDownloadThread.Downloaded;
+  RProgr.Progress2 := FDownloadThread.Processed;
+  LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
+  LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (х'+inttostr(FDownloadThread.Zoom)+')';
+  LabelName1.Caption := SAS_STR_AllProcessed;
+  LabelName2.Caption := SAS_STR_AllLoad;
+  LabelName3.Caption := SAS_STR_TimeRemained;
+  LabelName4.Caption := SAS_STR_LoadRemained;
+  Visible:=true;
+end;
+
+procedure TFProgress.UpdateProgressForm;
+begin
+  if FDownloadThread.Finished then begin
+    if not FFinished then begin
+      FFinished := True;
+      UpdateTimer.Enabled := false;
+      UpdateMemoProgressForm;
+      Caption := SAS_MSG_LoadComplete+' ('+inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%)';
+      LabelValue1.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
+      LabelValue2.Caption := inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
+      LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed);
+      LabelValue4.Caption := GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
+      RProgr.Progress1 := FDownloadThread.Processed;
+      RProgr.Progress2 := FDownloadThread.Downloaded;
+      Repaint;
+      ThreadFinish;
+    end;
+  end else begin
+    UpdateMemoProgressForm;
+    if (FStoped) then begin
+      Caption:=SAS_STR_Stop1+'... ('+inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%)';
+    end else begin
+      Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%)';
+      Application.ProcessMessages;
+      LabelValue1.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
+      LabelValue2.Caption:=inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
+      LabelValue3.Caption:=GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed);
+      LabelValue4.Caption:=GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
+      UpdateMemoProgressForm;
+      RProgr.Progress1 := FDownloadThread.Processed;
+      RProgr.Progress2 := FDownloadThread.Downloaded;
+    end;
+  end;
+end;
+
+procedure TFProgress.UpdateMemoProgressForm;
+var
+  i: Cardinal;
+  VAddToMemo: String;
+begin
+  VAddToMemo := FLog.GetLastMessages(100, FLastLogID, i);
+  if i > 0 then begin
+    if Memo1.Lines.Count>5000 then begin
+      Memo1.Lines.Clear;
+    end;
+   Memo1.Lines.Add(VAddToMemo);
+  end;
+  Fmain.toSh;
+end;
+
+function TFProgress.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
+begin
+  if loaded=0 then begin
+    result:='~  б';
+    exit;
+  end;
+  Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
+end;
+
+function TFProgress.GetTimeEnd(loadAll,load:integer):String;
+var dd:integer;
+    VElapsedTime: TDateTime;
+begin
+  if load=0 then begin
+    result:='~';
+    exit;
+  end;
+  VElapsedTime := FDownloadThread.ElapsedTime;
+  dd := DaysBetween(VElapsedTime,(VElapsedTime*(loadAll/load)));
+  Result:='';
+  if dd > 0 then Result := inttostr(dd)+' дней, ';
+  Result := Result+TimeToStr((VElapsedTime*(loadAll / load))-VElapsedTime);
+end;
+
+procedure TFProgress.UpdateTimerTimer(Sender: TObject);
+begin
+  UpdateProgressForm
+end;
+
+procedure TFProgress.ButtonSaveClick(Sender: TObject);
+begin
+  if (SaveSessionDialog.Execute)and(SaveSessionDialog.FileName<>'') then begin
+    FDownloadThread.SaveToFile(SaveSessionDialog.FileName);
+  end;
+end;
+
+procedure TFProgress.ThreadFinish;
+begin
+
+  if not((FMain.MapMoving)or(FMain.MapZoomAnimtion=1)) then begin
+    GState.MainFileCache.Clear;
+    FMain.generate_im(nilLastLoad,'');
+  end;
+end;
+
+procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  UpdateTimer.Enabled := false;
+  Action := caFree;
+end;
+
+procedure TFProgress.StopThread;
+var
+  VWaitResult: DWORD;
+begin
+  FDownloadThread.Terminate;
+  Application.ProcessMessages;
+  VWaitResult := WaitForSingleObject(FDownloadThread.Handle, 10000);
+  if VWaitResult = WAIT_TIMEOUT then begin
+    TerminateThread(FDownloadThread.Handle, 0);
+  end;
+end;
+
 end.

@@ -200,6 +200,10 @@ implementation
 uses
   Gauges,
   u_GlobalState,
+  i_ILogSimple,
+  i_ILogForTaskThread,
+  u_LogForTaskThread,
+  UProgress,
   unit1,
   Unit4,
   UImgFun,
@@ -313,15 +317,25 @@ begin
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
-var smb:TMapType;
-    polyg:TPointArray;
-    VZoom: byte;
+var
+  smb:TMapType;
+  polyg:TPointArray;
+  VZoom: byte;
+  VLog: TLogForTaskThread;
+  VSimpleLog: ILogSimple;
+  VThreadLog:ILogForTaskThread;
+  VThread: ThreadAllLoadMap;
 begin
- smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
- VZoom := CBZoomload.ItemIndex;
- polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
- ThreadAllLoadMap.Create(Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime);
- polyg := nil;
+  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
+  VZoom := CBZoomload.ItemIndex;
+  polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
+
+  VLog := TLogForTaskThread.Create(5000, 0);
+  VSimpleLog := VLog;
+  VThreadLog := VLog;
+  VThread := ThreadAllLoadMap.Create(VSimpleLog, Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime);
+  TFProgress.Create(Application, VThread, VThreadLog);
+  polyg := nil;
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);

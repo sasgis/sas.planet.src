@@ -724,6 +724,9 @@ uses
   UImport,
   UAddCategory,
   u_TileDownloaderUIOneTile,
+  u_LogForTaskThread,
+  i_ILogSimple,
+  i_ILogForTaskThread,
   i_ICoordConverter,
   UKMLParse,
   UTrAllLoadMap,
@@ -5210,10 +5213,19 @@ begin
 end;
 
 procedure TFmain.TBXItem6Click(Sender: TObject);
+var
+  VLog: TLogForTaskThread;
+  VSimpleLog: ILogSimple;
+  VThreadLog:ILogForTaskThread;
+  VThread: ThreadAllLoadMap;
 begin
- if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then
-  begin
-   ThreadAllLoadMap.Create(OpenSessionDialog.FileName,GState.SessionLastSuccess);
+  if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
+    Fmain.Enabled:=true;
+    VLog := TLogForTaskThread.Create(5000, 0);
+    VSimpleLog := VLog;
+    VThreadLog := VLog;
+    VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
+    TFProgress.Create(Application, VThread, VThreadLog);
   end;
 end;
 

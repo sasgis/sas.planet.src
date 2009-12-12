@@ -15,6 +15,7 @@ object FProgress: TFProgress
   OldCreateOrder = False
   Position = poScreenCenter
   ScreenSnap = True
+  OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
@@ -196,12 +197,18 @@ object FProgress: TFProgress
       Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1077#1082#1091#1097#1091#1102' '#1089#1077#1089#1089#1080#1102
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
       TabOrder = 4
+      OnClick = ButtonSaveClick
     end
   end
   object SaveSessionDialog: TSaveDialog
     DefaultExt = '*.sls'
     Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
     Left = 280
+    Top = 184
+  end
+  object UpdateTimer: TTimer
+    OnTimer = UpdateTimerTimer
+    Left = 240
     Top = 184
   end
 end
