@@ -1366,6 +1366,9 @@ begin
         if IsStop^ then break;
       end;
     end;
+    if IsStop^ then begin
+      Result := false;
+    end;
   except
     Result := false;
   end;
@@ -1509,9 +1512,9 @@ end;
 function TMapType.GetUseDwn: Boolean;
 begin
   if Self.UseSave then begin
-    Result := false;
-  end else begin
     Result := FUseDwn;
+  end else begin
+    Result := false;
   end;
 end;
 
