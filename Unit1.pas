@@ -3520,7 +3520,7 @@ begin
    LayerMap.Location:=floatrect(MapLayerLocationRect);
    FillingMap.Location:=LayerMap.Location;
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
-   LayerStatBar.Resize;
+   LayerMapMarks.Resize;
    LayerMapGPS.Location:=floatrect(MapLayerLocationRect);
    LayerMapWiki.Location:=floatrect(MapLayerLocationRect);
    LayerMapScale.Resize;
