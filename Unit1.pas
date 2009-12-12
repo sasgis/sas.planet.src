@@ -1715,16 +1715,6 @@ begin
 end;
 
 procedure TFmain.draw_point;
-var LLRect:TExtendedRect;
-    xy:Tpoint;
-    btm:TBitmap32;
-    TestArrLenP1,TestArrLenP2:TPoint;
-    buf_line_arr:TExtendedPointArray;
-    indexmi:integer;
-    imw,texth:integer;
-    marksFilter:string;
-    VZoomCurr: Byte;
-    VRect: TRect;
 begin
  if (GState.show_point = mshNone) then
   begin
@@ -1809,16 +1799,9 @@ begin
 end;
 
 function TFmain.toSh:string;
-var ll:TextendedPoint;
-    subs2:string;
-    posnext:integer;
-    TameTZ:TDateTime;
-    VPoint: TPoint;
-    VZoomCurr: Byte;
 begin
  If not(GState.ShowStatusBar) then exit;
  LayerStatBar.Redraw;
- VZoomCurr := GState.zoom_size - 1;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  if GMiniMap.LayerMinMap.Visible then GMiniMap.LayerMinMap.BringToFront;
 end;
@@ -5033,8 +5016,8 @@ begin
 end;
 
 procedure TFmain.TBXItem7Click(Sender: TObject);
-var PosFromGPS:TPosFromGPS;
-    LL:TExtendedPoint;
+var
+  PosFromGPS:TPosFromGPS;
 begin
  PosFromGPS:=TPosFromGPS.Create;
  PosFromGPS.Port:='\\.\'+GState.GSMpar.Port;
