@@ -2597,13 +2597,13 @@ begin
       end else begin
         Scale := 1 +  i/(steps - 1);
       end;
-     if move then begin
-         LayerSelection.ScaleTo(Scale, m_m);
-         LayerMapMarks.ScaleTo(Scale, m_m);
-     end else begin
-         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
-         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
-     end;
+      if move then begin
+        LayerSelection.ScaleTo(Scale, m_m);
+        LayerMapMarks.ScaleTo(Scale, m_m);
+      end else begin
+        LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
+        LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
+      end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
      QueryPerformanceFrequency(fr);
@@ -2663,9 +2663,8 @@ begin
  Application.ProcessMessages;
  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
  if VWaitResult = WAIT_TIMEOUT then begin
-   TerminateThread(FUIDownLoader.Handle, 0);
+  TerminateThread(FUIDownLoader.Handle, 0);
  end;
-
  FreeAndNil(FUIDownLoader);
  if length(MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
