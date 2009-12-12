@@ -36,6 +36,7 @@ type
     FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
     FShowOnSmMap: boolean;
+    FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FGetURLScript: string;
     Fbmp18: TBitmap;
@@ -58,7 +59,7 @@ type
    public
     id: integer;
     guids: string;
-    ext: string;
+    TileFileExt: string;
     MapInfo: string;
     asLayer: boolean;
     name: string;
@@ -297,7 +298,7 @@ begin
         TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
         Fmain.TBFillingTypeMap.Add(TBFillingItem);
 
-        if ext<>'.kml' then begin
+        if IsCanShowOnSmMap then begin
           if not(asLayer) then begin
             NSmItem:=TTBXITem.Create(GMiniMapPopupMenu);
             GMiniMapPopupMenu.Items.Add(NSmItem)
@@ -349,7 +350,7 @@ begin
         end;
         TBItem.Tag:=Longint(MapType[i]);
         TBFillingItem.Tag:=Longint(MapType[i]);
-        if ext<>'.kml' then begin
+        if IsCanShowOnSmMap then begin
           NSmItem.Tag:=Longint(MapType[i]);
         end;
         if asLayer then begin
@@ -631,6 +632,7 @@ begin
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
       FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
+      FIsCanShowOnSmMap := iniparams.ReadBool('PARAMS','CanShowOnSmMap', true);
       DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
       FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
       FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
@@ -641,7 +643,7 @@ begin
       FBanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       FContent_Type:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
       FStatus_Code:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
-      Ext:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
+      TileFileExt:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
       NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
       DefNameInCache:=NameInCache;
       projection:=iniparams.ReadInteger('PARAMS','projection',1);
@@ -739,7 +741,7 @@ begin
     if Result <> '' then begin
       Result := IncludeTrailingPathDelimiter(Result);
     end;
-    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + ext;
+    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + TileFileExt;
   end else begin
     raise Exception.Create('Ошибка. Это не файловый кеш');
   end;
@@ -1103,7 +1105,7 @@ begin
     VPath := GetTileFileName(x, y, Azoom);
 
     CreateDirIfNotExists(VPath);
-    if ext='.kml' then begin
+    if TileFileExt='.kml' then begin
       if (ty='application/vnd.google-earth.kmz') then begin
         try
           UnZip:=TVCLUnZip.Create(Fmain);
@@ -1145,7 +1147,7 @@ begin
       end;
 
       ban_pg_ld:=true;
-      if (ty='image/png')and(ext='.jpg') then begin
+      if (ty='image/png')and(TileFileExt='.jpg') then begin
         btm:=TBitmap.Create;
         png:=TBitmap32.Create;
         jpg:=TJPEGImage.Create;
@@ -1552,7 +1554,7 @@ end;
 
 function TMapType.GetUseStick: boolean;
 begin
-  if ext<>'.kml' then begin
+  if TileFileExt<>'.kml' then begin
     Result := FUseStick;
   end else begin
     Result := False;
@@ -1561,8 +1563,8 @@ end;
 
 function TMapType.GetIsCanShowOnSmMap: boolean;
 begin
-  if ext<>'.kml' then begin
-    Result := True;
+  if TileFileExt<>'.kml' then begin
+    Result := FIsCanShowOnSmMap;
   end else begin
     Result := False;
   end;

@@ -150,7 +150,7 @@ begin
  png:=TPngObject.Create;
             try
              res1:=true;
-             if TypeMapArr.ext='.png' then
+             if TypeMapArr.TileFileExt='.png' then
               begin
                bmp1.width:=256;
                bmp1.Height:=256;
@@ -184,7 +184,7 @@ begin
              begin
               try
                res2:=true;
-               if TypeMapArr.ext='.png' then
+               if TypeMapArr.TileFileExt='.png' then
                 begin
                  bmp2.width:=256;
                  bmp2.Height:=256;
@@ -524,7 +524,7 @@ begin
    for j:=0 to length(TypeMapArr)-1 do //по типу
      begin
       polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
-      VExt := TypeMapArr[j].ext;
+      VExt := TypeMapArr[j].TileFileExt;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].GetShortFolderName);
       VTileNameGen := GState.TileNameGenerator.GetGenerator(format);
       GetDwnlNum(min,max,Polyg,false);
