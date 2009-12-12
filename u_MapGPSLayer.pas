@@ -87,32 +87,34 @@ begin
     ks:=MapPixel2BitmapPixel(ks);
     dl:=GState.GPS_ArrowSize;
     D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
-    R:=D/2-(dl div 2);
-    ke.x:=ke.X+(ke.X-ks.X);
-    ke.y:=ke.y+(ke.y-ks.y);
-    ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
-    ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
-    if ks.x=ke.x then begin
-      if Sign(ks.Y-ke.Y)<0 then begin
-        TanOfAngle:=MinExtended/100;
+    if D > 0.01 then begin
+      R:=D/2-(dl div 2);
+      ke.x:=ke.X+(ke.X-ks.X);
+      ke.y:=ke.y+(ke.y-ks.y);
+      ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
+      ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
+      if ks.x=ke.x then begin
+        if Sign(ks.Y-ke.Y)<0 then begin
+          TanOfAngle:=MinExtended/100;
+        end else begin
+          TanOfAngle:=MaxExtended/100;
+        end;
       end else begin
-        TanOfAngle:=MaxExtended/100;
+        TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
       end;
-    end else begin
-      TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
+      Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
+      Angle:=ArcTan(TanOfAngle)+0.28;
+      if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then begin
+        Angle:=Angle+Pi;
+      end;
+      Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+      Angle:=ArcTan(TanOfAngle)-0.28;
+      if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then begin
+        Angle:=Angle+Pi;
+      end;
+      Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+      Polygon.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
     end;
-    Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
-    Angle:=ArcTan(TanOfAngle)+0.28;
-    if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then begin
-      Angle:=Angle+Pi;
-    end;
-    Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-    Angle:=ArcTan(TanOfAngle)-0.28;
-    if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then begin
-      Angle:=Angle+Pi;
-    end;
-    Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-    Polygon.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
   except
   end;
 

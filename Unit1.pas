@@ -1502,22 +1502,24 @@ begin
   ks:=MapPixel2LoadedPixel(ks);
   dl:=GState.GPS_ArrowSize;
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
-  R:=D/2-(dl div 2);
-  ke.x:=ke.X+(ke.X-ks.X);
-  ke.y:=ke.y+(ke.y-ks.y);
-  ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
-  ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
-  if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
-                                         else TanOfAngle:=MaxExtended/100
-               else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
-  Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
-  Angle:=ArcTan(TanOfAngle)+0.28;
-  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
-  Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-  Angle:=ArcTan(TanOfAngle)-0.28;
-  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
-  Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-  Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+  if D > 0.001 then begin
+    R:=D/2-(dl div 2);
+    ke.x:=ke.X+(ke.X-ks.X);
+    ke.y:=ke.y+(ke.y-ks.y);
+    ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
+    ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
+    if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
+                                           else TanOfAngle:=MaxExtended/100
+                 else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
+    Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
+    Angle:=ArcTan(TanOfAngle)+0.28;
+    if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
+    Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+    Angle:=ArcTan(TanOfAngle)-0.28;
+    if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
+    Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+    Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+  end;
  except
  end;
 
