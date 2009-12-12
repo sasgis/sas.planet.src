@@ -67,6 +67,7 @@ uses
   UFillingMap,
   u_LayerStatBar,
   u_MapMarksLayer,
+  u_MapGPSLayer,
   u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
@@ -586,7 +587,7 @@ type
     LayerMapWiki: TBitmapLayer;
     layerLineM: TBitmapLayer;
     LayerMapNal: TBitmapLayer;
-    LayerMapGPS: TBitmapLayer;
+    LayerMapGPS: TMapGPSLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
@@ -747,6 +748,7 @@ begin
   FScreenCenterPos := VPoint;
   LayerSelection.SetScreenCenterPos(VPoint);
   LayerMapMarks.SetScreenCenterPos(VPoint);
+  LayerMapGPS.SetScreenCenterPos(VPoint);
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
@@ -1447,94 +1449,9 @@ begin
 end;
 
 procedure TFmain.drawLineGPS;
-var i,speed,SizeTrackd2:integer;
-    k1,k2:TPoint;
-    ke,ks:TExtendedPoint;
-    Angle,D,R: Currency;
-    TanOfAngle:Extended;
-    dl: integer;
-    Polygon: TPolygon32;
-    polygon_line: TPolygon32;
 begin
- Polygon := TPolygon32.Create;
- Polygon.Antialiased := true;
- polygon.AntialiasMode:=am4times;
- Polygon_line := TPolygon32.Create;
- Polygon_line.Antialiased := true;
- Polygon_line.AntialiasMode := am4times;
- polygon_line.Closed:=false;
- LayerMapGPS.Bitmap.Canvas.Pen.Style:=psSolid;
- LayerMapGPS.Bitmap.Canvas.Pen.Color:=clBlue;
- LayerMapGPS.Bitmap.Clear(clBlack);
-
- with LayerMapGPS.Bitmap do
- if GState.GPS_ShowPath then
- begin
-  for i:=0 to length(GState.GPS_TrackPoints)-2 do
-   begin
-    k1:=sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i],GState.zoom_size-1);
-    k1:=MapPixel2LoadedPixel(k1);
-    k2:=sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],GState.zoom_size-1);
-    k2:=MapPixel2LoadedPixel(k2);
-    if (GState.GPS_ArrayOfSpeed[i]>0)and(GPSpar.maxspeed>0)
-      then speed:=round(255/(GPSpar.maxspeed/GState.GPS_ArrayOfSpeed[i]))
-      else speed:=0;
-    if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-      polygon_line.Add(FixedPoint(k1));
-      polygon_line.Add(FixedPoint(k2));
-    end;
-    with Polygon_line.Outline do begin
-      with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do begin
-        DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
-        free;
-      end;
-      free;
-    end;
-    Polygon_line.Clear;
-   end;
- end;
-
- if length(GState.GPS_TrackPoints)>1 then
- try
-  ke:=sat_map_both.GeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
-  ke:=MapPixel2LoadedPixel(ke);
-  ks:=sat_map_both.GeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
-  ks:=MapPixel2LoadedPixel(ks);
-  dl:=GState.GPS_ArrowSize;
-  D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
-  if D > 0.001 then begin
-    R:=D/2-(dl div 2);
-    ke.x:=ke.X+(ke.X-ks.X);
-    ke.y:=ke.y+(ke.y-ks.y);
-    ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
-    ke.y:=Round((R*ks.y+(D-R)*kE.Y)/D);
-    if ks.x=ke.x then if Sign(ks.Y-ke.Y)<0 then TanOfAngle:=MinExtended/100
-                                           else TanOfAngle:=MaxExtended/100
-                 else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
-    Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
-    Angle:=ArcTan(TanOfAngle)+0.28;
-    if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
-    Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-    Angle:=ArcTan(TanOfAngle)-0.28;
-    if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then Angle:=Angle+Pi;
-    Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-    Polygon.DrawFill(LayerMapGPS.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-  end;
- except
- end;
-
- if length(GState.GPS_TrackPoints)>0 then
-  begin
-   k1:=sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
-   k1:=MapPixel2LoadedPixel(k1);
-   SizeTrackd2:=GState.GPS_ArrowSize div 6;
-   LayerMapGPS.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
-  end;
-
+ LayerMapGPS.Redraw;
  UpdateGPSsensors;
- LayerMapGPS.BringToFront;
- FreeAndNil(Polygon);
- FreeAndNil(Polygon_line);
  toSh;
 end;
 procedure TFmain.drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
@@ -2067,7 +1984,7 @@ begin
 
   LayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
-  if GState.GPS_enab then LayerMapGPS.Location:=floatrect(GetMapLayerLocationRect);
+  LayerMapGPS.Resize;
   destroyWL;
   Vspr := TBitmap32.Create;
   try
@@ -2278,14 +2195,6 @@ begin
  LayerMapWiki.Bitmap.DrawMode:=dmTransparent;
  LayerMapWiki.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
- LayerMapGPS:=TBitmapLayer.Create(map.Layers);
- LayerMapGPS.Bitmap.Width := VLoadedSizeInPixel.X;
- LayerMapGPS.Bitmap.Height := VLoadedSizeInPixel.Y;
- LayerMapGPS.Bitmap.DrawMode:=dmBlend;
- LayerMapGPS.Bitmap.CombineMode:=cmMerge;
- LayerMapGPS.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- LayerMapGPS.Visible:=false;
-
  layerLineM:=TBitmapLayer.Create(map.Layers);
  layerLineM.location:=floatrect(bounds(6,map.Height-23,128,15));
  layerLineM.Bitmap.Width:=128;
@@ -2388,6 +2297,7 @@ begin
  LayerSelection.Visible := true;
 
  LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
+ LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
 
  ScreenCenterPos := Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
                           GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
@@ -2563,7 +2473,6 @@ begin
          end;
        end;
  LayerMapNal.Bitmap.Clear(clBlack);
- LayerMapgps.Bitmap.Clear(clBlack);
  LayerMapWiki.Visible:=false;
  if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
@@ -2585,9 +2494,11 @@ begin
       if move then begin
         LayerSelection.ScaleTo(Scale, m_m);
         LayerMapMarks.ScaleTo(Scale, m_m);
+        LayerMapGPS.ScaleTo(Scale, m_m);
       end else begin
         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
+        LayerMapGPS.ScaleTo(Scale, Point(mWd2, mHd2));
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -3506,7 +3417,7 @@ begin
    FillingMap.Location:=LayerMap.Location;
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
    LayerMapMarks.Resize;
-   LayerMapGPS.Location:=floatrect(MapLayerLocationRect);
+   LayerMapGPS.Resize;
    LayerMapWiki.Location:=floatrect(MapLayerLocationRect);
    LayerMapScale.Resize;
    toSh;
@@ -3860,7 +3771,6 @@ begin
  try
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
- LayerMapGPS.Bitmap.Clear(clBlack);
  GState.GPS_enab:=false;
  LayerMapGPS.Visible:=false;
  NGPSconn.Checked:=false;
@@ -4300,7 +4210,7 @@ begin
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
               LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              if (LayerMapGPS.Visible)and(GState.GPS_enab) then LayerMapGPS.Location := LayerMap.Location;
+              LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               if LayerMapWiki.Visible then LayerMapWiki.Location := LayerMap.Location;
              end
         else m_m:=point(x,y);
