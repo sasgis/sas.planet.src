@@ -203,7 +203,8 @@ begin
 end;
 
 procedure TTileDownloaderBase.OpenSession;
-var VTimeOut: DWORD;
+var
+  VTimeOut: DWORD;
 begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
