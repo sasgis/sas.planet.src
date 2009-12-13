@@ -37,6 +37,8 @@ uses
   UKmlParse in 'UKmlParse.pas',
   Ubrowser in 'Ubrowser.pas' {Fbrowser},
   Uimgfun in 'Uimgfun.pas',
+  i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
+  u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',
   UMapType in 'UMapType.pas',
   UTimeZones in 'UTimeZones.pas',
   UaddLine in 'UaddLine.pas' {FaddLine},
