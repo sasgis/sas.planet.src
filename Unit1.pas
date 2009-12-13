@@ -1674,10 +1674,6 @@ begin
 end;
 
 procedure TFmain.paint_Line;
-var rnum,len_p,textstrt,textwidth:integer;
-    s,se:string;
-    LL:TExtendedPoint;
-    temp,num:real;
 begin
   LayerScaleLine.Redraw;
 end;
