@@ -1151,12 +1151,12 @@ begin
         btm:=TBitmap.Create;
         png:=TBitmap32.Create;
         jpg:=TJPEGImage.Create;
-        RenameFile(Vpath,copy(Vpath,1,length(Vpath)-4)+'.png');
-        if LoadFile(png,copy(Vpath,1,length(Vpath)-4)+'.png',false) then begin
+        RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
+        if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
           btm.Assign(png);
           jpg.Assign(btm);
           SaveTileInCache(jpg,Vpath);
-          DeleteFile(copy(Vpath,1,length(Vpath)-4)+'.png');
+          DeleteFile(ChangeFileExt(Vpath,'.png'));
           btm.Free;
           jpg.Free;
           png.Free;

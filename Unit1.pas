@@ -92,9 +92,9 @@ type
   );
 
   TNavOnMark = class
-   id:integer;
-   ll:TExtendedPoint;
-   width:integer;
+   id: integer;
+   ll: TExtendedPoint;
+   width: integer;
    public
    procedure draw;
   end;
@@ -555,13 +555,13 @@ type
     procedure TBXItem7Click(Sender: TObject);
     procedure TBXItem6Click(Sender: TObject);
   private
-    ShowActivHint:boolean;
+    ShowActivHint: boolean;
     HintWindow: THintWindow;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo);message WM_GETMINMAXINFO;
+    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
-    procedure Set_TileSource(const Value:TTileSource);
-    procedure Set_Pos(const Value:TPoint);
+    procedure Set_TileSource(const Value: TTileSource);
+    procedure Set_Pos(const Value: TPoint);
     function GetLoadedPixelRect: TRect;
     function GetVisiblePixelRect: TRect;
     function GetLoadedSizeInPixel: TPoint;
@@ -571,18 +571,18 @@ type
     function GetMapLayerLocationRect: TRect;
     function GetLoadedTopLeft: TPoint;
   protected
-    Flock_toolbars:boolean;
+    Flock_toolbars: boolean;
     notpaint: boolean;
     rect_dwn: Boolean;
-    rect_p2:boolean;
-    FTileSource:TTileSource;
+    rect_p2: boolean;
+    FTileSource: TTileSource;
     FScreenCenterPos: TPoint;
     LayerStatBar: TLayerStatBar;
-    dWhenMovingButton:integer;
+    dWhenMovingButton: integer;
     LenShow: boolean;
-    RectWindow:TRect;
+    RectWindow: TRect;
     FUIDownLoader: TTileDownloaderUI;
-    curBuf:TCursor;
+    curBuf: TCursor;
   public
     LayerMap: TBitmapLayer;
     LayerMapWiki: TBitmapLayer;
@@ -592,48 +592,49 @@ type
     LayerMapMarks: TMapMarksLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
-    MouseDownPoint, MouseUpPoint: TPoint;
+    MouseDownPoint: TPoint;
+    MouseUpPoint: TPoint;
     MapMoving: Boolean;
     MapZoomAnimtion: Integer;
-    change_scene:boolean;
+    change_scene: boolean;
     ProgramStart: Boolean;
     ProgramClose: Boolean;
-    aoper:TAOperation;
+    aoper: TAOperation;
     GPSpar: TGPSpar;
-    NavOnMark:TNavOnMark;
-    FillingMap:TFillingMap;
-    property lock_toolbars:boolean read Flock_toolbars write Set_lock_toolbars;
-    property TileSource:TTileSource read FTileSource write Set_TileSource;
+    NavOnMark: TNavOnMark;
+    FillingMap: TFillingMap;
+    property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
+    property TileSource: TTileSource read FTileSource write Set_TileSource;
     property ScreenCenterPos: TPoint read FScreenCenterPos write Set_Pos;
-    procedure generate_im(lastload:TLastLoad;err:string);
-    function  toSh:string;
-    class   function  X2AbsX(Ax:integer;Azoom:byte):integer;
-    procedure topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
-    procedure zooming(x:byte;move:boolean);
-    class   function  timezone(lon,lat:real):TDateTime;
+    procedure generate_im(lastload: TLastLoad; err: string);
+    function  toSh: string;
+    class   function  X2AbsX(Ax: integer; Azoom: byte): integer;
+    procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
+    procedure zooming(x: byte; move: boolean);
+    class   function  timezone(lon, lat: real): TDateTime;
     procedure drawLineCalc;
-    procedure drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+    procedure drawNewPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
     procedure drawReg;
     procedure generate_mapzap;
     procedure draw_point;
-    class   function  str2r(inp:string):real;
+    class   function  str2r(inp: string): real;
     procedure paint_Line;
-    procedure selectMap(num:TMapType);
+    procedure selectMap(num: TMapType);
     procedure generate_granica;
     procedure drawLineGPS;
-    procedure ShowCaptcha(URL:string);
-    procedure drawRect(Shift:TShiftState);
-    procedure ShowErrScript(DATA:string);
-    procedure setalloperationfalse(newop:TAOperation);
-    class   procedure insertinpath(pos:integer);
-    class   procedure delfrompath(pos:integer);
+    procedure ShowCaptcha(URL: string);
+    procedure drawRect(Shift: TShiftState);
+    procedure ShowErrScript(DATA: string);
+    procedure setalloperationfalse(newop: TAOperation);
+    class   procedure insertinpath(pos: integer);
+    class   procedure delfrompath(pos: integer);
     procedure DrawGenShBorders;
     procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure SetStatusBarVisible();
-    procedure SetLineScaleVisible(visible:boolean);
-    procedure SetMiniMapVisible(visible:boolean);
+    procedure SetLineScaleVisible(visible: boolean);
+    procedure SetMiniMapVisible(visible: boolean);
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
@@ -665,38 +666,43 @@ const
   CProgram_Lang_Default = LANG_RUSSIAN;
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; // Константа для преобразования радиан в градусы
-  zoom:array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
+  zoom: array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
                                    131072,262144,524288,1048576,2097152,4194304,
                                    8388608,16777216,33554432,67108864,134217728,
                                    268435456,536870912,1073741824,2147483647);
   GSHprec=100000000;
 
 var
-  Fmain:TFmain;
-  PWL:TResObj;
+  Fmain: TFmain;
+  PWL: TResObj;
 
-  poly_zoom_save:byte;
-  marshrutcomment:string;
-  mWd2,
-  mHd2,
-  yhgpx,
-  xhgpx,
-  hg_x,
-  hg_y,
-  pr_x,
-  pr_y:integer;
-  m_m, moveTrue: Tpoint;
-  movepoint,lastpoint:integer;
-  rect_arr:array [0..1] of TextendedPoint;
-  length_arr,add_line_arr,reg_arr,poly_save:TExtendedPointArray;
-  nilLastLoad:TLastLoad;
-  paintMark:boolean;
+  poly_zoom_save: byte;
+  marshrutcomment: string;
+  mWd2: integer;
+  mHd2: integer;
+  yhgpx: integer;
+  xhgpx: integer;
+  hg_x: integer;
+  hg_y: integer;
+  pr_x: integer;
+  pr_y: integer;
+  m_m: Tpoint;
+  moveTrue: Tpoint;
+  movepoint: integer;
+  lastpoint: integer;
+  rect_arr: array [0..1] of TextendedPoint;
+  length_arr: TExtendedPointArray;
+  add_line_arr: TExtendedPointArray;
+  reg_arr: TExtendedPointArray;
+  poly_save: TExtendedPointArray;
+  nilLastLoad: TLastLoad;
+  paintMark: boolean;
   GMiniMapPopupMenu: TTBXPopupMenu;
 
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
-  procedure CopyBtmToClipboard(btm:TBitmap);
-  function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+  procedure CopyBtmToClipboard(btm: TBitmap);
+  function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
   function EncodeDG(S: string): string;
   function Encode64(S: string): string;
   function URLDecode(const S: string): string;
@@ -738,7 +744,7 @@ uses
   UGSM;
 
 {$R *.dfm}
-procedure TFMain.Set_Pos(const Value:TPoint);
+procedure TFMain.Set_Pos(const Value: TPoint);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
@@ -780,7 +786,7 @@ begin
     Result := False;
 end;
 
-procedure TFMain.Set_TileSource(const Value:TTileSource);
+procedure TFMain.Set_TileSource(const Value: TTileSource);
 begin
  FTileSource:=Value;
  TBSrc.ImageIndex:=integer(Value);
@@ -802,11 +808,11 @@ begin
 end;
 
 procedure TNavOnMark.draw;
-var Polygon:TPolygon32;
-    ke,ks:TExtendedPoint;
-    pe:TPoint;
-    dl:integer;
-    r,TanOfAngle,D,Angle:Extended;
+var Polygon: TPolygon32;
+    ke,ks: TExtendedPoint;
+    pe: TPoint;
+    dl: integer;
+    r,TanOfAngle,D,Angle: Extended;
     VSizeInPixel: TPoint;
 begin
  Polygon := TPolygon32.Create;
@@ -853,7 +859,7 @@ begin
 end; // DigitToHex
 
 function EncodeDG(S: string): string;
-var i:integer;
+var i: integer;
 begin
  result:=S;
  for i:=1 to length(s) do
@@ -994,7 +1000,7 @@ begin
     end;
 end;
 
-procedure CopyBtmToClipboard(btm:TBitmap);
+procedure CopyBtmToClipboard(btm: TBitmap);
 var hSourcDC, hDestDC, hBM, hbmOld: THandle;
 begin
   hSourcDC := btm.Canvas.Handle;
@@ -1039,7 +1045,7 @@ begin
   end
 end;
 
-class procedure TFmain.insertinpath(pos:integer);
+class procedure TFmain.insertinpath(pos: integer);
 begin
  SetLength(add_line_arr,length(add_line_arr)+1);
  CopyMemory(Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),@add_line_arr[pos],(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
@@ -1051,14 +1057,14 @@ begin
   SetString(Result, Buffer, GetTempPath(Sizeof(Buffer) - 1,Buffer));
 end;
 
-class procedure TFmain.delfrompath(pos:integer);
+class procedure TFmain.delfrompath(pos: integer);
 begin
  CopyMemory(@add_line_arr[pos],Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
  SetLength(add_line_arr,length(add_line_arr)-1);
  Dec(lastpoint);
 end;
 
-procedure TFmain.setalloperationfalse(newop:TAOperation);
+procedure TFmain.setalloperationfalse(newop: TAOperation);
 begin
  if aoper=newop then newop:=ao_movemap;
  LayerMapNal.Bitmap.Clear(clBlack);
@@ -1090,21 +1096,21 @@ begin
  aoper:=newop;
 end;
 
-procedure TFmain.ShowCaptcha(URL:string);
+procedure TFmain.ShowCaptcha(URL: string);
 begin
  ShellExecute(Handle, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
 //Обработка нажатий кнопоки и калесика
 procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-var z:integer;
-    POSb:TPoint;
-    dWMB:integer;
+var z: integer;
+    POSb: TPoint;
+    dWMB: integer;
 begin
 
  if Active then
   case Msg.message of
-   WM_MOUSEWHEEL:if MapZoomAnimtion=0 then
+   WM_MOUSEWHEEL: if MapZoomAnimtion=0 then
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
@@ -1125,7 +1131,7 @@ begin
                     (Msg.wParam=VK_Down)or(Msg.wParam=VK_Up)then
                     generate_im(nilLastLoad,'');
                 end;
-   WM_KEYUP:begin
+   WM_KEYUP: begin
              dWhenMovingButton:=5;
              if (Msg.wParam=VK_Delete)and(aoper=ao_line) then
                begin
@@ -1192,14 +1198,14 @@ begin
 end;
 
 
-class function TFmain.X2AbsX(Ax:integer;Azoom:byte):integer;
+class function TFmain.X2AbsX(Ax: integer; Azoom: byte): integer;
 begin
  if Ax>=0 then result:=Ax mod zoom[Azoom]
           else result:=zoom[Azoom]+(Ax mod zoom[Azoom])
 end;
 
-class function TFmain.str2r(inp:string):real;
-var p:integer;
+class function TFmain.str2r(inp: string): real;
+var p: integer;
 begin
  p:=System.pos(DecimalSeparator,inp);
  if p=0 then begin
@@ -1218,10 +1224,10 @@ begin
   end;
 end;
 
-procedure TFmain.drawRect(Shift:TShiftState);
-var kz,jj,bxy:integer;
-    xy1,xy2:TPoint;
-    zLonR,zLatR:extended;
+procedure TFmain.drawRect(Shift: TShiftState);
+var kz,jj,bxy: integer;
+    xy1,xy2: TPoint;
+    zLonR,zLatR: extended;
     Poly:  TExtendedPointArray;
     VSelectedLonLat: TExtendedRect;
     VSelectedPixels: TRect;
@@ -1357,8 +1363,8 @@ begin
 end;
 
 procedure TFmain.drawReg;
-var i:integer;
-    k1:TPoint;
+var i: integer;
+    k1: TPoint;
     Polygon: TPolygon32;
 begin
  LayerMapNal.Location:=floatrect(MapLayerLocationRect);
@@ -1406,8 +1412,8 @@ end;
 
 procedure TFmain.UpdateGPSsensors;
 var
-    s_len,n_len:string;
-    sps:_SYSTEM_POWER_STATUS;
+    s_len,n_len: string;
+    sps: _SYSTEM_POWER_STATUS;
 begin
  try
    //скорость
@@ -1455,11 +1461,11 @@ begin
  UpdateGPSsensors;
  toSh;
 end;
-procedure TFmain.drawNewPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+procedure TFmain.drawNewPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
 var
-  i,adp,j:integer;
-  k1,k2,k4:TPoint;
-  k3:TextendedPoint;
+  i,adp,j: integer;
+  k1,k2,k4: TPoint;
+  k3: TextendedPoint;
   polygon: TPolygon32;
 begin
   try
