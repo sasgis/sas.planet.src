@@ -66,6 +66,7 @@ uses
   UResStrings,
   UFillingMap,
   u_LayerStatBar,
+  u_LayerScaleLine,
   u_MapMarksLayer,
   u_MapGPSLayer,
   u_MemFileCache,
@@ -585,7 +586,7 @@ type
   public
     LayerMap: TBitmapLayer;
     LayerMapWiki: TBitmapLayer;
-    layerLineM: TBitmapLayer;
+    LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TBitmapLayer;
     LayerMapGPS: TMapGPSLayer;
     LayerMapMarks: TMapMarksLayer;
@@ -1673,48 +1674,8 @@ begin
 end;
 
 procedure TFmain.paint_Line;
-var rnum,len_p,textstrt,textwidth:integer;
-    s,se:string;
-    LL:TExtendedPoint;
-    temp,num:real;
 begin
- if not(LayerLineM.visible) then exit;
- LL:=sat_map_both.GeoConvert.PixelPos2LonLat(ScreenCenterPos, GState.zoom_size-1);
- num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(LL.y*D2R)));
- if num>10000 then begin
-                    num:=num/1000;
-                    se:=' '+SAS_UNITS_km+'.';
-                   end
-              else
- if num<10    then begin
-                    num:=num*100;
-                    se:=' '+SAS_UNITS_sm+'.';
-                   end
-              else se:=' '+SAS_UNITS_m+'.';
- rnum:=round(num);
- temp:=power(5,(length(inttostr(rnum))-1));
- if ((rnum/temp)<1.25) then rnum:=round(temp)
-                      else if ((rnum/temp)>=3.75)then rnum:=5*round(temp)
-                                                 else rnum:=round(2.5*temp);
- len_p:=round(106/(num/rnum));
- s:=inttostr(rnum)+se;
- textwidth:=LayerLineM.bitmap.TextWidth(s);
- while (len_p<textwidth+15)and(not(len_p=0)) do
-  begin
-   rnum:=rnum*2;
-   len_p:=round(106/(num/rnum));
-  end;
- s:=inttostr(rnum)+se;
- len_p:=round(106/(num/rnum));
- textwidth:=LayerLineM.bitmap.TextWidth(s);
- LayerLineM.Bitmap.Width:=len_p;
- if GState.ShowStatusBar then With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23-17,len_p,15))
-                         else With LayerLineM do Location:=floatrect(bounds(round(Location.left),map.Height-23,len_p,15));
- LayerLineM.Bitmap.Clear(SetAlpha(clWhite32,135));
- LayerLineM.bitmap.LineS(0,0,0,15,SetAlpha(clBlack32,256));
- LayerLineM.bitmap.LineS(LayerLineM.bitmap.Width-1,0,LayerLineM.bitmap.Width-1,15,SetAlpha(clBlack32,256));
- textstrt:=(len_p div 2)-(textwidth div 2);
- LayerLineM.bitmap.RenderText(textstrt,0,s, 2, clBlack32);
+  LayerScaleLine.Redraw;
 end;
 
 function TFmain.toSh:string;
@@ -2195,15 +2156,7 @@ begin
  LayerMapWiki.Bitmap.DrawMode:=dmTransparent;
  LayerMapWiki.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
- layerLineM:=TBitmapLayer.Create(map.Layers);
- layerLineM.location:=floatrect(bounds(6,map.Height-23,128,15));
- layerLineM.Bitmap.Width:=128;
- layerLineM.Bitmap.Height:=15;
- layerLineM.bitmap.DrawMode := dmBlend;
- LayerLineM.bitmap.Font.Charset:=RUSSIAN_CHARSET;
- LayerLineM.bitmap.Font.Name := 'Arial';
- LayerLineM.bitmap.Font.Size := 10;
-
+ LayerScaleLine := TLayerScaleLine.Create(map);
 
  LayerStatBar:=TLayerStatBar.Create(map);
 
@@ -3224,9 +3177,9 @@ end;
 
 procedure TFmain.SetLineScaleVisible(visible:boolean);
 begin
- LayerLineM.visible:=visible;
- paint_Line;
- ShowLine.Checked:=visible;
+  LayerScaleLine.Visible := visible;
+  paint_Line;
+  ShowLine.Checked:=visible;
 end;
 
 procedure TFmain.SetMiniMapVisible(visible:boolean);
@@ -3406,13 +3359,7 @@ begin
    mWd2:=map.Width shr 1;
    mHd2:=map.Height shr 1;
    LayerStatBar.Resize;
-   if GState.ShowStatusBar
-    then begin
-          with LayerLineM do location:=floatrect(location.left,map.Height-23-17,location.right,map.Height-8-17);
-         end
-    else begin
-          with LayerLineM do location:=floatrect(location.left,map.Height-23,location.right,map.Height-8);
-         end;
+   LayerScaleLine.Resize;
    LayerMap.Location:=floatrect(MapLayerLocationRect);
    FillingMap.Location:=LayerMap.Location;
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
