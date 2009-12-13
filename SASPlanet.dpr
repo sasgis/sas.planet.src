@@ -90,6 +90,7 @@ uses
   u_TileFileNameGM1 in 'u_TileFileNameGM1.pas',
   u_TileFileNameGM2 in 'u_TileFileNameGM2.pas',
   i_ITileFileNameGeneratorsList in 'i_ITileFileNameGeneratorsList.pas',
+  i_MemCache in 'i_MemCache.pas',
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
