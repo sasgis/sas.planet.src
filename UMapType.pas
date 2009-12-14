@@ -21,6 +21,7 @@ uses
   GR32,
   t_GeoTypes,
   i_ICoordConverter,
+  i_ITileDownlodSession,
   u_TileDownloaderBase,
   u_UrlGenerator,
   UResStrings;

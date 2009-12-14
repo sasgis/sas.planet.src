@@ -8,6 +8,7 @@ uses
   Types,
   t_LoadEvent,
   u_TileDownloaderBase,
+  i_ITileDownlodSession,
   UMapType;
 
 type

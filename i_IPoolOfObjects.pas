@@ -3,14 +3,15 @@ unit i_IPoolOfObjects;
 interface
 
 uses
-  Types;
+  Types,
+  i_IPoolElement;
 
 type
   IPoolOfObjects = interface
-  ['']
-    function TryGetPoolElement(ATimeOut: Cardianl): IPoolElement;
-    function GetPoolSize: Cardianl;
-    function GetPoolMaxSize: Cardianl;
+  ['{897D0F1B-A25C-4CEB-8CD0-5E96DDD5D543}']
+    function TryGetPoolElement(ATimeOut: Cardinal): IPoolElement;
+    function GetPoolSize: Cardinal;
+    function GetPoolMaxSize: Cardinal;
     procedure SetPoolMaxSize(ASize: Cardinal);
   end;
 implementation

@@ -8,11 +8,10 @@ uses
   SyncObjs,
   Classes,
   t_CommonTypes,
+  i_ITileDownlodSession,
   urlMon;
 
 type
-  TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
-
   TTileDownloaderBase = class
   protected
     FExpectedMIMETypes: string;

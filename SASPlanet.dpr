@@ -96,6 +96,11 @@ uses
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
+  i_ITileDownlodSession in 'i_ITileDownlodSession.pas',
+  i_IListOfObjectsWithTTL in 'i_IListOfObjectsWithTTL.pas',
+  i_IObjectWithTTL in 'i_IObjectWithTTL.pas',
+  i_IPoolElement in 'i_IPoolElement.pas',
+  i_IPoolOfObjects in 'i_IPoolOfObjects.pas',
   CPDrv in 'src\CPDrv.pas',
   UGSM in 'UGSM.pas';
 

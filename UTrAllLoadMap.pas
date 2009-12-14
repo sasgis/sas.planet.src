@@ -67,6 +67,7 @@ uses
   StrUtils,
   Math,
   Types,
+  i_ITileDownlodSession,
   u_GlobalState,
   UGeoFun,
   UResStrings;
