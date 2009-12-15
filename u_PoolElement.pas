@@ -1,0 +1,106 @@
+unit u_PoolElement;
+
+interface
+
+uses
+  Windows,
+  i_ISimpleFactory,
+  i_IPoolElement;
+
+type
+  TPoolElement = class(TObject, IPoolElement)
+  protected
+    FRefCount: Integer;
+    FObject: Iunknown;
+    FLastUseTime: TDateTime;
+    FFactory: ISimpleFactory;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+    function _AddRef: Integer; stdcall;
+    function _Release: Integer; stdcall;
+  public
+    constructor Create(AFactory: ISimpleFactory);
+    destructor Destroy; override;
+    function GetLastUseTime: TDateTime;
+    function GetObject: IUnknown;
+    function TryLock: IPoolElement;
+    procedure FreeObjectByTTL(AMinTime: TDateTime);
+  end;
+
+implementation
+
+uses
+  SysUtils;
+
+constructor TPoolElement.Create(AFactory: ISimpleFactory);
+begin
+  FFactory := AFactory;
+  FLastUseTime := -1;
+  FRefCount := 0;
+  FObject := nil;
+end;
+
+destructor TPoolElement.Destroy;
+begin
+  if FRefCount <> 0 then begin
+    raise Exception.Create('Item locked');
+  end;
+  FObject := nil;
+  FFactory := nil;
+  inherited;
+end;
+
+procedure TPoolElement.FreeObjectByTTL(AMinTime: TDateTime);
+begin
+  if InterlockedCompareExchange(FRefCount, 1, 0) = 0 then begin
+    if (FLastUseTime > 0) and (FLastUseTime < AMinTime)  then begin
+      Fobject := nil;
+      FLastUseTime := -1;
+    end;
+    _Release;
+  end;
+end;
+
+function TPoolElement.GetLastUseTime: TDateTime;
+begin
+  Result := FLastUseTime;
+end;
+
+function TPoolElement.GetObject: IUnknown;
+begin
+  if Fobject = nil then begin
+    Fobject := FFactory.CreateInstance;
+  end;
+  Result := Fobject;
+end;
+
+function TPoolElement.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
+end;
+
+function TPoolElement.TryLock: IPoolElement;
+begin
+  if InterlockedCompareExchange(FRefCount, 1, 0) = 0 then begin
+    Result := Self;
+    _Release;
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TPoolElement._AddRef: Integer;
+begin
+  Result := InterlockedIncrement(FRefCount);
+end;
+
+function TPoolElement._Release: Integer;
+begin
+  Result := InterlockedDecrement(FRefCount);
+  if Result = 0 then
+    FLastUseTime := Now;
+end;
+
+end.
