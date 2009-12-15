@@ -71,11 +71,11 @@ begin
     for i := 0 to FList.Count - 1 do begin
       VObj := IObjectWithTTL(FList.Items[i]);
       VObjNextCheck := VObj.GetNextCheckTime;
-      if VObjNextCheck < VNow then begin
+      if (VObjNextCheck <= VNow) or ((VNow < 1 shl 29) and (VObjNextCheck > 1 shl 30)) then begin
         VObj.TrimByTTL;
         VObjNextCheck := VObj.GetNextCheckTime;
       end;
-      if (VNextCheck <= 0) or (VNextCheck < VObjNextCheck) then begin
+      if (VNextCheck <= 0) or (VNextCheck > VObjNextCheck) then begin
         VNextCheck := VObjNextCheck;
       end;
     end;

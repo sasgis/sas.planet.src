@@ -119,7 +119,7 @@ begin
       Break;
     end;
   end;
-  if Result <> nil then begin
+  if Result = nil then begin
     VStepsCount := ATimeOut div FWaitSleep;
     VStep := 0;
     while (Result = nil) and (VStep < VStepsCount) do begin
