@@ -15,18 +15,18 @@ type
   private
     FList: TList;
     FObjectFactory: ISimpleFactory;
-    FObjectTimeToLive: TDateTime;
-    FCheckInterval: TDateTime;
-    FOldestObjectTime: TDateTime;
-    FLastCheckTime: TDateTime;
+    FObjectTimeToLive: Cardinal;
+    FCheckInterval: Cardinal;
+    FOldestObjectTime: Cardinal;
+    FLastCheckTime: Cardinal;
     FWaitSleep: Cardinal;
   public
     constructor Create(APoolSize: Cardinal; AObjectFactory: ISimpleFactory;
-    AObjectTimeToLive: TDateTime; ACheckInterval: TDateTime);
+    AObjectTimeToLive: Cardinal; ACheckInterval: Cardinal);
     destructor Destroy; override;
     function TryGetPoolElement(ATimeOut: Cardinal): IPoolElement;
     function GetPoolSize: Cardinal;
-    function GetNextCheckTime: TDateTime;
+    function GetNextCheckTime: Cardinal;
     procedure TrimByTTL;
   end;
 
@@ -39,8 +39,8 @@ uses
 { TPoolOfObjectsSimple }
 
 constructor TPoolOfObjectsSimple.Create(APoolSize: Cardinal;
-  AObjectFactory: ISimpleFactory; AObjectTimeToLive: TDateTime;
-  ACheckInterval: TDateTime);
+  AObjectFactory: ISimpleFactory; AObjectTimeToLive: Cardinal;
+  ACheckInterval: Cardinal);
 var
   i: integer;
 begin
@@ -52,8 +52,8 @@ begin
   for i := 0 to FList.Count - 1 do begin
     FList.Items[i] := TPoolElement.Create(FObjectFactory);
   end;
-  FOldestObjectTime := -1;
-  FLastCheckTime := Now;
+  FOldestObjectTime := 0;
+  FLastCheckTime := GetTickCount;
 end;
 
 destructor TPoolOfObjectsSimple.Destroy;
@@ -67,9 +67,9 @@ begin
   inherited;
 end;
 
-function TPoolOfObjectsSimple.GetNextCheckTime: TDateTime;
+function TPoolOfObjectsSimple.GetNextCheckTime: Cardinal;
 begin
-  if FOldestObjectTime < 0 then begin
+  if FOldestObjectTime <= 0 then begin
     Result := FLastCheckTime + FCheckInterval;
   end else begin
     Result := FOldestObjectTime + FObjectTimeToLive;
@@ -84,19 +84,20 @@ end;
 procedure TPoolOfObjectsSimple.TrimByTTL;
 var
   i: integer;
-  VMinTime: TDateTime;
-  VLastUse: TDateTime;
-  VOldestUse: TDateTime;
+  VMinTime: Cardinal;
+  VLastUse: Cardinal;
+  VOldestUse: Cardinal;
   VElement: TPoolElement;
 begin
-  VMinTime := Now - FObjectTimeToLive;
-  VOldestUse := -1;
+  FLastCheckTime := GetTickCount;
+  VMinTime := FLastCheckTime - FObjectTimeToLive;
+  VOldestUse := 0;
   for i := 0 to FList.Count - 1 do  begin
     VElement := TPoolElement(FList.Items[i]);
     VElement.FreeObjectByTTL(VMinTime);
     VLastUse := VElement.GetLastUseTime;
     if (VLastUse > 0) then begin
-      if (VOldestUse < 0) or ((VOldestUse > 0) and (VLastUse < VOldestUse)) then begin
+      if (VOldestUse <= 0) or ((VOldestUse > 0) and (VLastUse < VOldestUse)) then begin
         VOldestUse := VLastUse;
       end;
     end;

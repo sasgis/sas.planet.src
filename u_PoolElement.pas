@@ -12,7 +12,7 @@ type
   protected
     FRefCount: Integer;
     FObject: Iunknown;
-    FLastUseTime: TDateTime;
+    FLastUseTime: Cardinal;
     FFactory: ISimpleFactory;
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
     function _AddRef: Integer; stdcall;
@@ -20,10 +20,10 @@ type
   public
     constructor Create(AFactory: ISimpleFactory);
     destructor Destroy; override;
-    function GetLastUseTime: TDateTime;
+    function GetLastUseTime: Cardinal;
     function GetObject: IUnknown;
     function TryLock: IPoolElement;
-    procedure FreeObjectByTTL(AMinTime: TDateTime);
+    procedure FreeObjectByTTL(AMinTime: Cardinal);
   end;
 
 implementation
@@ -34,7 +34,7 @@ uses
 constructor TPoolElement.Create(AFactory: ISimpleFactory);
 begin
   FFactory := AFactory;
-  FLastUseTime := -1;
+  FLastUseTime := 0;
   FRefCount := 0;
   FObject := nil;
 end;
@@ -49,18 +49,18 @@ begin
   inherited;
 end;
 
-procedure TPoolElement.FreeObjectByTTL(AMinTime: TDateTime);
+procedure TPoolElement.FreeObjectByTTL(AMinTime: Cardinal);
 begin
   if InterlockedCompareExchange(FRefCount, 1, 0) = 0 then begin
     if (FLastUseTime > 0) and (FLastUseTime < AMinTime)  then begin
       Fobject := nil;
-      FLastUseTime := -1;
+      FLastUseTime := 0;
     end;
     _Release;
   end;
 end;
 
-function TPoolElement.GetLastUseTime: TDateTime;
+function TPoolElement.GetLastUseTime: Cardinal;
 begin
   Result := FLastUseTime;
 end;
@@ -100,7 +100,7 @@ function TPoolElement._Release: Integer;
 begin
   Result := InterlockedDecrement(FRefCount);
   if Result = 0 then
-    FLastUseTime := Now;
+    FLastUseTime := GetTickCount;
 end;
 
 end.
