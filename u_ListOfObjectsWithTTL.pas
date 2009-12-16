@@ -87,7 +87,7 @@ begin
     end;
     FNextCheck := VNextCheck;
   finally
-    FSync.BeginWrite;
+    FSync.EndRead;
   end;
 end;
 
