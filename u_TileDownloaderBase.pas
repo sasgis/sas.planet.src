@@ -12,7 +12,7 @@ uses
   urlMon;
 
 type
-  TTileDownloaderBase = class
+  TTileDownloaderBase = class(TInterfacedObject, ITileDownlodSession)
   protected
     FExpectedMIMETypes: string;
     FDownloadTryCount: Integer;
