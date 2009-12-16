@@ -3,24 +3,28 @@ unit u_TileDownloaderBaseFactory;
 interface
 
 uses
+  UMapType,
   i_ISimpleFactory;
 
 type
   TTileDownloaderBaseFactory = class(TInterfacedObject, ISimpleFactory)
   private
-    FMapType: IUnknown;
+    FMapType: TMapType;
     FContent_Type: string;
   public
-    constructor Create(AMapType: IUnknown);
+    constructor Create(AMapType: TMapType);
     function CreateInstance: IUnknown;
   end;
+
 implementation
 
 uses
+  u_GlobalState,
   u_TileDownloaderBase;
+
 { TTileDownloaderBaseFactory }
 
-constructor TTileDownloaderBaseFactory.Create(AMapType: IInterface);
+constructor TTileDownloaderBaseFactory.Create(AMapType: TMapType);
 begin
   FMapType := AMapType;
 end;

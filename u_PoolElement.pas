@@ -50,7 +50,7 @@ begin
 end;
 
 // Для Delphi 7 в юните Windows заменить объявление функции InterlockedCompareExchange
-//function InterlockedCompareExchange(var Destination: Longint; Exchange: Longint; Comperand: Longint): Longint stdcall;
+function InterlockedCompareExchange(var Destination: Longint; Exchange: Longint; Comperand: Longint): Longint stdcall; external kernel32 name 'InterlockedCompareExchange';
 
 procedure TPoolElement.FreeObjectByTTL(AMinTime: Cardinal);
 begin
