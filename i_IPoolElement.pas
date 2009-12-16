@@ -11,6 +11,7 @@ type
     function GetLastUseTime: Cardinal;
     function GetObject: IUnknown;
   end;
+
 implementation
 
 end.

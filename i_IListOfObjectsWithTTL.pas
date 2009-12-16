@@ -13,6 +13,7 @@ type
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;
+
 implementation
 
 end.

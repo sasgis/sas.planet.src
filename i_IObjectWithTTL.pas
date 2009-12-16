@@ -11,6 +11,7 @@ type
     function GetNextCheckTime: Cardinal;
     procedure TrimByTTL;
   end;
+
 implementation
 
 end.
