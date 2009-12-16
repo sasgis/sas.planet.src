@@ -53,6 +53,7 @@ begin
     FList.Items[i] := TPoolElement.Create(FObjectFactory);
   end;
   FOldestObjectTime := 0;
+  FWaitSleep := 100;
   FLastCheckTime := GetTickCount;
 end;
 

@@ -10,7 +10,6 @@ type
   TTileDownloaderBaseFactory = class(TInterfacedObject, ISimpleFactory)
   private
     FMapType: TMapType;
-    FContent_Type: string;
   public
     constructor Create(AMapType: TMapType);
     function CreateInstance: IUnknown;
@@ -33,7 +32,7 @@ function TTileDownloaderBaseFactory.CreateInstance: IUnknown;
 var
   VDownloader: TTileDownloaderBase;
 begin
-  VDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
+  VDownloader := TTileDownloaderBase.Create(FMapType.ContentType, 1, GState.InetConnect);
   VDownloader.SleepOnResetConnection := FMapType.Sleep;
   Result := VDownloader;
 end;

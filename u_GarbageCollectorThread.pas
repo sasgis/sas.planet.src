@@ -53,8 +53,8 @@ begin
       if Terminated then begin
         Break;
       end;
-      Sleep(FSleepTime);
     end;
+    Sleep(FSleepTime);
   end;
 end;
 
