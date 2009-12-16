@@ -21,6 +21,7 @@ type
     procedure AddObject(AObj: IObjectWithTTL);
     procedure RemoveObject(AObj: IObjectWithTTL);
     procedure ProcessObjectsTrim;
+    function GetNextCheck: Cardinal;
   end;
 
 implementation
@@ -54,6 +55,11 @@ begin
   end;
   FreeAndNil(FList);
   inherited;
+end;
+
+function TListOfObjectsWithTTL.GetNextCheck: Cardinal;
+begin
+  Result := FNextCheck;
 end;
 
 procedure TListOfObjectsWithTTL.ProcessObjectsTrim;

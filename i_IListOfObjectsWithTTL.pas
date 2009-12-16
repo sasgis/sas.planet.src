@@ -11,6 +11,7 @@ type
     procedure AddObject(AObj: IObjectWithTTL);
     procedure RemoveObject(AObj: IObjectWithTTL);
     procedure ProcessObjectsTrim;
+    function GetNextCheck: Cardinal;
   end;
 implementation
 

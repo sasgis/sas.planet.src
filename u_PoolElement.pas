@@ -49,9 +49,12 @@ begin
   inherited;
 end;
 
+// Для Delphi 7 в юните Windows заменить объявление функции InterlockedCompareExchange
+//function InterlockedCompareExchange(var Destination: Longint; Exchange: Longint; Comperand: Longint): Longint stdcall;
+
 procedure TPoolElement.FreeObjectByTTL(AMinTime: Cardinal);
 begin
-  if Integer(InterlockedCompareExchange(Pointer(FRefCount), Pointer(1), Pointer(0))) = 0 then begin
+  if Integer(InterlockedCompareExchange(FRefCount, 1, 0)) = 0 then begin
     if (FLastUseTime > 0) and ((FLastUseTime <= AMinTime) or ((AMinTime < 1 shl 29) and (FLastUseTime > 1 shl 30)))  then begin
       Fobject := nil;
       FLastUseTime := 0;
@@ -83,7 +86,7 @@ end;
 
 function TPoolElement.TryLock: IPoolElement;
 begin
-  if Integer(InterlockedCompareExchange(Pointer(FRefCount), Pointer(1), Pointer(0))) = 0 then begin
+  if Integer(InterlockedCompareExchange(FRefCount, 1, 0)) = 0 then begin
     Result := Self;
     _Release;
   end else begin
