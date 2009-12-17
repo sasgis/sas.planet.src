@@ -31,6 +31,7 @@ implementation
 uses
   SysUtils,
   u_GlobalState,
+  i_ITileDownlodSession,
   UResStrings,
   Unit1;
 

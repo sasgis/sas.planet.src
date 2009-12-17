@@ -196,7 +196,6 @@ begin
  if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
   then AddKategory(CBKateg.Text);
  Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
-
  Fmain.CDSmarks.Post;
  SaveMarks2File;
  close;

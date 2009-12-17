@@ -88,6 +88,16 @@ uses
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
+  i_ITileDownlodSession in 'i_ITileDownlodSession.pas',
+  i_ISimpleFactory in 'i_ISimpleFactory.pas',
+  i_IListOfObjectsWithTTL in 'i_IListOfObjectsWithTTL.pas',
+  i_IObjectWithTTL in 'i_IObjectWithTTL.pas',
+  i_IPoolElement in 'i_IPoolElement.pas',
+  u_TileDownloaderBaseFactory in 'u_TileDownloaderBaseFactory.pas',
+  u_GarbageCollectorThread in 'u_GarbageCollectorThread.pas',
+  u_ListOfObjectsWithTTL in 'u_ListOfObjectsWithTTL.pas',
+  u_PoolElement in 'u_PoolElement.pas',
+  u_PoolOfObjectsSimple in 'u_PoolOfObjectsSimple.pas',
   CPDrv in 'src\CPDrv.pas',
   UGSM in 'UGSM.pas';
 

@@ -11,10 +11,11 @@ uses
   t_GeoTypes,
   t_CommonTypes,
   i_ITileFileNameGeneratorsList,
+  u_GarbageCollectorThread,
   u_GeoToStr,
   Uimgfun,
   u_MemFileCache;
-  
+
 type
   TSrchType = (stGoogle,stYandex);
 
@@ -22,6 +23,7 @@ type
   private
     FDwnCS: TCriticalSection;
     FTileNameGenerator: ITileFileNameGeneratorsList;
+    FGCThread: TGarbageCollectorThread;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -204,6 +206,7 @@ type
     // Имя основного файла конфигурации
     property MainConfigFileName: string read GetMainConfigFileName;
 
+    property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
     destructor Destroy; override;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
@@ -216,11 +219,15 @@ implementation
 uses
   SysUtils,
   pngimage,
+  i_IListOfObjectsWithTTL,
+  u_ListOfObjectsWithTTL,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
 
 constructor TGlobalState.Create;
+var
+  VList: IListOfObjectsWithTTL;
 begin
   FDwnCS := TCriticalSection.Create;
   All_Dwn_Kb := 0;
@@ -230,12 +237,17 @@ begin
   MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
+  VList := TListOfObjectsWithTTL.Create;
+  FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   LoadResources;
   LoadMarkIcons;
 end;
 
 destructor TGlobalState.Destroy;
 begin
+  FGCThread.Terminate;
+  FGCThread.WaitFor;
+  FreeAndNil(FGCThread);
   FreeAndNil(FDwnCS);
   MainIni.UpdateFile;
   FreeAndNil(MainIni);

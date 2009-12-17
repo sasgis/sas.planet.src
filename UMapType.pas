@@ -21,6 +21,8 @@ uses
   GR32,
   t_GeoTypes,
   i_ICoordConverter,
+  i_ITileDownlodSession,
+  i_IPoolOfObjectsSimple,
   u_TileDownloaderBase,
   u_UrlGenerator,
   UResStrings;
@@ -45,6 +47,7 @@ type
     FStatus_Code: string;
     FBanIfLen: integer;
     FUseAntiBan: integer;
+    FMaxConnectToServerCount: Cardinal;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -163,7 +166,7 @@ type
     property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
-
+    property ContentType: string read FContent_Type;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     constructor Create;
@@ -174,9 +177,9 @@ type
     FInitDownloadCS: TCriticalSection;
     FCSSaveTile: TCriticalSection;
     FCSSaveTNF: TCriticalSection;
-    FDownloader: TTileDownloaderBase;
     FUrlGenerator : TUrlGenerator;
     FCoordConverter : ICoordConverter;
+    FPoolOfDownloaders: IPoolOfObjectsSimple;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
@@ -184,7 +187,6 @@ type
     procedure SaveTileInCache(btm:TObject;path:string);
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
-    function GetDownloader: TTileDownloaderBase;
   end;
 
 var
@@ -213,6 +215,10 @@ uses
   UFillingMap,
   UIMGFun,
   DateUtils,
+  i_IObjectWithTTL,
+  i_IPoolElement,
+  u_PoolOfObjectsSimple,
+  u_TileDownloaderBaseFactory,
   ImgMaker,
   UKmlParse,
   u_MiniMap,
@@ -659,6 +665,15 @@ begin
       Defseparator:=separator;
       exct:=sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa;
       Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
+      FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
+      if FMaxConnectToServerCount > 64 then begin
+        FMaxConnectToServerCount := 64;
+      end;
+      if FMaxConnectToServerCount <= 0 then begin
+        FMaxConnectToServerCount := 1;
+      end;
+      FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
+      GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
       case projection of
         1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(radiusa);
         2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(Exct,radiusa,radiusb);
@@ -1460,35 +1475,23 @@ begin
   inherited;
 end;
 
-function TMapType.GetDownloader: TTileDownloaderBase;
-var
-  VDownloader: TTileDownloaderBase;
-begin
-  if FDownloader = nil then begin
-    FInitDownloadCS.Acquire;
-    try
-      if FDownloader = nil then begin
-        VDownloader := TTileDownloaderBase.Create(FContent_Type, 1, GState.InetConnect);
-        VDownloader.SleepOnResetConnection := Sleep;
-        FDownloader := VDownloader;
-      end;
-    finally
-      FInitDownloadCS.Release;
-    end;
-  end;
-  Result := FDownloader;
-end;
-
 function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
   ACheckTileSize: Boolean; AOldTileSize: Integer;
   out AUrl: string; out AContentType: string;
   fileBuf: TMemoryStream): TDownloadTileResult;
 var
   StatusCode: Cardinal;
+  VPoolElement: IPoolElement;
+  VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
     AUrl := GetLink(AXY.X, AXY.Y, AZoom);
-    Result := GetDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+    VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
+    if VPoolElement = nil then begin
+      raise Exception.Create('No free connections');
+    end;
+    VDownloader := VPoolElement.GetObject as ITileDownlodSession;
+    Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
     if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
       result := dtrBanError;
     end;
