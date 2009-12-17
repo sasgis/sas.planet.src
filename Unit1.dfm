@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 317
-  Top = 119
+  Left = 309
+  Top = 152
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -2547,7 +2547,7 @@ object Fmain: TFmain
           object TBXSensorAzimutBar: TTBXToolWindow
             Left = 0
             Top = 288
-            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1086#1089#1090#1086#1103#1085#1080#1077' '#1087#1080#1090#1072#1085#1080#1103
+            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1072#1079#1080#1084#1091#1090' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1103
             Align = alTop
             ClientAreaHeight = 32
             ClientAreaWidth = 160
@@ -2558,7 +2558,7 @@ object Fmain: TFmain
             DesignSize = (
               160
               32)
-            Caption = #1041#1072#1090#1072#1088#1077#1103
+            Caption = #1040#1079#1080#1084#1091#1090
             object TBXSensorAzimut: TTBXLabel
               Left = 0
               Top = 13

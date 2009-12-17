@@ -718,35 +718,34 @@ function TMapType.GetBasePath: string;
 var
   ct:byte;
 begin
- if (CacheType=0) then ct:=GState.DefCache
-                       else ct:=CacheType;
- result := NameInCache;
- if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0)) then begin
-   case ct of
-     1:
-     begin
-       result:=GState.OldCpath_ + Result;
-     end;
-     2:
-     begin
-      result:=GState.NewCpath_+Result;
-     end;
-     3:
-     begin
-       result:=GState.ESCpath_+Result;
-     end;
-     4,41:
-     begin
-      result:=GState.GMTilespath_+Result;
-     end;
-     5:
-     begin
-      result:=GState.GECachepath_+Result;
-     end;
-   end;
- end;
- if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0))
-   then result:=GState.ProgramPath+result;
+  if (CacheType=0) then begin
+    ct:=GState.DefCache;
+  end else begin
+    ct:=CacheType;
+  end;
+  result := NameInCache;
+  if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0)) then begin
+    case ct of
+      1: begin
+        result:=GState.OldCpath_ + Result;
+      end;
+      2: begin
+        result:=GState.NewCpath_+Result;
+      end;
+      3: begin
+        result:=GState.ESCpath_+Result;
+      end;
+      4,41: begin
+        result:=GState.GMTilespath_+Result;
+      end;
+      5: begin
+        result:=GState.GECachepath_+Result;
+      end;
+    end;
+  end;
+  if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0))then begin
+    result:=GState.ProgramPath+result;
+  end;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -797,49 +796,56 @@ begin
 end;
 
 function LoadGIF(FileName: string; Btm: TBitmap32): boolean;
-var gif:TGIFImage;
-    p:PColor32;
-    c:TColor32;
-    h,w:integer;
+var
+  gif: TGIFImage;
+  p: PColor32;
+  c: TColor32;
+  h,w: integer;
 begin
- try
-   result:=true;
-   gif:=TGIFImage.Create;
-   gif.LoadFromFile(FileName);
-   Btm.DrawMode:=dmOpaque;
-   If (gif.isTransparent) then begin
-     c:=Color32(gif.Images[0].GraphicControlExtension.TransparentColor);
-     gif.Images[0].GraphicControlExtension.Transparent:=false;
-     Btm.Assign(gif);
-     p := @Btm.Bits[0];
-     for H:=0 to Btm.Height-1 do
-      for W:=0 to Btm.Width-1 do
-       begin
-        if p^=c then p^:=$00000000;
-        inc(p);
-       end;
-   end else begin
-     Btm.Assign(gif);
-   end;
-   gif.Free;
- except
-   result:=false;
- end;
+  try
+    result:=true;
+    gif:=TGIFImage.Create;
+    gif.LoadFromFile(FileName);
+    Btm.DrawMode:=dmOpaque;
+    If (gif.isTransparent) then begin
+      c:=Color32(gif.Images[0].GraphicControlExtension.TransparentColor);
+      gif.Images[0].GraphicControlExtension.Transparent:=false;
+      Btm.Assign(gif);
+      p := @Btm.Bits[0];
+      for H:=0 to Btm.Height-1 do begin
+        for W:=0 to Btm.Width-1 do begin
+          if p^=c then begin
+            p^:=$00000000;
+          end;
+          inc(p);
+        end;
+      end;
+    end else begin
+      Btm.Assign(gif);
+    end;
+    gif.Free;
+  except
+    result:=false;
+  end;
 end;
 
 function LoadPNG(FileName: string; Btm: TBitmap32): boolean;
-var png:TPNGObject;
+var
+  png:TPNGObject;
 begin
- try
-   result:=true;
-   png:=TPNGObject.Create;
-   png.LoadFromFile(FileName);
-   Btm.DrawMode:=dmOpaque;
-   PNGintoBitmap32(btm,png);
-   png.Free;
- except
-   result:=false;
- end;
+  try
+    result:=true;
+    png:=TPNGObject.Create;
+    try
+      png.LoadFromFile(FileName);
+      Btm.DrawMode:=dmOpaque;
+      PNGintoBitmap32(btm,png);
+    finally
+      png.Free;
+    end;
+  except
+    result:=false;
+  end;
 end;
 
 function LoadJPG32(FileName: string; Btm: TBitmap32): boolean;
@@ -922,51 +928,55 @@ begin
 end;
 
 function TMapType.LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
-var i,c_x,c_y,dZ:integer;
-    bmp:TBitmap32;
-    VTileExists: Boolean;
-    key:string;
+var
+  i,c_x,c_y,dZ: integer;
+  bmp: TBitmap32;
+  VTileExists: Boolean;
+  key: string;
 begin
- result:=false;
- if (not(GState.UsePrevZoom) and (asLayer=false)) or
-    (not(GState.UsePrevZoomLayer) and (asLayer=true)) then begin
-   spr.Clear(Color32(GState.BGround));
-   exit;
- end;
- VTileExists := false;
- for i:=(Azoom-1) downto 1 do
+  result:=false;
+  if (not(GState.UsePrevZoom) and (asLayer=false)) or
+  (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
   begin
-   dZ:=(Azoom-i);
-   if TileExists(x shr dZ,y shr dZ,i) then begin
-    VTileExists := true;
-    break;
-   end;
+    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+               else spr.Clear(Color32(GState.BGround));
+    exit;
   end;
- if not(VTileExists)or(dZ>8) then
-  begin
-   spr.Clear(Color32(GState.BGround));
-   exit;
-  end;
- key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
- if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
-   bmp:=TBitmap32.Create;
-   if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then
-    begin
-     spr.Clear(Color32(GState.BGround));
-     bmp.Free;
-     exit;
+  VTileExists := false;
+  for i:=(Azoom-1) downto 1 do begin
+    dZ:=(Azoom-i);
+    if TileExists(x shr dZ,y shr dZ,i) then begin
+      VTileExists := true;
+      break;
     end;
-   bmp.Resampler := CreateResampler(GState.Resampling);
-   c_x:=((x-(x mod 256))shr dZ)mod 256;
-   c_y:=((y-(y mod 256))shr dZ)mod 256;
-   try
-    spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
-    GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
-   except
-   end;
-   bmp.Free;
- end;
- result:=true;
+  end;
+  if not(VTileExists)or(dZ>8) then begin
+    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+               else spr.Clear(Color32(GState.BGround));
+    exit;
+  end;
+  key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+  if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
+    bmp:=TBitmap32.Create;
+    try
+      if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
+        if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+                   else spr.Clear(Color32(GState.BGround));
+        exit;
+      end;
+      bmp.Resampler := CreateResampler(GState.Resampling);
+      c_x:=((x-(x mod 256))shr dZ)mod 256;
+      c_y:=((y-(y mod 256))shr dZ)mod 256;
+      try
+        spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
+        GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
+      except
+      end;
+    finally
+      FreeAndNil(bmp);
+    end;
+  end;
+  Result := true;
 end;
 
 function TMapType.LoadTile(btm: Tobject; AXY: TPoint; Azoom: byte;

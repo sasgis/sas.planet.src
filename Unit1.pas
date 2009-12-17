@@ -2404,8 +2404,6 @@ begin
  NZoomOut.Enabled:=TBZoom_Out.Enabled;
  if (MapZoomAnimtion=1)or(MapMoving)or(x<1)or(x>24) then exit;
  MapZoomAnimtion:=1;
- labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
- labZoom.caption:=' '+inttostr(x)+'x ';
  RxSlider1.Value:=x-1;
  steps:=10;
  d_moveH:=0;
