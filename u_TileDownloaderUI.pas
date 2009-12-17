@@ -134,7 +134,6 @@ begin
                     if VMap.UseDwn then begin
                       FileBuf:=TMemoryStream.Create;
                       try
-                        sleep(VMap.Sleep);
                         res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
                         if Res = dtrBanError  then begin
                           FTypeMap := VMap;

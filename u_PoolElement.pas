@@ -102,8 +102,10 @@ end;
 function TPoolElement._Release: Integer;
 begin
   Result := InterlockedDecrement(FRefCount);
-  if Result = 0 then
+  if Result = 0 then begin
     FLastUseTime := GetTickCount;
+    Sleep(50);
+  end;
 end;
 
 end.

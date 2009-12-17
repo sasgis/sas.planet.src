@@ -253,7 +253,6 @@ begin
               if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom)) then begin
                 res := dtrTileNotExists;
               end else begin
-                sleep(FTypeMap.Sleep);
                 res:=FTypeMap.DownloadTile(FLoadXY, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                 case res of
                   dtrOK,
