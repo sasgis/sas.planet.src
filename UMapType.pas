@@ -187,7 +187,9 @@ type
     procedure SaveTileInCache(btm:TObject;path:string);
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
-  end;
+    procedure SaveTileKmlDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileBitmapDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
+ end;
 
 var
   MapType:array of TMapType;
@@ -1108,90 +1110,106 @@ begin
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
 end;
 
+procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+var
+  VPath: String;
+  jpg:TJPEGImage;
+  btm:TBitmap;
+  png:TBitmap32;
+  btmSrc:TBitmap32;
+  btmDest:TBitmap32;
+begin
+  VPath := GetTileFileName(AXY, Azoom);
+  CreateDirIfNotExists(VPath);
+  SaveTileInCache(ATileStream,Vpath);
+  if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
+    (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
+    btmsrc:=TBitmap32.Create;
+    btmDest:=TBitmap32.Create;
+    try
+      btmSrc.Resampler:=TLinearResampler.Create;
+      if LoadFile(btmsrc,Vpath,false) then begin
+        btmDest.SetSize(256,256);
+        btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
+        SaveTileInCache(btmDest,Vpath);
+      end;
+    except
+    end;
+    btmSrc.Free;
+    btmDest.Free;
+  end;
+
+  ban_pg_ld:=true;
+  if (ty='image/png')and(TileFileExt='.jpg') then begin
+    btm:=TBitmap.Create;
+    png:=TBitmap32.Create;
+    jpg:=TJPEGImage.Create;
+    RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
+    if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
+      btm.Assign(png);
+      jpg.Assign(btm);
+      SaveTileInCache(jpg,Vpath);
+      DeleteFile(ChangeFileExt(Vpath,'.png'));
+      btm.Free;
+      jpg.Free;
+      png.Free;
+    end;
+  end;
+  GState.MainFileCache.DeleteFileFromCache(Vpath);
+end;
+
+procedure TMapType.SaveTileKmlDownload(AXY: TPoint; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+var
+  VPath: String;
+  UnZip:TVCLUnZip;
+begin
+  VPath := GetTileFileName(AXY, Azoom);
+  CreateDirIfNotExists(VPath);
+  if (ty='application/vnd.google-earth.kmz') then begin
+    try
+      UnZip:=TVCLUnZip.Create(Fmain);
+      UnZip.ArchiveStream:=TMemoryStream.Create;
+      ATileStream.SaveToStream(UnZip.ArchiveStream);
+      UnZip.ReadZip;
+      ATileStream.Position:=0;
+      UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+      UnZip.Free;
+      SaveTileInCache(ATileStream,Vpath);
+      ban_pg_ld:=true;
+    except
+      try
+        SaveTileInCache(ATileStream,Vpath);
+      except
+      end;
+    end;
+  end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
+    SaveTileInCache(ATileStream,Vpath);
+    ban_pg_ld:=true;
+  end;
+  GState.MainFileCache.DeleteFileFromCache(Vpath);
+end;
+
 procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
 begin
-  Self.SaveTileDownload(AXY.X shl 8, AXY.Y shl 8, Azoom + 1, ATileStream, ty);
+  if UseSave then begin
+    if TileFileExt='.kml' then begin
+      SaveTileKmlDownload(AXY, Azoom, ATileStream, ty);
+    end else begin
+      SaveTileBitmapDownload(AXY, Azoom, ATileStream, ty);
+    end;
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
+  end;
 end;
 
 
 procedure TMapType.SaveTileDownload(x, y: Integer; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
-var
-  VPath: String;
-    jpg:TJPEGImage;
-    btm:TBitmap;
-    png:TBitmap32;
-    btmSrc:TBitmap32;
-    btmDest:TBitmap32;
-    UnZip:TVCLUnZip;
 begin
-  if UseSave then begin
-    VPath := GetTileFileName(x, y, Azoom);
-
-    CreateDirIfNotExists(VPath);
-    if TileFileExt='.kml' then begin
-      if (ty='application/vnd.google-earth.kmz') then begin
-        try
-          UnZip:=TVCLUnZip.Create(Fmain);
-          UnZip.ArchiveStream:=TMemoryStream.Create;
-          ATileStream.SaveToStream(UnZip.ArchiveStream);
-          UnZip.ReadZip;
-          ATileStream.Position:=0;
-          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-          UnZip.Free;
-          SaveTileInCache(ATileStream,Vpath);
-          ban_pg_ld:=true;
-        except
-          try
-            SaveTileInCache(ATileStream,Vpath);
-          except
-          end;
-        end;
-      end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-        SaveTileInCache(ATileStream,Vpath);
-        ban_pg_ld:=true;
-      end;
-    end else begin
-      SaveTileInCache(ATileStream,Vpath);
-      if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
-        (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
-        btmsrc:=TBitmap32.Create;
-        btmDest:=TBitmap32.Create;
-        try
-          btmSrc.Resampler:=TLinearResampler.Create;
-          if LoadFile(btmsrc,Vpath,false) then begin
-            btmDest.SetSize(256,256);
-            btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
-            SaveTileInCache(btmDest,Vpath);
-          end;
-        except
-        end;
-        btmSrc.Free;
-        btmDest.Free;
-      end;
-
-      ban_pg_ld:=true;
-      if (ty='image/png')and(TileFileExt='.jpg') then begin
-        btm:=TBitmap.Create;
-        png:=TBitmap32.Create;
-        jpg:=TJPEGImage.Create;
-        RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
-        if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
-          btm.Assign(png);
-          jpg.Assign(btm);
-          SaveTileInCache(jpg,Vpath);
-          DeleteFile(ChangeFileExt(Vpath,'.png'));
-          btm.Free;
-          jpg.Free;
-          png.Free;
-        end;
-      end;
-    end;
-    GState.MainFileCache.DeleteFileFromCache(Vpath);
-  end else begin
-    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
-  end;
+  Self.SaveTileDownload(Point(X shr 8, Y shr 8), Azoom - 1, ATileStream, ty);
 end;
 
 procedure TMapType.SaveTileInCache(btm:TObject;path:string);
