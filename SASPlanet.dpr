@@ -41,6 +41,7 @@ uses
   u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',
   u_BitmapTilePngLoader in 'u_BitmapTilePngLoader.pas',
   u_BitmapTileGifLoader in 'u_BitmapTileGifLoader.pas',
+  u_BitmapTileBmpLoader in 'u_BitmapTileBmpLoader.pas',
   UMapType in 'UMapType.pas',
   UTimeZones in 'UTimeZones.pas',
   UaddLine in 'UaddLine.pas' {FaddLine},

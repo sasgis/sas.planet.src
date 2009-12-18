@@ -1,6 +1,7 @@
 unit u_BitmapTileGifLoader;
 
 interface
+
 uses
   Classes,
   GR32,
