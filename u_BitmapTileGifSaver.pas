@@ -1,4 +1,4 @@
-unit u_BitmapTilePngSaver;
+unit u_BitmapTileGifSaver;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   i_BitmapTileSaveLoad;
 
 type
-  TPngBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
+  TGifBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   public
     procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
     procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
@@ -18,46 +18,47 @@ implementation
 
 uses
   Graphics,
-  pngimage;
+  GIFImage;
 
-{ TPngBitmapTileSaver }
 
-procedure TPngBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
+{ TGifBitmapTileSaver }
+
+procedure TGifBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
   AFileName: string);
 var
-  VPng_ex: TPNGObject;
+  VGif_ex: TGIFImage;
   VBtm_ex: TBitmap;
 begin
   VBtm_ex := TBitmap.Create;
   try
    VBtm_ex.Assign(Abtm as TBitmap32);
-   VPng_ex := TPNGObject.Create;
+   VGif_ex := TGIFImage.Create;
    try
-     VPng_ex.Assign(VBtm_ex);
-     VPng_ex.SaveToFile(AFileName);
+     VGif_ex.Assign(VBtm_ex);
+     VGif_ex.SaveToFile(AFileName);
    finally
-     VPng_ex.Free;
+     VGif_ex.Free;
    end;
   finally
     VBtm_ex.Free;
   end;
 end;
 
-procedure TPngBitmapTileSaver.SaveToStream(ABtm: TBitmap32;
+procedure TGifBitmapTileSaver.SaveToStream(ABtm: TBitmap32;
   AStream: TStream);
 var
-  VPng_ex:TPNGObject;
+  VGif_ex: TGIFImage;
   VBtm_ex: TBitmap;
 begin
   VBtm_ex := TBitmap.Create;
   try
    VBtm_ex.Assign(Abtm as TBitmap32);
-   VPng_ex := TPNGObject.Create;
+   VGif_ex := TGIFImage.Create;
    try
-     VPng_ex.Assign(VBtm_ex);
-     VPng_ex.SaveToStream(AStream);
+     VGif_ex.Assign(VBtm_ex);
+     VGif_ex.SaveToStream(AStream);
    finally
-     VPng_ex.Free;
+     VGif_ex.Free;
    end;
   finally
     VBtm_ex.Free;

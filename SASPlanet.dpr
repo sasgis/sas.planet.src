@@ -43,6 +43,7 @@ uses
   u_BitmapTilePngLoader in 'u_BitmapTilePngLoader.pas',
   u_BitmapTilePngSaver in 'u_BitmapTilePngSaver.pas',
   u_BitmapTileGifLoader in 'u_BitmapTileGifLoader.pas',
+  u_BitmapTileGifSaver in 'u_BitmapTileGifSaver.pas',
   u_BitmapTileBmpLoader in 'u_BitmapTileBmpLoader.pas',
   UMapType in 'UMapType.pas',
   UTimeZones in 'UTimeZones.pas',
