@@ -41,6 +41,7 @@ uses
   u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',
   u_BitmapTileJpegSaver in 'u_BitmapTileJpegSaver.pas',
   u_BitmapTilePngLoader in 'u_BitmapTilePngLoader.pas',
+  u_BitmapTilePngSaver in 'u_BitmapTilePngSaver.pas',
   u_BitmapTileGifLoader in 'u_BitmapTileGifLoader.pas',
   u_BitmapTileBmpLoader in 'u_BitmapTileBmpLoader.pas',
   UMapType in 'UMapType.pas',
