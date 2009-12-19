@@ -26,6 +26,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_BitmapTileJpegLoader,
   u_BitmapTileJpegSaver,
   u_BitmapTilePngLoader,
@@ -33,7 +34,7 @@ uses
   u_BitmapTileGifLoader,
   u_BitmapTileGifSaver,
   u_BitmapTileBmpLoader,
-  u_BitmapTileBmpSaver, SysUtils, Math;
+  u_BitmapTileBmpSaver;
 
 
 { TBitmapTypeExtManagerSimple }

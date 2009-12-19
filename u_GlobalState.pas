@@ -11,6 +11,7 @@ uses
   t_GeoTypes,
   t_CommonTypes,
   i_ITileFileNameGeneratorsList,
+  i_IBitmapTypeExtManager,
   u_GarbageCollectorThread,
   u_GeoToStr,
   Uimgfun,
@@ -24,6 +25,7 @@ type
     FDwnCS: TCriticalSection;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
+    FBitmapTypeManager: IBitmapTypeExtManager;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -205,6 +207,8 @@ type
     property HelpFileName: string read GetHelpFileName;
     // Имя основного файла конфигурации
     property MainConfigFileName: string read GetMainConfigFileName;
+    // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
+    property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -221,6 +225,7 @@ uses
   pngimage,
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
+  u_BitmapTypeExtManagerSimple,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -237,6 +242,7 @@ begin
   MainIni := TMeminifile.Create(MainConfigFileName);
   MainFileCache := TMemFileCache.Create;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
+  FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   LoadResources;
@@ -255,6 +261,7 @@ begin
   FreeAndNil(MarkIcons);
   FreeAndNil(InetConnect);
   FTileNameGenerator := nil;
+  FBitmapTypeManager := nil;
   inherited;
 end;
 

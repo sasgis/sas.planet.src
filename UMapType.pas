@@ -23,6 +23,7 @@ uses
   i_ICoordConverter,
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
+  i_IBitmapTypeExtManager,
   u_TileDownloaderBase,
   u_UrlGenerator,
   UResStrings;
@@ -59,6 +60,7 @@ type
     function GetUseStick: boolean;
     function GetShowOnSmMap: boolean;
     procedure SetShowOnSmMap(const Value: boolean);
+    function GetBitmapTypeManager: IBitmapTypeExtManager;
    public
     id: integer;
     guids: string;
@@ -169,6 +171,7 @@ type
     property ContentType: string read FContent_Type;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
+    property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     destructor Destroy; override;
@@ -1613,6 +1616,11 @@ end;
 procedure TMapType.SetShowOnSmMap(const Value: boolean);
 begin
   FShowOnSmMap := Value;
+end;
+
+function TMapType.GetBitmapTypeManager: IBitmapTypeExtManager;
+begin
+  Result := GState.BitmapTypeManager;
 end;
 
 end.
