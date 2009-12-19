@@ -13,15 +13,18 @@ uses
 
 type
   TTileDownloaderBase = class(TInterfacedObject, ITileDownlodSession)
-  protected
+  private
     FExpectedMIMETypes: string;
     FDownloadTryCount: Integer;
     FConnectionSettings: TInetConnect;
+    FSleepOnResetConnection: Cardinal;
+    FWaitInterval: Cardinal;
     FUserAgentString: string;
+  protected
     FSessionHandle: HInternet;
     FSessionOpenError: Cardinal;
     FCS: TCriticalSection;
-    FSleepOnResetConnection: Cardinal;
+    FLastDownloadTime: Cardinal;
     FLastDownloadResult: TDownloadTileResult;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
@@ -40,7 +43,8 @@ type
     destructor Destroy; override;
     function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
-    property ExpectedMIMETypes: string read FExpectedMIMETypes write FExpectedMIMETypes; 
+    property ExpectedMIMETypes: string read FExpectedMIMETypes write FExpectedMIMETypes;
+    property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
   end;
 
 implementation
@@ -304,11 +308,16 @@ var
   dwIndex: Cardinal;
   VLastError: Cardinal;
   ci: INTERNET_CONNECTED_INFO;
+  VNow: Cardinal;
 begin
   VHeader := BuildHeader(AUrl);
   if IsGlobalOffline then begin
     ci.dwConnectedState := INTERNET_STATE_CONNECTED;
     InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
+  end;
+  VNow := GetTickCount;
+  if VNow < FLastDownloadTime + FWaitInterval then begin
+    Sleep(FWaitInterval);
   end;
   VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD , 0);
   if not Assigned(VFileHandle) then begin
@@ -357,6 +366,7 @@ begin
     end else begin
       Result := dtrUnknownError;
     end;
+    FLastDownloadTime := GetTickCount;
   finally
     InternetCloseHandle(VFileHandle);
   end;

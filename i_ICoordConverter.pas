@@ -79,6 +79,7 @@ type
     function LonLatRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
     function LonLatRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
 
+    function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; stdcall;
     function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;

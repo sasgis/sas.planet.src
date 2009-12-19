@@ -112,6 +112,7 @@ type
     function RelativeRect2TileRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
     function RelativeRect2PixelRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
 
+    function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
     function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
     function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
     function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
@@ -1704,5 +1705,11 @@ begin
   Result := LonLatRect2PixelRectInternal(VXY, Vzoom);
 end;
 
+
+function TCoordConverterAbstract.GetTileSize(const XY: TPoint;
+  Azoom: byte): TPoint;
+begin
+  Result := Point(256, 256);
+end;
 
 end.

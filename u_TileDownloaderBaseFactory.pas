@@ -34,6 +34,7 @@ var
 begin
   VDownloader := TTileDownloaderBase.Create(FMapType.ContentType, 1, GState.InetConnect);
   VDownloader.SleepOnResetConnection := FMapType.Sleep;
+  VDownloader.WaitInterval := FMapType.Sleep;
   Result := VDownloader;
 end;
 
