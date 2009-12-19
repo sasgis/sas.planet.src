@@ -61,6 +61,7 @@ type
     function GetShowOnSmMap: boolean;
     procedure SetShowOnSmMap(const Value: boolean);
     function GetBitmapTypeManager: IBitmapTypeExtManager;
+    function GetIsCropOnDownload: Boolean;
    public
     id: integer;
     guids: string;
@@ -133,8 +134,8 @@ type
     function DeleteTile(x,y:longint; Azoom:byte): Boolean; overload;
     function DeleteTile(AXY: TPoint; Azoom:byte): Boolean; overload;
 
-    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject); overload;
-    procedure SaveTileSimple(AXY: TPoint; Azoom:byte; btm:TObject); overload;
+    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm: TBitmap32); overload;
+    procedure SaveTileSimple(AXY: TPoint; Azoom:byte; btm: TBitmap32); overload;
 
     procedure SaveTileNotExists(x,y:longint;Azoom:byte); overload;
     procedure SaveTileNotExists(AXY: TPoint; Azoom:byte); overload;
@@ -169,6 +170,7 @@ type
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
     property ContentType: string read FContent_Type;
+    property IsCropOnDownload: Boolean read GetIsCropOnDownload;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
@@ -185,6 +187,7 @@ type
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
+    procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm:TObject;path:string);
@@ -1122,44 +1125,50 @@ var
   png:TBitmap32;
   btmSrc:TBitmap32;
   btmDest:TBitmap32;
+  VManager: IBitmapTypeExtManager;
 begin
   VPath := GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(VPath);
-  SaveTileInCache(ATileStream,Vpath);
-  if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
-    (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
-    btmsrc:=TBitmap32.Create;
-    btmDest:=TBitmap32.Create;
-    try
-      btmSrc.Resampler:=TLinearResampler.Create;
-      if LoadFile(btmsrc,Vpath,false) then begin
-        btmDest.SetSize(256,256);
-        btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
-        SaveTileInCache(btmDest,Vpath);
-      end;
-    except
-    end;
-    btmSrc.Free;
-    btmDest.Free;
-  end;
+  VManager := BitmapTypeManager;
+  if VManager.GetIsBitmapType(ty) then begin
 
-  ban_pg_ld:=true;
-  if (ty='image/png')and(TileFileExt='.jpg') then begin
-    btm:=TBitmap.Create;
-    png:=TBitmap32.Create;
-    jpg:=TJPEGImage.Create;
-    RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
-    if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
-      btm.Assign(png);
-      jpg.Assign(btm);
-      SaveTileInCache(jpg,Vpath);
-      DeleteFile(ChangeFileExt(Vpath,'.png'));
-      btm.Free;
-      jpg.Free;
-      png.Free;
+    SaveTileInCache(ATileStream,Vpath);
+    if IsCropOnDownload then begin
+      btmsrc:=TBitmap32.Create;
+      btmDest:=TBitmap32.Create;
+      try
+        btmSrc.Resampler:=TLinearResampler.Create;
+        if LoadFile(btmsrc,Vpath,false) then begin
+          btmDest.SetSize(256,256);
+          btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
+          SaveTileInCache(btmDest,Vpath);
+        end;
+      except
+      end;
+      btmSrc.Free;
+      btmDest.Free;
     end;
+
+    ban_pg_ld:=true;
+    if (ty='image/png')and(TileFileExt='.jpg') then begin
+      btm:=TBitmap.Create;
+      png:=TBitmap32.Create;
+      jpg:=TJPEGImage.Create;
+      RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
+      if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
+        btm.Assign(png);
+        jpg.Assign(btm);
+        SaveTileInCache(jpg,Vpath);
+        DeleteFile(ChangeFileExt(Vpath,'.png'));
+        btm.Free;
+        jpg.Free;
+        png.Free;
+      end;
+    end;
+    GState.MainFileCache.DeleteFileFromCache(Vpath);
+  end else begin
+    SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
   end;
-  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileKmlDownload(AXY: TPoint; Azoom: byte;
@@ -1314,7 +1323,7 @@ begin
   Self.SaveTileNotExists(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
-procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TObject);
+procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32);
 var
   VPath: String;
 begin
@@ -1329,7 +1338,7 @@ begin
 end;
 
 procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
-  btm:TObject);
+  btm: TBitmap32);
 begin
   Self.SaveTileSimple(Point(x shr 8, y shr 8), Azoom - 1, btm);
 end;
@@ -1621,6 +1630,41 @@ end;
 function TMapType.GetBitmapTypeManager: IBitmapTypeExtManager;
 begin
   Result := GState.BitmapTypeManager;
+end;
+
+procedure TMapType.CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
+var
+  VBtmSrc: TBitmap32;
+  VBtmDest: TBitmap32;
+begin
+  VBtmSrc := TBitmap32.Create;
+  try
+    VBtmSrc.Assign(ABtm);
+    VBtmSrc.Resampler := TLinearResampler.Create;
+    VBtmDest := TBitmap32.Create;
+    try
+      VBtmDest.SetSize(ATileSize.X, ATileSize.Y);
+      VBtmDest.Draw(Bounds(0, 0, ATileSize.X, ATileSize.Y), FTileRect, VBtmSrc);
+      ABtm.Assign(VBtmDest);
+    finally
+      VBtmDest.Free;
+    end;
+  finally
+    VBtmSrc.Free;
+  end;
+end;
+
+function TMapType.GetIsCropOnDownload: Boolean;
+begin
+  if (FTileRect.Left<>0)
+    or (FTileRect.Top<>0)
+    or (FTileRect.Right<>0)
+    or (FTileRect.Bottom<>0)
+  then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
 end;
 
 end.
