@@ -46,6 +46,8 @@ uses
   u_BitmapTileGifSaver in 'u_BitmapTileGifSaver.pas',
   u_BitmapTileBmpLoader in 'u_BitmapTileBmpLoader.pas',
   u_BitmapTileBmpSaver in 'u_BitmapTileBmpSaver.pas',
+  i_IBitmapTypeExtManager in 'i_IBitmapTypeExtManager.pas',
+  u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   UMapType in 'UMapType.pas',
   UTimeZones in 'UTimeZones.pas',
   UaddLine in 'UaddLine.pas' {FaddLine},
