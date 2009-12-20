@@ -38,6 +38,7 @@ type
     function GetMainConfigFileName: string;
     procedure LoadMarkIcons;
     procedure LoadResources;
+    procedure FreeAllMaps;
   public
     MainFileCache: TMemFileCache;
     // Ini-файл с основными настройками
@@ -266,6 +267,8 @@ begin
   FreeAndNil(InetConnect);
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
+  sat_map_both := nil;
+  FreeAllMaps;
   inherited;
 end;
 
@@ -360,6 +363,16 @@ begin
  finally
    FreeAndNil(b);
  end;
+end;
+
+procedure TGlobalState.FreeAllMaps;
+var
+  i: integer;
+begin
+  for i := 0 to Length(MapType) - 1 do begin
+    FreeAndNil(MapType[i]);
+  end;
+  MapType := nil;
 end;
 
 end.
