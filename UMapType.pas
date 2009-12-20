@@ -125,9 +125,14 @@ type
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean; overload;
     function TileNotExistsOnServer(AXY: TPoint;Azoom:byte): Boolean; overload;
 
-    function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:Tobject; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
-
+    function LoadTile(btm:TObject; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TObject; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+{
+    function LoadTile(btm:TStream; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TStream; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TBitmap32; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+}
     function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean; overload;
     function LoadTileFromPreZ(spr:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
 
@@ -804,132 +809,6 @@ begin
   SysUtils.FindClose(InfoFile);
 end;
 
-function LoadGIF(FileName: string; Btm: TBitmap32): boolean;
-var
-  gif: TGIFImage;
-  p: PColor32;
-  c: TColor32;
-  h,w: integer;
-begin
-  try
-    result:=true;
-    gif:=TGIFImage.Create;
-    gif.LoadFromFile(FileName);
-    Btm.DrawMode:=dmOpaque;
-    If (gif.isTransparent) then begin
-      c:=Color32(gif.Images[0].GraphicControlExtension.TransparentColor);
-      gif.Images[0].GraphicControlExtension.Transparent:=false;
-      Btm.Assign(gif);
-      p := @Btm.Bits[0];
-      for H:=0 to Btm.Height-1 do begin
-        for W:=0 to Btm.Width-1 do begin
-          if p^=c then begin
-            p^:=$00000000;
-          end;
-          inc(p);
-        end;
-      end;
-    end else begin
-      Btm.Assign(gif);
-    end;
-    gif.Free;
-  except
-    result:=false;
-  end;
-end;
-
-function LoadPNG(FileName: string; Btm: TBitmap32): boolean;
-var
-  png:TPNGObject;
-begin
-  try
-    result:=true;
-    png:=TPNGObject.Create;
-    try
-      png.LoadFromFile(FileName);
-      Btm.DrawMode:=dmOpaque;
-      PNGintoBitmap32(btm,png);
-    finally
-      png.Free;
-    end;
-  except
-    result:=false;
-  end;
-end;
-
-function LoadJPG32(FileName: string; Btm: TBitmap32): boolean;
-  procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
-  var W, H : Integer;
-      p : PIntegerArray;
-  begin
-    p := PIntegerArray(pData);
-    for H := 0 to Height-1 do begin
-      for W := 0 to Width-1 do begin
-        p^[W]:=(p^[W] and $FF000000)or((p^[W] and $00FF0000) shr 16)or(p^[W] and $0000FF00)or((p^[W] and $000000FF) shl 16);
-      end;
-      inc(p,width)
-    end;
-  end;
-var
-  iWidth, iHeight, iNChannels : Integer;
-  iStatus : Integer;
-  jcprops : TJPEG_CORE_PROPERTIES;
-begin
- try
-    result:=true;
-    iStatus := ijlInit(@jcprops);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-
-    jcprops.JPGFile := PChar(FileName);
-    iStatus := ijlRead(@jcprops,IJL_JFILE_READPARAMS);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    iWidth := jcprops.JPGWidth;
-    iHeight := jcprops.JPGHeight;
-    iNChannels := 4;
-    Btm.SetSize(iWidth,iHeight);
-    jcprops.DIBWidth := iWidth;
-    jcprops.DIBHeight := iHeight;
-    jcprops.DIBChannels := iNChannels;
-    jcprops.DIBColor := IJL_RGBA_FPX;
-    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
-    jcprops.DIBBytes := PByte(Btm.Bits);
-
-    if (jcprops.JPGChannels = 3) then
-      jcprops.JPGColor := IJL_YCBCR
-    else if (jcprops.JPGChannels = 4) then
-      jcprops.JPGColor := IJL_YCBCRA_FPX
-    else if (jcprops.JPGChannels = 1) then
-      jcprops.JPGColor := IJL_G
-    else
-    begin
-      jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
-      jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
-    end;
-    iStatus := ijlRead(@jcprops,IJL_JFILE_READWHOLEIMAGE);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
-    ijlFree(@jcprops);
-  except
-    on E: Exception do
-    begin
-      result:=false;
-      ijlFree(@jcprops);
-    end;
-  end;
-end;
-
 function TMapType.LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint;
   Azoom: byte; caching: boolean): boolean;
 begin
@@ -1039,6 +918,8 @@ begin
 end;
 
 function TMapType.LoadFile(btm: Tobject; APath: string; caching:boolean): boolean;
+var
+  VManager: IBitmapTypeExtManager;
 begin
   Result := false;
   if GetFileSize(Apath)=0 then begin
@@ -1046,30 +927,12 @@ begin
   end;
   try
     if (btm is TBitmap32) then begin
-      if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath)) then begin
-        if ExtractFileExt(Apath)='.jpg' then begin
-          if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
-            result:=false;
-            exit;
-          end;
-        end else
-        if ExtractFileExt(Apath)='.png' then begin
-          if not(LoadPNG(Apath,TBitmap32(btm))) then begin
-            result:=false;
-            exit;
-          end;
-        end else
-        if ExtractFileExt(Apath)='.gif' then begin
-          if not(LoadGif(Apath,TBitmap32(btm))) then begin
-            result:=false;
-            exit;
-          end;
-        end else begin
-          TBitmap32(btm).LoadFromFile(Apath);
-        end;
-        result:=true;
-        if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
-      end
+      VManager := BitmapTypeManager;
+      if VManager.GetIsBitmapExt(TileFileExt) then begin
+        VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, TBitmap32(btm));
+      end else begin
+        raise Exception.Create('У этой карты не растровые тайлы');
+      end;
     end else begin
       if (btm is TPicture) then
         TPicture(btm).LoadFromFile(Apath)
