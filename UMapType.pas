@@ -32,6 +32,7 @@ uses
 type
  TMapType = class
    private
+    FGuid: TGUID;
     FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
@@ -66,9 +67,10 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
+    function GetGUIDString: string;
    public
     id: integer;
-    guids: string;
+
     TileFileExt: string;
     MapInfo: string;
     asLayer: boolean;
@@ -168,6 +170,8 @@ type
     function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
+    property GUID: TGUID read FGuid;
+    property GUIDString: string read GetGUIDString;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -216,7 +220,7 @@ var
   procedure LoadMaps;
   procedure SaveMaps;
   procedure CreateMapUI;
-  function GetMapFromID(id: string): TMapType;
+  function GetMapFromID(id: TGUID): TMapType;
 
 implementation
 
@@ -239,13 +243,13 @@ uses
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
 
-function GetMapFromID(id: string): TMapType;
+function GetMapFromID(id: TGUID): TMapType;
 var
   i: integer;
 begin
   Result:=nil;
   for i:=0 to length(MapType)-1 do begin
-    if MapType[i].guids=id then begin
+    if IsEqualGUID(MapType[i].GUID, id) then begin
       result:=MapType[i];
       exit;
     end;
@@ -399,6 +403,20 @@ begin
     sat_map_both:=MapType[0];
   end;
 end;
+function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;
+var
+  i: Integer;
+begin
+  Result := false;
+  if Acnt > 0 then begin
+    for i := 0 to Acnt - 1 do begin
+      if IsEqualGUID(AGUID, MapType[i].GUID) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
 
 procedure LoadMaps;
 var
@@ -407,6 +425,7 @@ var
   startdir : string;
   SearchRec: TSearchRec;
   MTb: TMapType;
+  VGUIDString: String;
 begin
   SetLength(MapType,0);
   CreateDir(GState.MapsPath);
@@ -424,34 +443,46 @@ begin
   if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
     repeat
       if (SearchRec.Attr and faDirectory) = faDirectory then continue;
-      MapType[pnum]:=TMapType.Create;
-      MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
-      MapType[pnum].ban_pg_ld := true;
-      if Ini.SectionExists(MapType[pnum].GUIDs)then begin
-        With MapType[pnum] do begin
-          id:=Ini.ReadInteger(GUIDs,'pnum',0);
-          active:=ini.ReadBool(GUIDs,'active',false);
-          ShowOnSmMap:=ini.ReadBool(GUIDs,'ShowOnSmMap',true);
-          URLBase:=ini.ReadString(GUIDs,'URLBase',URLBase);
-          CacheType:=ini.ReadInteger(GUIDs,'CacheType',cachetype);
-          NameInCache:=ini.ReadString(GUIDs,'NameInCache',NameInCache);
-          HotKey:=ini.ReadInteger(GUIDs,'HotKey',HotKey);
-          ParentSubMenu:=ini.ReadString(GUIDs,'ParentSubMenu',ParentSubMenu);
-          Sleep:=ini.ReadInteger(GUIDs,'Sleep',Sleep);
-          separator:=ini.ReadBool(GUIDs,'separator',separator);
+      try
+        MapType[pnum]:=TMapType.Create;
+        MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+        MapType[pnum].ban_pg_ld := true;
+        VGUIDString := MapType[pnum].GUIDString;
+        if FindGUIDInFirstMaps(MapType[pnum].GUID, pnum) then begin
+          ShowMessage('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
+          raise Exception.Create('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
         end;
-      end else begin
-        With MapType[pnum] do begin
-          showinfo:=true;
-          if Fpos < 0 then Fpos := i;
-          id := Fpos;
-          dec(i);
-          active:=false;
-          ShowOnSmMap:=false;
+        if Ini.SectionExists(VGUIDString)then begin
+          With MapType[pnum] do begin
+            id:=Ini.ReadInteger(VGUIDString,'pnum',0);
+            active:=ini.ReadBool(VGUIDString,'active',false);
+            ShowOnSmMap:=ini.ReadBool(VGUIDString,'ShowOnSmMap',true);
+            URLBase:=ini.ReadString(VGUIDString,'URLBase',URLBase);
+            CacheType:=ini.ReadInteger(VGUIDString,'CacheType',cachetype);
+            NameInCache:=ini.ReadString(VGUIDString,'NameInCache',NameInCache);
+            HotKey:=ini.ReadInteger(VGUIDString,'HotKey',HotKey);
+            ParentSubMenu:=ini.ReadString(VGUIDString,'ParentSubMenu',ParentSubMenu);
+            Sleep:=ini.ReadInteger(VGUIDString,'Sleep',Sleep);
+            separator:=ini.ReadBool(VGUIDString,'separator',separator);
+          end;
+        end else begin
+          With MapType[pnum] do begin
+            showinfo:=true;
+            if Fpos < 0 then Fpos := i;
+            id := Fpos;
+            dec(i);
+            active:=false;
+            ShowOnSmMap:=false;
+          end;
         end;
+      except
+        FreeAndNil(MapType[pnum]);
       end;
-      inc(pnum);
+      if MapType[pnum] <> nil then begin
+        inc(pnum);
+      end;
     until FindNext(SearchRec) <> 0;
+    SetLength(MapType, pnum);
   end;
   SysUtils.FindClose(SearchRec);
   ini.Free;
@@ -484,54 +515,56 @@ procedure SaveMaps;
 var
   Ini: TMeminifile;
   i: integer;
+  VGUIDString: string;
 begin
   Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
   try
     for i:=0 to length(MapType)-1 do begin
-      ini.WriteInteger(MapType[i].guids,'pnum',MapType[i].id);
-      ini.WriteBool(MapType[i].guids,'active',MapType[i].active);
-      ini.WriteBool(MapType[i].guids,'ShowOnSmMap',MapType[i].ShowOnSmMap);
+      VGUIDString := MapType[i].GUIDString;
+      ini.WriteInteger(VGUIDString,'pnum',MapType[i].id);
+      ini.WriteBool(VGUIDString,'active',MapType[i].active);
+      ini.WriteBool(VGUIDString,'ShowOnSmMap',MapType[i].ShowOnSmMap);
 
       if MapType[i].URLBase<>MapType[i].DefURLBase then begin
-        ini.WriteString(MapType[i].guids,'URLBase',MapType[i].URLBase);
+        ini.WriteString(VGUIDString,'URLBase',MapType[i].URLBase);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'URLBase');
+        Ini.DeleteKey(VGUIDString,'URLBase');
       end;
 
       if MapType[i].HotKey<>MapType[i].DefHotKey then begin
-        ini.WriteInteger(MapType[i].guids,'HotKey',MapType[i].HotKey);
+        ini.WriteInteger(VGUIDString,'HotKey',MapType[i].HotKey);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'HotKey');
+        Ini.DeleteKey(VGUIDString,'HotKey');
       end;
 
       if MapType[i].cachetype<>MapType[i].defcachetype then begin
-        ini.WriteInteger(MapType[i].guids,'CacheType',MapType[i].CacheType);
+        ini.WriteInteger(VGUIDString,'CacheType',MapType[i].CacheType);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'CacheType');
+        Ini.DeleteKey(VGUIDString,'CacheType');
       end;
 
       if MapType[i].separator<>MapType[i].Defseparator then begin
-        ini.WriteBool(MapType[i].guids,'separator',MapType[i].separator);
+        ini.WriteBool(VGUIDString,'separator',MapType[i].separator);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'separator');
+        Ini.DeleteKey(VGUIDString,'separator');
       end;
 
       if MapType[i].NameInCache<>MapType[i].DefNameInCache then begin
-        ini.WriteString(MapType[i].guids,'NameInCache',MapType[i].NameInCache);
+        ini.WriteString(VGUIDString,'NameInCache',MapType[i].NameInCache);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'NameInCache');
+        Ini.DeleteKey(VGUIDString,'NameInCache');
       end;
 
       if MapType[i].Sleep<>MapType[i].DefSleep then begin
-        ini.WriteInteger(MapType[i].guids,'Sleep',MapType[i].sleep);
+        ini.WriteInteger(VGUIDString,'Sleep',MapType[i].sleep);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'Sleep');
+        Ini.DeleteKey(VGUIDString,'Sleep');
       end;
 
       if MapType[i].ParentSubMenu<>MapType[i].DefParentSubMenu then begin
-        ini.WriteString(MapType[i].guids,'ParentSubMenu',MapType[i].ParentSubMenu);
+        ini.WriteString(VGUIDString,'ParentSubMenu',MapType[i].ParentSubMenu);
       end else begin
-        Ini.DeleteKey(MapType[i].guids,'ParentSubMenu');
+        Ini.DeleteKey(VGUIDString,'ParentSubMenu');
       end;
     end;
     Ini.UpdateFile;
@@ -637,7 +670,12 @@ begin
       finally
         FreeAndNil(MapParams);
       end;
-      GUIDs:=iniparams.ReadString('PARAMS','GUID',GUIDstr);
+      try 
+        FGuid := StringToGUID(iniparams.ReadString('PARAMS','GUID',GUIDstr));
+      except
+        ShowMessage('Ошибочный GUID у карты в файле ' + AZipFileName);
+        raise;
+      end;
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
       DefUrlBase:=URLBase;
@@ -841,7 +879,7 @@ begin
                else spr.Clear(Color32(GState.BGround));
     exit;
   end;
-  key:=guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+  key:=GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
   if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
     bmp:=TBitmap32.Create;
     try
@@ -882,9 +920,9 @@ function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
 var path: string;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
       result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
-      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), guids+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
     end else begin
       result:=true;
     end;
@@ -1530,6 +1568,11 @@ begin
   end else begin
     Result := False;
   end;
+end;
+
+function TMapType.GetGUIDString: string;
+begin
+  Result := GUIDToString(FGuid);
 end;
 
 end.

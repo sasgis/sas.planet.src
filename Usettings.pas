@@ -354,8 +354,8 @@ begin
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
- if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.guids);
+ if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.GUIDString);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);

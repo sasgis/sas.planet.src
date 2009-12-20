@@ -2054,6 +2054,8 @@ var
      param:string;
      MainWindowMaximized: Boolean;
      VLoadedSizeInPixel: TPoint;
+     VGUID: TGUID;
+     VGUIDString: string;
 begin
  if ProgramStart=false then exit;
  RectWindow := Types.Rect(0, 0, 0, 0);
@@ -2264,7 +2266,17 @@ begin
  GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
  GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
  GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
- Fillingmaptype:=GetMapFromID(GState.MainIni.ReadString('VIEW','FillingMap','0'));
+ try
+  VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
+  if VGUIDString <> '' then begin
+    VGUID := StringToGUID(VGUIDString);
+    Fillingmaptype:=GetMapFromID(VGUID);
+  end else begin
+    Fillingmaptype := nil;
+  end;
+ except
+  Fillingmaptype := nil;
+ end;
  if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
                         else TBfillMapAsMain.Checked:=true;
  i:=1;
@@ -2350,12 +2362,21 @@ begin
 
  map.Color:=GState.BGround;
 
- if ParamCount > 1 then
- begin
-  param:=paramstr(1);
-  if param<>'' then For i:=0 to length(MapType)-1 do if MapType[i].guids=param then sat_map_both:=MapType[i];
-  if paramstr(2)<>'' then GState.zoom_size:=strtoint(paramstr(2));
-  if (paramstr(3)<>'')and(paramstr(4)<>'') then ScreenCenterPos := sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(GState.zoom_size - 1) + 8);
+ if ParamCount > 1 then begin
+  try
+    param:=paramstr(1);
+    if param<>'' then begin
+      VGUID := StringToGUID(param);
+      for i:=0 to length(MapType)-1 do begin
+        if IsEqualGUID(MapType[i].GUID, VGUID)then begin
+          sat_map_both:=MapType[i];
+        end;
+      end;
+    end;
+    if paramstr(2)<>'' then GState.zoom_size:=strtoint(paramstr(2));
+    if (paramstr(3)<>'')and(paramstr(4)<>'') then ScreenCenterPos := sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(GState.zoom_size - 1) + 8);
+  except
+  end;
  end;
 
  zooming(GState.Zoom_size,false);
@@ -4279,7 +4300,7 @@ begin
     VPoint := ScreenCenterPos;
     sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
     Apos:=sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-    param:=' '+sat_map_both.guids+' '+inttostr(GState.zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
+    param:=' '+sat_map_both.GUIDString+' '+inttostr(GState.zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
     CreateLink(ParamStr(0),SaveLink.filename, '', param)
   end;
 end;
