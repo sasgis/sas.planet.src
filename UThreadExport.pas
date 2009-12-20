@@ -136,87 +136,64 @@ end;
 function UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; ATargetProjection: byte; p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
 var
   bmp2,bmp1:TBitmap32;
-  png:TPngObject;
   res1,res2:boolean;
 begin
-  res1:=false;
   res2:=false;
   bmp.width:=256;
   bmp.Height:=256;
   bmp.Clear(Color32(GState.BGround));
-  bmp2:=TBitmap32.Create;
-  bmp2.DrawMode:=dmBlend;
   bmp1:=TBitmap32.Create;
-  bmp1.DrawMode:=dmBlend;
-  png:=TPngObject.Create;
   try
-    res1:=true;
-    if TypeMapArr.TileFileExt='.png' then begin
-      bmp1.width:=256;
-      bmp1.Height:=256;
-      if TypeMapArr.LoadTile(png,p_h.x, p_h.y, zoom+1,false) then begin
-        PNGintoBitmap32(bmp1,png);
-      end else begin
+    bmp1.DrawMode:=dmBlend;
+    bmp2:=TBitmap32.Create;
+    try
+      bmp2.DrawMode:=dmBlend;
+      try
+        if (not(TypeMapArr.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
+          bmp1.width:=256;
+          bmp1.Height:=256;
+          bmp1.Clear(Color32(GState.BGround));
+        end;
+        res1:=true;
+      except
         res1:=false;
         bmp1.width:=256;
         bmp1.Height:=256;
-        bmp1.Clear(color32(GState.BGround));
+        bmp1.Clear(Color32(GState.BGround));
       end;
-    end else if (not(TypeMapArr.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
-      res1:=false;
-      bmp1.width:=256;
-      bmp1.Height:=256;
-      bmp1.Clear(Color32(GState.BGround));
-    end;
-  except
-    res1:=false;
-    bmp1.width:=256;
-    bmp1.Height:=256;
-    bmp1.Clear(Color32(GState.BGround));
-  end;
-  if p_h.Y<0 then begin
-    bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp1);
-  end else begin
-    bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp1);
-  end;
+      if p_h.Y<0 then begin
+        bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp1);
+      end else begin
+        bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp1);
+      end;
 
-  if ATargetProjection<>TypeMapArr.projection then begin
-    try
-      res2:=true;
-      if TypeMapArr.TileFileExt='.png' then begin
-        bmp2.width:=256;
-        bmp2.Height:=256;
-        if TypeMapArr.LoadTile(png,p_h.x,p_h.y+256,zoom+1,false) then begin
-          PNGintoBitmap32(bmp2,png);
-        end else begin
+      if ATargetProjection<>TypeMapArr.projection then begin
+        try
+          if (not(TypeMapArr.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
+            bmp2.width:=256;
+            bmp2.Height:=256;
+            bmp2.Clear(Color32(GState.BGround));
+          end;
+          res2:=true;
+        except
           res2:=false;
           bmp2.width:=256;
           bmp2.Height:=256;
           bmp2.Clear(Color32(GState.BGround));
         end;
-      end else if (not(TypeMapArr.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
-        res2:=false;
-        bmp2.width:=256;
-        bmp2.Height:=256;
-        bmp2.Clear(Color32(GState.BGround));
+        if p_h.Y<0 then begin
+          bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2);
+        end else begin
+          bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);
+        end;
       end;
-      res2:=true;
-    except
-      res2:=false;
-      bmp2.width:=256;
-      bmp2.Height:=256;
-      bmp2.Clear(Color32(GState.BGround));
+      result:=(res1 or res2);
+    finally
+      bmp2.Free;
     end;
-    if p_h.Y<0 then begin
-      bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2);
-    end else begin
-      bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);
-    end;
+  finally
+    bmp1.Free;
   end;
-  result:=(res1 or res2);
-  png.Free;
-  bmp2.Free;
-  bmp1.Free;
 end;
 
 procedure ThreadExport.export2iMaps(APolyLL:TExtendedPointArray);
