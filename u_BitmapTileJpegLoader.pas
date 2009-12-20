@@ -21,10 +21,15 @@ uses
   IJL;
 { TJpegBitmapTileLoader }
 
-procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
+procedure RGBA2BGRA2(var jcprops : TJPEG_CORE_PROPERTIES);
 var W, H : Integer;
     p : PIntegerArray;
+    pData : Pointer;
+    Width, Height : Integer;
 begin
+  Width := jcprops.JPGWidth;
+  Height := jcprops.JPGHeight;
+  pData := jcprops.DIBBytes;
   p := PIntegerArray(pData);
   for H := 0 to Height-1 do begin
     for W := 0 to Width-1 do begin
@@ -37,7 +42,6 @@ end;
 function LoadJpeg(var jcprops : TJPEG_CORE_PROPERTIES; Btm: TBitmap32): Boolean;
 var
   iWidth, iHeight, iNChannels : Integer;
-  iStatus : Integer;
 begin
   Result := true;
   iWidth := jcprops.JPGWidth;
@@ -61,12 +65,6 @@ begin
     jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
     jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
   end;
-  iStatus := ijlRead(@jcprops,IJL_JFILE_READWHOLEIMAGE);
-  if iStatus < 0 then begin
-    result:=false;
-    exit;
-  end;
-  RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
 end;
 
 procedure TJpegBitmapTileLoader.LoadFromFile(AFileName: string;
@@ -86,8 +84,13 @@ begin
       raise Exception.Create('ijlRead from file Error');
     end;
     if not LoadJpeg(jcprops, ABtm) then begin
-      raise Exception.Create('LoadJpeg Error');
+      raise Exception.Create('Prepare load Jpeg Error');
     end;
+    iStatus := ijlRead(@jcprops,IJL_JFILE_READWHOLEIMAGE);
+    if iStatus < 0 then begin
+      raise Exception.Create('Load Jpeg Error');
+    end;
+    RGBA2BGRA2(jcprops);
   finally
     ijlFree(@jcprops);
   end;
@@ -122,8 +125,13 @@ begin
         raise Exception.Create('ijlRead from stream Error');
       end;
       if not LoadJpeg(jcprops, ABtm) then begin
-        raise Exception.Create('LoadJpeg Error');
+        raise Exception.Create('Prepare load Jpeg Error');
       end;
+      iStatus := ijlRead(@jcprops,IJL_JBUFF_READWHOLEIMAGE);
+      if iStatus < 0 then begin
+        raise Exception.Create('Load Jpeg Error');
+      end;
+      RGBA2BGRA2(jcprops);
     finally
       ijlFree(@jcprops);
     end;
