@@ -1131,40 +1131,18 @@ begin
   CreateDirIfNotExists(VPath);
   VManager := BitmapTypeManager;
   if VManager.GetIsBitmapType(ty) then begin
+    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(ty)) then begin
+      SaveTileInCache(ATileStream,Vpath);
+    end else begin
+      btmsrc := TBitmap32.Create;
+      VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
 
-    SaveTileInCache(ATileStream,Vpath);
-    if IsCropOnDownload then begin
-      btmsrc:=TBitmap32.Create;
-      btmDest:=TBitmap32.Create;
-      try
-        btmSrc.Resampler:=TLinearResampler.Create;
-        if LoadFile(btmsrc,Vpath,false) then begin
-          btmDest.SetSize(256,256);
-          btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
-          SaveTileInCache(btmDest,Vpath);
-        end;
-      except
+      if IsCropOnDownload then begin
+        CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
       end;
-      btmSrc.Free;
-      btmDest.Free;
+      SaveTileInCache(btmSrc, VPath);
     end;
-
     ban_pg_ld:=true;
-    if (ty='image/png')and(TileFileExt='.jpg') then begin
-      btm:=TBitmap.Create;
-      png:=TBitmap32.Create;
-      jpg:=TJPEGImage.Create;
-      RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
-      if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
-        btm.Assign(png);
-        jpg.Assign(btm);
-        SaveTileInCache(jpg,Vpath);
-        DeleteFile(ChangeFileExt(Vpath,'.png'));
-        btm.Free;
-        jpg.Free;
-        png.Free;
-      end;
-    end;
     GState.MainFileCache.DeleteFileFromCache(Vpath);
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
