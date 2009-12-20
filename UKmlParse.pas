@@ -9,7 +9,6 @@ uses
   StrUtils,
   SysUtils,
   GR32,
-  Ugeofun,
   UResStrings,
   t_GeoTypes;
 

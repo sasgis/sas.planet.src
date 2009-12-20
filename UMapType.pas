@@ -26,6 +26,7 @@ uses
   i_IBitmapTypeExtManager,
   u_TileDownloaderBase,
   u_UrlGenerator,
+  UKmlParse,
   UResStrings;
 
 type
@@ -125,14 +126,11 @@ type
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean; overload;
     function TileNotExistsOnServer(AXY: TPoint;Azoom:byte): Boolean; overload;
 
-    function LoadTile(btm:TObject; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:TObject; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
-{
-    function LoadTile(btm:TStream; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:TStream; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
     function LoadTile(btm:TBitmap32; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
     function LoadTile(btm:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
-}
+    function LoadTile(btm:TKML; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TKML; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+
     function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean; overload;
     function LoadTileFromPreZ(spr:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
 
@@ -193,7 +191,8 @@ type
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
-    function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
+    function LoadFile(btm:TBitmap32; APath: string; caching:boolean):boolean; overload;
+    function LoadFile(btm:TKml; APath: string; caching:boolean):boolean; overload;
     procedure CreateDirIfNotExists(APath:string);
     procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
     procedure SaveTileInCache(btm: TStream; path: string); overload;
@@ -235,7 +234,6 @@ uses
   u_PoolOfObjectsSimple,
   u_TileDownloaderBaseFactory,
   ImgMaker,
-  UKmlParse,
   u_MiniMap,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
@@ -867,13 +865,19 @@ begin
   Result := true;
 end;
 
-function TMapType.LoadTile(btm: Tobject; AXY: TPoint; Azoom: byte;
+function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 begin
   Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
 end;
 
-function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
+function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+begin
+  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
+end;
+
+function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 var path: string;
 begin
@@ -884,6 +888,18 @@ begin
     end else begin
       result:=true;
     end;
+  end else begin
+    path := GetTileFileName(x, y, Azoom);
+    result:= LoadFile(btm, path, caching);
+  end;
+end;
+
+function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+  caching: boolean): boolean;
+var path: string;
+begin
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    raise Exception.Create('Из GE кеша можно получать только растры');
   end else begin
     path := GetTileFileName(x, y, Azoom);
     result:= LoadFile(btm, path, caching);
@@ -917,7 +933,19 @@ begin
   Result := Self.DeleteTile(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
-function TMapType.LoadFile(btm: Tobject; APath: string; caching:boolean): boolean;
+function TMapType.LoadFile(btm: TKML; APath: string; caching:boolean): boolean;
+begin
+  Result := false;
+  if GetFileSize(Apath)=0 then begin
+    exit;
+  end;
+  try
+    btm.LoadFromFile(Apath)
+  except
+  end;
+end;
+
+function TMapType.LoadFile(btm: TBitmap32; APath: string; caching:boolean): boolean;
 var
   VManager: IBitmapTypeExtManager;
 begin
@@ -926,32 +954,11 @@ begin
     exit;
   end;
   try
-    if (btm is TBitmap32) then begin
-      VManager := BitmapTypeManager;
-      if VManager.GetIsBitmapExt(TileFileExt) then begin
-        VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, TBitmap32(btm));
-      end else begin
-        raise Exception.Create('У этой карты не растровые тайлы');
-      end;
+    VManager := BitmapTypeManager;
+    if VManager.GetIsBitmapExt(TileFileExt) then begin
+      VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, btm);
     end else begin
-      if (btm is TPicture) then
-        TPicture(btm).LoadFromFile(Apath)
-      else if (btm is TJPEGimage) then
-        TJPEGimage(btm).LoadFromFile(Apath)
-      else if (btm is TPNGObject) then begin
-       if not(caching) then begin
-         TPNGObject(btm).LoadFromFile(Apath)
-       end else begin
-         if not GState.MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
-          TPNGObject(btm).LoadFromFile(Apath);
-          GState.MainFileCache.AddTileToCache(btm, Apath);
-         end;
-       end
-      end
-      else if (btm is TKML) then
-        TKML(btm).LoadFromFile(Apath)
-      else if (btm is TGraphic) then
-        TGraphic(btm).LoadFromFile(Apath);
+      raise Exception.Create('У этой карты не растровые тайлы');
     end;
     result:=true;
   except
