@@ -500,7 +500,7 @@ begin
             CmBExpSatYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(MapType[i]);
             CmBExpMapYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(MapType[i]);
           end;
-        end else if(MapType[i].TileFileExt='.png') then begin
+        end else if(MapType[i].IsHybridLayer) then begin
           CmBExpHib.Items.AddObject(MapType[i].name,MapType[i]);
           CmBExpHibYa.Items.AddObject(MapType[i].name,MapType[i]);
           if (MapType[i].active)and(CmBExpHib.ItemIndex=-1) then begin
