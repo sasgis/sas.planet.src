@@ -2525,6 +2525,7 @@ var
   VWaitResult: DWORD;
   i:integer;
 begin
+  FillingMap.Terminate;
  for i := 0 to Screen.FormCount - 1 do begin
   if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
    Screen.Forms[i].Close;
@@ -2544,6 +2545,11 @@ begin
  if length(GState.MapType)<>0 then FSettings.Save;
  FreeAndNil(GMiniMap);
  FreeAndNil(LayerMapScale);
+ FreeAndNil(LayerStatBar);
+ FreeAndNil(LayerScaleLine);
+ FreeAndNil(LayerMapGPS);
+ FreeAndNil(LayerMapMarks);
+ FreeAndNil(LayerSelection);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);

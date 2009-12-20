@@ -1367,6 +1367,11 @@ begin
   FreeAndNil(FInitDownloadCS);
   FreeAndNil(FCSSaveTile);
   FreeAndNil(FCSSaveTNF);
+  FreeAndNil(FUrlGenerator);
+  FreeAndNil(Fbmp18);
+  FreeAndNil(Fbmp24);
+  FCoordConverter := nil;
+  FPoolOfDownloaders := nil;
   inherited;
 end;
 
