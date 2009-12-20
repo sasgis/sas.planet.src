@@ -221,16 +221,11 @@ var
 implementation
 
 uses
-  pngimage,
-  IJL,
-  jpeg,
-  gifimage,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
   Usettings,
   unit1,
-  UGeoFun,
   UFillingMap,
   UIMGFun,
   DateUtils,
