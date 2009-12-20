@@ -271,7 +271,7 @@ begin
   for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
 
   GMiniMap.maptype:=nil;
-  fillingmaptype:=nil;
+  FMain.fillingmaptype:=nil;
   i:=length(MapType)-1;
 
   if i>0 then begin

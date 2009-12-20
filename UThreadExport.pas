@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function UniLoadTile(var bmp:TBitmap32; TypeMapArr:TmapType; ATargetProjection: byte; p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
+function UniLoadTile(var bmp:TBitmap32; ATypeMap: TmapType; ATargetProjection: byte; p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
 var
   bmp2,bmp1:TBitmap32;
   res1,res2:boolean;
@@ -149,7 +149,7 @@ begin
     try
       bmp2.DrawMode:=dmBlend;
       try
-        if (not(TypeMapArr.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
+        if (not(ATypeMap.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
           bmp1.width:=256;
           bmp1.Height:=256;
           bmp1.Clear(Color32(GState.BGround));
@@ -167,9 +167,9 @@ begin
         bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp1);
       end;
 
-      if ATargetProjection<>TypeMapArr.projection then begin
+      if ATargetProjection<>ATypeMap.projection then begin
         try
-          if (not(TypeMapArr.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
+          if (not(ATypeMap.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
             bmp2.width:=256;
             bmp2.Height:=256;
             bmp2.Clear(Color32(GState.BGround));

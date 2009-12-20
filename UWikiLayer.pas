@@ -99,7 +99,7 @@ begin
  FMain.LayerMapWiki.Visible:=false;
 end;
 
-procedure loadWL(Alayer:TMapType);
+procedure loadWL(Alayer: TMapType);
 var
     Ax,Ay,i,j,ii,Azoom:integer;
     APos:TPoint;

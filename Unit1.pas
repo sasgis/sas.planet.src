@@ -592,6 +592,7 @@ type
     LayerMapMarks: TMapMarksLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
+    fillingmaptype: TMapType;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     MapMoving: Boolean;
@@ -619,7 +620,7 @@ type
     procedure draw_point;
     class   function  str2r(inp: string): real;
     procedure paint_Line;
-    procedure selectMap(num: TMapType);
+    procedure selectMap(AMapType: TMapType);
     procedure generate_granica;
     procedure drawLineGPS;
     procedure ShowCaptcha(URL: string);
@@ -2759,25 +2760,28 @@ end;
 procedure TFmain.N21Click(Sender: TObject);
 var
   path:string;
-  AMapType:TMapType;
+  VMapType:TMapType;
   VLoadPoint: TPoint;
   VZoomCurr: Byte;
   VPoint: TPoint;
 begin
- if TMenuItem(sender).Tag=0 then AMapType:=sat_map_both
-                            else AMapType:=TMapType(TMenuItem(sender).Tag);
- VZoomCurr := GState.zoom_size - 1;
- VPoint := VisiblePixel2MapPixel(MouseUpPoint);
- sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
- AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
- path:=AMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
+  if TMenuItem(sender).Tag=0 then begin
+    VMapType := sat_map_both;
+  end else begin
+    VMapType := TMapType(TMenuItem(sender).Tag);
+  end;
+  VZoomCurr := GState.zoom_size - 1;
+  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
+  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+  VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
+  path := VMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
 
- if ((not(AMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
-  (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
- then begin
-  TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, AMapType);
- end;
+  if ((not(VMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
+    (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
+  then begin
+    TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, VMapType);
+  end;
 end;
 
 procedure TFmain.N11Click(Sender: TObject);
@@ -2843,25 +2847,25 @@ end;
 procedure TFmain.NDelClick(Sender: TObject);
 var
   s:string;
-  AMapType:TMapType;
+  VMapType:TMapType;
   VLoadPoint: TPoint;
   VZoomCurr: Byte;
   VPoint: TPoint;
 begin
   if TMenuItem(sender).Tag=0 then begin
-    AMapType:=sat_map_both;
+    VMapType:=sat_map_both;
   end else begin
-    AMapType:=TMapType(TMenuItem(sender).Tag);
+    VMapType:=TMapType(TMenuItem(sender).Tag);
   end;
   VZoomCurr := GState.zoom_size - 1;
   VPoint := VisiblePixel2MapPixel(MouseUpPoint);
   sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, AMapType.GeoConvert);
-  AMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
-  s:=AMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+  VLoadPoint := sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+  VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
+  s:=VMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
   if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
-    if AMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then begin
-      AMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+    if VMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then begin
+      VMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
     end;
     generate_im(nilLastLoad,'');
   end;
@@ -2945,42 +2949,43 @@ begin
  ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
 end;
 
-procedure TFmain.selectMap(num:TMapType);
-var ll:TExtendedPoint;
-    i:integer;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+procedure TFmain.selectMap(AMapType: TMapType);
+var
+  ll:TExtendedPoint;
+  i:integer;
+  VZoomCurr: Byte;
+  VPoint: TPoint;
 begin
- if MapZoomAnimtion=1 then exit;
- VZoomCurr := GState.zoom_size - 1;
- VPoint := ScreenCenterPos;
- sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- LL:=sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
- if not(num.asLayer) then
-  begin
-   if (num.showinfo)and(num.MapInfo<>'') then
-    begin
-     ShowMessage(num.MapInfo);
-     num.showinfo:=false;
+  if MapZoomAnimtion=1 then exit;
+  VZoomCurr := GState.zoom_size - 1;
+  VPoint := ScreenCenterPos;
+  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  LL:=sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  if not(AMapType.asLayer) then begin
+    if (AMapType.showinfo)and(AMapType.MapInfo<>'') then begin
+      ShowMessage(AMapType.MapInfo);
+      AMapType.showinfo:=false;
     end;
-   sat_map_both.TBItem.Checked:=false;
-   sat_map_both.active:=false;
-   sat_map_both:=num;
-   TBSMB.ImageIndex:=sat_map_both.TBItem.ImageIndex;
-   sat_map_both.TBItem.Checked:=true;
-   sat_map_both.active:=true;
-   if GState.Showmapname then TBSMB.Caption:=sat_map_both.name
-                  else TBSMB.Caption:='';
-  end else
-  begin
-   num.active:=not(num.active);
-   For i:=0 to length(MapType)-1 do
-    if maptype[i].asLayer then
-    begin
-     MapType[i].TBItem.Checked:=MapType[i].active;
+    sat_map_both.TBItem.Checked:=false;
+    sat_map_both.active:=false;
+    sat_map_both := AMapType;
+    TBSMB.ImageIndex := sat_map_both.TBItem.ImageIndex;
+    sat_map_both.TBItem.Checked:=true;
+    sat_map_both.active:=true;
+    if GState.Showmapname then begin
+      TBSMB.Caption:=sat_map_both.name;
+    end else begin
+      TBSMB.Caption:='';
+    end;
+  end else begin
+    AMapType.active := not(AMapType.active);
+    for i:=0 to length(MapType)-1 do begin
+      if maptype[i].asLayer then begin
+        MapType[i].TBItem.Checked:=MapType[i].active;
+      end;
     end;
   end;
- topos(ll,GState.zoom_size,false);
+  topos(ll,GState.zoom_size,false);
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -3209,31 +3214,34 @@ begin
 end;
 
 procedure TFmain.NMMtype_0Click(Sender: TObject);
+var
+  VItem: TTBXItem;
+  VMap: TMapType;
 begin
- if TTBXItem(sender).Tag=0 then begin
-                                  if GMiniMap.MapType<>nil then begin
-                                    GMiniMap.MapType.ShowOnSmMap:=false;
-                                    GMiniMap.MapType.NSmItem.Checked:=false;
-                                    GMiniMap.maptype:=nil;
-                                  end;  
-                                  NMMtype_0.Checked:=true;
-                                 end
- else
- if TMapType(TTBXItem(sender).Tag).asLayer then
-   begin
-    TMapType(TTBXItem(sender).Tag).ShowOnSmMap:=not(TMapType(TTBXItem(sender).Tag).ShowOnSmMap);
-    TTBXItem(sender).Checked:=TMapType(TTBXItem(sender).Tag).ShowOnSmMap;
-   end else
-   begin
-    NMMtype_0.Checked:=false;
-    if GMiniMap.maptype<>nil then begin
-                                        GMiniMap.MapType.ShowOnSmMap:=false;
-                                        GMiniMap.MapType.NSmItem.Checked:=false;
-                                       end;
-    GMiniMap.maptype:=TMapType(TTBXItem(sender).Tag);
-    GMiniMap.maptype.NSmItem.Checked:=true;
-    GMiniMap.maptype.ShowOnSmMap:=true;
-   end;
+  VItem := TTBXItem(sender);
+  if VItem.Tag = 0 then begin
+    if GMiniMap.MapType <> nil then begin
+      GMiniMap.MapType.ShowOnSmMap := false;
+      GMiniMap.MapType.NSmItem.Checked := false;
+      GMiniMap.maptype := nil;
+    end;
+    NMMtype_0.Checked := true;
+  end else begin
+    VMap := TMapType(VItem.Tag);
+    if VMap.asLayer then begin
+      VMap.ShowOnSmMap := not(VMap.ShowOnSmMap);
+      VItem.Checked := VMap.ShowOnSmMap;
+    end else begin
+      NMMtype_0.Checked := false;
+      if GMiniMap.maptype <> nil then begin
+        GMiniMap.MapType.ShowOnSmMap := false;
+        GMiniMap.MapType.NSmItem.Checked := false;
+      end;
+      GMiniMap.maptype := VMap;
+      GMiniMap.maptype.NSmItem.Checked:=true;
+      GMiniMap.maptype.ShowOnSmMap:=true;
+    end;
+  end;
   GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
 end;
 
@@ -3764,9 +3772,12 @@ end;
 
 procedure TFmain.NMapParamsClick(Sender: TObject);
 begin
- if TTBXItem(sender).Tag=0 then FEditMap.AmapType:=sat_map_both
-                           else FEditMap.AmapType:=TMapType(TTBXItem(sender).Tag);
- FEditMap.ShowModal;
+  if TTBXItem(sender).Tag=0 then begin
+    FEditMap.FMapType := sat_map_both;
+  end else begin
+    FEditMap.FMapType := TMapType(TTBXItem(sender).Tag);
+  end;
+  FEditMap.ShowModal;
 end;
 
 procedure TFmain.LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

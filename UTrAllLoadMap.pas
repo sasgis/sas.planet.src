@@ -41,7 +41,14 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(ALog: ILogSimple; APolygon_:TPointArray; Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);overload;
+    constructor Create(
+      ALog: ILogSimple;
+      APolygon_:TPointArray;
+      Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
+      AZoom: byte;
+      Atypemap: TMapType;
+      AFDate: TDateTime
+    );overload;
     constructor Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean); overload;
     destructor Destroy; override;
 
@@ -72,7 +79,14 @@ uses
   UGeoFun,
   UResStrings;
 
-constructor ThreadAllLoadMap.Create(ALog: ILogSimple; APolygon_:TPointArray;Azamena,ACheckExistTileSize,Azdate,ASecondLoadTNE:boolean;AZoom:byte;Atypemap:TMapType;AFDate:TDateTime);
+constructor ThreadAllLoadMap.Create(
+  ALog: ILogSimple;
+  APolygon_: TPointArray;
+  Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
+  AZoom: byte;
+  Atypemap: TMapType;
+  AFDate: TDateTime
+);
 var
   i: integer;
 begin
