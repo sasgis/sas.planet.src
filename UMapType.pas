@@ -582,8 +582,6 @@ var
   GUID:TGUID;
   guidstr : string;
   bfloat:string;
-  bb:array [1..2048] of char;
-  NumRead : integer;
   UnZip:TVCLZip;
 begin
   if AZipFileName = '' then begin
@@ -630,11 +628,8 @@ begin
       MapParams:=TMemoryStream.Create;
       try
         UnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
-        MapParams.Position:=0;
-        repeat
-          NumRead:=MapParams.Read(bb,SizeOf(bb));
-          FGetURLScript:=FGetURLScript+copy(bb,1, NumRead);
-        until (NumRead = 0);
+        FGetURLScript := PChar(MapParams.Memory);
+        SetLength(FGetURLScript, MapParams.Size);
       finally
         FreeAndNil(MapParams);
       end;
