@@ -190,7 +190,8 @@ type
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
     function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
     procedure CreateDirIfNotExists(APath:string);
-    procedure SaveTileInCache(btm:TObject;path:string);
+    procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
+    procedure SaveTileInCache(btm: TStream; path: string); overload;
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
     procedure SaveTileKmlDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
@@ -1020,7 +1021,7 @@ begin
       VPath := GetTileFileName(AXY, Azoom);
       FCSSaveTile.Acquire;
       try
-      result := DeleteFile(PChar(VPath));
+        result := DeleteFile(PChar(VPath));
       finally
         FCSSaveTile.Release;
       end;
@@ -1120,11 +1121,7 @@ procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
 var
   VPath: String;
-  jpg:TJPEGImage;
-  btm:TBitmap;
-  png:TBitmap32;
   btmSrc:TBitmap32;
-  btmDest:TBitmap32;
   VManager: IBitmapTypeExtManager;
 begin
   VPath := GetTileFileName(AXY, Azoom);
@@ -1202,51 +1199,39 @@ begin
   Self.SaveTileDownload(Point(X shr 8, Y shr 8), Azoom - 1, ATileStream, ty);
 end;
 
-procedure TMapType.SaveTileInCache(btm:TObject;path:string);
+procedure TMapType.SaveTileInCache(btm: TBitmap32; path: string);
 var
-    Jpg_ex:TJpegImage;
-    png_ex:TPNGObject;
-    Gif_ex:TGIFImage;
-    btm_ex:TBitmap;
+  VManager: IBitmapTypeExtManager;
 begin
- if (btm is TBitmap32) then
-  begin
-   btm_ex:=TBitmap.Create;
-   btm_ex.Assign(btm as TBitmap32);
-   if UpperCase(ExtractFileExt(path))='.JPG' then
-    begin
-     Jpg_ex:=TJpegImage.Create;
-     Jpg_ex.CompressionQuality:=85;
-     Jpg_ex.Assign(btm_ex);
-     Jpg_ex.SaveToFile(path);
-     Jpg_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.GIF' then
-    begin
-     Gif_ex:=TGifImage.Create;
-     Gif_ex.Assign(btm_ex);
-     Gif_ex.SaveToFile(path);
-     Gif_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.PNG' then
-    begin
-     PNG_ex:=TPNGObject.Create;
-     PNG_ex.Assign(btm_ex);
-     PNG_ex.SaveToFile(path);
-     PNG_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.BMP' then btm_ex.SaveToFile(path);
-   btm_ex.Free;
+  VManager := BitmapTypeManager;
+  FCSSaveTile.Acquire;
+  try
+    VManager.GetBitmapSaverForExt(TileFileExt).SaveToFile(btm, path);
+  finally
+    FCSSaveTile.Release;
   end;
- FCSSaveTile.Acquire;
- try
- if (btm is TJPEGimage) then TJPEGimage(btm).SaveToFile(path) else
- if (btm is TPNGObject) then TPNGObject(btm).SaveToFile(path) else
- if (btm is TMemoryStream) then TMemoryStream(btm).SaveToFile(path) else
- if (btm is TPicture) then TPicture(btm).SaveToFile(path);
- finally
-  FCSSaveTile.Release;
- end;
+end;
+
+procedure TMapType.SaveTileInCache(btm: TStream; path: string);
+var
+  VStream: TMemoryStream;
+begin
+  FCSSaveTile.Acquire;
+  try
+    if btm is TMemoryStream then begin
+      TMemoryStream(btm).SaveToFile(path);
+    end else begin
+      VStream := TMemoryStream.Create();
+      try
+        VStream.LoadFromStream(btm);
+        VStream.SaveToFile(path);
+      finally
+        VStream.Free;
+      end;
+    end;
+  finally
+    FCSSaveTile.Release;
+  end;
 end;
 
 function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
