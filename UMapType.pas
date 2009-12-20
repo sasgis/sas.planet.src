@@ -60,6 +60,8 @@ type
     function GetUseStick: boolean;
     function GetShowOnSmMap: boolean;
     procedure SetShowOnSmMap(const Value: boolean);
+    function GetIsCropOnDownload: Boolean;
+    function GetIsBitmapTiles: Boolean;
    public
     id: integer;
     guids: string;
@@ -161,6 +163,7 @@ type
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
+    property IsBitmapTiles: Boolean read GetIsBitmapTiles; 
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
@@ -168,6 +171,7 @@ type
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
     property ContentType: string read FContent_Type;
+    property IsCropOnDownload: Boolean read GetIsCropOnDownload;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     constructor Create;
@@ -1594,6 +1598,31 @@ end;
 procedure TMapType.SetShowOnSmMap(const Value: boolean);
 begin
   FShowOnSmMap := Value;
+end;
+
+function TMapType.GetIsCropOnDownload: Boolean;
+begin
+  if (FTileRect.Left<>0)
+    or (FTileRect.Top<>0)
+    or (FTileRect.Right<>0)
+    or (FTileRect.Bottom<>0)
+  then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TMapType.GetIsBitmapTiles: Boolean;
+begin
+  if SameText(TileFileExt, '.jpg')
+    or SameText(TileFileExt, '.png')
+    or SameText(TileFileExt, '.gif')
+  then begin
+    Result := true;
+  end else begin
+    Result := false;
+  end;
 end;
 
 end.
