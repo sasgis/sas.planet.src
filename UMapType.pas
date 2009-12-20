@@ -23,6 +23,7 @@ uses
   i_ICoordConverter,
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
+  i_IBitmapTypeExtManager,
   u_TileDownloaderBase,
   u_UrlGenerator,
   UKmlParse,
@@ -60,6 +61,7 @@ type
     function GetUseStick: boolean;
     function GetShowOnSmMap: boolean;
     procedure SetShowOnSmMap(const Value: boolean);
+    function GetBitmapTypeManager: IBitmapTypeExtManager;
     function GetIsCropOnDownload: Boolean;
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -127,8 +129,10 @@ type
     function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean; overload;
     function TileNotExistsOnServer(AXY: TPoint;Azoom:byte): Boolean; overload;
 
-    function LoadTile(btm:Tobject; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:Tobject; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TBitmap32; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TKML; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm:TKML; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
 
     function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean; overload;
     function LoadTileFromPreZ(spr:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
@@ -136,8 +140,8 @@ type
     function DeleteTile(x,y:longint; Azoom:byte): Boolean; overload;
     function DeleteTile(AXY: TPoint; Azoom:byte): Boolean; overload;
 
-    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm:TObject); overload;
-    procedure SaveTileSimple(AXY: TPoint; Azoom:byte; btm:TObject); overload;
+    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm: TBitmap32); overload;
+    procedure SaveTileSimple(AXY: TPoint; Azoom:byte; btm: TBitmap32); overload;
 
     procedure SaveTileNotExists(x,y:longint;Azoom:byte); overload;
     procedure SaveTileNotExists(AXY: TPoint; Azoom:byte); overload;
@@ -178,6 +182,7 @@ type
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
+    property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
     destructor Destroy; override;
@@ -191,12 +196,17 @@ type
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
-    function LoadFile(btm:Tobject; APath: string; caching:boolean):boolean;
+    procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
+    function LoadFile(btm:TBitmap32; APath: string; caching:boolean):boolean; overload;
+    function LoadFile(btm:TKml; APath: string; caching:boolean):boolean; overload;
     procedure CreateDirIfNotExists(APath:string);
-    procedure SaveTileInCache(btm:TObject;path:string);
+    procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
+    procedure SaveTileInCache(btm: TStream; path: string); overload;
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
-  end;
+    procedure SaveTileKmlDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileBitmapDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
+ end;
 
 var
   MapType:array of TMapType;
@@ -211,16 +221,11 @@ var
 implementation
 
 uses
-  pngimage,
-  IJL,
-  jpeg,
-  gifimage,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
   Usettings,
   unit1,
-  UGeoFun,
   UFillingMap,
   UIMGFun,
   DateUtils,
@@ -802,132 +807,6 @@ begin
   SysUtils.FindClose(InfoFile);
 end;
 
-function LoadGIF(FileName: string; Btm: TBitmap32): boolean;
-var
-  gif: TGIFImage;
-  p: PColor32;
-  c: TColor32;
-  h,w: integer;
-begin
-  try
-    result:=true;
-    gif:=TGIFImage.Create;
-    gif.LoadFromFile(FileName);
-    Btm.DrawMode:=dmOpaque;
-    If (gif.isTransparent) then begin
-      c:=Color32(gif.Images[0].GraphicControlExtension.TransparentColor);
-      gif.Images[0].GraphicControlExtension.Transparent:=false;
-      Btm.Assign(gif);
-      p := @Btm.Bits[0];
-      for H:=0 to Btm.Height-1 do begin
-        for W:=0 to Btm.Width-1 do begin
-          if p^=c then begin
-            p^:=$00000000;
-          end;
-          inc(p);
-        end;
-      end;
-    end else begin
-      Btm.Assign(gif);
-    end;
-    gif.Free;
-  except
-    result:=false;
-  end;
-end;
-
-function LoadPNG(FileName: string; Btm: TBitmap32): boolean;
-var
-  png:TPNGObject;
-begin
-  try
-    result:=true;
-    png:=TPNGObject.Create;
-    try
-      png.LoadFromFile(FileName);
-      Btm.DrawMode:=dmOpaque;
-      PNGintoBitmap32(btm,png);
-    finally
-      png.Free;
-    end;
-  except
-    result:=false;
-  end;
-end;
-
-function LoadJPG32(FileName: string; Btm: TBitmap32): boolean;
-  procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
-  var W, H : Integer;
-      p : PIntegerArray;
-  begin
-    p := PIntegerArray(pData);
-    for H := 0 to Height-1 do begin
-      for W := 0 to Width-1 do begin
-        p^[W]:=(p^[W] and $FF000000)or((p^[W] and $00FF0000) shr 16)or(p^[W] and $0000FF00)or((p^[W] and $000000FF) shl 16);
-      end;
-      inc(p,width)
-    end;
-  end;
-var
-  iWidth, iHeight, iNChannels : Integer;
-  iStatus : Integer;
-  jcprops : TJPEG_CORE_PROPERTIES;
-begin
- try
-    result:=true;
-    iStatus := ijlInit(@jcprops);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-
-    jcprops.JPGFile := PChar(FileName);
-    iStatus := ijlRead(@jcprops,IJL_JFILE_READPARAMS);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    iWidth := jcprops.JPGWidth;
-    iHeight := jcprops.JPGHeight;
-    iNChannels := 4;
-    Btm.SetSize(iWidth,iHeight);
-    jcprops.DIBWidth := iWidth;
-    jcprops.DIBHeight := iHeight;
-    jcprops.DIBChannels := iNChannels;
-    jcprops.DIBColor := IJL_RGBA_FPX;
-    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
-    jcprops.DIBBytes := PByte(Btm.Bits);
-
-    if (jcprops.JPGChannels = 3) then
-      jcprops.JPGColor := IJL_YCBCR
-    else if (jcprops.JPGChannels = 4) then
-      jcprops.JPGColor := IJL_YCBCRA_FPX
-    else if (jcprops.JPGChannels = 1) then
-      jcprops.JPGColor := IJL_G
-    else
-    begin
-      jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
-      jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
-    end;
-    iStatus := ijlRead(@jcprops,IJL_JFILE_READWHOLEIMAGE);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
-    ijlFree(@jcprops);
-  except
-    on E: Exception do
-    begin
-      result:=false;
-      ijlFree(@jcprops);
-    end;
-  end;
-end;
-
 function TMapType.LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint;
   Azoom: byte; caching: boolean): boolean;
 begin
@@ -986,13 +865,19 @@ begin
   Result := true;
 end;
 
-function TMapType.LoadTile(btm: Tobject; AXY: TPoint; Azoom: byte;
+function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 begin
   Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
 end;
 
-function TMapType.LoadTile(btm: Tobject; x,y:longint;Azoom:byte;
+function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+begin
+  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
+end;
+
+function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 var path: string;
 begin
@@ -1009,6 +894,18 @@ begin
   end;
 end;
 
+function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+  caching: boolean): boolean;
+var path: string;
+begin
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    raise Exception.Create('Из GE кеша можно получать только растры');
+  end else begin
+    path := GetTileFileName(x, y, Azoom);
+    result:= LoadFile(btm, path, caching);
+  end;
+end;
+
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: string;
@@ -1019,7 +916,7 @@ begin
       VPath := GetTileFileName(AXY, Azoom);
       FCSSaveTile.Acquire;
       try
-      result := DeleteFile(PChar(VPath));
+        result := DeleteFile(PChar(VPath));
       finally
         FCSSaveTile.Release;
       end;
@@ -1036,57 +933,32 @@ begin
   Result := Self.DeleteTile(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
-function TMapType.LoadFile(btm: Tobject; APath: string; caching:boolean): boolean;
+function TMapType.LoadFile(btm: TKML; APath: string; caching:boolean): boolean;
 begin
   Result := false;
   if GetFileSize(Apath)=0 then begin
     exit;
   end;
   try
-    if (btm is TBitmap32) then begin
-      if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), Apath)) then begin
-        if ExtractFileExt(Apath)='.jpg' then begin
-          if not(LoadJPG32(Apath,TBitmap32(btm))) then begin
-            result:=false;
-            exit;
-          end;
-        end else
-        if ExtractFileExt(Apath)='.png' then begin
-          if not(LoadPNG(Apath,TBitmap32(btm))) then begin
-            result:=false;
-            exit;
-          end;
-        end else
-        if ExtractFileExt(Apath)='.gif' then begin
-          if not(LoadGif(Apath,TBitmap32(btm))) then begin
-            result:=false;
-            exit;
-          end;
-        end else begin
-          TBitmap32(btm).LoadFromFile(Apath);
-        end;
-        result:=true;
-        if (caching) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), Apath);
-      end
+    btm.LoadFromFile(Apath)
+  except
+  end;
+end;
+
+function TMapType.LoadFile(btm: TBitmap32; APath: string; caching:boolean): boolean;
+var
+  VManager: IBitmapTypeExtManager;
+begin
+  Result := false;
+  if GetFileSize(Apath)=0 then begin
+    exit;
+  end;
+  try
+    VManager := BitmapTypeManager;
+    if VManager.GetIsBitmapExt(TileFileExt) then begin
+      VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, btm);
     end else begin
-      if (btm is TPicture) then
-        TPicture(btm).LoadFromFile(Apath)
-      else if (btm is TJPEGimage) then
-        TJPEGimage(btm).LoadFromFile(Apath)
-      else if (btm is TPNGObject) then begin
-       if not(caching) then begin
-         TPNGObject(btm).LoadFromFile(Apath)
-       end else begin
-         if not GState.MainFileCache.TryLoadFileFromCache(btm, Apath) then begin
-          TPNGObject(btm).LoadFromFile(Apath);
-          GState.MainFileCache.AddTileToCache(btm, Apath);
-         end;
-       end
-      end
-      else if (btm is TKML) then
-        TKML(btm).LoadFromFile(Apath)
-      else if (btm is TGraphic) then
-        TGraphic(btm).LoadFromFile(Apath);
+      raise Exception.Create('У этой карты не растровые тайлы');
     end;
     result:=true;
   except
@@ -1115,137 +987,121 @@ begin
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
 end;
 
-procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
-  ATileStream: TCustomMemoryStream; ty: string);
-begin
-  Self.SaveTileDownload(AXY.X shl 8, AXY.Y shl 8, Azoom + 1, ATileStream, ty);
-end;
-
-
-procedure TMapType.SaveTileDownload(x, y: Integer; Azoom: byte;
+procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
 var
   VPath: String;
-    jpg:TJPEGImage;
-    btm:TBitmap;
-    png:TBitmap32;
-    btmSrc:TBitmap32;
-    btmDest:TBitmap32;
-    UnZip:TVCLUnZip;
+  btmSrc:TBitmap32;
+  VManager: IBitmapTypeExtManager;
 begin
-  if UseSave then begin
-    VPath := GetTileFileName(x, y, Azoom);
-
-    CreateDirIfNotExists(VPath);
-    if TileFileExt='.kml' then begin
-      if (ty='application/vnd.google-earth.kmz') then begin
-        try
-          UnZip:=TVCLUnZip.Create(Fmain);
-          UnZip.ArchiveStream:=TMemoryStream.Create;
-          ATileStream.SaveToStream(UnZip.ArchiveStream);
-          UnZip.ReadZip;
-          ATileStream.Position:=0;
-          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-          UnZip.Free;
-          SaveTileInCache(ATileStream,Vpath);
-          ban_pg_ld:=true;
-        except
-          try
-            SaveTileInCache(ATileStream,Vpath);
-          except
-          end;
-        end;
-      end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-        SaveTileInCache(ATileStream,Vpath);
-        ban_pg_ld:=true;
-      end;
-    end else begin
+  VPath := GetTileFileName(AXY, Azoom);
+  CreateDirIfNotExists(VPath);
+  VManager := BitmapTypeManager;
+  if VManager.GetIsBitmapType(ty) then begin
+    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(ty)) then begin
       SaveTileInCache(ATileStream,Vpath);
-      if (FTileRect.Left<>0)or(FTileRect.Top<>0)or
-        (FTileRect.Right<>0)or(FTileRect.Bottom<>0) then begin
-        btmsrc:=TBitmap32.Create;
-        btmDest:=TBitmap32.Create;
-        try
-          btmSrc.Resampler:=TLinearResampler.Create;
-          if LoadFile(btmsrc,Vpath,false) then begin
-            btmDest.SetSize(256,256);
-            btmdest.Draw(bounds(0,0,256,256),FTileRect,btmSrc);
-            SaveTileInCache(btmDest,Vpath);
-          end;
-        except
-        end;
-        btmSrc.Free;
-        btmDest.Free;
-      end;
+    end else begin
+      btmsrc := TBitmap32.Create;
+      VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
 
+      if IsCropOnDownload then begin
+        CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
+      end;
+      SaveTileInCache(btmSrc, VPath);
+    end;
+    ban_pg_ld:=true;
+    GState.MainFileCache.DeleteFileFromCache(Vpath);
+  end else begin
+    SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
+  end;
+end;
+
+procedure TMapType.SaveTileKmlDownload(AXY: TPoint; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+var
+  VPath: String;
+  UnZip:TVCLUnZip;
+begin
+  VPath := GetTileFileName(AXY, Azoom);
+  CreateDirIfNotExists(VPath);
+  if (ty='application/vnd.google-earth.kmz') then begin
+    try
+      UnZip:=TVCLUnZip.Create(Fmain);
+      UnZip.ArchiveStream:=TMemoryStream.Create;
+      ATileStream.SaveToStream(UnZip.ArchiveStream);
+      UnZip.ReadZip;
+      ATileStream.Position:=0;
+      UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+      UnZip.Free;
+      SaveTileInCache(ATileStream,Vpath);
       ban_pg_ld:=true;
-      if (ty='image/png')and(TileFileExt='.jpg') then begin
-        btm:=TBitmap.Create;
-        png:=TBitmap32.Create;
-        jpg:=TJPEGImage.Create;
-        RenameFile(Vpath,ChangeFileExt(Vpath,'.png'));
-        if LoadFile(png,ChangeFileExt(Vpath,'.png'), false) then begin
-          btm.Assign(png);
-          jpg.Assign(btm);
-          SaveTileInCache(jpg,Vpath);
-          DeleteFile(ChangeFileExt(Vpath,'.png'));
-          btm.Free;
-          jpg.Free;
-          png.Free;
-        end;
+    except
+      try
+        SaveTileInCache(ATileStream,Vpath);
+      except
       end;
     end;
-    GState.MainFileCache.DeleteFileFromCache(Vpath);
+  end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
+    SaveTileInCache(ATileStream,Vpath);
+    ban_pg_ld:=true;
+  end;
+  GState.MainFileCache.DeleteFileFromCache(Vpath);
+end;
+
+procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
+begin
+  if UseSave then begin
+    if TileFileExt='.kml' then begin
+      SaveTileKmlDownload(AXY, Azoom, ATileStream, ty);
+    end else begin
+      SaveTileBitmapDownload(AXY, Azoom, ATileStream, ty);
+    end;
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
 end;
 
-procedure TMapType.SaveTileInCache(btm:TObject;path:string);
-var
-    Jpg_ex:TJpegImage;
-    png_ex:TPNGObject;
-    Gif_ex:TGIFImage;
-    btm_ex:TBitmap;
+
+procedure TMapType.SaveTileDownload(x, y: Integer; Azoom: byte;
+  ATileStream: TCustomMemoryStream; ty: string);
 begin
- if (btm is TBitmap32) then
-  begin
-   btm_ex:=TBitmap.Create;
-   btm_ex.Assign(btm as TBitmap32);
-   if UpperCase(ExtractFileExt(path))='.JPG' then
-    begin
-     Jpg_ex:=TJpegImage.Create;
-     Jpg_ex.CompressionQuality:=85;
-     Jpg_ex.Assign(btm_ex);
-     Jpg_ex.SaveToFile(path);
-     Jpg_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.GIF' then
-    begin
-     Gif_ex:=TGifImage.Create;
-     Gif_ex.Assign(btm_ex);
-     Gif_ex.SaveToFile(path);
-     Gif_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.PNG' then
-    begin
-     PNG_ex:=TPNGObject.Create;
-     PNG_ex.Assign(btm_ex);
-     PNG_ex.SaveToFile(path);
-     PNG_ex.Free;
-    end;
-   if UpperCase(ExtractFileExt(path))='.BMP' then btm_ex.SaveToFile(path);
-   btm_ex.Free;
+  Self.SaveTileDownload(Point(X shr 8, Y shr 8), Azoom - 1, ATileStream, ty);
+end;
+
+procedure TMapType.SaveTileInCache(btm: TBitmap32; path: string);
+var
+  VManager: IBitmapTypeExtManager;
+begin
+  VManager := BitmapTypeManager;
+  FCSSaveTile.Acquire;
+  try
+    VManager.GetBitmapSaverForExt(TileFileExt).SaveToFile(btm, path);
+  finally
+    FCSSaveTile.Release;
   end;
- FCSSaveTile.Acquire;
- try
- if (btm is TJPEGimage) then TJPEGimage(btm).SaveToFile(path) else
- if (btm is TPNGObject) then TPNGObject(btm).SaveToFile(path) else
- if (btm is TMemoryStream) then TMemoryStream(btm).SaveToFile(path) else
- if (btm is TPicture) then TPicture(btm).SaveToFile(path);
- finally
-  FCSSaveTile.Release;
- end;
+end;
+
+procedure TMapType.SaveTileInCache(btm: TStream; path: string);
+var
+  VStream: TMemoryStream;
+begin
+  FCSSaveTile.Acquire;
+  try
+    if btm is TMemoryStream then begin
+      TMemoryStream(btm).SaveToFile(path);
+    end else begin
+      VStream := TMemoryStream.Create();
+      try
+        VStream.LoadFromStream(btm);
+        VStream.SaveToFile(path);
+      finally
+        VStream.Free;
+      end;
+    end;
+  finally
+    FCSSaveTile.Release;
+  end;
 end;
 
 function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
@@ -1300,7 +1156,7 @@ begin
   Self.SaveTileNotExists(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
-procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TObject);
+procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32);
 var
   VPath: String;
 begin
@@ -1315,7 +1171,7 @@ begin
 end;
 
 procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
-  btm:TObject);
+  btm: TBitmap32);
 begin
   Self.SaveTileSimple(Point(x shr 8, y shr 8), Azoom - 1, btm);
 end;
@@ -1602,6 +1458,33 @@ end;
 procedure TMapType.SetShowOnSmMap(const Value: boolean);
 begin
   FShowOnSmMap := Value;
+end;
+
+function TMapType.GetBitmapTypeManager: IBitmapTypeExtManager;
+begin
+  Result := GState.BitmapTypeManager;
+end;
+
+procedure TMapType.CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
+var
+  VBtmSrc: TBitmap32;
+  VBtmDest: TBitmap32;
+begin
+  VBtmSrc := TBitmap32.Create;
+  try
+    VBtmSrc.Assign(ABtm);
+    VBtmSrc.Resampler := TLinearResampler.Create;
+    VBtmDest := TBitmap32.Create;
+    try
+      VBtmDest.SetSize(ATileSize.X, ATileSize.Y);
+      VBtmDest.Draw(Bounds(0, 0, ATileSize.X, ATileSize.Y), FTileRect, VBtmSrc);
+      ABtm.Assign(VBtmDest);
+    finally
+      VBtmDest.Free;
+    end;
+  finally
+    VBtmSrc.Free;
+  end;
 end;
 
 function TMapType.GetIsCropOnDownload: Boolean;
