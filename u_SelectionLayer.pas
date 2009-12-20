@@ -36,7 +36,7 @@ begin
   VSelectedLonLat.TopLeft := rect_arr[0];
   VSelectedLonLat.BottomRight := rect_arr[1];
   VZoomCurr := GState.zoom_size - 1;
-  VSelectedPixels := sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
+  VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
   VBitmapPixels.TopLeft := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
   VBitmapPixels.BottomRight := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
 

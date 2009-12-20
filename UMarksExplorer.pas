@@ -313,7 +313,7 @@ begin
  if (ms.Size>24)
      then begin
            for i:=0 to length(arLL)-2 do
-            result:=result+ sat_map_both.GeoConvert.CalcDist(arLL[i],arLL[i+1]);
+            result:=result+ GState.sat_map_both.GeoConvert.CalcDist(arLL[i],arLL[i+1]);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
@@ -337,7 +337,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)
      then begin
-           result:= sat_map_both.GeoConvert.CalcPoligonArea(arLL);
+           result:= GState.sat_map_both.GeoConvert.CalcPoligonArea(arLL);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);

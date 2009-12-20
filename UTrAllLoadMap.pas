@@ -153,9 +153,9 @@ begin
   finally
     ini.Free;
   end;
-  For i:=0 to length(MapType)-1 do begin
-    if IsEqualGUID(MapType[i].guid, VGuid) then begin
-      FTypeMap := MapType[i];
+  For i:=0 to length(GState.MapType)-1 do begin
+    if IsEqualGUID(GState.MapType[i].guid, VGuid) then begin
+      FTypeMap := GState.MapType[i];
     end;
   end;
   if FTypeMap = nil then Terminate;

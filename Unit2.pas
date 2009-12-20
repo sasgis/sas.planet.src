@@ -110,9 +110,9 @@ begin
  Fmain.CDSmarks.First;
  while (not(Fmain.CDSmarks.Eof))and((Fmain.CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
-  LL1:=sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonL.AsFloat,Fmain.CDSmarkslatT.AsFloat),GState.zoom_size-1);
+  LL1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonL.AsFloat,Fmain.CDSmarkslatT.AsFloat),GState.zoom_size-1);
   LL1 := Fmain.MapPixel2VisiblePixel(ll1);
-  LL2:=sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonR.AsFloat,Fmain.CDSmarkslatB.AsFloat),GState.zoom_size-1);
+  LL2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonR.AsFloat,Fmain.CDSmarkslatB.AsFloat),GState.zoom_size-1);
   LL2 := Fmain.MapPixel2VisiblePixel(ll2);
   if (xy.x+8>ll1.x)and(xy.x-8<ll2.x)and(xy.y+16>ll1.y)and(xy.y-16<ll2.y) then
   begin
@@ -124,7 +124,7 @@ begin
     SetLength(arLL,ms.size div 24);
     setlength(poly,ms.size div 24);
     for i:=0 to length(arLL)-1 do begin
-      arLL[i]:=sat_map_both.GeoConvert.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
+      arLL[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
       arLL[i] := Fmain.MapPixel2VisiblePixel(arLL[i]);
       poly[i]:=arrLL^[i];
     end;

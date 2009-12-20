@@ -112,7 +112,7 @@ begin
   for j:=0 to VSizeInTile.Y do
    begin
     Azoom:=GState.zoom_size;
-    APos := sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
+    APos := GState.sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
     if GState.CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),GState.zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
@@ -133,9 +133,9 @@ begin
  WikiLayer[lenLay-1]:=TWikiLayer.Create;
  With WikiLayer[lenLay-1] do
   begin
-   LT:=sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
+   LT:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
    LT := Fmain.MapPixel2LoadedPixel(LT);
-   RD:=sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesRD,GState.zoom_size-1);
+   RD:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesRD,GState.zoom_size-1);
    RD := Fmain.MapPixel2LoadedPixel(RD);
    if coordinatesLT.X=coordinatesRD.x then begin
      LT.X:=LT.X-3;
@@ -156,7 +156,7 @@ begin
    if length(coordinates)=1 then
     begin
      setLength(AarrKt,5);
-     AarrKt[0]:=sat_map_both.GeoConvert.LonLat2PixelPos(coordinates[0],GState.zoom_size-1);
+     AarrKt[0]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinates[0],GState.zoom_size-1);
      AarrKt[0] := Fmain.MapPixel2LoadedPixel(AarrKt[0]);
      AarrKt[1]:=Point(AarrKt[0].x+2,AarrKt[0].y-2);
      AarrKt[2]:=Point(AarrKt[0].x+2,AarrKt[0].y+2);
@@ -166,7 +166,7 @@ begin
     end
    else
    for i:=0 to length(coordinates)-1 do begin
-     AarrKt[i]:=sat_map_both.GeoConvert.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
+     AarrKt[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
      AarrKt[i]:=Fmain.MapPixel2LoadedPixel(AarrKt[i]);
    end;
    FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
