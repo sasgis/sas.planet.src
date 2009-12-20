@@ -62,6 +62,7 @@ type
     procedure SetShowOnSmMap(const Value: boolean);
     function GetIsCropOnDownload: Boolean;
     function GetIsBitmapTiles: Boolean;
+    function GetIsKmlTiles: Boolean;
    public
     id: integer;
     guids: string;
@@ -163,7 +164,8 @@ type
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
-    property IsBitmapTiles: Boolean read GetIsBitmapTiles; 
+    property IsBitmapTiles: Boolean read GetIsBitmapTiles;
+    property IsKmlTiles: Boolean read GetIsKmlTiles; 
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
@@ -1622,6 +1624,17 @@ begin
     Result := true;
   end else begin
     Result := false;
+  end;
+end;
+
+function TMapType.GetIsKmlTiles: Boolean;
+begin
+  if SameText(TileFileExt, '.kml')
+    or SameText(TileFileExt, '.kmz')
+  then begin
+    Result := True;
+  end else begin
+    Result := False;
   end;
 end;
 
