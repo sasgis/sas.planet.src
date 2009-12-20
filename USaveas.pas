@@ -488,7 +488,7 @@ begin
       end;
     end;
     if (MapType[i].UseSave) then begin
-      if((MapType[i].TileFileExt='.jpg')or(MapType[i].TileFileExt='.png')or(MapType[i].TileFileExt='.gif')) then begin
+      if MapType[i].IsBitmapTiles then begin
         if (not(MapType[i].asLayer)) then begin
           CmBExpSat.Items.AddObject(MapType[i].name,MapType[i]);
           CmBExpMap.Items.AddObject(MapType[i].name,MapType[i]);
