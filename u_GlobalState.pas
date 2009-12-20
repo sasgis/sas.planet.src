@@ -265,6 +265,7 @@ begin
   FreeAndNil(MainIni);
   FreeAndNil(MainFileCache);
   FreeMarkIcons;
+  FreeAndNil(GOToSelIcon);
   FreeAndNil(InetConnect);
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;

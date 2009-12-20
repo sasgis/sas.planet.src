@@ -2148,7 +2148,6 @@ begin
  LayerMapScale := TCenterScale.Create(map);
 
  FillingMap:=TFillingMap.create(true);
- FillingMap.FreeOnTerminate:=true;
  FillingMap.Priority:=tpLowest;
 
  LayerMapNal:=TBitmapLayer.Create(map.Layers);
@@ -2526,6 +2525,8 @@ var
   i:integer;
 begin
   FillingMap.Terminate;
+  Application.ProcessMessages;
+  FreeAndNil(FillingMap);
  for i := 0 to Screen.FormCount - 1 do begin
   if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
    Screen.Forms[i].Close;
