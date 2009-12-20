@@ -76,8 +76,8 @@ begin
   VSize := GetBitmapSizeInPixel;
   VZoomCurr := GState.zoom_size - 1;
   VPoint := FMain.VisiblePixel2MapPixel(m_m);
-  sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  ll := sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  ll := GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
   if GState.FirstLat then begin
     VLonLatStr := lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType);
   end else begin
@@ -89,12 +89,12 @@ begin
   FLayer.Bitmap.RenderText(29, 1, '| '+SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
 
   TameTZ := FMain.timezone(ll.x,ll.y);
-  subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
+  subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(GState.sat_map_both.radiusa*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
   FLayer.Bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
   posnext:=273+FLayer.Bitmap.TextWidth(subs2)+70;
   FLayer.Bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);
   posnext:=posnext+FLayer.Bitmap.TextWidth(SAS_STR_time+' '+TimeToStr(TameTZ))+10;
-  subs2:=sat_map_both.GetTileShowName(VPoint.X, VPoint.Y, GState.zoom_size);
+  subs2:=GState.sat_map_both.GetTileShowName(VPoint.X, VPoint.Y, GState.zoom_size);
   FLayer.Bitmap.RenderText(posnext,1,' | '+SAS_STR_load+' '+inttostr(GState.All_Dwn_Tiles)+' ('+kb2KbMbGb(GState.All_Dwn_Kb)+') | '+SAS_STR_file+' '+subs2, 0, clBlack32);
 end;
 

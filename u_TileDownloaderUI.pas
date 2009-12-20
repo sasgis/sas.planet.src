@@ -50,7 +50,7 @@ end;
 
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
- FTypeMap:=Sat_map_Both;
+ FTypeMap:=GState.Sat_map_Both;
  Upos:= FMain.ScreenCenterPos;
  FZoom:= GState.zoom_size;
  FSizeInTile := Fmain.LoadedSizeInTile;
@@ -113,10 +113,10 @@ begin
               if g=0 then i:=0;
               x:=(FSizeInTile.x div 2)+i;
               y:=(FSizeInTile.y div 2)+j;
-              for ii:=0 to length(MapType)-1 do begin
+              for ii:=0 to length(GState.MapType)-1 do begin
                 if Terminated then break;
                 if FMain.change_scene then Break;
-                VMap := MapType[ii];
+                VMap := GState.MapType[ii];
                 if VMap.active then begin
                   BPos:=UPos;
                   VZoom := FZoom - 1;

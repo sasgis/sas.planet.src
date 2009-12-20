@@ -15,6 +15,7 @@ uses
   u_GarbageCollectorThread,
   u_GeoToStr,
   Uimgfun,
+  UMapType,
   u_MemFileCache;
 
 type
@@ -185,6 +186,9 @@ type
 
     //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
     SessionLastSuccess:boolean;
+
+    MapType: array of TMapType;
+    sat_map_both: TMapType;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;

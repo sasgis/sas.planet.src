@@ -354,8 +354,8 @@ begin
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
- if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.guids);
+ if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.GUIDString);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
@@ -495,17 +495,17 @@ begin
   begin
    TMapType(MapList.Items.Item[i].data).id:=i+1;
   end;
-  k := length(MapType) shr 1;
+  k := length(GState.MapType) shr 1;
  while k>0 do
   begin
-   for i:=0 to length(MapType)-k-1 do
+   for i:=0 to length(GState.MapType)-k-1 do
     begin
       j:=i;
-      while (j>=0)and(MapType[j].id>MapType[j+k].id) do
+      while (j>=0)and(GState.MapType[j].id>GState.MapType[j+k].id) do
       begin
-        MTb:=MapType[j];
-        MapType[j]:=MapType[j+k];
-        MapType[j+k]:=MTb;
+        MTb:=GState.MapType[j];
+        GState.MapType[j]:=GState.MapType[j+k];
+        GState.MapType[j+k]:=MTb;
         if j>k then Dec(j,k)
                else j:=0;
       end;
@@ -645,7 +645,7 @@ begin
   begin
    CreateMapUI;
   end;
- Fmain.selectMap(sat_map_both);
+ Fmain.selectMap(GState.sat_map_both);
 end;
 
 procedure TFSettings.Button4Click(Sender: TObject);

@@ -116,14 +116,16 @@ constructor ThreadAllLoadMap.Create(ALog: ILogSimple; FileName:string;LastSucces
 var
   Ini: Tinifile;
   i: integer;
-  Guids: string;
+  VGuids: string;
+  VGuid: TGUID;
 begin
   inherited Create(false);
   FLog := ALog;
   Priority := tpLower;
   Ini:=TiniFile.Create(FileName);
   try
-    Guids:=Ini.ReadString('Session','MapGUID','');
+    VGuids:=Ini.ReadString('Session','MapGUID','');
+    VGuid := StringToGUID(VGuids);
     Fzoom := Ini.ReadInteger('Session', 'zoom', GState.zoom_size);
     FReplaceExistTiles := Ini.ReadBool('Session', 'zamena', false);
     FCheckExistTileSize := Ini.ReadBool('Session','raz', false);
@@ -151,9 +153,9 @@ begin
   finally
     ini.Free;
   end;
-  For i:=0 to length(MapType)-1 do begin
-    if MapType[i].guids=Guids then begin
-      FTypeMap := MapType[i];
+  For i:=0 to length(GState.MapType)-1 do begin
+    if IsEqualGUID(GState.MapType[i].guid, VGuid) then begin
+      FTypeMap := GState.MapType[i];
     end;
   end;
   if FTypeMap = nil then Terminate;
@@ -181,7 +183,7 @@ var
 begin
   Ini:=TiniFile.Create(AFileName);
   try
-    Ini.WriteString('Session', 'MapGUID', FTypeMap.guids);
+    Ini.WriteString('Session', 'MapGUID', FTypeMap.GUIDString);
     Ini.WriteInteger('Session', 'zoom', Fzoom);
     Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
     Ini.WriteBool('Session', 'raz', FCheckExistTileSize);

@@ -53,9 +53,9 @@ begin
   with FLayer.Bitmap do begin
     if GState.GPS_ShowPath then begin
       for i:=0 to length(GState.GPS_TrackPoints)-2 do begin
-        k1:=sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i],GState.zoom_size-1);
+        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i],GState.zoom_size-1);
         k1:=MapPixel2BitmapPixel(k1);
-        k2:=sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],GState.zoom_size-1);
+        k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],GState.zoom_size-1);
         k2:=MapPixel2BitmapPixel(k2);
         if (GState.GPS_ArrayOfSpeed[i]>0)and(FMain.GPSpar.maxspeed>0) then begin
           speed:=round(255/(FMain.GPSpar.maxspeed/GState.GPS_ArrayOfSpeed[i]));
@@ -81,9 +81,9 @@ begin
   end;
 
   if length(GState.GPS_TrackPoints)>1 then try
-    ke:=sat_map_both.GeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
+    ke:=GState.sat_map_both.GeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
     ke:=MapPixel2BitmapPixel(ke);
-    ks:=sat_map_both.GeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
+    ks:=GState.sat_map_both.GeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
     ks:=MapPixel2BitmapPixel(ks);
     dl:=GState.GPS_ArrowSize;
     D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
@@ -119,7 +119,7 @@ begin
   end;
 
   if length(GState.GPS_TrackPoints)>0 then begin
-    k1:=sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
+    k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
     k1:=MapPixel2BitmapPixel(k1);
     SizeTrackd2:=GState.GPS_ArrowSize div 6;
     FLayer.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));

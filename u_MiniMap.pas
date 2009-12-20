@@ -138,7 +138,7 @@ begin
   end else begin
     btm:=TBitmap32.Create;
     if (maptype = nil) then begin
-      if not(sat_map_both.LoadTile(SmMapBitmap,128,128,1,true)) then begin
+      if not(GState.sat_map_both.LoadTile(SmMapBitmap,128,128,1,true)) then begin
         SmMapBitmap.Assign(DefoultMap);
       end;
     end else begin
@@ -146,9 +146,9 @@ begin
         SmMapBitmap.Assign(DefoultMap);
       end;
     end;
-    for iLay:=0 to length(UMapType.MapType)-1 do begin
-      if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap) then begin
-        UMapType.MapType[iLay].LoadTile(btm,128,128,1,false);
+    for iLay:=0 to length(GState.MapType)-1 do begin
+      if (GState.MapType[iLay].asLayer)and(GState.MapType[iLay].ShowOnSmMap) then begin
+        GState.MapType[iLay].LoadTile(btm,128,128,1,false);
         btm.DrawMode:=dmBlend;
         SmMapBitmap.Draw(bounds(0,0,SmMapBitmap.width,SmMapBitmap.height),bounds(0,0,256,256),btm);
       end;
@@ -212,11 +212,11 @@ begin
     SmMapBitmap.Clear(Color32(GState.BGround));
     pos_sm := Point(x shr (GState.zoom_size-zoom),y shr (GState.zoom_size-zoom));
     if maptype = nil then begin
-      m_t:=sat_map_both;
+      m_t:=GState.sat_map_both;
     end else begin
       m_t:=maptype;
     end;
-    Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (zoom - 1) + 8, m_t.GeoConvert);
+    Pos_sm := GState.sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (zoom - 1) + 8, m_t.GeoConvert);
     d := Point((pos_sm.X-128),(pos_sm.y-128));
     if d.x < 0 then d.x := 256+d.x;
     if d.y < 0 then d.y := 256+d.y;
@@ -243,10 +243,10 @@ begin
       end;
       inc(x128,256);
     end;
-    for iLay := 0 to length(UMapType.MapType)-1 do begin
-      if (UMapType.MapType[iLay].asLayer)and(UMapType.MapType[iLay].ShowOnSmMap) then begin
+    for iLay := 0 to length(GState.MapType)-1 do begin
+      if (GState.MapType[iLay].asLayer)and(GState.MapType[iLay].ShowOnSmMap) then begin
         pos_sm := Point(X shr (GState.zoom_size-zoom),y shr (GState.zoom_size-zoom));
-        Pos_sm := sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (zoom - 1) + 8, UMapType.MapType[iLay].GeoConvert);
+        Pos_sm := GState.sat_map_both.GeoConvert.Pos2OtherMap(Pos_sm, (zoom - 1) + 8, GState.MapType[iLay].GeoConvert);
         d := Point((pos_sm.X-128),(pos_sm.y-128));
         if d.x < 0 then d.x := 256 + d.x;
         if d.y < 0 then d.y := 256 + d.y;
@@ -260,9 +260,9 @@ begin
                 bm.Clear(Color32(GState.BGround));
                 bm.Draw(0,0,bounds((128+x128)-d.x,(128+y128)-d.y,256,256),SmMapBitmap);
                 if (not((pos_sm.Y-y128<0)or(pos_sm.Y+y128>zoom_Sizes[zoom])) )
-                  and (UMapType.MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,zoom)) then
+                  and (GState.MapType[iLay].TileExists(pos_sm.X+x128,pos_sm.y+y128,zoom)) then
                 begin
-                  UMapType.MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,zoom,true);
+                  GState.MapType[iLay].LoadTile(bm,pos_sm.X+x128,pos_sm.y+y128,zoom,true);
                 end;
                 bm.DrawMode:=dmBlend;
                 SmMapBitmap.Draw((128+x128)-d.x,(128+y128)-d.y,bm);

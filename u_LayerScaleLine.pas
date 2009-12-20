@@ -51,8 +51,8 @@ begin
   Resize;
   VBitmapSize := GetBitmapSizeInPixel;
 
-  LL:=sat_map_both.GeoConvert.PixelPos2LonLat(Fmain.ScreenCenterPos, GState.zoom_size-1);
-  num:=106/((zoom[GState.zoom_size]/(2*PI))/(sat_map_both.radiusa*cos(LL.y*D2R)));
+  LL:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(Fmain.ScreenCenterPos, GState.zoom_size-1);
+  num:=106/((zoom[GState.zoom_size]/(2*PI))/(GState.sat_map_both.radiusa*cos(LL.y*D2R)));
   if num>10000 then begin
     num:=num/1000;
     se:=' '+SAS_UNITS_km+'.';

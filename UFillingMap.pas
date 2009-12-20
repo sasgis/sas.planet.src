@@ -131,7 +131,7 @@ begin
           continue;
         end;
         if FMain.fillingmaptype=nil then begin
-          VMapType := sat_map_both;
+          VMapType := GState.sat_map_both;
         end else begin
           VMapType := FMain.fillingmaptype;
         end;
