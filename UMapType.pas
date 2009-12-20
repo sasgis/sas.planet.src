@@ -1033,12 +1033,16 @@ begin
       SaveTileInCache(ATileStream,Vpath);
     end else begin
       btmsrc := TBitmap32.Create;
-      VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
+      try
+        VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
 
-      if IsCropOnDownload then begin
-        CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
+        if IsCropOnDownload then begin
+          CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
+        end;
+        SaveTileInCache(btmSrc, VPath);
+      finally
+        FreeAndNil(btmSrc);
       end;
-      SaveTileInCache(btmSrc, VPath);
     end;
     ban_pg_ld:=true;
     GState.MainFileCache.DeleteFileFromCache(Vpath);
