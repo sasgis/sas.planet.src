@@ -54,7 +54,7 @@ type
     procedure Button8Click(Sender: TObject);
   private
   public
-    AmapType:TMapType;
+    FMapType: TMapType;
   end;
 
 var
@@ -69,26 +69,26 @@ uses
 
 procedure TFEditMap.FormShow(Sender: TObject);
 begin
- FEditMap.Caption:=SAS_STR_EditMap+' '+AmapType.name;
- EditURL.Text:=AmapType.URLBase;
- EditNameinCache.Text:=AmapType.NameInCache;
- SESleep.Value:=AmapType.Sleep;
- EditParSubMenu.Text:=AmapType.ParentSubMenu;
- EditHotKey.HotKey:=AmapType.HotKey;
- RBCacheType.ItemIndex:=AmapType.cachetype;
- CheckBox1.Checked:=AmapType.separator;
+ FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
+ EditURL.Text:=FMapType.URLBase;
+ EditNameinCache.Text:=FMapType.NameInCache;
+ SESleep.Value:=FMapType.Sleep;
+ EditParSubMenu.Text:=FMapType.ParentSubMenu;
+ EditHotKey.HotKey:=FMapType.HotKey;
+ RBCacheType.ItemIndex:=FMapType.cachetype;
+ CheckBox1.Checked:=FMapType.separator;
 end;
 
 procedure TFEditMap.Button1Click(Sender: TObject);
 begin
  MapsEdit:=true;
- AmapType.URLBase:=EditURL.Text;
- AmapType.NameInCache:=EditNameinCache.Text;
- AmapType.ParentSubMenu:=EditParSubMenu.Text;
- AmapType.Sleep:=SESleep.Value;
- AmapType.HotKey:=EditHotKey.HotKey;
- AmapType.cachetype:=RBCacheType.ItemIndex;
- AmapType.separator:=CheckBox1.Checked;
+ FmapType.URLBase:=EditURL.Text;
+ FmapType.NameInCache:=EditNameinCache.Text;
+ FmapType.ParentSubMenu:=EditParSubMenu.Text;
+ FmapType.Sleep:=SESleep.Value;
+ FmapType.HotKey:=EditHotKey.HotKey;
+ FmapType.cachetype:=RBCacheType.ItemIndex;
+ FmapType.separator:=CheckBox1.Checked;
  CreateMapUI;
  Fmain.generate_im(nilLastLoad,'');
  close;
@@ -96,7 +96,7 @@ end;
 
 procedure TFEditMap.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- AmapType:=nil;
+  FmapType:=nil;
 end;
 
 procedure TFEditMap.Button2Click(Sender: TObject);
@@ -106,38 +106,38 @@ end;
 
 procedure TFEditMap.Button3Click(Sender: TObject);
 begin
- EditURL.Text:=AmapType.DefURLBase;
- EditNameinCache.Text:=AmapType.DefNameInCache;
- EditParSubMenu.Text:=AmapType.DefParentSubMenu;
- SESleep.Value:=AmapType.Sleep;
- EditHotKey.HotKey:=AmapType.DefHotKey;
- RBCacheType.ItemIndex:=AmapType.cachetype;
- CheckBox1.Checked:=AmapType.Defseparator;
+ EditURL.Text:=FmapType.DefURLBase;
+ EditNameinCache.Text:=FmapType.DefNameInCache;
+ EditParSubMenu.Text:=FmapType.DefParentSubMenu;
+ SESleep.Value:=FmapType.Sleep;
+ EditHotKey.HotKey:=FmapType.DefHotKey;
+ RBCacheType.ItemIndex:=FmapType.cachetype;
+ CheckBox1.Checked:=FmapType.Defseparator;
 end;
 
 procedure TFEditMap.Button6Click(Sender: TObject);
 begin
- EditURL.Text:=AmapType.DefURLBase;
+ EditURL.Text := FMapType.DefURLBase;
 end;
 
 procedure TFEditMap.Button4Click(Sender: TObject);
 begin
- EditNameinCache.Text:=AmapType.DefNameInCache;
+ EditNameinCache.Text := FMapType.DefNameInCache;
 end;
 
 procedure TFEditMap.Button5Click(Sender: TObject);
 begin
- EditParSubMenu.Text:=AmapType.DefParentSubMenu;
+ EditParSubMenu.Text := FMapType.DefParentSubMenu;
 end;
 
 procedure TFEditMap.Button7Click(Sender: TObject);
 begin
- EditHotKey.HotKey:=AmapType.DefHotKey;
+ EditHotKey.HotKey := FMapType.DefHotKey;
 end;
 
 procedure TFEditMap.Button8Click(Sender: TObject);
 begin
- SESleep.Value:=AMapType.DefSleep;
+ SESleep.Value := FMapType.DefSleep;
 end;
 
 end.

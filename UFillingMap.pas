@@ -46,9 +46,6 @@ type
     property Location: TFloatRect write SetLocation;
   end;
 
-var
-  fillingmaptype:TMapType;
-
 implementation
 
 uses
@@ -133,10 +130,10 @@ begin
         if (Terminated)or(needRepaint)or(stop) then begin
           continue;
         end;
-        if fillingmaptype=nil then begin
+        if FMain.fillingmaptype=nil then begin
           VMapType := sat_map_both;
         end else begin
-          VMapType := fillingmaptype;
+          VMapType := FMain.fillingmaptype;
         end;
         ixT:=0;
 

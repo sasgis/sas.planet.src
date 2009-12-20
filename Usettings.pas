@@ -354,8 +354,8 @@ begin
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
- if Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',Fillingmaptype.guids);
+ if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','0')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.guids);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
@@ -829,7 +829,7 @@ end;
 
 procedure TFSettings.Button15Click(Sender: TObject);
 begin
- FEditMap.AmapType:=TMapType(MapList.Selected.Data);
+ FEditMap.FMapType := TMapType(MapList.Selected.Data);
  FEditMap.ShowModal;
 end;
 

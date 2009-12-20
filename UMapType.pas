@@ -32,7 +32,7 @@ uses
 type
  TMapType = class
    private
-    FTileRect:TRect;
+    FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
     FUseDwn: boolean;
@@ -95,11 +95,11 @@ type
     defcachetype: byte;
     cachetype: byte;
 
-    DefParentSubMenu:string;
+    DefParentSubMenu: string;
     ParentSubMenu: string;
 
-    DefNameInCache:string;
-    NameInCache:string;
+    DefNameInCache: string;
+    NameInCache: string;
 
     NSmItem: TTBXItem;
     TBItem: TTBXItem;
@@ -111,61 +111,61 @@ type
     active: boolean;
     showinfo: boolean;
 
-    function GetLink(x,y:longint;Azoom:byte):string;overload;
-    function GetLink(AXY: TPoint;Azoom:byte):string;overload;
+    function GetLink(x, y: longint; Azoom: byte): string; overload;
+    function GetLink(AXY: TPoint; Azoom: byte): string; overload;
 
-    procedure SaveTileDownload(x,y:longint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
-    procedure SaveTileDownload(AXY: TPoint;Azoom:byte; ATileStream:TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
 
-    function GetTileFileName(x,y:longint;Azoom:byte):string; overload;
-    function GetTileFileName(AXY: TPoint;Azoom:byte):string; overload;
+    function GetTileFileName(x, y: longint; Azoom: byte): string; overload;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string; overload;
 
-    function GetTileShowName(x,y:longint;Azoom:byte):string; overload;
-    function GetTileShowName(AXY: TPoint;Azoom:byte):string; overload;
+    function GetTileShowName(x, y: longint; Azoom: byte): string; overload;
+    function GetTileShowName(AXY: TPoint; Azoom: byte): string; overload;
 
-    function TileExists(x,y:longint;Azoom:byte): Boolean; overload;
-    function TileExists(AXY: TPoint;Azoom:byte): Boolean; overload;
+    function TileExists(x, y: longint; Azoom: byte): Boolean; overload;
+    function TileExists(AXY: TPoint; Azoom: byte): Boolean; overload;
 
-    function TileNotExistsOnServer(x,y:longint;Azoom:byte): Boolean; overload;
-    function TileNotExistsOnServer(AXY: TPoint;Azoom:byte): Boolean; overload;
+    function TileNotExistsOnServer(x, y: longint; Azoom: byte): Boolean; overload;
+    function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean; overload;
 
-    function LoadTile(btm:TBitmap32; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:TKML; x,y:longint;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTile(btm:TKML; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTile(btm: TBitmap32; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
+    function LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
+    function LoadTile(btm: TKML; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
+    function LoadTile(btm: TKML; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
 
-    function LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean; overload;
-    function LoadTileFromPreZ(spr:TBitmap32; AXY: TPoint; Azoom:byte; caching:boolean):boolean; overload;
+    function LoadTileFromPreZ(spr: TBitmap32; x, y: integer; Azoom: byte; caching: boolean): boolean; overload;
+    function LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
 
-    function DeleteTile(x,y:longint; Azoom:byte): Boolean; overload;
-    function DeleteTile(AXY: TPoint; Azoom:byte): Boolean; overload;
+    function DeleteTile(x, y: longint; Azoom: byte): Boolean; overload;
+    function DeleteTile(AXY: TPoint; Azoom: byte): Boolean; overload;
 
-    procedure SaveTileSimple(x,y:longint;Azoom:byte; btm: TBitmap32); overload;
-    procedure SaveTileSimple(AXY: TPoint; Azoom:byte; btm: TBitmap32); overload;
+    procedure SaveTileSimple(x, y: longint; Azoom: byte; btm: TBitmap32); overload;
+    procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32); overload;
 
-    procedure SaveTileNotExists(x,y:longint;Azoom:byte); overload;
-    procedure SaveTileNotExists(AXY: TPoint; Azoom:byte); overload;
+    procedure SaveTileNotExists(x, y: longint; Azoom: byte); overload;
+    procedure SaveTileNotExists(AXY: TPoint; Azoom: byte); overload;
 
-    function TileLoadDate(x,y:longint;Azoom:byte): TDateTime; overload;
-    function TileLoadDate(AXY: TPoint; Azoom:byte): TDateTime; overload;
+    function TileLoadDate(x, y: longint; Azoom: byte): TDateTime; overload;
+    function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; overload;
 
-    function TileSize(x,y:longint;Azoom:byte): integer; overload;
-    function TileSize(AXY: TPoint; Azoom:byte): integer; overload;
+    function TileSize(x, y: longint; Azoom: byte): integer; overload;
+    function TileSize(AXY: TPoint; Azoom: byte): integer; overload;
 
-    function TileExportToFile(x,y:longint;Azoom:byte; AFileName: string; OverWrite: boolean): boolean; overload;
-    function TileExportToFile(AXY: TPoint; Azoom:byte; AFileName: string; OverWrite: boolean): boolean; overload;
+    function TileExportToFile(x, y: longint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean; overload;
+    function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean; overload;
 
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm:TBitmap32; x,y:longint;Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean; overload;
-    function LoadFillingMap(btm:TBitmap32; AXY: TPoint; Azoom:byte;ASourceZoom: byte; IsStop: PBoolean):boolean; overload;
+    function LoadFillingMap(btm: TBitmap32; x, y: longint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean; overload;
+    function LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean; overload;
 
     function GetShortFolderName: string;
 
     function IncDownloadedAndCheckAntiBan: Boolean;
     procedure addDwnforban;
     procedure ExecOnBan(ALastUrl: string);
-    function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf:TMemoryStream): TDownloadTileResult;
+    function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
@@ -197,26 +197,26 @@ type
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
-    function LoadFile(btm:TBitmap32; APath: string; caching:boolean):boolean; overload;
-    function LoadFile(btm:TKml; APath: string; caching:boolean):boolean; overload;
-    procedure CreateDirIfNotExists(APath:string);
+    function LoadFile(btm: TBitmap32; APath: string; caching: boolean): boolean; overload;
+    function LoadFile(btm: TKml; APath: string; caching: boolean): boolean; overload;
+    procedure CreateDirIfNotExists(APath: string);
     procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
     procedure SaveTileInCache(btm: TStream; path: string); overload;
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
-    procedure SaveTileKmlDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
-    procedure SaveTileBitmapDownload(AXY: TPoint;Azoom:byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
  end;
 
 var
-  MapType:array of TMapType;
-  MapsEdit:boolean;
-  sat_map_both:TMapType;
+  MapType: array of TMapType;
+  MapsEdit: boolean;
+  sat_map_both: TMapType;
 
   procedure LoadMaps;
   procedure SaveMaps;
   procedure CreateMapUI;
-  function GetMapFromID(id:string):TMapType;
+  function GetMapFromID(id: string): TMapType;
 
 implementation
 
@@ -239,9 +239,9 @@ uses
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
 
-function GetMapFromID(id:string):TMapType;
+function GetMapFromID(id: string): TMapType;
 var
-  i:integer;
+  i: integer;
 begin
   Result:=nil;
   for i:=0 to length(MapType)-1 do begin
@@ -271,7 +271,7 @@ begin
   for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
 
   GMiniMap.maptype:=nil;
-  fillingmaptype:=nil;
+  FMain.fillingmaptype:=nil;
   i:=length(MapType)-1;
 
   if i>0 then begin
