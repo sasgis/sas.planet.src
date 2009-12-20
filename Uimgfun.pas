@@ -11,8 +11,7 @@ uses
   Math,
   Types,
   GR32,
-  pngimage,
-  UMapType;
+  pngimage;
 
 const
   FILE_DOES_NOT_EXIST = DWORD(-1);

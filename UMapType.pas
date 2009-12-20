@@ -25,6 +25,7 @@ uses
   i_IPoolOfObjectsSimple,
   u_TileDownloaderBase,
   u_UrlGenerator,
+  UKmlParse,
   UResStrings;
 
 type
@@ -220,7 +221,6 @@ uses
   u_PoolOfObjectsSimple,
   u_TileDownloaderBaseFactory,
   ImgMaker,
-  UKmlParse,
   u_MiniMap,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
