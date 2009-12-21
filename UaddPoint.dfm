@@ -19,7 +19,7 @@ object FaddPoint: TFaddPoint
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 72
+    Left = 64
     Top = 34
     Width = 25
     Height = 13
@@ -156,16 +156,30 @@ object FaddPoint: TFaddPoint
     OnClick = SpeedButton2Click
   end
   object Label8: TLabel
-    Left = 72
+    Left = 64
     Top = 10
     Width = 56
     Height = 13
     Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
   end
+  object Bevel6: TBevel
+    Left = 8
+    Top = 8
+    Width = 47
+    Height = 47
+  end
+  object Image1: TImage
+    Left = 9
+    Top = 9
+    Width = 45
+    Height = 45
+    Cursor = crHandPoint
+    OnMouseDown = Image1MouseDown
+  end
   object EditName: TEdit
-    Left = 104
+    Left = 96
     Top = 32
-    Width = 233
+    Width = 241
     Height = 21
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
@@ -399,19 +413,6 @@ object FaddPoint: TFaddPoint
     ParentFont = False
     TabOrder = 15
   end
-  object ComboBox1: TComboBox
-    Left = 8
-    Top = 8
-    Width = 57
-    Height = 44
-    Hint = #1042#1099#1073#1077#1088#1080#1090#1077' '#1075#1088#1072#1092#1080#1095#1077#1089#1082#1086#1077' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
-    Style = csOwnerDrawVariable
-    ItemHeight = 38
-    ParentShowHint = False
-    ShowHint = False
-    TabOrder = 16
-    OnDrawItem = ComboBox1DrawItem
-  end
   object SpinEdit2: TSpinEdit
     Left = 280
     Top = 293
@@ -419,7 +420,7 @@ object FaddPoint: TFaddPoint
     Height = 22
     MaxValue = 64
     MinValue = 1
-    TabOrder = 17
+    TabOrder = 16
     Value = 32
   end
   object SEtransp: TSpinEdit
@@ -429,16 +430,16 @@ object FaddPoint: TFaddPoint
     Height = 22
     MaxValue = 100
     MinValue = 0
-    TabOrder = 18
+    TabOrder = 17
     Value = 35
   end
   object CBKateg: TComboBox
-    Left = 136
+    Left = 128
     Top = 8
-    Width = 201
+    Width = 209
     Height = 21
     ItemHeight = 13
-    TabOrder = 19
+    TabOrder = 18
     Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
   end
   object TBXToolbar1: TTBXToolbar
@@ -447,7 +448,7 @@ object FaddPoint: TFaddPoint
     Width = 173
     Height = 22
     Images = Fmain.EditCommentsImgs
-    TabOrder = 20
+    TabOrder = 19
     Caption = 'TBXToolbar1'
     object TBXItem3: TTBXItem
       ImageIndex = 0
@@ -506,15 +507,24 @@ object FaddPoint: TFaddPoint
       Hint = ''
     end
   end
-  object ListView1: TListView
+  object DrawGrid1: TDrawGrid
     Left = 8
-    Top = 56
-    Width = 329
-    Height = 201
-    Columns = <>
-    ReadOnly = True
-    TabOrder = 21
-    OnAdvancedCustomDrawItem = ListView1AdvancedCustomDrawItem
+    Top = 54
+    Width = 310
+    Height = 182
+    ColCount = 8
+    Ctl3D = False
+    DefaultColWidth = 36
+    DefaultRowHeight = 36
+    FixedCols = 0
+    FixedRows = 0
+    GridLineWidth = 0
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goThumbTracking]
+    ParentCtl3D = False
+    TabOrder = 20
+    Visible = False
+    OnDrawCell = DrawGrid1DrawCell
+    OnMouseUp = DrawGrid1MouseUp
   end
   object ColorDialog1: TColorDialog
     Left = 40
