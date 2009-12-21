@@ -1,10 +1,10 @@
 object FaddPoint: TFaddPoint
-  Left = 355
-  Top = 213
+  Left = 193
+  Top = 178
   BorderStyle = bsDialog
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
-  ClientHeight = 402
-  ClientWidth = 340
+  ClientHeight = 407
+  ClientWidth = 345
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -505,6 +505,16 @@ object FaddPoint: TFaddPoint
       Caption = ''
       Hint = ''
     end
+  end
+  object ListView1: TListView
+    Left = 8
+    Top = 56
+    Width = 329
+    Height = 201
+    Columns = <>
+    ReadOnly = True
+    TabOrder = 21
+    OnAdvancedCustomDrawItem = ListView1AdvancedCustomDrawItem
   end
   object ColorDialog1: TColorDialog
     Left = 40
