@@ -31,7 +31,7 @@ uses
   GR32_Resamplers,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes;
+  t_GeoTypes, ComCtrls;
 
 type
   TFaddPoint = class(TForm)
@@ -83,6 +83,7 @@ type
     TBXItem6: TTBXItem;
     TBXSeparatorItem2: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
+    ListView1: TListView;
     procedure BaddClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
@@ -95,6 +96,9 @@ type
     procedure TBXItem3Click(Sender: TObject);
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure ListView1AdvancedCustomDrawItem(Sender: TCustomListView;
+      Item: TListItem; State: TCustomDrawState; Stage: TCustomDrawStage;
+      var DefaultDraw: Boolean);
   private
     new_:boolean;
   public
@@ -120,6 +124,7 @@ var DMS:TDMS;
     ms:TMemoryStream;
     arrLL:PArrLL;
     namecatbuf:string;
+    i:integer;
 begin
  new_:=new;
  EditComment.Text:='';
@@ -129,6 +134,10 @@ begin
  Kategory2Strings(CBKateg.Items);
  CBKateg.Text:=namecatbuf;
  ComboBox1.Items.Assign(GState.MarkIcons);
+ ListView1.Clear;
+ for i:=0 to GState.MarkIcons.Count-1 do begin
+  ListView1.AddItem({GState.MarkIcons.Strings[i]}'',GState.MarkIcons.Objects[i]);
+ end;
  if new then begin
               If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
               faddPoint.Caption:=SAS_STR_AddNewMark;
@@ -320,6 +329,40 @@ begin
    EditComment.Text:=s;
    EditComment.SelStart:=seli+4;
  end;
+end;
+
+procedure TFaddPoint.ListView1AdvancedCustomDrawItem(
+  Sender: TCustomListView; Item: TListItem; State: TCustomDrawState;
+  Stage: TCustomDrawStage; var DefaultDraw: Boolean);
+var Bitmap,Bitmap2: TBitmap32;
+    Rect:TRect;
+    wdth:Integer;
+begin
+   if Stage = cdPrePaint then
+   with ListView1.Canvas do
+   begin
+     Rect:=item.DisplayRect(drBounds);
+     if rect.Top<0 then Continue;
+     wdth:=max(Rect.Right-Rect.Left,Rect.Bottom-Rect.Top);
+    { if cdsHot in State then ListView1.Canvas.Rectangle(bounds(Rect.Left,Rect.Top,wdth,wdth))
+                        else }FillRect(Rect);
+     Bitmap:=TBitmap32.Create;
+     Bitmap.SetSize(TPNGObject(Item.Data).Width,TPNGObject(Item.Data).Height);
+     Bitmap.Clear(clWhite32);
+     Bitmap.Assign(TPNGObject(Item.Data));
+     Bitmap.Resampler:=TKernelResampler.Create;
+     TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;
+     Bitmap2:=TBitmap32.Create;
+     Bitmap2.SetSize(wdth,wdth);
+     Bitmap2.Draw(Bounds(0, 0, wdth,wdth), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
+     if Bitmap <> nil then
+     begin
+      CopyRect(Bounds(Rect.Left, Rect.Top,wdth,wdth),
+               Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
+     Bitmap.Free;
+     end;
+     Bitmap2.Free;
+   end;
 end;
 
 end.
