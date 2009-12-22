@@ -273,8 +273,8 @@ begin
          if not inBuf then
          begin
              TileStream:=GEGetTile(cachepath,x*256,y*256,z);
-             if (TileStream<>nil) then
-             begin
+             if (TileStream<>nil) then begin
+              try
                i:=BMP_Bufer.Count+1;
                if i=3 then i:=1;
 
@@ -284,24 +284,26 @@ begin
                end;
 
                BMP_Bufer.BMPTile[i]:=TBitmap32.Create;
-               LoadJPG32(TileStream,BMP_Bufer.BMPTile[i]);
+               if LoadJPG32(TileStream,BMP_Bufer.BMPTile[i]) then begin
+                 XY.X:=X;
+                 XY.Y:=Y;
+                 LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
+                 BMP_Bufer.UpLatLon[i].y:=LatLon.y;
+                 BMP_Bufer.UpLatLon[i].x:=LatLon.x;
+
+                 inc(XY.Y);
+                 LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
+                 BMP_Bufer.DownLatLon[i].y:=LatLon.y;
+                 BMP_Bufer.DownLatLon[i].x:=LatLon.x;
+
+                 BMP_Bufer.TileRez[i]:=(BMP_Bufer.UpLatLon[i].y-BMP_Bufer.DownLatLon[i].y)/256;
+                 BMP_Bufer.Count:=i;
+
+                 result:=i;
+               end;
+              finally
                TileStream.Free;
-
-               XY.X:=X;
-               XY.Y:=Y;
-               LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
-               BMP_Bufer.UpLatLon[i].y:=LatLon.y;
-               BMP_Bufer.UpLatLon[i].x:=LatLon.x;
-
-               inc(XY.Y);
-               LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
-               BMP_Bufer.DownLatLon[i].y:=LatLon.y;
-               BMP_Bufer.DownLatLon[i].x:=LatLon.x;
-
-               BMP_Bufer.TileRez[i]:=(BMP_Bufer.UpLatLon[i].y-BMP_Bufer.DownLatLon[i].y)/256;
-               BMP_Bufer.Count:=i;
-
-               result:=i;
+              end;
              end;
          end;
      finally
