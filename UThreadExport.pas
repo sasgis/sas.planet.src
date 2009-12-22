@@ -148,14 +148,8 @@ begin
     bmp2:=TBitmap32.Create;
     try
       bmp2.DrawMode:=dmBlend;
-      try
-        if (not(ATypeMap.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
-          bmp1.width:=256;
-          bmp1.Height:=256;
-          bmp1.Clear(Color32(GState.BGround));
-        end;
-        res1:=true;
-      except
+      res1:=true;
+      if (not(ATypeMap.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
         res1:=false;
         bmp1.width:=256;
         bmp1.Height:=256;
@@ -168,14 +162,8 @@ begin
       end;
 
       if ATargetProjection<>ATypeMap.projection then begin
-        try
-          if (not(ATypeMap.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
-            bmp2.width:=256;
-            bmp2.Height:=256;
-            bmp2.Clear(Color32(GState.BGround));
-          end;
-          res2:=true;
-        except
+        res2:=true;
+        if (not(ATypeMap.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
           res2:=false;
           bmp2.width:=256;
           bmp2.Height:=256;
