@@ -4,7 +4,7 @@ object FSettings: TFSettings
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 416
-  ClientWidth = 647
+  ClientWidth = 649
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText

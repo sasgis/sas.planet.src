@@ -3,8 +3,8 @@ object FImport: TFImport
   Top = 207
   BorderStyle = bsDialog
   Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1080#1084#1087#1086#1088#1090#1072
-  ClientHeight = 379
-  ClientWidth = 501
+  ClientHeight = 385
+  ClientWidth = 505
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

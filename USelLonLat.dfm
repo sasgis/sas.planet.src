@@ -3,8 +3,8 @@ object FSelLonLat: TFSelLonLat
   Top = 289
   BorderStyle = bsDialog
   Caption = #1042#1099#1076#1077#1083#1077#1085#1080#1077' '#1087#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
-  ClientHeight = 177
-  ClientWidth = 252
+  ClientHeight = 183
+  ClientWidth = 257
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

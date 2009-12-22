@@ -3,8 +3,8 @@ object FProgress: TFProgress
   Top = 306
   BorderStyle = bsToolWindow
   Caption = #1055#1086#1078#1072#1083#1091#1081#1089#1090#1072' '#1087#1086#1076#1086#1078#1076#1080#1090#1077'...'
-  ClientHeight = 245
-  ClientWidth = 325
+  ClientHeight = 250
+  ClientWidth = 330
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -22,8 +22,8 @@ object FProgress: TFProgress
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 325
-    Height = 245
+    Width = 330
+    Height = 250
     Align = alClient
     TabOrder = 0
     object RProgr: TRarProgress
