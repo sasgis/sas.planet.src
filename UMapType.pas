@@ -68,6 +68,7 @@ type
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
+    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
    public
     id: integer;
 
@@ -872,7 +873,7 @@ begin
                else spr.Clear(Color32(GState.BGround));
     exit;
   end;
-  key:=GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+  key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
   if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
     bmp:=TBitmap32.Create;
     try
@@ -910,20 +911,23 @@ end;
 
 function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
-var path: string;
+var
+  Path: string;
+  VMemCacheKey: String;
 begin
+  VMemCacheKey := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
       result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
-      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
     end else begin
       result:=true;
     end;
   end else begin
     path := GetTileFileName(x, y, Azoom);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
      result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
     end else begin
       result:=true;
     end;
@@ -1050,7 +1054,7 @@ begin
       end;
     end;
     ban_pg_ld:=true;
-    GState.MainFileCache.DeleteFileFromCache(Vpath);
+    GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
   end;
@@ -1085,7 +1089,6 @@ begin
     SaveTileInCache(ATileStream,Vpath);
     ban_pg_ld:=true;
   end;
-  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
@@ -1580,6 +1583,11 @@ end;
 function TMapType.GetGUIDString: string;
 begin
   Result := GUIDToString(FGuid);
+end;
+
+function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := GUIDString+'-'+inttostr(AXY.X)+'-'+inttostr(Azoom)+'-'+inttostr(Azoom);
 end;
 
 end.
