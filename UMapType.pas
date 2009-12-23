@@ -921,7 +921,12 @@ begin
     end;
   end else begin
     path := GetTileFileName(x, y, Azoom);
-    result:= LoadFile(btm, path, caching);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
+     result:=LoadFile(btm, path, caching);
+     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+    end else begin
+      result:=true;
+    end;
   end;
 end;
 
