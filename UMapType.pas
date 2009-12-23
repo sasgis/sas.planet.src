@@ -897,34 +897,34 @@ begin
   Result := true;
 end;
 
-function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-begin
-  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
-end;
-
-function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-begin
-  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
-end;
-
 function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
+  caching: boolean): boolean;
+begin
+  Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
+end;
+
+function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+  caching: boolean): boolean;
+begin
+  Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
+end;
+
+function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 var
   Path: string;
   VMemCacheKey: String;
 begin
-  VMemCacheKey := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
+  VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
-      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
+      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
       if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
     end else begin
       result:=true;
     end;
   end else begin
-    path := GetTileFileName(x, y, Azoom);
+    path := GetTileFileName(AXY, Azoom);
     if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
      result:=LoadFile(btm, path, caching);
      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
@@ -934,14 +934,14 @@ begin
   end;
 end;
 
-function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 var path: string;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     raise Exception.Create('Из GE кеша можно получать только растры');
   end else begin
-    path := GetTileFileName(x, y, Azoom);
+    path := GetTileFileName(AXY, Azoom);
     result:= LoadFile(btm, path, caching);
   end;
 end;
