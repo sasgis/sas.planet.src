@@ -1588,7 +1588,7 @@ end;
 
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := GUIDString+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y)+'-'+inttostr(Azoom);
+  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+ GUIDString;
 end;
 
 end.
