@@ -953,6 +953,7 @@ begin
       FCSSaveTile.Acquire;
       try
         result := DeleteFile(PChar(VPath));
+        GState.MainFileCache.DeleteFileFromCache(GUIDString+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+inttostr(Azoom+1));
       finally
         FCSSaveTile.Release;
       end;
@@ -1050,7 +1051,7 @@ begin
       end;
     end;
     ban_pg_ld:=true;
-    GState.MainFileCache.DeleteFileFromCache(Vpath);
+    GState.MainFileCache.DeleteFileFromCache(GUIDString+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+inttostr(Azoom+1));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
   end;
@@ -1085,7 +1086,7 @@ begin
     SaveTileInCache(ATileStream,Vpath);
     ban_pg_ld:=true;
   end;
-  GState.MainFileCache.DeleteFileFromCache(Vpath);
+  GState.MainFileCache.DeleteFileFromCache(GUIDString+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+inttostr(Azoom+1));
 end;
 
 procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
