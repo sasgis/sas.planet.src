@@ -971,7 +971,7 @@ begin
     exit;
   end;
   try
-    btm.LoadFromFile(Apath)
+    result:=btm.LoadFromFile(Apath)
   except
   end;
 end;
