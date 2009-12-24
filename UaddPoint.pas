@@ -31,7 +31,7 @@ uses
   GR32_Resamplers,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes;
+  t_GeoTypes, ComCtrls, Grids;
 
 type
   TFaddPoint = class(TForm)
@@ -63,7 +63,6 @@ type
     SpinEdit1: TSpinEdit;
     Label5: TLabel;
     ColorBox2: TColorBox;
-    ComboBox1: TComboBox;
     Label6: TLabel;
     SpinEdit2: TSpinEdit;
     SEtransp: TSpinEdit;
@@ -83,21 +82,29 @@ type
     TBXItem6: TTBXItem;
     TBXSeparatorItem2: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
+    DrawGrid1: TDrawGrid;
+    Bevel6: TBevel;
+    Image1: TImage;
     procedure BaddClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
     procedure EditCommentKeyPress(Sender: TObject; var Key: Char);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure ComboBox1DrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure TBXItem3Click(Sender: TObject);
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure DrawGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure DrawGrid1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     new_:boolean;
   public
+   procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
    function show_(aLL:TExtendedPoint;new:boolean):boolean;
   end;
 
@@ -105,6 +112,7 @@ type
 
 var
   FaddPoint: TFaddPoint;
+  IconName:string;
 
 implementation
 
@@ -120,6 +128,7 @@ var DMS:TDMS;
     ms:TMemoryStream;
     arrLL:PArrLL;
     namecatbuf:string;
+    i:integer;
 begin
  new_:=new;
  EditComment.Text:='';
@@ -128,9 +137,15 @@ begin
  CBKateg.Clear;
  Kategory2Strings(CBKateg.Items);
  CBKateg.Text:=namecatbuf;
- ComboBox1.Items.Assign(GState.MarkIcons);
+ DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);
+ if (GState.MarkIcons.Count mod DrawGrid1.ColCount)>0 then begin
+  DrawGrid1.RowCount:=DrawGrid1.RowCount+1;
+ end;
+ DrawGrid1.Repaint;
  if new then begin
-              If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
+              if GState.MarkIcons.Count>0 then
+               DrawFromMarkIcons(Image1.canvas,0,bounds(4,4,36,36));
+          //    If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
               faddPoint.Caption:=SAS_STR_AddNewMark;
               Badd.Caption:=SAS_STR_Add;
               CheckBox2.Checked:=true;
@@ -153,7 +168,11 @@ begin
               ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
-              ComboBox1.ItemIndex:=GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString);
+
+             // image1.Canvas.CopyRect(bounds(5,5,36,36),DrawGrid1.Canvas,DrawGrid1.CellRect(0,0));
+
+              DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString),bounds(4,4,36,36));
+              //ComboBox1.ItemIndex:=GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString);
               Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
               CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
              end;
@@ -188,7 +207,7 @@ begin
  Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
  Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
  Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=CheckBox2.Checked;
- Fmain.CDSmarks.FieldByName('PicName').AsString:=ComboBox1.Text;
+ Fmain.CDSmarks.FieldByName('PicName').AsString:=IconName;
  Fmain.CDSmarks.FieldByName('LonL').AsFloat:=ALL.x;
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=ALL.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=ALL.x;
@@ -225,31 +244,6 @@ procedure TFaddPoint.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftStat
 begin
  if Key=VK_ESCAPE then close;
  if Key=VK_RETURN then BaddClick(Sender);
-end;
-
-procedure TFaddPoint.ComboBox1DrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
-var Bitmap,Bitmap2: TBitmap32;
-begin
-   with ComboBox1.Canvas do
-   begin
-     FillRect(Rect);
-     Bitmap:=TBitmap32.Create;
-     Bitmap2:=TBitmap32.Create;
-     Bitmap.SetSize(TPNGObject(ComboBox1.Items.Objects[Index]).Width,TPNGObject(ComboBox1.Items.Objects[Index]).Height);
-     Bitmap2.SetSize(31,31);
-     Bitmap.Clear(clWhite32);
-     Bitmap.Assign(TPNGObject(ComboBox1.Items.Objects[Index]));
-     Bitmap.Resampler:=TKernelResampler.Create;
-     TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;
-     Bitmap2.Draw(Bounds(0, 0, 31,31), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
-     if Bitmap <> nil then
-     begin
-      CopyRect(Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
-               Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
-      Bitmap.Free;
-     end;
-     Bitmap2.Free;
-   end;
 end;
 
 procedure TFaddPoint.SpeedButton1Click(Sender: TObject);
@@ -319,6 +313,60 @@ begin
    EditComment.Text:=s;
    EditComment.SelStart:=seli+4;
  end;
+end;
+
+procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
+var Bitmap,Bitmap2: TBitmap32;
+    wdth:integer;
+begin
+ try
+   canvas.FillRect(bound);
+   wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
+   Bitmap:=TBitmap32.Create;
+   Bitmap2:=TBitmap32.Create;
+   Bitmap.SetSize(TPNGObject(GState.MarkIcons.Objects[index]).Width,
+                  TPNGObject(GState.MarkIcons.Objects[index]).Height);
+   Bitmap.Clear(clWhite32);
+   Bitmap.Assign(TPNGObject(GState.MarkIcons.Objects[index]));
+   Bitmap.Resampler:=TKernelResampler.Create;
+   TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;
+   Bitmap2.SetSize(wdth,wdth);
+   Bitmap2.Draw(Bounds(0, 0, wdth,wdth), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
+   canvas.CopyRect(bound, Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
+ finally
+   Bitmap.Free;
+   Bitmap2.Free;
+ end;
+end;
+
+procedure TFaddPoint.DrawGrid1DrawCell(Sender: TObject; ACol,
+  ARow: Integer; Rect: TRect; State: TGridDrawState);
+var wdth,i:Integer;
+begin
+   i:=(Arow*DrawGrid1.ColCount)+ACol;
+   if i<GState.MarkIcons.Count then
+    DrawFromMarkIcons(DrawGrid1.Canvas,i,DrawGrid1.CellRect(ACol,ARow));
+end;
+
+procedure TFaddPoint.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+ DrawGrid1.Visible:=not(DrawGrid1.Visible);
+end;
+
+procedure TFaddPoint.DrawGrid1MouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var i:integer;
+    ACol,ARow: Integer;
+begin
+ DrawGrid1.MouseToCell(X,Y,ACol,ARow);
+ i:=(ARow*DrawGrid1.ColCount)+ACol;
+ if (ARow>-1)and(ACol>-1)and(i<GState.MarkIcons.Count) then begin
+   IconName:=GState.MarkIcons.Strings[i];
+   image1.Canvas.FillRect(image1.Canvas.ClipRect);
+   DrawFromMarkIcons(image1.Canvas,i,bounds(5,5,36,36));
+   DrawGrid1.Visible:=false;
+ end;  
 end;
 
 end.

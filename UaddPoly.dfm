@@ -3,8 +3,8 @@ object FAddPoly: TFAddPoly
   Top = 40
   BorderStyle = bsDialog
   Caption = 'FAddPoly'
-  ClientHeight = 356
-  ClientWidth = 340
+  ClientHeight = 361
+  ClientWidth = 345
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

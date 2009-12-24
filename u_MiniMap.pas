@@ -78,6 +78,9 @@ end;
 destructor TMiniMap.Destroy;
 begin
   FreeAndNil(SmMapBitmap);
+  FreeAndNil(DefoultMap);
+  FreeAndNil(PlusButton);
+  FreeAndNil(MinusButton);
   inherited;
 end;
 

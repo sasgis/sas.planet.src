@@ -68,6 +68,7 @@ type
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
+    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
    public
     id: integer;
 
@@ -872,7 +873,7 @@ begin
                else spr.Clear(Color32(GState.BGround));
     exit;
   end;
-  key:=GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom);
+  key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
   if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
     bmp:=TBitmap32.Create;
     try
@@ -896,43 +897,51 @@ begin
   Result := true;
 end;
 
-function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-begin
-  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
-end;
-
-function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-begin
-  Result := Self.LoadTile(btm, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
-end;
-
 function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
-var path: string;
 begin
+  Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
+end;
+
+function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+  caching: boolean): boolean;
+begin
+  Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
+end;
+
+function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+var
+  Path: string;
+  VMemCacheKey: String;
+begin
+  VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom))) then begin
-      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',x shr 8,y shr 8,Azoom, Self);
-      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), GUIDString+'-'+inttostr(x shr 8)+'-'+inttostr(y shr 8)+'-'+inttostr(Azoom) );
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
+      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
     end else begin
       result:=true;
     end;
   end else begin
-    path := GetTileFileName(x, y, Azoom);
-    result:= LoadFile(btm, path, caching);
+    path := GetTileFileName(AXY, Azoom);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
+     result:=LoadFile(btm, path, caching);
+     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
+    end else begin
+      result:=true;
+    end;
   end;
 end;
 
-function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 var path: string;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     raise Exception.Create('Из GE кеша можно получать только растры');
   end else begin
-    path := GetTileFileName(x, y, Azoom);
+    path := GetTileFileName(AXY, Azoom);
     result:= LoadFile(btm, path, caching);
   end;
 end;
@@ -948,6 +957,7 @@ begin
       FCSSaveTile.Acquire;
       try
         result := DeleteFile(PChar(VPath));
+        GState.MainFileCache.DeleteFileFromCache(GUIDString+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+inttostr(Azoom+1));
       finally
         FCSSaveTile.Release;
       end;
@@ -971,7 +981,7 @@ begin
     exit;
   end;
   try
-    btm.LoadFromFile(Apath)
+    result:=btm.LoadFromFile(Apath)
   except
   end;
 end;
@@ -1033,15 +1043,19 @@ begin
       SaveTileInCache(ATileStream,Vpath);
     end else begin
       btmsrc := TBitmap32.Create;
-      VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
+      try
+        VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
 
-      if IsCropOnDownload then begin
-        CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
+        if IsCropOnDownload then begin
+          CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
+        end;
+        SaveTileInCache(btmSrc, VPath);
+      finally
+        FreeAndNil(btmSrc);
       end;
-      SaveTileInCache(btmSrc, VPath);
     end;
     ban_pg_ld:=true;
-    GState.MainFileCache.DeleteFileFromCache(Vpath);
+    GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
   end;
@@ -1076,7 +1090,6 @@ begin
     SaveTileInCache(ATileStream,Vpath);
     ban_pg_ld:=true;
   end;
-  GState.MainFileCache.DeleteFileFromCache(Vpath);
 end;
 
 procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
@@ -1367,6 +1380,11 @@ begin
   FreeAndNil(FInitDownloadCS);
   FreeAndNil(FCSSaveTile);
   FreeAndNil(FCSSaveTNF);
+  FreeAndNil(FUrlGenerator);
+  FreeAndNil(Fbmp18);
+  FreeAndNil(Fbmp24);
+  FCoordConverter := nil;
+  FPoolOfDownloaders := nil;
   inherited;
 end;
 
@@ -1566,6 +1584,11 @@ end;
 function TMapType.GetGUIDString: string;
 begin
   Result := GUIDToString(FGuid);
+end;
+
+function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+ GUIDString;
 end;
 
 end.

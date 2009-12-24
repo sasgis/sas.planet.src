@@ -5,8 +5,8 @@ object FGoTo: TFGoTo
   AlphaBlendValue = 220
   BorderStyle = bsToolWindow
   Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082'...'
-  ClientHeight = 212
-  ClientWidth = 309
+  ClientHeight = 217
+  ClientWidth = 313
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText

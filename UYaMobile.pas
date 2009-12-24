@@ -97,7 +97,7 @@ begin
  MobileFilePath:=cache_path+GetMobileFile(X,Y,Z,Mt);
  if not(FileExists(MobileFilePath))
   then CreateNilFile(MobileFilePath);
- MobileFile:=TFileStream.Create(MobileFilePath,fmOpenReadWrite);
+ MobileFile:=TFileStream.Create(MobileFilePath,fmOpenReadWrite or fmShareExclusive);
 
  MobileFile.Read(Header,8);
  realTableOffset:=(header[6]or(header[7]shl 8));
