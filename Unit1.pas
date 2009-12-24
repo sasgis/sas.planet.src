@@ -1545,100 +1545,107 @@ begin
 end;
 
 procedure TFmain.drawLineCalc;
-var i,j,textW,l,adp:integer;
-    k1,k2,k4:TPoint;
-    k3:TExtendedPoint;
-    len:real;
-    text:string;
-    polygon: TPolygon32;
+var
+  i,j,textW,adp:integer;
+  k1,k2,k4:TPoint;
+  k3:TExtendedPoint;
+  len:real;
+  text:string;
+  polygon: TPolygon32;
 begin
- try
- polygon:=TPolygon32.Create;
- polygon.Antialiased:=true;
- polygon.AntialiasMode:=am4times;
- polygon.Closed:=false;
- LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
- map.Bitmap.BeginUpdate;
- TBEditPath.Visible:=(length(length_arr)>1);
- LayerMapNal.Bitmap.Font.Name:='Tahoma';
- LayerMapNal.Bitmap.Clear(clBlack);
- if length(length_arr)>0 then
- with LayerMapNal.Bitmap do
- begin
-  for i:=0 to length(length_arr)-1 do
-   begin
-    k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
-    k1:=MapPixel2LoadedPixel(k1);
-    if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then
-      polygon.Add(FixedPoint(k1));
-    if i<length(length_arr)-1 then
-     begin
-      k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
-      k2:=MapPixel2LoadedPixel(k2);
-      if (k2.x-k1.x)>(k2.y-k1.y) then adp:=(k2.x-k1.x)div 32767+2
-                                 else adp:=(k2.y-k1.y)div 32767+2;
-      k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
-      if adp>2 then
-       for j:=1 to adp-1 do
-        begin
-         k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
-         if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then polygon.Add(FixedPoint(k4.x,k4.y));
+  try
+    LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
+    map.Bitmap.BeginUpdate;
+    TBEditPath.Visible:=(length(length_arr)>1);
+    LayerMapNal.Bitmap.Font.Name:='Tahoma';
+    LayerMapNal.Bitmap.Clear(clBlack);
+    if length(length_arr)>0 then begin
+      with LayerMapNal.Bitmap do begin
+        polygon:=TPolygon32.Create;
+        try
+          polygon.Antialiased:=true;
+          polygon.AntialiasMode:=am4times;
+          polygon.Closed:=false;
+          for i:=0 to length(length_arr)-1 do begin
+            k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
+            k1:=MapPixel2LoadedPixel(k1);
+            if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
+              polygon.Add(FixedPoint(k1));
+            end;
+            if i<length(length_arr)-1 then begin
+              k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
+              k2:=MapPixel2LoadedPixel(k2);
+              if (k2.x-k1.x)>(k2.y-k1.y) then begin
+                adp:=(k2.x-k1.x)div 32767+2
+              end else begin
+                adp:=(k2.y-k1.y)div 32767+2;
+              end;
+              k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
+              if adp>2 then begin
+                for j:=1 to adp-1 do begin
+                  k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
+                  if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
+                    polygon.Add(FixedPoint(k4.x,k4.y));
+                  end;
+                end;
+              end;
+            end;
+          end;
+          with Polygon.Outline do try
+            with Grow(Fixed(2.5 / 2), 0.5) do try
+              FillMode := pfWinding;
+              DrawFill(LayerMapNal.Bitmap, SetAlpha(ClRed32, 150));
+            finally
+              Free;
+            end;
+          finally
+            Free;
+          end;
+        finally
+          polygon.Free;
         end;
-     end;
-   end;
-  with Polygon.Outline do
-   begin
-    with Grow(Fixed(2.5 / 2), 0.5) do
-     begin
-      FillMode := pfWinding;
-      DrawFill(LayerMapNal.Bitmap, SetAlpha(ClRed32, 150));
-      free;
-     end;
-    free;
-   end;
-  polygon.Free;
-  for i:=0 to length(length_arr)-2 do
-   begin
-    k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
-    k1:=MapPixel2LoadedPixel(k1);
-    k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
-    k2:=MapPixel2LoadedPixel(k2);
-    if not((k2.x>0)and(k2.y>0))and((k2.x<xhgpx)and(k2.y<yhgpx))then continue;
-    FrameRectS(k2.x-3,k2.y-3,k2.X+3,k2.Y+3,SetAlpha(ClRed32,150));
-    FillRectS(k1.x-2,k1.y-2,k1.X+2,k1.y+2,SetAlpha(ClWhite32,150));
-    if i=length(length_arr)-2 then
-     begin
-      len:=0;
-      for j:=0 to i do len:=len+GState.sat_map_both.GeoConvert.CalcDist(length_arr[j], length_arr[j+1]);
-      text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, GState.num_format);
-      Font.Size:=9;
-      textW:=TextWidth(text)+11;
-      FillRectS(k2.x+12,k2.y,k2.X+textW,k2.y+15,SetAlpha(ClWhite32,110));
-      RenderText(k2.X+15,k2.y,text,3,clBlack32);
-     end
-    else
-     if LenShow then
-      begin
-       text:=DistToStrWithUnits(GState.sat_map_both.GeoConvert.CalcDist(length_arr[i], length_arr[i+1]), GState.num_format);
-       LayerMapNal.Bitmap.Font.Size:=7;
-       textW:=TextWidth(text)+11;
-       FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
-       RenderText(k2.X+8,k2.y+5,text,0,clBlack32);
+        for i:=0 to length(length_arr)-2 do begin
+          k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
+          k1:=MapPixel2LoadedPixel(k1);
+          k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
+          k2:=MapPixel2LoadedPixel(k2);
+          if not((k2.x>0)and(k2.y>0))and((k2.x<xhgpx)and(k2.y<yhgpx))then continue;
+          FrameRectS(k2.x-3,k2.y-3,k2.X+3,k2.Y+3,SetAlpha(ClRed32,150));
+          FillRectS(k1.x-2,k1.y-2,k1.X+2,k1.y+2,SetAlpha(ClWhite32,150));
+          if i=length(length_arr)-2 then begin
+            len:=0;
+            for j:=0 to i do begin
+              len:=len+GState.sat_map_both.GeoConvert.CalcDist(length_arr[j], length_arr[j+1]);
+            end;
+            text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, GState.num_format);
+            Font.Size:=9;
+            textW:=TextWidth(text)+11;
+            FillRectS(k2.x+12,k2.y,k2.X+textW,k2.y+15,SetAlpha(ClWhite32,110));
+            RenderText(k2.X+15,k2.y,text,3,clBlack32);
+          end else begin
+            if LenShow then begin
+              text:=DistToStrWithUnits(GState.sat_map_both.GeoConvert.CalcDist(length_arr[i], length_arr[i+1]), GState.num_format);
+              LayerMapNal.Bitmap.Font.Size:=7;
+              textW:=TextWidth(text)+11;
+              FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
+              RenderText(k2.X+8,k2.y+5,text,0,clBlack32);
+            end;
+          end;
+        end;
+        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[0],GState.zoom_size-1);
+        k1:=MapPixel2LoadedPixel(k1);
+        k1:=Point(k1.x-3,k1.y-3);
+        FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClGreen32,255));
+        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[length(length_arr)-1],GState.zoom_size-1);
+        k1:=MapPixel2LoadedPixel(k1);
+        k1:=Point(k1.x-3,k1.y-3);
+        FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClRed32,255));
       end;
-   end;
-  k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[0],GState.zoom_size-1);
-  k1:=MapPixel2LoadedPixel(k1);
-  k1:=Point(k1.x-3,k1.y-3);
-  FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClGreen32,255));
-  k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[length(length_arr)-1],GState.zoom_size-1);
-  k1:=MapPixel2LoadedPixel(k1);
-  k1:=Point(k1.x-3,k1.y-3);
-  FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClRed32,255));
- end;
- map.Bitmap.endUpdate;
- map.Bitmap.Changed;
- except
- end;
+    end;
+    map.Bitmap.endUpdate;
+    map.Bitmap.Changed;
+  except
+  end;
 end;
 
 procedure TFmain.draw_point;
