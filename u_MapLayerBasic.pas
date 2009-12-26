@@ -175,12 +175,9 @@ end;
 
 
 function TMapLayerBasic.GetFreezePointInBitmapPixel: TPoint;
-var
-  VBitmapSize: TPoint;
 begin
   if FFreezeInCenter then begin
-    VBitmapSize := GetBitmapSizeInPixel;
-    Result := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
+    Result := GetScreenCenterInBitmapPixels;
   end else begin
     Result := FScaleCenterInBitmapPixel;
   end;
