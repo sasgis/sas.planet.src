@@ -29,9 +29,10 @@ type
 type
   TECWWrite = class
   private
-    Handle: LongWord;
-    pClient: PNCSEcwCompressClient;
-    x:NCSError;
+    FDllHandle: LongWord;
+    FEcwData: PNCSEcwCompressClient;
+    FEcwRead:TEcwRead;
+    FSender:TObject;
   public
     constructor Create();
     function Encode(ASender:TObject;FileName:string; Width,Height:cardinal;  CompressRatio:Single;
@@ -40,17 +41,12 @@ type
              CellIncrementX,CellIncrementY,OriginX,OriginY:double):integer;
   end;
 
-
-var
-  EcwRead:TEcwRead;
-  Imwidth,ImHeight:cardinal;
-  Sender:TObject;
-
 implementation
 
 uses
   Unit1,
   UImgFun,
+  u_GlobalState,
   UThreadScleit,
   GR32;
 
@@ -58,28 +54,33 @@ constructor TECWWrite.Create;
 var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
 begin
   inherited create;
-  Handle := LoadLibrary(PAnsiChar(ExtractFilePath(paramstr(0))+'NCSEcwC.dll'));
-  if Handle = 0 then
-  begin
+  FDllHandle := LoadLibrary(PAnsiChar(GState.ProgramPath + 'NCSEcwC.dll'));
+  if FDllHandle = 0 then begin
     ShowMessage('Ошибка при загрузке библиотеки NCSEcwC.dll');
     Halt
   end;
-  @_NCSEcwCompressAllocClient := GetProcAddress(Handle, 'NCSEcwCompressAllocClient');
-  pClient := _NCSEcwCompressAllocClient;
+  @_NCSEcwCompressAllocClient := GetProcAddress(FDllHandle, 'NCSEcwCompressAllocClient');
+  FEcwData := _NCSEcwCompressAllocClient;
 end;
 
 function ReadCallbackFunc(pClient:Pointer;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
-  type
-    Tptr = array [0..2] of pointer;
-    Pptr=^Tptr;
+type
+  Tptr = array [0..2] of pointer;
+  Pptr=^Tptr;
+var
+  VECWWrite: TECWWrite;
 begin
- EcwRead(Sender,nNextLine,PlineRGB(PPtr(InputArray)[0]),PlineRGB(PPtr(InputArray)[1]),PlineRGB(PPtr(InputArray)[2]));
- result:=true;
+  VECWWrite := TECWWrite(PNCSEcwCompressClient(pClient).pClientData);
+  VECWWrite.FEcwRead(VECWWrite.FSender, nNextLine,PlineRGB(PPtr(InputArray)[0]),PlineRGB(PPtr(InputArray)[1]),PlineRGB(PPtr(InputArray)[2]));
+  result:=true;
 end;
 
-function cancel:boolean;
+function cancel(pClient:Pointer):boolean; cdecl;
+var
+  VECWWrite: TECWWrite;
 begin
- result:=not(ThreadScleit(Sender).Fprogress.Visible);
+  VECWWrite := TECWWrite(PNCSEcwCompressClient(pClient).pClientData);
+  result:=not(ThreadScleit(VECWWrite.FSender).Fprogress.Visible);
 end;
 
 function TECWWrite.Encode(ASender:TObject;FileName:string; Width,Height:cardinal;  CompressRatio:Single;
@@ -92,55 +93,52 @@ var
   _NCSEcwCompressOpen:NCSEcwCompressOpen;
   _NCSEcwCompressClose:NCSEcwCompressClose;
   _NCSEcwCompressFreeClient:NCSEcwCompressFreeClient;
+  VNCSError:NCSError;
 begin
-  @_NCSEcwCompress := GetProcAddress(Handle, 'NCSEcwCompress');
-  @_NCSEcwCompressOpen := GetProcAddress(Handle, 'NCSEcwCompressOpen');
-  @_NCSEcwCompressClose := GetProcAddress(Handle, 'NCSEcwCompressClose');
-  @_NCSEcwCompressFreeClient := GetProcAddress(Handle, 'NCSEcwCompressFreeClient');
+  @_NCSEcwCompress := GetProcAddress(FDllHandle, 'NCSEcwCompress');
+  @_NCSEcwCompressOpen := GetProcAddress(FDllHandle, 'NCSEcwCompressOpen');
+  @_NCSEcwCompressClose := GetProcAddress(FDllHandle, 'NCSEcwCompressClose');
+  @_NCSEcwCompressFreeClient := GetProcAddress(FDllHandle, 'NCSEcwCompressFreeClient');
 
-  sender:=Asender;
-  EcwRead:=ReadDelegate;
-  Imwidth:=Width;
-  ImHeight:=Height;
-  pClient^.nInputBands:=3;
-  pClient^.nInOutSizeX:=Width;
-  pClient^.nInOutSizeY:=Height;
-  pClient^.eCompressFormat := COMPRESS_RGB;
-  pClient^.eCompressHint := Hint;
-  pClient^.fTargetCompression:=CompressRatio;
-  pClient^.eCellSizeUnits:= SizeUnits;
-  pClient^.fCellIncrementX:=CellIncrementX;
-  pClient^.fCellIncrementY:=CellIncrementY;
-  pClient^.fOriginX:=OriginX;
-  pClient^.fOriginY:=OriginY;
+  Fsender:=Asender;
+  FEcwRead:=ReadDelegate;
+  FEcwData^.pClientData := Self;
+  FEcwData^.nInputBands:=3;
+  FEcwData^.nInOutSizeX:=Width;
+  FEcwData^.nInOutSizeY:=Height;
+  FEcwData^.eCompressFormat := COMPRESS_RGB;
+  FEcwData^.eCompressHint := Hint;
+  FEcwData^.fTargetCompression:=CompressRatio;
+  FEcwData^.eCellSizeUnits:= SizeUnits;
+  FEcwData^.fCellIncrementX:=CellIncrementX;
+  FEcwData^.fCellIncrementY:=CellIncrementY;
+  FEcwData^.fOriginX:=OriginX;
+  FEcwData^.fOriginY:=OriginY;
 
-  for i:=0 to 15 do pClient^.szDatum[i]:=#0;
-  for i:=0 to 15 do pClient^.szProjection[i]:=#0;
-  for i:=1 to 16 do
-   begin
-    pClient^.szDatum[i-1]:=Datum[i];
-    pClient^.szProjection[i-1]:=Projection[i];
-   end;
+  for i:=0 to 15 do FEcwData^.szDatum[i]:=#0;
+  for i:=0 to 15 do FEcwData^.szProjection[i]:=#0;
+  for i:=1 to 16 do begin
+    FEcwData^.szDatum[i-1]:=Datum[i];
+    FEcwData^.szProjection[i-1]:=Projection[i];
+  end;
 
   for i:=1 to length(filename) do
-   pClient^.szOutputFilename[i-1]:=FileName[i];
+   FEcwData^.szOutputFilename[i-1]:=FileName[i];
 
-  pClient^.pReadCallback := ReadCallbackFunc;
-  pClient^.pStatusCallback:=nil;
-  pClient^.pCancelCallback:=@cancel;
-  x:=_NCSEcwCompressOpen(pClient,false);
-  if x = NCS_SUCCESS then
-   begin
-    x:=_NCSEcwCompress(pClient);
-    _NCSEcwCompressClose(pClient);
-   end;
-  _NCSEcwCompressFreeClient(pClient);
+  FEcwData^.pReadCallback := ReadCallbackFunc;
+  FEcwData^.pStatusCallback:=nil;
+  FEcwData^.pCancelCallback:=@cancel;
+  VNCSError:=_NCSEcwCompressOpen(FEcwData, false);
+  if VNCSError = NCS_SUCCESS then begin
+    VNCSError:=_NCSEcwCompress(FEcwData);
+    _NCSEcwCompressClose(FEcwData);
+  end;
+  _NCSEcwCompressFreeClient(FEcwData);
 
-	if(x = NCS_SUCCESS) then
-   begin
-     FreeLibrary(Handle);
-	 end;
-  result:=integer(x);
+	if(VNCSError = NCS_SUCCESS) then begin
+     FreeLibrary(FDllHandle);
+  end;
+  result:=integer(VNCSError);
 end;
 
 end.
