@@ -9,7 +9,6 @@ uses
   Classes,
   Dialogs,
   Graphics,
-  math,
   GR32,
   Jpeg,
   ijl,
@@ -88,7 +87,6 @@ uses
   StrUtils,
   ECWWriter,
   ECWReader,
-  unit1,
   u_GlobalState,
   usaveas;
 

@@ -28,8 +28,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  cUnicodeChar;
+  SysUtils;
 
 { TLogForTaskThread }
 

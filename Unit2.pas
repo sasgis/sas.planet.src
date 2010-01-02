@@ -15,7 +15,6 @@ uses
   rxToolEdit,
   rxCurrEdit,
   Ugeofun,
-  UResStrings,
   UMarksExplorer;
 
 type
@@ -61,15 +60,13 @@ var
   procedure MouseOnMyReg(var PWL:TResObj;xy:TPoint);
 
 implementation
+
 uses
   u_GlobalState,
-  t_CommonTypes, 
+  t_CommonTypes,
   t_GeoTypes,
   unit1,
-  UaddPoint,
-  UaddLine,
-  UMapType,
-  UaddPoly;
+  UMapType;
 
 {$R *.dfm}
 

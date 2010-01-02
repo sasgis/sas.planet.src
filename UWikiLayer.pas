@@ -4,12 +4,10 @@ interface
 
 uses
   Classes,
-  math,
   GR32,
   UgeoFun,
   UKmlParse,
   UMapType,
-  UResStrings,
   t_GeoTypes;
 
 type
@@ -36,8 +34,7 @@ uses
   SysUtils,
   StrUtils,
   u_GlobalState,
-  unit1,
-  UImgFun;
+  unit1;
 
 procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 var i,j:integer;

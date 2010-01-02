@@ -13,11 +13,10 @@ uses
   ExtCtrls,
   StdCtrls,
   Mask,
-  ColorGrd,
+  Grids,
   Buttons,
   Spin,
   DB,
-  DBClient,
   DBCtrls,
   rxToolEdit,
   rxCurrEdit,
@@ -31,7 +30,7 @@ uses
   GR32_Resamplers,
   UResStrings,
   UMarksExplorer,
-  t_GeoTypes, ComCtrls, Grids;
+  t_GeoTypes;
 
 type
   TFaddPoint = class(TForm)
@@ -119,8 +118,7 @@ implementation
 uses
   Math,
   u_GlobalState,
-  Unit1,
-  Unit2;
+  Unit1;
 
 {$R *.dfm}
 function TFaddPoint.show_(aLL:TExtendedPoint;new:boolean):boolean;

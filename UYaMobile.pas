@@ -20,9 +20,6 @@ var
 
 implementation
 
-uses
-  Unit1;
-  
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
 begin

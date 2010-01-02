@@ -23,7 +23,6 @@ uses
   TBX,
   TB2Dock,
   TB2Toolbar,
-  UGeoFun,
   Unit1,
   UResStrings,
   UMarksExplorer,
@@ -92,9 +91,6 @@ var
   FAddPoly: TFAddPoly;
 
 implementation
-
-uses
-  u_GlobalState;
 
 {$R *.dfm}
 

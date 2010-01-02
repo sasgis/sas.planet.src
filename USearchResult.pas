@@ -13,7 +13,6 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
-  UGeoFun,
   Unit1,
   t_GeoTypes;
 

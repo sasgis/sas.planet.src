@@ -8,12 +8,10 @@ uses
   SysUtils,
   Graphics,
   Math,
-  Jpeg,
   IJL,
   GR32,
   GR32_Resamplers,
   UMapType,
-  UGeoFun,
   t_GeoTypes;
 
 type
@@ -97,6 +95,7 @@ var BMP_Bufer: TBMPbuf;
 	$35, $A8, $FF, $28, $31, $07, $2D, $12, $C8, $DC, $88, $46, $7C, $8A, $5B, $22);
 
 implementation
+
 uses
   unit1,
   u_CoordConverterSimpleLonLat,

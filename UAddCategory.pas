@@ -16,8 +16,7 @@ uses
   ExtCtrls,
   Spin,
   DBClient,
-  UResStrings,
-  UGeoFun;
+  UResStrings;
 
 type
   TFAddCategory = class(TForm)
@@ -46,8 +45,7 @@ implementation
 
 uses
   Unit1,
-  UMarksExplorer,
-  u_GlobalState;
+  UMarksExplorer;
 
 {$R *.dfm}
 procedure TFAddCategory.show_(new:boolean);

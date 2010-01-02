@@ -21,7 +21,6 @@ uses
   PNGImage,
   GR32,
   GR32_Resamplers,
-  uGeoFun,
   Unit1,
   UKMLParse,
   UMarksExplorer,
@@ -96,7 +95,6 @@ var
 implementation
 
 uses
-  Math,
   u_GlobalState,
   t_GeoTypes;
   

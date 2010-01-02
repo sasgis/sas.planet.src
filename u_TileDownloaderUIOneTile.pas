@@ -7,7 +7,6 @@ uses
   Classes,
   Types,
   t_LoadEvent,
-  u_TileDownloaderBase,
   u_TileDownloaderThreadBase,
   UMapType;
 
@@ -23,7 +22,6 @@ type
     constructor Create(AXY: TPoint; AZoom: byte; MT:TMapType);overload;
     destructor Destroy; override;
   end;
-
 
 implementation
 

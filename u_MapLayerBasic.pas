@@ -6,10 +6,8 @@ uses
   Windows,
   GR32,
   GR32_Image,
-  GR32_Layers,
   u_WindowLayerBasic,
   t_GeoTypes;
-
 
 type
   TMapLayerBasic =  class(TWindowLayerBasic)
@@ -51,7 +49,6 @@ uses
   Types,
   Forms,
   Graphics,
-  Math,
   u_GlobalState;
 
 { TGPSTrackLayer }

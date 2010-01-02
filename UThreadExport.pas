@@ -16,7 +16,6 @@ uses
   JPEG,
   GR32,
   UMapType,
-  UImgFun,
   UGeoFun,
   unit4,
   UResStrings,
@@ -24,7 +23,7 @@ uses
   t_GeoTypes;
 
 type
-  ThreadExport = class(TThread)
+  TThreadExport = class(TThread)
     PolygLL:TExtendedPointArray;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
@@ -48,7 +47,7 @@ type
     procedure Export2KML(APolyLL:TExtendedPointArray);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
   public
-    constructor Create(CrSusp:Boolean;APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+    constructor Create(APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
   end;
 
 implementation
@@ -57,22 +56,23 @@ uses
   Math,
   u_GeoToStr,
   unit1,
-  usaveas,
   i_ITileFileNameGenerator,
   i_ICoordConverter,
   u_GlobalState,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid;
 
-procedure ThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
+procedure TThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin
  if Zippu then Zip.CancelTheOperation;
 end;
 
-constructor ThreadExport.Create(CrSusp:Boolean;APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+constructor TThreadExport.Create(APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
 var i:integer;
 begin
-  inherited Create(CrSusp);
+  inherited Create(false);
+  Priority := tpLowest;
+  FreeOnTerminate:=true;
   Application.CreateForm(TFProgress2, FProgress);
   Zippu:=false;
   cSat:=Acsat;
@@ -97,7 +97,7 @@ begin
 end;
 
 
-procedure ThreadExport.Execute;
+procedure TThreadExport.Execute;
 begin
  Zippu:=false;
  case format of
@@ -109,7 +109,7 @@ begin
  FProgress.Close;
 end;
 
-function ThreadExport.Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
+function TThreadExport.Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
 var l: Integer;
     p: Pointer;
     Stmt: TDISQLite3Statement;
@@ -184,7 +184,7 @@ begin
   end;
 end;
 
-procedure ThreadExport.export2iMaps(APolyLL:TExtendedPointArray);
+procedure TThreadExport.export2iMaps(APolyLL:TExtendedPointArray);
 var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg: TPointArray;
@@ -435,7 +435,7 @@ begin
   end;
 end;
 
-procedure ThreadExport.savefilesREG(APolyLL:TExtendedPointArray);
+procedure TThreadExport.savefilesREG(APolyLL:TExtendedPointArray);
 var p_x,p_y,i,j:integer;
     num_dwn,obrab:integer;
     polyg:TPointArray;
@@ -548,7 +548,7 @@ begin
 end;
 
 
-procedure ThreadExport.Export2KML(APolyLL:TExtendedPointArray);
+procedure TThreadExport.Export2KML(APolyLL:TExtendedPointArray);
 var p_x,p_y,i,j:integer;
     num_dwn,obrab:integer;
     polyg:TPointArray;
@@ -687,7 +687,7 @@ begin
 end;
 
 
-procedure ThreadExport.export2YaMaps(APolyLL:TExtendedPointArray);
+procedure TThreadExport.export2YaMaps(APolyLL:TExtendedPointArray);
 var p_x,p_y,p_xd256,p_yd256,i,j,ci,cj,xi,yi,hxyi,sizeim,cri,crj:integer;
     num_dwn,scachano,obrab,alpha:integer;
     polyg:TPointArray;

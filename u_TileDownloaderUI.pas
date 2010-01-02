@@ -7,7 +7,6 @@ uses
   Classes,
   Types,
   t_LoadEvent,
-  u_TileDownloaderBase,
   u_TileDownloaderThreadBase,
   UMapType;
 

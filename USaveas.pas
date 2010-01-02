@@ -13,12 +13,10 @@ uses
   Classes,
   Controls,
   Dialogs,
-  math,
   StdCtrls,
   ExtCtrls,
   inifiles,
   ComCtrls,
-  Mask,
   filectrl,
   UTrAllLoadMap,
   UThreadScleit,
@@ -198,15 +196,12 @@ var
 implementation
 
 uses
-  Gauges,
   u_GlobalState,
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,
   UProgress,
   unit1,
-  Unit4,
-  UImgFun,
   UOzi;
   
 {$R *.dfm}
@@ -309,11 +304,7 @@ begin
         Replace:=CBReplace.Checked;
        end;
  end;
- with ThreadExport.Create(false,path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath) do
-  begin
-   Priority := tpLowest;
-   FreeOnTerminate:=true;
-  end;
+ TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);

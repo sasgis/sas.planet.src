@@ -8,7 +8,6 @@ uses
   Classes,
   Controls,
   OleCtrls,
-  StdCtrls,
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB;
@@ -33,8 +32,7 @@ implementation
 
 uses
   SysUtils,
-  u_GlobalState,
-  Unit1;
+  u_GlobalState;
 
 {$R *.dfm}
 

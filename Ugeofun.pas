@@ -3,7 +3,6 @@ unit Ugeofun;
 interface
 
 uses
-  StrUtils,
   SysUtils,
   Types,
   Math,

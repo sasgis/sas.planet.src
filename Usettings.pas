@@ -10,16 +10,13 @@ uses
   Forms,
   StdCtrls,
   Graphics,
-  inifiles,
   filectrl,
   ExtCtrls,
   ComCtrls,
   Dialogs,
   Buttons,
   Spin,
-  strutils,
   DBCtrlsEh,
-  IEConst,
   Mask,
   urlmon,
   wininet,
@@ -278,7 +275,6 @@ var
 implementation
 
 uses
-  Math,
   Types,
   TB2Item,
   u_GlobalState,
@@ -286,20 +282,7 @@ uses
   Uimgfun,
   Unit1,
   UEditMap,
-  UFillingMap,
-  Ubrowser,
-  Unit2,
-  UAbout,
-  USaveas,
-  USearchResult,
-  UImport,
-  UAddCategory,
-  UFDGAvailablePic,
-  UaddPoint,
-  Unit4,
-  UaddLine,
-  u_MiniMap,
-  UaddPoly;
+  u_MiniMap;
 
 {$R *.dfm}
 
