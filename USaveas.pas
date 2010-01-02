@@ -304,7 +304,7 @@ begin
         Replace:=CBReplace.Checked;
        end;
  end;
- ThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
+ TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
