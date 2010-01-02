@@ -113,51 +113,46 @@ uses
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
 
-var
-  loc:integer;
    {$R *.res}{$R SASR.RES}
 begin
   GState := TGlobalState.Create;
-  if FileExists(GState.ProgramPath+'SASPlanet.RUS') then
-   begin
-    RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
-   end;
-  if SysLocale.PriLangID<>CProgram_Lang_Default then loc:=LANG_ENGLISH
-                                       else loc:=CProgram_Lang_Default;
-  GState.Localization:= GState.MainIni.Readinteger('VIEW','localization',loc);
-  GState.WebReportToAuthor:=GState.MainIni.ReadBool('NPARAM','stat',true);
-  Application.Initialize;
-  Application.Title := 'SAS.Планета';
-  //logo
-  LoadNewResourceModule(GState.Localization);
-  if GState.MainIni.ReadBool('VIEW','Show_logo',true) then
-   begin
-    FLogo:=TFLogo.Create(application);
-    FLogo.Label1.Caption:='v '+SASVersion;
-    FLogo.Show;
-    Application.ProcessMessages;
-   end;
-  LoadMaps;
-  //xLogo
-  Application.HelpFile := '';
-  Application.CreateForm(TFmain, Fmain);
-  Application.CreateForm(TFGoTo, FGoTo);
-  Application.CreateForm(TFabout, Fabout);
-  Application.CreateForm(TFSettings, FSettings);
-  Application.CreateForm(TFsaveas, Fsaveas);
-  Application.CreateForm(TFSearchResult, FSearchResult);
-  Application.CreateForm(TFMarksExplorer, FMarksExplorer);
-  Application.CreateForm(TFImport, FImport);
-  Application.CreateForm(TFAddCategory, FAddCategory);
-  Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
-  Application.CreateForm(TFaddPoint, FaddPoint);
-  Application.CreateForm(TFprogress2, Fprogress2);
-  Application.CreateForm(TFbrowser, Fbrowser);
-  Application.CreateForm(TFaddLine, FaddLine);
-  Application.CreateForm(TFAddPoly, FAddPoly);
-  Application.CreateForm(TFEditMap, FEditMap);
-  Fmain.WebBrowser1.Navigate('about:blank');
-  Fbrowser.EmbeddedWB1.Navigate('about:blank');
-  Application.Run;
-  FreeAndNil(GState);
+  try
+    if FileExists(GState.ProgramPath+'SASPlanet.RUS') then begin
+      RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
+    end;
+    Application.Initialize;
+    Application.Title := 'SAS.Планета';
+    LoadNewResourceModule(GState.Localization);
+    //logo
+    if GState.MainIni.ReadBool('VIEW','Show_logo',true) then begin
+      FLogo:=TFLogo.Create(application);
+      FLogo.Label1.Caption:='v '+SASVersion;
+      FLogo.Show;
+      Application.ProcessMessages;
+    end;
+    LoadMaps;
+    //xLogo
+    Application.HelpFile := '';
+    Application.CreateForm(TFmain, Fmain);
+    Application.CreateForm(TFGoTo, FGoTo);
+    Application.CreateForm(TFabout, Fabout);
+    Application.CreateForm(TFSettings, FSettings);
+    Application.CreateForm(TFsaveas, Fsaveas);
+    Application.CreateForm(TFSearchResult, FSearchResult);
+    Application.CreateForm(TFMarksExplorer, FMarksExplorer);
+    Application.CreateForm(TFImport, FImport);
+    Application.CreateForm(TFAddCategory, FAddCategory);
+    Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
+    Application.CreateForm(TFaddPoint, FaddPoint);
+    Application.CreateForm(TFprogress2, Fprogress2);
+    Application.CreateForm(TFbrowser, Fbrowser);
+    Application.CreateForm(TFaddLine, FaddLine);
+    Application.CreateForm(TFAddPoly, FAddPoly);
+    Application.CreateForm(TFEditMap, FEditMap);
+    Fmain.WebBrowser1.Navigate('about:blank');
+    Fbrowser.EmbeddedWB1.Navigate('about:blank');
+    Application.Run;
+  finally
+    FreeAndNil(GState);
+  end;
 end.
