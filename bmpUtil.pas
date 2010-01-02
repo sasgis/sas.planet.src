@@ -40,17 +40,13 @@ type
   PlineRGBb = ^TlineRGBb;
   TlineRGBb = array[0..0] of TBGR;
 
-  TBMPRead = function(Sender:TObject;Line:cardinal;InputArray:PLineRGBb):boolean;
+  TBMPRead = function(Line:cardinal;InputArray:PLineRGBb):boolean of object;
+  TBmpCancel = function(): Boolean of object;
 
-Var
-    CountEmptyTiles : integer;
-    procedure SaveBMP(Sender:TObject; W, H : integer; tPath : string; readcallback:TBMPRead);
+  procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);
 
 implementation
 uses  UThreadScleit;
-
-Var
-  BMPRead:TBMPRead;
 
 function SaveBMPHeader(filename:string;W : longint;H : longint): bmHeader;
 begin
@@ -73,12 +69,13 @@ begin
    Result.f.Size:=Result.i.SizI + Result.f.OfBm;   // полный размер файла
 end;
 
-procedure SaveBMP(Sender:TObject; W, H : integer; tPath : string; readcallback:TBMPRead);  // Запись на диск файла
+procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);  // Запись на диск файла
 Var f : file;
     nNextLine: integer;
     InputArray:PlineRGBb;
     TypeBmp:Word;
     Header: bmHeader;
+  BMPRead:TBMPRead;
 begin
    Header:=SaveBMPHeader(tPath,W,H);
    AssignFile(f,tPath);
@@ -91,10 +88,13 @@ begin
    BMPRead:=readcallback;
    getmem(InputArray,W*3);
 
-   for nNextLine:=0 to h-1 do
-    begin
-     if not(ThreadScleit(Sender).Fprogress.Visible) then break;
-     BMPRead(Sender,nNextLine,InputArray);
+   for nNextLine:=0 to h-1 do begin
+     if Assigned(ACancelDelegate) then begin
+       if ACancelDelegate then begin
+         break;
+       end;
+     end;
+     BMPRead(nNextLine,InputArray);
      seek(f,(h-nNextLine-1)*(W*3+ (w mod 4) )+54);
      BlockWrite(f,InputArray^,(W*3+ (w mod 4) ));
     end;
