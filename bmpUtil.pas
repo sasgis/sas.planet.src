@@ -2,6 +2,20 @@ unit bmpUtil;
 
 interface
 
+type
+  TBGR= record
+   b,g,r:byte;
+  end;
+
+  PlineRGBb = ^TlineRGBb;
+  TlineRGBb = array[0..0] of TBGR;
+
+  TBMPRead = function(Line:cardinal;InputArray:PLineRGBb):boolean of object;
+  TBmpCancel = function(): Boolean of object;
+
+  procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);
+
+implementation
 
 type
   bmFileHeader = record	{заголовок файла}
@@ -32,21 +46,6 @@ type
     i : bmInfoHeader;     {информационный заголовок}
     //p : array[0..255,0..3]of byte; {таблица палитры}
   end;
-
-  TBGR= record
-   b,g,r:byte;
-  end;
-
-  PlineRGBb = ^TlineRGBb;
-  TlineRGBb = array[0..0] of TBGR;
-
-  TBMPRead = function(Line:cardinal;InputArray:PLineRGBb):boolean of object;
-  TBmpCancel = function(): Boolean of object;
-
-  procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);
-
-implementation
-uses  UThreadScleit;
 
 function SaveBMPHeader(filename:string;W : longint;H : longint): bmHeader;
 begin

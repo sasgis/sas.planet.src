@@ -29,10 +29,6 @@ type
   P256rgb = ^T256rgb;
   T256rgb = array[0..255] of PRow;
 
-  TBGR = record
-   b,g,r:byte;
-  end;
-
   PArrayBGR = ^TArrayBGR;
   TArrayBGR = array [0..0] of TBGR;
 
@@ -86,6 +82,7 @@ type
   end;
 
 implementation
+
 uses
   StrUtils,
   ECWWriter,
