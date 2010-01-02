@@ -12,7 +12,7 @@ uses
   GR32,
   Jpeg,
   ijl,
-  ECWWrite,
+  UECWWrite,
   UMapType,
   UImgFun,
   UGeoFun,

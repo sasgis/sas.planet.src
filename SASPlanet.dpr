@@ -1,6 +1,8 @@
+// JCL_DEBUG_EXPERT_INSERTJDBG ON
 program SASPlanet;
 
 uses
+  FastMM4,
   reinit,
   Forms,
   iniFiles,
@@ -8,7 +10,6 @@ uses
   windows,
   IJL in 'src\ijl.pas',
   ECWReader in 'src\ECWReader.pas',
-  ECWWrite in 'src\ECWWrite.pas',
   ECWWriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
   pngimage in 'src\pngimage.pas',
@@ -48,6 +49,7 @@ uses
   u_GlobalState in 'u_GlobalState.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   UKmlParse in 'UKmlParse.pas',
+  UECWWrite in 'UECWWrite.pas',
   Uimgfun in 'Uimgfun.pas',
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',

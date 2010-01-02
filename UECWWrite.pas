@@ -1,4 +1,4 @@
-unit ECWWrite;
+unit UECWWrite;
 interface
  uses ECWwriter,ECWreader,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, JPEG, Controls, Forms,
