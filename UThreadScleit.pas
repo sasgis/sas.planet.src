@@ -69,6 +69,8 @@ type
     prBar:integer;
     Message_:string;
     LastXY: TPoint;
+    function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
+    function IsCancel: Boolean;
   protected
     procedure UpdateProgressFormCapt;
     procedure UpdateProgressFormBar;
@@ -204,98 +206,6 @@ begin
  CopyMemory(LineRGB,VThread.Array256BGR^[starttile],(VThread.poly1.x-VThread.poly0.x)*3);
 end;
 
-function ReadLine(Sender:TObject;Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
-var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
-    p_h:TPoint;
-    p:PColor32array;
-    VThread: ThreadScleit;
-begin
- VThread := ThreadScleit(Sender);
- if line<(256-VThread.sy) then starttile:=VThread.sy+line
-                  else starttile:=(line-(256-VThread.sy)) mod 256;
- if (starttile=0)or(line=0) then
-  begin
-   VThread.prBar:=line;
-   VThread.Synchronize(VThread.UpdateProgressFormBar);
-   VThread.prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(VThread.Poly1.Y-VThread.Poly0.Y))*100))+'%';
-   VThread.Synchronize(VThread.UpdateProgressFormStr2);
-   p_y:=(VThread.Poly0.Y+line)-((VThread.Poly0.Y+line) mod 256);
-   p_x:=VThread.poly0.x-(VThread.poly0.x mod 256);
-   p_h := VThread.typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (VThread.zoom - 1) + 8, VThread.Htypemap.GeoConvert);
-   lrarri:=0;
-   if line>(255-VThread.sy) then Asy:=0 else Asy:=VThread.sy;
-   if (p_y div 256)=(VThread.poly1.y div 256) then Aey:=VThread.ey else Aey:=255;
-   Asx:=VThread.sx;
-   Aex:=255;
-   while p_x<=VThread.poly1.x do
-    begin
-     // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
-     VThread.LastXY.X := p_x;
-     VThread.LastXY.Y := p_y;
-     if not(RgnAndRgn(VThread.Poly,p_x+128,p_y+128,false)) then VThread.btmm.Clear(Color32(GState.BGround))
-     else
-     begin
-     VThread.btmm.Clear(Color32(GState.BGround));
-     if (VThread.typemap.Tileexists(p_x,p_y,VThread.zoom))
-      then begin
-            if not(VThread.typemap.LoadTile(VThread.btmm,p_x,p_y,VThread.zoom,false))
-             then VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
-           end
-      else VThread.typemap.LoadTileFromPreZ(VThread.btmm,p_x,p_y,VThread.zoom,false);
-     if VThread.usedReColor then Gamma(VThread.btmm);
-     if VThread.Htypemap<>nil then
-      begin
-       VThread.btmh.Clear($FF000000);
-       if (VThread.Htypemap.Tileexists(p_h.x,p_h.y,VThread.zoom)) then begin
-        if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false))
-         then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
-       end else begin
-         VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y,VThread.zoom,false);
-       end;
-       VThread.btmh.DrawMode:=dmBlend;
-       VThread.btmm.Draw(0,0-((p_h.y mod 256)),VThread.btmh);
-       if p_h.y<>p_y then
-        begin
-         VThread.btmh.Clear($FF000000);
-         if (VThread.Htypemap.Tileexists(p_h.x,p_h.y+256,VThread.zoom)) then begin
-          if not(VThread.Htypemap.LoadTile(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false))
-           then VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
-         end else begin
-          VThread.Htypemap.LoadTileFromPreZ(VThread.btmh,p_h.x,p_h.y+256,VThread.zoom,false);
-         end;
-         VThread.btmh.DrawMode:=dmBlend;
-         VThread.btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),VThread.btmh);
-        end;
-      end;
-     end;
-     if (p_x+256)>VThread.poly1.x
-      then Aex:=VThread.ex;
-     for j:=Asy to Aey do
-      begin
-       p:=VThread.btmm.ScanLine[j];
-       rarri:=lrarri;
-       for i:=Asx to Aex do
-        begin
-         VThread.Rarr^[j]^[rarri]:=(cardinal(p^[i]) shr 16);
-         VThread.Garr^[j]^[rarri]:=(cardinal(p^[i]) shr 8);
-         VThread.Barr^[j]^[rarri]:=(cardinal(p^[i]));
-         inc(rarri);
-        end;
-      end;
-     lrarri:=rarri;
-     Asx:=0;
-     inc(p_x,256);
-     inc(p_h.x,256);
-    end;
-  end;
- for i:=0 to (VThread.poly1.x-VThread.poly0.x)-1 do
-  begin
-   LineR^[i]:=VThread.Rarr^[starttile]^[i];
-   LineG^[i]:=VThread.Garr^[starttile]^[i];
-   LineB^[i]:=VThread.Barr^[starttile]^[i];
-  end;
-end;
-
 procedure ThreadScleit.saveRECT;
 var p_x,p_y,i,j,k,errecw,pti:integer;
     p_h:TPoint;
@@ -403,7 +313,7 @@ begin
    end;
    CalculateMercatorCoordinates(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
                                 Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY,Units);
-   errecw:=ecw.Encode(self,fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, @ReadLine, nil,
+   errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
              Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
    if (errecw>0)and(errecw<>52) then
     begin
@@ -559,6 +469,103 @@ procedure ThreadScleit.Execute;
 begin
  saveRECT;
  Synchronize(UpdateProgressFormClose);
+end;
+
+function ThreadScleit.ReadLineECW(Line: cardinal; var LineR, LineG,
+  LineB: PLineRGB): boolean;
+var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
+    p_h:TPoint;
+    p:PColor32array;
+begin
+  Result := True;
+ if line<(256-sy) then starttile:=sy+line
+                  else starttile:=(line-(256-sy)) mod 256;
+ if (starttile=0)or(line=0) then
+  begin
+   prBar:=line;
+   Synchronize(UpdateProgressFormBar);
+   prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+   Synchronize(UpdateProgressFormStr2);
+   p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
+   p_x:=poly0.x-(poly0.x mod 256);
+   p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
+   lrarri:=0;
+   if line>(255-sy) then Asy:=0 else Asy:=sy;
+   if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+   Asx:=sx;
+   Aex:=255;
+   while p_x<=poly1.x do
+    begin
+     // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
+     LastXY.X := p_x;
+     LastXY.Y := p_y;
+     if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then btmm.Clear(Color32(GState.BGround))
+     else
+     begin
+     btmm.Clear(Color32(GState.BGround));
+     if (typemap.Tileexists(p_x,p_y,zoom))
+      then begin
+            if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false))
+             then typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+           end
+      else typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+     if usedReColor then Gamma(btmm);
+     if Htypemap<>nil then
+      begin
+       btmh.Clear($FF000000);
+       if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
+        if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false))
+         then Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+       end else begin
+         Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+       end;
+       btmh.DrawMode:=dmBlend;
+       btmm.Draw(0,0-((p_h.y mod 256)),btmh);
+       if p_h.y<>p_y then
+        begin
+         btmh.Clear($FF000000);
+         if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
+          if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false))
+           then Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+         end else begin
+          Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+         end;
+         btmh.DrawMode:=dmBlend;
+         btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
+        end;
+      end;
+     end;
+     if (p_x+256)>poly1.x
+      then Aex:=ex;
+     for j:=Asy to Aey do
+      begin
+       p:=btmm.ScanLine[j];
+       rarri:=lrarri;
+       for i:=Asx to Aex do
+        begin
+         Rarr^[j]^[rarri]:=(cardinal(p^[i]) shr 16);
+         Garr^[j]^[rarri]:=(cardinal(p^[i]) shr 8);
+         Barr^[j]^[rarri]:=(cardinal(p^[i]));
+         inc(rarri);
+        end;
+      end;
+     lrarri:=rarri;
+     Asx:=0;
+     inc(p_x,256);
+     inc(p_h.x,256);
+    end;
+  end;
+ for i:=0 to (poly1.x-poly0.x)-1 do
+  begin
+   LineR^[i]:=Rarr^[starttile]^[i];
+   LineG^[i]:=Garr^[starttile]^[i];
+   LineB^[i]:=Barr^[starttile]^[i];
+  end;
+end;
+
+function ThreadScleit.IsCancel: Boolean;
+begin
+  result:=not(Fprogress.Visible);
 end;
 
 end.

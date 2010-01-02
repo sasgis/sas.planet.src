@@ -6,49 +6,44 @@ uses
   ECWwriter,
   ECWreader,
   Windows,
-  Messages,
-  SysUtils,
-  Variants,
-  Classes,
-  Graphics,
-  JPEG,
-  Controls,
-  Forms,
-  Dialogs,
-  StdCtrls,
-  ExtCtrls;
+  Dialogs;
 
 type
   TlineRGB = array[0..0] of single;
   PlineRGB = ^TlineRGB;
 
-  TEcwRead = function(Sender:TObject;Line:cardinal; var lineR,LineG,LineB:PLineRGB):boolean;
-  TEcwStatus = procedure(Line:cardinal);
-  PNCSEcwCompressClient = ^NCSEcwCompressClient;
+  TEcwRead = function(Line:cardinal; var lineR,LineG,LineB:PLineRGB):boolean of object;
+  TEcwStatus = procedure(Line:cardinal) of object;
+  TEcwCancel = function(): Boolean of object;
 
 type
   TECWWrite = class
   private
     FDllHandle: LongWord;
     FEcwData: PNCSEcwCompressClient;
-    FEcwRead:TEcwRead;
-    FSender:TObject;
+    FReadDelegate: TEcwRead;
+    FCancelDelegate: TEcwCancel;
+    FStatusDelegate: TEcwStatus;
   public
     constructor Create();
-    function Encode(ASender:TObject;FileName:string; Width,Height:cardinal;  CompressRatio:Single;
-             Hint:CompressHint; ReadDelegate:TEcwRead; StatusDelegate:TEcwStatus;
-             Datum,Projection:string; SizeUnits:CellSizeUnits;
-             CellIncrementX,CellIncrementY,OriginX,OriginY:double):integer;
+    function Encode(
+      FileName:string;
+      Width,Height:cardinal;
+      CompressRatio:Single;
+      Hint:CompressHint;
+      AReadDelegate:TEcwRead;
+      ACancelDelegate:TEcwCancel;
+      AStatusDelegate:TEcwStatus;
+      Datum,Projection:string;
+      SizeUnits:CellSizeUnits;
+      CellIncrementX,CellIncrementY,OriginX,OriginY:double
+    ):integer;
   end;
 
 implementation
 
 uses
-  Unit1,
-  UImgFun,
-  u_GlobalState,
-  UThreadScleit,
-  GR32;
+  u_GlobalState;
 
 constructor TECWWrite.Create;
 var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
@@ -63,30 +58,37 @@ begin
   FEcwData := _NCSEcwCompressAllocClient;
 end;
 
-function ReadCallbackFunc(pClient:Pointer;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
+function ReadCallbackFunc(pClient:PNCSEcwCompressClient;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
 type
   Tptr = array [0..2] of pointer;
   Pptr=^Tptr;
 var
   VECWWrite: TECWWrite;
 begin
-  VECWWrite := TECWWrite(PNCSEcwCompressClient(pClient).pClientData);
-  VECWWrite.FEcwRead(VECWWrite.FSender, nNextLine,PlineRGB(PPtr(InputArray)[0]),PlineRGB(PPtr(InputArray)[1]),PlineRGB(PPtr(InputArray)[2]));
-  result:=true;
+  VECWWrite := TECWWrite(pClient.pClientData);
+  result := VECWWrite.FReadDelegate(nNextLine,PlineRGB(PPtr(InputArray)[0]),PlineRGB(PPtr(InputArray)[1]),PlineRGB(PPtr(InputArray)[2]));
 end;
 
-function cancel(pClient:Pointer):boolean; cdecl;
+function cancel(pClient:PNCSEcwCompressClient):boolean; cdecl;
 var
   VECWWrite: TECWWrite;
 begin
-  VECWWrite := TECWWrite(PNCSEcwCompressClient(pClient).pClientData);
-  result:=not(ThreadScleit(VECWWrite.FSender).Fprogress.Visible);
+  VECWWrite := TECWWrite(pClient.pClientData);
+  result:= VECWWrite.FCancelDelegate;
 end;
 
-function TECWWrite.Encode(ASender:TObject;FileName:string; Width,Height:cardinal;  CompressRatio:Single;
-             Hint:CompressHint; ReadDelegate:TEcwRead; StatusDelegate:TEcwStatus;
-             Datum,Projection:string; SizeUnits:CellSizeUnits;
-             CellIncrementX,CellIncrementY,OriginX,OriginY:double):integer;
+function TECWWrite.Encode(
+  FileName:string;
+  Width,Height:cardinal;
+  CompressRatio:Single;
+  Hint:CompressHint;
+  AReadDelegate:TEcwRead;
+  ACancelDelegate:TEcwCancel;
+  AStatusDelegate:TEcwStatus;
+  Datum,Projection:string;
+  SizeUnits:CellSizeUnits;
+  CellIncrementX,CellIncrementY,OriginX,OriginY:double
+):integer;
 var
   i:integer;
   _NCSEcwCompress:NCSEcwCompress;
@@ -100,8 +102,9 @@ begin
   @_NCSEcwCompressClose := GetProcAddress(FDllHandle, 'NCSEcwCompressClose');
   @_NCSEcwCompressFreeClient := GetProcAddress(FDllHandle, 'NCSEcwCompressFreeClient');
 
-  Fsender:=Asender;
-  FEcwRead:=ReadDelegate;
+  FReadDelegate := AReadDelegate;
+  FStatusDelegate := AStatusDelegate;
+  FCancelDelegate := ACancelDelegate;
   FEcwData^.pClientData := Self;
   FEcwData^.nInputBands:=3;
   FEcwData^.nInOutSizeX:=Width;
@@ -127,7 +130,7 @@ begin
 
   FEcwData^.pReadCallback := ReadCallbackFunc;
   FEcwData^.pStatusCallback:=nil;
-  FEcwData^.pCancelCallback:=@cancel;
+  FEcwData^.pCancelCallback:=cancel;
   VNCSError:=_NCSEcwCompressOpen(FEcwData, false);
   if VNCSError = NCS_SUCCESS then begin
     VNCSError:=_NCSEcwCompress(FEcwData);
