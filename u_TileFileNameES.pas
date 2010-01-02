@@ -15,7 +15,6 @@ type
 implementation
 
 uses
-  Math,
   StrUtils,
   SysUtils;
 

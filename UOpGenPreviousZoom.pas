@@ -11,7 +11,6 @@ uses
   Graphics,
   Dialogs,
   GR32,
-  GR32_Layers,
   GR32_Resamplers,
   UMapType,
   UGeoFun,

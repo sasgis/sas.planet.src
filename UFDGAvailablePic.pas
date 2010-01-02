@@ -17,8 +17,6 @@ uses
   ComCtrls,
   CommCtrl,
   ExtCtrls,
-  Jpeg,
-  UGeoFun,
   Unit1,
   UMapType,
   UResStrings,
@@ -148,7 +146,6 @@ var
 implementation
 
 uses
-  Math,
   u_GlobalState,
   u_GeoToStr;
 

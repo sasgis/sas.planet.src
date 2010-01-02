@@ -6,9 +6,7 @@ uses
   Windows,
   Classes,
   graphics,
-  StrUtils,
   SysUtils,
-  Math,
   Types,
   GR32,
   pngimage;
@@ -45,8 +43,7 @@ implementation
 uses
   GR32_Resamplers,
   GR32_Filters,
-  u_GlobalState,
-  unit1;
+  u_GlobalState;
 
 function str2r(inp:string):Extended;
 var p:integer;

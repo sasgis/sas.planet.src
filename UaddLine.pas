@@ -22,7 +22,6 @@ uses
   TB2Dock,
   TB2Toolbar,
   GR32,
-  UGeofun,
   Unit1,
   UResStrings,
   UMarksExplorer,
@@ -83,9 +82,6 @@ var
   FaddLine: TFaddLine;
 
 implementation
-
-uses
-  u_GlobalState;
 
 {$R *.dfm}
 function TFaddLine.show_(aLL:array of TExtendedPoint;new:boolean):boolean;

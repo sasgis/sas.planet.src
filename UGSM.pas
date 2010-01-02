@@ -1,9 +1,23 @@
 unit UGSM;
 
 interface
+
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,  SwinHttp,
-  Dialogs, StdCtrls, CPDrv, StrUtils, t_GeoTypes, u_GlobalState, unit1, UResStrings;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StrUtils,
+  SwinHttp,
+  CPDrv,
+  t_GeoTypes,
+  u_GlobalState,
+  UResStrings;
 
 type
   TToPos = procedure (LL:TExtendedPoint;zoom_:byte;draw:boolean) of object;

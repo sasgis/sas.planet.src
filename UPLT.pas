@@ -7,10 +7,7 @@ uses
   Classes,
   SysUtils,
   Graphics,
-  StrUtils,
   GR32,
-  Ugeofun,
-  UResStrings,
   unit1,
   t_GeoTypes;
 

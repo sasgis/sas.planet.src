@@ -6,8 +6,6 @@ uses
   Windows,
   Classes,
   Types,
-  t_LoadEvent,
-  u_TileDownloaderBase,
   i_ITileDownlodSession,
   UMapType;
 
@@ -25,7 +23,6 @@ implementation
 
 uses
   SysUtils,
-  u_GlobalState,
   UResStrings;
 
 class function TTileDownloaderThreadBase.GetErrStr(Aerr: TDownloadTileResult): string;

@@ -6,7 +6,6 @@ uses
   Types,
   SysUtils,
   classes,
-  math,
   GR32,
   ECWReader,
   Ugeofun,

@@ -9,7 +9,6 @@ uses
   Classes,
   t_GeoTypes,
   UMapType,
-  UImgFun,
   unit4,
   UResStrings;
 

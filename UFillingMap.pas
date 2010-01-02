@@ -10,16 +10,10 @@ uses
   Graphics,
   Dialogs,
   Math,
-
   GR32,
   GR32_Layers,
   GR32_Resamplers,
-
-  UMapType,
-  UImgFun,
-  UGeoFun,
-  unit4,
-  UResStrings;
+  UMapType;
 
 type
   TFillingMap = class(TThread)
@@ -50,8 +44,7 @@ implementation
 
 uses
   u_GlobalState,
-  unit1,
-  USaveas;
+  unit1;
 
 constructor TFillingMap.Create(CrSusp:Boolean);
 begin

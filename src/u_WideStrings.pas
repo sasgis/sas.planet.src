@@ -169,7 +169,6 @@ implementation
 
 uses
   RTLConsts,
-  Consts,
   Windows,
   SysUtils,
   cUnicode;

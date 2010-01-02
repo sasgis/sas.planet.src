@@ -13,7 +13,6 @@ uses
   StdCtrls,
   rxCurrEdit,
   rxToolEdit,
-  unit1,
   Ugeofun,
   UResStrings;
 
@@ -56,8 +55,7 @@ var
 
 implementation
 
-uses
-  USaveas;
+
 
 {$R *.dfm}
 

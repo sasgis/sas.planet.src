@@ -53,16 +53,13 @@ uses
   ZylCustomGPSReceiver,
   PNGimage,
   MidasLib,
-  ImgMaker,
   t_LoadEvent,
   u_GeoToStr,
   t_CommonTypes,
-  UThreadScleit,
   Ugeofun,
   UWikiLayer,
   ULogo,
   UMapType,
-  UThreadExport,
   UResStrings,
   UFillingMap,
   u_LayerStatBar,
@@ -710,6 +707,7 @@ var
   function URLEncode(const S: string): string;
 
 implementation
+
 uses
   StrUtils,
   DateUtils,
@@ -732,9 +730,6 @@ uses
   Ubrowser,
   UMarksExplorer,
   UFDGAvailablePic,
-  USearchResult,
-  UImport,
-  UAddCategory,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   i_ILogSimple,

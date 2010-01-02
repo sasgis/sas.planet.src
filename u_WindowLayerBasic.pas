@@ -59,7 +59,7 @@ implementation
 
 uses
   Forms,
-  u_GlobalState, Types;
+  Types;
 
 constructor TWindowLayerBasic.Create(AParentMap: TImage32);
 begin

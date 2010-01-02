@@ -101,7 +101,6 @@ var
 implementation
 
 uses
-  Math,
   DBTables,
   t_CommonTypes,
   u_GlobalState,

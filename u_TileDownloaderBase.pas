@@ -8,8 +8,7 @@ uses
   SyncObjs,
   Classes,
   t_CommonTypes,
-  i_ITileDownlodSession,
-  urlMon;
+  i_ITileDownlodSession;
 
 type
   TTileDownloaderBase = class(TInterfacedObject, ITileDownlodSession)

@@ -13,12 +13,10 @@ uses
   Classes,
   Controls,
   Dialogs,
-  math,
   StdCtrls,
   ExtCtrls,
   inifiles,
   ComCtrls,
-  Mask,
   filectrl,
   UTrAllLoadMap,
   UThreadScleit,
@@ -198,15 +196,12 @@ var
 implementation
 
 uses
-  Gauges,
   u_GlobalState,
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,
   UProgress,
   unit1,
-  Unit4,
-  UImgFun,
   UOzi;
   
 {$R *.dfm}

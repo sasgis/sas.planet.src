@@ -4,11 +4,9 @@ interface
 uses
   Windows,
   Classes,
-  Wininet,
   i_ILogSimple,
   t_GeoTypes,
   UMapType,
-  u_TileDownloaderBase,
   u_TileDownloaderThreadBase;
 
 type
@@ -70,9 +68,6 @@ implementation
 uses
   SysUtils,
   IniFiles,
-  DateUtils,
-  StrUtils,
-  Math,
   Types,
   i_ITileDownlodSession,
   u_GlobalState,
