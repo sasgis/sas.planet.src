@@ -1,8 +1,6 @@
-// JCL_DEBUG_EXPERT_INSERTJDBG ON
 program SASPlanet;
 
 uses
-  FastMM4,
   reinit,
   Forms,
   iniFiles,
