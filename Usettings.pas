@@ -16,7 +16,6 @@ uses
   Dialogs,
   Buttons,
   Spin,
-  DBCtrlsEh,
   Mask,
   urlmon,
   wininet,
