@@ -18,6 +18,7 @@ uses
   inifiles,
   ComCtrls,
   filectrl,
+  GR32,
   UTrAllLoadMap,
   UThreadScleit,
   UThreadExport,
@@ -323,25 +324,18 @@ begin
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
-var i:integer;
+var
+  i:integer;
+  VInZooms: TArrayOfByte;
 begin
- with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
-  begin
-   Priority := tpLowest;
-   FreeOnTerminate:=true;
-   Replace:=CBzamena.Checked;
-   savefull:=CBsavefull.Checked;
-   GenFormPrev:=CBGenFromPrev.Checked;
-   SetLength(PolygLL,length(APolyLL));
-   CopyMemory(@PolygLL[0],@APolyLL[0],length(APolyLL)*sizeOf(TExtendedPoint));
-   for i:=0 to FromZoom-2 do
-    if CheckList.Checked[i] then
-     begin
-      SetLength(InZooms,Length(InZooms)+1);
-      InZooms[Length(InZooms)-1]:=FromZoom-i-1;
-     end;
-   Suspended:=false;
+  for i:=0 to ComboBox.ItemIndex do begin
+    if CheckList.Checked[i] then begin
+      SetLength(VInZooms, Length(VInZooms)+1);
+      VInZooms[Length(VInZooms)-1]:=ComboBox.ItemIndex - i + 1;
+    end;
   end;
+
+  TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2, VInZooms, APolyLL, TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex]), CBzamena.Checked, CBsavefull.Checked, CBGenFromPrev.Checked);
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);

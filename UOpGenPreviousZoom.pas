@@ -21,13 +21,13 @@ uses
 
 type
   TOpGenPreviousZoom = class(TThread)
+  private
     Replace:boolean;
     savefull:boolean;
     GenFormPrev:boolean;
     PolygLL: TExtendedPointArray;
     FromZoom:byte;
-    InZooms:array of byte;
-  private
+    InZooms: TArrayOfByte;
     typemap:TMapType;
     max,min:TPoint;
     ProcessTiles:integer;
@@ -56,7 +56,7 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(Azoom:byte;Atypemap:TMapType);
+    constructor Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean);
   end;
 
 implementation
@@ -65,15 +65,22 @@ uses
   u_GlobalState,
   unit1;
 
-constructor TOpGenPreviousZoom.Create(Azoom:byte;Atypemap:TMapType);
+constructor TOpGenPreviousZoom.Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean);
 begin
- inherited Create(true);
- bmp_ex:=TBitmap32.Create;
- bmp:=TBitmap32.Create;
- TileInProc:=0;
- FromZoom:=Azoom;
- typemap:=Atypemap;
- Resampler := GState.Resampling;
+  inherited Create(False);
+  Priority := tpLowest;
+  FreeOnTerminate:=true;
+  Replace := AReplace;
+  savefull := Asavefull;
+  GenFormPrev := AGenFormPrev;
+  InZooms := AInZooms;
+  PolygLL := APolygLL;
+  bmp_ex:=TBitmap32.Create;
+  bmp:=TBitmap32.Create;
+  TileInProc:=0;
+  FromZoom:=Azoom;
+  typemap:=Atypemap;
+  Resampler := GState.Resampling;
 end;
 
 destructor TOpGenPreviousZoom.destroy;
