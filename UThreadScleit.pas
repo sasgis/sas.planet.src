@@ -36,13 +36,12 @@ type
   T256ArrayBGR = array[0..255] of PArrayBGR;
 
   TThreadScleit = class(TThread)
-  public
+  private
     ProcessTiles:integer;
     PolyMin:TPoint;
     PolyMax:TPoint;
     Fprogress: TFprogress2;
-    PrTypes:array of TPrType;
-  private
+    PrTypes:TPrTypeArray;
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
@@ -78,7 +77,7 @@ type
     procedure Execute; override;
     procedure saveRECT;
   public
-    constructor Create(CrSusp:Boolean;AFName:string; APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+    constructor Create(APrTypes:TPrTypeArray; AFName:string; APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
   end;
 
 implementation
@@ -358,25 +357,25 @@ begin
   end;
 end;
 
-constructor TThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
-var i:integer;
+constructor TThreadScleit.Create(APrTypes:TPrTypeArray; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
 begin
-  inherited Create(CrSusp);
+  inherited Create(false);
+  Priority := tpLower;
+  FreeOnTerminate:=true;
   Application.CreateForm(TFProgress2, FProgress);
+  PrTypes := APrTypes;
   FProgress.Visible:=true;
   FName:=AFName;
   numTlg:=numTilesG;
   numTlv:=numTilesV;
   usedReColor:=AusedReColor;
-  for i:=1 to length(APolygon_) do
-   begin
-    setlength(Poly,i);
-    poly[i-1]:=Apolygon_[i-1];
-   end;
+  Poly := APolygon_;
   zoom:=Azoom;
   typemap:=Atypemap;
   Htypemap:=AHtypemap;
   colors:=Acolors;
+  ProcessTiles:=GetDwnlNum(PolyMin,polyMax,poly,true);
+  GetMinMax(PolyMin,polyMax,poly,false);
 end;
 
 procedure TThreadScleit.Execute;

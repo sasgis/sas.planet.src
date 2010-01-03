@@ -13,6 +13,7 @@ uses
 
 type
   TPrType = (ptMap,ptTab,ptW,ptDat,ptKml);
+  TPrTypeArray = array of TPrType;
 
 procedure toOziMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
 procedure toTabMap(fname:string;xy1,xy2:TPoint;Azoom:byte;Atype:TMapType);
