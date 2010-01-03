@@ -363,7 +363,7 @@ begin
  polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
  if (FMain.SaveDialog1.Execute)then
   begin
-   with ThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked) do
+   with TThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked) do
     begin
      ProcessTiles:=GetDwnlNum(PolyMin,polyMax,polyg,true);
      GetMinMax(PolyMin,polyMax,polyg,false);

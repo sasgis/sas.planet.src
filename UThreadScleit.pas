@@ -35,7 +35,7 @@ type
   P256ArrayBGR = ^T256ArrayBGR;
   T256ArrayBGR = array[0..255] of PArrayBGR;
 
-  ThreadScleit = class(TThread)
+  TThreadScleit = class(TThread)
   public
     ProcessTiles:integer;
     PolyMin:TPoint;
@@ -90,37 +90,37 @@ uses
   u_GlobalState,
   usaveas;
 
-procedure ThreadScleit.SynShowMessage;
+procedure TThreadScleit.SynShowMessage;
 begin
  ShowMessage(Message_);
 end;
 
-procedure ThreadScleit.UpdateProgressFormClose;
+procedure TThreadScleit.UpdateProgressFormClose;
 begin
  fprogress.Close;
 end;
 
-procedure ThreadScleit.UpdateProgressFormCapt;
+procedure TThreadScleit.UpdateProgressFormCapt;
 begin
  fprogress.Caption:=prCaption;
 end;
 
-procedure ThreadScleit.UpdateProgressFormStr1;
+procedure TThreadScleit.UpdateProgressFormStr1;
 begin
  fprogress.MemoInfo.Lines[0]:=prStr1;
 end;
 
-procedure ThreadScleit.UpdateProgressFormStr2;
+procedure TThreadScleit.UpdateProgressFormStr2;
 begin
  fprogress.MemoInfo.Lines[1]:=prStr2;
 end;
 
-procedure ThreadScleit.UpdateProgressFormBar;
+procedure TThreadScleit.UpdateProgressFormBar;
 begin
  fprogress.ProgressBar1.Progress1:=prBar;
 end;
 
-procedure ThreadScleit.saveRECT;
+procedure TThreadScleit.saveRECT;
 var p_x,p_y,i,j,k,errecw,pti:integer;
     p_h:TPoint;
     scachano:integer;
@@ -358,7 +358,7 @@ begin
   end;
 end;
 
-constructor ThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+constructor TThreadScleit.Create(CrSusp:Boolean;AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
 var i:integer;
 begin
   inherited Create(CrSusp);
@@ -379,13 +379,13 @@ begin
   colors:=Acolors;
 end;
 
-procedure ThreadScleit.Execute;
+procedure TThreadScleit.Execute;
 begin
  saveRECT;
  Synchronize(UpdateProgressFormClose);
 end;
 
-function ThreadScleit.ReadLineECW(Line: cardinal; var LineR, LineG,
+function TThreadScleit.ReadLineECW(Line: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
@@ -477,12 +477,12 @@ begin
   end;
 end;
 
-function ThreadScleit.IsCancel: Boolean;
+function TThreadScleit.IsCancel: Boolean;
 begin
   result:=not(Fprogress.Visible);
 end;
 
-function ThreadScleit.ReadLineBMP(Line: cardinal;
+function TThreadScleit.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb): boolean;
 var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
     p_h:TPoint;
