@@ -24,6 +24,7 @@ uses
 
 type
   TThreadExport = class(TThread)
+  private
     PolygLL:TExtendedPointArray;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
@@ -37,7 +38,6 @@ type
     Zippu:boolean;
     RelativePath:boolean;
     csat,cmap,chib:byte;
-  private
   protected
     procedure savefilesREG(APolyLL:TExtendedPointArray);
     procedure Execute; override;
@@ -424,15 +424,11 @@ begin
  end;
 end;
 
-function RetDate(inDate: TDateTime; inTip: integer): integer;
+function RetDate(inDate: TDateTime): string;
 var xYear, xMonth, xDay: word;
 begin
   DecodeDate(inDate, xYear, xMonth, xDay);
-  case inTip of
-   1: Result := xYear;  // год
-   2: Result := xMonth; // мес€ц
-   3: Result := xDay;   // день
-  end;
+  Result := inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear);
 end;
 
 procedure TThreadExport.savefilesREG(APolyLL:TExtendedPointArray);
@@ -449,7 +445,7 @@ begin
  SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
- datestr:=inttostr(RetDate(now,3))+'.'+inttostr(RetDate(now,2))+'.'+inttostr(RetDate(now,1));
+ datestr:=RetDate(now);
  for i:=0 to length(TypeMapArr)-1 do
   begin
    persl:=persl+ TypeMapArr[i].GetShortFolderName+'_';
@@ -607,7 +603,7 @@ begin
  SetLength(polyg,length(APolyLL));
  persl:='';
  kti:='';
- datestr:=inttostr(RetDate(now,3))+'.'+inttostr(RetDate(now,2))+'.'+inttostr(RetDate(now,1));
+ datestr:=RetDate(now);
  persl:=persl+ TypeMapArr[0].GetShortFolderName+'_';
  perzoom:='';
  for j:=0 to 23 do
