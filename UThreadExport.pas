@@ -47,7 +47,20 @@ type
     procedure Export2KML(APolyLL:TExtendedPointArray);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
   public
-    constructor Create(APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+    constructor Create(
+      APath: string;
+      APolygon_: TExtendedPointArray;
+      Azoomarr: array of boolean;
+      Atypemaparr: array of TMapType;
+      Amove: boolean;
+      Areplace: boolean;
+      Aziped: boolean;
+      Aformat: byte;
+      Acsat: byte;
+      Acmap: byte;
+      Achib: byte;
+      ARelativePath: boolean
+    );
   end;
 
 implementation

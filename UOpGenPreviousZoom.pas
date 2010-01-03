@@ -56,7 +56,15 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean);
+    constructor Create(
+      Azoom: byte;
+      AInZooms: TArrayOfByte;
+      APolygLL: TExtendedPointArray;
+      Atypemap: TMapType;
+      AReplace: boolean;
+      Asavefull: boolean;
+      AGenFormPrev: boolean
+    );
   end;
 
 implementation

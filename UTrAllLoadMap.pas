@@ -42,7 +42,10 @@ type
     constructor Create(
       ALog: ILogSimple;
       APolygon_:TPointArray;
-      Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
+      Azamena: boolean;
+      ACheckExistTileSize: boolean;
+      Azdate: boolean;
+      ASecondLoadTNE: boolean;
       AZoom: byte;
       Atypemap: TMapType;
       AFDate: TDateTime

@@ -77,7 +77,18 @@ type
     procedure Execute; override;
     procedure saveRECT;
   public
-    constructor Create(APrTypes:TPrTypeArray; AFName:string; APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+    constructor Create(
+      APrTypes: TPrTypeArray;
+      AFName: string;
+      APolygon_: TPointArray;
+      numTilesG: integer;
+      numTilesV: integer;
+      Azoom: byte;
+      Atypemap: TMapType;
+      AHtypemap: TMapType;
+      Acolors: byte;
+      AusedReColor: boolean
+    );
   end;
 
 implementation

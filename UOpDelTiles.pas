@@ -33,7 +33,11 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(APolyLL: TExtendedPointArray; Azoom:byte;Atypemap:TMapType);
+    constructor Create(
+      APolyLL: TExtendedPointArray;
+      Azoom: byte;
+      Atypemap: TMapType
+    );
   end;
 
 implementation
