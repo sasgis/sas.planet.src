@@ -452,7 +452,6 @@ type
     procedure TBREGIONClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
     procedure NFillMapClick(Sender: TObject);
-    procedure ThreadDone(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure N16Click(Sender: TObject);
     procedure TBRECTClick(Sender: TObject);
@@ -1208,14 +1207,6 @@ begin
               inp[p]:=DecimalSeparator;
              end;
  result:=strtofloat(inp);
-end;
-
-procedure TFmain.ThreadDone(Sender: TObject);
-begin
-  if not((MapMoving)or(MapZoomAnimtion=1)) then begin
-    GState.MainFileCache.Clear;
-    generate_im(nilLastLoad,'');
-  end;
 end;
 
 procedure TFmain.drawRect(Shift: TShiftState);
