@@ -225,14 +225,7 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
- with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])) do
-  begin
-   Priority := tpLowest;
-   FreeOnTerminate:=true;
-   polyg := typemap.GeoConvert.PoligonProject((Zoom - 1) + 8, APolyLL);
-   ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
-   Suspended:=false;
-  end;
+  TOpDelTiles.Create(APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]));
 end;
 
 procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
