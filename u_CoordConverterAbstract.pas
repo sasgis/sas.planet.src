@@ -133,6 +133,10 @@ type
     function CheckLonLatPos(var XY: TExtendedPoint): boolean; virtual; stdcall;
     function CheckLonLatRect(var XY: TExtendedRect): boolean; virtual; stdcall;
 
+    function GetProjectionEPSG: Integer; virtual; stdcall; abstract;
+    function GetDatumEPSG: integer; virtual; stdcall; abstract;
+    function GetSpheroidRadius: Double; virtual; stdcall; abstract;
+
     procedure AfterConstruction; override;
   end;
 
