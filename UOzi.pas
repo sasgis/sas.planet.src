@@ -231,7 +231,7 @@ begin
  fname:=fname+'w';
  ll1:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8);
  ll2:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8);
- CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY, Atype.GeoConvert.GetCellSizeUnits);
+ CalculateWFileParams(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY);
  assignfile(f,fname);
  rewrite(f);
  writeln(f,R2StrPoint(CellX));

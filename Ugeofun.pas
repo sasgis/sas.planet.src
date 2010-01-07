@@ -42,8 +42,8 @@ type
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-  procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:TCellSizeUnits);
+  procedure CalculateWFileParams(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
+            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
@@ -128,18 +128,17 @@ begin
  max.Y:=max.Y+1;
 end;
 
-procedure CalculateMercatorCoordinates(
+procedure CalculateWFileParams(
   LL1, LL2: TExtendedPoint;
   ImageWidth, ImageHeight: integer;
   TypeMap: TMapType;
-  var CellIncrementX, CellIncrementY, OriginX, OriginY: extended;
-  Units: TCellSizeUnits
+  var CellIncrementX, CellIncrementY, OriginX, OriginY: extended
 );
 var
   VM1: TExtendedPoint;
   VM2: TExtendedPoint;
 begin
-  case Units of
+  case TypeMap.GeoConvert.GetCellSizeUnits of
     CELL_UNITS_METERS: begin
       VM1 := TypeMap.GeoConvert.LonLat2Metr(LL1);
       VM2 := TypeMap.GeoConvert.LonLat2Metr(LL2);
