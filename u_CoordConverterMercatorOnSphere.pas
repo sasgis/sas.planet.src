@@ -11,16 +11,12 @@ uses
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
   protected
-    FRadiusa: Extended;
     function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
     constructor Create(Aradiusa: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function GetProjectionEPSG: Integer; override;
-    function GetDatumEPSG: integer; override;
-    function GetSpheroidRadius: Double; override;
   end;
 
 implementation
@@ -31,6 +27,20 @@ constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Extended);
 begin
   inherited Create;
   Fradiusa:=Aradiusa;
+  if Abs(FRadiusa - 6378137) <  1 then begin
+    FDatumEPSG := 7059;
+    FProjEPSG := 3785;
+    FCellSizeUnits := CELL_UNITS_METERS;
+  end else if Abs(FRadiusa - 6371000) <  1 then begin
+    FDatumEPSG := 53004;
+    FProjEPSG := 53004;
+    FCellSizeUnits := CELL_UNITS_METERS;
+  end else begin
+    FDatumEPSG := 0;
+    FProjEPSG := 0;
+    FCellSizeUnits := CELL_UNITS_UNKNOWN;
+  end;
+
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
@@ -84,21 +94,6 @@ begin
   Result.X := (XY.x - 0.5) * 360;
   Result.Y := -(XY.y - 0.5) *(2*PI);
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
-end;
-
-function TCoordConverterMercatorOnSphere.GetDatumEPSG: integer;
-begin
-  Result := 7059;
-end;
-
-function TCoordConverterMercatorOnSphere.GetProjectionEPSG: Integer;
-begin
-  Result := 3785;
-end;
-
-function TCoordConverterMercatorOnSphere.GetSpheroidRadius: Double;
-begin
-  Result := FRadiusa;
 end;
 
 end.

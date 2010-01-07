@@ -756,7 +756,7 @@ begin
  Vradiusa:=6378137;
  Vradiusb:=6356752;
  Vexct:=sqrt(sqr(Vradiusa)-sqr(Vradiusb))/Vradiusa;
- VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(VExct,Vradiusa,Vradiusb);
+ VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(Vradiusa, Vradiusb);
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
  persl:='';

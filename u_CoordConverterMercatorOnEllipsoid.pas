@@ -15,29 +15,36 @@ type
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
-    constructor Create(AExct,Aradiusa,Aradiusb: Extended);
+    constructor Create(Aradiusa, Aradiusb: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
-    function GetProjectionEPSG: Integer; override;
-    function GetDatumEPSG: integer; override;
-    function GetSpheroidRadius: Double; override;
   end;
 
 implementation
 
 uses
   Math;
-  
+
 const
   MerkElipsK=0.000000001;
 
 { TCoordConverterMercatorOnEllipsoid }
 
-constructor TCoordConverterMercatorOnEllipsoid.Create(AExct,Aradiusa,Aradiusb: Extended);
+constructor TCoordConverterMercatorOnEllipsoid.Create(Aradiusa, Aradiusb: Extended);
 begin
   inherited Create;
-  FExct := AExct;
   Fradiusa:=Aradiusa;
   Fradiusb:=Aradiusb;
+  FExct := sqrt(FRadiusa*FRadiusa - FRadiusb*FRadiusb)/FRadiusa;
+  if (Abs(FRadiusa - 6378137) <  1) and (Abs(FRadiusb - 6356752) <  1) then begin
+    FProjEPSG := 3395;
+    FDatumEPSG := 3395;
+    FCellSizeUnits := CELL_UNITS_METERS;
+  end else begin
+    FDatumEPSG := 0;
+    FProjEPSG := 0;
+    FCellSizeUnits := CELL_UNITS_UNKNOWN;
+  end;
+
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
@@ -132,21 +139,6 @@ begin
       result.Y:=zu*180/Pi;
     end;
   end;
-end;
-
-function TCoordConverterMercatorOnEllipsoid.GetDatumEPSG: integer;
-begin
-  Result := 3395;
-end;
-
-function TCoordConverterMercatorOnEllipsoid.GetProjectionEPSG: Integer;
-begin
-  Result := 3395;
-end;
-
-function TCoordConverterMercatorOnEllipsoid.GetSpheroidRadius: Double;
-begin
-  Result := FRadiusa;
 end;
 
 end.

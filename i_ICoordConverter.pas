@@ -106,6 +106,8 @@ type
     function GetDatumEPSG: integer; stdcall;
     // Возвращает радиус сфероида.
     function GetSpheroidRadius: Double; stdcall;
+    // Возвращает единицы измерения используемые в спроецированной карте
+    function GetCellSizeUnits: TCellSizeUnits; stdcall;
   end;
 
 implementation

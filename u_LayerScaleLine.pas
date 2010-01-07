@@ -46,13 +46,14 @@ var
   LL: TExtendedPoint;
   temp,num: real;
   VBitmapSize: TPoint;
+  VRad: Extended;
 begin
   inherited;
   Resize;
   VBitmapSize := GetBitmapSizeInPixel;
-
   LL:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(Fmain.ScreenCenterPos, GState.zoom_size-1);
-  num:=106/((zoom[GState.zoom_size]/(2*PI))/(GState.sat_map_both.radiusa*cos(LL.y*D2R)));
+  VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
+  num:=106/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(LL.y*D2R)));
   if num>10000 then begin
     num:=num/1000;
     se:=' '+SAS_UNITS_km+'.';

@@ -7,7 +7,7 @@ uses
   SysUtils,
   classes,
   GR32,
-  ECWReader,
+  
   Ugeofun,
   UMapType;
 
@@ -104,7 +104,7 @@ begin
  writeln(f,'MMPLL,3, '+fs(lon[3])+', '+fs(lat[3]));
  writeln(f,'MMPLL,4, '+fs(lon[1])+', '+fs(lat[3]));
 
- rad:=Atype.radiusa;
+ rad:=Atype.GeoConvert.GetSpheroidRadius;
 
  writeln(f,'MM1B,'+fs(1/((zoom[Azoom]/(2*PI))/(rad*cos(lat[2]*D2R)))));
  writeln(f,'MOP,Map Open Position,0,0');
@@ -114,32 +114,30 @@ begin
 end;
 
 procedure toAuxXml(fname:string;Atype:TMapType);
-var AuxXmkfile:TMemoryStream;
-    str:UTF8String;
+var
+  AuxXmkfile:TMemoryStream;
+  str:UTF8String;
+  VprojInfo: String;
 begin
- AuxXmkfile:=TMemoryStream.create;
- str:=AnsiToUtf8('<PAMDataset>'+#13#10+'<SRS>');
- case Atype.projection of
-  1: str:=str+AnsiToUtf8('PROJCS["WGS_1984_Web_Mercator",GEOGCS["GCS_WGS_1984_Major_Auxiliary_Sphere",DATUM["WGS_1984_Major_Auxiliary_Sphere",SPHEROID["WGS_1984_Major_Auxiliary_Sphere",6378137.0,0.0]],PRIMEM["Greenwich",0.0],')+AnsiToUtf8('UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
-  2: str:=str+AnsiToUtf8('PROJCS["World_Mercator",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0]')+AnsiToUtf8(',UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
-  else str:=str+AnsiToUtf8('GEOGCS["Geographic Coordinate System",DATUM["WGS84",SPHEROID["WGS84",6378137,298.257223560493]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]');
- end;
- str:=str+AnsiToUtf8('</SRS>'+#13#10+'<Metadata>'+#13#10+'<MDI key="PyramidResamplingType">NEAREST</MDI>'+#13#10+'</Metadata>'+#13#10+'</PAMDataset>');
- AuxXmkfile.Write(str[1],length(str));
- AuxXmkfile.SaveToFile(fname+'.aux.xml');
- AuxXmkfile.Free;
+  AuxXmkfile:=TMemoryStream.create;
+  str:=AnsiToUtf8('<PAMDataset>'+#13#10+'<SRS>');
+  VprojInfo := GetProj(Atype.GeoConvert);
+  str:=str+AnsiToUtf8(VprojInfo);
+  str:=str+AnsiToUtf8('</SRS>'+#13#10+'<Metadata>'+#13#10+'<MDI key="PyramidResamplingType">NEAREST</MDI>'+#13#10+'</Metadata>'+#13#10+'</PAMDataset>');
+  AuxXmkfile.Write(str[1],length(str));
+  AuxXmkfile.SaveToFile(fname+'.aux.xml');
+  AuxXmkfile.Free;
 end;
 
 procedure toPrj(fname:string;Atype:TMapType);
-var f:TextFile;
+var
+  f:TextFile;
+  VprojInfo: String;
 begin
  assignfile(f,ChangeFileExt(fname,'.prj'));
  rewrite(f);
- case Atype.projection of
-  1: writeln(f,'PROJCS["Mercator_1SP",GEOGCS["Geographic Coordinate System",DATUM["GOOGLE",SPHEROID["Sphere Radius 6378137 m",6378137,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER'+'["scale_factor",1],PARAMETER["central_meridian",0],PARAMETER["latitude_of_origin",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]');
-  2: writeln(f,'PROJCS["World_Mercator",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0]'+',UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["latitude_of_origin",0.0],UNIT["Meter",1.0]]');
-  else writeln(f,'GEOGCS["Geographic Coordinate System",DATUM["WGS84",SPHEROID["WGS84",6378137,298.257223560493]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]');
- end;
+ VprojInfo := GetProj(Atype.GeoConvert);
+ writeln(f, VprojInfo);
  closefile(f);
 end;
 
@@ -231,10 +229,7 @@ begin
  fname:=fname+'w';
  ll1:=Atype.GeoConvert.Pos2LonLat(xy1,(Azoom - 1) + 8);
  ll2:=Atype.GeoConvert.Pos2LonLat(xy2,(Azoom - 1) + 8);
- case Atype.projection of
-  1,2:CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_METERS);
-  3: CalculateMercatorCoordinates(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype,CellX,CellY,OrigX,OrigY,ECW_CELL_UNITS_DEGREES);
- end;
+ CalculateWFileParams(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,Atype.GeoConvert,CellX,CellY,OrigX,OrigY);
  assignfile(f,fname);
  rewrite(f);
  writeln(f,R2StrPoint(CellX));

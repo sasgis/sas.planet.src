@@ -352,7 +352,7 @@ var Up,Down:TExtendedPoint;
     abort:boolean;
     CoordConverter:ICoordConverter;
 begin
-   CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137);
+   CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137, 6356752);
    abort:=false;
    id2:=0;
    UpXY.X:=X;
@@ -387,7 +387,7 @@ var Up,Down:TExtendedPoint;
     CoordConverter:ICoordConverter;
 begin
    result:=false;
-   CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137);
+   CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137, 6356752);
    UpXY.X:=X;
    UpXY.Y:=Y;
    Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки

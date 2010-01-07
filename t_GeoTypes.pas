@@ -21,6 +21,23 @@ type
 
   TExtendedPointArray = array of TExtendedPoint;
 
+// Скопировал из ECWReader что бы не добавлять лишние зависимости от того юнита.
+{$MINENUMSIZE 4}
+type
+  TCellSizeUnits =
+  (
+    // Invalid cell units
+    CELL_UNITS_INVALID	=	0,
+    // Cell units are standard meters
+    CELL_UNITS_METERS	=	1,
+    // Degrees
+    CELL_UNITS_DEGREES	=	2,
+    // US Survey feet
+    CELL_UNITS_FEET		=	3,
+    // Unknown cell units
+    CELL_UNITS_UNKNOWN	=	4
+  );
+
 implementation
 
 end.

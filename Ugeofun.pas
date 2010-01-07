@@ -5,9 +5,7 @@ interface
 uses
   SysUtils,
   Types,
-  Math,
-  UMapType,
-  ECWReader,
+  i_ICoordConverter,
   t_GeoTypes;
 
 type
@@ -31,8 +29,7 @@ type
    descr:String;
   end;
 
- RUnits = (SUmeter,SUdegrees);
-
+  function GetProj(AConverter: ICoordConverter): string;
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
@@ -42,16 +39,99 @@ type
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-  procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
+  procedure CalculateWFileParams(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
+            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 
 implementation
 
-uses
-  Unit1;
+function GetProj(AConverter: ICoordConverter): string;
+begin
+  case AConverter.GetProjectionEPSG of
+    3785: begin
+      Result :=
+        'PROJCS["Popular Visualisation CRS / Mercator",' + #13#10 +
+        'GEOGCS["Popular Visualisation CRS",' + #13#10 +
+        'DATUM["Popular_Visualisation_Datum",' + #13#10 +
+        'SPHEROID["Popular Visualisation Sphere",6378137,0,' + #13#10 +
+        'AUTHORITY["EPSG","7059"]],' + #13#10 +
+        'TOWGS84[0,0,0,0,0,0,0],' + #13#10 +
+        'AUTHORITY["EPSG","6055"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.01745329251994328,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4055"]],' + #13#10 +
+        'UNIT["metre",1,' + #13#10 +
+        'AUTHORITY["EPSG","9001"]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["central_meridian",0],' + #13#10 +
+        'PARAMETER["scale_factor",1],' + #13#10 +
+        'PARAMETER["false_easting",0],' + #13#10 +
+        'PARAMETER["false_northing",0],' + #13#10 +
+        'AUTHORITY["EPSG","3785"],' + #13#10 +
+        'AXIS["X",EAST],' + #13#10 +
+        'AXIS["Y",NORTH]]';
+    end;
+    53004: begin
+      Result :=
+        'PROJCS["Sphere_Mercator",' + #13#10 +
+        'GEOGCS["GCS_Sphere",' + #13#10 +
+        'DATUM["Not_specified_based_on_Authalic_Sphere",' + #13#10 +
+        'SPHEROID["Sphere",6371000,0]],' + #13#10 +
+        'PRIMEM["Greenwich",0],' + #13#10 +
+        'UNIT["Degree",0.017453292519943295]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["False_Easting",0],' + #13#10 +
+        'PARAMETER["False_Northing",0],' + #13#10 +
+        'PARAMETER["Central_Meridian",0],' + #13#10 +
+        'PARAMETER["Standard_Parallel_1",0],' + #13#10 +
+        'UNIT["Meter",1],' + #13#10 +
+        'AUTHORITY["EPSG","53004"]]';
+    end;
+    3395: begin
+      Result :=
+        'PROJCS["WGS 84 / World Mercator",' + #13#10 +
+        'GEOGCS["WGS 84",' + #13#10 +
+        'DATUM["WGS_1984",' + #13#10 +
+        'SPHEROID["WGS 84",6378137,298.257223563,' + #13#10 +
+        'AUTHORITY["EPSG","7030"]],' + #13#10 +
+        'AUTHORITY["EPSG","6326"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.01745329251994328,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4326"]],' + #13#10 +
+        'UNIT["metre",1,' + #13#10 +
+        'AUTHORITY["EPSG","9001"]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["central_meridian",0],' + #13#10 +
+        'PARAMETER["scale_factor",1],' + #13#10 +
+        'PARAMETER["false_easting",0],' + #13#10 +
+        'PARAMETER["false_northing",0],' + #13#10 +
+        'AUTHORITY["EPSG","3395"],' + #13#10 +
+        'AXIS["Easting",EAST],' + #13#10 +
+        'AXIS["Northing",NORTH]]'
+    end;
+    4326: begin
+      Result :=
+        'GEOGCS["WGS 84",' + #13#10 +
+        'DATUM["WGS_1984",' + #13#10 +
+        'SPHEROID["WGS 84",6378137,298.257223563,' + #13#10 +
+        'AUTHORITY["EPSG","7030"]],' + #13#10 +
+        'AUTHORITY["EPSG","6326"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.01745329251994328,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4326"]]'
+    end;
+  else
+    Result := '';
+  end;
+end;
 
 function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;
@@ -128,40 +208,34 @@ begin
  max.Y:=max.Y+1;
 end;
 
-procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
-var FN,FE:integer;
-    k0,E1,N1,E2,N2:double;
+procedure CalculateWFileParams(
+  LL1, LL2: TExtendedPoint;
+  ImageWidth, ImageHeight: integer;
+  AConverter: ICoordConverter;
+  var CellIncrementX, CellIncrementY, OriginX, OriginY: extended
+);
+var
+  VM1: TExtendedPoint;
+  VM2: TExtendedPoint;
 begin
- case Units of
-  ECW_CELL_UNITS_METERS:
-  begin
-  k0:= 1;
-  FN:= 0; // False northing
-  FE:= 0; // False easting
-  ll1:=ExtPoint(ll1.x*D2R,ll1.y*D2R);
-  ll2:=ExtPoint(ll2.x*D2R,ll2.y*D2R);
-   // Calculate Earth Parameters
-  E1:=FE+typemap.radiusa*k0*ll1.x;
-  N1:=FN+typemap.radiusa*k0*Ln(Tan(PI/4+ll1.y/2)*
-      Power((1-typemap.exct*Sin(ll1.y))/(1+typemap.exct*Sin(ll1.y)),typemap.exct/2));
-  E2:=FE+typemap.radiusa*k0*ll2.x;
-  N2:=FN+typemap.radiusa*k0*Ln(Tan(PI/4+ll2.y/2)*
-      Power((1-typemap.exct*Sin(ll2.y))/(1+typemap.exct*Sin(ll2.y)),typemap.exct/2));
-  OriginX:=E1;
-  OriginY:=N1;
+  case AConverter.GetCellSizeUnits of
+    CELL_UNITS_METERS: begin
+      VM1 := AConverter.LonLat2Metr(LL1);
+      VM2 := AConverter.LonLat2Metr(LL2);
 
-  CellIncrementX:=(E2-E1)/ImageWidth;
-  CellIncrementY:=(N2-N1)/ImageHeight;
+      OriginX := VM1.X;
+      OriginY := VM1.Y;
+
+      CellIncrementX := (VM2.X-VM1.X)/ImageWidth;
+      CellIncrementY := (VM2.Y-VM1.Y)/ImageHeight;
+    end;
+    CELL_UNITS_DEGREES: begin
+      OriginX:=ll1.x;
+      OriginY:=ll1.y;
+      CellIncrementX:=(ll2.x-ll1.x)/ImageWidth;
+      CellIncrementY:=-CellIncrementX;
+    end;
   end;
-  ECW_CELL_UNITS_DEGREES:
-  begin
-  OriginX:=ll1.x;
-  OriginY:=ll1.y;
-  CellIncrementX:=(ll2.x-ll1.x)/ImageWidth;
-  CellIncrementY:=-CellIncrementX;
-  end;
- end;
 end;
 
 function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;

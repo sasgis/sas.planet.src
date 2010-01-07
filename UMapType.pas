@@ -48,6 +48,8 @@ type
     FBanIfLen: integer;
     FUseAntiBan: integer;
     FMaxConnectToServerCount: Cardinal;
+    FRadiusA: extended;
+    FRadiusB: extended;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -75,9 +77,6 @@ type
     name: string;
     DelAfterShow: boolean;
     projection: byte;
-    radiusa: extended;
-    radiusb: extended;
-    exct: extended;
     UseGenPrevious: boolean;
 
     DefHotKey: TShortCut;
@@ -693,9 +692,9 @@ begin
       DefNameInCache:=NameInCache;
       projection:=iniparams.ReadInteger('PARAMS','projection',1);
       bfloat:=iniparams.ReadString('PARAMS','sradiusa','6378137');
-      radiusa:=str2r(bfloat);
-      bfloat:=iniparams.ReadString('PARAMS','sradiusb',FloatToStr(radiusa));
-      radiusb:=str2r(bfloat);
+      FRadiusA:=str2r(bfloat);
+      bfloat:=iniparams.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
+      FRadiusB:=str2r(bfloat);
       HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
       DefHotKey:=HotKey;
       ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
@@ -703,7 +702,6 @@ begin
       DefParentSubMenu:=ParentSubMenu;
       separator:=iniparams.ReadBool('PARAMS','separator',false);
       Defseparator:=separator;
-      exct:=sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa;
       Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
       FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
       if FMaxConnectToServerCount > 64 then begin
@@ -715,9 +713,9 @@ begin
       FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
       case projection of
-        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(radiusa);
-        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(Exct,radiusa,radiusb);
-        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(radiusa);
+        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
+        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
+        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
         else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
       end;
       try
