@@ -71,6 +71,7 @@ var
   VZoomCurr: Byte;
   VLonLatStr: String;
   VSize: TPoint;
+  VRad: Extended;
 begin
   inherited;
   VSize := GetBitmapSizeInPixel;
@@ -89,7 +90,9 @@ begin
   FLayer.Bitmap.RenderText(29, 1, '| '+SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
 
   TameTZ := FMain.timezone(ll.x,ll.y);
-  subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(GState.sat_map_both.radiusa*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
+  VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
+
+  subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
   FLayer.Bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
   posnext:=273+FLayer.Bitmap.TextWidth(subs2)+70;
   FLayer.Bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);

@@ -104,7 +104,7 @@ begin
  writeln(f,'MMPLL,3, '+fs(lon[3])+', '+fs(lat[3]));
  writeln(f,'MMPLL,4, '+fs(lon[1])+', '+fs(lat[3]));
 
- rad:=Atype.radiusa;
+ rad:=Atype.GeoConvert.GetSpheroidRadius;
 
  writeln(f,'MM1B,'+fs(1/((zoom[Azoom]/(2*PI))/(rad*cos(lat[2]*D2R)))));
  writeln(f,'MOP,Map Open Position,0,0');
