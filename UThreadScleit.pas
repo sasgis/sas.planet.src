@@ -141,7 +141,7 @@ var p_x,p_y,i,j,k,errecw,pti:integer;
     CellIncrementX,CellIncrementY,OriginX,OriginY:extended;
     Tlbfull,TlbTile:TBitmap32;
     b:TBitmap;
-    Units:CellSizeUnits;
+    Units:TCellSizeUnits;
     jcprops : TJPEG_CORE_PROPERTIES;
     iNChannels,iWidth,iHeight:integer;
     path: string;
@@ -216,25 +216,9 @@ begin
    FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
    prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
    Synchronize(UpdateProgressFormStr1);
-   case TypeMap.projection of
-    1: begin
-        Datum:='EPSG:7059';
-        Proj:='EPSG:3785';
-//        Datum:='EPSG:3857'; На будущее
-//        Proj:='EPSG:3857';
-        Units:=ECW_CELL_UNITS_METERS;
-       end;
-    2: begin
-        Datum:='EPSG:3395';
-        Proj:='EPSG:3395';
-        Units:=ECW_CELL_UNITS_METERS;
-       end;
-    3: begin
-        Datum:='EPSG:4326';
-        Proj:='EPSG:4326';
-        Units:=ECW_CELL_UNITS_DEGREES;
-       end;
-   end;
+   Datum := 'EPSG:' + IntToStr(typemap.GeoConvert.GetDatumEPSG);
+   Proj := 'EPSG:' + IntToStr(typemap.GeoConvert.GetProjectionEPSG);
+   Units := typemap.GeoConvert.GetCellSizeUnits;
    CalculateWFileParams(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
                                 Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY);
    errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,

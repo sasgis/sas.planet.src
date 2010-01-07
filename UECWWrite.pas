@@ -3,10 +3,11 @@ unit UECWWrite;
 interface
 
 uses
+  Windows,
+  Dialogs,
   ECWwriter,
   ECWreader,
-  Windows,
-  Dialogs;
+  t_GeoTypes;
 
 type
   TlineRGB = array[0..0] of single;
@@ -35,7 +36,7 @@ type
       ACancelDelegate:TEcwCancel;
       AStatusDelegate:TEcwStatus;
       Datum,Projection:string;
-      SizeUnits:CellSizeUnits;
+      SizeUnits:TCellSizeUnits;
       CellIncrementX,CellIncrementY,OriginX,OriginY:double
     ):integer;
   end;
@@ -86,7 +87,7 @@ function TECWWrite.Encode(
   ACancelDelegate:TEcwCancel;
   AStatusDelegate:TEcwStatus;
   Datum,Projection:string;
-  SizeUnits:CellSizeUnits;
+  SizeUnits: TCellSizeUnits;
   CellIncrementX,CellIncrementY,OriginX,OriginY:double
 ):integer;
 var
@@ -112,7 +113,7 @@ begin
   FEcwData^.eCompressFormat := COMPRESS_RGB;
   FEcwData^.eCompressHint := Hint;
   FEcwData^.fTargetCompression:=CompressRatio;
-  FEcwData^.eCellSizeUnits:= SizeUnits;
+  FEcwData^.eCellSizeUnits:= CellSizeUnits(SizeUnits);
   FEcwData^.fCellIncrementX:=CellIncrementX;
   FEcwData^.fCellIncrementY:=CellIncrementY;
   FEcwData^.fOriginX:=OriginX;
