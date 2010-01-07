@@ -716,8 +716,8 @@ begin
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
       case projection of
         1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(radiusa);
-        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(Exct,radiusa,radiusb);
-        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(radiusa);
+        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(radiusa, radiusb);
+        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(radiusa, radiusb);
         else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
       end;
       try

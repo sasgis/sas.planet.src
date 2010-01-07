@@ -15,7 +15,7 @@ type
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
-    constructor Create(AExct,Aradiusa,Aradiusb: Extended);
+    constructor Create(Aradiusa, Aradiusb: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
   end;
 
@@ -29,14 +29,20 @@ const
 
 { TCoordConverterMercatorOnEllipsoid }
 
-constructor TCoordConverterMercatorOnEllipsoid.Create(AExct,Aradiusa,Aradiusb: Extended);
+constructor TCoordConverterMercatorOnEllipsoid.Create(Aradiusa, Aradiusb: Extended);
 begin
   inherited Create;
-  FExct := AExct;
   Fradiusa:=Aradiusa;
   Fradiusb:=Aradiusb;
-  FProjEPSG := 3395;
-  FDatumEPSG := 3395;
+  FExct := sqrt(FRadiusa*FRadiusa - FRadiusb*FRadiusb)/FRadiusa;
+  if (Abs(FRadiusa - 6378137) <  1) and (Abs(FRadiusb - 6356752) <  1) then begin
+    FProjEPSG := 3395;
+    FDatumEPSG := 3395;
+  end else begin
+    FDatumEPSG := 0;
+    FProjEPSG := 0;
+  end;
+
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;

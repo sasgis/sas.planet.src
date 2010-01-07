@@ -30,7 +30,7 @@ begin
   if Abs(FRadiusa - 6378137) <  1 then begin
     FDatumEPSG := 7059;
     FProjEPSG := 3785;
-  end if Abs(FRadiusa - 6371000) <  1 then begin
+  end else if Abs(FRadiusa - 6371000) <  1 then begin
     FDatumEPSG := 53004;
     FProjEPSG := 53004;
   end else begin

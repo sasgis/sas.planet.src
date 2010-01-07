@@ -10,12 +10,12 @@ uses
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterAbstract)
   protected
-    FRadiusa: Extended;
+    FExct,FRadiusa,FRadiusb: Extended;
 	  function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
-    constructor Create(Aradiusa: Extended);
+    constructor Create(Aradiusa, Aradiusb: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
   end;
 
@@ -26,10 +26,12 @@ uses
 
 { TCoordConverterSimpleLonLat }
 
-constructor TCoordConverterSimpleLonLat.Create(Aradiusa: Extended);
+constructor TCoordConverterSimpleLonLat.Create(Aradiusa, Aradiusb: Extended);
 begin
   inherited Create;
   FRadiusa := Aradiusa;
+  FRadiusb := Aradiusb;
+  FExct := sqrt(FRadiusa*FRadiusa - FRadiusb*FRadiusb)/FRadiusa;
   FProjEPSG := 4326;
   FDatumEPSG := 4326;
 end;
