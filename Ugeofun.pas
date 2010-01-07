@@ -5,9 +5,8 @@ interface
 uses
   SysUtils,
   Types,
-  
   UMapType,
-  
+  i_ICoordConverter,
   t_GeoTypes;
 
 type
@@ -31,6 +30,7 @@ type
    descr:String;
   end;
 
+  function GetProj(AConverter: ICoordConverter): string;
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
@@ -48,7 +48,91 @@ type
 
 implementation
 
-
+function GetProj(AConverter: ICoordConverter): string;
+begin
+  case AConverter.GetProjectionEPSG of
+    3785: begin
+      Result :=
+        'PROJCS["Popular Visualisation CRS / Mercator",' + #13#10 +
+        'GEOGCS["Popular Visualisation CRS",' + #13#10 +
+        'DATUM["Popular_Visualisation_Datum",' + #13#10 +
+        'SPHEROID["Popular Visualisation Sphere",6378137,0,' + #13#10 +
+        'AUTHORITY["EPSG","7059"]],' + #13#10 +
+        'TOWGS84[0,0,0,0,0,0,0],' + #13#10 +
+        'AUTHORITY["EPSG","6055"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.01745329251994328,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4055"]],' + #13#10 +
+        'UNIT["metre",1,' + #13#10 +
+        'AUTHORITY["EPSG","9001"]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["central_meridian",0],' + #13#10 +
+        'PARAMETER["scale_factor",1],' + #13#10 +
+        'PARAMETER["false_easting",0],' + #13#10 +
+        'PARAMETER["false_northing",0],' + #13#10 +
+        'AUTHORITY["EPSG","3785"],' + #13#10 +
+        'AXIS["X",EAST],' + #13#10 +
+        'AXIS["Y",NORTH]]';
+    end;
+    53004: begin
+      Result :=
+        'PROJCS["Sphere_Mercator",' + #13#10 +
+        'GEOGCS["GCS_Sphere",' + #13#10 +
+        'DATUM["Not_specified_based_on_Authalic_Sphere",' + #13#10 +
+        'SPHEROID["Sphere",6371000,0]],' + #13#10 +
+        'PRIMEM["Greenwich",0],' + #13#10 +
+        'UNIT["Degree",0.017453292519943295]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["False_Easting",0],' + #13#10 +
+        'PARAMETER["False_Northing",0],' + #13#10 +
+        'PARAMETER["Central_Meridian",0],' + #13#10 +
+        'PARAMETER["Standard_Parallel_1",0],' + #13#10 +
+        'UNIT["Meter",1],' + #13#10 +
+        'AUTHORITY["EPSG","53004"]]';
+    end;
+    3395: begin
+      Result :=
+        'PROJCS["WGS 84 / World Mercator",' + #13#10 +
+        'GEOGCS["WGS 84",' + #13#10 +
+        'DATUM["WGS_1984",' + #13#10 +
+        'SPHEROID["WGS 84",6378137,298.257223563,' + #13#10 +
+        'AUTHORITY["EPSG","7030"]],' + #13#10 +
+        'AUTHORITY["EPSG","6326"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.01745329251994328,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4326"]],' + #13#10 +
+        'UNIT["metre",1,' + #13#10 +
+        'AUTHORITY["EPSG","9001"]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["central_meridian",0],' + #13#10 +
+        'PARAMETER["scale_factor",1],' + #13#10 +
+        'PARAMETER["false_easting",0],' + #13#10 +
+        'PARAMETER["false_northing",0],' + #13#10 +
+        'AUTHORITY["EPSG","3395"],' + #13#10 +
+        'AXIS["Easting",EAST],' + #13#10 +
+        'AXIS["Northing",NORTH]]'
+    end;
+    4326: begin
+      Result :=
+        'GEOGCS["WGS 84",' + #13#10 +
+        'DATUM["WGS_1984",' + #13#10 +
+        'SPHEROID["WGS 84",6378137,298.257223563,' + #13#10 +
+        'AUTHORITY["EPSG","7030"]],' + #13#10 +
+        'AUTHORITY["EPSG","6326"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.01745329251994328,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4326"]]'
+    end;
+  else
+    Result := '';
+  end;
+end;
 
 function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;
