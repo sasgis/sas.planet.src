@@ -5,9 +5,9 @@ interface
 uses
   SysUtils,
   Types,
-  Math,
+  
   UMapType,
-  ECWReader,
+  
   t_GeoTypes;
 
 type
@@ -31,8 +31,6 @@ type
    descr:String;
   end;
 
- RUnits = (SUmeter,SUdegrees);
-
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
   function ExtPoint(X, Y: extended): TExtendedPoint;
@@ -50,8 +48,7 @@ type
 
 implementation
 
-uses
-  Unit1;
+
 
 function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;

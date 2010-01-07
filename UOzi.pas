@@ -7,7 +7,7 @@ uses
   SysUtils,
   classes,
   GR32,
-  ECWReader,
+  
   Ugeofun,
   UMapType;
 
