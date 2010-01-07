@@ -38,9 +38,11 @@ begin
   if (Abs(FRadiusa - 6378137) <  1) and (Abs(FRadiusb - 6356752) <  1) then begin
     FProjEPSG := 3395;
     FDatumEPSG := 3395;
+    FCellSizeUnits := CELL_UNITS_METERS;
   end else begin
     FDatumEPSG := 0;
     FProjEPSG := 0;
+    FCellSizeUnits := CELL_UNITS_UNKNOWN;
   end;
 
 end;

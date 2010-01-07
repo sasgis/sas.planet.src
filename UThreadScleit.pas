@@ -236,7 +236,7 @@ begin
        end;
    end;
    CalculateMercatorCoordinates(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
-                                Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY,Units);
+                                Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap,CellIncrementX,CellIncrementY,OriginX,OriginY, TCellSizeUnits(Units));
    errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
              Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
    if (errecw>0)and(errecw<>52) then

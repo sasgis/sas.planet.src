@@ -30,12 +30,15 @@ begin
   if Abs(FRadiusa - 6378137) <  1 then begin
     FDatumEPSG := 7059;
     FProjEPSG := 3785;
+    FCellSizeUnits := CELL_UNITS_METERS;
   end else if Abs(FRadiusa - 6371000) <  1 then begin
     FDatumEPSG := 53004;
     FProjEPSG := 53004;
+    FCellSizeUnits := CELL_UNITS_METERS;
   end else begin
     FDatumEPSG := 0;
     FProjEPSG := 0;
+    FCellSizeUnits := CELL_UNITS_UNKNOWN;
   end;
 
 end;

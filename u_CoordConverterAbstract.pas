@@ -13,6 +13,7 @@ type
     FRadiusa: Extended;
     FProjEPSG: integer;
     FDatumEPSG: integer;
+    FCellSizeUnits: TCellSizeUnits;
     FValidLonLatRect: TExtendedRect;
     function GetValidLonLatRect: TExtendedRect; virtual;
 
@@ -139,6 +140,7 @@ type
     function GetProjectionEPSG: Integer; virtual; stdcall;
     function GetDatumEPSG: integer; virtual; stdcall;
     function GetSpheroidRadius: Double; virtual; stdcall;
+    function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
 
     procedure AfterConstruction; override;
   end;
@@ -1743,6 +1745,11 @@ end;
 function TCoordConverterAbstract.GetSpheroidRadius: Double;
 begin
   Result := FRadiusa;
+end;
+
+function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;
+begin
+  Result := FCellSizeUnits;
 end;
 
 end.

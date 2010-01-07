@@ -43,7 +43,7 @@ type
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
+            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:TCellSizeUnits);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
@@ -128,40 +128,35 @@ begin
  max.Y:=max.Y+1;
 end;
 
-procedure CalculateMercatorCoordinates(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended; Units:CellSizeUnits);
-var FN,FE:integer;
-    k0,E1,N1,E2,N2:double;
+procedure CalculateMercatorCoordinates(
+  LL1, LL2: TExtendedPoint;
+  ImageWidth, ImageHeight: integer;
+  TypeMap: TMapType;
+  var CellIncrementX, CellIncrementY, OriginX, OriginY: extended;
+  Units: TCellSizeUnits
+);
+var
+  VM1: TExtendedPoint;
+  VM2: TExtendedPoint;
 begin
- case Units of
-  ECW_CELL_UNITS_METERS:
-  begin
-  k0:= 1;
-  FN:= 0; // False northing
-  FE:= 0; // False easting
-  ll1:=ExtPoint(ll1.x*D2R,ll1.y*D2R);
-  ll2:=ExtPoint(ll2.x*D2R,ll2.y*D2R);
-   // Calculate Earth Parameters
-  E1:=FE+typemap.radiusa*k0*ll1.x;
-  N1:=FN+typemap.radiusa*k0*Ln(Tan(PI/4+ll1.y/2)*
-      Power((1-typemap.exct*Sin(ll1.y))/(1+typemap.exct*Sin(ll1.y)),typemap.exct/2));
-  E2:=FE+typemap.radiusa*k0*ll2.x;
-  N2:=FN+typemap.radiusa*k0*Ln(Tan(PI/4+ll2.y/2)*
-      Power((1-typemap.exct*Sin(ll2.y))/(1+typemap.exct*Sin(ll2.y)),typemap.exct/2));
-  OriginX:=E1;
-  OriginY:=N1;
+  case Units of
+    CELL_UNITS_METERS: begin
+      VM1 := TypeMap.GeoConvert.LonLat2Metr(LL1);
+      VM2 := TypeMap.GeoConvert.LonLat2Metr(LL2);
 
-  CellIncrementX:=(E2-E1)/ImageWidth;
-  CellIncrementY:=(N2-N1)/ImageHeight;
+      OriginX := VM1.X;
+      OriginY := VM1.Y;
+
+      CellIncrementX := (VM2.X-VM1.X)/ImageWidth;
+      CellIncrementY := (VM2.Y-VM1.Y)/ImageHeight;
+    end;
+    CELL_UNITS_DEGREES: begin
+      OriginX:=ll1.x;
+      OriginY:=ll1.y;
+      CellIncrementX:=(ll2.x-ll1.x)/ImageWidth;
+      CellIncrementY:=-CellIncrementX;
+    end;
   end;
-  ECW_CELL_UNITS_DEGREES:
-  begin
-  OriginX:=ll1.x;
-  OriginY:=ll1.y;
-  CellIncrementX:=(ll2.x-ll1.x)/ImageWidth;
-  CellIncrementY:=-CellIncrementX;
-  end;
- end;
 end;
 
 function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
