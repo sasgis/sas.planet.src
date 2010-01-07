@@ -18,6 +18,9 @@ type
   public
     constructor Create(Aradiusa: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    function GetProjectionEPSG: Integer; override;
+    function GetDatumEPSG: integer; override;
+    function GetSpheroidRadius: Double; override;
   end;
 
 implementation
@@ -81,6 +84,21 @@ begin
   Result.X := (XY.x - 0.5) * 360;
   Result.Y := -(XY.y - 0.5) *(2*PI);
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
+end;
+
+function TCoordConverterMercatorOnSphere.GetDatumEPSG: integer;
+begin
+  Result := 7059;
+end;
+
+function TCoordConverterMercatorOnSphere.GetProjectionEPSG: Integer;
+begin
+  Result := 3785;
+end;
+
+function TCoordConverterMercatorOnSphere.GetSpheroidRadius: Double;
+begin
+  Result := FRadiusa;
 end;
 
 end.

@@ -29,11 +29,13 @@ uses ECWReader;
 	    COMPRESS_HINT_INTERNET = 3
     );
 
-    TReadCallback = function (pClient:pointer;nNextLine:Cardinal;InputArray:Pointer): boolean; cdecl;
-    StatusCallback = procedure (pClient:pointer; nCurrentLine:Cardinal); cdecl;
-    CancelCallback = function (pClient:pointer):boolean; cdecl;
+    PNCSEcwCompressClient = ^NCSEcwCompressClient;
 
-    type NCSEcwCompressClient = record
+    TReadCallback = function (pClient:PNCSEcwCompressClient;nNextLine:Cardinal;InputArray:Pointer): boolean; cdecl;
+    StatusCallback = procedure (pClient:PNCSEcwCompressClient; nCurrentLine:Cardinal); cdecl;
+    CancelCallback = function (pClient:PNCSEcwCompressClient):boolean; cdecl;
+
+    NCSEcwCompressClient = record
 	    {** These fields are populated by the compression client
 	    */
 	    /** If this is specified but the output file is not, a default output filename will be created.

@@ -17,6 +17,9 @@ type
   public
     constructor Create(Aradiusa: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    function GetProjectionEPSG: Integer; override;
+    function GetDatumEPSG: integer; override;
+    function GetSpheroidRadius: Double; override;
   end;
 
 implementation
@@ -74,6 +77,21 @@ function TCoordConverterSimpleLonLat.Relative2LonLatInternal(
 begin
   Result.X := (XY.x - 0.5) * 360;
   Result.y := -(XY.y - 0.5) * 360;
+end;
+
+function TCoordConverterSimpleLonLat.GetDatumEPSG: integer;
+begin
+  Result := 4326;
+end;
+
+function TCoordConverterSimpleLonLat.GetProjectionEPSG: Integer;
+begin
+  Result := 4326;
+end;
+
+function TCoordConverterSimpleLonLat.GetSpheroidRadius: Double;
+begin
+  Result := FRadiusa;
 end;
 
 end.

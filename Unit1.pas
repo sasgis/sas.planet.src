@@ -452,7 +452,6 @@ type
     procedure TBREGIONClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
     procedure NFillMapClick(Sender: TObject);
-    procedure ThreadDone(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
     procedure N16Click(Sender: TObject);
     procedure TBRECTClick(Sender: TObject);
@@ -660,8 +659,6 @@ type
 
 
 const
-  SASVersion='91207';
-  CProgram_Lang_Default = LANG_RUSSIAN;
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
   R2D: Double = 57.295779513082320876798154814105; //  онстанта дл€ преобразовани€ радиан в градусы
   zoom: array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
@@ -1210,14 +1207,6 @@ begin
               inp[p]:=DecimalSeparator;
              end;
  result:=strtofloat(inp);
-end;
-
-procedure TFmain.ThreadDone(Sender: TObject);
-begin
-  if not((MapMoving)or(MapZoomAnimtion=1)) then begin
-    GState.MainFileCache.Clear;
-    generate_im(nilLastLoad,'');
-  end;
 end;
 
 procedure TFmain.drawRect(Shift: TShiftState);

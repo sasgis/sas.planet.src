@@ -14,12 +14,12 @@ uses
 
 type
   TOpDelTiles = class(TThread)
+  private
     Zoom:byte;
     typemap:TMapType;
     polyg:TPointArray;
     max,min:TPoint;
     ProcessTiles:integer;
-  private
     Fprogress: TFprogress2;
     TileInProc:integer;
     Fx, Fy: Integer;
@@ -33,7 +33,11 @@ type
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   public
     destructor destroy; override;
-    constructor Create(CrSusp:Boolean;Azoom:byte;Atypemap:TMapType);
+    constructor Create(
+      APolyLL: TExtendedPointArray;
+      Azoom: byte;
+      Atypemap: TMapType
+    );
   end;
 
 implementation
@@ -43,12 +47,16 @@ uses
   unit1,
   Ugeofun;
 
-constructor TOpDelTiles.Create(CrSusp:Boolean;Azoom:byte;Atypemap:TMapType);
+constructor TOpDelTiles.Create(APolyLL: TExtendedPointArray; Azoom:byte;Atypemap:TMapType);
 begin
+  inherited Create(false);
   TileInProc:=0;
   zoom:=Azoom;
   typemap:=Atypemap;
-  inherited Create(CrSusp);
+  polyg := typemap.GeoConvert.PoligonProject((Zoom - 1) + 8, APolyLL);
+  ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
+  Priority := tpLowest;
+  FreeOnTerminate:=true;
 end;
 
 destructor TOpDelTiles.destroy;

@@ -44,6 +44,7 @@ var
 implementation
 
 uses
+  u_GlobalState,
   Unit1;
 
 {$R *.dfm}

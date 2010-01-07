@@ -3,6 +3,7 @@ unit u_GlobalState;
 interface
 
 uses
+  Windows,
   Graphics,
   Classes,
   IniFiles,
@@ -38,6 +39,7 @@ type
     function GetMainConfigFileName: string;
     procedure LoadMarkIcons;
     procedure LoadResources;
+    procedure LoadMainParams;
     procedure FreeAllMaps;
     procedure FreeMarkIcons;
   public
@@ -222,6 +224,10 @@ type
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
   end;
 
+const
+  SASVersion='91207';
+  CProgram_Lang_Default = LANG_RUSSIAN;
+
 var
   GState: TGlobalState;
 implementation
@@ -251,6 +257,7 @@ begin
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
+  LoadMainParams;
   LoadResources;
   LoadMarkIcons;
 end;
@@ -385,6 +392,19 @@ begin
     MarkIcons.Objects[i].Free;
   end;
   FreeAndNil(MarkIcons);
+end;
+
+procedure TGlobalState.LoadMainParams;
+var
+  loc:integer;
+begin
+  if SysLocale.PriLangID <> CProgram_Lang_Default then begin
+    loc := LANG_ENGLISH;
+  end else begin
+    loc := CProgram_Lang_Default;
+  end;
+  Localization := MainIni.Readinteger('VIEW','localization',loc);
+  WebReportToAuthor := MainIni.ReadBool('NPARAM','stat',true);
 end;
 
 end.

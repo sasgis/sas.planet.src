@@ -17,6 +17,9 @@ type
   public
     constructor Create(AExct,Aradiusa,Aradiusb: Extended);
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    function GetProjectionEPSG: Integer; override;
+    function GetDatumEPSG: integer; override;
+    function GetSpheroidRadius: Double; override;
   end;
 
 implementation
@@ -129,6 +132,21 @@ begin
       result.Y:=zu*180/Pi;
     end;
   end;
+end;
+
+function TCoordConverterMercatorOnEllipsoid.GetDatumEPSG: integer;
+begin
+  Result := 3395;
+end;
+
+function TCoordConverterMercatorOnEllipsoid.GetProjectionEPSG: Integer;
+begin
+  Result := 3395;
+end;
+
+function TCoordConverterMercatorOnEllipsoid.GetSpheroidRadius: Double;
+begin
+  Result := FRadiusa;
 end;
 
 end.

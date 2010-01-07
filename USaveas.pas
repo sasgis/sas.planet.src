@@ -18,6 +18,7 @@ uses
   inifiles,
   ComCtrls,
   filectrl,
+  GR32,
   UTrAllLoadMap,
   UThreadScleit,
   UThreadExport,
@@ -225,14 +226,7 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
- with TOpDelTiles.Create(true,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex])) do
-  begin
-   Priority := tpLowest;
-   FreeOnTerminate:=true;
-   polyg := typemap.GeoConvert.PoligonProject((Zoom - 1) + 8, APolyLL);
-   ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
-   Suspended:=false;
-  end;
+  TOpDelTiles.Create(APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]));
 end;
 
 procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
@@ -330,55 +324,43 @@ begin
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
-var i:integer;
+var
+  i:integer;
+  VInZooms: TArrayOfByte;
 begin
- with TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2,TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex])) do
-  begin
-   Priority := tpLowest;
-   FreeOnTerminate:=true;
-   Replace:=CBzamena.Checked;
-   savefull:=CBsavefull.Checked;
-   GenFormPrev:=CBGenFromPrev.Checked;
-   SetLength(PolygLL,length(APolyLL));
-   CopyMemory(@PolygLL[0],@APolyLL[0],length(APolyLL)*sizeOf(TExtendedPoint));
-   for i:=0 to FromZoom-2 do
-    if CheckList.Checked[i] then
-     begin
-      SetLength(InZooms,Length(InZooms)+1);
-      InZooms[Length(InZooms)-1]:=FromZoom-i-1;
-     end;
-   Suspended:=false;
+  for i:=0 to ComboBox.ItemIndex do begin
+    if CheckList.Checked[i] then begin
+      SetLength(VInZooms, Length(VInZooms)+1);
+      VInZooms[Length(VInZooms)-1]:=ComboBox.ItemIndex - i + 1;
+    end;
   end;
+
+  TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2, VInZooms, APolyLL, TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex]), CBzamena.Checked, CBsavefull.Checked, CBGenFromPrev.Checked);
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
-var Amt,Hmt:TMapType;
-    polyg:TPointArray;
-    VZoom: byte;
-    i:integer;
+var
+  Amt,Hmt:TMapType;
+  polyg:TPointArray;
+  VZoom: byte;
+  i:integer;
+  VPrTypes:TPrTypeArray;
 begin
- Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
- Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
- VZoom := CBZoomload.ItemIndex;
- polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
- if (FMain.SaveDialog1.Execute)then
-  begin
-   with ThreadScleit.Create(true,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked) do
-    begin
-     ProcessTiles:=GetDwnlNum(PolyMin,polyMax,polyg,true);
-     GetMinMax(PolyMin,polyMax,polyg,false);
-     Priority := tpLower;
-     FreeOnTerminate:=true;
-     SetLength(PrTypes,0);
-     for i:=0 to PrTypesBox.Items.Count-1 do
+  Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
+  Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
+  VZoom := CBZoomload.ItemIndex;
+  polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
+  if (FMain.SaveDialog1.Execute)then begin
+    SetLength(VPrTypes,0);
+    for i:=0 to PrTypesBox.Items.Count-1 do begin
       if PrTypesBox.Checked[i] then begin
-        SetLength(PrTypes,length(PrTypes)+1);
-        PrTypes[length(PrTypes)-1]:=TPrType(i);
+        SetLength(VPrTypes, length(VPrTypes)+1);
+        VPrTypes[length(VPrTypes)-1]:=TPrType(i);
       end;
-     Suspended:=false;
     end;
+    TThreadScleit.Create(VPrTypes,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked);
   end;
- Polyg := nil;
+  Polyg := nil;
 end;
 
 procedure TFsaveas.Button1Click(Sender: TObject);

@@ -100,6 +100,12 @@ type
     function CheckLonLatPos(var XY: TExtendedPoint): boolean; stdcall;
     function CheckLonLatRect(var XY: TExtendedRect): boolean; stdcall;
 
+    // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
+    function GetProjectionEPSG: Integer; stdcall;
+    // Возвращает код EPSG для этого датума. Для нестандартных проекций и сфероидов будет возвращать 0
+    function GetDatumEPSG: integer; stdcall;
+    // Возвращает радиус сфероида.
+    function GetSpheroidRadius: Double; stdcall;
   end;
 
 implementation

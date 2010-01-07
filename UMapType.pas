@@ -972,7 +972,7 @@ end;
 function TMapType.LoadFile(btm: TKML; APath: string; caching:boolean): boolean;
 begin
   Result := false;
-  if GetFileSize(Apath)=0 then begin
+  if GetFileSize(Apath)<=0 then begin
     exit;
   end;
   try
@@ -986,7 +986,7 @@ var
   VManager: IBitmapTypeExtManager;
 begin
   Result := false;
-  if GetFileSize(Apath)=0 then begin
+  if GetFileSize(Apath)<=0 then begin
     exit;
   end;
   try
