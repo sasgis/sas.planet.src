@@ -5,7 +5,6 @@ interface
 uses
   SysUtils,
   Types,
-  UMapType,
   i_ICoordConverter,
   t_GeoTypes;
 

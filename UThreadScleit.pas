@@ -96,7 +96,6 @@ implementation
 uses
   StrUtils,
   ECWWriter,
-  ECWReader,
   u_GlobalState,
   usaveas;
 
