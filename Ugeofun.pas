@@ -40,7 +40,7 @@ type
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-  procedure CalculateWFileParams(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;TypeMap:TMapType;
+  procedure CalculateWFileParams(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
@@ -212,17 +212,17 @@ end;
 procedure CalculateWFileParams(
   LL1, LL2: TExtendedPoint;
   ImageWidth, ImageHeight: integer;
-  TypeMap: TMapType;
+  AConverter: ICoordConverter;
   var CellIncrementX, CellIncrementY, OriginX, OriginY: extended
 );
 var
   VM1: TExtendedPoint;
   VM2: TExtendedPoint;
 begin
-  case TypeMap.GeoConvert.GetCellSizeUnits of
+  case AConverter.GetCellSizeUnits of
     CELL_UNITS_METERS: begin
-      VM1 := TypeMap.GeoConvert.LonLat2Metr(LL1);
-      VM2 := TypeMap.GeoConvert.LonLat2Metr(LL2);
+      VM1 := AConverter.LonLat2Metr(LL1);
+      VM2 := AConverter.LonLat2Metr(LL2);
 
       OriginX := VM1.X;
       OriginY := VM1.Y;
