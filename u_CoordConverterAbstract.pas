@@ -10,6 +10,9 @@ uses
 type
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
   protected
+    FRadiusa: Extended;
+    FProjEPSG: integer;
+    FDatumEPSG: integer;
     FValidLonLatRect: TExtendedRect;
     function GetValidLonLatRect: TExtendedRect; virtual;
 
@@ -133,9 +136,9 @@ type
     function CheckLonLatPos(var XY: TExtendedPoint): boolean; virtual; stdcall;
     function CheckLonLatRect(var XY: TExtendedRect): boolean; virtual; stdcall;
 
-    function GetProjectionEPSG: Integer; virtual; stdcall; abstract;
-    function GetDatumEPSG: integer; virtual; stdcall; abstract;
-    function GetSpheroidRadius: Double; virtual; stdcall; abstract;
+    function GetProjectionEPSG: Integer; virtual; stdcall;
+    function GetDatumEPSG: integer; virtual; stdcall;
+    function GetSpheroidRadius: Double; virtual; stdcall;
 
     procedure AfterConstruction; override;
   end;
@@ -1725,6 +1728,21 @@ function TCoordConverterAbstract.GetTileSize(const XY: TPoint;
   Azoom: byte): TPoint;
 begin
   Result := Point(256, 256);
+end;
+
+function TCoordConverterAbstract.GetDatumEPSG: integer;
+begin
+  Result := FDatumEPSG;
+end;
+
+function TCoordConverterAbstract.GetProjectionEPSG: Integer;
+begin
+  Result := FProjEPSG;
+end;
+
+function TCoordConverterAbstract.GetSpheroidRadius: Double;
+begin
+  Result := FRadiusa;
 end;
 
 end.
