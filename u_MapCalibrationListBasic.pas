@@ -24,6 +24,7 @@ uses
 
 constructor TMapCalibrationListBasic.Create;
 begin
+  inherited;
   Add(TMapCalibrationOzi.Create);
   Add(TMapCalibrationDat.Create);
   Add(TMapCalibrationKml.Create);

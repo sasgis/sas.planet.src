@@ -61,6 +61,13 @@ begin
   xy.X:=(xy2.x-((xy2.x-xy1.x)div 2));
   VLL := AConverter.PixelPos2LonLat(xy, Azoom);
 
+  lon[1] := VLL1.X;
+  lat[1] := VLL1.Y;
+  lon[2] := VLL.X;
+  lat[2] := VLL.Y;
+  lon[3] := VLL2.X;
+  lat[3] := VLL2.Y;
+
   xy2:=Point(xy2.X-xy1.X,xy2.y-xy1.y);
   xy1:=Point(0,0);
 
