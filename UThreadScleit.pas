@@ -41,7 +41,7 @@ type
     PolyMin:TPoint;
     PolyMax:TPoint;
     Fprogress: TFprogress2;
-    PrTypes:TPrTypeArray;
+    FPrTypes: IInterfaceList;
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
@@ -78,7 +78,7 @@ type
     procedure saveRECT;
   public
     constructor Create(
-      APrTypes: TPrTypeArray;
+      APrTypes: IInterfaceList;
       AFName: string;
       APolygon_: TPointArray;
       numTilesG: integer;
@@ -96,6 +96,7 @@ implementation
 uses
   StrUtils,
   ECWWriter,
+  i_IMapCalibration,
   u_GlobalState,
   usaveas;
 
@@ -179,18 +180,13 @@ begin
    fname:=Fnamebuf;
    if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
 
-   for pti:=0 to length(PrTypes)-1 do
-    case PrTypes[pti] of
-     ptMap: toOziMap(fname,poly0,poly1,zoom,typemap);
-     ptTab: toTabMap(fname,poly0,poly1,zoom,typemap);
-     ptW:   begin
-              toWorldFiles(fname,poly0,poly1,zoom,typemap);
-              toPrj(fname,typemap);
-              toAuxXml(fname,typemap);
-            end;
-     ptKml: toKml(fname,poly0,poly1,zoom,typemap);
-     ptDat: toDat(fname,poly0,poly1,zoom,typemap);
-    end;
+   for pti := 0 to FPrTypes.Count -1 do begin
+     try
+      (FPrTypes.get(pti) as IMapCalibration).SaveCalibrationInfo(FName, Poly0, Poly1, Zoom - 1, typemap.GeoConvert);
+     except
+        //TODO: ƒобавить сюда нормальную обработку ошибок.
+     end;
+   end;
 
    if (UpperCase(ExtractFileExt(fname))='.ECW')or(UpperCase(ExtractFileExt(fname))='.JP2') then
    begin
@@ -351,13 +347,13 @@ begin
   end;
 end;
 
-constructor TThreadScleit.Create(APrTypes:TPrTypeArray; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+constructor TThreadScleit.Create(APrTypes:IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
 begin
   inherited Create(false);
   Priority := tpLower;
   FreeOnTerminate:=true;
   Application.CreateForm(TFProgress2, FProgress);
-  PrTypes := APrTypes;
+  FPrTypes := APrTypes;
   FProgress.Visible:=true;
   FName:=AFName;
   numTlg:=numTilesG;

@@ -182,13 +182,13 @@ type
   private
     zoom_rect:byte;
     PolygonLL: TExtendedPointArray;
-  public
     procedure LoadRegion(APolyLL: TExtendedPointArray);
-    procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
     procedure scleitRECT(APolyLL: TExtendedPointArray);
     procedure savefilesREG(APolyLL: TExtendedPointArray);
+  public
+    procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
    end;
 
 var
@@ -201,6 +201,7 @@ uses
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,
+  i_IMapCalibration,
   UProgress,
   unit1,
   UOzi;
@@ -344,21 +345,22 @@ var
   polyg:TPointArray;
   VZoom: byte;
   i:integer;
-  VPrTypes:TPrTypeArray;
+  VPrTypes: IInterfaceList;
+  VFileName: string;
 begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
   polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
   if (FMain.SaveDialog1.Execute)then begin
-    SetLength(VPrTypes,0);
+    VFileName := FMain.SaveDialog1.FileName;
+    VPrTypes := TInterfaceList.Create;
     for i:=0 to PrTypesBox.Items.Count-1 do begin
       if PrTypesBox.Checked[i] then begin
-        SetLength(VPrTypes, length(VPrTypes)+1);
-        VPrTypes[length(VPrTypes)-1]:=TPrType(i);
+        VPrTypes.Add(IInterface(Pointer(PrTypesBox.Items.Objects[i])));
       end;
     end;
-    TThreadScleit.Create(VPrTypes,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked);
+    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked);
   end;
   Polyg := nil;
 end;
@@ -395,6 +397,7 @@ var
   i:integer;
   XX:tpOINT;
   vramkah,zagran:boolean;
+  VMapCalibration: IMapCalibration;
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
@@ -492,6 +495,17 @@ begin
       end;
     end;
   end;
+  PrTypesBox.Clear;
+  GState.MapCalibrationList.Lock;
+  try
+    for i := 0 to GState.MapCalibrationList.Count - 1 do begin
+      VMapCalibration := GState.MapCalibrationList.Get(i) as IMapCalibration;
+      PrTypesBox.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
+    end;
+  finally
+    GState.MapCalibrationList.Unlock;
+  end;
+
   if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
   if CBmtForm.ItemIndex=-1 then CBmtForm.ItemIndex:=0;
   if CBmapDel.ItemIndex=-1 then CBmapDel.ItemIndex:=0;
