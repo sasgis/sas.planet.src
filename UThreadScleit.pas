@@ -36,11 +36,14 @@ type
 
   TThreadScleit = class(TThread)
   private
-    ProcessTiles:integer;
+    FZoom:byte;
+    FPoly: TPointArray;
+    FMapCalibrationList: IInterfaceList;
+
+    FProcessTiles: integer;
     PolyMin:TPoint;
     PolyMax:TPoint;
     Fprogress: TFprogress2;
-    FPrTypes: IInterfaceList;
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
@@ -48,8 +51,6 @@ type
     Barr:P256rgb;
     Poly0:TPoint;
     Poly1:TPoint;
-    Poly:TPointArray;
-    Zoom:byte;
     typemap,Htypemap:TMapType;
     colors:byte;
     numTlg:integer;
@@ -77,7 +78,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      APrTypes: IInterfaceList;
+      AMapCalibrationList: IInterfaceList;
       AFName: string;
       APolygon_: TPointArray;
       numTilesG: integer;
@@ -148,7 +149,7 @@ var
   path: string;
 begin
   prCaption:='Склеить: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
-    +inttostr((PolyMax.y-PolyMin.y-1) div 256+1) +'('+inttostr(ProcessTiles)+') '+SAS_STR_files;
+    +inttostr((PolyMax.y-PolyMin.y-1) div 256+1) +'('+inttostr(FProcessTiles)+') '+SAS_STR_files;
   Synchronize(UpdateProgressFormCapt);
   prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(numTlg*numTlv)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
@@ -179,9 +180,9 @@ begin
       fname:=Fnamebuf;
       if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
 
-      for pti := 0 to FPrTypes.Count -1 do begin
+      for pti := 0 to FMapCalibrationList.Count - 1 do begin
         try
-          (FPrTypes.get(pti) as IMapCalibration).SaveCalibrationInfo(FName, Poly0, Poly1, Zoom - 1, typemap.GeoConvert);
+          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FName, Poly0, Poly1, FZoom - 1, typemap.GeoConvert);
         except
           //TODO: Добавить сюда нормальную обработку ошибок.
         end;
@@ -212,12 +213,12 @@ begin
           Datum := 'EPSG:' + IntToStr(typemap.GeoConvert.GetDatumEPSG);
           Proj := 'EPSG:' + IntToStr(typemap.GeoConvert.GetProjectionEPSG);
           Units := typemap.GeoConvert.GetCellSizeUnits;
-          CalculateWFileParams(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
+          CalculateWFileParams(typemap.GeoConvert.PixelPos2LonLat(Poly0, FZoom - 1),typemap.GeoConvert.PixelPos2LonLat(Poly1, FZoom - 1),
           Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap.GeoConvert,CellIncrementX,CellIncrementY,OriginX,OriginY);
           errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
           Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
           if (errecw>0)and(errecw<>52) then begin
-            path:=typemap.GetTileShowName(LastXY.x, LastXY.Y, zoom);
+            path:=typemap.GetTileShowName(LastXY.x, LastXY.Y, FZoom);
             Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
             Synchronize(SynShowMessage);
           end;
@@ -341,25 +342,26 @@ begin
   end;
 end;
 
-constructor TThreadScleit.Create(APrTypes:IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
 begin
   inherited Create(false);
   Priority := tpLower;
   FreeOnTerminate:=true;
+  FPoly := APolygon_;
+  FZoom := Azoom;
+
   Application.CreateForm(TFProgress2, FProgress);
-  FPrTypes := APrTypes;
+  FMapCalibrationList := AMapCalibrationList;
   FProgress.Visible:=true;
   FName:=AFName;
   numTlg:=numTilesG;
   numTlv:=numTilesV;
   usedReColor:=AusedReColor;
-  Poly := APolygon_;
-  zoom:=Azoom;
   typemap:=Atypemap;
   Htypemap:=AHtypemap;
   colors:=Acolors;
-  ProcessTiles:=GetDwnlNum(PolyMin,polyMax,poly,true);
-  GetMinMax(PolyMin,polyMax,poly,false);
+  FProcessTiles:=GetDwnlNum(PolyMin, polyMax, FPoly, true);
+  GetMinMax(PolyMin, polyMax, FPoly,false);
 end;
 
 procedure TThreadScleit.Execute;
@@ -388,7 +390,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
     p_x:=poly0.x-(poly0.x mod 256);
-    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
+    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom - 1) + 8, Htypemap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
@@ -398,37 +400,37 @@ begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       LastXY.X := p_x;
       LastXY.Y := p_y;
-      if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then begin
+      if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        if (typemap.Tileexists(p_x,p_y,zoom)) then begin
-          if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false)) then begin
-            typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+        if (typemap.Tileexists(p_x,p_y, FZoom)) then begin
+          if not(typemap.LoadTile(btmm,p_x,p_y, FZoom,false)) then begin
+            typemap.LoadTileFromPreZ(btmm,p_x,p_y,FZoom,false);
           end;
         end else begin
-          typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+          typemap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
         if usedReColor then Gamma(btmm);
         if Htypemap<>nil then begin
           btmh.Clear($FF000000);
-          if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
-            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false)) then begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+          if (Htypemap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
+            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y, FZoom,false)) then begin
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
             end;
           end else begin
-            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
           end;
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
-              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false)) then begin
-                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+            if (Htypemap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
+              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
+                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
               end;
             end else begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
             end;
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
@@ -487,44 +489,44 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
     p_x:=poly0.x-(poly0.x mod 256);
-    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
+    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom - 1) + 8, Htypemap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
     Asx:=sx;
     Aex:=255;
     while p_x<=poly1.x do begin
-      if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then begin
+      if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        if (typemap.Tileexists(p_x,p_y,zoom)) then begin
-          if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false)) then begin
-            typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+        if (typemap.Tileexists(p_x,p_y, FZoom)) then begin
+          if not(typemap.LoadTile(btmm,p_x,p_y, FZoom, false)) then begin
+            typemap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
           end;
         end else begin
-          typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+          typemap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
         if usedReColor then Gamma(btmm);
         if Htypemap<>nil then begin
           btmh.Clear($FF000000);
-          if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
-            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false)) then begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+          if (Htypemap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
+            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y, FZoom, false)) then begin
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
             end;
           end else begin
-            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
           end;
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
-              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false)) then begin
-                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+            if (Htypemap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
+              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
+                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
               end;
             end else begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
             end;
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
