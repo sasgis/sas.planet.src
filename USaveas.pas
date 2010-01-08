@@ -359,7 +359,7 @@ begin
         VPrTypes.Add(IInterface(Pointer(PrTypesBox.Items.Objects[i])));
       end;
     end;
-    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked);
+    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked);
   end;
   Polyg := nil;
 end;

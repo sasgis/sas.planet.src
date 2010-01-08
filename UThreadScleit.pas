@@ -51,28 +51,26 @@ type
     FMapSize: TPoint;
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
+    FUsedReColor: boolean;
 
 
-    FProcessTiles: integer;
     FProgressForm: TFprogress2;
+
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
     Garr:P256rgb;
     Barr:P256rgb;
-    colors:byte;
     ecw:TECWWrite;
     btmm:TBitmap32;
     btmh:TBitmap32;
-    usedReColor:boolean;
-    prStr1,prStr2,prCaption:string;
+    prStr1, prStr2: string;
     prBar:integer;
     Message_:string;
     LastXY: TPoint;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     function ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb):boolean;
     function IsCancel: Boolean;
-    procedure UpdateProgressFormCapt;
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormStr1;
     procedure UpdateProgressFormStr2;
@@ -94,7 +92,6 @@ type
       Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
-      Acolors: byte;
       AusedReColor: boolean
     );
   end;
@@ -108,7 +105,9 @@ uses
   u_GlobalState,
   usaveas;
 
-constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor:boolean);
+var
+  VProcessTiles: Int64;
 begin
   inherited Create(false);
   Priority := tpLower;
@@ -122,15 +121,14 @@ begin
   FFileName := ChangeFileExt(ExtractFileName(AFName), '');
   FTypeMap := Atypemap;
   FHTypeMap := AHtypemap;
+  FUsedReColor := AusedReColor;
+  FMapCalibrationList := AMapCalibrationList;
 
 
   Application.CreateForm(TFProgress2, FProgressForm);
-  FMapCalibrationList := AMapCalibrationList;
-  FProgressForm.Visible:=true;
-  usedReColor:=AusedReColor;
-  colors:=Acolors;
+  FProgressForm.Visible := true;
 
-  FProcessTiles:=GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
+  VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
   GetMinMax(FMapRect.TopLeft, FMapRect.BottomRight, FPoly,false);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;
@@ -138,6 +136,9 @@ begin
   FMapPieceSize.X := FMapSize.X div FSplitCount.X;
   FMapPieceSize.Y := FMapSize.Y div FSplitCount.Y;
   FProgressForm.ProgressBar1.Max := FMapPieceSize.Y;
+
+  FProgressForm.Caption := 'Ñךכוטעü: '+inttostr((FMapSize.Y) div 256+1)+'x'
+    +inttostr((FMapSize.Y) div 256+1) +'('+inttostr(VProcessTiles)+') '+SAS_STR_files;
 end;
 
 procedure TThreadScleit.SynShowMessage;
@@ -148,11 +149,6 @@ end;
 procedure TThreadScleit.UpdateProgressFormClose;
 begin
   FProgressForm.Close;
-end;
-
-procedure TThreadScleit.UpdateProgressFormCapt;
-begin
-  FProgressForm.Caption := prCaption;
 end;
 
 procedure TThreadScleit.UpdateProgressFormStr1;
@@ -178,11 +174,7 @@ end;
 procedure TThreadScleit.saveRECT;
 var
   i, j, pti: integer;
-  Fnamebuf: string;
 begin
-  prCaption:='Ñךכוטעü: '+inttostr((FMapSize.Y) div 256+1)+'x'
-    +inttostr((FMapSize.Y) div 256+1) +'('+inttostr(FProcessTiles)+') '+SAS_STR_files;
-  Synchronize(UpdateProgressFormCapt);
   prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
@@ -278,7 +270,7 @@ begin
         end else begin
           FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
-        if usedReColor then Gamma(btmm);
+        if FUsedReColor then Gamma(btmm);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
           if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
@@ -369,7 +361,7 @@ begin
         end else begin
           FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
-        if usedReColor then Gamma(btmm);
+        if FUsedReColor then Gamma(btmm);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
           if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
