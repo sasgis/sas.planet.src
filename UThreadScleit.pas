@@ -36,11 +36,18 @@ type
 
   TThreadScleit = class(TThread)
   private
-    FZoom:byte;
+    FZoom: byte;
     FPoly: TPointArray;
     FMapCalibrationList: IInterfaceList;
-    numTlg:integer;
-    numTlv:integer;
+    FSplitCount: TPoint;
+    FFileName: string;
+    FFilePath: string;
+    FFileExt: string;
+    FCurrentFileName: string;
+    FTypeMap: TMapType;
+    FHTypeMap: TMapType;
+
+
 
     FProcessTiles: integer;
     PolyMin:TPoint;
@@ -53,13 +60,11 @@ type
     Barr:P256rgb;
     Poly0:TPoint;
     Poly1:TPoint;
-    typemap,Htypemap:TMapType;
     colors:byte;
     ecw:TECWWrite;
     btmm:TBitmap32;
     btmh:TBitmap32;
     usedReColor:boolean;
-    FName:string;
     prStr1,prStr2,prCaption:string;
     prBar:integer;
     Message_:string;
@@ -101,7 +106,7 @@ uses
   ECWWriter,
   i_IMapCalibration,
   u_GlobalState,
-  usaveas;
+  usaveas, Types;
 
 procedure TThreadScleit.SynShowMessage;
 begin
@@ -141,16 +146,12 @@ begin
   prCaption:='Склеить: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
     +inttostr((PolyMax.y-PolyMin.y-1) div 256+1) +'('+inttostr(FProcessTiles)+') '+SAS_STR_files;
   Synchronize(UpdateProgressFormCapt);
-  prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(numTlg*numTlv)+' '+SAS_STR_files;
+  prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
   FProgress.ProgressBar1.Max:=0;
-  for i:=1 to numTlg do begin
-    for j:=1 to numTlv do begin
-      Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
-      Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
-      Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
-      Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
+  for i:=1 to FSplitCount.X do begin
+    for j:=1 to FSplitCount.Y do begin
       FProgress.ProgressBar1.Max:=FProgress.ProgressBar1.Max+(((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
     end;
   end;
@@ -159,29 +160,31 @@ begin
   prStr2:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
   Synchronize(UpdateProgressFormStr2);
 
-  Fnamebuf:=fname;
-  for i:=1 to numTlg do begin
-    for j:=1 to numTlv do begin
-      Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
-      Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
-      Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
-      Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
+  for i:=1 to FSplitCount.X do begin
+    for j:=1 to FSplitCount.Y do begin
+      Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div FSplitCount.X)*(i-1);
+      Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div FSplitCount.X)*i;
+      Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div FSplitCount.Y)*(j-1);
+      Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div FSplitCount.Y)*j;
 
-      fname:=Fnamebuf;
-      if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
+      if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
+        FCurrentFileName := FFilePath + FFileName + '_'+inttostr(i)+'-'+inttostr(j) + FFileExt;
+      end else begin
+        FCurrentFileName := FFilePath + FFileName + FFileExt;
+      end;
 
       for pti := 0 to FMapCalibrationList.Count - 1 do begin
         try
-          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FName, Poly0, Poly1, FZoom - 1, typemap.GeoConvert);
+          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FCurrentFileName, Poly0, Poly1, FZoom - 1, FTypeMap.GeoConvert);
         except
           //TODO: Добавить сюда нормальную обработку ошибок.
         end;
       end;
       try
-        if (UpperCase(ExtractFileExt(fname))='.ECW')or(UpperCase(ExtractFileExt(fname))='.JP2') then begin
+        if (UpperCase(FFileExt)='.ECW')or(UpperCase(FFileExt)='.JP2') then begin
           Save_ECW;
           continue;
-        end else if (UpperCase(ExtractFileExt(fname))='.BMP') then begin
+        end else if (UpperCase(FFileExt)='.BMP') then begin
           Save_BMP;
           continue;
         end else begin
@@ -202,19 +205,22 @@ constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:str
 begin
   inherited Create(false);
   Priority := tpLower;
-  FreeOnTerminate:=true;
+  FreeOnTerminate := true;
   FPoly := APolygon_;
   FZoom := Azoom;
+  FSplitCount.X := numTilesG;
+  FSplitCount.Y := numTilesV;
+  FFilePath := ExtractFilePath(AFName);
+  FFileExt := ExtractFileExt(AFName);
+  FFileName := ChangeFileExt(ExtractFileName(AFName), '');
+  FTypeMap := Atypemap;
+  FHTypeMap := AHtypemap;
+
 
   Application.CreateForm(TFProgress2, FProgress);
   FMapCalibrationList := AMapCalibrationList;
   FProgress.Visible:=true;
-  FName:=AFName;
-  numTlg:=numTilesG;
-  numTlv:=numTilesV;
   usedReColor:=AusedReColor;
-  typemap:=Atypemap;
-  Htypemap:=AHtypemap;
   colors:=Acolors;
   FProcessTiles:=GetDwnlNum(PolyMin, polyMax, FPoly, true);
   GetMinMax(PolyMin, polyMax, FPoly,false);
@@ -246,7 +252,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
     p_x:=poly0.x-(poly0.x mod 256);
-    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom - 1) + 8, Htypemap.GeoConvert);
+    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom - 1) + 8, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
@@ -260,33 +266,33 @@ begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        if (typemap.Tileexists(p_x,p_y, FZoom)) then begin
-          if not(typemap.LoadTile(btmm,p_x,p_y, FZoom,false)) then begin
-            typemap.LoadTileFromPreZ(btmm,p_x,p_y,FZoom,false);
+        if (FTypeMap.Tileexists(p_x,p_y, FZoom)) then begin
+          if not(FTypeMap.LoadTile(btmm,p_x,p_y, FZoom,false)) then begin
+            FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y,FZoom,false);
           end;
         end else begin
-          typemap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
+          FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
         if usedReColor then Gamma(btmm);
-        if Htypemap<>nil then begin
+        if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          if (Htypemap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
-            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y, FZoom,false)) then begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
+          if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
+            if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y, FZoom,false)) then begin
+              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
             end;
           end else begin
-            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
+            FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
           end;
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            if (Htypemap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
-              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
-                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
+            if (FHTypeMap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
+              if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
+                FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
               end;
             end else begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
+              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
             end;
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
@@ -345,7 +351,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
     p_x:=poly0.x-(poly0.x mod 256);
-    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom - 1) + 8, Htypemap.GeoConvert);
+    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom - 1) + 8, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
@@ -356,33 +362,33 @@ begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        if (typemap.Tileexists(p_x,p_y, FZoom)) then begin
-          if not(typemap.LoadTile(btmm,p_x,p_y, FZoom, false)) then begin
-            typemap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
+        if (FTypeMap.Tileexists(p_x,p_y, FZoom)) then begin
+          if not(FTypeMap.LoadTile(btmm,p_x,p_y, FZoom, false)) then begin
+            FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
           end;
         end else begin
-          typemap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
+          FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
         if usedReColor then Gamma(btmm);
-        if Htypemap<>nil then begin
+        if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          if (Htypemap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
-            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y, FZoom, false)) then begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
+          if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
+            if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y, FZoom, false)) then begin
+              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
             end;
           end else begin
-            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
+            FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
           end;
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            if (Htypemap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
-              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
-                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
+            if (FHTypeMap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
+              if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
+                FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
               end;
             end else begin
-              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
+              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
             end;
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
@@ -437,15 +443,15 @@ begin
     FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
     Synchronize(UpdateProgressFormStr1);
-    Datum := 'EPSG:' + IntToStr(typemap.GeoConvert.GetDatumEPSG);
-    Proj := 'EPSG:' + IntToStr(typemap.GeoConvert.GetProjectionEPSG);
-    Units := typemap.GeoConvert.GetCellSizeUnits;
-    CalculateWFileParams(typemap.GeoConvert.PixelPos2LonLat(Poly0, FZoom - 1),typemap.GeoConvert.PixelPos2LonLat(Poly1, FZoom - 1),
-    Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap.GeoConvert,CellIncrementX,CellIncrementY,OriginX,OriginY);
-    errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
+    Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
+    Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
+    Units := FTypeMap.GeoConvert.GetCellSizeUnits;
+    CalculateWFileParams(FTypeMap.GeoConvert.PixelPos2LonLat(Poly0, FZoom - 1),FTypeMap.GeoConvert.PixelPos2LonLat(Poly1, FZoom - 1),
+    Poly1.X-Poly0.X,Poly1.y-Poly0.y,FTypeMap.GeoConvert,CellIncrementX,CellIncrementY,OriginX,OriginY);
+    errecw:=ecw.Encode(FCurrentFileName,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
-      path:=typemap.GetTileShowName(LastXY.x, LastXY.Y, FZoom);
+      path:=FTypeMap.GetTileShowName(LastXY.x, LastXY.Y, FZoom);
       Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
       Synchronize(SynShowMessage);
     end;
@@ -491,7 +497,7 @@ begin
     FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
     Synchronize(UpdateProgressFormStr1);
-    SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, fname, ReadLineBMP, IsCancel);
+    SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, FCurrentFileName, ReadLineBMP, IsCancel);
   finally
     {$IFDEF VER80}
       for k:=0 to 255 do freemem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
@@ -549,7 +555,7 @@ begin
       Synchronize(SynShowMessage);
       exit;
     end;
-    jcprops.JPGFile := PChar(fname);
+    jcprops.JPGFile := PChar(FCurrentFileName);
     jcprops.JPGWidth := iWidth;
     jcprops.JPGHeight := iHeight;
     jcprops.JPGChannels := 3;
