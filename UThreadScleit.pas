@@ -47,12 +47,12 @@ type
     FCurrentFileName: string;
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
-
+    FMapRect: TRect;
+    FMapSize: TPoint;
+    FMapPieceSize: TPoint;
 
 
     FProcessTiles: integer;
-    PolyMin:TPoint;
-    PolyMax:TPoint;
     FProgressForm: TFprogress2;
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
@@ -130,10 +130,15 @@ begin
   FProgressForm.Visible:=true;
   usedReColor:=AusedReColor;
   colors:=Acolors;
-  FProcessTiles:=GetDwnlNum(PolyMin, polyMax, FPoly, true);
-  GetMinMax(PolyMin, polyMax, FPoly,false);
 
-  FProgressForm.ProgressBar1.Max := (PolyMax.y-PolyMin.y) div FSplitCount.Y;
+  FProcessTiles:=GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
+  GetMinMax(FMapRect.TopLeft, FMapRect.BottomRight, FPoly,false);
+
+  FMapSize.X := FMapRect.Right - FMapRect.Left;
+  FMapSize.Y := FMapRect.Bottom - FMapRect.Top;
+  FMapPieceSize.X := FMapSize.X div FSplitCount.X;
+  FMapPieceSize.Y := FMapSize.Y div FSplitCount.Y;
+  FProgressForm.ProgressBar1.Max := FMapPieceSize.Y;
 end;
 
 procedure TThreadScleit.SynShowMessage;
@@ -176,10 +181,10 @@ var
   i, j, pti: integer;
   Fnamebuf: string;
 begin
-  prCaption:='Ñךכוטעü: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
-    +inttostr((PolyMax.y-PolyMin.y-1) div 256+1) +'('+inttostr(FProcessTiles)+') '+SAS_STR_files;
+  prCaption:='Ñךכוטעü: '+inttostr((FMapSize.Y) div 256+1)+'x'
+    +inttostr((FMapSize.Y) div 256+1) +'('+inttostr(FProcessTiles)+') '+SAS_STR_files;
   Synchronize(UpdateProgressFormCapt);
-  prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
+  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
   prBar:=0;
@@ -187,17 +192,16 @@ begin
   prStr2:=SAS_STR_Processed+' 0';
   Synchronize(UpdateProgressFormStr2);
 
+  FCurrentFileName := FFilePath + FFileName + FFileExt;
   for i:=1 to FSplitCount.X do begin
     for j:=1 to FSplitCount.Y do begin
-      Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div FSplitCount.X)*(i-1);
-      Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div FSplitCount.X)*i;
-      Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div FSplitCount.Y)*(j-1);
-      Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div FSplitCount.Y)*j;
+      Poly0.X := FMapRect.Left + FMapPieceSize.X * (i-1);
+      Poly1.X := FMapRect.Left + FMapPieceSize.X * i;
+      Poly0.Y := FMapRect.Top + FMapPieceSize.Y * (j-1);
+      Poly1.Y := FMapRect.Top + FMapPieceSize.Y * j;
 
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         FCurrentFileName := FFilePath + FFileName + '_'+inttostr(i)+'-'+inttostr(j) + FFileExt;
-      end else begin
-        FCurrentFileName := FFilePath + FFileName + FFileExt;
       end;
 
       for pti := 0 to FMapCalibrationList.Count - 1 do begin
