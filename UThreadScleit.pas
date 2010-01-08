@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   Forms,
   SysUtils,
   Classes,
@@ -52,7 +53,7 @@ type
     FProcessTiles: integer;
     PolyMin:TPoint;
     PolyMax:TPoint;
-    Fprogress: TFprogress2;
+    FProgressForm: TFprogress2;
     Array256BGR:P256ArrayBGR;
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
@@ -106,7 +107,42 @@ uses
   ECWWriter,
   i_IMapCalibration,
   u_GlobalState,
-  usaveas, Types;
+  usaveas;
+
+constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
+var
+  i, j: integer;
+begin
+  inherited Create(false);
+  Priority := tpLower;
+  FreeOnTerminate := true;
+  FPoly := APolygon_;
+  FZoom := Azoom;
+  FSplitCount.X := numTilesG;
+  FSplitCount.Y := numTilesV;
+  FFilePath := ExtractFilePath(AFName);
+  FFileExt := ExtractFileExt(AFName);
+  FFileName := ChangeFileExt(ExtractFileName(AFName), '');
+  FTypeMap := Atypemap;
+  FHTypeMap := AHtypemap;
+
+
+  Application.CreateForm(TFProgress2, FProgressForm);
+  FMapCalibrationList := AMapCalibrationList;
+  FProgressForm.Visible:=true;
+  usedReColor:=AusedReColor;
+  colors:=Acolors;
+  FProcessTiles:=GetDwnlNum(PolyMin, polyMax, FPoly, true);
+  GetMinMax(PolyMin, polyMax, FPoly,false);
+
+  FProgressForm.ProgressBar1.Max := 0;
+  for i:=1 to FSplitCount.X do begin
+    for j:=1 to FSplitCount.Y do begin
+      FProgressForm.ProgressBar1.Max := FProgressForm.ProgressBar1.Max +
+        (((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
+    end;
+  end;
+end;
 
 procedure TThreadScleit.SynShowMessage;
 begin
@@ -115,27 +151,32 @@ end;
 
 procedure TThreadScleit.UpdateProgressFormClose;
 begin
- fprogress.Close;
+  FProgressForm.Close;
 end;
 
 procedure TThreadScleit.UpdateProgressFormCapt;
 begin
- fprogress.Caption:=prCaption;
+  FProgressForm.Caption := prCaption;
 end;
 
 procedure TThreadScleit.UpdateProgressFormStr1;
 begin
- fprogress.MemoInfo.Lines[0]:=prStr1;
+  FProgressForm.MemoInfo.Lines[0] := prStr1;
 end;
 
 procedure TThreadScleit.UpdateProgressFormStr2;
 begin
- fprogress.MemoInfo.Lines[1]:=prStr2;
+  FProgressForm.MemoInfo.Lines[1] := prStr2;
 end;
 
 procedure TThreadScleit.UpdateProgressFormBar;
 begin
- fprogress.ProgressBar1.Progress1:=prBar;
+  FProgressForm.ProgressBar1.Progress1 := prBar;
+end;
+
+function TThreadScleit.IsCancel: Boolean;
+begin
+  result := not(FProgressForm.Visible);
 end;
 
 procedure TThreadScleit.saveRECT;
@@ -149,15 +190,9 @@ begin
   prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
-  FProgress.ProgressBar1.Max:=0;
-  for i:=1 to FSplitCount.X do begin
-    for j:=1 to FSplitCount.Y do begin
-      FProgress.ProgressBar1.Max:=FProgress.ProgressBar1.Max+(((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
-    end;
-  end;
   prBar:=0;
   Synchronize(UpdateProgressFormBar);
-  prStr2:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
+  prStr2:=SAS_STR_Processed+' 0';
   Synchronize(UpdateProgressFormStr2);
 
   for i:=1 to FSplitCount.X do begin
@@ -199,31 +234,6 @@ begin
       end;
     end;
   end;
-end;
-
-constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
-begin
-  inherited Create(false);
-  Priority := tpLower;
-  FreeOnTerminate := true;
-  FPoly := APolygon_;
-  FZoom := Azoom;
-  FSplitCount.X := numTilesG;
-  FSplitCount.Y := numTilesV;
-  FFilePath := ExtractFilePath(AFName);
-  FFileExt := ExtractFileExt(AFName);
-  FFileName := ChangeFileExt(ExtractFileName(AFName), '');
-  FTypeMap := Atypemap;
-  FHTypeMap := AHtypemap;
-
-
-  Application.CreateForm(TFProgress2, FProgress);
-  FMapCalibrationList := AMapCalibrationList;
-  FProgress.Visible:=true;
-  usedReColor:=AusedReColor;
-  colors:=Acolors;
-  FProcessTiles:=GetDwnlNum(PolyMin, polyMax, FPoly, true);
-  GetMinMax(PolyMin, polyMax, FPoly,false);
 end;
 
 procedure TThreadScleit.Execute;
@@ -321,11 +331,6 @@ begin
     LineG^[i]:=Garr^[starttile]^[i];
     LineB^[i]:=Barr^[starttile]^[i];
   end;
-end;
-
-function TThreadScleit.IsCancel: Boolean;
-begin
-  result:=not(Fprogress.Visible);
 end;
 
 function TThreadScleit.ReadLineBMP(Line: cardinal;
@@ -440,7 +445,7 @@ begin
     for k:=0 to 255 do getmem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
     getmem(Barr,256*sizeof(PRow));
     for k:=0 to 255 do getmem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-    FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+    FProgressForm.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
     Synchronize(UpdateProgressFormStr1);
     Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
@@ -494,7 +499,7 @@ begin
     btmh.Height:=256;
     getmem(Array256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
-    FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+    FProgressForm.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
     Synchronize(UpdateProgressFormStr1);
     SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, FCurrentFileName, ReadLineBMP, IsCancel);
@@ -527,7 +532,7 @@ begin
   try
     getmem(Array256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
-    FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+    FProgressForm.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
     Synchronize(UpdateProgressFormStr1);
     btmm:=TBitmap32.Create;
@@ -548,7 +553,7 @@ begin
     if jcprops.DIBBytes<>nil then begin
       for k:=0 to iHeight-1 do begin
         ReadLineBMP(k,Pointer(integer(jcprops.DIBBytes)+(((iWidth*3+ (iWidth mod 4))*iHeight)-(iWidth*3+ (iWidth mod 4))*(k+1))));
-        if not(Fprogress.Visible) then break;
+        if IsCancel then break;
       end;
     end else begin
       Message_:=SAS_ERR_Memory;
