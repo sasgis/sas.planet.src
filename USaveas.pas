@@ -203,8 +203,7 @@ uses
   u_LogForTaskThread,
   i_IMapCalibration,
   UProgress,
-  unit1,
-  UOzi;
+  unit1;
   
 {$R *.dfm}
 

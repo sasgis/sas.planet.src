@@ -19,8 +19,7 @@ uses
   bmpUtil,
   t_GeoTypes,
   UResStrings,
-  unit4,
-  uozi;
+  unit4;
 
 type
   PRow = ^TRow;
@@ -67,15 +66,15 @@ type
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     function ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb):boolean;
     function IsCancel: Boolean;
-  protected
     procedure UpdateProgressFormCapt;
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormStr1;
     procedure UpdateProgressFormStr2;
     procedure UpdateProgressFormClose;
     procedure SynShowMessage;
-    procedure Execute; override;
     procedure saveRECT;
+  protected
+    procedure Execute; override;
   public
     constructor Create(
       APrTypes: IInterfaceList;
