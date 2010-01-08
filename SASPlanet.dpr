@@ -41,7 +41,6 @@ uses
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   UWikiLayer in 'UWikiLayer.pas',
-  UOzi in 'UOzi.pas',
   UPLT in 'UPLT.pas',
   Ugeofun in 'Ugeofun.pas',
   u_GlobalState in 'u_GlobalState.pas',
