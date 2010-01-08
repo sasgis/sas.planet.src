@@ -371,93 +371,92 @@ end;
 
 function TThreadScleit.ReadLineECW(Line: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
-var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
-    p_h:TPoint;
-    p:PColor32array;
+var
+  i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
+  p_h:TPoint;
+  p:PColor32array;
 begin
   Result := True;
- if line<(256-sy) then starttile:=sy+line
-                  else starttile:=(line-(256-sy)) mod 256;
- if (starttile=0)or(line=0) then
-  begin
-   prBar:=line;
-   Synchronize(UpdateProgressFormBar);
-   prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
-   Synchronize(UpdateProgressFormStr2);
-   p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
-   p_x:=poly0.x-(poly0.x mod 256);
-   p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
-   lrarri:=0;
-   if line>(255-sy) then Asy:=0 else Asy:=sy;
-   if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
-   Asx:=sx;
-   Aex:=255;
-   while p_x<=poly1.x do
-    begin
-     // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
-     LastXY.X := p_x;
-     LastXY.Y := p_y;
-     if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then btmm.Clear(Color32(GState.BGround))
-     else
-     begin
-     btmm.Clear(Color32(GState.BGround));
-     if (typemap.Tileexists(p_x,p_y,zoom))
-      then begin
-            if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false))
-             then typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
-           end
-      else typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
-     if usedReColor then Gamma(btmm);
-     if Htypemap<>nil then
-      begin
-       btmh.Clear($FF000000);
-       if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
-        if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false))
-         then Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
-       end else begin
-         Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
-       end;
-       btmh.DrawMode:=dmBlend;
-       btmm.Draw(0,0-((p_h.y mod 256)),btmh);
-       if p_h.y<>p_y then
-        begin
-         btmh.Clear($FF000000);
-         if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
-          if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false))
-           then Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
-         end else begin
-          Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
-         end;
-         btmh.DrawMode:=dmBlend;
-         btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
+  if line<(256-sy) then begin
+    starttile:=sy+line;
+  end else begin
+    starttile:=(line-(256-sy)) mod 256;
+  end;
+  if (starttile=0)or(line=0) then begin
+    prBar:=line;
+    Synchronize(UpdateProgressFormBar);
+    prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+    Synchronize(UpdateProgressFormStr2);
+    p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
+    p_x:=poly0.x-(poly0.x mod 256);
+    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
+    lrarri:=0;
+    if line>(255-sy) then Asy:=0 else Asy:=sy;
+    if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+    Asx:=sx;
+    Aex:=255;
+    while p_x<=poly1.x do begin
+      // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
+      LastXY.X := p_x;
+      LastXY.Y := p_y;
+      if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then begin
+        btmm.Clear(Color32(GState.BGround))
+      end else begin
+        btmm.Clear(Color32(GState.BGround));
+        if (typemap.Tileexists(p_x,p_y,zoom)) then begin
+          if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false)) then begin
+            typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+          end;
+        end else begin
+          typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+        end;
+        if usedReColor then Gamma(btmm);
+        if Htypemap<>nil then begin
+          btmh.Clear($FF000000);
+          if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
+            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false)) then begin
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+            end;
+          end else begin
+            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+          end;
+          btmh.DrawMode:=dmBlend;
+          btmm.Draw(0,0-((p_h.y mod 256)),btmh);
+          if p_h.y<>p_y then begin
+            btmh.Clear($FF000000);
+            if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
+              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false)) then begin
+                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+              end;
+            end else begin
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+            end;
+            btmh.DrawMode:=dmBlend;
+            btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
+          end;
         end;
       end;
-     end;
-     if (p_x+256)>poly1.x
-      then Aex:=ex;
-     for j:=Asy to Aey do
-      begin
-       p:=btmm.ScanLine[j];
-       rarri:=lrarri;
-       for i:=Asx to Aex do
-        begin
-         Rarr^[j]^[rarri]:=(cardinal(p^[i]) shr 16);
-         Garr^[j]^[rarri]:=(cardinal(p^[i]) shr 8);
-         Barr^[j]^[rarri]:=(cardinal(p^[i]));
-         inc(rarri);
+      if (p_x+256)>poly1.x then Aex:=ex;
+      for j:=Asy to Aey do begin
+        p:=btmm.ScanLine[j];
+        rarri:=lrarri;
+        for i:=Asx to Aex do begin
+          Rarr^[j]^[rarri]:=(cardinal(p^[i]) shr 16);
+          Garr^[j]^[rarri]:=(cardinal(p^[i]) shr 8);
+          Barr^[j]^[rarri]:=(cardinal(p^[i]));
+          inc(rarri);
         end;
       end;
-     lrarri:=rarri;
-     Asx:=0;
-     inc(p_x,256);
-     inc(p_h.x,256);
+      lrarri:=rarri;
+      Asx:=0;
+      inc(p_x,256);
+      inc(p_h.x,256);
     end;
   end;
- for i:=0 to (poly1.x-poly0.x)-1 do
-  begin
-   LineR^[i]:=Rarr^[starttile]^[i];
-   LineG^[i]:=Garr^[starttile]^[i];
-   LineB^[i]:=Barr^[starttile]^[i];
+  for i:=0 to (poly1.x-poly0.x)-1 do begin
+    LineR^[i]:=Rarr^[starttile]^[i];
+    LineG^[i]:=Garr^[starttile]^[i];
+    LineB^[i]:=Barr^[starttile]^[i];
   end;
 end;
 
@@ -468,84 +467,87 @@ end;
 
 function TThreadScleit.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb): boolean;
-var i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
-    p_h:TPoint;
-    p:PColor32array;
+var
+  i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
+  p_h:TPoint;
+  p:PColor32array;
 begin
- if line<(256-sy) then starttile:=sy+line
-                  else starttile:=(line-(256-sy)) mod 256;
- if (starttile=0)or(line=0) then
-  begin
-
-   prBar:=line;
-   Synchronize(UpdateProgressFormBar);
-   if line=0 then prStr2:=SAS_STR_CreateFile
-             else prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
-   Synchronize(UpdateProgressFormStr2);
-   p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
-   p_x:=poly0.x-(poly0.x mod 256);
-   p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
-   lrarri:=0;
-   if line>(255-sy) then Asy:=0 else Asy:=sy;
-   if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
-   Asx:=sx;
-   Aex:=255;
-   while p_x<=poly1.x do
-    begin
-     if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then btmm.Clear(Color32(GState.BGround))
-     else
-     begin
-     btmm.Clear(Color32(GState.BGround));
-     if (typemap.Tileexists(p_x,p_y,zoom)) then begin
-                                 if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false))
-                                  then typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
-                                end
-                           else typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
-     if usedReColor then Gamma(btmm);
-     if Htypemap<>nil then
-      begin
-       btmh.Clear($FF000000);
-       if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
-        if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false))
-         then Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
-       end else begin
-         Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
-       end;
-       btmh.DrawMode:=dmBlend;
-       btmm.Draw(0,0-((p_h.y mod 256)),btmh);
-       if p_h.y<>p_y then
-        begin
-         btmh.Clear($FF000000);
-         if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
-          if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false))
-           then Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
-         end else begin
-          Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
-         end;
-         btmh.DrawMode:=dmBlend;
-         btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
+  if line<(256-sy) then begin
+    starttile:=sy+line
+  end else begin
+    starttile:=(line-(256-sy)) mod 256;
+  end;
+  if (starttile=0)or(line=0) then begin
+    prBar:=line;
+    Synchronize(UpdateProgressFormBar);
+    if line=0 then begin
+      prStr2:=SAS_STR_CreateFile
+    end else begin
+      prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+    end;
+    Synchronize(UpdateProgressFormStr2);
+    p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
+    p_x:=poly0.x-(poly0.x mod 256);
+    p_h := typemap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (zoom - 1) + 8, Htypemap.GeoConvert);
+    lrarri:=0;
+    if line>(255-sy) then Asy:=0 else Asy:=sy;
+    if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+    Asx:=sx;
+    Aex:=255;
+    while p_x<=poly1.x do begin
+      if not(RgnAndRgn(Poly,p_x+128,p_y+128,false)) then begin
+        btmm.Clear(Color32(GState.BGround))
+      end else begin
+        btmm.Clear(Color32(GState.BGround));
+        if (typemap.Tileexists(p_x,p_y,zoom)) then begin
+          if not(typemap.LoadTile(btmm,p_x,p_y,zoom,false)) then begin
+            typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+          end;
+        end else begin
+          typemap.LoadTileFromPreZ(btmm,p_x,p_y,zoom,false);
+        end;
+        if usedReColor then Gamma(btmm);
+        if Htypemap<>nil then begin
+          btmh.Clear($FF000000);
+          if (Htypemap.Tileexists(p_h.x,p_h.y,zoom)) then begin
+            if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y,zoom,false)) then begin
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+            end;
+          end else begin
+            Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y,zoom,false);
+          end;
+          btmh.DrawMode:=dmBlend;
+          btmm.Draw(0,0-((p_h.y mod 256)),btmh);
+          if p_h.y<>p_y then begin
+            btmh.Clear($FF000000);
+            if (Htypemap.Tileexists(p_h.x,p_h.y+256,zoom)) then begin
+              if not(Htypemap.LoadTile(btmh,p_h.x,p_h.y+256,zoom,false)) then begin
+                Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+              end;
+            end else begin
+              Htypemap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256,zoom,false);
+            end;
+            btmh.DrawMode:=dmBlend;
+            btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
+          end;
         end;
       end;
-     end;
-     if (p_x+256)>poly1.x
-      then Aex:=ex;
-     for j:=Asy to Aey do
-      begin
-       p:=btmm.ScanLine[j];
-       rarri:=lrarri;
-       for i:=Asx to Aex do
-        begin
-         CopyMemory(@Array256BGR[j]^[rarri],Pointer(integer(p)+(i*4)),3);
-         inc(rarri);
+      if (p_x+256)>poly1.x then Aex:=ex;
+      for j:=Asy to Aey do begin
+        p:=btmm.ScanLine[j];
+        rarri:=lrarri;
+        for i:=Asx to Aex do begin
+          CopyMemory(@Array256BGR[j]^[rarri],Pointer(integer(p)+(i*4)),3);
+          inc(rarri);
         end;
       end;
-     lrarri:=rarri;
-     Asx:=0;
-     inc(p_x,256);
-     inc(p_h.x,256);
+      lrarri:=rarri;
+      Asx:=0;
+      inc(p_x,256);
+      inc(p_h.x,256);
     end;
   end;
- CopyMemory(LineRGB,Array256BGR^[starttile],(poly1.x-poly0.x)*3);
+  CopyMemory(LineRGB,Array256BGR^[starttile],(poly1.x-poly0.x)*3);
 end;
 
 end.
