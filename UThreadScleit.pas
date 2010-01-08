@@ -131,219 +131,214 @@ begin
 end;
 
 procedure TThreadScleit.saveRECT;
-var p_x,p_y,i,j,k,errecw,pti:integer;
-    p_h:TPoint;
-    scachano:integer;
-    btm:TBitmap32;
-    err,Fnamebuf:string;
-    jpg:TJpegImage;
-    Datum,Proj:string;
-    CellIncrementX,CellIncrementY,OriginX,OriginY:extended;
-    Tlbfull,TlbTile:TBitmap32;
-    b:TBitmap;
-    Units:TCellSizeUnits;
-    jcprops : TJPEG_CORE_PROPERTIES;
-    iNChannels,iWidth,iHeight:integer;
-    path: string;
+var
+  p_x, p_y, i, j, k, errecw, pti: integer;
+  p_h: TPoint;
+  scachano: integer;
+  btm: TBitmap32;
+  err: string;
+  Fnamebuf: string;
+  jpg: TJpegImage;
+  Datum, Proj: string;
+  CellIncrementX, CellIncrementY, OriginX, OriginY: extended;
+  Tlbfull, TlbTile: TBitmap32;
+  b: TBitmap;
+  Units: TCellSizeUnits;
+  jcprops: TJPEG_CORE_PROPERTIES;
+  iNChannels, iWidth, iHeight: integer;
+  path: string;
 begin
- prCaption:='Склеить: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
-                       +inttostr((PolyMax.y-PolyMin.y-1) div 256+1)
-                       +'('+inttostr(ProcessTiles)+') '+SAS_STR_files;
- Synchronize(UpdateProgressFormCapt);
- prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(numTlg*numTlv)+' '+SAS_STR_files;
- Synchronize(UpdateProgressFormStr1);
+  prCaption:='Склеить: '+inttostr((PolyMax.x-PolyMin.x-1) div 256+1)+'x'
+    +inttostr((PolyMax.y-PolyMin.y-1) div 256+1) +'('+inttostr(ProcessTiles)+') '+SAS_STR_files;
+  Synchronize(UpdateProgressFormCapt);
+  prStr1:=SAS_STR_Resolution+': '+inttostr((PolyMax.x-PolyMin.x))+'x'+inttostr((PolyMax.y-PolyMin.y))+' '+SAS_STR_DivideInto+' '+inttostr(numTlg*numTlv)+' '+SAS_STR_files;
+  Synchronize(UpdateProgressFormStr1);
 
- FProgress.ProgressBar1.Max:=0;
- for i:=1 to numTlg do
-  for j:=1 to numTlv do
-   begin
-    Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
-    Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
-    Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
-    Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
-    FProgress.ProgressBar1.Max:=FProgress.ProgressBar1.Max+(((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
-   end;
- prBar:=0;
- Synchronize(UpdateProgressFormBar);
- prStr2:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
- Synchronize(UpdateProgressFormStr2);
-
- Fnamebuf:=fname;
- for i:=1 to numTlg do
-  for j:=1 to numTlv do
-  begin
-   Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
-   Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
-   Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
-   Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
-
-   fname:=Fnamebuf;
-   if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
-
-   for pti := 0 to FPrTypes.Count -1 do begin
-     try
-      (FPrTypes.get(pti) as IMapCalibration).SaveCalibrationInfo(FName, Poly0, Poly1, Zoom - 1, typemap.GeoConvert);
-     except
-        //TODO: Добавить сюда нормальную обработку ошибок.
-     end;
-   end;
-
-   if (UpperCase(ExtractFileExt(fname))='.ECW')or(UpperCase(ExtractFileExt(fname))='.JP2') then
-   begin
-   sx:=(Poly0.X mod 256);
-   sy:=(Poly0.Y mod 256);
-   ex:=(Poly1.X mod 256);
-   ey:=(Poly1.Y mod 256);
-   try
-   ecw:=TECWWrite.Create;
-   btmm:=TBitmap32.Create;
-   btmh:=TBitmap32.Create;
-   btmm.Width:=256;
-   btmm.Height:=256;
-   btmh.Width:=256;
-   btmh.Height:=256;
-   getmem(Rarr,256*sizeof(PRow));
-   for k:=0 to 255 do getmem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-   getmem(Garr,256*sizeof(PRow));
-   for k:=0 to 255 do getmem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-   getmem(Barr,256*sizeof(PRow));
-   for k:=0 to 255 do getmem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-   FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
-   prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
-   Synchronize(UpdateProgressFormStr1);
-   Datum := 'EPSG:' + IntToStr(typemap.GeoConvert.GetDatumEPSG);
-   Proj := 'EPSG:' + IntToStr(typemap.GeoConvert.GetProjectionEPSG);
-   Units := typemap.GeoConvert.GetCellSizeUnits;
-   CalculateWFileParams(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
-                                Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap.GeoConvert,CellIncrementX,CellIncrementY,OriginX,OriginY);
-   errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
-             Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
-   if (errecw>0)and(errecw<>52) then
-    begin
-     path:=typemap.GetTileShowName(LastXY.x, LastXY.Y, zoom);
-     Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
-     Synchronize(SynShowMessage);
+  FProgress.ProgressBar1.Max:=0;
+  for i:=1 to numTlg do begin
+    for j:=1 to numTlv do begin
+      Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
+      Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
+      Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
+      Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
+      FProgress.ProgressBar1.Max:=FProgress.ProgressBar1.Max+(((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
     end;
-   finally
-   {$IFDEF VER80}
-   for k:=0 to 255 do freemem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-   freemem(Rarr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
-   for k:=0 to 255 do freemem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-   freemem(Garr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
-   for k:=0 to 255 do freemem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-   freemem(Barr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
-   {$ELSE}
-   for k:=0 to 255 do freemem(Rarr[k]);
-   FreeMem(Rarr);
-   for k:=0 to 255 do freemem(Garr[k]);
-   FreeMem(Garr);
-   for k:=0 to 255 do freemem(Barr[k]);
-   FreeMem(Barr);
-   {$ENDIF}
-   btmm.Free;
-   btmh.Free;
-   ecw.Free;
-   end;
-   continue;
-   end;
+  end;
+  prBar:=0;
+  Synchronize(UpdateProgressFormBar);
+  prStr2:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
+  Synchronize(UpdateProgressFormStr2);
 
-   if (UpperCase(ExtractFileExt(fname))='.BMP') then
-   begin
-   sx:=(Poly0.X mod 256);
-   sy:=(Poly0.Y mod 256);
-   ex:=(Poly1.X mod 256);
-   ey:=(Poly1.Y mod 256);
-   try
-   btmm:=TBitmap32.Create;
-   btmh:=TBitmap32.Create;
-   btmm.Width:=256;
-   btmm.Height:=256;
-   btmh.Width:=256;
-   btmh.Height:=256;
-   getmem(Array256BGR,256*sizeof(P256ArrayBGR));
-   for k:=0 to 255 do getmem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
-   FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
-   prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
-   Synchronize(UpdateProgressFormStr1);
-   SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, fname, ReadLineBMP, IsCancel);
-   finally
-   {$IFDEF VER80}
-   for k:=0 to 255 do freemem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
-   freemem(Array256BGR,256*((Poly1.X-Poly0.X+1)*3));
-   {$ELSE}
-   for k:=0 to 255 do freemem(Array256BGR[k]);
-   FreeMem(Array256BGR);
-   {$ENDIF}
-   btmm.Free;
-   btmh.Free;
-   ecw.Free;
-   end;
-   continue;
-   end;
+  Fnamebuf:=fname;
+  for i:=1 to numTlg do begin
+    for j:=1 to numTlv do begin
+      Poly0.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1);
+      Poly1.X:=PolyMin.x+((PolyMax.x-PolyMin.x)div numTlg)*(i-1)+((PolyMax.x-PolyMin.x)div numTlg);
+      Poly0.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1);
+      Poly1.Y:=PolyMin.y+((PolyMax.y-PolyMin.y)div numTlv)*(j-1)+((PolyMax.y-PolyMin.y)div numTlv);
 
-   try
-   try
-    sx:=(Poly0.X mod 256);
-    sy:=(Poly0.Y mod 256);
-    ex:=(Poly1.X mod 256);
-    ey:=(Poly1.Y mod 256);
-    iWidth  := poly1.x-poly0.x;
-    iHeight := poly1.y-poly0.y;
-    getmem(Array256BGR,256*sizeof(P256ArrayBGR));
-    for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
-    FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
-    prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
-    Synchronize(UpdateProgressFormStr1);
-    btmm:=TBitmap32.Create;
-    btmh:=TBitmap32.Create;
-    btmm.Width:=256;
-    btmm.Height:=256;
-    btmh.Width:=256;
-    btmh.Height:=256;
-    ijlInit(@jcprops);
-    iNChannels := 3;
-    jcprops.DIBWidth := iWidth;
-    jcprops.DIBHeight := -iHeight;
-    jcprops.DIBChannels := iNChannels;
-    jcprops.DIBColor := IJL_BGR;
-    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*3);
-    new(jcprops.DIBBytes);
-    GetMem(jcprops.DIBBytes,(iWidth*3+ (iWidth mod 4))*iHeight);
-    if jcprops.DIBBytes<>nil then
-    for k:=0 to iHeight-1 do
-     begin
-       ReadLineBMP(k,Pointer(integer(jcprops.DIBBytes)+(((iWidth*3+ (iWidth mod 4))*iHeight)-(iWidth*3+ (iWidth mod 4))*(k+1))));
-       if not(Fprogress.Visible) then break;
-     end
-    else
-     begin
-      Message_:=SAS_ERR_Memory;
-      Synchronize(SynShowMessage);
-      exit;
-     end;
-    jcprops.JPGFile := PChar(fname);
-    jcprops.JPGWidth := iWidth;
-    jcprops.JPGHeight := iHeight;
-    jcprops.JPGChannels := 3;
-    jcprops.JPGColor := IJL_YCBCR;
-    jcprops.jquality := FSaveAs.QualitiEdit.Value;
-    ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
-   Finally
-    freemem(jcprops.DIBBytes,iWidth*iHeight*3);
-    for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
-    freemem(Array256BGR,256*((iWidth+1)*3));
-    ijlFree(@jcprops);
-    btmm.Free;
-    btmh.Free;
-   end;
-   except
-    On E:Exception do
-    begin
-     Message_:=E.Message;
-     Synchronize(SynShowMessage);
-     exit;
+      fname:=Fnamebuf;
+      if (numTlg>1)or(numTlv>1) then Insert('_'+inttostr(i)+'-'+inttostr(j),fname,posex('.',fname,length(fname)-4));
+
+      for pti := 0 to FPrTypes.Count -1 do begin
+        try
+          (FPrTypes.get(pti) as IMapCalibration).SaveCalibrationInfo(FName, Poly0, Poly1, Zoom - 1, typemap.GeoConvert);
+        except
+          //TODO: Добавить сюда нормальную обработку ошибок.
+        end;
+      end;
+
+      if (UpperCase(ExtractFileExt(fname))='.ECW')or(UpperCase(ExtractFileExt(fname))='.JP2') then begin
+        sx:=(Poly0.X mod 256);
+        sy:=(Poly0.Y mod 256);
+        ex:=(Poly1.X mod 256);
+        ey:=(Poly1.Y mod 256);
+        try
+          ecw:=TECWWrite.Create;
+          btmm:=TBitmap32.Create;
+          btmh:=TBitmap32.Create;
+          btmm.Width:=256;
+          btmm.Height:=256;
+          btmh.Width:=256;
+          btmh.Height:=256;
+          getmem(Rarr,256*sizeof(PRow));
+          for k:=0 to 255 do getmem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+          getmem(Garr,256*sizeof(PRow));
+          for k:=0 to 255 do getmem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+          getmem(Barr,256*sizeof(PRow));
+          for k:=0 to 255 do getmem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+          FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+          prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
+          Synchronize(UpdateProgressFormStr1);
+          Datum := 'EPSG:' + IntToStr(typemap.GeoConvert.GetDatumEPSG);
+          Proj := 'EPSG:' + IntToStr(typemap.GeoConvert.GetProjectionEPSG);
+          Units := typemap.GeoConvert.GetCellSizeUnits;
+          CalculateWFileParams(typemap.GeoConvert.Pos2LonLat(Poly0,(Zoom - 1) + 8),typemap.GeoConvert.Pos2LonLat(Poly1,(Zoom - 1) + 8),
+          Poly1.X-Poly0.X,Poly1.y-Poly0.y,TypeMap.GeoConvert,CellIncrementX,CellIncrementY,OriginX,OriginY);
+          errecw:=ecw.Encode(fname,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
+          Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
+          if (errecw>0)and(errecw<>52) then begin
+            path:=typemap.GetTileShowName(LastXY.x, LastXY.Y, zoom);
+            Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
+            Synchronize(SynShowMessage);
+          end;
+        finally
+          {$IFDEF VER80}
+            for k:=0 to 255 do freemem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+            freemem(Rarr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+            for k:=0 to 255 do freemem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+            freemem(Garr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+            for k:=0 to 255 do freemem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+            freemem(Barr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+          {$ELSE}
+            for k:=0 to 255 do freemem(Rarr[k]);
+            FreeMem(Rarr);
+            for k:=0 to 255 do freemem(Garr[k]);
+            FreeMem(Garr);
+            for k:=0 to 255 do freemem(Barr[k]);
+            FreeMem(Barr);
+          {$ENDIF}
+          btmm.Free;
+          btmh.Free;
+          ecw.Free;
+        end;
+        continue;
+      end;
+
+      if (UpperCase(ExtractFileExt(fname))='.BMP') then begin
+        sx:=(Poly0.X mod 256);
+        sy:=(Poly0.Y mod 256);
+        ex:=(Poly1.X mod 256);
+        ey:=(Poly1.Y mod 256);
+        try
+          btmm:=TBitmap32.Create;
+          btmh:=TBitmap32.Create;
+          btmm.Width:=256;
+          btmm.Height:=256;
+          btmh.Width:=256;
+          btmh.Height:=256;
+          getmem(Array256BGR,256*sizeof(P256ArrayBGR));
+          for k:=0 to 255 do getmem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
+          FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+          prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
+          Synchronize(UpdateProgressFormStr1);
+          SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, fname, ReadLineBMP, IsCancel);
+        finally
+          {$IFDEF VER80}
+            for k:=0 to 255 do freemem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
+            freemem(Array256BGR,256*((Poly1.X-Poly0.X+1)*3));
+          {$ELSE}
+            for k:=0 to 255 do freemem(Array256BGR[k]);
+            FreeMem(Array256BGR);
+          {$ENDIF}
+          btmm.Free;
+          btmh.Free;
+          ecw.Free;
+        end;
+        continue;
+      end;
+
+      try
+        try
+          sx:=(Poly0.X mod 256);
+          sy:=(Poly0.Y mod 256);
+          ex:=(Poly1.X mod 256);
+          ey:=(Poly1.Y mod 256);
+          iWidth  := poly1.x-poly0.x;
+          iHeight := poly1.y-poly0.y;
+          getmem(Array256BGR,256*sizeof(P256ArrayBGR));
+          for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
+          FProgress.ProgressBar1.Max:=Poly1.y-Poly0.y;
+          prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
+          Synchronize(UpdateProgressFormStr1);
+          btmm:=TBitmap32.Create;
+          btmh:=TBitmap32.Create;
+          btmm.Width:=256;
+          btmm.Height:=256;
+          btmh.Width:=256;
+          btmh.Height:=256;
+          ijlInit(@jcprops);
+          iNChannels := 3;
+          jcprops.DIBWidth := iWidth;
+          jcprops.DIBHeight := -iHeight;
+          jcprops.DIBChannels := iNChannels;
+          jcprops.DIBColor := IJL_BGR;
+          jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*3);
+          new(jcprops.DIBBytes);
+          GetMem(jcprops.DIBBytes,(iWidth*3+ (iWidth mod 4))*iHeight);
+          if jcprops.DIBBytes<>nil then begin
+            for k:=0 to iHeight-1 do begin
+              ReadLineBMP(k,Pointer(integer(jcprops.DIBBytes)+(((iWidth*3+ (iWidth mod 4))*iHeight)-(iWidth*3+ (iWidth mod 4))*(k+1))));
+              if not(Fprogress.Visible) then break;
+            end;
+          end else begin
+            Message_:=SAS_ERR_Memory;
+            Synchronize(SynShowMessage);
+            exit;
+          end;
+          jcprops.JPGFile := PChar(fname);
+          jcprops.JPGWidth := iWidth;
+          jcprops.JPGHeight := iHeight;
+          jcprops.JPGChannels := 3;
+          jcprops.JPGColor := IJL_YCBCR;
+          jcprops.jquality := FSaveAs.QualitiEdit.Value;
+          ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
+        Finally
+          freemem(jcprops.DIBBytes,iWidth*iHeight*3);
+          for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
+          freemem(Array256BGR,256*((iWidth+1)*3));
+          ijlFree(@jcprops);
+          btmm.Free;
+          btmh.Free;
+        end;
+      except
+        On E:Exception do begin
+          Message_:=E.Message;
+          Synchronize(SynShowMessage);
+          exit;
+        end;
+      end;
     end;
-   end;
   end;
 end;
 
