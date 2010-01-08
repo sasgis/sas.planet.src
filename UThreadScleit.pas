@@ -50,6 +50,7 @@ type
     FMapRect: TRect;
     FMapSize: TPoint;
     FMapPieceSize: TPoint;
+    FCurrentPieceRect: TRect;
 
 
     FProcessTiles: integer;
@@ -59,8 +60,6 @@ type
     Rarr:P256rgb;
     Garr:P256rgb;
     Barr:P256rgb;
-    Poly0:TPoint;
-    Poly1:TPoint;
     colors:byte;
     ecw:TECWWrite;
     btmm:TBitmap32;
@@ -195,10 +194,10 @@ begin
   FCurrentFileName := FFilePath + FFileName + FFileExt;
   for i:=1 to FSplitCount.X do begin
     for j:=1 to FSplitCount.Y do begin
-      Poly0.X := FMapRect.Left + FMapPieceSize.X * (i-1);
-      Poly1.X := FMapRect.Left + FMapPieceSize.X * i;
-      Poly0.Y := FMapRect.Top + FMapPieceSize.Y * (j-1);
-      Poly1.Y := FMapRect.Top + FMapPieceSize.Y * j;
+      FCurrentPieceRect.Left := FMapRect.Left + FMapPieceSize.X * (i-1);
+      FCurrentPieceRect.Right := FMapRect.Left + FMapPieceSize.X * i;
+      FCurrentPieceRect.Top := FMapRect.Top + FMapPieceSize.Y * (j-1);
+      FCurrentPieceRect.Bottom := FMapRect.Top + FMapPieceSize.Y * j;
 
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         FCurrentFileName := FFilePath + FFileName + '_'+inttostr(i)+'-'+inttostr(j) + FFileExt;
@@ -206,7 +205,7 @@ begin
 
       for pti := 0 to FMapCalibrationList.Count - 1 do begin
         try
-          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FCurrentFileName, Poly0, Poly1, FZoom - 1, FTypeMap.GeoConvert);
+          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FCurrentFileName, FCurrentPieceRect.TopLeft, FCurrentPieceRect.BottomRight, FZoom - 1, FTypeMap.GeoConvert);
         except
           //TODO: ƒобавить сюда нормальную обработку ошибок.
         end;
@@ -254,17 +253,17 @@ begin
   if (starttile=0)or(line=0) then begin
     prBar:=line;
     Synchronize(UpdateProgressFormBar);
-    prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+    prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
     Synchronize(UpdateProgressFormStr2);
-    p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
-    p_x:=poly0.x-(poly0.x mod 256);
+    p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
+    p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
     p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom - 1) + 8, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
-    if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+    if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;
     Asx:=sx;
     Aex:=255;
-    while p_x<=poly1.x do begin
+    while p_x<=FCurrentPieceRect.Right do begin
       // запомнием координаты обрабатываемого тайла дл€ случа€ если произойдет ошибка
       LastXY.X := p_x;
       LastXY.Y := p_y;
@@ -305,7 +304,7 @@ begin
           end;
         end;
       end;
-      if (p_x+256)>poly1.x then Aex:=ex;
+      if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
         rarri:=lrarri;
@@ -322,7 +321,7 @@ begin
       inc(p_h.x,256);
     end;
   end;
-  for i:=0 to (poly1.x-poly0.x)-1 do begin
+  for i:=0 to (FCurrentPieceRect.Right-FCurrentPieceRect.Left)-1 do begin
     LineR^[i]:=Rarr^[starttile]^[i];
     LineG^[i]:=Garr^[starttile]^[i];
     LineB^[i]:=Barr^[starttile]^[i];
@@ -347,18 +346,18 @@ begin
     if line=0 then begin
       prStr2:=SAS_STR_CreateFile
     end else begin
-      prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(Poly1.Y-Poly0.Y))*100))+'%';
+      prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
     end;
     Synchronize(UpdateProgressFormStr2);
-    p_y:=(Poly0.Y+line)-((Poly0.Y+line) mod 256);
-    p_x:=poly0.x-(poly0.x mod 256);
+    p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
+    p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
     p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom - 1) + 8, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
-    if (p_y div 256)=(poly1.y div 256) then Aey:=ey else Aey:=255;
+    if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;
     Asx:=sx;
     Aex:=255;
-    while p_x<=poly1.x do begin
+    while p_x<=FCurrentPieceRect.Right do begin
       if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
@@ -396,7 +395,7 @@ begin
           end;
         end;
       end;
-      if (p_x+256)>poly1.x then Aex:=ex;
+      if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
         rarri:=lrarri;
@@ -411,7 +410,7 @@ begin
       inc(p_h.x,256);
     end;
   end;
-  CopyMemory(LineRGB,Array256BGR^[starttile],(poly1.x-poly0.x)*3);
+  CopyMemory(LineRGB,Array256BGR^[starttile],(FCurrentPieceRect.Right-FCurrentPieceRect.Left)*3);
 end;
 
 procedure TThreadScleit.Save_ECW;
@@ -423,10 +422,10 @@ var
   errecw: integer;
   Path: string;
 begin
-  sx:=(Poly0.X mod 256);
-  sy:=(Poly0.Y mod 256);
-  ex:=(Poly1.X mod 256);
-  ey:=(Poly1.Y mod 256);
+  sx:=(FCurrentPieceRect.Left mod 256);
+  sy:=(FCurrentPieceRect.Top mod 256);
+  ex:=(FCurrentPieceRect.Right mod 256);
+  ey:=(FCurrentPieceRect.Bottom mod 256);
   try
     ecw:=TECWWrite.Create;
     btmm:=TBitmap32.Create;
@@ -436,19 +435,23 @@ begin
     btmh.Width:=256;
     btmh.Height:=256;
     getmem(Rarr,256*sizeof(PRow));
-    for k:=0 to 255 do getmem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+    for k:=0 to 255 do getmem(Rarr[k],(FMapSize.X+1)*sizeof(byte));
     getmem(Garr,256*sizeof(PRow));
-    for k:=0 to 255 do getmem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
+    for k:=0 to 255 do getmem(Garr[k],(FMapSize.X+1)*sizeof(byte));
     getmem(Barr,256*sizeof(PRow));
-    for k:=0 to 255 do getmem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-    prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
+    for k:=0 to 255 do getmem(Barr[k],(FMapSize.X+1)*sizeof(byte));
+    prStr1:=SAS_STR_Resolution+': '+inttostr((FMapSize.X))+'x'+inttostr((FMapSize.Y));
     Synchronize(UpdateProgressFormStr1);
     Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
     Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
     Units := FTypeMap.GeoConvert.GetCellSizeUnits;
-    CalculateWFileParams(FTypeMap.GeoConvert.PixelPos2LonLat(Poly0, FZoom - 1),FTypeMap.GeoConvert.PixelPos2LonLat(Poly1, FZoom - 1),
-    Poly1.X-Poly0.X,Poly1.y-Poly0.y,FTypeMap.GeoConvert,CellIncrementX,CellIncrementY,OriginX,OriginY);
-    errecw:=ecw.Encode(FCurrentFileName,Poly1.X-Poly0.X,Poly1.y-Poly0.y,101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
+    CalculateWFileParams(
+      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom - 1),
+      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom - 1),
+      FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
+      CellIncrementX,CellIncrementY,OriginX,OriginY
+    );
+    errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
       path:=FTypeMap.GetTileShowName(LastXY.x, LastXY.Y, FZoom);
@@ -481,10 +484,10 @@ procedure TThreadScleit.Save_BMP;
 var
   k: integer;
 begin
-  sx:=(Poly0.X mod 256);
-  sy:=(Poly0.Y mod 256);
-  ex:=(Poly1.X mod 256);
-  ey:=(Poly1.Y mod 256);
+  sx:=(FCurrentPieceRect.Left mod 256);
+  sy:=(FCurrentPieceRect.Top mod 256);
+  ex:=(FCurrentPieceRect.Right mod 256);
+  ey:=(FCurrentPieceRect.Bottom mod 256);
   try
     btmm:=TBitmap32.Create;
     btmh:=TBitmap32.Create;
@@ -493,14 +496,14 @@ begin
     btmh.Width:=256;
     btmh.Height:=256;
     getmem(Array256BGR,256*sizeof(P256ArrayBGR));
-    for k:=0 to 255 do getmem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
-    prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
+    for k:=0 to 255 do getmem(Array256BGR[k],(FMapPieceSize.X+1)*3);
+    prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y);
     Synchronize(UpdateProgressFormStr1);
-    SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, FCurrentFileName, ReadLineBMP, IsCancel);
+    SaveBMP(FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP, IsCancel);
   finally
     {$IFDEF VER80}
-      for k:=0 to 255 do freemem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
-      freemem(Array256BGR,256*((Poly1.X-Poly0.X+1)*3));
+      for k:=0 to 255 do freemem(Array256BGR[k],(FMapPieceSize.X+1)*3);
+      freemem(Array256BGR,256*((FMapPieceSize.X+1)*3));
     {$ELSE}
       for k:=0 to 255 do freemem(Array256BGR[k]);
       FreeMem(Array256BGR);
@@ -517,12 +520,12 @@ var
   k: integer;
   jcprops: TJPEG_CORE_PROPERTIES;
 begin
-  sx:=(Poly0.X mod 256);
-  sy:=(Poly0.Y mod 256);
-  ex:=(Poly1.X mod 256);
-  ey:=(Poly1.Y mod 256);
-  iWidth  := poly1.x-poly0.x;
-  iHeight := poly1.y-poly0.y;
+  sx:=(FCurrentPieceRect.Left mod 256);
+  sy:=(FCurrentPieceRect.Top mod 256);
+  ex:=(FCurrentPieceRect.Right mod 256);
+  ey:=(FCurrentPieceRect.Bottom mod 256);
+  iWidth  := FMapPieceSize.X;
+  iHeight := FMapPieceSize.y;
   try
     getmem(Array256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
