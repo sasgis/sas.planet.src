@@ -110,8 +110,6 @@ uses
   usaveas;
 
 constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;Acolors:byte;AusedReColor:boolean);
-var
-  i, j: integer;
 begin
   inherited Create(false);
   Priority := tpLower;
@@ -135,13 +133,7 @@ begin
   FProcessTiles:=GetDwnlNum(PolyMin, polyMax, FPoly, true);
   GetMinMax(PolyMin, polyMax, FPoly,false);
 
-  FProgressForm.ProgressBar1.Max := 0;
-  for i:=1 to FSplitCount.X do begin
-    for j:=1 to FSplitCount.Y do begin
-      FProgressForm.ProgressBar1.Max := FProgressForm.ProgressBar1.Max +
-        (((PolyMax.x-PolyMin.x)div 256)+2)*(((PolyMax.y-PolyMin.y)div 256)+2);
-    end;
-  end;
+  FProgressForm.ProgressBar1.Max := (PolyMax.y-PolyMin.y) div FSplitCount.Y;
 end;
 
 procedure TThreadScleit.SynShowMessage;
@@ -445,7 +437,6 @@ begin
     for k:=0 to 255 do getmem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
     getmem(Barr,256*sizeof(PRow));
     for k:=0 to 255 do getmem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-    FProgressForm.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
     Synchronize(UpdateProgressFormStr1);
     Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
@@ -499,7 +490,6 @@ begin
     btmh.Height:=256;
     getmem(Array256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(Array256BGR[k],(Poly1.X-Poly0.X+1)*3);
-    FProgressForm.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr((poly1.x-poly0.x))+'x'+inttostr((poly1.y-poly0.y));
     Synchronize(UpdateProgressFormStr1);
     SaveBMP(Poly1.X-Poly0.X,Poly1.y-Poly0.y, FCurrentFileName, ReadLineBMP, IsCancel);
@@ -532,7 +522,6 @@ begin
   try
     getmem(Array256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
-    FProgressForm.ProgressBar1.Max:=Poly1.y-Poly0.y;
     prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
     Synchronize(UpdateProgressFormStr1);
     btmm:=TBitmap32.Create;
