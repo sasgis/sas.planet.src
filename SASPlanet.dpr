@@ -32,6 +32,7 @@ uses
   UTrAllLoadMap in 'UTrAllLoadMap.pas',
   UThreadScleit in 'UThreadScleit.pas',
   UThreadExport in 'UThreadExport.pas',
+  UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UOpDelTiles in 'UOpDelTiles.pas',
   UOpGenPreviousZoom in 'UOpGenPreviousZoom.pas',
   UFillingMap in 'UFillingMap.pas',

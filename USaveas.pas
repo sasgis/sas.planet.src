@@ -202,6 +202,7 @@ uses
   i_ILogForTaskThread,
   u_LogForTaskThread,
   i_IMapCalibration,
+  UThreadExportIPhone,
   UProgress,
   unit1;
   
@@ -259,9 +260,8 @@ begin
         typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
         typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
         path:=IncludeTrailingPathDelimiter(EditPath2.Text);
-        RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
-        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
+        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,Replace,CBFormat.ItemIndex = 4,comprSat,comprMap,comprHyb)
        end;
     7: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
