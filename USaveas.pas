@@ -182,13 +182,13 @@ type
   private
     zoom_rect:byte;
     PolygonLL: TExtendedPointArray;
-  public
     procedure LoadRegion(APolyLL: TExtendedPointArray);
-    procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
     procedure scleitRECT(APolyLL: TExtendedPointArray);
     procedure savefilesREG(APolyLL: TExtendedPointArray);
+  public
+    procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
    end;
 
 var
@@ -201,9 +201,12 @@ uses
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,
+  i_IMapCalibration,
+  UThreadExportIPhone,
+  UThreadExportKML,
+  UThreadExportYaMaps,
   UProgress,
-  unit1,
-  UOzi;
+  unit1;
   
 {$R *.dfm}
 
@@ -238,10 +241,6 @@ var i:integer;
     comprSat,comprMap,comprHyb:byte;
     RelativePath,Replace:boolean;
 begin
-  ziped := false;
-  comprSat := 80;
-  comprMap := 9;
-  comprHyb := 80;
  case CBFormat.ItemIndex of
   4,5: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
@@ -259,8 +258,8 @@ begin
         typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
         typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
         path:=IncludeTrailingPathDelimiter(EditPath2.Text);
-        RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
+        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,Replace,CBFormat.ItemIndex = 4,comprSat,comprMap,comprHyb)
        end;
     7: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
@@ -272,8 +271,8 @@ begin
         comprMap:=cMapEditYa.Value;
         comprHyb:=cSatEditYa.Value;
         path:=IncludeTrailingPathDelimiter(EditPath4.Text);
-        RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;
+        TThreadExportYaMaps.Create(path,APolyLL,ZoomArr,typemaparr,Replace,comprSat,comprMap,comprHyb)
        end;
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
@@ -283,6 +282,7 @@ begin
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
         Replace:=ChBoxNotSaveIfNotExists.Checked;
+        TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,ziped,RelativePath)
        end;
   else begin
         for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
@@ -294,11 +294,10 @@ begin
           end;
         ziped:=CBZipped.Checked;
         path:=IncludeTrailingPathDelimiter(EditPath.Text);
-        RelativePath:=false;
         Replace:=CBReplace.Checked;
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex)
        end;
  end;
- TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
@@ -344,21 +343,22 @@ var
   polyg:TPointArray;
   VZoom: byte;
   i:integer;
-  VPrTypes:TPrTypeArray;
+  VPrTypes: IInterfaceList;
+  VFileName: string;
 begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
   polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
   if (FMain.SaveDialog1.Execute)then begin
-    SetLength(VPrTypes,0);
+    VFileName := FMain.SaveDialog1.FileName;
+    VPrTypes := TInterfaceList.Create;
     for i:=0 to PrTypesBox.Items.Count-1 do begin
       if PrTypesBox.Checked[i] then begin
-        SetLength(VPrTypes, length(VPrTypes)+1);
-        VPrTypes[length(VPrTypes)-1]:=TPrType(i);
+        VPrTypes.Add(IInterface(Pointer(PrTypesBox.Items.Objects[i])));
       end;
     end;
-    TThreadScleit.Create(VPrTypes,FMain.SaveDialog1.FileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,0,CBusedReColor.Checked);
+    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked);
   end;
   Polyg := nil;
 end;
@@ -395,6 +395,7 @@ var
   i:integer;
   XX:tpOINT;
   vramkah,zagran:boolean;
+  VMapCalibration: IMapCalibration;
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
@@ -492,6 +493,17 @@ begin
       end;
     end;
   end;
+  PrTypesBox.Clear;
+  GState.MapCalibrationList.Lock;
+  try
+    for i := 0 to GState.MapCalibrationList.Count - 1 do begin
+      VMapCalibration := GState.MapCalibrationList.Get(i) as IMapCalibration;
+      PrTypesBox.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
+    end;
+  finally
+    GState.MapCalibrationList.Unlock;
+  end;
+
   if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
   if CBmtForm.ItemIndex=-1 then CBmtForm.ItemIndex:=0;
   if CBmapDel.ItemIndex=-1 then CBmapDel.ItemIndex:=0;

@@ -45,9 +45,9 @@ var
   str:UTF8String;
   VFileName: String;
 begin
-  VFileName := ChangeFileExt(AFileName,'.kml');
-  assignfile(f, VFileName);
+  assignfile(f, ChangeFileExt(AFileName,'.kml'));
   rewrite(f);
+  VFileName := ExtractFileName(AFileName);
   str:=ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>'+#13#10);
   str:=str+ansiToUTF8('<kml><GroundOverlay><name>'+VFileName+'</name><color>88ffffff</color><Icon>'+#13#10);
   str:=str+ansiToUTF8('<href>'+VFileName+'</href>'+#13#10);

@@ -43,7 +43,6 @@ var
   strA, strB, strC, strAll: string;
   sResult: string;
   ms: TMemoryStream;
-  dLat, dLon: Double;
   iLat, iLon: Integer;
   i: Integer;
   b: byte;

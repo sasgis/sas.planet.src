@@ -67,7 +67,6 @@ end;
 
 procedure TCenterScale.DoRedraw;
 var
-  VRect: TRect;
   VHalfSize: TPoint;
   i: integer;
   r: Double;

@@ -68,7 +68,7 @@ var
   CellX,CellY,OrigX,OrigY:extended;
 begin
   ll1:=AConverter.PixelPos2LonLat(xy1, Azoom);
-  ll2:=AConverter.Pos2LonLat(xy2, Azoom);
+  ll2:=AConverter.PixelPos2LonLat(xy2, Azoom);
   CalculateWFileParams(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,AConverter,CellX,CellY,OrigX,OrigY);
   assignfile(f,AFileName+'w');
   rewrite(f);
