@@ -34,6 +34,7 @@ uses
   UThreadExport in 'UThreadExport.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',
+  UThreadExportYaMaps in 'UThreadExportYaMaps.pas',
   UOpDelTiles in 'UOpDelTiles.pas',
   UOpGenPreviousZoom in 'UOpGenPreviousZoom.pas',
   UFillingMap in 'UFillingMap.pas',
