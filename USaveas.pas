@@ -203,6 +203,7 @@ uses
   u_LogForTaskThread,
   i_IMapCalibration,
   UThreadExportIPhone,
+  UThreadExportKML,
   UProgress,
   unit1;
   
@@ -285,7 +286,7 @@ begin
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
         Replace:=ChBoxNotSaveIfNotExists.Checked;
-        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
+        TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,ziped,RelativePath)
        end;
   else begin
         for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
