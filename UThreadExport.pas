@@ -38,14 +38,14 @@ type
     Zippu:boolean;
     RelativePath:boolean;
     csat,cmap,chib:byte;
-  protected
-    procedure savefilesREG(APolyLL:TExtendedPointArray);
-    procedure Execute; override;
-    procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
     procedure export2iMaps(APolyLL:TExtendedPointArray);
     procedure export2YaMaps(APolyLL:TExtendedPointArray);
     procedure Export2KML(APolyLL:TExtendedPointArray);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
+    procedure savefilesREG(APolyLL:TExtendedPointArray);
+    procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
+  protected
+    procedure Execute; override;
   public
     constructor Create(
       APath: string;
@@ -80,7 +80,15 @@ begin
  if Zippu then Zip.CancelTheOperation;
 end;
 
-constructor TThreadExport.Create(APath:string; APolygon_:TExtendedPointArray;Azoomarr:array of boolean;Atypemaparr:array of TMapType; Amove,Areplace,Aziped:boolean; Aformat,Acsat,Acmap,Achib:byte;ARelativePath:boolean);
+constructor TThreadExport.Create(
+  APath: string;
+  APolygon_: TExtendedPointArray;
+  Azoomarr: array of boolean;
+  Atypemaparr: array of TMapType;
+  Amove, Areplace, Aziped: boolean;
+  Aformat, Acsat, Acmap, Achib: byte;
+  ARelativePath: boolean
+);
 var i:integer;
 begin
   inherited Create(false);

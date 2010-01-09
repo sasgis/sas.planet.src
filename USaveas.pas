@@ -261,6 +261,7 @@ begin
         path:=IncludeTrailingPathDelimiter(EditPath2.Text);
         RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
        end;
     7: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
@@ -274,6 +275,7 @@ begin
         path:=IncludeTrailingPathDelimiter(EditPath4.Text);
         RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
        end;
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
@@ -283,6 +285,7 @@ begin
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
         Replace:=ChBoxNotSaveIfNotExists.Checked;
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
        end;
   else begin
         for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
@@ -296,9 +299,9 @@ begin
         path:=IncludeTrailingPathDelimiter(EditPath.Text);
         RelativePath:=false;
         Replace:=CBReplace.Checked;
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
        end;
  end;
- TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
