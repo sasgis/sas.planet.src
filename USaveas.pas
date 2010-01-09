@@ -241,9 +241,6 @@ var i:integer;
     comprSat,comprMap,comprHyb:byte;
     RelativePath,Replace:boolean;
 begin
-  comprSat := 80;
-  comprMap := 9;
-  comprHyb := 80;
  case CBFormat.ItemIndex of
   4,5: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
@@ -297,9 +294,8 @@ begin
           end;
         ziped:=CBZipped.Checked;
         path:=IncludeTrailingPathDelimiter(EditPath.Text);
-        RelativePath:=false;
         Replace:=CBReplace.Checked;
-        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex)
        end;
  end;
 end;
