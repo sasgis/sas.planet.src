@@ -126,7 +126,6 @@ var DMS:TDMS;
     ms:TMemoryStream;
     arrLL:PArrLL;
     namecatbuf:string;
-    i:integer;
 begin
  new_:=new;
  EditComment.Text:='';
@@ -317,11 +316,11 @@ procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect)
 var Bitmap,Bitmap2: TBitmap32;
     wdth:integer;
 begin
- try
-   canvas.FillRect(bound);
-   wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
-   Bitmap:=TBitmap32.Create;
-   Bitmap2:=TBitmap32.Create;
+  canvas.FillRect(bound);
+  wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
+  Bitmap:=TBitmap32.Create;
+  Bitmap2:=TBitmap32.Create;
+  try
    Bitmap.SetSize(TPNGObject(GState.MarkIcons.Objects[index]).Width,
                   TPNGObject(GState.MarkIcons.Objects[index]).Height);
    Bitmap.Clear(clWhite32);
@@ -331,15 +330,15 @@ begin
    Bitmap2.SetSize(wdth,wdth);
    Bitmap2.Draw(Bounds(0, 0, wdth,wdth), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
    canvas.CopyRect(bound, Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
- finally
+  finally
    Bitmap.Free;
    Bitmap2.Free;
- end;
+  end;
 end;
 
 procedure TFaddPoint.DrawGrid1DrawCell(Sender: TObject; ACol,
   ARow: Integer; Rect: TRect; State: TGridDrawState);
-var wdth,i:Integer;
+var i:Integer;
 begin
    i:=(Arow*DrawGrid1.ColCount)+ACol;
    if i<GState.MarkIcons.Count then

@@ -47,6 +47,7 @@ uses
   u_GeoToStr in 'u_GeoToStr.pas',
   UKmlParse in 'UKmlParse.pas',
   UECWWrite in 'UECWWrite.pas',
+  bmpUtil in 'bmpUtil.pas',
   Uimgfun in 'Uimgfun.pas',
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',
