@@ -519,7 +519,6 @@ begin
     {$ENDIF}
     btmm.Free;
     btmh.Free;
-    ecw.Free;
   end;
 end;
 

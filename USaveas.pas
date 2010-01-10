@@ -203,6 +203,9 @@ uses
   i_ILogForTaskThread,
   u_LogForTaskThread,
   i_IMapCalibration,
+  UThreadExportIPhone,
+  UThreadExportKML,
+  UThreadExportYaMaps,
   UProgress,
   unit1;
   
@@ -239,10 +242,6 @@ var i:integer;
     comprSat,comprMap,comprHyb:byte;
     RelativePath,Replace:boolean;
 begin
-  ziped := false;
-  comprSat := 80;
-  comprMap := 9;
-  comprHyb := 80;
  case CBFormat.ItemIndex of
   4,5: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
@@ -260,8 +259,8 @@ begin
         typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
         typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
         path:=IncludeTrailingPathDelimiter(EditPath2.Text);
-        RelativePath:=false;
         Replace:=(not CkBNotReplase.Checked);
+        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,Replace,CBFormat.ItemIndex = 4,comprSat,comprMap,comprHyb)
        end;
     7: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
@@ -273,8 +272,8 @@ begin
         comprMap:=cMapEditYa.Value;
         comprHyb:=cSatEditYa.Value;
         path:=IncludeTrailingPathDelimiter(EditPath4.Text);
-        RelativePath:=false;
         Replace:=CkBNotReplaseYa.Checked;
+        TThreadExportYaMaps.Create(path,APolyLL,ZoomArr,typemaparr,Replace,comprSat,comprMap,comprHyb)
        end;
     6: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
@@ -284,6 +283,7 @@ begin
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
         Replace:=ChBoxNotSaveIfNotExists.Checked;
+        TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,ziped,RelativePath)
        end;
   else begin
         for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
@@ -295,11 +295,10 @@ begin
           end;
         ziped:=CBZipped.Checked;
         path:=IncludeTrailingPathDelimiter(EditPath.Text);
-        RelativePath:=false;
         Replace:=CBReplace.Checked;
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,GState.TileNameGenerator.GetGenerator(CBFormat.ItemIndex + 1))
        end;
  end;
- TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex,comprSat,comprMap,comprHyb,RelativePath)
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
