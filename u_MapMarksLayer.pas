@@ -6,7 +6,8 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  u_MapLayerBasic;
+  u_MapLayerBasic,
+  uMapType;
 
 type
   TMapMarksLayer = class(TMapLayerBasic)
@@ -14,6 +15,7 @@ type
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
     procedure DoRedraw; override;
   public
+    procedure DoRedraw2Bitmap(BtmEx:TBitmap32; map:TMapType; LLRect:TExtendedRect; VZoomCurr:byte);
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
 
   end;
@@ -33,7 +35,6 @@ uses
   u_GlobalState,
   Ugeofun,
   Uimgfun,
-  uMapType,
   Unit1,
   UMarksExplorer,
   u_WindowLayerBasic;
@@ -107,6 +108,104 @@ begin
       polygon.Free;
     end;
   except
+  end;
+end;
+
+procedure TMapMarksLayer.DoRedraw2Bitmap(BtmEx:TBitmap32;map:TMapType;LLRect:TExtendedRect;VZoomCurr:byte);
+var
+  xy,xyb:Tpoint;
+  btm:TBitmap32;
+  TestArrLenP1,TestArrLenP2:TPoint;
+  buf_line_arr:TExtendedPointArray;
+  indexmi:integer;
+  imw,texth:integer;
+  marksFilter:string;
+  VBitmapSize: TPoint;
+begin
+  inherited;
+  if FMain.CDSmarks.State <> dsBrowse then exit;
+  paintMark:=true;
+  try
+    VBitmapSize := Point(BtmEx.Width,BtmEx.Height);
+    marksFilter:='';
+    if GState.show_point = mshChecked then begin
+      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(VZoomCurr)+' and BeforeScale >= '+inttostr(VZoomCurr)+' )';
+      FMain.CDSKategory.Filtered:=true;
+      marksFilter:=marksFilter+'visible=1';
+      FMain.CDSKategory.First;
+      if FMain.CDSKategory.Eof then begin
+        Visible:=false;
+        FMain.CDSKategory.Filtered:=false;
+        exit;
+      end;
+      if not(FMain.CDSKategory.Eof) then begin
+        marksFilter:=marksFilter+' and (';
+        while not(FMain.CDSKategory.Eof) do begin
+          marksFilter:=marksFilter+'categoryid='+FMain.CDSKategory.fieldbyname('id').AsString;
+          FMain.CDSKategory.Next;
+          if not(FMain.CDSKategory.Eof) then begin
+            marksFilter:=marksFilter+' or ';
+          end;
+        end;
+        marksFilter:=marksFilter+')';
+      end;
+      FMain.CDSKategory.Filtered:=false;
+      marksFilter:=marksFilter+' and ';
+    end;
+    marksFilter:=marksFilter+'( LonR>'+floattostr(LLRect.Left)+' and LonL<'+floattostr(LLRect.Right)+
+    ' and LatB<'+floattostr(LLRect.Top)+' and LatT>'+floattostr(LLRect.Bottom)+')';
+    FMain.CDSmarks.Filter:=marksFilter;
+    FMain.CDSmarks.Filtered:=true;
+    FMain.CDSmarks.First;
+    if FMain.CDSmarks.Eof then begin
+      FMain.CDSmarks.Filtered:=false;
+      exit;
+    end else begin
+      FLayer.Bitmap.Clear(clBlack);
+    end;
+    btm:=TBitmap32.Create;
+    try
+      btm.DrawMode:=dmBlend;
+      btm.Resampler:=TLinearResampler.Create;
+      While not(FMain.CDSmarks.Eof) do begin
+        buf_line_arr := Blob2ExtArr(FMain.CDSmarks.FieldByName('lonlatarr'));
+        if length(buf_line_arr)>1 then begin
+          TestArrLenP1:=map.GeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonL.AsFloat,FMain.CDSmarksLatT.AsFloat),(VZoomCurr - 1));
+          TestArrLenP2:=map.GeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonR.AsFloat,FMain.CDSmarksLatB.AsFloat),(VZoomCurr - 1));
+          if (abs(TestArrLenP1.X-TestArrLenP2.X)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>FMain.CDSmarksScale1.AsInteger+2) then begin
+            {drawPath(buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
+              (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
+            }SetLength(buf_line_arr,0);
+          end;
+        end;
+        if length(buf_line_arr)=1 then begin
+          xy:=map.GeoConvert.LonLat2PixelPos(buf_line_arr[0],VZoomCurr-1);
+          xyb:=map.GeoConvert.LonLat2PixelPos(LLRect.TopLeft,VZoomCurr-1);
+          xy:=Point(xy.x - xyb.x,xy.y - xyb.y);
+          imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
+          indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);
+          if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
+            indexmi:=0;
+          end;
+          if(indexmi>-1)then begin
+            PNGintoBitmap32(btm,TPNGObject(GState.MarkIcons.Objects[indexmi]));
+            BtmEx.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
+          end;
+          if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
+            BtmEx.Font.Size:=FMain.CDSmarksScale1.AsInteger;
+            texth:=BtmEx.TextHeight(FMain.CDSmarksname.asString) div 2;
+            BtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,FMain.CDSmarksname.AsString,1,TColor32(FMain.CDSmarksColor2.AsInteger));
+            BtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,FMain.CDSmarksname.AsString,1,TColor32(FMain.CDSmarksColor1.AsInteger));
+          end;
+        end;
+        FMain.CDSmarks.Next;
+      end;
+      FMain.CDSmarks.Filtered:=false;
+    finally
+      btm.Free;
+    end;
+  finally
+    paintMark:=false;
   end;
 end;
 
@@ -190,7 +289,6 @@ begin
         if length(buf_line_arr)=1 then begin
           xy:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
           xy := MapPixel2BitmapPixel(xy);
-          xy:=Point(xy.x,xy.y);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
           indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);
           if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin

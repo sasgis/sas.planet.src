@@ -39,6 +39,7 @@ type
   private
     FZoom: byte;
     FPoly: TPointArray;
+    FLLRect: TRect;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
     FFileName: string;
@@ -52,7 +53,6 @@ type
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
     FUsedReColor: boolean;
-
 
     FProgressForm: TFprogress2;
 
@@ -71,6 +71,7 @@ type
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     function ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb):boolean;
     function IsCancel: Boolean;
+    procedure DrawMarks2Tile;
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormStr1;
     procedure UpdateProgressFormStr2;
@@ -103,7 +104,9 @@ uses
   ECWWriter,
   i_IMapCalibration,
   u_GlobalState,
-  usaveas;
+  usaveas,
+  u_MapMarksLayer,
+  Unit1;
 
 constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor:boolean);
 var
@@ -320,6 +323,13 @@ begin
   end;
 end;
 
+procedure TThreadScleit.DrawMarks2Tile;
+var LLRect:TExtendedRect;
+begin
+ LLRect:=FTypeMap.GeoConvert.PixelRect2LonLatRect(FLLRect,FZoom-1);
+ FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap,LLRect,FZoom)
+end;
+
 function TThreadScleit.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb): boolean;
 var
@@ -353,6 +363,7 @@ begin
       if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
+        FLLRect:=bounds(p_x,p_y,256,256);
         btmm.Clear(Color32(GState.BGround));
         if (FTypeMap.Tileexists(p_x,p_y, FZoom)) then begin
           if not(FTypeMap.LoadTile(btmm,p_x,p_y, FZoom, false)) then begin
@@ -387,6 +398,7 @@ begin
           end;
         end;
       end;
+      Synchronize(DrawMarks2Tile);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
