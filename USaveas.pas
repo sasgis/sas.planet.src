@@ -516,13 +516,11 @@ begin
   if CmBExpHibYa.ItemIndex=-1 then CmBExpHibYa.ItemIndex:=0;
   CBSclHib.ItemIndex:=0;
   zoom_rect:=Azoom;
-  setlength(polygonLL,0);
-  setlength(poly_save,0);
+  setlength(polygonLL,length(polygon_));
+  setlength(GState.LastSelectionPolygon,length(polygon_));
   for i:=0 to length(polygon_)-1 do begin
-    setlength(poly_save,i+1);
-    setlength(polygonLL,i+1);
     polygonLL[i]:=polygon_[i];
-    poly_save[i]:=polygon_[i];
+    GState.LastSelectionPolygon[i]:=polygon_[i];
   end;
   poly_zoom_save:=zoom_rect;
   vramkah:=false;
@@ -644,13 +642,13 @@ begin
   begin
    If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
-   if length(poly_save)>0 then
+   if length(GState.LastSelectionPolygon)>0 then
     begin
      Ini.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
-     for i:=1 to length(poly_save) do
+     for i:=1 to length(GState.LastSelectionPolygon) do
       begin
-       Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),poly_save[i-1].x);
-       Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i),poly_save[i-1].y);
+       Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);
+       Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i),GState.LastSelectionPolygon[i-1].y);
       end;
     end;
     ini.Free;

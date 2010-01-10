@@ -420,13 +420,13 @@ begin
    GState.MainIni.DeleteKey('HIGHLIGHTING','pointy_'+inttostr(i));
    inc(i);
   end;
- if length(poly_save)>0 then
+ if length(GState.LastSelectionPolygon)>0 then
   begin
    GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
-   for i:=1 to length(poly_save) do
+   for i:=1 to length(GState.LastSelectionPolygon) do
     begin
-     GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),poly_save[i-1].x);
-     GState.MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),poly_save[i-1].y);
+     GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);
+     GState.MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),GState.LastSelectionPolygon[i-1].y);
     end;
   end;
  GState.MainIni.UpdateFile;
