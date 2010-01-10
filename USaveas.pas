@@ -19,14 +19,9 @@ uses
   ComCtrls,
   filectrl,
   GR32,
-  UTrAllLoadMap,
-  UThreadScleit,
-  UThreadExport,
   UGeoFun,
   UMapType,
   UResStrings,
-  UOpDelTiles,
-  UOpGenPreviousZoom,
   t_GeoTypes;
 
 type
@@ -202,12 +197,17 @@ uses
   i_ILogForTaskThread,
   u_LogForTaskThread,
   i_IMapCalibration,
+  UTrAllLoadMap,
+  UThreadScleit,
+  UThreadExport,
   UThreadExportIPhone,
   UThreadExportKML,
   UThreadExportYaMaps,
+  UOpDelTiles,
+  UOpGenPreviousZoom,
   UProgress,
   unit1;
-  
+
 {$R *.dfm}
 
 function PolygonSquare(Poly:TPointArray): Double;
