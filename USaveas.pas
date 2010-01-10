@@ -295,7 +295,7 @@ begin
         ziped:=CBZipped.Checked;
         path:=IncludeTrailingPathDelimiter(EditPath.Text);
         Replace:=CBReplace.Checked;
-        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,CBFormat.ItemIndex)
+        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,GState.TileNameGenerator.GetGenerator(CBFormat.ItemIndex + 1))
        end;
  end;
 end;

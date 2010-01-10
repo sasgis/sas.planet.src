@@ -13,6 +13,7 @@ uses
   PNGImage,
   JPEG,
   GR32,
+  i_ITileFileNameGenerator,
   UMapType,
   UGeoFun,
   unit4,
@@ -25,7 +26,7 @@ type
     PolygLL:TExtendedPointArray;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
-    format:byte;
+    FTileNameGen: ITileFileNameGenerator;
     Fprogress: TFprogress2;
     Move,ziped:boolean;
     Replace:boolean;
@@ -45,7 +46,7 @@ type
       Amove: boolean;
       Areplace: boolean;
       Aziped: boolean;
-      Aformat: byte
+      ATileNameGen: ITileFileNameGenerator
     );
   end;
 
@@ -54,7 +55,6 @@ implementation
 uses
   u_GeoToStr,
   unit1,
-  i_ITileFileNameGenerator,
   u_GlobalState;
 
 procedure TThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
@@ -68,7 +68,7 @@ constructor TThreadExport.Create(
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Amove, Areplace, Aziped: boolean;
-  Aformat: byte
+  ATileNameGen: ITileFileNameGenerator
 );
 var i:integer;
 begin
@@ -81,7 +81,7 @@ begin
   FProgress.Visible:=true;
   Path:=APath;
   Move:=AMove;
-  format:=AFormat+1;
+  FTileNameGen := ATileNameGen;
   ziped:=Aziped;
   Replace:=AReplace;
   setlength(PolygLL,length(APolygon_));
@@ -115,7 +115,6 @@ var p_x,p_y,i,j:integer;
     polyg:TPointArray;
     pathfrom,pathto,persl,perzoom,kti,datestr:string;
     max,min:TPoint;
-    VTileNameGen: ITileFileNameGenerator;
     VExt: string;
     VPath: string;
 begin
@@ -164,7 +163,6 @@ begin
       polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
       VExt := TypeMapArr[j].TileFileExt;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].GetShortFolderName);
-      VTileNameGen := GState.TileNameGenerator.GetGenerator(format);
       GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
       while p_x<max.x do
@@ -189,7 +187,7 @@ begin
                             Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-                           pathto:= VPath + VTileNameGen.GetTileFileName(Point(p_x shr 8,p_y shr 8), i) + VExt;
+                           pathto:= VPath + FTileNameGen.GetTileFileName(Point(p_x shr 8,p_y shr 8), i) + VExt;
                            if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
                              if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
                            end;
@@ -217,7 +215,7 @@ begin
   end;
  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
- VTileNameGen := nil;
+ FTileNameGen := nil;
  FProgress.Close;
 end;
 
