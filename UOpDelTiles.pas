@@ -23,14 +23,13 @@ type
     Fprogress: TFprogress2;
     TileInProc:integer;
     Fx, Fy: Integer;
-  protected
     procedure DeleteTiles;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    procedure Execute; override;
-    procedure DelTileOp;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
+  protected
+    procedure Execute; override;
   public
     destructor destroy; override;
     constructor Create(
@@ -102,11 +101,6 @@ begin
   FProgress.ProgressBar1.Max:=ProcessTiles;
 end;
 
-procedure TOpDelTiles.DelTileOp;
-begin
-  typemap.DeleteTile(fx, fy, Zoom)
-end;
-
 procedure TOpDelTiles.DeleteTiles;
 var i,j:integer;
 begin
@@ -124,7 +118,7 @@ begin
      if typemap.TileExists(i,j,zoom) then begin
                                Fx := i;
                                FY := j;
-                               Synchronize(DelTileOp);
+                               typemap.DeleteTile(fx, fy, Zoom);
                                inc(TileInProc);
                               end;
      Synchronize(UpdateProgressForm);
