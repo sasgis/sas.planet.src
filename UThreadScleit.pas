@@ -53,6 +53,7 @@ type
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
     FUsedReColor: boolean;
+    FUsedMarks: boolean;
 
     FProgressForm: TFprogress2;
 
@@ -93,7 +94,8 @@ type
       Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
-      AusedReColor: boolean
+      AusedReColor,
+      AusedMarks: boolean
     );
   end;
 
@@ -108,7 +110,7 @@ uses
   u_MapMarksLayer,
   Unit1;
 
-constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor:boolean);
+constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor,AusedMarks:boolean);
 var
   VProcessTiles: Int64;
 begin
@@ -125,6 +127,7 @@ begin
   FTypeMap := Atypemap;
   FHTypeMap := AHtypemap;
   FUsedReColor := AusedReColor;
+  FUsedMarks := AusedMarks;
   FMapCalibrationList := AMapCalibrationList;
 
 
@@ -259,6 +262,7 @@ begin
     Asx:=sx;
     Aex:=255;
     while p_x<=FCurrentPieceRect.Right do begin
+      FLLRect:=bounds(p_x,p_y,256,256);
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       LastXY.X := p_x;
       LastXY.Y := p_y;
@@ -273,7 +277,6 @@ begin
         end else begin
           FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
-        if FUsedReColor then Gamma(btmm);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
           if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
@@ -299,6 +302,8 @@ begin
           end;
         end;
       end;
+      if FUsedReColor then Gamma(btmm);
+      if FUsedMarks then Synchronize(DrawMarks2Tile);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
@@ -372,7 +377,6 @@ begin
         end else begin
           FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
         end;
-        if FUsedReColor then Gamma(btmm);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
           if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
@@ -398,7 +402,8 @@ begin
           end;
         end;
       end;
-      Synchronize(DrawMarks2Tile);
+      if FUsedReColor then Gamma(btmm);
+      if FUsedMarks then Synchronize(DrawMarks2Tile);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
