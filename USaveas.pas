@@ -156,6 +156,7 @@ type
     cMapEditYa: TSpinEdit;
     CkBNotReplaseYa: TCheckBox;
     PrTypesBox: TCheckListBox;
+    CBUsedMarks: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -358,7 +359,7 @@ begin
         VPrTypes.Add(IInterface(Pointer(PrTypesBox.Items.Objects[i])));
       end;
     end;
-    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked);
+    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked,CBUsedMarks.Checked);
   end;
   Polyg := nil;
 end;
