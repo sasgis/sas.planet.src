@@ -43,17 +43,14 @@ type
     FChildeTileZoom: byte;
     bmp_ex:TBitmap32;
     bmp:TBitmap32;
-
-  protected
     procedure GenPreviousZoom;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
     procedure CloseProgressForm;
-    procedure Execute; override;
-    procedure SaveTileOp;
-    procedure LoadMainTileOp;
-    procedure LoadChildTileOp;
+    procedure SyncShowMessage;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
+  protected
+    procedure Execute; override;
   public
     destructor destroy; override;
     constructor Create(
@@ -146,27 +143,6 @@ begin
   FProgress.ProgressBar1.Max:=ProcessTiles;
 end;
 
-procedure TOpGenPreviousZoom.SaveTileOp;
-begin
- try
-  typemap.SaveTileSimple(FMainTileXY.X, FMainTileXY.Y, FMainTileZoom,bmp_ex);
-  inc(TileInProc);
- except
-  ShowMessage(SAS_ERR_Write);
-  Terminate;
- end;
-end;
-
-procedure TOpGenPreviousZoom.LoadMainTileOp;
-begin
-  typemap.LoadTile(bmp_Ex, FMainTileXY.X, FMainTileXY.y, FMainTileZoom, false);
-end;
-
-procedure TOpGenPreviousZoom.LoadChildTileOp;
-begin
-  typemap.LoadTile(bmp, FChildeTileXY.X, FChildeTileXY.Y, FChildeTileZoom, false);
-end;
-
 procedure TOpGenPreviousZoom.GenPreviousZoom;
 var bmp2:TBitmap32;
     i,c_d,p_x,p_y,d2562,p_i,p_j,p_x_x,p_y_y:integer;
@@ -205,7 +181,7 @@ begin
                                        inc(p_y,256);
                                        continue;
                                       end;
-                                Synchronize(LoadMainTileOp);
+                                typemap.LoadTile(bmp_Ex, FMainTileXY.X, FMainTileXY.y, FMainTileZoom, false);
                                end
                           else begin
                                 bmp_ex.width:=256;
@@ -230,7 +206,7 @@ begin
             FChildeTileXY.X := p_x_x;
             FChildeTileXY.Y := p_y_y;
             FChildeTileZoom := VZoom;
-            Synchronize(LoadChildTileOp);
+            typemap.LoadTile(bmp, FChildeTileXY.X, FChildeTileXY.Y, FChildeTileZoom, false);
             bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);
             inc(save_len_tile);
            end;
@@ -242,13 +218,24 @@ begin
          inc(p_y,256);
          continue;
         end;
-       Synchronize(SaveTileOp);
+       try
+        typemap.SaveTileSimple(FMainTileXY.X, FMainTileXY.Y, FMainTileZoom,bmp_ex);
+        inc(TileInProc);
+       except
+        Synchronize(SyncShowMessage);
+        Terminate;
+       end;
        inc(p_y,256);
       end;
      inc(p_x,256);
     end;
   end;
  bmp2.Free;
+end;
+
+procedure TOpGenPreviousZoom.SyncShowMessage;
+begin
+  ShowMessage(SAS_ERR_Write);
 end;
 
 end.

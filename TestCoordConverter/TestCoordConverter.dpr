@@ -1,3 +1,4 @@
+// JCL_DEBUG_EXPERT_INSERTJDBG OFF
 program TestCoordConverter;
 
 {$APPTYPE CONSOLE}
@@ -31,7 +32,7 @@ begin
     end;
   end;
 
-  VTester := TTesterCoordConverterAbstract.Create(TCoordConverterMercatorOnEllipsoid.Create(sqrt(radiusa*radiusa-radiusb*radiusb)/radiusa,radiusa,radiusb));
+  VTester := TTesterCoordConverterAbstract.Create(TCoordConverterMercatorOnEllipsoid.Create(radiusa,radiusb));
   try
     VTester.CheckConverter;
     Writeln('Ok');

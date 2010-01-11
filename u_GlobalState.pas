@@ -196,6 +196,9 @@ type
     MapType: array of TMapType;
     sat_map_both: TMapType;
 
+    // Полигон последнего выделения при операциях с областью.
+    LastSelectionPolygon: TExtendedPointArray;
+
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Путь к иконкам меток

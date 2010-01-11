@@ -108,6 +108,8 @@ type
     function GetSpheroidRadius: Double; stdcall;
     // Возвращает единицы измерения используемые в спроецированной карте
     function GetCellSizeUnits: TCellSizeUnits; stdcall;
+    // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
+    function GetTileSplitCode: Integer; stdcall;
   end;
 
 implementation
