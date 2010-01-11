@@ -560,7 +560,7 @@ begin
         if IsCancel then break;
       end;
     end else begin
-      Message_:=SAS_ERR_Memory;
+      Message_:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
       Synchronize(SynShowMessage);
       exit;
     end;

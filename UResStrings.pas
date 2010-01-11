@@ -43,6 +43,7 @@ ResourceString
  SAS_ERR_RepeatProcess='Пытаемся повторить обработку';
  SAS_ERR_FileExistsShort='Данный файл уже имеется в кеше';
  SAS_ERR_Memory='Невозможно выделить память для данной операции';
+ SAS_ERR_UseADifferentFormat='Для склейки больших размеров используйте другой формат (ecw,bmp,jp2)';
 
  SAS_STR_MarshLen='Длина маршрута: ';
  SAS_STR_Marshtime='Время в пути: ';
