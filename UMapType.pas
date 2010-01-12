@@ -864,30 +864,32 @@ begin
   if not(VTileExists)or(dZ>8) then begin
     if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                else spr.Clear(Color32(GState.BGround));
-    exit;
-  end;
-  key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
-  if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
-    bmp:=TBitmap32.Create;
-    try
-      if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
-        if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-                   else spr.Clear(Color32(GState.BGround));
-        exit;
-      end;
-      bmp.Resampler := CreateResampler(GState.Resampling);
-      c_x:=((x-(x mod 256))shr dZ)mod 256;
-      c_y:=((y-(y mod 256))shr dZ)mod 256;
+  end else begin
+    key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
+      bmp:=TBitmap32.Create;
       try
-        spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
-        GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
-      except
+        if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
+          if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+                     else spr.Clear(Color32(GState.BGround));
+        end else begin
+          bmp.Resampler := CreateResampler(GState.Resampling);
+          c_x:=((x-(x mod 256))shr dZ)mod 256;
+          c_y:=((y-(y mod 256))shr dZ)mod 256;
+          try
+            spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
+            GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
+          except
+            Assert(False, 'Ошибка в рисовании из предыдущего уровня');
+            Result := false;
+          end;
+        end;
+      finally
+        FreeAndNil(bmp);
       end;
-    finally
-      FreeAndNil(bmp);
     end;
+    Result := true;
   end;
-  Result := true;
 end;
 
 function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
