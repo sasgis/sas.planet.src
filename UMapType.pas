@@ -950,7 +950,8 @@ begin
       FCSSaveTile.Acquire;
       try
         result := DeleteFile(PChar(VPath));
-        GState.MainFileCache.DeleteFileFromCache(GUIDString+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+inttostr(Azoom+1));
+        GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
+//        GState.MainFileCache.DeleteFileFromCache(inttostr(Azoom+1)+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+GUIDString);
       finally
         FCSSaveTile.Release;
       end;
@@ -1581,7 +1582,7 @@ end;
 
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+ GUIDString;
+  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+GUIDString;
 end;
 
 end.

@@ -2237,6 +2237,7 @@ begin
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
  GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
  GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
+ GState.GSMpar.WaitingAnswer:=GState.MainIni.ReadInteger('GSM','WaitingAnswer',200);
 
  GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');

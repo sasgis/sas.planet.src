@@ -243,6 +243,8 @@ type
     ColorBoxBackGround: TColorBox;
     CBLastSuccess: TCheckBox;
     Bevel16: TBevel;
+    Label36: TLabel;
+    SEWaitingAnswer: TSpinEdit;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -393,6 +395,7 @@ begin
  GState.MainIni.WriteString('GSM','port',GState.GSMpar.Port);
  GState.MainIni.WriteInteger('GSM','BaudRate',GState.GSMpar.BaudRate);
  GState.MainIni.WriteBool('GSM','Auto',GState.GSMpar.auto);
+ GState.MainIni.WriteInteger('GSM','WaitingAnswer',GState.GSMpar.WaitingAnswer);
 
  GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
@@ -501,6 +504,7 @@ begin
  GState.GSMpar.BaudRate:=strtoint(CBGSMBaundRate.text);
  GState.GSMpar.Port:=CBGSMComPort.Text;
  GState.GSMpar.auto:=RBGSMAuto.Checked;
+ GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
@@ -667,6 +671,7 @@ begin
  CBGSMComPort.Text:=GState.GSMpar.Port;
  RBGSMAuto.Checked:=GState.GSMpar.auto;
  RBGSMManual.Checked:=not GState.GSMpar.auto;
+ SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;

@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet9
+    ActivePage = TabSheet6
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1477,7 +1477,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
@@ -1823,24 +1823,34 @@ object FSettings: TFSettings
         Caption = 'COM-'#1087#1086#1088#1090
       end
       object Label34: TLabel
-        Left = 200
+        Left = 208
         Top = 19
         Width = 48
         Height = 13
         Alignment = taRightJustify
         Caption = #1057#1082#1086#1088#1086#1089#1090#1100
       end
+      object Label36: TLabel
+        Left = 364
+        Top = 19
+        Width = 104
+        Height = 13
+        Alignment = taRightJustify
+        BiDiMode = bdRightToLeft
+        Caption = #1054#1078#1080#1076#1072#1085#1080#1077' '#1086#1090#1074#1077#1090#1072
+        ParentBiDiMode = False
+      end
       object CBGSMComPort: TComboBox
         Left = 64
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
       object CBGSMBaundRate: TComboBox
-        Left = 256
+        Left = 264
         Top = 16
         Width = 89
         Height = 21
@@ -1881,6 +1891,16 @@ object FSettings: TFSettings
         Height = 17
         Caption = #1042#1074#1086#1076#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1099' '#1073#1072#1079#1086#1074#1099#1093' '#1089#1090#1072#1085#1094#1080#1081' '#1074#1088#1091#1095#1085#1091#1102
         TabOrder = 3
+      end
+      object SEWaitingAnswer: TSpinEdit
+        Left = 474
+        Top = 16
+        Width = 63
+        Height = 22
+        MaxValue = 0
+        MinValue = 0
+        TabOrder = 4
+        Value = 200
       end
     end
   end

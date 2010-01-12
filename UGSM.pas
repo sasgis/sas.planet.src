@@ -109,21 +109,26 @@ end;
 
 procedure TPosFromGPS.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 var s:string;
-    pos:integer;
+    pos,pose:integer;
     LL:TExtendedPoint;
 begin
  setlength(s,DataSize);
+ if DataSize<10 then exit;
  CopyMemory(@s[1],DataPtr,DataSize);
  pos:=posEx('+CREG:',s);
  if pos>0 then begin
-   pos:=posEx(',"',s,pos+1);
+   pos:=posEx(',',s,pos+1);
+   pos:=posEx(',',s,pos+1);
+   pose:=posEx(',',s,pos+1);
    if pos>0 then begin
-     LAC:=copy(s,pos+2,4);
+     LAC:=copy(s,pos+1,pose-(pos+1));
    end;
-   pos:=posEx(',"',s,pos+1);
+   pos:=posEx(#$D,s,pose+1);
    if pos>0 then begin
-     CellID:=copy(s,pos+2,4);
+     CellID:=copy(s,pose+1,pos-(pose+1));
    end;
+ end else begin
+   exit;
  end;
  pos:=posEx('+COPS:',s);
  if pos>0 then begin
@@ -132,6 +137,8 @@ begin
      NC:=copy(s,pos+2,3);
      CC:=copy(s,pos+5,2);
    end;
+ end else begin
+   exit;
  end;
  CommPortDriver.SendString('AT+CREG=1'+#13);
  CommPortDriver.Disconnect;
@@ -176,7 +183,9 @@ begin
    CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
    CommPortDriver.Connect;
    if CommPortDriver.Connected then begin
-     if CommPortDriver.SendString('AT+CREG=2'+#13) then begin
+     if (CommPortDriver.SendString('AT+CREG=2'+#13))and
+        (CommPortDriver.SendString('AT+COPS=0,2'+#13)) then begin
+       sleep(GState.GSMpar.WaitingAnswer);
        CommPortDriver.SendString('AT+CREG?'+#13);
        CommPortDriver.SendString('AT+COPS?'+#13);
        Result:=true;
