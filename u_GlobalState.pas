@@ -231,7 +231,7 @@ type
   end;
 
 const
-  SASVersion='91207';
+  SASVersion='100112';
   CProgram_Lang_Default = LANG_RUSSIAN;
 
 var
