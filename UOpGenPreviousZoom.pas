@@ -144,75 +144,76 @@ begin
   bmp_ex:=TBitmap32.Create;
   bmp:=TBitmap32.Create;
   try
- bmp.Resampler := CreateResampler(Resampler);
- TileInProc:=0;
- CurrentTile:=0;
- for i:=0 to length(InZooms)-1 do
-  begin
-   if Terminated then continue;
-   polyg := typemap.GeoConvert.PoligonProject((InZooms[i] - 1) + 8, PolygLL);
-   if (not GenFormPrev)or(i=0) then
-                 c_d:=round(power(2,FromZoom-InZooms[i]))
-            else c_d:=round(power(2,InZooms[i-1]-InZooms[i]));
-   if (not GenFormPrev)or(i=0) then
-                VZoom := FromZoom
-           else VZoom := InZooms[i-1];
-   GetDwnlNum(min,max,Polyg,false);
-   p_x:=min.x;
-   while (p_x<max.X)and(not Terminated) do
-    begin
-     p_y:=min.y;
-     while (p_y<max.y)and(not Terminated) do
+    bmp.Resampler := CreateResampler(Resampler);
+    TileInProc:=0;
+    CurrentTile:=0;
+    for i:=0 to length(InZooms)-1 do begin
+     if Terminated then continue;
+     polyg := typemap.GeoConvert.PoligonProject((InZooms[i] - 1) + 8, PolygLL);
+     if (not GenFormPrev)or(i=0) then
+                   c_d:=round(power(2,FromZoom-InZooms[i]))
+              else c_d:=round(power(2,InZooms[i-1]-InZooms[i]));
+     if (not GenFormPrev)or(i=0) then
+                  VZoom := FromZoom
+             else VZoom := InZooms[i-1];
+     GetDwnlNum(min,max,Polyg,false);
+     p_x:=min.x;
+     while (p_x<max.X)and(not Terminated) do
       begin
-       if RgnAndRgn(Polyg,p_x,p_y,false) then begin
-         if typemap.TileExists(p_x,p_y,InZooms[i])then begin
-                                  if not(Replace)
-                                   then begin
-                                         Synchronize(UpdateProgressForm);
-                                         inc(p_y,256);
-                                         continue;
-                                        end;
-                                  typemap.LoadTile(bmp_Ex, p_x, p_y, InZooms[i], false);
-                                 end
-                            else begin
-                                  bmp_ex.SetSize(256, 256);
-                                  bmp_ex.Clear(Color32(GState.BGround));
-                                 end;
-         d2562:=256 div c_d;
-         save_len_tile:=0;
-         for p_i:=1 to c_d do
-          for p_j:=1 to c_d do
-           begin
+       p_y:=min.y;
+       while (p_y<max.y)and(not Terminated) do
+        begin
+         if RgnAndRgn(Polyg,p_x,p_y,false) then begin
+           if typemap.TileExists(p_x,p_y,InZooms[i])then begin
+                                    if not(Replace)
+                                     then begin
+                                           Synchronize(UpdateProgressForm);
+                                           inc(p_y,256);
+                                           continue;
+                                          end;
+                                    typemap.LoadTile(bmp_Ex, p_x, p_y, InZooms[i], false);
+                                   end
+                              else begin
+                                    bmp_ex.SetSize(256, 256);
+                                    bmp_ex.Clear(Color32(GState.BGround));
+                                   end;
+           d2562:=256 div c_d;
+           save_len_tile:=0;
+           for p_i:=1 to c_d do begin
             if Terminated then continue;
-            p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
-            p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
+            for p_j:=1 to c_d do begin
+              if Terminated then continue;
+              p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
+              p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
 
-            if typemap.TileExists(p_x_x,p_y_y,VZoom) then
-             begin
-              if (typemap.LoadTile(bmp, p_x_x,p_y_y,VZoom, false)) then begin
-                bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);
-                inc(save_len_tile);
-              end else begin
-                Assert(False, 'Ошибка чтения тайла.');
-              end;
+              if typemap.TileExists(p_x_x,p_y_y,VZoom) then
+               begin
+                if (typemap.LoadTile(bmp, p_x_x,p_y_y,VZoom, false)) then begin
+                  bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);
+                  inc(save_len_tile);
+                end else begin
+                  Assert(False, 'Ошибка чтения тайла.');
+                end;
+               end;
+              inc(CurrentTile);
+              if (CurrentTile mod 30 = 0) then Synchronize(UpdateProgressForm);
+            end;
+           end;
+           if Terminated then continue;
+           if ((not savefull)or(save_len_tile=c_d*c_d))and(save_len_tile > 0) then
+             try
+              typemap.SaveTileSimple(p_x, p_y, InZooms[i], bmp_ex);
+              inc(TileInProc);
+             except
+              Synchronize(SyncShowMessage);
+              Terminate;
              end;
-            inc(CurrentTile);
-            if (CurrentTile mod 30 = 0) then Synchronize(UpdateProgressForm);
-           end;
-         if ((not savefull)or(save_len_tile=c_d*c_d))and(save_len_tile > 0) then
-           try
-            typemap.SaveTileSimple(p_x, p_y, InZooms[i], bmp_ex);
-            inc(TileInProc);
-           except
-            Synchronize(SyncShowMessage);
-            Terminate;
-           end;
-       end;
-       inc(p_y,256);
+         end;
+         inc(p_y,256);
+        end;
+       inc(p_x,256);
       end;
-     inc(p_x,256);
     end;
-  end;
   finally
     bmp_ex.Free;
     bmp.Free;
