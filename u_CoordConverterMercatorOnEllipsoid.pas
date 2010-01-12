@@ -10,7 +10,7 @@ uses
 type
   TCoordConverterMercatorOnEllipsoid = class(TCoordConverterAbstract)
   protected
-    FExct,{FRadiusa,}FRadiusb: Extended;
+    FExct,FRadiusb: Extended;
     function LonLat2MetrInternal(const ALL: TExtendedPoint): TExtendedPoint; override;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
