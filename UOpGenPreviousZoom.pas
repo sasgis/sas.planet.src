@@ -151,6 +151,7 @@ var bmp2:TBitmap32;
 begin
  bmp2:=TBitmap32.Create;
  bmp.Resampler := CreateResampler(Resampler);
+
  TileInProc:=0;
  CurrentTile:=0;
  for i:=0 to length(InZooms)-1 do

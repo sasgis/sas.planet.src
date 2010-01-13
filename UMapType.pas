@@ -951,7 +951,6 @@ begin
       try
         result := DeleteFile(PChar(VPath));
         GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
-//        GState.MainFileCache.DeleteFileFromCache(inttostr(Azoom+1)+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+GUIDString);
       finally
         FCSSaveTile.Release;
       end;

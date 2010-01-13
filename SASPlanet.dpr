@@ -16,7 +16,6 @@ uses
   cUnicode in 'src\cUnicode.pas',
   cUnicodeChar in 'src\cUnicodeChar.pas',
   CPDrv in 'src\CPDrv.pas',
-
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   t_LoadEvent in 't_LoadEvent.pas',
@@ -121,9 +120,10 @@ uses
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
-  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
+  u_BitmapTilePngNbitdepthSaver in 'u_BitmapTilePngNbitdepthSaver.pas';
 
-   {$R *.res}{$R SASR.RES}
+{$R *.res}{$R SASR.RES}
 begin
   GState := TGlobalState.Create;
   try
@@ -144,22 +144,22 @@ begin
     //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TFmain, Fmain);
-    Application.CreateForm(TFGoTo, FGoTo);
-    Application.CreateForm(TFabout, Fabout);
-    Application.CreateForm(TFSettings, FSettings);
-    Application.CreateForm(TFsaveas, Fsaveas);
-    Application.CreateForm(TFSearchResult, FSearchResult);
-    Application.CreateForm(TFMarksExplorer, FMarksExplorer);
-    Application.CreateForm(TFImport, FImport);
-    Application.CreateForm(TFAddCategory, FAddCategory);
-    Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
-    Application.CreateForm(TFaddPoint, FaddPoint);
-    Application.CreateForm(TFprogress2, Fprogress2);
-    Application.CreateForm(TFbrowser, Fbrowser);
-    Application.CreateForm(TFaddLine, FaddLine);
-    Application.CreateForm(TFAddPoly, FAddPoly);
-    Application.CreateForm(TFEditMap, FEditMap);
-    Fmain.WebBrowser1.Navigate('about:blank');
+  Application.CreateForm(TFGoTo, FGoTo);
+  Application.CreateForm(TFabout, Fabout);
+  Application.CreateForm(TFSettings, FSettings);
+  Application.CreateForm(TFsaveas, Fsaveas);
+  Application.CreateForm(TFSearchResult, FSearchResult);
+  Application.CreateForm(TFMarksExplorer, FMarksExplorer);
+  Application.CreateForm(TFImport, FImport);
+  Application.CreateForm(TFAddCategory, FAddCategory);
+  Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
+  Application.CreateForm(TFaddPoint, FaddPoint);
+  Application.CreateForm(TFprogress2, Fprogress2);
+  Application.CreateForm(TFbrowser, Fbrowser);
+  Application.CreateForm(TFaddLine, FaddLine);
+  Application.CreateForm(TFAddPoly, FAddPoly);
+  Application.CreateForm(TFEditMap, FEditMap);
+  Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;
   finally

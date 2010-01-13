@@ -10,6 +10,8 @@ uses
 type
   TJpegBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   public
+    FCompressionQuality:byte;
+    constructor create(ACompressionQuality:byte);overload;
     procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
     procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
   end;
@@ -21,6 +23,10 @@ uses
   Jpeg;
 
 { TJpegBitmapTileSaver }
+constructor TJpegBitmapTileSaver.create(ACompressionQuality:byte);
+begin
+ FCompressionQuality:=ACompressionQuality;
+end;
 
 procedure TJpegBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
   AFileName: string);
@@ -33,7 +39,7 @@ begin
    VBtm_ex.Assign(Abtm as TBitmap32);
    VJpg_ex := TJpegImage.Create;
    try
-     VJpg_ex.CompressionQuality := 85;
+     VJpg_ex.CompressionQuality := FCompressionQuality;
      VJpg_ex.Assign(VBtm_ex);
      VJpg_ex.SaveToFile(AFileName);
    finally
@@ -55,7 +61,7 @@ begin
    VBtm_ex.Assign(Abtm as TBitmap32);
    VJpg_ex := TJpegImage.Create;
    try
-     VJpg_ex.CompressionQuality := 85;
+     VJpg_ex.CompressionQuality := FCompressionQuality;
      VJpg_ex.Assign(VBtm_ex);
      VJpg_ex.SaveToStream(AStream);
    finally
