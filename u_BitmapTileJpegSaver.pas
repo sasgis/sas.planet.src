@@ -36,7 +36,7 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm as TBitmap32);
+   VBtm_ex.Assign(Abtm);
    VJpg_ex := TJpegImage.Create;
    try
      VJpg_ex.CompressionQuality := FCompressionQuality;
@@ -58,7 +58,7 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm as TBitmap32);
+   VBtm_ex.Assign(Abtm);
    VJpg_ex := TJpegImage.Create;
    try
      VJpg_ex.CompressionQuality := FCompressionQuality;

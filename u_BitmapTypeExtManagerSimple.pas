@@ -29,6 +29,7 @@ uses
   SysUtils,
   u_BitmapTileJpegLoader,
   u_BitmapTileJpegSaver,
+  u_BitmapTileJpegSaverIJL,
   u_BitmapTilePngLoader,
   u_BitmapTilePngSaver,
   u_BitmapTileGifLoader,
@@ -47,7 +48,7 @@ begin
   FLoaders[2] := TGifBitmapTileLoader.Create;
   FLoaders[3] := TBmpBitmapTileLoader.Create;
   SetLength(FSavers, 4);
-  FSavers[0] := TJpegBitmapTileSaver.Create;
+  FSavers[0] := TJpegBitmapTileSaverIJL.Create;
   FSavers[1] := TPngBitmapTileSaver.Create;
   FSavers[2] := TGifBitmapTileSaver.Create;
   FSavers[3] := TBmpBitmapTileSaver.Create;
