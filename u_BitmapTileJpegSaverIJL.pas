@@ -9,7 +9,10 @@ uses
 
 type
   TJpegBitmapTileSaverIJL = class(TInterfacedObject, IBitmapTileSaver)
+  private
+    FCompressionQuality: byte;
   public
+    constructor create(ACompressionQuality: byte);
     procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
     procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
   end;
@@ -19,10 +22,15 @@ implementation
 uses
   SysUtils,
   Graphics,
-  IJL,
-  Jpeg;
+  IJL;
 
 { TJpegBitmapTileSaver }
+
+constructor TJpegBitmapTileSaverIJL.create(ACompressionQuality: byte);
+begin
+  inherited Create;
+  FCompressionQuality := ACompressionQuality;
+end;
 
 procedure TJpegBitmapTileSaverIJL.SaveToFile(ABtm: TBitmap32;
   AFileName: string);
@@ -61,7 +69,7 @@ begin
       jcprops.JPGHeight := jcprops.DIBHeight;
       jcprops.JPGChannels := 3;
       jcprops.JPGColor := IJL_YCBCR;
-      jcprops.jquality := 85;
+      jcprops.jquality := FCompressionQuality;
       VStatus := ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
     if VStatus < 0 then begin
       raise Exception.Create('Save Jpeg Error' + inttostr(vstatus));
@@ -77,22 +85,55 @@ end;
 procedure TJpegBitmapTileSaverIJL.SaveToStream(ABtm: TBitmap32;
   AStream: TStream);
 var
-  VJpg_ex: TJpegImage;
-  VBtm_ex: TBitmap;
+  jcprops: TJPEG_CORE_PROPERTIES;
+  VStatus: Integer;
+  VSource: PColor32Entry;
+  i: integer;
+  VTarget: PByte;
 begin
-  VBtm_ex := TBitmap.Create;
+  VStatus := ijlInit(@jcprops);
+  if VStatus < 0 then begin
+    raise Exception.Create('ijlInit Error');
+  end;
   try
-   VBtm_ex.Assign(Abtm);
-   VJpg_ex := TJpegImage.Create;
-   try
-     VJpg_ex.CompressionQuality := 85;
-     VJpg_ex.Assign(VBtm_ex);
-     VJpg_ex.SaveToStream(AStream);
-   finally
-     VJpg_ex.Free;
-   end;
+    jcprops.DIBWidth := ABtm.Width;
+    jcprops.DIBHeight := ABtm.Height;
+    jcprops.DIBChannels := 3;
+    jcprops.DIBColor := IJL_RGB;
+    jcprops.DIBPadBytes := 0;
+    GetMem(jcprops.DIBBytes,jcprops.DIBWidth*jcprops.DIBHeight*3);
+    GetMem(jcprops.JPGBytes, jcprops.JPGSizeBytes);
+    try
+      VSource := PColor32Entry(ABtm.ScanLine[0]);
+      VTarget := jcprops.DIBBytes;
+      for i := 0 to jcprops.DIBWidth*jcprops.DIBHeight - 1 do begin
+        VTarget^ := (VSource^).R;
+        Inc(VTarget);
+        VTarget^ := (VSource^).G;
+        Inc(VTarget);
+        VTarget^ := (VSource^).B;
+        Inc(VTarget);
+        Inc(VSource);
+      end;
+      jcprops.JPGWidth := jcprops.DIBWidth;
+      jcprops.JPGHeight := jcprops.DIBHeight;
+      jcprops.JPGChannels := 3;
+      jcprops.JPGColor := IJL_YCBCR;
+      jcprops.jquality := FCompressionQuality;
+      jcprops.JPGSizeBytes := jcprops.DIBWidth*jcprops.DIBHeight*3;
+
+      VStatus := ijlWrite(@jcprops,IJL_JBUFF_WRITEWHOLEIMAGE);
+      if VStatus < 0 then begin
+        raise Exception.Create('Save Jpeg Error' + inttostr(vstatus));
+      end;
+      AStream.Position := 0;
+      AStream.WriteBuffer(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
+    finally
+      FreeMem(jcprops.DIBBytes);
+      FreeMem(jcprops.JPGBytes);
+    end;
   finally
-    VBtm_ex.Free;
+    ijlFree(@jcprops);
   end;
 end;
 

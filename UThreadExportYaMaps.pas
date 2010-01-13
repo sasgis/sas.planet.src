@@ -53,7 +53,7 @@ uses
   u_GlobalState,
   u_CoordConverterMercatorOnEllipsoid,
   i_BitmapTileSaveLoad,
-  u_BitmapTileJpegSaver,
+  u_BitmapTileJpegSaverIJL,
   u_BitmapTilePngNBitdepthSaver;
 
 constructor TThreadExportYaMaps.Create(
@@ -162,7 +162,7 @@ begin
     try
       hxyi:=1;
       sizeim:=128;
-      JPGSaver:=TJpegBitmapTileSaver.create(cSat);
+      JPGSaver:=TJpegBitmapTileSaverIJL.create(cSat);
       PNGSaver:=TPngBitmapTileNBitdepthSaver.create(cMap,8);
       TileStream:=TMemoryStream.Create;
       bmp32:=TBitmap32.Create;

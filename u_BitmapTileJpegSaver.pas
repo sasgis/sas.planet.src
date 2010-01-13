@@ -9,9 +9,10 @@ uses
 
 type
   TJpegBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
-  public
+  private
     FCompressionQuality:byte;
-    constructor create(ACompressionQuality:byte);overload;
+  public
+    constructor create(ACompressionQuality:byte);
     procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
     procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
   end;

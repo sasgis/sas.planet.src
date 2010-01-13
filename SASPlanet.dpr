@@ -61,6 +61,7 @@ uses
   u_BitmapTileGifSaver in 'u_BitmapTileGifSaver.pas',
   u_BitmapTileBmpLoader in 'u_BitmapTileBmpLoader.pas',
   u_BitmapTileBmpSaver in 'u_BitmapTileBmpSaver.pas',
+  u_BitmapTilePngNbitdepthSaver in 'u_BitmapTilePngNbitdepthSaver.pas',
   i_IBitmapTypeExtManager in 'i_IBitmapTypeExtManager.pas',
   u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   UMapType in 'UMapType.pas',
@@ -121,8 +122,7 @@ uses
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
-  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  u_BitmapTilePngNbitdepthSaver in 'u_BitmapTilePngNbitdepthSaver.pas';
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
 
 {$R *.res}{$R SASR.RES}
 begin
