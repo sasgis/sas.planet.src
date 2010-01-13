@@ -28,7 +28,6 @@ implementation
 uses
   SysUtils,
   u_BitmapTileJpegLoader,
-  u_BitmapTileJpegSaver,
   u_BitmapTileJpegSaverIJL,
   u_BitmapTilePngLoader,
   u_BitmapTilePngSaver,

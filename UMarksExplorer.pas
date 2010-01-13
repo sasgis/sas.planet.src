@@ -16,7 +16,6 @@ uses
   StdCtrls,
   CheckLst,
   Buttons,
-  ComCtrls,
   ExtCtrls,
   DBClient,
   UResStrings,
@@ -101,7 +100,6 @@ var
 implementation
 
 uses
-  DBTables,
   t_CommonTypes,
   u_GlobalState,
   Unit1,

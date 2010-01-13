@@ -12,7 +12,6 @@ uses
   Controls,
   Forms,
   Dialogs,
-  DBClient,
   DB,
   Spin,
   StdCtrls,

@@ -11,7 +11,6 @@ uses
   Dialogs,
   Graphics,
   GR32,
-  Jpeg,
   ijl,
   UECWWrite,
   UMapType,
@@ -102,7 +101,6 @@ type
 implementation
 
 uses
-  StrUtils,
   ECWWriter,
   i_IMapCalibration,
   u_GlobalState,
