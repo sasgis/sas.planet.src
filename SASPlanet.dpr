@@ -55,6 +55,7 @@ uses
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',
   u_BitmapTileJpegSaver in 'u_BitmapTileJpegSaver.pas',
+  u_BitmapTileJpegSaverIJL in 'u_BitmapTileJpegSaverIJL.pas',
   u_BitmapTilePngLoader in 'u_BitmapTilePngLoader.pas',
   u_BitmapTilePngSaver in 'u_BitmapTilePngSaver.pas',
   u_BitmapTileGifLoader in 'u_BitmapTileGifLoader.pas',
