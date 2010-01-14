@@ -10,7 +10,6 @@ uses
   Graphics,
   gifimage,
   PNGImage,
-  JPEG,
   GR32,
   UMapType,
   UGeoFun,

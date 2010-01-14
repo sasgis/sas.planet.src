@@ -11,7 +11,6 @@ uses
   gifimage,
   VCLZIp,
   PNGImage,
-  JPEG,
   GR32,
   i_ITileFileNameGenerator,
   UMapType,
@@ -54,8 +53,7 @@ implementation
 
 uses
   u_GeoToStr,
-  unit1,
-  u_GlobalState;
+  unit1;
 
 procedure TThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin

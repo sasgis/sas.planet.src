@@ -15,7 +15,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
-  DBClient,
   UResStrings;
 
 type
