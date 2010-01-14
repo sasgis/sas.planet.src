@@ -51,6 +51,7 @@ type
     procedure Show; virtual;
     procedure Hide; virtual;
     procedure Redraw; virtual;
+    procedure BringToFront;
     property Visible: Boolean read GetVisible write SetVisible;
   end;
 
@@ -82,6 +83,11 @@ begin
   FLayer.Visible := False;
   FLayer.SendToBack;
   FLayer.Bitmap.SetSize(0, 0);
+end;
+
+procedure TWindowLayerBasic.BringToFront;
+begin
+  FLayer.BringToFront;
 end;
 
 procedure TWindowLayerBasic.Resize;
