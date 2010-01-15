@@ -142,6 +142,7 @@ begin
  if new then begin
               if GState.MarkIcons.Count>0 then
                DrawFromMarkIcons(Image1.canvas,0,bounds(4,4,36,36));
+              IconName:=GState.MarkIcons.Strings[0];
           //    If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
               faddPoint.Caption:=SAS_STR_AddNewMark;
               Badd.Caption:=SAS_STR_Add;
@@ -168,7 +169,7 @@ begin
 
              // image1.Canvas.CopyRect(bounds(5,5,36,36),DrawGrid1.Canvas,DrawGrid1.CellRect(0,0));
 
-              DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString),bounds(4,4,36,36));
+              DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarks.FieldByName('picname').AsString),bounds(4,4,36,36));
               //ComboBox1.ItemIndex:=GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString);
               Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
               CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
@@ -316,6 +317,7 @@ procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect)
 var Bitmap,Bitmap2: TBitmap32;
     wdth:integer;
 begin
+  if index<0 then index:=0;
   canvas.FillRect(bound);
   wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
   Bitmap:=TBitmap32.Create;
@@ -363,7 +365,7 @@ begin
    image1.Canvas.FillRect(image1.Canvas.ClipRect);
    DrawFromMarkIcons(image1.Canvas,i,bounds(5,5,36,36));
    DrawGrid1.Visible:=false;
- end;  
+ end;
 end;
 
 end.
