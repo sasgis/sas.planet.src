@@ -13,6 +13,7 @@ object FMarksExplorer: TFMarksExplorer
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
