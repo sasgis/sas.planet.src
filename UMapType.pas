@@ -866,7 +866,7 @@ begin
                else spr.Clear(Color32(GState.BGround));
   end else begin
     key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(spr, key)) then begin
       bmp:=TBitmap32.Create;
       try
         if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
@@ -878,7 +878,7 @@ begin
           c_y:=((y-(y mod 256))shr dZ)mod 256;
           try
             spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
-            GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
+            GState.MainFileCache.AddTileToCache(spr, key );
           except
             Assert(False, 'Ошибка в рисовании из предыдущего уровня');
             Result := false;
@@ -912,17 +912,17 @@ var
 begin
   VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
-      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
-      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+      result:=GetGETile(btm,GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
   end else begin
     path := GetTileFileName(AXY, Azoom);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
      result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
+     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
