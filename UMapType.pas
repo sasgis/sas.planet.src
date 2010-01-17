@@ -68,6 +68,7 @@ type
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    function GetMIMETypeSubst(AMimeType: string): string;
    public
     id: integer;
 
@@ -206,7 +207,7 @@ type
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
-    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
  end;
 
 var
@@ -1029,22 +1030,24 @@ begin
 end;
 
 procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
-  ATileStream: TCustomMemoryStream; ty: string);
+  ATileStream: TCustomMemoryStream; AMimeType: string);
 var
   VPath: String;
   btmSrc:TBitmap32;
   VManager: IBitmapTypeExtManager;
+  VMimeType: String;
 begin
   VPath := GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(VPath);
   VManager := BitmapTypeManager;
-  if VManager.GetIsBitmapType(ty) then begin
-    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(ty)) then begin
+  VMimeType := GetMIMETypeSubst(AMimeType);
+  if VManager.GetIsBitmapType(VMimeType) then begin
+    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(VMimeType)) then begin
       SaveTileInCache(ATileStream,Vpath);
     end else begin
       btmsrc := TBitmap32.Create;
       try
-        VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
+        VManager.GetBitmapLoaderForType(VMimeType).LoadFromStream(ATileStream, btmSrc);
 
         if IsCropOnDownload then begin
           CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
@@ -1058,7 +1061,7 @@ begin
     GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
-    raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [ty]);
+    raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
   end;
 end;
 
@@ -1585,6 +1588,11 @@ end;
 function TMapType.GetGUIDString: string;
 begin
   Result := GUIDToString(FGuid);
+end;
+
+function TMapType.GetMIMETypeSubst(AMimeType: string): string;
+begin
+  Result := AMimeType;
 end;
 
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
