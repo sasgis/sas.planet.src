@@ -50,6 +50,7 @@ type
     FMaxConnectToServerCount: Cardinal;
     FRadiusA: extended;
     FRadiusB: extended;
+    FMimeTypeSubstList: TStringList;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -68,6 +69,7 @@ type
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
     function GetMIMETypeSubst(AMimeType: string): string;
    public
     id: integer;
@@ -568,6 +570,22 @@ begin
   end;
 end;
 
+procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
+var
+  VMimeTypeSubstText: string;
+begin
+  VMimeTypeSubstText := AIniFile.ReadString('PARAMS', 'MimeTypeSubst', '');
+  if Length(VMimeTypeSubstText) > 0 then begin
+    FMimeTypeSubstList := TStringList.Create;
+    FMimeTypeSubstList.Delimiter := ';';
+    FMimeTypeSubstList.DelimitedText := VMimeTypeSubstText;
+    if FMimeTypeSubstList.Count = 0 then begin
+      FreeAndNil(FMimeTypeSubstList);
+    end;
+  end;
+end;
+
+
 procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
 var
   MapParams:TMemoryStream;
@@ -705,6 +723,7 @@ begin
       separator:=iniparams.ReadBool('PARAMS','separator',false);
       Defseparator:=separator;
       Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
+      LoadMimeTypeSubstList(iniparams);
       FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
       if FMaxConnectToServerCount > 64 then begin
         FMaxConnectToServerCount := 64;
@@ -1377,10 +1396,12 @@ begin
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
+  FMimeTypeSubstList := nil;
 end;
 
 destructor TMapType.Destroy;
 begin
+  FreeAndNil(FMimeTypeSubstList);
   FreeAndNil(FInitDownloadCS);
   FreeAndNil(FCSSaveTile);
   FreeAndNil(FCSSaveTNF);
@@ -1591,8 +1612,16 @@ begin
 end;
 
 function TMapType.GetMIMETypeSubst(AMimeType: string): string;
+var
+  VNewMimeType: string;
 begin
   Result := AMimeType;
+  if FMimeTypeSubstList <> nil then begin
+    VNewMimeType := FMimeTypeSubstList.Values[AMimeType];
+    if Length(VNewMimeType) > 0 then begin
+      Result := VNewMimeType;
+    end;
+  end;
 end;
 
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
