@@ -74,7 +74,7 @@ type
     function GetMIMETypeSubst(AMimeType: string): string;
     procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
     procedure LoadGUIDFromIni(AIniFile: TCustomIniFile);
-
+    procedure LoadMapIcons(AUnZip: TVCLZip);
    public
     id: integer;
 
@@ -598,6 +598,44 @@ begin
   end;
 end;
 
+procedure TMapType.LoadMapIcons(AUnZip: TVCLZip);
+var
+  MapParams:TMemoryStream;
+begin
+  Fbmp24:=TBitmap.create;
+  MapParams:=TMemoryStream.Create;
+  try
+    try
+      AUnZip.UnZipToStream(MapParams,'24.bmp');
+      MapParams.Position:=0;
+      Fbmp24.LoadFromStream(MapParams);
+    except
+      Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
+      Fbmp24.Width:=24;
+      Fbmp24.Height:=24;
+      Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
+    end;
+  finally
+    FreeAndNil(MapParams);
+  end;
+  Fbmp18:=TBitmap.create;
+  MapParams:=TMemoryStream.Create;
+  try
+    try
+      AUnZip.UnZipToStream(MapParams,'18.bmp');
+      MapParams.Position:=0;
+      Fbmp18.LoadFromStream(MapParams);
+    except
+      Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
+      Fbmp18.Width:=18;
+      Fbmp18.Height:=18;
+      Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
+    end;
+  finally
+    FreeAndNil(MapParams);
+  end;
+end;
+
 procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
 var
   VMimeTypeSubstText: string;
@@ -648,6 +686,8 @@ begin
       FreeAndNil(MapParams);
     end;
     try
+      LoadGUIDFromIni(iniparams);
+
       name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
       name:=iniparams.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
 
@@ -671,39 +711,7 @@ begin
       finally
         FreeAndNil(MapParams);
       end;
-      Fbmp24:=TBitmap.create;
-      MapParams:=TMemoryStream.Create;
-      try
-        try
-          UnZip.UnZipToStream(MapParams,'24.bmp');
-          MapParams.Position:=0;
-          Fbmp24.LoadFromStream(MapParams);
-        except
-          Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
-          Fbmp24.Width:=24;
-          Fbmp24.Height:=24;
-          Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
-        end;
-      finally
-        FreeAndNil(MapParams);
-      end;
-      Fbmp18:=TBitmap.create;
-      MapParams:=TMemoryStream.Create;
-      try
-        try
-          UnZip.UnZipToStream(MapParams,'18.bmp');
-          MapParams.Position:=0;
-          Fbmp18.LoadFromStream(MapParams);
-        except
-          Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
-          Fbmp18.Width:=18;
-          Fbmp18.Height:=18;
-          Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
-        end;
-      finally
-        FreeAndNil(MapParams);
-      end;
-      LoadGUIDFromIni(iniparams);
+      LoadMapIcons(UnZip);
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
       DefUrlBase:=URLBase;
