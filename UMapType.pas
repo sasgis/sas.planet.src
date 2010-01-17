@@ -844,6 +844,7 @@ var
   bmp: TBitmap32;
   VTileExists: Boolean;
   key: string;
+  TileBounds:TRect;
 begin
   result:=false;
   if (not(GState.UsePrevZoom) and (asLayer=false)) or
@@ -877,10 +878,13 @@ begin
           c_x:=((x-(x mod 256))shr dZ)mod 256;
           c_y:=((y-(y mod 256))shr dZ)mod 256;
           try
-            spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
-            GState.MainFileCache.AddTileToCache(spr, key );
+            TileBounds:=Bounds(0,0,256,256);
+            if bmp.width<256 then TileBounds.Right:=bmp.Width;
+            if bmp.height<256 then TileBounds.Bottom:=bmp.height;
+            spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),TileBounds,bmp);
+            GState.MainFileCache.AddTileToCache(spr, key);
           except
-            Assert(False, 'Ошибка в рисовании из предыдущего уровня');
+            Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
             Result := false;
           end;
         end;
