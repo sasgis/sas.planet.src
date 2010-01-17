@@ -321,12 +321,18 @@ begin
                   continue;
                 end;
                 dtrOK : begin
-                  FTypeMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, FZoom, fileBuf, ty);
                   FLastSuccessfulPoint := FLoadXY;
                   GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                   FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
                   inc(FDownloaded);
-                  FLog.WriteText('(Ok!)', 0);
+                  try
+                    FTypeMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, FZoom, fileBuf, ty);
+                    FLog.WriteText('(Ok!)', 0);
+                  except
+                    on E: Exception do begin
+                      FLog.WriteText(E.Message, 0);
+                    end;
+                  end;
                   VGotoNextTile := True;
                 end;
                 else begin

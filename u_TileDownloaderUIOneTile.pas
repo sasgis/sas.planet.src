@@ -95,7 +95,13 @@ begin
         FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
       end;
       if res = dtrOK then begin
-        FTypeMap.SaveTileDownload(FLoadXY.X, FLoadXY.Y, FZoom, fileBuf, ty);
+        try
+          FTypeMap.SaveTileDownload(FLoadXY.X, FLoadXY.Y, FZoom, fileBuf, ty);
+        except
+          on E: Exception do begin
+            FErrorString := E.Message;
+          end;
+        end;
       end;
     finally
       FileBuf.Free;

@@ -220,6 +220,7 @@ var
 implementation
 
 uses
+  Types,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
@@ -1053,6 +1054,7 @@ begin
     GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
+    raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [ty]);
   end;
 end;
 
