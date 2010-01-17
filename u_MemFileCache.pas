@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils,
-  Classes;
+  Classes,
+  GR32;
 
 type
   TMemFileCache = class
@@ -18,17 +19,13 @@ type
     destructor Destroy; override;
     procedure Clear;
     procedure DeleteFileFromCache(path:string);
-    procedure AddTileToCache(btm:Tobject; APath:string);
-    function TryLoadFileFromCache(btm:Tobject; APath:string):boolean;
+    procedure AddTileToCache(btm: TBitmap32; APath: string);
+    function TryLoadFileFromCache(btm: TBitmap32; APath: string):boolean;
 
     property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
   end;
 
 implementation
-
-uses
-  GR32,
-  PNGImage;
 
 { TMemFileCache }
 
@@ -91,21 +88,15 @@ begin
 
 end;
 
-procedure TMemFileCache.AddTileToCache(btm: Tobject; APath: string);
+procedure TMemFileCache.AddTileToCache(btm: TBitmap32; APath: string);
 var
-  btmcache:TObject;
+  btmcache:TBitmap32;
   i:integer;
   VPath: string;
 begin
   VPath := AnsiUpperCase(APath);
-  if btm is TBitmap32 then begin
-    btmcache:=TBitmap32.Create;
-    TBitmap32(btmcache).Assign(TBitmap32(btm));
-  end;
-  if btm is TPNGObject then begin
-    btmcache:=TPNGObject.Create;
-    TPNGObject(btmcache).Assign(TPNGObject(btm));
-  end;
+  btmcache:=TBitmap32.Create;
+  btmcache.Assign(btm);
   if FSync.BeginWrite then begin
     try
       i:=FCacheList.IndexOf(VPath);
@@ -124,7 +115,7 @@ begin
   end;
 end;
 
-function TMemFileCache.TryLoadFileFromCache(btm: Tobject;
+function TMemFileCache.TryLoadFileFromCache(btm: TBitmap32;
   APath: string): boolean;
 var
   i: integer;
@@ -136,10 +127,7 @@ begin
   try
     i:=FCacheList.IndexOf(VPath);
     if i>=0 then begin
-      if btm is TBitmap32 then
-        TBitmap32(btm).Assign(TBitmap32(FCacheList.Objects[i]));
-      if btm is TPNGObject then
-        TPNGObject(btm).Assign(TPNGObject(FCacheList.Objects[i]));
+      btm.Assign(TBitmap32(FCacheList.Objects[i]));
       result:=true;
     end;
   finally
