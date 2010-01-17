@@ -75,6 +75,9 @@ type
     procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
     procedure LoadGUIDFromIni(AIniFile: TCustomIniFile);
     procedure LoadMapIcons(AUnZip: TVCLZip);
+    procedure LoadUrlScript(AUnZip: TVCLZip);
+    procedure LoadProjectionInfo(AIniFile: TCustomIniFile);
+    procedure LoadStorageParams(AIniFile: TCustomIniFile);
    public
     id: integer;
 
@@ -636,6 +639,61 @@ begin
   end;
 end;
 
+procedure TMapType.LoadUrlScript(AUnZip: TVCLZip);
+var
+  MapParams:TMemoryStream;
+begin
+  MapParams:=TMemoryStream.Create;
+  try
+    AUnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
+    FGetURLScript := PChar(MapParams.Memory);
+    SetLength(FGetURLScript, MapParams.Size);
+  finally
+    FreeAndNil(MapParams);
+  end;
+  try
+    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
+    FUrlGenerator.GetURLBase := URLBase;
+    //GetLink(0,0,0);
+  except
+    on E: Exception do begin
+      ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
+    end;
+   else
+    ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
+  end;
+end;
+
+procedure TMapType.LoadStorageParams(AIniFile: TCustomIniFile);
+begin
+  FUseDel:=AIniFile.ReadBool('PARAMS','Usedel',true);
+  FIsStoreReadOnly:=AIniFile.ReadBool('PARAMS','ReadOnly', false);
+  DelAfterShow:=AIniFile.ReadBool('PARAMS','DelAfterShow',false);
+  FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
+  CacheType:=AIniFile.ReadInteger('PARAMS','CacheType',0);
+  DefCacheType:=CacheType;
+  TileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
+  NameInCache:=AIniFile.ReadString('PARAMS','NameInCache','Sat');
+  DefNameInCache:=NameInCache;
+end;
+
+procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
+var
+  bfloat:string;
+begin
+  projection:=AIniFile.ReadInteger('PARAMS','projection',1);
+  bfloat:=AIniFile.ReadString('PARAMS','sradiusa','6378137');
+  FRadiusA:=str2r(bfloat);
+  bfloat:=AIniFile.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
+  FRadiusB:=str2r(bfloat);
+  case projection of
+    1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
+    2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
+    3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
+    else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
+  end;
+end;
+
 procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
 var
   VMimeTypeSubstText: string;
@@ -658,7 +716,6 @@ var
   AZipFile:TFileStream;
   IniStrings:TStringList;
   iniparams: TMeminifile;
-  bfloat:string;
   UnZip:TVCLZip;
 begin
   if AZipFileName = '' then begin
@@ -702,15 +759,7 @@ begin
       finally
         FreeAndNil(MapParams);
       end;
-
-      MapParams:=TMemoryStream.Create;
-      try
-        UnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
-        FGetURLScript := PChar(MapParams.Memory);
-        SetLength(FGetURLScript, MapParams.Size);
-      finally
-        FreeAndNil(MapParams);
-      end;
+      LoadStorageParams(iniparams);
       LoadMapIcons(UnZip);
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
@@ -719,30 +768,15 @@ begin
       FTileRect.Top:=iniparams.ReadInteger('PARAMS','TileRTop',0);
       FTileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
       FTileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
-      FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
       FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
-      FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
-      FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
       FIsCanShowOnSmMap := iniparams.ReadBool('PARAMS','CanShowOnSmMap', true);
-      DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
-      FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
       FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
-      CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
-      DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
       DefSleep:=Sleep;
       FBanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       FContent_Type:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
       FStatus_Code:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
-      TileFileExt:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
-      NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
-      DefNameInCache:=NameInCache;
-      projection:=iniparams.ReadInteger('PARAMS','projection',1);
-      bfloat:=iniparams.ReadString('PARAMS','sradiusa','6378137');
-      FRadiusA:=str2r(bfloat);
-      bfloat:=iniparams.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
-      FRadiusB:=str2r(bfloat);
       HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
       DefHotKey:=HotKey;
       ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
@@ -752,6 +786,19 @@ begin
       Defseparator:=separator;
       Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
       LoadMimeTypeSubstList(iniparams);
+      LoadProjectionInfo(iniparams);
+      FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
+      if FUseDwn then begin
+        try
+          LoadUrlScript(UnZip);
+        except
+          if ExceptObject <> nil then begin
+            ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
+          end;
+          FUseDwn := false;
+        end;
+      end;
+
       FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
       if FMaxConnectToServerCount > 64 then begin
         FMaxConnectToServerCount := 64;
@@ -761,23 +808,6 @@ begin
       end;
       FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-      case projection of
-        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
-        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
-        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
-        else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
-      end;
-      try
-      FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
-      FUrlGenerator.GetURLBase := URLBase;
-      //GetLink(0,0,0);
-      except
-        on E: Exception do begin
-          ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
-        end;
-       else
-        ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
-      end;
     finally
       FreeAndNil(iniparams);
     end;
