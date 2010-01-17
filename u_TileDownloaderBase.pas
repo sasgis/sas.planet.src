@@ -131,6 +131,7 @@ begin
         Result := dtrDownloadError;
       end else begin
         Result := dtrUnknownError;
+        Assert(False, 'Неизвестная ошибка при получении данных. Код ошибки ' + IntToStr(VLastError));
       end;
       Exit;
     end;
@@ -239,6 +240,7 @@ var
   VBufSize: Cardinal;
   dwIndex: Cardinal;
   VContentLen: Cardinal;
+  VLastError: Cardinal;
 begin
   VBufSize := Length(AContentType);
   if VBufSize = 0 then begin
@@ -248,14 +250,18 @@ begin
   FillChar(AContentType[1], VBufSize, 0);
   dwIndex := 0;
   if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
-    if GetLastError() = ERROR_INSUFFICIENT_BUFFER then begin
+    VLastError := GetLastError;
+    if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
       SetLength(AContentType, VBufSize);
       if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+        VLastError := GetLastError;
         Result := dtrUnknownError;
+        Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
         exit;
       end;
     end else begin
       Result := dtrUnknownError;
+      Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
       exit;
     end;
   end;
@@ -272,6 +278,9 @@ begin
         Result := dtrSameTileSize;
         Exit;
       end;
+    end else begin
+      VLastError := GetLastError;
+      Assert(False, 'Неизвестная ошибка при получении размера. Код ошибки ' + IntToStr(VLastError));
     end;
   end;
   Result := GetData(AFileHandle, fileBuf);
@@ -318,7 +327,13 @@ begin
   end;
   VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD , 0);
   if not Assigned(VFileHandle) then begin
-    Result := dtrErrorInternetOpenURL;
+    VLastError := GetLastError;
+    if IsDownloadError(VLastError) then begin
+      Result := dtrDownloadError;
+    end else begin
+      Result := dtrErrorInternetOpenURL;
+      Assert(False, 'Неизвестная ошибка при открытии соединения. Код ошибки ' + IntToStr(VLastError));
+    end;
     exit;
   end;
   try
@@ -330,6 +345,7 @@ begin
         Result := dtrDownloadError;
       end else begin
         Result := dtrUnknownError;
+        Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
       end;
       Exit;
     end;
@@ -342,7 +358,13 @@ begin
         dwIndex := 0;
         VBufSize := sizeof(AStatusCode);
         if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
-          Result := dtrUnknownError;
+          VLastError := GetLastError;
+          if IsDownloadError(VLastError) then begin
+            Result := dtrDownloadError;
+          end else begin
+            Result := dtrUnknownError;
+            Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
+          end;
           exit;
         end;
         if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
