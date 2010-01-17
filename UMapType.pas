@@ -27,6 +27,8 @@ uses
   UResStrings;
 
 type
+  EBadGUID = class(Exception);
+
  TMapType = class
    private
     FGuid: TGUID;
@@ -69,8 +71,10 @@ type
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
-    procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
     function GetMIMETypeSubst(AMimeType: string): string;
+    procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
+    procedure LoadGUIDFromIni(AIniFile: TCustomIniFile);
+
    public
     id: integer;
 
@@ -442,11 +446,16 @@ begin
       if (SearchRec.Attr and faDirectory) = faDirectory then continue;
       try
         GState.MapType[pnum]:=TMapType.Create;
-        GState.MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+        try
+          GState.MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+        except
+          on E: EBadGUID do begin
+            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [startdir+SearchRec.Name, E.Message]);
+          end;
+        end;
         GState.MapType[pnum].ban_pg_ld := true;
         VGUIDString := GState.MapType[pnum].GUIDString;
         if FindGUIDInFirstMaps(GState.MapType[pnum].GUID, pnum) then begin
-          ShowMessage('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
           raise Exception.Create('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
         end;
         if Ini.SectionExists(VGUIDString)then begin
@@ -473,6 +482,9 @@ begin
           end;
         end;
       except
+        if ExceptObject <> nil then begin
+          ShowMessage((ExceptObject as Exception).Message);
+        end;
         FreeAndNil(GState.MapType[pnum]);
       end;
       if GState.MapType[pnum] <> nil then begin
@@ -570,6 +582,22 @@ begin
   end;
 end;
 
+procedure TMapType.LoadGUIDFromIni(AIniFile: TCustomIniFile);
+var
+  VGUIDStr: String;
+begin
+  VGUIDStr := AIniFile.ReadString('PARAMS','GUID', '');
+  if Length(VGUIDStr) > 0 then begin
+    try
+      FGuid := StringToGUID(VGUIDStr);
+    except
+      raise EBadGUID.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
+    end;
+  end else begin
+    raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
+  end;
+end;
+
 procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
 var
   VMimeTypeSubstText: string;
@@ -592,8 +620,6 @@ var
   AZipFile:TFileStream;
   IniStrings:TStringList;
   iniparams: TMeminifile;
-  GUID:TGUID;
-  guidstr : string;
   bfloat:string;
   UnZip:TVCLZip;
 begin
@@ -622,7 +648,6 @@ begin
       FreeAndNil(MapParams);
     end;
     try
-      guidstr:=iniparams.ReadString('PARAMS','ID',GUIDToString(GUID));
       name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
       name:=iniparams.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
 
@@ -678,12 +703,7 @@ begin
       finally
         FreeAndNil(MapParams);
       end;
-      try 
-        FGuid := StringToGUID(iniparams.ReadString('PARAMS','GUID',GUIDstr));
-      except
-        ShowMessage('Ошибочный GUID у карты в файле ' + AZipFileName);
-        raise;
-      end;
+      LoadGUIDFromIni(iniparams);
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
       DefUrlBase:=URLBase;
