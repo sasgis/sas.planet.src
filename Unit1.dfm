@@ -1945,63 +1945,15 @@ object Fmain: TFmain
     Width = 164
     Height = 467
     Position = dpRight
-    object TBXToolWindow1: TTBXToolWindow
-      Left = 0
-      Top = 336
-      ClientAreaHeight = 121
-      ClientAreaWidth = 160
-      DockPos = 336
-      Stretch = True
-      TabOrder = 0
-      Visible = False
-      DesignSize = (
-        160
-        121)
-      Caption = 'TBXToolWindow1'
-      object SpeedButton1: TSpeedButton
-        Left = 8
-        Top = 4
-        Width = 25
-        Height = 25
-        Caption = 'C'
-        Flat = True
-        Visible = False
-      end
-      object TreeView1: TTreeView
-        Left = 7
-        Top = 32
-        Width = 146
-        Height = 23
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        HideSelection = False
-        Images = TBImageList1
-        Indent = 21
-        ParentShowHint = False
-        PopupMenu = PMNRObject
-        RightClickSelect = True
-        RowSelect = True
-        ShowHint = True
-        StateImages = TBImageList2
-        TabOrder = 0
-      end
-      object MemoObjectInfo: TMemo
-        Left = 8
-        Top = 42
-        Width = 145
-        Height = 73
-        Anchors = [akLeft, akRight, akBottom]
-        TabOrder = 1
-      end
-    end
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 326
+      ClientAreaHeight = 457
       ClientAreaWidth = 160
       DockPos = 0
       PopupMenu = TBXPopupMenuSensors
       Stretch = True
-      TabOrder = 1
+      TabOrder = 0
       Visible = False
       OnVisibleChanged = TBXSensorsBarVisibleChanged
       Caption = #1044#1072#1090#1095#1080#1082#1080

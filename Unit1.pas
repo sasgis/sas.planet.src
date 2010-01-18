@@ -226,10 +226,6 @@ type
     NMarksCalcsLen: TMenuItem;
     NMarksCalcsSq: TMenuItem;
     NMarksCalcsPer: TMenuItem;
-    TBXToolWindow1: TTBXToolWindow;
-    TreeView1: TTreeView;
-    SpeedButton1: TSpeedButton;
-    MemoObjectInfo: TMemo;
     WebBrowser1: TEmbeddedWB;
     ImageList1: TImageList;
     N1: TMenuItem;
