@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -42,8 +41,10 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
+    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
+    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -5607,8 +5608,8 @@ object Fmain: TFmain
       000000044C617442080004001000000006636F6C6F7231040001001000000006
       636F6C6F723204000100100000000776697369626C6502000300100000000770
       69636E616D6501004900100001000557494454480200020014000A6361746567
-      6F72796964040001001000000002000D44454641554C545F4F52444552020082
-      00000000000C4155544F494E4356414C55450400010001000000}
+      6F72796964040001001000000002000C4155544F494E4356414C554504000100
+      010000000D44454641554C545F4F524445520200820000000000}
     object CDSmarksid: TAutoIncField
       FieldName = 'id'
       ReadOnly = True
