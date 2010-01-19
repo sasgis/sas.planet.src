@@ -243,6 +243,8 @@ type
     ColorBoxBackGround: TColorBox;
     CBLastSuccess: TCheckBox;
     Bevel16: TBevel;
+    Label36: TLabel;
+    SEWaitingAnswer: TSpinEdit;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -393,6 +395,7 @@ begin
  GState.MainIni.WriteString('GSM','port',GState.GSMpar.Port);
  GState.MainIni.WriteInteger('GSM','BaudRate',GState.GSMpar.BaudRate);
  GState.MainIni.WriteBool('GSM','Auto',GState.GSMpar.auto);
+ GState.MainIni.WriteInteger('GSM','WaitingAnswer',GState.GSMpar.WaitingAnswer);
 
  GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
  GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
@@ -420,13 +423,13 @@ begin
    GState.MainIni.DeleteKey('HIGHLIGHTING','pointy_'+inttostr(i));
    inc(i);
   end;
- if length(poly_save)>0 then
+ if length(GState.LastSelectionPolygon)>0 then
   begin
    GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
-   for i:=1 to length(poly_save) do
+   for i:=1 to length(GState.LastSelectionPolygon) do
     begin
-     GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),poly_save[i-1].x);
-     GState.MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),poly_save[i-1].y);
+     GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);
+     GState.MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),GState.LastSelectionPolygon[i-1].y);
     end;
   end;
  GState.MainIni.UpdateFile;
@@ -501,6 +504,7 @@ begin
  GState.GSMpar.BaudRate:=strtoint(CBGSMBaundRate.text);
  GState.GSMpar.Port:=CBGSMComPort.Text;
  GState.GSMpar.auto:=RBGSMAuto.Checked;
+ GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
@@ -667,6 +671,7 @@ begin
  CBGSMComPort.Text:=GState.GSMpar.Port;
  RBGSMAuto.Checked:=GState.GSMpar.auto;
  RBGSMManual.Checked:=not GState.GSMpar.auto;
+ SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;

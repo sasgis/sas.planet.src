@@ -683,10 +683,11 @@ object FLogo: TFLogo
     OnClick = Image1Click
   end
   object Label1: TLabel
-    Left = 428
+    Left = 398
     Top = 249
-    Width = 39
+    Width = 69
     Height = 13
+    Alignment = taRightJustify
     AutoSize = False
     Color = clWhite
     ParentColor = False

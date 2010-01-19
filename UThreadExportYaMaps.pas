@@ -10,7 +10,6 @@ uses
   Graphics,
   gifimage,
   PNGImage,
-  JPEG,
   GR32,
   UMapType,
   UGeoFun,
@@ -51,7 +50,10 @@ uses
   u_GeoToStr,
   i_ICoordConverter,
   u_GlobalState,
-  u_CoordConverterMercatorOnEllipsoid;
+  u_CoordConverterMercatorOnEllipsoid,
+  i_BitmapTileSaveLoad,
+  u_BitmapTileJpegSaverIJL,
+  u_BitmapTilePngNBitdepthSaver;
 
 constructor TThreadExportYaMaps.Create(
   APath: string;
@@ -142,204 +144,128 @@ begin
 end;
 
 procedure TThreadExportYaMaps.export2YaMaps(APolyLL:TExtendedPointArray);
-var p_x,p_y,p_xd256,p_yd256,i,j,ci,cj,xi,yi,hxyi,sizeim,cri,crj:integer;
-    num_dwn,scachano,obrab,alpha:integer;
-    polyg:TPointArray;
-    pathto,persl,perzoom,kti:string;
-    max,min,p_h:TPoint;
-    png:TPngObject;
-    Color32arr:PColor32Array;
-    bmp32,bmp322,bmp32crop:TBitmap32;
-    jpg:TJpegImage;
-    bmp,bb,bmp8b:TBitmap;
-    TileStream : TMemoryStream;
-    PList:Text;
-    LLCenter:TExtendedPoint;
-    tic:longint;
-    BtmRGB,PngRGB:PByte;
-    Vprojection: byte;
-    Vradiusa: double;
-    Vradiusb: double;
-    Vexct: double;
-    VGeoConvert: ICoordConverter;
+var
+  p_x,p_y,i,j,xi,yi,hxyi,sizeim:integer;
+  num_dwn,obrab:integer;
+  polyg:TPointArray;
+  max,min,p_h:TPoint;
+  bmp32,bmp322,bmp32crop:TBitmap32;
+  TileStream : TMemoryStream;
+  tc:cardinal;
+  VGeoConvert: ICoordConverter;
+  VMainMapType: TMapType;
+  JPGSaver,PNGSaver:IBitmapTileSaver;
 begin
- try
- if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
- i:=0;
- While not(zoomarr[i]) do inc(i);
- SetLength(polyg,length(APolyLL));
- if TypeMapArr[0]<>nil then polyg := TypeMapArr[0].GeoConvert.PoligonProject(i + 8, APolyLL)
-  else if TypeMapArr[1]<>nil then polyg := TypeMapArr[1].GeoConvert.PoligonProject(i + 8, APolyLL)
-        else if TypeMapArr[2]<>nil then  polyg := TypeMapArr[2].GeoConvert.PoligonProject(i + 8, APolyLL);
- GetMinMax(min,max,polyg,true);
- if TypeMapArr[0]<>nil then LLCenter:=TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
-  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
-        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8);
-
- hxyi:=1;
- sizeim:=128;
-
- try
- jpg:=TJpegImage.Create;
- bmp:=TBitmap.Create;
- bmp.Width:=sizeim;
- bmp.Height:=sizeim;
- png:=tpngobject.createblank(COLOR_PALETTE, 8, sizeim,sizeim);
- png.CompressionLevel:=cMap;
- png.AddtEXt('src','SAS.Planet'+SASVersion);
- TileStream:=TMemoryStream.Create;
- bmp32:=TBitmap32.Create;
- bmp32.DrawMode:=dmBlend;
- bmp322:=TBitmap32.Create;
- bmp322.DrawMode:=dmBlend;
-
- bmp32crop:=TBitmap32.Create;
- bmp32crop.Width:=sizeim;
- bmp32crop.Height:=sizeim;
-
- Vprojection:=2;
- Vradiusa:=6378137;
- Vradiusb:=6356752;
- VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(Vradiusa, Vradiusb);
- num_dwn:=0;
- SetLength(polyg,length(APolyLL));
- persl:='';
- kti:='';
- for i:=0 to length(TypeMapArr)-1 do
-  if TypeMapArr[i]<>nil then
-  begin
-   persl:=persl+TypeMapArr[i].GetShortFolderName+'_';
-   perzoom:='';
-   for j:=0 to 23 do
-    if zoomarr[j] then
-     begin
-      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
-      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
-      perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
-     end;
-  end;
- persl:=copy(persl,1,length(persl)-1);
- perzoom:=copy(perzoom,1,length(perzoom)-1);
- fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
- fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_files;
- FProgress.ProgressBar1.Progress1:=0;
- FProgress.ProgressBar1.Max:=100;
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
- obrab:=0;
-
- for i:=0 to 23 do //по масштабу
-  if zoomarr[i] then
-   for j:=0 to 2 do //по типу
-    if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then
-     begin
-      polyg := VGeoConvert.PoligonProject(i + 8, APolyLL);
-      GetDwnlNum(min,max,Polyg,false);
-
-      p_x:=min.x;
-      while p_x<max.x do
-       begin
-        p_y:=min.Y;
-        while p_y<max.Y do
-         begin
-          if (FProgress.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false)))
-                                           then begin
-                                                 inc(p_y,256);
-                                                 CONTINUE;
-                                                end;
-          bmp322.Clear;
-          if (j=2)and(TypeMapArr[0]<>nil) then
-           begin
-            p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
-            UniLoadTile(bmp322,TypeMapArr[0],Vprojection,p_h,p_x,p_y,i);
-           end;
-          bmp32.Clear;
-          p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
-          if UniLoadTile(bmp32,TypeMapArr[j],Vprojection,p_h,p_x,p_y,i) then
-           begin
-            if (j=2)and(TypeMapArr[0]<>nil) then
-              begin
-               bmp322.Draw(0,0,bmp32);
-               bmp32.Draw(0,0,bmp322);
+  try
+    if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
+    try
+      hxyi:=1;
+      sizeim:=128;
+      JPGSaver:=TJpegBitmapTileSaverIJL.create(cSat);
+      PNGSaver:=TPngBitmapTileNBitdepthSaver.create(cMap,8);
+      TileStream:=TMemoryStream.Create;
+      bmp32:=TBitmap32.Create;
+      bmp32.DrawMode:=dmBlend;
+      bmp322:=TBitmap32.Create;
+      bmp322.DrawMode:=dmBlend;
+      bmp32crop:=TBitmap32.Create;
+      bmp32crop.Width:=sizeim;
+      bmp32crop.Height:=sizeim;
+      VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
+      num_dwn:=0;
+      SetLength(polyg,length(APolyLL));
+      for i:=0 to length(TypeMapArr)-1 do begin
+        if TypeMapArr[i]<>nil then begin
+          for j:=0 to 23 do begin
+            if zoomarr[j] then begin
+              polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
+              num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
+            end;
+          end;
+        end;
+      end;
+      fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
+      fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_files;
+      FProgress.ProgressBar1.Progress1:=0;
+      FProgress.ProgressBar1.Max:=100;
+      fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
+      obrab:=0;
+      tc:=GetTickCount;
+      for i:=0 to 23 do begin //по масштабу
+        if zoomarr[i] then begin
+          for j:=0 to 2 do begin//по типу
+            if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then begin
+              polyg := VGeoConvert.PoligonProject(i + 8, APolyLL);
+              GetDwnlNum(min,max,Polyg,false);
+              p_x:=min.x;
+              while p_x<max.x do begin
+                p_y:=min.Y;
+                while p_y<max.Y do begin
+                  if (FProgress.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
+                    inc(p_y,256);
+                    CONTINUE;
+                  end;
+                  bmp322.Clear;
+                  if (j=2)and(TypeMapArr[0]<>nil) then begin
+                    p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
+                    UniLoadTile(bmp322,TypeMapArr[0],2,p_h,p_x,p_y,i);
+                  end;
+                  bmp32.Clear;
+                  p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
+                  if UniLoadTile(bmp32,TypeMapArr[j],2,p_h,p_x,p_y,i) then begin
+                    if (j=2)and(TypeMapArr[0]<>nil) then begin
+                      bmp322.Draw(0,0,bmp32);
+                      bmp32.Draw(0,0,bmp322);
+                    end;
+                    if (j=2)or(j=0) then begin
+                      for xi:=0 to hxyi do begin
+                        for yi:=0 to hxyi do begin
+                          bmp32crop.Clear;
+                          bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
+                          TileStream.Clear;
+                          JPGSaver.SaveToStream(bmp32crop,TileStream);
+                          WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
+                        end;
+                      end;
+                    end;
+                    if j=1 then begin
+                      for xi:=0 to hxyi do begin
+                        for yi:=0 to hxyi do begin
+                          bmp32crop.Clear;
+                          bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
+                          TileStream.Clear;
+                          PNGSaver.SaveToStream(bmp32crop,TileStream);
+                          WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
+                        end;
+                      end;
+                    end;
+                  end;
+                  inc(obrab);
+                  if (GetTickCount-tc>1000) then begin
+                    tc:=GetTickCount;
+                    FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
+                    fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
+                  end;
+                  inc(p_y,256);
+                end;
+                inc(p_x,256);
               end;
-            if j=2 then
-              for xi:=0 to hxyi do
-               for yi:=0 to hxyi do
-                begin
-                  bmp32crop.Clear;
-                  bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
-                  bmp.Assign(bmp32Crop);
-                  jpg.Assign(bmp);
-                  TileStream.Clear;
-                  jpg.CompressionQuality:=chib;
-                  jpg.SaveToStream(TileStream);
-                  WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
-                end;
-            if j=1 then
-             begin
-              bmp.Assign(bmp32);
-              bmp8b:=ReduceColors(bmp, rmQuantize, dmNearest, 8, bmp.Palette);
-              for xi:=0 to hxyi do
-               for yi:=0 to hxyi do
-                begin
-                  BtmRGB:=Pointer(integer(bmp8b.Scanline[(sizeim*yi)])+(sizeim*xi));
-                  PngRGB:=png.Scanline[0];
-                  for cj:=(sizeim*yi) to (sizeim*yi)+(sizeim-1) do
-                   begin
-                    CopyMemory(PngRGB,BtmRGB,sizeim);
-                    DEC(BtmRGB, bmp8b.Width);
-                    DEC(PngRGB, png.Width);
-                   end;
-                  png.Palette:=bmp8b.Palette;
-                  TileStream.Clear;
-                  png.SaveToStream(TileStream);
-                  WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
-                end;
-              bmp8b.Free;
-             end;
-            if j=0 then
-              for xi:=0 to hxyi do
-               for yi:=0 to hxyi do
-                begin
-                  bmp32crop.Clear;
-                  bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
-                  bmp.Assign(bmp32crop);
-                  jpg.Assign(bmp);
-                  TileStream.Clear;
-                  jpg.CompressionQuality:=cSat;
-                  jpg.SaveToStream(TileStream);
-                  WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
-                end;
-           end;
-          inc(obrab);
-          if ((num_dwn<100)and(obrab mod 5 = 0))or
-             ((num_dwn>=100)and(obrab mod 50 = 0)) then
-           begin
-            FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-            fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
-           end;
-          inc(p_y,256);
-         end;
-        inc(p_x,256);
-       end;
-     end;
- FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
- finally
-  FProgress.Close;
-  png.Free;
-  jpg.Free;
-  bmp.Free;
-  bmp32.Free;
-  bmp322.Free;
- end;
- except
-  on e:Exception do
-   Application.ShowException(e);
- end;
+            end;
+          end;
+        end;
+      end;
+      FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
+      fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+    finally
+      FProgress.Close;
+      bmp32.Free;
+      bmp322.Free;
+    end;
+  except
+    on e:Exception do begin
+      Application.ShowException(e);
+    end;
+  end;
 end;
 
 end.

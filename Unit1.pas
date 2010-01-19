@@ -226,10 +226,6 @@ type
     NMarksCalcsLen: TMenuItem;
     NMarksCalcsSq: TMenuItem;
     NMarksCalcsPer: TMenuItem;
-    TBXToolWindow1: TTBXToolWindow;
-    TreeView1: TTreeView;
-    SpeedButton1: TSpeedButton;
-    MemoObjectInfo: TMemo;
     WebBrowser1: TEmbeddedWB;
     ImageList1: TImageList;
     N1: TMenuItem;
@@ -689,7 +685,6 @@ var
   length_arr: TExtendedPointArray;
   add_line_arr: TExtendedPointArray;
   reg_arr: TExtendedPointArray;
-  poly_save: TExtendedPointArray;
   nilLastLoad: TLastLoad;
   paintMark: boolean;
   GMiniMapPopupMenu: TTBXPopupMenu;
@@ -1682,6 +1677,8 @@ begin
  LayerStatBar.Redraw;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
  if GMiniMap.LayerMinMap.Visible then GMiniMap.LayerMinMap.BringToFront;
+ if LayerScaleLine.Visible then LayerScaleLine.BringToFront;
+ if LayerStatBar.Visible then LayerStatBar.BringToFront;
 end;
 
 
@@ -2123,7 +2120,7 @@ begin
  pr_y:=(yhgpx)div 2;
  pr_x:=(xhgpx)div 2;
 
- setlength(poly_save,0);
+ setlength(GState.LastSelectionPolygon,0);
 
  Map.Cursor:=crDefault;
  VLoadedSizeInPixel := LoadedSizeInPixel;
@@ -2238,6 +2235,7 @@ begin
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
  GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
  GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
+ GState.GSMpar.WaitingAnswer:=GState.MainIni.ReadInteger('GSM','WaitingAnswer',200);
 
  GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
  GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
@@ -2272,12 +2270,12 @@ begin
  i:=1;
  while str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do
   begin
-   setlength(poly_save,i);
-   poly_save[i-1].x:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
-   poly_save[i-1].y:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
+   setlength(GState.LastSelectionPolygon,i);
+   GState.LastSelectionPolygon[i-1].x:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
+   GState.LastSelectionPolygon[i-1].y:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
    inc(i);
   end;
- if length(poly_save)>0 then poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
+ if length(GState.LastSelectionPolygon)>0 then poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
 
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
@@ -2922,7 +2920,7 @@ end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
- if length(poly_save)>0 then fsaveas.Show_(poly_zoom_save,poly_save)
+ if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(poly_zoom_save,GState.LastSelectionPolygon)
                         else showmessage(SAS_MSG_NeedHL);
 end;
 
@@ -3418,15 +3416,15 @@ begin
    i:=1;
    while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
     begin
-     setlength(poly_save,i);
-     poly_save[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-     poly_save[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+     setlength(GState.LastSelectionPolygon,i);
+     GState.LastSelectionPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+     GState.LastSelectionPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
      inc(i);
     end;
-   if length(poly_save)>0 then
+   if length(GState.LastSelectionPolygon)>0 then
     begin
      poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(poly_zoom_save,poly_save);
+     fsaveas.Show_(poly_zoom_save,GState.LastSelectionPolygon);
     end;
   end
 end;
@@ -4921,9 +4919,7 @@ begin
  PosFromGPS.Port:='\\.\'+GState.GSMpar.Port;
  PosFromGPS.BaundRate:=GState.GSMpar.BaudRate;
  PosFromGPS.OnToPos:=topos;
- if not(PosFromGPS.GetPos) then begin
-   ShowMessage(SAS_ERR_PortOpen);
- end;
+ PosFromGPS.GetPos;
 end;
 
 procedure TFmain.TBXItem6Click(Sender: TObject);

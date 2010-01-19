@@ -16,7 +16,6 @@ uses
   cUnicode in 'src\cUnicode.pas',
   cUnicodeChar in 'src\cUnicodeChar.pas',
   CPDrv in 'src\CPDrv.pas',
-
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   t_LoadEvent in 't_LoadEvent.pas',
@@ -55,12 +54,14 @@ uses
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileJpegLoader in 'u_BitmapTileJpegLoader.pas',
   u_BitmapTileJpegSaver in 'u_BitmapTileJpegSaver.pas',
+  u_BitmapTileJpegSaverIJL in 'u_BitmapTileJpegSaverIJL.pas',
   u_BitmapTilePngLoader in 'u_BitmapTilePngLoader.pas',
   u_BitmapTilePngSaver in 'u_BitmapTilePngSaver.pas',
   u_BitmapTileGifLoader in 'u_BitmapTileGifLoader.pas',
   u_BitmapTileGifSaver in 'u_BitmapTileGifSaver.pas',
   u_BitmapTileBmpLoader in 'u_BitmapTileBmpLoader.pas',
   u_BitmapTileBmpSaver in 'u_BitmapTileBmpSaver.pas',
+  u_BitmapTilePngNbitdepthSaver in 'u_BitmapTilePngNbitdepthSaver.pas',
   i_IBitmapTypeExtManager in 'i_IBitmapTypeExtManager.pas',
   u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   UMapType in 'UMapType.pas',
@@ -130,7 +131,7 @@ uses
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
 
-   {$R *.res}{$R SASR.RES}
+{$R *.res}{$R SASR.RES}
 begin
   GState := TGlobalState.Create;
   try
@@ -151,23 +152,23 @@ begin
     //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TFmain, Fmain);
-    Application.CreateForm(TFGoTo, FGoTo);
-    Application.CreateForm(TFabout, Fabout);
-    Application.CreateForm(TFSettings, FSettings);
-    Application.CreateForm(TFsaveas, Fsaveas);
-    Application.CreateForm(TFSearchResult, FSearchResult);
-    Application.CreateForm(TFMarksExplorer, FMarksExplorer);
-    Application.CreateForm(TFImport, FImport);
-    Application.CreateForm(TFAddCategory, FAddCategory);
-    Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
-    Application.CreateForm(TFaddPoint, FaddPoint);
-    Application.CreateForm(TFprogress2, Fprogress2);
-    Application.CreateForm(TFbrowser, Fbrowser);
-    Application.CreateForm(TFaddLine, FaddLine);
-    Application.CreateForm(TFAddPoly, FAddPoly);
-    Application.CreateForm(TFEditMap, FEditMap);
+  Application.CreateForm(TFGoTo, FGoTo);
+  Application.CreateForm(TFabout, Fabout);
+  Application.CreateForm(TFSettings, FSettings);
+  Application.CreateForm(TFsaveas, Fsaveas);
+  Application.CreateForm(TFSearchResult, FSearchResult);
+  Application.CreateForm(TFMarksExplorer, FMarksExplorer);
+  Application.CreateForm(TFImport, FImport);
+  Application.CreateForm(TFAddCategory, FAddCategory);
+  Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
+  Application.CreateForm(TFaddPoint, FaddPoint);
+  Application.CreateForm(TFprogress2, Fprogress2);
+  Application.CreateForm(TFbrowser, Fbrowser);
+  Application.CreateForm(TFaddLine, FaddLine);
+  Application.CreateForm(TFAddPoly, FAddPoly);
+  Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TDMMarksDb, DMMarksDb);
-    Fmain.WebBrowser1.Navigate('about:blank');
+  Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;
   finally

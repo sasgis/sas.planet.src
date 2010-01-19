@@ -68,7 +68,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 481
     Height = 201
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
@@ -200,7 +200,7 @@ object Fsaveas: TFsaveas
       end
       object Label26: TLabel
         Left = 8
-        Top = 99
+        Top = 115
         Width = 144
         Height = 13
         Caption = #1050#1072#1095#1077#1089#1090#1074#1086' ('#1076#1083#1103' JPEG '#1080' ECW):'
@@ -222,7 +222,7 @@ object Fsaveas: TFsaveas
       end
       object Label27: TLabel
         Left = 8
-        Top = 121
+        Top = 137
         Width = 137
         Height = 13
         Caption = #1057#1086#1079#1076#1072#1074#1072#1090#1100' '#1092#1072#1081#1083' '#1087#1088#1080#1074#1103#1079#1082#1080':'
@@ -242,12 +242,12 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object QualitiEdit: TSpinEdit
         Left = 160
-        Top = 95
+        Top = 111
         Width = 73
         Height = 22
         MaxValue = 100
@@ -313,16 +313,16 @@ object Fsaveas: TFsaveas
       object CBusedReColor: TCheckBox
         Left = 8
         Top = 72
-        Width = 169
+        Width = 289
         Height = 17
         Caption = #1055#1088#1080#1084#1077#1085#1103#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1094#1074#1077#1090#1072
         TabOrder = 4
       end
       object PrTypesBox: TCheckListBox
         Left = 160
-        Top = 120
+        Top = 136
         Width = 73
-        Height = 49
+        Height = 33
         ItemHeight = 13
         Items.Strings = (
           '.map'
@@ -331,6 +331,14 @@ object Fsaveas: TFsaveas
           '.dat'
           '.kml')
         TabOrder = 5
+      end
+      object CBUsedMarks: TCheckBox
+        Left = 8
+        Top = 88
+        Width = 289
+        Height = 17
+        Caption = #1053#1072#1082#1083#1072#1076#1099#1074#1072#1090#1100' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1077' '#1084#1077#1090#1082#1080
+        TabOrder = 6
       end
     end
     object TabSheet3: TTabSheet

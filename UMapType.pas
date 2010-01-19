@@ -27,6 +27,8 @@ uses
   UResStrings;
 
 type
+  EBadGUID = class(Exception);
+
  TMapType = class
    private
     FGuid: TGUID;
@@ -50,6 +52,7 @@ type
     FMaxConnectToServerCount: Cardinal;
     FRadiusA: extended;
     FRadiusB: extended;
+    FMimeTypeSubstList: TStringList;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -68,6 +71,13 @@ type
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    function GetMIMETypeSubst(AMimeType: string): string;
+    procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
+    procedure LoadGUIDFromIni(AIniFile: TCustomIniFile);
+    procedure LoadMapIcons(AUnZip: TVCLZip);
+    procedure LoadUrlScript(AUnZip: TVCLZip);
+    procedure LoadProjectionInfo(AIniFile: TCustomIniFile);
+    procedure LoadStorageParams(AIniFile: TCustomIniFile);
    public
     id: integer;
 
@@ -206,7 +216,7 @@ type
     function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
-    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
  end;
 
 var
@@ -220,6 +230,7 @@ var
 implementation
 
 uses
+  Types,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
@@ -438,11 +449,16 @@ begin
       if (SearchRec.Attr and faDirectory) = faDirectory then continue;
       try
         GState.MapType[pnum]:=TMapType.Create;
-        GState.MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+        try
+          GState.MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+        except
+          on E: EBadGUID do begin
+            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [startdir+SearchRec.Name, E.Message]);
+          end;
+        end;
         GState.MapType[pnum].ban_pg_ld := true;
         VGUIDString := GState.MapType[pnum].GUIDString;
         if FindGUIDInFirstMaps(GState.MapType[pnum].GUID, pnum) then begin
-          ShowMessage('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
           raise Exception.Create('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
         end;
         if Ini.SectionExists(VGUIDString)then begin
@@ -469,6 +485,9 @@ begin
           end;
         end;
       except
+        if ExceptObject <> nil then begin
+          ShowMessage((ExceptObject as Exception).Message);
+        end;
         FreeAndNil(GState.MapType[pnum]);
       end;
       if GState.MapType[pnum] <> nil then begin
@@ -566,15 +585,137 @@ begin
   end;
 end;
 
+procedure TMapType.LoadGUIDFromIni(AIniFile: TCustomIniFile);
+var
+  VGUIDStr: String;
+begin
+  VGUIDStr := AIniFile.ReadString('PARAMS','GUID', '');
+  if Length(VGUIDStr) > 0 then begin
+    try
+      FGuid := StringToGUID(VGUIDStr);
+    except
+      raise EBadGUID.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
+    end;
+  end else begin
+    raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
+  end;
+end;
+
+procedure TMapType.LoadMapIcons(AUnZip: TVCLZip);
+var
+  MapParams:TMemoryStream;
+begin
+  Fbmp24:=TBitmap.create;
+  MapParams:=TMemoryStream.Create;
+  try
+    try
+      AUnZip.UnZipToStream(MapParams,'24.bmp');
+      MapParams.Position:=0;
+      Fbmp24.LoadFromStream(MapParams);
+    except
+      Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
+      Fbmp24.Width:=24;
+      Fbmp24.Height:=24;
+      Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
+    end;
+  finally
+    FreeAndNil(MapParams);
+  end;
+  Fbmp18:=TBitmap.create;
+  MapParams:=TMemoryStream.Create;
+  try
+    try
+      AUnZip.UnZipToStream(MapParams,'18.bmp');
+      MapParams.Position:=0;
+      Fbmp18.LoadFromStream(MapParams);
+    except
+      Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
+      Fbmp18.Width:=18;
+      Fbmp18.Height:=18;
+      Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
+    end;
+  finally
+    FreeAndNil(MapParams);
+  end;
+end;
+
+procedure TMapType.LoadUrlScript(AUnZip: TVCLZip);
+var
+  MapParams:TMemoryStream;
+begin
+  MapParams:=TMemoryStream.Create;
+  try
+    AUnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
+    FGetURLScript := PChar(MapParams.Memory);
+    SetLength(FGetURLScript, MapParams.Size);
+  finally
+    FreeAndNil(MapParams);
+  end;
+  try
+    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
+    FUrlGenerator.GetURLBase := URLBase;
+    //GetLink(0,0,0);
+  except
+    on E: Exception do begin
+      ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
+    end;
+   else
+    ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
+  end;
+end;
+
+procedure TMapType.LoadStorageParams(AIniFile: TCustomIniFile);
+begin
+  FUseDel:=AIniFile.ReadBool('PARAMS','Usedel',true);
+  FIsStoreReadOnly:=AIniFile.ReadBool('PARAMS','ReadOnly', false);
+  DelAfterShow:=AIniFile.ReadBool('PARAMS','DelAfterShow',false);
+  FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
+  CacheType:=AIniFile.ReadInteger('PARAMS','CacheType',0);
+  DefCacheType:=CacheType;
+  TileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
+  NameInCache:=AIniFile.ReadString('PARAMS','NameInCache','Sat');
+  DefNameInCache:=NameInCache;
+end;
+
+procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
+var
+  bfloat:string;
+begin
+  projection:=AIniFile.ReadInteger('PARAMS','projection',1);
+  bfloat:=AIniFile.ReadString('PARAMS','sradiusa','6378137');
+  FRadiusA:=str2r(bfloat);
+  bfloat:=AIniFile.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
+  FRadiusB:=str2r(bfloat);
+  case projection of
+    1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
+    2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
+    3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
+    else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
+  end;
+end;
+
+procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
+var
+  VMimeTypeSubstText: string;
+begin
+  VMimeTypeSubstText := AIniFile.ReadString('PARAMS', 'MimeTypeSubst', '');
+  if Length(VMimeTypeSubstText) > 0 then begin
+    FMimeTypeSubstList := TStringList.Create;
+    FMimeTypeSubstList.Delimiter := ';';
+    FMimeTypeSubstList.DelimitedText := VMimeTypeSubstText;
+    if FMimeTypeSubstList.Count = 0 then begin
+      FreeAndNil(FMimeTypeSubstList);
+    end;
+  end;
+end;
+
+
 procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
 var
   MapParams:TMemoryStream;
   AZipFile:TFileStream;
   IniStrings:TStringList;
   iniparams: TMeminifile;
-  GUID:TGUID;
-  guidstr : string;
-  bfloat:string;
   UnZip:TVCLZip;
 begin
   if AZipFileName = '' then begin
@@ -602,7 +743,8 @@ begin
       FreeAndNil(MapParams);
     end;
     try
-      guidstr:=iniparams.ReadString('PARAMS','ID',GUIDToString(GUID));
+      LoadGUIDFromIni(iniparams);
+
       name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
       name:=iniparams.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
 
@@ -617,53 +759,8 @@ begin
       finally
         FreeAndNil(MapParams);
       end;
-
-      MapParams:=TMemoryStream.Create;
-      try
-        UnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
-        FGetURLScript := PChar(MapParams.Memory);
-        SetLength(FGetURLScript, MapParams.Size);
-      finally
-        FreeAndNil(MapParams);
-      end;
-      Fbmp24:=TBitmap.create;
-      MapParams:=TMemoryStream.Create;
-      try
-        try
-          UnZip.UnZipToStream(MapParams,'24.bmp');
-          MapParams.Position:=0;
-          Fbmp24.LoadFromStream(MapParams);
-        except
-          Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
-          Fbmp24.Width:=24;
-          Fbmp24.Height:=24;
-          Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
-        end;
-      finally
-        FreeAndNil(MapParams);
-      end;
-      Fbmp18:=TBitmap.create;
-      MapParams:=TMemoryStream.Create;
-      try
-        try
-          UnZip.UnZipToStream(MapParams,'18.bmp');
-          MapParams.Position:=0;
-          Fbmp18.LoadFromStream(MapParams);
-        except
-          Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
-          Fbmp18.Width:=18;
-          Fbmp18.Height:=18;
-          Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
-        end;
-      finally
-        FreeAndNil(MapParams);
-      end;
-      try 
-        FGuid := StringToGUID(iniparams.ReadString('PARAMS','GUID',GUIDstr));
-      except
-        ShowMessage('Ошибочный GUID у карты в файле ' + AZipFileName);
-        raise;
-      end;
+      LoadStorageParams(iniparams);
+      LoadMapIcons(UnZip);
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
       DefUrlBase:=URLBase;
@@ -671,30 +768,15 @@ begin
       FTileRect.Top:=iniparams.ReadInteger('PARAMS','TileRTop',0);
       FTileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
       FTileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
-      FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
       FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
-      FUseDel:=iniparams.ReadBool('PARAMS','Usedel',true);
-      FIsStoreReadOnly:=iniparams.ReadBool('PARAMS','ReadOnly', false);
       FIsCanShowOnSmMap := iniparams.ReadBool('PARAMS','CanShowOnSmMap', true);
-      DelAfterShow:=iniparams.ReadBool('PARAMS','DelAfterShow',false);
-      FUseSave:=iniparams.ReadBool('PARAMS','Usesave',true);
       FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
-      CacheType:=iniparams.ReadInteger('PARAMS','CacheType',0);
-      DefCacheType:=CacheType;
       Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
       DefSleep:=Sleep;
       FBanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
       FContent_Type:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
       FStatus_Code:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
-      TileFileExt:=LowerCase(iniparams.ReadString('PARAMS','Ext','.jpg'));
-      NameInCache:=iniparams.ReadString('PARAMS','NameInCache','Sat');
-      DefNameInCache:=NameInCache;
-      projection:=iniparams.ReadInteger('PARAMS','projection',1);
-      bfloat:=iniparams.ReadString('PARAMS','sradiusa','6378137');
-      FRadiusA:=str2r(bfloat);
-      bfloat:=iniparams.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
-      FRadiusB:=str2r(bfloat);
       HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
       DefHotKey:=HotKey;
       ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
@@ -703,6 +785,20 @@ begin
       separator:=iniparams.ReadBool('PARAMS','separator',false);
       Defseparator:=separator;
       Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
+      LoadMimeTypeSubstList(iniparams);
+      LoadProjectionInfo(iniparams);
+      FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
+      if FUseDwn then begin
+        try
+          LoadUrlScript(UnZip);
+        except
+          if ExceptObject <> nil then begin
+            ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
+          end;
+          FUseDwn := false;
+        end;
+      end;
+
       FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
       if FMaxConnectToServerCount > 64 then begin
         FMaxConnectToServerCount := 64;
@@ -712,23 +808,6 @@ begin
       end;
       FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-      case projection of
-        1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
-        2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
-        3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
-        else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
-      end;
-      try
-      FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
-      FUrlGenerator.GetURLBase := URLBase;
-      //GetLink(0,0,0);
-      except
-        on E: Exception do begin
-          ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
-        end;
-       else
-        ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
-      end;
     finally
       FreeAndNil(iniparams);
     end;
@@ -844,6 +923,7 @@ var
   bmp: TBitmap32;
   VTileExists: Boolean;
   key: string;
+  TileBounds:TRect;
 begin
   result:=false;
   if (not(GState.UsePrevZoom) and (asLayer=false)) or
@@ -864,30 +944,35 @@ begin
   if not(VTileExists)or(dZ>8) then begin
     if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                else spr.Clear(Color32(GState.BGround));
-    exit;
-  end;
-  key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
-  if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(spr), key)) then begin
-    bmp:=TBitmap32.Create;
-    try
-      if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
-        if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-                   else spr.Clear(Color32(GState.BGround));
-        exit;
-      end;
-      bmp.Resampler := CreateResampler(GState.Resampling);
-      c_x:=((x-(x mod 256))shr dZ)mod 256;
-      c_y:=((y-(y mod 256))shr dZ)mod 256;
+  end else begin
+    key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(spr, key)) then begin
+      bmp:=TBitmap32.Create;
       try
-        spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),bounds(0,0,256,256),bmp);
-        GState.MainFileCache.AddTileToCache(TBitmap32(spr), key );
-      except
+        if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
+          if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+                     else spr.Clear(Color32(GState.BGround));
+        end else begin
+          bmp.Resampler := CreateResampler(GState.Resampling);
+          c_x:=((x-(x mod 256))shr dZ)mod 256;
+          c_y:=((y-(y mod 256))shr dZ)mod 256;
+          try
+            TileBounds:=Bounds(0,0,256,256);
+            if bmp.width<256 then TileBounds.Right:=bmp.Width;
+            if bmp.height<256 then TileBounds.Bottom:=bmp.height;
+            spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),TileBounds,bmp);
+            GState.MainFileCache.AddTileToCache(spr, key);
+          except
+            Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
+            Result := false;
+          end;
+        end;
+      finally
+        FreeAndNil(bmp);
       end;
-    finally
-      FreeAndNil(bmp);
     end;
+    Result := true;
   end;
-  Result := true;
 end;
 
 function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
@@ -910,17 +995,17 @@ var
 begin
   VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
-      result:=GetGETile(TBitmap32(btm),GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
-      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+      result:=GetGETile(btm,GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
   end else begin
     path := GetTileFileName(AXY, Azoom);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(TBitmap32(btm), VMemCacheKey)) then begin
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
      result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(TBitmap32(btm), VMemCacheKey);
+     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
@@ -950,7 +1035,7 @@ begin
       FCSSaveTile.Acquire;
       try
         result := DeleteFile(PChar(VPath));
-        GState.MainFileCache.DeleteFileFromCache(GUIDString+'-'+inttostr(AXY.x)+'-'+inttostr(AXY.y)+'-'+inttostr(Azoom+1));
+        GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
       finally
         FCSSaveTile.Release;
       end;
@@ -1022,22 +1107,24 @@ begin
 end;
 
 procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
-  ATileStream: TCustomMemoryStream; ty: string);
+  ATileStream: TCustomMemoryStream; AMimeType: string);
 var
   VPath: String;
   btmSrc:TBitmap32;
   VManager: IBitmapTypeExtManager;
+  VMimeType: String;
 begin
   VPath := GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(VPath);
   VManager := BitmapTypeManager;
-  if VManager.GetIsBitmapType(ty) then begin
-    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(ty)) then begin
+  VMimeType := GetMIMETypeSubst(AMimeType);
+  if VManager.GetIsBitmapType(VMimeType) then begin
+    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(VMimeType)) then begin
       SaveTileInCache(ATileStream,Vpath);
     end else begin
       btmsrc := TBitmap32.Create;
       try
-        VManager.GetBitmapLoaderForType(ty).LoadFromStream(ATileStream, btmSrc);
+        VManager.GetBitmapLoaderForType(VMimeType).LoadFromStream(ATileStream, btmSrc);
 
         if IsCropOnDownload then begin
           CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
@@ -1051,6 +1138,7 @@ begin
     GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
+    raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
   end;
 end;
 
@@ -1366,10 +1454,12 @@ begin
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
+  FMimeTypeSubstList := nil;
 end;
 
 destructor TMapType.Destroy;
 begin
+  FreeAndNil(FMimeTypeSubstList);
   FreeAndNil(FInitDownloadCS);
   FreeAndNil(FCSSaveTile);
   FreeAndNil(FCSSaveTNF);
@@ -1579,9 +1669,22 @@ begin
   Result := GUIDToString(FGuid);
 end;
 
+function TMapType.GetMIMETypeSubst(AMimeType: string): string;
+var
+  VNewMimeType: string;
+begin
+  Result := AMimeType;
+  if FMimeTypeSubstList <> nil then begin
+    VNewMimeType := FMimeTypeSubstList.Values[AMimeType];
+    if Length(VNewMimeType) > 0 then begin
+      Result := VNewMimeType;
+    end;
+  end;
+end;
+
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+ GUIDString;
+  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+GUIDString;
 end;
 
 end.

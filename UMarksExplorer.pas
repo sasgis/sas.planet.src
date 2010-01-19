@@ -16,7 +16,6 @@ uses
   StdCtrls,
   CheckLst,
   Buttons,
-  ComCtrls,
   ExtCtrls,
   DBClient,
   UResStrings,
@@ -68,6 +67,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure SBNavOnMarkClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -101,7 +101,6 @@ var
 implementation
 
 uses
-  DBTables,
   t_CommonTypes,
   u_GlobalState,
   Unit1,
@@ -625,6 +624,17 @@ begin
   end
   else SBNavOnMark.Down:=not SBNavOnMark.Down
  else FreeAndNil(FMain.NavOnMark);
+end;
+
+procedure TFMarksExplorer.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+var
+  i: integer;
+begin
+ for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
+ MarksListBox.Clear;
+ for i:=1 to KategoryListBox.items.Count do KategoryListBox.Items.Objects[i-1].Free;
+ KategoryListBox.Clear;
 end;
 
 end.

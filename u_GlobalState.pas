@@ -196,6 +196,9 @@ type
     MapType: array of TMapType;
     sat_map_both: TMapType;
 
+    // Полигон последнего выделения при операциях с областью.
+    LastSelectionPolygon: TExtendedPointArray;
+
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Путь к иконкам меток
@@ -228,7 +231,7 @@ type
   end;
 
 const
-  SASVersion='91207';
+  SASVersion='100118';
   CProgram_Lang_Default = LANG_RUSSIAN;
 
 var

@@ -81,25 +81,34 @@ begin
       SwinHttp.Post('http://www.google.com/glm/mmap',post);
       SetLength(sResult,SwinHttp.Response.Content.Size);
       SwinHttp.Response.Content.ReadBuffer(sResult[1],SwinHttp.Response.Content.Size);
-      if (SwinHttp.Error=0)and(Length(sResult) > 14) then begin
-        sTmp := '0x';
-        for i := 1 to 5 do begin
-          sTmp2 := Copy(sResult, i + 6, 1);
-          sTmp := sTmp + IntToHex(Ord(sTmp2[1]), 2);
+      if (SwinHttp.Error=0) then begin
+        if (Length(sResult) > 14) then begin
+          sTmp := '0x';
+          for i := 1 to 5 do begin
+            sTmp2 := Copy(sResult, i + 6, 1);
+            sTmp := sTmp + IntToHex(Ord(sTmp2[1]), 2);
+          end;
+          iLat := StrToInt(sTmp);
+          sTmp := '0x';
+          for i := 1 to 4 do begin
+            sTmp2 := Copy(sResult, i + 11, 1);
+            sTmp := sTmp + IntToHex(Ord(sTmp2[1]), 2);
+          end;
+          iLon := StrToInt(sTmp);
+          LL.y := iLat/1000000;
+          LL.x := iLon/1000000;
+        end else begin
+          result:=false;
+          ShowMessage(SAS_ERR_UnablePposition);
         end;
-        iLat := StrToInt(sTmp);
-        sTmp := '0x';
-        for i := 1 to 4 do begin
-          sTmp2 := Copy(sResult, i + 11, 1);
-          sTmp := sTmp + IntToHex(Ord(sTmp2[1]), 2); 
-        end;
-        iLon := StrToInt(sTmp);
-        LL.y := iLat/1000000;
-        LL.x := iLon/1000000;
       end
-      else result:=false;
+      else begin
+        result:=false;
+        ShowMessage(SAS_ERR_Communication);
+      end;
     except
       result:=false;
+      ShowMessage(SAS_ERR_UnablePposition);
     end;
   finally
     SwinHttp.Free;
@@ -108,37 +117,59 @@ begin
 end;
 
 procedure TPosFromGPS.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
+ function DelKov(s:string):string;
+ var i:integer;
+ begin
+   i:=pos('"',s);
+   while i>0 do begin
+    Delete(s,i,1);
+    i:=pos('"',s);
+   end;
+   result:=s;
+ end;
+ function addT4(s:string):string;
+ begin
+  while length(s)<4 do begin
+    s:='0'+s;
+  end;
+  result:=s;
+ end;
 var s:string;
-    pos:integer;
+    pos,pose:integer;
     LL:TExtendedPoint;
 begin
  setlength(s,DataSize);
+ if DataSize<10 then exit;
  CopyMemory(@s[1],DataPtr,DataSize);
  pos:=posEx('+CREG:',s);
  if pos>0 then begin
-   pos:=posEx(',"',s,pos+1);
+   pos:=posEx(',',s,pos+1);
+   pos:=posEx(',',s,pos+1);
+   pose:=posEx(',',s,pos+1);
    if pos>0 then begin
-     LAC:=copy(s,pos+2,4);
+     LAC:=addT4(DelKov(copy(s,pos+1,pose-(pos+1))));
    end;
-   pos:=posEx(',"',s,pos+1);
+   pos:=posEx(#$D,s,pose+1);
    if pos>0 then begin
-     CellID:=copy(s,pos+2,4);
+     CellID:=addT4(DelKov(copy(s,pose+1,pos-(pose+1))));
    end;
+ end else begin
+   exit;
  end;
  pos:=posEx('+COPS:',s);
  if pos>0 then begin
    pos:=posEx(',"',s,pos);
    if pos>0 then begin
-     NC:=copy(s,pos+2,3);
-     CC:=copy(s,pos+5,2);
+     NC:=DelKov(copy(s,pos+2,3));
+     CC:=DelKov(copy(s,pos+5,2));
    end;
+ end else begin
+   exit;
  end;
  CommPortDriver.SendString('AT+CREG=1'+#13);
  CommPortDriver.Disconnect;
  if GetCoordFromGoogle(LL) then begin
     OnToPos(LL,GState.zoom_size,true);
- end else begin
-    ShowMessage(SAS_ERR_Communication);
  end;
 end;
 
@@ -176,12 +207,15 @@ begin
    CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
    CommPortDriver.Connect;
    if CommPortDriver.Connected then begin
-     if CommPortDriver.SendString('AT+CREG=2'+#13) then begin
+     if (CommPortDriver.SendString('AT+CREG=2'+#13))and
+        (CommPortDriver.SendString('AT+COPS=0,2'+#13)) then begin
+       sleep(GState.GSMpar.WaitingAnswer);
        CommPortDriver.SendString('AT+CREG?'+#13);
        CommPortDriver.SendString('AT+COPS?'+#13);
        Result:=true;
      end;
    end else begin
+     ShowMessage(SAS_ERR_PortOpen);
      Result:=false;
    end;
  end else begin
@@ -195,7 +229,6 @@ begin
         OnToPos(LL,GState.zoom_size,true);
         Result:=true;
      end else begin
-        ShowMessage(SAS_ERR_Communication);
         Result:=false;
      end;
      except

@@ -31,6 +31,7 @@ ResourceString
  SAS_ERR_FileNotFound='Файл не найден';
  SAS_ERR_PortOpen='Ошибка открытия порта!';
  SAS_ERR_Communication='Ошибка коммуникации';
+ SAS_ERR_UnablePposition='Невозможно определить позицию';
  SAS_ERR_ParamsInput='Ошибка ввода параметров!';
  SAS_ERR_LonLat1='Долгота в левом верхнем углу должна быть меньше '+#13#10+'долготы в правом нижнем!';
  SAS_ERR_LonLat2='Широта в левом верхнем углу должна быть меньше '+#13#10+'широты в правом нижнем!';
@@ -43,6 +44,11 @@ ResourceString
  SAS_ERR_RepeatProcess='Пытаемся повторить обработку';
  SAS_ERR_FileExistsShort='Данный файл уже имеется в кеше';
  SAS_ERR_Memory='Невозможно выделить память для данной операции';
+ SAS_ERR_UseADifferentFormat='Для склейки больших размеров используйте другой формат (ecw,bmp,jp2)';
+ SAS_ERR_BadMIMEForDownloadRastr = 'Сервис вернул тип "%0:s", это не растровое изображение';
+ SAS_ERR_MapGUIDEmpty='Пустой GUID';
+ SAS_ERR_MapGUIDBad='GUID %0:s не соответствует формату';
+ SAS_ERR_MapGUIDError='В карте %0:s ошибка: %1:s';
 
  SAS_STR_MarshLen='Длина маршрута: ';
  SAS_STR_Marshtime='Время в пути: ';

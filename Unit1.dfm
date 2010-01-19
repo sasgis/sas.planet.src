@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 315
-  Top = 344
+  Left = 312
+  Top = 104
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -42,8 +42,10 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
+    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
+    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -1944,63 +1946,15 @@ object Fmain: TFmain
     Width = 164
     Height = 467
     Position = dpRight
-    object TBXToolWindow1: TTBXToolWindow
-      Left = 0
-      Top = 336
-      ClientAreaHeight = 121
-      ClientAreaWidth = 160
-      DockPos = 336
-      Stretch = True
-      TabOrder = 0
-      Visible = False
-      DesignSize = (
-        160
-        121)
-      Caption = 'TBXToolWindow1'
-      object SpeedButton1: TSpeedButton
-        Left = 8
-        Top = 4
-        Width = 25
-        Height = 25
-        Caption = 'C'
-        Flat = True
-        Visible = False
-      end
-      object TreeView1: TTreeView
-        Left = 7
-        Top = 32
-        Width = 146
-        Height = 23
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        HideSelection = False
-        Images = TBImageList1
-        Indent = 21
-        ParentShowHint = False
-        PopupMenu = PMNRObject
-        RightClickSelect = True
-        RowSelect = True
-        ShowHint = True
-        StateImages = TBImageList2
-        TabOrder = 0
-      end
-      object MemoObjectInfo: TMemo
-        Left = 8
-        Top = 42
-        Width = 145
-        Height = 73
-        Anchors = [akLeft, akRight, akBottom]
-        TabOrder = 1
-      end
-    end
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 326
+      ClientAreaHeight = 457
       ClientAreaWidth = 160
       DockPos = 0
       PopupMenu = TBXPopupMenuSensors
       Stretch = True
-      TabOrder = 1
+      TabOrder = 0
       Visible = False
       OnVisibleChanged = TBXSensorsBarVisibleChanged
       Caption = #1044#1072#1090#1095#1080#1082#1080
@@ -5597,7 +5551,7 @@ object Fmain: TFmain
     Left = 108
     Top = 354
     Data = {
-      600100009619E0BD01000000180000000F000000000003000000600102696404
+      760100009619E0BD01000000180000000F000000000003000000760102696404
       0001001200010007535542545950450200490008004175746F696E6300046E61
       6D65020049001000010005574944544802000200FF0005646573637204004B00
       1000010007535542545950450200490005005465787400067363616C65310400
@@ -5607,8 +5561,8 @@ object Fmain: TFmain
       000000044C617442080004001000000006636F6C6F7231040001001000000006
       636F6C6F723204000100100000000776697369626C6502000300100000000770
       69636E616D6501004900100001000557494454480200020014000A6361746567
-      6F72796964040001001000000001000C4155544F494E4356414C554504000100
-      01000000}
+      6F72796964040001001000000002000C4155544F494E4356414C554504000100
+      010000000D44454641554C545F4F524445520200820000000000}
     object CDSmarksid: TAutoIncField
       FieldName = 'id'
       ReadOnly = True
@@ -5652,6 +5606,7 @@ object Fmain: TFmain
       FieldName = 'visible'
     end
     object CDSmarkspicname: TStringField
+      DisplayWidth = 20
       FieldName = 'picname'
     end
     object CDSmarkscategoryid: TIntegerField

@@ -141,13 +141,14 @@ type
     function GetDatumEPSG: integer; virtual; stdcall;
     function GetSpheroidRadius: Double; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
+    function GetTileSplitCode: Integer; virtual; stdcall;
 
     procedure AfterConstruction; override;
   end;
 
 const
   CTileRelativeEpsilon = (1/(1 shl 30 + (1 shl 30 - 1)))/2;
-
+  CTileSplitQuadrate256x256 = 1;
 implementation
 
 uses
@@ -205,10 +206,18 @@ begin
   if (Self = nil) or (AOtherMapCoordConv = nil) then begin
     Result := XY;
   end else begin
-    if Azoom > 23 then begin
-      Result := AOtherMapCoordConv.LonLat2PixelPos(PixelPos2LonLat(XY, Azoom - 8), Azoom - 8);
+    if (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
+      (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
+      (Self.GetProjectionEPSG <> 0) and
+      (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG) then
+    begin
+      Result := XY;
     end else begin
-      Result := AOtherMapCoordConv.LonLat2TilePos(TilePos2LonLat(XY, Azoom), Azoom);
+      if Azoom > 23 then begin
+        Result := AOtherMapCoordConv.LonLat2PixelPos(PixelPos2LonLat(XY, Azoom - 8), Azoom - 8);
+      end else begin
+        Result := AOtherMapCoordConv.LonLat2TilePos(TilePos2LonLat(XY, Azoom), Azoom);
+      end;
     end;
   end;
 end;
@@ -1739,6 +1748,11 @@ end;
 function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;
 begin
   Result := FCellSizeUnits;
+end;
+
+function TCoordConverterAbstract.GetTileSplitCode: Integer;
+begin
+  Result := CTileSplitQuadrate256x256;
 end;
 
 end.

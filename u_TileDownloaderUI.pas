@@ -157,7 +157,13 @@ begin
                           VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
                         end;
                         if res = dtrOK then begin
-                          VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
+                          try
+                            VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
+                          except
+                            on E: Exception do begin
+                              FErrorString := E.Message;
+                            end;
+                          end;
                         end;
                         if Terminated then break;
                         Synchronize(AfterWriteToFile);
