@@ -53,6 +53,7 @@ type
     FRadiusA: extended;
     FRadiusB: extended;
     FMimeTypeSubstList: TStringList;
+    FPNum: integer;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -78,6 +79,10 @@ type
     procedure LoadUrlScript(AUnZip: TVCLZip);
     procedure LoadProjectionInfo(AIniFile: TCustomIniFile);
     procedure LoadStorageParams(AIniFile: TCustomIniFile);
+    procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
+    procedure LoadUIParams(AIniFile: TCustomIniFile);
+    procedure LoadMapInfo(AUnZip: TVCLZip);
+
    public
     id: integer;
 
@@ -195,7 +200,7 @@ type
     property ZmpFileName: string read GetZmpFileName;
     property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
     constructor Create;
-    procedure LoadMapTypeFromZipFile(AZipFileName : string; pnum : Integer);
+    procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
     destructor Destroy; override;
   private
     FDownloadTilesCount: Longint;
@@ -664,6 +669,23 @@ begin
   end;
 end;
 
+procedure TMapType.LoadMapInfo(AUnZip: TVCLZip);
+var
+  MapParams:TMemoryStream;
+begin
+  MapParams:=TMemoryStream.Create;
+  try
+  if (AUnZip.UnZipToStream(MapParams,'info_'+inttostr(GState.Localization)+'.txt')>0)or(AUnZip.UnZipToStream(MapParams,'info.txt')>0) then
+   begin
+    SetLength(MapInfo, MapParams.size);
+    MapParams.Position:=0;
+    MapParams.ReadBuffer(Mapinfo[1],MapParams.size);
+   end;
+  finally
+    FreeAndNil(MapParams);
+  end;
+end;
+
 procedure TMapType.LoadStorageParams(AIniFile: TCustomIniFile);
 begin
   FUseDel:=AIniFile.ReadBool('PARAMS','Usedel',true);
@@ -709,8 +731,39 @@ begin
   end;
 end;
 
+procedure TMapType.LoadWebSourceParams(AIniFile: TCustomIniFile);
+begin
+  URLBase:=AIniFile.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
+  DefUrlBase:=URLBase;
+  FTileRect.Left:=AIniFile.ReadInteger('PARAMS','TileRLeft',0);
+  FTileRect.Top:=AIniFile.ReadInteger('PARAMS','TileRTop',0);
+  FTileRect.Right:=AIniFile.ReadInteger('PARAMS','TileRRight',0);
+  FTileRect.Bottom:=AIniFile.ReadInteger('PARAMS','TileRBottom',0);
+  FUseAntiBan:=AIniFile.ReadInteger('PARAMS','UseAntiBan',0);
+  Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
+  DefSleep:=Sleep;
+  FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
+  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image\jpg');
+  FStatus_Code:=AIniFile.ReadString('PARAMS','ValidStatusCode','200');
+  FUseDwn:=AIniFile.ReadBool('PARAMS','UseDwn',true);
+end;
 
-procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; pnum : Integer);
+procedure TMapType.LoadUIParams(AIniFile: TCustomIniFile);
+begin
+  name:=AIniFile.ReadString('PARAMS','name','map#'+inttostr(FPNum));
+  name:=AIniFile.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
+  FIsCanShowOnSmMap := AIniFile.ReadBool('PARAMS','CanShowOnSmMap', true);
+  HotKey:=AIniFile.ReadInteger('PARAMS','DefHotKey',0);
+  DefHotKey:=HotKey;
+  ParentSubMenu:=AIniFile.ReadString('PARAMS','ParentSubMenu','');
+  ParentSubMenu:=AIniFile.ReadString('PARAMS','ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
+  DefParentSubMenu:=ParentSubMenu;
+  separator:=AIniFile.ReadBool('PARAMS','separator',false);
+  Defseparator:=separator;
+  Fpos:=AIniFile.ReadInteger('PARAMS','pnum',-1);
+end;
+
+procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; Apnum : Integer);
 var
   MapParams:TMemoryStream;
   AZipFile:TFileStream;
@@ -718,6 +771,7 @@ var
   iniparams: TMeminifile;
   UnZip:TVCLZip;
 begin
+  FPNum := Apnum;
   if AZipFileName = '' then begin
     raise Exception.Create('Пустое имя файла с настройками карты');
   end;
@@ -745,52 +799,28 @@ begin
     try
       LoadGUIDFromIni(iniparams);
 
-      name:=iniparams.ReadString('PARAMS','name','map#'+inttostr(pnum));
-      name:=iniparams.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
-
-      MapParams:=TMemoryStream.Create;
-      try
-      if (UnZip.UnZipToStream(MapParams,'info_'+inttostr(GState.Localization)+'.txt')>0)or(UnZip.UnZipToStream(MapParams,'info.txt')>0) then
-       begin
-        SetLength(MapInfo, MapParams.size);
-        MapParams.Position:=0;
-        MapParams.ReadBuffer(Mapinfo[1],MapParams.size);
-       end;
-      finally
-        FreeAndNil(MapParams);
-      end;
+      LoadUIParams(iniparams);
+      LoadMapInfo(UnZip);
       LoadStorageParams(iniparams);
       LoadMapIcons(UnZip);
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
-      URLBase:=iniparams.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
-      DefUrlBase:=URLBase;
-      FTileRect.Left:=iniparams.ReadInteger('PARAMS','TileRLeft',0);
-      FTileRect.Top:=iniparams.ReadInteger('PARAMS','TileRTop',0);
-      FTileRect.Right:=iniparams.ReadInteger('PARAMS','TileRRight',0);
-      FTileRect.Bottom:=iniparams.ReadInteger('PARAMS','TileRBottom',0);
+      LoadWebSourceParams(iniparams);
       FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
-      FIsCanShowOnSmMap := iniparams.ReadBool('PARAMS','CanShowOnSmMap', true);
-      FUseAntiBan:=iniparams.ReadInteger('PARAMS','UseAntiBan',0);
-      Sleep:=iniparams.ReadInteger('PARAMS','Sleep',0);
-      DefSleep:=Sleep;
-      FBanIfLen:=iniparams.ReadInteger('PARAMS','BanIfLen',0);
-      FContent_Type:=iniparams.ReadString('PARAMS','ContentType','image\jpg');
-      FStatus_Code:=iniparams.ReadString('PARAMS','ValidStatusCode','200');
-      HotKey:=iniparams.ReadInteger('PARAMS','DefHotKey',0);
-      DefHotKey:=HotKey;
-      ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu','');
-      ParentSubMenu:=iniparams.ReadString('PARAMS','ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
-      DefParentSubMenu:=ParentSubMenu;
-      separator:=iniparams.ReadBool('PARAMS','separator',false);
-      Defseparator:=separator;
-      Fpos:=iniparams.ReadInteger('PARAMS','pnum',-1);
       LoadMimeTypeSubstList(iniparams);
       LoadProjectionInfo(iniparams);
-      FUseDwn:=iniparams.ReadBool('PARAMS','UseDwn',true);
       if FUseDwn then begin
         try
           LoadUrlScript(UnZip);
+          FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
+          if FMaxConnectToServerCount > 64 then begin
+            FMaxConnectToServerCount := 64;
+          end;
+          if FMaxConnectToServerCount <= 0 then begin
+            FMaxConnectToServerCount := 1;
+          end;
+          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
+          GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
         except
           if ExceptObject <> nil then begin
             ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
@@ -798,16 +828,6 @@ begin
           FUseDwn := false;
         end;
       end;
-
-      FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
-      if FMaxConnectToServerCount > 64 then begin
-        FMaxConnectToServerCount := 64;
-      end;
-      if FMaxConnectToServerCount <= 0 then begin
-        FMaxConnectToServerCount := 1;
-      end;
-      FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
-      GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
     finally
       FreeAndNil(iniparams);
     end;
