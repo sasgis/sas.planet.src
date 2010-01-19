@@ -570,6 +570,7 @@ type
     FTileSource: TTileSource;
     FScreenCenterPos: TPoint;
     LayerStatBar: TLayerStatBar;
+    FWikiLayer: TWikiLayer;
     dWhenMovingButton: integer;
     LenShow: boolean;
     RectWindow: TRect;
@@ -1941,7 +1942,7 @@ begin
   LayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   LayerMapGPS.Resize;
-  destroyWL;
+  FWikiLayer.Clear;
   Vspr := TBitmap32.Create;
   try
     Vspr.SetSize(256,256);
@@ -1973,7 +1974,7 @@ begin
             LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
             LayerMapWiki.Bitmap.Clear(clBlack);
           end;
-          loadWL(GState.MapType[Leyi]);
+          FWikiLayer.AddFromLayer(GState.MapType[Leyi]);
           continue;
         end;
         posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
@@ -2151,6 +2152,8 @@ begin
  LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
  LayerMapWiki.Bitmap.DrawMode:=dmTransparent;
  LayerMapWiki.bitmap.Font.Charset:=RUSSIAN_CHARSET;
+
+ FWikiLayer := TWikiLayer.Create;
 
  LayerScaleLine := TLayerScaleLine.Create(map);
 
@@ -2520,6 +2523,7 @@ begin
   if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
    Screen.Forms[i].Close;
  end;
+ FreeAndNil(FWikiLayer);
  ProgramClose:=true;
  //останавливаем GPS
  GPSReceiver.OnDisconnect:=nil;
@@ -3617,13 +3621,13 @@ end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
 begin
- MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if DeleteMark(StrToInt(PWL.numid),Handle) then
   generate_im(nilLastLoad,'');
 end;
@@ -3635,7 +3639,7 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 begin
- MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  OperationMark(strtoint(PWL.numid));
 end;
 
@@ -4027,7 +4031,7 @@ begin
     PWL.S:=0;
     PWL.find:=false;
     if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
+     FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
@@ -4215,7 +4219,7 @@ begin
    PWL.S:=0;
    PWL.find:=false;
    if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
+     FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
@@ -4435,7 +4439,7 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
- MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
  if (not NMarkNav.Checked) then
   begin
    id:=strtoint(PWL.numid);
