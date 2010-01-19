@@ -57,6 +57,27 @@ begin
   end;
 end;
 
+procedure RGBA2BGRA4(var jcprops : TJPEG_CORE_PROPERTIES);
+var W, H : Integer;
+    p : PColor32Entry;
+    pData : Pointer;
+    Width, Height : Integer;
+    V: Byte;
+begin
+  Width := jcprops.JPGWidth;
+  Height := jcprops.JPGHeight;
+  pData := jcprops.DIBBytes;
+  p := PColor32Entry(pData);
+  for H := 0 to Height-1 do begin
+    for W := 0 to Width-1 do begin
+      V := p.B;
+      p.B := p.R;
+      p.R := V;
+      inc(p);
+    end;
+  end;
+end;
+
 function LoadJpeg(var jcprops : TJPEG_CORE_PROPERTIES; Btm: TBitmap32): Boolean;
 var
   iWidth, iHeight, iNChannels : Integer;
@@ -108,7 +129,7 @@ begin
     if iStatus < 0 then begin
       raise Exception.Create('Load Jpeg Error');
     end;
-    RGBA2BGRA3(jcprops);
+    RGBA2BGRA4(jcprops);
   finally
     ijlFree(@jcprops);
   end;
@@ -149,7 +170,7 @@ begin
       if iStatus < 0 then begin
         raise Exception.Create('Load Jpeg Error');
       end;
-      RGBA2BGRA3(jcprops);
+      RGBA2BGRA4(jcprops);
     finally
       ijlFree(@jcprops);
     end;
