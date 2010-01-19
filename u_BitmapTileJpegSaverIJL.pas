@@ -101,6 +101,7 @@ begin
     jcprops.DIBChannels := 3;
     jcprops.DIBColor := IJL_RGB;
     jcprops.DIBPadBytes := 0;
+    jcprops.JPGSizeBytes := jcprops.DIBWidth*jcprops.DIBHeight*3;
     GetMem(jcprops.DIBBytes,jcprops.DIBWidth*jcprops.DIBHeight*3);
     GetMem(jcprops.JPGBytes, jcprops.JPGSizeBytes);
     try
@@ -120,7 +121,6 @@ begin
       jcprops.JPGChannels := 3;
       jcprops.JPGColor := IJL_YCBCR;
       jcprops.jquality := FCompressionQuality;
-      jcprops.JPGSizeBytes := jcprops.DIBWidth*jcprops.DIBHeight*3;
 
       VStatus := ijlWrite(@jcprops,IJL_JBUFF_WRITEWHOLEIMAGE);
       if VStatus < 0 then begin
