@@ -766,7 +766,6 @@ end;
 procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; Apnum : Integer);
 var
   MapParams:TMemoryStream;
-  AZipFile:TFileStream;
   IniStrings:TStringList;
   iniparams: TMeminifile;
   UnZip:TVCLZip;
@@ -781,7 +780,6 @@ begin
   Ffilename := AZipFileName;
   UnZip:=TVCLZip.Create(nil);
   try
-    AZipFile:=TFileStream.Create(AZipFileName,fmOpenRead or fmShareDenyNone);
     UnZip.ZipName:=AZipFileName;
     MapParams:=TMemoryStream.Create;
     IniStrings:=TStringList.Create;
@@ -832,7 +830,6 @@ begin
       FreeAndNil(iniparams);
     end;
   finally
-    FreeAndNil(AZipFile);
     FreeAndNil(UnZip);
   end;
 end;
