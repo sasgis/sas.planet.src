@@ -20,11 +20,9 @@ type
     AarrKt:TPointArray;
   end;
   PWikiLayer = ^TWikilayer;
-var WikiLayer:array of TWikiLayer;
 
 
     procedure destroyWL;
-    procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates:  TExtendedPointArray);
     procedure loadWL(Alayer: TMapType);
     procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 
@@ -35,6 +33,7 @@ uses
   StrUtils,
   u_GlobalState,
   unit1;
+var WikiLayer:array of TWikiLayer;
 
 procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 var i,j:integer;
@@ -96,34 +95,6 @@ begin
  FMain.LayerMapWiki.Visible:=false;
 end;
 
-procedure loadWL(Alayer: TMapType);
-var
-    Ax,Ay,i,j,ii,Azoom:integer;
-    APos:TPoint;
-    kml:TKML;
-    VSizeInTile: TPoint;
-begin
- FMain.LayerMapWiki.Visible:=true;
- VSizeInTile := Fmain.LoadedSizeInTile;
- for i:=0 to VSizeInTile.X do
-  for j:=0 to VSizeInTile.Y do
-   begin
-    Azoom:=GState.zoom_size;
-    APos := GState.sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
-    if GState.CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),GState.zoom_size)
-               else Ax:=APos.X-pr_x+(i shl 8);
-    Ay:=APos.y-pr_y+(j shl 8);
-    KML:=TKML.Create;
-    try
-      if Alayer.LoadTile(kml, Ax,Ay,Azoom, false) then
-       for ii:=0 to length(KML.Data)-1 do
-        addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
-    finally
-      KML.Free;
-    end;
-   end;
-end;
-
 procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates:  TExtendedPointArray);
 var i,lenLay:integer;
 begin
@@ -182,6 +153,34 @@ begin
    if length(coordinates)=1 then FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AarrKt[0].x,AarrKt[0].y,AarrKt[2].x,AarrKt[2].y)
                             else FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AarrKt);
   end;
+end;
+
+procedure loadWL(Alayer: TMapType);
+var
+    Ax,Ay,i,j,ii,Azoom:integer;
+    APos:TPoint;
+    kml:TKML;
+    VSizeInTile: TPoint;
+begin
+ FMain.LayerMapWiki.Visible:=true;
+ VSizeInTile := Fmain.LoadedSizeInTile;
+ for i:=0 to VSizeInTile.X do
+  for j:=0 to VSizeInTile.Y do
+   begin
+    Azoom:=GState.zoom_size;
+    APos := GState.sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
+    if GState.CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),GState.zoom_size)
+               else Ax:=APos.X-pr_x+(i shl 8);
+    Ay:=APos.y-pr_y+(j shl 8);
+    KML:=TKML.Create;
+    try
+      if Alayer.LoadTile(kml, Ax,Ay,Azoom, false) then
+       for ii:=0 to length(KML.Data)-1 do
+        addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
+    finally
+      KML.Free;
+    end;
+   end;
 end;
 
 end.
