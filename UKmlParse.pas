@@ -175,8 +175,10 @@ function TKML.parse(buffer:string):boolean;
 var koord:string;
     position,PosStartPlace,PosTag1,PosTag2,PosEndPlace,ii,jj,placeN,iip:integer;
     pb,iip_:integer;
+    VFormat: TFormatSettings;
 begin
   result:=true;
+  VFormat.DecimalSeparator := '.';
   error_:='';
   buffer:=Sha_SpaceCompress(buffer);
   position:=1;
@@ -240,14 +242,14 @@ begin
              if ii>length(koord) then continue;
              setLength(coordinates,jj+1);
              iip:=posEx(',',koord,ii);
-             coordinates[jj].x:=Fmain.str2r(copy(koord,ii,iip-ii));
+             coordinates[jj].x:=StrToFloat(copy(koord,ii,iip-ii), VFormat);
              ii:=iip+1;
              if koord[ii]=' ' then inc(ii);
              iip:=posEx(',',koord,ii);
              iip_:=posEx(' ',koord,ii);
              if (iip_>0)and(iip_<iip) then iip:=iip_ ;
              if iip=0 then iip:=Length(koord)+1;
-             coordinates[jj].y:=Fmain.str2r(copy(koord,ii,iip-ii));
+             coordinates[jj].y:=StrToFloat(copy(koord,ii,iip-ii), VFormat);
              ii:=iip+1;
              if (iip<>iip_) then
               while ((koord[ii]in ['0'..'9','e','E','.','-'])) do inc(ii);  
