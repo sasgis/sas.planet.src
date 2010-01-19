@@ -11,15 +11,16 @@ uses
   t_GeoTypes;
 
 type
-  TWikiLayer = class
+  TWikiLayerElement = class
    public
     name_blok:string;
     num_blok:string;
     description:string;
     LT,RD:Tpoint;
     AarrKt:TPointArray;
+    constructor Create;
+    destructor Destroy; override;
   end;
-  PWikiLayer = ^TWikilayer;
 
 
     procedure destroyWL;
@@ -33,51 +34,51 @@ uses
   StrUtils,
   u_GlobalState,
   unit1;
-var WikiLayer:array of TWikiLayer;
+var GWikiLayerElments: array of TWikiLayerElement;
 
 procedure MouseOnReg(var PWL:TResObj;xy:TPoint);
 var i,j:integer;
     l:integer;
 begin
- for i:=0 to length(Wikilayer)-1 do
-   if (xy.x>Wikilayer[i].lt.X-5)and(xy.x<Wikilayer[i].rd.X+5)and
-      (xy.y>Wikilayer[i].lt.Y-5)and(xy.y<Wikilayer[i].rd.Y+5) then
+ for i:=0 to length(GWikiLayerElments)-1 do
+   if (xy.x>GWikiLayerElments[i].lt.X-5)and(xy.x<GWikiLayerElments[i].rd.X+5)and
+      (xy.y>GWikiLayerElments[i].lt.Y-5)and(xy.y<GWikiLayerElments[i].rd.Y+5) then
    begin
-    if length(Wikilayer[i].AarrKt)=1 then
+    if length(GWikiLayerElments[i].AarrKt)=1 then
      begin
-      PWL.name:=Wikilayer[i].name_blok;
-      PWL.descr:=Wikilayer[i].description;
-      PWL.numid:=Wikilayer[i].num_blok;
+      PWL.name:=GWikiLayerElments[i].name_blok;
+      PWL.descr:=GWikiLayerElments[i].description;
+      PWL.numid:=GWikiLayerElments[i].num_blok;
       PWL.find:=true;
       exit;
      end;
-    l:=length(Wikilayer[i].AarrKt)-1;
+    l:=length(GWikiLayerElments[i].AarrKt)-1;
     if l<0 then continue;
     j:=1;
-    if (Wikilayer[i].AarrKt[0].X<>Wikilayer[i].AarrKt[l].x)or
-       (Wikilayer[i].AarrKt[0].y<>Wikilayer[i].AarrKt[l].y)then
-      while (j<length(Wikilayer[i].AarrKt)) do
+    if (GWikiLayerElments[i].AarrKt[0].X<>GWikiLayerElments[i].AarrKt[l].x)or
+       (GWikiLayerElments[i].AarrKt[0].y<>GWikiLayerElments[i].AarrKt[l].y)then
+      while (j<length(GWikiLayerElments[i].AarrKt)) do
        begin
-        if CursorOnLinie(xy.x, xy.Y, Wikilayer[i].AarrKt[j-1].x, Wikilayer[i].AarrKt[j-1].y,
-                         Wikilayer[i].AarrKt[j].x, Wikilayer[i].AarrKt[j].y, 3)
+        if CursorOnLinie(xy.x, xy.Y, GWikiLayerElments[i].AarrKt[j-1].x, GWikiLayerElments[i].AarrKt[j-1].y,
+                         GWikiLayerElments[i].AarrKt[j].x, GWikiLayerElments[i].AarrKt[j].y, 3)
            then begin
-                 PWL.name:=Wikilayer[i].name_blok;
-                 PWL.descr:=Wikilayer[i].description;
-                 PWL.numid:=Wikilayer[i].num_blok;
+                 PWL.name:=GWikiLayerElments[i].name_blok;
+                 PWL.descr:=GWikiLayerElments[i].description;
+                 PWL.numid:=GWikiLayerElments[i].num_blok;
                  PWL.find:=true;
                  exit;
                 end;
         inc(j);
        end
      else
-     if PtInRgn(Wikilayer[i].AarrKt,xy) then
+     if PtInRgn(GWikiLayerElments[i].AarrKt,xy) then
       begin
-       if (PolygonSquare(Wikilayer[i].AarrKt)>PWL.S)and(PWL.S<>0)
+       if (PolygonSquare(GWikiLayerElments[i].AarrKt)>PWL.S)and(PWL.S<>0)
         then continue;
-       PWL.S:=PolygonSquare(Wikilayer[i].AarrKt);
-       PWL.name:=Wikilayer[i].name_blok;
-       PWL.descr:=Wikilayer[i].description;
-       PWL.numid:=Wikilayer[i].num_blok;
+       PWL.S:=PolygonSquare(GWikiLayerElments[i].AarrKt);
+       PWL.name:=GWikiLayerElments[i].name_blok;
+       PWL.descr:=GWikiLayerElments[i].description;
+       PWL.numid:=GWikiLayerElments[i].num_blok;
        PWL.find:=true;
       end
  end;
@@ -86,12 +87,12 @@ end;
 procedure destroyWL;
 var i:integer;
 begin
- for i:=0 to length(Wikilayer)-1 do
+ for i:=0 to length(GWikiLayerElments)-1 do
   begin
-   Wikilayer[i].Free;
-   Wikilayer[i]:=nil;
+   GWikiLayerElments[i].Free;
+   GWikiLayerElments[i]:=nil;
   end;
- SetLength(WikiLayer,0);
+ SetLength(GWikiLayerElments,0);
  FMain.LayerMapWiki.Visible:=false;
 end;
 
@@ -99,10 +100,10 @@ procedure addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPo
 var i,lenLay:integer;
 begin
  Delete(descript,posEx('#ge',descript,0),1);
- setLength(WikiLayer,length(WikiLayer)+1);
- lenLay:=length(WikiLayer);
- WikiLayer[lenLay-1]:=TWikiLayer.Create;
- With WikiLayer[lenLay-1] do
+ setLength(GWikiLayerElments,length(GWikiLayerElments)+1);
+ lenLay:=length(GWikiLayerElments);
+ GWikiLayerElments[lenLay-1]:=TWikiLayerElement.Create;
+ With GWikiLayerElments[lenLay-1] do
   begin
    GState.sat_map_both.GeoConvert.CheckLonLatPos(coordinatesLT);
    LT:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
@@ -181,6 +182,25 @@ begin
       KML.Free;
     end;
    end;
+end;
+
+{ TWikiLayer }
+
+constructor TWikiLayerElement.Create;
+begin
+  name_blok := '';
+  num_blok := '';
+  description := '';
+  AarrKt := nil;
+end;
+
+destructor TWikiLayerElement.Destroy;
+begin
+  name_blok := '';
+  num_blok := '';
+  description := '';
+  AarrKt := nil;
+  inherited;
 end;
 
 end.
