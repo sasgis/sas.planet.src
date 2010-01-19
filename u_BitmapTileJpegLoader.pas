@@ -39,6 +39,24 @@ begin
   end;
 end;
 
+procedure RGBA2BGRA3(var jcprops : TJPEG_CORE_PROPERTIES);
+var W, H : Integer;
+    p : PInteger;
+    pData : Pointer;
+    Width, Height : Integer;
+begin
+  Width := jcprops.JPGWidth;
+  Height := jcprops.JPGHeight;
+  pData := jcprops.DIBBytes;
+  p := PInteger(pData);
+  for H := 0 to Height-1 do begin
+    for W := 0 to Width-1 do begin
+      p^:=(p^ and $FF000000)or((p^ and $00FF0000) shr 16)or(p^ and $0000FF00)or((p^ and $000000FF) shl 16);
+      inc(p);
+    end;
+  end;
+end;
+
 function LoadJpeg(var jcprops : TJPEG_CORE_PROPERTIES; Btm: TBitmap32): Boolean;
 var
   iWidth, iHeight, iNChannels : Integer;
@@ -90,7 +108,7 @@ begin
     if iStatus < 0 then begin
       raise Exception.Create('Load Jpeg Error');
     end;
-    RGBA2BGRA2(jcprops);
+    RGBA2BGRA3(jcprops);
   finally
     ijlFree(@jcprops);
   end;
@@ -131,7 +149,7 @@ begin
       if iStatus < 0 then begin
         raise Exception.Create('Load Jpeg Error');
       end;
-      RGBA2BGRA2(jcprops);
+      RGBA2BGRA3(jcprops);
     finally
       ijlFree(@jcprops);
     end;
