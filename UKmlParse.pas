@@ -38,10 +38,13 @@ type
  end;
 
  TKML = class
+ public
   Data: Array of TKMLData;
   Styles:TStringList;
   StyleMaps:TStringList;
   Error_:string;
+  constructor Create;
+  destructor Destroy; override;
   function parse(buffer:string):boolean;
   function loadFromFile(FileName:string):boolean;
   function loadFromStream(str:TMemoryStream):boolean;
@@ -94,6 +97,32 @@ begin
     (pinteger(pchar(pointer(Result)) - 4))^ := q - pointer(Result);
   end
   else Result := '';
+end;
+
+constructor TKML.Create;
+begin
+  Data := nil;
+  Styles := nil;
+  StyleMaps := nil;
+  Error_ := '';
+end;
+
+destructor TKML.Destroy;
+var
+  i: integer;
+begin
+  FreeAndNil(Styles);
+  FreeAndNil(StyleMaps);
+  Error_ := '';
+  if Data <> nil then begin
+    for i := 0 to Length(Data) - 1 do begin
+      Data[i].PlacemarkID := '';
+      Data[i].Name := '';
+      Data[i].description := '';
+      Data[i].coordinates := nil;
+    end;
+  end;
+  inherited;
 end;
 
 function TKML.loadFromFile(FileName:string):boolean;
