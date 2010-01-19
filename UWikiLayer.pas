@@ -114,10 +114,13 @@ begin
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
     KML:=TKML.Create;
-    if Alayer.LoadTile(kml, Ax,Ay,Azoom, false) then
-     for ii:=0 to length(KML.Data)-1 do
-      addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
-    KML.Free;
+    try
+      if Alayer.LoadTile(kml, Ax,Ay,Azoom, false) then
+       for ii:=0 to length(KML.Data)-1 do
+        addWL(KML.Data[ii].Name,KML.Data[ii].description,KML.Data[ii].PlacemarkID,KML.Data[ii].coordinatesLT,KML.Data[ii].coordinatesRD,KML.Data[ii].coordinates);
+    finally
+      KML.Free;
+    end;
    end;
 end;
 
