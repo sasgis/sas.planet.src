@@ -47,9 +47,6 @@ type
   function loadFromStream(str:TMemoryStream):boolean;
  end;
 
-var Style:TStyle;
-    StyleMap:TStyleMap;
-
 implementation
 
 uses
