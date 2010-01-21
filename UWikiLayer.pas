@@ -72,6 +72,7 @@ var
 begin
  FMain.LayerMapWiki.Visible:=true;
  VSizeInTile := Fmain.LoadedSizeInTile;
+ Fmain.LayerMapWiki.BeginUpdate;
  for i:=0 to VSizeInTile.X do
   for j:=0 to VSizeInTile.Y do
    begin
@@ -89,6 +90,7 @@ begin
       KML.Free;
     end;
    end;
+ Fmain.LayerMapWiki.EndUpdate;
 end;
 
 procedure TWikiLayer.Clear;
