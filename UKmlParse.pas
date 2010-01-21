@@ -30,7 +30,7 @@ type
     StyleMaps: TStringList;
     Error_: string;
     function parse(buffer: string): boolean;
-    function parseCoordinates(koord: string; var Adata: TKMLData): boolean;
+    function parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
   public
     Data: Array of TKMLData;
     constructor Create;
@@ -259,51 +259,67 @@ begin
   SetLength(Data, length(Data) - 1);
 end;
 
-function TKML.parseCoordinates(koord: string; var Adata: TKMLData): boolean;
+function TKML.parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
 var
   VFormat: TFormatSettings;
   ii, jj, iip: integer;
   iip_: integer;
   len: Integer;
+  VCurPos: PChar;
+  VCurCoord: TExtendedPoint;
 begin
   VFormat.DecimalSeparator := '.';
   len := length(koord);
   ii := 1;
   jj := 0;
+  VCurPos := PChar(koord);
   try
     while ii <= len do begin
-      if koord[ii] = ' ' then begin
+      if VCurPos^ = ' ' then begin
+        inc(VCurPos);
         inc(ii);
       end;
       if ii > len then begin
         continue;
       end;
-      setLength(Adata.coordinates, jj + 1);
       iip := posEx(',', koord, ii);
-      Adata.coordinates[jj].x := StrToFloat(copy(koord, ii, iip - ii), VFormat);
-      ii := iip + 1;
-      if koord[ii] = ' ' then begin
-        inc(ii);
-      end;
-      iip := posEx(',', koord, ii);
-      iip_ := posEx(' ', koord, ii);
-      if (iip_ > 0) and (iip_ < iip) then begin
-        iip := iip_;
-      end;
-      if iip = 0 then begin
-        iip := Len + 1;
-      end;
-      Adata.coordinates[jj].y := StrToFloat(copy(koord, ii, iip - ii), VFormat);
-      ii := iip + 1;
-      if (iip <> iip_) then begin
-        while ((koord[ii] in ['0'..'9', 'e', 'E', '.', '-'])) do begin
+      koord[iip] := #0;
+      if TextToFloat(VCurPos, VCurCoord.x, fvExtended, VFormat) then begin
+        Inc(VCurPos, iip + 1 - ii);
+        ii := iip + 1;
+        if VCurPos^ = ' ' then begin
           inc(ii);
+          inc(VCurPos);
         end;
+        iip := posEx(',', koord, ii);
+        iip_ := posEx(' ', koord, ii);
+        if (iip_ > 0) and (iip_ < iip) then begin
+          iip := iip_;
+        end;
+        if iip = 0 then begin
+          iip := Len + 1;
+        end;
+        koord[iip] := #0;
+        if TextToFloat(VCurPos, VCurCoord.y, fvExtended, VFormat) then begin
+          setLength(Adata.coordinates, jj + 1);
+          Adata.coordinates[jj] := VCurCoord;
+        end;
+        Inc(VCurPos, iip + 1 - ii);
+        ii := iip + 1;
+        if (iip <> iip_) then begin
+          while ((VCurPos^ in ['0'..'9', 'e', 'E', '.', '-'])) do begin
+            inc(ii);
+            inc(VCurPos);
+          end;
+        end;
+        inc(jj);
+      end else begin
+        Inc(VCurPos, iip + 1 - ii);
+        ii := iip + 1;
       end;
-      inc(jj);
     end;
   except
-    setLength(Adata.coordinates, length(Adata.coordinates) - 1);
+    Assert(False, 'Неожиданная ошибка при разборе kml');
   end;
   if length(Adata.coordinates) > 0 then begin
     Adata.coordinatesLT := Adata.coordinates[0];
