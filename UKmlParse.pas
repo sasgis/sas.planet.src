@@ -17,8 +17,6 @@ type
     PlacemarkID: string;
     Name: string;
     description: string;
-    LatLonAltBoxLT: TExtendedPoint;
-    LatLonAltBoxRD: TExtendedPoint;
     coordinates: TExtendedPointArray;
     coordinatesLT: TExtendedPoint;
     coordinatesRD: TExtendedPoint;
@@ -26,8 +24,6 @@ type
 
   TKML = class
   private
-    Styles: TStringList;
-    StyleMaps: TStringList;
     Error_: string;
     function parse(buffer: string): boolean;
     function parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
@@ -92,8 +88,6 @@ end;
 constructor TKML.Create;
 begin
   Data := nil;
-  Styles := nil;
-  StyleMaps := nil;
   Error_ := '';
 end;
 
@@ -101,8 +95,6 @@ destructor TKML.Destroy;
 var
   i: integer;
 begin
-  FreeAndNil(Styles);
-  FreeAndNil(StyleMaps);
   Error_ := '';
   if Data <> nil then begin
     for i := 0 to Length(Data) - 1 do begin
