@@ -266,6 +266,7 @@ var
   iip_: integer;
   len: Integer;
   VCurPos: PChar;
+  VNumEndPos: PChar;
   VCurCoord: TExtendedPoint;
 begin
   VFormat.DecimalSeparator := '.';
@@ -283,9 +284,12 @@ begin
         continue;
       end;
       iip := posEx(',', koord, ii);
-      koord[iip] := #0;
+      VNumEndPos := VCurPos;
+      Inc(VNumEndPos, iip - ii);
+      VNumEndPos^ := #0;
       if TextToFloat(VCurPos, VCurCoord.x, fvExtended, VFormat) then begin
-        Inc(VCurPos, iip + 1 - ii);
+        VCurPos := VNumEndPos;
+        Inc(VCurPos);
         ii := iip + 1;
         if VCurPos^ = ' ' then begin
           inc(ii);
@@ -299,12 +303,15 @@ begin
         if iip = 0 then begin
           iip := Len + 1;
         end;
-        koord[iip] := #0;
+        VNumEndPos := VCurPos;
+        Inc(VNumEndPos, iip - ii);
+        VNumEndPos^ := #0;
         if TextToFloat(VCurPos, VCurCoord.y, fvExtended, VFormat) then begin
           setLength(Adata.coordinates, jj + 1);
           Adata.coordinates[jj] := VCurCoord;
         end;
-        Inc(VCurPos, iip + 1 - ii);
+        VCurPos := VNumEndPos;
+        Inc(VCurPos);
         ii := iip + 1;
         if (iip <> iip_) then begin
           while ((VCurPos^ in ['0'..'9', 'e', 'E', '.', '-'])) do begin
