@@ -30,6 +30,7 @@ type
     StyleMaps: TStringList;
     Error_: string;
     function parse(buffer: string): boolean;
+    function parseCoordinates(koord: string; var Adata: TKMLData): boolean;
   public
     Data: Array of TKMLData;
     constructor Create;
@@ -164,12 +165,10 @@ end;
 function TKML.parse(buffer: string): boolean;
 var
   koord: string;
-  position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, ii, jj, placeN, iip: integer;
-  pb, iip_: integer;
-  VFormat: TFormatSettings;
+  position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, iip: integer;
+  pb: integer;
 begin
   result := true;
-  VFormat.DecimalSeparator := '.';
   error_ := '';
   buffer := Sha_SpaceCompress(buffer);
   position := 1;
@@ -196,97 +195,53 @@ begin
           PlacemarkID := '';
         end;
         PosTag1 := PosEx('<name', buffer, PosStartPlace);
-        PosTag2 := PosEx('</name', buffer, PosTag1);
-        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) and (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-          Name := Utf8ToAnsi(copy(buffer, PosTag1 + 6, PosTag2 - (PosTag1 + 6)));
-          pb := PosEx('<![CDATA[', Name, 1);
-          if pb > 0 then begin
-            Name := copy(Name, pb + 9, PosEx(']]>', Name, 1) - (pb + 9));
+        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+          PosTag2 := PosEx('</name', buffer, PosTag1);
+          if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+            Name := Utf8ToAnsi(copy(buffer, PosTag1 + 6, PosTag2 - (PosTag1 + 6)));
+            pb := PosEx('<![CDATA[', Name, 1);
+            if pb > 0 then begin
+              Name := copy(Name, pb + 9, PosEx(']]>', Name, 1) - (pb + 9));
+            end;
+          end else begin
+            Name := '';
           end;
         end else begin
           Name := '';
         end;
         PosTag1 := PosEx('<description', buffer, PosStartPlace);
-        PosTag2 := PosEx('</description', buffer, PosTag1);
-        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) and (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-          description := Utf8ToAnsi(copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13)));
-          pb := PosEx('<![CDATA[', description, 1);
-          if pb > 0 then begin
-            Data[PlaceN].description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
-          end;
-          iip := PosEx('&lt;', Data[PlaceN].description, 1);
-          while iip > 0 do begin
-            description[iip] := '<';
-            Delete(description, iip + 1, 3);
-            iip := PosEx('&lt;', description, iip);
-          end;
-          iip := PosEx('&gt;', description, 1);
-          while iip > 0 do begin
-            description[iip] := '>';
-            Delete(description, iip + 1, 3);
-            iip := PosEx('&gt;', description, iip);
+        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+          PosTag2 := PosEx('</description', buffer, PosTag1);
+          if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+            description := Utf8ToAnsi(copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13)));
+            pb := PosEx('<![CDATA[', description, 1);
+            if pb > 0 then begin
+              Data[PlaceN].description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
+            end;
+            iip := PosEx('&lt;', Data[PlaceN].description, 1);
+            while iip > 0 do begin
+              description[iip] := '<';
+              Delete(description, iip + 1, 3);
+              iip := PosEx('&lt;', description, iip);
+            end;
+            iip := PosEx('&gt;', description, 1);
+            while iip > 0 do begin
+              description[iip] := '>';
+              Delete(description, iip + 1, 3);
+              iip := PosEx('&gt;', description, iip);
+            end;
+          end else begin
+            Data[PlaceN].description := '';
           end;
         end else begin
           Data[PlaceN].description := '';
         end;
         PosTag1 := PosEx('<coordinates', buffer, PosStartPlace);
-        PosTag2 := PosEx('</coordinates', buffer, PosTag1);
-        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) and (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-          koord := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
-          ii := 1;
-          jj := 0;
-          try
-            while ii <= length(koord) do begin
-              if koord[ii] = ' ' then begin
-                inc(ii);
-              end;
-              if ii > length(koord) then begin
-                continue;
-              end;
-              setLength(coordinates, jj + 1);
-              iip := posEx(',', koord, ii);
-              coordinates[jj].x := StrToFloat(copy(koord, ii, iip - ii), VFormat);
-              ii := iip + 1;
-              if koord[ii] = ' ' then begin
-                inc(ii);
-              end;
-              iip := posEx(',', koord, ii);
-              iip_ := posEx(' ', koord, ii);
-              if (iip_ > 0) and (iip_ < iip) then begin
-                iip := iip_;
-              end;
-              if iip = 0 then begin
-                iip := Length(koord) + 1;
-              end;
-              coordinates[jj].y := StrToFloat(copy(koord, ii, iip - ii), VFormat);
-              ii := iip + 1;
-              if (iip <> iip_) then begin
-                while ((koord[ii] in ['0'..'9', 'e', 'E', '.', '-'])) do begin
-                  inc(ii);
-                end;
-              end;
-              inc(jj);
-            end;
-          except
-            setLength(coordinates, length(coordinates) - 1);
-          end;
-          if length(coordinates) > 0 then begin
-            coordinatesLT := coordinates[0];
-            coordinatesRD := coordinates[0];
-            for ii := 0 to length(coordinates) - 1 do begin
-              if coordinatesLT.x > coordinates[ii].X then begin
-                coordinatesLT.x := coordinates[ii].X;
-              end;
-              if coordinatesRD.x < coordinates[ii].X then begin
-                coordinatesRD.x := coordinates[ii].X;
-              end;
-              if coordinatesLT.y < coordinates[ii].y then begin
-                coordinatesLT.y := coordinates[ii].y;
-              end;
-              if coordinatesRD.y > coordinates[ii].y then begin
-                coordinatesRD.y := coordinates[ii].y;
-              end;
-            end;
+        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+          PosTag2 := PosEx('</coordinates', buffer, PosTag1);
+          if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+            koord := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
+            Result := parseCoordinates(koord, Data[PlaceN]);
           end else begin
             result := false;
           end;
@@ -302,6 +257,75 @@ begin
     end;
   end;
   SetLength(Data, length(Data) - 1);
+end;
+
+function TKML.parseCoordinates(koord: string; var Adata: TKMLData): boolean;
+var
+  VFormat: TFormatSettings;
+  ii, jj, iip: integer;
+  iip_: integer;
+  len: Integer;
+begin
+  VFormat.DecimalSeparator := '.';
+  len := length(koord);
+  ii := 1;
+  jj := 0;
+  try
+    while ii <= len do begin
+      if koord[ii] = ' ' then begin
+        inc(ii);
+      end;
+      if ii > len then begin
+        continue;
+      end;
+      setLength(Adata.coordinates, jj + 1);
+      iip := posEx(',', koord, ii);
+      Adata.coordinates[jj].x := StrToFloat(copy(koord, ii, iip - ii), VFormat);
+      ii := iip + 1;
+      if koord[ii] = ' ' then begin
+        inc(ii);
+      end;
+      iip := posEx(',', koord, ii);
+      iip_ := posEx(' ', koord, ii);
+      if (iip_ > 0) and (iip_ < iip) then begin
+        iip := iip_;
+      end;
+      if iip = 0 then begin
+        iip := Len + 1;
+      end;
+      Adata.coordinates[jj].y := StrToFloat(copy(koord, ii, iip - ii), VFormat);
+      ii := iip + 1;
+      if (iip <> iip_) then begin
+        while ((koord[ii] in ['0'..'9', 'e', 'E', '.', '-'])) do begin
+          inc(ii);
+        end;
+      end;
+      inc(jj);
+    end;
+  except
+    setLength(Adata.coordinates, length(Adata.coordinates) - 1);
+  end;
+  if length(Adata.coordinates) > 0 then begin
+    Adata.coordinatesLT := Adata.coordinates[0];
+    Adata.coordinatesRD := Adata.coordinates[0];
+    for ii := 0 to length(Adata.coordinates) - 1 do begin
+      if Adata.coordinatesLT.x > Adata.coordinates[ii].X then begin
+        Adata.coordinatesLT.x := Adata.coordinates[ii].X;
+      end;
+      if Adata.coordinatesRD.x < Adata.coordinates[ii].X then begin
+        Adata.coordinatesRD.x := Adata.coordinates[ii].X;
+      end;
+      if Adata.coordinatesLT.y < Adata.coordinates[ii].y then begin
+        Adata.coordinatesLT.y := Adata.coordinates[ii].y;
+      end;
+      if Adata.coordinatesRD.y > Adata.coordinates[ii].y then begin
+        Adata.coordinatesRD.y := Adata.coordinates[ii].y;
+      end;
+    end;
+    Result := True;
+  end else begin
+    result := false;
+  end;
 end;
 
 end.
