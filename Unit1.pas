@@ -728,7 +728,7 @@ uses
   i_ILogSimple,
   i_ILogForTaskThread,
   i_ICoordConverter,
-  UKMLParse,
+  u_KmlInfoSimple,
   UTrAllLoadMap,
   UGSM;
 
@@ -4849,7 +4849,7 @@ procedure TFmain.TBXItem1Click(Sender: TObject);
 var ms:TMemoryStream;
     url:string;
     i:integer;
-    kml:TKml;
+    kml:TKmlInfoSimple;
     s,l:integer;
     conerr:boolean;
     add_line_arr_b:TExtendedPointArray;
@@ -4868,8 +4868,8 @@ begin
           '&tlat='+R2StrPoint(add_line_arr[i+1].y)+'&tlon='+R2StrPoint(add_line_arr[i+1].x);
  if GetStreamFromURL(ms,url,'text/xml')>0 then
   begin
-   kml:=TKml.Create;
-   kml.loadFromStream(ms);
+   kml:=TKmlInfoSimple.Create;
+   GState.KmlLoader.LoadFromStream(ms, kml);
    ms.SetSize(0);
    if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
      s:=length(add_line_arr_b);

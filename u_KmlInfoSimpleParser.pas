@@ -1,40 +1,29 @@
-unit UKmlParse;
+unit u_KmlInfoSimpleParser;
 
 interface
 
 uses
   Classes,
-  t_GeoTypes;
+  SysUtils,
+  t_GeoTypes,
+  u_KmlInfoSimple,
+  i_IKmlInfoSimpleLoader;
 
 type
-  TKMLData = record
-    PlacemarkID: string;
-    Name: string;
-    description: string;
-    coordinates: TExtendedPointArray;
-    coordinatesLT: TExtendedPoint;
-    coordinatesRD: TExtendedPoint;
-  end;
-
-  TKML = class
+  TKmlInfoSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
   private
-    Error_: string;
-    function parse(buffer: string): boolean;
+    function parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
     function parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
   public
-    Data: Array of TKMLData;
-    constructor Create;
-    destructor Destroy; override;
-    function loadFromFile(FileName: string): boolean;
-    function loadFromStream(str: TStream): boolean;
+    procedure LoadFromFile(AFileName: string; ABtm: TKmlInfoSimple);
+    procedure LoadFromStream(AStream: TStream; ABtm: TKmlInfoSimple);
   end;
+
 
 implementation
 
 uses
-  StrUtils,
-  SysUtils,
-  UResStrings;
+  StrUtils;
 
 function Sha_SpaceCompress(const s: string): string;
 var
@@ -84,93 +73,53 @@ begin
     end;
 end;
 
-constructor TKML.Create;
-begin
-  Data := nil;
-  Error_ := '';
-end;
 
-destructor TKML.Destroy;
-var
-  i: integer;
-begin
-  Error_ := '';
-  if Data <> nil then begin
-    for i := 0 to Length(Data) - 1 do begin
-      Data[i].PlacemarkID := '';
-      Data[i].Name := '';
-      Data[i].description := '';
-      Data[i].coordinates := nil;
-    end;
-  end;
-  inherited;
-end;
+{ TKmlInfoSimpleParser }
 
-function TKML.loadFromFile(FileName: string): boolean;
+procedure TKmlInfoSimpleParser.LoadFromFile(AFileName: string;
+  ABtm: TKmlInfoSimple);
 var
-  buffer: string;
-  str: TMemoryStream;
+  VFileStream: TFileStream;
 begin
-  error_ := '';
-  if not (FileExists(FileName)) then begin
-    result := false;
-    error_ := SAS_ERR_FileNotFound;
-    exit;
-  end;
+  VFileStream := TFileStream.Create(AFileName, fmOpenRead);
   try
-    str := TMemoryStream.Create;
-    try
-      str.LoadFromFile(FileName);
-      str.Position := 0;
-      SetLength(buffer, str.Size);
-      str.ReadBuffer(buffer[1], str.Size);
-      result := parse(buffer);
-    finally
-      str.Free;
-      SetLength(buffer, 0);
-    end;
-  except
-    result := false;
+    LoadFromStream(VFileStream, ABtm);
+  finally
+    VFileStream.Free;
   end;
 end;
 
-function TKML.loadFromStream(str: TStream): boolean;
+procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
+  ABtm: TKmlInfoSimple);
 var
   buffer: string;
 begin
-  error_ := '';
   try
-    try
-      str.Position := 0;
-      SetLength(buffer, str.Size);
-      str.ReadBuffer(buffer[1], str.Size);
-      result := parse(buffer);
-    finally
-      SetLength(buffer, 0);
-    end;
-  except
-    result := false;
+    AStream.Position := 0;
+    SetLength(buffer, AStream.Size);
+    AStream.ReadBuffer(buffer[1], AStream.Size);
+    parse(buffer, ABtm);
+  finally
+    SetLength(buffer, 0);
   end;
 end;
 
-function TKML.parse(buffer: string): boolean;
+function TKmlInfoSimpleParser.parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
 var
   koord: string;
   position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, iip: integer;
   pb: integer;
 begin
   result := true;
-  error_ := '';
   buffer := Sha_SpaceCompress(buffer);
   position := 1;
   PosStartPlace := 1;
   PosEndPlace := 1;
   placeN := 0;
-  Data := nil;
   While (position > 0) and (PosStartPlace > 0) and (PosEndPlace > 0) and (result) do begin
     try
-      SetLength(Data, placeN + 1);
-      With Data[PlaceN] do begin
+      SetLength(ABtm.Data, placeN + 1);
+      With ABtm.Data[PlaceN] do begin
         PosStartPlace := PosEx('<Placemark', buffer, position);
         if PosStartPlace < 1 then begin
           continue;
@@ -207,9 +156,9 @@ begin
             description := Utf8ToAnsi(copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13)));
             pb := PosEx('<![CDATA[', description, 1);
             if pb > 0 then begin
-              Data[PlaceN].description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
+              ABtm.Data[PlaceN].description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
             end;
-            iip := PosEx('&lt;', Data[PlaceN].description, 1);
+            iip := PosEx('&lt;', ABtm.Data[PlaceN].description, 1);
             while iip > 0 do begin
               description[iip] := '<';
               Delete(description, iip + 1, 3);
@@ -222,17 +171,17 @@ begin
               iip := PosEx('&gt;', description, iip);
             end;
           end else begin
-            Data[PlaceN].description := '';
+            ABtm.Data[PlaceN].description := '';
           end;
         end else begin
-          Data[PlaceN].description := '';
+          ABtm.Data[PlaceN].description := '';
         end;
         PosTag1 := PosEx('<coordinates', buffer, PosStartPlace);
         if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
           PosTag2 := PosEx('</coordinates', buffer, PosTag1);
           if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
             koord := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
-            Result := parseCoordinates(koord, Data[PlaceN]);
+            Result := parseCoordinates(koord, ABtm.Data[PlaceN]);
           end else begin
             result := false;
           end;
@@ -244,13 +193,13 @@ begin
       position := PosEndPlace + 1;
     except
       Result := false;
-      error_ := SAS_ERR_Read;
     end;
   end;
-  SetLength(Data, length(Data) - 1);
+  SetLength(ABtm.Data, length(ABtm.Data) - 1);
 end;
 
-function TKML.parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
+function TKmlInfoSimpleParser.parseCoordinates(var koord: string;
+  var Adata: TKMLData): boolean;
 var
   VFormat: TFormatSettings;
   ii, iip: integer;

@@ -13,6 +13,7 @@ uses
   t_CommonTypes,
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
+  i_IKmlInfoSimpleLoader,
   u_GarbageCollectorThread,
   u_GeoToStr,
   Uimgfun,
@@ -29,7 +30,7 @@ type
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
     FMapCalibrationList: IInterfaceList;
-
+    FKmlLoader: IKmlInfoSimpleLoader;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -223,6 +224,7 @@ type
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
+    property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -245,6 +247,7 @@ uses
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
   u_MapCalibrationListBasic,
+  u_KmlInfoSimpleParser,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -263,6 +266,7 @@ begin
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FMapCalibrationList := TMapCalibrationListBasic.Create;
+  FKmlLoader := TKmlInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   LoadMainParams;
@@ -285,6 +289,7 @@ begin
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
   FMapCalibrationList := nil;
+  FKmlLoader := nil;
   sat_map_both := nil;
   FreeAllMaps;
   inherited;

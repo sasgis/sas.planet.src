@@ -6,9 +6,9 @@ uses
   Classes,
   GR32,
   UgeoFun,
-  UKmlParse,
   UMapType,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_KmlInfoSimple;
 
 type
   TWikiLayerElement = class
@@ -67,7 +67,7 @@ procedure TWikiLayer.AddFromLayer(Alayer: TMapType);
 var
     Ax,Ay,i,j,ii,Azoom:integer;
     APos:TPoint;
-    kml:TKML;
+    kml:TKmlInfoSimple;
     VSizeInTile: TPoint;
 begin
  FMain.LayerMapWiki.Visible:=true;
@@ -81,7 +81,7 @@ begin
     if GState.CiclMap then Ax:=Fmain.X2AbsX(APos.X-pr_x+(i shl 8),GState.zoom_size)
                else Ax:=APos.X-pr_x+(i shl 8);
     Ay:=APos.y-pr_y+(j shl 8);
-    KML:=TKML.Create;
+    KML:=TKmlInfoSimple.Create;
     try
       if Alayer.LoadTile(kml, Ax,Ay,Azoom, false) then
        for ii:=0 to length(KML.Data)-1 do

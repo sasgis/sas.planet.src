@@ -22,8 +22,8 @@ uses
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
   i_IBitmapTypeExtManager,
+  u_KmlInfoSimple,
   u_UrlGenerator,
-  UKmlParse,
   UResStrings;
 
 type
@@ -145,8 +145,8 @@ type
 
     function LoadTile(btm: TBitmap32; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
-    function LoadTile(btm: TKML; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
-    function LoadTile(btm: TKML; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
+    function LoadTile(btm: TKmlInfoSimple; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
+    function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
 
     function LoadTileFromPreZ(spr: TBitmap32; x, y: integer; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
@@ -214,7 +214,7 @@ type
     ban_pg_ld: Boolean;
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
     function LoadFile(btm: TBitmap32; APath: string; caching: boolean): boolean; overload;
-    function LoadFile(btm: TKml; APath: string; caching: boolean): boolean; overload;
+    function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
     procedure CreateDirIfNotExists(APath: string);
     procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
     procedure SaveTileInCache(btm: TStream; path: string); overload;
@@ -998,7 +998,7 @@ begin
   Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
 end;
 
-function TMapType.LoadTile(btm: TKML; x,y:longint;Azoom:byte;
+function TMapType.LoadTile(btm: TKmlInfoSimple; x,y:longint;Azoom:byte;
   caching: boolean): boolean;
 begin
   Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
@@ -1029,7 +1029,7 @@ begin
   end;
 end;
 
-function TMapType.LoadTile(btm: TKML; AXY: TPoint; Azoom: byte;
+function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 var path: string;
 begin
@@ -1069,15 +1069,17 @@ begin
   Result := Self.DeleteTile(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
-function TMapType.LoadFile(btm: TKML; APath: string; caching:boolean): boolean;
+function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string; caching:boolean): boolean;
 begin
   Result := false;
   if GetFileSize(Apath)<=0 then begin
     exit;
   end;
   try
-    result:=btm.LoadFromFile(Apath)
+    GState.KmlLoader.LoadFromFile(Apath,  btm);
+    Result := True;
   except
+    Assert(False, 'Ошибка загрузки kml из файла:' + APath);
   end;
 end;
 
