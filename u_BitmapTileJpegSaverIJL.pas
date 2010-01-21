@@ -126,7 +126,6 @@ begin
       if VStatus < 0 then begin
         raise Exception.Create('Save Jpeg Error' + inttostr(vstatus));
       end;
-      AStream.Position := 0;
       AStream.WriteBuffer(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
     finally
       FreeMem(jcprops.DIBBytes);
