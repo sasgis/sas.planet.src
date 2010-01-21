@@ -262,17 +262,21 @@ end;
 function TKML.parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
 var
   VFormat: TFormatSettings;
-  ii, jj, iip: integer;
+  ii, iip: integer;
   iip_: integer;
   len: Integer;
   VCurPos: PChar;
   VNumEndPos: PChar;
   VCurCoord: TExtendedPoint;
+  VAllocated: Integer;
+  VUsed: Integer;
 begin
   VFormat.DecimalSeparator := '.';
   len := length(koord);
   ii := 1;
-  jj := 0;
+  VUsed := 0;
+  VAllocated := 32;
+  SetLength(Adata.coordinates, VAllocated);
   VCurPos := PChar(koord);
   try
     while ii <= len do begin
@@ -307,8 +311,12 @@ begin
         Inc(VNumEndPos, iip - ii);
         VNumEndPos^ := #0;
         if TextToFloat(VCurPos, VCurCoord.y, fvExtended, VFormat) then begin
-          setLength(Adata.coordinates, jj + 1);
-          Adata.coordinates[jj] := VCurCoord;
+          if VUsed >= VAllocated then begin
+            VAllocated := VAllocated * 2;
+            SetLength(Adata.coordinates, VAllocated);
+          end;
+          Adata.coordinates[VUsed] := VCurCoord;
+          Inc(VUsed);
         end;
         VCurPos := VNumEndPos;
         Inc(VCurPos);
@@ -319,7 +327,6 @@ begin
             inc(VCurPos);
           end;
         end;
-        inc(jj);
       end else begin
         Inc(VCurPos, iip + 1 - ii);
         ii := iip + 1;
@@ -328,7 +335,8 @@ begin
   except
     Assert(False, 'Неожиданная ошибка при разборе kml');
   end;
-  if length(Adata.coordinates) > 0 then begin
+  SetLength(Adata.coordinates, VUsed);
+  if VUsed > 0 then begin
     Adata.coordinatesLT := Adata.coordinates[0];
     Adata.coordinatesRD := Adata.coordinates[0];
     for ii := 0 to length(Adata.coordinates) - 1 do begin
