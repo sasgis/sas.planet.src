@@ -3,13 +3,7 @@ unit UKmlParse;
 interface
 
 uses
-  Windows,
   Classes,
-  Graphics,
-  StrUtils,
-  SysUtils,
-  GR32,
-  UResStrings,
   t_GeoTypes;
 
 type
@@ -36,6 +30,11 @@ type
   end;
 
 implementation
+
+uses
+  StrUtils,
+  SysUtils,
+  UResStrings;
 
 function Sha_SpaceCompress(const s: string): string;
 var
