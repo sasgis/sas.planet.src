@@ -2229,10 +2229,10 @@ begin
  GState.GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
  GState.GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
  GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed{-16776961});
- GState.GPS_Correction:=extpoint(GState.MainIni.ReadFloat('GPS','popr_lon',0),GState.MainIni.ReadFloat('GPS','popr_lat',0));
+ GState.GPS_Correction:=extpoint(str2r(GState.MainIni.ReadString('GPS','popr_lon','0')),str2r(GState.MainIni.ReadString('GPS','popr_lat','0')));
  GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
- GPSpar.Odometr:=GState.MainIni.ReadFloat('GPS','Odometr',0);
+ GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
 
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
