@@ -13,19 +13,6 @@ uses
   t_GeoTypes;
 
 type
- TStyle = class
-  id:string;
-  colorline:TColor32;
-  colorfill:TColor32;
-  bitm:TBitmap32;
- end;
-
- TStyleMap = class
-  id:string;
-  normal:TStyle;
-  hightLight:TStyle;
- end;
-
  TKMLData = record
   PlacemarkID:string;
   Name:string;
@@ -38,22 +25,20 @@ type
  end;
 
  TKML = class
- public
-  Data: Array of TKMLData;
+ private
   Styles:TStringList;
   StyleMaps:TStringList;
   Error_:string;
+  function parse(buffer:string):boolean;
+ public
+  Data: Array of TKMLData;
   constructor Create;
   destructor Destroy; override;
-  function parse(buffer:string):boolean;
   function loadFromFile(FileName:string):boolean;
-  function loadFromStream(str:TMemoryStream):boolean;
+  function loadFromStream(str:TStream):boolean;
  end;
 
 implementation
-
-uses
-  unit1;
 
 function Sha_SpaceCompress(const s: string): string;
 var p, q, t: pchar;
@@ -153,7 +138,7 @@ begin
   end;
 end;
 
-function TKML.loadFromStream(str:TMemoryStream):boolean;
+function TKML.loadFromStream(str:TStream):boolean;
 var buffer:string;
 begin
   error_:='';
