@@ -87,7 +87,7 @@ begin
     if q <> nil then begin
       dec(q);
       q^ := #0;
-      (pinteger(pchar(pointer(Result)) - 4))^ := q - pointer(Result);
+      SetLength(Result, q - PChar(Result));
     end else begin
       Result := '';
     end;
