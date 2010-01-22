@@ -193,15 +193,15 @@ begin
         if PosStartPlace > 0 then begin
           PosEndPlace := integer(FBMSrchPlacemarkE.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
           if PosEndPlace > 0 then begin
-            position := integer(FBMSrchId.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+            position := integer(FBMSrchId.Search(@buffer[PosStartPlace],PosEndPlace-PosStartPlace+1))-sStart+1;
             if (position < PosEndPlace) and (position > PosStartPlace) then begin
               PlacemarkID := copy(buffer, position + 6, PosEx('">', buffer, position) - (position + 6));
             end else begin
               PlacemarkID := '';
             end;
-            PosTag1 := integer(FBMSrchName.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+            PosTag1 := integer(FBMSrchName.Search(@buffer[PosStartPlace],PosEndPlace-PosStartPlace+1))-sStart+1;
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-              PosTag2 := integer(FBMSrchNameE.Search(@buffer[PosTag1],sLen-PosTag1+1))-sStart+1;
+              PosTag2 := integer(FBMSrchNameE.Search(@buffer[PosTag1],PosEndPlace-PosTag1+1))-sStart+1;
               if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
                 Name := Utf8ToAnsi(copy(buffer, PosTag1 + 6, PosTag2 - (PosTag1 + 6)));
                // pb := integer(BMSrchCDATA.Search(@Name[1],length(Name)));
@@ -215,11 +215,9 @@ begin
             end else begin
               Name := '';
             end;
-            PosTag1 := integer(FBMSrchDesc.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
-    //        PosTag1 := PosEx('<description', buffer, PosStartPlace);
+            PosTag1 := integer(FBMSrchDesc.Search(@buffer[PosStartPlace],PosEndPlace-PosStartPlace+1))-sStart+1;
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-              PosTag2 := integer(FBMSrchDescE.Search(@buffer[PosTag1],sLen-PosTag1+1))-sStart+1;
-    //          PosTag2 := PosEx('</description', buffer, PosTag1);
+              PosTag2 := integer(FBMSrchDescE.Search(@buffer[PosTag1],PosEndPlace-PosTag1+1))-sStart+1;
               if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
                 description := Utf8ToAnsi(copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13)));
                 pb := PosEx('<![CDATA[', description, 1);
@@ -244,11 +242,9 @@ begin
             end else begin
               ABtm.Data[PlaceN].description := '';
             end;
-            PosTag1 := integer(FBMSrchCoord.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
-            //PosTag1 := PosEx('<coordinates', buffer, PosStartPlace);
+            PosTag1 := integer(FBMSrchCoord.Search(@buffer[PosStartPlace],PosEndPlace-PosStartPlace+1))-sStart+1;
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-              PosTag2 := integer(FBMSrchCoordE.Search(@buffer[PosTag1],sLen-PosTag1+1))-sStart+1;
-              //PosTag2 := PosEx('</coordinates', buffer, PosTag1);
+              PosTag2 := integer(FBMSrchCoordE.Search(@buffer[PosTag1],PosEndPlace-PosTag1+1))-sStart+1;
               if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
                 koord := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
                 Result := parseCoordinates(koord, ABtm.Data[PlaceN]);
