@@ -29,7 +29,7 @@ type
     FBMSrchCoordE: TSearchBM;
     function PosOfChar(APattern: Char; AText: PChar; ALen: Integer): PChar;
     function parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
-    function parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
+    function parseCoordinates(AText: PChar; ALen: integer; var Adata: TKMLData): boolean;
     procedure parseName(var Name: string);
     procedure parseDescription(var Description: string);
   public
@@ -210,7 +210,6 @@ end;
 
 function TKmlInfoSimpleParser.parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
 var
-  koord: string;
   position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, sLen,sStart: integer;
 begin
   result := true;
@@ -263,8 +262,7 @@ begin
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
               PosTag2 := integer(FBMSrchCoordE.Search(@buffer[PosTag1],PosEndPlace-PosTag1+1))-sStart+1;
               if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-                koord := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
-                Result := parseCoordinates(koord, ABtm.Data[PlaceN]);
+                Result := parseCoordinates(@buffer[PosTag1 + 13],PosTag2 - (PosTag1 + 13), ABtm.Data[PlaceN]);
               end else begin
                 result := false;
               end;
@@ -283,7 +281,7 @@ begin
   SetLength(ABtm.Data, length(ABtm.Data) - 1);
 end;
 
-function TKmlInfoSimpleParser.parseCoordinates(var koord: string;
+function TKmlInfoSimpleParser.parseCoordinates(AText: PChar; ALen: integer;
   var Adata: TKMLData): boolean;
 var
   ii: integer;
@@ -297,12 +295,12 @@ var
   VAllocated: Integer;
   VUsed: Integer;
 begin
-  len := length(koord);
+  len := ALen;
   ii := 1;
   VUsed := 0;
   VAllocated := 32;
   SetLength(Adata.coordinates, VAllocated);
-  VLineStart := PChar(koord);
+  VLineStart := AText;
   VCurPos := VLineStart;
   try
     while ii <= len do begin
@@ -335,7 +333,7 @@ begin
                 VNumEndPos := VSpace;
               end;
             end else begin
-              VNumEndPos := PChar(@koord[len]);
+              VNumEndPos := VLineStart + Len;
             end;
             VNumEndPos^ := #0;
             if TextToFloat(VCurPos, VCurCoord.y, fvExtended, FFormat) then begin
