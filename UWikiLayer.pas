@@ -73,7 +73,8 @@ var
 begin
  FMain.LayerMapWiki.Visible:=true;
  VSizeInTile := Fmain.LoadedSizeInTile;
- Fmain.LayerMapWiki.BeginUpdate;
+ Fmain.LayerMapWiki.Bitmap.BeginUpdate;
+ try
  for i:=0 to VSizeInTile.X do
   for j:=0 to VSizeInTile.Y do
    begin
@@ -91,7 +92,9 @@ begin
       KML.Free;
     end;
    end;
- Fmain.LayerMapWiki.EndUpdate;
+  finally
+    Fmain.LayerMapWiki.Bitmap.EndUpdate;
+  end;
 end;
 
 procedure TWikiLayer.Clear;
