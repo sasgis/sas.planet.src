@@ -30,6 +30,8 @@ type
     function PosOfChar(APattern: Char; AText: PChar; ALen: Integer): PChar;
     function parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
     function parseCoordinates(var koord: string; var Adata: TKMLData): boolean;
+    procedure parseName(var Name: string);
+    procedure parseDescription(var Description: string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -171,11 +173,45 @@ begin
   end;
 end;
 
+procedure TKmlInfoSimpleParser.parseName(var Name: string);
+var
+  pb: integer;
+begin
+  Name := Utf8ToAnsi(Name);
+  pb := PosEx('<![CDATA[', Name, 1);
+  if pb > 0 then begin
+    Name := copy(Name, pb + 9, PosEx(']]>', Name, 1) - (pb + 9));
+  end;
+end;
+
+procedure TKmlInfoSimpleParser.parseDescription(var Description: string);
+var
+  pb: integer;
+  iip: integer;
+begin
+  description := Utf8ToAnsi(Description);
+  pb := PosEx('<![CDATA[', description, 1);
+  if pb > 0 then begin
+    description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
+  end;
+  iip := PosEx('&lt;', description, 1);
+  while iip > 0 do begin
+    description[iip] := '<';
+    Delete(description, iip + 1, 3);
+    iip := PosEx('&lt;', description, iip);
+  end;
+  iip := PosEx('&gt;', description, 1);
+  while iip > 0 do begin
+    description[iip] := '>';
+    Delete(description, iip + 1, 3);
+    iip := PosEx('&gt;', description, iip);
+  end;
+end;
+
 function TKmlInfoSimpleParser.parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
 var
   koord: string;
-  position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, iip, sLen,sStart: integer;
-  pb: integer;
+  position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, sLen,sStart: integer;
 begin
   result := true;
   buffer := Sha_SpaceCompress(buffer);
@@ -203,12 +239,8 @@ begin
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
               PosTag2 := integer(FBMSrchNameE.Search(@buffer[PosTag1],PosEndPlace-PosTag1+1))-sStart+1;
               if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-                Name := Utf8ToAnsi(copy(buffer, PosTag1 + 6, PosTag2 - (PosTag1 + 6)));
-               // pb := integer(BMSrchCDATA.Search(@Name[1],length(Name)));
-                pb := PosEx('<![CDATA[', Name, 1);
-                if pb > 0 then begin
-                  Name := copy(Name, pb + 9, PosEx(']]>', Name, 1) - (pb + 9));
-                end;
+                Name := copy(buffer, PosTag1 + 6, PosTag2 - (PosTag1 + 6));
+                parseName(Name);
               end else begin
                 Name := '';
               end;
@@ -219,28 +251,13 @@ begin
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
               PosTag2 := integer(FBMSrchDescE.Search(@buffer[PosTag1],PosEndPlace-PosTag1+1))-sStart+1;
               if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-                description := Utf8ToAnsi(copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13)));
-                pb := PosEx('<![CDATA[', description, 1);
-                if pb > 0 then begin
-                  ABtm.Data[PlaceN].description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
-                end;
-                iip := PosEx('&lt;', ABtm.Data[PlaceN].description, 1);
-                while iip > 0 do begin
-                  description[iip] := '<';
-                  Delete(description, iip + 1, 3);
-                  iip := PosEx('&lt;', description, iip);
-                end;
-                iip := PosEx('&gt;', description, 1);
-                while iip > 0 do begin
-                  description[iip] := '>';
-                  Delete(description, iip + 1, 3);
-                  iip := PosEx('&gt;', description, iip);
-                end;
+                description := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
+                parseDescription(description);
               end else begin
-                ABtm.Data[PlaceN].description := '';
+                description := '';
               end;
             end else begin
-              ABtm.Data[PlaceN].description := '';
+              description := '';
             end;
             PosTag1 := integer(FBMSrchCoord.Search(@buffer[PosStartPlace],PosEndPlace-PosStartPlace+1))-sStart+1;
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
