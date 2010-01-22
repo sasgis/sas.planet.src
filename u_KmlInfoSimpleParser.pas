@@ -7,7 +7,8 @@ uses
   SysUtils,
   t_GeoTypes,
   u_KmlInfoSimple,
-  i_IKmlInfoSimpleLoader;
+  i_IKmlInfoSimpleLoader,
+  BMSEARCH;
 
 type
   TKmlInfoSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
@@ -107,11 +108,41 @@ end;
 function TKmlInfoSimpleParser.parse(buffer: string; ABtm: TKmlInfoSimple): boolean;
 var
   koord: string;
-  position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, iip: integer;
+  position, PosStartPlace, PosTag1, PosTag2, PosEndPlace, placeN, iip, sLen,sStart: integer;
   pb: integer;
+  BMSrchPlacemark,BMSrchPlacemarkE,BMSrchName,BMSrchNameE,BMSrchId,BMSrchCDATA,BMSrchCDATAE,
+  BMSrchDesc,BMSrchDescE,BMSrchLt,BMSrchGt,BMSrchCoord,BMSrchCoordE:TSearchBM;
 begin
   result := true;
   buffer := Sha_SpaceCompress(buffer);
+{  sLen:=Length(buffer);
+  sStart:=Integer(@buffer[1]);
+  BMSrchPlacemark:=TSearchBM.Create;
+  BMSrchPlacemark.PrepareStr('<Placemark',true);
+  BMSrchPlacemarkE:=TSearchBM.Create;
+  BMSrchPlacemarkE.PrepareStr('</Placemark',true);
+  BMSrchName:=TSearchBM.Create;
+  BMSrchName.PrepareStr('<name',true);
+  BMSrchNameE:=TSearchBM.Create;
+  BMSrchNameE.PrepareStr('</name',true);
+  BMSrchId:=TSearchBM.Create;
+  BMSrchId.PrepareStr('id=',true);
+  BMSrchCDATA:=TSearchBM.Create;
+  BMSrchCDATA.PrepareStr('<![CDATA[',true);
+  BMSrchCDATAE:=TSearchBM.Create;
+  BMSrchCDATAE.PrepareStr(']]>',true);
+  BMSrchDesc:=TSearchBM.Create;
+  BMSrchDesc.PrepareStr('<description',true);
+  BMSrchDescE:=TSearchBM.Create;
+  BMSrchDescE.PrepareStr('</description',true);
+  BMSrchLt:=TSearchBM.Create;
+  BMSrchLt.PrepareStr('&lt;',true);
+  BMSrchGt:=TSearchBM.Create;
+  BMSrchGt.PrepareStr('&gt;',true);
+  BMSrchCoord:=TSearchBM.Create;
+  BMSrchCoord.PrepareStr('<coordinates',true);
+  BMSrchCoordE:=TSearchBM.Create;
+  BMSrchCoordE.PrepareStr('</coordinates',true);
   position := 1;
   PosStartPlace := 1;
   PosEndPlace := 1;
@@ -120,7 +151,100 @@ begin
     try
       SetLength(ABtm.Data, placeN + 1);
       With ABtm.Data[PlaceN] do begin
-        PosStartPlace := PosEx('<Placemark', buffer, position);
+        PosStartPlace := integer(BMSrchPlacemark.Search(@buffer[position],sLen-position+1))-sStart+1;
+//        PosStartPlace :=   PosEx('<Placemark', buffer, position);
+        if PosStartPlace < 1 then begin
+          continue;
+        end;
+        PosEndPlace := integer(BMSrchPlacemarkE.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+//        PosEndPlace := PosEx('</Placemark', buffer, PosStartPlace);
+        if PosEndPlace < 1 then begin
+          continue;
+        end;
+        position := integer(BMSrchId.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+//        position := PosEx('id=', buffer, PosStartPlace);
+        if (position < PosEndPlace) and (position > PosStartPlace) then begin
+          PlacemarkID := copy(buffer, position + 6, PosEx('">', buffer, position) - (position + 6));
+        end else begin
+          PlacemarkID := '';
+        end;
+        PosTag1 := integer(BMSrchName.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+//        PosTag1 := PosEx('<name', buffer, PosStartPlace);
+        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+          PosTag2 := integer(BMSrchNameE.Search(@buffer[PosTag1],sLen-PosTag1+1))-sStart+1;
+//          PosTag2 := PosEx('</name', buffer, PosTag1);
+          if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+            Name := Utf8ToAnsi(copy(buffer, PosTag1 + 6, PosTag2 - (PosTag1 + 6)));
+           // pb := integer(BMSrchCDATA.Search(@Name[1],length(Name)));
+            pb := PosEx('<![CDATA[', Name, 1);
+            if pb > 0 then begin
+              Name := copy(Name, pb + 9, PosEx(']]>', Name, 1) - (pb + 9));
+            end;
+          end else begin
+            Name := '';
+          end;
+        end else begin
+          Name := '';
+        end;
+        PosTag1 := integer(BMSrchDesc.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+//        PosTag1 := PosEx('<description', buffer, PosStartPlace);
+        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+          PosTag2 := integer(BMSrchDescE.Search(@buffer[PosTag1],sLen-PosTag1+1))-sStart+1;
+//          PosTag2 := PosEx('</description', buffer, PosTag1);
+          if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+            description := Utf8ToAnsi(copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13)));
+            pb := PosEx('<![CDATA[', description, 1);
+            if pb > 0 then begin
+              ABtm.Data[PlaceN].description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
+            end;
+            iip := PosEx('&lt;', ABtm.Data[PlaceN].description, 1);
+            while iip > 0 do begin
+              description[iip] := '<';
+              Delete(description, iip + 1, 3);
+              iip := PosEx('&lt;', description, iip);
+            end;
+            iip := PosEx('&gt;', description, 1);
+            while iip > 0 do begin
+              description[iip] := '>';
+              Delete(description, iip + 1, 3);
+              iip := PosEx('&gt;', description, iip);
+            end;
+          end else begin
+            ABtm.Data[PlaceN].description := '';
+          end;
+        end else begin
+          ABtm.Data[PlaceN].description := '';
+        end;
+        PosTag1 := integer(BMSrchCoord.Search(@buffer[PosStartPlace],sLen-PosStartPlace+1))-sStart+1;
+        //PosTag1 := PosEx('<coordinates', buffer, PosStartPlace);
+        if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+          PosTag2 := integer(BMSrchCoordE.Search(@buffer[PosTag1],sLen-PosTag1+1))-sStart+1;
+          //PosTag2 := PosEx('</coordinates', buffer, PosTag1);
+          if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+            koord := copy(buffer, PosTag1 + 13, PosTag2 - (PosTag1 + 13));
+            Result := parseCoordinates(koord, ABtm.Data[PlaceN]);
+          end else begin
+            result := false;
+          end;
+        end else begin
+          result := false;
+        end;
+      end;
+      inc(placeN);
+      position := PosEndPlace + 1;
+    except
+      Result := false;
+    end;
+  end;  }
+  position := 1;
+  PosStartPlace := 1;
+  PosEndPlace := 1;
+  placeN := 0;
+  While (position > 0) and (PosStartPlace > 0) and (PosEndPlace > 0) and (result) do begin
+    try
+      SetLength(ABtm.Data, placeN + 1);
+      With ABtm.Data[PlaceN] do begin
+        PosStartPlace :=  PosEx('<Placemark', buffer, position);
         if PosStartPlace < 1 then begin
           continue;
         end;
