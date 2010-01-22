@@ -25,6 +25,7 @@ type
 
   TGlobalState = class
   private
+    FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
@@ -45,6 +46,7 @@ type
     procedure LoadMainParams;
     procedure FreeAllMaps;
     procedure FreeMarkIcons;
+    procedure SetScreenSize(const Value: TPoint);
   public
     MainFileCache: TMemFileCache;
     // Ini-файл с основными настройками
@@ -199,6 +201,9 @@ type
 
     // Полигон последнего выделения при операциях с областью.
     LastSelectionPolygon: TExtendedPointArray;
+
+    // Размеры экрана, что бы не дергать каждый раз объект TScreen
+    property ScreenSize: TPoint read FScreenSize write SetScreenSize;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -419,6 +424,11 @@ begin
   end;
   Localization := MainIni.Readinteger('VIEW','localization',loc);
   WebReportToAuthor := MainIni.ReadBool('NPARAM','stat',true);
+end;
+
+procedure TGlobalState.SetScreenSize(const Value: TPoint);
+begin
+  FScreenSize := Value;
 end;
 
 end.

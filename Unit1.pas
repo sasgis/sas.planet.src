@@ -2046,6 +2046,7 @@ var
      VGUID: TGUID;
      VGUIDString: string;
 begin
+ GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
  RectWindow := Types.Rect(0, 0, 0, 0);
  Enabled:=false;
@@ -4697,8 +4698,7 @@ var
   VSizeInTile: TPoint;
 begin
   if GState.TilesOut=0 then begin
-    Result.X := Screen.Width;
-    Result.Y := Screen.Height;
+    Result := GState.ScreenSize;
   end else begin
     VSizeInTile := GetLoadedSizeInTile;
     Result.X := VSizeInTile.X * 256;
@@ -4708,10 +4708,10 @@ end;
 
 function TFmain.GetLoadedSizeInTile: TPoint;
 begin
-// Result.X := Ceil(Screen.Width / 256) + GState.TilesOut;
-  Result.X := round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
-// Result.Y := Ceil(Screen.Height / 256) + GState.TilesOut;
-  Result.Y := round(Screen.Height / 256)+(integer((Screen.height mod 256)>0))+GState.TilesOut;
+// Result.X := Ceil(GState.ScreenSize.X / 256) + GState.TilesOut;
+  Result.X := round(GState.ScreenSize.X / 256)+(integer((GState.ScreenSize.X mod 256)>0))+GState.TilesOut;
+// Result.Y := Ceil(GState.ScreenSize.Y / 256) + GState.TilesOut;
+  Result.Y := round(GState.ScreenSize.Y / 256)+(integer((GState.ScreenSize.Y mod 256)>0))+GState.TilesOut;
 end;
 
 
