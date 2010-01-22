@@ -39,6 +39,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  i_ICoordConverter,
   u_GlobalState,
   unit1;
 
@@ -165,19 +166,22 @@ begin
 end;
 
 procedure TWikiLayer.addWL(name,descript,num:string;coordinatesLT,coordinatesRD:TExtendedPoint;coordinates:  TExtendedPointArray);
-var i,lenLay:integer;
+var
+  i,lenLay:integer;
+  VConverter: ICoordConverter;
 begin
+ VConverter := GState.sat_map_both.GeoConvert;
  Delete(descript,posEx('#ge',descript,0),1);
  setLength(FWikiLayerElments,length(FWikiLayerElments)+1);
  lenLay:=length(FWikiLayerElments);
  FWikiLayerElments[lenLay-1]:=TWikiLayerElement.Create;
  With FWikiLayerElments[lenLay-1] do
   begin
-   GState.sat_map_both.GeoConvert.CheckLonLatPos(coordinatesLT);
-   LT:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
+   VConverter.CheckLonLatPos(coordinatesLT);
+   LT:=VConverter.LonLat2PixelPos(coordinatesLT,GState.zoom_size-1);
    LT := Fmain.MapPixel2LoadedPixel(LT);
-   GState.sat_map_both.GeoConvert.CheckLonLatPos(coordinatesRD);
-   RD:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinatesRD,GState.zoom_size-1);
+   VConverter.CheckLonLatPos(coordinatesRD);
+   RD:=VConverter.LonLat2PixelPos(coordinatesRD,GState.zoom_size-1);
    RD := Fmain.MapPixel2LoadedPixel(RD);
    if coordinatesLT.X=coordinatesRD.x then begin
      LT.X:=LT.X-3;
@@ -198,8 +202,8 @@ begin
    if length(coordinates)=1 then
     begin
      setLength(AarrKt,5);
-     GState.sat_map_both.GeoConvert.CheckLonLatPos(coordinates[0]);
-     AarrKt[0]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinates[0],GState.zoom_size-1);
+     VConverter.CheckLonLatPos(coordinates[0]);
+     AarrKt[0]:=VConverter.LonLat2PixelPos(coordinates[0],GState.zoom_size-1);
      AarrKt[0] := Fmain.MapPixel2LoadedPixel(AarrKt[0]);
      AarrKt[1]:=Point(AarrKt[0].x+2,AarrKt[0].y-2);
      AarrKt[2]:=Point(AarrKt[0].x+2,AarrKt[0].y+2);
@@ -209,8 +213,8 @@ begin
     end
    else
    for i:=0 to length(coordinates)-1 do begin
-     GState.sat_map_both.GeoConvert.CheckLonLatPos(coordinates[i]);
-     AarrKt[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
+     VConverter.CheckLonLatPos(coordinates[i]);
+     AarrKt[i]:=VConverter.LonLat2PixelPos(coordinates[i],GState.zoom_size-1);
      AarrKt[i]:=Fmain.MapPixel2LoadedPixel(AarrKt[i]);
    end;
    FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width:=3;
