@@ -49,25 +49,25 @@ function Sha_SpaceCompress(const s: string): string;
 var
   p, q, t: pchar;
   ch: char;
+  len: Integer;
 label
   rt;
 begin
-  p := pointer(s);
+  p := PChar(s);
   q := nil;
   if p <> nil then begin
-    t := p + (pinteger(p - 4))^;
+    len := length(s);
+    t := p + len;
     if p < t then begin
       repeat
-        ;
         dec(t);
         if p > t then begin
           goto rt;
         end;
       until (t^ > ' ');
       SetString(Result, nil, (t - p) + 1);
-      q := pchar(pointer(Result));
+      q := pchar(Result);
       repeat
-        ;
         repeat
           ch := p^;
           inc(p);
