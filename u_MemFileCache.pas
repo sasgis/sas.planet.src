@@ -7,10 +7,11 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_IMemObjCache,
   u_KmlInfoSimple;
 
 type
-  TMemFileCache = class
+  TMemFileCache = class(TInterfacedObject, IMemObjCache)
   private
     FCacheElemensMaxCnt: integer;
     FCacheList:TStringList;

@@ -28,6 +28,7 @@ uses
   i_IListOfObjectsWithTTL in 'i_IListOfObjectsWithTTL.pas',
   i_IObjectWithTTL in 'i_IObjectWithTTL.pas',
   i_IPoolElement in 'i_IPoolElement.pas',
+  i_IMemObjCache in 'i_IMemObjCache.pas',
   UTrAllLoadMap in 'UTrAllLoadMap.pas',
   UThreadScleit in 'UThreadScleit.pas',
   UThreadExport in 'UThreadExport.pas',

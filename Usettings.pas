@@ -507,7 +507,6 @@ begin
  GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  GState.CacheElemensMaxCnt:=SETilesOCache.value;
- GState.MainFileCache.CacheElemensMaxCnt:=GState.CacheElemensMaxCnt;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.FirstLat:=ChBoxFirstLat.Checked;

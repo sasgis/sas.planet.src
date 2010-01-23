@@ -2212,7 +2212,6 @@ begin
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
  GState.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
- GState.MainFileCache.CacheElemensMaxCnt:= GState.CacheElemensMaxCnt;
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
  GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
