@@ -1032,12 +1032,19 @@ end;
 function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 var path: string;
+  VMemCacheKey: String;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     raise Exception.Create('Из GE кеша можно получать только растры');
   end else begin
+    VMemCacheKey := GetMemCacheKey(AXY, Azoom);
     path := GetTileFileName(AXY, Azoom);
-    result:= LoadFile(btm, path, caching);
+    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+     result:=LoadFile(btm, path, caching);
+     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
+    end else begin
+      result:=true;
+    end;
   end;
 end;
 
