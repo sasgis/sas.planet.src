@@ -335,7 +335,7 @@ begin
  GState.MainIni.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
  GState.MainIni.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
- GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
+ GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
  if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
@@ -506,7 +506,8 @@ begin
  GState.GSMpar.auto:=RBGSMAuto.Checked;
  GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
- GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
+ GState.CacheElemensMaxCnt:=SETilesOCache.value;
+ GState.MainFileCache.CacheElemensMaxCnt:=GState.CacheElemensMaxCnt;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.FirstLat:=ChBoxFirstLat.Checked;
@@ -674,7 +675,7 @@ begin
  SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
- SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;
+ SETilesOCache.Value:=GState.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=GState.TwoDownloadAttempt;

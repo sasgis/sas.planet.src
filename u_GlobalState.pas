@@ -48,6 +48,9 @@ type
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
   public
+    // Количество элементов в кэше в памяти
+    CacheElemensMaxCnt: integer;
+
     MainFileCache: TMemFileCache;
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
