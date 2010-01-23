@@ -26,7 +26,8 @@ type
   private
     FWikiLayerElments: array of TWikiLayerElement;
     procedure addWL(var AData: TKMLData);
-    procedure DrowWikiElement(var AData: TWikiLayerElement);
+    procedure DrawWikiElement(var AData: TWikiLayerElement);
+    procedure DrawWikiElementGR32(var AData: TWikiLayerElement);
   public
     constructor Create;
     destructor Destroy; override;
@@ -40,6 +41,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  GR32_Polygons,
   i_ICoordConverter,
   u_GlobalState,
   unit1;
@@ -219,10 +221,10 @@ begin
       end;
     end;
   end;
-  DrowWikiElement(FWikiLayerElments[lenLay - 1]);
+  DrawWikiElementGR32(FWikiLayerElments[lenLay - 1]);
 end;
 
-procedure TWikiLayer.DrowWikiElement(var AData: TWikiLayerElement);
+procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement);
 begin
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width := 3;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color := GState.WikiMapFonColor;
@@ -237,6 +239,47 @@ begin
     FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.AarrKt[0].x - 2, AData.AarrKt[0].y - 2, AData.AarrKt[0].x + 2, AData.AarrKt[0].y + 2);
   end else begin
     FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.AarrKt);
+  end;
+end;
+
+procedure TWikiLayer.DrawWikiElementGR32(var AData: TWikiLayerElement);
+var
+  VFixedPointArray: TArrayOfFixedPoint;
+  VPolygon: TPolygon32;
+  VLen: integer;
+  i: integer;
+  VColorMain: TColor32;
+  VColorBG: TColor32;
+begin
+  VColorMain := SetAlpha(GState.WikiMapMainColor, 255);
+  VColorBG := SetAlpha(GState.WikiMapFonColor, 255);
+  VPolygon := TPolygon32.Create;
+  try
+    VLen := Length(AData.AarrKt);
+    if VLen > 1 then begin
+      SetLength(VFixedPointArray,VLen);
+      try
+        for i := 0 to VLen - 1 do begin
+          VFixedPointArray[i] := FixedPoint(AData.AarrKt[i]);
+        end;
+        VPolygon.AddPoints(VFixedPointArray[0], VLen);
+        VPolygon.DrawEdge(FMain.LayerMapWiki.Bitmap, VColorBG);
+        VPolygon.Offset(Fixed(1), Fixed(1));
+        VPolygon.DrawEdge(FMain.LayerMapWiki.Bitmap, VColorMain);
+      finally
+        VFixedPointArray := nil;
+      end;
+    end else begin
+      SetLength(VFixedPointArray, 4);
+      VFixedPointArray[0] := FixedPoint(AData.AarrKt[0].X, AData.AarrKt[0].Y - 2);
+      VFixedPointArray[1] := FixedPoint(AData.AarrKt[0].X + 2, AData.AarrKt[0].Y);
+      VFixedPointArray[2] := FixedPoint(AData.AarrKt[0].X, AData.AarrKt[0].Y + 2);
+      VFixedPointArray[3] := FixedPoint(AData.AarrKt[0].X - 2, AData.AarrKt[0].Y);
+      VPolygon.AddPoints(VFixedPointArray[0], 4);
+      VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG, VColorMain);
+    end;
+  finally
+    FreeAndNil(VPolygon);
   end;
 end;
 
