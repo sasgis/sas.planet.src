@@ -16,26 +16,27 @@ type
   end;
 
   TGPSpar = record
-   speed:real;
-   len:extended;
-   sspeed:extended;
-   allspeed:extended;
-   sspeednumentr:integer;
-   altitude:extended;
-   maxspeed:real;
-   nap:integer;
-   azimut:extended;
-   Odometr:extended;
+    speed: extended;
+    len: extended;
+    sspeed: extended;
+    allspeed: extended;
+    sspeednumentr: integer;
+    altitude: extended;
+    maxspeed: extended;
+    nap: integer;
+    azimut: extended;
+    Odometr: extended;
   end;
 
   TGSMpar = record
-   BaudRate:integer;
-   Port:string;
-   auto:boolean;
-   WaitingAnswer:integer;
+    BaudRate: integer;
+    Port: string;
+    auto: boolean;
+    WaitingAnswer: integer;
   end;
 
   TMarksShowType = (mshAll = 1, mshChecked = 2, mshNone = 3);
+
 implementation
 
 end.
