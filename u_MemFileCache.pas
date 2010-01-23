@@ -12,7 +12,6 @@ uses
 type
   TMemFileCache = class
   private
-    FLastAccess: Cardinal;
     FCacheElemensMaxCnt: integer;
     FCacheList:TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
@@ -80,41 +79,37 @@ procedure TMemFileCache.DeleteFileFromCache(path: string);
 var
   i: Integer;
 begin
-  if FSync.BeginWrite then begin
-    try
-      i := FCacheList.IndexOf(AnsiUpperCase(Path));
-      if i >= 0 then begin
-        FCacheList.Objects[i].Free;
-        FCacheList.Delete(i);
-      end;
-    finally
-      FSync.EndWrite;
+  FSync.BeginWrite;
+  try
+    i := FCacheList.IndexOf(AnsiUpperCase(Path));
+    if i >= 0 then begin
+      FCacheList.Objects[i].Free;
+      FCacheList.Delete(i);
     end;
+  finally
+    FSync.EndWrite;
   end;
-
 end;
 
 procedure TMemFileCache.AddToCache(btm: TObject; APath: string);
 var
   i:integer;
 begin
-  if FSync.BeginWrite then begin
-    try
-      i:=FCacheList.IndexOf(APath);
-      if i<0 then begin
-        FCacheList.AddObject(APath, btm);
-        if FCacheList.Count > FCacheElemensMaxCnt then begin
-          FCacheList.Objects[0].Free;
-          FCacheList.Delete(0);
-        end;
-      end else begin
-        FreeAndNil(btm);
+  FSync.BeginWrite;
+  try
+    i:=FCacheList.IndexOf(APath);
+    if i<0 then begin
+      FCacheList.AddObject(APath, btm);
+      if FCacheList.Count > FCacheElemensMaxCnt then begin
+        FCacheList.Objects[0].Free;
+        FCacheList.Delete(0);
       end;
-    finally
-      FSync.EndWrite;
+    end else begin
+      FreeAndNil(btm);
     end;
+  finally
+    FSync.EndWrite;
   end;
-  FLastAccess := GetTickCount;
 end;
 
 
@@ -158,7 +153,6 @@ begin
   finally
     FSync.EndRead;
   end;
-  FLastAccess := GetTickCount;
 end;
 
 function TMemFileCache.TryLoadFileFromCache(btm: TKmlInfoSimple;
@@ -179,7 +173,6 @@ begin
   finally
     FSync.EndRead;
   end;
-  FLastAccess := GetTickCount;
 end;
 
 end.
