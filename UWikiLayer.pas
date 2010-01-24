@@ -134,45 +134,44 @@ end;
 procedure TWikiLayer.MouseOnReg(var APWL: TResObj; xy: TPoint);
 var
   i, j: integer;
-  l: integer;
+  VLen: integer;
 begin
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (xy.x > FWikiLayerElments[i].lt.X - 5) and (xy.x < FWikiLayerElments[i].rd.X + 5) and
       (xy.y > FWikiLayerElments[i].lt.Y - 5) and (xy.y < FWikiLayerElments[i].rd.Y + 5) then begin
-      if length(FWikiLayerElments[i].FProjectedArr) = 1 then begin
-        APWL.name := FWikiLayerElments[i].name_blok;
-        APWL.descr := FWikiLayerElments[i].description;
-        APWL.numid := FWikiLayerElments[i].num_blok;
-        APWL.find := true;
-        exit;
-      end;
-      l := length(FWikiLayerElments[i].FProjectedArr) - 1;
-      if l < 0 then begin
-        continue;
-      end;
-      j := 1;
-      if (FWikiLayerElments[i].FProjectedArr[0].X <> FWikiLayerElments[i].FProjectedArr[l].x) or
-        (FWikiLayerElments[i].FProjectedArr[0].y <> FWikiLayerElments[i].FProjectedArr[l].y) then begin
-        while (j < length(FWikiLayerElments[i].FProjectedArr)) do begin
-          if CursorOnLinie(xy.x, xy.Y, FWikiLayerElments[i].FProjectedArr[j - 1].x, FWikiLayerElments[i].FProjectedArr[j - 1].y,
-            FWikiLayerElments[i].FProjectedArr[j].x, FWikiLayerElments[i].FProjectedArr[j].y, 3) then begin
+      VLen := length(FWikiLayerElments[i].FProjectedArr);
+      if VLen > 0 then begin
+        if VLen = 1 then begin
+          APWL.name := FWikiLayerElments[i].name_blok;
+          APWL.descr := FWikiLayerElments[i].description;
+          APWL.numid := FWikiLayerElments[i].num_blok;
+          APWL.find := true;
+        end else begin
+          j := 1;
+          if (FWikiLayerElments[i].FProjectedArr[0].X <> FWikiLayerElments[i].FProjectedArr[VLen - 1].x) or
+            (FWikiLayerElments[i].FProjectedArr[0].y <> FWikiLayerElments[i].FProjectedArr[VLen - 1].y) then begin
+            while (j < length(FWikiLayerElments[i].FProjectedArr)) do begin
+              if CursorOnLinie(xy.x, xy.Y, FWikiLayerElments[i].FProjectedArr[j - 1].x, FWikiLayerElments[i].FProjectedArr[j - 1].y,
+                FWikiLayerElments[i].FProjectedArr[j].x, FWikiLayerElments[i].FProjectedArr[j].y, 3) then begin
+                APWL.name := FWikiLayerElments[i].name_blok;
+                APWL.descr := FWikiLayerElments[i].description;
+                APWL.numid := FWikiLayerElments[i].num_blok;
+                APWL.find := true;
+                exit;
+              end;
+              inc(j);
+            end;
+          end else if PtInRgn(FWikiLayerElments[i].FProjectedArr, xy) then begin
+            if (PolygonSquare(FWikiLayerElments[i].FProjectedArr) > APWL.S) and (APWL.S <> 0) then begin
+              continue;
+            end;
+            APWL.S := PolygonSquare(FWikiLayerElments[i].FProjectedArr);
             APWL.name := FWikiLayerElments[i].name_blok;
             APWL.descr := FWikiLayerElments[i].description;
             APWL.numid := FWikiLayerElments[i].num_blok;
             APWL.find := true;
-            exit;
           end;
-          inc(j);
         end;
-      end else if PtInRgn(FWikiLayerElments[i].FProjectedArr, xy) then begin
-        if (PolygonSquare(FWikiLayerElments[i].FProjectedArr) > APWL.S) and (APWL.S <> 0) then begin
-          continue;
-        end;
-        APWL.S := PolygonSquare(FWikiLayerElments[i].FProjectedArr);
-        APWL.name := FWikiLayerElments[i].name_blok;
-        APWL.descr := FWikiLayerElments[i].description;
-        APWL.numid := FWikiLayerElments[i].num_blok;
-        APWL.find := true;
       end;
     end;
   end;
