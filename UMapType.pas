@@ -1507,6 +1507,30 @@ begin
   inherited;
 end;
 
+procedure TMapType.Activate;
+begin
+
+end;
+
+procedure TMapType.Deactivate;
+begin
+
+end;
+
+procedure TMapType.SetActive(const Value: Boolean);
+begin
+  if Value then begin
+    if FActive <> Value then begin
+      Activate;
+    end;
+  end else begin
+    if FActive <> Value then begin
+      Deactivate;
+    end;
+  end;
+  FActive := Value;
+end;
+
 function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
   ACheckTileSize: Boolean; AOldTileSize: Integer;
   out AUrl: string; out AContentType: string;
