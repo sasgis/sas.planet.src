@@ -66,7 +66,6 @@ uses
   u_LayerScaleLine,
   u_MapMarksLayer,
   u_MapGPSLayer,
-  u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,

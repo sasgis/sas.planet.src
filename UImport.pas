@@ -11,7 +11,6 @@ uses
   Graphics,
   Controls,
   Forms,
-  DBClient,
   DB,
   Dialogs,
   StdCtrls,
