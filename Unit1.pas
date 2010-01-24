@@ -582,6 +582,7 @@ type
     length_arr: TExtendedPointArray;
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
+    PWL: TResObj;
   public
     LayerMap: TBitmapLayer;
     LayerMapWiki: TBitmapLayer;
@@ -672,7 +673,6 @@ const
 
 var
   Fmain: TFmain;
-  PWL: TResObj;
 
   mWd2: integer;
   mHd2: integer;
