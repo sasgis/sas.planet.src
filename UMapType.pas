@@ -18,6 +18,7 @@ uses
   VCLZip,
   GR32,
   t_GeoTypes,
+  i_IMemObjCache,
   i_ICoordConverter,
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
@@ -54,6 +55,7 @@ type
     FRadiusB: extended;
     FMimeTypeSubstList: TStringList;
     FPNum: integer;
+    FMemCache: IMemObjCache;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -963,7 +965,7 @@ begin
                else spr.Clear(Color32(GState.BGround));
   end else begin
     key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(spr, key)) then begin
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(spr, key)) then begin
       bmp:=TBitmap32.Create;
       try
         if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
@@ -978,7 +980,7 @@ begin
             if bmp.width<256 then TileBounds.Right:=bmp.Width;
             if bmp.height<256 then TileBounds.Bottom:=bmp.height;
             spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),TileBounds,bmp);
-            GState.MainFileCache.AddTileToCache(spr, key);
+            FMemCache.AddTileToCache(spr, key);
           except
             Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
             Result := false;
@@ -1012,17 +1014,17 @@ var
 begin
   VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
       result:=GetGETile(btm,GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
-      if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
+      if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
   end else begin
     path := GetTileFileName(AXY, Azoom);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
      result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
+     if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
@@ -1039,9 +1041,9 @@ begin
   end else begin
     VMemCacheKey := GetMemCacheKey(AXY, Azoom);
     path := GetTileFileName(AXY, Azoom);
-    if (not caching)or(not GState.MainFileCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
      result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then GState.MainFileCache.AddTileToCache(btm, VMemCacheKey);
+     if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
     end;
@@ -1059,7 +1061,7 @@ begin
       FCSSaveTile.Acquire;
       try
         result := DeleteFile(PChar(VPath));
-        GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
+        FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
       finally
         FCSSaveTile.Release;
       end;
@@ -1161,7 +1163,7 @@ begin
       end;
     end;
     ban_pg_ld:=true;
-    GState.MainFileCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
+    FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
     raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
@@ -1481,6 +1483,7 @@ begin
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
+  FMemCache := GState.MainFileCache;
 end;
 
 destructor TMapType.Destroy;
@@ -1494,6 +1497,7 @@ begin
   FreeAndNil(Fbmp24);
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
+  FMemCache := nil;
   inherited;
 end;
 
