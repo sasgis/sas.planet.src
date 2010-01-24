@@ -34,7 +34,7 @@ type
     destructor Destroy; override;
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType);
-    procedure MouseOnReg(var PWL: TResObj; xy: TPoint);
+    procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
   end;
 
 implementation
@@ -131,7 +131,7 @@ begin
   inherited;
 end;
 
-procedure TWikiLayer.MouseOnReg(var PWL: TResObj; xy: TPoint);
+procedure TWikiLayer.MouseOnReg(var APWL: TResObj; xy: TPoint);
 var
   i, j: integer;
   l: integer;
@@ -140,10 +140,10 @@ begin
     if (xy.x > FWikiLayerElments[i].lt.X - 5) and (xy.x < FWikiLayerElments[i].rd.X + 5) and
       (xy.y > FWikiLayerElments[i].lt.Y - 5) and (xy.y < FWikiLayerElments[i].rd.Y + 5) then begin
       if length(FWikiLayerElments[i].AarrKt) = 1 then begin
-        PWL.name := FWikiLayerElments[i].name_blok;
-        PWL.descr := FWikiLayerElments[i].description;
-        PWL.numid := FWikiLayerElments[i].num_blok;
-        PWL.find := true;
+        APWL.name := FWikiLayerElments[i].name_blok;
+        APWL.descr := FWikiLayerElments[i].description;
+        APWL.numid := FWikiLayerElments[i].num_blok;
+        APWL.find := true;
         exit;
       end;
       l := length(FWikiLayerElments[i].AarrKt) - 1;
@@ -156,23 +156,23 @@ begin
         while (j < length(FWikiLayerElments[i].AarrKt)) do begin
           if CursorOnLinie(xy.x, xy.Y, FWikiLayerElments[i].AarrKt[j - 1].x, FWikiLayerElments[i].AarrKt[j - 1].y,
             FWikiLayerElments[i].AarrKt[j].x, FWikiLayerElments[i].AarrKt[j].y, 3) then begin
-            PWL.name := FWikiLayerElments[i].name_blok;
-            PWL.descr := FWikiLayerElments[i].description;
-            PWL.numid := FWikiLayerElments[i].num_blok;
-            PWL.find := true;
+            APWL.name := FWikiLayerElments[i].name_blok;
+            APWL.descr := FWikiLayerElments[i].description;
+            APWL.numid := FWikiLayerElments[i].num_blok;
+            APWL.find := true;
             exit;
           end;
           inc(j);
         end;
       end else if PtInRgn(FWikiLayerElments[i].AarrKt, xy) then begin
-        if (PolygonSquare(FWikiLayerElments[i].AarrKt) > PWL.S) and (PWL.S <> 0) then begin
+        if (PolygonSquare(FWikiLayerElments[i].AarrKt) > APWL.S) and (APWL.S <> 0) then begin
           continue;
         end;
-        PWL.S := PolygonSquare(FWikiLayerElments[i].AarrKt);
-        PWL.name := FWikiLayerElments[i].name_blok;
-        PWL.descr := FWikiLayerElments[i].description;
-        PWL.numid := FWikiLayerElments[i].num_blok;
-        PWL.find := true;
+        APWL.S := PolygonSquare(FWikiLayerElments[i].AarrKt);
+        APWL.name := FWikiLayerElments[i].name_blok;
+        APWL.descr := FWikiLayerElments[i].description;
+        APWL.numid := FWikiLayerElments[i].num_blok;
+        APWL.find := true;
       end;
     end;
   end;

@@ -57,7 +57,7 @@ type
 
 var
   FGoTo: TFGoTo;
-  procedure MouseOnMyReg(var PWL:TResObj;xy:TPoint);
+  procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
 
 implementation
 
@@ -90,7 +90,7 @@ begin
   Result:=((dy>-d)and(dy<d)and(dx>-d)and(dx<len+d));
 end;
 
-procedure MouseOnMyReg(var PWL:TResObj;xy:TPoint);
+procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
 var
   j:integer;
   i:integer;
@@ -127,11 +127,11 @@ begin
     end;
     if length(arLL)=1 then
      begin
-      PWL.name:=Fmain.CDSmarksname.AsString;
-      PWL.descr:=Fmain.CDSmarksdescr.AsString;
-      PWL.numid:=Fmain.CDSmarksid.AsString;
-      PWL.find:=true;
-      PWL.type_:=ROTpoint;
+      APWL.name:=Fmain.CDSmarksname.AsString;
+      APWL.descr:=Fmain.CDSmarksdescr.AsString;
+      APWL.numid:=Fmain.CDSmarksid.AsString;
+      APWL.find:=true;
+      APWL.type_:=ROTpoint;
       Setlength(arLL,0);
       freeMem(arrLL);
       ms.Free;
@@ -145,11 +145,11 @@ begin
        begin
         if CursorOnLinie(xy.x,xy.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(Fmain.CDSmarksscale1.AsInteger div 2)+1)
            then begin
-                 PWL.name:=Fmain.CDSmarksname.AsString;
-                 PWL.descr:=Fmain.CDSmarksdescr.AsString;
-                 PWL.numid:=Fmain.CDSmarksid.AsString;
-                 PWL.find:=true;
-                 PWL.type_:=ROTline;
+                 APWL.name:=Fmain.CDSmarksname.AsString;
+                 APWL.descr:=Fmain.CDSmarksdescr.AsString;
+                 APWL.numid:=Fmain.CDSmarksid.AsString;
+                 APWL.find:=true;
+                 APWL.type_:=ROTline;
                  Setlength(arLL,0);
                  freeMem(arrLL);
                  ms.Free;
@@ -159,14 +159,14 @@ begin
         inc(j);
        end
      else
-     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>PWL.S)and(PWL.S<>0))) then
+     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>APWL.S)and(APWL.S<>0))) then
       begin
-       PWL.S:=PolygonSquare(arLL);
-       PWL.name:=Fmain.CDSmarksname.AsString;
-       PWL.descr:=Fmain.CDSmarksdescr.AsString;
-       PWL.numid:=Fmain.CDSmarksid.AsString;
-       PWL.find:=true;
-       PWL.type_:=ROTPoly;
+       APWL.S:=PolygonSquare(arLL);
+       APWL.name:=Fmain.CDSmarksname.AsString;
+       APWL.descr:=Fmain.CDSmarksdescr.AsString;
+       APWL.numid:=Fmain.CDSmarksid.AsString;
+       APWL.find:=true;
+       APWL.type_:=ROTPoly;
       end;
    Setlength(arLL,0);
    freeMem(arrLL);
