@@ -9,8 +9,9 @@ uses
 type
   TTileFileNameGMV = class(TInterfacedObject, ITileFileNameGenerator)
   public
-    function GetTileFileName(AXY: TPoint; Azoom:byte): string;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
   end;
+
 implementation
 
 uses
