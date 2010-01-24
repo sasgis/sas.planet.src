@@ -70,8 +70,11 @@ end;
 
 procedure TWikiLayer.AddFromLayer(Alayer: TMapType);
 var
-  Ax, Ay, i, j, ii, Azoom: integer;
-  APos: TPoint;
+  i, j, ii: integer;
+  Vzoom: byte;
+  VTile: TPoint;
+  VCenterTile: TPoint;
+  VPos: TPoint;
   kml: TKmlInfoSimple;
   VSizeInTile: TPoint;
 begin
@@ -79,19 +82,17 @@ begin
   VSizeInTile := Fmain.LoadedSizeInTile;
   Fmain.LayerMapWiki.Bitmap.BeginUpdate;
   try
+    Vzoom := GState.zoom_size - 1;
+    VPos := GState.sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, Vzoom + 8, Alayer.GeoConvert);
+    VCenterTile := Alayer.GeoConvert.PixelPos2TilePos(VPos, Vzoom);
     for i := 0 to VSizeInTile.X do begin
       for j := 0 to VSizeInTile.Y do begin
-        Azoom := GState.zoom_size;
-        APos := GState.sat_map_both.GeoConvert.Pos2OtherMap(FMain.ScreenCenterPos, (Azoom - 1) + 8, Alayer.GeoConvert);
-        if GState.CiclMap then begin
-          Ax := Fmain.X2AbsX(APos.X - pr_x + (i shl 8), GState.zoom_size);
-        end else begin
-          Ax := APos.X - pr_x + (i shl 8);
-        end;
-        Ay := APos.y - pr_y + (j shl 8);
+        VTile.X := VCenterTile.X - (VSizeInTile.X div 2) + i;
+        VTile.Y := VCenterTile.Y - (VSizeInTile.Y div 2) + j;
+        Alayer.GeoConvert.CheckTilePosStrict(VTile, Vzoom, GState.CiclMap);
         KML := TKmlInfoSimple.Create;
         try
-          if Alayer.LoadTile(kml, Ax, Ay, Azoom, true) then begin
+          if Alayer.LoadTile(kml, VTile, Vzoom, true) then begin
             for ii := 0 to length(KML.Data) - 1 do begin
               addWL(KML.Data[ii]);
             end;
