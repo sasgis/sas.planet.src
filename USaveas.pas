@@ -157,6 +157,8 @@ type
     CkBNotReplaseYa: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
+    SEDelBytes: TSpinEdit;
+    CBDelBytes: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -230,7 +232,10 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
-  TOpDelTiles.Create(APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]));
+ with TOpDelTiles.Create(true,APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]),CBDelBytes.Checked) do begin
+   DelBytesNum:=SEDelBytes.Value;
+   Suspended:=false;
+ end;
 end;
 
 procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
