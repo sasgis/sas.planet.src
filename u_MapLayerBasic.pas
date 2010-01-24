@@ -199,8 +199,8 @@ end;
 
 function TMapLayerBasic.GetBitmapSizeInPixel: TPoint;
 begin
-  Result.X := Screen.Width + 2 * 256 * GState.TilesOut;
-  Result.Y := Screen.Height + 2 * 256 * GState.TilesOut;
+  Result.X := GState.ScreenSize.X + 2 * 256 * GState.TilesOut;
+  Result.Y := GState.ScreenSize.Y + 2 * 256 * GState.TilesOut;
 end;
 
 end.

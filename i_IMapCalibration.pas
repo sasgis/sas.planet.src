@@ -8,7 +8,7 @@ uses
 
 type
   IMapCalibration = interface
-  ['{08085422-4267-49EC-913C-3A47866A46E9}']
+    ['{08085422-4267-49EC-913C-3A47866A46E9}']
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: WideString; safecall;
     // Более детальное описание привязки

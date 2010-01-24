@@ -7,10 +7,10 @@ uses
 
 type
   TLastLoad = record
-    x,y:longint;
-    z:byte;
-    mt:TMapType;
-    use:boolean;
+    x, y: longint;
+    z: byte;
+    mt: TMapType;
+    use: boolean;
   end;
 
 implementation

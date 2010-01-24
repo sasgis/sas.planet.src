@@ -11,6 +11,7 @@ uses
   GR32,
   t_GeoTypes,
   t_CommonTypes,
+  i_IMemObjCache,
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
   i_IKmlInfoSimpleLoader,
@@ -25,12 +26,15 @@ type
 
   TGlobalState = class
   private
+    FMemFileCache: TMemFileCache;
+    FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
+    FCacheElemensMaxCnt: integer;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -45,8 +49,11 @@ type
     procedure LoadMainParams;
     procedure FreeAllMaps;
     procedure FreeMarkIcons;
+    procedure SetScreenSize(const Value: TPoint);
+    procedure SetCacheElemensMaxCnt(const Value: integer);
   public
-    MainFileCache: TMemFileCache;
+
+    MainFileCache: IMemObjCache;
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
     // Параметры программы
@@ -200,6 +207,12 @@ type
     // Полигон последнего выделения при операциях с областью.
     LastSelectionPolygon: TExtendedPointArray;
 
+    // Количество элементов в кэше в памяти
+    property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
+
+    // Размеры экрана, что бы не дергать каждый раз объект TScreen
+    property ScreenSize: TPoint read FScreenSize write SetScreenSize;
+
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Путь к иконкам меток
@@ -262,7 +275,8 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
-  MainFileCache := TMemFileCache.Create;
+  FMemFileCache := TMemFileCache.Create;
+  MainFileCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FMapCalibrationList := TMapCalibrationListBasic.Create;
@@ -282,10 +296,11 @@ begin
   FreeAndNil(FDwnCS);
   MainIni.UpdateFile;
   FreeAndNil(MainIni);
-  FreeAndNil(MainFileCache);
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);
   FreeAndNil(InetConnect);
+  FMemFileCache := nil;
+  MainFileCache := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
   FMapCalibrationList := nil;
@@ -419,6 +434,17 @@ begin
   end;
   Localization := MainIni.Readinteger('VIEW','localization',loc);
   WebReportToAuthor := MainIni.ReadBool('NPARAM','stat',true);
+end;
+
+procedure TGlobalState.SetScreenSize(const Value: TPoint);
+begin
+  FScreenSize := Value;
+end;
+
+procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
+begin
+  FCacheElemensMaxCnt := Value;
+  FMemFileCache.CacheElemensMaxCnt:= FCacheElemensMaxCnt;
 end;
 
 end.

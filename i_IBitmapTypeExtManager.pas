@@ -7,7 +7,7 @@ uses
 
 type
   IBitmapTypeExtManager = interface
-  ['{946CE320-DA28-4EC4-934E-CD4A671A9D06}']
+    ['{946CE320-DA28-4EC4-934E-CD4A671A9D06}']
     function GetIsBitmapType(AType: String): Boolean;
     function GetIsBitmapExt(AExt: String): Boolean;
     function GetExtForType(AType: String): string;
