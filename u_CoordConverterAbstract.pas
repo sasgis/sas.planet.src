@@ -117,9 +117,9 @@ type
     function RelativeRect2PixelRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
-    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint; virtual;
-    function CalcPoligonArea(polygon:TExtendedPointArray): Extended; virtual;
-    function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray; virtual;
+    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual;
+    function CalcPoligonArea(polygon: TExtendedPointArray): Extended; virtual;
+    function PoligonProject(AZoom: byte; APolyg: TExtendedPointArray): TPointArray; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
 
     function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall;
@@ -147,8 +147,9 @@ type
   end;
 
 const
-  CTileRelativeEpsilon = (1/(1 shl 30 + (1 shl 30 - 1)))/2;
+  CTileRelativeEpsilon = (1 / (1 shl 30 + (1 shl 30 - 1))) / 2;
   CTileSplitQuadrate256x256 = 1;
+
 implementation
 
 uses
@@ -171,32 +172,36 @@ end;
 function TCoordConverterAbstract.CalcPoligonArea(
   polygon: TExtendedPointArray): extended;
 var
-  L,i:integer;
+  L, i: integer;
   LLPrev, LLCurr: TExtendedPoint;
 begin
-  result:=0;
-  l:=length(polygon);
+  result := 0;
+  l := length(polygon);
   LLPrev := LonLat2MetrInternal(polygon[0]);
-  for i:=1 to L-1 do begin
+  for i := 1 to L - 1 do begin
     LLCurr := LonLat2MetrInternal(polygon[i]);
-    result := result + (LLPrev.x + LLCurr.x)*(LLPrev.y - LLCurr.y);
+    result := result + (LLPrev.x + LLCurr.x) * (LLPrev.y - LLCurr.y);
     LLPrev := LLCurr;
   end;
-  result := 0.5*abs(result)/1000000;
+  result := 0.5 * abs(result) / 1000000;
 end;
 
 function TCoordConverterAbstract.PoligonProject(AZoom: byte;
   APolyg: TExtendedPointArray): TPointArray;
 var
-  i:integer;
+  i: integer;
   VTilesAtZoom: Integer;
 begin
   VTilesAtZoom := TilesAtZoomInternal(AZoom);
   SetLength(Result, length(APolyg));
-  for i:=0 to length(APolyg)-1 do begin
+  for i := 0 to length(APolyg) - 1 do begin
     Result[i] := LonLat2PosInternal(Apolyg[i], AZoom);
-    if Result[i].y < 0 then Result[i].y:=1;
-    if Result[i].y > VTilesAtZoom then Result[i].y := VTilesAtZoom - 1;
+    if Result[i].y < 0 then begin
+      Result[i].y := 1;
+    end;
+    if Result[i].y > VTilesAtZoom then begin
+      Result[i].y := VTilesAtZoom - 1;
+    end;
   end;
 end;
 
@@ -209,8 +214,7 @@ begin
     if (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
       (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
       (Self.GetProjectionEPSG <> 0) and
-      (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG) then
-    begin
+      (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG) then begin
       Result := XY;
     end else begin
       if Azoom > 23 then begin
@@ -232,6 +236,7 @@ begin
     AZoom := 23;
   end;
 end;
+
 procedure TCoordConverterAbstract.CheckTilePosInternal(var XY: TPoint; var Azoom: byte);
 var
   VTilesAtZoom: Integer;
@@ -262,6 +267,7 @@ begin
     end;
   end;
 end;
+
 procedure TCoordConverterAbstract.CheckTileRectInternal(var XY: TRect; var Azoom: byte);
 var
   VTilesAtZoom: Integer;
@@ -376,6 +382,7 @@ begin
   end;
 
 end;
+
 procedure TCoordConverterAbstract.CheckPixelRectInternal(var XY: TRect; var Azoom: byte);
 var
   VPixelsAtZoom: Integer;
@@ -427,6 +434,7 @@ begin
     end;
   end;
 end;
+
 procedure TCoordConverterAbstract.CheckPixelPosStrictInternal(var XY: TPoint; var Azoom: byte);
 var
   VPixelsAtZoom: Integer;
@@ -481,6 +489,7 @@ begin
     end;
   end;
 end;
+
 procedure TCoordConverterAbstract.CheckRelativeRectInternal(var XY: TExtendedRect);
 begin
   Exit;
@@ -547,6 +556,7 @@ begin
     end;
   end;
 end;
+
 procedure TCoordConverterAbstract.CheckLonLatRectInternal(var XY: TExtendedRect);
 begin
   Exit;
@@ -599,6 +609,7 @@ begin
     Result := False;
   end;
 end;
+
 function TCoordConverterAbstract.CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VTilesAtZoom: Integer;
@@ -612,7 +623,7 @@ begin
 
   if XY.X < 0 then begin
     Result := False;
-    if ACicleMap  then begin
+    if ACicleMap then begin
       XY.X := XY.X mod VTilesAtZoom + VTilesAtZoom;
     end else begin
       XY.X := 0;
@@ -620,7 +631,7 @@ begin
   end else begin
     if XY.X > VTilesAtZoom then begin
       Result := False;
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.X := XY.X mod VTilesAtZoom;
       end else begin
         XY.X := VTilesAtZoom;
@@ -638,6 +649,7 @@ begin
     end;
   end;
 end;
+
 function TCoordConverterAbstract.CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VTilesAtZoom: Integer;
@@ -651,7 +663,7 @@ begin
 
   if XY.Left < 0 then begin
     Result := False;
-    if ACicleMap  then begin
+    if ACicleMap then begin
       XY.Left := XY.Left mod VTilesAtZoom + VTilesAtZoom;
     end else begin
       XY.Left := 0;
@@ -659,7 +671,7 @@ begin
   end else begin
     if XY.Left >= VTilesAtZoom then begin
       Result := False;
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.Left := XY.Left mod VTilesAtZoom;
       end else begin
         XY.Left := VTilesAtZoom - 1;
@@ -679,7 +691,7 @@ begin
 
   if XY.Right < 0 then begin
     Result := False;
-    if ACicleMap  then begin
+    if ACicleMap then begin
       XY.Right := XY.Right mod VTilesAtZoom + VTilesAtZoom;
     end else begin
       XY.Right := 0;
@@ -687,7 +699,7 @@ begin
   end else begin
     if XY.Right >= VTilesAtZoom then begin
       Result := False;
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.Right := XY.Right mod VTilesAtZoom;
       end else begin
         XY.Right := VTilesAtZoom - 1;
@@ -719,7 +731,7 @@ begin
 
   if XY.X < 0 then begin
     Result := False;
-    if ACicleMap  then begin
+    if ACicleMap then begin
       XY.X := XY.X mod VTilesAtZoom + VTilesAtZoom;
     end else begin
       XY.X := 0;
@@ -727,7 +739,7 @@ begin
   end else begin
     if XY.X >= VTilesAtZoom then begin
       Result := False;
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.X := XY.X mod VTilesAtZoom;
       end else begin
         XY.X := VTilesAtZoom - 1;
@@ -760,14 +772,14 @@ begin
   if XY.X < 0 then begin
     Result := False;
     if (Azoom < 23) then begin
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
       end else begin
         XY.X := 0;
       end;
     end else begin
       if (XY.X <> VPixelsAtZoom) then begin
-        if ACicleMap  then begin
+        if ACicleMap then begin
           XY.X := VPixelsAtZoom - XY.X;
         end else begin
           XY.X := 0;
@@ -777,7 +789,7 @@ begin
   end else begin
     if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
       Result := False;
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.X := XY.X mod VPixelsAtZoom;
       end else begin
         XY.X := VPixelsAtZoom;
@@ -878,7 +890,7 @@ begin
   VPixelsAtZoom := PixelsAtZoom(Azoom);
   if XY.X < 0 then begin
     Result := False;
-    if ACicleMap  then begin
+    if ACicleMap then begin
       XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
     end else begin
       XY.X := 0;
@@ -886,7 +898,7 @@ begin
   end else begin
     if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
       Result := False;
-      if ACicleMap  then begin
+      if ACicleMap then begin
         XY.X := XY.X mod VPixelsAtZoom;
       end else begin
         XY.X := VPixelsAtZoom - 1;
@@ -1073,15 +1085,17 @@ begin
   VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
   VPixelsAtZoomExt := VPixelsAtZoom;
   VPixelsAtZoomExt := abs(VPixelsAtZoomExt);
-  if XY.X = VPixelsAtZoom then
-    Result.X := 1
-  else
+  if XY.X = VPixelsAtZoom then begin
+    Result.X := 1;
+  end else begin
     Result.X := XY.X / VPixelsAtZoomExt;
+  end;
 
-  if XY.Y = VPixelsAtZoom then
-    Result.Y := 1
-  else
+  if XY.Y = VPixelsAtZoom then begin
+    Result.Y := 1;
+  end else begin
     Result.Y := XY.Y / VPixelsAtZoomExt;
+  end;
 end;
 
 function TCoordConverterAbstract.Relative2PixelInternal(const XY: TExtendedPoint;

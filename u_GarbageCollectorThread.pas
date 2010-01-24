@@ -44,10 +44,7 @@ begin
   VNextCheck := 0;
   while not Terminated do begin
     VNow := GetTickCount;
-    if (VNextCheck = 0)
-      or (VNextCheck <= VNow)
-      or ((VNextCheck > (1 shl 30)) and (VNow < (1 shl 29))) then
-    begin
+    if (VNextCheck = 0) or (VNextCheck <= VNow) or ((VNextCheck > (1 shl 30)) and (VNow < (1 shl 29))) then begin
       FList.ProcessObjectsTrim;
       VNextCheck := FList.GetNextCheck;
       if Terminated then begin
