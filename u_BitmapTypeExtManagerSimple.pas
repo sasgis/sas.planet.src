@@ -89,22 +89,13 @@ end;
 function TBitmapTypeExtManagerSimple.GetBitmapLoaderForType(
   AType: String): IBitmapTileLoader;
 begin
-  if SameText(AType, 'image/jpg')
-    or SameText(AType, 'image/jpeg')
-    or SameText(AType, 'image/pjpeg')
-  then begin
+  if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := FLoaders[0];
-  end else if SameText(AType, 'image/png')
-    or SameText(AType, 'image/x-png')
-  then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
     Result := FLoaders[1];
-  end else if SameText(AType, 'image/gif')
-  then begin
+  end else if SameText(AType, 'image/gif') then begin
     Result := FLoaders[2];
-  end else if SameText(AType, 'image/bmp')
-    or SameText(AType, 'image/x-ms-bmp')
-    or SameText(AType, 'image/x-windows-bmp')
-  then begin
+  end else if SameText(AType, 'image/bmp') or SameText(AType, 'image/x-ms-bmp') or SameText(AType, 'image/x-windows-bmp') then begin
     Result := FLoaders[3];
   end else begin
     raise Exception.Create('Неизвестный тип. Не знаю как загружать.');
@@ -130,22 +121,13 @@ end;
 function TBitmapTypeExtManagerSimple.GetBitmapSaverForType(
   AType: String): IBitmapTileSaver;
 begin
-  if SameText(AType, 'image/jpg')
-    or SameText(AType, 'image/jpeg')
-    or SameText(AType, 'image/pjpeg')
-  then begin
+  if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := FSavers[0];
-  end else if SameText(AType, 'image/png')
-    or SameText(AType, 'image/x-png')
-  then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
     Result := FSavers[1];
-  end else if SameText(AType, 'image/gif')
-  then begin
+  end else if SameText(AType, 'image/gif') then begin
     Result := FSavers[2];
-  end else if SameText(AType, 'image/bmp')
-    or SameText(AType, 'image/x-ms-bmp')
-    or SameText(AType, 'image/x-windows-bmp')
-  then begin
+  end else if SameText(AType, 'image/bmp') or SameText(AType, 'image/x-ms-bmp') or SameText(AType, 'image/x-windows-bmp') then begin
     Result := FSavers[3];
   end else begin
     raise Exception.Create('Неизвестный тип. Не знаю как сохранять.');
@@ -154,22 +136,13 @@ end;
 
 function TBitmapTypeExtManagerSimple.GetExtForType(AType: String): string;
 begin
-  if SameText(AType, 'image/jpg')
-    or SameText(AType, 'image/jpeg')
-    or SameText(AType, 'image/pjpeg')
-  then begin
+  if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := '.jpg';
-  end else if SameText(AType, 'image/png')
-    or SameText(AType, 'image/x-png')
-  then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
     Result := '.png';
-  end else if SameText(AType, 'image/gif')
-  then begin
+  end else if SameText(AType, 'image/gif') then begin
     Result := '.gif';
-  end else if SameText(AType, 'image/bmp')
-    or SameText(AType, 'image/x-ms-bmp')
-    or SameText(AType, 'image/x-windows-bmp')
-  then begin
+  end else if SameText(AType, 'image/bmp') or SameText(AType, 'image/x-ms-bmp') or SameText(AType, 'image/x-windows-bmp') then begin
     Result := '.bmp';
   end else begin
     Result := '';
@@ -194,22 +167,13 @@ end;
 function TBitmapTypeExtManagerSimple.GetIsBitmapType(
   AType: String): Boolean;
 begin
-  if SameText(AType, 'image/jpg')
-    or SameText(AType, 'image/jpeg')
-    or SameText(AType, 'image/pjpeg')
-  then begin
+  if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := true;
-  end else if SameText(AType, 'image/png')
-    or SameText(AType, 'image/x-png')
-  then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
     Result := True;
-  end else if SameText(AType, 'image/gif')
-  then begin
+  end else if SameText(AType, 'image/gif') then begin
     Result := True;
-  end else if SameText(AType, 'image/bmp')
-    or SameText(AType, 'image/x-ms-bmp')
-    or SameText(AType, 'image/x-windows-bmp')
-  then begin
+  end else if SameText(AType, 'image/bmp') or SameText(AType, 'image/x-ms-bmp') or SameText(AType, 'image/x-windows-bmp') then begin
     Result := True;
   end else begin
     Result := False;

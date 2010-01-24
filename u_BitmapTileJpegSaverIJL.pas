@@ -51,11 +51,11 @@ begin
     jcprops.DIBChannels := 3;
     jcprops.DIBColor := IJL_RGB;
     jcprops.DIBPadBytes := 0;
-    GetMem(jcprops.DIBBytes,jcprops.DIBWidth*jcprops.DIBHeight*3);
+    GetMem(jcprops.DIBBytes, jcprops.DIBWidth * jcprops.DIBHeight * 3);
     try
       VSource := PColor32Entry(ABtm.ScanLine[0]);
       VTarget := jcprops.DIBBytes;
-      for i := 0 to jcprops.DIBWidth*jcprops.DIBHeight - 1 do begin
+      for i := 0 to jcprops.DIBWidth * jcprops.DIBHeight - 1 do begin
         VTarget^ := (VSource^).R;
         Inc(VTarget);
         VTarget^ := (VSource^).G;
@@ -70,10 +70,10 @@ begin
       jcprops.JPGChannels := 3;
       jcprops.JPGColor := IJL_YCBCR;
       jcprops.jquality := FCompressionQuality;
-      VStatus := ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
-    if VStatus < 0 then begin
-      raise Exception.Create('Save Jpeg Error' + inttostr(vstatus));
-    end;
+      VStatus := ijlWrite(@jcprops, IJL_JFILE_WRITEWHOLEIMAGE);
+      if VStatus < 0 then begin
+        raise Exception.Create('Save Jpeg Error' + inttostr(vstatus));
+      end;
     finally
       FreeMem(jcprops.DIBBytes);
     end;
@@ -101,13 +101,13 @@ begin
     jcprops.DIBChannels := 3;
     jcprops.DIBColor := IJL_RGB;
     jcprops.DIBPadBytes := 0;
-    jcprops.JPGSizeBytes := jcprops.DIBWidth*jcprops.DIBHeight*3;
-    GetMem(jcprops.DIBBytes,jcprops.DIBWidth*jcprops.DIBHeight*3);
+    jcprops.JPGSizeBytes := jcprops.DIBWidth * jcprops.DIBHeight * 3;
+    GetMem(jcprops.DIBBytes, jcprops.DIBWidth * jcprops.DIBHeight * 3);
     GetMem(jcprops.JPGBytes, jcprops.JPGSizeBytes);
     try
       VSource := PColor32Entry(ABtm.ScanLine[0]);
       VTarget := jcprops.DIBBytes;
-      for i := 0 to jcprops.DIBWidth*jcprops.DIBHeight - 1 do begin
+      for i := 0 to jcprops.DIBWidth * jcprops.DIBHeight - 1 do begin
         VTarget^ := (VSource^).R;
         Inc(VTarget);
         VTarget^ := (VSource^).G;
@@ -122,7 +122,7 @@ begin
       jcprops.JPGColor := IJL_YCBCR;
       jcprops.jquality := FCompressionQuality;
 
-      VStatus := ijlWrite(@jcprops,IJL_JBUFF_WRITEWHOLEIMAGE);
+      VStatus := ijlWrite(@jcprops, IJL_JBUFF_WRITEWHOLEIMAGE);
       if VStatus < 0 then begin
         raise Exception.Create('Save Jpeg Error' + inttostr(vstatus));
       end;
@@ -137,4 +137,3 @@ begin
 end;
 
 end.
-

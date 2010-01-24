@@ -28,8 +28,8 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm as TBitmap32);
-   VBtm_ex.SaveToFile(AFileName);
+    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.SaveToFile(AFileName);
   finally
     VBtm_ex.Free;
   end;
@@ -42,8 +42,8 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm as TBitmap32);
-   VBtm_ex.SaveToStream(AStream);
+    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.SaveToStream(AStream);
   finally
     VBtm_ex.Free;
   end;

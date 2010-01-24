@@ -31,14 +31,14 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm as TBitmap32);
-   VGif_ex := TGIFImage.Create;
-   try
-     VGif_ex.Assign(VBtm_ex);
-     VGif_ex.SaveToFile(AFileName);
-   finally
-     VGif_ex.Free;
-   end;
+    VBtm_ex.Assign(Abtm as TBitmap32);
+    VGif_ex := TGIFImage.Create;
+    try
+      VGif_ex.Assign(VBtm_ex);
+      VGif_ex.SaveToFile(AFileName);
+    finally
+      VGif_ex.Free;
+    end;
   finally
     VBtm_ex.Free;
   end;
@@ -52,14 +52,14 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm as TBitmap32);
-   VGif_ex := TGIFImage.Create;
-   try
-     VGif_ex.Assign(VBtm_ex);
-     VGif_ex.SaveToStream(AStream);
-   finally
-     VGif_ex.Free;
-   end;
+    VBtm_ex.Assign(Abtm as TBitmap32);
+    VGif_ex := TGIFImage.Create;
+    try
+      VGif_ex.Assign(VBtm_ex);
+      VGif_ex.SaveToStream(AStream);
+    finally
+      VGif_ex.Free;
+    end;
   finally
     VBtm_ex.Free;
   end;
