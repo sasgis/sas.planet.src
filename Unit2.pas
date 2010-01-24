@@ -57,7 +57,6 @@ type
 
 var
   FGoTo: TFGoTo;
-  procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
 
 implementation
 
@@ -69,113 +68,6 @@ uses
   UMapType;
 
 {$R *.dfm}
-
-function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-var sine,cosinus: Double;
-    dx,dy,len: Integer;
-begin
-  asm
-   fild(y2)
-   fisub(y1) // Y-Difference
-   fild(x2)
-   fisub(x1) // X-Difference
-   fpatan    // Angle of the line in st(0)
-   fsincos   // Cosinus in st(0), Sinus in st(1)
-   fstp cosinus
-   fstp sine
-  end;
-  dx:=Round(cosinus*(x-x1)+sine*(y-y1));
-  dy:=Round(cosinus*(y-y1)-sine*(x-x1));
-  len:=Round(cosinus*(x2-x1)+sine*(y2-y1)); // length of line
-  Result:=((dy>-d)and(dy<d)and(dx>-d)and(dx<len+d));
-end;
-
-procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
-var
-  j:integer;
-  i:integer;
-  ll1,ll2:TPoint;
-  ms:TMemoryStream;
-  arrLL:PArrLL;
-  arLL: TPointArray;
-  poly:TExtendedPointArray;
-begin
- if GState.show_point = mshNone then exit;
- Fmain.CDSKategory.Filtered:=true;
- if Fmain.CDSKategory.Eof then exit;
- Fmain.CDSmarks.Filtered:=true;
- Fmain.CDSmarks.First;
- while (not(Fmain.CDSmarks.Eof))and((Fmain.CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
- begin
-  LL1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonL.AsFloat,Fmain.CDSmarkslatT.AsFloat),GState.zoom_size-1);
-  LL1 := Fmain.MapPixel2VisiblePixel(ll1);
-  LL2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(Fmain.CDSmarkslonR.AsFloat,Fmain.CDSmarkslatB.AsFloat),GState.zoom_size-1);
-  LL2 := Fmain.MapPixel2VisiblePixel(ll2);
-  if (xy.x+8>ll1.x)and(xy.x-8<ll2.x)and(xy.y+16>ll1.y)and(xy.y-16<ll2.y) then
-  begin
-    ms:=TMemoryStream.Create;
-    TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-    ms.Position:=0;
-    GetMem(arrLL,ms.size);
-    ms.ReadBuffer(arrLL^,ms.size);
-    SetLength(arLL,ms.size div 24);
-    setlength(poly,ms.size div 24);
-    for i:=0 to length(arLL)-1 do begin
-      arLL[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
-      arLL[i] := Fmain.MapPixel2VisiblePixel(arLL[i]);
-      poly[i]:=arrLL^[i];
-    end;
-    if length(arLL)=1 then
-     begin
-      APWL.name:=Fmain.CDSmarksname.AsString;
-      APWL.descr:=Fmain.CDSmarksdescr.AsString;
-      APWL.numid:=Fmain.CDSmarksid.AsString;
-      APWL.find:=true;
-      APWL.type_:=ROTpoint;
-      Setlength(arLL,0);
-      freeMem(arrLL);
-      ms.Free;
-      Fmain.CDSmarks.Filtered:=false;
-      exit;
-     end;
-    j:=1;
-    if (arrLL^[0].x<>arrLL^[length(arLL)-1].x)or
-       (arrLL^[0].y<>arrLL^[length(arLL)-1].y)then
-      while (j<length(arLL)) do
-       begin
-        if CursorOnLinie(xy.x,xy.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(Fmain.CDSmarksscale1.AsInteger div 2)+1)
-           then begin
-                 APWL.name:=Fmain.CDSmarksname.AsString;
-                 APWL.descr:=Fmain.CDSmarksdescr.AsString;
-                 APWL.numid:=Fmain.CDSmarksid.AsString;
-                 APWL.find:=true;
-                 APWL.type_:=ROTline;
-                 Setlength(arLL,0);
-                 freeMem(arrLL);
-                 ms.Free;
-                 Fmain.CDSmarks.Filtered:=false;
-                 exit;
-                end;
-        inc(j);
-       end
-     else
-     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>APWL.S)and(APWL.S<>0))) then
-      begin
-       APWL.S:=PolygonSquare(arLL);
-       APWL.name:=Fmain.CDSmarksname.AsString;
-       APWL.descr:=Fmain.CDSmarksdescr.AsString;
-       APWL.numid:=Fmain.CDSmarksid.AsString;
-       APWL.find:=true;
-       APWL.type_:=ROTPoly;
-      end;
-   Setlength(arLL,0);
-   freeMem(arrLL);
-   ms.Free;
-  end;
-  Fmain.CDSmarks.Next;
- end;
- Fmain.CDSmarks.Filtered:=false;
-end;
 
 procedure TFGoTo.FormActivate(Sender: TObject);
 begin
