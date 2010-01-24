@@ -419,6 +419,7 @@ type
     TBXItem7: TTBXItem;
     TBXItem6: TTBXItem;
     OpenSessionDialog: TOpenDialog;
+    NShowSelection: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -545,6 +546,7 @@ type
       var Accept: Boolean);
     procedure TBXItem7Click(Sender: TObject);
     procedure TBXItem6Click(Sender: TObject);
+    procedure NShowSelectionClick(Sender: TObject);
   private
     ShowActivHint: boolean;
     HintWindow: THintWindow;
@@ -1290,9 +1292,9 @@ begin
     rect_arr[0] := VSelectedLonLat.TopLeft;
     rect_arr[1] := VSelectedLonLat.BottomRight;
     fsaveas.Show_(GState.zoom_size, Poly);
+    LayerSelection.Redraw;
     Poly := nil;
     rect_p2:=false;
-    LayerSelection.Redraw;
     exit;
   end;
   if not(rect_dwn) then exit;
@@ -2246,11 +2248,10 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
 
- LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
- LayerSelection.Visible := false;
-
  LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
  LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
+
+ LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
 
  ScreenCenterPos := Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
                           GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
@@ -2279,6 +2280,7 @@ begin
    inc(i);
   end;
  if length(GState.LastSelectionPolygon)>0 then GState.poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
+ LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
 
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
@@ -2315,6 +2317,7 @@ begin
 
  TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
+ NShowSelection.Checked := LayerSelection.Visible;
  Ninvertcolor.Checked:=GState.InvertColor;
  TBGPSconn.Checked := GState.GPS_enab;
  if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
@@ -2926,6 +2929,7 @@ procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
  if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon)
                         else showmessage(SAS_MSG_NeedHL);
+ LayerSelection.Redraw;
 end;
 
 //карта заполнения в основном окне
@@ -3190,6 +3194,7 @@ begin
               Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
               Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
               fsaveas.Show_(GState.zoom_size, Poly);
+              LayerSelection.Redraw;
               Poly := nil;
              End;
         Finally
@@ -3430,6 +3435,7 @@ begin
      GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
      fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
     end;
+    LayerSelection.Redraw
   end
 end;
 
@@ -4628,6 +4634,7 @@ begin
          LayerMapNal.Bitmap.Clear(clBlack);
          Fsaveas.Show_(GState.zoom_size,reg_arr);
          setalloperationfalse(ao_movemap);
+         LayerSelection.Redraw;
         end;
   end;
 end;
@@ -4940,6 +4947,11 @@ begin
     VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
     TFProgress.Create(Application, VThread, VThreadLog);
   end;
+end;
+
+procedure TFmain.NShowSelectionClick(Sender: TObject);
+begin
+ LayerSelection.Visible:=TTBXItem(sender).Checked;
 end;
 
 end.

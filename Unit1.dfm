@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -794,6 +793,12 @@ object Fmain: TFmain
           AutoCheck = True
           OnClick = NinvertcolorClick
           Caption = #1053#1086#1095#1085#1086#1081' '#1088#1077#1078#1080#1084' ('#1048#1085#1074#1077#1088#1089#1080#1103' '#1094#1074#1077#1090#1086#1074')'
+          Hint = ''
+        end
+        object NShowSelection: TTBXItem
+          AutoCheck = True
+          OnClick = NShowSelectionClick
+          Caption = #1055#1086#1089#1083#1077#1076#1085#1077#1077' '#1074#1099#1076#1083#1077#1085#1080#1077
           Hint = ''
         end
       end

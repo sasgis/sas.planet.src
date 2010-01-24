@@ -3,12 +3,16 @@ unit u_SelectionLayer;
 interface
 
 uses
+  GR32,
+  GR32_Polygons,
+  t_GeoTypes,
   u_MapLayerBasic;
 
 type
   TSelectionLayer = class(TMapLayerBasic)
   protected
     procedure DoRedraw; override;
+    function PreparePolygon(APolygon: TPointArray): TPointArray;
   public
   end;
 
@@ -16,41 +20,108 @@ implementation
 
 uses
   Types,
+  SysUtils,
   Graphics,
-  GR32,
-  t_GeoTypes,
   u_GlobalState,
   uMapType,
-  Unit1;
+  u_WindowLayerBasic;
 
 { TSelectionLayer }
 
 procedure TSelectionLayer.DoRedraw;
 var
-    VSelectedLonLat: TExtendedRect;
-    VZoomCurr: Byte;
-    VSelectedPixels: TRect;
-    VBitmapPixels: TRect;
+  VZoomCurr: Byte;
+  VPolygon: TPointArray;
+  VPolygonOnBitmap: TPointArray;
+  i: integer;
+  VPolygon32: TPolygon32;
 begin
   inherited;
-  VSelectedLonLat.TopLeft := rect_arr[0];
-  VSelectedLonLat.BottomRight := rect_arr[1];
-  VZoomCurr := GState.zoom_size - 1;
-  VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VSelectedLonLat, VZoomCurr);
-  VBitmapPixels.TopLeft := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
-  VBitmapPixels.BottomRight := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
+  VPolygon := nil;
+  VPolygonOnBitmap := nil;
+  if Length(GState.LastSelectionPolygon) > 0 then begin
+    FLayer.Bitmap.Clear(clBlack);
+    VZoomCurr := GState.zoom_size - 1;
+    VPolygon := GState.sat_map_both.GeoConvert.PoligonProject(VZoomCurr + 8, GState.LastSelectionPolygon);
+    try
+      VPolygonOnBitmap := PreparePolygon(VPolygon);
+      VPolygon32:=TPolygon32.Create;
+      try
+        for i := 0 to Length(VPolygonOnBitmap) - 1 do begin
+          VPolygon32.Add(FixedPoint(VPolygonOnBitmap[i]));
+        end;
+        VPolygon32.Antialiased:=True;
+        VPolygon32.Closed:=true;
+        with VPolygon32.Outline do try
+          with Grow(Fixed(1), 0.5) do try
+            FillMode := pfWinding;
+            DrawFill(FLayer.Bitmap, clBlack32);
+          finally
+            free;
+          end;
+        finally
+          free;
+        end;
+      finally
+        FreeAndNil(VPolygon32);
+      end;
+    finally
+      VPolygon := nil;
+    end;
+  end else begin
+    Visible := False;
+  end;
+end;
 
-  FLayer.Bitmap.Clear(clBlack);
-  FLayer.Bitmap.FrameRectS(
-    VBitmapPixels.Left, VBitmapPixels.Top,
-    VBitmapPixels.Right, VBitmapPixels.Bottom,
-    SetAlpha(clBlue32,150)
-  );
-  FLayer.Bitmap.FrameRectS(
-    VBitmapPixels.Left - 1, VBitmapPixels.Top - 1,
-    VBitmapPixels.Right + 1, VBitmapPixels.Bottom + 1,
-    SetAlpha(clBlue32,150)
-  );
+function TSelectionLayer.PreparePolygon(
+  APolygon: TPointArray): TPointArray;
+var
+  i: integer;
+  VSourcePoint: TExtendedPoint;
+  VTargetPoint: TExtendedPoint;
+  VTargetPointAbs: TExtendedPoint;
+const
+  CRectSize = 1 shl 14;
+begin
+  SetLength(Result, Length(APolygon));
+  for i := 0 to Length(APolygon) - 1 do begin
+    VSourcePoint.X := APolygon[i].X;
+    VSourcePoint.Y := APolygon[i].Y;
+    VTargetPoint := MapPixel2BitmapPixel(VSourcePoint);
+    VTargetPointAbs.X := Abs(VTargetPoint.X);
+    VTargetPointAbs.Y := Abs(VTargetPoint.Y);
+    if (VTargetPointAbs.X >= CRectSize) or (VTargetPointAbs.Y >= CRectSize) then begin
+      if (VTargetPointAbs.X >= CRectSize) and (VTargetPointAbs.Y >= CRectSize) then begin
+        if VTargetPoint.Y > 0 then begin
+          VTargetPoint.Y := CRectSize;
+        end else begin
+          VTargetPoint.Y := - CRectSize;
+        end;
+        if VTargetPoint.X > 0 then begin
+          VTargetPoint.X := CRectSize;
+        end else begin
+          VTargetPoint.X := - CRectSize;
+        end;
+      end else begin
+        if VTargetPointAbs.X < VTargetPointAbs.Y then begin
+          if VTargetPoint.Y > 0 then begin
+            VTargetPoint.Y := CRectSize;
+          end else begin
+            VTargetPoint.Y := - CRectSize;
+          end;
+        end else begin
+          if VTargetPoint.X > 0 then begin
+            VTargetPoint.X := CRectSize;
+          end else begin
+            VTargetPoint.X := - CRectSize;
+          end;
+        end;
+      end;
+    end;
+    Result[i].X := Round(VTargetPoint.X);
+    Result[i].Y := Round(VTargetPoint.Y);
+  end;
+
 end;
 
 end.

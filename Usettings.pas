@@ -317,6 +317,7 @@ begin
  GState.MainIni.WriteInteger('VIEW','SmMapW',GMiniMap.width);
  GState.MainIni.WriteInteger('VIEW','SmMapH',GMiniMap.height);
  if FMain.LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
+ GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
