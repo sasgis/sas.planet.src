@@ -33,6 +33,7 @@ type
  TMapType = class
    private
     FGuid: TGUID;
+    FActive: Boolean;
     FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
@@ -84,7 +85,11 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
-
+    // Процедуру нужно вызвать сразу после включения карты или слоя
+    procedure Activate();
+    // Процедуру нужно вызвать сразу после выключения карты или слоя
+    procedure Deactivate();
+    procedure SetActive(const Value: Boolean);
    public
     id: integer;
 
@@ -124,7 +129,6 @@ type
     TBSubMenuItem: TTBXSubmenuItem;
     NDwnItem: TMenuItem;
     NDelItem: TMenuItem;
-    active: boolean;
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -186,6 +190,7 @@ type
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
     property GUIDString: string read GetGUIDString;
+    property Active: Boolean read FActive write SetActive;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -1479,6 +1484,7 @@ end;
 
 constructor TMapType.Create;
 begin
+  FActive := False;
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
