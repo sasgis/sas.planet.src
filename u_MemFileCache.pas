@@ -14,7 +14,7 @@ type
   TMemFileCache = class(TInterfacedObject, IMemObjCache)
   private
     FCacheElemensMaxCnt: integer;
-    FCacheList:TStringList;
+    FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure SetCacheElemensMaxCnt(const Value: integer);
     procedure AddToCache(btm: TObject; APath: string);
@@ -22,11 +22,11 @@ type
     constructor Create();
     destructor Destroy; override;
     procedure Clear;
-    procedure DeleteFileFromCache(path:string);
+    procedure DeleteFileFromCache(path: string);
     procedure AddTileToCache(btm: TBitmap32; APath: string); overload;
     procedure AddTileToCache(btm: TKmlInfoSimple; APath: string); overload;
-    function TryLoadFileFromCache(btm: TBitmap32; APath: string):boolean; overload;
-    function TryLoadFileFromCache(btm: TKmlInfoSimple; APath: string):boolean; overload;
+    function TryLoadFileFromCache(btm: TBitmap32; APath: string): boolean; overload;
+    function TryLoadFileFromCache(btm: TKmlInfoSimple; APath: string): boolean; overload;
 
     property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
   end;
@@ -56,8 +56,9 @@ var
 begin
   FSync.BeginWrite;
   try
-    for i:=0 to FCacheList.Count-1 do
+    for i := 0 to FCacheList.Count - 1 do begin
       FCacheList.Objects[i].Free;
+    end;
     FCacheList.Clear;
   finally
     FSync.EndWrite;
@@ -65,10 +66,11 @@ begin
 end;
 
 procedure TMemFileCache.SetCacheElemensMaxCnt(const Value: integer);
-var i:integer;
+var
+  i: integer;
 begin
-  if Value<FCacheList.Count then begin
-    for i:=0 to (FCacheList.Count-Value)-1 do begin
+  if Value < FCacheList.Count then begin
+    for i := 0 to (FCacheList.Count - Value) - 1 do begin
       FCacheList.Objects[0].Free;
       FCacheList.Delete(0);
     end;
@@ -94,12 +96,12 @@ end;
 
 procedure TMemFileCache.AddToCache(btm: TObject; APath: string);
 var
-  i:integer;
+  i: integer;
 begin
   FSync.BeginWrite;
   try
-    i:=FCacheList.IndexOf(APath);
-    if i<0 then begin
+    i := FCacheList.IndexOf(APath);
+    if i < 0 then begin
       FCacheList.AddObject(APath, btm);
       if FCacheList.Count > FCacheElemensMaxCnt then begin
         FCacheList.Objects[0].Free;
@@ -116,22 +118,22 @@ end;
 
 procedure TMemFileCache.AddTileToCache(btm: TBitmap32; APath: string);
 var
-  btmcache:TBitmap32;
+  btmcache: TBitmap32;
   VPath: string;
 begin
   VPath := AnsiUpperCase(APath);
-  btmcache:=TBitmap32.Create;
+  btmcache := TBitmap32.Create;
   btmcache.Assign(btm);
   AddToCache(btmcache, VPath);
 end;
 
 procedure TMemFileCache.AddTileToCache(btm: TKmlInfoSimple; APath: string);
 var
-  btmcache:TKmlInfoSimple;
+  btmcache: TKmlInfoSimple;
   VPath: string;
 begin
   VPath := AnsiUpperCase(APath);
-  btmcache:=TKmlInfoSimple.Create;
+  btmcache := TKmlInfoSimple.Create;
   btmcache.Assign(btm);
   AddToCache(btmcache, VPath);
 end;
@@ -146,10 +148,10 @@ begin
   VPath := AnsiUpperCase(APath);
   FSync.BeginRead;
   try
-    i:=FCacheList.IndexOf(VPath);
-    if i>=0 then begin
+    i := FCacheList.IndexOf(VPath);
+    if i >= 0 then begin
       btm.Assign(TBitmap32(FCacheList.Objects[i]));
-      result:=true;
+      result := true;
     end;
   finally
     FSync.EndRead;
@@ -166,10 +168,10 @@ begin
   VPath := AnsiUpperCase(APath);
   FSync.BeginRead;
   try
-    i:=FCacheList.IndexOf(VPath);
-    if i>=0 then begin
+    i := FCacheList.IndexOf(VPath);
+    if i >= 0 then begin
       btm.Assign(TKmlInfoSimple(FCacheList.Objects[i]));
-      result:=true;
+      result := true;
     end;
   finally
     FSync.EndRead;

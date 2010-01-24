@@ -50,7 +50,7 @@ var
   i: integer;
 begin
   FSync := nil;
-  for i:= 0 to FList.Count - 1 do begin
+  for i := 0 to FList.Count - 1 do begin
     IObjectWithTTL(FList.Items[i])._Release;
   end;
   FreeAndNil(FList);

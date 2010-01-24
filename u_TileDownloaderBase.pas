@@ -34,7 +34,7 @@ type
     procedure CloseSession; virtual;
     function BuildHeader(AUrl: string): string; virtual;
     function TryDownload(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
-    function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal;  fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
+    function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
@@ -135,7 +135,7 @@ begin
       end;
       Exit;
     end;
-  until (VBufferLen=0);
+  until (VBufferLen = 0);
   Result := dtrOK;
 end;
 
@@ -152,11 +152,13 @@ begin
     ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
     ERROR_INTERNET_SERVER_UNREACHABLE,
     ERROR_INTERNET_SHUTDOWN,
-    ERROR_INTERNET_TIMEOUT: begin
+    ERROR_INTERNET_TIMEOUT:
+    begin
       Result := true;
     end;
-    else
-      Result := false;
+  else begin
+    Result := false;
+  end;
   end;
 end;
 
@@ -168,11 +170,13 @@ begin
     HTTP_STATUS_NOT_SUPPORTED,
     HTTP_STATUS_BAD_GATEWAY,
     HTTP_STATUS_SERVICE_UNAVAIL,
-    HTTP_STATUS_GATEWAY_TIMEOUT: begin
+    HTTP_STATUS_GATEWAY_TIMEOUT:
+    begin
       Result := True;
     end;
-    else
-      Result := False;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -184,11 +188,13 @@ begin
     HTTP_STATUS_ACCEPTED,
     HTTP_STATUS_PARTIAL,
     HTTP_STATUS_RESET_CONTENT,
-    HTTP_STATUS_PARTIAL_CONTENT: begin
+    HTTP_STATUS_PARTIAL_CONTENT:
+    begin
       Result := True;
     end;
-    else
-      Result := False;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -197,11 +203,13 @@ function TTileDownloaderBase.IsTileNotExistStatus(
 begin
   case AStatusCode of
     HTTP_STATUS_NO_CONTENT,
-    HTTP_STATUS_NOT_FOUND: begin
+    HTTP_STATUS_NOT_FOUND:
+    begin
       Result := True;
     end;
-    else
-      Result := False;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -212,7 +220,7 @@ begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
-    VTimeOut:=GState.InetConnect.TimeOut;
+    VTimeOut := GState.InetConnect.TimeOut;
     if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
       FSessionOpenError := GetLastError;
     end;
@@ -266,7 +274,7 @@ begin
     end;
   end;
   AContentType := trim(AContentType);
-  if (AContentType = '') or (PosEx(AContentType, FExpectedMIMETypes, 0)<=0) then begin
+  if (AContentType = '') or (PosEx(AContentType, FExpectedMIMETypes, 0) <= 0) then begin
     Result := dtrErrorMIMEType;
     exit;
   end;
@@ -294,13 +302,17 @@ begin
 end;
 
 function TTileDownloaderBase.IsGlobalOffline: Boolean;
-var State, Size: DWORD;
+var
+  State, Size: DWORD;
 begin
-  Result:=False;
-  State:=0;
-  Size:=SizeOf(DWORD);
-  if InternetQueryOption(nil, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then
-    if (State and INTERNET_STATE_DISCONNECTED_BY_USER) <> 0 then Result := True;
+  Result := False;
+  State := 0;
+  Size := SizeOf(DWORD);
+  if InternetQueryOption(nil, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then begin
+    if (State and INTERNET_STATE_DISCONNECTED_BY_USER) <> 0 then begin
+      Result := True;
+    end;
+  end;
 end;
 
 function TTileDownloaderBase.TryDownload(AUrl: string;
@@ -325,7 +337,7 @@ begin
   if VNow < FLastDownloadTime + FWaitInterval then begin
     Sleep(FWaitInterval);
   end;
-  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD , 0);
+  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD, 0);
   if not Assigned(VFileHandle) then begin
     VLastError := GetLastError;
     if IsDownloadError(VLastError) then begin
@@ -350,10 +362,10 @@ begin
       Exit;
     end;
     if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-      if (not FConnectionSettings.userwinset)and(FConnectionSettings.uselogin) then begin
-        InternetSetOption (VFileHandle, INTERNET_OPTION_PROXY_USERNAME,PChar(FConnectionSettings.loginstr), length(FConnectionSettings.loginstr));
-        InternetSetOption (VFileHandle, INTERNET_OPTION_PROXY_PASSWORD,PChar(FConnectionSettings.passstr), length(FConnectionSettings.Passstr));
-        HttpSendRequest(VFileHandle, nil, 0,Nil, 0);
+      if (not FConnectionSettings.userwinset) and (FConnectionSettings.uselogin) then begin
+        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(FConnectionSettings.loginstr), length(FConnectionSettings.loginstr));
+        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(FConnectionSettings.passstr), length(FConnectionSettings.Passstr));
+        HttpSendRequest(VFileHandle, nil, 0, Nil, 0);
 
         dwIndex := 0;
         VBufSize := sizeof(AStatusCode);

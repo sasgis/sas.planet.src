@@ -10,7 +10,7 @@ uses
   t_GeoTypes;
 
 type
-  TWindowLayerBasic =  class
+  TWindowLayerBasic = class
   protected
     FParentMap: TImage32;
     FLayer: TBitmapLayer;
@@ -43,8 +43,8 @@ type
     // Переводит координаты прямоугольника битмапки в координаты VisualPixel
     function GetMapLayerLocationRect: TRect; virtual;
 
-    procedure  DoRedraw; virtual; abstract;
-    procedure  DoResize; virtual;
+    procedure DoRedraw; virtual; abstract;
+    procedure DoResize; virtual;
   public
     constructor Create(AParentMap: TImage32);
     procedure Resize; virtual;
@@ -67,10 +67,10 @@ begin
   FParentMap := AParentMap;
   FLayer := TBitmapLayer.Create(FParentMap.Layers);
 
-  FLayer.Bitmap.DrawMode:=dmBlend;
-  FLayer.Bitmap.CombineMode:=cmMerge;
-  FLayer.bitmap.Font.Charset:=RUSSIAN_CHARSET;
-  FLayer.Visible:=false;
+  FLayer.Bitmap.DrawMode := dmBlend;
+  FLayer.Bitmap.CombineMode := cmMerge;
+  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+  FLayer.Visible := false;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;
