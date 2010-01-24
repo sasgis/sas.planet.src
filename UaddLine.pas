@@ -72,7 +72,7 @@ type
     lenarr:integer;
     new_:boolean;
   public
-    function show_(aLL:array of TExtendedPoint;new:boolean):boolean;
+    function show_(aLL:array of TExtendedPoint;new:boolean; Amarshrutcomment: string):boolean;
   end;
 
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
@@ -83,7 +83,7 @@ var
 implementation
 
 {$R *.dfm}
-function TFaddLine.show_(aLL:array of TExtendedPoint;new:boolean):boolean;
+function TFaddLine.show_(aLL:array of TExtendedPoint;new:boolean; Amarshrutcomment: string):boolean;
 var
     i:integer;
     namecatbuf:string;
@@ -102,7 +102,7 @@ begin
               faddLine.Caption:=SAS_STR_AddNewPath;
               Badd.Caption:=SAS_STR_Add;
               CheckBox2.Checked:=true;
-              if marshrutcomment<>'' then faddLine.EditComment.Text:=marshrutcomment;
+              if Amarshrutcomment<>'' then faddLine.EditComment.Text:=Amarshrutcomment;
              end
         else begin
               faddLine.Caption:=SAS_STR_EditPath;

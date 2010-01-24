@@ -575,6 +575,7 @@ type
     RectWindow: TRect;
     FUIDownLoader: TTileDownloaderUI;
     curBuf: TCursor;
+    marshrutcomment: string;
   public
     LayerMap: TBitmapLayer;
     LayerMapWiki: TBitmapLayer;
@@ -652,7 +653,7 @@ type
     property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
     procedure UpdateGPSsensors;
   end;
-
+  
 
 const
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
@@ -667,7 +668,6 @@ var
   Fmain: TFmain;
   PWL: TResObj;
 
-  marshrutcomment: string;
   mWd2: integer;
   mHd2: integer;
   yhgpx: integer;
@@ -1174,7 +1174,7 @@ begin
               end;
              if (Msg.wParam=13)and(aoper=ao_add_line)and(length(add_line_arr)>1) then
               begin
-               if FaddLine.show_(add_line_arr,true) then
+               if FaddLine.show_(add_line_arr,true, marshrutcomment) then
                 begin
                  setalloperationfalse(ao_movemap);
                  generate_im(nilLastLoad,'');
@@ -3339,7 +3339,7 @@ end;
 procedure TFmain.TBItem5Click(Sender: TObject);
 begin
  if length(GState.GPS_TrackPoints)>1 then begin
-                            if FaddLine.show_(GState.GPS_TrackPoints,true) then
+                            if FaddLine.show_(GState.GPS_TrackPoints,true, marshrutcomment) then
                              begin
                               setalloperationfalse(ao_movemap);
                               generate_im(nilLastLoad,'');
@@ -4373,7 +4373,7 @@ begin
   result := false;
  case aoper of
   ao_add_Poly: result:=FaddPoly.show_(add_line_arr,true);
-  ao_add_Line: result:=FaddLine.show_(add_line_arr,true);
+  ao_add_Line: result:=FaddLine.show_(add_line_arr,true, marshrutcomment);
  end;
  if result then
   begin
