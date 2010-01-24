@@ -6,7 +6,7 @@ uses
   Classes;
 
 type
-  TMapCalibrationListBasic =  class(TInterfaceList)
+  TMapCalibrationListBasic = class(TInterfaceList)
   public
     constructor Create();
   end;

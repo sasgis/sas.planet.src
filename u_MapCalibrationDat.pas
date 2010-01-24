@@ -40,19 +40,19 @@ end;
 procedure TMapCalibrationDat.SaveCalibrationInfo(AFileName: WideString;
   xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter);
 var
-  f:TextFile;
-  LL1,LL2:TExtendedPoint;
+  f: TextFile;
+  LL1, LL2: TExtendedPoint;
 begin
   assignfile(f, ChangeFileExt(AFileName, '.dat'));
   rewrite(f);
-  writeln(f,'2');
-  LL1:=AConverter.PixelPos2LonLat(xy1, Azoom);
-  LL2:=AConverter.PixelPos2LonLat(xy2, Azoom);
-  writeln(f,R2StrPoint(LL1.x)+','+R2StrPoint(LL1.y));
-  writeln(f,R2StrPoint(LL2.x)+','+R2StrPoint(LL1.y));
-  writeln(f,R2StrPoint(LL2.x)+','+R2StrPoint(LL2.y));
-  writeln(f,R2StrPoint(LL1.x)+','+R2StrPoint(LL2.y));
-  writeln(f,'(SASPlanet)');
+  writeln(f, '2');
+  LL1 := AConverter.PixelPos2LonLat(xy1, Azoom);
+  LL2 := AConverter.PixelPos2LonLat(xy2, Azoom);
+  writeln(f, R2StrPoint(LL1.x) + ',' + R2StrPoint(LL1.y));
+  writeln(f, R2StrPoint(LL2.x) + ',' + R2StrPoint(LL1.y));
+  writeln(f, R2StrPoint(LL2.x) + ',' + R2StrPoint(LL2.y));
+  writeln(f, R2StrPoint(LL1.x) + ',' + R2StrPoint(LL2.y));
+  writeln(f, '(SASPlanet)');
   closefile(f);
 end;
 
