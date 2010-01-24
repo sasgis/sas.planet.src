@@ -17,7 +17,7 @@ type
     num_blok: string;
     description: string;
     LT, RD: Tpoint;
-    AarrKt: TPointArray;
+    FProjectedArr: TPointArray;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -54,7 +54,7 @@ begin
   name_blok := '';
   num_blok := '';
   description := '';
-  AarrKt := nil;
+  FProjectedArr := nil;
 end;
 
 destructor TWikiLayerElement.Destroy;
@@ -62,7 +62,7 @@ begin
   name_blok := '';
   num_blok := '';
   description := '';
-  AarrKt := nil;
+  FProjectedArr := nil;
   inherited;
 end;
 
@@ -139,23 +139,23 @@ begin
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (xy.x > FWikiLayerElments[i].lt.X - 5) and (xy.x < FWikiLayerElments[i].rd.X + 5) and
       (xy.y > FWikiLayerElments[i].lt.Y - 5) and (xy.y < FWikiLayerElments[i].rd.Y + 5) then begin
-      if length(FWikiLayerElments[i].AarrKt) = 1 then begin
+      if length(FWikiLayerElments[i].FProjectedArr) = 1 then begin
         APWL.name := FWikiLayerElments[i].name_blok;
         APWL.descr := FWikiLayerElments[i].description;
         APWL.numid := FWikiLayerElments[i].num_blok;
         APWL.find := true;
         exit;
       end;
-      l := length(FWikiLayerElments[i].AarrKt) - 1;
+      l := length(FWikiLayerElments[i].FProjectedArr) - 1;
       if l < 0 then begin
         continue;
       end;
       j := 1;
-      if (FWikiLayerElments[i].AarrKt[0].X <> FWikiLayerElments[i].AarrKt[l].x) or
-        (FWikiLayerElments[i].AarrKt[0].y <> FWikiLayerElments[i].AarrKt[l].y) then begin
-        while (j < length(FWikiLayerElments[i].AarrKt)) do begin
-          if CursorOnLinie(xy.x, xy.Y, FWikiLayerElments[i].AarrKt[j - 1].x, FWikiLayerElments[i].AarrKt[j - 1].y,
-            FWikiLayerElments[i].AarrKt[j].x, FWikiLayerElments[i].AarrKt[j].y, 3) then begin
+      if (FWikiLayerElments[i].FProjectedArr[0].X <> FWikiLayerElments[i].FProjectedArr[l].x) or
+        (FWikiLayerElments[i].FProjectedArr[0].y <> FWikiLayerElments[i].FProjectedArr[l].y) then begin
+        while (j < length(FWikiLayerElments[i].FProjectedArr)) do begin
+          if CursorOnLinie(xy.x, xy.Y, FWikiLayerElments[i].FProjectedArr[j - 1].x, FWikiLayerElments[i].FProjectedArr[j - 1].y,
+            FWikiLayerElments[i].FProjectedArr[j].x, FWikiLayerElments[i].FProjectedArr[j].y, 3) then begin
             APWL.name := FWikiLayerElments[i].name_blok;
             APWL.descr := FWikiLayerElments[i].description;
             APWL.numid := FWikiLayerElments[i].num_blok;
@@ -164,11 +164,11 @@ begin
           end;
           inc(j);
         end;
-      end else if PtInRgn(FWikiLayerElments[i].AarrKt, xy) then begin
-        if (PolygonSquare(FWikiLayerElments[i].AarrKt) > APWL.S) and (APWL.S <> 0) then begin
+      end else if PtInRgn(FWikiLayerElments[i].FProjectedArr, xy) then begin
+        if (PolygonSquare(FWikiLayerElments[i].FProjectedArr) > APWL.S) and (APWL.S <> 0) then begin
           continue;
         end;
-        APWL.S := PolygonSquare(FWikiLayerElments[i].AarrKt);
+        APWL.S := PolygonSquare(FWikiLayerElments[i].FProjectedArr);
         APWL.name := FWikiLayerElments[i].name_blok;
         APWL.descr := FWikiLayerElments[i].description;
         APWL.numid := FWikiLayerElments[i].num_blok;
@@ -210,17 +210,17 @@ begin
     name_blok := AData.name;
     num_blok := AData.PlacemarkID;
     description := AData.description;
-    setLength(AarrKt, length(AData.coordinates));
+    setLength(FProjectedArr, length(AData.coordinates));
     if length(AData.coordinates) = 1 then begin
-      setLength(AarrKt, 1);
+      setLength(FProjectedArr, 1);
       VConverter.CheckLonLatPos(AData.coordinates[0]);
-      AarrKt[0] := VConverter.LonLat2PixelPos(AData.coordinates[0], GState.zoom_size - 1);
-      AarrKt[0] := Fmain.MapPixel2LoadedPixel(AarrKt[0]);
+      FProjectedArr[0] := VConverter.LonLat2PixelPos(AData.coordinates[0], GState.zoom_size - 1);
+      FProjectedArr[0] := Fmain.MapPixel2LoadedPixel(FProjectedArr[0]);
     end else begin
       for i := 0 to length(AData.coordinates) - 1 do begin
         VConverter.CheckLonLatPos(AData.coordinates[i]);
-        AarrKt[i] := VConverter.LonLat2PixelPos(AData.coordinates[i], GState.zoom_size - 1);
-        AarrKt[i] := Fmain.MapPixel2LoadedPixel(AarrKt[i]);
+        FProjectedArr[i] := VConverter.LonLat2PixelPos(AData.coordinates[i], GState.zoom_size - 1);
+        FProjectedArr[i] := Fmain.MapPixel2LoadedPixel(FProjectedArr[i]);
       end;
     end;
   end;
@@ -231,17 +231,17 @@ procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement);
 begin
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width := 3;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color := GState.WikiMapFonColor;
-  if length(AData.AarrKt) = 1 then begin
-    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.AarrKt[0].x - 2, AData.AarrKt[0].y - 2, AData.AarrKt[0].x + 2, AData.AarrKt[0].y + 2);
+  if length(AData.FProjectedArr) = 1 then begin
+    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.FProjectedArr[0].x - 2, AData.FProjectedArr[0].y - 2, AData.FProjectedArr[0].x + 2, AData.FProjectedArr[0].y + 2);
   end else begin
-    FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.AarrKt);
+    FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.FProjectedArr);
   end;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width := 1;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color := GState.WikiMapMainColor;
-  if length(AData.AarrKt) = 1 then begin
-    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.AarrKt[0].x - 2, AData.AarrKt[0].y - 2, AData.AarrKt[0].x + 2, AData.AarrKt[0].y + 2);
+  if length(AData.FProjectedArr) = 1 then begin
+    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.FProjectedArr[0].x - 2, AData.FProjectedArr[0].y - 2, AData.FProjectedArr[0].x + 2, AData.FProjectedArr[0].y + 2);
   end else begin
-    FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.AarrKt);
+    FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.FProjectedArr);
   end;
 end;
 
@@ -257,23 +257,23 @@ begin
   VColorBG := SetAlpha(GState.WikiMapFonColor, 255);
   VPolygon := TPolygon32.Create;
   try
-    VLen := Length(AData.AarrKt);
+    VLen := Length(AData.FProjectedArr);
     if VLen > 1 then begin
       if Length(FFixedPointArray) < VLen then begin
         SetLength(FFixedPointArray, VLen);
       end;
       for i := 0 to VLen - 1 do begin
-        FFixedPointArray[i] := FixedPoint(AData.AarrKt[i]);
+        FFixedPointArray[i] := FixedPoint(AData.FProjectedArr[i]);
       end;
       VPolygon.AddPoints(FFixedPointArray[0], VLen);
       VPolygon.DrawEdge(FMain.LayerMapWiki.Bitmap, VColorBG);
       VPolygon.Offset(Fixed(1), Fixed(1));
       VPolygon.DrawEdge(FMain.LayerMapWiki.Bitmap, VColorMain);
     end else begin
-      FFixedPointArray[0] := FixedPoint(AData.AarrKt[0].X, AData.AarrKt[0].Y - 2);
-      FFixedPointArray[1] := FixedPoint(AData.AarrKt[0].X + 2, AData.AarrKt[0].Y);
-      FFixedPointArray[2] := FixedPoint(AData.AarrKt[0].X, AData.AarrKt[0].Y + 2);
-      FFixedPointArray[3] := FixedPoint(AData.AarrKt[0].X - 2, AData.AarrKt[0].Y);
+      FFixedPointArray[0] := FixedPoint(AData.FProjectedArr[0].X, AData.FProjectedArr[0].Y - 2);
+      FFixedPointArray[1] := FixedPoint(AData.FProjectedArr[0].X + 2, AData.FProjectedArr[0].Y);
+      FFixedPointArray[2] := FixedPoint(AData.FProjectedArr[0].X, AData.FProjectedArr[0].Y + 2);
+      FFixedPointArray[3] := FixedPoint(AData.FProjectedArr[0].X - 2, AData.FProjectedArr[0].Y);
       VPolygon.AddPoints(FFixedPointArray[0], 4);
       VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG, VColorMain);
     end;
