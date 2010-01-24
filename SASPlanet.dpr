@@ -16,6 +16,7 @@ uses
   cUnicode in 'src\cUnicode.pas',
   cUnicodeChar in 'src\cUnicodeChar.pas',
   CPDrv in 'src\CPDrv.pas',
+  BMSearch in 'src\BMSearch.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   t_LoadEvent in 't_LoadEvent.pas',
