@@ -576,6 +576,12 @@ type
     FUIDownLoader: TTileDownloaderUI;
     curBuf: TCursor;
     marshrutcomment: string;
+    movepoint: integer;
+    lastpoint: integer;
+    rect_arr: array [0..1] of TextendedPoint;
+    length_arr: TExtendedPointArray;
+    add_line_arr: TExtendedPointArray;
+    reg_arr: TExtendedPointArray;
   public
     LayerMap: TBitmapLayer;
     LayerMapWiki: TBitmapLayer;
@@ -620,8 +626,8 @@ type
     procedure drawRect(Shift: TShiftState);
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
-    class   procedure insertinpath(pos: integer);
-    class   procedure delfrompath(pos: integer);
+    procedure insertinpath(pos: integer);
+    procedure delfrompath(pos: integer);
     procedure DrawGenShBorders;
     procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -678,12 +684,6 @@ var
   pr_y: integer;
   m_m: Tpoint;
   moveTrue: Tpoint;
-  movepoint: integer;
-  lastpoint: integer;
-  rect_arr: array [0..1] of TextendedPoint;
-  length_arr: TExtendedPointArray;
-  add_line_arr: TExtendedPointArray;
-  reg_arr: TExtendedPointArray;
   nilLastLoad: TLastLoad;
   paintMark: boolean;
   GMiniMapPopupMenu: TTBXPopupMenu;
@@ -1032,7 +1032,7 @@ begin
   end
 end;
 
-class procedure TFmain.insertinpath(pos: integer);
+procedure TFmain.insertinpath(pos: integer);
 begin
  SetLength(add_line_arr,length(add_line_arr)+1);
  CopyMemory(Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),@add_line_arr[pos],(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
@@ -1044,7 +1044,7 @@ begin
   SetString(Result, Buffer, GetTempPath(Sizeof(Buffer) - 1,Buffer));
 end;
 
-class procedure TFmain.delfrompath(pos: integer);
+procedure TFmain.delfrompath(pos: integer);
 begin
  CopyMemory(@add_line_arr[pos],Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
  SetLength(add_line_arr,length(add_line_arr)-1);
