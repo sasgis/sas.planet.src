@@ -425,7 +425,7 @@ begin
   end;
  if length(GState.LastSelectionPolygon)>0 then
   begin
-   GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
+   GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save);
    for i:=1 to length(GState.LastSelectionPolygon) do
     begin
      GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);

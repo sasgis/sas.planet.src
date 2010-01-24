@@ -194,7 +194,7 @@ type
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
-    property IsHybridLayer: Boolean read GetIsHybridLayer; 
+    property IsHybridLayer: Boolean read GetIsHybridLayer;
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;

@@ -523,7 +523,7 @@ begin
     polygonLL[i]:=polygon_[i];
     GState.LastSelectionPolygon[i]:=polygon_[i];
   end;
-  poly_zoom_save:=zoom_rect;
+  GState.poly_zoom_save:=zoom_rect;
   vramkah:=false;
   zagran:=false;
   for i:=0 to length(polygonLL)-1 do begin
@@ -645,7 +645,7 @@ begin
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
    if length(GState.LastSelectionPolygon)>0 then
     begin
-     Ini.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
+     Ini.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save);
      for i:=1 to length(GState.LastSelectionPolygon) do
       begin
        Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);

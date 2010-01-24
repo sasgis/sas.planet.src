@@ -206,6 +206,8 @@ type
 
     // Полигон последнего выделения при операциях с областью.
     LastSelectionPolygon: TExtendedPointArray;
+    // Масштаб, на котором было последнее выделение
+    poly_zoom_save: byte;
 
     // Количество элементов в кэше в памяти
     property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;

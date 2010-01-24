@@ -667,7 +667,6 @@ var
   Fmain: TFmain;
   PWL: TResObj;
 
-  poly_zoom_save: byte;
   marshrutcomment: string;
   mWd2: integer;
   mHd2: integer;
@@ -2279,7 +2278,7 @@ begin
    GState.LastSelectionPolygon[i-1].y:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
    inc(i);
   end;
- if length(GState.LastSelectionPolygon)>0 then poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
+ if length(GState.LastSelectionPolygon)>0 then GState.poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
 
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
@@ -2925,7 +2924,7 @@ end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
- if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(poly_zoom_save,GState.LastSelectionPolygon)
+ if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon)
                         else showmessage(SAS_MSG_NeedHL);
 end;
 
@@ -3428,8 +3427,8 @@ begin
     end;
    if length(GState.LastSelectionPolygon)>0 then
     begin
-     poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(poly_zoom_save,GState.LastSelectionPolygon);
+     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
+     fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
     end;
   end
 end;
