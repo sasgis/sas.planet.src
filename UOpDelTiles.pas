@@ -22,6 +22,7 @@ type
     ProcessTiles:integer;
     Fprogress: TFprogress2;
     TileInProc:integer;
+    DelBytes:boolean;
     Fx, Fy: Integer;
     procedure DeleteTiles;
     procedure SetProgressForm;
@@ -31,11 +32,14 @@ type
   protected
     procedure Execute; override;
   public
+    DelBytesNum:integer;
     destructor destroy; override;
     constructor Create(
+      CrSusp:Boolean;
       APolyLL: TExtendedPointArray;
       Azoom: byte;
-      Atypemap: TMapType
+      Atypemap: TMapType;
+      ADelByte:boolean
     );
   end;
 
@@ -46,9 +50,9 @@ uses
   unit1,
   Ugeofun;
 
-constructor TOpDelTiles.Create(APolyLL: TExtendedPointArray; Azoom:byte;Atypemap:TMapType);
+constructor TOpDelTiles.Create(CrSusp:Boolean; APolyLL: TExtendedPointArray; Azoom:byte;Atypemap:TMapType; ADelByte:boolean);
 begin
-  inherited Create(false);
+  inherited Create(CrSusp);
   TileInProc:=0;
   zoom:=Azoom;
   typemap:=Atypemap;
@@ -56,6 +60,7 @@ begin
   ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
   Priority := tpLowest;
   FreeOnTerminate:=true;
+  DelBytes:=ADelByte;
 end;
 
 destructor TOpDelTiles.destroy;
@@ -110,11 +115,13 @@ begin
    j:=min.Y;
    while (j<max.y)and(not Terminated) do
     begin
-     if not(RgnAndRgn(Polyg,i,j,false))
+
+     if (not(RgnAndRgn(Polyg,i,j,false)))or(DelBytes and (DelBytesNum<>typemap.TileSize(i,j,zoom)))
         then begin
               inc(J,256);
               CONTINUE;
              end;
+
      if typemap.TileExists(i,j,zoom) then begin
                                Fx := i;
                                FY := j;
