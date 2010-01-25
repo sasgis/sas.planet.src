@@ -30,6 +30,8 @@ type
     function GetScale: double; override;
 
     function GetScreenCenterInBitmapPixels: TPoint; virtual;
+    function IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;
+    procedure RedrawPartial(ANewCenterPos: TPoint); virtual;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
@@ -65,18 +67,51 @@ begin
   FScreenCenterPos := ACenter;
 end;
 
-procedure TMapLayerBasic.SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter);
+function TMapLayerBasic.IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;
 begin
-  FScreenCenterPos := AScreenCenterPos;
-  FZoom := AZoom;
-  FGeoConvert := AGeoConvert;
+  Result := (FScreenCenterPos.X <> ANewCenterPos.X) or (FScreenCenterPos.Y <> ANewCenterPos.Y);
+end;
+
+procedure TMapLayerBasic.RedrawPartial(ANewCenterPos: TPoint);
+begin
+  // ѕо-умолчанию, не делаем ничего. ≈сли карта поддерживает частичное обновление то должна перекрывать этот метод.
+end;
+
+procedure TMapLayerBasic.SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter);
+var
+  VFullRedraw: Boolean;
+begin
+  VFullRedraw := False;
+  if (FGeoConvert <> nil) and (FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG) then begin
+    FGeoConvert := AGeoConvert;
+    VFullRedraw := True;
+  end;
+  if FZoom <> AZoom then begin
+    VFullRedraw := True;
+    FZoom := AZoom;
+  end;
+  if (FScreenCenterPos.X <> AScreenCenterPos.X) or (FScreenCenterPos.Y <> AScreenCenterPos.Y) then begin
+    if not VFullRedraw then begin
+      if IsNeedFullRedraw(AScreenCenterPos) then begin
+        VFullRedraw := True;
+        FScreenCenterPos := AScreenCenterPos;
+      end;
+    end else begin
+      FScreenCenterPos := AScreenCenterPos;
+    end;
+  end;
+
   FScale := 1;
   FCenterMove := Point(0, 0);
-
   FFreezeInCenter := True;
 
   if Visible then begin
-    Redraw;
+    if VFullRedraw then begin
+      Redraw;
+    end else begin
+      RedrawPartial(AScreenCenterPos);
+      FScreenCenterPos := AScreenCenterPos;
+    end;
     Resize;
   end;
 end;
