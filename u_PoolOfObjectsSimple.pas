@@ -22,7 +22,7 @@ type
     FWaitSleep: Cardinal;
   public
     constructor Create(APoolSize: Cardinal; AObjectFactory: ISimpleFactory;
-    AObjectTimeToLive: Cardinal; ACheckInterval: Cardinal);
+      AObjectTimeToLive: Cardinal; ACheckInterval: Cardinal);
     destructor Destroy; override;
     function TryGetPoolElement(ATimeOut: Cardinal): IPoolElement;
     function GetPoolSize: Cardinal;
@@ -61,7 +61,7 @@ destructor TPoolOfObjectsSimple.Destroy;
 var
   i: integer;
 begin
-  for i := 0 to FList.Count - 1 do  begin
+  for i := 0 to FList.Count - 1 do begin
     TPoolElement(FList.Items[i]).Free;
   end;
   FreeAndNil(FList);
@@ -93,7 +93,7 @@ begin
   FLastCheckTime := GetTickCount;
   VMinTime := FLastCheckTime - FObjectTimeToLive;
   VOldestUse := 0;
-  for i := 0 to FList.Count - 1 do  begin
+  for i := 0 to FList.Count - 1 do begin
     VElement := TPoolElement(FList.Items[i]);
     VElement.FreeObjectByTTL(VMinTime);
     VLastUse := VElement.GetLastUseTime;

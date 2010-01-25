@@ -19,6 +19,7 @@ type
     procedure ban; virtual;
     class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
   end;
+
 implementation
 
 uses
@@ -27,17 +28,36 @@ uses
 
 class function TTileDownloaderThreadBase.GetErrStr(Aerr: TDownloadTileResult): string;
 begin
- case Aerr of
-  dtrProxyAuthError: result:=SAS_ERR_Authorization;
-  dtrBanError: result:=SAS_ERR_Ban;
-  dtrTileNotExists: result:=SAS_ERR_TileNotExists;
-  dtrDownloadError,
-  dtrErrorInternetOpen,
-  dtrErrorInternetOpenURL: result:=SAS_ERR_Noconnectionstointernet;
-  dtrErrorMIMEType: result := 'Ошибочный тип данных'; //TODO: Заменить на ресурсную строку
-  dtrUnknownError: Result := 'Неизвестная ошибка при скачивании'
-  else result:='';
- end;
+  case Aerr of
+    dtrProxyAuthError:
+    begin
+      result := SAS_ERR_Authorization;
+    end;
+    dtrBanError:
+    begin
+      result := SAS_ERR_Ban;
+    end;
+    dtrTileNotExists:
+    begin
+      result := SAS_ERR_TileNotExists;
+    end;
+    dtrDownloadError,
+    dtrErrorInternetOpen,
+    dtrErrorInternetOpenURL:
+    begin
+      result := SAS_ERR_Noconnectionstointernet;
+    end;
+    dtrErrorMIMEType:
+    begin
+      result := 'Ошибочный тип данных';
+    end; //TODO: Заменить на ресурсную строку
+    dtrUnknownError:
+    begin
+      Result := 'Неизвестная ошибка при скачивании';
+    end else begin
+    result := '';
+  end;
+  end;
 end;
 
 procedure TTileDownloaderThreadBase.ban;

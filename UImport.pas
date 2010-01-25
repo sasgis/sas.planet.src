@@ -11,7 +11,6 @@ uses
   Graphics,
   Controls,
   Forms,
-  DBClient,
   DB,
   Dialogs,
   StdCtrls,
@@ -22,7 +21,6 @@ uses
   GR32,
   GR32_Resamplers,
   Unit1,
-  UKMLParse,
   UMarksExplorer,
   UPLT;
 
@@ -96,6 +94,7 @@ implementation
 
 uses
   u_GlobalState,
+  u_KmlInfoSimple,
   t_GeoTypes;
   
 {$R *.dfm}
@@ -160,7 +159,7 @@ begin
 end;
 
 procedure TFImport.Button1Click(Sender: TObject);
-var KML:TKML;
+var KML:TKmlInfoSimple;
     PLT:TPLT;
     i,j,lenarr:integer;
     ms:TMemoryStream;
@@ -175,8 +174,8 @@ begin
     then AddKategory(CBKateg.Text);
    if LowerCase(ExtractFileExt(FileName))='.kml' then
     begin
-     KML:=TKML.Create;
-     KML.loadFromFile(FileName);
+     KML:=TKmlInfoSimple.Create;
+     GState.KmlLoader.LoadFromFile(FileName, KML);
      for i:=0 to length(KML.Data)-1 do
       begin
        lenarr:=length(KML.Data[i].coordinates);

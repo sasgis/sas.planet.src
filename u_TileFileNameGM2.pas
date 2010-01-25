@@ -9,8 +9,9 @@ uses
 type
   TTileFileNameGM2 = class(TInterfacedObject, ITileFileNameGenerator)
   public
-    function GetTileFileName(AXY: TPoint; Azoom:byte): string;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
   end;
+
 implementation
 
 uses
@@ -21,12 +22,11 @@ uses
 function TTileFileNameGM2.GetTileFileName(AXY: TPoint;
   Azoom: byte): string;
 begin
-  result := format('z%d\%d_%d',[
+  result := format('z%d\%d_%d', [
     Azoom,
     AXY.y,
     AXY.x
-  ]);
+    ]);
 end;
 
 end.
-

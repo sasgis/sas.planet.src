@@ -1,6 +1,7 @@
 unit u_TileFileNameES;
 
 interface
+
 uses
   Types,
   i_ITileFileNameGenerator;
@@ -8,10 +9,11 @@ uses
 type
   TTileFileNameES = class(TInterfacedObject, ITileFileNameGenerator)
   private
-    class function FullInt(i : Integer; AZoom : byte) : string;
+    class function FullInt(i: Integer; AZoom: byte): string;
   public
-    function GetTileFileName(AXY: TPoint; Azoom:byte): string;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
   end;
+
 implementation
 
 uses
@@ -42,7 +44,7 @@ end;
 function TTileFileNameES.GetTileFileName(AXY: TPoint;
   Azoom: byte): string;
 var
-  VZoomStr : string;
+  VZoomStr: string;
   VFileName: string;
 begin
   inherited;
@@ -56,16 +58,11 @@ begin
     Result := VZoomStr + '\';
   end else if Azoom < 10 then begin
     Result := VZoomStr + '\' +
-      Chr(60 + Azoom)+ FullInt(AXY.X shr 5, Azoom - 5)
-      + FullInt(AXY.Y shr 5, Azoom - 5)+'\';
+      Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + '\';
   end else begin
-    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9)
-      + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + '\' + VZoomStr + '\'
-      + Chr(60 + Azoom)+ FullInt(AXY.X shr 5, Azoom - 5)
-      + FullInt(AXY.Y shr 5, Azoom - 5) + '\';
+    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9) + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + '\' + VZoomStr + '\' + Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + '\';
   end;
   Result := Result + VFileName;
 end;
 
 end.
-

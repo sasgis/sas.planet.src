@@ -317,6 +317,7 @@ begin
  GState.MainIni.WriteInteger('VIEW','SmMapW',GMiniMap.width);
  GState.MainIni.WriteInteger('VIEW','SmMapH',GMiniMap.height);
  if FMain.LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
+ GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
@@ -335,7 +336,7 @@ begin
  GState.MainIni.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
  GState.MainIni.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
- GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.MainFileCache.CacheElemensMaxCnt);
+ GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
  if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
@@ -425,7 +426,7 @@ begin
   end;
  if length(GState.LastSelectionPolygon)>0 then
   begin
-   GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
+   GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save);
    for i:=1 to length(GState.LastSelectionPolygon) do
     begin
      GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);
@@ -506,7 +507,7 @@ begin
  GState.GSMpar.auto:=RBGSMAuto.Checked;
  GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
- GState.MainFileCache.CacheElemensMaxCnt:=SETilesOCache.value;
+ GState.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.FirstLat:=ChBoxFirstLat.Checked;
@@ -674,7 +675,7 @@ begin
  SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
- SETilesOCache.Value:=GState.MainFileCache.CacheElemensMaxCnt;
+ SETilesOCache.Value:=GState.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=GState.TwoDownloadAttempt;

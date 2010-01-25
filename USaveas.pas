@@ -157,6 +157,8 @@ type
     CkBNotReplaseYa: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
+    SEDelBytes: TSpinEdit;
+    CBDelBytes: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -230,7 +232,10 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
-  TOpDelTiles.Create(APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]));
+ with TOpDelTiles.Create(true,APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]),CBDelBytes.Checked) do begin
+   DelBytesNum:=SEDelBytes.Value;
+   Suspended:=false;
+ end;
 end;
 
 procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
@@ -523,7 +528,7 @@ begin
     polygonLL[i]:=polygon_[i];
     GState.LastSelectionPolygon[i]:=polygon_[i];
   end;
-  poly_zoom_save:=zoom_rect;
+  GState.poly_zoom_save:=zoom_rect;
   vramkah:=false;
   zagran:=false;
   for i:=0 to length(polygonLL)-1 do begin
@@ -645,7 +650,7 @@ begin
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
    if length(GState.LastSelectionPolygon)>0 then
     begin
-     Ini.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
+     Ini.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save);
      for i:=1 to length(GState.LastSelectionPolygon) do
       begin
        Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);

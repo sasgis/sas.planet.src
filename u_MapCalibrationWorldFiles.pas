@@ -45,17 +45,17 @@ end;
 procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(AFileName: WideString;
   AConverter: ICoordConverter);
 var
-  AuxXmkfile:TMemoryStream;
-  str:UTF8String;
+  AuxXmkfile: TMemoryStream;
+  str: UTF8String;
   VprojInfo: String;
 begin
-  AuxXmkfile:=TMemoryStream.create;
-  str:=AnsiToUtf8('<PAMDataset>'+#13#10+'<SRS>');
+  AuxXmkfile := TMemoryStream.create;
+  str := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
   VprojInfo := GetProj(AConverter);
-  str:=str+AnsiToUtf8(VprojInfo);
-  str:=str+AnsiToUtf8('</SRS>'+#13#10+'<Metadata>'+#13#10+'<MDI key="PyramidResamplingType">NEAREST</MDI>'+#13#10+'</Metadata>'+#13#10+'</PAMDataset>');
-  AuxXmkfile.Write(str[1],length(str));
-  AuxXmkfile.SaveToFile(AFileName+'.aux.xml');
+  str := str + AnsiToUtf8(VprojInfo);
+  str := str + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
+  AuxXmkfile.Write(str[1], length(str));
+  AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
   AuxXmkfile.Free;
 end;
 
@@ -63,21 +63,21 @@ procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   AFileName: WideString; xy1, xy2: TPoint; Azoom: byte;
   AConverter: ICoordConverter);
 var
-  f:TextFile;
-  ll1,ll2:TExtendedPoint;
-  CellX,CellY,OrigX,OrigY:extended;
+  f: TextFile;
+  ll1, ll2: TExtendedPoint;
+  CellX, CellY, OrigX, OrigY: extended;
 begin
-  ll1:=AConverter.PixelPos2LonLat(xy1, Azoom);
-  ll2:=AConverter.PixelPos2LonLat(xy2, Azoom);
-  CalculateWFileParams(ll1,ll2,xy2.X-xy1.X,xy2.Y-xy1.Y,AConverter,CellX,CellY,OrigX,OrigY);
-  assignfile(f,AFileName+'w');
+  ll1 := AConverter.PixelPos2LonLat(xy1, Azoom);
+  ll2 := AConverter.PixelPos2LonLat(xy2, Azoom);
+  CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
+  assignfile(f, AFileName + 'w');
   rewrite(f);
-  writeln(f,R2StrPoint(CellX));
-  writeln(f,'0');
-  writeln(f,'0');
-  writeln(f,R2StrPoint(CellY));
-  writeln(f,R2StrPoint(OrigX));
-  writeln(f,R2StrPoint(OrigY));
+  writeln(f, R2StrPoint(CellX));
+  writeln(f, '0');
+  writeln(f, '0');
+  writeln(f, R2StrPoint(CellY));
+  writeln(f, R2StrPoint(OrigX));
+  writeln(f, R2StrPoint(OrigY));
   closefile(f);
   SavePrjFile(AFileName, AConverter);
   SaveAuxXmlFile(AFileName, AConverter);
@@ -86,10 +86,10 @@ end;
 procedure TMapCalibrationWorldFiles.SavePrjFile(AFileName: WideString;
   AConverter: ICoordConverter);
 var
-  f:TextFile;
+  f: TextFile;
   VprojInfo: String;
 begin
-  assignfile(f,ChangeFileExt(AFileName,'.prj'));
+  assignfile(f, ChangeFileExt(AFileName, '.prj'));
   rewrite(f);
   VprojInfo := GetProj(AConverter);
   writeln(f, VprojInfo);

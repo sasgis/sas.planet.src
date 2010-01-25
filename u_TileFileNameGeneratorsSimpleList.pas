@@ -18,6 +18,7 @@ type
     destructor Destroy; override;
     function GetGenerator(CacheType: Byte): ITileFileNameGenerator;
   end;
+
 implementation
 
 uses
@@ -62,13 +63,29 @@ begin
     VCacheType := CacheType;
   end;
   case VCacheType of
-    1: Result := FItems[0];
-    2: Result := FItems[1];
-    3: Result := FItems[2];
-    4: Result := FItems[3];
-    41: Result := FItems[4];
-  else
+    1:
+    begin
+      Result := FItems[0];
+    end;
+    2:
+    begin
+      Result := FItems[1];
+    end;
+    3:
+    begin
+      Result := FItems[2];
+    end;
+    4:
+    begin
+      Result := FItems[3];
+    end;
+    41:
+    begin
+      Result := FItems[4];
+    end;
+  else begin
     Result := FItems[3];
+  end;
   end;
 end;
 

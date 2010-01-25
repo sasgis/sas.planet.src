@@ -11,8 +11,10 @@ uses
   GR32,
   t_GeoTypes,
   t_CommonTypes,
+  i_IMemObjCache,
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
+  i_IKmlInfoSimpleLoader,
   u_GarbageCollectorThread,
   u_GeoToStr,
   Uimgfun,
@@ -24,12 +26,15 @@ type
 
   TGlobalState = class
   private
+    FMemFileCache: TMemFileCache;
+    FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
     FMapCalibrationList: IInterfaceList;
-
+    FKmlLoader: IKmlInfoSimpleLoader;
+    FCacheElemensMaxCnt: integer;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -44,8 +49,11 @@ type
     procedure LoadMainParams;
     procedure FreeAllMaps;
     procedure FreeMarkIcons;
+    procedure SetScreenSize(const Value: TPoint);
+    procedure SetCacheElemensMaxCnt(const Value: integer);
   public
-    MainFileCache: TMemFileCache;
+
+    MainFileCache: IMemObjCache;
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
     // Параметры программы
@@ -198,6 +206,14 @@ type
 
     // Полигон последнего выделения при операциях с областью.
     LastSelectionPolygon: TExtendedPointArray;
+    // Масштаб, на котором было последнее выделение
+    poly_zoom_save: byte;
+
+    // Количество элементов в кэше в памяти
+    property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
+
+    // Размеры экрана, что бы не дергать каждый раз объект TScreen
+    property ScreenSize: TPoint read FScreenSize write SetScreenSize;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -223,6 +239,7 @@ type
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
+    property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -231,7 +248,7 @@ type
   end;
 
 const
-  SASVersion='100118';
+  SASVersion='100120';
   CProgram_Lang_Default = LANG_RUSSIAN;
 
 var
@@ -245,6 +262,7 @@ uses
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
   u_MapCalibrationListBasic,
+  u_KmlInfoSimpleParser,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -259,10 +277,12 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
-  MainFileCache := TMemFileCache.Create;
+  FMemFileCache := TMemFileCache.Create;
+  MainFileCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FMapCalibrationList := TMapCalibrationListBasic.Create;
+  FKmlLoader := TKmlInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   LoadMainParams;
@@ -278,13 +298,15 @@ begin
   FreeAndNil(FDwnCS);
   MainIni.UpdateFile;
   FreeAndNil(MainIni);
-  FreeAndNil(MainFileCache);
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);
   FreeAndNil(InetConnect);
+  FMemFileCache := nil;
+  MainFileCache := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
   FMapCalibrationList := nil;
+  FKmlLoader := nil;
   sat_map_both := nil;
   FreeAllMaps;
   inherited;
@@ -414,6 +436,17 @@ begin
   end;
   Localization := MainIni.Readinteger('VIEW','localization',loc);
   WebReportToAuthor := MainIni.ReadBool('NPARAM','stat',true);
+end;
+
+procedure TGlobalState.SetScreenSize(const Value: TPoint);
+begin
+  FScreenSize := Value;
+end;
+
+procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
+begin
+  FCacheElemensMaxCnt := Value;
+  FMemFileCache.CacheElemensMaxCnt:= FCacheElemensMaxCnt;
 end;
 
 end.

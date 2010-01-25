@@ -66,7 +66,6 @@ uses
   u_LayerScaleLine,
   u_MapMarksLayer,
   u_MapGPSLayer,
-  u_MemFileCache,
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
@@ -420,6 +419,7 @@ type
     TBXItem7: TTBXItem;
     TBXItem6: TTBXItem;
     OpenSessionDialog: TOpenDialog;
+    NShowSelection: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -546,6 +546,7 @@ type
       var Accept: Boolean);
     procedure TBXItem7Click(Sender: TObject);
     procedure TBXItem6Click(Sender: TObject);
+    procedure NShowSelectionClick(Sender: TObject);
   private
     ShowActivHint: boolean;
     HintWindow: THintWindow;
@@ -562,6 +563,7 @@ type
     function GetVisibleSizeInPixel: TPoint;
     function GetMapLayerLocationRect: TRect;
     function GetLoadedTopLeft: TPoint;
+    procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
   protected
     Flock_toolbars: boolean;
     notpaint: boolean;
@@ -570,11 +572,20 @@ type
     FTileSource: TTileSource;
     FScreenCenterPos: TPoint;
     LayerStatBar: TLayerStatBar;
+    FWikiLayer: TWikiLayer;
     dWhenMovingButton: integer;
     LenShow: boolean;
     RectWindow: TRect;
     FUIDownLoader: TTileDownloaderUI;
     curBuf: TCursor;
+    marshrutcomment: string;
+    movepoint: integer;
+    lastpoint: integer;
+    rect_arr: array [0..1] of TextendedPoint;
+    length_arr: TExtendedPointArray;
+    add_line_arr: TExtendedPointArray;
+    reg_arr: TExtendedPointArray;
+    PWL: TResObj;
   public
     LayerMap: TBitmapLayer;
     LayerMapWiki: TBitmapLayer;
@@ -619,8 +630,8 @@ type
     procedure drawRect(Shift: TShiftState);
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
-    class   procedure insertinpath(pos: integer);
-    class   procedure delfrompath(pos: integer);
+    procedure insertinpath(pos: integer);
+    procedure delfrompath(pos: integer);
     procedure DrawGenShBorders;
     procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -652,7 +663,7 @@ type
     property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
     procedure UpdateGPSsensors;
   end;
-
+  
 
 const
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
@@ -665,10 +676,7 @@ const
 
 var
   Fmain: TFmain;
-  PWL: TResObj;
 
-  poly_zoom_save: byte;
-  marshrutcomment: string;
   mWd2: integer;
   mHd2: integer;
   yhgpx: integer;
@@ -679,12 +687,6 @@ var
   pr_y: integer;
   m_m: Tpoint;
   moveTrue: Tpoint;
-  movepoint: integer;
-  lastpoint: integer;
-  rect_arr: array [0..1] of TextendedPoint;
-  length_arr: TExtendedPointArray;
-  add_line_arr: TExtendedPointArray;
-  reg_arr: TExtendedPointArray;
   nilLastLoad: TLastLoad;
   paintMark: boolean;
   GMiniMapPopupMenu: TTBXPopupMenu;
@@ -727,7 +729,7 @@ uses
   i_ILogSimple,
   i_ILogForTaskThread,
   i_ICoordConverter,
-  UKMLParse,
+  u_KmlInfoSimple,
   UTrAllLoadMap,
   UGSM;
 
@@ -1033,7 +1035,7 @@ begin
   end
 end;
 
-class procedure TFmain.insertinpath(pos: integer);
+procedure TFmain.insertinpath(pos: integer);
 begin
  SetLength(add_line_arr,length(add_line_arr)+1);
  CopyMemory(Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),@add_line_arr[pos],(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
@@ -1045,7 +1047,7 @@ begin
   SetString(Result, Buffer, GetTempPath(Sizeof(Buffer) - 1,Buffer));
 end;
 
-class procedure TFmain.delfrompath(pos: integer);
+procedure TFmain.delfrompath(pos: integer);
 begin
  CopyMemory(@add_line_arr[pos],Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
  SetLength(add_line_arr,length(add_line_arr)-1);
@@ -1175,7 +1177,7 @@ begin
               end;
              if (Msg.wParam=13)and(aoper=ao_add_line)and(length(add_line_arr)>1) then
               begin
-               if FaddLine.show_(add_line_arr,true) then
+               if FaddLine.show_(add_line_arr,true, marshrutcomment) then
                 begin
                  setalloperationfalse(ao_movemap);
                  generate_im(nilLastLoad,'');
@@ -1291,9 +1293,9 @@ begin
     rect_arr[0] := VSelectedLonLat.TopLeft;
     rect_arr[1] := VSelectedLonLat.BottomRight;
     fsaveas.Show_(GState.zoom_size, Poly);
+    LayerSelection.Redraw;
     Poly := nil;
     rect_p2:=false;
-    LayerSelection.Redraw;
     exit;
   end;
   if not(rect_dwn) then exit;
@@ -1941,7 +1943,7 @@ begin
   LayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   LayerMapGPS.Resize;
-  destroyWL;
+  FWikiLayer.Clear;
   Vspr := TBitmap32.Create;
   try
     Vspr.SetSize(256,256);
@@ -1973,7 +1975,7 @@ begin
             LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
             LayerMapWiki.Bitmap.Clear(clBlack);
           end;
-          loadWL(GState.MapType[Leyi]);
+          FWikiLayer.AddFromLayer(GState.MapType[Leyi]);
           continue;
         end;
         posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
@@ -2045,6 +2047,7 @@ var
      VGUID: TGUID;
      VGUIDString: string;
 begin
+ GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
  RectWindow := Types.Rect(0, 0, 0, 0);
  Enabled:=false;
@@ -2152,6 +2155,8 @@ begin
  LayerMapWiki.Bitmap.DrawMode:=dmTransparent;
  LayerMapWiki.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
+ FWikiLayer := TWikiLayer.Create;
+
  LayerScaleLine := TLayerScaleLine.Create(map);
 
  LayerStatBar:=TLayerStatBar.Create(map);
@@ -2206,7 +2211,8 @@ begin
  GState.MapZapColor:=GState.MainIni.Readinteger('VIEW','MapZapColor',clBlack);
  GState.MapZapAlpha:=GState.MainIni.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
- GState.MainFileCache.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
+
+ GState.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
  GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
@@ -2226,10 +2232,10 @@ begin
  GState.GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
  GState.GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
  GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed{-16776961});
- GState.GPS_Correction:=extpoint(GState.MainIni.ReadFloat('GPS','popr_lon',0),GState.MainIni.ReadFloat('GPS','popr_lat',0));
+ GState.GPS_Correction:=extpoint(str2r(GState.MainIni.ReadString('GPS','popr_lon','0')),str2r(GState.MainIni.ReadString('GPS','popr_lat','0')));
  GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
- GPSpar.Odometr:=GState.MainIni.ReadFloat('GPS','Odometr',0);
+ GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
 
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
@@ -2243,11 +2249,10 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
 
- LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
- LayerSelection.Visible := true;
-
  LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
  LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
+
+ LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
 
  ScreenCenterPos := Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
                           GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
@@ -2275,7 +2280,8 @@ begin
    GState.LastSelectionPolygon[i-1].y:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
    inc(i);
   end;
- if length(GState.LastSelectionPolygon)>0 then poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
+ if length(GState.LastSelectionPolygon)>0 then GState.poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
+ LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
 
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
@@ -2312,6 +2318,7 @@ begin
 
  TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
+ NShowSelection.Checked := LayerSelection.Visible;
  Ninvertcolor.Checked:=GState.InvertColor;
  TBGPSconn.Checked := GState.GPS_enab;
  if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
@@ -2520,6 +2527,7 @@ begin
   if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
    Screen.Forms[i].Close;
  end;
+ FreeAndNil(FWikiLayer);
  ProgramClose:=true;
  //останавливаем GPS
  GPSReceiver.OnDisconnect:=nil;
@@ -2920,8 +2928,9 @@ end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
- if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(poly_zoom_save,GState.LastSelectionPolygon)
+ if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon)
                         else showmessage(SAS_MSG_NeedHL);
+ LayerSelection.Redraw;
 end;
 
 //карта заполнения в основном окне
@@ -3186,6 +3195,7 @@ begin
               Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
               Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
               fsaveas.Show_(GState.zoom_size, Poly);
+              LayerSelection.Redraw;
               Poly := nil;
              End;
         Finally
@@ -3335,7 +3345,7 @@ end;
 procedure TFmain.TBItem5Click(Sender: TObject);
 begin
  if length(GState.GPS_TrackPoints)>1 then begin
-                            if FaddLine.show_(GState.GPS_TrackPoints,true) then
+                            if FaddLine.show_(GState.GPS_TrackPoints,true, marshrutcomment) then
                              begin
                               setalloperationfalse(ao_movemap);
                               generate_im(nilLastLoad,'');
@@ -3423,9 +3433,10 @@ begin
     end;
    if length(GState.LastSelectionPolygon)>0 then
     begin
-     poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(poly_zoom_save,GState.LastSelectionPolygon);
+     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
+     fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
     end;
+    LayerSelection.Redraw
   end
 end;
 
@@ -3617,13 +3628,13 @@ end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
 begin
- MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  if DeleteMark(StrToInt(PWL.numid),Handle) then
   generate_im(nilLastLoad,'');
 end;
@@ -3635,7 +3646,7 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 begin
- MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
  OperationMark(strtoint(PWL.numid));
 end;
 
@@ -4027,7 +4038,7 @@ begin
     PWL.S:=0;
     PWL.find:=false;
     if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
+     FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
@@ -4215,7 +4226,7 @@ begin
    PWL.S:=0;
    PWL.find:=false;
    if (LayerMapWiki.Visible) then
-     MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
+     FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
@@ -4369,7 +4380,7 @@ begin
   result := false;
  case aoper of
   ao_add_Poly: result:=FaddPoly.show_(add_line_arr,true);
-  ao_add_Line: result:=FaddLine.show_(add_line_arr,true);
+  ao_add_Line: result:=FaddLine.show_(add_line_arr,true, marshrutcomment);
  end;
  if result then
   begin
@@ -4435,7 +4446,7 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
- MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
  if (not NMarkNav.Checked) then
   begin
    id:=strtoint(PWL.numid);
@@ -4624,6 +4635,7 @@ begin
          LayerMapNal.Bitmap.Clear(clBlack);
          Fsaveas.Show_(GState.zoom_size,reg_arr);
          setalloperationfalse(ao_movemap);
+         LayerSelection.Redraw;
         end;
   end;
 end;
@@ -4693,8 +4705,7 @@ var
   VSizeInTile: TPoint;
 begin
   if GState.TilesOut=0 then begin
-    Result.X := Screen.Width;
-    Result.Y := Screen.Height;
+    Result := GState.ScreenSize;
   end else begin
     VSizeInTile := GetLoadedSizeInTile;
     Result.X := VSizeInTile.X * 256;
@@ -4704,10 +4715,10 @@ end;
 
 function TFmain.GetLoadedSizeInTile: TPoint;
 begin
-// Result.X := Ceil(Screen.Width / 256) + GState.TilesOut;
-  Result.X := round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
-// Result.Y := Ceil(Screen.Height / 256) + GState.TilesOut;
-  Result.Y := round(Screen.Height / 256)+(integer((Screen.height mod 256)>0))+GState.TilesOut;
+// Result.X := Ceil(GState.ScreenSize.X / 256) + GState.TilesOut;
+  Result.X := round(GState.ScreenSize.X / 256)+(integer((GState.ScreenSize.X mod 256)>0))+GState.TilesOut;
+// Result.Y := Ceil(GState.ScreenSize.Y / 256) + GState.TilesOut;
+  Result.Y := round(GState.ScreenSize.Y / 256)+(integer((GState.ScreenSize.Y mod 256)>0))+GState.TilesOut;
 end;
 
 
@@ -4845,7 +4856,7 @@ procedure TFmain.TBXItem1Click(Sender: TObject);
 var ms:TMemoryStream;
     url:string;
     i:integer;
-    kml:TKml;
+    kml:TKmlInfoSimple;
     s,l:integer;
     conerr:boolean;
     add_line_arr_b:TExtendedPointArray;
@@ -4864,8 +4875,8 @@ begin
           '&tlat='+R2StrPoint(add_line_arr[i+1].y)+'&tlon='+R2StrPoint(add_line_arr[i+1].x);
  if GetStreamFromURL(ms,url,'text/xml')>0 then
   begin
-   kml:=TKml.Create;
-   kml.loadFromStream(ms);
+   kml:=TKmlInfoSimple.Create;
+   GState.KmlLoader.LoadFromStream(ms, kml);
    ms.SetSize(0);
    if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
      s:=length(add_line_arr_b);
@@ -4937,6 +4948,98 @@ begin
     VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
     TFProgress.Create(Application, VThread, VThreadLog);
   end;
+end;
+
+procedure TFmain.NShowSelectionClick(Sender: TObject);
+begin
+ LayerSelection.Visible:=TTBXItem(sender).Checked;
+end;
+
+procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
+var
+  j:integer;
+  i:integer;
+  ll1,ll2:TPoint;
+  ms:TMemoryStream;
+  arrLL:PArrLL;
+  arLL: TPointArray;
+  poly:TExtendedPointArray;
+begin
+ if GState.show_point = mshNone then exit;
+ CDSKategory.Filtered:=true;
+ if CDSKategory.Eof then exit;
+ CDSmarks.Filtered:=true;
+ CDSmarks.First;
+ while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
+ begin
+  LL1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonL.AsFloat,CDSmarkslatT.AsFloat),GState.zoom_size-1);
+  LL1 := MapPixel2VisiblePixel(ll1);
+  LL2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonR.AsFloat,CDSmarkslatB.AsFloat),GState.zoom_size-1);
+  LL2 := MapPixel2VisiblePixel(ll2);
+  if (xy.x+8>ll1.x)and(xy.x-8<ll2.x)and(xy.y+16>ll1.y)and(xy.y-16<ll2.y) then
+  begin
+    ms:=TMemoryStream.Create;
+    TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
+    ms.Position:=0;
+    GetMem(arrLL,ms.size);
+    ms.ReadBuffer(arrLL^,ms.size);
+    SetLength(arLL,ms.size div 24);
+    setlength(poly,ms.size div 24);
+    for i:=0 to length(arLL)-1 do begin
+      arLL[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
+      arLL[i] := MapPixel2VisiblePixel(arLL[i]);
+      poly[i]:=arrLL^[i];
+    end;
+    if length(arLL)=1 then
+     begin
+      APWL.name:=CDSmarksname.AsString;
+      APWL.descr:=CDSmarksdescr.AsString;
+      APWL.numid:=CDSmarksid.AsString;
+      APWL.find:=true;
+      APWL.type_:=ROTpoint;
+      Setlength(arLL,0);
+      freeMem(arrLL);
+      ms.Free;
+      CDSmarks.Filtered:=false;
+      exit;
+     end;
+    j:=1;
+    if (arrLL^[0].x<>arrLL^[length(arLL)-1].x)or
+       (arrLL^[0].y<>arrLL^[length(arLL)-1].y)then
+      while (j<length(arLL)) do
+       begin
+        if CursorOnLinie(xy.x,xy.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
+           then begin
+                 APWL.name:=CDSmarksname.AsString;
+                 APWL.descr:=CDSmarksdescr.AsString;
+                 APWL.numid:=CDSmarksid.AsString;
+                 APWL.find:=true;
+                 APWL.type_:=ROTline;
+                 Setlength(arLL,0);
+                 freeMem(arrLL);
+                 ms.Free;
+                 CDSmarks.Filtered:=false;
+                 exit;
+                end;
+        inc(j);
+       end
+     else
+     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>APWL.S)and(APWL.S<>0))) then
+      begin
+       APWL.S:=PolygonSquare(arLL);
+       APWL.name:=CDSmarksname.AsString;
+       APWL.descr:=CDSmarksdescr.AsString;
+       APWL.numid:=CDSmarksid.AsString;
+       APWL.find:=true;
+       APWL.type_:=ROTPoly;
+      end;
+   Setlength(arLL,0);
+   freeMem(arrLL);
+   ms.Free;
+  end;
+  CDSmarks.Next;
+ end;
+ Fmain.CDSmarks.Filtered:=false;
 end;
 
 end.

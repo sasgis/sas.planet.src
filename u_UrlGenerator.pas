@@ -1,6 +1,7 @@
 unit u_UrlGenerator;
 
 interface
+
 Uses
   Windows,
   SysUtils,
@@ -14,38 +15,39 @@ Uses
 type
   EUrlGeneratorScriptCompileError = class(Exception);
   EUrlGeneratorScriptRunError = class(Exception);
+
   TUrlGenerator = class
   private
     procedure SetGetURLBase(const Value: string);
   protected
-    posxp:integer;
-    posyp:integer;
-    zoom:byte;
-    FCoordConverter : ICoordConverter;
-    FCS : TRTLCriticalSection;
+    posxp: integer;
+    posyp: integer;
+    zoom: byte;
+    FCoordConverter: ICoordConverter;
+    FCS: TRTLCriticalSection;
     FExec: TPSExec;
-    FpResultUrl : PPSVariantAString;
-    FpGetURLBase : PPSVariantAString;
-    FpGetX : PPSVariantS32;
-    FpGetY : PPSVariantS32;
-    FpGetZ : PPSVariantS32;
-    FpGetLlon : PPSVariantExtended;
-    FpGetTLat : PPSVariantExtended;
-    FpGetBLat : PPSVariantExtended;
-    FpGetRLon : PPSVariantExtended;
+    FpResultUrl: PPSVariantAString;
+    FpGetURLBase: PPSVariantAString;
+    FpGetX: PPSVariantS32;
+    FpGetY: PPSVariantS32;
+    FpGetZ: PPSVariantS32;
+    FpGetLlon: PPSVariantExtended;
+    FpGetTLat: PPSVariantExtended;
+    FpGetBLat: PPSVariantExtended;
+    FpGetRLon: PPSVariantExtended;
     FpGetLMetr: PPSVariantExtended;
     FpGetRMetr: PPSVariantExtended;
     FpGetTMetr: PPSVariantExtended;
     FpGetBMetr: PPSVariantExtended;
     FpConverter: PPSVariantInterface;
-    FGetURLScript : string;
-    FGetURLBase : String;
+    FGetURLScript: string;
+    FGetURLBase: String;
     procedure SetVar;
   public
-    constructor Create(AGetURLScript : string; ACoordConverter : ICoordConverter);
+    constructor Create(AGetURLScript: string; ACoordConverter: ICoordConverter);
     destructor Destroy; override;
-    function GenLink(Ax, Ay : longint; Azoom : byte) : string;
-    property GetURLBase : string read FGetURLBase write SetGetURLBase;
+    function GenLink(Ax, Ay: longint; Azoom: byte): string;
+    property GetURLBase: string read FGetURLBase write SetGetURLBase;
   end;
 
 implementation
@@ -58,11 +60,10 @@ uses
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
 var
-  T : TPSType;
+  T: TPSType;
   RecT: TPSRecordType;
 begin
-  if Name = 'SYSTEM' then
-  begin
+  if Name = 'SYSTEM' then begin
     T := Sender.FindType('integer');
     RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
     with RecT.AddRecVal do begin
@@ -87,8 +88,7 @@ begin
       aType := t;
     end;
 
-    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverter, 'ICoordConverter') do
-    begin
+    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverter, 'ICoordConverter') do begin
       RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TExtendedPoint', cdStdCall);
       RegisterMethod('function LonLat2Pos(Ll : TExtendedPoint; Azoom : byte) : Tpoint', cdStdCall);
       RegisterMethod('function LonLat2Metr(Ll : TExtendedPoint) : TExtendedPoint', cdStdCall);
@@ -133,32 +133,33 @@ begin
   end;
 end;
 
-function Rand(x:integer):integer;
+function Rand(x: integer): integer;
 begin
- Result:=Random(x);
+  Result := Random(x);
 end;
 
-function GetUnixTime(x:integer):int64;
+function GetUnixTime(x: integer): int64;
 begin
- Result:=DateTimeToUnix(now);
+  Result := DateTimeToUnix(now);
 end;
 
 { TUrlGenerator }
-constructor TUrlGenerator.Create(AGetURLScript : string; ACoordConverter : ICoordConverter);
-var i:integer;
-    Msg:string;
-    VCompiler:TPSPascalCompiler;
-    VData:string;
+constructor TUrlGenerator.Create(AGetURLScript: string; ACoordConverter: ICoordConverter);
+var
+  i: integer;
+  Msg: string;
+  VCompiler: TPSPascalCompiler;
+  VData: string;
 begin
-  FGetURLScript:= AGetURLScript;
-  FCoordConverter:= ACoordConverter;
-  VCompiler:= TPSPascalCompiler.Create;       // create an instance of the compiler.
+  FGetURLScript := AGetURLScript;
+  FCoordConverter := ACoordConverter;
+  VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
   VCompiler.OnExternalProc := DllExternalProc; // Добавляем стандартный обработчик внешних DLL(находится в модуле uPSC_dll)
-  VCompiler.OnUses:= ScriptOnUses;            // assign the OnUses event.
+  VCompiler.OnUses := ScriptOnUses;            // assign the OnUses event.
   if not VCompiler.Compile(FGetURLScript) then begin  // Compile the Pascal script into bytecode.
     Msg := '';
-    For i := 0 to VCompiler.MsgCount-1 do begin
-     MSG := Msg + VCompiler.Msg[i].MessageToString+#13#10;
+    For i := 0 to VCompiler.MsgCount - 1 do begin
+      MSG := Msg + VCompiler.Msg[i].MessageToString + #13#10;
     end;
     raise EUrlGeneratorScriptCompileError.Create('Ошибка в скрипте при компиляции'#13#10 + Msg);
   end;
@@ -172,7 +173,7 @@ begin
   FExec.RegisterDelphiFunction(@Rand, 'Random', cdRegister);
   FExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
 
-  if not  FExec.LoadData(VData) then begin // Load the data from the Data string.
+  if not FExec.LoadData(VData) then begin // Load the data from the Data string.
     raise Exception.Create('Ошибка при загрузке байткода');
   end;
   FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
@@ -201,29 +202,30 @@ begin
 end;
 
 procedure TUrlGenerator.SetVar;
-var XY : TPoint;
-    Ll : TExtendedPoint;
+var
+  XY: TPoint;
+  Ll: TExtendedPoint;
 begin
-    FpGetX.Data := posxp;
-    FpGetY.Data := posyp;
-    FpGetZ.Data := zoom + 1;
-    XY.X := posxp;
-    XY.Y := posyp;
-    Ll := FCoordConverter.Pos2LonLat(XY, zoom);
-    FpGetLlon.Data := Ll.X;
-    FpGetTLat.Data := Ll.Y;
-    Ll:= FCoordConverter.LonLat2Metr(LL);
-    FpGetLMetr.Data := Ll.X;
-    FpGetTMetr.Data := Ll.Y;
-    XY.X := (posxp + 1);
-    XY.Y := (posyp + 1);
-    Ll := FCoordConverter.Pos2LonLat(XY, zoom);
-    FpGetRLon.Data := Ll.X;
-    FpGetBLat.Data := Ll.Y;
-    Ll:=FCoordConverter.LonLat2Metr(LL);
-    FpGetRMetr.Data := Ll.X;
-    FpGetBMetr.Data := Ll.Y;
-    FpConverter.Data := FCoordConverter;
+  FpGetX.Data := posxp;
+  FpGetY.Data := posyp;
+  FpGetZ.Data := zoom + 1;
+  XY.X := posxp;
+  XY.Y := posyp;
+  Ll := FCoordConverter.Pos2LonLat(XY, zoom);
+  FpGetLlon.Data := Ll.X;
+  FpGetTLat.Data := Ll.Y;
+  Ll := FCoordConverter.LonLat2Metr(LL);
+  FpGetLMetr.Data := Ll.X;
+  FpGetTMetr.Data := Ll.Y;
+  XY.X := (posxp + 1);
+  XY.Y := (posyp + 1);
+  Ll := FCoordConverter.Pos2LonLat(XY, zoom);
+  FpGetRLon.Data := Ll.X;
+  FpGetBLat.Data := Ll.Y;
+  Ll := FCoordConverter.LonLat2Metr(LL);
+  FpGetRMetr.Data := Ll.X;
+  FpGetBMetr.Data := Ll.Y;
+  FpConverter.Data := FCoordConverter;
 end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
@@ -231,18 +233,18 @@ begin
   EnterCriticalSection(FCS);
   try
     FpResultUrl.Data := '';
-    posxp:=Ax;
-    posYp:=Ay;
-    zoom:=Azoom;
+    posxp := Ax;
+    posYp := Ay;
+    zoom := Azoom;
     SetVar;
     try
       FExec.RunScript; // Run the script.
     except
-      on e : Exception do begin
+      on e: Exception do begin
         raise EUrlGeneratorScriptRunError.Create(e.Message);
       end;
     end;
-    Result:=FpResultUrl.Data;
+    Result := FpResultUrl.Data;
   finally
     LeaveCriticalSection(FCS);
   end;
@@ -250,8 +252,8 @@ end;
 
 procedure TUrlGenerator.SetGetURLBase(const Value: string);
 begin
-  FGetURLBase:=Value;
-  FpGetURLBase.Data:=Value;
+  FGetURLBase := Value;
+  FpGetURLBase.Data := Value;
 end;
 
 end.

@@ -10,9 +10,9 @@ uses
 type
   TJpegBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   private
-    FCompressionQuality:byte;
+    FCompressionQuality: byte;
   public
-    constructor create(ACompressionQuality:byte);
+    constructor create(ACompressionQuality: byte);
     procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
     procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
   end;
@@ -24,9 +24,9 @@ uses
   Jpeg;
 
 { TJpegBitmapTileSaver }
-constructor TJpegBitmapTileSaver.create(ACompressionQuality:byte);
+constructor TJpegBitmapTileSaver.create(ACompressionQuality: byte);
 begin
- FCompressionQuality:=ACompressionQuality;
+  FCompressionQuality := ACompressionQuality;
 end;
 
 procedure TJpegBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
@@ -37,15 +37,15 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm);
-   VJpg_ex := TJpegImage.Create;
-   try
-     VJpg_ex.CompressionQuality := FCompressionQuality;
-     VJpg_ex.Assign(VBtm_ex);
-     VJpg_ex.SaveToFile(AFileName);
-   finally
-     VJpg_ex.Free;
-   end;
+    VBtm_ex.Assign(Abtm);
+    VJpg_ex := TJpegImage.Create;
+    try
+      VJpg_ex.CompressionQuality := FCompressionQuality;
+      VJpg_ex.Assign(VBtm_ex);
+      VJpg_ex.SaveToFile(AFileName);
+    finally
+      VJpg_ex.Free;
+    end;
   finally
     VBtm_ex.Free;
   end;
@@ -59,15 +59,15 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-   VBtm_ex.Assign(Abtm);
-   VJpg_ex := TJpegImage.Create;
-   try
-     VJpg_ex.CompressionQuality := FCompressionQuality;
-     VJpg_ex.Assign(VBtm_ex);
-     VJpg_ex.SaveToStream(AStream);
-   finally
-     VJpg_ex.Free;
-   end;
+    VBtm_ex.Assign(Abtm);
+    VJpg_ex := TJpegImage.Create;
+    try
+      VJpg_ex.CompressionQuality := FCompressionQuality;
+      VJpg_ex.Assign(VBtm_ex);
+      VJpg_ex.SaveToStream(AStream);
+    finally
+      VJpg_ex.Free;
+    end;
   finally
     VBtm_ex.Free;
   end;

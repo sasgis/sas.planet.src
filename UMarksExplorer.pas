@@ -182,9 +182,9 @@ begin
         if compare2EP(arLL[0],arLL[length(arLL)-1]) then begin
           result:=FaddPoly.show_(arLL,false);
         end else begin
-          result:=FaddLine.show_(arLL,false);
+          result:=FaddLine.show_(arLL,false, '');
         end
-      end;
+      end;                              
     end;
 
     freeMem(arrLL);
@@ -360,6 +360,7 @@ begin
  if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
      then begin
            Fsaveas.Show_(GState.zoom_size,arLL);
+           Fmain.LayerSelection.Redraw;
            Result:=true;
           end
      else ShowMessage(SAS_MSG_FunExForPoly);

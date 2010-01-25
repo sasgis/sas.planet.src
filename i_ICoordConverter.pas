@@ -8,7 +8,7 @@ uses
 
 type
   ICoordConverter = interface
-  ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
+    ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
     // Преобразует позицию тайла на заданном зуме в георафически координаты его верхнего левого угла
     function Pos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
@@ -80,9 +80,9 @@ type
     function LonLatRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; stdcall;
-    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter):TPoint;
-    function CalcPoligonArea(polygon:TExtendedPointArray): Extended;
-    function PoligonProject(AZoom:byte; APolyg: TExtendedPointArray): TPointArray;
+    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint;
+    function CalcPoligonArea(polygon: TExtendedPointArray): Extended;
+    function PoligonProject(AZoom: byte; APolyg: TExtendedPointArray): TPointArray;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended;
 
     function CheckZoom(var AZoom: Byte): boolean; stdcall;

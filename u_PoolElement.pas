@@ -55,7 +55,7 @@ function InterlockedCompareExchange(var Destination: Longint; Exchange: Longint;
 procedure TPoolElement.FreeObjectByTTL(AMinTime: Cardinal);
 begin
   if Integer(InterlockedCompareExchange(FRefCount, 1, 0)) = 0 then begin
-    if (FLastUseTime > 0) and ((FLastUseTime <= AMinTime) or ((AMinTime < 1 shl 29) and (FLastUseTime > 1 shl 30)))  then begin
+    if (FLastUseTime > 0) and ((FLastUseTime <= AMinTime) or ((AMinTime < 1 shl 29) and (FLastUseTime > 1 shl 30))) then begin
       Fobject := nil;
       FLastUseTime := 0;
     end;
@@ -78,10 +78,11 @@ end;
 
 function TPoolElement.QueryInterface(const IID: TGUID; out Obj): HResult;
 begin
-  if GetInterface(IID, Obj) then
-    Result := 0
-  else
+  if GetInterface(IID, Obj) then begin
+    Result := 0;
+  end else begin
     Result := E_NOINTERFACE;
+  end;
 end;
 
 function TPoolElement.TryLock: IPoolElement;

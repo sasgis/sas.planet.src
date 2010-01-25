@@ -26,12 +26,12 @@ implementation
 constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Extended);
 begin
   inherited Create;
-  Fradiusa:=Aradiusa;
-  if Abs(FRadiusa - 6378137) <  1 then begin
+  Fradiusa := Aradiusa;
+  if Abs(FRadiusa - 6378137) < 1 then begin
     FDatumEPSG := 7059;
     FProjEPSG := 3785;
     FCellSizeUnits := CELL_UNITS_METERS;
-  end else if Abs(FRadiusa - 6371000) <  1 then begin
+  end else if Abs(FRadiusa - 6371000) < 1 then begin
     FDatumEPSG := 53004;
     FProjEPSG := 53004;
     FCellSizeUnits := CELL_UNITS_METERS;
@@ -48,10 +48,10 @@ var
   VLl: TExtendedPoint;
 begin
   VLl := ALl;
-  Vll.x:=Vll.x*(Pi/180);
-  Vll.y:=Vll.y*(Pi/180);
-  result.x:=Fradiusa*Vll.x;
-  result.y:=Fradiusa*Ln(Tan(PI/4+Vll.y/2));
+  Vll.x := Vll.x * (Pi / 180);
+  Vll.y := Vll.y * (Pi / 180);
+  result.x := Fradiusa * Vll.x;
+  result.y := Fradiusa * Ln(Tan(PI / 4 + Vll.y / 2));
 end;
 
 function TCoordConverterMercatorOnSphere.CalcDist(AStart,
@@ -59,11 +59,13 @@ function TCoordConverterMercatorOnSphere.CalcDist(AStart,
 const
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
 var
-  fdLambda,fdPhi,fz,a:Double;
+  fdLambda, fdPhi, fz, a: Double;
   VStart, VFinish: TExtendedPoint; // Координаты в радианах
 begin
   result := 0;
-  if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then exit;
+  if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then begin
+    exit;
+  end;
   a := FRadiusa;
 
   VStart.X := AStart.X * D2R;
@@ -73,8 +75,8 @@ begin
 
   fdLambda := VStart.X - VFinish.X;
   fdPhi := VStart.Y - VFinish.Y;
-  fz:=Sqrt(Power(Sin(fdPhi/2),2)+Cos(VFinish.Y)*Cos(VStart.Y)*Power(Sin(fdLambda/2),2));
-  fz := 2*ArcSin(fz);
+  fz := Sqrt(Power(Sin(fdPhi / 2), 2) + Cos(VFinish.Y) * Cos(VStart.Y) * Power(Sin(fdLambda / 2), 2));
+  fz := 2 * ArcSin(fz);
   result := (fz * a);
 end;
 
@@ -82,7 +84,7 @@ function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TExte
 var
   z, c: Extended;
 begin
-  Result.x := 0.5 + XY.x  / 360;
+  Result.x := 0.5 + XY.x / 360;
   z := sin(XY.y * Pi / 180);
   c := 1 / (2 * Pi);
   Result.y := 0.5 - 0.5 * ln((1 + z) / (1 - z)) * c;
@@ -92,7 +94,7 @@ function TCoordConverterMercatorOnSphere.Relative2LonLatInternal(
   const XY: TExtendedPoint): TExtendedPoint;
 begin
   Result.X := (XY.x - 0.5) * 360;
-  Result.Y := -(XY.y - 0.5) *(2*PI);
+  Result.Y := -(XY.y - 0.5) * (2 * PI);
   Result.Y := (2 * arctan(exp(Result.Y)) - PI / 2) * 180 / PI;
 end;
 
