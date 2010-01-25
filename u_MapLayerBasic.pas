@@ -6,6 +6,7 @@ uses
   Windows,
   GR32,
   GR32_Image,
+  i_ICoordConverter,
   u_WindowLayerBasic,
   t_GeoTypes;
 
@@ -18,7 +19,10 @@ type
     FScaleCenterInBitmapPixel: TPoint;
     FFreezeInCenter: Boolean;
     FCenterMove: TPoint;
+
     FScreenCenterPos: TPoint;
+    FZoom: Byte;
+    FGeoConvert: ICoordConverter;
 
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
@@ -40,8 +44,10 @@ type
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); virtual;
-    procedure SetScreenCenterPos(const Value: TPoint); virtual;
+    procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); virtual;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
+    property Zoom: Byte read FZoom;
+    property GeoConvert: ICoordConverter read FGeoConvert;
   end;
 implementation
 
@@ -59,9 +65,11 @@ begin
   FScreenCenterPos := ACenter;
 end;
 
-procedure TMapLayerBasic.SetScreenCenterPos(const Value: TPoint);
+procedure TMapLayerBasic.SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter);
 begin
-  FScreenCenterPos := Value;
+  FScreenCenterPos := AScreenCenterPos;
+  FZoom := AZoom;
+  FGeoConvert := AGeoConvert;
   FScale := 1;
   FCenterMove := Point(0, 0);
 

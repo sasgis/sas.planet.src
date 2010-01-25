@@ -743,9 +743,9 @@ begin
   VZoomCurr := GState.zoom_size - 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
-  LayerSelection.SetScreenCenterPos(VPoint);
-  LayerMapMarks.SetScreenCenterPos(VPoint);
-  LayerMapGPS.SetScreenCenterPos(VPoint);
+  LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
