@@ -147,6 +147,7 @@ begin
           APWL.descr := FWikiLayerElments[i].description;
           APWL.numid := FWikiLayerElments[i].num_blok;
           APWL.find := true;
+          Break;
         end else begin
           j := 1;
           if (FWikiLayerElments[i].FPolygonOnBitmap[0].X <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].x) or
@@ -270,10 +271,10 @@ begin
       VPolygon.Offset(Fixed(1), Fixed(1));
       VPolygon.DrawEdge(FMain.LayerMapWiki.Bitmap, VColorMain);
     end else begin
-      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X, AData.FPolygonOnBitmap[0].Y - 2);
-      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X + 2, AData.FPolygonOnBitmap[0].Y);
-      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X, AData.FPolygonOnBitmap[0].Y + 2);
-      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X - 2, AData.FPolygonOnBitmap[0].Y);
+      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X, AData.FPolygonOnBitmap[0].Y - 3);
+      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X + 3, AData.FPolygonOnBitmap[0].Y);
+      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X, AData.FPolygonOnBitmap[0].Y + 3);
+      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X - 3, AData.FPolygonOnBitmap[0].Y);
       VPolygon.AddPoints(FFixedPointArray[0], 4);
       VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG, VColorMain);
     end;
