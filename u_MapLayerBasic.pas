@@ -44,6 +44,7 @@ type
     function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    procedure Redraw; override;
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); virtual;
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); virtual;
@@ -244,6 +245,13 @@ function TMapLayerBasic.GetBitmapSizeInPixel: TPoint;
 begin
   Result.X := GState.ScreenSize.X + 2 * 256 * GState.TilesOut;
   Result.Y := GState.ScreenSize.Y + 2 * 256 * GState.TilesOut;
+end;
+
+procedure TMapLayerBasic.Redraw;
+begin
+  if FGeoConvert <> nil then begin
+    inherited;
+  end;
 end;
 
 end.

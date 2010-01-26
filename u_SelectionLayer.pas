@@ -42,7 +42,7 @@ begin
   if Length(GState.LastSelectionPolygon) > 0 then begin
     FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := GState.zoom_size - 1;
-    VPolygon := GState.sat_map_both.GeoConvert.PoligonProject(VZoomCurr + 8, GState.LastSelectionPolygon);
+    VPolygon := FGeoConvert.PoligonProject(VZoomCurr + 8, GState.LastSelectionPolygon);
     try
       VPolygonOnBitmap := PreparePolygon(VPolygon);
       VPolygon32:=TPolygon32.Create;
