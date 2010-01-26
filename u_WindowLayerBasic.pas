@@ -131,7 +131,11 @@ var
   VBitmapSizeInPixel: TPoint;
 begin
   VBitmapSizeInPixel := GetBitmapSizeInPixel;
-  FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+  if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X)
+    or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
+    FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+    Redraw;
+  end;
   FLayer.Location := floatrect(GetMapLayerLocationRect);
 end;
 
