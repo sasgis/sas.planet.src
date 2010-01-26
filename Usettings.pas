@@ -618,8 +618,6 @@ begin
  FMain.LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
  FMain.LayerMapNal.Bitmap.Width := VLoadedSizeInPixel.X;
  FMain.LayerMapNal.Bitmap.Height := VLoadedSizeInPixel.Y;
- FMain.LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
 
  SetProxy;
 

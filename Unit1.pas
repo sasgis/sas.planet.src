@@ -588,7 +588,6 @@ type
     PWL: TResObj;
   public
     LayerMap: TBitmapLayer;
-    LayerMapWiki: TBitmapLayer;
     LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TBitmapLayer;
     LayerMapGPS: TMapGPSLayer;
@@ -743,6 +742,7 @@ begin
   FScreenCenterPos := VPoint;
   LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
 end;
 
@@ -1928,6 +1928,7 @@ var
   VSizeInTile: TPoint;
   VPoint: TPoint;
   Vspr:TBitmap32;
+  VWikiLayersVisible: Boolean;
 begin
   if notpaint then exit;
   QueryPerformanceCounter(ts2);
@@ -1941,8 +1942,8 @@ begin
   LayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   LayerMapGPS.Resize;
-  FWikiLayer.Clear;
   Vspr := TBitmap32.Create;
+  VWikiLayersVisible := False;
   try
     Vspr.SetSize(256,256);
     VSizeInTile := LoadedSizeInTile;
@@ -1969,11 +1970,7 @@ begin
     for Leyi:=0 to length(GState.MapType)-1 do begin
       if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
         if GState.MapType[Leyi].IsKmlTiles then begin
-          if not(LayerMapWiki.Visible) then begin
-            LayerMapWiki.Location:=floatrect(GetMapLayerLocationRect);
-            LayerMapWiki.Bitmap.Clear(clBlack);
-          end;
-          FWikiLayer.AddFromLayer(GState.MapType[Leyi]);
+          VWikiLayersVisible := True;
         end else begin
           posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
           y_drawN:=(((256+((posN.y-(yhgpx div 2))mod 256)) mod 256));
@@ -2003,6 +2000,7 @@ begin
         end;
       end;
     end;
+    FWikiLayer.Visible := VWikiLayersVisible;
   finally
     FreeAndNil(Vspr);
   end;
@@ -2147,14 +2145,6 @@ begin
  LayerMapNal.bitmap.Font.Charset:=RUSSIAN_CHARSET;
  LayerMapNal.Visible:=false;
 
- LayerMapWiki:=TBitmapLayer.Create(map.Layers);
- LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
- LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
- LayerMapWiki.Bitmap.DrawMode:=dmTransparent;
- LayerMapWiki.bitmap.Font.Charset:=RUSSIAN_CHARSET;
-
- FWikiLayer := TWikiLayer.Create;
-
  LayerScaleLine := TLayerScaleLine.Create(map);
 
  LayerStatBar:=TLayerStatBar.Create(map);
@@ -2251,6 +2241,7 @@ begin
  LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
 
  LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
+ FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
 
  ScreenCenterPos := Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
                           GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1));
@@ -2445,7 +2436,6 @@ begin
          end;
        end;
  LayerMapNal.Bitmap.Clear(clBlack);
- LayerMapWiki.Visible:=false;
  if (abs(x-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
@@ -2467,10 +2457,12 @@ begin
         LayerSelection.ScaleTo(Scale, m_m);
         LayerMapMarks.ScaleTo(Scale, m_m);
         LayerMapGPS.ScaleTo(Scale, m_m);
+        FWikiLayer.ScaleTo(Scale, m_m);
       end else begin
         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapGPS.ScaleTo(Scale, Point(mWd2, mHd2));
+        FWikiLayer.ScaleTo(Scale, Point(mWd2, mHd2));
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -3407,8 +3399,8 @@ begin
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
    LayerMapMarks.Resize;
    LayerMapGPS.Resize;
-   LayerMapWiki.Location:=floatrect(MapLayerLocationRect);
    LayerMapScale.Resize;
+   FWikiLayer.Resize;
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
   end;
@@ -4035,7 +4027,7 @@ begin
     layer.Cursor:=curBuf;
     PWL.S:=0;
     PWL.find:=false;
-    if (LayerMapWiki.Visible) then
+    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
@@ -4136,6 +4128,9 @@ var i,j:integer;
     VPoint: TPoint;
     VZoomCurr: Byte;
 begin
+  if ProgramClose then begin
+    exit;
+  end;
  if (Layer=GMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
@@ -4203,8 +4198,8 @@ begin
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
               LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              if LayerMapWiki.Visible then LayerMapWiki.Location := LayerMap.Location;
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
@@ -4223,7 +4218,7 @@ begin
   begin
    PWL.S:=0;
    PWL.find:=false;
-   if (LayerMapWiki.Visible) then
+   if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
    MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
