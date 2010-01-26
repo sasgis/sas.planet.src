@@ -108,10 +108,12 @@ end;
 
 procedure TWindowLayerBasic.Show;
 begin
-  FLayer.Visible := True;
-  FLayer.BringToFront;
-  Resize;
-  Redraw;
+  if not FLayer.Visible then begin
+    FLayer.Visible := True;
+    FLayer.BringToFront;
+    Resize;
+    Redraw;
+  end;
 end;
 
 function TWindowLayerBasic.GetScale: double;
