@@ -18,7 +18,7 @@ uses
 type
   TFillingMap = class(TThread)
   private
-    LayerMap:TBitmapLayer;
+    FLayer:TBitmapLayer;
     needRepaint:boolean;
     stop:boolean;
 
@@ -48,21 +48,21 @@ uses
 
 constructor TFillingMap.Create(CrSusp:Boolean);
 begin
-  LayerMap:=TBitmapLayer.Create(FMain.map.Layers);
-  LayerMap.bitmap.DrawMode:=dmBlend;
+  FLayer:=TBitmapLayer.Create(FMain.map.Layers);
+  FLayer.bitmap.DrawMode:=dmBlend;
   needRepaint:=false;
   inherited Create(CrSusp);
 end;
 
 destructor TFillingMap.destroy;
 begin
-  LayerMap.Free;
+  FLayer.Free;
   inherited;
 end;
 
 procedure TFillingMap.UpdateLayer;
 begin
-  LayerMap.Update;
+  FLayer.Update;
 end;
 
 procedure TFillingMap.SetupLayer;
@@ -70,11 +70,11 @@ var
   VLoadedSizeInPixel: TPoint;
 begin
   VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
-  LayerMap.bitmap.Clear(clBlack);
-  LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
-  LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
-  LayerMap.Location:=FMain.LayerMap.Location;
-  LayerMap.Visible:=true;
+  FLayer.bitmap.Clear(clBlack);
+  FLayer.Bitmap.Width := VLoadedSizeInPixel.X;
+  FLayer.Bitmap.Height := VLoadedSizeInPixel.Y;
+  FLayer.Location:=FMain.LayerMap.Location;
+  FLayer.Visible:=true;
   dZoom:=GState.zoom_mapzap-GState.zoom_size;
   x2:=trunc(power(2,dZoom));
   ClMZ:=SetAlpha(Color32(GState.MapZapColor),GState.MapZapAlpha);
@@ -179,11 +179,11 @@ begin
           if (x1<x1+(d2562-1))and(y1<y1+(d2562-1)) then begin
             for ii:=x1 to x1+(d2562-1) do begin
               for jj:=y1 to y1+(d2562-1) do begin
-                LayerMap.Bitmap.PixelS[ii,jj]:=clMZ;
+                FLayer.Bitmap.PixelS[ii,jj]:=clMZ;
               end;
             end;
           end else begin
-            LayerMap.Bitmap.PixelS[x1,y1]:=clMZ;
+            FLayer.Bitmap.PixelS[x1,y1]:=clMZ;
           end;
         end;
         inc(imd256y,d2562)
@@ -210,19 +210,19 @@ begin
   stop:=false;
   needRepaint:=true;
   Suspended:=false;
-  LayerMap.bitmap.Clear(clBlack);
+  FLayer.bitmap.Clear(clBlack);
 end;
 
 procedure TFillingMap.StopDrow;
 begin
   stop:=true;
-  LayerMap.Visible:=false;
+  FLayer.Visible:=false;
 end;
 
 procedure TFillingMap.SetLocation(const Value: TFloatRect);
 begin
-  if (LayerMap<>nil) and (LayerMap.Visible) then  begin
-    LayerMap.Location := Value;
+  if (FLayer<>nil) and (FLayer.Visible) then  begin
+    FLayer.Location := Value;
   end;
 end;
 
