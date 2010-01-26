@@ -86,6 +86,7 @@ uses
   u_MapLayerBasic in 'u_MapLayerBasic.pas',
   u_MapTileLayerBasic in 'u_MapTileLayerBasic.pas',
   u_MapMarksLayer in 'u_MapMarksLayer.pas',
+  u_MapFillingLayer in 'u_MapFillingLayer.pas',
   u_SelectionLayer in 'u_SelectionLayer.pas',
   u_LayerScaleLine in 'u_LayerScaleLine.pas',
   u_MapGPSLayer in 'u_MapGPSLayer.pas',
