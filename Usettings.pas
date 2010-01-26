@@ -476,6 +476,8 @@ procedure TFSettings.Button3Click(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
     VLoadedSizeInPixel: TPoint;
+  hg_x: integer;
+  hg_y: integer;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
@@ -608,8 +610,8 @@ begin
    yhgpx:=256*hg_y;
    xhgpx:=256*hg_x;
  end;
- pr_x:=(xhgpx)div 2;
- pr_y:=(yhgpx)div 2;
+// pr_x:=(xhgpx)div 2;
+// pr_y:=(yhgpx)div 2;
 
  VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
  FMain.LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;

@@ -88,8 +88,8 @@ begin
   Ahg_y:=(FMain.map.Height div d2562)+1;
   Apr_x:=(d2562*Ahg_x)div 2;
   Apr_y:=(d2562*Ahg_y)div 2;
-  x_draw:=((d2562+((FMain.ScreenCenterPos.x-Apr_x)mod d2562))mod d2562)-((pr_x-Apr_x));
-  y_draw:=((d2562+((FMain.ScreenCenterPos.y-Apr_y)mod d2562))mod d2562)-((pr_y-Apr_y));
+  x_draw:=((d2562+((FMain.ScreenCenterPos.x-Apr_x)mod d2562))mod d2562)-(((xhgpx div 2)-Apr_x));
+  y_draw:=((d2562+((FMain.ScreenCenterPos.y-Apr_y)mod d2562))mod d2562)-(((yhgpx div 2)-Apr_y));
   ppaprx:=FMain.ScreenCenterPos.x-Apr_x;
   ppapry:=FMain.ScreenCenterPos.y-Apr_y;
 end;

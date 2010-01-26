@@ -681,10 +681,8 @@ var
   mHd2: integer;
   yhgpx: integer;
   xhgpx: integer;
-  hg_x: integer;
-  hg_y: integer;
-  pr_x: integer;
-  pr_y: integer;
+//  pr_x: integer;
+//  pr_y: integer;
   m_m: Tpoint;
   moveTrue: Tpoint;
   nilLastLoad: TLastLoad;
@@ -1936,8 +1934,8 @@ begin
   if not(lastload.use) then generate_mapzap;
   if not(lastload.use) then change_scene:=true;
 
-  y_draw:=(256+((ScreenCenterPos.y-pr_y)mod 256))mod 256;
-  x_draw:=(256+((ScreenCenterPos.x-pr_x)mod 256))mod 256;
+  y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
+  x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
   LayerMap.Location:=floatrect(GetMapLayerLocationRect);
 
   LayerMap.Bitmap.Clear(Color32(GState.BGround));
@@ -1950,9 +1948,9 @@ begin
     VSizeInTile := LoadedSizeInTile;
     for i:=0 to VSizeInTile.X do begin
       for j:=0 to VSizeInTile.Y do begin
-        xx:=ScreenCenterPos.x-pr_x+(i shl 8);
+        xx:=ScreenCenterPos.x-(xhgpx div 2)+(i shl 8);
         if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-        yy:=ScreenCenterPos.y-pr_y+(j shl 8);
+        yy:=ScreenCenterPos.y-(yhgpx div 2)+(j shl 8);
         if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
         if (GState.sat_map_both.TileExists(xx,yy,GState.zoom_size)) then begin
           if GState.sat_map_both.LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
@@ -1979,13 +1977,13 @@ begin
           continue;
         end;
         posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
-        y_drawN:=(((256+((posN.y-pr_y)mod 256)) mod 256));
-        x_drawN:=(((256+((posN.x-pr_x)mod 256)) mod 256));
+        y_drawN:=(((256+((posN.y-(yhgpx div 2))mod 256)) mod 256));
+        x_drawN:=(((256+((posN.x-(xhgpx div 2))mod 256)) mod 256));
        for i:=0 to VSizeInTile.X do begin
         for j:=0 to VSizeInTile.Y do begin
-            xx:=ScreenCenterPos.x-pr_x+(i shl 8);
+            xx:=ScreenCenterPos.x-(xhgpx div 2)+(i shl 8);
             if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-            yy:=posN.y-pr_y+(j shl 8);
+            yy:=posN.y-(yhgpx div 2)+(j shl 8);
             if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
             if (GState.MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
               if GState.MapType[Leyi].LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
@@ -2046,6 +2044,8 @@ var
      VLoadedSizeInPixel: TPoint;
      VGUID: TGUID;
      VGUIDString: string;
+  hg_x: integer;
+  hg_y: integer;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -2120,8 +2120,8 @@ begin
    yhgpx:=256*hg_y;
    xhgpx:=256*hg_x;
  end;
- pr_y:=(yhgpx)div 2;
- pr_x:=(xhgpx)div 2;
+// pr_y:=(yhgpx div 2);
+// pr_x:=(xhgpx)div 2;
 
  setlength(GState.LastSelectionPolygon,0);
 
@@ -2453,11 +2453,11 @@ begin
      QueryPerformanceCounter(ts1);
      if (move)
       then LayerMap.Location:=
-              floatrect(bounds(round(mWd2-pr_x-(pr_x/w*i)+((mWd2-m_m.X)/w1/2*i)),
-                               round(mHd2-pr_y-(pr_y/w*i)+((mHd2-m_m.y)/w1/2*i)),
+              floatrect(bounds(round(mWd2-(xhgpx div 2)-((xhgpx div 2)/w*i)+((mWd2-m_m.X)/w1/2*i)),
+                               round(mHd2-(yhgpx div 2)-((yhgpx div 2)/w*i)+((mHd2-m_m.y)/w1/2*i)),
                                xhgpx+round(xhgpx/w*i),yhgpx+round(yhgpx/w*i)))
       else LayerMap.Location:=
-              floatrect(bounds(mWd2-pr_x-round((pr_x/w)*i),mHd2-pr_y-round((pr_y/w)*i),
+              floatrect(bounds(mWd2-(xhgpx div 2)-round(((xhgpx div 2)/w)*i),mHd2-(yhgpx div 2)-round(((yhgpx div 2)/w)*i),
                                xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
       FillingMap.Location:=LayerMap.Location;
       if GState.zoom_size>x then begin
@@ -2483,8 +2483,8 @@ begin
      end;
    end;
    if GState.zoom_size<x
-    then LayerMap.Location:=floatrect(bounds(mWd2-pr_x*2+d_moveW,mHd2-pr_y*2+d_moveH,xhgpx*2,yhgpx*2))
-    else LayerMap.Location:=floatrect(bounds(mWd2-pr_x div 2-d_moveW,mHd2-pr_y div 2-d_moveH,xhgpx div 2,yhgpx div 2));
+    then LayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)*2+d_moveW,mHd2-(yhgpx div 2)*2+d_moveH,xhgpx*2,yhgpx*2))
+    else LayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2) div 2-d_moveW,mHd2-(yhgpx div 2) div 2-d_moveH,xhgpx div 2,yhgpx div 2));
    FillingMap.Location:=LayerMap.Location;
    application.ProcessMessages;
  end;
@@ -4201,7 +4201,7 @@ begin
  if MapZoomAnimtion=1 then exit;
  if MapMoving then begin
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerMap.Location:=floatrect(bounds(mWd2-pr_x-(MouseDownPoint.X-x),mHd2-pr_y-(MouseDownPoint.Y-y),xhgpx,yhgpx));
+              LayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)-(MouseDownPoint.X-x),mHd2-(yhgpx div 2)-(MouseDownPoint.Y-y),xhgpx,yhgpx));
               FillingMap.Location := LayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
               LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
