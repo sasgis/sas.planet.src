@@ -82,7 +82,7 @@ var
   VFullRedraw: Boolean;
 begin
   VFullRedraw := False;
-  if (FGeoConvert <> nil) and (FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG) then begin
+  if (FGeoConvert = nil) or ((FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG)) then begin
     FGeoConvert := AGeoConvert;
     VFullRedraw := True;
   end;
