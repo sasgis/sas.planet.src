@@ -1974,31 +1974,31 @@ begin
             LayerMapWiki.Bitmap.Clear(clBlack);
           end;
           FWikiLayer.AddFromLayer(GState.MapType[Leyi]);
-          continue;
-        end;
-        posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
-        y_drawN:=(((256+((posN.y-(yhgpx div 2))mod 256)) mod 256));
-        x_drawN:=(((256+((posN.x-(xhgpx div 2))mod 256)) mod 256));
-       for i:=0 to VSizeInTile.X do begin
-        for j:=0 to VSizeInTile.Y do begin
-            xx:=ScreenCenterPos.x-(xhgpx div 2)+(i shl 8);
-            if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-            yy:=posN.y-(yhgpx div 2)+(j shl 8);
-            if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-            if (GState.MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-              if GState.MapType[Leyi].LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
-                if (GState.MapType[Leyi].DelAfterShow)and(not lastload.use) then GState.MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
-              end else begin
-                BadDraw(Vspr,true);
-              end;
-              Gamma(Vspr);
-            end else begin
-              if GState.MapType[Leyi].LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true) then begin
+        end else begin
+          posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
+          y_drawN:=(((256+((posN.y-(yhgpx div 2))mod 256)) mod 256));
+          x_drawN:=(((256+((posN.x-(xhgpx div 2))mod 256)) mod 256));
+         for i:=0 to VSizeInTile.X do begin
+          for j:=0 to VSizeInTile.Y do begin
+              xx:=ScreenCenterPos.x-(xhgpx div 2)+(i shl 8);
+              if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
+              yy:=posN.y-(yhgpx div 2)+(j shl 8);
+              if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
+              if (GState.MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
+                if GState.MapType[Leyi].LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
+                  if (GState.MapType[Leyi].DelAfterShow)and(not lastload.use) then GState.MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
+                end else begin
+                  BadDraw(Vspr,true);
+                end;
                 Gamma(Vspr);
+              end else begin
+                if GState.MapType[Leyi].LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true) then begin
+                  Gamma(Vspr);
+                end;
               end;
+              Vspr.DrawMode:=dmBlend;
+              LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
             end;
-            Vspr.DrawMode:=dmBlend;
-            LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
           end;
         end;
       end;
@@ -2120,8 +2120,6 @@ begin
    yhgpx:=256*hg_y;
    xhgpx:=256*hg_x;
  end;
-// pr_y:=(yhgpx div 2);
-// pr_x:=(xhgpx)div 2;
 
  setlength(GState.LastSelectionPolygon,0);
 

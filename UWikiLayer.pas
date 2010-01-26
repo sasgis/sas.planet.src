@@ -253,9 +253,11 @@ var
   i: integer;
   VColorMain: TColor32;
   VColorBG: TColor32;
+  VPointColor: TColor32;
 begin
   VColorMain := Color32(GState.WikiMapMainColor);
   VColorBG := Color32(GState.WikiMapFonColor);
+  VPointColor := SetAlpha(VColorMain,170);
   VPolygon := TPolygon32.Create;
   VPolygon.Antialiased:=true;
   VPolygon.AntialiasMode:=am4times;
@@ -278,7 +280,7 @@ begin
       FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X+2, AData.FPolygonOnBitmap[0].Y-2);
       FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X-3, AData.FPolygonOnBitmap[0].Y-2);
       VPolygon.AddPoints(FFixedPointArray[0], 4);
-      VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG,SetAlpha(VColorMain,170));
+      VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG, VPointColor);
     end;
   finally
     FreeAndNil(VPolygon);
