@@ -614,8 +614,8 @@ begin
 // pr_y:=(yhgpx)div 2;
 
  VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
- FMain.LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
+ FMain.MainLayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
+ FMain.MainLayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
  FMain.LayerMapNal.Bitmap.Width := VLoadedSizeInPixel.X;
  FMain.LayerMapNal.Bitmap.Height := VLoadedSizeInPixel.Y;
 

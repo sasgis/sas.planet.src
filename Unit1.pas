@@ -587,7 +587,7 @@ type
     reg_arr: TExtendedPointArray;
     PWL: TResObj;
   public
-    LayerMap: TBitmapLayer;
+    MainLayerMap: TBitmapLayer;
     LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TBitmapLayer;
     LayerMapGPS: TMapGPSLayer;
@@ -829,10 +829,10 @@ begin
   if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
   Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
   if D>dl
-   then Polygon.DrawFill(FMain.LayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
+   then Polygon.DrawFill(FMain.MainLayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
    else begin
-         FMain.LayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-         FMain.LayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+         FMain.MainLayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+         FMain.MainLayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
         end;
  Polygon.Free;
 end;
@@ -1662,7 +1662,7 @@ begin
     VPoint.X := VPoint.X - 7;
     VPoint.Y := VPoint.Y - 6;
     VPoint := MapPixel2LoadedPixel(VPoint);
-    LayerMap.Bitmap.Draw(VPoint.X, VPoint.Y, GState.GOToSelIcon);
+    MainLayerMap.Bitmap.Draw(VPoint.X, VPoint.Y, GState.GOToSelIcon);
   end
 end;
 
@@ -1749,7 +1749,7 @@ begin
 
     VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
     VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
-    LayerMap.bitmap.LineAS(
+    MainLayerMap.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
@@ -1767,7 +1767,7 @@ begin
 
     VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
     VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
-    LayerMap.bitmap.LineAS(
+    MainLayerMap.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
@@ -1789,13 +1789,13 @@ begin
         ExtPoint(VDrawLonLatRect.Left + zLonR/2, VDrawLonLatRect.Top - zLatR/2),
         GState.GShScale, GSHprec
       );
-      twidth := LayerMap.bitmap.TextWidth(ListName);
-      theight := LayerMap.bitmap.TextHeight(ListName);
+      twidth := MainLayerMap.bitmap.TextWidth(ListName);
+      theight := MainLayerMap.bitmap.TextHeight(ListName);
 
       VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
       VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
 
-      LayerMap.bitmap.RenderTextW(
+      MainLayerMap.bitmap.RenderTextW(
         VDrawScreenRect.Left + (VDrawScreenRect.Right - VDrawScreenRect.Left) div 2 - (twidth div 2),
         VDrawScreenRect.Top + (VDrawScreenRect.Bottom - VDrawScreenRect.Top) div 2 - (theight div 2),
         ListName, 0, VColor
@@ -1855,7 +1855,7 @@ begin
     VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
     VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
     VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
-    LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
+    MainLayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
       VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
   end;
 
@@ -1869,7 +1869,7 @@ begin
     VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
     VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
     VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
-    LayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
+    MainLayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
       VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
   end;
 
@@ -1891,11 +1891,11 @@ begin
       VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
       textoutx := 'x='+inttostr(VTileIndex.X);
       textouty := 'y='+inttostr(VTileIndex.Y);
-      Sz1 := LayerMap.bitmap.TextExtent(textoutx);
-      Sz2 := LayerMap.bitmap.TextExtent(textouty);
+      Sz1 := MainLayerMap.bitmap.TextExtent(textoutx);
+      Sz2 := MainLayerMap.bitmap.TextExtent(textouty);
       if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        LayerMap.bitmap.RenderText(VTileCenter.X-(Sz1.cx div 2)+1,VTileCenter.Y-Sz2.cy,textoutx,0, drawcolor);
-        LayerMap.bitmap.RenderText(VTileCenter.X-(Sz2.cx div 2)+1,VTileCenter.Y,textouty,0,drawcolor);
+        MainLayerMap.bitmap.RenderText(VTileCenter.X-(Sz1.cx div 2)+1,VTileCenter.Y-Sz2.cy,textoutx,0, drawcolor);
+        MainLayerMap.bitmap.RenderText(VTileCenter.X-(Sz2.cx div 2)+1,VTileCenter.Y,textouty,0,drawcolor);
       end;
     end;
   end;
@@ -1937,9 +1937,9 @@ begin
 
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
-  LayerMap.Location:=floatrect(GetMapLayerLocationRect);
+  MainLayerMap.Location:=floatrect(GetMapLayerLocationRect);
 
-  LayerMap.Bitmap.Clear(Color32(GState.BGround));
+  MainLayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
   LayerMapGPS.Resize;
   Vspr := TBitmap32.Create;
@@ -1963,7 +1963,7 @@ begin
           GState.sat_map_both.LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true);
         end;
         Gamma(Vspr);
-        LayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Vspr);
+        MainLayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Vspr);
       end;
     end;
     Vspr.SetSize(256,256);
@@ -1994,7 +1994,7 @@ begin
                 end;
               end;
               Vspr.DrawMode:=dmBlend;
-              LayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
+              MainLayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
             end;
           end;
         end;
@@ -2008,7 +2008,7 @@ begin
     VPoint := MapPixel2LoadedPixel(Point(lastload.x, lastload.y));
     VPoint.X := VPoint.X + 15;
     VPoint.Y := VPoint.Y + 124;
-    LayerMap.Bitmap.RenderText(VPoint.X, VPoint.Y, err, 0, clBlack32);
+    MainLayerMap.Bitmap.RenderText(VPoint.X, VPoint.Y, err, 0, clBlack32);
   end;
   generate_granica;
   DrawGenShBorders;
@@ -2123,14 +2123,14 @@ begin
 
  Map.Cursor:=crDefault;
  VLoadedSizeInPixel := LoadedSizeInPixel;
- LayerMap:=TBitmapLayer.Create(map.Layers);
- LayerMap.Location:=floatrect(MapLayerLocationRect);
+ MainLayerMap:=TBitmapLayer.Create(map.Layers);
+ MainLayerMap.Location:=floatrect(MapLayerLocationRect);
 
- LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
- LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
- LayerMap.Bitmap.CombineMode:=cmBlend;
+ MainLayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
+ MainLayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
+ MainLayerMap.Bitmap.CombineMode:=cmBlend;
 
- LayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
+ MainLayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
  LayerMapScale := TCenterScale.Create(map);
 
@@ -2440,14 +2440,14 @@ begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
      if (move)
-      then LayerMap.Location:=
+      then MainLayerMap.Location:=
               floatrect(bounds(round(mWd2-(xhgpx div 2)-((xhgpx div 2)/w*i)+((mWd2-m_m.X)/w1/2*i)),
                                round(mHd2-(yhgpx div 2)-((yhgpx div 2)/w*i)+((mHd2-m_m.y)/w1/2*i)),
                                xhgpx+round(xhgpx/w*i),yhgpx+round(yhgpx/w*i)))
-      else LayerMap.Location:=
+      else MainLayerMap.Location:=
               floatrect(bounds(mWd2-(xhgpx div 2)-round(((xhgpx div 2)/w)*i),mHd2-(yhgpx div 2)-round(((yhgpx div 2)/w)*i),
                                xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
-      FillingMap.Location:=LayerMap.Location;
+      FillingMap.Location:=MainLayerMap.Location;
       if GState.zoom_size>x then begin
         Scale := 1/(1 + i/(steps - 1));
       end else begin
@@ -2473,9 +2473,9 @@ begin
      end;
    end;
    if GState.zoom_size<x
-    then LayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)*2+d_moveW,mHd2-(yhgpx div 2)*2+d_moveH,xhgpx*2,yhgpx*2))
-    else LayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2) div 2-d_moveW,mHd2-(yhgpx div 2) div 2-d_moveH,xhgpx div 2,yhgpx div 2));
-   FillingMap.Location:=LayerMap.Location;
+    then MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)*2+d_moveW,mHd2-(yhgpx div 2)*2+d_moveH,xhgpx*2,yhgpx*2))
+    else MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2) div 2-d_moveW,mHd2-(yhgpx div 2) div 2-d_moveH,xhgpx div 2,yhgpx div 2));
+   FillingMap.Location:=MainLayerMap.Location;
    application.ProcessMessages;
  end;
 
@@ -2810,7 +2810,7 @@ begin
   path := StrPas(WinDirP)+'\SASwallpaper.bmp';
   btm_ex:=TBitmap.Create;
   try
-    btm_ex.Assign(LayerMap.bitmap);
+    btm_ex.Assign(MainLayerMap.bitmap);
     btm_ex.SaveToFile(path);
   finally
     btm_ex.Free;
@@ -3394,8 +3394,8 @@ begin
    mHd2:=map.Height shr 1;
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
-   LayerMap.Location:=floatrect(MapLayerLocationRect);
-   FillingMap.Location:=LayerMap.Location;
+   MainLayerMap.Location:=floatrect(MapLayerLocationRect);
+   FillingMap.Location:=MainLayerMap.Location;
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
    LayerMapMarks.Resize;
    LayerMapGPS.Resize;
@@ -4194,9 +4194,9 @@ begin
  if MapZoomAnimtion=1 then exit;
  if MapMoving then begin
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)-(MouseDownPoint.X-x),mHd2-(yhgpx div 2)-(MouseDownPoint.Y-y),xhgpx,yhgpx));
-              FillingMap.Location := LayerMap.Location;
-              if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := LayerMap.Location;
+              MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)-(MouseDownPoint.X-x),mHd2-(yhgpx div 2)-(MouseDownPoint.Y-y),xhgpx,yhgpx));
+              FillingMap.Location := MainLayerMap.Location;
+              if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := MainLayerMap.Location;
               LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));

@@ -73,7 +73,7 @@ begin
   FLayer.bitmap.Clear(clBlack);
   FLayer.Bitmap.Width := VLoadedSizeInPixel.X;
   FLayer.Bitmap.Height := VLoadedSizeInPixel.Y;
-  FLayer.Location:=FMain.LayerMap.Location;
+  FLayer.Location:=FMain.MainLayerMap.Location;
   FLayer.Visible:=true;
   dZoom:=GState.zoom_mapzap-GState.zoom_size;
   x2:=trunc(power(2,dZoom));
