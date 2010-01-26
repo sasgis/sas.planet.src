@@ -743,9 +743,9 @@ begin
   VZoomCurr := GState.zoom_size - 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
-  LayerSelection.SetScreenCenterPos(VPoint);
-  LayerMapMarks.SetScreenCenterPos(VPoint);
-  LayerMapGPS.SetScreenCenterPos(VPoint);
+  LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
@@ -2520,34 +2520,34 @@ var
   VWaitResult: DWORD;
   i:integer;
 begin
+  ProgramClose:=true;
+  //останавливаем GPS
+  GPSReceiver.OnDisconnect:=nil;
+  GPSReceiver.Close;
   FillingMap.Terminate;
-  Application.ProcessMessages;
-  FreeAndNil(FillingMap);
- for i := 0 to Screen.FormCount - 1 do begin
+  FUIDownLoader.Terminate;
+  GState.StopAllThreads;
+  for i := 0 to Screen.FormCount - 1 do begin
   if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
-   Screen.Forms[i].Close;
- end;
- FreeAndNil(FWikiLayer);
- ProgramClose:=true;
- //останавливаем GPS
- GPSReceiver.OnDisconnect:=nil;
- GPSReceiver.Close;
- //-
- FUIDownLoader.Terminate;
- Application.ProcessMessages;
- VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
- if VWaitResult = WAIT_TIMEOUT then begin
-  TerminateThread(FUIDownLoader.Handle, 0);
- end;
- FreeAndNil(FUIDownLoader);
- if length(GState.MapType)<>0 then FSettings.Save;
- FreeAndNil(GMiniMap);
- FreeAndNil(LayerMapScale);
- FreeAndNil(LayerStatBar);
- FreeAndNil(LayerScaleLine);
- FreeAndNil(LayerMapGPS);
- FreeAndNil(LayerMapMarks);
- FreeAndNil(LayerSelection);
+  Screen.Forms[i].Close;
+  end;
+  Application.ProcessMessages;
+  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
+  if VWaitResult = WAIT_TIMEOUT then begin
+    TerminateThread(FUIDownLoader.Handle, 0);
+  end;
+  FreeAndNil(FillingMap);
+  FreeAndNil(FWikiLayer);
+  Application.ProcessMessages;
+  FreeAndNil(FUIDownLoader);
+  if length(GState.MapType)<>0 then FSettings.Save;
+  FreeAndNil(GMiniMap);
+  FreeAndNil(LayerMapScale);
+  FreeAndNil(LayerStatBar);
+  FreeAndNil(LayerScaleLine);
+  FreeAndNil(LayerMapGPS);
+  FreeAndNil(LayerMapMarks);
+  FreeAndNil(LayerSelection);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);

@@ -245,6 +245,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
+    procedure StopAllThreads;
   end;
 
 const
@@ -447,6 +448,11 @@ procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
 begin
   FCacheElemensMaxCnt := Value;
   FMemFileCache.CacheElemensMaxCnt:= FCacheElemensMaxCnt;
+end;
+
+procedure TGlobalState.StopAllThreads;
+begin
+  FGCThread.Terminate;
 end;
 
 end.
