@@ -554,7 +554,7 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-    procedure Set_Pos(const Value: TPoint);
+    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
     function GetLoadedPixelRect: TRect;
     function GetVisiblePixelRect: TRect;
     function GetLoadedSizeInPixel: TPoint;
@@ -731,13 +731,16 @@ uses
   UGSM;
 
 {$R *.dfm}
-procedure TFMain.Set_Pos(const Value: TPoint);
+procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
-  VPoint := Value;
-  VZoomCurr := GState.zoom_size - 1;
+  VPoint := AScreenCenterPos;
+  VZoomCurr := AZoom;
+  if AMapType <> GState.sat_map_both then begin
+    Assert(False, 'Дописать сюда правильный код');
+  end;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
   LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -1111,10 +1114,10 @@ begin
                   inc(dWhenMovingButton);
                  end;
                  dWMB:=trunc(Power(dWhenMovingButton,1.5));
-                 if Msg.wParam=VK_RIGHT then Set_Pos(Point(ScreenCenterPos.x+dWMB, ScreenCenterPos.y));
-                 if Msg.wParam=VK_Left then Set_Pos(Point(ScreenCenterPos.x-dWMB, ScreenCenterPos.y));
-                 if Msg.wParam=VK_Down then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y+dWMB));
-                 if Msg.wParam=VK_Up then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y-dWMB));
+                 if Msg.wParam=VK_RIGHT then Set_Pos(Point(ScreenCenterPos.x+dWMB, ScreenCenterPos.y), GState.zoom_size - 1, GState.sat_map_both);
+                 if Msg.wParam=VK_Left then Set_Pos(Point(ScreenCenterPos.x-dWMB, ScreenCenterPos.y), GState.zoom_size - 1, GState.sat_map_both);
+                 if Msg.wParam=VK_Down then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y+dWMB), GState.zoom_size - 1, GState.sat_map_both);
+                 if Msg.wParam=VK_Up then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y-dWMB), GState.zoom_size - 1, GState.sat_map_both);
                  if (Msg.wParam=VK_RIGHT)or(Msg.wParam=VK_Left)or
                     (Msg.wParam=VK_Down)or(Msg.wParam=VK_Up)then
                     generate_im(nilLastLoad,'');
@@ -1655,7 +1658,7 @@ var
 begin
   GState.sat_map_both.GeoConvert.CheckLonLatPos(LL);
   GState.zoom_size:=zoom_;
-  Set_Pos(GState.sat_map_both.GeoConvert.LonLat2PixelPos(LL,(zoom_ - 1)));
+  Set_Pos(GState.sat_map_both.GeoConvert.LonLat2PixelPos(LL,(zoom_ - 1)), GState.zoom_size - 1, GState.sat_map_both);
   zooming(zoom_,false);
   if draw then begin
     VPoint := ScreenCenterPos;
@@ -2243,8 +2246,14 @@ begin
  LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
  FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
 
- Set_Pos(Point(GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
-                          GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1)));
+  Set_Pos(
+    Point(
+      GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
+      GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1)
+    ),
+    GState.zoom_size - 1,
+    GState.sat_map_both
+  );
  GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
  GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
  GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
@@ -2358,7 +2367,7 @@ begin
       end;
     end;
     if paramstr(2)<>'' then GState.zoom_size:=strtoint(paramstr(2));
-    if (paramstr(3)<>'')and(paramstr(4)<>'') then Set_Pos(GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(GState.zoom_size - 1) + 8));
+    if (paramstr(3)<>'')and(paramstr(4)<>'') then Set_Pos(GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(GState.zoom_size - 1) + 8), GState.zoom_size - 1, GState.sat_map_both);
   except
   end;
  end;
@@ -2480,7 +2489,7 @@ begin
  end;
 
  GState.zoom_size:=x;
- Set_Pos(VNewScreenCenterPos);
+ Set_Pos(VNewScreenCenterPos, GState.zoom_size - 1, GState.sat_map_both);
  generate_im(nilLastLoad,'');
  MapZoomAnimtion:=0;
  toSh;
@@ -3596,7 +3605,7 @@ begin
  if (aoper=ao_movemap) then
   begin
    r:=map.ScreenToClient(Mouse.CursorPos);
-   Set_Pos(VisiblePixel2MapPixel(r));
+   Set_Pos(VisiblePixel2MapPixel(r), GState.zoom_size - 1, GState.sat_map_both);
    generate_im(nilLastLoad,'');
   end;
 end;
@@ -3725,7 +3734,7 @@ begin
     bPOS:=GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
     if (GState.GPS_MapMove)and((bpos.X<>ScreenCenterPos.x)or(bpos.y<>ScreenCenterPos.y))
      then begin
-           Set_Pos(bpos);
+           Set_Pos(bpos, GState.zoom_size - 1, GState.sat_map_both);
            generate_im(nilLastLoad,'');
           end
      else begin
@@ -3853,8 +3862,8 @@ begin
   then begin
         if GMiniMap.zoom>1 then
          Set_Pos(Point(ScreenCenterPos.x+round((-(128-(GMiniMap.pos.x*(256/GMiniMap.width))))*power(2,GState.zoom_size-GMiniMap.zoom)),
-              ScreenCenterPos.y+round((-(128-(GMiniMap.pos.y*(256/GMiniMap.height))))*power(2,GState.zoom_size-GMiniMap.zoom))))
-         else Set_Pos(Point(round(GMiniMap.pos.X*(256/GMiniMap.height)*power(2,GState.zoom_size-GMiniMap.zoom)),round((GMiniMap.pos.Y*(256/GMiniMap.height))*power(2,GState.zoom_size-GMiniMap.zoom))));
+              ScreenCenterPos.y+round((-(128-(GMiniMap.pos.y*(256/GMiniMap.height))))*power(2,GState.zoom_size-GMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both)
+         else Set_Pos(Point(round(GMiniMap.pos.X*(256/GMiniMap.height)*power(2,GState.zoom_size-GMiniMap.zoom)),round((GMiniMap.pos.Y*(256/GMiniMap.height))*power(2,GState.zoom_size-GMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both);
         generate_im(nilLastLoad,'');
        end
   else GMiniMap.zooming:=false;
@@ -4007,7 +4016,7 @@ begin
    end;
 
  POSb:=ScreenCenterPos;
- Set_Pos(Point(ScreenCenterPos.x+(MouseDownPoint.x-x),ScreenCenterPos.y+(MouseDownPoint.y-y)));
+ Set_Pos(Point(ScreenCenterPos.x+(MouseDownPoint.x-x),ScreenCenterPos.y+(MouseDownPoint.y-y)), GState.zoom_size - 1, GState.sat_map_both);
  MouseUpPoint:=Point(x,y);
  layer.Cursor:=curBuf;
  if ((MouseDownPoint.x<>MouseUpPoint.x)or(MouseDownPoint.y<>MouseUpPoint.y))
