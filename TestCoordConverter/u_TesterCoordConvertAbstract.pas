@@ -37,6 +37,8 @@ type
     procedure Check_Relative2LonLat2Relative; virtual;
     procedure Check_TilePos2LonLat2TilePos; virtual;
 
+    procedure Check_Monotonic_Relative2LonLat; virtual;
+
     procedure CheckConverter; virtual;
   end;
 implementation
@@ -155,6 +157,15 @@ begin
   end;
 
   try
+    Check_Monotonic_Relative2LonLat;
+  except
+    on E: Exception do begin
+      raise Exception.Create('Ошибка при тестировании монотонности проецирования ' + E.Message);
+    end;
+  end;
+
+
+  try
     Check_TilePos2LonLat;
   except
     on E: Exception do begin
@@ -183,6 +194,40 @@ function TTesterCoordConverterAbstract.CheckExtended(E1,
   E2: Extended): Boolean;
 begin
   Result := abs(E1-E2) < FEpsilon;
+end;
+
+
+procedure TTesterCoordConverterAbstract.Check_Monotonic_Relative2LonLat;
+var
+  VDelta: Double;
+  VSource: TExtendedPoint;
+  VTarget: TExtendedPoint;
+  VSourceLast: TExtendedPoint;
+  VTargetLast: TExtendedPoint;
+  VEpsilon: Double;
+  VStart: Double;
+  VFinish: Double;
+begin
+  VDelta := abs(1 / FConverter.PixelsAtZoom(22));
+  VStart := 0;
+  VFinish := VDelta * 100000;
+  VSource.X := 0.5;
+  VSource.Y := VStart;
+  VSourceLast := VSource;
+  VTargetLast := FConverter.Relative2LonLat(VSourceLast);
+  VSource.Y := VSource.Y + VDelta;
+
+  while (VSource.Y < VFinish) do begin
+    VTarget := FConverter.Relative2LonLat(VSource);
+    VEpsilon := VTargetLast.Y - VTarget.Y;
+    if VEpsilon < 0 then begin
+      raise Exception.Create('Функция проецирования не монотонна в точке ' + FloatToStr(VSource.Y) + ' Eps=' + FloatToStr(VEpsilon));
+    end;
+    VSourceLast := VSource;
+    VTargetLast := VTarget;
+    VSource.Y := VSource.Y + VDelta;
+  end;
+
 end;
 
 procedure TTesterCoordConverterAbstract.Check_PixelPos2Relative;
@@ -538,13 +583,6 @@ begin
 
   Res := FConverter.TilePos2LonLat(Point(13123, 2231), 23);
   Res1 := FConverter.Pos2LonLat(Point(13123, 2231), 23);
-  if not CheckExtended(Res.X, Res1.X) then
-    raise Exception.Create('Ошибка на Z=0');
-  if not CheckExtended(Res.Y, Res1.Y) then
-    raise Exception.Create('Ошибка на Z=0');
-
-  Res := FConverter.PixelPos2LonLat(Point(13123, 2231), 22);
-  Res1 := FConverter.Pos2LonLat(Point(13123, 2231), 30);
   if not CheckExtended(Res.X, Res1.X) then
     raise Exception.Create('Ошибка на Z=0');
   if not CheckExtended(Res.Y, Res1.Y) then

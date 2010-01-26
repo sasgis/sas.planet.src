@@ -233,14 +233,14 @@ begin
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width := 3;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color := GState.WikiMapFonColor;
   if length(AData.FPolygonOnBitmap) = 1 then begin
-    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.FPolygonOnBitmap[0].x - 2, AData.FPolygonOnBitmap[0].y - 2, AData.FPolygonOnBitmap[0].x + 2, AData.FPolygonOnBitmap[0].y + 2);
+    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.FPolygonOnBitmap[0].x - 3, AData.FPolygonOnBitmap[0].y - 3, AData.FPolygonOnBitmap[0].x + 3, AData.FPolygonOnBitmap[0].y + 3);
   end else begin
     FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.FPolygonOnBitmap);
   end;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Width := 1;
   FMain.LayerMapWiki.Bitmap.Canvas.Pen.Color := GState.WikiMapMainColor;
   if length(AData.FPolygonOnBitmap) = 1 then begin
-    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.FPolygonOnBitmap[0].x - 2, AData.FPolygonOnBitmap[0].y - 2, AData.FPolygonOnBitmap[0].x + 2, AData.FPolygonOnBitmap[0].y + 2);
+    FMain.LayerMapWiki.Bitmap.Canvas.Ellipse(AData.FPolygonOnBitmap[0].x - 3, AData.FPolygonOnBitmap[0].y - 3, AData.FPolygonOnBitmap[0].x + 2, AData.FPolygonOnBitmap[0].y + 3);
   end else begin
     FMain.LayerMapWiki.Bitmap.Canvas.Polyline(AData.FPolygonOnBitmap);
   end;
@@ -254,9 +254,11 @@ var
   VColorMain: TColor32;
   VColorBG: TColor32;
 begin
-  VColorMain := SetAlpha(GState.WikiMapMainColor, 255);
-  VColorBG := SetAlpha(GState.WikiMapFonColor, 255);
+  VColorMain := Color32(GState.WikiMapMainColor);
+  VColorBG := Color32(GState.WikiMapFonColor);
   VPolygon := TPolygon32.Create;
+  VPolygon.Antialiased:=true;
+  VPolygon.AntialiasMode:=am4times;
   try
     VLen := Length(AData.FPolygonOnBitmap);
     if VLen > 1 then begin
@@ -271,12 +273,12 @@ begin
       VPolygon.Offset(Fixed(1), Fixed(1));
       VPolygon.DrawEdge(FMain.LayerMapWiki.Bitmap, VColorMain);
     end else begin
-      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X, AData.FPolygonOnBitmap[0].Y - 3);
-      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X + 3, AData.FPolygonOnBitmap[0].Y);
-      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X, AData.FPolygonOnBitmap[0].Y + 3);
-      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X - 3, AData.FPolygonOnBitmap[0].Y);
+      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X-3, AData.FPolygonOnBitmap[0].Y+3);
+      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X+2, AData.FPolygonOnBitmap[0].Y+3);
+      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X+2, AData.FPolygonOnBitmap[0].Y-2);
+      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X-3, AData.FPolygonOnBitmap[0].Y-2);
       VPolygon.AddPoints(FFixedPointArray[0], 4);
-      VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG, VColorMain);
+      VPolygon.Draw(FMain.LayerMapWiki.Bitmap, VColorBG,SetAlpha(VColorMain,170));
     end;
   finally
     FreeAndNil(VPolygon);
