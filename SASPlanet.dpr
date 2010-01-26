@@ -84,10 +84,16 @@ uses
   u_CenterScale in 'u_CenterScale.pas',
   u_LayerStatBar in 'u_LayerStatBar.pas',
   u_MapLayerBasic in 'u_MapLayerBasic.pas',
+  u_MapTileLayerBasic in 'u_MapTileLayerBasic.pas',
   u_MapMarksLayer in 'u_MapMarksLayer.pas',
   u_SelectionLayer in 'u_SelectionLayer.pas',
   u_LayerScaleLine in 'u_LayerScaleLine.pas',
   u_MapGPSLayer in 'u_MapGPSLayer.pas',
+  i_Marks in 'i_Marks.pas',
+  u_MarkBasic in 'u_MarkBasic.pas',
+  u_MarkCategory in 'u_MarkCategory.pas',
+  u_MarksDb in 'u_MarksDb.pas' {DMMarksDb: TDataModule},
+  u_EnumUnknownEmpty in 'u_EnumUnknownEmpty.pas',
   i_ITileFileNameGenerator in 'i_ITileFileNameGenerator.pas',
   u_TileFileNameSAS in 'u_TileFileNameSAS.pas',
   u_TileFileNameGMV in 'u_TileFileNameGMV.pas',
@@ -95,6 +101,7 @@ uses
   u_TileFileNameGM1 in 'u_TileFileNameGM1.pas',
   u_TileFileNameGM2 in 'u_TileFileNameGM2.pas',
   i_ITileFileNameGeneratorsList in 'i_ITileFileNameGeneratorsList.pas',
+  i_MemCache in 'i_MemCache.pas',
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
   u_TileDownloaderBaseFactory in 'u_TileDownloaderBaseFactory.pas',
   u_GarbageCollectorThread in 'u_GarbageCollectorThread.pas',
@@ -164,6 +171,7 @@ begin
   Application.CreateForm(TFaddLine, FaddLine);
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
+  Application.CreateForm(TDMMarksDb, DMMarksDb);
   Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;
