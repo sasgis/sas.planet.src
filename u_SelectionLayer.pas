@@ -41,7 +41,7 @@ begin
   VPolygonOnBitmap := nil;
   if Length(GState.LastSelectionPolygon) > 0 then begin
     FLayer.Bitmap.Clear(clBlack);
-    VZoomCurr := GState.zoom_size - 1;
+    VZoomCurr := FZoom;
     VPolygon := FGeoConvert.PoligonProject(VZoomCurr + 8, GState.LastSelectionPolygon);
     try
       VPolygonOnBitmap := PreparePolygon(VPolygon);
