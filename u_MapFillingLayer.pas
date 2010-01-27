@@ -3,6 +3,7 @@ unit u_MapFillingLayer;
 interface
 
 uses
+  Windows,
   Classes,
   SyncObjs,
   GR32,
@@ -13,27 +14,11 @@ uses
   uMapType;
 
 type
-  TMapFillingThread = class(TThread)
-  private
-    FLayer:TBitmapLayer;
-    FStopThread: TEvent;
-    FDrowActive: TEvent;
-    FNeedRedrow: Boolean;
-    FCSChangeScene: TCriticalSection;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(ALayer: TBitmapLayer);
-    destructor Destroy; override;
-    procedure PrepareToChangeScene;
-    procedure ChangeScene;
-  end;
-
   TMapFillingLayer = class(TMapLayerBasic)
   protected
-    FThread: TMapFillingThread;
-
-    procedure ResizeBitmap; override;
+    FThread: TThread;
+    FSourceMapType: TMapType;
+    FSourceZoom: Byte;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
@@ -41,6 +26,26 @@ type
   end;
 
 implementation
+
+type
+  TMapFillingThread = class(TThread)
+  private
+    FLayer:TMapFillingLayer;
+    FStopThread: TEvent;
+    FDrowActive: TEvent;
+    FNeedRedrow: Boolean;
+    FCSChangeScene: TCriticalSection;
+  protected
+    procedure Execute; override;
+    procedure UpdateLayer;
+    procedure BuildBitmap;
+  public
+    constructor Create(ALayer: TMapFillingLayer);
+    destructor Destroy; override;
+    procedure PrepareToChangeScene;
+    procedure ChangeScene;
+  end;
+
 
 { TFillingMapLayer }
 
@@ -64,13 +69,30 @@ end;
 
 { TFillingMapThread }
 
-procedure TMapFillingThread.ChangeScene;
+procedure TMapFillingThread.BuildBitmap;
+var
+  VTileFileName:String;
+  VCurrFolderName:string;
+  VPrevFolderName:string;
+  VPrevTileFolderExist:boolean;
+  VTileExist:boolean;
 begin
 
 end;
 
-constructor TMapFillingThread.Create(ALayer: TBitmapLayer);
+procedure TMapFillingThread.ChangeScene;
 begin
+  FCSChangeScene.Enter;
+  try
+    FDrowActive.SetEvent;
+  finally
+    FCSChangeScene.Leave;
+  end;
+end;
+
+constructor TMapFillingThread.Create(ALayer: TMapFillingLayer);
+begin
+  inherited Create(false);
   FLayer := ALayer;
   FStopThread := TEvent.Create(nil, True, False, '');
   FDrowActive := TEvent.Create(nil, True, False, '');
@@ -85,15 +107,47 @@ begin
 end;
 
 procedure TMapFillingThread.Execute;
+var
+  VHandles: array [0..1] of THandle;
+  VWaitResult: DWORD;
 begin
   inherited;
-
+  VHandles[0] := FDrowActive.Handle;
+  VHandles[1] := FStopThread.Handle;
+  while not Terminated do begin
+    VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, 0);
+    case VWaitResult of
+      WAIT_OBJECT_0: begin
+        FCSChangeScene.Enter;
+        try
+          FNeedRedrow := false;
+        finally
+          FCSChangeScene.Leave;
+        end;
+      end;
+    else
+      Break;
+    end;
+    BuildBitmap;
+  end;
 end;
 
 procedure TMapFillingThread.PrepareToChangeScene;
 begin
+  FCSChangeScene.Enter;
+  try
+    FNeedRedrow := True;
+    FDrowActive.ResetEvent;
+  finally
+    FCSChangeScene.Leave;
+  end;
+end;
 
+procedure TMapFillingThread.UpdateLayer;
+begin
+  if not FNeedRedrow then begin
+    FLayer.FLayer.Update;
+  end;
 end;
 
 end.
- 
