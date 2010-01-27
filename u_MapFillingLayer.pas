@@ -71,13 +71,27 @@ end;
 
 procedure TMapFillingThread.BuildBitmap;
 var
-  VTileFileName:String;
-  VCurrFolderName:string;
-  VPrevFolderName:string;
-  VPrevTileFolderExist:boolean;
-  VTileExist:boolean;
-begin
+  VZoom: Byte;
+  VZoomSource: Byte;
+  VMapType: TMapType;
+  VTile: TPoint;
+  VBmp: TBitmap32;
+  VBitmapOnMapPixelRect: TRect;
+  VPixelSourceRect: TRect;
+  VTileSourceRect: TRect;
 
+begin
+  VBmp := TBitmap32.Create;
+  try
+    VZoom := FLayer.Zoom;
+    VZoomSource := FLayer.FSourceZoom;
+    VMapType := FLayer.FSourceMapType;
+
+
+
+  finally
+    VBmp.Free;
+  end;
 end;
 
 procedure TMapFillingThread.ChangeScene;
