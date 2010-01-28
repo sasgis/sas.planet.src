@@ -73,22 +73,42 @@ procedure TMapFillingThread.BuildBitmap;
 var
   VZoom: Byte;
   VZoomSource: Byte;
-  VMapType: TMapType;
+  VSourceMapType: TMapType;
   VTile: TPoint;
   VBmp: TBitmap32;
   VBitmapOnMapPixelRect: TRect;
+  VSourceLonLatRect: TExtendedRect;
   VPixelSourceRect: TRect;
   VTileSourceRect: TRect;
-
+  VSourceGeoConvert: ICoordConverter;
+  VGeoConvert: ICoordConverter;
+  i, j: integer;
 begin
   VBmp := TBitmap32.Create;
   try
     VZoom := FLayer.Zoom;
     VZoomSource := FLayer.FSourceZoom;
-    VMapType := FLayer.FSourceMapType;
+    VSourceMapType := FLayer.FSourceMapType;
+    VSourceGeoConvert := VSourceMapType.GeoConvert;
+    VGeoConvert := FLayer.GeoConvert;
+    VBitmapOnMapPixelRect.TopLeft := FLayer.BitmapPixel2MapPixel(Point(0, 0));
+    VBitmapOnMapPixelRect.BottomRight := FLayer.BitmapPixel2MapPixel(FLayer.GetBitmapSizeInPixel);
+    if not FNeedRedrow then begin
+      VGeoConvert.CheckPixelRectStrict(VBitmapOnMapPixelRect, VZoom, False);
+      VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+      VTileSourceRect := VSourceGeoConvert.LonLatRect2TileRect(VSourceLonLatRect, VZoom);
+      for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
+        VTile.X := i;
+        for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+          VTile.Y := j;
+          if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
+
+          end;
+        end;
+      end;
 
 
-
+    end;
   finally
     VBmp.Free;
   end;
