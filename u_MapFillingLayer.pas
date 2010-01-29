@@ -280,8 +280,8 @@ begin
             VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
           end;
 
-          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
-          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
+          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom + 8, VGeoConvert);
+          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
 
           if FNeedRedrow then break;
           VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
@@ -295,7 +295,6 @@ begin
               FLayer.FLayer.Bitmap.UnLock;
             end;
           end;
-//          Synchronize(UpdateLayer);
         end;
       end;
     end;
