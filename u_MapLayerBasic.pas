@@ -103,18 +103,16 @@ begin
   FCenterMove := Point(0, 0);
   FFreezeInCenter := True;
 
-  if Visible then begin
-    if VFullRedraw then begin
-      FGeoConvert := AGeoConvert;
-      FZoom := AZoom;
-      FScreenCenterPos := AScreenCenterPos;
-      Redraw;
-    end else begin
-      RedrawPartial(AScreenCenterPos);
-      FScreenCenterPos := AScreenCenterPos;
-    end;
-    Resize;
+  if VFullRedraw then begin
+    FGeoConvert := AGeoConvert;
+    FZoom := AZoom;
+    FScreenCenterPos := AScreenCenterPos;
+    Redraw;
+  end else begin
+    RedrawPartial(AScreenCenterPos);
+    FScreenCenterPos := AScreenCenterPos;
   end;
+  Resize;
 end;
 
 function TMapLayerBasic.GetScreenCenterInBitmapPixels: TPoint;

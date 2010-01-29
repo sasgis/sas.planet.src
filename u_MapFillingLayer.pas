@@ -11,6 +11,7 @@ uses
   GR32_Image,
   GR32_Layers,
   t_GeoTypes,
+  i_ICoordConverter,
   u_MapLayerBasic,
   uMapType;
 
@@ -19,19 +20,25 @@ type
   protected
     FThread: TThread;
     FSourceMapType: TMapType;
+    FSourceSelected: TMapType;
     FSourceZoom: Byte;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     destructor Destroy; override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: Byte);
+    procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Hide; override;
+    procedure Redraw; override;
+    property SourceMapType: TMapType read FSourceSelected;
+    property SourceZoom: Byte read FSourceZoom;
   end;
 
 implementation
 
 uses
-  i_ICoordConverter;
+  u_GlobalState,
+  u_WindowLayerBasic;
 
 
 type
@@ -75,7 +82,6 @@ procedure TMapFillingLayer.DoRedraw;
 begin
   if (FSourceMapType <> nil) and (FZoom > FSourceZoom) then begin
     inherited;
-    TMapFillingThread(FThread).PrepareToChangeScene;
     TMapFillingThread(FThread).ChangeScene;
   end;
 end;
@@ -86,25 +92,83 @@ begin
   TMapFillingThread(FThread).PrepareToChangeScene;
 end;
 
+procedure TMapFillingLayer.Redraw;
+begin
+  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom < FSourceZoom) then begin
+    FLayer.Visible := true;
+  end else begin
+    FLayer.Visible := false;
+  end;
+  inherited;
+
+end;
+
+procedure TMapFillingLayer.SetScreenCenterPos(
+  const AScreenCenterPos: TPoint; const AZoom: byte;
+  AGeoConvert: ICoordConverter);
+var
+  VFullRedraw: Boolean;
+begin
+  VFullRedraw := False;
+  if (FGeoConvert = nil) or ((FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG)) then begin
+    VFullRedraw := True;
+  end;
+  if FZoom <> AZoom then begin
+    VFullRedraw := True;
+  end;
+  if (FScreenCenterPos.X <> AScreenCenterPos.X) or (FScreenCenterPos.Y <> AScreenCenterPos.Y) then begin
+    if not VFullRedraw then begin
+      if IsNeedFullRedraw(AScreenCenterPos) then begin
+        VFullRedraw := True;
+      end else begin
+        FScreenCenterPos := AScreenCenterPos;
+      end;
+    end;
+  end;
+
+  FScale := 1;
+  FCenterMove := Point(0, 0);
+  FFreezeInCenter := True;
+
+  if VFullRedraw then begin
+    TMapFillingThread(FThread).PrepareToChangeScene;
+    FGeoConvert := AGeoConvert;
+    FZoom := AZoom;
+    FScreenCenterPos := AScreenCenterPos;
+    if FSourceSelected = nil then begin
+      FSourceMapType := GState.sat_map_both;
+    end;
+    Redraw;
+  end else begin
+    RedrawPartial(AScreenCenterPos);
+    FScreenCenterPos := AScreenCenterPos;
+  end;
+  Resize;
+end;
+
 procedure TMapFillingLayer.SetSourceMap(AMapType: TMapType; AZoom: Byte);
 var
   VFullRedraw: Boolean;
 begin
   VFullRedraw := false;
-  if FSourceMapType <> AMapType then begin
+  if FSourceSelected <> AMapType then begin
     VFullRedraw := True;
   end;
   if FSourceZoom <> AZoom then begin
     VFullRedraw := True;
   end;
-  if Visible then begin
-    if VFullRedraw then begin
+  if VFullRedraw then begin
+    if AMapType <> nil then begin
       FSourceMapType := AMapType;
-      FSourceZoom := AZoom;
-      Redraw;
+      FSourceSelected := AMapType;
+    end else begin
+      FSourceSelected := AMapType;
+      FSourceMapType := GState.sat_map_both;
     end;
-    Resize;
+    FSourceZoom := AZoom;
+    Redraw;
   end;
+  Resize;
 
 end;
 
