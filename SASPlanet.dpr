@@ -38,7 +38,6 @@ uses
   UThreadExportYaMaps in 'UThreadExportYaMaps.pas',
   UOpDelTiles in 'UOpDelTiles.pas',
   UOpGenPreviousZoom in 'UOpGenPreviousZoom.pas',
-  UFillingMap in 'UFillingMap.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',

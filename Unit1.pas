@@ -61,7 +61,6 @@ uses
   ULogo,
   UMapType,
   UResStrings,
-  UFillingMap,
   u_LayerStatBar,
   u_LayerScaleLine,
   u_MapMarksLayer,
@@ -589,13 +588,13 @@ type
     PWL: TResObj;
   public
     MainLayerMap: TBitmapLayer;
+    FFillingMap: TMapFillingLayer;
     LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TBitmapLayer;
     LayerMapGPS: TMapGPSLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
-    fillingmaptype: TMapType;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     MapMoving: Boolean;
@@ -606,7 +605,6 @@ type
     aoper: TAOperation;
     GPSpar: TGPSpar;
     NavOnMark: TNavOnMark;
-    FillingMap: TFillingMap;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
@@ -619,7 +617,6 @@ type
     procedure drawLineCalc;
     procedure drawNewPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
     procedure drawReg;
-    procedure generate_mapzap;
     procedure draw_point;
     class   function  str2r(inp: string): real;
     procedure paint_Line;
@@ -744,6 +741,7 @@ begin
   end;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
+  FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -1905,15 +1903,6 @@ begin
   end;
 end;
 
-procedure TFmain.generate_mapzap;
-begin
-  if (GState.zoom_mapzap<=GState.zoom_size) then begin
-    FillingMap.StopDrow;
-  end else begin
-    FillingMap.StartDrow;
-  end;
-end;
-
 procedure BadDraw(var spr:TBitmap32; transparent:boolean);
 begin
  spr.SetSize(256,256);
@@ -1936,8 +1925,6 @@ var
 begin
   if notpaint then exit;
   QueryPerformanceCounter(ts2);
-  if not(lastload.use) then generate_mapzap;
-  if not(lastload.use) then change_scene:=true;
 
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
@@ -2048,6 +2035,8 @@ var
      VGUIDString: string;
   hg_x: integer;
   hg_y: integer;
+  VFillingmaptype: TMapType;
+  Vzoom_mapzap: Byte;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -2138,8 +2127,6 @@ begin
 
  LayerMapScale := TCenterScale.Create(map);
 
- FillingMap:=TFillingMap.create(true);
- FillingMap.Priority:=tpLowest;
 
  LayerMapNal:=TBitmapLayer.Create(map.Layers);
  LayerMapNal.Bitmap.Width := VLoadedSizeInPixel.X;
@@ -2169,7 +2156,7 @@ begin
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
  GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
- GState.zoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',0);
+ Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',0);
  GState.TileGridZoom:=GState.MainIni.readinteger('VIEW','grid',0);
  GState.MouseWheelInv:=GState.MainIni.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
@@ -2247,6 +2234,8 @@ begin
  LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
  FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
 
+ FFillingMap:=TMapFillingLayer.create(map, ScreenCenterPos);
+
   Set_Pos(
     Point(
       GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
@@ -2262,15 +2251,20 @@ begin
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
     VGUID := StringToGUID(VGUIDString);
-    Fillingmaptype:=GetMapFromID(VGUID);
+    VFillingmaptype:=GetMapFromID(VGUID);
   end else begin
-    Fillingmaptype := nil;
+    VFillingmaptype := nil;
   end;
  except
-  Fillingmaptype := nil;
+  VFillingmaptype := nil;
  end;
- if Fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=true
+ if VFillingmaptype<>nil then Vfillingmaptype.TBFillingItem.Checked:=true
                         else TBfillMapAsMain.Checked:=true;
+ if Vzoom_mapzap > 0 then begin
+  Vzoom_mapzap := Vzoom_mapzap - 1;
+ end;
+ FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
+
  i:=1;
  while str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do
   begin
@@ -2348,7 +2342,7 @@ begin
  toSh;
  ProgramStart:=false;
 
- if GState.zoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
+ if Vzoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
                    else TBMapZap.Caption:='';
  selectMap(GState.sat_map_both);
  RxSlider1.Value:=GState.Zoom_size-1;
@@ -2457,7 +2451,6 @@ begin
       else MainLayerMap.Location:=
               floatrect(bounds(mWd2-(xhgpx div 2)-round(((xhgpx div 2)/w)*i),mHd2-(yhgpx div 2)-round(((yhgpx div 2)/w)*i),
                                xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
-      FillingMap.Location:=MainLayerMap.Location;
       if GState.zoom_size>x then begin
         Scale := 1/(1 + i/(steps - 1));
       end else begin
@@ -2468,11 +2461,13 @@ begin
         LayerMapMarks.ScaleTo(Scale, m_m);
         LayerMapGPS.ScaleTo(Scale, m_m);
         FWikiLayer.ScaleTo(Scale, m_m);
+        FFillingMap.ScaleTo(Scale, m_m);
       end else begin
         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapGPS.ScaleTo(Scale, Point(mWd2, mHd2));
         FWikiLayer.ScaleTo(Scale, Point(mWd2, mHd2));
+        FFillingMap.ScaleTo(Scale, Point(mWd2, mHd2));
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -2485,7 +2480,6 @@ begin
    if GState.zoom_size<x
     then MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)*2+d_moveW,mHd2-(yhgpx div 2)*2+d_moveH,xhgpx*2,yhgpx*2))
     else MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2) div 2-d_moveW,mHd2-(yhgpx div 2) div 2-d_moveH,xhgpx div 2,yhgpx div 2));
-   FillingMap.Location:=MainLayerMap.Location;
    application.ProcessMessages;
  end;
 
@@ -2524,7 +2518,6 @@ begin
   //останавливаем GPS
   GPSReceiver.OnDisconnect:=nil;
   GPSReceiver.Close;
-  FillingMap.Terminate;
   FUIDownLoader.Terminate;
   GState.StopAllThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -2536,11 +2529,11 @@ begin
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(FUIDownLoader.Handle, 0);
   end;
-  FreeAndNil(FillingMap);
+  if length(GState.MapType)<>0 then FSettings.Save;
+  FreeAndNil(FFillingMap);
   FreeAndNil(FWikiLayer);
   Application.ProcessMessages;
   FreeAndNil(FUIDownLoader);
-  if length(GState.MapType)<>0 then FSettings.Save;
   FreeAndNil(GMiniMap);
   FreeAndNil(LayerMapScale);
   FreeAndNil(LayerStatBar);
@@ -2936,15 +2929,25 @@ end;
 //карта заполнения в основном окне
 procedure TFmain.NFillMapClick(Sender: TObject);
 begin
- TBXToolPalette1.SelectedCell:=Point(GState.zoom_mapzap mod 5,GState.zoom_mapzap div 5);
+  if FFillingMap.SourceZoom > 0 then begin
+    TBXToolPalette1.SelectedCell:=Point((FFillingMap.SourceZoom + 1) mod 5,(FFillingMap.SourceZoom + 1) div 5);
+  end else begin
+    TBXToolPalette1.SelectedCell:=Point(0,0);
+  end;
 end;
 
 procedure TFmain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
+var
+  Vzoom_mapzap: byte;
 begin
- GState.zoom_mapzap:=(5*ARow)+ACol;
- if GState.zoom_mapzap>0 then TBMapZap.Caption:='x'+inttostr(GState.zoom_mapzap)
-                  else TBMapZap.Caption:='';
- generate_im(nilLastLoad,'');
+ Vzoom_mapzap:=(5*ARow)+ACol;
+ if Vzoom_mapzap>0 then begin
+  TBMapZap.Caption:='x'+inttostr(Vzoom_mapzap);
+  Vzoom_mapzap := Vzoom_mapzap - 1;
+  end else begin
+   TBMapZap.Caption:='';
+  end;
+ FFillingMap.SetSourceMap(FFillingMap.SourceMapType, Vzoom_mapzap);
 end;
 //X-карта заполнения в основном окне
 
@@ -3405,12 +3408,12 @@ begin
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
    MainLayerMap.Location:=floatrect(MapLayerLocationRect);
-   FillingMap.Location:=MainLayerMap.Location;
    LayerMapNal.Location:=floatrect(MapLayerLocationRect);
    LayerMapMarks.Resize;
    LayerMapGPS.Resize;
    LayerMapScale.Resize;
    FWikiLayer.Resize;
+   FFillingMap.Resize;
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
   end;
@@ -4205,11 +4208,11 @@ begin
  if MapMoving then begin
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)-(MouseDownPoint.X-x),mHd2-(yhgpx div 2)-(MouseDownPoint.Y-y),xhgpx,yhgpx));
-              FillingMap.Location := MainLayerMap.Location;
               if (LayerMapNal.Visible)and(aoper<>ao_movemap) then LayerMapNal.Location := MainLayerMap.Location;
               LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
@@ -4595,23 +4598,23 @@ begin
 end;
 
 procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
+var
+  VFillingMapType: TMapType;
 begin
+  VFillingMapType := FFillingMap.SourceMapType;
   if TTBXItem(sender).Tag=0 then begin
-                                 if fillingmaptype<>nil then
-                                  begin
-                                   fillingmaptype.TBFillingItem.Checked:=false;
-                                   fillingmaptype:=nil;
-                                  end;
-                                 TBfillMapAsMain.Checked:=true;
-                                end
-  else
-  begin
+    if Vfillingmaptype<>nil then begin
+      Vfillingmaptype.TBFillingItem.Checked:=false;
+      Vfillingmaptype:=nil;
+    end;
+    TBfillMapAsMain.Checked:=true;
+  end else begin
     TBfillMapAsMain.Checked:=false;
-    if fillingmaptype<>nil then fillingmaptype.TBFillingItem.Checked:=false;
-    fillingmaptype:=TMapType(TTBXItem(sender).Tag);
-    fillingmaptype.TBFillingItem.Checked:=true;
- end;
- generate_mapzap;
+    if Vfillingmaptype<>nil then Vfillingmaptype.TBFillingItem.Checked:=false;
+    Vfillingmaptype:=TMapType(TTBXItem(sender).Tag);
+    Vfillingmaptype.TBFillingItem.Checked:=true;
+  end;
+  FFillingMap.SetSourceMap(VFillingMapType, FFillingMap.Zoom);
 end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);

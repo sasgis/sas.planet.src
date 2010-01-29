@@ -183,9 +183,6 @@ type
     // Текущий зумм
     zoom_size: byte;
 
-    // Зум карты заполения
-    zoom_mapzap: byte;
-
     // Отображать сетку тайлов для заданного зума
     TileGridZoom: byte;
 

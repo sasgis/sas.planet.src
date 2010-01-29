@@ -321,7 +321,11 @@ begin
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
- GState.MainIni.Writeinteger('VIEW','MapZap',GState.zoom_mapzap);
+ if Fmain.FFillingMap.SourceZoom > 0 then begin
+   GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom + 1);
+ end else begin
+   GState.MainIni.Writeinteger('VIEW','MapZap', 0);
+ end;
  GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  GState.MainIni.Writebool('VIEW','CiclMap',GState.CiclMap);
@@ -339,8 +343,8 @@ begin
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
- if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.GUIDString);
+ if FMain.FFillingMap.SourceMapType=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceMapType.GUIDString);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
