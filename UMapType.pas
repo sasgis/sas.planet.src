@@ -1403,11 +1403,11 @@ begin
             if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
               VSourceTilePixels.Bottom := VPixelsRect.Bottom;
             end;
-            VSourceTilesRect.Left := VSourceTilesRect.Left - VPixelsRect.Left;
-            VSourceTilesRect.Top := VSourceTilesRect.Top - VPixelsRect.Top;
-            VSourceTilesRect.Right := VSourceTilesRect.Right - VPixelsRect.Left;
-            VSourceTilesRect.Bottom := VSourceTilesRect.Bottom - VPixelsRect.Top;
-            btm.FillRectS(VSourceTilesRect, VClMZ);
+            VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
+            VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
+            VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
+            VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
+            btm.FillRectS(VSourceTilePixels, VClMZ);
           end;
           if IsStop^ then break;
         end;
