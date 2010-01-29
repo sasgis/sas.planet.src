@@ -80,7 +80,7 @@ end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  if (FSourceMapType <> nil) and (FZoom > FSourceZoom) then begin
+  if (FSourceMapType <> nil) and (FZoom < FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
     TMapFillingThread(FThread).ChangeScene;
   end;
@@ -270,7 +270,7 @@ begin
             VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
           end;
 
-          if VCurrTilePixelRectSource.Bottom < VPixelSourceRect.Bottom then begin
+          if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
             VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top;
             VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
           end;
@@ -280,7 +280,7 @@ begin
 
           if FNeedRedrow then break;
           VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
-          VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
+          VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
           if FNeedRedrow then break;
           if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
             FLayer.FLayer.Bitmap.Lock;
@@ -312,6 +312,7 @@ end;
 constructor TMapFillingThread.Create(ALayer: TMapFillingLayer);
 begin
   inherited Create(false);
+  Priority := tpLowest;
   FLayer := ALayer;
   FStopThread := TEvent.Create(nil, True, False, '');
   FDrowActive := TEvent.Create(nil, True, False, '');
@@ -338,7 +339,7 @@ begin
   VHandles[0] := FDrowActive.Handle;
   VHandles[1] := FStopThread.Handle;
   while not Terminated do begin
-    VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, 0);
+    VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False,  INFINITE);
     case VWaitResult of
       WAIT_OBJECT_0: begin
         FCSChangeScene.Enter;
