@@ -37,6 +37,7 @@ type
 implementation
 
 uses
+  Graphics,
   u_GlobalState,
   u_WindowLayerBasic;
 
@@ -82,6 +83,7 @@ procedure TMapFillingLayer.DoRedraw;
 begin
   if (FSourceMapType <> nil) and (FZoom < FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
+    FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
   end;
 end;
@@ -95,7 +97,10 @@ end;
 procedure TMapFillingLayer.Redraw;
 begin
   if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom < FSourceZoom) then begin
-    FLayer.Visible := true;
+    if not FLayer.Visible then begin
+      FLayer.Visible := true;
+      BringToFront;
+    end;
   end else begin
     FLayer.Visible := false;
   end;
@@ -290,9 +295,12 @@ begin
               FLayer.FLayer.Bitmap.UnLock;
             end;
           end;
-          Synchronize(UpdateLayer);
+//          Synchronize(UpdateLayer);
         end;
       end;
+    end;
+    if not FNeedRedrow then begin
+      Synchronize(UpdateLayer);
     end;
   finally
     VBmp.Free;
