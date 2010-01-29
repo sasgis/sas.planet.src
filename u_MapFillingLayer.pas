@@ -25,9 +25,14 @@ type
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     destructor Destroy; override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: Byte);
+    procedure Hide; override;
   end;
 
 implementation
+
+uses
+  i_ICoordConverter;
+
 
 type
   TMapFillingThread = class(TThread)
@@ -62,17 +67,44 @@ end;
 destructor TMapFillingLayer.Destroy;
 begin
   FreeAndNil(FThread);
+  FSourceMapType := nil;
   inherited;
 end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  inherited;
+  if (FSourceMapType <> nil) and (FZoom > FSourceZoom) then begin
+    inherited;
+    TMapFillingThread(FThread).PrepareToChangeScene;
+    TMapFillingThread(FThread).ChangeScene;
+  end;
+end;
 
+procedure TMapFillingLayer.Hide;
+begin
+  inherited;
+  TMapFillingThread(FThread).PrepareToChangeScene;
 end;
 
 procedure TMapFillingLayer.SetSourceMap(AMapType: TMapType; AZoom: Byte);
+var
+  VFullRedraw: Boolean;
 begin
+  VFullRedraw := false;
+  if FSourceMapType <> AMapType then begin
+    VFullRedraw := True;
+  end;
+  if FSourceZoom <> AZoom then begin
+    VFullRedraw := True;
+  end;
+  if Visible then begin
+    if VFullRedraw then begin
+      FSourceMapType := AMapType;
+      FSourceZoom := AZoom;
+      Redraw;
+    end;
+    Resize;
+  end;
 
 end;
 
@@ -179,7 +211,8 @@ begin
             VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
           end;
 
-          VCurrTilePixelRect := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource, VZoom, VGeoConvert);
+          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
+          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
           if FNeedRedrow then break;
           VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
