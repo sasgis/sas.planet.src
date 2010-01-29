@@ -82,7 +82,12 @@ end;
 procedure TWindowLayerBasic.Hide;
 begin
   FLayer.Visible := False;
-  FLayer.Bitmap.SetSize(0, 0);
+  FLayer.Bitmap.Lock;
+  try
+    FLayer.Bitmap.SetSize(0, 0);
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
 end;
 
 procedure TWindowLayerBasic.BringToFront;
@@ -135,7 +140,12 @@ begin
   VBitmapSizeInPixel := GetBitmapSizeInPixel;
   if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X)
     or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-    FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+    FLayer.Bitmap.Lock;
+    try
+      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+    finally
+      FLayer.Bitmap.Unlock;
+    end;
   end;
 end;
 

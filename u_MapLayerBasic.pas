@@ -84,21 +84,18 @@ var
 begin
   VFullRedraw := False;
   if (FGeoConvert = nil) or ((FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG)) then begin
-    FGeoConvert := AGeoConvert;
     VFullRedraw := True;
   end;
   if FZoom <> AZoom then begin
     VFullRedraw := True;
-    FZoom := AZoom;
   end;
   if (FScreenCenterPos.X <> AScreenCenterPos.X) or (FScreenCenterPos.Y <> AScreenCenterPos.Y) then begin
     if not VFullRedraw then begin
       if IsNeedFullRedraw(AScreenCenterPos) then begin
         VFullRedraw := True;
+      end else begin
         FScreenCenterPos := AScreenCenterPos;
       end;
-    end else begin
-      FScreenCenterPos := AScreenCenterPos;
     end;
   end;
 
@@ -108,6 +105,9 @@ begin
 
   if Visible then begin
     if VFullRedraw then begin
+      FGeoConvert := AGeoConvert;
+      FZoom := AZoom;
+      FScreenCenterPos := AScreenCenterPos;
       Redraw;
     end else begin
       RedrawPartial(AScreenCenterPos);
