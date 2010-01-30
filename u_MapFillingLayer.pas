@@ -276,7 +276,7 @@ begin
           end;
 
           if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
-            VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top;
+            VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top + 1;
             VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
           end;
 
@@ -284,6 +284,8 @@ begin
           VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
 
           if FNeedRedrow then break;
+          Inc(VCurrTilePixelRectAtBitmap.Bottom);
+          Inc(VCurrTilePixelRectAtBitmap.Right);
           VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
           VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
           if FNeedRedrow then break;
