@@ -616,7 +616,7 @@ type
     class   function  timezone(lon, lat: real): TDateTime;
     procedure drawLineCalc;
     procedure drawNewPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
-    procedure drawReg;
+    procedure drawReg(ASelectedPoly: TExtendedPointArray);
     procedure draw_point;
     class   function  str2r(inp: string): real;
     procedure paint_Line;
@@ -1131,7 +1131,7 @@ begin
              if (Msg.wParam=VK_Delete)and(aoper=ao_reg) then
                begin
                 if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
-                drawReg;
+                drawReg(reg_arr);
                end;
              if (Msg.wParam=VK_Delete)and(aoper in [ao_add_line,ao_add_poly]) then
               if length(add_line_arr)>0 then
@@ -1143,7 +1143,7 @@ begin
               if length(reg_arr)=0 then TBmoveClick(self)
                                    else begin
                                          setlength(reg_arr,0);
-                                         drawreg;
+                                         drawreg(reg_arr);
                                         end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_line) then
               if length(length_arr)=0 then TBmoveClick(self)
@@ -1339,13 +1339,13 @@ begin
   end;
 end;
 
-procedure TFmain.drawReg;
+procedure TFmain.drawReg(ASelectedPoly: TExtendedPointArray);
 var i: integer;
     k1: TPoint;
     Polygon: TPolygon32;
 begin
  LayerMapNal.Location:=floatrect(MapLayerLocationRect);
- TBEditPath.Visible:=(length(reg_arr)>1);
+ TBEditPath.Visible:=(length(ASelectedPoly)>1);
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
  Polygon.AntialiasMode := am32times;
@@ -1355,8 +1355,8 @@ begin
    Canvas.Pen.Style:=psSolid;
    Canvas.Brush.Color:=ClWhite;
    Canvas.Pen.Width:=1;
-   for i:=0 to length(reg_arr)-1 do begin
-     k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(reg_arr[i],GState.zoom_size-1);
+   for i:=0 to length(ASelectedPoly)-1 do begin
+     k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ASelectedPoly[i],GState.zoom_size-1);
      k1:=MapPixel2LoadedPixel(k1);
      Polygon.add(FixedPoint(k1.x, k1.Y));
    end;
@@ -1371,14 +1371,14 @@ begin
    free;
   end;
  Polygon.DrawFill(LayerMapNal.Bitmap, SetAlpha(clWhite32, 40));
- if length(reg_arr)>0 then
+ if length(ASelectedPoly)>0 then
   begin
-   k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(reg_arr[0],GState.zoom_size-1);
+   k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ASelectedPoly[0],GState.zoom_size-1);
    k1:=MapPixel2LoadedPixel(k1);
    k1:=Point(k1.x-3,k1.y-3);
    LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.Y,6,6),SetAlpha(ClGreen32,255));
-   if length(reg_arr)>1 then begin
-     k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(reg_arr[length(reg_arr)-1],GState.zoom_size-1);
+   if length(ASelectedPoly)>1 then begin
+     k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ASelectedPoly[length(ASelectedPoly)-1],GState.zoom_size-1);
      k1:=MapPixel2LoadedPixel(k1);
      k1:=Point(k1.x-3,k1.y-3);
      LayerMapNal.Bitmap.FillRectS(bounds(k1.X,k1.Y,6,6),SetAlpha(ClRed32,255));
@@ -2002,7 +2002,7 @@ begin
   if not(lastload.use) then begin
     paint_Line;
     if aoper=ao_line then drawLineCalc;
-    if aoper=ao_reg then drawReg;
+    if aoper=ao_reg then drawReg(reg_arr);
     if aoper=ao_rect then drawRect([], rect_arr);
     if GState.GPS_enab then drawLineGPS;
     if aoper in [ao_add_line,ao_add_poly] then begin
@@ -3897,7 +3897,7 @@ begin
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
       reg_arr[length(reg_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-      drawReg;
+      drawReg(reg_arr);
     end;
     if (aoper=ao_rect)then begin
       if rect_dwn then begin
@@ -4025,7 +4025,7 @@ begin
    toSh;
    paint_Line;
    if aoper=ao_line then drawLineCalc;
-   if aoper=ao_reg then drawReg;
+   if aoper=ao_reg then drawReg(reg_arr);
    if aoper=ao_rect then drawRect([], rect_arr);
    if GState.GPS_enab then drawLineGPS;
    if aoper in [ao_add_line,ao_add_poly] then drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
@@ -4358,7 +4358,7 @@ begin
         end;
   ao_Reg : begin
          if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
-         drawReg;
+         drawReg(reg_arr);
         end;
   ao_add_poly,ao_add_line:
         if lastpoint>0 then
