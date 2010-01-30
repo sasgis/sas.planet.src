@@ -753,6 +753,7 @@ object Fmain: TFmain
         object NGoToCur: TTBXItem
           AutoCheck = True
           Checked = True
+          OnClick = NGoToCurClick
           Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100' '#1082' '#1082#1091#1088#1089#1086#1088#1091
           Hint = ''
         end

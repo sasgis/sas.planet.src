@@ -547,6 +547,7 @@ type
     procedure TBXItem7Click(Sender: TObject);
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
+    procedure NGoToCurClick(Sender: TObject);
   private
     ShowActivHint: boolean;
     HintWindow: THintWindow;
@@ -739,6 +740,7 @@ begin
   if AMapType <> GState.sat_map_both then begin
     Assert(False, 'Дописать сюда правильный код');
   end;
+  GState.zoom_size := VZoomCurr + 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
   FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -804,12 +806,14 @@ var Polygon: TPolygon32;
     dl: integer;
     r,TanOfAngle,D,Angle: Extended;
     VSizeInPixel: TPoint;
+    VVisibleSize: TPoint;
 begin
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
  polygon.AntialiasMode:=am4times;
 
   VSizeInPixel := Fmain.LoadedSizeInPixel;
+  VVisibleSize := Fmain.VisibleSizeInPixel;
   ke:=GState.sat_map_both.GeoConvert.LonLat2PixelPosf(ll,GState.zoom_size-1);
   ke := Fmain.MapPixel2LoadedPixel(ke);
   pe:=Point(round(ke.x),round(ke.y));
@@ -819,8 +823,8 @@ begin
                else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
   D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
   r:=D/2-(dl div 2);
-  if mWd2>mHd2 then if R>mHd2 then r:=mHd2-(dl div 2) else
-               else if R>mWd2 then r:=mWd2-(dl div 2);
+  if VVisibleSize.X > VVisibleSize.Y then if R>(VVisibleSize.Y div 2) then r:=(VVisibleSize.Y div 2)-(dl div 2) else
+               else if R>(VVisibleSize.X div 2) then r:=(VVisibleSize.X div 2)-(dl div 2);
   ke.x:=Round((R*kE.x+(D-R)*kS.X)/D);
   ke.y:=Round((R*kE.y+(D-R)*kS.Y)/D);
   Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
@@ -1104,8 +1108,8 @@ begin
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
-                  if Msg.wParam<0 then zooming(GState.Zoom_size-(1*z),NGoToCur.Checked)
-                                  else zooming(GState.Zoom_size+(1*z),NGoToCur.Checked);
+                  if Msg.wParam<0 then zooming(GState.Zoom_size-(1*z),GState.ZoomingAtMousePos)
+                                  else zooming(GState.Zoom_size+(1*z),GState.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
                  POSb:=ScreenCenterPos;
@@ -2148,6 +2152,8 @@ begin
  GState.SessionLastSuccess:=GState.MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
  GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
+ GState.ZoomingAtMousePos:=GState.MainIni.readBool('VIEW','ZoomingAtMousePos',true);
+ NGoToCur.Checked := GState.ZoomingAtMousePos;
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
  GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
@@ -5041,6 +5047,11 @@ begin
   CDSmarks.Next;
  end;
  Fmain.CDSmarks.Filtered:=false;
+end;
+
+procedure TFmain.NGoToCurClick(Sender: TObject);
+begin
+  GState.ZoomingAtMousePos := (Sender as TTBXItem).Checked
 end;
 
 end.

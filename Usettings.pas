@@ -295,6 +295,7 @@ begin
  try
  SaveMaps;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
+ GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
  GState.MainIni.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
  GState.MainIni.WriteInteger('POSITION','x',FMain.ScreenCenterPos.x);
  GState.MainIni.WriteInteger('POSITION','y',FMain.ScreenCenterPos.y);

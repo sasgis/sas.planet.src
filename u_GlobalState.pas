@@ -139,6 +139,8 @@ type
     // Число для изменения контрастности тайлов перед отображением
     ContrastN: Integer;
 
+    // Фиксировать центр изменения масштаба под курсором мыши
+    ZoomingAtMousePos: Boolean;
 
     show_point: TMarksShowType;
     FirstLat: Boolean;
