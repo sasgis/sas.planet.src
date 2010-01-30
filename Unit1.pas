@@ -614,7 +614,7 @@ type
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure zooming(x: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
-    procedure drawLineCalc;
+    procedure drawLineCalc(APath: TExtendedPointArray);
     procedure drawNewPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
     procedure drawReg(ASelectedPoly: TExtendedPointArray);
     procedure draw_point;
@@ -1126,7 +1126,7 @@ begin
              if (Msg.wParam=VK_Delete)and(aoper=ao_line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
-                drawLineCalc;
+                drawLineCalc(length_arr);
                end;
              if (Msg.wParam=VK_Delete)and(aoper=ao_reg) then
                begin
@@ -1149,7 +1149,7 @@ begin
               if length(length_arr)=0 then TBmoveClick(self)
                                       else begin
                                             setlength(length_arr,0);
-                                            drawLineCalc;
+                                            drawLineCalc(length_arr);
                                            end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_rect) then
               begin
@@ -1520,7 +1520,7 @@ begin
   end;
 end;
 
-procedure TFmain.drawLineCalc;
+procedure TFmain.drawLineCalc(APath: TExtendedPointArray);
 var
   i,j,textW,adp:integer;
   k1,k2,k4:TPoint;
@@ -1532,24 +1532,24 @@ begin
   try
     LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
     map.Bitmap.BeginUpdate;
-    TBEditPath.Visible:=(length(length_arr)>1);
+    TBEditPath.Visible:=(length(APath)>1);
     LayerMapNal.Bitmap.Font.Name:='Tahoma';
     LayerMapNal.Bitmap.Clear(clBlack);
-    if length(length_arr)>0 then begin
+    if length(APath)>0 then begin
       with LayerMapNal.Bitmap do begin
         polygon:=TPolygon32.Create;
         try
           polygon.Antialiased:=true;
           polygon.AntialiasMode:=am4times;
           polygon.Closed:=false;
-          for i:=0 to length(length_arr)-1 do begin
-            k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
+          for i:=0 to length(APath)-1 do begin
+            k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(APath[i],GState.zoom_size-1);
             k1:=MapPixel2LoadedPixel(k1);
             if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
               polygon.Add(FixedPoint(k1));
             end;
-            if i<length(length_arr)-1 then begin
-              k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
+            if i<length(APath)-1 then begin
+              k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(APath[i+1],GState.zoom_size-1);
               k2:=MapPixel2LoadedPixel(k2);
               if (k2.x-k1.x)>(k2.y-k1.y) then begin
                 adp:=(k2.x-k1.x)div 32767+2
@@ -1580,18 +1580,18 @@ begin
         finally
           polygon.Free;
         end;
-        for i:=0 to length(length_arr)-2 do begin
-          k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i],GState.zoom_size-1);
+        for i:=0 to length(APath)-2 do begin
+          k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(APath[i],GState.zoom_size-1);
           k1:=MapPixel2LoadedPixel(k1);
-          k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[i+1],GState.zoom_size-1);
+          k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(APath[i+1],GState.zoom_size-1);
           k2:=MapPixel2LoadedPixel(k2);
           if not((k2.x>0)and(k2.y>0))and((k2.x<xhgpx)and(k2.y<yhgpx))then continue;
           FrameRectS(k2.x-3,k2.y-3,k2.X+3,k2.Y+3,SetAlpha(ClRed32,150));
           FillRectS(k1.x-2,k1.y-2,k1.X+2,k1.y+2,SetAlpha(ClWhite32,150));
-          if i=length(length_arr)-2 then begin
+          if i=length(APath)-2 then begin
             len:=0;
             for j:=0 to i do begin
-              len:=len+GState.sat_map_both.GeoConvert.CalcDist(length_arr[j], length_arr[j+1]);
+              len:=len+GState.sat_map_both.GeoConvert.CalcDist(APath[j], APath[j+1]);
             end;
             text:=SAS_STR_Whole+': '+DistToStrWithUnits(len, GState.num_format);
             Font.Size:=9;
@@ -1600,7 +1600,7 @@ begin
             RenderText(k2.X+15,k2.y,text,3,clBlack32);
           end else begin
             if LenShow then begin
-              text:=DistToStrWithUnits(GState.sat_map_both.GeoConvert.CalcDist(length_arr[i], length_arr[i+1]), GState.num_format);
+              text:=DistToStrWithUnits(GState.sat_map_both.GeoConvert.CalcDist(APath[i], APath[i+1]), GState.num_format);
               LayerMapNal.Bitmap.Font.Size:=7;
               textW:=TextWidth(text)+11;
               FillRectS(k2.x+5,k2.y+5,k2.X+textW,k2.y+16,SetAlpha(ClWhite32,110));
@@ -1608,11 +1608,11 @@ begin
             end;
           end;
         end;
-        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[0],GState.zoom_size-1);
+        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(APath[0],GState.zoom_size-1);
         k1:=MapPixel2LoadedPixel(k1);
         k1:=Point(k1.x-3,k1.y-3);
         FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClGreen32,255));
-        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(length_arr[length(length_arr)-1],GState.zoom_size-1);
+        k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(APath[length(APath)-1],GState.zoom_size-1);
         k1:=MapPixel2LoadedPixel(k1);
         k1:=Point(k1.x-3,k1.y-3);
         FillRectS(bounds(k1.x,k1.y,6,6),SetAlpha(ClRed32,255));
@@ -2001,7 +2001,7 @@ begin
   if NavOnMark<>nil then NavOnMark.draw;
   if not(lastload.use) then begin
     paint_Line;
-    if aoper=ao_line then drawLineCalc;
+    if aoper=ao_line then drawLineCalc(length_arr);
     if aoper=ao_reg then drawReg(reg_arr);
     if aoper=ao_rect then drawRect([], rect_arr);
     if GState.GPS_enab then drawLineGPS;
@@ -3892,7 +3892,7 @@ begin
     if (aoper=ao_line)then begin
       setlength(length_arr,length(length_arr)+1);
       length_arr[length(length_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint,  VZoomCurr);
-      drawLineCalc;
+      drawLineCalc(length_arr);
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
@@ -4024,7 +4024,7 @@ begin
   begin
    toSh;
    paint_Line;
-   if aoper=ao_line then drawLineCalc;
+   if aoper=ao_line then drawLineCalc(length_arr);
    if aoper=ao_reg then drawReg(reg_arr);
    if aoper=ao_rect then drawRect([], rect_arr);
    if GState.GPS_enab then drawLineGPS;
@@ -4354,7 +4354,7 @@ begin
  case aoper of
   ao_line: begin
          if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
-         drawLineCalc;
+         drawLineCalc(length_arr);
         end;
   ao_Reg : begin
          if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
@@ -4372,7 +4372,7 @@ end;
 procedure TFmain.TBEditPathLabelClick(Sender: TObject);
 begin
  LenShow:=not(LenShow);
- drawLineCalc;
+ drawLineCalc(length_arr);
 end;
 
 procedure TFmain.TBEditPathSaveClick(Sender: TObject);
