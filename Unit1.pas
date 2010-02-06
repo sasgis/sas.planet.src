@@ -1942,7 +1942,8 @@ begin
 
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
-  MainLayerMap.Location:=floatrect(GetMapLayerLocationRect);
+  MainLayerMap.Location:=//floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));;
+  floatrect(GetMapLayerLocationRect);
 
   MainLayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
@@ -3962,7 +3963,9 @@ begin
     MouseUpPoint:=point(x,y);
     PWL.find:=false;
     PWL.S:=0;
-    MouseOnMyReg(PWL,Point(x,y));
+    if LayerMapMarks.Visible then begin
+      MouseOnMyReg(PWL,Point(x,y));
+    end;  
     NMarkEdit.Visible:=PWL.find;
     NMarkDel.Visible:=PWL.find;
     NMarkSep.Visible:=PWL.find;
@@ -4068,7 +4071,8 @@ begin
     PWL.find:=false;
     if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
-    MouseOnMyReg(PWL,Point(x,y));
+    if (LayerMapMarks.Visible) then
+     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
       stw:='<HTML><BODY>';
@@ -4179,7 +4183,7 @@ begin
         end;
  CState:=ShowCursor(True);
  while CState < 0 do CState:= ShowCursor(true);
- sleep(1);
+ sleep(5);
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x,y));
  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
@@ -4196,8 +4200,6 @@ begin
                  drawSelectionRect(rect_arr);
                end;
               end;
- if MapMoving then layer.Cursor:=3;
-
  if GState.FullScrean then begin
                        if y<10 then begin
                                      TBDock.Parent:=map;
@@ -4261,7 +4263,8 @@ begin
    PWL.find:=false;
    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
-   MouseOnMyReg(PWL,Point(x,y));
+   if (LayerMapMarks.Visible) then
+     MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
      if HintWindow<>nil then HintWindow.ReleaseHandle;
@@ -4764,8 +4767,8 @@ begin
   VLoadedSize := GetLoadedSizeInPixel;
   VVisibleSize := GetVisibleSizeInPixel;
   Result := bounds(
-    (VVisibleSize.X - VLoadedSize.X) div 2,
-    (VVisibleSize.Y - VLoadedSize.Y) div 2,
+    (VVisibleSize.X div 2 - VLoadedSize.X div 2),
+    (VVisibleSize.Y div 2 - VLoadedSize.Y div 2),
     VLoadedSize.X,
     VLoadedSize.Y
   );
