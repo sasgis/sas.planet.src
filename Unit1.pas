@@ -3937,7 +3937,7 @@ begin
     exit;
   end;
   if MapMoving then exit;
-  if (Button=mbright)and(aoper=ao_movemap) then begin
+  if (Button=mbright)and(aoper=ao_movemap)and(LayerMapMarks.Visible) then begin
     MouseUpPoint:=point(x,y);
     PWL.find:=false;
     PWL.S:=0;
@@ -4043,7 +4043,8 @@ begin
     PWL.find:=false;
     if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
-    MouseOnMyReg(PWL,Point(x,y));
+    if (LayerMapMarks.Visible) then
+     MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
      begin
       stw:='<HTML><BODY>';
@@ -4154,7 +4155,7 @@ begin
         end;
  CState:=ShowCursor(True);
  while CState < 0 do CState:= ShowCursor(true);
- sleep(1);
+ sleep(5);
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x,y));
  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
@@ -4169,8 +4170,6 @@ begin
                rect_arr.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
                drawRect(Shift,rect_arr);
               end;
- if MapMoving then layer.Cursor:=3;
-
  if GState.FullScrean then begin
                        if y<10 then begin
                                      TBDock.Parent:=map;
@@ -4234,7 +4233,8 @@ begin
    PWL.find:=false;
    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
-   MouseOnMyReg(PWL,Point(x,y));
+   if (LayerMapMarks.Visible) then
+     MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
     begin
      if HintWindow<>nil then HintWindow.ReleaseHandle;
