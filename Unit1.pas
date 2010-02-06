@@ -625,6 +625,7 @@ type
     procedure generate_granica;
     procedure drawLineGPS;
     procedure ShowCaptcha(URL: string);
+    procedure ClearMapNalLayer();
     procedure drawSelectionRect(ASelectedLonLat: TExtendedRect);
     function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
     procedure ShowErrScript(DATA: string);
@@ -1062,7 +1063,7 @@ end;
 procedure TFmain.setalloperationfalse(newop: TAOperation);
 begin
  if aoper=newop then newop:=ao_movemap;
- LayerMapNal.Bitmap.Clear(clBlack);
+ ClearMapNalLayer;
  marshrutcomment:='';
  LayerMapNal.Visible:=newop<>ao_movemap;
  TBmove.Checked:=newop=ao_movemap;
@@ -1227,9 +1228,6 @@ begin
   GState.sat_map_both.GeoConvert.CheckLonLatRect(ASelectedLonLat);
   VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
 
-  LayerMapNal.Location:=floatrect(MapLayerLocationRect);
-  LayerMapNal.Bitmap.Clear(clBlack);
-
   if VSelectedPixels.Left > VSelectedPixels.Right then begin
     bxy := VSelectedPixels.Left;
     VSelectedPixels.Left := VSelectedPixels.Right;
@@ -1298,6 +1296,10 @@ begin
   end;
 end;
 
+procedure TFmain.ClearMapNalLayer;
+begin
+  LayerMapNal.Bitmap.Clear(clBlack);
+end;
 
 procedure TFmain.drawSelectionRect(ASelectedLonLat: TExtendedRect);
 var kz,jj: integer;
@@ -1312,6 +1314,8 @@ begin
   VZoomCurr := GState.zoom_size - 1;
   GState.sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
   GState.sat_map_both.GeoConvert.CheckLonLatRect(ASelectedLonLat);
+
+  LayerMapNal.Location:=floatrect(MapLayerLocationRect);
   VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
 
   xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
@@ -2023,6 +2027,7 @@ begin
     if aoper=ao_line then drawLineCalc(length_arr);
     if aoper=ao_reg then drawReg(reg_arr);
     if aoper=ao_rect then begin
+      ClearMapNalLayer;
       if PrepareSelectionRect([], rect_arr) then begin
        drawSelectionRect(rect_arr);
       end;
@@ -3933,6 +3938,7 @@ begin
         rect_arr.BottomRight:=rect_arr.TopLeft
       end;
       rect_dwn:=not(rect_dwn);
+      ClearMapNalLayer;
       if PrepareSelectionRect(Shift, rect_arr) then begin
         drawSelectionRect(rect_arr);
       end;
@@ -4054,6 +4060,7 @@ begin
    if aoper=ao_line then drawLineCalc(length_arr);
    if aoper=ao_reg then drawReg(reg_arr);
    if aoper=ao_rect then begin
+     ClearMapNalLayer;
      if PrepareSelectionRect([], rect_arr) then begin
        drawSelectionRect(rect_arr);
      end;
@@ -4192,6 +4199,7 @@ begin
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
                rect_arr.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+               ClearMapNalLayer;
                if PrepareSelectionRect(Shift,rect_arr) then begin
                  drawSelectionRect(rect_arr);
                end;
