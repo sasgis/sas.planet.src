@@ -625,7 +625,8 @@ type
     procedure generate_granica;
     procedure drawLineGPS;
     procedure ShowCaptcha(URL: string);
-    procedure drawSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect);
+    procedure drawSelectionRect(ASelectedLonLat: TExtendedRect);
+    function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
     procedure insertinpath(pos: integer);
@@ -1209,19 +1210,17 @@ begin
              end;
  result:=strtofloat(inp);
 end;
-
-procedure TFmain.drawSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect);
-var kz,jj,bxy: integer;
-    xy1,xy2: TPoint;
-    zLonR,zLatR: extended;
-    Poly:  TExtendedPointArray;
-    VSelectedPixels: TRect;
-    VZoomCurr: Byte;
-    VSelectedTiles: TRect;
-    VZoomDelta: Byte;
-    VSelectedRelative: TExtendedRect;
-    VColor: TColor32;
-    VTileGridZoom: byte;
+function TFmain.PrepareSelectionRect(Shift: TShiftState;
+  var ASelectedLonLat: TExtendedRect): Boolean;
+var
+  VZoomCurr: Byte;
+  VSelectedPixels: TRect;
+  bxy: Integer;
+  VSelectedTiles: TRect;
+  VTileGridZoom: byte;
+  VSelectedRelative: TExtendedRect;
+  zLonR,zLatR: extended;
+  Poly:  TExtendedPointArray;
 begin
   VZoomCurr := GState.zoom_size - 1;
   GState.sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
@@ -1281,8 +1280,6 @@ begin
 
     ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-(round(ASelectedLonLat.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if ASelectedLonLat.Bottom <= 0 then ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-zLatR;
-
-    VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
   end;
   if (rect_p2) then begin
     SetLength(Poly, 5);
@@ -1295,51 +1292,69 @@ begin
     LayerSelection.Redraw;
     Poly := nil;
     rect_p2:=false;
+    Result := False;
   end else begin
-    if rect_dwn then begin
-      xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
-      xy1.x:=xy1.x+1;
-      xy1.y:=xy1.y+1;
-      xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
-      xy2.x:=xy2.x-1;
-      xy2.y:=xy2.y-1;
+    Result := True;
+  end;
+end;
 
-      LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
-      LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
-      LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
 
-      VSelectedRelative := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+procedure TFmain.drawSelectionRect(ASelectedLonLat: TExtendedRect);
+var kz,jj: integer;
+    xy1,xy2: TPoint;
+    VSelectedPixels: TRect;
+    VZoomCurr: Byte;
+    VZoomDelta: Byte;
+    VColor: TColor32;
+    VSelectedRelative: TExtendedRect;
+    VSelectedTiles: TRect;
+begin
+  VZoomCurr := GState.zoom_size - 1;
+  GState.sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
+  GState.sat_map_both.GeoConvert.CheckLonLatRect(ASelectedLonLat);
+  VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
 
-      jj := VZoomCurr;
-      VZoomDelta := 0;
-      while (VZoomDelta < 3) and (jj < 24) do begin
-        VSelectedTiles := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
-        VSelectedPixels := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(
-          GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles,jj), VZoomCurr
-        );
+  xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
+  xy1.x:=xy1.x+1;
+  xy1.y:=xy1.y+1;
+  xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+  xy2.x:=xy2.x-1;
+  xy2.y:=xy2.y-1;
 
-        xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
-        xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+  LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
+  LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
+  LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
 
-        kz := 256 shr VZoomDelta;
-        VColor := SetAlpha(RGB(kz-1,kz-1,kz-1),255);
+  VSelectedRelative := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
 
-        LayerMapNal.Bitmap.FrameRectS(
-          xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
-          xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
-          VColor
-        );
+  jj := VZoomCurr;
+  VZoomDelta := 0;
+  while (VZoomDelta < 3) and (jj < 24) do begin
+    VSelectedTiles := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
+    VSelectedPixels := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(
+      GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles,jj), VZoomCurr
+    );
 
-        LayerMapNal.Bitmap.Font.Size:=11;
-        LayerMapNal.Bitmap.RenderText(
-          xy2.x-((xy2.x-xy1.x)div 2)-42 + VZoomDelta*26,
-          xy2.y-((xy2.y-xy1.y)div 2)-6,
-          'x'+inttostr(jj+1),3,VColor
-        );
-        Inc(jj);
-        Inc(VZoomDelta);
-      end;
-    end;
+    xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
+    xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+
+    kz := 256 shr VZoomDelta;
+    VColor := SetAlpha(RGB(kz-1,kz-1,kz-1),255);
+
+    LayerMapNal.Bitmap.FrameRectS(
+      xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
+      xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
+      VColor
+    );
+
+    LayerMapNal.Bitmap.Font.Size:=11;
+    LayerMapNal.Bitmap.RenderText(
+      xy2.x-((xy2.x-xy1.x)div 2)-42 + VZoomDelta*26,
+      xy2.y-((xy2.y-xy1.y)div 2)-6,
+      'x'+inttostr(jj+1),3,VColor
+    );
+    Inc(jj);
+    Inc(VZoomDelta);
   end;
 end;
 
@@ -2007,7 +2022,11 @@ begin
     paint_Line;
     if aoper=ao_line then drawLineCalc(length_arr);
     if aoper=ao_reg then drawReg(reg_arr);
-    if aoper=ao_rect then drawSelectionRect([], rect_arr);
+    if aoper=ao_rect then begin
+      if PrepareSelectionRect([], rect_arr) then begin
+       drawSelectionRect(rect_arr);
+      end;
+    end;
     if GState.GPS_enab then drawLineGPS;
     if aoper in [ao_add_line,ao_add_poly] then begin
       drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
@@ -3914,7 +3933,9 @@ begin
         rect_arr.BottomRight:=rect_arr.TopLeft
       end;
       rect_dwn:=not(rect_dwn);
-      drawSelectionRect(Shift, rect_arr);
+      if PrepareSelectionRect(Shift, rect_arr) then begin
+        drawSelectionRect(rect_arr);
+      end;
     end;
     if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im(nilLastLoad,'');
     if (aoper in [ao_add_line,ao_add_poly]) then begin
@@ -4032,7 +4053,11 @@ begin
    paint_Line;
    if aoper=ao_line then drawLineCalc(length_arr);
    if aoper=ao_reg then drawReg(reg_arr);
-   if aoper=ao_rect then drawSelectionRect([], rect_arr);
+   if aoper=ao_rect then begin
+     if PrepareSelectionRect([], rect_arr) then begin
+       drawSelectionRect(rect_arr);
+     end;
+   end;
    if GState.GPS_enab then drawLineGPS;
    if aoper in [ao_add_line,ao_add_poly] then drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
   end;
@@ -4167,7 +4192,9 @@ begin
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
                rect_arr.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-               drawSelectionRect(Shift,rect_arr);
+               if PrepareSelectionRect(Shift,rect_arr) then begin
+                 drawSelectionRect(rect_arr);
+               end;
               end;
  if MapMoving then layer.Cursor:=3;
 
