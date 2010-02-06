@@ -1927,7 +1927,8 @@ begin
 
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
-  MainLayerMap.Location:=floatrect(GetMapLayerLocationRect);
+  MainLayerMap.Location:=//floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));;
+  floatrect(GetMapLayerLocationRect);
 
   MainLayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
@@ -3937,11 +3938,13 @@ begin
     exit;
   end;
   if MapMoving then exit;
-  if (Button=mbright)and(aoper=ao_movemap)and(LayerMapMarks.Visible) then begin
+  if (Button=mbright)and(aoper=ao_movemap) then begin
     MouseUpPoint:=point(x,y);
     PWL.find:=false;
     PWL.S:=0;
-    MouseOnMyReg(PWL,Point(x,y));
+    if LayerMapMarks.Visible then begin
+      MouseOnMyReg(PWL,Point(x,y));
+    end;  
     NMarkEdit.Visible:=PWL.find;
     NMarkDel.Visible:=PWL.find;
     NMarkSep.Visible:=PWL.find;
@@ -4737,8 +4740,8 @@ begin
   VLoadedSize := GetLoadedSizeInPixel;
   VVisibleSize := GetVisibleSizeInPixel;
   Result := bounds(
-    (VVisibleSize.X - VLoadedSize.X) div 2,
-    (VVisibleSize.Y - VLoadedSize.Y) div 2,
+    (VVisibleSize.X div 2 - VLoadedSize.X div 2),
+    (VVisibleSize.Y div 2 - VLoadedSize.Y div 2),
     VLoadedSize.X,
     VLoadedSize.Y
   );
