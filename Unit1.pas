@@ -1295,51 +1295,51 @@ begin
     LayerSelection.Redraw;
     Poly := nil;
     rect_p2:=false;
-    exit;
-  end;
-  if not(rect_dwn) then exit;
+  end else begin
+    if rect_dwn then begin
+      xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
+      xy1.x:=xy1.x+1;
+      xy1.y:=xy1.y+1;
+      xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+      xy2.x:=xy2.x-1;
+      xy2.y:=xy2.y-1;
 
-  xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
-  xy1.x:=xy1.x+1;
-  xy1.y:=xy1.y+1;
-  xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
-  xy2.x:=xy2.x-1;
-  xy2.y:=xy2.y-1;
+      LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
+      LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
+      LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
 
-  LayerMapNal.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
-  LayerMapNal.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
-  LayerMapNal.Bitmap.FrameRectS(xy1.x-1,xy1.y-1,xy2.x+1,xy2.y+1,SetAlpha(clBlue32,150));
+      VSelectedRelative := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
 
-  VSelectedRelative := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+      jj := VZoomCurr;
+      VZoomDelta := 0;
+      while (VZoomDelta < 3) and (jj < 24) do begin
+        VSelectedTiles := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
+        VSelectedPixels := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(
+          GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles,jj), VZoomCurr
+        );
 
-  jj := VZoomCurr;
-  VZoomDelta := 0;
-  while (VZoomDelta < 3) and (jj < 24) do begin
-    VSelectedTiles := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
-    VSelectedPixels := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(
-      GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles,jj), VZoomCurr
-    );
+        xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
+        xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
 
-    xy1 := MapPixel2LoadedPixel(VSelectedPixels.TopLeft);
-    xy2 := MapPixel2LoadedPixel(VSelectedPixels.BottomRight);
+        kz := 256 shr VZoomDelta;
+        VColor := SetAlpha(RGB(kz-1,kz-1,kz-1),255);
 
-    kz := 256 shr VZoomDelta;
-    VColor := SetAlpha(RGB(kz-1,kz-1,kz-1),255);
+        LayerMapNal.Bitmap.FrameRectS(
+          xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
+          xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
+          VColor
+        );
 
-    LayerMapNal.Bitmap.FrameRectS(
-      xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
-      xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
-      VColor
-    );
-
-    LayerMapNal.Bitmap.Font.Size:=11;
-    LayerMapNal.Bitmap.RenderText(
-      xy2.x-((xy2.x-xy1.x)div 2)-42 + VZoomDelta*26,
-      xy2.y-((xy2.y-xy1.y)div 2)-6,
-      'x'+inttostr(jj+1),3,VColor
-    );
-    Inc(jj);
-    Inc(VZoomDelta);
+        LayerMapNal.Bitmap.Font.Size:=11;
+        LayerMapNal.Bitmap.RenderText(
+          xy2.x-((xy2.x-xy1.x)div 2)-42 + VZoomDelta*26,
+          xy2.y-((xy2.y-xy1.y)div 2)-6,
+          'x'+inttostr(jj+1),3,VColor
+        );
+        Inc(jj);
+        Inc(VZoomDelta);
+      end;
+    end;
   end;
 end;
 
