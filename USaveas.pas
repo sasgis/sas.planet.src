@@ -209,6 +209,7 @@ uses
   UOpDelTiles,
   UOpGenPreviousZoom,
   UProgress,
+  UImgFun,
   unit1;
 
 {$R *.dfm}
@@ -340,7 +341,7 @@ begin
     end;
   end;
 
-  TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2, VInZooms, APolyLL, TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex]), CBzamena.Checked, CBsavefull.Checked, CBGenFromPrev.Checked);
+ TOpGenPreviousZoom.Create(ComboBox.ItemIndex+2, VInZooms, APolyLL, TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex]), CBzamena.Checked, CBsavefull.Checked, CBGenFromPrev.Checked, TTileResamplingType(CBalhForm.ItemIndex));
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
