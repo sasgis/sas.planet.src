@@ -1132,29 +1132,34 @@ begin
              if (Msg.wParam=VK_Delete)and(aoper=ao_line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
+                TBEditPath.Visible:=(length(length_arr)>1);
                 drawLineCalc(length_arr);
                end;
              if (Msg.wParam=VK_Delete)and(aoper=ao_reg) then
                begin
                 if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
+                TBEditPath.Visible:=(length(reg_arr)>1);
                 drawReg(reg_arr);
                end;
              if (Msg.wParam=VK_Delete)and(aoper in [ao_add_line,ao_add_poly]) then
               if length(add_line_arr)>0 then
                begin
                 delfrompath(lastpoint);
+                TBEditPath.Visible:=(length(add_line_arr)>1);
                 drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
                end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Reg) then
               if length(reg_arr)=0 then TBmoveClick(self)
                                    else begin
                                          setlength(reg_arr,0);
+                                         TBEditPath.Visible:=(length(reg_arr)>1);
                                          drawreg(reg_arr);
                                         end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_line) then
               if length(length_arr)=0 then TBmoveClick(self)
                                       else begin
                                             setlength(length_arr,0);
+                                            TBEditPath.Visible:=(length(length_arr)>1);
                                             drawLineCalc(length_arr);
                                            end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_rect) then
@@ -1171,6 +1176,7 @@ begin
                                          else begin
                                                setlength(add_line_arr,0);
                                                lastpoint:=-1;
+                                               TBEditPath.Visible:=(length(add_line_arr)>1);
                                                drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
                                               end;
              if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
@@ -1368,7 +1374,6 @@ var i: integer;
     Polygon: TPolygon32;
 begin
  LayerMapNal.Location:=floatrect(MapLayerLocationRect);
- TBEditPath.Visible:=(length(ASelectedPoly)>1);
  Polygon := TPolygon32.Create;
  Polygon.Antialiased := true;
  Polygon.AntialiasMode := am32times;
@@ -1470,7 +1475,6 @@ var
 begin
   try
     LayerMapNal.Bitmap.Clear(clBlack);
-    TBEditPath.Visible:=(length(pathll)>1);
     polygon:=TPolygon32.Create;
     try
       polygon.Antialiased:=true;
@@ -1555,7 +1559,6 @@ begin
   try
     LayerMapNal.Location:=floatrect(GetMapLayerLocationRect);
     map.Bitmap.BeginUpdate;
-    TBEditPath.Visible:=(length(APath)>1);
     LayerMapNal.Bitmap.Font.Name:='Tahoma';
     LayerMapNal.Bitmap.Clear(clBlack);
     if length(APath)>0 then begin
@@ -1579,7 +1582,7 @@ begin
               end else begin
                 adp:=(k2.y-k1.y)div 32767+2;
               end;
-              k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
+              k3:=ExtPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
               if adp>2 then begin
                 for j:=1 to adp-1 do begin
                   k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
@@ -2025,8 +2028,14 @@ begin
   if NavOnMark<>nil then NavOnMark.draw;
   if not(lastload.use) then begin
     paint_Line;
-    if aoper=ao_line then drawLineCalc(length_arr);
-    if aoper=ao_reg then drawReg(reg_arr);
+    if aoper=ao_line then begin
+      TBEditPath.Visible:=(length(length_arr)>1);
+      drawLineCalc(length_arr);
+    end;
+    if aoper=ao_reg then begin
+      TBEditPath.Visible:=(length(reg_arr)>1);
+      drawReg(reg_arr);
+    end;
     if aoper=ao_rect then begin
       ClearMapNalLayer;
       if PrepareSelectionRect([], rect_arr) then begin
@@ -2035,6 +2044,7 @@ begin
     end;
     if GState.GPS_enab then drawLineGPS;
     if aoper in [ao_add_line,ao_add_poly] then begin
+      TBEditPath.Visible:=(length(add_line_arr)>1);
       drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
     end;
     try
@@ -3923,11 +3933,13 @@ begin
     if (aoper=ao_line)then begin
       setlength(length_arr,length(length_arr)+1);
       length_arr[length(length_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint,  VZoomCurr);
+      TBEditPath.Visible:=(length(length_arr)>1);
       drawLineCalc(length_arr);
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
       reg_arr[length(reg_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+      TBEditPath.Visible:=(length(reg_arr)>1);
       drawReg(reg_arr);
     end;
     if (aoper=ao_rect)then begin
@@ -3952,6 +3964,7 @@ begin
         if (X<xy.x+5)and(X>xy.x-5)and(Y<xy.y+5)and(Y>xy.y-5) then begin
           movepoint:=i;
           lastpoint:=i;
+          TBEditPath.Visible:=(length(add_line_arr)>1);
           drawNewPath(add_line_arr,SetAlpha(ClRed32,150),SetAlpha(ClWhite32,50),3,aoper=ao_add_poly);
           exit;
         end;
@@ -3960,6 +3973,7 @@ begin
       movepoint:=lastpoint;
       insertinpath(lastpoint);
       add_line_arr[lastpoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+      TBEditPath.Visible:=(length(add_line_arr)>1);
       drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
     end;
     exit;
@@ -4060,8 +4074,14 @@ begin
   begin
    toSh;
    paint_Line;
-   if aoper=ao_line then drawLineCalc(length_arr);
-   if aoper=ao_reg then drawReg(reg_arr);
+   if aoper=ao_line then begin
+    TBEditPath.Visible:=(length(length_arr)>1);
+    drawLineCalc(length_arr);
+   end;
+   if aoper=ao_reg then begin
+    TBEditPath.Visible:=(length(reg_arr)>1);
+    drawReg(reg_arr);
+   end;
    if aoper=ao_rect then begin
      ClearMapNalLayer;
      if PrepareSelectionRect([], rect_arr) then begin
@@ -4069,7 +4089,10 @@ begin
      end;
    end;
    if GState.GPS_enab then drawLineGPS;
-   if aoper in [ao_add_line,ao_add_poly] then drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+   if aoper in [ao_add_line,ao_add_poly] then begin
+    TBEditPath.Visible:=(length(add_line_arr)>1);
+    drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
+   end;
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
@@ -4197,6 +4220,7 @@ begin
  if movepoint>-1 then
   begin
    add_line_arr[movepoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+   TBEditPath.Visible:=(length(add_line_arr)>1);
    drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
    exit;
   end;
@@ -4398,16 +4422,19 @@ begin
  case aoper of
   ao_line: begin
          if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
+         TBEditPath.Visible:=(length(length_arr)>1);
          drawLineCalc(length_arr);
         end;
   ao_Reg : begin
          if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
+         TBEditPath.Visible:=(length(reg_arr)>1);
          drawReg(reg_arr);
         end;
   ao_add_poly,ao_add_line:
         if lastpoint>0 then
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
+         TBEditPath.Visible:=(length(add_line_arr)>1);
          drawNewPath(add_line_arr,SetAlpha(ClRed32, 150),SetAlpha(ClWhite32, 50),3,aoper=ao_add_poly);
         end;
  end;
@@ -4611,6 +4638,7 @@ begin
    marshrutcomment:=marshrutcomment+#13#10+SAS_STR_Marshtime+timeT1;
   end
  else ShowMessage('Connect error!');
+ TBEditPath.Visible:=(length(add_line_arr)>1);
  drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
@@ -4940,6 +4968,7 @@ begin
    SetLength(add_line_arr_b,0);
    lastpoint:=length(add_line_arr)-1;
  end;
+ TBEditPath.Visible:=(length(add_line_arr)>1);
  drawNewPath(add_line_arr,setalpha(clRed32,150),setalpha(clWhite32,50),3,aoper=ao_add_poly);
 end;
 
