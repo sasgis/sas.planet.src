@@ -642,10 +642,10 @@ type
     function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
 
-    function LoadedPixel2MapPixel(Pnt: TPoint): TPoint; overload;
-    function LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-    function MapPixel2LoadedPixel(Pnt: TPoint): TPoint; overload;
-    function MapPixel2LoadedPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function BitmapPixel2MapPixel(Pnt: TPoint): TPoint; overload;
+    function BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload;
+    function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
     property VisibleTopLeft: TPoint read GetVisibleTopLeft;
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
@@ -814,7 +814,7 @@ begin
   VSizeInPixel := Fmain.LoadedSizeInPixel;
   VVisibleSize := Fmain.VisibleSizeInPixel;
   ke:=GState.sat_map_both.GeoConvert.LonLat2PixelPosf(ll,GState.zoom_size-1);
-  ke := Fmain.MapPixel2LoadedPixel(ke);
+  ke := Fmain.MapPixel2BitmapPixel(ke);
   pe:=Point(round(ke.x),round(ke.y));
   ks:=ExtPoint(VSizeInPixel.X/2,VSizeInPixel.y/2);
   dl:=GState.GPS_ArrowSize;
@@ -1385,7 +1385,7 @@ begin
     VPoint := ScreenCenterPos;
     VPoint.X := VPoint.X - 7;
     VPoint.Y := VPoint.Y - 6;
-    VPoint := MapPixel2LoadedPixel(VPoint);
+    VPoint := MapPixel2BitmapPixel(VPoint);
     MainLayerMap.Bitmap.Draw(VPoint.X, VPoint.Y, GState.GOToSelIcon);
   end
 end;
@@ -1471,8 +1471,8 @@ begin
   while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
     VDrawRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
 
-    VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
-    VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
+    VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
+    VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
     MainLayerMap.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
@@ -1489,8 +1489,8 @@ begin
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
     VDrawRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
 
-    VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
-    VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
+    VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
+    VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
     MainLayerMap.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
@@ -1516,8 +1516,8 @@ begin
       twidth := MainLayerMap.bitmap.TextWidth(ListName);
       theight := MainLayerMap.bitmap.TextHeight(ListName);
 
-      VDrawScreenRect.TopLeft := MapPixel2LoadedPixel(VDrawRect.TopLeft);
-      VDrawScreenRect.BottomRight := MapPixel2LoadedPixel(VDrawRect.BottomRight);
+      VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
+      VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
 
       MainLayerMap.bitmap.RenderTextW(
         VDrawScreenRect.Left + (VDrawScreenRect.Right - VDrawScreenRect.Left) div 2 - (twidth div 2),
@@ -1577,8 +1577,8 @@ begin
 
     VTileRelativeRect := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
     VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
+    VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
+    VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
     MainLayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
       VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
   end;
@@ -1591,8 +1591,8 @@ begin
 
     VTileRelativeRect := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
     VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
+    VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
+    VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
     MainLayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
       VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
   end;
@@ -1606,8 +1606,8 @@ begin
       VTileIndex.X := j;
       VTileRelativeRect := GState.sat_map_both.GeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
       VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := MapPixel2LoadedPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := MapPixel2LoadedPixel(VTileRect.BottomRight);
+      VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
+      VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
 
       VTileSize.X := VTileRect.Right - VTileRect.Left;
       VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
@@ -1650,8 +1650,7 @@ begin
 
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
-  MainLayerMap.Location:=//floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));;
-  floatrect(GetMapLayerLocationRect);
+  MainLayerMap.Location:=floatrect(GetMapLayerLocationRect);
 
   MainLayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Resize;
@@ -1719,7 +1718,7 @@ begin
     FreeAndNil(Vspr);
   end;
   if (lastload.use)and(err<>'') then begin
-    VPoint := MapPixel2LoadedPixel(Point(lastload.x, lastload.y));
+    VPoint := MapPixel2BitmapPixel(Point(lastload.x, lastload.y));
     VPoint.X := VPoint.X + 15;
     VPoint.Y := VPoint.Y + 124;
     MainLayerMap.Bitmap.RenderText(VPoint.X, VPoint.Y, err, 0, clBlack32);
@@ -4537,14 +4536,14 @@ begin
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
 end;
 
-function TFmain.LoadedPixel2MapPixel(Pnt: TPoint): TPoint;
+function TFmain.BitmapPixel2MapPixel(Pnt: TPoint): TPoint;
 begin
   Result := GetLoadedTopLeft;
   Result.X := Result.X + Pnt.X;
   Result.Y := Result.Y + Pnt.y;
 end;
 
-function TFmain.MapPixel2LoadedPixel(Pnt: TPoint): TPoint;
+function TFmain.MapPixel2BitmapPixel(Pnt: TPoint): TPoint;
 var
   VSize: TPoint;
 begin
@@ -4553,7 +4552,7 @@ begin
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y div 2);
 end;
 
-function TFmain.LoadedPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TFmain.BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
 var
   VTopLeft: TPoint;
 begin
@@ -4562,7 +4561,7 @@ begin
   Result.Y := VTopLeft.Y + Pnt.y;
 end;
 
-function TFmain.MapPixel2LoadedPixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TFmain.MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint;
 var
   VSize: TPoint;
 begin
