@@ -1648,10 +1648,10 @@ begin
   if notpaint then exit;
   QueryPerformanceCounter(ts2);
 
+  if not(lastload.use) then change_scene:=true;
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
-  MainLayerMap.Location:=//floatrect(bounds(mWd2-pr_x,mHd2-pr_y,xhgpx,yhgpx));;
-  floatrect(GetMapLayerLocationRect);
+  MainLayerMap.Location:=floatrect(GetMapLayerLocationRect);
 
   MainLayerMap.Bitmap.Clear(Color32(GState.BGround));
   if aoper<>ao_movemap then LayerMapNal.Resize;
