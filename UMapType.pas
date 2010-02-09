@@ -957,6 +957,7 @@ begin
     exit;
   end;
   VTileExists := false;
+  dZ := 255;
   for i:=(Azoom-1) downto 1 do begin
     dZ:=(Azoom-i);
     if TileExists(x shr dZ,y shr dZ,i) then begin
