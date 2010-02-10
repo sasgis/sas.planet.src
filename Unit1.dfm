@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -5635,8 +5636,8 @@ object Fmain: TFmain
     end
   end
   object ImageList1: TImageList
-    Left = 108
-    Top = 97
+    Left = 20
+    Top = 105
   end
   object TBImageList1_24: TTBImageList
     Height = 17

@@ -3339,13 +3339,14 @@ end;
 procedure TFmain.mapDblClick(Sender: TObject);
 var r:TPoint;
 begin
- MapMoving:=false;
- if (aoper=ao_movemap) then
-  begin
-   r:=map.ScreenToClient(Mouse.CursorPos);
-   Set_Pos(VisiblePixel2MapPixel(r), GState.zoom_size - 1, GState.sat_map_both);
-   generate_im(nilLastLoad,'');
-  end;
+ if not(GMiniMap.LayerMinMap.HitTest(map.ScreenToClient(Mouse.CursorPos).X, map.ScreenToClient(Mouse.CursorPos).y)) then begin
+   MapMoving:=false;
+   if (aoper=ao_movemap) then begin
+     r:=map.ScreenToClient(Mouse.CursorPos);
+     Set_Pos(VisiblePixel2MapPixel(r), GState.zoom_size - 1, GState.sat_map_both);
+     generate_im(nilLastLoad,'');
+   end;
+ end;
 end;
 
 procedure TFmain.TBAdd_PointClick(Sender: TObject);
@@ -3561,11 +3562,11 @@ begin
       lt:=round(GMiniMap.LayerMinMap.Location.top);
       if (x<ll+5) then begin
         GMiniMap.size_dw:=true
-      end else if (x>ll+6)and(x<ll+17)and(y>lt+5)and(y<lt+15) then begin
+      end else if (x>ll+4)and(x<ll+18)and(y>lt+4)and(y<lt+18) then begin
         GMiniMap.zooming:=true;
         if GMiniMap.z1mz2>1 then dec(GMiniMap.z1mz2);
         GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
-      end else if (x>ll+19)and(x<ll+33)and(y>lt+5)and(y<lt+15) then begin
+      end else if (x>ll+18)and(x<ll+32)and(y>lt+4)and(y<lt+18) then begin
         GMiniMap.zooming:=true;
         if GState.zoom_size-GMiniMap.z1mz2>1 then inc(GMiniMap.z1mz2);
         GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
