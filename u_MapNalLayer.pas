@@ -40,8 +40,6 @@ type
     procedure DrawReg(ASelectedLonLatPoly: TExtendedPointArray);
     procedure DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean);
     procedure DrawNewPath(APathLonLat: TExtendedPointArray; AIsPoly: boolean; AActiveIndex: Integer);
-
-
   end;
 
 implementation
