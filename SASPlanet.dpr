@@ -90,6 +90,7 @@ uses
   u_LayerScaleLine in 'u_LayerScaleLine.pas',
   u_MapGPSLayer in 'u_MapGPSLayer.pas',
   u_MapNalLayer in 'u_MapNalLayer.pas',
+  u_MapLayerGoto in 'u_MapLayerGoto.pas',
   i_Marks in 'i_Marks.pas',
   u_MarkBasic in 'u_MarkBasic.pas',
   u_MarkCategory in 'u_MarkCategory.pas',

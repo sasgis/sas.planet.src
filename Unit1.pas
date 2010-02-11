@@ -67,6 +67,7 @@ uses
   u_MapGPSLayer,
   u_MapFillingLayer,
   u_MapNalLayer,
+  u_MapLayerGoto,
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
@@ -599,6 +600,7 @@ type
     LayerMapMarks: TMapMarksLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
+    LayerGoto: TGotoLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     MapMoving: Boolean;
@@ -756,6 +758,7 @@ begin
   LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
 end;
 
 procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint;
@@ -1401,11 +1404,7 @@ begin
   Set_Pos(GState.sat_map_both.GeoConvert.LonLat2PixelPos(LL,(zoom_ - 1)), zoom_ - 1, GState.sat_map_both);
   zooming(zoom_,false);
   if draw then begin
-    VPoint := ScreenCenterPos;
-    VPoint.X := VPoint.X - 7;
-    VPoint.Y := VPoint.Y - 6;
-    VPoint := MapPixel2BitmapPixel(VPoint);
-    MainLayerMap.Bitmap.Draw(VPoint.X, VPoint.Y, GState.GOToSelIcon);
+    LayerGoto.ShowGotoIcon(LL);
   end
 end;
 
@@ -1979,7 +1978,7 @@ begin
 
  LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
  LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
-
+ LayerGoto := TGotoLayer.Create(map, ScreenCenterPos);
  LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
  FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
  LayerMapNal:=TMapNalLayer.Create(map, ScreenCenterPos);
@@ -2214,6 +2213,7 @@ begin
         FWikiLayer.ScaleTo(Scale, m_m);
         FFillingMap.ScaleTo(Scale, m_m);
         LayerMapNal.ScaleTo(Scale, m_m);
+        LayerGoto.ScaleTo(Scale, m_m);
       end else begin
         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
@@ -2221,6 +2221,7 @@ begin
         FWikiLayer.ScaleTo(Scale, Point(mWd2, mHd2));
         FFillingMap.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapNal.ScaleTo(Scale, Point(mWd2, mHd2));
+        LayerGoto.ScaleTo(Scale, Point(mWd2, mHd2));
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -2293,6 +2294,7 @@ begin
   FreeAndNil(LayerMapGPS);
   FreeAndNil(LayerMapMarks);
   FreeAndNil(LayerSelection);
+  FreeAndNil(LayerGoto);
   FreeAndNil(LayerMapNal);
 end;
 
@@ -3161,12 +3163,14 @@ begin
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
    MainLayerMap.Location:=floatrect(MapLayerLocationRect);
+   LayerSelection.Resize;
    LayerMapNal.Resize;
    LayerMapMarks.Resize;
    LayerMapGPS.Resize;
    LayerMapScale.Resize;
    FWikiLayer.Resize;
    FFillingMap.Resize;
+   LayerGoto.Resize;
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
   end;
@@ -3993,6 +3997,7 @@ begin
               FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              LayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
