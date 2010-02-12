@@ -240,7 +240,7 @@ begin
    KategoryListBox.Checked[KategoryListBox.Items.IndexOfObject(KategoryId)]:=Fmain.CDSKategory.fieldbyname('visible').AsBoolean;
    Fmain.CDSKategory.Next;
   end;
- SBNavOnMark.Down:= FMain.NavOnMark<>nil;
+ SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
 end;
 
 procedure TFMarksExplorer.KategoryListBoxMouseUp(Sender: TObject;
@@ -600,7 +600,6 @@ begin
   if (MarksListBox.ItemIndex>=0) then
   begin
    id:=TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
-   if FMain.NavOnMark<>nil then FMain.NavOnMark.Free;
    if not(Fmain.CDSmarks.Locate('id',id,[])) then exit;
    ms:=TMemoryStream.Create;
    TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -618,12 +617,10 @@ begin
            end;
    ms.Free;
    FreeMem(arrLL);
-   FMain.NavOnMark:=TNavOnMark.create;
-   FMain.NavOnMark.id:=id;
-   FMain.NavOnMark.LL:=LL;
+   FMain.LayerMapNavToMark.StartNav(LL, ID);
   end
   else SBNavOnMark.Down:=not SBNavOnMark.Down
- else FreeAndNil(FMain.NavOnMark);
+ else FMain.LayerMapNavToMark.Visible := False;
 end;
 
 procedure TFMarksExplorer.FormClose(Sender: TObject;

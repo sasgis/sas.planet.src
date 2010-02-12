@@ -65,6 +65,7 @@ uses
   u_LayerScaleLine,
   u_MapMarksLayer,
   u_MapGPSLayer,
+  u_MapLayerNavToMark,
   u_MapFillingLayer,
   u_MapNalLayer,
   u_MapLayerGoto,
@@ -88,13 +89,6 @@ type
     ao_rect,
     ao_reg
   );
-
-  TNavOnMark = class
-   id: integer;
-   ll: TExtendedPoint;
-   public
-   procedure draw;
-  end;
 
   TFmain = class(TForm)
     map: TImage32;
@@ -597,6 +591,7 @@ type
     LayerMapNal: TMapNalLayer;
     LayerMapGPS: TMapGPSLayer;
     LayerMapMarks: TMapMarksLayer;
+    LayerMapNavToMark: TNavToMarkLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
     LayerGoto: TGotoLayer;
@@ -609,7 +604,6 @@ type
     ProgramClose: Boolean;
     aoper: TAOperation;
     GPSpar: TGPSpar;
-    NavOnMark: TNavOnMark;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
@@ -758,6 +752,7 @@ begin
   FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
 end;
 
 procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint;
@@ -818,50 +813,6 @@ begin
  TBDockRight.AllowDrag:=not value;
  TBDockBottom.AllowDrag:=not value;
  Flock_toolbars:=value;
-end;
-
-procedure TNavOnMark.draw;
-var Polygon: TPolygon32;
-    ke,ks: TExtendedPoint;
-    pe: TPoint;
-    dl: integer;
-    r,TanOfAngle,D,Angle: Extended;
-    VSizeInPixel: TPoint;
-    VVisibleSize: TPoint;
-begin
- Polygon := TPolygon32.Create;
- Polygon.Antialiased := true;
- polygon.AntialiasMode:=am4times;
-
-  VSizeInPixel := Fmain.LoadedSizeInPixel;
-  VVisibleSize := Fmain.VisibleSizeInPixel;
-  ke:=GState.sat_map_both.GeoConvert.LonLat2PixelPosf(ll,GState.zoom_size-1);
-  ke := Fmain.MapPixel2BitmapPixel(ke);
-  pe:=Point(round(ke.x),round(ke.y));
-  ks:=ExtPoint(VSizeInPixel.X/2,VSizeInPixel.y/2);
-  dl:=GState.GPS_ArrowSize;
-  if ks.x=ke.x then TanOfAngle:=MaxExtended/100 * Sign(ks.Y-ke.Y)
-               else TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
-  D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
-  r:=D/2-(dl div 2);
-  if VVisibleSize.X > VVisibleSize.Y then if R>(VVisibleSize.Y div 2) then r:=(VVisibleSize.Y div 2)-(dl div 2) else
-               else if R>(VVisibleSize.X div 2) then r:=(VVisibleSize.X div 2)-(dl div 2);
-  ke.x:=Round((R*kE.x+(D-R)*kS.X)/D);
-  ke.y:=Round((R*kE.y+(D-R)*kS.Y)/D);
-  Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
-  Angle:=ArcTan(TanOfAngle)+0.28;
-  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
-  Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-  Angle:=ArcTan(TanOfAngle)-0.28;
-  if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<ke.X)) then Angle:=Angle+Pi;
-  Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-  if D>dl
-   then Polygon.DrawFill(FMain.MainLayerMap.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
-   else begin
-         FMain.MainLayerMap.Bitmap.VertLine(pe.X,pe.Y-dl div 2,pe.Y+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-         FMain.MainLayerMap.Bitmap.HorzLine(pe.X-dl div 2,pe.Y,pe.X+dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-        end;
- Polygon.Free;
 end;
 
 function DigitToHex(Digit: Integer): Char;
@@ -1339,8 +1290,8 @@ begin
    s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
    TBXOdometrNow.Caption:=s_len;
    //расстояние до метки
-   if (NavOnMark<>nil) then begin
-     n_len:=DistToStrWithUnits(GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],NavOnMark.ll), GState.num_format);
+   if (LayerMapNavToMark.Visible) then begin
+     n_len:=DistToStrWithUnits(LayerMapNavToMark.GetDistToMark, GState.num_format);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin
      TBXSensorLenToMark.Caption:='-';
@@ -1743,7 +1694,6 @@ begin
   end;
   generate_granica;
   DrawGenShBorders;
-  if NavOnMark<>nil then NavOnMark.draw;
   if not(lastload.use) then begin
     paint_Line;
     if aoper=ao_line then begin
@@ -1978,6 +1928,7 @@ begin
  LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
  LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
  LayerGoto := TGotoLayer.Create(map, ScreenCenterPos);
+ LayerMapNavToMark := TNavToMarkLayer.Create(map, ScreenCenterPos);
  LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
  FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
  LayerMapNal:=TMapNalLayer.Create(map, ScreenCenterPos);
@@ -2213,6 +2164,7 @@ begin
         FFillingMap.ScaleTo(Scale, m_m);
         LayerMapNal.ScaleTo(Scale, m_m);
         LayerGoto.ScaleTo(Scale, m_m);
+        LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
@@ -2221,6 +2173,7 @@ begin
         FFillingMap.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapNal.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerGoto.ScaleTo(Scale, Point(mWd2, mHd2));
+        LayerMapNavToMark.ScaleTo(Scale, Point(mWd2, mHd2));
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -2295,6 +2248,7 @@ begin
   FreeAndNil(LayerSelection);
   FreeAndNil(LayerGoto);
   FreeAndNil(LayerMapNal);
+  FreeAndNil(LayerMapNavToMark);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -3170,6 +3124,7 @@ begin
    FWikiLayer.Resize;
    FFillingMap.Resize;
    LayerGoto.Resize;
+   LayerMapNavToMark.Resize;
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
   end;
@@ -3720,7 +3675,7 @@ begin
     end else begin
       NMarksCalcs.Visible:=false;
     end;
-    if (NavOnMark<>nil)and(NavOnMark.id=strtoint(PWL.numid)) then begin
+    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(PWL.numid)) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3997,6 +3952,7 @@ begin
               LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
@@ -4246,7 +4202,6 @@ begin
  if (not NMarkNav.Checked) then
   begin
    id:=strtoint(PWL.numid);
-   if NavOnMark<>nil then FreeAndNil(NavOnMark);
    if not(CDSmarks.Locate('id',id,[])) then exit;
    ms:=TMemoryStream.Create;
    TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -4264,12 +4219,9 @@ begin
            end;
    ms.Free;
    FreeMem(arrLL);
-   NavOnMark:=TNavOnMark.create;
-   NavOnMark.id:=id;
-   NavOnMark.LL:=LL;
+   LayerMapNavToMark.StartNav(LL, Id);
   end
- else FreeAndNil(NavOnMark);
- generate_im(nilLastLoad,'');
+ else LayerMapNavToMark.Visible := false;
 end;
 
 function SecondToTime(const Seconds: Cardinal): Double;
