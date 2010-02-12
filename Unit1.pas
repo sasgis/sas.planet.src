@@ -92,7 +92,6 @@ type
   TNavOnMark = class
    id: integer;
    ll: TExtendedPoint;
-   width: integer;
    public
    procedure draw;
   end;
@@ -4268,7 +4267,6 @@ begin
    NavOnMark:=TNavOnMark.create;
    NavOnMark.id:=id;
    NavOnMark.LL:=LL;
-   NavOnMark.width:=25;
   end
  else FreeAndNil(NavOnMark);
  generate_im(nilLastLoad,'');

@@ -621,7 +621,6 @@ begin
    FMain.NavOnMark:=TNavOnMark.create;
    FMain.NavOnMark.id:=id;
    FMain.NavOnMark.LL:=LL;
-   FMain.NavOnMark.width:=25;
   end
   else SBNavOnMark.Down:=not SBNavOnMark.Down
  else FreeAndNil(FMain.NavOnMark);
