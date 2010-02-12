@@ -13,7 +13,6 @@ type
   TNavToMarkLayer =  class(TMapLayerBasic)
   protected
     FMarkPoint: TExtendedPoint;
-    FBitmapSize: TPoint;
     FId: integer;
     procedure DoRedraw; override;
     function GetBitmapSizeInPixel: TPoint; override;
@@ -39,7 +38,6 @@ uses
 constructor TNavToMarkLayer.Create(AParentMap: TImage32; ACenter: TPoint);
 begin
   inherited Create(AParentMap, ACenter);
-  FBitmapSize := Point(GState.GPS_ArrowSize * 2, GState.GPS_ArrowSize * 2);
 end;
 
 procedure TNavToMarkLayer.DoRedraw;
@@ -68,14 +66,14 @@ begin
       FreeAndNil(Polygon);
     end;
   end else begin
-     FLayer.Bitmap.VertLine(dl div 2, dl div 2, 3 * dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-     FLayer.Bitmap.HorzLine(dl div 2, dl div 2, 3 * dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+     FLayer.Bitmap.VertLine(dl, dl div 2, 3 * dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+     FLayer.Bitmap.HorzLine(dl div 2, dl, 3 * dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
   end;
 end;
 
 function TNavToMarkLayer.GetBitmapSizeInPixel: TPoint;
 begin
-  Result := FBitmapSize;
+  Result := Point(GState.GPS_ArrowSize * 2, GState.GPS_ArrowSize * 2);
 end;
 
 function TNavToMarkLayer.GetDistToMark: Double;
@@ -102,11 +100,11 @@ begin
   VMarkPoint := FGeoConvert.LonLat2PixelPos(FMarkPoint, FZoom);
   D := Sqrt(Sqr(VMarkPoint.X-FScreenCenterPos.X)+Sqr(VMarkPoint.Y-FScreenCenterPos.Y));
   if D < GState.GPS_ArrowSize * 2 then begin
-    Result.X := Result.X;
-    Result.Y := Result.Y;
-  end else if D > GState.GPS_ArrowSize * 10 then begin
-    Result.X := Result.X + Trunc(GState.GPS_ArrowSize * 5 / D * (FScreenCenterPos.X - VMarkPoint.X));
-    Result.Y := Result.Y + Trunc(GState.GPS_ArrowSize * 5 / D * (FScreenCenterPos.Y - VMarkPoint.Y));
+    Result.X := Result.X + (FScreenCenterPos.X - VMarkPoint.X);
+    Result.Y := Result.Y + (FScreenCenterPos.Y - VMarkPoint.Y);
+  end else if D > GState.GPS_ArrowSize * 14 then begin
+    Result.X := Result.X + Trunc(GState.GPS_ArrowSize * 7 / D * (FScreenCenterPos.X - VMarkPoint.X));
+    Result.Y := Result.Y + Trunc(GState.GPS_ArrowSize * 7 / D * (FScreenCenterPos.Y - VMarkPoint.Y));
   end else begin
     Result.X := Result.X + (FScreenCenterPos.X - VMarkPoint.X) div 2;
     Result.Y := Result.Y + (FScreenCenterPos.Y - VMarkPoint.Y) div 2;
