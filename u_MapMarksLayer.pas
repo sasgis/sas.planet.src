@@ -223,13 +223,13 @@ begin
       FParentMap.Bitmap.BeginUpdate;
       if length(pathll)>0 then begin
         for i:=0 to length(pathll)-1 do begin
-          k1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(pathll[i],GState.zoom_size-1);
+          k1:=FGeoConvert.LonLat2PixelPos(pathll[i],FZoom);
           k1:=MapPixel2BitmapPixel(k1);
           if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
             polygon.Add(FixedPoint(k1));
           end;
           if i<length(pathll)-1 then begin
-            k2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(pathll[i+1],GState.zoom_size-1);
+            k2:=FGeoConvert.LonLat2PixelPos(pathll[i+1],FZoom);
             k2:=MapPixel2BitmapPixel(k2);
             if (k2.x-k1.x)>(k2.y-k1.y) then begin
               adp:=(k2.x-k1.x)div 32767+2;
@@ -288,16 +288,16 @@ begin
   if FMain.CDSmarks.State <> dsBrowse then exit;
   paintMark:=true;
   try
-    VZoomCurr := GState.zoom_size - 1;
+    VZoomCurr := FZoom;
     VBitmapSize := GetBitmapSizeInPixel;
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0,0));
     VRect.BottomRight := BitmapPixel2MapPixel(VBitmapSize);
 
-    GState.sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
-    LLRect := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
+    FGeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
+    LLRect := FGeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
     marksFilter:='';
     if GState.show_point = mshChecked then begin
-      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(GState.zoom_size)+' and BeforeScale >= '+inttostr(GState.zoom_size)+' )';
+      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(FZoom + 1)+' and BeforeScale >= '+inttostr(FZoom + 1)+' )';
       FMain.CDSKategory.Filtered:=true;
       marksFilter:=marksFilter+'visible=1';
       FMain.CDSKategory.First;
@@ -339,8 +339,8 @@ begin
       While not(FMain.CDSmarks.Eof) do begin
         buf_line_arr := Blob2ExtArr(FMain.CDSmarks.FieldByName('lonlatarr'));
         if length(buf_line_arr)>1 then begin
-          TestArrLenP1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonL.AsFloat,FMain.CDSmarksLatT.AsFloat),(GState.zoom_size - 1));
-          TestArrLenP2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonR.AsFloat,FMain.CDSmarksLatB.AsFloat),(GState.zoom_size - 1));
+          TestArrLenP1:=FGeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonL.AsFloat,FMain.CDSmarksLatT.AsFloat),FZoom);
+          TestArrLenP2:=FGeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonR.AsFloat,FMain.CDSmarksLatB.AsFloat),FZoom);
           if (abs(TestArrLenP1.X-TestArrLenP2.X)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>FMain.CDSmarksScale1.AsInteger+2) then begin
             drawPath(buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
               (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
@@ -348,7 +348,7 @@ begin
           end;
         end;
         if length(buf_line_arr)=1 then begin
-          xy:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(buf_line_arr[0],GState.zoom_size-1);
+          xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
           xy := MapPixel2BitmapPixel(xy);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
           indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);

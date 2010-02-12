@@ -203,10 +203,10 @@ begin
   FWikiLayerElments[lenLay - 1] := TWikiLayerElement.Create;
   With FWikiLayerElments[lenLay - 1] do begin
     VConverter.CheckLonLatPos(AData.coordinatesLT);
-    LT := VConverter.LonLat2PixelPos(AData.coordinatesLT, GState.zoom_size - 1);
+    LT := VConverter.LonLat2PixelPos(AData.coordinatesLT, FZoom);
     LT := MapPixel2BitmapPixel(LT);
     VConverter.CheckLonLatPos(AData.coordinatesRD);
-    RD := VConverter.LonLat2PixelPos(AData.coordinatesRD, GState.zoom_size - 1);
+    RD := VConverter.LonLat2PixelPos(AData.coordinatesRD, FZoom);
     RD := MapPixel2BitmapPixel(RD);
     if AData.coordinatesLT.X = AData.coordinatesRD.x then begin
       LT.X := LT.X - 3;
@@ -227,12 +227,12 @@ begin
     if length(AData.coordinates) = 1 then begin
       setLength(FPolygonOnBitmap, 1);
       VConverter.CheckLonLatPos(AData.coordinates[0]);
-      FPolygonOnBitmap[0] := VConverter.LonLat2PixelPos(AData.coordinates[0], GState.zoom_size - 1);
+      FPolygonOnBitmap[0] := VConverter.LonLat2PixelPos(AData.coordinates[0], FZoom);
       FPolygonOnBitmap[0] := MapPixel2BitmapPixel(FPolygonOnBitmap[0]);
     end else begin
       for i := 0 to length(AData.coordinates) - 1 do begin
         VConverter.CheckLonLatPos(AData.coordinates[i]);
-        FPolygonOnBitmap[i] := VConverter.LonLat2PixelPos(AData.coordinates[i], GState.zoom_size - 1);
+        FPolygonOnBitmap[i] := VConverter.LonLat2PixelPos(AData.coordinates[i], FZoom);
         FPolygonOnBitmap[i] := MapPixel2BitmapPixel(FPolygonOnBitmap[i]);
       end;
     end;

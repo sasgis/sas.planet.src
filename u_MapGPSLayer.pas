@@ -52,9 +52,9 @@ begin
   with FLayer.Bitmap do begin
     if GState.GPS_ShowPath then begin
       for i:=0 to length(GState.GPS_TrackPoints)-2 do begin
-        k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i],GState.zoom_size-1);
+        k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i],FZoom);
         k1:=MapPixel2BitmapPixel(k1);
-        k2:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],GState.zoom_size-1);
+        k2:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],FZoom);
         k2:=MapPixel2BitmapPixel(k2);
         if (GState.GPS_ArrayOfSpeed[i]>0)and(FMain.GPSpar.maxspeed>0) then begin
           speed:=round(255/(FMain.GPSpar.maxspeed/GState.GPS_ArrayOfSpeed[i]));
