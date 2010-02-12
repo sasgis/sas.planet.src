@@ -57,7 +57,7 @@ uses
   u_GeoToStr,
   t_CommonTypes,
   Ugeofun,
-  UWikiLayer,
+  u_MapLayerWiki,
   ULogo,
   UMapType,
   UResStrings,

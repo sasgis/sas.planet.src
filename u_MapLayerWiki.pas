@@ -1,4 +1,4 @@
-unit UWikiLayer;
+unit u_MapLayerWiki;
 
 interface
 
