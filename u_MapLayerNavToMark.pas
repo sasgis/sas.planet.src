@@ -29,6 +29,8 @@ implementation
 
 uses
   Graphics,
+  SysUtils,
+  GR32_Polygons,
   u_GlobalState,
   u_WindowLayerBasic;
 
@@ -45,19 +47,30 @@ var
   D: Double;
   dl: integer;
   VMarkPoint: TPoint;
+  Polygon: TPolygon32;
 begin
   inherited;
   FLayer.Bitmap.Clear(clBlack);
   VMarkPoint := FGeoConvert.LonLat2PixelPos(FMarkPoint, FZoom);
   D := Sqrt(Sqr(VMarkPoint.X-FScreenCenterPos.X)+Sqr(VMarkPoint.Y-FScreenCenterPos.Y));
   dl:=GState.GPS_ArrowSize;
-  if D > dl then begin
-
+  if D > dl * 2 then begin
+    Polygon := TPolygon32.Create;
+    try
+      Polygon.Antialiased := true;
+      Polygon.AntialiasMode:=am4times;
+      Polygon.Add(FixedPoint(dl div 2, dl));
+      Polygon.Add(FixedPoint(dl, dl div 2));
+      Polygon.Add(FixedPoint(dl * 3 div 2, dl));
+      Polygon.Add(FixedPoint(dl, dl * 3 div 2));
+      Polygon.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150))
+    finally
+      FreeAndNil(Polygon);
+    end;
   end else begin
      FLayer.Bitmap.VertLine(dl div 2, dl div 2, 3 * dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
      FLayer.Bitmap.HorzLine(dl div 2, dl div 2, 3 * dl div 2,SetAlpha(Color32(GState.GPS_ArrowColor), 150));
   end;
-
 end;
 
 function TNavToMarkLayer.GetBitmapSizeInPixel: TPoint;
@@ -88,9 +101,15 @@ begin
   Result.Y := VSize.Y div 2;
   VMarkPoint := FGeoConvert.LonLat2PixelPos(FMarkPoint, FZoom);
   D := Sqrt(Sqr(VMarkPoint.X-FScreenCenterPos.X)+Sqr(VMarkPoint.Y-FScreenCenterPos.Y));
-  if D > GState.GPS_ArrowSize then begin
-    Result.X := Result.X + (FScreenCenterPos.X - VMarkPoint.X);
-    Result.Y := Result.Y + (FScreenCenterPos.Y - VMarkPoint.Y);
+  if D < GState.GPS_ArrowSize * 2 then begin
+    Result.X := Result.X;
+    Result.Y := Result.Y;
+  end else if D > GState.GPS_ArrowSize * 10 then begin
+    Result.X := Result.X + Trunc(GState.GPS_ArrowSize * 5 / D * (FScreenCenterPos.X - VMarkPoint.X));
+    Result.Y := Result.Y + Trunc(GState.GPS_ArrowSize * 5 / D * (FScreenCenterPos.Y - VMarkPoint.Y));
+  end else begin
+    Result.X := Result.X + (FScreenCenterPos.X - VMarkPoint.X) div 2;
+    Result.Y := Result.Y + (FScreenCenterPos.Y - VMarkPoint.Y) div 2;
   end;
 end;
 
