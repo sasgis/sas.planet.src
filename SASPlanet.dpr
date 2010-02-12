@@ -43,7 +43,7 @@ uses
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
-  UWikiLayer in 'UWikiLayer.pas',
+  u_MapLayerWiki in 'u_MapLayerWiki.pas',
   UPLT in 'UPLT.pas',
   Ugeofun in 'Ugeofun.pas',
   u_GlobalState in 'u_GlobalState.pas',
