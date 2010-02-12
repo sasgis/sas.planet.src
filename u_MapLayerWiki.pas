@@ -88,8 +88,8 @@ begin
   VSizeInTile.Y := VSizeInTile.Y div 256;
   FLayer.Bitmap.BeginUpdate;
   try
-    Vzoom := GState.zoom_size - 1;
-    VPos := GState.sat_map_both.GeoConvert.Pos2OtherMap(FScreenCenterPos, Vzoom + 8, Alayer.GeoConvert);
+    Vzoom := FZoom;
+    VPos := FGeoConvert.Pos2OtherMap(FScreenCenterPos, Vzoom + 8, Alayer.GeoConvert);
     VCenterTile := Alayer.GeoConvert.PixelPos2TilePos(VPos, Vzoom);
     for i := 0 to VSizeInTile.X do begin
       for j := 0 to VSizeInTile.Y do begin
@@ -196,7 +196,7 @@ var
   VSize: TPoint;
 begin
   VSize := GetBitmapSizeInPixel;
-  VConverter := GState.sat_map_both.GeoConvert;
+  VConverter := FGeoConvert;
   Delete(AData.description, posEx('#ge', AData.description, 0), 1);
   setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
   lenLay := length(FWikiLayerElments);
