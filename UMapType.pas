@@ -952,6 +952,7 @@ var
   TileBounds:TRect;
 begin
   result:=false;
+  spr.SetSize(256, 256);
   if (not(GState.UsePrevZoom) and (asLayer=false)) or
   (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
   begin
