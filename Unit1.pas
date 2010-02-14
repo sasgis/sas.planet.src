@@ -728,7 +728,10 @@ procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMap
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  ts2,ts3,fr:int64;
 begin
+  QueryPerformanceCounter(ts2);
+
   VPoint := AScreenCenterPos;
   VZoomCurr := AZoom;
   if AMapType <> GState.sat_map_both then begin
@@ -743,7 +746,13 @@ begin
   RxSlider1.Value:=VZoomCurr;
   GState.zoom_size := VZoomCurr + 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  FScreenCenterPos := VPoint;
+  if (FScreenCenterPos.X <> VPoint.X) or (FScreenCenterPos.Y <> VPoint.Y)then begin
+    FScreenCenterPos := VPoint;
+    change_scene:=true;
+    LayerScaleLine.Redraw;
+  end;
+  GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
+
   FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -753,6 +762,10 @@ begin
   LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+
+  QueryPerformanceCounter(ts3);
+  QueryPerformanceFrequency(fr);
+  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
 procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint;
@@ -1386,6 +1399,8 @@ begin
   QueryPerformanceCounter(ts2);
 
   if not(lastload.use) then change_scene:=true;
+  GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
+
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
   FMainLayer.Redraw;
@@ -1432,7 +1447,6 @@ begin
       draw_point;
     except
     end;
-    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
   end;
   toSh;
   QueryPerformanceCounter(ts3);
@@ -1532,14 +1546,6 @@ begin
  Map.Cursor:=crDefault;
  VLoadedSizeInPixel := LoadedSizeInPixel;
 
- LayerMapScale := TCenterScale.Create(map);
-
-
-
- LayerScaleLine := TLayerScaleLine.Create(map);
-
- LayerStatBar:=TLayerStatBar.Create(map);
-
  GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
  GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
  GState.InetConnect.Proxyused:=GState.MainIni.Readbool('INTERNET','used_proxy',false);
@@ -1599,6 +1605,7 @@ begin
  GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
  GState.BGround:=GState.MainIni.ReadInteger('VIEW','Background',clSilver);
  GState.WikiMapMainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
+ GState.ShowStatusBar := GState.MainIni.readbool('VIEW','statusbar',true);
  GState.WikiMapFonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
  GState.GammaN:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
@@ -1640,8 +1647,11 @@ begin
  FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
  LayerMapNal:=TMapNalLayer.Create(map, ScreenCenterPos);
  LayerMapNal.Visible:=false;
-
  FFillingMap:=TMapFillingLayer.create(map, ScreenCenterPos);
+ LayerMapScale := TCenterScale.Create(map);
+ LayerScaleLine := TLayerScaleLine.Create(map);
+ LayerStatBar:=TLayerStatBar.Create(map);
+
 
   Set_Pos(
     Point(
@@ -1686,7 +1696,6 @@ begin
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
  SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
- GState.ShowStatusBar := GState.MainIni.readbool('VIEW','statusbar',true);
  SetStatusBarVisible();
  NzoomIn.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomIn',33);
  NzoomOut.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomOut',34);
