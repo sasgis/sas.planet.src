@@ -157,6 +157,9 @@ type
     function LoadTileFromPreZ(spr: TBitmap32; x, y: integer; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
 
+    function LoadTileOrPreZ(spr: TBitmap32; x, y: integer; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
+    function LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
+
     function DeleteTile(x, y: longint; Azoom: byte): Boolean; overload;
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean; overload;
 
@@ -1745,6 +1748,35 @@ end;
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
 begin
   Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+GUIDString;
+end;
+
+function TMapType.LoadTileOrPreZ(spr: TBitmap32; x, y: integer;
+  Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
+begin
+  Result := Self.LoadTileOrPreZ(spr, Point(x shr 8, y shr 8), Azoom - 1, caching, IgnoreError);
+end;
+
+function TMapType.LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte;
+  caching: boolean; IgnoreError: Boolean): boolean;
+begin
+  if TileExists(AXY, Azoom) then begin
+    Result := LoadTile(spr, AXY, Azoom, caching);
+    if not Result then begin
+      if IgnoreError then begin
+        Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
+      end else begin
+        spr.SetSize(256,256);
+        if asLayer then begin
+          spr.Clear(SetAlpha(Color32(GState.BGround),0));
+        end else begin
+          spr.Clear(Color32(GState.BGround));
+        end;
+        spr.RenderText(87,120,SAS_ERR_BadFile,0,clBlack32);
+      end;
+    end;
+  end else begin
+    Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
+  end;
 end;
 
 end.

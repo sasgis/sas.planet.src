@@ -1635,16 +1635,9 @@ begin
         if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
         yy:=ScreenCenterPos.y-(yhgpx div 2)+(j shl 8);
         if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-        if (GState.sat_map_both.TileExists(xx,yy,GState.zoom_size)) then begin
-          if GState.sat_map_both.LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
-            if (GState.sat_map_both.DelAfterShow)and(not lastload.use) then GState.sat_map_both.DeleteTile(xx,yy,GState.zoom_size);
-          end else begin
-            BadDraw(Vspr,false);
-          end;
-        end else begin
-          GState.sat_map_both.LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true);
+        if GState.sat_map_both.LoadTileOrPreZ(Vspr, xx, yy,GState.zoom_size,true, False) then begin
+          Gamma(Vspr);
         end;
-        Gamma(Vspr);
         MainLayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Vspr);
       end;
     end;
@@ -1663,17 +1656,8 @@ begin
               if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
               yy:=posN.y-(yhgpx div 2)+(j shl 8);
               if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-              if (GState.MapType[Leyi].TileExists(xx,yy,GState.zoom_size)) then begin
-                if GState.MapType[Leyi].LoadTile(Vspr,xx,yy,GState.zoom_size,true) then begin
-                  if (GState.MapType[Leyi].DelAfterShow)and(not lastload.use) then GState.MapType[Leyi].DeleteTile(xx,yy,GState.zoom_size);
-                end else begin
-                  BadDraw(Vspr,true);
-                end;
+              if GState.MapType[Leyi].LoadTileOrPreZ(Vspr, xx, yy,GState.zoom_size,true, False) then begin
                 Gamma(Vspr);
-              end else begin
-                if GState.MapType[Leyi].LoadTileFromPreZ(Vspr,xx,yy,GState.zoom_size,true) then begin
-                  Gamma(Vspr);
-                end;
               end;
               Vspr.DrawMode:=dmBlend;
               MainLayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
