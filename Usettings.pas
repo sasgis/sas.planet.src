@@ -619,8 +619,6 @@ begin
 // pr_y:=(yhgpx)div 2;
 
  VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
- FMain.MainLayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.MainLayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
 
  SetProxy;
 

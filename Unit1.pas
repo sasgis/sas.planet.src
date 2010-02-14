@@ -61,6 +61,7 @@ uses
   ULogo,
   UMapType,
   UResStrings,
+  u_MapMainLayer,
   u_LayerStatBar,
   u_LayerScaleLine,
   u_MapMarksLayer,
@@ -569,6 +570,7 @@ type
     rect_p2: boolean;
     FTileSource: TTileSource;
     FScreenCenterPos: TPoint;
+    FMainLayer: TMapMainLayer;
     LayerStatBar: TLayerStatBar;
     FWikiLayer: TWikiLayer;
     dWhenMovingButton: integer;
@@ -585,7 +587,6 @@ type
     reg_arr: TExtendedPointArray;
     PWL: TResObj;
   public
-    MainLayerMap: TBitmapLayer;
     FFillingMap: TMapFillingLayer;
     LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TMapNalLayer;
@@ -617,7 +618,6 @@ type
     class   function  str2r(inp: string): real;
     procedure paint_Line;
     procedure selectMap(AMapType: TMapType);
-    procedure generate_granica;
     procedure drawLineGPS;
     procedure ShowCaptcha(URL: string);
     function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
@@ -625,7 +625,6 @@ type
     procedure setalloperationfalse(newop: TAOperation);
     procedure insertinpath(pos: integer);
     procedure delfrompath(pos: integer);
-    procedure DrawGenShBorders;
     procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -745,6 +744,7 @@ begin
   GState.zoom_size := VZoomCurr + 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   FScreenCenterPos := VPoint;
+  FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -1093,9 +1093,6 @@ begin
                  if Msg.wParam=VK_Left then Set_Pos(Point(ScreenCenterPos.x-dWMB, ScreenCenterPos.y));
                  if Msg.wParam=VK_Down then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y+dWMB));
                  if Msg.wParam=VK_Up then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y-dWMB));
-                 if (Msg.wParam=VK_RIGHT)or(Msg.wParam=VK_Left)or
-                    (Msg.wParam=VK_Down)or(Msg.wParam=VK_Up)then
-                    generate_im(nilLastLoad,'');
                 end;
    WM_KEYUP: begin
              dWhenMovingButton:=5;
@@ -1373,234 +1370,6 @@ begin
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
 end;
 
-
-procedure TFmain.DrawGenShBorders;
-var
-  zLonR,zLatR:extended;
-  twidth,theight:integer;
-  ListName:WideString;
-  VZoomCurr: Byte;
-  VLoadedRect: TRect;
-  VLoadedLonLatRect: TExtendedRect;
-  VGridLonLatRect: TExtendedRect;
-  VGridRect: TRect;
-  VDrawLonLatRect: TExtendedRect;
-  VDrawRect: TRect;
-  VColor: TColor32;
-  VDrawScreenRect: TRect;
-  VShowText: Boolean;
-begin
-  if GState.GShScale=0 then exit;
-  case GState.GShScale of
-    1000000: begin zLonR:=6; zLatR:=4; end;
-     500000: begin zLonR:=3; zLatR:=2; end;
-     200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
-     100000: begin zLonR:=0.5; zLatR:=0.33333333333333333333333333333333; end;
-      50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
-      25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
-      10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
-    else begin zLonR:=6; zLatR:=4; end;
-  end;
-  VZoomCurr := GState.zoom_size - 1;
-  VLoadedRect := LoadedPixelRect;
-  GState.sat_map_both.GeoConvert.CheckPixelRect(VLoadedRect, VZoomCurr, False);
-  VLoadedLonLatRect := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VLoadedRect, VZoomCurr);
-
-  VGridLonLatRect.Left := VLoadedLonLatRect.Left-zLonR;
-  VGridLonLatRect.Top := VLoadedLonLatRect.Top+zLatR;
-  VGridLonLatRect.Right := VLoadedLonLatRect.Right+zLonR;
-  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom-zLatR;
-  GState.sat_map_both.GeoConvert.CheckLonLatRect(VGridLonLatRect);
-
-  VGridLonLatRect.Left := VGridLonLatRect.Left-(round(VGridLonLatRect.Left*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-  VGridLonLatRect.Top := VGridLonLatRect.Top-(round(VGridLonLatRect.Top*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom-(round(VGridLonLatRect.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-
-  VGridRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoomCurr);
-
-  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left+zLonR, VGridLonLatRect.Bottom);
-  VDrawRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
-
-  if abs(VDrawRect.Right - VDrawRect.Left) < 4 then exit;
-
-  if (abs(VDrawRect.Right - VDrawRect.Left) > 30)and(GState.ShowBorderText) then begin
-    VShowText := true;
-  end else begin
-    VShowText := false;
-  end;
-
-  VColor := SetAlpha(Color32(GState.BorderColor), GState.BorderAlpha);
-
-  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.Right := VGridLonLatRect.Left;
-  VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
-
-  while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
-    VDrawRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
-
-    VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
-    VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
-    MainLayerMap.bitmap.LineAS(
-      VDrawScreenRect.Left, VDrawScreenRect.Top,
-      VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
-    );
-
-    VDrawLonLatRect.Left := VDrawLonLatRect.Left+zLonR;
-    VDrawLonLatRect.Right := VDrawLonLatRect.Left;
-  end;
-
-  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.Right := VGridLonLatRect.Right;
-  VDrawLonLatRect.Bottom := VGridLonLatRect.Top;
-
-  while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    VDrawRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
-
-    VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
-    VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
-    MainLayerMap.bitmap.LineAS(
-      VDrawScreenRect.Left, VDrawScreenRect.Top,
-      VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
-    );
-
-
-    VDrawLonLatRect.Top := VDrawLonLatRect.Top-zLatR;
-    VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
-  end;
-
-  if not VShowText then exit;
-
-  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
-  VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - zLatR;
-  while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    while VDrawLonLatRect.Left + zLonR/2 <=VGridLonLatRect.Right do begin
-      VDrawRect := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
-      ListName := LonLat2GShListName(
-        ExtPoint(VDrawLonLatRect.Left + zLonR/2, VDrawLonLatRect.Top - zLatR/2),
-        GState.GShScale, GSHprec
-      );
-      twidth := MainLayerMap.bitmap.TextWidth(ListName);
-      theight := MainLayerMap.bitmap.TextHeight(ListName);
-
-      VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
-      VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
-
-      MainLayerMap.bitmap.RenderTextW(
-        VDrawScreenRect.Left + (VDrawScreenRect.Right - VDrawScreenRect.Left) div 2 - (twidth div 2),
-        VDrawScreenRect.Top + (VDrawScreenRect.Bottom - VDrawScreenRect.Top) div 2 - (theight div 2),
-        ListName, 0, VColor
-      );
-
-      VDrawLonLatRect.Left := VDrawLonLatRect.Right;
-      VDrawLonLatRect.Right := VDrawLonLatRect.Right + zLonR;
-    end;
-    VDrawLonLatRect.Left := VGridLonLatRect.Left;
-    VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
-    VDrawLonLatRect.Top := VDrawLonLatRect.Bottom;
-    VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom-zLatR;
-  end;
-end;
-
-procedure TFmain.generate_granica;
-var
-    i,j:integer;
-    drawcolor:TColor32;
-    textoutx,textouty:string;
-    Sz1,Sz2: TSize;
-    VLoadedRect: TRect;
-    VLoadedRelativeRect: TExtendedRect;
-    VCurrentZoom: Byte;
-    VTilesRect: TRect;
-    VTileRelativeRect: TExtendedRect;
-    VTileRect: TRect;
-    VTileIndex: TPoint;
-    VTileScreenRect: TRect;
-    VTileCenter: TPoint;
-    VTileSize: TPoint;
-    VGridZoom: Byte;
-    VTilesLineRect: TRect;
-begin
-  VCurrentZoom := GState.zoom_size - 1;
-  if GState.TileGridZoom=99 then begin
-    VGridZoom := VCurrentZoom;
-  end else begin
-    VGridZoom := GState.TileGridZoom - 1;
-  end;
-  if (VGridZoom < VCurrentZoom) or (VGridZoom - VCurrentZoom > 5) then exit;
-
-  VLoadedRect := LoadedPixelRect;
-  GState.sat_map_both.GeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom, False);
-  VLoadedRelativeRect := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
-  VTilesRect := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
-
-  drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
-
-  VTilesLineRect.Left := VTilesRect.Left;
-  VTilesLineRect.Right := VTilesRect.Right;
-  for i := VTilesRect.Top to VTilesRect.Bottom do begin
-    VTilesLineRect.Top := i;
-    VTilesLineRect.Bottom := i;
-
-    VTileRelativeRect := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
-    MainLayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
-  end;
-
-  VTilesLineRect.Top := VTilesRect.Top;
-  VTilesLineRect.Bottom := VTilesRect.Bottom;
-  for j := VTilesRect.Left to VTilesRect.Right do begin
-    VTilesLineRect.Left := j;
-    VTilesLineRect.Right := j;
-
-    VTileRelativeRect := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
-    MainLayerMap.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
-  end;
-
-  if not (GState.ShowBorderText) then exit;
-  if VGridZoom - VCurrentZoom > 2 then exit;
-
-  for i := VTilesRect.Top to VTilesRect.Bottom do begin
-    VTileIndex.Y := i;
-    for j := VTilesRect.Left to VTilesRect.Right do begin
-      VTileIndex.X := j;
-      VTileRelativeRect := GState.sat_map_both.GeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-      VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
-
-      VTileSize.X := VTileRect.Right - VTileRect.Left;
-      VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
-      VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
-      VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
-      textoutx := 'x='+inttostr(VTileIndex.X);
-      textouty := 'y='+inttostr(VTileIndex.Y);
-      Sz1 := MainLayerMap.bitmap.TextExtent(textoutx);
-      Sz2 := MainLayerMap.bitmap.TextExtent(textouty);
-      if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        MainLayerMap.bitmap.RenderText(VTileCenter.X-(Sz1.cx div 2)+1,VTileCenter.Y-Sz2.cy,textoutx,0, drawcolor);
-        MainLayerMap.bitmap.RenderText(VTileCenter.X-(Sz2.cx div 2)+1,VTileCenter.Y,textouty,0,drawcolor);
-      end;
-    end;
-  end;
-end;
-
-procedure BadDraw(var spr:TBitmap32; transparent:boolean);
-begin
- spr.SetSize(256,256);
- if transparent then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-                else spr.Clear(Color32(GState.BGround));
- spr.RenderText(87,120,SAS_ERR_BadFile,0,clBlack32);
-end;
-
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
   y_draw,x_draw,y_drawN,x_drawN,xx,yy:longint;
@@ -1619,67 +1388,27 @@ begin
   if not(lastload.use) then change_scene:=true;
   y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
   x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
-  MainLayerMap.Location:=floatrect(GetMapLayerLocationRect);
-
-  MainLayerMap.Bitmap.Clear(Color32(GState.BGround));
-  if aoper<>ao_movemap then LayerMapNal.Resize;
-  LayerMapGPS.Resize;
-  Vspr := TBitmap32.Create;
+  FMainLayer.Redraw;
+  LayerScaleLine.Redraw;
   VWikiLayersVisible := False;
-  try
-    Vspr.SetSize(256,256);
-    VSizeInTile := LoadedSizeInTile;
-    for i:=0 to VSizeInTile.X do begin
-      for j:=0 to VSizeInTile.Y do begin
-        xx:=ScreenCenterPos.x-(xhgpx div 2)+(i shl 8);
-        if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-        yy:=ScreenCenterPos.y-(yhgpx div 2)+(j shl 8);
-        if (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-        if GState.sat_map_both.LoadTileOrPreZ(Vspr, xx, yy,GState.zoom_size,true, False) then begin
-          Gamma(Vspr);
-        end;
-        MainLayerMap.bitmap.Draw((i shl 8)-x_draw,(j shl 8)-y_draw,bounds(0,0,256,256),Vspr);
+  for Leyi:=0 to length(GState.MapType)-1 do begin
+    if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
+      if GState.MapType[Leyi].IsKmlTiles then begin
+        VWikiLayersVisible := True;
       end;
     end;
-    Vspr.SetSize(256,256);
-    for Leyi:=0 to length(GState.MapType)-1 do begin
-      if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
-        if GState.MapType[Leyi].IsKmlTiles then begin
-          VWikiLayersVisible := True;
-        end else begin
-          posN:=GState.sat_map_both.GeoConvert.Pos2OtherMap(ScreenCenterPos, (GState.zoom_size - 1) + 8,GState.MapType[Leyi].GeoConvert);
-          y_drawN:=(((256+((posN.y-(yhgpx div 2))mod 256)) mod 256));
-          x_drawN:=(((256+((posN.x-(xhgpx div 2))mod 256)) mod 256));
-         for i:=0 to VSizeInTile.X do begin
-          for j:=0 to VSizeInTile.Y do begin
-              xx:=ScreenCenterPos.x-(xhgpx div 2)+(i shl 8);
-              if GState.CiclMap then xx:=X2AbsX(xx,GState.zoom_size);
-              yy:=posN.y-(yhgpx div 2)+(j shl 8);
-              if  (xx<0)or(yy<0)or(yy>=zoom[GState.zoom_size])or(xx>=zoom[GState.zoom_size]) then continue;
-              if GState.MapType[Leyi].LoadTileOrPreZ(Vspr, xx, yy,GState.zoom_size,true, False) then begin
-                Gamma(Vspr);
-              end;
-              Vspr.DrawMode:=dmBlend;
-              MainLayerMap.bitmap.Draw((i shl 8)-x_drawN,(j shl 8)-y_drawN, Vspr);
-            end;
-          end;
-        end;
-      end;
-    end;
-    FWikiLayer.Visible := VWikiLayersVisible;
-  finally
-    FreeAndNil(Vspr);
   end;
-  if (lastload.use)and(err<>'') then begin
-    VPoint := MapPixel2BitmapPixel(Point(lastload.x, lastload.y));
-    VPoint.X := VPoint.X + 15;
-    VPoint.Y := VPoint.Y + 124;
-    MainLayerMap.Bitmap.RenderText(VPoint.X, VPoint.Y, err, 0, clBlack32);
-  end;
-  generate_granica;
-  DrawGenShBorders;
+  FWikiLayer.Redraw;
+  FWikiLayer.Visible := VWikiLayersVisible;
+
+//  if (lastload.use)and(err<>'') then begin
+//    VPoint := MapPixel2BitmapPixel(Point(lastload.x, lastload.y));
+//    VPoint.X := VPoint.X + 15;
+//    VPoint.Y := VPoint.Y + 124;
+//    MainLayerMap.Bitmap.RenderText(VPoint.X, VPoint.Y, err, 0, clBlack32);
+//  end;
+
   if not(lastload.use) then begin
-    paint_Line;
     if aoper=ao_line then begin
       TBEditPath.Visible:=(length(length_arr)>1);
       LayerMapNal.DrawLineCalc(length_arr, LenShow);
@@ -1802,14 +1531,6 @@ begin
 
  Map.Cursor:=crDefault;
  VLoadedSizeInPixel := LoadedSizeInPixel;
- MainLayerMap:=TBitmapLayer.Create(map.Layers);
- MainLayerMap.Location:=floatrect(MapLayerLocationRect);
-
- MainLayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
- MainLayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
- MainLayerMap.Bitmap.CombineMode:=cmBlend;
-
- MainLayerMap.bitmap.Font.Charset:=RUSSIAN_CHARSET;
 
  LayerMapScale := TCenterScale.Create(map);
 
@@ -1909,6 +1630,8 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
 
+ FMainLayer := TMapMainLayer.Create(map, ScreenCenterPos);
+ FMainLayer.Visible := True;
  LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
  LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
  LayerGoto := TGotoLayer.Create(map, ScreenCenterPos);
@@ -2127,20 +1850,13 @@ begin
  if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
-     if (move)
-      then MainLayerMap.Location:=
-              floatrect(bounds(round(mWd2-(xhgpx div 2)-((xhgpx div 2)/w*i)+((mWd2-m_m.X)/w1/2*i)),
-                               round(mHd2-(yhgpx div 2)-((yhgpx div 2)/w*i)+((mHd2-m_m.y)/w1/2*i)),
-                               xhgpx+round(xhgpx/w*i),yhgpx+round(yhgpx/w*i)))
-      else MainLayerMap.Location:=
-              floatrect(bounds(mWd2-(xhgpx div 2)-round(((xhgpx div 2)/w)*i),mHd2-(yhgpx div 2)-round(((yhgpx div 2)/w)*i),
-                               xhgpx+round((xhgpx/w)*i),yhgpx+round((yhgpx/w)*i)));
       if GState.zoom_size>ANewZoom then begin
         Scale := 1/(1 + i/(steps - 1));
       end else begin
         Scale := 1 +  i/(steps - 1);
       end;
       if move then begin
+        FMainLayer.ScaleTo(Scale, m_m);
         LayerSelection.ScaleTo(Scale, m_m);
         LayerMapMarks.ScaleTo(Scale, m_m);
         LayerMapGPS.ScaleTo(Scale, m_m);
@@ -2150,6 +1866,7 @@ begin
         LayerGoto.ScaleTo(Scale, m_m);
         LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
+        FMainLayer.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapGPS.ScaleTo(Scale, Point(mWd2, mHd2));
@@ -2167,14 +1884,10 @@ begin
        usleep(22-ts1);
      end;
    end;
-   if GState.zoom_size<ANewZoom
-    then MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)*2+d_moveW,mHd2-(yhgpx div 2)*2+d_moveH,xhgpx*2,yhgpx*2))
-    else MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2) div 2-d_moveW,mHd2-(yhgpx div 2) div 2-d_moveH,xhgpx div 2,yhgpx div 2));
    application.ProcessMessages;
  end;
 
  Set_Pos(VNewScreenCenterPos, ANewZoom - 1);
- generate_im(nilLastLoad,'');
  MapZoomAnimtion:=0;
  toSh;
 end;
@@ -2233,6 +1946,7 @@ begin
   FreeAndNil(LayerGoto);
   FreeAndNil(LayerMapNal);
   FreeAndNil(LayerMapNavToMark);
+  FreeAndNil(FMainLayer);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -2500,23 +2214,24 @@ var
   btm_ex:TBitmap;
   path: string;
 begin
-  WinDirP:=StrAlloc(MAX_PATH);
-  GetWindowsDirectory(WinDirP, MAX_PATH);
-  path := StrPas(WinDirP)+'\SASwallpaper.bmp';
-  btm_ex:=TBitmap.Create;
-  try
-    btm_ex.Assign(MainLayerMap.bitmap);
-    btm_ex.SaveToFile(path);
-  finally
-    btm_ex.Free;
-  end;
-  with TRegIniFile.Create('Control Panel') do
-   begin
-    WriteString('desktop', 'Wallpaper', StrPas(WinDirP)+'\SASwallpaper.bmp');
-    WriteString('desktop', 'TileWallpaper', '0');
-    free;
-   end;
-  SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, nil, SPIF_SENDWININICHANGE);
+  ShowMessage('Временно не работает');
+//  WinDirP:=StrAlloc(MAX_PATH);
+//  GetWindowsDirectory(WinDirP, MAX_PATH);
+//  path := StrPas(WinDirP)+'\SASwallpaper.bmp';
+//  btm_ex:=TBitmap.Create;
+//  try
+//    btm_ex.Assign(MainLayerMap.bitmap);
+//    btm_ex.SaveToFile(path);
+//  finally
+//    btm_ex.Free;
+//  end;
+//  with TRegIniFile.Create('Control Panel') do
+//   begin
+//    WriteString('desktop', 'Wallpaper', StrPas(WinDirP)+'\SASwallpaper.bmp');
+//    WriteString('desktop', 'TileWallpaper', '0');
+//    free;
+//   end;
+//  SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, nil, SPIF_SENDWININICHANGE);
 end;
 
 procedure TFmain.NopendirClick(Sender: TObject);
@@ -3097,9 +2812,9 @@ begin
   begin
    mWd2:=map.Width shr 1;
    mHd2:=map.Height shr 1;
+   FMainLayer.Resize;
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
-   MainLayerMap.Location:=floatrect(MapLayerLocationRect);
    LayerSelection.Resize;
    LayerMapNal.Resize;
    LayerMapMarks.Resize;
@@ -3294,7 +3009,7 @@ end;
 procedure TFmain.NinvertcolorClick(Sender: TObject);
 begin
  GState.InvertColor:=Ninvertcolor.Checked;
- generate_im(nilLastLoad,''); 
+ generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.mapDblClick(Sender: TObject);
@@ -3304,8 +3019,7 @@ begin
    MapMoving:=false;
    if (aoper=ao_movemap) then begin
      r:=map.ScreenToClient(Mouse.CursorPos);
-   Set_Pos(VisiblePixel2MapPixel(r));
-     generate_im(nilLastLoad,'');
+     Set_Pos(VisiblePixel2MapPixel(r));
    end;
  end;
 end;
@@ -3435,7 +3149,6 @@ begin
     if (GState.GPS_MapMove)and((bpos.X<>ScreenCenterPos.x)or(bpos.y<>ScreenCenterPos.y))
      then begin
            Set_Pos(bpos, GState.zoom_size - 1, GState.sat_map_both);
-           generate_im(nilLastLoad,'');
           end
      else begin
            drawLineGPS;
@@ -3560,11 +3273,12 @@ begin
  GMiniMap.size_dw:=false;
  if (not(GMiniMap.size_dw))and(not(GMiniMap.zooming))and((x>GMiniMap.LayerMinMap.Location.Left+5)and(y>GMiniMap.LayerMinMap.Location.Top))
   then begin
-        if GMiniMap.zoom>1 then
+        if GMiniMap.zoom>1 then begin
          Set_Pos(Point(ScreenCenterPos.x+round((-(128-(GMiniMap.pos.x*(256/GMiniMap.width))))*power(2,GState.zoom_size-GMiniMap.zoom)),
               ScreenCenterPos.y+round((-(128-(GMiniMap.pos.y*(256/GMiniMap.height))))*power(2,GState.zoom_size-GMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both)
-         else Set_Pos(Point(round(GMiniMap.pos.X*(256/GMiniMap.height)*power(2,GState.zoom_size-GMiniMap.zoom)),round((GMiniMap.pos.Y*(256/GMiniMap.height))*power(2,GState.zoom_size-GMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both);
-        generate_im(nilLastLoad,'');
+         end else begin
+          Set_Pos(Point(round(GMiniMap.pos.X*(256/GMiniMap.height)*power(2,GState.zoom_size-GMiniMap.zoom)),round((GMiniMap.pos.Y*(256/GMiniMap.height))*power(2,GState.zoom_size-GMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both);
+         end;
        end
   else GMiniMap.zooming:=false;
  toSh;
@@ -3728,8 +3442,6 @@ begin
  Set_Pos(Point(ScreenCenterPos.x+(MouseDownPoint.x-x),ScreenCenterPos.y+(MouseDownPoint.y-y)));
  MouseUpPoint:=Point(x,y);
  layer.Cursor:=curBuf;
- if ((MouseDownPoint.x<>MouseUpPoint.x)or(MouseDownPoint.y<>MouseUpPoint.y))
-  then generate_im(nilLastLoad,'');
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
    toSh;
@@ -3928,8 +3640,8 @@ begin
                       end;
  if MapZoomAnimtion=1 then exit;
  if MapMoving then begin
+              FMainLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              MainLayerMap.Location:=floatrect(bounds(mWd2-(xhgpx div 2)-(MouseDownPoint.X-x),mHd2-(yhgpx div 2)-(MouseDownPoint.Y-y),xhgpx,yhgpx));
               LayerMapNal.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
