@@ -55,6 +55,9 @@ begin
 
   bs := FExct * sin(VLl.y);
   b := Tan((Vll.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (FExct / 2));
+  if b <= 0 then begin
+    b := 0.00000000000001;
+  end;
   result.y := Fradiusa * Ln(b);
 end;
 
