@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  UMapType,
   u_MapLayerBasic;
 
 type
@@ -14,6 +15,7 @@ type
   protected
     procedure DrawGenShBorders;
     procedure generate_granica;
+    procedure DrawMap(AMapType: TMapType);
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
@@ -28,6 +30,7 @@ implementation
 
 uses
   SysUtils,
+  i_ICoordConverter,
   Ugeofun,
   u_GeoToStr,
   u_GlobalState;
@@ -35,19 +38,29 @@ uses
 
 constructor TMapMainLayer.Create(AParentMap: TImage32; ACenter: TPoint);
 begin
-
+  inherited Create(AParentMap, ACenter);
 end;
 
 destructor TMapMainLayer.Destroy;
 begin
-
   inherited;
 end;
 
 procedure TMapMainLayer.DoRedraw;
+var
+  Leyi:integer;
 begin
   inherited;
-
+  DrawMap(GState.sat_map_both);
+  for Leyi:=0 to length(GState.MapType)-1 do begin
+    if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
+      if not GState.MapType[Leyi].IsKmlTiles then begin
+        DrawMap(GState.MapType[Leyi]);
+      end;
+    end;
+  end;
+  generate_granica;
+  DrawGenShBorders;
 end;
 
 procedure TMapMainLayer.DrawGenShBorders;
@@ -178,6 +191,130 @@ begin
     VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
     VDrawLonLatRect.Top := VDrawLonLatRect.Bottom;
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom-zLatR;
+  end;
+end;
+
+procedure TMapMainLayer.DrawMap(AMapType: TMapType);
+var
+  VZoom: Byte;
+  VZoomSource: Byte;
+  VSourceMapType: TMapType;
+  VBmp: TBitmap32;
+
+  {
+    Прямоугольник пикселей растра в координатах текущей основной карты
+  }
+  VBitmapOnMapPixelRect: TRect;
+
+  {
+    Географические координаты растра
+  }
+  VSourceLonLatRect: TExtendedRect;
+
+  {
+    Прямоугольник пикселов текущего зума, покрывающий растр, в кооординатах
+    карты для которой строится слой
+  }
+  VPixelSourceRect: TRect;
+
+  {
+    Прямоугольник тайлов текущего зума, покрывающий растр, в кооординатах
+    карты, для которой строится слой
+  }
+  VTileSourceRect: TRect;
+
+  {
+    Текущий тайл в кооординатах карты, для которой строится слой
+  }
+  VTile: TPoint;
+
+  {
+    Прямоугольник пикслов текущего тайла в кооординатах карты,
+    для которой строится слой
+  }
+  VCurrTilePixelRectSource: TRect;
+
+  {
+    Прямоугольник пикслов текущего тайла в кооординатах текущей карты
+  }
+  VCurrTilePixelRect: TRect;
+
+  {
+    Прямоугольник пикслов текущего тайла в кооординатах текущего растра
+  }
+  VCurrTilePixelRectAtBitmap: TRect;
+
+  {
+    Прямоугольник тайла подлежащий отображению на текущий растр
+  }
+  VTilePixelsToDraw: TRect;
+
+
+  VSourceGeoConvert: ICoordConverter;
+  VGeoConvert: ICoordConverter;
+  i, j: integer;
+begin
+  VBmp := TBitmap32.Create;
+  try
+    VZoom := FZoom;
+    VSourceMapType := AMapType;
+    VSourceGeoConvert := VSourceMapType.GeoConvert;
+    VGeoConvert := FGeoConvert;
+    VBitmapOnMapPixelRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
+    VBitmapOnMapPixelRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
+      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom, False);
+      VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+      VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
+      VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
+
+      for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
+        VTile.X := i;
+        for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+          VTile.Y := j;
+          VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
+          VTilePixelsToDraw.TopLeft := Point(0, 0);
+          VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;
+          VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top + 1;
+
+          if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
+            VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
+            VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
+          end;
+
+          if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
+            VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
+            VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
+          end;
+
+          if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
+            VTilePixelsToDraw.Right := VPixelSourceRect.Right - VCurrTilePixelRectSource.Left + 1;
+            VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
+          end;
+
+          if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
+            VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top + 1;
+            VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
+          end;
+
+          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom + 8, VGeoConvert);
+          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
+
+          Inc(VCurrTilePixelRectAtBitmap.Bottom);
+          Inc(VCurrTilePixelRectAtBitmap.Right);
+          VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
+          VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+          if VSourceMapType.LoadTile(VBmp, VTile, VZoom, true) then begin
+            FLayer.Bitmap.Lock;
+            try
+              FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+            finally
+              FLayer.Bitmap.UnLock;
+            end;
+          end;
+        end;
+      end;
+  finally
+    VBmp.Free;
   end;
 end;
 
