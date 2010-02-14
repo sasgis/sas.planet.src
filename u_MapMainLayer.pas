@@ -32,6 +32,7 @@ uses
   SysUtils,
   i_ICoordConverter,
   Ugeofun,
+  Uimgfun,
   u_GeoToStr,
   u_GlobalState,
   u_WindowLayerBasic;
@@ -307,13 +308,14 @@ begin
           Inc(VCurrTilePixelRectAtBitmap.Bottom);
           Inc(VCurrTilePixelRectAtBitmap.Right);
           if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False) then begin
-            FLayer.Bitmap.Lock;
-            try
-              VBmp.DrawMode := ADrawMode;
-              FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
-            finally
-              FLayer.Bitmap.UnLock;
-            end;
+            Gamma(VBmp);
+          end;
+          FLayer.Bitmap.Lock;
+          try
+            VBmp.DrawMode := ADrawMode;
+            FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+          finally
+            FLayer.Bitmap.UnLock;
           end;
         end;
       end;
@@ -415,4 +417,3 @@ begin
 end;
 
 end.
- 
