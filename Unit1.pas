@@ -1365,7 +1365,8 @@ begin
   zooming(zoom_,false);
   if draw then begin
     LayerGoto.ShowGotoIcon(LL);
-  end
+  end;
+  generate_im(nilLastLoad, '');
 end;
 
 procedure TFmain.paint_Line;
