@@ -1357,8 +1357,6 @@ begin
 end;
 
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
-var
-  VPoint: TPoint;
 begin
   GState.sat_map_both.GeoConvert.CheckLonLatPos(LL);
   Set_Pos(GState.sat_map_both.GeoConvert.LonLat2PixelPos(LL,(zoom_ - 1)), zoom_ - 1, GState.sat_map_both);
@@ -1386,14 +1384,8 @@ end;
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
-  y_draw,x_draw,y_drawN,x_drawN,xx,yy:longint;
-  i,j:byte;
   Leyi:integer;
-  posN:TPoint;
   ts2,ts3,fr:int64;
-  VSizeInTile: TPoint;
-  VPoint: TPoint;
-  Vspr:TBitmap32;
   VWikiLayersVisible: Boolean;
 begin
   if notpaint then exit;
@@ -1402,8 +1394,6 @@ begin
   if not(lastload.use) then change_scene:=true;
   GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos);
 
-  y_draw:=(256+((ScreenCenterPos.y-(yhgpx div 2))mod 256))mod 256;
-  x_draw:=(256+((ScreenCenterPos.x-(xhgpx div 2))mod 256))mod 256;
   FMainLayer.Redraw;
   LayerScaleLine.Redraw;
   VWikiLayersVisible := False;
@@ -1817,8 +1807,7 @@ procedure TFmain.zooming(ANewZoom:byte;move:boolean);
      until ((endTS-startTS)/(freqTS/1000))>mils;
    end;
   end;
-var w,i,steps,d_moveH,d_moveW:integer;
-    w1:extended;
+var i,steps:integer;
     ts1,ts2,fr:int64;
     VNewScreenCenterPos: TPoint;
     Scale: Extended;
@@ -1834,27 +1823,17 @@ begin
  if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom<1)or(ANewZoom>24) then exit;
  MapZoomAnimtion:=1;
  steps:=10;
- d_moveH:=0;
- d_moveW:=0;
  if GState.zoom_size>ANewZoom
   then begin
-         w:=-steps*2;
-         w1:=-steps;
          VNewScreenCenterPos := Point(trunc(ScreenCenterPos.x/power(2,GState.zoom_size-ANewZoom)),trunc(ScreenCenterPos.y/power(2,GState.zoom_size-ANewZoom)));
          if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
            VNewScreenCenterPos := Point(VNewScreenCenterPos.x+(mWd2-m_m.X)div 2,VNewScreenCenterPos.y+(mHd2-m_m.y)div 2);
-           d_moveW:=((mWd2-m_m.X) div 2);
-           d_moveH:=((mHd2-m_m.Y) div 2);
          end;
        end
   else begin
-         w:=steps;
-         w1:=steps / 2;
          VNewScreenCenterPos:=Point(trunc(ScreenCenterPos.x*power(2,ANewZoom-GState.zoom_size)),trunc(ScreenCenterPos.y*power(2,ANewZoom-GState.zoom_size)));
          if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
            VNewScreenCenterPos:=Point(VNewScreenCenterPos.x-(mWd2-m_m.X),VNewScreenCenterPos.y-(mHd2-m_m.y));
-           d_moveW:=(mWd2-m_m.X);
-           d_moveH:=(mHd2-m_m.Y);
          end;
        end;
  if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
