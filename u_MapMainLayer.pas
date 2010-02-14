@@ -15,7 +15,7 @@ type
   protected
     procedure DrawGenShBorders;
     procedure generate_granica;
-    procedure DrawMap(AMapType: TMapType);
+    procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
@@ -33,7 +33,9 @@ uses
   i_ICoordConverter,
   Ugeofun,
   u_GeoToStr,
-  u_GlobalState;
+  u_GlobalState,
+  u_WindowLayerBasic;
+
 { TMapMainLayer }
 
 constructor TMapMainLayer.Create(AParentMap: TImage32; ACenter: TPoint);
@@ -51,11 +53,12 @@ var
   Leyi:integer;
 begin
   inherited;
-  DrawMap(GState.sat_map_both);
+  FLayer.Bitmap.Clear(Color32(GState.BGround));
+  DrawMap(GState.sat_map_both, dmOpaque);
   for Leyi:=0 to length(GState.MapType)-1 do begin
     if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
       if not GState.MapType[Leyi].IsKmlTiles then begin
-        DrawMap(GState.MapType[Leyi]);
+        DrawMap(GState.MapType[Leyi], dmBlend);
       end;
     end;
   end;
@@ -194,7 +197,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayer.DrawMap(AMapType: TMapType);
+procedure TMapMainLayer.DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
 var
   VZoom: Byte;
   VZoomSource: Byte;
@@ -299,13 +302,14 @@ begin
           VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom + 8, VGeoConvert);
           VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
 
-          Inc(VCurrTilePixelRectAtBitmap.Bottom);
-          Inc(VCurrTilePixelRectAtBitmap.Right);
           VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
           VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
-          if VSourceMapType.LoadTile(VBmp, VTile, VZoom, true) then begin
+          Inc(VCurrTilePixelRectAtBitmap.Bottom);
+          Inc(VCurrTilePixelRectAtBitmap.Right);
+          if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False) then begin
             FLayer.Bitmap.Lock;
             try
+              VBmp.DrawMode := ADrawMode;
               FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
             finally
               FLayer.Bitmap.UnLock;
