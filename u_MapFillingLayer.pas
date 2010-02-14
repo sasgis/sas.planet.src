@@ -284,10 +284,10 @@ begin
           VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
 
           if FNeedRedrow then break;
-          Inc(VCurrTilePixelRectAtBitmap.Bottom);
-          Inc(VCurrTilePixelRectAtBitmap.Right);
           VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
           VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+          Inc(VCurrTilePixelRectAtBitmap.Bottom);
+          Inc(VCurrTilePixelRectAtBitmap.Right);
           if FNeedRedrow then break;
           if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
             FLayer.FLayer.Bitmap.Lock;
