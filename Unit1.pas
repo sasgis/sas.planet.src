@@ -3288,7 +3288,9 @@ begin
   if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
-  Layer.Cursor:=curBuf;
+  if Layer <> nil then begin
+    Layer.Cursor:=curBuf;
+  end;
   VZoomCurr := GState.zoom_size - 1;
   VPoint := VisiblePixel2MapPixel(Point(x, y));
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
@@ -3423,14 +3425,18 @@ begin
    begin
     TBFullSize.Checked:=not(TBFullSize.Checked);
     TBFullSizeClick(Sender);
-    layer.Cursor:=curBuf;
+    if Layer <> nil then begin
+      layer.Cursor:=curBuf;
+    end;
     exit;
    end;
 
  POSb:=ScreenCenterPos;
  Set_Pos(Point(ScreenCenterPos.x+(MouseDownPoint.x-x),ScreenCenterPos.y+(MouseDownPoint.y-y)));
  MouseUpPoint:=Point(x,y);
- layer.Cursor:=curBuf;
+ if Layer <> nil then begin
+   layer.Cursor:=curBuf;
+ end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
    toSh;
@@ -3457,7 +3463,9 @@ begin
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
-    layer.Cursor:=curBuf;
+    if Layer <> nil then begin
+      layer.Cursor:=curBuf;
+    end;
     PWL.S:=0;
     PWL.find:=false;
     if (FWikiLayer.Visible) then
@@ -3642,14 +3650,14 @@ begin
         else m_m:=point(x,y);
  if not(MapMoving) then toSh;
 
- if (not ShowActivHint) then
-  begin
-   if (HintWindow<>nil) then
-    begin
+ if (not ShowActivHint) then begin
+   if (HintWindow<>nil) then begin
      HintWindow.ReleaseHandle;
      FreeAndNil(HintWindow);
     end;
-   Layer.Cursor:=curBuf;
+   if Layer <> nil then begin
+     Layer.Cursor:=curBuf;
+   end;
   end;
  ShowActivHint:=false;
  if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
@@ -3695,7 +3703,9 @@ begin
         end;
        inc(i);
       end;
-     layer.Cursor:=crHandPoint;
+     if Layer <> nil then begin
+      layer.Cursor:=crHandPoint;
+     end;
      if nms<>'' then
      begin
       if HintWindow=nil then
