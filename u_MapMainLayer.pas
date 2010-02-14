@@ -343,7 +343,7 @@ var
     VGridZoom: Byte;
     VTilesLineRect: TRect;
 begin
-  VCurrentZoom := GState.zoom_size - 1;
+  VCurrentZoom := FZoom;
   if GState.TileGridZoom=99 then begin
     VGridZoom := VCurrentZoom;
   end else begin
@@ -354,9 +354,9 @@ begin
   VLoadedRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
   VLoadedRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
 
-  GState.sat_map_both.GeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom, False);
-  VLoadedRelativeRect := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
-  VTilesRect := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+  FGeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom, False);
+  VLoadedRelativeRect := FGeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
+  VTilesRect := FGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
 
   drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
 
@@ -366,8 +366,8 @@ begin
     VTilesLineRect.Top := i;
     VTilesLineRect.Bottom := i;
 
-    VTileRelativeRect := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+    VTileRelativeRect := FGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+    VTileRect := FGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
     VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
     VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
     FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
@@ -380,8 +380,8 @@ begin
     VTilesLineRect.Left := j;
     VTilesLineRect.Right := j;
 
-    VTileRelativeRect := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+    VTileRelativeRect := FGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+    VTileRect := FGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
     VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
     VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
     FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
@@ -395,8 +395,8 @@ begin
     VTileIndex.Y := i;
     for j := VTilesRect.Left to VTilesRect.Right do begin
       VTileIndex.X := j;
-      VTileRelativeRect := GState.sat_map_both.GeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-      VTileRect := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileRelativeRect := FGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
+      VTileRect := FGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
       VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
       VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
 
