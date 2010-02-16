@@ -1567,6 +1567,9 @@ begin
  GState.BorderAlpha:=GState.MainIni.Readinteger('VIEW','BorderAlpha',150);
  GState.BorderColor:=GState.MainIni.Readinteger('VIEW','BorderColor',$FFFFFF);
  GState.ShowBorderText:=GState.MainIni.ReadBool('VIEW','BorderText',true);
+ GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
+ GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
+ GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
  GState.GShScale:=GState.MainIni.Readinteger('VIEW','GShScale',0);
  if GState.GShScale >= 1000000 then begin
   GState.GShScale := 1000000;
@@ -1653,9 +1656,6 @@ begin
     GState.zoom_size - 1,
     GState.sat_map_both
   );
- GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
- GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
- GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
  try
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
