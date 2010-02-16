@@ -139,6 +139,8 @@ type
     // Число для изменения контрастности тайлов перед отображением
     ContrastN: Integer;
 
+    // Фиксировать центр изменения масштаба под курсором мыши
+    ZoomingAtMousePos: Boolean;
 
     show_point: TMarksShowType;
     FirstLat: Boolean;
@@ -182,9 +184,6 @@ type
 
     // Текущий зумм
     zoom_size: byte;
-
-    // Зум карты заполения
-    zoom_mapzap: byte;
 
     // Отображать сетку тайлов для заданного зума
     TileGridZoom: byte;
@@ -245,6 +244,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
+    procedure StopAllThreads;
   end;
 
 const
@@ -447,6 +447,11 @@ procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
 begin
   FCacheElemensMaxCnt := Value;
   FMemFileCache.CacheElemensMaxCnt:= FCacheElemensMaxCnt;
+end;
+
+procedure TGlobalState.StopAllThreads;
+begin
+  FGCThread.Terminate;
 end;
 
 end.

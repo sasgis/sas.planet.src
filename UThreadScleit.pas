@@ -268,33 +268,15 @@ begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        if (FTypeMap.Tileexists(p_x,p_y, FZoom)) then begin
-          if not(FTypeMap.LoadTile(btmm,p_x,p_y, FZoom,false)) then begin
-            FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y,FZoom,false);
-          end;
-        end else begin
-          FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
-        end;
+        FTypeMap.LoadTileOrPreZ(btmm,p_x,p_y, FZoom,false, true);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
-            if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y, FZoom,false)) then begin
-              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
-            end;
-          end else begin
-            FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
-          end;
+          FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y, FZoom,false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            if (FHTypeMap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
-              if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
-                FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
-              end;
-            end else begin
-              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
-            end;
+            FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y+256, FZoom, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
@@ -368,33 +350,15 @@ begin
       end else begin
         FLLRect:=bounds(p_x,p_y,256,256);
         btmm.Clear(Color32(GState.BGround));
-        if (FTypeMap.Tileexists(p_x,p_y, FZoom)) then begin
-          if not(FTypeMap.LoadTile(btmm,p_x,p_y, FZoom, false)) then begin
-            FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
-          end;
-        end else begin
-          FTypeMap.LoadTileFromPreZ(btmm,p_x,p_y, FZoom, false);
-        end;
+        FTypeMap.LoadTileOrPreZ(btmm,p_x,p_y, FZoom, false, True);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          if (FHTypeMap.Tileexists(p_h.x,p_h.y, FZoom)) then begin
-            if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y, FZoom, false)) then begin
-              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
-            end;
-          end else begin
-            FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y, FZoom, false);
-          end;
+          FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y, FZoom, false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            if (FHTypeMap.Tileexists(p_h.x,p_h.y+256, FZoom)) then begin
-              if not(FHTypeMap.LoadTile(btmh,p_h.x,p_h.y+256, FZoom, false)) then begin
-                FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
-              end;
-            end else begin
-              FHTypeMap.LoadTileFromPreZ(btmh,p_h.x,p_h.y+256, FZoom, false);
-            end;
+            FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y+256, FZoom, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;

@@ -295,6 +295,7 @@ begin
  try
  SaveMaps;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
+ GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
  GState.MainIni.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
  GState.MainIni.WriteInteger('POSITION','x',FMain.ScreenCenterPos.x);
  GState.MainIni.WriteInteger('POSITION','y',FMain.ScreenCenterPos.y);
@@ -321,7 +322,11 @@ begin
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
- GState.MainIni.Writeinteger('VIEW','MapZap',GState.zoom_mapzap);
+ if Fmain.FFillingMap.SourceZoom > 0 then begin
+   GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom + 1);
+ end else begin
+   GState.MainIni.Writeinteger('VIEW','MapZap', 0);
+ end;
  GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  GState.MainIni.Writebool('VIEW','CiclMap',GState.CiclMap);
@@ -339,8 +344,8 @@ begin
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
 
- if FMain.Fillingmaptype=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.Fillingmaptype.GUIDString);
+ if FMain.FFillingMap.SourceMapType=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceMapType.GUIDString);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
@@ -476,6 +481,8 @@ procedure TFSettings.Button3Click(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
     VLoadedSizeInPixel: TPoint;
+  hg_x: integer;
+  hg_y: integer;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
@@ -608,16 +615,10 @@ begin
    yhgpx:=256*hg_y;
    xhgpx:=256*hg_x;
  end;
- pr_x:=(xhgpx)div 2;
- pr_y:=(yhgpx)div 2;
+// pr_x:=(xhgpx)div 2;
+// pr_y:=(yhgpx)div 2;
 
  VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
- FMain.LayerMap.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.LayerMap.Bitmap.Height := VLoadedSizeInPixel.Y;
- FMain.LayerMapNal.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.LayerMapNal.Bitmap.Height := VLoadedSizeInPixel.Y;
- FMain.LayerMapWiki.Bitmap.Width := VLoadedSizeInPixel.X;
- FMain.LayerMapWiki.Bitmap.Height := VLoadedSizeInPixel.Y;
 
  SetProxy;
 

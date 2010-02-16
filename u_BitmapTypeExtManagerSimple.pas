@@ -123,7 +123,7 @@ function TBitmapTypeExtManagerSimple.GetBitmapSaverForType(
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := FSavers[0];
-  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') or SameText(AType, 'image/png; mode=24bit') then begin
     Result := FSavers[1];
   end else if SameText(AType, 'image/gif') then begin
     Result := FSavers[2];

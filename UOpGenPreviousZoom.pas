@@ -54,7 +54,8 @@ type
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
-      AGenFormPrev: boolean
+      AGenFormPrev: boolean;
+      AResampler:TTileResamplingType
     );
   end;
 
@@ -64,7 +65,7 @@ uses
   u_GlobalState,
   unit1;
 
-constructor TOpGenPreviousZoom.Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean);
+constructor TOpGenPreviousZoom.Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean; AResampler:TTileResamplingType);
 begin
   inherited Create(False);
   Priority := tpLowest;
@@ -77,7 +78,7 @@ begin
   TileInProc:=0;
   FromZoom:=Azoom;
   typemap:=Atypemap;
-  Resampler := GState.Resampling;
+  Resampler := AResampler;
 end;
 
 destructor TOpGenPreviousZoom.destroy;

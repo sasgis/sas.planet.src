@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -41,8 +42,10 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
+    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
+    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -751,6 +754,7 @@ object Fmain: TFmain
         object NGoToCur: TTBXItem
           AutoCheck = True
           Checked = True
+          OnClick = NGoToCurClick
           Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100' '#1082' '#1082#1091#1088#1089#1086#1088#1091
           Hint = ''
         end
@@ -5632,8 +5636,8 @@ object Fmain: TFmain
     end
   end
   object ImageList1: TImageList
-    Left = 108
-    Top = 97
+    Left = 20
+    Top = 105
   end
   object TBImageList1_24: TTBImageList
     Height = 17

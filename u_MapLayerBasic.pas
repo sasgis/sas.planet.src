@@ -6,6 +6,7 @@ uses
   Windows,
   GR32,
   GR32_Image,
+  i_ICoordConverter,
   u_WindowLayerBasic,
   t_GeoTypes;
 
@@ -18,7 +19,10 @@ type
     FScaleCenterInBitmapPixel: TPoint;
     FFreezeInCenter: Boolean;
     FCenterMove: TPoint;
+
     FScreenCenterPos: TPoint;
+    FZoom: Byte;
+    FGeoConvert: ICoordConverter;
 
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
@@ -26,6 +30,8 @@ type
     function GetScale: double; override;
 
     function GetScreenCenterInBitmapPixels: TPoint; virtual;
+    function IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;
+    procedure RedrawPartial(ANewCenterPos: TPoint); virtual;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
@@ -38,10 +44,13 @@ type
     function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    procedure Redraw; override;
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); virtual;
-    procedure SetScreenCenterPos(const Value: TPoint); virtual;
+    procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); virtual;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
+    property Zoom: Byte read FZoom;
+    property GeoConvert: ICoordConverter read FGeoConvert;
   end;
 implementation
 
@@ -59,18 +68,51 @@ begin
   FScreenCenterPos := ACenter;
 end;
 
-procedure TMapLayerBasic.SetScreenCenterPos(const Value: TPoint);
+function TMapLayerBasic.IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;
 begin
-  FScreenCenterPos := Value;
+  Result := (FScreenCenterPos.X <> ANewCenterPos.X) or (FScreenCenterPos.Y <> ANewCenterPos.Y);
+end;
+
+procedure TMapLayerBasic.RedrawPartial(ANewCenterPos: TPoint);
+begin
+  // ѕо-умолчанию, не делаем ничего. ≈сли карта поддерживает частичное обновление то должна перекрывать этот метод.
+end;
+
+procedure TMapLayerBasic.SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter);
+var
+  VFullRedraw: Boolean;
+begin
+  VFullRedraw := False;
+  if (FGeoConvert = nil) or ((FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG)) then begin
+    VFullRedraw := True;
+  end;
+  if FZoom <> AZoom then begin
+    VFullRedraw := True;
+  end;
+  if (FScreenCenterPos.X <> AScreenCenterPos.X) or (FScreenCenterPos.Y <> AScreenCenterPos.Y) then begin
+    if not VFullRedraw then begin
+      if IsNeedFullRedraw(AScreenCenterPos) then begin
+        VFullRedraw := True;
+      end else begin
+        FScreenCenterPos := AScreenCenterPos;
+      end;
+    end;
+  end;
+
   FScale := 1;
   FCenterMove := Point(0, 0);
-
   FFreezeInCenter := True;
 
-  if Visible then begin
+  if VFullRedraw then begin
+    FGeoConvert := AGeoConvert;
+    FZoom := AZoom;
+    FScreenCenterPos := AScreenCenterPos;
     Redraw;
-    Resize;
+  end else begin
+    RedrawPartial(AScreenCenterPos);
+    FScreenCenterPos := AScreenCenterPos;
   end;
+  Resize;
 end;
 
 function TMapLayerBasic.GetScreenCenterInBitmapPixels: TPoint;
@@ -201,6 +243,13 @@ function TMapLayerBasic.GetBitmapSizeInPixel: TPoint;
 begin
   Result.X := GState.ScreenSize.X + 2 * 256 * GState.TilesOut;
   Result.Y := GState.ScreenSize.Y + 2 * 256 * GState.TilesOut;
+end;
+
+procedure TMapLayerBasic.Redraw;
+begin
+  if FGeoConvert <> nil then begin
+    inherited;
+  end;
 end;
 
 end.
