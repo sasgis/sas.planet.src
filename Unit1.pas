@@ -70,6 +70,7 @@ uses
   u_MapFillingLayer,
   u_MapNalLayer,
   u_MapLayerGoto,
+  u_MapLayerShowError,
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
@@ -572,6 +573,7 @@ type
     FScreenCenterPos: TPoint;
     FMainLayer: TMapMainLayer;
     LayerStatBar: TLayerStatBar;
+    FShowErrorLayer: TTileErrorInfoLayer;
     FWikiLayer: TWikiLayer;
     dWhenMovingButton: integer;
     LenShow: boolean;
@@ -762,6 +764,7 @@ begin
   LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
 
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
@@ -1407,12 +1410,9 @@ begin
   FWikiLayer.Redraw;
   FWikiLayer.Visible := VWikiLayersVisible;
 
-//  if (lastload.use)and(err<>'') then begin
-//    VPoint := MapPixel2BitmapPixel(Point(lastload.x, lastload.y));
-//    VPoint.X := VPoint.X + 15;
-//    VPoint.Y := VPoint.Y + 124;
-//    MainLayerMap.Bitmap.RenderText(VPoint.X, VPoint.Y, err, 0, clBlack32);
-//  end;
+  if (lastload.use)and(err<>'') then begin
+    FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
+  end;
 
   if not(lastload.use) then begin
     if aoper=ao_line then begin
@@ -1639,6 +1639,7 @@ begin
  LayerMapNal:=TMapNalLayer.Create(map, ScreenCenterPos);
  LayerMapNal.Visible:=false;
  FFillingMap:=TMapFillingLayer.create(map, ScreenCenterPos);
+ FShowErrorLayer := TTileErrorInfoLayer.Create(map, ScreenCenterPos);
  LayerMapScale := TCenterScale.Create(map);
  LayerScaleLine := TLayerScaleLine.Create(map);
  LayerStatBar:=TLayerStatBar.Create(map);
@@ -1853,6 +1854,7 @@ begin
         FFillingMap.ScaleTo(Scale, m_m);
         LayerMapNal.ScaleTo(Scale, m_m);
         LayerGoto.ScaleTo(Scale, m_m);
+        FShowErrorLayer.ScaleTo(Scale, m_m);
         LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
         FMainLayer.ScaleTo(Scale, Point(mWd2, mHd2));
@@ -1863,6 +1865,7 @@ begin
         FFillingMap.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapNal.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerGoto.ScaleTo(Scale, Point(mWd2, mHd2));
+        FShowErrorLayer.ScaleTo(Scale, Point(mWd2, mHd2));
         LayerMapNavToMark.ScaleTo(Scale, Point(mWd2, mHd2));
       end;
      application.ProcessMessages;
@@ -1933,6 +1936,7 @@ begin
   FreeAndNil(LayerMapMarks);
   FreeAndNil(LayerSelection);
   FreeAndNil(LayerGoto);
+  FreeAndNil(FShowErrorLayer);
   FreeAndNil(LayerMapNal);
   FreeAndNil(LayerMapNavToMark);
   FreeAndNil(FMainLayer);
@@ -2812,6 +2816,7 @@ begin
    FWikiLayer.Resize;
    FFillingMap.Resize;
    LayerGoto.Resize;
+   FShowErrorLayer.Resize;
    LayerMapNavToMark.Resize;
    toSh;
    GMiniMap.sm_im_reset(GMiniMap.width div 2,GMiniMap.height div 2, ScreenCenterPos)
@@ -3645,6 +3650,7 @@ begin
               LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FShowErrorLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
         else m_m:=point(x,y);
