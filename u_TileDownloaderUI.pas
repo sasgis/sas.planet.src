@@ -124,9 +124,9 @@ begin
                   FLoadXY.Y := BPos.y-(yhgpx div 2)+(y shl 8);
                   VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
 
-                  Flastload.X:=FLoadXY.X-(abs(FLoadXY.X) mod 256);
-                  Flastload.Y:=FLoadXY.Y-(abs(FLoadXY.Y) mod 256);
-                  Flastload.z:=Fzoom;
+                  Flastload.TilePos.X:=FLoadXY.X shr 8;
+                  Flastload.TilePos.Y:=FLoadXY.Y shr 8;
+                  Flastload.Zoom:=Fzoom - 1;
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
                   if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y,Fzoom)))) then begin
