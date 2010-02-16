@@ -8,6 +8,57 @@ uses
 
 
 type
+  IMarkSimple = interface
+    function GetRect: TExtendedRect; safecall;
+    function GetName: WideString; safecall;
+    function GetDescr: WideString; safecall;
+  end;
+  
+  IMarkPoint = interface(IMarkSimple)
+    function GetPicName: WideString; safecall;
+  end;
+
+  IEnumDoublePoint = interface
+    // Методы для как у стандартных IEnumXXXX
+
+    //Сброс итератора.
+    procedure Reset(); safecall;
+
+    //Пропустить заданное количество тайлов.
+    //Возвращает S_OK если получилось пропустьить именно столько сколько требовалось.
+    function Skip(celt: Cardinal): HRESULT; stdcall;
+
+    //Получить масив из заданного в celt количества тайлов. rgelt указатель на возвращаемый массив,
+    //celtFetched количество реально полученных элементов. Возвращает S_OK если celt=celtFetched
+    //память под массив должна быть выделена клиентом в количестве достаточном для хранения запрошенного
+    //количества элементов
+    function Next(celt: Cardinal; out rgelt; var celtFetched: Cardinal): HRESULT; stdcall;
+
+    // Делает копию текущего итератора с тем же состоянием. Итератор может не поддерживать возможность
+    // и может вернуть E_NOTIMPL
+    function Clone(out penum: IEnumDoublePoint): HRESULT; stdcall;
+  end;
+
+  IDoublePointArray = interface
+    function GetCount: Cardinal; safecall;
+    function GetPoint(AIndex: Cardinal): TDoublePoint; safecall;
+    function GetEnum: IEnumDoublePoint; safecall;
+  end;
+
+  IMarkPath = interface(IMarkSimple)
+    function GetColor: Cardinal; stdcall;
+    function GetLineWidth: Cardinal; stdcall;
+    function GetPoints: IDoublePointArray;
+  end;
+
+  IMarkPoly = interface(IMarkSimple)
+    function GetBorderColor: Cardinal; stdcall;
+    function GetFillColor: Cardinal; stdcall;
+    function GetPoints: IDoublePointArray;
+  end;
+
+
+
   IMarkBasic = interface
   ['{CCB5B32C-F6F9-4445-B0EF-D14C19C8D761}']
     function GetId: integer; stdcall;
