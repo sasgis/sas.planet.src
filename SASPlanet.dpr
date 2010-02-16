@@ -91,6 +91,7 @@ uses
   u_SelectionLayer in 'u_SelectionLayer.pas',
   u_LayerScaleLine in 'u_LayerScaleLine.pas',
   u_MapGPSLayer in 'u_MapGPSLayer.pas',
+  u_MapLayerShowError in 'u_MapLayerShowError.pas',
   u_MapNalLayer in 'u_MapNalLayer.pas',
   u_MapLayerGoto in 'u_MapLayerGoto.pas',
   i_Marks in 'i_Marks.pas',
