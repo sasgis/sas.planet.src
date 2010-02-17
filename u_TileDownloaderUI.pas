@@ -15,6 +15,7 @@ type
   private
     UPos: TPoint;
     FSizeInTile: TPoint;
+    FSizeInPixels: TPoint;
     FLastLoad: TlastLoad;
     FErrorString: string;
     procedure GetCurrentMapAndPos;
@@ -53,8 +54,11 @@ begin
  Upos:= FMain.ScreenCenterPos;
  FZoom:= GState.zoom_size;
  //TODO: Переписать нормально с учетом настроек.
- FSizeInTile.X := GState.ScreenSize.X div 256 + 1;
- FSizeInTile.Y := GState.ScreenSize.Y div 256 + 1;
+ FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
+ FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
+
+ FSizeInTile.X := FSizeInPixels.X div 256;
+ FSizeInTile.Y := FSizeInPixels.Y div 256;
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;
@@ -122,8 +126,8 @@ begin
                   BPos:=UPos;
                   VZoom := FZoom - 1;
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
-                  FLoadXY.X := BPos.x-(xhgpx div 2)+(x shl 8);
-                  FLoadXY.Y := BPos.y-(yhgpx div 2)+(y shl 8);
+                  FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
+                  FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
                   VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
 
                   Flastload.TilePos.X:=FLoadXY.X shr 8;

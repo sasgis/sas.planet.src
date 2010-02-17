@@ -480,8 +480,6 @@ end;
 procedure TFSettings.Button3Click(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
-  hg_x: integer;
-  hg_y: integer;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
@@ -604,19 +602,6 @@ begin
                       DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
  GState.TilesOut:=SpinEdit3.Value;
- hg_x:=(Screen.Width div 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
- hg_y:=(Screen.Height div 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
-
- if GState.TilesOut=0 then begin
-   yhgpx:=Screen.Height;
-   xhgpx:=Screen.Width;
- end else begin
-   yhgpx:=256*hg_y;
-   xhgpx:=256*hg_x;
- end;
-// pr_x:=(xhgpx)div 2;
-// pr_y:=(yhgpx)div 2;
-
 
  SetProxy;
 

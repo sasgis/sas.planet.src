@@ -655,10 +655,6 @@ var
 
   mWd2: integer;
   mHd2: integer;
-  yhgpx: integer;
-  xhgpx: integer;
-//  pr_x: integer;
-//  pr_y: integer;
   m_m: Tpoint;
   moveTrue: Tpoint;
   nilLastLoad: TLastLoad;
@@ -1433,8 +1429,6 @@ var
      MainWindowMaximized: Boolean;
      VGUID: TGUID;
      VGUIDString: string;
-  hg_x: integer;
-  hg_y: integer;
   VFillingmaptype: TMapType;
   Vzoom_mapzap: Byte;
 begin
@@ -1500,16 +1494,6 @@ begin
  MapZoomAnimtion:=0;
 
  GState.TilesOut:=GState.MainIni.readInteger('VIEW','TilesOut',0);
-
- hg_x:=round(Screen.Width / 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
- hg_y:=round(Screen.Height / 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
- if GState.TilesOut=0 then begin
-   yhgpx:=Screen.Height;
-   xhgpx:=Screen.Width;
- end else begin
-   yhgpx:=256*hg_y;
-   xhgpx:=256*hg_x;
- end;
 
  setlength(GState.LastSelectionPolygon,0);
 
