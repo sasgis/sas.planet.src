@@ -284,8 +284,16 @@ begin
         FFixedPointArray[i] := FixedPoint(AData.FPolygonOnBitmap[i]);
       end;
       VPolygon.AddPoints(FFixedPointArray[0], VLen);
-      VPolygon.DrawEdge(FLayer.Bitmap, VColorBG);
-      VPolygon.Offset(Fixed(1), Fixed(1));
+      with VPolygon.Outline do try
+          with Grow(Fixed(1 / 2), 0.5) do try
+            FillMode := pfWinding;
+            DrawFill(FLayer.Bitmap, VColorBG);
+          finally
+            free;
+          end;
+        finally
+          free;
+        end;
       VPolygon.DrawEdge(FLayer.Bitmap, VColorMain);
     end else begin
       FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X-3, AData.FPolygonOnBitmap[0].Y+3);
