@@ -594,6 +594,8 @@ type
     LayerGoto: TGotoLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
+    m_m: Tpoint;
+    moveTrue: Tpoint;
     MapMoving: Boolean;
     MapZoomAnimtion: Integer;
     change_scene: boolean;
@@ -606,7 +608,6 @@ type
     property ScreenCenterPos: TPoint read FScreenCenterPos;
     procedure generate_im(lastload: TLastLoad; err: string);
     function  toSh: string;
-    class   function  X2AbsX(Ax: integer; Azoom: byte): integer;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure zooming(ANewZoom: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
@@ -653,10 +654,7 @@ const
 var
   Fmain: TFmain;
 
-  m_m: Tpoint;
-  moveTrue: Tpoint;
   nilLastLoad: TLastLoad;
-  paintMark: boolean;
   GMiniMapPopupMenu: TTBXPopupMenu;
 
   function c_GetTempPath: string;
@@ -1156,13 +1154,6 @@ begin
               end;
             end;
   end;
-end;
-
-
-class function TFmain.X2AbsX(Ax: integer; Azoom: byte): integer;
-begin
- if Ax>=0 then result:=Ax mod zoom[Azoom]
-          else result:=zoom[Azoom]+(Ax mod zoom[Azoom])
 end;
 
 class function TFmain.str2r(inp: string): real;

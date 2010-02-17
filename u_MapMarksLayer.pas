@@ -120,7 +120,6 @@ var xy,xyb:Tpoint;
     marksFilter:string;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
-  paintMark:=true;
   try
     marksFilter:='';
     if GState.show_point = mshChecked then begin
@@ -286,7 +285,6 @@ var
 begin
   inherited;
   if FMain.CDSmarks.State <> dsBrowse then exit;
-  paintMark:=true;
   try
     VZoomCurr := FZoom;
     VBitmapSize := GetBitmapSizeInPixel;
@@ -373,7 +371,6 @@ begin
       btm.Free;
     end;
   finally
-    paintMark:=false;
   end;
 end;
 
