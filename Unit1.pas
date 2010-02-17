@@ -651,8 +651,6 @@ const
 var
   Fmain: TFmain;
 
-  GMiniMapPopupMenu: TTBXPopupMenu;
-
   function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
   procedure CopyBtmToClipboard(btm: TBitmap);
@@ -1396,7 +1394,6 @@ begin
  RectWindow := Types.Rect(0, 0, 0, 0);
  Enabled:=false;
  dWhenMovingButton := 5;
- GMiniMapPopupMenu := PopupMSmM;
  MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
@@ -3148,7 +3145,7 @@ var ll,lt:integer;
 begin
   map.PopupMenu:=nil;
   case button of
-    mbRight: map.PopupMenu:=GMiniMapPopupMenu;
+    mbRight: map.PopupMenu:=PopupMSmM;
     mbLeft: begin
       ll:=round(GMiniMap.LayerMinMap.Location.Left);
       lt:=round(GMiniMap.LayerMinMap.Location.top);

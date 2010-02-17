@@ -292,7 +292,7 @@ begin
   for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
   for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
   for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
-  for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
+  for i:=0 to Fmain.PopupMSmM.Items.Count-3 do Fmain.PopupMSmM.Items.Items[2].Free;
 
   GMiniMap.maptype:=nil;
   i:=length(GState.MapType)-1;
@@ -341,8 +341,8 @@ begin
 
         if IsCanShowOnSmMap then begin
           if not(asLayer) then begin
-            NSmItem:=TTBXITem.Create(GMiniMapPopupMenu);
-            GMiniMapPopupMenu.Items.Add(NSmItem)
+            NSmItem:=TTBXITem.Create(Fmain.PopupMSmM);
+            Fmain.PopupMSmM.Items.Add(NSmItem)
           end else begin
             NSmItem:=TTBXITem.Create(Fmain.NSubMenuSmItem);
             Fmain.NSubMenuSmItem.Add(NSmItem);
