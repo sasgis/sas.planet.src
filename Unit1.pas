@@ -565,7 +565,6 @@ type
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
   protected
     Flock_toolbars: boolean;
-    notpaint: boolean;
     rect_dwn: Boolean;
     rect_p2: boolean;
     FTileSource: TTileSource;
@@ -1383,7 +1382,6 @@ var
   ts2,ts3,fr:int64;
   VWikiLayersVisible: Boolean;
 begin
-  if notpaint then exit;
   QueryPerformanceCounter(ts2);
 
   if not(lastload.use) then change_scene:=true;
@@ -1498,7 +1496,6 @@ begin
        end;
  Enabled:=true;
  nilLastLoad.use:=false;
- notpaint:=true;
  Application.OnMessage := DoMessageEvent;
  Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
  LenShow:=true;
@@ -1746,7 +1743,6 @@ begin
                    else TBMapZap.Caption:='';
  selectMap(GState.sat_map_both);
  RxSlider1.Value:=GState.Zoom_size-1;
- notpaint:=false;
 
  map.Color:=GState.BGround;
 
