@@ -549,18 +549,6 @@ type
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
     HintWindow: THintWindow;
-    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure Set_lock_toolbars(const Value: boolean);
-    procedure Set_TileSource(const Value: TTileSource);
-    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType); overload;
-    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte); overload;
-    procedure Set_Pos(const AScreenCenterPos: TPoint); overload;
-    function GetVisiblePixelRect: TRect;
-    function GetVisibleTopLeft: TPoint;
-    function GetVisibleSizeInPixel: TPoint;
-    procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
-  protected
     Flock_toolbars: boolean;
     rect_dwn: Boolean;
     rect_p2: boolean;
@@ -583,16 +571,29 @@ type
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
     PWL: TResObj;
-  public
-    FFillingMap: TMapFillingLayer;
     LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TMapNalLayer;
     LayerMapGPS: TMapGPSLayer;
+    LayerGoto: TGotoLayer;
+    ProgramStart: Boolean;
+    ProgramClose: Boolean;
+    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
+    procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
+    procedure Set_lock_toolbars(const Value: boolean);
+    procedure Set_TileSource(const Value: TTileSource);
+    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType); overload;
+    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte); overload;
+    procedure Set_Pos(const AScreenCenterPos: TPoint); overload;
+    function GetVisiblePixelRect: TRect;
+    function GetVisibleTopLeft: TPoint;
+    function GetVisibleSizeInPixel: TPoint;
+    procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
+  public
+    FFillingMap: TMapFillingLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapNavToMark: TNavToMarkLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
-    LayerGoto: TGotoLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     m_m: Tpoint;
@@ -600,8 +601,6 @@ type
     MapMoving: Boolean;
     MapZoomAnimtion: Integer;
     change_scene: boolean;
-    ProgramStart: Boolean;
-    ProgramClose: Boolean;
     aoper: TAOperation;
     GPSpar: TGPSpar;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
