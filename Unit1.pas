@@ -613,7 +613,6 @@ type
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure zooming(ANewZoom: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
-    procedure draw_point;
     class   function  str2r(inp: string): real;
     procedure selectMap(AMapType: TMapType);
     procedure ShowCaptcha(URL: string);
@@ -1296,16 +1295,6 @@ begin
  end;
 end;
 
-procedure TFmain.draw_point;
-begin
- if (GState.show_point = mshNone) then
-  begin
-   LayerMapMarks.Visible:=false;
-   exit;
-  end;
-  LayerMapMarks.Visible:=true;
-end;
-
 class function TFmain.timezone(lon,lat:real):TDateTime;
 var prH,prM:integer;
     tz:real;
@@ -1395,7 +1384,7 @@ begin
       LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
     end;
     try
-      draw_point;
+      LayerMapMarks.Visible := GState.show_point <> mshNone;
     except
     end;
   end;
