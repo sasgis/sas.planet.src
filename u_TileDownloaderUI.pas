@@ -52,7 +52,9 @@ begin
  FTypeMap:=GState.Sat_map_Both;
  Upos:= FMain.ScreenCenterPos;
  FZoom:= GState.zoom_size;
- FSizeInTile := Fmain.LoadedSizeInTile;
+ //TODO: Переписать нормально с учетом настроек.
+ FSizeInTile.X := GState.ScreenSize.X div 256 + 1;
+ FSizeInTile.Y := GState.ScreenSize.Y div 256 + 1;
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;

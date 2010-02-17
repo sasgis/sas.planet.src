@@ -556,12 +556,8 @@ type
     procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte); overload;
     procedure Set_Pos(const AScreenCenterPos: TPoint); overload;
     function GetVisiblePixelRect: TRect;
-    function GetLoadedSizeInPixel: TPoint;
-    function GetLoadedSizeInTile: TPoint;
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
-    function GetMapLayerLocationRect: TRect;
-    function GetLoadedTopLeft: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
   protected
     Flock_toolbars: boolean;
@@ -641,11 +637,6 @@ type
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
     property VisiblePixelRect: TRect read GetVisiblePixelRect;
 
-    property LoadedTopLeft: TPoint read GetLoadedTopLeft;
-    property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
-    property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
-
-    property MapLayerLocationRect: TRect read GetMapLayerLocationRect;
     procedure UpdateGPSsensors;
   end;
   
@@ -1440,7 +1431,6 @@ var
      i:integer;
      param:string;
      MainWindowMaximized: Boolean;
-     VLoadedSizeInPixel: TPoint;
      VGUID: TGUID;
      VGUIDString: string;
   hg_x: integer;
@@ -1524,7 +1514,6 @@ begin
  setlength(GState.LastSelectionPolygon,0);
 
  Map.Cursor:=crDefault;
- VLoadedSizeInPixel := LoadedSizeInPixel;
 
  GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
  GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
@@ -4128,60 +4117,12 @@ begin
   Result.Y := ScreenCenterPos.Y - map.Height div 2;
 end;
 
-function TFmain.GetLoadedSizeInPixel: TPoint;
-var
-  VSizeInTile: TPoint;
-begin
-  if GState.TilesOut=0 then begin
-    Result := GState.ScreenSize;
-  end else begin
-    VSizeInTile := GetLoadedSizeInTile;
-    Result.X := VSizeInTile.X * 256;
-    Result.Y := VSizeInTile.Y * 256;
-  end;
-end;
-
-function TFmain.GetLoadedSizeInTile: TPoint;
-begin
-// Result.X := Ceil(GState.ScreenSize.X / 256) + GState.TilesOut;
-  Result.X := round(GState.ScreenSize.X / 256)+(integer((GState.ScreenSize.X mod 256)>0))+GState.TilesOut;
-// Result.Y := Ceil(GState.ScreenSize.Y / 256) + GState.TilesOut;
-  Result.Y := round(GState.ScreenSize.Y / 256)+(integer((GState.ScreenSize.Y mod 256)>0))+GState.TilesOut;
-end;
-
-
-function TFmain.GetMapLayerLocationRect: TRect;
-var
-  VLoadedSize: TPoint;
-  VVisibleSize: TPoint;
-begin
-  VLoadedSize := GetLoadedSizeInPixel;
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result := bounds(
-    (VVisibleSize.X div 2 - VLoadedSize.X div 2),
-    (VVisibleSize.Y div 2 - VLoadedSize.Y div 2),
-    VLoadedSize.X,
-    VLoadedSize.Y
-  );
-end;
-
-function TFmain.GetLoadedTopLeft: TPoint;
-var
-  VSizeInPixel: TPoint;
-begin
-  VSizeInPixel := GetLoadedSizeInPixel;
-  Result.X := ScreenCenterPos.X - VSizeInPixel.X div 2;
-  Result.Y := ScreenCenterPos.Y - VSizeInPixel.Y div 2;
-end;
-
-
 function TFmain.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
 begin
   Result := GetVisibleTopLeft;
   Result.X := Result.X + Pnt.X;
   Result.Y := Result.Y + Pnt.y;
 end;
-
 
 function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
@@ -4191,7 +4132,6 @@ begin
   Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
 end;
-
 
 function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
 var

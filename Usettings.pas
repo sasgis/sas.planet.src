@@ -480,7 +480,6 @@ end;
 procedure TFSettings.Button3Click(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
-    VLoadedSizeInPixel: TPoint;
   hg_x: integer;
   hg_y: integer;
 begin
@@ -618,7 +617,6 @@ begin
 // pr_x:=(xhgpx)div 2;
 // pr_y:=(yhgpx)div 2;
 
- VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
 
  SetProxy;
 
