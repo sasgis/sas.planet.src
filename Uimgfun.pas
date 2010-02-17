@@ -36,7 +36,6 @@ type
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
   procedure Gamma(Bitmap: TBitmap32);
   procedure Contrast(Bitmap: TBitmap32; Value: double);
-  function str2r(inp:string):Extended;
 
 implementation
 
@@ -44,18 +43,6 @@ uses
   GR32_Resamplers,
   GR32_Filters,
   u_GlobalState;
-
-function str2r(inp:string):Extended;
-var p:integer;
-begin
- p:=System.pos(DecimalSeparator,inp);
- if p=0 then begin
-              if DecimalSeparator='.' then p:=System.pos(',',inp)
-                                      else p:=System.pos('.',inp);
-              inp[p]:=DecimalSeparator;
-             end;
- result:=strtofloat(inp);
-end;
 
 function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
 begin

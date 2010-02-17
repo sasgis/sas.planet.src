@@ -250,6 +250,7 @@ uses
   VCLUnZip,
   u_GlobalState,
   Usettings,
+  u_GeoToStr,
   unit1,
   UIMGFun,
   i_IObjectWithTTL,

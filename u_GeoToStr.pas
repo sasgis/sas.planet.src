@@ -21,6 +21,7 @@ function kb2KbMbGb(kb: real): string;
 function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
 function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
 function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
+function str2r(inp:string):Extended;
 
 implementation
 
@@ -34,6 +35,18 @@ var
 function RoundEx(chislo: Extended; Precision: Integer): string;
 begin
   Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
+end;
+
+function str2r(inp:string):Extended;
+var p:integer;
+begin
+ p:=System.pos(DecimalSeparator,inp);
+ if p=0 then begin
+              if DecimalSeparator='.' then p:=System.pos(',',inp)
+                                      else p:=System.pos('.',inp);
+              inp[p]:=DecimalSeparator;
+             end;
+ result:=strtofloat(inp);
 end;
 
 

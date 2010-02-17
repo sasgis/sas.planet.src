@@ -613,7 +613,6 @@ type
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure zooming(ANewZoom: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
-    class   function  str2r(inp: string): real;
     procedure selectMap(AMapType: TMapType);
     procedure ShowCaptcha(URL: string);
     function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
@@ -1154,17 +1153,6 @@ begin
   end;
 end;
 
-class function TFmain.str2r(inp: string): real;
-var p: integer;
-begin
- p:=System.pos(DecimalSeparator,inp);
- if p=0 then begin
-              if DecimalSeparator='.' then p:=System.pos(',',inp)
-                                      else p:=System.pos('.',inp);
-              inp[p]:=DecimalSeparator;
-             end;
- result:=strtofloat(inp);
-end;
 function TFmain.PrepareSelectionRect(Shift: TShiftState;
   var ASelectedLonLat: TExtendedRect): Boolean;
 var
