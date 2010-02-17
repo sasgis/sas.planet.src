@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 312
-  Top = 104
+  Left = 343
+  Top = 94
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -781,6 +781,7 @@ object Fmain: TFmain
         end
         object NCiclMap: TTBXItem
           AutoCheck = True
+          Visible = False
           OnClick = NCiclMapClick
           Caption = #1047#1072#1094#1080#1082#1083#1080#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
           Hint = ''

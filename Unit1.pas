@@ -555,7 +555,6 @@ type
     procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType); overload;
     procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte); overload;
     procedure Set_Pos(const AScreenCenterPos: TPoint); overload;
-    function GetLoadedPixelRect: TRect;
     function GetVisiblePixelRect: TRect;
     function GetLoadedSizeInPixel: TPoint;
     function GetLoadedSizeInTile: TPoint;
@@ -638,19 +637,12 @@ type
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-    function VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
-
-    function BitmapPixel2MapPixel(Pnt: TPoint): TPoint; overload;
-    function BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-    function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload;
-    function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
     property VisibleTopLeft: TPoint read GetVisibleTopLeft;
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
     property VisiblePixelRect: TRect read GetVisiblePixelRect;
 
     property LoadedTopLeft: TPoint read GetLoadedTopLeft;
-    property LoadedPixelRect: TRect read GetLoadedPixelRect;
     property LoadedSizeInTile: TPoint read GetLoadedSizeInTile;
     property LoadedSizeInPixel: TPoint read GetLoadedSizeInPixel;
 
@@ -1303,7 +1295,7 @@ begin
    s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
    TBXOdometrNow.Caption:=s_len;
    //расстояние до метки
-   if (LayerMapNavToMark.Visible) then begin
+   if (LayerMapNavToMark<>nil)and(LayerMapNavToMark.Visible) then begin
      n_len:=DistToStrWithUnits(LayerMapNavToMark.GetDistToMark, GState.num_format);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin
@@ -1823,7 +1815,7 @@ begin
 
  if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom<1)or(ANewZoom>24) then exit;
  MapZoomAnimtion:=1;
- steps:=10;
+ steps:=11;
  if GState.zoom_size>ANewZoom
   then begin
          VNewScreenCenterPos := Point(trunc(ScreenCenterPos.x/power(2,GState.zoom_size-ANewZoom)),trunc(ScreenCenterPos.y/power(2,GState.zoom_size-ANewZoom)));
@@ -1841,9 +1833,11 @@ begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
       if GState.zoom_size>ANewZoom then begin
+        //Scale := 1 - (i/(steps - 1))/2;
         Scale := 1/(1 + i/(steps - 1));
       end else begin
-        Scale := 1 +  i/(steps - 1);
+        //Scale := 1 + i/(steps - 1);
+        Scale := 3 - (1/(1+i/(steps - 1)))*2;
       end;
       if move then begin
         FMainLayer.ScaleTo(Scale, m_m);
@@ -1872,8 +1866,8 @@ begin
      QueryPerformanceCounter(ts2);
      QueryPerformanceFrequency(fr);
      ts1:=round((ts2-ts1)/(fr/1000));
-     if (22-ts1>0) then begin
-       usleep(22-ts1);
+     if (25-ts1>0) then begin
+       usleep(25-ts1);
      end;
    end;
    application.ProcessMessages;
@@ -3035,13 +3029,13 @@ end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
 begin
- FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,moveTrue);
  if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,moveTrue);
  if DeleteMark(StrToInt(PWL.numid),Handle) then
   generate_im(nilLastLoad,'');
 end;
@@ -3053,7 +3047,7 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 begin
- FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL,moveTrue);
  OperationMark(strtoint(PWL.numid));
 end;
 
@@ -3474,7 +3468,7 @@ begin
     PWL.S:=0;
     PWL.find:=false;
     if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(Point(x,y)));
+     FWikiLayer.MouseOnReg(PWL, Point(x,y));
     if (LayerMapMarks.Visible) then
      MouseOnMyReg(PWL,Point(x,y));
     if pwl.find then
@@ -3671,7 +3665,7 @@ begin
    PWL.S:=0;
    PWL.find:=false;
    if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(PWL,VisiblePixel2LoadedPixel(Point(x,y)));
+     FWikiLayer.MouseOnReg(PWL,Point(x,y));
    if (LayerMapMarks.Visible) then
      MouseOnMyReg(PWL,Point(x,y));
    if (PWL.find) then
@@ -3899,7 +3893,7 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
- FWikiLayer.MouseOnReg(PWL, VisiblePixel2LoadedPixel(moveTrue));
+ FWikiLayer.MouseOnReg(PWL, moveTrue);
  if (not NMarkNav.Checked) then
   begin
    id:=strtoint(PWL.numid);
@@ -4138,17 +4132,6 @@ begin
   Result.Y := ScreenCenterPos.Y - map.Height div 2;
 end;
 
-function TFmain.GetLoadedPixelRect: TRect;
-var
-  VSizeInPixel: TPoint;
-begin
-  VSizeInPixel := GetLoadedSizeInPixel;
-  Result.Left := ScreenCenterPos.X - VSizeInPixel.X div 2;
-  Result.Top := ScreenCenterPos.Y - VSizeInPixel.Y div 2;
-  Result.Right := ScreenCenterPos.X + VSizeInPixel.X div 2;
-  Result.Bottom := ScreenCenterPos.Y + VSizeInPixel.Y div 2;
-end;
-
 function TFmain.GetLoadedSizeInPixel: TPoint;
 var
   VSizeInTile: TPoint;
@@ -4213,39 +4196,6 @@ begin
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
 end;
 
-function TFmain.BitmapPixel2MapPixel(Pnt: TPoint): TPoint;
-begin
-  Result := GetLoadedTopLeft;
-  Result.X := Result.X + Pnt.X;
-  Result.Y := Result.Y + Pnt.y;
-end;
-
-function TFmain.MapPixel2BitmapPixel(Pnt: TPoint): TPoint;
-var
-  VSize: TPoint;
-begin
-  VSize := GetLoadedSizeInPixel;
-  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X div 2);
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y div 2);
-end;
-
-function TFmain.BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VTopLeft: TPoint;
-begin
-  VTopLeft := GetLoadedTopLeft;
-  Result.X := VTopLeft.X + Pnt.X;
-  Result.Y := VTopLeft.Y + Pnt.y;
-end;
-
-function TFmain.MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VSize: TPoint;
-begin
-  VSize := GetLoadedSizeInPixel;
-  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
-end;
 
 function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
 var
@@ -4263,18 +4213,6 @@ begin
   VTopLeft := GetVisibleTopLeft;
   Result.X := VTopLeft.X + Pnt.X;
   Result.Y := VTopLeft.Y + Pnt.y;
-end;
-
-function TFmain.VisiblePixel2LoadedPixel(Pnt: TPoint): TPoint;
-var
-  VVisibleSize: TPoint;
-  VLoadedSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  VLoadedSize := GetLoadedSizeInPixel;
-
-  Result.X := Pnt.X + (VLoadedSize.X - VVisibleSize.X) div 2;
-  Result.Y := Pnt.Y + (VLoadedSize.Y - VVisibleSize.Y) div 2;
 end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);

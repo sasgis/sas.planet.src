@@ -147,6 +147,7 @@ var
   i, j: integer;
   VLen: integer;
 begin
+  xy:=VisiblePixel2BitmapPixel(xy);
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (xy.x > FWikiLayerElments[i].lt.X - 5) and (xy.x < FWikiLayerElments[i].rd.X + 5) and
       (xy.y > FWikiLayerElments[i].lt.Y - 5) and (xy.y < FWikiLayerElments[i].rd.Y + 5) then begin
