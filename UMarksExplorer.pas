@@ -572,7 +572,7 @@ end;
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
 begin
  SaveMarks2File;
- fmain.generate_im(nilLastLoad,'');
+ fmain.generate_im;
 end;
 
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);

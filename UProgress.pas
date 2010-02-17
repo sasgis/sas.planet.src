@@ -229,7 +229,7 @@ begin
 
   if not((FMain.MapMoving)or(FMain.MapZoomAnimtion=1)) then begin
     GState.MainFileCache.Clear;
-    FMain.generate_im(nilLastLoad,'');
+    FMain.generate_im;
   end;
 end;
 

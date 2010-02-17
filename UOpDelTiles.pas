@@ -84,7 +84,7 @@ procedure TOpDelTiles.CloseProgressForm;
 begin
  fprogress.Free;
  GState.MainFileCache.Clear;
- Fmain.generate_im(nilLastLoad,'');
+ Fmain.generate_im;
 end;
 
 procedure TOpDelTiles.UpdateProgressForm;

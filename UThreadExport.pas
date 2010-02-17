@@ -170,7 +170,7 @@ begin
          begin
           if FProgress.Visible=false then
            begin
-            Fmain.generate_im(nilLastLoad,'');
+            Fmain.generate_im;
             exit;
            end;
           if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin

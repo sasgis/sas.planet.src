@@ -90,7 +90,7 @@ begin
  FmapType.cachetype:=RBCacheType.ItemIndex;
  FmapType.separator:=CheckBox1.Checked;
  CreateMapUI;
- Fmain.generate_im(nilLastLoad,'');
+ Fmain.generate_im;
  close;
 end;
 

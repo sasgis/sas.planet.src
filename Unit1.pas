@@ -546,6 +546,7 @@ type
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
   private
+    nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
     HintWindow: THintWindow;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
@@ -606,7 +607,8 @@ type
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
-    procedure generate_im(lastload: TLastLoad; err: string);
+    procedure generate_im(lastload: TLastLoad; err: string); overload;
+    procedure generate_im; overload;
     function  toSh: string;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure zooming(ANewZoom: byte; move: boolean);
@@ -654,7 +656,6 @@ const
 var
   Fmain: TFmain;
 
-  nilLastLoad: TLastLoad;
   GMiniMapPopupMenu: TTBXPopupMenu;
 
   function c_GetTempPath: string;
@@ -1141,7 +1142,7 @@ begin
                if FaddPoly.show_(add_line_arr,true) then
                 begin
                  setalloperationfalse(ao_movemap);
-                 generate_im(nilLastLoad,'');
+                 generate_im;
                 end; 
               end;
              if (Msg.wParam=13)and(aoper=ao_add_line)and(length(add_line_arr)>1) then
@@ -1149,7 +1150,7 @@ begin
                if FaddLine.show_(add_line_arr,true, marshrutcomment) then
                 begin
                  setalloperationfalse(ao_movemap);
-                 generate_im(nilLastLoad,'');
+                 generate_im;
                 end;
               end;
             end;
@@ -1334,7 +1335,7 @@ begin
   if draw then begin
     LayerGoto.ShowGotoIcon(LL);
   end;
-  generate_im(nilLastLoad, '');
+  generate_im;
 end;
 
 procedure TFmain.paint_Line;
@@ -1350,6 +1351,10 @@ begin
  if GMiniMap.LayerMinMap.Visible then GMiniMap.LayerMinMap.BringToFront;
  if LayerScaleLine.Visible then LayerScaleLine.BringToFront;
  if LayerStatBar.Visible then LayerStatBar.BringToFront;
+end;
+procedure TFmain.generate_im;
+begin
+  generate_im(nilLastLoad, '');
 end;
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
@@ -2051,13 +2056,13 @@ end;
 procedure TFmain.NbackloadClick(Sender: TObject);
 begin
  GState.UsePrevZoom := Nbackload.Checked;
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.NbackloadLayerClick(Sender: TObject);
 begin
  GState.UsePrevZoomLayer := NbackloadLayer.Checked;
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
@@ -2069,7 +2074,7 @@ begin
   VZoomCurr := GState.zoom_size - 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   if FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr), true) then
-    generate_im(nilLastLoad,'');
+    generate_im;
 end;
 
 procedure TFmain.N20Click(Sender: TObject);
@@ -2240,7 +2245,7 @@ begin
     if VMapType.TileExists(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size) then begin
       VMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
     end;
-    generate_im(nilLastLoad,'');
+    generate_im;
   end;
 end;
 
@@ -2314,7 +2319,7 @@ end;
 procedure TFmain.NCiclMapClick(Sender: TObject);
 begin
  GState.ciclmap:=NCiclMap.Checked;
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.N012Click(Sender: TObject);
@@ -2472,7 +2477,7 @@ end;
 procedure TFmain.N000Click(Sender: TObject);
 begin
  GState.TileGridZoom:=TMenuItem(Sender).Tag;
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.NShowGranClick(Sender: TObject);
@@ -2706,7 +2711,7 @@ begin
                             if FaddLine.show_(GState.GPS_TrackPoints,true, marshrutcomment) then
                              begin
                               setalloperationfalse(ao_movemap);
-                              generate_im(nilLastLoad,'');
+                              generate_im;
                              end;
                            end
                       else ShowMessage(SAS_ERR_Nopoints);
@@ -2956,7 +2961,7 @@ end;
 procedure TFmain.NinvertcolorClick(Sender: TObject);
 begin
  GState.InvertColor:=Ninvertcolor.Checked;
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.mapDblClick(Sender: TObject);
@@ -2989,14 +2994,14 @@ end;
 procedure TFmain.NMarkEditClick(Sender: TObject);
 begin
  FWikiLayer.MouseOnReg(PWL,moveTrue);
- if EditMark(strtoint(PWL.numid)) then generate_im(nilLastLoad,'');
+ if EditMark(strtoint(PWL.numid)) then generate_im;
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
  FWikiLayer.MouseOnReg(PWL,moveTrue);
  if DeleteMark(StrToInt(PWL.numid),Handle) then
-  generate_im(nilLastLoad,'');
+  generate_im;
 end;
 
 procedure TFmain.NMarksBarShowClick(Sender: TObject);
@@ -3279,7 +3284,7 @@ begin
         LayerMapNal.DrawSelectionRect(rect_arr);
       end;
     end;
-    if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im(nilLastLoad,'');
+    if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im;
     if (aoper in [ao_add_line,ao_add_poly]) then begin
       for i:=0 to length(add_line_arr)-1 do begin
         xy:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(add_line_arr[i],GState.zoom_size-1);
@@ -3354,7 +3359,7 @@ begin
  if HiWord(GetKeyState(VK_DELETE))<>0 then begin
   if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
    GState.sat_map_both.DeleteTile(VPoint.X, VPoint.Y, GState.zoom_size);
-   generate_im(nilLastLoad,'');
+   generate_im;
   end;
   exit;
  end;
@@ -3746,7 +3751,7 @@ begin
   GState.GShScale := 0;
  end;
 
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.TBEditPathDelClick(Sender: TObject);
@@ -3791,7 +3796,7 @@ begin
  if result then
   begin
    setalloperationfalse(ao_movemap);
-   generate_im(nilLastLoad,'');
+   generate_im;
   end;
 end;
 
@@ -3815,7 +3820,7 @@ begin
  Self.Enabled:=false;
  FMarksExplorer.ShowModal;
  Self.Enabled:=true;
- generate_im(nilLastLoad,'');
+ generate_im;
 end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
@@ -4200,7 +4205,7 @@ procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
   if GState.GPS_enab then begin
     if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then
-      generate_im(nilLastLoad,'');
+      generate_im;
   end;
 end;
 
