@@ -653,8 +653,6 @@ const
 var
   Fmain: TFmain;
 
-  mWd2: integer;
-  mHd2: integer;
   m_m: Tpoint;
   moveTrue: Tpoint;
   nilLastLoad: TLastLoad;
@@ -1483,8 +1481,6 @@ begin
  Application.OnMessage := DoMessageEvent;
  Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
  LenShow:=true;
- mWd2:=map.Width shr 1;
- mHd2:=map.Height shr 1;
  Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
  Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
  Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
@@ -1773,6 +1769,7 @@ var i,steps:integer;
     ts1,ts2,fr:int64;
     VNewScreenCenterPos: TPoint;
     Scale: Extended;
+    VHalfSize: TPoint;
 begin
  if ANewZoom<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -1785,17 +1782,21 @@ begin
  if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom<1)or(ANewZoom>24) then exit;
  MapZoomAnimtion:=1;
  steps:=11;
+ VHalfSize := GetVisibleSizeInPixel;
+ VHalfSize.X := VHalfSize.X div 2;
+ VHalfSize.Y := VHalfSize.Y div 2;
+
  if GState.zoom_size>ANewZoom
   then begin
          VNewScreenCenterPos := Point(trunc(ScreenCenterPos.x/power(2,GState.zoom_size-ANewZoom)),trunc(ScreenCenterPos.y/power(2,GState.zoom_size-ANewZoom)));
          if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
-           VNewScreenCenterPos := Point(VNewScreenCenterPos.x+(mWd2-m_m.X)div 2,VNewScreenCenterPos.y+(mHd2-m_m.y)div 2);
+           VNewScreenCenterPos := Point(VNewScreenCenterPos.x+(VHalfSize.X-m_m.X)div 2,VNewScreenCenterPos.y+(VHalfSize.Y-m_m.y)div 2);
          end;
        end
   else begin
          VNewScreenCenterPos:=Point(trunc(ScreenCenterPos.x*power(2,ANewZoom-GState.zoom_size)),trunc(ScreenCenterPos.y*power(2,ANewZoom-GState.zoom_size)));
          if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
-           VNewScreenCenterPos:=Point(VNewScreenCenterPos.x-(mWd2-m_m.X),VNewScreenCenterPos.y-(mHd2-m_m.y));
+           VNewScreenCenterPos:=Point(VNewScreenCenterPos.x-(VHalfSize.X-m_m.X),VNewScreenCenterPos.y-(VHalfSize.Y-m_m.y));
          end;
        end;
  if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
@@ -1820,16 +1821,16 @@ begin
         FShowErrorLayer.ScaleTo(Scale, m_m);
         LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
-        FMainLayer.ScaleTo(Scale, Point(mWd2, mHd2));
-        LayerSelection.ScaleTo(Scale, Point(mWd2, mHd2));
-        LayerMapMarks.ScaleTo(Scale, Point(mWd2, mHd2));
-        LayerMapGPS.ScaleTo(Scale, Point(mWd2, mHd2));
-        FWikiLayer.ScaleTo(Scale, Point(mWd2, mHd2));
-        FFillingMap.ScaleTo(Scale, Point(mWd2, mHd2));
-        LayerMapNal.ScaleTo(Scale, Point(mWd2, mHd2));
-        LayerGoto.ScaleTo(Scale, Point(mWd2, mHd2));
-        FShowErrorLayer.ScaleTo(Scale, Point(mWd2, mHd2));
-        LayerMapNavToMark.ScaleTo(Scale, Point(mWd2, mHd2));
+        FMainLayer.ScaleTo(Scale, VHalfSize);
+        LayerSelection.ScaleTo(Scale, VHalfSize);
+        LayerMapMarks.ScaleTo(Scale, VHalfSize);
+        LayerMapGPS.ScaleTo(Scale, VHalfSize);
+        FWikiLayer.ScaleTo(Scale, VHalfSize);
+        FFillingMap.ScaleTo(Scale, VHalfSize);
+        LayerMapNal.ScaleTo(Scale, VHalfSize);
+        LayerGoto.ScaleTo(Scale, VHalfSize);
+        FShowErrorLayer.ScaleTo(Scale, VHalfSize);
+        LayerMapNavToMark.ScaleTo(Scale, VHalfSize);
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -2766,8 +2767,6 @@ procedure TFmain.mapResize(Sender: TObject);
 begin
  if (ProgramClose<>true)and(not(ProgramStart))then
   begin
-   mWd2:=map.Width shr 1;
-   mHd2:=map.Height shr 1;
    FMainLayer.Resize;
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
