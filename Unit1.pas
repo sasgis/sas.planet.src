@@ -615,9 +615,7 @@ type
     class   function  timezone(lon, lat: real): TDateTime;
     procedure draw_point;
     class   function  str2r(inp: string): real;
-    procedure paint_Line;
     procedure selectMap(AMapType: TMapType);
-    procedure drawLineGPS;
     procedure ShowCaptcha(URL: string);
     function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
     procedure ShowErrScript(DATA: string);
@@ -1298,13 +1296,6 @@ begin
  end;
 end;
 
-procedure TFmain.drawLineGPS;
-begin
- LayerMapGPS.Redraw;
- UpdateGPSsensors;
- toSh;
-end;
-
 procedure TFmain.draw_point;
 begin
  if (GState.show_point = mshNone) then
@@ -1336,11 +1327,6 @@ begin
     LayerGoto.ShowGotoIcon(LL);
   end;
   generate_im;
-end;
-
-procedure TFmain.paint_Line;
-begin
-  LayerScaleLine.Redraw;
 end;
 
 function TFmain.toSh:string;
@@ -1400,7 +1386,10 @@ begin
         LayerMapNal.DrawSelectionRect(rect_arr);
       end;
     end;
-    if GState.GPS_enab then drawLineGPS;
+    if GState.GPS_enab then begin
+       LayerMapGPS.Redraw;
+       UpdateGPSsensors;
+    end;
     if aoper in [ao_add_line,ao_add_poly] then begin
       TBEditPath.Visible:=(length(add_line_arr)>1);
       LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
@@ -2577,7 +2566,7 @@ end;
 procedure TFmain.SetLineScaleVisible(visible:boolean);
 begin
   LayerScaleLine.Visible := visible;
-  paint_Line;
+  LayerScaleLine.Redraw;
   ShowLine.Checked:=visible;
 end;
 
@@ -3103,7 +3092,8 @@ begin
            Set_Pos(bpos, GState.zoom_size - 1, GState.sat_map_both);
           end
      else begin
-           drawLineGPS;
+           LayerMapGPS.Redraw;
+           UpdateGPSsensors;
            toSh;
           end;
    end;
@@ -3403,7 +3393,7 @@ begin
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
    toSh;
-   paint_Line;
+   LayerScaleLine.Redraw;
    if aoper=ao_line then begin
     TBEditPath.Visible:=(length(length_arr)>1);
     LayerMapNal.DrawLineCalc(length_arr, LenShow);
@@ -3418,7 +3408,11 @@ begin
        LayerMapNal.DrawSelectionRect(rect_arr);
      end;
    end;
-   if GState.GPS_enab then drawLineGPS;
+   if GState.GPS_enab then begin
+     LayerMapGPS.Redraw;
+     UpdateGPSsensors;
+     toSh;
+   end;
    if aoper in [ao_add_line,ao_add_poly] then begin
     TBEditPath.Visible:=(length(add_line_arr)>1);
     LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
