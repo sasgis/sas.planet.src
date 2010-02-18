@@ -34,6 +34,7 @@ type
     FBitmapTypeManager: IBitmapTypeExtManager;
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
+    FKmzLoader: IKmlInfoSimpleLoader;
     FCacheElemensMaxCnt: integer;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
@@ -239,6 +240,7 @@ type
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
+    property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -263,6 +265,7 @@ uses
   u_BitmapTypeExtManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
+  u_KmzInfoSimpleParser,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -283,6 +286,7 @@ begin
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FKmlLoader := TKmlInfoSimpleParser.Create;
+  FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   LoadMainParams;
@@ -307,6 +311,7 @@ begin
   FBitmapTypeManager := nil;
   FMapCalibrationList := nil;
   FKmlLoader := nil;
+  FKmzLoader := nil;
   sat_map_both := nil;
   FreeAllMaps;
   inherited;

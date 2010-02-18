@@ -51,6 +51,7 @@ uses
   u_KmlInfoSimple in 'u_KmlInfoSimple.pas',
   i_IKmlInfoSimpleLoader in 'i_IKmlInfoSimpleLoader.pas',
   u_KmlInfoSimpleParser in 'u_KmlInfoSimpleParser.pas',
+  u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
   UECWWrite in 'UECWWrite.pas',
   bmpUtil in 'bmpUtil.pas',
   Uimgfun in 'Uimgfun.pas',
