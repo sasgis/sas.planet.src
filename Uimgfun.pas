@@ -11,9 +11,6 @@ uses
   GR32,
   pngimage;
 
-const
-  FILE_DOES_NOT_EXIST = DWORD(-1);
-
 type
   TTileResamplingType = (
     trtBox = 0,
@@ -32,10 +29,8 @@ type
   );
 
   function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
-  procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
   procedure Gamma(Bitmap: TBitmap32);
-  procedure Contrast(Bitmap: TBitmap32; Value: double);
 
 implementation
 
@@ -78,20 +73,6 @@ begin
     end;
   end;
 end;
-
-procedure CropPNGImage(var png:TPNGObject;dx,dy,cx,cy:integer);
-var p:TPNGObject;
-    j:integer;
-begin
- p:= tpngobject.createblank(png.Header.ColorType, png.Header.BitDepth, cx, cy);
- for j:=0 to cy-1 do
-  begin
-   CopyMemory(p.Scanline[j],Pointer(longint(png.Scanline[j+dy])+(dx*3)),cx*3);
-   CopyMemory(p.AlphaScanline[j],Pointer(longint(png.AlphaScanline[j+dy])+dx),cx);
-  end;
- png:=p;
-end;
-
 
 function GetByteArrayPixel(const png: TPngObject; const X: Integer; scLine:pByteArray;ChunkPLTE:TChunkPLTE;DataDepth,ColorType:Byte): TColor32;
 var ByteData: Byte;
