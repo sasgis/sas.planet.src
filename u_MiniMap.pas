@@ -70,8 +70,6 @@ begin
   LayerMinMap.bitmap.Font.Charset := RUSSIAN_CHARSET;
   LayerMinMap.Cursor := crHandPoint;
   LayerMinMap.bitmap.DrawMode := dmBlend;
-  LayerMinMap.bitmap.Canvas.brush.Color := $e0e0e0;
-  LayerMinMap.bitmap.Canvas.Pen.Color := ClBlack;
   LoadBitmaps;
 end;
 
@@ -170,29 +168,44 @@ begin
   gamma(LayerMinMap.bitmap);
 
   Polygon := TPolygon32.Create;
-  Polygon.Antialiased:=true;
-  Polygon.Add(FixedPoint((pos.x-dx div 2)+4-2,(pos.y-dy div 2)+4-2));
-  Polygon.Add(FixedPoint((pos.x-dx div 2)+dx+4+2,(pos.y-dy div 2)+4-2));
-  Polygon.Add(FixedPoint((pos.x-dx div 2)+dx+4+2,(pos.y-dy div 2)+dy+4+2));
-  Polygon.Add(FixedPoint((pos.x-dx div 2)+4-2,(pos.y-dy div 2)+dy+4+2));
-  with Polygon.Outline do try
-    with Grow(Fixed(3.2 / 2), 0.5) do try
-      FillMode := pfWinding;
-      DrawFill(LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-zoom)*43));
+  try
+    Polygon.Antialiased:=true;
+    Polygon.Add(FixedPoint((pos.x-dx div 2)+4-2,(pos.y-dy div 2)+4-2));
+    Polygon.Add(FixedPoint((pos.x-dx div 2)+dx+4+2,(pos.y-dy div 2)+4-2));
+    Polygon.Add(FixedPoint((pos.x-dx div 2)+dx+4+2,(pos.y-dy div 2)+dy+4+2));
+    Polygon.Add(FixedPoint((pos.x-dx div 2)+4-2,(pos.y-dy div 2)+dy+4+2));
+    with Polygon.Outline do try
+      with Grow(Fixed(3.2 / 2), 0.5) do try
+        FillMode := pfWinding;
+        DrawFill(LayerMinMap.bitmap,SetAlpha(clNavy32,(GState.zoom_size-zoom)*43));
+      finally
+        Free;
+      end;
     finally
       Free;
     end;
+    Polygon.DrawFill(LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-zoom)*35));
   finally
-    Free;
+    Polygon.Free;
   end;
-  Polygon.DrawFill(LayerMinMap.bitmap,SetAlpha(clWhite32,(GState.zoom_size-zoom)*35));
-  Polygon.Free;
+  Polygon := TPolygon32.Create;
+  try
+    Polygon.Antialiased:=False;
+    Polygon.Add(FixedPoint(0,height+5));
+    Polygon.Add(FixedPoint(0,0));
+    Polygon.Add(FixedPoint(width+5,0));
+    Polygon.Add(FixedPoint(width+5,5));
+    Polygon.Add(FixedPoint(5,5));
+    Polygon.Add(FixedPoint(5,height+5));
+    Polygon.Draw(LayerMinMap.bitmap, clBlack32, clLightGray32);
+  finally
+    Polygon.Free;
+  end;
 
-  LayerMinMap.bitmap.Canvas.Polygon([point(0,height+5),point(0,0),point(width+5,0),point(width+5,4),point(4,4),point(4,height+5)]);
-  LayerMinMap.bitmap.Canvas.Pixels[2,((height+5) div 2)-6]:=clBlack;
-  LayerMinMap.bitmap.Canvas.Pixels[2,((height+5) div 2)-2]:=clBlack;
-  LayerMinMap.bitmap.Canvas.Pixels[2,((height+5) div 2)+2]:=clBlack;
-  LayerMinMap.bitmap.Canvas.Pixels[2,((height+5) div 2)+6]:=clBlack;
+  LayerMinMap.bitmap.Pixel[2,((height+5) div 2)-6]:=clBlack;
+  LayerMinMap.bitmap.Pixel[2,((height+5) div 2)-2]:=clBlack;
+  LayerMinMap.bitmap.Pixel[2,((height+5) div 2)+2]:=clBlack;
+  LayerMinMap.bitmap.Pixel[2,((height+5) div 2)+6]:=clBlack;
   LayerMinMap.bitmap.ResetAlpha(alpha);
   if z1mz2>1 then LayerMinMap.bitmap.Draw(6,6,PlusButton);
   if zoom>1 then LayerMinMap.bitmap.Draw(19,6,MinusButton);
