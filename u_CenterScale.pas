@@ -79,7 +79,6 @@ begin
 
   i:=0;
   FLayer.Bitmap.Clear(clBlack);
-  FLayer.Bitmap.Canvas.Pen.Color := clRed;
   FLayer.Bitmap.Font.Size := FFontSize - 3;
   While i<360 do begin
     FLayer.Bitmap.Font.Size := FFontSize - 3;
