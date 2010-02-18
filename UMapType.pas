@@ -1760,9 +1760,18 @@ end;
 
 function TMapType.LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean; IgnoreError: Boolean): boolean;
+var
+  VRect: TRect;
 begin
   if TileExists(AXY, Azoom) then begin
     Result := LoadTile(spr, AXY, Azoom, caching);
+    if Result then begin
+      VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+      if (spr.Width < VRect.Right - VRect.Left + 1) or
+        (spr.Height < VRect.Bottom - VRect.Top + 1) then begin
+        Result := false;
+      end;
+    end;
     if not Result then begin
       if IgnoreError then begin
         Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
