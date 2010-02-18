@@ -99,6 +99,44 @@ begin
     end;
 end;
 
+procedure PngWithPaletteToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject);
+var
+  ChunkPLTE:TChunkPLTE;
+  ChunktRNS:TChunktRNS;
+  X, Y: Integer;
+  RGBPtr:PColor32Array;
+  AlphaPtr: pByteArray;
+begin
+  ChunkPLTE:=TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE));
+  ChunktRNS:=TChunktRNS(PNGObject.Chunks.ItemFromClass(TChunktRNS));
+  for Y:=0 to destBitmap.Height-1 do begin
+    RGBPtr:=destBitmap.ScanLine[Y];
+    AlphaPtr:=PNGObject.Scanline[Y];
+    for X:=0 to (destBitmap.Width-1) do begin
+      with ChunkPLTE.Item[AlphaPtr^[X]] do begin
+        RGBPtr^[x]:=color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen],
+        PNGObject.GammaTable[rgbBlue], ChunktRNS.PaletteValues[AlphaPtr^[X]]);
+      end;
+    end;
+  end;
+end;
+
+procedure PngRgbAlfaToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject);
+var
+  X, Y: Integer;
+  RGBPtr:PColor32Array;
+  AlphaPtr: pByteArray;
+begin
+  destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
+  for Y:=0 to destBitmap.Height-1 do begin
+    RGBPtr:=destBitmap.ScanLine[Y];
+    AlphaPtr:=PNGObject.AlphaScanline[Y];
+    for X:=0 to destBitmap.Width-1 do begin
+      RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
+    end;
+  end;
+end;
+
 function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
 var
     RGBPtr:PColor32Array;
@@ -107,7 +145,6 @@ var
     trColor:TColor32;
     PixelPtr: PColor32;
     ChunkPLTE:TChunkPLTE;
-    ChunktRNS:TChunktRNS;
     DataDepth: Byte;
     ColorType: Byte;
 begin
@@ -117,34 +154,27 @@ begin
   case PNGObject.TransparencyMode of
     ptmPartial:
      begin
-      if (PNGObject.Header.ColorType in [COLOR_GRAYSCALEALPHA,COLOR_RGBALPHA]) then
-       begin
-        destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
-        for Y:=0 to destBitmap.Height-1 do
-         begin
-          RGBPtr:=destBitmap.ScanLine[Y];
-          AlphaPtr:=PNGObject.AlphaScanline[Y];
-          for X:=0 to destBitmap.Width-1 do begin
-           RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
-          end;
-         end;
-       end;
-      if (PNGObject.Header.ColorType in [COLOR_PALETTE]) then
-       begin
-        ChunkPLTE:=TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE));
-        ChunktRNS:=TChunktRNS(PNGObject.Chunks.ItemFromClass(TChunktRNS));
-        for Y:=0 to destBitmap.Height-1 do
-         begin
-          RGBPtr:=destBitmap.ScanLine[Y];
-          AlphaPtr:=PNGObject.Scanline[Y];
-          for X:=0 to (destBitmap.Width-1) do begin
-            with ChunkPLTE.Item[AlphaPtr^[X]] do
-             RGBPtr^[x]:=color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen],
-                                  PNGObject.GammaTable[rgbBlue], ChunktRNS.PaletteValues[AlphaPtr^[X]]);
-          end;
-         end;
-       end;
+
+      case PNGObject.Header.ColorType of
+        COLOR_GRAYSCALEALPHA: begin
+          destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
+          for Y:=0 to destBitmap.Height-1 do
+           begin
+            RGBPtr:=destBitmap.ScanLine[Y];
+            AlphaPtr:=PNGObject.AlphaScanline[Y];
+            for X:=0 to destBitmap.Width-1 do begin
+             RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
+            end;
+           end;
+        end;
+        COLOR_RGBALPHA: begin
+          PngRgbAlfaToBitmap32(destBitmap, PNGObject);
+        end;
+        COLOR_PALETTE: begin
+          PngWithPaletteToBitmap32(destBitmap, PNGObject);
+        end;
       end;
+     end;
     ptmBit:
       begin
        ChunkPLTE:=TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE));
