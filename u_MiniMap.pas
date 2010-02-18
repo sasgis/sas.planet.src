@@ -122,9 +122,9 @@ var Polygon: TPolygon32;
 begin
   if LayerMinMap.Visible=false then exit;
   if GState.ShowStatusBar then begin
-    LayerMinMap.location:=floatrect(bounds(FParentMap.Width-width-5,FParentMap.Height-height-17,width+5,height));
+    LayerMinMap.location:=floatrect(bounds(FParentMap.Width-width-5,FParentMap.Height-height-17 - 5,width+5,height+5));
   end else begin
-    LayerMinMap.location:=floatrect(bounds(FParentMap.Width-width-5,FParentMap.Height-height,width+5,height));
+    LayerMinMap.location:=floatrect(bounds(FParentMap.Width-width-5,FParentMap.Height-height - 5,width+5,height+5));
   end;
   LayerMinMap.Bitmap.Width:=width+5;
   LayerMinMap.Bitmap.Height:=height+5;
