@@ -1338,6 +1338,7 @@ begin
       end;
     end;
   end;
+  LayerMapMarks.Redraw;
   FWikiLayer.Redraw;
   FWikiLayer.Visible := VWikiLayersVisible;
 
