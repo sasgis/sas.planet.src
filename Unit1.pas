@@ -1343,6 +1343,8 @@ begin
 
   if (lastload.use)and(err<>'') then begin
     FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
+  end else begin
+    FShowErrorLayer.Visible := False;
   end;
 
   if not(lastload.use) then begin
