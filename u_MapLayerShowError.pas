@@ -6,7 +6,6 @@ uses
   Windows,
   GR32,
   GR32_Image,
-  t_GeoTypes,
   UMapType,
   u_MapLayerBasic;
 

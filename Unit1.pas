@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  Registry,
   Messages,
   SysUtils,
   Forms,
@@ -33,7 +32,6 @@ uses
   GR32,
   GR32_Resamplers,
   GR32_Layers,
-  GR32_Polygons,
   GR32_Filters,
   GR32_Image,
   TB2Item,

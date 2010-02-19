@@ -23,7 +23,6 @@ uses
   SysUtils,
   Graphics,
   u_GlobalState,
-  uMapType,
   u_WindowLayerBasic;
 
 { TSelectionLayer }

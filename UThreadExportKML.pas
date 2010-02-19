@@ -50,7 +50,6 @@ implementation
 uses
   Math,
   u_GeoToStr,
-  unit1,
   i_ICoordConverter;
 
 constructor TThreadExportKML.Create(

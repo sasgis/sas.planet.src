@@ -22,8 +22,7 @@ uses
   SysUtils,
   GR32_Polygons,
   u_GlobalState,
-  Unit1,
-  UMapType;
+  Unit1;
 
 { TMapGPSLayer }
 

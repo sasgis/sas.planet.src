@@ -8,7 +8,6 @@ uses
   SysUtils,
   Graphics,
   GR32,
-  unit1,
   t_GeoTypes;
 
 type
