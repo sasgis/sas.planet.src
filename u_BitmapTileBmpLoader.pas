@@ -27,6 +27,7 @@ end;
 procedure TBmpBitmapTileLoader.LoadFromStream(AStream: TStream;
   ABtm: TBitmap32);
 begin
+  AStream.Position := 0;
   ABtm.LoadFromStream(AStream);
 end;
 

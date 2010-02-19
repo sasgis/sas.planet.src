@@ -68,6 +68,7 @@ var
 begin
   VGif := TGIFImage.Create;
   try
+    AStream.Position := 0;
     VGif.LoadFromStream(AStream);
     GifToBitmap32(VGif, ABtm);
   finally
