@@ -25,14 +25,13 @@ type
     Zoomarr:array [0..23] of boolean;
     FTypemap: TMapType;
     Fprogress: TFprogress2;
-    ziped:boolean;
     Replace:boolean;
     Path:string;
-    Zip:TVCLZip;
-    Zippu:boolean;
     RelativePath:boolean;
-    procedure Export2KML(APolyLL:TExtendedPointArray);
-    procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
+    num_dwn,obrab:integer;
+    KMLFile:TextFile;
+    procedure Export2KML;
+    procedure KmlFileWrite(x,y:integer;z,level:byte);
   protected
     procedure Execute; override;
   public
@@ -42,7 +41,6 @@ type
       Azoomarr: array of boolean;
       Atypemap: TMapType;
       Areplace: boolean;
-      Aziped: boolean;
       ARelativePath: boolean
     );
   end;
@@ -55,17 +53,12 @@ uses
   unit1,
   i_ICoordConverter;
 
-procedure TThreadExportKML.CloseFProgress(Sender: TObject; var Action: TCloseAction);
-begin
- if Zippu then Zip.CancelTheOperation;
-end;
-
 constructor TThreadExportKML.Create(
   APath: string;
   APolygon_: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
-  Areplace, Aziped: boolean;
+  Areplace: boolean;
   ARelativePath: boolean
 );
 var i:integer;
@@ -74,11 +67,8 @@ begin
   Priority := tpLowest;
   FreeOnTerminate:=true;
   Application.CreateForm(TFProgress2, FProgress);
-  Zippu:=false;
-  FProgress.OnClose:=CloseFProgress;
   FProgress.Visible:=true;
   Path:=APath;
-  ziped:=Aziped;
   Replace:=AReplace;
   RelativePath:=ARelativePath;
   setlength(PolygLL,length(APolygon_));
@@ -92,8 +82,7 @@ end;
 
 procedure TThreadExportKML.Execute;
 begin
-  Zippu:=false;
-  export2KML(PolygLL);
+  export2KML;
   FProgress.Close;
 end;
 
@@ -104,18 +93,11 @@ begin
   Result := inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear);
 end;
 
-procedure TThreadExportKML.Export2KML(APolyLL:TExtendedPointArray);
-var p_x,p_y,i,j:integer;
-    num_dwn,obrab:integer;
-    polyg:TPointArray;
-    persl,perzoom,kti,ToFile,datestr:string;
-    max,min:TPoint;
-    KMLFile:TextFile;
-
-procedure KmlFileWrite(x,y:integer;z,level:byte);
+procedure TThreadExportKML.KmlFileWrite(x,y:integer;z,level:byte);
 var xym256lt,xym256rb:TPoint;
     i,nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
+    ToFile:string;
 begin
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
   savepath:=FTypeMap.GetTileFileName(x,y,z);
@@ -158,37 +140,23 @@ begin
   Write(KMLFile,ToFile);
 end;
 
+
+procedure TThreadExportKML.Export2KML;
+var p_x,p_y,i,j:integer;
+    polyg:TPointArray;
+    ToFile,datestr:string;
+    max,min:TPoint;
 begin
  num_dwn:=0;
- SetLength(polyg,length(APolyLL));
- persl:='';
- kti:='';
+ SetLength(polyg,length(PolygLL));
  datestr:=RetDate(now);
- persl:=persl+ FTypeMap.GetShortFolderName+'_';
- perzoom:='';
  for j:=0 to 23 do
   if zoomarr[j] then
    begin
-    polyg := FTypeMap.GeoConvert.PoligonProject(j + 8, APolyLL);
+    polyg := FTypeMap.GeoConvert.PoligonProject(j + 8, PolygLL);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
-    perzoom:=perzoom+inttostr(j+1)+'_';
-    kti:=RoundEx(FTypeMap.GeoConvert.Pos2LonLat(min,j + 8).x,4);
-    kti:=kti+'_'+RoundEx(FTypeMap.GeoConvert.Pos2LonLat(min,j + 8).y,4);
-    kti:=kti+'_'+RoundEx(FTypeMap.GeoConvert.Pos2LonLat(max,j + 8).x,4);
-    kti:=kti+'_'+RoundEx(FTypeMap.GeoConvert.Pos2LonLat(max,j + 8).y,4);
    end;
- persl:=copy(persl,1,length(persl)-1);
- perzoom:=copy(perzoom,1,length(perzoom)-1);
- if ziped then begin
-                fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles+' '+SAS_STR_CreateArhList;
-                Zip:=TVCLZip.Create(Fmain);
-                Zippu:=true;
-                Zip.Recurse := False;
-                Zip.StorePaths := true; // Путь не сохраняем
-                Zip.PackLevel := 0; // Уровень сжатия
-                Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-               end
-          else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
+ fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
  FProgress.ProgressBar1.Max:=100;
@@ -202,7 +170,7 @@ begin
  Write(KMLFile,ToFile);
 
  while not(zoomarr[i])or(i>23) do inc(i);
- polyg := FTypeMap.GeoConvert.PoligonProject(i + 8, APolyLL);
+ polyg := FTypeMap.GeoConvert.PoligonProject(i + 8, PolygLL);
  GetDwnlNum(min,max,Polyg,false);
  p_x:=min.x;
  while p_x<max.x do
@@ -212,8 +180,6 @@ begin
     begin
      if FProgress.Visible=false then
       begin
-        FMain.MouseUpPoint:= Fmain.MouseDownPoint;
-        Fmain.generate_im;
         exit;
       end;
      if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
@@ -225,15 +191,6 @@ begin
     end;
     inc(p_x,256);
    end;
- if ziped then
-  begin
-   fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-   if FileExists(Zip.ZipName) then DeleteFile(Zip.ZipName);
-   If Zip.Zip=0 then
-    Application.MessageBox(PChar(SAS_ERR_CreateArh),PChar(SAS_MSG_coution),48);
-   Zip.free;
-   Zippu:=false;
-  end;
  ToFile:=AnsiToUtf8(#13#10+'</Document>'+#13#10+'</kml>');
  Write(KMLFile,ToFile);
  CloseFile(KMLFile);
