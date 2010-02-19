@@ -407,6 +407,7 @@ begin
   CBZoomload.Items.Clear;
   ComboBox.Items.Clear;
   CkLZoomSel.Items.Clear;
+  CkLZoomSel3.Items.Clear;
   CheckListBox2.Items.Clear;
   CkLZoomSelYa.Items.Clear;
   for i:=1 to 24 do begin
