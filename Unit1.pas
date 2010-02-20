@@ -3068,10 +3068,10 @@ begin
           end
      else begin
            LayerMapGPS.Redraw;
-           UpdateGPSsensors;
            toSh;
           end;
    end;
+  UpdateGPSsensors;
   if GState.GPS_WriteLog then
    begin
     if length(GState.GPS_TrackPoints)=1 then sb:='1' else sb:='0';
