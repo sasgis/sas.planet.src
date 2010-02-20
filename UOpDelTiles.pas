@@ -122,12 +122,11 @@ begin
               CONTINUE;
              end;
 
-     if typemap.TileExists(i,j,zoom) then begin
-                               Fx := i;
-                               FY := j;
-                               typemap.DeleteTile(fx, fy, Zoom);
-                               inc(TileInProc);
-                              end;
+     Fx := i;
+     FY := j;
+     if typemap.DeleteTile(fx, fy, Zoom) then begin
+       inc(TileInProc);
+     end;
      Synchronize(UpdateProgressForm);
      inc(j,256);
     end;
