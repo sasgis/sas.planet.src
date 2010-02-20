@@ -31,7 +31,8 @@ implementation
 
 uses
   Graphics,
-  u_WindowLayerBasic, Types;
+  Types,
+  u_WindowLayerBasic;
 
 { TTileErrorInfoLayer }
 
@@ -121,7 +122,7 @@ begin
   FTileZoom := AZoom;
   FMapType := AMapType;
   FText := AText;
-  FHideAfterTime := GetTickCount + 1000000;
+  FHideAfterTime := GetTickCount + 10000;
   Visible := true;
   Resize;
   Redraw;
