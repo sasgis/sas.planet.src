@@ -109,28 +109,23 @@ end;
 procedure TOpDelTiles.DeleteTiles;
 var i,j:integer;
 begin
- i:=min.x;
- while (i<max.X)and(not Terminated) do
-  begin
-   j:=min.Y;
-   while (j<max.y)and(not Terminated) do
-    begin
-
-     if (not(RgnAndRgn(Polyg,i,j,false)))or(DelBytes and (DelBytesNum<>typemap.TileSize(i,j,zoom)))
-        then begin
-              inc(J,256);
-              CONTINUE;
-             end;
-
-     Fx := i;
-     FY := j;
-     if typemap.DeleteTile(fx, fy, Zoom) then begin
-       inc(TileInProc);
-     end;
-     Synchronize(UpdateProgressForm);
-     inc(j,256);
+  i:=min.x;
+  while (i<max.X)and(not Terminated) do begin
+    j:=min.Y;
+    while (j<max.y)and(not Terminated) do  begin
+      if RgnAndRgn(Polyg,i,j,false) then begin
+        if (not DelBytes or (DelBytesNum=typemap.TileSize(i,j,zoom))) then begin
+          Fx := i;
+          FY := j;
+          if typemap.DeleteTile(fx, fy, Zoom) then begin
+            inc(TileInProc);
+          end;
+          Synchronize(UpdateProgressForm);
+        end;
+      end;
+      inc(j,256);
     end;
-   inc(i,256);
+    inc(i,256);
   end;
 end;
 
