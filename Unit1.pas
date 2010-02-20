@@ -1389,6 +1389,7 @@ var
      VGUIDString: string;
   VFillingmaptype: TMapType;
   Vzoom_mapzap: Byte;
+  VScreenCenterPos: TPoint;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -1398,17 +1399,18 @@ begin
  MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
  GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
-  if GState.FullScrean then TBFullSizeClick(TBFullSize)
-                  else if MainWindowMaximized
-                        then WindowState:=wsMaximized
-                        else begin
-                              Self.SetBounds(
-                              GState.MainIni.ReadInteger('VIEW','FLeft',Left),
-                              GState.MainIni.ReadInteger('VIEW','FTop',Top),
-                              GState.MainIni.ReadInteger('VIEW','FWidth',Width),
-                              GState.MainIni.ReadInteger('VIEW','FHeight',Height)
-                              )
-                             end;
+  if GState.FullScrean then begin
+    TBFullSizeClick(TBFullSize);
+  end else if MainWindowMaximized then begin
+    WindowState:=wsMaximized
+  end else begin
+    Self.SetBounds(
+    GState.MainIni.ReadInteger('VIEW','FLeft',Left),
+    GState.MainIni.ReadInteger('VIEW','FTop',Top),
+    GState.MainIni.ReadInteger('VIEW','FWidth',Width),
+    GState.MainIni.ReadInteger('VIEW','FHeight',Height)
+    )
+  end;
 
  movepoint:=-1;
  GMiniMap := TMiniMap.Create(Map);
@@ -1444,6 +1446,8 @@ begin
  Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
  Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
  Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
+ Map.Cursor:=crDefault;
+
  MouseDownPoint := point(0,0);
  MouseUpPoint := point(0,0);
  MapZoomAnimtion:=0;
@@ -1452,7 +1456,6 @@ begin
 
  setlength(GState.LastSelectionPolygon,0);
 
- Map.Cursor:=crDefault;
 
  GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
  GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
@@ -1530,7 +1533,7 @@ begin
  GState.GPS_WriteLog:=GState.MainIni.Readbool('GPS','log',true);
  GState.GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
  GState.GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
- GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed{-16776961});
+ GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed);
  GState.GPS_Correction:=extpoint(str2r(GState.MainIni.ReadString('GPS','popr_lon','0')),str2r(GState.MainIni.ReadString('GPS','popr_lat','0')));
  GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
@@ -1548,31 +1551,28 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
 
- FMainLayer := TMapMainLayer.Create(map, ScreenCenterPos);
- FMainLayer.Visible := True;
- LayerMapMarks:= TMapMarksLayer.Create(map, ScreenCenterPos);
- LayerMapGPS:= TMapGPSLayer.Create(map, ScreenCenterPos);
- LayerGoto := TGotoLayer.Create(map, ScreenCenterPos);
- LayerMapNavToMark := TNavToMarkLayer.Create(map, ScreenCenterPos);
- LayerSelection := TSelectionLayer.Create(map, ScreenCenterPos);
- FWikiLayer := TWikiLayer.Create(map, ScreenCenterPos);
- LayerMapNal:=TMapNalLayer.Create(map, ScreenCenterPos);
- LayerMapNal.Visible:=false;
- FFillingMap:=TMapFillingLayer.create(map, ScreenCenterPos);
- FShowErrorLayer := TTileErrorInfoLayer.Create(map, ScreenCenterPos);
- LayerMapScale := TCenterScale.Create(map);
- LayerScaleLine := TLayerScaleLine.Create(map);
- LayerStatBar:=TLayerStatBar.Create(map);
-
-
-  Set_Pos(
-    Point(
-      GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
-      GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1)
-    ),
-    GState.zoom_size - 1,
-    GState.sat_map_both
+  VScreenCenterPos := Point(
+    GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
+    GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1)
   );
+
+  FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
+  FMainLayer.Visible := True;
+  LayerMapMarks:= TMapMarksLayer.Create(map, VScreenCenterPos);
+  LayerMapGPS:= TMapGPSLayer.Create(map, VScreenCenterPos);
+  LayerGoto := TGotoLayer.Create(map, VScreenCenterPos);
+  LayerMapNavToMark := TNavToMarkLayer.Create(map, VScreenCenterPos);
+  LayerSelection := TSelectionLayer.Create(map, VScreenCenterPos);
+  FWikiLayer := TWikiLayer.Create(map, VScreenCenterPos);
+  LayerMapNal:=TMapNalLayer.Create(map, VScreenCenterPos);
+  LayerMapNal.Visible:=false;
+  FFillingMap:=TMapFillingLayer.create(map, VScreenCenterPos);
+  FShowErrorLayer := TTileErrorInfoLayer.Create(map, VScreenCenterPos);
+  LayerMapScale := TCenterScale.Create(map);
+  LayerScaleLine := TLayerScaleLine.Create(map);
+  LayerStatBar:=TLayerStatBar.Create(map);
+
+  Set_Pos(VScreenCenterPos, GState.zoom_size - 1, GState.sat_map_both);
  try
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
@@ -1838,8 +1838,9 @@ begin
   FUIDownLoader.Terminate;
   GState.StopAllThreads;
   for i := 0 to Screen.FormCount - 1 do begin
-  if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then
-  Screen.Forms[i].Close;
+    if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
+      Screen.Forms[i].Close;
+    end;
   end;
   Application.ProcessMessages;
   VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
