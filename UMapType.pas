@@ -1070,10 +1070,22 @@ begin
       VPath := GetTileFileName(AXY, Azoom);
       FCSSaveTile.Acquire;
       try
-        result := DeleteFile(PChar(VPath));
-        FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
+        if FileExists(VPath) then begin
+          result := DeleteFile(PChar(VPath));
+        end;
       finally
         FCSSaveTile.Release;
+      end;
+      FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
+      
+      VPath := ChangeFileExt(VPath, '.tne');
+      FCSSaveTNF.Acquire;
+      try
+        if FileExists(VPath) then begin
+          result := DeleteFile(PChar(VPath));
+        end;
+      finally
+        FCSSaveTNF.Release;
       end;
     except
       Result := false;
