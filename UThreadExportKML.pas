@@ -32,6 +32,9 @@ type
     KMLFile:TextFile;
     procedure Export2KML;
     procedure KmlFileWrite(x,y:integer;z,level:byte);
+    procedure InitProgressForm;
+    procedure UpdateProgressForm;
+    procedure CloseProgressForm;
   protected
     procedure Execute; override;
   public
@@ -82,7 +85,6 @@ end;
 procedure TThreadExportKML.Execute;
 begin
   export2KML;
-  FProgress.Close;
 end;
 
 function RetDate(inDate: TDateTime): string;
@@ -123,8 +125,7 @@ begin
   inc(obrab);
   if obrab mod 100 = 0 then
    begin
-    FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-    fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+     Synchronize(UpdateProgressForm);
    end;
   i:=z;
   while (not(zoomarr[i]))and(i<24) do inc(i);
@@ -155,11 +156,7 @@ begin
     polyg := FTypeMap.GeoConvert.PoligonProject(j + 8, PolygLL);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
    end;
- fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
- fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
- FProgress.ProgressBar1.Max:=100;
- FProgress.ProgressBar1.Progress1:=0;
+  Synchronize(InitProgressForm);
  obrab:=0;
  i:=0;
  AssignFile(KMLFile,path);
@@ -177,8 +174,7 @@ begin
    p_y:=min.Y;
    while p_y<max.Y do
     begin
-     if FProgress.Visible=false then
-      begin
+     if not FProgress.Visible then begin
         exit;
       end;
      if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
@@ -193,9 +189,29 @@ begin
  ToFile:=AnsiToUtf8(#13#10+'</Document>'+#13#10+'</kml>');
  Write(KMLFile,ToFile);
  CloseFile(KMLFile);
+ Synchronize(CloseProgressForm);
+end;
+
+procedure TThreadExportKML.CloseProgressForm;
+begin
  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
  FProgress.Close;
+end;
+
+procedure TThreadExportKML.InitProgressForm;
+begin
+ fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
+ fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
+ fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
+ FProgress.ProgressBar1.Max:=100;
+ FProgress.ProgressBar1.Progress1:=0;
+end;
+
+procedure TThreadExportKML.UpdateProgressForm;
+begin
+  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
+  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
 end;
 
 end.
