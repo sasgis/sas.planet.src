@@ -82,6 +82,8 @@ type
     InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
+    // Загружать тайл дае есть информация о отсутствии его на сервере
+    IgnoreTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
     TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки

@@ -137,44 +137,46 @@ begin
                   FlastLoad.use:=true;
                   if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y,Fzoom)))) then begin
                     if VMap.UseDwn then begin
-                      FileBuf:=TMemoryStream.Create;
-                      try
-                        res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-                        if Res = dtrBanError  then begin
-                          FTypeMap := VMap;
-                          Synchronize(Ban);
-                        end;
-                        FErrorString:=GetErrStr(res);
-                        if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                          GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                        end;
-                        case res of
-                          dtrOK,
-                          dtrSameTileSize,
-                          dtrErrorMIMEType,
-                          dtrTileNotExists,
-                          dtrBanError: begin
-                            if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
-                              Synchronize(VMap.addDwnforban);
+                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom) then begin
+                        FileBuf:=TMemoryStream.Create;
+                        try
+                          res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          if Res = dtrBanError  then begin
+                            FTypeMap := VMap;
+                            Synchronize(Ban);
+                          end;
+                          FErrorString:=GetErrStr(res);
+                          if (res = dtrOK) or (res = dtrSameTileSize) then begin
+                            GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                          end;
+                          case res of
+                            dtrOK,
+                            dtrSameTileSize,
+                            dtrErrorMIMEType,
+                            dtrTileNotExists,
+                            dtrBanError: begin
+                              if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
+                                Synchronize(VMap.addDwnforban);
+                              end;
                             end;
                           end;
-                        end;
-                        if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                          VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
-                        end;
-                        if res = dtrOK then begin
-                          try
-                            VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
-                          except
-                            on E: Exception do begin
-                              FErrorString := E.Message;
+                          if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
+                            VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+                          end;
+                          if res = dtrOK then begin
+                            try
+                              VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
+                            except
+                              on E: Exception do begin
+                                FErrorString := E.Message;
+                              end;
                             end;
                           end;
+                          if Terminated then break;
+                          Synchronize(AfterWriteToFile);
+                        finally
+                          FileBuf.Free;
                         end;
-                        if Terminated then break;
-                        Synchronize(AfterWriteToFile);
-                      finally
-                        FileBuf.Free;
                       end;
                     end else begin
                       FErrorString:=SAS_ERR_NotLoads;

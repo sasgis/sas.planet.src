@@ -415,6 +415,7 @@ begin
  GState.MainIni.Writestring('INTERNET','login',GState.InetConnect.loginstr);
  GState.MainIni.Writestring('INTERNET','password',GState.InetConnect.passstr);
  GState.MainIni.WriteBool('INTERNET','SaveTileNotExists',GState.SaveTileNotExists);
+ GState.MainIni.WriteBool('INTERNET','IgnoreTileNotExists',GState.IgnoreTileNotExists);
  GState.MainIni.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
  GState.MainIni.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
  GState.MainIni.WriteInteger('INTERNET','TimeOut',GState.InetConnect.TimeOut);

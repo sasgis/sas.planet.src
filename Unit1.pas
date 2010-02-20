@@ -1463,7 +1463,9 @@ begin
  GState.InetConnect.proxystr:=GState.MainIni.Readstring('INTERNET','proxy','');
  GState.InetConnect.loginstr:=GState.MainIni.Readstring('INTERNET','login','');
  GState.InetConnect.passstr:=GState.MainIni.Readstring('INTERNET','password','');
- GState.SaveTileNotExists:=GState.MainIni.ReadBool('INTERNET','SaveTileNotExists',false);
+ GState.SaveTileNotExists:=GState.MainIni.ReadBool('INTERNET','SaveTileNotExists', True);
+ GState.IgnoreTileNotExists:=GState.MainIni.ReadBool('INTERNET','IgnoreTileNotExists',false);
+
  GState.TwoDownloadAttempt:=GState.MainIni.ReadBool('INTERNET','DblDwnl',true);
  GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
  GState.InetConnect.TimeOut:=GState.MainIni.ReadInteger('INTERNET','TimeOut',40000);
