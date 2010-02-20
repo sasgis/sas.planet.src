@@ -294,6 +294,9 @@ begin
     end;
   end;
   Result := GetData(AFileHandle, fileBuf);
+  if (Result = dtrOK) and (fileBuf.Size = 0) then begin
+    Result := dtrTileNotExists;
+  end;
 end;
 
 procedure TTileDownloaderBase.ResetConnetction;
