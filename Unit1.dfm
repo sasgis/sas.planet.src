@@ -952,6 +952,7 @@ object Fmain: TFmain
           Hint = ''
         end
         object NLayerParams: TTBXSubmenuItem
+          SubMenuImages = MapIcons18
           Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1089#1083#1086#1103
           Hint = ''
         end
