@@ -173,7 +173,6 @@ end;
 
 function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
 var
-    RGBPtr:PColor32Array;
     AlphaPtr: pByteArray;
     X, Y: Integer;
     trColor:TColor32;

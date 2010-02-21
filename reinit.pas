@@ -52,10 +52,10 @@ begin
   GetModuleFileName(HInstance, FileName, SizeOf(FileName));
   GetLocaleInfo(Locale, LOCALE_SABBREVLANGNAME, LocaleName, SizeOf(LocaleName));
   P := PChar(@FileName) + lstrlen(FileName);
-  while (P^ <> '.') and (P <> @FileName) do Dec(P);
+  while (P^ <> '.') and (P <> @FileName[0]) do Dec(P);
   NewInst := 0;
   Result := 0;
-  if P <> @FileName then
+  if P <> @FileName[0] then
   begin
     Inc(P);
     if LocaleName[0] <> #0 then
