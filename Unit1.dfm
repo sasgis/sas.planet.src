@@ -2822,10 +2822,12 @@ object Fmain: TFmain
     end
     object ldm: TMenuItem
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+      SubMenuImages = MapIcons18
       ImageIndex = 13
     end
     object dlm: TMenuItem
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+      SubMenuImages = MapIcons18
       ImageIndex = 11
     end
     object N1: TMenuItem
