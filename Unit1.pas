@@ -1512,6 +1512,8 @@ begin
  end;
 
  GState.MapZapColor:=GState.MainIni.Readinteger('VIEW','MapZapColor',clBlack);
+ GState.MapZapShowTNE:=GState.MainIni.ReadBool('VIEW','MapZapShowTNE', True);
+ GState.MapZapTneColor:=GState.MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
  GState.MapZapAlpha:=GState.MainIni.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 

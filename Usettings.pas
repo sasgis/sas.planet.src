@@ -339,6 +339,8 @@ begin
  GState.MainIni.Writeinteger('VIEW','localization',GState.Localization);
  GState.MainIni.Writeinteger('VIEW','GShScale',GState.GShScale);
  GState.MainIni.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
+ GState.MainIni.WriteBool('VIEW','MapZapShowTNE',GState.MapZapShowTNE);
+ GState.MainIni.Writeinteger('VIEW','MapZapTneColor',GState.MapZapTneColor);
  GState.MainIni.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);

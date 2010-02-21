@@ -130,7 +130,13 @@ type
     BorderColor: TColor;
     BorderAlpha: byte;
 
+    // Цвет для отсутствующих тайлов в слое заполнения карты
     MapZapColor:TColor;
+    // Показывать tne на слое заполнения карты
+    MapZapShowTNE: Boolean;
+    // Цвет для тайлов отсутсвтующих на сервере в слое заполнения карты
+    MapZapTneColor: TColor;
+    // Прозрачность слоя заполнения карты
     MapZapAlpha:byte;
 
     WikiMapMainColor:TColor;
@@ -252,7 +258,7 @@ type
   end;
 
 const
-  SASVersion='100120';
+  SASVersion='100222';
   CProgram_Lang_Default = LANG_RUSSIAN;
 
 var

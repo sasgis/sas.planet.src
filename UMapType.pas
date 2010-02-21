@@ -1378,6 +1378,7 @@ var
   VSourceTilePixels: TRect;
   i, j: Integer;
   VClMZ: TColor32;
+  VClTne: TColor32;
 begin
   Result := true;
   try
@@ -1398,6 +1399,8 @@ begin
       (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then
     begin
       VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
+      VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
+
       for i := VSourceTilesRect.Top to VSourceTilesRect.Bottom do begin
         VCurrTile.Y := i;
         if IsStop^ then break;
@@ -1424,7 +1427,11 @@ begin
             VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
             VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
             VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-            btm.FillRectS(VSourceTilePixels, VClMZ);
+            if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
+              btm.FillRectS(VSourceTilePixels, VClTne);
+            end else begin
+              btm.FillRectS(VSourceTilePixels, VClMZ);
+            end;
           end;
           if IsStop^ then break;
         end;
