@@ -1639,7 +1639,7 @@ end;
 
 function TMapType.GetUseStick: boolean;
 begin
-  if TileFileExt<>'.kml' then begin
+  if GetIsBitmapTiles then begin
     Result := FUseStick;
   end else begin
     Result := False;
@@ -1648,7 +1648,7 @@ end;
 
 function TMapType.GetIsCanShowOnSmMap: boolean;
 begin
-  if TileFileExt<>'.kml' then begin
+  if GetIsBitmapTiles then begin
     Result := FIsCanShowOnSmMap;
   end else begin
     Result := False;
@@ -1714,6 +1714,7 @@ begin
   if SameText(TileFileExt, '.jpg')
     or SameText(TileFileExt, '.png')
     or SameText(TileFileExt, '.gif')
+    or SameText(TileFileExt, '.bmp')
   then begin
     Result := true;
   end else begin
