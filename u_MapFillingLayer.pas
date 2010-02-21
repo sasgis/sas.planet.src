@@ -83,6 +83,7 @@ procedure TMapFillingLayer.DoRedraw;
 begin
   if (FSourceMapType <> nil) and (FZoom < FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
+    TMapFillingThread(FThread).PrepareToChangeScene;
     FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
   end;
