@@ -1379,6 +1379,7 @@ var
   i, j: Integer;
   VClMZ: TColor32;
   VClTne: TColor32;
+  VSolidDrow: Boolean;
 begin
   Result := true;
   try
@@ -1398,6 +1399,8 @@ begin
     if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
       (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then
     begin
+      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1))
+        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1));
       VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
       VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
 
@@ -1427,6 +1430,10 @@ begin
             VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
             VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
             VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
+            if VSolidDrow then begin
+              Inc(VSourceTilePixels.Right);
+              Inc(VSourceTilePixels.Bottom);
+            end;
             if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
               btm.FillRectS(VSourceTilePixels, VClTne);
             end else begin
