@@ -1320,6 +1320,7 @@ var
   Leyi:integer;
   ts2,ts3,fr:int64;
   VWikiLayersVisible: Boolean;
+  VSelectionRect: TExtendedRect;
 begin
   QueryPerformanceCounter(ts2);
 
@@ -1357,8 +1358,9 @@ begin
     end;
     if aoper=ao_rect then begin
       LayerMapNal.DrawNothing;
-      if PrepareSelectionRect([], FSelectionRect) then begin
-        LayerMapNal.DrawSelectionRect(FSelectionRect);
+      VSelectionRect := FSelectionRect;
+      if PrepareSelectionRect([], VSelectionRect) then begin
+        LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
     if GState.GPS_enab then begin
@@ -3209,6 +3211,7 @@ var i:integer;
     xy:TPoint;
     VZoomCurr: Byte;
     VPoint: TPoint;
+  VSelectionRect: TExtendedRect;
 begin
   if (HintWindow<>nil) then begin
     HintWindow.ReleaseHandle;
@@ -3247,8 +3250,9 @@ begin
       end;
       rect_dwn:=not(rect_dwn);
       LayerMapNal.DrawNothing;
-      if PrepareSelectionRect(Shift, FSelectionRect) then begin
-        LayerMapNal.DrawSelectionRect(FSelectionRect);
+      VSelectionRect := FSelectionRect;
+      if PrepareSelectionRect(Shift, VSelectionRect) then begin
+        LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
     if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im;
@@ -3315,6 +3319,7 @@ var PWL:TResObj;
     VPoint: TPoint;
     VSourcePoint: TPoint;
     VZoomCurr: Byte;
+  VSelectionRect: TExtendedRect;
 begin
  if (layer=GMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
@@ -3381,8 +3386,9 @@ begin
    end;
    if aoper=ao_rect then begin
      LayerMapNal.DrawNothing;
-     if PrepareSelectionRect([], FSelectionRect) then begin
-       LayerMapNal.DrawSelectionRect(FSelectionRect);
+     VSelectionRect := FSelectionRect;
+     if PrepareSelectionRect([], VSelectionRect) then begin
+       LayerMapNal.DrawSelectionRect(VSelectionRect);
      end;
    end;
    if GState.GPS_enab then begin
@@ -3503,6 +3509,7 @@ var i,j:integer;
     CState: Integer;
     VPoint: TPoint;
     VZoomCurr: Byte;
+  VSelectionRect: TExtendedRect;
 begin
   if ProgramClose then begin
     exit;
@@ -3531,8 +3538,9 @@ begin
          then begin
                FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
                LayerMapNal.DrawNothing;
-               if PrepareSelectionRect(Shift,FSelectionRect) then begin
-                 LayerMapNal.DrawSelectionRect(FSelectionRect);
+               VSelectionRect := FSelectionRect;
+               if PrepareSelectionRect(Shift,VSelectionRect) then begin
+                 LayerMapNal.DrawSelectionRect(VSelectionRect);
                end;
               end;
  if GState.FullScrean then begin
