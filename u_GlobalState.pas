@@ -127,6 +127,9 @@ type
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
 
+    LastSelectionColor: TColor;
+    LastSelectionAlfa: Byte;
+
     BorderColor: TColor;
     BorderAlpha: byte;
 

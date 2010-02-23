@@ -345,6 +345,8 @@ begin
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
+ GState.MainIni.Writeinteger('VIEW','LastSelectionColor',GState.LastSelectionColor);
+ GState.MainIni.Writeinteger('VIEW','LastSelectionAlfa',GState.LastSelectionAlfa);
 
  if FMain.FFillingMap.SourceMapType=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
                        else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceMapType.GUIDString);

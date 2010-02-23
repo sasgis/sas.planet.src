@@ -1519,6 +1519,9 @@ begin
  GState.MapZapAlpha:=GState.MainIni.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
+ GState.LastSelectionColor:=GState.MainIni.Readinteger('VIEW','LastSelectionColor',clBlack);
+ GState.LastSelectionAlfa:=GState.MainIni.Readinteger('VIEW','LastSelectionAlpha',210);
+
  GState.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
  GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
