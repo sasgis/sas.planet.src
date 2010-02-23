@@ -564,7 +564,7 @@ type
     marshrutcomment: string;
     movepoint: integer;
     lastpoint: integer;
-    rect_arr: TExtendedRect;
+    FSelectionRect: TExtendedRect;
     length_arr: TExtendedPointArray;
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
@@ -1357,8 +1357,8 @@ begin
     end;
     if aoper=ao_rect then begin
       LayerMapNal.DrawNothing;
-      if PrepareSelectionRect([], rect_arr) then begin
-        LayerMapNal.DrawSelectionRect(rect_arr);
+      if PrepareSelectionRect([], FSelectionRect) then begin
+        LayerMapNal.DrawSelectionRect(FSelectionRect);
       end;
     end;
     if GState.GPS_enab then begin
@@ -3239,16 +3239,16 @@ begin
     end;
     if (aoper=ao_rect)then begin
       if rect_dwn then begin
-        rect_arr.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+        FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
         rect_p2:=true;
       end else begin
-        rect_arr.TopLeft:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-        rect_arr.BottomRight:=rect_arr.TopLeft
+        FSelectionRect.TopLeft:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+        FSelectionRect.BottomRight:=FSelectionRect.TopLeft
       end;
       rect_dwn:=not(rect_dwn);
       LayerMapNal.DrawNothing;
-      if PrepareSelectionRect(Shift, rect_arr) then begin
-        LayerMapNal.DrawSelectionRect(rect_arr);
+      if PrepareSelectionRect(Shift, FSelectionRect) then begin
+        LayerMapNal.DrawSelectionRect(FSelectionRect);
       end;
     end;
     if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im;
@@ -3381,8 +3381,8 @@ begin
    end;
    if aoper=ao_rect then begin
      LayerMapNal.DrawNothing;
-     if PrepareSelectionRect([], rect_arr) then begin
-       LayerMapNal.DrawSelectionRect(rect_arr);
+     if PrepareSelectionRect([], FSelectionRect) then begin
+       LayerMapNal.DrawSelectionRect(FSelectionRect);
      end;
    end;
    if GState.GPS_enab then begin
@@ -3529,10 +3529,10 @@ begin
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>GMiniMap.LayerMinMap)
          then begin
-               rect_arr.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+               FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
                LayerMapNal.DrawNothing;
-               if PrepareSelectionRect(Shift,rect_arr) then begin
-                 LayerMapNal.DrawSelectionRect(rect_arr);
+               if PrepareSelectionRect(Shift,FSelectionRect) then begin
+                 LayerMapNal.DrawSelectionRect(FSelectionRect);
                end;
               end;
  if GState.FullScrean then begin
