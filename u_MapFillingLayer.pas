@@ -81,9 +81,12 @@ end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  if (FSourceMapType <> nil) and (FZoom < FSourceZoom) and (FGeoConvert <> nil) then begin
+  if (FSourceMapType <> nil) and (FZoom <= FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
     TMapFillingThread(FThread).PrepareToChangeScene;
+    if FSourceSelected = nil then begin
+      FSourceMapType := GState.sat_map_both;
+    end;
     FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
   end;
@@ -97,7 +100,7 @@ end;
 
 procedure TMapFillingLayer.Redraw;
 begin
-  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom < FSourceZoom) then begin
+  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom <= FSourceZoom) then begin
     if not FLayer.Visible then begin
       FLayer.Visible := true;
     end;
@@ -156,8 +159,14 @@ var
   VFullRedraw: Boolean;
 begin
   VFullRedraw := false;
-  if FSourceSelected <> AMapType then begin
-    VFullRedraw := True;
+  if (AMapType <> nil) then begin
+    if (FSourceSelected <> AMapType) then begin
+      VFullRedraw := True;
+    end
+  end else begin
+    if (FSourceMapType <> GState.sat_map_both) then begin
+      VFullRedraw := True;
+    end
   end;
   if FSourceZoom <> AZoom then begin
     VFullRedraw := True;
