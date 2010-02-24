@@ -1307,9 +1307,6 @@ begin
  If not(GState.ShowStatusBar) then exit;
  LayerStatBar.Redraw;
  labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
- if GMiniMap.LayerMinMap.Visible then GMiniMap.LayerMinMap.BringToFront;
- if LayerScaleLine.Visible then LayerScaleLine.BringToFront;
- if LayerStatBar.Visible then LayerStatBar.BringToFront;
 end;
 procedure TFmain.generate_im;
 begin

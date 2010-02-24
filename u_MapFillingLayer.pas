@@ -100,7 +100,6 @@ begin
   if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom < FSourceZoom) then begin
     if not FLayer.Visible then begin
       FLayer.Visible := true;
-      BringToFront;
     end;
   end else begin
     FLayer.Visible := false;

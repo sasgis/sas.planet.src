@@ -123,7 +123,6 @@ begin
     FLayer.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
   end;
 
-  FLayer.BringToFront;
   FreeAndNil(Polygon);
   FreeAndNil(Polygon_line);
 end;

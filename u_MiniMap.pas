@@ -105,8 +105,6 @@ end;
 procedure TMiniMap.SetMiniMapVisible(visible: boolean; MainMapPos: TPoint);
 begin
  LayerMinMap.Visible:= visible;
- if LayerMinMap.Visible then LayerMinMap.BringToFront
-                        else LayerMinMap.SendToBack;
  sm_im_reset(width div 2,height div 2, MainMapPos);
 end;
 
@@ -206,7 +204,6 @@ begin
   LayerMinMap.bitmap.ResetAlpha(alpha);
   if z1mz2>1 then LayerMinMap.bitmap.Draw(6,6,PlusButton);
   if zoom>1 then LayerMinMap.bitmap.Draw(19,6,MinusButton);
-  LayerMinMap.BringToFront;
 end;
 
 procedure TMiniMap.sm_im_reset_type2(x, y: integer);
