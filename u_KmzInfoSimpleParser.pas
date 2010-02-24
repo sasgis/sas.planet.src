@@ -16,6 +16,7 @@ type
 implementation
 
 uses
+  SysUtils,
   VCLUnZip;
 
 { TKmzInfoSimpleParser }
@@ -30,15 +31,19 @@ begin
   UnZip:=TVCLUnZip.Create(nil);
   try
     VMemStream := TMemoryStream.Create;
-    UnZip.ArchiveStream:= VMemStream;
-    VMemStream.LoadFromStream(AStream);
-    UnZip.ReadZip;
-    VStreamKml := TMemoryStream.Create;
     try
-      UnZip.UnZipToStream(VStreamKml,UnZip.Filename[0]);
-      inherited LoadFromStream(VStreamKml, ABtm);
+      UnZip.ArchiveStream:= VMemStream;
+      VMemStream.LoadFromStream(AStream);
+      UnZip.ReadZip;
+      VStreamKml := TMemoryStream.Create;
+      try
+        UnZip.UnZipToStream(VStreamKml,UnZip.Filename[0]);
+        inherited LoadFromStream(VStreamKml, ABtm);
+      finally
+        VStreamKml.Free;
+      end;
     finally
-      VStreamKml.Free;
+      FreeAndNil(VMemStream);
     end;
   finally
     UnZip.Free;
