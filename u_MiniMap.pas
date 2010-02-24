@@ -33,9 +33,6 @@ type
     procedure SetMiniMapVisible(visible:boolean; MainMapPos: TPoint);
   end;
 
-var
-  GMiniMap: TMiniMap;
-
 implementation
 
 uses

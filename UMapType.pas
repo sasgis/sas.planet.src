@@ -294,7 +294,7 @@ begin
   for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
   for i:=0 to Fmain.PopupMSmM.Items.Count-3 do Fmain.PopupMSmM.Items.Items[2].Free;
 
-  GMiniMap.maptype:=nil;
+  FMain.FMiniMap.maptype:=nil;
   i:=length(GState.MapType)-1;
 
   if i>0 then begin
@@ -387,7 +387,7 @@ begin
           GState.sat_map_both:=GState.MapType[i];
         end;
         if (ShowOnSmMap)and(not(asLayer)) then begin
-          GMiniMap.maptype:=GState.MapType[i];
+          FMain.FMiniMap.maptype:=GState.MapType[i];
         end;
         TBItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);
@@ -415,7 +415,7 @@ begin
   if FSettings.MapList.Items.Count>0 then begin
     FSettings.MapList.Items.Item[0].Selected:=true;
   end;
-  if GMiniMap.maptype=nil then begin
+  if FMain.FMiniMap.maptype=nil then begin
     Fmain.NMMtype_0.Checked:=true;
   end;
   if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
