@@ -607,7 +607,7 @@ object FMarksExplorer: TFMarksExplorer
     DefaultExt = '*.kml'
     Filter = 
       'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt'
+      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz'
     Left = 504
     Top = 384
   end

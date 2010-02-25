@@ -34,6 +34,7 @@ type
     FBitmapTypeManager: IBitmapTypeExtManager;
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
+    FKmzLoader: IKmlInfoSimpleLoader;
     FCacheElemensMaxCnt: integer;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
@@ -81,6 +82,8 @@ type
     InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
+    // Загружать тайл дае есть информация о отсутствии его на сервере
+    IgnoreTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
     TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
@@ -124,10 +127,19 @@ type
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
 
+    LastSelectionColor: TColor;
+    LastSelectionAlfa: Byte;
+
     BorderColor: TColor;
     BorderAlpha: byte;
 
+    // Цвет для отсутствующих тайлов в слое заполнения карты
     MapZapColor:TColor;
+    // Показывать tne на слое заполнения карты
+    MapZapShowTNE: Boolean;
+    // Цвет для тайлов отсутсвтующих на сервере в слое заполнения карты
+    MapZapTneColor: TColor;
+    // Прозрачность слоя заполнения карты
     MapZapAlpha:byte;
 
     WikiMapMainColor:TColor;
@@ -239,6 +251,7 @@ type
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
+    property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -248,7 +261,7 @@ type
   end;
 
 const
-  SASVersion='100120';
+  SASVersion='100222';
   CProgram_Lang_Default = LANG_RUSSIAN;
 
 var
@@ -263,6 +276,7 @@ uses
   u_BitmapTypeExtManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
+  u_KmzInfoSimpleParser,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -283,6 +297,7 @@ begin
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FKmlLoader := TKmlInfoSimpleParser.Create;
+  FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   LoadMainParams;
@@ -307,6 +322,7 @@ begin
   FBitmapTypeManager := nil;
   FMapCalibrationList := nil;
   FKmlLoader := nil;
+  FKmzLoader := nil;
   sat_map_both := nil;
   FreeAllMaps;
   inherited;

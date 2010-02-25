@@ -30,7 +30,7 @@ type
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Hide; override;
     procedure Redraw; override;
-    property SourceMapType: TMapType read FSourceSelected;
+    property SourceSelected: TMapType read FSourceSelected;
     property SourceZoom: Byte read FSourceZoom;
   end;
 
@@ -81,8 +81,12 @@ end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  if (FSourceMapType <> nil) and (FZoom < FSourceZoom) and (FGeoConvert <> nil) then begin
+  if (FSourceMapType <> nil) and (FZoom <= FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
+    TMapFillingThread(FThread).PrepareToChangeScene;
+    if FSourceSelected = nil then begin
+      FSourceMapType := GState.sat_map_both;
+    end;
     FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
   end;
@@ -96,10 +100,9 @@ end;
 
 procedure TMapFillingLayer.Redraw;
 begin
-  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom < FSourceZoom) then begin
+  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom <= FSourceZoom) then begin
     if not FLayer.Visible then begin
       FLayer.Visible := true;
-      BringToFront;
     end;
   end else begin
     FLayer.Visible := false;
@@ -156,8 +159,14 @@ var
   VFullRedraw: Boolean;
 begin
   VFullRedraw := false;
-  if FSourceSelected <> AMapType then begin
-    VFullRedraw := True;
+  if (AMapType <> nil) then begin
+    if (FSourceSelected <> AMapType) then begin
+      VFullRedraw := True;
+    end
+  end else begin
+    if (FSourceMapType <> GState.sat_map_both) then begin
+      VFullRedraw := True;
+    end
   end;
   if FSourceZoom <> AZoom then begin
     VFullRedraw := True;

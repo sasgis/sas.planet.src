@@ -120,7 +120,6 @@ var xy,xyb:Tpoint;
     marksFilter:string;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
-  paintMark:=true;
   try
     marksFilter:='';
     if GState.show_point = mshChecked then begin
@@ -286,8 +285,8 @@ var
 begin
   inherited;
   if FMain.CDSmarks.State <> dsBrowse then exit;
-  paintMark:=true;
   try
+    FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := FZoom;
     VBitmapSize := GetBitmapSizeInPixel;
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0,0));
@@ -302,7 +301,6 @@ begin
       marksFilter:=marksFilter+'visible=1';
       FMain.CDSKategory.First;
       if FMain.CDSKategory.Eof then begin
-        Visible:=false;
         FMain.CDSKategory.Filtered:=false;
         exit;
       end;
@@ -326,11 +324,8 @@ begin
     FMain.CDSmarks.Filtered:=true;
     FMain.CDSmarks.First;
     if FMain.CDSmarks.Eof then begin
-      Hide;
       FMain.CDSmarks.Filtered:=false;
       exit;
-    end else begin
-      FLayer.Bitmap.Clear(clBlack);
     end;
     btm:=TBitmap32.Create;
     try
@@ -373,7 +368,6 @@ begin
       btm.Free;
     end;
   finally
-    paintMark:=false;
   end;
 end;
 

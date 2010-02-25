@@ -197,7 +197,6 @@ end;
 
 function TPosFromGPS.GetPos:boolean;
 var paramss:string;
-    pos:integer;
     LL:TExtendedPoint;
 begin
  if GState.GSMpar.auto then begin

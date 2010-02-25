@@ -64,9 +64,9 @@ var
   fileBuf:TMemoryStream;
   res: TDownloadTileResult;
 begin
-  Flastload.X := FLoadXY.X-(abs(FLoadXY.X) mod 256);
-  Flastload.Y := FLoadXY.Y-(abs(FLoadXY.Y) mod 256);
-  Flastload.z := Fzoom;
+  Flastload.TilePos.X := FLoadXY.X shr 8;
+  Flastload.TilePos.Y := FLoadXY.Y shr 8;
+  Flastload.Zoom := Fzoom - 1;
   FlastLoad.mt := Ftypemap;
   FlastLoad.use :=true;
   if FTypeMap.UseDwn then begin

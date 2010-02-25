@@ -8,7 +8,6 @@ uses
   SysUtils,
   Graphics,
   GR32,
-  unit1,
   t_GeoTypes;
 
 type
@@ -26,6 +25,9 @@ type
  end;
 
 implementation
+
+uses
+  u_GeoToStr;
 
 function GetWord(Str, Smb: string; WordNmbr: Byte): string;
 var SWord: string;
@@ -72,8 +74,8 @@ begin
        Data[length(Data)-1].Name:=trackname+', section '+inttostr(length(Data));
       end;
      SetLength(Data[length(Data)-1].coordinates,length(Data[length(Data)-1].coordinates)+1);
-     Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].y:=Fmain.str2r(GetWord(str, ',', 1));
-     Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].x:=Fmain.str2r(GetWord(str, ',', 2));
+     Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].y:=str2r(GetWord(str, ',', 1));
+     Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].x:=str2r(GetWord(str, ',', 2));
     except
     end;
   end;

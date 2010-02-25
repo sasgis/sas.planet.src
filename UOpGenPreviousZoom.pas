@@ -112,7 +112,7 @@ procedure TOpGenPreviousZoom.CloseProgressForm;
 begin
  fprogress.Free;
  GState.MainFileCache.Clear;
- Fmain.generate_im(nilLastLoad,'');
+ Fmain.generate_im;
 end;
 
 procedure TOpGenPreviousZoom.UpdateProgressForm;

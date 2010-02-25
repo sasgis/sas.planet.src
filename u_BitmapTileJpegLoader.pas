@@ -22,45 +22,7 @@ uses
 
 { TJpegBitmapTileLoader }
 
-procedure RGBA2BGRA2(var jcprops: TJPEG_CORE_PROPERTIES);
-var
-  W, H: Integer;
-  p: PIntegerArray;
-  pData: Pointer;
-  Width, Height: Integer;
-begin
-  Width := jcprops.JPGWidth;
-  Height := jcprops.JPGHeight;
-  pData := jcprops.DIBBytes;
-  p := PIntegerArray(pData);
-  for H := 0 to Height - 1 do begin
-    for W := 0 to Width - 1 do begin
-      p^[W] := (p^[W] and $FF000000) or ((p^[W] and $00FF0000) shr 16) or (p^[W] and $0000FF00) or ((p^[W] and $000000FF) shl 16);
-    end;
-    inc(p, width);
-  end;
-end;
-
-procedure RGBA2BGRA3(var jcprops: TJPEG_CORE_PROPERTIES);
-var
-  W, H: Integer;
-  p: PInteger;
-  pData: Pointer;
-  Width, Height: Integer;
-begin
-  Width := jcprops.JPGWidth;
-  Height := jcprops.JPGHeight;
-  pData := jcprops.DIBBytes;
-  p := PInteger(pData);
-  for H := 0 to Height - 1 do begin
-    for W := 0 to Width - 1 do begin
-      p^ := (p^ and $FF000000) or ((p^ and $00FF0000) shr 16) or (p^ and $0000FF00) or ((p^ and $000000FF) shl 16);
-      inc(p);
-    end;
-  end;
-end;
-
-procedure RGBA2BGRA4(var jcprops: TJPEG_CORE_PROPERTIES);
+procedure RGBA2BGRA(var jcprops: TJPEG_CORE_PROPERTIES);
 var
   W, H: Integer;
   p: PColor32Entry;
@@ -133,7 +95,7 @@ begin
     if iStatus < 0 then begin
       raise Exception.Create('Load Jpeg Error');
     end;
-    RGBA2BGRA4(jcprops);
+    RGBA2BGRA(jcprops);
   finally
     ijlFree(@jcprops);
   end;
@@ -174,7 +136,7 @@ begin
       if iStatus < 0 then begin
         raise Exception.Create('Load Jpeg Error');
       end;
-      RGBA2BGRA4(jcprops);
+      RGBA2BGRA(jcprops);
     finally
       ijlFree(@jcprops);
     end;

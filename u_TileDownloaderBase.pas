@@ -152,6 +152,7 @@ begin
     ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
     ERROR_INTERNET_SERVER_UNREACHABLE,
     ERROR_INTERNET_SHUTDOWN,
+    ERROR_INTERNET_NAME_NOT_RESOLVED,
     ERROR_INTERNET_TIMEOUT:
     begin
       Result := true;
@@ -294,6 +295,9 @@ begin
     end;
   end;
   Result := GetData(AFileHandle, fileBuf);
+  if (Result = dtrOK) and (fileBuf.Size = 0) then begin
+    Result := dtrTileNotExists;
+  end;
 end;
 
 procedure TTileDownloaderBase.ResetConnetction;

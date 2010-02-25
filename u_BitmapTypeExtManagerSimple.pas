@@ -91,7 +91,7 @@ function TBitmapTypeExtManagerSimple.GetBitmapLoaderForType(
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := FLoaders[0];
-  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') or SameText(AType, 'image/png; mode=24bit') then begin
     Result := FLoaders[1];
   end else if SameText(AType, 'image/gif') then begin
     Result := FLoaders[2];
@@ -138,7 +138,7 @@ function TBitmapTypeExtManagerSimple.GetExtForType(AType: String): string;
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := '.jpg';
-  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') or SameText(AType, 'image/png; mode=24bit') then begin
     Result := '.png';
   end else if SameText(AType, 'image/gif') then begin
     Result := '.gif';
@@ -169,7 +169,7 @@ function TBitmapTypeExtManagerSimple.GetIsBitmapType(
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := true;
-  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') then begin
+  end else if SameText(AType, 'image/png') or SameText(AType, 'image/x-png') or SameText(AType, 'image/png; mode=24bit') then begin
     Result := True;
   end else if SameText(AType, 'image/gif') then begin
     Result := True;

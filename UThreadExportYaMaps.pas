@@ -153,7 +153,6 @@ var
   TileStream : TMemoryStream;
   tc:cardinal;
   VGeoConvert: ICoordConverter;
-  VMainMapType: TMapType;
   JPGSaver,PNGSaver:IBitmapTileSaver;
 begin
   try

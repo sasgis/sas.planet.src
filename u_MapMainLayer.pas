@@ -201,7 +201,6 @@ end;
 procedure TMapMainLayer.DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
 var
   VZoom: Byte;
-  VZoomSource: Byte;
   VSourceMapType: TMapType;
   VBmp: TBitmap32;
 

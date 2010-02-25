@@ -172,10 +172,16 @@ begin
   begin
    if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
     then AddKategory(CBKateg.Text);
-   if LowerCase(ExtractFileExt(FileName))='.kml' then
+   if (LowerCase(ExtractFileExt(FileName))='.kml') or (LowerCase(ExtractFileExt(FileName))='.kmz') then
     begin
      KML:=TKmlInfoSimple.Create;
-     GState.KmlLoader.LoadFromFile(FileName, KML);
+     if (LowerCase(ExtractFileExt(FileName))='.kml') then begin
+       GState.KmlLoader.LoadFromFile(FileName, KML);
+     end else if (LowerCase(ExtractFileExt(FileName))='.kmz') then begin
+       GState.KmzLoader.LoadFromFile(FileName, KML);
+     end else begin
+       Abort;
+     end;
      for i:=0 to length(KML.Data)-1 do
       begin
        lenarr:=length(KML.Data[i].coordinates);

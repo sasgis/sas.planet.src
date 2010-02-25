@@ -62,10 +62,7 @@ implementation
 
 uses
   u_GlobalState,
-  t_CommonTypes,
-  t_GeoTypes,
-  unit1,
-  UMapType;
+  unit1;
 
 {$R *.dfm}
 

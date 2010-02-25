@@ -44,6 +44,7 @@ var
 begin
   Vpng := TPNGObject.Create;
   try
+    AStream.Position := 0;
     Vpng.LoadFromStream(AStream);
     ABtm.DrawMode := dmOpaque;
     PNGintoBitmap32(Abtm, Vpng);

@@ -3,12 +3,13 @@ unit t_LoadEvent;
 interface
 
 uses
+  Types,
   UMapType;
 
 type
   TLastLoad = record
-    x, y: longint;
-    z: byte;
+    TilePos: TPoint;
+    Zoom: byte;
     mt: TMapType;
     use: boolean;
   end;

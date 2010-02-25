@@ -23,7 +23,6 @@ uses
   SysUtils,
   Graphics,
   u_GlobalState,
-  uMapType,
   u_WindowLayerBasic;
 
 { TSelectionLayer }
@@ -55,7 +54,7 @@ begin
         with VPolygon32.Outline do try
           with Grow(Fixed(1), 0.5) do try
             FillMode := pfWinding;
-            DrawFill(FLayer.Bitmap, clBlack32);
+            DrawFill(FLayer.Bitmap, SetAlpha(GState.LastSelectionColor, GState.LastSelectionAlfa));
           finally
             free;
           end;

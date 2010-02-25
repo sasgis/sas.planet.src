@@ -351,7 +351,7 @@ var
 begin
   VSize := Fmain.VisibleSizeInPixel;
   VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
- Apos:= GState.sat_map_both.GeoConvert.Pos2LonLat(FMain.VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1) + 8);
+ Apos:= GState.sat_map_both.GeoConvert.Pos2LonLat(FMain.VisiblePixel2MapPixel(Fmain.moveTrue),(GState.zoom_size - 1) + 8);
  mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(APos.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);

@@ -15,6 +15,7 @@ type
   private
     UPos: TPoint;
     FSizeInTile: TPoint;
+    FSizeInPixels: TPoint;
     FLastLoad: TlastLoad;
     FErrorString: string;
     procedure GetCurrentMapAndPos;
@@ -52,7 +53,12 @@ begin
  FTypeMap:=GState.Sat_map_Both;
  Upos:= FMain.ScreenCenterPos;
  FZoom:= GState.zoom_size;
- FSizeInTile := Fmain.LoadedSizeInTile;
+ //TODO: Переписать нормально с учетом настроек.
+ FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
+ FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
+
+ FSizeInTile.X := FSizeInPixels.X div 256;
+ FSizeInTile.Y := FSizeInPixels.Y div 256;
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;
@@ -120,55 +126,57 @@ begin
                   BPos:=UPos;
                   VZoom := FZoom - 1;
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
-                  FLoadXY.X := BPos.x-(xhgpx div 2)+(x shl 8);
-                  FLoadXY.Y := BPos.y-(yhgpx div 2)+(y shl 8);
+                  FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
+                  FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
                   VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
 
-                  Flastload.X:=FLoadXY.X-(abs(FLoadXY.X) mod 256);
-                  Flastload.Y:=FLoadXY.Y-(abs(FLoadXY.Y) mod 256);
-                  Flastload.z:=Fzoom;
+                  Flastload.TilePos.X:=FLoadXY.X shr 8;
+                  Flastload.TilePos.Y:=FLoadXY.Y shr 8;
+                  Flastload.Zoom:=Fzoom - 1;
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
                   if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y,Fzoom)))) then begin
                     if VMap.UseDwn then begin
-                      FileBuf:=TMemoryStream.Create;
-                      try
-                        res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-                        if Res = dtrBanError  then begin
-                          FTypeMap := VMap;
-                          Synchronize(Ban);
-                        end;
-                        FErrorString:=GetErrStr(res);
-                        if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                          GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                        end;
-                        case res of
-                          dtrOK,
-                          dtrSameTileSize,
-                          dtrErrorMIMEType,
-                          dtrTileNotExists,
-                          dtrBanError: begin
-                            if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
-                              Synchronize(VMap.addDwnforban);
+                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom) then begin
+                        FileBuf:=TMemoryStream.Create;
+                        try
+                          res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          if Res = dtrBanError  then begin
+                            FTypeMap := VMap;
+                            Synchronize(Ban);
+                          end;
+                          FErrorString:=GetErrStr(res);
+                          if (res = dtrOK) or (res = dtrSameTileSize) then begin
+                            GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                          end;
+                          case res of
+                            dtrOK,
+                            dtrSameTileSize,
+                            dtrErrorMIMEType,
+                            dtrTileNotExists,
+                            dtrBanError: begin
+                              if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
+                                Synchronize(VMap.addDwnforban);
+                              end;
                             end;
                           end;
-                        end;
-                        if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                          VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
-                        end;
-                        if res = dtrOK then begin
-                          try
-                            VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
-                          except
-                            on E: Exception do begin
-                              FErrorString := E.Message;
+                          if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
+                            VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+                          end;
+                          if res = dtrOK then begin
+                            try
+                              VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
+                            except
+                              on E: Exception do begin
+                                FErrorString := E.Message;
+                              end;
                             end;
                           end;
+                          if Terminated then break;
+                          Synchronize(AfterWriteToFile);
+                        finally
+                          FileBuf.Free;
                         end;
-                        if Terminated then break;
-                        Synchronize(AfterWriteToFile);
-                      finally
-                        FileBuf.Free;
                       end;
                     end else begin
                       FErrorString:=SAS_ERR_NotLoads;

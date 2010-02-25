@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 312
-  Top = 104
+  Left = 343
+  Top = 94
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -781,6 +781,7 @@ object Fmain: TFmain
         end
         object NCiclMap: TTBXItem
           AutoCheck = True
+          Visible = False
           OnClick = NCiclMapClick
           Caption = #1047#1072#1094#1080#1082#1083#1080#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
           Hint = ''
@@ -800,7 +801,7 @@ object Fmain: TFmain
         object NShowSelection: TTBXItem
           AutoCheck = True
           OnClick = NShowSelectionClick
-          Caption = #1055#1086#1089#1083#1077#1076#1085#1077#1077' '#1074#1099#1076#1083#1077#1085#1080#1077
+          Caption = #1055#1086#1089#1083#1077#1076#1085#1077#1077' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
           Hint = ''
         end
       end
@@ -952,6 +953,7 @@ object Fmain: TFmain
           Hint = ''
         end
         object NLayerParams: TTBXSubmenuItem
+          SubMenuImages = MapIcons18
           Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1089#1083#1086#1103
           Hint = ''
         end
@@ -2821,10 +2823,12 @@ object Fmain: TFmain
     end
     object ldm: TMenuItem
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+      SubMenuImages = MapIcons18
       ImageIndex = 13
     end
     object dlm: TMenuItem
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+      SubMenuImages = MapIcons18
       ImageIndex = 11
     end
     object N1: TMenuItem

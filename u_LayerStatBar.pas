@@ -76,7 +76,7 @@ begin
   inherited;
   VSize := GetBitmapSizeInPixel;
   VZoomCurr := GState.zoom_size - 1;
-  VPoint := FMain.VisiblePixel2MapPixel(m_m);
+  VPoint := FMain.VisiblePixel2MapPixel(Fmain.m_m);
   GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
   ll := GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
   if GState.FirstLat then begin

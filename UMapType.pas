@@ -250,6 +250,7 @@ uses
   VCLUnZip,
   u_GlobalState,
   Usettings,
+  u_GeoToStr,
   unit1,
   UIMGFun,
   i_IObjectWithTTL,
@@ -291,9 +292,9 @@ begin
   for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
   for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
   for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
-  for i:=0 to GMiniMapPopupMenu.Items.Count-3 do GMiniMapPopupMenu.Items.Items[2].Free;
+  for i:=0 to Fmain.PopupMSmM.Items.Count-3 do Fmain.PopupMSmM.Items.Items[2].Free;
 
-  GMiniMap.maptype:=nil;
+  FMain.FMiniMap.maptype:=nil;
   i:=length(GState.MapType)-1;
 
   if i>0 then begin
@@ -340,8 +341,8 @@ begin
 
         if IsCanShowOnSmMap then begin
           if not(asLayer) then begin
-            NSmItem:=TTBXITem.Create(GMiniMapPopupMenu);
-            GMiniMapPopupMenu.Items.Add(NSmItem)
+            NSmItem:=TTBXITem.Create(Fmain.PopupMSmM);
+            Fmain.PopupMSmM.Items.Add(NSmItem)
           end else begin
             NSmItem:=TTBXITem.Create(Fmain.NSubMenuSmItem);
             Fmain.NSubMenuSmItem.Add(NSmItem);
@@ -386,7 +387,7 @@ begin
           GState.sat_map_both:=GState.MapType[i];
         end;
         if (ShowOnSmMap)and(not(asLayer)) then begin
-          GMiniMap.maptype:=GState.MapType[i];
+          FMain.FMiniMap.maptype:=GState.MapType[i];
         end;
         TBItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);
@@ -414,7 +415,7 @@ begin
   if FSettings.MapList.Items.Count>0 then begin
     FSettings.MapList.Items.Item[0].Selected:=true;
   end;
-  if GMiniMap.maptype=nil then begin
+  if FMain.FMiniMap.maptype=nil then begin
     Fmain.NMMtype_0.Checked:=true;
   end;
   if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
@@ -1069,10 +1070,22 @@ begin
       VPath := GetTileFileName(AXY, Azoom);
       FCSSaveTile.Acquire;
       try
-        result := DeleteFile(PChar(VPath));
-        FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
+        if FileExists(VPath) then begin
+          result := DeleteFile(PChar(VPath));
+        end;
       finally
         FCSSaveTile.Release;
+      end;
+      FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY,Azoom));
+      
+      VPath := ChangeFileExt(VPath, '.tne');
+      FCSSaveTNF.Acquire;
+      try
+        if FileExists(VPath) then begin
+          result := DeleteFile(PChar(VPath));
+        end;
+      finally
+        FCSSaveTNF.Release;
       end;
     except
       Result := false;
@@ -1365,6 +1378,8 @@ var
   VSourceTilePixels: TRect;
   i, j: Integer;
   VClMZ: TColor32;
+  VClTne: TColor32;
+  VSolidDrow: Boolean;
 begin
   Result := true;
   try
@@ -1384,7 +1399,11 @@ begin
     if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
       (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then
     begin
+      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1))
+        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1));
       VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
+      VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
+
       for i := VSourceTilesRect.Top to VSourceTilesRect.Bottom do begin
         VCurrTile.Y := i;
         if IsStop^ then break;
@@ -1411,7 +1430,15 @@ begin
             VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
             VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
             VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-            btm.FillRectS(VSourceTilePixels, VClMZ);
+            if VSolidDrow then begin
+              Inc(VSourceTilePixels.Right);
+              Inc(VSourceTilePixels.Bottom);
+            end;
+            if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
+              btm.FillRectS(VSourceTilePixels, VClTne);
+            end else begin
+              btm.FillRectS(VSourceTilePixels, VClMZ);
+            end;
           end;
           if IsStop^ then break;
         end;
@@ -1626,7 +1653,7 @@ end;
 
 function TMapType.GetUseStick: boolean;
 begin
-  if TileFileExt<>'.kml' then begin
+  if GetIsBitmapTiles then begin
     Result := FUseStick;
   end else begin
     Result := False;
@@ -1635,7 +1662,7 @@ end;
 
 function TMapType.GetIsCanShowOnSmMap: boolean;
 begin
-  if TileFileExt<>'.kml' then begin
+  if GetIsBitmapTiles then begin
     Result := FIsCanShowOnSmMap;
   end else begin
     Result := False;
@@ -1701,6 +1728,7 @@ begin
   if SameText(TileFileExt, '.jpg')
     or SameText(TileFileExt, '.png')
     or SameText(TileFileExt, '.gif')
+    or SameText(TileFileExt, '.bmp')
   then begin
     Result := true;
   end else begin
@@ -1759,9 +1787,18 @@ end;
 
 function TMapType.LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean; IgnoreError: Boolean): boolean;
+var
+  VRect: TRect;
 begin
   if TileExists(AXY, Azoom) then begin
     Result := LoadTile(spr, AXY, Azoom, caching);
+    if Result then begin
+      VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+      if (spr.Width < VRect.Right - VRect.Left + 1) or
+        (spr.Height < VRect.Bottom - VRect.Top + 1) then begin
+        Result := false;
+      end;
+    end;
     if not Result then begin
       if IgnoreError then begin
         Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);

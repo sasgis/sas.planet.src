@@ -315,12 +315,12 @@ begin
  GState.MainIni.WriteInteger('VIEW','FWidth',Fmain.Width);
  GState.MainIni.WriteInteger('VIEW','FHeight',Fmain.Height);
  GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
- GState.MainIni.WriteInteger('VIEW','SmMapW',GMiniMap.width);
- GState.MainIni.WriteInteger('VIEW','SmMapH',GMiniMap.height);
+ GState.MainIni.WriteInteger('VIEW','SmMapW',FMain.FMiniMap.width);
+ GState.MainIni.WriteInteger('VIEW','SmMapH',FMain.FMiniMap.height);
  if FMain.LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
  GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
- GState.MainIni.WriteInteger('VIEW','SmMapDifference',GMiniMap.z1mz2);
- GState.MainIni.WriteInteger('VIEW','SmMapAlpha',GMiniMap.alpha);
+ GState.MainIni.WriteInteger('VIEW','SmMapDifference',FMain.FMiniMap.z1mz2);
+ GState.MainIni.WriteInteger('VIEW','SmMapAlpha',FMain.FMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
  if Fmain.FFillingMap.SourceZoom > 0 then begin
    GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom + 1);
@@ -339,13 +339,17 @@ begin
  GState.MainIni.Writeinteger('VIEW','localization',GState.Localization);
  GState.MainIni.Writeinteger('VIEW','GShScale',GState.GShScale);
  GState.MainIni.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
+ GState.MainIni.WriteBool('VIEW','MapZapShowTNE',GState.MapZapShowTNE);
+ GState.MainIni.Writeinteger('VIEW','MapZapTneColor',GState.MapZapTneColor);
  GState.MainIni.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
  GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
  GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
+ GState.MainIni.Writeinteger('VIEW','LastSelectionColor',GState.LastSelectionColor);
+ GState.MainIni.Writeinteger('VIEW','LastSelectionAlfa',GState.LastSelectionAlfa);
 
- if FMain.FFillingMap.SourceMapType=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceMapType.GUIDString);
+ if FMain.FFillingMap.SourceSelected=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
@@ -415,6 +419,7 @@ begin
  GState.MainIni.Writestring('INTERNET','login',GState.InetConnect.loginstr);
  GState.MainIni.Writestring('INTERNET','password',GState.InetConnect.passstr);
  GState.MainIni.WriteBool('INTERNET','SaveTileNotExists',GState.SaveTileNotExists);
+ GState.MainIni.WriteBool('INTERNET','IgnoreTileNotExists',GState.IgnoreTileNotExists);
  GState.MainIni.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
  GState.MainIni.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
  GState.MainIni.WriteInteger('INTERNET','TimeOut',GState.InetConnect.TimeOut);
@@ -480,9 +485,6 @@ end;
 procedure TFSettings.Button3Click(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
-    VLoadedSizeInPixel: TPoint;
-  hg_x: integer;
-  hg_y: integer;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
@@ -528,7 +530,7 @@ begin
  GState.DefCache:=RadioGroup1.itemindex+1;
  GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
- GMiniMap.alpha:=SpinEditMiniMap.Value;
+ FMain.FMiniMap.alpha:=SpinEditMiniMap.Value;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
  GState.GPS_ArrowSize:=SESizeStr.Value;
@@ -540,7 +542,7 @@ begin
  GState.GPS_COM:=ComboBoxCOM.Text;
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
- GMiniMap.z1mz2:=smmapdif.Value;
+ FMain.FMiniMap.z1mz2:=smmapdif.Value;
  if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.userwinset:=RBWinCon.Checked;
  GState.InetConnect.proxyused:=CBProxyused.Checked;
@@ -605,20 +607,6 @@ begin
                       DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
  GState.TilesOut:=SpinEdit3.Value;
- hg_x:=(Screen.Width div 256)+(integer((Screen.Width mod 256)>0))+GState.TilesOut;
- hg_y:=(Screen.Height div 256)+(integer((Screen.Height mod 256)>0))+GState.TilesOut;
-
- if GState.TilesOut=0 then begin
-   yhgpx:=Screen.Height;
-   xhgpx:=Screen.Width;
- end else begin
-   yhgpx:=256*hg_y;
-   xhgpx:=256*hg_x;
- end;
-// pr_x:=(xhgpx)div 2;
-// pr_y:=(yhgpx)div 2;
-
- VLoadedSizeInPixel := Fmain.LoadedSizeInPixel;
 
  SetProxy;
 
@@ -700,7 +688,7 @@ begin
  RadioGroup1.ItemIndex:=GState.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
- SpinEditMiniMap.Value:=GMiniMap.alpha;
+ SpinEditMiniMap.Value:=FMain.FMiniMap.alpha;
  OldCPath.text:=GState.OldCPath_;
  NewCPath.text:=GState.NewCPath_;
  ESCPath.text:=GState.ESCPath_;
@@ -712,7 +700,7 @@ begin
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPS_TrackWidth;
  ScrolInvert.Checked:=GState.MouseWheelInv;
- smmapdif.Value:=GMiniMap.z1mz2;
+ smmapdif.Value:=FMain.FMiniMap.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:=GState.GPS_COM;
  ComboBoxBoudRate.Text:=inttostr(GState.GPS_BaudRate);

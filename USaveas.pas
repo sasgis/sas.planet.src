@@ -285,11 +285,10 @@ begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
         setlength(typemaparr,3);
         typemaparr[0]:=TMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex]);
-        ziped:=false;
         path:=EditPath3.Text;
         RelativePath:=ChBoxRelativePath.Checked;
         Replace:=ChBoxNotSaveIfNotExists.Checked;
-        TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,ziped,RelativePath)
+        TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,RelativePath)
        end;
   else begin
         for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
@@ -408,6 +407,7 @@ begin
   CBZoomload.Items.Clear;
   ComboBox.Items.Clear;
   CkLZoomSel.Items.Clear;
+  CkLZoomSel3.Items.Clear;
   CheckListBox2.Items.Clear;
   CkLZoomSelYa.Items.Clear;
   for i:=1 to 24 do begin

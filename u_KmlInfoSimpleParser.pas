@@ -35,8 +35,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure LoadFromFile(AFileName: string; ABtm: TKmlInfoSimple);
-    procedure LoadFromStream(AStream: TStream; ABtm: TKmlInfoSimple);
+    procedure LoadFromFile(AFileName: string; ABtm: TKmlInfoSimple); virtual;
+    procedure LoadFromStream(AStream: TStream; ABtm: TKmlInfoSimple); virtual;
   end;
 
 
