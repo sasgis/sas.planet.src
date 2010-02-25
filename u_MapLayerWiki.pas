@@ -127,8 +127,8 @@ end;
 constructor TWikiLayer.Create(AParentMap: TImage32; ACenter: TPoint);
 begin
   inherited Create(AParentMap, ACenter);
-  FLayer.Bitmap.DrawMode:=dmTransparent;
-  FLayer.bitmap.Font.Charset:=RUSSIAN_CHARSET;
+  FLayer.Bitmap.DrawMode := dmTransparent;
+  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 
   FWikiLayerElments := nil;
   SetLength(FFixedPointArray, 256);
@@ -147,7 +147,7 @@ var
   i, j: integer;
   VLen: integer;
 begin
-  xy:=VisiblePixel2BitmapPixel(xy);
+  xy := VisiblePixel2BitmapPixel(xy);
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (xy.x > FWikiLayerElments[i].lt.X - 5) and (xy.x < FWikiLayerElments[i].rd.X + 5) and
       (xy.y > FWikiLayerElments[i].lt.Y - 5) and (xy.y < FWikiLayerElments[i].rd.Y + 5) then begin
@@ -270,10 +270,10 @@ var
 begin
   VColorMain := Color32(GState.WikiMapMainColor);
   VColorBG := Color32(GState.WikiMapFonColor);
-  VPointColor := SetAlpha(VColorMain,170);
+  VPointColor := SetAlpha(VColorMain, 170);
   VPolygon := TPolygon32.Create;
-  VPolygon.Antialiased:=true;
-  VPolygon.AntialiasMode:=am4times;
+  VPolygon.Antialiased := true;
+  VPolygon.AntialiasMode := am4times;
   try
     VLen := Length(AData.FPolygonOnBitmap);
     if VLen > 1 then begin
@@ -285,13 +285,13 @@ begin
       end;
       VPolygon.AddPoints(FFixedPointArray[0], VLen);
       VPolygon.DrawEdge(FLayer.Bitmap, VColorBG);
-      VPolygon.Offset(Fixed(0.9),Fixed(0.9));
+      VPolygon.Offset(Fixed(0.9), Fixed(0.9));
       VPolygon.DrawEdge(FLayer.Bitmap, VColorMain);
     end else begin
-      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X-3, AData.FPolygonOnBitmap[0].Y+3);
-      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X+2, AData.FPolygonOnBitmap[0].Y+3);
-      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X+2, AData.FPolygonOnBitmap[0].Y-2);
-      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X-3, AData.FPolygonOnBitmap[0].Y-2);
+      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X - 3, AData.FPolygonOnBitmap[0].Y + 3);
+      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X + 2, AData.FPolygonOnBitmap[0].Y + 3);
+      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X + 2, AData.FPolygonOnBitmap[0].Y - 2);
+      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X - 3, AData.FPolygonOnBitmap[0].Y - 2);
       VPolygon.AddPoints(FFixedPointArray[0], 4);
       VPolygon.Draw(FLayer.Bitmap, VColorBG, VPointColor);
     end;
@@ -306,8 +306,8 @@ var
 begin
   inherited;
   Clear;
-  for Leyi:=0 to length(GState.MapType)-1 do begin
-    if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
+  for Leyi := 0 to length(GState.MapType) - 1 do begin
+    if (GState.MapType[Leyi].asLayer) and (GState.MapType[Leyi].active) then begin
       if GState.MapType[Leyi].IsKmlTiles then begin
         AddFromLayer(GState.MapType[Leyi]);
       end;

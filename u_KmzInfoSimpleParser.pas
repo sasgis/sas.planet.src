@@ -24,20 +24,20 @@ uses
 procedure TKmzInfoSimpleParser.LoadFromStream(AStream: TStream;
   ABtm: TKmlInfoSimple);
 var
-  UnZip:TVCLUnZip;
+  UnZip: TVCLUnZip;
   VMemStream: TMemoryStream;
   VStreamKml: TMemoryStream;
 begin
-  UnZip:=TVCLUnZip.Create(nil);
+  UnZip := TVCLUnZip.Create(nil);
   try
     VMemStream := TMemoryStream.Create;
     try
-      UnZip.ArchiveStream:= VMemStream;
+      UnZip.ArchiveStream := VMemStream;
       VMemStream.LoadFromStream(AStream);
       UnZip.ReadZip;
       VStreamKml := TMemoryStream.Create;
       try
-        UnZip.UnZipToStream(VStreamKml,UnZip.Filename[0]);
+        UnZip.UnZipToStream(VStreamKml, UnZip.Filename[0]);
         inherited LoadFromStream(VStreamKml, ABtm);
       finally
         VStreamKml.Free;

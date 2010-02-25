@@ -132,8 +132,7 @@ var
   VBitmapSizeInPixel: TPoint;
 begin
   VBitmapSizeInPixel := GetBitmapSizeInPixel;
-  if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X)
-    or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
+  if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
     FLayer.Bitmap.Lock;
     try
       FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
