@@ -348,8 +348,8 @@ begin
  GState.MainIni.Writeinteger('VIEW','LastSelectionColor',GState.LastSelectionColor);
  GState.MainIni.Writeinteger('VIEW','LastSelectionAlfa',GState.LastSelectionAlfa);
 
- if FMain.FFillingMap.SourceMapType=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceMapType.GUIDString);
+ if FMain.FFillingMap.SourceSelected=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
+                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
  GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);

@@ -2279,7 +2279,7 @@ begin
   end else begin
    TBMapZap.Caption:='';
   end;
- FFillingMap.SetSourceMap(FFillingMap.SourceMapType, Vzoom_mapzap);
+ FFillingMap.SetSourceMap(FFillingMap.SourceSelected, Vzoom_mapzap);
 end;
 //X-карта заполнения в основном окне
 
@@ -3985,7 +3985,7 @@ procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
 var
   VFillingMapType: TMapType;
 begin
-  VFillingMapType := FFillingMap.SourceMapType;
+  VFillingMapType := FFillingMap.SourceSelected;
   if TTBXItem(sender).Tag=0 then begin
     if Vfillingmaptype<>nil then begin
       Vfillingmaptype.TBFillingItem.Checked:=false;

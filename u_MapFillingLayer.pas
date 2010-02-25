@@ -30,7 +30,7 @@ type
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Hide; override;
     procedure Redraw; override;
-    property SourceMapType: TMapType read FSourceSelected;
+    property SourceSelected: TMapType read FSourceSelected;
     property SourceZoom: Byte read FSourceZoom;
   end;
 
