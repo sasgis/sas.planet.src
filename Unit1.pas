@@ -3998,7 +3998,7 @@ begin
     Vfillingmaptype:=TMapType(TTBXItem(sender).Tag);
     Vfillingmaptype.TBFillingItem.Checked:=true;
   end;
-  FFillingMap.SetSourceMap(VFillingMapType, FFillingMap.Zoom);
+  FFillingMap.SetSourceMap(VFillingMapType, FFillingMap.SourceZoom);
 end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
