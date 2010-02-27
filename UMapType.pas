@@ -1435,9 +1435,9 @@ begin
               Inc(VSourceTilePixels.Bottom);
             end;
             if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
-              btm.FillRectS(VSourceTilePixels, VClTne);
+              btm.FillRect(VSourceTilePixels.Left, VSourceTilePixels.Top, VSourceTilePixels.Right, VSourceTilePixels.Bottom, VClTne);
             end else begin
-              btm.FillRectS(VSourceTilePixels, VClMZ);
+              btm.FillRect(VSourceTilePixels.Left, VSourceTilePixels.Top, VSourceTilePixels.Right, VSourceTilePixels.Bottom, VClMZ);
             end;
           end;
           if IsStop^ then break;
