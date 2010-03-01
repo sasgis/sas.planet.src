@@ -10,7 +10,8 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
-  UMapType;
+  UMapType,
+  GR32_Resamplers;
 
 type
   TMiniMap = class

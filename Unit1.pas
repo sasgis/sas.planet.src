@@ -4310,7 +4310,7 @@ begin
         inc(j);
        end
      else
-     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>APWL.S)and(APWL.S<>0))) then
+     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>APWL.S)or(APWL.S<>0))) then
       begin
        APWL.S:=PolygonSquare(arLL);
        APWL.name:=CDSmarksname.AsString;
