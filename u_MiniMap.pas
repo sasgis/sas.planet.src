@@ -106,6 +106,8 @@ end;
 procedure TMiniMap.SetMiniMapVisible(visible: boolean; MainMapPos: TPoint);
 begin
  LayerMinMap.Visible:= visible;
+ if visible then LayerMinMap.BringToFront
+            else LayerMinMap.SendToBack;
  sm_im_reset(width div 2,height div 2, MainMapPos);
 end;
 
