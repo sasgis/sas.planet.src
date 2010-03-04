@@ -35,6 +35,7 @@ type
     function Pos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function LonLat2PosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
     function LonLat2MetrInternal(const Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
+    function LonLat2MetrS(Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
 
     function TilesAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
     function PixelsAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
@@ -177,9 +178,9 @@ var
 begin
   result := 0;
   l := length(polygon);
-  LLPrev := LonLat2MetrInternal(polygon[0]);
+  LLPrev := LonLat2MetrS(polygon[0]);
   for i := 1 to L - 1 do begin
-    LLCurr := LonLat2MetrInternal(polygon[i]);
+    LLCurr := LonLat2MetrS(polygon[i]);
     result := result + (LLPrev.x + LLCurr.x) * (LLPrev.y - LLCurr.y);
     LLPrev := LLCurr;
   end;

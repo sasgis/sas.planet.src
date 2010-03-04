@@ -12,6 +12,7 @@ type
   TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
   protected
     function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
+    function LonLat2MetrS(ALL:TExtendedPoint):TExtendedPoint; override;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
@@ -41,6 +42,15 @@ begin
     FCellSizeUnits := CELL_UNITS_UNKNOWN;
   end;
 
+end;
+
+function TCoordConverterMercatorOnSphere.LonLat2MetrS(ALL:TExtendedPoint):TExtendedPoint;
+begin
+  All.x:=All.x*(Pi/180);
+  All.Y:=All.y*(Pi/180);
+  result.x:=FRadiusa*All.x/2;
+  result.y:=FRadiusa*Ln(Tan(PI/4+All.y/2)*
+            Power((1-0*Sin(all.y))/(1+0*Sin(All.y)),0/2))/2;
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
