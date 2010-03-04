@@ -362,7 +362,7 @@ object Fmain: TFmain
           ImageIndex = 6
           Images = TBImageList1
           OnClick = TBXItem6Click
-          Caption = #1054#1090#1082#1088#1099#1090#1100' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080
+          Caption = #1054#1090#1082#1088#1099#1090#1100'...'
           Hint = ''
         end
         object TBXSeparatorItem6: TTBXSeparatorItem
@@ -8204,7 +8204,12 @@ object Fmain: TFmain
   end
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
-    Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
+    Filter = 
+      #1042#1089#1077' '#1087#1086#1076#1076#1077#1088#1078#1080#1074#1072#1077#1084#1099#1077' '#1090#1080#1087#1099' (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.' +
+      'plt;*.kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer' +
+      ' Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.' +
+      'kmz)|*.kmz|'#1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls|'#1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077#1085#1080#1103' (*.hlg)|' +
+      '*.hlg'
     Left = 208
     Top = 208
   end

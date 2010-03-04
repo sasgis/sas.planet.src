@@ -690,7 +690,7 @@ uses
   i_ICoordConverter,
   u_KmlInfoSimple,
   UTrAllLoadMap,
-  UGSM;
+  UGSM, UImport;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
@@ -2757,24 +2757,9 @@ procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
 var ini:TMemIniFile;
     i:integer;
 begin
- if (OpenDialog1.Execute)and(OpenDialog1.FileName<>'') then
-  begin
-   ini:=TMemIniFile.Create(OpenDialog1.FileName);
-   i:=1;
-   while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
-    begin
-     setlength(GState.LastSelectionPolygon,i);
-     GState.LastSelectionPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-     GState.LastSelectionPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
-     inc(i);
-    end;
-   if length(GState.LastSelectionPolygon)>0 then
-    begin
-     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
-    end;
-    LayerSelection.Redraw
-  end
+ if (OpenDialog1.Execute) then begin
+   Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
+ end
 end;
 
 function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
@@ -4227,12 +4212,25 @@ var
   VThread: ThreadAllLoadMap;
 begin
   if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
-    Fmain.Enabled:=true;
-    VLog := TLogForTaskThread.Create(5000, 0);
-    VSimpleLog := VLog;
-    VThreadLog := VLog;
-    VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
-    TFProgress.Create(Application, VThread, VThreadLog);
+    if ExtractFileExt(OpenSessionDialog.FileName)='.sls' then begin
+      Fmain.Enabled:=true;
+      VLog := TLogForTaskThread.Create(5000, 0);
+      VSimpleLog := VLog;
+      VThreadLog := VLog;
+      VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
+      TFProgress.Create(Application, VThread, VThreadLog);
+    end else begin
+      if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
+         (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
+         (ExtractFileExt(OpenSessionDialog.FileName)='.plt') then begin
+        FImport.FileName:=OpenSessionDialog.FileName;
+        FImport.ShowModal;
+      end else begin
+        if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
+          Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);
+        end;
+      end;
+    end;
   end;
 end;
 
