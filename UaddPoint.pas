@@ -168,10 +168,8 @@ begin
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
 
-             // image1.Canvas.CopyRect(bounds(5,5,36,36),DrawGrid1.Canvas,DrawGrid1.CellRect(0,0));
-
+              IconName:=Fmain.CDSmarks.FieldByName('picname').AsString;
               DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarks.FieldByName('picname').AsString),bounds(4,4,36,36));
-              //ComboBox1.ItemIndex:=GState.MarkIcons.IndexOf(Fmain.CDSmarkspicname.AsString);
               Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
               CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
              end;
