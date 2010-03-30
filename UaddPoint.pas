@@ -133,6 +133,7 @@ begin
  namecatbuf:=CBKateg.Text;
  CBKateg.Clear;
  Kategory2Strings(CBKateg.Items);
+ CBKateg.Sorted:=true;
  CBKateg.Text:=namecatbuf;
  DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);
  if (GState.MarkIcons.Count mod DrawGrid1.ColCount)>0 then begin

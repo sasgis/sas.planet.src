@@ -1129,30 +1129,12 @@ begin
                            else setalloperationfalse(ao_movemap);
               end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Add_Point) then setalloperationfalse(ao_movemap);
-             if (Msg.wParam=VK_ESCAPE)and(aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then
-               if length(add_line_arr)=0 then setalloperationfalse(ao_movemap)
-                                         else begin
-                                               setlength(add_line_arr,0);
-                                               lastpoint:=-1;
-                                               TBEditPath.Visible:=(length(add_line_arr)>1);
-                                               LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
-                                              end;
-             if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
-              begin
-               if FaddPoly.show_(add_line_arr,true) then
-                begin
-                 setalloperationfalse(ao_movemap);
-                 generate_im;
-                end; 
-              end;
-             if (Msg.wParam=13)and(aoper=ao_add_line)and(length(add_line_arr)>1) then
-              begin
-               if FaddLine.show_(add_line_arr,true, marshrutcomment) then
-                begin
-                 setalloperationfalse(ao_movemap);
-                 generate_im;
-                end;
-              end;
+             if (Msg.wParam=VK_ESCAPE)and(aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
+               setalloperationfalse(ao_movemap)
+             end;
+             if (Msg.wParam=13)and(aoper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(length(add_line_arr)>1) then begin
+               TBEditPathSaveClick(FMain);
+             end;
             end;
   end;
 end;
