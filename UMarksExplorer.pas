@@ -20,7 +20,8 @@ uses
   DBClient,
   UResStrings,
   UGeoFun,
-  t_GeoTypes;
+  t_GeoTypes,
+  Unit1;
 
 type
   TFMarksExplorer = class(TForm)
@@ -97,13 +98,13 @@ var
   function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
   function SaveMarks2File:boolean;
   function SaveCategory2File:boolean;
+  function EditMarkF(id:integer; var arr:TExtendedPointArray):TAOperation;
 
 implementation
 
 uses
   t_CommonTypes,
   u_GlobalState,
-  Unit1,
   USaveas,
   UaddPoint,
   UaddPoly,
@@ -183,6 +184,44 @@ begin
           result:=FaddPoly.show_(arLL,false);
         end else begin
           result:=FaddLine.show_(arLL,false, '');
+        end
+      end;                              
+    end;
+
+    freeMem(arrLL);
+    SetLength(arLL,0);
+  finally
+    ms.Free;
+  end;
+end;
+
+function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
+var arrLL:PArrLL;
+    arLL:TExtendedPointArray;
+    ms:TMemoryStream;
+    i:integer;
+begin
+  FMain.CDSmarks.Locate('id',id,[]);
+  ms:=TMemoryStream.Create;
+  try
+    TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
+    GetMem(arrLL,ms.size);
+    SetLength(arLL,ms.size div 24);
+    ms.Position:=0;
+    ms.ReadBuffer(arrLL^,ms.size);
+    for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
+    Result := ao_movemap;
+    if ms.Size=24 then begin
+      result:=ao_edit_point;
+      FaddPoint.Show_(arLL[0],false);
+    end else begin
+      if (ms.Size>24) then begin
+        if compare2EP(arLL[0],arLL[length(arLL)-1]) then begin
+          arr:=arLL;
+          result:=ao_edit_poly;
+        end else begin
+          arr:=arLL;
+          result:=ao_edit_line;
         end
       end;                              
     end;

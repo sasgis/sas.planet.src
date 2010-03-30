@@ -294,7 +294,11 @@ begin
 
     FGeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
     LLRect := FGeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
-    marksFilter:='';
+    if (Fmain.aoper=ao_edit_line)or(Fmain.aoper=ao_edit_poly) then begin
+      marksFilter:='id<>'+inttostr(Fmain.EditMarkId)+' and ';
+    end else begin
+      marksFilter:='';
+    end;
     if GState.show_point = mshChecked then begin
       FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(FZoom + 1)+' and BeforeScale >= '+inttostr(FZoom + 1)+' )';
       FMain.CDSKategory.Filtered:=true;
