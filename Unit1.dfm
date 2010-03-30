@@ -344,6 +344,7 @@ object Fmain: TFmain
     object TBXMainMenu: TTBXToolbar
       Left = 0
       Top = 0
+      CloseButton = False
       DockPos = 0
       Stretch = True
       TabOrder = 5
