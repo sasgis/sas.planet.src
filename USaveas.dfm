@@ -3,8 +3,8 @@ object Fsaveas: TFsaveas
   Top = 298
   BorderStyle = bsDialog
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
-  ClientHeight = 245
-  ClientWidth = 497
+  ClientHeight = 252
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -15,14 +15,18 @@ object Fsaveas: TFsaveas
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
+  DesignSize = (
+    500
+    252)
   PixelsPerInch = 96
   TextHeight = 13
   object SpeedButton1: TSpeedButton
-    Left = 304
-    Top = 213
+    Left = 307
+    Top = 220
     Width = 25
     Height = 25
     Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1080#1077' '#1074' '#1086#1090#1076#1077#1083#1100#1085#1099#1081' '#1092#1072#1081#1083
+    Anchors = [akRight, akBottom]
     Flat = True
     Glyph.Data = {
       9E020000424D9E0200000000000036000000280000000E0000000E0000000100
@@ -54,10 +58,11 @@ object Fsaveas: TFsaveas
     OnClick = SpeedButton1Click
   end
   object Button1: TButton
-    Left = 415
-    Top = 213
+    Left = 418
+    Top = 220
     Width = 75
     Height = 25
+    Anchors = [akRight, akBottom]
     Caption = #1053#1072#1095#1072#1090#1100
     Default = True
     TabOrder = 0
@@ -66,9 +71,10 @@ object Fsaveas: TFsaveas
   object PageControl1: TPageControl
     Left = 8
     Top = 8
-    Width = 481
-    Height = 201
-    ActivePage = TabSheet3
+    Width = 489
+    Height = 206
+    ActivePage = TabSheet5
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
@@ -77,7 +83,7 @@ object Fsaveas: TFsaveas
       object Bevel1: TBevel
         Left = 0
         Top = 0
-        Width = 473
+        Width = 481
         Height = 17
         Align = alTop
         Shape = bsBottomLine
@@ -163,7 +169,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBZoomload: TComboBox
@@ -172,7 +178,7 @@ object Fsaveas: TFsaveas
         Width = 41
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = CBZoomloadChange
       end
@@ -208,7 +214,7 @@ object Fsaveas: TFsaveas
       object Bevel2: TBevel
         Left = 0
         Top = 0
-        Width = 473
+        Width = 481
         Height = 17
         Align = alTop
         Shape = bsBottomLine
@@ -242,7 +248,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object QualitiEdit: TSpinEdit
@@ -348,7 +354,7 @@ object Fsaveas: TFsaveas
       object Bevel3: TBevel
         Left = 0
         Top = 0
-        Width = 473
+        Width = 481
         Height = 17
         Align = alTop
         Shape = bsBottomLine
@@ -483,7 +489,7 @@ object Fsaveas: TFsaveas
       object Bevel4: TBevel
         Left = 0
         Top = 0
-        Width = 473
+        Width = 481
         Height = 17
         Align = alTop
         Shape = bsBottomLine
@@ -509,7 +515,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object SEDelBytes: TSpinEdit
@@ -538,7 +544,7 @@ object Fsaveas: TFsaveas
       object Bevel5: TBevel
         Left = 0
         Top = 0
-        Width = 473
+        Width = 481
         Height = 33
         Align = alTop
         Shape = bsBottomLine
@@ -793,7 +799,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object CmBExpMap: TComboBox
@@ -803,7 +809,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 5
         end
         object CmBExpHib: TComboBox
@@ -813,7 +819,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 6
         end
         object RBSatSel: TRadioButton
@@ -950,7 +956,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object ChBoxRelativePath: TCheckBox
@@ -1077,7 +1083,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 3
         end
         object CmBExpMapYa: TComboBox
@@ -1087,7 +1093,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object CmBExpHibYa: TComboBox
@@ -1097,7 +1103,7 @@ object Fsaveas: TFsaveas
           Height = 21
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 5
         end
         object cSatEditYa: TSpinEdit
@@ -1132,10 +1138,11 @@ object Fsaveas: TFsaveas
     end
   end
   object Button3: TButton
-    Left = 336
-    Top = 213
+    Left = 339
+    Top = 220
     Width = 75
     Height = 25
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = #1054#1090#1084#1077#1085#1072
     TabOrder = 2
@@ -1143,9 +1150,10 @@ object Fsaveas: TFsaveas
   end
   object CBCloseWithStart: TCheckBox
     Left = 8
-    Top = 216
+    Top = 223
     Width = 169
     Height = 17
+    Anchors = [akLeft, akBottom]
     Caption = #1047#1072#1082#1088#1099#1090#1100' '#1086#1082#1085#1086' '#1087#1086#1089#1083#1077' '#1089#1090#1072#1088#1090#1072
     Checked = True
     State = cbChecked
