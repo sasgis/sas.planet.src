@@ -1396,8 +1396,8 @@ begin
 
     VRelativeRect := GeoConvert.TilePos2RelativeRect(AXY, Azoom);
     VSourceTilesRect := GeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
-    if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
-      (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then
+   { if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
+      (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then  }
     begin
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1))
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1));
@@ -1434,10 +1434,19 @@ begin
               Inc(VSourceTilePixels.Right);
               Inc(VSourceTilePixels.Bottom);
             end;
-            if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
-              btm.FillRect(VSourceTilePixels.Left, VSourceTilePixels.Top, VSourceTilePixels.Right, VSourceTilePixels.Bottom, VClTne);
+            if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
+               ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
+              if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
+                btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClTne;
+              end else begin
+                btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClMZ;
+              end;
             end else begin
-              btm.FillRect(VSourceTilePixels.Left, VSourceTilePixels.Top, VSourceTilePixels.Right, VSourceTilePixels.Bottom, VClMZ);
+              if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
+                btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClTne);
+              end else begin
+                btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClMZ);
+              end;
             end;
           end;
           if IsStop^ then break;

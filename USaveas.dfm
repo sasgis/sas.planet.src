@@ -509,7 +509,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object SEDelBytes: TSpinEdit

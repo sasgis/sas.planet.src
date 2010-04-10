@@ -22,7 +22,8 @@ uses
   UGeoFun,
   UMapType,
   UResStrings,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_GeoTostr;
 
 type
   TFsaveas = class(TForm)
@@ -186,6 +187,7 @@ type
     procedure scleitRECT(APolyLL: TExtendedPointArray);
     procedure savefilesREG(APolyLL: TExtendedPointArray);
   public
+    procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
    end;
 
@@ -229,6 +231,30 @@ begin
     Result := Result + (Poly[I].X + Poly[J].X) * (Poly[I].Y - Poly[J].Y);
   end;
   Result := Abs(Result) / 2;
+end;
+
+procedure TFsaveas.LoadSelFromFile(FileName:string);
+var ini:TMemIniFile;
+    i:integer;
+begin
+ if FileExists(FileName) then
+  begin
+   ini:=TMemIniFile.Create(FileName);
+   i:=1;
+   while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
+    begin
+     setlength(GState.LastSelectionPolygon,i);
+     GState.LastSelectionPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+     GState.LastSelectionPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+     inc(i);
+    end;
+   if length(GState.LastSelectionPolygon)>0 then
+    begin
+     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
+     fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
+    end;
+    FMain.LayerSelection.Redraw
+  end
 end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);

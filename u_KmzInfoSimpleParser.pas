@@ -43,6 +43,7 @@ begin
         VStreamKml.Free;
       end;
     finally
+      UnZip.ArchiveStream:=nil;
       FreeAndNil(VMemStream);
     end;
   finally

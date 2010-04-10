@@ -116,6 +116,7 @@ begin
  namecatbuf:=CBKateg.Text;
  CBKateg.Clear;
  Kategory2Strings(CBKateg.Items);
+ CBKateg.Sorted:=true;
  CBKateg.Text:=namecatbuf;
  if new then begin
               faddPoly.Caption:=SAS_STR_AddNewPoly;

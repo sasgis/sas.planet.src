@@ -86,6 +86,9 @@ type
     ao_add_line ,
     ao_add_poly,
     ao_add_point,
+    ao_edit_point,
+    ao_edit_line,
+    ao_edit_poly,
     ao_line,
     ao_rect,
     ao_reg
@@ -603,6 +606,7 @@ type
     change_scene: boolean;
     aoper: TAOperation;
     GPSpar: TGPSpar;
+    EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
@@ -690,7 +694,7 @@ uses
   i_ICoordConverter,
   u_KmlInfoSimple,
   UTrAllLoadMap,
-  UGSM;
+  UGSM, UImport;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
@@ -1026,10 +1030,10 @@ begin
  TBAdd_Line.Checked:=newop=ao_Add_line;
  TBAdd_Poly.Checked:=newop=ao_Add_Poly;
  TBEditPath.Visible:=false;
- TBEditPathSave.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly);
+ TBEditPathSave.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly);
  TBEditPathOk.Visible:=(newop=ao_reg);
  TBEditPathLabel.Visible:=(newop=ao_line);
- TBEditPathMarsh.Visible:=(newop=ao_Add_line);
+ TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
  rect_dwn:=false;
  setlength(length_arr,0);
  setlength(add_line_arr,0);
@@ -1040,7 +1044,11 @@ begin
   ao_movemap:  map.Cursor:=crDefault;
   ao_line:     map.Cursor:=2;
   ao_reg,ao_rect: map.Cursor:=crDrag;
-  ao_Add_Point,ao_Add_Poly,ao_Add_Line: map.Cursor:=4;
+  ao_Add_Point,ao_Add_Poly,ao_Add_Line,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
+ end;
+ if (aoper=ao_edit_line)or(aoper=ao_edit_poly) then begin
+   EditMarkId:=-1;
+   LayerMapMarks.Redraw;
  end;
  aoper:=newop;
 end;
@@ -1091,12 +1099,12 @@ begin
                 TBEditPath.Visible:=(length(reg_arr)>1);
                 LayerMapNal.DrawReg(reg_arr);
                end;
-             if (Msg.wParam=VK_Delete)and(aoper in [ao_add_line,ao_add_poly]) then
+             if (Msg.wParam=VK_Delete)and(aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then
               if length(add_line_arr)>0 then
                begin
                 delfrompath(lastpoint);
                 TBEditPath.Visible:=(length(add_line_arr)>1);
-                LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+                LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
                end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Reg) then
               if length(reg_arr)=0 then TBmoveClick(self)
@@ -1121,30 +1129,12 @@ begin
                            else setalloperationfalse(ao_movemap);
               end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Add_Point) then setalloperationfalse(ao_movemap);
-             if (Msg.wParam=VK_ESCAPE)and(aoper in [ao_add_line,ao_add_poly]) then
-               if length(add_line_arr)=0 then setalloperationfalse(ao_movemap)
-                                         else begin
-                                               setlength(add_line_arr,0);
-                                               lastpoint:=-1;
-                                               TBEditPath.Visible:=(length(add_line_arr)>1);
-                                               LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
-                                              end;
-             if (Msg.wParam=13)and(aoper=ao_add_Poly)and(length(add_line_arr)>1) then
-              begin
-               if FaddPoly.show_(add_line_arr,true) then
-                begin
-                 setalloperationfalse(ao_movemap);
-                 generate_im;
-                end; 
-              end;
-             if (Msg.wParam=13)and(aoper=ao_add_line)and(length(add_line_arr)>1) then
-              begin
-               if FaddLine.show_(add_line_arr,true, marshrutcomment) then
-                begin
-                 setalloperationfalse(ao_movemap);
-                 generate_im;
-                end;
-              end;
+             if (Msg.wParam=VK_ESCAPE)and(aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
+               setalloperationfalse(ao_movemap)
+             end;
+             if (Msg.wParam=13)and(aoper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(length(add_line_arr)>1) then begin
+               TBEditPathSaveClick(FMain);
+             end;
             end;
   end;
 end;
@@ -1365,9 +1355,9 @@ begin
        LayerMapGPS.Redraw;
        UpdateGPSsensors;
     end;
-    if aoper in [ao_add_line,ao_add_poly] then begin
+    if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
       TBEditPath.Visible:=(length(add_line_arr)>1);
-      LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+      LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
     try
       LayerMapMarks.Visible := GState.show_point <> mshNone;
@@ -2757,24 +2747,9 @@ procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
 var ini:TMemIniFile;
     i:integer;
 begin
- if (OpenDialog1.Execute)and(OpenDialog1.FileName<>'') then
-  begin
-   ini:=TMemIniFile.Create(OpenDialog1.FileName);
-   i:=1;
-   while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
-    begin
-     setlength(GState.LastSelectionPolygon,i);
-     GState.LastSelectionPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-     GState.LastSelectionPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
-     inc(i);
-    end;
-   if length(GState.LastSelectionPolygon)>0 then
-    begin
-     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
-    end;
-    LayerSelection.Redraw
-  end
+ if (OpenDialog1.Execute) then begin
+   Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
+ end
 end;
 
 function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
@@ -2964,9 +2939,23 @@ begin
 end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
+var arr:TExtendedPointArray;
+    op:TAOperation;
 begin
  FWikiLayer.MouseOnReg(PWL,moveTrue);
- if EditMark(strtoint(PWL.numid)) then generate_im;
+ EditMarkId:=strtoint(PWL.numid);
+// if EditMarkF(strtoint(PWL.numid)) then generate_im;
+ //setalloperationfalse
+ op:=EditMarkF(EditMarkId,arr);
+ if op=ao_edit_line then begin
+   setalloperationfalse(ao_edit_line);
+   add_line_arr:=arr;
+ end;
+ if op=ao_edit_poly then begin
+   setalloperationfalse(ao_edit_poly);
+   add_line_arr:=arr;
+ end;
+ generate_im;
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
@@ -3067,7 +3056,8 @@ begin
     GPSpar.Odometr:=GPSpar.Odometr+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.azimut:=RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x))+90;
   end;
-  if not((MapMoving)or(MapZoomAnimtion=1))and(Self.Active) then
+
+  if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=FMain) then
    begin
     bPOS:=GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
     if (GState.GPS_MapMove)and((bpos.X<>ScreenCenterPos.x)or(bpos.y<>ScreenCenterPos.y))
@@ -3260,7 +3250,7 @@ begin
       end;
     end;
     if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im;
-    if (aoper in [ao_add_line,ao_add_poly]) then begin
+    if (aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
       for i:=0 to length(add_line_arr)-1 do begin
         xy:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(add_line_arr[i],GState.zoom_size-1);
         xy := MapPixel2VisiblePixel(xy);
@@ -3268,7 +3258,7 @@ begin
           movepoint:=i;
           lastpoint:=i;
           TBEditPath.Visible:=(length(add_line_arr)>1);
-          LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+          LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
           exit;
         end;
       end;
@@ -3277,7 +3267,7 @@ begin
       insertinpath(lastpoint);
       add_line_arr[lastpoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
       TBEditPath.Visible:=(length(add_line_arr)>1);
-      LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+      LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
     exit;
   end;
@@ -3400,9 +3390,9 @@ begin
      UpdateGPSsensors;
      toSh;
    end;
-   if aoper in [ao_add_line,ao_add_poly] then begin
+   if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
     TBEditPath.Visible:=(length(add_line_arr)>1);
-    LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+    LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    end;
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
@@ -3535,7 +3525,7 @@ begin
   begin
    add_line_arr[movepoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
    TBEditPath.Visible:=(length(add_line_arr)>1);
-   LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+   LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>FMiniMap.LayerMinMap)
@@ -3750,12 +3740,12 @@ begin
          TBEditPath.Visible:=(length(reg_arr)>1);
          LayerMapNal.DrawReg(reg_arr);
         end;
-  ao_add_poly,ao_add_line:
+  ao_add_poly,ao_add_line,ao_edit_line,ao_edit_poly:
         if lastpoint>0 then
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
          TBEditPath.Visible:=(length(add_line_arr)>1);
-         LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+         LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
         end;
  end;
 end;
@@ -3775,6 +3765,14 @@ begin
  case aoper of
   ao_add_Poly: result:=FaddPoly.show_(add_line_arr,true);
   ao_add_Line: result:=FaddLine.show_(add_line_arr,true, marshrutcomment);
+  ao_edit_line: begin
+                  CDSmarks.Locate('id',EditMarkId,[]);
+                  result:=FaddLine.show_(add_line_arr,false, marshrutcomment);
+  end;
+  ao_edit_poly: begin
+                  CDSmarks.Locate('id',EditMarkId,[]);
+                  result:=FaddPoly.show_(add_line_arr,false);
+  end;
  end;
  if result then
   begin
@@ -3956,7 +3954,7 @@ begin
   end
  else ShowMessage('Connect error!');
  TBEditPath.Visible:=(length(add_line_arr)>1);
- LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+ LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
 end;
 
 procedure TFmain.AdjustFont(Item: TTBCustomItem;
@@ -4181,7 +4179,7 @@ begin
    lastpoint:=length(add_line_arr)-1;
  end;
  TBEditPath.Visible:=(length(add_line_arr)>1);
-  LayerMapNal.DrawNewPath(add_line_arr, aoper=ao_add_poly, lastpoint);
+  LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
 end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
@@ -4227,12 +4225,25 @@ var
   VThread: ThreadAllLoadMap;
 begin
   if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
-    Fmain.Enabled:=true;
-    VLog := TLogForTaskThread.Create(5000, 0);
-    VSimpleLog := VLog;
-    VThreadLog := VLog;
-    VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
-    TFProgress.Create(Application, VThread, VThreadLog);
+    if ExtractFileExt(OpenSessionDialog.FileName)='.sls' then begin
+      Fmain.Enabled:=true;
+      VLog := TLogForTaskThread.Create(5000, 0);
+      VSimpleLog := VLog;
+      VThreadLog := VLog;
+      VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
+      TFProgress.Create(Application, VThread, VThreadLog);
+    end else begin
+      if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
+         (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
+         (ExtractFileExt(OpenSessionDialog.FileName)='.plt') then begin
+        FImport.FileName:=OpenSessionDialog.FileName;
+        FImport.ShowModal;
+      end else begin
+        if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
+          Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -4310,7 +4321,8 @@ begin
         inc(j);
        end
      else
-     if (PtInRgn(arLL,xy))and(not((PolygonSquare(arLL)>APWL.S)and(APWL.S<>0))) then
+     if (PtInRgn(arLL,xy)) then
+       if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then
       begin
        APWL.S:=PolygonSquare(arLL);
        APWL.name:=CDSmarksname.AsString;

@@ -6,6 +6,7 @@ library SASPlanet;
 {ITE} {LCID:00000419:00000409} {}
 {ITE} {DFMFileType} {vcl\DBLOGDLG.dfm}
 {ITE} {DFMFileType} {vcl\DBPWDLG.dfm}
+{ITE} {DFMFileType} {u_MarksDb.dfm}
 {ITE} {DFMFileType} {UAbout.dfm}
 {ITE} {DFMFileType} {UAddCategory.dfm}
 {ITE} {DFMFileType} {UaddLine.dfm}
@@ -29,6 +30,7 @@ library SASPlanet;
 
 {$R 'vcl\DBLOGDLG.dfm' LoginDialog:TForm(Form)}
 {$R 'vcl\DBPWDLG.dfm' PasswordDialog:TForm(Form)}
+{$R 'u_MarksDb.dfm' DMMarksDb:TDataModule}
 {$R 'UAbout.dfm' Fabout:TForm}
 {$R 'UAddCategory.dfm' FAddCategory:TForm}
 {$R 'UaddLine.dfm' FaddLine:TForm}
