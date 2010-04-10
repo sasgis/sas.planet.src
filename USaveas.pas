@@ -160,6 +160,10 @@ type
     CBUsedMarks: TCheckBox;
     SEDelBytes: TSpinEdit;
     CBDelBytes: TCheckBox;
+    TabSheet6: TTabSheet;
+    CBCahceType: TComboBox;
+    Label32: TLabel;
+    Bevel7: TBevel;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -186,6 +190,7 @@ type
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
     procedure scleitRECT(APolyLL: TExtendedPointArray);
     procedure savefilesREG(APolyLL: TExtendedPointArray);
+    procedure ExportREG(APolyLL: TExtendedPointArray);
   public
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
@@ -265,7 +270,7 @@ begin
  end;
 end;
 
-procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
+procedure TFsaveas.ExportREG(APolyLL: TExtendedPointArray);
 var i:integer;
     path:string;
     Zoomarr:array [0..23] of boolean;
@@ -275,7 +280,7 @@ var i:integer;
     RelativePath,Replace:boolean;
 begin
  case CBFormat.ItemIndex of
-  4,5: begin
+  0,1: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
         setlength(typemaparr,3);
         if CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]<>nil then
@@ -292,9 +297,9 @@ begin
         typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
         path:=IncludeTrailingPathDelimiter(EditPath2.Text);
         Replace:=(not CkBNotReplase.Checked);
-        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,Replace,CBFormat.ItemIndex = 4,comprSat,comprMap,comprHyb)
+        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,Replace,CBFormat.ItemIndex = 0,comprSat,comprMap,comprHyb)
        end;
-    7: begin
+    3: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
         setlength(typemaparr,3);
         typemaparr[0]:=TMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
@@ -307,7 +312,7 @@ begin
         Replace:=CkBNotReplaseYa.Checked;
         TThreadExportYaMaps.Create(path,APolyLL,ZoomArr,typemaparr,Replace,comprSat,comprMap,comprHyb)
        end;
-    6: begin
+    2: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
         setlength(typemaparr,3);
         typemaparr[0]:=TMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex]);
@@ -316,20 +321,32 @@ begin
         Replace:=ChBoxNotSaveIfNotExists.Checked;
         TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,RelativePath)
        end;
-  else begin
-        for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
-        for i:=0 to CheckListBox1.Items.Count-1 do
-         if CheckListBox1.Checked[i] then
-          begin
-           setlength(typemaparr,length(typemaparr)+1);
-           typemaparr[length(typemaparr)-1]:=TMapType(CheckListBox1.Items.Objects[i]);
-          end;
-        ziped:=CBZipped.Checked;
-        path:=IncludeTrailingPathDelimiter(EditPath.Text);
-        Replace:=CBReplace.Checked;
-        TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,GState.TileNameGenerator.GetGenerator(CBFormat.ItemIndex + 1))
-       end;
- end;
+  else
+
+  end;
+end;
+
+
+procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
+var i:integer;
+    path:string;
+    Zoomarr:array [0..23] of boolean;
+    typemaparr:array of TMapType;
+    ziped:boolean;
+    comprSat,comprMap,comprHyb:byte;
+    RelativePath,Replace:boolean;
+begin
+  for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
+  for i:=0 to CheckListBox1.Items.Count-1 do
+   if CheckListBox1.Checked[i] then
+    begin
+     setlength(typemaparr,length(typemaparr)+1);
+     typemaparr[length(typemaparr)-1]:=TMapType(CheckListBox1.Items.Objects[i]);
+    end;
+  ziped:=CBZipped.Checked;
+  path:=IncludeTrailingPathDelimiter(EditPath.Text);
+  Replace:=CBReplace.Checked;
+  TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
@@ -403,7 +420,8 @@ begin
   2: genbacksatREG(PolygonLL);
   3: if (MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES)
       then delRegion(PolygonLL);
-  4: savefilesREG(PolygonLL);
+  4: ExportREG(PolygonLL);
+  5: savefilesREG(PolygonLL);
  end;
  if CBCloseWithStart.Checked then
   begin
@@ -717,10 +735,9 @@ end;
 
 procedure TFsaveas.CBFormatChange(Sender: TObject);
 begin
- Panel4.Visible:=(CBFormat.ItemIndex in [7]);
- Panel3.Visible:=(CBFormat.ItemIndex in [6]);
- Panel2.Visible:=(CBFormat.ItemIndex in [4,5]);
- Panel1.Visible:=(CBFormat.ItemIndex in [0,1,2,3]);
+ Panel4.Visible:=(CBFormat.ItemIndex in [3]);
+ Panel3.Visible:=(CBFormat.ItemIndex in [2]);
+ Panel2.Visible:=(CBFormat.ItemIndex in [0,1]);
 end;
 
 procedure TFsaveas.Button5Click(Sender: TObject);
