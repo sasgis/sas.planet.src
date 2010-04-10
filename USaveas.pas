@@ -221,23 +221,6 @@ uses
 
 {$R *.dfm}
 
-function PolygonSquare(Poly:TPointArray): Double;
-var
-  I, J, HP: Integer;
-begin
-  Result := 0;
-  HP := High(Poly);
-  for I := Low(Poly) to HP do
-  begin
-    if I = HP then
-      J := 0
-    else
-      J := I + 1;
-    Result := Result + (Poly[I].X + Poly[J].X) * (Poly[I].Y - Poly[J].Y);
-  end;
-  Result := Abs(Result) / 2;
-end;
-
 procedure TFsaveas.LoadSelFromFile(FileName:string);
 var ini:TMemIniFile;
     i:integer;
@@ -321,8 +304,6 @@ begin
         Replace:=ChBoxNotSaveIfNotExists.Checked;
         TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,RelativePath)
        end;
-  else
-
   end;
 end;
 
