@@ -2744,8 +2744,6 @@ begin
 end;
 
 procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
-var ini:TMemIniFile;
-    i:integer;
 begin
  if (OpenDialog1.Execute) then begin
    Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
