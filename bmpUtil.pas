@@ -10,7 +10,7 @@ type
   PlineRGBb = ^TlineRGBb;
   TlineRGBb = array[0..0] of TBGR;
 
-  TBMPRead = function(Line:cardinal;InputArray:PLineRGBb):boolean of object;
+  TBMPRead = procedure(Line:cardinal;InputArray:PLineRGBb) of object;
   TBmpCancel = function(): Boolean of object;
 
   procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);

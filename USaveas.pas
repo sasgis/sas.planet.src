@@ -258,7 +258,6 @@ var i:integer;
     path:string;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
-    ziped:boolean;
     comprSat,comprMap,comprHyb:byte;
     RelativePath,Replace:boolean;
 begin
@@ -314,8 +313,7 @@ var i:integer;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
     ziped:boolean;
-    comprSat,comprMap,comprHyb:byte;
-    RelativePath,Replace:boolean;
+    Replace:boolean;
 begin
   for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
   for i:=0 to CheckListBox1.Items.Count-1 do
