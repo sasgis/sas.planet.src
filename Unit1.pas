@@ -2940,10 +2940,7 @@ procedure TFmain.NMarkEditClick(Sender: TObject);
 var arr:TExtendedPointArray;
     op:TAOperation;
 begin
- FWikiLayer.MouseOnReg(PWL,moveTrue);
  EditMarkId:=strtoint(PWL.numid);
-// if EditMarkF(strtoint(PWL.numid)) then generate_im;
- //setalloperationfalse
  op:=EditMarkF(EditMarkId,arr);
  if op=ao_edit_line then begin
    setalloperationfalse(ao_edit_line);
