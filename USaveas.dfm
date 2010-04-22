@@ -73,11 +73,12 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet1
+    ActivePage = TabSheet6
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
+      Tag = 5
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       OnShow = TabSheet1Show
       object Bevel1: TBevel
@@ -1027,6 +1028,7 @@ object Fsaveas: TFsaveas
       end
     end
     object TabSheet6: TTabSheet
+      Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
       object Label32: TLabel
