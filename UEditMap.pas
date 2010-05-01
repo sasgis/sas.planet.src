@@ -41,7 +41,9 @@ type
     SESleep: TSpinEdit;
     Label6: TLabel;
     Button8: TButton;
-    RBCacheType: TRadioGroup;
+    CBCahceType: TComboBox;
+    Label5: TLabel;
+    Button9: TButton;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -52,6 +54,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
   private
   public
     FMapType: TMapType;
@@ -75,7 +78,7 @@ begin
  SESleep.Value:=FMapType.Sleep;
  EditParSubMenu.Text:=FMapType.ParentSubMenu;
  EditHotKey.HotKey:=FMapType.HotKey;
- RBCacheType.ItemIndex:=FMapType.cachetype;
+ CBCahceType.ItemIndex:=FMapType.cachetype;
  CheckBox1.Checked:=FMapType.separator;
 end;
 
@@ -87,7 +90,11 @@ begin
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.Sleep:=SESleep.Value;
  FmapType.HotKey:=EditHotKey.HotKey;
- FmapType.cachetype:=RBCacheType.ItemIndex;
+ if CBCahceType.ItemIndex > 0 then begin
+   FmapType.cachetype:=CBCahceType.ItemIndex;
+ end else begin
+   FmapType.cachetype:=0;
+ end;
  FmapType.separator:=CheckBox1.Checked;
  CreateMapUI;
  Fmain.generate_im;
@@ -111,7 +118,7 @@ begin
  EditParSubMenu.Text:=FmapType.DefParentSubMenu;
  SESleep.Value:=FmapType.Sleep;
  EditHotKey.HotKey:=FmapType.DefHotKey;
- RBCacheType.ItemIndex:=FmapType.cachetype;
+ CBCahceType.ItemIndex:=FmapType.cachetype;
  CheckBox1.Checked:=FmapType.Defseparator;
 end;
 
@@ -138,6 +145,11 @@ end;
 procedure TFEditMap.Button8Click(Sender: TObject);
 begin
  SESleep.Value := FMapType.DefSleep;
+end;
+
+procedure TFEditMap.Button9Click(Sender: TObject);
+begin
+  CBCahceType.ItemIndex := FMapType.defcachetype;
 end;
 
 end.
