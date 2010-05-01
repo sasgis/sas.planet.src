@@ -205,7 +205,7 @@ object FEditMap: TFEditMap
     TabOrder = 9
     OnClick = Button8Click
   end
-  object CBCahceType: TComboBox
+  object CBCacheType: TComboBox
     Left = 80
     Top = 164
     Width = 329

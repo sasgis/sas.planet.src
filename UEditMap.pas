@@ -41,7 +41,7 @@ type
     SESleep: TSpinEdit;
     Label6: TLabel;
     Button8: TButton;
-    CBCahceType: TComboBox;
+    CBCacheType: TComboBox;
     Label5: TLabel;
     Button9: TButton;
     procedure FormShow(Sender: TObject);
@@ -78,7 +78,7 @@ begin
  SESleep.Value:=FMapType.Sleep;
  EditParSubMenu.Text:=FMapType.ParentSubMenu;
  EditHotKey.HotKey:=FMapType.HotKey;
- CBCahceType.ItemIndex:=FMapType.cachetype;
+ CBCacheType.ItemIndex:=FMapType.cachetype;
  CheckBox1.Checked:=FMapType.separator;
 end;
 
@@ -90,8 +90,8 @@ begin
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.Sleep:=SESleep.Value;
  FmapType.HotKey:=EditHotKey.HotKey;
- if CBCahceType.ItemIndex > 0 then begin
-   FmapType.cachetype:=CBCahceType.ItemIndex;
+ if CBCacheType.ItemIndex > 0 then begin
+   FmapType.cachetype:=CBCacheType.ItemIndex;
  end else begin
    FmapType.cachetype:=0;
  end;
@@ -118,7 +118,7 @@ begin
  EditParSubMenu.Text:=FmapType.DefParentSubMenu;
  SESleep.Value:=FmapType.Sleep;
  EditHotKey.HotKey:=FmapType.DefHotKey;
- CBCahceType.ItemIndex:=FmapType.cachetype;
+ CBCacheType.ItemIndex:=FmapType.cachetype;
  CheckBox1.Checked:=FmapType.Defseparator;
 end;
 
@@ -149,7 +149,7 @@ end;
 
 procedure TFEditMap.Button9Click(Sender: TObject);
 begin
-  CBCahceType.ItemIndex := FMapType.defcachetype;
+  CBCacheType.ItemIndex := FMapType.defcachetype;
 end;
 
 end.
