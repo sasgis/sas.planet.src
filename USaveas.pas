@@ -604,10 +604,10 @@ var  TempPath: string;
 begin
   if SelectDirectory('', '', TempPath) then
   begin
-   EditPath.Text := String(TempPath)+'\';
-   EditPath2.Text := String(TempPath)+'\';
-   EditPath3.Text := String(TempPath)+'\';
-   EditPath4.Text := String(TempPath)+'\';
+   EditPath.Text := IncludeTrailingPathDelimiter(TempPath);
+   EditPath2.Text := IncludeTrailingPathDelimiter(TempPath);
+   EditPath3.Text := IncludeTrailingPathDelimiter(TempPath);
+   EditPath4.Text := IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
 
