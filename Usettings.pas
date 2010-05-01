@@ -106,7 +106,6 @@ type
     Label84: TLabel;
     Bevel13: TBevel;
     CBShowmapname: TCheckBox;
-    RadioGroup1: TRadioGroup;
     CBinvertcolor: TCheckBox;
     SESizeStr: TSpinEdit;
     Label11: TLabel;
@@ -245,6 +244,8 @@ type
     Bevel16: TBevel;
     Label36: TLabel;
     SEWaitingAnswer: TSpinEdit;
+    Label37: TLabel;
+    CBCacheType: TComboBox;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -527,7 +528,11 @@ begin
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  GState.ShowBorderText:=CBBorderText.Checked;
- GState.DefCache:=RadioGroup1.itemindex+1;
+ if CBCacheType.ItemIndex >= 0 then begin
+  GState.DefCache := CBCacheType.ItemIndex+1;
+ end else begin
+  GState.DefCache := 2;
+ end;
  GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  FMain.FMiniMap.alpha:=SpinEditMiniMap.Value;
@@ -685,7 +690,7 @@ begin
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=GState.ShowBorderText;
- RadioGroup1.ItemIndex:=GState.DefCache-1;
+ CBCacheType.ItemIndex:=GState.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
  SpinEditMiniMap.Value:=FMain.FMiniMap.alpha;

@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet6
+    ActivePage = TabSheet2
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -134,7 +134,7 @@ object FSettings: TFSettings
       end
       object Label30: TLabel
         Left = 8
-        Top = 208
+        Top = 160
         Width = 281
         Height = 13
         Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1090#1072#1081#1083#1086#1074' '#1082#1101#1096#1080#1088#1091#1077#1084#1086#1077' '#1074' '#1086#1087#1077#1088#1072#1090#1080#1074#1085#1091#1102' '#1087#1072#1084#1103#1090#1100
@@ -145,6 +145,13 @@ object FSettings: TFSettings
         Width = 129
         Height = 13
         Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' Google Earth:'
+      end
+      object Label37: TLabel
+        Left = 8
+        Top = 136
+        Width = 48
+        Height = 13
+        Caption = #1058#1080#1087' '#1082#1101#1096#1072
       end
       object OldCpath: TEdit
         Left = 144
@@ -227,28 +234,12 @@ object FSettings: TFSettings
         TabOrder = 8
         OnClick = Button5Click
       end
-      object RadioGroup1: TRadioGroup
-        Left = 8
-        Top = 152
-        Width = 609
-        Height = 41
-        Caption = ' '#1050#1101#1096' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102' '
-        Columns = 5
-        ItemIndex = 1
-        Items.Strings = (
-          'GoogleMV'
-          'SAS.'#1055#1083#1072#1085#1077#1090#1072
-          'EarthSlicer 1.95'
-          'Googe maps tiles'
-          'Google Earth')
-        TabOrder = 9
-      end
       object GMTilesPath: TEdit
         Left = 144
         Top = 84
         Width = 432
         Height = 21
-        TabOrder = 10
+        TabOrder = 9
       end
       object Button13: TButton
         Tag = 4
@@ -257,7 +248,7 @@ object FSettings: TFSettings
         Width = 21
         Height = 21
         Caption = '<>'
-        TabOrder = 11
+        TabOrder = 10
         OnClick = Button4Click
       end
       object Button14: TButton
@@ -267,17 +258,17 @@ object FSettings: TFSettings
         Width = 21
         Height = 21
         Caption = '...'
-        TabOrder = 12
+        TabOrder = 11
         OnClick = Button5Click
       end
       object SETilesOCache: TSpinEdit
         Left = 296
-        Top = 205
+        Top = 157
         Width = 65
         Height = 22
         MaxValue = 10000
         MinValue = 0
-        TabOrder = 13
+        TabOrder = 12
         Value = 0
       end
       object GECachePath: TEdit
@@ -285,7 +276,7 @@ object FSettings: TFSettings
         Top = 108
         Width = 432
         Height = 21
-        TabOrder = 14
+        TabOrder = 13
       end
       object Button10: TButton
         Tag = 5
@@ -294,7 +285,7 @@ object FSettings: TFSettings
         Width = 21
         Height = 21
         Caption = '<>'
-        TabOrder = 15
+        TabOrder = 14
         OnClick = Button4Click
       end
       object Button17: TButton
@@ -304,8 +295,25 @@ object FSettings: TFSettings
         Width = 21
         Height = 21
         Caption = '...'
-        TabOrder = 16
+        TabOrder = 15
         OnClick = Button5Click
+      end
+      object CBCacheType: TComboBox
+        Left = 144
+        Top = 132
+        Width = 433
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        ItemIndex = 1
+        TabOrder = 16
+        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+        Items.Strings = (
+          'GoogleMV'
+          'SAS.'#1055#1083#1072#1085#1077#1090#1072
+          'EarthSlicer 1.95'
+          'Googe maps tiles'
+          'Google Earth')
       end
     end
     object TabSheet1: TTabSheet
@@ -1477,7 +1485,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'COM1'
       end
@@ -1831,9 +1839,9 @@ object FSettings: TFSettings
         Caption = #1057#1082#1086#1088#1086#1089#1090#1100
       end
       object Label36: TLabel
-        Left = 364
+        Left = 379
         Top = 19
-        Width = 104
+        Width = 89
         Height = 13
         Alignment = taRightJustify
         BiDiMode = bdRightToLeft
