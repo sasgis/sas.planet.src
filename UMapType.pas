@@ -47,6 +47,8 @@ type
     FGetURLScript: string;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
+    FIgnoreContent_Type: Boolean;
+    FDefaultContent_Type: string;
     FContent_Type: string;
     FStatus_Code: string;
     FBanIfLen: integer;
@@ -204,6 +206,8 @@ type
     property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
+    property IgnoreContentType: Boolean read FIgnoreContent_Type;
+    property DefaultContentType: string read FDefaultContent_Type;
     property ContentType: string read FContent_Type;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
@@ -753,7 +757,9 @@ begin
   Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
   DefSleep:=Sleep;
   FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
-  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image\jpg');
+  FIgnoreContent_Type:=AIniFile.ReadBool('PARAMS','IgnoreContentType', False);
+  FDefaultContent_Type:=AIniFile.ReadString('PARAMS','DefaultContentType','image/jpg');
+  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image/jpg');
   FStatus_Code:=AIniFile.ReadString('PARAMS','ValidStatusCode','200');
   FUseDwn:=AIniFile.ReadBool('PARAMS','UseDwn',true);
 end;
