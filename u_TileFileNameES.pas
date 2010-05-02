@@ -55,12 +55,12 @@ begin
   end;
   VFileName := VZoomStr + '-' + FullInt(AXY.X, AZoom) + '-' + FullInt(AXY.Y, AZoom);
   if Azoom < 6 then begin
-    Result := VZoomStr + '\';
+    Result := VZoomStr + PathDelim;
   end else if Azoom < 10 then begin
-    Result := VZoomStr + '\' +
-      Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + '\';
+    Result := VZoomStr + PathDelim +
+      Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + PathDelim;
   end else begin
-    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9) + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + '\' + VZoomStr + '\' + Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + '\';
+    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9) + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + PathDelim + VZoomStr + PathDelim + Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + PathDelim;
   end;
   Result := Result + VFileName;
 end;

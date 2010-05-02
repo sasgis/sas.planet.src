@@ -23,19 +23,19 @@ implementation
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
 begin
-    result:=IntToStr(Z)+'\';
+    result:=IntToStr(Z) + PathDelim;
     if(Z>15) then
     begin
       Mask:=(1 shl (Z-15))-1;
       Num:=(((X shr 15) and Mask) shl 4)+(((Y shr 15) and Mask));
-      result:=result+IntToHex(Num,2)+'\';
+      result:=result+IntToHex(Num,2) + PathDelim;
     end;
     if(Z>11) then
     begin
       Mask:=(1 shl (Z-11))-1;
       Mask:=Mask and $F;
       Num:=(((X shr 11) and Mask) shl 4)+(((Y shr 11) and Mask));
-      result:=result+IntToHex(Num,2)+'\';
+      result:=result+IntToHex(Num,2) + PathDelim;
     end;
     if(Z>7) then
     begin
@@ -59,7 +59,7 @@ end;
 
 procedure createdirif(path:string);
 begin
- path:=copy(path, 1, LastDelimiter('\', path));
+ path:=copy(path, 1, LastDelimiter(PathDelim, path));
  if not(DirectoryExists(path)) then ForceDirectories(path);
 end;
 

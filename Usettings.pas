@@ -643,11 +643,11 @@ var  TempPath: string;
 begin
   if SelectDirectory('', '', TempPath) then
   begin
-    if (sender as TButton).Tag=1 then OldCpath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=2 then NewCpath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=3 then ESCpath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=4 then GMTilesPath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=5 then GECachePath.Text:=String(TempPath)+'\';
+    if (sender as TButton).Tag=1 then OldCpath.Text:= IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=2 then NewCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=3 then ESCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
 

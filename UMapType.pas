@@ -920,7 +920,7 @@ var
   VPath: String;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    result:=GETileExists(GetBasePath+'\dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
+    result:=GETileExists(IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
   end else begin
     VPath := GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
@@ -1031,7 +1031,7 @@ begin
   VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
-      result:=GetGETile(btm,GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      result:=GetGETile(btm, IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
       if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
@@ -1157,7 +1157,7 @@ end;
 procedure TMapType.CreateDirIfNotExists(APath:string);
 var i:integer;
 begin
- i := LastDelimiter('\', Apath);
+ i := LastDelimiter(PathDelim, Apath);
  Apath:=copy(Apath, 1, i);
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
 end;

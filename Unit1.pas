@@ -2134,7 +2134,7 @@ begin
   ShowMessage('Временно не работает');
 //  WinDirP:=StrAlloc(MAX_PATH);
 //  GetWindowsDirectory(WinDirP, MAX_PATH);
-//  path := StrPas(WinDirP)+'\SASwallpaper.bmp';
+//  path := IncludeTrailingPathDelimiter(StrPas(WinDirP))+'SASwallpaper.bmp';
 //  btm_ex:=TBitmap.Create;
 //  try
 //    btm_ex.Assign(MainLayerMap.bitmap);
@@ -2144,7 +2144,7 @@ begin
 //  end;
 //  with TRegIniFile.Create('Control Panel') do
 //   begin
-//    WriteString('desktop', 'Wallpaper', StrPas(WinDirP)+'\SASwallpaper.bmp');
+//    WriteString('desktop', 'Wallpaper', IncludeTrailingPathDelimiter(StrPas(WinDirP))+'SASwallpaper.bmp');
 //    WriteString('desktop', 'TileWallpaper', '0');
 //    free;
 //   end;
@@ -2178,9 +2178,8 @@ begin
     VZoomCurr := GState.zoom_size - 1;
     GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
     s:=GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
-    for i:=length(s) downto 0 do if s[i]='\'then break;
-    // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
-    ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
+    s := ExtractFilePath(s);
+    ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
   end;
