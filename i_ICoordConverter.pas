@@ -55,14 +55,18 @@ type
 
     // Перобразует относительные координаты на карте в координаты пиксела
     function Relative2Pixel(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;
+    function Relative2ExtendedPixel(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Перобразует относительные координаты на карте в координаты тайла
     function Relative2Tile(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;
+    function Relative2ExtendedTile(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Перобразует относительные координаты на карте в географические
     function Relative2LonLat(const XY: TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
     // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
     function RelativeRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;
+    function RelativeRect2ExtendedPixelRect(const XY: TExtendedRect; Azoom: byte): TExtendedRect; stdcall;
     // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
     function RelativeRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;
+    function RelativeRect2ExtendedTileRect(const XY: TExtendedRect; Azoom: byte): TExtendedRect; stdcall;
     // Перобразует прямоугольник с относительными координатами на карте в географические
     function RelativeRect2LonLatRect(const XY: TExtendedRect): TExtendedRect; stdcall;//TODO: Автотест
 
