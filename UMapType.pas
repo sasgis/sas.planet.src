@@ -124,13 +124,14 @@ type
     DefNameInCache: string;
     NameInCache: string;
 
-    NSmItem: TTBXItem;
-    TBItem: TTBXItem;
-    NLayerParamsItem: TTBXItem;
-    TBFillingItem: TTBXItem;
-    TBSubMenuItem: TTBXSubmenuItem;
-    NDwnItem: TMenuItem;
-    NDelItem: TMenuItem;
+    NSmItem: TTBXItem; //Пункт контекстного меню мини карты
+    MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
+    MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
+    TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
+
+    NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+    NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
+    NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -304,36 +305,36 @@ begin
   if i>0 then begin
     for i:=0 to length(GState.MapType)-1 do begin
       With GState.MapType[i] do begin
-        TBItem:=TTBXItem.Create(Fmain.TBSMB);
+        MainToolbarItem:=TTBXItem.Create(Fmain.TBSMB);
         if ParentSubMenu='' then begin
           if asLayer then begin
-            Fmain.TBLayerSel.Add(TBItem);
+            Fmain.TBLayerSel.Add(MainToolbarItem);
           end else begin
-            Fmain.TBSMB.Add(TBItem);
+            Fmain.TBSMB.Add(MainToolbarItem);
           end;
         end else begin
           j:=0;
           While GState.MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
-          TBSubMenuItem:=TTBXSubmenuItem.Create(Fmain.TBSMB);
-          TBSubMenuItem.caption:=ParentSubMenu;
-          TBSubMenuItem.Images:=Fmain.MapIcons18;
           if j=i then begin
+            MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(Fmain.TBSMB);
+            MainToolbarSubMenuItem.caption:=ParentSubMenu;
+            MainToolbarSubMenuItem.Images:=Fmain.MapIcons18;
             if asLayer then begin
-              Fmain.TBLayerSel.Add(TBSubMenuItem)
+              Fmain.TBLayerSel.Add(MainToolbarSubMenuItem)
             end else begin
-              Fmain.TBSMB.Add(TBSubMenuItem);
+              Fmain.TBSMB.Add(MainToolbarSubMenuItem);
             end;
           end;
-          GState.MapType[j].TBSubMenuItem.Add(TBItem);
+          GState.MapType[j].MainToolbarSubMenuItem.Add(MainToolbarItem);
         end;
         Fmain.MapIcons24.AddMasked(Fbmp24,RGB(255,0,255));
         Fmain.MapIcons18.AddMasked(Fbmp18,RGB(255,0,255));
-        TBItem.Name:='TBMapN'+inttostr(id);
-        TBItem.ShortCut:=HotKey;
-        TBItem.ImageIndex:=i;
-        TBItem.Caption:=name;
-        TBItem.OnAdjustFont:=Fmain.AdjustFont;
-        TBItem.OnClick:=Fmain.TBmap1Click;
+        MainToolbarItem.Name:='TBMapN'+inttostr(id);
+        MainToolbarItem.ShortCut:=HotKey;
+        MainToolbarItem.ImageIndex:=i;
+        MainToolbarItem.Caption:=name;
+        MainToolbarItem.OnAdjustFont:=Fmain.AdjustFont;
+        MainToolbarItem.OnClick:=Fmain.TBmap1Click;
 
         TBFillingItem:=TTBXItem.Create(Fmain.TBFillingTypeMap);
         TBFillingItem.name:='TBMapFM'+inttostr(id);
@@ -378,10 +379,10 @@ begin
           Fmain.NLayerParams.Add(NLayerParamsItem);
         end;
         if (asLayer)and(active) then begin
-          TBItem.Checked:=true;
+          MainToolbarItem.Checked:=true;
         end;
         if separator then begin
-          TBItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
+          MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
           if NSmItem<>NIL  then begin
             NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
           end;
@@ -393,7 +394,7 @@ begin
         if (ShowOnSmMap)and(not(asLayer)) then begin
           FMain.FMiniMap.maptype:=GState.MapType[i];
         end;
-        TBItem.Tag:=Longint(GState.MapType[i]);
+        MainToolbarItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);
         if IsCanShowOnSmMap then begin
           NSmItem.Tag:=Longint(GState.MapType[i]);

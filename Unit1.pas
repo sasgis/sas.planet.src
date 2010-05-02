@@ -2316,11 +2316,11 @@ begin
       ShowMessage(AMapType.MapInfo);
       AMapType.showinfo:=false;
     end;
-    GState.sat_map_both.TBItem.Checked:=false;
+    GState.sat_map_both.MainToolbarItem.Checked:=false;
     GState.sat_map_both.active:=false;
     GState.sat_map_both := AMapType;
-    TBSMB.ImageIndex := GState.sat_map_both.TBItem.ImageIndex;
-    GState.sat_map_both.TBItem.Checked:=true;
+    TBSMB.ImageIndex := GState.sat_map_both.MainToolbarItem.ImageIndex;
+    GState.sat_map_both.MainToolbarItem.Checked:=true;
     GState.sat_map_both.active:=true;
     if GState.Showmapname then begin
       TBSMB.Caption:=GState.sat_map_both.name;
@@ -2331,7 +2331,7 @@ begin
     AMapType.active := not(AMapType.active);
     for i:=0 to length(GState.MapType)-1 do begin
       if GState.MapType[i].asLayer then begin
-        GState.MapType[i].TBItem.Checked:=GState.MapType[i].active;
+        GState.MapType[i].MainToolbarItem.Checked:=GState.MapType[i].active;
       end;
     end;
   end;
