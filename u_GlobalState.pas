@@ -330,7 +330,7 @@ end;
 
 function TGlobalState.GetMarkIconsPath: string;
 begin
-  Result := ProgramPath + 'marksicons\';
+  Result := ProgramPath + 'marksicons' + PathDelim;
 end;
 
 function TGlobalState.GetMarksBackUpFileName: string;
@@ -355,12 +355,12 @@ end;
 
 function TGlobalState.GetMapsPath: string;
 begin
-  Result := ProgramPath + 'Maps\';
+  Result := ProgramPath + 'Maps' + PathDelim;
 end;
 
 function TGlobalState.GetTrackLogPath: string;
 begin
-  Result := ProgramPath + 'TrackLog\';
+  Result := ProgramPath + 'TrackLog' + PathDelim;
 end;
 
 function TGlobalState.GetHelpFileName: string;

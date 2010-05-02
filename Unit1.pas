@@ -1537,11 +1537,11 @@ begin
  GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
  GState.GSMpar.WaitingAnswer:=GState.MainIni.ReadInteger('GSM','WaitingAnswer',200);
 
- GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
- GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
- GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
- GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
- GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
+ GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
+ GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
+ GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
+ GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
+ GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
   VScreenCenterPos := Point(
     GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),

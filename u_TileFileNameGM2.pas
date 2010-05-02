@@ -22,7 +22,7 @@ uses
 function TTileFileNameGM2.GetTileFileName(AXY: TPoint;
   Azoom: byte): string;
 begin
-  result := format('z%d\%d_%d', [
+  result := format('z%d'+PathDelim+'%d_%d', [
     Azoom,
     AXY.y,
     AXY.x

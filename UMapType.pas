@@ -452,7 +452,7 @@ var
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
-  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
+  Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
   i:=0;
   pnum:=0;
   startdir:=GState.MapsPath;
@@ -548,7 +548,7 @@ var
   i: integer;
   VGUIDString: string;
 begin
-  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
+  Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
   try
     for i:=0 to length(GState.MapType)-1 do begin
       VGUIDString := GState.MapType[i].GUIDString;
@@ -873,6 +873,7 @@ begin
     ct:=CacheType;
   end;
   result := NameInCache;
+  //TODO: — этим бардаком нужно что-то будет сделать
   if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0)) then begin
     case ct of
       1: begin
@@ -892,6 +893,7 @@ begin
       end;
     end;
   end;
+  //TODO: — этим бардаком нужно что-то будет сделать
   if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0))then begin
     result:=GState.ProgramPath+result;
   end;

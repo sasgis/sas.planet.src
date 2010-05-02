@@ -631,11 +631,11 @@ end;
 
 procedure TFSettings.Button4Click(Sender: TObject);
 begin
- if (sender as TButton).Tag=1 then OldCpath.Text:='cache_old\';
- if (sender as TButton).Tag=2 then NewCpath.Text:='cache\';
- if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es\';
- if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt\';
- if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge\';
+ if (sender as TButton).Tag=1 then OldCpath.Text:='cache_old' + PathDelim;
+ if (sender as TButton).Tag=2 then NewCpath.Text:='cache' + PathDelim;
+ if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es' + PathDelim;
+ if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt' + PathDelim;
+ if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge' + PathDelim;
 end;
 
 procedure TFSettings.Button5Click(Sender: TObject);
