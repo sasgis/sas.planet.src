@@ -2909,15 +2909,24 @@ begin
 end;
 
 procedure TFmain.mapDblClick(Sender: TObject);
-var r:TPoint;
+var
+  r: TPoint;
+  i: Integer;
+  VLayer: TCustomLayer;
 begin
- if not(FMiniMap.LayerMinMap.HitTest(map.ScreenToClient(Mouse.CursorPos).X, map.ScreenToClient(Mouse.CursorPos).y)) then begin
-   MapMoving:=false;
-   if (aoper=ao_movemap) then begin
-     r:=map.ScreenToClient(Mouse.CursorPos);
-     Set_Pos(VisiblePixel2MapPixel(r));
-   end;
- end;
+  r:=map.ScreenToClient(Mouse.CursorPos);
+  for i := 0 to map.Layers.Count - 1 do begin
+    VLayer := map.Layers[i];
+    if VLayer.MouseEvents then begin
+      if VLayer.HitTest(r.X, r.Y) then begin
+        Exit;
+      end;
+    end;
+  end;
+  MapMoving:=false;
+  if (aoper=ao_movemap) then begin
+  Set_Pos(VisiblePixel2MapPixel(r));
+  end;
 end;
 
 procedure TFmain.TBAdd_PointClick(Sender: TObject);
