@@ -70,6 +70,7 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+  FLayer.MouseEvents := false;
   FLayer.Visible := false;
 end;
 
