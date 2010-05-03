@@ -3214,6 +3214,9 @@ begin
     HintWindow.ReleaseHandle;
     FreeAndNil(HintWindow);
   end;
+  if (Layer <> nil) then begin
+    exit;
+  end;
   if (layer=FMiniMap.LayerMinMap) then exit;
   if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
@@ -3318,6 +3321,9 @@ var PWL:TResObj;
     VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
 begin
+  if (Layer <> nil) then begin
+    exit;
+  end;
  if (layer=FMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
  MapMoving:=false;
@@ -3509,6 +3515,10 @@ var i,j:integer;
   VSelectionRect: TExtendedRect;
 begin
   if ProgramClose then begin
+    exit;
+  end;
+  if (Layer <> nil) then begin
+    moveTrue:=point(x,y);
     exit;
   end;
  if (Layer=FMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
