@@ -3320,12 +3320,14 @@ var PWL:TResObj;
     VSourcePoint: TPoint;
     VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
+  VMapMoving: Boolean;
 begin
   if (Layer <> nil) then begin
     exit;
   end;
  if (layer=FMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
+ VMapMoving := MapMoving;
  MapMoving:=false;
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x, y));
@@ -3369,8 +3371,11 @@ begin
     exit;
    end;
 
- POSb:=ScreenCenterPos;
- Set_Pos(Point(ScreenCenterPos.x+(MouseDownPoint.x-x),ScreenCenterPos.y+(MouseDownPoint.y-y)));
+ if VMapMoving then begin
+   POSb:=ScreenCenterPos;
+   Set_Pos(Point(posB.x+(MouseDownPoint.x-x),posB.y+(MouseDownPoint.y-y)));
+ end;
+
  MouseUpPoint:=Point(x,y);
  if Layer <> nil then begin
    layer.Cursor:=curBuf;
