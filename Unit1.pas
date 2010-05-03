@@ -2925,7 +2925,7 @@ begin
   end;
   MapMoving:=false;
   if (aoper=ao_movemap) then begin
-  Set_Pos(VisiblePixel2MapPixel(r));
+    Set_Pos(VisiblePixel2MapPixel(r));
   end;
 end;
 
@@ -3529,7 +3529,9 @@ begin
          exit;
         end;
  CState:=ShowCursor(True);
- while CState < 0 do CState:= ShowCursor(true);
+ while CState < 0 do begin
+  CState:= ShowCursor(true);
+ end;
  sleep(5);
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x,y));
