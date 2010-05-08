@@ -389,7 +389,7 @@ begin
           TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
         end;
         if (active)and(GState.MapType[i].asLayer=false) then begin
-          GState.sat_map_both:=GState.MapType[i];
+          GState.SetMainSelectedMap(GState.MapType[i]);
         end;
         if (ShowOnSmMap)and(not(asLayer)) then begin
           FMain.FMiniMap.maptype:=GState.MapType[i];
@@ -424,7 +424,7 @@ begin
     Fmain.NMMtype_0.Checked:=true;
   end;
   if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
-    GState.sat_map_both:=GState.MapType[0];
+    GState.SetMainSelectedMap(GState.MapType[0]);
   end;
 end;
 function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;

@@ -1681,7 +1681,7 @@ begin
       VGUID := StringToGUID(param);
       for i:=0 to length(GState.MapType)-1 do begin
         if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-          GState.sat_map_both:=GState.MapType[i];
+          GState.SetMainSelectedMap(GState.MapType[i]);
         end;
       end;
     end;
@@ -2318,7 +2318,7 @@ begin
     end;
     GState.sat_map_both.MainToolbarItem.Checked:=false;
     GState.sat_map_both.active:=false;
-    GState.sat_map_both := AMapType;
+    GState.SetMainSelectedMap(AMapType);
     TBSMB.ImageIndex := GState.sat_map_both.MainToolbarItem.ImageIndex;
     GState.sat_map_both.MainToolbarItem.Checked:=true;
     GState.sat_map_both.active:=true;
