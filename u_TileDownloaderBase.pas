@@ -14,6 +14,8 @@ type
   TTileDownloaderBase = class(TInterfacedObject, ITileDownlodSession)
   private
     FExpectedMIMETypes: string;
+    FDefaultMIMEType: string;
+    FIgnoreMIMEType: Boolean;
     FDownloadTryCount: Integer;
     FConnectionSettings: TInetConnect;
     FSleepOnResetConnection: Cardinal;
@@ -38,7 +40,7 @@ type
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
-    constructor Create(AExpectedMIMETypes: string; ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
+    constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
     destructor Destroy; override;
     function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
@@ -67,9 +69,12 @@ begin
   end;
 end;
 
-constructor TTileDownloaderBase.Create(AExpectedMIMETypes: string;
+constructor TTileDownloaderBase.Create(AIgnoreMIMEType: Boolean;
+  AExpectedMIMETypes, ADefaultMIMEType: string;
   ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
 begin
+  FIgnoreMIMEType := AIgnoreMIMEType;
+  FDefaultMIMEType := ADefaultMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDownloadTryCount := ADownloadTryCount;
   FConnectionSettings := AConnectionSettings;
@@ -253,33 +258,41 @@ var
   VContentLen: Cardinal;
   VLastError: Cardinal;
 begin
-  VBufSize := Length(AContentType);
-  if VBufSize = 0 then begin
-    SetLength(AContentType, 20);
+  if FIgnoreMIMEType then begin
+    AContentType := FDefaultMIMEType;
+  end else begin
     VBufSize := Length(AContentType);
-  end;
-  FillChar(AContentType[1], VBufSize, 0);
-  dwIndex := 0;
-  if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
-    VLastError := GetLastError;
-    if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
-      SetLength(AContentType, VBufSize);
-      if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
-        VLastError := GetLastError;
+    if VBufSize = 0 then begin
+      SetLength(AContentType, 20);
+      VBufSize := Length(AContentType);
+    end;
+    FillChar(AContentType[1], VBufSize, 0);
+    dwIndex := 0;
+    if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+      VLastError := GetLastError;
+      if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
+        SetLength(AContentType, VBufSize);
+        if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+          VLastError := GetLastError;
+          Result := dtrUnknownError;
+          Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
+          exit;
+        end;
+      end else if VLastError = ERROR_HTTP_HEADER_NOT_FOUND then begin
+        AContentType := '';
+      end else begin
         Result := dtrUnknownError;
         Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
         exit;
       end;
-    end else begin
-      Result := dtrUnknownError;
-      Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
+    end;
+    AContentType := trim(AContentType);
+    if (AContentType = '') then begin
+      AContentType := FDefaultMIMEType;
+    end else if (PosEx(AContentType, FExpectedMIMETypes, 0) <= 0) then begin
+      Result := dtrErrorMIMEType;
       exit;
     end;
-  end;
-  AContentType := trim(AContentType);
-  if (AContentType = '') or (PosEx(AContentType, FExpectedMIMETypes, 0) <= 0) then begin
-    Result := dtrErrorMIMEType;
-    exit;
   end;
   if ACheckTileSize then begin
     dwIndex := 0;

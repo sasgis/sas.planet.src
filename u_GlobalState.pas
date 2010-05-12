@@ -26,6 +26,7 @@ type
 
   TGlobalState = class
   private
+    FMainSelectedMap: TMapType;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
@@ -213,7 +214,6 @@ type
     SessionLastSuccess:boolean;
 
     MapType: array of TMapType;
-    sat_map_both: TMapType;
 
     // Полигон последнего выделения при операциях с областью.
     LastSelectionPolygon: TExtendedPointArray;
@@ -252,12 +252,14 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
+    property sat_map_both: TMapType read FMainSelectedMap;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
     destructor Destroy; override;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
+    procedure SetMainSelectedMap(const Value: TMapType);
   end;
 
 const
@@ -323,14 +325,13 @@ begin
   FMapCalibrationList := nil;
   FKmlLoader := nil;
   FKmzLoader := nil;
-  sat_map_both := nil;
   FreeAllMaps;
   inherited;
 end;
 
 function TGlobalState.GetMarkIconsPath: string;
 begin
-  Result := ProgramPath + 'marksicons\';
+  Result := ProgramPath + 'marksicons' + PathDelim;
 end;
 
 function TGlobalState.GetMarksBackUpFileName: string;
@@ -355,12 +356,12 @@ end;
 
 function TGlobalState.GetMapsPath: string;
 begin
-  Result := ProgramPath + 'Maps\';
+  Result := ProgramPath + 'Maps' + PathDelim;
 end;
 
 function TGlobalState.GetTrackLogPath: string;
 begin
-  Result := ProgramPath + 'TrackLog\';
+  Result := ProgramPath + 'TrackLog' + PathDelim;
 end;
 
 function TGlobalState.GetHelpFileName: string;
@@ -468,6 +469,11 @@ end;
 procedure TGlobalState.StopAllThreads;
 begin
   FGCThread.Terminate;
+end;
+
+procedure TGlobalState.SetMainSelectedMap(const Value: TMapType);
+begin
+  FMainSelectedMap := Value;
 end;
 
 end.

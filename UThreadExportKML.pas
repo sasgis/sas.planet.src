@@ -30,7 +30,6 @@ type
     RelativePath:boolean;
     num_dwn,obrab:integer;
     KMLFile:TextFile;
-    procedure Export2KML;
     procedure KmlFileWrite(x,y:integer;z,level:byte);
     procedure InitProgressForm;
     procedure UpdateProgressForm;
@@ -79,12 +78,6 @@ begin
   for i:=0 to 23 do
     zoomarr[i]:=Azoomarr[i];
   FTypemap:=Atypemap;
-end;
-
-
-procedure TThreadExportKML.Execute;
-begin
-  export2KML;
 end;
 
 function RetDate(inDate: TDateTime): string;
@@ -140,8 +133,7 @@ begin
   Write(KMLFile,ToFile);
 end;
 
-
-procedure TThreadExportKML.Export2KML;
+procedure TThreadExportKML.Execute;
 var p_x,p_y,i,j:integer;
     polyg:TPointArray;
     ToFile,datestr:string;
@@ -156,40 +148,43 @@ begin
     polyg := FTypeMap.GeoConvert.PoligonProject(j + 8, PolygLL);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
    end;
-  Synchronize(InitProgressForm);
- obrab:=0;
- i:=0;
- AssignFile(KMLFile,path);
- Rewrite(KMLFile);
- ToFile:=AnsiToUtf8('<?xml version="1.0" encoding="UTF-8"?>'+#13#10+'<kml xmlns="http://earth.google.com/kml/2.1">'+#13#10);
- ToFile:=ToFile+AnsiToUtf8('<Document>'+#13#10+'<name>'+ExtractFileName(path)+'</name>');
- Write(KMLFile,ToFile);
+ Synchronize(InitProgressForm);
+ try
+   obrab:=0;
+   i:=0;
+   AssignFile(KMLFile,path);
+   Rewrite(KMLFile);
+   ToFile:=AnsiToUtf8('<?xml version="1.0" encoding="UTF-8"?>'+#13#10+'<kml xmlns="http://earth.google.com/kml/2.1">'+#13#10);
+   ToFile:=ToFile+AnsiToUtf8('<Document>'+#13#10+'<name>'+ExtractFileName(path)+'</name>');
+   Write(KMLFile,ToFile);
 
- while not(zoomarr[i])or(i>23) do inc(i);
- polyg := FTypeMap.GeoConvert.PoligonProject(i + 8, PolygLL);
- GetDwnlNum(min,max,Polyg,false);
- p_x:=min.x;
- while p_x<max.x do
-  begin
-   p_y:=min.Y;
-   while p_y<max.Y do
+   while not(zoomarr[i])or(i>23) do inc(i);
+   polyg := FTypeMap.GeoConvert.PoligonProject(i + 8, PolygLL);
+   GetDwnlNum(min,max,Polyg,false);
+   p_x:=min.x;
+   while p_x<max.x do
     begin
-     if not FProgress.Visible then begin
-        exit;
+     p_y:=min.Y;
+     while p_y<max.Y do
+      begin
+       if not FProgress.Visible then begin
+          exit;
+        end;
+       if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
+                                                    inc(p_y,256);
+                                                    CONTINUE;
+                                                   end;
+       KmlFileWrite(p_x,p_y,i+1,1);
+       inc(p_y,256);
       end;
-     if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
-                                                  inc(p_y,256);
-                                                  CONTINUE;
-                                                 end;
-     KmlFileWrite(p_x,p_y,i+1,1);
-     inc(p_y,256);
-    end;
-    inc(p_x,256);
-   end;
- ToFile:=AnsiToUtf8(#13#10+'</Document>'+#13#10+'</kml>');
- Write(KMLFile,ToFile);
- CloseFile(KMLFile);
- Synchronize(CloseProgressForm);
+      inc(p_x,256);
+     end;
+   ToFile:=AnsiToUtf8(#13#10+'</Document>'+#13#10+'</kml>');
+   Write(KMLFile,ToFile);
+   CloseFile(KMLFile);
+ finally
+   Synchronize(CloseProgressForm);
+ end;
 end;
 
 procedure TThreadExportKML.CloseProgressForm;

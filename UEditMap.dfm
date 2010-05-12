@@ -2,7 +2,7 @@ object FEditMap: TFEditMap
   Left = 288
   Top = 302
   BorderStyle = bsDialog
-  ClientHeight = 281
+  ClientHeight = 253
   ClientWidth = 441
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -47,7 +47,7 @@ object FEditMap: TFEditMap
   end
   object Bevel1: TBevel
     Left = 8
-    Top = 240
+    Top = 216
     Width = 425
     Height = 9
     Shape = bsTopLine
@@ -59,27 +59,34 @@ object FEditMap: TFEditMap
     Height = 13
     Caption = #1055#1072#1091#1079#1072
   end
+  object Label5: TLabel
+    Left = 8
+    Top = 168
+    Width = 48
+    Height = 13
+    Caption = #1058#1080#1087' '#1082#1101#1096#1072
+  end
   object EditNameinCache: TEdit
     Left = 104
     Top = 64
     Width = 305
     Height = 21
-    TabOrder = 0
+    TabOrder = 2
   end
   object EditParSubMenu: TEdit
     Left = 152
     Top = 96
     Width = 257
     Height = 21
-    TabOrder = 1
+    TabOrder = 4
   end
   object CheckBox1: TCheckBox
     Left = 8
-    Top = 216
+    Top = 192
     Width = 329
     Height = 17
     Caption = #1044#1086#1073#1072#1074#1083#1103#1090#1100' '#1074' '#1084#1077#1085#1102' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' '#1087#1086#1089#1083#1077' '#1085#1072#1079#1074#1072#1085#1080#1103' '#1101#1090#1086#1081' '#1082#1072#1088#1090#1099
-    TabOrder = 2
+    TabOrder = 12
   end
   object EditHotKey: THotKey
     Left = 72
@@ -88,35 +95,35 @@ object FEditMap: TFEditMap
     Height = 21
     HotKey = 0
     Modifiers = []
-    TabOrder = 3
+    TabOrder = 6
   end
   object Button1: TButton
     Left = 280
-    Top = 248
+    Top = 224
     Width = 75
     Height = 25
     Caption = #1055#1088#1080#1085#1103#1090#1100
-    TabOrder = 4
+    TabOrder = 14
     OnClick = Button1Click
   end
   object Button2: TButton
     Left = 360
-    Top = 248
+    Top = 224
     Width = 75
     Height = 25
     Cancel = True
     Caption = #1054#1090#1084#1077#1085#1080#1090#1100
     ModalResult = 2
-    TabOrder = 5
+    TabOrder = 15
     OnClick = Button2Click
   end
   object Button3: TButton
     Left = 8
-    Top = 248
+    Top = 224
     Width = 105
     Height = 25
     Caption = #1042#1089#1077' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
-    TabOrder = 6
+    TabOrder = 13
     OnClick = Button3Click
   end
   object Button6: TButton
@@ -128,7 +135,7 @@ object FEditMap: TFEditMap
     Caption = '<>'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 7
+    TabOrder = 1
     OnClick = Button6Click
   end
   object Button4: TButton
@@ -140,7 +147,7 @@ object FEditMap: TFEditMap
     Caption = '<>'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 8
+    TabOrder = 3
     OnClick = Button4Click
   end
   object Button5: TButton
@@ -152,7 +159,7 @@ object FEditMap: TFEditMap
     Caption = '<>'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 9
+    TabOrder = 5
     OnClick = Button5Click
   end
   object Button7: TButton
@@ -164,7 +171,7 @@ object FEditMap: TFEditMap
     Caption = '<>'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 10
+    TabOrder = 7
     OnClick = Button7Click
   end
   object EditURL: TMemo
@@ -173,7 +180,7 @@ object FEditMap: TFEditMap
     Width = 369
     Height = 49
     ScrollBars = ssVertical
-    TabOrder = 11
+    TabOrder = 0
     WantReturns = False
   end
   object SESleep: TSpinEdit
@@ -183,7 +190,7 @@ object FEditMap: TFEditMap
     Height = 22
     MaxValue = 0
     MinValue = 0
-    TabOrder = 12
+    TabOrder = 8
     Value = 0
   end
   object Button8: TButton
@@ -195,17 +202,17 @@ object FEditMap: TFEditMap
     Caption = '<>'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 13
+    TabOrder = 9
     OnClick = Button8Click
   end
-  object RBCacheType: TRadioGroup
-    Left = 9
-    Top = 152
-    Width = 424
-    Height = 57
-    Caption = ' '#1058#1080#1087' '#1082#1101#1096#1072' '
-    Columns = 3
-    ItemIndex = 1
+  object CBCacheType: TComboBox
+    Left = 80
+    Top = 164
+    Width = 329
+    Height = 21
+    Style = csDropDownList
+    ItemHeight = 13
+    TabOrder = 10
     Items.Strings = (
       #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       'GoogleMV'
@@ -213,6 +220,17 @@ object FEditMap: TFEditMap
       'EarthSlicer 1.95'
       'Googe maps tiles'
       'Google Earth')
-    TabOrder = 14
+  end
+  object Button9: TButton
+    Left = 413
+    Top = 164
+    Width = 21
+    Height = 21
+    Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+    Caption = '<>'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 11
+    OnClick = Button9Click
   end
 end

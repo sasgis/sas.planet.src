@@ -69,7 +69,7 @@ type
     Message_:string;
     LastXY: TPoint;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
-    function ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb):boolean;
+    procedure ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb);
     function IsCancel: Boolean;
     procedure DrawMarks2Tile;
     procedure UpdateProgressFormBar;
@@ -315,8 +315,8 @@ begin
  FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap,LLRect,FZoom)
 end;
 
-function TThreadScleit.ReadLineBMP(Line: cardinal;
-  LineRGB: PLineRGBb): boolean;
+procedure TThreadScleit.ReadLineBMP(Line: cardinal;
+  LineRGB: PLineRGBb);
 var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
   p_h:TPoint;

@@ -31,7 +31,7 @@ begin
   end else begin
     Result := '0' + IntToStr(Azoom + 1);
   end;
-  Result := Result + '\t';
+  Result := Result + PathDelim + 't';
   if Azoom > 0 then begin
     VMask := 1 shl (Azoom - 1);
     for i := 1 to Azoom do begin

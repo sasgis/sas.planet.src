@@ -93,19 +93,19 @@ var
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
              ('227400001','2','USGS 1:24k Topo Stack','020100S'),
              ('2133000801','4','GlobeXplorer Premium Portal Stack','060100W'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','6','APUSA Stack','020100S'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','7','DigitalGlobe Stack','020100S'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','11','CitiPix by GlobeXplorer ODI stack','020100S'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','13','DOQQ Stack','020100S'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','14','I-cubed Image Stack','020100S'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','18','CitiPix by GlobeXplorer ODI plus RDI stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','6','APUSA Stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','7','DigitalGlobe Stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','11','CitiPix by GlobeXplorer ODI stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','13','DOQQ Stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','14','I-cubed Image Stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','18','CitiPix by GlobeXplorer ODI plus RDI stack','020100S'),
              ('227400001','19','WMS Premium','020100S'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','20','National Map Data Stack','020100S'),
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','20','National Map Data Stack','020100S'),
              ('227400001','27','NAIP Stack','020100S'),
              ('2133000801','32','Current Events Stack','060100W'),
 //             ('4844000213','33', 'GlobeXplorer Deluxe Stack','030603A'),
 //             ('4844000213','34', 'GlobeXplorer Deluxe Portal Stack','030603A'),
-             ('31df1644-5de2-4e0c-b557-37e22bd8e6e2','49','Country Coverage','020100S')
+             ('dfe278a2-8c6e-494f-927e-8937470893fc','49','Country Coverage','020100S')
              );
 { Stacks : array [0..32,0..3] of string =
             (

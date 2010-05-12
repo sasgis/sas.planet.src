@@ -32,7 +32,8 @@ function TTileDownloaderBaseFactory.CreateInstance: IUnknown;
 var
   VDownloader: TTileDownloaderBase;
 begin
-  VDownloader := TTileDownloaderBase.Create(FMapType.ContentType, 1, GState.InetConnect);
+  VDownloader := TTileDownloaderBase.Create(FMapType.IgnoreContentType,
+    FMapType.ContentType, FMapType.DefaultContentType, 1, GState.InetConnect);
   VDownloader.SleepOnResetConnection := FMapType.Sleep;
   VDownloader.WaitInterval := FMapType.Sleep;
   Result := VDownloader;

@@ -47,6 +47,8 @@ type
     FGetURLScript: string;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
+    FIgnoreContent_Type: Boolean;
+    FDefaultContent_Type: string;
     FContent_Type: string;
     FStatus_Code: string;
     FBanIfLen: integer;
@@ -122,13 +124,14 @@ type
     DefNameInCache: string;
     NameInCache: string;
 
-    NSmItem: TTBXItem;
-    TBItem: TTBXItem;
-    NLayerParamsItem: TTBXItem;
-    TBFillingItem: TTBXItem;
-    TBSubMenuItem: TTBXSubmenuItem;
-    NDwnItem: TMenuItem;
-    NDelItem: TMenuItem;
+    NSmItem: TTBXItem; //Пункт контекстного меню мини карты
+    MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
+    MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
+    TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
+
+    NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+    NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
+    NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -204,6 +207,8 @@ type
     property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
+    property IgnoreContentType: Boolean read FIgnoreContent_Type;
+    property DefaultContentType: string read FDefaultContent_Type;
     property ContentType: string read FContent_Type;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
@@ -300,36 +305,36 @@ begin
   if i>0 then begin
     for i:=0 to length(GState.MapType)-1 do begin
       With GState.MapType[i] do begin
-        TBItem:=TTBXItem.Create(Fmain.TBSMB);
+        MainToolbarItem:=TTBXItem.Create(Fmain.TBSMB);
         if ParentSubMenu='' then begin
           if asLayer then begin
-            Fmain.TBLayerSel.Add(TBItem);
+            Fmain.TBLayerSel.Add(MainToolbarItem);
           end else begin
-            Fmain.TBSMB.Add(TBItem);
+            Fmain.TBSMB.Add(MainToolbarItem);
           end;
         end else begin
           j:=0;
           While GState.MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
-          TBSubMenuItem:=TTBXSubmenuItem.Create(Fmain.TBSMB);
-          TBSubMenuItem.caption:=ParentSubMenu;
-          TBSubMenuItem.Images:=Fmain.MapIcons18;
           if j=i then begin
+            MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(Fmain.TBSMB);
+            MainToolbarSubMenuItem.caption:=ParentSubMenu;
+            MainToolbarSubMenuItem.Images:=Fmain.MapIcons18;
             if asLayer then begin
-              Fmain.TBLayerSel.Add(TBSubMenuItem)
+              Fmain.TBLayerSel.Add(MainToolbarSubMenuItem)
             end else begin
-              Fmain.TBSMB.Add(TBSubMenuItem);
+              Fmain.TBSMB.Add(MainToolbarSubMenuItem);
             end;
           end;
-          GState.MapType[j].TBSubMenuItem.Add(TBItem);
+          GState.MapType[j].MainToolbarSubMenuItem.Add(MainToolbarItem);
         end;
         Fmain.MapIcons24.AddMasked(Fbmp24,RGB(255,0,255));
         Fmain.MapIcons18.AddMasked(Fbmp18,RGB(255,0,255));
-        TBItem.Name:='TBMapN'+inttostr(id);
-        TBItem.ShortCut:=HotKey;
-        TBItem.ImageIndex:=i;
-        TBItem.Caption:=name;
-        TBItem.OnAdjustFont:=Fmain.AdjustFont;
-        TBItem.OnClick:=Fmain.TBmap1Click;
+        MainToolbarItem.Name:='TBMapN'+inttostr(id);
+        MainToolbarItem.ShortCut:=HotKey;
+        MainToolbarItem.ImageIndex:=i;
+        MainToolbarItem.Caption:=name;
+        MainToolbarItem.OnAdjustFont:=Fmain.AdjustFont;
+        MainToolbarItem.OnClick:=Fmain.TBmap1Click;
 
         TBFillingItem:=TTBXItem.Create(Fmain.TBFillingTypeMap);
         TBFillingItem.name:='TBMapFM'+inttostr(id);
@@ -374,22 +379,22 @@ begin
           Fmain.NLayerParams.Add(NLayerParamsItem);
         end;
         if (asLayer)and(active) then begin
-          TBItem.Checked:=true;
+          MainToolbarItem.Checked:=true;
         end;
         if separator then begin
-          TBItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
+          MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
           if NSmItem<>NIL  then begin
             NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
           end;
           TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
         end;
         if (active)and(GState.MapType[i].asLayer=false) then begin
-          GState.sat_map_both:=GState.MapType[i];
+          GState.SetMainSelectedMap(GState.MapType[i]);
         end;
         if (ShowOnSmMap)and(not(asLayer)) then begin
           FMain.FMiniMap.maptype:=GState.MapType[i];
         end;
-        TBItem.Tag:=Longint(GState.MapType[i]);
+        MainToolbarItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);
         if IsCanShowOnSmMap then begin
           NSmItem.Tag:=Longint(GState.MapType[i]);
@@ -419,7 +424,7 @@ begin
     Fmain.NMMtype_0.Checked:=true;
   end;
   if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
-    GState.sat_map_both:=GState.MapType[0];
+    GState.SetMainSelectedMap(GState.MapType[0]);
   end;
 end;
 function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;
@@ -448,7 +453,7 @@ var
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
-  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
+  Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
   i:=0;
   pnum:=0;
   startdir:=GState.MapsPath;
@@ -544,7 +549,7 @@ var
   i: integer;
   VGUIDString: string;
 begin
-  Ini:=TMeminiFile.Create(GState.ProgramPath+'Maps\Maps.ini');
+  Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
   try
     for i:=0 to length(GState.MapType)-1 do begin
       VGUIDString := GState.MapType[i].GUIDString;
@@ -753,7 +758,9 @@ begin
   Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
   DefSleep:=Sleep;
   FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
-  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image\jpg');
+  FIgnoreContent_Type:=AIniFile.ReadBool('PARAMS','IgnoreContentType', False);
+  FDefaultContent_Type:=AIniFile.ReadString('PARAMS','DefaultContentType','image/jpg');
+  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image/jpg');
   FStatus_Code:=AIniFile.ReadString('PARAMS','ValidStatusCode','200');
   FUseDwn:=AIniFile.ReadBool('PARAMS','UseDwn',true);
 end;
@@ -867,6 +874,7 @@ begin
     ct:=CacheType;
   end;
   result := NameInCache;
+  //TODO: С этим бардаком нужно что-то будет сделать
   if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0)) then begin
     case ct of
       1: begin
@@ -886,6 +894,7 @@ begin
       end;
     end;
   end;
+  //TODO: С этим бардаком нужно что-то будет сделать
   if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0))then begin
     result:=GState.ProgramPath+result;
   end;
@@ -914,7 +923,7 @@ var
   VPath: String;
 begin
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    result:=GETileExists(GetBasePath+'\dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
+    result:=GETileExists(IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
   end else begin
     VPath := GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
@@ -1025,7 +1034,7 @@ begin
   VMemCacheKey := GetMemCacheKey(AXY, Azoom);
   if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
     if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
-      result:=GetGETile(btm,GetBasePath+'\dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      result:=GetGETile(btm, IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
       if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
     end else begin
       result:=true;
@@ -1151,7 +1160,7 @@ end;
 procedure TMapType.CreateDirIfNotExists(APath:string);
 var i:integer;
 begin
- i := LastDelimiter('\', Apath);
+ i := LastDelimiter(PathDelim, Apath);
  Apath:=copy(Apath, 1, i);
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
 end;
@@ -1798,14 +1807,21 @@ function TMapType.LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean; IgnoreError: Boolean): boolean;
 var
   VRect: TRect;
+  VSize: TPoint;
+  bSpr:TBitmap32;
 begin
   if TileExists(AXY, Azoom) then begin
     Result := LoadTile(spr, AXY, Azoom, caching);
     if Result then begin
       VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
-      if (spr.Width < VRect.Right - VRect.Left + 1) or
-        (spr.Height < VRect.Bottom - VRect.Top + 1) then begin
-        Result := false;
+      VSize := Point(VRect.Right - VRect.Left + 1, VRect.Bottom - VRect.Top + 1);
+      if (spr.Width < VSize.X) or
+        (spr.Height < VSize.Y) then begin
+        bSpr:=TBitmap32.Create;
+        bSpr.Assign(spr);
+        spr.SetSize(VSize.X, VSize.Y);
+        spr.Draw(0,0,bSpr);
+        bSpr.Free;
       end;
     end;
     if not Result then begin

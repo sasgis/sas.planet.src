@@ -1537,11 +1537,11 @@ begin
  GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
  GState.GSMpar.WaitingAnswer:=GState.MainIni.ReadInteger('GSM','WaitingAnswer',200);
 
- GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old\');
- GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache\');
- GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES\');
- GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt\');
- GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE\');
+ GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
+ GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
+ GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
+ GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
+ GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
   VScreenCenterPos := Point(
     GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
@@ -1681,7 +1681,7 @@ begin
       VGUID := StringToGUID(param);
       for i:=0 to length(GState.MapType)-1 do begin
         if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-          GState.sat_map_both:=GState.MapType[i];
+          GState.SetMainSelectedMap(GState.MapType[i]);
         end;
       end;
     end;
@@ -2134,7 +2134,7 @@ begin
   ShowMessage('Временно не работает');
 //  WinDirP:=StrAlloc(MAX_PATH);
 //  GetWindowsDirectory(WinDirP, MAX_PATH);
-//  path := StrPas(WinDirP)+'\SASwallpaper.bmp';
+//  path := IncludeTrailingPathDelimiter(StrPas(WinDirP))+'SASwallpaper.bmp';
 //  btm_ex:=TBitmap.Create;
 //  try
 //    btm_ex.Assign(MainLayerMap.bitmap);
@@ -2144,7 +2144,7 @@ begin
 //  end;
 //  with TRegIniFile.Create('Control Panel') do
 //   begin
-//    WriteString('desktop', 'Wallpaper', StrPas(WinDirP)+'\SASwallpaper.bmp');
+//    WriteString('desktop', 'Wallpaper', IncludeTrailingPathDelimiter(StrPas(WinDirP))+'SASwallpaper.bmp');
 //    WriteString('desktop', 'TileWallpaper', '0');
 //    free;
 //   end;
@@ -2178,9 +2178,8 @@ begin
     VZoomCurr := GState.zoom_size - 1;
     GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
     s:=GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
-    for i:=length(s) downto 0 do if s[i]='\'then break;
-    // Открыть папку с фалом в проводнике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
-    ShellExecute(0,'open',PChar(copy(s,1,i)),nil,nil,SW_SHOWNORMAL);
+    s := ExtractFilePath(s);
+    ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
   end;
@@ -2317,11 +2316,11 @@ begin
       ShowMessage(AMapType.MapInfo);
       AMapType.showinfo:=false;
     end;
-    GState.sat_map_both.TBItem.Checked:=false;
+    GState.sat_map_both.MainToolbarItem.Checked:=false;
     GState.sat_map_both.active:=false;
-    GState.sat_map_both := AMapType;
-    TBSMB.ImageIndex := GState.sat_map_both.TBItem.ImageIndex;
-    GState.sat_map_both.TBItem.Checked:=true;
+    GState.SetMainSelectedMap(AMapType);
+    TBSMB.ImageIndex := GState.sat_map_both.MainToolbarItem.ImageIndex;
+    GState.sat_map_both.MainToolbarItem.Checked:=true;
     GState.sat_map_both.active:=true;
     if GState.Showmapname then begin
       TBSMB.Caption:=GState.sat_map_both.name;
@@ -2332,7 +2331,7 @@ begin
     AMapType.active := not(AMapType.active);
     for i:=0 to length(GState.MapType)-1 do begin
       if GState.MapType[i].asLayer then begin
-        GState.MapType[i].TBItem.Checked:=GState.MapType[i].active;
+        GState.MapType[i].MainToolbarItem.Checked:=GState.MapType[i].active;
       end;
     end;
   end;
@@ -2744,8 +2743,6 @@ begin
 end;
 
 procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
-var ini:TMemIniFile;
-    i:integer;
 begin
  if (OpenDialog1.Execute) then begin
    Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
@@ -2912,15 +2909,24 @@ begin
 end;
 
 procedure TFmain.mapDblClick(Sender: TObject);
-var r:TPoint;
+var
+  r: TPoint;
+  i: Integer;
+  VLayer: TCustomLayer;
 begin
- if not(FMiniMap.LayerMinMap.HitTest(map.ScreenToClient(Mouse.CursorPos).X, map.ScreenToClient(Mouse.CursorPos).y)) then begin
-   MapMoving:=false;
-   if (aoper=ao_movemap) then begin
-     r:=map.ScreenToClient(Mouse.CursorPos);
-     Set_Pos(VisiblePixel2MapPixel(r));
-   end;
- end;
+  r:=map.ScreenToClient(Mouse.CursorPos);
+  for i := 0 to map.Layers.Count - 1 do begin
+    VLayer := map.Layers[i];
+    if VLayer.MouseEvents then begin
+      if VLayer.HitTest(r.X, r.Y) then begin
+        Exit;
+      end;
+    end;
+  end;
+  MapMoving:=false;
+  if (aoper=ao_movemap) then begin
+    Set_Pos(VisiblePixel2MapPixel(r));
+  end;
 end;
 
 procedure TFmain.TBAdd_PointClick(Sender: TObject);
@@ -2942,10 +2948,7 @@ procedure TFmain.NMarkEditClick(Sender: TObject);
 var arr:TExtendedPointArray;
     op:TAOperation;
 begin
- FWikiLayer.MouseOnReg(PWL,moveTrue);
  EditMarkId:=strtoint(PWL.numid);
-// if EditMarkF(strtoint(PWL.numid)) then generate_im;
- //setalloperationfalse
  op:=EditMarkF(EditMarkId,arr);
  if op=ao_edit_line then begin
    setalloperationfalse(ao_edit_line);
@@ -3211,6 +3214,9 @@ begin
     HintWindow.ReleaseHandle;
     FreeAndNil(HintWindow);
   end;
+  if (Layer <> nil) then begin
+    exit;
+  end;
   if (layer=FMiniMap.LayerMinMap) then exit;
   if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
@@ -3314,9 +3320,14 @@ var PWL:TResObj;
     VSourcePoint: TPoint;
     VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
+  VMapMoving: Boolean;
 begin
+  if (Layer <> nil) then begin
+    exit;
+  end;
  if (layer=FMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
+ VMapMoving := MapMoving;
  MapMoving:=false;
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x, y));
@@ -3360,8 +3371,11 @@ begin
     exit;
    end;
 
- POSb:=ScreenCenterPos;
- Set_Pos(Point(ScreenCenterPos.x+(MouseDownPoint.x-x),ScreenCenterPos.y+(MouseDownPoint.y-y)));
+ if VMapMoving then begin
+   POSb:=ScreenCenterPos;
+   Set_Pos(Point(posB.x+(MouseDownPoint.x-x),posB.y+(MouseDownPoint.y-y)));
+ end;
+
  MouseUpPoint:=Point(x,y);
  if Layer <> nil then begin
    layer.Cursor:=curBuf;
@@ -3508,6 +3522,10 @@ begin
   if ProgramClose then begin
     exit;
   end;
+  if (Layer <> nil) then begin
+    moveTrue:=point(x,y);
+    exit;
+  end;
  if (Layer=FMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
@@ -3516,7 +3534,9 @@ begin
          exit;
         end;
  CState:=ShowCursor(True);
- while CState < 0 do CState:= ShowCursor(true);
+ while CState < 0 do begin
+  CState:= ShowCursor(true);
+ end;
  sleep(5);
  VZoomCurr := GState.zoom_size - 1;
  VPoint := VisiblePixel2MapPixel(Point(x,y));

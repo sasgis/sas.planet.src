@@ -106,7 +106,6 @@ type
     Label84: TLabel;
     Bevel13: TBevel;
     CBShowmapname: TCheckBox;
-    RadioGroup1: TRadioGroup;
     CBinvertcolor: TCheckBox;
     SESizeStr: TSpinEdit;
     Label11: TLabel;
@@ -245,6 +244,8 @@ type
     Bevel16: TBevel;
     Label36: TLabel;
     SEWaitingAnswer: TSpinEdit;
+    Label37: TLabel;
+    CBCacheType: TComboBox;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -527,7 +528,11 @@ begin
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  GState.ShowBorderText:=CBBorderText.Checked;
- GState.DefCache:=RadioGroup1.itemindex+1;
+ if CBCacheType.ItemIndex >= 0 then begin
+  GState.DefCache := CBCacheType.ItemIndex+1;
+ end else begin
+  GState.DefCache := 2;
+ end;
  GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  FMain.FMiniMap.alpha:=SpinEditMiniMap.Value;
@@ -626,11 +631,11 @@ end;
 
 procedure TFSettings.Button4Click(Sender: TObject);
 begin
- if (sender as TButton).Tag=1 then OldCpath.Text:='cache_old\';
- if (sender as TButton).Tag=2 then NewCpath.Text:='cache\';
- if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es\';
- if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt\';
- if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge\';
+ if (sender as TButton).Tag=1 then OldCpath.Text:='cache_old' + PathDelim;
+ if (sender as TButton).Tag=2 then NewCpath.Text:='cache' + PathDelim;
+ if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es' + PathDelim;
+ if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt' + PathDelim;
+ if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge' + PathDelim;
 end;
 
 procedure TFSettings.Button5Click(Sender: TObject);
@@ -638,11 +643,11 @@ var  TempPath: string;
 begin
   if SelectDirectory('', '', TempPath) then
   begin
-    if (sender as TButton).Tag=1 then OldCpath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=2 then NewCpath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=3 then ESCpath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=4 then GMTilesPath.Text:=String(TempPath)+'\';
-    if (sender as TButton).Tag=5 then GECachePath.Text:=String(TempPath)+'\';
+    if (sender as TButton).Tag=1 then OldCpath.Text:= IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=2 then NewCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=3 then ESCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
 
@@ -685,7 +690,7 @@ begin
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=GState.ShowBorderText;
- RadioGroup1.ItemIndex:=GState.DefCache-1;
+ CBCacheType.ItemIndex:=GState.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
  SpinEditMiniMap.Value:=FMain.FMiniMap.alpha;
