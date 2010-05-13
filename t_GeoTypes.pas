@@ -6,6 +6,10 @@ uses
   Types;
 
 type
+  TDoublePoint = record
+    X, Y: Double;
+  end;
+
   TExtendedPoint = record
     X, Y: Extended;
   end;
