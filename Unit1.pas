@@ -1667,8 +1667,8 @@ begin
  toSh;
  ProgramStart:=false;
 
- if Vzoom_mapzap<>0 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
-                   else TBMapZap.Caption:='';
+ if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
+                     else TBMapZap.Caption:='';
  selectMap(GState.sat_map_both);
  RxSlider1.Value:=GState.Zoom_size-1;
 
@@ -2250,7 +2250,7 @@ end;
 //карта заполнения в основном окне
 procedure TFmain.NFillMapClick(Sender: TObject);
 begin
-  if FFillingMap.SourceZoom > 0 then begin
+  if FFillingMap.SourceZoom > -1 then begin
     TBXToolPalette1.SelectedCell:=Point((FFillingMap.SourceZoom + 1) mod 5,(FFillingMap.SourceZoom + 1) div 5);
   end else begin
     TBXToolPalette1.SelectedCell:=Point(0,0);
@@ -2259,12 +2259,12 @@ end;
 
 procedure TFmain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
 var
-  Vzoom_mapzap: byte;
+  Vzoom_mapzap: integer;
 begin
- Vzoom_mapzap:=(5*ARow)+ACol;
- if Vzoom_mapzap>0 then begin
-  TBMapZap.Caption:='x'+inttostr(Vzoom_mapzap);
-  Vzoom_mapzap := Vzoom_mapzap - 1;
+ Vzoom_mapzap:=((5*ARow)+ACol)-1;
+ if Vzoom_mapzap>-1 then begin
+  TBMapZap.Caption:='x'+inttostr(Vzoom_mapzap+1);
+  Vzoom_mapzap := Vzoom_mapzap;
   end else begin
    TBMapZap.Caption:='';
   end;

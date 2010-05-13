@@ -209,6 +209,7 @@ function TTileDownloaderBase.IsTileNotExistStatus(
 begin
   case AStatusCode of
     HTTP_STATUS_NO_CONTENT,
+    HTTP_STATUS_BAD_REQUEST,
     HTTP_STATUS_NOT_FOUND:
     begin
       Result := True;

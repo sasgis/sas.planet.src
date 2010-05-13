@@ -21,17 +21,17 @@ type
     FThread: TThread;
     FSourceMapType: TMapType;
     FSourceSelected: TMapType;
-    FSourceZoom: Byte;
+    FSourceZoom: integer;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     destructor Destroy; override;
-    procedure SetSourceMap(AMapType: TMapType; AZoom: Byte);
+    procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Hide; override;
     procedure Redraw; override;
     property SourceSelected: TMapType read FSourceSelected;
-    property SourceZoom: Byte read FSourceZoom;
+    property SourceZoom: integer read FSourceZoom;
   end;
 
 implementation
@@ -81,7 +81,7 @@ end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  if (FSourceMapType <> nil) and (FZoom <= FSourceZoom) and (FGeoConvert <> nil) then begin
+  if (FSourceMapType<>nil)and(FZoom<=FSourceZoom)and(FGeoConvert<>nil) then begin
     inherited;
     TMapFillingThread(FThread).PrepareToChangeScene;
     if FSourceSelected = nil then begin
@@ -154,7 +154,7 @@ begin
   Resize;
 end;
 
-procedure TMapFillingLayer.SetSourceMap(AMapType: TMapType; AZoom: Byte);
+procedure TMapFillingLayer.SetSourceMap(AMapType: TMapType; AZoom: integer);
 var
   VFullRedraw: Boolean;
 begin
