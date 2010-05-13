@@ -3217,13 +3217,9 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
-  if (layer=FMiniMap.LayerMinMap) then exit;
   if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
-  if Layer <> nil then begin
-    Layer.Cursor:=curBuf;
-  end;
   VZoomCurr := GState.zoom_size - 1;
   VPoint := VisiblePixel2MapPixel(Point(x, y));
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
@@ -3325,7 +3321,6 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
- if (layer=FMiniMap.LayerMinMap) then exit;
  if (ssDouble in Shift) then exit;
  VMapMoving := MapMoving;
  MapMoving:=false;
@@ -3365,9 +3360,6 @@ begin
    begin
     TBFullSize.Checked:=not(TBFullSize.Checked);
     TBFullSizeClick(Sender);
-    if Layer <> nil then begin
-      layer.Cursor:=curBuf;
-    end;
     exit;
    end;
 
@@ -3377,9 +3369,6 @@ begin
  end;
 
  MouseUpPoint:=Point(x,y);
- if Layer <> nil then begin
-   layer.Cursor:=curBuf;
- end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
    toSh;
@@ -3411,9 +3400,6 @@ begin
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
-    if Layer <> nil then begin
-      layer.Cursor:=curBuf;
-    end;
     PWL.S:=0;
     PWL.find:=false;
     if (FWikiLayer.Visible) then
@@ -3526,7 +3512,7 @@ begin
     moveTrue:=point(x,y);
     exit;
   end;
- if (Layer=FMiniMap.LayerMinMap)or(MapZoomAnimtion>0)or(
+ if (MapZoomAnimtion>0)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
    then begin
@@ -3548,7 +3534,7 @@ begin
    LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    exit;
   end;
- if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))and(layer<>FMiniMap.LayerMinMap)
+ if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))
          then begin
                FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
                LayerMapNal.DrawNothing;
@@ -3612,9 +3598,6 @@ begin
      HintWindow.ReleaseHandle;
      FreeAndNil(HintWindow);
     end;
-   if Layer <> nil then begin
-     Layer.Cursor:=curBuf;
-   end;
   end;
  ShowActivHint:=false;
  if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
@@ -3660,9 +3643,6 @@ begin
         end;
        inc(i);
       end;
-     if Layer <> nil then begin
-      layer.Cursor:=crHandPoint;
-     end;
      if nms<>'' then
      begin
       if HintWindow=nil then
