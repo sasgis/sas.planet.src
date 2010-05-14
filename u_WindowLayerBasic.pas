@@ -7,13 +7,14 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_BitmapLayerWithSortIndex;
 
 type
   TWindowLayerBasic = class
   protected
     FParentMap: TImage32;
-    FLayer: TBitmapLayer;
+    FLayer: TBitmapLayerWithSortIndex;
 {
  »спользуемые системы координат:
  VisualPixel - координаты в пикселах компонента ParentMap
@@ -21,6 +22,9 @@ type
 }
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
+
+    // ¬ наследниках нужно перекрывать если уровень сло€ выше чем бекграунд.
+    function GetSortIndexForLayer: Integer; virtual;
 
     // ѕолучает размер отображаемого изображени€. ѕо сути коордниаты картинки в системе VisualPixel
     function GetVisibleSizeInPixel: TPoint; virtual;
@@ -65,7 +69,7 @@ uses
 constructor TWindowLayerBasic.Create(AParentMap: TImage32);
 begin
   FParentMap := AParentMap;
-  FLayer := TBitmapLayer.Create(FParentMap.Layers);
+  FLayer := TBitmapLayerWithSortIndex.Create(FParentMap.Layers, GetSortIndexForLayer);
 
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
@@ -222,6 +226,11 @@ begin
 
   Result.X := (Pnt.X - VFreezePointInBitmapPixel.X) * VScale + VFreezePointInVisualPixel.X;
   Result.Y := (Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y;
+end;
+
+function TWindowLayerBasic.GetSortIndexForLayer: Integer;
+begin
+  Result := 0;
 end;
 
 end.
