@@ -264,7 +264,7 @@ begin
 
             FileBuf:=TMemoryStream.Create;
             try
-              if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom)) then begin
+              if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom))and(GState.SaveTileNotExists) then begin
                 res := dtrTileNotExists;
               end else begin
                 res:=FTypeMap.DownloadTile(FLoadXY, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);

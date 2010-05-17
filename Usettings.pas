@@ -323,11 +323,7 @@ begin
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',FMain.FMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',FMain.FMiniMap.alpha);
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
- if Fmain.FFillingMap.SourceZoom > 0 then begin
-   GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom + 1);
- end else begin
-   GState.MainIni.Writeinteger('VIEW','MapZap', 0);
- end;
+ GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
  GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
  GState.MainIni.Writebool('VIEW','CiclMap',GState.CiclMap);

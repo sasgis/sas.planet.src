@@ -23,7 +23,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1853,7 +1853,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'COM1'
       end

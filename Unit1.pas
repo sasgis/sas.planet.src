@@ -1378,7 +1378,7 @@ var
      VGUID: TGUID;
      VGUIDString: string;
   VFillingmaptype: TMapType;
-  Vzoom_mapzap: Byte;
+  Vzoom_mapzap: integer;
   VScreenCenterPos: TPoint;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
@@ -1462,7 +1462,7 @@ begin
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
  GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
- Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',0);
+ Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  GState.TileGridZoom:=GState.MainIni.readinteger('VIEW','grid',0);
  GState.MouseWheelInv:=GState.MainIni.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
