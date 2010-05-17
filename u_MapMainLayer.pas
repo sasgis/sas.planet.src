@@ -290,12 +290,12 @@ begin
           end;
 
           if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
-            VTilePixelsToDraw.Right := VPixelSourceRect.Right - VCurrTilePixelRectSource.Left + 1;
+            VTilePixelsToDraw.Right := VTilePixelsToDraw.Right - (VCurrTilePixelRectSource.Right - VPixelSourceRect.Right);
             VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
           end;
 
           if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
-            VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top + 1;
+            VTilePixelsToDraw.Bottom := VTilePixelsToDraw.Bottom - (VCurrTilePixelRectSource.Bottom - VPixelSourceRect.Bottom);
             VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
           end;
 
