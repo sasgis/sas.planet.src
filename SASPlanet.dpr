@@ -1,3 +1,4 @@
+// JCL_DEBUG_EXPERT_INSERTJDBG ON
 program SASPlanet;
 
 uses
@@ -7,6 +8,7 @@ uses
   sysutils,
   windows,
   IJL in 'src\ijl.pas',
+  JclNotify in 'src\JclNotify.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWWriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',

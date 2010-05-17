@@ -9,6 +9,7 @@ uses
   IniFiles,
   SyncObjs,
   GR32,
+  JclNotify,
   t_GeoTypes,
   t_CommonTypes,
   i_IMemObjCache,
@@ -27,6 +28,7 @@ type
   TGlobalState = class
   private
     FMainSelectedMap: TMapType;
+    FMainMapChangeNotifier: IJclNotifier;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
@@ -253,6 +255,7 @@ type
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
     property sat_map_both: TMapType read FMainSelectedMap;
+    property MainMapChangeNotifier: IJclNotifier read FMainMapChangeNotifier;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -276,6 +279,7 @@ uses
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
+  u_MapChangeMessage,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
@@ -288,6 +292,7 @@ var
   VList: IListOfObjectsWithTTL;
 begin
   FDwnCS := TCriticalSection.Create;
+  FMainMapChangeNotifier := TJclBaseNotifier.Create;
   All_Dwn_Kb := 0;
   All_Dwn_Tiles := 0;
   InetConnect := TInetConnect.Create;
@@ -313,6 +318,7 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FreeAndNil(FDwnCS);
+  FMainMapChangeNotifier := nil;
   MainIni.UpdateFile;
   FreeAndNil(MainIni);
   FreeMarkIcons;
@@ -472,8 +478,16 @@ begin
 end;
 
 procedure TGlobalState.SetMainSelectedMap(const Value: TMapType);
+var
+  VOldSelected: TMapType;
+  VMessage: IJclNotificationMessage;
 begin
-  FMainSelectedMap := Value;
+  VOldSelected := TMapType(InterlockedExchange(Integer(FMainSelectedMap), Integer(Value)));
+  if VOldSelected <> Value then begin
+    VMessage := TMapChangeMessage.Create(VOldSelected, Value);
+    FMainMapChangeNotifier.Notify(VMessage);
+    VMessage := nil;
+  end;
 end;
 
 end.
