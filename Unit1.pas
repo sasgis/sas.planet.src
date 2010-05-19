@@ -67,6 +67,7 @@ uses
   u_MapLayerNavToMark,
   u_MapFillingLayer,
   u_MiniMap,
+  u_MiniMapLayer,
   u_MapNalLayer,
   u_MapLayerGoto,
   u_MapLayerShowError,
@@ -557,6 +558,7 @@ type
     FTileSource: TTileSource;
     FScreenCenterPos: TPoint;
     FMainLayer: TMapMainLayer;
+    FMiniMapLayer: TMiniMapLayer;
     LayerStatBar: TLayerStatBar;
     FShowErrorLayer: TTileErrorInfoLayer;
     FWikiLayer: TWikiLayer;
@@ -590,6 +592,7 @@ type
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
+    procedure MiniMapChangePos(APoint: TPoint; AZoom: Byte);
   public
     FFillingMap: TMapFillingLayer;
     LayerMapMarks: TMapMarksLayer;
@@ -736,7 +739,7 @@ begin
   LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-
+  FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
@@ -1558,6 +1561,7 @@ begin
   LayerMapNal:=TMapNalLayer.Create(map, VScreenCenterPos);
   LayerMapNal.Visible:=false;
 
+
   LayerGoto := TGotoLayer.Create(map, VScreenCenterPos);
   LayerMapNavToMark := TNavToMarkLayer.Create(map, VScreenCenterPos);
   FShowErrorLayer := TTileErrorInfoLayer.Create(map, VScreenCenterPos);
@@ -1569,6 +1573,10 @@ begin
   FMiniMap.LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
   FMiniMap.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
   FMiniMap.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
+
+  FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos, MapIcons18);
+  FMiniMapLayer.Visible := True;
+  FMiniMapLayer.OnChangePos := MiniMapChangePos;
 
  CreateMapUI;
 
@@ -1864,6 +1872,7 @@ begin
   FreeAndNil(LayerMapNal);
   FreeAndNil(LayerMapNavToMark);
   FreeAndNil(FMainLayer);
+  FreeAndNil(FMiniMapLayer);
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -2737,6 +2746,7 @@ begin
    LayerGoto.Resize;
    FShowErrorLayer.Resize;
    LayerMapNavToMark.Resize;
+   FMiniMapLayer.Resize;
    toSh;
    FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos)
   end;
@@ -4343,6 +4353,11 @@ end;
 procedure TFmain.NGoToCurClick(Sender: TObject);
 begin
   GState.ZoomingAtMousePos := (Sender as TTBXItem).Checked
+end;
+
+procedure TFmain.MiniMapChangePos(APoint: TPoint; AZoom: Byte);
+begin
+  Set_Pos(APoint, AZoom);
 end;
 
 end.
