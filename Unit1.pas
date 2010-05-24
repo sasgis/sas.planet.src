@@ -658,7 +658,6 @@ const
 var
   Fmain: TFmain;
 
-  function c_GetTempPath: string;
   procedure CopyStringToClipboard(s: Widestring);
   procedure CopyBtmToClipboard(btm: TBitmap);
   function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
@@ -1005,12 +1004,6 @@ procedure TFmain.insertinpath(pos: integer);
 begin
  SetLength(add_line_arr,length(add_line_arr)+1);
  CopyMemory(Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),@add_line_arr[pos],(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
-end;
-
-function c_GetTempPath: string;
-var Buffer: array[0..1023] of Char;
-begin
-  SetString(Result, Buffer, GetTempPath(Sizeof(Buffer) - 1,Buffer));
 end;
 
 procedure TFmain.delfrompath(pos: integer);
