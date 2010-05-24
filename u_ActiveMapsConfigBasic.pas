@@ -147,6 +147,13 @@ begin
         VMessage := nil;
       end;
     end;
+  end else begin
+    VOldSelected := TMapType(InterlockedExchange(Integer(FSelectedMap), Integer(AMap)));
+    if VOldSelected <> AMap then begin
+      VMessage := TMapChangeMessage.Create(VOldSelected, AMap);
+      FMapChangeNotifier.Notify(VMessage);
+      VMessage := nil;
+    end;
   end;
 end;
 
