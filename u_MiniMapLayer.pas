@@ -15,6 +15,7 @@ uses
   GR32_Layers,
   JclNotify,
   t_GeoTypes,
+  i_MapTypes,
   i_IMapTypeMenuItmesList,
   i_IActiveMapsConfig,
   i_IMapChangeMessage,
@@ -46,8 +47,10 @@ type
     FDefoultMap: TBitmap32;
     FBitmapSize: TPoint;
     FMiniMapSameAsMain: TTBXItem;
-    FMapsList: IMapTypeMenuItmesList;
-    FLayersList: IMapTypeMenuItmesList;
+    FMapsList: IMapTypeList;
+    FLayersList: IMapTypeList;
+    FMapsItemsList: IMapTypeMenuItmesList;
+    FLayersItemsList: IMapTypeMenuItmesList;
     FMainMapChangeListener: IJclListener;
     FMapChangeListener: IJclListener;
     FHybrChangeListener: IJclListener;
@@ -117,6 +120,8 @@ uses
   u_GlobalState,
   u_WindowLayerBasic,
   u_MapTypeMenuItemsGeneratorForMiniMap,
+  u_MapTypeListGeneratorFromFullListForMiniMap,
+  u_MapTypeBasic,
   u_ActiveMapsConfigBasic,
   i_IBitmapTypeExtManager, Types;
 
@@ -181,10 +186,21 @@ end;
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(AParentMap: TImage32; ACenter: TPoint; AImages: TCustomImageList);
+var
+  VFactory: IMapTypeListFactory;
 begin
   inherited Create(AParentMap, ACenter);
   FViewRectMoveDelta := Point(0, 0);
-  FMapsActive := TActiveMapsConfigBasic.Create(nil);
+
+  VFactory := TMapTypeListGeneratorFromFullListForMiniMap.Create(True, TMapTypeBasicFactory.Create);
+  FMapsList := VFactory.CreateList;
+  VFactory := nil;
+
+  VFactory := TMapTypeListGeneratorFromFullListForMiniMap.Create(False, TMapTypeBasicFactory.Create);
+  FLayersList := VFactory.CreateList;
+  VFactory := nil;
+
+  FMapsActive := TActiveMapsConfigBasic.Create(nil, FMapsList, FLayersList);
 
   FZoomDelta := 3;
   FBitmapSize.X := 256;
@@ -244,6 +260,8 @@ begin
   FMapChangeListener := nil;
   FHybrChangeListener := nil;
   FMainMapChangeListener := nil;
+  FMapsItemsList := nil;
+  FLayersItemsList := nil;
   FMapsList := nil;
   FLayersList := nil;
   FMapsActive := nil;
@@ -311,7 +329,7 @@ begin
     FMiniMapSameAsMain.Checked := true;
     GState.MainMapChangeNotifier.Add(FMainMapChangeListener);
   end else begin
-    FMapsList.GetMapTypeItemByGUID(VMapType.GUID).GetMenuItem.Checked := true;
+//    FMapsList.GetMapTypeItemByGUID(VMapType.GUID).GetMenuItem.Checked := true;
   end;
 end;
 
@@ -325,7 +343,7 @@ begin
     VGenerator.ItemOnAdjustFont := AdjustFont;
     VGenerator.Images := FPopup.Images;
     VGenerator.MapsActive := FMapsActive;
-    FMapsList := VGenerator.BuildControls;
+    FMapsItemsList := VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
   end;
@@ -335,7 +353,7 @@ begin
     VGenerator.ItemOnAdjustFont := AdjustFont;
     VGenerator.Images := FPopup.Images;
     VGenerator.MapsActive := FMapsActive;
-    FLayersList := VGenerator.BuildControls;
+    FLayersItemsList := VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
   end;
@@ -418,7 +436,7 @@ var
   i: Cardinal;
   VMapType: TMapType;
   VGUID: TGUID;
-  VItem: IMapTypeMenuItem;
+  VItem: IMapType;
   VEnum: IEnumGUID;
 begin
   inherited;
@@ -431,7 +449,7 @@ begin
   DrawMap(VMapType, dmOpaque);
   VEnum := FLayersList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK  do begin
-    VItem := FLayersList.GetMapTypeItemByGUID(VGUID);
+    VItem := FLayersList.GetMapTypeByGUID(VGUID);
     VMapType := VItem.GetMapType;
     if FMapsActive.IsHybrSelected(VMapType) then begin
       DrawMap(VMapType, dmBlend);
