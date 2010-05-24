@@ -305,6 +305,7 @@ begin
   VLayersSubMenu := VSubMenuItem;
 
   BuildMapsListUI(FPopup.Items, VLayersSubMenu);
+
   VMapType := FMapsActive.SelectedMap;
   if VMapType = nil then begin
     FMiniMapSameAsMain.Checked := true;
@@ -709,18 +710,34 @@ end;
 procedure TMiniMapLayer.LayerMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 var
+  VBitmapSize: TPoint;
   VBitmapCenter: TPoint;
   VVisibleCenter: TPoint;
+  VVisibleRect: TRect;
 begin
   if FPosMoved then begin
-    if FLayer.HitTest(X, Y) then begin
-      VBitmapCenter := GetBitmapSizeInPixel;
-      VBitmapCenter := Point(VBitmapCenter.X div 2, VBitmapCenter.Y div 2);
-      VVisibleCenter := BitmapPixel2VisiblePixel(VBitmapCenter);
-      FViewRectMoveDelta := Point(X - VVisibleCenter.X, Y - VVisibleCenter.Y);
+    VBitmapSize := GetBitmapSizeInPixel;
+    VBitmapCenter := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
+    VVisibleCenter := BitmapPixel2VisiblePixel(VBitmapCenter);
+
+    VVisibleRect.TopLeft := BitmapPixel2VisiblePixel(Point(0, 0));
+    VVisibleRect.BottomRight := BitmapPixel2VisiblePixel(VBitmapSize);
+
+    if X < VVisibleRect.Left then begin
+      FViewRectMoveDelta.X := VVisibleRect.Left - VVisibleCenter.X;
+    end else if X > VVisibleRect.Right then begin
+      FViewRectMoveDelta.X := VVisibleRect.Right - VVisibleCenter.X;
     end else begin
-      FViewRectMoveDelta := Point(0, 0);
+      FViewRectMoveDelta.X := X - VVisibleCenter.X;
     end;
+    if Y < VVisibleRect.Top then begin
+      FViewRectMoveDelta.Y := VVisibleRect.Top - VVisibleCenter.Y;
+    end else if Y > VVisibleRect.Bottom then begin
+      FViewRectMoveDelta.Y := VVisibleRect.Bottom - VVisibleCenter.Y;
+    end else begin
+      FViewRectMoveDelta.Y := Y - VVisibleCenter.Y;
+    end;
+
     DrawMainViewRect;
   end;
 end;
@@ -739,10 +756,12 @@ begin
       VNewPos := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(VNewPos, VActualZoom), FZoom);
       FViewRectMoveDelta := Point(0, 0);
       DoChangePos(VNewPos);
+    end else begin
+      FViewRectMoveDelta := Point(0, 0);
+      DrawMainViewRect;
     end;
   end;
   FPosMoved := False;
-  FViewRectMoveDelta := Point(0, 0);
 end;
 
 procedure TMiniMapLayer.LeftBorderMouseDown(Sender: TObject;
