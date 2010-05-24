@@ -7,6 +7,7 @@ uses
   ImgList,
   TB2Item,
   TBX,
+  i_MapTypes,
   i_IMapTypeMenuItem,
   i_IMapTypeMenuItmesList,
   i_IActiveMapsConfig,
@@ -16,13 +17,13 @@ uses
 type
   TMapMenuGeneratorBasic = class
   protected
+    FList: IMapTypeList;
     FRootMenu: TTBCustomItem;
     FItemOnAdjustFont: TAdjustFontEvent;
     FItemOnClick: TNotifyEvent;
     FImages: TCustomImageList;
     FItemsFactory: IMapTypeMenuItemFactory;
     FMapsActive: IActiveMapsConfig;
-    function CheckIsAddMap(AMapType: TMapType): Boolean; virtual; abstract;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate(AList: TMapTypeMenuItmesList); virtual;
     function CreateSubMenuItem(AMapType: TMapType): TTBCustomItem; virtual;
@@ -30,6 +31,7 @@ type
     function GetParentMenuItem(AMapType: TMapType; AGroupsList: TStringList): TTBCustomItem; virtual;
   public
     function BuildControls: IMapTypeMenuItmesList;
+    property List: IMapTypeList read FList write FList;
     property RootMenu: TTBCustomItem read FRootMenu write FRootMenu;
     property ItemOnAdjustFont: TAdjustFontEvent read FItemOnAdjustFont write FItemOnAdjustFont;
     property ItemOnClick: TNotifyEvent read FItemOnClick write FItemOnClick;
@@ -41,6 +43,7 @@ type
 implementation
 
 uses
+  ActiveX,
   SysUtils,
   u_GlobalState,
   u_MapTypeMenuItemBasic;
@@ -119,6 +122,7 @@ var
   VMapType: TMapType;
   VMenuItem: TTBCustomItem;
   VSubMenu: TTBCustomItem;
+  VGUID: TGUID;
 begin
   VGroupsList := TStringList.Create;
   VGroupsList.Sorted := True;
@@ -126,7 +130,8 @@ begin
   try
     for i := 0 to Length(GState.MapType) - 1 do begin
       VMapType := GState.MapType[i];
-      if CheckIsAddMap(VMapType) then begin
+      VGUID := VMapType.GUID;
+      if FList.GetMapTypeByGUID(VGUID) <> nil then begin
         VSubMenu := GetParentMenuItem(VMapType, VGroupsList);
         VMenuItem := CreateItem(VMapType, i);
         VSubMenu.Add(VMenuItem);

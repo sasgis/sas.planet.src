@@ -119,7 +119,7 @@ uses
   u_GeoToStr,
   u_GlobalState,
   u_WindowLayerBasic,
-  u_MapTypeMenuItemsGeneratorForMiniMap,
+  u_MapTypeMenuItemsGeneratorBasic,
   u_MapTypeListGeneratorFromFullListForMiniMap,
   u_MapTypeBasic,
   u_ActiveMapsConfigBasic,
@@ -335,10 +335,11 @@ end;
 
 procedure TMiniMapLayer.BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
 var
-  VGenerator: TMapMenuGeneratorForMiniMapCommnon;
+  VGenerator: TMapMenuGeneratorBasic;
 begin
-  VGenerator := TMapMenuGeneratorForMiniMapForMaps.Create;
+  VGenerator := TMapMenuGeneratorBasic.Create;
   try
+    VGenerator.List := FMapsList;
     VGenerator.RootMenu := AMapssSubMenu;
     VGenerator.ItemOnAdjustFont := AdjustFont;
     VGenerator.Images := FPopup.Images;
@@ -347,8 +348,9 @@ begin
   finally
     FreeAndNil(VGenerator);
   end;
-  VGenerator := TMapMenuGeneratorForMiniMapForHybr.Create;
+  VGenerator := TMapMenuGeneratorBasic.Create;
   try
+    VGenerator.List := FLayersList;
     VGenerator.RootMenu := ALayersSubMenu;
     VGenerator.ItemOnAdjustFont := AdjustFont;
     VGenerator.Images := FPopup.Images;
