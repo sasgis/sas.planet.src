@@ -52,7 +52,8 @@ type
     FContent_Type: string;
     FStatus_Code: string;
     FBanIfLen: integer;
-    FUseAntiBan: integer;
+    FUsePreloadPage: integer;
+    FPreloadPage: string;
     FMaxConnectToServerCount: Cardinal;
     FRadiusA: extended;
     FRadiusB: extended;
@@ -266,7 +267,8 @@ uses
   u_MiniMap,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
-  u_CoordConverterSimpleLonLat;
+  u_CoordConverterSimpleLonLat,
+  SHDocVw;
 
 function GetMapFromID(id: TGUID): TMapType;
 var
@@ -754,7 +756,9 @@ begin
   FTileRect.Top:=AIniFile.ReadInteger('PARAMS','TileRTop',0);
   FTileRect.Right:=AIniFile.ReadInteger('PARAMS','TileRRight',0);
   FTileRect.Bottom:=AIniFile.ReadInteger('PARAMS','TileRBottom',0);
-  FUseAntiBan:=AIniFile.ReadInteger('PARAMS','UseAntiBan',0);
+  FUsePreloadPage:=AIniFile.ReadInteger('PARAMS','UsePreloadPage',0);
+  FPreloadPage:=AIniFile.ReadString('PARAMS','PreloadPage','');
+
   Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
   DefSleep:=Sleep;
   FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
@@ -1509,17 +1513,24 @@ var
   cnt: Integer;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (FUseAntiBan > 1) then begin
-    Result := (cnt mod FUseAntiBan) = 0;
+  if (FUsePreloadPage > 1) then begin
+    Result := (cnt mod FUsePreloadPage) = 0;
   end else begin
-    Result := (FUseAntiBan > 0) and  (cnt = 1);
+    Result := (FUsePreloadPage > 0) and  (cnt = 1);
   end;
 end;
 
 procedure TMapType.addDwnforban;
 begin
-  if (FUseAntiBan>0) then begin
-    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+  if (FUsePreloadPage>0) then begin
+    if FPreloadPage='' then begin
+      Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+    end else begin
+      Fmain.WebBrowser1.NavigateWait(FPreloadPage);
+    end;
+    while (Fmain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
+      Application.ProcessMessages;
+    end;
   end;
 end;
 

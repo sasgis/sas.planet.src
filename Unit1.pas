@@ -574,7 +574,7 @@ type
     length_arr: TExtendedPointArray;
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
-    PWL: TResObj;
+    FPWL: TResObj;
     LayerScaleLine: TLayerScaleLine;
     LayerMapNal: TMapNalLayer;
     LayerMapGPS: TMapGPSLayer;
@@ -2951,7 +2951,7 @@ procedure TFmain.NMarkEditClick(Sender: TObject);
 var arr:TExtendedPointArray;
     op:TAOperation;
 begin
- EditMarkId:=strtoint(PWL.numid);
+ EditMarkId:=strtoint(FPWL.numid);
  op:=EditMarkF(EditMarkId,arr);
  if op=ao_edit_line then begin
    setalloperationfalse(ao_edit_line);
@@ -2966,8 +2966,8 @@ end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- FWikiLayer.MouseOnReg(PWL,moveTrue);
- if DeleteMark(StrToInt(PWL.numid),Handle) then
+ FWikiLayer.MouseOnReg(FPWL,moveTrue);
+ if DeleteMark(StrToInt(FPWL.numid),Handle) then
   generate_im;
 end;
 
@@ -2978,8 +2978,8 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 begin
- FWikiLayer.MouseOnReg(PWL,moveTrue);
- OperationMark(strtoint(PWL.numid));
+ FWikiLayer.MouseOnReg(FPWL,moveTrue);
+ OperationMark(strtoint(FPWL.numid));
 end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
@@ -3279,25 +3279,25 @@ begin
   if MapMoving then exit;
   if (Button=mbright)and(aoper=ao_movemap) then begin
     MouseUpPoint:=point(x,y);
-    PWL.find:=false;
-    PWL.S:=0;
+    FPWL.find:=false;
+    FPWL.S:=0;
     if LayerMapMarks.Visible then begin
-      MouseOnMyReg(PWL,Point(x,y));
+      MouseOnMyReg(FPWL,Point(x,y));
     end;  
-    NMarkEdit.Visible:=PWL.find;
-    NMarkDel.Visible:=PWL.find;
-    NMarkSep.Visible:=PWL.find;
-    NMarkOper.Visible:=PWL.find;
-    NMarkNav.Visible:=PWL.find;
-    if (PWL.find)and(PWL.type_<>ROTpoint) then begin
-      NMarksCalcsSq.Visible:=(PWL.type_=ROTPoly);
-      NMarksCalcsPer.Visible:=(PWL.type_=ROTPoly);
-      NMarksCalcsLen.Visible:=(PWL.type_=ROTline);
+    NMarkEdit.Visible:=FPWL.find;
+    NMarkDel.Visible:=FPWL.find;
+    NMarkSep.Visible:=FPWL.find;
+    NMarkOper.Visible:=FPWL.find;
+    NMarkNav.Visible:=FPWL.find;
+    if (FPWL.find)and(FPWL.type_<>ROTpoint) then begin
+      NMarksCalcsSq.Visible:=(FPWL.type_=ROTPoly);
+      NMarksCalcsPer.Visible:=(FPWL.type_=ROTPoly);
+      NMarksCalcsLen.Visible:=(FPWL.type_=ROTline);
       NMarksCalcs.Visible:=true;
     end else begin
       NMarksCalcs.Visible:=false;
     end;
-    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(PWL.numid)) then begin
+    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(FPWL.numid)) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3312,7 +3312,7 @@ end;
 
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var PWL:TResObj;
+var VPWL:TResObj;
     posB:TPoint;
     stw:String;
     VPoint: TPoint;
@@ -3403,16 +3403,16 @@ begin
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
-    PWL.S:=0;
-    PWL.find:=false;
+    VPWL.S:=0;
+    VPWL.find:=false;
     if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(PWL, Point(x,y));
+     FWikiLayer.MouseOnReg(VPWL, Point(x,y));
     if (LayerMapMarks.Visible) then
-     MouseOnMyReg(PWL,Point(x,y));
-    if pwl.find then
+     MouseOnMyReg(VPWL,Point(x,y));
+    if VPWL.find then
      begin
       stw:='<HTML><BODY>';
-      stw:=pwl.descr;
+      stw:=VPWL.descr;
       stw:=stw+'</BODY></HTML>';
       TextToWebBrowser(stw,Fbrowser.EmbeddedWB1);
       Fbrowser.Visible:=true;
@@ -3605,25 +3605,25 @@ begin
  ShowActivHint:=false;
  if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
-   PWL.S:=0;
-   PWL.find:=false;
+   FPWL.S:=0;
+   FPWL.find:=false;
    if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(PWL,Point(x,y));
+     FWikiLayer.MouseOnReg(FPWL,Point(x,y));
    if (LayerMapMarks.Visible) then
-     MouseOnMyReg(PWL,Point(x,y));
-   if (PWL.find) then
+     MouseOnMyReg(FPWL,Point(x,y));
+   if (FPWL.find) then
     begin
      if HintWindow<>nil then HintWindow.ReleaseHandle;
-     if (length(PWL.name)>0) then
+     if (length(FPWL.name)>0) then
       begin
-       if System.Pos('<',PWL.name)>0 then nms:=HTML2Txt(PWL.name)
-                                     else nms:=PWL.name;
+       if System.Pos('<',FPWL.name)>0 then nms:=HTML2Txt(FPWL.name)
+                                     else nms:=FPWL.name;
       end;
-     if (length(PWL.descr)>0) then
+     if (length(FPWL.descr)>0) then
       begin
        if length(nms)>0 then nms:=nms+#13#10;
-       if System.Pos('<',PWL.descr)>0 then nms:=nms+HTML2Txt(PWL.descr)
-                                      else nms:=nms+PWL.descr;
+       if System.Pos('<',FPWL.descr)>0 then nms:=nms+HTML2Txt(FPWL.descr)
+                                      else nms:=nms+FPWL.descr;
       end;
      i:=1;
      j:=0;
@@ -3841,10 +3841,10 @@ var ms:TMemoryStream;
     arrLL:PArrLL;
     id:integer;
 begin
- FWikiLayer.MouseOnReg(PWL, moveTrue);
+ FWikiLayer.MouseOnReg(FPWL, moveTrue);
  if (not NMarkNav.Checked) then
   begin
-   id:=strtoint(PWL.numid);
+   id:=strtoint(FPWL.numid);
    if not(CDSmarks.Locate('id',id,[])) then exit;
    ms:=TMemoryStream.Create;
    TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -4004,17 +4004,17 @@ end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 begin
- MessageBox(Self.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), GState.num_format)),pchar(PWL.name),0);
+ MessageBox(Self.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(FPWL.numid)), GState.num_format)),pchar(FPWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
 begin
- MessageBox(Handle,pchar(SAS_STR_S+' - '+RoundEx(GetMarkSq(strtoint(PWL.numid)),2)+' '+SAS_UNITS_km+'2'),pchar(PWL.name),0);
+ MessageBox(Handle,pchar(SAS_STR_S+' - '+RoundEx(GetMarkSq(strtoint(FPWL.numid)),2)+' '+SAS_UNITS_km+'2'),pchar(FPWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 begin
- MessageBox(Handle,pchar(SAS_STR_P+' - '+DistToStrWithUnits(GetMarkLength(strtoint(PWL.numid)), GState.num_format)),pchar(PWL.name),0);
+ MessageBox(Handle,pchar(SAS_STR_P+' - '+DistToStrWithUnits(GetMarkLength(strtoint(FPWL.numid)), GState.num_format)),pchar(FPWL.name),0);
 end;
 
 procedure TFmain.TBEditPathOkClick(Sender: TObject);

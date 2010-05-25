@@ -72,6 +72,9 @@ begin
   if FTypeMap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
+      if FTypeMap.IncDownloadedAndCheckAntiBan then begin
+        Synchronize(FTypeMap.addDwnforban);
+      end;
       res :=FTypeMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
       if res = dtrBanError  then begin
         Synchronize(Ban);
@@ -79,17 +82,6 @@ begin
       FErrorString:=GetErrStr(res);
       if (res = dtrOK) or (res = dtrSameTileSize) then begin
         GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-      end;
-      case res of
-        dtrOK,
-        dtrSameTileSize,
-        dtrErrorMIMEType,
-        dtrTileNotExists,
-        dtrBanError: begin
-          if FTypeMap.IncDownloadedAndCheckAntiBan then begin
-            Synchronize(FTypeMap.addDwnforban);
-          end;
-        end;
       end;
       if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
         FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);

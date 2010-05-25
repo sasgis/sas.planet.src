@@ -41,8 +41,11 @@ end;
 
 destructor TPoolElement.Destroy;
 begin
+  try
   if FRefCount <> 0 then begin
     raise Exception.Create('Item locked');
+  end;
+  except
   end;
   FObject := nil;
   FFactory := nil;
