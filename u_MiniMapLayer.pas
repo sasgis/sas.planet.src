@@ -815,6 +815,8 @@ begin
     end;
     FBitmapSize.X := VNewWidth;
     FBitmapSize.Y := VNewWidth;
+    DoResizeBitmap;
+    DoRedraw;
     Resize;
   end;
 end;
@@ -842,7 +844,7 @@ begin
   if Button = mbLeft then begin
     if FMinusButtonPressed then begin
       if FMinusButton.HitTest(X, Y) then begin
-        if (FZoomDelta < 5) then begin
+        if (FZoomDelta < 10) then begin
           Inc(FZoomDelta);
           Redraw;
         end;
