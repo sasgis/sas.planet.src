@@ -89,6 +89,7 @@ type
     procedure LoadBitmaps;
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
+    procedure CreateLayers;
     procedure DoResize; override;
     procedure DoResizeBitmap; override;
     procedure AdjustFont(Item: TTBCustomItem;
@@ -102,6 +103,7 @@ type
     destructor Destroy; override;
     procedure Show; override;
     procedure Hide; override;
+    procedure WriteIni;
     property OnChangePos: TChangePosEvent read FOnChangePos write FOnChangePos;
   end;
 
@@ -202,50 +204,19 @@ begin
 
   FMapsActive := TActiveMapsConfigBasic.Create(nil, FMapsList, FLayersList);
 
-  FZoomDelta := 3;
+  FZoomDelta := 4;
   FBitmapSize.X := 256;
   FBitmapSize.Y := 256;
+
+  FBitmapSize.X := GState.MainIni.readInteger('MINIMAP', 'Width', FBitmapSize.X);
+  FBitmapSize.Y := GState.MainIni.readInteger('MINIMAP','Height', FBitmapSize.Y);
+  FZoomDelta := GState.MainIni.readInteger('MINIMAP','ZoomDelta', FZoomDelta);
 
   FPopup := TTBXPopupMenu.Create(AParentMap);
   FPopup.Name := 'PopupMiniMap';
   FPopup.Images := AImages;
 
-  FLeftBorder := TBitmapLayer.Create(AParentMap.Layers);
-  FLeftBorder.Cursor := crSizeNWSE;
-  FLeftBorder.Bitmap.DrawMode := dmBlend;
-  FLeftBorder.Bitmap.CombineMode := cmMerge;
-  FLeftBorder.OnMouseDown := LeftBorderMouseDown;
-  FLeftBorder.OnMouseUp := LeftBorderMouseUP;
-  FLeftBorder.OnMouseMove := LeftBorderMouseMove;
-  FLeftBorderMoved := False;
-
-  FTopBorder := TBitmapLayer.Create(AParentMap.Layers);
-  FTopBorder.Bitmap.DrawMode := dmBlend;
-  FTopBorder.Bitmap.CombineMode := cmMerge;
-
-
-  FViewRectDrawLayer := TBitmapLayer.Create(AParentMap.Layers);
-  FViewRectDrawLayer.Bitmap.DrawMode := dmBlend;
-  FViewRectDrawLayer.Bitmap.CombineMode := cmMerge;
-  FViewRectDrawLayer.OnMouseDown := LayerMouseDown;
-  FViewRectDrawLayer.OnMouseUp := LayerMouseUP;
-  FViewRectDrawLayer.OnMouseMove := LayerMouseMove;
-
-  FPlusButton := TBitmapLayer.Create(AParentMap.Layers);
-  FPlusButton.Bitmap.DrawMode := dmBlend;
-  FPlusButton.Bitmap.CombineMode := cmMerge;
-  FPlusButton.OnMouseDown := PlusButtonMouseDown;
-  FPlusButton.OnMouseUp := PlusButtonMouseUP;
-  FPlusButton.Cursor := crHandPoint;
-  FPlusButtonPressed := False;
-
-  FMinusButton := TBitmapLayer.Create(AParentMap.Layers);
-  FMinusButton.Bitmap.DrawMode := dmBlend;
-  FMinusButton.Bitmap.CombineMode := cmMerge;
-  FMinusButton.OnMouseDown := MinusButtonMouseDown;
-  FMinusButton.OnMouseUp := MinusButtonMouseUP;
-  FMinusButton.Cursor := crHandPoint;
-  FMinusButtonPressed := False;
+  CreateLayers;
 
   LoadBitmaps;
   BuildPopUpMenu;
@@ -266,6 +237,53 @@ begin
   FLayersList := nil;
   FMapsActive := nil;
   inherited;
+end;
+
+procedure TMiniMapLayer.WriteIni;
+begin
+  GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
+  GState.MainIni.WriteInteger('MINIMAP','Height', FBitmapSize.Y);
+  GState.MainIni.WriteInteger('MINIMAP','ZoomDelta', FZoomDelta);
+end;
+
+procedure TMiniMapLayer.CreateLayers;
+begin
+  FLeftBorder := TBitmapLayer.Create(FParentMap.Layers);
+  FLeftBorder.Cursor := crSizeNWSE;
+  FLeftBorder.Bitmap.DrawMode := dmBlend;
+  FLeftBorder.Bitmap.CombineMode := cmMerge;
+  FLeftBorder.OnMouseDown := LeftBorderMouseDown;
+  FLeftBorder.OnMouseUp := LeftBorderMouseUP;
+  FLeftBorder.OnMouseMove := LeftBorderMouseMove;
+  FLeftBorderMoved := False;
+
+  FTopBorder := TBitmapLayer.Create(FParentMap.Layers);
+  FTopBorder.Bitmap.DrawMode := dmBlend;
+  FTopBorder.Bitmap.CombineMode := cmMerge;
+
+
+  FViewRectDrawLayer := TBitmapLayer.Create(FParentMap.Layers);
+  FViewRectDrawLayer.Bitmap.DrawMode := dmBlend;
+  FViewRectDrawLayer.Bitmap.CombineMode := cmMerge;
+  FViewRectDrawLayer.OnMouseDown := LayerMouseDown;
+  FViewRectDrawLayer.OnMouseUp := LayerMouseUP;
+  FViewRectDrawLayer.OnMouseMove := LayerMouseMove;
+
+  FPlusButton := TBitmapLayer.Create(FParentMap.Layers);
+  FPlusButton.Bitmap.DrawMode := dmBlend;
+  FPlusButton.Bitmap.CombineMode := cmMerge;
+  FPlusButton.OnMouseDown := PlusButtonMouseDown;
+  FPlusButton.OnMouseUp := PlusButtonMouseUP;
+  FPlusButton.Cursor := crHandPoint;
+  FPlusButtonPressed := False;
+
+  FMinusButton := TBitmapLayer.Create(FParentMap.Layers);
+  FMinusButton.Bitmap.DrawMode := dmBlend;
+  FMinusButton.Bitmap.CombineMode := cmMerge;
+  FMinusButton.OnMouseDown := MinusButtonMouseDown;
+  FMinusButton.OnMouseUp := MinusButtonMouseUP;
+  FMinusButton.Cursor := crHandPoint;
+  FMinusButtonPressed := False;
 end;
 
 procedure TMiniMapLayer.LoadBitmapFromRes(Instance: HInst;

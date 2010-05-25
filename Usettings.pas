@@ -322,6 +322,7 @@ begin
  GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
  GState.MainIni.WriteInteger('VIEW','SmMapDifference',FMain.FMiniMap.z1mz2);
  GState.MainIni.WriteInteger('VIEW','SmMapAlpha',FMain.FMiniMap.alpha);
+ Fmain.FMiniMapLayer.WriteIni;
  GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
  GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
  GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));

@@ -558,7 +558,6 @@ type
     FTileSource: TTileSource;
     FScreenCenterPos: TPoint;
     FMainLayer: TMapMainLayer;
-    FMiniMapLayer: TMiniMapLayer;
     LayerStatBar: TLayerStatBar;
     FShowErrorLayer: TTileErrorInfoLayer;
     FWikiLayer: TWikiLayer;
@@ -600,6 +599,7 @@ type
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
     FMiniMap: TMiniMap;
+    FMiniMapLayer: TMiniMapLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     m_m: Tpoint;
