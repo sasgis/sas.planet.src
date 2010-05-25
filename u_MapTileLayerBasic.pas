@@ -5,11 +5,8 @@ interface
 uses
   Windows,
   GR32,
-  GR32_Image,
-  GR32_Layers,
   u_MapLayerBasic,
-  uMapType,
-  t_GeoTypes;
+  uMapType;
 
 type
   TMapTileLayerBasic =  class(TMapLayerBasic)
