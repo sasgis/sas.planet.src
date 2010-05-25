@@ -152,17 +152,6 @@ begin
                           if (res = dtrOK) or (res = dtrSameTileSize) then begin
                             GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                           end;
-                          case res of
-                            dtrOK,
-                            dtrSameTileSize,
-                            dtrErrorMIMEType,
-                            dtrTileNotExists,
-                            dtrBanError: begin
-                              if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
-                                Synchronize(VMap.addDwnforban);
-                              end;
-                            end;
-                          end;
                           if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
                             VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
                           end;

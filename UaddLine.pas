@@ -88,6 +88,8 @@ var
     i:integer;
     namecatbuf:string;
 begin
+ if new then Fmain.CDSmarks.Insert
+         else Fmain.CDSmarks.Edit;
  getmem(arrLL,length(all)*SizeOf(TExtendedPoint));
  lenarr:=length(aLL);
  for i:=0 to lenarr-1 do arrLL^[i]:=aLL[i];
@@ -123,6 +125,7 @@ end;
 
 procedure TFaddLine.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+ Fmain.CDSmarks.Cancel;
  FreeMem(ArrLL);
 end;
 
@@ -131,8 +134,8 @@ var i:integer;
     ms:TMemoryStream;      
     alltl,allbr:TExtendedPoint;
 begin
- if new_ then Fmain.CDSmarks.Insert
-         else Fmain.CDSmarks.Edit;
+{ if new_ then Fmain.CDSmarks.Insert
+         else Fmain.CDSmarks.Edit;     }
  alltl:=arrLL^[0];
  allbr:=arrLL^[0];
  for i:=1 to lenarr-1 do

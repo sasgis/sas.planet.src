@@ -98,6 +98,8 @@ var
     i:integer;
     namecatbuf:string;
 begin
+ if new  then Fmain.CDSmarks.Insert
+         else Fmain.CDSmarks.Edit;
  lenarr:=length(aLL);
  if (aLL[0].x<>aLL[length(all)-1].x)or(aLL[0].y<>aLL[length(all)-1].y)
   then begin
@@ -143,6 +145,7 @@ end;
 
 procedure TFAddPoly.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+ Fmain.CDSmarks.Cancel;
  FreeMem(ArrLL);
 end;
 
@@ -151,8 +154,6 @@ var i:integer;
     ms:TMemoryStream;
     alltl,allbr:TExtendedPoint;
 begin
- if new_ then Fmain.CDSmarks.Insert
-         else Fmain.CDSmarks.Edit;
  alltl:=arrLL^[0];
  allbr:=arrLL^[0];
 

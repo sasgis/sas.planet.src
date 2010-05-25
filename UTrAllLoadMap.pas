@@ -271,17 +271,6 @@ begin
                   Synchronize(FTypeMap.addDwnforban);
                 end;
                 res:=FTypeMap.DownloadTile(FLoadXY, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
-                case res of
-                  dtrOK,
-                  dtrSameTileSize,
-                  dtrErrorMIMEType,
-                  dtrTileNotExists,
-                  dtrBanError: begin
-                    if FTypeMap.IncDownloadedAndCheckAntiBan then begin
-                      Synchronize(FTypeMap.addDwnforban);
-                    end;
-                  end;
-                end;
               end;
 
               case res of

@@ -127,6 +127,8 @@ var DMS:TDMS;
     arrLL:PArrLL;
     namecatbuf:string;
 begin
+ if new then Fmain.CDSmarks.Insert
+        else Fmain.CDSmarks.Edit;
  new_:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewMark;
@@ -191,8 +193,6 @@ begin
  ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
- if new_ then Fmain.CDSmarks.Insert
-         else Fmain.CDSmarks.Edit;
  Fmain.CDSmarks.FieldByName('name').AsString:=EditName.Text;
  Fmain.CDSmarks.FieldByName('descr').AsString:=EditComment.Text;
  ms:=TMemoryStream.Create;
@@ -220,6 +220,7 @@ end;
 
 procedure TFaddPoint.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+ Fmain.CDSmarks.Cancel;
  if Fmain.aoper=ao_add_point then Fmain.setalloperationfalse(ao_movemap);
 end;
 
