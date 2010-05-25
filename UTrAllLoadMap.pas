@@ -267,6 +267,9 @@ begin
               if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom))and(GState.SaveTileNotExists) then begin
                 res := dtrTileNotExists;
               end else begin
+                if FTypeMap.IncDownloadedAndCheckAntiBan then begin
+                  Synchronize(FTypeMap.addDwnforban);
+                end;
                 res:=FTypeMap.DownloadTile(FLoadXY, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                 case res of
                   dtrOK,
