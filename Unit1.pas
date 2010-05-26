@@ -1578,9 +1578,7 @@ begin
  end;
  if VFillingmaptype<>nil then Vfillingmaptype.TBFillingItem.Checked:=true
                         else TBfillMapAsMain.Checked:=true;
- if Vzoom_mapzap > 0 then begin
-  Vzoom_mapzap := Vzoom_mapzap - 1;
- end;
+
  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
 
  i:=1;
