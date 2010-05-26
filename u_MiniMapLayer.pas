@@ -112,12 +112,11 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  Math,
+  Types,
   GR32_Polygons,
   u_JclNotify,
   i_ICoordConverter,
   i_BitmapTileSaveLoad,
-  i_IMapTypeMenuItem,
   Uimgfun,
   u_GeoToStr,
   u_GlobalState,
@@ -126,7 +125,7 @@ uses
   u_MapTypeListGeneratorFromFullListForMiniMap,
   u_MapTypeBasic,
   u_ActiveMapsConfigBasic,
-  i_IBitmapTypeExtManager, Types;
+  i_IBitmapTypeExtManager;
 
 type
   TMiniMapListener = class(TJclBaseListener)

@@ -43,7 +43,6 @@ type
 implementation
 
 uses
-  ActiveX,
   SysUtils,
   u_GlobalState,
   u_MapTypeMenuItemBasic;
