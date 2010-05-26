@@ -3,7 +3,7 @@
 library SASPlanet;
 
 {$R *.RES}
-{ITE} {LCID:00000419:00000409} {}
+{ITE} {LCID:00000419:000004809} {}
 {ITE} {DFMFileType} {vcl\DBLOGDLG.dfm}
 {ITE} {DFMFileType} {vcl\DBPWDLG.dfm}
 {ITE} {DFMFileType} {u_MarksDb.dfm}

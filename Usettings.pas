@@ -283,8 +283,7 @@ uses
   u_GeoToStr,
   Uimgfun,
   Unit1,
-  UEditMap,
-  u_MiniMap;
+  UEditMap;
 
 {$R *.dfm}
 

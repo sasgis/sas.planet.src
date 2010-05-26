@@ -252,6 +252,7 @@ implementation
 
 uses
   Types,
+  SHDocVw,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
@@ -264,11 +265,9 @@ uses
   u_PoolOfObjectsSimple,
   u_TileDownloaderBaseFactory,
   ImgMaker,
-  u_MiniMap,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
-  u_CoordConverterSimpleLonLat,
-  SHDocVw;
+  u_CoordConverterSimpleLonLat;
 
 function GetMapFromID(id: TGUID): TMapType;
 var

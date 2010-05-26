@@ -9,7 +9,6 @@ uses
   Forms,
   Math,
   ShellApi,
-  IniFiles,
   Classes,
   Menus,
   MSHTML,
@@ -565,7 +564,6 @@ type
     LenShow: boolean;
     RectWindow: TRect;
     FUIDownLoader: TTileDownloaderUI;
-    curBuf: TCursor;
     marshrutcomment: string;
     movepoint: integer;
     lastpoint: integer;
@@ -696,7 +694,8 @@ uses
   i_ICoordConverter,
   u_KmlInfoSimple,
   UTrAllLoadMap,
-  UGSM, UImport;
+  UGSM,
+  UImport;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
@@ -1587,9 +1586,7 @@ begin
  end;
  if VFillingmaptype<>nil then Vfillingmaptype.TBFillingItem.Checked:=true
                         else TBfillMapAsMain.Checked:=true;
- if Vzoom_mapzap > 0 then begin
-  Vzoom_mapzap := Vzoom_mapzap - 1;
- end;
+
  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
 
  i:=1;

@@ -73,7 +73,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet1
+    ActivePage = TabSheet5
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
@@ -563,7 +563,9 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         ItemHeight = 13
+        ItemIndex = 0
         TabOrder = 0
+        Text = 'iPhone (2.2 '#1080' '#1074#1099#1096#1077' 128'#1093'128) '
         OnChange = CBFormatChange
         Items.Strings = (
           'iPhone (2.2 '#1080' '#1074#1099#1096#1077' 128'#1093'128) '
@@ -578,7 +580,6 @@ object Fsaveas: TFsaveas
         Height = 133
         BevelOuter = bvNone
         TabOrder = 1
-        Visible = False
         object Label7: TLabel
           Left = 5
           Top = 26
