@@ -3,7 +3,7 @@ unit u_MapChangeMessage;
 interface
 
 uses
-  JclNotify,
+  u_JclNotify,
   i_IMapChangeMessage,
   UMapType;
 

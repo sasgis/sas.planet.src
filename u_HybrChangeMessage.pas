@@ -3,7 +3,7 @@ unit u_HybrChangeMessage;
 interface
 
 uses
-  JclNotify,
+  u_JclNotify,
   i_IHybrChangeMessage,
   UMapType;
 

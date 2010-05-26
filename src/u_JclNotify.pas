@@ -30,44 +30,14 @@
 {                                                                                                  }
 {**************************************************************************************************}
 
-unit JclNotify;
-
-{$I jcl.inc}
+unit u_JclNotify;
 
 interface
 
 uses
-  JclBase,
-  {$IFDEF THREADSAFE}
-  JclSynch,
-  {$ENDIF}
-  Classes;
-
-  { The following interfaces provide a basic notifier/listener setup. Whenever code issues a notification through the
-    IJclNotifier.Notify method, all listeners registered with the notifier will receive the message (through the
-    listener's Notification method). Since this setup doesn't care which or how many listeners are actually responding,
-    it can greatly simplify code that need some form of notification. }
-type
-  // forward declarations
-  IJclListener = interface;
-  IJclNotificationMessage = interface;
-  IJclNotifier = interface;
-
-  IJclListener = interface
-    ['{26A52ECC-4C22-4B71-BC88-D0EB98AF4ED5}']
-    procedure Notification(msg: IJclNotificationMessage); stdcall;
-  end;
-
-  IJclNotificationMessage = interface
-    ['{2618CCC6-0C7D-47EE-9A91-7A7F5264385D}']
-  end;
-
-  IJclNotifier = interface
-    ['{CAAD7814-DD04-497C-91AC-558C2D5BFF81}']
-    procedure Add(listener: IJclListener); stdcall;
-    procedure Remove(listener: IJclListener); stdcall;
-    procedure Notify(msg: IJclNotificationMessage); stdcall;
-  end;
+  Classes,
+  SysUtils,
+  i_JclNotify;
 
   { The following classes provide a basic notifier/listener implementation. Note that using one of these classes does
     not imply the usage of the related classes; the notifier can be used in conjection with any class implementing
@@ -75,7 +45,7 @@ type
 type
   TJclBaseListener = class (TInterfacedObject, IJclListener)
   protected
-    procedure Notification(msg: IJclNotificationMessage); virtual; stdcall; 
+    procedure Notification(msg: IJclNotificationMessage); virtual; stdcall;
   end;
 
   TJclBaseNotificationMessage = class (TInterfacedObject, IJclNotificationMessage)
@@ -87,9 +57,7 @@ type
     destructor Destroy; override;
   private
     FListeners: TInterfaceList;
-    {$IFDEF THREADSAFE}
-    FSynchronizer: TJclMultiReadExclusiveWrite;
-    {$ENDIF}
+    FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
   protected
     procedure Add(listener: IJclListener); stdcall;
     procedure Notify(msg: IJclNotificationMessage); stdcall;
@@ -98,84 +66,63 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TJclBaseNotifier }
 
 constructor TJclBaseNotifier.Create;
 begin
   inherited Create;
   FListeners := TInterfaceList.Create;
-  {$IFDEF THREADSAFE}
-  FSynchronizer := TJclMultiReadExclusiveWrite.Create(mpReaders);
-  {$ENDIF THREADSAFE}
+  FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 destructor TJclBaseNotifier.Destroy;
 begin
-  {$IFDEF THREADSAFE}
   FSynchronizer.BeginWrite;
   try
-  {$ENDIF THREADSAFE}
-  FreeAndNil(FListeners);
-  {$IFDEF THREADSAFE}
+    FreeAndNil(FListeners);
   finally
     FSynchronizer.EndWrite;
     FreeAndNil(FSynchronizer);
   end;
-  {$ENDIF THREADSAFE}
   inherited Destroy;
 end;
 
 procedure TJclBaseNotifier.Add(listener: IJclListener);
 begin
-  {$IFDEF THREADSAFE}
   FSynchronizer.BeginWrite;
   try
-  {$ENDIF THREADSAFE}
     if FListeners.IndexOf(listener) < 0 then
       FListeners.Add(listener);
-  {$IFDEF THREADSAFE}
   finally
     FSynchronizer.EndWrite;
   end;
-  {$ENDIF THREADSAFE}
 end;
 
 procedure TJclBaseNotifier.Notify(msg: IJclNotificationMessage);
 var
   idx: Integer;
 begin
-  {$IFDEF THREADSAFE}
   FSynchronizer.BeginRead;
   try
-  {$ENDIF THREADSAFE}
     for idx := 0 to FListeners.Count - 1 do
       IJclListener(FListeners[idx]).Notification(msg);
-  {$IFDEF THREADSAFE}
   finally
     FSynchronizer.EndRead;
   end;
-  {$ENDIF THREADSAFE}
 end;
 
 procedure TJclBaseNotifier.Remove(listener: IJclListener);
 var
   idx: Integer;
 begin
-  {$IFDEF THREADSAFE}
   FSynchronizer.BeginWrite;
   try
-  {$ENDIF THREADSAFE}
     idx := FListeners.IndexOf(listener);
     if idx >= 0 then
       FListeners.Delete(idx);
-  {$IFDEF THREADSAFE}
   finally
     FSynchronizer.EndWrite;
   end;
-  {$ENDIF THREADSAFE}
 end;
 
 { TJclBaseListener }

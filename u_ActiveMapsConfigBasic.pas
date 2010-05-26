@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  JclNotify,
+  i_JclNotify,
   JclSynch,
   i_MapTypes,
   i_IActiveMapsConfig,
@@ -38,6 +38,7 @@ implementation
 
 uses
   SysUtils,
+  u_JclNotify,
   i_IHybrChangeMessage,
   u_MapChangeMessage,
   u_HybrChangeMessage;

@@ -4,7 +4,7 @@ interface
 
 uses
   TB2Item,
-  JclNotify,
+  i_JclNotify,
   UMapType,
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
@@ -30,6 +30,9 @@ type
   end;
 
 implementation
+
+uses
+  u_JclNotify;
 
 type
   TMapTypeMenuItemListener = class(TJclBaseListener)
