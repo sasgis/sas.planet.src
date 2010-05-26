@@ -4,8 +4,8 @@ interface
 
 uses
   Windows,
+  SysUtils,
   i_JclNotify,
-  JclSynch,
   i_MapTypes,
   i_IActiveMapsConfig,
   UMapType;
@@ -13,7 +13,7 @@ uses
 type
   TActiveMapsConfigBasic = class(TInterfacedObject, IActiveMapsConfig)
   protected
-    FSynchronizer: TJclMultiReadExclusiveWrite;
+    FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
     FMapsList: IMapTypeList;
     FLayersList: IMapTypeList;
     FSelectedMap: TMapType;
@@ -41,7 +41,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_JclNotify,
   i_IHybrChangeMessage,
   u_MapChangeMessage,
@@ -52,7 +51,7 @@ uses
 constructor TActiveMapsConfigBasic.Create(AMap: TMapType; AMapsList: IMapTypeList;
       ALayersList: IMapTypeList);
 begin
-  FSynchronizer := TJclMultiReadExclusiveWrite.Create(mpReaders);
+  FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
   FMapsList := AMapsList;
   FLayersList := ALayersList;
   FSelectedMap := nil;
