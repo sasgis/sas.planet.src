@@ -20,7 +20,8 @@ type
     FSelectedHybr: array of TMapType;
     FMapChangeNotifier: IJclNotifier;
     FHybrChangeNotifier: IJclNotifier;
-    function _IsHybrSelected(AMap: TMapType): Boolean;
+    function _IsHybrSelected(AMap: TMapType): Boolean; overload;
+    function _IsHybrSelected(AMapGUID: TGUID): Boolean; overload;
   public
     constructor Create(AMap: TMapType; AMapsList: IMapTypeList;
       ALayersList: IMapTypeList);
@@ -30,6 +31,9 @@ type
     procedure SelectHybr(AMap: TMapType);
     procedure UnSelectHybr(AMap: TMapType);
     function IsHybrSelected(AMap: TMapType): Boolean;
+    function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
+    function GetMapsList: IMapTypeList;
+    function GetHybrList: IMapTypeList;
     function GetMapChangeNotifier: IJclNotifier;
     function GetHybrChangeNotifier: IJclNotifier;
   end;
@@ -92,6 +96,19 @@ begin
   end;
 end;
 
+function TActiveMapsConfigBasic._IsHybrSelected(AMapGUID: TGUID): Boolean;
+var
+  i: integer;
+begin
+  Result := False;
+  for i := 0 to Length(FSelectedHybr) - 1 do begin
+    if IsEqualGUID(FSelectedHybr[i].GUID, AMapGUID) then begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
 function TActiveMapsConfigBasic.IsHybrSelected(AMap: TMapType): Boolean;
 begin
   Result := False;
@@ -100,6 +117,22 @@ begin
       FSynchronizer.BeginRead;
       try
         Result := _IsHybrSelected(AMap);
+      finally
+        FSynchronizer.EndRead;
+      end;
+    end;
+  end;
+end;
+
+function TActiveMapsConfigBasic.IsHybrGUIDSelected(
+  AMapGUID: TGUID): Boolean;
+begin
+  Result := False;
+  if not IsEqualGUID(AMapGUID, CGUID_Zero) then begin
+    if FLayersList.GetMapTypeByGUID(AMapGUID) <> nil then begin
+      FSynchronizer.BeginRead;
+      try
+        Result := _IsHybrSelected(AMapGUID);
       finally
         FSynchronizer.EndRead;
       end;
@@ -209,6 +242,16 @@ end;
 function TActiveMapsConfigBasic.GetSelectedMap: TMapType;
 begin
   Result := FSelectedMap;
+end;
+
+function TActiveMapsConfigBasic.GetHybrList: IMapTypeList;
+begin
+  Result := FLayersList;
+end;
+
+function TActiveMapsConfigBasic.GetMapsList: IMapTypeList;
+begin
+  Result := FMapsList;
 end;
 
 end.

@@ -20,6 +20,7 @@ uses
   i_IActiveMapsConfig,
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
+  i_ActiveMapsConfigSaveLoad,
   UMapType,
   u_MapLayerBasic;
 
@@ -43,6 +44,8 @@ type
     FViewRectDrawLayer: TBitmapLayer;
     FPosMoved: Boolean;
     FViewRectMoveDelta: TPoint;
+    FMapConfigSaver: IActiveMapsConfigSaver;
+    FMapConfigLoader: IActiveMapsConfigLoader;
 
     FDefoultMap: TBitmap32;
     FBitmapSize: TPoint;
@@ -125,6 +128,7 @@ uses
   u_MapTypeListGeneratorFromFullListForMiniMap,
   u_MapTypeBasic,
   u_ActiveMapsConfigBasic,
+  u_MapsConfigInIniFileSection,
   i_IBitmapTypeExtManager;
 
 type
@@ -190,8 +194,14 @@ end;
 constructor TMiniMapLayer.Create(AParentMap: TImage32; ACenter: TPoint; AImages: TCustomImageList);
 var
   VFactory: IMapTypeListFactory;
+  VConfigLoadSave: TMapsConfigInIniFileSection;
 begin
   inherited Create(AParentMap, ACenter);
+
+  VConfigLoadSave := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
+  FMapConfigSaver := VConfigLoadSave;
+  FMapConfigLoader := VConfigLoadSave;
+
   FViewRectMoveDelta := Point(0, 0);
 
   VFactory := TMapTypeListGeneratorFromFullListForMiniMap.Create(True, TMapTypeBasicFactory.Create);
@@ -220,6 +230,7 @@ begin
 
   LoadBitmaps;
   BuildPopUpMenu;
+  FMapConfigLoader.Load(FMapsActive);
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -228,6 +239,8 @@ begin
   FMapsActive.MapChangeNotifier.Remove(FMapChangeListener);
   FMapsActive.HybrChangeNotifier.Remove(FHybrChangeListener);
   GState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
+  FMapConfigSaver := nil;
+  FMapConfigLoader := nil;
   FMapChangeListener := nil;
   FHybrChangeListener := nil;
   FMainMapChangeListener := nil;
@@ -244,6 +257,7 @@ begin
   GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
   GState.MainIni.WriteInteger('MINIMAP','Height', FBitmapSize.Y);
   GState.MainIni.WriteInteger('MINIMAP','ZoomDelta', FZoomDelta);
+  FMapConfigSaver.Save(FMapsActive);
 end;
 
 procedure TMiniMapLayer.CreateLayers;
@@ -329,6 +343,7 @@ begin
   VMenuItem.OnClick := SameAsMainClick;
   VMenuItem.Caption := 'Как на главной карте';
   VMenuItem.Hint := '';
+  VMenuItem.Checked := true;
   FPopup.Items.Add(VMenuItem);
   FMiniMapSameAsMain := VMenuItem;
 
@@ -341,14 +356,6 @@ begin
   VLayersSubMenu := VSubMenuItem;
 
   BuildMapsListUI(FPopup.Items, VLayersSubMenu);
-
-  VMapType := FMapsActive.SelectedMap;
-  if VMapType = nil then begin
-    FMiniMapSameAsMain.Checked := true;
-    GState.MainMapChangeNotifier.Add(FMainMapChangeListener);
-  end else begin
-//    FMapsList.GetMapTypeItemByGUID(VMapType.GUID).GetMenuItem.Checked := true;
-  end;
 end;
 
 procedure TMiniMapLayer.BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);

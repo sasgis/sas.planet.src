@@ -144,6 +144,8 @@ uses
   i_IHybrChangeMessage in 'i_IHybrChangeMessage.pas',
   u_ActiveMapsConfigBasic in 'u_ActiveMapsConfigBasic.pas',
   i_IActiveMapsConfig in 'i_IActiveMapsConfig.pas',
+  i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
+  u_MapsConfigInIniFileSection in 'u_MapsConfigInIniFileSection.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},
