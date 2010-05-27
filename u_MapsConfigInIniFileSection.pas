@@ -62,16 +62,13 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
-  VMap: IMapType;
 begin
   VEnum := AConfig.HybrList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VMap := AGUIDList.GetByGUID(VGUID) as IMapType;
-    if VMap <> nil then begin
-      AConfig.SelectHybr(VMap.MapType);
+    if AGUIDList.GetByGUID(VGUID) <> nil then begin
+      AConfig.SelectHybrByGUID(VGUID);
     end else begin
-      VMap := AConfig.HybrList.GetMapTypeByGUID(VGUID);
-      AConfig.UnSelectHybr(VMap.MapType);
+      AConfig.UnSelectHybrByGUID(VGUID);
     end;
   end;
 end;
@@ -130,7 +127,6 @@ procedure TMapsConfigInIniFileSection.LoadMap(AConfig: IActiveMapsConfig);
 var
   VGUIDString: string;
   VGUID: TGUID;
-  VMap: IMapType;
 begin
   VGUIDString := FIniFile.ReadString(FSectionName, CKeyNameMap, '');
   if VGUIDString <> '' then begin
@@ -142,16 +138,7 @@ begin
   end else begin
     VGUID := CGUID_Zero;
   end;
-  if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    AConfig.SelectMap(nil);
-  end else begin
-    VMap := AConfig.MapsList.GetMapTypeByGUID(VGUID);
-    if VMap <> nil then begin
-      AConfig.SelectMap(VMap.MapType);
-    end else begin
-      AConfig.SelectMap(nil);
-    end;
-  end;
+  AConfig.SelectMapByGUID(VGUID);
 end;
 
 procedure TMapsConfigInIniFileSection.Save(AConfig: IActiveMapsConfig);
@@ -167,7 +154,6 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
-  VMapType: TMapType;
   VGUIDString: string;
   VIndex: Integer;
 begin
@@ -185,14 +171,10 @@ end;
 procedure TMapsConfigInIniFileSection.SaveMap(AConfig: IActiveMapsConfig);
 var
   VGUIDString: string;
-  VMapType: TMapType;
+  VGUID: TGUID;
 begin
-  VMapType := AConfig.SelectedMap;
-  if VMapType <> nil then begin
-    VGUIDString := GUIDToString(VMapType.GUID);
-  end else begin
-    VGUIDString := GUIDToString(CGUID_Zero);
-  end;
+  VGUID := AConfig.GetSelectedMapGUID;
+  VGUIDString := GUIDToString(VGUID);
   FIniFile.WriteString(FSectionName, CKeyNameMap, VGUIDString);
 end;
 

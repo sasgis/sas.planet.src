@@ -27,9 +27,13 @@ type
       ALayersList: IMapTypeList);
     destructor Destroy; override;
     procedure SelectMap(AMap: TMapType);
+    procedure SelectMapByGUID(AMapGUID: TGUID);
     function GetSelectedMap: TMapType;
+    function GetSelectedMapGUID: TGUID;
     procedure SelectHybr(AMap: TMapType);
+    procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybr(AMap: TMapType);
+    procedure UnSelectHybrByGUID(AMapGUID: TGUID);
     function IsHybrSelected(AMap: TMapType): Boolean;
     function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
     function GetMapsList: IMapTypeList;
@@ -166,6 +170,35 @@ begin
   end;
 end;
 
+procedure TActiveMapsConfigBasic.SelectHybrByGUID(AMapGUID: TGUID);
+var
+  VIndex: integer;
+  VMessage: IJclNotificationMessage;
+  VMap: IMapType;
+begin
+  VMessage := nil;
+  if not IsEqualGUID(AMapGUID, CGUID_Zero) then begin
+    VMap := FLayersList.GetMapTypeByGUID(AMapGUID);
+    if VMap <> nil then begin
+      FSynchronizer.BeginWrite;
+      try
+        if not _IsHybrSelected(AMapGUID) then begin
+          VIndex := length(FSelectedHybr);
+          SetLength(FSelectedHybr, VIndex + 1);
+          FSelectedHybr[VIndex] := VMap.MapType;
+          VMessage := THybrChangeMessage.Create(VMap.MapType, hcaSelect);
+        end;
+      finally
+        FSynchronizer.EndWrite;
+      end;
+      if VMessage <> nil then begin
+        FHybrChangeNotifier.Notify(VMessage);
+        VMessage := nil;
+      end;
+    end;
+  end;
+end;
+
 procedure TActiveMapsConfigBasic.SelectMap(AMap: TMapType);
 var
   VOldSelected: TMapType;
@@ -184,6 +217,32 @@ begin
     VOldSelected := TMapType(InterlockedExchange(Integer(FSelectedMap), Integer(AMap)));
     if VOldSelected <> AMap then begin
       VMessage := TMapChangeMessage.Create(VOldSelected, AMap);
+      FMapChangeNotifier.Notify(VMessage);
+      VMessage := nil;
+    end;
+  end;
+end;
+
+procedure TActiveMapsConfigBasic.SelectMapByGUID(AMapGUID: TGUID);
+var
+  VOldSelected: TMapType;
+  VMessage: IJclNotificationMessage;
+  VMap: IMapType;
+begin
+  if not IsEqualGUID(AMapGUID, CGUID_Zero) then begin
+    VMap := FMapsList.GetMapTypeByGUID(AMapGUID);
+    if VMap <> nil then begin
+      VOldSelected := TMapType(InterlockedExchange(Integer(FSelectedMap), Integer(VMap.MapType)));
+      if VOldSelected <> VMap.MapType then begin
+        VMessage := TMapChangeMessage.Create(VOldSelected, VMap.MapType);
+        FMapChangeNotifier.Notify(VMessage);
+        VMessage := nil;
+      end;
+    end;
+  end else begin
+    VOldSelected := TMapType(InterlockedExchange(Integer(FSelectedMap), 0));
+    if VOldSelected <> nil then begin
+      VMessage := TMapChangeMessage.Create(VOldSelected, nil);
       FMapChangeNotifier.Notify(VMessage);
       VMessage := nil;
     end;
@@ -228,6 +287,46 @@ begin
   end;
 end;
 
+procedure TActiveMapsConfigBasic.UnSelectHybrByGUID(AMapGUID: TGUID);
+var
+  VIndex: integer;
+  VMessage: IJclNotificationMessage;
+  i: integer;
+  VCount: Integer;
+  VMap: IMapType;
+begin
+  VMessage := nil;
+  if not IsEqualGUID(AMapGUID, CGUID_Zero) then begin
+    VMap := FLayersList.GetMapTypeByGUID(AMapGUID);
+    if VMap <> nil then begin
+      FSynchronizer.BeginWrite;
+      try
+        VIndex := -1;
+        VCount := Length(FSelectedHybr);
+        for i := 0 to VCount - 1 do begin
+          if FSelectedHybr[i] = VMap.MapType then begin
+            VIndex := i;
+            Break;
+          end;
+        end;
+        if VIndex >= 0 then begin
+          for i := VIndex to VCount - 2 do begin
+            FSelectedHybr[i] := FSelectedHybr[i + 1];
+          end;
+          SetLength(FSelectedHybr, VCount - 1);
+          VMessage := THybrChangeMessage.Create(VMap.MapType, hcaUnselect);
+        end;
+      finally
+        FSynchronizer.EndWrite;
+      end;
+      if VMessage <> nil then begin
+        FHybrChangeNotifier.Notify(VMessage);
+        VMessage := nil;
+      end;
+    end;
+  end;
+end;
+
 function TActiveMapsConfigBasic.GetHybrChangeNotifier: IJclNotifier;
 begin
   Result := FHybrChangeNotifier;
@@ -241,6 +340,18 @@ end;
 function TActiveMapsConfigBasic.GetSelectedMap: TMapType;
 begin
   Result := FSelectedMap;
+end;
+
+function TActiveMapsConfigBasic.GetSelectedMapGUID: TGUID;
+var
+  VMap: TMapType;
+begin
+  VMap := FSelectedMap;
+  if VMap <> nil then begin
+    Result := VMap.GUID;
+  end else begin
+    Result := CGUID_Zero;
+  end;
 end;
 
 function TActiveMapsConfigBasic.GetHybrList: IMapTypeList;
