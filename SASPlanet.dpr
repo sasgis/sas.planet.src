@@ -86,7 +86,6 @@ uses
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   ImgMaker in 'ImgMaker.pas',
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',
-  u_MiniMap in 'u_MiniMap.pas',
   u_MiniMapLayer in 'u_MiniMapLayer.pas',
   u_CenterScale in 'u_CenterScale.pas',
   u_LayerStatBar in 'u_LayerStatBar.pas',

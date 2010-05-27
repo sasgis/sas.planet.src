@@ -65,7 +65,6 @@ uses
   u_MapGPSLayer,
   u_MapLayerNavToMark,
   u_MapFillingLayer,
-  u_MiniMap,
   u_MiniMapLayer,
   u_MapNalLayer,
   u_MapLayerGoto,
@@ -217,9 +216,6 @@ type
     NParams: TTBXSubmenuItem;
     NLayerParams: TTBXSubmenuItem;
     NHelp: TTBXSubmenuItem;
-    PopupMSmM: TTBXPopupMenu;
-    NSubMenuSmItem: TTBXSubmenuItem;
-    NMMtype_0: TTBXItem;
     NMarksCalcs: TMenuItem;
     NMarksCalcsLen: TMenuItem;
     NMarksCalcsSq: TMenuItem;
@@ -473,7 +469,6 @@ type
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
-    procedure NMMtype_0Click(Sender: TObject);
     procedure N32Click(Sender: TObject);
     procedure TBItem3Click(Sender: TObject);
     procedure Google1Click(Sender: TObject);
@@ -596,7 +591,6 @@ type
     LayerMapNavToMark: TNavToMarkLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
-    FMiniMap: TMiniMap;
     FMiniMapLayer: TMiniMapLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
@@ -624,9 +618,6 @@ type
     procedure setalloperationfalse(newop: TAOperation);
     procedure insertinpath(pos: integer);
     procedure delfrompath(pos: integer);
-    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure SetStatusBarVisible();
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
@@ -724,7 +715,6 @@ begin
     FScreenCenterPos := VPoint;
     change_scene:=true;
     LayerScaleLine.Redraw;
-    FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
   end;
 
   FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -1308,7 +1298,6 @@ begin
   QueryPerformanceCounter(ts2);
 
   if not(lastload.use) then change_scene:=true;
-  FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
 
   FMainLayer.Redraw;
   LayerScaleLine.Redraw;
@@ -1560,11 +1549,6 @@ begin
   LayerMapScale := TCenterScale.Create(map);
   LayerScaleLine := TLayerScaleLine.Create(map);
   LayerStatBar:=TLayerStatBar.Create(map);
-
-  FMiniMap := TMiniMap.Create(Map);
-  FMiniMap.LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
-  FMiniMap.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
-  FMiniMap.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
 
   FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos, MapIcons18);
   FMiniMapLayer.Visible := True;
@@ -1850,7 +1834,6 @@ begin
   FreeAndNil(FWikiLayer);
   Application.ProcessMessages;
   FreeAndNil(FUIDownLoader);
-  FreeAndNil(FMiniMap);
   FreeAndNil(LayerMapScale);
   FreeAndNil(LayerStatBar);
   FreeAndNil(LayerScaleLine);
@@ -2543,7 +2526,7 @@ end;
 
 procedure TFmain.SetMiniMapVisible(visible:boolean);
 begin
-  FMiniMap.SetMiniMapVisible(visible, ScreenCenterPos);
+  FMiniMapLayer.Visible := visible;
   ShowMiniMap.Checked:=visible;
 end;
 
@@ -2561,38 +2544,6 @@ end;
 procedure TFmain.ShowLineClick(Sender: TObject);
 begin
  SetLineScaleVisible(ShowLine.Checked)
-end;
-
-procedure TFmain.NMMtype_0Click(Sender: TObject);
-var
-  VItem: TTBXItem;
-  VMap: TMapType;
-begin
-  VItem := TTBXItem(sender);
-  if VItem.Tag = 0 then begin
-    if FMiniMap.MapType <> nil then begin
-      FMiniMap.MapType.ShowOnSmMap := false;
-      FMiniMap.MapType.NSmItem.Checked := false;
-      FMiniMap.maptype := nil;
-    end;
-    NMMtype_0.Checked := true;
-  end else begin
-    VMap := TMapType(VItem.Tag);
-    if VMap.asLayer then begin
-      VMap.ShowOnSmMap := not(VMap.ShowOnSmMap);
-      VItem.Checked := VMap.ShowOnSmMap;
-    end else begin
-      NMMtype_0.Checked := false;
-      if FMiniMap.maptype <> nil then begin
-        FMiniMap.MapType.ShowOnSmMap := false;
-        FMiniMap.MapType.NSmItem.Checked := false;
-      end;
-      FMiniMap.maptype := VMap;
-      FMiniMap.maptype.NSmItem.Checked:=true;
-      FMiniMap.maptype.ShowOnSmMap:=true;
-    end;
-  end;
-  FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
 end;
 
 procedure TFmain.N32Click(Sender: TObject);
@@ -2738,7 +2689,6 @@ begin
    LayerMapNavToMark.Resize;
    FMiniMapLayer.Resize;
    toSh;
-   FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos)
   end;
 end;
 
@@ -3141,65 +3091,6 @@ begin
     FEditMap.FMapType := TMapType(TTBXItem(sender).Tag);
   end;
   FEditMap.ShowModal;
-end;
-
-procedure TFmain.LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var ll,lt:integer;
-begin
-  map.PopupMenu:=nil;
-  case button of
-    mbRight: map.PopupMenu:=PopupMSmM;
-    mbLeft: begin
-      ll:=round(FMiniMap.LayerMinMap.Location.Left);
-      lt:=round(FMiniMap.LayerMinMap.Location.top);
-      if (x<ll+5) then begin
-        FMiniMap.size_dw:=true
-      end else if (x>ll+4)and(x<ll+18)and(y>lt+4)and(y<lt+18) then begin
-        FMiniMap.zooming:=true;
-        if FMiniMap.z1mz2>1 then dec(FMiniMap.z1mz2);
-        FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
-      end else if (x>ll+18)and(x<ll+32)and(y>lt+4)and(y<lt+18) then begin
-        FMiniMap.zooming:=true;
-        if GState.zoom_size-FMiniMap.z1mz2>1 then inc(FMiniMap.z1mz2);
-        FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
-      end else if (x>ll+5)and(y>lt) then begin
-        FMiniMap.m_dwn:=true;
-        FMiniMap.sm_im_reset(round(x-(FMiniMap.LayerMinMap.Location.Left+5)),round(y-(FMiniMap.LayerMinMap.Location.top)), ScreenCenterPos);
-      end;
-    end;
-  end;
-end;
-
-procedure TFmain.LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-begin
- if (x<FMiniMap.LayerMinMap.Location.Left+5)and(map.Cursor<>crSizeNWSE) then FMiniMap.LayerMinMap.Cursor:=crSizeNWSE
-                                                               else FMiniMap.LayerMinMap.Cursor:=crHandPoint;
- if (FMiniMap.size_dw)and((map.Width-x-5)>40)
-  then begin
-        FMiniMap.width:=(map.Width-x-5);
-        FMiniMap.height:=(map.Width-x-5);
-        FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos)
-       end;
- if (FMiniMap.m_dwn)and(x>FMiniMap.LayerMinMap.Location.Left+5)and(y>FMiniMap.LayerMinMap.Location.top+5)
-  then FMiniMap.sm_im_reset(round(x-(FMiniMap.LayerMinMap.Location.Left+5)),round(y-(FMiniMap.LayerMinMap.Location.top)), ScreenCenterPos);
-end;
-
-procedure TFmain.LayerMinMapMouseUp(Sender:TObject; Button:TMouseButton; Shift:TShiftState; X,Y:Integer);
-begin
- if (MapZoomAnimtion=1) then exit;
- FMiniMap.m_dwn:=false;
- FMiniMap.size_dw:=false;
- if (not(FMiniMap.size_dw))and(not(FMiniMap.zooming))and((x>FMiniMap.LayerMinMap.Location.Left+5)and(y>FMiniMap.LayerMinMap.Location.Top))
-  then begin
-        if FMiniMap.zoom>1 then begin
-         Set_Pos(Point(ScreenCenterPos.x+round((-(128-(FMiniMap.pos.x*(256/FMiniMap.width))))*power(2,GState.zoom_size-FMiniMap.zoom)),
-              ScreenCenterPos.y+round((-(128-(FMiniMap.pos.y*(256/FMiniMap.height))))*power(2,GState.zoom_size-FMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both)
-         end else begin
-          Set_Pos(Point(round(FMiniMap.pos.X*(256/FMiniMap.height)*power(2,GState.zoom_size-FMiniMap.zoom)),round((FMiniMap.pos.Y*(256/FMiniMap.height))*power(2,GState.zoom_size-FMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both);
-         end;
-       end
-  else FMiniMap.zooming:=false;
- toSh;
 end;
 
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;

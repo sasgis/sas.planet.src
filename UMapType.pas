@@ -125,7 +125,6 @@ type
     DefNameInCache: string;
     NameInCache: string;
 
-    NSmItem: TTBXItem; //Пункт контекстного меню мини карты
     MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
     MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
     TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
@@ -294,13 +293,10 @@ begin
   Fmain.ldm.Clear;
   Fmain.dlm.Clear;
   Fmain.NLayerParams.Clear;
-  Fmain.NSubMenuSmItem.Clear;
   for i:=0 to Fmain.NLayerSel.Count-1 do Fmain.NLayerSel.Items[0].Free;
   for i:=0 to Fmain.TBLayerSel.Count-1 do Fmain.TBLayerSel.Items[0].Free;
   for i:=0 to Fmain.TBFillingTypeMap.Count-2 do Fmain.TBFillingTypeMap.Items[1].Free;
-  for i:=0 to Fmain.PopupMSmM.Items.Count-3 do Fmain.PopupMSmM.Items.Items[2].Free;
 
-  FMain.FMiniMap.maptype:=nil;
   i:=length(GState.MapType)-1;
 
   if i>0 then begin
@@ -345,23 +341,6 @@ begin
         TBFillingItem.OnClick:=Fmain.TBfillMapAsMainClick;
         Fmain.TBFillingTypeMap.Add(TBFillingItem);
 
-        if IsCanShowOnSmMap then begin
-          if not(asLayer) then begin
-            NSmItem:=TTBXITem.Create(Fmain.PopupMSmM);
-            Fmain.PopupMSmM.Items.Add(NSmItem)
-          end else begin
-            NSmItem:=TTBXITem.Create(Fmain.NSubMenuSmItem);
-            Fmain.NSubMenuSmItem.Add(NSmItem);
-          end;
-          NSmItem.Name:='NSmMapN'+inttostr(id);
-          NSmItem.ImageIndex:=i;
-          NSmItem.Caption:=name;
-          NSmItem.OnAdjustFont:=Fmain.AdjustFont;
-          NSmItem.OnClick:=Fmain.NMMtype_0Click;
-          if ShowOnSmMap then begin
-            NSmItem.Checked:=true;
-          end;
-        end;
         if asLayer then begin
           NDwnItem:=TMenuItem.Create(nil);
           NDwnItem.Caption:=name;
@@ -384,22 +363,13 @@ begin
         end;
         if separator then begin
           MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
-          if NSmItem<>NIL  then begin
-            NSmItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
-          end;
-          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.NSubMenuSmItem));
+          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
         end;
         if (active)and(GState.MapType[i].asLayer=false) then begin
           GState.SetMainSelectedMap(GState.MapType[i]);
         end;
-        if (ShowOnSmMap)and(not(asLayer)) then begin
-          FMain.FMiniMap.maptype:=GState.MapType[i];
-        end;
         MainToolbarItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);
-        if IsCanShowOnSmMap then begin
-          NSmItem.Tag:=Longint(GState.MapType[i]);
-        end;
         if asLayer then begin
           NDwnItem.Tag:=longint(GState.MapType[i]);
           NDelItem.Tag:=longint(GState.MapType[i]);
@@ -420,9 +390,6 @@ begin
   end;
   if FSettings.MapList.Items.Count>0 then begin
     FSettings.MapList.Items.Item[0].Selected:=true;
-  end;
-  if FMain.FMiniMap.maptype=nil then begin
-    Fmain.NMMtype_0.Checked:=true;
   end;
   if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
     GState.SetMainSelectedMap(GState.MapType[0]);

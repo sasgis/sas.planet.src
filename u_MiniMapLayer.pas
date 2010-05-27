@@ -703,7 +703,7 @@ var
   VBitmapSize: TPoint;
 begin
   VBitmapSize := GetBitmapSizeInPixel;
-  Result := Point(VBitmapSize.X, 0);
+  Result := Point(VBitmapSize.X, VBitmapSize.Y);
 end;
 
 function TMiniMapLayer.GetFreezePointInVisualPixel: TPoint;
@@ -711,7 +711,11 @@ var
   VVisibleSize: TPoint;
 begin
   VVisibleSize := GetVisibleSizeInPixel;
-  Result := Point(VVisibleSize.X, 20);
+  if GState.ShowStatusBar then begin
+    Result := Point(VVisibleSize.X, VVisibleSize.Y - 17);
+  end else begin
+    Result := Point(VVisibleSize.X, VVisibleSize.Y);
+  end;
 end;
 
 procedure TMiniMapLayer.Hide;

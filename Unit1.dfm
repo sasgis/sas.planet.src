@@ -5624,21 +5624,6 @@ object Fmain: TFmain
       FieldName = 'categoryid'
     end
   end
-  object PopupMSmM: TTBXPopupMenu
-    Images = MapIcons18
-    Left = 172
-    Top = 169
-    object NMMtype_0: TTBXItem
-      OnAdjustFont = AdjustFont
-      OnClick = NMMtype_0Click
-      Caption = #1050#1072#1082' '#1085#1072' '#1075#1083#1072#1074#1085#1086#1081' '#1082#1072#1088#1090#1077
-      Hint = ''
-    end
-    object NSubMenuSmItem: TTBXSubmenuItem
-      Caption = #1057#1083#1086#1080
-      Hint = ''
-    end
-  end
   object ImageList1: TImageList
     Left = 20
     Top = 105
