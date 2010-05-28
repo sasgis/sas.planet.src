@@ -10,14 +10,12 @@ uses
 type
   IActiveMapConfig = interface
     ['{D33FE9FA-B243-4783-9D55-F15B813BADF9}']
-    procedure SelectMap(AMap: TMapType);
     procedure SelectMapByGUID(AMapGUID: TGUID);
-    function GetSelectedMap: TMapType;
     function GetSelectedMapGUID: TGUID;
     function GetMapsList: IMapTypeList;
     function GetMapChangeNotifier: IJclNotifier;
 
-    property SelectedMap: TMapType read GetSelectedMap;
+    property SelectedMapGUID: TGUID read GetSelectedMapGUID;
     property MapsList: IMapTypeList read GetMapsList;
     property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
   end;

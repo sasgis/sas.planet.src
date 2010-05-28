@@ -319,8 +319,6 @@ begin
 end;
 
 procedure TMiniMapLayer.LoadBitmaps;
-var
-  VBitmap: TBitmap32;
 begin
   FDefoultMap := TBitmap32.Create;
   LoadBitmapFromRes(HInstance, 'MAINMAP', FDefoultMap);
@@ -335,7 +333,6 @@ var
   VMenuItem: TTBXItem;
   VSubMenuItem: TTBXSubmenuItem;
   VLayersSubMenu: TTBXSubmenuItem;
-  VMapType: TMapType;
 begin
   VMenuItem := TTBXItem.Create(FPopup);
   VMenuItem.Name := 'MiniMapSameAsMain';
@@ -401,7 +398,7 @@ end;
 procedure TMiniMapLayer.SameAsMainClick(Sender: TObject);
 begin
   Assert(Sender is TTBXItem, 'Глюки однако. Этот обработчик не предназначен для этого контрола');
-  FMapsActive.SelectMap(nil);
+  FMapsActive.SelectMapByGUID(CGUID_Zero);
 end;
 
 
@@ -468,9 +465,12 @@ var
 begin
   inherited;
   FLayer.Bitmap.Clear(Color32(GState.BGround));
-  VMapType := FMapsActive.SelectedMap;
-  if VMapType = nil then begin
+  VGUID := FMapsActive.SelectedMapGUID;
+  if IsEqualGUID(VGUID, CGUID_Zero) then begin
     VMapType := GState.sat_map_both;
+  end else begin
+    VItem := FMapsActive.MapsList.GetMapTypeByGUID(VGUID);
+    VMapType := VItem.MapType;
   end;
 
   DrawMap(VMapType, dmOpaque);
@@ -1028,7 +1028,7 @@ end;
 
 procedure TMiniMapLayer.OnNotifyMainMapChange(msg: IMapChangeMessage);
 begin
-  if FMapsActive.SelectedMap = nil then begin
+  if IsEqualGUID(FMapsActive.SelectedMapGUID, CGUID_Zero) then begin
     Redraw;
   end;
 end;

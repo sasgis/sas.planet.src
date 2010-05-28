@@ -123,7 +123,11 @@ begin
       FMapsActive.SelectHybr(FMapType);
     end;
   end else begin
-    FMapsActive.SelectMap(FMapType);
+    if FMapType <> nil then begin
+      FMapsActive.SelectMapByGUID(FMapType.GUID);
+    end else begin
+      FMapsActive.SelectMapByGUID(CGUID_Zero);
+    end;
   end;
 end;
 
