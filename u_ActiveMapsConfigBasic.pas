@@ -11,7 +11,7 @@ uses
   UMapType;
 
 type
-  TActiveMapsConfigBasic = class(TInterfacedObject, IActiveMapsConfig)
+  TActiveMapsConfigBasic = class(TInterfacedObject, IActiveMapWithHybrConfig)
   protected
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
     FMapsList: IMapTypeList;

@@ -13,14 +13,14 @@ type
   private
     FIniFile: TCustomIniFile;
     FSectionName: string;
-    procedure SaveMap(AConfig: IActiveMapsConfig);
-    procedure SaveHybrids(AConfig: IActiveMapsConfig);
-    procedure Save(AConfig: IActiveMapsConfig);
-    procedure LoadMap(AConfig: IActiveMapsConfig);
-    procedure LoadHybrids(AConfig: IActiveMapsConfig);
-    procedure LoadHybridGUIDs(AConfig: IActiveMapsConfig; AGUIDList: IGUIDList);
-    procedure LoadHybridByList(AConfig: IActiveMapsConfig; AGUIDList: IGUIDList);
-    procedure Load(AConfig: IActiveMapsConfig);
+    procedure SaveMap(AConfig: IActiveMapWithHybrConfig);
+    procedure SaveHybrids(AConfig: IActiveMapWithHybrConfig);
+    procedure Save(AConfig: IActiveMapWithHybrConfig);
+    procedure LoadMap(AConfig: IActiveMapWithHybrConfig);
+    procedure LoadHybrids(AConfig: IActiveMapWithHybrConfig);
+    procedure LoadHybridGUIDs(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
+    procedure LoadHybridByList(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
+    procedure Load(AConfig: IActiveMapWithHybrConfig);
   public
     constructor Create(AIniFile: TCustomIniFile; ASectionName: string);
   end;
@@ -50,14 +50,14 @@ begin
   FSectionName := ASectionName;
 end;
 
-procedure TMapsConfigInIniFileSection.Load(AConfig: IActiveMapsConfig);
+procedure TMapsConfigInIniFileSection.Load(AConfig: IActiveMapWithHybrConfig);
 begin
   LoadMap(AConfig);
   LoadHybrids(AConfig);
 end;
 
 procedure TMapsConfigInIniFileSection.LoadHybridByList(
-  AConfig: IActiveMapsConfig; AGUIDList: IGUIDList);
+  AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;
@@ -74,7 +74,7 @@ begin
 end;
 
 procedure TMapsConfigInIniFileSection.LoadHybridGUIDs(
-  AConfig: IActiveMapsConfig; AGUIDList: IGUIDList);
+  AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
 var
   VList: TStringList;
   i: Integer;
@@ -113,7 +113,7 @@ begin
 end;
 
 procedure TMapsConfigInIniFileSection.LoadHybrids(
-  AConfig: IActiveMapsConfig);
+  AConfig: IActiveMapWithHybrConfig);
 var
   VGUIDList: IGUIDList;
 begin
@@ -123,7 +123,7 @@ begin
   VGUIDList := nil;
 end;
 
-procedure TMapsConfigInIniFileSection.LoadMap(AConfig: IActiveMapsConfig);
+procedure TMapsConfigInIniFileSection.LoadMap(AConfig: IActiveMapWithHybrConfig);
 var
   VGUIDString: string;
   VGUID: TGUID;
@@ -141,7 +141,7 @@ begin
   AConfig.SelectMapByGUID(VGUID);
 end;
 
-procedure TMapsConfigInIniFileSection.Save(AConfig: IActiveMapsConfig);
+procedure TMapsConfigInIniFileSection.Save(AConfig: IActiveMapWithHybrConfig);
 begin
   FIniFile.EraseSection(FSectionName);
   SaveMap(AConfig);
@@ -149,7 +149,7 @@ begin
 end;
 
 procedure TMapsConfigInIniFileSection.SaveHybrids(
-  AConfig: IActiveMapsConfig);
+  AConfig: IActiveMapWithHybrConfig);
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;
@@ -168,7 +168,7 @@ begin
   end;
 end;
 
-procedure TMapsConfigInIniFileSection.SaveMap(AConfig: IActiveMapsConfig);
+procedure TMapsConfigInIniFileSection.SaveMap(AConfig: IActiveMapWithHybrConfig);
 var
   VGUIDString: string;
   VGUID: TGUID;

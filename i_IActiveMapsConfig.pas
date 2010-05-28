@@ -8,27 +8,32 @@ uses
   UMapType;
 
 type
-  IActiveMapsConfig = interface
+  IActiveMapConfig = interface
     ['{D33FE9FA-B243-4783-9D55-F15B813BADF9}']
     procedure SelectMap(AMap: TMapType);
     procedure SelectMapByGUID(AMapGUID: TGUID);
     function GetSelectedMap: TMapType;
     function GetSelectedMapGUID: TGUID;
+    function GetMapsList: IMapTypeList;
+    function GetMapChangeNotifier: IJclNotifier;
+
+    property SelectedMap: TMapType read GetSelectedMap;
+    property MapsList: IMapTypeList read GetMapsList;
+    property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
+  end;
+
+  IActiveMapWithHybrConfig = interface(IActiveMapConfig)
+    ['{D33FE9FA-B243-4783-9D55-F15B813BADF9}']
     procedure SelectHybr(AMap: TMapType);
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybr(AMap: TMapType);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
     function IsHybrSelected(AMap: TMapType): Boolean;
     function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
-    function GetMapsList: IMapTypeList;
     function GetHybrList: IMapTypeList;
-    function GetMapChangeNotifier: IJclNotifier;
     function GetHybrChangeNotifier: IJclNotifier;
 
-    property SelectedMap: TMapType read GetSelectedMap;
-    property MapsList: IMapTypeList read GetMapsList;
     property HybrList: IMapTypeList read GetHybrList;
-    property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
     property HybrChangeNotifier: IJclNotifier read GetHybrChangeNotifier;
   end;
 

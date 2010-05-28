@@ -14,7 +14,7 @@ uses
 type
   TMapTypeMenuItemBasic = class(TInterfacedObject, IMapTypeMenuItem)
   private
-    FMapsActive: IActiveMapsConfig;
+    FMapsActive: IActiveMapWithHybrConfig;
     FListener: IJclListener;
   private
     FMapType: TMapType;
@@ -25,7 +25,7 @@ type
     procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
     procedure OnItemClick(Sender: TObject);
   public
-    constructor Create(AMapsActive: IActiveMapsConfig; AMapType: TMapType; AMenuItem: TTBCustomItem);
+    constructor Create(AMapsActive: IActiveMapWithHybrConfig; AMapType: TMapType; AMenuItem: TTBCustomItem);
     destructor Destroy; override;
   end;
 
@@ -81,7 +81,7 @@ end;
 
 { TMapTypeMenuItemBasic }
 
-constructor TMapTypeMenuItemBasic.Create(AMapsActive: IActiveMapsConfig; AMapType: TMapType; AMenuItem: TTBCustomItem);
+constructor TMapTypeMenuItemBasic.Create(AMapsActive: IActiveMapWithHybrConfig; AMapType: TMapType; AMenuItem: TTBCustomItem);
 begin
   FMapType := AMapType;
   FMenuItem := AMenuItem;

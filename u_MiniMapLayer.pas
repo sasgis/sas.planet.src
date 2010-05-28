@@ -30,7 +30,7 @@ type
   TMiniMapLayer = class(TMapLayerBasic)
   protected
     FOnChangePos: TChangePosEvent;
-    FMapsActive: IActiveMapsConfig;
+    FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FAlpha: Integer;
     FZoomDelta: integer;

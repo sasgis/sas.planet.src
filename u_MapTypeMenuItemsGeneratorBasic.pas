@@ -23,7 +23,7 @@ type
     FItemOnClick: TNotifyEvent;
     FImages: TCustomImageList;
     FItemsFactory: IMapTypeMenuItemFactory;
-    FMapsActive: IActiveMapsConfig;
+    FMapsActive: IActiveMapWithHybrConfig;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate(AList: TMapTypeMenuItmesList); virtual;
     function CreateSubMenuItem(AMapType: TMapType): TTBCustomItem; virtual;
@@ -37,7 +37,7 @@ type
     property ItemOnClick: TNotifyEvent read FItemOnClick write FItemOnClick;
     property Images: TCustomImageList read FImages write FImages;
     property ItemsFactory: IMapTypeMenuItemFactory read FItemsFactory write FItemsFactory;
-    property MapsActive: IActiveMapsConfig read FMapsActive write FMapsActive;
+    property MapsActive: IActiveMapWithHybrConfig read FMapsActive write FMapsActive;
   end;
 
 implementation
