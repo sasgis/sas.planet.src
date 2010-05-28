@@ -12,6 +12,7 @@ uses
   GR32_Layers,
   t_GeoTypes,
   i_ICoordConverter,
+  i_JclNotify,
   u_MapLayerBasic,
   uMapType;
 
@@ -22,6 +23,7 @@ type
     FSourceMapType: TMapType;
     FSourceSelected: TMapType;
     FSourceZoom: integer;
+    FMainMapChangeListener: IJclListener;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
@@ -39,7 +41,39 @@ implementation
 uses
   Graphics,
   u_GlobalState,
+  u_JclNotify,
   u_WindowLayerBasic;
+
+type
+  TFillingMapListener = class(TJclBaseListener)
+  private
+    FOwnerItem: TMapFillingLayer;
+  public
+    constructor Create(AOwnerItem: TMapFillingLayer);
+  end;
+
+{ TFillingMapListener }
+
+constructor TFillingMapListener.Create(
+  AOwnerItem: TMapFillingLayer);
+begin
+  FOwnerItem := AOwnerItem;
+end;
+
+type
+  TFillingMapMainMapChangeListener = class(TFillingMapListener)
+  public
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+{ TFillingMapMainMapChangeListener }
+
+procedure TFillingMapMainMapChangeListener.Notification(
+  msg: IJclNotificationMessage);
+begin
+  FOwnerItem.Redraw;
+end;
+
 
 
 type
@@ -70,12 +104,14 @@ begin
   inherited Create(AParentMap, ACenter);
   FLayer.Bitmap.DrawMode:=dmBlend;
   FThread := TMapFillingThread.Create(Self);
+  FMainMapChangeListener := TFillingMapMainMapChangeListener.Create(Self);
 end;
 
 destructor TMapFillingLayer.Destroy;
 begin
   FreeAndNil(FThread);
   FSourceMapType := nil;
+  FMainMapChangeListener := nil;
   inherited;
 end;
 
@@ -162,11 +198,13 @@ begin
   if (AMapType <> nil) then begin
     if (FSourceSelected <> AMapType) then begin
       VFullRedraw := True;
-    end
+    end;
+    GState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
   end else begin
     if (FSourceMapType <> GState.sat_map_both) then begin
       VFullRedraw := True;
-    end
+    end;
+    GState.MainMapChangeNotifier.Add(FMainMapChangeListener);
   end;
   if FSourceZoom <> AZoom then begin
     VFullRedraw := True;
