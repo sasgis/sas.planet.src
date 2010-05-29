@@ -33,7 +33,6 @@ uses
   ComObj,
   StrUtils,
   SysUtils,
-  UMapType,
   u_GUIDList,
   i_MapTypes;
 

@@ -127,7 +127,7 @@ uses
   u_MapTypeMenuItemsGeneratorBasic,
   u_MapTypeListGeneratorFromFullListForMiniMap,
   u_MapTypeBasic,
-  u_ActiveMapsConfigBasic,
+  u_ActiveMapWithHybrConfig,
   u_MapsConfigInIniFileSection,
   i_IBitmapTypeExtManager;
 
@@ -212,7 +212,7 @@ begin
   FLayersList := VFactory.CreateList;
   VFactory := nil;
 
-  FMapsActive := TActiveMapsConfigBasic.Create(nil, FMapsList, FLayersList);
+  FMapsActive := TActiveMapWithHybrConfig.Create(True, CGUID_Zero, FMapsList, FLayersList);
 
   FZoomDelta := 4;
   FBitmapSize.X := 256;
