@@ -386,6 +386,7 @@ begin
   FHybrChangeListener := TMiniMapHybrChangeListener.Create(Self);
   FMapsActive.HybrChangeNotifier.Add(FHybrChangeListener);
   FMainMapChangeListener := TMiniMapMainMapChangeListener.Create(Self);
+  GState.MainMapChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
