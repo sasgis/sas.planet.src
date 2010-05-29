@@ -20,7 +20,6 @@ type
     FList: IMapTypeList;
     FRootMenu: TTBCustomItem;
     FItemOnAdjustFont: TAdjustFontEvent;
-    FItemOnClick: TNotifyEvent;
     FImages: TCustomImageList;
     FItemsFactory: IMapTypeMenuItemFactory;
     FMapsActive: IActiveMapWithHybrConfig;
@@ -34,7 +33,6 @@ type
     property List: IMapTypeList read FList write FList;
     property RootMenu: TTBCustomItem read FRootMenu write FRootMenu;
     property ItemOnAdjustFont: TAdjustFontEvent read FItemOnAdjustFont write FItemOnAdjustFont;
-    property ItemOnClick: TNotifyEvent read FItemOnClick write FItemOnClick;
     property Images: TCustomImageList read FImages write FImages;
     property ItemsFactory: IMapTypeMenuItemFactory read FItemsFactory write FItemsFactory;
     property MapsActive: IActiveMapWithHybrConfig read FMapsActive write FMapsActive;
@@ -80,7 +78,6 @@ begin
   VItem.ImageIndex:= AMapIndex;
   VItem.Caption:=AMapType.name;
   VItem.OnAdjustFont:=FItemOnAdjustFont;
-  VItem.OnClick:=FItemOnClick;
   VItem.Tag := Integer(AMapType);
   Result := VItem;
 end;
