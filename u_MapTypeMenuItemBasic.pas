@@ -98,6 +98,7 @@ end;
 
 destructor TMapTypeMenuItemBasic.Destroy;
 begin
+  FMenuItem.OnClick := nil;
   FMapsActive.MapChangeNotifier.Remove(FListener);
   FMapsActive.HybrChangeNotifier.Remove(FListener);
   FListener := nil;
