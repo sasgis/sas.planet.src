@@ -65,8 +65,6 @@ procedure TTileDownloaderUI.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
    Fmain.generate_im(FLastLoad, FErrorString);
- end else begin
-  Fmain.toSh;
  end;
 end;
 

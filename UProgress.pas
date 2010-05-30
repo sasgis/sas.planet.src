@@ -185,7 +185,6 @@ begin
     end;
    Memo1.Lines.Add(VAddToMemo);
   end;
-  Fmain.toSh;
 end;
 
 function TFProgress.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;

@@ -607,7 +607,6 @@ type
     property ScreenCenterPos: TPoint read FScreenCenterPos;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
-    function  toSh: string;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure zooming(ANewZoom: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
@@ -709,13 +708,15 @@ begin
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   RxSlider1.Value:=VZoomCurr;
+  labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
   GState.zoom_size := VZoomCurr + 1;
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   if (FScreenCenterPos.X <> VPoint.X) or (FScreenCenterPos.Y <> VPoint.Y)then begin
     FScreenCenterPos := VPoint;
     change_scene:=true;
-    LayerScaleLine.Redraw;
   end;
+  LayerStatBar.Redraw;
+  LayerScaleLine.Redraw;
 
   FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -1277,12 +1278,6 @@ begin
   generate_im;
 end;
 
-function TFmain.toSh:string;
-begin
- If not(GState.ShowStatusBar) then exit;
- LayerStatBar.Redraw;
- labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
-end;
 procedure TFmain.generate_im;
 begin
   generate_im(nilLastLoad, '');
@@ -1348,7 +1343,7 @@ begin
     except
     end;
   end;
-  toSh;
+  LayerStatBar.Redraw;
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
@@ -1646,7 +1641,6 @@ begin
  TBFullSize.Checked:=GState.FullScrean;
  NCiclMap.Checked:=GState.CiclMap;
 
- toSh;
  ProgramStart:=false;
 
  if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
@@ -1786,7 +1780,6 @@ begin
 
  Set_Pos(VNewScreenCenterPos, ANewZoom - 1);
  MapZoomAnimtion:=0;
- toSh;
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
@@ -2688,7 +2681,7 @@ begin
    FShowErrorLayer.Resize;
    LayerMapNavToMark.Resize;
    FMiniMapLayer.Resize;
-   toSh;
+   LayerStatBar.Redraw;
   end;
 end;
 
@@ -3019,7 +3012,7 @@ begin
           end
      else begin
            LayerMapGPS.Redraw;
-           toSh;
+           LayerStatBar.Redraw;
           end;
    end;
   UpdateGPSsensors;
@@ -3262,7 +3255,7 @@ begin
  MouseUpPoint:=Point(x,y);
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
-   toSh;
+   LayerStatBar.Redraw;
    LayerScaleLine.Redraw;
    if aoper=ao_line then begin
     TBEditPath.Visible:=(length(length_arr)>1);
@@ -3282,7 +3275,6 @@ begin
    if GState.GPS_enab then begin
      LayerMapGPS.Redraw;
      UpdateGPSsensors;
-     toSh;
    end;
    if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
     TBEditPath.Visible:=(length(add_line_arr)>1);
@@ -3482,7 +3474,9 @@ begin
               LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
         else m_m:=point(x,y);
- if not(MapMoving) then toSh;
+ if not(MapMoving) then begin
+    LayerStatBar.Redraw;
+ end;
 
  if (not ShowActivHint) then begin
    if (HintWindow<>nil) then begin
