@@ -841,7 +841,7 @@ begin
     Result := False;
     XY.Top := 0;
   end else begin
-    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Top >= VPixelsAtZoom) then begin
       Result := False;
       XY.Top := VPixelsAtZoom - 1;
     end;
@@ -869,7 +869,7 @@ begin
     Result := False;
     XY.Bottom := 0;
   end else begin
-    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Bottom >= VPixelsAtZoom) then begin
       Result := False;
       XY.Bottom := VPixelsAtZoom - 1;
     end;
@@ -908,7 +908,7 @@ begin
     Result := False;
     XY.Y := 0;
   end else begin
-    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Y >= VPixelsAtZoom) then begin
       Result := False;
       XY.Y := VPixelsAtZoom - 1;
     end;
