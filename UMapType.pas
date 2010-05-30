@@ -60,6 +60,8 @@ type
     FMimeTypeSubstList: TStringList;
     FPNum: integer;
     FMemCache: IMemObjCache;
+    FIcon24Index: Integer;
+    FIcon18Index: Integer;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -214,6 +216,9 @@ type
     property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
+    property Icon24Index: Integer read FIcon24Index;
+    property Icon18Index: Integer read FIcon18Index;
+
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
     destructor Destroy; override;
@@ -508,6 +513,8 @@ begin
   MTb.Free;
   for i:=0 to length(GState.MapType)-1 do begin
     GState.MapType[i].id:=i+1;
+    GState.MapType[i].FIcon24Index := i;
+    GState.MapType[i].FIcon18Index := i;
   end;
 end;
 

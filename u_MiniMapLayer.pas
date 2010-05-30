@@ -129,6 +129,7 @@ uses
   u_MapTypeBasic,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigInIniFileSection,
+  u_MiniMapMenuItemsFactory,
   i_IBitmapTypeExtManager;
 
 type
@@ -363,9 +364,7 @@ begin
   try
     VGenerator.List := FMapsList;
     VGenerator.RootMenu := AMapssSubMenu;
-    VGenerator.ItemOnAdjustFont := AdjustFont;
-    VGenerator.Images := FPopup.Images;
-    VGenerator.MapsActive := FMapsActive;
+    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, AMapssSubMenu, AdjustFont, FPopup.Images);
     FMapsItemsList := VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
@@ -374,9 +373,7 @@ begin
   try
     VGenerator.List := FLayersList;
     VGenerator.RootMenu := ALayersSubMenu;
-    VGenerator.ItemOnAdjustFont := AdjustFont;
-    VGenerator.Images := FPopup.Images;
-    VGenerator.MapsActive := FMapsActive;
+    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, ALayersSubMenu, AdjustFont, FPopup.Images);
     FLayersItemsList := VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);

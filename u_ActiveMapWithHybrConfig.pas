@@ -39,7 +39,6 @@ implementation
 uses
   u_JclNotify,
   i_IHybrChangeMessage,
-  u_MapChangeMessage,
   u_HybrChangeMessage;
 
 { TActiveMapWithHybrConfig }

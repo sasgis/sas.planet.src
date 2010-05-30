@@ -30,7 +30,6 @@ implementation
 uses
   ActiveX,
   Classes,
-  ComObj,
   StrUtils,
   SysUtils,
   u_GUIDList,
