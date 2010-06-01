@@ -35,6 +35,9 @@ var
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
+  if AStr = '' then begin
+    raise EParserError.Create('Пустой ответ от сервера');
+  end;
   VFormatSettings.DecimalSeparator := '.';
   if not(PosEx(AnsiToUtf8('Искомая комбинация'),AStr)>0) then begin
     i:=PosEx('"ll":[',AStr);
@@ -47,12 +50,13 @@ begin
     try
       VPoint.Y := StrToFloat(slat, VFormatSettings);
       VPoint.X := StrToFloat(slon, VFormatSettings);
-      VPlace := TGeoCodePalcemark.Create(VPoint, ASearch, 4);
-      VList := TInterfaceList.Create;
-      VList.Add(VPlace);
-      Result := VList;
     except
+      raise EParserError.CreateFmt('Ошибка разбора координат Lat=%s Lon=%s', [slat, slon]);
     end;
+    VPlace := TGeoCodePalcemark.Create(VPoint, ASearch, 4);
+    VList := TInterfaceList.Create;
+    VList.Add(VPlace);
+    Result := VList;
   end;
 end;
 

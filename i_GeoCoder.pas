@@ -10,9 +10,10 @@ type
   IGeoCodeResult = interface
     ['{C90929AD-3A6C-4906-A554-E1DA363ED060}']
     function GetSearchText: WideString; safecall;
+    function GetResultCode: Integer; safecall;
+    function GetMessage: WideString; safecall;
     function GetPlacemarks: IEnumUnknown; safecall;
     function GetPlacemarksCount: integer; safecall;
-    function GetMessage: WideString; safecall;
   end;
 
   IGeoCodePalcemark = interface

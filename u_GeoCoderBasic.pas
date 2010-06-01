@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SysUtils,
   Classes,
   t_GeoTypes,
   i_IProxySettings,
@@ -23,11 +24,18 @@ type
     destructor Destroy; override;
   end;
 
+  EInternetOpenError = class(Exception)
+  public
+    ErrorCode: DWORD;
+    constructor Create(Code: DWORD; Msg: String);
+  end;
+
+  EProxyAuthError = class(Exception);
+  EAnswerParseError = class(Exception);
 
 implementation
 
 uses
-  SysUtils,
   WinInet,
   u_GeoCodeResult;
 
@@ -53,59 +61,61 @@ var
   hSession, hFile: Pointer;
   dwindex, dwcodelen, dwReserv: dword;
   dwtype: array [1..20] of char;
-  strr: string;
+  VUrl: string;
   VLogin: string;
   VPassword: string;
+  VLastError: DWORD;
 begin
   hSession := InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-
-  if Assigned(hSession) then begin
+  if not Assigned(hSession) then begin
+    VLastError := GetLastError;
+    raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpen');
+  end;
+  try
+    VUrl := PrepareURL(ASearch);
+    hFile := InternetOpenUrl(hSession, PChar(VUrl), PChar(par), length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD, 0);
+    if not Assigned(hFile) then begin
+      VLastError := GetLastError;
+      raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpenUrl');
+    end;
     try
-      strr := PrepareURL(ASearch);
-      hFile := InternetOpenUrl(hSession, PChar(strr), PChar(par), length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD, 0);
-      if Assigned(hFile) then begin
-        try
-          dwcodelen := SizeOf(dwtype);
-          dwReserv := 0;
-          dwindex := 0;
-          if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
-            dwindex := strtoint(pchar(@dwtype));
-          end;
-          if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
-            if FInetSettings <> nil then begin
-              if (FInetSettings.UseLogin) then begin
-                VLogin := FInetSettings.Login;
-                VPassword := FInetSettings.Password;
-                InternetSetOption(hFile, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
-                InternetSetOption(hFile, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
-                HttpSendRequest(hFile, nil, 0, Nil, 0);
-              end;
-            end;
+      dwcodelen := SizeOf(dwtype);
+      dwReserv := 0;
+      dwindex := 0;
+      if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
+        dwindex := strtoint(pchar(@dwtype));
+      end;
+      if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
+        if FInetSettings <> nil then begin
+          if (FInetSettings.UseLogin) then begin
+            VLogin := FInetSettings.Login;
+            VPassword := FInetSettings.Password;
+            InternetSetOption(hFile, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
+            InternetSetOption(hFile, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
+            HttpSendRequest(hFile, nil, 0, Nil, 0);
+
             dwcodelen := SizeOf(dwtype);
             dwReserv := 0;
             dwindex := 0;
             if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
               dwindex := strtoint(pchar(@dwtype));
             end;
-            if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-            begin
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit;
-            end;
           end;
-
-          repeat
-            err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
-            s := s + Buffer;
-          until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
-        finally
-          InternetCloseHandle(hFile);
+        end;
+        if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
+          raise EProxyAuthError.Create('Ошибка уатентификации на Proxy');
         end;
       end;
+
+      repeat
+        err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
+        s := s + Buffer;
+      until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
     finally
-      InternetCloseHandle(hSession);
+      InternetCloseHandle(hFile);
     end;
+  finally
+    InternetCloseHandle(hSession);
   end;
   Result := s;
 end;
@@ -113,17 +123,44 @@ end;
 function TGeoCoderBasic.GetLocations(ASearch: WideString;
   ACurrentPos: TDoublePoint): IGeoCodeResult;
 var
-  s: string;
+  VServerResult: string;
   VList: IInterfaceList;
+  VResultCode: Integer;
+  VMessage: WideString;
 begin
-  if not (ASearch = '') then begin
-    s := GetDataFromInet(ASearch);
-    VList := ParseStringToPlacemarksList(s, ASearch);
+  VResultCode := 200;
+  VMessage := '';
+  try
+    if not (ASearch = '') then begin
+      VServerResult := GetDataFromInet(ASearch);
+      VList := ParseStringToPlacemarksList(VServerResult, ASearch);
+    end;
+  except
+    on E: EInternetOpenError do begin
+      VResultCode := 503;
+      VMessage := E.Message;
+    end;
+    on E: EProxyAuthError do begin
+      VResultCode := 407;
+      VMessage := E.Message;
+    end;
+    on E: EAnswerParseError do begin
+      VResultCode := 416;
+      VMessage := E.Message;
+    end;
+    on E: Exception do begin
+      VResultCode := 417;
+      VMessage := E.Message;
+    end;
   end;
   if VList = nil then begin
     VList := TInterfaceList.Create;
   end;
-  Result := TGeoCodeResult.Create(ASearch, VList, '');
+  if VList.Count = 0 then begin
+    VResultCode := 404;
+    VMessage := 'Не найдено';
+  end;
+  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
 end;
 
 function TGeoCoderBasic.URLEncode(const S: string): string;
@@ -176,6 +213,14 @@ begin
       idx := idx + 3;
     end;
   end;
+end;
+
+{ EInternetOpenError }
+
+constructor EInternetOpenError.Create(Code: DWORD; Msg: String);
+begin
+  inherited Create(Msg);
+  ErrorCode := Code;
 end;
 
 end.
