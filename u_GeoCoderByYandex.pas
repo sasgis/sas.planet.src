@@ -26,7 +26,7 @@ uses
 { TGeoCoderByYandex }
 
 function TGeoCoderByYandex.ParseStringToPlacemarksList(
-  AStr: string;ASearch: WideString): IInterfaceList;
+  AStr: string; ASearch: WideString): IInterfaceList;
 var
   slat, slon: string;
   i, j: integer;
@@ -39,14 +39,18 @@ begin
     raise EParserError.Create('Пустой ответ от сервера');
   end;
   VFormatSettings.DecimalSeparator := '.';
-  if not(PosEx(AnsiToUtf8('Искомая комбинация'),AStr)>0) then begin
-    i:=PosEx('"ll":[',AStr);
-    j:=PosEx(',',AStr,i+6);
-    slon:=Copy(AStr,i+6,j-(i+6));
-    i:=PosEx(']',AStr,j);
-    slat:=Copy(AStr,j+1,i-(j+1));
-    if slat[1]='\' then delete(slat,1,1);
-    if slon[1]='\' then delete(slon,1,1);
+  if not (PosEx(AnsiToUtf8('Искомая комбинация'), AStr) > 0) then begin
+    i := PosEx('"ll":[', AStr);
+    j := PosEx(',', AStr, i + 6);
+    slon := Copy(AStr, i + 6, j - (i + 6));
+    i := PosEx(']', AStr, j);
+    slat := Copy(AStr, j + 1, i - (j + 1));
+    if slat[1] = '\' then begin
+      delete(slat, 1, 1);
+    end;
+    if slon[1] = '\' then begin
+      delete(slon, 1, 1);
+    end;
     try
       VPoint.Y := StrToFloat(slat, VFormatSettings);
       VPoint.X := StrToFloat(slon, VFormatSettings);
