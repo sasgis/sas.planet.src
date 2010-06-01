@@ -12,6 +12,7 @@ type
     function GetSearchText: WideString; safecall;
     function GetPlacemarks: IEnumUnknown; safecall;
     function GetPlacemarksCount: integer; safecall;
+    function GetMessage: WideString; safecall;
   end;
 
   IGeoCodePalcemark = interface

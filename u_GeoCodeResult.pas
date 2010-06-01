@@ -13,11 +13,13 @@ type
   private
     FSearchText: WideString;
     FList: IInterfaceList;
+    FMessage: WideString;
     function GetSearchText: WideString; safecall;
     function GetPlacemarks: IEnumUnknown; safecall;
     function GetPlacemarksCount: integer; safecall;
+    function GetMessage: WideString; safecall;
   public
-    constructor Create(ASearchText: WideString; AList: IInterfaceList);
+    constructor Create(ASearchText: WideString; AList: IInterfaceList; AMessage: WideString);
     destructor Destroy; override;
   end;
 
@@ -29,17 +31,24 @@ uses
 { TGeoCodeResult }
 
 constructor TGeoCodeResult.Create(ASearchText: WideString;
-  AList: IInterfaceList);
+  AList: IInterfaceList; AMessage: WideString);
 begin
   FSearchText := ASearchText;
   FList := AList;
+  FMessage := AMessage;
 end;
 
 destructor TGeoCodeResult.Destroy;
 begin
   FList := nil;
   FSearchText := '';
+  FMessage := '';
   inherited;
+end;
+
+function TGeoCodeResult.GetMessage: WideString;
+begin
+  Result := FMessage;
 end;
 
 function TGeoCodeResult.GetPlacemarks: IEnumUnknown;
