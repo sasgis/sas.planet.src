@@ -95,6 +95,7 @@ uses
   u_GeoCoderByGoogle in 'u_GeoCoderByGoogle.pas',
   u_GeoSearcher in 'u_GeoSearcher.pas',
   i_IMapViewGoto in 'i_IMapViewGoto.pas',
+  u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
   i_ISearchResultPresenter in 'i_ISearchResultPresenter.pas',
   u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',
