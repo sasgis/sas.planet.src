@@ -174,7 +174,6 @@ uses
   UaddLine in 'UaddLine.pas' {FaddLine},
   UaddPoly in 'UaddPoly.pas' {FAddPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
-  USearchResult in 'USearchResult.pas' {FSearchResult},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
@@ -205,7 +204,6 @@ begin
   Application.CreateForm(TFabout, Fabout);
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFsaveas, Fsaveas);
-  Application.CreateForm(TFSearchResult, FSearchResult);
   Application.CreateForm(TFMarksExplorer, FMarksExplorer);
   Application.CreateForm(TFImport, FImport);
   Application.CreateForm(TFAddCategory, FAddCategory);
