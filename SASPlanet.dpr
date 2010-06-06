@@ -93,6 +93,7 @@ uses
   u_GeoCoderBasic in 'u_GeoCoderBasic.pas',
   u_GeoCoderByYandex in 'u_GeoCoderByYandex.pas',
   u_GeoCoderByGoogle in 'u_GeoCoderByGoogle.pas',
+  u_ProxySettingsFromTInetConnect in 'u_ProxySettingsFromTInetConnect.pas',
   u_GeoSearcher in 'u_GeoSearcher.pas',
   i_IMapViewGoto in 'i_IMapViewGoto.pas',
   u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',

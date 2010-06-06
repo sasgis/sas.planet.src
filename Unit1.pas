@@ -72,6 +72,7 @@ uses
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
+  u_GeoSearcher,
   t_GeoTypes;
 
 type
@@ -585,7 +586,10 @@ type
     function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure MiniMapChangePos(APoint: TPoint; AZoom: Byte);
+    procedure InitSearchers;
   public
+    FGoogleSearch: TGeoSearcher;
+    FYandexSerach: TGeoSearcher;
     FFillingMap: TMapFillingLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapNavToMark: TNavToMarkLayer;
@@ -683,6 +687,15 @@ uses
   i_ILogForTaskThread,
   i_ICoordConverter,
   u_KmlInfoSimple,
+  i_IMapViewGoto,
+  u_MapViewGotoOnFMain,
+  i_ISearchResultPresenter,
+  u_SearchResultPresenterStuped,
+  i_GeoCoder,
+  i_IProxySettings,
+  u_ProxySettingsFromTInetConnect,
+  u_GeoCoderByGoogle,
+  u_GeoCoderByYandex,
   UTrAllLoadMap,
   UGSM,
   UImport;
@@ -1683,7 +1696,7 @@ begin
  SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
  FUIDownLoader := TTileDownloaderUI.Create;
-
+ InitSearchers;
  TBXMainMenu.ProcessShortCuts:=true;
 end;
 
@@ -1823,6 +1836,9 @@ begin
     TerminateThread(FUIDownLoader.Handle, 0);
   end;
   if length(GState.MapType)<>0 then FSettings.Save;
+  FreeAndNil(FGoogleSearch);
+  FreeAndNil(FYandexSerach);
+
   FreeAndNil(FFillingMap);
   FreeAndNil(FWikiLayer);
   Application.ProcessMessages;
@@ -2314,86 +2330,21 @@ begin
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var s,slat,slon,par:string;
-    i,j:integer;
-    err:boolean;
-    lat,lon:real;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwindex, dwcodelen,dwReserv: dword;
-    dwtype: array [1..20] of char;
-    strr:string;
+var
+  VScreenCenter: TPoint;
+  VZoom: Byte;
+  VConv: ICoordConverter;
+  VPos: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
- if NewText='' then exit;
- s:='';
- hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- 
- if Assigned(hSession)
-  then begin
-        for i:=1 to length(NewText) do
-         if NewText[i]=' ' then NewText[i]:='+';
-
-        strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA';
-        hFile:=InternetOpenUrl(hSession,PChar(strr),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        if Assigned(hFile)then
-         begin
-          dwcodelen:=150; dwReserv:=0; dwindex:=0;
-          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-           then dwindex:=strtoint(pchar(@dwtype));
-          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
-             begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
-              HttpSendRequest(hFile, nil, 0,Nil, 0);
-             end;
-            dwcodelen:=150; dwReserv:=0; dwindex:=0;
-            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-             then dwindex:=strtoint(pchar(@dwtype));
-            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-             begin
-             	ShowMessage(SAS_ERR_Authorization);
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit;
-             end;
-           end;
-
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           s:=s+Buffer;
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false);
-
-          if PosEx(AnsiToUtf8('Placemark'),s)<1 then
-           begin
-            ShowMessage(SAS_STR_notfound);
-            exit;
-           end;
-          i:=PosEx('<address>',s);
-          j:=PosEx('</address>',s);
-          strr:=Utf8ToAnsi(Copy(s,i+9,j-(i+9)));
-          i:=PosEx('<coordinates>',s);
-          j:=PosEx(',',s,i+13);
-          slon:=Copy(s,i+13,j-(i+13));
-          i:=PosEx(',0</coordinates>',s,j);
-          slat:=Copy(s,j+1,i-(j+1));
-          if slat[1]='\' then delete(slat,1,1);
-          if slon[1]='\' then delete(slon,1,1);
-          try
-           lat:=str2r(slat);
-           lon:=str2r(slon);
-          except
-           ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
-           exit;
-          end;
-          toPos(ExtPoint(lon,lat),GState.zoom_size,true);
-          ShowMessage(SAS_STR_foundplace+' "'+strr+'"');
-         end
-        else ShowMessage(SAS_ERR_Noconnectionstointernet);
-       end
-  else ShowMessage(SAS_ERR_Noconnectionstointernet);
+  VScreenCenter := ScreenCenterPos;
+  VZoom := GState.zoom_size;
+  VConv := GState.sat_map_both.GeoConvert;
+  VConv.CheckPixelPosStrict(VScreenCenter, VZoom, True);
+  VPos := VConv.PixelPos2LonLat(VScreenCenter, VZoom);
+  VPoint.X := VPos.X;
+  VPoint.Y := VPos.Y;
+  FGoogleSearch.ModalSearch(NewText, VPoint);
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
@@ -2749,78 +2700,21 @@ begin
 end;
 
 procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var s,slat,slon,par:string;
-    i,j:integer;
-    err:boolean;
-    lat,lon:real;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwtype: array [1..20] of char;
-    dwindex, dwcodelen,dwReserv: dword;
+var
+  VScreenCenter: TPoint;
+  VZoom: Byte;
+  VConv: ICoordConverter;
+  VPos: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
- if NewText='' then exit;
- s:='';
- hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- if Assigned(hSession)
-  then begin
-        hFile:=InternetOpenURL(hSession,PChar('http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(NewText))),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        dwcodelen:=SizeOf(dwindex);
-        if Assigned(hFile)then
-         begin
-          dwcodelen:=150; dwReserv:=0; dwindex:=0;
-          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-           then dwindex:=strtoint(pchar(@dwtype));
-          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
-             begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
-              HttpSendRequest(hFile, nil, 0,Nil, 0);
-             end;
-            dwcodelen:=150; dwReserv:=0; dwindex:=0;
-            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-             then dwindex:=strtoint(pchar(@dwtype));
-            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-             begin
-             	ShowMessage(SAS_ERR_Authorization);
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit;
-             end;
-           end;
-
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           s:=s+Buffer;
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false);
-
-          if PosEx(AnsiToUtf8('Искомая комбинация'),s)>0 then
-           begin
-            ShowMessage(SAS_STR_notfound);
-            exit;
-           end;
-          i:=PosEx('"ll":[',s);
-          j:=PosEx(',',s,i+6);
-          slon:=Copy(s,i+6,j-(i+6));
-          i:=PosEx(']',s,j);
-          slat:=Copy(s,j+1,i-(j+1));
-          if slat[1]='\' then delete(slat,1,1);
-          if slon[1]='\' then delete(slon,1,1);
-          try
-           lat:=str2r(slat);
-           lon:=str2r(slon);
-          except
-           ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
-           exit;
-          end;
-          toPos(ExtPoint(lon,lat),GState.zoom_size,true);
-          ShowMessage(SAS_STR_foundplace+' "'+NewText+'"');
-         end
-        else ShowMessage(SAS_ERR_Noconnectionstointernet);
-       end
-  else ShowMessage(SAS_ERR_Noconnectionstointernet);
+  VScreenCenter := ScreenCenterPos;
+  VZoom := GState.zoom_size;
+  VConv := GState.sat_map_both.GeoConvert;
+  VConv.CheckPixelPosStrict(VScreenCenter, VZoom, True);
+  VPos := VConv.PixelPos2LonLat(VScreenCenter, VZoom);
+  VPoint.X := VPos.X;
+  VPoint.Y := VPos.Y;
+  FYandexSerach.ModalSearch(NewText, VPoint);
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);
@@ -4233,6 +4127,24 @@ end;
 procedure TFmain.MiniMapChangePos(APoint: TPoint; AZoom: Byte);
 begin
   Set_Pos(APoint, AZoom);
+end;
+
+procedure TFmain.InitSearchers;
+var
+  VGoto: IMapViewGoto;
+  VPresenter: ISearchResultPresenter;
+  VGeoCoder: IGeoCoder;
+  VProxy: IProxySettings;
+begin
+  VGoto := TMapViewGotoOnFMain.Create;
+  VPresenter := TSearchResultPresenterStuped.Create(VGoto);
+  VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
+
+  VGeoCoder := TGeoCoderByGoogle.Create(VProxy);
+  FGoogleSearch := TGeoSearcher.Create(VGeoCoder, VPresenter);
+
+  VGeoCoder := TGeoCoderByYandex.Create(VProxy);
+  FYandexSerach := TGeoSearcher.Create(VGeoCoder, VPresenter);
 end;
 
 end.
