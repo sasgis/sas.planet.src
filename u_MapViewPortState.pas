@@ -17,11 +17,10 @@ type
     FCenterPos: TPoint;
     FZoom: Byte;
     FScreenSize: TPoint;
-    FCoordConvert: ICoordConverter;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FWriteLocked: Boolean;
   public
-    constructor Create;
+    constructor Create(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
     destructor Destroy; override;
 
     procedure LockRead;
@@ -31,8 +30,10 @@ type
     procedure ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
     procedure ChangeLonLatAndUnlock(ANewPos: TDoublePoint); overload;
     procedure ChangeLonLatAndUnlock(ANewPos: TExtendedPoint); overload;
-    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint);
-    procedure ChangeMainMapAndUnlock(MainMap: TMapType);
+    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint); overload;
+    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TDoublePoint); overload;
+    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
+    procedure ChangeMainMapAndUnlock(AMainMap: TMapType);
     procedure ChangeScreenSizeAndUnlock(ANewSize: TPoint);
 
     function GetCenterMapPixel: TPoint;
@@ -59,7 +60,6 @@ implementation
 procedure TMapViewPortState.ChangeLonLatAndUnlock(ANewPos: TDoublePoint);
 var
   VLonLat: TExtendedPoint;
-  VZoom: Byte;
   VConverter: ICoordConverter;
 begin
   FSync.BeginWrite;
@@ -86,7 +86,6 @@ end;
 procedure TMapViewPortState.ChangeLonLatAndUnlock(ANewPos: TExtendedPoint);
 var
   VLonLat: TExtendedPoint;
-  VZoom: Byte;
   VConverter: ICoordConverter;
 begin
   FSync.BeginWrite;
@@ -109,13 +108,16 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeMainMapAndUnlock(MainMap: TMapType);
+procedure TMapViewPortState.ChangeMainMapAndUnlock(AMainMap: TMapType);
 begin
+  if AMainMap = nil then begin
+    raise Exception.Create();
+  end;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
       try
-        FMainMap := MainMap;
+        FMainMap := AMainMap;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -153,6 +155,18 @@ end;
 
 procedure TMapViewPortState.ChangeScreenSizeAndUnlock(ANewSize: TPoint);
 begin
+  if FScreenSize.X <= 0 then begin
+    raise Exception.Create('Ошибочный размер отображаемой карты');
+  end;
+  if FScreenSize.X >= 4096 then begin
+    raise Exception.Create('Ошибочный размер отображаемой карты');
+  end;
+  if FScreenSize.Y <= 0 then begin
+    raise Exception.Create('Ошибочный размер отображаемой карты');
+  end;
+  if FScreenSize.Y <= 4096 then begin
+    raise Exception.Create('Ошибочный размер отображаемой карты');
+  end;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
@@ -200,8 +214,73 @@ begin
   end;
 end;
 
-constructor TMapViewPortState.Create;
+procedure TMapViewPortState.ChangeZoomAndUnlock(ANewZoom: Byte;
+  ANewPos: TDoublePoint);
+var
+  VNewPos: TExtendedPoint;
 begin
+  VNewPos.X := ANewPos.X;
+  VNewPos.Y := ANewPos.Y;
+  ChangeZoomAndUnlock(ANewZoom, VNewPos);
+end;
+
+procedure TMapViewPortState.ChangeZoomAndUnlock(ANewZoom: Byte;
+  ANewPos: TExtendedPoint);
+var
+  VZoom: Byte;
+  VNewPos: TExtendedPoint;
+  VConverter: ICoordConverter;
+begin
+  FSync.BeginWrite;
+  try
+    if FWriteLocked then begin
+      try
+        VZoom := ANewZoom;
+        VNewPos := ANewPos;
+        VConverter := FMainMap.GeoConvert;
+        VConverter.CheckZoom(VZoom);
+        VConverter.CheckLonLatPos(VNewPos);
+        FZoom := VZoom;
+        FCenterPos := VConverter.LonLat2PixelPos(VNewPos, FZoom);
+      finally
+        FWriteLocked := False;
+        FSync.EndWrite;
+      end;
+    end else begin
+      raise Exception.Create('Настройки состояния не были заблокированы');
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+constructor TMapViewPortState.Create(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
+var
+  VConverter: ICoordConverter;
+begin
+  if AMainMap = nil then begin
+    raise Exception.Create('Нужно обязательно указывать активную карту');
+  end;
+  FMainMap := AMainMap;
+  VConverter := FMainMap.GeoConvert;
+  FZoom := AZoom;
+  VConverter.CheckZoom(FZoom);
+  FCenterPos := ACenterPos;
+  VConverter.CheckPixelPosStrict(FCenterPos, FZoom, True);
+  FScreenSize := AScreenSize;
+  if FScreenSize.X <= 0 then begin
+    FScreenSize.X := 1024;
+  end;
+  if FScreenSize.X >= 4096 then begin
+    FScreenSize.X := 1024;
+  end;
+  if FScreenSize.Y <= 0 then begin
+    FScreenSize.Y := 768;
+  end;
+  if FScreenSize.Y <= 4096 then begin
+    FScreenSize.Y := 768;
+  end;
+
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FWriteLocked := False;
 end;
