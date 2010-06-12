@@ -111,7 +111,7 @@ end;
 procedure TMapViewPortState.ChangeMainMapAndUnlock(AMainMap: TMapType);
 begin
   if AMainMap = nil then begin
-    raise Exception.Create();
+    raise Exception.Create('Ќужно об€зательно указывать активную карту');
   end;
   FSync.BeginWrite;
   try
