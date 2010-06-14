@@ -16,7 +16,7 @@ type
     FMainMap: TMapType;
     FCenterPos: TPoint;
     FZoom: Byte;
-    FScreenSize: TPoint;
+    FViewSize: TPoint;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FWriteLocked: Boolean;
   public
@@ -34,7 +34,7 @@ type
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TDoublePoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
     procedure ChangeMainMapAndUnlock(AMainMap: TMapType);
-    procedure ChangeScreenSizeAndUnlock(ANewSize: TPoint);
+    procedure ChangeViewSizeAndUnlock(ANewSize: TPoint);
 
     function GetCenterMapPixel: TPoint;
     function GetCenterLonLat: TExtendedPoint;
@@ -163,25 +163,25 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeScreenSizeAndUnlock(ANewSize: TPoint);
+procedure TMapViewPortState.ChangeViewSizeAndUnlock(ANewSize: TPoint);
 begin
-  if FScreenSize.X <= 0 then begin
+  if FViewSize.X <= 0 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
-  if FScreenSize.X >= 4096 then begin
+  if FViewSize.X >= 4096 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
-  if FScreenSize.Y <= 0 then begin
+  if FViewSize.Y <= 0 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
-  if FScreenSize.Y <= 4096 then begin
+  if FViewSize.Y <= 4096 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
       try
-        FScreenSize := ANewSize;
+        FViewSize := ANewSize;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -277,18 +277,18 @@ begin
   VConverter.CheckZoom(FZoom);
   FCenterPos := ACenterPos;
   VConverter.CheckPixelPosStrict(FCenterPos, FZoom, True);
-  FScreenSize := AScreenSize;
-  if FScreenSize.X <= 0 then begin
-    FScreenSize.X := 1024;
+  FViewSize := AScreenSize;
+  if FViewSize.X <= 0 then begin
+    FViewSize.X := 1024;
   end;
-  if FScreenSize.X >= 4096 then begin
-    FScreenSize.X := 1024;
+  if FViewSize.X >= 4096 then begin
+    FViewSize.X := 1024;
   end;
-  if FScreenSize.Y <= 0 then begin
-    FScreenSize.Y := 768;
+  if FViewSize.Y <= 0 then begin
+    FViewSize.Y := 768;
   end;
-  if FScreenSize.Y <= 4096 then begin
-    FScreenSize.Y := 768;
+  if FViewSize.Y <= 4096 then begin
+    FViewSize.Y := 768;
   end;
 
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
@@ -356,10 +356,10 @@ function TMapViewPortState.GetViewMapRect: TRect;
 begin
   FSync.BeginRead;
   try
-    Result.Left := FCenterPos.X - FScreenSize.X div 2;
-    Result.Top := FCenterPos.Y - FScreenSize.Y div 2;
-    Result.Right := Result.Left + FScreenSize.X;
-    Result.Bottom := Result.Top + FScreenSize.Y;
+    Result.Left := FCenterPos.X - FViewSize.X div 2;
+    Result.Top := FCenterPos.Y - FViewSize.Y div 2;
+    Result.Right := Result.Left + FViewSize.X;
+    Result.Bottom := Result.Top + FViewSize.Y;
     FMainMap.GeoConvert.CheckPixelRect(Result, FZoom, False);
   finally
     FSync.EndRead;
@@ -372,10 +372,10 @@ var
 begin
   FSync.BeginRead;
   try
-    VRect.Left := FCenterPos.X - FScreenSize.X div 2;
-    VRect.Top := FCenterPos.Y - FScreenSize.Y div 2;
-    VRect.Right := VRect.Left + FScreenSize.X;
-    VRect.Bottom := VRect.Top + FScreenSize.Y;
+    VRect.Left := FCenterPos.X - FViewSize.X div 2;
+    VRect.Top := FCenterPos.Y - FViewSize.Y div 2;
+    VRect.Right := VRect.Left + FViewSize.X;
+    VRect.Bottom := VRect.Top + FViewSize.Y;
     FMainMap.GeoConvert.CheckPixelRect(VRect, FZoom, False);
     Result.X := VRect.Right - VRect.Left + 1;
     Result.Y := VRect.Bottom - VRect.Top + 1;
@@ -388,10 +388,10 @@ function TMapViewPortState.GetVisiblePixelRect: TRect;
 begin
   FSync.BeginRead;
   try
-    Result.Left := FCenterPos.X - FScreenSize.X div 2;
-    Result.Top := FCenterPos.Y - FScreenSize.Y div 2;
-    Result.Right := Result.Left + FScreenSize.X;
-    Result.Bottom := Result.Top + FScreenSize.Y;
+    Result.Left := FCenterPos.X - FViewSize.X div 2;
+    Result.Top := FCenterPos.Y - FViewSize.Y div 2;
+    Result.Right := Result.Left + FViewSize.X;
+    Result.Bottom := Result.Top + FViewSize.Y;
   finally
     FSync.EndRead;
   end;
@@ -401,7 +401,7 @@ function TMapViewPortState.GetVisibleSizeInPixel: TPoint;
 begin
   FSync.BeginRead;
   try
-    Result := FScreenSize;
+    Result := FViewSize;
   finally
     FSync.EndRead;
   end;
@@ -411,8 +411,8 @@ function TMapViewPortState.GetVisibleTopLeft: TPoint;
 begin
   FSync.BeginRead;
   try
-    Result.X := FCenterPos.X - FScreenSize.X div 2;
-    Result.Y := FCenterPos.Y - FScreenSize.Y div 2;
+    Result.X := FCenterPos.X - FViewSize.X div 2;
+    Result.Y := FCenterPos.Y - FViewSize.Y div 2;
   finally
     FSync.EndRead;
   end;
@@ -438,8 +438,8 @@ function TMapViewPortState.MapPixel2VisiblePixel(
 begin
   FSync.BeginRead;
   try
-    Result.X := Pnt.X - FCenterPos.X + FScreenSize.X div 2;
-    Result.Y := Pnt.Y - FCenterPos.Y + FScreenSize.Y div 2;
+    Result.X := Pnt.X - FCenterPos.X + FViewSize.X div 2;
+    Result.Y := Pnt.Y - FCenterPos.Y + FViewSize.Y div 2;
   finally
     FSync.EndRead;
   end;
@@ -449,8 +449,8 @@ function TMapViewPortState.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 begin
   FSync.BeginRead;
   try
-    Result.X := Pnt.X - FCenterPos.X + FScreenSize.X div 2;
-    Result.Y := Pnt.Y - FCenterPos.Y + FScreenSize.Y div 2;
+    Result.X := Pnt.X - FCenterPos.X + FViewSize.X div 2;
+    Result.Y := Pnt.Y - FCenterPos.Y + FViewSize.Y div 2;
   finally
     FSync.EndRead;
   end;
@@ -460,8 +460,8 @@ function TMapViewPortState.VisiblePixel2MapPixel(Pnt: TPoint): TPoint;
 begin
   FSync.BeginRead;
   try
-    Result.X := Pnt.X + FCenterPos.X - FScreenSize.X div 2;
-    Result.Y := Pnt.Y + FCenterPos.Y - FScreenSize.Y div 2;
+    Result.X := Pnt.X + FCenterPos.X - FViewSize.X div 2;
+    Result.Y := Pnt.Y + FCenterPos.Y - FViewSize.Y div 2;
   finally
     FSync.EndRead;
   end;
@@ -472,8 +472,8 @@ function TMapViewPortState.VisiblePixel2MapPixel(
 begin
   FSync.BeginRead;
   try
-    Result.X := Pnt.X + FCenterPos.X - FScreenSize.X div 2;
-    Result.Y := Pnt.Y + FCenterPos.Y - FScreenSize.Y div 2;
+    Result.X := Pnt.X + FCenterPos.X - FViewSize.X div 2;
+    Result.Y := Pnt.Y + FCenterPos.Y - FViewSize.Y div 2;
   finally
     FSync.EndRead;
   end;
