@@ -1548,7 +1548,6 @@ begin
     GState.MainIni.ReadInteger('POSITION','x',zoom[VZoom]div 2 +1),
     GState.MainIni.ReadInteger('POSITION','y',zoom[VZoom]div 2 +1)
   );
-  GState.InitViewState(GState.MapType[0], VZoom - 1, VScreenCenterPos, Point(map.Width, map.Height));
 
   FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
   FMainLayer.Visible := True;
