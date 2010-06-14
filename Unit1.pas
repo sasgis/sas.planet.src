@@ -1537,16 +1537,13 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
- VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1);
-  if VZoom = 0 then begin
-    VZoom := 1;
-  end;
-  if VZoom >24 then begin
-    VZoom := 24;
-  end;
+ VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
+  GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
+  VScreenCenterPos.X := GState.sat_map_both.GeoConvert.PixelsAtZoom(VZoom) div 2 + 1;
+  VScreenCenterPos.Y := VScreenCenterPos.X;
   VScreenCenterPos := Point(
-    GState.MainIni.ReadInteger('POSITION','x',zoom[VZoom]div 2 +1),
-    GState.MainIni.ReadInteger('POSITION','y',zoom[VZoom]div 2 +1)
+    GState.MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
+    GState.MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
   );
 
   FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
@@ -1573,7 +1570,7 @@ begin
 
  CreateMapUI;
 
-  Set_Pos(VScreenCenterPos, VZoom - 1, GState.sat_map_both);
+  Set_Pos(VScreenCenterPos, VZoom, GState.sat_map_both);
  try
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
