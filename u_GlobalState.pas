@@ -491,8 +491,10 @@ var
   VMessage: IJclNotificationMessage;
 begin
   VOldSelected := TMapType(InterlockedExchange(Integer(FMainSelectedMap), Integer(Value)));
-  FViewState.LockWrite;
-  FViewState.ChangeMainMapAndUnlock(Value);
+  if FViewState <> nil then begin
+    FViewState.LockWrite;
+    FViewState.ChangeMainMapAndUnlock(Value);
+  end;
   if VOldSelected <> Value then begin
     VMessage := TMapChangeMessage.Create(VOldSelected, Value);
     FMainMapChangeNotifier.Notify(VMessage);
