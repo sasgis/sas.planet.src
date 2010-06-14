@@ -551,7 +551,6 @@ type
     rect_dwn: Boolean;
     rect_p2: boolean;
     FTileSource: TTileSource;
-    FScreenCenterPos: TPoint;
     FMainLayer: TMapMainLayer;
     LayerStatBar: TLayerStatBar;
     FShowErrorLayer: TTileErrorInfoLayer;
@@ -587,6 +586,7 @@ type
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure MiniMapChangePos(APoint: TPoint; AZoom: Byte);
     procedure InitSearchers;
+    function GetScreenCenterPos: TPoint;
   public
     FGoogleSearch: TGeoSearcher;
     FYandexSerach: TGeoSearcher;
@@ -608,7 +608,7 @@ type
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
-    property ScreenCenterPos: TPoint read FScreenCenterPos;
+    property ScreenCenterPos: TPoint read GetScreenCenterPos;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
@@ -626,11 +626,11 @@ type
     procedure SetMiniMapVisible(visible: boolean);
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
-    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+//    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
-    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+//    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
-    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
+//    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
     property VisiblePixelRect: TRect read GetVisiblePixelRect;
 
@@ -706,6 +706,7 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
   ts2,ts3,fr:int64;
+  VScreenCenterPos: TPoint;
 begin
   QueryPerformanceCounter(ts2);
 
@@ -723,11 +724,11 @@ begin
   RxSlider1.Value:=VZoomCurr;
   labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  if (FScreenCenterPos.X <> VPoint.X) or (FScreenCenterPos.Y <> VPoint.Y)then begin
-    FScreenCenterPos := VPoint;
+  VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
+  if (VScreenCenterPos.X <> VPoint.X) or (VScreenCenterPos.Y <> VPoint.Y)then begin
     change_scene:=true;
   end;
-  GState.SetCurrentZoom(VZoomCurr, FScreenCenterPos);
+  GState.SetCurrentZoom(VZoomCurr, VPoint);
 
   LayerStatBar.Redraw;
   LayerScaleLine.Redraw;
@@ -1692,7 +1693,7 @@ begin
       VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
       Set_Pos(VScreenCenterPos, VZoom);
     end else if paramstr(2)<>'' then begin
-      VLonLat := GState.sat_map_both.GeoConvert.PixelPos2LonLat(FScreenCenterPos, GState.zoom_size - 1);
+      VLonLat := GState.sat_map_both.GeoConvert.PixelPos2LonLat(ScreenCenterPos, GState.zoom_size - 1);
       GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
       VZoom := strtoint(paramstr(2)) - 1;
       GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
@@ -3895,23 +3896,23 @@ begin
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
 end;
 
-function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VSize: TPoint;
-begin
-  VSize := GetVisibleSizeInPixel;
-  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
-end;
+//function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
+//var
+//  VSize: TPoint;
+//begin
+//  VSize := GetVisibleSizeInPixel;
+//  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
+//  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
+//end;
 
-function TFmain.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VTopLeft: TPoint;
-begin
-  VTopLeft := GetVisibleTopLeft;
-  Result.X := VTopLeft.X + Pnt.X;
-  Result.Y := VTopLeft.Y + Pnt.y;
-end;
+//function TFmain.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+//var
+//  VTopLeft: TPoint;
+//begin
+//  VTopLeft := GetVisibleTopLeft;
+//  Result.X := VTopLeft.X + Pnt.X;
+//  Result.Y := VTopLeft.Y + Pnt.y;
+//end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
@@ -4168,6 +4169,11 @@ begin
 
   VGeoCoder := TGeoCoderByYandex.Create(VProxy);
   FYandexSerach := TGeoSearcher.Create(VGeoCoder, VPresenter);
+end;
+
+function TFmain.GetScreenCenterPos: TPoint;
+begin
+  Result := GState.ViewState.GetCenterMapPixel;
 end;
 
 end.

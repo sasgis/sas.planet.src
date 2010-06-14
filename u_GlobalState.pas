@@ -515,6 +515,8 @@ end;
 procedure TGlobalState.SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
 begin
   FZoomCurrent := AZoom;
+  ViewState.LockWrite;
+  ViewState.ChangeZoomAndUnlock(AZoom, ANewPos);
 end;
 
 function TGlobalState.GetZoomCurrent: byte;
