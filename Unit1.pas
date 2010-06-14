@@ -1537,6 +1537,7 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
+ GState.SetMainSelectedMap(GState.MapType[0]);
  VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
   GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
   VScreenCenterPos.X := GState.sat_map_both.GeoConvert.PixelsAtZoom(VZoom) div 2 + 1;
