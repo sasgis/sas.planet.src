@@ -26,6 +26,7 @@ type
 
   TGlobalState = class
   private
+    FZoomCurrent: Byte;
     FMainSelectedMap: TMapType;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
@@ -53,6 +54,7 @@ type
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
+    function GetZoomCurrent: byte;
   public
 
     MainFileCache: IMemObjCache;
@@ -195,9 +197,6 @@ type
 
     FullScrean: Boolean;
 
-    // Текущий зумм
-    zoom_size: byte;
-
     // Отображать сетку тайлов для заданного зума
     TileGridZoom: byte;
 
@@ -253,6 +252,8 @@ type
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
     property sat_map_both: TMapType read FMainSelectedMap;
+    // Текущий зумм
+    property zoom_size: byte read GetZoomCurrent;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     constructor Create;
@@ -260,6 +261,7 @@ type
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
     procedure SetMainSelectedMap(const Value: TMapType);
+    procedure SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
   end;
 
 const
@@ -474,6 +476,16 @@ end;
 procedure TGlobalState.SetMainSelectedMap(const Value: TMapType);
 begin
   FMainSelectedMap := Value;
+end;
+
+procedure TGlobalState.SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
+begin
+  FZoomCurrent := AZoom;
+end;
+
+function TGlobalState.GetZoomCurrent: byte;
+begin
+  Result := FZoomCurrent + 1;
 end;
 
 end.

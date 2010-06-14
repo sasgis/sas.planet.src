@@ -715,7 +715,7 @@ begin
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   RxSlider1.Value:=VZoomCurr;
-  GState.zoom_size := VZoomCurr + 1;
+  labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
   GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
   if (FScreenCenterPos.X <> VPoint.X) or (FScreenCenterPos.Y <> VPoint.Y)then begin
     FScreenCenterPos := VPoint;
@@ -723,6 +723,7 @@ begin
     LayerScaleLine.Redraw;
     FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
   end;
+  GState.SetCurrentZoom(VZoomCurr, FScreenCenterPos);
 
   FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
   FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
@@ -1372,6 +1373,8 @@ var
   VFillingmaptype: TMapType;
   Vzoom_mapzap: integer;
   VScreenCenterPos: TPoint;
+  VZoom: Byte;
+  VLonLat: TExtendedPoint;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -1452,7 +1455,6 @@ begin
  GState.ZoomingAtMousePos:=GState.MainIni.readBool('VIEW','ZoomingAtMousePos',true);
  NGoToCur.Checked := GState.ZoomingAtMousePos;
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
- GState.Zoom_Size:=GState.MainIni.ReadInteger('POSITION','zoom_size',1);
  GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
  Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  GState.TileGridZoom:=GState.MainIni.readinteger('VIEW','grid',0);
@@ -1535,9 +1537,16 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
+ VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1);
+  if VZoom = 0 then begin
+    VZoom := 1;
+  end;
+  if VZoom >24 then begin
+    VZoom := 24;
+  end;
   VScreenCenterPos := Point(
-    GState.MainIni.ReadInteger('POSITION','x',zoom[GState.zoom_size]div 2 +1),
-    GState.MainIni.ReadInteger('POSITION','y',zoom[GState.zoom_size]div 2 +1)
+    GState.MainIni.ReadInteger('POSITION','x',zoom[VZoom]div 2 +1),
+    GState.MainIni.ReadInteger('POSITION','y',zoom[VZoom]div 2 +1)
   );
 
   FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
@@ -1564,7 +1573,7 @@ begin
 
  CreateMapUI;
 
-  Set_Pos(VScreenCenterPos, GState.zoom_size - 1, GState.sat_map_both);
+  Set_Pos(VScreenCenterPos, VZoom - 1, GState.sat_map_both);
  try
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
@@ -1675,8 +1684,22 @@ begin
         end;
       end;
     end;
-    if paramstr(2)<>'' then GState.zoom_size:=strtoint(paramstr(2));
-    if (paramstr(3)<>'')and(paramstr(4)<>'') then Set_Pos(GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(str2r(paramstr(3)),str2r(paramstr(4))),(GState.zoom_size - 1) + 8), GState.zoom_size - 1, GState.sat_map_both);
+    if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+      VZoom := strtoint(paramstr(2)) - 1;
+      GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
+      VLonLat.X := str2r(paramstr(3));
+      VLonLat.Y := str2r(paramstr(4));
+      GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
+      VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
+      Set_Pos(VScreenCenterPos, VZoom);
+    end else if paramstr(2)<>'' then begin
+      VLonLat := GState.sat_map_both.GeoConvert.PixelPos2LonLat(FScreenCenterPos, GState.zoom_size - 1);
+      GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
+      VZoom := strtoint(paramstr(2)) - 1;
+      GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
+      VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
+      Set_Pos(VScreenCenterPos, VZoom);
+    end;
   except
   end;
  end;
