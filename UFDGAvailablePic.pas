@@ -40,7 +40,6 @@ type
     GroupBox4: TGroupBox;
     ComboBox2: TComboBox;
     Button3: TButton;
-    procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure TreeView1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -49,42 +48,16 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    { Private declarations }                             
-  public
     ms:TMemoryStream;
-    Apos:tExtendedPoint;
+    FLonLat:tExtendedPoint;
     tids,ls:string;
     mpp:extended;
     hi,wi:integer;
     procedure CreateTree;
     procedure FormTidList;
-    procedure setup;
-  end;
-
-  TDGPicture = class
-   tid:string;
-   date:string;
-   provider:string;
-   color:string;
-   resolution:string;
-  end;
-
-  TGetList = class(TThread)
-    Link:string;
-    ErrCode:integer;
-  private
-    list:TStringList;
-    function GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
-  protected
-    procedure Execute; override;
-    procedure ShowList;
-    procedure ShowError;
   public
-    constructor Create(ALink:string);
+    procedure setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
   end;
-
-const
-  maxReqSize = 3000;
 
 var
   FDGAvailablePic: TFDGAvailablePic;
@@ -148,6 +121,33 @@ implementation
 uses
   u_GlobalState,
   u_GeoToStr;
+
+type
+  TDGPicture = class
+   tid:string;
+   date:string;
+   provider:string;
+   color:string;
+   resolution:string;
+  end;
+
+  TGetList = class(TThread)
+    Link:string;
+    ErrCode:integer;
+  private
+    list:TStringList;
+    function GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
+  protected
+    procedure Execute; override;
+    procedure ShowList;
+    procedure ShowError;
+  public
+    constructor Create(ALink:string);
+  end;
+
+const
+  maxReqSize = 3000;
+
 
 var
   GetListThId:THandle;
@@ -344,15 +344,16 @@ begin
  pltstr.Free;
 end;
 
-procedure TFDGAvailablePic.setup;
+procedure TFDGAvailablePic.setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
 begin
-  VSize := Fmain.VisibleSizeInPixel;
+  Show;
+  VSize := AViewSize;
   VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
- Apos:= GState.sat_map_both.GeoConvert.Pos2LonLat(FMain.VisiblePixel2MapPixel(Fmain.moveTrue),(GState.zoom_size - 1) + 8);
- mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(APos.y*D2R)));
+  FLonLat:= ALonLat;
+ mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
  if hi>maxReqSize then hi:=maxReqSize;
@@ -361,11 +362,6 @@ begin
  if wi<VSize.X then wi:=256;
  if mpp>8 then mpp:=8;
  ComboBox2Change(nil);
-end;
-
-procedure TFDGAvailablePic.FormShow(Sender: TObject);
-begin
- setup;
 end;
 
 procedure TFDGAvailablePic.Button1Click(Sender: TObject);
@@ -465,7 +461,7 @@ begin
  TreeView1.Items.Clear;
  ls:=stacks[ComboBox2.ItemIndex,1];
  GetWord(ComboBox2.Text, ',', 1);
- encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(Apos.x)+'&yc='+R2StrPoint(Apos.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
+ encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(FLonLat.x)+'&yc='+R2StrPoint(FLonLat.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
 
  with TGetList.Create('http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt) do
   begin

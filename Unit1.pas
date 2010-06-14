@@ -3027,8 +3027,10 @@ end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
 begin
- if FDGAvailablePic.Visible then FDGAvailablePic.setup
-                            else FDGAvailablePic.Show;
+  FDGAvailablePic.setup(
+    GState.sat_map_both.GeoConvert.PixelPos2LonLat(VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1)),
+    GetVisibleSizeInPixel
+  );
 end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
@@ -3354,8 +3356,10 @@ begin
  end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin
-   if FDGAvailablePic.Visible then FDGAvailablePic.setup
-                              else FDGAvailablePic.Show;
+    FDGAvailablePic.setup(
+      GState.sat_map_both.GeoConvert.PixelPos2LonLat(VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1)),
+      GetVisibleSizeInPixel
+    );
    exit;
   end;
 
