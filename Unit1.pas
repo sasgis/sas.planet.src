@@ -1374,6 +1374,7 @@ var
   Vzoom_mapzap: integer;
   VScreenCenterPos: TPoint;
   VZoom: Byte;
+  VLonLat: TExtendedPoint;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -1536,7 +1537,13 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
- Vzoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1);
+ VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1);
+  if VZoom = 0 then begin
+    VZoom := 1;
+  end;
+  if VZoom >24 then begin
+    VZoom := 24;
+  end;
   VScreenCenterPos := Point(
     GState.MainIni.ReadInteger('POSITION','x',zoom[VZoom]div 2 +1),
     GState.MainIni.ReadInteger('POSITION','y',zoom[VZoom]div 2 +1)

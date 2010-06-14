@@ -201,7 +201,6 @@ type
 
     FullScrean: Boolean;
 
-
     // Отображать сетку тайлов для заданного зума
     TileGridZoom: byte;
 
