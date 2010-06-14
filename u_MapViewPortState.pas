@@ -109,6 +109,11 @@ begin
 end;
 
 procedure TMapViewPortState.ChangeMainMapAndUnlock(AMainMap: TMapType);
+var
+  VLonLat: TExtendedPoint;
+  VConverterOld: ICoordConverter;
+  VConverterNew: ICoordConverter;
+  VNewPos: TPoint;
 begin
   if AMainMap = nil then begin
     raise Exception.Create('Ќужно об€зательно указывать активную карту');
@@ -117,7 +122,12 @@ begin
   try
     if FWriteLocked then begin
       try
+        VConverterOld := FMainMap.GeoConvert;
+        VLonLat := VConverterOld.PixelPos2LonLat(FCenterPos, FZoom);
+        VConverterNew := AMainMap.GeoConvert;
+        VNewPos := VConverterNew.LonLat2PixelPos(VLonLat, FZoom);
         FMainMap := AMainMap;
+        FCenterPos := VNewPos;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
