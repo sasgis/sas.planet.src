@@ -28,10 +28,7 @@ type
 
   TGlobalState = class
   private
-    FMainSelectedMap: TMapType;
-    FZoomCurrent: Byte;
     FViewState: TMapViewPortState;
-    FMainMapChangeNotifier: IJclNotifier;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
@@ -58,7 +55,8 @@ type
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
-    function GetZoomCurrent: byte;
+    function Get_zoom_size: byte;
+    function GetMainSelectedMap: TMapType;
   public
 
     MainFileCache: IMemObjCache;
@@ -255,10 +253,9 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
-    property sat_map_both: TMapType read FMainSelectedMap;
+    property sat_map_both: TMapType read GetMainSelectedMap;
     // Текущий зумм
-    property zoom_size: byte read GetZoomCurrent;
-    property MainMapChangeNotifier: IJclNotifier read FMainMapChangeNotifier;
+    property zoom_size: byte read Get_zoom_size;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     property ViewState: TMapViewPortState read FViewState;
@@ -299,7 +296,6 @@ var
   VList: IListOfObjectsWithTTL;
 begin
   FDwnCS := TCriticalSection.Create;
-  FMainMapChangeNotifier := TJclBaseNotifier.Create;
   All_Dwn_Kb := 0;
   All_Dwn_Tiles := 0;
   InetConnect := TInetConnect.Create;
@@ -325,7 +321,6 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FreeAndNil(FDwnCS);
-  FMainMapChangeNotifier := nil;
   MainIni.UpdateFile;
   FreeAndNil(MainIni);
   FreeMarkIcons;
@@ -486,20 +481,8 @@ begin
 end;
 
 procedure TGlobalState.SetMainSelectedMap(const Value: TMapType);
-var
-  VOldSelected: TMapType;
-  VMessage: IJclNotificationMessage;
 begin
-  VOldSelected := TMapType(InterlockedExchange(Integer(FMainSelectedMap), Integer(Value)));
-  if FViewState <> nil then begin
-    FViewState.LockWrite;
-    FViewState.ChangeMainMapAndUnlock(Value);
-  end;
-  if VOldSelected <> Value then begin
-    VMessage := TMapChangeMessage.Create(VOldSelected, Value);
-    FMainMapChangeNotifier.Notify(VMessage);
-    VMessage := nil;
-  end;
+  FViewState.ChangeMainMapAtCurrentPoint(Value);
 end;
 
 procedure TGlobalState.InitViewState(AMainMap: TMapType; AZoom: Byte;
@@ -514,14 +497,18 @@ end;
 
 procedure TGlobalState.SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
 begin
-  FZoomCurrent := AZoom;
   ViewState.LockWrite;
   ViewState.ChangeZoomAndUnlock(AZoom, ANewPos);
 end;
 
-function TGlobalState.GetZoomCurrent: byte;
+function TGlobalState.Get_zoom_size: byte;
 begin
-  Result := FZoomCurrent + 1;
+  Result := ViewState.GetCurrentZoom + 1;
+end;
+
+function TGlobalState.GetMainSelectedMap: TMapType;
+begin
+  Result := FViewState.GetCurrentMap;
 end;
 
 end.

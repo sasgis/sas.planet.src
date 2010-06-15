@@ -1376,6 +1376,7 @@ var
   VScreenCenterPos: TPoint;
   VZoom: Byte;
   VLonLat: TExtendedPoint;
+  VConverter: ICoordConverter;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -1538,15 +1539,17 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
- GState.SetMainSelectedMap(GState.MapType[0]);
+ VConverter := GState.MapType[0].GeoConvert;
  VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
-  GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
-  VScreenCenterPos.X := GState.sat_map_both.GeoConvert.PixelsAtZoom(VZoom) div 2 + 1;
+  VConverter.CheckZoom(VZoom);
+  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2 + 1;
   VScreenCenterPos.Y := VScreenCenterPos.X;
   VScreenCenterPos := Point(
     GState.MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
     GState.MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
   );
+
+  GState.InitViewState(GState.MapType[0], VZoom - 1, VScreenCenterPos, Point(map.Width, map.Height));
 
   FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
   FMainLayer.Visible := True;
@@ -1570,7 +1573,6 @@ begin
   FMiniMapLayer.Visible := True;
   FMiniMapLayer.OnChangePos := MiniMapChangePos;
 
-  GState.InitViewState(GState.MapType[0], VZoom - 1, VScreenCenterPos, Point(map.Width, map.Height));
 
   CreateMapUI;
 

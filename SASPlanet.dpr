@@ -152,6 +152,8 @@ uses
   u_MapTypeMenuItmesList in 'u_MapTypeMenuItmesList.pas',
   u_MapTypeMenuItemsGeneratorBasic in 'u_MapTypeMenuItemsGeneratorBasic.pas',
   u_MiniMapMenuItemsFactory in 'u_MiniMapMenuItemsFactory.pas',
+  i_IPosChangeMessage in 'i_IPosChangeMessage.pas',
+  u_PosChangeMessage in 'u_PosChangeMessage.pas',
   u_MapChangeMessage in 'u_MapChangeMessage.pas',
   i_IMapChangeMessage in 'i_IMapChangeMessage.pas',
   u_HybrChangeMessage in 'u_HybrChangeMessage.pas',

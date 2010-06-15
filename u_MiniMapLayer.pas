@@ -239,7 +239,7 @@ begin
   FreeAndNil(FDefoultMap);
   FMapsActive.MapChangeNotifier.Remove(FMapChangeListener);
   FMapsActive.HybrChangeNotifier.Remove(FHybrChangeListener);
-  GState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
+  GState.ViewState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
   FMapConfigSaver := nil;
   FMapConfigLoader := nil;
   FMapChangeListener := nil;
@@ -383,7 +383,7 @@ begin
   FHybrChangeListener := TMiniMapHybrChangeListener.Create(Self);
   FMapsActive.HybrChangeNotifier.Add(FHybrChangeListener);
   FMainMapChangeListener := TMiniMapMainMapChangeListener.Create(Self);
-  GState.MainMapChangeNotifier.Add(FMainMapChangeListener);
+  GState.ViewState.MainMapChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
@@ -1016,10 +1016,10 @@ procedure TMiniMapLayer.OnNotifyMapChange(msg: IMapChangeMessage);
 begin
   if msg.GetNewMap = nil then begin
     FMiniMapSameAsMain.Checked := True;
-    GState.MainMapChangeNotifier.Add(FMainMapChangeListener);
+    GState.ViewState.MainMapChangeNotifier.Add(FMainMapChangeListener);
   end else begin
     FMiniMapSameAsMain.Checked := False;
-    GState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
+    GState.ViewState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
   end;
   Redraw;
 end;
