@@ -695,6 +695,7 @@ uses
   u_SearchResultPresenterStuped,
   i_GeoCoder,
   i_IProxySettings,
+  i_IPosChangeMessage,
   u_ProxySettingsFromTInetConnect,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
@@ -727,12 +728,16 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
   ts2,ts3,fr:int64;
-  VScreenCenterPos: TPoint;
+  VConverter: ICoordConverter;
+  VMessage: IPosChangeMessage;
 begin
   QueryPerformanceCounter(ts2);
 
-//  VPoint := ;
-//  VZoomCurr := ;
+  VMessage := msg as IPosChangeMessage;
+
+  VPoint := VMessage.GetMapPixel;
+  VZoomCurr := VMessage.GetZoom;
+  VConverter := VMessage.GetMap.GeoConvert;
 
   if VZoomCurr<=0  then FMainForm.TBZoom_Out.Enabled:=false
         else FMainForm.TBZoom_Out.Enabled:=true;
@@ -746,17 +751,17 @@ begin
   FMainForm.LayerStatBar.Redraw;
   FMainForm.LayerScaleLine.Redraw;
 
-  FMainForm.FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMainForm.FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMainForm.FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   FMainForm.Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
