@@ -34,7 +34,7 @@ type
     procedure UnLockRead;
     procedure UnLockWrite;
     procedure ChangeMapPixelByDelta(ADelta: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(AFreezePoint: TPoint);
+    procedure ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte; AFreezePoint: TPoint);
     procedure ChangeMainMapAtCurrentPoint(AMainMap: TMapType);
 
     procedure ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
@@ -583,10 +583,34 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(
+procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte;
   AFreezePoint: TPoint);
+var
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapFreezePoint: TPoint;
+  VRelativeFreezePoint: TExtendedPoint;
+  VMapFreezPointAtNewZoom: TPoint;
+  VNewCenterPos: TPoint;
+  VChanged: Boolean;
 begin
+  VChanged := False;
+  FSync.BeginWrite;
+  try
+    VConverter := FMainMap.GeoConvert;
+    VZoom := FZoom;
+    VConverter.CheckZoom(VZoom);
+    if FZoom <> AZoom then begin
+      VChanged := True;
+      VMapFreezePoint := VisiblePixel2MapPixel(AFreezePoint);
 
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangePos;
+  end;
 end;
 
 procedure TMapViewPortState.NotifyChangePos;
