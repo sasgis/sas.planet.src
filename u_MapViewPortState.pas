@@ -36,6 +36,7 @@ type
     procedure ChangeMapPixelByDelta(ADelta: TPoint);
     procedure ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte; AFreezePoint: TPoint);
     procedure ChangeMainMapAtCurrentPoint(AMainMap: TMapType);
+    procedure ChangeViewSize(ANewSize: TPoint);
 
     procedure ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
     procedure ChangeLonLatAndUnlock(ALonLat: TDoublePoint); overload;
@@ -43,7 +44,6 @@ type
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TDoublePoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
-    procedure ChangeViewSizeAndUnlock(ANewSize: TPoint);
 
     function GetCenterMapPixel: TPoint;
     function GetCenterLonLat: TExtendedPoint;
@@ -250,7 +250,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeViewSizeAndUnlock(ANewSize: TPoint);
+procedure TMapViewPortState.ChangeViewSize(ANewSize: TPoint);
 var
   VChanged: Boolean;
 begin
@@ -264,22 +264,13 @@ begin
   if FViewSize.Y <= 0 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
-  if FViewSize.Y <= 4096 then begin
+  if FViewSize.Y >= 4096 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
   FSync.BeginWrite;
   try
-    if FWriteLocked then begin
-      try
-        VChanged := (FViewSize.X <> ANewSize.X) or (FViewSize.Y <> ANewSize.Y);
-        FViewSize := ANewSize;
-      finally
-        FWriteLocked := False;
-        FSync.EndWrite;
-      end;
-    end else begin
-      raise Exception.Create('Настройки состояния не были заблокированы');
-    end;
+    VChanged := (FViewSize.X <> ANewSize.X) or (FViewSize.Y <> ANewSize.Y);
+    FViewSize := ANewSize;
   finally
     FSync.EndWrite;
   end;
@@ -588,10 +579,12 @@ procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte;
 var
   VConverter: ICoordConverter;
   VZoom: Byte;
+  VZoomOld: Byte;
   VMapFreezePoint: TPoint;
   VRelativeFreezePoint: TExtendedPoint;
   VMapFreezPointAtNewZoom: TPoint;
   VNewCenterPos: TPoint;
+  VFreezeDelta: TPoint;
   VChanged: Boolean;
 begin
   VChanged := False;
@@ -602,8 +595,20 @@ begin
     VConverter.CheckZoom(VZoom);
     if FZoom <> AZoom then begin
       VChanged := True;
+      VZoomOld := FZoom;
       VMapFreezePoint := VisiblePixel2MapPixel(AFreezePoint);
+      VConverter.CheckPixelPos(VMapFreezePoint, VZoomOld, False);
+      VFreezeDelta.X := FCenterPos.X - VMapFreezePoint.X;
+      VFreezeDelta.Y := FCenterPos.Y - VMapFreezePoint.Y;
 
+      VRelativeFreezePoint := VConverter.PixelPos2Relative(VMapFreezePoint, VZoomOld);
+      VMapFreezPointAtNewZoom := VConverter.Relative2Pixel(VRelativeFreezePoint, VZoom);
+
+      VNewCenterPos.X := VMapFreezPointAtNewZoom.X + VFreezeDelta.X;
+      VNewCenterPos.Y := VMapFreezPointAtNewZoom.Y + VFreezeDelta.Y;
+
+      VConverter.CheckPixelPosStrict(VNewCenterPos, VZoom, False);
+      FCenterPos := VNewCenterPos;
     end;
   finally
     FSync.EndWrite;
