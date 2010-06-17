@@ -664,6 +664,8 @@ uses
   StrUtils,
   DateUtils,
   Types,
+  i_JclNotify,
+  u_JclNotify,
   u_GlobalState,
   Unit2,
   UAbout,
@@ -701,6 +703,65 @@ uses
   UImport;
 
 {$R *.dfm}
+
+type
+  TChangePosListenerOfMainForm = class(TJclBaseListener)
+  private
+    FMainForm: TFmain;
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  public
+    constructor Create(AMainForm: TFmain);
+  end;
+
+{ TChangePosListenerOfMainForm }
+
+constructor TChangePosListenerOfMainForm.Create(AMainForm: TFmain);
+begin
+  FMainForm := AMainForm;
+end;
+
+procedure TChangePosListenerOfMainForm.Notification(
+  msg: IJclNotificationMessage);
+var
+  VPoint: TPoint;
+  VZoomCurr: Byte;
+  ts2,ts3,fr:int64;
+  VScreenCenterPos: TPoint;
+begin
+  QueryPerformanceCounter(ts2);
+
+//  VPoint := ;
+//  VZoomCurr := ;
+
+  if VZoomCurr<=0  then FMainForm.TBZoom_Out.Enabled:=false
+        else FMainForm.TBZoom_Out.Enabled:=true;
+  if VZoomCurr>=23 then FMainForm.TBZoomIn.Enabled:=false
+        else FMainForm.TBZoomIn.Enabled:=true;
+  FMainForm.NZoomIn.Enabled:=FMainForm.TBZoomIn.Enabled;
+  FMainForm.NZoomOut.Enabled:=FMainForm.TBZoom_Out.Enabled;
+  FMainForm.RxSlider1.Value:=VZoomCurr;
+  FMainForm.labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
+  FMainForm.change_scene:=true;
+  FMainForm.LayerStatBar.Redraw;
+  FMainForm.LayerScaleLine.Redraw;
+
+  FMainForm.FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  FMainForm.FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
+  QueryPerformanceCounter(ts3);
+  QueryPerformanceFrequency(fr);
+  FMainForm.Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+end;
+
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
 var
   VPoint: TPoint;
@@ -2644,6 +2705,7 @@ procedure TFmain.mapResize(Sender: TObject);
 begin
  if (ProgramClose<>true)and(not(ProgramStart))then
   begin
+   GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
    FMainLayer.Resize;
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
