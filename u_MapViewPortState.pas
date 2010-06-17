@@ -21,7 +21,10 @@ type
     FWriteLocked: Boolean;
     FMainMapChangeNotifier: IJclNotifier;
     FPosChangeNotifier: IJclNotifier;
-    procedure NotyfyChangePos;
+    FViewSizeChangeNotifier: IJclNotifier;
+    procedure NotifyChangePos;
+    procedure NotifyChangeMainMap(AOldSelected, ANewSelected: TMapType);
+    procedure NotifyChangeViewSize;
   public
     constructor Create(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
     destructor Destroy; override;
@@ -35,8 +38,8 @@ type
     procedure ChangeMainMapAtCurrentPoint(AMainMap: TMapType);
 
     procedure ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
-    procedure ChangeLonLatAndUnlock(ANewPos: TDoublePoint); overload;
-    procedure ChangeLonLatAndUnlock(ANewPos: TExtendedPoint); overload;
+    procedure ChangeLonLatAndUnlock(ALonLat: TDoublePoint); overload;
+    procedure ChangeLonLatAndUnlock(ALonLat: TExtendedPoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TDoublePoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
@@ -60,6 +63,7 @@ type
 
     property MainMapChangeNotifier: IJclNotifier read FMainMapChangeNotifier;
     property PosChangeNotifier: IJclNotifier read FPosChangeNotifier;
+    property ViewSizeChangeNotifier: IJclNotifier read FViewSizeChangeNotifier;
   end;
 
 implementation
@@ -80,6 +84,7 @@ begin
   end;
   FMainMapChangeNotifier := TJclBaseNotifier.Create;
   FPosChangeNotifier := TJclBaseNotifier.Create;
+  FViewSizeChangeNotifier := TJclBaseNotifier.Create;
   FMainMap := AMainMap;
   VConverter := FMainMap.GeoConvert;
   FZoom := AZoom;
@@ -110,23 +115,29 @@ begin
   FreeAndNil(FSync);
   FMainMapChangeNotifier := nil;
   FPosChangeNotifier := nil;
+  FViewSizeChangeNotifier := nil;
   inherited;
 end;
 
-procedure TMapViewPortState.ChangeLonLatAndUnlock(ANewPos: TDoublePoint);
+procedure TMapViewPortState.ChangeLonLatAndUnlock(ALonLat: TDoublePoint);
 var
   VLonLat: TExtendedPoint;
   VConverter: ICoordConverter;
+  VPixelPos: TPoint;
+  VPosChanged: Boolean;
 begin
+  VPosChanged := false;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
       try
         VConverter := FMainMap.GeoConvert;
-        VLonLat.X := ANewPos.X;
-        VLonLat.Y := ANewPos.Y;
+        VLonLat.X := ALonLat.X;
+        VLonLat.Y := ALonLat.Y;
         VConverter.CheckLonLatPos(VLonLat);
-        FCenterPos := VConverter.LonLat2Pos(VLonLat, FZoom);
+        VPixelPos := VConverter.LonLat2PixelPos(VLonLat, FZoom);
+        VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
+        FCenterPos := VPixelPos;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -137,21 +148,29 @@ begin
   finally
     FSync.EndWrite;
   end;
+  if VPosChanged then begin
+    NotifyChangePos;
+  end;
 end;
 
-procedure TMapViewPortState.ChangeLonLatAndUnlock(ANewPos: TExtendedPoint);
+procedure TMapViewPortState.ChangeLonLatAndUnlock(ALonLat: TExtendedPoint);
 var
   VLonLat: TExtendedPoint;
   VConverter: ICoordConverter;
+  VPixelPos: TPoint;
+  VPosChanged: Boolean;
 begin
+  VPosChanged := false;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
       try
         VConverter := FMainMap.GeoConvert;
-        VLonLat := ANewPos;
+        VLonLat := ALonLat;
         VConverter.CheckLonLatPos(VLonLat);
-        FCenterPos := VConverter.LonLat2Pos(VLonLat, FZoom);
+        VPixelPos := VConverter.LonLat2PixelPos(VLonLat, FZoom);
+        VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
+        FCenterPos := VPixelPos;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -161,6 +180,9 @@ begin
     end;
   finally
     FSync.EndWrite;
+  end;
+  if VPosChanged then begin
+    NotifyChangePos;
   end;
 end;
 
@@ -170,41 +192,49 @@ var
   VConverterOld: ICoordConverter;
   VConverterNew: ICoordConverter;
   VNewPos: TPoint;
-  VMessage: IJclNotificationMessage;
   VOldSelected: TMapType;
+  VPosChanged: Boolean;
 begin
   if AMainMap = nil then begin
     raise Exception.Create('Ќужно об€зательно указывать активную карту');
   end;
+  VPosChanged := false;
+  VOldSelected := nil;
   FSync.BeginWrite;
   try
-    VConverterOld := FMainMap.GeoConvert;
-    VLonLat := VConverterOld.PixelPos2LonLat(FCenterPos, FZoom);
-    VConverterNew := AMainMap.GeoConvert;
-    VNewPos := VConverterNew.LonLat2PixelPos(VLonLat, FZoom);
-    FMainMap := AMainMap;
-    FCenterPos := VNewPos;
-    if VOldSelected <> FMainMap then begin
-      VMessage := TMapChangeMessage.Create(VOldSelected, FMainMap);
-      FMainMapChangeNotifier.Notify(VMessage);
-      VMessage := nil;
+    if FMainMap <> AMainMap then begin
+      VPosChanged := True;
+      VOldSelected := FMainMap;
+      VConverterOld := FMainMap.GeoConvert;
+      VLonLat := VConverterOld.PixelPos2LonLat(FCenterPos, FZoom);
+      VConverterNew := AMainMap.GeoConvert;
+      VNewPos := VConverterNew.LonLat2PixelPos(VLonLat, FZoom);
+      FMainMap := AMainMap;
+      FCenterPos := VNewPos;
     end;
   finally
     FSync.EndWrite;
+  end;
+  if VPosChanged then begin
+    NotifyChangeMainMap(VOldSelected, AMainMap);
+    NotifyChangePos;
   end;
 end;
 
 procedure TMapViewPortState.ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
 var
-  VNewPos: TPoint;
+  VPixelPos: TPoint;
+  VPosChanged: Boolean;
 begin
+  VPosChanged := false;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
       try
-        VNewPos := ANewPos;
-        FMainMap.GeoConvert.CheckPixelPosStrict(VNewPos, FZoom, True);
-        FCenterPos := VNewPos;
+        VPixelPos := ANewPos;
+        FMainMap.GeoConvert.CheckPixelPosStrict(VPixelPos, FZoom, True);
+        VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
+        FCenterPos := VPixelPos;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -215,10 +245,16 @@ begin
   finally
     FSync.EndWrite;
   end;
+  if VPosChanged then begin
+    NotifyChangePos;
+  end;
 end;
 
 procedure TMapViewPortState.ChangeViewSizeAndUnlock(ANewSize: TPoint);
+var
+  VChanged: Boolean;
 begin
+  VChanged := False;
   if FViewSize.X <= 0 then begin
     raise Exception.Create('ќшибочный размер отображаемой карты');
   end;
@@ -235,6 +271,7 @@ begin
   try
     if FWriteLocked then begin
       try
+        VChanged := (FViewSize.X <> ANewSize.X) or (FViewSize.Y <> ANewSize.Y);
         FViewSize := ANewSize;
       finally
         FWriteLocked := False;
@@ -246,6 +283,9 @@ begin
   finally
     FSync.EndWrite;
   end;
+  if VChanged then begin
+    NotifyChangeViewSize;
+  end;
 end;
 
 procedure TMapViewPortState.ChangeZoomAndUnlock(ANewZoom: Byte;
@@ -254,7 +294,9 @@ var
   VZoom: Byte;
   VNewPos: TPoint;
   VConverter: ICoordConverter;
+  VChanged: Boolean;
 begin
+  VChanged := False;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
@@ -264,6 +306,7 @@ begin
         VConverter := FMainMap.GeoConvert;
         VConverter.CheckZoom(VZoom);
         VConverter.CheckPixelPos(VNewPos, VZoom, True);
+        VChanged := (FZoom <> VZoom) or (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
         FZoom := VZoom;
         FCenterPos := VNewPos;
       finally
@@ -275,6 +318,9 @@ begin
     end;
   finally
     FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangePos;
   end;
 end;
 
@@ -294,7 +340,10 @@ var
   VZoom: Byte;
   VNewPos: TExtendedPoint;
   VConverter: ICoordConverter;
+  VPixelPos: TPoint;
+  VChanged: Boolean;
 begin
+  VChanged := False;
   FSync.BeginWrite;
   try
     if FWriteLocked then begin
@@ -304,8 +353,10 @@ begin
         VConverter := FMainMap.GeoConvert;
         VConverter.CheckZoom(VZoom);
         VConverter.CheckLonLatPos(VNewPos);
+        VPixelPos := VConverter.LonLat2PixelPos(VNewPos, VZoom);
+        VChanged := (FZoom <> VZoom) or (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
         FZoom := VZoom;
-        FCenterPos := VConverter.LonLat2PixelPos(VNewPos, FZoom);
+        FCenterPos := VPixelPos;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -315,6 +366,9 @@ begin
     end;
   finally
     FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangePos;
   end;
 end;
 
@@ -510,6 +564,7 @@ var
   VNewPos: TPoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
+  VChanged: Boolean;
 begin
   FSync.BeginWrite;
   try
@@ -518,9 +573,13 @@ begin
     VNewPos.X := FCenterPos.X + ADelta.X;
     VNewPos.Y := FCenterPos.Y + ADelta.Y;
     VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
+    VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
     FCenterPos := VNewPos;
   finally
     FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangePos;
   end;
 end;
 
@@ -530,12 +589,31 @@ begin
 
 end;
 
-procedure TMapViewPortState.NotyfyChangePos;
+procedure TMapViewPortState.NotifyChangePos;
 var
   VMessage: IJclNotificationMessage;
 begin
-  VMessage := TPosChangeMessage.Create(FMainMap, FZoom, FCenterPos);
+  FSync.BeginRead;
+  try
+    VMessage := TPosChangeMessage.Create(FMainMap, FZoom, FCenterPos);
+  finally
+    FSync.EndRead;
+  end;
   FPosChangeNotifier.Notify(VMessage);
+end;
+
+procedure TMapViewPortState.NotifyChangeMainMap(AOldSelected, ANewSelected: TMapType);
+var
+  VMessage: IJclNotificationMessage;
+begin
+  VMessage := TMapChangeMessage.Create(AOldSelected, ANewSelected);
+  FMainMapChangeNotifier.Notify(VMessage);
+  VMessage := nil;
+end;
+
+procedure TMapViewPortState.NotifyChangeViewSize;
+begin
+  FViewSizeChangeNotifier.Notify(nil);
 end;
 
 end.
