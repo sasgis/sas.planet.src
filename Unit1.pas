@@ -1795,16 +1795,16 @@ begin
         FShowErrorLayer.ScaleTo(Scale, m_m);
         LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
-        FMainLayer.ScaleTo(Scale, VHalfSize);
-        LayerSelection.ScaleTo(Scale, VHalfSize);
-        LayerMapMarks.ScaleTo(Scale, VHalfSize);
-        LayerMapGPS.ScaleTo(Scale, VHalfSize);
-        FWikiLayer.ScaleTo(Scale, VHalfSize);
-        FFillingMap.ScaleTo(Scale, VHalfSize);
-        LayerMapNal.ScaleTo(Scale, VHalfSize);
-        LayerGoto.ScaleTo(Scale, VHalfSize);
-        FShowErrorLayer.ScaleTo(Scale, VHalfSize);
-        LayerMapNavToMark.ScaleTo(Scale, VHalfSize);
+        FMainLayer.ScaleTo(Scale);
+        LayerSelection.ScaleTo(Scale);
+        LayerMapMarks.ScaleTo(Scale);
+        LayerMapGPS.ScaleTo(Scale);
+        FWikiLayer.ScaleTo(Scale);
+        FFillingMap.ScaleTo(Scale);
+        LayerMapNal.ScaleTo(Scale);
+        LayerGoto.ScaleTo(Scale);
+        FShowErrorLayer.ScaleTo(Scale);
+        LayerMapNavToMark.ScaleTo(Scale);
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
