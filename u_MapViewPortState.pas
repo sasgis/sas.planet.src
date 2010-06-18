@@ -34,6 +34,7 @@ type
     procedure UnLockRead;
     procedure UnLockWrite;
     procedure ChangeMapPixelByDelta(ADelta: TPoint);
+    procedure ChangeMapPixelToVisualPoint(AVisualPoint: TPoint);
     procedure ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte; AFreezePoint: TPoint);
     procedure ChangeZoomWithFreezeAtCenter(AZoom: Byte);
     procedure ChangeMainMapAtCurrentPoint(AMainMap: TMapType);
@@ -558,12 +559,38 @@ var
   VZoom: Byte;
   VChanged: Boolean;
 begin
+  if (ADelta.X <> 0) or (ADelta.Y <> 0)then begin
+    FSync.BeginWrite;
+    try
+      VConverter := FMainMap.GeoConvert;
+      VZoom := FZoom;
+      VNewPos.X := FCenterPos.X + ADelta.X;
+      VNewPos.Y := FCenterPos.Y + ADelta.Y;
+      VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
+      VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
+      FCenterPos := VNewPos;
+    finally
+      FSync.EndWrite;
+    end;
+    if VChanged then begin
+      NotifyChangePos;
+    end;
+  end;
+end;
+
+procedure TMapViewPortState.ChangeMapPixelToVisualPoint(
+  AVisualPoint: TPoint);
+var
+  VNewPos: TPoint;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VChanged: Boolean;
+begin
   FSync.BeginWrite;
   try
     VConverter := FMainMap.GeoConvert;
     VZoom := FZoom;
-    VNewPos.X := FCenterPos.X + ADelta.X;
-    VNewPos.Y := FCenterPos.Y + ADelta.Y;
+    VNewPos := VisiblePixel2MapPixel(AVisualPoint);
     VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
     VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
     FCenterPos := VNewPos;
