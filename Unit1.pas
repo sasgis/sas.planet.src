@@ -579,9 +579,6 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType); overload;
-    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte); overload;
-    procedure Set_Pos(const AScreenCenterPos: TPoint); overload;
     function GetVisiblePixelRect: TRect;
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
@@ -765,23 +762,6 @@ begin
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   FMainForm.Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
-end;
-
-procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
-begin
-  GState.ViewState.LockWrite;
-  GState.ViewState.ChangeZoomAndUnlock(AZoom, AScreenCenterPos);
-end;
-
-procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint;
-  const AZoom: byte);
-begin
-  Set_Pos(AScreenCenterPos, AZoom, GState.sat_map_both);
-end;
-
-procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint);
-begin
-  Set_Pos(AScreenCenterPos, GState.zoom_size - 1, GState.sat_map_both);
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
