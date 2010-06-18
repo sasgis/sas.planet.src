@@ -2593,7 +2593,8 @@ begin
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  Vpos:tExtendedPoint;
   VZoomCurr: Byte;
   VExtRect: TExtendedRect;
   VRect: TRect;
@@ -2604,9 +2605,9 @@ begin
   GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
   VRect := VisiblePixelRect;
   GState.sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  Vpos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
   VExtRect := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
-  CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Apos.x*100000)/100000)+'%2C'+R2StrPoint(round(Apos.y*100000)/100000)+'&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat');
+  CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+R2StrPoint(round(Vpos.y*100000)/100000)+'&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat');
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
