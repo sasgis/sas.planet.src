@@ -579,7 +579,7 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-    function GetVisiblePixelRect: TRect;
+//    function GetVisiblePixelRect: TRect;
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
@@ -630,7 +630,7 @@ type
 
 //    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
-    property VisiblePixelRect: TRect read GetVisiblePixelRect;
+//    property VisiblePixelRect: TRect read GetVisiblePixelRect;
 
     procedure UpdateGPSsensors;
   end;
@@ -698,7 +698,7 @@ uses
   u_GeoCoderByYandex,
   UTrAllLoadMap,
   UGSM,
-  UImport;
+  UImport, u_MapViewPortState;
 
 {$R *.dfm}
 
@@ -2036,14 +2036,8 @@ begin
 end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
-var
-  VPoint: TPoint;
-  VZoomCurr: Byte;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  if FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr), true) then
+  if FAddPoint.show_(GState.ViewState.VisiblePixel2LonLat(MouseUpPoint), true) then
     generate_im;
 end;
 
@@ -2595,19 +2589,22 @@ end;
 procedure TFmain.YaLinkClick(Sender: TObject);
 var
   Vpos:tExtendedPoint;
-  VZoomCurr: Byte;
   VExtRect: TExtendedRect;
-  VRect: TRect;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  VRect := VisiblePixelRect;
-  GState.sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
-  Vpos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  VExtRect := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
-  CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+R2StrPoint(round(Vpos.y*100000)/100000)+'&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat');
+  GState.ViewState.LockRead;
+  try
+    Vpos := GState.ViewState.GetCenterLonLat;
+    VExtRect := GState.ViewState.GetViewLonLatRect;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard(
+    'http://beta-maps.yandex.ru/?ll='+
+    R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+
+    R2StrPoint(round(Vpos.y*100000)/100000)+
+    '&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+
+    R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat'
+  );
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
@@ -2841,31 +2838,52 @@ procedure TFmain.N13Click(Sender: TObject);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VMap: TMapType;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  CopyStringToClipboard(GState.sat_map_both.GetLink(VPoint.X, VPoint.Y, GState.zoom_size));
+  GState.ViewState.LockRead;
+  try
+    VMap := GState.ViewState.GetCurrentMap;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+    CopyStringToClipboard(VMap.GetLink(VPoint, VZoomCurr));
+  finally
+    GState.ViewState.UnLockRead;
+  end;
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  VPos: TExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://imageatlas.digitalglobe.com/ia-webapp/?lat='+R2StrPoint(Apos.y)+'&lon='+R2StrPoint(Apos.x)+'&zoom='+inttostr(GState.zoom_size-1));
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VPos:=GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard(
+    'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
+    R2StrPoint(VPos.y)+'&lon='+R2StrPoint(VPos.x)+
+    '&zoom='+inttostr(VZoomCurr)
+  );
 end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
+var
+  VPos: TExtendedPoint;
+  VSize: TPoint;
 begin
-  FDGAvailablePic.setup(
-    GState.sat_map_both.GeoConvert.PixelPos2LonLat(VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1)),
-    GetVisibleSizeInPixel
-  );
+  GState.ViewState.LockRead;
+  try
+    VSize := GState.ViewState.GetVisibleSizeInPixel;
+    VPos:=GState.ViewState.VisiblePixel2LonLat(moveTrue);
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  FDGAvailablePic.setup(VPos, VSize);
 end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
@@ -3845,13 +3863,13 @@ begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
 
-function TFmain.GetVisiblePixelRect: TRect;
-begin
-  Result.Left := ScreenCenterPos.X - map.Width div 2;
-  Result.Top := ScreenCenterPos.Y - map.Height div 2;
-  Result.Right := ScreenCenterPos.X + map.Width div 2;
-  Result.Bottom := ScreenCenterPos.Y + map.Height div 2;
-end;
+//function TFmain.GetVisiblePixelRect: TRect;
+//begin
+//  Result.Left := ScreenCenterPos.X - map.Width div 2;
+//  Result.Top := ScreenCenterPos.Y - map.Height div 2;
+//  Result.Right := ScreenCenterPos.X + map.Width div 2;
+//  Result.Bottom := ScreenCenterPos.Y + map.Height div 2;
+//end;
 
 function TFmain.GetVisibleSizeInPixel: TPoint;
 begin
