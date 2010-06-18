@@ -25,11 +25,8 @@ uses
   u_MapLayerBasic;
 
 type
-  TChangePosEvent = procedure (APoint: TPoint; AZoom: Byte) of object;
-
   TMiniMapLayer = class(TMapLayerBasic)
   protected
-    FOnChangePos: TChangePosEvent;
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FAlpha: Integer;
@@ -59,7 +56,6 @@ type
     FHybrChangeListener: IJclListener;
 
 
-    procedure DoChangePos(APoint: TPoint);
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DrawMainViewRect;
     procedure DoRedraw; override;
@@ -107,7 +103,6 @@ type
     procedure Show; override;
     procedure Hide; override;
     procedure WriteIni;
-    property OnChangePos: TChangePosEvent read FOnChangePos write FOnChangePos;
   end;
 
 implementation
@@ -444,13 +439,6 @@ begin
   VMapCenter := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
   Result.X := Pnt.X - VMapCenter.X + VScreenCenterInBitmap.X;
   Result.Y := Pnt.Y - VMapCenter.Y + VScreenCenterInBitmap.Y;
-end;
-
-procedure TMiniMapLayer.DoChangePos(APoint: TPoint);
-begin
-  if Assigned(FOnChangePos) then begin
-    FOnChangePos(APoint, FZoom);
-  end;
 end;
 
 procedure TMiniMapLayer.DoRedraw;
@@ -797,12 +785,13 @@ var
 begin
   if FPosMoved then begin
     if FLayer.HitTest(X, Y) then begin
+      GState.ViewState.LockWrite;
       VNewPos := VisiblePixel2MapPixel(Point(X, Y));
       VActualZoom := GetActualZoom;
       GeoConvert.CheckPixelPosStrict(VNewPos, VActualZoom, False);
       VNewPos := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(VNewPos, VActualZoom), FZoom);
       FViewRectMoveDelta := Point(0, 0);
-      DoChangePos(VNewPos);
+      GState.ViewState.ChangeMapPixelPosAndUnlock(VNewPos);
     end else begin
       FViewRectMoveDelta := Point(0, 0);
       DrawMainViewRect;

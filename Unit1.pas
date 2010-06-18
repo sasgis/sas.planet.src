@@ -586,7 +586,6 @@ type
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
-    procedure MiniMapChangePos(APoint: TPoint; AZoom: Byte);
     procedure InitSearchers;
     function GetScreenCenterPos: TPoint;
   public
@@ -1596,8 +1595,6 @@ begin
 
   FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos, MapIcons18);
   FMiniMapLayer.Visible := True;
-  FMiniMapLayer.OnChangePos := MiniMapChangePos;
-
 
   CreateMapUI;
 
@@ -1767,9 +1764,7 @@ procedure TFmain.zooming(ANewZoom:byte;move:boolean);
   end;
 var i,steps:integer;
     ts1,ts2,fr:int64;
-    VNewScreenCenterPos: TPoint;
     Scale: Extended;
-    VHalfSize: TPoint;
 begin
  if ANewZoom<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -1782,9 +1777,6 @@ begin
  if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom<1)or(ANewZoom>24) then exit;
  MapZoomAnimtion:=1;
  steps:=11;
- VHalfSize := GetVisibleSizeInPixel;
- VHalfSize.X := VHalfSize.X div 2;
- VHalfSize.Y := VHalfSize.Y div 2;
 
  if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
@@ -2203,7 +2195,6 @@ end;
 
 procedure TFmain.N25Click(Sender: TObject);
 var s:string;
-    i:integer;
   VPoint: TPoint;
   VZoomCurr: Byte;
 begin
@@ -2335,10 +2326,7 @@ end;
 
 procedure TFmain.selectMap(AMapType: TMapType);
 var
-  ll:TExtendedPoint;
   i:integer;
-  VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
   if MapZoomAnimtion=1 then exit;
   if not(AMapType.asLayer) then begin
@@ -2802,7 +2790,7 @@ begin
   end;
   MapMoving:=false;
   if (aoper=ao_movemap) then begin
-    Set_Pos(VisiblePixel2MapPixel(r));
+    GState.ViewState.ChangeMapPixelToVisualPoint(r);
   end;
 end;
 
@@ -2916,7 +2904,6 @@ end;
 procedure TFmain.GPSReceiverReceive(Sender: TObject);
 var s2f,sb:string;
     len:integer;
-    bPos:TPoint;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
 begin
  if (GPSReceiver.IsFix=0) then exit;
@@ -2941,13 +2928,12 @@ begin
 
   if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=FMain) then
    begin
-    bPOS:=GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
-    if (GState.GPS_MapMove)and((bpos.X<>ScreenCenterPos.x)or(bpos.y<>ScreenCenterPos.y))
+    if (GState.GPS_MapMove)
      then begin
-           Set_Pos(bpos, GState.zoom_size - 1, GState.sat_map_both);
+            GState.ViewState.LockWrite;
+            GState.ViewState.ChangeLonLatAndUnlock(GState.GPS_TrackPoints[len-1]);
           end
      else begin
-           LayerMapGPS.Redraw;
            LayerStatBar.Redraw;
           end;
    end;
@@ -3130,7 +3116,6 @@ end;
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var VPWL:TResObj;
-    posB:TPoint;
     stw:String;
     VPoint: TPoint;
     VSourcePoint: TPoint;
@@ -3186,8 +3171,7 @@ begin
    end;
 
  if VMapMoving then begin
-   POSb:=ScreenCenterPos;
-   Set_Pos(Point(posB.x+(MouseDownPoint.x-x),posB.y+(MouseDownPoint.y-y)));
+   GState.ViewState.ChangeMapPixelByDelta(Point(MouseDownPoint.x-x, MouseDownPoint.y-y));
  end;
 
  MouseUpPoint:=Point(x,y);
@@ -4166,11 +4150,6 @@ end;
 procedure TFmain.NGoToCurClick(Sender: TObject);
 begin
   GState.ZoomingAtMousePos := (Sender as TTBXItem).Checked
-end;
-
-procedure TFmain.MiniMapChangePos(APoint: TPoint; AZoom: Byte);
-begin
-  Set_Pos(APoint, AZoom);
 end;
 
 procedure TFmain.InitSearchers;
