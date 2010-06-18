@@ -50,6 +50,7 @@ uses
   ZylCustomGPSReceiver,
   PNGimage,
   MidasLib,
+  i_JclNotify,
   t_LoadEvent,
   u_GeoToStr,
   t_CommonTypes,
@@ -573,6 +574,7 @@ type
     LayerGoto: TGotoLayer;
     ProgramStart: Boolean;
     ProgramClose: Boolean;
+    FMapPosChangeListener: IJclListener;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
@@ -664,7 +666,6 @@ uses
   StrUtils,
   DateUtils,
   Types,
-  i_JclNotify,
   u_JclNotify,
   u_GlobalState,
   Unit2,
@@ -768,51 +769,9 @@ begin
 end;
 
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
-var
-  VPoint: TPoint;
-  VZoomCurr: Byte;
-  ts2,ts3,fr:int64;
-  VScreenCenterPos: TPoint;
 begin
-  QueryPerformanceCounter(ts2);
-
-  VPoint := AScreenCenterPos;
-  VZoomCurr := AZoom;
-  if AMapType <> GState.sat_map_both then begin
-    Assert(False, 'ƒописать сюда правильный код');
-  end;
-  if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
-        else TBZoom_Out.Enabled:=true;
-  if VZoomCurr>=23 then TBZoomIn.Enabled:=false
-        else TBZoomIn.Enabled:=true;
-  NZoomIn.Enabled:=TBZoomIn.Enabled;
-  NZoomOut.Enabled:=TBZoom_Out.Enabled;
-  RxSlider1.Value:=VZoomCurr;
-  labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
-  if (VScreenCenterPos.X <> VPoint.X) or (VScreenCenterPos.Y <> VPoint.Y)then begin
-    change_scene:=true;
-  end;
-  GState.SetCurrentZoom(VZoomCurr, VPoint);
-
-  LayerStatBar.Redraw;
-  LayerScaleLine.Redraw;
-
-  FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  QueryPerformanceCounter(ts3);
-  QueryPerformanceFrequency(fr);
-  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+  GState.ViewState.LockWrite;
+  GState.ViewState.ChangeZoomAndUnlock(AZoom, AScreenCenterPos);
 end;
 
 procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint;
@@ -1147,10 +1106,10 @@ begin
                   inc(dWhenMovingButton);
                  end;
                  dWMB:=trunc(Power(dWhenMovingButton,1.5));
-                 if Msg.wParam=VK_RIGHT then Set_Pos(Point(ScreenCenterPos.x+dWMB, ScreenCenterPos.y));
-                 if Msg.wParam=VK_Left then Set_Pos(Point(ScreenCenterPos.x-dWMB, ScreenCenterPos.y));
-                 if Msg.wParam=VK_Down then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y+dWMB));
-                 if Msg.wParam=VK_Up then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y-dWMB));
+                 if Msg.wParam=VK_RIGHT then GState.ViewState.ChangeMapPixelByDelta(Point(dWMB, 0));
+                 if Msg.wParam=VK_Left then GState.ViewState.ChangeMapPixelByDelta(Point(-dWMB, 0));
+                 if Msg.wParam=VK_Down then GState.ViewState.ChangeMapPixelByDelta(Point(0, dWMB));
+                 if Msg.wParam=VK_Up then GState.ViewState.ChangeMapPixelByDelta(Point(0, -dWMB));
                 end;
    WM_KEYUP: begin
              dWhenMovingButton:=5;
@@ -1350,8 +1309,8 @@ end;
 
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
-  GState.sat_map_both.GeoConvert.CheckLonLatPos(LL);
-  Set_Pos(GState.sat_map_both.GeoConvert.LonLat2PixelPos(LL,(zoom_ - 1)), zoom_ - 1, GState.sat_map_both);
+  GState.ViewState.LockWrite;
+  GState.ViewState.ChangeZoomAndUnlock(zoom_ - 1, LL);
   zooming(zoom_,false);
   if draw then begin
     LayerGoto.ShowGotoIcon(LL);
@@ -1642,7 +1601,6 @@ begin
 
   CreateMapUI;
 
-  Set_Pos(VScreenCenterPos, VZoom, GState.sat_map_both);
  try
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
@@ -1741,6 +1699,11 @@ begin
 
  map.Color:=GState.BGround;
 
+ FMapPosChangeListener := TChangePosListenerOfMainForm.Create(Self);
+ GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
+ GState.ViewState.LockWrite;
+ GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
+
  if ParamCount > 1 then begin
   try
     param:=paramstr(1);
@@ -1753,20 +1716,16 @@ begin
       end;
     end;
     if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+      GState.ViewState.LockWrite;
       VZoom := strtoint(paramstr(2)) - 1;
       GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
       VLonLat.X := str2r(paramstr(3));
       VLonLat.Y := str2r(paramstr(4));
       GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
-      VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
-      Set_Pos(VScreenCenterPos, VZoom);
+      GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
     end else if paramstr(2)<>'' then begin
-      VLonLat := GState.sat_map_both.GeoConvert.PixelPos2LonLat(ScreenCenterPos, GState.zoom_size - 1);
-      GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
       VZoom := strtoint(paramstr(2)) - 1;
-      GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
-      VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
-      Set_Pos(VScreenCenterPos, VZoom);
+      GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
     end;
   except
   end;
@@ -1788,6 +1747,7 @@ begin
  SetFocus;
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
  FUIDownLoader := TTileDownloaderUI.Create;
+
  InitSearchers;
  TBXMainMenu.ProcessShortCuts:=true;
 end;
@@ -1826,19 +1786,6 @@ begin
  VHalfSize.X := VHalfSize.X div 2;
  VHalfSize.Y := VHalfSize.Y div 2;
 
- if GState.zoom_size>ANewZoom
-  then begin
-         VNewScreenCenterPos := Point(trunc(ScreenCenterPos.x/power(2,GState.zoom_size-ANewZoom)),trunc(ScreenCenterPos.y/power(2,GState.zoom_size-ANewZoom)));
-         if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
-           VNewScreenCenterPos := Point(VNewScreenCenterPos.x+(VHalfSize.X-m_m.X)div 2,VNewScreenCenterPos.y+(VHalfSize.Y-m_m.y)div 2);
-         end;
-       end
-  else begin
-         VNewScreenCenterPos:=Point(trunc(ScreenCenterPos.x*power(2,ANewZoom-GState.zoom_size)),trunc(ScreenCenterPos.y*power(2,ANewZoom-GState.zoom_size)));
-         if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
-           VNewScreenCenterPos:=Point(VNewScreenCenterPos.x-(VHalfSize.X-m_m.X),VNewScreenCenterPos.y-(VHalfSize.Y-m_m.y));
-         end;
-       end;
  if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
@@ -1882,8 +1829,11 @@ begin
    end;
    application.ProcessMessages;
  end;
-
- Set_Pos(VNewScreenCenterPos, ANewZoom - 1);
+  if move then begin
+    GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom - 1, m_m);
+  end else begin
+    GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom - 1);
+  end;
  MapZoomAnimtion:=0;
 end;
 
@@ -1912,6 +1862,7 @@ var
   i:integer;
 begin
   ProgramClose:=true;
+  GState.ViewState.PosChangeNotifier.Remove(FMapPosChangeListener);
   //останавливаем GPS
   GPSReceiver.OnDisconnect:=nil;
   GPSReceiver.Close;
@@ -1930,7 +1881,7 @@ begin
   if length(GState.MapType)<>0 then FSettings.Save;
   FreeAndNil(FGoogleSearch);
   FreeAndNil(FYandexSerach);
-
+  FMapPosChangeListener := nil;
   FreeAndNil(FFillingMap);
   FreeAndNil(FWikiLayer);
   Application.ProcessMessages;
@@ -2390,10 +2341,6 @@ var
   VPoint: TPoint;
 begin
   if MapZoomAnimtion=1 then exit;
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  LL:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
   if not(AMapType.asLayer) then begin
     if (AMapType.showinfo)and(AMapType.MapInfo<>'') then begin
       ShowMessage(AMapType.MapInfo);
@@ -2401,7 +2348,7 @@ begin
     end;
     GState.sat_map_both.MainToolbarItem.Checked:=false;
     GState.sat_map_both.active:=false;
-    GState.SetMainSelectedMap(AMapType);
+    GState.ViewState.ChangeMainMapAtCurrentPoint(AMapType);
     TBSMB.ImageIndex := GState.sat_map_both.MainToolbarItem.ImageIndex;
     GState.sat_map_both.MainToolbarItem.Checked:=true;
     GState.sat_map_both.active:=true;
@@ -2418,7 +2365,7 @@ begin
       end;
     end;
   end;
-  topos(ll,GState.zoom_size,false);
+  generate_im;
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
