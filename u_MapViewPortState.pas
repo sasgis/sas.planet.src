@@ -54,11 +54,13 @@ type
     function GetCurrentCoordConverter: ICoordConverter;
     function GetViewMapRect: TRect;
     function GetViewMapSize: TPoint;
+    function GetViewLonLatRect: TExtendedRect;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function VisiblePixel2LonLat(Pnt: TPoint): TExtendedPoint; overload;
     function GetVisiblePixelRect: TRect;
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
@@ -429,6 +431,16 @@ begin
   end;
 end;
 
+function TMapViewPortState.GetViewLonLatRect: TExtendedRect;
+begin
+  FSync.BeginRead;
+  try
+    Result := FMainMap.GeoConvert.PixelRect2LonLatRect(GetViewMapRect, FZoom);
+  finally
+    FSync.EndRead;
+  end;
+end;
+
 function TMapViewPortState.GetViewMapSize: TPoint;
 var
   VRect: TRect;
@@ -537,6 +549,23 @@ begin
   try
     Result.X := Pnt.X + FCenterPos.X - FViewSize.X div 2;
     Result.Y := Pnt.Y + FCenterPos.Y - FViewSize.Y div 2;
+  finally
+    FSync.EndRead;
+  end;
+end;
+
+function TMapViewPortState.VisiblePixel2LonLat(
+  Pnt: TPoint): TExtendedPoint;
+var
+  VZoom: Byte;
+  VMapPixel: TPoint;
+begin
+  FSync.BeginRead;
+  try
+    VZoom := FZoom;
+    VMapPixel := VisiblePixel2MapPixel(Pnt);
+    FMainMap.GeoConvert.CheckPixelPos(VMapPixel, VZoom, False);
+    Result := FMainMap.GeoConvert.PixelPos2LonLat(VMapPixel, VZoom);
   finally
     FSync.EndRead;
   end;
