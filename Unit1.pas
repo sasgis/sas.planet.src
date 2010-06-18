@@ -2845,11 +2845,12 @@ begin
     VMap := GState.ViewState.GetCurrentMap;
     VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VMap.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-    CopyStringToClipboard(VMap.GetLink(VPoint, VZoomCurr));
   finally
     GState.ViewState.UnLockRead;
   end;
+  VMap.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  VPoint := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+  CopyStringToClipboard(VMap.GetLink(VPoint, VZoomCurr));
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
@@ -3009,11 +3010,12 @@ end;
 
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var i:integer;
-    xy:TPoint;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+var
+  i:integer;
   VSelectionRect: TExtendedRect;
+  VClickLonLat: TExtendedPoint;
+  VClickRect: TRect;
+  VClickLonLatRect: TExtendedRect;
 begin
   if (HintWindow<>nil) then begin
     HintWindow.ReleaseHandle;
@@ -3025,28 +3027,37 @@ begin
   if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(Point(x, y));
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  GState.ViewState.LockRead;
+  try
+    VClickLonLat := GState.ViewState.VisiblePixel2LonLat(Point(x, y));
+    VClickRect.Left := x - 5;
+    VClickRect.Top := y - 5;
+    VClickRect.Right := x + 5;
+    VClickRect.Bottom := y + 5;
+    VClickLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VClickRect.TopLeft);
+    VClickLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VClickRect.BottomRight);
+  finally
+    GState.ViewState.UnLockRead;
+  end;
   if (Button=mbLeft)and(aoper<>ao_movemap) then begin
     if (aoper=ao_line)then begin
       setlength(length_arr,length(length_arr)+1);
-      length_arr[length(length_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint,  VZoomCurr);
+      length_arr[length(length_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(length_arr)>1);
       LayerMapNal.DrawLineCalc(length_arr, LenShow);
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
-      reg_arr[length(reg_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+      reg_arr[length(reg_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(reg_arr)>1);
       LayerMapNal.DrawReg(reg_arr);
     end;
     if (aoper=ao_rect)then begin
       if rect_dwn then begin
-        FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+        FSelectionRect.BottomRight:= VClickLonLat;
         rect_p2:=true;
       end else begin
-        FSelectionRect.TopLeft:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+        FSelectionRect.TopLeft:= VClickLonLat;
         FSelectionRect.BottomRight:=FSelectionRect.TopLeft
       end;
       rect_dwn:=not(rect_dwn);
@@ -3056,12 +3067,14 @@ begin
         LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
-    if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im;
+    if (aoper=ao_add_point)and(FAddPoint.show_(VClickLonLat, true)) then generate_im;
     if (aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
       for i:=0 to length(add_line_arr)-1 do begin
-        xy:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(add_line_arr[i],GState.zoom_size-1);
-        xy := MapPixel2VisiblePixel(xy);
-        if (X<xy.x+5)and(X>xy.x-5)and(Y<xy.y+5)and(Y>xy.y-5) then begin
+        if (VClickLonLatRect.Left < add_line_arr[i].X) and
+          (VClickLonLatRect.Top > add_line_arr[i].Y) and
+          (VClickLonLatRect.Right > add_line_arr[i].X) and
+          (VClickLonLatRect.Bottom < add_line_arr[i].Y)
+        then begin
           movepoint:=i;
           lastpoint:=i;
           TBEditPath.Visible:=(length(add_line_arr)>1);
@@ -3072,7 +3085,7 @@ begin
       inc(lastpoint);
       movepoint:=lastpoint;
       insertinpath(lastpoint);
-      add_line_arr[lastpoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+      add_line_arr[lastpoint]:=VClickLonLat;
       TBEditPath.Visible:=(length(add_line_arr)>1);
       LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
@@ -3114,11 +3127,12 @@ end;
 
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var VPWL:TResObj;
-    stw:String;
-    VPoint: TPoint;
-    VSourcePoint: TPoint;
-    VZoomCurr: Byte;
+var
+  VPWL:TResObj;
+  stw:String;
+  VPoint: TPoint;
+  VSourcePoint: TPoint;
+  VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
   VMapMoving: Boolean;
 begin
