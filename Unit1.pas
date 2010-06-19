@@ -2047,16 +2047,27 @@ var
   btm1:TBitmap;
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size -  1;
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
   btm:=TBitmap32.Create;
   try
-    if GState.sat_map_both.LoadTile(btm, VPoint.X, VPoint.Y, GState.zoom_size, false) then begin
+    if VMap.LoadTile(btm, VPoint, VZoomCurr, false) then begin
       btm1:=TBitmap.Create;
       try
-        btm1.Width:=256; btm1.Height:=256;
+        btm1.Width:=btm.Width;
+        btm1.Height:=btm.Height;
         btm.DrawTo(btm1.Canvas.Handle,0,0);
         CopyBtmToClipboard(btm1);
       finally
@@ -2069,15 +2080,10 @@ begin
 end;
 
 procedure TFmain.N30Click(Sender: TObject);
-var ll:TExtendedPoint;
 var
-  VPoint: TPoint;
-  VZoomCurr: Byte;
+  ll:TExtendedPoint;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  ll:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  ll := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
   if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
@@ -2086,13 +2092,23 @@ procedure TFmain.N15Click(Sender: TObject);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  if GState.sat_map_both.IsStoreFileCache then begin
-    VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-    VZoomCurr := GState.zoom_size - 1;
-    GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMap.IsStoreFileCache then begin
+    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
-   CopyStringToClipboard(GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size));
+   CopyStringToClipboard(VMap.GetTileFileName(VPoint, VZoomCurr));
   end else begin
     ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
   end;
@@ -2102,26 +2118,36 @@ procedure TFmain.N21Click(Sender: TObject);
 var
   path:string;
   VMapType:TMapType;
+  VMapMain: TMapType;
   VLoadPoint: TPoint;
   VZoomCurr: Byte;
   VPoint: TPoint;
 begin
-  if TMenuItem(sender).Tag=0 then begin
-    VMapType := GState.sat_map_both;
-  end else begin
+  VMapType := nil;
+  if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
   end;
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  VLoadPoint := GState.sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
-  VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
-  path := VMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
+  GState.ViewState.LockRead;
+  try
+    VMapMain := GState.ViewState.GetCurrentMap;
+    if VMapType = nil then begin
+      VMapType := GState.ViewState.GetCurrentMap;
+    end;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseUpPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
 
-  if ((not(VMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
+  VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+  VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VLoadPoint, VZoomCurr);
+  path := VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
+
+  if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
     (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
   then begin
-    TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, VMapType);
+    TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr + 1, VMapType);
   end;
 end;
 
@@ -2155,13 +2181,23 @@ procedure TFmain.NopendirClick(Sender: TObject);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  if GState.sat_map_both.IsStoreFileCache then begin
-    VPoint := VisiblePixel2MapPixel(m_m);
-    VZoomCurr := GState.zoom_size - 1;
-    GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMap.IsStoreFileCache then begin
+    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
-   ShellExecute(0,'open',PChar(GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
+    ShellExecute(0,'open',PChar(VMap.GetTileFileName(VPoint, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
   end;
