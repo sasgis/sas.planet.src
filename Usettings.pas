@@ -291,14 +291,24 @@ procedure TFSettings.Save;
 var
     i:integer;
     lock_tb_b:boolean;
+    VZoom: Byte;
+    VScreenCenterPos: TPoint;
 begin
+  GState.ViewState.LockRead;
+  try
+    VZoom := GState.ViewState.GetCurrentZoom;
+    VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+
  try
  SaveMaps;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
- GState.MainIni.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
- GState.MainIni.WriteInteger('POSITION','x',FMain.ScreenCenterPos.x);
- GState.MainIni.WriteInteger('POSITION','y',FMain.ScreenCenterPos.y);
+ GState.MainIni.WriteInteger('POSITION','zoom_size',VZoom);
+ GState.MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
+ GState.MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
  GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
  GState.MainIni.Writeinteger('VIEW','DefCache',GState.DefCache);
  GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
