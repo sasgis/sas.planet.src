@@ -351,7 +351,7 @@ var
 begin
   Show;
   VSize := AViewSize;
-  VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
+  VRad := GState.ViewState.GetCurrentCoordConverter.GetSpheroidRadius;
   FLonLat:= ALonLat;
  mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
  hi:=round(mpp*15);

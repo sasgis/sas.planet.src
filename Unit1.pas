@@ -1661,7 +1661,7 @@ begin
 
  if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
                      else TBMapZap.Caption:='';
- selectMap(GState.sat_map_both);
+ selectMap(GState.ViewState.GetCurrentMap);
  RxSlider1.Value:=GState.Zoom_size-1;
 
  map.Color:=GState.BGround;
@@ -1685,10 +1685,10 @@ begin
     if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
       GState.ViewState.LockWrite;
       VZoom := strtoint(paramstr(2)) - 1;
-      GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
+      GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
       VLonLat.X := str2r(paramstr(3));
       VLonLat.Y := str2r(paramstr(4));
-      GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
+      GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
       GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
     end else if paramstr(2)<>'' then begin
       VZoom := strtoint(paramstr(2)) - 1;
@@ -2950,6 +2950,7 @@ procedure TFmain.GPSReceiverReceive(Sender: TObject);
 var s2f,sb:string;
     len:integer;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
+    VConverter: ICoordConverter;
 begin
  if (GPSReceiver.IsFix=0) then exit;
  setlength(GState.GPS_TrackPoints,length(GState.GPS_TrackPoints)+1);
@@ -2957,6 +2958,7 @@ begin
  GState.GPS_TrackPoints[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GState.GPS_Correction.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GState.GPS_Correction.y);
  if (GState.GPS_TrackPoints[len-1].x<>0)or(GState.GPS_TrackPoints[len-1].y<>0) then
   begin
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
   setlength(GState.GPS_ArrayOfSpeed,len);
   GPSpar.speed:=GPSReceiver.GetSpeed_KMH;
   if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
@@ -2966,8 +2968,8 @@ begin
   GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
   GPSpar.altitude:=GPSReceiver.GetAltitude;
   if len>1 then begin
-    GPSpar.len:=GPSpar.len+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-    GPSpar.Odometr:=GPSpar.Odometr+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.len:=GPSpar.len+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.Odometr:=GPSpar.Odometr+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.azimut:=RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x))+90;
   end;
 
@@ -3046,7 +3048,7 @@ end;
 procedure TFmain.NMapParamsClick(Sender: TObject);
 begin
   if TTBXItem(sender).Tag=0 then begin
-    FEditMap.FMapType := GState.sat_map_both;
+    FEditMap.FMapType := GState.ViewState.GetCurrentMap;
   end else begin
     FEditMap.FMapType := TMapType(TTBXItem(sender).Tag);
   end;
@@ -3922,8 +3924,11 @@ begin
 end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
+var
+  VMap: TMapType;
 begin
- ShowMessage('Τΰιλ: '+GState.sat_map_both.zmpfilename+#13#10+GState.sat_map_both.MapInfo);
+ VMap := GState.ViewState.GetCurrentMap;
+ ShowMessage('Τΰιλ: '+VMap.zmpfilename+#13#10+VMap.MapInfo);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);

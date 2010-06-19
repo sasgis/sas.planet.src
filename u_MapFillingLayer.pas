@@ -121,7 +121,7 @@ begin
     inherited;
     TMapFillingThread(FThread).PrepareToChangeScene;
     if FSourceSelected = nil then begin
-      FSourceMapType := GState.sat_map_both;
+      FSourceMapType := GState.ViewState.GetCurrentMap;
     end;
     FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
@@ -180,7 +180,7 @@ begin
     FZoom := AZoom;
     FScreenCenterPos := AScreenCenterPos;
     if FSourceSelected = nil then begin
-      FSourceMapType := GState.sat_map_both;
+      FSourceMapType := GState.ViewState.GetCurrentMap;
     end;
     Redraw;
   end else begin
@@ -201,7 +201,7 @@ begin
     end;
     GState.ViewState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
   end else begin
-    if (FSourceMapType <> GState.sat_map_both) then begin
+    if (FSourceMapType <> GState.ViewState.GetCurrentMap) then begin
       VFullRedraw := True;
     end;
     GState.ViewState.MainMapChangeNotifier.Add(FMainMapChangeListener);
@@ -215,7 +215,7 @@ begin
       FSourceSelected := AMapType;
     end else begin
       FSourceSelected := AMapType;
-      FSourceMapType := GState.sat_map_both;
+      FSourceMapType := GState.ViewState.GetCurrentMap;
     end;
     FSourceZoom := AZoom;
     Redraw;

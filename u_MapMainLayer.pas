@@ -55,7 +55,7 @@ var
 begin
   inherited;
   FLayer.Bitmap.Clear(Color32(GState.BGround));
-  DrawMap(GState.sat_map_both, dmOpaque);
+  DrawMap(GState.ViewState.GetCurrentMap, dmOpaque);
   for Leyi:=0 to length(GState.MapType)-1 do begin
     if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
       if not GState.MapType[Leyi].IsKmlTiles then begin

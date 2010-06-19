@@ -453,7 +453,7 @@ begin
   FLayer.Bitmap.Clear(Color32(GState.BGround));
   VGUID := FMapsActive.SelectedMapGUID;
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    VMapType := GState.sat_map_both;
+    VMapType := GState.ViewState.GetCurrentMap;
   end else begin
     VItem := FMapsActive.MapsList.GetMapTypeByGUID(VGUID);
     VMapType := VItem.MapType;
