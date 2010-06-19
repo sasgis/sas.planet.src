@@ -579,10 +579,8 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-//    function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
-    function GetScreenCenterPos: TPoint;
   public
     FGoogleSearch: TGeoSearcher;
     FYandexSerach: TGeoSearcher;
@@ -604,7 +602,6 @@ type
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
-    property ScreenCenterPos: TPoint read GetScreenCenterPos;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
@@ -620,11 +617,6 @@ type
     procedure SetStatusBarVisible();
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
-
-//    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
-
-//    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
-
     procedure UpdateGPSsensors;
   end;
   
@@ -3938,21 +3930,6 @@ begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
 
-//function TFmain.GetVisibleSizeInPixel: TPoint;
-//begin
-//  Result.X := map.Width;
-//  Result.Y := map.Height;
-//end;
-//
-//function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
-//var
-//  VVisibleSize: TPoint;
-//begin
-//  VVisibleSize := GetVisibleSizeInPixel;
-//  Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
-//  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
-//end;
-
 procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
  if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
@@ -4233,11 +4210,6 @@ begin
 
   VGeoCoder := TGeoCoderByYandex.Create(VProxy);
   FYandexSerach := TGeoSearcher.Create(VGeoCoder, VPresenter);
-end;
-
-function TFmain.GetScreenCenterPos: TPoint;
-begin
-  Result := GState.ViewState.GetCenterMapPixel;
 end;
 
 end.
