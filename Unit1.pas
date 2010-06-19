@@ -1058,9 +1058,9 @@ end;
 
 //Обработка нажатий кнопоки и калесика
 procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-var z: integer;
-    POSb: TPoint;
-    dWMB: integer;
+var
+  z: integer;
+  dWMB: integer;
 begin
 
  if Active then
@@ -1073,7 +1073,6 @@ begin
                                   else zooming(GState.Zoom_size+(1*z),GState.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
-                 POSb:=ScreenCenterPos;
                  if (dWhenMovingButton<35) then begin
                   inc(dWhenMovingButton);
                  end;
@@ -2382,19 +2381,12 @@ end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
-  VScreenCenter: TPoint;
-  VZoom: Byte;
-  VConv: ICoordConverter;
-  VPos: TExtendedPoint;
+  VLonLat: TExtendedPoint;
   VPoint: TDoublePoint;
 begin
-  VScreenCenter := ScreenCenterPos;
-  VZoom := GState.zoom_size;
-  VConv := GState.sat_map_both.GeoConvert;
-  VConv.CheckPixelPosStrict(VScreenCenter, VZoom, True);
-  VPos := VConv.PixelPos2LonLat(VScreenCenter, VZoom);
-  VPoint.X := VPos.X;
-  VPoint.Y := VPos.Y;
+  VLonLat := GState.ViewState.GetCenterLonLat;
+  VPoint.X := VLonLat.X;
+  VPoint.Y := VLonLat.Y;
   FGoogleSearch.ModalSearch(NewText, VPoint);
 end;
 
@@ -2625,15 +2617,17 @@ end;
 
 procedure TFmain.Google1Click(Sender: TObject);
 var
-  Apos:tExtendedPoint;
+  VLonLat:tExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(Apos.y)+','+R2StrPoint(Apos.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(GState.zoom_size-1));
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoomCurr));
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
@@ -2658,15 +2652,18 @@ begin
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  VLonLat:tExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(Apos.x)+'&y='+R2StrPoint(Apos.y)+'&z='+inttostr(GState.zoom_size-1)+'&fullscreen=false&mode=satellite');
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoomCurr)+'&fullscreen=false&mode=satellite');
 end;
 
 procedure TFmain.mapResize(Sender: TObject);
@@ -2757,19 +2754,12 @@ end;
 
 procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
-  VScreenCenter: TPoint;
-  VZoom: Byte;
-  VConv: ICoordConverter;
-  VPos: TExtendedPoint;
+  VLonLat: TExtendedPoint;
   VPoint: TDoublePoint;
 begin
-  VScreenCenter := ScreenCenterPos;
-  VZoom := GState.zoom_size;
-  VConv := GState.sat_map_both.GeoConvert;
-  VConv.CheckPixelPosStrict(VScreenCenter, VZoom, True);
-  VPos := VConv.PixelPos2LonLat(VScreenCenter, VZoom);
-  VPoint.X := VPos.X;
-  VPoint.Y := VPos.Y;
+  VLonLat := GState.ViewState.GetCenterLonLat;
+  VPoint.X := VLonLat.X;
+  VPoint.Y := VLonLat.Y;
   FYandexSerach.ModalSearch(NewText, VPoint);
 end;
 
@@ -2873,15 +2863,18 @@ begin
 end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  VLonLat:tExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(Apos.y)+'~'+R2StrPoint(Apos.x)+'&style=h&lvl='+inttostr(GState.zoom_size-1));
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoomCurr));
 end;
 
 procedure TFmain.N13Click(Sender: TObject);
@@ -3573,17 +3566,21 @@ end;
 
 procedure TFmain.N35Click(Sender: TObject);
 var
-  Apos:TExtendedPoint;
+  VLonLat:TExtendedPoint;
   param:string;
   VZoomCurr: Byte;
-  VPoint: TPoint;
+  VMap: TMapType;
 begin
   if SaveLink.Execute then begin
-    VZoomCurr := GState.zoom_size - 1;
-    VPoint := ScreenCenterPos;
-    GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-    Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-    param:=' '+GState.sat_map_both.GUIDString+' '+inttostr(GState.zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
+    GState.ViewState.LockRead;
+    try
+      VZoomCurr := GState.ViewState.GetCurrentZoom;
+      VLonLat := GState.ViewState.GetCenterLonLat;
+      VMap := GState.ViewState.GetCurrentMap;
+    finally
+      GState.ViewState.UnLockRead;
+    end;
+    param:=' '+VMap.GUIDString+' '+inttostr(VZoomCurr + 1)+' '+floattostr(VLonLat.x)+' '+floattostr(VLonLat.y);
     CreateLink(ParamStr(0),SaveLink.filename, '', param)
   end;
 end;
