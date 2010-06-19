@@ -50,9 +50,14 @@ end;
 
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
- FTypeMap:=GState.Sat_map_Both;
- Upos:= FMain.ScreenCenterPos;
- FZoom:= GState.zoom_size;
+  GState.ViewState.LockRead;
+  try
+     FTypeMap:=GState.ViewState.GetCurrentMap;
+     Upos:= GState.ViewState.GetCenterMapPixel;
+     FZoom:= GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
  //TODO: Переписать нормально с учетом настроек.
  FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
  FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
@@ -122,26 +127,26 @@ begin
                 VMap := GState.MapType[ii];
                 if VMap.active then begin
                   BPos:=UPos;
-                  VZoom := FZoom - 1;
-                  BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
+                  VZoom := FZoom;
+                  BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom) + 8, VMap.GeoConvert);
                   FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
                   FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
                   VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
 
                   Flastload.TilePos.X:=FLoadXY.X shr 8;
                   Flastload.TilePos.Y:=FLoadXY.Y shr 8;
-                  Flastload.Zoom:=Fzoom - 1;
+                  Flastload.Zoom:=Fzoom;
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
-                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y,Fzoom)))) then begin
+                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y, Fzoom + 1)))) then begin
                     if VMap.UseDwn then begin
-                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom) then begin
+                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom + 1) then begin
                         FileBuf:=TMemoryStream.Create;
                         try
                           if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
                             Synchronize(VMap.addDwnforban);
                           end;
-                          res :=VMap.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          res :=VMap.DownloadTile(FLoadXY, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
                           if Res = dtrBanError  then begin
                             FTypeMap := VMap;
                             Synchronize(Ban);
@@ -151,11 +156,11 @@ begin
                             GState.IncrementDownloaded(fileBuf.Size/1024, 1);
                           end;
                           if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                            VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+                            VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom + 1);
                           end;
                           if res = dtrOK then begin
                             try
-                              VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
+                              VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom + 1, fileBuf, ty);
                             except
                               on E: Exception do begin
                                 FErrorString := E.Message;
