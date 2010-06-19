@@ -2348,6 +2348,8 @@ end;
 procedure TFmain.selectMap(AMapType: TMapType);
 var
   i:integer;
+  VMainMapOld: TMapType;
+  VMainMapNew: TMapType;
 begin
   if MapZoomAnimtion=1 then exit;
   if not(AMapType.asLayer) then begin
@@ -2355,14 +2357,16 @@ begin
       ShowMessage(AMapType.MapInfo);
       AMapType.showinfo:=false;
     end;
-    GState.sat_map_both.MainToolbarItem.Checked:=false;
-    GState.sat_map_both.active:=false;
+    VMainMapOld := GState.ViewState.GetCurrentMap;
+    VMainMapOld.MainToolbarItem.Checked:=false;
+    VMainMapOld.active:=false;
     GState.ViewState.ChangeMainMapAtCurrentPoint(AMapType);
-    TBSMB.ImageIndex := GState.sat_map_both.MainToolbarItem.ImageIndex;
-    GState.sat_map_both.MainToolbarItem.Checked:=true;
-    GState.sat_map_both.active:=true;
+    VMainMapNew := GState.ViewState.GetCurrentMap;
+    TBSMB.ImageIndex := VMainMapNew.MainToolbarItem.ImageIndex;
+    VMainMapNew.MainToolbarItem.Checked:=true;
+    VMainMapNew.active:=true;
     if GState.Showmapname then begin
-      TBSMB.Caption:=GState.sat_map_both.name;
+      TBSMB.Caption:=VMainMapNew.name;
     end else begin
       TBSMB.Caption:='';
     end;
