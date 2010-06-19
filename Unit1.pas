@@ -2255,15 +2255,15 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-
-  VMapMain.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
-  VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
-  VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
-  s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
-  if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
-    VMapType.DeleteTile(VLoadPoint, VZoomCurr);
-    generate_im;
+  if VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap) then begin
+    VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+    VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
+    VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+    s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
+    if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+      VMapType.DeleteTile(VLoadPoint, VZoomCurr);
+      generate_im;
+    end;
   end;
 end;
 
