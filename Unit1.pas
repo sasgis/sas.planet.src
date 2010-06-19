@@ -579,7 +579,7 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-    function GetVisibleSizeInPixel: TPoint;
+//    function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
     function GetScreenCenterPos: TPoint;
@@ -623,7 +623,7 @@ type
 
 //    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
 
-    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
+//    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
 
     procedure UpdateGPSsensors;
   end;
@@ -3938,12 +3938,12 @@ begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
 
-function TFmain.GetVisibleSizeInPixel: TPoint;
-begin
-  Result.X := map.Width;
-  Result.Y := map.Height;
-end;
-
+//function TFmain.GetVisibleSizeInPixel: TPoint;
+//begin
+//  Result.X := map.Width;
+//  Result.Y := map.Height;
+//end;
+//
 //function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 //var
 //  VVisibleSize: TPoint;
@@ -4107,6 +4107,7 @@ var
   VConverter: ICoordConverter;
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
+  VZoom: Byte;
 begin
  if GState.show_point = mshNone then exit;
  CDSKategory.Filtered:=true;
@@ -4124,6 +4125,7 @@ begin
     VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
     VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
     VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VZoom := GState.ViewState.GetCurrentZoom;
     VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
  finally
    GState.ViewState.UnLockRead;
@@ -4154,7 +4156,7 @@ begin
     SetLength(arLL,ms.size div 24);
     setlength(poly,ms.size div 24);
     for i:=0 to length(arLL)-1 do begin
-      arLL[i]:=VConverter.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
+      arLL[i]:=VConverter.LonLat2PixelPos(arrLL^[i],VZoom);
       poly[i]:=arrLL^[i];
     end;
     if length(arLL)=1 then
