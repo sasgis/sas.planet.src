@@ -3188,10 +3188,15 @@ var
   VPWL:TResObj;
   stw:String;
   VPoint: TPoint;
-  VSourcePoint: TPoint;
   VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
   VMapMoving: Boolean;
+  VMap: TMapType;
+  VValidPoint: Boolean;
+  VConverter: ICoordConverter;
+  VTile: TPoint;
+  VLonLat: TExtendedPoint;
+  VVisibleSizeInPixel: TPoint;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -3199,29 +3204,36 @@ begin
  if (ssDouble in Shift) then exit;
  VMapMoving := MapMoving;
  MapMoving:=false;
- VZoomCurr := GState.zoom_size - 1;
- VPoint := VisiblePixel2MapPixel(Point(x, y));
- VSourcePoint := VPoint;
- GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+
+ GState.ViewState.LockRead;
+ try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x, y));
+    VLonLat := GState.ViewState.VisiblePixel2LonLat(moveTrue);
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VVisibleSizeInPixel := GState.ViewState.GetVisibleSizeInPixel;
+ finally
+   GState.ViewState.UnLockRead;
+ end;
+ VValidPoint := VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+ VTile := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
  if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
-   GState.sat_map_both.DeleteTile(VPoint.X, VPoint.Y, GState.zoom_size);
+  if VValidPoint then begin
+   VMap.DeleteTile(VTile, VZoomCurr);
    generate_im;
   end;
   exit;
  end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
-    TTileDownloaderUIOneTile.Create(VPoint, GState.zoom_size, GState.sat_map_both);
+  if VValidPoint then begin
+    TTileDownloaderUIOneTile.Create(VPoint, VZoomCurr + 1, VMap);
   end;
   exit;
  end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin
-    FDGAvailablePic.setup(
-      GState.sat_map_both.GeoConvert.PixelPos2LonLat(VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1)),
-      GetVisibleSizeInPixel
-    );
+    FDGAvailablePic.setup(VLonLat, VVisibleSizeInPixel);
    exit;
   end;
 
@@ -3372,12 +3384,13 @@ end;
 
 
 procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var i,j:integer;
-    nms:string;
-    hintrect:TRect;
-    CState: Integer;
-    VPoint: TPoint;
-    VZoomCurr: Byte;
+var
+  i,j:integer;
+  nms:string;
+  hintrect:TRect;
+  CState: Integer;
+  VPoint: TPoint;
+  VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
 begin
   if ProgramClose then begin
