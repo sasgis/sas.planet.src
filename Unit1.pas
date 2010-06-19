@@ -2207,12 +2207,22 @@ procedure TFmain.N25Click(Sender: TObject);
 var s:string;
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  if GState.sat_map_both.IsStoreFileCache then begin
-    VPoint := VisiblePixel2MapPixel(m_m);
-    VZoomCurr := GState.zoom_size - 1;
-    GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-    s:=GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMap.IsStoreFileCache then begin
+    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
+    s:=VMap.GetTileFileName(VPoint, VZoomCurr);
     s := ExtractFilePath(s);
     ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
@@ -2224,23 +2234,35 @@ procedure TFmain.NDelClick(Sender: TObject);
 var
   s:string;
   VMapType:TMapType;
+  VMapMain: TMapType;
   VLoadPoint: TPoint;
   VZoomCurr: Byte;
   VPoint: TPoint;
 begin
-  if TMenuItem(sender).Tag=0 then begin
-    VMapType:=GState.sat_map_both;
-  end else begin
+  VMapType := nil;
+  if TMenuItem(sender).Tag<>0 then begin
     VMapType:=TMapType(TMenuItem(sender).Tag);
   end;
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
-  VLoadPoint := GState.sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+
+  GState.ViewState.LockRead;
+  try
+    VMapMain := GState.ViewState.GetCurrentMap;
+    if VMapType = nil then begin
+      VMapType := GState.ViewState.GetCurrentMap;
+    end;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseUpPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+
+  VMapMain.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
   VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, GState.CiclMap);
-  s:=VMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+  VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+  s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
   if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
-    VMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+    VMapType.DeleteTile(VLoadPoint, VZoomCurr);
     generate_im;
   end;
 end;
