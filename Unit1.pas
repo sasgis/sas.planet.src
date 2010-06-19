@@ -621,7 +621,7 @@ type
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
 
-    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
+//    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
 
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
 
@@ -3944,14 +3944,14 @@ begin
   Result.Y := map.Height;
 end;
 
-function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
-var
-  VVisibleSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
-end;
+//function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
+//var
+//  VVisibleSize: TPoint;
+//begin
+//  VVisibleSize := GetVisibleSizeInPixel;
+//  Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
+//  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
+//end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
@@ -4098,25 +4098,54 @@ procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
   i:integer;
-  PixelPos1,PixelPos2:TPoint;
   ms:TMemoryStream;
   arrLL:PArrLL;
   arLL: TPointArray;
   poly:TExtendedPointArray;
+  VLonLatRect: TExtendedRect;
+  VRect: TRect;
+  VConverter: ICoordConverter;
+  VMarkLonLatRect: TExtendedRect;
+  VPixelPos: TPoint;
 begin
  if GState.show_point = mshNone then exit;
  CDSKategory.Filtered:=true;
  if CDSKategory.Eof then exit;
  CDSmarks.Filtered:=true;
  CDSmarks.First;
+
+ VRect.Left := xy.X - 8;
+ VRect.Top := xy.Y - 16;
+ VRect.Right := xy.X + 8;
+ VRect.Bottom := xy.Y + 16;
+
+ GState.ViewState.LockRead;
+ try
+    VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
+    VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
+ finally
+   GState.ViewState.UnLockRead;
+ end;
  while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
-  PixelPos1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonL.AsFloat,CDSmarkslatT.AsFloat),GState.zoom_size-1);
-  PixelPos1 := MapPixel2VisiblePixel(PixelPos1);
-  PixelPos2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonR.AsFloat,CDSmarkslatB.AsFloat),GState.zoom_size-1);
-  PixelPos2 := MapPixel2VisiblePixel(PixelPos2);
-  if (xy.x+8>PixelPos1.x)and(xy.x-8<PixelPos2.x)and(xy.y+16>PixelPos1.y)and(xy.y-16<PixelPos2.y) then
-  begin
+  VMarkLonLatRect.Left := CDSmarkslonL.AsFloat;
+  VMarkLonLatRect.Top := CDSmarkslatT.AsFloat;
+  VMarkLonLatRect.Right := CDSmarksLonR.AsFloat;
+  VMarkLonLatRect.Bottom := CDSmarksLatB.AsFloat;
+  if
+    (((VMarkLonLatRect.Left <=  VLonLatRect.Left) and
+    (VLonLatRect.Left <=  VMarkLonLatRect.Right)) or
+
+    ((VMarkLonLatRect.Left <=  VLonLatRect.Right) and
+    (VLonLatRect.Right <=  VMarkLonLatRect.Right))) and
+
+    (((VMarkLonLatRect.Bottom <=  VLonLatRect.Bottom) and
+    (VLonLatRect.Bottom <=  VMarkLonLatRect.Top)) or
+    ((VMarkLonLatRect.Bottom <=  VLonLatRect.Bottom) and
+    (VLonLatRect.Bottom <=  VMarkLonLatRect.Top)))
+  then begin
     ms:=TMemoryStream.Create;
     TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
     ms.Position:=0;
@@ -4125,8 +4154,7 @@ begin
     SetLength(arLL,ms.size div 24);
     setlength(poly,ms.size div 24);
     for i:=0 to length(arLL)-1 do begin
-      arLL[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
-      arLL[i] := MapPixel2VisiblePixel(arLL[i]);
+      arLL[i]:=VConverter.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
       poly[i]:=arrLL^[i];
     end;
     if length(arLL)=1 then
@@ -4147,7 +4175,7 @@ begin
        (arrLL^[0].y<>arrLL^[length(arLL)-1].y)then
       while (j<length(arLL)) do
        begin
-        if CursorOnLinie(xy.x,xy.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
+        if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
            then begin
                  APWL.name:=CDSmarksname.AsString;
                  APWL.descr:=CDSmarksdescr.AsString;
@@ -4163,7 +4191,7 @@ begin
         inc(j);
        end
      else
-     if (PtInRgn(arLL,xy)) then
+     if (PtInRgn(arLL,VPixelPos)) then
        if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then
       begin
        APWL.S:=PolygonSquare(arLL);
