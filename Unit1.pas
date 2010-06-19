@@ -579,8 +579,6 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-//    function GetVisiblePixelRect: TRect;
-//    function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
@@ -623,14 +621,9 @@ type
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
 
-//    function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
-//    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
-//    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
-//    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
     property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
-//    property VisiblePixelRect: TRect read GetVisiblePixelRect;
 
     procedure UpdateGPSsensors;
   end;
@@ -3948,32 +3941,11 @@ begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
 
-//function TFmain.GetVisiblePixelRect: TRect;
-//begin
-//  Result.Left := ScreenCenterPos.X - map.Width div 2;
-//  Result.Top := ScreenCenterPos.Y - map.Height div 2;
-//  Result.Right := ScreenCenterPos.X + map.Width div 2;
-//  Result.Bottom := ScreenCenterPos.Y + map.Height div 2;
-//end;
-
 function TFmain.GetVisibleSizeInPixel: TPoint;
 begin
   Result.X := map.Width;
   Result.Y := map.Height;
 end;
-
-//function TFmain.GetVisibleTopLeft: TPoint;
-//begin
-//  Result.X := ScreenCenterPos.X - map.Width div 2;
-//  Result.Y := ScreenCenterPos.Y - map.Height div 2;
-//end;
-//
-//function TFmain.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
-//begin
-//  Result := GetVisibleTopLeft;
-//  Result.X := Result.X + Pnt.X;
-//  Result.Y := Result.Y + Pnt.y;
-//end;
 
 function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
@@ -3983,24 +3955,6 @@ begin
   Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
   Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
 end;
-
-//function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
-//var
-//  VSize: TPoint;
-//begin
-//  VSize := GetVisibleSizeInPixel;
-//  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
-//  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
-//end;
-
-//function TFmain.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-//var
-//  VTopLeft: TPoint;
-//begin
-//  VTopLeft := GetVisibleTopLeft;
-//  Result.X := VTopLeft.X + Pnt.X;
-//  Result.Y := VTopLeft.Y + Pnt.y;
-//end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
