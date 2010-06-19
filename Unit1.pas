@@ -580,7 +580,7 @@ type
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
 //    function GetVisiblePixelRect: TRect;
-    function GetVisibleTopLeft: TPoint;
+//    function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
@@ -623,7 +623,7 @@ type
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
 
-    function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
+//    function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
 //    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
 //    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
@@ -3392,6 +3392,8 @@ var
   VPoint: TPoint;
   VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
+  VConverter: ICoordConverter;
+  VLonLat: TExtendedPoint;
 begin
   if ProgramClose then begin
     exit;
@@ -3412,19 +3414,26 @@ begin
   CState:= ShowCursor(true);
  end;
  sleep(5);
- VZoomCurr := GState.zoom_size - 1;
- VPoint := VisiblePixel2MapPixel(Point(x,y));
- GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
+ GState.ViewState.LockRead;
+ try
+  VConverter := GState.ViewState.GetCurrentCoordConverter;
+  VZoomCurr := GState.ViewState.GetCurrentZoom;
+  VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x,y));
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(Point(x,y));
+ finally
+  GState.ViewState.UnLockRead;
+ end;
+ VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
  if movepoint>-1 then
   begin
-   add_line_arr[movepoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+   add_line_arr[movepoint]:=VLonLat;
    TBEditPath.Visible:=(length(add_line_arr)>1);
    LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))
          then begin
-               FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+               FSelectionRect.BottomRight:=VLonLat;
                LayerMapNal.DrawNothing;
                VSelectionRect := FSelectionRect;
                if PrepareSelectionRect(Shift,VSelectionRect) then begin
@@ -3695,31 +3704,23 @@ begin
 end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
-var Apos:TExtendedPoint;
-  VPoint: TPoint;
-  VZoomCurr: Byte;
+var
+  VLonLat:TExtendedPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
-  Fbrowser.Visible:=true;
-  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
+  TextToWebBrowser(SAS_STR_WiteLoad, Fbrowser.EmbeddedWB1);
+  Fbrowser.Visible := true;
+  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NGTOPO30Click(Sender: TObject);
-var Apos:TExtendedPoint;
-  VPoint: TPoint;
-  VZoomCurr: Byte;
+var
+  VLonLat:TExtendedPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, GState.CiclMap);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
   TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
   Fbrowser.Visible:=true;
-  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
+  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);
@@ -3961,18 +3962,18 @@ begin
   Result.Y := map.Height;
 end;
 
-function TFmain.GetVisibleTopLeft: TPoint;
-begin
-  Result.X := ScreenCenterPos.X - map.Width div 2;
-  Result.Y := ScreenCenterPos.Y - map.Height div 2;
-end;
-
-function TFmain.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
-begin
-  Result := GetVisibleTopLeft;
-  Result.X := Result.X + Pnt.X;
-  Result.Y := Result.Y + Pnt.y;
-end;
+//function TFmain.GetVisibleTopLeft: TPoint;
+//begin
+//  Result.X := ScreenCenterPos.X - map.Width div 2;
+//  Result.Y := ScreenCenterPos.Y - map.Height div 2;
+//end;
+//
+//function TFmain.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
+//begin
+//  Result := GetVisibleTopLeft;
+//  Result.X := Result.X + Pnt.X;
+//  Result.Y := Result.Y + Pnt.y;
+//end;
 
 function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
@@ -4146,7 +4147,7 @@ procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
   i:integer;
-  ll1,ll2:TPoint;
+  PixelPos1,PixelPos2:TPoint;
   ms:TMemoryStream;
   arrLL:PArrLL;
   arLL: TPointArray;
@@ -4159,11 +4160,11 @@ begin
  CDSmarks.First;
  while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
-  LL1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonL.AsFloat,CDSmarkslatT.AsFloat),GState.zoom_size-1);
-  LL1 := MapPixel2VisiblePixel(ll1);
-  LL2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonR.AsFloat,CDSmarkslatB.AsFloat),GState.zoom_size-1);
-  LL2 := MapPixel2VisiblePixel(ll2);
-  if (xy.x+8>ll1.x)and(xy.x-8<ll2.x)and(xy.y+16>ll1.y)and(xy.y-16<ll2.y) then
+  PixelPos1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonL.AsFloat,CDSmarkslatT.AsFloat),GState.zoom_size-1);
+  PixelPos1 := MapPixel2VisiblePixel(PixelPos1);
+  PixelPos2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonR.AsFloat,CDSmarkslatB.AsFloat),GState.zoom_size-1);
+  PixelPos2 := MapPixel2VisiblePixel(PixelPos2);
+  if (xy.x+8>PixelPos1.x)and(xy.x-8<PixelPos2.x)and(xy.y+16>PixelPos1.y)and(xy.y-16<PixelPos2.y) then
   begin
     ms:=TMemoryStream.Create;
     TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
