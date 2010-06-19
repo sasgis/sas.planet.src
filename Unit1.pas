@@ -2342,13 +2342,12 @@ end;
 
 procedure TFmain.N012Click(Sender: TObject);
 var
-  VZoomCurr: Byte;
-  VPoint: TPoint;
+  VZoom: Byte;
+  VLonLat: TExtendedPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
- topos(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),TMenuItem(sender).tag,true);
+  VZoom := TMenuItem(sender).tag;
+  VLonLat := GState.ViewState.GetCenterLonLat;
+  topos(VLonLat,VZoom,true);
 end;
 
 procedure TFmain.N29Click(Sender: TObject);
