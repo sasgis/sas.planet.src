@@ -1139,11 +1139,17 @@ var
   VSelectedRelative: TExtendedRect;
   zLonR,zLatR: extended;
   Poly:  TExtendedPointArray;
+  VConverter: ICoordConverter;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
-  GState.sat_map_both.GeoConvert.CheckLonLatRect(ASelectedLonLat);
-  VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VConverter.CheckLonLatRect(ASelectedLonLat);
+  VSelectedPixels := VConverter.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
 
   if VSelectedPixels.Left > VSelectedPixels.Right then begin
     bxy := VSelectedPixels.Left;
@@ -1159,18 +1165,18 @@ begin
 
   if (ssCtrl in Shift) then begin
     if (GState.TileGridZoom = 0) or (GState.TileGridZoom = 99) then begin
-      VSelectedTiles := GState.sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
-      VSelectedPixels := GState.sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
+      VSelectedTiles := VConverter.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
+      VSelectedPixels := VConverter.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
     end else begin
       VTileGridZoom := GState.TileGridZoom - 1;
-      GState.sat_map_both.GeoConvert.CheckZoom(VTileGridZoom);
-      VSelectedRelative := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
-      VSelectedTiles := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
-      VSelectedRelative := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
-      VSelectedPixels := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
+      VConverter.CheckZoom(VTileGridZoom);
+      VSelectedRelative := VConverter.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+      VSelectedTiles := VConverter.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
+      VSelectedRelative := VConverter.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
+      VSelectedPixels := VConverter.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
     end;
   end;
-  ASelectedLonLat := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
+  ASelectedLonLat := VConverter.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
 
   if (ssShift in Shift)and(GState.GShScale>0) then begin
     case GState.GShScale of
