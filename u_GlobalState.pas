@@ -258,8 +258,6 @@ type
     destructor Destroy; override;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
-    procedure SetMainSelectedMap(const Value: TMapType);
-    procedure SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
     procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
   end;
 
@@ -475,11 +473,6 @@ begin
   FGCThread.Terminate;
 end;
 
-procedure TGlobalState.SetMainSelectedMap(const Value: TMapType);
-begin
-  FViewState.ChangeMainMapAtCurrentPoint(Value);
-end;
-
 procedure TGlobalState.InitViewState(AMainMap: TMapType; AZoom: Byte;
   ACenterPos, AScreenSize: TPoint);
 begin
@@ -488,12 +481,6 @@ begin
   end else begin
     raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
   end;
-end;
-
-procedure TGlobalState.SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
-begin
-  ViewState.LockWrite;
-  ViewState.ChangeZoomAndUnlock(AZoom, ANewPos);
 end;
 
 end.

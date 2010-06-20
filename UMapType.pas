@@ -371,7 +371,7 @@ begin
           TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
         end;
         if (active)and(GState.MapType[i].asLayer=false) then begin
-          GState.SetMainSelectedMap(GState.MapType[i]);
+          GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
         end;
         MainToolbarItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);

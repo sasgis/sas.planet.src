@@ -1679,7 +1679,7 @@ begin
       VGUID := StringToGUID(param);
       for i:=0 to length(GState.MapType)-1 do begin
         if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-          GState.SetMainSelectedMap(GState.MapType[i]);
+          GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
         end;
       end;
     end;
