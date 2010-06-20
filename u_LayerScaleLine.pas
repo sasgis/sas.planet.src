@@ -31,6 +31,9 @@ uses
   u_MapViewPortState,
   u_GlobalState;
 
+const
+  D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
+  
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(AParentMap: TImage32);
