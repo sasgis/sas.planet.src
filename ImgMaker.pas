@@ -291,14 +291,12 @@ begin
                if LoadJPG32(TileStream,BMP_Bufer.BMPTile[i]) then begin
                  XY.X:=X;
                  XY.Y:=Y;
-                 LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
-                 BMP_Bufer.UpLatLon[i].y:=LatLon.y;
-                 BMP_Bufer.UpLatLon[i].x:=LatLon.x;
+                 LatLon:=CoordConverter.TilePos2LonLat(XY,Z-1);
+                 BMP_Bufer.UpLatLon[i]:=LatLon;
 
                  inc(XY.Y);
-                 LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
-                 BMP_Bufer.DownLatLon[i].y:=LatLon.y;
-                 BMP_Bufer.DownLatLon[i].x:=LatLon.x;
+                 LatLon:=CoordConverter.TilePos2LonLat(XY,Z-1);
+                 BMP_Bufer.DownLatLon[i]:=LatLon;
 
                  BMP_Bufer.TileRez[i]:=(BMP_Bufer.UpLatLon[i].y-BMP_Bufer.DownLatLon[i].y)/256;
                  BMP_Bufer.Count:=i;
@@ -362,12 +360,12 @@ begin
    id2:=0;
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   Up:=mt.GeoConvert.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.Pos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
-   gXY1:=CoordConverter.LonLat2Pos(Up,Z-1);
-   gXY2:=CoordConverter.LonLat2Pos(Down,Z-1);
+   Down:=mt.GeoConvert.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   gXY1:=CoordConverter.LonLat2TilePos(Up,Z-1);
+   gXY2:=CoordConverter.LonLat2TilePos(Down,Z-1);
    id1:=FillBuff(cachepath,gXY1.x,gXY1.y,z,UpXY,MT,CoordConverter);
    if id1=0 then abort:=true;
    if (gXY1.X<>gXY2.X)or(gXY1.Y<>gXY2.Y) then
@@ -395,12 +393,12 @@ begin
    CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137, 6356752);
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   Up:=mt.GeoConvert.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.Pos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
-   gXY1:=CoordConverter.LonLat2Pos(Up,Z-1);
-   gXY2:=CoordConverter.LonLat2Pos(Down,Z-1);
+   Down:=mt.GeoConvert.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   gXY1:=CoordConverter.LonLat2TilePos(Up,Z-1);
+   gXY2:=CoordConverter.LonLat2TilePos(Down,Z-1);
    CoordConverter:=nil;
    if GEFindTileAdr(cachepath,gXY1.X*256,gXY1.Y*256,z,bsize)=0 then begin
      exit;

@@ -115,6 +115,7 @@ var p_x,p_y,i,j:integer;
     max,min:TPoint;
     VExt: string;
     VPath: string;
+    VMinLonLat, VMaxLonLat: TExtendedPoint;
 begin
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
@@ -131,10 +132,12 @@ begin
       polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
+      VMinLonLat := TypeMapArr[i].GeoConvert.PixelPos2LonLat(min,j);
+      VMaxLonLat := TypeMapArr[i].GeoConvert.PixelPos2LonLat(min,j);
+      kti:=RoundEx(VMinLonLat.x,4);
+      kti:=kti+'_'+RoundEx(VMinLonLat.y,4);
+      kti:=kti+'_'+RoundEx(VMaxLonLat.x,4);
+      kti:=kti+'_'+RoundEx(VMaxLonLat.y,4);
      end;
   end;
  persl:=copy(persl,1,length(persl)-1);

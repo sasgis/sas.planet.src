@@ -23,7 +23,7 @@ type
     posxp: integer;
     posyp: integer;
     zoom: byte;
-    FCoordConverter: ICoordConverter;
+    FCoordConverter: ICoordConverterSimple;
     FCS: TRTLCriticalSection;
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
@@ -44,7 +44,7 @@ type
     FGetURLBase: String;
     procedure SetVar;
   public
-    constructor Create(AGetURLScript: string; ACoordConverter: ICoordConverter);
+    constructor Create(AGetURLScript: string; ACoordConverter: ICoordConverterSimple);
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string;
     property GetURLBase: string read FGetURLBase write SetGetURLBase;
@@ -144,7 +144,7 @@ begin
 end;
 
 { TUrlGenerator }
-constructor TUrlGenerator.Create(AGetURLScript: string; ACoordConverter: ICoordConverter);
+constructor TUrlGenerator.Create(AGetURLScript: string; ACoordConverter: ICoordConverterSimple);
 var
   i: integer;
   Msg: string;

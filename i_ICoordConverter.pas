@@ -7,12 +7,29 @@ uses
   t_GeoTypes;
 
 type
-  ICoordConverter = interface
+  ICoordConverterSimple = interface
     ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
+
     // ѕреобразует позицию тайла на заданном зуме в георафически координаты его верхнего левого угла
     function Pos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;
     // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2Pos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; stdcall;
+    // ?????????
+    function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; stdcall;
+
+    // ¬озвращает количество тайлов в заданном зуме
+    function TilesAtZoom(AZoom: byte): Longint; stdcall;
+    // ¬озвращает общее количество пикселей на заданном зуме
+    function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+
+    // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
+    function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
+    // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+    function TilePos2PixelRect(const XY: TPoint; Azoom: byte): TRect; stdcall;
+  end;
+
+  ICoordConverter = interface
+    ['{E8884111-C538-424F-92BC-1BC9843EA6BB}']
     // ?????????
     function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; stdcall;
 

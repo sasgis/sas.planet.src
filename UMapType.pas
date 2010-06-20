@@ -229,6 +229,7 @@ type
     FCSSaveTNF: TCriticalSection;
     FUrlGenerator : TUrlGenerator;
     FCoordConverter : ICoordConverter;
+    FConverterForUrlGenerator: ICoordConverterSimple;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     //Для борьбы с капчей
     ban_pg_ld: Boolean;
@@ -269,6 +270,7 @@ uses
   u_PoolOfObjectsSimple,
   u_TileDownloaderBaseFactory,
   ImgMaker,
+  u_CoordConverterAbstract,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
@@ -644,7 +646,7 @@ begin
     FreeAndNil(MapParams);
   end;
   try
-    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
+    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FConverterForUrlGenerator);
     FUrlGenerator.GetURLBase := URLBase;
     //GetLink(0,0,0);
   except
@@ -689,6 +691,7 @@ end;
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
 var
   bfloat:string;
+  VConverter: TCoordConverterAbstract;
 begin
   projection:=AIniFile.ReadInteger('PARAMS','projection',1);
   bfloat:=AIniFile.ReadString('PARAMS','sradiusa','6378137');
@@ -696,11 +699,13 @@ begin
   bfloat:=AIniFile.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
   FRadiusB:=str2r(bfloat);
   case projection of
-    1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
-    2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
-    3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
+    1: VConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
+    2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
+    3: VConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
     else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
   end;
+  FCoordConverter := VConverter;
+  FConverterForUrlGenerator := VConverter;
 end;
 
 procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);

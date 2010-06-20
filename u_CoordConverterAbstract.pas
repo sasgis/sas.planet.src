@@ -8,7 +8,7 @@ uses
   t_GeoTypes;
 
 type
-  TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
+  TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter, ICoordConverterSimple)
   protected
     FRadiusa: Extended;
     FProjEPSG: integer;

@@ -192,6 +192,7 @@ var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     Vradiusb: double;
     Vexct: double;
     VGeoConvert: ICoordConverter;
+    VMinLonLat, VMaxLonLat: TExtendedPoint;
 begin
  try
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
@@ -201,9 +202,9 @@ begin
   else if TypeMapArr[1]<>nil then polyg := TypeMapArr[1].GeoConvert.PoligonProject(i + 8, APolyLL)
         else if TypeMapArr[2]<>nil then polyg := TypeMapArr[2].GeoConvert.PoligonProject(i + 8, APolyLL);
  GetMinMax(min,max,polyg,true);
- if TypeMapArr[0]<>nil then LLCenter:= TypeMapArr[0].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
-  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8)
-        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.Pos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i + 8);
+ if TypeMapArr[0]<>nil then LLCenter:= TypeMapArr[0].GeoConvert.PixelPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i)
+  else if TypeMapArr[1]<>nil then LLCenter:=TypeMapArr[1].GeoConvert.PixelPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i)
+        else if TypeMapArr[2]<>nil then LLCenter:=TypeMapArr[2].GeoConvert.PixelPos2LonLat(Point(min.x+(max.X-min.X)div 2,min.y+(max.y-min.y)div 2),i);
  AssignFile(Plist,PATH+'com.apple.Maps.plist');
  Rewrite(PList);
  Writeln(PList,'<plist>');
@@ -266,10 +267,12 @@ begin
       polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      kti:=RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).x,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(min,j + 8).y,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).x,4);
-      kti:=kti+'_'+RoundEx(TypeMapArr[i].GeoConvert.Pos2LonLat(max,j + 8).y,4);
+      VMinLonLat := TypeMapArr[i].GeoConvert.PixelPos2LonLat(min,j);
+      VMaxLonLat := TypeMapArr[i].GeoConvert.PixelPos2LonLat(min,j);
+      kti:=RoundEx(VMinLonLat.x,4);
+      kti:=kti+'_'+RoundEx(VMinLonLat.y,4);
+      kti:=kti+'_'+RoundEx(VMaxLonLat.x,4);
+      kti:=kti+'_'+RoundEx(VMaxLonLat.y,4);
      end;
   end;
  perzoom:=copy(perzoom,1,length(perzoom)-1);
