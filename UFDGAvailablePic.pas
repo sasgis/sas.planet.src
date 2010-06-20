@@ -119,6 +119,7 @@ var
 implementation
 
 uses
+  i_ICoordConverter,
   u_GlobalState,
   u_GeoToStr;
 
@@ -348,12 +349,23 @@ procedure TFDGAvailablePic.setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
+  VPixelsAtZoom: Extended;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
 begin
   Show;
   VSize := AViewSize;
-  VRad := GState.ViewState.GetCurrentCoordConverter.GetSpheroidRadius;
+  GState.ViewState.LockRead;
+  try
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VZoom := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VRad := VConverter.GetSpheroidRadius;
+  VPixelsAtZoom := VConverter.PixelsAtZoom(VZoom);
   FLonLat:= ALonLat;
- mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
+ mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
  if hi>maxReqSize then hi:=maxReqSize;

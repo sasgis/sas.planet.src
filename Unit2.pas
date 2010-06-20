@@ -69,7 +69,7 @@ uses
 procedure TFGoTo.FormActivate(Sender: TObject);
 begin
  if not(sender is TForm) then exit;
- CBzoom.ItemIndex:=GState.zoom_size-1;
+ CBzoom.ItemIndex:=GState.ViewState.GetCurrentZoom;
 end;
 
 procedure TFGoTo.FormClose(Sender: TObject; var Action: TCloseAction);

@@ -472,7 +472,7 @@ procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
 begin
  if MarksListBox.ItemIndex>=0 then
   begin
-   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.zoom_size);
+   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.ViewState.GetCurrentZoom + 1);
   end;
 end;
 
