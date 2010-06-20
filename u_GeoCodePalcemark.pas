@@ -3,7 +3,6 @@ unit u_GeoCodePalcemark;
 interface
 
 uses
-  ActiveX,
   t_GeoTypes,
   i_GeoCoder;
 

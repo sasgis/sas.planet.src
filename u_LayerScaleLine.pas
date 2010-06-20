@@ -25,7 +25,6 @@ uses
   SysUtils,
   GR32,
   i_ICoordConverter,
-  uMapType,
   Unit1,
   UResStrings,
   t_GeoTypes,

@@ -111,7 +111,6 @@ uses
   UaddPoly,
   UaddLine,
   UImport,
-  UMapType,
   UAddCategory;
 
 {$R *.dfm}

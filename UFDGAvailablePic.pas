@@ -18,7 +18,6 @@ uses
   CommCtrl,
   ExtCtrls,
   Unit1,
-  UMapType,
   UResStrings,
   t_GeoTypes;
 

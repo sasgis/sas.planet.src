@@ -5,7 +5,6 @@ interface
 uses
   ActiveX,
   Classes,
-  t_GeoTypes,
   i_GeoCoder;
 
 type
