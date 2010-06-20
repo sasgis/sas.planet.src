@@ -25,10 +25,12 @@ uses
   GR32,
   t_GeoTypes,
   u_GeoToStr,
+  i_ICoordConverter,
   UResStrings,
   Unit1,
   uMapType,
-  u_GlobalState, u_MapViewPortState;
+  u_MapViewPortState,
+  u_GlobalState;
 
 { TLayerStatBar }
 
@@ -74,6 +76,8 @@ var
   VRad: Extended;
   VTile: TPoint;
   VMap: TMapType;
+  VConverter: ICoordConverter;
+  VPixelsAtZoom: Extended;
 begin
   inherited;
   GState.ViewState.LockRead;
@@ -83,6 +87,7 @@ begin
     VPoint := GState.ViewState.VisiblePixel2MapPixel(Fmain.m_m);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VSize := GState.ViewState.GetVisibleSizeInPixel;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
   finally
     GState.ViewState.UnLockRead;
   end;
@@ -95,13 +100,13 @@ begin
   end;
   FLayer.Bitmap.Clear(SetAlpha(clWhite32,160));
   FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32,256));
-  FLayer.Bitmap.RenderText(4, 1, inttostr(GState.zoom_size) + 'x', 0, clBlack32);
+  FLayer.Bitmap.RenderText(4, 1, inttostr(VZoomCurr) + 'x', 0, clBlack32);
   FLayer.Bitmap.RenderText(29, 1, '| '+SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
 
   TameTZ := FMain.timezone(ll.x,ll.y);
-  VRad := VMap.GeoConvert.GetSpheroidRadius;
-
-  subs2 := DistToStrWithUnits(1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
+  VRad := VConverter.GetSpheroidRadius;
+  VPixelsAtZoom := VConverter.PixelsAtZoom(VZoomCurr);
+  subs2 := DistToStrWithUnits(1/((VPixelsAtZoom/(2*PI))/(VRad*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
   FLayer.Bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
   posnext:=273+FLayer.Bitmap.TextWidth(subs2)+70;
   FLayer.Bitmap.RenderText(posnext,1,' | '+SAS_STR_time+' '+ TimeToStr(TameTZ), 0, clBlack32);

@@ -306,7 +306,7 @@ begin
  SaveMaps;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
- GState.MainIni.WriteInteger('POSITION','zoom_size',VZoom);
+ GState.MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
  GState.MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
  GState.MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
  GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);

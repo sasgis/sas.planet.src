@@ -403,7 +403,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
      then begin
-           Fsaveas.Show_(GState.zoom_size,arLL);
+           Fsaveas.Show_(GState.ViewState.GetCurrentZoom, arLL);
            Fmain.LayerSelection.Redraw;
            Result:=true;
           end

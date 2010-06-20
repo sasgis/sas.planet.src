@@ -581,6 +581,10 @@ type
     procedure Set_TileSource(const Value: TTileSource);
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
+    procedure zooming(ANewZoom: byte; move: boolean);
+    function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
+    procedure insertinpath(pos: integer);
+    procedure delfrompath(pos: integer);
   public
     FGoogleSearch: TGeoSearcher;
     FYandexSerach: TGeoSearcher;
@@ -605,15 +609,11 @@ type
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
-    procedure zooming(ANewZoom: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
     procedure selectMap(AMapType: TMapType);
     procedure ShowCaptcha(URL: string);
-    function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
-    procedure insertinpath(pos: integer);
-    procedure delfrompath(pos: integer);
     procedure SetStatusBarVisible();
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
@@ -1053,6 +1053,7 @@ procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 var
   z: integer;
   dWMB: integer;
+  VZoom: Byte;
 begin
 
  if Active then
@@ -1061,8 +1062,9 @@ begin
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
-                  if Msg.wParam<0 then zooming(GState.Zoom_size-(1*z),GState.ZoomingAtMousePos)
-                                  else zooming(GState.Zoom_size+(1*z),GState.ZoomingAtMousePos);
+                  VZoom := GState.ViewState.GetCurrentZoom;
+                  if Msg.wParam<0 then zooming(VZoom-(1*z),GState.ZoomingAtMousePos)
+                                  else zooming(VZoom+(1*z),GState.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
                  if (dWhenMovingButton<35) then begin
@@ -1209,7 +1211,7 @@ begin
     Poly[2] := ASelectedLonLat.BottomRight;
     Poly[3] := ExtPoint(ASelectedLonLat.Left, ASelectedLonLat.Bottom);
     Poly[4] := ASelectedLonLat.TopLeft;
-    fsaveas.Show_(GState.zoom_size, Poly);
+    fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
     LayerSelection.Redraw;
     Poly := nil;
     rect_p2:=false;
@@ -1280,7 +1282,7 @@ procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
   GState.ViewState.LockWrite;
   GState.ViewState.ChangeZoomAndUnlock(zoom_ - 1, LL);
-  zooming(zoom_,false);
+  zooming(zoom_ - 1,false);
   if draw then begin
     LayerGoto.ShowGotoIcon(LL);
   end;
@@ -1662,7 +1664,6 @@ begin
  if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
                      else TBMapZap.Caption:='';
  selectMap(GState.ViewState.GetCurrentMap);
- RxSlider1.Value:=GState.Zoom_size-1;
 
  map.Color:=GState.BGround;
 
@@ -1698,7 +1699,7 @@ begin
   end;
  end;
 
- zooming(GState.Zoom_size,false);
+ zooming(GState.ViewState.GetCurrentZoom,false);
  MapMoving:=false;
  Fsaveas.PageControl1.ActivePageIndex:=0;
 
@@ -1735,6 +1736,7 @@ procedure TFmain.zooming(ANewZoom:byte;move:boolean);
 var i,steps:integer;
     ts1,ts2,fr:int64;
     Scale: Extended;
+    VZoom: Byte;
 begin
  if ANewZoom<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -1742,16 +1744,16 @@ begin
           else TBZoomIn.Enabled:=true;
  NZoomIn.Enabled:=TBZoomIn.Enabled;
  NZoomOut.Enabled:=TBZoom_Out.Enabled;
- RxSlider1.Value:=ANewZoom-1;
-
- if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom<1)or(ANewZoom>24) then exit;
+ RxSlider1.Value:=ANewZoom;
+ VZoom := GState.ViewState.GetCurrentZoom;
+ if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom>23) then exit;
  MapZoomAnimtion:=1;
  steps:=11;
 
- if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
+ if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
-      if GState.zoom_size>ANewZoom then begin
+      if VZoom>ANewZoom then begin
         //Scale := 1 - (i/(steps - 1))/2;
         Scale := 1/(1 + i/(steps - 1));
       end else begin
@@ -1792,21 +1794,21 @@ begin
    application.ProcessMessages;
  end;
   if move then begin
-    GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom - 1, m_m);
+    GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, m_m);
   end else begin
-    GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom - 1);
+    GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom);
   end;
  MapZoomAnimtion:=0;
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
 begin
- zooming(GState.zoom_size+1,false);
+ zooming(GState.ViewState.GetCurrentZoom + 1, false);
 end;
 
 procedure TFmain.NZoomOutClick(Sender: TObject);
 begin
- zooming(GState.zoom_size-1,false);
+ zooming(GState.ViewState.GetCurrentZoom - 1, false);
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -1869,12 +1871,12 @@ end;
 
 procedure TFmain.TBZoom_outClick(Sender: TObject);
 begin
- zooming(GState.Zoom_size-1,false);
+ zooming(GState.ViewState.GetCurrentZoom - 1, false);
 end;
 
 procedure TFmain.TBZoomInClick(Sender: TObject);
 begin
- zooming(GState.Zoom_size+1,false);
+ zooming(GState.ViewState.GetCurrentZoom + 1, false);
 end;
 
 procedure TFmain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
@@ -1962,7 +1964,7 @@ end;
 
 procedure TFmain.RxSlider1Changed(Sender: TObject);
 begin
- zooming(RxSlider1.Value+1,false);
+ zooming(RxSlider1.Value, false);
  SetFocusedControl(map);
 end;
 
@@ -2289,7 +2291,7 @@ end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
- if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon)
+ if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save - 1, GState.LastSelectionPolygon)
                         else showmessage(SAS_MSG_NeedHL);
  LayerSelection.Redraw;
 end;
@@ -2489,7 +2491,7 @@ begin
               Poly[2] := ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k);
               Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
               Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
-              fsaveas.Show_(GState.zoom_size, Poly);
+              fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
               LayerSelection.Redraw;
               Poly := nil;
              End;
@@ -3906,7 +3908,7 @@ begin
          SetLength(reg_arr,length(reg_arr)+1);
          reg_arr[length(reg_arr)-1]:=reg_arr[0];
          LayerMapNal.DrawNothing;
-         Fsaveas.Show_(GState.zoom_size,reg_arr);
+         Fsaveas.Show_(GState.ViewState.GetCurrentZoom,reg_arr);
          setalloperationfalse(ao_movemap);
          LayerSelection.Redraw;
         end;
