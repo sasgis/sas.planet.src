@@ -396,9 +396,6 @@ begin
   if FSettings.MapList.Items.Count>0 then begin
     FSettings.MapList.Items.Item[0].Selected:=true;
   end;
-  if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
-    GState.SetMainSelectedMap(GState.MapType[0]);
-  end;
 end;
 function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;
 var

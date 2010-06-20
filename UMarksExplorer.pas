@@ -105,6 +105,7 @@ implementation
 uses
   t_CommonTypes,
   u_GlobalState,
+  i_ICoordConverter,
   USaveas,
   UaddPoint,
   UaddPoly,
@@ -337,8 +338,10 @@ var arrLL:PArrLL;
     arLL:array of TExtendedPoint;
     ms:TMemoryStream;
     i:integer;
+    VConverter: ICoordConverter;
 begin
  Result:=0;
+ VConverter := GState.ViewState.GetCurrentCoordConverter;
  Fmain.CDSmarks.Locate('id',id,[]);
  ms:=TMemoryStream.Create;
  TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -350,7 +353,7 @@ begin
  if (ms.Size>24)
      then begin
            for i:=0 to length(arLL)-2 do
-            result:=result+ GState.sat_map_both.GeoConvert.CalcDist(arLL[i],arLL[i+1]);
+            result:=result+ VConverter.CalcDist(arLL[i],arLL[i+1]);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
@@ -362,8 +365,10 @@ var arrLL:PArrLL;
     arLL: TExtendedPointArray;
     ms:TMemoryStream;
     i:integer;
+    VConverter: ICoordConverter;
 begin
  Result:=0;
+ VConverter := GState.ViewState.GetCurrentCoordConverter;
  Fmain.CDSmarks.Locate('id',id,[]);
  ms:=TMemoryStream.Create;
  TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -374,7 +379,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)
      then begin
-           result:= GState.sat_map_both.GeoConvert.CalcPoligonArea(arLL);
+           result:= VConverter.CalcPoligonArea(arLL);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);

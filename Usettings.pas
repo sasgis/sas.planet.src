@@ -626,7 +626,7 @@ begin
   begin
    CreateMapUI;
   end;
- Fmain.selectMap(GState.sat_map_both);
+ Fmain.selectMap(GState.ViewState.GetCurrentMap);
 end;
 
 procedure TFSettings.Button4Click(Sender: TObject);

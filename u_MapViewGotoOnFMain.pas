@@ -26,7 +26,7 @@ var
 begin
   VPoint.X := ALonLat.X;
   VPoint.Y := ALonLat.Y;
-  Fmain.topos(VPoint, GState.zoom_size, True);
+  Fmain.topos(VPoint, GState.ViewState.GetCurrentZoom, True);
 end;
 
 end.

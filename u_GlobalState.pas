@@ -56,7 +56,6 @@ type
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
     function Get_zoom_size: byte;
-    function GetMainSelectedMap: TMapType;
   public
 
     MainFileCache: IMemObjCache;
@@ -253,7 +252,6 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
-    property sat_map_both: TMapType read GetMainSelectedMap;
     // Текущий зумм
     property zoom_size: byte read Get_zoom_size;
 
@@ -504,11 +502,6 @@ end;
 function TGlobalState.Get_zoom_size: byte;
 begin
   Result := ViewState.GetCurrentZoom + 1;
-end;
-
-function TGlobalState.GetMainSelectedMap: TMapType;
-begin
-  Result := FViewState.GetCurrentMap;
 end;
 
 end.
