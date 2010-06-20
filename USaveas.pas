@@ -207,6 +207,7 @@ uses
   i_ILogForTaskThread,
   u_LogForTaskThread,
   i_IMapCalibration,
+  i_ICoordConverter,
   UTrAllLoadMap,
   UThreadScleit,
   UThreadExport,
@@ -426,6 +427,9 @@ var
   XX:tpOINT;
   vramkah,zagran:boolean;
   VMapCalibration: IMapCalibration;
+  VConverter: ICoordConverter;
+  VPoint: TPoint;
+  VZoom: Byte;
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
@@ -556,9 +560,11 @@ begin
   GState.poly_zoom_save:=zoom_rect;
   vramkah:=false;
   zagran:=false;
+  VConverter := GState.ViewState.GetCurrentCoordConverter;
+  VZoom := zoom_rect - 1;
   for i:=0 to length(polygonLL)-1 do begin
-    if ((GState.sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y>=0)
-      and (GState.sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y<=zoom[zoom_rect]))
+    VPoint := VConverter.LonLat2PixelPos(polygonLL[i], VZoom);
+    if VConverter.CheckPixelPos(VPoint , VZoom, False)
     then begin
       vramkah:=true;
     end else begin
