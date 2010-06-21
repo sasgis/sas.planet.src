@@ -669,6 +669,7 @@ uses
   u_MapViewGotoOnFMain,
   i_ISearchResultPresenter,
   u_SearchResultPresenterStuped,
+  frm_SearchResults,
   i_GeoCoder,
   i_IProxySettings,
   i_IPosChangeMessage,
@@ -4225,7 +4226,7 @@ var
   VProxy: IProxySettings;
 begin
   VGoto := TMapViewGotoOnFMain.Create;
-  VPresenter := TSearchResultPresenterStuped.Create(VGoto);
+  VPresenter := TSearchResultPresenterWithForm.Create(VGoto);
   VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
 
   VGeoCoder := TGeoCoderByGoogle.Create(VProxy);

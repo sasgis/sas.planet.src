@@ -181,7 +181,8 @@ uses
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
-  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
+  frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults};
 
 {$R *.res}{$R SASR.RES}
 begin
