@@ -30,13 +30,14 @@ type
 
   ICoordConverter = interface
     ['{E8884111-C538-424F-92BC-1BC9843EA6BB}']
-    // ?????????
-    function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; stdcall;
-
     // Возвращает количество тайлов в заданном зуме
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
+    function TilesAtZoomDbl(AZoom: byte): Double; stdcall;
+    function TilesAtZoomExt(AZoom: byte): Extended; stdcall;
     // Возвращает общее количество пикселей на заданном зуме
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+    function PixelsAtZoomDbl(AZoom: byte): Double; stdcall;
+    function PixelsAtZoomExt(AZoom: byte): Extended; stdcall;
 
     // Преобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
     function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
@@ -89,10 +90,10 @@ type
 
     // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
     function LonLat2PixelPos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; stdcall;//TODO: Автотест
-    function LonLat2PixelPosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
+    function LonLat2ExtendedPixelPos(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2TilePos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; stdcall;//TODO: Автотест
-    function LonLat2TilePosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
+    function LonLat2ExtendedTilePos(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Преобразует географические коодинаты в относительные координаты на карте
     function LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
@@ -131,6 +132,10 @@ type
     function GetCellSizeUnits: TCellSizeUnits; stdcall;
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer; stdcall;
+
+
+    // ?????????
+    function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; stdcall;
   end;
 
 implementation

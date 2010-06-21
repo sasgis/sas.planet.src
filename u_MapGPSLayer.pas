@@ -79,9 +79,9 @@ begin
   end;
 
   if length(GState.GPS_TrackPoints)>1 then try
-    ke:=FGeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], FZoom);
+    ke:=FGeoConvert.LonLat2ExtendedPixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], FZoom);
     ke:=MapPixel2BitmapPixel(ke);
-    ks:=FGeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2], FZoom);
+    ks:=FGeoConvert.LonLat2ExtendedPixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2], FZoom);
     ks:=MapPixel2BitmapPixel(ks);
     dl:=GState.GPS_ArrowSize;
     D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
