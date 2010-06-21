@@ -144,13 +144,16 @@ var
   X, Y: Integer;
   RGBPtr:PColor32Array;
   AlphaPtr: pByteArray;
+  VRGB: TRGBTriple;
+  SourcePtr: pRGBLine;
 begin
-  destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
   for Y:=0 to destBitmap.Height-1 do begin
     RGBPtr:=destBitmap.ScanLine[Y];
     AlphaPtr:=PNGObject.AlphaScanline[Y];
+    SourcePtr := PNGObject.Scanline[Y];
     for X:=0 to destBitmap.Width-1 do begin
-      RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
+      VRGB := SourcePtr^[X];
+      RGBPtr^[x] := Color32(VRGB.rgbtRed, VRGB.rgbtGreen, VRGB.rgbtBlue, AlphaPtr^[X]);
     end;
   end;
 end;
@@ -167,6 +170,27 @@ begin
     AlphaPtr:=PNGObject.AlphaScanline[Y];
     for X:=0 to destBitmap.Width-1 do begin
       RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
+    end;
+  end;
+end;
+procedure PngRGBToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject);
+var
+  X, Y: Integer;
+  DestPtr:PColor32Array;
+  VRGB: TRGBTriple;
+  SourcePtr: pRGBLine;
+  trColor:TColor32;
+begin
+  TrColor:=Color32(PNGObject.TransparentColor);
+  for Y:=0 to (destBitmap.Height-1) do begin
+    DestPtr := destBitmap.ScanLine[Y];
+    SourcePtr:=PNGObject.Scanline[Y];
+    for X:=0 to (destBitmap.Width-1) do begin
+      VRGB := SourcePtr^[X];
+      DestPtr^[x] := Color32(VRGB.rgbtRed, VRGB.rgbtGreen, VRGB.rgbtBlue);
+      if DestPtr^[x] = trColor then begin
+        DestPtr^[x] := 0;
+      end;
     end;
   end;
 end;
@@ -218,6 +242,9 @@ begin
                Inc(PixelPtr);
              end;
             end;
+          end;
+          COLOR_RGB: begin
+            PngRGBToBitmap32(destBitmap, PNGObject);
           end;
           COLOR_PALETTE: begin
             PngWithPaletteToBitmap32(destBitmap, PNGObject, DataDepth);

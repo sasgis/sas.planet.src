@@ -311,7 +311,7 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FreeAndNil(FDwnCS);
-  MainIni.UpdateFile;
+  //MainIni.UpdateFile;
   FreeAndNil(MainIni);
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);

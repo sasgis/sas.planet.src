@@ -3889,8 +3889,17 @@ begin
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
+var
+  VArea: Extended;
+  VMessage: string;
 begin
- MessageBox(Handle,pchar(SAS_STR_S+' - '+RoundEx(GetMarkSq(strtoint(FPWL.numid)),2)+' '+SAS_UNITS_km+'2'),pchar(FPWL.name),0);
+  VArea := GetMarkSq(strtoint(FPWL.numid));
+  if VArea < 0.1 then begin
+    VMessage := SAS_STR_S+' - '+RoundEx(VArea * 1000000,2)+' '+SAS_UNITS_m2;
+  end else begin
+    VMessage := SAS_STR_S+' - '+RoundEx(VArea,2)+' '+SAS_UNITS_km2;
+  end;
+  MessageBox(Handle,pchar(VMessage),pchar(FPWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
