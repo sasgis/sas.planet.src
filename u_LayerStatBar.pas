@@ -108,7 +108,7 @@ begin
 
   TameTZ := FMain.timezone(ll.x,ll.y);
   VRad := VConverter.GetSpheroidRadius;
-  VPixelsAtZoom := VConverter.PixelsAtZoom(VZoomCurr);
+  VPixelsAtZoom := VConverter.PixelsAtZoomExt(VZoomCurr);
   subs2 := DistToStrWithUnits(1/((VPixelsAtZoom/(2*PI))/(VRad*cos(ll.y*D2R))), GState.num_format)+SAS_UNITS_mperp;
   FLayer.Bitmap.RenderText(278,1,' | '+SAS_STR_Scale+' '+subs2, 0, clBlack32);
   posnext:=273+FLayer.Bitmap.TextWidth(subs2)+70;

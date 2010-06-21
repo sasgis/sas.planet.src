@@ -364,7 +364,7 @@ begin
     GState.ViewState.UnLockRead;
   end;
   VRad := VConverter.GetSpheroidRadius;
-  VPixelsAtZoom := VConverter.PixelsAtZoom(VZoom);
+  VPixelsAtZoom := VConverter.PixelsAtZoomExt(VZoom);
   FLonLat:= ALonLat;
  mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
  hi:=round(mpp*15);

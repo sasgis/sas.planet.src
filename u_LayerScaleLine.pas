@@ -66,7 +66,7 @@ begin
     GState.ViewState.UnLockRead;
   end;
   VRad := VConverter.GetSpheroidRadius;
-  VPixelsAtZoom := VConverter.PixelsAtZoom(VZoom);
+  VPixelsAtZoom := VConverter.PixelsAtZoomExt(VZoom);
   num:=106/((VPixelsAtZoom/(2*PI))/(VRad*cos(LL.y*D2R)));
   if num>10000 then begin
     num:=num/1000;
