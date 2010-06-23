@@ -1276,8 +1276,8 @@ end;
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
   GState.ViewState.LockWrite;
-  GState.ViewState.ChangeZoomAndUnlock(zoom_ - 1, LL);
-  zooming(zoom_ - 1,false);
+  GState.ViewState.ChangeZoomAndUnlock(zoom_, LL);
+  zooming(zoom_,false);
   if draw then begin
     LayerGoto.ShowGotoIcon(LL);
   end;
@@ -2332,7 +2332,7 @@ var
   VZoom: Byte;
   VLonLat: TExtendedPoint;
 begin
-  VZoom := TMenuItem(sender).tag;
+  VZoom := TMenuItem(sender).tag - 1;
   VLonLat := GState.ViewState.GetCenterLonLat;
   topos(VLonLat,VZoom,true);
 end;

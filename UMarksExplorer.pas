@@ -435,7 +435,7 @@ begin
            end;
    ms.Free;
    FreeMem(arrLL);
-   Fmain.toPos(LL,zoom,true);
+   Fmain.toPos(LL,zoom - 1,true);
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
