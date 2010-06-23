@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 213
-  Top = 111
+  Left = 352
+  Top = 130
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -87,8 +86,8 @@ object Fmain: TFmain
     object TBMainToolBar: TTBXToolbar
       Left = 0
       Top = 25
-      DockPos = -8
-      DockRow = 2
+      DockPos = 0
+      DockRow = 1
       Images = TBImageList2
       Stretch = True
       TabOrder = 0
@@ -106,38 +105,11 @@ object Fmain: TFmain
         AutoCheck = True
         DropdownCombo = True
         ImageIndex = 6
+        LinkSubitems = NRectSave
         Options = [tboShowHint]
         OnClick = TBRectSaveClick
         Caption = ''
         Hint = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
-        object TBRECT: TTBXItem
-          ImageIndex = 6
-          OnClick = TBRECTClick
-          Caption = #1055#1088#1103#1084#1086#1091#1075#1086#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
-          Hint = ''
-        end
-        object TBREGION: TTBXItem
-          ImageIndex = 9
-          OnClick = TBREGIONClick
-          Caption = #1055#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
-          Hint = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1087#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
-        end
-        object TBCOORD: TTBXItem
-          ImageIndex = 8
-          OnClick = TBCOORDClick
-          Caption = #1055#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
-          Hint = ''
-        end
-        object TBPrevious: TTBXItem
-          OnClick = TBPreviousClick
-          Caption = #1055#1088#1077#1076#1099#1076#1091#1097#1077#1077' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
-          Hint = ''
-        end
-        object TBLoadSelFromFile: TTBXItem
-          OnClick = TBLoadSelFromFileClick
-          Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1092#1072#1081#1083#1072
-          Hint = ''
-        end
       end
       object TBCalcRas: TTBXItem
         AutoCheck = True
@@ -204,8 +176,8 @@ object Fmain: TFmain
     object SrcToolbar: TTBXToolbar
       Left = 242
       Top = 25
-      DockPos = 240
-      DockRow = 2
+      DockPos = 224
+      DockRow = 1
       Images = ImagesSrc24
       Stretch = True
       TabOrder = 1
@@ -238,8 +210,8 @@ object Fmain: TFmain
     object TBMarksToolbar: TTBXToolbar
       Left = 369
       Top = 25
-      DockPos = 336
-      DockRow = 2
+      DockPos = 352
+      DockRow = 1
       Images = TBImageList2
       LinkSubitems = NMarks
       Stretch = True
@@ -250,8 +222,8 @@ object Fmain: TFmain
     object GPSToolbar: TTBXToolbar
       Left = 509
       Top = 25
-      DockPos = 488
-      DockRow = 2
+      DockPos = 504
+      DockRow = 1
       Images = TBImageList2
       Stretch = True
       TabOrder = 3
@@ -330,8 +302,8 @@ object Fmain: TFmain
     object TBExit: TTBXToolbar
       Left = 807
       Top = 25
-      DockPos = 918
-      DockRow = 2
+      DockPos = 807
+      DockRow = 1
       TabOrder = 4
       Visible = False
       object TBXExit: TTBXItem
@@ -406,10 +378,37 @@ object Fmain: TFmain
           Caption = ''
           Hint = ''
         end
-        object N38: TTBXSubmenuItem
-          LinkSubitems = TBRectSave
+        object NRectSave: TTBXSubmenuItem
           Caption = #1042#1099#1076#1077#1083#1080#1090#1100
           Hint = ''
+          object TBRECT: TTBXItem
+            ImageIndex = 6
+            OnClick = TBRECTClick
+            Caption = #1055#1088#1103#1084#1086#1091#1075#1086#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
+            Hint = ''
+          end
+          object TBREGION: TTBXItem
+            ImageIndex = 9
+            OnClick = TBREGIONClick
+            Caption = #1055#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
+            Hint = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1087#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
+          end
+          object TBCOORD: TTBXItem
+            ImageIndex = 8
+            OnClick = TBCOORDClick
+            Caption = #1055#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
+            Hint = ''
+          end
+          object TBPrevious: TTBXItem
+            OnClick = TBPreviousClick
+            Caption = #1055#1088#1077#1076#1099#1076#1091#1097#1077#1077' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
+            Hint = ''
+          end
+          object TBLoadSelFromFile: TTBXItem
+            OnClick = TBLoadSelFromFileClick
+            Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1092#1072#1081#1083#1072
+            Hint = ''
+          end
         end
         object TBXSeparatorItem9: TTBXSeparatorItem
           Caption = ''
