@@ -22,6 +22,10 @@ type
     lvResults: TListView;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lvResultsDblClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure lvResultsKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     FMapGoto: IMapViewGoto;
     FSearchResult: IGeoCodeResult;
@@ -128,7 +132,7 @@ begin
   if ASearchResult.GetPlacemarksCount <= 0 then begin
     ShowMessage(SAS_STR_notfound);
   end else begin
-    if ASearchResult.GetPlacemarksCount = 1 then begin
+    if ASearchResult.GetPlacemarksCount = 0 then begin
       VEnum := ASearchResult.GetPlacemarks;
       if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
         FMapGoto.GotoPos(VPlacemark.GetPoint);
@@ -137,6 +141,22 @@ begin
     end else begin
       TfrmSearchResults.ShowSearchResults(FMapGoto, ASearchResult);
     end;
+  end;
+end;
+
+procedure TfrmSearchResults.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then begin
+    close;
+  end;
+end;
+
+procedure TfrmSearchResults.lvResultsKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then begin
+    close;
   end;
 end;
 

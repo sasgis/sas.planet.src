@@ -1,10 +1,10 @@
 object frmSearchResults: TfrmSearchResults
   Left = 646
   Top = 333
-  BorderStyle = bsToolWindow
+  Width = 226
+  Height = 489
+  BorderStyle = bsSizeToolWin
   Caption = 'frmSearchResults'
-  ClientHeight = 455
-  ClientWidth = 223
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,12 +14,13 @@ object frmSearchResults: TfrmSearchResults
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   OnClose = FormClose
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object lvResults: TListView
     Left = 0
     Top = 0
-    Width = 223
+    Width = 218
     Height = 455
     Align = alClient
     Columns = <
@@ -34,16 +35,15 @@ object frmSearchResults: TfrmSearchResults
       item
         Alignment = taCenter
         Caption = #1044#1086#1083#1075#1086#1090#1072
-      end
-      item
       end>
     GridLines = True
     Items.Data = {
       210000000100000000000000FFFFFFFFFFFFFFFF000000000000000004CAE8E5
       E2}
-    ShowWorkAreas = True
+    ReadOnly = True
     TabOrder = 0
     ViewStyle = vsReport
     OnDblClick = lvResultsDblClick
+    OnKeyDown = lvResultsKeyDown
   end
 end
