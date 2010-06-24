@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 352
-  Top = 130
+  Left = 313
+  Top = 125
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -125,7 +125,6 @@ object Fmain: TFmain
       object TBMapZap: TTBXSubmenuItem
         DisplayMode = nbdmImageAndText
         ImageIndex = 3
-        Images = TBImageList2
         LinkSubitems = NFillMap
         Options = [tboDropdownArrow, tboShowHint]
         Caption = ''
@@ -345,6 +344,7 @@ object Fmain: TFmain
         object NZoomIn: TTBXItem
           ImageIndex = 7
           Images = TBImageList1
+          ShortCut = 33
           OnClick = TBZoomInClick
           Caption = #1059#1074#1077#1083#1080#1095#1080#1090#1100
           Hint = ''
@@ -352,6 +352,7 @@ object Fmain: TFmain
         object NZoomOut: TTBXItem
           ImageIndex = 0
           Images = TBImageList1
+          ShortCut = 34
           OnClick = TBZoom_outClick
           Caption = #1059#1084#1077#1085#1100#1096#1080#1090#1100
           Hint = ''
@@ -363,6 +364,7 @@ object Fmain: TFmain
         object N14: TTBXItem
           ImageIndex = 8
           Images = TBImageList1
+          ShortCut = 16455
           OnClick = TBSubmenuItem1Click
           Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082'...'
           Hint = ''
@@ -370,6 +372,7 @@ object Fmain: TFmain
         object NCalcRast: TTBXItem
           ImageIndex = 4
           Images = TBImageList1
+          ShortCut = 16460
           OnClick = NCalcRastClick
           Caption = #1048#1079#1084#1077#1088#1080#1090#1100' '#1088#1072#1089#1089#1090#1086#1103#1085#1080#1077
           Hint = ''
@@ -383,28 +386,36 @@ object Fmain: TFmain
           Hint = ''
           object TBRECT: TTBXItem
             ImageIndex = 6
+            Images = TBImageList2
+            ShortCut = 32850
             OnClick = TBRECTClick
             Caption = #1055#1088#1103#1084#1086#1091#1075#1086#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
             Hint = ''
           end
           object TBREGION: TTBXItem
             ImageIndex = 9
+            Images = TBImageList2
+            ShortCut = 32848
             OnClick = TBREGIONClick
             Caption = #1055#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
             Hint = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1087#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
           end
           object TBCOORD: TTBXItem
             ImageIndex = 8
+            Images = TBImageList2
             OnClick = TBCOORDClick
             Caption = #1055#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
             Hint = ''
           end
           object TBPrevious: TTBXItem
+            Images = TBImageList2
+            ShortCut = 16450
             OnClick = TBPreviousClick
             Caption = #1055#1088#1077#1076#1099#1076#1091#1097#1077#1077' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
             Hint = ''
           end
           object TBLoadSelFromFile: TTBXItem
+            Images = TBImageList2
             OnClick = TBLoadSelFromFileClick
             Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1092#1072#1081#1083#1072
             Hint = ''
@@ -549,18 +560,21 @@ object Fmain: TFmain
           Hint = ''
           object Showstatus: TTBXItem
             AutoCheck = True
+            ShortCut = 32851
             OnClick = ShowstatusClick
             Caption = #1057#1090#1088#1086#1082#1072' '#1089#1090#1072#1090#1091#1089#1072
             Hint = ''
           end
           object ShowMiniMap: TTBXItem
             AutoCheck = True
+            ShortCut = 32845
             OnClick = ShowMiniMapClick
             Caption = #1050#1072#1088#1090#1072' '#1086#1073#1079#1086#1088#1072
             Hint = ''
           end
           object ShowLine: TTBXItem
             AutoCheck = True
+            ShortCut = 32844
             OnClick = ShowLineClick
             Caption = #1051#1080#1085#1077#1081#1082#1072
             Hint = ''
@@ -568,6 +582,7 @@ object Fmain: TFmain
         end
         object NFillMap: TTBXSubmenuItem
           ImageIndex = 5
+          Images = TBImageList1
           OnClick = NFillMapClick
           Caption = #1050#1072#1088#1090#1072' '#1079#1072#1087#1086#1083#1085#1077#1085#1080#1103
           Hint = ''
@@ -598,6 +613,7 @@ object Fmain: TFmain
         end
         object NShowGran: TTBXSubmenuItem
           ImageIndex = 15
+          Images = TBImageList1
           OnClick = NShowGranClick
           Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1075#1088#1072#1085#1080#1094#1099' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1081
           Hint = ''
@@ -747,6 +763,8 @@ object Fmain: TFmain
         object NFoolSize: TTBXItem
           AutoCheck = True
           ImageIndex = 3
+          Images = TBImageList1
+          ShortCut = 122
           OnClick = NFoolSizeClick
           Caption = #1042#1086' '#1074#1077#1089#1100' '#1101#1082#1088#1072#1085
           Hint = ''
@@ -794,6 +812,7 @@ object Fmain: TFmain
         end
         object Ninvertcolor: TTBXItem
           AutoCheck = True
+          ShortCut = 32846
           OnClick = NinvertcolorClick
           Caption = #1053#1086#1095#1085#1086#1081' '#1088#1077#1078#1080#1084' ('#1048#1085#1074#1077#1088#1089#1080#1103' '#1094#1074#1077#1090#1086#1074')'
           Hint = ''
@@ -813,7 +832,9 @@ object Fmain: TFmain
           AutoCheck = True
           GroupIndex = 1
           ImageIndex = 1
+          Images = ImagesSrc24
           RadioItem = True
+          ShortCut = 32835
           OnClick = NSRCinetClick
           Caption = #1050#1101#1096
           Hint = ''
@@ -822,7 +843,9 @@ object Fmain: TFmain
           AutoCheck = True
           GroupIndex = 1
           ImageIndex = 0
+          Images = ImagesSrc24
           RadioItem = True
+          ShortCut = 32841
           OnClick = NSRCinetClick
           Caption = #1048#1085#1090#1077#1088#1085#1077#1090
           Hint = ''
@@ -832,7 +855,9 @@ object Fmain: TFmain
           AutoCheck = True
           GroupIndex = 1
           ImageIndex = 2
+          Images = ImagesSrc24
           RadioItem = True
+          ShortCut = 32834
           OnClick = NSRCinetClick
           Caption = #1048#1085#1090#1077#1088#1085#1077#1090' '#1080' '#1082#1077#1096
           Hint = ''
@@ -856,6 +881,7 @@ object Fmain: TFmain
         object TBAdd_Point: TTBXItem
           GroupIndex = 1
           ImageIndex = 11
+          Images = TBImageList2
           Options = [tboShowHint]
           Stretch = True
           OnClick = TBAdd_PointClick
@@ -864,6 +890,7 @@ object Fmain: TFmain
         end
         object TBAdd_Line: TTBXItem
           ImageIndex = 12
+          Images = TBImageList2
           MaskOptions = [tboShowHint]
           OnClick = TBAdd_LineClick
           Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1091#1090#1100
@@ -871,6 +898,7 @@ object Fmain: TFmain
         end
         object TBAdd_Poly: TTBXItem
           ImageIndex = 13
+          Images = TBImageList2
           Options = [tboShowHint]
           OnClick = TBAdd_PolyClick
           Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1083#1080#1075#1086#1085
@@ -882,6 +910,7 @@ object Fmain: TFmain
         end
         object TBItem6: TTBXItem
           ImageIndex = 14
+          Images = TBImageList2
           Options = [tboShowHint]
           OnClick = TBItem6Click
           Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
@@ -894,12 +923,14 @@ object Fmain: TFmain
         Hint = ''
         object NGPSconn: TTBXItem
           AutoCheck = True
+          ShortCut = 49223
           OnClick = TBGPSconnClick
           Caption = #1055#1086#1076#1082#1083#1102#1095#1080#1090#1100' '#1087#1088#1080#1077#1084#1085#1080#1082
           Hint = ''
         end
         object NGPSPath: TTBXItem
           AutoCheck = True
+          ShortCut = 49236
           OnClick = TBGPSPathClick
           Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1090#1088#1077#1082
           Hint = ''
@@ -916,18 +947,22 @@ object Fmain: TFmain
         end
         object NSaveTreck: TTBXItem
           ImageIndex = 18
+          Images = TBImageList1
+          ShortCut = 49235
           OnClick = TBItem3Click
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1088#1077#1082
           Hint = ''
         end
         object N36: TTBXItem
           ImageIndex = 18
+          Images = TBImageList1
           OnClick = TBItem5Click
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1088#1077#1082' '#1074' '#1073#1072#1079#1077
           Hint = ''
         end
         object N39: TTBXItem
           ImageIndex = 11
+          Images = TBImageList1
           OnClick = TBItemDelTrackClick
           Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1088#1077#1082
           Hint = ''
@@ -948,6 +983,7 @@ object Fmain: TFmain
         Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
         Hint = ''
         object NMapParams: TTBXItem
+          ShortCut = 49232
           OnClick = NMapParamsClick
           Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1082#1072#1088#1090#1099
           Hint = ''
@@ -963,6 +999,7 @@ object Fmain: TFmain
         end
         object N8: TTBXItem
           ImageIndex = 12
+          Images = TBImageList1
           OnClick = N8Click
           Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
           Hint = ''
@@ -989,6 +1026,7 @@ object Fmain: TFmain
         Hint = ''
         object N29: TTBXItem
           ImageIndex = 17
+          Images = TBImageList1
           ShortCut = 112
           OnClick = N29Click
           Caption = #1057#1087#1088#1072#1074#1082#1072
@@ -996,6 +1034,7 @@ object Fmain: TFmain
         end
         object N16: TTBXItem
           ImageIndex = 1
+          Images = TBImageList1
           OnClick = N16Click
           Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
           Hint = ''

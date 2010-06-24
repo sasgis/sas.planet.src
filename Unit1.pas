@@ -692,7 +692,8 @@ uses
   u_KmlInfoSimple,
   UTrAllLoadMap,
   UGSM,
-  UImport;
+  UImport,
+  UShortcutEditor;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
@@ -1436,6 +1437,9 @@ begin
 
  setlength(GState.LastSelectionPolygon,0);
 
+ SE:=TShortcutEditor.Create(FSettings.List);
+ SE.LoadShortCuts(TBXMainMenu.Items,GState.MainConfigFileName, 'HOTKEY');
+ SE.Execute(TBXMainMenu.Items, GState.MainConfigFileName, 'HOTKEY');
 
  GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
  GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
@@ -1603,33 +1607,6 @@ begin
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
  SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
  SetStatusBarVisible();
- NzoomIn.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomIn',33);
- NzoomOut.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ZoomOut',34);
- N14.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GoTo',16455);
- NCalcRast.ShortCut:=GState.MainIni.Readinteger('HOTKEY','CalcRast',16460);
- TBRECT.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Rect',32850);
- TBRegion.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Polyg',32848);
- TBCOORD.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Coord',16451);
- TBPREVIOUS.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Previous',16450);
- NSRCinet.ShortCut:=GState.MainIni.Readinteger('HOTKEY','inet',32841);
- NSRCesh.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Cache',32835);
- NSRCic.ShortCut:=GState.MainIni.Readinteger('HOTKEY','CachInet',32834);
- Showstatus.ShortCut:=GState.MainIni.Readinteger('HOTKEY','Showstatus',32851);
- ShowLine.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ShowLine',32844);
- ShowMiniMap.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ShowMiniMap',32845);
- NFoolSize.ShortCut:=GState.MainIni.Readinteger('HOTKEY','FoolSize',122);
- NGoToCur.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GoToCur',49219);
- Nbackload.ShortCut:=GState.MainIni.Readinteger('HOTKEY','backload',49218);
- Nanimate.ShortCut:=GState.MainIni.Readinteger('HOTKEY','animate',49217);
- NCiclMap.ShortCut:=GState.MainIni.Readinteger('HOTKEY','CiclMap',49242);
- N32.ShortCut:=GState.MainIni.Readinteger('HOTKEY','ShowScale',49235);
- NGPSconn.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GPSconn',49223);
- NGPSPath.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GPSPath',49236);
- NGPSToPoint.ShortCut:=GState.MainIni.Readinteger('HOTKEY','GPSToPoint',0);
- NSaveTreck.ShortCut:=GState.MainIni.Readinteger('HOTKEY','SaveTreck',16467);
- Ninvertcolor.ShortCut:=GState.MainIni.Readinteger('HOTKEY','InvertColor',32846);
- TBLoadSelFromFile.ShortCut:=GState.MainIni.Readinteger('HOTKEY','LoadSelFromFile',0);
- NMapParams.ShortCut:=GState.MainIni.Readinteger('HOTKEY','MapParams',16464);
 
  TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;

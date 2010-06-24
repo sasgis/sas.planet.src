@@ -139,7 +139,8 @@ uses
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
-  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
+  UShortcutEditor in 'UShortcutEditor.pas' {frmShortcutChange};
 
 {$R *.res}{$R SASR.RES}
 begin
@@ -177,6 +178,7 @@ begin
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TDMMarksDb, DMMarksDb);
+  Application.CreateForm(TfrmShortcutChange, frmShortcutChange);
   Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;
