@@ -2379,14 +2379,8 @@ begin
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var
-  VLonLat: TExtendedPoint;
-  VPoint: TDoublePoint;
 begin
-  VLonLat := GState.ViewState.GetCenterLonLat;
-  VPoint.X := VLonLat.X;
-  VPoint.Y := VLonLat.Y;
-  FGoogleSearch.ModalSearch(NewText, VPoint);
+  FGoogleSearch.ModalSearch(NewText, GState.ViewState.GetCenterLonLatDlb);
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
@@ -2755,14 +2749,8 @@ begin
 end;
 
 procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var
-  VLonLat: TExtendedPoint;
-  VPoint: TDoublePoint;
 begin
-  VLonLat := GState.ViewState.GetCenterLonLat;
-  VPoint.X := VLonLat.X;
-  VPoint.Y := VLonLat.Y;
-  FYandexSerach.ModalSearch(NewText, VPoint);
+  FYandexSerach.ModalSearch(NewText, GState.ViewState.GetCenterLonLatDlb);
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);

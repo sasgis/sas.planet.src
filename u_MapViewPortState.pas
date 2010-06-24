@@ -49,6 +49,7 @@ type
 
     function GetCenterMapPixel: TPoint;
     function GetCenterLonLat: TExtendedPoint;
+    function GetCenterLonLatDlb: TDoublePoint;
     function GetCurrentZoom: Byte;
     function GetCurrentMap: TMapType;
     function GetCurrentCoordConverter: ICoordConverter;
@@ -375,6 +376,15 @@ begin
   finally
     FSync.EndRead;
   end;
+end;
+
+function TMapViewPortState.GetCenterLonLatDlb: TDoublePoint;
+var
+  VLonLat: TExtendedPoint;
+begin
+  VLonLat := GetCenterLonLat;
+  Result.X := VLonLat.X;
+  Result.Y := VLonLat.Y;
 end;
 
 function TMapViewPortState.GetCenterMapPixel: TPoint;
