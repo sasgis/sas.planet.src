@@ -54,13 +54,19 @@ type
 
 var
   FShortcutChange: TFShortcutChange;
+
+implementation
+
+uses
+  u_GlobalState;
+
+const
   NoHotKey : array [1..12] of string = (
     'NSMB','NLayerSel','TBFillingTypeMap','NLayerParams','TBLang','N002','N003','N004',
     'N005','N006','N007','NFillMap'
   );
 
-implementation
-uses u_GlobalState;
+
 {$R *.dfm}
 
 procedure TFShortcutChange.Button2Click(Sender: TObject);
