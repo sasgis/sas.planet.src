@@ -1431,8 +1431,7 @@ begin
 
  setlength(GState.LastSelectionPolygon,0);
 
- FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items,GState.MainConfigFileName, 'HOTKEY');
- FSettings.FShortcutEditor.Execute(TBXMainMenu.Items, GState.MainConfigFileName, 'HOTKEY');
+ FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
  GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
  GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
