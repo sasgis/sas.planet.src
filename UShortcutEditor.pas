@@ -26,16 +26,16 @@ type
   TShortcutEditor = class(TObject)
   private
     fMainMenu: TTBCustomItem;
-    fSection:String;
-    FList:TListBox;
+    fSection: String;
+    FList: TListBox;
     procedure ListDblClick(Sender: TObject);
     procedure ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
     procedure ClearList;
+    procedure Execute;
   public
     constructor Create(AList:TListBox);
     destructor Destroy; override;
-    procedure Execute(MainMenu: TTBCustomItem; IniFile, Section:String);
-    procedure LoadShortCuts(MainMenu: TTBCustomItem; IniFile, Section:String);
+    procedure LoadShortCuts(MainMenu: TTBCustomItem; Section:String);
     procedure Save;
   end;
 
@@ -97,7 +97,7 @@ begin
  end;
 end;
 
-procedure TShortcutEditor.Execute(MainMenu: TTBCustomItem; IniFile, Section:String);
+procedure TShortcutEditor.Execute;
 
   function GetCaption(aMenu:TTBCustomItem):String;
   var Menu:TTBCustomItem;
@@ -146,9 +146,7 @@ procedure TShortcutEditor.Execute(MainMenu: TTBCustomItem; IniFile, Section:Stri
   end;
 
 begin
-  fSection := Section;
   ClearList;
-  fMainMenu := MainMenu;
   AddItems(fMainMenu);
 end;
 
@@ -222,15 +220,12 @@ begin
   end;
 end;
 
-procedure TShortcutEditor.LoadShortCuts(MainMenu: TTBCustomItem; IniFile, Section:String);
-var
-  VIniFile: TIniFile;
-
+procedure TShortcutEditor.LoadShortCuts(MainMenu: TTBCustomItem; Section:String);
   procedure LoadItems(Menu:TTBCustomItem);
   var i:Integer;
   begin
     for i := 0 to Menu.Count-1 do begin
-      Menu.Items[i].ShortCut := VIniFile.ReadInteger(Section, Menu.Items[i].name, Menu.Items[i].ShortCut);
+      Menu.Items[i].ShortCut := Gstate.MainIni.ReadInteger(Section, Menu.Items[i].name, Menu.Items[i].ShortCut);
       if Menu.Items[i].Count > 0 then begin
         LoadItems(Menu.Items[i]);
       end;
@@ -238,12 +233,10 @@ var
   end;
 
 begin
-  VIniFile := TIniFile.Create(IniFile);
-  try
-    LoadItems(MainMenu);
-  finally
-    FreeAndNil(VIniFile);
-  end;
+  fSection := Section;
+  fMainMenu := MainMenu;
+  LoadItems(fMainMenu);
+  Execute;
 end;
 
 procedure TShortcutEditor.Save;
