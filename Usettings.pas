@@ -211,14 +211,15 @@ type
     procedure PaintBox1Paint(Sender: TObject);
     procedure Button18Click(Sender: TObject);
     procedure SBGetComNumClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
   public
+    FShortcutEditor: TShortcutEditor;
     procedure Save;
   end;
 
 var
   FSettings: TFSettings;
-  SE:TShortcutEditor;
   procedure SetProxy;
 
 implementation
@@ -251,7 +252,7 @@ begin
 
  try
  SaveMaps;
- SE.Save;
+ FShortcutEditor.Save;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
  GState.MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
@@ -625,6 +626,7 @@ begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
     ComboBoxCOM.Items.Add('COM'+inttostr(i));
   end;
+  FShortcutEditor := TShortcutEditor.Create(List);
 end;
 
 procedure TFSettings.TrBarGammaChange(Sender: TObject);
@@ -717,6 +719,11 @@ begin
   end
   else ShowMessage(SAS_MSG_NoGPSdetected);
  SBGetComNum.Enabled:=true;
+end;
+
+procedure TFSettings.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FShortcutEditor);
 end;
 
 end.
