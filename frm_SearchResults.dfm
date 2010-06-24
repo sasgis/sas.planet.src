@@ -3,7 +3,6 @@ object frmSearchResults: TfrmSearchResults
   Top = 333
   Width = 226
   Height = 489
-  BorderStyle = bsSizeToolWin
   Caption = 'frmSearchResults'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,6 +12,7 @@ object frmSearchResults: TfrmSearchResults
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  Position = poDefaultPosOnly
   OnClose = FormClose
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96

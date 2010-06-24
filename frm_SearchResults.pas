@@ -96,6 +96,10 @@ var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePalcemark;
   i: Cardinal;
+  VItemCount: Integer;
+  VRect: TRect;
+  VSize: TPoint;
+  VNewClientHeight: Integer;
 begin
   lvResults.Clear;
   VEnum := FSearchResult.GetPlacemarks;
@@ -105,6 +109,17 @@ begin
     VListItem.Caption := VPlacemark.GetAddress;
     VListItem.SubItems.Add(FloatToStr(VPlacemark.GetPoint.Y));
     VListItem.SubItems.Add(FloatToStr(VPlacemark.GetPoint.X));
+  end;
+  VItemCount := lvResults.Items.Count;
+  if VItemCount > 0 then begin
+    lvResults.Items[0].Selected := True;
+    VListItem := lvResults.Items[VItemCount - 1];
+    VRect := VListItem.DisplayRect(drBounds);
+    VSize := lvResults.ClientToParent(VRect.BottomRight);
+    VNewClientHeight := VSize.Y + VRect.Bottom - VRect.Top;
+    if VNewClientHeight < ClientHeight then begin
+      ClientHeight := VNewClientHeight;
+    end;
   end;
   Show;
 end;
@@ -132,7 +147,7 @@ begin
   if ASearchResult.GetPlacemarksCount <= 0 then begin
     ShowMessage(SAS_STR_notfound);
   end else begin
-    if ASearchResult.GetPlacemarksCount = 0 then begin
+    if ASearchResult.GetPlacemarksCount = 1 then begin
       VEnum := ASearchResult.GetPlacemarks;
       if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
         FMapGoto.GotoPos(VPlacemark.GetPoint);
@@ -157,6 +172,8 @@ procedure TfrmSearchResults.lvResultsKeyDown(Sender: TObject;
 begin
   if Key = VK_ESCAPE then begin
     close;
+  end else if Key = VK_RETURN then begin
+    lvResultsDblClick(lvResults);
   end;
 end;
 
