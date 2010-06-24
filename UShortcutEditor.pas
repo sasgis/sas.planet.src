@@ -26,13 +26,15 @@ type
   TShortcutEditor = class(TObject)
   private
     fMainMenu: TTBCustomItem;
-    fIniFile, fSection:String;
+    fSection:String;
     FList:TListBox;
     procedure ListDblClick(Sender: TObject);
     procedure ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+    procedure ClearList;
   public
-    procedure Execute(MainMenu: TTBCustomItem; IniFile, Section:String);
     constructor Create(AList:TListBox);
+    destructor Destroy; override;
+    procedure Execute(MainMenu: TTBCustomItem; IniFile, Section:String);
     procedure LoadShortCuts(MainMenu: TTBCustomItem; IniFile, Section:String);
     procedure Save;
   end;
@@ -130,11 +132,11 @@ procedure TShortcutEditor.Execute(MainMenu: TTBCustomItem; IniFile, Section:Stri
   begin
     for i:=0 to Menu.Count-1 do begin
       if (not(inNotHotKey(Menu.Items[i].Name)))and(Menu.Items[i].ClassType<>TTBXSeparatorItem) then begin
-        TempShortCut := TTempShortCut.Create;
-        TempShortCut.MenuItem:=Menu.Items[i];
-        TempShortCut.ShortCut:=Menu.Items[i].ShortCut;
         if (Menu.Items[i].Count=0)and(Menu.Items[i].ClassType=TTBXItem) then begin
-           FList.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
+          TempShortCut := TTempShortCut.Create;
+          TempShortCut.MenuItem:=Menu.Items[i];
+          TempShortCut.ShortCut:=Menu.Items[i].ShortCut;
+          FList.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
         end;
         if Menu.Items[i].Count>0 then begin
            AddItems(Menu.Items[i]);
@@ -144,9 +146,8 @@ procedure TShortcutEditor.Execute(MainMenu: TTBCustomItem; IniFile, Section:Stri
   end;
 
 begin
-  fIniFile := IniFile;
   fSection := Section;
-  FList.Clear;
+  ClearList;
   fMainMenu := MainMenu;
   AddItems(fMainMenu);
 end;
@@ -222,22 +223,27 @@ begin
 end;
 
 procedure TShortcutEditor.LoadShortCuts(MainMenu: TTBCustomItem; IniFile, Section:String);
-var fIniFile:TIniFile;
+var
+  VIniFile: TIniFile;
 
   procedure LoadItems(Menu:TTBCustomItem);
   var i:Integer;
   begin
     for i := 0 to Menu.Count-1 do begin
-      Menu.Items[i].ShortCut := fIniFile.ReadInteger(Section, Menu.Items[i].name, Menu.Items[i].ShortCut);
+      Menu.Items[i].ShortCut := VIniFile.ReadInteger(Section, Menu.Items[i].name, Menu.Items[i].ShortCut);
       if Menu.Items[i].Count > 0 then begin
         LoadItems(Menu.Items[i]);
       end;
     end;
   end;
-  
+
 begin
-  fIniFile := TIniFile.Create(IniFile);
-  LoadItems(MainMenu);
+  VIniFile := TIniFile.Create(IniFile);
+  try
+    LoadItems(MainMenu);
+  finally
+    FreeAndNil(VIniFile);
+  end;
 end;
 
 procedure TShortcutEditor.Save;
@@ -247,6 +253,21 @@ begin
     Gstate.MainIni.WriteInteger(fSection, TTempShortCut(FList.Items.Objects[i]).MenuItem.Name, TTempShortCut(FList.Items.Objects[i]).ShortCut);
     TTempShortCut(FList.Items.Objects[i]).MenuItem.ShortCut := TTempShortCut(FList.Items.Objects[i]).ShortCut;
   end;
+end;
+
+procedure TShortcutEditor.ClearList;
+var i:Integer;
+begin
+  for i := 0 to FList.Items.Count-1 do begin
+    FList.Items.Objects[i].Free;
+  end;
+  FList.Clear;
+end;
+
+destructor TShortcutEditor.Destroy;
+begin
+  ClearList;
+  inherited;
 end;
 
 end.
