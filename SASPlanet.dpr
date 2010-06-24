@@ -170,6 +170,7 @@ uses
   Usettings in 'Usettings.pas' {FSettings},
   USaveas in 'USaveas.pas' {Fsaveas},
   UProgress in 'UProgress.pas' {FProgress},
+  frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
   UaddPoint in 'UaddPoint.pas' {FaddPoint},
   Unit4 in 'Unit4.pas' {Fprogress2},
   ULogo in 'ULogo.pas' {FLogo},
@@ -181,8 +182,7 @@ uses
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
-  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults};
+  UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic};
 
 {$R *.res}{$R SASR.RES}
 begin
