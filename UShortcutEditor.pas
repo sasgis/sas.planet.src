@@ -24,17 +24,17 @@ type
     MenuItem:TTBCustomItem;
   end;
   TShortcutEditor = class(TObject)
+  private
+    fMainMenu: TTBCustomItem;
+    fIniFile, fSection:String;
+    FList:TListBox;
     procedure ListDblClick(Sender: TObject);
     procedure ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+  public
     procedure Execute(MainMenu: TTBCustomItem; IniFile, Section:String);
     constructor Create(AList:TListBox);
     procedure LoadShortCuts(MainMenu: TTBCustomItem; IniFile, Section:String);
     procedure Save;
-  private
-     fMainMenu: TTBCustomItem;
-     fIniFile, fSection:String;
-     List:TListBox;
-  public
   end;
 
   TFShortcutChange = class(TForm)
@@ -78,10 +78,9 @@ end;
 
 constructor TShortcutEditor.Create(AList:TListBox);
 begin
-  List:=AList;
-  List.Items.Clear;
-  List.OnDrawItem:=ListDrawItem;
-  List.OnDblClick:=ListDblClick;
+  FList:=AList;
+  FList.OnDrawItem:=ListDrawItem;
+  FList.OnDblClick:=ListDblClick;
 end;
 
 function inNotHotKey(name:string):boolean;
@@ -135,7 +134,7 @@ procedure TShortcutEditor.Execute(MainMenu: TTBCustomItem; IniFile, Section:Stri
         TempShortCut.MenuItem:=Menu.Items[i];
         TempShortCut.ShortCut:=Menu.Items[i].ShortCut;
         if (Menu.Items[i].Count=0)and(Menu.Items[i].ClassType=TTBXItem) then begin
-           List.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
+           FList.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
         end;
         if Menu.Items[i].Count>0 then begin
            AddItems(Menu.Items[i]);
@@ -147,7 +146,7 @@ procedure TShortcutEditor.Execute(MainMenu: TTBCustomItem; IniFile, Section:Stri
 begin
   fIniFile := IniFile;
   fSection := Section;
-  List.Clear;
+  FList.Clear;
   fMainMenu := MainMenu;
   AddItems(fMainMenu);
 end;
@@ -161,21 +160,21 @@ var ShortCut:String;
   begin
     btm:=TBitmap.Create;
     if {TTBXToolbar(fMainMenu.ParentComponent).}
-    TTempShortCut(List.Items.Objects[Index]).MenuItem.Images.GetBitmap(TTempShortCut(List.Items.Objects[Index]).MenuItem.ImageIndex,btm) then begin
-      List.Canvas.Draw(2,Rect.Top+2, btm);
+    TTempShortCut(FList.Items.Objects[Index]).MenuItem.Images.GetBitmap(TTempShortCut(FList.Items.Objects[Index]).MenuItem.ImageIndex,btm) then begin
+      FList.Canvas.Draw(2,Rect.Top+2, btm);
     end;
     freeandnil(btm);
   end;
 
 begin
-  with List.Canvas do begin
+  with FList.Canvas do begin
     FillRect(Rect);
-    ShortCut := ShortCutToText(TTempShortCut(List.Items.Objects[Index]).ShortCut);
+    ShortCut := ShortCutToText(TTempShortCut(FList.Items.Objects[Index]).ShortCut);
 
-    if TTempShortCut(List.Items.Objects[Index]).MenuItem.ImageIndex<>-1 then begin
+    if TTempShortCut(FList.Items.Objects[Index]).MenuItem.ImageIndex<>-1 then begin
       if Assigned(fMainMenu.Images) then begin
         Icon := TIcon.Create;
-        fMainMenu.Images.GetIcon(TTempShortCut(List.Items.Objects[Index]).MenuItem.ImageIndex, Icon);
+        fMainMenu.Images.GetIcon(TTempShortCut(FList.Items.Objects[Index]).MenuItem.ImageIndex, Icon);
         Draw(2,Rect.Top+2, Icon);
         Icon.Free;
       end else begin
@@ -185,7 +184,7 @@ begin
     //  DrawBitmap;
     end;
 
-    TextOut(22,Rect.Top+3, List.Items[Index]);
+    TextOut(22,Rect.Top+3, FList.Items[Index]);
     TextOut(Rect.Right-TextWidth(ShortCut)-9,Rect.Top+3, ShortCut);
 
     Pen.Color := clSilver;
@@ -200,8 +199,8 @@ procedure TShortcutEditor.ListDblClick(Sender: TObject);
   var i:Integer;
   begin
     Result := False;
-    for i := 0 to List.Items.Count-1 do begin
-      if TTempShortCut(List.Items.Objects[i]).ShortCut = A then begin
+    for i := 0 to FList.Items.Count-1 do begin
+      if TTempShortCut(FList.Items.Objects[i]).ShortCut = A then begin
         Result := True;
         Break;
       end;
@@ -209,15 +208,15 @@ procedure TShortcutEditor.ListDblClick(Sender: TObject);
   end;
 
 begin
-  if List.ItemIndex<>-1 then begin
-    FShortcutChange.HotKey.HotKey := TTempShortCut(List.Items.Objects[List.ItemIndex]).ShortCut;
+  if FList.ItemIndex<>-1 then begin
+    FShortcutChange.HotKey.HotKey := TTempShortCut(FList.Items.Objects[FList.ItemIndex]).ShortCut;
     if FShortcutChange.ShowModal = mrOK then begin
       if (ShortCutExists(FShortcutChange.HotKey.HotKey))and(FShortcutChange.HotKey.HotKey<>0) then begin
         ShowMessage('Горячая клавиша уже используется, пожалуйста, выберите другую')
       end else begin
-        TTempShortCut(List.Items.Objects[List.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
+        TTempShortCut(FList.Items.Objects[FList.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
       end;
-      List.Repaint;
+      FList.Repaint;
     end;
   end;
 end;
@@ -244,9 +243,9 @@ end;
 procedure TShortcutEditor.Save;
 var i:Integer;
 begin
-  for i := 0 to List.Items.Count-1 do begin
-    Gstate.MainIni.WriteInteger(fSection, TTempShortCut(List.Items.Objects[i]).MenuItem.Name, TTempShortCut(List.Items.Objects[i]).ShortCut);
-    TTempShortCut(List.Items.Objects[i]).MenuItem.ShortCut := TTempShortCut(List.Items.Objects[i]).ShortCut;
+  for i := 0 to FList.Items.Count-1 do begin
+    Gstate.MainIni.WriteInteger(fSection, TTempShortCut(FList.Items.Objects[i]).MenuItem.Name, TTempShortCut(FList.Items.Objects[i]).ShortCut);
+    TTempShortCut(FList.Items.Objects[i]).MenuItem.ShortCut := TTempShortCut(FList.Items.Objects[i]).ShortCut;
   end;
 end;
 
