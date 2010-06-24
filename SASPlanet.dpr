@@ -140,7 +140,7 @@ uses
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {frmShortcutChange};
+  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange};
 
 {$R *.res}{$R SASR.RES}
 begin
@@ -178,7 +178,7 @@ begin
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TDMMarksDb, DMMarksDb);
-  Application.CreateForm(TfrmShortcutChange, frmShortcutChange);
+  Application.CreateForm(TFShortcutChange, FShortcutChange);
   Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;

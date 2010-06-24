@@ -37,7 +37,7 @@ type
   public
   end;
 
-  TfrmShortcutChange = class(TForm)
+  TFShortcutChange = class(TForm)
     GroupBox1: TGroupBox;
     HotKey: THotKey;
     Button1: TButton;
@@ -51,7 +51,7 @@ type
   end;
 
 var
-  frmShortcutChange: TfrmShortcutChange;
+  FShortcutChange: TFShortcutChange;
   NoHotKey : array [1..12] of string = (
     'NSMB','NLayerSel','TBFillingTypeMap','NLayerParams','TBLang','N002','N003','N004',
     'N005','N006','N007','NFillMap'
@@ -61,17 +61,17 @@ implementation
 uses u_GlobalState;
 {$R *.dfm}
 
-procedure TfrmShortcutChange.Button2Click(Sender: TObject);
+procedure TFShortcutChange.Button2Click(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TfrmShortcutChange.Button3Click(Sender: TObject);
+procedure TFShortcutChange.Button3Click(Sender: TObject);
 begin
   HotKey.HotKey := 0;
 end;
 
-procedure TfrmShortcutChange.FormShow(Sender: TObject);
+procedure TFShortcutChange.FormShow(Sender: TObject);
 begin
   HotKey.SetFocus;
 end;
@@ -210,12 +210,12 @@ procedure TShortcutEditor.ListDblClick(Sender: TObject);
 
 begin
   if List.ItemIndex<>-1 then begin
-    frmShortcutChange.HotKey.HotKey := TTempShortCut(List.Items.Objects[List.ItemIndex]).ShortCut;
-    if frmShortcutChange.ShowModal = mrOK then begin
-      if (ShortCutExists(frmShortcutChange.HotKey.HotKey))and(frmShortcutChange.HotKey.HotKey<>0) then begin
+    FShortcutChange.HotKey.HotKey := TTempShortCut(List.Items.Objects[List.ItemIndex]).ShortCut;
+    if FShortcutChange.ShowModal = mrOK then begin
+      if (ShortCutExists(FShortcutChange.HotKey.HotKey))and(FShortcutChange.HotKey.HotKey<>0) then begin
         ShowMessage('Горячая клавиша уже используется, пожалуйста, выберите другую')
       end else begin
-        TTempShortCut(List.Items.Objects[List.ItemIndex]).ShortCut := frmShortcutChange.HotKey.HotKey;
+        TTempShortCut(List.Items.Objects[List.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
       end;
       List.Repaint;
     end;

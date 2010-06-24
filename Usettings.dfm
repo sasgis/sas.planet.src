@@ -530,7 +530,7 @@ object FSettings: TFSettings
         Style = lbOwnerDrawFixed
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
-        Font.Height = -13
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ItemHeight = 20
