@@ -28,7 +28,8 @@ uses
   rxCurrEdit,
   Ugeofun,
   UMapType,
-  UResStrings;
+  UResStrings,
+  UShortcutEditor;
 
 type
   TFSettings = class(TForm)
@@ -135,62 +136,6 @@ type
     Button15: TButton;
     MapList: TListView;
     GroupBox5: TGroupBox;
-    ScrollBox3: TScrollBox;
-    Label38: TLabel;
-    Label39: TLabel;
-    Label41: TLabel;
-    Label42: TLabel;
-    Label43: TLabel;
-    Label44: TLabel;
-    Label45: TLabel;
-    Label46: TLabel;
-    Label58: TLabel;
-    Label57: TLabel;
-    Label59: TLabel;
-    Label5: TLabel;
-    HotKey12: THotKey;
-    HotKey13: THotKey;
-    HotKey15: THotKey;
-    HotKey16: THotKey;
-    HotKey17: THotKey;
-    HotKey18: THotKey;
-    HotKey19: THotKey;
-    HotKey20: THotKey;
-    HotKey21: THotKey;
-    HotKey22: THotKey;
-    HotKey23: THotKey;
-    ScrollBox4: TScrollBox;
-    Label75: TLabel;
-    Label74: TLabel;
-    Label73: TLabel;
-    Label72: TLabel;
-    Label71: TLabel;
-    Label60: TLabel;
-    Label54: TLabel;
-    Label53: TLabel;
-    Label52: TLabel;
-    Label51: TLabel;
-    Label50: TLabel;
-    Label49: TLabel;
-    Label48: TLabel;
-    Label47: TLabel;
-    Label7: TLabel;
-    Label9: TLabel;
-    HotKey39: THotKey;
-    HotKey38: THotKey;
-    HotKey37: THotKey;
-    HotKey36: THotKey;
-    HotKey35: THotKey;
-    HotKey32: THotKey;
-    HotKey31: THotKey;
-    HotKey30: THotKey;
-    HotKey29: THotKey;
-    HotKey28: THotKey;
-    HotKey27: THotKey;
-    HotKey26: THotKey;
-    HotKey25: THotKey;
-    HotKey24: THotKey;
-    HotKey40: THotKey;
     CBoxLocal: TComboBox;
     Label8: TLabel;
     Bevel10: TBevel;
@@ -213,8 +158,6 @@ type
     MapZapColorBox: TColorBox;
     Label29: TLabel;
     MapZapAlphaEdit: TSpinEdit;
-    HotKey41: THotKey;
-    Label18: TLabel;
     Bevel9: TBevel;
     CBlock_toolbars: TCheckBox;
     Label30: TLabel;
@@ -246,6 +189,9 @@ type
     SEWaitingAnswer: TSpinEdit;
     Label37: TLabel;
     CBCacheType: TComboBox;
+    List: TListBox;
+    Label40: TLabel;
+    Label55: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -272,6 +218,7 @@ type
 
 var
   FSettings: TFSettings;
+  SE:TShortcutEditor;
   procedure SetProxy;
 
 implementation
@@ -304,6 +251,7 @@ begin
 
  try
  SaveMaps;
+ SE.Save;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
  GState.MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
@@ -357,33 +305,6 @@ begin
  GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
  GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
  GState.MainIni.Writeinteger('Wikimapia','FonColor',GState.WikiMapFonColor);
- GState.MainIni.Writeinteger('HOTKEY','ZoomIn',Fmain.NzoomIn.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','ZoomOut',Fmain.NzoomOut.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','GoTo',Fmain.N14.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','CalcRast',Fmain.NCalcRast.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','Rect',Fmain.TBRECT.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','Polyg',Fmain.TBRegion.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','Coord',Fmain.TBCOORD.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','Previous',Fmain.TBPrevious.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','inet',Fmain.NSRCinet.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','Cache',Fmain.NSRCesh.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','CachInet',Fmain.NSRCic.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','Showstatus',Fmain.Showstatus.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','ShowLine',Fmain.ShowLine.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','ShowMiniMap',Fmain.ShowMiniMap.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','FoolSize',Fmain.NFoolSize.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','GoToCur',Fmain.NGoToCur.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','backload',Fmain.Nbackload.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','animate',Fmain.Nanimate.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','CiclMap',Fmain.NCiclMap.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','ShowScale',Fmain.N32.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','GPSconn',Fmain.NGPSconn.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','GPSPath',Fmain.NGPSPath.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','GPSToPoint',Fmain.NGPSToPoint.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','SaveTreck',Fmain.NSaveTreck.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','LoadSelFromFile',Fmain.TBLoadSelFromFile.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','InvertColor',Fmain.Ninvertcolor.ShortCut);
- GState.MainIni.Writeinteger('HOTKEY','MapParams',Fmain.NMapParams.ShortCut);
 
  GState.MainIni.Writeinteger('COLOR_LEVELS','gamma', GState.GammaN);
  GState.MainIni.Writeinteger('COLOR_LEVELS','contrast',GState.ContrastN);
@@ -570,36 +491,6 @@ begin
  GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
  GState.WikiMapMainColor:=CBWMainColor.Selected;
  GState.WikiMapFonColor:=CBWFonColor.Selected;
- With Fmain do
- begin
- NzoomIn.ShortCut:=HotKey12.HotKey;
- NzoomOut.ShortCut:=HotKey13.HotKey;
- N14.ShortCut:=HotKey15.HotKey;
- NCalcRast.ShortCut:=HotKey16.HotKey;
- TBRECT.ShortCut:=HotKey17.HotKey;
- TBRegion.ShortCut:=HotKey18.HotKey;
- TBCOORD.ShortCut:=HotKey19.HotKey;
- TBPREVIOUS.ShortCut:=HotKey20.HotKey;
- NSRCinet.ShortCut:=HotKey21.HotKey;
- NSRCesh.ShortCut:=HotKey22.HotKey;
- NSRCic.ShortCut:=HotKey23.HotKey;
- Showstatus.ShortCut:=HotKey24.HotKey;
- ShowLine.ShortCut:=HotKey25.HotKey;
- ShowMiniMap.ShortCut:=HotKey26.HotKey;
- NFoolSize.ShortCut:=HotKey27.HotKey;
- NGoToCur.ShortCut:=HotKey28.HotKey;
- Nbackload.ShortCut:=HotKey29.HotKey;
- Nanimate.ShortCut:=HotKey30.HotKey;
- NCiclMap.ShortCut:=HotKey31.HotKey;
- N32.ShortCut:=HotKey32.HotKey;
- NGPSconn.ShortCut:=HotKey35.HotKey;
- NGPSPath.ShortCut:=HotKey36.HotKey;
- NGPSToPoint.ShortCut:=HotKey37.HotKey;
- NSaveTreck.ShortCut:=HotKey38.HotKey;
- TBLoadSelFromFile.ShortCut:=HotKey39.HotKey;
- Ninvertcolor.ShortCut:=HotKey40.HotKey;
- NMapParams.ShortCut:=HotKey41.HotKey;
- end;
 
  if ((GState.Localization<>LANG_RUSSIAN)and(CBoxLocal.ItemIndex=0))or
     ((GState.Localization<>LANG_ENGLISH)and(CBoxLocal.ItemIndex=1)) then ShowMessage(SAS_MSG_need_reload_application);
@@ -716,36 +607,6 @@ begin
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;
 
- With Fmain do
- begin
- HotKey12.HotKey:=NzoomIn.ShortCut;
- HotKey13.HotKey:=NzoomOut.ShortCut;
- HotKey15.HotKey:=N14.ShortCut;
- HotKey16.HotKey:=NCalcRast.ShortCut;
- HotKey17.HotKey:=TBRECT.ShortCut;
- HotKey18.HotKey:=TBRegion.ShortCut;
- HotKey19.HotKey:=TBCOORD.ShortCut;
- HotKey20.HotKey:=TBPREVIOUS.ShortCut;
- HotKey21.HotKey:=NSRCinet.ShortCut;
- HotKey22.HotKey:=NSRCesh.ShortCut;
- HotKey23.HotKey:=NSRCic.ShortCut;
- HotKey24.HotKey:=Showstatus.ShortCut;
- HotKey25.HotKey:=ShowLine.ShortCut;
- HotKey26.HotKey:=ShowMiniMap.ShortCut;
- HotKey27.HotKey:=NFoolSize.ShortCut;
- HotKey28.HotKey:=NGoToCur.ShortCut;
- HotKey29.HotKey:=Nbackload.ShortCut;
- HotKey30.HotKey:=Nanimate.ShortCut;
- HotKey31.HotKey:=NCiclMap.ShortCut;
- HotKey32.HotKey:=N32.ShortCut;
- HotKey35.HotKey:=NGPSconn.ShortCut;
- HotKey36.HotKey:=NGPSconn.ShortCut;
- HotKey37.HotKey:=NGPSToPoint.ShortCut;
- HotKey38.HotKey:=NSaveTreck.ShortCut;
- HotKey39.HotKey:=TBLoadSelFromFile.ShortCut;
- HotKey40.HotKey:=Ninvertcolor.ShortCut;
- HotKey41.HotKey:=NMapParams.ShortCut;
- end;
  DMS:=D2DMS(GState.GPS_Correction.Y);
  lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
  if DMS.N then Lat_ns.ItemIndex:=1 else Lat_ns.ItemIndex:=0;

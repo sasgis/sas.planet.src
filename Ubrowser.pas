@@ -19,6 +19,8 @@ type
       var hwnd: HWND; var szUserName, szPassWord: WideString;
       var Rezult: HRESULT);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
+      ScanCode: Word; Shift: TShiftState);
   private
   protected
   public
@@ -48,6 +50,14 @@ end;
 procedure TFbrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  EmbeddedWB1.Stop;
+end;
+
+procedure TFbrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
+  ScanCode: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then begin
+    close;
+  end;
 end;
 
 end.

@@ -35,6 +35,7 @@ object Fbrowser: TFbrowser
       '<HTML></HTML>')
     PrintOptions.Orientation = poPortrait
     UserAgent = ' Embedded Web Browser from: http://bsalsa.com/'
+    OnKeyDown = EmbeddedWB1KeyDown
     ControlData = {
       4C000000D8380000DE2000000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
