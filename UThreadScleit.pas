@@ -19,7 +19,8 @@ uses
   bmpUtil,
   t_GeoTypes,
   UResStrings,
-  unit4;
+  unit4,
+  VCLZip;
 
 type
   PRow = ^TRow;
@@ -81,6 +82,7 @@ type
     procedure Save_ECW;
     procedure Save_BMP;
     procedure Save_JPG;
+    procedure Save_KMZ;
   protected
     procedure Execute; override;
   public
@@ -106,7 +108,9 @@ uses
   u_GlobalState,
   usaveas,
   u_MapMarksLayer,
-  Unit1;
+  u_MapCalibrationKml,
+  Unit1,
+  u_GeoToStr;
 
 constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor,AusedMarks:boolean);
 var
@@ -212,6 +216,9 @@ begin
           continue;
         end else if (UpperCase(FFileExt)='.BMP') then begin
           Save_BMP;
+          continue;
+        end else if (UpperCase(FFileExt)='.KMZ') then begin
+          Save_KMZ;
           continue;
         end else begin
           Save_JPG;
@@ -541,6 +548,120 @@ begin
     btmm.Free;
     btmh.Free;
   end;
+end;
+
+procedure TThreadScleit.Save_KMZ;
+var
+  iNChannels, iWidth, iHeight: integer;
+  k,i,j: integer;
+  jcprops: TJPEG_CORE_PROPERTIES;
+  Ckml:TMapCalibrationKml;
+  BufRect:TRect;
+  FileName:string;
+
+  f: TextFile;
+  kmlm:TMemoryStream;
+  LL1, LL2: TExtendedPoint;
+  str: UTF8String;
+  VFileName: String;
+
+  Zip:TVCLZip;
+
+begin
+  iWidth  := FMapPieceSize.X div 2;
+  iHeight := FMapPieceSize.y div 2;
+  BufRect:=FCurrentPieceRect;
+
+  Zip:=TVCLZip.Create(nil);
+  Zip.Recurse := False;
+  Zip.StorePaths := true; // Путь не сохраняем
+  Zip.PackLevel := 0; // Уровень сжатия
+  Zip.ZipName :=ChangeFileExt(FCurrentFileName,'.kmz');
+
+  kmlm:=TMemoryStream.Create;
+  str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10+'<kml xmlns="http://earth.google.com/kml/2.2">'+#13#10+'<Folder>'+#13#10+'<name>'+FCurrentFileName+'</name>'+#13#10);
+
+  for i:=1 to 2 do begin
+  for j:=1 to 2 do begin
+  try
+    FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
+    str := str + ansiToUTF8('<GroundOverlay>'+#13#10+'<name>' + FileName + '</name>'+#13#10);
+    str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>'+#13#10);
+
+    FCurrentPieceRect.Left := BufRect.Left + iWidth * (i-1);
+    FCurrentPieceRect.Right := BufRect.Left + iWidth * i;
+    FCurrentPieceRect.Top := BufRect.Top + iHeight * (j-1);
+    FCurrentPieceRect.Bottom := BufRect.Top + iHeight * j;
+    sx:=(FCurrentPieceRect.Left mod 256);
+    sy:=(FCurrentPieceRect.Top mod 256);
+    ex:=(FCurrentPieceRect.Right mod 256);
+    ey:=(FCurrentPieceRect.Bottom mod 256);
+
+
+    LL1 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom);
+    LL2 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom);
+    str := str + ansiToUTF8('<LatLonBox>'+#13#10);
+    str := str + ansiToUTF8('<north>' + R2StrPoint(LL1.y) + '</north>' + #13#10);
+    str := str + ansiToUTF8('<south>' + R2StrPoint(LL2.y) + '</south>' + #13#10);
+    str := str + ansiToUTF8('<east>' + R2StrPoint(LL2.x) + '</east>' + #13#10);
+    str := str + ansiToUTF8('<west>' + R2StrPoint(LL1.x) + '</west>' + #13#10);
+    str := str + ansiToUTF8('</LatLonBox>'+#13#10+'</GroundOverlay>'+#13#10);
+
+    //Ckml:=TMapCalibrationKml.Create;
+    //Ckml.SaveCalibrationInfo(FCurrentFileName,FCurrentPieceRect.TopLeft, FCurrentPieceRect.BottomRight,FZoom - 1, FTypeMap.GeoConvert);
+    getmem(Array256BGR,256*sizeof(P256ArrayBGR));
+    for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
+    prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
+    Synchronize(UpdateProgressFormStr1);
+    btmm:=TBitmap32.Create;
+    btmh:=TBitmap32.Create;
+    btmm.Width:=256;
+    btmm.Height:=256;
+    btmh.Width:=256;
+    btmh.Height:=256;
+    ijlInit(@jcprops);
+    iNChannels := 3;
+    jcprops.DIBWidth := iWidth;
+    jcprops.DIBHeight := -iHeight;
+    jcprops.DIBChannels := iNChannels;
+    jcprops.DIBColor := IJL_BGR;
+    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*3);
+    new(jcprops.DIBBytes);
+    GetMem(jcprops.DIBBytes,(iWidth*3+ (iWidth mod 4))*iHeight);
+    if jcprops.DIBBytes<>nil then begin
+      for k:=0 to iHeight-1 do begin
+        ReadLineBMP(k,Pointer(integer(jcprops.DIBBytes)+(((iWidth*3+ (iWidth mod 4))*iHeight)-(iWidth*3+ (iWidth mod 4))*(k+1))));
+        if IsCancel then break;
+      end;
+    end else begin
+      Message_:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
+      Synchronize(SynShowMessage);
+      exit;
+    end;
+    jcprops.JPGFile := PChar(FileName);
+    jcprops.JPGWidth := iWidth;
+    jcprops.JPGHeight := iHeight;
+    jcprops.JPGChannels := 3;
+    jcprops.JPGColor := IJL_YCBCR;
+    jcprops.jquality := FSaveAs.QualitiEdit.Value;
+    ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
+  Finally
+    freemem(jcprops.DIBBytes,iWidth*iHeight*3);
+    for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
+    freemem(Array256BGR,256*((iWidth+1)*3));
+    ijlFree(@jcprops);
+    btmm.Free;
+    btmh.Free;
+  end;
+  end;
+  end;
+  str := str + ansiToUTF8('</Folder>'+#13#10+'</kml>');
+  kmlm.Write(str[1],length(str));
+//  kmlm.SaveToFile(ExtractFilePath(FCurrentFileName)+'doc.kml');
+  Zip.ZipFromStream(kmlm,'doc.kml');
+  Zip.Zip;
+  kmlm.Free;
+
 end;
 
 end.

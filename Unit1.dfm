@@ -1,5 +1,5 @@
 object Fmain: TFmain
-  Left = 313
+  Left = 430
   Top = 125
   Width = 850
   Height = 569
@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -5419,7 +5420,8 @@ object Fmain: TFmain
     DefaultExt = 'jpg'
     Filter = 
       'Windows Bitmap (*.bmp)|*.bmp|Enhanced compressed wavelet (*.ECW)' +
-      '|*.ECW|JPEG2000 (*.jp2)|*.jp2|Jpeg (*.jpg)|*.jpg'
+      '|*.ECW|JPEG2000 (*.jp2)|*.jp2|Jpeg (*.jpg)|*.jpg|KMZ for Garmin ' +
+      '(*.kmz)|*.kmz'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 112
     Top = 176
