@@ -54,6 +54,7 @@ type
     FCurrentPieceRect: TRect;
     FUsedReColor: boolean;
     FUsedMarks: boolean;
+    FNumImgs,FNumImgsSaved:integer;
 
     FProgressForm: TFprogress2;
 
@@ -183,7 +184,9 @@ procedure TThreadScleit.saveRECT;
 var
   i, j, pti: integer;
 begin
-  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
+  FNumImgs:=FSplitCount.X*FSplitCount.Y;
+  FNumImgsSaved:=0;
+  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FNumImgs)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
   prBar:=0;
@@ -569,10 +572,7 @@ begin
   iWidth  := FMapPieceSize.X div 2;
   iHeight := FMapPieceSize.y div 2;
 
-  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y);
-  Synchronize(UpdateProgressFormStr1);
-
-  if (iWidth*iHeight)>1000000 then begin
+  if ((iWidth*iHeight)>1000000)and(FNumImgsSaved=0) then begin
     Message_:=SAS_MSG_GarminMax1Mp;
     Synchronize(SynShowMessage);
   end;
@@ -589,17 +589,21 @@ begin
 
   for i:=1 to 2 do begin
     for j:=1 to 2 do begin
+      prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y)+' ('+inttostr(FNumImgsSaved)+'/'+inttostr(FNumImgs)+')';
       jpgm:=TMemoryStream.Create;
+      FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
+      VFileName:='files/'+ExtractFileName(FileName);
       try
-        FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
-        VFileName:='files\'+ExtractFileName(FileName);
-        str := str + ansiToUTF8('<GroundOverlay>'+#13#10+'<name>' + ExtractFileName(FileName) + '</name>'+#13#10);
-        str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>'+#13#10);
+        str := str + ansiToUTF8('<GroundOverlay>'+#13#10+'<name>' + ExtractFileName(FileName) + '</name>'+#13#10+'<drawOrder>30</drawOrder>'+#13#10);
+        str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.3</viewBoundScale></Icon>'+#13#10);
 
         FCurrentPieceRect.Left := BufRect.Left + iWidth * (i-1);
         FCurrentPieceRect.Right := BufRect.Left + iWidth * i;
         FCurrentPieceRect.Top := BufRect.Top + iHeight * (j-1);
         FCurrentPieceRect.Bottom := BufRect.Top + iHeight * j;
+
+        Synchronize(UpdateProgressFormStr1);
+
         sx:=(FCurrentPieceRect.Left mod 256);
         sy:=(FCurrentPieceRect.Top mod 256);
         ex:=(FCurrentPieceRect.Right mod 256);
@@ -668,6 +672,7 @@ begin
   Zip.ZipFromStream(kmlm,'doc.kml');
   Zip.Zip;
   kmlm.Free;
+  inc(FNumImgsSaved);
 end;
 
 end.
