@@ -242,7 +242,6 @@ var
 begin
  try
  SaveMaps;
- FShortcutEditor.Save;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
  GState.MainIni.WriteInteger('POSITION','zoom_size',GState.Zoom_Size);
@@ -361,11 +360,12 @@ begin
      GState.MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),GState.LastSelectionPolygon[i-1].y);
     end;
   end;
- GState.MainIni.UpdateFile;
  lock_tb_b:=Fmain.lock_toolbars;
  Fmain.lock_toolbars:=false;
  TBiniSavePositions(Fmain,GState.MainIni,'PANEL_');
+ FShortcutEditor.Save;
  Fmain.lock_toolbars:=lock_tb_b;
+ GState.MainIni.UpdateFile;
  except
  end;
 end;
