@@ -3071,7 +3071,7 @@ begin
     if length(GState.GPS_TrackPoints)=1 then sb:='1' else sb:='0';
     DecodeDate(Date, xYear, xMonth, xDay);
     DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
-    s2f:=R2StrPoint(round(GState.GPS_TrackPoints[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GState.GPS_TrackPoints[len-1].x*10000000)/10000000)+','+sb+','+'-777'+','+
+    s2f:=R2StrPoint(round(GState.GPS_TrackPoints[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GState.GPS_TrackPoints[len-1].x*10000000)/10000000)+','+sb+','+R2StrPoint(GPSReceiver.MetersToFeet(GPSpar.altitude))+','+
                     floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','+
                     inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
     Writeln(GState.GPS_LogFile,s2f);
