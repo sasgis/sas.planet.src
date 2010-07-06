@@ -127,8 +127,12 @@ type
     GPS_ArrayOfSpeed: array of Real;
     //Точки GPS трека
     GPS_TrackPoints: TExtendedPointArray;
+    //Максимальное количество оотображаемых точек трека
+    GPS_NumTrackPoints: integer;
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
+    //Писать лог NMEA
+    GPS_NMEALog:boolean;
 
     LastSelectionColor: TColor;
     LastSelectionAlfa: Byte;

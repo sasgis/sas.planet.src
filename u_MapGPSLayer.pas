@@ -35,6 +35,7 @@ var i,speed,SizeTrackd2:integer;
     dl: integer;
     Polygon: TPolygon32;
     polygon_line: TPolygon32;
+    startrarck:integer;
 begin
   inherited;
   Polygon := TPolygon32.Create;
@@ -47,12 +48,13 @@ begin
   FLayer.Bitmap.Canvas.Pen.Style:=psSolid;
   FLayer.Bitmap.Canvas.Pen.Color:=clBlue;
   FLayer.Bitmap.Clear(clBlack);
-
+  startrarck:=length(GState.GPS_TrackPoints)-GState.GPS_NumTrackPoints;
+  if startrarck<0 then startrarck:=0;
   with FLayer.Bitmap do begin
-    if GState.GPS_ShowPath then begin
-      for i:=0 to length(GState.GPS_TrackPoints)-2 do begin
-        k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i],FZoom);
-        k1:=MapPixel2BitmapPixel(k1);
+    if (GState.GPS_ShowPath)and(length(GState.GPS_TrackPoints)-startrarck>1) then begin
+      k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[startrarck],FZoom);
+      k1:=MapPixel2BitmapPixel(k1);
+      for i:=startrarck to length(GState.GPS_TrackPoints)-2 do begin
         k2:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],FZoom);
         k2:=MapPixel2BitmapPixel(k2);
         if (GState.GPS_ArrayOfSpeed[i]>0)and(FMain.GPSpar.maxspeed>0) then begin
@@ -60,25 +62,28 @@ begin
         end else begin
           speed:=0;
         end;
-        if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-          polygon_line.Add(FixedPoint(k1));
-          polygon_line.Add(FixedPoint(k2));
-        end;
-        with Polygon_line.Outline do try
-          with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
-            DrawFill(FLayer.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
+        if (k1.X<>k2.X)or(k1.Y<>k2.Y) then begin
+          if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
+            polygon_line.Add(FixedPoint(k1));
+            polygon_line.Add(FixedPoint(k2));
+          end;
+          with Polygon_line.Outline do try
+            with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
+              DrawFill(FLayer.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
+            finally
+              free;
+            end;
           finally
             free;
           end;
-        finally
-          free;
+          Polygon_line.Clear;
         end;
-        Polygon_line.Clear;
+        k1:=k2;
       end;
     end;
   end;
 
-  if length(GState.GPS_TrackPoints)>1 then try
+  if length(GState.GPS_TrackPoints)-startrarck>1 then try
     ke:=FGeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
     ke:=MapPixel2BitmapPixel(ke);
     ks:=FGeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
@@ -116,7 +121,7 @@ begin
   except
   end;
 
-  if length(GState.GPS_TrackPoints)>0 then begin
+  if length(GState.GPS_TrackPoints)-startrarck>0 then begin
     k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
     k1:=MapPixel2BitmapPixel(k1);
     SizeTrackd2:=GState.GPS_ArrowSize div 6;

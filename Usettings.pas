@@ -192,6 +192,9 @@ type
     List: TListBox;
     Label40: TLabel;
     Label55: TLabel;
+    Label5: TLabel;
+    SE_NumTrackPoints: TSpinEdit;
+    CB_GPSlogNmea: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -313,11 +316,13 @@ begin
  GState.MainIni.WriteFloat('GPS','popr_lat',GState.GPS_Correction.y);
  GState.MainIni.Writeinteger('GPS','update',GState.GPS_Delay);
  GState.MainIni.WriteBool('GPS','log',GState.GPS_WriteLog);
+ GState.MainIni.WriteBool('GPS','NMEALog',GState.GPS_NMEALog);
  GState.MainIni.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
  GState.MainIni.WriteInteger('GPS','SizeTrack',GState.GPS_TrackWidth);
  GState.MainIni.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  GState.MainIni.WriteFloat('GPS','Odometr',FMain.GPSpar.Odometr);
  GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
+ GState.MainIni.WriteInteger('GPS','NumShowTrackPoints',GState.GPS_NumTrackPoints);
 
  GState.MainIni.WriteString('GSM','port',GState.GSMpar.Port);
  GState.MainIni.WriteInteger('GSM','BaudRate',GState.GSMpar.BaudRate);
@@ -459,11 +464,13 @@ begin
  GState.GPS_TrackWidth:=SESizeTrack.Value;
  GState.GPS_TimeOut:=SpinEdit2.Value;
  GState.GPS_WriteLog:=CB_GPSlog.Checked;
+ GState.GPS_NMEALog:=CB_GPSlogNmea.Checked;
  GState.GPS_Delay:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPS_COM:=ComboBoxCOM.Text;
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
+ GState.GPS_NumTrackPoints:=SE_NumTrackPoints.Value;
  FMain.FMiniMap.z1mz2:=smmapdif.Value;
  if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.userwinset:=RBWinCon.Checked;
@@ -588,9 +595,11 @@ begin
  GECachePath.text:=GState.GECachePath_;
  SpinEdit2.Value:=GState.GPS_TimeOut;
  CB_GPSlog.Checked:=GState.GPS_WriteLog;
+ CB_GPSlogNmea.Checked:=GState.GPS_NMEALog;
  SpinEdit1.Value:=GState.GPS_Delay;
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPS_TrackWidth;
+ SE_NumTrackPoints.Value:=GState.GPS_NumTrackPoints;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  smmapdif.Value:=FMain.FMiniMap.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);

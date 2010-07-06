@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 288
-  Top = 144
+  Left = 293
+  Top = 114
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
   ClientHeight = 416
@@ -24,7 +24,7 @@ object FSettings: TFSettings
     Top = 8
     Width = 633
     Height = 369
-    ActivePage = TabSheet3
+    ActivePage = TabSheet5
     TabOrder = 0
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
@@ -1046,12 +1046,19 @@ object FSettings: TFSettings
         Margin = 5
         OnClick = SBGetComNumClick
       end
+      object Label5: TLabel
+        Left = 8
+        Top = 259
+        Width = 283
+        Height = 13
+        Caption = #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1086#1077' '#1082#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093' '#1090#1086#1095#1077#1082' '#1090#1088#1077#1082#1072':'
+      end
       object ComboBoxCOM: TComboBox
         Left = 64
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
@@ -1259,10 +1266,10 @@ object FSettings: TFSettings
       end
       object CB_GPSlog: TCheckBox
         Left = 8
-        Top = 272
-        Width = 201
+        Top = 304
+        Width = 217
         Height = 17
-        Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080
+        Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080' '#1074' .plt'
         TabOrder = 4
       end
       object SESizeStr: TSpinEdit
@@ -1334,11 +1341,29 @@ object FSettings: TFSettings
       end
       object CBSensorsBarAutoShow: TCheckBox
         Left = 8
-        Top = 288
+        Top = 320
         Width = 305
         Height = 17
         Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100'/'#1089#1082#1088#1099#1074#1072#1090#1100' '#1087#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
         TabOrder = 10
+      end
+      object SE_NumTrackPoints: TSpinEdit
+        Left = 8
+        Top = 274
+        Width = 73
+        Height = 22
+        MaxValue = 1000000
+        MinValue = 10
+        TabOrder = 11
+        Value = 10000
+      end
+      object CB_GPSlogNmea: TCheckBox
+        Left = 224
+        Top = 304
+        Width = 65
+        Height = 17
+        Caption = #1074' .nmea'
+        TabOrder = 12
       end
     end
     object TabSheet8: TTabSheet
@@ -1419,7 +1444,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
