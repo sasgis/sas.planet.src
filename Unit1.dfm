@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 263
-  Top = 99
+  Left = 337
+  Top = 141
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -552,6 +551,13 @@ object Fmain: TFmain
               Checked = True
               OnClick = NSensorsBarClick
               Caption = #1040#1079#1080#1084#1091#1090
+              Hint = ''
+            end
+            object NSignalStrengthBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072' ('#1082#1086#1083'. '#1089#1087#1091#1090'.)'
               Hint = ''
             end
           end
@@ -2011,7 +2017,7 @@ object Fmain: TFmain
         Left = 0
         Top = 0
         Width = 160
-        Height = 324
+        Height = 360
         Align = alTop
         AutoScroll = False
         AutoSize = True
@@ -2023,7 +2029,7 @@ object Fmain: TFmain
           Left = 0
           Top = 0
           Width = 160
-          Height = 324
+          Height = 360
           object TBXSensorSpeedAvgBar: TTBXToolWindow
             Left = 0
             Top = 36
@@ -2552,13 +2558,14 @@ object Fmain: TFmain
             Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1072#1079#1080#1084#1091#1090' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1103
             Align = alTop
             ClientAreaHeight = 32
-            ClientAreaWidth = 160
+            ClientAreaWidth = 150
             DockPos = 8
             DockRow = 8
+            Stretch = True
             TabOrder = 8
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
-              160
+              150
               32)
             Caption = #1040#1079#1080#1084#1091#1090
             object TBXSensorAzimut: TTBXLabel
@@ -2579,12 +2586,54 @@ object Fmain: TFmain
             object TBXLabel4: TTBXLabel
               Left = 0
               Top = 0
-              Width = 145
+              Width = 135
               Height = 13
               Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Wrapping = twEndEllipsis
               Caption = #1040#1079#1080#1084#1091#1090':'
+            end
+          end
+          object TBXSignalStrengthBar: TTBXToolWindow
+            Left = 0
+            Top = 324
+            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1086#1089#1090#1086#1103#1085#1080#1077' '#1087#1080#1090#1072#1085#1080#1103
+            Align = alTop
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 0
+            DockRow = 9
+            Stretch = True
+            TabOrder = 9
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            DesignSize = (
+              150
+              32)
+            Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072' ('#1082#1086#1083'. '#1089#1087'.)'
+            object TBXSignalStrength: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel5: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 145
+              Height = 13
+              Anchors = [akLeft, akTop, akRight]
+              AutoSize = False
+              Wrapping = twEndEllipsis
+              Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072', dB ('#1082#1086#1083'. '#1089#1087'.):'
             end
           end
         end

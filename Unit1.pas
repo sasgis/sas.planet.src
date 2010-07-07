@@ -418,6 +418,10 @@ type
     TBCOORD: TTBXItem;
     TBPrevious: TTBXItem;
     TBLoadSelFromFile: TTBXItem;
+    TBXSignalStrengthBar: TTBXToolWindow;
+    TBXSignalStrength: TTBXLabel;
+    TBXLabel5: TTBXLabel;
+    NSignalStrengthBar: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -1259,6 +1263,8 @@ begin
    end;
    //Азимут
    TBXSensorAzimut.Caption:=RoundEx(GPSpar.azimut,2)+'°';
+   //Сила сигнала, кол-во спутников
+   TBXSignalStrength.Caption:=RoundEx(GPSpar.SignalStrength,2)+' ('+inttostr(GPSpar.SatCount)+')'
  except
  end;
 end;
@@ -3047,6 +3053,8 @@ begin
   GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
   GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
   GPSpar.altitude:=GPSReceiver.GetAltitude;
+  GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
+  GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
   if len>1 then begin
     GPSpar.len:=GPSpar.len+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.Odometr:=GPSpar.Odometr+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
@@ -3690,6 +3698,7 @@ procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
  setlength(GState.GPS_ArrayOfSpeed,0);
  setlength(GState.GPS_TrackPoints,0);
+ GPSpar.maxspeed:=0;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);

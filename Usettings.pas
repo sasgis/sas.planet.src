@@ -600,6 +600,7 @@ begin
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPS_TrackWidth;
  SE_NumTrackPoints.Value:=GState.GPS_NumTrackPoints;
+ CBSensorsBarAutoShow.Checked:=GState.GPS_SensorsAutoShow;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  smmapdif.Value:=FMain.FMiniMap.z1mz2;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
