@@ -1140,6 +1140,8 @@ object Fmain: TFmain
       object TBZoomIn: TTBXItem
         ImageIndex = 7
         Images = TBImageList1
+        MinHeight = 29
+        MinWidth = 29
         OnClick = TBZoomInClick
         Caption = ''
         Hint = #1059#1074#1077#1083#1080#1095#1080#1090#1100
@@ -1164,6 +1166,8 @@ object Fmain: TFmain
       object TBZoom_out: TTBXItem
         ImageIndex = 0
         Images = TBImageList1
+        MinHeight = 29
+        MinWidth = 29
         OnClick = TBZoom_outClick
         Caption = ''
         Hint = #1059#1084#1077#1085#1100#1096#1080#1090#1100
@@ -1181,7 +1185,7 @@ object Fmain: TFmain
       end
       object labZoom: TLabel
         Left = 5
-        Top = 247
+        Top = 257
         Width = 22
         Height = 13
         Hint = #1052#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099' '#1085#1072' '#1082#1086#1090#1086#1088#1086#1084' '#1074#1099' '#1085#1072#1093#1086#1076#1080#1090#1077#1089#1100
@@ -1200,7 +1204,7 @@ object Fmain: TFmain
       end
       object RxSlider1: TRxSlider
         Left = 0
-        Top = 27
+        Top = 32
         Width = 32
         Height = 189
         Hint = #1048#1079#1084#1077#1085#1080#1090#1100' '#1084#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099
@@ -1910,7 +1914,7 @@ object Fmain: TFmain
     end
     object TBEditPath: TTBXToolbar
       Left = 0
-      Top = 270
+      Top = 280
       DockPos = 257
       TabOrder = 1
       OnClose = TBEditPathClose
