@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -2615,7 +2616,9 @@ object Fmain: TFmain
           object TBXSignalStrengthBar: TTBXToolWindow
             Left = 0
             Top = 324
-            Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1086#1089#1090#1086#1103#1085#1080#1077' '#1087#1080#1090#1072#1085#1080#1103
+            Hint = 
+              #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1080#1083#1091' '#1089#1080#1075#1085#1072#1083#1072' '#1080' '#1082#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1089#1087#1091#1090#1085#1080#1082#1086#1074' '#1091#1095#1072#1089#1090#1074#1091#1102#1097#1080#1093' '#1074' '#1086#1087#1088 +
+              #1077#1076#1077#1083#1077#1085#1080#1080' '#1087#1086#1079#1080#1094#1080#1080
             Align = alTop
             ClientAreaHeight = 32
             ClientAreaWidth = 150
