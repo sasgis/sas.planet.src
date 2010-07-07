@@ -1,6 +1,6 @@
 object FMarksExplorer: TFMarksExplorer
-  Left = 561
-  Top = 250
+  Left = 341
+  Top = 186
   BorderStyle = bsDialog
   Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
   ClientHeight = 420

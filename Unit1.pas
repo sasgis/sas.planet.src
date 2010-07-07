@@ -422,6 +422,9 @@ type
     TBXSignalStrength: TTBXLabel;
     TBXLabel5: TTBXLabel;
     NSignalStrengthBar: TTBXItem;
+    TBXSeparatorItem19: TTBXSeparatorItem;
+    TBXItem8: TTBXItem;
+    TBXItem9: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -550,6 +553,8 @@ type
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
+    procedure TBXItem8Click(Sender: TObject);
+    procedure TBXItem9Click(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -1534,7 +1539,7 @@ begin
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
  GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
- GState.GPS_NumTrackPoints:=GState.MainIni.ReadInteger('GPS','NumShowTrackPoints',10000);
+ GState.GPS_NumTrackPoints:=GState.MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
 
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
  GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
@@ -4351,6 +4356,16 @@ end;
 procedure TFmain.NGoToCurClick(Sender: TObject);
 begin
   GState.ZoomingAtMousePos := (Sender as TTBXItem).Checked
+end;
+
+procedure TFmain.TBXItem8Click(Sender: TObject);
+begin
+  ShowCaptcha('http://z.sasgis.ru/show_zmp/sas.zmp');
+end;
+
+procedure TFmain.TBXItem9Click(Sender: TObject);
+begin
+  ShowCaptcha('http://z.sasgis.ru/show_zmp/plus.zmp');
 end;
 
 end.

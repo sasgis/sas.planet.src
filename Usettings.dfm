@@ -1444,7 +1444,7 @@ object FSettings: TFSettings
         Top = 16
         Width = 89
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
