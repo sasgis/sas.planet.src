@@ -195,6 +195,7 @@ begin
   Synchronize(UpdateProgressFormStr2);
 
   FCurrentFileName := FFilePath + FFileName + FFileExt;
+
   for i:=1 to FSplitCount.X do begin
     for j:=1 to FSplitCount.Y do begin
       FCurrentPieceRect.Left := FMapRect.Left + FMapPieceSize.X * (i-1);
@@ -343,7 +344,7 @@ begin
     if line=0 then begin
       prStr2:=SAS_STR_CreateFile
     end else begin
-      prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
+      prStr2:=SAS_STR_Processed+': '+inttostr(Round((prBar/(FMapPieceSize.Y))*100))+'%';
     end;
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
@@ -562,17 +563,28 @@ var
   BufRect:TRect;
   FileName:string;
 
-  kmlm,jpgm:TMemoryStream;
+  kmlm,jpgm,zips:TMemoryStream;
   LL1, LL2: TExtendedPoint;
   str: UTF8String;
   VFileName: String;
+  bFMapPieceSizey:integer;
+  nim:TPoint;
 
   Zip:TVCLZip;
 begin
-  iWidth  := FMapPieceSize.X div 2;
-  iHeight := FMapPieceSize.y div 2;
+  nim.X:=(FMapPieceSize.X div 1024);
+  nim.Y:=(FMapPieceSize.Y div 1024);
 
-  if ((iWidth*iHeight)>1000000)and(FNumImgsSaved=0) then begin
+  bFMapPieceSizey:=FMapPieceSize.y;
+
+  iWidth  := FMapPieceSize.X div (nim.X);
+  iHeight := FMapPieceSize.y div (nim.Y);
+
+  FMapPieceSize.y:=iHeight;
+
+  FProgressForm.ProgressBar1.Max := iHeight;
+
+  if ((nim.X*nim.Y)>100)and(FNumImgsSaved=0) then begin
     Message_:=SAS_MSG_GarminMax1Mp;
     Synchronize(SynShowMessage);
   end;
@@ -587,15 +599,15 @@ begin
   kmlm:=TMemoryStream.Create;
   str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10+'<kml xmlns="http://earth.google.com/kml/2.2">'+#13#10+'<Folder>'+#13#10+'<name>'+ExtractFileName(FCurrentFileName)+'</name>'+#13#10);
 
-  for i:=1 to 2 do begin
-    for j:=1 to 2 do begin
-      prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y)+' ('+inttostr(FNumImgsSaved)+'/'+inttostr(FNumImgs)+')';
+  for i:=1 to nim.X do begin
+    for j:=1 to nim.Y do begin
+      prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(bFMapPieceSizey)+' ('+inttostr((i-1)*nim.Y+j)+'/'+inttostr(nim.X*nim.Y)+')';
       jpgm:=TMemoryStream.Create;
       FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
       VFileName:='files/'+ExtractFileName(FileName);
       try
-        str := str + ansiToUTF8('<GroundOverlay>'+#13#10+'<name>' + ExtractFileName(FileName) + '</name>'+#13#10+'<drawOrder>30</drawOrder>'+#13#10);
-        str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.3</viewBoundScale></Icon>'+#13#10);
+        str := str + ansiToUTF8('<GroundOverlay>'+#13#10+'<name>' + ExtractFileName(FileName) + '</name>'+#13#10+'<drawOrder>75</drawOrder>'+#13#10);
+        str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>'+#13#10);
 
         FCurrentPieceRect.Left := BufRect.Left + iWidth * (i-1);
         FCurrentPieceRect.Right := BufRect.Left + iWidth * i;
@@ -667,10 +679,12 @@ begin
       end;
     end;
   end;
+  FMapPieceSize.y:=bFMapPieceSizey;
   str := str + ansiToUTF8('</Folder>'+#13#10+'</kml>');
   kmlm.Write(str[1],length(str));
   Zip.ZipFromStream(kmlm,'doc.kml');
-  Zip.Zip;
+
+  Zip.Free;
   kmlm.Free;
   inc(FNumImgsSaved);
 end;
