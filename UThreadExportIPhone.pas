@@ -26,6 +26,7 @@ type
     PolygLL:TExtendedPointArray;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
+    FActiveMapIndex: integer;
     FNewFormat: Boolean;
     Fprogress: TFprogress2;
     Replace:boolean;
@@ -42,6 +43,7 @@ type
       APolygon_: TExtendedPointArray;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
+      AActiveMapIndex: Integer;
       Areplace: boolean;
       ANewFormat: Boolean;
       Acsat: byte;
@@ -63,6 +65,7 @@ constructor TThreadExportIPhone.Create(
   APolygon_: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
+  AActiveMapIndex: Integer;
   Areplace: boolean;
   ANewFormat: Boolean;
   Acsat, Acmap, Achib: byte
@@ -85,9 +88,13 @@ begin
     PolygLL[i-1]:=Apolygon_[i-1];
   for i:=0 to 23 do
     zoomarr[i]:=Azoomarr[i];
+  FActiveMapIndex := AActiveMapIndex;
   setlength(typemaparr,length(Atypemaparr));
   for i:=1 to length(Atypemaparr) do
     typemaparr[i-1]:=Atypemaparr[i-1];
+  if FActiveMapIndex >= Length(typemaparr) then begin
+    FActiveMapIndex := 0;
+  end;
 end;
 
 
@@ -208,9 +215,9 @@ begin
  Writeln(PList,'<plist>');
  Writeln(PList,'<dict>');
  Writeln(PList,'<key>LastViewMode</key>');
- if (TypeMapArr[0]<>nil)and(TypeMapArr[0].active) then Writeln(PList,'<integer>0</integer>');
- if (TypeMapArr[1]<>nil)and(TypeMapArr[1].active) then Writeln(PList,'<integer>1</integer>');
- if (TypeMapArr[2]<>nil)and(TypeMapArr[2].active) then Writeln(PList,'<integer>2</integer>');
+ if (TypeMapArr[0]<>nil) and (FActiveMapIndex = 0) then Writeln(PList,'<integer>0</integer>');
+ if (TypeMapArr[1]<>nil) and (FActiveMapIndex = 1) then Writeln(PList,'<integer>1</integer>');
+ if (TypeMapArr[2]<>nil) and (FActiveMapIndex = 2) then Writeln(PList,'<integer>2</integer>');
  Writeln(PList,'<key>LastViewedLatitude</key>');
  Writeln(PList,'<real>'+R2StrPoint(LLCenter.y)+'</real>');
  Writeln(PList,'<key>LastViewedLongitude</key>');
