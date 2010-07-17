@@ -435,12 +435,14 @@ end;
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
 var
   i:integer;
-  XX:tpOINT;
   vramkah,zagran:boolean;
   VMapCalibration: IMapCalibration;
   VConverter: ICoordConverter;
   VPoint: TPoint;
   VZoom: Byte;
+  VActiveMap: TMapType;
+  VAddedIndex: Integer;
+  VMapType: TMapType;
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
@@ -479,63 +481,73 @@ begin
   CmBExpSatYa.Items.AddObject(SAS_STR_No,nil);
   CmBExpMapYa.Items.AddObject(SAS_STR_No,nil);
   CmBExpHibYa.Items.AddObject(SAS_STR_No,nil);
+  VActiveMap := GState.sat_map_both;
   For i:=0 to length(GState.MapType)-1 do begin
-    if (GState.MapType[i].Usedwn) then begin
-      CBMapLoad.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-      if (GState.MapType[i].active)and(not(GState.MapType[i].asLayer)) then begin
-        CBMapLoad.ItemIndex:=CBMapLoad.Items.IndexOfObject(GState.MapType[i]);
+    VMapType := GState.MapType[i];
+    if (VMapType.Usedwn) then begin
+      VAddedIndex := CBMapLoad.Items.AddObject(VMapType.name, VMapType);
+      if VMapType = VActiveMap then begin
+        CBMapLoad.ItemIndex := VAddedIndex;
       end;
     end;
-    if GState.MapType[i].Usestick then begin
-      CBscleit.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-      if (GState.MapType[i].asLayer) then begin
-        CBSclHib.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
+    if VMapType.Usestick then begin
+      VAddedIndex := CBscleit.Items.AddObject(VMapType.name,VMapType);
+      if (VMapType.asLayer) then begin
+        CBSclHib.Items.AddObject(VMapType.name,VMapType);
       end;
-      if (GState.MapType[i].active)and(not(GState.MapType[i].asLayer)) then begin
-        CBscleit.ItemIndex:=CBscleit.Items.IndexOfObject(GState.MapType[i]);
-      end;
-    end;
-    if (GState.MapType[i].UseGenPrevious) then begin
-      CBmtForm.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-      if (GState.MapType[i].active)and(not(GState.MapType[i].asLayer)) then begin
-        CBmtForm.ItemIndex:=CBmtForm.Items.IndexOfObject(GState.MapType[i]);
+      if VMapType = VActiveMap then begin
+        CBscleit.ItemIndex:=VAddedIndex;
       end;
     end;
-    if (GState.MapType[i].Usedel) then begin
-      CBmapDel.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-      if (GState.MapType[i].active)and(not(GState.MapType[i].asLayer)) then begin
-        CBmapDel.ItemIndex:=CBmapDel.Items.IndexOfObject(GState.MapType[i]);
+    if (VMapType.UseGenPrevious) then begin
+      VAddedIndex := CBmtForm.Items.AddObject(VMapType.name,VMapType);
+      if VMapType = VActiveMap then begin
+        CBmtForm.ItemIndex:=VAddedIndex;
       end;
     end;
-    if (GState.MapType[i].UseSave) then begin
-      if GState.MapType[i].IsBitmapTiles then begin
-        if (not(GState.MapType[i].asLayer)) then begin
-          CmBExpSat.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-          CmBExpMap.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-          CmBExpSatYa.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-          CmBExpMapYa.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-          if GState.MapType[i].active then begin
-            CmBExpSat.ItemIndex:=CmBExpSat.Items.IndexOfObject(GState.MapType[i]);
-            CmBExpMap.ItemIndex:=CmBExpSat.Items.IndexOfObject(GState.MapType[i]);
-            CmBExpSatYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(GState.MapType[i]);
-            CmBExpMapYa.ItemIndex:=CmBExpSatYa.Items.IndexOfObject(GState.MapType[i]);
+    if (VMapType.Usedel) then begin
+      VAddedIndex := CBmapDel.Items.AddObject(VMapType.name, VMapType);
+      if VMapType = VActiveMap then begin
+        CBmapDel.ItemIndex:=VAddedIndex;
+      end;
+    end;
+    if (VMapType.UseSave) then begin
+      if VMapType.IsBitmapTiles then begin
+        if (not(VMapType.asLayer)) then begin
+          VAddedIndex := CmBExpSat.Items.AddObject(VMapType.name,VMapType);
+          if VMapType = VActiveMap then begin
+            CmBExpSat.ItemIndex:=VAddedIndex;
           end;
-        end else if(GState.MapType[i].IsHybridLayer) then begin
-          CmBExpHib.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-          CmBExpHibYa.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-          if (GState.MapType[i].active)and(CmBExpHib.ItemIndex=-1) then begin
-            CmBExpHib.ItemIndex:=CmBExpHib.Items.IndexOfObject(GState.MapType[i]);
-            CmBExpHibYa.ItemIndex:=CmBExpHibYa.Items.IndexOfObject(GState.MapType[i]);
+          VAddedIndex := CmBExpMap.Items.AddObject(VMapType.name,VMapType);
+          if VMapType = VActiveMap then begin
+            CmBExpMap.ItemIndex:=VAddedIndex;
+          end;
+          VAddedIndex := CmBExpSatYa.Items.AddObject(VMapType.name,VMapType);
+          if VMapType = VActiveMap then begin
+            CmBExpSatYa.ItemIndex:=VAddedIndex;
+          end;
+          VAddedIndex := CmBExpMapYa.Items.AddObject(VMapType.name,VMapType);
+          if VMapType = VActiveMap then begin
+            CmBExpMapYa.ItemIndex:=VAddedIndex;
+          end;
+        end else if(VMapType.IsHybridLayer) then begin
+          VAddedIndex := CmBExpHib.Items.AddObject(VMapType.name,VMapType);
+          if (VMapType.active)and(CmBExpHib.ItemIndex=-1) then begin
+            CmBExpHib.ItemIndex:=VAddedIndex;
+          end;
+          VAddedIndex := CmBExpHibYa.Items.AddObject(VMapType.name,VMapType);
+          if (VMapType.active)and(CmBExpHibYa.ItemIndex=-1) then begin
+            CmBExpHibYa.ItemIndex:=VAddedIndex;
           end;
         end;
       end;
-      CheckListBox1.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-      if (GState.MapType[i].active)and(not(GState.MapType[i].asLayer)) then begin
-        CheckListBox1.Checked[CheckListBox1.Items.IndexOfObject(GState.MapType[i])]:=true;
+      VAddedIndex := CheckListBox1.Items.AddObject(VMapType.name,VMapType);
+      if VMapType = VActiveMap then begin
+        CheckListBox1.Checked[VAddedIndex]:=true;
       end;
-      CBoxMaps2Save.Items.AddObject(GState.MapType[i].name,GState.MapType[i]);
-      if (GState.MapType[i].active)and(not(GState.MapType[i].asLayer)) then begin
-        CBoxMaps2Save.ItemIndex:=CheckListBox1.Items.IndexOfObject(GState.MapType[i]);
+      VAddedIndex := CBoxMaps2Save.Items.AddObject(VMapType.name,VMapType);
+      if VMapType = VActiveMap then begin
+        CBoxMaps2Save.ItemIndex:=VAddedIndex;
       end;
     end;
   end;

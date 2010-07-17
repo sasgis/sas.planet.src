@@ -9,7 +9,6 @@ uses
   Classes,
   Graphics,
   gifimage,
-  VCLZIp,
   DISQLite3Database,
   DISQLite3Api,
   PNGImage,

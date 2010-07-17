@@ -417,6 +417,13 @@ type
     TBCOORD: TTBXItem;
     TBPrevious: TTBXItem;
     TBLoadSelFromFile: TTBXItem;
+    TBXSignalStrengthBar: TTBXToolWindow;
+    TBXSignalStrength: TTBXLabel;
+    TBXLabel5: TTBXLabel;
+    NSignalStrengthBar: TTBXItem;
+    TBXSeparatorItem19: TTBXSeparatorItem;
+    TBXItem8: TTBXItem;
+    TBXItem9: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -544,6 +551,8 @@ type
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
+    procedure TBXItem8Click(Sender: TObject);
+    procedure TBXItem9Click(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -1259,6 +1268,8 @@ begin
    end;
    //Азимут
    TBXSensorAzimut.Caption:=RoundEx(GPSpar.azimut,2)+'°';
+   //Сила сигнала, кол-во спутников
+   TBXSignalStrength.Caption:=RoundEx(GPSpar.SignalStrength,2)+' ('+inttostr(GPSpar.SatCount)+')'
  except
  end;
 end;
@@ -1513,6 +1524,7 @@ begin
  GState.GPS_Delay:=GState.MainIni.ReadInteger('GPS','update',1000);
  GState.GPS_enab:=GState.MainIni.ReadBool('GPS','enbl',false);
  GState.GPS_WriteLog:=GState.MainIni.Readbool('GPS','log',true);
+ GState.GPS_NMEALog:=GState.MainIni.Readbool('GPS','NMEAlog',false);
  GState.GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
  GState.GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
  GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed);
@@ -1521,6 +1533,7 @@ begin
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
  GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
+ GState.GPS_NumTrackPoints:=GState.MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
 
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
  GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
@@ -2413,6 +2426,9 @@ begin
  GState.GPS_enab := TBGPSconn.Checked;
  if GState.GPS_enab then
   begin
+   GPSReceiver.NMEALog:=GState.GPS_NMEALog;
+   GPSReceiver.LogFile:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
+     +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.nmea';
    GPSReceiver.Delay:=GState.GPS_Delay;
    GPSReceiver.ConnectionTimeout:=GState.GPS_TimeOut;
    GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPS_COM);
@@ -2931,6 +2947,8 @@ begin
   GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
   GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
   GPSpar.altitude:=GPSReceiver.GetAltitude;
+  GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
+  GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
   if len>1 then begin
     GPSpar.len:=GPSpar.len+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.Odometr:=GPSpar.Odometr+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
@@ -2954,7 +2972,7 @@ begin
     if length(GState.GPS_TrackPoints)=1 then sb:='1' else sb:='0';
     DecodeDate(Date, xYear, xMonth, xDay);
     DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
-    s2f:=R2StrPoint(round(GState.GPS_TrackPoints[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GState.GPS_TrackPoints[len-1].x*10000000)/10000000)+','+sb+','+'-777'+','+
+    s2f:=R2StrPoint(round(GState.GPS_TrackPoints[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GState.GPS_TrackPoints[len-1].x*10000000)/10000000)+','+sb+','+R2StrPoint(GPSReceiver.MetersToFeet(GPSpar.altitude))+','+
                     floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','+
                     inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
     Writeln(GState.GPS_LogFile,s2f);
@@ -2979,7 +2997,6 @@ end;
 
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
 var S:string;
-    ts,ds:char;
 begin
  GPSpar.allspeed:=0;
  GPSpar.sspeed:=0;
@@ -2989,16 +3006,12 @@ begin
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
  if GState.GPS_WriteLog then
  try
-  ts:=TimeSeparator;
-  ds:=DateSeparator;
-  TimeSeparator:='-';
-  DateSeparator:='-';
   CreateDir(GState.TrackLogPath);
-  s:=GState.TrackLogPath+DateToStr(Date)+'-'+TimeToStr(GetTime)+'.plt';
-  TimeSeparator:=ts;
-  DateSeparator:=ds;
+  s:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
+     +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.plt';
   AssignFile(GState.GPS_LogFile,s);
   rewrite(GState.GPS_LogFile);
+  Write(GState.GPS_LogFile,'OziExplorer Track Point File Version 2.0'+#13#10+'WGS 84'+#13#10+'Altitude is in Feet'+#13#10+'Reserved 3'+#13#10+'0,2,255,Track Log File - '+DateTimeToStr(Now)+',1'+#13#10+'0'+#13#10)
  except
   GState.GPS_WriteLog:=false;
  end;
@@ -3557,6 +3570,7 @@ procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
  setlength(GState.GPS_ArrayOfSpeed,0);
  setlength(GState.GPS_TrackPoints,0);
+ GPSpar.maxspeed:=0;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
@@ -4198,6 +4212,16 @@ begin
 
   VGeoCoder := TGeoCoderByYandex.Create(VProxy);
   FYandexSerach := TGeoSearcher.Create(VGeoCoder, VPresenter);
+end;
+
+procedure TFmain.TBXItem8Click(Sender: TObject);
+begin
+  ShowCaptcha('http://z.sasgis.ru/show_zmp/sas.zmp');
+end;
+
+procedure TFmain.TBXItem9Click(Sender: TObject);
+begin
+  ShowCaptcha('http://z.sasgis.ru/show_zmp/plus.zmp');
 end;
 
 end.

@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 313
-  Top = 125
+  Left = 497
+  Top = 144
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False
@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 249
     Height = 145
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -553,6 +554,13 @@ object Fmain: TFmain
               Caption = #1040#1079#1080#1084#1091#1090
               Hint = ''
             end
+            object NSignalStrengthBar: TTBXItem
+              AutoCheck = True
+              Checked = True
+              OnClick = NSensorsBarClick
+              Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072' ('#1082#1086#1083'. '#1089#1087#1091#1090'.)'
+              Hint = ''
+            end
           end
         end
         object N31: TTBXSubmenuItem
@@ -1053,6 +1061,20 @@ object Fmain: TFmain
           Caption = #1054#1073#1089#1091#1078#1076#1077#1085#1080#1077' (http://sasgis.ru/forum)'
           Hint = ''
         end
+        object TBXSeparatorItem19: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object TBXItem8: TTBXItem
+          OnClick = TBXItem8Click
+          Caption = #1054#1089#1085#1086#1074#1085#1086#1081' '#1085#1072#1073#1086#1088' '#1087#1086#1076#1082#1083#1102#1095#1072#1077#1084#1099#1093' '#1082#1072#1088#1090
+          Hint = ''
+        end
+        object TBXItem9: TTBXItem
+          OnClick = TBXItem9Click
+          Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1099#1081' '#1085#1072#1073#1086#1088' '#1087#1086#1076#1082#1083#1102#1095#1072#1077#1084#1099#1093' '#1082#1072#1088#1090
+          Hint = ''
+        end
       end
     end
     object TBXToolBarSearch: TTBXToolbar
@@ -1119,6 +1141,8 @@ object Fmain: TFmain
       object TBZoomIn: TTBXItem
         ImageIndex = 7
         Images = TBImageList1
+        MinHeight = 29
+        MinWidth = 29
         OnClick = TBZoomInClick
         Caption = ''
         Hint = #1059#1074#1077#1083#1080#1095#1080#1090#1100
@@ -1143,6 +1167,8 @@ object Fmain: TFmain
       object TBZoom_out: TTBXItem
         ImageIndex = 0
         Images = TBImageList1
+        MinHeight = 29
+        MinWidth = 29
         OnClick = TBZoom_outClick
         Caption = ''
         Hint = #1059#1084#1077#1085#1100#1096#1080#1090#1100
@@ -1160,7 +1186,7 @@ object Fmain: TFmain
       end
       object labZoom: TLabel
         Left = 5
-        Top = 247
+        Top = 257
         Width = 22
         Height = 13
         Hint = #1052#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099' '#1085#1072' '#1082#1086#1090#1086#1088#1086#1084' '#1074#1099' '#1085#1072#1093#1086#1076#1080#1090#1077#1089#1100
@@ -1179,7 +1205,7 @@ object Fmain: TFmain
       end
       object RxSlider1: TRxSlider
         Left = 0
-        Top = 27
+        Top = 32
         Width = 32
         Height = 189
         Hint = #1048#1079#1084#1077#1085#1080#1090#1100' '#1084#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099
@@ -1889,7 +1915,7 @@ object Fmain: TFmain
     end
     object TBEditPath: TTBXToolbar
       Left = 0
-      Top = 270
+      Top = 280
       DockPos = 257
       TabOrder = 1
       OnClose = TBEditPathClose
@@ -2010,7 +2036,7 @@ object Fmain: TFmain
         Left = 0
         Top = 0
         Width = 160
-        Height = 324
+        Height = 360
         Align = alTop
         AutoScroll = False
         AutoSize = True
@@ -2022,7 +2048,7 @@ object Fmain: TFmain
           Left = 0
           Top = 0
           Width = 160
-          Height = 324
+          Height = 360
           object TBXSensorSpeedAvgBar: TTBXToolWindow
             Left = 0
             Top = 36
@@ -2551,13 +2577,14 @@ object Fmain: TFmain
             Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1072#1079#1080#1084#1091#1090' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1103
             Align = alTop
             ClientAreaHeight = 32
-            ClientAreaWidth = 160
+            ClientAreaWidth = 150
             DockPos = 8
             DockRow = 8
+            Stretch = True
             TabOrder = 8
             OnVisibleChanged = TBXSensorsBarVisibleChanged
             DesignSize = (
-              160
+              150
               32)
             Caption = #1040#1079#1080#1084#1091#1090
             object TBXSensorAzimut: TTBXLabel
@@ -2578,12 +2605,56 @@ object Fmain: TFmain
             object TBXLabel4: TTBXLabel
               Left = 0
               Top = 0
-              Width = 145
+              Width = 135
               Height = 13
               Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Wrapping = twEndEllipsis
               Caption = #1040#1079#1080#1084#1091#1090':'
+            end
+          end
+          object TBXSignalStrengthBar: TTBXToolWindow
+            Left = 0
+            Top = 324
+            Hint = 
+              #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1080#1083#1091' '#1089#1080#1075#1085#1072#1083#1072' '#1080' '#1082#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1089#1087#1091#1090#1085#1080#1082#1086#1074' '#1091#1095#1072#1089#1090#1074#1091#1102#1097#1080#1093' '#1074' '#1086#1087#1088 +
+              #1077#1076#1077#1083#1077#1085#1080#1080' '#1087#1086#1079#1080#1094#1080#1080
+            Align = alTop
+            ClientAreaHeight = 32
+            ClientAreaWidth = 150
+            DockPos = 0
+            DockRow = 9
+            Stretch = True
+            TabOrder = 9
+            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            DesignSize = (
+              150
+              32)
+            Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072' ('#1082#1086#1083'. '#1089#1087'.)'
+            object TBXSignalStrength: TTBXLabel
+              Left = 0
+              Top = 13
+              Width = 145
+              Height = 19
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = RUSSIAN_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              Wrapping = twEndEllipsis
+              Caption = '-'
+            end
+            object TBXLabel5: TTBXLabel
+              Left = 0
+              Top = 0
+              Width = 145
+              Height = 13
+              Anchors = [akLeft, akTop, akRight]
+              AutoSize = False
+              Wrapping = twEndEllipsis
+              Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072', dB ('#1082#1086#1083'. '#1089#1087'.):'
             end
           end
         end
@@ -5419,7 +5490,8 @@ object Fmain: TFmain
     DefaultExt = 'jpg'
     Filter = 
       'Windows Bitmap (*.bmp)|*.bmp|Enhanced compressed wavelet (*.ECW)' +
-      '|*.ECW|JPEG2000 (*.jp2)|*.jp2|Jpeg (*.jpg)|*.jpg'
+      '|*.ECW|JPEG2000 (*.jp2)|*.jp2|Jpeg (*.jpg)|*.jpg|KMZ for Garmin ' +
+      '(*.kmz)|*.kmz'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 112
     Top = 176

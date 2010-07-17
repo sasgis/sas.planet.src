@@ -73,7 +73,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet5
+    ActivePage = TabSheet2
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83

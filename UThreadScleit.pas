@@ -19,7 +19,8 @@ uses
   bmpUtil,
   t_GeoTypes,
   UResStrings,
-  unit4;
+  unit4,
+  VCLZip;
 
 type
   PRow = ^TRow;
@@ -53,6 +54,7 @@ type
     FCurrentPieceRect: TRect;
     FUsedReColor: boolean;
     FUsedMarks: boolean;
+    FNumImgs,FNumImgsSaved:integer;
 
     FProgressForm: TFprogress2;
 
@@ -81,6 +83,7 @@ type
     procedure Save_ECW;
     procedure Save_BMP;
     procedure Save_JPG;
+    procedure Save_gKMZ;
   protected
     procedure Execute; override;
   public
@@ -106,7 +109,9 @@ uses
   u_GlobalState,
   usaveas,
   u_MapMarksLayer,
-  Unit1;
+  u_MapCalibrationKml,
+  Unit1,
+  u_GeoToStr;
 
 constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor,AusedMarks:boolean);
 var
@@ -179,7 +184,9 @@ procedure TThreadScleit.saveRECT;
 var
   i, j, pti: integer;
 begin
-  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FSplitCount.X*FSplitCount.Y)+' '+SAS_STR_files;
+  FNumImgs:=FSplitCount.X*FSplitCount.Y;
+  FNumImgsSaved:=0;
+  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FNumImgs)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
   prBar:=0;
@@ -188,6 +195,7 @@ begin
   Synchronize(UpdateProgressFormStr2);
 
   FCurrentFileName := FFilePath + FFileName + FFileExt;
+
   for i:=1 to FSplitCount.X do begin
     for j:=1 to FSplitCount.Y do begin
       FCurrentPieceRect.Left := FMapRect.Left + FMapPieceSize.X * (i-1);
@@ -212,6 +220,9 @@ begin
           continue;
         end else if (UpperCase(FFileExt)='.BMP') then begin
           Save_BMP;
+          continue;
+        end else if (UpperCase(FFileExt)='.KMZ') then begin
+          Save_gKMZ;
           continue;
         end else begin
           Save_JPG;
@@ -333,7 +344,7 @@ begin
     if line=0 then begin
       prStr2:=SAS_STR_CreateFile
     end else begin
-      prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
+      prStr2:=SAS_STR_Processed+': '+inttostr(Round((prBar/(FMapPieceSize.Y))*100))+'%';
     end;
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
@@ -541,6 +552,141 @@ begin
     btmm.Free;
     btmh.Free;
   end;
+end;
+
+procedure TThreadScleit.Save_gKMZ;
+var
+  iNChannels, iWidth, iHeight: integer;
+  k,i,j: integer;
+  jcprops: TJPEG_CORE_PROPERTIES;
+  Ckml:TMapCalibrationKml;
+  BufRect:TRect;
+  FileName:string;
+
+  kmlm,jpgm,zips:TMemoryStream;
+  LL1, LL2: TExtendedPoint;
+  str: UTF8String;
+  VFileName: String;
+  bFMapPieceSizey:integer;
+  nim:TPoint;
+
+  Zip:TVCLZip;
+begin
+  nim.X:=(FMapPieceSize.X div 1024);
+  nim.Y:=(FMapPieceSize.Y div 1024);
+
+  bFMapPieceSizey:=FMapPieceSize.y;
+
+  iWidth  := FMapPieceSize.X div (nim.X);
+  iHeight := FMapPieceSize.y div (nim.Y);
+
+  FMapPieceSize.y:=iHeight;
+
+  FProgressForm.ProgressBar1.Max := iHeight;
+
+  if ((nim.X*nim.Y)>100)and(FNumImgsSaved=0) then begin
+    Message_:=SAS_MSG_GarminMax1Mp;
+    Synchronize(SynShowMessage);
+  end;
+  BufRect:=FCurrentPieceRect;
+
+  Zip:=TVCLZip.Create(nil);
+  Zip.Recurse := False;
+  Zip.StorePaths := true;
+  Zip.PackLevel := 0;
+  Zip.ZipName :=ChangeFileExt(FCurrentFileName,'.kmz');
+
+  kmlm:=TMemoryStream.Create;
+  str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10+'<kml xmlns="http://earth.google.com/kml/2.2">'+#13#10+'<Folder>'+#13#10+'<name>'+ExtractFileName(FCurrentFileName)+'</name>'+#13#10);
+
+  for i:=1 to nim.X do begin
+    for j:=1 to nim.Y do begin
+      prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(bFMapPieceSizey)+' ('+inttostr((i-1)*nim.Y+j)+'/'+inttostr(nim.X*nim.Y)+')';
+      jpgm:=TMemoryStream.Create;
+      FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
+      VFileName:='files/'+ExtractFileName(FileName);
+      try
+        str := str + ansiToUTF8('<GroundOverlay>'+#13#10+'<name>' + ExtractFileName(FileName) + '</name>'+#13#10+'<drawOrder>75</drawOrder>'+#13#10);
+        str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>'+#13#10);
+
+        FCurrentPieceRect.Left := BufRect.Left + iWidth * (i-1);
+        FCurrentPieceRect.Right := BufRect.Left + iWidth * i;
+        FCurrentPieceRect.Top := BufRect.Top + iHeight * (j-1);
+        FCurrentPieceRect.Bottom := BufRect.Top + iHeight * j;
+
+        Synchronize(UpdateProgressFormStr1);
+
+        sx:=(FCurrentPieceRect.Left mod 256);
+        sy:=(FCurrentPieceRect.Top mod 256);
+        ex:=(FCurrentPieceRect.Right mod 256);
+        ey:=(FCurrentPieceRect.Bottom mod 256);
+
+        LL1 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom-1);
+        LL2 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom-1);
+        str := str + ansiToUTF8('<LatLonBox>'+#13#10);
+        str := str + ansiToUTF8('<north>' + R2StrPoint(LL1.y) + '</north>' + #13#10);
+        str := str + ansiToUTF8('<south>' + R2StrPoint(LL2.y) + '</south>' + #13#10);
+        str := str + ansiToUTF8('<east>' + R2StrPoint(LL2.x) + '</east>' + #13#10);
+        str := str + ansiToUTF8('<west>' + R2StrPoint(LL1.x) + '</west>' + #13#10);
+        str := str + ansiToUTF8('</LatLonBox>'+#13#10+'</GroundOverlay>'+#13#10);
+
+        getmem(Array256BGR,256*sizeof(P256ArrayBGR));
+        for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
+        btmm:=TBitmap32.Create;
+        btmh:=TBitmap32.Create;
+        btmm.Width:=256;
+        btmm.Height:=256;
+        btmh.Width:=256;
+        btmh.Height:=256;
+
+        ijlInit(@jcprops);
+        iNChannels := 3;
+        jcprops.DIBWidth := iWidth;
+        jcprops.DIBHeight := -iHeight;
+        jcprops.DIBChannels := iNChannels;
+        jcprops.DIBColor := IJL_BGR;
+        jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*3);
+        new(jcprops.DIBBytes);
+        GetMem(jcprops.DIBBytes,(iWidth*3+ (iWidth mod 4))*iHeight);
+        jcprops.JPGSizeBytes := iWidth*iHeight * 3;
+        GetMem(jcprops.JPGBytes, jcprops.JPGSizeBytes);
+        if jcprops.DIBBytes<>nil then begin
+          for k:=0 to iHeight-1 do begin
+            ReadLineBMP(k,Pointer(integer(jcprops.DIBBytes)+(((iWidth*3+ (iWidth mod 4))*iHeight)-(iWidth*3+ (iWidth mod 4))*(k+1))));
+            if IsCancel then break;
+          end;
+        end else begin
+          Message_:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
+          Synchronize(SynShowMessage);
+          exit;
+        end;
+        jcprops.JPGWidth := iWidth;
+        jcprops.JPGHeight := iHeight;
+        jcprops.JPGChannels := 3;
+        jcprops.JPGColor := IJL_YCBCR;
+        jcprops.jquality := FSaveAs.QualitiEdit.Value;
+        ijlWrite(@jcprops, IJL_JBUFF_WRITEWHOLEIMAGE);
+        jpgm.WriteBuffer(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
+        Zip.ZipFromStream(jpgm,VFileName);
+      Finally
+        freemem(jcprops.DIBBytes,iWidth*iHeight*3);
+        for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
+        freemem(Array256BGR,256*((iWidth+1)*3));
+        ijlFree(@jcprops);
+        btmm.Free;
+        btmh.Free;
+        jpgm.Free;
+      end;
+    end;
+  end;
+  FMapPieceSize.y:=bFMapPieceSizey;
+  str := str + ansiToUTF8('</Folder>'+#13#10+'</kml>');
+  kmlm.Write(str[1],length(str));
+  Zip.ZipFromStream(kmlm,'doc.kml');
+
+  Zip.Free;
+  kmlm.Free;
+  inc(FNumImgsSaved);
 end;
 
 end.

@@ -3,7 +3,7 @@
 library SASPlanet;
 
 {$R *.RES}
-{ITE} {LCID:00000419:000004809} {}
+{ITE} {LCID:00000419:00000409} {}
 {ITE} {DFMFileType} {vcl\DBLOGDLG.dfm}
 {ITE} {DFMFileType} {vcl\DBPWDLG.dfm}
 {ITE} {DFMFileType} {u_MarksDb.dfm}
@@ -23,9 +23,9 @@ library SASPlanet;
 {ITE} {DFMFileType} {Unit4.dfm}
 {ITE} {DFMFileType} {UProgress.dfm}
 {ITE} {DFMFileType} {USaveas.dfm}
-{ITE} {DFMFileType} {USearchResult.dfm}
 {ITE} {DFMFileType} {USelLonLat.dfm}
 {ITE} {DFMFileType} {Usettings.dfm}
+{ITE} {DFMFileType} {UShortcutEditor.dfm}
 {ITE} {RCFileType} {SASPlanet_DRC.rc}
 
 {$R 'vcl\DBLOGDLG.dfm' LoginDialog:TForm(Form)}
@@ -47,9 +47,9 @@ library SASPlanet;
 {$R 'Unit4.dfm' Fprogress2:TForm}
 {$R 'UProgress.dfm' FProgress:TForm}
 {$R 'USaveas.dfm' Fsaveas:TForm}
-{$R 'USearchResult.dfm' FSearchResult:TForm}
 {$R 'USelLonLat.dfm' FSelLonLat:TForm}
 {$R 'Usettings.dfm' FSettings:TForm}
+{$R 'UShortcutEditor.dfm' FShortcutChange:TForm}
 {$R 'SASPlanet_DRC.res' 'SASPlanet_DRC.rc'}
 
 {$E ENU}
