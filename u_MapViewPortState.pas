@@ -97,8 +97,7 @@ implementation
 uses
   u_JclNotify,
   u_ActiveMapWithHybrConfig,
-  u_PosChangeMessage,
-  u_MapChangeMessage;
+  u_PosChangeMessage;
 
 { TMapViewPortState }
 

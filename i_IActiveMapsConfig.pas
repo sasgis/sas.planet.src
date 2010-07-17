@@ -4,8 +4,7 @@ interface
 
 uses
   i_JclNotify,
-  i_MapTypes,
-  UMapType;
+  i_MapTypes;
 
 type
   IActiveMapConfig = interface
