@@ -462,9 +462,9 @@ begin
   DrawMap(VMapType, dmOpaque);
   VEnum := FLayersList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK  do begin
-    VItem := FLayersList.GetMapTypeByGUID(VGUID);
-    VMapType := VItem.GetMapType;
-    if FMapsActive.IsHybrSelected(VMapType) then begin
+    if FMapsActive.IsHybrGUIDSelected(VGUID) then begin
+      VItem := FLayersList.GetMapTypeByGUID(VGUID);
+      VMapType := VItem.GetMapType;
       DrawMap(VMapType, dmBlend);
     end;
   end;

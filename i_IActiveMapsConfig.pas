@@ -22,11 +22,8 @@ type
 
   IActiveMapWithHybrConfig = interface(IActiveMapConfig)
     ['{D33FE9FA-B243-4783-9D55-F15B813BADF9}']
-    procedure SelectHybr(AMap: TMapType);
     procedure SelectHybrByGUID(AMapGUID: TGUID);
-    procedure UnSelectHybr(AMap: TMapType);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
-    function IsHybrSelected(AMap: TMapType): Boolean;
     function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
     function GetHybrList: IMapTypeList;
     function GetHybrChangeNotifier: IJclNotifier;

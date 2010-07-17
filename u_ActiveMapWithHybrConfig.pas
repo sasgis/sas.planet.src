@@ -24,11 +24,8 @@ type
     constructor Create(AAllowNil: Boolean; AMapGUID: TGUID; AMapsList: IMapTypeList;
       ALayersList: IMapTypeList);
     destructor Destroy; override;
-    procedure SelectHybr(AMap: TMapType);
     procedure SelectHybrByGUID(AMapGUID: TGUID);
-    procedure UnSelectHybr(AMap: TMapType);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
-    function IsHybrSelected(AMap: TMapType): Boolean;
     function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
     function GetHybrList: IMapTypeList;
     function GetHybrChangeNotifier: IJclNotifier;
@@ -93,21 +90,6 @@ begin
   end;
 end;
 
-function TActiveMapWithHybrConfig.IsHybrSelected(AMap: TMapType): Boolean;
-begin
-  Result := False;
-  if AMap <> nil then begin
-    if FLayersList.GetMapTypeByGUID(AMap.GUID) <> nil then begin
-      FSynchronizer.BeginRead;
-      try
-        Result := _IsHybrSelected(AMap);
-      finally
-        FSynchronizer.EndRead;
-      end;
-    end;
-  end;
-end;
-
 function TActiveMapWithHybrConfig.IsHybrGUIDSelected(
   AMapGUID: TGUID): Boolean;
 begin
@@ -119,33 +101,6 @@ begin
         Result := _IsHybrSelected(AMapGUID);
       finally
         FSynchronizer.EndRead;
-      end;
-    end;
-  end;
-end;
-
-procedure TActiveMapWithHybrConfig.SelectHybr(AMap: TMapType);
-var
-  VIndex: integer;
-  VMessage: IJclNotificationMessage;
-begin
-  VMessage := nil;
-  if AMap <> nil then begin
-    if FLayersList.GetMapTypeByGUID(AMap.GUID) <> nil then begin
-      FSynchronizer.BeginWrite;
-      try
-        if not _IsHybrSelected(AMap) then begin
-          VIndex := length(FSelectedHybr);
-          SetLength(FSelectedHybr, VIndex + 1);
-          FSelectedHybr[VIndex] := AMap;
-          VMessage := THybrChangeMessage.Create(AMap, hcaSelect);
-        end;
-      finally
-        FSynchronizer.EndWrite;
-      end;
-      if VMessage <> nil then begin
-        FHybrChangeNotifier.Notify(VMessage);
-        VMessage := nil;
       end;
     end;
   end;
@@ -168,44 +123,6 @@ begin
           SetLength(FSelectedHybr, VIndex + 1);
           FSelectedHybr[VIndex] := VMap.MapType;
           VMessage := THybrChangeMessage.Create(VMap.MapType, hcaSelect);
-        end;
-      finally
-        FSynchronizer.EndWrite;
-      end;
-      if VMessage <> nil then begin
-        FHybrChangeNotifier.Notify(VMessage);
-        VMessage := nil;
-      end;
-    end;
-  end;
-end;
-
-procedure TActiveMapWithHybrConfig.UnSelectHybr(AMap: TMapType);
-var
-  VIndex: integer;
-  VMessage: IJclNotificationMessage;
-  i: integer;
-  VCount: Integer;
-begin
-  VMessage := nil;
-  if AMap <> nil then begin
-    if FLayersList.GetMapTypeByGUID(AMap.GUID) <> nil then begin
-      FSynchronizer.BeginWrite;
-      try
-        VIndex := -1;
-        VCount := Length(FSelectedHybr);
-        for i := 0 to VCount - 1 do begin
-          if FSelectedHybr[i] = AMap then begin
-            VIndex := i;
-            Break;
-          end;
-        end;
-        if VIndex >= 0 then begin
-          for i := VIndex to VCount - 2 do begin
-            FSelectedHybr[i] := FSelectedHybr[i + 1];
-          end;
-          SetLength(FSelectedHybr, VCount - 1);
-          VMessage := THybrChangeMessage.Create(AMap, hcaUnselect);
         end;
       finally
         FSynchronizer.EndWrite;

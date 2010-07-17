@@ -118,10 +118,10 @@ end;
 procedure TMapTypeMenuItemBasic.OnItemClick(Sender: TObject);
 begin
   if FMapType.IsHybridLayer then begin
-    if FMapsActive.IsHybrSelected(FMapType) then begin
-      FMapsActive.UnSelectHybr(FMapType);
+    if FMapsActive.IsHybrGUIDSelected(FMapType.GUID) then begin
+      FMapsActive.UnSelectHybrByGUID(FMapType.GUID);
     end else begin
-      FMapsActive.SelectHybr(FMapType);
+      FMapsActive.SelectHybrByGUID(FMapType.GUID);
     end;
   end else begin
     if FMapType <> nil then begin
