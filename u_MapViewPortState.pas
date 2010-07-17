@@ -25,6 +25,9 @@ type
     FViewSizeChangeNotifier: IJclNotifier;
     procedure NotifyChangePos;
     procedure NotifyChangeViewSize;
+    function GetHybrChangeNotifier: IJclNotifier;
+    function GetHybrList: IMapTypeList;
+    function GetMapsList: IMapTypeList;
   protected
     function GetMapChangeNotifier: IJclNotifier;
     function InternalGetCurrentMap: TMapType;
@@ -77,9 +80,16 @@ type
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
 
+    procedure SelectHybrByGUID(AMapGUID: TGUID);
+    procedure UnSelectHybrByGUID(AMapGUID: TGUID);
+    function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
+
     property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
     property PosChangeNotifier: IJclNotifier read FPosChangeNotifier;
     property ViewSizeChangeNotifier: IJclNotifier read FViewSizeChangeNotifier;
+    property MapsList: IMapTypeList read GetMapsList;
+    property HybrList: IMapTypeList read GetHybrList;
+    property HybrChangeNotifier: IJclNotifier read GetHybrChangeNotifier;
   end;
 
 implementation
@@ -772,6 +782,36 @@ end;
 function TMapViewPortState.InternalGetCurrentMap: TMapType;
 begin
   Result := FActiveMaps.MapsList.GetMapTypeByGUID(FActiveMaps.SelectedMapGUID).MapType;
+end;
+
+function TMapViewPortState.GetHybrChangeNotifier: IJclNotifier;
+begin
+  Result := FActiveMaps.HybrChangeNotifier;
+end;
+
+function TMapViewPortState.GetHybrList: IMapTypeList;
+begin
+  Result := FActiveMaps.HybrList;
+end;
+
+function TMapViewPortState.GetMapsList: IMapTypeList;
+begin
+  Result := FActiveMaps.MapsList;
+end;
+
+function TMapViewPortState.IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
+begin
+  Result := FActiveMaps.IsHybrGUIDSelected(AMapGUID);
+end;
+
+procedure TMapViewPortState.SelectHybrByGUID(AMapGUID: TGUID);
+begin
+  FActiveMaps.SelectHybrByGUID(AMapGUID);
+end;
+
+procedure TMapViewPortState.UnSelectHybrByGUID(AMapGUID: TGUID);
+begin
+  FActiveMaps.UnSelectHybrByGUID(AMapGUID);
 end;
 
 end.
