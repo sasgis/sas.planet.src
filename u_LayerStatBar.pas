@@ -94,7 +94,7 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  VMap.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  VMap.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, False);
   VTile := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
   if GState.FirstLat then begin
     VLonLatStr := lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType);

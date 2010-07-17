@@ -33,7 +33,6 @@ type
  TMapType = class
    private
     FGuid: TGUID;
-    FActive: Boolean;
     FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
@@ -41,7 +40,6 @@ type
     FUseDel: boolean;
     FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
-    FShowOnSmMap: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FGetURLScript: string;
@@ -71,8 +69,6 @@ type
     function GetIsStoreReadOnly: boolean;
     function GetIsCanShowOnSmMap: boolean;
     function GetUseStick: boolean;
-    function GetShowOnSmMap: boolean;
-    procedure SetShowOnSmMap(const Value: boolean);
     function GetBitmapTypeManager: IBitmapTypeExtManager;
     function GetIsCropOnDownload: Boolean;
     function GetIsBitmapTiles: Boolean;
@@ -90,11 +86,6 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
-    // Процедуру нужно вызвать сразу после включения карты или слоя
-    procedure Activate();
-    // Процедуру нужно вызвать сразу после выключения карты или слоя
-    procedure Deactivate();
-    procedure SetActive(const Value: Boolean);
    public
     id: integer;
 
@@ -198,7 +189,7 @@ type
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
     property GUIDString: string read GetGUIDString;
-    property Active: Boolean read FActive write SetActive;
+//    property Active: Boolean read FActive write SetActive;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -213,7 +204,6 @@ type
     property DefaultContentType: string read FDefaultContent_Type;
     property ContentType: string read FContent_Type;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
-    property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
     property Icon24Index: Integer read FIcon24Index;
@@ -365,15 +355,12 @@ begin
           NLayerParamsItem.OnClick:=Fmain.NMapParamsClick;
           Fmain.NLayerParams.Add(NLayerParamsItem);
         end;
-        if (asLayer)and(active) then begin
+        if (asLayer)and(GState.ViewState.IsHybrGUIDSelected(GUID)) then begin
           MainToolbarItem.Checked:=true;
         end;
         if separator then begin
           MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
           TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
-        end;
-        if (active)and(GState.MapType[i].asLayer=false) then begin
-          GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
         end;
         MainToolbarItem.Tag:=Longint(GState.MapType[i]);
         TBFillingItem.Tag:=Longint(GState.MapType[i]);
@@ -397,6 +384,13 @@ begin
   end;
   if FSettings.MapList.Items.Count>0 then begin
     FSettings.MapList.Items.Item[0].Selected:=true;
+  end;
+  Fmain.TBSMB.ImageIndex := GState.MapType[0].MainToolbarItem.ImageIndex;
+  GState.MapType[0].MainToolbarItem.Checked:=true;
+  if GState.Showmapname then begin
+    Fmain.TBSMB.Caption:=GState.MapType[0].name;
+  end else begin
+    Fmain.TBSMB.Caption:='';
   end;
 end;
 function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;
@@ -456,8 +450,6 @@ begin
         if Ini.SectionExists(VGUIDString)then begin
           With GState.MapType[pnum] do begin
             id:=Ini.ReadInteger(VGUIDString,'pnum',0);
-            active:=ini.ReadBool(VGUIDString,'active',false);
-            ShowOnSmMap:=ini.ReadBool(VGUIDString,'ShowOnSmMap',true);
             URLBase:=ini.ReadString(VGUIDString,'URLBase',URLBase);
             CacheType:=ini.ReadInteger(VGUIDString,'CacheType',cachetype);
             NameInCache:=ini.ReadString(VGUIDString,'NameInCache',NameInCache);
@@ -472,8 +464,6 @@ begin
             if Fpos < 0 then Fpos := i;
             id := Fpos;
             dec(i);
-            active:=false;
-            ShowOnSmMap:=false;
           end;
         end;
       except
@@ -528,8 +518,6 @@ begin
     for i:=0 to length(GState.MapType)-1 do begin
       VGUIDString := GState.MapType[i].GUIDString;
       ini.WriteInteger(VGUIDString,'pnum',GState.MapType[i].id);
-      ini.WriteBool(VGUIDString,'active',GState.MapType[i].active);
-      ini.WriteBool(VGUIDString,'ShowOnSmMap',GState.MapType[i].ShowOnSmMap);
 
       if GState.MapType[i].URLBase<>GState.MapType[i].DefURLBase then begin
         ini.WriteString(VGUIDString,'URLBase',GState.MapType[i].URLBase);
@@ -1371,7 +1359,7 @@ var
 begin
   Result := true;
   try
-    GeoConvert.CheckTilePosStrict(AXY, Azoom, GState.CiclMap);
+    GeoConvert.CheckTilePosStrict(AXY, Azoom, False);
     GeoConvert.CheckZoom(ASourceZoom);
 
     VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
@@ -1519,7 +1507,6 @@ end;
 
 constructor TMapType.Create;
 begin
-  FActive := False;
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
@@ -1540,30 +1527,6 @@ begin
   FPoolOfDownloaders := nil;
   FMemCache := nil;
   inherited;
-end;
-
-procedure TMapType.Activate;
-begin
-
-end;
-
-procedure TMapType.Deactivate;
-begin
-
-end;
-
-procedure TMapType.SetActive(const Value: Boolean);
-begin
-  if Value then begin
-    if FActive <> Value then begin
-      Activate;
-    end;
-  end else begin
-    if FActive <> Value then begin
-      Deactivate;
-    end;
-  end;
-  FActive := Value;
 end;
 
 function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
@@ -1671,20 +1634,6 @@ begin
   end else begin
     Result := False;
   end;
-end;
-
-function TMapType.GetShowOnSmMap: boolean;
-begin
-  if Self.IsCanShowOnSmMap then begin
-    Result := FShowOnSmMap;
-  end else begin
-    Result := False
-  end;
-end;
-
-procedure TMapType.SetShowOnSmMap(const Value: boolean);
-begin
-  FShowOnSmMap := Value;
 end;
 
 function TMapType.GetBitmapTypeManager: IBitmapTypeExtManager;

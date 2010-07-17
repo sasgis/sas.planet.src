@@ -292,7 +292,7 @@ begin
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0,0));
     VRect.BottomRight := BitmapPixel2MapPixel(VBitmapSize);
 
-    FGeoConvert.CheckPixelRect(VRect, VZoomCurr, GState.CiclMap);
+    FGeoConvert.CheckPixelRect(VRect, VZoomCurr, false);
     LLRect := FGeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
     if (Fmain.aoper=ao_edit_line)or(Fmain.aoper=ao_edit_poly) then begin
       marksFilter:='id<>'+inttostr(Fmain.EditMarkId)+' and ';

@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   i_ICoordConverter,
   i_IActiveMapsConfig,
+  i_ActiveMapsConfigSaveLoad,
   i_MapTypes,
   UMapType;
 
@@ -23,6 +24,8 @@ type
     FWriteLocked: Boolean;
     FPosChangeNotifier: IJclNotifier;
     FViewSizeChangeNotifier: IJclNotifier;
+    FMapConfigSaver: IActiveMapsConfigSaver;
+    FMapConfigLoader: IActiveMapsConfigLoader;
     procedure NotifyChangePos;
     procedure NotifyChangeViewSize;
     function GetHybrChangeNotifier: IJclNotifier;
@@ -39,7 +42,9 @@ type
       AMainMap: TMapType;
       AZoom: Byte;
       ACenterPos: TPoint;
-      AScreenSize: TPoint
+      AScreenSize: TPoint;
+      AMapConfigSaver: IActiveMapsConfigSaver;
+      AMapConfigLoader: IActiveMapsConfigLoader
     );
     destructor Destroy; override;
 
@@ -83,6 +88,7 @@ type
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
     function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
+    procedure ChangeSelectHybrByGUID(AMapGUID: TGUID);
 
     property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
     property PosChangeNotifier: IJclNotifier read FPosChangeNotifier;
@@ -90,6 +96,9 @@ type
     property MapsList: IMapTypeList read GetMapsList;
     property HybrList: IMapTypeList read GetHybrList;
     property HybrChangeNotifier: IJclNotifier read GetHybrChangeNotifier;
+
+    procedure SaveViewPortState;
+    procedure LoadViewPortState;
   end;
 
 implementation
@@ -107,7 +116,9 @@ constructor TMapViewPortState.Create(
   AMainMap: TMapType;
   AZoom: Byte;
   ACenterPos: TPoint;
-  AScreenSize: TPoint
+  AScreenSize: TPoint;
+  AMapConfigSaver: IActiveMapsConfigSaver;
+  AMapConfigLoader: IActiveMapsConfigLoader
 );
 var
   VConverter: ICoordConverter;
@@ -139,6 +150,9 @@ begin
     FViewSize.Y := 768;
   end;
 
+  FMapConfigSaver := AMapConfigSaver;
+  FMapConfigLoader := AMapConfigLoader;
+
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FWriteLocked := False;
 end;
@@ -150,6 +164,8 @@ begin
   FActiveMaps := nil;
   FPosChangeNotifier := nil;
   FViewSizeChangeNotifier := nil;
+  FMapConfigSaver := nil;
+  FMapConfigLoader := nil;
   inherited;
 end;
 
@@ -811,6 +827,25 @@ end;
 procedure TMapViewPortState.UnSelectHybrByGUID(AMapGUID: TGUID);
 begin
   FActiveMaps.UnSelectHybrByGUID(AMapGUID);
+end;
+
+procedure TMapViewPortState.ChangeSelectHybrByGUID(AMapGUID: TGUID);
+begin
+  if FActiveMaps.IsHybrGUIDSelected(AMapGUID) then begin
+    FActiveMaps.UnSelectHybrByGUID(AMapGUID);
+  end else begin
+    FActiveMaps.SelectHybrByGUID(AMapGUID);
+  end;
+end;
+
+procedure TMapViewPortState.LoadViewPortState;
+begin
+  FMapConfigLoader.Load(FActiveMaps);
+end;
+
+procedure TMapViewPortState.SaveViewPortState;
+begin
+  FMapConfigSaver.Save(FActiveMaps);
 end;
 
 end.

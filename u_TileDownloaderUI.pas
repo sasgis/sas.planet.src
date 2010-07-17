@@ -125,7 +125,7 @@ begin
                 if Terminated then break;
                 if FMain.change_scene then Break;
                 VMap := GState.MapType[ii];
-                if (VMap = VMainMap) or VMap.active then begin
+                if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
                   BPos:=UPos;
                   VZoom := FZoom;
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom) + 8, VMap.GeoConvert);

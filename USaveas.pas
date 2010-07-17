@@ -533,13 +533,13 @@ begin
         end else if(VMapType.IsHybridLayer) then begin
           VAddedIndex := CmBExpHib.Items.AddObject(VMapType.name,VMapType);
           if (CmBExpHib.ItemIndex=-1) then begin
-            if (VMapType.active) then begin
+            if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
               CmBExpHib.ItemIndex:=VAddedIndex;
             end;
           end;
           VAddedIndex := CmBExpHibYa.Items.AddObject(VMapType.name,VMapType);
           if (CmBExpHibYa.ItemIndex=-1) then begin
-            if (VMapType.active) then begin
+            if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
               CmBExpHibYa.ItemIndex:=VAddedIndex;
             end;
           end;

@@ -15,6 +15,7 @@ uses
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
   i_IKmlInfoSimpleLoader,
+  i_ActiveMapsConfigSaveLoad,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -38,6 +39,8 @@ type
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
     FCacheElemensMaxCnt: integer;
+    FMapConfigSaver: IActiveMapsConfigSaver;
+    FMapConfigLoader: IActiveMapsConfigLoader;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -166,9 +169,6 @@ type
     // Покаызвать строку статуса
     ShowStatusBar: Boolean;
 
-    //Зацикливать карту по горизонтали
-    CiclMap: Boolean;
-
     // Количество тайлов отображаемых за границей экрана
     TilesOut: Integer;
 
@@ -276,7 +276,10 @@ uses
   SysUtils,
   pngimage,
   i_MapTypes,
-  u_MapTypeBasic,  u_MapTypeListGeneratorFromFullListBasic,
+  u_MapTypeBasic,
+  u_MapTypeListGeneratorFromFullListBasic,
+  u_MapsConfigInIniFileSection,
+  i_ICoordConverter,
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
@@ -290,6 +293,7 @@ uses
 constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
+  VConfigLoadSave: TMapsConfigInIniFileSection;
 begin
   FDwnCS := TCriticalSection.Create;
   All_Dwn_Kb := 0;
@@ -297,6 +301,11 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
+
+  VConfigLoadSave := TMapsConfigInIniFileSection.Create(MainIni, 'MainViewMaps');
+  FMapConfigSaver := VConfigLoadSave;
+  FMapConfigLoader := VConfigLoadSave;
+
   FMemFileCache := TMemFileCache.Create;
   MainFileCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
@@ -317,7 +326,8 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FreeAndNil(FDwnCS);
-  //MainIni.UpdateFile;
+  FMapConfigSaver := nil;
+  FMapConfigLoader := nil;
   FreeAndNil(MainIni);
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);
@@ -493,7 +503,7 @@ begin
     VListFactory := TMapTypeListGeneratorFromFullListBasic.Create(False, VItemFactory);
     VLayersList := VListFactory.CreateList;
 
-    FViewState := TMapViewPortState.Create(VMapsList, VLayersList, AMainMap, AZoom, ACenterPos, AScreenSize);
+    FViewState := TMapViewPortState.Create(VMapsList, VLayersList, AMainMap, AZoom, ACenterPos, AScreenSize, FMapConfigSaver, FMapConfigLoader);
   end else begin
     raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
   end;
