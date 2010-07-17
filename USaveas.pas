@@ -481,7 +481,7 @@ begin
   CmBExpSatYa.Items.AddObject(SAS_STR_No,nil);
   CmBExpMapYa.Items.AddObject(SAS_STR_No,nil);
   CmBExpHibYa.Items.AddObject(SAS_STR_No,nil);
-  VActiveMap := GState.sat_map_both;
+  VActiveMap := GState.ViewState.GetCurrentMap;
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.Usedwn) then begin
