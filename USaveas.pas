@@ -528,12 +528,16 @@ begin
           end;
         end else if(VMapType.IsHybridLayer) then begin
           VAddedIndex := CmBExpHib.Items.AddObject(VMapType.name,VMapType);
-          if (VMapType.active)and(CmBExpHib.ItemIndex=-1) then begin
-            CmBExpHib.ItemIndex:=VAddedIndex;
+          if (CmBExpHib.ItemIndex=-1) then begin
+            if (VMapType.active) then begin
+              CmBExpHib.ItemIndex:=VAddedIndex;
+            end;
           end;
           VAddedIndex := CmBExpHibYa.Items.AddObject(VMapType.name,VMapType);
-          if (VMapType.active)and(CmBExpHibYa.ItemIndex=-1) then begin
-            CmBExpHibYa.ItemIndex:=VAddedIndex;
+          if (CmBExpHibYa.ItemIndex=-1) then begin
+            if (VMapType.active) then begin
+              CmBExpHibYa.ItemIndex:=VAddedIndex;
+            end;
           end;
         end;
       end;

@@ -1314,6 +1314,7 @@ var
   ts2,ts3,fr:int64;
   VWikiLayersVisible: Boolean;
   VSelectionRect: TExtendedRect;
+  VMapType: TMapType;
 begin
   QueryPerformanceCounter(ts2);
 
@@ -1324,9 +1325,12 @@ begin
   LayerScaleLine.Redraw;
   VWikiLayersVisible := False;
   for Leyi:=0 to length(GState.MapType)-1 do begin
-    if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
-      if GState.MapType[Leyi].IsKmlTiles then begin
-        VWikiLayersVisible := True;
+    VMapType := GState.MapType[Leyi];
+    if (VMapType.asLayer)then begin
+      if VMapType.IsKmlTiles then begin
+        if (VMapType.active) then begin
+          VWikiLayersVisible := True;
+        end;
       end;
     end;
   end;
@@ -2304,6 +2308,7 @@ var
   i:integer;
   VZoomCurr: Byte;
   VPoint: TPoint;
+  VMapType: TMapType;
 begin
   if MapZoomAnimtion=1 then exit;
   VZoomCurr := GState.zoom_size - 1;
@@ -2329,8 +2334,9 @@ begin
   end else begin
     AMapType.active := not(AMapType.active);
     for i:=0 to length(GState.MapType)-1 do begin
-      if GState.MapType[i].asLayer then begin
-        GState.MapType[i].MainToolbarItem.Checked:=GState.MapType[i].active;
+      VMapType := GState.MapType[i];
+      if VMapType.asLayer then begin
+        VMapType.MainToolbarItem.Checked := VMapType.active;
       end;
     end;
   end;
@@ -2883,20 +2889,25 @@ begin
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);
-var i:Integer;
+var
+  i:Integer;
+  VMapType: TMapType;
+  VLayerIsActive: Boolean;
 begin
- ldm.Visible:=false;
- dlm.Visible:=false;
- For i:=0 to length(GState.MapType)-1 do
-  if (GState.MapType[i].asLayer) then
-   begin
-    GState.MapType[i].NDwnItem.Visible:=GState.MapType[i].active;
-    GState.MapType[i].NDelItem.Visible:=GState.MapType[i].active;
-    if GState.MapType[i].active then begin
-                                ldm.Visible:=true;
-                                dlm.Visible:=true;
-                              end
-   end;
+  ldm.Visible:=false;
+  dlm.Visible:=false;
+  For i:=0 to length(GState.MapType)-1 do begin
+    VMapType := GState.MapType[i];
+    if (VMapType.asLayer) then begin
+      VLayerIsActive := VMapType.active;
+      VMapType.NDwnItem.Visible := VLayerIsActive;
+      VMapType.NDelItem.Visible := VLayerIsActive;
+      if VLayerIsActive then begin
+        ldm.Visible:=true;
+        dlm.Visible:=true;
+      end
+    end;
+  end;
 end;
 
 procedure TFmain.ShowErrScript(DATA:string);
@@ -3969,18 +3980,22 @@ begin
 end;
 
 procedure TFmain.NParamsClick(Sender: TObject);
-var i:Integer;
+var
+  i:Integer;
+  VMapType: TMapType;
+  VLayerIsActive: Boolean;
 begin
- NLayerParams.Visible:=false;
- For i:=0 to length(GState.MapType)-1 do
-  if (GState.MapType[i].asLayer) then
-   begin
-    GState.MapType[i].NLayerParamsItem.Visible:=GState.MapType[i].active;
-    if GState.MapType[i].active then begin
-                                NLayerParams.Visible:=true;
-                              end
-   end;
-
+  NLayerParams.Visible:=false;
+  For i:=0 to length(GState.MapType)-1 do begin
+    VMapType := GState.MapType[i];
+    if (VMapType.asLayer) then begin
+      VLayerIsActive := VMapType.Active;
+      VMapType.NLayerParamsItem.Visible := VLayerIsActive;
+      if VLayerIsActive then begin
+        NLayerParams.Visible:=true;
+      end
+    end;
+  end;
 end;
 
 procedure TFmain.TBfillMapAsMainClick(Sender: TObject);

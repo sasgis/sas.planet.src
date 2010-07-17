@@ -122,7 +122,7 @@ begin
                 if Terminated then break;
                 if FMain.change_scene then Break;
                 VMap := GState.MapType[ii];
-                if VMap.active then begin
+                if (VMap = VMainMap) or VMap.active then begin
                   BPos:=UPos;
                   VZoom := FZoom - 1;
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
