@@ -8,25 +8,36 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_ICoordConverter,
+  i_IActiveMapsConfig,
+  i_MapTypes,
   UMapType;
 
 type
   TMapViewPortState = class
   private
-    FMainMap: TMapType;
+    FActiveMaps: IActiveMapWithHybrConfig;
     FCenterPos: TPoint;
     FZoom: Byte;
     FViewSize: TPoint;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FWriteLocked: Boolean;
-    FMainMapChangeNotifier: IJclNotifier;
     FPosChangeNotifier: IJclNotifier;
     FViewSizeChangeNotifier: IJclNotifier;
     procedure NotifyChangePos;
-    procedure NotifyChangeMainMap(AOldSelected, ANewSelected: TMapType);
     procedure NotifyChangeViewSize;
+  protected
+    function GetMapChangeNotifier: IJclNotifier;
+    function InternalGetCurrentMap: TMapType;
+    function InternalGetCurrentCoordConverter: ICoordConverter;
   public
-    constructor Create(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
+    constructor Create(
+      AMapsList: IMapTypeList;
+      ALayersList: IMapTypeList;
+      AMainMap: TMapType;
+      AZoom: Byte;
+      ACenterPos: TPoint;
+      AScreenSize: TPoint
+    );
     destructor Destroy; override;
 
     procedure LockRead;
@@ -66,7 +77,7 @@ type
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
 
-    property MainMapChangeNotifier: IJclNotifier read FMainMapChangeNotifier;
+    property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
     property PosChangeNotifier: IJclNotifier read FPosChangeNotifier;
     property ViewSizeChangeNotifier: IJclNotifier read FViewSizeChangeNotifier;
   end;
@@ -75,23 +86,32 @@ implementation
 
 uses
   u_JclNotify,
+  u_ActiveMapWithHybrConfig,
   u_PosChangeMessage,
   u_MapChangeMessage;
 
 { TMapViewPortState }
 
-constructor TMapViewPortState.Create(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
+constructor TMapViewPortState.Create(
+  AMapsList: IMapTypeList;
+  ALayersList: IMapTypeList;
+  AMainMap: TMapType;
+  AZoom: Byte;
+  ACenterPos: TPoint;
+  AScreenSize: TPoint
+);
 var
   VConverter: ICoordConverter;
 begin
   if AMainMap = nil then begin
     raise Exception.Create('Ќужно об€зательно указывать активную карту');
   end;
-  FMainMapChangeNotifier := TJclBaseNotifier.Create;
+  FActiveMaps := TActiveMapWithHybrConfig.Create(False, AMainMap.GUID, AMapsList, ALayersList);
+
   FPosChangeNotifier := TJclBaseNotifier.Create;
   FViewSizeChangeNotifier := TJclBaseNotifier.Create;
-  FMainMap := AMainMap;
-  VConverter := FMainMap.GeoConvert;
+
+  VConverter := InternalGetCurrentCoordConverter;
   FZoom := AZoom;
   VConverter.CheckZoom(FZoom);
   FCenterPos := ACenterPos;
@@ -118,7 +138,7 @@ destructor TMapViewPortState.Destroy;
 begin
   FSync.BeginWrite;
   FreeAndNil(FSync);
-  FMainMapChangeNotifier := nil;
+  FActiveMaps := nil;
   FPosChangeNotifier := nil;
   FViewSizeChangeNotifier := nil;
   inherited;
@@ -136,7 +156,7 @@ begin
   try
     if FWriteLocked then begin
       try
-        VConverter := FMainMap.GeoConvert;
+        VConverter := InternalGetCurrentCoordConverter;
         VLonLat.X := ALonLat.X;
         VLonLat.Y := ALonLat.Y;
         VConverter.CheckLonLatPos(VLonLat);
@@ -170,7 +190,7 @@ begin
   try
     if FWriteLocked then begin
       try
-        VConverter := FMainMap.GeoConvert;
+        VConverter := InternalGetCurrentCoordConverter;
         VLonLat := ALonLat;
         VConverter.CheckLonLatPos(VLonLat);
         VPixelPos := VConverter.LonLat2PixelPos(VLonLat, FZoom);
@@ -207,21 +227,20 @@ begin
   VOldSelected := nil;
   FSync.BeginWrite;
   try
-    if FMainMap <> AMainMap then begin
+    if not IsEqualGUID(FActiveMaps.SelectedMapGUID, AMainMap.GUID) then begin
       VPosChanged := True;
-      VOldSelected := FMainMap;
-      VConverterOld := FMainMap.GeoConvert;
+      VOldSelected := InternalGetCurrentMap;
+      VConverterOld := InternalGetCurrentCoordConverter;
       VLonLat := VConverterOld.PixelPos2LonLat(FCenterPos, FZoom);
       VConverterNew := AMainMap.GeoConvert;
       VNewPos := VConverterNew.LonLat2PixelPos(VLonLat, FZoom);
-      FMainMap := AMainMap;
       FCenterPos := VNewPos;
     end;
   finally
     FSync.EndWrite;
   end;
   if VPosChanged then begin
-    NotifyChangeMainMap(VOldSelected, AMainMap);
+    FActiveMaps.SelectMapByGUID(AMainMap.GUID);
     NotifyChangePos;
   end;
 end;
@@ -230,6 +249,7 @@ procedure TMapViewPortState.ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
 var
   VPixelPos: TPoint;
   VPosChanged: Boolean;
+  VConverter: ICoordConverter;
 begin
   VPosChanged := false;
   FSync.BeginWrite;
@@ -237,7 +257,8 @@ begin
     if FWriteLocked then begin
       try
         VPixelPos := ANewPos;
-        FMainMap.GeoConvert.CheckPixelPosStrict(VPixelPos, FZoom, True);
+        VConverter := InternalGetCurrentCoordConverter;
+        VConverter.CheckPixelPosStrict(VPixelPos, FZoom, True);
         VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
         FCenterPos := VPixelPos;
       finally
@@ -299,7 +320,7 @@ begin
       try
         VZoom := ANewZoom;
         VNewPos := ANewPos;
-        VConverter := FMainMap.GeoConvert;
+        VConverter := InternalGetCurrentCoordConverter;
         VConverter.CheckZoom(VZoom);
         VConverter.CheckPixelPos(VNewPos, VZoom, True);
         VChanged := (FZoom <> VZoom) or (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
@@ -346,7 +367,7 @@ begin
       try
         VZoom := ANewZoom;
         VNewPos := ANewPos;
-        VConverter := FMainMap.GeoConvert;
+        VConverter := InternalGetCurrentCoordConverter;
         VConverter.CheckZoom(VZoom);
         VConverter.CheckLonLatPos(VNewPos);
         VPixelPos := VConverter.LonLat2PixelPos(VNewPos, VZoom);
@@ -369,10 +390,13 @@ begin
 end;
 
 function TMapViewPortState.GetCenterLonLat: TExtendedPoint;
+var
+  VConverter: ICoordConverter;
 begin
   FSync.BeginRead;
   try
-    Result := FMainMap.GeoConvert.PixelPos2LonLat(FCenterPos, FZoom);
+    VConverter := InternalGetCurrentCoordConverter;
+    Result := VConverter.PixelPos2LonLat(FCenterPos, FZoom);
   finally
     FSync.EndRead;
   end;
@@ -401,7 +425,7 @@ function TMapViewPortState.GetCurrentCoordConverter: ICoordConverter;
 begin
   FSync.BeginRead;
   try
-    Result := FMainMap.GeoConvert;
+    Result := InternalGetCurrentCoordConverter;
   finally
     FSync.EndRead;
   end;
@@ -411,7 +435,7 @@ function TMapViewPortState.GetCurrentMap: TMapType;
 begin
   FSync.BeginRead;
   try
-    Result := FMainMap;
+    Result := InternalGetCurrentMap;
   finally
     FSync.EndRead;
   end;
@@ -435,7 +459,7 @@ begin
     Result.Top := FCenterPos.Y - FViewSize.Y div 2;
     Result.Right := Result.Left + FViewSize.X;
     Result.Bottom := Result.Top + FViewSize.Y;
-    FMainMap.GeoConvert.CheckPixelRect(Result, FZoom, False);
+    InternalGetCurrentCoordConverter.CheckPixelRect(Result, FZoom, False);
   finally
     FSync.EndRead;
   end;
@@ -445,7 +469,7 @@ function TMapViewPortState.GetViewLonLatRect: TExtendedRect;
 begin
   FSync.BeginRead;
   try
-    Result := FMainMap.GeoConvert.PixelRect2LonLatRect(GetViewMapRect, FZoom);
+    Result := InternalGetCurrentCoordConverter.PixelRect2LonLatRect(GetViewMapRect, FZoom);
   finally
     FSync.EndRead;
   end;
@@ -461,7 +485,7 @@ begin
     VRect.Top := FCenterPos.Y - FViewSize.Y div 2;
     VRect.Right := VRect.Left + FViewSize.X;
     VRect.Bottom := VRect.Top + FViewSize.Y;
-    FMainMap.GeoConvert.CheckPixelRect(VRect, FZoom, False);
+    InternalGetCurrentCoordConverter.CheckPixelRect(VRect, FZoom, False);
     Result.X := VRect.Right - VRect.Left + 1;
     Result.Y := VRect.Bottom - VRect.Top + 1;
   finally
@@ -569,13 +593,15 @@ function TMapViewPortState.VisiblePixel2LonLat(
 var
   VZoom: Byte;
   VMapPixel: TPoint;
+  VConverter: ICoordConverter;
 begin
   FSync.BeginRead;
   try
     VZoom := FZoom;
     VMapPixel := VisiblePixel2MapPixel(Pnt);
-    FMainMap.GeoConvert.CheckPixelPos(VMapPixel, VZoom, False);
-    Result := FMainMap.GeoConvert.PixelPos2LonLat(VMapPixel, VZoom);
+    VConverter := InternalGetCurrentCoordConverter;
+    VConverter.CheckPixelPos(VMapPixel, VZoom, False);
+    Result := VConverter.PixelPos2LonLat(VMapPixel, VZoom);
   finally
     FSync.EndRead;
   end;
@@ -601,7 +627,7 @@ begin
   if (ADelta.X <> 0) or (ADelta.Y <> 0)then begin
     FSync.BeginWrite;
     try
-      VConverter := FMainMap.GeoConvert;
+      VConverter := InternalGetCurrentCoordConverter;
       VZoom := FZoom;
       VNewPos.X := FCenterPos.X + ADelta.X;
       VNewPos.Y := FCenterPos.Y + ADelta.Y;
@@ -627,7 +653,7 @@ var
 begin
   FSync.BeginWrite;
   try
-    VConverter := FMainMap.GeoConvert;
+    VConverter := InternalGetCurrentCoordConverter;
     VZoom := FZoom;
     VNewPos := VisiblePixel2MapPixel(AVisualPoint);
     VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
@@ -657,7 +683,7 @@ begin
   VChanged := False;
   FSync.BeginWrite;
   try
-    VConverter := FMainMap.GeoConvert;
+    VConverter := InternalGetCurrentCoordConverter;
     VZoom := AZoom;
     VConverter.CheckZoom(VZoom);
     if FZoom <> VZoom then begin
@@ -697,7 +723,7 @@ begin
   VChanged := False;
   FSync.BeginWrite;
   try
-    VConverter := FMainMap.GeoConvert;
+    VConverter := InternalGetCurrentCoordConverter;
     VZoom := AZoom;
     VConverter.CheckZoom(VZoom);
     if FZoom <> VZoom then begin
@@ -721,25 +747,31 @@ var
 begin
   FSync.BeginRead;
   try
-    VMessage := TPosChangeMessage.Create(FMainMap, FZoom, FCenterPos);
+    VMessage := TPosChangeMessage.Create(InternalGetCurrentMap, FZoom, FCenterPos);
   finally
     FSync.EndRead;
   end;
   FPosChangeNotifier.Notify(VMessage);
 end;
 
-procedure TMapViewPortState.NotifyChangeMainMap(AOldSelected, ANewSelected: TMapType);
-var
-  VMessage: IJclNotificationMessage;
-begin
-  VMessage := TMapChangeMessage.Create(AOldSelected, ANewSelected);
-  FMainMapChangeNotifier.Notify(VMessage);
-  VMessage := nil;
-end;
-
 procedure TMapViewPortState.NotifyChangeViewSize;
 begin
   FViewSizeChangeNotifier.Notify(nil);
+end;
+
+function TMapViewPortState.GetMapChangeNotifier: IJclNotifier;
+begin
+  Result := FActiveMaps.MapChangeNotifier;
+end;
+
+function TMapViewPortState.InternalGetCurrentCoordConverter: ICoordConverter;
+begin
+  Result := FActiveMaps.MapsList.GetMapTypeByGUID(FActiveMaps.SelectedMapGUID).MapType.GeoConvert;
+end;
+
+function TMapViewPortState.InternalGetCurrentMap: TMapType;
+begin
+  Result := FActiveMaps.MapsList.GetMapTypeByGUID(FActiveMaps.SelectedMapGUID).MapType;
 end;
 
 end.

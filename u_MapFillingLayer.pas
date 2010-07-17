@@ -199,12 +199,12 @@ begin
     if (FSourceSelected <> AMapType) then begin
       VFullRedraw := True;
     end;
-    GState.ViewState.MainMapChangeNotifier.Remove(FMainMapChangeListener);
+    GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
   end else begin
     if (FSourceMapType <> GState.ViewState.GetCurrentMap) then begin
       VFullRedraw := True;
     end;
-    GState.ViewState.MainMapChangeNotifier.Add(FMainMapChangeListener);
+    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
   end;
   if FSourceZoom <> AZoom then begin
     VFullRedraw := True;
