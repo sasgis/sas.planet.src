@@ -263,26 +263,37 @@ var i:integer;
     typemaparr:array of TMapType;
     comprSat,comprMap,comprHyb:byte;
     RelativePath,Replace:boolean;
+    VActiveMapIndex: Integer;
 begin
  case CBFormat.ItemIndex of
   0,1: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
         setlength(typemaparr,3);
-        if CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]<>nil then
-          TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]).active:=RBSatSel.Checked;
-        if CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]<>nil then
-          TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]).active:=RBMapSel.Checked;
-        if CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]<>nil then
-          TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]).active:=RBHibSel.Checked;
+        VActiveMapIndex := 0;
+        typemaparr[0]:=TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
+        if typemaparr[0]<>nil then begin
+          if RBSatSel.Checked then begin
+            VActiveMapIndex := 0;
+          end;
+        end;
+        typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
+        if typemaparr[1]<>nil then begin
+          if RBMapSel.Checked then begin
+            VActiveMapIndex := 1;
+          end;
+        end;
+        typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
+        if typemaparr[2]<>nil then begin
+          if RBHibSel.Checked then begin
+            VActiveMapIndex := 2;
+          end;
+        end;
         comprSat:=cSatEdit.Value;
         comprMap:=cMapEdit.Value;
         comprHyb:=cHybEdit.Value;
-        typemaparr[0]:=TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
-        typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
-        typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
         path:=IncludeTrailingPathDelimiter(EditPath2.Text);
         Replace:=(not CkBNotReplase.Checked);
-        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,Replace,CBFormat.ItemIndex = 0,comprSat,comprMap,comprHyb)
+        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,VActiveMapIndex,Replace,CBFormat.ItemIndex = 0,comprSat,comprMap,comprHyb)
        end;
     3: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
