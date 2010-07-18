@@ -146,7 +146,7 @@ begin
                           if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
                             Synchronize(VMap.addDwnforban);
                           end;
-                          res :=VMap.DownloadTile(FLoadXY, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
+                          res :=VMap.DownloadTile(FLoadXY.X, FLoadXY.Y, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
                           if Res = dtrBanError  then begin
                             FTypeMap := VMap;
                             Synchronize(Ban);

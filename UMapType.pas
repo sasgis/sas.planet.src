@@ -184,7 +184,7 @@ type
     function IncDownloadedAndCheckAntiBan: Boolean;
     procedure addDwnforban;
     procedure ExecOnBan(ALastUrl: string);
-    function DownloadTile(AXY: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
+    function DownloadTile(x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
@@ -1540,7 +1540,7 @@ begin
   inherited;
 end;
 
-function TMapType.DownloadTile(AXY: TPoint; AZoom: byte;
+function TMapType.DownloadTile(x, y: longint; AZoom: byte;
   ACheckTileSize: Boolean; AOldTileSize: Integer;
   out AUrl: string; out AContentType: string;
   fileBuf: TMemoryStream): TDownloadTileResult;
@@ -1550,14 +1550,14 @@ var
   VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
-    AUrl := GetLink(AXY.X, AXY.Y, AZoom);
+    AUrl := GetLink(X, Y, AZoom);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');
     end;
     VDownloader := VPoolElement.GetObject as ITileDownlodSession;
     Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-    if CheckIsBan(AXY, AZoom, StatusCode, AContentType, fileBuf) then begin
+    if CheckIsBan(Point(x shr 8, y shr 8), AZoom - 1, StatusCode, AContentType, fileBuf) then begin
       result := dtrBanError;
     end;
   end else begin

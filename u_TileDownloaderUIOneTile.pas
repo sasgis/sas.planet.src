@@ -73,7 +73,7 @@ begin
       if FTypeMap.IncDownloadedAndCheckAntiBan then begin
         Synchronize(FTypeMap.addDwnforban);
       end;
-      res :=FTypeMap.DownloadTile(Point(FLoadXY.X shl 8, FLoadXY.Y shl 8) , FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
+      res :=FTypeMap.DownloadTile(FLoadXY.X shl 8, FLoadXY.Y shl 8, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
       if res = dtrBanError  then begin
         Synchronize(Ban);
       end;
