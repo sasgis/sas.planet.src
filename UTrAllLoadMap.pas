@@ -116,7 +116,6 @@ var
   i: integer;
   VGuids: string;
   VGuid: TGUID;
-  VMapType: TMapType;
 begin
   inherited Create(false);
   FLog := ALog;
@@ -267,7 +266,7 @@ begin
                 if FTypeMap.IncDownloadedAndCheckAntiBan then begin
                   Synchronize(FTypeMap.addDwnforban);
                 end;
-                res:=FTypeMap.DownloadTile(FLoadXY, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                res:=FTypeMap.DownloadTile(FLoadXY.X, FLoadXY.Y, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
               end;
 
               case res of
