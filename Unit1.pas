@@ -2221,9 +2221,8 @@ begin
 
   if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
       (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
-    then begin
+  then begin
     TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr + 1, VMapType);
-    end;
   end;
 end;
 
