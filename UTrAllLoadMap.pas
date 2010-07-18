@@ -116,6 +116,7 @@ var
   i: integer;
   VGuids: string;
   VGuid: TGUID;
+  VMapType: TMapType;
 begin
   inherited Create(false);
   FLog := ALog;
@@ -151,11 +152,7 @@ begin
   finally
     ini.Free;
   end;
-  For i:=0 to length(GState.MapType)-1 do begin
-    if IsEqualGUID(GState.MapType[i].guid, VGuid) then begin
-      FTypeMap := GState.MapType[i];
-    end;
-  end;
+  FTypeMap := GetMapFromID(VGuid);
   if FTypeMap = nil then Terminate;
   if length(FRegionPoly) = 0 then Terminate;
   if Terminated then begin

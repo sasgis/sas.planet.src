@@ -267,11 +267,13 @@ uses
 function GetMapFromID(id: TGUID): TMapType;
 var
   i: integer;
+  VMapType: TMapType;
 begin
   Result:=nil;
   for i:=0 to length(GState.MapType)-1 do begin
-    if IsEqualGUID(GState.MapType[i].GUID, id) then begin
-      result:=GState.MapType[i];
+    VMapType := GState.MapType[i];
+    if IsEqualGUID(VMapType.GUID, id) then begin
+      result:=VMapType;
       exit;
     end;
   end;
@@ -280,6 +282,7 @@ end;
 procedure CreateMapUI;
 var
   i,j: integer;
+  VMapType: TMapType;
 begin
   FSettings.MapList.Clear;
   Fmain.MapIcons24.Clear;
@@ -297,7 +300,8 @@ begin
 
   if i>0 then begin
     for i:=0 to length(GState.MapType)-1 do begin
-      With GState.MapType[i] do begin
+      VMapType := GState.MapType[i];
+      With VMapType do begin
         MainToolbarItem:=TTBXItem.Create(Fmain.TBSMB);
         if ParentSubMenu='' then begin
           if asLayer then begin
@@ -361,23 +365,23 @@ begin
           MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(Fmain.TBSMB));
           TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
         end;
-        MainToolbarItem.Tag:=Longint(GState.MapType[i]);
-        TBFillingItem.Tag:=Longint(GState.MapType[i]);
+        MainToolbarItem.Tag:=Longint(VMapType);
+        TBFillingItem.Tag:=Longint(VMapType);
         if asLayer then begin
-          NDwnItem.Tag:=longint(GState.MapType[i]);
-          NDelItem.Tag:=longint(GState.MapType[i]);
-          NLayerParamsItem.Tag:=longint(GState.MapType[i]);
+          NDwnItem.Tag:=longint(VMapType);
+          NDelItem.Tag:=longint(VMapType);
+          NLayerParamsItem.Tag:=longint(VMapType);
         end;
-        FSettings.MapList.AddItem(GState.MapType[i].name,nil);
-        FSettings.MapList.Items.Item[i].Data:=GState.MapType[i];
-        FSettings.MapList.Items.Item[i].SubItems.Add(GState.MapType[i].NameInCache);
-        if GState.MapType[i].asLayer then begin
-          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+GState.MapType[i].ParentSubMenu);
+        FSettings.MapList.AddItem(VMapType.name,nil);
+        FSettings.MapList.Items.Item[i].Data:=VMapType;
+        FSettings.MapList.Items.Item[i].SubItems.Add(VMapType.NameInCache);
+        if VMapType.asLayer then begin
+          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
         end else begin
-          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+GState.MapType[i].ParentSubMenu);
+          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.ParentSubMenu);
         end;
-        FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(GState.MapType[i].HotKey));
-        FSettings.MapList.Items.Item[i].SubItems.Add(GState.MapType[i].FFilename);
+        FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
+        FSettings.MapList.Items.Item[i].SubItems.Add(VMapType.FFilename);
       end;
     end;
   end;
@@ -392,15 +396,19 @@ begin
     Fmain.TBSMB.Caption:='';
   end;
 end;
-function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;
+function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal; out AMapType: TMapType): Boolean;
 var
   i: Integer;
+  VMapType: TMapType;
 begin
+  AMapType := nil;
   Result := false;
   if Acnt > 0 then begin
     for i := 0 to Acnt - 1 do begin
-      if IsEqualGUID(AGUID, GState.MapType[i].GUID) then begin
+      VMapType := GState.MapType[i];
+      if IsEqualGUID(AGUID, VMapType.GUID) then begin
         Result := True;
+        AMapType := VMapType;
         Break;
       end;
     end;
@@ -415,6 +423,8 @@ var
   SearchRec: TSearchRec;
   MTb: TMapType;
   VGUIDString: String;
+  VMapType: TMapType;
+  VMapTypeLoaded: TMapType;
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
@@ -433,21 +443,21 @@ begin
     repeat
       if (SearchRec.Attr and faDirectory) = faDirectory then continue;
       try
-        GState.MapType[pnum]:=TMapType.Create;
+        VMapType := TMapType.Create;
         try
-          GState.MapType[pnum].LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+          VMapType.LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
         except
           on E: EBadGUID do begin
             raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [startdir+SearchRec.Name, E.Message]);
           end;
         end;
-        GState.MapType[pnum].ban_pg_ld := true;
-        VGUIDString := GState.MapType[pnum].GUIDString;
-        if FindGUIDInFirstMaps(GState.MapType[pnum].GUID, pnum) then begin
-          raise Exception.Create('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
+        VMapType.ban_pg_ld := true;
+        VGUIDString := VMapType.GUIDString;
+        if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
+          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FFileName, startdir+SearchRec.Name ]);
         end;
         if Ini.SectionExists(VGUIDString)then begin
-          With GState.MapType[pnum] do begin
+          With VMapType do begin
             id:=Ini.ReadInteger(VGUIDString,'pnum',0);
             URLBase:=ini.ReadString(VGUIDString,'URLBase',URLBase);
             CacheType:=ini.ReadInteger(VGUIDString,'CacheType',cachetype);
@@ -458,7 +468,7 @@ begin
             separator:=ini.ReadBool(VGUIDString,'separator',separator);
           end;
         end else begin
-          With GState.MapType[pnum] do begin
+          With VMapType do begin
             showinfo:=true;
             if Fpos < 0 then Fpos := i;
             id := Fpos;
@@ -469,9 +479,10 @@ begin
         if ExceptObject <> nil then begin
           ShowMessage((ExceptObject as Exception).Message);
         end;
-        FreeAndNil(GState.MapType[pnum]);
+        FreeAndNil(VMapType);
       end;
-      if GState.MapType[pnum] <> nil then begin
+      if VMapType <> nil then begin
+        GState.MapType[pnum]:= VMapType;
         inc(pnum);
       end;
     until FindNext(SearchRec) <> 0;
@@ -497,8 +508,6 @@ begin
     end;
     k:=k shr 1;
   end;
-  MTb:=nil;
-  MTb.Free;
   for i:=0 to length(GState.MapType)-1 do begin
     GState.MapType[i].id:=i+1;
     GState.MapType[i].FIcon24Index := i;
@@ -511,51 +520,54 @@ var
   Ini: TMeminifile;
   i: integer;
   VGUIDString: string;
+  VMapType: TMapType;
 begin
   Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
   try
     for i:=0 to length(GState.MapType)-1 do begin
-      VGUIDString := GState.MapType[i].GUIDString;
-      ini.WriteInteger(VGUIDString,'pnum',GState.MapType[i].id);
+      VMapType := GState.MapType[i];
+      VGUIDString := VMapType.GUIDString;
+      ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
 
-      if GState.MapType[i].URLBase<>GState.MapType[i].DefURLBase then begin
-        ini.WriteString(VGUIDString,'URLBase',GState.MapType[i].URLBase);
+
+      if VMapType.URLBase<>VMapType.DefURLBase then begin
+        ini.WriteString(VGUIDString,'URLBase',VMapType.URLBase);
       end else begin
         Ini.DeleteKey(VGUIDString,'URLBase');
       end;
 
-      if GState.MapType[i].HotKey<>GState.MapType[i].DefHotKey then begin
-        ini.WriteInteger(VGUIDString,'HotKey',GState.MapType[i].HotKey);
+      if VMapType.HotKey<>VMapType.DefHotKey then begin
+        ini.WriteInteger(VGUIDString,'HotKey',VMapType.HotKey);
       end else begin
         Ini.DeleteKey(VGUIDString,'HotKey');
       end;
 
-      if GState.MapType[i].cachetype<>GState.MapType[i].defcachetype then begin
-        ini.WriteInteger(VGUIDString,'CacheType',GState.MapType[i].CacheType);
+      if VMapType.cachetype<>VMapType.defcachetype then begin
+        ini.WriteInteger(VGUIDString,'CacheType',VMapType.CacheType);
       end else begin
         Ini.DeleteKey(VGUIDString,'CacheType');
       end;
 
-      if GState.MapType[i].separator<>GState.MapType[i].Defseparator then begin
-        ini.WriteBool(VGUIDString,'separator',GState.MapType[i].separator);
+      if VMapType.separator<>VMapType.Defseparator then begin
+        ini.WriteBool(VGUIDString,'separator',VMapType.separator);
       end else begin
         Ini.DeleteKey(VGUIDString,'separator');
       end;
 
-      if GState.MapType[i].NameInCache<>GState.MapType[i].DefNameInCache then begin
-        ini.WriteString(VGUIDString,'NameInCache',GState.MapType[i].NameInCache);
+      if VMapType.NameInCache<>VMapType.DefNameInCache then begin
+        ini.WriteString(VGUIDString,'NameInCache',VMapType.NameInCache);
       end else begin
         Ini.DeleteKey(VGUIDString,'NameInCache');
       end;
 
-      if GState.MapType[i].Sleep<>GState.MapType[i].DefSleep then begin
-        ini.WriteInteger(VGUIDString,'Sleep',GState.MapType[i].sleep);
+      if VMapType.Sleep<>VMapType.DefSleep then begin
+        ini.WriteInteger(VGUIDString,'Sleep',VMapType.sleep);
       end else begin
         Ini.DeleteKey(VGUIDString,'Sleep');
       end;
 
-      if GState.MapType[i].ParentSubMenu<>GState.MapType[i].DefParentSubMenu then begin
-        ini.WriteString(VGUIDString,'ParentSubMenu',GState.MapType[i].ParentSubMenu);
+      if VMapType.ParentSubMenu<>VMapType.DefParentSubMenu then begin
+        ini.WriteString(VGUIDString,'ParentSubMenu',VMapType.ParentSubMenu);
       end else begin
         Ini.DeleteKey(VGUIDString,'ParentSubMenu');
       end;
