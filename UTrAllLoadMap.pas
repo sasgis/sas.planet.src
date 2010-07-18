@@ -152,13 +152,7 @@ begin
   finally
     ini.Free;
   end;
-  For i:=0 to length(GState.MapType)-1 do begin
-    VMapType := GState.MapType[i];
-    if IsEqualGUID(VMapType.GUID, VGuid) then begin
-      FTypeMap := VMapType;
-      Break;
-    end;
-  end;
+  FTypeMap := GetMapFromID(VGuid);
   if FTypeMap = nil then Terminate;
   if length(FRegionPoly) = 0 then Terminate;
   if Terminated then begin

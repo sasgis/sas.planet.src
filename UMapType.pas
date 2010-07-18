@@ -432,15 +432,19 @@ begin
     GState.SetMainSelectedMap(GState.MapType[0]);
   end;
 end;
-function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal): Boolean;
+function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal; out AMapType: TMapType): Boolean;
 var
   i: Integer;
+  VMapType: TMapType;
 begin
+  AMapType := nil;
   Result := false;
   if Acnt > 0 then begin
     for i := 0 to Acnt - 1 do begin
-      if IsEqualGUID(AGUID, GState.MapType[i].GUID) then begin
+      VMapType := GState.MapType[i];
+      if IsEqualGUID(AGUID, VMapType.GUID) then begin
         Result := True;
+        AMapType := VMapType;
         Break;
       end;
     end;
@@ -456,6 +460,7 @@ var
   MTb: TMapType;
   VGUIDString: String;
   VMapType: TMapType;
+  VMapTypeLoaded: TMapType;
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
@@ -474,8 +479,7 @@ begin
     repeat
       if (SearchRec.Attr and faDirectory) = faDirectory then continue;
       try
-        GState.MapType[pnum]:=TMapType.Create;
-        VMapType := GState.MapType[pnum];
+        VMapType := TMapType.Create;
         try
           VMapType.LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
         except
@@ -485,8 +489,8 @@ begin
         end;
         VMapType.ban_pg_ld := true;
         VGUIDString := VMapType.GUIDString;
-        if FindGUIDInFirstMaps(VMapType.GUID, pnum) then begin
-          raise Exception.Create('В файле ' + startdir+SearchRec.Name + ' неуникальный GUID');
+        if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
+          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FFileName, startdir+SearchRec.Name ]);
         end;
         if Ini.SectionExists(VGUIDString)then begin
           With VMapType do begin
@@ -515,9 +519,10 @@ begin
         if ExceptObject <> nil then begin
           ShowMessage((ExceptObject as Exception).Message);
         end;
-        FreeAndNil(GState.MapType[pnum]);
+        FreeAndNil(VMapType);
       end;
-      if GState.MapType[pnum] <> nil then begin
+      if VMapType <> nil then begin
+        GState.MapType[pnum]:= VMapType;
         inc(pnum);
       end;
     until FindNext(SearchRec) <> 0;
