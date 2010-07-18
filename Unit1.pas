@@ -2222,7 +2222,7 @@ begin
   if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
       (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
   then begin
-    TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr + 1, VMapType);
+    TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr, VMapType);
   end;
 end;
 
@@ -3269,7 +3269,7 @@ begin
  end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then begin
   if VValidPoint then begin
-    TTileDownloaderUIOneTile.Create(VPoint, VZoomCurr + 1, VMap);
+    TTileDownloaderUIOneTile.Create(VTile, VZoomCurr, VMap);
   end;
   exit;
  end;
