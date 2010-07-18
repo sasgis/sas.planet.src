@@ -2214,15 +2214,16 @@ begin
     GState.ViewState.UnLockRead;
   end;
 
-  VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
   VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
   VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VLoadPoint, VZoomCurr);
   path := VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
 
   if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
-    (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
-  then begin
+      (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
+    then begin
     TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr + 1, VMapType);
+    end;
   end;
 end;
 

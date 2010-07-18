@@ -1359,7 +1359,7 @@ var
 begin
   Result := true;
   try
-    GeoConvert.CheckTilePosStrict(AXY, Azoom, False);
+    GeoConvert.CheckTilePosStrict(AXY, Azoom, True);
     GeoConvert.CheckZoom(ASourceZoom);
 
     VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
