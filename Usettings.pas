@@ -276,7 +276,6 @@ begin
  GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
  GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
- GState.MainIni.Writebool('VIEW','CiclMap',GState.CiclMap);
  GState.MainIni.Writeinteger('VIEW','ResamlingType',byte(GState.resampling));
  GState.MainIni.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
  GState.MainIni.WriteBool('VIEW','FirstLat',GState.FirstLat);

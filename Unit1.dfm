@@ -805,13 +805,6 @@ object Fmain: TFmain
           Caption = #1040#1085#1080#1084#1072#1094#1080#1103' '#1087#1088#1080' '#1084#1072#1089#1096#1090#1072#1073#1080#1088#1086#1074#1072#1085#1080#1080
           Hint = ''
         end
-        object NCiclMap: TTBXItem
-          AutoCheck = True
-          Visible = False
-          OnClick = NCiclMapClick
-          Caption = #1047#1072#1094#1080#1082#1083#1080#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
-          Hint = ''
-        end
         object N32: TTBXItem
           AutoCheck = True
           OnClick = N32Click

@@ -95,7 +95,7 @@ begin
       for j := 0 to VSizeInTile.Y do begin
         VTile.X := VCenterTile.X - (VSizeInTile.X div 2) + i;
         VTile.Y := VCenterTile.Y - (VSizeInTile.Y div 2) + j;
-        Alayer.GeoConvert.CheckTilePosStrict(VTile, Vzoom, GState.CiclMap);
+        Alayer.GeoConvert.CheckTilePosStrict(VTile, Vzoom, False);
         KML := TKmlInfoSimple.Create;
         try
           if Alayer.LoadTile(kml, VTile, Vzoom, true) then begin

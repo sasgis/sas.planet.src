@@ -237,7 +237,7 @@ begin
     x128 := -128;
     while (x128<=128) do begin
       y128:=-128;
-      if (GState.CiclMap)or((pos_sm.X+x128<=zoom_Sizes[zoom])and(pos_sm.X+x128>=0)) then begin
+      if ((pos_sm.X+x128<=zoom_Sizes[zoom])and(pos_sm.X+x128>=0)) then begin
         while (y128<=128) do begin
           if (pos_sm.y+y128<=zoom_Sizes[zoom])and(pos_sm.y+y128>=0) then begin
             bm.Clear(Color32(GState.BGround));
@@ -266,7 +266,7 @@ begin
         x128 := -128;
         while (x128<=128) do begin
           y128:=-128;
-          if (GState.CiclMap)or((pos_sm.X+x128<=zoom_Sizes[zoom])and(pos_sm.X+x128>=0)) then begin
+          if ((pos_sm.X+x128<=zoom_Sizes[zoom])and(pos_sm.X+x128>=0)) then begin
             while (y128<=128) do  begin
               if (pos_sm.y+y128<=zoom_Sizes[zoom])and(pos_sm.y+y128>=0) then begin
                 bm.Clear(Color32(GState.BGround));

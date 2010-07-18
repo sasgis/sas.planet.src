@@ -77,7 +77,7 @@ begin
   VSize := GetBitmapSizeInPixel;
   VZoomCurr := GState.zoom_size - 1;
   VPoint := FMain.VisiblePixel2MapPixel(Fmain.m_m);
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, GState.CiclMap);
+  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
   ll := GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
   if GState.FirstLat then begin
     VLonLatStr := lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType);

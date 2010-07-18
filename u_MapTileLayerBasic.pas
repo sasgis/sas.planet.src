@@ -66,7 +66,7 @@ begin
       VVisibleMapRect.Bottom := VVisibleMapRect.Top + VVisibleSize.Y;
     end;
 
-    VConverter.CheckPixelRect(VVisibleMapRect, VZoom, GState.CiclMap);
+    VConverter.CheckPixelRect(VVisibleMapRect, VZoom, False);
     Result := VConverter.PixelRect2TileRect(VVisibleMapRect, VZoom);
     if GState.TilesOut > 0 then begin
       if (Result.Left > Result.Right) and (Result.Left - Result.Right <= GState.TilesOut * 2) then begin
@@ -76,7 +76,7 @@ begin
       end;
       Dec(Result.Top, GState.TilesOut);
       Inc(Result.Bottom, GState.TilesOut);
-      VConverter.CheckTileRect(Result, VZoom, GState.CiclMap);
+      VConverter.CheckTileRect(Result, VZoom, False);
     end;
   end;
 end;
@@ -104,11 +104,6 @@ begin
   if VMapPixelsRect.Top > VMapPixelsRect.Bottom then begin
     Result.Y := Result.Y + VMapSize;
   end;
-  if GState.CiclMap then begin
-    if VMapSize < VVisibleSize.X then begin
-      Result.X := (VVisibleSize.X div VMapSize) * VMapSize;
-    end;
-  end;
 end;
 
 function TMapTileLayerBasic.GetScreenCenterInBitmapPixels: TPoint;
@@ -132,8 +127,6 @@ begin
     end else begin
       if VMapSize - FScreenCenterPos.Y < VVisibleSize.Y then begin
         Result.Y := VBitmapSize.Y - (VMapSize - FScreenCenterPos.Y);
-      end else begin
-
       end;
     end;
   end;
