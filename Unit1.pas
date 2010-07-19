@@ -1585,7 +1585,8 @@ begin
   FMiniMap.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
   FMiniMap.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
 
- CreateMapUI;
+  CreateMapUI;
+  FSettings.InitMapsList;
 
   Set_Pos(VScreenCenterPos, VZoom, GState.sat_map_both);
  try

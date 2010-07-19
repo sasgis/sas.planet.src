@@ -256,7 +256,6 @@ uses
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
-  Usettings,
   u_GeoToStr,
   unit1,
   UIMGFun,
@@ -289,7 +288,6 @@ var
   i,j: integer;
   VMapType: TMapType;
 begin
-  FSettings.MapList.Clear;
   Fmain.MapIcons24.Clear;
   Fmain.MapIcons18.Clear;
   Fmain.TBSMB.Clear;
@@ -409,21 +407,8 @@ begin
           NDelItem.Tag:=longint(VMapType);
           NLayerParamsItem.Tag:=longint(VMapType);
         end;
-        FSettings.MapList.AddItem(VMapType.name,nil);
-        FSettings.MapList.Items.Item[i].Data:=VMapType;
-        FSettings.MapList.Items.Item[i].SubItems.Add(VMapType.NameInCache);
-        if VMapType.asLayer then begin
-          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
-        end else begin
-          FSettings.MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.ParentSubMenu);
-        end;
-        FSettings.MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
-        FSettings.MapList.Items.Item[i].SubItems.Add(VMapType.FFilename);
       end;
     end;
-  end;
-  if FSettings.MapList.Items.Count>0 then begin
-    FSettings.MapList.Items.Item[0].Selected:=true;
   end;
   if FMain.FMiniMap.maptype=nil then begin
     Fmain.NMMtype_0.Checked:=true;

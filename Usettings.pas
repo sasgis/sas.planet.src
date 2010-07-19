@@ -219,6 +219,7 @@ type
   public
     FShortcutEditor: TShortcutEditor;
     procedure Save;
+    procedure InitMapsList;
   end;
 
 var
@@ -229,6 +230,7 @@ implementation
 
 uses
   Types,
+  Menus,
   TB2Item,
   u_GlobalState,
   u_GeoToStr,
@@ -730,6 +732,32 @@ end;
 procedure TFSettings.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FShortcutEditor);
+end;
+
+procedure TFSettings.InitMapsList;
+var
+  i: integer;
+  VMapType: TMapType;
+begin
+  MapList.Clear;
+  for i:=0 to length(GState.MapType)-1 do begin
+    VMapType := GState.MapType[i];
+    With VMapType do begin
+      MapList.AddItem(VMapType.name,nil);
+      MapList.Items.Item[i].Data:=VMapType;
+      MapList.Items.Item[i].SubItems.Add(VMapType.NameInCache);
+      if VMapType.asLayer then begin
+        MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
+      end else begin
+        MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.ParentSubMenu);
+      end;
+      MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
+      MapList.Items.Item[i].SubItems.Add(VMapType.ZmpFileName);
+    end;
+  end;
+  if MapList.Items.Count>0 then begin
+    MapList.Items.Item[0].Selected:=true;
+  end;
 end;
 
 end.
