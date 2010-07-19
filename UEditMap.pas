@@ -96,7 +96,7 @@ begin
    FmapType.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
- CreateMapUI;
+ Fmain.CreateMapUI;
  Fmain.generate_im;
  close;
 end;
