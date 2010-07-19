@@ -519,7 +519,7 @@ begin
  save;
  if MapsEdit then
   begin
-   CreateMapUI;
+   Fmain.CreateMapUI;
   end;
  Fmain.selectMap(GState.sat_map_both);
 end;

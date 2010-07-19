@@ -623,6 +623,7 @@ type
     class   function  timezone(lon, lat: real): TDateTime;
     procedure selectMap(AMapType: TMapType);
     procedure ShowCaptcha(URL: string);
+    procedure CreateMapUI;
     function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
@@ -1375,6 +1376,141 @@ begin
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+end;
+
+procedure TFmain.CreateMapUI;
+var
+  i,j: integer;
+  VMapType: TMapType;
+begin
+  MapIcons24.Clear;
+  MapIcons18.Clear;
+  TBSMB.Clear;
+  NSMB.Clear;
+  ldm.Clear;
+  dlm.Clear;
+  NLayerParams.Clear;
+  NSubMenuSmItem.Clear;
+  for i:=0 to NLayerSel.Count-1 do NLayerSel.Items[0].Free;
+  for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
+  for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
+  for i:=0 to PopupMSmM.Items.Count-3 do PopupMSmM.Items.Items[2].Free;
+
+  FMiniMap.maptype:=nil;
+  i:=length(GState.MapType)-1;
+
+  if i>0 then begin
+    for i:=0 to length(GState.MapType)-1 do begin
+      VMapType := GState.MapType[i];
+      With VMapType do begin
+        MainToolbarItem:=TTBXItem.Create(TBSMB);
+        if ParentSubMenu='' then begin
+          if asLayer then begin
+            TBLayerSel.Add(MainToolbarItem);
+          end else begin
+            TBSMB.Add(MainToolbarItem);
+          end;
+        end else begin
+          j:=0;
+          While GState.MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
+          if j=i then begin
+            MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(TBSMB);
+            MainToolbarSubMenuItem.caption:=ParentSubMenu;
+            MainToolbarSubMenuItem.Images:=MapIcons18;
+            if asLayer then begin
+              TBLayerSel.Add(MainToolbarSubMenuItem)
+            end else begin
+              TBSMB.Add(MainToolbarSubMenuItem);
+            end;
+          end;
+          GState.MapType[j].MainToolbarSubMenuItem.Add(MainToolbarItem);
+        end;
+        MapIcons24.AddMasked(bmp24,RGB(255,0,255));
+        MapIcons18.AddMasked(bmp18,RGB(255,0,255));
+        MainToolbarItem.Name:='TBMapN'+inttostr(id);
+        MainToolbarItem.ShortCut:=HotKey;
+        MainToolbarItem.ImageIndex:=i;
+        MainToolbarItem.Caption:=name;
+        MainToolbarItem.OnAdjustFont:=AdjustFont;
+        MainToolbarItem.OnClick:=TBmap1Click;
+
+        TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
+        TBFillingItem.name:='TBMapFM'+inttostr(id);
+        TBFillingItem.ImageIndex:=i;
+        TBFillingItem.Caption:=name;
+        TBFillingItem.OnAdjustFont:=AdjustFont;
+        TBFillingItem.OnClick:=TBfillMapAsMainClick;
+        TBFillingTypeMap.Add(TBFillingItem);
+
+        if IsCanShowOnSmMap then begin
+          if not(asLayer) then begin
+            NSmItem:=TTBXITem.Create(PopupMSmM);
+            PopupMSmM.Items.Add(NSmItem)
+          end else begin
+            NSmItem:=TTBXITem.Create(NSubMenuSmItem);
+            NSubMenuSmItem.Add(NSmItem);
+          end;
+          NSmItem.Name:='NSmMapN'+inttostr(id);
+          NSmItem.ImageIndex:=i;
+          NSmItem.Caption:=name;
+          NSmItem.OnAdjustFont:=AdjustFont;
+          NSmItem.OnClick:=NMMtype_0Click;
+          if ShowOnSmMap then begin
+            NSmItem.Checked:=true;
+          end;
+        end;
+        if asLayer then begin
+          NDwnItem:=TMenuItem.Create(nil);
+          NDwnItem.Caption:=name;
+          NDwnItem.ImageIndex:=i;
+          NDwnItem.OnClick:=N21Click;
+          ldm.Add(NDwnItem);
+          NDelItem:=TMenuItem.Create(nil);
+          NDelItem.Caption:=name;
+          NDelItem.ImageIndex:=i;
+          NDelItem.OnClick:=NDelClick;
+          dlm.Add(NDelItem);
+          NLayerParamsItem:=TTBXItem.Create(NLayerParams);
+          NLayerParamsItem.Caption:=name;
+          NLayerParamsItem.ImageIndex:=i;
+          NLayerParamsItem.OnClick:=NMapParamsClick;
+          NLayerParams.Add(NLayerParamsItem);
+        end;
+        if (asLayer)and(active) then begin
+          MainToolbarItem.Checked:=true;
+        end;
+        if separator then begin
+          MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(TBSMB));
+          if NSmItem<>NIL  then begin
+            NSmItem.Parent.Add(TTBXSeparatorItem.Create(NSubMenuSmItem));
+          end;
+          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(NSubMenuSmItem));
+        end;
+        if (active)and(VMapType.asLayer=false) then begin
+          GState.SetMainSelectedMap(VMapType);
+        end;
+        if (ShowOnSmMap)and(not(asLayer)) then begin
+          FMiniMap.maptype:=VMapType;
+        end;
+        MainToolbarItem.Tag:=Longint(VMapType);
+        TBFillingItem.Tag:=Longint(VMapType);
+        if IsCanShowOnSmMap then begin
+          NSmItem.Tag:=Longint(VMapType);
+        end;
+        if asLayer then begin
+          NDwnItem.Tag:=longint(VMapType);
+          NDelItem.Tag:=longint(VMapType);
+          NLayerParamsItem.Tag:=longint(VMapType);
+        end;
+      end;
+    end;
+  end;
+  if FMiniMap.maptype=nil then begin
+    NMMtype_0.Checked:=true;
+  end;
+  if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
+    GState.SetMainSelectedMap(GState.MapType[0]);
+  end;
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
