@@ -10,28 +10,46 @@ interface
 uses
   ActiveX,
   TestFramework,
-  u_GUIDList,
-  i_IGUIDList,
-  i_IGUIDList_Test;
+  i_IGUIDList_Test,
+  i_IGUIDObjectList_Test;
 
 type
   // Test methods for class TGUIDList
 
-  TestTGUIDList = class(TestIGUIDList)
+  TestTGUIDInterfaceList = class(TestIGUIDInterfaceList)
+  public
+    procedure SetUp; override;
+  end;
+
+  TestTGUIDObjectList = class(TestIGUIDObjectList)
   public
     procedure SetUp; override;
   end;
 
 implementation
 
+uses
+  u_GUIDInterfaceList,
+  u_GUIDObjectList;
+
 { TestTGUIDList }
-procedure TestTGUIDList.SetUp;
+procedure TestTGUIDInterfaceList.SetUp;
 begin
-  FGUIDList := TGUIDList.Create;
+  inherited;
+  FGUIDList := TGUIDInterfaceList.Create;
+end;
+
+{ TestTGUIDObjectList }
+
+procedure TestTGUIDObjectList.SetUp;
+begin
+  inherited;
+  FGUIDList := TGUIDObjectList.Create;
 end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTGUIDList.Suite);
+  RegisterTest(TestTGUIDInterfaceList.Suite);
+  RegisterTest(TestTGUIDObjectList.Suite);
 end.
 

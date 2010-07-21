@@ -11,7 +11,7 @@ uses
 type
   TMapTypeList = class(TInterfacedObject, IMapTypeList)
   private
-    FList: IGUIDList;
+    FList: IGUIDInterfaceList;
     function GetMapTypeByGUID(AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
   public
@@ -23,7 +23,7 @@ type
 implementation
 
 uses
-  u_GUIDList;
+  u_GUIDInterfaceList;
 
 { TMapTypeList }
 
@@ -34,7 +34,7 @@ end;
 
 constructor TMapTypeList.Create;
 begin
-  FList := TGUIDList.Create(False);
+  FList := TGUIDInterfaceList.Create(False);
 end;
 
 destructor TMapTypeList.Destroy;

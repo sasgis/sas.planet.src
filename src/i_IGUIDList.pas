@@ -26,7 +26,7 @@ uses
   ActiveX;
 
 type
-  IGUIDList = interface(IInterface)
+  IGUIDInterfaceList = interface(IInterface)
   ['{BA17FFE8-E281-4E2E-8B92-8F39ACC67036}']
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
@@ -49,6 +49,39 @@ type
 
     // Получение итератора GUID-ов
     function GetGUIDEnum(): IEnumGUID;
+
+    procedure SetCount(NewCount: Integer);
+    function GetCount: Integer;
+    property Count: Integer read GetCount write SetCount;
+  end;
+
+  IGUIDObjectList = interface(IInterface)
+  ['{9E176E50-3182-455C-AF58-9B6FB8E30E15}']
+    // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
+    // Если список является владельцем объектов и переданный объект не равен хранимому, то он будет удален
+    // Возвращает хранимый объект
+    function Add(AGUID: TGUID; AObj: TObject): TObject;
+
+    // Проверка наличия GUID в списке
+    function IsExists(AGUID: TGUID): boolean;
+
+    // Получение объекта по GUID
+    function GetByGUID(AGUID: TGUID): TObject;
+
+    // Замена существующего объекта новым, если отсутствует, то просто добавится
+    procedure Replace(AGUID: TGUID; AObj: TObject);
+
+    // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
+    procedure Remove(AGUID: TGUID);
+
+    // Очитска списка
+    procedure Clear;
+
+    // Получение итератора GUID-ов
+    function GetGUIDEnum(): IEnumGUID;
+
+    // Является ли этот список владельцем объектов
+    function GetIsObjectOwner: Boolean;
 
     procedure SetCount(NewCount: Integer);
     function GetCount: Integer;

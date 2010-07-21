@@ -1,5 +1,5 @@
 {*******************************************************************************
-     
+
     Version: 0.1
     Copyright (C) 2009 Demydov Viktor
     mailto:vdemidov@gmail.com
@@ -24,39 +24,25 @@ unit u_GUIDList;
 interface
 
 uses
+  Windows,
   ActiveX,
   i_IGUIDList;
 
 type
-  TInterfaceWithGUID = record
-    GUID: TGUID;
-    Obj: IInterface;
-  end;
-
-const
-  MaxInterfaceWithGUIDListSize = Maxint div (sizeof(TInterfaceWithGUID) * 2);
-
-type
-  PInterfaceWithGUIDList = ^TInterfaceWithGUIDList;
-  TInterfaceWithGUIDList = array[0..MaxInterfaceWithGUIDListSize - 1] of TInterfaceWithGUID;
-  TInterfaceWithGUIDListSortCompare = function (const Item1, Item2: TGUID): Integer of object;
-
-
-  TGUIDList = class(TInterfacedObject, IGUIDList)
+  TGUIDListBase = class(TInterfacedObject)
   protected
-    FList: PInterfaceWithGUIDList;
     FCount: Integer;
     FCapacity: Integer;
     FAllowNil: Boolean;
     procedure Grow; virtual;
-    procedure SetCapacity(NewCapacity: Integer);
-    procedure SetCount(NewCount: Integer);
+    procedure SetCapacity(NewCapacity: Integer); virtual; abstract;
+    procedure SetCount(NewCount: Integer); virtual; abstract;
     function GetCount: Integer;
-    procedure Delete(Index: Integer);
-    procedure Insert(Index: Integer; AGUID: TGUID; AObj: IInterface);
+    procedure Delete(Index: Integer); virtual; abstract;
+    function GetItemGUID(Index: Integer): TGUID; virtual; abstract;
     function Find(AGUID: TGUID; var Index: Integer): Boolean; virtual;
     function CompareGUIDs(const G1, G2: TGUID): Integer; virtual;
-    procedure Sort(); virtual;
+    procedure Sort(); virtual; abstract;
   public
     constructor Create; overload;
     constructor Create(AAllowNil: Boolean); overload;
@@ -66,18 +52,8 @@ type
     class procedure Error(const Msg: string; Data: Integer); overload; virtual;
     class procedure Error(Msg: PResStringRec; Data: Integer); overload;
 
-    // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
-    // Возвращает хранимый объект
-    function Add(AGUID: TGUID; AInterface: IInterface): IInterface; virtual;
-
     // Проверка наличия GUID в списке
-    function IsExists(AGUID: TGUID): boolean;
-
-    // Получение объекта по GUID
-    function GetByGUID(AGUID: TGUID): IInterface; virtual;
-
-    // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AGUID: TGUID; AInterface: IInterface); virtual;
+    function IsExists(AGUID: TGUID): boolean; virtual;
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
     procedure Remove(AGUID: TGUID); virtual;
@@ -86,7 +62,7 @@ type
     procedure Clear; virtual;
 
     // Получение итератора GUID-ов
-    function GetGUIDEnum(): IEnumGUID;
+    function GetGUIDEnum(): IEnumGUID; virtual;
     property Capacity: Integer read FCapacity write SetCapacity;
     property Count: Integer read GetCount write SetCount;
   end;
@@ -95,22 +71,21 @@ resourcestring
   SListIndexError = 'List index out of bounds (%d)';
   SListCapacityError = 'List capacity out of bounds (%d)';
   SListCountError = 'List count out of bounds (%d)';
-  SInterfaceIsNilError = 'Interface is nil';
 
 implementation
 
 uses
-  Windows,
   Math,
-  Classes, SysUtils;
+  Classes,
+  SysUtils;
 
 type
   TGUIDListEnum = class(TInterfacedObject, IEnumGUID)
   protected
-    FGUIDList: TGUIDList;
+    FGUIDList: TGUIDListBase;
     FCurrentIndex: integer;
   public
-    constructor Create(AGUIDList: TGUIDList);
+    constructor Create(AGUIDList: TGUIDListBase);
     function Next(celt: UINT; out rgelt: TGUID; out pceltFetched: UINT): HResult; stdcall;
     function Skip(celt: UINT): HResult; stdcall;
     function Reset: HResult; stdcall;
@@ -129,7 +104,7 @@ begin
   Result := S_OK;
 end;
 
-constructor TGUIDListEnum.Create(AGUIDList: TGUIDList);
+constructor TGUIDListEnum.Create(AGUIDList: TGUIDListBase);
 begin
   FGUIDList := AGUIDList;
   FCurrentIndex := 0;
@@ -141,11 +116,11 @@ var
   i: integer;
   VpGUID: PGUID;
 begin
-  pceltFetched := min(celt, FGUIDList.FCount - FCurrentIndex);
+  pceltFetched := min(celt, FGUIDList.Count - FCurrentIndex);
   VpGUID := @rgelt;
   if pceltFetched > 0 then begin
     for i := 0 to pceltFetched - 1 do begin
-      VpGUID^ := FGUIDList.FList^[FCurrentIndex + I].GUID;
+      VpGUID^ := FGUIDList.GetItemGUID(FCurrentIndex + I);
       Inc(VpGUID);
     end;
     Inc(FCurrentIndex, pceltFetched);
@@ -175,27 +150,13 @@ end;
 
 { TGUIDList }
 
-function TGUIDList.Add(AGUID: TGUID; AInterface: IInterface): IInterface;
-var
-  VIndex: Integer;
-begin
-  if (not FAllowNil) and (AInterface = nil) then begin
-    raise Exception.Create(LoadResString(@SInterfaceIsNilError));
-  end;
-  if not Find(AGUID, VIndex) then begin
-    Insert(VIndex, AGUID, AInterface);
-  end else begin
-    Result := FList^[VIndex].Obj;
-  end;
-end;
-
-procedure TGUIDList.Clear;
+procedure TGUIDListBase.Clear;
 begin
   SetCount(0);
   SetCapacity(0);
 end;
 
-function TGUIDList.CompareGUIDs(const G1, G2: TGUID): Integer;
+function TGUIDListBase.CompareGUIDs(const G1, G2: TGUID): Integer;
 begin
   if G1.D1 > G2.D1 then begin
     Result := 1;
@@ -297,42 +258,29 @@ begin
   end;
 end;
 
-constructor TGUIDList.Create;
+constructor TGUIDListBase.Create;
 begin
   FAllowNil := false;
   inherited;
 end;
 
-constructor TGUIDList.Create(AAllowNil: Boolean);
+constructor TGUIDListBase.Create(AAllowNil: Boolean);
 begin
   FAllowNil := AAllowNil;
 end;
 
-procedure TGUIDList.Delete(Index: Integer);
-begin
-  if (Index < 0) or (Index >= FCount) then begin
-    Error(@SListIndexError, Index);
-  end;
-  FList^[Index].Obj := nil;
-  Dec(FCount);
-  if Index < FCount then begin
-    System.Move(FList^[Index + 1], FList^[Index],
-      (FCount - Index) * SizeOf(TInterfaceWithGUID));
-  end;
-end;
-
-destructor TGUIDList.Destroy;
+destructor TGUIDListBase.Destroy;
 begin
   Clear;
   inherited;
 end;
 
-class procedure TGUIDList.Error(Msg: PResStringRec; Data: Integer);
+class procedure TGUIDListBase.Error(Msg: PResStringRec; Data: Integer);
 begin
-  TGUIDList.Error(LoadResString(Msg), Data);
+  TGUIDListBase.Error(LoadResString(Msg), Data);
 end;
 
-class procedure TGUIDList.Error(const Msg: string; Data: Integer);
+class procedure TGUIDListBase.Error(const Msg: string; Data: Integer);
   function ReturnAddr: Pointer;
   asm
           MOV     EAX,[EBP+4]
@@ -342,7 +290,7 @@ begin
   raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-function TGUIDList.Find(AGUID: TGUID; var Index: Integer): Boolean;
+function TGUIDListBase.Find(AGUID: TGUID; var Index: Integer): Boolean;
 var
   L, H, I, C: Integer;
 begin
@@ -351,7 +299,7 @@ begin
   H := FCount - 1;
   while L <= H do begin
     I := (L + H) shr 1;
-    C := CompareGUIDs(FList^[I].GUID, AGUID);
+    C := CompareGUIDs(GetItemGUID(I), AGUID);
     if C < 0 then L := I + 1 else begin
       H := I - 1;
       if C = 0 then begin
@@ -363,18 +311,7 @@ begin
   Index := L;
 end;
 
-function TGUIDList.GetByGUID(AGUID: TGUID): IInterface;
-var
-  VIndex: Integer;
-begin
-  if Find(AGUID, VIndex) then begin
-    Result := FList^[VIndex].Obj;
-  end else begin
-    Result := nil;
-  end;
-end;
-
-function TGUIDList.IsExists(AGUID: TGUID): boolean;
+function TGUIDListBase.IsExists(AGUID: TGUID): boolean;
 var
   VIndex: Integer;
 begin
@@ -382,17 +319,17 @@ begin
 end;
 
 
-function TGUIDList.GetCount: Integer;
+function TGUIDListBase.GetCount: Integer;
 begin
   Result := FCount;
 end;
 
-function TGUIDList.GetGUIDEnum: IEnumGUID;
+function TGUIDListBase.GetGUIDEnum: IEnumGUID;
 begin
   Result := TGUIDListEnum.Create(Self);
 end;
 
-procedure TGUIDList.Grow;
+procedure TGUIDListBase.Grow;
 var
   Delta: Integer;
 begin
@@ -408,25 +345,7 @@ begin
   SetCapacity(FCapacity + Delta);
 end;
 
-procedure TGUIDList.Insert(Index: Integer; AGUID: TGUID; AObj: IInterface);
-begin
-  if (Index < 0) or (Index > FCount) then begin
-    Error(@SListIndexError, Index);
-  end;
-  if FCount = FCapacity then begin
-    Grow;
-  end;
-  if Index < FCount then begin
-    System.Move(FList^[Index], FList^[Index + 1],
-      (FCount - Index) * SizeOf(TInterfaceWithGUID));
-  end;
-  FillChar(FList^[Index], SizeOf(TInterfaceWithGUID), 0);
-  FList^[Index].GUID := AGUID;
-  FList^[Index].Obj := AObj;
-  Inc(FCount);
-end;
-
-procedure TGUIDList.Remove(AGUID: TGUID);
+procedure TGUIDListBase.Remove(AGUID: TGUID);
 var
   VIndex: Integer;
 begin
@@ -434,90 +353,5 @@ begin
     Delete(VIndex);
   end;
 end;
-
-procedure TGUIDList.Replace(AGUID: TGUID; AInterface: IInterface);
-var
-  VIndex: Integer;
-begin
-  if (not FAllowNil) and (AInterface = nil) then begin
-    raise Exception.Create(LoadResString(@SInterfaceIsNilError));
-  end;
-  if Find(AGUID, VIndex) then begin
-    FList^[VIndex].Obj := AInterface;
-  end else begin
-    Insert(VIndex, AGUID, AInterface);
-  end;
-end;
-
-procedure TGUIDList.SetCapacity(NewCapacity: Integer);
-begin
-  if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
-    Error(@SListCapacityError, NewCapacity);
-  end;
-  if NewCapacity <> FCapacity then begin
-    ReallocMem(FList, NewCapacity * SizeOf(TInterfaceWithGUID));
-    FCapacity := NewCapacity;
-  end;
-end;
-
-procedure TGUIDList.SetCount(NewCount: Integer);
-var
-  I: Integer;
-begin
-  if (NewCount < 0) or (NewCount > MaxListSize) then begin
-    Error(@SListCountError, NewCount);
-  end;
-  if NewCount > FCapacity then begin
-    SetCapacity(NewCount);
-  end;
-  if NewCount > FCount then begin
-    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithGUID), 0)
-  end else begin
-    for I := FCount - 1 downto NewCount do begin
-      Delete(I);
-    end;
-  end;
-  FCount := NewCount;
-end;
-
-procedure QuickSort(SortList: PInterfaceWithGUIDList; L, R: Integer;
-  SCompare: TInterfaceWithGUIDListSortCompare);
-var
-  I, J: Integer;
-  P, T: TInterfaceWithGUID;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := SortList^[(L + R) shr 1];
-    repeat
-      while SCompare(SortList^[I].GUID, P.GUID) < 0 do begin
-        Inc(I);
-      end;
-      while SCompare(SortList^[J].GUID, P.GUID) > 0 do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        T := SortList^[I];
-        SortList^[I] := SortList^[J];
-        SortList^[J] := T;
-        Inc(I);
-        Dec(J);
-      end;
-    until I > J;
-    if L < J then begin
-      QuickSort(SortList, L, J, SCompare);
-    end;
-    L := I;
-  until I >= R;
-end;
-
-procedure TGUIDList.Sort();
-begin
-  if (FList <> nil) and (Count > 0) then begin
-    QuickSort(FList, 0, Count - 1, CompareGUIDs);
-  end;
-end;
-
 
 end.

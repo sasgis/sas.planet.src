@@ -18,8 +18,8 @@ type
     procedure Save(AConfig: IActiveMapWithHybrConfig);
     procedure LoadMap(AConfig: IActiveMapWithHybrConfig);
     procedure LoadHybrids(AConfig: IActiveMapWithHybrConfig);
-    procedure LoadHybridGUIDs(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
-    procedure LoadHybridByList(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
+    procedure LoadHybridGUIDs(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
+    procedure LoadHybridByList(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
     procedure Load(AConfig: IActiveMapWithHybrConfig);
   public
     constructor Create(AIniFile: TCustomIniFile; ASectionName: string);
@@ -32,7 +32,7 @@ uses
   Classes,
   StrUtils,
   SysUtils,
-  u_GUIDList,
+  u_GUIDInterfaceList,
   i_MapTypes;
 
 const
@@ -55,7 +55,7 @@ begin
 end;
 
 procedure TMapsConfigInIniFileSection.LoadHybridByList(
-  AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
+  AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;
@@ -72,7 +72,7 @@ begin
 end;
 
 procedure TMapsConfigInIniFileSection.LoadHybridGUIDs(
-  AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDList);
+  AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
 var
   VList: TStringList;
   i: Integer;
@@ -113,9 +113,9 @@ end;
 procedure TMapsConfigInIniFileSection.LoadHybrids(
   AConfig: IActiveMapWithHybrConfig);
 var
-  VGUIDList: IGUIDList;
+  VGUIDList: IGUIDInterfaceList;
 begin
-  VGUIDList := TGUIDList.Create;
+  VGUIDList := TGUIDInterfaceList.Create;
   LoadHybridGUIDs(AConfig, VGUIDList);
   LoadHybridByList(AConfig, VGUIDList);
   VGUIDList := nil;

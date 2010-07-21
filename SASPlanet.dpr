@@ -18,6 +18,7 @@ uses
   cUnicodeChar in 'src\cUnicodeChar.pas',
   i_IGUIDList in 'src\i_IGUIDList.pas',
   u_GUIDList in 'src\u_GUIDList.pas',
+  u_GUIDInterfaceList in 'src\u_GUIDInterfaceList.pas',
   i_JclNotify in 'src\i_JclNotify.pas',
   u_JclNotify in 'src\u_JclNotify.pas',
   CPDrv in 'src\CPDrv.pas',

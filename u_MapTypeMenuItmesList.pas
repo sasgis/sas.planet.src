@@ -12,7 +12,7 @@ uses
 type
   TMapTypeMenuItmesList = class(TInterfacedObject, IMapTypeMenuItmesList)
   private
-    FList: IGUIDList;
+    FList: IGUIDInterfaceList;
     function GetMapTypeItemByGUID(AGUID: TGUID): IMapTypeMenuItem;
     function GetIterator: IEnumGUID;
   public
@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  u_GUIDList;
+  u_GUIDInterfaceList;
 
 { TMapTypeMenuItmesList }
 
@@ -36,7 +36,7 @@ end;
 
 constructor TMapTypeMenuItmesList.Create;
 begin
-  FList := TGUIDList.Create(False);
+  FList := TGUIDInterfaceList.Create(False);
 end;
 
 destructor TMapTypeMenuItmesList.Destroy;

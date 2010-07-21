@@ -14,9 +14,9 @@ uses
 type
   // Test methods for interface IGUIDList
 
-  TestIGUIDList = class(TTestCase)
+  TestIGUIDInterfaceList = class(TTestCase)
   protected
-    FGUIDList: IGUIDList;
+    FGUIDList: IGUIDInterfaceList;
   public
     procedure TearDown; override;
   published
@@ -79,15 +79,20 @@ const
 
 { TestIGUIDList }
 
-procedure TestIGUIDList.TearDown;
+procedure TestIGUIDInterfaceList.TearDown;
 begin
   FGUIDList := nil;
 end;
 
-procedure TestIGUIDList.TestAdd;
+procedure TestIGUIDInterfaceList.TestAdd;
+var
+  VSource: IInterface;
+  VResult: IInterface;
 begin
-  FGUIDList.Add(G1, TSimple.Create(G1));
+  VSource := TSimple.Create(G1);
+  VResult := FGUIDList.Add(G1, VSource);
   Check(FGUIDList.Count = 1, 'После добавления должно быть элементов: 1');
+  Check(VResult = VSource, 'После добавления функция Add должна вернуть добавленный объект');
   FGUIDList.Add(G2, TSimple.Create(G2));
   Check(FGUIDList.Count = 2, 'После добавления должно быть элементов: 2');
   FGUIDList.Add(G3, TSimple.Create(G3));
@@ -99,8 +104,10 @@ begin
   FGUIDList.Add(G6, TSimple.Create(G6));
   Check(FGUIDList.Count = 6, 'После добавления должно быть элементов: 6');
 
-  FGUIDList.Add(G1, TSimple.Create(G2));
+  VResult := FGUIDList.Add(G1, TSimple.Create(G2));
   Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  Check(VResult = VSource, 'Должно вернуть старый объект');
+
   FGUIDList.Add(G2, TSimple.Create(G3));
   Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
   FGUIDList.Add(G3, TSimple.Create(G4));
@@ -113,7 +120,7 @@ begin
   Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
 end;
 
-procedure TestIGUIDList.TestIsExists;
+procedure TestIGUIDInterfaceList.TestIsExists;
 begin
   FGUIDList.Add(G6, TSimple.Create(G6));
   FGUIDList.Add(G1, TSimple.Create(G1));
@@ -131,7 +138,7 @@ begin
   Check(not FGUIDList.IsExists(G7), 'Ошбка проверки наличия элемента G7');
 end;
 
-procedure TestIGUIDList.TestGetByGUID;
+procedure TestIGUIDInterfaceList.TestGetByGUID;
 var
   VI: ISimple;
 begin
@@ -171,7 +178,7 @@ begin
 
 end;
 
-procedure TestIGUIDList.TestReplace;
+procedure TestIGUIDInterfaceList.TestReplace;
 var
   VI: ISimple;
 begin
@@ -217,7 +224,7 @@ begin
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
 end;
 
-procedure TestIGUIDList.TestRemove;
+procedure TestIGUIDInterfaceList.TestRemove;
 var
   VI: ISimple;
 begin
@@ -256,7 +263,7 @@ begin
 
 end;
 
-procedure TestIGUIDList.TestClear;
+procedure TestIGUIDInterfaceList.TestClear;
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;
@@ -278,7 +285,7 @@ begin
   Check(VEnum.Next(1, VGUID, I) = S_FALSE, 'Лишний элемент в итераторе');
 end;
 
-procedure TestIGUIDList.TestGetGUIDEnum;
+procedure TestIGUIDInterfaceList.TestGetGUIDEnum;
 var
   VGUID: TGUID;
   I: Cardinal;
