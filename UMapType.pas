@@ -94,6 +94,7 @@ type
     procedure Deactivate();
     procedure SetActive(const Value: Boolean);
     procedure addDwnforban;
+    procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
    public
     id: integer;
 
@@ -190,9 +191,8 @@ type
 
     function GetShortFolderName: string;
 
-    procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
     procedure ExecOnBan(ALastUrl: string);
-    function DownloadTile(x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
+    function DownloadTile(AThread: TThread; x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
@@ -1465,7 +1465,7 @@ begin
   FActive := Value;
 end;
 
-function TMapType.DownloadTile(x, y: longint; AZoom: byte;
+function TMapType.DownloadTile(AThread: TThread; x, y: longint; AZoom: byte;
   ACheckTileSize: Boolean; AOldTileSize: Integer;
   out AUrl: string; out AContentType: string;
   fileBuf: TMemoryStream): TDownloadTileResult;
@@ -1475,6 +1475,7 @@ var
   VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
+    IncDownloadedAndCheckAntiBan(AThread);
     AUrl := GetLink(X, Y, AZoom);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin

@@ -72,8 +72,7 @@ begin
   if FTypeMap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
-      FTypeMap.IncDownloadedAndCheckAntiBan(Self);
-      res :=FTypeMap.DownloadTile(FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+      res :=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
       if res = dtrBanError  then begin
         Synchronize(Ban);
       end;
