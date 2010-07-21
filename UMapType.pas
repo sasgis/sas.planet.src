@@ -1384,27 +1384,27 @@ var
   RunAntiBan: Boolean;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (FUsePreloadPage > 1) then begin
-    RunAntiBan := (cnt mod FUsePreloadPage) = 0;
-  end else begin
-    RunAntiBan := (FUsePreloadPage > 0) and  (cnt = 1);
-  end;
-  if RunAntiBan then begin
-    TThread.Synchronize(AThread, addDwnforban);
+  if (FUsePreloadPage>0) then begin
+    if (FUsePreloadPage > 1) then begin
+      RunAntiBan := (cnt mod FUsePreloadPage) = 0;
+    end else begin
+      RunAntiBan := (cnt = 1);
+    end;
+    if RunAntiBan then begin
+      TThread.Synchronize(AThread, addDwnforban);
+    end;
   end;
 end;
 
 procedure TMapType.addDwnforban;
 begin
-  if (FUsePreloadPage>0) then begin
-    if FPreloadPage='' then begin
-      Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
-    end else begin
-      Fmain.WebBrowser1.NavigateWait(FPreloadPage);
-    end;
-    while (Fmain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
-      Application.ProcessMessages;
-    end;
+  if FPreloadPage='' then begin
+    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+  end else begin
+    Fmain.WebBrowser1.NavigateWait(FPreloadPage);
+  end;
+  while (Fmain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
+    Application.ProcessMessages;
   end;
 end;
 
