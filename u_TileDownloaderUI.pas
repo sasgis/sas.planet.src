@@ -140,9 +140,8 @@ begin
                       if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom) then begin
                         FileBuf:=TMemoryStream.Create;
                         try
-                          if VMap.IncDownloadedAndCheckAntiBan and not Terminated then begin
-                            Synchronize(VMap.addDwnforban);
-                          end;
+                          VMap.IncDownloadedAndCheckAntiBan(Self);
+                          if Terminated then break;
                           res :=VMap.DownloadTile(FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
                           if Res = dtrBanError  then begin
                             FTypeMap := VMap;

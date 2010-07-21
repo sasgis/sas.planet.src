@@ -93,6 +93,7 @@ type
     // Процедуру нужно вызвать сразу после выключения карты или слоя
     procedure Deactivate();
     procedure SetActive(const Value: Boolean);
+    procedure addDwnforban;
    public
     id: integer;
 
@@ -189,8 +190,7 @@ type
 
     function GetShortFolderName: string;
 
-    function IncDownloadedAndCheckAntiBan: Boolean;
-    procedure addDwnforban;
+    procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
     procedure ExecOnBan(ALastUrl: string);
     function DownloadTile(x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 
@@ -1370,15 +1370,19 @@ begin
   end;
 end;
 
-function TMapType.IncDownloadedAndCheckAntiBan: Boolean;
+procedure TMapType.IncDownloadedAndCheckAntiBan(AThread: TThread);
 var
   cnt: Integer;
+  RunAntiBan: Boolean;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
   if (FUsePreloadPage > 1) then begin
-    Result := (cnt mod FUsePreloadPage) = 0;
+    RunAntiBan := (cnt mod FUsePreloadPage) = 0;
   end else begin
-    Result := (FUsePreloadPage > 0) and  (cnt = 1);
+    RunAntiBan := (FUsePreloadPage > 0) and  (cnt = 1);
+  end;
+  if RunAntiBan then begin
+    TThread.Synchronize(AThread, addDwnforban);
   end;
 end;
 
