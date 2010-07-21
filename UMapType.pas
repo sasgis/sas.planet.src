@@ -1077,13 +1077,21 @@ begin
   CreateDirIfNotExists(VPath);
   if (ty='application/vnd.google-earth.kmz') then begin
     try
-      UnZip:=TVCLUnZip.Create(Fmain);
-      UnZip.ArchiveStream:=TMemoryStream.Create;
-      ATileStream.SaveToStream(UnZip.ArchiveStream);
-      UnZip.ReadZip;
-      ATileStream.Position:=0;
-      UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-      UnZip.Free;
+      UnZip:=TVCLUnZip.Create(nil);
+      try
+        UnZip.ArchiveStream:=TMemoryStream.Create;
+        try
+          ATileStream.SaveToStream(UnZip.ArchiveStream);
+          UnZip.ReadZip;
+          ATileStream.Position:=0;
+          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+        finally
+          UnZip.ArchiveStream.Free;
+          UnZip.ArchiveStream := nil;
+        end;
+      finally
+        UnZip.Free;
+      end;
       SaveTileInCache(ATileStream,Vpath);
       ban_pg_ld:=true;
     except
