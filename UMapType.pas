@@ -86,6 +86,8 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
+    procedure addDwnforban;
+    procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
    public
     id: integer;
 
@@ -118,13 +120,13 @@ type
     DefNameInCache: string;
     NameInCache: string;
 
-    MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
-    MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
-    TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
-
-    NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-    NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
-    NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
+//    MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
+//    MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
+//    TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
+//
+//    NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+//    NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
+//    NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -181,10 +183,8 @@ type
 
     function GetShortFolderName: string;
 
-    function IncDownloadedAndCheckAntiBan: Boolean;
-    procedure addDwnforban;
     procedure ExecOnBan(ALastUrl: string);
-    function DownloadTile(x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
+    function DownloadTile(AThread: TThread; x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
@@ -1072,13 +1072,21 @@ begin
   CreateDirIfNotExists(VPath);
   if (ty='application/vnd.google-earth.kmz') then begin
     try
-      UnZip:=TVCLUnZip.Create(Fmain);
-      UnZip.ArchiveStream:=TMemoryStream.Create;
-      ATileStream.SaveToStream(UnZip.ArchiveStream);
-      UnZip.ReadZip;
-      ATileStream.Position:=0;
-      UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
-      UnZip.Free;
+      UnZip:=TVCLUnZip.Create(nil);
+      try
+        UnZip.ArchiveStream:=TMemoryStream.Create;
+        try
+          ATileStream.SaveToStream(UnZip.ArchiveStream);
+          UnZip.ReadZip;
+          ATileStream.Position:=0;
+          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+        finally
+          UnZip.ArchiveStream.Free;
+          UnZip.ArchiveStream := nil;
+        end;
+      finally
+        UnZip.Free;
+      end;
       SaveTileInCache(ATileStream,Vpath);
       ban_pg_ld:=true;
     except
@@ -1365,29 +1373,33 @@ begin
   end;
 end;
 
-function TMapType.IncDownloadedAndCheckAntiBan: Boolean;
+procedure TMapType.IncDownloadedAndCheckAntiBan(AThread: TThread);
 var
   cnt: Integer;
+  RunAntiBan: Boolean;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (FUsePreloadPage > 1) then begin
-    Result := (cnt mod FUsePreloadPage) = 0;
-  end else begin
-    Result := (FUsePreloadPage > 0) and  (cnt = 1);
+  if (FUsePreloadPage>0) then begin
+    if (FUsePreloadPage > 1) then begin
+      RunAntiBan := (cnt mod FUsePreloadPage) = 0;
+    end else begin
+      RunAntiBan := (cnt = 1);
+    end;
+    if RunAntiBan then begin
+      TThread.Synchronize(AThread, addDwnforban);
+    end;
   end;
 end;
 
 procedure TMapType.addDwnforban;
 begin
-  if (FUsePreloadPage>0) then begin
-    if FPreloadPage='' then begin
-      Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
-    end else begin
-      Fmain.WebBrowser1.NavigateWait(FPreloadPage);
-    end;
-    while (Fmain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
-      Application.ProcessMessages;
-    end;
+  if FPreloadPage='' then begin
+    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+  end else begin
+    Fmain.WebBrowser1.NavigateWait(FPreloadPage);
+  end;
+  while (Fmain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
+    Application.ProcessMessages;
   end;
 end;
 
@@ -1423,7 +1435,7 @@ begin
   inherited;
 end;
 
-function TMapType.DownloadTile(x, y: longint; AZoom: byte;
+function TMapType.DownloadTile(AThread: TThread; x, y: longint; AZoom: byte;
   ACheckTileSize: Boolean; AOldTileSize: Integer;
   out AUrl: string; out AContentType: string;
   fileBuf: TMemoryStream): TDownloadTileResult;
@@ -1433,6 +1445,7 @@ var
   VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
+    IncDownloadedAndCheckAntiBan(AThread);
     AUrl := GetLink(X, Y, AZoom);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin

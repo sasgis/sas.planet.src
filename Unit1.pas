@@ -51,6 +51,7 @@ uses
   PNGimage,
   MidasLib,
   i_JclNotify,
+  i_IGUIDList,
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
   i_IPosChangeMessage,
@@ -587,6 +588,14 @@ type
     FMapPosChangeListener: IJclListener;
     FMainMapChangeListener: IJclListener;
     FHybrChangeListener: IJclListener;
+
+    FMainToolbarItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
+    FMainToolbarSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
+    FTBFillingItemList: IGUIDObjectList; //Пункт главного меню Вид/Карта заполнения/Формировать для
+    FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
+    FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
+    FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
+
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
@@ -658,6 +667,7 @@ uses
   DateUtils,
   Types,
   u_JclNotify,
+  u_GUIDObjectList,
   u_GlobalState,
   Unit2,
   UAbout,
@@ -1461,6 +1471,15 @@ procedure TFmain.CreateMapUI;
 var
   i,j: integer;
   VMapType: TMapType;
+
+  MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
+  MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
+  TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
+
+  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+  NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
+  NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
+
 begin
   MapIcons24.Clear;
   MapIcons18.Clear;
@@ -1469,6 +1488,14 @@ begin
   ldm.Clear;
   dlm.Clear;
   NLayerParams.Clear;
+
+  FMainToolbarItemList.Clear;
+  FMainToolbarSubMenuItemList.Clear;
+  FTBFillingItemList.Clear;
+  FNLayerParamsItemList.Clear;
+  FNDwnItemList.Clear;
+  FNDelItemList.Clear;
+
   for i:=0 to NLayerSel.Count-1 do NLayerSel.Items[0].Free;
   for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
   for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
@@ -1480,6 +1507,7 @@ begin
       VMapType := GState.MapType[i];
       With VMapType do begin
         MainToolbarItem:=TTBXItem.Create(TBSMB);
+        FMainToolbarItemList.Add(VMapType.GUID, MainToolbarItem);
         if ParentSubMenu='' then begin
           if asLayer then begin
             TBLayerSel.Add(MainToolbarItem);
@@ -1491,6 +1519,7 @@ begin
           While GState.MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
           if j=i then begin
             MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(TBSMB);
+            FMainToolbarSubMenuItemList.Add(VMapType.GUID, MainToolbarSubMenuItem);
             MainToolbarSubMenuItem.caption:=ParentSubMenu;
             MainToolbarSubMenuItem.Images:=MapIcons18;
             if asLayer then begin
@@ -1499,7 +1528,8 @@ begin
               TBSMB.Add(MainToolbarSubMenuItem);
             end;
           end;
-          GState.MapType[j].MainToolbarSubMenuItem.Add(MainToolbarItem);
+          MainToolbarSubMenuItem := TTBXSubmenuItem(FMainToolbarSubMenuItemList.GetByGUID(GState.MapType[j].GUID));
+          MainToolbarSubMenuItem.Add(MainToolbarItem);
         end;
         MapIcons24.AddMasked(bmp24,RGB(255,0,255));
         MapIcons18.AddMasked(bmp18,RGB(255,0,255));
@@ -1511,6 +1541,7 @@ begin
         MainToolbarItem.OnClick:=TBmap1Click;
 
         TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
+        FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
         TBFillingItem.name:='TBMapFM'+inttostr(id);
         TBFillingItem.ImageIndex:=i;
         TBFillingItem.Caption:=name;
@@ -1520,16 +1551,19 @@ begin
 
         if asLayer then begin
           NDwnItem:=TMenuItem.Create(nil);
+          FNDwnItemList.Add(VMapType.GUID, NDwnItem);
           NDwnItem.Caption:=name;
           NDwnItem.ImageIndex:=i;
           NDwnItem.OnClick:=N21Click;
           ldm.Add(NDwnItem);
           NDelItem:=TMenuItem.Create(nil);
+          FNDelItemList.Add(VMapType.GUID, NDelItem);
           NDelItem.Caption:=name;
           NDelItem.ImageIndex:=i;
           NDelItem.OnClick:=NDelClick;
           dlm.Add(NDelItem);
           NLayerParamsItem:=TTBXItem.Create(NLayerParams);
+          FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
           NLayerParamsItem.Caption:=name;
           NLayerParamsItem.ImageIndex:=i;
           NLayerParamsItem.OnClick:=NMapParamsClick;
@@ -1577,6 +1611,14 @@ var
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
+
+  FMainToolbarItemList := TGUIDObjectList.Create(False);
+  FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
+  FTBFillingItemList := TGUIDObjectList.Create(False);
+  FNLayerParamsItemList := TGUIDObjectList.Create(False);
+  FNDwnItemList := TGUIDObjectList.Create(False);
+  FNDelItemList := TGUIDObjectList.Create(False);
+
  RectWindow := Types.Rect(0, 0, 0, 0);
  Enabled:=false;
  dWhenMovingButton := 5;
@@ -1785,8 +1827,9 @@ begin
  except
   VFillingmaptype := nil;
  end;
- if VFillingmaptype<>nil then Vfillingmaptype.TBFillingItem.Checked:=true
-                        else TBfillMapAsMain.Checked:=true;
+ if VFillingmaptype<>nil then begin
+   TTBXItem(FTBFillingItemList.GetByGUID(Vfillingmaptype.GUID)).Checked:=true
+ end else TBfillMapAsMain.Checked:=true;
 
  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
 
@@ -2051,6 +2094,12 @@ begin
   FreeAndNil(LayerMapNavToMark);
   FreeAndNil(FMainLayer);
   FreeAndNil(FMiniMapLayer);
+  FMainToolbarItemList := nil;
+  FMainToolbarSubMenuItemList := nil;
+  FTBFillingItemList := nil;
+  FNLayerParamsItemList := nil;
+  FNDwnItemList := nil;
+  FNDelItemList := nil;
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
@@ -2933,8 +2982,8 @@ begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
       VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
-      VMapType.NDwnItem.Visible := VLayerIsActive;
-      VMapType.NDelItem.Visible := VLayerIsActive;
+      TMenuItem(FNDwnItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
+      TMenuItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         ldm.Visible:=true;
         dlm.Visible:=true;
@@ -4019,7 +4068,7 @@ begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
       VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
-      VMapType.NLayerParamsItem.Visible := VLayerIsActive;
+      TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible:=true;
       end
@@ -4034,15 +4083,17 @@ begin
   VFillingMapType := FFillingMap.SourceSelected;
   if TTBXItem(sender).Tag=0 then begin
     if Vfillingmaptype<>nil then begin
-      Vfillingmaptype.TBFillingItem.Checked:=false;
+      TTBXItem(FTBFillingItemList.GetByGUID(VFillingMapType.GUID)).Checked:=false;
       Vfillingmaptype:=nil;
     end;
     TBfillMapAsMain.Checked:=true;
   end else begin
     TBfillMapAsMain.Checked:=false;
-    if Vfillingmaptype<>nil then Vfillingmaptype.TBFillingItem.Checked:=false;
+    if Vfillingmaptype<>nil then begin
+      TTBXItem(FTBFillingItemList.GetByGUID(VFillingMapType.GUID)).Checked:=false;
+    end;
     Vfillingmaptype:=TMapType(TTBXItem(sender).Tag);
-    Vfillingmaptype.TBFillingItem.Checked:=true;
+    TTBXItem(FTBFillingItemList.GetByGUID(VFillingMapType.GUID)).Checked:=true;
   end;
   FFillingMap.SetSourceMap(VFillingMapType, FFillingMap.SourceZoom);
 end;
