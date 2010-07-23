@@ -813,7 +813,7 @@ begin
   for i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.asLayer then begin
-      VMapType.MainToolbarItem.Checked := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
+      TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
     end;
   end;
   generate_im;
@@ -823,13 +823,17 @@ procedure TFmain.ProcessMapChangeMessage(AMessage: IMapChangeMessage);
 var
   VMainMapOld: TMapType;
   VMainMapNew: TMapType;
+  VMainToolbarItem: TTBXItem;
 begin
   VMainMapNew := AMessage.GetNewMap;
   VMainMapOld := AMessage.GetSorurceMap;
 
-  VMainMapOld.MainToolbarItem.Checked:=false;
-  TBSMB.ImageIndex := VMainMapNew.MainToolbarItem.ImageIndex;
-  VMainMapNew.MainToolbarItem.Checked:=true;
+  VMainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMainMapOld.GUID));
+  VMainToolbarItem.Checked:=false;
+
+  VMainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMainMapNew.GUID));
+  TBSMB.ImageIndex := VMainToolbarItem.ImageIndex;
+  VMainToolbarItem.Checked:=true;
   if GState.Showmapname then begin
     TBSMB.Caption:=VMainMapNew.name;
   end else begin
@@ -1586,8 +1590,9 @@ begin
       end;
     end;
   end;
-  TBSMB.ImageIndex := GState.MapType[0].MainToolbarItem.ImageIndex;
-  GState.MapType[0].MainToolbarItem.Checked:=true;
+  MainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(GState.MapType[0].GUID));
+  TBSMB.ImageIndex := MainToolbarItem.ImageIndex;
+  MainToolbarItem.Checked:=true;
   if GState.Showmapname then begin
     TBSMB.Caption:=GState.MapType[0].name;
   end else begin
