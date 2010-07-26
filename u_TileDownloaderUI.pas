@@ -140,25 +140,22 @@ begin
                       if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom) then begin
                         FileBuf:=TMemoryStream.Create;
                         try
-                          res :=VMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-                          if Res = dtrBanError  then begin
-                            FTypeMap := VMap;
-                            Synchronize(Ban);
-                          end;
-                          FErrorString:=GetErrStr(res);
-                          if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                            GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                          end;
-                          if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                            VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
-                          end;
-                          if res = dtrOK then begin
-                            try
-                              VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom, fileBuf, ty);
-                            except
-                              on E: Exception do begin
-                                FErrorString := E.Message;
-                              end;
+                          try
+                            res :=VMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                            if Res = dtrBanError  then begin
+                              FTypeMap := VMap;
+                              Synchronize(Ban);
+                            end;
+                            FErrorString:=GetErrStr(res);
+                            if (res = dtrOK) or (res = dtrSameTileSize) then begin
+                              GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                            end;
+                            if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
+                              VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+                            end;
+                          except
+                            on E: Exception do begin
+                              FErrorString := E.Message;
                             end;
                           end;
                           if Terminated then break;

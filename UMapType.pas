@@ -95,6 +95,8 @@ type
     procedure SetActive(const Value: Boolean);
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
+    procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
    public
     id: integer;
 
@@ -139,9 +141,6 @@ type
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
     function GetLink(AXY: TPoint; Azoom: byte): string; overload;
-
-    procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
-    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
 
     function GetTileFileName(x, y: longint; Azoom: byte): string; overload;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; overload;
@@ -1485,6 +1484,7 @@ begin
     end;
     if Result = dtrOK then begin
       ban_pg_ld := True;
+      SaveTileDownload(x, y, AZoom, fileBuf, AContentType);
     end;
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');

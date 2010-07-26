@@ -72,24 +72,21 @@ begin
   if FTypeMap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
-      res :=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-      if res = dtrBanError  then begin
-        Synchronize(Ban);
-      end;
-      FErrorString:=GetErrStr(res);
-      if (res = dtrOK) or (res = dtrSameTileSize) then begin
-        GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-      end;
-      if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
-        FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
-      end;
-      if res = dtrOK then begin
-        try
-          FTypeMap.SaveTileDownload(FLoadXY.X, FLoadXY.Y, FZoom, fileBuf, ty);
-        except
-          on E: Exception do begin
-            FErrorString := E.Message;
-          end;
+      try
+        res :=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+        if res = dtrBanError  then begin
+          Synchronize(Ban);
+        end;
+        FErrorString:=GetErrStr(res);
+        if (res = dtrOK) or (res = dtrSameTileSize) then begin
+          GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+        end;
+        if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
+          FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+        end;
+      except
+        on E: Exception do begin
+          FErrorString := E.Message;
         end;
       end;
     finally
