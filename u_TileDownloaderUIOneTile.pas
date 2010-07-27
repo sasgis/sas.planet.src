@@ -71,7 +71,7 @@ begin
     FileBuf:=TMemoryStream.Create;
     try
       try
-      res :=FTypeMap.DownloadTile(Self, FLoadXY.X shl 8, FLoadXY.Y shl 8, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
+        res :=FTypeMap.DownloadTile(Self, FLoadXY.X shl 8, FLoadXY.Y shl 8, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
         if res = dtrBanError  then begin
           Synchronize(Ban);
         end;
@@ -80,7 +80,7 @@ begin
           GState.IncrementDownloaded(fileBuf.Size/1024, 1);
         end;
         if (res = dtrTileNotExists) and (GState.SaveTileNotExists) then begin
-        FTypeMap.SaveTileNotExists(FLoadXY, FZoom);
+          FTypeMap.SaveTileNotExists(FLoadXY, FZoom);
         end;
       except
         on E: Exception do begin
