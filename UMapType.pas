@@ -416,7 +416,15 @@ begin
       VMapType := GState.MapType[i];
       VGUIDString := VMapType.GUIDString;
       ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
-      ini.WriteBool(VGUIDString,'active',VMapType.active);
+      if VMapType.asLayer then begin
+        ini.WriteBool(VGUIDString,'active',VMapType.active);
+      end else begin
+        if VMapType = GState.sat_map_both then begin
+          ini.WriteBool(VGUIDString,'active', true);
+        end else begin
+          ini.WriteBool(VGUIDString,'active', false);
+        end;
+      end;
       ini.WriteBool(VGUIDString,'ShowOnSmMap',VMapType.ShowOnSmMap);
 
       if VMapType.URLBase<>VMapType.DefURLBase then begin
