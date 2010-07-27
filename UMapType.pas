@@ -84,6 +84,8 @@ type
     procedure LoadMapInfo(AUnZip: TVCLZip);
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
+    procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
    public
     id: integer;
 
@@ -127,9 +129,6 @@ type
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
     function GetLink(AXY: TPoint; Azoom: byte): string; overload;
-
-    procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
-    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
 
     function GetTileFileName(x, y: longint; Azoom: byte): string; overload;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; overload;
@@ -330,7 +329,6 @@ begin
             raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [startdir+SearchRec.Name, E.Message]);
           end;
         end;
-        VMapType.ban_pg_ld := true;
         VGUIDString := VMapType.GUIDString;
         if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
           raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FFileName, startdir+SearchRec.Name ]);
@@ -1050,7 +1048,6 @@ begin
         FreeAndNil(btmSrc);
       end;
     end;
-    ban_pg_ld:=true;
     FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY, Azoom));
   end else begin
     SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
@@ -1084,7 +1081,6 @@ begin
         UnZip.Free;
       end;
       SaveTileInCache(ATileStream,Vpath);
-      ban_pg_ld:=true;
     except
       try
         SaveTileInCache(ATileStream,Vpath);
@@ -1093,7 +1089,6 @@ begin
     end;
   end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
     SaveTileInCache(ATileStream,Vpath);
-    ban_pg_ld:=true;
   end;
 end;
 
@@ -1414,6 +1409,7 @@ begin
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
   FMemCache := GState.MainFileCache;
+  ban_pg_ld := True;
 end;
 
 destructor TMapType.Destroy;
@@ -1451,6 +1447,10 @@ begin
     Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
     if CheckIsBan(Point(x shr 8, y shr 8), AZoom - 1, StatusCode, AContentType, fileBuf) then begin
       result := dtrBanError;
+    end;
+    if Result = dtrOK then begin
+      ban_pg_ld := True;
+      SaveTileDownload(x, y, AZoom, fileBuf, AContentType);
     end;
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');

@@ -144,24 +144,20 @@ begin
                         FileBuf:=TMemoryStream.Create;
                         try
                           res :=VMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
-                          if Res = dtrBanError  then begin
-                            FTypeMap := VMap;
-                            Synchronize(Ban);
-                          end;
-                          FErrorString:=GetErrStr(res);
-                          if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                            GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                          end;
-                          if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
-                            VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom + 1);
-                          end;
-                          if res = dtrOK then begin
-                            try
-                              VMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, Fzoom + 1, fileBuf, ty);
-                            except
-                              on E: Exception do begin
-                                FErrorString := E.Message;
-                              end;
+                            if Res = dtrBanError  then begin
+                              FTypeMap := VMap;
+                              Synchronize(Ban);
+                            end;
+                            FErrorString:=GetErrStr(res);
+                            if (res = dtrOK) or (res = dtrSameTileSize) then begin
+                              GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                            end;
+                            if (res = dtrTileNotExists)and(GState.SaveTileNotExists) then begin
+                              VMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom + 1);
+                            end;
+                          except
+                            on E: Exception do begin
+                              FErrorString := E.Message;
                             end;
                           end;
                           if Terminated then break;

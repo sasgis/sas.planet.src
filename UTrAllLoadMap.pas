@@ -260,71 +260,70 @@ begin
 
             FileBuf:=TMemoryStream.Create;
             try
-              if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom))and(GState.SaveTileNotExists) then begin
-                res := dtrTileNotExists;
-              end else begin
-                res:=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
-              end;
+              try
+                if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom))and(GState.SaveTileNotExists) then begin
+                  res := dtrTileNotExists;
+                end else begin
+                  res:=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                end;
 
-              case res of
-                dtrSameTileSize: begin
-                  GState.IncrementDownloaded(razlen/1024, 1);
-                  FDownloadSize := FDownloadSize + (razlen / 1024);
-                  inc(FDownloaded);
-                  FLastSuccessfulPoint := FLoadXY;
-                  FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
-                  VGotoNextTile := True;
-                end;
-                dtrProxyAuthError: begin
-                  FLog.WriteText(SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...', 10);
-                  sleep(5000);
-                  VGotoNextTile := false;
-                end;
-                dtrBanError: begin
-                  Synchronize(Ban);
-                  FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
-                  sleep(10000);
-                  VGotoNextTile := false;
-                end;
-                dtrTileNotExists,
-                dtrErrorMIMEType: begin
-                  FLog.WriteText(SAS_ERR_TileNotExists, 1);
-                  if (GState.SaveTileNotExists) then begin
-                    FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
-                  end;
-                  VGotoNextTile := True;
-                end;
-                dtrDownloadError: begin
-                  FLog.WriteText(SAS_ERR_Noconnectionstointernet, 10);
-                  if GState.GoNextTileIfDownloadError then begin
+                case res of
+                  dtrSameTileSize: begin
+                    GState.IncrementDownloaded(razlen/1024, 1);
+                    FDownloadSize := FDownloadSize + (razlen / 1024);
+                    inc(FDownloaded);
+                    FLastSuccessfulPoint := FLoadXY;
+                    FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
                     VGotoNextTile := True;
-                  end else begin
+                  end;
+                  dtrProxyAuthError: begin
+                    FLog.WriteText(SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...', 10);
+                    sleep(5000);
+                    VGotoNextTile := false;
+                  end;
+                  dtrBanError: begin
+                    Synchronize(Ban);
+                    FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
+                    sleep(10000);
+                    VGotoNextTile := false;
+                  end;
+                  dtrTileNotExists,
+                  dtrErrorMIMEType: begin
+                    FLog.WriteText(SAS_ERR_TileNotExists, 1);
+                    if (GState.SaveTileNotExists) then begin
+                      FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
+                    end;
+                    VGotoNextTile := True;
+                  end;
+                  dtrDownloadError: begin
+                    FLog.WriteText(SAS_ERR_Noconnectionstointernet, 10);
+                    if GState.GoNextTileIfDownloadError then begin
+                      VGotoNextTile := True;
+                    end else begin
+                      FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
+                      sleep(5000);
+                      VGotoNextTile := false;
+                    end;
+                    continue;
+                  end;
+                  dtrOK : begin
+                    FLastSuccessfulPoint := FLoadXY;
+                    GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                    FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
+                    inc(FDownloaded);
+                    FLog.WriteText('(Ok!)', 0);
+                    VGotoNextTile := True;
+                  end;
+                  else begin
+                    FLog.WriteText(GetErrStr(res), 10);
                     FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
                     sleep(5000);
                     VGotoNextTile := false;
                   end;
-                  continue;
                 end;
-                dtrOK : begin
-                  FLastSuccessfulPoint := FLoadXY;
-                  GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                  FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
-                  inc(FDownloaded);
-                  try
-                    FTypeMap.SaveTileDownload(FLoadXY.x, FLoadXY.y, FZoom, fileBuf, ty);
-                    FLog.WriteText('(Ok!)', 0);
-                  except
-                    on E: Exception do begin
-                      FLog.WriteText(E.Message, 0);
-                    end;
-                  end;
-                  VGotoNextTile := True;
-                end;
-                else begin
-                  FLog.WriteText(GetErrStr(res), 10);
-                  FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
-                  sleep(5000);
-                  VGotoNextTile := false;
+              except
+                on E: Exception do begin
+                  FLog.WriteText(E.Message, 0);
                 end;
               end;
             finally
