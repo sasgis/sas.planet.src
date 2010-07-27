@@ -416,7 +416,6 @@ begin
       VMapType := GState.MapType[i];
       VGUIDString := VMapType.GUIDString;
       ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
-      if VMapType.active then
       ini.WriteBool(VGUIDString,'active',VMapType.active);
       ini.WriteBool(VGUIDString,'ShowOnSmMap',VMapType.ShowOnSmMap);
 
