@@ -20,7 +20,7 @@ uses
   t_GeoTypes,
   UResStrings,
   unit4,
-  VCLZip;
+  KaZip;
 
 type
   PRow = ^TRow;
@@ -563,17 +563,17 @@ var
   BufRect:TRect;
   FileName:string;
 
-  kmlm,jpgm,zips:TMemoryStream;
+  kmlm,jpgm:TMemoryStream;
   LL1, LL2: TExtendedPoint;
   str: UTF8String;
   VFileName: String;
   bFMapPieceSizey:integer;
   nim:TPoint;
 
-  Zip:TVCLZip;
+  Zip:TKaZip;
 begin
-  nim.X:=(FMapPieceSize.X div 1024);
-  nim.Y:=(FMapPieceSize.Y div 1024);
+  nim.X:=(FMapPieceSize.X div 1024)+1;
+  nim.Y:=(FMapPieceSize.Y div 1024)+1;
 
   bFMapPieceSizey:=FMapPieceSize.y;
 
@@ -590,11 +590,12 @@ begin
   end;
   BufRect:=FCurrentPieceRect;
 
-  Zip:=TVCLZip.Create(nil);
-  Zip.Recurse := False;
-  Zip.StorePaths := true;
-  Zip.PackLevel := 0;
-  Zip.ZipName :=ChangeFileExt(FCurrentFileName,'.kmz');
+  Zip:=TKaZip.Create(nil);
+  Zip.FileName:=ChangeFileExt(FCurrentFileName,'.kmz');
+  Zip.CreateZip(ChangeFileExt(FCurrentFileName,'.kmz'));
+  Zip.CompressionType:=ctFast;
+  Zip.Active := true;
+  //Zip.Open(ChangeFileExt(FCurrentFileName,'.kmz'));
 
   kmlm:=TMemoryStream.Create;
   str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10+'<kml xmlns="http://earth.google.com/kml/2.2">'+#13#10+'<Folder>'+#13#10+'<name>'+ExtractFileName(FCurrentFileName)+'</name>'+#13#10);
@@ -666,8 +667,9 @@ begin
         jcprops.JPGColor := IJL_YCBCR;
         jcprops.jquality := FSaveAs.QualitiEdit.Value;
         ijlWrite(@jcprops, IJL_JBUFF_WRITEWHOLEIMAGE);
-        jpgm.WriteBuffer(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
-        Zip.ZipFromStream(jpgm,VFileName);
+        jpgm.Write(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
+        jpgm.Position:=0;
+        Zip.AddStream(VFileName,jpgm);
       Finally
         freemem(jcprops.DIBBytes,iWidth*iHeight*3);
         for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
@@ -682,8 +684,10 @@ begin
   FMapPieceSize.y:=bFMapPieceSizey;
   str := str + ansiToUTF8('</Folder>'+#13#10+'</kml>');
   kmlm.Write(str[1],length(str));
-  Zip.ZipFromStream(kmlm,'doc.kml');
-
+  kmlm.Position:=0;
+  Zip.AddStream('doc.kml',kmlm);
+  Zip.Active := false;
+  Zip.Close;
   Zip.Free;
   kmlm.Free;
   inc(FNumImgsSaved);

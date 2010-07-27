@@ -700,8 +700,7 @@ uses
   u_KmlInfoSimple,
   UTrAllLoadMap,
   UGSM,
-  UImport,
-  UShortcutEditor;
+  UImport;
 
 {$R *.dfm}
 procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
