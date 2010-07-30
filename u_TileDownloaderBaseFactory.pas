@@ -31,9 +31,15 @@ end;
 function TTileDownloaderBaseFactory.CreateInstance: IUnknown;
 var
   VDownloader: TTileDownloaderBase;
+  VTryCount: Integer;
 begin
+  if GState.TwoDownloadAttempt then begin
+    VTryCount := 2;
+  end else begin
+    VTryCount := 1;
+  end;
   VDownloader := TTileDownloaderBase.Create(FMapType.IgnoreContentType,
-    FMapType.ContentType, FMapType.DefaultContentType, 1, GState.InetConnect);
+    FMapType.ContentType, FMapType.DefaultContentType, VTryCount, GState.InetConnect);
   VDownloader.SleepOnResetConnection := FMapType.Sleep;
   VDownloader.WaitInterval := FMapType.Sleep;
   Result := VDownloader;
