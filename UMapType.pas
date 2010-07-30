@@ -1411,9 +1411,13 @@ begin
       raise Exception.Create('No free connections');
     end;
     VDownloader := VPoolElement.GetObject as ITileDownlodSession;
-    FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
+    if FAntiBan <> nil then begin
+      FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
+    end;
     Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-    Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
+    if FAntiBan <> nil then begin
+      Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
+    end;
     if Result = dtrOK then begin
       SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
     end else if Result = dtrTileNotExists then begin
