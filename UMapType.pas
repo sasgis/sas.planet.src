@@ -246,12 +246,10 @@ implementation
 
 uses
   Types,
-  SHDocVw,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
   u_GeoToStr,
-  unit1,
   UIMGFun,
   i_IObjectWithTTL,
   i_IPoolElement,

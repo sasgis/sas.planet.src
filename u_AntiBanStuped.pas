@@ -9,7 +9,6 @@ uses
   VCLZip,
   i_IAntiBan,
   i_ITileDownlodSession,
-  UMapType,
   Unit1;
 
 type
@@ -69,9 +68,6 @@ uses
   SysUtils,
   Forms,
   SHDocVw;
-
-type
-  TMapTypeAccess = class(TMapType);
 
 type
   TExecOnBan = class
