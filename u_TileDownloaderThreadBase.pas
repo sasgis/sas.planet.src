@@ -16,7 +16,6 @@ type
     FLoadXY: TPoint;
     FZoom: byte;
     FLoadUrl: string;
-    procedure ban; virtual;
     class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
   end;
 
@@ -58,11 +57,6 @@ begin
     result := '';
   end;
   end;
-end;
-
-procedure TTileDownloaderThreadBase.ban;
-begin
-  FTypeMap.ExecOnBan(FLoadUrl);
 end;
 
 end.

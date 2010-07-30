@@ -228,6 +228,7 @@ begin
   end else begin
     p_y := FRegionRect.Top;
   end;
+  VGotoNextTile := True;
   while p_x < FRegionRect.Right do begin
     while p_y < FRegionRect.Bottom do begin
       sleep(1);
@@ -282,17 +283,16 @@ begin
                     VGotoNextTile := false;
                   end;
                   dtrBanError: begin
-                    Synchronize(Ban);
                     FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
                     sleep(10000);
                     VGotoNextTile := false;
                   end;
-                  dtrTileNotExists,
+                  dtrTileNotExists: begin
+                    FLog.WriteText(Format(SAS_ERR_BadMIME, [ty]), 1);
+                    VGotoNextTile := True;
+                  end;
                   dtrErrorMIMEType: begin
                     FLog.WriteText(SAS_ERR_TileNotExists, 1);
-                    if (GState.SaveTileNotExists) then begin
-                      FTypeMap.SaveTileNotExists(FLoadXY.X, FLoadXY.Y, FZoom);
-                    end;
                     VGotoNextTile := True;
                   end;
                   dtrDownloadError: begin
@@ -324,6 +324,7 @@ begin
               except
                 on E: Exception do begin
                   FLog.WriteText(E.Message, 0);
+                  VGotoNextTile := True;
                 end;
               end;
             finally

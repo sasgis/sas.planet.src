@@ -126,6 +126,8 @@ uses
   u_MapCalibrationTab in 'u_MapCalibrationTab.pas',
   u_MapCalibrationWorldFiles in 'u_MapCalibrationWorldFiles.pas',
   u_MapCalibrationListBasic in 'u_MapCalibrationListBasic.pas',
+  i_IAntiBan in 'i_IAntiBan.pas',
+  u_AntiBanStuped in 'u_AntiBanStuped.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},
