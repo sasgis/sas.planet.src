@@ -696,7 +696,7 @@ begin
           if FMaxConnectToServerCount <= 0 then begin
             FMaxConnectToServerCount := 1;
           end;
-          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
+          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, UnZip, iniparams), 60000, 60000);
           GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
           FAntiBan := TAntiBanStuped.Create(UnZip, iniparams);
         except
