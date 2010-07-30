@@ -52,9 +52,6 @@ type
     FDefaultContent_Type: string;
     FContent_Type: string;
     FStatus_Code: string;
-    FBanIfLen: integer;
-    FUsePreloadPage: integer;
-    FPreloadPage: string;
     FMaxConnectToServerCount: Cardinal;
     FRadiusA: extended;
     FRadiusB: extended;
@@ -622,12 +619,9 @@ begin
   FTileRect.Top:=AIniFile.ReadInteger('PARAMS','TileRTop',0);
   FTileRect.Right:=AIniFile.ReadInteger('PARAMS','TileRRight',0);
   FTileRect.Bottom:=AIniFile.ReadInteger('PARAMS','TileRBottom',0);
-  FUsePreloadPage:=AIniFile.ReadInteger('PARAMS','UsePreloadPage',0);
-  FPreloadPage:=AIniFile.ReadString('PARAMS','PreloadPage','');
 
   Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
   DefSleep:=Sleep;
-  FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
   FIgnoreContent_Type:=AIniFile.ReadBool('PARAMS','IgnoreContentType', False);
   FDefaultContent_Type:=AIniFile.ReadString('PARAMS','DefaultContentType','image/jpg');
   FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image/jpg');
