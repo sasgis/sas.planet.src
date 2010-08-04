@@ -115,8 +115,7 @@ type
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
 
-    function GetTileFileName(x, y: longint; Azoom: byte): string; overload;
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; overload;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
 
     function GetTileShowName(x, y: longint; Azoom: byte): string; overload;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string; overload;
@@ -727,11 +726,6 @@ begin
   end else begin
     raise Exception.Create('Ошибка. Это не файловый кеш');
   end;
-end;
-
-function TMapType.GetTileFileName(x, y: Integer; Azoom: byte): string;
-begin
-  Result := GetTileFileName(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;

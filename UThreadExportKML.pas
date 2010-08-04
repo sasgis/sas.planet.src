@@ -93,10 +93,12 @@ var xym256lt,xym256rb:TPoint;
     savepath,north,south,east,west:string;
     ToFile:string;
   VExtRect: TExtendedRect;
+  VTile: TPoint;
 begin
+  VTile := Point(x shr 8, y shr 8);
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  savepath:=FTypeMap.GetTileFileName(x,y,z);
-  if (Replace)and(not(FTypeMap.TileExists(x,y,z))) then exit;
+  savepath:=FTypeMap.GetTileFileName(VTile, z - 1);
+  if (Replace)and(not(FTypeMap.TileExists(VTile, z - 1))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
