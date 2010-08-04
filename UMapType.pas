@@ -138,8 +138,7 @@ type
 
     function TileSize(AXY: TPoint; Azoom: byte): integer;
 
-    function TileExportToFile(x, y: longint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean; overload;
-    function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean; overload;
+    function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean;
 
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
@@ -1128,12 +1127,6 @@ begin
   VPath := GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(AFileName);
   Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
-end;
-
-function TMapType.TileExportToFile(x, y: Integer; Azoom: byte;
-  AFileName: string; OverWrite: boolean): boolean;
-begin
-  Result := Self.TileExportToFile(Point(x shr 8, y shr 8), Azoom - 1, AFileName, OverWrite);
 end;
 
 function TMapType.LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom,
