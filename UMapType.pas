@@ -132,8 +132,7 @@ type
 
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 
-    procedure SaveTileSimple(x, y: longint; Azoom: byte; btm: TBitmap32); overload;
-    procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32); overload;
+    procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32);
 
     function TileLoadDate(x, y: longint; Azoom: byte): TDateTime; overload;
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; overload;
@@ -1131,12 +1130,6 @@ begin
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
-end;
-
-procedure TMapType.SaveTileSimple(x, y: Integer; Azoom: byte;
-  btm: TBitmap32);
-begin
-  Self.SaveTileSimple(Point(x shr 8, y shr 8), Azoom - 1, btm);
 end;
 
 function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
