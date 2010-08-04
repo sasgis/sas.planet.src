@@ -136,8 +136,7 @@ type
 
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 
-    function TileSize(x, y: longint; Azoom: byte): integer; overload;
-    function TileSize(AXY: TPoint; Azoom: byte): integer; overload;
+    function TileSize(AXY: TPoint; Azoom: byte): integer;
 
     function TileExportToFile(x, y: longint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean; overload;
     function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean; overload;
@@ -1084,11 +1083,6 @@ var
 begin
   VPath := GetTileFileName(AXY, Azoom);
   Result := GetFileSize(VPath);
-end;
-
-function TMapType.TileSize(x, y: Integer; Azoom: byte): integer;
-begin
-  Result := Self.TileSize(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
