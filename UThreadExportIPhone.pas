@@ -132,6 +132,7 @@ function UniLoadTile(var bmp:TBitmap32; ATypeMap: TmapType; ATargetProjection: b
 var
   bmp2,bmp1:TBitmap32;
   res1,res2:boolean;
+  VTile: TPoint;
 begin
   res2:=false;
   bmp.width:=256;
@@ -144,7 +145,8 @@ begin
     try
       bmp2.DrawMode:=dmBlend;
       res1:=true;
-      if (not(ATypeMap.LoadTile(bmp1,p_h.x, p_h.y, zoom+1,false))) then begin
+      VTile := ATypeMap.GeoConvert.PixelPos2TilePos(p_h, zoom);
+      if (not(ATypeMap.LoadTile(bmp1,VTile, zoom, false))) then begin
         res1:=false;
         bmp1.width:=256;
         bmp1.Height:=256;
@@ -158,7 +160,7 @@ begin
 
       if ATargetProjection<>ATypeMap.projection then begin
         res2:=true;
-        if (not(ATypeMap.LoadTile(bmp2,p_h.x,p_h.y+256,zoom+1,false))) then begin
+        if (not(ATypeMap.LoadTile(bmp2,Point(VTile.X, VTile.Y + 1), zoom,false))) then begin
           res2:=false;
           bmp2.width:=256;
           bmp2.Height:=256;

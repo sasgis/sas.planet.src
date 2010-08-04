@@ -177,7 +177,7 @@ begin
                                            inc(p_y,256);
                                            continue;
                                           end;
-                                    typemap.LoadTile(bmp_Ex, p_x, p_y, InZooms[i], false);
+                                    typemap.LoadTile(bmp_Ex, VTile, InZooms[i] - 1, false);
                                    end
                               else begin
                                     bmp_ex.SetSize(256, 256);

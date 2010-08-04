@@ -123,7 +123,6 @@ type
 
     function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 
-    function LoadTile(btm: TBitmap32; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TKmlInfoSimple; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
@@ -817,12 +816,6 @@ begin
     end;
     Result := true;
   end;
-end;
-
-function TMapType.LoadTile(btm: TBitmap32; x,y:longint;Azoom:byte;
-  caching: boolean): boolean;
-begin
-  Result := Self.LoadTile(btm, Point(X shr 8, Y shr 8), Azoom - 1, caching);
 end;
 
 function TMapType.LoadTile(btm: TKmlInfoSimple; x,y:longint;Azoom:byte;
