@@ -134,8 +134,7 @@ type
 
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32);
 
-    function TileLoadDate(x, y: longint; Azoom: byte): TDateTime; overload;
-    function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; overload;
+    function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 
     function TileSize(x, y: longint; Azoom: byte): integer; overload;
     function TileSize(AXY: TPoint; Azoom: byte): integer; overload;
@@ -1077,11 +1076,6 @@ var
 begin
   VPath := GetTileFileName(AXY, Azoom);
   Result := FileDateToDateTime(FileAge(VPath));
-end;
-
-function TMapType.TileLoadDate(x, y: Integer; Azoom: byte): TDateTime;
-begin
-  Result := Self.TileLoadDate(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
