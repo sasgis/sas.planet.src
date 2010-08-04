@@ -119,10 +119,9 @@ type
 
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
 
-    function TileExists(AXY: TPoint; Azoom: byte): Boolean; overload;
+    function TileExists(AXY: TPoint; Azoom: byte): Boolean;
 
-    function TileNotExistsOnServer(x, y: longint; Azoom: byte): Boolean; overload;
-    function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean; overload;
+    function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 
     function LoadTile(btm: TBitmap32; x, y: longint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
@@ -763,7 +762,10 @@ var
   VTileExists: Boolean;
   key: string;
   TileBounds:TRect;
+  VXY: TPoint;
+  VTileParent: TPoint;
 begin
+  VXY := Point(x shr 8, y shr 8);
   result:=false;
   spr.SetSize(256, 256);
   if (not(GState.UsePrevZoom) and (asLayer=false)) or
@@ -777,7 +779,8 @@ begin
   dZ := 255;
   for i:=(Azoom-1) downto 1 do begin
     dZ:=(Azoom-i);
-    if TileExists(x shr dZ,y shr dZ,i) then begin
+    VTileParent := Point(VXY.X shr dZ,VXY.Y shr dZ);
+    if TileExists(VTileParent, i - 1) then begin
       VTileExists := true;
       break;
     end;
@@ -786,11 +789,11 @@ begin
     if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                else spr.Clear(Color32(GState.BGround));
   end else begin
-    key := GetMemCacheKey(Point(x shr 8, y shr 8), Azoom - 1);
+    key := GetMemCacheKey(VXY, Azoom - 1);
     if (not caching)or(not FMemCache.TryLoadFileFromCache(spr, key)) then begin
       bmp:=TBitmap32.Create;
       try
-        if not(LoadTile(bmp,x shr dZ,y shr dZ, Azoom - dZ,true))then begin
+        if not(LoadTile(bmp,VTileParent, Azoom - dZ - 1,true))then begin
           if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                      else spr.Clear(Color32(GState.BGround));
         end else begin
@@ -952,12 +955,6 @@ var
 begin
   VPath := GetTileFileName(AXY, Azoom);
   Result := Fileexists(ChangeFileExt(VPath, '.tne'));
-end;
-
-function TMapType.TileNotExistsOnServer(x, y: Integer;
-  Azoom: byte): Boolean;
-begin
-  Result := Self.TileNotExistsOnServer(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 procedure TMapType.CreateDirIfNotExists(APath:string);
