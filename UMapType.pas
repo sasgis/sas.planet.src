@@ -125,13 +125,6 @@ type
     NameInCache: string;
 
     NSmItem: TTBXItem; //Пункт контекстного меню мини карты
-//    MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
-//    MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
-//    TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
-//
-//    NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-//    NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
-//    NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -215,8 +208,6 @@ type
     FUrlGenerator : TUrlGenerator;
     FCoordConverter : ICoordConverter;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
-    //Для борьбы с капчей
-    ban_pg_ld: Boolean;
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
     function LoadFile(btm: TBitmap32; APath: string; caching: boolean): boolean; overload;
     function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
@@ -1353,7 +1344,6 @@ begin
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
   FMemCache := GState.MainFileCache;
-  ban_pg_ld := True;
 end;
 
 destructor TMapType.Destroy;
