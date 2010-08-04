@@ -143,6 +143,8 @@ uses
   u_MapCalibrationTab in 'u_MapCalibrationTab.pas',
   u_MapCalibrationWorldFiles in 'u_MapCalibrationWorldFiles.pas',
   u_MapCalibrationListBasic in 'u_MapCalibrationListBasic.pas',
+  i_IAntiBan in 'i_IAntiBan.pas',
+  u_AntiBanStuped in 'u_AntiBanStuped.pas',
   i_MapTypes in 'i_MapTypes.pas',
   u_MapTypeBasic in 'u_MapTypeBasic.pas',
   u_MapTypeList in 'u_MapTypeList.pas',

@@ -14,7 +14,6 @@ uses
   StdCtrls,
   Menus,
   Buttons,
-  IniFiles,
   TB2Item,
   TBX;
 

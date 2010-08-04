@@ -47,6 +47,7 @@ ResourceString
  SAS_ERR_Memory='Невозможно выделить память для данной операции';
  SAS_ERR_UseADifferentFormat='Для склейки больших размеров используйте другой формат (ecw,bmp,jp2)';
  SAS_ERR_BadMIMEForDownloadRastr = 'Сервис вернул тип "%0:s", это не растровое изображение';
+ SAS_ERR_BadMIME = 'Сервис вернул тип "%0:s", а не один из ожидаемых';
  SAS_ERR_MapGUIDEmpty='Пустой GUID';
  SAS_ERR_MapGUIDBad='GUID %0:s не соответствует формату';
  SAS_ERR_MapGUIDError='В карте %0:s ошибка: %1:s';

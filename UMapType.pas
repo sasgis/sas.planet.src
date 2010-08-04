@@ -19,6 +19,7 @@ uses
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
   i_IBitmapTypeExtManager,
+  i_IAntiBan,
   u_KmlInfoSimple,
   u_UrlGenerator,
   UResStrings;
@@ -41,16 +42,10 @@ type
     FGetURLScript: string;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
-    FIgnoreContent_Type: Boolean;
-    FDefaultContent_Type: string;
-    FContent_Type: string;
-    FStatus_Code: string;
-    FBanIfLen: integer;
-    FUsePreloadPage: integer;
-    FPreloadPage: string;
     FMaxConnectToServerCount: Cardinal;
     FRadiusA: extended;
     FRadiusB: extended;
+    FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
     FPNum: integer;
     FMemCache: IMemObjCache;
@@ -82,10 +77,10 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
-    procedure addDwnforban;
-    procedure IncDownloadedAndCheckAntiBan(AThread: TThread);
     procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
+    procedure SaveTileNotExists(x, y: longint; Azoom: byte); overload;
+    procedure SaveTileNotExists(AXY: TPoint; Azoom: byte); overload;
    public
     id: integer;
 
@@ -118,13 +113,6 @@ type
     DefNameInCache: string;
     NameInCache: string;
 
-//    MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
-//    MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
-//    TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
-//
-//    NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-//    NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
-//    NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -159,9 +147,6 @@ type
     procedure SaveTileSimple(x, y: longint; Azoom: byte; btm: TBitmap32); overload;
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32); overload;
 
-    procedure SaveTileNotExists(x, y: longint; Azoom: byte); overload;
-    procedure SaveTileNotExists(AXY: TPoint; Azoom: byte); overload;
-
     function TileLoadDate(x, y: longint; Azoom: byte): TDateTime; overload;
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; overload;
 
@@ -178,8 +163,8 @@ type
 
     function GetShortFolderName: string;
 
-    procedure ExecOnBan(ALastUrl: string);
-    function DownloadTile(AThread: TThread; x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
+    function DownloadTile(AThread: TThread; x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
+    function DownloadTile(AThread: TThread; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
@@ -194,9 +179,6 @@ type
     property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
-    property IgnoreContentType: Boolean read FIgnoreContent_Type;
-    property DefaultContentType: string read FDefaultContent_Type;
-    property ContentType: string read FContent_Type;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
     property ZmpFileName: string read GetZmpFileName;
     property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
@@ -209,7 +191,6 @@ type
     procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
     destructor Destroy; override;
   private
-    FDownloadTilesCount: Longint;
     FInitDownloadCS: TCriticalSection;
     FCSSaveTile: TCriticalSection;
     FCSSaveTNF: TCriticalSection;
@@ -217,22 +198,17 @@ type
     FCoordConverter : ICoordConverter;
     FConverterForUrlGenerator: ICoordConverterSimple;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
-    //Для борьбы с капчей
-    ban_pg_ld: Boolean;
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
     function LoadFile(btm: TBitmap32; APath: string; caching: boolean): boolean; overload;
     function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
     procedure CreateDirIfNotExists(APath: string);
     procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
     procedure SaveTileInCache(btm: TStream; path: string); overload;
-    function CheckIsBan(AXY: TPoint; AZoom: byte; StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
     function GetBasePath: string;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
  end;
 
-var
-  MapsEdit: boolean;
 
   procedure LoadMaps;
   procedure SaveMaps;
@@ -242,17 +218,16 @@ implementation
 
 uses
   Types,
-  SHDocVw,
   GR32_Resamplers,
   VCLUnZip,
   u_GlobalState,
   u_GeoToStr,
-  unit1,
   UIMGFun,
   i_IObjectWithTTL,
   i_IPoolElement,
   u_PoolOfObjectsSimple,
   u_TileDownloaderBaseFactory,
+  u_AntiBanStuped,
   ImgMaker,
   u_CoordConverterAbstract,
   u_CoordConverterMercatorOnSphere,
@@ -607,16 +582,9 @@ begin
   FTileRect.Top:=AIniFile.ReadInteger('PARAMS','TileRTop',0);
   FTileRect.Right:=AIniFile.ReadInteger('PARAMS','TileRRight',0);
   FTileRect.Bottom:=AIniFile.ReadInteger('PARAMS','TileRBottom',0);
-  FUsePreloadPage:=AIniFile.ReadInteger('PARAMS','UsePreloadPage',0);
-  FPreloadPage:=AIniFile.ReadString('PARAMS','PreloadPage','');
 
   Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
   DefSleep:=Sleep;
-  FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
-  FIgnoreContent_Type:=AIniFile.ReadBool('PARAMS','IgnoreContentType', False);
-  FDefaultContent_Type:=AIniFile.ReadString('PARAMS','DefaultContentType','image/jpg');
-  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image/jpg');
-  FStatus_Code:=AIniFile.ReadString('PARAMS','ValidStatusCode','200');
   FUseDwn:=AIniFile.ReadBool('PARAMS','UseDwn',true);
 end;
 
@@ -689,8 +657,9 @@ begin
           if FMaxConnectToServerCount <= 0 then begin
             FMaxConnectToServerCount := 1;
           end;
-          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self), 60000, 60000);
+          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, UnZip, iniparams), 60000, 60000);
           GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
+          FAntiBan := TAntiBanStuped.Create(UnZip, iniparams);
         except
           if ExceptObject <> nil then begin
             ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
@@ -1350,58 +1319,6 @@ begin
   else Result:= FCoordConverter;
 end;
 
-function TMapType.CheckIsBan(AXY: TPoint; AZoom: byte;
-  StatusCode: Cardinal; ty: string; fileBuf: TMemoryStream): Boolean;
-begin
-  Result := false;
-  if (ty <> FContent_type)
-    and(fileBuf.Size <> 0)
-    and(FBanIfLen <> 0)
-    and(fileBuf.Size < (FBanIfLen + 50))
-    and(fileBuf.Size >(FBanIfLen-50)) then
-  begin
-    result := true;
-  end;
-end;
-
-procedure TMapType.IncDownloadedAndCheckAntiBan(AThread: TThread);
-var
-  cnt: Integer;
-  RunAntiBan: Boolean;
-begin
-  cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (FUsePreloadPage>0) then begin
-    if (FUsePreloadPage > 1) then begin
-      RunAntiBan := (cnt mod FUsePreloadPage) = 0;
-    end else begin
-      RunAntiBan := (cnt = 1);
-    end;
-    if RunAntiBan then begin
-      TThread.Synchronize(AThread, addDwnforban);
-    end;
-  end;
-end;
-
-procedure TMapType.addDwnforban;
-begin
-  if FPreloadPage='' then begin
-    Fmain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
-  end else begin
-    Fmain.WebBrowser1.NavigateWait(FPreloadPage);
-  end;
-  while (Fmain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
-    Application.ProcessMessages;
-  end;
-end;
-
-procedure TMapType.ExecOnBan(ALastUrl: string);
-begin
-  if ban_pg_ld then begin
-    Fmain.ShowCaptcha(ALastUrl);
-    ban_pg_ld:=false;
-  end;
-end;
-
 constructor TMapType.Create;
 begin
   FInitDownloadCS := TCriticalSection.Create;
@@ -1409,7 +1326,6 @@ begin
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
   FMemCache := GState.MainFileCache;
-  ban_pg_ld := True;
 end;
 
 destructor TMapType.Destroy;
@@ -1427,34 +1343,50 @@ begin
   inherited;
 end;
 
-function TMapType.DownloadTile(AThread: TThread; x, y: longint; AZoom: byte;
-  ACheckTileSize: Boolean; AOldTileSize: Integer;
-  out AUrl: string; out AContentType: string;
-  fileBuf: TMemoryStream): TDownloadTileResult;
+function TMapType.DownloadTile(AThread: TThread; ATile: TPoint;
+  AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl,
+  AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
 var
   StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
-    IncDownloadedAndCheckAntiBan(AThread);
-    AUrl := GetLink(X, Y, AZoom);
+    AUrl := GetLink(ATile, AZoom);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');
     end;
     VDownloader := VPoolElement.GetObject as ITileDownlodSession;
+    if FAntiBan <> nil then begin
+      FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
+    end;
     Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-    if CheckIsBan(Point(x shr 8, y shr 8), AZoom - 1, StatusCode, AContentType, fileBuf) then begin
-      result := dtrBanError;
+    if FAntiBan <> nil then begin
+      Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
     end;
     if Result = dtrOK then begin
-      ban_pg_ld := True;
-      SaveTileDownload(x, y, AZoom, fileBuf, AContentType);
+      SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
+    end else if Result = dtrTileNotExists then begin
+      if GState.SaveTileNotExists then begin
+        SaveTileNotExists(ATile, AZoom);
+      end;
     end;
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');
   end;
+end;
+
+
+function TMapType.DownloadTile(AThread: TThread; x, y: longint; AZoom: byte;
+  ACheckTileSize: Boolean; AOldTileSize: Integer;
+  out AUrl: string; out AContentType: string;
+  fileBuf: TMemoryStream): TDownloadTileResult;
+var
+  VTile: TPoint;
+begin
+  VTile := Point(x shr 8, y shr 8);
+  Result := DownloadTile(AThread, VTile, AZoom - 1, ACheckTileSize, AOldTileSize, AUrl, AContentType, fileBuf);
 end;
 
 function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;

@@ -56,8 +56,9 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
   private
-  public
     FMapType: TMapType;
+  public
+    function EditMapModadl(AMapType: TMapType): Boolean;
   end;
 
 var
@@ -84,7 +85,6 @@ end;
 
 procedure TFEditMap.Button1Click(Sender: TObject);
 begin
- MapsEdit:=true;
  FmapType.URLBase:=EditURL.Text;
  FmapType.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
@@ -96,8 +96,6 @@ begin
    FmapType.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
- Fmain.CreateMapUI;
- Fmain.generate_im;
  close;
 end;
 
@@ -150,6 +148,12 @@ end;
 procedure TFEditMap.Button9Click(Sender: TObject);
 begin
   CBCacheType.ItemIndex := FMapType.defcachetype;
+end;
+
+function TFEditMap.EditMapModadl(AMapType: TMapType): Boolean;
+begin
+  FMapType := AMapType;
+  Result := ShowModal = mrOk;
 end;
 
 end.
