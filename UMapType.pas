@@ -142,8 +142,7 @@ type
 
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm: TBitmap32; x, y: longint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean; overload;
-    function LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean; overload;
+    function LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean;
 
     function GetShortFolderName: string;
 
@@ -1222,12 +1221,6 @@ begin
   except
     Result := false;
   end;
-end;
-
-function TMapType.LoadFillingMap(btm: TBitmap32; x, y: Integer; Azoom,
-  ASourceZoom: byte; IsStop: PBoolean): boolean;
-begin
-  Result := Self.LoadFillingMap(btm, Point(x shr 8, y shr 8), Azoom - 1, ASourceZoom - 1, IsStop);
 end;
 
 function TMapType.GetShortFolderName: string;
