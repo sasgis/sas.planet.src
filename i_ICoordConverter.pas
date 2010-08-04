@@ -7,8 +7,9 @@ uses
   t_GeoTypes;
 
 type
-  ICoordConverter = interface
+  ICoordConverterSimple = interface
     ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
+
     // ѕреобразует позицию тайла на заданном зуме в георафически координаты его верхнего левого угла
     function Pos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;
     // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
@@ -20,6 +21,23 @@ type
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     // ¬озвращает общее количество пикселей на заданном зуме
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+
+    // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
+    function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
+    // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+    function TilePos2PixelRect(const XY: TPoint; Azoom: byte): TRect; stdcall;
+  end;
+
+  ICoordConverter = interface
+    ['{E8884111-C538-424F-92BC-1BC9843EA6BB}']
+    // ¬озвращает количество тайлов в заданном зуме
+    function TilesAtZoom(AZoom: byte): Longint; stdcall;
+    function TilesAtZoomDbl(AZoom: byte): Double; stdcall;
+    function TilesAtZoomExt(AZoom: byte): Extended; stdcall;
+    // ¬озвращает общее количество пикселей на заданном зуме
+    function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+    function PixelsAtZoomDbl(AZoom: byte): Double; stdcall;
+    function PixelsAtZoomExt(AZoom: byte): Extended; stdcall;
 
     // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
     function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
@@ -72,10 +90,10 @@ type
 
     // ѕреобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
     function LonLat2PixelPos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; stdcall;//TODO: јвтотест
-    function LonLat2PixelPosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
+    function LonLat2ExtendedPixelPos(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2TilePos(const Ll: TExtendedPoint; Azoom: byte): Tpoint; stdcall;//TODO: јвтотест
-    function LonLat2TilePosf(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
+    function LonLat2ExtendedTilePos(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // ѕреобразует географические коодинаты в относительные координаты на карте
     function LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint; stdcall;//TODO: јвтотест
     // ѕреобразует пр€моугольник в географических коодинатах в относительные координаты на карте
@@ -114,6 +132,10 @@ type
     function GetCellSizeUnits: TCellSizeUnits; stdcall;
     // ¬озвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer; stdcall;
+
+
+    // ?????????
+    function LonLat2Metr(const Ll: TExtendedPoint): TExtendedPoint; stdcall;
   end;
 
 implementation

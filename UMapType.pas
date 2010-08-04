@@ -10,11 +10,7 @@ uses
   IniFiles,
   Dialogs,
   Graphics,
-  ComCtrls,
   SyncObjs,
-  Menus,
-  ExtCtrls,
-  TBX,
   VCLZip,
   GR32,
   t_GeoTypes,
@@ -34,7 +30,6 @@ type
  TMapType = class
    private
     FGuid: TGUID;
-    FActive: Boolean;
     FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
@@ -42,7 +37,6 @@ type
     FUseDel: boolean;
     FIsStoreReadOnly: Boolean;
     FUseSave: boolean;
-    FShowOnSmMap: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FGetURLScript: string;
@@ -55,6 +49,8 @@ type
     FMimeTypeSubstList: TStringList;
     FPNum: integer;
     FMemCache: IMemObjCache;
+    FIcon24Index: Integer;
+    FIcon18Index: Integer;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -64,8 +60,6 @@ type
     function GetIsStoreReadOnly: boolean;
     function GetIsCanShowOnSmMap: boolean;
     function GetUseStick: boolean;
-    function GetShowOnSmMap: boolean;
-    procedure SetShowOnSmMap(const Value: boolean);
     function GetBitmapTypeManager: IBitmapTypeExtManager;
     function GetIsCropOnDownload: Boolean;
     function GetIsBitmapTiles: Boolean;
@@ -83,11 +77,6 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
-    // Процедуру нужно вызвать сразу после включения карты или слоя
-    procedure Activate();
-    // Процедуру нужно вызвать сразу после выключения карты или слоя
-    procedure Deactivate();
-    procedure SetActive(const Value: Boolean);
     procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
     procedure SaveTileNotExists(x, y: longint; Azoom: byte); overload;
@@ -124,7 +113,6 @@ type
     DefNameInCache: string;
     NameInCache: string;
 
-    NSmItem: TTBXItem; //Пункт контекстного меню мини карты
     showinfo: boolean;
 
     function GetLink(x, y: longint; Azoom: byte): string; overload;
@@ -181,7 +169,6 @@ type
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
     property GUIDString: string read GetGUIDString;
-    property Active: Boolean read FActive write SetActive;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -193,11 +180,13 @@ type
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
-    property ShowOnSmMap: boolean read GetShowOnSmMap write SetShowOnSmMap;
     property ZmpFileName: string read GetZmpFileName;
     property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
+    property Icon24Index: Integer read FIcon24Index;
+    property Icon18Index: Integer read FIcon18Index;
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
+
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
     destructor Destroy; override;
@@ -207,6 +196,7 @@ type
     FCSSaveTNF: TCriticalSection;
     FUrlGenerator : TUrlGenerator;
     FCoordConverter : ICoordConverter;
+    FConverterForUrlGenerator: ICoordConverterSimple;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     procedure CropOnDownload(ABtm: TBitmap32; ATileSize: TPoint);
     function LoadFile(btm: TBitmap32; APath: string; caching: boolean): boolean; overload;
@@ -239,6 +229,7 @@ uses
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
   ImgMaker,
+  u_CoordConverterAbstract,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
@@ -320,8 +311,6 @@ begin
         if Ini.SectionExists(VGUIDString)then begin
           With VMapType do begin
             id:=Ini.ReadInteger(VGUIDString,'pnum',0);
-            active:=ini.ReadBool(VGUIDString,'active',false);
-            ShowOnSmMap:=ini.ReadBool(VGUIDString,'ShowOnSmMap',true);
             URLBase:=ini.ReadString(VGUIDString,'URLBase',URLBase);
             CacheType:=ini.ReadInteger(VGUIDString,'CacheType',cachetype);
             NameInCache:=ini.ReadString(VGUIDString,'NameInCache',NameInCache);
@@ -336,8 +325,6 @@ begin
             if Fpos < 0 then Fpos := i;
             id := Fpos;
             dec(i);
-            active:=false;
-            ShowOnSmMap:=false;
           end;
         end;
       except
@@ -375,6 +362,8 @@ begin
   end;
   for i:=0 to length(GState.MapType)-1 do begin
     GState.MapType[i].id:=i+1;
+    GState.MapType[i].FIcon24Index := i;
+    GState.MapType[i].FIcon18Index := i;
   end;
 end;
 
@@ -391,16 +380,7 @@ begin
       VMapType := GState.MapType[i];
       VGUIDString := VMapType.GUIDString;
       ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
-      if VMapType.asLayer then begin
-        ini.WriteBool(VGUIDString,'active',VMapType.active);
-      end else begin
-        if VMapType = GState.sat_map_both then begin
-          ini.WriteBool(VGUIDString,'active', true);
-        end else begin
-          ini.WriteBool(VGUIDString,'active', false);
-        end;
-      end;
-      ini.WriteBool(VGUIDString,'ShowOnSmMap',VMapType.ShowOnSmMap);
+
 
       if VMapType.URLBase<>VMapType.DefURLBase then begin
         ini.WriteString(VGUIDString,'URLBase',VMapType.URLBase);
@@ -517,7 +497,7 @@ begin
     FreeAndNil(MapParams);
   end;
   try
-    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FCoordConverter);
+    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FConverterForUrlGenerator);
     FUrlGenerator.GetURLBase := URLBase;
     //GetLink(0,0,0);
   except
@@ -562,6 +542,7 @@ end;
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
 var
   bfloat:string;
+  VConverter: TCoordConverterAbstract;
 begin
   projection:=AIniFile.ReadInteger('PARAMS','projection',1);
   bfloat:=AIniFile.ReadString('PARAMS','sradiusa','6378137');
@@ -569,11 +550,13 @@ begin
   bfloat:=AIniFile.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
   FRadiusB:=str2r(bfloat);
   case projection of
-    1: FCoordConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
-    2: FCoordConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
-    3: FCoordConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
+    1: VConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
+    2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
+    3: VConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
     else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
   end;
+  FCoordConverter := VConverter;
+  FConverterForUrlGenerator := VConverter;
 end;
 
 procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
@@ -1338,7 +1321,6 @@ end;
 
 constructor TMapType.Create;
 begin
-  FActive := False;
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
@@ -1361,29 +1343,6 @@ begin
   inherited;
 end;
 
-procedure TMapType.Activate;
-begin
-
-end;
-
-procedure TMapType.Deactivate;
-begin
-
-end;
-
-procedure TMapType.SetActive(const Value: Boolean);
-begin
-  if Value then begin
-    if FActive <> Value then begin
-      Activate;
-    end;
-  end else begin
-    if FActive <> Value then begin
-      Deactivate;
-    end;
-  end;
-  FActive := Value;
-end;
 function TMapType.DownloadTile(AThread: TThread; ATile: TPoint;
   AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl,
   AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
@@ -1510,20 +1469,6 @@ begin
   end else begin
     Result := False;
   end;
-end;
-
-function TMapType.GetShowOnSmMap: boolean;
-begin
-  if Self.IsCanShowOnSmMap then begin
-    Result := FShowOnSmMap;
-  end else begin
-    Result := False
-  end;
-end;
-
-procedure TMapType.SetShowOnSmMap(const Value: boolean);
-begin
-  FShowOnSmMap := Value;
 end;
 
 function TMapType.GetBitmapTypeManager: IBitmapTypeExtManager;

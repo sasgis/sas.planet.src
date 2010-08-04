@@ -80,9 +80,9 @@ var BMP_Bufer: TBMPbuf;
 	$C7, $60, $DB, $3B, $ED, $9A, $0E, $53, $44, $16, $3E, $3F, $8D, $92, $6D, $77,
 	$A2, $0A, $EB, $3F, $52, $A8, $C6, $55, $5E, $31, $49, $37, $85, $F4, $C5, $1F,
 	$26, $2D, $A9, $1C, $BF, $8B, $27, $54, $DA, $C3, $6A, $20, $E5, $2A, $78, $04,
-	$B0, $D6, $90, $70, $72, $AA, $8B, $68, $BD, $88, $F7, $02, $5F, $48, $B1, $7E, 
+	$B0, $D6, $90, $70, $72, $AA, $8B, $68, $BD, $88, $F7, $02, $5F, $48, $B1, $7E,
 	$C0, $58, $4C, $3F, $66, $1A, $F9, $3E, $E1, $65, $C0, $70, $A7, $CF, $38, $69,
-	$AF, $F0, $56, $6C, $64, $49, $9C, $27, $AD, $78, $74, $4F, $C2, $87, $DE, $56, 
+	$AF, $F0, $56, $6C, $64, $49, $9C, $27, $AD, $78, $74, $4F, $C2, $87, $DE, $56,
 	$39, $00, $DA, $77, $0B, $CB, $2D, $1B, $89, $FB, $35, $4F, $02, $F5, $08, $51,
 	$13, $60, $C1, $0A, $5A, $47, $4D, $26, $1C, $33, $30, $78, $DA, $C0, $9C, $46,
 	$47, $E2, $5B, $79, $60, $49, $6E, $37, $67, $53, $0A, $3E, $E9, $EC, $46, $39,
@@ -97,9 +97,14 @@ var BMP_Bufer: TBMPbuf;
 implementation
 
 uses
-  unit1,
   u_CoordConverterSimpleLonLat,
   i_ICoordConverter;
+
+const
+  zoom: array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
+                                   131072,262144,524288,1048576,2097152,4194304,
+                                   8388608,16777216,33554432,67108864,134217728,
+                                   268435456,536870912,1073741824,2147483647);
 
 function GEXYZtoHexTileName(x,y:integer;z:byte):int64;
 var os,prer:TPoint;
@@ -286,14 +291,12 @@ begin
                if LoadJPG32(TileStream,BMP_Bufer.BMPTile[i]) then begin
                  XY.X:=X;
                  XY.Y:=Y;
-                 LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
-                 BMP_Bufer.UpLatLon[i].y:=LatLon.y;
-                 BMP_Bufer.UpLatLon[i].x:=LatLon.x;
+                 LatLon:=CoordConverter.TilePos2LonLat(XY,Z-1);
+                 BMP_Bufer.UpLatLon[i]:=LatLon;
 
                  inc(XY.Y);
-                 LatLon:=CoordConverter.Pos2LonLat(XY,Z-1);
-                 BMP_Bufer.DownLatLon[i].y:=LatLon.y;
-                 BMP_Bufer.DownLatLon[i].x:=LatLon.x;
+                 LatLon:=CoordConverter.TilePos2LonLat(XY,Z-1);
+                 BMP_Bufer.DownLatLon[i]:=LatLon;
 
                  BMP_Bufer.TileRez[i]:=(BMP_Bufer.UpLatLon[i].y-BMP_Bufer.DownLatLon[i].y)/256;
                  BMP_Bufer.Count:=i;
@@ -357,12 +360,12 @@ begin
    id2:=0;
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   Up:=mt.GeoConvert.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.Pos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
-   gXY1:=CoordConverter.LonLat2Pos(Up,Z-1);
-   gXY2:=CoordConverter.LonLat2Pos(Down,Z-1);
+   Down:=mt.GeoConvert.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   gXY1:=CoordConverter.LonLat2TilePos(Up,Z-1);
+   gXY2:=CoordConverter.LonLat2TilePos(Down,Z-1);
    id1:=FillBuff(cachepath,gXY1.x,gXY1.y,z,UpXY,MT,CoordConverter);
    if id1=0 then abort:=true;
    if (gXY1.X<>gXY2.X)or(gXY1.Y<>gXY2.Y) then
@@ -390,12 +393,12 @@ begin
    CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137, 6356752);
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.Pos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   Up:=mt.GeoConvert.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.Pos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
-   gXY1:=CoordConverter.LonLat2Pos(Up,Z-1);
-   gXY2:=CoordConverter.LonLat2Pos(Down,Z-1);
+   Down:=mt.GeoConvert.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   gXY1:=CoordConverter.LonLat2TilePos(Up,Z-1);
+   gXY2:=CoordConverter.LonLat2TilePos(Down,Z-1);
    CoordConverter:=nil;
    if GEFindTileAdr(cachepath,gXY1.X*256,gXY1.Y*256,z,bsize)=0 then begin
      exit;

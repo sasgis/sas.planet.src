@@ -50,9 +50,14 @@ end;
 
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
- FTypeMap:=GState.Sat_map_Both;
- Upos:= FMain.ScreenCenterPos;
- FZoom:= GState.zoom_size;
+  GState.ViewState.LockRead;
+  try
+     FTypeMap:=GState.ViewState.GetCurrentMap;
+     Upos:= GState.ViewState.GetCenterMapPixel;
+     FZoom:= GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
  //TODO: Переписать нормально с учетом настроек.
  FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
  FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
@@ -65,8 +70,6 @@ procedure TTileDownloaderUI.AfterWriteToFile;
 begin
  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
    Fmain.generate_im(FLastLoad, FErrorString);
- end else begin
-  Fmain.toSh;
  end;
 end;
 
@@ -122,26 +125,26 @@ begin
                 if Terminated then break;
                 if FMain.change_scene then Break;
                 VMap := GState.MapType[ii];
-                if (VMap = VMainMap) or VMap.active then begin
+                if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
                   BPos:=UPos;
-                  VZoom := FZoom - 1;
-                  BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom - 1) + 8, VMap.GeoConvert);
+                  VZoom := FZoom;
+                  BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom) + 8, VMap.GeoConvert);
                   FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
                   FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
                   VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
 
                   Flastload.TilePos.X:=FLoadXY.X shr 8;
                   Flastload.TilePos.Y:=FLoadXY.Y shr 8;
-                  Flastload.Zoom:=Fzoom - 1;
+                  Flastload.Zoom:=Fzoom;
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
-                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y,Fzoom)))) then begin
+                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y, Fzoom + 1)))) then begin
                     if VMap.UseDwn then begin
-                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom) then begin
+                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom + 1) then begin
                         FileBuf:=TMemoryStream.Create;
                         try
                           try
-                            res :=VMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                            res :=VMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
                             FErrorString:=GetErrStr(res);
                             if (res = dtrOK) or (res = dtrSameTileSize) then begin
                               GState.IncrementDownloaded(fileBuf.Size/1024, 1);

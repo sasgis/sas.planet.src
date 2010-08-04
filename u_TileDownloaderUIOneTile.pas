@@ -53,8 +53,6 @@ procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
   if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
     Fmain.generate_im(FLastLoad, FErrorString);
-  end else begin
-    Fmain.toSh;
   end;
 end;
 
@@ -64,16 +62,16 @@ var
   fileBuf:TMemoryStream;
   res: TDownloadTileResult;
 begin
-  Flastload.TilePos.X := FLoadXY.X shr 8;
-  Flastload.TilePos.Y := FLoadXY.Y shr 8;
-  Flastload.Zoom := Fzoom - 1;
+  Flastload.TilePos.X := FLoadXY.X;
+  Flastload.TilePos.Y := FLoadXY.Y;
+  Flastload.Zoom := Fzoom;
   FlastLoad.mt := Ftypemap;
   FlastLoad.use :=true;
   if FTypeMap.UseDwn then begin
     FileBuf:=TMemoryStream.Create;
     try
       try
-        res :=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+        res :=FTypeMap.DownloadTile(Self, FLoadXY.X shl 8, FLoadXY.Y shl 8, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
         FErrorString:=GetErrStr(res);
         if (res = dtrOK) or (res = dtrSameTileSize) then begin
           GState.IncrementDownloaded(fileBuf.Size/1024, 1);

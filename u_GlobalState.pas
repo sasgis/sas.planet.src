@@ -15,8 +15,10 @@ uses
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
   i_IKmlInfoSimpleLoader,
+  i_ActiveMapsConfigSaveLoad,
   u_GarbageCollectorThread,
   u_GeoToStr,
+  u_MapViewPortState,
   Uimgfun,
   UMapType,
   u_MemFileCache;
@@ -26,8 +28,7 @@ type
 
   TGlobalState = class
   private
-    FZoomCurrent: Byte;
-    FMainSelectedMap: TMapType;
+    FViewState: TMapViewPortState;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
     FDwnCS: TCriticalSection;
@@ -38,6 +39,8 @@ type
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
     FCacheElemensMaxCnt: integer;
+    FMapConfigSaver: IActiveMapsConfigSaver;
+    FMapConfigLoader: IActiveMapsConfigLoader;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -54,7 +57,6 @@ type
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
-    function GetZoomCurrent: byte;
   public
 
     MainFileCache: IMemObjCache;
@@ -252,17 +254,14 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
-    property sat_map_both: TMapType read FMainSelectedMap;
-    // Текущий зумм
-    property zoom_size: byte read GetZoomCurrent;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
+    property ViewState: TMapViewPortState read FViewState;
     constructor Create;
     destructor Destroy; override;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
-    procedure SetMainSelectedMap(const Value: TMapType);
-    procedure SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
+    procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
   end;
 
 const
@@ -276,6 +275,11 @@ implementation
 uses
   SysUtils,
   pngimage,
+  i_MapTypes,
+  u_MapTypeBasic,
+  u_MapTypeListGeneratorFromFullListBasic,
+  u_MapsConfigInIniFileSection,
+  i_ICoordConverter,
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
@@ -289,6 +293,7 @@ uses
 constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
+  VConfigLoadSave: TMapsConfigInIniFileSection;
 begin
   FDwnCS := TCriticalSection.Create;
   All_Dwn_Kb := 0;
@@ -296,6 +301,11 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
+
+  VConfigLoadSave := TMapsConfigInIniFileSection.Create(MainIni, 'MainViewMaps');
+  FMapConfigSaver := VConfigLoadSave;
+  FMapConfigLoader := VConfigLoadSave;
+
   FMemFileCache := TMemFileCache.Create;
   MainFileCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
@@ -316,7 +326,8 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FreeAndNil(FDwnCS);
-  //MainIni.UpdateFile;
+  FMapConfigSaver := nil;
+  FMapConfigLoader := nil;
   FreeAndNil(MainIni);
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);
@@ -328,6 +339,7 @@ begin
   FMapCalibrationList := nil;
   FKmlLoader := nil;
   FKmzLoader := nil;
+  FreeAndNil(FViewState);
   FreeAllMaps;
   inherited;
 end;
@@ -474,19 +486,27 @@ begin
   FGCThread.Terminate;
 end;
 
-procedure TGlobalState.SetMainSelectedMap(const Value: TMapType);
+procedure TGlobalState.InitViewState(AMainMap: TMapType; AZoom: Byte;
+  ACenterPos, AScreenSize: TPoint);
+var
+  VMapsList: IMapTypeList;
+  VLayersList: IMapTypeList;
+  VListFactory: IMapTypeListFactory;
+  VItemFactory: IMapTypeFactory;
 begin
-  FMainSelectedMap := Value;
-end;
+  if FViewState = nil then begin
+    VItemFactory := TMapTypeBasicFactory.Create;
 
-procedure TGlobalState.SetCurrentZoom(const AZoom: Byte; ANewPos: TPoint);
-begin
-  FZoomCurrent := AZoom;
-end;
+    VListFactory := TMapTypeListGeneratorFromFullListBasic.Create(True, VItemFactory);
+    VMapsList := VListFactory.CreateList;
 
-function TGlobalState.GetZoomCurrent: byte;
-begin
-  Result := FZoomCurrent + 1;
+    VListFactory := TMapTypeListGeneratorFromFullListBasic.Create(False, VItemFactory);
+    VLayersList := VListFactory.CreateList;
+
+    FViewState := TMapViewPortState.Create(VMapsList, VLayersList, AMainMap, AZoom, ACenterPos, AScreenSize, FMapConfigSaver, FMapConfigLoader);
+  end else begin
+    raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
+  end;
 end;
 
 end.

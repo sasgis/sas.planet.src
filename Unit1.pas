@@ -50,7 +50,11 @@ uses
   ZylCustomGPSReceiver,
   PNGimage,
   MidasLib,
+  i_JclNotify,
   i_IGUIDList,
+  i_IMapChangeMessage,
+  i_IHybrChangeMessage,
+  i_IPosChangeMessage,
   t_LoadEvent,
   u_GeoToStr,
   t_CommonTypes,
@@ -66,13 +70,14 @@ uses
   u_MapGPSLayer,
   u_MapLayerNavToMark,
   u_MapFillingLayer,
-  u_MiniMap,
+  u_MiniMapLayer,
   u_MapNalLayer,
   u_MapLayerGoto,
   u_MapLayerShowError,
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
+  u_GeoSearcher,
   t_GeoTypes;
 
 type
@@ -217,9 +222,6 @@ type
     NParams: TTBXSubmenuItem;
     NLayerParams: TTBXSubmenuItem;
     NHelp: TTBXSubmenuItem;
-    PopupMSmM: TTBXPopupMenu;
-    NSubMenuSmItem: TTBXSubmenuItem;
-    NMMtype_0: TTBXItem;
     NMarksCalcs: TMenuItem;
     NMarksCalcsLen: TMenuItem;
     NMarksCalcsSq: TMenuItem;
@@ -478,7 +480,6 @@ type
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
-    procedure NMMtype_0Click(Sender: TObject);
     procedure N32Click(Sender: TObject);
     procedure TBItem3Click(Sender: TObject);
     procedure Google1Click(Sender: TObject);
@@ -562,7 +563,6 @@ type
     rect_dwn: Boolean;
     rect_p2: boolean;
     FTileSource: TTileSource;
-    FScreenCenterPos: TPoint;
     FMainLayer: TMapMainLayer;
     LayerStatBar: TLayerStatBar;
     FShowErrorLayer: TTileErrorInfoLayer;
@@ -585,6 +585,9 @@ type
     LayerGoto: TGotoLayer;
     ProgramStart: Boolean;
     ProgramClose: Boolean;
+    FMapPosChangeListener: IJclListener;
+    FMainMapChangeListener: IJclListener;
+    FHybrChangeListener: IJclListener;
 
     FMainToolbarItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
     FMainToolbarSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
@@ -597,20 +600,24 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
     procedure Set_TileSource(const Value: TTileSource);
-    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType); overload;
-    procedure Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte); overload;
-    procedure Set_Pos(const AScreenCenterPos: TPoint); overload;
-    function GetVisiblePixelRect: TRect;
-    function GetVisibleTopLeft: TPoint;
-    function GetVisibleSizeInPixel: TPoint;
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
+    procedure InitSearchers;
+    procedure zooming(ANewZoom: byte; move: boolean);
+    function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
+    procedure insertinpath(pos: integer);
+    procedure delfrompath(pos: integer);
+    procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
+    procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
+    procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
   public
+    FGoogleSearch: TGeoSearcher;
+    FYandexSerach: TGeoSearcher;
     FFillingMap: TMapFillingLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapNavToMark: TNavToMarkLayer;
     LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
-    FMiniMap: TMiniMap;
+    FMiniMapLayer: TMiniMapLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     m_m: Tpoint;
@@ -623,48 +630,23 @@ type
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
-    property ScreenCenterPos: TPoint read FScreenCenterPos;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
-    function  toSh: string;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
-    procedure zooming(ANewZoom: byte; move: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
     procedure selectMap(AMapType: TMapType);
     procedure ShowCaptcha(URL: string);
     procedure CreateMapUI;
-    function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
-    procedure insertinpath(pos: integer);
-    procedure delfrompath(pos: integer);
-    procedure LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LayerMinMapMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure SetStatusBarVisible();
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
-
-    function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
-    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-    function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
-    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
-
-    property VisibleTopLeft: TPoint read GetVisibleTopLeft;
-    property VisibleSizeInPixel: TPoint read GetVisibleSizeInPixel;
-    property VisiblePixelRect: TRect read GetVisiblePixelRect;
-
     procedure UpdateGPSsensors;
   end;
   
 
 const
-  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
-  R2D: Double = 57.295779513082320876798154814105; // Константа для преобразования радиан в градусы
-  zoom: array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
-                                   131072,262144,524288,1048576,2097152,4194304,
-                                   8388608,16777216,33554432,67108864,134217728,
-                                   268435456,536870912,1073741824,2147483647);
   GSHprec=100000000;
 
 var
@@ -684,6 +666,7 @@ uses
   StrUtils,
   DateUtils,
   Types,
+  u_JclNotify,
   u_GUIDObjectList,
   u_GlobalState,
   Unit2,
@@ -708,66 +691,90 @@ uses
   i_ILogForTaskThread,
   i_ICoordConverter,
   u_KmlInfoSimple,
+  i_IMapViewGoto,
+  u_MapViewGotoOnFMain,
+  i_ISearchResultPresenter,
+  u_SearchResultPresenterStuped,
+  frm_SearchResults,
+  i_GeoCoder,
+  i_IProxySettings,
+  u_ProxySettingsFromTInetConnect,
+  u_GeoCoderByGoogle,
+  u_GeoCoderByYandex,
   UTrAllLoadMap,
   UGSM,
-  UImport;
+  UImport, 
+  u_MapViewPortState,
+  UShortcutEditor;
 
 {$R *.dfm}
-procedure TFMain.Set_Pos(const AScreenCenterPos: TPoint; const AZoom: byte; AMapType: TMapType);
+
+type
+
+{ TListenerOfMainForm }
+
+  TListenerOfMainForm = class(TJclBaseListener)
+  protected
+    FMainForm: TFmain;
+  public
+    constructor Create(AMainForm: TFmain);
+  end;
+
+constructor TListenerOfMainForm.Create(AMainForm: TFmain);
+begin
+  FMainForm := AMainForm;
+end;
+
+
+{ TChangePosListenerOfMainForm }
+
+type
+  TChangePosListenerOfMainForm = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TChangePosListenerOfMainForm.Notification(
+  msg: IJclNotificationMessage);
 var
-  VPoint: TPoint;
-  VZoomCurr: Byte;
-  ts2,ts3,fr:int64;
+  VMessage: IPosChangeMessage;
 begin
-  QueryPerformanceCounter(ts2);
-
-  VPoint := AScreenCenterPos;
-  VZoomCurr := AZoom;
-  if AMapType <> GState.sat_map_both then begin
-    Assert(False, 'Дописать сюда правильный код');
-  end;
-  if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
-        else TBZoom_Out.Enabled:=true;
-  if VZoomCurr>=23 then TBZoomIn.Enabled:=false
-        else TBZoomIn.Enabled:=true;
-  NZoomIn.Enabled:=TBZoomIn.Enabled;
-  NZoomOut.Enabled:=TBZoom_Out.Enabled;
-  RxSlider1.Value:=VZoomCurr;
-  labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-  if (FScreenCenterPos.X <> VPoint.X) or (FScreenCenterPos.Y <> VPoint.Y)then begin
-    FScreenCenterPos := VPoint;
-    change_scene:=true;
-    LayerScaleLine.Redraw;
-    FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
-  end;
-  GState.SetCurrentZoom(VZoomCurr, FScreenCenterPos);
-
-  FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-  FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, GState.sat_map_both.GeoConvert);
-
-  QueryPerformanceCounter(ts3);
-  QueryPerformanceFrequency(fr);
-  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+  VMessage := msg as IPosChangeMessage;
+  FMainForm.ProcessPosChangeMessage(VMessage);
 end;
 
-procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint;
-  const AZoom: byte);
+{ TMainMapChangeListenerOfMainForm }
+
+type
+  TMainMapChangeListenerOfMainForm = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TMainMapChangeListenerOfMainForm.Notification(
+  msg: IJclNotificationMessage);
+var
+  VMessage: IMapChangeMessage;
 begin
-  Set_Pos(AScreenCenterPos, AZoom, GState.sat_map_both);
+  VMessage := msg as IMapChangeMessage;
+  FMainForm.ProcessMapChangeMessage(VMessage);
 end;
 
-procedure TFmain.Set_Pos(const AScreenCenterPos: TPoint);
+{ TChangeHybrChangeListenerOfMainForm }
+
+type
+  THybrChangeListenerOfMainForm = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure THybrChangeListenerOfMainForm.Notification(
+  msg: IJclNotificationMessage);
+var
+  VMessage: IHybrChangeMessage;
 begin
-  Set_Pos(AScreenCenterPos, GState.zoom_size - 1, GState.sat_map_both);
+  VMessage := msg as IHybrChangeMessage;
+  FMainForm.ProcessHybrChangeMessage(VMessage);
 end;
 
 function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
@@ -796,6 +803,83 @@ begin
   end
   else
     Result := False;
+end;
+
+procedure TFmain.ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
+var
+  i:integer;
+  VMapType: TMapType;
+begin
+  for i:=0 to length(GState.MapType)-1 do begin
+    VMapType := GState.MapType[i];
+    if VMapType.asLayer then begin
+      TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
+    end;
+  end;
+  generate_im;
+end;
+
+procedure TFmain.ProcessMapChangeMessage(AMessage: IMapChangeMessage);
+var
+  VMainMapOld: TMapType;
+  VMainMapNew: TMapType;
+  VMainToolbarItem: TTBXItem;
+begin
+  VMainMapNew := AMessage.GetNewMap;
+  VMainMapOld := AMessage.GetSorurceMap;
+
+  VMainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMainMapOld.GUID));
+  VMainToolbarItem.Checked:=false;
+
+  VMainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMainMapNew.GUID));
+  TBSMB.ImageIndex := VMainToolbarItem.ImageIndex;
+  VMainToolbarItem.Checked:=true;
+  if GState.Showmapname then begin
+    TBSMB.Caption:=VMainMapNew.name;
+  end else begin
+    TBSMB.Caption:='';
+  end;
+  generate_im;
+end;
+
+procedure TFmain.ProcessPosChangeMessage(AMessage: IPosChangeMessage);
+var
+  VPoint: TPoint;
+  VZoomCurr: Byte;
+  ts2,ts3,fr:int64;
+  VConverter: ICoordConverter;
+begin
+  QueryPerformanceCounter(ts2);
+  VPoint := AMessage.GetMapPixel;
+  VZoomCurr := AMessage.GetZoom;
+  VConverter := AMessage.GetMap.GeoConvert;
+
+  if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
+        else TBZoom_Out.Enabled:=true;
+  if VZoomCurr>=23 then TBZoomIn.Enabled:=false
+        else TBZoomIn.Enabled:=true;
+  NZoomIn.Enabled:=TBZoomIn.Enabled;
+  NZoomOut.Enabled:=TBZoom_Out.Enabled;
+  RxSlider1.Value:=VZoomCurr;
+  labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
+  change_scene:=true;
+  LayerStatBar.Redraw;
+  LayerScaleLine.Redraw;
+
+  FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+  QueryPerformanceCounter(ts3);
+  QueryPerformanceFrequency(fr);
+  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
 procedure TFMain.Set_TileSource(const Value: TTileSource);
@@ -1071,9 +1155,10 @@ end;
 
 //Обработка нажатий кнопоки и калесика
 procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-var z: integer;
-    POSb: TPoint;
-    dWMB: integer;
+var
+  z: integer;
+  dWMB: integer;
+  VZoom: Byte;
 begin
 
  if Active then
@@ -1082,19 +1167,19 @@ begin
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
-                  if Msg.wParam<0 then zooming(GState.Zoom_size-(1*z),GState.ZoomingAtMousePos)
-                                  else zooming(GState.Zoom_size+(1*z),GState.ZoomingAtMousePos);
+                  VZoom := GState.ViewState.GetCurrentZoom;
+                  if Msg.wParam<0 then zooming(VZoom-(1*z),GState.ZoomingAtMousePos)
+                                  else zooming(VZoom+(1*z),GState.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
-                 POSb:=ScreenCenterPos;
                  if (dWhenMovingButton<35) then begin
                   inc(dWhenMovingButton);
                  end;
                  dWMB:=trunc(Power(dWhenMovingButton,1.5));
-                 if Msg.wParam=VK_RIGHT then Set_Pos(Point(ScreenCenterPos.x+dWMB, ScreenCenterPos.y));
-                 if Msg.wParam=VK_Left then Set_Pos(Point(ScreenCenterPos.x-dWMB, ScreenCenterPos.y));
-                 if Msg.wParam=VK_Down then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y+dWMB));
-                 if Msg.wParam=VK_Up then Set_Pos(Point(ScreenCenterPos.x, ScreenCenterPos.y-dWMB));
+                 if Msg.wParam=VK_RIGHT then GState.ViewState.ChangeMapPixelByDelta(Point(dWMB, 0));
+                 if Msg.wParam=VK_Left then GState.ViewState.ChangeMapPixelByDelta(Point(-dWMB, 0));
+                 if Msg.wParam=VK_Down then GState.ViewState.ChangeMapPixelByDelta(Point(0, dWMB));
+                 if Msg.wParam=VK_Up then GState.ViewState.ChangeMapPixelByDelta(Point(0, -dWMB));
                 end;
    WM_KEYUP: begin
              dWhenMovingButton:=5;
@@ -1161,11 +1246,17 @@ var
   VSelectedRelative: TExtendedRect;
   zLonR,zLatR: extended;
   Poly:  TExtendedPointArray;
+  VConverter: ICoordConverter;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckZoom(VZoomCurr);
-  GState.sat_map_both.GeoConvert.CheckLonLatRect(ASelectedLonLat);
-  VSelectedPixels := GState.sat_map_both.GeoConvert.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VConverter.CheckLonLatRect(ASelectedLonLat);
+  VSelectedPixels := VConverter.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
 
   if VSelectedPixels.Left > VSelectedPixels.Right then begin
     bxy := VSelectedPixels.Left;
@@ -1181,18 +1272,18 @@ begin
 
   if (ssCtrl in Shift) then begin
     if (GState.TileGridZoom = 0) or (GState.TileGridZoom = 99) then begin
-      VSelectedTiles := GState.sat_map_both.GeoConvert.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
-      VSelectedPixels := GState.sat_map_both.GeoConvert.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
+      VSelectedTiles := VConverter.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
+      VSelectedPixels := VConverter.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
     end else begin
       VTileGridZoom := GState.TileGridZoom - 1;
-      GState.sat_map_both.GeoConvert.CheckZoom(VTileGridZoom);
-      VSelectedRelative := GState.sat_map_both.GeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
-      VSelectedTiles := GState.sat_map_both.GeoConvert.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
-      VSelectedRelative := GState.sat_map_both.GeoConvert.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
-      VSelectedPixels := GState.sat_map_both.GeoConvert.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
+      VConverter.CheckZoom(VTileGridZoom);
+      VSelectedRelative := VConverter.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
+      VSelectedTiles := VConverter.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
+      VSelectedRelative := VConverter.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
+      VSelectedPixels := VConverter.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
     end;
   end;
-  ASelectedLonLat := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
+  ASelectedLonLat := VConverter.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
 
   if (ssShift in Shift)and(GState.GShScale>0) then begin
     case GState.GShScale of
@@ -1225,7 +1316,7 @@ begin
     Poly[2] := ASelectedLonLat.BottomRight;
     Poly[3] := ExtPoint(ASelectedLonLat.Left, ASelectedLonLat.Bottom);
     Poly[4] := ASelectedLonLat.TopLeft;
-    fsaveas.Show_(GState.zoom_size, Poly);
+    fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
     LayerSelection.Redraw;
     Poly := nil;
     rect_p2:=false;
@@ -1296,8 +1387,8 @@ end;
 
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
-  GState.sat_map_both.GeoConvert.CheckLonLatPos(LL);
-  Set_Pos(GState.sat_map_both.GeoConvert.LonLat2PixelPos(LL,(zoom_ - 1)), zoom_ - 1, GState.sat_map_both);
+  GState.ViewState.LockWrite;
+  GState.ViewState.ChangeZoomAndUnlock(zoom_, LL);
   zooming(zoom_,false);
   if draw then begin
     LayerGoto.ShowGotoIcon(LL);
@@ -1305,12 +1396,6 @@ begin
   generate_im;
 end;
 
-function TFmain.toSh:string;
-begin
- If not(GState.ShowStatusBar) then exit;
- LayerStatBar.Redraw;
- labZoom.caption:=' '+inttostr(GState.zoom_size)+'x ';
-end;
 procedure TFmain.generate_im;
 begin
   generate_im(nilLastLoad, '');
@@ -1327,7 +1412,6 @@ begin
   QueryPerformanceCounter(ts2);
 
   if not(lastload.use) then change_scene:=true;
-  FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
 
   FMainLayer.Redraw;
   LayerScaleLine.Redraw;
@@ -1336,7 +1420,7 @@ begin
     VMapType := GState.MapType[Leyi];
     if (VMapType.asLayer)then begin
       if VMapType.IsKmlTiles then begin
-        if (VMapType.active) then begin
+        if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
           VWikiLayersVisible := True;
         end;
       end;
@@ -1381,7 +1465,7 @@ begin
     except
     end;
   end;
-  toSh;
+  LayerStatBar.Redraw;
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
@@ -1408,7 +1492,6 @@ begin
   ldm.Clear;
   dlm.Clear;
   NLayerParams.Clear;
-  NSubMenuSmItem.Clear;
 
   FMainToolbarItemList.Clear;
   FMainToolbarSubMenuItemList.Clear;
@@ -1420,9 +1503,7 @@ begin
   for i:=0 to NLayerSel.Count-1 do NLayerSel.Items[0].Free;
   for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
   for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
-  for i:=0 to PopupMSmM.Items.Count-3 do PopupMSmM.Items.Items[2].Free;
 
-  FMiniMap.maptype:=nil;
   i:=length(GState.MapType)-1;
 
   if i>0 then begin
@@ -1472,23 +1553,6 @@ begin
         TBFillingItem.OnClick:=TBfillMapAsMainClick;
         TBFillingTypeMap.Add(TBFillingItem);
 
-        if IsCanShowOnSmMap then begin
-          if not(asLayer) then begin
-            NSmItem:=TTBXITem.Create(PopupMSmM);
-            PopupMSmM.Items.Add(NSmItem)
-          end else begin
-            NSmItem:=TTBXITem.Create(NSubMenuSmItem);
-            NSubMenuSmItem.Add(NSmItem);
-          end;
-          NSmItem.Name:='NSmMapN'+inttostr(id);
-          NSmItem.ImageIndex:=i;
-          NSmItem.Caption:=name;
-          NSmItem.OnAdjustFont:=AdjustFont;
-          NSmItem.OnClick:=NMMtype_0Click;
-          if ShowOnSmMap then begin
-            NSmItem.Checked:=true;
-          end;
-        end;
         if asLayer then begin
           NDwnItem:=TMenuItem.Create(nil);
           FNDwnItemList.Add(VMapType.GUID, NDwnItem);
@@ -1509,27 +1573,15 @@ begin
           NLayerParamsItem.OnClick:=NMapParamsClick;
           NLayerParams.Add(NLayerParamsItem);
         end;
-        if (asLayer)and(active) then begin
+        if (asLayer)and(GState.ViewState.IsHybrGUIDSelected(GUID)) then begin
           MainToolbarItem.Checked:=true;
         end;
         if separator then begin
           MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(TBSMB));
-          if NSmItem<>NIL  then begin
-            NSmItem.Parent.Add(TTBXSeparatorItem.Create(NSubMenuSmItem));
-          end;
-          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(NSubMenuSmItem));
-        end;
-        if (active)and(VMapType.asLayer=false) then begin
-          GState.SetMainSelectedMap(VMapType);
-        end;
-        if (ShowOnSmMap)and(not(asLayer)) then begin
-          FMiniMap.maptype:=VMapType;
+          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
         end;
         MainToolbarItem.Tag:=Longint(VMapType);
         TBFillingItem.Tag:=Longint(VMapType);
-        if IsCanShowOnSmMap then begin
-          NSmItem.Tag:=Longint(VMapType);
-        end;
         if asLayer then begin
           NDwnItem.Tag:=longint(VMapType);
           NDelItem.Tag:=longint(VMapType);
@@ -1538,11 +1590,13 @@ begin
       end;
     end;
   end;
-  if FMiniMap.maptype=nil then begin
-    NMMtype_0.Checked:=true;
-  end;
-  if (GState.sat_map_both=nil)and(GState.MapType[0]<>nil) then begin
-    GState.SetMainSelectedMap(GState.MapType[0]);
+  MainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(GState.MapType[0].GUID));
+  TBSMB.ImageIndex := MainToolbarItem.ImageIndex;
+  MainToolbarItem.Checked:=true;
+  if GState.Showmapname then begin
+    TBSMB.Caption:=GState.MapType[0].name;
+  end else begin
+    TBSMB.Caption:='';
   end;
 end;
 
@@ -1558,6 +1612,7 @@ var
   VScreenCenterPos: TPoint;
   VZoom: Byte;
   VLonLat: TExtendedPoint;
+  VConverter: ICoordConverter;
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
@@ -1730,15 +1785,17 @@ begin
  GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
  GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
- GState.SetMainSelectedMap(GState.MapType[0]);
+ VConverter := GState.MapType[0].GeoConvert;
  VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
-  GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
-  VScreenCenterPos.X := GState.sat_map_both.GeoConvert.PixelsAtZoom(VZoom) div 2 + 1;
+  VConverter.CheckZoom(VZoom);
+  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2 + 1;
   VScreenCenterPos.Y := VScreenCenterPos.X;
   VScreenCenterPos := Point(
     GState.MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
     GState.MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
   );
+
+  GState.InitViewState(GState.MapType[0], VZoom - 1, VScreenCenterPos, Point(map.Width, map.Height));
 
   FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
   FMainLayer.Visible := True;
@@ -1750,6 +1807,7 @@ begin
   LayerMapNal:=TMapNalLayer.Create(map, VScreenCenterPos);
   LayerMapNal.Visible:=false;
 
+
   LayerGoto := TGotoLayer.Create(map, VScreenCenterPos);
   LayerMapNavToMark := TNavToMarkLayer.Create(map, VScreenCenterPos);
   FShowErrorLayer := TTileErrorInfoLayer.Create(map, VScreenCenterPos);
@@ -1757,15 +1815,12 @@ begin
   LayerScaleLine := TLayerScaleLine.Create(map);
   LayerStatBar:=TLayerStatBar.Create(map);
 
-  FMiniMap := TMiniMap.Create(Map);
-  FMiniMap.LayerMinMap.OnMouseDown:=LayerMinMapMouseDown;
-  FMiniMap.LayerMinMap.OnMouseUp:=LayerMinMapMouseUp;
-  FMiniMap.LayerMinMap.OnMouseMove:=LayerMinMapMouseMove;
+  FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos, MapIcons18);
+  FMiniMapLayer.Visible := True;
 
   CreateMapUI;
   FSettings.InitMapsList;
 
-  Set_Pos(VScreenCenterPos, VZoom, GState.sat_map_both);
  try
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
@@ -1828,15 +1883,27 @@ begin
 
  TBFullSize.Checked:=GState.FullScrean;
 
- toSh;
  ProgramStart:=false;
 
  if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
                      else TBMapZap.Caption:='';
- selectMap(GState.sat_map_both);
- RxSlider1.Value:=GState.Zoom_size-1;
+ selectMap(GState.ViewState.GetCurrentMap);
 
  map.Color:=GState.BGround;
+
+ FMapPosChangeListener := TChangePosListenerOfMainForm.Create(Self);
+ GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
+
+ FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
+ GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
+
+ FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
+ GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
+
+ GState.ViewState.LoadViewPortState;
+
+ GState.ViewState.LockWrite;
+ GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 
  if ParamCount > 1 then begin
   try
@@ -1845,31 +1912,27 @@ begin
       VGUID := StringToGUID(param);
       for i:=0 to length(GState.MapType)-1 do begin
         if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-          GState.SetMainSelectedMap(GState.MapType[i]);
+          GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
         end;
       end;
     end;
     if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+      GState.ViewState.LockWrite;
       VZoom := strtoint(paramstr(2)) - 1;
-      GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
+      GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
       VLonLat.X := str2r(paramstr(3));
       VLonLat.Y := str2r(paramstr(4));
-      GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
-      VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
-      Set_Pos(VScreenCenterPos, VZoom);
+      GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
+      GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
     end else if paramstr(2)<>'' then begin
-      VLonLat := GState.sat_map_both.GeoConvert.PixelPos2LonLat(FScreenCenterPos, GState.zoom_size - 1);
-      GState.sat_map_both.GeoConvert.CheckLonLatPos(VLonLat);
       VZoom := strtoint(paramstr(2)) - 1;
-      GState.sat_map_both.GeoConvert.CheckZoom(VZoom);
-      VScreenCenterPos := GState.sat_map_both.GeoConvert.LonLat2PixelPos(VLonLat, VZoom);
-      Set_Pos(VScreenCenterPos, VZoom);
+      GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
     end;
   except
   end;
  end;
 
- zooming(GState.Zoom_size,false);
+ zooming(GState.ViewState.GetCurrentZoom,false);
  MapMoving:=false;
  Fsaveas.PageControl1.ActivePageIndex:=0;
 
@@ -1886,6 +1949,7 @@ begin
  if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
  FUIDownLoader := TTileDownloaderUI.Create;
 
+ InitSearchers;
  TBXMainMenu.ProcessShortCuts:=true;
 end;
 
@@ -1904,9 +1968,8 @@ procedure TFmain.zooming(ANewZoom:byte;move:boolean);
   end;
 var i,steps:integer;
     ts1,ts2,fr:int64;
-    VNewScreenCenterPos: TPoint;
     Scale: Extended;
-    VHalfSize: TPoint;
+    VZoom: Byte;
 begin
  if ANewZoom<=1  then TBZoom_Out.Enabled:=false
           else TBZoom_Out.Enabled:=true;
@@ -1914,32 +1977,16 @@ begin
           else TBZoomIn.Enabled:=true;
  NZoomIn.Enabled:=TBZoomIn.Enabled;
  NZoomOut.Enabled:=TBZoom_Out.Enabled;
- RxSlider1.Value:=ANewZoom-1;
-
- if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom<1)or(ANewZoom>24) then exit;
+ RxSlider1.Value:=ANewZoom;
+ VZoom := GState.ViewState.GetCurrentZoom;
+ if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom>23) then exit;
  MapZoomAnimtion:=1;
  steps:=11;
- VHalfSize := GetVisibleSizeInPixel;
- VHalfSize.X := VHalfSize.X div 2;
- VHalfSize.Y := VHalfSize.Y div 2;
 
- if GState.zoom_size>ANewZoom
-  then begin
-         VNewScreenCenterPos := Point(trunc(ScreenCenterPos.x/power(2,GState.zoom_size-ANewZoom)),trunc(ScreenCenterPos.y/power(2,GState.zoom_size-ANewZoom)));
-         if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
-           VNewScreenCenterPos := Point(VNewScreenCenterPos.x+(VHalfSize.X-m_m.X)div 2,VNewScreenCenterPos.y+(VHalfSize.Y-m_m.y)div 2);
-         end;
-       end
-  else begin
-         VNewScreenCenterPos:=Point(trunc(ScreenCenterPos.x*power(2,ANewZoom-GState.zoom_size)),trunc(ScreenCenterPos.y*power(2,ANewZoom-GState.zoom_size)));
-         if (move)and(abs(ANewZoom-GState.zoom_size)=1) then begin
-           VNewScreenCenterPos:=Point(VNewScreenCenterPos.x-(VHalfSize.X-m_m.X),VNewScreenCenterPos.y-(VHalfSize.Y-m_m.y));
-         end;
-       end;
- if (abs(ANewZoom-GState.zoom_size)=1)and(GState.AnimateZoom) then begin
+ if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
-      if GState.zoom_size>ANewZoom then begin
+      if VZoom>ANewZoom then begin
         //Scale := 1 - (i/(steps - 1))/2;
         Scale := 1/(1 + i/(steps - 1));
       end else begin
@@ -1958,16 +2005,16 @@ begin
         FShowErrorLayer.ScaleTo(Scale, m_m);
         LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
-        FMainLayer.ScaleTo(Scale, VHalfSize);
-        LayerSelection.ScaleTo(Scale, VHalfSize);
-        LayerMapMarks.ScaleTo(Scale, VHalfSize);
-        LayerMapGPS.ScaleTo(Scale, VHalfSize);
-        FWikiLayer.ScaleTo(Scale, VHalfSize);
-        FFillingMap.ScaleTo(Scale, VHalfSize);
-        LayerMapNal.ScaleTo(Scale, VHalfSize);
-        LayerGoto.ScaleTo(Scale, VHalfSize);
-        FShowErrorLayer.ScaleTo(Scale, VHalfSize);
-        LayerMapNavToMark.ScaleTo(Scale, VHalfSize);
+        FMainLayer.ScaleTo(Scale);
+        LayerSelection.ScaleTo(Scale);
+        LayerMapMarks.ScaleTo(Scale);
+        LayerMapGPS.ScaleTo(Scale);
+        FWikiLayer.ScaleTo(Scale);
+        FFillingMap.ScaleTo(Scale);
+        LayerMapNal.ScaleTo(Scale);
+        LayerGoto.ScaleTo(Scale);
+        FShowErrorLayer.ScaleTo(Scale);
+        LayerMapNavToMark.ScaleTo(Scale);
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -1979,20 +2026,22 @@ begin
    end;
    application.ProcessMessages;
  end;
-
- Set_Pos(VNewScreenCenterPos, ANewZoom - 1);
+  if move then begin
+    GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, m_m);
+  end else begin
+    GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom);
+  end;
  MapZoomAnimtion:=0;
- toSh;
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
 begin
- zooming(GState.zoom_size+1,false);
+ zooming(GState.ViewState.GetCurrentZoom + 1, false);
 end;
 
 procedure TFmain.NZoomOutClick(Sender: TObject);
 begin
- zooming(GState.zoom_size-1,false);
+ zooming(GState.ViewState.GetCurrentZoom - 1, false);
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -2010,6 +2059,9 @@ var
   i:integer;
 begin
   ProgramClose:=true;
+  GState.ViewState.PosChangeNotifier.Remove(FMapPosChangeListener);
+  GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
+  GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
   //останавливаем GPS
   GPSReceiver.OnDisconnect:=nil;
   GPSReceiver.Close;
@@ -2026,11 +2078,15 @@ begin
     TerminateThread(FUIDownLoader.Handle, 0);
   end;
   if length(GState.MapType)<>0 then FSettings.Save;
+  FreeAndNil(FGoogleSearch);
+  FreeAndNil(FYandexSerach);
+  FMapPosChangeListener := nil;
+  FMainMapChangeListener := nil;
+  FHybrChangeListener := nil;
   FreeAndNil(FFillingMap);
   FreeAndNil(FWikiLayer);
   Application.ProcessMessages;
   FreeAndNil(FUIDownLoader);
-  FreeAndNil(FMiniMap);
   FreeAndNil(LayerMapScale);
   FreeAndNil(LayerStatBar);
   FreeAndNil(LayerScaleLine);
@@ -2042,7 +2098,7 @@ begin
   FreeAndNil(LayerMapNal);
   FreeAndNil(LayerMapNavToMark);
   FreeAndNil(FMainLayer);
-
+  FreeAndNil(FMiniMapLayer);
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;
@@ -2058,12 +2114,12 @@ end;
 
 procedure TFmain.TBZoom_outClick(Sender: TObject);
 begin
- zooming(GState.Zoom_size-1,false);
+ zooming(GState.ViewState.GetCurrentZoom - 1, false);
 end;
 
 procedure TFmain.TBZoomInClick(Sender: TObject);
 begin
- zooming(GState.Zoom_size+1,false);
+ zooming(GState.ViewState.GetCurrentZoom + 1, false);
 end;
 
 procedure TFmain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
@@ -2151,7 +2207,7 @@ end;
 
 procedure TFmain.RxSlider1Changed(Sender: TObject);
 begin
- zooming(RxSlider1.Value+1,false);
+ zooming(RxSlider1.Value, false);
  SetFocusedControl(map);
 end;
 
@@ -2215,14 +2271,8 @@ begin
 end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
-var
-  VPoint: TPoint;
-  VZoomCurr: Byte;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
-  if FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr), true) then
+  if FAddPoint.show_(GState.ViewState.VisiblePixel2LonLat(MouseUpPoint), true) then
     generate_im;
 end;
 
@@ -2232,16 +2282,27 @@ var
   btm1:TBitmap;
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size -  1;
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
   btm:=TBitmap32.Create;
   try
-    if GState.sat_map_both.LoadTile(btm, VPoint.X, VPoint.Y, GState.zoom_size, false) then begin
+    if VMap.LoadTile(btm, VPoint, VZoomCurr, false) then begin
       btm1:=TBitmap.Create;
       try
-        btm1.Width:=256; btm1.Height:=256;
+        btm1.Width:=btm.Width;
+        btm1.Height:=btm.Height;
         btm.DrawTo(btm1.Canvas.Handle,0,0);
         CopyBtmToClipboard(btm1);
       finally
@@ -2254,15 +2315,10 @@ begin
 end;
 
 procedure TFmain.N30Click(Sender: TObject);
-var ll:TExtendedPoint;
 var
-  VPoint: TPoint;
-  VZoomCurr: Byte;
+  ll:TExtendedPoint;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  ll:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  ll := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
   if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
@@ -2271,13 +2327,23 @@ procedure TFmain.N15Click(Sender: TObject);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  if GState.sat_map_both.IsStoreFileCache then begin
-    VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-    VZoomCurr := GState.zoom_size - 1;
-    GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMap.IsStoreFileCache then begin
+    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
-   CopyStringToClipboard(GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size));
+   CopyStringToClipboard(VMap.GetTileFileName(VPoint, VZoomCurr));
   end else begin
     ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
   end;
@@ -2287,27 +2353,36 @@ procedure TFmain.N21Click(Sender: TObject);
 var
   path:string;
   VMapType:TMapType;
+  VMapMain: TMapType;
   VLoadPoint: TPoint;
   VZoomCurr: Byte;
   VPoint: TPoint;
 begin
-  if TMenuItem(sender).Tag=0 then begin
-    VMapType := GState.sat_map_both;
-  end else begin
+  VMapType := nil;
+  if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
   end;
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  if GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, False) then begin
-    VLoadPoint := GState.sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
-    VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, False);
-    path := VMapType.GetTileShowName(VLoadPoint.x, VLoadPoint.y, GState.zoom_size);
-
-    if ((not(VMapType.tileExists(VLoadPoint.x,VLoadPoint.y,GState.zoom_size)))or
-      (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
-    then begin
-      TTileDownloaderUIOneTile.Create(VLoadPoint, GState.zoom_size, VMapType);
+  GState.ViewState.LockRead;
+  try
+    VMapMain := GState.ViewState.GetCurrentMap;
+    if VMapType = nil then begin
+      VMapType := GState.ViewState.GetCurrentMap;
     end;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseUpPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+
+  VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
+  VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+  VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VLoadPoint, VZoomCurr);
+  path := VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
+
+  if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
+      (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
+  then begin
+    TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr, VMapType);
   end;
 end;
 
@@ -2341,13 +2416,23 @@ procedure TFmain.NopendirClick(Sender: TObject);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  if GState.sat_map_both.IsStoreFileCache then begin
-    VPoint := VisiblePixel2MapPixel(m_m);
-    VZoomCurr := GState.zoom_size - 1;
-    GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMap.IsStoreFileCache then begin
+    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
-   ShellExecute(0,'open',PChar(GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size)),nil,nil,SW_SHOWNORMAL);
+    ShellExecute(0,'open',PChar(VMap.GetTileFileName(VPoint, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
   end;
@@ -2355,15 +2440,24 @@ end;
 
 procedure TFmain.N25Click(Sender: TObject);
 var s:string;
-    i:integer;
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VConverter: ICoordConverter;
+  VMap: TMapType;
 begin
-  if GState.sat_map_both.IsStoreFileCache then begin
-    VPoint := VisiblePixel2MapPixel(m_m);
-    VZoomCurr := GState.zoom_size - 1;
-    GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-    s:=GState.sat_map_both.GetTileFileName(VPoint.X, VPoint.Y, GState.zoom_size);
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMap.IsStoreFileCache then begin
+    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
+    s:=VMap.GetTileFileName(VPoint, VZoomCurr);
     s := ExtractFilePath(s);
     ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
@@ -2375,23 +2469,34 @@ procedure TFmain.NDelClick(Sender: TObject);
 var
   s:string;
   VMapType:TMapType;
+  VMapMain: TMapType;
   VLoadPoint: TPoint;
   VZoomCurr: Byte;
   VPoint: TPoint;
 begin
-  if TMenuItem(sender).Tag=0 then begin
-    VMapType:=GState.sat_map_both;
-  end else begin
+  VMapType := nil;
+  if TMenuItem(sender).Tag<>0 then begin
     VMapType:=TMapType(TMenuItem(sender).Tag);
   end;
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  if GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, False) then begin
-    VLoadPoint := GState.sat_map_both.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+
+  GState.ViewState.LockRead;
+  try
+    VMapMain := GState.ViewState.GetCurrentMap;
+    if VMapType = nil then begin
+      VMapType := GState.ViewState.GetCurrentMap;
+    end;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseUpPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  if VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False) then begin
+    VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
     VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, False);
-    s:=VMapType.GetTileShowName(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+    VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+    s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
     if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
-      VMapType.DeleteTile(VLoadPoint.X, VLoadPoint.Y, GState.zoom_size);
+      VMapType.DeleteTile(VLoadPoint, VZoomCurr);
       generate_im;
     end;
   end;
@@ -2429,7 +2534,7 @@ end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
- if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon)
+ if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save - 1, GState.LastSelectionPolygon)
                         else showmessage(SAS_MSG_NeedHL);
  LayerSelection.Redraw;
 end;
@@ -2466,13 +2571,12 @@ end;
 
 procedure TFmain.N012Click(Sender: TObject);
 var
-  VZoomCurr: Byte;
-  VPoint: TPoint;
+  VZoom: Byte;
+  VLonLat: TExtendedPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseUpPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, true);
- topos(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),TMenuItem(sender).tag,true);
+  VZoom := TMenuItem(sender).tag - 1;
+  VLonLat := GState.ViewState.GetCenterLonLat;
+  topos(VLonLat,VZoom,true);
 end;
 
 procedure TFmain.N29Click(Sender: TObject);
@@ -2481,125 +2585,21 @@ begin
 end;
 
 procedure TFmain.selectMap(AMapType: TMapType);
-var
-  ll:TExtendedPoint;
-  i:integer;
-  VZoomCurr: Byte;
-  VPoint: TPoint;
-  VMapType: TMapType;
 begin
-  if MapZoomAnimtion=1 then exit;
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  LL:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
   if not(AMapType.asLayer) then begin
     if (AMapType.showinfo)and(AMapType.MapInfo<>'') then begin
       ShowMessage(AMapType.MapInfo);
       AMapType.showinfo:=false;
     end;
-    TTBXItem(FMainToolbarItemList.GetByGUID(GState.sat_map_both.GUID)).Checked:=false;
-    GState.SetMainSelectedMap(AMapType);
-    TBSMB.ImageIndex := TTBXItem(FMainToolbarItemList.GetByGUID(GState.sat_map_both.GUID)).ImageIndex;
-    TTBXItem(FMainToolbarItemList.GetByGUID(GState.sat_map_both.GUID)).Checked:=true;
-    if GState.Showmapname then begin
-      TBSMB.Caption:=GState.sat_map_both.name;
-    end else begin
-      TBSMB.Caption:='';
-    end;
+    GState.ViewState.ChangeMainMapAtCurrentPoint(AMapType);
   end else begin
-    AMapType.active := not(AMapType.active);
-    for i:=0 to length(GState.MapType)-1 do begin
-      VMapType := GState.MapType[i];
-      if VMapType.asLayer then begin
-        TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := VMapType.active;
-      end;
-    end;
+    GState.ViewState.ChangeSelectHybrByGUID(AMapType.GUID);
   end;
-  topos(ll,GState.zoom_size,false);
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var s,slat,slon,par:string;
-    i,j:integer;
-    err:boolean;
-    lat,lon:real;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwindex, dwcodelen,dwReserv: dword;
-    dwtype: array [1..20] of char;
-    strr:string;
 begin
- if NewText='' then exit;
- s:='';
- hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- 
- if Assigned(hSession)
-  then begin
-        for i:=1 to length(NewText) do
-         if NewText[i]=' ' then NewText[i]:='+';
-
-        strr:='http://maps.google.com/maps/geo?q='+URLEncode(AnsiToUtf8(NewText))+'&output=xml&hl=ru&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA';
-        hFile:=InternetOpenUrl(hSession,PChar(strr),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        if Assigned(hFile)then
-         begin
-          dwcodelen:=150; dwReserv:=0; dwindex:=0;
-          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-           then dwindex:=strtoint(pchar(@dwtype));
-          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
-             begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
-              HttpSendRequest(hFile, nil, 0,Nil, 0);
-             end;
-            dwcodelen:=150; dwReserv:=0; dwindex:=0;
-            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-             then dwindex:=strtoint(pchar(@dwtype));
-            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-             begin
-             	ShowMessage(SAS_ERR_Authorization);
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit;
-             end;
-           end;
-
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           s:=s+Buffer;
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false);
-
-          if PosEx(AnsiToUtf8('Placemark'),s)<1 then
-           begin
-            ShowMessage(SAS_STR_notfound);
-            exit;
-           end;
-          i:=PosEx('<address>',s);
-          j:=PosEx('</address>',s);
-          strr:=Utf8ToAnsi(Copy(s,i+9,j-(i+9)));
-          i:=PosEx('<coordinates>',s);
-          j:=PosEx(',',s,i+13);
-          slon:=Copy(s,i+13,j-(i+13));
-          i:=PosEx(',0</coordinates>',s,j);
-          slat:=Copy(s,j+1,i-(j+1));
-          if slat[1]='\' then delete(slat,1,1);
-          if slon[1]='\' then delete(slon,1,1);
-          try
-           lat:=str2r(slat);
-           lon:=str2r(slon);
-          except
-           ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
-           exit;
-          end;
-          toPos(ExtPoint(lon,lat),GState.zoom_size,true);
-          ShowMessage(SAS_STR_foundplace+' "'+strr+'"');
-         end
-        else ShowMessage(SAS_ERR_Noconnectionstointernet);
-       end
-  else ShowMessage(SAS_ERR_Noconnectionstointernet);
+  FGoogleSearch.ModalSearch(NewText, GState.ViewState.GetCenterLonLatDlb);
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
@@ -2623,16 +2623,19 @@ begin
 end;
 
 procedure TFmain.NShowGranClick(Sender: TObject);
-var i:integer;
+var
+  i:integer;
+  VZoom: Byte;
 begin
  if GState.TileGridZoom=0 then NShowGran.Items[0].Checked:=true;
  if GState.TileGridZoom=99 then NShowGran.Items[1].Checked:=true;
- NShowGran.Items[1].Caption:=SAS_STR_activescale+' (х'+inttostr(GState.zoom_size)+')';
+ VZoom := GState.ViewState.GetCurrentZoom;
+ NShowGran.Items[1].Caption:=SAS_STR_activescale+' (х'+inttostr(VZoom + 1)+')';
  for i:=2 to 7 do
-  if GState.zoom_size+i-2<24 then begin
-                            NShowGran.Items[i].Caption:=SAS_STR_for+' х'+inttostr(GState.zoom_size+i-2);
+  if VZoom+i-1<24 then begin
+                            NShowGran.Items[i].Caption:=SAS_STR_for+' х'+inttostr(VZoom+i-1);
                             NShowGran.Items[i].Visible:=true;
-                            NShowGran.Items[i].Tag:=GState.zoom_size+i-2;
+                            NShowGran.Items[i].Tag:=VZoom+i-1;
                             if NShowGran.Items[i].Tag=GState.TileGridZoom then NShowGran.Items[i].Checked:=true
                                                                 else NShowGran.Items[i].Checked:=false;
                            end
@@ -2702,7 +2705,7 @@ begin
               Poly[2] := ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k);
               Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
               Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
-              fsaveas.Show_(GState.zoom_size, Poly);
+              fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
               LayerSelection.Redraw;
               Poly := nil;
              End;
@@ -2728,7 +2731,7 @@ end;
 
 procedure TFmain.SetMiniMapVisible(visible:boolean);
 begin
-  FMiniMap.SetMiniMapVisible(visible, ScreenCenterPos);
+  FMiniMapLayer.Visible := visible;
   ShowMiniMap.Checked:=visible;
 end;
 
@@ -2746,38 +2749,6 @@ end;
 procedure TFmain.ShowLineClick(Sender: TObject);
 begin
  SetLineScaleVisible(ShowLine.Checked)
-end;
-
-procedure TFmain.NMMtype_0Click(Sender: TObject);
-var
-  VItem: TTBXItem;
-  VMap: TMapType;
-begin
-  VItem := TTBXItem(sender);
-  if VItem.Tag = 0 then begin
-    if FMiniMap.MapType <> nil then begin
-      FMiniMap.MapType.ShowOnSmMap := false;
-      FMiniMap.MapType.NSmItem.Checked := false;
-      FMiniMap.maptype := nil;
-    end;
-    NMMtype_0.Checked := true;
-  end else begin
-    VMap := TMapType(VItem.Tag);
-    if VMap.asLayer then begin
-      VMap.ShowOnSmMap := not(VMap.ShowOnSmMap);
-      VItem.Checked := VMap.ShowOnSmMap;
-    end else begin
-      NMMtype_0.Checked := false;
-      if FMiniMap.maptype <> nil then begin
-        FMiniMap.MapType.ShowOnSmMap := false;
-        FMiniMap.MapType.NSmItem.Checked := false;
-      end;
-      FMiniMap.maptype := VMap;
-      FMiniMap.maptype.NSmItem.Checked:=true;
-      FMiniMap.maptype.ShowOnSmMap:=true;
-    end;
-  end;
-  FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
 end;
 
 procedure TFmain.N32Click(Sender: TObject);
@@ -2864,50 +2835,60 @@ end;
 
 procedure TFmain.Google1Click(Sender: TObject);
 var
-  Apos:tExtendedPoint;
+  VLonLat:tExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(Apos.y)+','+R2StrPoint(Apos.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(GState.zoom_size-1));
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoomCurr));
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
-var Apos:tExtendedPoint;
-  VZoomCurr: Byte;
+var
+  Vpos:tExtendedPoint;
   VExtRect: TExtendedRect;
-  VRect: TRect;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  VRect := VisiblePixelRect;
-  GState.sat_map_both.GeoConvert.CheckPixelRect(VRect, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  VExtRect := GState.sat_map_both.GeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
-  CopyStringToClipboard('http://beta-maps.yandex.ru/?ll='+R2StrPoint(round(Apos.x*100000)/100000)+'%2C'+R2StrPoint(round(Apos.y*100000)/100000)+'&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat');
+  GState.ViewState.LockRead;
+  try
+    Vpos := GState.ViewState.GetCenterLonLat;
+    VExtRect := GState.ViewState.GetViewLonLatRect;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard(
+    'http://beta-maps.yandex.ru/?ll='+
+    R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+
+    R2StrPoint(round(Vpos.y*100000)/100000)+
+    '&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+
+    R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat'
+  );
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  VLonLat:tExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(Apos.x)+'&y='+R2StrPoint(Apos.y)+'&z='+inttostr(GState.zoom_size-1)+'&fullscreen=false&mode=satellite');
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoomCurr)+'&fullscreen=false&mode=satellite');
 end;
 
 procedure TFmain.mapResize(Sender: TObject);
 begin
  if (ProgramClose<>true)and(not(ProgramStart))then
   begin
+   GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
    FMainLayer.Resize;
    LayerStatBar.Resize;
    LayerScaleLine.Resize;
@@ -2921,8 +2902,8 @@ begin
    LayerGoto.Resize;
    FShowErrorLayer.Resize;
    LayerMapNavToMark.Resize;
-   toSh;
-   FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos)
+   FMiniMapLayer.Resize;
+   LayerStatBar.Redraw;
   end;
 end;
 
@@ -2990,78 +2971,8 @@ begin
 end;
 
 procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var s,slat,slon,par:string;
-    i,j:integer;
-    err:boolean;
-    lat,lon:real;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwtype: array [1..20] of char;
-    dwindex, dwcodelen,dwReserv: dword;
 begin
- if NewText='' then exit;
- s:='';
- hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- if Assigned(hSession)
-  then begin
-        hFile:=InternetOpenURL(hSession,PChar('http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(NewText))),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        dwcodelen:=SizeOf(dwindex);
-        if Assigned(hFile)then
-         begin
-          dwcodelen:=150; dwReserv:=0; dwindex:=0;
-          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-           then dwindex:=strtoint(pchar(@dwtype));
-          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
-             begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
-              HttpSendRequest(hFile, nil, 0,Nil, 0);
-             end;
-            dwcodelen:=150; dwReserv:=0; dwindex:=0;
-            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-             then dwindex:=strtoint(pchar(@dwtype));
-            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-             begin
-             	ShowMessage(SAS_ERR_Authorization);
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit;
-             end;
-           end;
-
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           s:=s+Buffer;
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false);
-
-          if PosEx(AnsiToUtf8('Искомая комбинация'),s)>0 then
-           begin
-            ShowMessage(SAS_STR_notfound);
-            exit;
-           end;
-          i:=PosEx('"ll":[',s);
-          j:=PosEx(',',s,i+6);
-          slon:=Copy(s,i+6,j-(i+6));
-          i:=PosEx(']',s,j);
-          slat:=Copy(s,j+1,i-(j+1));
-          if slat[1]='\' then delete(slat,1,1);
-          if slon[1]='\' then delete(slon,1,1);
-          try
-           lat:=str2r(slat);
-           lon:=str2r(slon);
-          except
-           ShowMessage('Ошибка при конвертации координат!'+#13#10+'Возможно отсутствует подключение к интернету,'+#13#10+'или Яндекс изменил формат.');
-           exit;
-          end;
-          toPos(ExtPoint(lon,lat),GState.zoom_size,true);
-          ShowMessage(SAS_STR_foundplace+' "'+NewText+'"');
-         end
-        else ShowMessage(SAS_ERR_Noconnectionstointernet);
-       end
-  else ShowMessage(SAS_ERR_Noconnectionstointernet);
+  FYandexSerach.ModalSearch(NewText, GState.ViewState.GetCenterLonLatDlb);
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);
@@ -3075,7 +2986,7 @@ begin
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
-      VLayerIsActive := VMapType.active;
+      VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
       TMenuItem(FNDwnItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       TMenuItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
@@ -3114,7 +3025,7 @@ begin
   end;
   MapMoving:=false;
   if (aoper=ao_movemap) then begin
-    Set_Pos(VisiblePixel2MapPixel(r));
+    GState.ViewState.ChangeMapPixelToVisualPoint(r);
   end;
 end;
 
@@ -3169,46 +3080,71 @@ begin
 end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  VLonLat:tExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(Apos.y)+'~'+R2StrPoint(Apos.x)+'&style=h&lvl='+inttostr(GState.zoom_size-1));
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoomCurr));
 end;
 
 procedure TFmain.N13Click(Sender: TObject);
 var
   VPoint: TPoint;
   VZoomCurr: Byte;
+  VMap: TMapType;
 begin
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  VZoomCurr := GState.zoom_size - 1;
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-  CopyStringToClipboard(GState.sat_map_both.GetLink(VPoint.X, VPoint.Y, GState.zoom_size));
+  GState.ViewState.LockRead;
+  try
+    VMap := GState.ViewState.GetCurrentMap;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VMap.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
+  VPoint := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+  CopyStringToClipboard(VMap.GetLink(VPoint, VZoomCurr));
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
-var Apos:tExtendedPoint;
+var
+  VPos: TExtendedPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := ScreenCenterPos;
-  GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  CopyStringToClipboard('http://imageatlas.digitalglobe.com/ia-webapp/?lat='+R2StrPoint(Apos.y)+'&lon='+R2StrPoint(Apos.x)+'&zoom='+inttostr(GState.zoom_size-1));
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VPos:=GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard(
+    'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
+    R2StrPoint(VPos.y)+'&lon='+R2StrPoint(VPos.x)+
+    '&zoom='+inttostr(VZoomCurr)
+  );
 end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
+var
+  VPos: TExtendedPoint;
+  VSize: TPoint;
 begin
-  FDGAvailablePic.setup(
-    GState.sat_map_both.GeoConvert.PixelPos2LonLat(VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1)),
-    GetVisibleSizeInPixel
-  );
+  GState.ViewState.LockRead;
+  try
+    VSize := GState.ViewState.GetVisibleSizeInPixel;
+    VPos:=GState.ViewState.VisiblePixel2LonLat(moveTrue);
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  FDGAvailablePic.setup(VPos, VSize);
 end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
@@ -3228,8 +3164,8 @@ end;
 procedure TFmain.GPSReceiverReceive(Sender: TObject);
 var s2f,sb:string;
     len:integer;
-    bPos:TPoint;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
+    VConverter: ICoordConverter;
 begin
  if (GPSReceiver.IsFix=0) then exit;
  setlength(GState.GPS_TrackPoints,length(GState.GPS_TrackPoints)+1);
@@ -3237,6 +3173,7 @@ begin
  GState.GPS_TrackPoints[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GState.GPS_Correction.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GState.GPS_Correction.y);
  if (GState.GPS_TrackPoints[len-1].x<>0)or(GState.GPS_TrackPoints[len-1].y<>0) then
   begin
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
   setlength(GState.GPS_ArrayOfSpeed,len);
   GPSpar.speed:=GPSReceiver.GetSpeed_KMH;
   if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
@@ -3248,21 +3185,20 @@ begin
   GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
   GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
   if len>1 then begin
-    GPSpar.len:=GPSpar.len+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-    GPSpar.Odometr:=GPSpar.Odometr+GState.sat_map_both.GeoConvert.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.len:=GPSpar.len+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
+    GPSpar.Odometr:=GPSpar.Odometr+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
     GPSpar.azimut:=RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x))+90;
   end;
 
   if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=FMain) then
    begin
-    bPOS:=GState.sat_map_both.GeoConvert.LonLat2Pos(ExtPoint(GState.GPS_TrackPoints[len-1].X,GState.GPS_TrackPoints[len-1].Y),(GState.zoom_size - 1) + 8);
-    if (GState.GPS_MapMove)and((bpos.X<>ScreenCenterPos.x)or(bpos.y<>ScreenCenterPos.y))
+    if (GState.GPS_MapMove)
      then begin
-           Set_Pos(bpos, GState.zoom_size - 1, GState.sat_map_both);
+            GState.ViewState.LockWrite;
+            GState.ViewState.ChangeLonLatAndUnlock(GState.GPS_TrackPoints[len-1]);
           end
      else begin
-           LayerMapGPS.Redraw;
-           toSh;
+           LayerStatBar.Redraw;
           end;
    end;
   UpdateGPSsensors;
@@ -3326,7 +3262,7 @@ var
   VMapType: TMapType;
 begin
   if TTBXItem(sender).Tag=0 then begin
-    VMapType := GState.sat_map_both;
+    VMapType := GState.ViewState.GetCurrentMap;
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
@@ -3336,72 +3272,14 @@ begin
   end;
 end;
 
-procedure TFmain.LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var ll,lt:integer;
-begin
-  map.PopupMenu:=nil;
-  case button of
-    mbRight: map.PopupMenu:=PopupMSmM;
-    mbLeft: begin
-      ll:=round(FMiniMap.LayerMinMap.Location.Left);
-      lt:=round(FMiniMap.LayerMinMap.Location.top);
-      if (x<ll+5) then begin
-        FMiniMap.size_dw:=true
-      end else if (x>ll+4)and(x<ll+18)and(y>lt+4)and(y<lt+18) then begin
-        FMiniMap.zooming:=true;
-        if FMiniMap.z1mz2>1 then dec(FMiniMap.z1mz2);
-        FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
-      end else if (x>ll+18)and(x<ll+32)and(y>lt+4)and(y<lt+18) then begin
-        FMiniMap.zooming:=true;
-        if GState.zoom_size-FMiniMap.z1mz2>1 then inc(FMiniMap.z1mz2);
-        FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos);
-      end else if (x>ll+5)and(y>lt) then begin
-        FMiniMap.m_dwn:=true;
-        FMiniMap.sm_im_reset(round(x-(FMiniMap.LayerMinMap.Location.Left+5)),round(y-(FMiniMap.LayerMinMap.Location.top)), ScreenCenterPos);
-      end;
-    end;
-  end;
-end;
-
-procedure TFmain.LayerMinMapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-begin
- if (x<FMiniMap.LayerMinMap.Location.Left+5)and(map.Cursor<>crSizeNWSE) then FMiniMap.LayerMinMap.Cursor:=crSizeNWSE
-                                                               else FMiniMap.LayerMinMap.Cursor:=crHandPoint;
- if (FMiniMap.size_dw)and((map.Width-x-5)>40)
-  then begin
-        FMiniMap.width:=(map.Width-x-5);
-        FMiniMap.height:=(map.Width-x-5);
-        FMiniMap.sm_im_reset(FMiniMap.width div 2,FMiniMap.height div 2, ScreenCenterPos)
-       end;
- if (FMiniMap.m_dwn)and(x>FMiniMap.LayerMinMap.Location.Left+5)and(y>FMiniMap.LayerMinMap.Location.top+5)
-  then FMiniMap.sm_im_reset(round(x-(FMiniMap.LayerMinMap.Location.Left+5)),round(y-(FMiniMap.LayerMinMap.Location.top)), ScreenCenterPos);
-end;
-
-procedure TFmain.LayerMinMapMouseUp(Sender:TObject; Button:TMouseButton; Shift:TShiftState; X,Y:Integer);
-begin
- if (MapZoomAnimtion=1) then exit;
- FMiniMap.m_dwn:=false;
- FMiniMap.size_dw:=false;
- if (not(FMiniMap.size_dw))and(not(FMiniMap.zooming))and((x>FMiniMap.LayerMinMap.Location.Left+5)and(y>FMiniMap.LayerMinMap.Location.Top))
-  then begin
-        if FMiniMap.zoom>1 then begin
-         Set_Pos(Point(ScreenCenterPos.x+round((-(128-(FMiniMap.pos.x*(256/FMiniMap.width))))*power(2,GState.zoom_size-FMiniMap.zoom)),
-              ScreenCenterPos.y+round((-(128-(FMiniMap.pos.y*(256/FMiniMap.height))))*power(2,GState.zoom_size-FMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both)
-         end else begin
-          Set_Pos(Point(round(FMiniMap.pos.X*(256/FMiniMap.height)*power(2,GState.zoom_size-FMiniMap.zoom)),round((FMiniMap.pos.Y*(256/FMiniMap.height))*power(2,GState.zoom_size-FMiniMap.zoom))), GState.zoom_size - 1, GState.sat_map_both);
-         end;
-       end
-  else FMiniMap.zooming:=false;
- toSh;
-end;
-
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var i:integer;
-    xy:TPoint;
-    VZoomCurr: Byte;
-    VPoint: TPoint;
+var
+  i:integer;
   VSelectionRect: TExtendedRect;
+  VClickLonLat: TExtendedPoint;
+  VClickRect: TRect;
+  VClickLonLatRect: TExtendedRect;
 begin
   if (HintWindow<>nil) then begin
     HintWindow.ReleaseHandle;
@@ -3413,28 +3291,37 @@ begin
   if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(Point(x, y));
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
+  GState.ViewState.LockRead;
+  try
+    VClickLonLat := GState.ViewState.VisiblePixel2LonLat(Point(x, y));
+    VClickRect.Left := x - 5;
+    VClickRect.Top := y - 5;
+    VClickRect.Right := x + 5;
+    VClickRect.Bottom := y + 5;
+    VClickLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VClickRect.TopLeft);
+    VClickLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VClickRect.BottomRight);
+  finally
+    GState.ViewState.UnLockRead;
+  end;
   if (Button=mbLeft)and(aoper<>ao_movemap) then begin
     if (aoper=ao_line)then begin
       setlength(length_arr,length(length_arr)+1);
-      length_arr[length(length_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint,  VZoomCurr);
+      length_arr[length(length_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(length_arr)>1);
       LayerMapNal.DrawLineCalc(length_arr, LenShow);
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
-      reg_arr[length(reg_arr)-1]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+      reg_arr[length(reg_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(reg_arr)>1);
       LayerMapNal.DrawReg(reg_arr);
     end;
     if (aoper=ao_rect)then begin
       if rect_dwn then begin
-        FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+        FSelectionRect.BottomRight:= VClickLonLat;
         rect_p2:=true;
       end else begin
-        FSelectionRect.TopLeft:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+        FSelectionRect.TopLeft:= VClickLonLat;
         FSelectionRect.BottomRight:=FSelectionRect.TopLeft
       end;
       rect_dwn:=not(rect_dwn);
@@ -3444,12 +3331,14 @@ begin
         LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
-    if (aoper=ao_add_point)and(FAddPoint.show_(GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr),true)) then generate_im;
+    if (aoper=ao_add_point)and(FAddPoint.show_(VClickLonLat, true)) then generate_im;
     if (aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
       for i:=0 to length(add_line_arr)-1 do begin
-        xy:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(add_line_arr[i],GState.zoom_size-1);
-        xy := MapPixel2VisiblePixel(xy);
-        if (X<xy.x+5)and(X>xy.x-5)and(Y<xy.y+5)and(Y>xy.y-5) then begin
+        if (VClickLonLatRect.Left < add_line_arr[i].X) and
+          (VClickLonLatRect.Top > add_line_arr[i].Y) and
+          (VClickLonLatRect.Right > add_line_arr[i].X) and
+          (VClickLonLatRect.Bottom < add_line_arr[i].Y)
+        then begin
           movepoint:=i;
           lastpoint:=i;
           TBEditPath.Visible:=(length(add_line_arr)>1);
@@ -3460,7 +3349,7 @@ begin
       inc(lastpoint);
       movepoint:=lastpoint;
       insertinpath(lastpoint);
-      add_line_arr[lastpoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+      add_line_arr[lastpoint]:=VClickLonLat;
       TBEditPath.Visible:=(length(add_line_arr)>1);
       LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
@@ -3502,14 +3391,19 @@ end;
 
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var VPWL:TResObj;
-    posB:TPoint;
-    stw:String;
-    VPoint: TPoint;
-    VSourcePoint: TPoint;
-    VZoomCurr: Byte;
+var
+  VPWL:TResObj;
+  stw:String;
+  VPoint: TPoint;
+  VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
   VMapMoving: Boolean;
+  VMap: TMapType;
+  VValidPoint: Boolean;
+  VConverter: ICoordConverter;
+  VTile: TPoint;
+  VLonLat: TExtendedPoint;
+  VVisibleSizeInPixel: TPoint;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -3517,29 +3411,36 @@ begin
  if (ssDouble in Shift) then exit;
  VMapMoving := MapMoving;
  MapMoving:=false;
- VZoomCurr := GState.zoom_size - 1;
- VPoint := VisiblePixel2MapPixel(Point(x, y));
- VSourcePoint := VPoint;
- GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, False);
+
+ GState.ViewState.LockRead;
+ try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x, y));
+    VLonLat := GState.ViewState.VisiblePixel2LonLat(moveTrue);
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VVisibleSizeInPixel := GState.ViewState.GetVisibleSizeInPixel;
+ finally
+   GState.ViewState.UnLockRead;
+ end;
+ VValidPoint := VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
+ VTile := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
  if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
-   GState.sat_map_both.DeleteTile(VPoint.X, VPoint.Y, GState.zoom_size);
+  if VValidPoint then begin
+   VMap.DeleteTile(VTile, VZoomCurr);
    generate_im;
   end;
   exit;
  end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-  if (VPoint.X = VSourcePoint.X) and (VPoint.Y = VSourcePoint.Y) then begin
-    TTileDownloaderUIOneTile.Create(VPoint, GState.zoom_size, GState.sat_map_both);
+  if VValidPoint then begin
+    TTileDownloaderUIOneTile.Create(VTile, VZoomCurr, VMap);
   end;
   exit;
  end;
  if HiWord(GetKeyState(VK_F6))<>0 then
   begin
-    FDGAvailablePic.setup(
-      GState.sat_map_both.GeoConvert.PixelPos2LonLat(VisiblePixel2MapPixel(moveTrue),(GState.zoom_size - 1)),
-      GetVisibleSizeInPixel
-    );
+    FDGAvailablePic.setup(VLonLat, VVisibleSizeInPixel);
    exit;
   end;
 
@@ -3559,14 +3460,13 @@ begin
    end;
 
  if VMapMoving then begin
-   POSb:=ScreenCenterPos;
-   Set_Pos(Point(posB.x+(MouseDownPoint.x-x),posB.y+(MouseDownPoint.y-y)));
+   GState.ViewState.ChangeMapPixelByDelta(Point(MouseDownPoint.x-x, MouseDownPoint.y-y));
  end;
 
  MouseUpPoint:=Point(x,y);
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
-   toSh;
+   LayerStatBar.Redraw;
    LayerScaleLine.Redraw;
    if aoper=ao_line then begin
     TBEditPath.Visible:=(length(length_arr)>1);
@@ -3586,7 +3486,6 @@ begin
    if GState.GPS_enab then begin
      LayerMapGPS.Redraw;
      UpdateGPSsensors;
-     toSh;
    end;
    if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
     TBEditPath.Visible:=(length(add_line_arr)>1);
@@ -3692,13 +3591,16 @@ end;
 
 
 procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-var i,j:integer;
-    nms:string;
-    hintrect:TRect;
-    CState: Integer;
-    VPoint: TPoint;
-    VZoomCurr: Byte;
+var
+  i,j:integer;
+  nms:string;
+  hintrect:TRect;
+  CState: Integer;
+  VPoint: TPoint;
+  VZoomCurr: Byte;
   VSelectionRect: TExtendedRect;
+  VConverter: ICoordConverter;
+  VLonLat: TExtendedPoint;
 begin
   if ProgramClose then begin
     exit;
@@ -3719,19 +3621,26 @@ begin
   CState:= ShowCursor(true);
  end;
  sleep(5);
- VZoomCurr := GState.zoom_size - 1;
- VPoint := VisiblePixel2MapPixel(Point(x,y));
- GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
+ GState.ViewState.LockRead;
+ try
+  VConverter := GState.ViewState.GetCurrentCoordConverter;
+  VZoomCurr := GState.ViewState.GetCurrentZoom;
+  VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x,y));
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(Point(x,y));
+ finally
+  GState.ViewState.UnLockRead;
+ end;
+ VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
  if movepoint>-1 then
   begin
-   add_line_arr[movepoint]:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+   add_line_arr[movepoint]:=VLonLat;
    TBEditPath.Visible:=(length(add_line_arr)>1);
    LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))
          then begin
-               FSelectionRect.BottomRight:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+               FSelectionRect.BottomRight:=VLonLat;
                LayerMapNal.DrawNothing;
                VSelectionRect := FSelectionRect;
                if PrepareSelectionRect(Shift,VSelectionRect) then begin
@@ -3786,7 +3695,9 @@ begin
               LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
         else m_m:=point(x,y);
- if not(MapMoving) then toSh;
+ if not(MapMoving) then begin
+    LayerStatBar.Redraw;
+ end;
 
  if (not ShowActivHint) then begin
    if (HintWindow<>nil) then begin
@@ -3876,17 +3787,21 @@ end;
 
 procedure TFmain.N35Click(Sender: TObject);
 var
-  Apos:TExtendedPoint;
+  VLonLat:TExtendedPoint;
   param:string;
   VZoomCurr: Byte;
-  VPoint: TPoint;
+  VMap: TMapType;
 begin
   if SaveLink.Execute then begin
-    VZoomCurr := GState.zoom_size - 1;
-    VPoint := ScreenCenterPos;
-    GState.sat_map_both.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-    Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-    param:=' '+GState.sat_map_both.GUIDString+' '+inttostr(GState.zoom_size)+' '+floattostr(Apos.x)+' '+floattostr(Apos.y);
+    GState.ViewState.LockRead;
+    try
+      VZoomCurr := GState.ViewState.GetCurrentZoom;
+      VLonLat := GState.ViewState.GetCenterLonLat;
+      VMap := GState.ViewState.GetCurrentMap;
+    finally
+      GState.ViewState.UnLockRead;
+    end;
+    param:=' '+VMap.GUIDString+' '+inttostr(VZoomCurr + 1)+' '+floattostr(VLonLat.x)+' '+floattostr(VLonLat.y);
     CreateLink(ParamStr(0),SaveLink.filename, '', param)
   end;
 end;
@@ -4001,31 +3916,23 @@ begin
 end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
-var Apos:TExtendedPoint;
-  VPoint: TPoint;
-  VZoomCurr: Byte;
+var
+  VLonLat:TExtendedPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
-  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
-  Fbrowser.Visible:=true;
-  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
+  TextToWebBrowser(SAS_STR_WiteLoad, Fbrowser.EmbeddedWB1);
+  Fbrowser.Visible := true;
+  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NGTOPO30Click(Sender: TObject);
-var Apos:TExtendedPoint;
-  VPoint: TPoint;
-  VZoomCurr: Byte;
+var
+  VLonLat:TExtendedPoint;
 begin
-  VZoomCurr := GState.zoom_size - 1;
-  VPoint := VisiblePixel2MapPixel(MouseDownPoint);
-  GState.sat_map_both.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-  Apos:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(VPoint, VZoomCurr);
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
   TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
   Fbrowser.Visible:=true;
-  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(Apos.y)+'&lng='+R2StrPoint(Apos.x));
+  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);
@@ -4170,7 +4077,7 @@ begin
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
-      VLayerIsActive := VMapType.Active;
+      VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
       TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible:=true;
@@ -4232,7 +4139,7 @@ begin
          SetLength(reg_arr,length(reg_arr)+1);
          reg_arr[length(reg_arr)-1]:=reg_arr[0];
          LayerMapNal.DrawNothing;
-         Fsaveas.Show_(GState.zoom_size,reg_arr);
+         Fsaveas.Show_(GState.ViewState.GetCurrentZoom,reg_arr);
          setalloperationfalse(ao_movemap);
          LayerSelection.Redraw;
         end;
@@ -4250,8 +4157,11 @@ begin
 end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
+var
+  VMap: TMapType;
 begin
- ShowMessage('Файл: '+GState.sat_map_both.zmpfilename+#13#10+GState.sat_map_both.MapInfo);
+ VMap := GState.ViewState.GetCurrentMap;
+ ShowMessage('Файл: '+VMap.zmpfilename+#13#10+VMap.MapInfo);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
@@ -4266,60 +4176,6 @@ end;
 procedure TFmain.NanimateClick(Sender: TObject);
 begin
   GState.AnimateZoom := Nanimate.Checked;
-end;
-
-function TFmain.GetVisiblePixelRect: TRect;
-begin
-  Result.Left := ScreenCenterPos.X - map.Width div 2;
-  Result.Top := ScreenCenterPos.Y - map.Height div 2;
-  Result.Right := ScreenCenterPos.X + map.Width div 2;
-  Result.Bottom := ScreenCenterPos.Y + map.Height div 2;
-end;
-
-function TFmain.GetVisibleSizeInPixel: TPoint;
-begin
-  Result.X := map.Width;
-  Result.Y := map.Height;
-end;
-
-function TFmain.GetVisibleTopLeft: TPoint;
-begin
-  Result.X := ScreenCenterPos.X - map.Width div 2;
-  Result.Y := ScreenCenterPos.Y - map.Height div 2;
-end;
-
-function TFmain.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
-begin
-  Result := GetVisibleTopLeft;
-  Result.X := Result.X + Pnt.X;
-  Result.Y := Result.Y + Pnt.y;
-end;
-
-function TFmain.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
-var
-  VVisibleSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result.X := Pnt.X - ScreenCenterPos.X + (VVisibleSize.X div 2);
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VVisibleSize.Y div 2);
-end;
-
-function TFmain.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VSize: TPoint;
-begin
-  VSize := GetVisibleSizeInPixel;
-  Result.X := Pnt.X - ScreenCenterPos.X + (VSize.X / 2);
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + (VSize.Y / 2);
-end;
-
-function TFmain.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VTopLeft: TPoint;
-begin
-  VTopLeft := GetVisibleTopLeft;
-  Result.X := VTopLeft.X + Pnt.X;
-  Result.Y := VTopLeft.Y + Pnt.y;
 end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
@@ -4467,25 +4323,56 @@ procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
   i:integer;
-  ll1,ll2:TPoint;
   ms:TMemoryStream;
   arrLL:PArrLL;
   arLL: TPointArray;
   poly:TExtendedPointArray;
+  VLonLatRect: TExtendedRect;
+  VRect: TRect;
+  VConverter: ICoordConverter;
+  VMarkLonLatRect: TExtendedRect;
+  VPixelPos: TPoint;
+  VZoom: Byte;
 begin
  if GState.show_point = mshNone then exit;
  CDSKategory.Filtered:=true;
  if CDSKategory.Eof then exit;
  CDSmarks.Filtered:=true;
  CDSmarks.First;
+
+ VRect.Left := xy.X - 8;
+ VRect.Top := xy.Y - 16;
+ VRect.Right := xy.X + 8;
+ VRect.Bottom := xy.Y + 16;
+
+ GState.ViewState.LockRead;
+ try
+    VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
+    VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VZoom := GState.ViewState.GetCurrentZoom;
+    VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
+ finally
+   GState.ViewState.UnLockRead;
+ end;
  while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
-  LL1:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonL.AsFloat,CDSmarkslatT.AsFloat),GState.zoom_size-1);
-  LL1 := MapPixel2VisiblePixel(ll1);
-  LL2:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(ExtPoint(CDSmarkslonR.AsFloat,CDSmarkslatB.AsFloat),GState.zoom_size-1);
-  LL2 := MapPixel2VisiblePixel(ll2);
-  if (xy.x+8>ll1.x)and(xy.x-8<ll2.x)and(xy.y+16>ll1.y)and(xy.y-16<ll2.y) then
-  begin
+  VMarkLonLatRect.Left := CDSmarkslonL.AsFloat;
+  VMarkLonLatRect.Top := CDSmarkslatT.AsFloat;
+  VMarkLonLatRect.Right := CDSmarksLonR.AsFloat;
+  VMarkLonLatRect.Bottom := CDSmarksLatB.AsFloat;
+  if
+    (((VMarkLonLatRect.Left <=  VLonLatRect.Left) and
+    (VLonLatRect.Left <=  VMarkLonLatRect.Right)) or
+
+    ((VMarkLonLatRect.Left <=  VLonLatRect.Right) and
+    (VLonLatRect.Right <=  VMarkLonLatRect.Right))) and
+
+    (((VMarkLonLatRect.Bottom <=  VLonLatRect.Bottom) and
+    (VLonLatRect.Bottom <=  VMarkLonLatRect.Top)) or
+    ((VMarkLonLatRect.Bottom <=  VLonLatRect.Bottom) and
+    (VLonLatRect.Bottom <=  VMarkLonLatRect.Top)))
+  then begin
     ms:=TMemoryStream.Create;
     TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
     ms.Position:=0;
@@ -4494,8 +4381,7 @@ begin
     SetLength(arLL,ms.size div 24);
     setlength(poly,ms.size div 24);
     for i:=0 to length(arLL)-1 do begin
-      arLL[i]:=GState.sat_map_both.GeoConvert.LonLat2PixelPos(arrLL^[i],GState.zoom_size-1);
-      arLL[i] := MapPixel2VisiblePixel(arLL[i]);
+      arLL[i]:=VConverter.LonLat2PixelPos(arrLL^[i],VZoom);
       poly[i]:=arrLL^[i];
     end;
     if length(arLL)=1 then
@@ -4516,7 +4402,7 @@ begin
        (arrLL^[0].y<>arrLL^[length(arLL)-1].y)then
       while (j<length(arLL)) do
        begin
-        if CursorOnLinie(xy.x,xy.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
+        if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
            then begin
                  APWL.name:=CDSmarksname.AsString;
                  APWL.descr:=CDSmarksdescr.AsString;
@@ -4532,7 +4418,7 @@ begin
         inc(j);
        end
      else
-     if (PtInRgn(arLL,xy)) then
+     if (PtInRgn(arLL,VPixelPos)) then
        if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then
       begin
        APWL.S:=PolygonSquare(arLL);
@@ -4554,6 +4440,24 @@ end;
 procedure TFmain.NGoToCurClick(Sender: TObject);
 begin
   GState.ZoomingAtMousePos := (Sender as TTBXItem).Checked
+end;
+
+procedure TFmain.InitSearchers;
+var
+  VGoto: IMapViewGoto;
+  VPresenter: ISearchResultPresenter;
+  VGeoCoder: IGeoCoder;
+  VProxy: IProxySettings;
+begin
+  VGoto := TMapViewGotoOnFMain.Create;
+  VPresenter := TSearchResultPresenterWithForm.Create(VGoto);
+  VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
+
+  VGeoCoder := TGeoCoderByGoogle.Create(VProxy);
+  FGoogleSearch := TGeoSearcher.Create(VGeoCoder, VPresenter);
+
+  VGeoCoder := TGeoCoderByYandex.Create(VProxy);
+  FYandexSerach := TGeoSearcher.Create(VGeoCoder, VPresenter);
 end;
 
 procedure TFmain.TBXItem8Click(Sender: TObject);

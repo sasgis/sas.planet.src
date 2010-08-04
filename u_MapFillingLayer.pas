@@ -12,6 +12,7 @@ uses
   GR32_Layers,
   t_GeoTypes,
   i_ICoordConverter,
+  i_JclNotify,
   u_MapLayerBasic,
   uMapType;
 
@@ -22,6 +23,7 @@ type
     FSourceMapType: TMapType;
     FSourceSelected: TMapType;
     FSourceZoom: integer;
+    FMainMapChangeListener: IJclListener;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
@@ -39,7 +41,39 @@ implementation
 uses
   Graphics,
   u_GlobalState,
+  u_JclNotify,
   u_WindowLayerBasic;
+
+type
+  TFillingMapListener = class(TJclBaseListener)
+  private
+    FOwnerItem: TMapFillingLayer;
+  public
+    constructor Create(AOwnerItem: TMapFillingLayer);
+  end;
+
+{ TFillingMapListener }
+
+constructor TFillingMapListener.Create(
+  AOwnerItem: TMapFillingLayer);
+begin
+  FOwnerItem := AOwnerItem;
+end;
+
+type
+  TFillingMapMainMapChangeListener = class(TFillingMapListener)
+  public
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+{ TFillingMapMainMapChangeListener }
+
+procedure TFillingMapMainMapChangeListener.Notification(
+  msg: IJclNotificationMessage);
+begin
+  FOwnerItem.Redraw;
+end;
+
 
 
 type
@@ -70,12 +104,14 @@ begin
   inherited Create(AParentMap, ACenter);
   FLayer.Bitmap.DrawMode:=dmBlend;
   FThread := TMapFillingThread.Create(Self);
+  FMainMapChangeListener := TFillingMapMainMapChangeListener.Create(Self);
 end;
 
 destructor TMapFillingLayer.Destroy;
 begin
   FreeAndNil(FThread);
   FSourceMapType := nil;
+  FMainMapChangeListener := nil;
   inherited;
 end;
 
@@ -85,7 +121,7 @@ begin
     inherited;
     TMapFillingThread(FThread).PrepareToChangeScene;
     if FSourceSelected = nil then begin
-      FSourceMapType := GState.sat_map_both;
+      FSourceMapType := GState.ViewState.GetCurrentMap;
     end;
     FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
@@ -144,7 +180,7 @@ begin
     FZoom := AZoom;
     FScreenCenterPos := AScreenCenterPos;
     if FSourceSelected = nil then begin
-      FSourceMapType := GState.sat_map_both;
+      FSourceMapType := GState.ViewState.GetCurrentMap;
     end;
     Redraw;
   end else begin
@@ -162,11 +198,13 @@ begin
   if (AMapType <> nil) then begin
     if (FSourceSelected <> AMapType) then begin
       VFullRedraw := True;
-    end
+    end;
+    GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
   end else begin
-    if (FSourceMapType <> GState.sat_map_both) then begin
+    if (FSourceMapType <> GState.ViewState.GetCurrentMap) then begin
       VFullRedraw := True;
-    end
+    end;
+    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
   end;
   if FSourceZoom <> AZoom then begin
     VFullRedraw := True;
@@ -177,7 +215,7 @@ begin
       FSourceSelected := AMapType;
     end else begin
       FSourceSelected := AMapType;
-      FSourceMapType := GState.sat_map_both;
+      FSourceMapType := GState.ViewState.GetCurrentMap;
     end;
     FSourceZoom := AZoom;
     Redraw;

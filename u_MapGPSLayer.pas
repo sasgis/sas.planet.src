@@ -84,9 +84,9 @@ begin
   end;
 
   if length(GState.GPS_TrackPoints)-startrarck>1 then try
-    ke:=FGeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
+    ke:=FGeoConvert.LonLat2ExtendedPixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], FZoom);
     ke:=MapPixel2BitmapPixel(ke);
-    ks:=FGeoConvert.LonLat2PixelPosf(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2],GState.zoom_size-1);
+    ks:=FGeoConvert.LonLat2ExtendedPixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-2], FZoom);
     ks:=MapPixel2BitmapPixel(ks);
     dl:=GState.GPS_ArrowSize;
     D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
@@ -122,7 +122,7 @@ begin
   end;
 
   if length(GState.GPS_TrackPoints)-startrarck>0 then begin
-    k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],GState.zoom_size-1);
+    k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1],FZoom);
     k1:=MapPixel2BitmapPixel(k1);
     SizeTrackd2:=GState.GPS_ArrowSize div 6;
     FLayer.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));

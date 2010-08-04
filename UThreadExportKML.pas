@@ -92,6 +92,7 @@ var xym256lt,xym256rb:TPoint;
     i,nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
     ToFile:string;
+  VExtRect: TExtendedRect;
 begin
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
   savepath:=FTypeMap.GetTileFileName(x,y,z);
@@ -99,10 +100,13 @@ begin
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
-  north:=R2StrPoint(FTypeMap.GeoConvert.Pos2LonLat(xym256lt,(z - 1) + 8).y);
-  south:=R2StrPoint(FTypeMap.GeoConvert.Pos2LonLat(xym256rb,(z - 1) + 8).y);
-  east:=R2StrPoint(FTypeMap.GeoConvert.Pos2LonLat(xym256rb,(z - 1) + 8).x);
-  west:=R2StrPoint(FTypeMap.GeoConvert.Pos2LonLat(xym256lt,(z - 1) + 8).x);
+  VExtRect.TopLeft := FTypeMap.GeoConvert.PixelPos2LonLat(xym256lt,(z - 1));
+  VExtRect.BottomRight := FTypeMap.GeoConvert.PixelPos2LonLat(xym256rb,(z - 1));
+
+  north:=R2StrPoint(VExtRect.Top);
+  south:=R2StrPoint(VExtRect.Bottom);
+  east:=R2StrPoint(VExtRect.Right);
+  west:=R2StrPoint(VExtRect.Left);
   ToFile:=#13#10+'<Folder>'+#13#10+{'  <name></name>'+#13#10+}'  <Region>'+#13#10+'    <LatLonAltBox>'+#13#10+
           '      <north>'+north+'</north>'+#13#10+'      <south>'+south+'</south>'+#13#10+'      <east>'+east+'</east>'+#13#10+
           '      <west>'+west+'</west>'+#13#10+'    </LatLonAltBox>'+#13#10+'    <Lod>';

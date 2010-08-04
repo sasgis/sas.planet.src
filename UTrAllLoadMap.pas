@@ -124,7 +124,7 @@ begin
   try
     VGuids:=Ini.ReadString('Session','MapGUID','');
     VGuid := StringToGUID(VGuids);
-    Fzoom := Ini.ReadInteger('Session', 'zoom', GState.zoom_size);
+    Fzoom := Ini.ReadInteger('Session', 'zoom', GState.ViewState.GetCurrentZoom);
     FReplaceExistTiles := Ini.ReadBool('Session', 'zamena', false);
     FCheckExistTileSize := Ini.ReadBool('Session','raz', false);
     FCheckExistTileDate := Ini.ReadBool('Session','zdate', false);

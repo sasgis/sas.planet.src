@@ -29,8 +29,10 @@ const
 implementation
 
 uses
+  ActiveX,
   SysUtils,
   i_ICoordConverter,
+  i_MapTypes,
   Ugeofun,
   Uimgfun,
   u_GeoToStr,
@@ -51,15 +53,25 @@ end;
 
 procedure TMapMainLayer.DoRedraw;
 var
-  Leyi:integer;
+  i: Cardinal;
+  VMapType: TMapType;
+  VGUID: TGUID;
+  VItem: IMapType;
+  VEnum: IEnumGUID;
+  VHybrList: IMapTypeList;
 begin
   inherited;
   FLayer.Bitmap.Clear(Color32(GState.BGround));
-  DrawMap(GState.sat_map_both, dmOpaque);
-  for Leyi:=0 to length(GState.MapType)-1 do begin
-    if (GState.MapType[Leyi].asLayer)and(GState.MapType[Leyi].active) then begin
-      if not GState.MapType[Leyi].IsKmlTiles then begin
-        DrawMap(GState.MapType[Leyi], dmBlend);
+  DrawMap(GState.ViewState.GetCurrentMap, dmOpaque);
+
+  VHybrList := GState.ViewState.HybrList;
+  VEnum := VHybrList.GetIterator;
+  while VEnum.Next(1, VGUID, i) = S_OK  do begin
+    if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
+      VItem := VHybrList.GetMapTypeByGUID(VGUID);
+      VMapType := VItem.GetMapType;
+      if VMapType.IsBitmapTiles then begin
+        DrawMap(VMapType, dmBlend);
       end;
     end;
   end;

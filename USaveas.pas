@@ -183,8 +183,8 @@ type
     procedure CBFormatChange(Sender: TObject);
     procedure Button5Click(Sender: TObject);
   private
-    zoom_rect:byte;
-    PolygonLL: TExtendedPointArray;
+    FZoom_rect:byte;
+    FPolygonLL: TExtendedPointArray;
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
@@ -207,6 +207,7 @@ uses
   i_ILogForTaskThread,
   u_LogForTaskThread,
   i_IMapCalibration,
+  i_ICoordConverter,
   UTrAllLoadMap,
   UThreadScleit,
   UThreadExport,
@@ -239,7 +240,7 @@ begin
    if length(GState.LastSelectionPolygon)>0 then
     begin
      GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(GState.poly_zoom_save,GState.LastSelectionPolygon);
+     fsaveas.Show_(GState.poly_zoom_save - 1,GState.LastSelectionPolygon);
     end;
     FMain.LayerSelection.Redraw
   end
@@ -407,12 +408,12 @@ end;
 procedure TFsaveas.Button1Click(Sender: TObject);
 begin
  case PageControl1.ActivePage.Tag of
-  0: LoadRegion(PolygonLL);
-  1: scleitRECT(PolygonLL);
-  2: genbacksatREG(PolygonLL);
-  3: delRegion(PolygonLL);
-  4: ExportREG(PolygonLL);
-  5: savefilesREG(PolygonLL);
+  0: LoadRegion(FPolygonLL);
+  1: scleitRECT(FPolygonLL);
+  2: genbacksatREG(FPolygonLL);
+  3: delRegion(FPolygonLL);
+  4: ExportREG(FPolygonLL);
+  5: savefilesREG(FPolygonLL);
  end;
  if CBCloseWithStart.Checked then
   begin
@@ -436,6 +437,9 @@ var
   i:integer;
   vramkah,zagran:boolean;
   VMapCalibration: IMapCalibration;
+  VConverter: ICoordConverter;
+  VPoint: TPoint;
+  VZoom: Byte;
   VActiveMap: TMapType;
   VAddedIndex: Integer;
   VMapType: TMapType;
@@ -477,7 +481,7 @@ begin
   CmBExpSatYa.Items.AddObject(SAS_STR_No,nil);
   CmBExpMapYa.Items.AddObject(SAS_STR_No,nil);
   CmBExpHibYa.Items.AddObject(SAS_STR_No,nil);
-  VActiveMap := GState.sat_map_both;
+  VActiveMap := GState.ViewState.GetCurrentMap;
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.Usedwn) then begin
@@ -529,13 +533,13 @@ begin
         end else if(VMapType.IsHybridLayer) then begin
           VAddedIndex := CmBExpHib.Items.AddObject(VMapType.name,VMapType);
           if (CmBExpHib.ItemIndex=-1) then begin
-            if (VMapType.active) then begin
+            if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
               CmBExpHib.ItemIndex:=VAddedIndex;
             end;
           end;
           VAddedIndex := CmBExpHibYa.Items.AddObject(VMapType.name,VMapType);
           if (CmBExpHibYa.ItemIndex=-1) then begin
-            if (VMapType.active) then begin
+            if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
               CmBExpHibYa.ItemIndex:=VAddedIndex;
             end;
           end;
@@ -573,19 +577,21 @@ begin
   if CmBExpMapYa.ItemIndex=-1 then CmBExpMapYa.ItemIndex:=0;
   if CmBExpHibYa.ItemIndex=-1 then CmBExpHibYa.ItemIndex:=0;
   CBSclHib.ItemIndex:=0;
-  zoom_rect:=Azoom;
-  setlength(polygonLL,length(polygon_));
+  FZoom_rect:=Azoom;
+  setlength(FPolygonLL,length(polygon_));
   setlength(GState.LastSelectionPolygon,length(polygon_));
   for i:=0 to length(polygon_)-1 do begin
-    polygonLL[i]:=polygon_[i];
+    FPolygonLL[i]:=polygon_[i];
     GState.LastSelectionPolygon[i]:=polygon_[i];
   end;
-  GState.poly_zoom_save:=zoom_rect;
+  GState.poly_zoom_save:=FZoom_rect + 1;
   vramkah:=false;
   zagran:=false;
-  for i:=0 to length(polygonLL)-1 do begin
-    if ((GState.sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y>=0)
-      and (GState.sat_map_both.GeoConvert.LonLat2Pos(polygonLL[i],(zoom_rect - 1) + 8).y<=zoom[zoom_rect]))
+  VConverter := GState.ViewState.GetCurrentCoordConverter;
+  VZoom := FZoom_rect;
+  for i:=0 to length(FPolygonLL)-1 do begin
+    VPoint := VConverter.LonLat2PixelPos(FPolygonLL[i], VZoom);
+    if VConverter.CheckPixelPos(VPoint , VZoom, False)
     then begin
       vramkah:=true;
     end else begin
@@ -602,11 +608,11 @@ begin
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
   CheckBox1.Checked:=false;
-  CBZoomload.ItemIndex:=zoom_rect-1;
-  if zoom_rect=1 then begin
+  CBZoomload.ItemIndex:=FZoom_rect;
+  if FZoom_rect=0 then begin
     combobox.ItemIndex:=0;
   end else begin
-    combobox.ItemIndex:=zoom_rect-2;
+    combobox.ItemIndex:=FZoom_rect-1;
   end;
   ComboBoxChange(self);
   CBZoomloadChange(self);
@@ -681,7 +687,7 @@ var polyg:TPointArray;
 begin
   Vmt := TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
-  polyg := Vmt.GeoConvert.PoligonProject(VZoom + 8, PolygonLL);
+  polyg := Vmt.GeoConvert.PoligonProject(VZoom + 8, FPolygonLL);
   numd:=GetDwnlNum(min,max,polyg,true);
   label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';

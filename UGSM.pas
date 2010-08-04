@@ -169,7 +169,7 @@ begin
  CommPortDriver.SendString('AT+CREG=1'+#13);
  CommPortDriver.Disconnect;
  if GetCoordFromGoogle(LL) then begin
-    OnToPos(LL,GState.zoom_size,true);
+    OnToPos(LL, GState.ViewState.GetCurrentZoom, true);
  end;
 end;
 
@@ -225,7 +225,7 @@ begin
      LAC:= IntToHex(strtoint(GetWord(paramss,',',3)),4);
      CellID:= IntToHex(strtoint(GetWord(paramss,',',4)),4);
      if GetCoordFromGoogle(LL) then begin
-        OnToPos(LL,GState.zoom_size,true);
+        OnToPos(LL,GState.ViewState.GetCurrentZoom,true);
         Result:=true;
      end else begin
         Result:=false;

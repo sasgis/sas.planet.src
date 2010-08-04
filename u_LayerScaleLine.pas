@@ -24,12 +24,15 @@ uses
   Math,
   SysUtils,
   GR32,
-  uMapType,
-  Unit1,
+  i_ICoordConverter,
   UResStrings,
   t_GeoTypes,
+  u_MapViewPortState,
   u_GlobalState;
 
+const
+  D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
+  
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(AParentMap: TImage32);
@@ -47,13 +50,24 @@ var
   temp,num: real;
   VBitmapSize: TPoint;
   VRad: Extended;
+  VConverter: ICoordConverter;
+  VPixelsAtZoom: Double;
+  VZoom: Byte;
 begin
   inherited;
   Resize;
   VBitmapSize := GetBitmapSizeInPixel;
-  LL:=GState.sat_map_both.GeoConvert.PixelPos2LonLat(Fmain.ScreenCenterPos, GState.zoom_size-1);
-  VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
-  num:=106/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(LL.y*D2R)));
+  GState.ViewState.LockRead;
+  try
+    LL := GState.ViewState.GetCenterLonLat;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VZoom := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VRad := VConverter.GetSpheroidRadius;
+  VPixelsAtZoom := VConverter.PixelsAtZoomExt(VZoom);
+  num:=106/((VPixelsAtZoom/(2*PI))/(VRad*cos(LL.y*D2R)));
   if num>10000 then begin
     num:=num/1000;
     se:=' '+SAS_UNITS_km+'.';

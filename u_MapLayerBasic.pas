@@ -46,7 +46,8 @@ type
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     procedure Redraw; override;
     procedure MoveTo(Pnt: TPoint); virtual;
-    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); virtual;
+    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload; virtual;
+    procedure ScaleTo(AScale: Double); overload; virtual;
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); virtual;
     property ScreenCenterPos: TPoint read FScreenCenterPos;
     property Zoom: Byte read FZoom;
@@ -199,6 +200,16 @@ begin
     FFreezeInCenter := True;
     Resize;
   end;
+end;
+
+procedure TMapLayerBasic.ScaleTo(AScale: Double);
+var
+  VCenterPoint: TPoint;
+begin
+  VCenterPoint := GetVisibleSizeInPixel;
+  VCenterPoint.X := VCenterPoint.X div 2;
+  VCenterPoint.Y := VCenterPoint.Y div 2;
+  ScaleTo(AScale, VCenterPoint);
 end;
 
 procedure TMapLayerBasic.ScaleTo(AScale: Double; ACenterPoint: TPoint);

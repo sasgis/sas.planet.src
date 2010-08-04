@@ -105,12 +105,12 @@ implementation
 uses
   t_CommonTypes,
   u_GlobalState,
+  i_ICoordConverter,
   USaveas,
   UaddPoint,
   UaddPoly,
   UaddLine,
   UImport,
-  UMapType,
   UAddCategory;
 
 {$R *.dfm}
@@ -337,8 +337,10 @@ var arrLL:PArrLL;
     arLL:array of TExtendedPoint;
     ms:TMemoryStream;
     i:integer;
+    VConverter: ICoordConverter;
 begin
  Result:=0;
+ VConverter := GState.ViewState.GetCurrentCoordConverter;
  Fmain.CDSmarks.Locate('id',id,[]);
  ms:=TMemoryStream.Create;
  TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -350,7 +352,7 @@ begin
  if (ms.Size>24)
      then begin
            for i:=0 to length(arLL)-2 do
-            result:=result+ GState.sat_map_both.GeoConvert.CalcDist(arLL[i],arLL[i+1]);
+            result:=result+ VConverter.CalcDist(arLL[i],arLL[i+1]);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
@@ -362,8 +364,10 @@ var arrLL:PArrLL;
     arLL: TExtendedPointArray;
     ms:TMemoryStream;
     i:integer;
+    VConverter: ICoordConverter;
 begin
  Result:=0;
+ VConverter := GState.ViewState.GetCurrentCoordConverter;
  Fmain.CDSmarks.Locate('id',id,[]);
  ms:=TMemoryStream.Create;
  TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
@@ -374,7 +378,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)
      then begin
-           result:= GState.sat_map_both.GeoConvert.CalcPoligonArea(arLL);
+           result:= VConverter.CalcPoligonArea(arLL);
           end;
  freeMem(arrLL);
  SetLength(arLL,0);
@@ -398,7 +402,7 @@ begin
  for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
  if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
      then begin
-           Fsaveas.Show_(GState.zoom_size,arLL);
+           Fsaveas.Show_(GState.ViewState.GetCurrentZoom, arLL);
            Fmain.LayerSelection.Redraw;
            Result:=true;
           end
@@ -431,7 +435,7 @@ begin
            end;
    ms.Free;
    FreeMem(arrLL);
-   Fmain.toPos(LL,zoom,true);
+   Fmain.toPos(LL,zoom - 1,true);
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
@@ -467,7 +471,7 @@ procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
 begin
  if MarksListBox.ItemIndex>=0 then
   begin
-   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.zoom_size);
+   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.ViewState.GetCurrentZoom + 1);
   end;
 end;
 

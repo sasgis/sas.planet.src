@@ -18,7 +18,6 @@ uses
   CommCtrl,
   ExtCtrls,
   Unit1,
-  UMapType,
   UResStrings,
   t_GeoTypes;
 
@@ -119,6 +118,7 @@ var
 implementation
 
 uses
+  i_ICoordConverter,
   u_GlobalState,
   u_GeoToStr;
 
@@ -147,6 +147,8 @@ type
 
 const
   maxReqSize = 3000;
+const
+  D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
 
 
 var
@@ -348,12 +350,23 @@ procedure TFDGAvailablePic.setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
+  VPixelsAtZoom: Extended;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
 begin
   Show;
   VSize := AViewSize;
-  VRad := GState.sat_map_both.GeoConvert.GetSpheroidRadius;
+  GState.ViewState.LockRead;
+  try
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VZoom := GState.ViewState.GetCurrentZoom;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VRad := VConverter.GetSpheroidRadius;
+  VPixelsAtZoom := VConverter.PixelsAtZoomExt(VZoom);
   FLonLat:= ALonLat;
- mpp:=1/((zoom[GState.zoom_size]/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
+ mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);
  if hi>maxReqSize then hi:=maxReqSize;

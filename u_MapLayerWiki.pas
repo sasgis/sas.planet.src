@@ -44,11 +44,13 @@ type
 implementation
 
 uses
+  ActiveX,
   SysUtils,
   StrUtils,
   Graphics,
   GR32_Polygons,
   i_ICoordConverter,
+  i_MapTypes,
   u_GlobalState,
   u_WindowLayerBasic;
 
@@ -302,14 +304,23 @@ end;
 
 procedure TWikiLayer.DoRedraw;
 var
-  Leyi: Integer;
+  i: Cardinal;
+  VMapType: TMapType;
+  VGUID: TGUID;
+  VItem: IMapType;
+  VEnum: IEnumGUID;
+  VHybrList: IMapTypeList;
 begin
   inherited;
   Clear;
-  for Leyi := 0 to length(GState.MapType) - 1 do begin
-    if (GState.MapType[Leyi].asLayer) and (GState.MapType[Leyi].active) then begin
-      if GState.MapType[Leyi].IsKmlTiles then begin
-        AddFromLayer(GState.MapType[Leyi]);
+  VHybrList := GState.ViewState.HybrList;
+  VEnum := VHybrList.GetIterator;
+  while VEnum.Next(1, VGUID, i) = S_OK  do begin
+    if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
+      VItem := VHybrList.GetMapTypeByGUID(VGUID);
+      VMapType := VItem.GetMapType;
+      if VMapType.IsKmlTiles then begin
+        AddFromLayer(VMapType);
       end;
     end;
   end;

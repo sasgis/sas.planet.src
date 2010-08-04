@@ -243,8 +243,6 @@ begin
     if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
       FSessionOpenError := GetLastError;
     end;
-
-
   end else begin
     FSessionOpenError := GetLastError;
   end;
@@ -357,14 +355,23 @@ begin
   if VNow < FLastDownloadTime + FWaitInterval then begin
     Sleep(FWaitInterval);
   end;
-  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader), INTERNET_FLAG_NO_CACHE_WRITE or INTERNET_FLAG_RELOAD, 0);
+  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
+    INTERNET_FLAG_NO_CACHE_WRITE or
+    INTERNET_FLAG_RELOAD or
+    INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
+    INTERNET_FLAG_IGNORE_CERT_DATE_INVALID,
+    0);
   if not Assigned(VFileHandle) then begin
     VLastError := GetLastError;
     if IsDownloadError(VLastError) then begin
       Result := dtrDownloadError;
     end else begin
       Result := dtrErrorInternetOpenURL;
-      Assert(False, 'Неизвестная ошибка при открытии соединения. Код ошибки ' + IntToStr(VLastError));
+      if VLastError <> ERROR_INTERNET_INVALID_CA then begin
+        Assert(False, 'Неизвестная ошибка при открытии соединения. Код ошибки ' + IntToStr(VLastError));
+      end else begin
+        //Что бы нормально обрабатывать ситуацию нужно полностью переделать закачку.
+      end;
     end;
     exit;
   end;
