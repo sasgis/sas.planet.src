@@ -126,7 +126,6 @@ type
     function LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
 
-    function LoadTileFromPreZ(spr: TBitmap32; x, y: integer; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
 
     function LoadTileOrPreZ(spr: TBitmap32; x, y: integer; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
@@ -749,23 +748,28 @@ end;
 
 function TMapType.LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint;
   Azoom: byte; caching: boolean): boolean;
-begin
-  Result := Self.LoadTileFromPreZ(spr, AXY.X shl 8, AXY.Y shl 8, Azoom + 1, caching);
-end;
-
-function TMapType.LoadTileFromPreZ(spr:TBitmap32;x,y:integer;Azoom:byte; caching:boolean):boolean;
 var
-  i,c_x,c_y,dZ: integer;
+  i: integer;
   bmp: TBitmap32;
   VTileExists: Boolean;
   key: string;
-  TileBounds:TRect;
-  VXY: TPoint;
+  VTileTargetBounds:TRect;
+  VTileSourceBounds:TRect;
   VTileParent: TPoint;
+  VTargetTilePixelRect: TRect;
+  VSourceTilePixelRect: TRect;
+  VRelative: TExtendedPoint;
+  VRelativeRect: TExtendedRect;
+  VParentZoom: Byte;
 begin
-  VXY := Point(x shr 8, y shr 8);
   result:=false;
-  spr.SetSize(256, 256);
+  VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+  VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
+  VTileTargetBounds.Left := 0;
+  VTileTargetBounds.Top := 0;
+  VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left + 1;
+  VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top + 1;
+  spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
   if (not(GState.UsePrevZoom) and (asLayer=false)) or
   (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
   begin
@@ -774,39 +778,42 @@ begin
     exit;
   end;
   VTileExists := false;
-  dZ := 255;
-  for i:=(Azoom-1) downto 1 do begin
-    dZ:=(Azoom-i);
-    VTileParent := Point(VXY.X shr dZ,VXY.Y shr dZ);
-    if TileExists(VTileParent, i - 1) then begin
+  VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
+  VParentZoom := 0;
+  for i:=Azoom - 1 downto 0 do begin
+    VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
+    if TileExists(VTileParent, i) then begin
+      VParentZoom := i;
       VTileExists := true;
       break;
     end;
   end;
-  if not(VTileExists)or(dZ>8) then begin
+  if not(VTileExists)or(Azoom - VParentZoom > 8) then begin
     if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                else spr.Clear(Color32(GState.BGround));
   end else begin
-    key := GetMemCacheKey(VXY, Azoom - 1);
+    key := GetMemCacheKey(AXY, Azoom);
     if (not caching)or(not FMemCache.TryLoadFileFromCache(spr, key)) then begin
       bmp:=TBitmap32.Create;
       try
-        if not(LoadTile(bmp,VTileParent, Azoom - dZ - 1,true))then begin
+        if not(LoadTile(bmp, VTileParent, VParentZoom, true))then begin
           if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                      else spr.Clear(Color32(GState.BGround));
         end else begin
           bmp.Resampler := CreateResampler(GState.Resampling);
-          c_x:=((x-(x mod 256))shr dZ)mod 256;
-          c_y:=((y-(y mod 256))shr dZ)mod 256;
+          VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
+          VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
+          VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
+          VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
+          VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left + 1;
+          VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top + 1;
           try
-            TileBounds:=Bounds(0,0,256,256);
-            if bmp.width<256 then TileBounds.Right:=bmp.Width;
-            if bmp.height<256 then TileBounds.Bottom:=bmp.height;
-            spr.Draw(bounds(-c_x shl dZ,-c_y shl dZ,256 shl dZ,256 shl dZ),TileBounds,bmp);
+            spr.Draw(VTileTargetBounds, VTileSourceBounds, bmp);
             FMemCache.AddTileToCache(spr, key);
           except
-            Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
             Result := false;
+            Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
+            Exit;
           end;
         end;
       finally
