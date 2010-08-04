@@ -77,9 +77,8 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
-    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
-    procedure SaveTileNotExists(x, y: longint; Azoom: byte); overload;
-    procedure SaveTileNotExists(AXY: TPoint; Azoom: byte); overload;
+    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
    public
     id: integer;
 
@@ -114,8 +113,7 @@ type
 
     showinfo: boolean;
 
-    function GetLink(x, y: longint; Azoom: byte): string; overload;
-    function GetLink(AXY: TPoint; Azoom: byte): string; overload;
+    function GetLink(AXY: TPoint; Azoom: byte): string;
 
     function GetTileFileName(x, y: longint; Azoom: byte): string; overload;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; overload;
@@ -682,11 +680,6 @@ begin
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
-function TMapType.GetLink(x,y:Integer;Azoom:byte): string;
-begin
-  Result := Self.GetLink(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom - 1), Azoom - 1)
-end;
-
 function TMapType.GetBasePath: string;
 var
   ct:byte;
@@ -1154,11 +1147,6 @@ begin
   finally
     FCSSaveTNF.Release;
   end;
-end;
-
-procedure TMapType.SaveTileNotExists(x, y: Integer; Azoom: byte);
-begin
-  Self.SaveTileNotExists(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32);
