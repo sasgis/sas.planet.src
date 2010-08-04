@@ -141,6 +141,8 @@ var
   i,c_d,p_x,p_y,d2562,p_i,p_j,p_x_x,p_y_y:integer;
   save_len_tile:integer;
   VZoom: Integer;
+  VTile: TPoint;
+  VSubTile: TPoint;
 begin
   bmp_ex:=TBitmap32.Create;
   bmp:=TBitmap32.Create;
@@ -162,11 +164,13 @@ begin
      p_x:=min.x;
      while (p_x<max.X)and(not Terminated) do
       begin
+       VTile.X := p_x shr 8;
        p_y:=min.y;
        while (p_y<max.y)and(not Terminated) do
         begin
+         VTile.Y := p_y shr 8;
          if RgnAndRgn(Polyg,p_x,p_y,false) then begin
-           if typemap.TileExists(p_x,p_y,InZooms[i])then begin
+           if typemap.TileExists(VTile, InZooms[i] - 1)then begin
                                     if not(Replace)
                                      then begin
                                            Synchronize(UpdateProgressForm);
@@ -187,10 +191,11 @@ begin
               if Terminated then continue;
               p_x_x:=((p_x-128) * c_d)+((p_i-1)*256);
               p_y_y:=((p_y-128) * c_d)+((p_j-1)*256);
+              VSubTile := Point(p_x_x shr 8, p_y_y shr 8);
 
-              if typemap.TileExists(p_x_x,p_y_y,VZoom) then
+              if typemap.TileExists(VSubTile, VZoom - 1) then
                begin
-                if (typemap.LoadTile(bmp, p_x_x,p_y_y,VZoom, false)) then begin
+                if (typemap.LoadTile(bmp, VSubTile, VZoom - 1, false)) then begin
                   bmp_ex.Draw(bounds((p_i-1)*d2562,(p_j-1)*d2562,256 div c_d,256 div c_d),bounds(0,0,256,256),bmp);
                   inc(save_len_tile);
                 end else begin
@@ -204,7 +209,7 @@ begin
            if Terminated then continue;
            if ((not savefull)or(save_len_tile=c_d*c_d))and(save_len_tile > 0) then
              try
-              typemap.SaveTileSimple(p_x, p_y, InZooms[i], bmp_ex);
+              typemap.SaveTileSimple(VTile, InZooms[i] - 1, bmp_ex);
               inc(TileInProc);
              except
               Synchronize(SyncShowMessage);

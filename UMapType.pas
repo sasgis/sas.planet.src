@@ -119,7 +119,6 @@ type
 
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
 
-    function TileExists(x, y: longint; Azoom: byte): Boolean; overload;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean; overload;
 
     function TileNotExistsOnServer(x, y: longint; Azoom: byte): Boolean; overload;
@@ -737,11 +736,6 @@ begin
     VPath := GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
   end;
-end;
-
-function TMapType.TileExists(x, y: Integer; Azoom: byte): Boolean;
-begin
-  Result := Self.TileExists(FCoordConverter.PixelPos2TilePos(Point(x, y), Azoom - 1), Azoom - 1);
 end;
 
 function GetFileSize(namefile: string): Integer;

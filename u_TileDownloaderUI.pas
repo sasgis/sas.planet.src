@@ -131,20 +131,22 @@ begin
                   BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom) + 8, VMap.GeoConvert);
                   FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
                   FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
-                  VMap.GeoConvert.CheckPixelPosStrict(FLoadXY, VZoom, True);
+                  FLoadXY.X:=FLoadXY.X shr 8;
+                  FLoadXY.Y:=FLoadXY.Y shr 8;
+                  VMap.GeoConvert.CheckTilePosStrict(FLoadXY, VZoom, True);
 
-                  Flastload.TilePos.X:=FLoadXY.X shr 8;
-                  Flastload.TilePos.Y:=FLoadXY.Y shr 8;
+                  Flastload.TilePos.X:=FLoadXY.X;
+                  Flastload.TilePos.Y:=FLoadXY.Y;
                   Flastload.Zoom:=Fzoom;
                   FlastLoad.mt:=VMap;
                   FlastLoad.use:=true;
-                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY.x,FLoadXY.y, Fzoom + 1)))) then begin
+                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY, Fzoom)))) then begin
                     if VMap.UseDwn then begin
-                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY.x,FLoadXY.y,Fzoom + 1) then begin
+                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
                         FileBuf:=TMemoryStream.Create;
                         try
                           try
-                            res :=VMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
+                            res :=VMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
                             FErrorString:=GetErrStr(res);
                             if (res = dtrOK) or (res = dtrSameTileSize) then begin
                               GState.IncrementDownloaded(fileBuf.Size/1024, 1);

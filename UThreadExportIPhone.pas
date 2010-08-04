@@ -199,6 +199,7 @@ var p_x,p_y,p_xd256,p_yd256,i,j,xi,yi,hxyi,sizeim,cri,crj:integer;
     Vexct: double;
     VGeoConvert: ICoordConverter;
     VMinLonLat, VMaxLonLat: TExtendedPoint;
+    VTile: TPoint;
 begin
  try
  if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
@@ -338,11 +339,13 @@ begin
           if (j=2)and(TypeMapArr[0]<>nil) then
            begin
             p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
-            if TypeMapArr[0].TileExists(p_h.x,p_h.y,i+1) then UniLoadTile(bmp322,TypeMapArr[0],Vprojection,p_h,p_x,p_y,i);
+            VTile := TypeMapArr[0].GeoConvert.PixelPos2TilePos(p_h, i);
+            if TypeMapArr[0].TileExists(VTile, i) then UniLoadTile(bmp322,TypeMapArr[0],Vprojection,p_h,p_x,p_y,i);
            end;
           bmp32.Clear;
           p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
-          if TypeMapArr[j].TileExists(p_h.x,p_h.y,i+1) then
+          VTile := TypeMapArr[j].GeoConvert.PixelPos2TilePos(p_h, i);
+          if TypeMapArr[j].TileExists(VTile, i) then
            begin
             UniLoadTile(bmp32,TypeMapArr[j],Vprojection,p_h,p_x,p_y,i);
             if (j=2)and(TypeMapArr[0]<>nil) then
@@ -354,7 +357,7 @@ begin
               for xi:=0 to hxyi do
                for yi:=0 to hxyi do
                 begin
-                  bmp32crop.Clear; 
+                  bmp32crop.Clear;
                   bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                   bmp.Assign(bmp32Crop);
                   jpg.Assign(bmp);
