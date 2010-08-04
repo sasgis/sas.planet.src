@@ -77,7 +77,6 @@ type
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
-    procedure SaveTileDownload(x, y: longint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string); overload;
     procedure SaveTileNotExists(x, y: longint; Azoom: byte); overload;
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte); overload;
@@ -1073,13 +1072,6 @@ begin
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
-end;
-
-
-procedure TMapType.SaveTileDownload(x, y: Integer; Azoom: byte;
-  ATileStream: TCustomMemoryStream; ty: string);
-begin
-  Self.SaveTileDownload(Point(X shr 8, Y shr 8), Azoom - 1, ATileStream, ty);
 end;
 
 procedure TMapType.SaveTileInCache(btm: TBitmap32; path: string);

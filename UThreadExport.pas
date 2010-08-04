@@ -116,6 +116,7 @@ var p_x,p_y,i,j:integer;
     VExt: string;
     VPath: string;
     VMinLonLat, VMaxLonLat: TExtendedPoint;
+    VTile: TPoint;
 begin
  num_dwn:=0;
  SetLength(polyg,length(APolyLL));
@@ -168,9 +169,11 @@ begin
       p_x:=min.x;
       while p_x<max.x do
        begin
+        VTile.X := p_x shr 8;
         p_y:=min.Y;
         while p_y<max.Y do
          begin
+          VTile.Y := p_y shr 8;
           if FProgress.Visible=false then
            begin
             Fmain.generate_im;
@@ -180,17 +183,17 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
-          if TypeMapArr[j].TileExists(p_x,p_y,i+1) then
+          if TypeMapArr[j].TileExists(VTile, i) then
            begin
             if ziped then begin
 //TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-                            pathfrom:=TypeMapArr[j].GetTileFileName(p_x,p_y,i+1);
+                            pathfrom:=TypeMapArr[j].GetTileFileName(VTile, i);
                             Zip.FilesList.Add(pathfrom);
                           end
                      else begin
-                           pathto:= VPath + FTileNameGen.GetTileFileName(Point(p_x shr 8,p_y shr 8), i) + VExt;
-                           if TypeMapArr[j].TileExportToFile(p_x,p_y,i+1, pathto, replace) then begin
-                             if move then TypeMapArr[j].DeleteTile(p_x,p_y,i+1);
+                           pathto:= VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
+                           if TypeMapArr[j].TileExportToFile(VTile, i, pathto, replace) then begin
+                             if move then TypeMapArr[j].DeleteTile(VTile, i);
                            end;
                           end;
            end;

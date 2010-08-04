@@ -71,7 +71,7 @@ begin
     FileBuf:=TMemoryStream.Create;
     try
       try
-        res :=FTypeMap.DownloadTile(Self, FLoadXY.X shl 8, FLoadXY.Y shl 8, FZoom + 1, false, 0, FLoadUrl, ty, fileBuf);
+        res :=FTypeMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
         FErrorString:=GetErrStr(res);
         if (res = dtrOK) or (res = dtrSameTileSize) then begin
           GState.IncrementDownloaded(fileBuf.Size/1024, 1);
