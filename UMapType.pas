@@ -146,7 +146,6 @@ type
 
     function GetShortFolderName: string;
 
-    function DownloadTile(AThread: TThread; x, y: longint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
     function DownloadTile(AThread: TThread; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
@@ -1292,18 +1291,6 @@ begin
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');
   end;
-end;
-
-
-function TMapType.DownloadTile(AThread: TThread; x, y: longint; AZoom: byte;
-  ACheckTileSize: Boolean; AOldTileSize: Integer;
-  out AUrl: string; out AContentType: string;
-  fileBuf: TMemoryStream): TDownloadTileResult;
-var
-  VTile: TPoint;
-begin
-  VTile := Point(x shr 8, y shr 8);
-  Result := DownloadTile(AThread, VTile, AZoom - 1, ACheckTileSize, AOldTileSize, AUrl, AContentType, fileBuf);
 end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
