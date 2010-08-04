@@ -130,8 +130,7 @@ type
 
     function LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
 
-    function DeleteTile(x, y: longint; Azoom: byte): Boolean; overload;
-    function DeleteTile(AXY: TPoint; Azoom: byte): Boolean; overload;
+    function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 
     procedure SaveTileSimple(x, y: longint; Azoom: byte; btm: TBitmap32); overload;
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TBitmap32); overload;
@@ -900,11 +899,6 @@ begin
   end else begin
     Exception.Create('Для этой карты запрещено удаление тайлов.');
   end;
-end;
-
-function TMapType.DeleteTile(x, y: Integer; Azoom: byte): Boolean;
-begin
-  Result := Self.DeleteTile(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string; caching:boolean): boolean;

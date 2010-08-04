@@ -23,7 +23,6 @@ type
     Fprogress: TFprogress2;
     TileInProc:integer;
     DelBytes:boolean;
-    Fx, Fy: Integer;
     procedure DeleteTiles;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
@@ -108,16 +107,17 @@ end;
 
 procedure TOpDelTiles.DeleteTiles;
 var i,j:integer;
+  VTile: TPoint;
 begin
   i:=min.x;
   while (i<max.X)and(not Terminated) do begin
+    VTile.X := i shr 8;
     j:=min.Y;
     while (j<max.y)and(not Terminated) do  begin
+      VTile.Y := j shr 8;
       if RgnAndRgn(Polyg,i,j,false) then begin
-        if (not DelBytes or (DelBytesNum=typemap.TileSize(i,j,zoom))) then begin
-          Fx := i;
-          FY := j;
-          if typemap.DeleteTile(fx, fy, Zoom) then begin
+        if (not DelBytes or (DelBytesNum=typemap.TileSize(VTile, zoom - 1))) then begin
+          if typemap.DeleteTile(VTile, Zoom - 1) then begin
             inc(TileInProc);
           end;
           Synchronize(UpdateProgressForm);
