@@ -215,6 +215,7 @@ var
   res: TDownloadTileResult;
   razlen: integer;
   VGotoNextTile: Boolean;
+  VTile: TPoint;
 begin
   FStartTime := Now;
   FLastSuccessfulPoint := Point(-1,-1);
@@ -230,7 +231,9 @@ begin
   end;
   VGotoNextTile := True;
   while p_x < FRegionRect.Right do begin
+    VTile.X := p_x shr 8;
     while p_y < FRegionRect.Bottom do begin
+      VTile.Y := p_y shr 8;
       sleep(1);
       if (FDownloadPause) then begin
         FElapsedTime := FElapsedTime + (Now - FStartTime);
@@ -242,8 +245,8 @@ begin
       if RgnAndRgn(FRegionPoly, p_x, p_y, false) then begin
         FLoadXY.X := p_x;
         FLoadXY.Y := p_y;
-        FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FTypeMap.GetTileShowName(FLoadXY.X, FLoadXY.y, Fzoom) + '...', 0);
-        VTileExists := FTypeMap.TileExists(FLoadXY.x, FLoadXY.y, Fzoom);
+        FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FTypeMap.GetTileShowName(VTile, Fzoom - 1) + '...', 0);
+        VTileExists := FTypeMap.TileExists(VTile, Fzoom - 1);
         if (FReplaceExistTiles) or not(VTileExists) then begin
           if VTileExists then begin
             FLog.WriteText(SAS_STR_LoadProcessRepl+' ...', 0);
@@ -252,20 +255,20 @@ begin
           end;
           if (FCheckExistTileDate)
             and (VTileExists)
-            and (FTypeMap.TileLoadDate(FLoadXY.x, FLoadXY.y, Fzoom) >= FCheckTileDate) then
+            and (FTypeMap.TileLoadDate(VTile, Fzoom - 1) >= FCheckTileDate) then
           begin
             FLog.WriteText(SAS_MSG_FileBeCreateTime, 0);
             VGotoNextTile := True;
           end else begin
-            razlen := FTypeMap.TileSize(FLoadXY.x, FLoadXY.y, Fzoom);
+            razlen := FTypeMap.TileSize(VTile, Fzoom - 1);
 
             FileBuf:=TMemoryStream.Create;
             try
               try
-                if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(FLoadXY.x, FLoadXY.y, Fzoom))and(GState.SaveTileNotExists) then begin
+                if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(VTile, Fzoom - 1))and(GState.SaveTileNotExists) then begin
                   res := dtrTileNotExists;
                 end else begin
-                  res:=FTypeMap.DownloadTile(Self, FLoadXY.X, FLoadXY.Y, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                  res:=FTypeMap.DownloadTile(Self, VTile, FZoom - 1, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                 end;
 
                 case res of

@@ -117,8 +117,7 @@ type
 
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
 
-    function GetTileShowName(x, y: longint; Azoom: byte): string; overload;
-    function GetTileShowName(AXY: TPoint; Azoom: byte): string; overload;
+    function GetTileShowName(AXY: TPoint; Azoom: byte): string;
 
     function TileExists(x, y: longint; Azoom: byte): Boolean; overload;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean; overload;
@@ -1361,11 +1360,6 @@ var
 begin
   VTile := Point(x shr 8, y shr 8);
   Result := DownloadTile(AThread, VTile, AZoom - 1, ACheckTileSize, AOldTileSize, AUrl, AContentType, fileBuf);
-end;
-
-function TMapType.GetTileShowName(x, y: Integer; Azoom: byte): string;
-begin
-  Result := Self.GetTileShowName(Point(x shr 8, y shr 8), Azoom - 1);
 end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;

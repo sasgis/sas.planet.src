@@ -69,7 +69,7 @@ type
     prStr1, prStr2: string;
     prBar:integer;
     Message_:string;
-    LastXY: TPoint;
+    FLastXY: TPoint;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     procedure ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb);
     function IsCancel: Boolean;
@@ -273,8 +273,8 @@ begin
     while p_x<=FCurrentPieceRect.Right do begin
       FLLRect:=bounds(p_x,p_y,256,256);
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
-      LastXY.X := p_x;
-      LastXY.Y := p_y;
+      FLastXY.X := p_x shr 8;
+      FLastXY.Y := p_y shr 8;
       if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
@@ -436,7 +436,7 @@ begin
     errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
-      path:=FTypeMap.GetTileShowName(LastXY.x, LastXY.Y, FZoom);
+      path:=FTypeMap.GetTileShowName(FLastXY, FZoom - 1);
       Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
       Synchronize(SynShowMessage);
     end;
