@@ -124,8 +124,7 @@ uses
   u_MapTypeBasic,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigInIniFileSection,
-  u_MiniMapMenuItemsFactory,
-  i_IBitmapTypeExtManager;
+  u_MiniMapMenuItemsFactory;
 
 type
   TMiniMapListener = class(TJclBaseListener)

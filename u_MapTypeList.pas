@@ -5,8 +5,7 @@ interface
 uses
   ActiveX,
   i_IGUIDList,
-  i_MapTypes,
-  UMapType;
+  i_MapTypes;
 
 type
   TMapTypeList = class(TInterfacedObject, IMapTypeList)

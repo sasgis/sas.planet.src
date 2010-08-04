@@ -694,7 +694,6 @@ uses
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
   i_ISearchResultPresenter,
-  u_SearchResultPresenterStuped,
   frm_SearchResults,
   i_GeoCoder,
   i_IProxySettings,

@@ -3,7 +3,6 @@ unit u_GUIDObjectList;
 interface
 
 uses
-  ActiveX,
   i_IGUIDList,
   u_GUIDList;
 
@@ -54,7 +53,6 @@ implementation
 
 uses
   Windows,
-  Math,
   Classes,
   SysUtils;
 

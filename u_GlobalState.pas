@@ -279,7 +279,6 @@ uses
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
   u_MapsConfigInIniFileSection,
-  i_ICoordConverter,
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,

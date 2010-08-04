@@ -25,8 +25,7 @@ interface
 
 uses
   Windows,
-  ActiveX,
-  i_IGUIDList;
+  ActiveX;
 
 type
   TGUIDListBase = class(TInterfacedObject)

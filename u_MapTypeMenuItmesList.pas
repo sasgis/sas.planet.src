@@ -6,8 +6,7 @@ uses
   ActiveX,
   i_IGUIDList,
   i_IMapTypeMenuItem,
-  i_IMapTypeMenuItmesList,
-  UMapType;
+  i_IMapTypeMenuItmesList;
 
 type
   TMapTypeMenuItmesList = class(TInterfacedObject, IMapTypeMenuItmesList)

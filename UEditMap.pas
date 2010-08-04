@@ -66,9 +66,6 @@ var
 
 implementation
 
-uses
-  unit1;
-
 {$R *.dfm}
 
 procedure TFEditMap.FormShow(Sender: TObject);
