@@ -3322,13 +3322,18 @@ begin
 end;
 
 procedure TFmain.NMapParamsClick(Sender: TObject);
+var
+  VMapType: TMapType;
 begin
   if TTBXItem(sender).Tag=0 then begin
-    FEditMap.FMapType := GState.sat_map_both;
+    VMapType := GState.sat_map_both;
   end else begin
-    FEditMap.FMapType := TMapType(TTBXItem(sender).Tag);
+    VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  FEditMap.ShowModal;
+  if FEditMap.EditMapModadl(VMapType) then begin
+    CreateMapUI;
+    generate_im;
+  end;
 end;
 
 procedure TFmain.LayerMinMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

@@ -216,6 +216,7 @@ type
     procedure SBGetComNumClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
+    FMapsEdit: boolean;
   public
     FShortcutEditor: TShortcutEditor;
     procedure Save;
@@ -517,7 +518,7 @@ begin
    Close
   end;
  save;
- if MapsEdit then
+ if FMapsEdit then
   begin
    Fmain.CreateMapUI;
   end;
@@ -549,7 +550,7 @@ end;
 procedure TFSettings.FormShow(Sender: TObject);
 var DMS:TDMS;
 begin
- MapsEdit:=false;
+ FMapsEdit:=false;
  case GState.Localization  of
   LANG_RUSSIAN:CBoxLocal.ItemIndex:=0;
   LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
@@ -666,22 +667,26 @@ end;
 
 procedure TFSettings.Button12Click(Sender: TObject);
 begin
- MapsEdit:=true;
+ FMapsEdit:=true;
  If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then
   ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
 end;
 
 procedure TFSettings.Button11Click(Sender: TObject);
 begin
- MapsEdit:=true;
+ FMapsEdit:=true;
  If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then
   ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
 end;
 
 procedure TFSettings.Button15Click(Sender: TObject);
+var
+  VMapType: TMapType;
 begin
- FEditMap.FMapType := TMapType(MapList.Selected.Data);
- FEditMap.ShowModal;
+  VMapType := TMapType(MapList.Selected.Data);
+  if FEditMap.EditMapModadl(VMapType) then begin
+    FMapsEdit := True;
+  end;
 end;
 
 procedure TFSettings.MapListCustomDrawItem(Sender:TCustomListView; Item:TListItem; State:TCustomDrawState; var DefaultDraw:Boolean);

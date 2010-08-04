@@ -228,8 +228,6 @@ type
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
  end;
 
-var
-  MapsEdit: boolean;
 
   procedure LoadMaps;
   procedure SaveMaps;
