@@ -279,15 +279,15 @@ begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        FTypeMap.LoadTileOrPreZ(btmm,p_x,p_y, FZoom,false, true);
+        FTypeMap.LoadTileOrPreZ(btmm, FLastXY, FZoom - 1,false, true);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y, FZoom,false, True);
+          FHTypeMap.LoadTileOrPreZ(btmh,FLastXY, FZoom - 1,false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y+256, FZoom, false, True);
+            FHTypeMap.LoadTileOrPreZ(btmh, Point(FLastXY.X, FLastXY.Y + 1), FZoom - 1, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
@@ -332,6 +332,7 @@ var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
   p_h:TPoint;
   p:PColor32array;
+  VTile: TPoint;
 begin
   if line<(256-sy) then begin
     starttile:=sy+line
@@ -361,15 +362,18 @@ begin
       end else begin
         FLLRect:=bounds(p_x,p_y,256,256);
         btmm.Clear(Color32(GState.BGround));
-        FTypeMap.LoadTileOrPreZ(btmm,p_x,p_y, FZoom, false, True);
+        VTile := Point(p_x shr 8, p_y shr 8);
+        FTypeMap.LoadTileOrPreZ(btmm, VTile, FZoom - 1, false, True);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y, FZoom, false, True);
+          VTile := Point(p_h.X shr 8, p_h.Y shr 8);
+          FHTypeMap.LoadTileOrPreZ(btmh, VTile, FZoom - 1, false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            FHTypeMap.LoadTileOrPreZ(btmh,p_h.x,p_h.y+256, FZoom, false, True);
+            VTile.Y := VTile.Y + 1;
+            FHTypeMap.LoadTileOrPreZ(btmh,VTile, FZoom - 1, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
