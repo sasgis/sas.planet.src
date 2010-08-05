@@ -4360,18 +4360,9 @@ begin
   VMarkLonLatRect.Top := CDSmarkslatT.AsFloat;
   VMarkLonLatRect.Right := CDSmarksLonR.AsFloat;
   VMarkLonLatRect.Bottom := CDSmarksLatB.AsFloat;
-  if
-    (((VMarkLonLatRect.Left <=  VLonLatRect.Left) and
-    (VLonLatRect.Left <=  VMarkLonLatRect.Right)) or
 
-    ((VMarkLonLatRect.Left <=  VLonLatRect.Right) and
-    (VLonLatRect.Right <=  VMarkLonLatRect.Right))) and
-
-    (((VMarkLonLatRect.Bottom <=  VLonLatRect.Bottom) and
-    (VLonLatRect.Bottom <=  VMarkLonLatRect.Top)) or
-    ((VMarkLonLatRect.Bottom <=  VLonLatRect.Bottom) and
-    (VLonLatRect.Bottom <=  VMarkLonLatRect.Top)))
-  then begin
+  if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
+     (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
     ms:=TMemoryStream.Create;
     TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
     ms.Position:=0;
