@@ -93,7 +93,7 @@ begin
    FmapType.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
- close;
+// close;
 end;
 
 procedure TFEditMap.FormClose(Sender: TObject; var Action: TCloseAction);

@@ -1,6 +1,6 @@
 object FEditMap: TFEditMap
-  Left = 288
-  Top = 302
+  Left = 198
+  Top = 305
   BorderStyle = bsDialog
   ClientHeight = 253
   ClientWidth = 441
@@ -103,6 +103,7 @@ object FEditMap: TFEditMap
     Width = 75
     Height = 25
     Caption = #1055#1088#1080#1085#1103#1090#1100
+    ModalResult = 1
     TabOrder = 14
     OnClick = Button1Click
   end

@@ -1589,11 +1589,11 @@ begin
       end;
     end;
   end;
-  MainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(GState.MapType[0].GUID));
+  MainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(GState.ViewState.GetCurrentMap.GUID));
   TBSMB.ImageIndex := MainToolbarItem.ImageIndex;
   MainToolbarItem.Checked:=true;
   if GState.Showmapname then begin
-    TBSMB.Caption:=GState.MapType[0].name;
+    TBSMB.Caption:=MainToolbarItem.Caption;
   end else begin
     TBSMB.Caption:='';
   end;
