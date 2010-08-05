@@ -301,11 +301,11 @@ begin
   VSelectedPixels := FGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, FZoom);
 
   xy1 := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
-  xy1.x:=xy1.x+1;
-  xy1.y:=xy1.y+1;
+  xy1.x:=xy1.x;
+  xy1.y:=xy1.y;
   xy2 := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
-  xy2.x:=xy2.x-1;
-  xy2.y:=xy2.y-1;
+  xy2.x:=xy2.x;
+  xy2.y:=xy2.y;
 
   FLayer.Bitmap.FillRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clWhite32,20));
   FLayer.Bitmap.FrameRectS(xy1.x,xy1.y,xy2.x,xy2.y,SetAlpha(clBlue32,150));
