@@ -17,7 +17,7 @@ type
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
     procedure DoRedraw; override;
   public
-    procedure DoRedraw2Bitmap(BtmEx:TBitmap32; AGeoConvert: ICoordConverter; LLRect:TExtendedRect; AZoomCurr:byte);
+    procedure DoRedraw2Bitmap(BtmEx:TBitmap32; AGeoConvert: ICoordConverter; ATargetRect:TRect; AZoomCurr:byte);
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
 
   end;
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.DoRedraw2Bitmap(BtmEx:TBitmap32;AGeoConvert: ICoordConverter;LLRect:TExtendedRect; AZoomCurr:byte);
+procedure TMapMarksLayer.DoRedraw2Bitmap(BtmEx:TBitmap32;AGeoConvert: ICoordConverter;ATargetRect: TRect; AZoomCurr:byte);
 var xy,xyb:Tpoint;
     btm:TBitmap32;
     dLL:TExtendedPoint;
@@ -119,9 +119,11 @@ var xy,xyb:Tpoint;
     indexmi:integer;
     imw,texth:integer;
     marksFilter:string;
+    LLRect: TExtendedRect;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
+    LLRect := AGeoConvert.PixelRect2LonLatRect(ATargetRect, AZoomCurr);
     marksFilter:='';
     if GState.show_point = mshChecked then begin
       FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(AZoomCurr + 1)+' and BeforeScale >= '+inttostr(AZoomCurr + 1)+' )';
@@ -172,14 +174,14 @@ begin
           TestArrLenP1:=AGeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonL.AsFloat,FMain.CDSmarksLatT.AsFloat),(AZoomCurr));
           TestArrLenP2:=AGeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonR.AsFloat,FMain.CDSmarksLatB.AsFloat),(AZoomCurr));
           if (abs(TestArrLenP1.X-TestArrLenP2.X)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>FMain.CDSmarksScale1.AsInteger+2) then begin
-            drawPath2Bitmap(BtmEx,AGeoConvert,AGeoConvert.LonLat2PixelPos(LLRect.TopLeft,AZoomCurr),AZoomCurr, buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
+            drawPath2Bitmap(BtmEx,AGeoConvert,ATargetRect.TopLeft,AZoomCurr, buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
               (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
             SetLength(buf_line_arr,0);
           end;
         end;
         if length(buf_line_arr)=1 then begin
           xy:=AGeoConvert.LonLat2PixelPos(buf_line_arr[0],AZoomCurr);
-          xyb:=AGeoConvert.LonLat2PixelPos(LLRect.TopLeft,AZoomCurr);
+          xyb:=ATargetRect.TopLeft;
           xy:=Point(xy.x - xyb.x,xy.y - xyb.y);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
           indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);

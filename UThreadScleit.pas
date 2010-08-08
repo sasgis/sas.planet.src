@@ -328,10 +328,11 @@ begin
 end;
 
 procedure TThreadScleit.DrawMarks2Tile;
-var LLRect:TExtendedRect;
+var
+  VTargetRect: TRect;
 begin
- LLRect:=FTypeMap.GeoConvert.TilePos2LonLatRect(FLastTile, FZoom);
- FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,LLRect,FZoom)
+ VTargetRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
+ FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,VTargetRect,FZoom)
 end;
 
 procedure TThreadScleit.ReadLineBMP(Line: cardinal;
