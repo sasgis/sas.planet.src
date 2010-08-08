@@ -277,59 +277,59 @@ begin
     VGeoConvert := FGeoConvert;
     VBitmapOnMapPixelRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
     VBitmapOnMapPixelRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
-      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom, False);
-      VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
-      VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
-      VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
+    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom, False);
+    VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+    VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
+    VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
 
-      for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
-        VTile.X := i;
-        for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
-          VTile.Y := j;
-          VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
-          VTilePixelsToDraw.TopLeft := Point(0, 0);
-          VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;
-          VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top + 1;
+    for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
+      VTile.X := i;
+      for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+        VTile.Y := j;
+        VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
+        VTilePixelsToDraw.TopLeft := Point(0, 0);
+        VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;
+        VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top + 1;
 
-          if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
-            VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
-            VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
-          end;
+        if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
+          VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
+          VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
+        end;
 
-          if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
-            VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
-            VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
-          end;
+        if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
+          VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
+          VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
+        end;
 
-          if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
-            VTilePixelsToDraw.Right := VTilePixelsToDraw.Right - (VCurrTilePixelRectSource.Right - VPixelSourceRect.Right);
-            VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
-          end;
+        if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
+          VTilePixelsToDraw.Right := VTilePixelsToDraw.Right - (VCurrTilePixelRectSource.Right - VPixelSourceRect.Right);
+          VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
+        end;
 
-          if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
-            VTilePixelsToDraw.Bottom := VTilePixelsToDraw.Bottom - (VCurrTilePixelRectSource.Bottom - VPixelSourceRect.Bottom);
-            VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
-          end;
+        if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
+          VTilePixelsToDraw.Bottom := VTilePixelsToDraw.Bottom - (VCurrTilePixelRectSource.Bottom - VPixelSourceRect.Bottom);
+          VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
+        end;
 
-          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom + 8, VGeoConvert);
-          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
+        VCurrTilePixelRect.TopLeft := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom + 8, VGeoConvert);
+        VCurrTilePixelRect.BottomRight := VSourceGeoConvert.Pos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom + 8, VGeoConvert);
 
-          VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
-          VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
-          Inc(VCurrTilePixelRectAtBitmap.Bottom);
-          Inc(VCurrTilePixelRectAtBitmap.Right);
-          if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False) then begin
-            Gamma(VBmp);
-          end;
-          FLayer.Bitmap.Lock;
-          try
-            VBmp.DrawMode := ADrawMode;
-            FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
-          finally
-            FLayer.Bitmap.UnLock;
-          end;
+        VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
+        VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+        Inc(VCurrTilePixelRectAtBitmap.Bottom);
+        Inc(VCurrTilePixelRectAtBitmap.Right);
+        if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False) then begin
+          Gamma(VBmp);
+        end;
+        FLayer.Bitmap.Lock;
+        try
+          VBmp.DrawMode := ADrawMode;
+          FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+        finally
+          FLayer.Bitmap.UnLock;
         end;
       end;
+    end;
   finally
     VBmp.Free;
   end;
