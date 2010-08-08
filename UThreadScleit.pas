@@ -39,7 +39,6 @@ type
   private
     FZoom: byte;
     FPoly: TPointArray;
-    FLLRect: TRect;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
     FFileName: string;
@@ -69,7 +68,7 @@ type
     prStr1, prStr2: string;
     prBar:integer;
     Message_:string;
-    FLastXY: TPoint;
+    FLastTile: TPoint;
     FQuality: Integer;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     procedure ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb);
@@ -107,6 +106,7 @@ implementation
 uses
   ECWWriter,
   i_IMapCalibration,
+  i_ICoordConverter,
   u_GlobalState,
   u_MapMarksLayer,
   u_MapCalibrationKml,
@@ -280,30 +280,29 @@ begin
     Asx:=sx;
     Aex:=255;
     while p_x<=FCurrentPieceRect.Right do begin
-      FLLRect:=bounds(p_x,p_y,256,256);
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
-      FLastXY.X := p_x shr 8;
-      FLastXY.Y := p_y shr 8;
+      FLastTile.X := p_x shr 8;
+      FLastTile.Y := p_y shr 8;
       if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        FTypeMap.LoadTileOrPreZ(btmm, FLastXY, FZoom - 1,false, true);
+        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom - 1,false, true);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          FHTypeMap.LoadTileOrPreZ(btmh,FLastXY, FZoom - 1,false, True);
+          FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom - 1,false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            FHTypeMap.LoadTileOrPreZ(btmh, Point(FLastXY.X, FLastXY.Y + 1), FZoom - 1, false, True);
+            FHTypeMap.LoadTileOrPreZ(btmh, Point(FLastTile.X, FLastTile.Y + 1), FZoom - 1, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
         end;
+        if FUsedMarks then Synchronize(DrawMarks2Tile);
       end;
       if FUsedReColor then Gamma(btmm);
-      if FUsedMarks then Synchronize(DrawMarks2Tile);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
@@ -331,7 +330,7 @@ end;
 procedure TThreadScleit.DrawMarks2Tile;
 var LLRect:TExtendedRect;
 begin
- LLRect:=FTypeMap.GeoConvert.PixelRect2LonLatRect(FLLRect,FZoom-1);
+ LLRect:=FTypeMap.GeoConvert.TilePos2LonLatRect(FLastTile, FZoom-1);
  FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,LLRect,FZoom - 1)
 end;
 
@@ -341,7 +340,6 @@ var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
   p_h:TPoint;
   p:PColor32array;
-  VTile: TPoint;
 begin
   if line<(256-sy) then begin
     starttile:=sy+line
@@ -369,27 +367,26 @@ begin
       if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
-        FLLRect:=bounds(p_x,p_y,256,256);
         btmm.Clear(Color32(GState.BGround));
-        VTile := Point(p_x shr 8, p_y shr 8);
-        FTypeMap.LoadTileOrPreZ(btmm, VTile, FZoom - 1, false, True);
+        FLastTile := Point(p_x shr 8, p_y shr 8);
+        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom - 1, false, True);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          VTile := Point(p_h.X shr 8, p_h.Y shr 8);
-          FHTypeMap.LoadTileOrPreZ(btmh, VTile, FZoom - 1, false, True);
+          FLastTile := Point(p_h.X shr 8, p_h.Y shr 8);
+          FHTypeMap.LoadTileOrPreZ(btmh, FLastTile, FZoom - 1, false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            VTile.Y := VTile.Y + 1;
-            FHTypeMap.LoadTileOrPreZ(btmh,VTile, FZoom - 1, false, True);
+            FLastTile.Y := FLastTile.Y + 1;
+            FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom - 1, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
         end;
+        if FUsedMarks then Synchronize(DrawMarks2Tile);
       end;
       if FUsedReColor then Gamma(btmm);
-      if FUsedMarks then Synchronize(DrawMarks2Tile);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
       for j:=Asy to Aey do begin
         p:=btmm.ScanLine[j];
@@ -449,7 +446,7 @@ begin
     errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
-      path:=FTypeMap.GetTileShowName(FLastXY, FZoom - 1);
+      path:=FTypeMap.GetTileShowName(FLastTile, FZoom - 1);
       Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
       Synchronize(SynShowMessage);
     end;
