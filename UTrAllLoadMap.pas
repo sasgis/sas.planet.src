@@ -272,11 +272,19 @@ begin
                 end;
 
                 case res of
+                  dtrOK : begin
+                    FLastSuccessfulPoint := FLoadXY;
+                    GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                    FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
+                    inc(FDownloaded);
+                    FLog.WriteText('(Ok!)', 0);
+                    VGotoNextTile := True;
+                  end;
                   dtrSameTileSize: begin
+                    FLastSuccessfulPoint := FLoadXY;
                     GState.IncrementDownloaded(razlen/1024, 1);
                     FDownloadSize := FDownloadSize + (razlen / 1024);
                     inc(FDownloaded);
-                    FLastSuccessfulPoint := FLoadXY;
                     FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
                     VGotoNextTile := True;
                   end;
@@ -308,14 +316,6 @@ begin
                       VGotoNextTile := false;
                     end;
                     continue;
-                  end;
-                  dtrOK : begin
-                    FLastSuccessfulPoint := FLoadXY;
-                    GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                    FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
-                    inc(FDownloaded);
-                    FLog.WriteText('(Ok!)', 0);
-                    VGotoNextTile := True;
                   end;
                   else begin
                     FLog.WriteText(GetErrStr(res), 10);
