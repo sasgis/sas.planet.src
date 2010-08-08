@@ -1578,6 +1578,13 @@ begin
     end;
   end;
 
+  if asLayer then begin
+    spr.Clear(SetAlpha(Color32(GState.BGround),0));
+  end else begin
+    spr.Clear(Color32(GState.BGround));
+  end;
+
+
   VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(APixelRectTarget, Azoom);
   VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, Azoom);
   VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, Azoom);
@@ -1594,11 +1601,6 @@ begin
       if not VAllTilesExits then Break;
     end;
     if not VAllTilesExits then begin
-      if asLayer then begin
-        spr.Clear(SetAlpha(Color32(GState.BGround),0));
-      end else begin
-        spr.Clear(Color32(GState.BGround));
-      end;
       Exit;
     end;
   end;
@@ -1673,11 +1675,6 @@ begin
           spr.Draw(VTargetBounds, VSourceBounds, VSpr);
         end else begin
           if not AAllowPartial then begin
-            if asLayer then begin
-              spr.Clear(SetAlpha(Color32(GState.BGround),0));
-            end else begin
-              spr.Clear(Color32(GState.BGround));
-            end;
             Exit;
           end;
         end;
