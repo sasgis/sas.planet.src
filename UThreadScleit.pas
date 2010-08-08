@@ -130,7 +130,7 @@ begin
   Priority := tpLower;
   FreeOnTerminate := true;
   FPoly := APolygon_;
-  FZoom := Azoom;
+  FZoom := Azoom - 1;
   FSplitCount := ASplitCount;
   FFilePath := ExtractFilePath(AFName);
   FFileExt := ExtractFileExt(AFName);
@@ -218,7 +218,7 @@ begin
 
       for pti := 0 to FMapCalibrationList.Count - 1 do begin
         try
-          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FCurrentFileName, FCurrentPieceRect.TopLeft, FCurrentPieceRect.BottomRight, FZoom - 1, FTypeMap.GeoConvert);
+          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FCurrentFileName, FCurrentPieceRect.TopLeft, FCurrentPieceRect.BottomRight, FZoom, FTypeMap.GeoConvert);
         except
           //TODO: ƒобавить сюда нормальную обработку ошибок.
         end;
@@ -273,7 +273,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
-    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom - 1) + 8, FHTypeMap.GeoConvert);
+    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom) + 8, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;
@@ -287,15 +287,15 @@ begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
-        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom - 1,false, true);
+        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom,false, true);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom - 1,false, True);
+          FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom,false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
-            FHTypeMap.LoadTileOrPreZ(btmh, Point(FLastTile.X, FLastTile.Y + 1), FZoom - 1, false, True);
+            FHTypeMap.LoadTileOrPreZ(btmh, Point(FLastTile.X, FLastTile.Y + 1), FZoom, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
@@ -330,8 +330,8 @@ end;
 procedure TThreadScleit.DrawMarks2Tile;
 var LLRect:TExtendedRect;
 begin
- LLRect:=FTypeMap.GeoConvert.TilePos2LonLatRect(FLastTile, FZoom-1);
- FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,LLRect,FZoom - 1)
+ LLRect:=FTypeMap.GeoConvert.TilePos2LonLatRect(FLastTile, FZoom);
+ FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,LLRect,FZoom)
 end;
 
 procedure TThreadScleit.ReadLineBMP(Line: cardinal;
@@ -357,7 +357,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
-    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom - 1) + 8, FHTypeMap.GeoConvert);
+    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom) + 8, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;
@@ -369,17 +369,17 @@ begin
       end else begin
         btmm.Clear(Color32(GState.BGround));
         FLastTile := Point(p_x shr 8, p_y shr 8);
-        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom - 1, false, True);
+        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, True);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
           FLastTile := Point(p_h.X shr 8, p_h.Y shr 8);
-          FHTypeMap.LoadTileOrPreZ(btmh, FLastTile, FZoom - 1, false, True);
+          FHTypeMap.LoadTileOrPreZ(btmh, FLastTile, FZoom, false, True);
           btmh.DrawMode:=dmBlend;
           btmm.Draw(0,0-((p_h.y mod 256)),btmh);
           if p_h.y<>p_y then begin
             btmh.Clear($FF000000);
             FLastTile.Y := FLastTile.Y + 1;
-            FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom - 1, false, True);
+            FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom, false, True);
             btmh.DrawMode:=dmBlend;
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
@@ -438,15 +438,15 @@ begin
     Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
     Units := FTypeMap.GeoConvert.GetCellSizeUnits;
     CalculateWFileParams(
-      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom - 1),
-      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom - 1),
+      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom),
+      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom),
       FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
       CellIncrementX,CellIncrementY,OriginX,OriginY
     );
     errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
-      path:=FTypeMap.GetTileShowName(FLastTile, FZoom - 1);
+      path:=FTypeMap.GetTileShowName(FLastTile, FZoom);
       Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
       Synchronize(SynShowMessage);
     end;
@@ -632,8 +632,8 @@ begin
         ex:=(FCurrentPieceRect.Right mod 256);
         ey:=(FCurrentPieceRect.Bottom mod 256);
 
-        LL1 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom-1);
-        LL2 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom-1);
+        LL1 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom);
+        LL2 := FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom);
         str := str + ansiToUTF8('<LatLonBox>'+#13#10);
         str := str + ansiToUTF8('<north>' + R2StrPoint(LL1.y) + '</north>' + #13#10);
         str := str + ansiToUTF8('<south>' + R2StrPoint(LL2.y) + '</south>' + #13#10);
