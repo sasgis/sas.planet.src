@@ -70,6 +70,7 @@ type
     prBar:integer;
     Message_:string;
     FLastXY: TPoint;
+    FQuality: Integer;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     procedure ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb);
     function IsCancel: Boolean;
@@ -96,7 +97,8 @@ type
       Atypemap: TMapType;
       AHtypemap: TMapType;
       AusedReColor,
-      AusedMarks: boolean
+      AusedMarks: boolean;
+      AQuality: Integer
     );
   end;
 
@@ -106,7 +108,6 @@ uses
   ECWWriter,
   i_IMapCalibration,
   u_GlobalState,
-  usaveas,
   u_MapMarksLayer,
   u_MapCalibrationKml,
   Unit1,
@@ -119,7 +120,8 @@ constructor TThreadScleit.Create(
   ASplitCount: TPoint;
   Azoom:byte;
   Atypemap,AHtypemap:TMapType;
-  AusedReColor,AusedMarks:boolean
+  AusedReColor,AusedMarks:boolean;
+  AQuality: Integer
 );
 var
   VProcessTiles: Int64;
@@ -139,7 +141,8 @@ begin
   FUsedMarks := AusedMarks;
   FMapCalibrationList := AMapCalibrationList;
 
-
+  FQuality := AQuality;
+  
   Application.CreateForm(TFProgress2, FProgressForm);
   FProgressForm.Visible := true;
 
@@ -443,7 +446,7 @@ begin
       FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
       CellIncrementX,CellIncrementY,OriginX,OriginY
     );
-    errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-Fsaveas.QualitiEdit.Value, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
+    errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
       path:=FTypeMap.GetTileShowName(FLastXY, FZoom - 1);
@@ -552,7 +555,7 @@ begin
     jcprops.JPGHeight := iHeight;
     jcprops.JPGChannels := 3;
     jcprops.JPGColor := IJL_YCBCR;
-    jcprops.jquality := FSaveAs.QualitiEdit.Value;
+    jcprops.jquality := FQuality;
     ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
   Finally
     freemem(jcprops.DIBBytes,iWidth*iHeight*3);
@@ -675,7 +678,7 @@ begin
         jcprops.JPGHeight := iHeight;
         jcprops.JPGChannels := 3;
         jcprops.JPGColor := IJL_YCBCR;
-        jcprops.jquality := FSaveAs.QualitiEdit.Value;
+        jcprops.jquality := FQuality;
         ijlWrite(@jcprops, IJL_JBUFF_WRITEWHOLEIMAGE);
         jpgm.Write(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
         jpgm.Position:=0;

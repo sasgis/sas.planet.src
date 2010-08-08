@@ -403,7 +403,17 @@ begin
     end;
     VSplitCount.X := EditNTg.Value;
     VSplitCount.Y := EditNTv.Value;
-    TThreadScleit.Create(VPrTypes,VFileName,polyg,VSplitCount,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked,CBUsedMarks.Checked);
+    TThreadScleit.Create(
+      VPrTypes,
+      VFileName,
+      polyg,
+      VSplitCount,
+      CBZoomload.ItemIndex+1,
+      Amt,Hmt,
+      CBusedReColor.Checked,
+      CBUsedMarks.Checked,
+      QualitiEdit.Value
+    );
   end;
   Polyg := nil;
 end;
