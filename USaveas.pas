@@ -387,6 +387,7 @@ var
   i:integer;
   VPrTypes: IInterfaceList;
   VFileName: string;
+  VSplitCount: TPoint;
 begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
@@ -400,7 +401,9 @@ begin
         VPrTypes.Add(IInterface(Pointer(PrTypesBox.Items.Objects[i])));
       end;
     end;
-    TThreadScleit.Create(VPrTypes,VFileName,polyg,EditNTg.Value,EditNTv.Value,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked,CBUsedMarks.Checked);
+    VSplitCount.X := EditNTg.Value;
+    VSplitCount.Y := EditNTv.Value;
+    TThreadScleit.Create(VPrTypes,VFileName,polyg,VSplitCount,CBZoomload.ItemIndex+1,Amt,Hmt,CBusedReColor.Checked,CBUsedMarks.Checked);
   end;
   Polyg := nil;
 end;

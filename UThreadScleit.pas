@@ -91,8 +91,7 @@ type
       AMapCalibrationList: IInterfaceList;
       AFName: string;
       APolygon_: TPointArray;
-      numTilesG: integer;
-      numTilesV: integer;
+      ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
@@ -113,7 +112,15 @@ uses
   Unit1,
   u_GeoToStr;
 
-constructor TThreadScleit.Create(AMapCalibrationList: IInterfaceList; AFName:string;APolygon_:TPointArray;numTilesG,numTilesV:integer;Azoom:byte;Atypemap,AHtypemap:TMapType;AusedReColor,AusedMarks:boolean);
+constructor TThreadScleit.Create(
+  AMapCalibrationList: IInterfaceList;
+  AFName:string;
+  APolygon_:TPointArray;
+  ASplitCount: TPoint;
+  Azoom:byte;
+  Atypemap,AHtypemap:TMapType;
+  AusedReColor,AusedMarks:boolean
+);
 var
   VProcessTiles: Int64;
 begin
@@ -122,8 +129,7 @@ begin
   FreeOnTerminate := true;
   FPoly := APolygon_;
   FZoom := Azoom;
-  FSplitCount.X := numTilesG;
-  FSplitCount.Y := numTilesV;
+  FSplitCount := ASplitCount;
   FFilePath := ExtractFilePath(AFName);
   FFileExt := ExtractFileExt(AFName);
   FFileName := ChangeFileExt(ExtractFileName(AFName), '');
