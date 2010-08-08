@@ -332,7 +332,7 @@ procedure TThreadScleit.DrawMarks2Tile;
 var LLRect:TExtendedRect;
 begin
  LLRect:=FTypeMap.GeoConvert.PixelRect2LonLatRect(FLLRect,FZoom-1);
- FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,LLRect,FZoom)
+ FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,LLRect,FZoom - 1)
 end;
 
 procedure TThreadScleit.ReadLineBMP(Line: cardinal;
