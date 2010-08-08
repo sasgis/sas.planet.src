@@ -266,6 +266,7 @@ var
   VGUIDString: String;
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
+  VMapOnlyCount: integer;
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
@@ -278,6 +279,7 @@ begin
       inc(i);
     until FindNext(SearchRec) <> 0;
   end;
+  VMapOnlyCount := 0;
   SysUtils.FindClose(SearchRec);
   SetLength(GState.MapType,i);
   if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
@@ -323,6 +325,9 @@ begin
       end;
       if VMapType <> nil then begin
         GState.MapType[pnum]:= VMapType;
+        if not VMapType.asLayer then begin
+          Inc(VMapOnlyCount);
+        end;
         inc(pnum);
       end;
     until FindNext(SearchRec) <> 0;
@@ -330,6 +335,12 @@ begin
   end;
   SysUtils.FindClose(SearchRec);
   ini.Free;
+  if Length(GState.MapType) = 0 then begin
+    raise Exception.Create(SAS_ERR_NoMaps);
+  end;
+  if VMapOnlyCount = 0 then begin
+    raise Exception.Create('Среди ZMP должна быть хотя бы одна карта');
+  end;
 
   k := length(GState.MapType) shr 1;
   while k>0 do begin

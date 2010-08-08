@@ -1503,9 +1503,7 @@ begin
   for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
   for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
 
-  i:=length(GState.MapType)-1;
-
-  if i>0 then begin
+  if length(GState.MapType)>0 then begin
     for i:=0 to length(GState.MapType)-1 do begin
       VMapType := GState.MapType[i];
       With VMapType do begin
@@ -1616,6 +1614,13 @@ begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
 
+ if length(GState.MapType)=0 then
+  begin
+   ShowMessage(SAS_ERR_NoMaps);
+   Close;
+   exit;
+  end;
+
   FMainToolbarItemList := TGUIDObjectList.Create(False);
   FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
   FTBFillingItemList := TGUIDObjectList.Create(False);
@@ -1644,12 +1649,6 @@ begin
 
  movepoint:=-1;
 
- if length(GState.MapType)=0 then
-  begin
-   ShowMessage(SAS_ERR_NoMaps);
-   Close;
-   exit;
-  end;
  if FileExists(GState.MarksFileName)
   then begin
         CDSMarks.LoadFromFile(GState.MarksFileName);
