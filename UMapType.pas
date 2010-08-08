@@ -742,128 +742,6 @@ begin
   SysUtils.FindClose(InfoFile);
 end;
 
-function TMapType.LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint;
-  Azoom: byte; caching: boolean): boolean;
-var
-  i: integer;
-  bmp: TBitmap32;
-  VTileExists: Boolean;
-  key: string;
-  VTileTargetBounds:TRect;
-  VTileSourceBounds:TRect;
-  VTileParent: TPoint;
-  VTargetTilePixelRect: TRect;
-  VSourceTilePixelRect: TRect;
-  VRelative: TExtendedPoint;
-  VRelativeRect: TExtendedRect;
-  VParentZoom: Byte;
-begin
-  result:=false;
-  VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
-  VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
-  VTileTargetBounds.Left := 0;
-  VTileTargetBounds.Top := 0;
-  VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left + 1;
-  VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top + 1;
-  spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
-  if (not(GState.UsePrevZoom) and (asLayer=false)) or
-  (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
-  begin
-    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-               else spr.Clear(Color32(GState.BGround));
-    exit;
-  end;
-  VTileExists := false;
-  VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
-  VParentZoom := 0;
-  for i:=Azoom - 1 downto 0 do begin
-    VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
-    if TileExists(VTileParent, i) then begin
-      VParentZoom := i;
-      VTileExists := true;
-      break;
-    end;
-  end;
-  if not(VTileExists)or(Azoom - VParentZoom > 8) then begin
-    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-               else spr.Clear(Color32(GState.BGround));
-  end else begin
-    key := GetMemCacheKey(AXY, Azoom);
-    if (not caching)or(not FMemCache.TryLoadFileFromCache(spr, key)) then begin
-      bmp:=TBitmap32.Create;
-      try
-        if not(LoadTile(bmp, VTileParent, VParentZoom, true))then begin
-          if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-                     else spr.Clear(Color32(GState.BGround));
-        end else begin
-          bmp.Resampler := CreateResampler(GState.Resampling);
-          VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
-          VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
-          VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
-          VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
-          VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left + 1;
-          VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top + 1;
-          try
-            spr.Draw(VTileTargetBounds, VTileSourceBounds, bmp);
-            FMemCache.AddTileToCache(spr, key);
-          except
-            Result := false;
-            Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
-            Exit;
-          end;
-        end;
-      finally
-        FreeAndNil(bmp);
-      end;
-    end;
-    Result := true;
-  end;
-end;
-
-function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-var
-  Path: string;
-  VMemCacheKey: String;
-begin
-  VMemCacheKey := GetMemCacheKey(AXY, Azoom);
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
-      result:=GetGETile(btm, IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
-      if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
-    end else begin
-      result:=true;
-    end;
-  end else begin
-    path := GetTileFileName(AXY, Azoom);
-    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
-     result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
-    end else begin
-      result:=true;
-    end;
-  end;
-end;
-
-function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-var path: string;
-  VMemCacheKey: String;
-begin
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    raise Exception.Create('Из GE кеша можно получать только растры');
-  end else begin
-    VMemCacheKey := GetMemCacheKey(AXY, Azoom);
-    path := GetTileFileName(AXY, Azoom);
-    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
-     result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
-    end else begin
-      result:=true;
-    end;
-  end;
-end;
-
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: string;
@@ -896,40 +774,6 @@ begin
     end;
   end else begin
     Exception.Create('Для этой карты запрещено удаление тайлов.');
-  end;
-end;
-
-function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string; caching:boolean): boolean;
-begin
-  Result := false;
-  if GetFileSize(Apath)<=0 then begin
-    exit;
-  end;
-  try
-    GState.KmlLoader.LoadFromFile(Apath,  btm);
-    Result := True;
-  except
-    Assert(False, 'Ошибка загрузки kml из файла:' + APath);
-  end;
-end;
-
-function TMapType.LoadFile(btm: TBitmap32; APath: string; caching:boolean): boolean;
-var
-  VManager: IBitmapTypeExtManager;
-begin
-  Result := false;
-  if GetFileSize(Apath)<=0 then begin
-    exit;
-  end;
-  try
-    VManager := BitmapTypeManager;
-    if VManager.GetIsBitmapExt(TileFileExt) then begin
-      VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, btm);
-    end else begin
-      raise Exception.Create('У этой карты не растровые тайлы');
-    end;
-    result:=true;
-  except
   end;
 end;
 
@@ -1468,6 +1312,162 @@ end;
 function TMapType.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
 begin
   Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+GUIDString;
+end;
+
+function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string; caching:boolean): boolean;
+begin
+  Result := false;
+  if GetFileSize(Apath)<=0 then begin
+    exit;
+  end;
+  try
+    GState.KmlLoader.LoadFromFile(Apath,  btm);
+    Result := True;
+  except
+    Assert(False, 'Ошибка загрузки kml из файла:' + APath);
+  end;
+end;
+
+function TMapType.LoadFile(btm: TBitmap32; APath: string; caching:boolean): boolean;
+var
+  VManager: IBitmapTypeExtManager;
+begin
+  Result := false;
+  if GetFileSize(Apath)<=0 then begin
+    exit;
+  end;
+  try
+    VManager := BitmapTypeManager;
+    if VManager.GetIsBitmapExt(TileFileExt) then begin
+      VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, btm);
+    end else begin
+      raise Exception.Create('У этой карты не растровые тайлы');
+    end;
+    result:=true;
+  except
+  end;
+end;
+
+function TMapType.LoadTileFromPreZ(spr: TBitmap32; AXY: TPoint;
+  Azoom: byte; caching: boolean): boolean;
+var
+  i: integer;
+  bmp: TBitmap32;
+  VTileExists: Boolean;
+  key: string;
+  VTileTargetBounds:TRect;
+  VTileSourceBounds:TRect;
+  VTileParent: TPoint;
+  VTargetTilePixelRect: TRect;
+  VSourceTilePixelRect: TRect;
+  VRelative: TExtendedPoint;
+  VRelativeRect: TExtendedRect;
+  VParentZoom: Byte;
+begin
+  result:=false;
+  VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+  VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
+  VTileTargetBounds.Left := 0;
+  VTileTargetBounds.Top := 0;
+  VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left + 1;
+  VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top + 1;
+  spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
+  if (not(GState.UsePrevZoom) and (asLayer=false)) or
+  (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
+  begin
+    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+               else spr.Clear(Color32(GState.BGround));
+    exit;
+  end;
+  VTileExists := false;
+  VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
+  VParentZoom := 0;
+  for i:=Azoom - 1 downto 0 do begin
+    VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
+    if TileExists(VTileParent, i) then begin
+      VParentZoom := i;
+      VTileExists := true;
+      break;
+    end;
+  end;
+  if not(VTileExists)or(Azoom - VParentZoom > 8) then begin
+    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+               else spr.Clear(Color32(GState.BGround));
+  end else begin
+    key := GetMemCacheKey(AXY, Azoom);
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(spr, key)) then begin
+      bmp:=TBitmap32.Create;
+      try
+        if not(LoadTile(bmp, VTileParent, VParentZoom, true))then begin
+          if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+                     else spr.Clear(Color32(GState.BGround));
+        end else begin
+          bmp.Resampler := CreateResampler(GState.Resampling);
+          VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
+          VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
+          VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
+          VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
+          VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left + 1;
+          VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top + 1;
+          try
+            spr.Draw(VTileTargetBounds, VTileSourceBounds, bmp);
+            FMemCache.AddTileToCache(spr, key);
+          except
+            Result := false;
+            Assert(False, 'Ошибка в рисовании из предыдущего уровня'+name);
+            Exit;
+          end;
+        end;
+      finally
+        FreeAndNil(bmp);
+      end;
+    end;
+    Result := true;
+  end;
+end;
+
+function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+var
+  Path: string;
+  VMemCacheKey: String;
+begin
+  VMemCacheKey := GetMemCacheKey(AXY, Azoom);
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+      result:=GetGETile(btm, IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
+    end else begin
+      result:=true;
+    end;
+  end else begin
+    path := GetTileFileName(AXY, Azoom);
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+     result:=LoadFile(btm, path, caching);
+     if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
+    end else begin
+      result:=true;
+    end;
+  end;
+end;
+
+function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+var path: string;
+  VMemCacheKey: String;
+begin
+  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+    raise Exception.Create('Из GE кеша можно получать только растры');
+  end else begin
+    VMemCacheKey := GetMemCacheKey(AXY, Azoom);
+    path := GetTileFileName(AXY, Azoom);
+    if (not caching)or(not FMemCache.TryLoadFileFromCache(btm, VMemCacheKey)) then begin
+     result:=LoadFile(btm, path, caching);
+     if ((result)and(caching)) then FMemCache.AddTileToCache(btm, VMemCacheKey);
+    end else begin
+      result:=true;
+    end;
+  end;
 end;
 
 function TMapType.LoadTileOrPreZ(spr: TBitmap32; AXY: TPoint; Azoom: byte;
