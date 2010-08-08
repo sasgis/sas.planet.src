@@ -132,6 +132,8 @@ type
 
     function LoadTileUni(spr: TBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
 
+    function LoadBtimap(spr: TBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
+    
     function LoadBtimapUni(spr: TBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
 
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
@@ -1519,6 +1521,149 @@ begin
   Result := LoadBtimapUni(spr, VPixelRect, Azoom, caching, FCoordConverter, AUsePre, AAllowPartial, IgnoreError);
 end;
 
+function TMapType.LoadBtimap(spr: TBitmap32; APixelRectTarget: TRect;
+  Azoom: byte; caching, AUsePre, AAllowPartial,
+  IgnoreError: Boolean): boolean;
+var
+  VTileRect: TRect;
+  VTargetImageSize: TPoint;
+  VPixelRectCurrTile: TRect;
+  VAllTilesExits: Boolean;
+  i, j: Integer;
+  VTile: TPoint;
+  VSpr:TBitmap32;
+  VLoadResult: Boolean;
+  VSourceBounds: TRect;
+  VTargetBounds: TRect;
+begin
+  Result := False;
+
+  VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left + 1;
+  VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top + 1;
+
+  spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
+
+  VTileRect := FCoordConverter.PixelRect2TileRect(APixelRectTarget, Azoom);
+  if (VTileRect.Left = VTileRect.Right) and
+    (VTileRect.Top = VTileRect.Bottom)
+  then begin
+    VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTileRect.TopLeft, Azoom);
+    if
+      (VPixelRectCurrTile.Left = APixelRectTarget.Left) and
+      (VPixelRectCurrTile.Top = APixelRectTarget.Top) and
+      (VPixelRectCurrTile.Right = APixelRectTarget.Right) and
+      (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom)
+    then begin
+      if AUsePre then begin
+        Result := LoadTileOrPreZ(spr, VTileRect.TopLeft, Azoom, caching, IgnoreError);
+      end else begin
+        Result := LoadTile(spr, VTileRect.TopLeft, Azoom, caching);
+      end;
+      exit;
+    end;
+  end;
+
+  if asLayer then begin
+    spr.Clear(SetAlpha(Color32(GState.BGround),0));
+  end else begin
+    spr.Clear(Color32(GState.BGround));
+  end;
+
+  if not AAllowPartial and not AUsePre then begin
+    VAllTilesExits := True;
+    for i := VTileRect.Top to VTileRect.Bottom do begin
+      VTile.Y := i;
+      for j := VTileRect.Left to VTileRect.Right do begin
+        VTile.X := j;
+        VAllTilesExits := TileExists(VTile, Azoom);
+        if not VAllTilesExits then Break;
+      end;
+      if not VAllTilesExits then Break;
+    end;
+    if not VAllTilesExits then begin
+      Exit;
+    end;
+  end;
+  VSpr := TBitmap32.Create;
+  try
+    for i := VTileRect.Top to VTileRect.Bottom do begin
+      VTile.Y := i;
+      for j := VTileRect.Left to VTileRect.Right do begin
+        VTile.X := j;
+        if AUsePre then begin
+          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError);
+        end else begin
+          VLoadResult := LoadTile(VSpr, VTile, Azoom, caching);
+        end;
+        if VLoadResult then begin
+          VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
+
+          if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
+            VSourceBounds.Top := APixelRectTarget.Top - VPixelRectCurrTile.Top;
+          end else begin
+            VSourceBounds.Top := 0;
+          end;
+
+          if VPixelRectCurrTile.Left < APixelRectTarget.Left then begin
+            VSourceBounds.Left := APixelRectTarget.Left - VPixelRectCurrTile.Left;
+          end else begin
+            VSourceBounds.Left := 0;
+          end;
+
+          if VPixelRectCurrTile.Bottom < APixelRectTarget.Bottom then begin
+            VSourceBounds.Bottom := VPixelRectCurrTile.Bottom - VPixelRectCurrTile.Top;
+          end else begin
+            VSourceBounds.Bottom := APixelRectTarget.Bottom - VPixelRectCurrTile.Top;
+          end;
+
+          if VPixelRectCurrTile.Right < APixelRectTarget.Right then begin
+            VSourceBounds.Right := VPixelRectCurrTile.Right - VPixelRectCurrTile.Left;
+          end else begin
+            VSourceBounds.Right := APixelRectTarget.Right - VPixelRectCurrTile.Left;
+          end;
+          Inc(VSourceBounds.Right);
+          Inc(VSourceBounds.Bottom);
+
+          if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
+            VTargetBounds.Top := 0;
+          end else begin
+            VTargetBounds.Top := VPixelRectCurrTile.Top - APixelRectTarget.Top;
+          end;
+
+          if VPixelRectCurrTile.Left < APixelRectTarget.Left then begin
+            VTargetBounds.Left := 0;
+          end else begin
+            VTargetBounds.Left := VPixelRectCurrTile.Left - APixelRectTarget.Left;
+          end;
+
+          if VPixelRectCurrTile.Bottom < APixelRectTarget.Bottom then begin
+            VTargetBounds.Bottom := VPixelRectCurrTile.Bottom - APixelRectTarget.Top;
+          end else begin
+            VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
+          end;
+
+          if VPixelRectCurrTile.Right < APixelRectTarget.Right then begin
+            VTargetBounds.Right := VPixelRectCurrTile.Right - APixelRectTarget.Left;
+          end else begin
+            VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
+          end;
+          Inc(VTargetBounds.Right);
+          Inc(VTargetBounds.Bottom);
+
+          spr.Draw(VTargetBounds, VSourceBounds, VSpr);
+        end else begin
+          if not AAllowPartial then begin
+            Exit;
+          end;
+        end;
+      end;
+    end;
+    Result := True;
+  finally
+    VSpr.Free;
+  end;
+end;
+
 function TMapType.LoadBtimapUni(spr: TBitmap32; APixelRectTarget: TRect;
   Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
@@ -1551,138 +1696,119 @@ begin
     (ACoordConverterTarget.GetProjectionEPSG = FCoordConverter.GetProjectionEPSG) and
     (ACoordConverterTarget.GetTileSplitCode = FCoordConverter.GetTileSplitCode);
 
-  VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left + 1;
-  VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top + 1;
-
-  spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-
   if VSameCoordConvert then begin
-    VTileRectInSource := FCoordConverter.PixelRect2TileRect(APixelRectTarget, Azoom);
-    if (VTileRectInSource.Left = VTileRectInSource.Right) and
-      (VTileRectInSource.Top = VTileRectInSource.Bottom)
-    then begin
-      VPixelRectOfTargetPixelRectInSource := FCoordConverter.TilePos2PixelRect(VTileRectInSource.TopLeft, Azoom);
-      if
-        (VPixelRectOfTargetPixelRectInSource.Left = APixelRectTarget.Left) and
-        (VPixelRectOfTargetPixelRectInSource.Top = APixelRectTarget.Top) and
-        (VPixelRectOfTargetPixelRectInSource.Right = APixelRectTarget.Right) and
-        (VPixelRectOfTargetPixelRectInSource.Bottom = APixelRectTarget.Bottom)
-      then begin
-        if AUsePre then begin
-          Result := LoadTileOrPreZ(spr, VTileRectInSource.TopLeft, Azoom, caching, IgnoreError);
-        end else begin
-          Result := LoadTile(spr, VTileRectInSource.TopLeft, Azoom, caching);
-        end;
-        exit;
-      end;
-    end;
-  end;
-
-  if asLayer then begin
-    spr.Clear(SetAlpha(Color32(GState.BGround),0));
+    Result := LoadBtimap(spr, APixelRectTarget, Azoom, caching, AUsePre, AAllowPartial, IgnoreError);
   end else begin
-    spr.Clear(Color32(GState.BGround));
-  end;
+    VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left + 1;
+    VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top + 1;
 
+    spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
 
-  VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(APixelRectTarget, Azoom);
-  VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, Azoom);
-  VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, Azoom);
+    if asLayer then begin
+      spr.Clear(SetAlpha(Color32(GState.BGround),0));
+    end else begin
+      spr.Clear(Color32(GState.BGround));
+    end;
 
-  if not AAllowPartial and not AUsePre then begin
-    VAllTilesExits := True;
-    for i := VTileRectInSource.Top to VTileRectInSource.Bottom do begin
-      VTile.Y := i;
-      for j := VTileRectInSource.Left to VTileRectInSource.Right do begin
-        VTile.X := j;
-        VAllTilesExits := TileExists(VTile, Azoom);
+    VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(APixelRectTarget, Azoom);
+    VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, Azoom);
+    VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, Azoom);
+
+    if not AAllowPartial and not AUsePre then begin
+      VAllTilesExits := True;
+      for i := VTileRectInSource.Top to VTileRectInSource.Bottom do begin
+        VTile.Y := i;
+        for j := VTileRectInSource.Left to VTileRectInSource.Right do begin
+          VTile.X := j;
+          VAllTilesExits := TileExists(VTile, Azoom);
+          if not VAllTilesExits then Break;
+        end;
         if not VAllTilesExits then Break;
       end;
-      if not VAllTilesExits then Break;
+      if not VAllTilesExits then begin
+        Exit;
+      end;
     end;
-    if not VAllTilesExits then begin
-      Exit;
-    end;
-  end;
-  VSpr := TBitmap32.Create;
-  try
-    for i := VTileRectInSource.Top to VTileRectInSource.Bottom do begin
-      VTile.Y := i;
-      for j := VTileRectInSource.Left to VTileRectInSource.Right do begin
-        VTile.X := j;
-        if AUsePre then begin
-          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError);
-        end else begin
-          VLoadResult := LoadTile(VSpr, VTile, Azoom, caching);
-        end;
-        if VLoadResult then begin
-          VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
-          VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);
-          VPixelRectCurTileInTarget := ACoordConverterTarget.LonLatRect2PixelRect(VLonLatRectCurTile, Azoom);
-
-          if VPixelRectCurTileInSource.Top < VPixelRectOfTargetPixelRectInSource.Top then begin
-            VSourceBounds.Top := VPixelRectOfTargetPixelRectInSource.Top - VPixelRectCurTileInSource.Top;
+    VSpr := TBitmap32.Create;
+    try
+      for i := VTileRectInSource.Top to VTileRectInSource.Bottom do begin
+        VTile.Y := i;
+        for j := VTileRectInSource.Left to VTileRectInSource.Right do begin
+          VTile.X := j;
+          if AUsePre then begin
+            VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError);
           end else begin
-            VSourceBounds.Top := 0;
+            VLoadResult := LoadTile(VSpr, VTile, Azoom, caching);
           end;
+          if VLoadResult then begin
+            VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
+            VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);
+            VPixelRectCurTileInTarget := ACoordConverterTarget.LonLatRect2PixelRect(VLonLatRectCurTile, Azoom);
 
-          if VPixelRectCurTileInSource.Left < VPixelRectOfTargetPixelRectInSource.Left then begin
-            VSourceBounds.Left := VPixelRectOfTargetPixelRectInSource.Left - VPixelRectCurTileInSource.Left;
+            if VPixelRectCurTileInSource.Top < VPixelRectOfTargetPixelRectInSource.Top then begin
+              VSourceBounds.Top := VPixelRectOfTargetPixelRectInSource.Top - VPixelRectCurTileInSource.Top;
+            end else begin
+              VSourceBounds.Top := 0;
+            end;
+
+            if VPixelRectCurTileInSource.Left < VPixelRectOfTargetPixelRectInSource.Left then begin
+              VSourceBounds.Left := VPixelRectOfTargetPixelRectInSource.Left - VPixelRectCurTileInSource.Left;
+            end else begin
+              VSourceBounds.Left := 0;
+            end;
+
+            if VPixelRectCurTileInSource.Bottom < VPixelRectOfTargetPixelRectInSource.Bottom then begin
+              VSourceBounds.Bottom := VPixelRectCurTileInSource.Bottom - VPixelRectCurTileInSource.Top;
+            end else begin
+              VSourceBounds.Bottom := VPixelRectOfTargetPixelRectInSource.Bottom - VPixelRectCurTileInSource.Top;
+            end;
+
+            if VPixelRectCurTileInSource.Right < VPixelRectOfTargetPixelRectInSource.Right then begin
+              VSourceBounds.Right := VPixelRectCurTileInSource.Right - VPixelRectCurTileInSource.Left;
+            end else begin
+              VSourceBounds.Right := VPixelRectOfTargetPixelRectInSource.Right - VPixelRectCurTileInSource.Left;
+            end;
+            Inc(VSourceBounds.Right);
+            Inc(VSourceBounds.Bottom);
+
+            if VPixelRectCurTileInTarget.Top < APixelRectTarget.Top then begin
+              VTargetBounds.Top := 0;
+            end else begin
+              VTargetBounds.Top := VPixelRectCurTileInTarget.Top - APixelRectTarget.Top;
+            end;
+
+            if VPixelRectCurTileInTarget.Left < APixelRectTarget.Left then begin
+              VTargetBounds.Left := 0;
+            end else begin
+              VTargetBounds.Left := VPixelRectCurTileInTarget.Left - APixelRectTarget.Left;
+            end;
+
+            if VPixelRectCurTileInTarget.Bottom < APixelRectTarget.Bottom then begin
+              VTargetBounds.Bottom := VPixelRectCurTileInTarget.Bottom - APixelRectTarget.Top;
+            end else begin
+              VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
+            end;
+
+            if VPixelRectCurTileInTarget.Right < APixelRectTarget.Right then begin
+              VTargetBounds.Right := VPixelRectCurTileInTarget.Right - APixelRectTarget.Left;
+            end else begin
+              VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
+            end;
+            Inc(VTargetBounds.Right);
+            Inc(VTargetBounds.Bottom);
+
+            spr.Draw(VTargetBounds, VSourceBounds, VSpr);
           end else begin
-            VSourceBounds.Left := 0;
-          end;
-
-          if VPixelRectCurTileInSource.Bottom < VPixelRectOfTargetPixelRectInSource.Bottom then begin
-            VSourceBounds.Bottom := VPixelRectCurTileInSource.Bottom - VPixelRectCurTileInSource.Top;
-          end else begin
-            VSourceBounds.Bottom := VPixelRectOfTargetPixelRectInSource.Bottom - VPixelRectCurTileInSource.Top;
-          end;
-
-          if VPixelRectCurTileInSource.Right < VPixelRectOfTargetPixelRectInSource.Right then begin
-            VSourceBounds.Right := VPixelRectCurTileInSource.Right - VPixelRectCurTileInSource.Left;
-          end else begin
-            VSourceBounds.Right := VPixelRectOfTargetPixelRectInSource.Right - VPixelRectCurTileInSource.Left;
-          end;
-          Inc(VSourceBounds.Right);
-          Inc(VSourceBounds.Bottom);
-
-          if VPixelRectCurTileInTarget.Top < APixelRectTarget.Top then begin
-            VTargetBounds.Top := 0;
-          end else begin
-            VTargetBounds.Top := VPixelRectCurTileInTarget.Top - APixelRectTarget.Top;
-          end;
-
-          if VPixelRectCurTileInTarget.Left < APixelRectTarget.Left then begin
-            VTargetBounds.Left := 0;
-          end else begin
-            VTargetBounds.Left := VPixelRectCurTileInTarget.Left - APixelRectTarget.Left;
-          end;
-
-          if VPixelRectCurTileInTarget.Bottom < APixelRectTarget.Bottom then begin
-            VTargetBounds.Bottom := VPixelRectCurTileInTarget.Bottom - APixelRectTarget.Top;
-          end else begin
-            VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
-          end;
-
-          if VPixelRectCurTileInTarget.Right < APixelRectTarget.Right then begin
-            VTargetBounds.Right := VPixelRectCurTileInTarget.Right - APixelRectTarget.Left;
-          end else begin
-            VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
-          end;
-          Inc(VTargetBounds.Right);
-          Inc(VTargetBounds.Bottom);
-
-          spr.Draw(VTargetBounds, VSourceBounds, VSpr);
-        end else begin
-          if not AAllowPartial then begin
-            Exit;
+            if not AAllowPartial then begin
+              Exit;
+            end;
           end;
         end;
       end;
+      Result := True;
+    finally
+      VSpr.Free;
     end;
-    Result := True;
-  finally
-    VSpr.Free;
   end;
 end;
 
