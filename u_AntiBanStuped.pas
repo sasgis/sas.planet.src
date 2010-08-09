@@ -111,7 +111,7 @@ function TAntiBanStuped.CheckIsBan(ATile: TPoint; AZoom: Byte;
   ADownloadSize: Cardinal): Boolean;
 begin
   Result := false;
-  if (AContentType <> FContent_type)
+  if (ADownloadResult = dtrErrorMIMEType)
     and(ADownloadSize <> 0)
     and(FBanIfLen <> 0)
     and(ADownloadSize < (FBanIfLen + 50))
