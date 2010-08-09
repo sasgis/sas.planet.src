@@ -206,7 +206,14 @@ begin
       FLogo.Show;
       Application.ProcessMessages;
     end;
-    LoadMaps;
+    try
+      LoadMaps;
+    except
+      on E: Exception do begin
+        Application.ShowException(E);
+        Exit;
+      end;
+    end;
     //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TFmain, Fmain);
