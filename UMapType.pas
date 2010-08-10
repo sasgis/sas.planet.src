@@ -40,7 +40,6 @@ type
     FUseSave: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
-    FGetURLScript: string;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
     FMaxConnectToServerCount: Cardinal;
@@ -53,6 +52,7 @@ type
     FIcon24Index: Integer;
     FIcon18Index: Integer;
     FCacheConfig: TMapTypeCacheConfig;
+    FUrlGenerator : TUrlGeneratorBasic;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -72,7 +72,7 @@ type
     procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
     procedure LoadGUIDFromIni(AIniFile: TCustomIniFile);
     procedure LoadMapIcons(AUnZip: TVCLZip);
-    procedure LoadUrlScript(AUnZip: TVCLZip);
+    procedure LoadUrlScript(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
     procedure LoadProjectionInfo(AIniFile: TCustomIniFile);
     procedure LoadStorageParams(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
@@ -93,9 +93,6 @@ type
 
     DefHotKey: TShortCut;
     HotKey: TShortCut;
-
-    DefURLBase: string;
-    URLBase: string;
 
     DefSleep: Integer;
     Sleep: Integer;
@@ -170,6 +167,7 @@ type
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
     property CacheConfig: TMapTypeCacheConfig read FCacheConfig;
+    property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
 
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
@@ -178,7 +176,6 @@ type
     FInitDownloadCS: TCriticalSection;
     FCSSaveTile: TCriticalSection;
     FCSSaveTNF: TCriticalSection;
-    FUrlGenerator : TUrlGenerator;
     FCoordConverter : ICoordConverter;
     FConverterForUrlGenerator: ICoordConverterSimple;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
@@ -297,7 +294,7 @@ begin
         if Ini.SectionExists(VGUIDString)then begin
           With VMapType do begin
             id:=Ini.ReadInteger(VGUIDString,'pnum',0);
-            URLBase:=ini.ReadString(VGUIDString,'URLBase',URLBase);
+            FUrlGenerator.URLBase:=ini.ReadString(VGUIDString,'URLBase',FUrlGenerator.URLBase);
             CacheConfig.CacheType:=ini.ReadInteger(VGUIDString,'CacheType',CacheConfig.cachetype);
             CacheConfig.NameInCache:=ini.ReadString(VGUIDString,'NameInCache',CacheConfig.NameInCache);
             HotKey:=ini.ReadInteger(VGUIDString,'HotKey',HotKey);
@@ -377,8 +374,8 @@ begin
       ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
 
 
-      if VMapType.URLBase<>VMapType.DefURLBase then begin
-        ini.WriteString(VGUIDString,'URLBase',VMapType.URLBase);
+      if VMapType.FUrlGenerator.URLBase<>VMapType.FUrlGenerator.DefURLBase then begin
+        ini.WriteString(VGUIDString,'URLBase',VMapType.FUrlGenerator.URLBase);
       end else begin
         Ini.DeleteKey(VGUIDString,'URLBase');
       end;
@@ -479,28 +476,24 @@ begin
   end;
 end;
 
-procedure TMapType.LoadUrlScript(AUnZip: TVCLZip);
-var
-  MapParams:TMemoryStream;
+procedure TMapType.LoadUrlScript(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
 begin
-  MapParams:=TMemoryStream.Create;
-  try
-    AUnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
-    FGetURLScript := PChar(MapParams.Memory);
-    SetLength(FGetURLScript, MapParams.Size);
-  finally
-    FreeAndNil(MapParams);
-  end;
-  try
-    FUrlGenerator := TUrlGenerator.Create(FGetURLScript, FConverterForUrlGenerator);
-    FUrlGenerator.GetURLBase := URLBase;
-    //GetLink(0,0,0);
-  except
-    on E: Exception do begin
-      ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
+  if FUseDwn then begin
+    try
+      FUrlGenerator := TUrlGenerator.Create(AUnZip, AIniFile, FConverterForUrlGenerator);
+      //GetLink(0,0,0);
+    except
+      on E: Exception do begin
+        ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
+        FUrlGenerator := nil;
+      end;
+     else
+      ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
+      FUrlGenerator := nil;
     end;
-   else
-    ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
+  end;
+  if FUrlGenerator = nil then begin
+    FUrlGenerator := TUrlGeneratorBasic.Create(AUnZip, AIniFile);
   end;
 end;
 
@@ -569,8 +562,6 @@ end;
 
 procedure TMapType.LoadWebSourceParams(AIniFile: TCustomIniFile);
 begin
-  URLBase:=AIniFile.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
-  DefUrlBase:=URLBase;
   FTileRect.Left:=AIniFile.ReadInteger('PARAMS','TileRLeft',0);
   FTileRect.Top:=AIniFile.ReadInteger('PARAMS','TileRTop',0);
   FTileRect.Right:=AIniFile.ReadInteger('PARAMS','TileRRight',0);
@@ -640,9 +631,9 @@ begin
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       LoadMimeTypeSubstList(iniparams);
       LoadProjectionInfo(iniparams);
+      LoadUrlScript(UnZip, iniparams);
       if FUseDwn then begin
         try
-          LoadUrlScript(UnZip);
           FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
           if FMaxConnectToServerCount > 64 then begin
             FMaxConnectToServerCount := 64;
@@ -670,9 +661,7 @@ end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
-  if (FUrlGenerator = nil) then result:='';
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  FUrlGenerator.URLBase:=URLBase;
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
@@ -1090,6 +1079,7 @@ begin
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
   FCache := nil;
+  FreeAndNil(FCacheConfig);
   inherited;
 end;
 

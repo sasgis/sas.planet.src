@@ -241,6 +241,6 @@ begin
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;
   finally
-    FreeAndNil(GState);
+    GState.Free;
   end;
 end.

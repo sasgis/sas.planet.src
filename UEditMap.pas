@@ -74,7 +74,7 @@ uses
 procedure TFEditMap.FormShow(Sender: TObject);
 begin
  FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
- EditURL.Text:=FMapType.URLBase;
+ EditURL.Text:=FMapType.UrlGenerator.URLBase;
  EditNameinCache.Text:=FMapType.CacheConfig.NameInCache;
  SESleep.Value:=FMapType.Sleep;
  EditParSubMenu.Text:=FMapType.ParentSubMenu;
@@ -85,7 +85,7 @@ end;
 
 procedure TFEditMap.Button1Click(Sender: TObject);
 begin
- FmapType.URLBase:=EditURL.Text;
+ FmapType.UrlGenerator.URLBase:=EditURL.Text;
  FmapType.CacheConfig.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.Sleep:=SESleep.Value;
@@ -111,7 +111,7 @@ end;
 
 procedure TFEditMap.Button3Click(Sender: TObject);
 begin
- EditURL.Text:=FmapType.DefURLBase;
+ EditURL.Text:=FmapType.UrlGenerator.DefURLBase;
  EditNameinCache.Text:=FmapType.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.DefParentSubMenu;
  SESleep.Value:=FmapType.Sleep;
@@ -122,7 +122,7 @@ end;
 
 procedure TFEditMap.Button6Click(Sender: TObject);
 begin
- EditURL.Text := FMapType.DefURLBase;
+ EditURL.Text := FMapType.UrlGenerator.DefURLBase;
 end;
 
 procedure TFEditMap.Button4Click(Sender: TObject);

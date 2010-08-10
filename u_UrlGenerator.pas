@@ -6,6 +6,8 @@ Uses
   Windows,
   SysUtils,
   DateUtils,
+  IniFiles,
+  VCLZip,
   uPSC_dll,
   uPSR_dll,
   uPSRuntime,
@@ -16,11 +18,29 @@ type
   EUrlGeneratorScriptCompileError = class(Exception);
   EUrlGeneratorScriptRunError = class(Exception);
 
-  TUrlGenerator = class
+  TUrlGeneratorBasic = class
   private
-    procedure SetURLBase(const Value: string);
+    FDefURLBase: string;
+    FURLBase: String;
+  protected
+    procedure SetURLBase(const Value: string); virtual;
+  public
+    constructor Create(
+      AUnZip: TVCLZip;
+      AIniFile: TCustomIniFile
+    );
+
+    function GenLink(Ax, Ay: longint; Azoom: byte): string;
+
+    property URLBase: string read FURLBase write SetURLBase;
+    property DefURLBase: string read FDefURLBase;
+  end;
+
+  TUrlGenerator = class(TUrlGeneratorBasic)
   protected
     FCoordConverter: ICoordConverterSimple;
+    FGetURLScript: string;
+
     FCS: TRTLCriticalSection;
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
@@ -37,14 +57,16 @@ type
     FpGetTMetr: PPSVariantExtended;
     FpGetBMetr: PPSVariantExtended;
     FpConverter: PPSVariantInterface;
-    FGetURLScript: string;
-    FURLBase: String;
     procedure SetVar(AXY: TPoint; AZoom: Byte);
+    procedure SetURLBase(const Value: string); override;
   public
-    constructor Create(AGetURLScript: string; ACoordConverter: ICoordConverterSimple);
+    constructor Create(
+      AUnZip: TVCLZip;
+      AIniFile: TCustomIniFile;
+      ACoordConverter: ICoordConverterSimple
+    );
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string;
-    property URLBase: string read FURLBase write SetURLBase;
   end;
 
 implementation
@@ -56,6 +78,26 @@ uses
   uPSUtils,
   u_GeoToStr,
   t_GeoTypes;
+
+{ TUrlGeneratorBasic }
+
+constructor TUrlGeneratorBasic.Create(AUnZip: TVCLZip;
+  AIniFile: TCustomIniFile);
+begin
+  FURLBase:=AIniFile.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
+  FDefUrlBase:=URLBase;
+end;
+
+function TUrlGeneratorBasic.GenLink(Ax, Ay: Integer; Azoom: byte): string;
+begin
+  Result := '';
+end;
+
+procedure TUrlGeneratorBasic.SetURLBase(const Value: string);
+begin
+  FURLBase := Value;
+end;
+
 
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
 var
@@ -143,15 +185,29 @@ begin
 end;
 
 { TUrlGenerator }
-constructor TUrlGenerator.Create(AGetURLScript: string; ACoordConverter: ICoordConverterSimple);
+constructor TUrlGenerator.Create(
+  AUnZip: TVCLZip;
+  AIniFile: TCustomIniFile;
+  ACoordConverter: ICoordConverterSimple
+);
 var
   i: integer;
   Msg: string;
   VCompiler: TPSPascalCompiler;
   VData: string;
+  MapParams: TMemoryStream;
 begin
-  FGetURLScript := AGetURLScript;
+  inherited Create(AUnZip, AIniFile);
   FCoordConverter := ACoordConverter;
+
+  MapParams:=TMemoryStream.Create;
+  try
+    AUnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
+    FGetURLScript := PChar(MapParams.Memory);
+    SetLength(FGetURLScript, MapParams.Size);
+  finally
+    FreeAndNil(MapParams);
+  end;
   VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
   VCompiler.OnExternalProc := DllExternalProc; // Добавляем стандартный обработчик внешних DLL(находится в модуле uPSC_dll)
   VCompiler.OnUses := ScriptOnUses;            // assign the OnUses event.
@@ -247,7 +303,7 @@ end;
 
 procedure TUrlGenerator.SetURLBase(const Value: string);
 begin
-  FURLBase := Value;
+  inherited;
   FpGetURLBase.Data := Value;
 end;
 
