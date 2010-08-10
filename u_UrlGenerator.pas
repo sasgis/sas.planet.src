@@ -18,11 +18,8 @@ type
 
   TUrlGenerator = class
   private
-    procedure SetGetURLBase(const Value: string);
+    procedure SetURLBase(const Value: string);
   protected
-    posxp: integer;
-    posyp: integer;
-    zoom: byte;
     FCoordConverter: ICoordConverterSimple;
     FCS: TRTLCriticalSection;
     FExec: TPSExec;
@@ -41,19 +38,21 @@ type
     FpGetBMetr: PPSVariantExtended;
     FpConverter: PPSVariantInterface;
     FGetURLScript: string;
-    FGetURLBase: String;
-    procedure SetVar;
+    FURLBase: String;
+    procedure SetVar(AXY: TPoint; AZoom: Byte);
   public
     constructor Create(AGetURLScript: string; ACoordConverter: ICoordConverterSimple);
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string;
-    property GetURLBase: string read FGetURLBase write SetGetURLBase;
+    property URLBase: string read FURLBase write SetURLBase;
   end;
 
 implementation
 
 uses
   Math,
+  Classes,
+  Types,
   uPSUtils,
   u_GeoToStr,
   t_GeoTypes;
@@ -201,25 +200,24 @@ begin
   inherited;
 end;
 
-procedure TUrlGenerator.SetVar;
+procedure TUrlGenerator.SetVar(AXY: TPoint; AZoom: Byte);
 var
   XY: TPoint;
   Ll: TExtendedPoint;
 begin
-  FpGetX.Data := posxp;
-  FpGetY.Data := posyp;
-  FpGetZ.Data := zoom + 1;
-  XY.X := posxp;
-  XY.Y := posyp;
-  Ll := FCoordConverter.Pos2LonLat(XY, zoom);
+  FpGetX.Data := AXY.X;
+  FpGetY.Data := AXY.Y;
+  FpGetZ.Data := AZoom + 1;
+  Ll := FCoordConverter.Pos2LonLat(AXY, AZoom);
   FpGetLlon.Data := Ll.X;
   FpGetTLat.Data := Ll.Y;
   Ll := FCoordConverter.LonLat2Metr(LL);
   FpGetLMetr.Data := Ll.X;
   FpGetTMetr.Data := Ll.Y;
-  XY.X := (posxp + 1);
-  XY.Y := (posyp + 1);
-  Ll := FCoordConverter.Pos2LonLat(XY, zoom);
+  XY := AXY;
+  Inc(XY.X);
+  Inc(XY.Y);
+  Ll := FCoordConverter.Pos2LonLat(XY, AZoom);
   FpGetRLon.Data := Ll.X;
   FpGetBLat.Data := Ll.Y;
   Ll := FCoordConverter.LonLat2Metr(LL);
@@ -233,10 +231,7 @@ begin
   EnterCriticalSection(FCS);
   try
     FpResultUrl.Data := '';
-    posxp := Ax;
-    posYp := Ay;
-    zoom := Azoom;
-    SetVar;
+    SetVar(Point(Ax, Ay), Azoom);
     try
       FExec.RunScript; // Run the script.
     except
@@ -250,9 +245,9 @@ begin
   end;
 end;
 
-procedure TUrlGenerator.SetGetURLBase(const Value: string);
+procedure TUrlGenerator.SetURLBase(const Value: string);
 begin
-  FGetURLBase := Value;
+  FURLBase := Value;
   FpGetURLBase.Data := Value;
 end;
 

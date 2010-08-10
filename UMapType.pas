@@ -672,7 +672,7 @@ function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   if (FUrlGenerator = nil) then result:='';
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  FUrlGenerator.GetURLBase:=URLBase;
+  FUrlGenerator.URLBase:=URLBase;
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
