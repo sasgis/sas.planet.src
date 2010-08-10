@@ -492,7 +492,7 @@ begin
     FreeAndNil(MapParams);
   end;
   try
-    FUrlGenerator := TUrlGenerator.Create('procedure Return(Data: string); begin ResultURL := Data; end; ' + FGetURLScript, FConverterForUrlGenerator);
+    FUrlGenerator := TUrlGenerator.Create(FGetURLScript, FConverterForUrlGenerator);
     FUrlGenerator.GetURLBase := URLBase;
     //GetLink(0,0,0);
   except
