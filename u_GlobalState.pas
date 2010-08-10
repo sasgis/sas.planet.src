@@ -21,7 +21,8 @@ uses
   u_MapViewPortState,
   Uimgfun,
   UMapType,
-  u_MemFileCache;
+  u_MemFileCache,
+  u_GlobalCahceConfig;
 
 type
   TSrchType = (stGoogle,stYandex);
@@ -41,6 +42,8 @@ type
     FCacheElemensMaxCnt: integer;
     FMapConfigSaver: IActiveMapsConfigSaver;
     FMapConfigLoader: IActiveMapsConfigLoader;
+    FCacheConfig: TGlobalCahceConfig;
+
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -96,8 +99,6 @@ type
 
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
-    //Способ храения кеша по-умолчанию.
-    DefCache: byte;
 
     GPS_enab: Boolean;
 
@@ -186,13 +187,6 @@ type
     GShScale: integer;
 
 
-    //Пути к кешам разных типов
-    NewCPath_: string;
-    OldCPath_: string;
-    ESCpath_: string;
-    GMTilespath_: string;
-    GECachepath_: string;
-
     // Показывать хинты при нахождении мыши над меткой
     ShowHintOnMarks: Boolean;
 
@@ -222,6 +216,7 @@ type
     // Масштаб, на котором было последнее выделение
     poly_zoom_save: byte;
 
+    property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     // Количество элементов в кэше в памяти
     property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
 
@@ -295,6 +290,7 @@ var
   VConfigLoadSave: TMapsConfigInIniFileSection;
 begin
   FDwnCS := TCriticalSection.Create;
+  FCacheConfig := TGlobalCahceConfig.Create;
   All_Dwn_Kb := 0;
   All_Dwn_Tiles := 0;
   InetConnect := TInetConnect.Create;
@@ -340,6 +336,7 @@ begin
   FKmzLoader := nil;
   FreeAndNil(FViewState);
   FreeAllMaps;
+  FreeAndNil(FCacheConfig);
   inherited;
 end;
 

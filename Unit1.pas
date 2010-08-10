@@ -1700,7 +1700,7 @@ begin
  GState.ZoomingAtMousePos:=GState.MainIni.readBool('VIEW','ZoomingAtMousePos',true);
  NGoToCur.Checked := GState.ZoomingAtMousePos;
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
- GState.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
+ GState.CacheConfig.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
  Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  GState.TileGridZoom:=GState.MainIni.readinteger('VIEW','grid',0);
  GState.MouseWheelInv:=GState.MainIni.readbool('VIEW','invert_mouse',false);
@@ -1777,11 +1777,11 @@ begin
  GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
  GState.GSMpar.WaitingAnswer:=GState.MainIni.ReadInteger('GSM','WaitingAnswer',200);
 
- GState.OldCpath_:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
- GState.NewCpath_:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
- GState.ESCpath_:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
- GState.GMTilesPath_:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
- GState.GECachePath_:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
+ GState.CacheConfig.OldCpath:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
+ GState.CacheConfig.NewCpath:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
+ GState.CacheConfig.ESCpath:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
+ GState.CacheConfig.GMTilesPath:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
+ GState.CacheConfig.GECachePath:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
  VConverter := GState.MapType[0].GeoConvert;
  VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;

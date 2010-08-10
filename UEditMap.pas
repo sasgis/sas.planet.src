@@ -66,31 +66,34 @@ var
 
 implementation
 
+uses
+  u_MapTypeCacheConfig;
+
 {$R *.dfm}
 
 procedure TFEditMap.FormShow(Sender: TObject);
 begin
  FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
  EditURL.Text:=FMapType.URLBase;
- EditNameinCache.Text:=FMapType.NameInCache;
+ EditNameinCache.Text:=FMapType.CacheConfig.NameInCache;
  SESleep.Value:=FMapType.Sleep;
  EditParSubMenu.Text:=FMapType.ParentSubMenu;
  EditHotKey.HotKey:=FMapType.HotKey;
- CBCacheType.ItemIndex:=FMapType.cachetype;
+ CBCacheType.ItemIndex:=FMapType.CacheConfig.cachetype;
  CheckBox1.Checked:=FMapType.separator;
 end;
 
 procedure TFEditMap.Button1Click(Sender: TObject);
 begin
  FmapType.URLBase:=EditURL.Text;
- FmapType.NameInCache:=EditNameinCache.Text;
+ FmapType.CacheConfig.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.Sleep:=SESleep.Value;
  FmapType.HotKey:=EditHotKey.HotKey;
  if CBCacheType.ItemIndex > 0 then begin
-   FmapType.cachetype:=CBCacheType.ItemIndex;
+   FmapType.CacheConfig.cachetype:=CBCacheType.ItemIndex;
  end else begin
-   FmapType.cachetype:=0;
+   FmapType.CacheConfig.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
 // close;
@@ -109,11 +112,11 @@ end;
 procedure TFEditMap.Button3Click(Sender: TObject);
 begin
  EditURL.Text:=FmapType.DefURLBase;
- EditNameinCache.Text:=FmapType.DefNameInCache;
+ EditNameinCache.Text:=FmapType.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.DefParentSubMenu;
  SESleep.Value:=FmapType.Sleep;
  EditHotKey.HotKey:=FmapType.DefHotKey;
- CBCacheType.ItemIndex:=FmapType.cachetype;
+ CBCacheType.ItemIndex:=FmapType.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Defseparator;
 end;
 
@@ -124,7 +127,7 @@ end;
 
 procedure TFEditMap.Button4Click(Sender: TObject);
 begin
- EditNameinCache.Text := FMapType.DefNameInCache;
+ EditNameinCache.Text := FMapType.CacheConfig.DefNameInCache;
 end;
 
 procedure TFEditMap.Button5Click(Sender: TObject);
@@ -144,7 +147,7 @@ end;
 
 procedure TFEditMap.Button9Click(Sender: TObject);
 begin
-  CBCacheType.ItemIndex := FMapType.defcachetype;
+  CBCacheType.ItemIndex := FMapType.CacheConfig.defcachetype;
 end;
 
 function TFEditMap.EditMapModadl(AMapType: TMapType): Boolean;

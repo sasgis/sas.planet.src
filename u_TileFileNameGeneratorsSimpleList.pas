@@ -58,7 +58,7 @@ var
   VCacheType: Byte;
 begin
   if CacheType = 0 then begin
-    VCacheType := GState.DefCache;
+    VCacheType := GState.CacheConfig.DefCache;
   end else begin
     VCacheType := CacheType;
   end;

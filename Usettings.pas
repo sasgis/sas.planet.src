@@ -265,7 +265,7 @@ begin
  GState.MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
  GState.MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
  GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
- GState.MainIni.Writeinteger('VIEW','DefCache',GState.DefCache);
+ GState.MainIni.Writeinteger('VIEW','DefCache',GState.CacheConfig.DefCache);
  GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
  GState.MainIni.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
  GState.MainIni.WriteInteger('VIEW','TilesOut',GState.TilesOut);
@@ -339,11 +339,11 @@ begin
  GState.MainIni.WriteBool('GSM','Auto',GState.GSMpar.auto);
  GState.MainIni.WriteInteger('GSM','WaitingAnswer',GState.GSMpar.WaitingAnswer);
 
- GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.OldCpath_);
- GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.NewCpath_);
- GState.MainIni.Writestring('PATHtoCACHE','ESC',GState.ESCpath_);
- GState.MainIni.Writestring('PATHtoCACHE','GMTiles',GState.GMTilesPath_);
- GState.MainIni.Writestring('PATHtoCACHE','GECache',GState.GECachePath_);
+ GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.CacheConfig.OldCpath);
+ GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.CacheConfig.NewCpath);
+ GState.MainIni.Writestring('PATHtoCACHE','ESC',GState.CacheConfig.ESCpath);
+ GState.MainIni.Writestring('PATHtoCACHE','GMTiles',GState.CacheConfig.GMTilesPath);
+ GState.MainIni.Writestring('PATHtoCACHE','GECache',GState.CacheConfig.GECachePath);
  GState.MainIni.Writebool('INTERNET','userwinset',GState.InetConnect.userwinset);
  GState.MainIni.Writebool('INTERNET','uselogin',GState.InetConnect.uselogin);
  GState.MainIni.Writebool('INTERNET','used_proxy',GState.InetConnect.Proxyused);
@@ -461,9 +461,9 @@ begin
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  GState.ShowBorderText:=CBBorderText.Checked;
  if CBCacheType.ItemIndex >= 0 then begin
-  GState.DefCache := CBCacheType.ItemIndex+1;
+  GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
  end else begin
-  GState.DefCache := 2;
+  GState.CacheConfig.DefCache := 2;
  end;
  GState.ShowMapName:=CBShowmapname.Checked;
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
@@ -492,11 +492,11 @@ begin
 
  GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
- GState.NewCPath_:=IncludeTrailingPathDelimiter(NewCPath.Text);
- GState.OldCPath_:=IncludeTrailingPathDelimiter(OldCPath.Text);
- GState.ESCPath_:=IncludeTrailingPathDelimiter(EScPath.Text);
- GState.GMTilesPath_:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
- GState.GECachePath_:=IncludeTrailingPathDelimiter(GECachePath.Text);
+ GState.CacheConfig.NewCPath:=IncludeTrailingPathDelimiter(NewCPath.Text);
+ GState.CacheConfig.OldCPath:=IncludeTrailingPathDelimiter(OldCPath.Text);
+ GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(EScPath.Text);
+ GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
+ GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
  GState.GammaN:=TrBarGamma.Position;
  GState.ContrastN:=TrBarContrast.Position;
  GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
@@ -592,14 +592,14 @@ begin
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=GState.ShowBorderText;
- CBCacheType.ItemIndex:=GState.DefCache-1;
+ CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);
- OldCPath.text:=GState.OldCPath_;
- NewCPath.text:=GState.NewCPath_;
- ESCPath.text:=GState.ESCPath_;
- GMTilesPath.text:=GState.GMTilesPath_;
- GECachePath.text:=GState.GECachePath_;
+ OldCPath.text:=GState.CacheConfig.OldCPath;
+ NewCPath.text:=GState.CacheConfig.NewCPath;
+ ESCPath.text:=GState.CacheConfig.ESCPath;
+ GMTilesPath.text:=GState.CacheConfig.GMTilesPath;
+ GECachePath.text:=GState.CacheConfig.GECachePath;
  SpinEdit2.Value:=GState.GPS_TimeOut;
  CB_GPSlog.Checked:=GState.GPS_WriteLog;
  CB_GPSlogNmea.Checked:=GState.GPS_NMEALog;
@@ -754,7 +754,7 @@ begin
     With VMapType do begin
       MapList.AddItem(VMapType.name,nil);
       MapList.Items.Item[i].Data:=VMapType;
-      MapList.Items.Item[i].SubItems.Add(VMapType.NameInCache);
+      MapList.Items.Item[i].SubItems.Add(VMapType.CacheConfig.NameInCache);
       if VMapType.asLayer then begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
       end else begin

@@ -22,6 +22,7 @@ uses
   i_IAntiBan,
   u_KmlInfoSimple,
   u_UrlGenerator,
+  u_MapTypeCacheConfig,
   UResStrings;
 
 type
@@ -51,6 +52,7 @@ type
     FCache: ITileObjCache;
     FIcon24Index: Integer;
     FIcon18Index: Integer;
+    FCacheConfig: TMapTypeCacheConfig;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -72,7 +74,7 @@ type
     procedure LoadMapIcons(AUnZip: TVCLZip);
     procedure LoadUrlScript(AUnZip: TVCLZip);
     procedure LoadProjectionInfo(AIniFile: TCustomIniFile);
-    procedure LoadStorageParams(AIniFile: TCustomIniFile);
+    procedure LoadStorageParams(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
     procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
     procedure LoadUIParams(AIniFile: TCustomIniFile);
     procedure LoadMapInfo(AUnZip: TVCLZip);
@@ -101,14 +103,8 @@ type
     Defseparator: boolean;
     separator: boolean;
 
-    defcachetype: byte;
-    cachetype: byte;
-
     DefParentSubMenu: string;
     ParentSubMenu: string;
-
-    DefNameInCache: string;
-    NameInCache: string;
 
     showinfo: boolean;
 
@@ -173,6 +169,7 @@ type
     property Icon18Index: Integer read FIcon18Index;
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
+    property CacheConfig: TMapTypeCacheConfig read FCacheConfig;
 
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
@@ -191,7 +188,6 @@ type
     procedure CreateDirIfNotExists(APath: string);
     procedure SaveTileInCache(btm: TBitmap32; path: string); overload;
     procedure SaveTileInCache(btm: TStream; path: string); overload;
-    function GetBasePath: string;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
  end;
@@ -302,8 +298,8 @@ begin
           With VMapType do begin
             id:=Ini.ReadInteger(VGUIDString,'pnum',0);
             URLBase:=ini.ReadString(VGUIDString,'URLBase',URLBase);
-            CacheType:=ini.ReadInteger(VGUIDString,'CacheType',cachetype);
-            NameInCache:=ini.ReadString(VGUIDString,'NameInCache',NameInCache);
+            CacheConfig.CacheType:=ini.ReadInteger(VGUIDString,'CacheType',CacheConfig.cachetype);
+            CacheConfig.NameInCache:=ini.ReadString(VGUIDString,'NameInCache',CacheConfig.NameInCache);
             HotKey:=ini.ReadInteger(VGUIDString,'HotKey',HotKey);
             ParentSubMenu:=ini.ReadString(VGUIDString,'ParentSubMenu',ParentSubMenu);
             Sleep:=ini.ReadInteger(VGUIDString,'Sleep',Sleep);
@@ -393,8 +389,8 @@ begin
         Ini.DeleteKey(VGUIDString,'HotKey');
       end;
 
-      if VMapType.cachetype<>VMapType.defcachetype then begin
-        ini.WriteInteger(VGUIDString,'CacheType',VMapType.CacheType);
+      if VMapType.CacheConfig.cachetype<>VMapType.CacheConfig.defcachetype then begin
+        ini.WriteInteger(VGUIDString,'CacheType',VMapType.CacheConfig.CacheType);
       end else begin
         Ini.DeleteKey(VGUIDString,'CacheType');
       end;
@@ -405,8 +401,8 @@ begin
         Ini.DeleteKey(VGUIDString,'separator');
       end;
 
-      if VMapType.NameInCache<>VMapType.DefNameInCache then begin
-        ini.WriteString(VGUIDString,'NameInCache',VMapType.NameInCache);
+      if VMapType.CacheConfig.NameInCache<>VMapType.CacheConfig.DefNameInCache then begin
+        ini.WriteString(VGUIDString,'NameInCache',VMapType.CacheConfig.NameInCache);
       end else begin
         Ini.DeleteKey(VGUIDString,'NameInCache');
       end;
@@ -525,17 +521,15 @@ begin
   end;
 end;
 
-procedure TMapType.LoadStorageParams(AIniFile: TCustomIniFile);
+procedure TMapType.LoadStorageParams(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
 begin
   FUseDel:=AIniFile.ReadBool('PARAMS','Usedel',true);
   FIsStoreReadOnly:=AIniFile.ReadBool('PARAMS','ReadOnly', false);
   DelAfterShow:=AIniFile.ReadBool('PARAMS','DelAfterShow',false);
   FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
-  CacheType:=AIniFile.ReadInteger('PARAMS','CacheType',0);
-  DefCacheType:=CacheType;
   TileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
-  NameInCache:=AIniFile.ReadString('PARAMS','NameInCache','Sat');
-  DefNameInCache:=NameInCache;
+  FCacheConfig := TMapTypeCacheConfig.Create(AUnZip, AIniFile);
+
 end;
 
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
@@ -638,7 +632,7 @@ begin
 
       LoadUIParams(iniparams);
       LoadMapInfo(UnZip);
-      LoadStorageParams(iniparams);
+      LoadStorageParams(UnZip, iniparams);
       LoadMapIcons(UnZip);
       asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       LoadWebSourceParams(iniparams);
@@ -682,50 +676,10 @@ begin
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
-function TMapType.GetBasePath: string;
-var
-  ct:byte;
-begin
-  if (CacheType=0) then begin
-    ct:=GState.DefCache;
-  end else begin
-    ct:=CacheType;
-  end;
-  result := NameInCache;
-  //TODO: С этим бардаком нужно что-то будет сделать
-  if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0)) then begin
-    case ct of
-      1: begin
-        result:=GState.OldCpath_ + Result;
-      end;
-      2: begin
-        result:=GState.NewCpath_+Result;
-      end;
-      3: begin
-        result:=GState.ESCpath_+Result;
-      end;
-      4,41: begin
-        result:=GState.GMTilespath_+Result;
-      end;
-      5: begin
-        result:=GState.GECachepath_+Result;
-      end;
-    end;
-  end;
-  //TODO: С этим бардаком нужно что-то будет сделать
-  if (length(result)<2)or((result[2]<>'\')and(system.pos(':',result)=0))then begin
-    result:=GState.ProgramPath+result;
-  end;
-end;
-
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   if IsStoreFileCache then begin
-    Result := GetBasePath;
-    if Result <> '' then begin
-      Result := IncludeTrailingPathDelimiter(Result);
-    end;
-    Result := Result + GState.TileNameGenerator.GetGenerator(cachetype).GetTileFileName(AXY, Azoom) + TileFileExt;
+    Result := FCacheConfig.GetTileFileName(AXY, Azoom);
   end else begin
     raise Exception.Create('Ошибка. Это не файловый кеш');
   end;
@@ -735,10 +689,10 @@ function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: String;
 begin
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
-    result:=GETileExists(IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
+  if FCacheConfig.EffectiveCacheType = 5 then begin
+    result:=GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
   end else begin
-    VPath := GetTileFileName(AXY, Azoom);
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
   end;
 end;
@@ -762,7 +716,7 @@ begin
   Result := false;
   if UseDel then begin
     try
-      VPath := GetTileFileName(AXY, Azoom);
+      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       FCSSaveTile.Acquire;
       try
         if FileExists(VPath) then begin
@@ -794,8 +748,12 @@ function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  Result := Fileexists(ChangeFileExt(VPath, '.tne'));
+  if FCacheConfig.EffectiveCacheType = 5 then begin
+    Result := False;
+  end else begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    Result := Fileexists(ChangeFileExt(VPath, '.tne'));
+  end;
 end;
 
 procedure TMapType.CreateDirIfNotExists(APath:string);
@@ -814,7 +772,7 @@ var
   VManager: IBitmapTypeExtManager;
   VMimeType: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
+  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(VPath);
   VManager := BitmapTypeManager;
   VMimeType := GetMIMETypeSubst(AMimeType);
@@ -847,7 +805,7 @@ var
   VPath: String;
   UnZip:TVCLUnZip;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
+  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(VPath);
   if (ty='application/vnd.google-earth.kmz') then begin
     try
@@ -931,16 +889,24 @@ function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  Result := FileDateToDateTime(FileAge(VPath));
+  if FCacheConfig.EffectiveCacheType = 5 then begin
+    Result := 0;
+  end else begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    Result := FileDateToDateTime(FileAge(VPath));
+  end;
 end;
 
 function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  Result := GetFileSize(VPath);
+  if FCacheConfig.EffectiveCacheType = 5 then begin
+    Result := 0;
+  end else begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    Result := GetFileSize(VPath);
+  end;
 end;
 
 procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
@@ -948,19 +914,22 @@ var
   VPath: String;
   F:textfile;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  VPath := ChangeFileExt(VPath, '.tne');
-  FCSSaveTNF.Acquire;
-  try
-  if not FileExists(VPath) then begin
-    CreateDirIfNotExists(VPath);
-    AssignFile(f,VPath);
-    Rewrite(F);
-    Writeln(f,DateTimeToStr(now));
-    CloseFile(f);
-  end;
-  finally
-    FCSSaveTNF.Release;
+  if FCacheConfig.EffectiveCacheType = 5 then begin
+  end else begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    VPath := ChangeFileExt(VPath, '.tne');
+    FCSSaveTNF.Acquire;
+    try
+    if not FileExists(VPath) then begin
+      CreateDirIfNotExists(VPath);
+      AssignFile(f,VPath);
+      Rewrite(F);
+      Writeln(f,DateTimeToStr(now));
+      CloseFile(f);
+    end;
+    finally
+      FCSSaveTNF.Release;
+    end;
   end;
 end;
 
@@ -969,7 +938,7 @@ var
   VPath: String;
 begin
   if UseSave then begin
-    VPath := GetTileFileName(AXY, Azoom);
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     CreateDirIfNotExists(VPath);
     DeleteFile(ChangeFileExt(Vpath,'.tne'));
     SaveTileInCache(btm, Vpath);
@@ -983,9 +952,13 @@ function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
 var
   VPath: String;
 begin
-  VPath := GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(AFileName);
-  Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
+  if FCacheConfig.EffectiveCacheType = 5 then begin
+    Result := false;
+  end else begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    CreateDirIfNotExists(AFileName);
+    Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
+  end;
 end;
 
 function TMapType.LoadFillingMap(btm: TBitmap32; AXY: TPoint; Azoom,
@@ -1085,7 +1058,7 @@ end;
 
 function TMapType.GetShortFolderName: string;
 begin
-  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(NameInCache)));
+  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FCacheConfig.NameInCache)));
 end;
 
 
@@ -1157,7 +1130,7 @@ end;
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
   if Self.IsStoreFileCache then begin
-    Result := GetTileFileName(AXY, Azoom)
+    Result := FCacheConfig.GetTileFileName(AXY, Azoom)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
   end;
@@ -1165,7 +1138,7 @@ end;
 
 function TMapType.GetIsStoreFileCache: Boolean;
 begin
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+  if FCacheConfig.EffectiveCacheType = 5 then begin
     Result := false;
   end else begin
     Result := true;
@@ -1206,7 +1179,7 @@ end;
 
 function TMapType.GetIsStoreReadOnly: boolean;
 begin
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+  if FCacheConfig.EffectiveCacheType = 5 then begin
     Result := True;
   end else begin
     Result := FIsStoreReadOnly;
@@ -1437,15 +1410,15 @@ function TMapType.LoadTile(btm: TBitmap32; AXY: TPoint; Azoom: byte;
 var
   Path: string;
 begin
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+  if FCacheConfig.EffectiveCacheType = 5 then begin
     if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-      result:=GetGETile(btm, IncludeTrailingPathDelimiter(GetBasePath)+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      result:=GetGETile(btm, FCacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
       if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
     end else begin
       result:=true;
     end;
   end else begin
-    path := GetTileFileName(AXY, Azoom);
+    path := FCacheConfig.GetTileFileName(AXY, Azoom);
     if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
      result:=LoadFile(btm, path, caching);
      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
@@ -1459,10 +1432,10 @@ function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 var path: string;
 begin
-  if ((CacheType=0)and(GState.DefCache=5))or(CacheType=5) then begin
+  if FCacheConfig.EffectiveCacheType = 5 then begin
     raise Exception.Create('Из GE кеша можно получать только растры');
   end else begin
-    path := GetTileFileName(AXY, Azoom);
+    path := FCacheConfig.GetTileFileName(AXY, Azoom);
     if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
      result:=LoadFile(btm, path, caching);
      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
