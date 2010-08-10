@@ -7,8 +7,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_ICoordConverter,
-  u_MapLayerBasic,
-  uMapType;
+  u_MapLayerBasic;
 
 type
   TMapMarksLayer = class(TMapLayerBasic)
