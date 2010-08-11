@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 430
-  Top = 144
+  Left = 276
+  Top = 106
   Width = 850
   Height = 569
   HorzScrollBar.Visible = False

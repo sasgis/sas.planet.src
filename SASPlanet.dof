@@ -158,6 +158,3 @@ LegalTrademarks=SAS.Планета
 OriginalFilename=SASPlanet
 ProductName=SAS.Планета
 ProductVersion=1.0.0.0
-[Excluded Packages]
-c:\program files\borland\delphi7\Projects\Bpl\DclEhLib70.bpl=EhLib 4.3 Components
-c:\program files\borland\delphi7\Projects\Bpl\EmbeddedWBD7.bpl=MSHTML Edit helper
