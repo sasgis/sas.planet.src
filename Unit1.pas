@@ -198,8 +198,6 @@ type
     SrcToolbar: TTBXToolbar;
     TBMarksToolbar: TTBXToolbar;
     GPSToolbar: TTBXToolbar;
-    TBControlItem3: TTBControlItem;
-    Label1: TLabel;
     TBExit: TTBXToolbar;
     ZoomToolBar: TTBXToolbar;
     TBControlItem1: TTBControlItem;
@@ -427,6 +425,8 @@ type
     TBXSeparatorItem19: TTBXSeparatorItem;
     TBXItem8: TTBXItem;
     TBXItem9: TTBXItem;
+    TBControlItem3: TTBControlItem;
+    Label1: TLabel;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);

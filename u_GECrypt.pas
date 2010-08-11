@@ -2,7 +2,7 @@ unit u_GECrypt;
 
 interface
 
-procedure GEcrypt (Tile:Pointer; Size:integer);
+procedure GEcrypt (Tile:PByte; Size:integer);
 
 const CRYPTED_JPEG   = $A6EF9107; //$0791EFA6;
 const CRYPTED_DXT1   = $77B3CBB7; //$B7CBB377;
@@ -78,16 +78,16 @@ const
 
 implementation
 
-procedure GEcrypt (Tile:Pointer; Size:integer);
-type TByteArray = array [0..0] of byte;
+procedure GEcrypt(Tile:PByte; Size:integer);
 var  i,j: integer;
 begin
   j:=16;
   for i:=0 to Size-1 do begin
-   TByteArray(Tile^)[i] := TByteArray(Tile^)[i] xor key[j+8];
+   Tile^ := Tile^ xor key[j+8];
    inc(j);
-   if (j mod 8) = 0 then j := j+16;
-   if j >= 1016 then     j := (j+8) Mod 24;
+   if (j mod 8) = 0 then inc(j,16);
+   if j >= 1016 then j := (j+8) Mod 24;
+   inc(Tile);
   end;
 end;
 

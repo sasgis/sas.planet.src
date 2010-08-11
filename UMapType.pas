@@ -209,7 +209,7 @@ uses
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
-  ImgMaker,
+  u_GECache,
   u_CoordConverterAbstract,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,

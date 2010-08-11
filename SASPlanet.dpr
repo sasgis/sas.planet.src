@@ -90,7 +90,7 @@ uses
   u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
-  ImgMaker in 'ImgMaker.pas',
+  u_GECache in 'u_GECache.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
   u_GeoCodePalcemark in 'u_GeoCodePalcemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',

@@ -10,9 +10,6 @@ const BMP_FILE_SIZE = 196662;
 //Переводит GE текстуру в BMP формат
 procedure Texture2BMP (var Texture: TMemoryStream);
 
-//Переводит GE текстуру в DDS формат
-procedure Texture2DDS (var Texture: TMemoryStream; const PathToSave: string);
-
 implementation
 
 const BMP_HEAD: array[0..53] of byte = (
@@ -20,16 +17,6 @@ const BMP_HEAD: array[0..53] of byte = (
 	$00, $00, $00, $01, $00, $00, $00, $01, $00, $00, $01, $00, $18, $00, $00, $00,
 	$00, $00, $00, $00, $03, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00,
 	$00, $00, $00, $00, $00, $00 );
-
-const DDS_HEAD: array[0..127] of byte = (
-	$44, $44, $53, $20, $7C, $00, $00, $00, $07, $10, $00, $00, $00, $01, $00, $00, 
-	$00, $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, 
-	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, 
-	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, 
-	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $20, $00, $00, $00, 
-	$04, $00, $00, $00, $44, $58, $54, $31, $00, $00, $00, $00, $00, $00, $00, $00, 
-	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $10, $00, $00, 
-	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00);
 
 type
 
@@ -134,7 +121,7 @@ begin
   end;
 end;
 
-procedure Texture2BMP (var Texture: TMemoryStream);
+procedure Texture2BMP(var Texture: TMemoryStream);
 var Buf:TMemoryStream;
 begin
   Buf:=TMemoryStream.Create;
@@ -142,27 +129,6 @@ begin
    DecodeDXT(TGETexture(Texture.Memory^),Buf);
    Texture.LoadFromStream(buf);
    Texture.Position:=0;
-  finally
-   Buf.Free;
-  end;
-end;
-
-procedure Texture2DDS (var Texture: TMemoryStream; const PathToSave: string);
-var Buf : TMemoryStream;
-    Raw : TGETexture;
-    i,j : integer;
-begin
-  Buf:=TMemoryStream.Create;
-  try
-   Buf.Write(DDS_HEAD, Length(DDS_HEAD));
-   Raw:=TGETexture(Texture.Memory^);
-   for i := 0 to 63 do begin
-     for j := 0 to 63 do begin
-       Buf.Write(Raw.DXT1[i,j], SizeOf(TDXT1));
-     end;
-   end;
-   Buf.Position:=0;
-   if PathToSave <> '' then Buf.SaveToFile(PathToSave);
   finally
    Buf.Free;
   end;
