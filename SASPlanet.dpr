@@ -191,7 +191,9 @@ uses
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange};
+  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
+  u_GECrypt in 'u_GECrypt.pas',
+  u_GETexture in 'u_GETexture.pas';
 
 {$R *.res}{$R SASR.RES}
 begin
