@@ -288,7 +288,7 @@ begin
     AContentType := trim(AContentType);
     if (AContentType = '') then begin
       AContentType := FDefaultMIMEType;
-    end else if (PosEx(AContentType, FExpectedMIMETypes, 0) <= 0) then begin
+    end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
       Result := dtrErrorMIMEType;
       exit;
     end;
