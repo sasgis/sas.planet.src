@@ -522,7 +522,7 @@ begin
   FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
   TileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AUnZip, AIniFile);
-
+  FCache := TTileCacheSimpleGlobal.Create(Self);
 end;
 
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
@@ -620,7 +620,6 @@ begin
     end;
     try
       LoadGUIDFromIni(iniparams);
-
       LoadUIParams(iniparams);
       LoadMapInfo(UnZip);
       LoadStorageParams(UnZip, iniparams);
@@ -1064,7 +1063,6 @@ begin
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
-  FCache := TTileCacheSimpleGlobal.Create(Self);
 end;
 
 destructor TMapType.Destroy;
