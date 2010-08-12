@@ -2954,7 +2954,7 @@ begin
           fillchar(dwtype,sizeof(dwtype),0);
           if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
            then ty:=PChar(@dwtype);
-          if (PosEx(conttype,ty,0)>0) then
+          if (PosEx(conttype,ty,1)>0) then
           repeat
            err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
            ms.Write(Buffer,BufferLen);
@@ -4012,7 +4012,7 @@ begin
    seconds:=0;
 
    try
-   posit:=PosEx('"totalLength"',pathstr,0);
+   posit:=PosEx('"totalLength"',pathstr,1);
    While (posit>0) do
     begin
      try

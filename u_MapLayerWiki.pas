@@ -201,7 +201,7 @@ var
 begin
   VSize := GetBitmapSizeInPixel;
   VConverter := FGeoConvert;
-  Delete(AData.description, posEx('#ge', AData.description, 0), 1);
+  Delete(AData.description, posEx('#ge', AData.description, 1), 1);
   setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
   lenLay := length(FWikiLayerElments);
   FWikiLayerElments[lenLay - 1] := TWikiLayerElement.Create;
