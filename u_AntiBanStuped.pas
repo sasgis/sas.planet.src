@@ -64,6 +64,7 @@ type
 implementation
 
 uses
+  ShellAPI,
   Classes,
   SysUtils,
   Forms,
@@ -88,7 +89,7 @@ end;
 
 procedure TExecOnBan.ExecOnBan;
 begin
-  FMain.ShowCaptcha(FLastUrl);
+  ShellExecute(Fmain.Handle, nil, PChar(FLastUrl), nil, nil, SW_RESTORE);
 end;
 
 { TAntiBanStuped }

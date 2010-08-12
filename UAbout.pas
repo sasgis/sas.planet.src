@@ -61,12 +61,12 @@ end;
 
 procedure TFabout.Label10Click(Sender: TObject);
 begin
- Fmain.ShowCaptcha('http://sasgis.ru');
+ Fmain.OpenUrlInBrowser('http://sasgis.ru');
 end;
 
 procedure TFabout.Label8Click(Sender: TObject);
 begin
- Fmain.ShowCaptcha('mailto:'+Label8.Caption);
+ Fmain.OpenUrlInBrowser('mailto:'+Label8.Caption);
 end;
 
 end.

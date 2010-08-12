@@ -635,7 +635,7 @@ type
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     class   function  timezone(lon, lat: real): TDateTime;
     procedure selectMap(AMapType: TMapType);
-    procedure ShowCaptcha(URL: string);
+    procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
@@ -1147,7 +1147,7 @@ begin
  aoper:=newop;
 end;
 
-procedure TFmain.ShowCaptcha(URL: string);
+procedure TFmain.OpenUrlInBrowser(URL: string);
 begin
  ShellExecute(Handle, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
@@ -3897,12 +3897,12 @@ end;
 
 procedure TFmain.NGoToForumClick(Sender: TObject);
 begin
-  ShowCaptcha('http://sasgis.ru/forum');
+  OpenUrlInBrowser('http://sasgis.ru/forum');
 end;
 
 procedure TFmain.NGoToSiteClick(Sender: TObject);
 begin
-  ShowCaptcha('http://sasgis.ru/');
+  OpenUrlInBrowser('http://sasgis.ru/');
 end;
 
 procedure TFmain.TBItem6Click(Sender: TObject);
@@ -4451,12 +4451,12 @@ end;
 
 procedure TFmain.TBXItem8Click(Sender: TObject);
 begin
-  ShowCaptcha('http://z.sasgis.ru/show_zmp/sas.zmp');
+  OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/sas.zmp');
 end;
 
 procedure TFmain.TBXItem9Click(Sender: TObject);
 begin
-  ShowCaptcha('http://z.sasgis.ru/show_zmp/plus.zmp');
+  OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/plus.zmp');
 end;
 
 end.
