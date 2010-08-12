@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   Forms,
   SysUtils,
   Classes,
@@ -46,7 +47,6 @@ type
   protected
     procedure Execute; override;
   public
-    destructor destroy; override;
     constructor Create(
       Azoom: byte;
       AInZooms: TArrayOfByte;
@@ -57,6 +57,7 @@ type
       AGenFormPrev: boolean;
       AResampler:TTileResamplingType
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -81,7 +82,7 @@ begin
   Resampler := AResampler;
 end;
 
-destructor TOpGenPreviousZoom.destroy;
+destructor TOpGenPreviousZoom.Destroy;
 begin
  Synchronize(CloseProgressForm);
  inherited ;

@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   Classes,
   GR32,
   GR32_Image,

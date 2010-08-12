@@ -32,7 +32,6 @@ type
     procedure Execute; override;
   public
     DelBytesNum:integer;
-    destructor destroy; override;
     constructor Create(
       CrSusp:Boolean;
       APolyLL: TExtendedPointArray;
@@ -40,6 +39,7 @@ type
       Atypemap: TMapType;
       ADelByte:boolean
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -62,10 +62,10 @@ begin
   DelBytes:=ADelByte;
 end;
 
-destructor TOpDelTiles.destroy;
+destructor TOpDelTiles.Destroy;
 begin
  Synchronize(CloseProgressForm);
- inherited ;
+ inherited;
 end;
 
 procedure TOpDelTiles.Execute;
