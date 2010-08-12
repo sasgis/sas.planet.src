@@ -233,6 +233,7 @@ begin
   end;
   FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
+  FpGetURLBase.Data := FURLBase;
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
   FpGetZ := PPSVariantS32(FExec.GetVar2('GetZ'));
