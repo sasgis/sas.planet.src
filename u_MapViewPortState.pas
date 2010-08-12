@@ -242,19 +242,16 @@ var
   VConverterOld: ICoordConverter;
   VConverterNew: ICoordConverter;
   VNewPos: TPoint;
-  VOldSelected: TMapType;
   VPosChanged: Boolean;
 begin
   if AMainMap = nil then begin
     raise Exception.Create('Ќужно об€зательно указывать активную карту');
   end;
   VPosChanged := false;
-  VOldSelected := nil;
   FSync.BeginWrite;
   try
     if not IsEqualGUID(FActiveMaps.SelectedMapGUID, AMainMap.GUID) then begin
       VPosChanged := True;
-      VOldSelected := InternalGetCurrentMap;
       VConverterOld := InternalGetCurrentCoordConverter;
       VLonLat := VConverterOld.PixelPos2LonLat(FCenterPos, FZoom);
       VConverterNew := AMainMap.GeoConvert;
@@ -305,17 +302,16 @@ procedure TMapViewPortState.ChangeViewSize(ANewSize: TPoint);
 var
   VChanged: Boolean;
 begin
-  VChanged := False;
-  if FViewSize.X <= 0 then begin
+  if ANewSize.X <= 0 then begin
     raise Exception.Create('ќшибочный размер отображаемой карты');
   end;
-  if FViewSize.X >= 4096 then begin
+  if ANewSize.X >= 4096 then begin
     raise Exception.Create('ќшибочный размер отображаемой карты');
   end;
-  if FViewSize.Y <= 0 then begin
+  if ANewSize.Y <= 0 then begin
     raise Exception.Create('ќшибочный размер отображаемой карты');
   end;
-  if FViewSize.Y >= 4096 then begin
+  if ANewSize.Y >= 4096 then begin
     raise Exception.Create('ќшибочный размер отображаемой карты');
   end;
   FSync.BeginWrite;
