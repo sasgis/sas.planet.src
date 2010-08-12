@@ -786,7 +786,7 @@ begin
     end else begin
       if (XY.X <> VPixelsAtZoom) then begin
         if ACicleMap then begin
-          XY.X := VPixelsAtZoom - XY.X;
+          XY.X := VPixelsAtZoom + XY.X;
         end else begin
           XY.X := 0;
         end;
