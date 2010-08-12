@@ -30,7 +30,7 @@ type
       AIniFile: TCustomIniFile
     );
 
-    function GenLink(Ax, Ay: longint; Azoom: byte): string;
+    function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
 
     property URLBase: string read FURLBase write SetURLBase;
     property DefURLBase: string read FDefURLBase;
@@ -66,7 +66,7 @@ type
       ACoordConverter: ICoordConverterSimple
     );
     destructor Destroy; override;
-    function GenLink(Ax, Ay: longint; Azoom: byte): string;
+    function GenLink(Ax, Ay: longint; Azoom: byte): string; override;
   end;
 
 implementation
