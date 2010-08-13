@@ -9,7 +9,6 @@ uses
   SysUtils,
   Classes,
   Graphics,
-  gifimage,
   GR32,
   UMapType,
   UGeoFun,

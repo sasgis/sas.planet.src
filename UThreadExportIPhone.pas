@@ -9,7 +9,6 @@ uses
   SysUtils,
   Classes,
   Graphics,
-  gifimage,
   DISQLite3Database,
   DISQLite3Api,
   PNGImage,
