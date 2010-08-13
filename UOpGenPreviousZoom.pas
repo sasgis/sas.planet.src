@@ -137,16 +137,16 @@ end;
 
 procedure TOpGenPreviousZoom.GenPreviousZoom;
 var
-  bmp_ex:TBitmap32;
-  bmp:TBitmap32;
+  bmp_ex:TCustomBitmap32;
+  bmp:TCustomBitmap32;
   i,c_d,p_x,p_y,d2562,p_i,p_j,p_x_x,p_y_y:integer;
   save_len_tile:integer;
   VZoom: Integer;
   VTile: TPoint;
   VSubTile: TPoint;
 begin
-  bmp_ex:=TBitmap32.Create;
-  bmp:=TBitmap32.Create;
+  bmp_ex:=TCustomBitmap32.Create;
+  bmp:=TCustomBitmap32.Create;
   try
     bmp.Resampler := CreateResampler(Resampler);
 

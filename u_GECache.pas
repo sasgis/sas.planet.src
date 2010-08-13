@@ -18,13 +18,13 @@ uses
   u_GETexture;
 
 type
-TBMPbuf = record BMPTile: array [1..2] of TBitmap32;
+TBMPbuf = record BMPTile: array [1..2] of TCustomBitmap32;
                  UpLatLon: array [1..2] of TExtendedPoint;
                  DownLatLon: array [1..2] of TExtendedPoint;
                  TileRez: array [1..2] of Extended;
                  count:byte; end;
 
-function GetGETile(ResTile:TBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
 function GETileExists(cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
 function GEGetTile(cachepath:string;x,y:integer;z:byte;var AisJpgStream:boolean):TMemoryStream;
 
@@ -129,7 +129,7 @@ begin
  end;
 end;
 
-function LoadJPG32(jpg_file: TMemoryStream; Btm: TBitmap32): boolean;
+function LoadJPG32(jpg_file: TMemoryStream; Btm: TCustomBitmap32): boolean;
   procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
   var W, H : Integer;
       p : PIntegerArray;
@@ -203,7 +203,7 @@ begin
 end;
 
 function FillBuff(cachepath:string;var x,y:integer;var z:byte;SourcePoint:TPoint;MT:TMapType;CoordConverter:ICoordConverter):byte;
- function Btm32loadfromstream(var btm:TBitmap32; str:TMemoryStream):boolean;
+ function Btm32loadfromstream(var btm:TCustomBitmap32; str:TMemoryStream):boolean;
  begin
    result:=true;
    try
@@ -235,7 +235,7 @@ begin
                  FreeAndNil(BMP_Bufer.BMPTile[i]);
                end;
 
-               BMP_Bufer.BMPTile[i]:=TBitmap32.Create;
+               BMP_Bufer.BMPTile[i]:=TCustomBitmap32.Create;
                if (isJpgStream and LoadJPG32(TileStream,BMP_Bufer.BMPTile[i]))or(not(isJpgStream) and Btm32loadfromstream(BMP_Bufer.BMPTile[i],TileStream)) then begin
                  XY.X:=X;
                  XY.Y:=Y;
@@ -273,7 +273,7 @@ begin
     result:=Point(0,0);
 end;
 
-procedure MakeInterlaseTile(ResTile:TBitmap32;UpXY:TPoint;Level,id1,id2:byte;MT:TMapType);
+procedure MakeInterlaseTile(ResTile:TCustomBitmap32;UpXY:TPoint;Level,id1,id2:byte;MT:TMapType);
 var LineCoord:TExtendedPoint;
     J_GE:Tpoint;
     J_GM:byte;
@@ -296,7 +296,7 @@ begin
   end;
 end;
 
-function GetGETile(ResTile:TBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
 var Up,Down:TExtendedPoint;
     UpXY,DownXY,gXY1,gXY2:TPoint;
     id1,id2:byte;
