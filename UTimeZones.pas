@@ -1720,6 +1720,7 @@ end;
 
 function GetTZ_(p:TextendedPoint):real;
 begin
+  Result := 0;
  if (PtInTZ(@timezone_m12,length(timezone_m12),p))or
     (PtInTZ(@timezone_m12_1,length(timezone_m12_1),p)) then begin result:=-12; exit; end;
  if (PtInTZ(@timezone_m11,length(timezone_m11),p))or
