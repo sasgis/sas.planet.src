@@ -10,8 +10,8 @@ uses
 type
   TPngBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   public
-    procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
-    procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
+    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
 implementation
@@ -22,7 +22,7 @@ uses
 
 { TPngBitmapTileSaver }
 
-procedure TPngBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
+procedure TPngBitmapTileSaver.SaveToFile(ABtm: TCustomBitmap32;
   AFileName: string);
 var
   VPng_ex: TPNGObject;
@@ -30,7 +30,7 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VPng_ex := TPNGObject.Create;
     try
       VPng_ex.Assign(VBtm_ex);
@@ -43,7 +43,7 @@ begin
   end;
 end;
 
-procedure TPngBitmapTileSaver.SaveToStream(ABtm: TBitmap32;
+procedure TPngBitmapTileSaver.SaveToStream(ABtm: TCustomBitmap32;
   AStream: TStream);
 var
   VPng_ex: TPNGObject;
@@ -51,7 +51,7 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VPng_ex := TPNGObject.Create;
     try
       VPng_ex.Assign(VBtm_ex);

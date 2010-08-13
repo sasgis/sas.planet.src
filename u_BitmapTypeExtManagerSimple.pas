@@ -29,7 +29,8 @@ uses
   SysUtils,
   u_BitmapTileJpegLoader,
   u_BitmapTileJpegSaverIJL,
-  u_BitmapTilePngLoader,
+  u_BitmapTileVampyreLoader,
+  u_BitmapTileVampyreSaver,
   u_BitmapTilePngSaver,
   u_BitmapTileGifLoader,
   u_BitmapTileGifSaver,
@@ -43,14 +44,15 @@ constructor TBitmapTypeExtManagerSimple.Create;
 begin
   SetLength(FLoaders, 4);
   FLoaders[0] := TJpegBitmapTileLoader.Create;
-  FLoaders[1] := TPngBitmapTileLoader.Create;
-  FLoaders[2] := TGifBitmapTileLoader.Create;
-  FLoaders[3] := TBmpBitmapTileLoader.Create;
+  FLoaders[1] := TVampyreBasicBitmapTileLoaderPNG.Create;
+  FLoaders[2] := TVampyreBasicBitmapTileLoaderGIF.Create;
+  FLoaders[3] := TVampyreBasicBitmapTileLoaderBMP.Create;
   SetLength(FSavers, 4);
   FSavers[0] := TJpegBitmapTileSaverIJL.Create(85);
-  FSavers[1] := TPngBitmapTileSaver.Create;
-  FSavers[2] := TGifBitmapTileSaver.Create;
-  FSavers[3] := TBmpBitmapTileSaver.Create;
+//  FSavers[1] := TPngBitmapTileSaver.Create;
+  FSavers[1] := TVampyreBasicBitmapTileSaverPNG.Create;
+  FSavers[2] := TVampyreBasicBitmapTileSaverGIF.Create;
+  FSavers[3] := TVampyreBasicBitmapTileSaverBMP.Create;
 end;
 
 destructor TBitmapTypeExtManagerSimple.Destroy;

@@ -15,8 +15,8 @@ type
     Fbitdepth: byte;
   public
     constructor create(ACompressionQuality, Abitdepth: byte); overload;
-    procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
-    procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
+    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
 implementation
@@ -35,7 +35,7 @@ begin
   Fbitdepth := Abitdepth;
 end;
 
-procedure TPngBitmapTileNBitdepthSaver.SaveToFile(ABtm: TBitmap32; AFileName: string);
+procedure TPngBitmapTileNBitdepthSaver.SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
 var
   VPng_ex: TPNGObject;
   VBtm_ex, bmp8b: TBitmap;
@@ -45,7 +45,7 @@ begin
   VBtm_ex := TBitmap.Create;
   bmp8b := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VPng_ex := tpngobject.createblank(COLOR_PALETTE, Fbitdepth, VBtm_ex.Width, VBtm_ex.Height);
     VPng_ex.CompressionLevel := FCompressionQuality;
     bmp8b := ReduceColors(VBtm_ex, rmQuantize, dmNearest, Fbitdepth, VBtm_ex.Palette);
@@ -68,7 +68,7 @@ begin
   end;
 end;
 
-procedure TPngBitmapTileNBitdepthSaver.SaveToStream(ABtm: TBitmap32; AStream: TStream);
+procedure TPngBitmapTileNBitdepthSaver.SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
 var
   VPng_ex: TPNGObject;
   VBtm_ex, bmp8b: TBitmap;
@@ -78,7 +78,7 @@ begin
   VBtm_ex := TBitmap.Create;
   bmp8b := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VPng_ex := tpngobject.createblank(COLOR_PALETTE, Fbitdepth, VBtm_ex.Width, VBtm_ex.Height);
     VPng_ex.CompressionLevel := FCompressionQuality;
     VPng_ex.AddtEXt('src', 'SAS.Planet' + SASVersion);

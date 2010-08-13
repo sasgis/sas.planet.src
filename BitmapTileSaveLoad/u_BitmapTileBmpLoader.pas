@@ -10,8 +10,8 @@ uses
 type
   TBmpBitmapTileLoader = class(TInterfacedObject, IBitmapTileLoader)
   public
-    procedure LoadFromFile(AFileName: string; ABtm: TBitmap32);
-    procedure LoadFromStream(AStream: TStream; ABtm: TBitmap32);
+    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
 implementation
@@ -19,13 +19,13 @@ implementation
 { TBmpBitmapTileLoader }
 
 procedure TBmpBitmapTileLoader.LoadFromFile(AFileName: string;
-  ABtm: TBitmap32);
+  ABtm: TCustomBitmap32);
 begin
   ABtm.LoadFromFile(AFileName);
 end;
 
 procedure TBmpBitmapTileLoader.LoadFromStream(AStream: TStream;
-  ABtm: TBitmap32);
+  ABtm: TCustomBitmap32);
 begin
   AStream.Position := 0;
   ABtm.LoadFromStream(AStream);

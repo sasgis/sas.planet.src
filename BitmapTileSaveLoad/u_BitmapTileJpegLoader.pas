@@ -10,8 +10,8 @@ uses
 type
   TJpegBitmapTileLoader = class(TInterfacedObject, IBitmapTileLoader)
   public
-    procedure LoadFromFile(AFileName: string; ABtm: TBitmap32);
-    procedure LoadFromStream(AStream: TStream; ABtm: TBitmap32);
+    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
 implementation
@@ -44,7 +44,7 @@ begin
   end;
 end;
 
-function LoadJpeg(var jcprops: TJPEG_CORE_PROPERTIES; Btm: TBitmap32): Boolean;
+function LoadJpeg(var jcprops: TJPEG_CORE_PROPERTIES; Btm: TCustomBitmap32): Boolean;
 var
   iWidth, iHeight, iNChannels: Integer;
 begin
@@ -73,7 +73,7 @@ begin
 end;
 
 procedure TJpegBitmapTileLoader.LoadFromFile(AFileName: string;
-  ABtm: TBitmap32);
+  ABtm: TCustomBitmap32);
 var
   iStatus: Integer;
   jcprops: TJPEG_CORE_PROPERTIES;
@@ -102,7 +102,7 @@ begin
 end;
 
 procedure TJpegBitmapTileLoader.LoadFromStream(AStream: TStream;
-  ABtm: TBitmap32);
+  ABtm: TCustomBitmap32);
 var
   VInternalStream: TMemoryStream;
   VMemStream: TCustomMemoryStream;

@@ -10,8 +10,8 @@ uses
 type
   TGifBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   public
-    procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
-    procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
+    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
 implementation
@@ -23,7 +23,7 @@ uses
 
 { TGifBitmapTileSaver }
 
-procedure TGifBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
+procedure TGifBitmapTileSaver.SaveToFile(ABtm: TCustomBitmap32;
   AFileName: string);
 var
   VGif_ex: TGIFImage;
@@ -31,7 +31,7 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VGif_ex := TGIFImage.Create;
     try
       VGif_ex.Assign(VBtm_ex);
@@ -44,7 +44,7 @@ begin
   end;
 end;
 
-procedure TGifBitmapTileSaver.SaveToStream(ABtm: TBitmap32;
+procedure TGifBitmapTileSaver.SaveToStream(ABtm: TCustomBitmap32;
   AStream: TStream);
 var
   VGif_ex: TGIFImage;
@@ -52,7 +52,7 @@ var
 begin
   VBtm_ex := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VGif_ex := TGIFImage.Create;
     try
       VGif_ex.Assign(VBtm_ex);

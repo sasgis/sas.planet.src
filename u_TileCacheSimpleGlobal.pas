@@ -17,9 +17,9 @@ type
     FMemCache: IMemObjCache;
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
-    procedure AddTileToCache(AObj: TBitmap32; AXY: TPoint; AZoom: Byte); overload;
+    procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte); overload;
     procedure AddTileToCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte); overload;
-    function TryLoadTileFromCache(AObj: TBitmap32; AXY: TPoint; AZoom: Byte): boolean; overload;
+    function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean; overload;
     function TryLoadTileFromCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte): boolean; overload;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
   public
@@ -36,7 +36,7 @@ uses
 
 { TTileCacheSimpleGlobal }
 
-procedure TTileCacheSimpleGlobal.AddTileToCache(AObj: TBitmap32;
+procedure TTileCacheSimpleGlobal.AddTileToCache(AObj: TCustomBitmap32;
   AXY: TPoint; AZoom: Byte);
 begin
   FMemCache.AddTileToCache(AObj, GetMemCacheKey(AXY, AZoom));
@@ -78,7 +78,7 @@ begin
   Result := FMemCache.TryLoadFileFromCache(AObj, GetMemCacheKey(AXY, AZoom));
 end;
 
-function TTileCacheSimpleGlobal.TryLoadTileFromCache(AObj: TBitmap32;
+function TTileCacheSimpleGlobal.TryLoadTileFromCache(AObj: TCustomBitmap32;
   AXY: TPoint; AZoom: Byte): boolean;
 begin
   Result := FMemCache.TryLoadFileFromCache(AObj, GetMemCacheKey(AXY, AZoom));

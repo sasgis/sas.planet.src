@@ -13,8 +13,8 @@ type
     FCompressionQuality: byte;
   public
     constructor create(ACompressionQuality: byte);
-    procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
-    procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
+    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
 implementation
@@ -32,7 +32,7 @@ begin
   FCompressionQuality := ACompressionQuality;
 end;
 
-procedure TJpegBitmapTileSaverIJL.SaveToFile(ABtm: TBitmap32;
+procedure TJpegBitmapTileSaverIJL.SaveToFile(ABtm: TCustomBitmap32;
   AFileName: string);
 var
   jcprops: TJPEG_CORE_PROPERTIES;
@@ -89,7 +89,7 @@ begin
   end;
 end;
 
-procedure TJpegBitmapTileSaverIJL.SaveToStream(ABtm: TBitmap32;
+procedure TJpegBitmapTileSaverIJL.SaveToStream(ABtm: TCustomBitmap32;
   AStream: TStream);
 var
   jcprops: TJPEG_CORE_PROPERTIES;

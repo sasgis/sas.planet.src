@@ -28,9 +28,9 @@ type
     trtSinsh = 12
   );
 
-  function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
+  function PNGintoBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject): boolean;
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
-  procedure Gamma(Bitmap: TBitmap32);
+  procedure Gamma(Bitmap: TCustomBitmap32);
 
 implementation
 
@@ -96,7 +96,7 @@ begin
     end;
 end;
 
-procedure PngWithPaletteToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject; DataDepth: Byte);
+procedure PngWithPaletteToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject; DataDepth: Byte);
 var
   ChunkPLTE:TChunkPLTE;
   ChunktRNS:TChunktRNS;
@@ -139,7 +139,7 @@ begin
   VPalette := nil;
 end;
 
-procedure PngRgbAlfaToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject);
+procedure PngRgbAlfaToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject);
 var
   X, Y: Integer;
   RGBPtr:PColor32Array;
@@ -158,13 +158,13 @@ begin
   end;
 end;
 
-procedure PngGrayScaleAlfaToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject);
+procedure PngGrayScaleAlfaToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject);
 var
   X, Y: Integer;
   RGBPtr:PColor32Array;
   AlphaPtr: pByteArray;
 begin
-  destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
+//  destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
   for Y:=0 to destBitmap.Height-1 do begin
     RGBPtr:=destBitmap.ScanLine[Y];
     AlphaPtr:=PNGObject.AlphaScanline[Y];
@@ -173,7 +173,7 @@ begin
     end;
   end;
 end;
-procedure PngRGBToBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject);
+procedure PngRGBToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject);
 var
   X, Y: Integer;
   DestPtr:PColor32Array;
@@ -195,7 +195,7 @@ begin
   end;
 end;
 
-function PNGintoBitmap32(destBitmap: TBitmap32; PNGObject: TPNGObject): boolean;
+function PNGintoBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject): boolean;
 var
     AlphaPtr: pByteArray;
     X, Y: Integer;
@@ -262,7 +262,7 @@ begin
  end;
 end;
 
-procedure Contrast(Bitmap: TBitmap32; Value: double);
+procedure Contrast(Bitmap: TCustomBitmap32; Value: double);
  function BLimit(B:Integer):Byte;
   begin
    if B<0 then Result:=0
@@ -293,12 +293,12 @@ begin
    end;
 end;
 
-procedure InvertBitmap(Bitmap: TBitmap32);
+procedure InvertBitmap(Bitmap: TCustomBitmap32);
 begin
  if GState.InvertColor then InvertRGB(Bitmap,Bitmap);
 end;
 
-procedure Gamma(Bitmap: TBitmap32);
+procedure Gamma(Bitmap: TCustomBitmap32);
   function Power(Base, Exponent: Extended): Extended;
   begin
     Result := Exp(Exponent * Ln(Base));

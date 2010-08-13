@@ -10,8 +10,8 @@ uses
 type
   TBmpBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   public
-    procedure SaveToFile(ABtm: TBitmap32; AFileName: string);
-    procedure SaveToStream(ABtm: TBitmap32; AStream: TStream);
+    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
 implementation
@@ -21,28 +21,28 @@ uses
 
 { TBmpBitmapTileSaver }
 
-procedure TBmpBitmapTileSaver.SaveToFile(ABtm: TBitmap32;
+procedure TBmpBitmapTileSaver.SaveToFile(ABtm: TCustomBitmap32;
   AFileName: string);
 var
   VBtm_ex: TBitmap;
 begin
   VBtm_ex := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VBtm_ex.SaveToFile(AFileName);
   finally
     VBtm_ex.Free;
   end;
 end;
 
-procedure TBmpBitmapTileSaver.SaveToStream(ABtm: TBitmap32;
+procedure TBmpBitmapTileSaver.SaveToStream(ABtm: TCustomBitmap32;
   AStream: TStream);
 var
   VBtm_ex: TBitmap;
 begin
   VBtm_ex := TBitmap.Create;
   try
-    VBtm_ex.Assign(Abtm as TBitmap32);
+    VBtm_ex.Assign(Abtm as TCustomBitmap32);
     VBtm_ex.SaveToStream(AStream);
   finally
     VBtm_ex.Free;

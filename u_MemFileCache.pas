@@ -23,9 +23,9 @@ type
     destructor Destroy; override;
     procedure Clear;
     procedure DeleteFileFromCache(path: string);
-    procedure AddTileToCache(btm: TBitmap32; APath: string); overload;
+    procedure AddTileToCache(btm: TCustomBitmap32; APath: string); overload;
     procedure AddTileToCache(btm: TKmlInfoSimple; APath: string); overload;
-    function TryLoadFileFromCache(btm: TBitmap32; APath: string): boolean; overload;
+    function TryLoadFileFromCache(btm: TCustomBitmap32; APath: string): boolean; overload;
     function TryLoadFileFromCache(btm: TKmlInfoSimple; APath: string): boolean; overload;
 
     property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
@@ -116,13 +116,13 @@ begin
 end;
 
 
-procedure TMemFileCache.AddTileToCache(btm: TBitmap32; APath: string);
+procedure TMemFileCache.AddTileToCache(btm: TCustomBitmap32; APath: string);
 var
-  btmcache: TBitmap32;
+  btmcache: TCustomBitmap32;
   VPath: string;
 begin
   VPath := AnsiUpperCase(APath);
-  btmcache := TBitmap32.Create;
+  btmcache := TCustomBitmap32.Create;
   btmcache.Assign(btm);
   AddToCache(btmcache, VPath);
 end;
@@ -138,7 +138,7 @@ begin
   AddToCache(btmcache, VPath);
 end;
 
-function TMemFileCache.TryLoadFileFromCache(btm: TBitmap32;
+function TMemFileCache.TryLoadFileFromCache(btm: TCustomBitmap32;
   APath: string): boolean;
 var
   i: integer;
@@ -150,7 +150,7 @@ begin
   try
     i := FCacheList.IndexOf(VPath);
     if i >= 0 then begin
-      btm.Assign(TBitmap32(FCacheList.Objects[i]));
+      btm.Assign(TCustomBitmap32(FCacheList.Objects[i]));
       result := true;
     end;
   finally

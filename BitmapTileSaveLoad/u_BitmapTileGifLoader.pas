@@ -10,8 +10,8 @@ uses
 type
   TGifBitmapTileLoader = class(TInterfacedObject, IBitmapTileLoader)
   public
-    procedure LoadFromFile(AFileName: string; ABtm: TBitmap32);
-    procedure LoadFromStream(AStream: TStream; ABtm: TBitmap32);
+    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
 implementation
@@ -21,7 +21,7 @@ uses
 
 { TGifBitmapTileLoader }
 
-procedure GifToBitmap32(AGif: TGIFImage; ABtm: TBitmap32);
+procedure GifToBitmap32(AGif: TGIFImage; ABtm: TCustomBitmap32);
 var
   p: PColor32;
   c: TColor32;
@@ -48,7 +48,7 @@ end;
 
 
 procedure TGifBitmapTileLoader.LoadFromFile(AFileName: string;
-  ABtm: TBitmap32);
+  ABtm: TCustomBitmap32);
 var
   VGif: TGIFImage;
 begin
@@ -62,7 +62,7 @@ begin
 end;
 
 procedure TGifBitmapTileLoader.LoadFromStream(AStream: TStream;
-  ABtm: TBitmap32);
+  ABtm: TCustomBitmap32);
 var
   VGif: TGIFImage;
 begin

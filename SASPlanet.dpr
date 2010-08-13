@@ -76,6 +76,8 @@ uses
   u_BitmapTileBmpLoader in 'BitmapTileSaveLoad\u_BitmapTileBmpLoader.pas',
   u_BitmapTileBmpSaver in 'BitmapTileSaveLoad\u_BitmapTileBmpSaver.pas',
   u_BitmapTilePngNbitdepthSaver in 'BitmapTileSaveLoad\u_BitmapTilePngNbitdepthSaver.pas',
+  u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
+  u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   i_IBitmapTypeExtManager in 'i_IBitmapTypeExtManager.pas',
   u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
