@@ -323,15 +323,14 @@ begin
   Bitmap:=TBitmap32.Create;
   Bitmap2:=TBitmap32.Create;
   try
-   Bitmap.SetSize(TPNGObject(GState.MarkIcons.Objects[index]).Width,
-                  TPNGObject(GState.MarkIcons.Objects[index]).Height);
-   Bitmap.Clear(clWhite32);
-   Bitmap.Assign(TPNGObject(GState.MarkIcons.Objects[index]));
+   Bitmap.Assign(TBitmap32(GState.MarkIcons.Objects[index]));
+   Bitmap.DrawMode:=dmBlend;
    Bitmap.Resampler:=TKernelResampler.Create;
    TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;
    Bitmap2.SetSize(wdth,wdth);
+   Bitmap2.Clear(clWhite32);
    Bitmap2.Draw(Bounds(0, 0, wdth,wdth), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
-   canvas.CopyRect(bound, Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
+   Bitmap2.DrawTo(canvas.Handle, bound, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
   finally
    Bitmap.Free;
    Bitmap2.Free;

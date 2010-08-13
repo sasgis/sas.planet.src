@@ -113,26 +113,31 @@ procedure TFImport.ComboBox1DrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
 var Bitmap,Bitmap2: TBitmap32;
 begin
-   with ComboBox1.Canvas do
-   begin
-     FillRect(Rect);
-     Bitmap:=TBitmap32.Create;
-     Bitmap2:=TBitmap32.Create;
-     Bitmap.SetSize(TPNGObject(ComboBox1.Items.Objects[Index]).Width,TPNGObject(ComboBox1.Items.Objects[Index]).Height);
-     Bitmap2.SetSize(31,31);
-     Bitmap.Clear(clWhite32);
-     Bitmap.Assign(TPNGObject(ComboBox1.Items.Objects[Index]));
-     Bitmap.Resampler:=TKernelResampler.Create;
-     TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;
-     Bitmap2.Draw(Bounds(0, 0, 31,31), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
-     if Bitmap <> nil then
-     begin
-      CopyRect(Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
-               Bitmap2.Canvas, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
-      Bitmap.Free;
-     end;
-     Bitmap2.Free;
-   end;
+  ComboBox1.Canvas.FillRect(Rect);
+
+  Bitmap:=TBitmap32.Create;
+  try
+    Bitmap.Assign(TBitmap32(ComboBox1.Items.Objects[Index]));
+    Bitmap.DrawMode:=dmBlend;
+    Bitmap.Resampler:=TKernelResampler.Create;
+    TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;
+
+    Bitmap2:=TBitmap32.Create;
+    try
+      Bitmap2.SetSize(31,31);
+      Bitmap2.Clear(clWhite32);
+      Bitmap2.Draw(Bounds(0, 0, 31,31), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
+      Bitmap2.DrawTo(
+        ComboBox1.Canvas.Handle,
+        Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
+        Bounds(0, 0, Bitmap2.Width,Bitmap2.Height)
+      );
+    finally
+      Bitmap2.Free;
+    end;
+  finally
+    Bitmap.Free;
+  end;
 end;
 
 procedure TFImport.FormActivate(Sender: TObject);

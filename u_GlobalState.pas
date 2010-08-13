@@ -257,6 +257,7 @@ type
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
     procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
+    procedure LoadBitmapFromRes(const Name: String; Abmp: TBitmap32);
   end;
 
 const
@@ -271,6 +272,7 @@ uses
   SysUtils,
   pngimage,
   i_MapTypes,
+  i_BitmapTileSaveLoad,
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
   u_MapsConfigInIniFileSection,
@@ -388,16 +390,18 @@ end;
 procedure TGlobalState.LoadMarkIcons;
 var
   SearchRec: TSearchRec;
-  VPng: TPNGObject;
+  Vbmp: TBitmap32;
+  VLoader: IBitmapTileLoader;
 begin
   MarkIcons := TStringList.Create;
+  VLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
   if FindFirst(MarkIconsPath +'*.png', faAnyFile, SearchRec) = 0 then begin
     try
       repeat
         if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-          VPng := TPNGObject.Create;
-          VPng.LoadFromFile(MarkIconsPath+SearchRec.Name);
-          MarkIcons.AddObject(SearchRec.Name, VPng);
+          Vbmp := TBitmap32.Create;
+          VLoader.LoadFromFile(MarkIconsPath+SearchRec.Name, Vbmp);
+          MarkIcons.AddObject(SearchRec.Name, Vbmp);
         end;
       until FindNext(SearchRec) <> 0;
     finally
@@ -419,18 +423,10 @@ begin
 end;
 
 procedure TGlobalState.LoadResources;
-var
-  b: TPNGObject;
 begin
- b := TPNGObject.Create;
- try
-   b.LoadFromResourceName(HInstance, 'ICONIII');
-   GOToSelIcon := TBitmap32.Create;
-   PNGintoBitmap32(GOToSelIcon, b);
-   GOToSelIcon.DrawMode := dmBlend;
- finally
-   FreeAndNil(b);
- end;
+  GOToSelIcon := TBitmap32.Create;
+  GOToSelIcon.DrawMode := dmBlend;
+  LoadBitmapFromRes('ICONIII', GOToSelIcon);
 end;
 
 procedure TGlobalState.FreeAllMaps;
@@ -451,6 +447,23 @@ begin
     MarkIcons.Objects[i].Free;
   end;
   FreeAndNil(MarkIcons);
+end;
+
+procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TBitmap32);
+var
+  ResStream: TResourceStream;
+  VImageLoader: IBitmapTileLoader;
+begin
+  VImageLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
+  {Creates an especial stream to load from the resource}
+  ResStream := TResourceStream.Create(HInstance, Name, RT_RCDATA);
+
+  {Loads the png image from the resource}
+  try
+    VImageLoader.LoadFromStream(ResStream, Abmp);
+  finally
+    ResStream.Free;
+  end;
 end;
 
 procedure TGlobalState.LoadMainParams;

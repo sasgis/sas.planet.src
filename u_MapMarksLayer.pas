@@ -188,8 +188,8 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            PNGintoBitmap32(btm,TPNGObject(GState.MarkIcons.Objects[indexmi]));
-            BtmEx.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
+            btm.Assign(TBitmap32(GState.MarkIcons.Objects[indexmi]));
+            BtmEx.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
             BtmEx.Font.Size:=FMain.CDSmarksScale1.AsInteger;
@@ -357,7 +357,7 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            PNGintoBitmap32(btm,TPNGObject(GState.MarkIcons.Objects[indexmi]));
+            btm.Assign(TBitmap32(GState.MarkIcons.Objects[indexmi]));
             FLayer.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
