@@ -257,7 +257,7 @@ type
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
     procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
-    procedure LoadBitmapFromRes(const Name: String; Abmp: TBitmap32);
+    procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
   end;
 
 const
@@ -389,7 +389,7 @@ end;
 procedure TGlobalState.LoadMarkIcons;
 var
   SearchRec: TSearchRec;
-  Vbmp: TBitmap32;
+  Vbmp: TCustomBitmap32;
   VLoader: IBitmapTileLoader;
 begin
   MarkIcons := TStringList.Create;
@@ -398,7 +398,7 @@ begin
     try
       repeat
         if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-          Vbmp := TBitmap32.Create;
+          Vbmp := TCustomBitmap32.Create;
           VLoader.LoadFromFile(MarkIconsPath+SearchRec.Name, Vbmp);
           MarkIcons.AddObject(SearchRec.Name, Vbmp);
         end;
@@ -448,7 +448,7 @@ begin
   FreeAndNil(MarkIcons);
 end;
 
-procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TBitmap32);
+procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
 var
   ResStream: TResourceStream;
   VImageLoader: IBitmapTileLoader;

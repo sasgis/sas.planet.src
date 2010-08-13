@@ -313,16 +313,18 @@ begin
 end;
 
 procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
-var Bitmap,Bitmap2: TBitmap32;
-    wdth:integer;
+var
+  Bitmap: TCustomBitmap32;
+  Bitmap2: TBitmap32;
+  wdth:integer;
 begin
   if index<0 then index:=0;
   canvas.FillRect(bound);
   wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
-  Bitmap:=TBitmap32.Create;
+  Bitmap:=TCustomBitmap32.Create;
   Bitmap2:=TBitmap32.Create;
   try
-   Bitmap.Assign(TBitmap32(GState.MarkIcons.Objects[index]));
+   Bitmap.Assign(TCustomBitmap32(GState.MarkIcons.Objects[index]));
    Bitmap.DrawMode:=dmBlend;
    Bitmap.Resampler:=TKernelResampler.Create;
    TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;

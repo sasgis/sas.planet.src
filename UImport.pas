@@ -110,13 +110,15 @@ end;
 
 procedure TFImport.ComboBox1DrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
-var Bitmap,Bitmap2: TBitmap32;
+var
+  Bitmap: TCustomBitmap32;
+  Bitmap2: TBitmap32;
 begin
   ComboBox1.Canvas.FillRect(Rect);
 
-  Bitmap:=TBitmap32.Create;
+  Bitmap:=TCustomBitmap32.Create;
   try
-    Bitmap.Assign(TBitmap32(ComboBox1.Items.Objects[Index]));
+    Bitmap.Assign(TCustomBitmap32(ComboBox1.Items.Objects[Index]));
     Bitmap.DrawMode:=dmBlend;
     Bitmap.Resampler:=TKernelResampler.Create;
     TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;

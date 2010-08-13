@@ -187,7 +187,7 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            btm.Assign(TBitmap32(GState.MarkIcons.Objects[indexmi]));
+            btm.Assign(TCustomBitmap32(GState.MarkIcons.Objects[indexmi]));
             BtmEx.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
@@ -356,7 +356,7 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            btm.Assign(TBitmap32(GState.MarkIcons.Objects[indexmi]));
+            btm.Assign(TCustomBitmap32(GState.MarkIcons.Objects[indexmi]));
             FLayer.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin

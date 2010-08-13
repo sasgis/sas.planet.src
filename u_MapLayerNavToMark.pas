@@ -15,7 +15,7 @@ type
   protected
     FMarkPoint: TExtendedPoint;
     FId: integer;
-    FArrowBitmap: TBitmap32;
+    FArrowBitmap: TCustomBitmap32;
     procedure DoRedraw; override;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetScreenCenterInBitmapPixels: TPoint; override;
@@ -46,7 +46,7 @@ var
   dl: integer;
 begin
   inherited Create(AParentMap, ACenter);
-  FArrowBitmap := TBitmap32.Create;
+  FArrowBitmap := TCustomBitmap32.Create;
   VSize := GetBitmapSizeInPixel;
   FArrowBitmap.SetSize(VSize.X, VSize.Y);
   dl:=GState.GPS_ArrowSize;

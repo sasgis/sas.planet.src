@@ -232,7 +232,7 @@ var
   VZoom: Byte;
   VZoomSource: Byte;
   VSourceMapType: TMapType;
-  VBmp: TBitmap32;
+  VBmp: TCustomBitmap32;
 
   {
     ѕр€моугольник пикселей растра в координатах текущей основной карты
@@ -283,7 +283,7 @@ var
   VGeoConvert: ICoordConverter;
   i, j: integer;
 begin
-  VBmp := TBitmap32.Create;
+  VBmp := TCustomBitmap32.Create;
   try
     VZoom := FLayer.Zoom;
     VZoomSource := FLayer.FSourceZoom;
