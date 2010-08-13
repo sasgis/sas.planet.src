@@ -48,7 +48,6 @@ uses
   TBXExtItems,
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
-  PNGimage,
   MidasLib,
   i_JclNotify,
   i_IGUIDList,

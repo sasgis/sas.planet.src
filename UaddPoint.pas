@@ -24,7 +24,6 @@ uses
   TBX,
   TB2Dock,
   TB2Toolbar,
-  pngimage,
   ugeofun,
   GR32,
   GR32_Resamplers,

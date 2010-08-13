@@ -10,7 +10,6 @@ uses
   Classes,
   Graphics,
   gifimage,
-  PNGImage,
   GR32,
   UMapType,
   UGeoFun,

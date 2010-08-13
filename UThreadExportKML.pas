@@ -11,7 +11,6 @@ uses
   Graphics,
   gifimage,
   VCLZIp,
-  PNGImage,
   GR32,
   UMapType,
   UGeoFun,

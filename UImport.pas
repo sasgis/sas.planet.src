@@ -17,7 +17,6 @@ uses
   Spin,
   ExtCtrls,
   Buttons,
-  PNGImage,
   GR32,
   GR32_Resamplers,
   Unit1,

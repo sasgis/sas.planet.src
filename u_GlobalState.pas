@@ -270,7 +270,6 @@ implementation
 
 uses
   SysUtils,
-  pngimage,
   i_MapTypes,
   i_BitmapTileSaveLoad,
   u_MapTypeBasic,

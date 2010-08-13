@@ -10,7 +10,6 @@ uses
   Graphics,
   gifimage,
   VCLZIp,
-  PNGImage,
   GR32,
   i_ITileFileNameGenerator,
   UMapType,
