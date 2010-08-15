@@ -53,16 +53,17 @@ type
     FCurrentPieceRect: TRect;
     FUsedReColor: boolean;
     FUsedMarks: boolean;
-    FNumImgs,FNumImgsSaved:integer;
+    FNumImgs: integer;
+    FNumImgsSaved: integer;
 
     FProgressForm: TFprogress2;
 
-    Array256BGR:P256ArrayBGR;
+    FArray256BGR: P256ArrayBGR;
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
     Garr:P256rgb;
     Barr:P256rgb;
-    ecw:TECWWrite;
+    FECWWriter:TECWWrite;
     btmm:TBitmap32;
     btmh:TBitmap32;
     prStr1, prStr2: string;
@@ -393,7 +394,7 @@ begin
         p:=btmm.ScanLine[j];
         rarri:=lrarri;
         for i:=Asx to Aex do begin
-          CopyMemory(@Array256BGR[j]^[rarri],Pointer(integer(p)+(i*4)),3);
+          CopyMemory(@FArray256BGR[j]^[rarri],Pointer(integer(p)+(i*4)),3);
           inc(rarri);
         end;
       end;
@@ -403,7 +404,7 @@ begin
       inc(p_h.x,256);
     end;
   end;
-  CopyMemory(LineRGB,Array256BGR^[starttile],(FCurrentPieceRect.Right-FCurrentPieceRect.Left)*3);
+  CopyMemory(LineRGB,FArray256BGR^[starttile],(FCurrentPieceRect.Right-FCurrentPieceRect.Left)*3);
 end;
 
 procedure TThreadScleit.Save_ECW;
@@ -420,7 +421,7 @@ begin
   ex:=(FCurrentPieceRect.Right mod 256);
   ey:=(FCurrentPieceRect.Bottom mod 256);
   try
-    ecw:=TECWWrite.Create;
+    FECWWriter:=TECWWrite.Create;
     btmm:=TBitmap32.Create;
     btmh:=TBitmap32.Create;
     btmm.Width:=256;
@@ -444,7 +445,7 @@ begin
       FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
       CellIncrementX,CellIncrementY,OriginX,OriginY
     );
-    errecw:=ecw.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
+    errecw:=FECWWriter.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
       path:=FTypeMap.GetTileShowName(FLastTile, FZoom);
@@ -469,7 +470,7 @@ begin
     {$ENDIF}
     btmm.Free;
     btmh.Free;
-    ecw.Free;
+    FECWWriter.Free;
   end;
 end;
 
@@ -488,18 +489,18 @@ begin
     btmm.Height:=256;
     btmh.Width:=256;
     btmh.Height:=256;
-    getmem(Array256BGR,256*sizeof(P256ArrayBGR));
-    for k:=0 to 255 do getmem(Array256BGR[k],(FMapPieceSize.X+1)*3);
+    getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
+    for k:=0 to 255 do getmem(FArray256BGR[k],(FMapPieceSize.X+1)*3);
     prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y);
     Synchronize(UpdateProgressFormStr1);
     SaveBMP(FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP, IsCancel);
   finally
     {$IFDEF VER80}
-      for k:=0 to 255 do freemem(Array256BGR[k],(FMapPieceSize.X+1)*3);
-      freemem(Array256BGR,256*((FMapPieceSize.X+1)*3));
+      for k:=0 to 255 do freemem(FArray256BGR[k],(FMapPieceSize.X+1)*3);
+      freemem(FArray256BGR,256*((FMapPieceSize.X+1)*3));
     {$ELSE}
-      for k:=0 to 255 do freemem(Array256BGR[k]);
-      FreeMem(Array256BGR);
+      for k:=0 to 255 do freemem(FArray256BGR[k]);
+      FreeMem(FArray256BGR);
     {$ENDIF}
     btmm.Free;
     btmh.Free;
@@ -519,8 +520,8 @@ begin
   iWidth  := FMapPieceSize.X;
   iHeight := FMapPieceSize.y;
   try
-    getmem(Array256BGR,256*sizeof(P256ArrayBGR));
-    for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
+    getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
+    for k:=0 to 255 do getmem(FArray256BGR[k],(iWidth+1)*3);
     prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
     Synchronize(UpdateProgressFormStr1);
     btmm:=TBitmap32.Create;
@@ -557,8 +558,8 @@ begin
     ijlWrite(@jcprops,IJL_JFILE_WRITEWHOLEIMAGE);
   Finally
     freemem(jcprops.DIBBytes,iWidth*iHeight*3);
-    for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
-    freemem(Array256BGR,256*((iWidth+1)*3));
+    for k:=0 to 255 do freemem(FArray256BGR[k],(iWidth+1)*3);
+    freemem(FArray256BGR,256*((iWidth+1)*3));
     ijlFree(@jcprops);
     btmm.Free;
     btmh.Free;
@@ -642,8 +643,8 @@ begin
         str := str + ansiToUTF8('<west>' + R2StrPoint(LL1.x) + '</west>' + #13#10);
         str := str + ansiToUTF8('</LatLonBox>'+#13#10+'</GroundOverlay>'+#13#10);
 
-        getmem(Array256BGR,256*sizeof(P256ArrayBGR));
-        for k:=0 to 255 do getmem(Array256BGR[k],(iWidth+1)*3);
+        getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
+        for k:=0 to 255 do getmem(FArray256BGR[k],(iWidth+1)*3);
         btmm:=TBitmap32.Create;
         btmh:=TBitmap32.Create;
         btmm.Width:=256;
@@ -683,8 +684,8 @@ begin
         Zip.AddStream(VFileName,jpgm);
       Finally
         freemem(jcprops.DIBBytes,iWidth*iHeight*3);
-        for k:=0 to 255 do freemem(Array256BGR[k],(iWidth+1)*3);
-        freemem(Array256BGR,256*((iWidth+1)*3));
+        for k:=0 to 255 do freemem(FArray256BGR[k],(iWidth+1)*3);
+        freemem(FArray256BGR,256*((iWidth+1)*3));
         ijlFree(@jcprops);
         btmm.Free;
         btmh.Free;
