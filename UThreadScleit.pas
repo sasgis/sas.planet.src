@@ -57,6 +57,9 @@ type
     FNumImgsSaved: integer;
 
     FProgressForm: TFprogress2;
+    prStr1, prStr2: string;
+    prBar:integer;
+    FMessageForShow:string;
 
     FArray256BGR: P256ArrayBGR;
     sx,ex,sy,ey:integer;
@@ -66,9 +69,6 @@ type
     FECWWriter:TECWWrite;
     btmm:TBitmap32;
     btmh:TBitmap32;
-    prStr1, prStr2: string;
-    prBar:integer;
-    FMessageForShow:string;
     FLastTile: TPoint;
     FQuality: Integer;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
