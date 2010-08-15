@@ -89,7 +89,7 @@ type
   public
     constructor Create(
       AMapCalibrationList: IInterfaceList;
-      AFName: string;
+      AFileName: string;
       APolygon_: TPointArray;
       ASplitCount: TPoint;
       Azoom: byte;
@@ -115,7 +115,7 @@ uses
 
 constructor TThreadScleit.Create(
   AMapCalibrationList: IInterfaceList;
-  AFName:string;
+  AFileName:string;
   APolygon_:TPointArray;
   ASplitCount: TPoint;
   Azoom:byte;
@@ -132,9 +132,9 @@ begin
   FPoly := APolygon_;
   FZoom := Azoom - 1;
   FSplitCount := ASplitCount;
-  FFilePath := ExtractFilePath(AFName);
-  FFileExt := ExtractFileExt(AFName);
-  FFileName := ChangeFileExt(ExtractFileName(AFName), '');
+  FFilePath := ExtractFilePath(AFileName);
+  FFileExt := ExtractFileExt(AFileName);
+  FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
   FTypeMap := Atypemap;
   FHTypeMap := AHtypemap;
   FUsedReColor := AusedReColor;
