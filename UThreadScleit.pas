@@ -54,6 +54,7 @@ type
     FMapSize: TPoint;
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
+    FLastTile: TPoint;
 
     FProgressForm: TFprogress2;
     FShowOnFormLine0: string;
@@ -69,7 +70,6 @@ type
     FECWWriter:TECWWrite;
     btmm:TBitmap32;
     btmh:TBitmap32;
-    FLastTile: TPoint;
     FQuality: Integer;
     FNumImgs: integer;
     FNumImgsSaved: integer;
