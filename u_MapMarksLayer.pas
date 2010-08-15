@@ -12,7 +12,7 @@ uses
 type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
-    procedure drawPath2Bitmap(BtmEx:TBitmap32;AGeoConvert: ICoordConverter; XYPoint:TPoint;AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+    procedure drawPath2Bitmap(BtmEx:TCustomBitmap32;AGeoConvert: ICoordConverter; XYPoint:TPoint;AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
     procedure DoRedraw; override;
   public
@@ -48,7 +48,7 @@ begin
   FLayer.Bitmap.Font.Style:=[];
 end;
 
-procedure TMapMarksLayer.drawPath2Bitmap(BtmEx:TBitmap32; AGeoConvert: ICoordConverter;XYPoint:TPoint; AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+procedure TMapMarksLayer.drawPath2Bitmap(BtmEx:TCustomBitmap32; AGeoConvert: ICoordConverter;XYPoint:TPoint; AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
 var
   i,adp,j:integer;
   k1,k2,k4:TPoint;
@@ -110,7 +110,7 @@ end;
 
 procedure TMapMarksLayer.DoRedraw2Bitmap(BtmEx:TBitmap32;AGeoConvert: ICoordConverter;ATargetRect: TRect; AZoomCurr:byte);
 var xy,xyb:Tpoint;
-    btm:TBitmap32;
+    btm:TCustomBitmap32;
     dLL:TExtendedPoint;
     TestArrLenP1,TestArrLenP2:TPoint;
     buf_line_arr:TExtendedPointArray;
@@ -162,7 +162,7 @@ begin
     end;
     BtmEx.Font.Name:='Tahoma';
     BtmEx.Font.Style:=[];
-    btm:=TBitmap32.Create;
+    btm:=TCustomBitmap32.Create;
     try
       btm.DrawMode:=dmBlend;
       btm.Resampler:=TLinearResampler.Create;
@@ -274,7 +274,7 @@ procedure TMapMarksLayer.DoRedraw;
 var
   LLRect:TExtendedRect;
   xy:Tpoint;
-  btm:TBitmap32;
+  btm:TCustomBitmap32;
   TestArrLenP1,TestArrLenP2:TPoint;
   buf_line_arr:TExtendedPointArray;
   indexmi:integer;
@@ -332,7 +332,7 @@ begin
       FMain.CDSmarks.Filtered:=false;
       exit;
     end;
-    btm:=TBitmap32.Create;
+    btm:=TCustomBitmap32.Create;
     try
       btm.DrawMode:=dmBlend;
       btm.Resampler:=TLinearResampler.Create;
