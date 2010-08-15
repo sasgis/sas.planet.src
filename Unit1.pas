@@ -1940,6 +1940,7 @@ begin
   stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
  end;
 
+ LayerMapMarks.Visible := True;
  if GState.WebReportToAuthor then WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
  Enabled:=true;
  SetFocus;
