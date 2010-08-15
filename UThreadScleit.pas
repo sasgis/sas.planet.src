@@ -57,8 +57,9 @@ type
     FNumImgsSaved: integer;
 
     FProgressForm: TFprogress2;
-    prStr1, prStr2: string;
-    prBar:integer;
+    FShowOnFormLine0: string;
+    FShowOnFormLine1: string;
+    FProgressOnForm:integer;
     FMessageForShow:string;
 
     FArray256BGR: P256ArrayBGR;
@@ -172,17 +173,17 @@ end;
 
 procedure TThreadScleit.UpdateProgressFormStr1;
 begin
-  FProgressForm.MemoInfo.Lines[0] := prStr1;
+  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
 end;
 
 procedure TThreadScleit.UpdateProgressFormStr2;
 begin
-  FProgressForm.MemoInfo.Lines[1] := prStr2;
+  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
 end;
 
 procedure TThreadScleit.UpdateProgressFormBar;
 begin
-  FProgressForm.ProgressBar1.Progress1 := prBar;
+  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 function TThreadScleit.IsCancel: Boolean;
@@ -196,12 +197,12 @@ var
 begin
   FNumImgs:=FSplitCount.X*FSplitCount.Y;
   FNumImgsSaved:=0;
-  prStr1:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FNumImgs)+' '+SAS_STR_files;
+  FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FNumImgs)+' '+SAS_STR_files;
   Synchronize(UpdateProgressFormStr1);
 
-  prBar:=0;
+  FProgressOnForm:=0;
   Synchronize(UpdateProgressFormBar);
-  prStr2:=SAS_STR_Processed+' 0';
+  FShowOnFormLine1:=SAS_STR_Processed+' 0';
   Synchronize(UpdateProgressFormStr2);
 
   FCurrentFileName := FFilePath + FFileName + FFileExt;
@@ -268,9 +269,9 @@ begin
     starttile:=(line-(256-sy)) mod 256;
   end;
   if (starttile=0)or(line=0) then begin
-    prBar:=line;
+    FProgressOnForm:=line;
     Synchronize(UpdateProgressFormBar);
-    prStr2:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
+    FShowOnFormLine1:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
@@ -349,12 +350,12 @@ begin
     starttile:=(line-(256-sy)) mod 256;
   end;
   if (starttile=0)or(line=0) then begin
-    prBar:=line;
+    FProgressOnForm:=line;
     Synchronize(UpdateProgressFormBar);
     if line=0 then begin
-      prStr2:=SAS_STR_CreateFile
+      FShowOnFormLine1:=SAS_STR_CreateFile
     end else begin
-      prStr2:=SAS_STR_Processed+': '+inttostr(Round((prBar/(FMapPieceSize.Y))*100))+'%';
+      FShowOnFormLine1:=SAS_STR_Processed+': '+inttostr(Round((FProgressOnForm/(FMapPieceSize.Y))*100))+'%';
     end;
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
@@ -434,7 +435,7 @@ begin
     for k:=0 to 255 do getmem(Garr[k],(FMapSize.X+1)*sizeof(byte));
     getmem(Barr,256*sizeof(PRow));
     for k:=0 to 255 do getmem(Barr[k],(FMapSize.X+1)*sizeof(byte));
-    prStr1:=SAS_STR_Resolution+': '+inttostr((FMapSize.X))+'x'+inttostr((FMapSize.Y));
+    FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr((FMapSize.X))+'x'+inttostr((FMapSize.Y));
     Synchronize(UpdateProgressFormStr1);
     Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
     Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
@@ -491,7 +492,7 @@ begin
     btmh.Height:=256;
     getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(FArray256BGR[k],(FMapPieceSize.X+1)*3);
-    prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y);
+    FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y);
     Synchronize(UpdateProgressFormStr1);
     SaveBMP(FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP, IsCancel);
   finally
@@ -522,7 +523,7 @@ begin
   try
     getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(FArray256BGR[k],(iWidth+1)*3);
-    prStr1:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
+    FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
     Synchronize(UpdateProgressFormStr1);
     btmm:=TBitmap32.Create;
     btmh:=TBitmap32.Create;
@@ -614,7 +615,7 @@ begin
 
   for i:=1 to nim.X do begin
     for j:=1 to nim.Y do begin
-      prStr1:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(bFMapPieceSizey)+' ('+inttostr((i-1)*nim.Y+j)+'/'+inttostr(nim.X*nim.Y)+')';
+      FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(bFMapPieceSizey)+' ('+inttostr((i-1)*nim.Y+j)+'/'+inttostr(nim.X*nim.Y)+')';
       jpgm:=TMemoryStream.Create;
       FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
       VFileName:='files/'+ExtractFileName(FileName);
