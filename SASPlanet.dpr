@@ -42,6 +42,7 @@ uses
   u_BitmapLayerWithSortIndex in 'u_BitmapLayerWithSortIndex.pas',
   UTrAllLoadMap in 'UTrAllLoadMap.pas',
   UThreadScleit in 'UThreadScleit.pas',
+  u_MapCombineThreadBase in 'u_MapCombineThreadBase.pas',
   UThreadExport in 'UThreadExport.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',
