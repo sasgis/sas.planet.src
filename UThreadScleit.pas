@@ -67,7 +67,7 @@ type
     btmh:TBitmap32;
     prStr1, prStr2: string;
     prBar:integer;
-    Message_:string;
+    FMessageForShow:string;
     FLastTile: TPoint;
     FQuality: Integer;
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
@@ -90,7 +90,7 @@ type
     constructor Create(
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon_: TPointArray;
+      APolygon: TPointArray;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -116,7 +116,7 @@ uses
 constructor TThreadScleit.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName:string;
-  APolygon_:TPointArray;
+  APolygon:TPointArray;
   ASplitCount: TPoint;
   Azoom:byte;
   Atypemap,AHtypemap:TMapType;
@@ -129,7 +129,7 @@ begin
   inherited Create(false);
   Priority := tpLower;
   FreeOnTerminate := true;
-  FPoly := APolygon_;
+  FPoly := APolygon;
   FZoom := Azoom - 1;
   FSplitCount := ASplitCount;
   FFilePath := ExtractFilePath(AFileName);
@@ -161,7 +161,7 @@ end;
 
 procedure TThreadScleit.SynShowMessage;
 begin
- ShowMessage(Message_);
+ ShowMessage(FMessageForShow);
 end;
 
 procedure TThreadScleit.UpdateProgressFormClose;
@@ -238,7 +238,7 @@ begin
         end;
       except
         On E:Exception do begin
-          Message_:=E.Message;
+          FMessageForShow:=E.Message;
           Synchronize(SynShowMessage);
           exit;
         end;
@@ -448,7 +448,7 @@ begin
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
       path:=FTypeMap.GetTileShowName(FLastTile, FZoom);
-      Message_:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
+      FMessageForShow:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
       Synchronize(SynShowMessage);
     end;
   finally
@@ -544,7 +544,7 @@ begin
         if IsCancel then break;
       end;
     end else begin
-      Message_:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
+      FMessageForShow:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
       Synchronize(SynShowMessage);
       exit;
     end;
@@ -596,7 +596,7 @@ begin
   FProgressForm.ProgressBar1.Max := iHeight;
 
   if ((nim.X*nim.Y)>100)and(FNumImgsSaved=0) then begin
-    Message_:=SAS_MSG_GarminMax1Mp;
+    FMessageForShow:=SAS_MSG_GarminMax1Mp;
     Synchronize(SynShowMessage);
   end;
   BufRect:=FCurrentPieceRect;
@@ -668,7 +668,7 @@ begin
             if IsCancel then break;
           end;
         end else begin
-          Message_:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
+          FMessageForShow:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
           Synchronize(SynShowMessage);
           exit;
         end;
