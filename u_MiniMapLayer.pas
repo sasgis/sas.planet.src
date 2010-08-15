@@ -84,7 +84,6 @@ type
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; override;
     function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; override;
 
-    procedure LoadBitmapFromRes(Instance: HInst; const Name: String; Abmp: TBitmap32);
     procedure LoadBitmaps;
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
@@ -295,31 +294,13 @@ begin
   FMinusButtonPressed := False;
 end;
 
-procedure TMiniMapLayer.LoadBitmapFromRes(Instance: HInst;
-  const Name: String; Abmp: TBitmap32);
-var
-  ResStream: TResourceStream;
-  VImageLoader: IBitmapTileLoader;
-begin
-  VImageLoader := GState.BitmapTypeManager.GetBitmapLoaderForExt('.png');
-  {Creates an especial stream to load from the resource}
-  ResStream := TResourceStream.Create(Instance, Name, RT_RCDATA);
-
-  {Loads the png image from the resource}
-  try
-    VImageLoader.LoadFromStream(ResStream, Abmp);
-  finally
-    ResStream.Free;
-  end;
-end;
-
 procedure TMiniMapLayer.LoadBitmaps;
 begin
   FDefoultMap := TBitmap32.Create;
-  LoadBitmapFromRes(HInstance, 'MAINMAP', FDefoultMap);
-  LoadBitmapFromRes(HInstance, 'ICONI', FPlusButton.Bitmap);
+  GState.LoadBitmapFromRes('MAINMAP', FDefoultMap);
+  GState.LoadBitmapFromRes('ICONI', FPlusButton.Bitmap);
   FPlusButton.Bitmap.DrawMode := dmTransparent;
-  LoadBitmapFromRes(HInstance, 'ICONII', FMinusButton.Bitmap);
+  GState.LoadBitmapFromRes('ICONII', FMinusButton.Bitmap);
   FMinusButton.Bitmap.DrawMode := dmTransparent;
 end;
 
