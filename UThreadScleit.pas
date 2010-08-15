@@ -155,7 +155,7 @@ begin
   FMapPieceSize.Y := FMapSize.Y div FSplitCount.Y;
   FProgressForm.ProgressBar1.Max := FMapPieceSize.Y;
 
-  FProgressForm.Caption := 'Ñךכוטעü: '+inttostr((FMapSize.Y) div 256+1)+'x'
+  FProgressForm.Caption := 'Ñךכוטעü: '+inttostr((FMapSize.X) div 256+1)+'x'
     +inttostr((FMapSize.Y) div 256+1) +'('+inttostr(VProcessTiles)+') '+SAS_STR_files;
 end;
 
