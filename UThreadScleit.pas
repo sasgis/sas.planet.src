@@ -37,30 +37,29 @@ type
 
   TThreadScleit = class(TThread)
   private
+    FTypeMap: TMapType;
+    FHTypeMap: TMapType;
     FZoom: byte;
     FPoly: TPointArray;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
+    FUsedReColor: boolean;
+    FUsedMarks: boolean;
+
     FFileName: string;
     FFilePath: string;
     FFileExt: string;
     FCurrentFileName: string;
-    FTypeMap: TMapType;
-    FHTypeMap: TMapType;
     FMapRect: TRect;
     FMapSize: TPoint;
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
-    FUsedReColor: boolean;
-    FUsedMarks: boolean;
-    FNumImgs: integer;
-    FNumImgsSaved: integer;
 
     FProgressForm: TFprogress2;
     FShowOnFormLine0: string;
     FShowOnFormLine1: string;
-    FProgressOnForm:integer;
-    FMessageForShow:string;
+    FProgressOnForm: integer;
+    FMessageForShow: string;
 
     FArray256BGR: P256ArrayBGR;
     sx,ex,sy,ey:integer;
@@ -72,6 +71,9 @@ type
     btmh:TBitmap32;
     FLastTile: TPoint;
     FQuality: Integer;
+    FNumImgs: integer;
+    FNumImgsSaved: integer;
+
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     procedure ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb);
     function IsCancel: Boolean;
@@ -283,8 +285,7 @@ begin
     Aex:=255;
     while p_x<=FCurrentPieceRect.Right do begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
-      FLastTile.X := p_x shr 8;
-      FLastTile.Y := p_y shr 8;
+      FLastTile := Point(p_x shr 8, p_y shr 8);
       if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
@@ -302,6 +303,7 @@ begin
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
         end;
+        FLastTile := Point(p_x shr 8, p_y shr 8);
         if FUsedMarks then Synchronize(DrawMarks2Tile);
       end;
       if FUsedReColor then Gamma(btmm);
@@ -387,6 +389,7 @@ begin
             btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
           end;
         end;
+        FLastTile := Point(p_x shr 8, p_y shr 8);
         if FUsedMarks then Synchronize(DrawMarks2Tile);
       end;
       if FUsedReColor then Gamma(btmm);
