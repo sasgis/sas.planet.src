@@ -107,6 +107,8 @@ uses
   u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
   i_ISearchResultPresenter in 'i_ISearchResultPresenter.pas',
   u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
+  i_IBitmapLayerProvider in 'i_IBitmapLayerProvider.pas',
+  u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',
   u_MiniMapLayer in 'u_MiniMapLayer.pas',
   u_CenterScale in 'u_CenterScale.pas',
