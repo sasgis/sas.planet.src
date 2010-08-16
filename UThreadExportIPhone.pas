@@ -98,7 +98,8 @@ begin
   FProgressForm.ProgressBar1.Progress1 := 0;
   FProgressForm.ProgressBar1.Max := 100;
   FProgressForm.Visible := true;
-  FExportPath := APath;
+  FExportPath := IncludeTrailingPathDelimiter(APath);
+  ForceDirectories(FExportPath);
   FNewFormat := ANewFormat;
   FIsReplace := AReplace;
   setlength(FPolygLL, length(APolygon));
