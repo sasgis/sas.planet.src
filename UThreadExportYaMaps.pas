@@ -214,9 +214,9 @@ begin
       
       VTilesProcessed:=0;
       tc:=GetTickCount;
-      for i:=0 to 23 do begin //по масштабу
+      for i:=0 to 23 do begin
         if FZoomArr[i] then begin
-          for j:=0 to 2 do begin//по типу
+          for j:=0 to 2 do begin
             if (FMapTypeArr[j]<>nil)and(not((j=0)and(FMapTypeArr[2]<>nil))) then begin
               polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
               GetDwnlNum(min,max,Polyg,false);
