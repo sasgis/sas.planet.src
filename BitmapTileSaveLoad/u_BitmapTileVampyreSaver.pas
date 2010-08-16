@@ -28,12 +28,12 @@ type
     constructor Create; overload;
   end;
 
-  TVampyreBasicBitmapTileSaverPNGRGB = class(TVampyreBasicBitmapTileSaver)
+  TVampyreBasicBitmapTileSaverPNGRGB = class(TVampyreBasicBitmapTileSaverPNG)
   protected
     procedure PrepareData(AImage: TImageData); override;
   end;
 
-  TVampyreBasicBitmapTileSaverPNGPalette = class(TVampyreBasicBitmapTileSaver)
+  TVampyreBasicBitmapTileSaverPNGPalette = class(TVampyreBasicBitmapTileSaverPNG)
   protected
     procedure PrepareData(AImage: TImageData); override;
   end;
