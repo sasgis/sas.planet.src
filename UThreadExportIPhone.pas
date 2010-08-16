@@ -23,7 +23,7 @@ uses
 type
   TThreadExportIPhone = class(TThread)
   private
-    PolygLL: TExtendedPointArray;
+    FPolygLL: TExtendedPointArray;
     Zoomarr: array [0..23] of boolean;
     typemaparr: array of TMapType;
     FActiveMapIndex: integer;
@@ -48,7 +48,7 @@ type
     procedure UpdateProgressFormClose;
     procedure SynShowMessage;
 
-    procedure export2iMaps(APolyLL: TExtendedPointArray);
+    procedure export2iMaps();
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
   protected
     procedure Execute; override;
@@ -104,9 +104,9 @@ begin
   Path := APath;
   FNewFormat := ANewFormat;
   Replace := AReplace;
-  setlength(PolygLL, length(APolygon_));
+  setlength(FPolygLL, length(APolygon_));
   for i := 1 to length(APolygon_) do begin
-    PolygLL[i - 1] := Apolygon_[i - 1];
+    FPolygLL[i - 1] := Apolygon_[i - 1];
   end;
   for i := 0 to 23 do begin
     zoomarr[i] := Azoomarr[i];
@@ -124,7 +124,7 @@ end;
 
 procedure TThreadExportIPhone.Execute;
 begin
-  export2iMaps(PolygLL);
+  export2iMaps;
   Synchronize(UpdateProgressFormClose);
 end;
 
@@ -154,7 +154,7 @@ begin
   end;
 end;
 
-procedure TThreadExportIPhone.export2iMaps(APolyLL: TExtendedPointArray);
+procedure TThreadExportIPhone.export2iMaps;
 var
   p_x, p_y: integer;
   i, j, xi, yi, hxyi, sizeim, cri, crj: integer;
@@ -181,7 +181,7 @@ begin
     While not (zoomarr[i]) do begin
       inc(i);
     end;
-    polyg := VGeoConvert.PoligonProject(i + 8, APolyLL);
+    polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
     GetMinMax(min, max, polyg, true);
     LLCenter := VGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
 
@@ -235,7 +235,7 @@ begin
       num_dwn := 0;
       for i := 0 to 23 do begin
         if zoomarr[i] then begin
-          polyg := VGeoConvert.PoligonProject(i + 8, APolyLL);
+          polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
           num_dwn := num_dwn + GetDwnlNum(min, max, Polyg, true);
         end;
       end;
@@ -282,7 +282,7 @@ begin
       DISQLite3Database.Execute('BEGIN TRANSACTION');
       for i := 0 to 23 do begin
         if zoomarr[i] then begin
-          Polyg := VGeoConvert.PoligonProject(i + 8, APolyLL);
+          Polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
           GetDwnlNum(min, max, Polyg, false);
 
           p_x := min.x;
