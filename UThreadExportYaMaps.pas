@@ -20,20 +20,20 @@ uses
 type
   TThreadExportYaMaps = class(TThread)
   private
-    PolygLL:TExtendedPointArray;
+    FPolygLL:TExtendedPointArray;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
     Fprogress: TFprogress2;
     Replace:boolean;
     Path:string;
     csat,cmap,chib:byte;
-    procedure export2YaMaps(APolyLL:TExtendedPointArray);
+    procedure export2YaMaps;
   protected
     procedure Execute; override;
   public
     constructor Create(
       APath: string;
-      APolygon_: TExtendedPointArray;
+      APolygon: TExtendedPointArray;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Areplace: boolean;
@@ -56,7 +56,7 @@ uses
 
 constructor TThreadExportYaMaps.Create(
   APath: string;
-  APolygon_: TExtendedPointArray;
+  APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Areplace: boolean;
@@ -74,9 +74,9 @@ begin
   FProgress.Visible:=true;
   Path:=APath;
   Replace:=AReplace;
-  setlength(PolygLL,length(APolygon_));
-  for i:=1 to length(APolygon_) do
-    PolygLL[i-1]:=Apolygon_[i-1];
+  setlength(FPolygLL,length(APolygon));
+  for i:=1 to length(APolygon) do
+    FPolygLL[i-1]:=APolygon[i-1];
   for i:=0 to 23 do
     zoomarr[i]:=Azoomarr[i];
   setlength(typemaparr,length(Atypemaparr));
@@ -87,7 +87,7 @@ end;
 
 procedure TThreadExportYaMaps.Execute;
 begin
-  export2YaMaps(PolygLL);
+  export2YaMaps;
   FProgress.Close;
 end;
 
@@ -144,7 +144,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMaps.export2YaMaps(APolyLL:TExtendedPointArray);
+procedure TThreadExportYaMaps.export2YaMaps;
 var
   p_x,p_y,i,j,xi,yi,hxyi,sizeim:integer;
   num_dwn,obrab:integer;
@@ -173,12 +173,12 @@ begin
       bmp32crop.Height:=sizeim;
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
       num_dwn:=0;
-      SetLength(polyg,length(APolyLL));
+      SetLength(polyg,length(FPolygLL));
       for i:=0 to length(TypeMapArr)-1 do begin
         if TypeMapArr[i]<>nil then begin
           for j:=0 to 23 do begin
             if zoomarr[j] then begin
-              polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
+              polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
               num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
             end;
           end;
@@ -195,7 +195,7 @@ begin
         if zoomarr[i] then begin
           for j:=0 to 2 do begin//по типу
             if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then begin
-              polyg := VGeoConvert.PoligonProject(i + 8, APolyLL);
+              polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
               GetDwnlNum(min,max,Polyg,false);
               p_x:=min.x;
               while p_x<max.x do begin
