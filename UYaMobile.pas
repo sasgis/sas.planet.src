@@ -14,12 +14,6 @@ const
  TableOffset=10;
  Head:int64 = $000A000158444E59;//288230381927550553;
 
-var
- TableSize:integer;
- DataOffset:integer;
- Header:array [0..7] of byte;
- tileinfo:array [0..5] of byte;
-
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
 begin
@@ -63,10 +57,11 @@ begin
  if not(DirectoryExists(path)) then ForceDirectories(path);
 end;
 
-procedure CreateNilFile(path:string);
+procedure CreateNilFile(path:string; TableSize:integer);
 var i:integer;
     ms:TMemoryStream;
     n:array [0..TableOffset-8-1] of byte;
+ tileinfo:array [0..5] of byte;
 begin
  createdirif(path);
  ms:=TMemoryStream.Create;
@@ -86,13 +81,16 @@ var MobileFilePath:string;
     Adr,RAdr:integer;
     Len:Smallint;
     realTableOffset:integer;
+ Header:array [0..7] of byte;
+ TableSize:integer;
+ DataOffset:integer;
 begin
  if z>7 then TableSize:=256
         else TableSize:=2 shl Z;
  DataOffset:=TableOffset+sqr(TableSize)*6;
  MobileFilePath:=cache_path+GetMobileFile(X,Y,Z,Mt);
  if not(FileExists(MobileFilePath))
-  then CreateNilFile(MobileFilePath);
+  then CreateNilFile(MobileFilePath, TableSize);
  MobileFile:=TFileStream.Create(MobileFilePath,fmOpenReadWrite or fmShareExclusive);
 
  MobileFile.Read(Header,8);
