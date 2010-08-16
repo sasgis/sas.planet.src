@@ -427,10 +427,4 @@ begin
  end;
 end;
 
-function RetDate(inDate: TDateTime): string;
-var xYear, xMonth, xDay: word;
-begin
-  DecodeDate(inDate, xYear, xMonth, xDay);
-  Result := inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear);
-end;
 end.
