@@ -165,7 +165,7 @@ end;
 procedure TThreadExportYaMaps.export2YaMaps;
 var
   p_x,p_y,i,j,xi,yi,hxyi,sizeim:integer;
-  num_dwn,obrab:integer;
+  VTilesToProcess,VTilesProcessed:integer;
   polyg:TPointArray;
   max,min,p_h:TPoint;
   bmp32,bmp322,bmp32crop:TBitmap32;
@@ -190,14 +190,14 @@ begin
       bmp32crop.Width:=sizeim;
       bmp32crop.Height:=sizeim;
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
-      num_dwn:=0;
+      VTilesToProcess:=0;
       SetLength(polyg,length(FPolygLL));
       for i:=0 to length(FMapTypeArr)-1 do begin
         if FMapTypeArr[i]<>nil then begin
           for j:=0 to 23 do begin
             if FZoomArr[j] then begin
               polyg := FMapTypeArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
-              num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
+              VTilesToProcess:=VTilesToProcess+GetDwnlNum(min,max,Polyg,true);
             end;
           end;
         end;
@@ -205,14 +205,14 @@ begin
       FShowOnFormLine0:=SAS_STR_ExportTiles;
       Synchronize(UpdateProgressFormStr0);
 
-      FShowFormCaption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_files;
+      FShowFormCaption:=SAS_STR_AllSaves+' '+inttostr(VTilesToProcess)+' '+SAS_STR_files;
       Synchronize(UpdateProgressFormCaption);
 
       FProgressOnForm := 0;
       FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
       Synchronize(UpdateProgressFormStr1);
       
-      obrab:=0;
+      VTilesProcessed:=0;
       tc:=GetTickCount;
       for i:=0 to 23 do begin //по масштабу
         if FZoomArr[i] then begin
@@ -263,10 +263,10 @@ begin
                       end;
                     end;
                   end;
-                  inc(obrab);
+                  inc(VTilesProcessed);
                   if (GetTickCount-tc>1000) then begin
                     tc:=GetTickCount;
-                    FProgressOnForm:=round((obrab/num_dwn)*100);
+                    FProgressOnForm:=round((VTilesProcessed/VTilesToProcess)*100);
                     Synchronize(UpdateProgressFormBar);
                     FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
                     Synchronize(UpdateProgressFormStr1);
@@ -279,7 +279,7 @@ begin
           end;
         end;
       end;
-      FProgressOnForm:=round((obrab/num_dwn)*100);
+      FProgressOnForm:=round((VTilesProcessed/VTilesToProcess)*100);
       Synchronize(UpdateProgressFormBar);
       FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
       Synchronize(UpdateProgressFormStr1);
