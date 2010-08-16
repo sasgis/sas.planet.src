@@ -154,59 +154,6 @@ begin
   end;
 end;
 
-function UniLoadTile(var bmp: TBitmap32; ATypeMap: TmapType; ATargetProjection: byte; p_h: TPoint; p_x, p_y: integer; zoom: byte): boolean;
-var
-  bmp2, bmp1: TBitmap32;
-  res1, res2: boolean;
-  VTile: TPoint;
-begin
-  res2 := false;
-  bmp.width := 256;
-  bmp.Height := 256;
-  bmp.Clear(Color32(GState.BGround));
-  bmp1 := TBitmap32.Create;
-  try
-    bmp1.DrawMode := dmBlend;
-    bmp2 := TBitmap32.Create;
-    try
-      bmp2.DrawMode := dmBlend;
-      res1 := true;
-      VTile := ATypeMap.GeoConvert.PixelPos2TilePos(p_h, zoom);
-      if (not (ATypeMap.LoadTile(bmp1, VTile, zoom, false))) then begin
-        res1 := false;
-        bmp1.width := 256;
-        bmp1.Height := 256;
-        bmp1.Clear(Color32(GState.BGround));
-      end;
-      if p_h.Y < 0 then begin
-        bmp.Draw(0, ((((p_Y - (p_y mod 256)) mod 256) + 256) - (p_h.Y mod 256)), bmp1);
-      end else begin
-        bmp.Draw(0, (((p_Y - (p_y mod 256)) mod 256) - (p_h.Y mod 256)), bmp1);
-      end;
-
-      if ATargetProjection <> ATypeMap.projection then begin
-        res2 := true;
-        if (not (ATypeMap.LoadTile(bmp2, Point(VTile.X, VTile.Y + 1), zoom, false))) then begin
-          res2 := false;
-          bmp2.width := 256;
-          bmp2.Height := 256;
-          bmp2.Clear(Color32(GState.BGround));
-        end;
-        if p_h.Y < 0 then begin
-          bmp.Draw(0, (((p_Y - (p_y mod 256)) mod 256) - (p_h.Y mod 256)), bmp2);
-        end else begin
-          bmp.Draw(0, ((((p_Y - (p_y mod 256)) mod 256) + 256) - (p_h.Y mod 256)), bmp2);
-        end;
-      end;
-      result := (res1 or res2);
-    finally
-      bmp2.Free;
-    end;
-  finally
-    bmp1.Free;
-  end;
-end;
-
 procedure TThreadExportIPhone.export2iMaps(APolyLL: TExtendedPointArray);
 var
   p_x, p_y: integer;
