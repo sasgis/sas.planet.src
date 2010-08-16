@@ -34,7 +34,7 @@ type
     DISQLite3Database:TDISQLite3Database;
     csat,cmap,chib:byte;
     procedure export2iMaps(APolyLL:TExtendedPointArray);
-    function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
+    function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags:integer): Int64;
   protected
     procedure Execute; override;
   public
@@ -104,12 +104,12 @@ begin
   FProgress.Close;
 end;
 
-function TThreadExportIPhone.Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags,Alength:integer): Int64;
+function TThreadExportIPhone.Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom,Ax,Ay,Aflags:integer): Int64;
 var l: Integer;
     p: Pointer;
     Stmt: TDISQLite3Statement;
 begin
-  Stmt:=DISQLite3Database.Prepare('INSERT INTO Images (data,zoom,x,y,flags,length) VALUES (?,"'+inttostr(Azoom)+'","'+inttostr(Ax)+'","'+inttostr(Ay)+'","'+inttostr(AFlags)+'","'+inttostr(ALength)+'")');
+  Stmt:=DISQLite3Database.Prepare('INSERT INTO Images (data,zoom,x,y,flags,length) VALUES (?,"'+inttostr(Azoom)+'","'+inttostr(Ax)+'","'+inttostr(Ay)+'","'+inttostr(AFlags)+'","'+inttostr(AStream.Size)+'")');
   try
     if AStream is TCustomMemoryStream
      then with AStream as TCustomMemoryStream do
@@ -366,7 +366,7 @@ begin
                   TileStream.Clear;
                   jpg.CompressionQuality:=chib;
                   jpg.SaveToStream(TileStream);
-                  Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,6,TileStream.Size);
+                  Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,6);
                 end;
             if j=1 then
               for xi:=0 to hxyi do
@@ -376,7 +376,7 @@ begin
                   TileStream.Clear;
                   png.CompressionLevel:=cMap;
                   png.SaveToStream(TileStream);
-                  Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,2,TileStream.Size);
+                  Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,2);
                 end;
             if j=0 then
               for xi:=0 to hxyi do
@@ -388,7 +388,7 @@ begin
                   TileStream.Clear;
                   jpg.CompressionQuality:=cSat;
                   jpg.SaveToStream(TileStream);
-                  Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,3,TileStream.Size);
+                  Write_Stream_to_Blob_Traditional(TileStream, i+1,((p_xd256)*(hxyi+1))+xi,((p_yd256)*(hxyi+1))+yi,3);
                 end;
            end;
           inc(obrab);
