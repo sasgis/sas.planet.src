@@ -6,6 +6,10 @@ uses
   SysUtils,
   classes;
 
+ procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
+
+implementation
+
 const
  TableOffset=10;
  Head:int64 = $000A000158444E59;//288230381927550553;
@@ -15,10 +19,6 @@ var
  DataOffset:integer;
  Header:array [0..7] of byte;
  tileinfo:array [0..5] of byte;
-
- procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
-
-implementation
 
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
