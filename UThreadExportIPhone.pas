@@ -5,19 +5,14 @@ interface
 uses
   Windows,
   Types,
-  Forms,
   SysUtils,
   Classes,
-  Graphics,
   DISQLite3Database,
   DISQLite3Api,
-  PNGImage,
-  JPEG,
   GR32,
   UMapType,
   UGeoFun,
   unit4,
-  UResStrings,
   t_GeoTypes;
 
 type
@@ -70,10 +65,11 @@ type
 implementation
 
 uses
+  Forms,
   Dialogs,
   u_GeoToStr,
   i_ICoordConverter,
-  u_GlobalState,
+  UResStrings,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
   u_BitmapTileJpegSaverIJL,
