@@ -14,7 +14,7 @@ type
   private
     FFormat: TImageFileFormat;
   protected
-    procedure PrepareData(AImage: TImageData); virtual;
+    procedure PrepareData(var AImage: TImageData); virtual;
   public
     constructor Create(AFormat: TImageFileFormat);
     destructor Destroy; override;
@@ -30,12 +30,12 @@ type
 
   TVampyreBasicBitmapTileSaverPNGRGB = class(TVampyreBasicBitmapTileSaverPNG)
   protected
-    procedure PrepareData(AImage: TImageData); override;
+    procedure PrepareData(var AImage: TImageData); override;
   end;
 
   TVampyreBasicBitmapTileSaverPNGPalette = class(TVampyreBasicBitmapTileSaverPNG)
   protected
-    procedure PrepareData(AImage: TImageData); override;
+    procedure PrepareData(var AImage: TImageData); override;
   end;
 
   TVampyreBasicBitmapTileSaverGIF = class(TVampyreBasicBitmapTileSaver)
@@ -70,7 +70,7 @@ begin
   inherited;
 end;
 
-procedure TVampyreBasicBitmapTileSaver.PrepareData(AImage: TImageData);
+procedure TVampyreBasicBitmapTileSaver.PrepareData(var AImage: TImageData);
 begin
 end;
 
@@ -173,7 +173,7 @@ end;
 
 { TVampyreBasicBitmapTileSaverPNGRGB }
 
-procedure TVampyreBasicBitmapTileSaverPNGRGB.PrepareData(AImage: TImageData);
+procedure TVampyreBasicBitmapTileSaverPNGRGB.PrepareData(var AImage: TImageData);
 begin
   ConvertImage(AImage, ifR8G8B8);
 end;
@@ -181,7 +181,7 @@ end;
 { TVampyreBasicBitmapTileSaverPNGPalette }
 
 procedure TVampyreBasicBitmapTileSaverPNGPalette.PrepareData(
-  AImage: TImageData);
+  var AImage: TImageData);
 begin
   ConvertImage(AImage, ifIndex8);
 end;
