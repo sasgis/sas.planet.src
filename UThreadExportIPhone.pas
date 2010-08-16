@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon_: TExtendedPointArray;
+      APolygon: TExtendedPointArray;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       AActiveMapIndex: Integer;
@@ -78,7 +78,7 @@ uses
 
 constructor TThreadExportIPhone.Create(
   APath: string;
-  APolygon_: TExtendedPointArray;
+  APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
@@ -101,9 +101,9 @@ begin
   FExportPath := APath;
   FNewFormat := ANewFormat;
   FIsReplace := AReplace;
-  setlength(FPolygLL, length(APolygon_));
-  for i := 1 to length(APolygon_) do begin
-    FPolygLL[i - 1] := Apolygon_[i - 1];
+  setlength(FPolygLL, length(APolygon));
+  for i := 1 to length(APolygon) do begin
+    FPolygLL[i - 1] := APolygon[i - 1];
   end;
   for i := 0 to 23 do begin
     FZoomArr[i] := Azoomarr[i];
@@ -155,7 +155,7 @@ procedure TThreadExportIPhone.WritePListFile(AGeoConvert: ICoordConverter);
 var
   PList: Text;
   VLLCenter: TExtendedPoint;
-  polyg: TPointArray;
+  VPolyg: TPointArray;
   max, min: TPoint;
   i: Integer;
 begin
@@ -163,8 +163,8 @@ begin
   While not (FZoomArr[i]) do begin
     inc(i);
   end;
-  polyg := AGeoConvert.PoligonProject(i + 8, FPolygLL);
-  GetMinMax(min, max, polyg, true);
+  VPolyg := AGeoConvert.PoligonProject(i + 8, FPolygLL);
+  GetMinMax(min, max, VPolyg, true);
   VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
@@ -188,9 +188,9 @@ end;
 procedure TThreadExportIPhone.export2iMaps;
 var
   p_x, p_y: integer;
-  i, j, xi, yi, hxyi, sizeim: integer;
-  num_dwn, obrab: integer;
-  polyg: TPointArray;
+  VZoom, j, xi, yi, hxyi, sizeim: integer;
+  VTilesToProcess, VTilesProcessed: integer;
+  VPolyg: TPointArray;
   max, min: TPoint;
   VTileStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
@@ -237,23 +237,23 @@ begin
     Vbmp32crop.Width := sizeim;
     Vbmp32crop.Height := sizeim;
     try
-      num_dwn := 0;
-      for i := 0 to 23 do begin
-        if FZoomArr[i] then begin
-          polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
-          num_dwn := num_dwn + GetDwnlNum(min, max, Polyg, true);
+      VTilesToProcess := 0;
+      for VZoom := 0 to 23 do begin
+        if FZoomArr[VZoom] then begin
+          VPolyg := VGeoConvert.PoligonProject(VZoom + 8, FPolygLL);
+          VTilesToProcess := VTilesToProcess + GetDwnlNum(min, max, VPolyg, true);
         end;
       end;
       FShowOnFormLine0 := SAS_STR_ExportTiles;
       Synchronize(UpdateProgressFormStr0);
 
-      FShowFormCaption := SAS_STR_AllSaves + ' ' + inttostr(num_dwn) + ' ' + SAS_STR_files;
+      FShowFormCaption := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files;
       Synchronize(UpdateProgressFormCaption);
 
       FShowOnFormLine1 := SAS_STR_Processed + ' 0%';
       Synchronize(UpdateProgressFormStr1);
 
-      obrab := 0;
+      VTilesProcessed := 0;
 
       sqlite3_initialize;
       FSQLite3Db := TDISQLite3Database.Create(nil);
@@ -285,10 +285,10 @@ begin
         FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("0")');
       end;
       FSQLite3Db.Execute('BEGIN TRANSACTION');
-      for i := 0 to 23 do begin
-        if FZoomArr[i] then begin
-          Polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
-          GetDwnlNum(min, max, Polyg, false);
+      for VZoom := 0 to 23 do begin
+        if FZoomArr[VZoom] then begin
+          VPolyg := VGeoConvert.PoligonProject(VZoom + 8, FPolygLL);
+          GetDwnlNum(min, max, VPolyg, false);
 
           p_x := min.x;
           while p_x < max.x do begin
@@ -296,13 +296,13 @@ begin
             p_y := min.Y;
             while p_y < max.Y do begin
               VTile.Y := p_y shr 8;
-              if (FProgressForm.Visible = false) or (not (RgnAndRgn(Polyg, p_x, p_y, false))) then begin
+              if (FProgressForm.Visible = false) or (not (RgnAndRgn(VPolyg, p_x, p_y, false))) then begin
                 inc(p_y, 256);
                 CONTINUE;
               end;
               for j := 0 to Length(FMapTypeArr) - 1 do begin
                 if FMapTypeArr[j] <> nil then begin
-                  if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, i, False, VGeoConvert, False, true, true) then begin
+                  if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, False, VGeoConvert, False, true, true) then begin
                     if (j=2) and (FMapTypeArr[0] <> nil) then begin
                       VBitmaps[0].Draw(0, 0, VBitmaps[j]);
                       VBitmaps[j].Draw(0, 0, VBitmaps[0]);
@@ -314,22 +314,22 @@ begin
                         VTileStream.Clear;
                         VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
                         Write_Stream_to_Blob_Traditional(
-                          VTileStream, i+1,
+                          VTileStream, VZoom+1,
                           VTile.X * hxyi + xi, VTile.Y * hxyi + yi,
                           VFlags[j]
                         );
                       end;
                     end;
                   end;
-                  inc(obrab);
-                  if ((num_dwn < 100) and (obrab mod 5 = 0)) or
-                    ((num_dwn >= 100) and (obrab mod 50 = 0)) then begin
-                    FProgressOnForm := round((obrab / num_dwn) * 100);
+                  inc(VTilesProcessed);
+                  if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
+                    ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
+                    FProgressOnForm := round((VTilesProcessed / VTilesToProcess) * 100);
                     Synchronize(UpdateProgressFormBar);
                     FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
                     Synchronize(UpdateProgressFormStr1);
                   end;
-                  if (obrab mod 500 = 0) then begin
+                  if (VTilesProcessed mod 500 = 0) then begin
                     FSQLite3Db.Execute('COMMIT');
                     FSQLite3Db.Execute('BEGIN TRANSACTION');
                   end;
@@ -342,7 +342,7 @@ begin
         end;
       end;
       FSQLite3Db.Execute('COMMIT');
-      FProgressOnForm := round((obrab / num_dwn) * 100);
+      FProgressOnForm := round((VTilesProcessed / VTilesToProcess) * 100);
       Synchronize(UpdateProgressFormBar);
       FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
       Synchronize(UpdateProgressFormStr1);
