@@ -23,10 +23,25 @@ type
     FPolygLL:TExtendedPointArray;
     FZoomArr:array [0..23] of boolean;
     FMapTypeArr:array of TMapType;
-    Fprogress: TFprogress2;
     FIsReplace:boolean;
-    FExportPath:string;
+    FExportPath: string;
+
+    FProgressForm: TFprogress2;
+    FShowFormCaption: string;
+    FShowOnFormLine0: string;
+    FShowOnFormLine1: string;
+    FProgressOnForm: integer;
+    FMessageForShow: string;
+
     csat,cmap,chib:byte;
+
+    procedure UpdateProgressFormBar;
+    procedure UpdateProgressFormCaption;
+    procedure UpdateProgressFormStr0;
+    procedure UpdateProgressFormStr1;
+    procedure UpdateProgressFormClose;
+    procedure SynShowMessage;
+
     procedure export2YaMaps;
   protected
     procedure Execute; override;
@@ -46,6 +61,7 @@ type
 implementation
 
 uses
+  Dialogs,
   u_GeoToStr,
   i_ICoordConverter,
   u_GlobalState,
@@ -67,11 +83,13 @@ begin
   inherited Create(false);
   Priority := tpLowest;
   FreeOnTerminate:=true;
-  Application.CreateForm(TFProgress2, FProgress);
+  Application.CreateForm(TFProgress2, FProgressForm);
   cSat:=Acsat;
   cMap:=Acmap;
   cHib:=Achib;
-  FProgress.Visible:=true;
+  FProgressForm.ProgressBar1.Progress1 := 0;
+  FProgressForm.ProgressBar1.Max := 100;
+  FProgressForm.Visible:=true;
   FExportPath:=APath;
   FIsReplace:=AReplace;
   setlength(FPolygLL,length(APolygon));
@@ -88,7 +106,7 @@ end;
 procedure TThreadExportYaMaps.Execute;
 begin
   export2YaMaps;
-  FProgress.Close;
+  Synchronize(UpdateProgressFormClose);
 end;
 
 function UniLoadTile(var bmp:TBitmap32; ATypeMap: TmapType; ATargetProjection: byte; p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
@@ -184,11 +202,16 @@ begin
           end;
         end;
       end;
-      fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
-      fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_files;
-      FProgress.ProgressBar1.Progress1:=0;
-      FProgress.ProgressBar1.Max:=100;
-      fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
+      FShowOnFormLine0:=SAS_STR_ExportTiles;
+      Synchronize(UpdateProgressFormStr0);
+
+      FShowFormCaption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_files;
+      Synchronize(UpdateProgressFormCaption);
+
+      FProgressOnForm := 0;
+      FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
+      Synchronize(UpdateProgressFormStr1);
+      
       obrab:=0;
       tc:=GetTickCount;
       for i:=0 to 23 do begin //по масштабу
@@ -201,7 +224,7 @@ begin
               while p_x<max.x do begin
                 p_y:=min.Y;
                 while p_y<max.Y do begin
-                  if (FProgress.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
+                  if (FProgressForm.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
                     inc(p_y,256);
                     CONTINUE;
                   end;
@@ -243,8 +266,10 @@ begin
                   inc(obrab);
                   if (GetTickCount-tc>1000) then begin
                     tc:=GetTickCount;
-                    FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-                    fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1)+'%';
+                    FProgressOnForm:=round((obrab/num_dwn)*100);
+                    Synchronize(UpdateProgressFormBar);
+                    FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
+                    Synchronize(UpdateProgressFormStr1);
                   end;
                   inc(p_y,256);
                 end;
@@ -254,18 +279,50 @@ begin
           end;
         end;
       end;
-      FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-      fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+      FProgressOnForm:=round((obrab/num_dwn)*100);
+      Synchronize(UpdateProgressFormBar);
+      FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
+      Synchronize(UpdateProgressFormStr1);
     finally
-      FProgress.Close;
       bmp32.Free;
       bmp322.Free;
     end;
   except
-    on e:Exception do begin
-      Application.ShowException(e);
+    on e: Exception do begin
+      FMessageForShow := e.Message;
+      Synchronize(SynShowMessage);
     end;
   end;
+end;
+
+procedure TThreadExportYaMaps.SynShowMessage;
+begin
+  ShowMessage(FMessageForShow);
+end;
+
+procedure TThreadExportYaMaps.UpdateProgressFormCaption;
+begin
+  FProgressForm.Caption := FShowFormCaption;
+end;
+
+procedure TThreadExportYaMaps.UpdateProgressFormClose;
+begin
+  FProgressForm.Close;
+end;
+
+procedure TThreadExportYaMaps.UpdateProgressFormStr0;
+begin
+  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
+end;
+
+procedure TThreadExportYaMaps.UpdateProgressFormStr1;
+begin
+  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
+end;
+
+procedure TThreadExportYaMaps.UpdateProgressFormBar;
+begin
+  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 end.
