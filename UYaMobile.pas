@@ -87,7 +87,6 @@ var MobileFilePath:string;
     Len:Smallint;
     realTableOffset:integer;
 begin
- dec(Z);
  if z>7 then TableSize:=256
         else TableSize:=2 shl Z;
  DataOffset:=TableOffset+sqr(TableSize)*6;

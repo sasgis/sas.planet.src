@@ -224,7 +224,7 @@ begin
                           bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                           TileStream.Clear;
                           JPGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,i+1,2,(yi*2)+xi,path, TileStream,Replace)
+                          WriteTileInCache(p_x div 256,p_y div 256,i,2,(yi*2)+xi,path, TileStream,Replace)
                         end;
                       end;
                     end;
@@ -235,7 +235,7 @@ begin
                           bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                           TileStream.Clear;
                           PNGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,i+1,1,(yi*2)+xi,path, TileStream,Replace)
+                          WriteTileInCache(p_x div 256,p_y div 256,i,1,(yi*2)+xi,path, TileStream,Replace)
                         end;
                       end;
                     end;
