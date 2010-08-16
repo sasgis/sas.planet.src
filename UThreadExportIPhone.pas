@@ -10,6 +10,7 @@ uses
   DISQLite3Database,
   DISQLite3Api,
   GR32,
+  i_ICoordConverter,
   UMapType,
   UGeoFun,
   unit4,
@@ -44,6 +45,7 @@ type
     procedure SynShowMessage;
 
     procedure export2iMaps();
+    procedure WritePListFile(AGeoConvert: ICoordConverter);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
   protected
     procedure Execute; override;
@@ -68,7 +70,6 @@ uses
   Forms,
   Dialogs,
   u_GeoToStr,
-  i_ICoordConverter,
   UResStrings,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
@@ -150,22 +151,53 @@ begin
   end;
 end;
 
+procedure TThreadExportIPhone.WritePListFile(AGeoConvert: ICoordConverter);
+var
+  PList: Text;
+  VLLCenter: TExtendedPoint;
+  polyg: TPointArray;
+  max, min: TPoint;
+  i: Integer;
+begin
+  i := 0;
+  While not (FZoomArr[i]) do begin
+    inc(i);
+  end;
+  polyg := AGeoConvert.PoligonProject(i + 8, FPolygLL);
+  GetMinMax(min, max, polyg, true);
+  VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
+  AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
+  Rewrite(PList);
+  Writeln(PList, '<plist>');
+  Writeln(PList, '<dict>');
+  Writeln(PList, '<key>LastViewMode</key>');
+  if FMapTypeArr[FActiveMapIndex] <> nil then begin
+    Writeln(PList, '<integer>'+IntToStr(FActiveMapIndex)+'</integer>');
+  end;
+  Writeln(PList, '<key>LastViewedLatitude</key>');
+  Writeln(PList, '<real>' + R2StrPoint(VLLCenter.y) + '</real>');
+  Writeln(PList, '<key>LastViewedLongitude</key>');
+  Writeln(PList, '<real>' + R2StrPoint(VLLCenter.x) + '</real>');
+  Writeln(PList, '<key>LastViewedZoomScale</key>');
+  Writeln(PList, '<real>' + inttostr(i + 1) + '</real>');
+  Writeln(PList, '</dict>');
+  Writeln(PList, '</plist>');
+  CloseFile(PList);
+end;
+
 procedure TThreadExportIPhone.export2iMaps;
 var
   p_x, p_y: integer;
-  i, j, xi, yi, hxyi, sizeim, cri, crj: integer;
-  num_dwn, scachano, obrab, alpha: integer;
+  i, j, xi, yi, hxyi, sizeim: integer;
+  num_dwn, obrab: integer;
   polyg: TPointArray;
-  max, min, p_h: TPoint;
-  TileStream: TMemoryStream;
-  PList: Text;
-  LLCenter: TExtendedPoint;
+  max, min: TPoint;
+  VTileStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
-  VMinLonLat, VMaxLonLat: TExtendedPoint;
   VTile: TPoint;
   VSavers: array of IBitmapTileSaver;
   VBitmaps: array of TCustomBitmap32;
-  bmp32crop: TCustomBitmap32;
+  Vbmp32crop: TCustomBitmap32;
   VFlags: array of integer;
 begin
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -173,31 +205,8 @@ begin
   end;
   VGeoConvert := TCoordConverterMercatorOnSphere.Create(6378137);
   try
-    i := 0;
-    While not (FZoomArr[i]) do begin
-      inc(i);
-    end;
-    polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
-    GetMinMax(min, max, polyg, true);
-    LLCenter := VGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
 
-    AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
-    Rewrite(PList);
-    Writeln(PList, '<plist>');
-    Writeln(PList, '<dict>');
-    Writeln(PList, '<key>LastViewMode</key>');
-    if FMapTypeArr[FActiveMapIndex] <> nil then begin
-      Writeln(PList, '<integer>'+IntToStr(FActiveMapIndex)+'</integer>');
-    end;
-    Writeln(PList, '<key>LastViewedLatitude</key>');
-    Writeln(PList, '<real>' + R2StrPoint(LLCenter.y) + '</real>');
-    Writeln(PList, '<key>LastViewedLongitude</key>');
-    Writeln(PList, '<real>' + R2StrPoint(LLCenter.x) + '</real>');
-    Writeln(PList, '<key>LastViewedZoomScale</key>');
-    Writeln(PList, '<real>' + inttostr(i + 1) + '</real>');
-    Writeln(PList, '</dict>');
-    Writeln(PList, '</plist>');
-    CloseFile(PList);
+    WritePListFile(VGeoConvert);
 
     if FNewFormat then begin
       hxyi := 2;
@@ -206,7 +215,7 @@ begin
       hxyi := 4;
       sizeim := 64;
     end;
-    TileStream := TMemoryStream.Create;
+    VTileStream := TMemoryStream.Create;
 
     SetLength(VBitmaps, 3);
     VBitmaps[0] := TCustomBitmap32.Create;
@@ -224,9 +233,9 @@ begin
     VFlags[1] := 2;
     VFlags[2] := 6;
 
-    bmp32crop := TCustomBitmap32.Create;
-    bmp32crop.Width := sizeim;
-    bmp32crop.Height := sizeim;
+    Vbmp32crop := TCustomBitmap32.Create;
+    Vbmp32crop.Width := sizeim;
+    Vbmp32crop.Height := sizeim;
     try
       num_dwn := 0;
       for i := 0 to 23 do begin
@@ -300,12 +309,12 @@ begin
                     end;
                     for xi := 0 to hxyi - 1 do begin
                       for yi := 0 to hxyi - 1 do begin
-                        bmp32crop.Clear;
-                        bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
-                        TileStream.Clear;
-                        VSavers[j].SaveToStream(bmp32crop, TileStream);
+                        Vbmp32crop.Clear;
+                        Vbmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
+                        VTileStream.Clear;
+                        VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
                         Write_Stream_to_Blob_Traditional(
-                          TileStream, i+1,
+                          VTileStream, i+1,
                           VTile.X * hxyi + xi, VTile.Y * hxyi + yi,
                           VFlags[j]
                         );
