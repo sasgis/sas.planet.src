@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   Imaging,
+  ImagingTypes,
   GR32,
   i_BitmapTileSaveLoad;
 
@@ -12,6 +13,8 @@ type
   TVampyreBasicBitmapTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   private
     FFormat: TImageFileFormat;
+  protected
+    procedure PrepareData(AImage: TImageData); virtual;
   public
     constructor Create(AFormat: TImageFileFormat);
     destructor Destroy; override;
@@ -21,7 +24,18 @@ type
 
   TVampyreBasicBitmapTileSaverPNG = class(TVampyreBasicBitmapTileSaver)
   public
-    constructor Create;
+    constructor Create(ACompressLevel: LongInt); overload;
+    constructor Create; overload;
+  end;
+
+  TVampyreBasicBitmapTileSaverPNGRGB = class(TVampyreBasicBitmapTileSaver)
+  protected
+    procedure PrepareData(AImage: TImageData); override;
+  end;
+
+  TVampyreBasicBitmapTileSaverPNGPalette = class(TVampyreBasicBitmapTileSaver)
+  protected
+    procedure PrepareData(AImage: TImageData); override;
   end;
 
   TVampyreBasicBitmapTileSaverGIF = class(TVampyreBasicBitmapTileSaver)
@@ -38,7 +52,6 @@ implementation
 
 uses
   SysUtils,
-  ImagingTypes,
   ImagingGraphics32,
   ImagingNetworkGraphics,
   ImagingGif,
@@ -55,6 +68,10 @@ destructor TVampyreBasicBitmapTileSaver.Destroy;
 begin
   FreeAndNil(FFormat);
   inherited;
+end;
+
+procedure TVampyreBasicBitmapTileSaver.PrepareData(AImage: TImageData);
+begin
 end;
 
 procedure TVampyreBasicBitmapTileSaver.SaveToFile(ABtm: TCustomBitmap32;
@@ -75,6 +92,7 @@ begin
   InitImage(VImage);
   try
     ConvertBitmap32ToImageData(ABtm, VImage);
+    PrepareData(VImage);
     SetLength(IArray, 1);
     IArray[0] := VImage;
     if not VFormat.SaveToFile(AFileName, IArray, True) then begin
@@ -103,6 +121,7 @@ begin
   InitImage(VImage);
   try
     ConvertBitmap32ToImageData(ABtm, VImage);
+    PrepareData(VImage);
     SetLength(IArray, 1);
     IArray[0] := VImage;
     if not VFormat.SaveToStream(AStream, IArray, True) then begin
@@ -114,6 +133,15 @@ begin
 end;
 
 { TVampyreBasicBitmapTileSaverPNG }
+
+constructor TVampyreBasicBitmapTileSaverPNG.Create(ACompressLevel: LongInt);
+var
+  VFormat: TPNGFileFormat;
+begin
+  VFormat := TPNGFileFormat.Create();
+  VFormat.CompressLevel := ACompressLevel;
+  inherited Create(VFormat);
+end;
 
 constructor TVampyreBasicBitmapTileSaverPNG.Create;
 var
@@ -141,6 +169,21 @@ var
 begin
   VFormat := TBitmapFileFormat.Create();
   inherited Create(VFormat);
+end;
+
+{ TVampyreBasicBitmapTileSaverPNGRGB }
+
+procedure TVampyreBasicBitmapTileSaverPNGRGB.PrepareData(AImage: TImageData);
+begin
+  ConvertImage(AImage, ifR8G8B8);
+end;
+
+{ TVampyreBasicBitmapTileSaverPNGPalette }
+
+procedure TVampyreBasicBitmapTileSaverPNGPalette.PrepareData(
+  AImage: TImageData);
+begin
+  ConvertImage(AImage, ifIndex8);
 end;
 
 end.
