@@ -4331,6 +4331,7 @@ var
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
   VZoom: Byte;
+  VLonLat: TExtendedPoint;
 begin
  if GState.show_point = mshNone then exit;
  CDSKategory.Filtered:=true;
@@ -4370,7 +4371,9 @@ begin
     SetLength(arLL,ms.size div 24);
     setlength(poly,ms.size div 24);
     for i:=0 to length(arLL)-1 do begin
-      arLL[i]:=VConverter.LonLat2PixelPos(arrLL^[i],VZoom);
+      VLonLat := arrLL^[i];
+      VConverter.CheckLonLatPos(VLonLat);
+      arLL[i]:=VConverter.LonLat2PixelPos(VLonLat,VZoom);
       poly[i]:=arrLL^[i];
     end;
     if length(arLL)=1 then

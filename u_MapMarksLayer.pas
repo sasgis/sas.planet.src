@@ -213,6 +213,7 @@ var
   k1,k2,k4:TPoint;
   k3:TextendedPoint;
   polygon: TPolygon32;
+  VLonLat: TExtendedPoint;
 begin
   try
     polygon:=TPolygon32.Create;
@@ -223,13 +224,17 @@ begin
       FParentMap.Bitmap.BeginUpdate;
       if length(pathll)>0 then begin
         for i:=0 to length(pathll)-1 do begin
-          k1:=FGeoConvert.LonLat2PixelPos(pathll[i],FZoom);
+          VLonLat := pathll[i];
+          FGeoConvert.CheckLonLatPos(VLonLat);
+          k1:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
           k1:=MapPixel2BitmapPixel(k1);
           if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
             polygon.Add(FixedPoint(k1));
           end;
           if i<length(pathll)-1 then begin
-            k2:=FGeoConvert.LonLat2PixelPos(pathll[i+1],FZoom);
+            VLonLat := pathll[i+1];
+            FGeoConvert.CheckLonLatPos(VLonLat);
+            k2:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
             k2:=MapPixel2BitmapPixel(k2);
             if (k2.x-k1.x)>(k2.y-k1.y) then begin
               adp:=(k2.x-k1.x)div 32767+2;
@@ -275,7 +280,8 @@ var
   LLRect:TExtendedRect;
   xy:Tpoint;
   btm:TCustomBitmap32;
-  TestArrLenP1,TestArrLenP2:TPoint;
+  TestArrLenLonLatRect: TExtendedRect;
+  TestArrLenPixelRect: TRect;
   buf_line_arr:TExtendedPointArray;
   indexmi:integer;
   imw,texth:integer;
@@ -285,7 +291,7 @@ var
   VBitmapSize: TPoint;
 begin
   inherited;
-  if FMain.CDSmarks.State <> dsBrowse then exit;
+  if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
     FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := FZoom;
@@ -339,9 +345,13 @@ begin
       While not(FMain.CDSmarks.Eof) do begin
         buf_line_arr := Blob2ExtArr(FMain.CDSmarks.FieldByName('lonlatarr'));
         if length(buf_line_arr)>1 then begin
-          TestArrLenP1:=FGeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonL.AsFloat,FMain.CDSmarksLatT.AsFloat),FZoom);
-          TestArrLenP2:=FGeoConvert.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonR.AsFloat,FMain.CDSmarksLatB.AsFloat),FZoom);
-          if (abs(TestArrLenP1.X-TestArrLenP2.X)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>FMain.CDSmarksScale1.AsInteger+2) then begin
+          TestArrLenLonLatRect.Left := FMain.CDSmarksLonL.AsFloat;
+          TestArrLenLonLatRect.Top := FMain.CDSmarksLatT.AsFloat;
+          TestArrLenLonLatRect.Right := FMain.CDSmarksLonR.AsFloat;
+          TestArrLenLonLatRect.Bottom := FMain.CDSmarksLatB.AsFloat;
+          FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
+          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
+          if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>FMain.CDSmarksScale1.AsInteger+2) then begin
             drawPath(buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
               (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
             SetLength(buf_line_arr,0);
