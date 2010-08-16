@@ -21,11 +21,11 @@ type
   TThreadExportYaMaps = class(TThread)
   private
     FPolygLL:TExtendedPointArray;
-    Zoomarr:array [0..23] of boolean;
-    typemaparr:array of TMapType;
+    FZoomArr:array [0..23] of boolean;
+    FMapTypeArr:array of TMapType;
     Fprogress: TFprogress2;
-    Replace:boolean;
-    Path:string;
+    FIsReplace:boolean;
+    FExportPath:string;
     csat,cmap,chib:byte;
     procedure export2YaMaps;
   protected
@@ -72,16 +72,16 @@ begin
   cMap:=Acmap;
   cHib:=Achib;
   FProgress.Visible:=true;
-  Path:=APath;
-  Replace:=AReplace;
+  FExportPath:=APath;
+  FIsReplace:=AReplace;
   setlength(FPolygLL,length(APolygon));
   for i:=1 to length(APolygon) do
     FPolygLL[i-1]:=APolygon[i-1];
   for i:=0 to 23 do
-    zoomarr[i]:=Azoomarr[i];
-  setlength(typemaparr,length(Atypemaparr));
+    FZoomArr[i]:=Azoomarr[i];
+  setlength(FMapTypeArr,length(Atypemaparr));
   for i:=1 to length(Atypemaparr) do
-    typemaparr[i-1]:=Atypemaparr[i-1];
+    FMapTypeArr[i-1]:=Atypemaparr[i-1];
 end;
 
 
@@ -157,7 +157,7 @@ var
   JPGSaver,PNGSaver:IBitmapTileSaver;
 begin
   try
-    if (TypeMapArr[0]=nil)and(TypeMapArr[1]=nil)and(TypeMapArr[2]=nil) then exit;
+    if (FMapTypeArr[0]=nil)and(FMapTypeArr[1]=nil)and(FMapTypeArr[2]=nil) then exit;
     try
       hxyi:=1;
       sizeim:=128;
@@ -174,11 +174,11 @@ begin
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
       num_dwn:=0;
       SetLength(polyg,length(FPolygLL));
-      for i:=0 to length(TypeMapArr)-1 do begin
-        if TypeMapArr[i]<>nil then begin
+      for i:=0 to length(FMapTypeArr)-1 do begin
+        if FMapTypeArr[i]<>nil then begin
           for j:=0 to 23 do begin
-            if zoomarr[j] then begin
-              polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
+            if FZoomArr[j] then begin
+              polyg := FMapTypeArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
               num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
             end;
           end;
@@ -192,9 +192,9 @@ begin
       obrab:=0;
       tc:=GetTickCount;
       for i:=0 to 23 do begin //по масштабу
-        if zoomarr[i] then begin
+        if FZoomArr[i] then begin
           for j:=0 to 2 do begin//по типу
-            if (TypeMapArr[j]<>nil)and(not((j=0)and(TypeMapArr[2]<>nil))) then begin
+            if (FMapTypeArr[j]<>nil)and(not((j=0)and(FMapTypeArr[2]<>nil))) then begin
               polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
               GetDwnlNum(min,max,Polyg,false);
               p_x:=min.x;
@@ -206,14 +206,14 @@ begin
                     CONTINUE;
                   end;
                   bmp322.Clear;
-                  if (j=2)and(TypeMapArr[0]<>nil) then begin
-                    p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[0].GeoConvert);
-                    UniLoadTile(bmp322,TypeMapArr[0],2,p_h,p_x,p_y,i);
+                  if (j=2)and(FMapTypeArr[0]<>nil) then begin
+                    p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, FMapTypeArr[0].GeoConvert);
+                    UniLoadTile(bmp322,FMapTypeArr[0],2,p_h,p_x,p_y,i);
                   end;
                   bmp32.Clear;
-                  p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, TypeMapArr[j].GeoConvert);
-                  if UniLoadTile(bmp32,TypeMapArr[j],2,p_h,p_x,p_y,i) then begin
-                    if (j=2)and(TypeMapArr[0]<>nil) then begin
+                  p_h := VGeoConvert.Pos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i + 8, FMapTypeArr[j].GeoConvert);
+                  if UniLoadTile(bmp32,FMapTypeArr[j],2,p_h,p_x,p_y,i) then begin
+                    if (j=2)and(FMapTypeArr[0]<>nil) then begin
                       bmp322.Draw(0,0,bmp32);
                       bmp32.Draw(0,0,bmp322);
                     end;
@@ -224,7 +224,7 @@ begin
                           bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                           TileStream.Clear;
                           JPGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,i,2,(yi*2)+xi,path, TileStream,Replace)
+                          WriteTileInCache(p_x div 256,p_y div 256,i,2,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
                         end;
                       end;
                     end;
@@ -235,7 +235,7 @@ begin
                           bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                           TileStream.Clear;
                           PNGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,i,1,(yi*2)+xi,path, TileStream,Replace)
+                          WriteTileInCache(p_x div 256,p_y div 256,i,1,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
                         end;
                       end;
                     end;
