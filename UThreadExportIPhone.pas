@@ -24,8 +24,8 @@ type
   TThreadExportIPhone = class(TThread)
   private
     FPolygLL: TExtendedPointArray;
-    Zoomarr: array [0..23] of boolean;
-    typemaparr: array of TMapType;
+    FZoomArr: array [0..23] of boolean;
+    FMapTypeArr: array of TMapType;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
 
@@ -36,9 +36,9 @@ type
     FProgressOnForm: integer;
     FMessageForShow: string;
 
-    Replace: boolean;
-    Path: string;
-    DISQLite3Database: TDISQLite3Database;
+    FIsReplace: boolean;
+    FExportPath: string;
+    FSQLite3Db: TDISQLite3Database;
     csat, cmap, chib: byte;
 
     procedure UpdateProgressFormBar;
@@ -101,22 +101,22 @@ begin
   FProgressForm.ProgressBar1.Progress1 := 0;
   FProgressForm.ProgressBar1.Max := 100;
   FProgressForm.Visible := true;
-  Path := APath;
+  FExportPath := APath;
   FNewFormat := ANewFormat;
-  Replace := AReplace;
+  FIsReplace := AReplace;
   setlength(FPolygLL, length(APolygon_));
   for i := 1 to length(APolygon_) do begin
     FPolygLL[i - 1] := Apolygon_[i - 1];
   end;
   for i := 0 to 23 do begin
-    zoomarr[i] := Azoomarr[i];
+    FZoomArr[i] := Azoomarr[i];
   end;
   FActiveMapIndex := AActiveMapIndex;
-  setlength(typemaparr, length(Atypemaparr));
+  setlength(FMapTypeArr, length(Atypemaparr));
   for i := 1 to length(Atypemaparr) do begin
-    typemaparr[i - 1] := Atypemaparr[i - 1];
+    FMapTypeArr[i - 1] := Atypemaparr[i - 1];
   end;
-  if FActiveMapIndex >= Length(typemaparr) then begin
+  if FActiveMapIndex >= Length(FMapTypeArr) then begin
     FActiveMapIndex := 0;
   end;
 end;
@@ -134,7 +134,7 @@ var
   p: Pointer;
   Stmt: TDISQLite3Statement;
 begin
-  Stmt := DISQLite3Database.Prepare('INSERT INTO Images (data,zoom,x,y,flags,length) VALUES (?,"' + inttostr(Azoom) + '","' + inttostr(Ax) + '","' + inttostr(Ay) + '","' + inttostr(AFlags) + '","' + inttostr(AStream.Size) + '")');
+  Stmt := FSQLite3Db.Prepare('INSERT INTO Images (data,zoom,x,y,flags,length) VALUES (?,"' + inttostr(Azoom) + '","' + inttostr(Ax) + '","' + inttostr(Ay) + '","' + inttostr(AFlags) + '","' + inttostr(AStream.Size) + '")');
   try
     if AStream is TCustomMemoryStream then begin
       with AStream as TCustomMemoryStream do begin
@@ -148,7 +148,7 @@ begin
       Stmt.Bind_Blob(1, p, l, sqlite3_Destroy_Mem);
     end;
     Stmt.Step;
-    Result := DISQLite3Database.LastInsertRowID;
+    Result := FSQLite3Db.LastInsertRowID;
   finally
     Stmt.Free;
   end;
@@ -172,25 +172,25 @@ var
   bmp32crop: TCustomBitmap32;
   VFlags: array of integer;
 begin
-  if (TypeMapArr[0] = nil) and (TypeMapArr[1] = nil) and (TypeMapArr[2] = nil) then begin
+  if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
     exit;
   end;
   VGeoConvert := TCoordConverterMercatorOnSphere.Create(6378137);
   try
     i := 0;
-    While not (zoomarr[i]) do begin
+    While not (FZoomArr[i]) do begin
       inc(i);
     end;
     polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
     GetMinMax(min, max, polyg, true);
     LLCenter := VGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
 
-    AssignFile(Plist, PATH + 'com.apple.Maps.plist');
+    AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
     Rewrite(PList);
     Writeln(PList, '<plist>');
     Writeln(PList, '<dict>');
     Writeln(PList, '<key>LastViewMode</key>');
-    if TypeMapArr[FActiveMapIndex] <> nil then begin
+    if FMapTypeArr[FActiveMapIndex] <> nil then begin
       Writeln(PList, '<integer>'+IntToStr(FActiveMapIndex)+'</integer>');
     end;
     Writeln(PList, '<key>LastViewedLatitude</key>');
@@ -234,7 +234,7 @@ begin
     try
       num_dwn := 0;
       for i := 0 to 23 do begin
-        if zoomarr[i] then begin
+        if FZoomArr[i] then begin
           polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
           num_dwn := num_dwn + GetDwnlNum(min, max, Polyg, true);
         end;
@@ -251,37 +251,37 @@ begin
       obrab := 0;
 
       sqlite3_initialize;
-      DISQLite3Database := TDISQLite3Database.Create(nil);
-      DISQLite3Database.DatabaseName := PATH + 'MapTiles.sqlitedb';
-      if not (FileExists(PATH + 'MapTiles.sqlitedb')) then begin
-        Replace := true;
+      FSQLite3Db := TDISQLite3Database.Create(nil);
+      FSQLite3Db.DatabaseName := FExportPath + 'MapTiles.sqlitedb';
+      if not (FileExists(FExportPath + 'MapTiles.sqlitedb')) then begin
+        FIsReplace := true;
       end;
-      If Replace then begin
-        If FileExists(PATH + 'MapTiles.sqlitedb') then begin
-          DeleteFile(PATH + 'MapTiles.sqlitedb');
+      If FIsReplace then begin
+        If FileExists(FExportPath + 'MapTiles.sqlitedb') then begin
+          DeleteFile(FExportPath + 'MapTiles.sqlitedb');
         end;
-        DISQLite3Database.CreateDatabase;
-        DISQLite3Database.Execute('CREATE TABLE version(version int)');
-        DISQLite3Database.Execute('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
-        DISQLite3Database.Execute('CREATE INDEX index1 on images (zoom,x,y,flags)');
+        FSQLite3Db.CreateDatabase;
+        FSQLite3Db.Execute('CREATE TABLE version(version int)');
+        FSQLite3Db.Execute('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
+        FSQLite3Db.Execute('CREATE INDEX index1 on images (zoom,x,y,flags)');
       end else begin
-        DISQLite3Database.Open;
+        FSQLite3Db.Open;
       end;
-      DISQLite3Database.Execute('PRAGMA locking_mode=EXCLUSIVE');
-      DISQLite3Database.Execute('PRAGMA cache_size=100000');
-      DISQLite3Database.Execute('PRAGMA synchronous=OFF');
-      DISQLite3Database.Connected := true;
-      If Replace then begin
+      FSQLite3Db.Execute('PRAGMA locking_mode=EXCLUSIVE');
+      FSQLite3Db.Execute('PRAGMA cache_size=100000');
+      FSQLite3Db.Execute('PRAGMA synchronous=OFF');
+      FSQLite3Db.Connected := true;
+      If FIsReplace then begin
         if FNewFormat then begin
-          DISQLite3Database.Execute('INSERT INTO version (version) VALUES ("5")');
+          FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("5")');
         end else begin
-          DISQLite3Database.Execute('INSERT INTO version (version) VALUES ("4")');
+          FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("4")');
         end;
-        DISQLite3Database.Execute('INSERT INTO version (version) VALUES ("0")');
+        FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("0")');
       end;
-      DISQLite3Database.Execute('BEGIN TRANSACTION');
+      FSQLite3Db.Execute('BEGIN TRANSACTION');
       for i := 0 to 23 do begin
-        if zoomarr[i] then begin
+        if FZoomArr[i] then begin
           Polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
           GetDwnlNum(min, max, Polyg, false);
 
@@ -295,10 +295,10 @@ begin
                 inc(p_y, 256);
                 CONTINUE;
               end;
-              for j := 0 to Length(TypeMapArr) - 1 do begin
-                if TypeMapArr[j] <> nil then begin
-                  if TypeMapArr[j].LoadTileUni(VBitmaps[j], VTile, i, False, VGeoConvert, False, true, true) then begin
-                    if (j=2) and (TypeMapArr[0] <> nil) then begin
+              for j := 0 to Length(FMapTypeArr) - 1 do begin
+                if FMapTypeArr[j] <> nil then begin
+                  if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, i, False, VGeoConvert, False, true, true) then begin
+                    if (j=2) and (FMapTypeArr[0] <> nil) then begin
                       VBitmaps[0].Draw(0, 0, VBitmaps[j]);
                       VBitmaps[j].Draw(0, 0, VBitmaps[0]);
                     end;
@@ -325,8 +325,8 @@ begin
                     Synchronize(UpdateProgressFormStr1);
                   end;
                   if (obrab mod 500 = 0) then begin
-                    DISQLite3Database.Execute('COMMIT');
-                    DISQLite3Database.Execute('BEGIN TRANSACTION');
+                    FSQLite3Db.Execute('COMMIT');
+                    FSQLite3Db.Execute('BEGIN TRANSACTION');
                   end;
                 end;
               end;
@@ -336,14 +336,14 @@ begin
           end;
         end;
       end;
-      DISQLite3Database.Execute('COMMIT');
+      FSQLite3Db.Execute('COMMIT');
       FProgressOnForm := round((obrab / num_dwn) * 100);
       Synchronize(UpdateProgressFormBar);
       FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
       Synchronize(UpdateProgressFormStr1);
     finally
       sqlite3_shutdown;
-      DISQLite3Database.Free;
+      FSQLite3Db.Free;
     end;
   except
     on e: Exception do begin
