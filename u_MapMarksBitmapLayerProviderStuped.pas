@@ -146,6 +146,7 @@ var
   VColor1: TColor32;
   VColor2: TColor32;
   VPointCount: Integer;
+  VMarkName: string;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
@@ -198,6 +199,10 @@ begin
       btm.DrawMode:=dmBlend;
       btm.Resampler:=TLinearResampler.Create;
       While not(FMain.CDSmarks.Eof) do begin
+        VScale1 := FMain.CDSmarksScale1.AsInteger;
+        VColor1 := TColor32(Fmain.CDSmarksColor1.AsInteger);
+        VColor2 := TColor32(Fmain.CDSmarksColor2.AsInteger);
+        VMarkName := FMain.CDSmarksname.AsString;
         buf_line_arr := Blob2ExtArr(FMain.CDSmarks.FieldByName('lonlatarr'));
         VPointCount := length(buf_line_arr);
         if VPointCount>1 then begin
@@ -207,9 +212,6 @@ begin
           TestArrLenLonLatRect.Bottom := FMain.CDSmarksLatB.AsFloat;
           FConverter.CheckLonLatRect(TestArrLenLonLatRect);
           TestArrLenPixelRect := FConverter.LonLatRect2PixelRect(TestArrLenLonLatRect, FTargetZoom);
-          VScale1 := FMain.CDSmarksScale1.AsInteger;
-          VColor1 := TColor32(Fmain.CDSmarksColor1.AsInteger);
-          VColor2 := TColor32(Fmain.CDSmarksColor2.AsInteger);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
             drawPath2Bitmap(buf_line_arr,VColor1,VColor2,VScale1,
               (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
@@ -229,12 +231,12 @@ begin
             btm.Draw(0, 0, VIconSource);
             FTargetBmp.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
           end;
-          if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
+          if VScale1>0 then begin
 //TODO: Сделать вывод подписей для меток.
-//            BtmEx.Font.Size:=FMain.CDSmarksScale1.AsInteger;
-//            texth:=BtmEx.TextHeight(FMain.CDSmarksname.asString) div 2;
-//            BtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,FMain.CDSmarksname.AsString,1,TColor32(FMain.CDSmarksColor2.AsInteger));
-//            BtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,FMain.CDSmarksname.AsString,1,TColor32(FMain.CDSmarksColor1.AsInteger));
+//            VBtmEx.Font.Size:=VScale1;
+//            texth:=VBtmEx.TextHeight(VMarkName) div 2;
+//            VBtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
+//            VBtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
           end;
         end;
         FMain.CDSmarks.Next;
