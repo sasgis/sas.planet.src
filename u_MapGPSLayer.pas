@@ -108,8 +108,8 @@ end;
 
 procedure TMapGPSLayer.DrawPath;
 var
-  i,speed:integer;
-  polygon_line: TPolygon32;
+  j,speed:integer;
+  VPolygon: TPolygon32;
   startrarck:integer;
   VPointPrev,VPointCurr:TPoint;
   VPointsCount: Integer;
@@ -122,18 +122,18 @@ begin
   if startrarck<0 then startrarck:=0;
   with FLayer.Bitmap do begin
     if (VPointsCount-startrarck>1) then begin
-      Polygon_line := TPolygon32.Create;
+      VPolygon := TPolygon32.Create;
       try
-        Polygon_line.Antialiased := true;
-        Polygon_line.AntialiasMode := am4times;
-        polygon_line.Closed:=false;
+        VPolygon.Antialiased := true;
+        VPolygon.AntialiasMode := am4times;
+        VPolygon.Closed:=false;
         VPointPrev:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[startrarck],FZoom);
         VPointPrev:=MapPixel2BitmapPixel(VPointPrev);
         VMaxSpeed := FMain.GPSpar.maxspeed;
-        for i:=startrarck to VPointsCount-2 do begin
-          VPointCurr:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],FZoom);
+        for j:= startrarck + 1 to VPointsCount - 1 do begin
+          VPointCurr:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[j],FZoom);
           VPointCurr:=MapPixel2BitmapPixel(VPointCurr);
-          VSpeed := GState.GPS_ArrayOfSpeed[i];
+          VSpeed := GState.GPS_ArrayOfSpeed[j-1];
           if (VSpeed>0)and(VMaxSpeed>0) then begin
             speed := round(255/(VMaxSpeed/VSpeed));
           end else begin
@@ -142,9 +142,9 @@ begin
           VSegmentColor := Color32(speed, 0, 256-speed,150);
           if (VPointPrev.X<>VPointCurr.X)or(VPointPrev.Y<>VPointCurr.Y) then begin
             if (VPointPrev.x<32767)and(VPointPrev.x>-32767)and(VPointPrev.y<32767)and(VPointPrev.y>-32767) then begin
-              polygon_line.Add(FixedPoint(VPointPrev));
-              polygon_line.Add(FixedPoint(VPointCurr));
-              with Polygon_line.Outline do try
+              VPolygon.Add(FixedPoint(VPointPrev));
+              VPolygon.Add(FixedPoint(VPointCurr));
+              with VPolygon.Outline do try
                 with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
                   DrawFill(FLayer.Bitmap, VSegmentColor);
                 finally
@@ -153,13 +153,13 @@ begin
               finally
                 free;
               end;
-              Polygon_line.Clear;
+              VPolygon.Clear;
             end;
           end;
           VPointPrev:=VPointCurr;
         end;
       finally
-        polygon_line.Free;
+        VPolygon.Free;
       end;
     end;
   end;
