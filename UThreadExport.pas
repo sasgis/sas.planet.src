@@ -24,13 +24,28 @@ type
     FZoomArr:array [0..23] of boolean;
     FMapTypeArr:array of TMapType;
     FTileNameGen: ITileFileNameGenerator;
-    Fprogress: TFprogress2;
+
+    FProgressForm: TFprogress2;
+    FShowFormCaption: string;
+    FShowOnFormLine0: string;
+    FShowOnFormLine1: string;
+    FProgressOnForm: integer;
+    FMessageForShow: string;
+
     FIsMove:boolean;
     FIsZiped:boolean;
     FIsReplace:boolean;
     FPathExport:string;
     FZip:TVCLZip;
     Zippu:boolean;
+
+    procedure UpdateProgressFormBar;
+    procedure UpdateProgressFormCaption;
+    procedure UpdateProgressFormStr0;
+    procedure UpdateProgressFormStr1;
+    procedure UpdateProgressFormClose;
+    procedure SynShowMessage;
+
     procedure savefilesREG;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   protected
@@ -51,6 +66,7 @@ type
 implementation
 
 uses
+  Dialogs,
   u_GeoToStr,
   unit1;
 
@@ -72,10 +88,12 @@ begin
   inherited Create(false);
   Priority := tpLowest;
   FreeOnTerminate:=true;
-  Application.CreateForm(TFProgress2, FProgress);
+  Application.CreateForm(TFProgress2, FProgressForm);
   Zippu:=false;
-  FProgress.OnClose:=CloseFProgress;
-  FProgress.Visible:=true;
+  FProgressForm.OnClose:=CloseFProgress;
+  FProgressForm.ProgressBar1.Progress1 := 0;
+  FProgressForm.ProgressBar1.Max := 100;
+  FProgressForm.Visible:=true;
   FPathExport:=APath;
   FIsMove:=AMove;
   FTileNameGen := ATileNameGen;
@@ -94,9 +112,8 @@ end;
 
 procedure TThreadExport.Execute;
 begin
-  Zippu:=false;
   savefilesREG;
-  FProgress.Close;
+  Synchronize(UpdateProgressFormClose);
 end;
 
 function RetDate(inDate: TDateTime): string;
@@ -108,7 +125,7 @@ end;
 
 procedure TThreadExport.savefilesREG;
 var p_x,p_y,i,j:integer;
-    num_dwn,obrab:integer;
+    VTilesToProcess,VTilesProcessed:integer;
     polyg:TPointArray;
     pathfrom,pathto,persl,perzoom,kti,datestr:string;
     max,min:TPoint;
@@ -117,7 +134,8 @@ var p_x,p_y,i,j:integer;
     VMinLonLat, VMaxLonLat: TExtendedPoint;
     VTile: TPoint;
 begin
- num_dwn:=0;
+  try
+ VTilesToProcess:=0;
  SetLength(polyg,length(FPolygLL));
  persl:='';
  kti:='';
@@ -130,7 +148,7 @@ begin
     if FZoomArr[j] then
      begin
       polyg := FMapTypeArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
-      num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
+      VTilesToProcess:=VTilesToProcess+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
       VMinLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min,j);
       VMaxLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min,j);
@@ -143,7 +161,8 @@ begin
  persl:=copy(persl,1,length(persl)-1);
  perzoom:=copy(perzoom,1,length(perzoom)-1);
  if FIsZiped then begin
-                fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles+' '+SAS_STR_CreateArhList;
+                FShowOnFormLine0 := SAS_STR_ExportTiles+' '+SAS_STR_CreateArhList;
+                Synchronize(UpdateProgressFormStr0);
                 FZip:=TVCLZip.Create(Fmain);
                 Zippu:=true;
                 FZip.Recurse := False;
@@ -151,12 +170,16 @@ begin
                 FZip.PackLevel := 0; // Уровень сжатия
                 FZip.ZipName := FPathExport+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
                end
-          else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
- fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
- FProgress.ProgressBar1.Max:=100;
- FProgress.ProgressBar1.Progress1:=0;
- obrab:=0;
+          else begin
+            FShowOnFormLine0 := SAS_STR_ExportTiles;
+            Synchronize(UpdateProgressFormStr0);
+          end;
+      FShowFormCaption := SAS_STR_AllSaves+' '+inttostr(VTilesToProcess)+' '+SAS_STR_Files;
+      Synchronize(UpdateProgressFormCaption);
+
+      FShowOnFormLine1 := SAS_STR_Processed + ' 0%';
+      Synchronize(UpdateProgressFormStr1);
+ VTilesProcessed:=0;
  for i:=0 to 23 do //по масштабу
   if FZoomArr[i] then
    for j:=0 to length(FMapTypeArr)-1 do //по типу
@@ -173,9 +196,8 @@ begin
         while p_y<max.Y do
          begin
           VTile.Y := p_y shr 8;
-          if FProgress.Visible=false then
+          if not FProgressForm.Visible then
            begin
-            Fmain.generate_im;
             exit;
            end;
           if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
@@ -196,11 +218,13 @@ begin
                            end;
                           end;
            end;
-          inc(obrab);
-          if obrab mod 100 = 0 then
+          inc(VTilesProcessed);
+          if VTilesProcessed mod 100 = 0 then
            begin
-            FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-            fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+              FProgressOnForm := round((VTilesProcessed / VTilesToProcess) * 100);
+              Synchronize(UpdateProgressFormBar);
+              FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
+              Synchronize(UpdateProgressFormStr1);
            end;
           inc(p_y,256);
          end;
@@ -209,17 +233,55 @@ begin
      end;
  if FIsZiped then
   begin
-   fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
+    FShowOnFormLine0 := SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';;
+    Synchronize(UpdateProgressFormStr0);
    if FileExists(FZip.ZipName) then DeleteFile(FZip.ZipName);
-   If FZip.FZip=0 then
+   If FZip.Zip=0 then
     Application.MessageBox(PChar(SAS_ERR_CreateArh),PChar(SAS_MSG_coution),48);
    FZip.free;
    Zippu:=false;
   end;
- FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+  FProgressOnForm := round((VTilesProcessed / VTilesToProcess) * 100);
+  Synchronize(UpdateProgressFormBar);
+  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
+  Synchronize(UpdateProgressFormStr1);
  FTileNameGen := nil;
- FProgress.Close;
+  except
+    on e: Exception do begin
+      FMessageForShow := e.Message;
+      Synchronize(SynShowMessage);
+    end;
+  end;
+end;
+
+procedure TThreadExport.SynShowMessage;
+begin
+  ShowMessage(FMessageForShow);
+end;
+
+procedure TThreadExport.UpdateProgressFormCaption;
+begin
+  FProgressForm.Caption := FShowFormCaption;
+end;
+
+procedure TThreadExport.UpdateProgressFormClose;
+begin
+  FProgressForm.Close;
+end;
+
+procedure TThreadExport.UpdateProgressFormStr0;
+begin
+  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
+end;
+
+procedure TThreadExport.UpdateProgressFormStr1;
+begin
+  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
+end;
+
+procedure TThreadExport.UpdateProgressFormBar;
+begin
+  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 end.
