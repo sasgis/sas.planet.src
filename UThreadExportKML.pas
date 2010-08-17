@@ -79,13 +79,6 @@ begin
   FMapType:=Atypemap;
 end;
 
-function RetDate(inDate: TDateTime): string;
-var xYear, xMonth, xDay: word;
-begin
-  DecodeDate(inDate, xYear, xMonth, xDay);
-  Result := inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear);
-end;
-
 procedure TThreadExportKML.KmlFileWrite(x,y:integer;z,level:byte);
 var xym256lt,xym256rb:TPoint;
     i,nxy,xi,yi:integer;
@@ -141,12 +134,11 @@ end;
 procedure TThreadExportKML.Execute;
 var p_x,p_y,i,j:integer;
     polyg:TPointArray;
-    ToFile,datestr:string;
+    ToFile:string;
     max,min:TPoint;
 begin
  num_dwn:=0;
  SetLength(polyg,length(FPolygLL));
- datestr:=RetDate(now);
  for j:=0 to 23 do
   if FZoomArr[j] then
    begin
