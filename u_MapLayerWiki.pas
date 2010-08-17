@@ -31,7 +31,7 @@ type
     FFixedPointArray: TArrayOfFixedPoint;
     FWikiLayerElments: array of TWikiLayerElement;
     procedure addWL(var AData: TKMLData);
-    procedure DrawWikiElementGR32(var AData: TWikiLayerElement);
+    procedure DrawWikiElement(var AData: TWikiLayerElement);
     procedure DoRedraw; override;
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType);
@@ -240,10 +240,10 @@ begin
       end;
     end;
   end;
-  DrawWikiElementGR32(FWikiLayerElments[lenLay - 1]);
+  DrawWikiElement(FWikiLayerElments[lenLay - 1]);
 end;
 
-procedure TWikiLayer.DrawWikiElementGR32(var AData: TWikiLayerElement);
+procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement);
 var
   VPolygon: TPolygon32;
   VLen: integer;
