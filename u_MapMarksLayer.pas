@@ -118,6 +118,7 @@ var xy,xyb:Tpoint;
     imw,texth:integer;
     marksFilter:string;
     LLRect: TExtendedRect;
+    VIconSource: TCustomBitmap32;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
@@ -187,7 +188,9 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            btm.Assign(TCustomBitmap32(GState.MarkIcons.Objects[indexmi]));
+            VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
+            btm.SetSize(VIconSource.Width, VIconSource.Height);
+            btm.Draw(0, 0, VIconSource);
             BtmEx.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
@@ -289,6 +292,7 @@ var
   VZoomCurr: Byte;
   VRect: TRect;
   VBitmapSize: TPoint;
+  VIconSource: TCustomBitmap32;
 begin
   inherited;
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
@@ -366,7 +370,9 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            btm.Assign(TCustomBitmap32(GState.MarkIcons.Objects[indexmi]));
+            VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
+            btm.SetSize(VIconSource.Width, VIconSource.Height);
+            btm.Draw(0, 0, VIconSource);
             FLayer.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
