@@ -20,24 +20,25 @@ uses
 type
   TThreadExport = class(TThread)
   private
-    PolygLL:TExtendedPointArray;
-    Zoomarr:array [0..23] of boolean;
-    typemaparr:array of TMapType;
+    FPolygLL:TExtendedPointArray;
+    FZoomArr:array [0..23] of boolean;
+    FMapTypeArr:array of TMapType;
     FTileNameGen: ITileFileNameGenerator;
     Fprogress: TFprogress2;
-    Move,ziped:boolean;
-    Replace:boolean;
-    Path:string;
-    Zip:TVCLZip;
+    FIsMove:boolean;
+    FIsZiped:boolean;
+    FIsReplace:boolean;
+    FPathExport:string;
+    FZip:TVCLZip;
     Zippu:boolean;
-    procedure savefilesREG(APolyLL:TExtendedPointArray);
+    procedure savefilesREG;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   protected
     procedure Execute; override;
   public
     constructor Create(
       APath: string;
-      APolygon_: TExtendedPointArray;
+      APolygon: TExtendedPointArray;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Amove: boolean;
@@ -55,12 +56,12 @@ uses
 
 procedure TThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
 begin
- if Zippu then Zip.CancelTheOperation;
+ if Zippu then FZip.CancelTheOperation;
 end;
 
 constructor TThreadExport.Create(
   APath: string;
-  APolygon_: TExtendedPointArray;
+  APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Amove, Areplace, Aziped: boolean;
@@ -75,26 +76,26 @@ begin
   Zippu:=false;
   FProgress.OnClose:=CloseFProgress;
   FProgress.Visible:=true;
-  Path:=APath;
-  Move:=AMove;
+  FPathExport:=APath;
+  FIsMove:=AMove;
   FTileNameGen := ATileNameGen;
-  ziped:=Aziped;
-  Replace:=AReplace;
-  setlength(PolygLL,length(APolygon_));
-  for i:=1 to length(APolygon_) do
-    PolygLL[i-1]:=Apolygon_[i-1];
+  FIsZiped:=Aziped;
+  FIsReplace:=AReplace;
+  setlength(FPolygLL,length(APolygon));
+  for i:=1 to length(APolygon) do
+    FPolygLL[i-1]:=APolygon[i-1];
   for i:=0 to 23 do
-    zoomarr[i]:=Azoomarr[i];
-  setlength(typemaparr,length(Atypemaparr));
+    FZoomArr[i]:=Azoomarr[i];
+  setlength(FMapTypeArr,length(Atypemaparr));
   for i:=1 to length(Atypemaparr) do
-    typemaparr[i-1]:=Atypemaparr[i-1];
+    FMapTypeArr[i-1]:=Atypemaparr[i-1];
 end;
 
 
 procedure TThreadExport.Execute;
 begin
   Zippu:=false;
-  savefilesREG(PolygLL);
+  savefilesREG;
   FProgress.Close;
 end;
 
@@ -105,7 +106,7 @@ begin
   Result := inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear);
 end;
 
-procedure TThreadExport.savefilesREG(APolyLL:TExtendedPointArray);
+procedure TThreadExport.savefilesREG;
 var p_x,p_y,i,j:integer;
     num_dwn,obrab:integer;
     polyg:TPointArray;
@@ -117,22 +118,22 @@ var p_x,p_y,i,j:integer;
     VTile: TPoint;
 begin
  num_dwn:=0;
- SetLength(polyg,length(APolyLL));
+ SetLength(polyg,length(FPolygLL));
  persl:='';
  kti:='';
  datestr:=RetDate(now);
- for i:=0 to length(TypeMapArr)-1 do
+ for i:=0 to length(FMapTypeArr)-1 do
   begin
-   persl:=persl+ TypeMapArr[i].GetShortFolderName+'_';
+   persl:=persl+ FMapTypeArr[i].GetShortFolderName+'_';
    perzoom:='';
    for j:=0 to 23 do
-    if zoomarr[j] then
+    if FZoomArr[j] then
      begin
-      polyg := TypeMapArr[i].GeoConvert.PoligonProject(j + 8, APolyLL);
+      polyg := FMapTypeArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
       num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
       perzoom:=perzoom+inttostr(j+1)+'_';
-      VMinLonLat := TypeMapArr[i].GeoConvert.PixelPos2LonLat(min,j);
-      VMaxLonLat := TypeMapArr[i].GeoConvert.PixelPos2LonLat(min,j);
+      VMinLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min,j);
+      VMaxLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min,j);
       kti:=RoundEx(VMinLonLat.x,4);
       kti:=kti+'_'+RoundEx(VMinLonLat.y,4);
       kti:=kti+'_'+RoundEx(VMaxLonLat.x,4);
@@ -141,14 +142,14 @@ begin
   end;
  persl:=copy(persl,1,length(persl)-1);
  perzoom:=copy(perzoom,1,length(perzoom)-1);
- if ziped then begin
+ if FIsZiped then begin
                 fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles+' '+SAS_STR_CreateArhList;
-                Zip:=TVCLZip.Create(Fmain);
+                FZip:=TVCLZip.Create(Fmain);
                 Zippu:=true;
-                Zip.Recurse := False;
-                Zip.StorePaths := true; // Путь не сохраняем
-                Zip.PackLevel := 0; // Уровень сжатия
-                Zip.ZipName := path+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
+                FZip.Recurse := False;
+                FZip.StorePaths := true; // Путь не сохраняем
+                FZip.PackLevel := 0; // Уровень сжатия
+                FZip.ZipName := FPathExport+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
                end
           else fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
  fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
@@ -157,12 +158,12 @@ begin
  FProgress.ProgressBar1.Progress1:=0;
  obrab:=0;
  for i:=0 to 23 do //по масштабу
-  if zoomarr[i] then
-   for j:=0 to length(TypeMapArr)-1 do //по типу
+  if FZoomArr[i] then
+   for j:=0 to length(FMapTypeArr)-1 do //по типу
      begin
-      polyg := TypeMapArr[j].GeoConvert.PoligonProject(i + 8, APolyLL);
-      VExt := TypeMapArr[j].TileFileExt;
-      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(PATH) + TypeMapArr[j].GetShortFolderName);
+      polyg := FMapTypeArr[j].GeoConvert.PoligonProject(i + 8, FPolygLL);
+      VExt := FMapTypeArr[j].TileFileExt;
+      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
       GetDwnlNum(min,max,Polyg,false);
       p_x:=min.x;
       while p_x<max.x do
@@ -181,17 +182,17 @@ begin
                                                  inc(p_y,256);
                                                  CONTINUE;
                                                 end;
-          if TypeMapArr[j].TileExists(VTile, i) then
+          if FMapTypeArr[j].TileExists(VTile, i) then
            begin
-            if ziped then begin
+            if FIsZiped then begin
 //TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-                            pathfrom:=TypeMapArr[j].GetTileFileName(VTile, i);
-                            Zip.FilesList.Add(pathfrom);
+                            pathfrom:=FMapTypeArr[j].GetTileFileName(VTile, i);
+                            FZip.FilesList.Add(pathfrom);
                           end
                      else begin
                            pathto:= VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
-                           if TypeMapArr[j].TileExportToFile(VTile, i, pathto, replace) then begin
-                             if move then TypeMapArr[j].DeleteTile(VTile, i);
+                           if FMapTypeArr[j].TileExportToFile(VTile, i, pathto, FIsReplace) then begin
+                             if FIsMove then FMapTypeArr[j].DeleteTile(VTile, i);
                            end;
                           end;
            end;
@@ -206,13 +207,13 @@ begin
         inc(p_x,256);
        end;
      end;
- if ziped then
+ if FIsZiped then
   begin
    fprogress.MemoInfo.Lines[0]:=SAS_STR_Pack+' '+'SG-'+persl+'-'+perzoom+'-'+kti+'-'+datestr+'.ZIP';
-   if FileExists(Zip.ZipName) then DeleteFile(Zip.ZipName);
-   If Zip.Zip=0 then
+   if FileExists(FZip.ZipName) then DeleteFile(FZip.ZipName);
+   If FZip.FZip=0 then
     Application.MessageBox(PChar(SAS_ERR_CreateArh),PChar(SAS_MSG_coution),48);
-   Zip.free;
+   FZip.free;
    Zippu:=false;
   end;
  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
