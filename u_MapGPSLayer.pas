@@ -32,10 +32,10 @@ uses
 
 procedure TMapGPSLayer.DrawArrow;
 var
-  Polygon: TPolygon32;
+  VPolygonArrow: TPolygon32;
   ke,ks:TExtendedPoint;
-  dl: integer;
-  Angle,D,R: Currency;
+  VArrowSize: integer;
+  Angle,D,R: Extended;
   TanOfAngle:Extended;
   k1:TPoint;
   SizeTrackd2:integer;
@@ -43,6 +43,7 @@ var
   VPreLastPoint: TExtendedPoint;
   VIsArrow: Boolean;
   VPointsCount: Integer;
+  VMarkRect: TRect;
 begin
   VIsArrow := False;
   VPointsCount := length(GState.GPS_TrackPoints);
@@ -54,10 +55,10 @@ begin
       ke:=MapPixel2BitmapPixel(ke);
       ks:=FGeoConvert.LonLat2ExtendedPixelPos(VPreLastPoint, FZoom);
       ks:=MapPixel2BitmapPixel(ks);
-      dl:=GState.GPS_ArrowSize;
+      VArrowSize:=GState.GPS_ArrowSize;
       D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));
       if D > 0.01 then begin
-        R:=D/2-(dl div 2);
+        R:=D/2-(VArrowSize div 2);
         ke.x:=ke.X+(ke.X-ks.X);
         ke.y:=ke.y+(ke.y-ks.y);
         ke.x:=Round((R*ks.x+(D-R)*kE.X)/D);
@@ -72,25 +73,25 @@ begin
           TanOfAngle:=(ks.Y-ke.Y)/(ks.X-ke.X);
         end;
 
-        Polygon := TPolygon32.Create;
+        VPolygonArrow := TPolygon32.Create;
         try
-          Polygon.Antialiased := true;
-          polygon.AntialiasMode:=am4times;
-          Polygon.Add(FixedPoint(round(ke.X),round(ke.Y)));
+          VPolygonArrow.Antialiased := true;
+          VPolygonArrow.AntialiasMode:=am4times;
+          VPolygonArrow.Add(FixedPoint(round(ke.X),round(ke.Y)));
           Angle:=ArcTan(TanOfAngle)+0.28;
           if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then begin
             Angle:=Angle+Pi;
           end;
-          Polygon.Add(FixedPoint(round(ke.x) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
+          VPolygonArrow.Add(FixedPoint(round(ke.x) + Round(VArrowSize*Cos(Angle)),round(ke.Y) + Round(VArrowSize*Sin(Angle))));
           Angle:=ArcTan(TanOfAngle)-0.28;
           if ((TanOfAngle<0)and(ks.X<=ke.X))or((TanOfAngle>=0)and(ks.X<=ke.X)) then begin
             Angle:=Angle+Pi;
           end;
-          Polygon.Add(FixedPoint(round(ke.X) + Round(dl*Cos(Angle)),round(ke.Y) + Round(dl*Sin(Angle))));
-          Polygon.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+          VPolygonArrow.Add(FixedPoint(round(ke.X) + Round(VArrowSize*Cos(Angle)),round(ke.Y) + Round(VArrowSize*Sin(Angle))));
+          VPolygonArrow.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
           VIsArrow := true;
         finally
-          Polygon.Free;
+          VPolygonArrow.Free;
         end;
       end;
     except
@@ -99,7 +100,8 @@ begin
       k1:=FGeoConvert.LonLat2PixelPos(VLastPoint,FZoom);
       k1:=MapPixel2BitmapPixel(k1);
       SizeTrackd2:=GState.GPS_ArrowSize div 6;
-      FLayer.Bitmap.FillRectS(k1.x-SizeTrackd2,k1.y-SizeTrackd2,k1.x+SizeTrackd2,k1.y+SizeTrackd2,SetAlpha(clRed32, 200));
+      VMarkRect := Bounds(k1.x-SizeTrackd2, k1.y-SizeTrackd2, SizeTrackd2, SizeTrackd2);
+      FLayer.Bitmap.FillRectS(VMarkRect, SetAlpha(clRed32, 200));
     end;
   end;
 end;
