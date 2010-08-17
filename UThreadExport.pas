@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Forms,
   SysUtils,
   Classes,
   VCLZIp,
@@ -64,7 +65,6 @@ type
 implementation
 
 uses
-  Forms,
   Dialogs,
   u_GeoToStr,
   unit1;
