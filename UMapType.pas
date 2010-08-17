@@ -770,6 +770,7 @@ begin
     end else begin
       btmsrc := TCustomBitmap32.Create;
       try
+        ATileStream.Position := 0;
         VManager.GetBitmapLoaderForType(VMimeType).LoadFromStream(ATileStream, btmSrc);
 
         if IsCropOnDownload then begin
