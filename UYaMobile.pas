@@ -58,18 +58,16 @@ begin
 end;
 
 procedure CreateNilFile(path:string; TableSize:integer);
-var i:integer;
-    ms:TMemoryStream;
-    n:array [0..TableOffset-8-1] of byte;
- tileinfo:array [0..5] of byte;
+var ms:TMemoryStream;
+    s:integer;
 begin
  createdirif(path);
  ms:=TMemoryStream.Create;
+ s:=8+(sqr(TableSize))*6+(TableOffset-8)+1;
+ ms.SetSize(s);
+ FillChar(ms.memory^,s,0);
+ ms.Position:=0;
  ms.Write(Head,8);
- FillChar(n,TableOffset-8,0);
- ms.Write(n,TableOffset-8);
- for i:=0 to sqr(TableSize)-1 do
-  ms.Write(tileinfo,6);
  ms.SaveToFile(path);
  ms.Free;
 end;
