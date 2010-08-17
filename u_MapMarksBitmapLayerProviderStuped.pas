@@ -129,15 +129,18 @@ end;
 
 procedure TMapMarksBitmapLayerProviderStupedThreaded.SyncGetBitmap;
 var
+  LLRect: TExtendedRect;
   xy,xyb:Tpoint;
   btm:TCustomBitmap32;
   dLL:TExtendedPoint;
-  TestArrLenP1,TestArrLenP2:TPoint;
+  TestArrLenLonLatRect: TExtendedRect;
+  TestArrLenPixelRect: TRect;
   buf_line_arr:TExtendedPointArray;
   indexmi:integer;
   imw,texth:integer;
   marksFilter:string;
-  LLRect: TExtendedRect;
+
+  VIconSource: TCustomBitmap32;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
@@ -190,9 +193,13 @@ begin
       While not(FMain.CDSmarks.Eof) do begin
         buf_line_arr := Blob2ExtArr(FMain.CDSmarks.FieldByName('lonlatarr'));
         if length(buf_line_arr)>1 then begin
-          TestArrLenP1:=FConverter.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonL.AsFloat,FMain.CDSmarksLatT.AsFloat),(FTargetZoom));
-          TestArrLenP2:=FConverter.LonLat2PixelPos(ExtPoint(FMain.CDSmarksLonR.AsFloat,FMain.CDSmarksLatB.AsFloat),(FTargetZoom));
-          if (abs(TestArrLenP1.X-TestArrLenP2.X)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>FMain.CDSmarksScale1.AsInteger+2) then begin
+          TestArrLenLonLatRect.Left := FMain.CDSmarksLonL.AsFloat;
+          TestArrLenLonLatRect.Top := FMain.CDSmarksLatT.AsFloat;
+          TestArrLenLonLatRect.Right := FMain.CDSmarksLonR.AsFloat;
+          TestArrLenLonLatRect.Bottom := FMain.CDSmarksLatB.AsFloat;
+          FConverter.CheckLonLatRect(TestArrLenLonLatRect);
+          TestArrLenPixelRect := FConverter.LonLatRect2PixelRect(TestArrLenLonLatRect, FTargetZoom);
+          if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>FMain.CDSmarksScale1.AsInteger+2) then begin
             drawPath2Bitmap(buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
               (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
             SetLength(buf_line_arr,0);
@@ -208,7 +215,9 @@ begin
             indexmi:=0;
           end;
           if(indexmi>-1)then begin
-            btm.Assign(TCustomBitmap32(GState.MarkIcons.Objects[indexmi]));
+            VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
+            btm.SetSize(VIconSource.Width, VIconSource.Height);
+            btm.Draw(0, 0, VIconSource);
             FTargetBmp.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
           end;
           if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
