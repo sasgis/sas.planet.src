@@ -338,8 +338,12 @@ begin
       FMain.CDSKategory.Filtered:=false;
       marksFilter:=marksFilter+' and ';
     end;
-    marksFilter:=marksFilter+'( LonR>'+floattostr(LLRect.Left)+' and LonL<'+floattostr(LLRect.Right)+
-    ' and LatB<'+floattostr(LLRect.Top)+' and LatT>'+floattostr(LLRect.Bottom)+')';
+    marksFilter:=marksFilter+'('+
+      ' LonR>'+floattostr(LLRect.Left)+' and'+
+      ' LonL<'+floattostr(LLRect.Right)+' and'+
+      ' LatB<'+floattostr(LLRect.Top)+' and'+
+      ' LatT>'+floattostr(LLRect.Bottom)+
+    ')';
     FMain.CDSmarks.Filter:=marksFilter;
     FMain.CDSmarks.Filtered:=true;
     FMain.CDSmarks.First;
@@ -367,7 +371,7 @@ begin
           TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
             drawPath(buf_line_arr,VColor1,VColor2,VScale1,
-              (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
+              (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
             SetLength(buf_line_arr,0);
           end;
         end else if VPointCount =1 then begin
