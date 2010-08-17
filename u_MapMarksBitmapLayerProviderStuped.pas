@@ -41,9 +41,9 @@ type
   TMapMarksBitmapLayerProviderStupedThreaded = class
   private
     FTargetBmp: TCustomBitmap32;
-    FConverter: ICoordConverter;
+    FGeoConvert: ICoordConverter;
     FTargetRect: TRect;
-    FTargetZoom: Byte;
+    FZoom: Byte;
     procedure drawPath2Bitmap(pathll:TExtendedPointArray; color1, color2:TColor32; linew:integer; poly:boolean);
   public
     constructor Create(
@@ -60,9 +60,9 @@ constructor TMapMarksBitmapLayerProviderStupedThreaded.Create(
   ATargetRect: TRect; ATargetZoom: Byte);
 begin
   FTargetBmp := ATargetBmp;
-  FConverter := AConverter;
+  FGeoConvert := AConverter;
   FTargetRect := ATargetRect;
-  FTargetZoom := FTargetZoom;
+  FZoom := FZoom;
 end;
 
 procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath2Bitmap(
@@ -84,16 +84,16 @@ begin
       if length(pathll)>0 then begin
         for i:=0 to length(pathll)-1 do begin
           VLonLat := pathll[i];
-          FConverter.CheckLonLatPos(VLonLat);
-          k1:=FConverter.LonLat2PixelPos(VLonLat,FTargetZoom);
+          FGeoConvert.CheckLonLatPos(VLonLat);
+          k1:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
           k1:=Point(k1.X-FTargetRect.Left,k1.Y-FTargetRect.Top);
           if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
             polygon.Add(FixedPoint(k1));
           end;
           if i<length(pathll)-1 then begin
             VLonLat := pathll[i+1];
-            FConverter.CheckLonLatPos(VLonLat);
-            k2:=FConverter.LonLat2PixelPos(VLonLat,FTargetZoom);
+            FGeoConvert.CheckLonLatPos(VLonLat);
+            k2:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
             k2:=Point(k2.X-FTargetRect.Left,k2.Y-FTargetRect.Top);
             if (k2.x-k1.x)>(k2.y-k1.y) then begin
               adp:=(k2.x-k1.x)div 32767+2;
@@ -155,10 +155,10 @@ var
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
-    LLRect := FConverter.PixelRect2LonLatRect(FTargetRect, FTargetZoom);
+    LLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
     marksFilter:='';
     if GState.show_point = mshChecked then begin
-      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(FTargetZoom + 1)+' and BeforeScale >= '+inttostr(FTargetZoom + 1)+' )';
+      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(FZoom + 1)+' and BeforeScale >= '+inttostr(FZoom + 1)+' )';
       FMain.CDSKategory.Filtered:=true;
       marksFilter:=marksFilter+'visible=1';
       FMain.CDSKategory.First;
@@ -215,15 +215,15 @@ begin
           TestArrLenLonLatRect.Top := FMain.CDSmarksLatT.AsFloat;
           TestArrLenLonLatRect.Right := FMain.CDSmarksLonR.AsFloat;
           TestArrLenLonLatRect.Bottom := FMain.CDSmarksLatB.AsFloat;
-          FConverter.CheckLonLatRect(TestArrLenLonLatRect);
-          TestArrLenPixelRect := FConverter.LonLatRect2PixelRect(TestArrLenLonLatRect, FTargetZoom);
+          FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
+          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
             drawPath2Bitmap(buf_line_arr,VColor1,VColor2,VScale1,
               (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
             SetLength(buf_line_arr,0);
           end;
         end else if VPointCount =1 then begin
-          xy:=FConverter.LonLat2PixelPos(buf_line_arr[0],FTargetZoom);
+          xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
           xy:=Point(xy.x - FTargetRect.Left, xy.y - FTargetRect.Top);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
           indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);
