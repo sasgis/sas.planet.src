@@ -4,10 +4,8 @@ interface
 
 uses
   Windows,
-  Forms,
   SysUtils,
   Classes,
-  Graphics,
   VCLZIp,
   GR32,
   i_ITileFileNameGenerator,
@@ -66,6 +64,7 @@ type
 implementation
 
 uses
+  Forms,
   Dialogs,
   u_GeoToStr,
   unit1;
@@ -237,7 +236,6 @@ begin
     end;
     if FIsZiped then begin
       FShowOnFormLine0 := SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
-      ;
       Synchronize(UpdateProgressFormStr0);
       if FileExists(FZip.ZipName) then begin
         DeleteFile(FZip.ZipName);
