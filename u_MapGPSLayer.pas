@@ -111,49 +111,57 @@ var
   i,speed:integer;
   polygon_line: TPolygon32;
   startrarck:integer;
-  k1,k2:TPoint;
+  VPointPrev,VPointCurr:TPoint;
+  VPointsCount: Integer;
+  VSegmentColor: TColor32;
+  VSpeed: Extended;
+  VMaxSpeed: Extended;
 begin
-  Polygon_line := TPolygon32.Create;
-  try
-    Polygon_line.Antialiased := true;
-    Polygon_line.AntialiasMode := am4times;
-    polygon_line.Closed:=false;
-    startrarck:=length(GState.GPS_TrackPoints)-GState.GPS_NumTrackPoints;
-    if startrarck<0 then startrarck:=0;
-    with FLayer.Bitmap do begin
-      if (GState.GPS_ShowPath)and(length(GState.GPS_TrackPoints)-startrarck>1) then begin
-        k1:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[startrarck],FZoom);
-        k1:=MapPixel2BitmapPixel(k1);
-        for i:=startrarck to length(GState.GPS_TrackPoints)-2 do begin
-          k2:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],FZoom);
-          k2:=MapPixel2BitmapPixel(k2);
-          if (GState.GPS_ArrayOfSpeed[i]>0)and(FMain.GPSpar.maxspeed>0) then begin
-            speed:=round(255/(FMain.GPSpar.maxspeed/GState.GPS_ArrayOfSpeed[i]));
+  VPointsCount := length(GState.GPS_TrackPoints);
+  startrarck:=VPointsCount-GState.GPS_NumTrackPoints;
+  if startrarck<0 then startrarck:=0;
+  with FLayer.Bitmap do begin
+    if (VPointsCount-startrarck>1) then begin
+      Polygon_line := TPolygon32.Create;
+      try
+        Polygon_line.Antialiased := true;
+        Polygon_line.AntialiasMode := am4times;
+        polygon_line.Closed:=false;
+        VPointPrev:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[startrarck],FZoom);
+        VPointPrev:=MapPixel2BitmapPixel(VPointPrev);
+        VMaxSpeed := FMain.GPSpar.maxspeed;
+        for i:=startrarck to VPointsCount-2 do begin
+          VPointCurr:=FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[i+1],FZoom);
+          VPointCurr:=MapPixel2BitmapPixel(VPointCurr);
+          VSpeed := GState.GPS_ArrayOfSpeed[i];
+          if (VSpeed>0)and(VMaxSpeed>0) then begin
+            speed := round(255/(VMaxSpeed/VSpeed));
           end else begin
-            speed:=0;
+            speed := 0;
           end;
-          if (k1.X<>k2.X)or(k1.Y<>k2.Y) then begin
-            if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-              polygon_line.Add(FixedPoint(k1));
-              polygon_line.Add(FixedPoint(k2));
-            end;
-            with Polygon_line.Outline do try
-              with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
-                DrawFill(FLayer.Bitmap, SetAlpha(Color32(speed,0,256-speed,0),150));
+          VSegmentColor := Color32(speed, 0, 256-speed,150);
+          if (VPointPrev.X<>VPointCurr.X)or(VPointPrev.Y<>VPointCurr.Y) then begin
+            if (VPointPrev.x<32767)and(VPointPrev.x>-32767)and(VPointPrev.y<32767)and(VPointPrev.y>-32767) then begin
+              polygon_line.Add(FixedPoint(VPointPrev));
+              polygon_line.Add(FixedPoint(VPointCurr));
+              with Polygon_line.Outline do try
+                with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
+                  DrawFill(FLayer.Bitmap, VSegmentColor);
+                finally
+                  free;
+                end;
               finally
                 free;
               end;
-            finally
-              free;
+              Polygon_line.Clear;
             end;
-            Polygon_line.Clear;
           end;
-          k1:=k2;
+          VPointPrev:=VPointCurr;
         end;
+      finally
+        polygon_line.Free;
       end;
     end;
-  finally
-    polygon_line.Free;
   end;
 end;
 
@@ -161,7 +169,9 @@ procedure TMapGPSLayer.DoRedraw;
 begin
   inherited;
   FLayer.Bitmap.Clear(clBlack);
-  DrawPath;
+  if GState.GPS_ShowPath then begin
+    DrawPath;
+  end;
   DrawArrow;
 end;
 
