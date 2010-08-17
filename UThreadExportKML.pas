@@ -20,12 +20,12 @@ uses
 type
   TThreadExportKML = class(TThread)
   private
-    PolygLL:TExtendedPointArray;
-    Zoomarr:array [0..23] of boolean;
-    FTypemap: TMapType;
+    FPolygLL:TExtendedPointArray;
+    FZoomArr:array [0..23] of boolean;
+    FMapType: TMapType;
     Fprogress: TFprogress2;
-    Replace:boolean;
-    Path:string;
+    FIsReplace:boolean;
+    FPathExport:string;
     RelativePath:boolean;
     num_dwn,obrab:integer;
     KMLFile:TextFile;
@@ -38,7 +38,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon_: TExtendedPointArray;
+      APolygon: TExtendedPointArray;
       Azoomarr: array of boolean;
       Atypemap: TMapType;
       Areplace: boolean;
@@ -55,7 +55,7 @@ uses
 
 constructor TThreadExportKML.Create(
   APath: string;
-  APolygon_: TExtendedPointArray;
+  APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
   Areplace: boolean;
@@ -68,15 +68,15 @@ begin
   FreeOnTerminate:=true;
   Application.CreateForm(TFProgress2, FProgress);
   FProgress.Visible:=true;
-  Path:=APath;
-  Replace:=AReplace;
+  FPathExport:=APath;
+  FIsReplace:=AReplace;
   RelativePath:=ARelativePath;
-  setlength(PolygLL,length(APolygon_));
-  for i:=1 to length(APolygon_) do
-    PolygLL[i-1]:=Apolygon_[i-1];
+  setlength(FPolygLL,length(APolygon));
+  for i:=1 to length(APolygon) do
+    FPolygLL[i-1]:=APolygon[i-1];
   for i:=0 to 23 do
-    zoomarr[i]:=Azoomarr[i];
-  FTypemap:=Atypemap;
+    FZoomArr[i]:=Azoomarr[i];
+  FMapType:=Atypemap;
 end;
 
 function RetDate(inDate: TDateTime): string;
@@ -96,13 +96,13 @@ var xym256lt,xym256rb:TPoint;
 begin
   VTile := Point(x shr 8, y shr 8);
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  savepath:=FTypeMap.GetTileFileName(VTile, z - 1);
-  if (Replace)and(not(FTypeMap.TileExists(VTile, z - 1))) then exit;
-  if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(path), savepath);
+  savepath:=FMapType.GetTileFileName(VTile, z - 1);
+  if (FIsReplace)and(not(FMapType.TileExists(VTile, z - 1))) then exit;
+  if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
-  VExtRect.TopLeft := FTypeMap.GeoConvert.PixelPos2LonLat(xym256lt,(z - 1));
-  VExtRect.BottomRight := FTypeMap.GeoConvert.PixelPos2LonLat(xym256rb,(z - 1));
+  VExtRect.TopLeft := FMapType.GeoConvert.PixelPos2LonLat(xym256lt,(z - 1));
+  VExtRect.BottomRight := FMapType.GeoConvert.PixelPos2LonLat(xym256rb,(z - 1));
 
   north:=R2StrPoint(VExtRect.Top);
   south:=R2StrPoint(VExtRect.Bottom);
@@ -126,7 +126,7 @@ begin
      Synchronize(UpdateProgressForm);
    end;
   i:=z;
-  while (not(zoomarr[i]))and(i<24) do inc(i);
+  while (not(FZoomArr[i]))and(i<24) do inc(i);
   if i<24 then
    begin
     nxy:=round(intpower(2,(i+1)-z));
@@ -145,26 +145,26 @@ var p_x,p_y,i,j:integer;
     max,min:TPoint;
 begin
  num_dwn:=0;
- SetLength(polyg,length(PolygLL));
+ SetLength(polyg,length(FPolygLL));
  datestr:=RetDate(now);
  for j:=0 to 23 do
-  if zoomarr[j] then
+  if FZoomArr[j] then
    begin
-    polyg := FTypeMap.GeoConvert.PoligonProject(j + 8, PolygLL);
+    polyg := FMapType.GeoConvert.PoligonProject(j + 8, FPolygLL);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
    end;
  Synchronize(InitProgressForm);
  try
    obrab:=0;
    i:=0;
-   AssignFile(KMLFile,path);
+   AssignFile(KMLFile,FPathExport);
    Rewrite(KMLFile);
    ToFile:=AnsiToUtf8('<?xml version="1.0" encoding="UTF-8"?>'+#13#10+'<kml xmlns="http://earth.google.com/kml/2.1">'+#13#10);
-   ToFile:=ToFile+AnsiToUtf8('<Document>'+#13#10+'<name>'+ExtractFileName(path)+'</name>');
+   ToFile:=ToFile+AnsiToUtf8('<Document>'+#13#10+'<name>'+ExtractFileName(FPathExport)+'</name>');
    Write(KMLFile,ToFile);
 
-   while not(zoomarr[i])or(i>23) do inc(i);
-   polyg := FTypeMap.GeoConvert.PoligonProject(i + 8, PolygLL);
+   while not(FZoomArr[i])or(i>23) do inc(i);
+   polyg := FMapType.GeoConvert.PoligonProject(i + 8, FPolygLL);
    GetDwnlNum(min,max,Polyg,false);
    p_x:=min.x;
    while p_x<max.x do
