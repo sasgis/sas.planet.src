@@ -73,6 +73,7 @@ var
   k1,k2,k4:TPoint;
   k3:TextendedPoint;
   polygon: TPolygon32;
+  VLonLat: TExtendedPoint;
 begin
   try
     polygon:=TPolygon32.Create;
@@ -82,13 +83,17 @@ begin
       polygon.Closed:=poly;
       if length(pathll)>0 then begin
         for i:=0 to length(pathll)-1 do begin
-          k1:=FConverter.LonLat2PixelPos(pathll[i], FTargetZoom);
+          VLonLat := pathll[i];
+          FConverter.CheckLonLatPos(VLonLat);
+          k1:=FConverter.LonLat2PixelPos(VLonLat,FTargetZoom);
           k1:=Point(k1.X-FTargetRect.Left,k1.Y-FTargetRect.Top);
           if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
             polygon.Add(FixedPoint(k1));
           end;
           if i<length(pathll)-1 then begin
-            k2:=FConverter.LonLat2PixelPos(pathll[i+1], FTargetZoom);
+            VLonLat := pathll[i+1];
+            FConverter.CheckLonLatPos(VLonLat);
+            k2:=FConverter.LonLat2PixelPos(VLonLat,FTargetZoom);
             k2:=Point(k2.X-FTargetRect.Left,k2.Y-FTargetRect.Top);
             if (k2.x-k1.x)>(k2.y-k1.y) then begin
               adp:=(k2.x-k1.x)div 32767+2;
