@@ -293,6 +293,11 @@ var
   VRect: TRect;
   VBitmapSize: TPoint;
   VIconSource: TCustomBitmap32;
+  VScale1: Integer;
+  VColor1: TColor32;
+  VColor2: TColor32;
+  VPointCount: Integer;
+  VMarkName: string;
 begin
   inherited;
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
@@ -347,21 +352,25 @@ begin
       btm.DrawMode:=dmBlend;
       btm.Resampler:=TLinearResampler.Create;
       While not(FMain.CDSmarks.Eof) do begin
+        VScale1 := FMain.CDSmarksScale1.AsInteger;
+        VColor1 := TColor32(Fmain.CDSmarksColor1.AsInteger);
+        VColor2 := TColor32(Fmain.CDSmarksColor2.AsInteger);
+        VMarkName := FMain.CDSmarksname.AsString;
         buf_line_arr := Blob2ExtArr(FMain.CDSmarks.FieldByName('lonlatarr'));
-        if length(buf_line_arr)>1 then begin
+        VPointCount := length(buf_line_arr);
+        if VPointCount>1 then begin
           TestArrLenLonLatRect.Left := FMain.CDSmarksLonL.AsFloat;
           TestArrLenLonLatRect.Top := FMain.CDSmarksLatT.AsFloat;
           TestArrLenLonLatRect.Right := FMain.CDSmarksLonR.AsFloat;
           TestArrLenLonLatRect.Bottom := FMain.CDSmarksLatB.AsFloat;
           FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
           TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
-          if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>FMain.CDSmarksScale1.AsInteger+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>FMain.CDSmarksScale1.AsInteger+2) then begin
-            drawPath(buf_line_arr,TColor32(Fmain.CDSmarksColor1.AsInteger),TColor32(Fmain.CDSmarksColor2.AsInteger),Fmain.CDSmarksScale1.asInteger,
+          if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
+            drawPath(buf_line_arr,VColor1,VColor2,VScale1,
               (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
             SetLength(buf_line_arr,0);
           end;
-        end;
-        if length(buf_line_arr)=1 then begin
+        end else if VPointCount =1 then begin
           xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
           xy := MapPixel2BitmapPixel(xy);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
@@ -375,11 +384,11 @@ begin
             btm.Draw(0, 0, VIconSource);
             FLayer.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
           end;
-          if FMain.CDSmarks.FieldByName('Scale1').AsInteger>0 then begin
-            FLayer.Bitmap.Font.Size:=FMain.CDSmarksScale1.AsInteger;
+          if VScale1>0 then begin
+            FLayer.Bitmap.Font.Size:=VScale1;
             texth:=FLayer.Bitmap.TextHeight(FMain.CDSmarksname.asString) div 2;
-            FLayer.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,FMain.CDSmarksname.AsString,1,TColor32(FMain.CDSmarksColor2.AsInteger));
-            FLayer.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,FMain.CDSmarksname.AsString,1,TColor32(FMain.CDSmarksColor1.AsInteger));
+            FLayer.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
+            FLayer.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
           end;
         end;
         FMain.CDSmarks.Next;
