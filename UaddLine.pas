@@ -68,8 +68,7 @@ type
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
-    arrLL:PArrLL;
-    lenarr:integer;
+    FarrLL:TExtendedPointArray;
     new_:boolean;
   public
     function show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
@@ -85,14 +84,11 @@ implementation
 {$R *.dfm}
 function TFaddLine.show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
 var
-    i:integer;
-    namecatbuf:string;
+  namecatbuf:string;
 begin
  if new then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;
- getmem(arrLL,length(all)*SizeOf(TExtendedPoint));
- lenarr:=length(aLL);
- for i:=0 to lenarr-1 do arrLL^[i]:=aLL[i];
+ FarrLL := Copy(aLL);
  new_:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewPath;
@@ -126,29 +122,31 @@ end;
 procedure TFaddLine.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  Fmain.CDSmarks.Cancel;
- FreeMem(ArrLL);
+ FarrLL := nil;
 end;
 
 procedure TFaddLine.BaddClick(Sender: TObject);
 var i:integer;
     ms:TMemoryStream;      
     alltl,allbr:TExtendedPoint;
+    VPointCount: integer;
 begin
 { if new_ then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;     }
- alltl:=arrLL^[0];
- allbr:=arrLL^[0];
- for i:=1 to lenarr-1 do
+ alltl:=FarrLL[0];
+ allbr:=FarrLL[0];
+ VPointCount := Length(FarrLL);
+ for i:=1 to VPointCount-1 do
   begin
-   if alltl.x>arrLL^[i].x then alltl.x:=arrLL^[i].x;
-   if alltl.y<arrLL^[i].y then alltl.y:=arrLL^[i].y;
-   if allbr.x<arrLL^[i].x then allbr.x:=arrLL^[i].x;
-   if allbr.y>arrLL^[i].y then allbr.y:=arrLL^[i].y;
+   if alltl.x>FarrLL[i].x then alltl.x:=FarrLL[i].x;
+   if alltl.y<FarrLL[i].y then alltl.y:=FarrLL[i].y;
+   if allbr.x<FarrLL[i].x then allbr.x:=FarrLL[i].x;
+   if allbr.y>FarrLL[i].y then allbr.y:=FarrLL[i].y;
   end;
  Fmain.CDSmarks.FieldByName('name').AsString:=EditName.Text;
  Fmain.CDSmarks.FieldByName('descr').AsString:=EditComment.Text;
  ms:=TMemoryStream.Create;
- ms.WriteBuffer(arrLL^,lenarr*24);
+ ms.WriteBuffer(FarrLL[0], VPointCount * sizeof(FarrLL[0]));
  TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
  ms.free;
  Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
