@@ -208,7 +208,7 @@ begin
   dd := DaysBetween(VElapsedTime,(VElapsedTime*(loadAll/load)));
   Result:='';
   if dd > 0 then Result := inttostr(dd)+' дней, ';
-  Result := Result+TimeToStr((VElapsedTime*(loadAll / load))-VElapsedTime);
+  Result := Result+FormatDateTime('hh:nn:ss',(VElapsedTime*(loadAll / load))-VElapsedTime);
 end;
 
 procedure TFProgress.UpdateTimerTimer(Sender: TObject);
