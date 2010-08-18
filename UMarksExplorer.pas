@@ -353,30 +353,20 @@ begin
 end;
 
 function OperationMark(id:integer):boolean;
-var arrLL:PArrLL;
-    arLL: TExtendedPointArray;
-    ms:TMemoryStream;
-    i:integer;
+var
+  arLL:TExtendedPointArray;
 begin
  Result:=false;
  Fmain.CDSmarks.Locate('id',id,[]);
- ms:=TMemoryStream.Create;
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
- GetMem(arrLL,ms.size);
- SetLength(arLL,ms.size div 24);
- ms.Position:=0;
- ms.ReadBuffer(arrLL^,ms.size);
- for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
- if (ms.Size>24)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
+ arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+ if (Length(arLL) > 1)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
      then begin
            Fsaveas.Show_(GState.ViewState.GetCurrentZoom, arLL);
            Fmain.LayerSelection.Redraw;
            Result:=true;
           end
      else ShowMessage(SAS_MSG_FunExForPoly);
- freeMem(arrLL);
- SetLength(arLL,0);
- ms.Free;
+ arLL := nil;
 end;
 
 procedure GoToMark(id:integer;zoom:byte);
