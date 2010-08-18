@@ -175,75 +175,49 @@ begin
 end;
 
 function EditMark(id:integer):boolean;
-var arrLL:PArrLL;
-    arLL:TExtendedPointArray;
-    ms:TMemoryStream;
-    i:integer;
+var
+  arLL:TExtendedPointArray;
+  VPointCount:integer;
 begin
   FMain.CDSmarks.Locate('id',id,[]);
-  ms:=TMemoryStream.Create;
-  try
-    TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-    GetMem(arrLL,ms.size);
-    SetLength(arLL,ms.size div 24);
-    ms.Position:=0;
-    ms.ReadBuffer(arrLL^,ms.size);
-    for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
-    Result := false;
-    if ms.Size=24 then begin
-      result:=FaddPoint.Show_(arLL[0],false);
-    end else begin
-      if (ms.Size>24) then begin
-        if compare2EP(arLL[0],arLL[length(arLL)-1]) then begin
-          result:=FaddPoly.show_(arLL,false);
-        end else begin
-          result:=FaddLine.show_(arLL,false, '');
-        end
-      end;                              
+  arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+  VPointCount := Length(arLL);
+  Result := false;
+  if VPointCount = 1 then begin
+    result:=FaddPoint.Show_(arLL[0],false);
+  end else begin
+    if (VPointCount>1) then begin
+      if compare2EP(arLL[0],arLL[VPointCount-1]) then begin
+        result:=FaddPoly.show_(arLL,false);
+      end else begin
+        result:=FaddLine.show_(arLL,false, '');
+      end
     end;
-
-    freeMem(arrLL);
-    SetLength(arLL,0);
-  finally
-    ms.Free;
   end;
 end;
 
 function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
-var arrLL:PArrLL;
-    arLL:TExtendedPointArray;
-    ms:TMemoryStream;
-    i:integer;
+var
+  arLL:TExtendedPointArray;
+  VPointCount:integer;
 begin
   FMain.CDSmarks.Locate('id',id,[]);
-  ms:=TMemoryStream.Create;
-  try
-    TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-    GetMem(arrLL,ms.size);
-    SetLength(arLL,ms.size div 24);
-    ms.Position:=0;
-    ms.ReadBuffer(arrLL^,ms.size);
-    for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
-    Result := ao_movemap;
-    if ms.Size=24 then begin
-      result:=ao_edit_point;
-      FaddPoint.Show_(arLL[0],false);
-    end else begin
-      if (ms.Size>24) then begin
-        if compare2EP(arLL[0],arLL[length(arLL)-1]) then begin
-          arr:=arLL;
-          result:=ao_edit_poly;
-        end else begin
-          arr:=arLL;
-          result:=ao_edit_line;
-        end
-      end;                              
+  arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+  VPointCount := Length(arLL);
+  Result := ao_movemap;
+  if VPointCount = 1 then begin
+    result:=ao_edit_point;
+    FaddPoint.Show_(arLL[0],false);
+  end else begin
+    if (VPointCount>1) then begin
+      if compare2EP(arLL[0],arLL[VPointCount-1]) then begin
+        arr:=arLL;
+        result:=ao_edit_poly;
+      end else begin
+        arr:=arLL;
+        result:=ao_edit_line;
+      end
     end;
-
-    freeMem(arrLL);
-    SetLength(arLL,0);
-  finally
-    ms.Free;
   end;
 end;
 
