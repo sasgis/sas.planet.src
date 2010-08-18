@@ -82,9 +82,6 @@ uses
 type
   TTileSource = (tsInternet,tsCache,tsCacheInternet);
 
-  TArrLL = array [0..0] of TExtendedPoint;
-  PArrLL = ^TArrLL;
-
   TAOperation = (
     ao_movemap,
     ao_add_line ,
