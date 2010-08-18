@@ -127,7 +127,6 @@ end;
 
 procedure TFaddLine.BaddClick(Sender: TObject);
 var i:integer;
-    ms:TMemoryStream;      
     alltl,allbr:TExtendedPoint;
     VPointCount: integer;
 begin
@@ -145,10 +144,7 @@ begin
   end;
  Fmain.CDSmarks.FieldByName('name').AsString:=EditName.Text;
  Fmain.CDSmarks.FieldByName('descr').AsString:=EditComment.Text;
- ms:=TMemoryStream.Create;
- ms.WriteBuffer(FarrLL[0], VPointCount * sizeof(FarrLL[0]));
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
- ms.free;
+ BlobFromExtArr(FarrLL, Fmain.CDSmarks.FieldByName('LonLatArr'));
  Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
 
  Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
