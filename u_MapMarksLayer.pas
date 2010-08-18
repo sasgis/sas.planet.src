@@ -224,7 +224,6 @@ begin
       polygon.Antialiased:=true;
       polygon.AntialiasMode:=am4times;
       polygon.Closed:=poly;
-      FParentMap.Bitmap.BeginUpdate;
       if length(pathll)>0 then begin
         for i:=0 to length(pathll)-1 do begin
           VLonLat := pathll[i];
@@ -269,8 +268,6 @@ begin
           free;
         end;
       end;
-      FParentMap.Bitmap.endUpdate;
-      FParentMap.Bitmap.Changed;
     finally
       polygon.Free;
     end;
@@ -301,6 +298,7 @@ var
 begin
   inherited;
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
+  FParentMap.Bitmap.BeginUpdate;
   try
     FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := FZoom;
@@ -402,6 +400,8 @@ begin
       btm.Free;
     end;
   finally
+    FParentMap.Bitmap.endUpdate;
+    FParentMap.Bitmap.Changed;
   end;
 end;
 
