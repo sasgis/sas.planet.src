@@ -3922,33 +3922,28 @@ end;
 procedure TFmain.NMarkNavClick(Sender: TObject);
 var ms:TMemoryStream;
     LL:TExtendedPoint;
-    arrLL:PArrLL;
+    arLL: TExtendedPointArray;
     id:integer;
 begin
  FWikiLayer.MouseOnReg(FPWL, moveTrue);
- if (not NMarkNav.Checked) then
-  begin
+ if (not NMarkNav.Checked) then begin
    id:=strtoint(FPWL.numid);
    if not(CDSmarks.Locate('id',id,[])) then exit;
-   ms:=TMemoryStream.Create;
-   TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-   ms.Position:=0;
-   GetMem(arrLL,ms.size);
-   ms.ReadBuffer(arrLL^,ms.size);
-   if (arrLL^[0].Y=arrLL^[ms.size div 24-1].Y)and
-      (arrLL^[0].X=arrLL^[ms.size div 24-1].X)
+   arLL := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
+   if (arLL[0].Y=arLL[ms.size div 24-1].Y)and
+      (arLL[0].X=arLL[ms.size div 24-1].X)
       then begin
             LL.X:=CDSmarks.FieldByName('LonL').AsFloat+(CDSmarks.FieldByName('LonR').AsFloat-CDSmarks.FieldByName('LonL').AsFloat)/2;
             LL.Y:=CDSmarks.FieldByName('LatB').AsFloat+(CDSmarks.FieldByName('LatT').AsFloat-CDSmarks.FieldByName('LatB').AsFloat)/2;
            end
       else begin
-            LL:=arrLL^[0];
+            LL:=arLL[0];
            end;
-   ms.Free;
-   FreeMem(arrLL);
    LayerMapNavToMark.StartNav(LL, Id);
-  end
- else LayerMapNavToMark.Visible := false;
+   arLL := nil;
+  end else  begin
+    LayerMapNavToMark.Visible := false;
+  end;
 end;
 
 function SecondToTime(const Seconds: Cardinal): Double;
@@ -4307,8 +4302,6 @@ procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
   i:integer;
-  ms:TMemoryStream;
-  arrLL:PArrLL;
   arLL: TPointArray;
   poly:TExtendedPointArray;
   VLonLatRect: TExtendedRect;
@@ -4349,36 +4342,29 @@ begin
 
   if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
      (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-    ms:=TMemoryStream.Create;
-    TBlobField(CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-    ms.Position:=0;
-    GetMem(arrLL,ms.size);
-    ms.ReadBuffer(arrLL^,ms.size);
-    SetLength(arLL,ms.size div 24);
-    setlength(poly,ms.size div 24);
-    for i:=0 to length(arLL)-1 do begin
-      VLonLat := arrLL^[i];
+    poly := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
+    SetLength(arLL, length(poly));
+    setlength(poly, length(poly));
+    for i:=0 to length(poly)-1 do begin
+      VLonLat := poly[i];
       VConverter.CheckLonLatPos(VLonLat);
       arLL[i]:=VConverter.LonLat2PixelPos(VLonLat,VZoom);
-      poly[i]:=arrLL^[i];
     end;
-    if length(arLL)=1 then
+    if length(poly)=1 then
      begin
       APWL.name:=CDSmarksname.AsString;
       APWL.descr:=CDSmarksdescr.AsString;
       APWL.numid:=CDSmarksid.AsString;
       APWL.find:=true;
       APWL.type_:=ROTpoint;
-      Setlength(arLL,0);
-      freeMem(arrLL);
-      ms.Free;
+      arLL := nil;
       CDSmarks.Filtered:=false;
       exit;
      end;
     j:=1;
-    if (arrLL^[0].x<>arrLL^[length(arLL)-1].x)or
-       (arrLL^[0].y<>arrLL^[length(arLL)-1].y)then
-      while (j<length(arLL)) do
+    if (poly[0].x<>poly[length(poly)-1].x)or
+       (poly[0].y<>poly[length(poly)-1].y)then
+      while (j<length(poly)) do
        begin
         if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
            then begin
@@ -4387,9 +4373,6 @@ begin
                  APWL.numid:=CDSmarksid.AsString;
                  APWL.find:=true;
                  APWL.type_:=ROTline;
-                 Setlength(arLL,0);
-                 freeMem(arrLL);
-                 ms.Free;
                  CDSmarks.Filtered:=false;
                  exit;
                 end;
@@ -4406,9 +4389,6 @@ begin
        APWL.find:=true;
        APWL.type_:=ROTPoly;
       end;
-   Setlength(arLL,0);
-   freeMem(arrLL);
-   ms.Free;
   end;
   CDSmarks.Next;
  end;
