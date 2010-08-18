@@ -100,6 +100,7 @@ type
     procedure DrawGrid1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
   private
+    IconName:string;
     new_:boolean;
   public
    procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
@@ -110,7 +111,6 @@ type
 
 var
   FaddPoint: TFaddPoint;
-  IconName:string;
 
 implementation
 
