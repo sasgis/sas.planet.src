@@ -122,8 +122,7 @@ uses
 {$R *.dfm}
 function TFaddPoint.show_(aLL:TExtendedPoint;new:boolean):boolean;
 var DMS:TDMS;
-    ms:TMemoryStream;
-    arrLL:PArrLL;
+    arrLL:TExtendedPointArray;
     namecatbuf:string;
 begin
  if new then Fmain.CDSmarks.Insert
@@ -151,13 +150,8 @@ begin
               CheckBox2.Checked:=true;
              end
         else begin
-              ms:=TMemoryStream.Create;
-              TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-              ms.Position:=0;
-              GetMem(arrLL,ms.size);
-              ms.ReadBuffer(arrLL^,ms.size);
-              ms.free;
-              aLL:=arrLL^[0];
+              arrLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+              aLL:=arrLL[0];
               faddPoint.Caption:=SAS_STR_EditMark;
               Badd.Caption:=SAS_STR_Edit;
               EditName.Text:=Fmain.CDSmarks.FieldByName('name').AsString;
