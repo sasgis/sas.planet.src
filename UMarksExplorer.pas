@@ -586,32 +586,28 @@ begin
 end;
 
 procedure TFMarksExplorer.SBNavOnMarkClick(Sender: TObject);
-var ms:TMemoryStream;
-    LL:TExtendedPoint;
-    arrLL:PArrLL;
-    id:integer;
+var
+  LL:TExtendedPoint;
+  arLL:TExtendedPointArray;
+  VPointCount:integer;
+  id:integer;
 begin
  if (SBNavOnMark.Down) then
   if (MarksListBox.ItemIndex>=0) then
   begin
    id:=TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
    if not(Fmain.CDSmarks.Locate('id',id,[])) then exit;
-   ms:=TMemoryStream.Create;
-   TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
-   ms.Position:=0;
-   GetMem(arrLL,ms.size);
-   ms.ReadBuffer(arrLL^,ms.size);
-   if (arrLL^[0].Y=arrLL^[ms.size div 24-1].Y)and
-      (arrLL^[0].X=arrLL^[ms.size div 24-1].X)
+   arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+   VPointCount := Length(arLL);
+   if (arLL[0].Y=arLL[VPointCount-1].Y)and
+      (arLL[0].X=arLL[VPointCount-1].X)
       then begin
             LL.X:=Fmain.CDSmarks.FieldByName('LonL').AsFloat+(Fmain.CDSmarks.FieldByName('LonR').AsFloat-Fmain.CDSmarks.FieldByName('LonL').AsFloat)/2;
             LL.Y:=Fmain.CDSmarks.FieldByName('LatB').AsFloat+(Fmain.CDSmarks.FieldByName('LatT').AsFloat-Fmain.CDSmarks.FieldByName('LatB').AsFloat)/2;
            end
       else begin
-            LL:=arrLL^[0];
+            LL:=arLL[0];
            end;
-   ms.Free;
-   FreeMem(arrLL);
    FMain.LayerMapNavToMark.StartNav(LL, ID);
   end
   else SBNavOnMark.Down:=not SBNavOnMark.Down
