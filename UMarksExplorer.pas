@@ -321,56 +321,35 @@ begin
 end;
 
 function GetMarkLength(id:integer):extended;
-var arrLL:PArrLL;
-    arLL:array of TExtendedPoint;
-    ms:TMemoryStream;
-    i:integer;
-    VConverter: ICoordConverter;
+var
+  arLL:TExtendedPointArray;
+  i:integer;
+  VConverter: ICoordConverter;
 begin
  Result:=0;
  VConverter := GState.ViewState.GetCurrentCoordConverter;
  Fmain.CDSmarks.Locate('id',id,[]);
- ms:=TMemoryStream.Create;
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
- GetMem(arrLL,ms.size);
- SetLength(arLL,ms.size div 24);
- ms.Position:=0;
- ms.ReadBuffer(arrLL^,ms.size);
- for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
- if (ms.Size>24)
-     then begin
+ arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+ if (Length(arLL) > 1) then begin
            for i:=0 to length(arLL)-2 do
             result:=result+ VConverter.CalcDist(arLL[i],arLL[i+1]);
           end;
- freeMem(arrLL);
- SetLength(arLL,0);
- ms.Free;
+ arLL := nil;
 end;
 
 function GetMarkSq(id:integer):extended;
-var arrLL:PArrLL;
-    arLL: TExtendedPointArray;
-    ms:TMemoryStream;
-    i:integer;
-    VConverter: ICoordConverter;
+var
+  arLL:TExtendedPointArray;
+  VConverter: ICoordConverter;
 begin
  Result:=0;
  VConverter := GState.ViewState.GetCurrentCoordConverter;
  Fmain.CDSmarks.Locate('id',id,[]);
- ms:=TMemoryStream.Create;
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).SaveToStream(ms);
- GetMem(arrLL,ms.size);
- SetLength(arLL,ms.size div 24);
- ms.Position:=0;
- ms.ReadBuffer(arrLL^,ms.size);
- for i:=0 to length(arLL)-1 do arLL[i]:=arrLL^[i];
- if (ms.Size>24)
-     then begin
+ arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+ if (Length(arLL) > 1) then begin
            result:= VConverter.CalcPoligonArea(arLL);
           end;
- freeMem(arrLL);
- SetLength(arLL,0);
- ms.Free;
+ arLL := nil;
 end;
 
 function OperationMark(id:integer):boolean;
