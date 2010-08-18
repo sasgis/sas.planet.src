@@ -100,8 +100,8 @@ type
     procedure DrawGrid1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
   private
-    IconName:string;
-    new_:boolean;
+    FIconName:string;
+    FIsNew:boolean;
   public
    procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
    function show_(aLL:TExtendedPoint;new:boolean):boolean;
@@ -128,7 +128,7 @@ var DMS:TDMS;
 begin
  if new then Fmain.CDSmarks.Insert
         else Fmain.CDSmarks.Edit;
- new_:=new;
+ FIsNew:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewMark;
  namecatbuf:=CBKateg.Text;
@@ -144,7 +144,7 @@ begin
  if new then begin
               if GState.MarkIcons.Count>0 then
                DrawFromMarkIcons(Image1.canvas,0,bounds(4,4,36,36));
-              IconName:=GState.MarkIcons.Strings[0];
+              FIconName:=GState.MarkIcons.Strings[0];
           //    If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
               faddPoint.Caption:=SAS_STR_AddNewMark;
               Badd.Caption:=SAS_STR_Add;
@@ -169,7 +169,7 @@ begin
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
 
-              IconName:=Fmain.CDSmarks.FieldByName('picname').AsString;
+              FIconName:=Fmain.CDSmarks.FieldByName('picname').AsString;
               DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarks.FieldByName('picname').AsString),bounds(4,4,36,36));
               Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
               CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
@@ -203,7 +203,7 @@ begin
  Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
  Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
  Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=CheckBox2.Checked;
- Fmain.CDSmarks.FieldByName('PicName').AsString:=IconName;
+ Fmain.CDSmarks.FieldByName('PicName').AsString:=FIconName;
  Fmain.CDSmarks.FieldByName('LonL').AsFloat:=ALL.x;
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=ALL.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=ALL.x;
@@ -361,7 +361,7 @@ begin
  DrawGrid1.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*DrawGrid1.ColCount)+ACol;
  if (ARow>-1)and(ACol>-1)and(i<GState.MarkIcons.Count) then begin
-   IconName:=GState.MarkIcons.Strings[i];
+   FIconName:=GState.MarkIcons.Strings[i];
    image1.Canvas.FillRect(image1.Canvas.ClipRect);
    DrawFromMarkIcons(image1.Canvas,i,bounds(5,5,36,36));
    DrawGrid1.Visible:=false;
