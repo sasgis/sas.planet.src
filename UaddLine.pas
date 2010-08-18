@@ -69,7 +69,7 @@ type
       Shift: TShiftState);
   private
     FarrLL:TExtendedPointArray;
-    new_:boolean;
+    FIsNew: boolean;
   public
     function show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
   end;
@@ -89,7 +89,7 @@ begin
  if new then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;
  FarrLL := Copy(aLL);
- new_:=new;
+ FIsNew:=new;
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewPath;
  namecatbuf:=CBKateg.Text;
