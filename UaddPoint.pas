@@ -181,6 +181,7 @@ end;
 procedure TFaddPoint.BaddClick(Sender: TObject);
 var
     All:TExtendedPoint;
+    VCategory: TCategoryId;
 begin
  ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
@@ -198,9 +199,18 @@ begin
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=ALL.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=ALL.x;
  Fmain.CDSmarks.FieldByName('LatB').AsFloat:=ALL.y;
- if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-  then AddKategory(CBKateg.Text);
- Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+ if CBKateg.ItemIndex < 0 then begin
+  Fmain.CDSmarks.FieldByName('categoryid').AsInteger := AddKategory(CBKateg.Text);
+ end else begin
+  VCategory := TCategoryId(CBKateg.Items.Objects[CBKateg.ItemIndex]);
+  if VCategory <> nil then begin
+    Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VCategory.id;
+  end else begin
+   if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
+    then AddKategory(CBKateg.Text);
+   Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+  end;
+ end;
  Fmain.CDSmarks.Post;
  SaveMarks2File;
  close;

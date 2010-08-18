@@ -18,6 +18,7 @@ uses
   Buttons,
   ExtCtrls,
   DBClient,
+  GR32,
   UResStrings,
   UGeoFun,
   t_GeoTypes,
@@ -85,11 +86,23 @@ TMarkId = class
  visible:boolean;
 end;
 
+TMarkFull = class(TMarkId)
+  CategoryId: Integer;
+  Desc: string;
+  LLRect: TExtendedRect;
+  Points: TExtendedPointArray;
+  PicName: string;
+  Color1: TColor32;
+  Color2: TColor32;
+  Scale1: Integer;
+  Scale2: Integer;
+end;
 var
   FMarksExplorer: TFMarksExplorer;
+  function GetMarkByID(id:integer): TMarkFull;
   function DeleteMark(id:integer;handle:THandle):boolean;
   function OperationMark(id:integer):boolean;
-  procedure AddKategory(name:string);
+  function AddKategory(name:string): integer;
   procedure Kategory2Strings(strings:TStrings);
   function EditMark(id:integer):boolean;
   procedure GoToMark(id:integer;zoom:byte);
@@ -116,6 +129,53 @@ uses
   UAddCategory;
 
 {$R *.dfm}
+
+procedure ReadCurrentMark(AMark: TMarkFull);
+begin
+  AMark.id := Fmain.CDSmarks.fieldbyname('id').AsInteger;
+  AMark.name := Fmain.CDSmarks.FieldByName('name').AsString;
+  AMark.visible := Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
+  AMark.Points := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+  AMark.CategoryId := Fmain.CDSmarkscategoryid.AsInteger;
+  AMark.Desc := Fmain.CDSmarks.FieldByName('descr').AsString;
+  AMark.LLRect.Left := Fmain.CDSmarks.FieldByName('LonL').AsFloat;
+  AMark.LLRect.Top := Fmain.CDSmarks.FieldByName('LonT').AsFloat;
+  AMark.LLRect.Right := Fmain.CDSmarks.FieldByName('LonR').AsFloat;
+  AMark.LLRect.Bottom := Fmain.CDSmarks.FieldByName('LonB').AsFloat;
+  AMark.PicName := Fmain.CDSmarks.FieldByName('PicName').AsString;
+  AMark.Color1 := TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger);
+  AMark.Color2 := TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger);
+  AMark.Scale1 := Fmain.CDSmarks.FieldByName('Scale1').AsInteger;
+  AMark.Scale2 := Fmain.CDSmarks.FieldByName('Scale2').AsInteger;
+end;
+
+procedure SaveCurrentMark(AMark: TMarkFull);
+begin
+  Fmain.CDSmarks.FieldByName('name').AsString := AMark.name;
+  Fmain.CDSmarks.FieldByName('Visible').AsBoolean := AMark.visible;
+  BlobFromExtArr(AMark.Points, Fmain.CDSmarks.FieldByName('LonLatArr'));
+  Fmain.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
+  Fmain.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
+  Fmain.CDSmarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
+  Fmain.CDSmarks.FieldByName('LonT').AsFloat := AMark.LLRect.Top;
+  Fmain.CDSmarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
+  Fmain.CDSmarks.FieldByName('LonB').AsFloat := AMark.LLRect.Bottom;
+  Fmain.CDSmarks.FieldByName('PicName').AsString := AMark.PicName;
+  Fmain.CDSmarks.FieldByName('Color1').AsInteger := AMark.Color1;
+  Fmain.CDSmarks.FieldByName('Color2').AsInteger := AMark.Color2;
+  Fmain.CDSmarks.FieldByName('Scale1').AsInteger := AMark.Scale1;
+  Fmain.CDSmarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
+end;
+
+function GetMarkByID(id:integer): TMarkFull;
+begin
+  Result := nil;
+  if FMain.CDSmarks.Locate('id',id,[]) then begin
+    Result := TMarkFull.Create;
+    ReadCurrentMark(Result);
+  end;
+end;
+
 function SaveMarks2File:boolean;
 var ms:TMemoryStream;
     XML:string;
@@ -263,7 +323,7 @@ begin
   end;
 end;
 
-procedure AddKategory(name:string);
+function AddKategory(name:string): Integer;
 begin
  Fmain.CDSKategory.Insert;
  Fmain.CDSKategory.FieldByName('name').AsString:=name;
@@ -271,6 +331,7 @@ begin
  Fmain.CDSKategory.FieldByName('AfterScale').AsInteger:=3;
  Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=18;
  Fmain.CDSKategory.post;
+ Result := Fmain.CDSKategory.FieldByName('id').AsInteger;
  SaveCategory2File;
 end;
 
