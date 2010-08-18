@@ -3920,18 +3920,18 @@ begin
 end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);
-var ms:TMemoryStream;
-    LL:TExtendedPoint;
-    arLL: TExtendedPointArray;
-    id:integer;
+var
+  LL:TExtendedPoint;
+  arLL: TExtendedPointArray;
+  id:integer;
 begin
  FWikiLayer.MouseOnReg(FPWL, moveTrue);
  if (not NMarkNav.Checked) then begin
    id:=strtoint(FPWL.numid);
    if not(CDSmarks.Locate('id',id,[])) then exit;
    arLL := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
-   if (arLL[0].Y=arLL[ms.size div 24-1].Y)and
-      (arLL[0].X=arLL[ms.size div 24-1].X)
+   if (arLL[0].Y=arLL[Length(arLL)-1].Y)and
+      (arLL[0].X=arLL[Length(arLL)-1].X)
       then begin
             LL.X:=CDSmarks.FieldByName('LonL').AsFloat+(CDSmarks.FieldByName('LonR').AsFloat-CDSmarks.FieldByName('LonL').AsFloat)/2;
             LL.Y:=CDSmarks.FieldByName('LatB').AsFloat+(CDSmarks.FieldByName('LatT').AsFloat-CDSmarks.FieldByName('LatB').AsFloat)/2;
