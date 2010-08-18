@@ -44,6 +44,8 @@ type
     FGeoConvert: ICoordConverter;
     FTargetRect: TRect;
     FZoom: Byte;
+    function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
+    function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
     procedure drawPath2Bitmap(pathll:TExtendedPointArray; color1, color2:TColor32; linew:integer; poly:boolean);
   public
     constructor Create(
@@ -63,6 +65,20 @@ begin
   FGeoConvert := AConverter;
   FTargetRect := ATargetRect;
   FZoom := FZoom;
+end;
+
+function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
+  Pnt: TPoint): TPoint;
+begin
+  Result.X := Pnt.X - FTargetRect.Left;
+  Result.Y := Pnt.Y - FTargetRect.Top;
+end;
+
+function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
+  Pnt: TExtendedPoint): TExtendedPoint;
+begin
+  Result.X := Pnt.X - FTargetRect.Left;
+  Result.Y := Pnt.Y - FTargetRect.Top;
 end;
 
 procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath2Bitmap(
@@ -86,7 +102,7 @@ begin
           VLonLat := pathll[i];
           FGeoConvert.CheckLonLatPos(VLonLat);
           k1:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
-          k1:=Point(k1.X-FTargetRect.Left,k1.Y-FTargetRect.Top);
+          k1:=MapPixel2BitmapPixel(k1);
           if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
             polygon.Add(FixedPoint(k1));
           end;
@@ -94,7 +110,7 @@ begin
             VLonLat := pathll[i+1];
             FGeoConvert.CheckLonLatPos(VLonLat);
             k2:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
-            k2:=Point(k2.X-FTargetRect.Left,k2.Y-FTargetRect.Top);
+            k2:=MapPixel2BitmapPixel(k2);
             if (k2.x-k1.x)>(k2.y-k1.y) then begin
               adp:=(k2.x-k1.x)div 32767+2;
             end else begin
@@ -224,7 +240,7 @@ begin
           end;
         end else if VPointCount =1 then begin
           xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
-          xy:=Point(xy.x - FTargetRect.Left, xy.y - FTargetRect.Top);
+          xy := MapPixel2BitmapPixel(xy);
           imw:=FMain.CDSmarks.FieldByName('Scale2').AsInteger;
           indexmi:=GState.MarkIcons.IndexOf(FMain.CDSmarks.FieldByName('picname').AsString);
           if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
