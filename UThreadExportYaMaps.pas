@@ -68,7 +68,7 @@ uses
   u_CoordConverterMercatorOnEllipsoid,
   i_BitmapTileSaveLoad,
   u_BitmapTileJpegSaverIJL,
-  u_BitmapTilePngNBitdepthSaver;
+  u_BitmapTileVampyreSaver;
 
 constructor TThreadExportYaMaps.Create(
   APath: string;
@@ -180,7 +180,7 @@ begin
       hxyi:=1;
       sizeim:=128;
       JPGSaver:=TJpegBitmapTileSaverIJL.create(cSat);
-      PNGSaver:=TPngBitmapTileNBitdepthSaver.create(cMap,8);
+      PNGSaver:=TVampyreBasicBitmapTileSaverPNGPalette.create(cMap);
       TileStream:=TMemoryStream.Create;
       bmp32:=TBitmap32.Create;
       bmp32.DrawMode:=dmBlend;
