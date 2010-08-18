@@ -81,7 +81,7 @@ type
     lenarr:integer;
     new_:boolean;
   public
-   function show_(aLL:array of TExtendedPoint;new:boolean):boolean;
+   function show_(aLL:TExtendedPointArray;new:boolean):boolean;
   end;
 
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
@@ -93,7 +93,7 @@ implementation
 
 {$R *.dfm}
 
-function TFAddPoly.show_(aLL:array of TExtendedPoint;new:boolean):boolean;
+function TFAddPoly.show_(aLL:TExtendedPointArray;new:boolean):boolean;
 var
     i:integer;
     namecatbuf:string;
