@@ -14,7 +14,7 @@ type
  TPLTData = record
   Name:string;
   description:string;
-  coordinates:array of TExtendedpoint;
+  coordinates:TExtendedPointArray;
   coordinatesLT:TExtendedPoint;
   coordinatesRD:TExtendedPoint;
  end;
