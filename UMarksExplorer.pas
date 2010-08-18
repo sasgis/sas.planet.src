@@ -155,9 +155,23 @@ begin
 end;
 
 function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+var
+  VSize: Integer;
+  VPointsCount: Integer;
+  VField: TBlobfield;
+  VStream: TStream;
 begin
-  SetLength(result,TBlobfield(BlobField).BlobSize div 24);
-  CopyMemory(@result[0],@TBlobfield(Blobfield).Value[1],TBlobfield(BlobField).BlobSize);
+  VField := TBlobfield(BlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
+  try
+    VSize := VStream.Size;
+    VPointsCount := VSize div SizeOf(TExtendedPoint);
+    VSize := VPointsCount * SizeOf(TExtendedPoint);
+    SetLength(result,VPointsCount);
+    VStream.ReadBuffer(Result[0], VSize);
+  finally
+    VStream.Free;
+  end;
 end;
 
 function EditMark(id:integer):boolean;
