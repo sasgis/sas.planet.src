@@ -195,10 +195,7 @@ begin
         begin
          if markignor then Continue;
          Fmain.CDSmarks.Insert;
-         ms:=TMemoryStream.Create;
-         ms.WriteBuffer(KML.Data[i].coordinates[0],SIZEOF(TExtendedPoint));
-         TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
-         ms.free;
+         BlobFromExtArr(KML.Data[i].coordinates[0], Fmain.CDSmarks.FieldByName('LonLatArr'));
          Fmain.CDSmarks.FieldByName('name').AsString:=KML.Data[i].Name;
          Fmain.CDSmarks.FieldByName('descr').AsString:=KML.Data[i].description;
          Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
@@ -230,10 +227,7 @@ begin
            if allbr.x<KML.Data[i].coordinates[j].x then allbr.x:=KML.Data[i].coordinates[j].x;
            if allbr.y>KML.Data[i].coordinates[j].y then allbr.y:=KML.Data[i].coordinates[j].y;
           end;
-         ms:=TMemoryStream.Create;
-         ms.WriteBuffer(KML.Data[i].coordinates[0],lenarr*24);
-         TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
-         ms.free;
+         BlobFromExtArr(KML.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
          Fmain.CDSmarks.FieldByName('name').AsString:=KML.Data[i].Name;
          Fmain.CDSmarks.FieldByName('descr').AsString:=KML.Data[i].description;
          Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
@@ -261,10 +255,7 @@ begin
            if allbr.x<KML.Data[i].coordinates[j].x then allbr.x:=KML.Data[i].coordinates[j].x;
            if allbr.y>KML.Data[i].coordinates[j].y then allbr.y:=KML.Data[i].coordinates[j].y;
           end;
-         ms:=TMemoryStream.Create;
-         ms.WriteBuffer(KML.Data[i].coordinates[0],lenarr*24);
-         TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
-         ms.free;
+         BlobFromExtArr(KML.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
          Fmain.CDSmarks.FieldByName('name').AsString:=KML.Data[i].Name;
          Fmain.CDSmarks.FieldByName('descr').AsString:=KML.Data[i].description;
          Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
@@ -292,10 +283,7 @@ begin
         begin
          if markignor then Continue;
          Fmain.CDSmarks.Insert;
-         ms:=TMemoryStream.Create;
-         ms.WriteBuffer(PLT.Data[i].coordinates[0],SIZEOF(TExtendedPoint));
-         TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
-         ms.free;
+         BlobFromExtArr(PLT.Data[i].coordinates[0], Fmain.CDSmarks.FieldByName('LonLatArr'));
          Fmain.CDSmarks.FieldByName('name').AsString:=PLT.Data[i].Name;
          Fmain.CDSmarks.FieldByName('descr').AsString:=PLT.Data[i].description;
          Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
@@ -327,10 +315,7 @@ begin
            if allbr.x<PLT.Data[i].coordinates[j].x then allbr.x:=PLT.Data[i].coordinates[j].x;
            if allbr.y>PLT.Data[i].coordinates[j].y then allbr.y:=PLT.Data[i].coordinates[j].y;
           end;
-         ms:=TMemoryStream.Create;
-         ms.WriteBuffer(PLT.Data[i].coordinates[0],lenarr*24);
-         TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
-         ms.free;
+         BlobFromExtArr(PLT.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
          Fmain.CDSmarks.FieldByName('name').AsString:=PLT.Data[i].Name;
          Fmain.CDSmarks.FieldByName('descr').AsString:=PLT.Data[i].description;
          Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
@@ -358,10 +343,7 @@ begin
            if allbr.x<PLT.Data[i].coordinates[j].x then allbr.x:=PLT.Data[i].coordinates[j].x;
            if allbr.y>PLT.Data[i].coordinates[j].y then allbr.y:=PLT.Data[i].coordinates[j].y;
           end;
-         ms:=TMemoryStream.Create;
-         ms.WriteBuffer(PLT.Data[i].coordinates[0],lenarr*24);
-         TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
-         ms.free;
+         BlobFromExtArr(PLT.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
          Fmain.CDSmarks.FieldByName('name').AsString:=PLT.Data[i].Name;
          Fmain.CDSmarks.FieldByName('descr').AsString:=PLT.Data[i].description;
          Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
