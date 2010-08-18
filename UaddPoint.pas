@@ -180,18 +180,17 @@ end;
 
 procedure TFaddPoint.BaddClick(Sender: TObject);
 var
-    ms:TMemoryStream;
     All:TExtendedPoint;
+    VArrLL: TExtendedPointArray;
 begin
  ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
  Fmain.CDSmarks.FieldByName('name').AsString:=EditName.Text;
  Fmain.CDSmarks.FieldByName('descr').AsString:=EditComment.Text;
- ms:=TMemoryStream.Create;
- ms.WriteBuffer(All,SIZEOF(TExtendedPoint));
- TBlobField(Fmain.CDSmarks.FieldByName('LonLatArr')).LoadFromStream(ms);
- ms.free;
+ SetLength(VArrLL, 1);
+ VArrLL[0] := All;
+ BlobFromExtArr(VArrLL, Fmain.CDSmarks.FieldByName('LonLatArr'));
  Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
  Fmain.CDSmarks.FieldByName('Scale2').AsInteger:=SpinEdit2.Value;
  Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
