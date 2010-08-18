@@ -632,7 +632,6 @@ type
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
-    class   function  timezone(lon, lat: real): TDateTime;
     procedure selectMap(AMapType: TMapType);
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
@@ -677,7 +676,6 @@ uses
   Unit4,
   USelLonLat,
   UImgFun,
-  UtimeZones,
   UaddLine,
   UaddPoly,
   UEditMap,
@@ -1369,18 +1367,6 @@ begin
    TBXSignalStrength.Caption:=RoundEx(GPSpar.SignalStrength,2)+' ('+inttostr(GPSpar.SatCount)+')'
  except
  end;
-end;
-
-class function TFmain.timezone(lon,lat:real):TDateTime;
-var prH,prM:integer;
-    tz:real;
-    st:TSystemTime;
-begin
- tz:=GetTZ_(ExtPoint(Lon,Lat));
- GetSystemTime(st);
- prH:=trunc(tz);
- prM:=round(60*frac(TZ));
- result:=EncodeTime(abs(st.wHour+prH+24)mod 24,abs(st.wMinute+prM+60)mod 60,0,0);
 end;
 
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
