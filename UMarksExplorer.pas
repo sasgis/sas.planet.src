@@ -176,7 +176,7 @@ end;
 
 function EditMark(id:integer):boolean;
 var arrLL:PArrLL;
-    arLL:array of TExtendedPoint;
+    arLL:TExtendedPointArray;
     ms:TMemoryStream;
     i:integer;
 begin

@@ -72,7 +72,7 @@ type
     lenarr:integer;
     new_:boolean;
   public
-    function show_(aLL:array of TExtendedPoint;new:boolean; Amarshrutcomment: string):boolean;
+    function show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
   end;
 
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
@@ -83,7 +83,7 @@ var
 implementation
 
 {$R *.dfm}
-function TFaddLine.show_(aLL:array of TExtendedPoint;new:boolean; Amarshrutcomment: string):boolean;
+function TFaddLine.show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
 var
     i:integer;
     namecatbuf:string;
