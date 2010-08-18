@@ -388,7 +388,7 @@ begin
           end;
           if VScale1>0 then begin
             FLayer.Bitmap.Font.Size:=VScale1;
-            texth:=FLayer.Bitmap.TextHeight(FMain.CDSmarksname.asString) div 2;
+            texth:=FLayer.Bitmap.TextHeight(VMarkName) div 2;
             FLayer.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
             FLayer.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
           end;
