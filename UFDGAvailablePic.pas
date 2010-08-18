@@ -121,6 +121,37 @@ uses
   i_ICoordConverter,
   u_GlobalState,
   u_GeoToStr;
+function EncodeDG(S: string): string;
+var i: integer;
+begin
+ result:=S;
+ for i:=1 to length(s) do
+  if ord(s[i]) mod 2 = 0 then result[i]:=chr(ord(s[i])+1)
+                         else result[i]:=chr(ord(s[i])-1);
+end;
+
+function Encode64(S: string): string;
+const Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+var i,a,x,b: Integer;
+begin
+ Result:='';
+ a:=0;
+ b:=0;
+ for i := 1 to Length(s) do
+  begin
+   x:=Ord(s[i]);
+   b:=b*256+x;
+   a:=a+8;
+   while a >= 6 do
+    begin
+     a := a-6;
+     x := b div (1 shl a);
+     b := b mod (1 shl a);
+     Result := Result + Codes64[x + 1];
+    end;
+  end;
+ if a>0 then Result:=Result+Codes64[(b shl (6-a))+1];
+end;
 
 type
   TDGPicture = class
@@ -485,7 +516,7 @@ end;
 
 procedure TFDGAvailablePic.Button3Click(Sender: TObject);
 begin
- CopyStringToClipboard(TIDs);
+  FMain.CopyStringToClipboard(TIDs);
 end;
 
 procedure TFDGAvailablePic.FormCreate(Sender: TObject);

@@ -605,6 +605,8 @@ type
     procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
     procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
+    procedure CopyBtmToClipboard(btm: TBitmap);
+    function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
   public
     FGoogleSearch: TGeoSearcher;
     FYandexSerach: TGeoSearcher;
@@ -638,22 +640,15 @@ type
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
     procedure UpdateGPSsensors;
+    procedure CopyStringToClipboard(s: Widestring);
   end;
-  
+
 
 const
   GSHprec=100000000;
 
 var
   Fmain: TFmain;
-
-  procedure CopyStringToClipboard(s: Widestring);
-  procedure CopyBtmToClipboard(btm: TBitmap);
-  function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
-  function EncodeDG(S: string): string;
-  function Encode64(S: string): string;
-  function URLDecode(const S: string): string;
-  function URLEncode(const S: string): string;
 
 implementation
 
@@ -896,158 +891,7 @@ begin
  Flock_toolbars:=value;
 end;
 
-function DigitToHex(Digit: Integer): Char;
-begin
-  case Digit of
-    0..9: Result := Chr(Digit + Ord('0'));
-    10..15: Result := Chr(Digit - 10 + Ord('A'));
-    else Result := '0';
-  end;
-end; // DigitToHex
-
-function EncodeDG(S: string): string;
-var i: integer;
-begin
- result:=S;
- for i:=1 to length(s) do
-  if ord(s[i]) mod 2 = 0 then result[i]:=chr(ord(s[i])+1)
-                         else result[i]:=chr(ord(s[i])-1);
-end;
-
-function Encode64(S: string): string;
-const Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-var i,a,x,b: Integer;
-begin
- Result:='';
- a:=0;
- b:=0;
- for i := 1 to Length(s) do
-  begin
-   x:=Ord(s[i]);
-   b:=b*256+x;
-   a:=a+8;
-   while a >= 6 do
-    begin
-     a := a-6;
-     x := b div (1 shl a);
-     b := b mod (1 shl a);
-     Result := Result + Codes64[x + 1];
-    end;
-  end;
- if a>0 then Result:=Result+Codes64[(b shl (6-a))+1];
-end;
-
-function Decode64(S: string): string;
-const Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-var i,a,x,b: Integer;
-begin
- Result := '';
- a := 0;
- b := 0;
- for i := 1 to Length(s) do
-  begin
-   x := System.Pos(s[i], codes64) - 1;
-   if x>=0 then begin
-                 b := b * 64 + x;
-                 a := a + 6;
-                 if a >= 8 then
-                  begin
-                   a := a - 8;
-                   x := b shr a;
-                   b := b mod (1 shl a);
-                   x := x mod 256;
-                   Result := Result + chr(x);
-                  end;
-               end
-           else Exit;
-   end;
-end;
-
-function URLEncode(const S: string): string;
-var i, idx, len: Integer;
-begin
-  len := 0;
-  for i := 1 to Length(S) do
-   if ((S[i] >= '0') and (S[i] <= '9')) or
-      ((S[i] >= 'A') and (S[i] <= 'Z')) or
-      ((S[i] >= 'a') and (S[i] <= 'z')) or (S[i] = ' ') or
-      (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.')
-      then len := len + 1
-      else len := len + 3;
-  SetLength(Result, len);
-  idx := 1;
-  for i := 1 to Length(S) do
-    if S[i] = ' ' then
-    begin
-      Result[idx] := '+';
-      idx := idx + 1;
-    end
-    else if ((S[i] >= '0') and (S[i] <= '9')) or
-    ((S[i] >= 'A') and (S[i] <= 'Z')) or
-    ((S[i] >= 'a') and (S[i] <= 'z')) or
-    (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.') then
-    begin
-      Result[idx] := S[i];
-      idx := idx + 1;
-    end
-    else
-    begin
-      Result[idx] := '%';
-      Result[idx + 1] := DigitToHex(Ord(S[i]) div 16);
-      Result[idx + 2] := DigitToHex(Ord(S[i]) mod 16);
-      idx := idx + 3;
-    end;
-end; // URLEncode
-
-function URLDecode(const S: string): string;
-var i, idx, len, n_coded: Integer;
-  function WebHexToInt(HexChar: Char): Integer;
-  begin
-    if HexChar < '0' then
-      Result := Ord(HexChar) + 256 - Ord('0')
-    else if HexChar <= Chr(Ord('A') - 1) then
-      Result := Ord(HexChar) - Ord('0')
-    else if HexChar <= Chr(Ord('a') - 1) then
-      Result := Ord(HexChar) - Ord('A') + 10
-    else Result := Ord(HexChar) - Ord('a') + 10;
-  end;
-begin
-  len := 0;
-  n_coded := 0;
-  for i := 1 to Length(S) do
-    if n_coded >= 1 then
-    begin
-      n_coded := n_coded + 1;
-      if n_coded >= 3 then n_coded := 0;
-    end
-    else
-    begin
-      len := len + 1;
-      if S[i] = '%' then n_coded := 1;
-    end;
-  SetLength(Result, len);
-  idx := 0;
-  n_coded := 0;
-  for i := 1 to Length(S) do
-    if n_coded >= 1 then
-    begin
-      n_coded := n_coded + 1;
-      if n_coded >= 3 then
-      begin
-        Result[idx] := Chr((WebHexToInt(S[i - 1]) * 16 + WebHexToInt(S[i])) mod 256);
-        n_coded := 0;
-      end;
-    end
-    else
-    begin
-      idx := idx + 1;
-      if S[i] = '%' then n_coded := 1;
-      if S[i] = '+' then Result[idx] := ' '
-                    else Result[idx] := S[i];
-    end;
-end;
-
-procedure CopyBtmToClipboard(btm: TBitmap);
+procedure TFmain.CopyBtmToClipboard(btm: TBitmap);
 var hSourcDC, hDestDC, hBM, hbmOld: THandle;
 begin
   hSourcDC := btm.Canvas.Handle;
@@ -1055,7 +899,7 @@ begin
   hBM := CreateCompatibleBitmap(hSourcDC, btm.width, btm.height);
   hbmold:= SelectObject(hDestDC, hBM);
   BitBlt(hDestDC, 0, 0, btm.width, btm.height, hSourcDC, 0, 0, SRCCopy);
-  OpenClipBoard(fmain.handle);
+  OpenClipBoard(handle);
   EmptyClipBoard;
   SetClipBoardData(CF_Bitmap, hBM);
   CloseClipBoard;
@@ -1065,11 +909,11 @@ begin
   DeleteDC(hSourcDC);
 end;
 
-procedure CopyStringToClipboard(s: Widestring);
+procedure TFmain.CopyStringToClipboard(s: Widestring);
 var hg: THandle;
     P: PChar;
 begin
-  if OpenClipboard(FMain.Handle) then
+  if OpenClipboard(Handle) then
   begin
     try
       EmptyClipBoard;
@@ -2895,7 +2739,7 @@ begin
  end
 end;
 
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+function TFmain.GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
 var par,ty:string;
     err:boolean;
     Buffer:array [1..64535] of char;
