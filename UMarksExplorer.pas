@@ -96,6 +96,7 @@ var
   function GetMarkLength(id:integer):extended;
   function GetMarkSq(id:integer):extended;
   function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+  procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield);
   function SaveMarks2File:boolean;
   function SaveCategory2File:boolean;
   function EditMarkF(id:integer; var arr:TExtendedPointArray):TAOperation;
@@ -169,6 +170,21 @@ begin
     VSize := VPointsCount * SizeOf(TExtendedPoint);
     SetLength(result,VPointsCount);
     VStream.ReadBuffer(Result[0], VSize);
+  finally
+    VStream.Free;
+  end;
+end;
+procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+  VPointsCount: Integer;
+begin
+  VField := TBlobfield(BlobField);
+  VPointsCount := Length(AArr);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    VStream.Write(AArr[0], VPointsCount * SizeOf(AArr[0]));
   finally
     VStream.Free;
   end;
