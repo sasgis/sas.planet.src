@@ -107,7 +107,6 @@ var
   function DeleteMark(id:integer;handle:THandle):boolean;
   function OperationMark(id:integer):boolean;
   function AddKategory(name:string): integer;
-  procedure Kategory2Strings(strings:TStrings);
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
   function EditMark(id:integer):boolean;
   procedure GoToMark(id:integer;zoom:byte);
@@ -119,6 +118,7 @@ var
   function SaveMarks2File:boolean;
   function SaveCategory2File:boolean;
   function EditMarkF(id:integer; var arr:TExtendedPointArray):TAOperation;
+  function GetMarksFileterByCategories(AZoom: Byte): string;
 
 implementation
 
@@ -149,6 +149,32 @@ begin
   Fmain.CDSKategory.FieldByName('visible').AsBoolean:=ACategory.visible;
   Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger:=ACategory.AfterScale;
   Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger:=ACategory.BeforeScale;
+end;
+
+function GetMarksFileterByCategories(AZoom: Byte): string;
+begin
+  Result := '';
+  if GState.show_point = mshChecked then begin
+    FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(AZoom + 1)+' and BeforeScale >= '+inttostr(AZoom + 1)+' )';
+    FMain.CDSKategory.Filtered:=true;
+    FMain.CDSKategory.First;
+    if FMain.CDSKategory.Eof then begin
+      FMain.CDSKategory.Filtered:=false;
+      exit;
+    end;
+    if not(FMain.CDSKategory.Eof) then begin
+      Result:=Result+'(';
+      while not(FMain.CDSKategory.Eof) do begin
+        Result:=Result+'categoryid='+FMain.CDSKategory.fieldbyname('id').AsString;
+        FMain.CDSKategory.Next;
+        if not(FMain.CDSKategory.Eof) then begin
+          Result:=Result+' or ';
+        end;
+      end;
+      Result:=Result+')';
+    end;
+    FMain.CDSKategory.Filtered:=false;
+  end;
 end;
 
 procedure ReadCurrentMark(AMark: TMarkFull);
@@ -330,17 +356,6 @@ begin
         result:=ao_edit_line;
       end
     end;
-  end;
-end;
-
-procedure Kategory2Strings(strings:TStrings);
-begin
- Fmain.CDSKategory.Filtered:=false;
- Fmain.CDSKategory.First;
- while not(Fmain.CDSKategory.Eof) do
-  begin
-   strings.Add(Fmain.CDSKategory.FieldByName('name').AsString);
-   Fmain.CDSKategory.Next;
   end;
 end;
 

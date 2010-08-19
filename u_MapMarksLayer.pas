@@ -125,26 +125,9 @@ begin
     LLRect := AGeoConvert.PixelRect2LonLatRect(ATargetRect, AZoomCurr);
     marksFilter:='';
     if GState.show_point = mshChecked then begin
-      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(AZoomCurr + 1)+' and BeforeScale >= '+inttostr(AZoomCurr + 1)+' )';
-      FMain.CDSKategory.Filtered:=true;
       marksFilter:=marksFilter+'visible=1';
-      FMain.CDSKategory.First;
-      if FMain.CDSKategory.Eof then begin
-        FMain.CDSKategory.Filtered:=false;
-        exit;
-      end;
-      if not(FMain.CDSKategory.Eof) then begin
-        marksFilter:=marksFilter+' and (';
-        while not(FMain.CDSKategory.Eof) do begin
-          marksFilter:=marksFilter+'categoryid='+FMain.CDSKategory.fieldbyname('id').AsString;
-          FMain.CDSKategory.Next;
-          if not(FMain.CDSKategory.Eof) then begin
-            marksFilter:=marksFilter+' or ';
-          end;
-        end;
-        marksFilter:=marksFilter+')';
-      end;
-      FMain.CDSKategory.Filtered:=false;
+      marksFilter:=marksFilter+' and ';
+      marksFilter:=marksFilter + GetMarksFileterByCategories(FZoom);
       marksFilter:=marksFilter+' and ';
     end;
     dLL:=ExtPoint((LLRect.Right-LLRect.Left)/2,(LLRect.Top-LLRect.Bottom)/2);
@@ -314,26 +297,9 @@ begin
       marksFilter:='';
     end;
     if GState.show_point = mshChecked then begin
-      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(FZoom + 1)+' and BeforeScale >= '+inttostr(FZoom + 1)+' )';
-      FMain.CDSKategory.Filtered:=true;
       marksFilter:=marksFilter+'visible=1';
-      FMain.CDSKategory.First;
-      if FMain.CDSKategory.Eof then begin
-        FMain.CDSKategory.Filtered:=false;
-        exit;
-      end;
-      if not(FMain.CDSKategory.Eof) then begin
-        marksFilter:=marksFilter+' and (';
-        while not(FMain.CDSKategory.Eof) do begin
-          marksFilter:=marksFilter+'categoryid='+FMain.CDSKategory.fieldbyname('id').AsString;
-          FMain.CDSKategory.Next;
-          if not(FMain.CDSKategory.Eof) then begin
-            marksFilter:=marksFilter+' or ';
-          end;
-        end;
-        marksFilter:=marksFilter+')';
-      end;
-      FMain.CDSKategory.Filtered:=false;
+      marksFilter:=marksFilter+' and ';
+      marksFilter:=marksFilter + GetMarksFileterByCategories(FZoom);
       marksFilter:=marksFilter+' and ';
     end;
     marksFilter:=marksFilter+'('+
