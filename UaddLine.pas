@@ -141,6 +141,8 @@ var i:integer;
     alltl,allbr:TExtendedPoint;
     VPointCount: integer;
     VCategory: TCategoryId;
+    VIndex: Integer;
+    VId: Integer;
 begin
 { if new_ then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;     }
@@ -165,16 +167,21 @@ begin
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
  Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
- if CBKateg.ItemIndex < 0 then begin
-  Fmain.CDSmarks.FieldByName('categoryid').AsInteger := AddKategory(CBKateg.Text);
- end else begin
-  VCategory := TCategoryId(CBKateg.Items.Objects[CBKateg.ItemIndex]);
-  if VCategory <> nil then begin
-    Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VCategory.id;
-  end else begin
-    Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=AddKategory(CBKateg.Text);
+  VIndex := CBKateg.ItemIndex;
+  if VIndex < 0 then begin
+    VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
   end;
- end;
+  if VIndex < 0 then begin
+    VId := AddKategory(CBKateg.Text);
+  end else begin
+    VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
+    if VCategory <> nil then begin
+      VId := VCategory.id;
+    end else begin
+      VId := AddKategory(CBKateg.Text);
+    end;
+  end;
+  Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VId;
  Fmain.CDSmarks.Post;
  SaveMarks2File;
  close;
