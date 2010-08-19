@@ -208,13 +208,16 @@ function TCoordConverterAbstract.PoligonProject(AZoom: byte;
 var
   i: integer;
   VTilesAtZoom: Integer;
+  VPoint: TExtendedPoint;
 begin
   VTilesAtZoom := TilesAtZoomInternal(AZoom);
   SetLength(Result, length(APolyg));
   for i := 0 to length(APolyg) - 1 do begin
-    Result[i] := LonLat2PosInternal(Apolyg[i], AZoom);
+    VPoint := Apolyg[i];
+    CheckLonLatPosInternal(VPoint);
+    Result[i] := LonLat2PosInternal(VPoint, AZoom);
     if Result[i].y < 0 then begin
-      Result[i].y := 1;
+      Result[i].y := 0;
     end;
     if Result[i].y > VTilesAtZoom then begin
       Result[i].y := VTilesAtZoom - 1;
