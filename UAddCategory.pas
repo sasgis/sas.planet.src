@@ -15,6 +15,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  UMarksExplorer,
   UResStrings;
 
 type
@@ -33,8 +34,9 @@ type
     procedure BaddClick(Sender: TObject);
   private
     new_:boolean;
+    FCategory:TCategoryId;
   public
-   procedure show_(new:boolean);
+   function show_(ACategory:TCategoryId): Boolean;
   end;
 
 var
@@ -42,16 +44,14 @@ var
 
 implementation
 
-uses
-  Unit1,
-  UMarksExplorer;
-
 {$R *.dfm}
-procedure TFAddCategory.show_(new:boolean);
+function TFAddCategory.show_(ACategory:TCategoryId): Boolean;
 begin
- new_:=new;
+  Result := False;
+  FCategory := ACategory;
+ new_:=FCategory.id < 0;
  EditName.Text:=SAS_STR_NewPoly;
- if new then begin
+ if new_ then begin
               EditName.Text:=SAS_STR_NewCategory;
               FaddCategory.Caption:=SAS_STR_AddNewCategory;
               Badd.Caption:=SAS_STR_Add;
@@ -60,22 +60,19 @@ begin
         else begin
               FaddCategory.Caption:=SAS_STR_EditCategory;
               Badd.Caption:=SAS_STR_Edit;
-              EditName.Text:=Fmain.CDSKategory.FieldByName('name').AsString;
-              EditS1.Value:=Fmain.CDSKategory.FieldByName('AfterScale').AsInteger;
-              EditS2.Value:=Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger;
-              CBShow.Checked:=Fmain.CDSKategory.FieldByName('visible').AsBoolean;
+              EditName.Text:=FCategory.name;
+              EditS1.Value:=FCategory.AfterScale;
+              EditS2.Value:=FCategory.BeforeScale;
+              CBShow.Checked:=FCategory.visible;
              end;
+  Result := ShowModal = mrOk;
 end;
 procedure TFAddCategory.BaddClick(Sender: TObject);
 begin
- if new_ then Fmain.CDSKategory.Insert
-         else Fmain.CDSKategory.Edit;
- Fmain.CDSKategory.FieldByName('name').AsString:=EditName.Text;
- Fmain.CDSKategory.FieldByName('AfterScale').AsInteger:=EditS1.Value;
- Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=EditS2.Value;
- Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CBShow.Checked;
- Fmain.CDSKategory.Post;
- SaveCategory2File;
+  FCategory.name:=EditName.Text;
+  FCategory.AfterScale:=EditS1.Value;
+  FCategory.BeforeScale:=EditS2.Value;
+  FCategory.visible:=CBShow.Checked;
 end;
 
 end.

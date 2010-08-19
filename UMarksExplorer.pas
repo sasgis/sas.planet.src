@@ -609,13 +609,20 @@ begin
 end;
 
 procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
+var
+  VIndex: integer;
+  VCategory: TCategoryId;
 begin
- if KategoryListBox.ItemIndex>=0 then
-  begin
-   Fmain.CDSKategory.Locate('id',TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id,[]);
-   FaddCategory.show_(false);
-   FaddCategory.ShowModal;
-   KategoryListBox.Items.Strings[KategoryListBox.ItemIndex]:=Fmain.CDSKategory.fieldbyname('name').asString;
+  VIndex := KategoryListBox.ItemIndex;
+  if VIndex >=0 then begin
+    VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+    FaddCategory.show_(VCategory);
+    Fmain.CDSKategory.Locate('id',VCategory.id,[]);
+    Fmain.CDSKategory.Edit;
+    WriteCurrentCategory(VCategory);
+    Fmain.CDSKategory.Post;
+    SaveCategory2File;
+    KategoryListBox.Items.Strings[VIndex]:=VCategory.name;
   end;
 end;
 
@@ -694,17 +701,23 @@ begin
 end;
 
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);
-var KategoryId:TCategoryId;
+var
+  VCategory: TCategoryId;
+  VIndex: Integer;
 begin
- FaddCategory.show_(true);
- FaddCategory.ShowModal;
- if FaddCategory.ModalResult=mrOk then
-  begin
-   KategoryId:=TCategoryId.Create;
-   KategoryId.name:=Fmain.CDSKategory.fieldbyname('name').AsString;
-   KategoryId.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
-   KategoryListBox.AddItem(Fmain.CDSKategory.fieldbyname('name').AsString,KategoryId);
-   KategoryListBox.Checked[KategoryListBox.Items.IndexOfObject(KategoryId)]:=Fmain.CDSKategory.fieldbyname('visible').AsBoolean;
+  VCategory := TCategoryId.Create;
+  VCategory.id := -1;
+
+  if FaddCategory.show_(VCategory) then begin
+    Fmain.CDSKategory.Insert;
+    WriteCurrentCategory(VCategory);
+    Fmain.CDSKategory.Post;
+    SaveCategory2File;
+    VCategory.id := Fmain.CDSKategory.fieldbyname('id').AsInteger;
+    VIndex := KategoryListBox.Items.AddObject(VCategory.name, VCategory);
+    KategoryListBox.Checked[VIndex]:=VCategory.visible;
+  end else begin
+    VCategory.Free;
   end;
 end;
 
