@@ -331,7 +331,6 @@ procedure Kategory2StringsWithObjects(AStrings:TStrings);
 var
   KategoryId:TCategoryId;
   i: Integer;
-  VObject: TObject;
 begin
   for i := 0 to AStrings.Count - 1 do begin
     AStrings.Objects[i].Free;

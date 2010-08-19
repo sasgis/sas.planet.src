@@ -80,6 +80,7 @@ type
     FarrLL:TExtendedPointArray;
     new_:boolean;
   public
+    destructor Destroy; override;
    function show_(aLL:TExtendedPointArray;new:boolean):boolean;
   end;
 
@@ -95,6 +96,9 @@ implementation
 function TFAddPoly.show_(aLL:TExtendedPointArray;new:boolean):boolean;
 var
     namecatbuf:string;
+  i: Integer;
+  VCategory: TCategoryId;
+  VId: integer;
 begin
  if new  then Fmain.CDSmarks.Insert
          else Fmain.CDSmarks.Edit;
@@ -103,8 +107,7 @@ begin
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewPoly;
  namecatbuf:=CBKateg.Text;
- CBKateg.Clear;
- Kategory2Strings(CBKateg.Items);
+ Kategory2StringsWithObjects(CBKateg.Items);
  CBKateg.Sorted:=true;
  CBKateg.Text:=namecatbuf;
  if new then begin
@@ -123,8 +126,16 @@ begin
               ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
               ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
               CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
-              Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
-              CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
+              VId := Fmain.CDSmarkscategoryid.AsInteger;
+              for i := 0 to CBKateg.Items.Count - 1 do begin
+                VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+                if VCategory <> nil then begin
+                  if VCategory.id = VId then begin
+                    CBKateg.ItemIndex := i;
+                    Break;
+                  end;
+                end;
+              end;
              end;
   FaddPoly.ShowModal;
   result:=ModalResult=mrOk;
@@ -140,6 +151,7 @@ procedure TFAddPoly.BaddClick(Sender: TObject);
 var i:integer;
     alltl,allbr:TExtendedPoint;
     VPointCount: integer;
+    VCategory: TCategoryId;
 begin
  alltl:=FarrLL[0];
  allbr:=FarrLL[0];
@@ -163,9 +175,16 @@ begin
  Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
  Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
  Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
- if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-  then AddKategory(CBKateg.Text);
- Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+ if CBKateg.ItemIndex < 0 then begin
+  Fmain.CDSmarks.FieldByName('categoryid').AsInteger := AddKategory(CBKateg.Text);
+ end else begin
+  VCategory := TCategoryId(CBKateg.Items.Objects[CBKateg.ItemIndex]);
+  if VCategory <> nil then begin
+    Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VCategory.id;
+  end else begin
+    Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=AddKategory(CBKateg.Text);
+  end;
+ end;
  Fmain.CDSmarks.Post;
  SaveMarks2File;
  close;
@@ -175,6 +194,17 @@ end;
 procedure TFAddPoly.Button2Click(Sender: TObject);
 begin
  close;
+end;
+
+destructor TFAddPoly.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to CBKateg.Items.Count - 1 do begin
+    CBKateg.Items.Objects[i].Free;
+  end;
+  CBKateg.Items.Clear;
+  inherited;
 end;
 
 procedure TFAddPoly.SpeedButton1Click(Sender: TObject);

@@ -155,8 +155,7 @@ end;
 
 procedure TFImport.FormShow(Sender: TObject);
 begin
- CBKateg.Clear;
- Kategory2Strings(CBKateg.Items);
+ Kategory2StringsWithObjects(CBKateg.Items);
 end;
 
 procedure TFImport.Button2Click(Sender: TObject);
@@ -171,13 +170,23 @@ var KML:TKmlInfoSimple;
     ms:TMemoryStream;
     alltl,allbr:TExtendedPoint;
     markignor,pathignor,polyignor:boolean;
+    VCategory: TCategoryId;
+    VId: Integer;
 begin
  markignor:=CBMarkIgnor.Checked;
  pathignor:=CBPathIgnor.Checked;
  polyignor:=CBPolyIgnor.Checked;
   begin
-   if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-    then AddKategory(CBKateg.Text);
+   if CBKateg.ItemIndex < 0 then begin
+    VId := AddKategory(CBKateg.Text);
+   end else begin
+    VCategory := TCategoryId(CBKateg.Items.Objects[CBKateg.ItemIndex]);
+    if VCategory <> nil then begin
+      VId := VCategory.id;
+    end else begin
+      VId:=AddKategory(CBKateg.Text);
+    end;
+   end;
    if (LowerCase(ExtractFileExt(FileName))='.kml') or (LowerCase(ExtractFileExt(FileName))='.kmz') then
     begin
      KML:=TKmlInfoSimple.Create;
@@ -208,9 +217,7 @@ begin
          Fmain.CDSmarks.FieldByName('LatT').AsFloat:=KML.Data[i].coordinates[0].y;
          Fmain.CDSmarks.FieldByName('LonR').AsFloat:=KML.Data[i].coordinates[0].x;
          Fmain.CDSmarks.FieldByName('LatB').AsFloat:=KML.Data[i].coordinates[0].y;
-         if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-          then AddKategory(CBKateg.Text);
-         Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
         end
        else
        if (KML.Data[i].coordinates[0].X=KML.Data[i].coordinates[lenarr-1].X)and
@@ -238,7 +245,7 @@ begin
          Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
          Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
          Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
         end
        else
        if (KML.Data[i].coordinates[0].X<>KML.Data[i].coordinates[lenarr-1].X)or
@@ -265,9 +272,7 @@ begin
          Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
          Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
          Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-          then AddKategory(CBKateg.Text);
-         Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
         end;
       end;
      KML.Free;
@@ -296,9 +301,7 @@ begin
          Fmain.CDSmarks.FieldByName('LatT').AsFloat:=PLT.Data[i].coordinates[0].y;
          Fmain.CDSmarks.FieldByName('LonR').AsFloat:=PLT.Data[i].coordinates[0].x;
          Fmain.CDSmarks.FieldByName('LatB').AsFloat:=PLT.Data[i].coordinates[0].y;
-         if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-          then AddKategory(CBKateg.Text);
-         Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
         end
        else
        if (PLT.Data[i].coordinates[0].X=PLT.Data[i].coordinates[lenarr-1].X)and
@@ -326,7 +329,7 @@ begin
          Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
          Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
          Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
         end
        else
        if (PLT.Data[i].coordinates[0].X<>PLT.Data[i].coordinates[lenarr-1].X)or
@@ -353,9 +356,7 @@ begin
          Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
          Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
          Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-          then AddKategory(CBKateg.Text);
-         Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
         end;
       end;
      plt.Free;
