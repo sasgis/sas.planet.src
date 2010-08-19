@@ -153,6 +153,20 @@ begin
   Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger:=ACategory.BeforeScale;
 end;
 
+procedure WriteCategory(ACategory: TCategoryId);
+begin
+  if ACategory.id < 0 then begin
+    Fmain.CDSKategory.Insert;
+  end else begin
+    Fmain.CDSKategory.Locate('id', ACategory.id,[]);
+    Fmain.CDSKategory.Edit;
+  end;
+  WriteCurrentCategory(ACategory);
+  Fmain.CDSKategory.post;
+  ACategory.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
+  SaveCategory2File;
+end;
+
 function GetMarksFileterByCategories(AZoom: Byte): string;
 begin
   Result := '';
@@ -246,6 +260,16 @@ begin
   WriteCurrentMark(AMark);
   Fmain.CDSmarks.Post;
   SaveMarks2File;
+end;
+
+procedure WriteMarkId(AMark: TMarkId);
+begin
+  if AMark.id >= 0 then begin
+    Fmain.CDSmarks.Locate('id', AMark.id,[]);
+    Fmain.CDSmarks.Edit;
+    WriteCurrentMarkId(AMark);
+    Fmain.CDSmarks.Post;
+  end;
 end;
 
 function SaveMarks2File:boolean;
@@ -629,23 +653,29 @@ begin
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
+var
+  VIndex: Integer;
+  VId: integer;
 begin
- if MarksListBox.ItemIndex>=0 then
-  begin
-   if DeleteMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,FMarksExplorer.Handle)
-    then begin
-          MarksListBox.Items.Objects[MarksListBox.ItemIndex].Free;
-          MarksListBox.DeleteSelected;
-         end;
+  VIndex := MarksListBox.ItemIndex;
+  if VIndex>=0 then begin
+    VId := TMarkId(MarksListBox.Items.Objects[VIndex]).id;
+    if DeleteMark(VId,FMarksExplorer.Handle) then begin
+      MarksListBox.Items.Objects[VIndex].Free;
+      MarksListBox.DeleteSelected;
+    end;
   end;
 end;
 
 procedure TFMarksExplorer.MarksListBoxClickCheck(Sender: TObject);
+var
+  VIndex: integer;
+  VMark: TMarkId;
 begin
- Fmain.CDSmarks.Locate('id',TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,[]);
- Fmain.CDSmarks.Edit;
- Fmain.CDSmarks.FieldByName('visible').AsBoolean:=MarksListBox.Checked[MarksListBox.ItemIndex];
- Fmain.CDSmarks.Post;
+  VIndex := MarksListBox.ItemIndex;
+  VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
+  VMark.visible := MarksListBox.Checked[VIndex];
+  WriteMarkId(VMark);
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -685,12 +715,14 @@ begin
 end;
 
 procedure TFMarksExplorer.KategoryListBoxClickCheck(Sender: TObject);
+var
+  VIndex: integer;
+  VCategory: TCategoryId;
 begin
- Fmain.CDSKategory.Locate('id',TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id,[]);
- Fmain.CDSKategory.Edit;
- Fmain.CDSKategory.FieldByName('visible').AsBoolean:=KategoryListBox.Checked[KategoryListBox.ItemIndex];
- Fmain.CDSKategory.post;
- SaveCategory2File;
+  VIndex := KategoryListBox.ItemIndex;
+  VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+  VCategory.visible := KategoryListBox.Checked[VIndex];
+  WriteCategory(VCategory);
 end;
 
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
