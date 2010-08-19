@@ -3938,8 +3938,23 @@ begin
 end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
+var
+  VId: Integer;
+  VMark: TMarkFull;
+  VLen: Extended;
+  VMessage: string;
 begin
- MessageBox(Self.Handle,pchar(SAS_STR_L+' - '+DistToStrWithUnits(GetMarkLength(strtoint(FPWL.numid)), GState.num_format)),pchar(FPWL.name),0);
+  VId := strtoint(FPWL.numid);
+  VMark := GetMarkByID(VId);
+  if VMark <> nil then begin
+    try
+      VLen := GetMarkLength(VMark);
+      VMessage := SAS_STR_L+' - '+DistToStrWithUnits(VLen, GState.num_format);
+      MessageBox(Self.Handle, pchar(VMessage), pchar(FPWL.name),0);
+    finally
+      VMark.Free;
+    end;
+  end;
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
@@ -3957,8 +3972,23 @@ begin
 end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
+var
+  VId: Integer;
+  VMark: TMarkFull;
+  VLen: Extended;
+  VMessage: string;
 begin
- MessageBox(Handle,pchar(SAS_STR_P+' - '+DistToStrWithUnits(GetMarkLength(strtoint(FPWL.numid)), GState.num_format)),pchar(FPWL.name),0);
+  VId := strtoint(FPWL.numid);
+  VMark := GetMarkByID(VId);
+  if VMark <> nil then begin
+    try
+      VLen := GetMarkLength(VMark);
+      VMessage := SAS_STR_P+' - '+DistToStrWithUnits(VLen, GState.num_format);
+      MessageBox(Self.Handle, pchar(VMessage), pchar(FPWL.name),0);
+    finally
+      VMark.Free;
+    end;
+  end;
 end;
 
 procedure TFmain.TBEditPathOkClick(Sender: TObject);
@@ -4153,7 +4183,6 @@ end;
 procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
-  i:integer;
   arLL: TPointArray;
   poly:TExtendedPointArray;
   VLonLatRect: TExtendedRect;
@@ -4162,7 +4191,6 @@ var
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
   VZoom: Byte;
-  VLonLat: TExtendedPoint;
 begin
   if GState.show_point = mshNone then exit;
   CDSKategory.Filtered:=true;

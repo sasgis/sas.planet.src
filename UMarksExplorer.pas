@@ -109,7 +109,7 @@ var
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
   procedure GoToMark(id:integer;zoom:byte);
-  function GetMarkLength(id:integer):extended;
+  function GetMarkLength(AMark: TMarkFull):extended;
   function GetMarkSq(id:integer):extended;
   function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
   procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield); overload;
@@ -551,21 +551,20 @@ begin
  result:=true;
 end;
 
-function GetMarkLength(id:integer):extended;
+function GetMarkLength(AMark: TMarkFull):extended;
 var
-  arLL:TExtendedPointArray;
   i:integer;
   VConverter: ICoordConverter;
+  VPointCount: Integer;
 begin
- Result:=0;
- VConverter := GState.ViewState.GetCurrentCoordConverter;
- Fmain.CDSmarks.Locate('id',id,[]);
- arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
- if (Length(arLL) > 1) then begin
-           for i:=0 to length(arLL)-2 do
-            result:=result+ VConverter.CalcDist(arLL[i],arLL[i+1]);
-          end;
- arLL := nil;
+  Result:=0;
+  VConverter := GState.ViewState.GetCurrentCoordConverter;
+  VPointCount := Length(AMark.Points);
+  if (VPointCount > 1) then begin
+    for i:=0 to VPointCount-2 do begin
+      Result:=Result+ VConverter.CalcDist(AMark.Points[i], AMark.Points[i+1]);
+    end;
+  end;
 end;
 
 function GetMarkSq(id:integer):extended;
