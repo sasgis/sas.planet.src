@@ -367,9 +367,6 @@ begin
      plt.Free;
     end;
    SaveMarks2File;
-//   Fmain.CDSmarks.ApplyRange;
-//   Fmain.CDSmarks.MergeChangeLog;
-//   Fmain.CDSmarks.SaveToFile(GState.MarksFileName,dfXMLUTF8);
   end;
  close;
 end;
