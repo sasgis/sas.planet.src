@@ -34,7 +34,6 @@ uses
   t_CommonTypes,
   u_GlobalState,
   Ugeofun,
-  Uimgfun,
   Unit1,
   UMarksExplorer,
   u_WindowLayerBasic;

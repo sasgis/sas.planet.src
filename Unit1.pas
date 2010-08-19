@@ -664,7 +664,6 @@ uses
   Usettings,
   USaveas,
   UProgress,
-  UaddPoint,
   Unit4,
   USelLonLat,
   UImgFun,
@@ -2097,8 +2096,9 @@ end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
-  if FAddPoint.show_(GState.ViewState.VisiblePixel2LonLat(MouseUpPoint), true) then
+  if AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(MouseUpPoint)) then begin
     generate_im;
+  end;
 end;
 
 procedure TFmain.N20Click(Sender: TObject);
@@ -3156,7 +3156,11 @@ begin
         LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
-    if (aoper=ao_add_point)and(FAddPoint.show_(VClickLonLat, true)) then generate_im;
+    if (aoper=ao_add_point) then begin
+      if(AddNewPointModal(VClickLonLat)) then begin
+        generate_im;
+      end;
+    end;
     if (aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
       for i:=0 to length(add_line_arr)-1 do begin
         if (VClickLonLatRect.Left < add_line_arr[i].X) and
@@ -4072,7 +4076,7 @@ end;
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
   if GState.GPS_enab then begin
-    if FAddPoint.show_(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1], true) then
+    if AddNewPointModal(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1]) then
       generate_im;
   end;
 end;

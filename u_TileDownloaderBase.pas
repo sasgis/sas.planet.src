@@ -52,7 +52,6 @@ implementation
 
 uses
   u_GlobalState,
-  StrUtils,
   SysUtils;
 
 { TTileDownloaderBase }

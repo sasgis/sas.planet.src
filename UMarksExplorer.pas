@@ -108,7 +108,6 @@ var
   function OperationMark(id:integer):boolean;
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
-  function EditMark(id:integer):boolean;
   procedure GoToMark(id:integer;zoom:byte);
   function GetMarkLength(id:integer):extended;
   function GetMarkSq(id:integer):extended;
@@ -119,6 +118,7 @@ var
   function SaveCategory2File:boolean;
   function EditMarkF(id:integer; var arr:TExtendedPointArray):TAOperation;
   function GetMarksFileterByCategories(AZoom: Byte): string;
+  function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
 
 implementation
 
@@ -312,7 +312,12 @@ begin
   end;
 end;
 
-function EditMark(id:integer):boolean;
+function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
+begin
+  Result := FaddPoint.Show_(ALonLat, True);
+end;
+
+function EditMarkModal(id:integer):boolean;
 var
   arLL:TExtendedPointArray;
   VPointCount:integer;
@@ -595,7 +600,7 @@ procedure TFMarksExplorer.SpeedButton1Click(Sender: TObject);
 begin
  if MarksListBox.ItemIndex>=0 then
   begin
-   if EditMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id) then
+   if EditMarkModal(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id) then
     begin
      FMain.CDSmarks.Locate('id',TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,[]);
      MarksListBox.Items.Strings[MarksListBox.ItemIndex]:=Fmain.CDSmarks.fieldbyname('name').asString;

@@ -67,8 +67,7 @@ uses
   Forms,
   Dialogs,
   UResStrings,
-  Ugeofun,
-  Unit1;
+  Ugeofun;
 
 { TMapCombineThreadBase }
 

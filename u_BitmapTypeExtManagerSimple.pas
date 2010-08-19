@@ -30,12 +30,7 @@ uses
   u_BitmapTileJpegLoader,
   u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreLoader,
-  u_BitmapTileVampyreSaver,
-  u_BitmapTilePngSaver,
-  u_BitmapTileGifLoader,
-  u_BitmapTileGifSaver,
-  u_BitmapTileBmpLoader,
-  u_BitmapTileBmpSaver;
+  u_BitmapTileVampyreSaver;
 
 
 { TBitmapTypeExtManagerSimple }

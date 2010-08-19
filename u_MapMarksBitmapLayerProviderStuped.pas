@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  SyncObjs,
   GR32,
   i_ICoordConverter,
   i_IBitmapLayerProvider;

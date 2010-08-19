@@ -113,7 +113,6 @@ uses
   GR32_Polygons,
   u_JclNotify,
   i_ICoordConverter,
-  i_BitmapTileSaveLoad,
   Uimgfun,
   u_GeoToStr,
   u_GlobalState,
