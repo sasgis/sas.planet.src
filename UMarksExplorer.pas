@@ -225,6 +225,19 @@ begin
   end;
 end;
 
+procedure WriteMark(AMark: TMarkFull);
+begin
+  if AMark.id >= 0 then begin
+    Fmain.CDSmarks.Locate('id', AMark.id,[]);
+    Fmain.CDSmarks.Edit;
+  end else begin
+    Fmain.CDSmarks.Insert;
+  end;
+  WriteCurrentMark(AMark);
+  Fmain.CDSmarks.Post;
+  SaveMarks2File;
+end;
+
 function SaveMarks2File:boolean;
 var ms:TMemoryStream;
     XML:string;
@@ -349,15 +362,7 @@ begin
     VMark.Points := Copy(ANewArrLL);
     Result := FaddPoly.EditMark(VMark);
     if Result then begin
-      if VMark.id >= 0 then begin
-        Fmain.CDSmarks.Locate('id', VMark.id,[]);
-        Fmain.CDSmarks.Edit;
-      end else begin
-        Fmain.CDSmarks.Insert;
-      end;
-      WriteCurrentMark(VMark);
-      Fmain.CDSmarks.Post;
-      SaveMarks2File;
+      WriteMark(VMark);
     end;
   finally
     VMark.Free;
@@ -380,15 +385,7 @@ begin
     VMark.Points := Copy(ANewArrLL);
     Result := FaddLine.EditMark(VMark);
     if Result then begin
-      if VMark.id >= 0 then begin
-        Fmain.CDSmarks.Locate('id', VMark.id,[]);
-        Fmain.CDSmarks.Edit;
-      end else begin
-        Fmain.CDSmarks.Insert;
-      end;
-      WriteCurrentMark(VMark);
-      Fmain.CDSmarks.Post;
-      SaveMarks2File;
+      WriteMark(VMark);
     end;
   finally
     VMark.Free;
@@ -408,35 +405,17 @@ begin
     Result := false;
     if VPointCount = 1 then begin
       result:=FaddPoint.EditMark(VMark);
-      if Result then begin
-        FMain.CDSmarks.Locate('id',id,[]);
-        Fmain.CDSmarks.Edit;
-        WriteCurrentMark(VMark);
-        Fmain.CDSmarks.Post;
-        SaveMarks2File;
-      end;
     end else begin
       if (VPointCount>1) then begin
         if compare2EP(VMark.Points[0],VMark.Points[VPointCount-1]) then begin
           result:=FaddPoly.EditMark(VMark);
-          if Result then begin
-            FMain.CDSmarks.Locate('id',id,[]);
-            Fmain.CDSmarks.Edit;
-            WriteCurrentMark(VMark);
-            Fmain.CDSmarks.Post;
-            SaveMarks2File;
-          end;
         end else begin
           result:=FaddLine.EditMark(VMark);
-          if Result then begin
-            FMain.CDSmarks.Locate('id',id,[]);
-            Fmain.CDSmarks.Edit;
-            WriteCurrentMark(VMark);
-            Fmain.CDSmarks.Post;
-            SaveMarks2File;
-          end;
         end;
       end;
+    end;
+    if Result then begin
+      WriteMark(VMark);
     end;
   finally
     VMark.Free;
@@ -457,11 +436,7 @@ begin
     if VPointCount = 1 then begin
       result:=ao_edit_point;
       if FaddPoint.EditMark(VMark) then begin
-        FMain.CDSmarks.Locate('id',id,[]);
-        Fmain.CDSmarks.Edit;
-        WriteCurrentMark(VMark);
-        Fmain.CDSmarks.Post;
-        SaveMarks2File;
+        WriteMark(VMark);
       end;
       Result := ao_movemap;
     end else begin
