@@ -105,7 +105,7 @@ var
   FMarksExplorer: TFMarksExplorer;
   function GetMarkByID(id:integer): TMarkFull;
   function DeleteMark(id:integer;handle:THandle):boolean;
-  function OperationMark(id:integer):boolean;
+  function OperationMark(AMark: TMarkFull):boolean;
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
   function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
@@ -536,7 +536,7 @@ begin
    ReadCurrentMarkId(MarkId);
    items.AddObject(MarkId.name,MarkId);
    Fmain.CDSmarks.Next;
-  end;
+ end;
  MarksListBox.Items.Assign(items);
  FreeAndNil(items);
  for i:=0 to MarksListBox.Count-1 do
@@ -591,21 +591,22 @@ begin
   end;
 end;
 
-function OperationMark(id:integer):boolean;
+function OperationMark(AMark: TMarkFull):boolean;
 var
   arLL:TExtendedPointArray;
+  VPointCount: Integer;
 begin
- Result:=false;
- Fmain.CDSmarks.Locate('id',id,[]);
- arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
- if (Length(arLL) > 1)and(compare2EP(arLL[0],arLL[length(arLL)-1]))
-     then begin
-           Fsaveas.Show_(GState.ViewState.GetCurrentZoom, arLL);
-           Fmain.LayerSelection.Redraw;
-           Result:=true;
-          end
-     else ShowMessage(SAS_MSG_FunExForPoly);
- arLL := nil;
+  Result:=false;
+  arLL := AMark.Points;
+  VPointCount := Length(arLL);
+  if (VPointCount > 1)and(compare2EP(arLL[0],arLL[VPointCount-1])) then begin
+    Fsaveas.Show_(GState.ViewState.GetCurrentZoom, arLL);
+    Fmain.LayerSelection.Redraw;
+    Result:=true;
+  end else begin
+    ShowMessage(SAS_MSG_FunExForPoly);
+  end;
+  arLL := nil;
 end;
 
 function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
@@ -648,11 +649,22 @@ begin
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
+var
+  VId: Integer;
+  VMark: TMarkFull;
 begin
- if MarksListBox.ItemIndex>=0 then
-  begin
-   if OperationMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id)
-      then close;
+  if MarksListBox.ItemIndex>=0 then begin
+    VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
+    VMark := GetMarkByID(VId);
+    if VMark <> nil then begin
+      try
+        if OperationMark(VMark) then begin
+          close;
+        end;
+      finally
+        VMark.Free;
+      end;
+    end;
   end;
 end;
 

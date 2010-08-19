@@ -2898,9 +2898,20 @@ begin
 end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
+var
+  VId: Integer;
+  VMark: TMarkFull;
 begin
- FWikiLayer.MouseOnReg(FPWL,moveTrue);
- OperationMark(strtoint(FPWL.numid));
+  FWikiLayer.MouseOnReg(FPWL,moveTrue);
+  VId := strtoint(FPWL.numid);
+  VMark := GetMarkByID(VId);
+  if VMark <> nil then begin
+    try
+      OperationMark(VMark);
+    finally
+      VMark.Free;
+    end;
+  end;
 end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
