@@ -179,11 +179,16 @@ begin
   end;
 end;
 
-procedure ReadCurrentMark(AMark: TMarkFull);
+procedure ReadCurrentMarkId(AMark: TMarkId);
 begin
   AMark.id := Fmain.CDSmarks.fieldbyname('id').AsInteger;
   AMark.name := Fmain.CDSmarks.FieldByName('name').AsString;
   AMark.visible := Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
+end;
+
+procedure ReadCurrentMark(AMark: TMarkFull);
+begin
+  ReadCurrentMarkId(AMark);
   AMark.Points := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
   AMark.CategoryId := Fmain.CDSmarkscategoryid.AsInteger;
   AMark.Desc := Fmain.CDSmarks.FieldByName('descr').AsString;
@@ -198,10 +203,15 @@ begin
   AMark.Scale2 := Fmain.CDSmarks.FieldByName('Scale2').AsInteger;
 end;
 
-procedure WriteCurrentMark(AMark: TMarkFull);
+procedure WriteCurrentMarkId(AMark: TMarkId);
 begin
   Fmain.CDSmarks.FieldByName('name').AsString := AMark.name;
   Fmain.CDSmarks.FieldByName('Visible').AsBoolean := AMark.visible;
+end;
+
+procedure WriteCurrentMark(AMark: TMarkFull);
+begin
+  WriteCurrentMarkId(AMark);
   BlobFromExtArr(AMark.Points, Fmain.CDSmarks.FieldByName('LonLatArr'));
   Fmain.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
   Fmain.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
@@ -338,10 +348,7 @@ begin
     VMark.Points[0] := ALonLat;
     Result := FaddPoint.EditMark(VMark);
     if Result then begin
-      Fmain.CDSmarks.Insert;
       WriteCurrentMark(VMark);
-      Fmain.CDSmarks.Post;
-      SaveMarks2File;
     end;
   finally
     VMark.Free;
@@ -475,15 +482,24 @@ begin
 end;
 
 function AddKategory(name:string): Integer;
+var
+  VCategory: TCategoryId;
 begin
- Fmain.CDSKategory.Insert;
- Fmain.CDSKategory.FieldByName('name').AsString:=name;
- Fmain.CDSKategory.FieldByName('visible').AsBoolean:=true;
- Fmain.CDSKategory.FieldByName('AfterScale').AsInteger:=3;
- Fmain.CDSKategory.FieldByName('BeforeScale').AsInteger:=18;
- Fmain.CDSKategory.post;
- Result := Fmain.CDSKategory.FieldByName('id').AsInteger;
- SaveCategory2File;
+  VCategory := TCategoryId.Create;
+  try
+    VCategory.name := name;
+    VCategory.visible := True;
+    VCategory.AfterScale := 3;
+    VCategory.BeforeScale := 19;
+
+    Fmain.CDSKategory.Insert;
+    WriteCurrentCategory(VCategory);
+    Fmain.CDSKategory.post;
+    Result := Fmain.CDSKategory.FieldByName('id').AsInteger;
+    SaveCategory2File;
+  finally
+    VCategory.Free;
+  end;
 end;
 
 procedure TFMarksExplorer.FormShow(Sender: TObject);
@@ -515,13 +531,10 @@ begin
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
  items:=TStringList.Create;
- while not(Fmain.CDSmarks.Eof) do
-  begin
+ while not(Fmain.CDSmarks.Eof) do begin
    MarkId:=TMarkId.Create;
-   MarkId.name:=Fmain.CDSmarks.fieldbyname('name').AsString;
-   MarkId.id:=Fmain.CDSmarks.fieldbyname('id').AsInteger;
-   MarkId.visible:=Fmain.CDSmarks.fieldbyname('visible').AsBoolean;
-   items.AddObject(Fmain.CDSmarks.fieldbyname('name').AsString,MarkId);
+   ReadCurrentMarkId(MarkId);
+   items.AddObject(MarkId.name,MarkId);
    Fmain.CDSmarks.Next;
   end;
  MarksListBox.Items.Assign(items);
