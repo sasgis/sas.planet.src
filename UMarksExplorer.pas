@@ -336,11 +336,32 @@ begin
 end;
 
 function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
+var
+  VMark: TMarkFull;
 begin
-  if AID >= 0 then begin
-    Fmain.CDSmarks.Locate('id', AID,[]);
+  VMark := TMarkFull.Create;
+  try
+    VMark.id := AID;
+    if VMark.id >= 0 then begin
+      Fmain.CDSmarks.Locate('id', VMark.id,[]);
+      ReadCurrentMark(VMark);
+    end;
+    VMark.Points := Copy(ANewArrLL);
+    Result := FaddPoly.EditMark(VMark);
+    if Result then begin
+      if VMark.id >= 0 then begin
+        Fmain.CDSmarks.Locate('id', VMark.id,[]);
+        Fmain.CDSmarks.Edit;
+      end else begin
+        Fmain.CDSmarks.Insert;
+      end;
+      WriteCurrentMark(VMark);
+      Fmain.CDSmarks.Post;
+      SaveMarks2File;
+    end;
+  finally
+    VMark.Free;
   end;
-  Result := FaddPoly.show_(ANewArrLL, AID < 0);
 end;
 
 function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescription: string): Boolean;
@@ -397,7 +418,14 @@ begin
     end else begin
       if (VPointCount>1) then begin
         if compare2EP(VMark.Points[0],VMark.Points[VPointCount-1]) then begin
-          result:=FaddPoly.show_(VMark.Points,false);
+          result:=FaddPoly.EditMark(VMark);
+          if Result then begin
+            FMain.CDSmarks.Locate('id',id,[]);
+            Fmain.CDSmarks.Edit;
+            WriteCurrentMark(VMark);
+            Fmain.CDSmarks.Post;
+            SaveMarks2File;
+          end;
         end else begin
           result:=FaddLine.EditMark(VMark);
           if Result then begin
@@ -407,7 +435,7 @@ begin
             Fmain.CDSmarks.Post;
             SaveMarks2File;
           end;
-        end
+        end;
       end;
     end;
   finally
