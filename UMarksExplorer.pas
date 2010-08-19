@@ -77,9 +77,12 @@ type
   end;
 
 TCategoryId = class
- name:string;
  id:integer;
+ name:string;
+ AfterScale: Integer;
+ BeforeScale: Integer;
 end;
+
 TMarkId = class
  name:string;
  id:integer;
@@ -104,6 +107,7 @@ var
   function OperationMark(id:integer):boolean;
   function AddKategory(name:string): integer;
   procedure Kategory2Strings(strings:TStrings);
+  procedure Kategory2StringsWithObjects(AStrings:TStrings);
   function EditMark(id:integer):boolean;
   procedure GoToMark(id:integer;zoom:byte);
   function GetMarkLength(id:integer):extended;
@@ -320,6 +324,29 @@ begin
   begin
    strings.Add(Fmain.CDSKategory.FieldByName('name').AsString);
    Fmain.CDSKategory.Next;
+  end;
+end;
+
+procedure Kategory2StringsWithObjects(AStrings:TStrings);
+var
+  KategoryId:TCategoryId;
+  i: Integer;
+  VObject: TObject;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    AStrings.Objects[i].Free;
+  end;
+  AStrings.Clear;
+  Fmain.CDSKategory.Filtered:=false;
+  Fmain.CDSKategory.First;
+  while not(Fmain.CDSKategory.Eof) do begin
+    KategoryId:=TCategoryId.Create;
+    KategoryId.name:=Fmain.CDSKategory.fieldbyname('name').AsString;
+    KategoryId.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
+    KategoryId.AfterScale:=Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger;
+    KategoryId.BeforeScale:=Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger;
+    AStrings.AddObject(KategoryId.name, KategoryId);
+    Fmain.CDSKategory.Next;
   end;
 end;
 

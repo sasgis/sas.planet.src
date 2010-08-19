@@ -105,6 +105,7 @@ type
   public
    procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
    function show_(aLL:TExtendedPoint;new:boolean):boolean;
+   destructor Destroy; override;
   end;
 
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
@@ -124,6 +125,9 @@ function TFaddPoint.show_(aLL:TExtendedPoint;new:boolean):boolean;
 var DMS:TDMS;
     arrLL:TExtendedPointArray;
     namecatbuf:string;
+  i: Integer;
+  VCategory: TCategoryId;
+  VId: integer;
 begin
  if new then Fmain.CDSmarks.Insert
         else Fmain.CDSmarks.Edit;
@@ -131,8 +135,7 @@ begin
  EditComment.Text:='';
  EditName.Text:=SAS_STR_NewMark;
  namecatbuf:=CBKateg.Text;
- CBKateg.Clear;
- Kategory2Strings(CBKateg.Items);
+ Kategory2StringsWithObjects(CBKateg.Items);
  CBKateg.Sorted:=true;
  CBKateg.Text:=namecatbuf;
  DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);
@@ -165,8 +168,16 @@ begin
 
               FIconName:=Fmain.CDSmarks.FieldByName('picname').AsString;
               DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarks.FieldByName('picname').AsString),bounds(4,4,36,36));
-              Fmain.CDSKategory.Locate('id',Fmain.CDSmarkscategoryid.AsInteger,[]);
-              CBKateg.Text:=Fmain.CDSKategory.fieldbyname('name').AsString;
+              VId := Fmain.CDSmarkscategoryid.AsInteger;
+              for i := 0 to CBKateg.Items.Count - 1 do begin
+                VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+                if VCategory <> nil then begin
+                  if VCategory.id = VId then begin
+                    CBKateg.ItemIndex := i;
+                    Break;
+                  end;
+                end;
+              end;
              end;
  DMS:=D2DMS(aLL.y);
  lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
@@ -206,9 +217,7 @@ begin
   if VCategory <> nil then begin
     Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VCategory.id;
   end else begin
-   if not(Fmain.CDSKategory.Locate('name',CBKateg.Text,[]))
-    then AddKategory(CBKateg.Text);
-   Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=Fmain.CDSKategory.FieldByName('id').AsInteger;
+    Fmain.CDSmarks.FieldByName('categoryid').AsFloat:=AddKategory(CBKateg.Text);
   end;
  end;
  Fmain.CDSmarks.Post;
@@ -310,6 +319,17 @@ begin
    EditComment.Text:=s;
    EditComment.SelStart:=seli+4;
  end;
+end;
+
+destructor TFaddPoint.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to CBKateg.Items.Count - 1 do begin
+    CBKateg.Items.Objects[i].Free;
+  end;
+  CBKateg.Items.Clear;
+  inherited;
 end;
 
 procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
