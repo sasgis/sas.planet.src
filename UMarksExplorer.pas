@@ -188,9 +188,9 @@ begin
   AMark.CategoryId := Fmain.CDSmarkscategoryid.AsInteger;
   AMark.Desc := Fmain.CDSmarks.FieldByName('descr').AsString;
   AMark.LLRect.Left := Fmain.CDSmarks.FieldByName('LonL').AsFloat;
-  AMark.LLRect.Top := Fmain.CDSmarks.FieldByName('LonT').AsFloat;
+  AMark.LLRect.Top := Fmain.CDSmarks.FieldByName('LatT').AsFloat;
   AMark.LLRect.Right := Fmain.CDSmarks.FieldByName('LonR').AsFloat;
-  AMark.LLRect.Bottom := Fmain.CDSmarks.FieldByName('LonB').AsFloat;
+  AMark.LLRect.Bottom := Fmain.CDSmarks.FieldByName('LatB').AsFloat;
   AMark.PicName := Fmain.CDSmarks.FieldByName('PicName').AsString;
   AMark.Color1 := TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger);
   AMark.Color2 := TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger);
@@ -206,9 +206,9 @@ begin
   Fmain.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
   Fmain.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
   Fmain.CDSmarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
-  Fmain.CDSmarks.FieldByName('LonT').AsFloat := AMark.LLRect.Top;
+  Fmain.CDSmarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
   Fmain.CDSmarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
-  Fmain.CDSmarks.FieldByName('LonB').AsFloat := AMark.LLRect.Bottom;
+  Fmain.CDSmarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
   Fmain.CDSmarks.FieldByName('PicName').AsString := AMark.PicName;
   Fmain.CDSmarks.FieldByName('Color1').AsInteger := AMark.Color1;
   Fmain.CDSmarks.FieldByName('Color2').AsInteger := AMark.Color2;
@@ -315,8 +315,24 @@ begin
 end;
 
 function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
+var
+  VMark: TMarkFull;
 begin
-  Result := FaddPoint.Show_(ALonLat, True);
+  VMark := TMarkFull.Create;
+  try
+    VMark.id := -1;
+    SetLength(VMark.Points, 1);
+    VMark.Points[0] := ALonLat;
+    Result := FaddPoint.EditMark(VMark);
+    if Result then begin
+      Fmain.CDSmarks.Insert;
+      WriteCurrentMark(VMark);
+      Fmain.CDSmarks.Post;
+      SaveMarks2File;
+    end;
+  finally
+    VMark.Free;
+  end;
 end;
 
 function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
@@ -337,48 +353,72 @@ end;
 
 function EditMarkModal(id:integer):boolean;
 var
-  arLL:TExtendedPointArray;
   VPointCount:integer;
+  VMark: TMarkFull;
 begin
-  FMain.CDSmarks.Locate('id',id,[]);
-  arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
-  VPointCount := Length(arLL);
-  Result := false;
-  if VPointCount = 1 then begin
-    result:=FaddPoint.Show_(arLL[0],false);
-  end else begin
-    if (VPointCount>1) then begin
-      if compare2EP(arLL[0],arLL[VPointCount-1]) then begin
-        result:=FaddPoly.show_(arLL,false);
-      end else begin
-        result:=FaddLine.show_(arLL,false, '');
-      end
+  VMark := TMarkFull.Create;
+  try
+    FMain.CDSmarks.Locate('id',id,[]);
+    ReadCurrentMark(VMark);
+    VPointCount := Length(VMark.Points);
+    Result := false;
+    if VPointCount = 1 then begin
+      result:=FaddPoint.EditMark(VMark);
+      if Result then begin
+        FMain.CDSmarks.Locate('id',id,[]);
+        Fmain.CDSmarks.Edit;
+        WriteCurrentMark(VMark);
+        Fmain.CDSmarks.Post;
+        SaveMarks2File;
+      end;
+    end else begin
+      if (VPointCount>1) then begin
+        if compare2EP(VMark.Points[0],VMark.Points[VPointCount-1]) then begin
+          result:=FaddPoly.show_(VMark.Points,false);
+        end else begin
+          result:=FaddLine.show_(VMark.Points,false, '');
+        end
+      end;
     end;
+  finally
+    VMark.Free;
   end;
 end;
 
 function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
 var
-  arLL:TExtendedPointArray;
   VPointCount:integer;
+  VMark: TMarkFull;
 begin
-  FMain.CDSmarks.Locate('id',id,[]);
-  arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
-  VPointCount := Length(arLL);
-  Result := ao_movemap;
-  if VPointCount = 1 then begin
-    result:=ao_edit_point;
-    FaddPoint.Show_(arLL[0],false);
-  end else begin
-    if (VPointCount>1) then begin
-      if compare2EP(arLL[0],arLL[VPointCount-1]) then begin
-        arr:=arLL;
-        result:=ao_edit_poly;
-      end else begin
-        arr:=arLL;
-        result:=ao_edit_line;
-      end
+  VMark := TMarkFull.Create;
+  try
+    FMain.CDSmarks.Locate('id',id,[]);
+    ReadCurrentMark(VMark);
+    VPointCount := Length(VMark.Points);
+    Result := ao_movemap;
+    if VPointCount = 1 then begin
+      result:=ao_edit_point;
+      if FaddPoint.EditMark(VMark) then begin
+        FMain.CDSmarks.Locate('id',id,[]);
+        Fmain.CDSmarks.Edit;
+        WriteCurrentMark(VMark);
+        Fmain.CDSmarks.Post;
+        SaveMarks2File;
+      end;
+      Result := ao_movemap;
+    end else begin
+      if (VPointCount>1) then begin
+        if compare2EP(VMark.Points[0],VMark.Points[VPointCount-1]) then begin
+          arr:=VMark.Points;
+          result:=ao_edit_poly;
+        end else begin
+          arr:=VMark.Points;
+          result:=ao_edit_line;
+        end
+      end;
     end;
+  finally
+    VMark.Free;
   end;
 end;
 

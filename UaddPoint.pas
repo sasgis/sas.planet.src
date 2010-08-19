@@ -85,7 +85,6 @@ type
     Image1: TImage;
     procedure BaddClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure Button2Click(Sender: TObject);
     procedure EditCommentKeyPress(Sender: TObject; var Key: Char);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SpeedButton1Click(Sender: TObject);
@@ -99,12 +98,12 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure DrawGrid1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure Button2Click(Sender: TObject);
   private
-    FIconName:string;
-    FIsNew:boolean;
+    FMark: TMarkFull;
+    procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
   public
-   procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
-   function show_(aLL:TExtendedPoint;new:boolean):boolean;
+   function EditMark(AMark: TMarkFull):boolean;
    destructor Destroy; override;
   end;
 
@@ -121,74 +120,78 @@ uses
   Unit1;
 
 {$R *.dfm}
-function TFaddPoint.show_(aLL:TExtendedPoint;new:boolean):boolean;
-var DMS:TDMS;
-    arrLL:TExtendedPointArray;
-    namecatbuf:string;
+
+function TFaddPoint.EditMark(AMark: TMarkFull): boolean;
+var
+  VLastUsedCategoryName:string;
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
+  DMS:TDMS;
 begin
- if new then Fmain.CDSmarks.Insert
-        else Fmain.CDSmarks.Edit;
- FIsNew:=new;
- EditComment.Text:='';
- EditName.Text:=SAS_STR_NewMark;
- namecatbuf:=CBKateg.Text;
- Kategory2StringsWithObjects(CBKateg.Items);
- CBKateg.Sorted:=true;
- CBKateg.Text:=namecatbuf;
- DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);
- if (GState.MarkIcons.Count mod DrawGrid1.ColCount)>0 then begin
+  FMark := AMark;
+  EditComment.Text:='';
+  EditName.Text:=SAS_STR_NewMark;
+  VLastUsedCategoryName:=CBKateg.Text;
+  Kategory2StringsWithObjects(CBKateg.Items);
+  CBKateg.Sorted:=true;
+  CBKateg.Text:=VLastUsedCategoryName;
+  DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);
+  if (GState.MarkIcons.Count mod DrawGrid1.ColCount)>0 then begin
   DrawGrid1.RowCount:=DrawGrid1.RowCount+1;
- end;
- DrawGrid1.Repaint;
- if new then begin
-              if GState.MarkIcons.Count>0 then
-               DrawFromMarkIcons(Image1.canvas,0,bounds(4,4,36,36));
-              FIconName:=GState.MarkIcons.Strings[0];
-          //    If ComboBox1.ItemIndex<0 then ComboBox1.ItemIndex:=0;
-              faddPoint.Caption:=SAS_STR_AddNewMark;
-              Badd.Caption:=SAS_STR_Add;
-              CheckBox2.Checked:=true;
-             end
-        else begin
-              arrLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
-              aLL:=arrLL[0];
-              faddPoint.Caption:=SAS_STR_EditMark;
-              Badd.Caption:=SAS_STR_Edit;
-              EditName.Text:=Fmain.CDSmarks.FieldByName('name').AsString;
-              EditComment.Text:=Fmain.CDSmarks.FieldByName('descr').AsString;
-              SpinEdit1.Value:=Fmain.CDSmarks.FieldByName('Scale1').AsInteger;
-              SpinEdit2.Value:=Fmain.CDSmarks.FieldByName('Scale2').AsInteger;
-              SEtransp.Value:=100-round(AlphaComponent(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger))/255*100);
-              ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
-              ColorBox2.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger));
-              CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
+  end;
+  DrawGrid1.Repaint;
+  if FMark.id < 0 then begin
+    if GState.MarkIcons.Count>0 then begin
+      DrawFromMarkIcons(Image1.canvas,0,bounds(4,4,36,36));
+    end;
+    Caption:=SAS_STR_AddNewMark;
+    Badd.Caption:=SAS_STR_Add;
+    CheckBox2.Checked:=true;
+  end else begin
+    Caption:=SAS_STR_EditMark;
+    Badd.Caption:=SAS_STR_Edit;
+    EditName.Text:=FMark.name;
+    EditComment.Text:=FMark.Desc;
+    SpinEdit1.Value:=FMark.Scale1;
+    SpinEdit2.Value:=FMark.Scale2;
+    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
+    ColorBox1.Selected:=WinColor(FMark.Color1);
+    ColorBox2.Selected:=WinColor(FMark.Color2);
+    CheckBox2.Checked:=FMark.visible;
 
-              FIconName:=Fmain.CDSmarks.FieldByName('picname').AsString;
-              DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(Fmain.CDSmarks.FieldByName('picname').AsString),bounds(4,4,36,36));
-              VId := Fmain.CDSmarkscategoryid.AsInteger;
-              for i := 0 to CBKateg.Items.Count - 1 do begin
-                VCategory := TCategoryId(CBKateg.Items.Objects[i]);
-                if VCategory <> nil then begin
-                  if VCategory.id = VId then begin
-                    CBKateg.ItemIndex := i;
-                    Break;
-                  end;
-                end;
-              end;
-             end;
- DMS:=D2DMS(aLL.y);
- lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
- if DMS.N then Lat_ns.ItemIndex:=1 else Lat_ns.ItemIndex:=0;
- DMS:=D2DMS(aLL.x);
- lon1.Value:=DMS.D; lon2.Value:=DMS.M; lon3.Value:=DMS.S;
- if DMS.N then Lon_we.ItemIndex:=1 else Lon_we.ItemIndex:=0;
- ShowModal;
- result:=ModalResult=mrOk;
+    DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(FMark.PicName),bounds(4,4,36,36));
+    VId := FMark.CategoryId;
+    for i := 0 to CBKateg.Items.Count - 1 do begin
+      VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+      if VCategory <> nil then begin
+        if VCategory.id = VId then begin
+          CBKateg.ItemIndex := i;
+          Break;
+        end;
+      end;
+    end;
+  end;
+  DMS:=D2DMS(FMark.Points[0].y);
+  lat1.Value:=DMS.D;
+  lat2.Value:=DMS.M;
+  lat3.Value:=DMS.S;
+  if DMS.N then begin
+    Lat_ns.ItemIndex:=1
+  end else begin
+    Lat_ns.ItemIndex:=0;
+  end;
+  DMS:=D2DMS(FMark.Points[0].x);
+  lon1.Value:=DMS.D;
+  lon2.Value:=DMS.M;
+  lon3.Value:=DMS.S;
+  if DMS.N then begin
+    Lon_we.ItemIndex:=1
+  end else begin
+    Lon_we.ItemIndex:=0;
+  end;
+  result := ShowModal=mrOk;
 end;
-
 procedure TFaddPoint.BaddClick(Sender: TObject);
 var
     All:TExtendedPoint;
@@ -199,19 +202,17 @@ begin
  ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
- Fmain.CDSmarks.FieldByName('name').AsString:=EditName.Text;
- Fmain.CDSmarks.FieldByName('descr').AsString:=EditComment.Text;
- BlobFromExtArr(All, Fmain.CDSmarks.FieldByName('LonLatArr'));
- Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
- Fmain.CDSmarks.FieldByName('Scale2').AsInteger:=SpinEdit2.Value;
- Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
- Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
- Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=CheckBox2.Checked;
- Fmain.CDSmarks.FieldByName('PicName').AsString:=FIconName;
- Fmain.CDSmarks.FieldByName('LonL').AsFloat:=ALL.x;
- Fmain.CDSmarks.FieldByName('LatT').AsFloat:=ALL.y;
- Fmain.CDSmarks.FieldByName('LonR').AsFloat:=ALL.x;
- Fmain.CDSmarks.FieldByName('LatB').AsFloat:=ALL.y;
+  FMark.name:=EditName.Text;
+  FMark.Desc:=EditComment.Text;
+  SetLength(FMark.Points, 1);
+  FMark.Points[0] := All;
+  FMark.Scale1:=SpinEdit1.Value;
+  FMark.Scale2:=SpinEdit2.Value;
+  FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
+  FMark.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
+  FMark.visible:=CheckBox2.Checked;
+  FMark.LLRect.TopLeft := All;
+  FMark.LLRect.BottomRight := All;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
     VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
@@ -226,22 +227,13 @@ begin
       VId := AddKategory(CBKateg.Text);
     end;
   end;
-  Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VId;
- Fmain.CDSmarks.Post;
- SaveMarks2File;
- close;
- ModalResult:=mrOk;
+  FMark.CategoryId:= VId;
+  ModalResult := mrOk;
 end;
 
 procedure TFaddPoint.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- Fmain.CDSmarks.Cancel;
- if Fmain.aoper=ao_add_point then Fmain.setalloperationfalse(ao_movemap);
-end;
-
-procedure TFaddPoint.Button2Click(Sender: TObject);
-begin
- close;
+  FMark := nil;
 end;
 
 procedure TFaddPoint.EditCommentKeyPress(Sender: TObject; var Key: Char);
@@ -328,6 +320,11 @@ begin
  end;
 end;
 
+procedure TFaddPoint.Button2Click(Sender: TObject);
+begin
+  ModalResult := mrCancel;
+end;
+
 destructor TFaddPoint.Destroy;
 var
   i: Integer;
@@ -388,7 +385,7 @@ begin
  DrawGrid1.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*DrawGrid1.ColCount)+ACol;
  if (ARow>-1)and(ACol>-1)and(i<GState.MarkIcons.Count) then begin
-   FIconName:=GState.MarkIcons.Strings[i];
+   FMark.PicName:=GState.MarkIcons.Strings[i];
    image1.Canvas.FillRect(image1.Canvas.ClipRect);
    DrawFromMarkIcons(image1.Canvas,i,bounds(5,5,36,36));
    DrawGrid1.Visible:=false;

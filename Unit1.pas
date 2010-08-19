@@ -2095,6 +2095,7 @@ end;
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
   if AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(MouseUpPoint)) then begin
+    setalloperationfalse(ao_movemap);
     generate_im;
   end;
 end;
@@ -3156,6 +3157,7 @@ begin
     end;
     if (aoper=ao_add_point) then begin
       if(AddNewPointModal(VClickLonLat)) then begin
+        setalloperationfalse(ao_movemap);
         generate_im;
       end;
     end;
@@ -4079,8 +4081,10 @@ end;
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
   if GState.GPS_enab then begin
-    if AddNewPointModal(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1]) then
+    if AddNewPointModal(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1]) then begin
+      setalloperationfalse(ao_movemap);
       generate_im;
+    end;
   end;
 end;
 
@@ -4160,88 +4164,81 @@ var
   VZoom: Byte;
   VLonLat: TExtendedPoint;
 begin
- if GState.show_point = mshNone then exit;
- CDSKategory.Filtered:=true;
- if CDSKategory.Eof then exit;
+  if GState.show_point = mshNone then exit;
+  CDSKategory.Filtered:=true;
+  if CDSKategory.Eof then exit;
 
- VRect.Left := xy.X - 8;
- VRect.Top := xy.Y - 16;
- VRect.Right := xy.X + 8;
- VRect.Bottom := xy.Y + 16;
+  VRect.Left := xy.X - 8;
+  VRect.Top := xy.Y - 16;
+  VRect.Right := xy.X + 8;
+  VRect.Bottom := xy.Y + 16;
 
- GState.ViewState.LockRead;
- try
+  GState.ViewState.LockRead;
+  try
     VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
     VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
     VConverter := GState.ViewState.GetCurrentCoordConverter;
     VZoom := GState.ViewState.GetCurrentZoom;
     VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
- finally
-   GState.ViewState.UnLockRead;
- end;
-
- CDSmarks.Filtered:=true;
- CDSmarks.First;
- while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
- begin
-  VMarkLonLatRect.Left := CDSmarkslonL.AsFloat;
-  VMarkLonLatRect.Top := CDSmarkslatT.AsFloat;
-  VMarkLonLatRect.Right := CDSmarksLonR.AsFloat;
-  VMarkLonLatRect.Bottom := CDSmarksLatB.AsFloat;
-
-  if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
-     (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-    poly := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
-    SetLength(arLL, length(poly));
-    setlength(poly, length(poly));
-    for i:=0 to length(poly)-1 do begin
-      VLonLat := poly[i];
-      VConverter.CheckLonLatPos(VLonLat);
-      arLL[i]:=VConverter.LonLat2PixelPos(VLonLat,VZoom);
-    end;
-    if length(poly)=1 then
-     begin
-      APWL.name:=CDSmarksname.AsString;
-      APWL.descr:=CDSmarksdescr.AsString;
-      APWL.numid:=CDSmarksid.AsString;
-      APWL.find:=true;
-      APWL.type_:=ROTpoint;
-      arLL := nil;
-      CDSmarks.Filtered:=false;
-      exit;
-     end;
-    j:=1;
-    if (poly[0].x<>poly[length(poly)-1].x)or
-       (poly[0].y<>poly[length(poly)-1].y)then
-      while (j<length(poly)) do
-       begin
-        if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
-           then begin
-                 APWL.name:=CDSmarksname.AsString;
-                 APWL.descr:=CDSmarksdescr.AsString;
-                 APWL.numid:=CDSmarksid.AsString;
-                 APWL.find:=true;
-                 APWL.type_:=ROTline;
-                 CDSmarks.Filtered:=false;
-                 exit;
-                end;
-        inc(j);
-       end
-     else
-     if (PtInRgn(arLL,VPixelPos)) then
-       if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then
-      begin
-       APWL.S:=PolygonSquare(arLL);
-       APWL.name:=CDSmarksname.AsString;
-       APWL.descr:=CDSmarksdescr.AsString;
-       APWL.numid:=CDSmarksid.AsString;
-       APWL.find:=true;
-       APWL.type_:=ROTPoly;
-      end;
+  finally
+    GState.ViewState.UnLockRead;
   end;
-  CDSmarks.Next;
- end;
- Fmain.CDSmarks.Filtered:=false;
+
+  CDSmarks.Filtered:=true;
+  try
+    CDSmarks.First;
+    while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do begin
+      VMarkLonLatRect.Left := CDSmarkslonL.AsFloat;
+      VMarkLonLatRect.Top := CDSmarkslatT.AsFloat;
+      VMarkLonLatRect.Right := CDSmarksLonR.AsFloat;
+      VMarkLonLatRect.Bottom := CDSmarksLatB.AsFloat;
+
+      if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
+      (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
+        poly := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
+        if length(poly)=1 then begin
+          APWL.name:=CDSmarksname.AsString;
+          APWL.descr:=CDSmarksdescr.AsString;
+          APWL.numid:=CDSmarksid.AsString;
+          APWL.find:=true;
+          APWL.type_:=ROTpoint;
+          exit;
+        end else begin
+          arLL := VConverter.PoligonProject(VZoom, poly);
+          if (poly[0].x<>poly[length(poly)-1].x)or
+          (poly[0].y<>poly[length(poly)-1].y)then begin
+            j:=1;
+            while (j<length(poly)) do begin
+              if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
+              then begin
+                APWL.name:=CDSmarksname.AsString;
+                APWL.descr:=CDSmarksdescr.AsString;
+                APWL.numid:=CDSmarksid.AsString;
+                APWL.find:=true;
+                APWL.type_:=ROTline;
+                exit;
+              end;
+              inc(j);
+            end
+          end else begin
+            if (PtInRgn(arLL,VPixelPos)) then begin
+              if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then begin
+                APWL.S:=PolygonSquare(arLL);
+                APWL.name:=CDSmarksname.AsString;
+                APWL.descr:=CDSmarksdescr.AsString;
+                APWL.numid:=CDSmarksid.AsString;
+                APWL.find:=true;
+                APWL.type_:=ROTPoly;
+              end;
+            end;
+          end;
+        end;
+      end;
+      CDSmarks.Next;
+    end;
+  finally
+    Fmain.CDSmarks.Filtered:=false;
+  end;
 end;
 
 procedure TFmain.NGoToCurClick(Sender: TObject);
