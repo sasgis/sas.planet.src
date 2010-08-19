@@ -68,11 +68,10 @@ type
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
-    FarrLL:TExtendedPointArray;
-    FIsNew: boolean;
+    FMark: TMarkFull;
   public
     destructor Destroy; override;
-    function show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
+    function EditMark(AMark: TMarkFull):boolean;
   end;
 
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
@@ -83,57 +82,52 @@ var
 implementation
 
 {$R *.dfm}
-function TFaddLine.show_(aLL:TExtendedPointArray; new:boolean; Amarshrutcomment: string):boolean;
+
+function TFaddLine.EditMark(AMark: TMarkFull): boolean;
 var
   namecatbuf:string;
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
 begin
- if new then Fmain.CDSmarks.Insert
-         else Fmain.CDSmarks.Edit;
- FarrLL := Copy(aLL);
- FIsNew:=new;
- EditComment.Text:='';
- EditName.Text:=SAS_STR_NewPath;
- namecatbuf:=CBKateg.Text;
- Kategory2StringsWithObjects(CBKateg.Items);
- CBKateg.Sorted:=true;
- CBKateg.Text:=namecatbuf;
- if new then begin
-              faddLine.Caption:=SAS_STR_AddNewPath;
-              Badd.Caption:=SAS_STR_Add;
-              CheckBox2.Checked:=true;
-              if Amarshrutcomment<>'' then faddLine.EditComment.Text:=Amarshrutcomment;
-             end
-        else begin
-              faddLine.Caption:=SAS_STR_EditPath;
-              Badd.Caption:=SAS_STR_Edit;
-              EditName.Text:=Fmain.CDSmarks.FieldByName('name').AsString;
-              EditComment.Text:=Fmain.CDSmarks.FieldByName('descr').AsString;
-              SEtransp.Value:=100-round(AlphaComponent(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger))/255*100);
-              SpinEdit1.Value:=Fmain.CDSmarks.FieldByName('Scale1').AsInteger;
-              ColorBox1.Selected:=WinColor(TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger));
-              CheckBox2.Checked:=Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
-              VId := Fmain.CDSmarkscategoryid.AsInteger;
-              for i := 0 to CBKateg.Items.Count - 1 do begin
-                VCategory := TCategoryId(CBKateg.Items.Objects[i]);
-                if VCategory <> nil then begin
-                  if VCategory.id = VId then begin
-                    CBKateg.ItemIndex := i;
-                    Break;
-                  end;
-                end;
-              end;
-             end;
- FaddLine.ShowModal;
- result:=ModalResult=mrOk;
+  FMark := AMark;
+  EditComment.Text:='';
+  EditName.Text:=SAS_STR_NewPath;
+  namecatbuf:=CBKateg.Text;
+  Kategory2StringsWithObjects(CBKateg.Items);
+  CBKateg.Sorted:=true;
+  CBKateg.Text:=namecatbuf;
+  if FMark.id < 0 then begin
+    Caption:=SAS_STR_AddNewPath;
+    Badd.Caption:=SAS_STR_Add;
+    CheckBox2.Checked:=true;
+    if FMark.Desc<>'' then faddLine.EditComment.Text:=FMark.Desc;
+  end else begin
+    Caption:=SAS_STR_EditPath;
+    Badd.Caption:=SAS_STR_Edit;
+    EditName.Text:=FMark.name;
+    EditComment.Text:=FMark.Desc;
+    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
+    SpinEdit1.Value:=FMark.Scale1;
+    ColorBox1.Selected:=WinColor(FMark.Color1);
+    CheckBox2.Checked:=FMark.visible;
+    VId := FMark.CategoryId;
+    for i := 0 to CBKateg.Items.Count - 1 do begin
+      VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+      if VCategory <> nil then begin
+        if VCategory.id = VId then begin
+          CBKateg.ItemIndex := i;
+          Break;
+        end;
+      end;
+    end;
+  end;
+  result:= ShowModal=mrOk;
 end;
 
 procedure TFaddLine.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- Fmain.CDSmarks.Cancel;
- FarrLL := nil;
+  FMark := nil;
 end;
 
 procedure TFaddLine.BaddClick(Sender: TObject);
@@ -144,29 +138,23 @@ var i:integer;
     VIndex: Integer;
     VId: Integer;
 begin
-{ if new_ then Fmain.CDSmarks.Insert
-         else Fmain.CDSmarks.Edit;     }
- alltl:=FarrLL[0];
- allbr:=FarrLL[0];
- VPointCount := Length(FarrLL);
+ alltl:=FMark.Points[0];
+ allbr:=FMark.Points[0];
+ VPointCount := Length(FMark.Points);
  for i:=1 to VPointCount-1 do
   begin
-   if alltl.x>FarrLL[i].x then alltl.x:=FarrLL[i].x;
-   if alltl.y<FarrLL[i].y then alltl.y:=FarrLL[i].y;
-   if allbr.x<FarrLL[i].x then allbr.x:=FarrLL[i].x;
-   if allbr.y>FarrLL[i].y then allbr.y:=FarrLL[i].y;
+   if alltl.x>FMark.Points[i].x then alltl.x:=FMark.Points[i].x;
+   if alltl.y<FMark.Points[i].y then alltl.y:=FMark.Points[i].y;
+   if allbr.x<FMark.Points[i].x then allbr.x:=FMark.Points[i].x;
+   if allbr.y>FMark.Points[i].y then allbr.y:=FMark.Points[i].y;
   end;
- Fmain.CDSmarks.FieldByName('name').AsString:=EditName.Text;
- Fmain.CDSmarks.FieldByName('descr').AsString:=EditComment.Text;
- BlobFromExtArr(FarrLL, Fmain.CDSmarks.FieldByName('LonLatArr'));
- Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
-
- Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
- Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=CheckBox2.Checked;
- Fmain.CDSmarks.FieldByName('LonL').AsFloat:=alltl.x;
- Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
- Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
- Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
+  FMark.name:=EditName.Text;
+  FMark.Desc:=EditComment.Text;
+  FMark.Scale1:=SpinEdit1.Value;
+  FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
+  FMark.visible:=CheckBox2.Checked;
+  FMark.LLRect.TopLeft := alltl;
+  FMark.LLRect.BottomRight := allbr;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
     VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
@@ -181,16 +169,13 @@ begin
       VId := AddKategory(CBKateg.Text);
     end;
   end;
-  Fmain.CDSmarks.FieldByName('categoryid').AsInteger := VId;
- Fmain.CDSmarks.Post;
- SaveMarks2File;
- close;
- ModalResult:=mrOk;
+  FMark.CategoryId := VId;
+  ModalResult:=mrOk;
 end;
 
 procedure TFaddLine.Button2Click(Sender: TObject);
 begin
- close;
+  ModalResult := mrCancel;
 end;
 
 destructor TFaddLine.Destroy;
