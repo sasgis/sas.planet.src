@@ -667,8 +667,6 @@ uses
   Unit4,
   USelLonLat,
   UImgFun,
-  UaddLine,
-  UaddPoly,
   UEditMap,
   Ubrowser,
   UMarksExplorer,
@@ -2648,14 +2646,14 @@ end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
 begin
- if length(GState.GPS_TrackPoints)>1 then begin
-                            if FaddLine.show_(GState.GPS_TrackPoints,true, marshrutcomment) then
-                             begin
-                              setalloperationfalse(ao_movemap);
-                              generate_im;
-                             end;
-                           end
-                      else ShowMessage(SAS_ERR_Nopoints);
+  if length(GState.GPS_TrackPoints)>1 then begin
+    if SaveLineModal(-1, GState.GPS_TrackPoints, marshrutcomment) then begin
+      setalloperationfalse(ao_movemap);
+      generate_im;
+    end;
+  end else begin
+    ShowMessage(SAS_ERR_Nopoints);
+  end;
 end;
 
 procedure TFmain.Google1Click(Sender: TObject);
