@@ -119,6 +119,8 @@ var
   function EditMarkF(id:integer; var arr:TExtendedPointArray):TAOperation;
   function GetMarksFileterByCategories(AZoom: Byte): string;
   function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
+  function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
+  function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescription: string): Boolean;
 
 implementation
 
@@ -315,6 +317,22 @@ end;
 function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
 begin
   Result := FaddPoint.Show_(ALonLat, True);
+end;
+
+function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
+begin
+  if AID >= 0 then begin
+    Fmain.CDSmarks.Locate('id', AID,[]);
+  end;
+  Result := FaddPoly.show_(ANewArrLL, AID < 0);
+end;
+
+function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescription: string): Boolean;
+begin
+  if AID >= 0 then begin
+    Fmain.CDSmarks.Locate('id', AID,[]);
+  end;
+  Result := FaddLine.show_(ANewArrLL, AID < 0, ADescription);
 end;
 
 function EditMarkModal(id:integer):boolean;

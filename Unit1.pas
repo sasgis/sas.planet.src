@@ -3702,22 +3702,23 @@ procedure TFmain.TBEditPathSaveClick(Sender: TObject);
 var result:boolean;
 begin
   result := false;
- case aoper of
-  ao_add_Poly: result:=FaddPoly.show_(add_line_arr,true);
-  ao_add_Line: result:=FaddLine.show_(add_line_arr,true, marshrutcomment);
-  ao_edit_line: begin
-                  CDSmarks.Locate('id',EditMarkId,[]);
-                  result:=FaddLine.show_(add_line_arr,false, marshrutcomment);
+  case aoper of
+    ao_add_Poly: begin
+      result:=SavePolyModal(-1, add_line_arr);
+    end;
+    ao_edit_poly: begin
+      result:=SavePolyModal(EditMarkId, add_line_arr);
+    end;
+    ao_add_Line: begin
+      result:=SaveLineModal(-1, add_line_arr, marshrutcomment);
+    end;
+    ao_edit_line: begin
+      result:=SaveLineModal(EditMarkId, add_line_arr, '');
+    end;
   end;
-  ao_edit_poly: begin
-                  CDSmarks.Locate('id',EditMarkId,[]);
-                  result:=FaddPoly.show_(add_line_arr,false);
-  end;
- end;
- if result then
-  begin
-   setalloperationfalse(ao_movemap);
-   generate_im;
+  if result then begin
+    setalloperationfalse(ao_movemap);
+    generate_im;
   end;
 end;
 
