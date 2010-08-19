@@ -171,22 +171,27 @@ var KML:TKmlInfoSimple;
     alltl,allbr:TExtendedPoint;
     markignor,pathignor,polyignor:boolean;
     VCategory: TCategoryId;
+    VIndex: Integer;
     VId: Integer;
 begin
  markignor:=CBMarkIgnor.Checked;
  pathignor:=CBPathIgnor.Checked;
  polyignor:=CBPolyIgnor.Checked;
   begin
-   if CBKateg.ItemIndex < 0 then begin
-    VId := AddKategory(CBKateg.Text);
-   end else begin
-    VCategory := TCategoryId(CBKateg.Items.Objects[CBKateg.ItemIndex]);
-    if VCategory <> nil then begin
-      VId := VCategory.id;
-    end else begin
-      VId:=AddKategory(CBKateg.Text);
+    VIndex := CBKateg.ItemIndex;
+    if VIndex < 0 then begin
+      VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
     end;
-   end;
+    if VIndex < 0 then begin
+      VId := AddKategory(CBKateg.Text);
+    end else begin
+      VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
+      if VCategory <> nil then begin
+        VId := VCategory.id;
+      end else begin
+        VId := AddKategory(CBKateg.Text);
+      end;
+    end;
    if (LowerCase(ExtractFileExt(FileName))='.kml') or (LowerCase(ExtractFileExt(FileName))='.kmz') then
     begin
      KML:=TKmlInfoSimple.Create;
