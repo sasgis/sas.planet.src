@@ -108,9 +108,9 @@ var
   function OperationMark(id:integer):boolean;
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
-  procedure GoToMark(id:integer;zoom:byte);
+  function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
   function GetMarkLength(AMark: TMarkFull):extended;
-  function GetMarkSq(id:integer):extended;
+  function GetMarkSq(AMark: TMarkFull):extended;
   function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
   procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield); overload;
   procedure BlobFromExtArr(APoint:TExtendedPoint; Blobfield: Tfield); overload;
@@ -567,19 +567,15 @@ begin
   end;
 end;
 
-function GetMarkSq(id:integer):extended;
+function GetMarkSq(AMark: TMarkFull):extended;
 var
-  arLL:TExtendedPointArray;
   VConverter: ICoordConverter;
 begin
- Result:=0;
- VConverter := GState.ViewState.GetCurrentCoordConverter;
- Fmain.CDSmarks.Locate('id',id,[]);
- arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
- if (Length(arLL) > 1) then begin
-           result:= VConverter.CalcPoligonArea(arLL);
-          end;
- arLL := nil;
+  Result:=0;
+  VConverter := GState.ViewState.GetCurrentCoordConverter;
+  if (Length(AMark.Points) > 1) then begin
+    result:= VConverter.CalcPoligonArea(AMark.Points);
+  end;
 end;
 
 function OperationMark(id:integer):boolean;
@@ -599,25 +595,23 @@ begin
  arLL := nil;
 end;
 
-procedure GoToMark(id:integer;zoom:byte);
+function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
 var
-  LL:TExtendedPoint;
-  arLL:TExtendedPointArray;
   VPointCount:integer;
 begin
-   if not(Fmain.CDSmarks.Locate('id',id,[])) then exit;
-   arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
-   VPointCount := Length(arLL);
-   if (arLL[0].Y=arLL[VPointCount-1].Y)and
-      (arLL[0].X=arLL[VPointCount-1].X)
-      then begin
-            LL.X:=Fmain.CDSmarks.FieldByName('LonL').AsFloat+(Fmain.CDSmarks.FieldByName('LonR').AsFloat-Fmain.CDSmarks.FieldByName('LonL').AsFloat)/2;
-            LL.Y:=Fmain.CDSmarks.FieldByName('LatB').AsFloat+(Fmain.CDSmarks.FieldByName('LatT').AsFloat-Fmain.CDSmarks.FieldByName('LatB').AsFloat)/2;
-           end
-      else begin
-            LL:=arLL[0];
-           end;
-   Fmain.toPos(LL,zoom - 1,true);
+  VPointCount := Length(AMark.Points);
+  if VPointCount = 1 then begin
+    Result := AMark.Points[0];
+  end else begin
+    if (AMark.Points[0].Y=AMark.Points[VPointCount-1].Y)and
+    (AMark.Points[0].X=AMark.Points[VPointCount-1].X)
+    then begin
+      Result.X:= (AMark.LLRect.Left + AMark.LLRect.Right)/2 ;
+      Result.Y:= (AMark.LLRect.Top + AMark.LLRect.Bottom)/2 ;
+    end else begin
+      Result := AMark.Points[0];
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
@@ -650,10 +644,18 @@ begin
 end;
 
 procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
+var
+  VId: Integer;
+  VMark: TMarkFull;
 begin
- if MarksListBox.ItemIndex>=0 then
-  begin
-   GoToMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,GState.ViewState.GetCurrentZoom + 1);
+  if MarksListBox.ItemIndex>=0 then begin
+    VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
+    VMark := GetMarkByID(VId);
+    try
+      Fmain.topos(GetGoToMarkLonLat(VMark), GState.ViewState.GetCurrentZoom, True);
+    finally
+      VMark.Free
+    end;
   end;
 end;
 

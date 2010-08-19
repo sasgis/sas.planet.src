@@ -3959,16 +3959,26 @@ end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
 var
+  VId: Integer;
+  VMark: TMarkFull;
   VArea: Extended;
   VMessage: string;
 begin
-  VArea := GetMarkSq(strtoint(FPWL.numid));
-  if VArea < 0.1 then begin
-    VMessage := SAS_STR_S+' - '+RoundEx(VArea * 1000000,2)+' '+SAS_UNITS_m2;
-  end else begin
-    VMessage := SAS_STR_S+' - '+RoundEx(VArea,2)+' '+SAS_UNITS_km2;
+  VId := strtoint(FPWL.numid);
+  VMark := GetMarkByID(VId);
+  if VMark <> nil then begin
+    try
+      VArea := GetMarkSq(VMark);
+      if VArea < 0.1 then begin
+        VMessage := SAS_STR_S+' - '+RoundEx(VArea * 1000000,2)+' '+SAS_UNITS_m2;
+      end else begin
+        VMessage := SAS_STR_S+' - '+RoundEx(VArea,2)+' '+SAS_UNITS_km2;
+      end;
+      MessageBox(Handle,pchar(VMessage),pchar(FPWL.name),0);
+    finally
+      VMark.Free;
+    end;
   end;
-  MessageBox(Handle,pchar(VMessage),pchar(FPWL.name),0);
 end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);

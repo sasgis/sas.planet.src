@@ -83,13 +83,21 @@ end;
 procedure TFGoTo.BGoClick(Sender: TObject);
 var accept:boolean;
     textsrch:String;
+  VId: Integer;
+  VMark: TMarkFull;
 begin
  if RB3.Checked then
   begin
    if ComboBox1.ItemIndex>-1 then
     begin
-     close;
-     GoToMark(TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id,CBzoom.ItemIndex+1);
+      VId := TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id;
+      close;
+      VMark := GetMarkByID(VId);
+      try
+        Fmain.topos(GetGoToMarkLonLat(VMark), CBzoom.ItemIndex, True);
+      finally
+        VMark.Free
+      end;
     end;
   end;
  if RB1.Checked then
