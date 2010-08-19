@@ -4163,8 +4163,6 @@ begin
  if GState.show_point = mshNone then exit;
  CDSKategory.Filtered:=true;
  if CDSKategory.Eof then exit;
- CDSmarks.Filtered:=true;
- CDSmarks.First;
 
  VRect.Left := xy.X - 8;
  VRect.Top := xy.Y - 16;
@@ -4181,6 +4179,9 @@ begin
  finally
    GState.ViewState.UnLockRead;
  end;
+
+ CDSmarks.Filtered:=true;
+ CDSmarks.First;
  while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do
  begin
   VMarkLonLatRect.Left := CDSmarkslonL.AsFloat;
