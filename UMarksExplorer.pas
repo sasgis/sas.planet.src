@@ -357,10 +357,7 @@ begin
   Fmain.CDSKategory.First;
   while not(Fmain.CDSKategory.Eof) do begin
     KategoryId:=TCategoryId.Create;
-    KategoryId.name:=Fmain.CDSKategory.fieldbyname('name').AsString;
-    KategoryId.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
-    KategoryId.AfterScale:=Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger;
-    KategoryId.BeforeScale:=Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger;
+    ReadCurrentCategory(KategoryId);
     AStrings.AddObject(KategoryId.name, KategoryId);
     Fmain.CDSKategory.Next;
   end;
