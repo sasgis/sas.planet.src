@@ -81,6 +81,7 @@ TCategoryId = class
  name:string;
  AfterScale: Integer;
  BeforeScale: Integer;
+ visible:boolean;
 end;
 
 TMarkId = class
@@ -133,6 +134,22 @@ uses
   UAddCategory;
 
 {$R *.dfm}
+procedure ReadCurrentCategory(ACategory: TCategoryId);
+begin
+  ACategory.name:=Fmain.CDSKategory.fieldbyname('name').AsString;
+  ACategory.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
+  ACategory.visible:=Fmain.CDSKategory.FieldByName('visible').AsBoolean;
+  ACategory.AfterScale:=Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger;
+  ACategory.BeforeScale:=Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger;
+end;
+
+procedure WriteCurrentCategory(ACategory: TCategoryId);
+begin
+  Fmain.CDSKategory.fieldbyname('name').AsString:=ACategory.name;
+  Fmain.CDSKategory.FieldByName('visible').AsBoolean:=ACategory.visible;
+  Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger:=ACategory.AfterScale;
+  Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger:=ACategory.BeforeScale;
+end;
 
 procedure ReadCurrentMark(AMark: TMarkFull);
 begin
@@ -153,7 +170,7 @@ begin
   AMark.Scale2 := Fmain.CDSmarks.FieldByName('Scale2').AsInteger;
 end;
 
-procedure SaveCurrentMark(AMark: TMarkFull);
+procedure WriteCurrentMark(AMark: TMarkFull);
 begin
   Fmain.CDSmarks.FieldByName('name').AsString := AMark.name;
   Fmain.CDSmarks.FieldByName('Visible').AsBoolean := AMark.visible;
@@ -362,7 +379,7 @@ begin
 end;
 
 procedure TFMarksExplorer.FormShow(Sender: TObject);
-var KategoryId:TCategoryId;
+var
     i:integer;
 begin
  case GState.show_point of
@@ -372,19 +389,7 @@ begin
  end;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
- for i:=1 to KategoryListBox.items.Count do KategoryListBox.Items.Objects[i-1].Free;
- KategoryListBox.Clear;
- Fmain.CDSKategory.Filtered:=false;
- Fmain.CDSKategory.First;
- while not(Fmain.CDSKategory.Eof) do
-  begin
-   KategoryId:=TCategoryId.Create;
-   KategoryId.name:=Fmain.CDSKategory.fieldbyname('name').AsString;
-   KategoryId.id:=Fmain.CDSKategory.fieldbyname('id').AsInteger;
-   KategoryListBox.AddItem(Fmain.CDSKategory.fieldbyname('name').AsString,KategoryId);
-   KategoryListBox.Checked[KategoryListBox.Items.IndexOfObject(KategoryId)]:=Fmain.CDSKategory.fieldbyname('visible').AsBoolean;
-   Fmain.CDSKategory.Next;
-  end;
+ Kategory2StringsWithObjects(KategoryListBox.items);
  SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
 end;
 
