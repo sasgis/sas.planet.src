@@ -3766,25 +3766,29 @@ end;
 procedure TFmain.NMarkNavClick(Sender: TObject);
 var
   LL:TExtendedPoint;
-  arLL: TExtendedPointArray;
   id:integer;
+  VMark: TMarkFull;
+  VPointCount: Integer;
 begin
  FWikiLayer.MouseOnReg(FPWL, moveTrue);
  if (not NMarkNav.Checked) then begin
    id:=strtoint(FPWL.numid);
-   if not(CDSmarks.Locate('id',id,[])) then exit;
-   arLL := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
-   if (arLL[0].Y=arLL[Length(arLL)-1].Y)and
-      (arLL[0].X=arLL[Length(arLL)-1].X)
-      then begin
-            LL.X:=CDSmarks.FieldByName('LonL').AsFloat+(CDSmarks.FieldByName('LonR').AsFloat-CDSmarks.FieldByName('LonL').AsFloat)/2;
-            LL.Y:=CDSmarks.FieldByName('LatB').AsFloat+(CDSmarks.FieldByName('LatT').AsFloat-CDSmarks.FieldByName('LatB').AsFloat)/2;
-           end
-      else begin
-            LL:=arLL[0];
-           end;
-   LayerMapNavToMark.StartNav(LL, Id);
-   arLL := nil;
+   VMark := GetMarkByID(id);
+   if VMark = nil then Exit;
+   try
+     VPointCount := Length(VMark.Points);
+     if (VMark.Points[0].Y=VMark.Points[VPointCount-1].Y)and
+        (VMark.Points[0].X=VMark.Points[VPointCount-1].X)
+     then begin
+      LL.X:= (VMark.LLRect.Left + VMark.LLRect.Right) / 2;
+      LL.Y:= (VMark.LLRect.Top + VMark.LLRect.Bottom) / 2;
+     end else begin
+      LL:=VMark.Points[0];
+     end;
+     LayerMapNavToMark.StartNav(LL, Id);
+   finally
+    VMark.Free;
+   end;
   end else  begin
     LayerMapNavToMark.Visible := false;
   end;
