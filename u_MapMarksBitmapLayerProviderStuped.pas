@@ -167,6 +167,7 @@ var
   VColor2: TColor32;
   VPointCount: Integer;
   VMarkName: string;
+  VCategoryFilter: string;
 begin
   if (GState.show_point = mshNone)or(FMain.CDSmarks.State <> dsBrowse) then exit;
   try
@@ -175,8 +176,10 @@ begin
     if GState.show_point = mshChecked then begin
       marksFilter:=marksFilter+'visible=1';
       marksFilter:=marksFilter+' and ';
-      marksFilter:=marksFilter + GetMarksFileterByCategories(FZoom);
-      marksFilter:=marksFilter+' and ';
+      VCategoryFilter := GetMarksFileterByCategories(FZoom);
+      if Length(VCategoryFilter) > 0 then begin
+        marksFilter:=marksFilter + VCategoryFilter + ' and ';
+      end;
     end;
     dLL:=ExtPoint((LLRect.Right-LLRect.Left)/2,(LLRect.Top-LLRect.Bottom)/2);
     marksFilter:=marksFilter+'('+
