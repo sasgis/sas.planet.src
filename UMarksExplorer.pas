@@ -301,12 +301,70 @@ end;
 
 function DeleteMark(AMarkId: TMarkId): Boolean;
 begin
- result:=false;
- if Fmain.CDSmarks.Locate('id',AMarkId.id,[]) then begin
-   Fmain.CDSmarks.Delete;
-   SaveMarks2File;
-   result:=true;
- end;
+  result:=false;
+  if Fmain.CDSmarks.Locate('id',AMarkId.id,[]) then begin
+    Fmain.CDSmarks.Delete;
+    SaveMarks2File;
+    result:=true;
+  end;
+end;
+
+procedure Kategory2StringsWithObjects(AStrings:TStrings);
+var
+  KategoryId:TCategoryId;
+  i: Integer;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    AStrings.Objects[i].Free;
+  end;
+  AStrings.Clear;
+  Fmain.CDSKategory.Filtered:=false;
+  Fmain.CDSKategory.First;
+  while not(Fmain.CDSKategory.Eof) do begin
+    KategoryId:=TCategoryId.Create;
+    ReadCurrentCategory(KategoryId);
+    AStrings.AddObject(KategoryId.name, KategoryId);
+    Fmain.CDSKategory.Next;
+  end;
+end;
+
+procedure Marsk2StringsWhitMarkId(ACategoryId: TCategoryId; AStrings:TStrings);
+var
+  i: Integer;
+  VMarkId: TMarkId;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    AStrings.Objects[i].Free;
+  end;
+  AStrings.Clear;
+  Fmain.CDSmarks.Filtered:=false;
+  Fmain.CDSmarks.Filter:='categoryid = '+inttostr(ACategoryId.id);
+  Fmain.CDSmarks.Filtered:=true;
+  Fmain.CDSmarks.First;
+  while not(Fmain.CDSmarks.Eof) do begin
+    VMarkId:=TMarkId.Create;
+    ReadCurrentMarkId(VMarkId);
+    AStrings.AddObject(VMarkId.name,VMarkId);
+    Fmain.CDSmarks.Next;
+  end;
+end;
+
+function AddKategory(name:string): Integer;
+var
+  VCategory: TCategoryId;
+begin
+  VCategory := TCategoryId.Create;
+  try
+    VCategory.id := -1;
+    VCategory.name := name;
+    VCategory.visible := True;
+    VCategory.AfterScale := 3;
+    VCategory.BeforeScale := 19;
+    WriteCategory(VCategory);
+    Result := VCategory.id;
+  finally
+    VCategory.Free;
+  end;
 end;
 
 function SaveMarks2File:boolean;
@@ -514,64 +572,6 @@ begin
     end;
   finally
     VMark.Free;
-  end;
-end;
-
-procedure Kategory2StringsWithObjects(AStrings:TStrings);
-var
-  KategoryId:TCategoryId;
-  i: Integer;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    AStrings.Objects[i].Free;
-  end;
-  AStrings.Clear;
-  Fmain.CDSKategory.Filtered:=false;
-  Fmain.CDSKategory.First;
-  while not(Fmain.CDSKategory.Eof) do begin
-    KategoryId:=TCategoryId.Create;
-    ReadCurrentCategory(KategoryId);
-    AStrings.AddObject(KategoryId.name, KategoryId);
-    Fmain.CDSKategory.Next;
-  end;
-end;
-
-procedure Marsk2StringsWhitMarkId(ACategoryId: TCategoryId; AStrings:TStrings);
-var
-  i: Integer;
-  VMarkId: TMarkId;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    AStrings.Objects[i].Free;
-  end;
-  AStrings.Clear;
-  Fmain.CDSmarks.Filtered:=false;
-  Fmain.CDSmarks.Filter:='categoryid = '+inttostr(ACategoryId.id);
-  Fmain.CDSmarks.Filtered:=true;
-  Fmain.CDSmarks.First;
-  while not(Fmain.CDSmarks.Eof) do begin
-    VMarkId:=TMarkId.Create;
-    ReadCurrentMarkId(VMarkId);
-    AStrings.AddObject(VMarkId.name,VMarkId);
-    Fmain.CDSmarks.Next;
-  end;
-end;
-
-function AddKategory(name:string): Integer;
-var
-  VCategory: TCategoryId;
-begin
-  VCategory := TCategoryId.Create;
-  try
-    VCategory.id := -1;
-    VCategory.name := name;
-    VCategory.visible := True;
-    VCategory.AfterScale := 3;
-    VCategory.BeforeScale := 19;
-    WriteCategory(VCategory);
-    Result := VCategory.id;
-  finally
-    VCategory.Free;
   end;
 end;
 
@@ -793,24 +793,24 @@ begin
   VIndex := MarksListBox.ItemIndex;
   if VIndex >= 0 then begin
     VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
-    VMark := TMarkFull.Create;
-    try
-      FMain.CDSmarks.Locate('id',VMarkId.id,[]);
-      ReadCurrentMark(VMark);
-      if EditMarkModal(VMark) then begin
-        WriteMark(VMark);
-        if VMark.CategoryId<>TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id then begin
-          MarksListBox.Items.Objects[VIndex].Free;
-          MarksListBox.DeleteSelected;
-        end else begin
-          VMarkId.name := VMark.name;
-          VMarkId.visible := VMark.visible;
-          MarksListBox.Items.Strings[VIndex]:=VMarkId.name;
-          MarksListBox.Checked[VIndex]:=VMarkId.visible;
+    VMark := GetMarkByID(VMarkId.id);
+    if VMark <> nil then begin
+      try
+        if EditMarkModal(VMark) then begin
+          WriteMark(VMark);
+          if VMark.CategoryId<>TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id then begin
+            MarksListBox.Items.Objects[VIndex].Free;
+            MarksListBox.DeleteSelected;
+          end else begin
+            VMarkId.name := VMark.name;
+            VMarkId.visible := VMark.visible;
+            MarksListBox.Items.Strings[VIndex]:=VMarkId.name;
+            MarksListBox.Checked[VIndex]:=VMarkId.visible;
+          end;
         end;
+      finally
+        VMark.Free;
       end;
-    finally
-      VMark.Free;
     end;
   end;
 end;
