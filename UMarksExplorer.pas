@@ -631,6 +631,10 @@ begin
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
  Kategory2StringsWithObjects(KategoryListBox.items);
+  for i:=0 to KategoryListBox.items.Count - 1 do begin
+    KategoryListBox.Checked[i] := TCategoryId(KategoryListBox.Items.Objects[i]).visible;
+  end;
+
  SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
 end;
 
