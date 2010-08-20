@@ -24,6 +24,7 @@ uses
   Unit1,
   UResStrings,
   UMarksExplorer,
+  u_MarksSimple,
   t_GeoTypes;
 
 type

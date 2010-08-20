@@ -686,6 +686,7 @@ uses
   u_ProxySettingsFromTInetConnect,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
+  u_MarksSimple,
   UTrAllLoadMap,
   UGSM,
   UImport, 

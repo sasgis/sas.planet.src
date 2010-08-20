@@ -29,6 +29,7 @@ uses
   GR32_Resamplers,
   UResStrings,
   UMarksExplorer,
+  u_MarksSimple,
   t_GeoTypes;
 
 type

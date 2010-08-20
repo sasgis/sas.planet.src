@@ -99,6 +99,7 @@ uses
   u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
   i_ISearchResultPresenter in 'i_ISearchResultPresenter.pas',
   u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
+  u_MarksSimple in 'u_MarksSimple.pas',
   i_IBitmapLayerProvider in 'i_IBitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',

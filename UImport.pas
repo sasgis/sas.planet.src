@@ -94,6 +94,7 @@ implementation
 uses
   u_GlobalState,
   u_KmlInfoSimple,
+  u_MarksSimple,
   t_GeoTypes;
   
 {$R *.dfm}

@@ -16,6 +16,7 @@ uses
   ExtCtrls,
   Spin,
   UMarksExplorer,
+  u_MarksSimple,
   UResStrings;
 
 type
