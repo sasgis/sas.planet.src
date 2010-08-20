@@ -2888,7 +2888,7 @@ end;
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
  FWikiLayer.MouseOnReg(FPWL,moveTrue);
- if DeleteMark(StrToInt(FPWL.numid),Handle) then
+ if DeleteMarkModal(StrToInt(FPWL.numid),Handle) then
   generate_im;
 end;
 

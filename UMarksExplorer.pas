@@ -104,7 +104,7 @@ end;
 var
   FMarksExplorer: TFMarksExplorer;
   function GetMarkByID(id:integer): TMarkFull;
-  function DeleteMark(id:integer;handle:THandle):boolean;
+  function DeleteMarkModal(id:integer;handle:THandle):boolean;
   function OperationMark(AMark: TMarkFull):boolean;
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
@@ -267,6 +267,15 @@ begin
   end;
 end;
 
+function GetMarkIdByID(id:integer): TMarkId;
+begin
+  Result := nil;
+  if FMain.CDSmarks.Locate('id',id,[]) then begin
+    Result := TMarkId.Create;
+    ReadCurrentMarkId(Result);
+  end;
+end;
+
 procedure WriteMark(AMark: TMarkFull);
 begin
   if AMark.id >= 0 then begin
@@ -288,6 +297,16 @@ begin
     WriteCurrentMarkId(AMark);
     Fmain.CDSmarks.Post;
   end;
+end;
+
+function DeleteMark(AMarkId: TMarkId): Boolean;
+begin
+ result:=false;
+ if Fmain.CDSmarks.Locate('id',AMarkId.id,[]) then begin
+   Fmain.CDSmarks.Delete;
+   SaveMarks2File;
+   result:=true;
+ end;
 end;
 
 function SaveMarks2File:boolean;
@@ -401,6 +420,7 @@ function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
 var
   VMark: TMarkFull;
 begin
+  Result := False;
   if AID < 0 then begin
     VMark := TMarkFull.Create;
   end else begin
@@ -424,6 +444,7 @@ function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescriptio
 var
   VMark: TMarkFull;
 begin
+  Result := False;
   if AID < 0 then begin
     VMark := TMarkFull.Create;
   end else begin
@@ -515,6 +536,27 @@ begin
   end;
 end;
 
+procedure Marsk2StringsWhitMarkId(ACategoryId: TCategoryId; AStrings:TStrings);
+var
+  i: Integer;
+  VMarkId: TMarkId;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    AStrings.Objects[i].Free;
+  end;
+  AStrings.Clear;
+  Fmain.CDSmarks.Filtered:=false;
+  Fmain.CDSmarks.Filter:='categoryid = '+inttostr(ACategoryId.id);
+  Fmain.CDSmarks.Filtered:=true;
+  Fmain.CDSmarks.First;
+  while not(Fmain.CDSmarks.Eof) do begin
+    VMarkId:=TMarkId.Create;
+    ReadCurrentMarkId(VMarkId);
+    AStrings.AddObject(VMarkId.name,VMarkId);
+    Fmain.CDSmarks.Next;
+  end;
+end;
+
 function AddKategory(name:string): Integer;
 var
   VCategory: TCategoryId;
@@ -550,28 +592,17 @@ end;
 
 procedure TFMarksExplorer.KategoryListBoxMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var MarkId:TMarkId;
-    i:integer;
-    items:TStringList;
+var
+  VIndex: integer;
+  i:integer;
 begin
- if KategoryListBox.ItemIndex<0 then exit;
- Fmain.CDSmarks.Filtered:=false;
- Fmain.CDSmarks.Filter:='categoryid = '+inttostr(TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id);
- Fmain.CDSmarks.Filtered:=true;
- Fmain.CDSmarks.First;
- for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
- MarksListBox.Clear;
- items:=TStringList.Create;
- while not(Fmain.CDSmarks.Eof) do begin
-   MarkId:=TMarkId.Create;
-   ReadCurrentMarkId(MarkId);
-   items.AddObject(MarkId.name,MarkId);
-   Fmain.CDSmarks.Next;
- end;
- MarksListBox.Items.Assign(items);
- FreeAndNil(items);
- for i:=0 to MarksListBox.Count-1 do
-  MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
+  VIndex := KategoryListBox.ItemIndex;
+  if VIndex >= 0 then begin
+    Marsk2StringsWhitMarkId(TCategoryId(KategoryListBox.Items.Objects[VIndex]), MarksListBox.Items);
+    for i:=0 to MarksListBox.Count-1 do begin
+      MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
@@ -583,16 +614,20 @@ begin
  close;
 end;
 
-function DeleteMark(id:integer;handle:THandle):boolean;
+function DeleteMarkModal(id:integer;handle:THandle):boolean;
+var
+  VMarkId: TMarkId;
 begin
- result:=false;
- Fmain.CDSmarks.Locate('id',id,[]);
- if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+Fmain.CDSmarks.fieldbyname('name').asString+'"'),pchar(SAS_MSG_coution),36)=IDNO
-  then exit;
- Fmain.CDSmarks.Locate('id',id,[]);
- Fmain.CDSmarks.Delete;
- SaveMarks2File;
- result:=true;
+  result:=false;
+  VMarkId := GetMarkIdByID(id);
+  if VMarkId <> nil then begin
+    try
+      if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMarkId.name+'"'),pchar(SAS_MSG_coution),36)=IDNO then exit;
+      result:=DeleteMark(VMarkId);
+    finally
+      VMarkId.Free;
+    end;
+  end;
 end;
 
 function GetMarkLength(AMark: TMarkFull):extended;
@@ -667,7 +702,7 @@ begin
   VIndex := MarksListBox.ItemIndex;
   if VIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[VIndex]).id;
-    if DeleteMark(VId,Self.Handle) then begin
+    if DeleteMarkModal(VId,Self.Handle) then begin
       MarksListBox.Items.Objects[VIndex].Free;
       MarksListBox.DeleteSelected;
     end;
@@ -816,7 +851,7 @@ begin
     VIndex := MarksListBox.ItemIndex;
     if VIndex >= 0 then begin
       VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
-      if DeleteMark(VMarkId.id, Self.Handle) then begin
+      if DeleteMarkModal(VMarkId.id, Self.Handle) then begin
         VMarkId.Free;
         MarksListBox.DeleteSelected;
       end;
