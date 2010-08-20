@@ -97,7 +97,28 @@ uses
   u_KmlInfoSimple,
   u_MarksSimple,
   t_GeoTypes;
-  
+
+procedure KMLDataToMark(ASource: TKMLData; ATarget: TMarkFull);
+var
+  alltl,allbr:TExtendedPoint;
+  j: Integer;
+begin
+  ATarget.name := ASource.Name;
+  ATarget.Desc := ASource.description;
+  ATarget.Points := Copy(ASource.coordinates);
+
+  alltl:=ATarget.Points[0];
+  allbr:=ATarget.Points[0];
+  for j:=1 to Length(ATarget.Points)-1 do begin
+    if alltl.x>ATarget.Points[j].x then alltl.x:=ATarget.Points[j].x;
+    if alltl.y<ATarget.Points[j].y then alltl.y:=ATarget.Points[j].y;
+    if allbr.x<ATarget.Points[j].x then allbr.x:=ATarget.Points[j].x;
+    if allbr.y>ATarget.Points[j].y then allbr.y:=ATarget.Points[j].y;
+  end;
+  ATarget.LLRect.TopLeft := alltl;
+  ATarget.LLRect.BottomRight := allbr;
+end;
+
 {$R *.dfm}
 
 procedure TFImport.SpeedButton1Click(Sender: TObject);
