@@ -785,7 +785,7 @@ begin
    begin
     FImport.FileName:=OpenDialog1.FileName;
     FImport.ShowModal;
-    FMarksExplorer.FormShow(sender);
+    Self.FormShow(sender);
    end;
 end;
 
@@ -798,24 +798,28 @@ begin
   if VIndex >=0 then begin
     VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
     FaddCategory.show_(VCategory);
-    Fmain.CDSKategory.Locate('id',VCategory.id,[]);
-    Fmain.CDSKategory.Edit;
-    WriteCurrentCategory(VCategory);
-    Fmain.CDSKategory.Post;
-    SaveCategory2File;
-    KategoryListBox.Items.Strings[VIndex]:=VCategory.name;
+    WriteCategory(VCategory);
+    KategoryListBox.Items.Strings[VIndex] := VCategory.name;
+    KategoryListBox.Checked[VIndex] := VCategory.visible;
   end;
 end;
 
 procedure TFMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+var
+  VIndex: Integer;
+  VMarkId: TMarkId;
 begin
- If key=VK_DELETE then
-   if MarksListBox.ItemIndex>=0 then
-     begin
-      if DeleteMark(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,FMarksExplorer.Handle)
-        then MarksListBox.DeleteSelected;
-     end;
+  If key=VK_DELETE then begin
+    VIndex := MarksListBox.ItemIndex;
+    if VIndex >= 0 then begin
+      VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
+      if DeleteMark(VMarkId.id, FMarksExplorer.Handle) then begin
+        VMarkId.Free;
+        MarksListBox.DeleteSelected;
+      end;
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.KategoryListBoxKeyUp(Sender: TObject;
