@@ -169,17 +169,19 @@ end;
 
 procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
 begin
-  FMain.CDSmarks.Filtered:=false;
-  Fmain.CDSmarks.Filter:='categoryid = '+inttostr(ACategory.id);
-  Fmain.CDSmarks.Filtered:=true;
-  Fmain.CDSmarks.First;
-  while not(Fmain.CDSmarks.Eof) do begin
-    Fmain.CDSmarks.Delete;
-  end;
   if Fmain.CDSKategory.Locate('id',ACategory.id,[]) then begin
-    Fmain.CDSKategory.Delete;
+    FMain.CDSmarks.Filtered:=false;
+    Fmain.CDSmarks.Filter:='categoryid = '+inttostr(ACategory.id);
+    Fmain.CDSmarks.Filtered:=true;
+    Fmain.CDSmarks.First;
+    while not(Fmain.CDSmarks.Eof) do begin
+      Fmain.CDSmarks.Delete;
+    end;
+    if Fmain.CDSKategory.Locate('id',ACategory.id,[]) then begin
+      Fmain.CDSKategory.Delete;
+    end;
+    SaveCategory2File;
   end;
-  SaveCategory2File;
 end;
 
 
