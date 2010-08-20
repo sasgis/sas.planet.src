@@ -298,11 +298,11 @@ begin
                     sleep(10000);
                     VGotoNextTile := false;
                   end;
-                  dtrTileNotExists: begin
+                  dtrErrorMIMEType: begin
                     FLog.WriteText(Format(SAS_ERR_BadMIME, [ty]), 1);
                     VGotoNextTile := True;
                   end;
-                  dtrErrorMIMEType: begin
+                  dtrTileNotExists: begin
                     FLog.WriteText(SAS_ERR_TileNotExists, 1);
                     VGotoNextTile := True;
                   end;
