@@ -16,7 +16,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
-  DB,
   GR32,
   TB2Item,
   TBX,

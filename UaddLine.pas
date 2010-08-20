@@ -12,7 +12,6 @@ uses
   Controls,
   Forms,
   Dialogs,
-  DB,
   Spin,
   StdCtrls,
   ExtCtrls,

@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  Forms,
   sysutils,
   Classes,
   IniFiles,

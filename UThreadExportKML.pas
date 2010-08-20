@@ -9,7 +9,6 @@ uses
   SysUtils,
   Classes,
   Graphics,
-  VCLZIp,
   GR32,
   UMapType,
   UGeoFun,

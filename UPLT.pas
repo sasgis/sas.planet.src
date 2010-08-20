@@ -3,11 +3,8 @@ unit UPLT;
 interface
 
 uses
-  Windows,
   Classes,
   SysUtils,
-  Graphics,
-  GR32,
   t_GeoTypes;
 
 type

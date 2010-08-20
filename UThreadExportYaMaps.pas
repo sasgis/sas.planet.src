@@ -62,7 +62,6 @@ implementation
 
 uses
   Dialogs,
-  u_GeoToStr,
   i_ICoordConverter,
   u_GlobalState,
   u_CoordConverterMercatorOnEllipsoid,
