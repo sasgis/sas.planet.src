@@ -167,6 +167,22 @@ begin
   SaveCategory2File;
 end;
 
+procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
+begin
+  FMain.CDSmarks.Filtered:=false;
+  Fmain.CDSmarks.Filter:='categoryid = '+inttostr(ACategory.id);
+  Fmain.CDSmarks.Filtered:=true;
+  Fmain.CDSmarks.First;
+  while not(Fmain.CDSmarks.Eof) do begin
+    Fmain.CDSmarks.Delete;
+  end;
+  if Fmain.CDSKategory.Locate('id',ACategory.id,[]) then begin
+    Fmain.CDSKategory.Delete;
+  end;
+  SaveCategory2File;
+end;
+
+
 function GetMarksFileterByCategories(AZoom: Byte): string;
 begin
   Result := '';
@@ -423,34 +439,23 @@ begin
   end;
 end;
 
-function EditMarkModal(id:integer):boolean;
+function EditMarkModal(AMark: TMarkFull):boolean;
 var
   VPointCount:integer;
-  VMark: TMarkFull;
 begin
-  VMark := TMarkFull.Create;
-  try
-    FMain.CDSmarks.Locate('id',id,[]);
-    ReadCurrentMark(VMark);
-    VPointCount := Length(VMark.Points);
+    VPointCount := Length(AMark.Points);
     Result := false;
     if VPointCount = 1 then begin
-      result:=FaddPoint.EditMark(VMark);
+      result:=FaddPoint.EditMark(AMark);
     end else begin
       if (VPointCount>1) then begin
-        if compare2EP(VMark.Points[0],VMark.Points[VPointCount-1]) then begin
-          result:=FaddPoly.EditMark(VMark);
+        if compare2EP(AMark.Points[0],AMark.Points[VPointCount-1]) then begin
+          result:=FaddPoly.EditMark(AMark);
         end else begin
-          result:=FaddLine.EditMark(VMark);
+          result:=FaddLine.EditMark(AMark);
         end;
       end;
     end;
-    if Result then begin
-      WriteMark(VMark);
-    end;
-  finally
-    VMark.Free;
-  end;
 end;
 
 function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
@@ -726,39 +731,49 @@ begin
 end;
 
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
-var i:integer;
+var
+  i:integer;
+  VIndex: Integer;
+  VCategory: TCategoryId;
 begin
- if MessageBox(FMarksExplorer.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDNO
-  then exit;
- Fmain.CDSKategory.Locate('id',TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id,[]);
- FMain.CDSmarks.Filtered:=false;
- Fmain.CDSmarks.Filter:='categoryid = '+inttostr(TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id);
- Fmain.CDSmarks.Filtered:=true;
- Fmain.CDSmarks.First;
- while not(Fmain.CDSmarks.Eof) do
-   Fmain.CDSmarks.Delete;
- Fmain.CDSKategory.Delete;
- SaveCategory2File;
- KategoryListBox.Items.Objects[KategoryListBox.ItemIndex].Free;
- KategoryListBox.DeleteSelected;
- for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
- MarksListBox.Clear;
+  VIndex := KategoryListBox.ItemIndex;
+  VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+  if MessageBox(FMarksExplorer.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDNO then exit;
+  DeleteCategoryWithMarks(VCategory);
+  KategoryListBox.Items.Objects[VIndex].Free;
+  KategoryListBox.DeleteSelected;
+  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
+  MarksListBox.Clear;
 end;
 
 procedure TFMarksExplorer.SpeedButton1Click(Sender: TObject);
+var
+  VIndex: Integer;
+  VMarkId: TMarkId;
+  VMark: TMarkFull;
+
 begin
- if MarksListBox.ItemIndex>=0 then
-  begin
-   if EditMarkModal(TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id) then
-    begin
-     FMain.CDSmarks.Locate('id',TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id,[]);
-     MarksListBox.Items.Strings[MarksListBox.ItemIndex]:=Fmain.CDSmarks.fieldbyname('name').asString;
-     MarksListBox.Checked[MarksListBox.ItemIndex]:=Fmain.CDSmarks.fieldbyname('visible').AsBoolean;
-     if Fmain.CDSmarks.fieldbyname('categoryid').AsInteger<>TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id then
-       begin
-          MarksListBox.Items.Objects[MarksListBox.ItemIndex].Free;
+  VIndex := MarksListBox.ItemIndex;
+  if VIndex >= 0 then begin
+    VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
+    VMark := TMarkFull.Create;
+    try
+      FMain.CDSmarks.Locate('id',VMarkId.id,[]);
+      ReadCurrentMark(VMark);
+      if EditMarkModal(VMark) then begin
+        WriteMark(VMark);
+        if VMark.CategoryId<>TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id then begin
+          MarksListBox.Items.Objects[VIndex].Free;
           MarksListBox.DeleteSelected;
-       end;
+        end else begin
+          VMarkId.name := VMark.name;
+          VMarkId.visible := VMark.visible;
+          MarksListBox.Items.Strings[VIndex]:=VMarkId.name;
+          MarksListBox.Checked[VIndex]:=VMarkId.visible;
+        end;
+      end;
+    finally
+      VMark.Free;
     end;
   end;
 end;
