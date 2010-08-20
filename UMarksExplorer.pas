@@ -890,13 +890,8 @@ var
 begin
   VCategory := TCategoryId.Create;
   VCategory.id := -1;
-
   if FaddCategory.show_(VCategory) then begin
-    Fmain.CDSKategory.Insert;
-    WriteCurrentCategory(VCategory);
-    Fmain.CDSKategory.Post;
-    SaveCategory2File;
-    VCategory.id := Fmain.CDSKategory.fieldbyname('id').AsInteger;
+    WriteCategory(VCategory);
     VIndex := KategoryListBox.Items.AddObject(VCategory.name, VCategory);
     KategoryListBox.Checked[VIndex]:=VCategory.visible;
   end else begin
@@ -909,28 +904,27 @@ var
   LL:TExtendedPoint;
   arLL:TExtendedPointArray;
   VPointCount:integer;
-  id:integer;
+  VId:integer;
+  VIndex: Integer;
+  VMark: TMarkFull;
 begin
- if (SBNavOnMark.Down) then
-  if (MarksListBox.ItemIndex>=0) then
-  begin
-   id:=TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
-   if not(Fmain.CDSmarks.Locate('id',id,[])) then exit;
-   arLL := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
-   VPointCount := Length(arLL);
-   if (arLL[0].Y=arLL[VPointCount-1].Y)and
-      (arLL[0].X=arLL[VPointCount-1].X)
-      then begin
-            LL.X:=Fmain.CDSmarks.FieldByName('LonL').AsFloat+(Fmain.CDSmarks.FieldByName('LonR').AsFloat-Fmain.CDSmarks.FieldByName('LonL').AsFloat)/2;
-            LL.Y:=Fmain.CDSmarks.FieldByName('LatB').AsFloat+(Fmain.CDSmarks.FieldByName('LatT').AsFloat-Fmain.CDSmarks.FieldByName('LatB').AsFloat)/2;
-           end
-      else begin
-            LL:=arLL[0];
-           end;
-   FMain.LayerMapNavToMark.StartNav(LL, ID);
-  end
-  else SBNavOnMark.Down:=not SBNavOnMark.Down
- else FMain.LayerMapNavToMark.Visible := False;
+  if (SBNavOnMark.Down) then begin
+    VIndex := MarksListBox.ItemIndex;
+    if (VIndex >= 0) then begin
+      VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
+      VMark := GetMarkByID(VId);
+      try
+        LL := GetGoToMarkLonLat(VMark);
+        FMain.LayerMapNavToMark.StartNav(LL, VId);
+      finally
+        VMark.Free;
+      end;
+    end else begin
+      SBNavOnMark.Down:=not SBNavOnMark.Down
+    end;
+  end else begin
+    FMain.LayerMapNavToMark.Visible := False;
+  end;
 end;
 
 procedure TFMarksExplorer.FormClose(Sender: TObject;

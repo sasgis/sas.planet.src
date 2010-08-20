@@ -3781,7 +3781,6 @@ var
   LL:TExtendedPoint;
   id:integer;
   VMark: TMarkFull;
-  VPointCount: Integer;
 begin
  FWikiLayer.MouseOnReg(FPWL, moveTrue);
  if (not NMarkNav.Checked) then begin
@@ -3789,15 +3788,7 @@ begin
    VMark := GetMarkByID(id);
    if VMark = nil then Exit;
    try
-     VPointCount := Length(VMark.Points);
-     if (VMark.Points[0].Y=VMark.Points[VPointCount-1].Y)and
-        (VMark.Points[0].X=VMark.Points[VPointCount-1].X)
-     then begin
-      LL.X:= (VMark.LLRect.Left + VMark.LLRect.Right) / 2;
-      LL.Y:= (VMark.LLRect.Top + VMark.LLRect.Bottom) / 2;
-     end else begin
-      LL:=VMark.Points[0];
-     end;
+     LL := GetGoToMarkLonLat(VMark);
      LayerMapNavToMark.StartNav(LL, Id);
    finally
     VMark.Free;
