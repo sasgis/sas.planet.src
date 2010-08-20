@@ -135,19 +135,8 @@ begin
 end;
 
 procedure TFGoTo.FormShow(Sender: TObject);
-var Mark:TMarkId;
 begin
- ComboBox1.Clear;
- Fmain.CDSmarks.Filtered:=false;
- Fmain.CDSmarks.First;
- while not(Fmain.CDSmarks.Eof) do
-  begin
-   Mark:=TMarkId.Create;
-   Mark.id:=Fmain.CDSmarks.FieldByName('id').AsInteger;
-   ComboBox1.AddItem(Fmain.CDSmarks.FieldByName('name').AsString,Mark);
-   Fmain.CDSmarks.Next;
-  end;
- Fmain.CDSmarks.First;
+  AllMarsk2StringsWhitMarkId(ComboBox1.Items);
 end;
 
 procedure TFGoTo.ComboBox1Enter(Sender: TObject);

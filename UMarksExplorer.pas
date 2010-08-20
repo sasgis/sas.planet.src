@@ -108,6 +108,7 @@ var
   function OperationMark(AMark: TMarkFull):boolean;
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
+  procedure AllMarsk2StringsWhitMarkId(AStrings:TStrings);
   function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
   function GetMarkLength(AMark: TMarkFull):extended;
   function GetMarkSq(AMark: TMarkFull):extended;
@@ -359,6 +360,37 @@ begin
     AStrings.AddObject(VMarkId.name,VMarkId);
     Fmain.CDSmarks.Next;
   end;
+end;
+
+procedure AllMarsk2StringsWhitMarkId(AStrings:TStrings);
+var
+  i: Integer;
+  VMarkId: TMarkId;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    AStrings.Objects[i].Free;
+  end;
+  AStrings.Clear;
+  Fmain.CDSmarks.Filtered:=false;
+  Fmain.CDSmarks.First;
+  while not(Fmain.CDSmarks.Eof) do begin
+    VMarkId:=TMarkId.Create;
+    ReadCurrentMarkId(VMarkId);
+    AStrings.AddObject(VMarkId.name,VMarkId);
+    Fmain.CDSmarks.Next;
+  end;
+end;
+
+procedure WriteMarkIdList(AStrings:TStrings);
+var
+  VMarkId: TMarkId;
+  i: Integer;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    VMarkId := TMarkId(AStrings.Objects[i]);
+    WriteMarkId(VMarkId);
+  end;
+  SaveCategory2File;
 end;
 
 function AddKategory(name:string): Integer;
@@ -906,21 +938,18 @@ begin
 end;
 
 procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
-var i:integer;
+var
+  i:integer;
+  VNewVisible: Boolean;
 begin
- if MarksListBox.Count>0 then begin
-   for i:=0 to MarksListBox.Count-1 do MarksListBox.Checked[i]:=CheckBox1.Checked;
-   Fmain.CDSmarks.Filter:='categoryid = '+inttostr(TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id);
-   Fmain.CDSmarks.Filtered:=true;
-   Fmain.CDSmarks.First;
-   while not(Fmain.CDSmarks.Eof) do begin
-     Fmain.CDSmarks.Edit;
-     Fmain.CDSmarks.FieldByName('visible').AsBoolean:=CheckBox1.Checked;
-     Fmain.CDSmarks.Post;
-     Fmain.CDSmarks.Next;
+  if MarksListBox.Count>0 then begin
+    VNewVisible := CheckBox1.Checked;
+    for i:=0 to MarksListBox.Count-1 do begin
+      MarksListBox.Checked[i]:=VNewVisible;
+      TMarkId(MarksListBox.Items.Objects[i]).visible := VNewVisible;
     end;
-   Fmain.CDSmarks.Filtered:=False;
- end
+    WriteMarkIdList(MarksListBox.Items);
+  end
 end;
 
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
