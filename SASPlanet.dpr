@@ -11,7 +11,6 @@ uses
   ECWReader in 'src\ECWReader.pas',
   ECWWriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
-  pngimage in 'src\pngimage.pas',
   Langs in 'src\Langs.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
   cUnicode in 'src\cUnicode.pas',
@@ -70,13 +69,6 @@ uses
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileJpegLoader in 'BitmapTileSaveLoad\u_BitmapTileJpegLoader.pas',
   u_BitmapTileJpegSaverIJL in 'BitmapTileSaveLoad\u_BitmapTileJpegSaverIJL.pas',
-  u_BitmapTilePngLoader in 'BitmapTileSaveLoad\u_BitmapTilePngLoader.pas',
-  u_BitmapTilePngSaver in 'BitmapTileSaveLoad\u_BitmapTilePngSaver.pas',
-  u_BitmapTileGifLoader in 'BitmapTileSaveLoad\u_BitmapTileGifLoader.pas',
-  u_BitmapTileGifSaver in 'BitmapTileSaveLoad\u_BitmapTileGifSaver.pas',
-  u_BitmapTileBmpLoader in 'BitmapTileSaveLoad\u_BitmapTileBmpLoader.pas',
-  u_BitmapTileBmpSaver in 'BitmapTileSaveLoad\u_BitmapTileBmpSaver.pas',
-  u_BitmapTilePngNbitdepthSaver in 'BitmapTileSaveLoad\u_BitmapTilePngNbitdepthSaver.pas',
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   i_IBitmapTypeExtManager in 'i_IBitmapTypeExtManager.pas',
@@ -199,7 +191,7 @@ uses
   u_GECrypt in 'u_GECrypt.pas',
   u_GETexture in 'u_GETexture.pas';
 
-{$R *.res}{$R SASR.RES}
+{$R SASPlanet.res}
 begin
   GState := TGlobalState.Create;
   try

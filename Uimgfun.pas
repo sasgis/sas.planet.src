@@ -8,8 +8,7 @@ uses
   graphics,
   SysUtils,
   Types,
-  GR32,
-  pngimage;
+  GR32;
 
 type
   TTileResamplingType = (
@@ -28,7 +27,6 @@ type
     trtSinsh = 12
   );
 
-  function PNGintoBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject): boolean;
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
   procedure Gamma(Bitmap: TCustomBitmap32);
 
@@ -74,193 +72,10 @@ begin
   end;
 end;
 
-function GetByteArrayPixel(const png: TPngObject; const X: Integer; scLine:pByteArray;ChunkPLTE:TChunkPLTE;DataDepth,ColorType:Byte): TColor32;
-var ByteData: Byte;
-begin
-    if DataDepth>7 then begin
-      ByteData := scLine^[X];
-    end else begin
-      ByteData := scLine^[X div (8 div DataDepth)];
-      ByteData := (ByteData shr ((8 - DataDepth) -(X mod (8 div DataDepth)) * DataDepth));
-      ByteData:= ByteData and ($FF shr (8 - DataDepth));
-    end;
-    case ColorType of
-      COLOR_GRAYSCALE:
-      begin
-        if DataDepth = 1
-        then ByteData := png.GammaTable[Byte(ByteData * 255)]
-        else ByteData := png.GammaTable[Byte(ByteData * ((1 shl DataDepth) + 1))];
-        Result :=color32(ByteData, ByteData, ByteData, $FF);;
-      end;
-      else Result := 0;
-    end;
-end;
 
-procedure PngWithPaletteToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject; DataDepth: Byte);
-var
-  ChunkPLTE:TChunkPLTE;
-  ChunktRNS:TChunktRNS;
-  X, Y: Integer;
-  RGBPtr:PColor32Array;
-  AlphaPtr: pByteArray;
-  VPalette: array of TColor32;
-  i: Integer;
-  VByteData: Byte;
-begin
-  ChunkPLTE:=TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE));
-  ChunktRNS:=TChunktRNS(PNGObject.Chunks.ItemFromClass(TChunktRNS));
-  SetLength(VPalette, ChunkPLTE.Count);
-  for i := 0 to ChunkPLTE.Count - 1 do begin
-    with ChunkPLTE.Item[i] do begin
-      VPalette[i] := color32(PNGObject.GammaTable[rgbRed], PNGObject.GammaTable[rgbGreen],
-                            PNGObject.GammaTable[rgbBlue], ChunktRNS.PaletteValues[i]);
-    end;
-  end;
-  if DataDepth >= 8 then begin
-    for Y:=0 to destBitmap.Height-1 do begin
-      RGBPtr:=destBitmap.ScanLine[Y];
-      AlphaPtr:=PNGObject.Scanline[Y];
-      for X:=0 to (destBitmap.Width-1) do begin
-        RGBPtr^[x] := VPalette[AlphaPtr^[X]];
-      end;
-    end;
-  end else begin
-    for Y:=0 to destBitmap.Height-1 do begin
-      RGBPtr:=destBitmap.ScanLine[Y];
-      AlphaPtr:=PNGObject.Scanline[Y];
-      for X:=0 to (destBitmap.Width-1) do begin
-        VByteData := AlphaPtr^[X div (8 div DataDepth)];
-        VByteData := (VByteData shr ((8 - DataDepth) -(X mod (8 div DataDepth)) * DataDepth));
-        VByteData:= VByteData and ($FF shr (8 - DataDepth));
-        RGBPtr^[x] := VPalette[VByteData];
-      end;
-    end;
-  end;
-  VPalette := nil;
-end;
 
-procedure PngRgbAlfaToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject);
-var
-  X, Y: Integer;
-  RGBPtr:PColor32Array;
-  AlphaPtr: pByteArray;
-  VRGB: TRGBTriple;
-  SourcePtr: pRGBLine;
-begin
-  for Y:=0 to destBitmap.Height-1 do begin
-    RGBPtr:=destBitmap.ScanLine[Y];
-    AlphaPtr:=PNGObject.AlphaScanline[Y];
-    SourcePtr := PNGObject.Scanline[Y];
-    for X:=0 to destBitmap.Width-1 do begin
-      VRGB := SourcePtr^[X];
-      RGBPtr^[x] := Color32(VRGB.rgbtRed, VRGB.rgbtGreen, VRGB.rgbtBlue, AlphaPtr^[X]);
-    end;
-  end;
-end;
 
-procedure PngGrayScaleAlfaToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject);
-var
-  X, Y: Integer;
-  RGBPtr:PColor32Array;
-  AlphaPtr: pByteArray;
-begin
-//  destBitmap.Draw(bounds(0,0,destBitmap.Width,destBitmap.Height),bounds(0,0,destBitmap.Width,destBitmap.Height),PNGObject.Canvas.Handle);
-  for Y:=0 to destBitmap.Height-1 do begin
-    RGBPtr:=destBitmap.ScanLine[Y];
-    AlphaPtr:=PNGObject.AlphaScanline[Y];
-    for X:=0 to destBitmap.Width-1 do begin
-      RGBPtr^[x]:=(RGBPtr^[x])or(AlphaPtr^[X] shl 24);
-    end;
-  end;
-end;
-procedure PngRGBToBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject);
-var
-  X, Y: Integer;
-  DestPtr:PColor32Array;
-  VRGB: TRGBTriple;
-  SourcePtr: pRGBLine;
-  trColor:TColor32;
-begin
-  TrColor:=Color32(PNGObject.TransparentColor);
-  for Y:=0 to (destBitmap.Height-1) do begin
-    DestPtr := destBitmap.ScanLine[Y];
-    SourcePtr:=PNGObject.Scanline[Y];
-    for X:=0 to (destBitmap.Width-1) do begin
-      VRGB := SourcePtr^[X];
-      DestPtr^[x] := Color32(VRGB.rgbtRed, VRGB.rgbtGreen, VRGB.rgbtBlue);
-      if DestPtr^[x] = trColor then begin
-        DestPtr^[x] := 0;
-      end;
-    end;
-  end;
-end;
 
-function PNGintoBitmap32(destBitmap: TCustomBitmap32; PNGObject: TPNGObject): boolean;
-var
-    AlphaPtr: pByteArray;
-    X, Y: Integer;
-    trColor:TColor32;
-    PixelPtr: PColor32;
-    ChunkPLTE:TChunkPLTE;
-    DataDepth: Byte;
-    ColorType: Byte;
-begin
- try
-  destBitmap.Clear;
-  destBitmap.SetSize(PNGObject.Width,PNGObject.Height);
-  DataDepth:=PNGObject.Header.BitDepth;
-  case PNGObject.TransparencyMode of
-    ptmPartial:
-     begin
-      case PNGObject.Header.ColorType of
-        COLOR_GRAYSCALEALPHA: begin
-          PngGrayScaleAlfaToBitmap32(destBitmap, PNGObject);
-        end;
-        COLOR_RGBALPHA: begin
-          PngRgbAlfaToBitmap32(destBitmap, PNGObject);
-        end;
-        COLOR_PALETTE: begin
-          PngWithPaletteToBitmap32(destBitmap, PNGObject, DataDepth);
-        end;
-      end;
-     end;
-    ptmBit:
-      begin
-        case PNGObject.Header.ColorType of
-          COLOR_GRAYSCALE: begin
-            ChunkPLTE:=TChunkPLTE(PNGObject.Chunks.ItemFromClass(TChunkPLTE));
-            ColorType:=PNGObject.Header.ColorType;
-            TrColor:=Color32(PNGObject.TransparentColor);
-            PixelPtr:=PColor32(@destBitmap.Bits[0]);
-            for Y:=0 to (destBitmap.Height-1) do begin
-             AlphaPtr:=PNGObject.Scanline[Y];
-             for X:=0 to (destBitmap.Width-1) do begin
-               PixelPtr^:=GetByteArrayPixel(PNGObject,X,AlphaPtr,ChunkPLTE,DataDepth,ColorType);
-               if PixelPtr^=TrColor then begin
-                 PixelPtr^:=PixelPtr^ and $00000000;
-               end;
-               Inc(PixelPtr);
-             end;
-            end;
-          end;
-          COLOR_RGB: begin
-            PngRGBToBitmap32(destBitmap, PNGObject);
-          end;
-          COLOR_PALETTE: begin
-            PngWithPaletteToBitmap32(destBitmap, PNGObject, DataDepth);
-          end;
-        end;
-      end;
-     ptmNone:
-       begin
-        destBitmap.Assign(PNGObject);
-       end;
-  end;
-  result:=true;
- except
-  result:=false;
- end;
-end;
 
 procedure Contrast(Bitmap: TCustomBitmap32; Value: double);
  function BLimit(B:Integer):Byte;
