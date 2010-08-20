@@ -812,8 +812,7 @@ begin
  If (OpenDialog1.Execute) then
   if (FileExists(OpenDialog1.FileName)) then
    begin
-    FImport.FileName:=OpenDialog1.FileName;
-    FImport.ShowModal;
+    FImport.ImportFile(OpenDialog1.FileName);
     Self.FormShow(sender);
    end;
 end;

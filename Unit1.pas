@@ -4177,8 +4177,7 @@ begin
       if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
          (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
          (ExtractFileExt(OpenSessionDialog.FileName)='.plt') then begin
-        FImport.FileName:=OpenSessionDialog.FileName;
-        FImport.ShowModal;
+        FImport.ImportFile(OpenSessionDialog.FileName);
       end else begin
         if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
           Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);

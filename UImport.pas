@@ -78,12 +78,13 @@ type
     procedure FormActivate(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
-  public
     FileName:string;
+  public
+    function ImportFile(AFileName: string): Boolean;
   end;
 
 var
@@ -107,6 +108,11 @@ end;
 procedure TFImport.SpeedButton2Click(Sender: TObject);
 begin
  if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
+end;
+
+procedure TFImport.Button2Click(Sender: TObject);
+begin
+  ModalResult := mrCancel;
 end;
 
 procedure TFImport.ComboBox1DrawItem(Control: TWinControl; Index: Integer;
@@ -159,9 +165,10 @@ begin
  Kategory2StringsWithObjects(CBKateg.Items);
 end;
 
-procedure TFImport.Button2Click(Sender: TObject);
+function TFImport.ImportFile(AFileName: string): Boolean;
 begin
- close;
+  FileName := AFileName;
+  Result := ShowModal = mrOk;
 end;
 
 procedure TFImport.Button1Click(Sender: TObject);
@@ -369,7 +376,7 @@ begin
     end;
    SaveMarks2File;
   end;
- close;
+  ModalResult := mrOk;
 end;
 
 end.
