@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   Messages,
   SysUtils,
   Forms,
@@ -655,7 +656,6 @@ implementation
 uses
   StrUtils,
   DateUtils,
-  Types,
   u_JclNotify,
   u_GUIDObjectList,
   u_GlobalState,
@@ -3788,7 +3788,7 @@ begin
    VMark := GetMarkByID(id);
    if VMark = nil then Exit;
    try
-     LL := GetGoToMarkLonLat(VMark);
+     LL := VMark.GetGoToLonLat;
      LayerMapNavToMark.StartNav(LL, Id);
    finally
     VMark.Free;
@@ -4292,7 +4292,7 @@ begin
       CDSmarks.Next;
     end;
   finally
-    Fmain.CDSmarks.Filtered:=false;
+    CDSmarks.Filtered:=false;
   end;
 end;
 

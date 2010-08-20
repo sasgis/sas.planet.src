@@ -94,7 +94,7 @@ begin
       close;
       VMark := GetMarkByID(VId);
       try
-        Fmain.topos(GetGoToMarkLonLat(VMark), CBzoom.ItemIndex, True);
+        Fmain.topos(VMark.GetGoToLonLat, CBzoom.ItemIndex, True);
       finally
         VMark.Free
       end;

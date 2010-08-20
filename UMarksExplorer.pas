@@ -100,6 +100,12 @@ TMarkFull = class(TMarkId)
   Color2: TColor32;
   Scale1: Integer;
   Scale2: Integer;
+  function IsEmpty: Boolean;
+  function IsPoint: Boolean;
+  function IsLine: Boolean;
+  function IsPoly: Boolean;
+  procedure ClosePoly;
+  function GetGoToLonLat: TExtendedPoint;
 end;
 var
   FMarksExplorer: TFMarksExplorer;
@@ -109,7 +115,6 @@ var
   function AddKategory(name:string): integer;
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
   procedure AllMarsk2StringsWhitMarkId(AStrings:TStrings);
-  function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
   function GetMarkLength(AMark: TMarkFull):extended;
   function GetMarkSq(AMark: TMarkFull):extended;
   function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
@@ -533,12 +538,7 @@ begin
     try
       VMark.id := AID;
       VMark.Points := Copy(ANewArrLL);
-      VPointCount := Length(VMark.Points);
-      if (VMark.Points[0].X <> VMark.Points[VPointCount - 1].X) or
-         (VMark.Points[0].Y <> VMark.Points[VPointCount - 1].Y) then begin
-        SetLength(VMark.Points, VPointCount + 1);
-        VMark.Points[VPointCount] := VMark.Points[0];
-      end;
+      VMark.ClosePoly;
       Result := FaddPoly.EditMark(VMark);
       if Result then begin
         WriteMark(VMark);
@@ -577,49 +577,35 @@ begin
 end;
 
 function EditMarkModal(AMark: TMarkFull):boolean;
-var
-  VPointCount:integer;
 begin
-    VPointCount := Length(AMark.Points);
-    Result := false;
-    if VPointCount = 1 then begin
-      result:=FaddPoint.EditMark(AMark);
-    end else begin
-      if (VPointCount>1) then begin
-        if compare2EP(AMark.Points[0],AMark.Points[VPointCount-1]) then begin
-          result:=FaddPoly.EditMark(AMark);
-        end else begin
-          result:=FaddLine.EditMark(AMark);
-        end;
-      end;
-    end;
+  Result := false;
+  if AMark.IsPoint then begin
+    result:=FaddPoint.EditMark(AMark);
+  end else if AMark.IsPoly then begin
+    result:=FaddPoly.EditMark(AMark);
+  end else if AMark.IsLine then begin
+    result:=FaddLine.EditMark(AMark);
+  end;
 end;
 
 function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
 var
-  VPointCount:integer;
   VMark: TMarkFull;
 begin
   VMark := GetMarkByID(id);
   try
-    VPointCount := Length(VMark.Points);
-    Result := ao_movemap;
-    if VPointCount = 1 then begin
+    if VMark.IsPoint then begin
       result:=ao_edit_point;
       if FaddPoint.EditMark(VMark) then begin
         WriteMark(VMark);
       end;
       Result := ao_movemap;
-    end else begin
-      if (VPointCount>1) then begin
-        if compare2EP(VMark.Points[0],VMark.Points[VPointCount-1]) then begin
-          arr:=VMark.Points;
-          result:=ao_edit_poly;
-        end else begin
-          arr:=VMark.Points;
-          result:=ao_edit_line;
-        end
-      end;
+    end else if VMark.IsPoly then begin
+      arr:=VMark.Points;
+      result:=ao_edit_poly;
+    end else if VMark.IsLine then begin
+      arr:=VMark.Points;
+      result:=ao_edit_line;
     end;
   finally
     VMark.Free;
@@ -730,25 +716,6 @@ begin
   arLL := nil;
 end;
 
-function GetGoToMarkLonLat(AMark: TMarkFull): TExtendedPoint;
-var
-  VPointCount:integer;
-begin
-  VPointCount := Length(AMark.Points);
-  if VPointCount = 1 then begin
-    Result := AMark.Points[0];
-  end else begin
-    if (AMark.Points[0].Y=AMark.Points[VPointCount-1].Y)and
-    (AMark.Points[0].X=AMark.Points[VPointCount-1].X)
-    then begin
-      Result.X:= (AMark.LLRect.Left + AMark.LLRect.Right)/2 ;
-      Result.Y:= (AMark.LLRect.Top + AMark.LLRect.Bottom)/2 ;
-    end else begin
-      Result := AMark.Points[0];
-    end;
-  end;
-end;
-
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
 var
   VIndex: Integer;
@@ -804,7 +771,7 @@ begin
     VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
     VMark := GetMarkByID(VId);
     try
-      Fmain.topos(GetGoToMarkLonLat(VMark), GState.ViewState.GetCurrentZoom, True);
+      Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
     finally
       VMark.Free
     end;
@@ -998,7 +965,7 @@ begin
       VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
       VMark := GetMarkByID(VId);
       try
-        LL := GetGoToMarkLonLat(VMark);
+        LL := VMark.GetGoToLonLat;
         FMain.LayerMapNavToMark.StartNav(LL, VId);
       finally
         VMark.Free;
@@ -1020,6 +987,72 @@ begin
  MarksListBox.Clear;
  for i:=1 to KategoryListBox.items.Count do KategoryListBox.Items.Objects[i-1].Free;
  KategoryListBox.Clear;
+end;
+
+{ TMarkFull }
+
+procedure TMarkFull.ClosePoly;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(Points);
+  if VPointCount > 1 then begin
+    if (Points[0].X <> Points[VPointCount - 1].X) or
+       (Points[0].Y <> Points[VPointCount - 1].Y) then begin
+      SetLength(Points, VPointCount + 1);
+      Points[VPointCount] := Points[0];
+    end;
+  end;
+end;
+
+function TMarkFull.GetGoToLonLat: TExtendedPoint;
+begin
+  Result.X := 0;
+  Result.Y := 0;
+  if IsPoint then begin
+    Result := Points[0];
+  end else if IsPoly then begin
+    Result.X:= (LLRect.Left + LLRect.Right)/2 ;
+    Result.Y:= (LLRect.Top + LLRect.Bottom)/2 ;
+  end else if IsLine then begin
+    Result := Points[0];
+  end;
+end;
+
+function TMarkFull.IsEmpty: Boolean;
+begin
+  Result := Length(Points) = 0;
+end;
+
+function TMarkFull.IsLine: Boolean;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(Points);
+  if VPointCount > 1 then begin
+    Result := (Points[0].X <> Points[VPointCount - 1].X) or
+      (Points[0].Y <> Points[VPointCount - 1].Y);
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TMarkFull.IsPoint: Boolean;
+begin
+  Result := Length(Points) = 1;
+end;
+
+function TMarkFull.IsPoly: Boolean;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(Points);
+  if VPointCount > 1 then begin
+    Result := (Points[0].X = Points[VPointCount - 1].X) and
+      (Points[0].Y = Points[VPointCount - 1].Y);
+  end else begin
+    Result := False;
+  end;
 end;
 
 end.
