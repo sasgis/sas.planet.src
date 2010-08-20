@@ -737,13 +737,14 @@ var
   VCategory: TCategoryId;
 begin
   VIndex := KategoryListBox.ItemIndex;
-  VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
-  if MessageBox(FMarksExplorer.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDNO then exit;
-  DeleteCategoryWithMarks(VCategory);
-  KategoryListBox.Items.Objects[VIndex].Free;
-  KategoryListBox.DeleteSelected;
-  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
-  MarksListBox.Clear;
+  if VIndex >= 0 then begin
+    VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+    if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+      DeleteCategoryWithMarks(VCategory);
+      VCategory.Free;
+      KategoryListBox.DeleteSelected;
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.SpeedButton1Click(Sender: TObject);
@@ -824,24 +825,21 @@ end;
 
 procedure TFMarksExplorer.KategoryListBoxKeyUp(Sender: TObject;
   var Key: Word; Shift: TShiftState);
+var
+  VIndex: Integer;
+  VCategory: TCategoryId;
 begin
- If key=VK_DELETE then
-   if MarksListBox.ItemIndex>=0 then
- begin
- if MessageBox(FMarksExplorer.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDNO
-  then exit;
- Fmain.CDSKategory.Locate('id',TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id,[]);
- FMain.CDSmarks.Filtered:=false;
- Fmain.CDSmarks.Filter:='categoryid = '+inttostr(TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id);
- Fmain.CDSmarks.Filtered:=true;
- Fmain.CDSmarks.First;
- while not(Fmain.CDSmarks.Eof) do
-   Fmain.CDSmarks.Delete;
- Fmain.CDSmarks.Post;
- Fmain.CDSKategory.Delete;
- SaveCategory2File;
- KategoryListBox.DeleteSelected;
- end;
+  If key=VK_DELETE then begin
+    VIndex := KategoryListBox.ItemIndex;
+    if VIndex >= 0 then begin
+      VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+      if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+        DeleteCategoryWithMarks(VCategory);
+        VCategory.Free;
+        KategoryListBox.DeleteSelected;
+      end;
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
