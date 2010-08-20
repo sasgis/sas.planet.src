@@ -665,7 +665,7 @@ begin
   VIndex := MarksListBox.ItemIndex;
   if VIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[VIndex]).id;
-    if DeleteMark(VId,FMarksExplorer.Handle) then begin
+    if DeleteMark(VId,Self.Handle) then begin
       MarksListBox.Items.Objects[VIndex].Free;
       MarksListBox.DeleteSelected;
     end;
@@ -732,7 +732,6 @@ end;
 
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
 var
-  i:integer;
   VIndex: Integer;
   VCategory: TCategoryId;
 begin
@@ -815,7 +814,7 @@ begin
     VIndex := MarksListBox.ItemIndex;
     if VIndex >= 0 then begin
       VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
-      if DeleteMark(VMarkId.id, FMarksExplorer.Handle) then begin
+      if DeleteMark(VMarkId.id, Self.Handle) then begin
         VMarkId.Free;
         MarksListBox.DeleteSelected;
       end;
@@ -901,12 +900,10 @@ end;
 
 procedure TFMarksExplorer.SBNavOnMarkClick(Sender: TObject);
 var
-  LL:TExtendedPoint;
-  arLL:TExtendedPointArray;
-  VPointCount:integer;
-  VId:integer;
   VIndex: Integer;
+  VId:integer;
   VMark: TMarkFull;
+  LL:TExtendedPoint;
 begin
   if (SBNavOnMark.Down) then begin
     VIndex := MarksListBox.ItemIndex;
