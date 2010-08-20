@@ -401,20 +401,22 @@ function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
 var
   VMark: TMarkFull;
 begin
-  VMark := TMarkFull.Create;
-  try
-    VMark.id := AID;
-    if VMark.id >= 0 then begin
-      Fmain.CDSmarks.Locate('id', VMark.id,[]);
-      ReadCurrentMark(VMark);
+  if AID < 0 then begin
+    VMark := TMarkFull.Create;
+  end else begin
+    VMark := GetMarkByID(AID)
+  end;
+  if VMark <> nil then begin
+    try
+      VMark.id := AID;
+      VMark.Points := Copy(ANewArrLL);
+      Result := FaddPoly.EditMark(VMark);
+      if Result then begin
+        WriteMark(VMark);
+      end;
+    finally
+      VMark.Free;
     end;
-    VMark.Points := Copy(ANewArrLL);
-    Result := FaddPoly.EditMark(VMark);
-    if Result then begin
-      WriteMark(VMark);
-    end;
-  finally
-    VMark.Free;
   end;
 end;
 
@@ -422,22 +424,25 @@ function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescriptio
 var
   VMark: TMarkFull;
 begin
-  VMark := TMarkFull.Create;
-  try
-    VMark.id := AID;
-    if VMark.id >= 0 then begin
-      Fmain.CDSmarks.Locate('id', VMark.id,[]);
-      ReadCurrentMark(VMark);
-    end else begin
-      VMark.Desc := ADescription;
+  if AID < 0 then begin
+    VMark := TMarkFull.Create;
+  end else begin
+    VMark := GetMarkByID(AID)
+  end;
+  if VMark <> nil then begin
+    try
+      VMark.id := AID;
+      if VMark.id < 0 then begin
+        VMark.Desc := ADescription;
+      end;
+      VMark.Points := Copy(ANewArrLL);
+      Result := FaddLine.EditMark(VMark);
+      if Result then begin
+        WriteMark(VMark);
+      end;
+    finally
+      VMark.Free;
     end;
-    VMark.Points := Copy(ANewArrLL);
-    Result := FaddLine.EditMark(VMark);
-    if Result then begin
-      WriteMark(VMark);
-    end;
-  finally
-    VMark.Free;
   end;
 end;
 
@@ -465,10 +470,8 @@ var
   VPointCount:integer;
   VMark: TMarkFull;
 begin
-  VMark := TMarkFull.Create;
+  VMark := GetMarkByID(id);
   try
-    FMain.CDSmarks.Locate('id',id,[]);
-    ReadCurrentMark(VMark);
     VPointCount := Length(VMark.Points);
     Result := ao_movemap;
     if VPointCount = 1 then begin
@@ -518,16 +521,13 @@ var
 begin
   VCategory := TCategoryId.Create;
   try
+    VCategory.id := -1;
     VCategory.name := name;
     VCategory.visible := True;
     VCategory.AfterScale := 3;
     VCategory.BeforeScale := 19;
-
-    Fmain.CDSKategory.Insert;
-    WriteCurrentCategory(VCategory);
-    Fmain.CDSKategory.post;
-    Result := Fmain.CDSKategory.FieldByName('id').AsInteger;
-    SaveCategory2File;
+    WriteCategory(VCategory);
+    Result := VCategory.id;
   finally
     VCategory.Free;
   end;
