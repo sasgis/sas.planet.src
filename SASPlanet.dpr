@@ -191,7 +191,7 @@ uses
   u_GECrypt in 'u_GECrypt.pas',
   u_GETexture in 'u_GETexture.pas';
 
-{$R *.res}{$R SASR.RES}
+{$R SASPlanet.res}
 begin
   GState := TGlobalState.Create;
   try
