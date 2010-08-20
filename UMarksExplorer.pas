@@ -328,6 +328,18 @@ begin
   end;
 end;
 
+procedure WriteCategoriesList(AStrings:TStrings);
+var
+  VCategoryId: TCategoryId;
+  i: Integer;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    VCategoryId := TCategoryId(AStrings.Objects[i]);
+    WriteCategory(VCategoryId);
+  end;
+  SaveCategory2File;
+end;
+
 procedure Marsk2StringsWhitMarkId(ACategoryId: TCategoryId; AStrings:TStrings);
 var
   i: Integer;
@@ -879,20 +891,18 @@ begin
 end;
 
 procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
-var i:integer;
+var
+  i:integer;
+  VNewVisible: Boolean;
 begin
- if KategoryListBox.Count>0 then begin
-   for i:=0 to KategoryListBox.Count-1 do KategoryListBox.Checked[i]:=CheckBox2.Checked;
-   Fmain.CDSKategory.First;
-   while not(Fmain.CDSKategory.Eof) do
-    begin
-     Fmain.CDSKategory.Edit;
-     Fmain.CDSKategory.FieldByName('visible').AsBoolean:=CheckBox2.Checked;
-     Fmain.CDSKategory.Post;
-     Fmain.CDSKategory.Next;
+  if KategoryListBox.Count>0 then begin
+    VNewVisible := CheckBox2.Checked;
+    for i:=0 to KategoryListBox.Count-1 do begin
+      KategoryListBox.Checked[i] := VNewVisible;
+      TCategoryId(KategoryListBox.Items.Objects[i]).visible := VNewVisible;
     end;
-  SaveCategory2File;
- end;
+    WriteCategoriesList(KategoryListBox.Items);
+  end;
 end;
 
 procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
