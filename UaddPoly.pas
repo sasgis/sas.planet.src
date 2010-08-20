@@ -99,6 +99,7 @@ var
   VCategory: TCategoryId;
   VId: integer;
 begin
+  FMark := AMark;
   EditComment.Text:='';
   EditName.Text:=SAS_STR_NewPoly;
   namecatbuf:=CBKateg.Text;
