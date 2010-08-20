@@ -521,6 +521,7 @@ end;
 function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
 var
   VMark: TMarkFull;
+  VPointCount: Integer;
 begin
   Result := False;
   if AID < 0 then begin
@@ -532,6 +533,12 @@ begin
     try
       VMark.id := AID;
       VMark.Points := Copy(ANewArrLL);
+      VPointCount := Length(VMark.Points);
+      if (VMark.Points[0].X <> VMark.Points[VPointCount - 1].X) or
+         (VMark.Points[0].Y <> VMark.Points[VPointCount - 1].Y) then begin
+        SetLength(VMark.Points, VPointCount + 1);
+        VMark.Points[VPointCount] := VMark.Points[0];
+      end;
       Result := FaddPoly.EditMark(VMark);
       if Result then begin
         WriteMark(VMark);
