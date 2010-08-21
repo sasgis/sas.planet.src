@@ -1474,18 +1474,8 @@ begin
 
  movepoint:=-1;
 
- if FileExists(GState.MarksFileName)
-  then begin
-        CDSMarks.LoadFromFile(GState.MarksFileName);
-        if CDSMarks.RecordCount>0 then
-         CopyFile(PChar(GState.MarksFileName),PChar(GState.MarksBackUpFileName),false);
-       end;
- if FileExists(GState.MarksCategoryFileName)
-  then begin
-        CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
-        if CDSKategory.RecordCount>0 then
-         CopyFile(PChar(GState.MarksCategoryFileName),PChar(GState.MarksCategoryBackUpFileName),false);
-       end;
+ LoadMarksFromFile;
+ LoadCategoriesFromFile;
  Enabled:=true;
  nilLastLoad.use:=false;
  Application.OnMessage := DoMessageEvent;
