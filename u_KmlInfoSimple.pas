@@ -13,6 +13,10 @@ type
     coordinates: TExtendedPointArray;
     coordinatesLT: TExtendedPoint;
     coordinatesRD: TExtendedPoint;
+    function IsEmpty: Boolean;
+    function IsPoint: Boolean;
+    function IsLine: Boolean;
+    function IsPoly: Boolean;
   end;
 
   TKmlInfoSimple = class
@@ -66,6 +70,44 @@ begin
     end;
   end;
   inherited;
+end;
+
+{ TKMLData }
+
+function TKMLData.IsEmpty: Boolean;
+begin
+  Result := Length(coordinates) = 0;
+end;
+
+function TKMLData.IsLine: Boolean;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(coordinates);
+  if VPointCount > 1 then begin
+    Result := (coordinates[0].X <> coordinates[VPointCount - 1].X) or
+      (coordinates[0].Y <> coordinates[VPointCount - 1].Y);
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TKMLData.IsPoint: Boolean;
+begin
+  Result := Length(coordinates) = 1;
+end;
+
+function TKMLData.IsPoly: Boolean;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(coordinates);
+  if VPointCount > 1 then begin
+    Result := (coordinates[0].X = coordinates[VPointCount - 1].X) and
+      (coordinates[0].Y = coordinates[VPointCount - 1].Y);
+  end else begin
+    Result := False;
+  end;
 end;
 
 end.

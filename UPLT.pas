@@ -14,6 +14,10 @@ type
   coordinates:TExtendedPointArray;
   coordinatesLT:TExtendedPoint;
   coordinatesRD:TExtendedPoint;
+  function IsEmpty: Boolean;
+  function IsPoint: Boolean;
+  function IsLine: Boolean;
+  function IsPoly: Boolean;
  end;
 
  TPLT = class
@@ -75,6 +79,44 @@ begin
      Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].x:=str2r(GetWord(str, ',', 2));
     except
     end;
+  end;
+end;
+
+{ TPLTData }
+
+function TPLTData.IsEmpty: Boolean;
+begin
+  Result := Length(coordinates) = 0;
+end;
+
+function TPLTData.IsLine: Boolean;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(coordinates);
+  if VPointCount > 1 then begin
+    Result := (coordinates[0].X <> coordinates[VPointCount - 1].X) or
+      (coordinates[0].Y <> coordinates[VPointCount - 1].Y);
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TPLTData.IsPoint: Boolean;
+begin
+  Result := Length(coordinates) = 1;
+end;
+
+function TPLTData.IsPoly: Boolean;
+var
+  VPointCount: Integer;
+begin
+  VPointCount := Length(coordinates);
+  if VPointCount > 1 then begin
+    Result := (coordinates[0].X = coordinates[VPointCount - 1].X) and
+      (coordinates[0].Y = coordinates[VPointCount - 1].Y);
+  end else begin
+    Result := False;
   end;
 end;
 
