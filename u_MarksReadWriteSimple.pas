@@ -5,7 +5,6 @@ interface
 uses
   Windows,
   Classes,
-  DB,
   t_GeoTypes,
   u_MarksSimple;
 
@@ -35,9 +34,6 @@ type
   procedure WriteMark(AMark: TMarkFull);
   procedure WriteMarkId(AMark: TMarkId);
   procedure WriteMarkIdList(AStrings:TStrings);
-  function Blob2ExtArr(Blobfield: Tfield):TExtendedPointArray;
-  procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield); overload;
-  procedure BlobFromExtArr(APoint:TExtendedPoint; Blobfield: Tfield); overload;
   procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings:TStrings);
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
   procedure AllMarsk2StringsWhitMarkId(AStrings:TStrings);
@@ -51,11 +47,48 @@ type
 implementation
 
 uses
+  DB,
   SysUtils,
   GR32,
   u_GlobalState,
   t_CommonTypes,
   Unit1;
+
+function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+var
+  VSize: Integer;
+  VPointsCount: Integer;
+  VField: TBlobfield;
+  VStream: TStream;
+begin
+  VField := TBlobfield(BlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
+  try
+    VSize := VStream.Size;
+    VPointsCount := VSize div SizeOf(TExtendedPoint);
+    VSize := VPointsCount * SizeOf(TExtendedPoint);
+    SetLength(result,VPointsCount);
+    VStream.ReadBuffer(Result[0], VSize);
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+  VPointsCount: Integer;
+begin
+  VField := TBlobfield(BlobField);
+  VPointsCount := Length(AArr);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    VStream.Write(AArr[0], VPointsCount * SizeOf(AArr[0]));
+  finally
+    VStream.Free;
+  end;
+end;
 
 procedure ReadCurrentCategory(ACategory: TCategoryId);
 begin
@@ -425,55 +458,6 @@ begin
     Result:='';
   end;
   Result := Result + inherited GetFilterText(AZoom, ARect);
-end;
-
-function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
-var
-  VSize: Integer;
-  VPointsCount: Integer;
-  VField: TBlobfield;
-  VStream: TStream;
-begin
-  VField := TBlobfield(BlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
-  try
-    VSize := VStream.Size;
-    VPointsCount := VSize div SizeOf(TExtendedPoint);
-    VSize := VPointsCount * SizeOf(TExtendedPoint);
-    SetLength(result,VPointsCount);
-    VStream.ReadBuffer(Result[0], VSize);
-  finally
-    VStream.Free;
-  end;
-end;
-procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield);
-var
-  VField: TBlobfield;
-  VStream: TStream;
-  VPointsCount: Integer;
-begin
-  VField := TBlobfield(BlobField);
-  VPointsCount := Length(AArr);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
-  try
-    VStream.Write(AArr[0], VPointsCount * SizeOf(AArr[0]));
-  finally
-    VStream.Free;
-  end;
-end;
-
-procedure BlobFromExtArr(APoint:TExtendedPoint; Blobfield: Tfield); overload;
-var
-  VField: TBlobfield;
-  VStream: TStream;
-begin
-  VField := TBlobfield(BlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
-  try
-    VStream.Write(APoint, SizeOf(APoint));
-  finally
-    VStream.Free;
-  end;
 end;
 
 procedure Kategory2StringsWithObjects(AStrings:TStrings);
