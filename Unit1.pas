@@ -4206,6 +4206,8 @@ var
   VZoom: Byte;
   marksFilter:string;
   VCategoryFilter: string;
+  VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
+  VMark: TMarkFull;
 begin
   if GState.show_point = mshNone then exit;
 
@@ -4224,38 +4226,19 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  marksFilter:='';
-  if GState.show_point = mshChecked then begin
-    marksFilter:=marksFilter+'visible=1';
-    marksFilter:=marksFilter+' and ';
-    VCategoryFilter := GetMarksFileterByCategories(VZoom);
-    if Length(VCategoryFilter) > 0 then begin
-      marksFilter:=marksFilter + VCategoryFilter + ' and ';
-    end;
-  end;
-    marksFilter:=marksFilter+'('+
-      ' LonR>'+floattostr(VLonLatRect.Left)+' and'+
-      ' LonL<'+floattostr(VLonLatRect.Right)+' and'+
-      ' LatB<'+floattostr(VLonLatRect.Top)+' and'+
-      ' LatT>'+floattostr(VLonLatRect.Bottom)+
-    ')';
+  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(VZoom, VLonLatRect);
   try
-    CDSmarks.Filter:=marksFilter;
-    CDSmarks.Filtered:=true;
-    CDSmarks.First;
-    while (not(CDSmarks.Eof))and((CDSmarksvisible.AsBoolean)or(GState.show_point=mshAll)) do begin
-      VMarkLonLatRect.Left := CDSmarkslonL.AsFloat;
-      VMarkLonLatRect.Top := CDSmarkslatT.AsFloat;
-      VMarkLonLatRect.Right := CDSmarksLonR.AsFloat;
-      VMarkLonLatRect.Bottom := CDSmarksLatB.AsFloat;
+    While VMarksIterator.Next do begin
+      VMark := VMarksIterator.Current;
+      VMarkLonLatRect := VMark.LLRect;
 
       if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
       (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-        poly := Blob2ExtArr(CDSmarks.FieldByName('LonLatArr'));
+        poly := VMark.Points;
         if length(poly)=1 then begin
-          APWL.name:=CDSmarksname.AsString;
-          APWL.descr:=CDSmarksdescr.AsString;
-          APWL.numid:=CDSmarksid.AsString;
+          APWL.name:=VMark.name;
+          APWL.descr:=VMark.Desc;
+          APWL.numid:=IntToStr(VMark.id);
           APWL.find:=true;
           APWL.type_:=ROTpoint;
           exit;
@@ -4265,11 +4248,11 @@ begin
           (poly[0].y<>poly[length(poly)-1].y)then begin
             j:=1;
             while (j<length(poly)) do begin
-              if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(CDSmarksscale1.AsInteger div 2)+1)
+              if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(VMark.Scale1 div 2)+1)
               then begin
-                APWL.name:=CDSmarksname.AsString;
-                APWL.descr:=CDSmarksdescr.AsString;
-                APWL.numid:=CDSmarksid.AsString;
+                APWL.name:=VMark.name;
+                APWL.descr:=VMark.Desc;
+                APWL.numid:=IntToStr(VMark.id);
                 APWL.find:=true;
                 APWL.type_:=ROTline;
                 exit;
@@ -4280,9 +4263,9 @@ begin
             if (PtInRgn(arLL,VPixelPos)) then begin
               if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then begin
                 APWL.S:=PolygonSquare(arLL);
-                APWL.name:=CDSmarksname.AsString;
-                APWL.descr:=CDSmarksdescr.AsString;
-                APWL.numid:=CDSmarksid.AsString;
+                APWL.name:=VMark.name;
+                APWL.descr:=VMark.Desc;
+                APWL.numid:=IntToStr(VMark.id);
                 APWL.find:=true;
                 APWL.type_:=ROTPoly;
               end;
@@ -4290,11 +4273,10 @@ begin
           end;
         end;
       end;
-      CDSmarks.Next;
     end;
   finally
-    CDSmarks.Filtered:=false;
-  end;
+    VMarksIterator.Free;
+ end;
 end;
 
 procedure TFmain.NGoToCurClick(Sender: TObject);
