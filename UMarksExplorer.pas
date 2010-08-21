@@ -77,6 +77,23 @@ type
     { Public declarations }
   end;
 
+type
+  TMarksIteratorVisibleInRect = class(TMarksIteratorBase)
+  private
+    FFinished: Boolean;
+  protected
+    function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; virtual;
+  public
+    constructor Create(AZoom: Byte; ARect: TExtendedRect);
+    destructor Destroy; override;
+    function Next: Boolean; override;
+  end;
+
+  TMarksIteratorVisibleInRectIgnoreEdit = class(TMarksIteratorVisibleInRect)
+  protected
+    function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; override;
+  end;
+
 var
   FMarksExplorer: TFMarksExplorer;
   function GetMarkByID(id:integer): TMarkFull;
@@ -424,6 +441,79 @@ begin
  finally
    ms.Free;
  end;
+end;
+
+{ TMarksIteratorVisibleInRect }
+
+constructor TMarksIteratorVisibleInRect.Create(AZoom: Byte;
+  ARect: TExtendedRect);
+begin
+  FMain.CDSmarks.Filter:=GetFilterText(AZoom, ARect);
+  FMain.CDSmarks.Filtered:=true;
+  FMain.CDSmarks.First;
+  FFinished := False;
+  if FMain.CDSmarks.Eof then begin
+    FFinished := True;
+    FMain.CDSmarks.Filtered:=false;
+  end;
+end;
+
+destructor TMarksIteratorVisibleInRect.Destroy;
+begin
+  if not FFinished then begin
+    FMain.CDSmarks.Filtered:=false;
+  end;
+  inherited;
+end;
+
+function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
+  ARect: TExtendedRect): string;
+var
+  VCategoryFilter: string;
+begin
+  Result := '';
+  if GState.show_point = mshChecked then begin
+    Result:=Result+'visible=1';
+    Result:=Result+' and ';
+    VCategoryFilter := GetMarksFileterByCategories(AZoom);
+    if Length(VCategoryFilter) > 0 then begin
+      Result:=Result + VCategoryFilter + ' and ';
+    end;
+  end;
+  Result:=Result+'('+
+    ' LonR>'+floattostr(ARect.Left)+' and'+
+    ' LonL<'+floattostr(ARect.Right)+' and'+
+    ' LatB<'+floattostr(ARect.Top)+' and'+
+    ' LatT>'+floattostr(ARect.Bottom)+
+  ')';
+end;
+
+function TMarksIteratorVisibleInRect.Next: Boolean;
+begin
+  if not FFinished then begin
+    ReadCurrentMark(FCurrentMark);
+    FMain.CDSmarks.Next;
+    if FMain.CDSmarks.Eof then begin
+      FFinished := True;
+      FMain.CDSmarks.Filtered:=false;
+    end;
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
+
+{ TMarksIteratorVisibleInRectIgnoreEdit }
+
+function TMarksIteratorVisibleInRectIgnoreEdit.GetFilterText(AZoom: Byte;
+  ARect: TExtendedRect): string;
+begin
+  if (Fmain.aoper=ao_edit_line)or(Fmain.aoper=ao_edit_poly) then begin
+    Result:='id<>'+inttostr(Fmain.EditMarkId)+' and ';
+  end else begin
+    Result:='';
+  end;
+  Result := Result + inherited GetFilterText(AZoom, ARect);
 end;
 
 function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
