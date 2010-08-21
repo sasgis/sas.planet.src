@@ -105,5 +105,6 @@ object FAddCategory: TFAddCategory
     Caption = #1054#1090#1084#1077#1085#1080#1090#1100
     ModalResult = 2
     TabOrder = 5
+    OnClick = Button2Click
   end
 end

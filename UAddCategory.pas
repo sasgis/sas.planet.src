@@ -32,11 +32,11 @@ type
     Badd: TButton;
     Button2: TButton;
     procedure BaddClick(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
-    new_:boolean;
     FCategory:TCategoryId;
   public
-   function show_(ACategory:TCategoryId): Boolean;
+   function EditCategory(ACategory:TCategoryId): Boolean;
   end;
 
 var
@@ -45,34 +45,38 @@ var
 implementation
 
 {$R *.dfm}
-function TFAddCategory.show_(ACategory:TCategoryId): Boolean;
+function TFAddCategory.EditCategory(ACategory:TCategoryId): Boolean;
 begin
-  Result := False;
   FCategory := ACategory;
- new_:=FCategory.id < 0;
- EditName.Text:=SAS_STR_NewPoly;
- if new_ then begin
-              EditName.Text:=SAS_STR_NewCategory;
-              FaddCategory.Caption:=SAS_STR_AddNewCategory;
-              Badd.Caption:=SAS_STR_Add;
-              CBShow.Checked:=true;
-             end
-        else begin
-              FaddCategory.Caption:=SAS_STR_EditCategory;
-              Badd.Caption:=SAS_STR_Edit;
-              EditName.Text:=FCategory.name;
-              EditS1.Value:=FCategory.AfterScale;
-              EditS2.Value:=FCategory.BeforeScale;
-              CBShow.Checked:=FCategory.visible;
-             end;
+  EditName.Text:=SAS_STR_NewPoly;
+  if FCategory.id < 0 then begin
+    EditName.Text:=SAS_STR_NewCategory;
+    FaddCategory.Caption:=SAS_STR_AddNewCategory;
+    Badd.Caption:=SAS_STR_Add;
+    CBShow.Checked:=true;
+  end else begin
+    FaddCategory.Caption:=SAS_STR_EditCategory;
+    Badd.Caption:=SAS_STR_Edit;
+    EditName.Text:=FCategory.name;
+    EditS1.Value:=FCategory.AfterScale;
+    EditS2.Value:=FCategory.BeforeScale;
+    CBShow.Checked:=FCategory.visible;
+  end;
   Result := ShowModal = mrOk;
 end;
+
 procedure TFAddCategory.BaddClick(Sender: TObject);
 begin
   FCategory.name:=EditName.Text;
   FCategory.AfterScale:=EditS1.Value;
   FCategory.BeforeScale:=EditS2.Value;
   FCategory.visible:=CBShow.Checked;
+  ModalResult := mrOk;
+end;
+
+procedure TFAddCategory.Button2Click(Sender: TObject);
+begin
+  ModalResult := mrCancel;
 end;
 
 end.

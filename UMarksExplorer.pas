@@ -914,10 +914,11 @@ begin
   VIndex := KategoryListBox.ItemIndex;
   if VIndex >=0 then begin
     VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
-    FaddCategory.show_(VCategory);
-    WriteCategory(VCategory);
-    KategoryListBox.Items.Strings[VIndex] := VCategory.name;
-    KategoryListBox.Checked[VIndex] := VCategory.visible;
+    if FaddCategory.EditCategory(VCategory) then begin
+      WriteCategory(VCategory);
+      KategoryListBox.Items.Strings[VIndex] := VCategory.name;
+      KategoryListBox.Checked[VIndex] := VCategory.visible;
+    end;
   end;
 end;
 
@@ -1001,7 +1002,7 @@ var
 begin
   VCategory := TCategoryId.Create;
   VCategory.id := -1;
-  if FaddCategory.show_(VCategory) then begin
+  if FaddCategory.EditCategory(VCategory) then begin
     WriteCategory(VCategory);
     VIndex := KategoryListBox.Items.AddObject(VCategory.name, VCategory);
     KategoryListBox.Checked[VIndex]:=VCategory.visible;
