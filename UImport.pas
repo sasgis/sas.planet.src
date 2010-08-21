@@ -214,20 +214,38 @@ begin
 end;
 
 procedure TFImport.Button1Click(Sender: TObject);
-var KML:TKmlInfoSimple;
-    PLT:TPLT;
-    i,j,lenarr:integer;
-    ms:TMemoryStream;
-    alltl,allbr:TExtendedPoint;
-    markignor,pathignor,polyignor:boolean;
-    VCategory: TCategoryId;
-    VIndex: Integer;
-    VId: Integer;
+var
+  KML:TKmlInfoSimple;
+  PLT:TPLT;
+  i,j,lenarr:integer;
+  ms:TMemoryStream;
+  alltl,allbr:TExtendedPoint;
+  markignor,pathignor,polyignor:boolean;
+  VCategory: TCategoryId;
+  VIndex: Integer;
+  VId: Integer;
+  VMarkTemplatePoint: TMarkFull;
+  VMarkTemplateLine: TMarkFull;
+  VMarkTemplatePoly: TMarkFull;
+  VMark: TMarkFull;
 begin
+ VMarkTemplatePoint := nil;
  markignor:=CBMarkIgnor.Checked;
+ if not markignor then begin
+  VMarkTemplatePoint := TMarkFull.Create;
+ end;
+  VMarkTemplateLine := nil;
  pathignor:=CBPathIgnor.Checked;
+ if not pathignor then begin
+  VMarkTemplateLine := TMarkFull.Create;
+ end;
+  VMarkTemplatePoly := nil;
  polyignor:=CBPolyIgnor.Checked;
-  begin
+ if not polyignor then begin
+  VMarkTemplatePoly := TMarkFull.Create;
+ end;
+
+ try
     VIndex := CBKateg.ItemIndex;
     if VIndex < 0 then begin
       VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
@@ -242,9 +260,35 @@ begin
         VId := AddKategory(CBKateg.Text);
       end;
     end;
+    if VMarkTemplatePoint <> nil then begin
+      VMarkTemplatePoint.id := -1;
+      VMarkTemplatePoint.visible := True;
+      VMarkTemplatePoint.Scale1:=SpinEdit1.Value;
+      VMarkTemplatePoint.Scale2:=SpinEdit2.Value;
+      VMarkTemplatePoint.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
+      VMarkTemplatePoint.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
+      VMarkTemplatePoint.PicName:=ComboBox1.Text;
+      VMarkTemplatePoint.CategoryId:=VId;
+    end;
+    if VMarkTemplateLine <> nil then begin
+      VMarkTemplateLine.id := -1;
+      VMarkTemplateLine.visible:=true;
+      VMarkTemplateLine.Scale1:=SpinEdit3.Value;
+      VMarkTemplateLine.Color1:=SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256));
+      VMarkTemplateLine.CategoryId:=VId;
+    end;
+    if VMarkTemplatePoly <> nil then begin
+      VMarkTemplatePoly.id := -1;
+      VMarkTemplatePoly.visible:=true;
+      VMarkTemplatePoly.Scale1:=SpinEdit5.Value;
+      VMarkTemplatePoly.Color1:=SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256));
+      VMarkTemplatePoly.Color2:=SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256));
+      VMarkTemplatePoly.CategoryId:=VId;
+    end;
    if (LowerCase(ExtractFileExt(FileName))='.kml') or (LowerCase(ExtractFileExt(FileName))='.kmz') then
     begin
      KML:=TKmlInfoSimple.Create;
+     try
      if (LowerCase(ExtractFileExt(FileName))='.kml') then begin
        GState.KmlLoader.LoadFromFile(FileName, KML);
      end else if (LowerCase(ExtractFileExt(FileName))='.kmz') then begin
@@ -252,171 +296,78 @@ begin
      end else begin
        Abort;
      end;
-     for i:=0 to length(KML.Data)-1 do
-      begin
-       lenarr:=length(KML.Data[i].coordinates);
-       if (length(KML.Data[i].coordinates)=1) then
-        begin
-         if markignor then Continue;
-         Fmain.CDSmarks.Insert;
-         BlobFromExtArr(KML.Data[i].coordinates[0], Fmain.CDSmarks.FieldByName('LonLatArr'));
-         Fmain.CDSmarks.FieldByName('name').AsString:=KML.Data[i].Name;
-         Fmain.CDSmarks.FieldByName('descr').AsString:=KML.Data[i].description;
-         Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
-         Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
-         Fmain.CDSmarks.FieldByName('Scale2').AsInteger:=SpinEdit2.Value;
-         Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('PicName').AsString:=ComboBox1.Text;
-         Fmain.CDSmarks.FieldByName('LonL').AsFloat:=KML.Data[i].coordinates[0].x;
-         Fmain.CDSmarks.FieldByName('LatT').AsFloat:=KML.Data[i].coordinates[0].y;
-         Fmain.CDSmarks.FieldByName('LonR').AsFloat:=KML.Data[i].coordinates[0].x;
-         Fmain.CDSmarks.FieldByName('LatB').AsFloat:=KML.Data[i].coordinates[0].y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
-        end
-       else
-       if (KML.Data[i].coordinates[0].X=KML.Data[i].coordinates[lenarr-1].X)and
-          (KML.Data[i].coordinates[0].Y=KML.Data[i].coordinates[lenarr-1].Y) then
-        begin
-         if polyignor then Continue;
-         Fmain.CDSmarks.Insert;
-         alltl:=KML.Data[i].coordinates[0];
-         allbr:=KML.Data[i].coordinates[0];
-         for j:=1 to lenarr-1 do
-          begin
-           if alltl.x>KML.Data[i].coordinates[j].x then alltl.x:=KML.Data[i].coordinates[j].x;
-           if alltl.y<KML.Data[i].coordinates[j].y then alltl.y:=KML.Data[i].coordinates[j].y;
-           if allbr.x<KML.Data[i].coordinates[j].x then allbr.x:=KML.Data[i].coordinates[j].x;
-           if allbr.y>KML.Data[i].coordinates[j].y then allbr.y:=KML.Data[i].coordinates[j].y;
+     for i:=0 to length(KML.Data)-1 do begin
+        VMark := nil;
+        if KML.Data[i].IsPoint then begin
+          if VMarkTemplatePoint <> nil then begin
+            VMark := TMarkFull.Create;
+            VMark.Assign(VMarkTemplatePoint);
           end;
-         BlobFromExtArr(KML.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
-         Fmain.CDSmarks.FieldByName('name').AsString:=KML.Data[i].Name;
-         Fmain.CDSmarks.FieldByName('descr').AsString:=KML.Data[i].description;
-         Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
-         Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit5.Value;
-         Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('LonL').AsFloat:=alltl.x;
-         Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
-         Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
-         Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
-        end
-       else
-       if (KML.Data[i].coordinates[0].X<>KML.Data[i].coordinates[lenarr-1].X)or
-          (KML.Data[i].coordinates[0].Y<>KML.Data[i].coordinates[lenarr-1].Y) then
-        begin
-         if pathignor then Continue;
-         Fmain.CDSmarks.Insert;
-         alltl:=KML.Data[i].coordinates[0];
-         allbr:=KML.Data[i].coordinates[0];
-         for j:=1 to lenarr-1 do
-          begin
-           if alltl.x>KML.Data[i].coordinates[j].x then alltl.x:=KML.Data[i].coordinates[j].x;
-           if alltl.y<KML.Data[i].coordinates[j].y then alltl.y:=KML.Data[i].coordinates[j].y;
-           if allbr.x<KML.Data[i].coordinates[j].x then allbr.x:=KML.Data[i].coordinates[j].x;
-           if allbr.y>KML.Data[i].coordinates[j].y then allbr.y:=KML.Data[i].coordinates[j].y;
+        end else if KML.Data[i].IsPoly then begin
+          if VMarkTemplatePoly <> nil then begin
+            VMark := TMarkFull.Create;
+            VMark.Assign(VMarkTemplatePoly);
           end;
-         BlobFromExtArr(KML.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
-         Fmain.CDSmarks.FieldByName('name').AsString:=KML.Data[i].Name;
-         Fmain.CDSmarks.FieldByName('descr').AsString:=KML.Data[i].description;
-         Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
-         Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit3.Value;
-         Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('LonL').AsFloat:=alltl.x;
-         Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
-         Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
-         Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
+        end else if KML.Data[i].IsPoly then begin
+          if VMarkTemplateLine <> nil then begin
+            VMark := TMarkFull.Create;
+            VMark.Assign(VMarkTemplateLine);
+          end;
+        end;
+        if VMark <> nil then begin
+          try
+            KMLDataToMark(KML.Data[i], VMark);
+            WriteMark(VMark);
+          finally
+            VMark.Free;
+          end;
         end;
       end;
-     KML.Free;
+     finally
+       KML.Free;
+     end;
     end;
    if LowerCase(ExtractFileExt(FileName))='.plt' then
     begin
      PLT:=TPLT.Create;
+     try
      PLT.loadFromFile(FileName);
-     for i:=0 to length(PLT.Data)-1 do
-      begin
-       lenarr:=length(PLT.Data[i].coordinates);
-       if (length(PLT.Data[i].coordinates)=1) then
-        begin
-         if markignor then Continue;
-         Fmain.CDSmarks.Insert;
-         BlobFromExtArr(PLT.Data[i].coordinates[0], Fmain.CDSmarks.FieldByName('LonLatArr'));
-         Fmain.CDSmarks.FieldByName('name').AsString:=PLT.Data[i].Name;
-         Fmain.CDSmarks.FieldByName('descr').AsString:=PLT.Data[i].description;
-         Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
-         Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit1.Value;
-         Fmain.CDSmarks.FieldByName('Scale2').AsInteger:=SpinEdit2.Value;
-         Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('PicName').AsString:=ComboBox1.Text;
-         Fmain.CDSmarks.FieldByName('LonL').AsFloat:=PLT.Data[i].coordinates[0].x;
-         Fmain.CDSmarks.FieldByName('LatT').AsFloat:=PLT.Data[i].coordinates[0].y;
-         Fmain.CDSmarks.FieldByName('LonR').AsFloat:=PLT.Data[i].coordinates[0].x;
-         Fmain.CDSmarks.FieldByName('LatB').AsFloat:=PLT.Data[i].coordinates[0].y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
-        end
-       else
-       if (PLT.Data[i].coordinates[0].X=PLT.Data[i].coordinates[lenarr-1].X)and
-          (PLT.Data[i].coordinates[0].Y=PLT.Data[i].coordinates[lenarr-1].Y) then
-        begin
-         if polyignor then Continue;
-         Fmain.CDSmarks.Insert;
-         alltl:=PLT.Data[i].coordinates[0];
-         allbr:=PLT.Data[i].coordinates[0];
-         for j:=1 to lenarr-1 do
-          begin
-           if alltl.x>PLT.Data[i].coordinates[j].x then alltl.x:=PLT.Data[i].coordinates[j].x;
-           if alltl.y<PLT.Data[i].coordinates[j].y then alltl.y:=PLT.Data[i].coordinates[j].y;
-           if allbr.x<PLT.Data[i].coordinates[j].x then allbr.x:=PLT.Data[i].coordinates[j].x;
-           if allbr.y>PLT.Data[i].coordinates[j].y then allbr.y:=PLT.Data[i].coordinates[j].y;
+     for i:=0 to length(PLT.Data)-1 do  begin
+        VMark := nil;
+        if PLT.Data[i].IsPoint then begin
+          if VMarkTemplatePoint <> nil then begin
+            VMark := TMarkFull.Create;
+            VMark.Assign(VMarkTemplatePoint);
           end;
-         BlobFromExtArr(PLT.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
-         Fmain.CDSmarks.FieldByName('name').AsString:=PLT.Data[i].Name;
-         Fmain.CDSmarks.FieldByName('descr').AsString:=PLT.Data[i].description;
-         Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
-         Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit5.Value;
-         Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('Color2').AsFloat:=SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('LonL').AsFloat:=alltl.x;
-         Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
-         Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
-         Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
-        end
-       else
-       if (PLT.Data[i].coordinates[0].X<>PLT.Data[i].coordinates[lenarr-1].X)or
-          (PLT.Data[i].coordinates[0].Y<>PLT.Data[i].coordinates[lenarr-1].Y) then
-        begin
-         if pathignor then Continue;
-         Fmain.CDSmarks.Insert;
-         alltl:=PLT.Data[i].coordinates[0];
-         allbr:=PLT.Data[i].coordinates[0];
-         for j:=1 to lenarr-1 do
-          begin
-           if alltl.x>PLT.Data[i].coordinates[j].x then alltl.x:=PLT.Data[i].coordinates[j].x;
-           if alltl.y<PLT.Data[i].coordinates[j].y then alltl.y:=PLT.Data[i].coordinates[j].y;
-           if allbr.x<PLT.Data[i].coordinates[j].x then allbr.x:=PLT.Data[i].coordinates[j].x;
-           if allbr.y>PLT.Data[i].coordinates[j].y then allbr.y:=PLT.Data[i].coordinates[j].y;
+        end else if PLT.Data[i].IsPoly then begin
+          if VMarkTemplatePoly <> nil then begin
+            VMark := TMarkFull.Create;
+            VMark.Assign(VMarkTemplatePoly);
           end;
-         BlobFromExtArr(PLT.Data[i].coordinates, Fmain.CDSmarks.FieldByName('LonLatArr'));
-         Fmain.CDSmarks.FieldByName('name').AsString:=PLT.Data[i].Name;
-         Fmain.CDSmarks.FieldByName('descr').AsString:=PLT.Data[i].description;
-         Fmain.CDSmarks.FieldByName('Visible').AsBoolean:=true;
-         Fmain.CDSmarks.FieldByName('Scale1').AsInteger:=SpinEdit3.Value;
-         Fmain.CDSmarks.FieldByName('Color1').AsFloat:=SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256));
-         Fmain.CDSmarks.FieldByName('LonL').AsFloat:=alltl.x;
-         Fmain.CDSmarks.FieldByName('LatT').AsFloat:=alltl.y;
-         Fmain.CDSmarks.FieldByName('LonR').AsFloat:=allbr.x;
-         Fmain.CDSmarks.FieldByName('LatB').AsFloat:=allbr.y;
-         Fmain.CDSmarks.FieldByName('categoryid').AsInteger:=VId;
+        end else if PLT.Data[i].IsPoly then begin
+          if VMarkTemplateLine <> nil then begin
+            VMark := TMarkFull.Create;
+            VMark.Assign(VMarkTemplateLine);
+          end;
+        end;
+        if VMark <> nil then begin
+          try
+            PLTDataToMark(PLT.Data[i], VMark);
+            WriteMark(VMark);
+          finally
+            VMark.Free;
+          end;
         end;
       end;
-     plt.Free;
+     finally
+       plt.Free;
+     end;
     end;
-   SaveMarks2File;
+    SaveMarks2File;
+  finally
+    VMarkTemplatePoint.Free;
+    VMarkTemplateLine.Free;
+    VMarkTemplatePoly.Free;
   end;
   ModalResult := mrOk;
 end;
