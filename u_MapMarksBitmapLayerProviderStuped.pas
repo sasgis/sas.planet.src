@@ -31,7 +31,6 @@ uses
   t_CommonTypes,
   u_GlobalState,
   Ugeofun,
-  UMarksExplorer,
   u_MarksReadWriteSimple,
   Unit1;
 

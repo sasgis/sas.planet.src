@@ -35,7 +35,6 @@ uses
   u_GlobalState,
   Ugeofun,
   Unit1,
-  UMarksExplorer,
   u_MarksReadWriteSimple,
   u_WindowLayerBasic;
 

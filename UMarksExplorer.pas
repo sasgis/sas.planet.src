@@ -20,7 +20,6 @@ uses
   DBClient,
   GR32,
   UResStrings,
-  UGeoFun,
   t_GeoTypes,
   u_MarksSimple,
   Unit1;

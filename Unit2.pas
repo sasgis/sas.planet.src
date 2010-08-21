@@ -14,8 +14,7 @@ uses
   Controls,
   rxToolEdit,
   rxCurrEdit,
-  Ugeofun,
-  UMarksExplorer;
+  Ugeofun;
 
 type
 

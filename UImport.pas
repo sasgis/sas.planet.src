@@ -19,7 +19,6 @@ uses
   Buttons,
   GR32,
   GR32_Resamplers,
-  Unit1,
   UMarksExplorer,
   UPLT;
 
