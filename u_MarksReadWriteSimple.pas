@@ -3,6 +3,7 @@ unit u_MarksReadWriteSimple;
 interface
 
 uses
+  Windows,
   Classes,
   DB,
   t_GeoTypes,
@@ -37,12 +38,14 @@ type
   function Blob2ExtArr(Blobfield: Tfield):TExtendedPointArray;
   procedure BlobFromExtArr(AArr:TExtendedPointArray; Blobfield: Tfield); overload;
   procedure BlobFromExtArr(APoint:TExtendedPoint; Blobfield: Tfield); overload;
-  function SaveMarks2File:boolean;
-  function SaveCategory2File:boolean;
   procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings:TStrings);
   procedure Kategory2StringsWithObjects(AStrings:TStrings);
   procedure AllMarsk2StringsWhitMarkId(AStrings:TStrings);
   function GetMarksFileterByCategories(AZoom: Byte): string;
+  procedure LoadMarksFromFile;
+  procedure LoadCategoriesFromFile;
+  function SaveMarks2File:boolean;
+  function SaveCategory2File:boolean;
 
 
 implementation
@@ -328,6 +331,26 @@ begin
  finally
    ms.Free;
  end;
+end;
+
+procedure LoadMarksFromFile;
+begin
+  if FileExists(GState.MarksFileName) then begin
+    Fmain.CDSMarks.LoadFromFile(GState.MarksFileName);
+    if Fmain.CDSMarks.RecordCount>0 then begin
+      CopyFile(PChar(GState.MarksFileName),PChar(GState.MarksBackUpFileName),false);
+    end;
+  end;
+end;
+
+procedure LoadCategoriesFromFile;
+begin
+  if FileExists(GState.MarksCategoryFileName) then begin
+    Fmain.CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
+    if Fmain.CDSKategory.RecordCount>0 then begin
+      CopyFile(PChar(GState.MarksCategoryFileName),PChar(GState.MarksCategoryBackUpFileName),false);
+    end;
+  end;
 end;
 
 { TMarksIteratorVisibleInRect }
