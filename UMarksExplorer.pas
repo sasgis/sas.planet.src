@@ -130,6 +130,7 @@ uses
   UAddCategory;
 
 {$R *.dfm}
+
 procedure ReadCurrentCategory(ACategory: TCategoryId);
 begin
   ACategory.name:=Fmain.CDSKategory.fieldbyname('name').AsString;
@@ -653,6 +654,7 @@ function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
 var
   VMark: TMarkFull;
 begin
+  Result := ao_movemap;
   VMark := GetMarkByID(id);
   try
     if VMark.IsPoint then begin
