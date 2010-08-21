@@ -80,6 +80,7 @@ type
 var
   FMarksExplorer: TFMarksExplorer;
   function GetMarkByID(id:integer): TMarkFull;
+  procedure WriteMark(AMark: TMarkFull);
   function DeleteMarkModal(id:integer;handle:THandle):boolean;
   function OperationMark(AMark: TMarkFull):boolean;
   function AddKategory(name:string): integer;
@@ -669,21 +670,15 @@ begin
 end;
 
 function OperationMark(AMark: TMarkFull):boolean;
-var
-  arLL:TExtendedPointArray;
-  VPointCount: Integer;
 begin
   Result:=false;
-  arLL := AMark.Points;
-  VPointCount := Length(arLL);
-  if (VPointCount > 1)and(compare2EP(arLL[0],arLL[VPointCount-1])) then begin
-    Fsaveas.Show_(GState.ViewState.GetCurrentZoom, arLL);
+  if AMark.IsPoly then begin
+    Fsaveas.Show_(GState.ViewState.GetCurrentZoom, AMark.Points);
     Fmain.LayerSelection.Redraw;
     Result:=true;
   end else begin
     ShowMessage(SAS_MSG_FunExForPoly);
   end;
-  arLL := nil;
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
