@@ -263,7 +263,6 @@ begin
   end;
   WriteCurrentMark(AMark);
   Fmain.CDSmarks.Post;
-  SaveMarks2File;
 end;
 
 procedure WriteMarkId(AMark: TMarkId);
@@ -497,7 +496,6 @@ end;
 function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
 var
   VMark: TMarkFull;
-  VPointCount: Integer;
 begin
   Result := False;
   if AID < 0 then begin
@@ -513,6 +511,7 @@ begin
       Result := FaddPoly.EditMark(VMark);
       if Result then begin
         WriteMark(VMark);
+        SaveMarks2File;
       end;
     finally
       VMark.Free;
@@ -540,6 +539,7 @@ begin
       Result := FaddLine.EditMark(VMark);
       if Result then begin
         WriteMark(VMark);
+        SaveMarks2File;
       end;
     finally
       VMark.Free;
@@ -569,6 +569,7 @@ begin
       result:=ao_edit_point;
       if FaddPoint.EditMark(VMark) then begin
         WriteMark(VMark);
+        SaveMarks2File;
       end;
       Result := ao_movemap;
     end else if VMark.IsPoly then begin
@@ -785,6 +786,7 @@ begin
       try
         if EditMarkModal(VMark) then begin
           WriteMark(VMark);
+          SaveMarks2File;
           if VMark.CategoryId<>TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id then begin
             MarksListBox.Items.Objects[VIndex].Free;
             MarksListBox.DeleteSelected;
