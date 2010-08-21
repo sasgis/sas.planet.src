@@ -40,7 +40,20 @@ type
     procedure Assign(ASource: TMarkFull);
   end;
 
+  TMarksIteratorBase = class
+  protected
+    FCurrentMark: TMarkFull;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function Next: Boolean; virtual; abstract;
+    property Current: TMarkFull read FCurrentMark;
+  end;
+
 implementation
+
+uses
+  SysUtils;
 
 { TMarkFull }
 
@@ -122,6 +135,19 @@ begin
   end else begin
     Result := False;
   end;
+end;
+
+{ TMarksIteratorBase }
+
+constructor TMarksIteratorBase.Create;
+begin
+  FCurrentMark := TMarkFull.Create;
+end;
+
+destructor TMarksIteratorBase.Destroy;
+begin
+  FreeAndNil(FCurrentMark);
+  inherited;
 end;
 
 end.
