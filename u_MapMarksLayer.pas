@@ -270,9 +270,7 @@ var
   VMark: TMarkFull;
 begin
   inherited;
-  if (GState.show_point = mshNone) then exit;
-  FParentMap.Bitmap.BeginUpdate;
-  try
+  if (GState.show_point <> mshNone) then begin
     FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := FZoom;
     VBitmapSize := GetBitmapSizeInPixel;
@@ -331,9 +329,6 @@ begin
     finally
       VMarksIterator.Free;
     end;
-  finally
-    FParentMap.Bitmap.endUpdate;
-    FParentMap.Bitmap.Changed;
   end;
 end;
 

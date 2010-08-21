@@ -837,36 +837,43 @@ var
   VConverter: ICoordConverter;
 begin
   QueryPerformanceCounter(ts2);
-  VPoint := AMessage.GetMapPixel;
-  VZoomCurr := AMessage.GetZoom;
-  VConverter := AMessage.GetMap.GeoConvert;
+  try
+    VPoint := AMessage.GetMapPixel;
+    VZoomCurr := AMessage.GetZoom;
+    VConverter := AMessage.GetMap.GeoConvert;
 
-  if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
-        else TBZoom_Out.Enabled:=true;
-  if VZoomCurr>=23 then TBZoomIn.Enabled:=false
-        else TBZoomIn.Enabled:=true;
-  NZoomIn.Enabled:=TBZoomIn.Enabled;
-  NZoomOut.Enabled:=TBZoom_Out.Enabled;
-  RxSlider1.Value:=VZoomCurr;
-  labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
-  change_scene:=true;
-  LayerStatBar.Redraw;
-  LayerScaleLine.Redraw;
-
-  FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-  QueryPerformanceCounter(ts3);
-  QueryPerformanceFrequency(fr);
-  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+    if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
+          else TBZoom_Out.Enabled:=true;
+    if VZoomCurr>=23 then TBZoomIn.Enabled:=false
+          else TBZoomIn.Enabled:=true;
+    NZoomIn.Enabled:=TBZoomIn.Enabled;
+    NZoomOut.Enabled:=TBZoom_Out.Enabled;
+    RxSlider1.Value:=VZoomCurr;
+    labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
+    change_scene:=true;
+    map.BeginUpdate;
+    try
+      LayerStatBar.Redraw;
+      LayerScaleLine.Redraw;
+      FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+    finally
+      map.EndUpdate;
+    end;
+  finally
+    QueryPerformanceCounter(ts3);
+    QueryPerformanceFrequency(fr);
+    Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+  end;
 end;
 
 procedure TFMain.Set_TileSource(const Value: TTileSource);
@@ -4194,8 +4201,6 @@ var
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
   VZoom: Byte;
-  marksFilter:string;
-  VCategoryFilter: string;
   VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
   VMark: TMarkFull;
 begin

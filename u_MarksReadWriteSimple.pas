@@ -55,7 +55,7 @@ uses
   t_CommonTypes,
   Unit1;
 
-function Blob2ExtArr(Blobfield:Tfield):TExtendedPointArray;
+procedure Blob2ExtArr(Blobfield:Tfield; var APoints: TExtendedPointArray);
 var
   VSize: Integer;
   VPointsCount: Integer;
@@ -68,8 +68,8 @@ begin
     VSize := VStream.Size;
     VPointsCount := VSize div SizeOf(TExtendedPoint);
     VSize := VPointsCount * SizeOf(TExtendedPoint);
-    SetLength(result,VPointsCount);
-    VStream.ReadBuffer(Result[0], VSize);
+    SetLength(APoints,VPointsCount);
+    VStream.ReadBuffer(APoints[0], VSize);
   finally
     VStream.Free;
   end;
@@ -144,25 +144,30 @@ function GetMarksFileterByCategories(AZoom: Byte): string;
 begin
   Result := '';
   if GState.show_point = mshChecked then begin
-    FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(AZoom + 1)+' and BeforeScale >= '+inttostr(AZoom + 1)+' )';
-    FMain.CDSKategory.Filtered:=true;
-    FMain.CDSKategory.First;
-    if FMain.CDSKategory.Eof then begin
-      FMain.CDSKategory.Filtered:=false;
-      exit;
-    end;
-    if not(FMain.CDSKategory.Eof) then begin
-      Result:=Result+'(';
-      while not(FMain.CDSKategory.Eof) do begin
-        Result:=Result+'categoryid='+FMain.CDSKategory.fieldbyname('id').AsString;
-        FMain.CDSKategory.Next;
-        if not(FMain.CDSKategory.Eof) then begin
-          Result:=Result+' or ';
-        end;
+    FMain.CDSKategory.DisableControls;
+    try
+      FMain.CDSKategory.Filter:='visible = 1 and ( AfterScale <= '+inttostr(AZoom + 1)+' and BeforeScale >= '+inttostr(AZoom + 1)+' )';
+      FMain.CDSKategory.Filtered:=true;
+      FMain.CDSKategory.First;
+      if FMain.CDSKategory.Eof then begin
+        FMain.CDSKategory.Filtered:=false;
+        exit;
       end;
-      Result:=Result+')';
+      if not(FMain.CDSKategory.Eof) then begin
+        Result:=Result+'(';
+        while not(FMain.CDSKategory.Eof) do begin
+          Result:=Result+'categoryid='+FMain.CDSKategory.fieldbyname('id').AsString;
+          FMain.CDSKategory.Next;
+          if not(FMain.CDSKategory.Eof) then begin
+            Result:=Result+' or ';
+          end;
+        end;
+        Result:=Result+')';
+      end;
+      FMain.CDSKategory.Filtered:=false;
+    finally
+      FMain.CDSKategory.EnableControls;
     end;
-    FMain.CDSKategory.Filtered:=false;
   end;
 end;
 
@@ -176,7 +181,7 @@ end;
 procedure ReadCurrentMark(AMark: TMarkFull);
 begin
   ReadCurrentMarkId(AMark);
-  AMark.Points := Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'));
+  Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'), AMark.Points);
   AMark.CategoryId := Fmain.CDSmarkscategoryid.AsInteger;
   AMark.Desc := Fmain.CDSmarks.FieldByName('descr').AsString;
   AMark.LLRect.Left := Fmain.CDSmarks.FieldByName('LonL').AsFloat;
@@ -393,6 +398,7 @@ constructor TMarksIteratorVisibleInRect.Create(AZoom: Byte;
   ARect: TExtendedRect);
 begin
   inherited Create;
+  Fmain.CDSmarks.DisableControls;
   FMain.CDSmarks.Filter:=GetFilterText(AZoom, ARect);
   FMain.CDSmarks.Filtered:=true;
   FMain.CDSmarks.First;
@@ -414,6 +420,7 @@ procedure TMarksIteratorVisibleInRect.FinishIterate;
 begin
   FFinished := True;
   FMain.CDSmarks.Filtered:=false;
+  Fmain.CDSmarks.EnableControls;
 end;
 
 function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
