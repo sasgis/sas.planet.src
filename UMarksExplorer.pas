@@ -17,7 +17,6 @@ uses
   CheckLst,
   Buttons,
   ExtCtrls,
-  DBClient,
   GR32,
   UResStrings,
   t_GeoTypes,
