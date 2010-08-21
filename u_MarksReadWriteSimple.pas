@@ -14,6 +14,7 @@ type
     FFinished: Boolean;
   protected
     function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; virtual;
+    procedure FinishIterate;
   public
     constructor Create(AZoom: Byte; ARect: TExtendedRect);
     destructor Destroy; override;
@@ -397,17 +398,22 @@ begin
   FMain.CDSmarks.First;
   FFinished := False;
   if FMain.CDSmarks.Eof then begin
-    FFinished := True;
-    FMain.CDSmarks.Filtered:=false;
+    FinishIterate;
   end;
 end;
 
 destructor TMarksIteratorVisibleInRect.Destroy;
 begin
   if not FFinished then begin
-    FMain.CDSmarks.Filtered:=false;
+    FinishIterate;
   end;
   inherited;
+end;
+
+procedure TMarksIteratorVisibleInRect.FinishIterate;
+begin
+  FFinished := True;
+  FMain.CDSmarks.Filtered:=false;
 end;
 
 function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
@@ -438,8 +444,7 @@ begin
     ReadCurrentMark(FCurrentMark);
     FMain.CDSmarks.Next;
     if FMain.CDSmarks.Eof then begin
-      FFinished := True;
-      FMain.CDSmarks.Filtered:=false;
+      FinishIterate;
     end;
     Result := True;
   end else begin
