@@ -100,6 +100,7 @@ uses
   i_ISearchResultPresenter in 'i_ISearchResultPresenter.pas',
   u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
   u_MarksSimple in 'u_MarksSimple.pas',
+  u_MarksReadWriteSimple in 'u_MarksReadWriteSimple.pas',
   i_IBitmapLayerProvider in 'i_IBitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',

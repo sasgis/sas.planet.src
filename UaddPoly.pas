@@ -90,6 +90,9 @@ var
 
 implementation
 
+uses
+  u_MarksReadWriteSimple;
+  
 {$R *.dfm}
 
 function TFAddPoly.EditMark(AMark: TMarkFull): boolean;

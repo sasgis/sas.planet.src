@@ -32,6 +32,7 @@ uses
   u_GlobalState,
   Ugeofun,
   UMarksExplorer,
+  u_MarksReadWriteSimple,
   Unit1;
 
 { TMapMarksBitmapLayerProviderStupedThreaded }

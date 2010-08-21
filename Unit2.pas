@@ -63,6 +63,7 @@ implementation
 uses
   u_GlobalState,
   u_MarksSimple,
+  u_MarksReadWriteSimple,
   unit1;
 
 {$R *.dfm}

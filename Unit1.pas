@@ -687,6 +687,7 @@ uses
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
   u_MarksSimple,
+  u_MarksReadWriteSimple,
   UTrAllLoadMap,
   UGSM,
   UImport, 

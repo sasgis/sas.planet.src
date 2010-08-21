@@ -118,6 +118,7 @@ implementation
 uses
   Math,
   u_GlobalState,
+  u_MarksReadWriteSimple,
   Unit1;
 
 {$R *.dfm}

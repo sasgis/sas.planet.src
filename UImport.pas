@@ -96,6 +96,7 @@ uses
   u_GlobalState,
   u_KmlInfoSimple,
   u_MarksSimple,
+  u_MarksReadWriteSimple,
   t_GeoTypes;
 
 procedure KMLDataToMark(ASource: TKMLData; ATarget: TMarkFull);

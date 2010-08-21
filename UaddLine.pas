@@ -81,6 +81,9 @@ var
 
 implementation
 
+uses
+  u_MarksReadWriteSimple;
+  
 {$R *.dfm}
 
 function TFaddLine.EditMark(AMark: TMarkFull): boolean;
