@@ -335,6 +335,7 @@ end;
 constructor TMarksIteratorVisibleInRect.Create(AZoom: Byte;
   ARect: TExtendedRect);
 begin
+  inherited Create;
   FMain.CDSmarks.Filter:=GetFilterText(AZoom, ARect);
   FMain.CDSmarks.Filtered:=true;
   FMain.CDSmarks.First;
