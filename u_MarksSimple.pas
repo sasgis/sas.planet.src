@@ -37,11 +37,28 @@ type
     function IsPoly: Boolean;
     procedure ClosePoly;
     function GetGoToLonLat: TExtendedPoint;
+    procedure Assign(ASource: TMarkFull);
   end;
 
 implementation
 
 { TMarkFull }
+
+procedure TMarkFull.Assign(ASource: TMarkFull);
+begin
+  Self.name := ASource.name;
+  Self.id := ASource.id;
+  Self.visible := ASource.visible;
+  Self.CategoryId := ASource.CategoryId;
+  Self.Desc := ASource.Desc;
+  Self.LLRect := ASource.LLRect;
+  Self.Points := Copy(ASource.Points);
+  Self.PicName := ASource.PicName;
+  Self.Color1 := ASource.Color1;
+  Self.Color2 := ASource.Color2;
+  Self.Scale1 := ASource.Scale1;
+  Self.Scale2 := ASource.Scale2;
+end;
 
 procedure TMarkFull.ClosePoly;
 var
