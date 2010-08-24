@@ -31,7 +31,7 @@ var
   slat, slon: string;
   i, j: integer;
   strr: string;
-  VPoint: TDoublePoint;
+  VPoint: TExtendedPoint;
   VPlace: IGeoCodePalcemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;

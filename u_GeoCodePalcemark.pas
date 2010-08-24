@@ -9,15 +9,15 @@ uses
 type
   TGeoCodePalcemark = class(TInterfacedObject, IGeoCodePalcemark)
   private
-    FPoint: TDoublePoint;
+    FPoint: TExtendedPoint;
     FAddress: WideString;
     FAccuracy: Integer;
-    function GetPoint: TDoublePoint; safecall;
+    function GetPoint: TExtendedPoint; safecall;
     function GetAddress: WideString; safecall;
     function GetAccuracy: Integer; safecall;
   public
     constructor Create(
-      APoint: TDoublePoint;
+      APoint: TExtendedPoint;
       AAddress: WideString;
       AAccuracy: Integer
     );
@@ -28,7 +28,7 @@ implementation
 
 { TGeoCodePalcemark }
 
-constructor TGeoCodePalcemark.Create(APoint: TDoublePoint;
+constructor TGeoCodePalcemark.Create(APoint: TExtendedPoint;
   AAddress: WideString; AAccuracy: Integer);
 begin
   FAddress := AAddress;
@@ -52,7 +52,7 @@ begin
   Result := FAddress;
 end;
 
-function TGeoCodePalcemark.GetPoint: TDoublePoint;
+function TGeoCodePalcemark.GetPoint: TExtendedPoint;
 begin
   Result := FPoint;
 end;

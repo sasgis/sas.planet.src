@@ -60,15 +60,12 @@ type
     procedure ChangeViewSize(ANewSize: TPoint);
 
     procedure ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
-    procedure ChangeLonLatAndUnlock(ALonLat: TDoublePoint); overload;
     procedure ChangeLonLatAndUnlock(ALonLat: TExtendedPoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint); overload;
-    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TDoublePoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
 
     function GetCenterMapPixel: TPoint;
     function GetCenterLonLat: TExtendedPoint;
-    function GetCenterLonLatDlb: TDoublePoint;
     function GetCurrentZoom: Byte;
     function GetCurrentMap: TMapType;
     function GetCurrentCoordConverter: ICoordConverter;
@@ -167,40 +164,6 @@ begin
   FMapConfigSaver := nil;
   FMapConfigLoader := nil;
   inherited;
-end;
-
-procedure TMapViewPortState.ChangeLonLatAndUnlock(ALonLat: TDoublePoint);
-var
-  VLonLat: TExtendedPoint;
-  VConverter: ICoordConverter;
-  VPixelPos: TPoint;
-  VPosChanged: Boolean;
-begin
-  VPosChanged := false;
-  FSync.BeginWrite;
-  try
-    if FWriteLocked then begin
-      try
-        VConverter := InternalGetCurrentCoordConverter;
-        VLonLat.X := ALonLat.X;
-        VLonLat.Y := ALonLat.Y;
-        VConverter.CheckLonLatPos(VLonLat);
-        VPixelPos := VConverter.LonLat2PixelPos(VLonLat, FZoom);
-        VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
-        FCenterPos := VPixelPos;
-      finally
-        FWriteLocked := False;
-        FSync.EndWrite;
-      end;
-    end else begin
-      raise Exception.Create('Настройки состояния не были заблокированы');
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-  if VPosChanged then begin
-    NotifyChangePos;
-  end;
 end;
 
 procedure TMapViewPortState.ChangeLonLatAndUnlock(ALonLat: TExtendedPoint);
@@ -363,16 +326,6 @@ begin
 end;
 
 procedure TMapViewPortState.ChangeZoomAndUnlock(ANewZoom: Byte;
-  ANewPos: TDoublePoint);
-var
-  VNewPos: TExtendedPoint;
-begin
-  VNewPos.X := ANewPos.X;
-  VNewPos.Y := ANewPos.Y;
-  ChangeZoomAndUnlock(ANewZoom, VNewPos);
-end;
-
-procedure TMapViewPortState.ChangeZoomAndUnlock(ANewZoom: Byte;
   ANewPos: TExtendedPoint);
 var
   VZoom: Byte;
@@ -421,15 +374,6 @@ begin
   finally
     FSync.EndRead;
   end;
-end;
-
-function TMapViewPortState.GetCenterLonLatDlb: TDoublePoint;
-var
-  VLonLat: TExtendedPoint;
-begin
-  VLonLat := GetCenterLonLat;
-  Result.X := VLonLat.X;
-  Result.Y := VLonLat.Y;
 end;
 
 function TMapViewPortState.GetCenterMapPixel: TPoint;

@@ -2422,7 +2422,7 @@ end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 begin
-  FGoogleSearch.ModalSearch(NewText, GState.ViewState.GetCenterLonLatDlb);
+  FGoogleSearch.ModalSearch(NewText, GState.ViewState.GetCenterLonLat);
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
@@ -2795,7 +2795,7 @@ end;
 
 procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 begin
-  FYandexSerach.ModalSearch(NewText, GState.ViewState.GetCenterLonLatDlb);
+  FYandexSerach.ModalSearch(NewText, GState.ViewState.GetCenterLonLat);
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);

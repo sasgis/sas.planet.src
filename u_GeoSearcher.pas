@@ -15,7 +15,7 @@ type
   public
     constructor Create(AGeoCoder: IGeoCoder; APresenter: ISearchResultPresenter);
     destructor Destroy; override;
-    procedure ModalSearch(ASearchText: String; ACurrentPos: TDoublePoint);
+    procedure ModalSearch(ASearchText: String; ACurrentPos: TExtendedPoint);
   end;
 
 implementation
@@ -41,7 +41,7 @@ begin
   inherited;
 end;
 
-procedure TGeoSearcher.ModalSearch(ASearchText: String; ACurrentPos: TDoublePoint);
+procedure TGeoSearcher.ModalSearch(ASearchText: String; ACurrentPos: TExtendedPoint);
 var
   VText: String;
   VResult: IGeoCodeResult;
