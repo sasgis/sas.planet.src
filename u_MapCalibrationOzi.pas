@@ -124,7 +124,7 @@ begin
 
     rad := AConverter.GetSpheroidRadius;
 
-    writeln(f, 'MM1B,' + FloatToStr(1 / ((AConverter.PixelsAtZoomExt(Azoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat));
+    writeln(f, 'MM1B,' + FloatToStr(1 / ((AConverter.PixelsAtZoomFloat(Azoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat));
     writeln(f, 'MOP,Map Open Position,0,0');
     writeln(f, 'IWH,Map Image Width/Height,' + inttostr(xy2.X) + ',' + inttostr(xy2.y));
   finally

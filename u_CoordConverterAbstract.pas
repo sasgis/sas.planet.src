@@ -38,11 +38,9 @@ type
     function LonLat2MetrS(Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
 
     function TilesAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
-    function TilesAtZoomDblInternal(AZoom: byte): Double; virtual; stdcall;
-    function TilesAtZoomExtInternal(AZoom: byte): Extended; virtual; stdcall;
+    function TilesAtZoomFloatInternal(AZoom: byte): Extended; virtual; stdcall;
     function PixelsAtZoomInternal(AZoom: byte): Longint; virtual; stdcall;
-    function PixelsAtZoomDblInternal(AZoom: byte): Double; virtual; stdcall;
-    function PixelsAtZoomExtInternal(AZoom: byte): Extended; virtual; stdcall;
+    function PixelsAtZoomFloatInternal(AZoom: byte): Extended; virtual; stdcall;
 
 
     function TilePos2PixelPosInternal(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
@@ -88,11 +86,9 @@ type
     function LonLat2Metr(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
 
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
-    function TilesAtZoomDbl(AZoom: byte): Double; stdcall;
-    function TilesAtZoomExt(AZoom: byte): Extended; stdcall;
+    function TilesAtZoomFloat(AZoom: byte): Extended; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
-    function PixelsAtZoomDbl(AZoom: byte): Double; stdcall;
-    function PixelsAtZoomExt(AZoom: byte): Extended; stdcall;
+    function PixelsAtZoomFloat(AZoom: byte): Extended; stdcall;
 
 
     function TilePos2PixelPos(const AXY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
@@ -1080,14 +1076,7 @@ begin
   Result := 1 shl (AZoom + 8);
 end;
 
-function TCoordConverterAbstract.PixelsAtZoomDblInternal(
-  AZoom: byte): Double;
-begin
-  Result := 1 shl AZoom;
-  Result := Result * 256;
-end;
-
-function TCoordConverterAbstract.PixelsAtZoomExtInternal(
+function TCoordConverterAbstract.PixelsAtZoomFloatInternal(
   AZoom: byte): Extended;
 begin
   Result := 1 shl AZoom;
@@ -1099,13 +1088,7 @@ begin
   Result := 1 shl AZoom;
 end;
 
-function TCoordConverterAbstract.TilesAtZoomDblInternal(
-  AZoom: byte): Double;
-begin
-  Result := 1 shl AZoom;
-end;
-
-function TCoordConverterAbstract.TilesAtZoomExtInternal(
+function TCoordConverterAbstract.TilesAtZoomFloatInternal(
   AZoom: byte): Extended;
 begin
   Result := 1 shl AZoom;
@@ -1451,22 +1434,13 @@ begin
   Result := PixelsAtZoomInternal(Vzoom);
 end;
 
-function TCoordConverterAbstract.PixelsAtZoomDbl(AZoom: byte): Double;
+function TCoordConverterAbstract.PixelsAtZoomFloat(AZoom: byte): Extended;
 var
   VZoom: Byte;
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := PixelsAtZoomDblInternal(Vzoom);
-end;
-
-function TCoordConverterAbstract.PixelsAtZoomExt(AZoom: byte): Extended;
-var
-  VZoom: Byte;
-begin
-  VZoom := AZoom;
-  CheckZoomInternal(VZoom);
-  Result := PixelsAtZoomExtInternal(Vzoom);
+  Result := PixelsAtZoomFloatInternal(Vzoom);
 end;
 
 function TCoordConverterAbstract.TilesAtZoom(AZoom: byte): Longint;
@@ -1478,22 +1452,13 @@ begin
   Result := TilesAtZoomInternal(Vzoom);
 end;
 
-function TCoordConverterAbstract.TilesAtZoomDbl(AZoom: byte): Double;
+function TCoordConverterAbstract.TilesAtZoomFloat(AZoom: byte): Extended;
 var
   VZoom: Byte;
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := TilesAtZoomDblInternal(Vzoom);
-end;
-
-function TCoordConverterAbstract.TilesAtZoomExt(AZoom: byte): Extended;
-var
-  VZoom: Byte;
-begin
-  VZoom := AZoom;
-  CheckZoomInternal(VZoom);
-  Result := TilesAtZoomExtInternal(Vzoom);
+  Result := TilesAtZoomFloatInternal(Vzoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2Relative(const AXY: TPoint;

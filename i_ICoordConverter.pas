@@ -32,12 +32,10 @@ type
     ['{E8884111-C538-424F-92BC-1BC9843EA6BB}']
     // ¬озвращает количество тайлов в заданном зуме
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
-    function TilesAtZoomDbl(AZoom: byte): Double; stdcall;
-    function TilesAtZoomExt(AZoom: byte): Extended; stdcall;
+    function TilesAtZoomFloat(AZoom: byte): Extended; stdcall;
     // ¬озвращает общее количество пикселей на заданном зуме
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
-    function PixelsAtZoomDbl(AZoom: byte): Double; stdcall;
-    function PixelsAtZoomExt(AZoom: byte): Extended; stdcall;
+    function PixelsAtZoomFloat(AZoom: byte): Extended; stdcall;
 
     // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
     function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
