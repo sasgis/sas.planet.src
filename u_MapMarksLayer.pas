@@ -12,8 +12,10 @@ uses
 type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
+    FLLRect:TExtendedRect;
     procedure drawPath2Bitmap(BtmEx:TCustomBitmap32;AGeoConvert: ICoordConverter; XYPoint:TPoint;AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
+    procedure DrawMarks;
     procedure DoRedraw; override;
   public
     procedure DoRedraw2Bitmap(BtmEx:TBitmap32; AGeoConvert: ICoordConverter; ATargetRect:TRect; AZoomCurr:byte);
@@ -247,9 +249,8 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.DoRedraw;
+procedure TMapMarksLayer.DrawMarks;
 var
-  LLRect:TExtendedRect;
   xy:Tpoint;
   btm:TCustomBitmap32;
   TestArrLenLonLatRect: TExtendedRect;
@@ -257,9 +258,6 @@ var
   buf_line_arr:TExtendedPointArray;
   indexmi:integer;
   imw,texth:integer;
-  VZoomCurr: Byte;
-  VRect: TRect;
-  VBitmapSize: TPoint;
   VIconSource: TCustomBitmap32;
   VScale1: Integer;
   VColor1: TColor32;
@@ -269,66 +267,74 @@ var
   VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
   VMark: TMarkFull;
 begin
+  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(FZoom, FLLRect);
+  try
+    btm:=TCustomBitmap32.Create;
+    try
+      btm.DrawMode:=dmBlend;
+      btm.Resampler:=TLinearResampler.Create;
+      While VMarksIterator.Next do begin
+        VMark := VMarksIterator.Current;
+        VScale1 := VMark.Scale1;
+        VColor1 := VMark.Color1;
+        VColor2 := VMark.Color2;
+        VMarkName := VMark.name;
+        buf_line_arr := VMark.Points;
+        VPointCount := length(buf_line_arr);
+        if VPointCount>1 then begin
+          TestArrLenLonLatRect := VMark.LLRect;
+          FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
+          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
+          if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
+            drawPath(buf_line_arr,VColor1,VColor2,VScale1,
+              (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
+          end;
+        end else if VPointCount =1 then begin
+          xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
+          xy := MapPixel2BitmapPixel(xy);
+          imw:=VMark.Scale2;
+          indexmi:=GState.MarkIcons.IndexOf(VMark.PicName);
+          if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
+            indexmi:=0;
+          end;
+          if(indexmi>-1)then begin
+            VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
+            btm.SetSize(VIconSource.Width, VIconSource.Height);
+            btm.Draw(0, 0, VIconSource);
+            FLayer.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
+          end;
+          if VScale1>0 then begin
+            FLayer.Bitmap.Font.Size:=VScale1;
+            texth:=FLayer.Bitmap.TextHeight(VMarkName) div 2;
+            FLayer.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
+            FLayer.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
+          end;
+        end;
+      end;
+    finally
+      btm.Free;
+    end;
+  finally
+    VMarksIterator.Free;
+  end;
+end;
+
+
+procedure TMapMarksLayer.DoRedraw;
+var
+  VBitmapSize: TPoint;
+  VRect: TRect;
+begin
   inherited;
   if (GState.show_point <> mshNone) then begin
     FLayer.Bitmap.Clear(clBlack);
-    VZoomCurr := FZoom;
     VBitmapSize := GetBitmapSizeInPixel;
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0,0));
     VRect.BottomRight := BitmapPixel2MapPixel(VBitmapSize);
 
-    FGeoConvert.CheckPixelRect(VRect, VZoomCurr, false);
-    LLRect := FGeoConvert.PixelRect2LonLatRect(VRect, VZoomCurr);
-    VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(FZoom, LLRect);
-    try
-      btm:=TCustomBitmap32.Create;
-      try
-        btm.DrawMode:=dmBlend;
-        btm.Resampler:=TLinearResampler.Create;
-        While VMarksIterator.Next do begin
-          VMark := VMarksIterator.Current;
-          VScale1 := VMark.Scale1;
-          VColor1 := VMark.Color1;
-          VColor2 := VMark.Color2;
-          VMarkName := VMark.name;
-          buf_line_arr := VMark.Points;
-          VPointCount := length(buf_line_arr);
-          if VPointCount>1 then begin
-            TestArrLenLonLatRect := VMark.LLRect;
-            FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
-            TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
-            if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
-              drawPath(buf_line_arr,VColor1,VColor2,VScale1,
-                (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
-            end;
-          end else if VPointCount =1 then begin
-            xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
-            xy := MapPixel2BitmapPixel(xy);
-            imw:=VMark.Scale2;
-            indexmi:=GState.MarkIcons.IndexOf(VMark.PicName);
-            if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
-              indexmi:=0;
-            end;
-            if(indexmi>-1)then begin
-              VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
-              btm.SetSize(VIconSource.Width, VIconSource.Height);
-              btm.Draw(0, 0, VIconSource);
-              FLayer.Bitmap.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height),btm);
-            end;
-            if VScale1>0 then begin
-              FLayer.Bitmap.Font.Size:=VScale1;
-              texth:=FLayer.Bitmap.TextHeight(VMarkName) div 2;
-              FLayer.Bitmap.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
-              FLayer.Bitmap.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
-            end;
-          end;
-        end;
-      finally
-        btm.Free;
-      end;
-    finally
-      VMarksIterator.Free;
-    end;
+    FGeoConvert.CheckPixelRect(VRect, FZoom, false);
+    FLLRect := FGeoConvert.PixelRect2LonLatRect(VRect, FZoom);
+    DrawMarks;
   end;
 end;
 

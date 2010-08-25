@@ -165,8 +165,6 @@ var
   buf_line_arr:TExtendedPointArray;
   indexmi:integer;
   imw,texth:integer;
-  marksFilter:string;
-
   VIconSource: TCustomBitmap32;
   VBtmEx: TBitmap32;
   VScale1: Integer;
@@ -174,19 +172,17 @@ var
   VColor2: TColor32;
   VPointCount: Integer;
   VMarkName: string;
-  VCategoryFilter: string;
-  VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
+  VMarksIterator: TMarksIteratorVisibleInRect;
   VMark: TMarkFull;
 begin
-  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(FZoom, FLLRect);
+  VMarksIterator := TMarksIteratorVisibleInRect.Create(FZoom, FLLRect);
   try
-//TODO: Сделать вывод подписей для меток.
-//    VBtmEx := TBitmap32.Create;
-//    VBtmEx.Font.Name:='Tahoma';
-//    VBtmEx.Font.Style:=[];
-//    VBtmEx.DrawMode := dmBlend;
+    VBtmEx := TBitmap32.Create;
     btm:=TCustomBitmap32.Create;
     try
+      VBtmEx.Font.Name:='Tahoma';
+      VBtmEx.Font.Style:=[];
+      VBtmEx.DrawMode := dmBlend;
       btm.DrawMode:=dmBlend;
       btm.Resampler:=TLinearResampler.Create;
       While VMarksIterator.Next do begin
@@ -198,13 +194,12 @@ begin
         buf_line_arr := VMark.Points;
         VPointCount := length(buf_line_arr);
         if VPointCount>1 then begin
-          TestArrLenLonLatRect := VMark.FLLRect;
+          TestArrLenLonLatRect := VMark.LLRect;
           FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
           TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
             drawPath2Bitmap(buf_line_arr,VColor1,VColor2,VScale1,
               (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
-            SetLength(buf_line_arr,0);
           end;
         end else if VPointCount =1 then begin
           xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
@@ -231,6 +226,7 @@ begin
       end;
     finally
       btm.Free;
+      VBtmEx.Free;
     end;
   finally
     VMarksIterator.Free;
