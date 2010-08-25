@@ -43,6 +43,7 @@ type
     FGeoConvert: ICoordConverter;
     FTargetRect: TRect;
     FZoom: Byte;
+    FLLRect: TExtendedRect;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
     procedure drawPath2Bitmap(pathll:TExtendedPointArray; color1, color2:TColor32; linew:integer; poly:boolean);
@@ -59,11 +60,19 @@ type
 constructor TMapMarksBitmapLayerProviderStupedThreaded.Create(
   ATargetBmp: TCustomBitmap32; AConverter: ICoordConverter;
   ATargetRect: TRect; ATargetZoom: Byte);
+var
+  VDeltaLL: TExtendedPoint;
 begin
   FTargetBmp := ATargetBmp;
   FGeoConvert := AConverter;
   FTargetRect := ATargetRect;
   FZoom := FZoom;
+  FLLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
+  VDeltaLL:=ExtPoint((FLLRect.Right-FLLRect.Left)/2,(FLLRect.Top-FLLRect.Bottom)/2);
+  FLLRect.Left := FLLRect.Left - VDeltaLL.X;
+  FLLRect.Top := FLLRect.Top - VDeltaLL.Y;
+  FLLRect.Right := FLLRect.Right + VDeltaLL.X;
+  FLLRect.Bottom := FLLRect.Bottom + VDeltaLL.Y;
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -149,10 +158,8 @@ end;
 
 procedure TMapMarksBitmapLayerProviderStupedThreaded.SyncGetBitmap;
 var
-  LLRect: TExtendedRect;
   xy:Tpoint;
   btm:TCustomBitmap32;
-  dLL:TExtendedPoint;
   TestArrLenLonLatRect: TExtendedRect;
   TestArrLenPixelRect: TRect;
   buf_line_arr:TExtendedPointArray;
@@ -171,74 +178,62 @@ var
   VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
   VMark: TMarkFull;
 begin
-  if (GState.show_point = mshNone) then exit;
+  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(FZoom, FLLRect);
   try
-    LLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
-
-    dLL:=ExtPoint((LLRect.Right-LLRect.Left)/2,(LLRect.Top-LLRect.Bottom)/2);
-    LLRect.Left := LLRect.Left - dLL.X;
-    LLRect.Top := LLRect.Top - dLL.Y;
-    LLRect.Right := LLRect.Right + dLL.X;
-    LLRect.Bottom := LLRect.Bottom + dLL.Y;
-
-    VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(FZoom, LLRect);
+//TODO: Сделать вывод подписей для меток.
+//    VBtmEx := TBitmap32.Create;
+//    VBtmEx.Font.Name:='Tahoma';
+//    VBtmEx.Font.Style:=[];
+//    VBtmEx.DrawMode := dmBlend;
+    btm:=TCustomBitmap32.Create;
     try
-  //TODO: Сделать вывод подписей для меток.
-  //    VBtmEx := TBitmap32.Create;
-  //    VBtmEx.Font.Name:='Tahoma';
-  //    VBtmEx.Font.Style:=[];
-  //    VBtmEx.DrawMode := dmBlend;
-      btm:=TCustomBitmap32.Create;
-      try
-        btm.DrawMode:=dmBlend;
-        btm.Resampler:=TLinearResampler.Create;
-        While VMarksIterator.Next do begin
-          VMark := VMarksIterator.Current;
-          VScale1 := VMark.Scale1;
-          VColor1 := VMark.Color1;
-          VColor2 := VMark.Color2;
-          VMarkName := VMark.name;
-          buf_line_arr := VMark.Points;
-          VPointCount := length(buf_line_arr);
-          if VPointCount>1 then begin
-            TestArrLenLonLatRect := VMark.LLRect;
-            FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
-            TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
-            if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
-              drawPath2Bitmap(buf_line_arr,VColor1,VColor2,VScale1,
-                (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
-              SetLength(buf_line_arr,0);
-            end;
-          end else if VPointCount =1 then begin
-            xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
-            xy := MapPixel2BitmapPixel(xy);
-            imw:=VMark.Scale2;
-            indexmi:=GState.MarkIcons.IndexOf(VMark.PicName);
-            if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
-              indexmi:=0;
-            end;
-            if(indexmi>-1)then begin
-              VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
-              btm.SetSize(VIconSource.Width, VIconSource.Height);
-              btm.Draw(0, 0, VIconSource);
-              FTargetBmp.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
-            end;
-            if VScale1>0 then begin
-  //TODO: Сделать вывод подписей для меток.
-  //            VBtmEx.Font.Size:=VScale1;
-  //            texth:=VBtmEx.TextHeight(VMarkName) div 2;
-  //            VBtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
-  //            VBtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
-            end;
+      btm.DrawMode:=dmBlend;
+      btm.Resampler:=TLinearResampler.Create;
+      While VMarksIterator.Next do begin
+        VMark := VMarksIterator.Current;
+        VScale1 := VMark.Scale1;
+        VColor1 := VMark.Color1;
+        VColor2 := VMark.Color2;
+        VMarkName := VMark.name;
+        buf_line_arr := VMark.Points;
+        VPointCount := length(buf_line_arr);
+        if VPointCount>1 then begin
+          TestArrLenLonLatRect := VMark.FLLRect;
+          FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
+          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
+          if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
+            drawPath2Bitmap(buf_line_arr,VColor1,VColor2,VScale1,
+              (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
+            SetLength(buf_line_arr,0);
+          end;
+        end else if VPointCount =1 then begin
+          xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
+          xy := MapPixel2BitmapPixel(xy);
+          imw:=VMark.Scale2;
+          indexmi:=GState.MarkIcons.IndexOf(VMark.PicName);
+          if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
+            indexmi:=0;
+          end;
+          if(indexmi>-1)then begin
+            VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
+            btm.SetSize(VIconSource.Width, VIconSource.Height);
+            btm.Draw(0, 0, VIconSource);
+            FTargetBmp.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
+          end;
+          if VScale1>0 then begin
+//TODO: Сделать вывод подписей для меток.
+//            VBtmEx.Font.Size:=VScale1;
+//            texth:=VBtmEx.TextHeight(VMarkName) div 2;
+//            VBtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
+//            VBtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
           end;
         end;
-      finally
-        btm.Free;
       end;
     finally
-      VMarksIterator.Free;
+      btm.Free;
     end;
   finally
+    VMarksIterator.Free;
   end;
 end;
 
@@ -250,12 +245,14 @@ procedure TMapMarksBitmapLayerProviderStuped.GetBitmapRect(
 var
   VWorker: TMapMarksBitmapLayerProviderStupedThreaded;
 begin
-  VWorker := TMapMarksBitmapLayerProviderStupedThreaded.Create(
-    ATargetBmp, AConverter, ATargetRect, ATargetZoom);
-  try
-    TThread.Synchronize(nil, VWorker.SyncGetBitmap);
-  finally
-    VWorker.Free;
+  if (GState.show_point <> mshNone) then begin;
+    VWorker := TMapMarksBitmapLayerProviderStupedThreaded.Create(
+      ATargetBmp, AConverter, ATargetRect, ATargetZoom);
+    try
+      TThread.Synchronize(nil, VWorker.SyncGetBitmap);
+    finally
+      VWorker.Free;
+    end;
   end;
 end;
 
