@@ -173,7 +173,9 @@ type
 
     function LonLatRect2RelativeRect(const AXY: TExtendedRect): TExtendedRect; virtual; stdcall;
     function LonLatRect2PixelRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;//TODO: Автотест
+    function LonLatRect2PixelRectFloat(const XY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall;
     function LonLatRect2TileRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;//TODO: Автотест
+    function LonLatRect2TileRectFloat(const XY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall;
 
     function Relative2Pixel(const AXY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
     function Relative2PixelPosFloat(const AXY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
@@ -989,6 +991,19 @@ begin
   Result := LonLatRect2TileRectInternal(VXY, Vzoom);
 end;
 
+function TCoordConverterAbstract.LonLatRect2TileRectFloat(
+  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckLonLatRectInternal(VXY);
+  CheckZoomInternal(VZoom);
+  Result := LonLatRect2TileRectFloatInternal(VXY, Vzoom);
+end;
+
 function TCoordConverterAbstract.LonLatRect2PixelRect(const AXY: TExtendedRect;
   Azoom: byte): TRect;
 var
@@ -1002,6 +1017,19 @@ begin
   Result := LonLatRect2PixelRectInternal(VXY, Vzoom);
 end;
 
+
+function TCoordConverterAbstract.LonLatRect2PixelRectFloat(
+  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckLonLatRectInternal(VXY);
+  CheckZoomInternal(VZoom);
+  Result := LonLatRect2PixelRectFloatInternal(VXY, Vzoom);
+end;
 
 function TCoordConverterAbstract.GetDatumEPSG: integer;
 begin

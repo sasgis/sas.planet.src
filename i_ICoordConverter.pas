@@ -127,7 +127,9 @@ type
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
     function LonLatRect2RelativeRect(const XY: TExtendedRect): TExtendedRect; stdcall;//TODO: Автотест
     function LonLatRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
+    function LonLatRect2PixelRectFloat(const XY: TExtendedRect; Azoom: byte): TExtendedRect; stdcall;//TODO: Автотест
     function LonLatRect2TileRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
+    function LonLatRect2TileRectFloat(const XY: TExtendedRect; Azoom: byte): TExtendedRect; stdcall;//TODO: Автотест
 
     function LonLatArray2PixelArray(APolyg: TExtendedPointArray; AZoom: byte): TPointArray; stdcall;
     function LonLatArray2PixelArrayFloat(APolyg: TExtendedPointArray; AZoom: byte): TExtendedPointArray; stdcall;
