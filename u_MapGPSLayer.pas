@@ -51,9 +51,9 @@ begin
     VLastPoint := GState.GPS_TrackPoints[VPointsCount-1];
     if VPointsCount>1 then try
       VPreLastPoint := GState.GPS_TrackPoints[VPointsCount-2];
-      ke:=FGeoConvert.LonLat2ExtendedPixelPos(VLastPoint, FZoom);
+      ke:=FGeoConvert.LonLat2PixelPosFloat(VLastPoint, FZoom);
       ke:=MapPixel2BitmapPixel(ke);
-      ks:=FGeoConvert.LonLat2ExtendedPixelPos(VPreLastPoint, FZoom);
+      ks:=FGeoConvert.LonLat2PixelPosFloat(VPreLastPoint, FZoom);
       ks:=MapPixel2BitmapPixel(ks);
       VArrowSize:=GState.GPS_ArrowSize;
       D:=Sqrt(Sqr(ks.X-ke.X)+Sqr(ks.Y-ke.Y));

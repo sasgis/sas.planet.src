@@ -381,7 +381,7 @@ var
   VMapCenter: TExtendedPoint;
 begin
   VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  VMapCenter := FGeoConvert.Relative2ExtendedPixel(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
+  VMapCenter := FGeoConvert.Relative2PixelPosFloat(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
   Result.X := VMapCenter.X - VScreenCenterInBitmap.X + Pnt.X;
   Result.Y := VMapCenter.Y - VScreenCenterInBitmap.Y + Pnt.y;
 end;
@@ -404,7 +404,7 @@ var
   VMapCenter: TExtendedPoint;
 begin
   VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  VMapCenter := FGeoConvert.Relative2ExtendedPixel(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
+  VMapCenter := FGeoConvert.Relative2PixelPosFloat(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
   Result.X := Pnt.X - VMapCenter.X + VScreenCenterInBitmap.X;
   Result.Y := Pnt.Y - VMapCenter.Y + VScreenCenterInBitmap.Y;
 end;
