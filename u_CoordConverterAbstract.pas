@@ -78,6 +78,12 @@ type
     function TileRect2RelativeRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
     function TileRect2LonLatRectInternal(const XY: TRect; Azoom: byte): TExtendedRect; virtual; stdcall; abstract;
 
+    function TileRectFloat2TileRectInternal(const XY: TExtendedRect; AZoom: byte): TRect; virtual; stdcall; abstract;
+    function TileRectFloat2PixelRectInternal(const XY: TExtendedRect; AZoom: byte): TRect; virtual; stdcall; abstract;
+    function TileRectFloat2PixelRectFloatInternal(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
+    function TileRectFloat2RelativeRectInternal(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
+    function TileRectFloat2LonLatRectInternal(const XY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall; abstract;
+
     function Relative2PixelInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
     function Relative2PixelPosFloatInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function Relative2TileInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
@@ -94,7 +100,7 @@ type
     function LonLat2PixelPosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall; abstract;
     function LonLat2PixelPosFloatInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2TilePosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall; abstract;
-    function LonLat2TilePosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function LonLat2TilePosFloatInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
 
     function LonLatRect2RelativeRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall; abstract;
@@ -643,7 +649,7 @@ begin
   VZoom := AZoom;
   CheckLonLatPosInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := LonLat2TilePosfInternal(VXY, Vzoom);
+  Result := LonLat2TilePosFloatInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLat2Relative(
