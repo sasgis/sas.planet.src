@@ -1056,7 +1056,7 @@ function TCoordConverterAbstract.IsSameConverter(
   AOtherMapCoordConv: ICoordConverter): Boolean;
 begin
   Result :=
-    (Self.GetTileSplitCode) and
+    (Self.GetTileSplitCode <> 0) and
     (AOtherMapCoordConv.GetTileSplitCode <> 0) and
     (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
     (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
