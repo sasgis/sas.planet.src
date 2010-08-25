@@ -189,32 +189,34 @@ procedure TMapMarksLayer.PreparePolygon(pathll: TExtendedPointArray;
   polygon: TPolygon32);
 var
   i,adp,j:integer;
-  k1,k2,k4:TPoint;
+  k1:TextendedPoint;
+  k2:TextendedPoint;
+  k4:TextendedPoint;
   k3:TextendedPoint;
   VLonLat: TExtendedPoint;
 begin
   for i:=0 to length(pathll)-1 do begin
     VLonLat := pathll[i];
     FGeoConvert.CheckLonLatPos(VLonLat);
-    k1:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
+    k1:=FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
     k1:=MapPixel2BitmapPixel(k1);
     if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-      polygon.Add(FixedPoint(k1));
+      polygon.Add(FixedPoint(k1.X, k1.Y));
     end;
     if i<length(pathll)-1 then begin
       VLonLat := pathll[i+1];
       FGeoConvert.CheckLonLatPos(VLonLat);
-      k2:=FGeoConvert.LonLat2PixelPos(VLonLat,FZoom);
+      k2:=FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
       k2:=MapPixel2BitmapPixel(k2);
       if (k2.x-k1.x)>(k2.y-k1.y) then begin
-        adp:=(k2.x-k1.x)div 32767+2;
+        adp:= Trunc((k2.x-k1.x)/32767)+2;
       end else begin
-        adp:=(k2.y-k1.y)div 32767+2;
+        adp:= Trunc((k2.y-k1.y)/ 32767)+2;
       end;
       k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
       if adp>2 then begin
         for j:=1 to adp-1 do begin
-          k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
+          k4:=extPoint((k1.x+k3.x*j),(k1.Y+k3.y*j));
           if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
             polygon.Add(FixedPoint(k4.x,k4.y));
           end;
