@@ -217,6 +217,7 @@ type
     function GetSpheroidRadius: Double; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
     function GetTileSplitCode: Integer; virtual; stdcall; abstract;
+    function IsSameConverter(AOtherMapCoordConv: ICoordConverter): Boolean; virtual; stdcall;
 
     function LonLat2Metr(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
   end;
@@ -1049,6 +1050,18 @@ end;
 function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;
 begin
   Result := FCellSizeUnits;
+end;
+
+function TCoordConverterAbstract.IsSameConverter(
+  AOtherMapCoordConv: ICoordConverter): Boolean;
+begin
+  Result :=
+    (Self.GetTileSplitCode) and
+    (AOtherMapCoordConv.GetTileSplitCode <> 0) and
+    (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
+    (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
+    (Self.GetProjectionEPSG <> 0) and
+    (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG);
 end;
 
 end.
