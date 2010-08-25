@@ -14,7 +14,7 @@ type
     FValidLonLatRect: TExtendedRect;
     function GetValidLonLatRect: TExtendedRect; virtual;
 
-    procedure CheckZoomInternal(var AZoom: Byte); virtual;
+    procedure CheckZoomInternal(var AZoom: Byte); override;
     procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); override;
     procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); override;
     procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); override;
