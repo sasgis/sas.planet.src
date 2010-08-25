@@ -105,6 +105,7 @@ type
     function Relative2TilePosFloat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Перобразует относительные координаты на карте в географические
     function Relative2LonLat(const XY: TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
+
     // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
     function RelativeRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;
     function RelativeRect2PixelRectFloat(const XY: TExtendedRect; Azoom: byte): TExtendedRect; stdcall;
@@ -122,6 +123,7 @@ type
     function LonLat2TilePosFloat(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Преобразует географические коодинаты в относительные координаты на карте
     function LonLat2Relative(const XY: TExtendedPoint): TExtendedPoint; stdcall;//TODO: Автотест
+
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
     function LonLatRect2RelativeRect(const XY: TExtendedRect): TExtendedRect; stdcall;//TODO: Автотест
     function LonLatRect2PixelRect(const XY: TExtendedRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
