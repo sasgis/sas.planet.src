@@ -110,7 +110,9 @@ type
 
     function LonLatRect2RelativeRectInternal(const XY: TExtendedRect): TExtendedRect; virtual; stdcall; abstract;
     function LonLatRect2PixelRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall; abstract;
+    function LonLatRect2PixelRectFloatInternal(const XY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall; abstract;
     function LonLatRect2TileRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall; abstract;
+    function LonLatRect2TileRectFloatInternal(const XY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall; abstract;
   public
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(AZoom: byte): Extended; stdcall;

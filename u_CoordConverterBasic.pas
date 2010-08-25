@@ -104,7 +104,9 @@ type
 
     function LonLatRect2RelativeRectInternal(const XY: TExtendedRect): TExtendedRect; override;
     function LonLatRect2PixelRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; override;
+    function LonLatRect2PixelRectFloatInternal(const XY: TExtendedRect; Azoom: byte): TExtendedRect; override;
     function LonLatRect2TileRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; override;
+    function LonLatRect2TileRectFloatInternal(const XY: TExtendedRect; Azoom: byte): TExtendedRect; override;
   public
     function CheckZoom(var AZoom: Byte): boolean; override;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
@@ -1238,10 +1240,28 @@ begin
   Result.BottomRight := LonLat2RelativeInternal(XY.BottomRight);
 end;
 
+function TCoordConverterBasic.LonLatRect2PixelRectFloatInternal(
+  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
+var
+  VRelativeRect: TExtendedRect;
+begin
+  VRelativeRect := LonLatRect2RelativeRectInternal(XY);
+  Result := RelativeRect2PixelRectFloatInternal(VRelativeRect, Azoom);
+end;
+
 function TCoordConverterBasic.LonLatRect2PixelRectInternal(
   const XY: TExtendedRect; Azoom: byte): TRect;
 begin
   Result := RelativeRect2PixelRectInternal(LonLatRect2RelativeRectInternal(XY), Azoom);
+end;
+
+function TCoordConverterBasic.LonLatRect2TileRectFloatInternal(
+  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
+var
+  VRelativeRect: TExtendedRect;
+begin
+  VRelativeRect := LonLatRect2RelativeRectInternal(XY);
+  Result := RelativeRect2TileRectFloatInternal(VRelativeRect, Azoom);
 end;
 
 function TCoordConverterBasic.LonLatRect2TileRectInternal(
