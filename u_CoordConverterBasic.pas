@@ -902,8 +902,10 @@ var
   VTilesAtZoom: Extended;
 begin
   VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
-  Result.X := XY.X / VTilesAtZoom;
-  Result.Y := XY.Y / VTilesAtZoom;
+  Result.Left := XY.Left / VTilesAtZoom;
+  Result.Top := XY.Top / VTilesAtZoom;
+  Result.Right := XY.Right / VTilesAtZoom;
+  Result.Bottom := XY.Bottom / VTilesAtZoom;
 end;
 
 function TCoordConverterBasic.TileRectFloat2TileRectInternal(

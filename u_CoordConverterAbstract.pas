@@ -16,13 +16,14 @@ type
     FCellSizeUnits: TCellSizeUnits;
 
     procedure CheckZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
-    procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
-    procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
-    procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); virtual; stdcall; abstract;
 
     procedure CheckPixelPosInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
     procedure CheckPixelPosStrictInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
     procedure CheckPixelRectInternal(var XY: TRect; var Azoom: byte); virtual; stdcall; abstract;
+
+    procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
+    procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
+    procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); virtual; stdcall; abstract;
 
     procedure CheckRelativePosInternal(var XY: TExtendedPoint); virtual; stdcall; abstract;
     procedure CheckRelativeRectInternal(var XY: TExtendedRect); virtual; stdcall; abstract;
@@ -116,6 +117,13 @@ type
     function PixelPos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
     function PixelPos2TilePos(const AXY: TPoint; Azoom: byte): TPoint; virtual; stdcall;
     function PixelPos2Relative(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+//    function PixelPos2TilePosFloat(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+//
+//    function PixelPosFloat2PixelPos(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+//    function PixelPosFloat2TilePos(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall;
+//    function PixelPosFloat2TilePosFloat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+//    function PixelPosFloat2Relative(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
+//    function PixelPosFloat2LonLat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
 
     function PixelRect2TileRect(const AXY: TRect; AZoom: byte): TRect; virtual; stdcall;
     function PixelRect2RelativeRect(const AXY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
@@ -564,6 +572,48 @@ begin
   CheckPixelPosInternal(VXY, VZoom);
   Result := PixelPos2TilePosInternal(VXY, Vzoom);
 end;
+
+//function TCoordConverterAbstract.PixelPos2TilePosFloat(const XY: TPoint;
+//  Azoom: byte): TExtendedPoint;
+//var
+//  VXY: TPoint;
+//  VZoom: Byte;
+//begin
+//  VXY := XY;
+//  VZoom := AZoom;
+//  CheckPixelPosInternal(VXY, VZoom);
+//  Result := PixelPos2TilePosFloatInternal(VXY, Vzoom);
+//end;
+//
+//function TCoordConverterAbstract.PixelPosFloat2LonLat(const XY: TExtendedPoint;
+//  Azoom: byte): TExtendedPoint;
+//begin
+//
+//end;
+//
+//function TCoordConverterAbstract.PixelPosFloat2PixelPos(
+//  const XY: TExtendedPoint; Azoom: byte): TPoint;
+//begin
+//
+//end;
+//
+//function TCoordConverterAbstract.PixelPosFloat2Relative(
+//  const XY: TExtendedPoint; Azoom: byte): TExtendedPoint;
+//begin
+//
+//end;
+//
+//function TCoordConverterAbstract.PixelPosFloat2TilePos(const XY: TExtendedPoint;
+//  Azoom: byte): TPoint;
+//begin
+//
+//end;
+//
+//function TCoordConverterAbstract.PixelPosFloat2TilePosFloat(
+//  const XY: TExtendedPoint; Azoom: byte): TExtendedPoint;
+//begin
+//
+//end;
 
 function TCoordConverterAbstract.PixelRect2LonLatRect(const AXY: TRect;
   AZoom: byte): TExtendedRect;
