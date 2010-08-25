@@ -15,13 +15,14 @@ type
     function GetValidLonLatRect: TExtendedRect; virtual;
 
     procedure CheckZoomInternal(var AZoom: Byte); override;
-    procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); override;
-    procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); override;
-    procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); override;
 
     procedure CheckPixelPosInternal(var XY: TPoint; var Azoom: byte); override;
     procedure CheckPixelPosStrictInternal(var XY: TPoint; var Azoom: byte); override;
     procedure CheckPixelRectInternal(var XY: TRect; var Azoom: byte); override;
+
+    procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); override;
+    procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); override;
+    procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); override;
 
     procedure CheckRelativePosInternal(var XY: TExtendedPoint); override;
     procedure CheckRelativeRectInternal(var XY: TExtendedRect); override;
