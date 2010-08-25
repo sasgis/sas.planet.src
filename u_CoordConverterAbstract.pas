@@ -19,11 +19,15 @@ type
 
     procedure CheckPixelPosInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
     procedure CheckPixelPosStrictInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
+    procedure CheckPixelPosFloatInternal(var XY: TExtendedPoint; var Azoom: byte); virtual; stdcall; abstract;
     procedure CheckPixelRectInternal(var XY: TRect; var Azoom: byte); virtual; stdcall; abstract;
+    procedure CheckPixelRectFloatInternal(var XY: TExtendedRect; var Azoom: byte); virtual; stdcall; abstract;
 
     procedure CheckTilePosInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
     procedure CheckTilePosStrictInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
+    procedure CheckTilePosFloatInternal(var XY: TExtendedPoint; var Azoom: byte); virtual; stdcall; abstract;
     procedure CheckTileRectInternal(var XY: TRect; var Azoom: byte); virtual; stdcall; abstract;
+    procedure CheckTileRectFloatInternal(var XY: TExtendedRect; var Azoom: byte); virtual; stdcall; abstract;
 
     procedure CheckRelativePosInternal(var XY: TExtendedPoint); virtual; stdcall; abstract;
     procedure CheckRelativeRectInternal(var XY: TExtendedRect); virtual; stdcall; abstract;
