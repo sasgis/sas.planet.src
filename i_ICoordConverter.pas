@@ -43,13 +43,13 @@ type
     function PixelPos2Relative(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;
     // Преобразует координаты пиксела в географические координаты
     function PixelPos2LonLat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
-//    function PixelPos2TilePosFloat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function PixelPos2TilePosFloat(const XY: TPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
 
-//    function PixelPosFloat2PixelPos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-//    function PixelPosFloat2TilePos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-//    function PixelPosFloat2TilePosFloat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
-//    function PixelPosFloat2Relative(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
-//    function PixelPosFloat2LonLat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2PixelPos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2TilePos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2TilePosFloat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2Relative(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2LonLat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
 
     // вычисляет прямоугольник тайлов покрывающий прямоугольник пикселов
     function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; stdcall;
@@ -57,13 +57,13 @@ type
     function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
     // Преобразует координаты прямоугольника пикселов в географические координаты на карте
     function PixelRect2LonLatRect(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;
-//    function PixelRect2TileRectFloat(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
+    function PixelRect2TileRectFloat(const XY: TRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
 
-//    function PixelRectFloat2PixelRect(const XY: TExtendedRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
-//    function PixelRectFloat2TileRect(const XY: TExtendedRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
-//    function PixelRectFloat2TileRectFloat(const XY: TExtendedRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
-//    function PixelRectFloat2RelativeRect(const XY: TExtendedRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
-//    function PixelRectFloat2LonLatRect(const XY: TExtendedRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2PixelRect(const XY: TExtendedRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2TileRect(const XY: TExtendedRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2TileRectFloat(const XY: TExtendedRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2RelativeRect(const XY: TExtendedRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2LonLatRect(const XY: TExtendedRect; AZoom: byte): TExtendedRect; stdcall;//TODO: Автотест
 
     // Преобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
     function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
