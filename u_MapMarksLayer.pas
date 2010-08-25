@@ -231,11 +231,7 @@ end;
 procedure TMapMarksLayer.PreparePolygonNew(pathll: TExtendedPointArray;
   polygon: TPolygon32);
 var
-  i,adp,j:integer;
-  k1:TextendedPoint;
-  k2:TextendedPoint;
-  k4:TextendedPoint;
-  k3:TextendedPoint;
+  i, j:integer;
   VLonLat: TExtendedPoint;
   VMapPoint: TExtendedPoint;
   VBitmapPointCurr: TExtendedPoint;
@@ -244,6 +240,13 @@ var
   VDist: Extended;
   VTargetPointsCount: Integer;
   VArrayLen: integer;
+  VDelta: TExtendedPoint;
+  VMaxDelta: Extended;
+  VSplitCount: Integer;
+  VStepDelta: TExtendedPoint;
+  VTempPoint: TExtendedPoint;
+const
+  CRectSize = 1 shl 14;
 begin
   VPointsCount := length(pathll);
   VArrayLen := Length(FFixedPointArray);
@@ -268,9 +271,37 @@ begin
     VBitmapPointCurr:=MapPixel2BitmapPixel(VMapPoint);
     VDist := Abs(VBitmapPointCurr.x - VBitmapPointPrev.X) + Abs(VBitmapPointCurr.Y - VBitmapPointPrev.Y);
     if VDist > 1.5 then begin
+      VDelta.X := VBitmapPointCurr.X - VBitmapPointPrev.X;
+      VDelta.Y := VBitmapPointCurr.Y - VBitmapPointPrev.Y;
+      if Abs(VDelta.X) > Abs(VDelta.Y) then begin
+        VMaxDelta := VDelta.X;
+      end else begin
+        VMaxDelta := VDelta.Y;
+      end;
+      VSplitCount := Trunc(Abs(VMaxDelta)/CRectSize) + 1;
+      if VSplitCount > 1 then begin
+        VStepDelta.X := VDelta.X / VSplitCount;
+        VStepDelta.Y := VDelta.Y / VSplitCount;
+        VTempPoint := VBitmapPointPrev;
+        for j := 0 to VSplitCount - 1 do begin
+          VTempPoint.X := VTempPoint.X + VStepDelta.X;
+          VTempPoint.X := VTempPoint.X + VStepDelta.X;
+          if
+            (VTempPoint.x<CRectSize)and(VTempPoint.x>-CRectSize)and
+            (VTempPoint.y<CRectSize)and(VTempPoint.y>-CRectSize)
+          then begin
+            if VTargetPointsCount >= VArrayLen then begin
+              SetLength(FFixedPointArray, VTargetPointsCount*2);
+              VArrayLen := VTargetPointsCount*2;
+            end;
+            FFixedPointArray[VTargetPointsCount] := FixedPoint(VTempPoint.x, VTempPoint.y);
+            Inc(VTargetPointsCount);
+          end;
+        end;
+      end;
       if
-        (VBitmapPointCurr.x<32767)and(VBitmapPointCurr.x>-32767)and
-        (VBitmapPointCurr.y<32767)and(VBitmapPointCurr.y>-32767)
+        (VBitmapPointCurr.x<CRectSize)and(VBitmapPointCurr.x>-CRectSize)and
+        (VBitmapPointCurr.y<CRectSize)and(VBitmapPointCurr.y>-CRectSize)
       then begin
         if VTargetPointsCount >= VArrayLen then begin
           SetLength(FFixedPointArray, VTargetPointsCount*2);
@@ -278,42 +309,11 @@ begin
         end;
         FFixedPointArray[VTargetPointsCount] := FixedPoint(VBitmapPointCurr.x, VBitmapPointCurr.y);
         Inc(VTargetPointsCount);
-      end else begin
-
       end;
       VBitmapPointPrev := VBitmapPointCurr;
     end;
   end;
 
-  for i:=0 to length(pathll)-1 do begin
-    VLonLat := pathll[i];
-    FGeoConvert.CheckLonLatPos(VLonLat);
-    VMapPoint :=FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
-    VBitmapPointCurr:=MapPixel2BitmapPixel(VMapPoint);
-    if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-      polygon.Add(FixedPoint(k1.X, k1.Y));
-    end;
-    if i<length(pathll)-1 then begin
-      VLonLat := pathll[i+1];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      k2:=FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
-      k2:=MapPixel2BitmapPixel(k2);
-      if (k2.x-k1.x)>(k2.y-k1.y) then begin
-        adp:= Trunc((k2.x-k1.x)/32767)+2;
-      end else begin
-        adp:= Trunc((k2.y-k1.y)/ 32767)+2;
-      end;
-      k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
-      if adp>2 then begin
-        for j:=1 to adp-1 do begin
-          k4:=extPoint((k1.x+k3.x*j),(k1.Y+k3.y*j));
-          if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
-            polygon.Add(FixedPoint(k4.x,k4.y));
-          end;
-        end;
-      end;
-    end;
-  end;
   Polygon.AddPoints(FFixedPointArray[0], VTargetPointsCount);
 end;
 
