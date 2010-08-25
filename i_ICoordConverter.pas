@@ -78,11 +78,11 @@ type
     // Преобразует позицию тайла заданного зума в географические координаты его углов
     function TilePos2LonLatRect(const XY: TPoint; Azoom: byte): TExtendedRect; stdcall;//TODO: Автотест
 
-//    function TilePosFloat2TilePos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-//    function TilePosFloat2PixelPos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-//    function TilePosFloat2PixelPosFloat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
-//    function TilePosFloat2Relative(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
-//    function TilePosFloat2LonLat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2TilePos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2PixelPos(const XY: TExtendedPoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2PixelPosFloat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2Relative(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2LonLat(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; stdcall;//TODO: Автотест
 
     // вычисляет координты пикселей вершин прямоугольника тайлов
     function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
