@@ -39,15 +39,27 @@ type
     function PixelsAtZoomFloatInternal(AZoom: byte): Extended; virtual; stdcall; abstract;
 
 
-    function PixelPos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function PixelPos2TilePosInternal(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
+    function PixelPos2TilePosFloatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function PixelPos2RelativeInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function PixelPos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
 
     function PixelPosFloat2PixelPosInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
+    function PixelPosFloat2TilePosInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
+    function PixelPosFloat2TilePosFloatInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function PixelPosFloat2RelativeInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function PixelPosFloat2LonLatInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
 
     function PixelRect2TileRectInternal(const XY: TRect; AZoom: byte): TRect; virtual; stdcall; abstract;
+    function PixelRect2TileRectFloatInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
     function PixelRect2RelativeRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
     function PixelRect2LonLatRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
+
+    function PixelRectFloat2PixelRectInternal(const XY: TExtendedRect; AZoom: byte): TRect; virtual; stdcall; abstract;
+    function PixelRectFloat2TileRectInternal(const XY: TExtendedRect; AZoom: byte): TRect; virtual; stdcall; abstract;
+    function PixelRectFloat2TileRectFloatInternal(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
+    function PixelRectFloat2RelativeRectInternal(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
+    function PixelRectFloat2LonLatRectInternal(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
 
     function TilePos2PixelPosInternal(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
     function TilePos2PixelRectInternal(const XY: TPoint; Azoom: byte): TRect; virtual; stdcall; abstract;
@@ -55,6 +67,12 @@ type
     function TilePos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function TilePos2RelativeInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function TilePos2RelativeRectInternal(const XY: TPoint; Azoom: byte): TExtendedRect; virtual; stdcall; abstract;
+
+    function TilePosFloat2TilePosInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
+    function TilePosFloat2PixelPosInternal(const XY: TExtendedPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
+    function TilePosFloat2PixelPosFloatInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function TilePosFloat2RelativeInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function TilePosFloat2LonLatInternal(const XY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
 
     function TileRect2PixelRectInternal(const XY: TRect; AZoom: byte): TRect; virtual; stdcall; abstract;
     function TileRect2RelativeRectInternal(const XY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall; abstract;
