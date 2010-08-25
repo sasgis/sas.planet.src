@@ -2198,7 +2198,7 @@ begin
   end;
 
   VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
-  VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+  VLoadPoint := VMapMain.GeoConvert.PixelPos2OtherMap(VPoint, VZoomCurr, VMapType.GeoConvert);
   VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VLoadPoint, VZoomCurr);
   path := VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
 
@@ -2314,7 +2314,7 @@ begin
     GState.ViewState.UnLockRead;
   end;
   if VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False) then begin
-    VLoadPoint := VMapMain.GeoConvert.Pos2OtherMap(VPoint, VZoomCurr + 8, VMapType.GeoConvert);
+    VLoadPoint := VMapMain.GeoConvert.PixelPos2OtherMap(VPoint, VZoomCurr, VMapType.GeoConvert);
     VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, False);
     VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
     s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);

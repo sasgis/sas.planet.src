@@ -277,7 +277,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
-    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (FZoom) + 8, FHTypeMap.GeoConvert);
+    p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), FZoom, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;
@@ -362,7 +362,7 @@ begin
     Synchronize(UpdateProgressFormStr2);
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
-    p_h := FTypeMap.GeoConvert.Pos2OtherMap(Point(p_x,p_y), (Fzoom) + 8, FHTypeMap.GeoConvert);
+    p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), Fzoom, FHTypeMap.GeoConvert);
     lrarri:=0;
     if line>(255-sy) then Asy:=0 else Asy:=sy;
     if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;

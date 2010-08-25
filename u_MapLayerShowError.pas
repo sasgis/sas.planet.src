@@ -54,7 +54,7 @@ begin
     if (VCurrTime < FHideAfterTime) then begin
       if FZoom = FTileZoom then begin
         VTilePixel := FMapType.GeoConvert.TilePos2PixelPos(FTilePos, FZoom);
-        VTilePixel := FMapType.GeoConvert.Pos2OtherMap(VTilePixel, FZoom + 8, FGeoConvert);
+        VTilePixel := FMapType.GeoConvert.PixelPos2OtherMap(VTilePixel, FZoom, FGeoConvert);
         if (abs(VTilePixel.X - FScreenCenterPos.X) < (1 shl 15)) and
           (abs(VTilePixel.Y - FScreenCenterPos.Y) < (1 shl 15)) then
         begin
@@ -87,7 +87,7 @@ begin
     VTileRect := FMapType.GeoConvert.TilePos2PixelRect(FTilePos, FZoom);
     VTileCenter.X := VTileRect.Left + (VTileRect.Right - VTileRect.Left + 1) div 2;
     VTileCenter.Y := VTileRect.Top + (VTileRect.Bottom - VTileRect.Top + 1) div 2;
-    VTileCenter := FMapType.GeoConvert.Pos2OtherMap(VTileCenter, FZoom + 8, FGeoConvert);
+    VTileCenter := FMapType.GeoConvert.PixelPos2OtherMap(VTileCenter, FZoom, FGeoConvert);
     Result := GetBitmapSizeInPixel;
     Result.X := Result.X div 2 + (FScreenCenterPos.X - VTileCenter.X);
     Result.Y := Result.Y div 2 + (FScreenCenterPos.Y - VTileCenter.Y);;

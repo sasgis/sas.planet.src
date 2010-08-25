@@ -135,7 +135,7 @@ type
     function LonLatArray2PixelArrayFloat(APolyg: TExtendedPointArray; AZoom: byte): TExtendedPointArray; virtual; stdcall;
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
-    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual;
+    function PixelPos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual; stdcall;
     function CalcPoligonArea(polygon: TExtendedPointArray): Extended; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
 
@@ -216,8 +216,10 @@ begin
   end;
 end;
 
-function TCoordConverterAbstract.Pos2OtherMap(XY: TPoint; Azoom: byte;
+function TCoordConverterAbstract.PixelPos2OtherMap(XY: TPoint; Azoom: byte;
   AOtherMapCoordConv: ICoordConverter): TPoint;
+var
+  VLonLat: TExtendedPoint;
 begin
   if (Self = nil) or (AOtherMapCoordConv = nil) then begin
     Result := XY;
@@ -228,11 +230,10 @@ begin
       (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG) then begin
       Result := XY;
     end else begin
-      if Azoom > 23 then begin
-        Result := AOtherMapCoordConv.LonLat2PixelPos(PixelPos2LonLat(XY, Azoom - 8), Azoom - 8);
-      end else begin
-        Result := AOtherMapCoordConv.LonLat2TilePos(TilePos2LonLat(XY, Azoom), Azoom);
-      end;
+      CheckPixelPosInternal(XY,  Azoom);
+      VLonLat := PixelPos2LonLatInternal(XY, Azoom);
+      AOtherMapCoordConv.CheckLonLatPos(VLonLat);
+      Result := AOtherMapCoordConv.LonLat2PixelPos(VLonLat, Azoom);
     end;
   end;
 end;

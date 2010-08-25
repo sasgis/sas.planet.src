@@ -91,7 +91,7 @@ begin
   FLayer.Bitmap.BeginUpdate;
   try
     Vzoom := FZoom;
-    VPos := FGeoConvert.Pos2OtherMap(FScreenCenterPos, Vzoom + 8, Alayer.GeoConvert);
+    VPos := FGeoConvert.PixelPos2OtherMap(FScreenCenterPos, Vzoom, Alayer.GeoConvert);
     VCenterTile := Alayer.GeoConvert.PixelPos2TilePos(VPos, Vzoom);
     for i := 0 to VSizeInTile.X do begin
       for j := 0 to VSizeInTile.Y do begin

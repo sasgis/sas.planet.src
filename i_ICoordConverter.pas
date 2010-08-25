@@ -131,7 +131,7 @@ type
     function LonLatArray2PixelArrayFloat(APolyg: TExtendedPointArray; AZoom: byte): TExtendedPointArray; stdcall;
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; stdcall;
-    function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint;
+    function PixelPos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; stdcall;
     function CalcPoligonArea(polygon: TExtendedPointArray): Extended;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended;
 

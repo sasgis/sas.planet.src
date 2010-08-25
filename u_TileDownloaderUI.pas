@@ -128,7 +128,7 @@ begin
                 if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
                   BPos:=UPos;
                   VZoom := FZoom;
-                  BPos := VMainMap.GeoConvert.Pos2OtherMap(Upos, (Fzoom) + 8, VMap.GeoConvert);
+                  BPos := VMainMap.GeoConvert.PixelPos2OtherMap(Upos, Fzoom, VMap.GeoConvert);
                   FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
                   FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
                   FLoadXY.X:=FLoadXY.X shr 8;
