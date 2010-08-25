@@ -157,6 +157,11 @@ type
     function TileRect2RelativeRect(const AXY: TRect; AZoom: byte): TExtendedRect; virtual; stdcall;
     function TileRect2LonLatRect(const AXY: TRect; Azoom: byte): TExtendedRect; virtual; stdcall;
 
+    function TileRectFloat2TileRect(const XY: TExtendedRect; AZoom: byte): TRect; virtual; stdcall;
+    function TileRectFloat2PixelRect(const XY: TExtendedRect; AZoom: byte): TRect; virtual; stdcall;
+    function TileRectFloat2PixelRectFloat(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+    function TileRectFloat2RelativeRect(const XY: TExtendedRect; AZoom: byte): TExtendedRect; virtual; stdcall;
+    function TileRectFloat2LonLatRect(const XY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall;
 
     function LonLat2PixelPos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
     function LonLat2PixelPosFloat(const AXY: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
@@ -907,6 +912,66 @@ begin
   VZoom := AZoom;
   CheckTileRectInternal(VXY, VZoom);
   Result := TileRect2RelativeRectInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.TileRectFloat2LonLatRect(
+  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckTileRectFloatInternal(VXY, VZoom);
+  Result := TileRectFloat2LonLatRectInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.TileRectFloat2PixelRect(
+  const XY: TExtendedRect; AZoom: byte): TRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckTileRectFloatInternal(VXY, VZoom);
+  Result := TileRectFloat2PixelRectInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.TileRectFloat2PixelRectFloat(
+  const XY: TExtendedRect; AZoom: byte): TExtendedRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckTileRectFloatInternal(VXY, VZoom);
+  Result := TileRectFloat2PixelRectFloatInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.TileRectFloat2RelativeRect(
+  const XY: TExtendedRect; AZoom: byte): TExtendedRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckTileRectFloatInternal(VXY, VZoom);
+  Result := TileRectFloat2RelativeRectInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.TileRectFloat2TileRect(const XY: TExtendedRect;
+  AZoom: byte): TRect;
+var
+  VXY: TExtendedRect;
+  VZoom: Byte;
+begin
+  VXY := XY;
+  VZoom := AZoom;
+  CheckTileRectFloatInternal(VXY, VZoom);
+  Result := TileRectFloat2TileRectInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLatRect2TileRect(const AXY: TExtendedRect;
