@@ -8,7 +8,7 @@ uses
   t_GeoTypes;
 
 type
-  TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter, ICoordConverterSimple)
+  TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
   protected
     FRadiusa: Extended;
     FProjEPSG: integer;
@@ -32,8 +32,6 @@ type
     procedure CheckLonLatPosInternal(var XY: TExtendedPoint); virtual;
     procedure CheckLonLatRectInternal(var XY: TExtendedRect); virtual;
 
-    function Pos2LonLatInternal(const XY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function LonLat2PosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
     function LonLat2MetrInternal(const Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2MetrS(Ll: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
 
@@ -87,10 +85,6 @@ type
     function LonLatRect2PixelRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;//TODO: Автотест
     function LonLatRect2TileRectInternal(const XY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;//TODO: Автотест
   public
-    function Pos2LonLat(const AXY: TPoint; Azoom: byte): TExtendedPoint; virtual; stdcall;
-    function LonLat2Pos(const AXY: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall;
-    function LonLat2Metr(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
-
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(AZoom: byte): Extended; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
@@ -166,6 +160,7 @@ type
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
     function GetTileSplitCode: Integer; virtual; stdcall;
 
+    function LonLat2Metr(const AXY: TExtendedPoint): TExtendedPoint; virtual; stdcall;
     procedure AfterConstruction; override;
   end;
 
@@ -221,7 +216,7 @@ begin
   for i := 0 to length(APolyg) - 1 do begin
     VPoint := Apolyg[i];
     CheckLonLatPosInternal(VPoint);
-    Result[i] := LonLat2PosInternal(VPoint, AZoom);
+    Result[i] := LonLat2PixelPosInternal(VPoint, AZoom - 8);
     if Result[i].y < 0 then begin
       Result[i].y := 0;
     end;
@@ -1392,26 +1387,6 @@ begin
   Result.Y := Result.Y * VTilesAtZoom;
 end;
 
-function TCoordConverterAbstract.LonLat2PosInternal(const Ll: TExtendedPoint;
-  Azoom: byte): Tpoint;
-begin
-  if Azoom > 23 then begin
-    Result := LonLat2PixelPosInternal(Ll, Azoom - 8);
-  end else begin
-    Result := LonLat2TilePosInternal(Ll, Azoom);
-  end;
-end;
-
-function TCoordConverterAbstract.Pos2LonLatInternal(const XY: TPoint;
-  Azoom: byte): TExtendedPoint;
-begin
-  if Azoom > 23 then begin
-    Result := PixelPos2LonLatInternal(XY, Azoom - 8);
-  end else begin
-    Result := TilePos2LonLatInternal(XY, Azoom);
-  end;
-end;
-
 //------------------------------------------------------------------------------
 function TCoordConverterAbstract.TilePos2PixelRect(const AXY: TPoint;
   Azoom: byte): TRect;
@@ -1801,25 +1776,6 @@ begin
   Result := LonLat2TilePosfInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.LonLat2Pos(const AXY: TExtendedPoint;
-  Azoom: byte): Tpoint;
-var
-  VXY: TExtendedPoint;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  CheckLonLatPosInternal(VXY);
-  if Azoom > 23 then begin
-    VZoom := VZoom - 8;
-    CheckZoomInternal(VZoom);
-    Result := LonLat2PixelPosInternal(VXY, Vzoom);
-  end else begin
-    CheckZoomInternal(VZoom);
-    Result := LonLat2TilePosInternal(VXY, Vzoom);
-  end;
-end;
-
 function TCoordConverterAbstract.LonLat2Relative(
   const AXY: TExtendedPoint): TExtendedPoint;
 var
@@ -1828,24 +1784,6 @@ begin
   VXY := AXY;
   CheckLonLatPosInternal(VXY);
   Result := LonLat2RelativeInternal(VXY);
-end;
-
-function TCoordConverterAbstract.Pos2LonLat(const AXY: TPoint;
-  Azoom: byte): TExtendedPoint;
-var
-  VXY: TPoint;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  if Azoom > 23 then begin
-    VZoom := VZoom - 8;
-    CheckPixelPosInternal(VXY, VZoom);
-    Result := PixelPos2LonLatInternal(VXY, Vzoom);
-  end else begin
-    CheckTilePosInternal(VXY, VZoom);
-    Result := TilePos2LonLatInternal(VXY, Vzoom);
-  end;
 end;
 
 function TCoordConverterAbstract.TileRect2LonLatRect(const AXY: TRect;

@@ -5,10 +5,10 @@ interface
 uses
   Types,
   t_GeoTypes,
-  u_CoordConverterAbstract;
+  u_CoordConverterBasic;
 
 type
-  TCoordConverterMercatorOnEllipsoid = class(TCoordConverterAbstract)
+  TCoordConverterMercatorOnEllipsoid = class(TCoordConverterBasic)
   protected
     FExct, FRadiusb: Extended;
     function LonLat2MetrInternal(const ALL: TExtendedPoint): TExtendedPoint; override;

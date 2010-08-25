@@ -5,10 +5,10 @@ interface
 uses
   Types,
   t_GeoTypes,
-  u_CoordConverterAbstract;
+  u_CoordConverterBasic;
 
 type
-  TCoordConverterSimpleLonLat = class(TCoordConverterAbstract)
+  TCoordConverterSimpleLonLat = class(TCoordConverterBasic)
   protected
     FExct, FRadiusb: Extended;
 	  function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;

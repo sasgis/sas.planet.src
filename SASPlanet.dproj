@@ -181,6 +181,7 @@
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_CenterScale.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
+    <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />

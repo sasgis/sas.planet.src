@@ -81,6 +81,7 @@ uses
   u_UrlGenerator in 'u_UrlGenerator.pas',
   i_ICoordConverter in 'i_ICoordConverter.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
+  u_CoordConverterBasic in 'u_CoordConverterBasic.pas',
   u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',

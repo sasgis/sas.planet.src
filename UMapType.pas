@@ -209,7 +209,7 @@ uses
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_GECache,
-  u_CoordConverterAbstract,
+  u_CoordConverterBasic,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
@@ -527,7 +527,7 @@ end;
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
 var
   bfloat:string;
-  VConverter: TCoordConverterAbstract;
+  VConverter: TCoordConverterBasic;
 begin
   projection:=AIniFile.ReadInteger('PARAMS','projection',1);
   bfloat:=AIniFile.ReadString('PARAMS','sradiusa','6378137');

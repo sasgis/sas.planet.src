@@ -6,10 +6,10 @@ uses
   Types,
   Math,
   t_GeoTypes,
-  u_CoordConverterAbstract;
+  u_CoordConverterBasic;
 
 type
-  TCoordConverterMercatorOnSphere = class(TCoordConverterAbstract)
+  TCoordConverterMercatorOnSphere = class(TCoordConverterBasic)
   protected
     function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
     function LonLat2MetrS(ALL:TExtendedPoint):TExtendedPoint; override;
