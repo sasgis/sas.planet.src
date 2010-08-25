@@ -4238,7 +4238,7 @@ begin
           APWL.type_:=ROTpoint;
           exit;
         end else begin
-          arLL := VConverter.PoligonProject(VZoom + 8, poly);
+          arLL := VConverter.LonLatArray2PixelArray(poly, VZoom);
           if (poly[0].x<>poly[length(poly)-1].x)or
           (poly[0].y<>poly[length(poly)-1].y)then begin
             j:=1;

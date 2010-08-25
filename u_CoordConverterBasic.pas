@@ -69,7 +69,7 @@ type
 
 
     function LonLat2PixelPosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; override;
-    function LonLat2PixelPosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; override;
+    function LonLat2PixelPosFloatInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; override;
     function LonLat2TilePosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; override;
     function LonLat2TilePosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; override;
 
@@ -616,7 +616,7 @@ begin
   Result := Relative2PixelInternal(LonLat2RelativeInternal(LL), AZoom);
 end;
 
-function TCoordConverterBasic.LonLat2PixelPosfInternal(const Ll: TExtendedPoint;
+function TCoordConverterBasic.LonLat2PixelPosFloatInternal(const Ll: TExtendedPoint;
   Azoom: byte): TExtendedPoint;
 var
   VPixelsAtZoom: Extended;

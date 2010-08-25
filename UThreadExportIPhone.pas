@@ -164,7 +164,7 @@ begin
   While not (FZoomArr[i]) do begin
     inc(i);
   end;
-  VPolyg := AGeoConvert.PoligonProject(i + 8, FPolygLL);
+  VPolyg := AGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
   GetMinMax(min, max, VPolyg, true);
   VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
@@ -241,7 +241,7 @@ begin
       VTilesToProcess := 0;
       for VZoom := 0 to 23 do begin
         if FZoomArr[VZoom] then begin
-          VPolyg := VGeoConvert.PoligonProject(VZoom + 8, FPolygLL);
+          VPolyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           VTilesToProcess := VTilesToProcess + GetDwnlNum(min, max, VPolyg, true);
         end;
       end;
@@ -288,7 +288,7 @@ begin
       FSQLite3Db.Execute('BEGIN TRANSACTION');
       for VZoom := 0 to 23 do begin
         if FZoomArr[VZoom] then begin
-          VPolyg := VGeoConvert.PoligonProject(VZoom + 8, FPolygLL);
+          VPolyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           GetDwnlNum(min, max, VPolyg, false);
 
           p_x := min.x;

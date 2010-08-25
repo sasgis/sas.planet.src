@@ -141,7 +141,7 @@ begin
  for j:=0 to 23 do
   if FZoomArr[j] then
    begin
-    polyg := FMapType.GeoConvert.PoligonProject(j + 8, FPolygLL);
+    polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
    end;
  Synchronize(InitProgressForm);
@@ -155,7 +155,7 @@ begin
    Write(KMLFile,ToFile);
 
    while not(FZoomArr[i])or(i>23) do inc(i);
-   polyg := FMapType.GeoConvert.PoligonProject(i + 8, FPolygLL);
+   polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
    GetDwnlNum(min,max,Polyg,false);
    p_x:=min.x;
    while p_x<max.x do

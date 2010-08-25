@@ -55,7 +55,7 @@ begin
   TileInProc:=0;
   zoom:=Azoom;
   typemap:=Atypemap;
-  polyg := typemap.GeoConvert.PoligonProject((Zoom - 1) + 8, APolyLL);
+  polyg := typemap.GeoConvert.LonLatArray2PixelArray(APolyLL, (Zoom - 1));
   ProcessTiles:=GetDwnlNum(min,max,Polyg,true);
   Priority := tpLowest;
   FreeOnTerminate:=true;

@@ -151,7 +151,7 @@ begin
       perzoom := '';
       for j := 0 to 23 do begin
         if FZoomArr[j] then begin
-          polyg := FMapTypeArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
+          polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
           VTilesToProcess := VTilesToProcess + GetDwnlNum(min, max, Polyg, true);
           perzoom := perzoom + inttostr(j + 1) + '_';
           VMinLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min, j);
@@ -189,7 +189,7 @@ begin
       if FZoomArr[i] then begin
         for j := 0 to length(FMapTypeArr) - 1 do //по типу
         begin
-          polyg := FMapTypeArr[j].GeoConvert.PoligonProject(i + 8, FPolygLL);
+          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
           GetDwnlNum(min, max, Polyg, false);

@@ -195,7 +195,7 @@ begin
         if FMapTypeArr[i]<>nil then begin
           for j:=0 to 23 do begin
             if FZoomArr[j] then begin
-              polyg := FMapTypeArr[i].GeoConvert.PoligonProject(j + 8, FPolygLL);
+              polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
               VTilesToProcess:=VTilesToProcess+GetDwnlNum(min,max,Polyg,true);
             end;
           end;
@@ -217,7 +217,7 @@ begin
         if FZoomArr[i] then begin
           for j:=0 to 2 do begin
             if (FMapTypeArr[j]<>nil)and(not((j=0)and(FMapTypeArr[2]<>nil))) then begin
-              polyg := VGeoConvert.PoligonProject(i + 8, FPolygLL);
+              polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
               GetDwnlNum(min,max,Polyg,false);
               p_x:=min.x;
               while p_x<max.x do begin

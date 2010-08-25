@@ -95,7 +95,7 @@ begin
  ProcessTiles:=0;
  for i:=0 to length(InZooms)-1 do
    begin
-    polyg := typemap.GeoConvert.PoligonProject((InZooms[i] - 1) + 8, PolygLL);
+    polyg := typemap.GeoConvert.LonLatArray2PixelArray(PolygLL, InZooms[i] - 1);
     if (not GenFormPrev)or(i=0) then
                   inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,FromZoom-InZooms[i])))
              else inc(ProcessTiles,GetDwnlNum(min,max,Polyg,true)*Round(IntPower(4,InZooms[i-1]-InZooms[i])));
@@ -154,7 +154,7 @@ begin
     CurrentTile:=0;
     for i:=0 to length(InZooms)-1 do begin
      if Terminated then continue;
-     polyg := typemap.GeoConvert.PoligonProject((InZooms[i] - 1) + 8, PolygLL);
+     polyg := typemap.GeoConvert.LonLatArray2PixelArray(PolygLL, InZooms[i] - 1);
      if (not GenFormPrev)or(i=0) then
                    c_d:=round(power(2,FromZoom-InZooms[i]))
               else c_d:=round(power(2,InZooms[i-1]-InZooms[i]));

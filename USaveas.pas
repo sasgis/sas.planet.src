@@ -354,7 +354,7 @@ var
 begin
   smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
-  polyg := smb.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
+  polyg := smb.GeoConvert.LonLatArray2PixelArray(APolyLL, VZoom);
 
   VLog := TLogForTaskThread.Create(5000, 0);
   VSimpleLog := VLog;
@@ -392,7 +392,7 @@ begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
-  polyg := Amt.GeoConvert.PoligonProject(VZoom + 8, APolyLL);
+  polyg := Amt.GeoConvert.LonLatArray2PixelArray(APolyLL, VZoom);
   if (FMain.SaveDialog1.Execute)then begin
     VFileName := FMain.SaveDialog1.FileName;
     VPrTypes := TInterfaceList.Create;
@@ -700,7 +700,7 @@ var polyg:TPointArray;
 begin
   Vmt := TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
-  polyg := Vmt.GeoConvert.PoligonProject(VZoom + 8, FPolygonLL);
+  polyg := Vmt.GeoConvert.LonLatArray2PixelArray(FPolygonLL, VZoom);
   numd:=GetDwnlNum(min,max,polyg,true);
   label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';

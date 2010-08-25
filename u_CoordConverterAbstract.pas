@@ -74,7 +74,7 @@ type
 
 
     function LonLat2PixelPosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall; abstract;
-    function LonLat2PixelPosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
+    function LonLat2PixelPosFloatInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2TilePosInternal(const Ll: TExtendedPoint; Azoom: byte): Tpoint; virtual; stdcall; abstract;
     function LonLat2TilePosfInternal(const Ll: TExtendedPoint; Azoom: byte): TExtendedPoint; virtual; stdcall; abstract;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; virtual; stdcall; abstract;
@@ -131,10 +131,12 @@ type
     function RelativeRect2PixelRect(const AXY: TExtendedRect; Azoom: byte): TRect; virtual; stdcall;
     function RelativeRect2PixelRectFloat(const AXY: TExtendedRect; Azoom: byte): TExtendedRect; virtual; stdcall;
 
+    function LonLatArray2PixelArray(APolyg: TExtendedPointArray; AZoom: byte): TPointArray; virtual; stdcall;
+    function LonLatArray2PixelArrayFloat(APolyg: TExtendedPointArray; AZoom: byte): TExtendedPointArray; virtual; stdcall;
+
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
     function Pos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual;
     function CalcPoligonArea(polygon: TExtendedPointArray): Extended; virtual;
-    function PoligonProject(AZoom: byte; APolyg: TExtendedPointArray): TPointArray; virtual;
     function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; virtual; abstract;
 
     function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
@@ -186,25 +188,31 @@ begin
   result := 0.5 * abs(result) / 1000000;
 end;
 
-function TCoordConverterAbstract.PoligonProject(AZoom: byte;
-  APolyg: TExtendedPointArray): TPointArray;
+function TCoordConverterAbstract.LonLatArray2PixelArray(
+  APolyg: TExtendedPointArray; AZoom: byte): TPointArray;
 var
   i: integer;
-  VTilesAtZoom: Integer;
   VPoint: TExtendedPoint;
 begin
-  VTilesAtZoom := TilesAtZoomInternal(AZoom);
   SetLength(Result, length(APolyg));
   for i := 0 to length(APolyg) - 1 do begin
     VPoint := Apolyg[i];
     CheckLonLatPosInternal(VPoint);
-    Result[i] := LonLat2PixelPosInternal(VPoint, AZoom - 8);
-    if Result[i].y < 0 then begin
-      Result[i].y := 0;
-    end;
-    if Result[i].y > VTilesAtZoom then begin
-      Result[i].y := VTilesAtZoom - 1;
-    end;
+    Result[i] := LonLat2PixelPosInternal(VPoint, AZoom);
+  end;
+end;
+
+function TCoordConverterAbstract.LonLatArray2PixelArrayFloat(
+  APolyg: TExtendedPointArray; AZoom: byte): TExtendedPointArray;
+var
+  i: integer;
+  VPoint: TExtendedPoint;
+begin
+  SetLength(Result, length(APolyg));
+  for i := 0 to length(APolyg) - 1 do begin
+    VPoint := Apolyg[i];
+    CheckLonLatPosInternal(VPoint);
+    Result[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
   end;
 end;
 
@@ -371,7 +379,7 @@ begin
   VZoom := AZoom;
   CheckLonLatPosInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := LonLat2PixelPosfInternal(VXY, Vzoom);
+  Result := LonLat2PixelPosFloatInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2LonLat(const AXY: TPoint;
