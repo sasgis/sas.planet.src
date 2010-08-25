@@ -673,6 +673,23 @@ begin
   Result.Bottom := XY.Bottom shr 8;
 end;
 
+function TCoordConverterBasic.PixelRect2RelativeRectInternal(const XY: TRect;
+  AZoom: byte): TExtendedRect;
+var
+  VBottomRight: TPoint;
+begin
+  Result.TopLeft := PixelPos2RelativeInternal(XY.TopLeft, AZoom);
+  VBottomRight.X := XY.Right + 1;
+  VBottomRight.Y := XY.Bottom + 1;
+  Result.BottomRight := PixelPos2RelativeInternal(VBottomRight, AZoom);
+end;
+
+function TCoordConverterBasic.PixelRect2LonLatRectInternal(
+  const XY: TRect; AZoom: byte): TExtendedRect;
+begin
+  Result := RelativeRect2LonLatRectInternal(PixelRect2RelativeRectInternal(XY, AZoom));
+end;
+
 //------------------------------------------------------------------------------
 // PixelRectFloat
 function TCoordConverterBasic.PixelRectFloat2LonLatRectInternal(
@@ -770,6 +787,13 @@ begin
   Result.Bottom := (XY.Y + 1) / VTilesAtZoom;
 end;
 
+function TCoordConverterBasic.TilePos2PixelPosInternal(const XY: TPoint;
+  Azoom: byte): TPoint;
+begin
+  Result.X := XY.X shl 8;
+  Result.Y := XY.Y shl 8;
+end;
+
 //------------------------------------------------------------------------------
 // TilePosFloat
 function TCoordConverterBasic.TilePosFloat2LonLatInternal(
@@ -812,6 +836,84 @@ function TCoordConverterBasic.TilePosFloat2TilePosInternal(
 begin
   Result.X := Trunc(RoundTo(XY.X, -2));
   Result.Y := Trunc(RoundTo(XY.Y, -2));
+end;
+
+//------------------------------------------------------------------------------
+// TileRect
+function TCoordConverterBasic.TileRect2PixelRectInternal(const XY: TRect;
+  AZoom: byte): TRect;
+begin
+  Result.Left := XY.Left shl 8;
+  Result.Top := XY.Top shl 8;
+  Result.Right := (XY.Right + 1) shl 8 - 1;
+  Result.Bottom := (XY.Bottom + 1) shl 8 - 1;
+end;
+
+function TCoordConverterBasic.TileRect2LonLatRectInternal(
+  const XY: TRect; Azoom: byte): TExtendedRect;
+begin
+  Result := RelativeRect2LonLatRectInternal(TileRect2RelativeRectInternal(XY, Azoom));
+end;
+
+function TCoordConverterBasic.TileRect2RelativeRectInternal(
+  const XY: TRect; AZoom: byte): TExtendedRect;
+var
+  VTilesAtZoom: Extended;
+begin
+  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  Result.Left := XY.Left / VTilesAtZoom;
+  Result.Top := XY.Top / VTilesAtZoom;
+  Result.Right := (XY.Right + 1) / VTilesAtZoom;
+  Result.Bottom := (XY.Bottom + 1) / VTilesAtZoom;
+end;
+
+//------------------------------------------------------------------------------
+// TileRectFloat
+function TCoordConverterBasic.TileRectFloat2LonLatRectInternal(
+  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
+var
+  VRelativeRect: TExtendedRect;
+begin
+  VRelativeRect := TileRectFloat2RelativeRectInternal(XY, Azoom);
+  Result := RelativeRect2LonLatRectInternal(VRelativeRect);
+end;
+
+function TCoordConverterBasic.TileRectFloat2PixelRectFloatInternal(
+  const XY: TExtendedRect; AZoom: byte): TExtendedRect;
+begin
+  Result.Left := XY.Left * 256;
+  Result.Top := XY.Top * 256;
+  Result.Right := XY.Right * 256;
+  Result.Bottom := XY.Bottom * 256;
+end;
+
+function TCoordConverterBasic.TileRectFloat2PixelRectInternal(
+  const XY: TExtendedRect; AZoom: byte): TRect;
+var
+  VPixelRect: TExtendedRect;
+begin
+  VPixelRect := TileRectFloat2PixelRectFloatInternal(XY, AZoom);
+  Result := PixelRectFloat2PixelRectInternal(VPixelRect, AZoom)
+end;
+
+function TCoordConverterBasic.TileRectFloat2RelativeRectInternal(
+  const XY: TExtendedRect; AZoom: byte): TExtendedRect;
+var
+  VTilesAtZoom: Extended;
+begin
+  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  Result.X := XY.X / VTilesAtZoom;
+  Result.Y := XY.Y / VTilesAtZoom;
+end;
+
+function TCoordConverterBasic.TileRectFloat2TileRectInternal(
+  const XY: TExtendedRect; AZoom: byte): TRect;
+begin
+  Result.Left := Trunc(RoundTo(XY.Left / 256, -2));
+  Result.Top := Trunc(RoundTo(XY.Top / 256, -2));
+
+  Result.Right := Trunc(RoundTo(XY.Right / 256, -2));
+  Result.Bottom := Trunc(RoundTo(XY.Bottom / 256, -2));
 end;
 
 //------------------------------------------------------------------------------
@@ -947,126 +1049,6 @@ begin
   Result := Relative2TileInternal(LonLat2RelativeInternal(LL), AZoom);
 end;
 
-//------------------------------------------------------------------------------
-// LonLatRect
-function TCoordConverterBasic.LonLatRect2RelativeRectInternal(
-  const XY: TExtendedRect): TExtendedRect;
-begin
-  Result.TopLeft := LonLat2RelativeInternal(XY.TopLeft);
-  Result.BottomRight := LonLat2RelativeInternal(XY.BottomRight);
-end;
-
-function TCoordConverterBasic.TileRect2PixelRectInternal(const XY: TRect;
-  AZoom: byte): TRect;
-begin
-  Result.Left := XY.Left shl 8;
-  Result.Top := XY.Top shl 8;
-  Result.Right := (XY.Right + 1) shl 8 - 1;
-  Result.Bottom := (XY.Bottom + 1) shl 8 - 1;
-end;
-
-function TCoordConverterBasic.LonLatRect2PixelRectInternal(
-  const XY: TExtendedRect; Azoom: byte): TRect;
-begin
-  Result := RelativeRect2PixelRectInternal(LonLatRect2RelativeRectInternal(XY), Azoom);
-end;
-
-
-function TCoordConverterBasic.LonLatRect2TileRectInternal(
-  const XY: TExtendedRect; Azoom: byte): TRect;
-begin
-  Result := RelativeRect2TileRectInternal(LonLatRect2RelativeRectInternal(XY), Azoom);
-end;
-
-function TCoordConverterBasic.TileRect2LonLatRectInternal(
-  const XY: TRect; Azoom: byte): TExtendedRect;
-begin
-  Result := RelativeRect2LonLatRectInternal(TileRect2RelativeRectInternal(XY, Azoom));
-end;
-
-function TCoordConverterBasic.TileRect2RelativeRectInternal(
-  const XY: TRect; AZoom: byte): TExtendedRect;
-var
-  VTilesAtZoom: Extended;
-begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
-  Result.Left := XY.Left / VTilesAtZoom;
-  Result.Top := XY.Top / VTilesAtZoom;
-  Result.Right := (XY.Right + 1) / VTilesAtZoom;
-  Result.Bottom := (XY.Bottom + 1) / VTilesAtZoom;
-end;
-
-function TCoordConverterBasic.TileRectFloat2LonLatRectInternal(
-  const XY: TExtendedRect; Azoom: byte): TExtendedRect;
-var
-  VRelativeRect: TExtendedRect;
-begin
-  VRelativeRect := TileRectFloat2RelativeRectInternal(XY, Azoom);
-  Result := RelativeRect2LonLatRectInternal(VRelativeRect);
-end;
-
-function TCoordConverterBasic.TileRectFloat2PixelRectFloatInternal(
-  const XY: TExtendedRect; AZoom: byte): TExtendedRect;
-begin
-  Result.Left := XY.Left * 256;
-  Result.Top := XY.Top * 256;
-  Result.Right := XY.Right * 256;
-  Result.Bottom := XY.Bottom * 256;
-end;
-
-function TCoordConverterBasic.TileRectFloat2PixelRectInternal(
-  const XY: TExtendedRect; AZoom: byte): TRect;
-var
-  VPixelRect: TExtendedRect;
-begin
-  VPixelRect := TileRectFloat2PixelRectFloatInternal(XY, AZoom);
-  Result := PixelRectFloat2PixelRectInternal(VPixelRect, AZoom)
-end;
-
-function TCoordConverterBasic.TileRectFloat2RelativeRectInternal(
-  const XY: TExtendedRect; AZoom: byte): TExtendedRect;
-var
-  VTilesAtZoom: Extended;
-begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
-  Result.X := XY.X / VTilesAtZoom;
-  Result.Y := XY.Y / VTilesAtZoom;
-end;
-
-function TCoordConverterBasic.TileRectFloat2TileRectInternal(
-  const XY: TExtendedRect; AZoom: byte): TRect;
-begin
-  Result.Left := Trunc(RoundTo(XY.Left / 256, -2));
-  Result.Top := Trunc(RoundTo(XY.Top / 256, -2));
-
-  Result.Right := Trunc(RoundTo(XY.Right / 256, -2));
-  Result.Bottom := Trunc(RoundTo(XY.Bottom / 256, -2));
-end;
-
-function TCoordConverterBasic.PixelRect2RelativeRectInternal(const XY: TRect;
-  AZoom: byte): TExtendedRect;
-var
-  VBottomRight: TPoint;
-begin
-  Result.TopLeft := PixelPos2RelativeInternal(XY.TopLeft, AZoom);
-  VBottomRight.X := XY.Right + 1;
-  VBottomRight.Y := XY.Bottom + 1;
-  Result.BottomRight := PixelPos2RelativeInternal(VBottomRight, AZoom);
-end;
-
-function TCoordConverterBasic.PixelRect2LonLatRectInternal(
-  const XY: TRect; AZoom: byte): TExtendedRect;
-begin
-  Result := RelativeRect2LonLatRectInternal(PixelRect2RelativeRectInternal(XY, AZoom));
-end;
-
-function TCoordConverterBasic.TilePos2PixelPosInternal(const XY: TPoint;
-  Azoom: byte): TPoint;
-begin
-  Result.X := XY.X shl 8;
-  Result.Y := XY.Y shl 8;
-end;
-
 function TCoordConverterBasic.LonLat2TilePosFloatInternal(const Ll: TExtendedPoint;
   Azoom: byte): TExtendedPoint;
 var
@@ -1076,6 +1058,27 @@ begin
   Result := LonLat2RelativeInternal(Ll);
   Result.X := Result.X * VTilesAtZoom;
   Result.Y := Result.Y * VTilesAtZoom;
+end;
+
+//------------------------------------------------------------------------------
+// LonLatRect
+function TCoordConverterBasic.LonLatRect2RelativeRectInternal(
+  const XY: TExtendedRect): TExtendedRect;
+begin
+  Result.TopLeft := LonLat2RelativeInternal(XY.TopLeft);
+  Result.BottomRight := LonLat2RelativeInternal(XY.BottomRight);
+end;
+
+function TCoordConverterBasic.LonLatRect2PixelRectInternal(
+  const XY: TExtendedRect; Azoom: byte): TRect;
+begin
+  Result := RelativeRect2PixelRectInternal(LonLatRect2RelativeRectInternal(XY), Azoom);
+end;
+
+function TCoordConverterBasic.LonLatRect2TileRectInternal(
+  const XY: TExtendedRect; Azoom: byte): TRect;
+begin
+  Result := RelativeRect2TileRectInternal(LonLatRect2RelativeRectInternal(XY), Azoom);
 end;
 
 //------------------------------------------------------------------------------
