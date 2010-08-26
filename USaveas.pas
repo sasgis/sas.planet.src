@@ -209,7 +209,10 @@ uses
   i_IMapCalibration,
   i_ICoordConverter,
   UTrAllLoadMap,
-  UThreadScleit,
+  u_MapCombineThreadBMP,
+  u_MapCombineThreadECW,
+  u_MapCombineThreadJPG,
+  u_MapCombineThreadKMZ,
   UThreadExport,
   UThreadExportIPhone,
   UThreadExportKML,
@@ -388,6 +391,7 @@ var
   VPrTypes: IInterfaceList;
   VFileName: string;
   VSplitCount: TPoint;
+  VFileExt: string;
 begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
@@ -403,17 +407,55 @@ begin
     end;
     VSplitCount.X := EditNTg.Value;
     VSplitCount.Y := EditNTv.Value;
-    TThreadScleit.Create(
-      VPrTypes,
-      VFileName,
-      polyg,
-      VSplitCount,
-      CBZoomload.ItemIndex+1,
-      Amt,Hmt,
-      CBusedReColor.Checked,
-      CBUsedMarks.Checked,
-      QualitiEdit.Value
-    );
+    VFileExt := UpperCase(ExtractFileExt(VFileName));
+    if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
+      TMapCombineThreadECW.Create(
+        VPrTypes,
+        VFileName,
+        polyg,
+        VSplitCount,
+        CBZoomload.ItemIndex+1,
+        Amt,Hmt,
+        CBusedReColor.Checked,
+        CBUsedMarks.Checked,
+        QualitiEdit.Value
+      );
+    end else if (VFileExt='.BMP') then begin
+      TMapCombineThreadBMP.Create(
+        VPrTypes,
+        VFileName,
+        polyg,
+        VSplitCount,
+        CBZoomload.ItemIndex+1,
+        Amt,Hmt,
+        CBusedReColor.Checked,
+        CBUsedMarks.Checked
+      );
+    end else if (VFileExt='.KMZ') then begin
+      TMapCombineThreadKMZ.Create(
+        VPrTypes,
+        VFileName,
+        polyg,
+        VSplitCount,
+        CBZoomload.ItemIndex+1,
+        Amt,Hmt,
+        CBusedReColor.Checked,
+        CBUsedMarks.Checked,
+        QualitiEdit.Value
+      );
+    end else begin
+      TMapCombineThreadJPG.Create(
+        VPrTypes,
+        VFileName,
+        polyg,
+        VSplitCount,
+        CBZoomload.ItemIndex+1,
+        Amt,Hmt,
+        CBusedReColor.Checked,
+        CBUsedMarks.Checked,
+        QualitiEdit.Value
+      );
+    end;
   end;
   Polyg := nil;
 end;
