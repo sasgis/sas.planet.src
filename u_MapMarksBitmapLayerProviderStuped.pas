@@ -34,6 +34,10 @@ uses
   u_MarksSimple,
   u_MarksReadWriteSimple;
 
+const
+  CMaxFontSize = 20;
+  CMaxTextLength =30;
+
 { TMapMarksBitmapLayerProviderStupedThreaded }
 
 type
@@ -44,9 +48,12 @@ type
     FTargetRect: TRect;
     FZoom: Byte;
     FLLRect: TExtendedRect;
+    FTempBmp:TCustomBitmap32;
+    FBitmapWithText: TBitmap32;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
-    procedure drawPath2Bitmap(pathll:TExtendedPointArray; color1, color2:TColor32; linew:integer; poly:boolean);
+    procedure drawPath(pathll:TExtendedPointArray; color1, color2:TColor32; linew:integer; poly:boolean);
+    procedure DrawPoint(ALL: TExtendedPoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2:TColor32);
   public
     constructor Create(
       ATargetBmp: TCustomBitmap32;
@@ -54,6 +61,7 @@ type
       ATargetRect: TRect;
       ATargetZoom: Byte
     );
+    destructor Destroy; override;
     procedure SyncGetBitmap;
   end;
 
@@ -73,6 +81,16 @@ begin
   FLLRect.Top := FLLRect.Top - VDeltaLL.Y;
   FLLRect.Right := FLLRect.Right + VDeltaLL.X;
   FLLRect.Bottom := FLLRect.Bottom + VDeltaLL.Y;
+
+  FTempBmp := TCustomBitmap32.Create;
+  FTempBmp.DrawMode:=dmBlend;
+  FTempBmp.Resampler:=TLinearResampler.Create;
+
+  FBitmapWithText := TBitmap32.Create;
+  FBitmapWithText.Font.Name:='Tahoma';
+  FBitmapWithText.Font.Style:=[];
+  FBitmapWithText.DrawMode := dmBlend;
+  FBitmapWithText.Font.Size:= CMaxFontSize;
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -89,7 +107,14 @@ begin
   Result.Y := Pnt.Y - FTargetRect.Top;
 end;
 
-procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath2Bitmap(
+destructor TMapMarksBitmapLayerProviderStupedThreaded.Destroy;
+begin
+  FreeAndNil(FTempBmp);
+  FreeAndNil(FBitmapWithText);
+  inherited;
+end;
+
+procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath(
   pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer;
   poly: boolean);
 var
@@ -156,78 +181,76 @@ begin
   end;
 end;
 
-procedure TMapMarksBitmapLayerProviderStupedThreaded.SyncGetBitmap;
+procedure TMapMarksBitmapLayerProviderStupedThreaded.DrawPoint(
+  ALL: TExtendedPoint; AName, APicName: string; AMarkSize, AFontSize: integer;
+  AColor1, AColor2: TColor32);
 var
   xy:Tpoint;
-  btm:TCustomBitmap32;
-  TestArrLenLonLatRect: TExtendedRect;
-  TestArrLenPixelRect: TRect;
-  buf_line_arr:TExtendedPointArray;
   indexmi:integer;
-  imw,texth:integer;
+  texth:integer;
   VIconSource: TCustomBitmap32;
-  VBtmEx: TBitmap32;
+begin
+  xy:=FGeoConvert.LonLat2PixelPos(ALL, FZoom);
+  xy := MapPixel2BitmapPixel(xy);
+  indexmi:=GState.MarkIcons.IndexOf(APicName);
+  if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
+    indexmi:=0;
+  end;
+  if(indexmi>-1)then begin
+    VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
+    FTempBmp.SetSize(VIconSource.Width, VIconSource.Height);
+    FTempBmp.Draw(0, 0, VIconSource);
+    FTargetBmp.Draw(bounds(xy.x-(AMarkSize div 2),xy.y-AMarkSize,AMarkSize,AMarkSize),bounds(0,0,FTempBmp.Width,FTempBmp.Height),FTempBmp);
+  end;
+  if AFontSize>0 then begin
+//TODO: Сделать вывод подписей для меток.
+//            FBitmapWithText.Font.Size:=AFontSize;
+//            texth:=FBitmapWithText.TextHeight(AName) div 2;
+//            FBitmapWithText.RenderText(xy.x+(AMarkSize div 2)+2,xy.y-(AMarkSize div 2)-texth+1,AName,1,AColor2);
+//            FBitmapWithText.RenderText(xy.x+(AMarkSize div 2)+1,xy.y-(AMarkSize div 2)-texth,AName,1,AColor1);
+  end;
+end;
+
+procedure TMapMarksBitmapLayerProviderStupedThreaded.SyncGetBitmap;
+var
+  TestArrLenLonLatRect: TExtendedRect;
+  TestArrLenPixelRect: TExtendedRect;
   VScale1: Integer;
-  VColor1: TColor32;
-  VColor2: TColor32;
   VPointCount: Integer;
-  VMarkName: string;
   VMarksIterator: TMarksIteratorVisibleInRect;
   VMark: TMarkFull;
 begin
   VMarksIterator := TMarksIteratorVisibleInRect.Create(FZoom, FLLRect);
   try
-    VBtmEx := TBitmap32.Create;
-    btm:=TCustomBitmap32.Create;
-    try
-      VBtmEx.Font.Name:='Tahoma';
-      VBtmEx.Font.Style:=[];
-      VBtmEx.DrawMode := dmBlend;
-      btm.DrawMode:=dmBlend;
-      btm.Resampler:=TLinearResampler.Create;
       While VMarksIterator.Next do begin
         VMark := VMarksIterator.Current;
         VScale1 := VMark.Scale1;
-        VColor1 := VMark.Color1;
-        VColor2 := VMark.Color2;
-        VMarkName := VMark.name;
-        buf_line_arr := VMark.Points;
-        VPointCount := length(buf_line_arr);
+        VPointCount := length(VMark.Points);
         if VPointCount>1 then begin
           TestArrLenLonLatRect := VMark.LLRect;
           FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
-          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
+          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRectFloat(TestArrLenLonLatRect, FZoom);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
-            drawPath2Bitmap(buf_line_arr,VColor1,VColor2,VScale1,
-              (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
+            drawPath(
+              VMark.Points,
+              VMark.Color1,
+              VMark.Color2,
+              VMark.Scale1,
+              VMark.IsPoly
+            );
           end;
         end else if VPointCount =1 then begin
-          xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
-          xy := MapPixel2BitmapPixel(xy);
-          imw:=VMark.Scale2;
-          indexmi:=GState.MarkIcons.IndexOf(VMark.PicName);
-          if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
-            indexmi:=0;
-          end;
-          if(indexmi>-1)then begin
-            VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
-            btm.SetSize(VIconSource.Width, VIconSource.Height);
-            btm.Draw(0, 0, VIconSource);
-            FTargetBmp.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
-          end;
-          if VScale1>0 then begin
-//TODO: Сделать вывод подписей для меток.
-//            VBtmEx.Font.Size:=VScale1;
-//            texth:=VBtmEx.TextHeight(VMarkName) div 2;
-//            VBtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMarkName,1,VColor2);
-//            VBtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMarkName,1,VColor1);
-          end;
+          DrawPoint(
+            VMark.Points[0],
+            VMark.name,
+            VMark.PicName,
+            VMark.Scale2,
+            VMark.Scale1,
+            VMark.Color1,
+            VMark.Color2
+          );
         end;
       end;
-    finally
-      btm.Free;
-      VBtmEx.Free;
-    end;
   finally
     VMarksIterator.Free;
   end;
