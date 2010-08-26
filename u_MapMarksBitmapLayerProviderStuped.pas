@@ -36,7 +36,7 @@ uses
 
 const
   CMaxFontSize = 20;
-  CMaxTextLength =30;
+  CMaxMarkName = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 { TMapMarksBitmapLayerProviderStupedThreaded }
 
@@ -74,13 +74,13 @@ begin
   FTargetBmp := ATargetBmp;
   FGeoConvert := AConverter;
   FTargetRect := ATargetRect;
-  FZoom := FZoom;
+  FZoom := ATargetZoom;
   FLLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
-  VDeltaLL:=ExtPoint((FLLRect.Right-FLLRect.Left)/2,(FLLRect.Top-FLLRect.Bottom)/2);
-  FLLRect.Left := FLLRect.Left - VDeltaLL.X;
-  FLLRect.Top := FLLRect.Top - VDeltaLL.Y;
-  FLLRect.Right := FLLRect.Right + VDeltaLL.X;
-  FLLRect.Bottom := FLLRect.Bottom + VDeltaLL.Y;
+//  VDeltaLL:=ExtPoint((FLLRect.Right-FLLRect.Left)/2,(FLLRect.Top-FLLRect.Bottom)/2);
+//  FLLRect.Left := FLLRect.Left - VDeltaLL.X;
+//  FLLRect.Top := FLLRect.Top + VDeltaLL.Y;
+//  FLLRect.Right := FLLRect.Right + VDeltaLL.X;
+//  FLLRect.Bottom := FLLRect.Bottom - VDeltaLL.Y;
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode:=dmBlend;
@@ -89,8 +89,10 @@ begin
   FBitmapWithText := TBitmap32.Create;
   FBitmapWithText.Font.Name:='Tahoma';
   FBitmapWithText.Font.Style:=[];
-  FBitmapWithText.DrawMode := dmBlend;
+  FBitmapWithText.DrawMode := dmTransparent;
   FBitmapWithText.Font.Size:= CMaxFontSize;
+  FBitmapWithText.Height := FBitmapWithText.TextHeight(CMaxMarkName);
+  FBitmapWithText.Width := FBitmapWithText.TextWidth(CMaxMarkName);
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -187,8 +189,10 @@ procedure TMapMarksBitmapLayerProviderStupedThreaded.DrawPoint(
 var
   xy:Tpoint;
   indexmi:integer;
-  texth:integer;
   VIconSource: TCustomBitmap32;
+  VDstRect: TRect;
+  VSrcRect: TRect;
+  VTextSize: TSize;
 begin
   xy:=FGeoConvert.LonLat2PixelPos(ALL, FZoom);
   xy := MapPixel2BitmapPixel(xy);
@@ -200,14 +204,23 @@ begin
     VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
     FTempBmp.SetSize(VIconSource.Width, VIconSource.Height);
     FTempBmp.Draw(0, 0, VIconSource);
-    FTargetBmp.Draw(bounds(xy.x-(AMarkSize div 2),xy.y-AMarkSize,AMarkSize,AMarkSize),bounds(0,0,FTempBmp.Width,FTempBmp.Height),FTempBmp);
+    VDstRect := bounds(xy.x-(AMarkSize div 2),xy.y-AMarkSize,AMarkSize,AMarkSize);
+    VSrcRect := bounds(0,0,FTempBmp.Width,FTempBmp.Height);
+    FTargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
   end;
   if AFontSize>0 then begin
-//TODO: Сделать вывод подписей для меток.
-//            FBitmapWithText.Font.Size:=AFontSize;
-//            texth:=FBitmapWithText.TextHeight(AName) div 2;
-//            FBitmapWithText.RenderText(xy.x+(AMarkSize div 2)+2,xy.y-(AMarkSize div 2)-texth+1,AName,1,AColor2);
-//            FBitmapWithText.RenderText(xy.x+(AMarkSize div 2)+1,xy.y-(AMarkSize div 2)-texth,AName,1,AColor1);
+    FBitmapWithText.Font.Size:=AFontSize;
+    VTextSize := FBitmapWithText.TextExtent(AName);
+
+    FBitmapWithText.FillRectS(0, 0, VTextSize.cx, VTextSize.cy, SetAlpha(clBlack32, 0));
+    FBitmapWithText.RenderText(1,1,AName,1,AColor2);
+    FBitmapWithText.RenderText(0,0,AName,1,AColor1);
+    VDstRect.Left := xy.x+(AMarkSize div 2)+1;
+    VDstRect.Top := xy.y-(AMarkSize div 2)- VTextSize.cy div 2 + 1;
+    VDstRect.Right := VDstRect.Left + VTextSize.cx + 1;
+    VDstRect.Bottom := VDstRect.Top + VTextSize.cy + 1;
+    VSrcRect := bounds(0,0,VTextSize.cx + 1, VTextSize.cy + 1);
+    FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
   end;
 end;
 
