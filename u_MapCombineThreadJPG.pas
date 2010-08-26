@@ -5,23 +5,17 @@ interface
 uses
   Windows,
   Types,
-  Forms,
   SysUtils,
   Classes,
-  Dialogs,
-  Graphics,
   GR32,
   ijl,
-  UECWWrite,
   UMapType,
   UImgFun,
   UGeoFun,
   bmpUtil,
   t_GeoTypes,
   UResStrings,
-  unit4,
-  u_MapCombineThreadBase,
-  KaZip;
+  u_MapCombineThreadBase;
 
 type
   PArrayBGR = ^TArrayBGR;
@@ -59,14 +53,8 @@ type
 implementation
 
 uses
-  ECWWriter,
-  i_IMapCalibration,
   i_ICoordConverter,
-  u_GlobalState,
-  u_MapMarksLayer,
-  u_MapCalibrationKml,
-  Unit1,
-  u_GeoToStr;
+  u_GlobalState;
 
 constructor TMapCombineThreadJPG.Create(
   AMapCalibrationList: IInterfaceList;
