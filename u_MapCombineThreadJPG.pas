@@ -71,6 +71,7 @@ begin
     Azoom, Atypemap, AHtypemap, AusedReColor, AusedMarks);
   FQuality := AQuality;
 end;
+
 procedure TMapCombineThreadJPG.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb);
 var
@@ -111,19 +112,10 @@ begin
         FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, True);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
-          FLastTile := Point(p_h.X shr 8, p_h.Y shr 8);
-          FHTypeMap.LoadTileOrPreZ(btmh, FLastTile, FZoom, false, True);
+          FHTypeMap.LoadTileUni(btmh, FLastTile, FZoom, False, FTypeMap.GeoConvert, True, True, True);
           btmh.DrawMode:=dmBlend;
-          btmm.Draw(0,0-((p_h.y mod 256)),btmh);
-          if p_h.y<>p_y then begin
-            btmh.Clear($FF000000);
-            FLastTile.Y := FLastTile.Y + 1;
-            FHTypeMap.LoadTileOrPreZ(btmh,FLastTile, FZoom, false, True);
-            btmh.DrawMode:=dmBlend;
-            btmm.Draw(0,256-(p_h.y mod 256),bounds(0,0,256,(p_h.y mod 256)),btmh);
-          end;
+          btmm.Draw(0,0,btmh);
         end;
-        FLastTile := Point(p_x shr 8, p_y shr 8);
         if FUsedMarks then begin
           GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
         end;

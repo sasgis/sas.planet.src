@@ -220,6 +220,7 @@
     <DCCReference Include="u_MapCombineThreadBMP.pas" />
     <DCCReference Include="u_MapCombineThreadECW.pas" />
     <DCCReference Include="u_MapCombineThreadJPG.pas" />
+    <DCCReference Include="u_MapCombineThreadKMZ.pas" />
     <DCCReference Include="u_MapFillingLayer.pas" />
     <DCCReference Include="u_MapGPSLayer.pas" />
     <DCCReference Include="u_MapLayerBasic.pas" />

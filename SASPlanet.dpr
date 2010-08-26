@@ -45,6 +45,7 @@ uses
   u_MapCombineThreadBMP in 'u_MapCombineThreadBMP.pas',
   u_MapCombineThreadECW in 'u_MapCombineThreadECW.pas',
   u_MapCombineThreadJPG in 'u_MapCombineThreadJPG.pas',
+  u_MapCombineThreadKMZ in 'u_MapCombineThreadKMZ.pas',
   UThreadExport in 'UThreadExport.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',
