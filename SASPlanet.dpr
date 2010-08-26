@@ -42,6 +42,7 @@ uses
   UTrAllLoadMap in 'UTrAllLoadMap.pas',
   UThreadScleit in 'UThreadScleit.pas',
   u_MapCombineThreadBase in 'u_MapCombineThreadBase.pas',
+  u_MapCombineThreadBMP in 'u_MapCombineThreadBMP.pas',
   UThreadExport in 'UThreadExport.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',

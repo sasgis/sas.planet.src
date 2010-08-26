@@ -37,6 +37,9 @@ type
     FProgressOnForm: integer;
     FMessageForShow: string;
 
+    FNumImgs: integer;
+    FNumImgsSaved: integer;
+
     function IsCancel: Boolean;
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormStr1;
