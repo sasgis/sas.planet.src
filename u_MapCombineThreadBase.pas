@@ -47,6 +47,8 @@ type
     procedure UpdateProgressFormClose;
     procedure SynShowMessage;
 
+    procedure saveRECT; virtual; abstract;
+
     procedure Execute; override;
   public
     constructor Create(
@@ -68,6 +70,7 @@ uses
   SysUtils,
   Forms,
   Dialogs,
+  i_IMapCalibration,
   UResStrings,
   Ugeofun;
 
@@ -149,9 +152,52 @@ begin
 end;
 
 procedure TMapCombineThreadBase.Execute;
+var
+  i, j, pti: integer;
 begin
   inherited;
+  FNumImgs:=FSplitCount.X*FSplitCount.Y;
+  FNumImgsSaved:=0;
+  FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '+SAS_STR_DivideInto+' '+inttostr(FNumImgs)+' '+SAS_STR_files;
+  Synchronize(UpdateProgressFormStr1);
 
+  FProgressOnForm:=0;
+  Synchronize(UpdateProgressFormBar);
+  FShowOnFormLine1:=SAS_STR_Processed+' 0';
+  Synchronize(UpdateProgressFormStr2);
+
+  FCurrentFileName := FFilePath + FFileName + FFileExt;
+
+  for i:=1 to FSplitCount.X do begin
+    for j:=1 to FSplitCount.Y do begin
+      FCurrentPieceRect.Left := FMapRect.Left + FMapPieceSize.X * (i-1);
+      FCurrentPieceRect.Right := FMapRect.Left + FMapPieceSize.X * i;
+      FCurrentPieceRect.Top := FMapRect.Top + FMapPieceSize.Y * (j-1);
+      FCurrentPieceRect.Bottom := FMapRect.Top + FMapPieceSize.Y * j;
+
+      if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
+        FCurrentFileName := FFilePath + FFileName + '_'+inttostr(i)+'-'+inttostr(j) + FFileExt;
+      end;
+
+      for pti := 0 to FMapCalibrationList.Count - 1 do begin
+        try
+          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(FCurrentFileName, FCurrentPieceRect.TopLeft, FCurrentPieceRect.BottomRight, FZoom, FTypeMap.GeoConvert);
+        except
+          //TODO: ƒобавить сюда нормальную обработку ошибок.
+        end;
+      end;
+      try
+          saveRECT;
+      except
+        On E:Exception do begin
+          FMessageForShow:=E.Message;
+          Synchronize(SynShowMessage);
+          exit;
+        end;
+      end;
+    end;
+  end;
+  Synchronize(UpdateProgressFormClose);
 end;
 
 end.
