@@ -483,7 +483,7 @@ var
 begin
   inherited;
   if (GState.show_point <> mshNone) then begin
-    VProv := TMapMarksBitmapLayerProviderStuped.Create;
+    VProv := GState.MarksBitmapProvider;
     FLayer.Bitmap.Clear(clBlack);
     VBitmapSize := GetBitmapSizeInPixel;
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0,0));

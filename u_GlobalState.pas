@@ -16,6 +16,7 @@ uses
   i_IBitmapTypeExtManager,
   i_IKmlInfoSimpleLoader,
   i_ActiveMapsConfigSaveLoad,
+  i_IBitmapLayerProvider,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -43,6 +44,7 @@ type
     FMapConfigSaver: IActiveMapsConfigSaver;
     FMapConfigLoader: IActiveMapsConfigLoader;
     FCacheConfig: TGlobalCahceConfig;
+    FMarksBitmapProvider: IBitmapLayerProvider;
 
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
@@ -249,6 +251,7 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
+    property MarksBitmapProvider: IBitmapLayerProvider read FMarksBitmapProvider;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     property ViewState: TMapViewPortState read FViewState;
@@ -282,6 +285,7 @@ uses
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
+  u_MapMarksBitmapLayerProviderStuped,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -312,6 +316,7 @@ begin
   FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
+  FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   LoadMainParams;
   LoadResources;
   LoadMarkIcons;
@@ -336,6 +341,7 @@ begin
   FMapCalibrationList := nil;
   FKmlLoader := nil;
   FKmzLoader := nil;
+  FMarksBitmapProvider := nil;
   FreeAndNil(FViewState);
   FreeAllMaps;
   FreeAndNil(FCacheConfig);
