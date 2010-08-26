@@ -48,6 +48,8 @@ uses
 {$ENDIF}
   t_CommonTypes,
   u_GlobalState,
+  i_IBitmapLayerProvider,
+  u_MapMarksBitmapLayerProviderStuped,
   Ugeofun,
   u_MarksSimple,
   u_MarksReadWriteSimple,
@@ -477,17 +479,20 @@ procedure TMapMarksLayer.DoRedraw;
 var
   VBitmapSize: TPoint;
   VRect: TRect;
+  VProv:  IBitmapLayerProvider;
 begin
   inherited;
   if (GState.show_point <> mshNone) then begin
+    VProv := TMapMarksBitmapLayerProviderStuped.Create;
     FLayer.Bitmap.Clear(clBlack);
     VBitmapSize := GetBitmapSizeInPixel;
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0,0));
     VRect.BottomRight := BitmapPixel2MapPixel(VBitmapSize);
+    VProv.GetBitmapRect(FLayer.Bitmap, FGeoConvert, VRect, FZoom);
 
-    FGeoConvert.CheckPixelRect(VRect, FZoom, false);
-    FLLRect := FGeoConvert.PixelRect2LonLatRect(VRect, FZoom);
-    DrawMarks;
+//    FGeoConvert.CheckPixelRect(VRect, FZoom, false);
+//    FLLRect := FGeoConvert.PixelRect2LonLatRect(VRect, FZoom);
+//    DrawMarks;
   end;
 end;
 
