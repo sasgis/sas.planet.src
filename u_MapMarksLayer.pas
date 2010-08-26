@@ -23,7 +23,7 @@ type
     procedure drawPath2Bitmap(BtmEx:TCustomBitmap32;AGeoConvert: ICoordConverter; XYPoint:TPoint;AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
     procedure PreparePolygon(pathll:TExtendedPointArray; polygon: TPolygon32);
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
-    procedure DrawPoint(ALL: TExtendedPoint; AName: string; APicName: string; AMarkSize, AFontSiz: integer; AColor1, AColor2:TColor32);
+    procedure DrawPoint(ALL: TExtendedPoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2:TColor32);
     procedure DrawMarks;
     procedure DoRedraw; override;
   public
@@ -384,7 +384,7 @@ end;
 {$ENDIF}
 
 procedure TMapMarksLayer.DrawPoint(ALL: TExtendedPoint; AName, APicName: string;
-  AMarkSize, AFontSiz: integer; AColor1, AColor2:TColor32);
+  AMarkSize, AFontSize: integer; AColor1, AColor2:TColor32);
 var
   xy:Tpoint;
   indexmi:integer;
@@ -403,8 +403,8 @@ begin
     FTempBmp.Draw(0, 0, VIconSource);
     FLayer.Bitmap.Draw(bounds(xy.x-(AMarkSize div 2),xy.y-AMarkSize,AMarkSize,AMarkSize),bounds(0,0,FTempBmp.Width,FTempBmp.Height),FTempBmp);
   end;
-  if AFontSiz>0 then begin
-    FLayer.Bitmap.Font.Size:=AFontSiz;
+  if AFontSize>0 then begin
+    FLayer.Bitmap.Font.Size:=AFontSize;
     texth:=FLayer.Bitmap.TextHeight(AName) div 2;
     FLayer.Bitmap.RenderText(xy.x+(AMarkSize div 2)+2,xy.y-(AMarkSize div 2)-texth+1,AName,1,AColor2);
     FLayer.Bitmap.RenderText(xy.x+(AMarkSize div 2)+1,xy.y-(AMarkSize div 2)-texth,AName,1,AColor1);
