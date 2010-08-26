@@ -1,4 +1,5 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{162abc9c-8e53-40c3-868b-e8a4b2339ea6}</ProjectGuid>
     <MainSource>SASPlanet.dpr</MainSource>
@@ -22,13 +23,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
-    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
     <DCC_MapFile>3</DCC_MapFile>
     <DCC_ExeOutput>.\.bin</DCC_ExeOutput>
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>DEBUG</DCC_Define>
+    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -243,6 +244,7 @@
     <DCCReference Include="u_MarkCategory.pas" />
     <DCCReference Include="u_MarksDb.pas">
       <Form>DMMarksDb</Form>
+      <DesignClass>TDataModule</DesignClass>
     </DCCReference>
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
