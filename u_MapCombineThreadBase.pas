@@ -38,7 +38,6 @@ type
     FMessageForShow: string;
 
     function IsCancel: Boolean;
-    procedure DrawMarks2Tile;
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormStr1;
     procedure UpdateProgressFormStr2;
@@ -144,14 +143,6 @@ end;
 function TMapCombineThreadBase.IsCancel: Boolean;
 begin
   result := not(FProgressForm.Visible);
-end;
-
-procedure TMapCombineThreadBase.DrawMarks2Tile;
-var
-  VTargetRect: TRect;
-begin
- VTargetRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
-// FMain.LayerMapMarks.DoRedraw2Bitmap(btmm, FTypeMap.GeoConvert,VTargetRect,FZoom)
 end;
 
 procedure TMapCombineThreadBase.Execute;

@@ -77,7 +77,6 @@ type
     function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
     procedure ReadLineBMP(Line:cardinal;LineRGB:PLineRGBb);
     function IsCancel: Boolean;
-    procedure DrawMarks2Tile;
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormStr1;
     procedure UpdateProgressFormStr2;
@@ -263,6 +262,7 @@ var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
   p_h:TPoint;
   p:PColor32array;
+  VTileRect: TRect;
 begin
   Result := True;
   if line<(256-sy) then begin
@@ -290,6 +290,7 @@ begin
         btmm.Clear(Color32(GState.BGround))
       end else begin
         btmm.Clear(Color32(GState.BGround));
+        VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
         FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom,false, true);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
@@ -304,7 +305,9 @@ begin
           end;
         end;
         FLastTile := Point(p_x shr 8, p_y shr 8);
-        if FUsedMarks then Synchronize(DrawMarks2Tile);
+        if FUsedMarks then begin
+          GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
+        end;
       end;
       if FUsedReColor then Gamma(btmm);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
@@ -331,20 +334,13 @@ begin
   end;
 end;
 
-procedure TThreadScleit.DrawMarks2Tile;
-var
-  VTargetRect: TRect;
-begin
- VTargetRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
- FMain.LayerMapMarks.DoRedraw2Bitmap(btmm,FTypeMap.GeoConvert,VTargetRect,FZoom)
-end;
-
 procedure TThreadScleit.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb);
 var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
   p_h:TPoint;
   p:PColor32array;
+  VTileRect: TRect;
 begin
   if line<(256-sy) then begin
     starttile:=sy+line
@@ -374,6 +370,7 @@ begin
       end else begin
         btmm.Clear(Color32(GState.BGround));
         FLastTile := Point(p_x shr 8, p_y shr 8);
+        VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
         FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, True);
         if FHTypeMap<>nil then begin
           btmh.Clear($FF000000);
@@ -390,7 +387,9 @@ begin
           end;
         end;
         FLastTile := Point(p_x shr 8, p_y shr 8);
-        if FUsedMarks then Synchronize(DrawMarks2Tile);
+        if FUsedMarks then begin
+          GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
+        end;
       end;
       if FUsedReColor then Gamma(btmm);
       if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
