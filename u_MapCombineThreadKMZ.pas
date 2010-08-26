@@ -55,6 +55,8 @@ implementation
 uses
   KAZip,
   i_ICoordConverter,
+  u_MapCalibrationKml,
+  u_GeoToStr,
   u_GlobalState;
 
 constructor TMapCombineThreadKMZ.Create(
