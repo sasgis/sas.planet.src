@@ -14,10 +14,13 @@ type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
     FLLRect:TExtendedRect;
-    FFixedPointArray: TArrayOfFixedPoint;
+{$IFDEF USE_VPR}
+    FFixedPointArray: TArrayOfFloatPoint;
+    procedure PreparePolygonNew(pathll:TExtendedPointArray; poly: Boolean; var ATargetPointsCount: Integer);
+    procedure drawPathNew(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
+{$ENDIF}
     procedure drawPath2Bitmap(BtmEx:TCustomBitmap32;AGeoConvert: ICoordConverter; XYPoint:TPoint;AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
     procedure PreparePolygon(pathll:TExtendedPointArray; polygon: TPolygon32);
-    procedure PreparePolygonNew(pathll:TExtendedPointArray; polygon: TPolygon32);
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
     procedure DrawMarks;
     procedure DoRedraw; override;
@@ -36,6 +39,11 @@ uses
   Classes,
   SysUtils,
   GR32_Resamplers,
+{$IFDEF USE_VPR}
+  GR32_PolygonsEx,
+  GR32_VPR,
+  GR32_VectorUtils,
+{$ENDIF}
   t_CommonTypes,
   u_GlobalState,
   Ugeofun,
@@ -228,95 +236,6 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.PreparePolygonNew(pathll: TExtendedPointArray;
-  polygon: TPolygon32);
-var
-  i, j:integer;
-  VLonLat: TExtendedPoint;
-  VMapPoint: TExtendedPoint;
-  VBitmapPointCurr: TExtendedPoint;
-  VBitmapPointPrev: TExtendedPoint;
-  VPointsCount: Integer;
-  VDist: Extended;
-  VTargetPointsCount: Integer;
-  VArrayLen: integer;
-  VDelta: TExtendedPoint;
-  VMaxDelta: Extended;
-  VSplitCount: Integer;
-  VStepDelta: TExtendedPoint;
-  VTempPoint: TExtendedPoint;
-const
-  CRectSize = 1 shl 14;
-begin
-  VPointsCount := length(pathll);
-  VArrayLen := Length(FFixedPointArray);
-  if VArrayLen < VPointsCount then begin
-    SetLength(FFixedPointArray, VPointsCount);
-    VArrayLen := VPointsCount;
-  end;
-  if polygon.Closed then begin
-    VLonLat := pathll[VPointsCount - 1];
-  end else begin
-    VLonLat := pathll[0];
-  end;
-  FGeoConvert.CheckLonLatPos(VLonLat);
-  VMapPoint := FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
-  VBitmapPointPrev := MapPixel2BitmapPixel(VMapPoint);
-
-  VTargetPointsCount := 0;
-  for i:=0 to length(pathll)-1 do begin
-    VLonLat := pathll[i];
-    FGeoConvert.CheckLonLatPos(VLonLat);
-    VMapPoint :=FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
-    VBitmapPointCurr:=MapPixel2BitmapPixel(VMapPoint);
-    VDist := Abs(VBitmapPointCurr.x - VBitmapPointPrev.X) + Abs(VBitmapPointCurr.Y - VBitmapPointPrev.Y);
-    if VDist > 1.5 then begin
-      VDelta.X := VBitmapPointCurr.X - VBitmapPointPrev.X;
-      VDelta.Y := VBitmapPointCurr.Y - VBitmapPointPrev.Y;
-      if Abs(VDelta.X) > Abs(VDelta.Y) then begin
-        VMaxDelta := VDelta.X;
-      end else begin
-        VMaxDelta := VDelta.Y;
-      end;
-      VSplitCount := Trunc(Abs(VMaxDelta)/CRectSize) + 1;
-      if VSplitCount > 1 then begin
-        VStepDelta.X := VDelta.X / VSplitCount;
-        VStepDelta.Y := VDelta.Y / VSplitCount;
-        VTempPoint := VBitmapPointPrev;
-        for j := 0 to VSplitCount - 1 do begin
-          VTempPoint.X := VTempPoint.X + VStepDelta.X;
-          VTempPoint.X := VTempPoint.X + VStepDelta.X;
-          if
-            (VTempPoint.x<CRectSize)and(VTempPoint.x>-CRectSize)and
-            (VTempPoint.y<CRectSize)and(VTempPoint.y>-CRectSize)
-          then begin
-            if VTargetPointsCount >= VArrayLen then begin
-              SetLength(FFixedPointArray, VTargetPointsCount*2);
-              VArrayLen := VTargetPointsCount*2;
-            end;
-            FFixedPointArray[VTargetPointsCount] := FixedPoint(VTempPoint.x, VTempPoint.y);
-            Inc(VTargetPointsCount);
-          end;
-        end;
-      end;
-      if
-        (VBitmapPointCurr.x<CRectSize)and(VBitmapPointCurr.x>-CRectSize)and
-        (VBitmapPointCurr.y<CRectSize)and(VBitmapPointCurr.y>-CRectSize)
-      then begin
-        if VTargetPointsCount >= VArrayLen then begin
-          SetLength(FFixedPointArray, VTargetPointsCount*2);
-          VArrayLen := VTargetPointsCount*2;
-        end;
-        FFixedPointArray[VTargetPointsCount] := FixedPoint(VBitmapPointCurr.x, VBitmapPointCurr.y);
-        Inc(VTargetPointsCount);
-      end;
-      VBitmapPointPrev := VBitmapPointCurr;
-    end;
-  end;
-
-  Polygon.AddPoints(FFixedPointArray[0], VTargetPointsCount);
-end;
-
 procedure TMapMarksLayer.drawPath(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
 var
   polygon: TPolygon32;
@@ -350,6 +269,114 @@ begin
   end;
 end;
 
+{$IFDEF USE_VPR}
+procedure TMapMarksLayer.PreparePolygonNew(pathll: TExtendedPointArray;
+  poly: Boolean; var ATargetPointsCount: Integer);
+var
+  i, j:integer;
+  VLonLat: TExtendedPoint;
+  VMapPoint: TExtendedPoint;
+  VBitmapPointCurr: TExtendedPoint;
+  VBitmapPointPrev: TExtendedPoint;
+  VPointsCount: Integer;
+  VDist: Extended;
+  VArrayLen: integer;
+  VDelta: TExtendedPoint;
+  VMaxDelta: Extended;
+  VSplitCount: Integer;
+  VStepDelta: TExtendedPoint;
+  VTempPoint: TExtendedPoint;
+const
+  CRectSize = 1 shl 14;
+begin
+  VPointsCount := length(pathll);
+  VArrayLen := Length(FFixedPointArray);
+  if VArrayLen < VPointsCount then begin
+    SetLength(FFixedPointArray, VPointsCount);
+    VArrayLen := VPointsCount;
+  end;
+  if poly then begin
+    VLonLat := pathll[VPointsCount - 1];
+  end else begin
+    VLonLat := pathll[0];
+  end;
+  FGeoConvert.CheckLonLatPos(VLonLat);
+  VMapPoint := FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
+  VBitmapPointPrev := MapPixel2BitmapPixel(VMapPoint);
+
+  ATargetPointsCount := 0;
+  for i:=0 to VPointsCount - 1 do begin
+    VLonLat := pathll[i];
+    FGeoConvert.CheckLonLatPos(VLonLat);
+    VMapPoint :=FGeoConvert.LonLat2PixelPosFloat(VLonLat,FZoom);
+    VBitmapPointCurr:=MapPixel2BitmapPixel(VMapPoint);
+    VDelta.X := VBitmapPointCurr.X - VBitmapPointPrev.X;
+    VDelta.Y := VBitmapPointCurr.Y - VBitmapPointPrev.Y;
+    VDist := Abs(VDelta.X) + Abs(VDelta.Y);
+    if VDist > 1.0 then begin
+      if Abs(VDelta.X) > Abs(VDelta.Y) then begin
+        VMaxDelta := VDelta.X;
+      end else begin
+        VMaxDelta := VDelta.Y;
+      end;
+      VSplitCount := Trunc(Abs(VMaxDelta)/CRectSize) + 1;
+      if VSplitCount > 1 then begin
+        VStepDelta.X := VDelta.X / VSplitCount;
+        VStepDelta.Y := VDelta.Y / VSplitCount;
+        VTempPoint := VBitmapPointPrev;
+        for j := 0 to VSplitCount - 1 do begin
+          VTempPoint.X := VTempPoint.X + VStepDelta.X;
+          VTempPoint.X := VTempPoint.X + VStepDelta.X;
+          if
+            (VTempPoint.x<CRectSize)and(VTempPoint.x>-CRectSize)and
+            (VTempPoint.y<CRectSize)and(VTempPoint.y>-CRectSize)
+          then begin
+            if ATargetPointsCount >= VArrayLen then begin
+              SetLength(FFixedPointArray, ATargetPointsCount*2);
+              VArrayLen := ATargetPointsCount*2;
+            end;
+            FFixedPointArray[ATargetPointsCount] := FloatPoint(VTempPoint.x, VTempPoint.y);
+            Inc(ATargetPointsCount);
+          end;
+        end;
+      end;
+      if
+        (VBitmapPointCurr.x<CRectSize)and(VBitmapPointCurr.x>-CRectSize)and
+        (VBitmapPointCurr.y<CRectSize)and(VBitmapPointCurr.y>-CRectSize)
+      then begin
+        if ATargetPointsCount >= VArrayLen then begin
+          SetLength(FFixedPointArray, ATargetPointsCount*2);
+          VArrayLen := ATargetPointsCount*2;
+        end;
+        FFixedPointArray[ATargetPointsCount] := FloatPoint(VBitmapPointCurr.x, VBitmapPointCurr.y);
+        Inc(ATargetPointsCount);
+      end;
+      VBitmapPointPrev := VBitmapPointCurr;
+    end;
+  end;
+  SetLength(FFixedPointArray, ATargetPointsCount);
+end;
+
+procedure TMapMarksLayer.drawPathNew(pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
+var
+  VTargetPointsCount: Integer;
+  VPolyline: TArrayOfFloatPoint;
+begin
+  try
+    try
+      if length(pathll)>0 then begin
+        PreparePolygonNew(pathll, poly, VTargetPointsCount);
+        if poly then begin
+          PolygonFS(FLayer.Bitmap, FFixedPointArray, color2, pfWinding);
+        end;
+        PolylineFS(FLayer.Bitmap, FFixedPointArray, color1, poly, linew*2, jsBevel);
+      end;
+    finally
+    end;
+  except
+  end;
+end;
+{$ENDIF}
 procedure TMapMarksLayer.DrawMarks;
 var
   xy:Tpoint;
@@ -387,8 +414,13 @@ begin
           FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
           TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
+{$IFDEF USE_VPR}
+            drawPathNew(buf_line_arr,VColor1,VColor2,VScale1,
+              (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
+{$ELSE}
             drawPath(buf_line_arr,VColor1,VColor2,VScale1,
               (buf_line_arr[0].x=buf_line_arr[VPointCount-1].x)and(buf_line_arr[0].y=buf_line_arr[VPointCount-1].y));
+{$ENDIF}
           end;
         end else if VPointCount =1 then begin
           xy:=FGeoConvert.LonLat2PixelPos(buf_line_arr[0],FZoom);
