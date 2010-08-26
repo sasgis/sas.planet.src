@@ -414,7 +414,7 @@ end;
 procedure TMapMarksLayer.DrawMarks;
 var
   TestArrLenLonLatRect: TExtendedRect;
-  TestArrLenPixelRect: TRect;
+  TestArrLenPixelRect: TExtendedRect;
   VScale1: Integer;
   VPointCount: Integer;
   VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
@@ -429,7 +429,7 @@ begin
         if VPointCount>1 then begin
           TestArrLenLonLatRect := VMark.LLRect;
           FGeoConvert.CheckLonLatRect(TestArrLenLonLatRect);
-          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRect(TestArrLenLonLatRect, FZoom);
+          TestArrLenPixelRect := FGeoConvert.LonLatRect2PixelRectFloat(TestArrLenLonLatRect, FZoom);
           if (abs(TestArrLenPixelRect.Left-TestArrLenPixelRect.Right)>VScale1+2)or(abs(TestArrLenPixelRect.Top-TestArrLenPixelRect.Bottom)>VScale1+2) then begin
 {$IFDEF USE_VPR}
             drawPathNew(
