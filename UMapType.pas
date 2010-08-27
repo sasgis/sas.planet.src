@@ -56,6 +56,12 @@ type
     FUrlGenerator : TUrlGeneratorBasic;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
+    FInitDownloadCS: TCriticalSection;
+    FCSSaveTile: TCriticalSection;
+    FCSSaveTNF: TCriticalSection;
+    FCoordConverter : ICoordConverter;
+    FConverterForUrlGenerator: ICoordConverterSimple;
+    FPoolOfDownloaders: IPoolOfObjectsSimple;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -83,6 +89,14 @@ type
     procedure LoadMapInfo(AUnZip: TVCLZip);
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
+    procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
+    function LoadFile(btm: TCustomBitmap32; APath: string; caching: boolean): boolean; overload;
+    function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
+    procedure CreateDirIfNotExists(APath: string);
+    procedure SaveTileInCache(btm: TCustomBitmap32; path: string); overload;
+    procedure SaveTileInCache(btm: TStream; path: string); overload;
+    procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
    public
     id: integer;
 
@@ -127,7 +141,7 @@ type
     function LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
 
     function LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
-    
+
     function LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
 
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
@@ -173,23 +187,8 @@ type
     property TileFileExt: string read FTileFileExt;
 
     constructor Create;
-    procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
     destructor Destroy; override;
-  private
-    FInitDownloadCS: TCriticalSection;
-    FCSSaveTile: TCriticalSection;
-    FCSSaveTNF: TCriticalSection;
-    FCoordConverter : ICoordConverter;
-    FConverterForUrlGenerator: ICoordConverterSimple;
-    FPoolOfDownloaders: IPoolOfObjectsSimple;
-    procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
-    function LoadFile(btm: TCustomBitmap32; APath: string; caching: boolean): boolean; overload;
-    function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
-    procedure CreateDirIfNotExists(APath: string);
-    procedure SaveTileInCache(btm: TCustomBitmap32; path: string); overload;
-    procedure SaveTileInCache(btm: TStream; path: string); overload;
-    procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
-    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
+    procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
  end;
 
 
