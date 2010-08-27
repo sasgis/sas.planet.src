@@ -169,7 +169,6 @@ begin
     jcprops.DIBChannels := iNChannels;
     jcprops.DIBColor := IJL_BGR;
     jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*3);
-    new(jcprops.DIBBytes);
     GetMem(jcprops.DIBBytes,(iWidth*3+ (iWidth mod 4))*iHeight);
     if jcprops.DIBBytes<>nil then begin
       for k:=0 to iHeight-1 do begin
