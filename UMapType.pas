@@ -18,6 +18,7 @@ uses
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
   i_IBitmapTypeExtManager,
+  i_BitmapTileSaveLoad,
   i_IAntiBan,
   u_KmlInfoSimple,
   u_UrlGenerator,
@@ -33,6 +34,7 @@ type
     FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
+    FTileFileExt: string;
     FUseDwn: boolean;
     FUseDel: boolean;
     FIsStoreReadOnly: Boolean;
@@ -52,6 +54,8 @@ type
     FIcon18Index: Integer;
     FCacheConfig: TMapTypeCacheConfig;
     FUrlGenerator : TUrlGeneratorBasic;
+    FBitmapLoaderFromStorage: IBitmapTileLoader;
+    FBitmapSaverToStorage: IBitmapTileSaver;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -82,7 +86,6 @@ type
    public
     id: integer;
 
-    TileFileExt: string;
     MapInfo: string;
     asLayer: boolean;
     name: string;
@@ -167,6 +170,7 @@ type
     property bmp24: TBitmap read Fbmp24;
     property CacheConfig: TMapTypeCacheConfig read FCacheConfig;
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
+    property TileFileExt: string read FTileFileExt;
 
     constructor Create;
     procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
@@ -519,9 +523,13 @@ begin
   FIsStoreReadOnly:=AIniFile.ReadBool('PARAMS','ReadOnly', false);
   DelAfterShow:=AIniFile.ReadBool('PARAMS','DelAfterShow',false);
   FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
-  TileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
+  FTileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AUnZip, AIniFile);
   FCache := TTileCacheSimpleGlobal.Create(Self);
+  if GetIsBitmapTiles then begin
+    FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(FTileFileExt);
+    FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(FTileFileExt);
+  end;
 end;
 
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
@@ -839,13 +847,10 @@ begin
 end;
 
 procedure TMapType.SaveTileInCache(btm: TCustomBitmap32; path: string);
-var
-  VManager: IBitmapTypeExtManager;
 begin
-  VManager := BitmapTypeManager;
   FCSSaveTile.Acquire;
   try
-    VManager.GetBitmapSaverForExt(TileFileExt).SaveToFile(btm, path);
+    FBitmapSaverToStorage.SaveToFile(btm, path);
   finally
     FCSSaveTile.Release;
   end;
@@ -1298,17 +1303,14 @@ begin
 end;
 
 function TMapType.LoadFile(btm: TCustomBitmap32; APath: string; caching:boolean): boolean;
-var
-  VManager: IBitmapTypeExtManager;
 begin
   Result := false;
   if GetFileSize(Apath)<=0 then begin
     exit;
   end;
   try
-    VManager := BitmapTypeManager;
-    if VManager.GetIsBitmapExt(TileFileExt) then begin
-      VManager.GetBitmapLoaderForExt(TileFileExt).LoadFromFile(APath, btm);
+    if FBitmapLoaderFromStorage <> nil then begin
+      FBitmapLoaderFromStorage.LoadFromFile(APath, btm);
     end else begin
       raise Exception.Create('У этой карты не растровые тайлы');
     end;
