@@ -1340,11 +1340,11 @@ begin
   VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left + 1;
   VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top + 1;
   spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
+  if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
+             else spr.Clear(Color32(GState.BGround));
   if (not(GState.UsePrevZoom) and (asLayer=false)) or
   (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
   begin
-    if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
-               else spr.Clear(Color32(GState.BGround));
     exit;
   end;
   VTileExists := false;
