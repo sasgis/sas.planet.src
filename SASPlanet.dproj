@@ -171,7 +171,6 @@
     <DCCReference Include="UThreadExportIPhone.pas" />
     <DCCReference Include="UThreadExportKML.pas" />
     <DCCReference Include="UThreadExportYaMaps.pas" />
-    <DCCReference Include="UThreadScleit.pas" />
     <DCCReference Include="UTimeZones.pas" />
     <DCCReference Include="UTrAllLoadMap.pas" />
     <DCCReference Include="UYaMobile.pas" />
