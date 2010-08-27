@@ -35,6 +35,7 @@ type
     Fpos: integer;
     FFileName: string;
     FTileFileExt: string;
+    FMapInfo: string;
     FUseDwn: boolean;
     FUseDel: boolean;
     FIsStoreReadOnly: Boolean;
@@ -100,7 +101,6 @@ type
    public
     id: integer;
 
-    MapInfo: string;
     asLayer: boolean;
     name: string;
     DelAfterShow: boolean;
@@ -185,6 +185,7 @@ type
     property CacheConfig: TMapTypeCacheConfig read FCacheConfig;
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
     property TileFileExt: string read FTileFileExt;
+    property MapInfo: string read FMapInfo;
 
     constructor Create;
     destructor Destroy; override;
@@ -507,9 +508,9 @@ begin
   try
   if (AUnZip.UnZipToStream(MapParams,'info_'+inttostr(GState.Localization)+'.txt')>0)or(AUnZip.UnZipToStream(MapParams,'info.txt')>0) then
    begin
-    SetLength(MapInfo, MapParams.size);
+    SetLength(FMapInfo, MapParams.size);
     MapParams.Position:=0;
-    MapParams.ReadBuffer(Mapinfo[1],MapParams.size);
+    MapParams.ReadBuffer(FMapinfo[1],MapParams.size);
    end;
   finally
     FreeAndNil(MapParams);
