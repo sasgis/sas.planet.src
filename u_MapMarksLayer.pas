@@ -20,14 +20,12 @@ type
     procedure PreparePolygonNew(pathll:TExtendedPointArray; poly: Boolean; var ATargetPointsCount: Integer);
     procedure drawPathNew(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
 {$ENDIF}
-    procedure drawPath2Bitmap(BtmEx:TCustomBitmap32;AGeoConvert: ICoordConverter; XYPoint:TPoint;AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
     procedure PreparePolygon(pathll:TExtendedPointArray; polygon: TPolygon32);
     procedure drawPath(pathll:TExtendedPointArray; color1,color2:TColor32;linew:integer;poly:boolean);
     procedure DrawPoint(ALL: TExtendedPoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2:TColor32);
     procedure DrawMarks;
     procedure DoRedraw; override;
   public
-    procedure DoRedraw2Bitmap(BtmEx:TBitmap32; AGeoConvert: ICoordConverter; ATargetRect:TRect; AZoomCurr:byte);
     constructor Create(AParentMap: TImage32; ACenter: TPoint);
     destructor Destroy; override;
   end;
@@ -49,7 +47,6 @@ uses
   t_CommonTypes,
   u_GlobalState,
   i_IBitmapLayerProvider,
-  u_MapMarksBitmapLayerProviderStuped,
   Ugeofun,
   u_MarksSimple,
   u_MarksReadWriteSimple,
@@ -65,141 +62,6 @@ begin
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode:=dmBlend;
   FTempBmp.Resampler:=TLinearResampler.Create;
-end;
-
-procedure TMapMarksLayer.drawPath2Bitmap(BtmEx:TCustomBitmap32; AGeoConvert: ICoordConverter;XYPoint:TPoint; AZoomCurr:byte;pathll:TExtendedPointArray;color1,color2:TColor32;linew:integer;poly:boolean);
-var
-  i,adp,j:integer;
-  k1,k2,k4:TPoint;
-  k3:TextendedPoint;
-  polygon: TPolygon32;
-begin
-  try
-    polygon:=TPolygon32.Create;
-    try
-      polygon.Antialiased:=true;
-      polygon.AntialiasMode:=am4times;
-      polygon.Closed:=poly;
-      if length(pathll)>0 then begin
-        for i:=0 to length(pathll)-1 do begin
-          k1:=AGeoConvert.LonLat2PixelPos(pathll[i], AZoomCurr);
-          k1:=Point(k1.X-XYPoint.x,k1.Y-XYPoint.y);
-          if (k1.x<32767)and(k1.x>-32767)and(k1.y<32767)and(k1.y>-32767) then begin
-            polygon.Add(FixedPoint(k1));
-          end;
-          if i<length(pathll)-1 then begin
-            k2:=AGeoConvert.LonLat2PixelPos(pathll[i+1], AZoomCurr);
-            k2:=Point(k2.X-XYPoint.x,k2.Y-XYPoint.y);
-            if (k2.x-k1.x)>(k2.y-k1.y) then begin
-              adp:=(k2.x-k1.x)div 32767+2;
-            end else begin
-              adp:=(k2.y-k1.y)div 32767+2;
-            end;
-            k3:=extPoint(((k2.X-k1.x)/adp),((k2.y-k1.y)/adp));
-            if adp>2 then begin
-              for j:=1 to adp-1 do begin
-                k4:=Point(round(k1.x+k3.x*j),round(k1.Y+k3.y*j));
-                if(k4.x<32767)and(k4.x>-32767)and(k4.y<32767)and(k4.y>-32767)then begin
-                  polygon.Add(FixedPoint(k4.x,k4.y));
-                end;
-              end;
-            end;
-          end;
-        end;
-        if poly then begin
-          Polygon.DrawFill(BtmEx, color2);
-        end;
-        with Polygon.Outline do try
-          with Grow(Fixed(linew / 2), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(BtmEx, color1);
-          finally
-            free;
-          end;
-        finally
-          free;
-        end;
-      end;
-    finally
-      polygon.Free;
-    end;
-  except
-  end;
-end;
-
-procedure TMapMarksLayer.DoRedraw2Bitmap(BtmEx:TBitmap32;AGeoConvert: ICoordConverter;ATargetRect: TRect; AZoomCurr:byte);
-var
-  xy,xyb:Tpoint;
-  btm:TCustomBitmap32;
-  dLL:TExtendedPoint;
-  TestArrLenP1,TestArrLenP2:TPoint;
-  buf_line_arr:TExtendedPointArray;
-  indexmi:integer;
-  imw,texth:integer;
-  LLRect: TExtendedRect;
-  VIconSource: TCustomBitmap32;
-  VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
-  VMark: TMarkFull;
-begin
-  if (GState.show_point = mshNone) then exit;
-  try
-    LLRect := AGeoConvert.PixelRect2LonLatRect(ATargetRect, AZoomCurr);
-    dLL:=ExtPoint((LLRect.Right-LLRect.Left)/2,(LLRect.Top-LLRect.Bottom)/2);
-    LLRect.Left := LLRect.Left - dLL.X;
-    LLRect.Top := LLRect.Top - dLL.Y;
-    LLRect.Right := LLRect.Right + dLL.X;
-    LLRect.Bottom := LLRect.Bottom + dLL.Y;
-
-    VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(AZoomCurr, LLRect);
-    try
-      BtmEx.Font.Name:='Tahoma';
-      BtmEx.Font.Style:=[];
-      btm:=TCustomBitmap32.Create;
-      try
-        btm.DrawMode:=dmBlend;
-        btm.Resampler:=TLinearResampler.Create;
-        While VMarksIterator.Next do begin
-          VMark := VMarksIterator.Current;
-          buf_line_arr := VMark.Points;
-          if length(buf_line_arr)>1 then begin
-            TestArrLenP1:=AGeoConvert.LonLat2PixelPos(VMark.LLRect.TopLeft,(AZoomCurr));
-            TestArrLenP2:=AGeoConvert.LonLat2PixelPos(VMark.LLRect.BottomRight,(AZoomCurr));
-            if (abs(TestArrLenP1.X-TestArrLenP2.X)>VMark.Scale1+2)or(abs(TestArrLenP1.Y-TestArrLenP2.Y)>VMark.Scale1+2) then begin
-              drawPath2Bitmap(BtmEx,AGeoConvert,ATargetRect.TopLeft,AZoomCurr, buf_line_arr,VMark.Color1,VMark.Color2,VMark.Scale1,
-                (buf_line_arr[0].x=buf_line_arr[length(buf_line_arr)-1].x)and(buf_line_arr[0].y=buf_line_arr[length(buf_line_arr)-1].y));
-            end;
-          end;
-          if length(buf_line_arr)=1 then begin
-            xy:=AGeoConvert.LonLat2PixelPos(buf_line_arr[0],AZoomCurr);
-            xyb:=ATargetRect.TopLeft;
-            xy:=Point(xy.x - xyb.x,xy.y - xyb.y);
-            imw:=VMark.Scale2;
-            indexmi:=GState.MarkIcons.IndexOf(VMark.PicName);
-            if(indexmi=-1)and(GState.MarkIcons.Count>0) then begin
-              indexmi:=0;
-            end;
-            if(indexmi>-1)then begin
-              VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
-              btm.SetSize(VIconSource.Width, VIconSource.Height);
-              btm.Draw(0, 0, VIconSource);
-              BtmEx.Draw(bounds(xy.x-(imw div 2),xy.y-imw,imw,imw),bounds(0,0,btm.Width,btm.Height), btm);
-            end;
-            if VMark.Scale1>0 then begin
-              BtmEx.Font.Size:=VMark.Scale1;
-              texth:=BtmEx.TextHeight(VMark.name) div 2;
-              BtmEx.RenderText(xy.x+(imw div 2)+2,xy.y-(imw div 2)-texth+1,VMark.name,1,VMark.Color2);
-              BtmEx.RenderText(xy.x+(imw div 2)+1,xy.y-(imw div 2)-texth,VMark.name,1,VMark.Color1);
-            end;
-          end;
-        end;
-      finally
-        btm.Free;
-      end;
-    finally
-      VMarksIterator.Free;
-    end;
-  finally
-  end;
 end;
 
 procedure TMapMarksLayer.PreparePolygon(pathll: TExtendedPointArray;
@@ -467,7 +329,6 @@ begin
     VMarksIterator.Free;
   end;
 end;
-
 
 destructor TMapMarksLayer.Destroy;
 begin
