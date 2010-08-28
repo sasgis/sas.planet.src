@@ -108,82 +108,30 @@ begin
   Synchronize(UpdateProgressFormClose);
 end;
 
-function UniLoadTile(var bmp:TBitmap32; ATypeMap: TmapType; ATargetProjection: byte; p_h:TPoint;p_x,p_y:integer; zoom:byte):boolean;
-var
-  bmp2,bmp1:TBitmap32;
-  res1,res2:boolean;
-  VTile: TPoint;
-begin
-  res2:=false;
-  bmp.width:=256;
-  bmp.Height:=256;
-  bmp.Clear(Color32(GState.BGround));
-  bmp1:=TBitmap32.Create;
-  try
-    bmp1.DrawMode:=dmBlend;
-    bmp2:=TBitmap32.Create;
-    try
-      bmp2.DrawMode:=dmBlend;
-      res1:=true;
-      VTile := ATypeMap.GeoConvert.PixelPos2TilePos(p_h, zoom);
-      if (not(ATypeMap.LoadTile(bmp1,VTile, zoom, false))) then begin
-        res1:=false;
-        bmp1.width:=256;
-        bmp1.Height:=256;
-        bmp1.Clear(Color32(GState.BGround));
-      end;
-      if p_h.Y<0 then begin
-        bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp1);
-      end else begin
-        bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp1);
-      end;
-
-      if ATargetProjection<>ATypeMap.projection then begin
-        res2:=true;
-        if (not(ATypeMap.LoadTile(bmp2,Point(VTile.X, VTile.Y + 1), zoom,false))) then begin
-          res2:=false;
-          bmp2.width:=256;
-          bmp2.Height:=256;
-          bmp2.Clear(Color32(GState.BGround));
-        end;
-        if p_h.Y<0 then begin
-          bmp.Draw(0,(((p_Y-(p_y mod 256)) mod 256)-(p_h.Y mod 256)),bmp2);
-        end else begin
-          bmp.Draw(0,((((p_Y-(p_y mod 256)) mod 256)+256)-(p_h.Y mod 256)),bmp2);
-        end;
-      end;
-      result:=(res1 or res2);
-    finally
-      bmp2.Free;
-    end;
-  finally
-    bmp1.Free;
-  end;
-end;
-
 procedure TThreadExportYaMaps.export2YaMaps;
 var
   p_x,p_y,i,j,xi,yi,hxyi,sizeim:integer;
   VTilesToProcess,VTilesProcessed:integer;
   polyg:TPointArray;
-  max,min,p_h:TPoint;
+  max,min:TPoint;
   bmp32,bmp322,bmp32crop:TBitmap32;
   TileStream : TMemoryStream;
   tc:cardinal;
   VGeoConvert: ICoordConverter;
   JPGSaver,PNGSaver:IBitmapTileSaver;
+  VTile: TPoint;
 begin
   try
     if (FMapTypeArr[0]=nil)and(FMapTypeArr[1]=nil)and(FMapTypeArr[2]=nil) then exit;
+    bmp32:=TBitmap32.Create;
+    bmp322:=TBitmap32.Create;
     try
       hxyi:=1;
       sizeim:=128;
       JPGSaver:=TJpegBitmapTileSaverIJL.create(cSat);
       PNGSaver:=TVampyreBasicBitmapTileSaverPNGPalette.create(cMap);
       TileStream:=TMemoryStream.Create;
-      bmp32:=TBitmap32.Create;
       bmp32.DrawMode:=dmBlend;
-      bmp322:=TBitmap32.Create;
       bmp322.DrawMode:=dmBlend;
       bmp32crop:=TBitmap32.Create;
       bmp32crop.Width:=sizeim;
@@ -210,7 +158,7 @@ begin
       FProgressOnForm := 0;
       FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
       Synchronize(UpdateProgressFormStr1);
-      
+
       VTilesProcessed:=0;
       tc:=GetTickCount;
       for i:=0 to 23 do begin
@@ -221,20 +169,20 @@ begin
               GetDwnlNum(min,max,Polyg,false);
               p_x:=min.x;
               while p_x<max.x do begin
+                VTile.X := p_x shr 8;
                 p_y:=min.Y;
                 while p_y<max.Y do begin
+                  VTile.Y := p_y shr 8;
                   if (FProgressForm.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
                     inc(p_y,256);
                     CONTINUE;
                   end;
                   bmp322.Clear;
                   if (j=2)and(FMapTypeArr[0]<>nil) then begin
-                    p_h := VGeoConvert.PixelPos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i, FMapTypeArr[0].GeoConvert);
-                    UniLoadTile(bmp322,FMapTypeArr[0],2,p_h,p_x,p_y,i);
+                    FMapTypeArr[0].LoadTileUni(bmp322, VTile, i, False, VGeoConvert, False, False, True);
                   end;
                   bmp32.Clear;
-                  p_h := VGeoConvert.PixelPos2OtherMap(Point(p_x,p_y-(p_y mod 256)), i, FMapTypeArr[j].GeoConvert);
-                  if UniLoadTile(bmp32,FMapTypeArr[j],2,p_h,p_x,p_y,i) then begin
+                  if FMapTypeArr[j].LoadTileUni(bmp32, VTile, i, False, VGeoConvert, False, False, True) then begin
                     if (j=2)and(FMapTypeArr[0]<>nil) then begin
                       bmp322.Draw(0,0,bmp32);
                       bmp32.Draw(0,0,bmp322);
