@@ -79,7 +79,6 @@ type
     function GetIsStoreReadOnly: boolean;
     function GetIsCanShowOnSmMap: boolean;
     function GetUseStick: boolean;
-    function GetBitmapTypeManager: IBitmapTypeExtManager;
     function GetIsCropOnDownload: Boolean;
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -108,61 +107,40 @@ type
     function GetUseGenPrevious: boolean;
    public
     id: integer;
-
     HotKey: TShortCut;
-
     Sleep: Integer;
-
     separator: boolean;
-
     ParentSubMenu: string;
-
     showinfo: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
-
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
-
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
-
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
-
     function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
-
     function LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
-
     function LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean;
-
     function LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
-
     function LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
-
     function LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
-
     function LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
-
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
-
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
-
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
-
     function TileSize(AXY: TPoint; Azoom: byte): integer;
-
     function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean;
-
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
     function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean;
-
     function GetShortFolderName: string;
-
     function DownloadTile(AThread: TThread; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
 
     property GeoConvert: ICoordConverter read GetCoordConverter;
     property GUID: TGUID read FGuid;
     property GUIDString: string read GetGUIDString;
+
+    property asLayer: boolean read FasLayer;
     property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -170,12 +148,13 @@ type
     property UseDwn: Boolean read GetUseDwn;
     property UseDel: boolean read GetUseDel;
     property UseSave: boolean read GetUseSave;
+    property UseGenPrevious: boolean read GetUseGenPrevious;
     property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
+
     property ZmpFileName: string read GetZmpFileName;
-    property BitmapTypeManager: IBitmapTypeExtManager read GetBitmapTypeManager;
     property Icon24Index: Integer read FIcon24Index;
     property Icon18Index: Integer read FIcon18Index;
     property bmp18: TBitmap read Fbmp18;
@@ -184,9 +163,7 @@ type
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
     property TileFileExt: string read FTileFileExt;
     property MapInfo: string read FMapInfo;
-    property asLayer: boolean read FasLayer;
     property Name: string read FName;
-    property UseGenPrevious: boolean read GetUseGenPrevious;
     property DefHotKey: TShortCut read FDefHotKey;
     property DefSleep: Integer read FDefSleep;
     property Defseparator: boolean read FDefseparator;
@@ -774,7 +751,7 @@ var
 begin
   VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
   CreateDirIfNotExists(VPath);
-  VManager := BitmapTypeManager;
+  VManager := GState.BitmapTypeManager;
   VMimeType := GetMIMETypeSubst(AMimeType);
   if VManager.GetIsBitmapType(VMimeType) then begin
     if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(VMimeType)) then begin
@@ -1210,11 +1187,6 @@ begin
   end else begin
     Result := False;
   end;
-end;
-
-function TMapType.GetBitmapTypeManager: IBitmapTypeExtManager;
-begin
-  Result := GState.BitmapTypeManager;
 end;
 
 procedure TMapType.CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
