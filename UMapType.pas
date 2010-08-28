@@ -38,6 +38,10 @@ type
     FFileName: string;
     FTileFileExt: string;
     FMapInfo: string;
+    FDefHotKey: TShortCut;
+    FDefSleep: Integer;
+    FDefseparator: boolean;
+    FDefParentSubMenu: string;
     FUseDwn: boolean;
     FUseDel: boolean;
     FIsStoreReadOnly: Boolean;
@@ -105,17 +109,12 @@ type
    public
     id: integer;
 
-
-    DefHotKey: TShortCut;
     HotKey: TShortCut;
 
-    DefSleep: Integer;
     Sleep: Integer;
 
-    Defseparator: boolean;
     separator: boolean;
 
-    DefParentSubMenu: string;
     ParentSubMenu: string;
 
     showinfo: boolean;
@@ -188,6 +187,10 @@ type
     property asLayer: boolean read FasLayer;
     property Name: string read FName;
     property UseGenPrevious: boolean read GetUseGenPrevious;
+    property DefHotKey: TShortCut read FDefHotKey;
+    property DefSleep: Integer read FDefSleep;
+    property Defseparator: boolean read FDefseparator;
+    property DefParentSubMenu: string read FDefParentSubMenu;
 
     constructor Create;
     destructor Destroy; override;
@@ -577,7 +580,7 @@ begin
   FTileRect.Bottom:=AIniFile.ReadInteger('PARAMS','TileRBottom',0);
 
   Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
-  DefSleep:=Sleep;
+  FDefSleep:=Sleep;
   FUseDwn:=AIniFile.ReadBool('PARAMS','UseDwn',true);
 end;
 
@@ -587,12 +590,12 @@ begin
   FName:=AIniFile.ReadString('PARAMS','name_'+inttostr(GState.Localization),FName);
   FIsCanShowOnSmMap := AIniFile.ReadBool('PARAMS','CanShowOnSmMap', true);
   HotKey:=AIniFile.ReadInteger('PARAMS','DefHotKey',0);
-  DefHotKey:=HotKey;
+  FDefHotKey:=HotKey;
   ParentSubMenu:=AIniFile.ReadString('PARAMS','ParentSubMenu','');
   ParentSubMenu:=AIniFile.ReadString('PARAMS','ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
-  DefParentSubMenu:=ParentSubMenu;
+  FDefParentSubMenu:=ParentSubMenu;
   separator:=AIniFile.ReadBool('PARAMS','separator',false);
-  Defseparator:=separator;
+  FDefseparator:=separator;
   Fpos:=AIniFile.ReadInteger('PARAMS','pnum',-1);
 end;
 
