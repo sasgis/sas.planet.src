@@ -31,6 +31,8 @@ type
  TMapType = class
    private
     FGuid: TGUID;
+    FName: string;
+    FasLayer: boolean;
     FTileRect: TRect;
     Fpos: integer;
     FFileName: string;
@@ -101,9 +103,6 @@ type
    public
     id: integer;
 
-    asLayer: boolean;
-    name: string;
-    DelAfterShow: boolean;
     projection: byte;
     UseGenPrevious: boolean;
 
@@ -186,6 +185,8 @@ type
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
     property TileFileExt: string read FTileFileExt;
     property MapInfo: string read FMapInfo;
+    property asLayer: boolean read FasLayer;
+    property Name: string read FName;
 
     constructor Create;
     destructor Destroy; override;
@@ -521,7 +522,6 @@ procedure TMapType.LoadStorageParams(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
 begin
   FUseDel:=AIniFile.ReadBool('PARAMS','Usedel',true);
   FIsStoreReadOnly:=AIniFile.ReadBool('PARAMS','ReadOnly', false);
-  DelAfterShow:=AIniFile.ReadBool('PARAMS','DelAfterShow',false);
   FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
   FTileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AUnZip, AIniFile);
@@ -581,8 +581,8 @@ end;
 
 procedure TMapType.LoadUIParams(AIniFile: TCustomIniFile);
 begin
-  name:=AIniFile.ReadString('PARAMS','name','map#'+inttostr(FPNum));
-  name:=AIniFile.ReadString('PARAMS','name_'+inttostr(GState.Localization),name);
+  FName:=AIniFile.ReadString('PARAMS','name','map#'+inttostr(FPNum));
+  FName:=AIniFile.ReadString('PARAMS','name_'+inttostr(GState.Localization),FName);
   FIsCanShowOnSmMap := AIniFile.ReadBool('PARAMS','CanShowOnSmMap', true);
   HotKey:=AIniFile.ReadInteger('PARAMS','DefHotKey',0);
   DefHotKey:=HotKey;
@@ -627,11 +627,11 @@ begin
     end;
     try
       LoadGUIDFromIni(iniparams);
+      FasLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       LoadUIParams(iniparams);
       LoadMapInfo(UnZip);
       LoadStorageParams(UnZip, iniparams);
       LoadMapIcons(UnZip);
-      asLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
       LoadWebSourceParams(iniparams);
       FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
       UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
