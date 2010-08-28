@@ -44,6 +44,7 @@ type
     FUseSave: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
+    FUseGenPrevious: boolean;
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
     FMaxConnectToServerCount: Cardinal;
@@ -100,11 +101,10 @@ type
     procedure SaveTileInCache(btm: TStream; path: string); overload;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
+    function GetUseGenPrevious: boolean;
    public
     id: integer;
 
-    projection: byte;
-    UseGenPrevious: boolean;
 
     DefHotKey: TShortCut;
     HotKey: TShortCut;
@@ -187,6 +187,7 @@ type
     property MapInfo: string read FMapInfo;
     property asLayer: boolean read FasLayer;
     property Name: string read FName;
+    property UseGenPrevious: boolean read GetUseGenPrevious;
 
     constructor Create;
     destructor Destroy; override;
@@ -535,6 +536,7 @@ end;
 procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
 var
   bfloat:string;
+  projection: byte;
   VConverter: TCoordConverterBasic;
 begin
   projection:=AIniFile.ReadInteger('PARAMS','projection',1);
@@ -634,7 +636,7 @@ begin
       LoadMapIcons(UnZip);
       LoadWebSourceParams(iniparams);
       FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
-      UseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
+      FUseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
       LoadMimeTypeSubstList(iniparams);
       LoadProjectionInfo(iniparams);
       LoadUrlScript(UnZip, iniparams);
@@ -1144,6 +1146,16 @@ begin
     Result := FUseDwn;
   end else begin
     Result := false;
+  end;
+end;
+
+function TMapType.GetUseGenPrevious: boolean;
+begin
+  Result := False;
+  if GetUseSave then begin
+    if GetIsBitmapTiles then begin
+      Result := FUseGenPrevious;
+    end;
   end;
 end;
 
