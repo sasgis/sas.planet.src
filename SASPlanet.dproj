@@ -57,6 +57,7 @@
     <DCCReference Include="i_IAntiBan.pas" />
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
+    <DCCReference Include="i_IConfigDataProvider.pas" />
     <DCCReference Include="i_ICoordConverter.pas" />
     <DCCReference Include="i_IHybrChangeMessage.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
@@ -180,6 +181,9 @@
     <DCCReference Include="u_BitmapLayerWithSortIndex.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_CenterScale.pas" />
+    <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
+    <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ConfigDataProviderByVCLZip.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
