@@ -52,8 +52,6 @@ type
     Fbmp18: TBitmap;
     Fbmp24: TBitmap;
     FMaxConnectToServerCount: Cardinal;
-    FRadiusA: extended;
-    FRadiusB: extended;
     FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
@@ -170,7 +168,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
+    procedure LoadMapType(AConfig, AAllMapsConfig : IConfigDataProvider; Apnum : Integer);
  end;
 
 
@@ -195,6 +193,7 @@ uses
   u_TileCacheSimpleGlobal,
   u_GECache,
   u_ConfigDataProviderByVCLZip,
+  u_ConfigDataProviderByIniFile,
   u_CoordConverterBasic,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
@@ -246,11 +245,13 @@ var
   VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
   VMapConfig: IConfigDataProvider;
+  VLocalMapsConfig: IConfigDataProvider;
   VFileName: string;
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
   Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
+  VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   i:=0;
   pnum:=0;
   startdir:=GState.MapsPath;
@@ -519,18 +520,20 @@ var
   projection: byte;
   VConverter: TCoordConverterBasic;
   VParams: IConfigDataProvider;
+  VRadiusA: extended;
+  VRadiusB: extended;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
   projection:=VParams.ReadInteger('projection',1);
   bfloat:=VParams.ReadString('sradiusa','6378137');
-  FRadiusA:=str2r(bfloat);
-  bfloat:=VParams.ReadString('sradiusb',FloatToStr(FRadiusA));
-  FRadiusB:=str2r(bfloat);
+  VRadiusA:=str2r(bfloat);
+  bfloat:=VParams.ReadString('sradiusb',FloatToStr(VRadiusA));
+  VRadiusB:=str2r(bfloat);
   case projection of
-    1: VConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
-    2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(FRadiusA, FRadiusB);
-    3: VConverter := TCoordConverterSimpleLonLat.Create(FRadiusA, FRadiusB);
+    1: VConverter := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+    2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+    3: VConverter := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
     else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
   end;
   FCoordConverter := VConverter;
@@ -590,7 +593,7 @@ begin
   Fpos:=VParams.ReadInteger('pnum',-1);
 end;
 
-procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
+procedure TMapType.LoadMapType(AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
 var
   VParams: IConfigDataProvider;
 begin
@@ -628,6 +631,7 @@ begin
       FUseDwn := false;
     end;
   end;
+
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
