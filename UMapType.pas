@@ -35,7 +35,7 @@ type
     FasLayer: boolean;
     FTileRect: TRect;
     Fpos: integer;
-    FFileName: string;
+    FZMPFileName: string;
     FTileFileExt: string;
     FMapInfo: string;
     FDefHotKey: TShortCut;
@@ -56,7 +56,6 @@ type
     FRadiusB: extended;
     FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
-    FPNum: integer;
     FCache: ITileObjCache;
     FIcon24Index: Integer;
     FIcon18Index: Integer;
@@ -279,7 +278,7 @@ begin
         end;
         VGUIDString := VMapType.GUIDString;
         if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
-          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FFileName, VFileName]);
+          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FZMPFileName, VFileName]);
         end;
         if Ini.SectionExists(VGUIDString)then begin
           With VMapType do begin
@@ -578,7 +577,7 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
-  FName:=VParams.ReadString('name','map#'+inttostr(FPNum));
+  FName:=VParams.ReadString('name',FName);
   FName:=VParams.ReadString('name_'+inttostr(GState.Localization),FName);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   HotKey:=VParams.ReadInteger('DefHotKey',0);
@@ -595,8 +594,8 @@ procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
 var
   VParams: IConfigDataProvider;
 begin
-  FPNum := Apnum;
-  Ffilename := AConfig.ReadString('::FileName', 'map#' + IntToStr(FPNum));
+  FName:='map#'+inttostr(Apnum);
+  FZMPFileName := AConfig.ReadString('::FileName', FName);
   LoadGUIDFromIni(AConfig);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
@@ -624,83 +623,12 @@ begin
       FAntiBan := TAntiBanStuped.Create(AConfig);
     except
       if ExceptObject <> nil then begin
-        ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[Ffilename, (ExceptObject as Exception).Message]);
+        ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[FZMPFileName, (ExceptObject as Exception).Message]);
       end;
       FUseDwn := false;
     end;
   end;
 end;
-
-//procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; Apnum : Integer);
-//var
-//  MapParams:TMemoryStream;
-//  IniStrings:TStringList;
-//  iniparams: TMeminifile;
-//  UnZip:TVCLZip;
-//begin
-//  FPNum := Apnum;
-//  if AZipFileName = '' then begin
-//    raise Exception.Create('Пустое имя файла с настройками карты');
-//  end;
-//  if not FileExists(AZipFileName) then begin
-//    raise Exception.Create('Файл ' + AZipFileName + ' не найден');
-//  end;
-//  Ffilename := AZipFileName;
-//  UnZip:=TVCLZip.Create(nil);
-//  try
-//    UnZip.ZipName:=AZipFileName;
-//    MapParams:=TMemoryStream.Create;
-//    IniStrings:=TStringList.Create;
-//    try
-//      UnZip.UnZip;
-//      UnZip.UnZipToStream(MapParams,'params.txt');
-//      MapParams.Position:=0;
-//      iniparams:=TMemIniFile.Create('');
-//      IniStrings.LoadFromStream(MapParams);
-//      iniparams.SetStrings(IniStrings);
-//    finally
-//      FreeAndNil(IniStrings);
-//      FreeAndNil(MapParams);
-//    end;
-//    try
-//      LoadGUIDFromIni(iniparams);
-//      FasLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
-//      LoadUIParams(iniparams);
-//      LoadMapInfo(UnZip);
-//      LoadStorageParams(UnZip, iniparams);
-//      LoadMapIcons(UnZip);
-//      LoadWebSourceParams(iniparams);
-//      FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
-//      FUseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
-//      LoadMimeTypeSubstList(iniparams);
-//      LoadProjectionInfo(iniparams);
-//      LoadUrlScript(UnZip, iniparams);
-//      if FUseDwn then begin
-//        try
-//          FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
-//          if FMaxConnectToServerCount > 64 then begin
-//            FMaxConnectToServerCount := 64;
-//          end;
-//          if FMaxConnectToServerCount <= 0 then begin
-//            FMaxConnectToServerCount := 1;
-//          end;
-//          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, UnZip, iniparams), 60000, 60000);
-//          GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-//          FAntiBan := TAntiBanStuped.Create(UnZip, iniparams);
-//        except
-//          if ExceptObject <> nil then begin
-//            ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
-//          end;
-//          FUseDwn := false;
-//        end;
-//      end;
-//    finally
-//      FreeAndNil(iniparams);
-//    end;
-//  finally
-//    FreeAndNil(UnZip);
-//  end;
-//end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
@@ -1214,7 +1142,7 @@ end;
 
 function TMapType.GetZmpFileName: string;
 begin
-  Result := ExtractFileName(FFileName);
+  Result := ExtractFileName(FZMPFileName);
 end;
 
 function TMapType.GetIsStoreReadOnly: boolean;
