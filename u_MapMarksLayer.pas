@@ -7,7 +7,6 @@ uses
   GR32_Image,
   GR32_Polygons,
   t_GeoTypes,
-  i_ICoordConverter,
   u_MapLayerBasic;
 
 type
@@ -35,7 +34,6 @@ implementation
 uses
   Types,
   Graphics,
-  Db,
   Classes,
   SysUtils,
   GR32_Resamplers,

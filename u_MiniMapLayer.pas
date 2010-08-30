@@ -114,7 +114,6 @@ uses
   u_JclNotify,
   i_ICoordConverter,
   Uimgfun,
-  u_GeoToStr,
   u_GlobalState,
   u_WindowLayerBasic,
   u_MapTypeMenuItemsGeneratorBasic,

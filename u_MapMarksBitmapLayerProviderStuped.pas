@@ -24,7 +24,6 @@ implementation
 uses
   Classes,
   SysUtils,
-  DB,
   GR32_Resamplers,
   GR32_Polygons,
   t_GeoTypes,

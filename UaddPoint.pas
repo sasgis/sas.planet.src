@@ -16,8 +16,6 @@ uses
   Grids,
   Buttons,
   Spin,
-  DB,
-  DBCtrls,
   rxToolEdit,
   rxCurrEdit,
   TB2Item,

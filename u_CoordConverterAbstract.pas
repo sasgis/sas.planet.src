@@ -225,8 +225,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  Math;
+  SysUtils;
 
 { TCoordConverterAbstract }
 

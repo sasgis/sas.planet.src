@@ -38,7 +38,6 @@ type
 implementation
 
 uses
-  i_IMapCalibration,
   i_ICoordConverter,
   u_GlobalState;
 

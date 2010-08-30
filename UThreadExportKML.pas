@@ -8,7 +8,6 @@ uses
   Forms,
   SysUtils,
   Classes,
-  Graphics,
   GR32,
   UMapType,
   UGeoFun,

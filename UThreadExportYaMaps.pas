@@ -8,7 +8,6 @@ uses
   Forms,
   SysUtils,
   Classes,
-  Graphics,
   GR32,
   UMapType,
   UGeoFun,
@@ -63,7 +62,6 @@ implementation
 uses
   Dialogs,
   i_ICoordConverter,
-  u_GlobalState,
   u_CoordConverterMercatorOnEllipsoid,
   i_BitmapTileSaveLoad,
   u_BitmapTileJpegSaverIJL,
