@@ -6,8 +6,6 @@ Uses
   Windows,
   SysUtils,
   DateUtils,
-  IniFiles,
-  VCLZip,
   uPSC_dll,
   uPSR_dll,
   uPSRuntime,

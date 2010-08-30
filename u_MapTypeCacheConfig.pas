@@ -4,8 +4,6 @@ interface
 
 uses
   Types,
-  IniFiles,
-  VCLZip,
   i_JclNotify,
   i_IConfigDataProvider,
   i_ITileFileNameGenerator;

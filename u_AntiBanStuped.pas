@@ -4,9 +4,7 @@ interface
 
 uses
   Windows,
-  IniFiles,
   SyncObjs,
-  VCLZip,
   i_IConfigDataProvider,
   i_IAntiBan,
   i_ITileDownlodSession,

@@ -10,7 +10,6 @@ uses
   Dialogs,
   Graphics,
   SyncObjs,
-  VCLZip,
   GR32,
   t_GeoTypes,
   i_IConfigDataProvider,

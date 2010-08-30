@@ -3,8 +3,6 @@ unit u_TileDownloaderBaseFactory;
 interface
 
 uses
-  IniFiles,
-  VCLZip,
   i_IConfigDataProvider,
   UMapType,
   i_ISimpleFactory;
