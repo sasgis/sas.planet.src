@@ -10,6 +10,7 @@ uses
 type
   TConfigDataProviderByVCLZip = class(TInterfacedObject, IConfigDataProvider)
   private
+    FSourceFileName: string;
     FUnZip: TVCLZip;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
@@ -25,7 +26,7 @@ type
     procedure ReadSubItemsList(AList: TStrings); virtual;
     procedure ReadValuesList(AList: TStrings); virtual;
   public
-    constructor Create(AUnZip: TVCLZip);
+    constructor Create(AFileName: string);
     destructor Destroy; override;
   end;
 
@@ -38,9 +39,18 @@ uses
 
 { TConfigDataProviderByVCLZip }
 
-constructor TConfigDataProviderByVCLZip.Create(AUnZip: TVCLZip);
+constructor TConfigDataProviderByVCLZip.Create(AFileName: string);
 begin
-  FUnZip := AUnZip;
+  FSourceFileName := AFileName;
+  if AFileName = '' then begin
+    raise Exception.Create('Пустое имя файла с настройками карты');
+  end;
+  if not FileExists(AFileName) then begin
+    raise Exception.Create('Файл ' + AFileName + ' не найден');
+  end;
+  FUnZip:=TVCLZip.Create(nil);
+  FUnZip.ZipName:=AFileName;
+  FUnZip.UnZip;
 end;
 
 destructor TConfigDataProviderByVCLZip.Destroy;
@@ -82,7 +92,7 @@ end;
 function TConfigDataProviderByVCLZip.ReadBinaryStream(const AIdent: string;
   AValue: TStream): Integer;
 begin
-  FUnZip.UnZipToStream(AValue, AIdent);
+  Result := FUnZip.UnZipToStream(AValue, AIdent);
 end;
 
 function TConfigDataProviderByVCLZip.ReadBool(const AIdent: string;
@@ -121,20 +131,24 @@ var
   VExt: string;
   VStream: TMemoryStream;
 begin
-  Result := nil;
-  VExt := UpperCase(ExtractFileExt(AIdent));
-  if (VExt = '.INI') or (VExt = '.TXT') then begin
-    VStream := TMemoryStream.Create;
-    try
-      FUnZip.UnZipToStream(VStream, AIdent);
-      SetLength(Result, VStream.Size);
-      VStream.Position := 0;
-      VStream.Read(Result[1], VStream.Size);
-    finally
-      VStream.Free;
-    end;
+  Result := '';
+  if AIdent = '::FileName' then begin
+    Result := FSourceFileName;
   end else begin
-    Result := ADefault;
+    VExt := UpperCase(ExtractFileExt(AIdent));
+    if (VExt = '.INI') or (VExt = '.TXT') then begin
+      VStream := TMemoryStream.Create;
+      try
+        FUnZip.UnZipToStream(VStream, AIdent);
+        SetLength(Result, VStream.Size);
+        VStream.Position := 0;
+        VStream.Read(Result[1], VStream.Size);
+      finally
+        VStream.Free;
+      end;
+    end else begin
+      Result := ADefault;
+    end;
   end;
 end;
 
@@ -143,7 +157,7 @@ var
   VExt: string;
 begin
   AList.Clear;
-  with TStringsEnumerator.Create(FUnZip.FilesList) try
+  with TStringsEnumerator.Create(FUnZip.FilesList) do try
     while MoveNext do begin
       VExt := UpperCase(ExtractFileExt(Current));
       if (VExt = '.INI') or (VExt = '.TXT') then begin
@@ -166,7 +180,7 @@ var
   VExt: string;
 begin
   AList.Clear;
-  with TStringsEnumerator.Create(FUnZip.FilesList) try
+  with TStringsEnumerator.Create(FUnZip.FilesList) do try
     while MoveNext do begin
       VExt := UpperCase(ExtractFileExt(Current));
       if (VExt <> '.INI') then begin
