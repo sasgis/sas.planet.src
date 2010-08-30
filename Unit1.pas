@@ -868,6 +868,7 @@ begin
       FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
     finally
       map.EndUpdate;
+      map.Changed;
     end;
   finally
     QueryPerformanceCounter(ts3);
