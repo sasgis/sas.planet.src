@@ -91,6 +91,7 @@ type
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
     procedure LoadUIParams(AConfig : IConfigDataProvider);
     procedure LoadMapInfo(AConfig : IConfigDataProvider);
+    procedure LoadGlobalConfig(AConfig : IConfigDataProvider);
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
@@ -271,7 +272,7 @@ begin
         VMapType := TMapType.Create;
         try
           VMapConfig := TConfigDataProviderByVCLZip.Create(VFileName);
-          VMapType.LoadMapType(VMapConfig, pnum);
+          VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
         except
           on E: EBadGUID do begin
             raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
@@ -409,6 +410,27 @@ begin
     Ini.UpdateFile;
   finally
     ini.Free;
+  end;
+end;
+
+procedure TMapType.LoadGlobalConfig(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem(GUIDString);
+  if VParams <> nil then begin
+      id:=VParams.ReadInteger('pnum',0);
+      FUrlGenerator.URLBase:=VParams.ReadString('URLBase',FUrlGenerator.URLBase);
+      CacheConfig.CacheType:=VParams.ReadInteger('CacheType',CacheConfig.cachetype);
+      CacheConfig.NameInCache:=VParams.ReadString('NameInCache',CacheConfig.NameInCache);
+      HotKey:=VParams.ReadInteger('HotKey',HotKey);
+      ParentSubMenu:=VParams.ReadString('ParentSubMenu',ParentSubMenu);
+      Sleep:=VParams.ReadInteger('Sleep',Sleep);
+      separator:=VParams.ReadBool('separator',separator);
+  end else begin
+      showinfo:=true;
+      if Fpos < 0 then Fpos := 1000;
+      id := Fpos;
   end;
 end;
 
@@ -631,7 +653,7 @@ begin
       FUseDwn := false;
     end;
   end;
-
+  LoadGlobalConfig(AAllMapsConfig);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
