@@ -7,6 +7,7 @@ uses
   IniFiles,
   VCLZip,
   i_JclNotify,
+  i_IConfigDataProvider,
   i_ITileFileNameGenerator;
 
 type
@@ -28,10 +29,7 @@ type
     procedure SetCacheType(const Value: byte);
     procedure SetNameInCache(const Value: string);
   public
-    constructor Create(
-      AUnZip: TVCLZip;
-      AIniFile: TCustomIniFile
-    );
+    constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -79,16 +77,19 @@ end;
 
 { TMapTypeCacheConfig }
 
-constructor TMapTypeCacheConfig.Create(AUnZip: TVCLZip;
-  AIniFile: TCustomIniFile);
+constructor TMapTypeCacheConfig.Create(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
 begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+
   FGlobalSettingsListener := TListenerOfTMapCacheConfig.Create(Self);
   GState.CacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
 
-  FTileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
-  FCacheType:=AIniFile.ReadInteger('PARAMS','CacheType',0);
+  FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
+  FCacheType:=VParams.ReadInteger('CacheType',0);
   FDefCacheType:=FCacheType;
-  FNameInCache:=AIniFile.ReadString('PARAMS','NameInCache','Sat');
+  FNameInCache:=VParams.ReadString('NameInCache','Sat');
   FDefNameInCache:=FNameInCache;
 end;
 

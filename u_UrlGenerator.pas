@@ -12,6 +12,7 @@ Uses
   uPSR_dll,
   uPSRuntime,
   uPSCompiler,
+  i_IConfigDataProvider,
   i_ICoordConverter;
 
 type
@@ -25,10 +26,7 @@ type
   protected
     procedure SetURLBase(const Value: string); virtual;
   public
-    constructor Create(
-      AUnZip: TVCLZip;
-      AIniFile: TCustomIniFile
-    );
+    constructor Create(AConfig: IConfigDataProvider);
 
     function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
 
@@ -61,8 +59,7 @@ type
     procedure SetURLBase(const Value: string); override;
   public
     constructor Create(
-      AUnZip: TVCLZip;
-      AIniFile: TCustomIniFile;
+      AConfig: IConfigDataProvider;
       ACoordConverter: ICoordConverterSimple
     );
     destructor Destroy; override;
@@ -81,10 +78,12 @@ uses
 
 { TUrlGeneratorBasic }
 
-constructor TUrlGeneratorBasic.Create(AUnZip: TVCLZip;
-  AIniFile: TCustomIniFile);
+constructor TUrlGeneratorBasic.Create(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
 begin
-  FURLBase:=AIniFile.ReadString('PARAMS','DefURLBase','http://maps.google.com/');
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FURLBase := VParams.ReadString('DefURLBase','http://maps.google.com/');
   FDefUrlBase:=URLBase;
 end;
 
@@ -186,8 +185,7 @@ end;
 
 { TUrlGenerator }
 constructor TUrlGenerator.Create(
-  AUnZip: TVCLZip;
-  AIniFile: TCustomIniFile;
+  AConfig: IConfigDataProvider;
   ACoordConverter: ICoordConverterSimple
 );
 var
@@ -195,19 +193,12 @@ var
   Msg: string;
   VCompiler: TPSPascalCompiler;
   VData: string;
-  MapParams: TMemoryStream;
 begin
-  inherited Create(AUnZip, AIniFile);
+  inherited Create(AConfig);
   FCoordConverter := ACoordConverter;
 
-  MapParams:=TMemoryStream.Create;
-  try
-    AUnZip.UnZipToStream(MapParams,'GetUrlScript.txt');
-    FGetURLScript := PChar(MapParams.Memory);
-    SetLength(FGetURLScript, MapParams.Size);
-  finally
-    FreeAndNil(MapParams);
-  end;
+  FGetURLScript := AConfig.ReadString('GetUrlScript.txt', '');
+
   VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
   VCompiler.OnExternalProc := DllExternalProc; // Добавляем стандартный обработчик внешних DLL(находится в модуле uPSC_dll)
   VCompiler.OnUses := ScriptOnUses;            // assign the OnUses event.

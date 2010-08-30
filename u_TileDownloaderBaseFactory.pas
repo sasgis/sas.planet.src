@@ -5,6 +5,7 @@ interface
 uses
   IniFiles,
   VCLZip,
+  i_IConfigDataProvider,
   UMapType,
   i_ISimpleFactory;
 
@@ -18,8 +19,7 @@ type
   public
     constructor Create(
       AMapType: TMapType;
-      AUnZip: TVCLZip;
-      AIniFile: TCustomIniFile
+      AConfig: IConfigDataProvider
     );
     function CreateInstance: IUnknown;
   end;
@@ -34,15 +34,16 @@ uses
 
 constructor TTileDownloaderBaseFactory.Create(
   AMapType: TMapType;
-  AUnZip: TVCLZip;
-  AIniFile: TCustomIniFile
+  AConfig: IConfigDataProvider
 );
+var
+  VParams: IConfigDataProvider;
 begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FMapType := AMapType;
-  FIgnoreContent_Type:=AIniFile.ReadBool('PARAMS','IgnoreContentType', False);
-  FDefaultContent_Type:=AIniFile.ReadString('PARAMS','DefaultContentType','image/jpg');
-  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image/jpg');
-
+  FIgnoreContent_Type:=VParams.ReadBool('IgnoreContentType', False);
+  FDefaultContent_Type:=VParams.ReadString('DefaultContentType','image/jpg');
+  FContent_Type:=VParams.ReadString('ContentType','image/jpg');
 end;
 
 function TTileDownloaderBaseFactory.CreateInstance: IUnknown;

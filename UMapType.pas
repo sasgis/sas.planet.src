@@ -13,6 +13,7 @@ uses
   VCLZip,
   GR32,
   t_GeoTypes,
+  i_IConfigDataProvider,
   i_ITileObjCache,
   i_ICoordConverter,
   i_ITileDownlodSession,
@@ -85,15 +86,15 @@ type
     function GetIsHybridLayer: Boolean;
     function GetGUIDString: string;
     function GetMIMETypeSubst(AMimeType: string): string;
-    procedure LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
-    procedure LoadGUIDFromIni(AIniFile: TCustomIniFile);
-    procedure LoadMapIcons(AUnZip: TVCLZip);
-    procedure LoadUrlScript(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
-    procedure LoadProjectionInfo(AIniFile: TCustomIniFile);
-    procedure LoadStorageParams(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
-    procedure LoadWebSourceParams(AIniFile: TCustomIniFile);
-    procedure LoadUIParams(AIniFile: TCustomIniFile);
-    procedure LoadMapInfo(AUnZip: TVCLZip);
+    procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
+    procedure LoadGUIDFromIni(AConfig : IConfigDataProvider);
+    procedure LoadMapIcons(AConfig : IConfigDataProvider);
+    procedure LoadUrlScript(AConfig : IConfigDataProvider);
+    procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
+    procedure LoadStorageParams(AConfig : IConfigDataProvider);
+    procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
+    procedure LoadUIParams(AConfig : IConfigDataProvider);
+    procedure LoadMapInfo(AConfig : IConfigDataProvider);
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
@@ -171,7 +172,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure LoadMapTypeFromZipFile(AZipFileName : string; Apnum : Integer);
+    procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
  end;
 
 
@@ -195,6 +196,7 @@ uses
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_GECache,
+  u_ConfigDataProviderByVCLZip,
   u_CoordConverterBasic,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
@@ -245,6 +247,8 @@ var
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
+  VMapConfig: IConfigDataProvider;
+  VFileName: string;
 begin
   SetLength(GState.MapType,0);
   CreateDir(GState.MapsPath);
@@ -264,17 +268,19 @@ begin
     repeat
       if (SearchRec.Attr and faDirectory) = faDirectory then continue;
       try
+        VFileName := startdir+SearchRec.Name;
         VMapType := TMapType.Create;
         try
-          VMapType.LoadMapTypeFromZipFile(startdir+SearchRec.Name, pnum);
+          VMapConfig := TConfigDataProviderByVCLZip.Create(VFileName);
+          VMapType.LoadMapType(VMapConfig, pnum);
         except
           on E: EBadGUID do begin
-            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [startdir+SearchRec.Name, E.Message]);
+            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
           end;
         end;
         VGUIDString := VMapType.GUIDString;
         if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
-          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FFileName, startdir+SearchRec.Name ]);
+          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FFileName, VFileName]);
         end;
         if Ini.SectionExists(VGUIDString)then begin
           With VMapType do begin
@@ -407,11 +413,13 @@ begin
   end;
 end;
 
-procedure TMapType.LoadGUIDFromIni(AIniFile: TCustomIniFile);
+procedure TMapType.LoadGUIDFromIni(AConfig: IConfigDataProvider);
 var
   VGUIDStr: String;
+  VParams: IConfigDataProvider;
 begin
-  VGUIDStr := AIniFile.ReadString('PARAMS','GUID', '');
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  VGUIDStr := VParams.ReadString('GUID', '');
   if Length(VGUIDStr) > 0 then begin
     try
       FGuid := StringToGUID(VGUIDStr);
@@ -423,17 +431,17 @@ begin
   end;
 end;
 
-procedure TMapType.LoadMapIcons(AUnZip: TVCLZip);
+procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
 var
-  MapParams:TMemoryStream;
+  VStream:TMemoryStream;
 begin
   Fbmp24:=TBitmap.create;
-  MapParams:=TMemoryStream.Create;
+  VStream:=TMemoryStream.Create;
   try
     try
-      AUnZip.UnZipToStream(MapParams,'24.bmp');
-      MapParams.Position:=0;
-      Fbmp24.LoadFromStream(MapParams);
+      AConfig.ReadBinaryStream('24.bmp', VStream);
+      VStream.Position:=0;
+      Fbmp24.LoadFromStream(VStream);
     except
       Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
       Fbmp24.Width:=24;
@@ -441,15 +449,15 @@ begin
       Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
     end;
   finally
-    FreeAndNil(MapParams);
+    FreeAndNil(VStream);
   end;
   Fbmp18:=TBitmap.create;
-  MapParams:=TMemoryStream.Create;
+  VStream:=TMemoryStream.Create;
   try
     try
-      AUnZip.UnZipToStream(MapParams,'18.bmp');
-      MapParams.Position:=0;
-      Fbmp18.LoadFromStream(MapParams);
+      AConfig.ReadBinaryStream('18.bmp', VStream);
+      VStream.Position:=0;
+      Fbmp18.LoadFromStream(VStream);
     except
       Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
       Fbmp18.Width:=18;
@@ -457,15 +465,15 @@ begin
       Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
     end;
   finally
-    FreeAndNil(MapParams);
+    FreeAndNil(VStream);
   end;
 end;
 
-procedure TMapType.LoadUrlScript(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
+procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
 begin
   if FUseDwn then begin
     try
-      FUrlGenerator := TUrlGenerator.Create(AUnZip, AIniFile, FConverterForUrlGenerator);
+      FUrlGenerator := TUrlGenerator.Create(AConfig, FConverterForUrlGenerator);
       //GetLink(0,0,0);
     except
       on E: Exception do begin
@@ -478,34 +486,28 @@ begin
     end;
   end;
   if FUrlGenerator = nil then begin
-    FUrlGenerator := TUrlGeneratorBasic.Create(AUnZip, AIniFile);
+    FUrlGenerator := TUrlGeneratorBasic.Create(AConfig);
   end;
 end;
 
-procedure TMapType.LoadMapInfo(AUnZip: TVCLZip);
+procedure TMapType.LoadMapInfo(AConfig: IConfigDataProvider);
+begin
+  FMapinfo := AConfig.ReadString('info_'+inttostr(GState.Localization)+'.txt', '');
+  if FMapInfo = '' then begin
+    FMapinfo := AConfig.ReadString('info.txt', '');
+  end;
+end;
+
+procedure TMapType.LoadStorageParams(AConfig: IConfigDataProvider);
 var
-  MapParams:TMemoryStream;
+  VParams: IConfigDataProvider;
 begin
-  MapParams:=TMemoryStream.Create;
-  try
-  if (AUnZip.UnZipToStream(MapParams,'info_'+inttostr(GState.Localization)+'.txt')>0)or(AUnZip.UnZipToStream(MapParams,'info.txt')>0) then
-   begin
-    SetLength(FMapInfo, MapParams.size);
-    MapParams.Position:=0;
-    MapParams.ReadBuffer(FMapinfo[1],MapParams.size);
-   end;
-  finally
-    FreeAndNil(MapParams);
-  end;
-end;
-
-procedure TMapType.LoadStorageParams(AUnZip: TVCLZip; AIniFile: TCustomIniFile);
-begin
-  FUseDel:=AIniFile.ReadBool('PARAMS','Usedel',true);
-  FIsStoreReadOnly:=AIniFile.ReadBool('PARAMS','ReadOnly', false);
-  FUseSave:=AIniFile.ReadBool('PARAMS','Usesave',true);
-  FTileFileExt:=LowerCase(AIniFile.ReadString('PARAMS','Ext','.jpg'));
-  FCacheConfig := TMapTypeCacheConfig.Create(AUnZip, AIniFile);
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FUseDel:=VParams.ReadBool('Usedel',true);
+  FIsStoreReadOnly:=VParams.ReadBool('ReadOnly', false);
+  FUseSave:=VParams.ReadBool('Usesave',true);
+  FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
+  FCacheConfig := TMapTypeCacheConfig.Create(AConfig);
   FCache := TTileCacheSimpleGlobal.Create(Self);
   if GetIsBitmapTiles then begin
     FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(FTileFileExt);
@@ -513,16 +515,19 @@ begin
   end;
 end;
 
-procedure TMapType.LoadProjectionInfo(AIniFile: TCustomIniFile);
+procedure TMapType.LoadProjectionInfo(AConfig: IConfigDataProvider);
 var
   bfloat:string;
   projection: byte;
   VConverter: TCoordConverterBasic;
+  VParams: IConfigDataProvider;
 begin
-  projection:=AIniFile.ReadInteger('PARAMS','projection',1);
-  bfloat:=AIniFile.ReadString('PARAMS','sradiusa','6378137');
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+
+  projection:=VParams.ReadInteger('projection',1);
+  bfloat:=VParams.ReadString('sradiusa','6378137');
   FRadiusA:=str2r(bfloat);
-  bfloat:=AIniFile.ReadString('PARAMS','sradiusb',FloatToStr(FRadiusA));
+  bfloat:=VParams.ReadString('sradiusb',FloatToStr(FRadiusA));
   FRadiusB:=str2r(bfloat);
   case projection of
     1: VConverter := TCoordConverterMercatorOnSphere.Create(FRadiusA);
@@ -534,11 +539,14 @@ begin
   FConverterForUrlGenerator := VConverter;
 end;
 
-procedure TMapType.LoadMimeTypeSubstList(AIniFile: TCustomIniFile);
+procedure TMapType.LoadMimeTypeSubstList(AConfig: IConfigDataProvider);
 var
   VMimeTypeSubstText: string;
+  VParams: IConfigDataProvider;
 begin
-  VMimeTypeSubstText := AIniFile.ReadString('PARAMS', 'MimeTypeSubst', '');
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+
+  VMimeTypeSubstText := VParams.ReadString('MimeTypeSubst', '');
   if Length(VMimeTypeSubstText) > 0 then begin
     FMimeTypeSubstList := TStringList.Create;
     FMimeTypeSubstList.Delimiter := ';';
@@ -549,103 +557,151 @@ begin
   end;
 end;
 
-procedure TMapType.LoadWebSourceParams(AIniFile: TCustomIniFile);
-begin
-  FTileRect.Left:=AIniFile.ReadInteger('PARAMS','TileRLeft',0);
-  FTileRect.Top:=AIniFile.ReadInteger('PARAMS','TileRTop',0);
-  FTileRect.Right:=AIniFile.ReadInteger('PARAMS','TileRRight',0);
-  FTileRect.Bottom:=AIniFile.ReadInteger('PARAMS','TileRBottom',0);
-
-  Sleep:=AIniFile.ReadInteger('PARAMS','Sleep',0);
-  FDefSleep:=Sleep;
-  FUseDwn:=AIniFile.ReadBool('PARAMS','UseDwn',true);
-end;
-
-procedure TMapType.LoadUIParams(AIniFile: TCustomIniFile);
-begin
-  FName:=AIniFile.ReadString('PARAMS','name','map#'+inttostr(FPNum));
-  FName:=AIniFile.ReadString('PARAMS','name_'+inttostr(GState.Localization),FName);
-  FIsCanShowOnSmMap := AIniFile.ReadBool('PARAMS','CanShowOnSmMap', true);
-  HotKey:=AIniFile.ReadInteger('PARAMS','DefHotKey',0);
-  FDefHotKey:=HotKey;
-  ParentSubMenu:=AIniFile.ReadString('PARAMS','ParentSubMenu','');
-  ParentSubMenu:=AIniFile.ReadString('PARAMS','ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
-  FDefParentSubMenu:=ParentSubMenu;
-  separator:=AIniFile.ReadBool('PARAMS','separator',false);
-  FDefseparator:=separator;
-  Fpos:=AIniFile.ReadInteger('PARAMS','pnum',-1);
-end;
-
-procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; Apnum : Integer);
+procedure TMapType.LoadWebSourceParams(AConfig: IConfigDataProvider);
 var
-  MapParams:TMemoryStream;
-  IniStrings:TStringList;
-  iniparams: TMeminifile;
-  UnZip:TVCLZip;
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+
+  FTileRect.Left:=VParams.ReadInteger('TileRLeft',0);
+  FTileRect.Top:=VParams.ReadInteger('TileRTop',0);
+  FTileRect.Right:=VParams.ReadInteger('TileRRight',0);
+  FTileRect.Bottom:=VParams.ReadInteger('TileRBottom',0);
+
+  Sleep:=VParams.ReadInteger('Sleep',0);
+  FDefSleep:=Sleep;
+  FUseDwn:=VParams.ReadBool('UseDwn',true);
+end;
+
+procedure TMapType.LoadUIParams(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+
+  FName:=VParams.ReadString('name','map#'+inttostr(FPNum));
+  FName:=VParams.ReadString('name_'+inttostr(GState.Localization),FName);
+  FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
+  HotKey:=VParams.ReadInteger('DefHotKey',0);
+  FDefHotKey:=HotKey;
+  ParentSubMenu:=VParams.ReadString('ParentSubMenu','');
+  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
+  FDefParentSubMenu:=ParentSubMenu;
+  separator:=VParams.ReadBool('separator',false);
+  FDefseparator:=separator;
+  Fpos:=VParams.ReadInteger('pnum',-1);
+end;
+
+procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
+var
+  VParams: IConfigDataProvider;
 begin
   FPNum := Apnum;
-  if AZipFileName = '' then begin
-    raise Exception.Create('Пустое имя файла с настройками карты');
-  end;
-  if not FileExists(AZipFileName) then begin
-    raise Exception.Create('Файл ' + AZipFileName + ' не найден');
-  end;
-  Ffilename := AZipFileName;
-  UnZip:=TVCLZip.Create(nil);
-  try
-    UnZip.ZipName:=AZipFileName;
-    MapParams:=TMemoryStream.Create;
-    IniStrings:=TStringList.Create;
+  Ffilename := AConfig.ReadString('::FileName', 'map#' + IntToStr(FPNum));
+  LoadGUIDFromIni(AConfig);
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FasLayer:= VParams.ReadBool('asLayer', false);
+  LoadUIParams(AConfig);
+  LoadMapInfo(AConfig);
+  LoadStorageParams(AConfig);
+  LoadMapIcons(AConfig);
+  LoadWebSourceParams(AConfig);
+  FUsestick:=VParams.ReadBool('Usestick',true);
+  FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
+  LoadMimeTypeSubstList(AConfig);
+  LoadProjectionInfo(AConfig);
+  LoadUrlScript(AConfig);
+  if FUseDwn then begin
     try
-      UnZip.UnZip;
-      UnZip.UnZipToStream(MapParams,'params.txt');
-      MapParams.Position:=0;
-      iniparams:=TMemIniFile.Create('');
-      IniStrings.LoadFromStream(MapParams);
-      iniparams.SetStrings(IniStrings);
-    finally
-      FreeAndNil(IniStrings);
-      FreeAndNil(MapParams);
-    end;
-    try
-      LoadGUIDFromIni(iniparams);
-      FasLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
-      LoadUIParams(iniparams);
-      LoadMapInfo(UnZip);
-      LoadStorageParams(UnZip, iniparams);
-      LoadMapIcons(UnZip);
-      LoadWebSourceParams(iniparams);
-      FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
-      FUseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
-      LoadMimeTypeSubstList(iniparams);
-      LoadProjectionInfo(iniparams);
-      LoadUrlScript(UnZip, iniparams);
-      if FUseDwn then begin
-        try
-          FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
-          if FMaxConnectToServerCount > 64 then begin
-            FMaxConnectToServerCount := 64;
-          end;
-          if FMaxConnectToServerCount <= 0 then begin
-            FMaxConnectToServerCount := 1;
-          end;
-          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, UnZip, iniparams), 60000, 60000);
-          GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-          FAntiBan := TAntiBanStuped.Create(UnZip, iniparams);
-        except
-          if ExceptObject <> nil then begin
-            ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
-          end;
-          FUseDwn := false;
-        end;
+      FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
+      if FMaxConnectToServerCount > 64 then begin
+        FMaxConnectToServerCount := 64;
       end;
-    finally
-      FreeAndNil(iniparams);
+      if FMaxConnectToServerCount <= 0 then begin
+        FMaxConnectToServerCount := 1;
+      end;
+      FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, AConfig), 60000, 60000);
+      GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
+      FAntiBan := TAntiBanStuped.Create(AConfig);
+    except
+      if ExceptObject <> nil then begin
+        ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[Ffilename, (ExceptObject as Exception).Message]);
+      end;
+      FUseDwn := false;
     end;
-  finally
-    FreeAndNil(UnZip);
   end;
 end;
+
+//procedure TMapType.LoadMapTypeFromZipFile(AZipFileName: string; Apnum : Integer);
+//var
+//  MapParams:TMemoryStream;
+//  IniStrings:TStringList;
+//  iniparams: TMeminifile;
+//  UnZip:TVCLZip;
+//begin
+//  FPNum := Apnum;
+//  if AZipFileName = '' then begin
+//    raise Exception.Create('Пустое имя файла с настройками карты');
+//  end;
+//  if not FileExists(AZipFileName) then begin
+//    raise Exception.Create('Файл ' + AZipFileName + ' не найден');
+//  end;
+//  Ffilename := AZipFileName;
+//  UnZip:=TVCLZip.Create(nil);
+//  try
+//    UnZip.ZipName:=AZipFileName;
+//    MapParams:=TMemoryStream.Create;
+//    IniStrings:=TStringList.Create;
+//    try
+//      UnZip.UnZip;
+//      UnZip.UnZipToStream(MapParams,'params.txt');
+//      MapParams.Position:=0;
+//      iniparams:=TMemIniFile.Create('');
+//      IniStrings.LoadFromStream(MapParams);
+//      iniparams.SetStrings(IniStrings);
+//    finally
+//      FreeAndNil(IniStrings);
+//      FreeAndNil(MapParams);
+//    end;
+//    try
+//      LoadGUIDFromIni(iniparams);
+//      FasLayer:=iniparams.ReadBool('PARAMS','asLayer',false);
+//      LoadUIParams(iniparams);
+//      LoadMapInfo(UnZip);
+//      LoadStorageParams(UnZip, iniparams);
+//      LoadMapIcons(UnZip);
+//      LoadWebSourceParams(iniparams);
+//      FUsestick:=iniparams.ReadBool('PARAMS','Usestick',true);
+//      FUseGenPrevious:=iniparams.ReadBool('PARAMS','UseGenPrevious',true);
+//      LoadMimeTypeSubstList(iniparams);
+//      LoadProjectionInfo(iniparams);
+//      LoadUrlScript(UnZip, iniparams);
+//      if FUseDwn then begin
+//        try
+//          FMaxConnectToServerCount := iniparams.ReadInteger('PARAMS','MaxConnectToServerCount', 1);
+//          if FMaxConnectToServerCount > 64 then begin
+//            FMaxConnectToServerCount := 64;
+//          end;
+//          if FMaxConnectToServerCount <= 0 then begin
+//            FMaxConnectToServerCount := 1;
+//          end;
+//          FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, UnZip, iniparams), 60000, 60000);
+//          GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
+//          FAntiBan := TAntiBanStuped.Create(UnZip, iniparams);
+//        except
+//          if ExceptObject <> nil then begin
+//            ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[AZipFileName, (ExceptObject as Exception).Message]);
+//          end;
+//          FUseDwn := false;
+//        end;
+//      end;
+//    finally
+//      FreeAndNil(iniparams);
+//    end;
+//  finally
+//    FreeAndNil(UnZip);
+//  end;
+//end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin

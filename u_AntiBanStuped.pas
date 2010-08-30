@@ -7,6 +7,7 @@ uses
   IniFiles,
   SyncObjs,
   VCLZip,
+  i_IConfigDataProvider,
   i_IAntiBan,
   i_ITileDownlodSession,
   Unit1;
@@ -35,10 +36,7 @@ type
     ): Boolean;
     procedure ExecOnBan(ALastUrl: String);
   public
-    constructor Create(
-      AUnZip: TVCLZip;
-      AIniFile: TCustomIniFile
-    );
+    constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
     procedure PreDownload(
       ADownloader: ITileDownlodSession;
@@ -122,16 +120,16 @@ begin
   end;
 end;
 
-constructor TAntiBanStuped.Create(
-  AUnZip: TVCLZip;
-  AIniFile: TCustomIniFile
-);
+constructor TAntiBanStuped.Create(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
 begin
   FBanCS := TCriticalSection.Create;
-  FUsePreloadPage:=AIniFile.ReadInteger('PARAMS','UsePreloadPage',0);
-  FPreloadPage:=AIniFile.ReadString('PARAMS','PreloadPage','');
-  FBanIfLen:=AIniFile.ReadInteger('PARAMS','BanIfLen',0);
-  FContent_Type:=AIniFile.ReadString('PARAMS','ContentType','image/jpg');
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FUsePreloadPage:=VParams.ReadInteger('UsePreloadPage',0);
+  FPreloadPage:=VParams.ReadString('PreloadPage','');
+  FBanIfLen:=VParams.ReadInteger('BanIfLen',0);
+  FContent_Type:=VParams.ReadString('ContentType','image/jpg');
 end;
 
 destructor TAntiBanStuped.Destroy;
