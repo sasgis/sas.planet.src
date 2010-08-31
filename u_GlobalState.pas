@@ -517,10 +517,10 @@ var
   VList18: TMapTypeIconsList;
   VList24: TMapTypeIconsList;
 begin
-  VList18 := TMapTypeIconsList.Create;
+  VList18 := TMapTypeIconsList.Create(18,18);
   FMapTypeIcons18List := VList18;
 
-  VList24 := TMapTypeIconsList.Create;
+  VList24 := TMapTypeIconsList.Create(24, 24);
   FMapTypeIcons24List := VList24;
 
   for i:=0 to length(GState.MapType)-1 do begin

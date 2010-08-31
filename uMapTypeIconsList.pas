@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   ActiveX,
   Graphics,
   ImgList,
@@ -20,7 +21,7 @@ type
     function GetIterator: IEnumGUID;
   public
     procedure Add(AGUID: TGUID; ABmp: TBitmap);
-    constructor Create();
+    constructor Create(AWidth, AHeight: Integer);
     destructor Destroy; override;
   end;
 
@@ -45,9 +46,11 @@ begin
   end;
 end;
 
-constructor TMapTypeIconsList.Create;
+constructor TMapTypeIconsList.Create(AWidth, AHeight: Integer);
 begin
   FImageList := TCustomImageList.Create(nil);
+  FImageList.Height := AHeight;
+  FImageList.Width := AWidth;
   FList := TGUIDObjectList.Create(True);
 end;
 
