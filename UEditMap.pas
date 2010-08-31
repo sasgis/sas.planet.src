@@ -43,7 +43,6 @@ type
     CBCacheType: TComboBox;
     Label5: TLabel;
     Button9: TButton;
-    procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
@@ -66,21 +65,10 @@ var
 implementation
 
 uses
+  u_UrlGenerator,
   u_MapTypeCacheConfig;
 
 {$R *.dfm}
-
-procedure TFEditMap.FormShow(Sender: TObject);
-begin
- FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
- EditURL.Text:=FMapType.UrlGenerator.URLBase;
- EditNameinCache.Text:=FMapType.CacheConfig.NameInCache;
- SESleep.Value:=FMapType.Sleep;
- EditParSubMenu.Text:=FMapType.ParentSubMenu;
- EditHotKey.HotKey:=FMapType.HotKey;
- CBCacheType.ItemIndex:=FMapType.CacheConfig.cachetype;
- CheckBox1.Checked:=FMapType.separator;
-end;
 
 procedure TFEditMap.Button1Click(Sender: TObject);
 begin
@@ -95,7 +83,7 @@ begin
    FmapType.CacheConfig.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
-// close;
+ ModalResult := mrOk;
 end;
 
 procedure TFEditMap.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -105,7 +93,7 @@ end;
 
 procedure TFEditMap.Button2Click(Sender: TObject);
 begin
- close;
+  ModalResult := mrCancel;
 end;
 
 procedure TFEditMap.Button3Click(Sender: TObject);
@@ -152,6 +140,16 @@ end;
 function TFEditMap.EditMapModadl(AMapType: TMapType): Boolean;
 begin
   FMapType := AMapType;
+
+  FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
+  EditURL.Text:=FMapType.UrlGenerator.URLBase;
+  EditNameinCache.Text:=FMapType.CacheConfig.NameInCache;
+  SESleep.Value:=FMapType.Sleep;
+  EditParSubMenu.Text:=FMapType.ParentSubMenu;
+  EditHotKey.HotKey:=FMapType.HotKey;
+  CBCacheType.ItemIndex:=FMapType.CacheConfig.cachetype;
+  CheckBox1.Checked:=FMapType.separator;
+
   Result := ShowModal = mrOk;
 end;
 
