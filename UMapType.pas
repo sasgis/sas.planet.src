@@ -201,6 +201,7 @@ begin
       ParentSubMenu:=VParams.ReadString('ParentSubMenu',ParentSubMenu);
       Sleep:=VParams.ReadInteger('Sleep',Sleep);
       separator:=VParams.ReadBool('separator',separator);
+      showinfo:=false;
   end else begin
       showinfo:=true;
       if id < 0 then id := 1000;
