@@ -291,7 +291,8 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_MapMarksBitmapLayerProviderStuped,
-  uMapTypeIconsList,
+  u_MapTypeIconsList,
+  UResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }

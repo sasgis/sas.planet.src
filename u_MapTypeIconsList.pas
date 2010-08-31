@@ -1,4 +1,4 @@
-unit uMapTypeIconsList;
+unit u_MapTypeIconsList;
 
 interface
 

@@ -84,7 +84,7 @@ uses
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
   UMapType in 'UMapType.pas',
   i_MapTypeIconsList in 'i_MapTypeIconsList.pas',
-  uMapTypeIconsList in 'uMapTypeIconsList.pas',
+  u_MapTypeIconsList in 'u_MapTypeIconsList.pas',
   u_MemFileCache in 'u_MemFileCache.pas',
   UYaMobile in 'UYaMobile.pas',
   UGSM in 'UGSM.pas',

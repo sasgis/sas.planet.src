@@ -138,7 +138,6 @@
       <Form>FLogo</Form>
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
-    <DCCReference Include="uMapTypeIconsList.pas" />
     <DCCReference Include="UMarksExplorer.pas">
       <Form>FMarksExplorer</Form>
     </DCCReference>
@@ -242,6 +241,7 @@
     <DCCReference Include="u_MapTileLayerBasic.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
+    <DCCReference Include="u_MapTypeIconsList.pas" />
     <DCCReference Include="u_MapTypeList.pas" />
     <DCCReference Include="u_MapTypeListGeneratorFromFullListBasic.pas" />
     <DCCReference Include="u_MapTypeListGeneratorFromFullListForMiniMap.pas" />
