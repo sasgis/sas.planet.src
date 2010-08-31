@@ -7,7 +7,6 @@ uses
   Classes,
   Graphics,
   Controls,
-  ImgList,
   TBX,
   TB2Item,
   GR32,

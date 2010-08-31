@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  ImgList,
   TB2Item,
   TBX,
   UMapType,

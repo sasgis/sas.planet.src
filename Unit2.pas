@@ -8,7 +8,6 @@ uses
   Forms,
   Dialogs,
   Classes,
-  DB,
   Mask,
   StdCtrls,
   Controls,
