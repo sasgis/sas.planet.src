@@ -63,6 +63,7 @@ type
     FCoordConverter : ICoordConverter;
     FConverterForUrlGenerator: ICoordConverterSimple;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
+    FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     function GetCoordConverter: ICoordConverter;
     function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
@@ -82,6 +83,7 @@ type
     procedure LoadGUIDFromIni(AConfig : IConfigDataProvider);
     procedure LoadMapIcons(AConfig : IConfigDataProvider);
     procedure LoadUrlScript(AConfig : IConfigDataProvider);
+    procedure LoadDownloader(AConfig : IConfigDataProvider);
     procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
     procedure LoadStorageParams(AConfig : IConfigDataProvider);
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
@@ -102,7 +104,6 @@ type
    public
     id: integer;
     HotKey: TShortCut;
-    Sleep: Integer;
     separator: boolean;
     ParentSubMenu: string;
     showinfo: boolean;
@@ -160,6 +161,7 @@ type
     property DefSleep: Integer read FDefSleep;
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
+    property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
 
     constructor Create;
     destructor Destroy; override;
@@ -199,7 +201,7 @@ begin
       CacheConfig.NameInCache:=VParams.ReadString('NameInCache',CacheConfig.NameInCache);
       HotKey:=VParams.ReadInteger('HotKey',HotKey);
       ParentSubMenu:=VParams.ReadString('ParentSubMenu',ParentSubMenu);
-      Sleep:=VParams.ReadInteger('Sleep',Sleep);
+      DownloaderFactory.WaitInterval:=VParams.ReadInteger('Sleep',DownloaderFactory.WaitInterval);
       separator:=VParams.ReadBool('separator',separator);
       showinfo:=false;
   end else begin
@@ -274,10 +276,12 @@ begin
       on E: Exception do begin
         ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
         FUrlGenerator := nil;
+        FUseDwn := False;
       end;
      else
       ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
       FUrlGenerator := nil;
+      FUseDwn := False;
     end;
   end;
   if FUrlGenerator = nil then begin
@@ -365,8 +369,7 @@ begin
   FTileRect.Right:=VParams.ReadInteger('TileRRight',0);
   FTileRect.Bottom:=VParams.ReadInteger('TileRBottom',0);
 
-  Sleep:=VParams.ReadInteger('Sleep',0);
-  FDefSleep:=Sleep;
+  FDefSleep:=VParams.ReadInteger('Sleep',0);
   FUseDwn:=VParams.ReadBool('UseDwn',true);
 end;
 
@@ -389,6 +392,39 @@ begin
   id:=VParams.ReadInteger('pnum',-1);
 end;
 
+procedure TMapType.LoadDownloader(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+  VDownloader: TTileDownloaderFactory;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  if FUseDwn then begin
+    try
+      FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
+      if FMaxConnectToServerCount > 64 then begin
+        FMaxConnectToServerCount := 64;
+      end;
+      if FMaxConnectToServerCount <= 0 then begin
+        FMaxConnectToServerCount := 1;
+      end;
+      VDownloader := TTileDownloaderFactory.Create(AConfig);
+      FTileDownlodSessionFactory := VDownloader;
+      FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, VDownloader, 60000, 60000);
+      GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
+      FAntiBan := TAntiBanStuped.Create(AConfig);
+    except
+      if ExceptObject <> nil then begin
+        ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[FZMPFileName, (ExceptObject as Exception).Message]);
+      end;
+      FTileDownlodSessionFactory := nil;
+      FUseDwn := false;
+    end;
+  end;
+  if FTileDownlodSessionFactory = nil then begin
+    FTileDownlodSessionFactory := TTileDownloaderFactoryBase.Create(AConfig);
+  end;
+end;
+
 procedure TMapType.LoadMapType(AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
 var
   VParams: IConfigDataProvider;
@@ -408,25 +444,7 @@ begin
   LoadMimeTypeSubstList(AConfig);
   LoadProjectionInfo(AConfig);
   LoadUrlScript(AConfig);
-  if FUseDwn then begin
-    try
-      FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
-      if FMaxConnectToServerCount > 64 then begin
-        FMaxConnectToServerCount := 64;
-      end;
-      if FMaxConnectToServerCount <= 0 then begin
-        FMaxConnectToServerCount := 1;
-      end;
-      FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, TTileDownloaderBaseFactory.Create(Self, AConfig), 60000, 60000);
-      GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-      FAntiBan := TAntiBanStuped.Create(AConfig);
-    except
-      if ExceptObject <> nil then begin
-        ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[FZMPFileName, (ExceptObject as Exception).Message]);
-      end;
-      FUseDwn := false;
-    end;
-  end;
+  LoadDownloader(AConfig);
   LoadGlobalConfig(AAllMapsConfig);
 end;
 

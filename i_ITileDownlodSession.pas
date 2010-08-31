@@ -14,6 +14,13 @@ type
     function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult;
   end;
 
+  ITileDownlodSessionFactory = interface
+    ['{62196012-45CC-45D1-BBEF-9959636DA479}']
+    function CreateSession: ITileDownlodSession;
+    function GetWaitInterval: Cardinal;
+    procedure SetWaitInterval(AValue: Cardinal);
+    property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+  end;
 implementation
 
 end.

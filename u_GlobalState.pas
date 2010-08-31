@@ -715,8 +715,8 @@ begin
         Ini.DeleteKey(VGUIDString,'NameInCache');
       end;
 
-      if VMapType.Sleep<>VMapType.DefSleep then begin
-        ini.WriteInteger(VGUIDString,'Sleep',VMapType.sleep);
+      if VMapType.DownloaderFactory.WaitInterval<>VMapType.DefSleep then begin
+        ini.WriteInteger(VGUIDString,'Sleep',VMapType.DownloaderFactory.WaitInterval);
       end else begin
         Ini.DeleteKey(VGUIDString,'Sleep');
       end;

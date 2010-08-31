@@ -4,22 +4,32 @@ interface
 
 uses
   i_IConfigDataProvider,
+  i_ITileDownlodSession,
   UMapType,
   i_ISimpleFactory;
 
 type
-  TTileDownloaderBaseFactory = class(TInterfacedObject, ISimpleFactory)
+  TTileDownloaderFactoryBase = class(TInterfacedObject, ITileDownlodSessionFactory)
   private
-    FMapType: TMapType;
+    FWaitInterval: Cardinal;
+    function CreateSession: ITileDownlodSession; virtual;
+    function GetWaitInterval: Cardinal; virtual;
+    procedure SetWaitInterval(AValue: Cardinal); virtual;
+  public
+    constructor Create(AConfig: IConfigDataProvider);
+  end;
+
+  TTileDownloaderFactory = class(TTileDownloaderFactoryBase, ISimpleFactory)
+  private
     FIgnoreContent_Type: Boolean;
     FContent_Type: string;
     FDefaultContent_Type: string;
+    FSlepOnResetConnection: Cardinal;
+    FWaitInterval: Cardinal;
+    function CreateInstance: IInterface;
+    function CreateSession: ITileDownlodSession; override;
   public
-    constructor Create(
-      AMapType: TMapType;
-      AConfig: IConfigDataProvider
-    );
-    function CreateInstance: IUnknown;
+    constructor Create(AConfig: IConfigDataProvider);
   end;
 
 implementation
@@ -30,21 +40,24 @@ uses
 
 { TTileDownloaderBaseFactory }
 
-constructor TTileDownloaderBaseFactory.Create(
-  AMapType: TMapType;
-  AConfig: IConfigDataProvider
-);
+constructor TTileDownloaderFactory.Create(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
+  inherited;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FMapType := AMapType;
   FIgnoreContent_Type:=VParams.ReadBool('IgnoreContentType', False);
   FDefaultContent_Type:=VParams.ReadString('DefaultContentType','image/jpg');
   FContent_Type:=VParams.ReadString('ContentType','image/jpg');
+  FSlepOnResetConnection := VParams.ReadInteger('SlepOnResetConnection', 5000);
 end;
 
-function TTileDownloaderBaseFactory.CreateInstance: IUnknown;
+function TTileDownloaderFactory.CreateInstance: IInterface;
+begin
+  Result := CreateSession;
+end;
+
+function TTileDownloaderFactory.CreateSession: ITileDownlodSession;
 var
   VDownloader: TTileDownloaderBase;
   VTryCount: Integer;
@@ -56,9 +69,34 @@ begin
   end;
   VDownloader := TTileDownloaderBase.Create(FIgnoreContent_Type,
     FContent_Type, FDefaultContent_Type, VTryCount, GState.InetConnect);
-  VDownloader.SleepOnResetConnection := FMapType.Sleep;
-  VDownloader.WaitInterval := FMapType.Sleep;
+  VDownloader.SleepOnResetConnection := FSlepOnResetConnection;
+  VDownloader.WaitInterval := FWaitInterval;
   Result := VDownloader;
+end;
+
+{ TTileDownloaderFactoryBase }
+
+constructor TTileDownloaderFactoryBase.Create(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FWaitInterval := VParams.ReadInteger('Sleep',0);
+end;
+
+function TTileDownloaderFactoryBase.CreateSession: ITileDownlodSession;
+begin
+  Result := nil;
+end;
+
+function TTileDownloaderFactoryBase.GetWaitInterval: Cardinal;
+begin
+  Result := FWaitInterval;
+end;
+
+procedure TTileDownloaderFactoryBase.SetWaitInterval(AValue: Cardinal);
+begin
+  FWaitInterval := AValue;
 end;
 
 end.

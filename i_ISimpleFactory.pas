@@ -5,7 +5,7 @@ interface
 type
   ISimpleFactory = interface
     ['{AD906C40-4D3F-4CEC-82EE-CCEDF23AF9DE}']
-    function CreateInstance: IUnknown;
+    function CreateInstance: IInterface;
   end;
 
 implementation
