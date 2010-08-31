@@ -167,10 +167,6 @@ type
     procedure LoadMapType(AConfig, AAllMapsConfig : IConfigDataProvider; Apnum : Integer);
  end;
 
-
-  procedure SaveMaps;
-  function GetMapFromID(id: TGUID): TMapType;
-
 implementation
 
 uses
@@ -193,84 +189,6 @@ uses
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
-
-function GetMapFromID(id: TGUID): TMapType;
-var
-  i: integer;
-  VMapType: TMapType;
-begin
-  Result:=nil;
-  for i:=0 to length(GState.MapType)-1 do begin
-    VMapType := GState.MapType[i];
-    if IsEqualGUID(VMapType.GUID, id) then begin
-      result:=VMapType;
-      exit;
-    end;
-  end;
-end;
-
-procedure SaveMaps;
-var
-  Ini: TMeminifile;
-  i: integer;
-  VGUIDString: string;
-  VMapType: TMapType;
-begin
-  Ini:=TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
-  try
-    for i:=0 to length(GState.MapType)-1 do begin
-      VMapType := GState.MapType[i];
-      VGUIDString := VMapType.GUIDString;
-      ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
-
-
-      if VMapType.FUrlGenerator.URLBase<>VMapType.FUrlGenerator.DefURLBase then begin
-        ini.WriteString(VGUIDString,'URLBase',VMapType.FUrlGenerator.URLBase);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'URLBase');
-      end;
-
-      if VMapType.HotKey<>VMapType.DefHotKey then begin
-        ini.WriteInteger(VGUIDString,'HotKey',VMapType.HotKey);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'HotKey');
-      end;
-
-      if VMapType.CacheConfig.cachetype<>VMapType.CacheConfig.defcachetype then begin
-        ini.WriteInteger(VGUIDString,'CacheType',VMapType.CacheConfig.CacheType);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'CacheType');
-      end;
-
-      if VMapType.separator<>VMapType.Defseparator then begin
-        ini.WriteBool(VGUIDString,'separator',VMapType.separator);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'separator');
-      end;
-
-      if VMapType.CacheConfig.NameInCache<>VMapType.CacheConfig.DefNameInCache then begin
-        ini.WriteString(VGUIDString,'NameInCache',VMapType.CacheConfig.NameInCache);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'NameInCache');
-      end;
-
-      if VMapType.Sleep<>VMapType.DefSleep then begin
-        ini.WriteInteger(VGUIDString,'Sleep',VMapType.sleep);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'Sleep');
-      end;
-
-      if VMapType.ParentSubMenu<>VMapType.DefParentSubMenu then begin
-        ini.WriteString(VGUIDString,'ParentSubMenu',VMapType.ParentSubMenu);
-      end else begin
-        Ini.DeleteKey(VGUIDString,'ParentSubMenu');
-      end;
-    end;
-    Ini.UpdateFile;
-  finally
-    ini.Free;
-  end;
-end;
 
 procedure TMapType.LoadGlobalConfig(AConfig: IConfigDataProvider);
 var

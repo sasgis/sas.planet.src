@@ -1655,7 +1655,7 @@ begin
   VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
   if VGUIDString <> '' then begin
     VGUID := StringToGUID(VGUIDString);
-    VFillingmaptype:=GetMapFromID(VGUID);
+    VFillingmaptype:=GState.GetMapFromID(VGUID);
   end else begin
     VFillingmaptype := nil;
   end;

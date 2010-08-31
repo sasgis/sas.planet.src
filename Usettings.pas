@@ -257,7 +257,7 @@ begin
   end;
 
  try
- SaveMaps;
+ GState.SaveMaps;
  GState.ViewState.SaveViewPortState;
  GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
  GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);

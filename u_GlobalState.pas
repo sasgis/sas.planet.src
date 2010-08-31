@@ -262,6 +262,8 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure LoadMaps;
+    function GetMapFromID(id: TGUID): TMapType;
+    procedure SaveMaps;
     procedure LoadMapIconsList;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
@@ -385,6 +387,21 @@ end;
 function TGlobalState.GetMarksCategoryFileName: string;
 begin
   Result := ProgramPath + 'Categorymarks.sml';
+end;
+
+function TGlobalState.GetMapFromID(id: TGUID): TMapType;
+var
+  i: integer;
+  VMapType: TMapType;
+begin
+  Result:=nil;
+  for i:=0 to length(MapType)-1 do begin
+    VMapType := MapType[i];
+    if IsEqualGUID(VMapType.GUID, id) then begin
+      result:=VMapType;
+      exit;
+    end;
+  end;
 end;
 
 function TGlobalState.GetMapsPath: string;
@@ -651,6 +668,69 @@ end;
 procedure TGlobalState.SetScreenSize(const Value: TPoint);
 begin
   FScreenSize := Value;
+end;
+
+procedure TGlobalState.SaveMaps;
+var
+  Ini: TMeminifile;
+  i: integer;
+  VGUIDString: string;
+  VMapType: TMapType;
+begin
+  Ini:=TMeminiFile.Create(MapsPath + 'Maps.ini');
+  try
+    for i:=0 to length(MapType)-1 do begin
+      VMapType := MapType[i];
+      VGUIDString := VMapType.GUIDString;
+      ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
+
+
+      if VMapType.UrlGenerator.URLBase<>VMapType.UrlGenerator.DefURLBase then begin
+        ini.WriteString(VGUIDString,'URLBase',VMapType.UrlGenerator.URLBase);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'URLBase');
+      end;
+
+      if VMapType.HotKey<>VMapType.DefHotKey then begin
+        ini.WriteInteger(VGUIDString,'HotKey',VMapType.HotKey);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'HotKey');
+      end;
+
+      if VMapType.CacheConfig.cachetype<>VMapType.CacheConfig.defcachetype then begin
+        ini.WriteInteger(VGUIDString,'CacheType',VMapType.CacheConfig.CacheType);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'CacheType');
+      end;
+
+      if VMapType.separator<>VMapType.Defseparator then begin
+        ini.WriteBool(VGUIDString,'separator',VMapType.separator);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'separator');
+      end;
+
+      if VMapType.CacheConfig.NameInCache<>VMapType.CacheConfig.DefNameInCache then begin
+        ini.WriteString(VGUIDString,'NameInCache',VMapType.CacheConfig.NameInCache);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'NameInCache');
+      end;
+
+      if VMapType.Sleep<>VMapType.DefSleep then begin
+        ini.WriteInteger(VGUIDString,'Sleep',VMapType.sleep);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'Sleep');
+      end;
+
+      if VMapType.ParentSubMenu<>VMapType.DefParentSubMenu then begin
+        ini.WriteString(VGUIDString,'ParentSubMenu',VMapType.ParentSubMenu);
+      end else begin
+        Ini.DeleteKey(VGUIDString,'ParentSubMenu');
+      end;
+    end;
+    Ini.UpdateFile;
+  finally
+    ini.Free;
+  end;
 end;
 
 procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
