@@ -34,7 +34,6 @@ type
     FName: string;
     FasLayer: boolean;
     FTileRect: TRect;
-    Fpos: integer;
     FZMPFileName: string;
     FTileFileExt: string;
     FMapInfo: string;
@@ -279,7 +278,7 @@ var
 begin
   VParams := AConfig.GetSubItem(GUIDString);
   if VParams <> nil then begin
-      id:=VParams.ReadInteger('pnum',0);
+      id:=VParams.ReadInteger('pnum',id);
       FUrlGenerator.URLBase:=VParams.ReadString('URLBase',FUrlGenerator.URLBase);
       CacheConfig.CacheType:=VParams.ReadInteger('CacheType',CacheConfig.cachetype);
       CacheConfig.NameInCache:=VParams.ReadString('NameInCache',CacheConfig.NameInCache);
@@ -289,8 +288,7 @@ begin
       separator:=VParams.ReadBool('separator',separator);
   end else begin
       showinfo:=true;
-      if Fpos < 0 then Fpos := 1000;
-      id := Fpos;
+      if id < 0 then id := 1000;
   end;
 end;
 
@@ -472,7 +470,7 @@ begin
   FDefParentSubMenu:=ParentSubMenu;
   separator:=VParams.ReadBool('separator',false);
   FDefseparator:=separator;
-  Fpos:=VParams.ReadInteger('pnum',-1);
+  id:=VParams.ReadInteger('pnum',-1);
 end;
 
 procedure TMapType.LoadMapType(AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
