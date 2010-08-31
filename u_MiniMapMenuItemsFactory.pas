@@ -71,7 +71,7 @@ var
   VItem: TTBXItem;
 begin
   VItem := TTBXItem.Create(FRootMenu);
-  VItem.ImageIndex:= FIconsList.GetMapTypeByGUID(AMapType.GUID).GetIconIndex;
+  VItem.ImageIndex:= FIconsList.GetIconIndexByGUID(AMapType.GUID);
   VItem.Caption:=AMapType.name;
   VItem.OnAdjustFont:=FItemOnAdjustFont;
   VItem.Tag := Integer(AMapType);
