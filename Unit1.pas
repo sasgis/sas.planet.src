@@ -1636,7 +1636,7 @@ begin
   LayerScaleLine := TLayerScaleLine.Create(map);
   LayerStatBar:=TLayerStatBar.Create(map);
 
-  FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos, MapIcons18);
+  FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos);
   FMiniMapLayer.Visible := True;
 
   CreateMapUI;

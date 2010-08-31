@@ -8,6 +8,7 @@ uses
   TB2Item,
   TBX,
   UMapType,
+  i_MapTypeIconsList,
   i_IActiveMapsConfig,
   i_IMapTypeMenuItem;
 
@@ -16,7 +17,7 @@ type
   private
     FRootMenu: TTBCustomItem;
     FItemOnAdjustFont: TAdjustFontEvent;
-    FImages: TCustomImageList;
+    FIconsList: IMapTypeIconsList;
     FMapsActive: IActiveMapWithHybrConfig;
   protected
     function CreateSubMenuItem(AMapType: TMapType): TTBCustomItem; virtual;
@@ -28,7 +29,7 @@ type
       AMapsActive: IActiveMapWithHybrConfig;
       ARootMenu: TTBCustomItem;
       AItemOnAdjustFont: TAdjustFontEvent;
-      AImages: TCustomImageList);
+      AIconsList: IMapTypeIconsList);
     destructor Destroy; override;
   end;
 
@@ -43,12 +44,13 @@ uses
 constructor TMiniMapMenuItemsFactory.Create(
   AMapsActive: IActiveMapWithHybrConfig;
   ARootMenu: TTBCustomItem;
-  AItemOnAdjustFont: TAdjustFontEvent; AImages: TCustomImageList);
+  AItemOnAdjustFont: TAdjustFontEvent;
+  AIconsList: IMapTypeIconsList);
 begin
   FMapsActive := AMapsActive;
   FRootMenu := ARootMenu;
   FItemOnAdjustFont := AItemOnAdjustFont;
-  FImages := AImages;
+  FIconsList := AIconsList;
 end;
 
 function TMiniMapMenuItemsFactory.CreateItem(
@@ -69,7 +71,7 @@ var
   VItem: TTBXItem;
 begin
   VItem := TTBXItem.Create(FRootMenu);
-  VItem.ImageIndex:= AMapType.Icon18Index;
+  VItem.ImageIndex:= FIconsList.GetMapTypeByGUID(AMapType.GUID).GetIconIndex;
   VItem.Caption:=AMapType.name;
   VItem.OnAdjustFont:=FItemOnAdjustFont;
   VItem.Tag := Integer(AMapType);
@@ -81,7 +83,7 @@ function TMiniMapMenuItemsFactory.CreateSubMenuItem(
 begin
   Result := TTBXSubmenuItem.Create(FRootMenu);
   Result.Caption := AMapType.ParentSubMenu;
-  Result.Images := FImages;
+  Result.Images := FIconsList.GetImageList;
   Result.Tag := Integer(AMapType);
 end;
 

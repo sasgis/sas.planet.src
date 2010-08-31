@@ -16,6 +16,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_MapTypes,
+  i_MapTypeIconsList,
   i_IMapTypeMenuItmesList,
   i_IActiveMapsConfig,
   i_IMapChangeMessage,
@@ -29,6 +30,7 @@ type
   protected
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
+    FIconsList: IMapTypeIconsList;
     FAlpha: Integer;
     FZoomDelta: integer;
     FPlusButton: TBitmapLayer;
@@ -97,7 +99,7 @@ type
     procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
     procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint; AImages: TCustomImageList);
+    constructor Create(AParentMap: TImage32; ACenter: TPoint);
     destructor Destroy; override;
     procedure Show; override;
     procedure Hide; override;
@@ -183,12 +185,14 @@ end;
 
 { TMapMainLayer }
 
-constructor TMiniMapLayer.Create(AParentMap: TImage32; ACenter: TPoint; AImages: TCustomImageList);
+constructor TMiniMapLayer.Create(AParentMap: TImage32; ACenter: TPoint);
 var
   VFactory: IMapTypeListFactory;
   VConfigLoadSave: TMapsConfigInIniFileSection;
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
+
+  FIconsList := GState.MapTypeIcons18List;
 
   VConfigLoadSave := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
   FMapConfigSaver := VConfigLoadSave;
@@ -216,7 +220,7 @@ begin
 
   FPopup := TTBXPopupMenu.Create(AParentMap);
   FPopup.Name := 'PopupMiniMap';
-  FPopup.Images := AImages;
+  FPopup.Images := FIconsList.GetImageList;
 
   CreateLayers;
 
@@ -337,7 +341,7 @@ begin
   try
     VGenerator.List := FMapsList;
     VGenerator.RootMenu := AMapssSubMenu;
-    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, AMapssSubMenu, AdjustFont, FPopup.Images);
+    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, AMapssSubMenu, AdjustFont, FIconsList);
     FMapsItemsList := VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
@@ -346,7 +350,7 @@ begin
   try
     VGenerator.List := FLayersList;
     VGenerator.RootMenu := ALayersSubMenu;
-    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, ALayersSubMenu, AdjustFont, FPopup.Images);
+    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, ALayersSubMenu, AdjustFont, FIconsList);
     FLayersItemsList := VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
