@@ -32,6 +32,7 @@ uses
   u_ConfigDataProviderByVCLZip in 'u_ConfigDataProviderByVCLZip.pas',
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
   u_ConfigDataProviderByIniFileSection in 'u_ConfigDataProviderByIniFileSection.pas',
+  u_ConfigDataProviderByFolder in 'u_ConfigDataProviderByFolder.pas',
   i_ILogSimple in 'i_ILogSimple.pas',
   i_ILogForTaskThread in 'i_ILogForTaskThread.pas',
   i_ITileDownlodSession in 'i_ITileDownlodSession.pas',
