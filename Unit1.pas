@@ -819,8 +819,8 @@ begin
   VMainToolbarItem.Checked:=false;
 
   VMainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMainMapNew.GUID));
-  TBSMB.ImageIndex := VMainToolbarItem.ImageIndex;
   VMainToolbarItem.Checked:=true;
+  TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMainMapNew.GUID);
   if GState.Showmapname then begin
     TBSMB.Caption:=VMainMapNew.name;
   end else begin
@@ -1316,9 +1316,8 @@ var
   NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
   NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
 
+  VIcon18Index: Integer;
 begin
-  MapIcons24.Clear;
-  MapIcons18.Clear;
   TBSMB.Clear;
   NSMB.Clear;
   ldm.Clear;
@@ -1339,6 +1338,7 @@ begin
   if length(GState.MapType)>0 then begin
     for i:=0 to length(GState.MapType)-1 do begin
       VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
       With VMapType do begin
         MainToolbarItem:=TTBXItem.Create(TBSMB);
         FMainToolbarItemList.Add(VMapType.GUID, MainToolbarItem);
@@ -1355,7 +1355,7 @@ begin
             MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(TBSMB);
             FMainToolbarSubMenuItemList.Add(VMapType.GUID, MainToolbarSubMenuItem);
             MainToolbarSubMenuItem.caption:=ParentSubMenu;
-            MainToolbarSubMenuItem.Images:=MapIcons18;
+            MainToolbarSubMenuItem.Images:= GState.MapTypeIcons18List.GetImageList;
             if asLayer then begin
               TBLayerSel.Add(MainToolbarSubMenuItem)
             end else begin
@@ -1365,11 +1365,9 @@ begin
           MainToolbarSubMenuItem := TTBXSubmenuItem(FMainToolbarSubMenuItemList.GetByGUID(GState.MapType[j].GUID));
           MainToolbarSubMenuItem.Add(MainToolbarItem);
         end;
-        MapIcons24.AddMasked(bmp24,RGB(255,0,255));
-        MapIcons18.AddMasked(bmp18,RGB(255,0,255));
         MainToolbarItem.Name:='TBMapN'+inttostr(id);
         MainToolbarItem.ShortCut:=HotKey;
-        MainToolbarItem.ImageIndex:=i;
+        MainToolbarItem.ImageIndex:= VIcon18Index;
         MainToolbarItem.Caption:=name;
         MainToolbarItem.OnAdjustFont:=AdjustFont;
         MainToolbarItem.OnClick:=TBmap1Click;
@@ -1377,7 +1375,7 @@ begin
         TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
         FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
         TBFillingItem.name:='TBMapFM'+inttostr(id);
-        TBFillingItem.ImageIndex:=i;
+        TBFillingItem.ImageIndex:=VIcon18Index;
         TBFillingItem.Caption:=name;
         TBFillingItem.OnAdjustFont:=AdjustFont;
         TBFillingItem.OnClick:=TBfillMapAsMainClick;
@@ -1387,19 +1385,19 @@ begin
           NDwnItem:=TMenuItem.Create(nil);
           FNDwnItemList.Add(VMapType.GUID, NDwnItem);
           NDwnItem.Caption:=name;
-          NDwnItem.ImageIndex:=i;
+          NDwnItem.ImageIndex:=VIcon18Index;
           NDwnItem.OnClick:=N21Click;
           ldm.Add(NDwnItem);
           NDelItem:=TMenuItem.Create(nil);
           FNDelItemList.Add(VMapType.GUID, NDelItem);
           NDelItem.Caption:=name;
-          NDelItem.ImageIndex:=i;
+          NDelItem.ImageIndex:=VIcon18Index;
           NDelItem.OnClick:=NDelClick;
           dlm.Add(NDelItem);
           NLayerParamsItem:=TTBXItem.Create(NLayerParams);
           FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
           NLayerParamsItem.Caption:=name;
-          NLayerParamsItem.ImageIndex:=i;
+          NLayerParamsItem.ImageIndex:=VIcon18Index;
           NLayerParamsItem.OnClick:=NMapParamsClick;
           NLayerParams.Add(NLayerParamsItem);
         end;
@@ -1420,11 +1418,13 @@ begin
       end;
     end;
   end;
-  MainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(GState.ViewState.GetCurrentMap.GUID));
-  TBSMB.ImageIndex := MainToolbarItem.ImageIndex;
+  VMapType := GState.ViewState.GetCurrentMap;
+  MainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID));
   MainToolbarItem.Checked:=true;
+
+  TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMapType.GUID);
   if GState.Showmapname then begin
-    TBSMB.Caption:=MainToolbarItem.Caption;
+    TBSMB.Caption:= VMapType.Name;
   end else begin
     TBSMB.Caption:='';
   end;
@@ -1453,6 +1453,15 @@ begin
    Close;
    exit;
   end;
+  TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
+  TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
 
   FMainToolbarItemList := TGUIDObjectList.Create(False);
   FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
