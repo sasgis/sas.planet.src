@@ -82,6 +82,8 @@ uses
   u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
   UMapType in 'UMapType.pas',
+  i_MapTypeIconsList in 'i_MapTypeIconsList.pas',
+  uMapTypeIconsList in 'uMapTypeIconsList.pas',
   u_MemFileCache in 'u_MemFileCache.pas',
   UYaMobile in 'UYaMobile.pas',
   UGSM in 'UGSM.pas',
@@ -220,6 +222,7 @@ begin
     end;
     try
       LoadMaps;
+      GState.LoadMapIconsList;
     except
       on E: Exception do begin
         Application.ShowException(E);

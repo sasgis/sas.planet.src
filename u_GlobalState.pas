@@ -17,6 +17,7 @@ uses
   i_IKmlInfoSimpleLoader,
   i_ActiveMapsConfigSaveLoad,
   i_IBitmapLayerProvider,
+  i_MapTypeIconsList,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -45,7 +46,7 @@ type
     FMapConfigLoader: IActiveMapsConfigLoader;
     FCacheConfig: TGlobalCahceConfig;
     FMarksBitmapProvider: IBitmapLayerProvider;
-
+    FMapTypeIconsList: IMapTypeIconsList;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -252,11 +253,13 @@ type
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
     property MarksBitmapProvider: IBitmapLayerProvider read FMarksBitmapProvider;
+    property MapTypeIconsList: IMapTypeIconsList read FMapTypeIconsList;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     property ViewState: TMapViewPortState read FViewState;
     constructor Create;
     destructor Destroy; override;
+    procedure LoadMapIconsList;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
     procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
@@ -286,6 +289,7 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_MapMarksBitmapLayerProviderStuped,
+  uMapTypeIconsList,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -500,6 +504,20 @@ begin
   end;
   Localization := MainIni.Readinteger('VIEW','localization',loc);
   WebReportToAuthor := MainIni.ReadBool('NPARAM','stat',true);
+end;
+
+procedure TGlobalState.LoadMapIconsList;
+var
+  i: Integer;
+  VMapType: TMapType;
+  VList: TMapTypeIconsList;
+begin
+  VList := TMapTypeIconsList.Create;
+  FMapTypeIconsList := VList;
+  for i:=0 to length(GState.MapType)-1 do begin
+    VMapType := GState.MapType[i];
+    VList.Add(VMapType);
+  end;
 end;
 
 procedure TGlobalState.SetScreenSize(const Value: TPoint);

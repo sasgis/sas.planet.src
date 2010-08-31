@@ -80,6 +80,7 @@
     <DCCReference Include="i_ITileFileNameGenerator.pas" />
     <DCCReference Include="i_ITileFileNameGeneratorsList.pas" />
     <DCCReference Include="i_ITileObjCache.pas" />
+    <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_Marks.pas" />
     <DCCReference Include="i_MemCache.pas" />
@@ -137,6 +138,7 @@
       <Form>FLogo</Form>
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
+    <DCCReference Include="uMapTypeIconsList.pas" />
     <DCCReference Include="UMarksExplorer.pas">
       <Form>FMarksExplorer</Form>
     </DCCReference>
