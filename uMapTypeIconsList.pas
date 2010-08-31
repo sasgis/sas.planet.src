@@ -61,6 +61,7 @@ begin
   VItem := GetMapTypeByGUID(AGUID);
   if VItem = nil then begin
     VIndex := FImageList.AddMasked(Abmp, RGB(255,0,255));
+    VItem := TMapTypeIconsListItem.Create(VIndex);
     FList.Add(AGUID, VItem);
   end else begin
     VIndex := VItem.GetIconIndex;
