@@ -222,7 +222,7 @@ begin
       Application.ProcessMessages;
     end;
     try
-      LoadMaps;
+      GState.LoadMaps;
       GState.LoadMapIconsList;
     except
       on E: Exception do begin

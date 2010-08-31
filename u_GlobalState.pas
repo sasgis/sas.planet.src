@@ -261,6 +261,7 @@ type
     property ViewState: TMapViewPortState read FViewState;
     constructor Create;
     destructor Destroy; override;
+    procedure LoadMaps;
     procedure LoadMapIconsList;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
@@ -279,8 +280,12 @@ implementation
 
 uses
   SysUtils,
+  Dialogs,
   i_MapTypes,
   i_BitmapTileSaveLoad,
+  i_IConfigDataProvider,
+  u_ConfigDataProviderByVCLZip,
+  u_ConfigDataProviderByIniFile,
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
   u_MapsConfigInIniFileSection,
@@ -524,10 +529,122 @@ begin
   VList24 := TMapTypeIconsList.Create(24, 24);
   FMapTypeIcons24List := VList24;
 
-  for i:=0 to length(GState.MapType)-1 do begin
-    VMapType := GState.MapType[i];
+  for i:=0 to length(MapType)-1 do begin
+    VMapType := MapType[i];
     VList18.Add(VMapType.GUID, VMapType.bmp18);
     VList24.Add(VMapType.GUID, VMapType.bmp24);
+  end;
+end;
+
+procedure TGlobalState.LoadMaps;
+  function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal; out AMapType: TMapType): Boolean;
+  var
+    i: Integer;
+    VMapType: TMapType;
+  begin
+    AMapType := nil;
+    Result := false;
+    if Acnt > 0 then begin
+      for i := 0 to Acnt - 1 do begin
+        VMapType := MapType[i];
+        if IsEqualGUID(AGUID, VMapType.GUID) then begin
+          Result := True;
+          AMapType := VMapType;
+          Break;
+        end;
+      end;
+    end;
+  end;
+var
+  Ini: TMeminifile;
+  i,j,k,pnum: integer;
+  startdir : string;
+  SearchRec: TSearchRec;
+  MTb: TMapType;
+  VGUIDString: String;
+  VMapType: TMapType;
+  VMapTypeLoaded: TMapType;
+  VMapOnlyCount: integer;
+  VMapConfig: IConfigDataProvider;
+  VLocalMapsConfig: IConfigDataProvider;
+  VFileName: string;
+begin
+  SetLength(MapType,0);
+  CreateDir(MapsPath);
+  Ini:=TMeminiFile.Create(MapsPath + 'Maps.ini');
+  VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
+  i:=0;
+  pnum:=0;
+  startdir:=MapsPath;
+  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
+    repeat
+      inc(i);
+    until FindNext(SearchRec) <> 0;
+  end;
+  VMapOnlyCount := 0;
+  SysUtils.FindClose(SearchRec);
+  SetLength(MapType,i);
+  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
+    repeat
+      if (SearchRec.Attr and faDirectory) = faDirectory then continue;
+      try
+        VFileName := startdir+SearchRec.Name;
+        VMapType := TMapType.Create;
+        try
+          VMapConfig := TConfigDataProviderByVCLZip.Create(VFileName);
+          VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
+        except
+          on E: EBadGUID do begin
+            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
+          end;
+        end;
+        VGUIDString := VMapType.GUIDString;
+        if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
+          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.ZmpFileName, VFileName]);
+        end;
+      except
+        if ExceptObject <> nil then begin
+          ShowMessage((ExceptObject as Exception).Message);
+        end;
+        FreeAndNil(VMapType);
+      end;
+      if VMapType <> nil then begin
+        MapType[pnum]:= VMapType;
+        if not VMapType.asLayer then begin
+          Inc(VMapOnlyCount);
+        end;
+        inc(pnum);
+      end;
+    until FindNext(SearchRec) <> 0;
+    SetLength(MapType, pnum);
+    SysUtils.FindClose(SearchRec);
+  end;
+  if Length(MapType) = 0 then begin
+    raise Exception.Create(SAS_ERR_NoMaps);
+  end;
+  if VMapOnlyCount = 0 then begin
+    raise Exception.Create('Среди ZMP должна быть хотя бы одна карта');
+  end;
+
+  k := length(MapType) shr 1;
+  while k>0 do begin
+    for i:=0 to length(MapType)-k-1 do begin
+      j:=i;
+      while (j>=0)and(MapType[j].id>MapType[j+k].id) do begin
+        MTb:=MapType[j];
+        MapType[j]:=MapType[j+k];
+        MapType[j+k]:=MTb;
+        if j>k then begin
+          Dec(j,k);
+        end else begin
+          j:=0;
+        end;
+      end;
+    end;
+    k:=k shr 1;
+  end;
+  for i:=0 to length(MapType)-1 do begin
+    MapType[i].id:=i+1;
   end;
 end;
 
