@@ -46,7 +46,8 @@ type
     FMapConfigLoader: IActiveMapsConfigLoader;
     FCacheConfig: TGlobalCahceConfig;
     FMarksBitmapProvider: IBitmapLayerProvider;
-    FMapTypeIconsList: IMapTypeIconsList;
+    FMapTypeIcons18List: IMapTypeIconsList;
+    FMapTypeIcons24List: IMapTypeIconsList;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -253,7 +254,8 @@ type
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
     property MarksBitmapProvider: IBitmapLayerProvider read FMarksBitmapProvider;
-    property MapTypeIconsList: IMapTypeIconsList read FMapTypeIconsList;
+    property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
+    property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     property ViewState: TMapViewPortState read FViewState;
@@ -346,6 +348,8 @@ begin
   FKmlLoader := nil;
   FKmzLoader := nil;
   FMarksBitmapProvider := nil;
+  FMapTypeIcons18List := nil;
+  FMapTypeIcons24List := nil;
   FreeAndNil(FViewState);
   FreeAllMaps;
   FreeAndNil(FCacheConfig);
@@ -510,13 +514,19 @@ procedure TGlobalState.LoadMapIconsList;
 var
   i: Integer;
   VMapType: TMapType;
-  VList: TMapTypeIconsList;
+  VList18: TMapTypeIconsList;
+  VList24: TMapTypeIconsList;
 begin
-  VList := TMapTypeIconsList.Create;
-  FMapTypeIconsList := VList;
+  VList18 := TMapTypeIconsList.Create;
+  FMapTypeIcons18List := VList18;
+
+  VList24 := TMapTypeIconsList.Create;
+  FMapTypeIcons24List := VList24;
+
   for i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
-    VList.Add(VMapType);
+    VList18.Add(VMapType.GUID, VMapType.bmp18);
+    VList24.Add(VMapType.GUID, VMapType.bmp24);
   end;
 end;
 

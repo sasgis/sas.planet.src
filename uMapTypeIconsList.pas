@@ -5,23 +5,21 @@ interface
 uses
   Windows,
   ActiveX,
+  Graphics,
   ImgList,
   i_IGUIDList,
-  i_MapTypeIconsList,
-  UMapType;
+  i_MapTypeIconsList;
 
 type
   TMapTypeIconsList = class(TInterfacedObject, IMapTypeIconsList)
   private
     FList: IGUIDInterfaceList;
-    FImageList18: TCustomImageList;
-    FImageList24: TCustomImageList;
-    function GetImageList18: TCustomImageList;
-    function GetImageList24: TCustomImageList;
+    FImageList: TCustomImageList;
+    function GetImageList: TCustomImageList;
     function GetMapTypeByGUID(AGUID: TGUID): IMapTypeIconsListItem;
     function GetIterator: IEnumGUID;
   public
-    procedure Add(AMap: TMapType);
+    procedure Add(AGUID: TGUID; ABmp: TBitmap);
     constructor Create();
     destructor Destroy; override;
   end;
@@ -37,75 +35,55 @@ uses
 type
   TMapTypeIconsListItem = class(TInterfacedObject, IMapTypeIconsListItem)
   private
-    FIcon18Index: Integer;
-    FIcon24Index: Integer;
-    function GetIcon18Index: Integer;
-    function GetIcon24Index: Integer;
+    FIconIndex: Integer;
+    function GetIconIndex: Integer;
   public
-    constructor Create(AIcon18Index: Integer; AIcon24Index: Integer);
+    constructor Create(AIconIndex: Integer);
   end;
 
-constructor TMapTypeIconsListItem.Create(AIcon18Index, AIcon24Index: Integer);
+constructor TMapTypeIconsListItem.Create(AIconIndex: Integer);
 begin
-  FIcon18Index := AIcon18Index;
-  FIcon24Index := AIcon24Index;
+  FIconIndex := AIconIndex;
 end;
 
-function TMapTypeIconsListItem.GetIcon18Index: Integer;
+function TMapTypeIconsListItem.GetIconIndex: Integer;
 begin
-  Result := FIcon18Index;
-end;
-
-function TMapTypeIconsListItem.GetIcon24Index: Integer;
-begin
-  Result := FIcon24Index;
+  Result := FIconIndex;
 end;
 
 { TMapTypeIconsList }
 
-procedure TMapTypeIconsList.Add(AMap: TMapType);
+procedure TMapTypeIconsList.Add(AGUID: TGUID; ABmp: TBitmap);
 var
   VItem: IMapTypeIconsListItem;
-  VIndex18: Integer;
-  VIndex24: Integer;
+  VIndex: Integer;
 begin
-  VItem := GetMapTypeByGUID(AMap.GUID);
+  VItem := GetMapTypeByGUID(AGUID);
   if VItem = nil then begin
-    VIndex18 := FImageList18.AddMasked(AMap.bmp18, RGB(255,0,255));
-    VIndex24 := FImageList24.AddMasked(AMap.bmp24, RGB(255,0,255));
-    VItem := TMapTypeIconsListItem.Create(VIndex18, VIndex24);
-    FList.Add(AMap.GUID, VItem);
+    VIndex := FImageList.AddMasked(Abmp, RGB(255,0,255));
+    FList.Add(AGUID, VItem);
   end else begin
-    VIndex18 := VItem.GetIcon18Index;
-    VIndex24 := VItem.GetIcon24Index;
-    FImageList18.ReplaceMasked(VIndex18, AMap.bmp18, RGB(255,0,255));
-    FImageList24.ReplaceMasked(VIndex24, AMap.bmp24, RGB(255,0,255));
+    VIndex := VItem.GetIconIndex;
+    FImageList.ReplaceMasked(VIndex, ABmp, RGB(255,0,255));
   end;
 end;
 
 constructor TMapTypeIconsList.Create;
 begin
-  FImageList18 := TCustomImageList.Create(nil);
-  FImageList24 := TCustomImageList.Create(nil);
+  FImageList := TCustomImageList.Create(nil);
   FList := TGUIDInterfaceList.Create(False);
 end;
 
 destructor TMapTypeIconsList.Destroy;
 begin
-  FreeAndNil(FImageList18);
-  FreeAndNil(FImageList24);
+  FreeAndNil(FImageList);
   FList := nil;
   inherited;
 end;
 
-function TMapTypeIconsList.GetImageList18: TCustomImageList;
+function TMapTypeIconsList.GetImageList: TCustomImageList;
 begin
-  Result := FImageList18;
-end;
-
-function TMapTypeIconsList.GetImageList24: TCustomImageList;
-begin
-  Result := FImageList24;
+  Result := FImageList;
 end;
 
 function TMapTypeIconsList.GetIterator: IEnumGUID;
