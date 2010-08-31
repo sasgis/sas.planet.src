@@ -282,25 +282,6 @@ begin
         if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
           raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.FZMPFileName, VFileName]);
         end;
-        if Ini.SectionExists(VGUIDString)then begin
-          With VMapType do begin
-            id:=Ini.ReadInteger(VGUIDString,'pnum',0);
-            FUrlGenerator.URLBase:=ini.ReadString(VGUIDString,'URLBase',FUrlGenerator.URLBase);
-            CacheConfig.CacheType:=ini.ReadInteger(VGUIDString,'CacheType',CacheConfig.cachetype);
-            CacheConfig.NameInCache:=ini.ReadString(VGUIDString,'NameInCache',CacheConfig.NameInCache);
-            HotKey:=ini.ReadInteger(VGUIDString,'HotKey',HotKey);
-            ParentSubMenu:=ini.ReadString(VGUIDString,'ParentSubMenu',ParentSubMenu);
-            Sleep:=ini.ReadInteger(VGUIDString,'Sleep',Sleep);
-            separator:=ini.ReadBool(VGUIDString,'separator',separator);
-          end;
-        end else begin
-          With VMapType do begin
-            showinfo:=true;
-            if Fpos < 0 then Fpos := i;
-            id := Fpos;
-            dec(i);
-          end;
-        end;
       except
         if ExceptObject <> nil then begin
           ShowMessage((ExceptObject as Exception).Message);
@@ -316,9 +297,8 @@ begin
       end;
     until FindNext(SearchRec) <> 0;
     SetLength(GState.MapType, pnum);
+    SysUtils.FindClose(SearchRec);
   end;
-  SysUtils.FindClose(SearchRec);
-  ini.Free;
   if Length(GState.MapType) = 0 then begin
     raise Exception.Create(SAS_ERR_NoMaps);
   end;
