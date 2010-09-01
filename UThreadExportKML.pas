@@ -21,7 +21,7 @@ type
     FPolygLL:TExtendedPointArray;
     FZoomArr:array [0..23] of boolean;
     FMapType: TMapType;
-    Fprogress: TFprogress2;
+    FProgressForm: TFprogress2;
     FIsReplace:boolean;
     FPathExport:string;
     RelativePath:boolean;
@@ -64,8 +64,8 @@ begin
   inherited Create(false);
   Priority := tpLowest;
   FreeOnTerminate:=true;
-  Application.CreateForm(TFProgress2, FProgress);
-  FProgress.Visible:=true;
+  Application.CreateForm(TFProgress2, FProgressForm);
+  FProgressForm.Visible:=true;
   FPathExport:=APath;
   FIsReplace:=AReplace;
   RelativePath:=ARelativePath;
@@ -162,7 +162,7 @@ begin
      p_y:=min.Y;
      while p_y<max.Y do
       begin
-       if not FProgress.Visible then begin
+       if not FProgressForm.Visible then begin
           exit;
         end;
        if not(RgnAndRgn(Polyg,p_x,p_y,false)) then begin
@@ -184,24 +184,24 @@ end;
 
 procedure TThreadExportKML.CloseProgressForm;
 begin
- FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
- FProgress.Close;
+ FProgressForm.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
+ FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+ FProgressForm.Close;
 end;
 
 procedure TThreadExportKML.InitProgressForm;
 begin
- fprogress.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
- fprogress.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
- fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgress.ProgressBar1.Progress1);
- FProgress.ProgressBar1.Max:=100;
- FProgress.ProgressBar1.Progress1:=0;
+ FProgressForm.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
+ FProgressForm.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
+ FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgressForm.ProgressBar1.Progress1);
+ FProgressForm.ProgressBar1.Max:=100;
+ FProgressForm.ProgressBar1.Progress1:=0;
 end;
 
 procedure TThreadExportKML.UpdateProgressForm;
 begin
-  FProgress.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+  FProgressForm.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
+  FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
 end;
 
 end.
