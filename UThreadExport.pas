@@ -23,14 +23,10 @@ type
     FTileNameGen: ITileFileNameGenerator;
 
     FIsMove: boolean;
-    FIsZiped: boolean;
     FIsReplace: boolean;
     FPathExport: string;
-    FZip: TVCLZip;
-    Zippu: boolean;
   protected
     procedure ExportRegion; override;
-    procedure Terminate; override;
   public
     constructor Create(
       APath: string;
@@ -39,7 +35,6 @@ type
       Atypemaparr: array of TMapType;
       Amove: boolean;
       Areplace: boolean;
-      Aziped: boolean;
       ATileNameGen: ITileFileNameGenerator
       );
   end;
@@ -50,30 +45,20 @@ uses
   u_GeoToStr,
   unit1;
 
-procedure TThreadExport.Terminate;
-begin
-  inherited;
-  if Zippu then begin
-    FZip.CancelTheOperation;
-  end;
-end;
-
 constructor TThreadExport.Create(
   APath: string;
   APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
-  Amove, Areplace, Aziped: boolean;
+  Amove, Areplace: boolean;
   ATileNameGen: ITileFileNameGenerator);
 var
   i: integer;
 begin
   inherited Create(APolygon, Azoomarr);
-  Zippu := false;
   FPathExport := APath;
   FIsMove := AMove;
   FTileNameGen := ATileNameGen;
-  FIsZiped := Aziped;
   FIsReplace := AReplace;
   setlength(FMapTypeArr, length(Atypemaparr));
   for i := 1 to length(Atypemaparr) do begin
@@ -124,23 +109,10 @@ begin
     end;
     persl := copy(persl, 1, length(persl) - 1);
     perzoom := copy(perzoom, 1, length(perzoom) - 1);
-    if FIsZiped then begin
-      ProgressFormUpdateCaption(
-        SAS_STR_ExportTiles + ' ' + SAS_STR_CreateArhList,
-        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-      );
-      FZip := TVCLZip.Create(nil);
-      Zippu := true;
-      FZip.Recurse := False;
-      FZip.StorePaths := true; // Путь не сохраняем
-      FZip.PackLevel := 0; // Уровень сжатия
-      FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
-    end else begin
-      ProgressFormUpdateCaption(
-        SAS_STR_ExportTiles,
-        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-      );
-    end;
+    ProgressFormUpdateCaption(
+      SAS_STR_ExportTiles,
+      SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
+    );
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
     for i := 0 to 23 do //по масштабу
@@ -166,16 +138,10 @@ begin
                 CONTINUE;
               end;
               if FMapTypeArr[j].TileExists(VTile, i) then begin
-                if FIsZiped then begin
-//TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-                  pathfrom := FMapTypeArr[j].GetTileFileName(VTile, i);
-                  FZip.FilesList.Add(pathfrom);
-                end else begin
-                  pathto := VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
-                  if FMapTypeArr[j].TileExportToFile(VTile, i, pathto, FIsReplace) then begin
-                    if FIsMove then begin
-                      FMapTypeArr[j].DeleteTile(VTile, i);
-                    end;
+                pathto := VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
+                if FMapTypeArr[j].TileExportToFile(VTile, i, pathto, FIsReplace) then begin
+                  if FIsMove then begin
+                    FMapTypeArr[j].DeleteTile(VTile, i);
                   end;
                 end;
               end;
@@ -189,20 +155,6 @@ begin
           end;
         end;
       end;
-    end;
-    if FIsZiped then begin
-      ProgressFormUpdateCaption(
-        SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP',
-        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-      );
-      if FileExists(FZip.ZipName) then begin
-        DeleteFile(FZip.ZipName);
-      end;
-      If FZip.Zip = 0 then begin
-        Application.MessageBox(PChar(SAS_ERR_CreateArh), PChar(SAS_MSG_coution), 48);
-      end;
-      FZip.free;
-      Zippu := false;
     end;
     ProgressFormUpdateOnProgress;
     FTileNameGen := nil;
