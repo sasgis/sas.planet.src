@@ -31,8 +31,8 @@ type
     FPolygLL: TExtendedPointArray;
     FZoomArr: array [0..23] of boolean;
 
-    FTilesToProcess:integer;
-    FTilesProcessed:integer;
+    FTilesToProcess: Int64;
+    FTilesProcessed: Int64;
     procedure ProgressFormUpdateOnProgress;
     procedure ProgressFormUpdateCaption(ALine0, ACaption: string);
     procedure ShowMessageSync(AMessage: string);
