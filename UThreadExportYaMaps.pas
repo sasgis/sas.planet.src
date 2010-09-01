@@ -110,17 +110,11 @@ begin
           end;
         end;
       end;
-      FShowOnFormLine0:=SAS_STR_ExportTiles;
-      Synchronize(UpdateProgressFormStr0);
-
-      FShowFormCaption:=SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_files;
-      Synchronize(UpdateProgressFormCaption);
-
-      FProgressOnForm := 0;
-      FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
-      Synchronize(UpdateProgressFormStr1);
-
       FTilesProcessed:=0;
+
+      ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_files);
+      ProgressFormUpdateOnProgress;
+
       tc:=GetTickCount;
       for i:=0 to 23 do begin
         if FZoomArr[i] then begin
@@ -134,7 +128,7 @@ begin
                 p_y:=min.Y;
                 while p_y<max.Y do begin
                   VTile.Y := p_y shr 8;
-                  if (FProgressForm.Visible=false)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
+                  if (IsCancel)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
                     inc(p_y,256);
                     CONTINUE;
                   end;
@@ -174,10 +168,7 @@ begin
                   inc(FTilesProcessed);
                   if (GetTickCount-tc>1000) then begin
                     tc:=GetTickCount;
-                    FProgressOnForm:=round((FTilesProcessed/FTilesToProcess)*100);
-                    Synchronize(UpdateProgressFormBar);
-                    FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
-                    Synchronize(UpdateProgressFormStr1);
+                    ProgressFormUpdateOnProgress
                   end;
                   inc(p_y,256);
                 end;
@@ -187,10 +178,7 @@ begin
           end;
         end;
       end;
-      FProgressOnForm:=round((FTilesProcessed/FTilesToProcess)*100);
-      Synchronize(UpdateProgressFormBar);
-      FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
-      Synchronize(UpdateProgressFormStr1);
+      ProgressFormUpdateOnProgress
     finally
       bmp32.Free;
       bmp322.Free;

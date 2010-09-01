@@ -126,24 +126,24 @@ begin
     persl := copy(persl, 1, length(persl) - 1);
     perzoom := copy(perzoom, 1, length(perzoom) - 1);
     if FIsZiped then begin
-      FShowOnFormLine0 := SAS_STR_ExportTiles + ' ' + SAS_STR_CreateArhList;
-      Synchronize(UpdateProgressFormStr0);
-      FZip := TVCLZip.Create(Fmain);
+      ProgressFormUpdateCaption(
+        SAS_STR_ExportTiles + ' ' + SAS_STR_CreateArhList,
+        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
+      );
+      FZip := TVCLZip.Create(nil);
       Zippu := true;
       FZip.Recurse := False;
       FZip.StorePaths := true; // Путь не сохраняем
       FZip.PackLevel := 0; // Уровень сжатия
       FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
     end else begin
-      FShowOnFormLine0 := SAS_STR_ExportTiles;
-      Synchronize(UpdateProgressFormStr0);
+      ProgressFormUpdateCaption(
+        SAS_STR_ExportTiles,
+        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
+      );
     end;
-    FShowFormCaption := SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files;
-    Synchronize(UpdateProgressFormCaption);
-
-    FShowOnFormLine1 := SAS_STR_Processed + ' 0%';
-    Synchronize(UpdateProgressFormStr1);
     FTilesProcessed := 0;
+    ProgressFormUpdateOnProgress;
     for i := 0 to 23 do //по масштабу
     begin
       if FZoomArr[i] then begin
@@ -159,7 +159,7 @@ begin
             p_y := min.Y;
             while p_y < max.Y do begin
               VTile.Y := p_y shr 8;
-              if not FProgressForm.Visible then begin
+              if IsCancel then begin
                 exit;
               end;
               if not (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
@@ -182,10 +182,7 @@ begin
               end;
               inc(FTilesProcessed);
               if FTilesProcessed mod 100 = 0 then begin
-                FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
-                Synchronize(UpdateProgressFormBar);
-                FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
-                Synchronize(UpdateProgressFormStr1);
+                ProgressFormUpdateOnProgress;
               end;
               inc(p_y, 256);
             end;
@@ -195,8 +192,10 @@ begin
       end;
     end;
     if FIsZiped then begin
-      FShowOnFormLine0 := SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
-      Synchronize(UpdateProgressFormStr0);
+      ProgressFormUpdateCaption(
+        SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP',
+        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
+      );
       if FileExists(FZip.ZipName) then begin
         DeleteFile(FZip.ZipName);
       end;
@@ -206,10 +205,7 @@ begin
       FZip.free;
       Zippu := false;
     end;
-    FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
-    Synchronize(UpdateProgressFormBar);
-    FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
-    Synchronize(UpdateProgressFormStr1);
+    ProgressFormUpdateOnProgress;
     FTileNameGen := nil;
 end;
 

@@ -100,10 +100,7 @@ begin
   inc(FTilesProcessed);
   if FTilesProcessed mod 100 = 0 then
    begin
-    FProgressOnForm := round((FTilesProcessed/FTilesToProcess)*100);
-    Synchronize(UpdateProgressFormBar);
-    FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
-    Synchronize(UpdateProgressFormStr1);
+    ProgressFormUpdateOnProgress
    end;
   i:=z;
   while (not(FZoomArr[i]))and(i<24) do inc(i);
@@ -132,14 +129,10 @@ begin
     polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
     FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
    end;
-  FShowOnFormLine0 := SAS_STR_ExportTiles;
-  Synchronize(UpdateProgressFormStr0);
-  FShowFormCaption := SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_Files;
-  Synchronize(UpdateProgressFormCaption);
-  FShowOnFormLine1 :=SAS_STR_Processed+' 0';
-  Synchronize(UpdateProgressFormStr1);
+  FTilesProcessed:=0;
+  ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_Files);
+  ProgressFormUpdateOnProgress;
  try
-   FTilesProcessed:=0;
    i:=0;
    AssignFile(KMLFile,FPathExport);
    Rewrite(KMLFile);
@@ -172,10 +165,7 @@ begin
    Write(KMLFile,ToFile);
    CloseFile(KMLFile);
  finally
-  FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
-  Synchronize(UpdateProgressFormBar);
-  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
-  Synchronize(UpdateProgressFormStr1);
+  ProgressFormUpdateOnProgress;
  end;
 end;
 

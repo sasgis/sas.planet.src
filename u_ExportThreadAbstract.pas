@@ -10,26 +10,32 @@ uses
 
 type
   TExportThreadAbstract = class(TThread)
-  protected
-    FPolygLL: TExtendedPointArray;
-    FZoomArr: array [0..23] of boolean;
-
-    FProgressForm: TFprogress2;
+  private
+    FMessageForShow: string;
     FShowFormCaption: string;
     FShowOnFormLine0: string;
     FShowOnFormLine1: string;
     FProgressOnForm: integer;
-    FMessageForShow: string;
-
-    FTilesToProcess:integer;
-    FTilesProcessed:integer;
 
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormCaption;
     procedure UpdateProgressFormStr0;
     procedure UpdateProgressFormStr1;
-    procedure UpdateProgressFormClose;
+
     procedure SynShowMessage;
+    procedure UpdateProgressFormClose;
+  protected
+    FPolygLL: TExtendedPointArray;
+    FZoomArr: array [0..23] of boolean;
+
+    FProgressForm: TFprogress2;
+    FTilesToProcess:integer;
+    FTilesProcessed:integer;
+    procedure ProgressFormUpdateOnProgress;
+    procedure ProgressFormUpdateCaption(ALine0, ACaption: string);
+    procedure ShowMessageSync(AMessage: string);
+    function IsCancel: Boolean;
+
     procedure ExportRegion; virtual; abstract;
     procedure Execute; override;
   public
@@ -80,10 +86,37 @@ begin
     Synchronize(UpdateProgressFormClose);
   except
     on e: Exception do begin
-      FMessageForShow := e.Message;
-      Synchronize(SynShowMessage);
+      ShowMessageSync(e.Message);
     end;
   end;
+end;
+
+function TExportThreadAbstract.IsCancel: Boolean;
+begin
+  result := not(FProgressForm.Visible);
+end;
+
+procedure TExportThreadAbstract.ProgressFormUpdateCaption(ALine0,
+  ACaption: string);
+begin
+  FShowOnFormLine0 := ALine0;
+  Synchronize(UpdateProgressFormStr0);
+  FShowFormCaption := ACaption;
+  Synchronize(UpdateProgressFormCaption);
+end;
+
+procedure TExportThreadAbstract.ProgressFormUpdateOnProgress;
+begin
+  FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
+  Synchronize(UpdateProgressFormBar);
+  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
+  Synchronize(UpdateProgressFormStr1);
+end;
+
+procedure TExportThreadAbstract.ShowMessageSync(AMessage: string);
+begin
+  FMessageForShow := AMessage;
+  Synchronize(SynShowMessage);
 end;
 
 procedure TExportThreadAbstract.SynShowMessage;

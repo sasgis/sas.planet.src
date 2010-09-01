@@ -207,16 +207,9 @@ begin
           FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, VPolyg, true);
         end;
       end;
-      FShowOnFormLine0 := SAS_STR_ExportTiles;
-      Synchronize(UpdateProgressFormStr0);
-
-      FShowFormCaption := SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files;
-      Synchronize(UpdateProgressFormCaption);
-
-      FShowOnFormLine1 := SAS_STR_Processed + ' 0%';
-      Synchronize(UpdateProgressFormStr1);
-
+      ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
       FTilesProcessed := 0;
+      ProgressFormUpdateOnProgress;
 
       sqlite3_initialize;
       FSQLite3Db := TDISQLite3Database.Create(nil);
@@ -259,7 +252,7 @@ begin
             p_y := min.Y;
             while p_y < max.Y do begin
               VTile.Y := p_y shr 8;
-              if (FProgressForm.Visible = false) or (not (RgnAndRgn(VPolyg, p_x, p_y, false))) then begin
+              if (IsCancel) or (not (RgnAndRgn(VPolyg, p_x, p_y, false))) then begin
                 inc(p_y, 256);
                 CONTINUE;
               end;
@@ -287,10 +280,7 @@ begin
                   inc(FTilesProcessed);
                   if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
                     ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
-                    FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
-                    Synchronize(UpdateProgressFormBar);
-                    FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
-                    Synchronize(UpdateProgressFormStr1);
+                    ProgressFormUpdateOnProgress;
                   end;
                   if (FTilesProcessed mod 500 = 0) then begin
                     FSQLite3Db.Execute('COMMIT');
@@ -305,10 +295,7 @@ begin
         end;
       end;
       FSQLite3Db.Execute('COMMIT');
-      FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
-      Synchronize(UpdateProgressFormBar);
-      FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
-      Synchronize(UpdateProgressFormStr1);
+      ProgressFormUpdateOnProgress;
     finally
       sqlite3_shutdown;
       FSQLite3Db.Free;
