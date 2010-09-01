@@ -5,13 +5,11 @@ interface
 uses
   Windows,
   Types,
-  Forms,
   SysUtils,
   Classes,
   GR32,
   UMapType,
   UGeoFun,
-  unit4,
   UResStrings,
   UYaMobile,
   t_GeoTypes,
@@ -42,7 +40,7 @@ type
 implementation
 
 uses
-  Dialogs,
+  
   i_ICoordConverter,
   u_CoordConverterMercatorOnEllipsoid,
   i_BitmapTileSaveLoad,

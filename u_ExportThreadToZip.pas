@@ -41,8 +41,7 @@ type
 implementation
 
 uses
-  u_GeoToStr,
-  unit1;
+  u_GeoToStr;
 
 procedure TExportThreadToZip.Terminate;
 begin

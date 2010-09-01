@@ -4,10 +4,8 @@ interface
 
 uses
   Windows,
-  Forms,
   SysUtils,
   Classes,
-  VCLZIp,
   GR32,
   i_ITileFileNameGenerator,
   UMapType,
@@ -42,8 +40,7 @@ type
 implementation
 
 uses
-  u_GeoToStr,
-  unit1;
+  u_GeoToStr;
 
 constructor TThreadExport.Create(
   APath: string;

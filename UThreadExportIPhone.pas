@@ -13,7 +13,6 @@ uses
   i_ICoordConverter,
   UMapType,
   UGeoFun,
-  unit4,
   t_GeoTypes,
   u_ExportThreadAbstract;
 
@@ -51,8 +50,6 @@ type
 implementation
 
 uses
-  Forms,
-  Dialogs,
   u_GeoToStr,
   UResStrings,
   i_BitmapTileSaveLoad,

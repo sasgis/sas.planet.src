@@ -5,7 +5,6 @@ interface
 uses
   Windows,
   Types,
-  Forms,
   SysUtils,
   Classes,
   GR32,
@@ -43,7 +42,7 @@ implementation
 
 uses
   Math,
-  Dialogs,
+  
   u_GeoToStr,
   i_ICoordConverter;
 
