@@ -87,10 +87,10 @@ var
   p_x, p_y, i, j: integer;
   polyg: TPointArray;
   pathfrom, persl, perzoom, kti, datestr: string;
-  max, min: TPoint;
   VExt: string;
   VPath: string;
-  VMinLonLat, VMaxLonLat: TExtendedPoint;
+  VPixelRect: TRect;
+  VLonLatRect: TExtendedRect;
   VTile: TPoint;
 begin
     FTilesToProcess := 0;
@@ -104,14 +104,14 @@ begin
       for j := 0 to 23 do begin
         if FZoomArr[j] then begin
           polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
-          FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, Polyg, true);
+          FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, true);
           perzoom := perzoom + inttostr(j + 1) + '_';
-          VMinLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min, j);
-          VMaxLonLat := FMapTypeArr[i].GeoConvert.PixelPos2LonLat(min, j);
-          kti := RoundEx(VMinLonLat.x, 4);
-          kti := kti + '_' + RoundEx(VMinLonLat.y, 4);
-          kti := kti + '_' + RoundEx(VMaxLonLat.x, 4);
-          kti := kti + '_' + RoundEx(VMaxLonLat.y, 4);
+
+          VLonLatRect := FMapTypeArr[i].GeoConvert.PixelRect2LonLatRect(VPixelRect, j);
+          kti := RoundEx(VLonLatRect.Left, 4);
+          kti := kti + '_' + RoundEx(VLonLatRect.Top, 4);
+          kti := kti + '_' + RoundEx(VLonLatRect.Right, 4);
+          kti := kti + '_' + RoundEx(VLonLatRect.Bottom, 4);
         end;
       end;
     end;
@@ -135,12 +135,12 @@ begin
           polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
-          GetDwnlNum(min, max, Polyg, false);
-          p_x := min.x;
-          while p_x < max.x do begin
+          GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, false);
+          p_x := VPixelRect.Left;
+          while p_x < VPixelRect.Right do begin
             VTile.X := p_x shr 8;
-            p_y := min.Y;
-            while p_y < max.Y do begin
+            p_y := VPixelRect.Top;
+            while p_y < VPixelRect.Bottom do begin
               VTile.Y := p_y shr 8;
               if IsCancel then begin
                 exit;
