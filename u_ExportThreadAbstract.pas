@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  Forms,
   t_GeoTypes,
   unit4,
   UResStrings;
@@ -11,6 +12,7 @@ uses
 type
   TExportThreadAbstract = class(TThread)
   private
+    FProgressForm: TFprogress2;
     FMessageForShow: string;
     FShowFormCaption: string;
     FShowOnFormLine0: string;
@@ -24,11 +26,11 @@ type
 
     procedure SynShowMessage;
     procedure UpdateProgressFormClose;
+    procedure CloseFProgress(Sender: TObject; var Action: TCloseAction); virtual;
   protected
     FPolygLL: TExtendedPointArray;
     FZoomArr: array [0..23] of boolean;
 
-    FProgressForm: TFprogress2;
     FTilesToProcess:integer;
     FTilesProcessed:integer;
     procedure ProgressFormUpdateOnProgress;
@@ -38,6 +40,7 @@ type
 
     procedure ExportRegion; virtual; abstract;
     procedure Execute; override;
+    procedure Terminate; reintroduce; virtual; 
   public
     constructor Create(
       APolygon: TExtendedPointArray;
@@ -50,8 +53,13 @@ implementation
 
 uses
   SysUtils,
-  Dialogs,
-  Forms;
+  Dialogs;
+
+procedure TExportThreadAbstract.CloseFProgress(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Terminate;
+end;
 
 constructor TExportThreadAbstract.Create(APolygon: TExtendedPointArray;
   Azoomarr: array of boolean);
@@ -62,6 +70,7 @@ begin
   Priority := tpLowest;
   FreeOnTerminate := true;
   Application.CreateForm(TFProgress2, FProgressForm);
+  FProgressForm.OnClose := CloseFProgress;
   FProgressForm.ProgressBar1.Progress1 := 0;
   FProgressForm.ProgressBar1.Max := 100;
   FProgressForm.Visible := true;
@@ -93,7 +102,7 @@ end;
 
 function TExportThreadAbstract.IsCancel: Boolean;
 begin
-  result := not(FProgressForm.Visible);
+  result := Terminated;
 end;
 
 procedure TExportThreadAbstract.ProgressFormUpdateCaption(ALine0,
@@ -122,6 +131,11 @@ end;
 procedure TExportThreadAbstract.SynShowMessage;
 begin
   ShowMessage(FMessageForShow);
+end;
+
+procedure TExportThreadAbstract.Terminate;
+begin
+  inherited;
 end;
 
 procedure TExportThreadAbstract.UpdateProgressFormCaption;

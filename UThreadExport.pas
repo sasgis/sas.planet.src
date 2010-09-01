@@ -28,10 +28,9 @@ type
     FPathExport: string;
     FZip: TVCLZip;
     Zippu: boolean;
-
-    procedure CloseFProgress(Sender: TObject; var Action: TCloseAction);
   protected
     procedure ExportRegion; override;
+    procedure Terminate; override;
   public
     constructor Create(
       APath: string;
@@ -51,8 +50,9 @@ uses
   u_GeoToStr,
   unit1;
 
-procedure TThreadExport.CloseFProgress(Sender: TObject; var Action: TCloseAction);
+procedure TThreadExport.Terminate;
 begin
+  inherited;
   if Zippu then begin
     FZip.CancelTheOperation;
   end;
@@ -70,7 +70,6 @@ var
 begin
   inherited Create(APolygon, Azoomarr);
   Zippu := false;
-  FProgressForm.OnClose := CloseFProgress;
   FPathExport := APath;
   FIsMove := AMove;
   FTileNameGen := ATileNameGen;
