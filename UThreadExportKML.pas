@@ -27,10 +27,20 @@ type
     RelativePath:boolean;
     num_dwn,obrab:integer;
     KMLFile:TextFile;
+    FShowFormCaption: string;
+    FShowOnFormLine0: string;
+    FShowOnFormLine1: string;
+    FProgressOnForm: integer;
+    FMessageForShow: string;
+
+    procedure UpdateProgressFormBar;
+    procedure UpdateProgressFormCaption;
+    procedure UpdateProgressFormStr0;
+    procedure UpdateProgressFormStr1;
+    procedure UpdateProgressFormClose;
+    procedure SynShowMessage;
+
     procedure KmlFileWrite(x,y:integer;z,level:byte);
-    procedure InitProgressForm;
-    procedure UpdateProgressForm;
-    procedure CloseProgressForm;
   protected
     procedure Execute; override;
   public
@@ -48,6 +58,7 @@ implementation
 
 uses
   Math,
+  Dialogs,
   u_GeoToStr,
   i_ICoordConverter;
 
@@ -65,7 +76,9 @@ begin
   Priority := tpLowest;
   FreeOnTerminate:=true;
   Application.CreateForm(TFProgress2, FProgressForm);
-  FProgressForm.Visible:=true;
+  FProgressForm.ProgressBar1.Progress1 := 0;
+  FProgressForm.ProgressBar1.Max := 100;
+  FProgressForm.Visible := true;
   FPathExport:=APath;
   FIsReplace:=AReplace;
   RelativePath:=ARelativePath;
@@ -114,7 +127,10 @@ begin
   inc(obrab);
   if obrab mod 100 = 0 then
    begin
-     Synchronize(UpdateProgressForm);
+    FProgressOnForm := round((obrab/num_dwn)*100);
+    Synchronize(UpdateProgressFormBar);
+    FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(obrab);
+    Synchronize(UpdateProgressFormStr1);
    end;
   i:=z;
   while (not(FZoomArr[i]))and(i<24) do inc(i);
@@ -143,7 +159,12 @@ begin
     polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
     num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
    end;
- Synchronize(InitProgressForm);
+  FShowOnFormLine0 := SAS_STR_ExportTiles;
+  Synchronize(UpdateProgressFormStr0);
+  FShowFormCaption := SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
+  Synchronize(UpdateProgressFormCaption);
+  FShowOnFormLine1 :=SAS_STR_Processed+' 0';
+  Synchronize(UpdateProgressFormStr1);
  try
    obrab:=0;
    i:=0;
@@ -178,30 +199,42 @@ begin
    Write(KMLFile,ToFile);
    CloseFile(KMLFile);
  finally
-   Synchronize(CloseProgressForm);
+  FProgressOnForm := round((obrab / num_dwn) * 100);
+  Synchronize(UpdateProgressFormBar);
+  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(obrab);
+  Synchronize(UpdateProgressFormStr1);
+  Synchronize(UpdateProgressFormClose);
  end;
 end;
 
-procedure TThreadExportKML.CloseProgressForm;
+procedure TThreadExportKML.SynShowMessage;
 begin
- FProgressForm.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
- FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
- FProgressForm.Close;
+  ShowMessage(FMessageForShow);
 end;
 
-procedure TThreadExportKML.InitProgressForm;
+procedure TThreadExportKML.UpdateProgressFormCaption;
 begin
- FProgressForm.MemoInfo.Lines[0]:=SAS_STR_ExportTiles;
- FProgressForm.Caption:=SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
- FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(FProgressForm.ProgressBar1.Progress1);
- FProgressForm.ProgressBar1.Max:=100;
- FProgressForm.ProgressBar1.Progress1:=0;
+  FProgressForm.Caption := FShowFormCaption;
 end;
 
-procedure TThreadExportKML.UpdateProgressForm;
+procedure TThreadExportKML.UpdateProgressFormClose;
 begin
-  FProgressForm.ProgressBar1.Progress1:=round((obrab/num_dwn)*100);
-  FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(obrab);
+  FProgressForm.Close;
+end;
+
+procedure TThreadExportKML.UpdateProgressFormStr0;
+begin
+  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
+end;
+
+procedure TThreadExportKML.UpdateProgressFormStr1;
+begin
+  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
+end;
+
+procedure TThreadExportKML.UpdateProgressFormBar;
+begin
+  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 end.
