@@ -43,6 +43,7 @@ type
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
+  function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 
 implementation
@@ -130,6 +131,35 @@ begin
     end;
   else
     Result := '';
+  end;
+end;
+
+function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
+var
+  i: integer;
+begin
+  if PtInPolygon(ARect.TopLeft,polyg) then begin
+    result:=true;
+  end else begin
+    if PtInPolygon(Point(ARect.Right, ARect.Top),polyg) then begin
+      result:=true;
+    end else begin
+      if PtInPolygon(ARect.BottomRight,polyg) then begin
+        result:=true;
+      end else begin
+        if PtInPolygon(Point(ARect.Left,ARect.Bottom),polyg) then begin
+          result:=true;
+        end else begin
+          result:=false;
+          for i:=0 to length(polyg)-2 do begin
+            if PtInRect(ARect, polyg[i]) then begin
+              result:=true;
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
   end;
 end;
 
