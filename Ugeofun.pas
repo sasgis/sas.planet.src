@@ -136,20 +136,33 @@ end;
 function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;
 begin
- xm128:=x-128;
- ym128:=y-128;
- if (prefalse=false)and(PtInPolygon(Point(xm128,ym128),polyg)) then begin result:=true; exit; end;
- xp128:=x+128;
- if (prefalse=false)and(PtInPolygon(Point(xp128,ym128),polyg)) then begin result:=true; exit; end;
- yp128:=y+128;
- if PtInPolygon(Point(xp128,yp128),polyg) then begin result:=true; exit; end;
- if PtInPolygon(Point(xm128,yp128),polyg) then begin result:=true; exit; end;
- for i:=0 to length(polyg)-2 do
-  begin
-   if (polyg[i].x<xp128)and(polyg[i].x>xm128)and(polyg[i].y<yp128)and(polyg[i].y>ym128)
-    then begin result:=true; exit; end;
+  xm128:=x-128;
+  ym128:=y-128;
+  if (not prefalse)and(PtInPolygon(Point(xm128,ym128),polyg)) then begin
+    result:=true;
+  end else begin
+    xp128:=x+128;
+    if (not prefalse)and(PtInPolygon(Point(xp128,ym128),polyg)) then begin
+      result:=true;
+    end else begin
+      yp128:=y+128;
+      if PtInPolygon(Point(xp128,yp128),polyg) then begin
+        result:=true;
+      end else begin
+        if PtInPolygon(Point(xm128,yp128),polyg) then begin
+          result:=true;
+        end else begin
+          result:=false;
+          for i:=0 to length(polyg)-2 do begin
+            if (polyg[i].x<xp128)and(polyg[i].x>xm128)and(polyg[i].y<yp128)and(polyg[i].y>ym128) then begin
+              result:=true;
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
   end;
- result:=false;
 end;
 
 Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
