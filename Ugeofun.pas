@@ -41,8 +41,10 @@ type
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateWFileParams(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
-  Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
-  function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
+  Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean); overload;
+  Procedure GetMinMax(var ARect:TRect; Polyg:TPointArray;round_:boolean); overload;
+  function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64; overload;
+  function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64; overload;
   function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
 
@@ -220,6 +222,31 @@ begin
   end;
 end;
 
+Procedure GetMinMax(var ARect: TRect; Polyg:TPointArray;round_:boolean);
+var i:integer;
+begin
+ ARect.TopLeft:=Polyg[0];
+ ARect.BottomRight:=Polyg[0];
+ for i:=1 to length(Polyg)-1 do
+  begin
+   if ARect.Left>Polyg[i].x then ARect.Left:=Polyg[i].x;
+   if ARect.Top>Polyg[i].y then ARect.Top:=Polyg[i].y;
+   if ARect.Right<Polyg[i].x then ARect.Right:=Polyg[i].x;
+   if ARect.Bottom<Polyg[i].y then ARect.Bottom:=Polyg[i].y;
+  end;
+ if round_ then
+  begin
+   Dec(ARect.Right);
+   Dec(ARect.Bottom);
+   Inc(ARect.Left);
+   Inc(ARect.Top);
+   ARect.Left:=ARect.Left-(ARect.Left mod 256)+128;
+   ARect.Right:=ARect.Right-(ARect.Right mod 256)+128;
+   ARect.Top:=ARect.Top-(ARect.Top mod 256)+128;
+   ARect.Bottom:=ARect.Bottom-(ARect.Bottom mod 256)+128;
+  end;
+end;
+
 function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
 var i,j:integer;
     prefalse:boolean;
@@ -249,6 +276,37 @@ begin
          end;
  max.X:=max.X+1;
  max.Y:=max.Y+1;
+end;
+
+function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64;
+var i,j:integer;
+    prefalse:boolean;
+begin
+ GetMinMax(ARect,polyg,true);
+ result:=0;
+ if getNum then
+  if (length(Polyg)=5)and(Polyg[0].x=Polyg[3].x)and(Polyg[1].x=Polyg[2].x)
+                      and(Polyg[0].y=Polyg[1].y)and(Polyg[2].y=Polyg[3].y)
+    then begin
+          result:=int64((ARect.Right-ARect.Left) div 256+1)*int64((ARect.Bottom-ARect.Top) div 256+1);
+         end
+    else begin
+          i:=ARect.Left;
+          while i<=ARect.Right do
+          begin
+           j:=ARect.Top;
+           prefalse:=false;
+           while j<=ARect.Bottom do
+            begin
+             prefalse:=not(RgnAndRgn(Polyg,i,j,prefalse));
+             if not(prefalse) then inc(result);
+             inc(j,256);
+            end;
+           inc(i,256);
+          end;
+         end;
+ Inc(ARect.Right);
+ Inc(ARect.Bottom);
 end;
 
 procedure CalculateWFileParams(
