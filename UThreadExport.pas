@@ -63,49 +63,26 @@ begin
   end;
 end;
 
-function RetDate(inDate: TDateTime): string;
-var
-  xYear, xMonth, xDay: word;
-begin
-  DecodeDate(inDate, xYear, xMonth, xDay);
-  Result := inttostr(xDay) + '.' + inttostr(xMonth) + '.' + inttostr(xYear);
-end;
-
 procedure TThreadExport.ExportRegion;
 var
   p_x, p_y, i, j: integer;
   polyg: TPointArray;
-  pathto, persl, perzoom, kti, datestr: string;
+  pathto: string;
   VExt: string;
   VPath: string;
   VPixelRect: TRect;
-  VLonLatRect: TExtendedRect;
   VTile: TPoint;
 begin
     FTilesToProcess := 0;
     SetLength(polyg, length(FPolygLL));
-    persl := '';
-    kti := '';
-    datestr := RetDate(now);
     for i := 0 to length(FMapTypeArr) - 1 do begin
-      persl := persl + FMapTypeArr[i].GetShortFolderName + '_';
-      perzoom := '';
       for j := 0 to 23 do begin
         if FZoomArr[j] then begin
           polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
           FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, true);
-          perzoom := perzoom + inttostr(j + 1) + '_';
-
-          VLonLatRect := FMapTypeArr[i].GeoConvert.PixelRect2LonLatRect(VPixelRect, j);
-          kti := RoundEx(VLonLatRect.Left, 4);
-          kti := kti + '_' + RoundEx(VLonLatRect.Top, 4);
-          kti := kti + '_' + RoundEx(VLonLatRect.Right, 4);
-          kti := kti + '_' + RoundEx(VLonLatRect.Bottom, 4);
         end;
       end;
     end;
-    persl := copy(persl, 1, length(persl) - 1);
-    perzoom := copy(perzoom, 1, length(perzoom) - 1);
     ProgressFormUpdateCaption(
       SAS_STR_ExportTiles,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
