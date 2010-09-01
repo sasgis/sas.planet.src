@@ -25,7 +25,8 @@ type
     FIsReplace:boolean;
     FPathExport:string;
     RelativePath:boolean;
-    num_dwn,obrab:integer;
+    FTilesToProcess:integer;
+    FTilesProcessed:integer;
     KMLFile:TextFile;
     FShowFormCaption: string;
     FShowOnFormLine0: string;
@@ -124,12 +125,12 @@ begin
           '    </LatLonBox>'+#13#10+'  </GroundOverlay>';
   ToFile:=AnsiToUtf8(ToFile);
   Write(KMLFile,ToFile);
-  inc(obrab);
-  if obrab mod 100 = 0 then
+  inc(FTilesProcessed);
+  if FTilesProcessed mod 100 = 0 then
    begin
-    FProgressOnForm := round((obrab/num_dwn)*100);
+    FProgressOnForm := round((FTilesProcessed/FTilesToProcess)*100);
     Synchronize(UpdateProgressFormBar);
-    FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(obrab);
+    FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
     Synchronize(UpdateProgressFormStr1);
    end;
   i:=z;
@@ -151,22 +152,22 @@ var p_x,p_y,i,j:integer;
     ToFile:string;
     max,min:TPoint;
 begin
- num_dwn:=0;
+ FTilesToProcess:=0;
  SetLength(polyg,length(FPolygLL));
  for j:=0 to 23 do
   if FZoomArr[j] then
    begin
     polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
-    num_dwn:=num_dwn+GetDwnlNum(min,max,Polyg,true);
+    FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
    end;
   FShowOnFormLine0 := SAS_STR_ExportTiles;
   Synchronize(UpdateProgressFormStr0);
-  FShowFormCaption := SAS_STR_AllSaves+' '+inttostr(num_dwn)+' '+SAS_STR_Files;
+  FShowFormCaption := SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_Files;
   Synchronize(UpdateProgressFormCaption);
   FShowOnFormLine1 :=SAS_STR_Processed+' 0';
   Synchronize(UpdateProgressFormStr1);
  try
-   obrab:=0;
+   FTilesProcessed:=0;
    i:=0;
    AssignFile(KMLFile,FPathExport);
    Rewrite(KMLFile);
@@ -199,9 +200,9 @@ begin
    Write(KMLFile,ToFile);
    CloseFile(KMLFile);
  finally
-  FProgressOnForm := round((obrab / num_dwn) * 100);
+  FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
   Synchronize(UpdateProgressFormBar);
-  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(obrab);
+  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
   Synchronize(UpdateProgressFormStr1);
   Synchronize(UpdateProgressFormClose);
  end;
