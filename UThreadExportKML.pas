@@ -13,37 +13,21 @@ uses
   UGeoFun,
   unit4,
   UResStrings,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_ExportThreadAbstract;
 
 type
-  TThreadExportKML = class(TThread)
+  TThreadExportKML = class(TExportThreadAbstract)
   private
-    FPolygLL:TExtendedPointArray;
-    FZoomArr:array [0..23] of boolean;
     FMapType: TMapType;
     FProgressForm: TFprogress2;
     FIsReplace:boolean;
     FPathExport:string;
     RelativePath:boolean;
-    FTilesToProcess:integer;
-    FTilesProcessed:integer;
     KMLFile:TextFile;
-    FShowFormCaption: string;
-    FShowOnFormLine0: string;
-    FShowOnFormLine1: string;
-    FProgressOnForm: integer;
-    FMessageForShow: string;
-
-    procedure UpdateProgressFormBar;
-    procedure UpdateProgressFormCaption;
-    procedure UpdateProgressFormStr0;
-    procedure UpdateProgressFormStr1;
-    procedure UpdateProgressFormClose;
-    procedure SynShowMessage;
-
     procedure KmlFileWrite(x,y:integer;z,level:byte);
   protected
-    procedure Execute; override;
+    procedure ExportRegion; override;
   public
     constructor Create(
       APath: string;
@@ -71,23 +55,11 @@ constructor TThreadExportKML.Create(
   Areplace: boolean;
   ARelativePath: boolean
 );
-var i:integer;
 begin
-  inherited Create(false);
-  Priority := tpLowest;
-  FreeOnTerminate:=true;
-  Application.CreateForm(TFProgress2, FProgressForm);
-  FProgressForm.ProgressBar1.Progress1 := 0;
-  FProgressForm.ProgressBar1.Max := 100;
-  FProgressForm.Visible := true;
+  inherited Create(APolygon, Azoomarr);
   FPathExport:=APath;
   FIsReplace:=AReplace;
   RelativePath:=ARelativePath;
-  setlength(FPolygLL,length(APolygon));
-  for i:=1 to length(APolygon) do
-    FPolygLL[i-1]:=APolygon[i-1];
-  for i:=0 to 23 do
-    FZoomArr[i]:=Azoomarr[i];
   FMapType:=Atypemap;
 end;
 
@@ -146,7 +118,7 @@ begin
   Write(KMLFile,ToFile);
 end;
 
-procedure TThreadExportKML.Execute;
+procedure TThreadExportKML.ExportRegion;
 var p_x,p_y,i,j:integer;
     polyg:TPointArray;
     ToFile:string;
@@ -204,38 +176,7 @@ begin
   Synchronize(UpdateProgressFormBar);
   FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
   Synchronize(UpdateProgressFormStr1);
-  Synchronize(UpdateProgressFormClose);
  end;
-end;
-
-procedure TThreadExportKML.SynShowMessage;
-begin
-  ShowMessage(FMessageForShow);
-end;
-
-procedure TThreadExportKML.UpdateProgressFormCaption;
-begin
-  FProgressForm.Caption := FShowFormCaption;
-end;
-
-procedure TThreadExportKML.UpdateProgressFormClose;
-begin
-  FProgressForm.Close;
-end;
-
-procedure TThreadExportKML.UpdateProgressFormStr0;
-begin
-  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
-end;
-
-procedure TThreadExportKML.UpdateProgressFormStr1;
-begin
-  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
-end;
-
-procedure TThreadExportKML.UpdateProgressFormBar;
-begin
-  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 end.

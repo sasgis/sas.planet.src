@@ -14,36 +14,18 @@ uses
   unit4,
   UResStrings,
   UYaMobile,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_ExportThreadAbstract;
 
 type
-  TThreadExportYaMaps = class(TThread)
+  TThreadExportYaMaps = class(TExportThreadAbstract)
   private
-    FPolygLL:TExtendedPointArray;
-    FZoomArr:array [0..23] of boolean;
     FMapTypeArr:array of TMapType;
     FIsReplace:boolean;
     FExportPath: string;
-
-    FProgressForm: TFprogress2;
-    FShowFormCaption: string;
-    FShowOnFormLine0: string;
-    FShowOnFormLine1: string;
-    FProgressOnForm: integer;
-    FMessageForShow: string;
-
     csat,cmap,chib:byte;
-
-    procedure UpdateProgressFormBar;
-    procedure UpdateProgressFormCaption;
-    procedure UpdateProgressFormStr0;
-    procedure UpdateProgressFormStr1;
-    procedure UpdateProgressFormClose;
-    procedure SynShowMessage;
-
-    procedure export2YaMaps;
   protected
-    procedure Execute; override;
+    procedure ExportRegion; override;
   public
     constructor Create(
       APath: string;
@@ -77,39 +59,21 @@ constructor TThreadExportYaMaps.Create(
 );
 var i:integer;
 begin
-  inherited Create(false);
-  Priority := tpLowest;
-  FreeOnTerminate:=true;
-  Application.CreateForm(TFProgress2, FProgressForm);
+  inherited Create(APolygon, Azoomarr);
   cSat:=Acsat;
   cMap:=Acmap;
   cHib:=Achib;
-  FProgressForm.ProgressBar1.Progress1 := 0;
-  FProgressForm.ProgressBar1.Max := 100;
-  FProgressForm.Visible:=true;
   FExportPath:=APath;
   FIsReplace:=AReplace;
-  setlength(FPolygLL,length(APolygon));
-  for i:=1 to length(APolygon) do
-    FPolygLL[i-1]:=APolygon[i-1];
-  for i:=0 to 23 do
-    FZoomArr[i]:=Azoomarr[i];
   setlength(FMapTypeArr,length(Atypemaparr));
   for i:=1 to length(Atypemaparr) do
     FMapTypeArr[i-1]:=Atypemaparr[i-1];
 end;
 
 
-procedure TThreadExportYaMaps.Execute;
-begin
-  export2YaMaps;
-  Synchronize(UpdateProgressFormClose);
-end;
-
-procedure TThreadExportYaMaps.export2YaMaps;
+procedure TThreadExportYaMaps.ExportRegion;
 var
   p_x,p_y,i,j,xi,yi,hxyi,sizeim:integer;
-  VTilesToProcess,VTilesProcessed:integer;
   polyg:TPointArray;
   max,min:TPoint;
   bmp32,bmp322,bmp32crop:TBitmap32;
@@ -135,14 +99,14 @@ begin
       bmp32crop.Width:=sizeim;
       bmp32crop.Height:=sizeim;
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
-      VTilesToProcess:=0;
+      FTilesToProcess:=0;
       SetLength(polyg,length(FPolygLL));
       for i:=0 to length(FMapTypeArr)-1 do begin
         if FMapTypeArr[i]<>nil then begin
           for j:=0 to 23 do begin
             if FZoomArr[j] then begin
               polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
-              VTilesToProcess:=VTilesToProcess+GetDwnlNum(min,max,Polyg,true);
+              FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
             end;
           end;
         end;
@@ -150,14 +114,14 @@ begin
       FShowOnFormLine0:=SAS_STR_ExportTiles;
       Synchronize(UpdateProgressFormStr0);
 
-      FShowFormCaption:=SAS_STR_AllSaves+' '+inttostr(VTilesToProcess)+' '+SAS_STR_files;
+      FShowFormCaption:=SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_files;
       Synchronize(UpdateProgressFormCaption);
 
       FProgressOnForm := 0;
       FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
       Synchronize(UpdateProgressFormStr1);
 
-      VTilesProcessed:=0;
+      FTilesProcessed:=0;
       tc:=GetTickCount;
       for i:=0 to 23 do begin
         if FZoomArr[i] then begin
@@ -208,10 +172,10 @@ begin
                       end;
                     end;
                   end;
-                  inc(VTilesProcessed);
+                  inc(FTilesProcessed);
                   if (GetTickCount-tc>1000) then begin
                     tc:=GetTickCount;
-                    FProgressOnForm:=round((VTilesProcessed/VTilesToProcess)*100);
+                    FProgressOnForm:=round((FTilesProcessed/FTilesToProcess)*100);
                     Synchronize(UpdateProgressFormBar);
                     FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
                     Synchronize(UpdateProgressFormStr1);
@@ -224,7 +188,7 @@ begin
           end;
         end;
       end;
-      FProgressOnForm:=round((VTilesProcessed/VTilesToProcess)*100);
+      FProgressOnForm:=round((FTilesProcessed/FTilesToProcess)*100);
       Synchronize(UpdateProgressFormBar);
       FShowOnFormLine1:=SAS_STR_Processed+' '+inttostr(FProgressOnForm)+'%';
       Synchronize(UpdateProgressFormStr1);
@@ -238,36 +202,6 @@ begin
       Synchronize(SynShowMessage);
     end;
   end;
-end;
-
-procedure TThreadExportYaMaps.SynShowMessage;
-begin
-  ShowMessage(FMessageForShow);
-end;
-
-procedure TThreadExportYaMaps.UpdateProgressFormCaption;
-begin
-  FProgressForm.Caption := FShowFormCaption;
-end;
-
-procedure TThreadExportYaMaps.UpdateProgressFormClose;
-begin
-  FProgressForm.Close;
-end;
-
-procedure TThreadExportYaMaps.UpdateProgressFormStr0;
-begin
-  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
-end;
-
-procedure TThreadExportYaMaps.UpdateProgressFormStr1;
-begin
-  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
-end;
-
-procedure TThreadExportYaMaps.UpdateProgressFormBar;
-begin
-  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 end.

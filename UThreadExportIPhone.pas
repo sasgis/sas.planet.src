@@ -14,41 +14,25 @@ uses
   UMapType,
   UGeoFun,
   unit4,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_ExportThreadAbstract;
 
 type
-  TThreadExportIPhone = class(TThread)
+  TThreadExportIPhone = class(TExportThreadAbstract)
   private
-    FPolygLL: TExtendedPointArray;
-    FZoomArr: array [0..23] of boolean;
     FMapTypeArr: array of TMapType;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
-
-    FProgressForm: TFprogress2;
-    FShowFormCaption: string;
-    FShowOnFormLine0: string;
-    FShowOnFormLine1: string;
-    FProgressOnForm: integer;
-    FMessageForShow: string;
 
     FIsReplace: boolean;
     FExportPath: string;
     FSQLite3Db: TDISQLite3Database;
     csat, cmap, chib: byte;
 
-    procedure UpdateProgressFormBar;
-    procedure UpdateProgressFormCaption;
-    procedure UpdateProgressFormStr0;
-    procedure UpdateProgressFormStr1;
-    procedure UpdateProgressFormClose;
-    procedure SynShowMessage;
-
-    procedure export2iMaps();
     procedure WritePListFile(AGeoConvert: ICoordConverter);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
   protected
-    procedure Execute; override;
+    procedure ExportRegion; override;
   public
     constructor Create(
       APath: string;
@@ -88,27 +72,14 @@ constructor TThreadExportIPhone.Create(
 var
   i: integer;
 begin
-  inherited Create(false);
-  Priority := tpLowest;
-  FreeOnTerminate := true;
-  Application.CreateForm(TFProgress2, FProgressForm);
+  inherited Create(APolygon, Azoomarr);
   cSat := Acsat;
   cMap := Acmap;
   cHib := Achib;
-  FProgressForm.ProgressBar1.Progress1 := 0;
-  FProgressForm.ProgressBar1.Max := 100;
-  FProgressForm.Visible := true;
   FExportPath := IncludeTrailingPathDelimiter(APath);
   ForceDirectories(FExportPath);
   FNewFormat := ANewFormat;
   FIsReplace := AReplace;
-  setlength(FPolygLL, length(APolygon));
-  for i := 1 to length(APolygon) do begin
-    FPolygLL[i - 1] := APolygon[i - 1];
-  end;
-  for i := 0 to 23 do begin
-    FZoomArr[i] := Azoomarr[i];
-  end;
   FActiveMapIndex := AActiveMapIndex;
   setlength(FMapTypeArr, length(Atypemaparr));
   for i := 1 to length(Atypemaparr) do begin
@@ -117,13 +88,6 @@ begin
   if FActiveMapIndex >= Length(FMapTypeArr) then begin
     FActiveMapIndex := 0;
   end;
-end;
-
-
-procedure TThreadExportIPhone.Execute;
-begin
-  export2iMaps;
-  Synchronize(UpdateProgressFormClose);
 end;
 
 function TThreadExportIPhone.Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
@@ -186,11 +150,10 @@ begin
   CloseFile(PList);
 end;
 
-procedure TThreadExportIPhone.export2iMaps;
+procedure TThreadExportIPhone.ExportRegion;
 var
   p_x, p_y: integer;
   VZoom, j, xi, yi, hxyi, sizeim: integer;
-  VTilesToProcess, VTilesProcessed: integer;
   VPolyg: TPointArray;
   max, min: TPoint;
   VTileStream: TMemoryStream;
@@ -238,23 +201,23 @@ begin
     Vbmp32crop.Width := sizeim;
     Vbmp32crop.Height := sizeim;
     try
-      VTilesToProcess := 0;
+      FTilesToProcess := 0;
       for VZoom := 0 to 23 do begin
         if FZoomArr[VZoom] then begin
           VPolyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-          VTilesToProcess := VTilesToProcess + GetDwnlNum(min, max, VPolyg, true);
+          FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, VPolyg, true);
         end;
       end;
       FShowOnFormLine0 := SAS_STR_ExportTiles;
       Synchronize(UpdateProgressFormStr0);
 
-      FShowFormCaption := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files;
+      FShowFormCaption := SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files;
       Synchronize(UpdateProgressFormCaption);
 
       FShowOnFormLine1 := SAS_STR_Processed + ' 0%';
       Synchronize(UpdateProgressFormStr1);
 
-      VTilesProcessed := 0;
+      FTilesProcessed := 0;
 
       sqlite3_initialize;
       FSQLite3Db := TDISQLite3Database.Create(nil);
@@ -322,15 +285,15 @@ begin
                       end;
                     end;
                   end;
-                  inc(VTilesProcessed);
-                  if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
-                    ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
-                    FProgressOnForm := round((VTilesProcessed / VTilesToProcess) * 100);
+                  inc(FTilesProcessed);
+                  if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
+                    ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
+                    FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
                     Synchronize(UpdateProgressFormBar);
                     FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
                     Synchronize(UpdateProgressFormStr1);
                   end;
-                  if (VTilesProcessed mod 500 = 0) then begin
+                  if (FTilesProcessed mod 500 = 0) then begin
                     FSQLite3Db.Execute('COMMIT');
                     FSQLite3Db.Execute('BEGIN TRANSACTION');
                   end;
@@ -343,7 +306,7 @@ begin
         end;
       end;
       FSQLite3Db.Execute('COMMIT');
-      FProgressOnForm := round((VTilesProcessed / VTilesToProcess) * 100);
+      FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
       Synchronize(UpdateProgressFormBar);
       FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
       Synchronize(UpdateProgressFormStr1);
@@ -357,36 +320,6 @@ begin
       Synchronize(SynShowMessage);
     end;
   end;
-end;
-
-procedure TThreadExportIPhone.SynShowMessage;
-begin
-  ShowMessage(FMessageForShow);
-end;
-
-procedure TThreadExportIPhone.UpdateProgressFormCaption;
-begin
-  FProgressForm.Caption := FShowFormCaption;
-end;
-
-procedure TThreadExportIPhone.UpdateProgressFormClose;
-begin
-  FProgressForm.Close;
-end;
-
-procedure TThreadExportIPhone.UpdateProgressFormStr0;
-begin
-  FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
-end;
-
-procedure TThreadExportIPhone.UpdateProgressFormStr1;
-begin
-  FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
-end;
-
-procedure TThreadExportIPhone.UpdateProgressFormBar;
-begin
-  FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;
 
 end.
