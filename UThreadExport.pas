@@ -79,7 +79,7 @@ begin
       for j := 0 to 23 do begin
         if FZoomArr[j] then begin
           polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
-          FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, true);
+          FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect, Polyg, true);
         end;
       end;
     end;
@@ -97,7 +97,7 @@ begin
           polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
-          GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, false);
+          GetDwnlNum(VPixelRect, Polyg, false);
           p_x := VPixelRect.Left;
           while p_x < VPixelRect.Right do begin
             VTile.X := p_x shr 8;
