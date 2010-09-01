@@ -214,6 +214,7 @@ uses
   u_MapCombineThreadJPG,
   u_MapCombineThreadKMZ,
   UThreadExport,
+  u_ExportThreadToZip,
   UThreadExportIPhone,
   UThreadExportKML,
   UThreadExportYaMaps,
@@ -342,7 +343,11 @@ begin
   ziped:=CBZipped.Checked;
   path:=IncludeTrailingPathDelimiter(EditPath.Text);
   Replace:=CBReplace.Checked;
-  TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
+  if ziped then begin
+    TExportThreadToZip.Create(path,APolyLL,ZoomArr,typemaparr,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
+  end else begin
+    TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,ziped,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
+  end;
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);

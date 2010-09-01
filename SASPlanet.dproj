@@ -194,6 +194,7 @@
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
     <DCCReference Include="u_ExportThreadAbstract.pas" />
+    <DCCReference Include="u_ExportThreadToZip.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GECache.pas" />
     <DCCReference Include="u_GECrypt.pas" />
