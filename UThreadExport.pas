@@ -40,6 +40,7 @@ type
 implementation
 
 uses
+  i_ICoordConverter,
   u_GeoToStr;
 
 constructor TThreadExport.Create(
@@ -71,7 +72,9 @@ var
   VExt: string;
   VPath: string;
   VPixelRect: TRect;
+  VRectOfTiles: TRect;
   VTile: TPoint;
+  VGeoConvert: ICoordConverter;
 begin
     FTilesToProcess := 0;
     SetLength(polyg, length(FPolygLL));
@@ -94,10 +97,12 @@ begin
       if FZoomArr[i] then begin
         for j := 0 to length(FMapTypeArr) - 1 do //по типу
         begin
-          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
+          VGeoConvert := FMapTypeArr[j].GeoConvert;
+          polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
           GetDwnlNum(VPixelRect, Polyg, false);
+//          VRectOfTiles := VGeoConvert.PixelRect2TileRect(VPixelRect, i);
           p_x := VPixelRect.Left;
           while p_x < VPixelRect.Right do begin
             VTile.X := p_x shr 8;
@@ -107,21 +112,19 @@ begin
               if IsCancel then begin
                 exit;
               end;
-              if not (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
-                inc(p_y, 256);
-                CONTINUE;
-              end;
-              if FMapTypeArr[j].TileExists(VTile, i) then begin
-                pathto := VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
-                if FMapTypeArr[j].TileExportToFile(VTile, i, pathto, FIsReplace) then begin
-                  if FIsMove then begin
-                    FMapTypeArr[j].DeleteTile(VTile, i);
+              if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
+                if FMapTypeArr[j].TileExists(VTile, i) then begin
+                  pathto := VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
+                  if FMapTypeArr[j].TileExportToFile(VTile, i, pathto, FIsReplace) then begin
+                    if FIsMove then begin
+                      FMapTypeArr[j].DeleteTile(VTile, i);
+                    end;
                   end;
                 end;
-              end;
-              inc(FTilesProcessed);
-              if FTilesProcessed mod 100 = 0 then begin
-                ProgressFormUpdateOnProgress;
+                inc(FTilesProcessed);
+                if FTilesProcessed mod 100 = 0 then begin
+                  ProgressFormUpdateOnProgress;
+                end;
               end;
               inc(p_y, 256);
             end;
