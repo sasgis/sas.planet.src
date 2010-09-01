@@ -1003,6 +1003,7 @@ var
   z: integer;
   dWMB: integer;
   VZoom: Byte;
+  VNewZoom: integer;
 begin
 
  if Active then
@@ -1012,8 +1013,10 @@ begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
                   VZoom := GState.ViewState.GetCurrentZoom;
-                  if Msg.wParam<0 then zooming(VZoom-(1*z),GState.ZoomingAtMousePos)
-                                  else zooming(VZoom+(1*z),GState.ZoomingAtMousePos);
+                  if Msg.wParam<0 then VNewZoom := VZoom-(1*z)
+                                  else VNewZoom := VZoom+(1*z);
+                  if VNewZoom < 0 then VNewZoom := 0;
+                  zooming(VNewZoom, GState.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
                  if (dWhenMovingButton<35) then begin
