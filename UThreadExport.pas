@@ -101,7 +101,6 @@ var
   VMinLonLat, VMaxLonLat: TExtendedPoint;
   VTile: TPoint;
 begin
-  try
     FTilesToProcess := 0;
     SetLength(polyg, length(FPolygLL));
     persl := '';
@@ -212,12 +211,6 @@ begin
     FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FProgressOnForm) + '%';
     Synchronize(UpdateProgressFormStr1);
     FTileNameGen := nil;
-  except
-    on e: Exception do begin
-      FMessageForShow := e.Message;
-      Synchronize(SynShowMessage);
-    end;
-  end;
 end;
 
 end.

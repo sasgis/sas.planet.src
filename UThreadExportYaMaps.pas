@@ -83,7 +83,6 @@ var
   JPGSaver,PNGSaver:IBitmapTileSaver;
   VTile: TPoint;
 begin
-  try
     if (FMapTypeArr[0]=nil)and(FMapTypeArr[1]=nil)and(FMapTypeArr[2]=nil) then exit;
     bmp32:=TBitmap32.Create;
     bmp322:=TBitmap32.Create;
@@ -196,12 +195,6 @@ begin
       bmp32.Free;
       bmp322.Free;
     end;
-  except
-    on e: Exception do begin
-      FMessageForShow := e.Message;
-      Synchronize(SynShowMessage);
-    end;
-  end;
 end;
 
 end.

@@ -168,7 +168,6 @@ begin
     exit;
   end;
   VGeoConvert := TCoordConverterMercatorOnSphere.Create(6378137);
-  try
 
     WritePListFile(VGeoConvert);
 
@@ -314,12 +313,6 @@ begin
       sqlite3_shutdown;
       FSQLite3Db.Free;
     end;
-  except
-    on e: Exception do begin
-      FMessageForShow := e.Message;
-      Synchronize(SynShowMessage);
-    end;
-  end;
 end;
 
 end.
