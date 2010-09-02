@@ -12,7 +12,7 @@ uses
   UResStrings;
 
 type
-  TOpDelTiles = class(TThreadRegionProcessAbstract)
+  TThreadDeleteTiles = class(TThreadRegionProcessAbstract)
   private
     FZoom:byte;
     FMapType:TMapType;
@@ -37,7 +37,7 @@ implementation
 uses
   Ugeofun;
 
-constructor TOpDelTiles.Create(
+constructor TThreadDeleteTiles.Create(
   APolyLL: TExtendedPointArray;
   Azoom:byte;
   Atypemap:TMapType;
@@ -53,7 +53,7 @@ begin
   DelBytesNum := ADelBytesNum;
 end;
 
-procedure TOpDelTiles.ProcessRegion;
+procedure TThreadDeleteTiles.ProcessRegion;
 var
   i,j:integer;
   VTile: TPoint;
@@ -87,7 +87,7 @@ begin
   end;
 end;
 
-procedure TOpDelTiles.ProgressFormUpdateOnProgress;
+procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress;
 begin
   ProgressFormUpdateProgressLine0AndLine1(
     round((FTilesProcessed / FTilesToProcess) * 100),

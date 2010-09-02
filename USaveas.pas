@@ -253,7 +253,13 @@ end;
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
   if (MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES) then begin
-    TOpDelTiles.Create(APolyLL,CBZoomload.ItemIndex+1,TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]),CBDelBytes.Checked, SEDelBytes.Value);
+    TThreadDeleteTiles.Create(
+      APolyLL,
+      CBZoomload.ItemIndex+1,
+      TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]),
+      CBDelBytes.Checked,
+      SEDelBytes.Value
+    );
   end;
 end;
 
