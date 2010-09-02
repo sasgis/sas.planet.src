@@ -4,9 +4,7 @@ interface
 
 uses
   Classes,
-  Forms,
   t_GeoTypes,
-  unit4,
   u_ThreadRegionProcessAbstract,
   UResStrings;
 
@@ -25,8 +23,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  Dialogs;
+  SysUtils;
 
 constructor TThreadExportAbstract.Create(APolygon: TExtendedPointArray;
   Azoomarr: array of boolean);

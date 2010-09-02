@@ -4,12 +4,10 @@ interface
 
 uses
   Windows,
-  Forms,
   SysUtils,
   Classes,
   t_GeoTypes,
   UMapType,
-  unit4,
   u_ThreadRegionProcessAbstract,
   UResStrings;
 
@@ -37,8 +35,6 @@ type
 implementation
 
 uses
-  u_GlobalState,
-  unit1,
   Ugeofun;
 
 constructor TOpDelTiles.Create(

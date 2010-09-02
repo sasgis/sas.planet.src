@@ -5,17 +5,13 @@ interface
 uses
   Windows,
   Types,
-  Forms,
   SysUtils,
   Classes,
   math,
-  Graphics,
-  Dialogs,
   GR32,
   GR32_Resamplers,
   UMapType,
   UGeoFun,
-  unit4,
   u_ThreadRegionProcessAbstract,
   UResStrings,
   Uimgfun,
@@ -52,8 +48,7 @@ type
 implementation
 
 uses
-  u_GlobalState,
-  unit1;
+  u_GlobalState;
 
 constructor TOpGenPreviousZoom.Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean; AResampler:TTileResamplingType);
 begin
