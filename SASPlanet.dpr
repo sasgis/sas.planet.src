@@ -58,7 +58,7 @@ uses
   u_ThreadExportKML in 'u_ThreadExportKML.pas',
   u_ThreadExportYaMaps in 'u_ThreadExportYaMaps.pas',
   u_ThreadDeleteTiles in 'u_ThreadDeleteTiles.pas',
-  UOpGenPreviousZoom in 'UOpGenPreviousZoom.pas',
+  u_ThreadGenPrevZoom in 'u_ThreadGenPrevZoom.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',

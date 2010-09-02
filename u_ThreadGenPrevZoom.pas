@@ -1,4 +1,4 @@
-unit UOpGenPreviousZoom;
+unit u_ThreadGenPrevZoom;
 
 interface
 

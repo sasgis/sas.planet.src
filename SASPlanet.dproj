@@ -150,7 +150,6 @@
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>
     </DCCReference>
-    <DCCReference Include="UOpGenPreviousZoom.pas" />
     <DCCReference Include="UPLT.pas" />
     <DCCReference Include="UProgress.pas">
       <Form>FProgress</Form>
@@ -269,6 +268,7 @@
     <DCCReference Include="u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="u_ThreadExportToZip.pas" />
     <DCCReference Include="u_ThreadExportYaMaps.pas" />
+    <DCCReference Include="u_ThreadGenPrevZoom.pas" />
     <DCCReference Include="u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />

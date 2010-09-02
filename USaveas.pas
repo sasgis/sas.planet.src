@@ -219,7 +219,7 @@ uses
   u_ThreadExportKML,
   u_ThreadExportYaMaps,
   u_ThreadDeleteTiles,
-  UOpGenPreviousZoom,
+  u_ThreadGenPrevZoom,
   UProgress,
   UImgFun,
   unit1;
