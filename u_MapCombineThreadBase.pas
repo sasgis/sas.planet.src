@@ -7,8 +7,7 @@ uses
   Types,
   t_GeoTypes,
   UMapType,
-  u_ThreadRegionProcessAbstract,
-  unit4;
+  u_ThreadRegionProcessAbstract;
 
 type
   TMapCombineThreadBase = class(TThreadRegionProcessAbstract)
@@ -58,8 +57,6 @@ implementation
 
 uses
   SysUtils,
-  Forms,
-  Dialogs,
   i_IMapCalibration,
   UResStrings,
   Ugeofun;
