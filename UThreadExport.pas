@@ -24,7 +24,7 @@ type
     FIsReplace: boolean;
     FPathExport: string;
   protected
-    procedure ExportRegion; override;
+    procedure ProcessRegion; override;
   public
     constructor Create(
       APath: string;
@@ -64,7 +64,7 @@ begin
   end;
 end;
 
-procedure TThreadExport.ExportRegion;
+procedure TThreadExport.ProcessRegion;
 var
   p_x, p_y, i, j: integer;
   polyg: TPointArray;

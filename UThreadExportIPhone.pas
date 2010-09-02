@@ -31,7 +31,7 @@ type
     procedure WritePListFile(AGeoConvert: ICoordConverter);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
   protected
-    procedure ExportRegion; override;
+    procedure ProcessRegion; override;
   public
     constructor Create(
       APath: string;
@@ -147,7 +147,7 @@ begin
   CloseFile(PList);
 end;
 
-procedure TThreadExportIPhone.ExportRegion;
+procedure TThreadExportIPhone.ProcessRegion;
 var
   p_x, p_y: integer;
   VZoom, j, xi, yi, hxyi, sizeim: integer;

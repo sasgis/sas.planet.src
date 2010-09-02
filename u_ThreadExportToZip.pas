@@ -25,7 +25,7 @@ type
     FPathExport: string;
     FZip: TVCLZip;
   protected
-    procedure ExportRegion; override;
+    procedure ProcessRegion; override;
     procedure Terminate; override;
   public
     constructor Create(
@@ -82,7 +82,7 @@ begin
   FZip.free;
 end;
 
-procedure TThreadExportToZip.ExportRegion;
+procedure TThreadExportToZip.ProcessRegion;
 var
   p_x, p_y, i, j: integer;
   polyg: TPointArray;

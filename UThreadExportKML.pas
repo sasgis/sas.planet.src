@@ -24,7 +24,7 @@ type
     KMLFile:TextFile;
     procedure KmlFileWrite(x,y:integer;z,level:byte);
   protected
-    procedure ExportRegion; override;
+    procedure ProcessRegion; override;
   public
     constructor Create(
       APath: string;
@@ -112,7 +112,7 @@ begin
   Write(KMLFile,ToFile);
 end;
 
-procedure TThreadExportKML.ExportRegion;
+procedure TThreadExportKML.ProcessRegion;
 var p_x,p_y,i,j:integer;
     polyg:TPointArray;
     ToFile:string;
