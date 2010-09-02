@@ -216,7 +216,7 @@ uses
   u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
   u_ThreadExportIPhone,
-  UThreadExportKML,
+  u_ThreadExportKML,
   UThreadExportYaMaps,
   UOpDelTiles,
   UOpGenPreviousZoom,
