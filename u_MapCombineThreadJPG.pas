@@ -39,7 +39,7 @@ type
     constructor Create(
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: TPointArray;
+      APolygon: TExtendedPointArray;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -59,7 +59,7 @@ uses
 constructor TMapCombineThreadJPG.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName:string;
-  APolygon:TPointArray;
+  APolygon: TExtendedPointArray;
   ASplitCount: TPoint;
   Azoom:byte;
   Atypemap,AHtypemap:TMapType;

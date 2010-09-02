@@ -387,7 +387,6 @@ end;
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
 var
   Amt,Hmt:TMapType;
-  polyg:TPointArray;
   VZoom: byte;
   i:integer;
   VPrTypes: IInterfaceList;
@@ -398,7 +397,6 @@ begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
-  polyg := Amt.GeoConvert.LonLatArray2PixelArray(APolyLL, VZoom);
   if (FMain.SaveDialog1.Execute)then begin
     VFileName := FMain.SaveDialog1.FileName;
     VPrTypes := TInterfaceList.Create;
@@ -414,7 +412,7 @@ begin
       TMapCombineThreadECW.Create(
         VPrTypes,
         VFileName,
-        polyg,
+        APolyLL,
         VSplitCount,
         CBZoomload.ItemIndex+1,
         Amt,Hmt,
@@ -426,7 +424,7 @@ begin
       TMapCombineThreadBMP.Create(
         VPrTypes,
         VFileName,
-        polyg,
+        APolyLL,
         VSplitCount,
         CBZoomload.ItemIndex+1,
         Amt,Hmt,
@@ -437,7 +435,7 @@ begin
       TMapCombineThreadKMZ.Create(
         VPrTypes,
         VFileName,
-        polyg,
+        APolyLL,
         VSplitCount,
         CBZoomload.ItemIndex+1,
         Amt,Hmt,
@@ -449,7 +447,7 @@ begin
       TMapCombineThreadJPG.Create(
         VPrTypes,
         VFileName,
-        polyg,
+        APolyLL,
         VSplitCount,
         CBZoomload.ItemIndex+1,
         Amt,Hmt,
@@ -459,7 +457,6 @@ begin
       );
     end;
   end;
-  Polyg := nil;
 end;
 
 procedure TFsaveas.Button1Click(Sender: TObject);
