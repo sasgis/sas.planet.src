@@ -54,7 +54,7 @@ uses
   u_ThreadExportAbstract in 'u_ThreadExportAbstract.pas',
   u_ThreadExportToZip in 'u_ThreadExportToZip.pas',
   u_ThreadExportToFileSystem in 'u_ThreadExportToFileSystem.pas',
-  UThreadExportIPhone in 'UThreadExportIPhone.pas',
+  u_ThreadExportIPhone in 'u_ThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',
   UThreadExportYaMaps in 'UThreadExportYaMaps.pas',
   UOpDelTiles in 'UOpDelTiles.pas',

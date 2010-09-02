@@ -215,7 +215,7 @@ uses
   u_MapCombineThreadKMZ,
   u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
-  UThreadExportIPhone,
+  u_ThreadExportIPhone,
   UThreadExportKML,
   UThreadExportYaMaps,
   UOpDelTiles,
