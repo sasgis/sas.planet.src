@@ -23,6 +23,7 @@ type
     Fprogress: TFprogress2;
     TileInProc:integer;
     DelBytes:boolean;
+    DelBytesNum:integer;
     procedure DeleteTiles;
     procedure SetProgressForm;
     procedure UpdateProgressForm;
@@ -31,13 +32,12 @@ type
   protected
     procedure Execute; override;
   public
-    DelBytesNum:integer;
     constructor Create(
-      CrSusp:Boolean;
       APolyLL: TExtendedPointArray;
       Azoom: byte;
       Atypemap: TMapType;
-      ADelByte:boolean
+      ADelByte:boolean;
+      ADelBytesNum:integer
     );
     destructor Destroy; override;
   end;
@@ -49,9 +49,15 @@ uses
   unit1,
   Ugeofun;
 
-constructor TOpDelTiles.Create(CrSusp:Boolean; APolyLL: TExtendedPointArray; Azoom:byte;Atypemap:TMapType; ADelByte:boolean);
+constructor TOpDelTiles.Create(
+  APolyLL: TExtendedPointArray;
+  Azoom:byte;
+  Atypemap:TMapType;
+  ADelByte:boolean;
+  ADelBytesNum:integer
+);
 begin
-  inherited Create(CrSusp);
+  inherited Create(False);
   TileInProc:=0;
   zoom:=Azoom;
   typemap:=Atypemap;
@@ -60,6 +66,7 @@ begin
   Priority := tpLowest;
   FreeOnTerminate:=true;
   DelBytes:=ADelByte;
+  DelBytesNum := ADelBytesNum;
 end;
 
 destructor TOpDelTiles.Destroy;
