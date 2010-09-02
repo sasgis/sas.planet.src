@@ -111,11 +111,11 @@ begin
              else VZoom := InZooms[i-1];
      GetDwnlNum(min,max,Polyg,false);
      p_x:=min.x;
-     while (p_x<max.X)and(not Terminated) do
+     while (p_x<max.X)and(not IsCancel) do
       begin
        VTile.X := p_x shr 8;
        p_y:=min.y;
-       while (p_y<max.y)and(not Terminated) do
+       while (p_y<max.y)and(not IsCancel) do
         begin
          VTile.Y := p_y shr 8;
          if RgnAndRgn(Polyg,p_x,p_y,false) then begin
@@ -170,6 +170,7 @@ begin
     bmp_ex.Free;
     bmp.Free;
   end;
+  GState.MainFileCache.Clear;
 end;
 
 procedure TOpGenPreviousZoom.ProgressFormUpdateOnProgress;

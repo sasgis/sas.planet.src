@@ -71,10 +71,10 @@ begin
     SAS_STR_Deleted+' '+inttostr(FTilesToProcess)+' '+SAS_STR_files+' (x'+inttostr(FZoom)+')'
   );
   i:=min.x;
-  while (i<max.X)and(not Terminated) do begin
+  while (i<max.X)and(not IsCancel) do begin
     VTile.X := i shr 8;
     j:=min.Y;
-    while (j<max.y)and(not Terminated) do  begin
+    while (j<max.y)and(not IsCancel) do  begin
       VTile.Y := j shr 8;
       if RgnAndRgn(Polyg,i,j,false) then begin
         if (not DelBytes or (DelBytesNum=FMapType.TileSize(VTile, FZoom - 1))) then begin
