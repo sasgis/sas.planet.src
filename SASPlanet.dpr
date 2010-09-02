@@ -207,7 +207,7 @@ uses
   u_GECrypt in 'u_GECrypt.pas',
   u_GETexture in 'u_GETexture.pas';
 
-{$R SASPlanet.res}
+{$R *.res} {$R *Pics.res}
 begin
   GState := TGlobalState.Create;
   try
@@ -215,7 +215,7 @@ begin
       RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
     end;
     Application.Initialize;
-    Application.Title := 'SAS.Планета';
+    Application.Title := 'SAS.пїЅпїЅпїЅпїЅ;
     LoadNewResourceModule(GState.Localization);
     //logo
     if GState.MainIni.ReadBool('VIEW','Show_logo',true) then begin

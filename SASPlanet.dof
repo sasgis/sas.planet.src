@@ -158,3 +158,5 @@ LegalTrademarks=SAS.Планета
 OriginalFilename=SASPlanet
 ProductName=SAS.Планета
 ProductVersion=1.0.0.0
+[Excluded Packages]
+I:\Delphi\components\images\imaginglib0264\Imaging\Bin\VampyreImagingPackageD7.bpl=Vampyre Imaging Library Package
