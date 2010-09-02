@@ -1,4 +1,4 @@
-unit u_MapCombineThreadECW;
+unit u_ThreadMapCombineECW;
 
 interface
 

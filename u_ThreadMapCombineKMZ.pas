@@ -1,4 +1,4 @@
-unit u_MapCombineThreadKMZ;
+unit u_ThreadMapCombineKMZ;
 
 interface
 
