@@ -18,7 +18,7 @@ uses
   t_GeoTypes;
 
 type
-  TOpGenPreviousZoom = class(TThreadRegionProcessAbstract)
+  TThreadGenPrevZoom = class(TThreadRegionProcessAbstract)
   private
     Replace:boolean;
     savefull:boolean;
@@ -50,7 +50,7 @@ implementation
 uses
   u_GlobalState;
 
-constructor TOpGenPreviousZoom.Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean; AResampler:TTileResamplingType);
+constructor TThreadGenPrevZoom.Create(Azoom:byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap:TMapType; AReplace:boolean; Asavefull:boolean; AGenFormPrev:boolean; AResampler:TTileResamplingType);
 begin
   inherited Create(APolygLL);
   Replace := AReplace;
@@ -64,7 +64,7 @@ begin
   Resampler := AResampler;
 end;
 
-procedure TOpGenPreviousZoom.ProcessRegion;
+procedure TThreadGenPrevZoom.ProcessRegion;
 var
   bmp_ex:TCustomBitmap32;
   bmp:TCustomBitmap32;
@@ -168,7 +168,7 @@ begin
   GState.MainFileCache.Clear;
 end;
 
-procedure TOpGenPreviousZoom.ProgressFormUpdateOnProgress;
+procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress;
 begin
   ProgressFormUpdateProgressLine0AndLine1(
     round((FTilesProcessed / FTilesToProcess) * 100),
