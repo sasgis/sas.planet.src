@@ -17,6 +17,7 @@ type
   private
     Zoom:byte;
     typemap:TMapType;
+    FPolygLL: TExtendedPointArray;
     polyg:TPointArray;
     max,min:TPoint;
     FTilesToProcess:integer;
@@ -61,8 +62,7 @@ begin
   FDeletedCount:=0;
   zoom:=Azoom;
   typemap:=Atypemap;
-  polyg := typemap.GeoConvert.LonLatArray2PixelArray(APolyLL, (Zoom - 1));
-  FTilesToProcess:=GetDwnlNum(min,max,Polyg,true);
+  FPolygLL := APolyLL;
   Priority := tpLowest;
   FreeOnTerminate:=true;
   DelBytes:=ADelByte;
@@ -76,7 +76,6 @@ end;
 
 procedure TOpDelTiles.Execute;
 begin
- Synchronize(SetProgressForm);
  DeleteTiles;
  Synchronize(CloseProgressForm);
 end;
@@ -116,6 +115,9 @@ procedure TOpDelTiles.DeleteTiles;
 var i,j:integer;
   VTile: TPoint;
 begin
+  polyg := typemap.GeoConvert.LonLatArray2PixelArray(FPolygLL, (Zoom - 1));
+  FTilesToProcess:=GetDwnlNum(min,max,Polyg,true);
+  Synchronize(SetProgressForm);
   i:=min.x;
   while (i<max.X)and(not Terminated) do begin
     VTile.X := i shr 8;
