@@ -29,7 +29,7 @@ type
   P256ArrayBGR = ^T256ArrayBGR;
   T256ArrayBGR = array[0..255] of PArrayBGR;
 
-  TMapCombineThreadECW = class(TMapCombineThreadBase)
+  TMapCombineThreadECW = class(TThreadMapCombineBase)
   private
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;

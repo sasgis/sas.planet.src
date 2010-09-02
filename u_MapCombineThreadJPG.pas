@@ -24,7 +24,7 @@ type
   P256ArrayBGR = ^T256ArrayBGR;
   T256ArrayBGR = array[0..255] of PArrayBGR;
 
-  TMapCombineThreadJPG = class(TMapCombineThreadBase)
+  TMapCombineThreadJPG = class(TThreadMapCombineBase)
   private
     FArray256BGR: P256ArrayBGR;
     sx,ex,sy,ey:integer;

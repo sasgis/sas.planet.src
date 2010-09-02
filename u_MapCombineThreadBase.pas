@@ -10,7 +10,7 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
-  TMapCombineThreadBase = class(TThreadRegionProcessAbstract)
+  TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
   protected
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
@@ -63,7 +63,7 @@ uses
 
 { TMapCombineThreadBase }
 
-constructor TMapCombineThreadBase.Create(
+constructor TThreadMapCombineBase.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: TExtendedPointArray;
@@ -88,7 +88,7 @@ begin
   FMapCalibrationList := AMapCalibrationList;
 end;
 
-procedure TMapCombineThreadBase.ProgressFormUpdateOnProgress;
+procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress;
 var
   VProcessed: Integer;
 begin
@@ -100,7 +100,7 @@ begin
 end;
 
 
-procedure TMapCombineThreadBase.ProcessRegion;
+procedure TThreadMapCombineBase.ProcessRegion;
 var
   i, j, pti: integer;
   VProcessTiles: Int64;
