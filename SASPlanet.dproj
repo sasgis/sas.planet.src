@@ -215,7 +215,6 @@
     <DCCReference Include="u_MapCalibrationTab.pas" />
     <DCCReference Include="u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapChangeMessage.pas" />
-    <DCCReference Include="u_MapCombineThreadBase.pas" />
     <DCCReference Include="u_MapCombineThreadBMP.pas" />
     <DCCReference Include="u_MapCombineThreadECW.pas" />
     <DCCReference Include="u_MapCombineThreadJPG.pas" />
@@ -269,6 +268,7 @@
     <DCCReference Include="u_ThreadExportToZip.pas" />
     <DCCReference Include="u_ThreadExportYaMaps.pas" />
     <DCCReference Include="u_ThreadGenPrevZoom.pas" />
+    <DCCReference Include="u_ThreadMapCombineBase.pas" />
     <DCCReference Include="u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />

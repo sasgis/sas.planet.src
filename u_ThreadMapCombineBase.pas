@@ -1,4 +1,4 @@
-unit u_MapCombineThreadBase;
+unit u_ThreadMapCombineBase;
 
 interface
 

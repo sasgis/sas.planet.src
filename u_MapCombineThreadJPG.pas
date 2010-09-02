@@ -15,7 +15,7 @@ uses
   bmpUtil,
   t_GeoTypes,
   UResStrings,
-  u_MapCombineThreadBase;
+  u_ThreadMapCombineBase;
 
 type
   PArrayBGR = ^TArrayBGR;

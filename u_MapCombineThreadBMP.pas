@@ -12,7 +12,7 @@ uses
   UImgFun,
   UGeoFun,
   bmpUtil,
-  u_MapCombineThreadBase;
+  u_ThreadMapCombineBase;
 
 type
   PArrayBGR = ^TArrayBGR;
