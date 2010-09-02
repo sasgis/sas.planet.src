@@ -90,10 +90,10 @@ begin
     );
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
-    for i := 0 to 23 do //по масштабу
+    for i := 0 to 23 do
     begin
       if FZoomArr[i] then begin
-        for j := 0 to length(FMapTypeArr) - 1 do //по типу
+        for j := 0 to length(FMapTypeArr) - 1 do
         begin
           VGeoConvert := FMapTypeArr[j].GeoConvert;
           polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
