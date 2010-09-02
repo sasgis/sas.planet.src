@@ -214,7 +214,7 @@ uses
   u_MapCombineThreadJPG,
   u_MapCombineThreadKMZ,
   UThreadExport,
-  u_ExportThreadToZip,
+  u_ThreadExportToZip,
   UThreadExportIPhone,
   UThreadExportKML,
   UThreadExportYaMaps,

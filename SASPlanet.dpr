@@ -51,7 +51,7 @@ uses
   u_MapCombineThreadJPG in 'u_MapCombineThreadJPG.pas',
   u_MapCombineThreadKMZ in 'u_MapCombineThreadKMZ.pas',
   u_ThreadExportAbstract in 'u_ThreadExportAbstract.pas',
-  u_ExportThreadToZip in 'u_ExportThreadToZip.pas',
+  u_ThreadExportToZip in 'u_ThreadExportToZip.pas',
   UThreadExport in 'UThreadExport.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',
