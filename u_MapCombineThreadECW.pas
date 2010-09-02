@@ -29,7 +29,7 @@ type
   P256ArrayBGR = ^T256ArrayBGR;
   T256ArrayBGR = array[0..255] of PArrayBGR;
 
-  TMapCombineThreadECW = class(TThreadMapCombineBase)
+  TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
     sx,ex,sy,ey:integer;
     Rarr:P256rgb;
@@ -65,7 +65,7 @@ uses
   i_ICoordConverter,
   u_GlobalState;
 
-constructor TMapCombineThreadECW.Create(
+constructor TThreadMapCombineECW.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName:string;
   APolygon: TExtendedPointArray;
@@ -81,7 +81,7 @@ begin
   FQuality := AQuality;
 end;
 
-function TMapCombineThreadECW.ReadLineECW(Line: cardinal; var LineR, LineG,
+function TThreadMapCombineECW.ReadLineECW(Line: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-procedure TMapCombineThreadECW.saveRECT;
+procedure TThreadMapCombineECW.saveRECT;
 var
   k: integer;
   Datum, Proj: string;

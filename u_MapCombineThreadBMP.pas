@@ -21,7 +21,7 @@ type
   P256ArrayBGR = ^T256ArrayBGR;
   T256ArrayBGR = array[0..255] of PArrayBGR;
 
-  TMapCombineThreadBMP = class(TThreadMapCombineBase)
+  TThreadMapCombineBMP = class(TThreadMapCombineBase)
   private
     FArray256BGR: P256ArrayBGR;
     sx,ex,sy,ey:integer;
@@ -40,7 +40,7 @@ uses
   i_ICoordConverter,
   u_GlobalState;
 
-procedure TMapCombineThreadBMP.ReadLineBMP(Line: cardinal;
+procedure TThreadMapCombineBMP.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb);
 var
   i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
@@ -101,7 +101,7 @@ begin
   CopyMemory(LineRGB,FArray256BGR^[starttile],(FCurrentPieceRect.Right-FCurrentPieceRect.Left)*3);
 end;
 
-procedure TMapCombineThreadBMP.saveRECT;
+procedure TThreadMapCombineBMP.saveRECT;
 var
   k: integer;
 begin

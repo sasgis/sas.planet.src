@@ -422,7 +422,7 @@ begin
     VSplitCount.Y := EditNTv.Value;
     VFileExt := UpperCase(ExtractFileExt(VFileName));
     if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
-      TMapCombineThreadECW.Create(
+      TThreadMapCombineECW.Create(
         VPrTypes,
         VFileName,
         APolyLL,
@@ -434,7 +434,7 @@ begin
         QualitiEdit.Value
       );
     end else if (VFileExt='.BMP') then begin
-      TMapCombineThreadBMP.Create(
+      TThreadMapCombineBMP.Create(
         VPrTypes,
         VFileName,
         APolyLL,
@@ -445,7 +445,7 @@ begin
         CBUsedMarks.Checked
       );
     end else if (VFileExt='.KMZ') then begin
-      TMapCombineThreadKMZ.Create(
+      TThreadMapCombineKMZ.Create(
         VPrTypes,
         VFileName,
         APolyLL,
@@ -457,7 +457,7 @@ begin
         QualitiEdit.Value
       );
     end else begin
-      TMapCombineThreadJPG.Create(
+      TThreadMapCombineJPG.Create(
         VPrTypes,
         VFileName,
         APolyLL,
