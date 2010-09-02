@@ -9,16 +9,18 @@ uses
 
 type
   TTileIteratorAbstract = class
-  private
+  protected
     FPolygLL: TExtendedPointArray;
     FZoom: byte;
     FGeoConvert: ICoordConverter;
     FCurrent: TPoint;
+    FTilesTotal: Int64;
   public
     constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
     destructor Destroy; override;
     function Next: Boolean; virtual; abstract;
     property Current: TPoint  read FCurrent;
+    property TilesTotal: Int64 read FTilesTotal;
   end;
 
 implementation
