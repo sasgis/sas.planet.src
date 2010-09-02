@@ -50,6 +50,7 @@ uses
   u_MapCombineThreadECW in 'u_MapCombineThreadECW.pas',
   u_MapCombineThreadJPG in 'u_MapCombineThreadJPG.pas',
   u_MapCombineThreadKMZ in 'u_MapCombineThreadKMZ.pas',
+  u_ThreadRegionProcessAbstract in 'u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'u_ThreadExportAbstract.pas',
   u_ThreadExportToZip in 'u_ThreadExportToZip.pas',
   UThreadExport in 'UThreadExport.pas',
