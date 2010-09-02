@@ -282,6 +282,7 @@
     <DCCReference Include="u_TileFileNameGM2.pas" />
     <DCCReference Include="u_TileFileNameGMV.pas" />
     <DCCReference Include="u_TileFileNameSAS.pas" />
+    <DCCReference Include="u_TileIteratorAbstract.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
     <DCCReference Include="u_WindowLayerBasic.pas" />
   </ItemGroup>
