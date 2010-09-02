@@ -96,10 +96,8 @@ begin
     starttile:=(line-(256-sy)) mod 256;
   end;
   if (starttile=0)or(line=0) then begin
-    FProgressOnForm:=line;
-    Synchronize(UpdateProgressFormBar);
-    FShowOnFormLine1:=SAS_STR_Processed+': '+inttostr(Round((line/(FMapPieceSize.Y))*100))+'%';
-    Synchronize(UpdateProgressFormStr2);
+    FTilesProcessed := Line;
+    ProgressFormUpdateOnProgress;
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
     p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), FZoom, FHTypeMap.GeoConvert);
@@ -180,8 +178,6 @@ begin
     for k:=0 to 255 do getmem(Garr[k],(FMapSize.X+1)*sizeof(byte));
     getmem(Barr,256*sizeof(PRow));
     for k:=0 to 255 do getmem(Barr[k],(FMapSize.X+1)*sizeof(byte));
-    FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr((FMapSize.X))+'x'+inttostr((FMapSize.Y));
-    Synchronize(UpdateProgressFormStr1);
     Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
     Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
     Units := FTypeMap.GeoConvert.GetCellSizeUnits;
@@ -195,8 +191,7 @@ begin
     Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
     if (errecw>0)and(errecw<>52) then begin
       path:=FTypeMap.GetTileShowName(FLastTile, FZoom);
-      FMessageForShow:=SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path;
-      Synchronize(SynShowMessage);
+      ShowMessageSync(SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path);
     end;
   finally
     {$IFDEF VER80}

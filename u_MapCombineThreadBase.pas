@@ -11,6 +11,20 @@ uses
 
 type
   TMapCombineThreadBase = class(TThread)
+  private
+    FProgressForm: TFprogress2;
+    FShowFormCaption: string;
+    FShowOnFormLine0: string;
+    FShowOnFormLine1: string;
+    FProgressOnForm: integer;
+    FMessageForShow: string;
+
+    procedure UpdateProgressFormBar;
+    procedure UpdateProgressFormCaption;
+    procedure UpdateProgressFormStr1;
+    procedure UpdateProgressFormStr2;
+    procedure UpdateProgressFormClose;
+    procedure SynShowMessage;
   protected
     FPolygLL: TExtendedPointArray;
     FTilesToProcess: Int64;
@@ -35,24 +49,10 @@ type
     FCurrentPieceRect: TRect;
     FLastTile: TPoint;
 
-    FProgressForm: TFprogress2;
-    FShowFormCaption: string;
-    FShowOnFormLine0: string;
-    FShowOnFormLine1: string;
-    FProgressOnForm: integer;
-    FMessageForShow: string;
-
     FNumImgs: integer;
     FNumImgsSaved: integer;
 
     function IsCancel: Boolean;
-    procedure UpdateProgressFormBar;
-    procedure UpdateProgressFormCaption;
-    procedure UpdateProgressFormStr1;
-    procedure UpdateProgressFormStr2;
-    procedure UpdateProgressFormClose;
-    procedure SynShowMessage;
-
     procedure ProgressFormUpdateProgressAndLine1(AProgress: Integer; ALine1: string);
     procedure ProgressFormUpdateProgressLine0AndLine1(AProgress: Integer; ALine0, ALine1: string);
     procedure ProgressFormUpdateCaption(ALine0, ACaption: string);

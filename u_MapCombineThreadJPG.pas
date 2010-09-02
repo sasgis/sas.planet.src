@@ -86,14 +86,8 @@ begin
     starttile:=(line-(256-sy)) mod 256;
   end;
   if (starttile=0)or(line=0) then begin
-    FProgressOnForm:=line;
-    Synchronize(UpdateProgressFormBar);
-    if line=0 then begin
-      FShowOnFormLine1:=SAS_STR_CreateFile
-    end else begin
-      FShowOnFormLine1:=SAS_STR_Processed+': '+inttostr(Round((FProgressOnForm/(FMapPieceSize.Y))*100))+'%';
-    end;
-    Synchronize(UpdateProgressFormStr2);
+    FTilesProcessed:=line;
+    ProgressFormUpdateOnProgress;
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
     p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), Fzoom, FHTypeMap.GeoConvert);
@@ -154,8 +148,6 @@ begin
   try
     getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(FArray256BGR[k],(iWidth+1)*3);
-    FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(iWidth)+'x'+inttostr(iHeight);
-    Synchronize(UpdateProgressFormStr1);
     btmm:=TBitmap32.Create;
     btmh:=TBitmap32.Create;
     btmm.Width:=256;
@@ -176,8 +168,7 @@ begin
         if IsCancel then break;
       end;
     end else begin
-      FMessageForShow:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
-      Synchronize(SynShowMessage);
+      ShowMessageSync(SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat);
       exit;
     end;
     jcprops.JPGFile := PChar(FCurrentFileName);

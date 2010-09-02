@@ -55,14 +55,8 @@ begin
     starttile:=(line-(256-sy)) mod 256;
   end;
   if (starttile=0)or(line=0) then begin
-    FProgressOnForm:=line;
-    Synchronize(UpdateProgressFormBar);
-    if line=0 then begin
-      FShowOnFormLine1:=SAS_STR_CreateFile
-    end else begin
-      FShowOnFormLine1:=SAS_STR_Processed+': '+inttostr(Round((FProgressOnForm/(FMapPieceSize.Y))*100))+'%';
-    end;
-    Synchronize(UpdateProgressFormStr2);
+    FTilesProcessed := Line;
+    ProgressFormUpdateOnProgress;
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
     p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), Fzoom, FHTypeMap.GeoConvert);
@@ -125,8 +119,6 @@ begin
     btmh.Height:=256;
     getmem(FArray256BGR,256*sizeof(P256ArrayBGR));
     for k:=0 to 255 do getmem(FArray256BGR[k],(FMapPieceSize.X+1)*3);
-    FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(FMapPieceSize.Y);
-    Synchronize(UpdateProgressFormStr1);
     SaveBMP(FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP, IsCancel);
   finally
     {$IFDEF VER80}

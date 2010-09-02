@@ -89,14 +89,8 @@ begin
     starttile:=(line-(256-sy)) mod 256;
   end;
   if (starttile=0)or(line=0) then begin
-    FProgressOnForm:=line;
-    Synchronize(UpdateProgressFormBar);
-    if line=0 then begin
-      FShowOnFormLine1:=SAS_STR_CreateFile
-    end else begin
-      FShowOnFormLine1:=SAS_STR_Processed+': '+inttostr(Round((FProgressOnForm/(FMapPieceSize.Y))*100))+'%';
-    end;
-    Synchronize(UpdateProgressFormStr2);
+    FTilesProcessed:=line;
+    ProgressFormUpdateOnProgress;
     p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
     p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
     p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), Fzoom, FHTypeMap.GeoConvert);
@@ -170,11 +164,8 @@ begin
 
   FMapPieceSize.y:=iHeight;
 
-  FProgressForm.ProgressBar1.Max := iHeight;
-
   if ((nim.X*nim.Y)>100)and(FNumImgsSaved=0) then begin
-    FMessageForShow:=SAS_MSG_GarminMax1Mp;
-    Synchronize(SynShowMessage);
+    ShowMessageSync(SAS_MSG_GarminMax1Mp);
   end;
   BufRect:=FCurrentPieceRect;
 
@@ -190,7 +181,6 @@ begin
 
   for i:=1 to nim.X do begin
     for j:=1 to nim.Y do begin
-      FShowOnFormLine0:=SAS_STR_Resolution+': '+inttostr(FMapPieceSize.X)+'x'+inttostr(bFMapPieceSizey)+' ('+inttostr((i-1)*nim.Y+j)+'/'+inttostr(nim.X*nim.Y)+')';
       jpgm:=TMemoryStream.Create;
       FileName:=ChangeFileExt(FCurrentFileName,inttostr(i)+inttostr(j)+'.jpg');
       VFileName:='files/'+ExtractFileName(FileName);
@@ -202,8 +192,6 @@ begin
         FCurrentPieceRect.Right := BufRect.Left + iWidth * i;
         FCurrentPieceRect.Top := BufRect.Top + iHeight * (j-1);
         FCurrentPieceRect.Bottom := BufRect.Top + iHeight * j;
-
-        Synchronize(UpdateProgressFormStr1);
 
         sx:=(FCurrentPieceRect.Left mod 256);
         sy:=(FCurrentPieceRect.Top mod 256);
@@ -244,8 +232,7 @@ begin
             if IsCancel then break;
           end;
         end else begin
-          FMessageForShow:=SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat;
-          Synchronize(SynShowMessage);
+          ShowMessageSync(SAS_ERR_Memory+'.'+#13#10+SAS_ERR_UseADifferentFormat);
           exit;
         end;
         jcprops.JPGWidth := iWidth;
