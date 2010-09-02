@@ -72,7 +72,6 @@ var
   VExt: string;
   VPath: string;
   VPixelRect: TRect;
-  VRectOfTiles: TRect;
   VTile: TPoint;
   VGeoConvert: ICoordConverter;
 begin
@@ -102,7 +101,6 @@ begin
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
           GetDwnlNum(VPixelRect, Polyg, false);
-//          VRectOfTiles := VGeoConvert.PixelRect2TileRect(VPixelRect, i);
           p_x := VPixelRect.Left;
           while p_x < VPixelRect.Right do begin
             VTile.X := p_x shr 8;
