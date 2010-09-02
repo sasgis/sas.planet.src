@@ -169,7 +169,6 @@
     <DCCReference Include="UShortcutEditor.pas">
       <Form>FShortcutChange</Form>
     </DCCReference>
-    <DCCReference Include="UThreadExport.pas" />
     <DCCReference Include="UThreadExportIPhone.pas" />
     <DCCReference Include="UThreadExportKML.pas" />
     <DCCReference Include="UThreadExportYaMaps.pas" />
@@ -268,6 +267,7 @@
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionLayer.pas" />
     <DCCReference Include="u_ThreadExportAbstract.pas" />
+    <DCCReference Include="u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="u_ThreadExportToZip.pas" />
     <DCCReference Include="u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />

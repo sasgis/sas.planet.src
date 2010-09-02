@@ -53,7 +53,7 @@ uses
   u_ThreadRegionProcessAbstract in 'u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'u_ThreadExportAbstract.pas',
   u_ThreadExportToZip in 'u_ThreadExportToZip.pas',
-  UThreadExport in 'UThreadExport.pas',
+  u_ThreadExportToFileSystem in 'u_ThreadExportToFileSystem.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',
   UThreadExportKML in 'UThreadExportKML.pas',
   UThreadExportYaMaps in 'UThreadExportYaMaps.pas',

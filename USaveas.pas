@@ -213,7 +213,7 @@ uses
   u_MapCombineThreadECW,
   u_MapCombineThreadJPG,
   u_MapCombineThreadKMZ,
-  UThreadExport,
+  u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
   UThreadExportIPhone,
   UThreadExportKML,
