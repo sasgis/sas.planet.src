@@ -35,7 +35,7 @@ type
 
     Resampler:TTileResamplingType;
     polyg:TPointArray;
-    Fprogress: TFprogress2;
+    FProgressForm: TFprogress2;
     TileInProc:integer;
     CurrentTile:integer;
     procedure GenPreviousZoom;
@@ -111,28 +111,28 @@ end;
 
 procedure TOpGenPreviousZoom.CloseProgressForm;
 begin
- fprogress.Free;
+ FProgressForm.Free;
  GState.MainFileCache.Clear;
  Fmain.generate_im;
 end;
 
 procedure TOpGenPreviousZoom.UpdateProgressForm;
 begin
-  fprogress.MemoInfo.Lines[0]:=SAS_STR_Saves+': '+inttostr(TileInProc)+' '+SAS_STR_files;
-  FProgress.ProgressBar1.Progress1:=CurrentTile;
-  fprogress.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(CurrentTile);
+  FProgressForm.MemoInfo.Lines[0]:=SAS_STR_Saves+': '+inttostr(TileInProc)+' '+SAS_STR_files;
+  FProgressForm.ProgressBar1.Progress1:=CurrentTile;
+  FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Processed+' '+inttostr(CurrentTile);
 end;
 
 procedure TOpGenPreviousZoom.SetProgressForm;
 begin
-  Application.CreateForm(TFProgress2, FProgress);
-  FProgress.OnClose:=CloseFProgress;
-  FProgress.Visible:=true;
-  fprogress.Caption:=SAS_STR_ProcessedNoMore+': '+inttostr(ProcessTiles)+' '+SAS_STR_files;
-  fprogress.MemoInfo.Lines[0]:=SAS_STR_Processed+' 0';
-  fprogress.MemoInfo.Lines[1]:=SAS_STR_Saves+': 0';
-  FProgress.ProgressBar1.Progress1:=0;
-  FProgress.ProgressBar1.Max:=ProcessTiles;
+  Application.CreateForm(TFProgress2, FProgressForm);
+  FProgressForm.OnClose:=CloseFProgress;
+  FProgressForm.Visible:=true;
+  FProgressForm.Caption:=SAS_STR_ProcessedNoMore+': '+inttostr(ProcessTiles)+' '+SAS_STR_files;
+  FProgressForm.MemoInfo.Lines[0]:=SAS_STR_Processed+' 0';
+  FProgressForm.MemoInfo.Lines[1]:=SAS_STR_Saves+': 0';
+  FProgressForm.ProgressBar1.Progress1:=0;
+  FProgressForm.ProgressBar1.Max:=ProcessTiles;
 end;
 
 procedure TOpGenPreviousZoom.GenPreviousZoom;
