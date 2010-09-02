@@ -6,8 +6,7 @@ uses
   Classes,
   Forms,
   t_GeoTypes,
-  unit4,
-  UResStrings;
+  unit4;
 
 type
   TThreadRegionProcessAbstract = class(TThread)

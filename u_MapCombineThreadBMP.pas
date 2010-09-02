@@ -12,7 +12,6 @@ uses
   UImgFun,
   UGeoFun,
   bmpUtil,
-  UResStrings,
   u_MapCombineThreadBase;
 
 type

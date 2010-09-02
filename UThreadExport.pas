@@ -40,8 +40,7 @@ type
 implementation
 
 uses
-  i_ICoordConverter,
-  u_GeoToStr;
+  i_ICoordConverter;
 
 constructor TThreadExport.Create(
   APath: string;

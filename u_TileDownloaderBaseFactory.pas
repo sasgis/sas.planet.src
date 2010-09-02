@@ -5,7 +5,6 @@ interface
 uses
   i_IConfigDataProvider,
   i_ITileDownlodSession,
-  UMapType,
   i_ISimpleFactory;
 
 type

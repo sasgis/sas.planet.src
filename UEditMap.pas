@@ -65,7 +65,6 @@ var
 implementation
 
 uses
-  u_UrlGenerator,
   u_MapTypeCacheConfig;
 
 {$R *.dfm}
