@@ -57,7 +57,7 @@ uses
   u_ThreadExportIPhone in 'u_ThreadExportIPhone.pas',
   u_ThreadExportKML in 'u_ThreadExportKML.pas',
   u_ThreadExportYaMaps in 'u_ThreadExportYaMaps.pas',
-  UOpDelTiles in 'UOpDelTiles.pas',
+  u_ThreadDeleteTiles in 'u_ThreadDeleteTiles.pas',
   UOpGenPreviousZoom in 'UOpGenPreviousZoom.pas',
   u_TileDownloaderBase in 'u_TileDownloaderBase.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',

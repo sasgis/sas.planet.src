@@ -218,7 +218,7 @@ uses
   u_ThreadExportIPhone,
   u_ThreadExportKML,
   u_ThreadExportYaMaps,
-  UOpDelTiles,
+  u_ThreadDeleteTiles,
   UOpGenPreviousZoom,
   UProgress,
   UImgFun,

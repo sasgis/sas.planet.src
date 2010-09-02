@@ -1,4 +1,4 @@
-unit UOpDelTiles;
+unit u_ThreadDeleteTiles;
 
 interface
 

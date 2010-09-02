@@ -150,7 +150,6 @@
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>
     </DCCReference>
-    <DCCReference Include="UOpDelTiles.pas" />
     <DCCReference Include="UOpGenPreviousZoom.pas" />
     <DCCReference Include="UPLT.pas" />
     <DCCReference Include="UProgress.pas">
@@ -263,6 +262,7 @@
     <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionLayer.pas" />
+    <DCCReference Include="u_ThreadDeleteTiles.pas" />
     <DCCReference Include="u_ThreadExportAbstract.pas" />
     <DCCReference Include="u_ThreadExportIPhone.pas" />
     <DCCReference Include="u_ThreadExportKML.pas" />
