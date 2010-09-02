@@ -58,14 +58,15 @@ begin
   FTileNameGen := ATileNameGen;
   FIsReplace := AReplace;
   setlength(FMapTypeArr, length(Atypemaparr));
-  for i := 1 to length(Atypemaparr) do begin
-    FMapTypeArr[i - 1] := Atypemaparr[i - 1];
+  for i := 0 to length(Atypemaparr) - 1 do begin
+    FMapTypeArr[i] := Atypemaparr[i];
   end;
 end;
 
 procedure TThreadExportToFileSystem.ProcessRegion;
 var
-  p_x, p_y, i, j: integer;
+  p_x, p_y, j: integer;
+  VZoom: Byte;
   polyg: TPointArray;
   pathto: string;
   VExt: string;
@@ -76,10 +77,10 @@ var
 begin
     FTilesToProcess := 0;
     SetLength(polyg, length(FPolygLL));
-    for i := 0 to length(FMapTypeArr) - 1 do begin
-      for j := 0 to 23 do begin
-        if FZoomArr[j] then begin
-          polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
+    for j := 0 to length(FMapTypeArr) - 1 do begin
+      for VZoom := 0 to 23 do begin
+        if FZoomArr[VZoom] then begin
+          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect, Polyg, true);
         end;
       end;
@@ -90,13 +91,11 @@ begin
     );
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
-    for i := 0 to 23 do
-    begin
-      if FZoomArr[i] then begin
-        for j := 0 to length(FMapTypeArr) - 1 do
-        begin
+    for VZoom := 0 to 23 do begin
+      if FZoomArr[VZoom] then begin
+        for j := 0 to length(FMapTypeArr) - 1 do begin
           VGeoConvert := FMapTypeArr[j].GeoConvert;
-          polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
+          polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
           GetDwnlNum(VPixelRect, Polyg, false);
@@ -110,11 +109,11 @@ begin
                 exit;
               end;
               if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
-                if FMapTypeArr[j].TileExists(VTile, i) then begin
-                  pathto := VPath + FTileNameGen.GetTileFileName(VTile, i) + VExt;
-                  if FMapTypeArr[j].TileExportToFile(VTile, i, pathto, FIsReplace) then begin
+                if FMapTypeArr[j].TileExists(VTile, VZoom) then begin
+                  pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
+                  if FMapTypeArr[j].TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
                     if FIsMove then begin
-                      FMapTypeArr[j].DeleteTile(VTile, i);
+                      FMapTypeArr[j].DeleteTile(VTile, VZoom);
                     end;
                   end;
                 end;
