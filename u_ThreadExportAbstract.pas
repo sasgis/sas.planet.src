@@ -14,6 +14,7 @@ type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)
   protected
     FZoomArr: array [0..23] of boolean;
+    procedure ProgressFormUpdateOnProgress; virtual;
   public
     constructor Create(
       APolygon: TExtendedPointArray;
@@ -36,6 +37,14 @@ begin
   for i := 0 to 23 do begin
     FZoomArr[i] := Azoomarr[i];
   end;
+end;
+
+procedure TThreadExportAbstract.ProgressFormUpdateOnProgress;
+begin
+  ProgressFormUpdateProgressAndLine1(
+    round((FTilesProcessed / FTilesToProcess) * 100),
+    SAS_STR_Processed + ' ' + inttostr(FTilesProcessed)
+  );
 end;
 
 end.

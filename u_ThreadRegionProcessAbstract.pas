@@ -32,8 +32,10 @@ type
 
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
-    procedure ProgressFormUpdateOnProgress; virtual;
+    procedure ProgressFormUpdateProgressAndLine1(AProgress: Integer; ALine1: string);
+    procedure ProgressFormUpdateProgressLine0AndLine1(AProgress: Integer; ALine0, ALine1: string);
     procedure ProgressFormUpdateCaption(ALine0, ACaption: string);
+
     procedure ShowMessageSync(AMessage: string);
     function IsCancel: Boolean;
 
@@ -105,11 +107,23 @@ begin
   Synchronize(UpdateProgressFormCaption);
 end;
 
-procedure TThreadRegionProcessAbstract.ProgressFormUpdateOnProgress;
+procedure TThreadRegionProcessAbstract.ProgressFormUpdateProgressAndLine1(
+  AProgress: Integer; ALine1: string);
 begin
-  FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
+  FProgressOnForm := AProgress;
   Synchronize(UpdateProgressFormBar);
-  FShowOnFormLine1 := SAS_STR_Processed + ' ' + inttostr(FTilesProcessed);
+  FShowOnFormLine1 := ALine1;
+  Synchronize(UpdateProgressFormStr1);
+end;
+
+procedure TThreadRegionProcessAbstract.ProgressFormUpdateProgressLine0AndLine1(
+  AProgress: Integer; ALine0, ALine1: string);
+begin
+  FProgressOnForm := AProgress;
+  Synchronize(UpdateProgressFormBar);
+  FShowOnFormLine0 := ALine0;
+  Synchronize(UpdateProgressFormStr0);
+  FShowOnFormLine1 := ALine1;
   Synchronize(UpdateProgressFormStr1);
 end;
 
