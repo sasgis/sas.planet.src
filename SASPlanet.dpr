@@ -100,6 +100,8 @@ uses
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   u_TileIteratorAbstract in 'u_TileIteratorAbstract.pas',
   u_GECache in 'u_GECache.pas',
+  u_GECrypt in 'u_GECrypt.pas',
+  u_GETexture in 'u_GETexture.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
   u_GeoCodePalcemark in 'u_GeoCodePalcemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
@@ -204,9 +206,7 @@ uses
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
-  u_GECrypt in 'u_GECrypt.pas',
-  u_GETexture in 'u_GETexture.pas';
+  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange};
 
 {$R *.res} {$R *Pics.res}
 begin
