@@ -14,7 +14,7 @@ uses
   UMapType,
   UGeoFun,
   t_GeoTypes,
-  u_ExportThreadAbstract;
+  u_ThreadExportAbstract;
 
 type
   TThreadExportIPhone = class(TThreadExportAbstract)

@@ -50,7 +50,7 @@ uses
   u_MapCombineThreadECW in 'u_MapCombineThreadECW.pas',
   u_MapCombineThreadJPG in 'u_MapCombineThreadJPG.pas',
   u_MapCombineThreadKMZ in 'u_MapCombineThreadKMZ.pas',
-  u_ExportThreadAbstract in 'u_ExportThreadAbstract.pas',
+  u_ThreadExportAbstract in 'u_ThreadExportAbstract.pas',
   u_ExportThreadToZip in 'u_ExportThreadToZip.pas',
   UThreadExport in 'UThreadExport.pas',
   UThreadExportIPhone in 'UThreadExportIPhone.pas',

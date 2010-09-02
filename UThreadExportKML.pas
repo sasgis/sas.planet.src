@@ -12,7 +12,7 @@ uses
   UGeoFun,
   UResStrings,
   t_GeoTypes,
-  u_ExportThreadAbstract;
+  u_ThreadExportAbstract;
 
 type
   TThreadExportKML = class(TThreadExportAbstract)
