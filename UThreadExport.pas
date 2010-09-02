@@ -15,7 +15,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExport = class(TThreadExportAbstract)
+  TThreadExportToFileSystem = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FTileNameGen: ITileFileNameGenerator;
@@ -42,7 +42,7 @@ implementation
 uses
   i_ICoordConverter;
 
-constructor TThreadExport.Create(
+constructor TThreadExportToFileSystem.Create(
   APath: string;
   APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
@@ -63,7 +63,7 @@ begin
   end;
 end;
 
-procedure TThreadExport.ProcessRegion;
+procedure TThreadExportToFileSystem.ProcessRegion;
 var
   p_x, p_y, i, j: integer;
   polyg: TPointArray;

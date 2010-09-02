@@ -343,7 +343,7 @@ begin
   if ziped then begin
     TThreadExportToZip.Create(path,APolyLL,ZoomArr,typemaparr,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
   end else begin
-    TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
+    TThreadExportToFileSystem.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
   end;
 end;
 
@@ -387,7 +387,6 @@ end;
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
 var
   Amt,Hmt:TMapType;
-  VZoom: byte;
   i:integer;
   VPrTypes: IInterfaceList;
   VFileName: string;
@@ -396,7 +395,6 @@ var
 begin
   Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
-  VZoom := CBZoomload.ItemIndex;
   if (FMain.SaveDialog1.Execute)then begin
     VFileName := FMain.SaveDialog1.FileName;
     VPrTypes := TInterfaceList.Create;
