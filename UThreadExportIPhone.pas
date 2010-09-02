@@ -17,7 +17,7 @@ uses
   u_ExportThreadAbstract;
 
 type
-  TThreadExportIPhone = class(TExportThreadAbstract)
+  TThreadExportIPhone = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FActiveMapIndex: integer;

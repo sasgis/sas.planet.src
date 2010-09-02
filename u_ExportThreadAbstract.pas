@@ -10,7 +10,7 @@ uses
   UResStrings;
 
 type
-  TExportThreadAbstract = class(TThread)
+  TThreadExportAbstract = class(TThread)
   private
     FProgressForm: TFprogress2;
     FMessageForShow: string;
@@ -33,7 +33,7 @@ type
 
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
-    procedure ProgressFormUpdateOnProgress;
+    procedure ProgressFormUpdateOnProgress; virtual;
     procedure ProgressFormUpdateCaption(ALine0, ACaption: string);
     procedure ShowMessageSync(AMessage: string);
     function IsCancel: Boolean;
@@ -55,13 +55,13 @@ uses
   SysUtils,
   Dialogs;
 
-procedure TExportThreadAbstract.CloseFProgress(Sender: TObject;
+procedure TThreadExportAbstract.CloseFProgress(Sender: TObject;
   var Action: TCloseAction);
 begin
   Terminate;
 end;
 
-constructor TExportThreadAbstract.Create(APolygon: TExtendedPointArray;
+constructor TThreadExportAbstract.Create(APolygon: TExtendedPointArray;
   Azoomarr: array of boolean);
 var
   i: Integer;
@@ -81,13 +81,13 @@ begin
 
 end;
 
-destructor TExportThreadAbstract.Destroy;
+destructor TThreadExportAbstract.Destroy;
 begin
   FPolygLL := nil;
   inherited;
 end;
 
-procedure TExportThreadAbstract.Execute;
+procedure TThreadExportAbstract.Execute;
 begin
   inherited;
   try
@@ -100,12 +100,12 @@ begin
   end;
 end;
 
-function TExportThreadAbstract.IsCancel: Boolean;
+function TThreadExportAbstract.IsCancel: Boolean;
 begin
   result := Terminated;
 end;
 
-procedure TExportThreadAbstract.ProgressFormUpdateCaption(ALine0,
+procedure TThreadExportAbstract.ProgressFormUpdateCaption(ALine0,
   ACaption: string);
 begin
   FShowOnFormLine0 := ALine0;
@@ -114,7 +114,7 @@ begin
   Synchronize(UpdateProgressFormCaption);
 end;
 
-procedure TExportThreadAbstract.ProgressFormUpdateOnProgress;
+procedure TThreadExportAbstract.ProgressFormUpdateOnProgress;
 begin
   FProgressOnForm := round((FTilesProcessed / FTilesToProcess) * 100);
   Synchronize(UpdateProgressFormBar);
@@ -122,43 +122,43 @@ begin
   Synchronize(UpdateProgressFormStr1);
 end;
 
-procedure TExportThreadAbstract.ShowMessageSync(AMessage: string);
+procedure TThreadExportAbstract.ShowMessageSync(AMessage: string);
 begin
   FMessageForShow := AMessage;
   Synchronize(SynShowMessage);
 end;
 
-procedure TExportThreadAbstract.SynShowMessage;
+procedure TThreadExportAbstract.SynShowMessage;
 begin
   ShowMessage(FMessageForShow);
 end;
 
-procedure TExportThreadAbstract.Terminate;
+procedure TThreadExportAbstract.Terminate;
 begin
   inherited;
 end;
 
-procedure TExportThreadAbstract.UpdateProgressFormCaption;
+procedure TThreadExportAbstract.UpdateProgressFormCaption;
 begin
   FProgressForm.Caption := FShowFormCaption;
 end;
 
-procedure TExportThreadAbstract.UpdateProgressFormClose;
+procedure TThreadExportAbstract.UpdateProgressFormClose;
 begin
   FProgressForm.Close;
 end;
 
-procedure TExportThreadAbstract.UpdateProgressFormStr0;
+procedure TThreadExportAbstract.UpdateProgressFormStr0;
 begin
   FProgressForm.MemoInfo.Lines[0] := FShowOnFormLine0;
 end;
 
-procedure TExportThreadAbstract.UpdateProgressFormStr1;
+procedure TThreadExportAbstract.UpdateProgressFormStr1;
 begin
   FProgressForm.MemoInfo.Lines[1] := FShowOnFormLine1;
 end;
 
-procedure TExportThreadAbstract.UpdateProgressFormBar;
+procedure TThreadExportAbstract.UpdateProgressFormBar;
 begin
   FProgressForm.ProgressBar1.Progress1 := FProgressOnForm;
 end;

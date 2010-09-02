@@ -17,7 +17,7 @@ uses
   u_ExportThreadAbstract;
 
 type
-  TExportThreadToZip = class(TExportThreadAbstract)
+  TThreadExportToZip = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FTileNameGen: ITileFileNameGenerator;
@@ -43,13 +43,13 @@ implementation
 uses
   u_GeoToStr;
 
-procedure TExportThreadToZip.Terminate;
+procedure TThreadExportToZip.Terminate;
 begin
   inherited;
   FZip.CancelTheOperation;
 end;
 
-constructor TExportThreadToZip.Create(
+constructor TThreadExportToZip.Create(
   APath: string;
   APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
@@ -76,13 +76,13 @@ begin
   Result := inttostr(xDay) + '.' + inttostr(xMonth) + '.' + inttostr(xYear);
 end;
 
-destructor TExportThreadToZip.Destroy;
+destructor TThreadExportToZip.Destroy;
 begin
   inherited;
   FZip.free;
 end;
 
-procedure TExportThreadToZip.ExportRegion;
+procedure TThreadExportToZip.ExportRegion;
 var
   p_x, p_y, i, j: integer;
   polyg: TPointArray;

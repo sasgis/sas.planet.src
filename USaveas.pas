@@ -341,7 +341,7 @@ begin
   path:=IncludeTrailingPathDelimiter(EditPath.Text);
   Replace:=CBReplace.Checked;
   if ziped then begin
-    TExportThreadToZip.Create(path,APolyLL,ZoomArr,typemaparr,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
+    TThreadExportToZip.Create(path,APolyLL,ZoomArr,typemaparr,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
   end else begin
     TThreadExport.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
   end;

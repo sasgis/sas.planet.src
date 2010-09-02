@@ -16,7 +16,7 @@ uses
   u_ExportThreadAbstract;
 
 type
-  TThreadExportYaMaps = class(TExportThreadAbstract)
+  TThreadExportYaMaps = class(TThreadExportAbstract)
   private
     FMapTypeArr:array of TMapType;
     FIsReplace:boolean;

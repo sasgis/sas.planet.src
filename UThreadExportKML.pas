@@ -15,7 +15,7 @@ uses
   u_ExportThreadAbstract;
 
 type
-  TThreadExportKML = class(TExportThreadAbstract)
+  TThreadExportKML = class(TThreadExportAbstract)
   private
     FMapType: TMapType;
     FIsReplace:boolean;

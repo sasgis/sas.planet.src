@@ -15,7 +15,7 @@ uses
   u_ExportThreadAbstract;
 
 type
-  TThreadExport = class(TExportThreadAbstract)
+  TThreadExport = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FTileNameGen: ITileFileNameGenerator;
