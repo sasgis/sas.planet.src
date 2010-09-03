@@ -17,7 +17,7 @@ type
 function RoundEx(chislo: Extended; Precision: Integer): string;
 function R2StrPoint(r: Extended): string;
 function LonLat2GShListName(LL: TExtendedPoint; Scale: integer; Prec: integer):string;
-function kb2KbMbGb(kb: real): string;
+function kb2KbMbGb(kb: Extended): string;
 function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
 function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
 function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
@@ -79,7 +79,7 @@ begin
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
 end;
 
-function kb2KbMbGb(kb: real): string;
+function kb2KbMbGb(kb: Extended): string;
 begin
   if kb > 1048576 then begin
     result := RoundEx(kb/1048576, 1) + ' ' + SAS_UNITS_gb;

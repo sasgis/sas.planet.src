@@ -22,10 +22,10 @@ type
     FLastSuccessfulPoint: TPoint;
     FRegionRect: TRect;
 
-    FTotalInRegion: Cardinal;
-    FDownloaded: Cardinal;
+    FTotalInRegion: Int64;
+    FDownloaded: Int64;
     FDownloadSize: Double;
-    FProcessed: Cardinal;
+    FProcessed: Int64;
 
     FElapsedTime: TDateTime;
     FStartTime: TDateTime;
@@ -57,9 +57,9 @@ type
     procedure DownloadPause;
     procedure DownloadResume;
 
-    property TotalInRegion: Cardinal read FTotalInRegion;
-    property Downloaded: Cardinal read FDownloaded;
-    property Processed: Cardinal read FProcessed;
+    property TotalInRegion: Int64 read FTotalInRegion;
+    property Downloaded: Int64 read FDownloaded;
+    property Processed: Int64 read FProcessed;
     property DownloadSize: Double read FDownloadSize;
     property ElapsedTime: TDateTime read GetElapsedTime;
     property StartTime: TDateTime read FStartTime;
