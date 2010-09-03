@@ -11,7 +11,7 @@ uses
   t_GeoTypes;
 
 type
-  TMapLayerBasic =  class(TWindowLayerBasic)
+  TMapLayerBasic = class(TWindowLayerBasic)
   protected
 
     FScale: Double;
@@ -53,6 +53,7 @@ type
     property Zoom: Byte read FZoom;
     property GeoConvert: ICoordConverter read FGeoConvert;
   end;
+
 implementation
 
 uses
@@ -177,7 +178,7 @@ begin
   Result := BitmapPixel2VisiblePixel(VPoint);
 end;
 
-function TMapLayerBasic.VisiblePixel2MapPixel(Pnt:TPoint):TPoint;
+function TMapLayerBasic.VisiblePixel2MapPixel(Pnt: TPoint): TPoint;
 var
   VPoint: TPoint;
 begin

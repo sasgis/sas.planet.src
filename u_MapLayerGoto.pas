@@ -4,13 +4,14 @@ interface
 
 uses
   Windows,
+  Types,
   GR32,
   GR32_Image,
   t_GeoTypes,
   u_MapLayerBasic;
 
 type
-  TGotoLayer =  class(TMapLayerBasic)
+  TGotoLayer = class(TMapLayerBasic)
   protected
     FGotoPoint: TExtendedPoint;
     FHideAfterTime: Cardinal;
@@ -28,7 +29,9 @@ type
 implementation
 
 uses
-  u_GlobalState, u_WindowLayerBasic, Types;
+  u_GlobalState,
+  u_WindowLayerBasic;
+
 { TGotoLayer }
 
 constructor TGotoLayer.Create(AParentMap: TImage32; ACenter: TPoint);
@@ -74,7 +77,7 @@ begin
   Result.Y := 6;
   VGotoPoint := FGeoConvert.LonLat2PixelPos(FGotoPoint, FZoom);
   Result.X := Result.X + (FScreenCenterPos.X - VGotoPoint.X);
-  Result.Y := Result.Y + (FScreenCenterPos.Y - VGotoPoint.Y);;
+  Result.Y := Result.Y + (FScreenCenterPos.Y - VGotoPoint.Y);
 end;
 
 procedure TGotoLayer.ShowGotoIcon(APoint: TExtendedPoint);

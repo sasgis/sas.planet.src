@@ -297,7 +297,7 @@ begin
   Clear;
   VHybrList := GState.ViewState.HybrList;
   VEnum := VHybrList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK  do begin
+  while VEnum.Next(1, VGUID, i) = S_OK do begin
     if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;

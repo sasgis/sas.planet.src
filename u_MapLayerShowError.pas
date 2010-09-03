@@ -10,7 +10,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TTileErrorInfoLayer =  class(TMapLayerBasic)
+  TTileErrorInfoLayer = class(TMapLayerBasic)
   protected
     FTilePos: TPoint;
     FTileZoom: Byte;
@@ -90,7 +90,7 @@ begin
     VTileCenter := FMapType.GeoConvert.PixelPos2OtherMap(VTileCenter, FZoom, FGeoConvert);
     Result := GetBitmapSizeInPixel;
     Result.X := Result.X div 2 + (FScreenCenterPos.X - VTileCenter.X);
-    Result.Y := Result.Y div 2 + (FScreenCenterPos.Y - VTileCenter.Y);;
+    Result.Y := Result.Y div 2 + (FScreenCenterPos.Y - VTileCenter.Y);
   end else begin
     Result := Point(10000, 10000);
   end;
