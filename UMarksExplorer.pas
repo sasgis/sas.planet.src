@@ -131,6 +131,7 @@ begin
     Result := FaddPoint.EditMark(VMark);
     if Result then begin
       WriteMark(VMark);
+      SaveMarks2File;
     end;
   finally
     VMark.Free;
@@ -351,6 +352,7 @@ begin
   VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
   VMark.visible := MarksListBox.Checked[VIndex];
   WriteMarkId(VMark);
+  SaveMarks2File;
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -539,7 +541,8 @@ begin
       TMarkId(MarksListBox.Items.Objects[i]).visible := VNewVisible;
     end;
     WriteMarkIdList(MarksListBox.Items);
-  end
+    SaveMarks2File;
+  end;
 end;
 
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
