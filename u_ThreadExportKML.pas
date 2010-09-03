@@ -63,7 +63,7 @@ end;
 procedure TThreadExportKML.KmlFileWrite(x,y:integer;AZoom,level:byte);
 var xym256lt,xym256rb:TPoint;
     VZoom: Byte;
-    i, nxy,xi,yi:integer;
+    nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
     ToFile:string;
   VExtRect: TExtendedRect;
@@ -100,11 +100,8 @@ begin
    begin
     ProgressFormUpdateOnProgress
    end;
-  VZoom:=AZoom + 1;
-  while (not(FZoomArr[VZoom]))and(VZoom<24) do inc(VZoom);
-
-  if VZoom<24 then
-   begin
+  if level < Length(FZooms) then begin
+    VZoom := FZooms[level];
     nxy:=round(intpower(2, VZoom - AZoom));
     for xi:=1 to nxy do
      for yi:=1 to nxy do
