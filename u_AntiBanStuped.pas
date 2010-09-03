@@ -92,12 +92,12 @@ end;
 
 procedure TAntiBanStuped.addDwnforban;
 begin
-  if FPreloadPage='' then begin
-    FMain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll='+inttostr(random(100)-50)+','+inttostr(random(300)-150)+'&spn=1,1&t=k&z=8');
+  if FPreloadPage = '' then begin
+    FMain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8');
   end else begin
     FMain.WebBrowser1.NavigateWait(FPreloadPage);
   end;
-  while (FMain.WebBrowser1.ReadyState<>READYSTATE_COMPLETE) do begin
+  while (FMain.WebBrowser1.ReadyState <> READYSTATE_COMPLETE) do begin
     Application.ProcessMessages;
   end;
 end;
@@ -108,12 +108,7 @@ function TAntiBanStuped.CheckIsBan(ATile: TPoint; AZoom: Byte;
   ADownloadSize: Cardinal): Boolean;
 begin
   Result := false;
-  if (ADownloadResult = dtrErrorMIMEType)
-    and(ADownloadSize <> 0)
-    and(FBanIfLen <> 0)
-    and(ADownloadSize < (FBanIfLen + 50))
-    and(ADownloadSize >(FBanIfLen-50)) then
-  begin
+  if (ADownloadResult = dtrErrorMIMEType) and (ADownloadSize <> 0) and (FBanIfLen <> 0) and (ADownloadSize < (FBanIfLen + 50)) and (ADownloadSize > (FBanIfLen - 50)) then begin
     result := true;
   end;
 end;
@@ -124,10 +119,10 @@ var
 begin
   FBanCS := TCriticalSection.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FUsePreloadPage:=VParams.ReadInteger('UsePreloadPage',0);
-  FPreloadPage:=VParams.ReadString('PreloadPage','');
-  FBanIfLen:=VParams.ReadInteger('BanIfLen',0);
-  FContent_Type:=VParams.ReadString('ContentType','image/jpg');
+  FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
+  FPreloadPage := VParams.ReadString('PreloadPage', '');
+  FBanIfLen := VParams.ReadInteger('BanIfLen', 0);
+  FContent_Type := VParams.ReadString('ContentType', 'image/jpg');
 end;
 
 destructor TAntiBanStuped.Destroy;
@@ -159,7 +154,7 @@ var
   RunAntiBan: Boolean;
 begin
   cnt := InterlockedIncrement(FDownloadTilesCount);
-  if (FUsePreloadPage>0) then begin
+  if (FUsePreloadPage > 0) then begin
     if (FUsePreloadPage > 1) then begin
       RunAntiBan := (cnt mod FUsePreloadPage) = 0;
     end else begin

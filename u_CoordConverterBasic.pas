@@ -1062,7 +1062,7 @@ var
   VPixelRect: TExtendedRect;
 begin
   VPixelRect := TileRectFloat2PixelRectFloatInternal(XY, AZoom);
-  Result := PixelRectFloat2PixelRectInternal(VPixelRect, AZoom)
+  Result := PixelRectFloat2PixelRectInternal(VPixelRect, AZoom);
 end;
 
 function TCoordConverterBasic.TileRectFloat2RelativeRectInternal(

@@ -69,7 +69,7 @@ begin
           pceltFetched^ := 0;
         end;
         Result := S_FALSE;
-      end;;
+      end;
     finally
       FList.Unlock;
     end;
@@ -92,7 +92,7 @@ begin
     end else begin
       FCurrent := FList.Count;
       Result := S_FALSE;
-    end;;
+    end;
   finally
     FList.Unlock;
   end;

@@ -11,8 +11,8 @@ type
   TCoordConverterSimpleLonLat = class(TCoordConverterBasic)
   protected
     FExct, FRadiusb: Extended;
-	  function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2MetrS(ALL:TExtendedPoint):TExtendedPoint; override;
+	   function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
+    function LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint; override;
     function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
   public
@@ -44,13 +44,13 @@ begin
   end;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2MetrS(ALL:TExtendedPoint):TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint;
 begin
-  All.x:=All.x*(Pi/180);
-  All.Y:=All.y*(Pi/180);
-  result.x:=FRadiusa*All.x/2;
-  result.y:=FRadiusa*Ln(Tan(PI/4+All.y/2)*
-            Power((1-FExct*Sin(all.y))/(1+FExct*Sin(All.y)),FExct/2))/2;
+  All.x := All.x * (Pi / 180);
+  All.Y := All.y * (Pi / 180);
+  result.x := FRadiusa * All.x / 2;
+  result.y := FRadiusa * Ln(Tan(PI / 4 + All.y / 2) *
+    Power((1 - FExct * Sin(all.y)) / (1 + FExct * Sin(All.y)), FExct / 2)) / 2;
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;

@@ -48,13 +48,13 @@ begin
 
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2MetrS(ALL:TExtendedPoint):TExtendedPoint;
+function TCoordConverterMercatorOnEllipsoid.LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint;
 begin
-  All.x:=All.x*(Pi/180);
-  All.Y:=All.y*(Pi/180);
-  result.x:=FRadiusa*All.x/2;
-  result.y:=FRadiusa*Ln(Tan(PI/4+All.y/2)*
-            Power((1-FExct*Sin(all.y))/(1+FExct*Sin(All.y)),FExct/2))/2;
+  All.x := All.x * (Pi / 180);
+  All.Y := All.y * (Pi / 180);
+  result.x := FRadiusa * All.x / 2;
+  result.y := FRadiusa * Ln(Tan(PI / 4 + All.y / 2) *
+    Power((1 - FExct * Sin(all.y)) / (1 + FExct * Sin(All.y)), FExct / 2)) / 2;
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;

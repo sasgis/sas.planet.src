@@ -288,7 +288,7 @@ begin
       (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG) then begin
       Result := XY;
     end else begin
-      CheckPixelPosInternal(XY,  Azoom);
+      CheckPixelPosInternal(XY, Azoom);
       VLonLat := PixelPos2LonLatInternal(XY, Azoom);
       AOtherMapCoordConv.CheckLonLatPos(VLonLat);
       Result := AOtherMapCoordConv.LonLat2PixelPos(VLonLat, Azoom);
