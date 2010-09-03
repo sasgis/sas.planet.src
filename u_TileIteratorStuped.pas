@@ -34,6 +34,7 @@ begin
   polyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
   FTilesTotal := GetDwnlNum(VPixelRect, Polyg, true);
   p_x := VPixelRect.Left;
+  p_y := VPixelRect.Top;
 end;
 
 destructor TTileIteratorStuped.Destroy;
@@ -44,22 +45,27 @@ end;
 
 function TTileIteratorStuped.Next: Boolean;
 begin
+
   Result := False;
   while p_x < VPixelRect.Right do begin
     FCurrent.X := p_x shr 8;
-    p_y := VPixelRect.Top;
     while p_y < VPixelRect.Bottom do begin
       FCurrent.Y := p_y shr 8;
       if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
         Result := True;
-        Break;
       end;
       inc(p_y, 256);
+      if Result then begin
+        Break;
+      end;
     end;
     if Result then begin
       Break;
     end;
-    inc(p_x, 256);
+    if p_y >= VPixelRect.Right then begin
+      p_y := VPixelRect.Top;
+      inc(p_x, 256);
+    end;
   end;
 end;
 
