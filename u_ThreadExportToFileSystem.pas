@@ -79,61 +79,61 @@ var
   VTileIterator: TTileIteratorAbstract;
 begin
   inherited;
-    SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
-    FTilesToProcess := 0;
-    for j := 0 to length(FMapTypeArr) - 1 do begin
-      for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-        VGeoConvert := FMapTypeArr[j].GeoConvert;
-        VTileIterators[j, i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-        FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
-      end;
+  SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
+  FTilesToProcess := 0;
+  for j := 0 to length(FMapTypeArr) - 1 do begin
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
+      VGeoConvert := FMapTypeArr[j].GeoConvert;
+      VTileIterators[j, i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+      FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
     end;
-    try
+  end;
+  try
     ProgressFormUpdateCaption(
       SAS_STR_ExportTiles,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-    );
+      );
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-        for j := 0 to length(FMapTypeArr) - 1 do begin
-          VMapType := FMapTypeArr[j];
-          VGeoConvert := VMapType.GeoConvert;
-          VExt := VMapType.TileFileExt;
-          VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-          VTileIterator := VTileIterators[j, i];
-          while VTileIterator.Next do begin
-            if IsCancel then begin
-              exit;
-            end;
-            VTile := VTileIterator.Current;
-            if VMapType.TileExists(VTile, VZoom) then begin
-              pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
-              if VMapType.TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
-                if FIsMove then begin
-                  VMapType.DeleteTile(VTile, VZoom);
-                end;
+      for j := 0 to length(FMapTypeArr) - 1 do begin
+        VMapType := FMapTypeArr[j];
+        VGeoConvert := VMapType.GeoConvert;
+        VExt := VMapType.TileFileExt;
+        VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
+        VTileIterator := VTileIterators[j, i];
+        while VTileIterator.Next do begin
+          if IsCancel then begin
+            exit;
+          end;
+          VTile := VTileIterator.Current;
+          if VMapType.TileExists(VTile, VZoom) then begin
+            pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
+            if VMapType.TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
+              if FIsMove then begin
+                VMapType.DeleteTile(VTile, VZoom);
               end;
             end;
-            inc(FTilesProcessed);
-            if FTilesProcessed mod 100 = 0 then begin
-              ProgressFormUpdateOnProgress;
-            end;
+          end;
+          inc(FTilesProcessed);
+          if FTilesProcessed mod 100 = 0 then begin
+            ProgressFormUpdateOnProgress;
           end;
         end;
-    end;
-    finally
-      for j := 0 to length(FMapTypeArr) - 1 do begin
-        for i := 0 to Length(FZooms) - 1 do begin
-          VTileIterators[j, i].Free;
-        end;
       end;
-      VTileIterators := nil;
     end;
-    ProgressFormUpdateOnProgress;
-    FTileNameGen := nil;
+  finally
+    for j := 0 to length(FMapTypeArr) - 1 do begin
+      for i := 0 to Length(FZooms) - 1 do begin
+        VTileIterators[j, i].Free;
+      end;
+    end;
+    VTileIterators := nil;
+  end;
+  ProgressFormUpdateOnProgress;
+  FTileNameGen := nil;
 end;
 
 end.
