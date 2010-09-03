@@ -41,6 +41,8 @@ type
 implementation
 
 uses
+  u_TileIteratorAbstract,
+  u_TileIteratorStuped,
   u_GeoToStr;
 
 procedure TThreadExportToZip.Terminate;
@@ -84,38 +86,32 @@ end;
 
 procedure TThreadExportToZip.ProcessRegion;
 var
-  p_x, p_y, i, j: integer;
+  i, j: integer;
   VZoom: Byte;
-  polyg: TPointArray;
-  pathfrom, persl, perzoom, kti, datestr: string;
+  pathfrom, persl, perzoom, datestr: string;
   VExt: string;
   VPath: string;
-  VPixelRect: TRect;
-  VLonLatRect: TExtendedRect;
   VTile: TPoint;
   VMapType: TMapType;
+  VTileIterators: array of array of TTileIteratorAbstract;
+  VTileIterator: TTileIteratorAbstract;
 begin
   inherited;
     FTilesToProcess := 0;
     persl := '';
-    kti := '';
     datestr := RetDate(now);
+    SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
     for j := 0 to length(FMapTypeArr) - 1 do begin
       persl := persl + FMapTypeArr[j].GetShortFolderName + '_';
       perzoom := '';
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
-          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-          FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, true);
+        VTileIterators[j, i] := TTileIteratorStuped.Create(VZoom, FPolygLL, FMapTypeArr[j].GeoConvert);
+        FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
           perzoom := perzoom + inttostr(VZoom + 1) + '_';
-
-          VLonLatRect := FMapTypeArr[j].GeoConvert.PixelRect2LonLatRect(VPixelRect, VZoom);
-          kti := RoundEx(VLonLatRect.Left, 4);
-          kti := kti + '_' + RoundEx(VLonLatRect.Top, 4);
-          kti := kti + '_' + RoundEx(VLonLatRect.Right, 4);
-          kti := kti + '_' + RoundEx(VLonLatRect.Bottom, 4);
       end;
     end;
+  try
     persl := copy(persl, 1, length(persl) - 1);
     perzoom := copy(perzoom, 1, length(perzoom) - 1);
     ProgressFormUpdateCaption(
@@ -125,46 +121,35 @@ begin
     FZip.Recurse := False;
     FZip.StorePaths := true;
     FZip.PackLevel := 0; // Уровень сжатия
-    FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
+    FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + datestr + '.ZIP';
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-        for j := 0 to length(FMapTypeArr) - 1 do
-        begin
+        for j := 0 to length(FMapTypeArr) - 1 do  begin
           VMapType := FMapTypeArr[j];
-          polyg := VMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           VExt := VMapType.TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-          GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, false);
-          p_x := VPixelRect.Left;
-          while p_x < VPixelRect.Right do begin
-            VTile.X := p_x shr 8;
-            p_y := VPixelRect.Top;
-            while p_y < VPixelRect.Bottom do begin
-              VTile.Y := p_y shr 8;
-              if IsCancel then begin
-                exit;
-              end;
-                if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
-                if VMapType.TileExists(VTile, VZoom) then begin
-  //TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-                  pathfrom := VMapType.GetTileFileName(VTile, VZoom);
-                  FZip.FilesList.Add(pathfrom);
-                end;
-                inc(FTilesProcessed);
-                if FTilesProcessed mod 100 = 0 then begin
-                  ProgressFormUpdateOnProgress;
-                end;
-              end;
-              inc(p_y, 256);
+          VTileIterator := VTileIterators[j, i];
+          while VTileIterator.Next do begin
+            if IsCancel then begin
+              exit;
             end;
-            inc(p_x, 256);
+            VTile := VTileIterator.Current;
+            if VMapType.TileExists(VTile, VZoom) then begin
+//TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
+              pathfrom := VMapType.GetTileFileName(VTile, VZoom);
+              FZip.FilesList.Add(pathfrom);
+            end;
+            inc(FTilesProcessed);
+            if FTilesProcessed mod 100 = 0 then begin
+              ProgressFormUpdateOnProgress;
+            end;
           end;
         end;
     end;
     ProgressFormUpdateCaption(
-      SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP',
+      SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + datestr + '.ZIP',
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
     );
     if FileExists(FZip.ZipName) then begin
@@ -173,8 +158,16 @@ begin
     If FZip.Zip = 0 then begin
       Application.MessageBox(PChar(SAS_ERR_CreateArh), PChar(SAS_MSG_coution), 48);
     end;
-    ProgressFormUpdateOnProgress;
-    FTileNameGen := nil;
+  finally
+    for j := 0 to length(FMapTypeArr) - 1 do begin
+      for i := 0 to Length(FZooms) - 1 do begin
+        VTileIterators[j, i].Free;
+      end;
+    end;
+    VTileIterators := nil;
+  end;
+  ProgressFormUpdateOnProgress;
+  FTileNameGen := nil;
 end;
 
 end.
