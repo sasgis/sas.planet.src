@@ -40,7 +40,9 @@ type
 implementation
 
 uses
-  i_ICoordConverter;
+  i_ICoordConverter,
+  u_TileIteratorAbstract,
+  u_TileIteratorStuped;
 
 constructor TThreadExportToFileSystem.Create(
   APath: string;
@@ -65,25 +67,29 @@ end;
 
 procedure TThreadExportToFileSystem.ProcessRegion;
 var
-  p_x, p_y, i, j: integer;
+  i, j: integer;
   VZoom: Byte;
-  polyg: TPointArray;
   pathto: string;
   VExt: string;
   VPath: string;
-  VPixelRect: TRect;
   VTile: TPoint;
   VMapType: TMapType;
   VGeoConvert: ICoordConverter;
+  VTileIterators: array of array of TTileIteratorAbstract;
+  VTileIterator: TTileIteratorAbstract;
 begin
+  inherited;
+    SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
     FTilesToProcess := 0;
     for j := 0 to length(FMapTypeArr) - 1 do begin
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
-        polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-        FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect, Polyg, true);
+        VGeoConvert := FMapTypeArr[j].GeoConvert;
+        VTileIterators[j, i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+        FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
       end;
     end;
+    try
     ProgressFormUpdateCaption(
       SAS_STR_ExportTiles,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
@@ -95,38 +101,36 @@ begin
         for j := 0 to length(FMapTypeArr) - 1 do begin
           VMapType := FMapTypeArr[j];
           VGeoConvert := VMapType.GeoConvert;
-          polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           VExt := VMapType.TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-          GetDwnlNum(VPixelRect, Polyg, false);
-          p_x := VPixelRect.Left;
-          while p_x < VPixelRect.Right do begin
-            VTile.X := p_x shr 8;
-            p_y := VPixelRect.Top;
-            while p_y < VPixelRect.Bottom do begin
-              VTile.Y := p_y shr 8;
-              if IsCancel then begin
-                exit;
-              end;
-              if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
-                if VMapType.TileExists(VTile, VZoom) then begin
-                  pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
-                  if VMapType.TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
-                    if FIsMove then begin
-                      VMapType.DeleteTile(VTile, VZoom);
-                    end;
-                  end;
-                end;
-                inc(FTilesProcessed);
-                if FTilesProcessed mod 100 = 0 then begin
-                  ProgressFormUpdateOnProgress;
-                end;
-              end;
-              inc(p_y, 256);
+          VTileIterator := VTileIterators[j, i];
+          while VTileIterator.Next do begin
+            if IsCancel then begin
+              exit;
             end;
-            inc(p_x, 256);
+            VTile := VTileIterator.Current;
+            if VMapType.TileExists(VTile, VZoom) then begin
+              pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
+              if VMapType.TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
+                if FIsMove then begin
+                  VMapType.DeleteTile(VTile, VZoom);
+                end;
+              end;
+            end;
+            inc(FTilesProcessed);
+            if FTilesProcessed mod 100 = 0 then begin
+              ProgressFormUpdateOnProgress;
+            end;
           end;
         end;
+    end;
+    finally
+      for j := 0 to length(FMapTypeArr) - 1 do begin
+        for i := 0 to Length(FZooms) - 1 do begin
+          VTileIterators[j, i].Free;
+        end;
+      end;
+      VTileIterators := nil;
     end;
     ProgressFormUpdateOnProgress;
     FTileNameGen := nil;
