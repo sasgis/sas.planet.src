@@ -38,7 +38,6 @@ procedure WriteMarkIdList(AStrings: TStrings);
 procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
 procedure Kategory2StringsWithObjects(AStrings: TStrings);
 procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
-function GetMarksFileterByCategories(AZoom: Byte): string;
 procedure LoadMarksFromFile;
 procedure LoadCategoriesFromFile;
 function SaveMarks2File: boolean;
@@ -148,23 +147,24 @@ begin
     try
       FMain.CDSKategory.Filter := 'visible = 1 and ( AfterScale <= ' + inttostr(AZoom + 1) + ' and BeforeScale >= ' + inttostr(AZoom + 1) + ' )';
       FMain.CDSKategory.Filtered := true;
-      FMain.CDSKategory.First;
-      if FMain.CDSKategory.Eof then begin
-        FMain.CDSKategory.Filtered := false;
-        exit;
-      end;
-      if not (FMain.CDSKategory.Eof) then begin
-        Result := Result + '(';
-        while not (FMain.CDSKategory.Eof) do begin
-          Result := Result + 'categoryid=' + FMain.CDSKategory.fieldbyname('id').AsString;
-          FMain.CDSKategory.Next;
-          if not (FMain.CDSKategory.Eof) then begin
-            Result := Result + ' or ';
+      try
+        FMain.CDSKategory.First;
+        if not (FMain.CDSKategory.Eof) then begin
+          Result := '(';
+          while not (FMain.CDSKategory.Eof) do begin
+            Result := Result + 'categoryid=' + FMain.CDSKategory.fieldbyname('id').AsString;
+            FMain.CDSKategory.Next;
+            if not (FMain.CDSKategory.Eof) then begin
+              Result := Result + ' or ';
+            end;
           end;
+          Result := Result + ')';
+        end else begin
+          Result := '(categoryid=-1)';
         end;
-        Result := Result + ')';
+      finally
+        FMain.CDSKategory.Filtered := false;
       end;
-      FMain.CDSKategory.Filtered := false;
     finally
       FMain.CDSKategory.EnableControls;
     end;
