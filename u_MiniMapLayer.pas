@@ -214,8 +214,8 @@ begin
   FBitmapSize.Y := 256;
 
   FBitmapSize.X := GState.MainIni.readInteger('MINIMAP', 'Width', FBitmapSize.X);
-  FBitmapSize.Y := GState.MainIni.readInteger('MINIMAP','Height', FBitmapSize.Y);
-  FZoomDelta := GState.MainIni.readInteger('MINIMAP','ZoomDelta', FZoomDelta);
+  FBitmapSize.Y := GState.MainIni.readInteger('MINIMAP', 'Height', FBitmapSize.Y);
+  FZoomDelta := GState.MainIni.readInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
 
   FPopup := TTBXPopupMenu.Create(AParentMap);
   FPopup.Name := 'PopupMiniMap';
@@ -250,8 +250,8 @@ end;
 procedure TMiniMapLayer.WriteIni;
 begin
   GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
-  GState.MainIni.WriteInteger('MINIMAP','Height', FBitmapSize.Y);
-  GState.MainIni.WriteInteger('MINIMAP','ZoomDelta', FZoomDelta);
+  GState.MainIni.WriteInteger('MINIMAP', 'Height', FBitmapSize.Y);
+  GState.MainIni.WriteInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
   FMapConfigSaver.Save(FMapsActive);
 end;
 
@@ -365,8 +365,11 @@ end;
 procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
   Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
 begin
- if TTBXItem(Item).Checked then TTBXItem(Item).FontSettings.Bold:=tsTrue
-                           else TTBXItem(Item).FontSettings.Bold:=tsDefault;
+  if TTBXItem(Item).Checked then begin
+    TTBXItem(Item).FontSettings.Bold := tsTrue;
+  end else begin
+    TTBXItem(Item).FontSettings.Bold := tsDefault;
+  end;
 end;
 
 procedure TMiniMapLayer.SameAsMainClick(Sender: TObject);
@@ -442,7 +445,7 @@ begin
 
   DrawMap(VMapType, dmOpaque);
   VEnum := FLayersList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK  do begin
+  while VEnum.Next(1, VGUID, i) = S_OK do begin
     if FMapsActive.IsHybrGUIDSelected(VGUID) then begin
       VItem := FLayersList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
@@ -494,7 +497,7 @@ begin
       then begin
         VPolygon := TPolygon32.Create;
         try
-          VPolygon.Antialiased:=true;
+          VPolygon.Antialiased := true;
           VPolygon.Add(FixedPoint(VBitmapRect.TopLeft));
           VPolygon.Add(FixedPoint(VBitmapRect.Right, VBitmapRect.Top));
           VPolygon.Add(FixedPoint(VBitmapRect.BottomRight));
@@ -509,7 +512,7 @@ begin
           finally
             Free;
           end;
-          VPolygon.DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clWhite32,(FZoomDelta)*35));
+          VPolygon.DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clWhite32, (FZoomDelta) * 35));
         finally
           VPolygon.Free;
         end;
@@ -593,7 +596,7 @@ begin
 
     for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
       VTile.X := i;
-      for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+      for j := VTileSourceRect.Top to VTileSourceRect.Bottom do begin
         VTile.Y := j;
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
         VTilePixelsToDraw.TopLeft := Point(0, 0);
@@ -709,7 +712,7 @@ var
   VBitmapCenter: TPoint;
   VVisibleCenter: TPoint;
 begin
-  FParentMap.PopupMenu:=nil;
+  FParentMap.PopupMenu := nil;
   case button of
     mbRight: FParentMap.PopupMenu := FPopup;
     mbLeft: begin
@@ -935,7 +938,7 @@ begin
       FLeftBorder.Bitmap.Clear(clLightGray32);
       Polygon := TPolygon32.Create;
       try
-        Polygon.Antialiased:=False;
+        Polygon.Antialiased := False;
         Polygon.Closed := false;
         Polygon.Add(FixedPoint(4, 0));
         Polygon.Add(FixedPoint(0, 0));
@@ -946,10 +949,10 @@ begin
       finally
         Polygon.Free;
       end;
-      FLeftBorder.bitmap.Pixel[2,5 + (VBitmapSizeInPixel.Y div 2)-6]:=clBlack;
-      FLeftBorder.bitmap.Pixel[2,5 + (VBitmapSizeInPixel.Y div 2)-2]:=clBlack;
-      FLeftBorder.bitmap.Pixel[2,5 + (VBitmapSizeInPixel.Y div 2)+2]:=clBlack;
-      FLeftBorder.bitmap.Pixel[2,5 + (VBitmapSizeInPixel.Y div 2)+6]:=clBlack;
+      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) - 6] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) - 2] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) + 2] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) + 6] := clBlack;
     finally
       FLeftBorder.Bitmap.Unlock;
     end;
@@ -961,7 +964,7 @@ begin
       FTopBorder.Bitmap.Clear(clLightGray32);
       Polygon := TPolygon32.Create;
       try
-        Polygon.Antialiased:=False;
+        Polygon.Antialiased := False;
         Polygon.Closed := false;
         Polygon.Add(FixedPoint(0, 0));
         Polygon.Add(FixedPoint(VBitmapSizeInPixel.X, 0));
