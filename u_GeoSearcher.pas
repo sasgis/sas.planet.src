@@ -8,7 +8,7 @@ uses
   i_GeoCoder;
 
 type
-  TGeoSearcher =  class
+  TGeoSearcher = class
   private
     FGeoCoder: IGeoCoder;
     FPresenter: ISearchResultPresenter;

@@ -27,7 +27,7 @@ uses
   u_GlobalCahceConfig;
 
 type
-  TSrchType = (stGoogle,stYandex);
+  TSrchType = (stGoogle, stYandex);
 
   TGlobalState = class
   private
@@ -139,7 +139,7 @@ type
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
     //Писать лог NMEA
-    GPS_NMEALog:boolean;
+    GPS_NMEALog: boolean;
 
     LastSelectionColor: TColor;
     LastSelectionAlfa: Byte;
@@ -148,16 +148,16 @@ type
     BorderAlpha: byte;
 
     // Цвет для отсутствующих тайлов в слое заполнения карты
-    MapZapColor:TColor;
+    MapZapColor: TColor;
     // Показывать tne на слое заполнения карты
     MapZapShowTNE: Boolean;
     // Цвет для тайлов отсутсвтующих на сервере в слое заполнения карты
     MapZapTneColor: TColor;
     // Прозрачность слоя заполнения карты
-    MapZapAlpha:byte;
+    MapZapAlpha: byte;
 
-    WikiMapMainColor:TColor;
-    WikiMapFonColor:TColor;
+    WikiMapMainColor: TColor;
+    WikiMapFonColor: TColor;
 
     InvertColor: boolean;
     // Число для гамма преобразования тайлов перед отображением
@@ -205,13 +205,13 @@ type
     SrchType: TSrchType;
 
     //параметры определения позиции по GSM
-    GSMpar:TGSMpar;
+    GSMpar: TGSMpar;
 
     //Цвет фона
-    BGround:TColor;
+    BGround: TColor;
 
     //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
-    SessionLastSuccess:boolean;
+    SessionLastSuccess: boolean;
 
     MapType: array of TMapType;
 
@@ -273,11 +273,12 @@ type
   end;
 
 const
-  SASVersion='100830.alfa';
+  SASVersion = '100830.alfa';
   CProgram_Lang_Default = LANG_RUSSIAN;
 
 var
   GState: TGlobalState;
+
 implementation
 
 uses
@@ -373,6 +374,7 @@ function TGlobalState.GetMarksBackUpFileName: string;
 begin
   Result := ProgramPath + 'marks.~sml';
 end;
+
 function TGlobalState.GetMarksFileName: string;
 begin
   Result := ProgramPath + 'marks.sml';
@@ -394,11 +396,11 @@ var
   i: integer;
   VMapType: TMapType;
 begin
-  Result:=nil;
-  for i:=0 to length(MapType)-1 do begin
+  Result := nil;
+  for i := 0 to length(MapType) - 1 do begin
     VMapType := MapType[i];
     if IsEqualGUID(VMapType.GUID, id) then begin
-      result:=VMapType;
+      result := VMapType;
       exit;
     end;
   end;
@@ -432,12 +434,12 @@ var
 begin
   MarkIcons := TStringList.Create;
   VLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
-  if FindFirst(MarkIconsPath +'*.png', faAnyFile, SearchRec) = 0 then begin
+  if FindFirst(MarkIconsPath + '*.png', faAnyFile, SearchRec) = 0 then begin
     try
       repeat
         if (SearchRec.Attr and faDirectory) <> faDirectory then begin
           Vbmp := TCustomBitmap32.Create;
-          VLoader.LoadFromFile(MarkIconsPath+SearchRec.Name, Vbmp);
+          VLoader.LoadFromFile(MarkIconsPath + SearchRec.Name, Vbmp);
           MarkIcons.AddObject(SearchRec.Name, Vbmp);
         end;
       until FindNext(SearchRec) <> 0;
@@ -522,15 +524,15 @@ end;
 
 procedure TGlobalState.LoadMainParams;
 var
-  loc:integer;
+  loc: integer;
 begin
   if SysLocale.PriLangID <> CProgram_Lang_Default then begin
     loc := LANG_ENGLISH;
   end else begin
     loc := CProgram_Lang_Default;
   end;
-  Localization := MainIni.Readinteger('VIEW','localization',loc);
-  WebReportToAuthor := MainIni.ReadBool('NPARAM','stat',true);
+  Localization := MainIni.Readinteger('VIEW', 'localization', loc);
+  WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -540,13 +542,13 @@ var
   VList18: TMapTypeIconsList;
   VList24: TMapTypeIconsList;
 begin
-  VList18 := TMapTypeIconsList.Create(18,18);
+  VList18 := TMapTypeIconsList.Create(18, 18);
   FMapTypeIcons18List := VList18;
 
   VList24 := TMapTypeIconsList.Create(24, 24);
   FMapTypeIcons24List := VList24;
 
-  for i:=0 to length(MapType)-1 do begin
+  for i := 0 to length(MapType) - 1 do begin
     VMapType := MapType[i];
     VList18.Add(VMapType.GUID, VMapType.bmp18);
     VList24.Add(VMapType.GUID, VMapType.bmp24);
@@ -572,10 +574,11 @@ procedure TGlobalState.LoadMaps;
       end;
     end;
   end;
+
 var
   Ini: TMeminifile;
-  i,j,k,pnum: integer;
-  startdir : string;
+  i, j, k, pnum: integer;
+  startdir: string;
   SearchRec: TSearchRec;
   MTb: TMapType;
   VGUIDString: String;
@@ -586,26 +589,28 @@ var
   VLocalMapsConfig: IConfigDataProvider;
   VFileName: string;
 begin
-  SetLength(MapType,0);
+  SetLength(MapType, 0);
   CreateDir(MapsPath);
-  Ini:=TMeminiFile.Create(MapsPath + 'Maps.ini');
+  Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-  i:=0;
-  pnum:=0;
-  startdir:=MapsPath;
-  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
+  i := 0;
+  pnum := 0;
+  startdir := MapsPath;
+  if FindFirst(startdir + '*.zmp', faAnyFile, SearchRec) = 0 then begin
     repeat
       inc(i);
     until FindNext(SearchRec) <> 0;
   end;
   VMapOnlyCount := 0;
   SysUtils.FindClose(SearchRec);
-  SetLength(MapType,i);
-  if FindFirst(startdir+'*.zmp', faAnyFile, SearchRec) = 0 then begin
+  SetLength(MapType, i);
+  if FindFirst(startdir + '*.zmp', faAnyFile, SearchRec) = 0 then begin
     repeat
-      if (SearchRec.Attr and faDirectory) = faDirectory then continue;
+      if (SearchRec.Attr and faDirectory) = faDirectory then begin
+        continue;
+      end;
       try
-        VFileName := startdir+SearchRec.Name;
+        VFileName := startdir + SearchRec.Name;
         VMapType := TMapType.Create;
         try
           VMapConfig := TConfigDataProviderByVCLZip.Create(VFileName);
@@ -626,7 +631,7 @@ begin
         FreeAndNil(VMapType);
       end;
       if VMapType <> nil then begin
-        MapType[pnum]:= VMapType;
+        MapType[pnum] := VMapType;
         if not VMapType.asLayer then begin
           Inc(VMapOnlyCount);
         end;
@@ -644,24 +649,24 @@ begin
   end;
 
   k := length(MapType) shr 1;
-  while k>0 do begin
-    for i:=0 to length(MapType)-k-1 do begin
-      j:=i;
-      while (j>=0)and(MapType[j].id>MapType[j+k].id) do begin
-        MTb:=MapType[j];
-        MapType[j]:=MapType[j+k];
-        MapType[j+k]:=MTb;
-        if j>k then begin
-          Dec(j,k);
+  while k > 0 do begin
+    for i := 0 to length(MapType) - k - 1 do begin
+      j := i;
+      while (j >= 0) and (MapType[j].id > MapType[j + k].id) do begin
+        MTb := MapType[j];
+        MapType[j] := MapType[j + k];
+        MapType[j + k] := MTb;
+        if j > k then begin
+          Dec(j, k);
         end else begin
-          j:=0;
+          j := 0;
         end;
       end;
     end;
-    k:=k shr 1;
+    k := k shr 1;
   end;
-  for i:=0 to length(MapType)-1 do begin
-    MapType[i].id:=i+1;
+  for i := 0 to length(MapType) - 1 do begin
+    MapType[i].id := i + 1;
   end;
 end;
 
@@ -677,54 +682,54 @@ var
   VGUIDString: string;
   VMapType: TMapType;
 begin
-  Ini:=TMeminiFile.Create(MapsPath + 'Maps.ini');
+  Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   try
-    for i:=0 to length(MapType)-1 do begin
+    for i := 0 to length(MapType) - 1 do begin
       VMapType := MapType[i];
       VGUIDString := VMapType.GUIDString;
-      ini.WriteInteger(VGUIDString,'pnum',VMapType.id);
+      ini.WriteInteger(VGUIDString, 'pnum', VMapType.id);
 
 
-      if VMapType.UrlGenerator.URLBase<>VMapType.UrlGenerator.DefURLBase then begin
-        ini.WriteString(VGUIDString,'URLBase',VMapType.UrlGenerator.URLBase);
+      if VMapType.UrlGenerator.URLBase <> VMapType.UrlGenerator.DefURLBase then begin
+        ini.WriteString(VGUIDString, 'URLBase', VMapType.UrlGenerator.URLBase);
       end else begin
-        Ini.DeleteKey(VGUIDString,'URLBase');
+        Ini.DeleteKey(VGUIDString, 'URLBase');
       end;
 
-      if VMapType.HotKey<>VMapType.DefHotKey then begin
-        ini.WriteInteger(VGUIDString,'HotKey',VMapType.HotKey);
+      if VMapType.HotKey <> VMapType.DefHotKey then begin
+        ini.WriteInteger(VGUIDString, 'HotKey', VMapType.HotKey);
       end else begin
-        Ini.DeleteKey(VGUIDString,'HotKey');
+        Ini.DeleteKey(VGUIDString, 'HotKey');
       end;
 
-      if VMapType.CacheConfig.cachetype<>VMapType.CacheConfig.defcachetype then begin
-        ini.WriteInteger(VGUIDString,'CacheType',VMapType.CacheConfig.CacheType);
+      if VMapType.CacheConfig.cachetype <> VMapType.CacheConfig.defcachetype then begin
+        ini.WriteInteger(VGUIDString, 'CacheType', VMapType.CacheConfig.CacheType);
       end else begin
-        Ini.DeleteKey(VGUIDString,'CacheType');
+        Ini.DeleteKey(VGUIDString, 'CacheType');
       end;
 
-      if VMapType.separator<>VMapType.Defseparator then begin
-        ini.WriteBool(VGUIDString,'separator',VMapType.separator);
+      if VMapType.separator <> VMapType.Defseparator then begin
+        ini.WriteBool(VGUIDString, 'separator', VMapType.separator);
       end else begin
-        Ini.DeleteKey(VGUIDString,'separator');
+        Ini.DeleteKey(VGUIDString, 'separator');
       end;
 
-      if VMapType.CacheConfig.NameInCache<>VMapType.CacheConfig.DefNameInCache then begin
-        ini.WriteString(VGUIDString,'NameInCache',VMapType.CacheConfig.NameInCache);
+      if VMapType.CacheConfig.NameInCache <> VMapType.CacheConfig.DefNameInCache then begin
+        ini.WriteString(VGUIDString, 'NameInCache', VMapType.CacheConfig.NameInCache);
       end else begin
-        Ini.DeleteKey(VGUIDString,'NameInCache');
+        Ini.DeleteKey(VGUIDString, 'NameInCache');
       end;
 
-      if VMapType.DownloaderFactory.WaitInterval<>VMapType.DefSleep then begin
-        ini.WriteInteger(VGUIDString,'Sleep',VMapType.DownloaderFactory.WaitInterval);
+      if VMapType.DownloaderFactory.WaitInterval <> VMapType.DefSleep then begin
+        ini.WriteInteger(VGUIDString, 'Sleep', VMapType.DownloaderFactory.WaitInterval);
       end else begin
-        Ini.DeleteKey(VGUIDString,'Sleep');
+        Ini.DeleteKey(VGUIDString, 'Sleep');
       end;
 
-      if VMapType.ParentSubMenu<>VMapType.DefParentSubMenu then begin
-        ini.WriteString(VGUIDString,'ParentSubMenu',VMapType.ParentSubMenu);
+      if VMapType.ParentSubMenu <> VMapType.DefParentSubMenu then begin
+        ini.WriteString(VGUIDString, 'ParentSubMenu', VMapType.ParentSubMenu);
       end else begin
-        Ini.DeleteKey(VGUIDString,'ParentSubMenu');
+        Ini.DeleteKey(VGUIDString, 'ParentSubMenu');
       end;
     end;
     Ini.UpdateFile;
@@ -736,7 +741,7 @@ end;
 procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
 begin
   FCacheElemensMaxCnt := Value;
-  FMemFileCache.CacheElemensMaxCnt:= FCacheElemensMaxCnt;
+  FMemFileCache.CacheElemensMaxCnt := FCacheElemensMaxCnt;
 end;
 
 procedure TGlobalState.StopAllThreads;
