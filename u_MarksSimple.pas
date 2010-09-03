@@ -8,17 +8,17 @@ uses
 
 type
   TCategoryId = class
-   id:integer;
-   name:string;
-   AfterScale: Integer;
-   BeforeScale: Integer;
-   visible:boolean;
+    id: integer;
+    name: string;
+    AfterScale: Integer;
+    BeforeScale: Integer;
+    visible: boolean;
   end;
 
   TMarkId = class
-   name:string;
-   id:integer;
-   visible:boolean;
+    name: string;
+    id: integer;
+    visible: boolean;
   end;
 
   TMarkFull = class(TMarkId)
@@ -80,7 +80,7 @@ begin
   VPointCount := Length(Points);
   if VPointCount > 1 then begin
     if (Points[0].X <> Points[VPointCount - 1].X) or
-       (Points[0].Y <> Points[VPointCount - 1].Y) then begin
+      (Points[0].Y <> Points[VPointCount - 1].Y) then begin
       SetLength(Points, VPointCount + 1);
       Points[VPointCount] := Points[0];
     end;
@@ -94,8 +94,8 @@ begin
   if IsPoint then begin
     Result := Points[0];
   end else if IsPoly then begin
-    Result.X:= (LLRect.Left + LLRect.Right)/2 ;
-    Result.Y:= (LLRect.Top + LLRect.Bottom)/2 ;
+    Result.X := (LLRect.Left + LLRect.Right) / 2;
+    Result.Y := (LLRect.Top + LLRect.Bottom) / 2;
   end else if IsLine then begin
     Result := Points[0];
   end;

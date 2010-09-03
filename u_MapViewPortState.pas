@@ -589,7 +589,7 @@ var
   VZoom: Byte;
   VChanged: Boolean;
 begin
-  if (ADelta.X <> 0) or (ADelta.Y <> 0)then begin
+  if (ADelta.X <> 0) or (ADelta.Y <> 0) then begin
     FSync.BeginWrite;
     try
       VConverter := InternalGetCurrentCoordConverter;
@@ -789,4 +789,3 @@ begin
 end;
 
 end.
-
