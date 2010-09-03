@@ -97,8 +97,8 @@ type
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     function LoadStreamFromStorage(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean;
     procedure SaveStreamToStorage(AXY: TPoint; Azoom: byte; AStream: TStream);
-    function LoadFile(btm: TCustomBitmap32; APath: string; caching: boolean): boolean; overload;
-    function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
+    function LoadFile(btm: TCustomBitmap32; APath: string): boolean; overload;
+    function LoadFile(btm: TKmlInfoSimple; APath: string): boolean; overload;
     procedure CreateDirIfNotExists(APath: string);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
@@ -1192,7 +1192,7 @@ begin
   end;
 end;
 
-function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string; caching:boolean): boolean;
+function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string): boolean;
 begin
   Result := false;
   if GetFileSize(Apath)<=0 then begin
@@ -1206,7 +1206,7 @@ begin
   end;
 end;
 
-function TMapType.LoadFile(btm: TCustomBitmap32; APath: string; caching:boolean): boolean;
+function TMapType.LoadFile(btm: TCustomBitmap32; APath: string): boolean;
 begin
   Result := false;
   if GetFileSize(Apath)<=0 then begin
@@ -1301,38 +1301,28 @@ end;
 
 function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
-var
-  Path: string;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
+  if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
+    if FCacheConfig.EffectiveCacheType = 5 then begin
       result:=GetGETile(btm, FCacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
-      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
     end else begin
-      result:=true;
+      result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
     end;
+    if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
   end else begin
-    path := FCacheConfig.GetTileFileName(AXY, Azoom);
-    if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-     result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
-    end else begin
-      result:=true;
-    end;
+    result:=true;
   end;
 end;
 
 function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
-var path: string;
 begin
   if FCacheConfig.EffectiveCacheType = 5 then begin
     raise Exception.Create('Из GE кеша можно получать только растры');
   end else begin
-    path := FCacheConfig.GetTileFileName(AXY, Azoom);
     if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-     result:=LoadFile(btm, path, caching);
-     if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
+      result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
+      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
     end else begin
       result:=true;
     end;
