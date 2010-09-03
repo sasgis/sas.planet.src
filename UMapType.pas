@@ -93,6 +93,8 @@ type
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
+    function LoadStreamFromStorage(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean;
+    procedure SaveStreamToStorage(AXY: TPoint; Azoom: byte; AStream: TStream);
     function LoadFile(btm: TCustomBitmap32; APath: string; caching: boolean): boolean; overload;
     function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
     procedure CreateDirIfNotExists(APath: string);
@@ -540,6 +542,55 @@ begin
  i := LastDelimiter(PathDelim, Apath);
  Apath:=copy(Apath, 1, i);
  if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
+end;
+
+function TMapType.LoadStreamFromStorage(AXY: TPoint; Azoom: byte;
+  AStream: TStream): Boolean;
+var
+  VPath: String;
+  VMemStream: TMemoryStream;
+begin
+  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+  if FileExists(VPath) then begin
+    if AStream is TMemoryStream then begin
+      VMemStream := TMemoryStream(AStream);
+      VMemStream.LoadFromFile(VPath);
+      Result := True;
+    end else begin
+      VMemStream := TMemoryStream.Create;
+      try
+        VMemStream.LoadFromFile(VPath);
+        VMemStream.SaveToStream(AStream);
+      finally
+        VMemStream.Free;
+      end;
+    end;
+  end else begin
+    Result := False;
+  end;
+end;
+
+procedure TMapType.SaveStreamToStorage(AXY: TPoint; Azoom: byte;
+  AStream: TStream);
+var
+  VPath: String;
+  VMemStream: TMemoryStream;
+  VFileExists: Boolean;
+begin
+  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+  CreateDirIfNotExists(VPath);
+  if AStream is TMemoryStream then begin
+    VMemStream := TMemoryStream(AStream);
+    VMemStream.SaveToFile(VPath);
+  end else begin
+    VMemStream := TMemoryStream.Create;
+    try
+      VMemStream.LoadFromStream(AStream);
+      VMemStream.SaveToFile(VPath);
+    finally
+      VMemStream.Free;
+    end;
+  end;
 end;
 
 procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
