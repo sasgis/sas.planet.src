@@ -72,6 +72,7 @@ end;
 procedure TThreadExportYaMaps.ProcessRegion;
 var
   p_x,p_y,i,j,xi,yi,hxyi,sizeim:integer;
+  VZoom: Byte;
   polyg:TPointArray;
   max,min:TPoint;
   bmp32,bmp322,bmp32crop:TBitmap32;
@@ -98,13 +99,12 @@ begin
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
       FTilesToProcess:=0;
       SetLength(polyg,length(FPolygLL));
-      for i:=0 to length(FMapTypeArr)-1 do begin
-        if FMapTypeArr[i]<>nil then begin
-          for j:=0 to 23 do begin
-            if FZoomArr[j] then begin
-              polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
+      for j:=0 to length(FMapTypeArr)-1 do begin
+        if FMapTypeArr[j]<>nil then begin
+          for i := 0 to Length(FZooms) - 1 do begin
+            VZoom := FZooms[i];
+              polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
               FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
-            end;
           end;
         end;
       end;
@@ -114,11 +114,11 @@ begin
       ProgressFormUpdateOnProgress;
 
       tc:=GetTickCount;
-      for i:=0 to 23 do begin
-        if FZoomArr[i] then begin
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
           for j:=0 to 2 do begin
             if (FMapTypeArr[j]<>nil)and(not((j=0)and(FMapTypeArr[2]<>nil))) then begin
-              polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
+              polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
               GetDwnlNum(min,max,Polyg,false);
               p_x:=min.x;
               while p_x<max.x do begin
@@ -132,10 +132,10 @@ begin
                   end;
                   bmp322.Clear;
                   if (j=2)and(FMapTypeArr[0]<>nil) then begin
-                    FMapTypeArr[0].LoadTileUni(bmp322, VTile, i, False, VGeoConvert, False, False, True);
+                    FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
                   end;
                   bmp32.Clear;
-                  if FMapTypeArr[j].LoadTileUni(bmp32, VTile, i, False, VGeoConvert, False, False, True) then begin
+                  if FMapTypeArr[j].LoadTileUni(bmp32, VTile, VZoom, False, VGeoConvert, False, False, True) then begin
                     if (j=2)and(FMapTypeArr[0]<>nil) then begin
                       bmp322.Draw(0,0,bmp32);
                       bmp32.Draw(0,0,bmp322);
@@ -147,7 +147,7 @@ begin
                           bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                           TileStream.Clear;
                           JPGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,i,2,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
+                          WriteTileInCache(p_x div 256,p_y div 256,VZoom,2,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
                         end;
                       end;
                     end;
@@ -158,7 +158,7 @@ begin
                           bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
                           TileStream.Clear;
                           PNGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,i,1,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
+                          WriteTileInCache(p_x div 256,p_y div 256,VZoom,1,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
                         end;
                       end;
                     end;
@@ -174,7 +174,6 @@ begin
               end;
             end;
           end;
-        end;
       end;
       ProgressFormUpdateOnProgress
     finally
