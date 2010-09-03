@@ -69,7 +69,7 @@ end;
 function TTileCacheSimpleGlobal.GetMemCacheKey(AXY: TPoint;
   Azoom: byte): string;
 begin
-  Result := inttostr(Azoom)+'-'+inttostr(AXY.X)+'-'+inttostr(AXY.Y) +'-'+FGUIDString;
+  Result := inttostr(Azoom) + '-' + inttostr(AXY.X) + '-' + inttostr(AXY.Y) + '-' + FGUIDString;
 end;
 
 function TTileCacheSimpleGlobal.TryLoadTileFromCache(AObj: TKmlInfoSimple;

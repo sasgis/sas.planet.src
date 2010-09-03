@@ -23,9 +23,10 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create();overload;
+    constructor Create(); overload;
     destructor Destroy; override;
   end;
+
 implementation
 
 uses
@@ -52,118 +53,163 @@ procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
   GState.ViewState.LockRead;
   try
-     FTypeMap:=GState.ViewState.GetCurrentMap;
-     Upos:= GState.ViewState.GetCenterMapPixel;
-     FZoom:= GState.ViewState.GetCurrentZoom;
+    FTypeMap := GState.ViewState.GetCurrentMap;
+    Upos := GState.ViewState.GetCenterMapPixel;
+    FZoom := GState.ViewState.GetCurrentZoom;
   finally
     GState.ViewState.UnLockRead;
   end;
  //TODO: Переписать нормально с учетом настроек.
- FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
- FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
+  FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
+  FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
 
- FSizeInTile.X := FSizeInPixels.X div 256;
- FSizeInTile.Y := FSizeInPixels.Y div 256;
+  FSizeInTile.X := FSizeInPixels.X div 256;
+  FSizeInTile.Y := FSizeInPixels.Y div 256;
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;
 begin
- if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
-   Fmain.generate_im(FLastLoad, FErrorString);
- end;
+  if (Fmain.Enabled) and (not (Fmain.MapMoving)) and (not (FMain.MapZoomAnimtion = 1)) then begin
+    Fmain.generate_im(FLastLoad, FErrorString);
+  end;
 end;
 
 procedure TTileDownloaderUI.Execute;
-var i,j,ii,k,r,g,x,y,m1:integer;
-    Bpos:TPoint;
-    ty: string;
-    fileBuf:TMemoryStream;
-    VMap: TMapType;
-    VMainMap: TMapType;
-    res: TDownloadTileResult;
-    VZoom: Byte;
+var
+  i, j, ii, k, r, g, x, y, m1: integer;
+  Bpos: TPoint;
+  ty: string;
+  fileBuf: TMemoryStream;
+  VMap: TMapType;
+  VMainMap: TMapType;
+  res: TDownloadTileResult;
+  VZoom: Byte;
 begin
   repeat
     if Fmain.TileSource = tsCache then begin
-      if Terminated then break;
+      if Terminated then begin
+        break;
+      end;
       Sleep(1000);
-      if Terminated then break;
+      if Terminated then begin
+        break;
+      end;
     end else begin
-      if(not FMain.change_scene)then begin
-        if Terminated then break;
+      if (not FMain.change_scene) then begin
+        if Terminated then begin
+          break;
+        end;
         sleep(100);
-        if Terminated then break;
+        if Terminated then begin
+          break;
+        end;
       end else begin
-        if Terminated then break;
-        FMain.change_scene:=false;
+        if Terminated then begin
+          break;
+        end;
+        FMain.change_scene := false;
         Synchronize(GetCurrentMapAndPos);
-        if Terminated then break;
+        if Terminated then begin
+          break;
+        end;
         VMainMap := FTypeMap;
         if VMainMap = nil then begin
-          if Terminated then break;
+          if Terminated then begin
+            break;
+          end;
           Sleep(1000);
         end else begin
-          j:=0;
-          i:=-1;
-          for r:=1 to (FSizeInTile.x div 2)+2 do begin
-            if Terminated then break;
-            if FMain.change_scene then Break;
-            g:=(r*2-2);
-            if r=1 then m1:=0 else m1:=1;
-            for k:=0 to g*4-m1 do begin
-              if Terminated then break;
-              if FMain.change_scene then Break;
-              if (k=0) then inc(i);
-              if (k>0)and(k<g) then inc(j);
-              if (k>=g)and(k<g*2) then dec(i);
-              if (k>=g*2)and(k<g*3) then dec(j);
-              if (k>=g*3) then inc(i);
-              if g=0 then i:=0;
-              x:=(FSizeInTile.x div 2)+i;
-              y:=(FSizeInTile.y div 2)+j;
-              for ii:=0 to length(GState.MapType)-1 do begin
-                if Terminated then break;
-                if FMain.change_scene then Break;
+          j := 0;
+          i := -1;
+          for r := 1 to (FSizeInTile.x div 2) + 2 do begin
+            if Terminated then begin
+              break;
+            end;
+            if FMain.change_scene then begin
+              Break;
+            end;
+            g := (r * 2 - 2);
+            if r = 1 then begin
+              m1 := 0;
+            end else begin
+              m1 := 1;
+            end;
+            for k := 0 to g * 4 - m1 do begin
+              if Terminated then begin
+                break;
+              end;
+              if FMain.change_scene then begin
+                Break;
+              end;
+              if (k = 0) then begin
+                inc(i);
+              end;
+              if (k > 0) and (k < g) then begin
+                inc(j);
+              end;
+              if (k >= g) and (k < g * 2) then begin
+                dec(i);
+              end;
+              if (k >= g * 2) and (k < g * 3) then begin
+                dec(j);
+              end;
+              if (k >= g * 3) then begin
+                inc(i);
+              end;
+              if g = 0 then begin
+                i := 0;
+              end;
+              x := (FSizeInTile.x div 2) + i;
+              y := (FSizeInTile.y div 2) + j;
+              for ii := 0 to length(GState.MapType) - 1 do begin
+                if Terminated then begin
+                  break;
+                end;
+                if FMain.change_scene then begin
+                  Break;
+                end;
                 VMap := GState.MapType[ii];
                 if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
-                  BPos:=UPos;
+                  BPos := UPos;
                   VZoom := FZoom;
                   BPos := VMainMap.GeoConvert.PixelPos2OtherMap(Upos, Fzoom, VMap.GeoConvert);
-                  FLoadXY.X := BPos.x-(FSizeInPixels.X div 2)+(x shl 8);
-                  FLoadXY.Y := BPos.y-(FSizeInPixels.Y div 2)+(y shl 8);
-                  FLoadXY.X:=FLoadXY.X shr 8;
-                  FLoadXY.Y:=FLoadXY.Y shr 8;
+                  FLoadXY.X := BPos.x - (FSizeInPixels.X div 2) + (x shl 8);
+                  FLoadXY.Y := BPos.y - (FSizeInPixels.Y div 2) + (y shl 8);
+                  FLoadXY.X := FLoadXY.X shr 8;
+                  FLoadXY.Y := FLoadXY.Y shr 8;
                   VMap.GeoConvert.CheckTilePosStrict(FLoadXY, VZoom, True);
 
-                  Flastload.TilePos.X:=FLoadXY.X;
-                  Flastload.TilePos.Y:=FLoadXY.Y;
-                  Flastload.Zoom:=Fzoom;
-                  FlastLoad.mt:=VMap;
-                  FlastLoad.use:=true;
-                  if (FMain.TileSource=tsInternet)or((FMain.TileSource=tsCacheInternet)and(not(VMap.TileExists(FLoadXY, Fzoom)))) then begin
+                  Flastload.TilePos.X := FLoadXY.X;
+                  Flastload.TilePos.Y := FLoadXY.Y;
+                  Flastload.Zoom := Fzoom;
+                  FlastLoad.mt := VMap;
+                  FlastLoad.use := true;
+                  if (FMain.TileSource = tsInternet) or ((FMain.TileSource = tsCacheInternet) and (not (VMap.TileExists(FLoadXY, Fzoom)))) then begin
                     if VMap.UseDwn then begin
                       if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
-                        FileBuf:=TMemoryStream.Create;
+                        FileBuf := TMemoryStream.Create;
                         try
                           try
-                            res :=VMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-                            FErrorString:=GetErrStr(res);
+                            res := VMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                            FErrorString := GetErrStr(res);
                             if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                              GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                              GState.IncrementDownloaded(fileBuf.Size / 1024, 1);
                             end;
                           except
                             on E: Exception do begin
                               FErrorString := E.Message;
                             end;
                           end;
-                          if Terminated then break;
+                          if Terminated then begin
+                            break;
+                          end;
                           Synchronize(AfterWriteToFile);
                         finally
                           FileBuf.Free;
                         end;
                       end;
                     end else begin
-                      FErrorString:=SAS_ERR_NotLoads;
+                      FErrorString := SAS_ERR_NotLoads;
                     end;
                   end;
                 end;

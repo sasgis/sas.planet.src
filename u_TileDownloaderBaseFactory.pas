@@ -45,9 +45,9 @@ var
 begin
   inherited;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FIgnoreContent_Type:=VParams.ReadBool('IgnoreContentType', False);
-  FDefaultContent_Type:=VParams.ReadString('DefaultContentType','image/jpg');
-  FContent_Type:=VParams.ReadString('ContentType','image/jpg');
+  FIgnoreContent_Type := VParams.ReadBool('IgnoreContentType', False);
+  FDefaultContent_Type := VParams.ReadString('DefaultContentType', 'image/jpg');
+  FContent_Type := VParams.ReadString('ContentType', 'image/jpg');
   FSlepOnResetConnection := VParams.ReadInteger('SlepOnResetConnection', 5000);
 end;
 
@@ -80,7 +80,7 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FWaitInterval := VParams.ReadInteger('Sleep',0);
+  FWaitInterval := VParams.ReadInteger('Sleep', 0);
 end;
 
 function TTileDownloaderFactoryBase.CreateSession: ITileDownlodSession;

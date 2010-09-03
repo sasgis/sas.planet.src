@@ -19,7 +19,7 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(AXY: TPoint; AZoom: byte; MT:TMapType);overload;
+    constructor Create(AXY: TPoint; AZoom: byte; MT: TMapType); overload;
     destructor Destroy; override;
   end;
 
@@ -32,7 +32,7 @@ uses
   UResStrings,
   Unit1;
 
-constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; MT:TMapType);
+constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; MT: TMapType);
 begin
   inherited Create(False);
   FLoadXY := AXY;
@@ -51,7 +51,7 @@ end;
 
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
-  if (Fmain.Enabled)and(not(Fmain.MapMoving))and(not(FMain.MapZoomAnimtion=1)) then begin
+  if (Fmain.Enabled) and (not (Fmain.MapMoving)) and (not (FMain.MapZoomAnimtion = 1)) then begin
     Fmain.generate_im(FLastLoad, FErrorString);
   end;
 end;
@@ -59,22 +59,22 @@ end;
 procedure TTileDownloaderUIOneTile.Execute;
 var
   ty: string;
-  fileBuf:TMemoryStream;
+  fileBuf: TMemoryStream;
   res: TDownloadTileResult;
 begin
   Flastload.TilePos.X := FLoadXY.X;
   Flastload.TilePos.Y := FLoadXY.Y;
   Flastload.Zoom := Fzoom;
   FlastLoad.mt := Ftypemap;
-  FlastLoad.use :=true;
+  FlastLoad.use := true;
   if FTypeMap.UseDwn then begin
-    FileBuf:=TMemoryStream.Create;
+    FileBuf := TMemoryStream.Create;
     try
       try
-        res :=FTypeMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-        FErrorString:=GetErrStr(res);
+        res := FTypeMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+        FErrorString := GetErrStr(res);
         if (res = dtrOK) or (res = dtrSameTileSize) then begin
-          GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+          GState.IncrementDownloaded(fileBuf.Size / 1024, 1);
         end;
       except
         on E: Exception do begin
@@ -85,7 +85,7 @@ begin
       FileBuf.Free;
     end;
   end else begin
-    FErrorString:=SAS_ERR_NotLoads;
+    FErrorString := SAS_ERR_NotLoads;
   end;
   Synchronize(AfterWriteToFile);
 end;

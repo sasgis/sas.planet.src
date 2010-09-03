@@ -22,7 +22,7 @@ uses
 function TTileFileNameSAS.GetTileFileName(AXY: TPoint;
   Azoom: byte): string;
 begin
-  result := format('z%d'+PathDelim+'%d'+PathDelim+'x%d'+PathDelim+'%d'+PathDelim+'y%d', [
+  result := format('z%d' + PathDelim + '%d' + PathDelim + 'x%d' + PathDelim + '%d' + PathDelim + 'y%d', [
     Azoom + 1,
     AXY.x shr 10,
     AXY.x,

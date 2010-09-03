@@ -59,7 +59,7 @@ type
     constructor Create(
       AConfig: IConfigDataProvider;
       ACoordConverter: ICoordConverterSimple
-    );
+      );
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string; override;
   end;
@@ -81,8 +81,8 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FURLBase := VParams.ReadString('DefURLBase','http://maps.google.com/');
-  FDefUrlBase:=URLBase;
+  FURLBase := VParams.ReadString('DefURLBase', 'http://maps.google.com/');
+  FDefUrlBase := URLBase;
 end;
 
 function TUrlGeneratorBasic.GenLink(Ax, Ay: Integer; Azoom: byte): string;
@@ -184,8 +184,7 @@ end;
 { TUrlGenerator }
 constructor TUrlGenerator.Create(
   AConfig: IConfigDataProvider;
-  ACoordConverter: ICoordConverterSimple
-);
+  ACoordConverter: ICoordConverterSimple);
 var
   i: integer;
   Msg: string;
