@@ -48,8 +48,8 @@ begin
   if not FileExists(AFileName) then begin
     raise Exception.Create('Файл ' + AFileName + ' не найден');
   end;
-  FUnZip:=TVCLZip.Create(nil);
-  FUnZip.ZipName:=AFileName;
+  FUnZip := TVCLZip.Create(nil);
+  FUnZip.ZipName := AFileName;
   FUnZip.UnZip;
 end;
 
@@ -74,7 +74,7 @@ begin
     VIniStream := TMemoryStream.Create;
     try
       FUnZip.UnZipToStream(VIniStream, AIdent);
-      VIniStream.Position:=0;
+      VIniStream.Position := 0;
       VIniStrings := TStringList.Create;
       try
         VIniStrings.LoadFromStream(VIniStream);

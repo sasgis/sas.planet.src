@@ -33,14 +33,14 @@ uses
 
 constructor TCenterScale.Create(AParentMap: TImage32);
 var
-	textWdth:integer;
+	 textWdth: integer;
 begin
   inherited Create(AParentMap);
   FRadius := 115;
   FDigitsOffset := 20;
   FFontSize := 12;
   textWdth := FLayer.Bitmap.TextWidth('270°');
-  FSize := Point((FRadius*2)+(FDigitsOffset*2)+(textWdth*2), (FRadius*2)+(FDigitsOffset*2)+(textWdth*2));
+  FSize := Point((FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2), (FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2));
 end;
 
 function TCenterScale.GetBitmapSizeInPixel: TPoint;
@@ -77,13 +77,13 @@ begin
   VSize := GetBitmapSizeInPixel;
   VHalfSize := Point(VSize.X div 2, VSize.Y div 2);
 
-  i:=0;
+  i := 0;
   FLayer.Bitmap.Clear(clBlack);
   FLayer.Bitmap.Font.Size := FFontSize - 3;
-  While i<360 do begin
+  While i < 360 do begin
     FLayer.Bitmap.Font.Size := FFontSize - 3;
     if (i mod 90) = 0 then begin
-      r:=0;
+      r := 0;
       FLayer.Bitmap.Font.Size := FFontSize;
     end else if (i mod 45) = 0 then begin
       r := FRadius - 40;
@@ -91,18 +91,19 @@ begin
     end else begin
       r := FRadius - 10;
     end;
-    xy.x := round(VHalfSize.X + FRadius * cos(i*(Pi/180)));
-    xy.y := round(VHalfSize.Y + FRadius * sin(i*(Pi/180)));
-    xy1.x := round(VHalfSize.X + r * cos(i*(Pi/180)));
-    xy1.y := round(VHalfSize.Y + r * sin(i*(Pi/180)));
-    FLayer.Bitmap.LineFS(xy.x,xy.y,xy1.x,xy1.y, SetAlpha(clRed32,180));
+    xy.x := round(VHalfSize.X + FRadius * cos(i * (Pi / 180)));
+    xy.y := round(VHalfSize.Y + FRadius * sin(i * (Pi / 180)));
+    xy1.x := round(VHalfSize.X + r * cos(i * (Pi / 180)));
+    xy1.y := round(VHalfSize.Y + r * sin(i * (Pi / 180)));
+    FLayer.Bitmap.LineFS(xy.x, xy.y, xy1.x, xy1.y, SetAlpha(clRed32, 180));
     if (i mod 15) = 0 then begin
-      xy1.x := round(VHalfSize.X + (FRadius+FDigitsOffset)* cos(i*(Pi/180)))-FLayer.Bitmap.TextWidth(inttostr((i+90)mod 360)+'°')div 2;
-      xy1.y := round(VHalfSize.X + (FRadius+FDigitsOffset)* sin(i*(Pi/180)))-2-FLayer.Bitmap.Font.size div 2;
-      FLayer.Bitmap.RenderText(xy1.x+1,xy1.y+1,inttostr((i+90)mod 360)+'°',3,SetAlpha(clWhite32,150) );
-      FLayer.Bitmap.RenderText(xy1.x,xy1.y,inttostr((i+90)mod 360)+'°',3,SetAlpha(clBlue32,210) );
+      xy1.x := round(VHalfSize.X + (FRadius + FDigitsOffset) * cos(i * (Pi / 180))) - FLayer.Bitmap.TextWidth(inttostr((i + 90) mod 360) + '°') div 2;
+      xy1.y := round(VHalfSize.X + (FRadius + FDigitsOffset) * sin(i * (Pi / 180))) - 2 - FLayer.Bitmap.Font.size div 2;
+      FLayer.Bitmap.RenderText(xy1.x + 1, xy1.y + 1, inttostr((i + 90) mod 360) + '°', 3, SetAlpha(clWhite32, 150));
+      FLayer.Bitmap.RenderText(xy1.x, xy1.y, inttostr((i + 90) mod 360) + '°', 3, SetAlpha(clBlue32, 210));
     end;
-    inc(i,5);
+    inc(i, 5);
   end;
 end;
+
 end.

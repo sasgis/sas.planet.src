@@ -55,8 +55,8 @@ begin
     VIniFile := TMemIniFile.Create('');
     VIniStream := TMemoryStream.Create;
     try
-      VIniStream.LoadFromFile(IncludeTrailingPathDelimiter(FSourceFolderName)+AIdent);
-      VIniStream.Position:=0;
+      VIniStream.LoadFromFile(IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent);
+      VIniStream.Position := 0;
       VIniStrings := TStringList.Create;
       try
         VIniStrings.LoadFromStream(VIniStream);
@@ -164,9 +164,11 @@ var
 begin
   AList.Clear;
   VFolder := IncludeTrailingPathDelimiter(FSourceFolderName);
-  if FindFirst(VFolder +'*', faAnyFile, SearchRec) = 0 then begin
+  if FindFirst(VFolder + '*', faAnyFile, SearchRec) = 0 then begin
     repeat
-      if (SearchRec.Attr and faDirectory) = faDirectory then continue;
+      if (SearchRec.Attr and faDirectory) = faDirectory then begin
+        continue;
+      end;
       VExt := UpperCase(ExtractFileExt(SearchRec.Name));
       if (VExt = '.INI') or (VExt = '.TXT') then begin
         AList.Add(SearchRec.Name);
@@ -189,9 +191,11 @@ var
 begin
   AList.Clear;
   VFolder := IncludeTrailingPathDelimiter(FSourceFolderName);
-  if FindFirst(VFolder +'*', faAnyFile, SearchRec) = 0 then begin
+  if FindFirst(VFolder + '*', faAnyFile, SearchRec) = 0 then begin
     repeat
-      if (SearchRec.Attr and faDirectory) = faDirectory then continue;
+      if (SearchRec.Attr and faDirectory) = faDirectory then begin
+        continue;
+      end;
       VExt := UpperCase(ExtractFileExt(SearchRec.Name));
       if (VExt <> '.INI') then begin
         AList.Add(SearchRec.Name);

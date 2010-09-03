@@ -9,7 +9,7 @@ uses
 
 type
   TConfigDataProviderByIniFile = class(TInterfacedObject, IConfigDataProvider)
-  private                   
+  private
     FIniFile: TCustomIniFile;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
