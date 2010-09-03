@@ -119,15 +119,12 @@ var
   VLLCenter: TExtendedPoint;
   VPolyg: TPointArray;
   max, min: TPoint;
-  i: Integer;
+  VZoom: Integer;
 begin
-  i := 0;
-  While not (FZoomArr[i]) do begin
-    inc(i);
-  end;
-  VPolyg := AGeoConvert.LonLatArray2PixelArray(FPolygLL, i);
+  VZoom := FZooms[0];
+  VPolyg := AGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
   GetMinMax(min, max, VPolyg, true);
-  VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), i);
+  VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
   Writeln(PList, '<plist>');
@@ -141,7 +138,7 @@ begin
   Writeln(PList, '<key>LastViewedLongitude</key>');
   Writeln(PList, '<real>' + R2StrPoint(VLLCenter.x) + '</real>');
   Writeln(PList, '<key>LastViewedZoomScale</key>');
-  Writeln(PList, '<real>' + inttostr(i + 1) + '</real>');
+  Writeln(PList, '<real>' + inttostr(VZoom + 1) + '</real>');
   Writeln(PList, '</dict>');
   Writeln(PList, '</plist>');
   CloseFile(PList);
@@ -150,7 +147,8 @@ end;
 procedure TThreadExportIPhone.ProcessRegion;
 var
   p_x, p_y: integer;
-  VZoom, j, xi, yi, hxyi, sizeim: integer;
+  VZoom: byte;
+  i, j, xi, yi, hxyi, sizeim: integer;
   VPolyg: TPointArray;
   max, min: TPoint;
   VTileStream: TMemoryStream;
@@ -198,11 +196,10 @@ begin
     Vbmp32crop.Height := sizeim;
     try
       FTilesToProcess := 0;
-      for VZoom := 0 to 23 do begin
-        if FZoomArr[VZoom] then begin
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
           VPolyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, VPolyg, true);
-        end;
       end;
       ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
       FTilesProcessed := 0;
@@ -238,8 +235,8 @@ begin
         FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("0")');
       end;
       FSQLite3Db.Execute('BEGIN TRANSACTION');
-      for VZoom := 0 to 23 do begin
-        if FZoomArr[VZoom] then begin
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
           VPolyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           GetDwnlNum(min, max, VPolyg, false);
 
@@ -290,7 +287,6 @@ begin
             inc(p_x, 256);
           end;
         end;
-      end;
       FSQLite3Db.Execute('COMMIT');
       ProgressFormUpdateOnProgress;
     finally
