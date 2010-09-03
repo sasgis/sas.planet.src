@@ -44,7 +44,7 @@ begin
     VPolygon := FGeoConvert.LonLatArray2PixelArray(GState.LastSelectionPolygon, VZoomCurr);
     try
       VPolygonOnBitmap := PreparePolygon(VPolygon);
-      VPolygon32:=TPolygon32.Create;
+      VPolygon32 := TPolygon32.Create;
       try
         for i := 0 to Length(VPolygonOnBitmap) - 1 do begin
           VPolygon32.Add(FixedPoint(VPolygonOnBitmap[i]));
@@ -94,25 +94,25 @@ begin
         if VTargetPoint.Y > 0 then begin
           VTargetPoint.Y := CRectSize;
         end else begin
-          VTargetPoint.Y := - CRectSize;
+          VTargetPoint.Y := -CRectSize;
         end;
         if VTargetPoint.X > 0 then begin
           VTargetPoint.X := CRectSize;
         end else begin
-          VTargetPoint.X := - CRectSize;
+          VTargetPoint.X := -CRectSize;
         end;
       end else begin
         if VTargetPointAbs.X < VTargetPointAbs.Y then begin
           if VTargetPoint.Y > 0 then begin
             VTargetPoint.Y := CRectSize;
           end else begin
-            VTargetPoint.Y := - CRectSize;
+            VTargetPoint.Y := -CRectSize;
           end;
         end else begin
           if VTargetPoint.X > 0 then begin
             VTargetPoint.X := CRectSize;
           end else begin
-            VTargetPoint.X := - CRectSize;
+            VTargetPoint.X := -CRectSize;
           end;
         end;
       end;

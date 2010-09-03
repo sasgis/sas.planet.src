@@ -51,7 +51,7 @@ begin
     VEnum := ASearchResult.GetPlacemarks;
     if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
       FMapGoto.GotoPos(VPlacemark.GetPoint);
-      ShowMessage(SAS_STR_foundplace+' "'+VPlacemark.GetAddress+'"');
+      ShowMessage(SAS_STR_foundplace + ' "' + VPlacemark.GetAddress + '"');
     end;
   end;
 end;

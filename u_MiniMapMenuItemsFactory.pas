@@ -70,9 +70,9 @@ var
   VItem: TTBXItem;
 begin
   VItem := TTBXItem.Create(FRootMenu);
-  VItem.ImageIndex:= FIconsList.GetIconIndexByGUID(AMapType.GUID);
-  VItem.Caption:=AMapType.name;
-  VItem.OnAdjustFont:=FItemOnAdjustFont;
+  VItem.ImageIndex := FIconsList.GetIconIndexByGUID(AMapType.GUID);
+  VItem.Caption := AMapType.name;
+  VItem.OnAdjustFont := FItemOnAdjustFont;
   VItem.Tag := Integer(AMapType);
   Result := VItem;
 end;
@@ -97,7 +97,7 @@ function TMiniMapMenuItemsFactory.GetParentMenuItem(
 var
   i: Integer;
 begin
-  if AMapType.ParentSubMenu='' then begin
+  if AMapType.ParentSubMenu = '' then begin
     Result := FRootMenu;
   end else begin
     Result := nil;
