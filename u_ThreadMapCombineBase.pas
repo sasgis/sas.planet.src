@@ -95,7 +95,7 @@ begin
   VProcessed := round((FTilesProcessed / FTilesToProcess) * 100);
   ProgressFormUpdateProgressAndLine1(
     VProcessed,
-    SAS_STR_Processed+': '+inttostr(VProcessed)+'%'
+    SAS_STR_Processed + ': ' + inttostr(VProcessed) + '%'
   );
 end;
 
@@ -109,7 +109,7 @@ begin
   FPoly := FTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
 
   VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
-  GetMinMax(FMapRect.TopLeft, FMapRect.BottomRight, FPoly,false);
+  GetMinMax(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, false);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;
   FMapSize.Y := FMapRect.Bottom - FMapRect.Top;
@@ -119,28 +119,28 @@ begin
   FTilesToProcess := FMapPieceSize.Y;
   FTilesProcessed := 0;
 
-  FNumImgs:=FSplitCount.X*FSplitCount.Y;
-  FNumImgsSaved:=0;
+  FNumImgs := FSplitCount.X * FSplitCount.Y;
+  FNumImgsSaved := 0;
 
   ProgressFormUpdateCaption(
-    'Ñךכוטעü: '+inttostr((FMapSize.X) div 256+1)+'x'
-    +inttostr((FMapSize.Y) div 256+1) +'('+inttostr(VProcessTiles)+') '
-    +SAS_STR_files,
-    SAS_STR_Resolution+': '+inttostr(FMapSize.X)+'x'+inttostr(FMapSize.Y)+' '
-    +SAS_STR_DivideInto+' '+inttostr(FNumImgs)+' '+SAS_STR_files
+    'Ñךכוטעü: ' + inttostr((FMapSize.X) div 256 + 1) + 'x' 
+    + inttostr((FMapSize.Y) div 256 + 1) + '(' + inttostr(VProcessTiles) + ') ' 
+    + SAS_STR_files,
+    SAS_STR_Resolution + ': ' + inttostr(FMapSize.X) + 'x' + inttostr(FMapSize.Y) + ' ' 
+    + SAS_STR_DivideInto + ' ' + inttostr(FNumImgs) + ' ' + SAS_STR_files
   );
 
   ProgressFormUpdateOnProgress;
 
-  for i:=1 to FSplitCount.X do begin
-    for j:=1 to FSplitCount.Y do begin
-      FCurrentPieceRect.Left := FMapRect.Left + FMapPieceSize.X * (i-1);
+  for i := 1 to FSplitCount.X do begin
+    for j := 1 to FSplitCount.Y do begin
+      FCurrentPieceRect.Left := FMapRect.Left + FMapPieceSize.X * (i - 1);
       FCurrentPieceRect.Right := FMapRect.Left + FMapPieceSize.X * i;
-      FCurrentPieceRect.Top := FMapRect.Top + FMapPieceSize.Y * (j-1);
+      FCurrentPieceRect.Top := FMapRect.Top + FMapPieceSize.Y * (j - 1);
       FCurrentPieceRect.Bottom := FMapRect.Top + FMapPieceSize.Y * j;
 
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
-        FCurrentFileName := FFilePath + FFileName + '_'+inttostr(i)+'-'+inttostr(j) + FFileExt;
+        FCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;
       end;
 
       for pti := 0 to FMapCalibrationList.Count - 1 do begin

@@ -31,16 +31,16 @@ type
 
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
-    sx,ex,sy,ey:integer;
-    Rarr:P256rgb;
-    Garr:P256rgb;
-    Barr:P256rgb;
-    FECWWriter:TECWWrite;
-    btmm:TBitmap32;
-    btmh:TBitmap32;
+    sx, ex, sy, ey: integer;
+    Rarr: P256rgb;
+    Garr: P256rgb;
+    Barr: P256rgb;
+    FECWWriter: TECWWrite;
+    btmm: TBitmap32;
+    btmh: TBitmap32;
     FQuality: Integer;
 
-    function ReadLineECW(Line:cardinal;var LineR,LineG,LineB:PLineRGB):boolean;
+    function ReadLineECW(Line: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
   protected
     procedure saveRECT; override;
   public
@@ -67,12 +67,12 @@ uses
 
 constructor TThreadMapCombineECW.Create(
   AMapCalibrationList: IInterfaceList;
-  AFileName:string;
+  AFileName: string;
   APolygon: TExtendedPointArray;
   ASplitCount: TPoint;
-  Azoom:byte;
-  Atypemap,AHtypemap:TMapType;
-  AusedReColor,AusedMarks:boolean;
+  Azoom: byte;
+  Atypemap, AHtypemap: TMapType;
+  AusedReColor, AusedMarks: boolean;
   AQuality: Integer
 );
 begin
@@ -84,70 +84,82 @@ end;
 function TThreadMapCombineECW.ReadLineECW(Line: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
-  i,j,rarri,lrarri,p_x,p_y,Asx,Asy,Aex,Aey,starttile:integer;
-  p_h:TPoint;
-  p:PColor32array;
+  i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
+  p_h: TPoint;
+  p: PColor32array;
   VTileRect: TRect;
 begin
   Result := True;
-  if line<(256-sy) then begin
-    starttile:=sy+line;
+  if line < (256 - sy) then begin
+    starttile := sy + line;
   end else begin
-    starttile:=(line-(256-sy)) mod 256;
+    starttile := (line - (256 - sy)) mod 256;
   end;
-  if (starttile=0)or(line=0) then begin
+  if (starttile = 0) or (line = 0) then begin
     FTilesProcessed := Line;
     ProgressFormUpdateOnProgress;
-    p_y:=(FCurrentPieceRect.Top+line)-((FCurrentPieceRect.Top+line) mod 256);
-    p_x:=FCurrentPieceRect.Left-(FCurrentPieceRect.Left mod 256);
-    p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x,p_y), FZoom, FHTypeMap.GeoConvert);
-    lrarri:=0;
-    if line>(255-sy) then Asy:=0 else Asy:=sy;
-    if (p_y div 256)=(FCurrentPieceRect.Bottom div 256) then Aey:=ey else Aey:=255;
-    Asx:=sx;
-    Aex:=255;
-    while p_x<=FCurrentPieceRect.Right do begin
+    p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
+    p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
+    p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x, p_y), FZoom, FHTypeMap.GeoConvert);
+    lrarri := 0;
+    if line > (255 - sy) then begin
+      Asy := 0;
+    end else begin
+      Asy := sy;
+    end;
+    if (p_y div 256) = (FCurrentPieceRect.Bottom div 256) then begin
+      Aey := ey;
+    end else begin
+      Aey := 255;
+    end;
+    Asx := sx;
+    Aex := 255;
+    while p_x <= FCurrentPieceRect.Right do begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       FLastTile := Point(p_x shr 8, p_y shr 8);
-      if not(RgnAndRgn(FPoly, p_x+128, p_y+128, false)) then begin
-        btmm.Clear(Color32(GState.BGround))
+      if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
+        btmm.Clear(Color32(GState.BGround));
       end else begin
         btmm.Clear(Color32(GState.BGround));
         VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
-        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom,false, true);
-        if FHTypeMap<>nil then begin
+        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, true);
+        if FHTypeMap <> nil then begin
           btmh.Clear($FF000000);
           FHTypeMap.LoadTileUni(btmh, FLastTile, FZoom, False, FTypeMap.GeoConvert, True, True, True);
-          btmh.DrawMode:=dmBlend;
-          btmm.Draw(0,0,btmh);
+          btmh.DrawMode := dmBlend;
+          btmm.Draw(0, 0, btmh);
         end;
         FLastTile := Point(p_x shr 8, p_y shr 8);
         if FUsedMarks then begin
           GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
         end;
       end;
-      if FUsedReColor then Gamma(btmm);
-      if (p_x+256)>FCurrentPieceRect.Right then Aex:=ex;
-      for j:=Asy to Aey do begin
-        p:=btmm.ScanLine[j];
-        rarri:=lrarri;
-        for i:=Asx to Aex do begin
-          Rarr^[j]^[rarri]:=(cardinal(p^[i]) shr 16);
-          Garr^[j]^[rarri]:=(cardinal(p^[i]) shr 8);
-          Barr^[j]^[rarri]:=(cardinal(p^[i]));
+      if FUsedReColor then begin
+        Gamma(btmm);
+      end;
+      if (p_x + 256) > FCurrentPieceRect.Right then begin
+        Aex := ex;
+      end;
+      for j := Asy to Aey do begin
+        p := btmm.ScanLine[j];
+        rarri := lrarri;
+        for i := Asx to Aex do begin
+          Rarr^[j]^[rarri] := (cardinal(p^[i]) shr 16);
+          Garr^[j]^[rarri] := (cardinal(p^[i]) shr 8);
+          Barr^[j]^[rarri] := (cardinal(p^[i]));
           inc(rarri);
         end;
       end;
-      lrarri:=rarri;
-      Asx:=0;
-      inc(p_x,256);
-      inc(p_h.x,256);
+      lrarri := rarri;
+      Asx := 0;
+      inc(p_x, 256);
+      inc(p_h.x, 256);
     end;
   end;
-  for i:=0 to (FCurrentPieceRect.Right-FCurrentPieceRect.Left)-1 do begin
-    LineR^[i]:=Rarr^[starttile]^[i];
-    LineG^[i]:=Garr^[starttile]^[i];
-    LineB^[i]:=Barr^[starttile]^[i];
+  for i := 0 to (FCurrentPieceRect.Right - FCurrentPieceRect.Left) - 1 do begin
+    LineR^[i] := Rarr^[starttile]^[i];
+    LineG^[i] := Garr^[starttile]^[i];
+    LineB^[i] := Barr^[starttile]^[i];
   end;
 end;
 
@@ -160,24 +172,30 @@ var
   errecw: integer;
   Path: string;
 begin
-  sx:=(FCurrentPieceRect.Left mod 256);
-  sy:=(FCurrentPieceRect.Top mod 256);
-  ex:=(FCurrentPieceRect.Right mod 256);
-  ey:=(FCurrentPieceRect.Bottom mod 256);
+  sx := (FCurrentPieceRect.Left mod 256);
+  sy := (FCurrentPieceRect.Top mod 256);
+  ex := (FCurrentPieceRect.Right mod 256);
+  ey := (FCurrentPieceRect.Bottom mod 256);
   try
-    FECWWriter:=TECWWrite.Create;
-    btmm:=TBitmap32.Create;
-    btmh:=TBitmap32.Create;
-    btmm.Width:=256;
-    btmm.Height:=256;
-    btmh.Width:=256;
-    btmh.Height:=256;
-    getmem(Rarr,256*sizeof(PRow));
-    for k:=0 to 255 do getmem(Rarr[k],(FMapSize.X+1)*sizeof(byte));
-    getmem(Garr,256*sizeof(PRow));
-    for k:=0 to 255 do getmem(Garr[k],(FMapSize.X+1)*sizeof(byte));
-    getmem(Barr,256*sizeof(PRow));
-    for k:=0 to 255 do getmem(Barr[k],(FMapSize.X+1)*sizeof(byte));
+    FECWWriter := TECWWrite.Create;
+    btmm := TBitmap32.Create;
+    btmh := TBitmap32.Create;
+    btmm.Width := 256;
+    btmm.Height := 256;
+    btmh.Width := 256;
+    btmh.Height := 256;
+    getmem(Rarr, 256 * sizeof(PRow));
+    for k := 0 to 255 do begin
+      getmem(Rarr[k], (FMapSize.X + 1) * sizeof(byte));
+    end;
+    getmem(Garr, 256 * sizeof(PRow));
+    for k := 0 to 255 do begin
+      getmem(Garr[k], (FMapSize.X + 1) * sizeof(byte));
+    end;
+    getmem(Barr, 256 * sizeof(PRow));
+    for k := 0 to 255 do begin
+      getmem(Barr[k], (FMapSize.X + 1) * sizeof(byte));
+    end;
     Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
     Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
     Units := FTypeMap.GeoConvert.GetCellSizeUnits;
@@ -185,29 +203,41 @@ begin
       FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom),
       FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom),
       FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
-      CellIncrementX,CellIncrementY,OriginX,OriginY
-    );
-    errecw:=FECWWriter.Encode(FCurrentFileName,FMapPieceSize.X, FMapPieceSize.Y, 101-FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
-    Datum,Proj,Units,CellIncrementX,CellIncrementY,OriginX,OriginY);
-    if (errecw>0)and(errecw<>52) then begin
-      path:=FTypeMap.GetTileShowName(FLastTile, FZoom);
-      ShowMessageSync(SAS_ERR_Save+' '+SAS_ERR_Code+inttostr(errecw)+#13#10+path);
+      CellIncrementX, CellIncrementY, OriginX, OriginY
+      );
+    errecw := FECWWriter.Encode(FCurrentFileName, FMapPieceSize.X, FMapPieceSize.Y, 101 - FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
+      Datum, Proj, Units, CellIncrementX, CellIncrementY, OriginX, OriginY);
+    if (errecw > 0) and (errecw <> 52) then begin
+      path := FTypeMap.GetTileShowName(FLastTile, FZoom);
+      ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);
     end;
   finally
     {$IFDEF VER80}
-      for k:=0 to 255 do freemem(Rarr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-      freemem(Rarr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
-      for k:=0 to 255 do freemem(Garr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-      freemem(Garr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
-      for k:=0 to 255 do freemem(Barr[k],(Poly1.X-Poly0.X+1)*sizeof(byte));
-      freemem(Barr,256*((Poly1.X-Poly0.X+1)*sizeof(byte)));
+    for k := 0 to 255 do begin
+      freemem(Rarr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
+    end;
+    freemem(Rarr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
+    for k := 0 to 255 do begin
+      freemem(Garr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
+    end;
+    freemem(Garr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
+    for k := 0 to 255 do begin
+      freemem(Barr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
+    end;
+    freemem(Barr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
     {$ELSE}
-      for k:=0 to 255 do freemem(Rarr[k]);
-      FreeMem(Rarr);
-      for k:=0 to 255 do freemem(Garr[k]);
-      FreeMem(Garr);
-      for k:=0 to 255 do freemem(Barr[k]);
-      FreeMem(Barr);
+    for k := 0 to 255 do begin
+      freemem(Rarr[k]);
+    end;
+    FreeMem(Rarr);
+    for k := 0 to 255 do begin
+      freemem(Garr[k]);
+    end;
+    FreeMem(Garr);
+    for k := 0 to 255 do begin
+      freemem(Barr[k]);
+    end;
+    FreeMem(Barr);
     {$ENDIF}
     btmm.Free;
     btmh.Free;
