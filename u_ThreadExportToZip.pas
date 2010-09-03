@@ -62,8 +62,8 @@ begin
   FPathExport := APath;
   FTileNameGen := ATileNameGen;
   setlength(FMapTypeArr, length(Atypemaparr));
-  for i := 1 to length(Atypemaparr) do begin
-    FMapTypeArr[i - 1] := Atypemaparr[i - 1];
+  for i := 0 to length(Atypemaparr) - 1 do begin
+    FMapTypeArr[i] := Atypemaparr[i];
   end;
   FZip := TVCLZip.Create(nil);
 end;
@@ -93,10 +93,10 @@ var
   VPixelRect: TRect;
   VLonLatRect: TExtendedRect;
   VTile: TPoint;
+  VMapType: TMapType;
 begin
   inherited;
     FTilesToProcess := 0;
-    SetLength(polyg, length(FPolygLL));
     persl := '';
     kti := '';
     datestr := RetDate(now);
@@ -132,9 +132,10 @@ begin
       VZoom := FZooms[i];
         for j := 0 to length(FMapTypeArr) - 1 do
         begin
-          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-          VExt := FMapTypeArr[j].TileFileExt;
-          VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
+          VMapType := FMapTypeArr[j];
+          polyg := VMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
+          VExt := VMapType.TileFileExt;
+          VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
           GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, false);
           p_x := VPixelRect.Left;
           while p_x < VPixelRect.Right do begin
@@ -145,18 +146,16 @@ begin
               if IsCancel then begin
                 exit;
               end;
-              if not (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
-                inc(p_y, 256);
-                CONTINUE;
-              end;
-              if FMapTypeArr[j].TileExists(VTile, VZoom) then begin
-//TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-                pathfrom := FMapTypeArr[j].GetTileFileName(VTile, VZoom);
-                FZip.FilesList.Add(pathfrom);
-              end;
-              inc(FTilesProcessed);
-              if FTilesProcessed mod 100 = 0 then begin
-                ProgressFormUpdateOnProgress;
+                if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
+                if VMapType.TileExists(VTile, VZoom) then begin
+  //TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
+                  pathfrom := VMapType.GetTileFileName(VTile, VZoom);
+                  FZip.FilesList.Add(pathfrom);
+                end;
+                inc(FTilesProcessed);
+                if FTilesProcessed mod 100 = 0 then begin
+                  ProgressFormUpdateOnProgress;
+                end;
               end;
               inc(p_y, 256);
             end;
