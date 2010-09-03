@@ -65,7 +65,7 @@ end;
 
 procedure TThreadExportToFileSystem.ProcessRegion;
 var
-  p_x, p_y, j: integer;
+  p_x, p_y, i, j: integer;
   VZoom: Byte;
   polyg: TPointArray;
   pathto: string;
@@ -76,13 +76,11 @@ var
   VGeoConvert: ICoordConverter;
 begin
     FTilesToProcess := 0;
-    SetLength(polyg, length(FPolygLL));
     for j := 0 to length(FMapTypeArr) - 1 do begin
-      for VZoom := 0 to 23 do begin
-        if FZoomArr[VZoom] then begin
-          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-          FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect, Polyg, true);
-        end;
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
+        polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
+        FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect, Polyg, true);
       end;
     end;
     ProgressFormUpdateCaption(
@@ -91,8 +89,8 @@ begin
     );
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
-    for VZoom := 0 to 23 do begin
-      if FZoomArr[VZoom] then begin
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
         for j := 0 to length(FMapTypeArr) - 1 do begin
           VGeoConvert := FMapTypeArr[j].GeoConvert;
           polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
@@ -127,7 +125,6 @@ begin
             inc(p_x, 256);
           end;
         end;
-      end;
     end;
     ProgressFormUpdateOnProgress;
     FTileNameGen := nil;
