@@ -24,7 +24,7 @@ type
   end;
 
 const
-  GSHprec=100000000;
+  GSHprec = 100000000;
 
 
 implementation
@@ -67,7 +67,7 @@ begin
 
   VHybrList := GState.ViewState.HybrList;
   VEnum := VHybrList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK  do begin
+  while VEnum.Next(1, VGUID, i) = S_OK do begin
     if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
@@ -82,9 +82,9 @@ end;
 
 procedure TMapMainLayer.DrawGenShBorders;
 var
-  zLonR,zLatR:extended;
-  twidth,theight:integer;
-  ListName:WideString;
+  zLonR, zLatR: extended;
+  twidth, theight: integer;
+  ListName: WideString;
   VZoomCurr: Byte;
   VLoadedRect: TRect;
   VLoadedLonLatRect: TExtendedRect;
@@ -96,7 +96,9 @@ var
   VDrawScreenRect: TRect;
   VShowText: Boolean;
 begin
-  if GState.GShScale=0 then exit;
+  if GState.GShScale = 0 then begin
+    exit;
+  end;
   case GState.GShScale of
     1000000: begin zLonR:=6; zLatR:=4; end;
      500000: begin zLonR:=3; zLatR:=2; end;
@@ -114,25 +116,27 @@ begin
   FGeoConvert.CheckPixelRect(VLoadedRect, VZoomCurr, False);
   VLoadedLonLatRect := FGeoConvert.PixelRect2LonLatRect(VLoadedRect, VZoomCurr);
 
-  VGridLonLatRect.Left := VLoadedLonLatRect.Left-zLonR;
-  VGridLonLatRect.Top := VLoadedLonLatRect.Top+zLatR;
-  VGridLonLatRect.Right := VLoadedLonLatRect.Right+zLonR;
-  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom-zLatR;
+  VGridLonLatRect.Left := VLoadedLonLatRect.Left - zLonR;
+  VGridLonLatRect.Top := VLoadedLonLatRect.Top + zLatR;
+  VGridLonLatRect.Right := VLoadedLonLatRect.Right + zLonR;
+  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom - zLatR;
   FGeoConvert.CheckLonLatRect(VGridLonLatRect);
 
-  VGridLonLatRect.Left := VGridLonLatRect.Left-(round(VGridLonLatRect.Left*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-  VGridLonLatRect.Top := VGridLonLatRect.Top-(round(VGridLonLatRect.Top*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom-(round(VGridLonLatRect.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
+  VGridLonLatRect.Left := VGridLonLatRect.Left - (round(VGridLonLatRect.Left * GSHprec) mod round(zLonR * GSHprec)) / GSHprec;
+  VGridLonLatRect.Top := VGridLonLatRect.Top - (round(VGridLonLatRect.Top * GSHprec) mod round(zLatR * GSHprec)) / GSHprec;
+  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom - (round(VGridLonLatRect.Bottom * GSHprec) mod round(zLatR * GSHprec)) / GSHprec;
 
   VGridRect := FGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoomCurr);
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left+zLonR, VGridLonLatRect.Bottom);
+  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left + zLonR, VGridLonLatRect.Bottom);
   VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
 
-  if abs(VDrawRect.Right - VDrawRect.Left) < 4 then exit;
+  if abs(VDrawRect.Right - VDrawRect.Left) < 4 then begin
+    exit;
+  end;
 
-  if (abs(VDrawRect.Right - VDrawRect.Left) > 30)and(GState.ShowBorderText) then begin
+  if (abs(VDrawRect.Right - VDrawRect.Left) > 30) and (GState.ShowBorderText) then begin
     VShowText := true;
   end else begin
     VShowText := false;
@@ -144,7 +148,7 @@ begin
   VDrawLonLatRect.Right := VGridLonLatRect.Left;
   VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
 
-  while VDrawLonLatRect.Left <=VGridLonLatRect.Right do begin
+  while VDrawLonLatRect.Left <= VGridLonLatRect.Right do begin
     VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
 
     VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
@@ -154,7 +158,7 @@ begin
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
 
-    VDrawLonLatRect.Left := VDrawLonLatRect.Left+zLonR;
+    VDrawLonLatRect.Left := VDrawLonLatRect.Left + zLonR;
     VDrawLonLatRect.Right := VDrawLonLatRect.Left;
   end;
 
@@ -173,20 +177,22 @@ begin
     );
 
 
-    VDrawLonLatRect.Top := VDrawLonLatRect.Top-zLatR;
+    VDrawLonLatRect.Top := VDrawLonLatRect.Top - zLatR;
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
   end;
 
-  if not VShowText then exit;
+  if not VShowText then begin
+    exit;
+  end;
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
   VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
   VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - zLatR;
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    while VDrawLonLatRect.Left + zLonR/2 <=VGridLonLatRect.Right do begin
+    while VDrawLonLatRect.Left + zLonR / 2 <= VGridLonLatRect.Right do begin
       VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
       ListName := LonLat2GShListName(
-        ExtPoint(VDrawLonLatRect.Left + zLonR/2, VDrawLonLatRect.Top - zLatR/2),
+        ExtPoint(VDrawLonLatRect.Left + zLonR / 2, VDrawLonLatRect.Top - zLatR / 2),
         GState.GShScale, GSHprec
       );
       twidth := FLayer.bitmap.TextWidth(ListName);
@@ -207,7 +213,7 @@ begin
     VDrawLonLatRect.Left := VGridLonLatRect.Left;
     VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
     VDrawLonLatRect.Top := VDrawLonLatRect.Bottom;
-    VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom-zLatR;
+    VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom - zLatR;
   end;
 end;
 
@@ -285,7 +291,7 @@ begin
 
     for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
       VTile.X := i;
-      for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+      for j := VTileSourceRect.Top to VTileSourceRect.Bottom do begin
         VTile.Y := j;
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
         VTilePixelsToDraw.TopLeft := Point(0, 0);
@@ -338,30 +344,32 @@ end;
 
 procedure TMapMainLayer.generate_granica;
 var
-    i,j:integer;
-    drawcolor:TColor32;
-    textoutx,textouty:string;
-    Sz1,Sz2: TSize;
-    VLoadedRect: TRect;
-    VLoadedRelativeRect: TExtendedRect;
-    VCurrentZoom: Byte;
-    VTilesRect: TRect;
-    VTileRelativeRect: TExtendedRect;
-    VTileRect: TRect;
-    VTileIndex: TPoint;
-    VTileScreenRect: TRect;
-    VTileCenter: TPoint;
-    VTileSize: TPoint;
-    VGridZoom: Byte;
-    VTilesLineRect: TRect;
+  i, j: integer;
+  drawcolor: TColor32;
+  textoutx, textouty: string;
+  Sz1, Sz2: TSize;
+  VLoadedRect: TRect;
+  VLoadedRelativeRect: TExtendedRect;
+  VCurrentZoom: Byte;
+  VTilesRect: TRect;
+  VTileRelativeRect: TExtendedRect;
+  VTileRect: TRect;
+  VTileIndex: TPoint;
+  VTileScreenRect: TRect;
+  VTileCenter: TPoint;
+  VTileSize: TPoint;
+  VGridZoom: Byte;
+  VTilesLineRect: TRect;
 begin
   VCurrentZoom := FZoom;
-  if GState.TileGridZoom=99 then begin
+  if GState.TileGridZoom = 99 then begin
     VGridZoom := VCurrentZoom;
   end else begin
     VGridZoom := GState.TileGridZoom - 1;
   end;
-  if (VGridZoom < VCurrentZoom) or (VGridZoom - VCurrentZoom > 5) then exit;
+  if (VGridZoom < VCurrentZoom) or (VGridZoom - VCurrentZoom > 5) then begin
+    exit;
+  end;
 
   VLoadedRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
   VLoadedRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
@@ -370,7 +378,7 @@ begin
   VLoadedRelativeRect := FGeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
   VTilesRect := FGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
 
-  drawcolor:=SetAlpha(Color32(GState.BorderColor),GState.BorderAlpha);
+  drawcolor := SetAlpha(Color32(GState.BorderColor), GState.BorderAlpha);
 
   VTilesLineRect.Left := VTilesRect.Left;
   VTilesLineRect.Right := VTilesRect.Right;
@@ -400,8 +408,12 @@ begin
       VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
   end;
 
-  if not (GState.ShowBorderText) then exit;
-  if VGridZoom - VCurrentZoom > 2 then exit;
+  if not (GState.ShowBorderText) then begin
+    exit;
+  end;
+  if VGridZoom - VCurrentZoom > 2 then begin
+    exit;
+  end;
 
   for i := VTilesRect.Top to VTilesRect.Bottom do begin
     VTileIndex.Y := i;
@@ -416,13 +428,13 @@ begin
       VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
       VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
       VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
-      textoutx := 'x='+inttostr(VTileIndex.X);
-      textouty := 'y='+inttostr(VTileIndex.Y);
+      textoutx := 'x=' + inttostr(VTileIndex.X);
+      textouty := 'y=' + inttostr(VTileIndex.Y);
       Sz1 := FLayer.bitmap.TextExtent(textoutx);
       Sz2 := FLayer.bitmap.TextExtent(textouty);
       if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        FLayer.bitmap.RenderText(VTileCenter.X-(Sz1.cx div 2)+1,VTileCenter.Y-Sz2.cy,textoutx,0, drawcolor);
-        FLayer.bitmap.RenderText(VTileCenter.X-(Sz2.cx div 2)+1,VTileCenter.Y,textouty,0,drawcolor);
+        FLayer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, drawcolor);
+        FLayer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, drawcolor);
       end;
     end;
   end;
