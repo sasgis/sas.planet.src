@@ -18,6 +18,7 @@ uses
   i_IPoolOfObjectsSimple,
   i_IBitmapTypeExtManager,
   i_BitmapTileSaveLoad,
+  i_IKmlInfoSimpleLoader,
   i_IAntiBan,
   u_KmlInfoSimple,
   u_UrlGenerator,
@@ -57,6 +58,7 @@ type
     FUrlGenerator : TUrlGeneratorBasic;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
+    FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
     FInitDownloadCS: TCriticalSection;
     FCSSaveTile: TCriticalSection;
     FCSSaveTNF: TCriticalSection;
@@ -98,6 +100,11 @@ type
     function LoadFile(btm: TCustomBitmap32; APath: string; caching: boolean): boolean; overload;
     function LoadFile(btm: TKmlInfoSimple; APath: string; caching: boolean): boolean; overload;
     procedure CreateDirIfNotExists(APath: string);
+    procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
+    function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
+    procedure SaveKmlTileToStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple);
+    function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
+
     procedure SaveTileInCache(btm: TCustomBitmap32; path: string); overload;
     procedure SaveTileInCache(btm: TStream; path: string); overload;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
@@ -185,6 +192,8 @@ uses
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
+  u_KmlInfoSimpleParser,
+  u_KmzInfoSimpleParser,
   u_GECache,
   u_CoordConverterBasic,
   u_CoordConverterMercatorOnSphere,
@@ -313,6 +322,14 @@ begin
   if GetIsBitmapTiles then begin
     FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(FTileFileExt);
     FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(FTileFileExt);
+  end else begin
+    if GetIsKmlTiles then begin
+      if FTileFileExt = '.kmz' then begin
+        FKmlLoaderFromStorage := TKmzInfoSimpleParser.Create;
+      end else begin
+        FKmlLoaderFromStorage := TKmlInfoSimpleParser.Create;
+      end;
+    end;
   end;
 end;
 
@@ -567,6 +584,54 @@ begin
     end;
   end else begin
     Result := False;
+  end;
+end;
+
+procedure TMapType.SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte;
+  btm: TCustomBitmap32);
+var
+  VMemStream: TMemoryStream;
+begin
+  VMemStream := TMemoryStream.Create;
+  try
+    FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
+    SaveStreamToStorage(AXY, Azoom, VMemStream);
+  finally
+    VMemStream.Free;
+  end;
+end;
+
+procedure TMapType.SaveKmlTileToStorage(AXY: TPoint; Azoom: byte;
+  AKml: TKmlInfoSimple);
+begin
+  raise Exception.Create('Не реализовано');
+end;
+
+function TMapType.LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte;
+  btm: TCustomBitmap32): Boolean;
+var
+  VMemStream: TMemoryStream;
+begin
+  VMemStream := TMemoryStream.Create;
+  try
+    Result := LoadStreamFromStorage(AXY, Azoom, VMemStream);
+    FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+  finally
+    VMemStream.Free;
+  end;
+end;
+
+function TMapType.LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte;
+  AKml: TKmlInfoSimple): boolean;
+var
+  VMemStream: TMemoryStream;
+begin
+  VMemStream := TMemoryStream.Create;
+  try
+    Result := LoadStreamFromStorage(AXY, Azoom, VMemStream);
+    FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+  finally
+    VMemStream.Free;
   end;
 end;
 
