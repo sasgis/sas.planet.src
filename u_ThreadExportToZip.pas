@@ -94,6 +94,7 @@ var
   VLonLatRect: TExtendedRect;
   VTile: TPoint;
 begin
+  inherited;
     FTilesToProcess := 0;
     SetLength(polyg, length(FPolygLL));
     persl := '';

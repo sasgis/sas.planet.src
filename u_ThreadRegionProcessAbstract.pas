@@ -83,12 +83,15 @@ procedure TThreadRegionProcessAbstract.Execute;
 begin
   inherited;
   try
-    ProcessRegion;
-    Synchronize(UpdateProgressFormClose);
-  except
-    on e: Exception do begin
-      ShowMessageSync(e.Message);
+    try
+      ProcessRegion;
+    except
+      on e: Exception do begin
+        ShowMessageSync(e.Message);
+      end;
     end;
+  finally
+    Synchronize(UpdateProgressFormClose);
   end;
 end;
 

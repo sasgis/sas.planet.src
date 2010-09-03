@@ -159,6 +159,7 @@ var
   Vbmp32crop: TCustomBitmap32;
   VFlags: array of integer;
 begin
+  inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
     exit;
   end;

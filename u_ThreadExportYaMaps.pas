@@ -82,6 +82,7 @@ var
   JPGSaver,PNGSaver:IBitmapTileSaver;
   VTile: TPoint;
 begin
+  inherited;
     if (FMapTypeArr[0]=nil)and(FMapTypeArr[1]=nil)and(FMapTypeArr[2]=nil) then exit;
     bmp32:=TBitmap32.Create;
     bmp322:=TBitmap32.Create;

@@ -76,6 +76,7 @@ var
   max,min:TPoint;
   polyg:TPointArray;
 begin
+  inherited;
   FTilesToProcess:=0;
   for i:=0 to length(InZooms)-1 do begin
     polyg := typemap.GeoConvert.LonLatArray2PixelArray(FPolygLL, InZooms[i] - 1);

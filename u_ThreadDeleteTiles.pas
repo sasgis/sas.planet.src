@@ -60,6 +60,7 @@ var
   polyg:TPointArray;
   max,min:TPoint;
 begin
+  inherited;
   polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, (FZoom - 1));
   FTilesToProcess:=GetDwnlNum(min,max,Polyg,true);
   ProgressFormUpdateCaption(

@@ -13,6 +13,7 @@ type
   protected
     FZooms: array of Byte;
     procedure ProgressFormUpdateOnProgress; virtual;
+    procedure ProcessRegion; override;
   public
     constructor Create(
       APolygon: TExtendedPointArray;
@@ -41,8 +42,6 @@ begin
       Inc(VZoomCount);
     end;
   end;
-  if VZoomCount <= 0 then
-    raise Exception.Create('Не выбрано ни одного зума');
   SetLength(FZooms, VZoomCount);
 end;
 
@@ -50,6 +49,13 @@ destructor TThreadExportAbstract.Destroy;
 begin
   inherited;
   FZooms := nil;
+end;
+
+procedure TThreadExportAbstract.ProcessRegion;
+begin
+  inherited;
+  if Length(FZooms) <= 0 then
+    raise Exception.Create('Не выбрано ни одного зума');
 end;
 
 procedure TThreadExportAbstract.ProgressFormUpdateOnProgress;

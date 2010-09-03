@@ -118,6 +118,7 @@ var p_x,p_y,i:integer;
     ToFile:string;
     max,min:TPoint;
 begin
+  inherited;
  FTilesToProcess:=0;
  SetLength(polyg,length(FPolygLL));
   for i := 0 to Length(FZooms) - 1 do begin
