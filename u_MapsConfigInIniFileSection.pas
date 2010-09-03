@@ -160,7 +160,7 @@ begin
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     if AConfig.IsHybrGUIDSelected(VGUID) then begin
       VGUIDString := GUIDToString(VGUID);
-      FIniFile.WriteString(FSectionName, CKeyNameLayer+IntToStr(VIndex), VGUIDString);
+      FIniFile.WriteString(FSectionName, CKeyNameLayer + IntToStr(VIndex), VGUIDString);
       Inc(VIndex);
     end;
   end;

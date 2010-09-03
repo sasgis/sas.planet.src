@@ -84,11 +84,11 @@ begin
   FGlobalSettingsListener := TListenerOfTMapCacheConfig.Create(Self);
   GState.CacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
 
-  FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
-  FCacheType:=VParams.ReadInteger('CacheType',0);
-  FDefCacheType:=FCacheType;
-  FNameInCache:=VParams.ReadString('NameInCache','Sat');
-  FDefNameInCache:=FNameInCache;
+  FTileFileExt := LowerCase(VParams.ReadString('Ext', '.jpg'));
+  FCacheType := VParams.ReadInteger('CacheType', 0);
+  FDefCacheType := FCacheType;
+  FNameInCache := VParams.ReadString('NameInCache', 'Sat');
+  FDefNameInCache := FNameInCache;
 end;
 
 destructor TMapTypeCacheConfig.Destroy;
@@ -117,7 +117,7 @@ begin
 
   VBasePath := FNameInCache;
   //TODO: — этим бардаком нужно что-то будет сделать
-  if (length(VBasePath)<2)or((VBasePath[2]<>'\')and(system.pos(':',VBasePath)=0)) then begin
+  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
     case FEffectiveCacheType of
       1: begin
         VBasePath:=IncludeTrailingPathDelimiter(GState.CacheConfig.OldCpath) + VBasePath;
@@ -137,8 +137,8 @@ begin
     end;
   end;
   //TODO: — этим бардаком нужно что-то будет сделать
-  if (length(VBasePath)<2)or((VBasePath[2]<>'\')and(system.pos(':',VBasePath)=0))then begin
-    VBasePath:=IncludeTrailingPathDelimiter(GState.ProgramPath)+VBasePath;
+  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
+    VBasePath := IncludeTrailingPathDelimiter(GState.ProgramPath) + VBasePath;
   end;
   VBasePath := IncludeTrailingPathDelimiter(VBasePath);
   FBasePath := VBasePath;

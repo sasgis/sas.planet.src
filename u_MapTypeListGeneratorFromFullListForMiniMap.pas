@@ -21,7 +21,7 @@ function TMapTypeListGeneratorFromFullListForMiniMap.CheckIsAddMap(
 begin
   Result := inherited CheckIsAddMap(AMapType);
   if Result then begin
-    if not(AMapType.IsCanShowOnSmMap and AMapType.IsBitmapTiles) then begin
+    if not (AMapType.IsCanShowOnSmMap and AMapType.IsBitmapTiles) then begin
       Result := false;
     end;
   end;

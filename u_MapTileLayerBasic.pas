@@ -9,7 +9,7 @@ uses
   uMapType;
 
 type
-  TMapTileLayerBasic =  class(TMapLayerBasic)
+  TMapTileLayerBasic = class(TMapLayerBasic)
   protected
     FMapType: TMapType;
     FZoom: Byte;
@@ -19,6 +19,7 @@ type
   public
     procedure SetMapZoomAndPos(AMapType: TMapType; AXY: TPoint; AZoom: byte); virtual;
   end;
+
 implementation
 
 uses

@@ -39,10 +39,10 @@ var
 begin
   VIndex := GetIconIndexByGUID(AGUID);
   if VIndex < 0 then begin
-    VIndex := FImageList.AddMasked(Abmp, RGB(255,0,255));
+    VIndex := FImageList.AddMasked(Abmp, RGB(255, 0, 255));
     FList.Add(AGUID, Pointer(VIndex + 1));
   end else begin
-    FImageList.ReplaceMasked(VIndex, ABmp, RGB(255,0,255));
+    FImageList.ReplaceMasked(VIndex, ABmp, RGB(255, 0, 255));
   end;
 end;
 
