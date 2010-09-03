@@ -217,7 +217,7 @@ begin
       RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
     end;
     Application.Initialize;
-    Application.Title := 'SAS.����;
+    Application.Title := 'SAS.Планета';
     LoadNewResourceModule(GState.Localization);
     //logo
     if GState.MainIni.ReadBool('VIEW','Show_logo',true) then begin
