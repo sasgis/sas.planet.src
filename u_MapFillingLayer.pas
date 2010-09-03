@@ -80,7 +80,7 @@ end;
 type
   TMapFillingThread = class(TThread)
   private
-    FLayer:TMapFillingLayer;
+    FLayer: TMapFillingLayer;
     FStopThread: TEvent;
     FDrowActive: TEvent;
     FNeedRedrow: Boolean;
@@ -103,7 +103,7 @@ type
 constructor TMapFillingLayer.Create(AParentMap: TImage32; ACenter: TPoint);
 begin
   inherited Create(AParentMap, ACenter);
-  FLayer.Bitmap.DrawMode:=dmBlend;
+  FLayer.Bitmap.DrawMode := dmBlend;
   FThread := TMapFillingThread.Create(Self);
   FMainMapChangeListener := TFillingMapMainMapChangeListener.Create(Self);
 end;
@@ -118,7 +118,7 @@ end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  if (FSourceMapType<>nil)and(FZoom<=FSourceZoom)and(FGeoConvert<>nil) then begin
+  if (FSourceMapType <> nil) and (FZoom <= FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
     TMapFillingThread(FThread).PrepareToChangeScene;
     if FSourceSelected = nil then begin
@@ -299,9 +299,11 @@ begin
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
 
       for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
-        if FNeedRedrow then break;
+        if FNeedRedrow then begin
+          break;
+        end;
         VTile.X := i;
-        for j:= VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+        for j := VTileSourceRect.Top to VTileSourceRect.Bottom do begin
           VTile.Y := j;
           VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
           VTilePixelsToDraw.TopLeft := Point(0, 0);
@@ -331,12 +333,16 @@ begin
           VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
           VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-          if FNeedRedrow then break;
+          if FNeedRedrow then begin
+            break;
+          end;
           VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
           VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
           Inc(VCurrTilePixelRectAtBitmap.Bottom);
           Inc(VCurrTilePixelRectAtBitmap.Right);
-          if FNeedRedrow then break;
+          if FNeedRedrow then begin
+            break;
+          end;
           if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
             FLayer.FLayer.Bitmap.Lock;
             try
@@ -396,9 +402,10 @@ begin
   VHandles[0] := FDrowActive.Handle;
   VHandles[1] := FStopThread.Handle;
   while not Terminated do begin
-    VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False,  INFINITE);
+    VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
     case VWaitResult of
-      WAIT_OBJECT_0: begin
+      WAIT_OBJECT_0:
+      begin
         FCSChangeScene.Enter;
         try
           FDrowActive.ResetEvent;
