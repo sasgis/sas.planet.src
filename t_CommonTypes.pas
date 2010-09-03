@@ -27,7 +27,7 @@ type
     azimut: extended;
     Odometr: extended;
     SignalStrength: extended;
-    SatCount:integer;
+    SatCount: integer;
   end;
 
   TGSMpar = record

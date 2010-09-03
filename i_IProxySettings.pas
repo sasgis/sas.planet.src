@@ -5,7 +5,7 @@ interface
 type
   // Настройки прокси
   IProxySettings = interface(IInterface)
-  ['{17F31D40-FCA0-4525-9820-A14BB61AA08A}']
+    ['{17F31D40-FCA0-4525-9820-A14BB61AA08A}']
     function GetUseProxy(): boolean; safecall;
     function GetHost(): WideString; safecall;
     function GetUseLogin(): boolean; safecall;

@@ -41,7 +41,7 @@ uses
 { TActiveMapWithHybrConfig }
 
 constructor TActiveMapWithHybrConfig.Create(AAllowNil: Boolean; AMapGUID: TGUID; AMapsList: IMapTypeList;
-      ALayersList: IMapTypeList);
+  ALayersList: IMapTypeList);
 begin
   inherited Create(AAllowNil, AMapGUID, AMapsList);
   FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;

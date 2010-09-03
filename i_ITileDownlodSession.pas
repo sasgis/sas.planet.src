@@ -21,6 +21,7 @@ type
     procedure SetWaitInterval(AValue: Cardinal);
     property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
   end;
+
 implementation
 
 end.
