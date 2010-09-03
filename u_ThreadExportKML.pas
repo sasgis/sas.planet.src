@@ -22,7 +22,7 @@ type
     FPathExport:string;
     RelativePath:boolean;
     KMLFile:TextFile;
-    procedure KmlFileWrite(x,y:integer;z,level:byte);
+    procedure KmlFileWrite(x,y:integer;AZoom,level:byte);
   protected
     procedure ProcessRegion; override;
   public
@@ -60,9 +60,10 @@ begin
   FMapType:=Atypemap;
 end;
 
-procedure TThreadExportKML.KmlFileWrite(x,y:integer;z,level:byte);
+procedure TThreadExportKML.KmlFileWrite(x,y:integer;AZoom,level:byte);
 var xym256lt,xym256rb:TPoint;
-    i,nxy,xi,yi:integer;
+    VZoom: Byte;
+    i, nxy,xi,yi:integer;
     savepath,north,south,east,west:string;
     ToFile:string;
   VExtRect: TExtendedRect;
@@ -70,13 +71,13 @@ var xym256lt,xym256rb:TPoint;
 begin
   VTile := Point(x shr 8, y shr 8);
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  savepath:=FMapType.GetTileFileName(VTile, z - 1);
-  if (FIsReplace)and(not(FMapType.TileExists(VTile, z - 1))) then exit;
+  savepath:=FMapType.GetTileFileName(VTile, AZoom - 1);
+  if (FIsReplace)and(not(FMapType.TileExists(VTile, AZoom - 1))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
-  VExtRect.TopLeft := FMapType.GeoConvert.PixelPos2LonLat(xym256lt,(z - 1));
-  VExtRect.BottomRight := FMapType.GeoConvert.PixelPos2LonLat(xym256rb,(z - 1));
+  VExtRect.TopLeft := FMapType.GeoConvert.PixelPos2LonLat(xym256lt,(AZoom - 1));
+  VExtRect.BottomRight := FMapType.GeoConvert.PixelPos2LonLat(xym256rb,(AZoom - 1));
 
   north:=R2StrPoint(VExtRect.Top);
   south:=R2StrPoint(VExtRect.Bottom);
@@ -99,14 +100,15 @@ begin
    begin
     ProgressFormUpdateOnProgress
    end;
-  i:=z;
-  while (not(FZoomArr[i]))and(i<24) do inc(i);
-  if i<24 then
+  VZoom:=AZoom;
+  while (not(FZoomArr[VZoom]))and(VZoom<24) do inc(VZoom);
+
+  if VZoom<24 then
    begin
-    nxy:=round(intpower(2,(i+1)-z));
+    nxy:=round(intpower(2,(VZoom+1)-AZoom));
     for xi:=1 to nxy do
      for yi:=1 to nxy do
-      KmlFileWrite(xym256lt.x*nxy+(256*(xi-1)),xym256lt.y*nxy+(256*(yi-1)),i+1,level+1);
+      KmlFileWrite(xym256lt.x*nxy+(256*(xi-1)),xym256lt.y*nxy+(256*(yi-1)),VZoom+1,level+1);
    end;
   ToFile:=AnsiToUtf8(#13#10+'</Folder>');
   Write(KMLFile,ToFile);
