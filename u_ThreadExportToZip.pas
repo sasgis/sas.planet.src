@@ -84,7 +84,8 @@ end;
 
 procedure TThreadExportToZip.ProcessRegion;
 var
-  p_x, p_y, i, j: integer;
+  p_x, p_y, j: integer;
+  VZoom: Byte;
   polyg: TPointArray;
   pathfrom, persl, perzoom, kti, datestr: string;
   VExt: string;
@@ -98,16 +99,16 @@ begin
     persl := '';
     kti := '';
     datestr := RetDate(now);
-    for i := 0 to length(FMapTypeArr) - 1 do begin
-      persl := persl + FMapTypeArr[i].GetShortFolderName + '_';
+    for j := 0 to length(FMapTypeArr) - 1 do begin
+      persl := persl + FMapTypeArr[j].GetShortFolderName + '_';
       perzoom := '';
-      for j := 0 to 23 do begin
-        if FZoomArr[j] then begin
-          polyg := FMapTypeArr[i].GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
+      for VZoom := 0 to 23 do begin
+        if FZoomArr[VZoom] then begin
+          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, true);
-          perzoom := perzoom + inttostr(j + 1) + '_';
+          perzoom := perzoom + inttostr(VZoom + 1) + '_';
 
-          VLonLatRect := FMapTypeArr[i].GeoConvert.PixelRect2LonLatRect(VPixelRect, j);
+          VLonLatRect := FMapTypeArr[j].GeoConvert.PixelRect2LonLatRect(VPixelRect, VZoom);
           kti := RoundEx(VLonLatRect.Left, 4);
           kti := kti + '_' + RoundEx(VLonLatRect.Top, 4);
           kti := kti + '_' + RoundEx(VLonLatRect.Right, 4);
@@ -127,12 +128,12 @@ begin
     FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
-    for i := 0 to 23 do //по масштабу
+    for VZoom := 0 to 23 do //по масштабу
     begin
-      if FZoomArr[i] then begin
+      if FZoomArr[VZoom] then begin
         for j := 0 to length(FMapTypeArr) - 1 do //по типу
         begin
-          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
+          polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           VExt := FMapTypeArr[j].TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + FMapTypeArr[j].GetShortFolderName);
           GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, false);
@@ -149,9 +150,9 @@ begin
                 inc(p_y, 256);
                 CONTINUE;
               end;
-              if FMapTypeArr[j].TileExists(VTile, i) then begin
+              if FMapTypeArr[j].TileExists(VTile, VZoom) then begin
 //TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-                pathfrom := FMapTypeArr[j].GetTileFileName(VTile, i);
+                pathfrom := FMapTypeArr[j].GetTileFileName(VTile, VZoom);
                 FZip.FilesList.Add(pathfrom);
               end;
               inc(FTilesProcessed);
