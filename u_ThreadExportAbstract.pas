@@ -11,7 +11,6 @@ uses
 type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)
   protected
-    FZoomArr: array [0..23] of boolean;
     FZooms: array of Byte;
     procedure ProgressFormUpdateOnProgress; virtual;
   public
@@ -37,12 +36,13 @@ begin
   SetLength(FZooms, 24);
   VZoomCount := 0;
   for i := 0 to 23 do begin
-    FZoomArr[i] := Azoomarr[i];
     if Azoomarr[i] then begin
       FZooms[VZoomCount] := i;
       Inc(VZoomCount);
     end;
   end;
+  if VZoomCount <= 0 then
+    raise Exception.Create('Не выбрано ни одного зума');
   SetLength(FZooms, VZoomCount);
 end;
 
