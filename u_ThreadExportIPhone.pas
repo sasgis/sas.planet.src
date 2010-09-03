@@ -133,7 +133,7 @@ begin
   Writeln(PList, '<dict>');
   Writeln(PList, '<key>LastViewMode</key>');
   if FMapTypeArr[FActiveMapIndex] <> nil then begin
-    Writeln(PList, '<integer>'+IntToStr(FActiveMapIndex)+'</integer>');
+    Writeln(PList, '<integer>' + IntToStr(FActiveMapIndex) + '</integer>');
   end;
   Writeln(PList, '<key>LastViewedLatitude</key>');
   Writeln(PList, '<real>' + R2StrPoint(VLLCenter.y) + '</real>');
@@ -166,44 +166,44 @@ begin
   end;
   VGeoConvert := TCoordConverterMercatorOnSphere.Create(6378137);
 
-    WritePListFile(VGeoConvert);
+  WritePListFile(VGeoConvert);
 
-    if FNewFormat then begin
-      hxyi := 2;
-      sizeim := 128;
-    end else begin
-      hxyi := 4;
-      sizeim := 64;
-    end;
-    VTileStream := TMemoryStream.Create;
+  if FNewFormat then begin
+    hxyi := 2;
+    sizeim := 128;
+  end else begin
+    hxyi := 4;
+    sizeim := 64;
+  end;
+  VTileStream := TMemoryStream.Create;
 
-    SetLength(VBitmaps, 3);
-    VBitmaps[0] := TCustomBitmap32.Create;
-    VBitmaps[1] := TCustomBitmap32.Create;
-    VBitmaps[2] := TCustomBitmap32.Create;
-    VBitmaps[2].DrawMode := dmBlend;
+  SetLength(VBitmaps, 3);
+  VBitmaps[0] := TCustomBitmap32.Create;
+  VBitmaps[1] := TCustomBitmap32.Create;
+  VBitmaps[2] := TCustomBitmap32.Create;
+  VBitmaps[2].DrawMode := dmBlend;
 
-    SetLength(VSavers, 3);
-    VSavers[0] := TJpegBitmapTileSaverIJL.Create(cSat);
-    VSavers[1] := TVampyreBasicBitmapTileSaverPNGRGB.Create(cMap);
-    VSavers[2] := TJpegBitmapTileSaverIJL.Create(chib);
+  SetLength(VSavers, 3);
+  VSavers[0] := TJpegBitmapTileSaverIJL.Create(cSat);
+  VSavers[1] := TVampyreBasicBitmapTileSaverPNGRGB.Create(cMap);
+  VSavers[2] := TJpegBitmapTileSaverIJL.Create(chib);
 
-    SetLength(VFlags, 3);
-    VFlags[0] := 3;
-    VFlags[1] := 2;
-    VFlags[2] := 6;
+  SetLength(VFlags, 3);
+  VFlags[0] := 3;
+  VFlags[1] := 2;
+  VFlags[2] := 6;
 
-    Vbmp32crop := TCustomBitmap32.Create;
-    Vbmp32crop.Width := sizeim;
-    Vbmp32crop.Height := sizeim;
-    FTilesToProcess := 0;
-    FTilesProcessed := 0;
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
-      VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
-    end;
-    try
+  Vbmp32crop := TCustomBitmap32.Create;
+  Vbmp32crop.Width := sizeim;
+  Vbmp32crop.Height := sizeim;
+  FTilesToProcess := 0;
+  FTilesProcessed := 0;
+  for i := 0 to Length(FZooms) - 1 do begin
+    VZoom := FZooms[i];
+    VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+    FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+  end;
+  try
     ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
     ProgressFormUpdateOnProgress;
 
@@ -249,7 +249,7 @@ begin
           for j := 0 to Length(FMapTypeArr) - 1 do begin
             if FMapTypeArr[j] <> nil then begin
               if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, False, VGeoConvert, False, true, true) then begin
-                if (j=2) and (FMapTypeArr[0] <> nil) then begin
+                if (j = 2) and (FMapTypeArr[0] <> nil) then begin
                   VBitmaps[0].Draw(0, 0, VBitmaps[j]);
                   VBitmaps[j].Draw(0, 0, VBitmaps[0]);
                 end;
@@ -260,7 +260,7 @@ begin
                     VTileStream.Clear;
                     VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
                     Write_Stream_to_Blob_Traditional(
-                      VTileStream, VZoom+1,
+                      VTileStream, VZoom + 1,
                       VTile.X * hxyi + xi, VTile.Y * hxyi + yi,
                       VFlags[j]
                     );
