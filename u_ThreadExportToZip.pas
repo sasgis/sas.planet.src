@@ -84,7 +84,7 @@ end;
 
 procedure TThreadExportToZip.ProcessRegion;
 var
-  p_x, p_y, j: integer;
+  p_x, p_y, i, j: integer;
   VZoom: Byte;
   polyg: TPointArray;
   pathfrom, persl, perzoom, kti, datestr: string;
@@ -102,8 +102,8 @@ begin
     for j := 0 to length(FMapTypeArr) - 1 do begin
       persl := persl + FMapTypeArr[j].GetShortFolderName + '_';
       perzoom := '';
-      for VZoom := 0 to 23 do begin
-        if FZoomArr[VZoom] then begin
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
           polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           FTilesToProcess := FTilesToProcess + GetDwnlNum(VPixelRect.TopLeft, VPixelRect.BottomRight, Polyg, true);
           perzoom := perzoom + inttostr(VZoom + 1) + '_';
@@ -113,7 +113,6 @@ begin
           kti := kti + '_' + RoundEx(VLonLatRect.Top, 4);
           kti := kti + '_' + RoundEx(VLonLatRect.Right, 4);
           kti := kti + '_' + RoundEx(VLonLatRect.Bottom, 4);
-        end;
       end;
     end;
     persl := copy(persl, 1, length(persl) - 1);
@@ -128,10 +127,9 @@ begin
     FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP';
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
-    for VZoom := 0 to 23 do //по масштабу
-    begin
-      if FZoomArr[VZoom] then begin
-        for j := 0 to length(FMapTypeArr) - 1 do //по типу
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
+        for j := 0 to length(FMapTypeArr) - 1 do
         begin
           polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
           VExt := FMapTypeArr[j].TileFileExt;
@@ -164,7 +162,6 @@ begin
             inc(p_x, 256);
           end;
         end;
-      end;
     end;
     ProgressFormUpdateCaption(
       SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + kti + '-' + datestr + '.ZIP',
