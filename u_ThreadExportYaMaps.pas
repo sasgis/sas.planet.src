@@ -81,6 +81,9 @@ var
   VGeoConvert: ICoordConverter;
   JPGSaver,PNGSaver:IBitmapTileSaver;
   VTile: TPoint;
+  VMapType: TMapType;
+  VSaver: IBitmapTileSaver;
+  Vmt: Byte;
 begin
   inherited;
     if (FMapTypeArr[0]=nil)and(FMapTypeArr[1]=nil)and(FMapTypeArr[2]=nil) then exit;
@@ -99,15 +102,10 @@ begin
       bmp32crop.Height:=sizeim;
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
       FTilesToProcess:=0;
-      SetLength(polyg,length(FPolygLL));
-      for j:=0 to length(FMapTypeArr)-1 do begin
-        if FMapTypeArr[j]<>nil then begin
-          for i := 0 to Length(FZooms) - 1 do begin
-            VZoom := FZooms[i];
-              polyg := FMapTypeArr[j].GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-              FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
-          end;
-        end;
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
+        polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
+        FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
       end;
       FTilesProcessed:=0;
 
@@ -117,8 +115,6 @@ begin
       tc:=GetTickCount;
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
-          for j:=0 to 2 do begin
-            if (FMapTypeArr[j]<>nil)and(not((j=0)and(FMapTypeArr[2]<>nil))) then begin
               polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
               GetDwnlNum(min,max,Polyg,false);
               p_x:=min.x;
@@ -127,54 +123,52 @@ begin
                 p_y:=min.Y;
                 while p_y<max.Y do begin
                   VTile.Y := p_y shr 8;
-                  if (IsCancel)or(not(RgnAndRgn(Polyg,p_x,p_y,false))) then begin
-                    inc(p_y,256);
-                    CONTINUE;
+                  if IsCancel then begin
+                    Break;
                   end;
-                  bmp322.Clear;
-                  if (j=2)and(FMapTypeArr[0]<>nil) then begin
-                    FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
-                  end;
-                  bmp32.Clear;
-                  if FMapTypeArr[j].LoadTileUni(bmp32, VTile, VZoom, False, VGeoConvert, False, False, True) then begin
-                    if (j=2)and(FMapTypeArr[0]<>nil) then begin
-                      bmp322.Draw(0,0,bmp32);
-                      bmp32.Draw(0,0,bmp322);
-                    end;
-                    if (j=2)or(j=0) then begin
-                      for xi:=0 to hxyi do begin
-                        for yi:=0 to hxyi do begin
-                          bmp32crop.Clear;
-                          bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
-                          TileStream.Clear;
-                          JPGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,VZoom,2,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
+                  if RgnAndRgn(Polyg,p_x,p_y,false) then begin
+                    for j:=0 to 2 do begin
+                      VMapType := FMapTypeArr[j];
+                      if (VMapType<>nil)and(not((j=0)and(FMapTypeArr[2]<>nil))) then begin
+                        bmp322.Clear;
+                        if (j=2)and(FMapTypeArr[0]<>nil) then begin
+                          FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
+                        end;
+                        bmp32.Clear;
+                        if VMapType.LoadTileUni(bmp32, VTile, VZoom, False, VGeoConvert, False, False, True) then begin
+                          if (j=2)and(FMapTypeArr[0]<>nil) then begin
+                            bmp322.Draw(0,0,bmp32);
+                            bmp32.Draw(0,0,bmp322);
+                          end;
+                          if (j=2)or(j=0) then begin
+                            VSaver := JPGSaver;
+                            Vmt := 2;
+                          end else begin
+                            VSaver := PNGSaver;
+                            Vmt := 1;
+                          end;
+                          for xi:=0 to hxyi do begin
+                            for yi:=0 to hxyi do begin
+                              bmp32crop.Clear;
+                              bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
+                              TileStream.Clear;
+                              VSaver.SaveToStream(bmp32crop,TileStream);
+                              WriteTileInCache(p_x div 256,p_y div 256,VZoom,Vmt,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
+                            end;
+                          end;
                         end;
                       end;
                     end;
-                    if j=1 then begin
-                      for xi:=0 to hxyi do begin
-                        for yi:=0 to hxyi do begin
-                          bmp32crop.Clear;
-                          bmp32crop.Draw(0,0,bounds(sizeim*xi,sizeim*yi,sizeim,sizeim),bmp32);
-                          TileStream.Clear;
-                          PNGSaver.SaveToStream(bmp32crop,TileStream);
-                          WriteTileInCache(p_x div 256,p_y div 256,VZoom,1,(yi*2)+xi,FExportPath, TileStream,FIsReplace)
-                        end;
-                      end;
+                    inc(FTilesProcessed);
+                    if (GetTickCount-tc>1000) then begin
+                      tc:=GetTickCount;
+                      ProgressFormUpdateOnProgress
                     end;
-                  end;
-                  inc(FTilesProcessed);
-                  if (GetTickCount-tc>1000) then begin
-                    tc:=GetTickCount;
-                    ProgressFormUpdateOnProgress
                   end;
                   inc(p_y,256);
                 end;
                 inc(p_x,256);
               end;
-            end;
-          end;
       end;
       ProgressFormUpdateOnProgress
     finally
