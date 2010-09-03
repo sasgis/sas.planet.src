@@ -71,13 +71,13 @@ var xym256lt,xym256rb:TPoint;
 begin
   VTile := Point(x shr 8, y shr 8);
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  savepath:=FMapType.GetTileFileName(VTile, AZoom - 1);
-  if (FIsReplace)and(not(FMapType.TileExists(VTile, AZoom - 1))) then exit;
+  savepath:=FMapType.GetTileFileName(VTile, AZoom);
+  if (FIsReplace)and(not(FMapType.TileExists(VTile, AZoom))) then exit;
   if RelativePath then savepath:= ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   xym256lt:=Point(x-(x mod 256),y-(y mod 256));
   xym256rb:=Point(256+x-(x mod 256),256+y-(y mod 256));
-  VExtRect.TopLeft := FMapType.GeoConvert.PixelPos2LonLat(xym256lt,(AZoom - 1));
-  VExtRect.BottomRight := FMapType.GeoConvert.PixelPos2LonLat(xym256rb,(AZoom - 1));
+  VExtRect.TopLeft := FMapType.GeoConvert.PixelPos2LonLat(xym256lt,(AZoom));
+  VExtRect.BottomRight := FMapType.GeoConvert.PixelPos2LonLat(xym256rb,(AZoom));
 
   north:=R2StrPoint(VExtRect.Top);
   south:=R2StrPoint(VExtRect.Bottom);
@@ -100,47 +100,46 @@ begin
    begin
     ProgressFormUpdateOnProgress
    end;
-  VZoom:=AZoom;
+  VZoom:=AZoom + 1;
   while (not(FZoomArr[VZoom]))and(VZoom<24) do inc(VZoom);
 
   if VZoom<24 then
    begin
-    nxy:=round(intpower(2,(VZoom+1)-AZoom));
+    nxy:=round(intpower(2, VZoom - AZoom));
     for xi:=1 to nxy do
      for yi:=1 to nxy do
-      KmlFileWrite(xym256lt.x*nxy+(256*(xi-1)),xym256lt.y*nxy+(256*(yi-1)),VZoom+1,level+1);
+      KmlFileWrite(xym256lt.x*nxy+(256*(xi-1)),xym256lt.y*nxy+(256*(yi-1)),VZoom,level+1);
    end;
   ToFile:=AnsiToUtf8(#13#10+'</Folder>');
   Write(KMLFile,ToFile);
 end;
 
 procedure TThreadExportKML.ProcessRegion;
-var p_x,p_y,i,j:integer;
+var p_x,p_y,i:integer;
+    VZoom: Byte;
     polyg:TPointArray;
     ToFile:string;
     max,min:TPoint;
 begin
  FTilesToProcess:=0;
  SetLength(polyg,length(FPolygLL));
- for j:=0 to 23 do
-  if FZoomArr[j] then
-   begin
-    polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, j);
+  for i := 0 to Length(FZooms) - 1 do begin
+    VZoom := FZooms[i];
+    polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
     FTilesToProcess:=FTilesToProcess+GetDwnlNum(min,max,Polyg,true);
-   end;
+  end;
   FTilesProcessed:=0;
   ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves+' '+inttostr(FTilesToProcess)+' '+SAS_STR_Files);
   ProgressFormUpdateOnProgress;
  try
-   i:=0;
    AssignFile(KMLFile,FPathExport);
    Rewrite(KMLFile);
    ToFile:=AnsiToUtf8('<?xml version="1.0" encoding="UTF-8"?>'+#13#10+'<kml xmlns="http://earth.google.com/kml/2.1">'+#13#10);
    ToFile:=ToFile+AnsiToUtf8('<Document>'+#13#10+'<name>'+ExtractFileName(FPathExport)+'</name>');
    Write(KMLFile,ToFile);
 
-   while not(FZoomArr[i])or(i>23) do inc(i);
-   polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, i);
+   VZoom:= FZooms[0];
+   polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
    GetDwnlNum(min,max,Polyg,false);
    p_x:=min.x;
    while p_x<max.x do
@@ -150,7 +149,7 @@ begin
       begin
        if not IsCancel then begin
          if (RgnAndRgn(Polyg,p_x,p_y,false)) then begin
-          KmlFileWrite(p_x,p_y,i+1,1);
+          KmlFileWrite(p_x,p_y,VZoom,1);
          end;
        end;
        inc(p_y,256);
