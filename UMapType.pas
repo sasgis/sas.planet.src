@@ -517,7 +517,7 @@ begin
       FCSSaveTile.Acquire;
       try
         if FileExists(VPath) then begin
-          result := DeleteFile(PChar(VPath));
+          result := DeleteFile(VPath);
         end;
       finally
         FCSSaveTile.Release;
@@ -528,7 +528,7 @@ begin
       FCSSaveTNF.Acquire;
       try
         if FileExists(VPath) then begin
-          result := DeleteFile(PChar(VPath));
+          result := DeleteFile(VPath);
         end;
       finally
         FCSSaveTNF.Release;
@@ -661,18 +661,15 @@ end;
 procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; AMimeType: string);
 var
-  VPath: String;
   btmSrc:TCustomBitmap32;
   VManager: IBitmapTypeExtManager;
   VMimeType: String;
 begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(VPath);
   VManager := GState.BitmapTypeManager;
   VMimeType := GetMIMETypeSubst(AMimeType);
   if VManager.GetIsBitmapType(VMimeType) then begin
     if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(VMimeType)) then begin
-      SaveTileInCache(ATileStream,Vpath);
+      SaveStreamToStorage(AXY, Azoom, ATileStream);
     end else begin
       btmsrc := TCustomBitmap32.Create;
       try
@@ -682,14 +679,13 @@ begin
         if IsCropOnDownload then begin
           CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
         end;
-        SaveTileInCache(btmSrc, VPath);
+        SaveBitmapTileToStorage(AXY, Azoom, btmSrc);
       finally
         FreeAndNil(btmSrc);
       end;
     end;
     FCache.DeleteTileFromCache(AXY, Azoom);
   end else begin
-    SaveTileInCache(ATileStream, ChangeFileExt(Vpath, '.err'));
     raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
   end;
 end;
@@ -697,11 +693,8 @@ end;
 procedure TMapType.SaveTileKmlDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
 var
-  VPath: String;
   UnZip:TVCLUnZip;
 begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(VPath);
   if (ty='application/vnd.google-earth.kmz') then begin
     try
       UnZip:=TVCLUnZip.Create(nil);
@@ -719,15 +712,15 @@ begin
       finally
         UnZip.Free;
       end;
-      SaveTileInCache(ATileStream,Vpath);
+      SaveStreamToStorage(AXY, Azoom, ATileStream);
     except
       try
-        SaveTileInCache(ATileStream,Vpath);
+        SaveStreamToStorage(AXY, Azoom, ATileStream);
       except
       end;
     end;
   end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-    SaveTileInCache(ATileStream,Vpath);
+    SaveStreamToStorage(AXY, Azoom, ATileStream);
   end;
 end;
 
@@ -842,14 +835,30 @@ end;
 function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
   AFileName: string; OverWrite: boolean): boolean;
 var
-  VPath: String;
+  VTileTime: TDateTime;
+  VFileStream: TFileStream;
+  VFileExists: Boolean;
 begin
   if FCacheConfig.EffectiveCacheType = 5 then begin
     Result := false;
   end else begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    CreateDirIfNotExists(AFileName);
-    Result := CopyFile(PChar(VPath), PChar(AFileName), not OverWrite);
+    VFileExists := FileExists(AFileName);
+    if VFileExists and not OverWrite then begin
+      Result := False;
+    end else begin
+      if VFileExists then begin
+        DeleteFile(AFileName);
+      end;
+      CreateDirIfNotExists(AFileName);
+      VTileTime := TileLoadDate(AXY, Azoom);
+      VFileStream := TFileStream.Create(AFileName, fmCreate);
+      try
+        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileTime));
+        LoadStreamFromStorage(AXY, Azoom, VFileStream);
+      finally
+        VFileStream.Free;
+      end;
+    end;
   end;
 end;
 
