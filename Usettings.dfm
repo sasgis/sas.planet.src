@@ -313,8 +313,7 @@ object FSettings: TFSettings
           'GoogleMV'
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'EarthSlicer 1.95'
-          'Googe maps tiles'
-          'Google Earth')
+          'Googe maps tiles')
       end
     end
     object TabSheet1: TTabSheet
