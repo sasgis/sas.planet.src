@@ -97,8 +97,6 @@ type
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     function LoadStreamFromStorage(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean;
     procedure SaveStreamToStorage(AXY: TPoint; Azoom: byte; AStream: TStream);
-    function LoadFile(btm: TCustomBitmap32; APath: string): boolean; overload;
-    function LoadFile(btm: TKmlInfoSimple; APath: string): boolean; overload;
     procedure CreateDirIfNotExists(APath: string);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
@@ -824,9 +822,8 @@ var
 begin
   if UseSave then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    CreateDirIfNotExists(VPath);
     DeleteFile(ChangeFileExt(Vpath,'.tne'));
-    SaveTileInCache(btm, Vpath);
+    SaveBitmapTileToStorage(AXY, Azoom, btm);
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
@@ -1198,37 +1195,6 @@ begin
     if Length(VNewMimeType) > 0 then begin
       Result := VNewMimeType;
     end;
-  end;
-end;
-
-function TMapType.LoadFile(btm: TKmlInfoSimple; APath: string): boolean;
-begin
-  Result := false;
-  if GetFileSize(Apath)<=0 then begin
-    exit;
-  end;
-  try
-    GState.KmlLoader.LoadFromFile(Apath,  btm);
-    Result := True;
-  except
-    Assert(False, 'Ошибка загрузки kml из файла:' + APath);
-  end;
-end;
-
-function TMapType.LoadFile(btm: TCustomBitmap32; APath: string): boolean;
-begin
-  Result := false;
-  if GetFileSize(Apath)<=0 then begin
-    exit;
-  end;
-  try
-    if FBitmapLoaderFromStorage <> nil then begin
-      FBitmapLoaderFromStorage.LoadFromFile(APath, btm);
-    end else begin
-      raise Exception.Create('У этой карты не растровые тайлы');
-    end;
-    result:=true;
-  except
   end;
 end;
 
