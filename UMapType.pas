@@ -103,8 +103,6 @@ type
     procedure SaveKmlTileToStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple);
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
 
-    procedure SaveTileInCache(btm: TCustomBitmap32; path: string); overload;
-    procedure SaveTileInCache(btm: TStream; path: string); overload;
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     function GetUseGenPrevious: boolean;
@@ -733,38 +731,6 @@ begin
     end;
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
-  end;
-end;
-
-procedure TMapType.SaveTileInCache(btm: TCustomBitmap32; path: string);
-begin
-  FCSSaveTile.Acquire;
-  try
-    FBitmapSaverToStorage.SaveToFile(btm, path);
-  finally
-    FCSSaveTile.Release;
-  end;
-end;
-
-procedure TMapType.SaveTileInCache(btm: TStream; path: string);
-var
-  VStream: TMemoryStream;
-begin
-  FCSSaveTile.Acquire;
-  try
-    if btm is TMemoryStream then begin
-      TMemoryStream(btm).SaveToFile(path);
-    end else begin
-      VStream := TMemoryStream.Create();
-      try
-        VStream.LoadFromStream(btm);
-        VStream.SaveToFile(path);
-      finally
-        VStream.Free;
-      end;
-    end;
-  finally
-    FCSSaveTile.Release;
   end;
 end;
 
