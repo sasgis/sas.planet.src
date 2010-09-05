@@ -43,6 +43,10 @@ type
 
 implementation
 
+uses
+  SysUtils,
+  u_GECache;
+
 { TTileStorageGEStuped }
 
 constructor TTileStorageGEStuped.Create(ACoordConverter: ICoordConverter);
@@ -53,92 +57,90 @@ end;
 
 function TTileStorageGEStuped.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
-
+  Abort;
 end;
 
 function TTileStorageGEStuped.DeleteTNE(AXY: TPoint; Azoom: byte): Boolean;
 begin
-
+  Abort;
 end;
 
 destructor TTileStorageGEStuped.Destroy;
 begin
-
+  FCacheConfig := nil;
   inherited;
 end;
 
 function TTileStorageGEStuped.ExistsTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
-
+  result:=GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,GeoConvert);
 end;
 
 function TTileStorageGEStuped.ExistsTNE(AXY: TPoint; Azoom: byte): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TTileStorageGEStuped.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
-
+  Result := FCacheConfig;
 end;
 
 function TTileStorageGEStuped.GetIsStoreFileCache: Boolean;
 begin
-
+  Result := False;
 end;
 
 function TTileStorageGEStuped.GetIsStoreReadOnly: boolean;
 begin
-
+  Result := True;
 end;
 
 function TTileStorageGEStuped.GetTileFileExt: string;
 begin
-
+  Result := '';
 end;
 
 function TTileStorageGEStuped.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-
+  Abort;
 end;
 
 function TTileStorageGEStuped.GetUseDel: boolean;
 begin
-
+  Result := False;
 end;
 
 function TTileStorageGEStuped.GetUseSave: boolean;
 begin
-
+  Result := False;
 end;
 
 function TTileStorageGEStuped.LoadTile(AXY: TPoint; Azoom: byte;
   AStream: TStream): Boolean;
 begin
-
+  Abort;
 end;
 
 procedure TTileStorageGEStuped.SaveTile(AXY: TPoint; Azoom: byte;
   AStream: TStream);
 begin
-  inherited;
-
+  Abort;
 end;
 
 procedure TTileStorageGEStuped.SaveTNE(AXY: TPoint; Azoom: byte);
 begin
-  inherited;
-
+  Abort;
 end;
 
 function TTileStorageGEStuped.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 begin
-
+  Result := 0;
 end;
 
 function TTileStorageGEStuped.TileSize(AXY: TPoint; Azoom: byte): integer;
 begin
-
+  Result := 0;
 end;
 
 end.
