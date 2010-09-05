@@ -438,13 +438,13 @@ begin
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
   LoadMapInfo(AConfig);
+  LoadProjectionInfo(AConfig);
   LoadStorageParams(AConfig);
   LoadMapIcons(AConfig);
   LoadWebSourceParams(AConfig);
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   LoadMimeTypeSubstList(AConfig);
-  LoadProjectionInfo(AConfig);
   LoadUrlScript(AConfig);
   LoadDownloader(AConfig);
   LoadGlobalConfig(AAllMapsConfig);
