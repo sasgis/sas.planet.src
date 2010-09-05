@@ -175,7 +175,7 @@ end;
 
 function TTileStorageFileSystem.GetUseSave: boolean;
 begin
-  Result := FUseDel;
+  Result := FUseSave;
 end;
 
 function TTileStorageFileSystem.LoadTile(AXY: TPoint; Azoom: byte;
@@ -211,19 +211,23 @@ var
   VMemStream: TMemoryStream;
   VFileExists: Boolean;
 begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(VPath);
-  if AStream is TMemoryStream then begin
-    VMemStream := TMemoryStream(AStream);
-    VMemStream.SaveToFile(VPath);
-  end else begin
-    VMemStream := TMemoryStream.Create;
-    try
-      VMemStream.LoadFromStream(AStream);
+  if FUseSave then begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    CreateDirIfNotExists(VPath);
+    if AStream is TMemoryStream then begin
+      VMemStream := TMemoryStream(AStream);
       VMemStream.SaveToFile(VPath);
-    finally
-      VMemStream.Free;
+    end else begin
+      VMemStream := TMemoryStream.Create;
+      try
+        VMemStream.LoadFromStream(AStream);
+        VMemStream.SaveToFile(VPath);
+      finally
+        VMemStream.Free;
+      end;
     end;
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
 end;
 
@@ -232,14 +236,18 @@ var
   VPath: String;
   F:textfile;
 begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  VPath := ChangeFileExt(VPath, '.tne');
-  if not FileExists(VPath) then begin
-    CreateDirIfNotExists(VPath);
-    AssignFile(f,VPath);
-    Rewrite(F);
-    Writeln(f, DateTimeToStr(now));
-    CloseFile(f);
+  if FUseSave then begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    VPath := ChangeFileExt(VPath, '.tne');
+    if not FileExists(VPath) then begin
+      CreateDirIfNotExists(VPath);
+      AssignFile(f,VPath);
+      Rewrite(F);
+      Writeln(f, DateTimeToStr(now));
+      CloseFile(f);
+    end;
+  end else begin
+    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
 end;
 
