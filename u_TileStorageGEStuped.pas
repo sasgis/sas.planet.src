@@ -57,11 +57,13 @@ end;
 
 function TTileStorageGEStuped.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
+  Result := False;
   Abort;
 end;
 
 function TTileStorageGEStuped.DeleteTNE(AXY: TPoint; Azoom: byte): Boolean;
 begin
+  Result := False;
   Abort;
 end;
 
@@ -119,6 +121,7 @@ end;
 function TTileStorageGEStuped.LoadTile(AXY: TPoint; Azoom: byte;
   AStream: TStream): Boolean;
 begin
+  Result := False;
   Abort;
 end;
 

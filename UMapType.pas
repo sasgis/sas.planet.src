@@ -90,7 +90,6 @@ type
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
-    procedure SaveKmlTileToStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple);
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
@@ -467,18 +466,6 @@ begin
   Result := FStorage.ExistsTile(AXY, Azoom);
 end;
 
-function GetFileSize(namefile: string): Integer;
-var
-  InfoFile: TSearchRec;
-begin
-  if FindFirst(namefile, faAnyFile, InfoFile) <> 0 then begin
-    Result := -1;
-  end else begin
-    Result := InfoFile.Size;
-  end;
-  SysUtils.FindClose(InfoFile);
-end;
-
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
   Result := FStorage.DeleteTile(AXY, Azoom);
@@ -501,12 +488,6 @@ begin
   finally
     VMemStream.Free;
   end;
-end;
-
-procedure TMapType.SaveKmlTileToStorage(AXY: TPoint; Azoom: byte;
-  AKml: TKmlInfoSimple);
-begin
-  raise Exception.Create('Не реализовано');
 end;
 
 function TMapType.LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte;
