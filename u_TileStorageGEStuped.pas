@@ -67,7 +67,7 @@ end;
 
 destructor TTileStorageGEStuped.Destroy;
 begin
-  FCacheConfig := nil;
+  FreeAndNil(FCacheConfig);
   inherited;
 end;
 

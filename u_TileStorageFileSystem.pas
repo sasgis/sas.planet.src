@@ -123,7 +123,7 @@ end;
 
 destructor TTileStorageFileSystem.Destroy;
 begin
-  FCacheConfig := nil;
+  FreeAndNil(FCacheConfig);
   inherited;
 end;
 
@@ -195,6 +195,7 @@ begin
       try
         VMemStream.LoadFromFile(VPath);
         VMemStream.SaveToStream(AStream);
+        Result := True;
       finally
         VMemStream.Free;
       end;
@@ -209,7 +210,6 @@ procedure TTileStorageFileSystem.SaveTile(AXY: TPoint; Azoom: byte;
 var
   VPath: String;
   VMemStream: TMemoryStream;
-  VFileExists: Boolean;
 begin
   if FUseSave then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
