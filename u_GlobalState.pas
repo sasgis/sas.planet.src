@@ -702,8 +702,8 @@ begin
         Ini.DeleteKey(VGUIDString, 'HotKey');
       end;
 
-      if VMapType.CacheConfig.cachetype <> VMapType.CacheConfig.defcachetype then begin
-        ini.WriteInteger(VGUIDString, 'CacheType', VMapType.CacheConfig.CacheType);
+      if VMapType.TileStorage.CacheConfig.cachetype <> VMapType.TileStorage.CacheConfig.defcachetype then begin
+        ini.WriteInteger(VGUIDString, 'CacheType', VMapType.TileStorage.CacheConfig.CacheType);
       end else begin
         Ini.DeleteKey(VGUIDString, 'CacheType');
       end;
@@ -714,8 +714,8 @@ begin
         Ini.DeleteKey(VGUIDString, 'separator');
       end;
 
-      if VMapType.CacheConfig.NameInCache <> VMapType.CacheConfig.DefNameInCache then begin
-        ini.WriteString(VGUIDString, 'NameInCache', VMapType.CacheConfig.NameInCache);
+      if VMapType.TileStorage.CacheConfig.NameInCache <> VMapType.TileStorage.CacheConfig.DefNameInCache then begin
+        ini.WriteString(VGUIDString, 'NameInCache', VMapType.TileStorage.CacheConfig.NameInCache);
       end else begin
         Ini.DeleteKey(VGUIDString, 'NameInCache');
       end;

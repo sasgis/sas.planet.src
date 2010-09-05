@@ -572,13 +572,13 @@ begin
         CBmtForm.ItemIndex:=VAddedIndex;
       end;
     end;
-    if (VMapType.Usedel) then begin
+    if (VMapType.TileStorage.GetUseDel) then begin
       VAddedIndex := CBmapDel.Items.AddObject(VMapType.name, VMapType);
       if VMapType = VActiveMap then begin
         CBmapDel.ItemIndex:=VAddedIndex;
       end;
     end;
-    if (VMapType.UseSave) then begin
+    if (VMapType.TileStorage.GetUseSave) then begin
       if VMapType.IsBitmapTiles then begin
         if (not(VMapType.asLayer)) then begin
           VAddedIndex := CmBExpSat.Items.AddObject(VMapType.name,VMapType);

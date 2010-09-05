@@ -754,7 +754,7 @@ begin
     With VMapType do begin
       MapList.AddItem(VMapType.name,nil);
       MapList.Items.Item[i].Data:=VMapType;
-      MapList.Items.Item[i].SubItems.Add(VMapType.CacheConfig.NameInCache);
+      MapList.Items.Item[i].SubItems.Add(VMapType.TileStorage.CacheConfig.NameInCache);
       if VMapType.asLayer then begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
       end else begin

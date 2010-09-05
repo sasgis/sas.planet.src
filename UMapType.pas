@@ -23,6 +23,7 @@ uses
   u_KmlInfoSimple,
   u_UrlGenerator,
   u_MapTypeCacheConfig,
+  u_TileStorageAbstract,
   UResStrings;
 
 type
@@ -35,16 +36,12 @@ type
     FasLayer: boolean;
     FTileRect: TRect;
     FZMPFileName: string;
-    FTileFileExt: string;
     FMapInfo: string;
     FDefHotKey: TShortCut;
     FDefSleep: Integer;
     FDefseparator: boolean;
     FDefParentSubMenu: string;
     FUseDwn: boolean;
-    FUseDel: boolean;
-    FIsStoreReadOnly: Boolean;
-    FUseSave: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FUseGenPrevious: boolean;
@@ -54,7 +51,7 @@ type
     FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
-    FCacheConfig: TMapTypeCacheConfigAbstract;
+    FStorage: TTileStorageAbstract;
     FUrlGenerator : TUrlGeneratorBasic;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
@@ -67,12 +64,8 @@ type
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     function GetCoordConverter: ICoordConverter;
-    function GetIsStoreFileCache: Boolean;
     function GetUseDwn: Boolean;
-    function GetUseDel: boolean;
-    function GetUseSave: boolean;
     function GetZmpFileName: string;
-    function GetIsStoreReadOnly: boolean;
     function GetIsCanShowOnSmMap: boolean;
     function GetUseStick: boolean;
     function GetIsCropOnDownload: Boolean;
@@ -95,9 +88,6 @@ type
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
-    function LoadStreamFromStorage(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean;
-    procedure SaveStreamToStorage(AXY: TPoint; Azoom: byte; AStream: TStream);
-    procedure CreateDirIfNotExists(APath: string);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     procedure SaveKmlTileToStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple);
@@ -141,15 +131,11 @@ type
     property GUIDString: string read GetGUIDString;
 
     property asLayer: boolean read FasLayer;
-    property IsStoreFileCache: Boolean read GetIsStoreFileCache;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
     property IsHybridLayer: Boolean read GetIsHybridLayer;
     property UseDwn: Boolean read GetUseDwn;
-    property UseDel: boolean read GetUseDel;
-    property UseSave: boolean read GetUseSave;
     property UseGenPrevious: boolean read GetUseGenPrevious;
-    property IsStoreReadOnly: boolean read GetIsStoreReadOnly;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
@@ -157,9 +143,8 @@ type
     property ZmpFileName: string read GetZmpFileName;
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
-    property CacheConfig: TMapTypeCacheConfigAbstract read FCacheConfig;
+    property TileStorage: TTileStorageAbstract read FStorage;
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
-    property TileFileExt: string read FTileFileExt;
     property MapInfo: string read FMapInfo;
     property Name: string read FName;
     property DefHotKey: TShortCut read FDefHotKey;
@@ -191,6 +176,8 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_GECache,
+  u_TileStorageGEStuped,
+  u_TileStorageFileSystem,
   u_CoordConverterBasic,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
@@ -204,8 +191,8 @@ begin
   if VParams <> nil then begin
       id:=VParams.ReadInteger('pnum',id);
       FUrlGenerator.URLBase:=VParams.ReadString('URLBase',FUrlGenerator.URLBase);
-      CacheConfig.CacheType:=VParams.ReadInteger('CacheType',CacheConfig.cachetype);
-      CacheConfig.NameInCache:=VParams.ReadString('NameInCache',CacheConfig.NameInCache);
+      TileStorage.CacheConfig.CacheType:=VParams.ReadInteger('CacheType',TileStorage.CacheConfig.cachetype);
+      TileStorage.CacheConfig.NameInCache:=VParams.ReadString('NameInCache',TileStorage.CacheConfig.NameInCache);
       HotKey:=VParams.ReadInteger('HotKey',HotKey);
       ParentSubMenu:=VParams.ReadString('ParentSubMenu',ParentSubMenu);
       DownloaderFactory.WaitInterval:=VParams.ReadInteger('Sleep',DownloaderFactory.WaitInterval);
@@ -309,18 +296,19 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FUseDel:=VParams.ReadBool('Usedel',true);
-  FIsStoreReadOnly:=VParams.ReadBool('ReadOnly', false);
-  FUseSave:=VParams.ReadBool('Usesave',true);
-  FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
-  FCacheConfig := TMapTypeCacheConfig.Create(AConfig);
+  if VParams.ReadInteger('CacheType', 0) = 5  then begin
+    FStorage := TTileStorageGEStuped.Create(FCoordConverter);
+  end else begin
+    FStorage := TTileStorageFileSystem.Create(FCoordConverter, AConfig);
+  end;
+
   FCache := TTileCacheSimpleGlobal.Create(Self);
   if GetIsBitmapTiles then begin
-    FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(FTileFileExt);
-    FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(FTileFileExt);
+    FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(TileStorage.TileFileExt);
+    FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(TileStorage.TileFileExt);
   end else begin
     if GetIsKmlTiles then begin
-      if FTileFileExt = '.kmz' then begin
+      if TileStorage.TileFileExt = '.kmz' then begin
         FKmlLoaderFromStorage := TKmzInfoSimpleParser.Create;
       end else begin
         FKmlLoaderFromStorage := TKmlInfoSimpleParser.Create;
@@ -471,23 +459,12 @@ end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  if IsStoreFileCache then begin
-    Result := FCacheConfig.GetTileFileName(AXY, Azoom);
-  end else begin
-    raise Exception.Create('Ошибка. Это не файловый кеш');
-  end;
+  Result := FStorage.GetTileFileName(AXY, Azoom);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
-var
-  VPath: String;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    result:=GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
-  end else begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    Result := Fileexists(VPath);
-  end;
+  Result := FStorage.ExistsTile(AXY, Azoom);
 end;
 
 function GetFileSize(namefile: string): Integer;
@@ -503,84 +480,13 @@ begin
 end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
-var
-  VPath: string;
 begin
-  Result := false;
-  if UseDel then begin
-    try
-      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-      FCSSaveTile.Acquire;
-      try
-        if FileExists(VPath) then begin
-          result := DeleteFile(VPath);
-        end;
-      finally
-        FCSSaveTile.Release;
-      end;
-      FCache.DeleteTileFromCache(AXY,Azoom);
-
-      VPath := ChangeFileExt(VPath, '.tne');
-      FCSSaveTNF.Acquire;
-      try
-        if FileExists(VPath) then begin
-          result := DeleteFile(VPath);
-        end;
-      finally
-        FCSSaveTNF.Release;
-      end;
-    except
-      Result := false;
-    end;
-  end else begin
-    Exception.Create('Для этой карты запрещено удаление тайлов.');
-  end;
+  Result := FStorage.DeleteTile(AXY, Azoom);
 end;
 
 function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
-var
-  VPath: String;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    Result := False;
-  end else begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    Result := Fileexists(ChangeFileExt(VPath, '.tne'));
-  end;
-end;
-
-procedure TMapType.CreateDirIfNotExists(APath:string);
-var i:integer;
-begin
- i := LastDelimiter(PathDelim, Apath);
- Apath:=copy(Apath, 1, i);
- if not(DirectoryExists(Apath)) then ForceDirectories(Apath);
-end;
-
-function TMapType.LoadStreamFromStorage(AXY: TPoint; Azoom: byte;
-  AStream: TStream): Boolean;
-var
-  VPath: String;
-  VMemStream: TMemoryStream;
-begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  if FileExists(VPath) then begin
-    if AStream is TMemoryStream then begin
-      VMemStream := TMemoryStream(AStream);
-      VMemStream.LoadFromFile(VPath);
-      Result := True;
-    end else begin
-      VMemStream := TMemoryStream.Create;
-      try
-        VMemStream.LoadFromFile(VPath);
-        VMemStream.SaveToStream(AStream);
-      finally
-        VMemStream.Free;
-      end;
-    end;
-  end else begin
-    Result := False;
-  end;
+  Result := FStorage.ExistsTNE(AXY, Azoom);
 end;
 
 procedure TMapType.SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte;
@@ -591,7 +497,7 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-    SaveStreamToStorage(AXY, Azoom, VMemStream);
+    FStorage.SaveTile(AXY, Azoom, VMemStream);
   finally
     VMemStream.Free;
   end;
@@ -610,7 +516,7 @@ var
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := LoadStreamFromStorage(AXY, Azoom, VMemStream);
+    Result := FStorage.LoadTile(AXY, Azoom, VMemStream);
     if Result then begin
       FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
     end;
@@ -626,35 +532,12 @@ var
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := LoadStreamFromStorage(AXY, Azoom, VMemStream);
+    Result := FStorage.LoadTile(AXY, Azoom, VMemStream);
     if Result then  begin
       FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
     end;
   finally
     VMemStream.Free;
-  end;
-end;
-
-procedure TMapType.SaveStreamToStorage(AXY: TPoint; Azoom: byte;
-  AStream: TStream);
-var
-  VPath: String;
-  VMemStream: TMemoryStream;
-  VFileExists: Boolean;
-begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  CreateDirIfNotExists(VPath);
-  if AStream is TMemoryStream then begin
-    VMemStream := TMemoryStream(AStream);
-    VMemStream.SaveToFile(VPath);
-  end else begin
-    VMemStream := TMemoryStream.Create;
-    try
-      VMemStream.LoadFromStream(AStream);
-      VMemStream.SaveToFile(VPath);
-    finally
-      VMemStream.Free;
-    end;
   end;
 end;
 
@@ -668,8 +551,8 @@ begin
   VManager := GState.BitmapTypeManager;
   VMimeType := GetMIMETypeSubst(AMimeType);
   if VManager.GetIsBitmapType(VMimeType) then begin
-    if not IsCropOnDownload and SameText(TileFileExt, VManager.GetExtForType(VMimeType)) then begin
-      SaveStreamToStorage(AXY, Azoom, ATileStream);
+    if not IsCropOnDownload and SameText(FStorage.TileFileExt, VManager.GetExtForType(VMimeType)) then begin
+      FStorage.SaveTile(AXY, Azoom, ATileStream);
     end else begin
       btmsrc := TCustomBitmap32.Create;
       try
@@ -712,23 +595,23 @@ begin
       finally
         UnZip.Free;
       end;
-      SaveStreamToStorage(AXY, Azoom, ATileStream);
+      FStorage.SaveTile(AXY, Azoom, ATileStream);
     except
       try
-        SaveStreamToStorage(AXY, Azoom, ATileStream);
+        FStorage.SaveTile(AXY, Azoom, ATileStream);
       except
       end;
     end;
   end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-    SaveStreamToStorage(AXY, Azoom, ATileStream);
+    FStorage.SaveTile(AXY, Azoom, ATileStream);
   end;
 end;
 
 procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
 begin
-  if UseSave then begin
-    if TileFileExt='.kml' then begin
+  if FStorage.GetUseSave then begin
+    if GetIsKmlTiles then begin
       SaveTileKmlDownload(AXY, Azoom, ATileStream, ty);
     end else begin
       SaveTileBitmapDownload(AXY, Azoom, ATileStream, ty);
@@ -739,64 +622,23 @@ begin
 end;
 
 function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
-var
-  VPath: String;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    Result := 0;
-  end else begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    Result := FileDateToDateTime(FileAge(VPath));
-  end;
+  Result := FStorage.TileLoadDate(AXY, Azoom);
 end;
 
 function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
-var
-  VPath: String;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    Result := 0;
-  end else begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    Result := GetFileSize(VPath);
-  end;
+  Result := FStorage.TileSize(AXY, Azoom);
 end;
 
 procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
-var
-  VPath: String;
-  F:textfile;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-  end else begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    VPath := ChangeFileExt(VPath, '.tne');
-    FCSSaveTNF.Acquire;
-    try
-    if not FileExists(VPath) then begin
-      CreateDirIfNotExists(VPath);
-      AssignFile(f,VPath);
-      Rewrite(F);
-      Writeln(f,DateTimeToStr(now));
-      CloseFile(f);
-    end;
-    finally
-      FCSSaveTNF.Release;
-    end;
-  end;
+  FStorage.SaveTNE(AXY, Azoom);
 end;
 
 procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
-var
-  VPath: String;
 begin
-  if UseSave then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    DeleteFile(ChangeFileExt(Vpath,'.tne'));
-    SaveBitmapTileToStorage(AXY, Azoom, btm);
-  end else begin
-    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
-  end;
+  SaveBitmapTileToStorage(AXY, Azoom, btm);
 end;
 
 function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
@@ -805,26 +647,25 @@ var
   VTileTime: TDateTime;
   VFileStream: TFileStream;
   VFileExists: Boolean;
+  VExportPath: string;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    Result := false;
+  VFileExists := FileExists(AFileName);
+  if VFileExists and not OverWrite then begin
+    Result := False;
   end else begin
-    VFileExists := FileExists(AFileName);
-    if VFileExists and not OverWrite then begin
-      Result := False;
+    if VFileExists then begin
+      DeleteFile(AFileName);
     end else begin
-      if VFileExists then begin
-        DeleteFile(AFileName);
-      end;
-      CreateDirIfNotExists(AFileName);
-      VTileTime := TileLoadDate(AXY, Azoom);
-      VFileStream := TFileStream.Create(AFileName, fmCreate);
-      try
-        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileTime));
-        LoadStreamFromStorage(AXY, Azoom, VFileStream);
-      finally
-        VFileStream.Free;
-      end;
+      VExportPath := ExtractFilePath(AFileName);
+      ForceDirectories(VExportPath);
+    end;
+    VTileTime := FStorage.TileLoadDate(AXY, Azoom);
+    VFileStream := TFileStream.Create(AFileName, fmCreate);
+    try
+      FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileTime));
+      Result := FStorage.LoadTile(AXY, Azoom, VFileStream);
+    finally
+      VFileStream.Free;
     end;
   end;
 end;
@@ -926,7 +767,7 @@ end;
 
 function TMapType.GetShortFolderName: string;
 begin
-  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FCacheConfig.NameInCache)));
+  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorage.CacheConfig.NameInCache)));
 end;
 
 
@@ -957,7 +798,7 @@ begin
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
   FCache := nil;
-  FreeAndNil(FCacheConfig);
+  FreeAndNil(FStorage);
   inherited;
 end;
 
@@ -997,25 +838,16 @@ end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
-  if Self.IsStoreFileCache then begin
-    Result := FCacheConfig.GetTileFileName(AXY, Azoom)
+  if FStorage.GetIsStoreFileCache then begin
+    Result := FStorage.CacheConfig.GetTileFileName(AXY, Azoom)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
   end;
 end;
 
-function TMapType.GetIsStoreFileCache: Boolean;
-begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    Result := false;
-  end else begin
-    Result := true;
-  end;
-end;
-
 function TMapType.GetUseDwn: Boolean;
 begin
-  if Self.UseSave then begin
+  if FStorage.GetUseSave then begin
     Result := FUseDwn;
   end else begin
     Result := false;
@@ -1025,43 +857,16 @@ end;
 function TMapType.GetUseGenPrevious: boolean;
 begin
   Result := False;
-  if GetUseSave then begin
+  if FStorage.GetUseSave then begin
     if GetIsBitmapTiles then begin
       Result := FUseGenPrevious;
     end;
   end;
 end;
 
-function TMapType.GetUseDel: boolean;
-begin
-  if IsStoreReadOnly then begin
-    Result := false;
-  end else begin
-    Result := FUseDel;
-  end;
-end;
-
-function TMapType.GetUseSave: boolean;
-begin
-  if IsStoreReadOnly then begin
-    Result := false;
-  end else begin
-    Result := FUseSave;
-  end;
-end;
-
 function TMapType.GetZmpFileName: string;
 begin
   Result := ExtractFileName(FZMPFileName);
-end;
-
-function TMapType.GetIsStoreReadOnly: boolean;
-begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    Result := True;
-  end else begin
-    Result := FIsStoreReadOnly;
-  end;
 end;
 
 function TMapType.GetUseStick: boolean;
@@ -1119,10 +924,10 @@ end;
 
 function TMapType.GetIsBitmapTiles: Boolean;
 begin
-  if SameText(TileFileExt, '.jpg')
-    or SameText(TileFileExt, '.png')
-    or SameText(TileFileExt, '.gif')
-    or SameText(TileFileExt, '.bmp')
+  if SameText(FStorage.TileFileExt, '.jpg')
+    or SameText(FStorage.TileFileExt, '.png')
+    or SameText(FStorage.TileFileExt, '.gif')
+    or SameText(FStorage.TileFileExt, '.bmp')
   then begin
     Result := true;
   end else begin
@@ -1132,8 +937,8 @@ end;
 
 function TMapType.GetIsKmlTiles: Boolean;
 begin
-  if SameText(TileFileExt, '.kml')
-    or SameText(TileFileExt, '.kmz')
+  if SameText(FStorage.TileFileExt, '.kml')
+    or SameText(FStorage.TileFileExt, '.kmz')
   then begin
     Result := True;
   end else begin
@@ -1143,7 +948,7 @@ end;
 
 function TMapType.GetIsHybridLayer: Boolean;
 begin
-  if asLayer and SameText(TileFileExt, '.png') then begin
+  if asLayer and SameText(FStorage.TileFileExt, '.png') then begin
     Result := True;
   end else begin
     Result := False;
@@ -1248,8 +1053,8 @@ function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 begin
   if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-    if FCacheConfig.EffectiveCacheType = 5 then begin
-      result:=GetGETile(btm, FCacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
+    if FStorage.CacheConfig.EffectiveCacheType = 5 then begin
+      result:=GetGETile(btm, FStorage.CacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
     end else begin
       result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
     end;
@@ -1262,15 +1067,11 @@ end;
 function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
   caching: boolean): boolean;
 begin
-  if FCacheConfig.EffectiveCacheType = 5 then begin
-    raise Exception.Create('Из GE кеша можно получать только растры');
+  if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
+    result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
+    if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
   end else begin
-    if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-      result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
-      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
-    end else begin
-      result:=true;
-    end;
+    result:=true;
   end;
 end;
 

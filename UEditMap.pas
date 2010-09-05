@@ -72,14 +72,14 @@ uses
 procedure TFEditMap.Button1Click(Sender: TObject);
 begin
  FmapType.UrlGenerator.URLBase:=EditURL.Text;
- FmapType.CacheConfig.NameInCache:=EditNameinCache.Text;
+ FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.DownloaderFactory.WaitInterval:=SESleep.Value;
  FmapType.HotKey:=EditHotKey.HotKey;
  if CBCacheType.ItemIndex > 0 then begin
-   FmapType.CacheConfig.cachetype:=CBCacheType.ItemIndex;
+   FmapType.TileStorage.CacheConfig.cachetype:=CBCacheType.ItemIndex;
  end else begin
-   FmapType.CacheConfig.cachetype:=0;
+   FmapType.TileStorage.CacheConfig.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
  ModalResult := mrOk;
@@ -98,11 +98,11 @@ end;
 procedure TFEditMap.Button3Click(Sender: TObject);
 begin
  EditURL.Text:=FmapType.UrlGenerator.DefURLBase;
- EditNameinCache.Text:=FmapType.CacheConfig.DefNameInCache;
+ EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.DefParentSubMenu;
  SESleep.Value:=FmapType.DownloaderFactory.WaitInterval;
  EditHotKey.HotKey:=FmapType.DefHotKey;
- CBCacheType.ItemIndex:=FmapType.CacheConfig.CacheType;
+ CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Defseparator;
 end;
 
@@ -113,7 +113,7 @@ end;
 
 procedure TFEditMap.Button4Click(Sender: TObject);
 begin
- EditNameinCache.Text := FMapType.CacheConfig.DefNameInCache;
+ EditNameinCache.Text := FMapType.TileStorage.CacheConfig.DefNameInCache;
 end;
 
 procedure TFEditMap.Button5Click(Sender: TObject);
@@ -133,7 +133,7 @@ end;
 
 procedure TFEditMap.Button9Click(Sender: TObject);
 begin
-  CBCacheType.ItemIndex := FMapType.CacheConfig.defcachetype;
+  CBCacheType.ItemIndex := FMapType.TileStorage.CacheConfig.defcachetype;
 end;
 
 function TFEditMap.EditMapModadl(AMapType: TMapType): Boolean;
@@ -142,11 +142,11 @@ begin
 
   FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
   EditURL.Text:=FMapType.UrlGenerator.URLBase;
-  EditNameinCache.Text:=FMapType.CacheConfig.NameInCache;
+  EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
   SESleep.Value:=FMapType.DownloaderFactory.WaitInterval;
   EditParSubMenu.Text:=FMapType.ParentSubMenu;
   EditHotKey.HotKey:=FMapType.HotKey;
-  CBCacheType.ItemIndex:=FMapType.CacheConfig.cachetype;
+  CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
   CheckBox1.Checked:=FMapType.separator;
 
   Result := ShowModal = mrOk;

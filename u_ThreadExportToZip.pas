@@ -128,7 +128,7 @@ begin
       VZoom := FZooms[i];
       for j := 0 to length(FMapTypeArr) - 1 do begin
         VMapType := FMapTypeArr[j];
-        VExt := VMapType.TileFileExt;
+        VExt := VMapType.TileStorage.TileFileExt;
         VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
         VTileIterator := VTileIterators[j, i];
         while VTileIterator.Next do begin

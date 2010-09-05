@@ -2175,7 +2175,7 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  if VMap.IsStoreFileCache then begin
+  if VMap.TileStorage.GetIsStoreFileCache then begin
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
@@ -2264,7 +2264,7 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  if VMap.IsStoreFileCache then begin
+  if VMap.TileStorage.GetIsStoreFileCache then begin
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
@@ -2290,7 +2290,7 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  if VMap.IsStoreFileCache then begin
+  if VMap.TileStorage.GetIsStoreFileCache then begin
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     s:=VMap.GetTileFileName(VPoint, VZoomCurr);
