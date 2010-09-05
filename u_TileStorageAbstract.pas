@@ -29,7 +29,7 @@ type
 
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; virtual; abstract;
     function GetTileFileExt: string; virtual; abstract;
-    function GetCacheConfig: TMapTypeCacheConfig; virtual; abstract;
+    function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
     function LoadTile(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean; virtual; abstract;
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; virtual; abstract;
@@ -40,7 +40,7 @@ type
 
     function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean; virtual;
 
-    property CacheConfig: TMapTypeCacheConfig read GetCacheConfig;
+    property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
     property TileFileExt: string read GetTileFileExt;
     property GeoConvert: ICoordConverter read FCoordConverter;
   end;

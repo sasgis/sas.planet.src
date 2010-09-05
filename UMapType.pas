@@ -54,7 +54,7 @@ type
     FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
-    FCacheConfig: TMapTypeCacheConfig;
+    FCacheConfig: TMapTypeCacheConfigAbstract;
     FUrlGenerator : TUrlGeneratorBasic;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
@@ -157,7 +157,7 @@ type
     property ZmpFileName: string read GetZmpFileName;
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
-    property CacheConfig: TMapTypeCacheConfig read FCacheConfig;
+    property CacheConfig: TMapTypeCacheConfigAbstract read FCacheConfig;
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
     property TileFileExt: string read FTileFileExt;
     property MapInfo: string read FMapInfo;

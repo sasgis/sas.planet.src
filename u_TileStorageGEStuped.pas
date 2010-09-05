@@ -13,7 +13,7 @@ uses
 type
   TTileStorageGEStuped = class(TTileStorageAbstract)
   private
-    FCacheConfig: TMapTypeCacheConfig;
+    FCacheConfig: TMapTypeCacheConfigAbstract;
   public
     constructor Create(ACoordConverter: ICoordConverter);
     destructor Destroy; override;
@@ -31,7 +31,7 @@ type
 
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; override;
     function GetTileFileExt: string; override;
-    function GetCacheConfig: TMapTypeCacheConfig; override;
+    function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function LoadTile(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean; override;
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; override;
@@ -48,7 +48,7 @@ implementation
 constructor TTileStorageGEStuped.Create(ACoordConverter: ICoordConverter);
 begin
   inherited Create(ACoordConverter);
-//  FCacheConfig := TMapTypeCacheConfig.Create();
+  FCacheConfig := TMapTypeCacheConfigGE.Create;
 end;
 
 function TTileStorageGEStuped.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
@@ -77,7 +77,7 @@ begin
 
 end;
 
-function TTileStorageGEStuped.GetCacheConfig: TMapTypeCacheConfig;
+function TTileStorageGEStuped.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
 
 end;

@@ -9,8 +9,8 @@ uses
   i_ITileFileNameGenerator;
 
 type
-  TMapTypeCacheConfig = class
-  private
+  TMapTypeCacheConfigAbstract = class
+  protected
     FTileFileExt: string;
 
     FDefCachetype: byte;
@@ -22,14 +22,9 @@ type
 
     FBasePath: String;
     FFileNameGenerator: ITileFileNameGenerator;
-    FGlobalSettingsListener: IJclListener;
-    procedure OnSettingsEdit;
-    procedure SetCacheType(const Value: byte);
-    procedure SetNameInCache(const Value: string);
+    procedure SetCacheType(const Value: byte); virtual; abstract;
+    procedure SetNameInCache(const Value: string); virtual;
   public
-    constructor Create(AConfig: IConfigDataProvider);
-    destructor Destroy; override;
-
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
 
     property DefCachetype: byte read FDefCachetype;
@@ -43,12 +38,48 @@ type
     property BasePath: string read FBasePath;
   end;
 
+  TMapTypeCacheConfig = class(TMapTypeCacheConfigAbstract)
+  private
+    FGlobalSettingsListener: IJclListener;
+    procedure OnSettingsEdit;
+  protected
+    procedure SetCacheType(const Value: byte); override;
+    procedure SetNameInCache(const Value: string); override;
+  public
+    constructor Create(AConfig: IConfigDataProvider);
+    destructor Destroy; override;
+  end;
+
+  TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
+  protected
+    procedure SetCacheType(const Value: byte); override;
+  public
+    constructor Create;
+  end;
+
+
 implementation
 
 uses
   SysUtils,
   u_JclNotify,
   u_GlobalState;
+
+{ TMapTypeCacheConfigAbstract }
+
+function TMapTypeCacheConfigAbstract.GetTileFileName(AXY: TPoint; Azoom: byte): string;
+begin
+  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FTileFileExt;
+end;
+
+procedure TMapTypeCacheConfigAbstract.SetNameInCache(const Value: string);
+begin
+  if FNameInCache <> Value then begin
+    FNameInCache := Value;
+  end;
+end;
+
+
 
 { TListenerOfTMapCacheConfig }
 
@@ -96,11 +127,6 @@ begin
   GState.CacheConfig.CacheChangeNotifier.Remove(FGlobalSettingsListener);
   FGlobalSettingsListener := nil;
   inherited;
-end;
-
-function TMapTypeCacheConfig.GetTileFileName(AXY: TPoint; Azoom: byte): string;
-begin
-  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FTileFileExt;
 end;
 
 procedure TMapTypeCacheConfig.OnSettingsEdit;
@@ -158,6 +184,21 @@ begin
     FNameInCache := Value;
     OnSettingsEdit;
   end;
+end;
+
+{ TMapTypeCacheConfigGE }
+
+constructor TMapTypeCacheConfigGE.Create;
+begin
+  FTileFileExt := '';
+  FCacheType := 5;
+  FDefCacheType := FCacheType;
+  FNameInCache := '';
+  FDefNameInCache := FNameInCache;
+end;
+
+procedure TMapTypeCacheConfigGE.SetCacheType(const Value: byte);
+begin
 end;
 
 end.

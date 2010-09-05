@@ -12,7 +12,7 @@ uses
 type
   TTileStorageFileSystem = class(TTileStorageAbstract)
   private
-    FCacheConfig: TMapTypeCacheConfig;
+    FCacheConfig: TMapTypeCacheConfigAbstract;
   public
     function GetIsStoreFileCache: Boolean; override;
     function GetUseDel: boolean; override;
@@ -27,7 +27,7 @@ type
 
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; override;
     function GetTileFileExt: string; override;
-    function GetCacheConfig: TMapTypeCacheConfig; override;
+    function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function LoadTile(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean; override;
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; override;
@@ -61,7 +61,7 @@ begin
 
 end;
 
-function TTileStorageFileSystem.GetCacheConfig: TMapTypeCacheConfig;
+function TTileStorageFileSystem.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
 
 end;
