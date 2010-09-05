@@ -611,7 +611,9 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     Result := LoadStreamFromStorage(AXY, Azoom, VMemStream);
-    FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+    if Result then begin
+      FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+    end;
   finally
     VMemStream.Free;
   end;
@@ -625,7 +627,9 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     Result := LoadStreamFromStorage(AXY, Azoom, VMemStream);
-    FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+    if Result then  begin
+      FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+    end;
   finally
     VMemStream.Free;
   end;
