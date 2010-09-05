@@ -12,6 +12,7 @@ uses
   IJL,
   GR32,
   GR32_Resamplers,
+  i_ICoordConverter,
   UMapType,
   t_GeoTypes,
   u_GECrypt,
@@ -24,8 +25,8 @@ TBMPbuf = record BMPTile: array [1..2] of TCustomBitmap32;
                  TileRez: array [1..2] of Extended;
                  count:byte; end;
 
-function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
-function GETileExists(cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;AConv:ICoordConverter):boolean;
+function GETileExists(cachepath:string;x,y:integer;z:byte;AConv:ICoordConverter):boolean;
 function GEGetTile(cachepath:string;x,y:integer;z:byte;var AisJpgStream:boolean):TMemoryStream;
 
 var BMP_Bufer: TBMPbuf;
@@ -35,8 +36,7 @@ var BMP_Bufer: TBMPbuf;
 implementation
 
 uses
-  u_CoordConverterSimpleLonLat,
-  i_ICoordConverter;
+  u_CoordConverterSimpleLonLat;
 
 const
   zoom: array [1..24] of longint = (256,512,1024,2048,4096,8192,16384,32768,65536,
@@ -202,7 +202,7 @@ begin
   end;
 end;
 
-function FillBuff(cachepath:string;var x,y:integer;var z:byte;SourcePoint:TPoint;MT:TMapType;CoordConverter:ICoordConverter):byte;
+function FillBuff(cachepath:string;var x,y:integer;var z:byte;SourcePoint:TPoint;CoordConverter:ICoordConverter):byte;
  function Btm32loadfromstream(var btm:TCustomBitmap32; str:TMemoryStream):boolean;
  begin
    result:=true;
@@ -273,7 +273,7 @@ begin
     result:=Point(0,0);
 end;
 
-procedure MakeInterlaseTile(ResTile:TCustomBitmap32;UpXY:TPoint;Level,id1,id2:byte;MT:TMapType);
+procedure MakeInterlaseTile(ResTile:TCustomBitmap32;UpXY:TPoint;Level,id1,id2:byte;Aconv:ICoordConverter);
 var LineCoord:TExtendedPoint;
     J_GE:Tpoint;
     J_GM:byte;
@@ -283,7 +283,7 @@ begin
     UpXY.X:=UpXY.X*256;
     UpXY.Y:=UpXY.Y*256;
     for J_GM:=0 to 255 do begin
-      LineCoord:=MT.GeoConvert.PixelPos2LonLat(UpXY,(Level-1));
+      LineCoord:=Aconv.PixelPos2LonLat(UpXY,(Level-1));
       J_GE:=GetPixNum(LineCoord,id1);
       if (J_GE.X=0)and(id2<>0) then begin
         J_GE:=GetPixNum(LineCoord,id2);
@@ -296,7 +296,7 @@ begin
   end;
 end;
 
-function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;AConv:ICoordConverter):boolean;
 var Up,Down:TExtendedPoint;
     UpXY,DownXY,gXY1,gXY2:TPoint;
     id1,id2:byte;
@@ -308,22 +308,22 @@ begin
    id2:=0;
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   Up:=AConv.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   Down:=AConv.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
    gXY1:=CoordConverter.LonLat2TilePos(Up,Z-1);
    gXY2:=CoordConverter.LonLat2TilePos(Down,Z-1);
-   id1:=FillBuff(cachepath,gXY1.x,gXY1.y,z,UpXY,MT,CoordConverter);
+   id1:=FillBuff(cachepath,gXY1.x,gXY1.y,z,UpXY,CoordConverter);
    if id1=0 then abort:=true;
    if (gXY1.X<>gXY2.X)or(gXY1.Y<>gXY2.Y) then
    begin
-      id2:=FillBuff(cachepath,gXY2.x,gXY2.y,z,DownXY,MT,CoordConverter);
+      id2:=FillBuff(cachepath,gXY2.x,gXY2.y,z,DownXY,CoordConverter);
       if id2=0 then abort:=true;
    end;
    CoordConverter:=nil;
    if (not abort) then begin
-     MakeInterlaseTile(ResTile,UpXY,Z,id1,id2,MT);
+     MakeInterlaseTile(ResTile,UpXY,Z,id1,id2,AConv);
      Result:=true;
    end
    else begin
@@ -331,7 +331,7 @@ begin
    end;
 end;
 
-function GETileExists(cachepath:string;x,y:integer;z:byte;MT:TMapType):boolean;
+function GETileExists(cachepath:string;x,y:integer;z:byte;AConv:ICoordConverter):boolean;
 var Up,Down:TExtendedPoint;
     UpXY,DownXY,gXY1,gXY2:TPoint;
     bsize:integer;
@@ -341,10 +341,10 @@ begin
    CoordConverter:=TCoordConverterSimpleLonLat.Create(6378137, 6356752);
    UpXY.X:=X;
    UpXY.Y:=Y;
-   Up:=mt.GeoConvert.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
+   Up:=AConv.TilePos2LonLat(UpXY,Z-1);     // долота/штрота верхней левой точки
    DownXY.X:=X;
    DownXY.Y:=Y+1;
-   Down:=mt.GeoConvert.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
+   Down:=AConv.TilePos2LonLat(DownXY,Z-1);   // долота/штрота НИЖНЕЙ левой точки
    gXY1:=CoordConverter.LonLat2TilePos(Up,Z-1);
    gXY2:=CoordConverter.LonLat2TilePos(Down,Z-1);
    CoordConverter:=nil;

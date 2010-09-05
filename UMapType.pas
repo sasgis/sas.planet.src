@@ -483,7 +483,7 @@ var
   VPath: String;
 begin
   if FCacheConfig.EffectiveCacheType = 5 then begin
-    result:=GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,self);
+    result:=GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
   end else begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     Result := Fileexists(VPath);
@@ -1245,7 +1245,7 @@ function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
 begin
   if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
     if FCacheConfig.EffectiveCacheType = 5 then begin
-      result:=GetGETile(btm, FCacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, Self);
+      result:=GetGETile(btm, FCacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
     end else begin
       result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
     end;
