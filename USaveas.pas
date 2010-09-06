@@ -96,66 +96,10 @@ type
     CheckBox4: TCheckBox;
     CheckBox3: TCheckBox;
     CheckListBox2: TCheckListBox;
-    Panel2: TPanel;
-    Label7: TLabel;
-    Label14: TLabel;
-    Label16: TLabel;
-    Label17: TLabel;
-    Label21: TLabel;
-    Label24: TLabel;
-    Button4: TButton;
-    EditPath2: TEdit;
-    CheckBox9: TCheckBox;
-    CkLZoomSel: TCheckListBox;
-    CmBExpSat: TComboBox;
-    CmBExpMap: TComboBox;
-    CmBExpHib: TComboBox;
-    RBSatSel: TRadioButton;
-    RBMapSel: TRadioButton;
-    RBHibSel: TRadioButton;
-    cSatEdit: TSpinEdit;
-    Label29: TLabel;
-    cMapEdit: TSpinEdit;
-    Label30: TLabel;
-    Label31: TLabel;
-    CkBNotReplase: TCheckBox;
     ComboBox: TComboBox;
-    cHybEdit: TSpinEdit;
-    Label33: TLabel;
-    Panel3: TPanel;
-    Label34: TLabel;
-    Label35: TLabel;
-    Label37: TLabel;
-    Button5: TButton;
-    EditPath3: TEdit;
-    CheckBox5: TCheckBox;
-    CkLZoomSel3: TCheckListBox;
-    CBoxMaps2Save: TComboBox;
-    ChBoxRelativePath: TCheckBox;
-    SaveKMLDialog: TSaveDialog;
-    ChBoxNotSaveIfNotExists: TCheckBox;
     CBSecondLoadTNE: TCheckBox;
     CBCloseWithStart: TCheckBox;
     CBGenFromPrev: TCheckBox;
-    Panel4: TPanel;
-    Label36: TLabel;
-    Label38: TLabel;
-    Label39: TLabel;
-    Label40: TLabel;
-    Label41: TLabel;
-    Label42: TLabel;
-    Label43: TLabel;
-    Label44: TLabel;
-    Label45: TLabel;
-    Button6: TButton;
-    EditPath4: TEdit;
-    CkLZoomSelYa: TCheckListBox;
-    CmBExpSatYa: TComboBox;
-    CmBExpMapYa: TComboBox;
-    CmBExpHibYa: TComboBox;
-    cSatEditYa: TSpinEdit;
-    cMapEditYa: TSpinEdit;
-    CkBNotReplaseYa: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
     SEDelBytes: TSpinEdit;
@@ -164,6 +108,7 @@ type
     CBCahceType: TComboBox;
     Label32: TLabel;
     Bevel7: TBevel;
+    pnlExport: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -181,7 +126,7 @@ type
     procedure TabSheet4Show(Sender: TObject);
     procedure CBZippedClick(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     FZoom_rect:byte;
     FPolygonLL: TExtendedPointArray;
@@ -213,6 +158,10 @@ uses
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
+  u_ExportProviderAbstract,
+  u_ExportProviderYaMaps,
+  u_ExportProviderGEKml,
+  u_ExportProviderIPhone,
   u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
   u_ThreadExportIPhone,
@@ -264,65 +213,13 @@ begin
 end;
 
 procedure TFsaveas.ExportREG(APolyLL: TExtendedPointArray);
-var i:integer;
-    path:string;
-    Zoomarr:array [0..23] of boolean;
-    typemaparr:array of TMapType;
-    comprSat,comprMap,comprHyb:byte;
-    RelativePath,Replace:boolean;
-    VActiveMapIndex: Integer;
+var
+  VExportProvider: TExportProviderAbstract;
+  i: Integer;
 begin
- case CBFormat.ItemIndex of
-  0,1: begin
-        for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel.Checked[i];
-        setlength(typemaparr,3);
-        VActiveMapIndex := 0;
-        typemaparr[0]:=TMapType(CmBExpSat.Items.Objects[CmBExpSat.ItemIndex]);
-        if typemaparr[0]<>nil then begin
-          if RBSatSel.Checked then begin
-            VActiveMapIndex := 0;
-          end;
-        end;
-        typemaparr[1]:=TMapType(CmBExpMap.Items.Objects[CmBExpMap.ItemIndex]);
-        if typemaparr[1]<>nil then begin
-          if RBMapSel.Checked then begin
-            VActiveMapIndex := 1;
-          end;
-        end;
-        typemaparr[2]:=TMapType(CmBExpHib.Items.Objects[CmBExpHib.ItemIndex]);
-        if typemaparr[2]<>nil then begin
-          if RBHibSel.Checked then begin
-            VActiveMapIndex := 2;
-          end;
-        end;
-        comprSat:=cSatEdit.Value;
-        comprMap:=cMapEdit.Value;
-        comprHyb:=cHybEdit.Value;
-        path:=IncludeTrailingPathDelimiter(EditPath2.Text);
-        Replace:=(not CkBNotReplase.Checked);
-        TThreadExportIPhone.Create(path,APolyLL,ZoomArr,typemaparr,VActiveMapIndex,Replace,CBFormat.ItemIndex = 0,comprSat,comprMap,comprHyb)
-       end;
-    3: begin
-        for i:=0 to 23 do ZoomArr[i]:=CkLZoomSelYa.Checked[i];
-        setlength(typemaparr,3);
-        typemaparr[0]:=TMapType(CmBExpSatYa.Items.Objects[CmBExpSatYa.ItemIndex]);
-        typemaparr[1]:=TMapType(CmBExpMapYa.Items.Objects[CmBExpMapYa.ItemIndex]);
-        typemaparr[2]:=TMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
-        comprSat:=cSatEditYa.Value;
-        comprMap:=cMapEditYa.Value;
-        path:=IncludeTrailingPathDelimiter(EditPath4.Text);
-        Replace:=CkBNotReplaseYa.Checked;
-        TThreadExportYaMaps.Create(path,APolyLL,ZoomArr,typemaparr,Replace,comprSat,comprMap)
-       end;
-    2: begin
-        for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
-        setlength(typemaparr,3);
-        typemaparr[0]:=TMapType(CBoxMaps2Save.Items.Objects[CBoxMaps2Save.ItemIndex]);
-        path:=EditPath3.Text;
-        RelativePath:=ChBoxRelativePath.Checked;
-        Replace:=ChBoxNotSaveIfNotExists.Checked;
-        TThreadExportKML.Create(path,APolyLL,ZoomArr,typemaparr[0],Replace,RelativePath)
-       end;
+  VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
+  if VExportProvider <> nil then begin
+    VExportProvider.StartProcess(APolyLL);
   end;
 end;
 
@@ -513,19 +410,13 @@ begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
   ComboBox.Items.Clear;
-  CkLZoomSel.Items.Clear;
-  CkLZoomSel3.Items.Clear;
   CheckListBox2.Items.Clear;
-  CkLZoomSelYa.Items.Clear;
   for i:=1 to 24 do begin
     CBZoomload.Items.Add(inttostr(i));
     if i>1 then begin
       ComboBox.Items.Add(inttostr(i));
     end;
-    CkLZoomSel.Items.Add(inttostr(i));
-    CkLZoomSel3.Items.Add(inttostr(i));
     CheckListBox2.Items.Add(inttostr(i));
-    CkLZoomSelYa.Items.Add(inttostr(i));
   end;
   DateDo.Date:=now;
   CBMapLoad.Items.Clear;
@@ -535,18 +426,6 @@ begin
   CheckListBox1.Items.Clear;
   CBSclHib.Items.Clear;
   CBSclHib.Items.Add(SAS_STR_No);
-  CmBExpSat.items.Clear;
-  CmBExpMap.items.Clear;
-  CmBExpHib.items.Clear;
-  CmBExpSat.Items.AddObject(SAS_STR_No,nil);
-  CmBExpMap.Items.AddObject(SAS_STR_No,nil);
-  CmBExpHib.Items.AddObject(SAS_STR_No,nil);
-  CmBExpSatYa.items.Clear;
-  CmBExpMapYa.items.Clear;
-  CmBExpHibYa.items.Clear;
-  CmBExpSatYa.Items.AddObject(SAS_STR_No,nil);
-  CmBExpMapYa.Items.AddObject(SAS_STR_No,nil);
-  CmBExpHibYa.Items.AddObject(SAS_STR_No,nil);
   VActiveMap := GState.ViewState.GetCurrentMap;
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
@@ -578,46 +457,9 @@ begin
       end;
     end;
     if (VMapType.TileStorage.GetUseSave) then begin
-      if VMapType.IsBitmapTiles then begin
-        if (not(VMapType.asLayer)) then begin
-          VAddedIndex := CmBExpSat.Items.AddObject(VMapType.name,VMapType);
-          if VMapType = VActiveMap then begin
-            CmBExpSat.ItemIndex:=VAddedIndex;
-          end;
-          VAddedIndex := CmBExpMap.Items.AddObject(VMapType.name,VMapType);
-          if VMapType = VActiveMap then begin
-            CmBExpMap.ItemIndex:=VAddedIndex;
-          end;
-          VAddedIndex := CmBExpSatYa.Items.AddObject(VMapType.name,VMapType);
-          if VMapType = VActiveMap then begin
-            CmBExpSatYa.ItemIndex:=VAddedIndex;
-          end;
-          VAddedIndex := CmBExpMapYa.Items.AddObject(VMapType.name,VMapType);
-          if VMapType = VActiveMap then begin
-            CmBExpMapYa.ItemIndex:=VAddedIndex;
-          end;
-        end else if(VMapType.IsHybridLayer) then begin
-          VAddedIndex := CmBExpHib.Items.AddObject(VMapType.name,VMapType);
-          if (CmBExpHib.ItemIndex=-1) then begin
-            if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
-              CmBExpHib.ItemIndex:=VAddedIndex;
-            end;
-          end;
-          VAddedIndex := CmBExpHibYa.Items.AddObject(VMapType.name,VMapType);
-          if (CmBExpHibYa.ItemIndex=-1) then begin
-            if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
-              CmBExpHibYa.ItemIndex:=VAddedIndex;
-            end;
-          end;
-        end;
-      end;
       VAddedIndex := CheckListBox1.Items.AddObject(VMapType.name,VMapType);
       if VMapType = VActiveMap then begin
         CheckListBox1.Checked[VAddedIndex]:=true;
-      end;
-      VAddedIndex := CBoxMaps2Save.Items.AddObject(VMapType.name,VMapType);
-      if VMapType = VActiveMap then begin
-        CBoxMaps2Save.ItemIndex:=VAddedIndex;
       end;
     end;
   end;
@@ -636,12 +478,6 @@ begin
   if CBmtForm.ItemIndex=-1 then CBmtForm.ItemIndex:=0;
   if CBmapDel.ItemIndex=-1 then CBmapDel.ItemIndex:=0;
   if CBMapLoad.ItemIndex=-1 then CBMapLoad.ItemIndex:=0;
-  if CmBExpSat.ItemIndex=-1 then CmBExpSat.ItemIndex:=1;
-  if CmBExpMap.ItemIndex=-1 then CmBExpMap.ItemIndex:=0;
-  if CmBExpHib.ItemIndex=-1 then CmBExpHib.ItemIndex:=0;
-  if CmBExpSatYa.ItemIndex=-1 then CmBExpSatYa.ItemIndex:=1;
-  if CmBExpMapYa.ItemIndex=-1 then CmBExpMapYa.ItemIndex:=0;
-  if CmBExpHibYa.ItemIndex=-1 then CmBExpHibYa.ItemIndex:=0;
   CBSclHib.ItemIndex:=0;
   FZoom_rect:=Azoom;
   setlength(FPolygonLL,length(polygon_));
@@ -670,6 +506,7 @@ begin
   end else if zagran then begin
     showmessage(SAS_MSG_SelectArea);
   end;
+  CBFormatChange(CBFormat);
 
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
@@ -692,6 +529,21 @@ begin
  fsaveas.visible:=false;
 end;
 
+procedure TFsaveas.FormCreate(Sender: TObject);
+var
+  VExportProvider: TExportProviderAbstract;
+begin
+  VExportProvider := TExportProviderIPhone.Create(Self, pnlExport, True);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderIPhone.Create(Self, pnlExport, False);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderGEKml.Create(Self, pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderYaMaps.Create(Self, pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  CBFormat.ItemIndex := 0;
+end;
+
 procedure TFsaveas.CheckBox1Click(Sender: TObject);
 var i:integer;
 begin
@@ -704,9 +556,6 @@ begin
   if SelectDirectory('', '', TempPath) then
   begin
    EditPath.Text := IncludeTrailingPathDelimiter(TempPath);
-   EditPath2.Text := IncludeTrailingPathDelimiter(TempPath);
-   EditPath3.Text := IncludeTrailingPathDelimiter(TempPath);
-   EditPath4.Text := IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
 
@@ -716,8 +565,6 @@ begin
  for i:=0 to CheckListBox2.Count-1 do
   begin
    CheckListBox2.Checked[i]:=TCheckBox(sender).Checked;
-   CkLZoomSel.Checked[i]:=TCheckBox(Sender).Checked;
-   CkLZoomSel3.Checked[i]:=TCheckBox(Sender).Checked;
   end;
 end;
 
@@ -813,16 +660,18 @@ begin
 end;
 
 procedure TFsaveas.CBFormatChange(Sender: TObject);
+var
+  VExportProvider: TExportProviderAbstract;
+  i: Integer;
+  VFrame: TFrame;
 begin
- Panel4.Visible:=(CBFormat.ItemIndex in [3]);
- Panel3.Visible:=(CBFormat.ItemIndex in [2]);
- Panel2.Visible:=(CBFormat.ItemIndex in [0,1]);
-end;
-
-procedure TFsaveas.Button5Click(Sender: TObject);
-begin
- if SaveKMLDialog.Execute then
-  EditPath3.Text:=SaveKMLDialog.FileName;
+  for i := 0 to CBFormat.Items.Count - 1 do begin
+    VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
+    if VExportProvider <> nil then begin
+      VFrame := VExportProvider.GetDialogFrame(FZoom_rect);
+      VFrame.Visible := i = CBFormat.ItemIndex;
+    end;
+  end;
 end;
 
 end.

@@ -1,30 +1,29 @@
 object frExportYaMaps: TfrExportYaMaps
   Left = 0
   Top = 0
-  Width = 423
-  Height = 127
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
     Top = 41
-    Width = 423
-    Height = 86
+    Width = 451
+    Height = 263
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    Visible = False
     object pnlRight: TPanel
-      Left = 243
+      Left = 271
       Top = 0
       Width = 180
-      Height = 86
+      Height = 263
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
       DesignSize = (
         180
-        86)
+        263)
       object lblCompress: TLabel
         Left = 9
         Top = 1
@@ -77,7 +76,7 @@ object frExportYaMaps: TfrExportYaMaps
         Left = 121
         Top = 20
         Width = 55
-        Height = 62
+        Height = 239
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 2
@@ -86,14 +85,14 @@ object frExportYaMaps: TfrExportYaMaps
     object pnlMapsSelect: TPanel
       Left = 0
       Top = 0
-      Width = 243
-      Height = 86
+      Width = 271
+      Height = 263
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
       DesignSize = (
-        243
-        86)
+        271
+        263)
       object lblMapsSelect: TLabel
         Left = 5
         Top = -4
@@ -128,7 +127,7 @@ object frExportYaMaps: TfrExportYaMaps
       object cbbMap: TComboBox
         Left = 56
         Top = 10
-        Width = 181
+        Width = 209
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -139,7 +138,7 @@ object frExportYaMaps: TfrExportYaMaps
       object cbbSat: TComboBox
         Left = 56
         Top = 34
-        Width = 181
+        Width = 209
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -150,7 +149,7 @@ object frExportYaMaps: TfrExportYaMaps
       object cbbHybr: TComboBox
         Left = 56
         Top = 58
-        Width = 181
+        Width = 209
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -163,13 +162,13 @@ object frExportYaMaps: TfrExportYaMaps
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 423
+    Width = 451
     Height = 41
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      423
+      451
       41)
     object lblTargetPath: TLabel
       Left = 8
@@ -181,13 +180,13 @@ object frExportYaMaps: TfrExportYaMaps
     object edtTargetPath: TEdit
       Left = 100
       Top = 2
-      Width = 294
+      Width = 322
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
     end
     object btnSelectTargetPath: TButton
-      Left = 400
+      Left = 428
       Top = 2
       Width = 21
       Height = 21

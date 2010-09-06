@@ -17,6 +17,7 @@ type
     FNewFormat: Boolean;
   public
     constructor Create(AOwner: TComponent; AParent: TWinControl; ANewFormat: Boolean);
+    destructor Destroy; override;
     function GetCaption: string; override;
     function GetDialogFrame(Azoom: byte): TFrame; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
@@ -39,6 +40,12 @@ begin
   FNewFormat := ANewFormat;
 end;
 
+destructor TExportProviderIPhone.Destroy;
+begin
+  FreeAndNil(FFrame);
+  inherited;
+end;
+
 function TExportProviderIPhone.GetCaption: string;
 begin
   if FNewFormat then begin
@@ -51,7 +58,7 @@ end;
 function TExportProviderIPhone.GetDialogFrame(Azoom: byte): TFrame;
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportIPhone.Create(FOwner);
+    FFrame := TfrExportIPhone.Create(nil);
     FFrame.Parent := FParent;
   end;
   FFrame.Init;
