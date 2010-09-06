@@ -260,6 +260,7 @@
     <DCCReference Include="u_ThreadExportAbstract.pas" />
     <DCCReference Include="u_ThreadExportIPhone.pas" />
     <DCCReference Include="u_ThreadExportKML.pas" />
+    <DCCReference Include="u_ThreadExportToAUX.pas" />
     <DCCReference Include="u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="u_ThreadExportToZip.pas" />
     <DCCReference Include="u_ThreadExportYaMaps.pas" />
