@@ -50,6 +50,18 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
+    <DCCReference Include="fr_ExportGEKml.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportGEKml</Form>
+    </DCCReference>
+    <DCCReference Include="fr_ExportIPhone.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportIPhone</Form>
+    </DCCReference>
+    <DCCReference Include="fr_ExportYaMaps.pas">
+      <Form>frExportYaMaps</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
@@ -187,6 +199,10 @@
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
+    <DCCReference Include="u_ExportProviderAbstract.pas" />
+    <DCCReference Include="u_ExportProviderGEKml.pas" />
+    <DCCReference Include="u_ExportProviderIPhone.pas" />
+    <DCCReference Include="u_ExportProviderYaMaps.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GECache.pas" />
     <DCCReference Include="u_GECrypt.pas" />
