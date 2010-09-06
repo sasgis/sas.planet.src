@@ -3,8 +3,18 @@ unit fr_ExportGEKml;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, CheckLst, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  CheckLst,
+  ExtCtrls;
 
 type
   TfrExportGEKml = class(TFrame)
