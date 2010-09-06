@@ -109,6 +109,9 @@ begin
       end;
     end;
   end;
+  if cbbSat.ItemIndex=-1 then cbbSat.ItemIndex:=1;
+  if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
+  if cbbHybr.ItemIndex=-1 then cbbHybr.ItemIndex:=0;
 end;
 
 end.
