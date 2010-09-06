@@ -163,6 +163,7 @@ uses
   u_ExportProviderYaMaps,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
+  u_ExportProviderAUX,
   u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
   u_ThreadExportIPhone,
@@ -418,6 +419,8 @@ begin
   VExportProvider := TExportProviderGEKml.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderYaMaps.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderAUX.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   CBFormat.ItemIndex := 0;
 end;
