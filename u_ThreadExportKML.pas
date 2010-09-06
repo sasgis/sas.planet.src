@@ -18,7 +18,7 @@ type
   TThreadExportKML = class(TThreadExportAbstract)
   private
     FMapType: TMapType;
-    FIsReplace: boolean;
+    FNotSaveNotExists: boolean;
     FPathExport: string;
     RelativePath: boolean;
     KMLFile: TextFile;
@@ -31,7 +31,7 @@ type
       APolygon: TExtendedPointArray;
       Azoomarr: array of boolean;
       Atypemap: TMapType;
-      Areplace: boolean;
+      ANotSaveNotExists: boolean;
       ARelativePath: boolean
     );
   end;
@@ -48,13 +48,13 @@ constructor TThreadExportKML.Create(
   APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
-  Areplace: boolean;
+  ANotSaveNotExists: boolean;
   ARelativePath: boolean
 );
 begin
   inherited Create(APolygon, Azoomarr);
   FPathExport := APath;
-  FIsReplace := AReplace;
+  FNotSaveNotExists := ANotSaveNotExists;
   RelativePath := ARelativePath;
   FMapType := Atypemap;
 end;
@@ -72,7 +72,7 @@ begin
   VTile := Point(x shr 8, y shr 8);
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
   savepath := FMapType.GetTileFileName(VTile, AZoom);
-  if (FIsReplace) and (not (FMapType.TileExists(VTile, AZoom))) then begin
+  if (FNotSaveNotExists) and (not (FMapType.TileExists(VTile, AZoom))) then begin
     exit;
   end;
   if RelativePath then begin
