@@ -126,7 +126,6 @@ type
     procedure TabSheet4Show(Sender: TObject);
     procedure CBZippedClick(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
     FZoom_rect:byte;
     FPolygonLL: TExtendedPointArray;
@@ -137,6 +136,8 @@ type
     procedure savefilesREG(APolyLL: TExtendedPointArray);
     procedure ExportREG(APolyLL: TExtendedPointArray);
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
    end;
@@ -210,6 +211,17 @@ begin
       SEDelBytes.Value
     );
   end;
+end;
+
+destructor TFsaveas.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to CBFormat.Items.Count - 1 do begin
+    CBFormat.Items.Objects[i].Free;
+    CBFormat.Items.Objects[i] := nil;
+  end;
+  inherited;
 end;
 
 procedure TFsaveas.ExportREG(APolyLL: TExtendedPointArray);
@@ -394,6 +406,22 @@ begin
   CheckList.ItemEnabled[i]:=false;
 end;
 
+constructor TFsaveas.Create(AOwner: TComponent);
+var
+  VExportProvider: TExportProviderAbstract;
+begin
+  inherited;
+  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderGEKml.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  CBFormat.ItemIndex := 0;
+end;
+
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
 var
   i:integer;
@@ -533,21 +561,6 @@ begin
  Fmain.TBmoveClick(Fmain);
  Fmain.Enabled:=true;
  fsaveas.visible:=false;
-end;
-
-procedure TFsaveas.FormCreate(Sender: TObject);
-var
-  VExportProvider: TExportProviderAbstract;
-begin
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderGEKml.Create(pnlExport);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  CBFormat.ItemIndex := 0;
 end;
 
 procedure TFsaveas.CheckBox1Click(Sender: TObject);

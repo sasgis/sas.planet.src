@@ -15,7 +15,6 @@ object Fsaveas: TFsaveas
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
-  OnCreate = FormCreate
   DesignSize = (
     512
     252)
@@ -74,17 +73,13 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet5
+    ActivePage = TabSheet1
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       OnShow = TabSheet1Show
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel1: TBevel
         Left = 0
         Top = 0
@@ -174,7 +169,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBZoomload: TComboBox
@@ -183,7 +178,7 @@ object Fsaveas: TFsaveas
         Width = 41
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = CBZoomloadChange
       end
@@ -499,10 +494,6 @@ object Fsaveas: TFsaveas
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 3
       OnShow = TabSheet4Show
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel4: TBevel
         Left = 0
         Top = 0
