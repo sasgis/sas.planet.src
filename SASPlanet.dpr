@@ -199,6 +199,8 @@ uses
   u_ExportProviderGEKml in 'u_ExportProviderGEKml.pas',
   fr_ExportIPhone in 'fr_ExportIPhone.pas' {frExportIPhone: TFrame},
   u_ExportProviderIPhone in 'u_ExportProviderIPhone.pas',
+  fr_ExportAUX in 'fr_ExportAUX.pas' {frExportAUX: TFrame},
+  u_ExportProviderAUX in 'u_ExportProviderAUX.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},

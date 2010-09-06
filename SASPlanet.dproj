@@ -50,13 +50,17 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
-    <DCCReference Include="fr_ExportGEKml.pas">
+    <DCCReference Include="fr_ExportAUX.pas">
       <DesignClass>TFrame</DesignClass>
+      <Form>frExportAUX</Form>
+    </DCCReference>
+    <DCCReference Include="fr_ExportGEKml.pas">
       <Form>frExportGEKml</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ExportIPhone.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportIPhone</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ExportYaMaps.pas">
       <Form>frExportYaMaps</Form>
@@ -200,6 +204,7 @@
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
     <DCCReference Include="u_ExportProviderAbstract.pas" />
+    <DCCReference Include="u_ExportProviderAUX.pas" />
     <DCCReference Include="u_ExportProviderGEKml.pas" />
     <DCCReference Include="u_ExportProviderIPhone.pas" />
     <DCCReference Include="u_ExportProviderYaMaps.pas" />
