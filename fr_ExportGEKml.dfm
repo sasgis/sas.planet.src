@@ -3,6 +3,7 @@ object frExportGEKml: TfrExportGEKml
   Top = 0
   Width = 492
   Height = 119
+  Align = alClient
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0

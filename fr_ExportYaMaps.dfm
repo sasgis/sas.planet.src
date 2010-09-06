@@ -3,6 +3,7 @@ object frExportYaMaps: TfrExportYaMaps
   Top = 0
   Width = 423
   Height = 127
+  Align = alClient
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
@@ -13,10 +14,6 @@ object frExportYaMaps: TfrExportYaMaps
     BevelOuter = bvNone
     TabOrder = 0
     Visible = False
-    ExplicitLeft = -3
-    ExplicitTop = 57
-    ExplicitWidth = 777
-    ExplicitHeight = 318
     object pnlRight: TPanel
       Left = 243
       Top = 0
@@ -25,8 +22,6 @@ object frExportYaMaps: TfrExportYaMaps
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 472
-      ExplicitHeight = 179
       DesignSize = (
         180
         86)
@@ -86,7 +81,6 @@ object frExportYaMaps: TfrExportYaMaps
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 2
-        ExplicitHeight = 73
       end
     end
     object pnlMapsSelect: TPanel
@@ -97,10 +91,6 @@ object frExportYaMaps: TfrExportYaMaps
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 100
-      ExplicitTop = 5
-      ExplicitWidth = 411
-      ExplicitHeight = 289
       DesignSize = (
         243
         86)
@@ -145,7 +135,6 @@ object frExportYaMaps: TfrExportYaMaps
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 349
       end
       object cbbSat: TComboBox
         Left = 56
@@ -157,7 +146,6 @@ object frExportYaMaps: TfrExportYaMaps
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 1
-        ExplicitWidth = 349
       end
       object cbbHybr: TComboBox
         Left = 56
@@ -169,7 +157,6 @@ object frExportYaMaps: TfrExportYaMaps
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 2
-        ExplicitWidth = 349
       end
     end
   end
@@ -181,9 +168,6 @@ object frExportYaMaps: TfrExportYaMaps
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 192
-    ExplicitTop = 40
-    ExplicitWidth = 185
     DesignSize = (
       423
       41)
@@ -201,7 +185,6 @@ object frExportYaMaps: TfrExportYaMaps
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 523
     end
     object btnSelectTargetPath: TButton
       Left = 400
@@ -212,7 +195,6 @@ object frExportYaMaps: TfrExportYaMaps
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetPathClick
-      ExplicitLeft = 754
     end
     object chkReplaseTiles: TCheckBox
       Left = 96

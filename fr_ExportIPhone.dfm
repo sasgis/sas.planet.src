@@ -3,6 +3,7 @@ object frExportIPhone: TfrExportIPhone
   Top = 0
   Width = 463
   Height = 151
+  Align = alClient
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
