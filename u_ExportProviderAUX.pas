@@ -74,12 +74,8 @@ end;
 
 procedure TExportProviderAUX.StartProcess(APolygon: TExtendedPointArray);
 var
-  i:integer;
   path:string;
   VMapType: TMapType;
-  comprSat,comprMap:byte;
-  NotSaveNotExists: boolean;
-  RelativePath: Boolean;
 begin
   inherited;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);

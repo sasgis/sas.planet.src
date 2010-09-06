@@ -62,9 +62,11 @@ begin
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.IsBitmapTiles then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
-      if VMapType = VActiveMap then begin
-        cbbMap.ItemIndex:=VAddedIndex;
+      if VMapType.TileStorage.GetIsStoreFileCache then begin
+        VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
+        if VMapType = VActiveMap then begin
+          cbbMap.ItemIndex:=VAddedIndex;
+        end;
       end;
     end;
   end;
