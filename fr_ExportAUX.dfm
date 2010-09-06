@@ -3,6 +3,7 @@ object frExportAUX: TfrExportAUX
   Top = 0
   Width = 643
   Height = 102
+  Align = alClient
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
