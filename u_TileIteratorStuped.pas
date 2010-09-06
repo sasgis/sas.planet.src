@@ -12,8 +12,8 @@ type
   TTileIteratorStuped = class(TTileIteratorAbstract)
   private
     p_x, p_y: Integer;
-    polyg: TPointArray;
-    VPixelRect: TRect;
+    FPolyg: TPointArray;
+    FPixelRect: TRect;
   public
     constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
     destructor Destroy; override;
@@ -31,15 +31,16 @@ constructor TTileIteratorStuped.Create(AZoom: byte;
   APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
 begin
   inherited;
-  polyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
-  FTilesTotal := GetDwnlNum(VPixelRect, Polyg, true);
-  p_x := VPixelRect.Left;
-  p_y := VPixelRect.Top;
+  FPolyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
+  FTilesTotal := GetDwnlNum(FPixelRect, FPolyg, true);
+  FTilesRect := FGeoConvert.PixelRect2TileRect(FPixelRect, FZoom);
+  p_x := FPixelRect.Left;
+  p_y := FPixelRect.Top;
 end;
 
 destructor TTileIteratorStuped.Destroy;
 begin
-  polyg := nil;
+  FPolyg := nil;
   inherited;
 end;
 
@@ -47,11 +48,11 @@ function TTileIteratorStuped.Next: Boolean;
 begin
 
   Result := False;
-  while p_x < VPixelRect.Right do begin
+  while p_x < FPixelRect.Right do begin
     FCurrent.X := p_x shr 8;
-    while p_y < VPixelRect.Bottom do begin
+    while p_y < FPixelRect.Bottom do begin
       FCurrent.Y := p_y shr 8;
-      if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
+      if (RgnAndRgn(FPolyg, p_x, p_y, false)) then begin
         Result := True;
       end;
       inc(p_y, 256);
@@ -62,8 +63,8 @@ begin
     if Result then begin
       Break;
     end;
-    if p_y >= VPixelRect.Right then begin
-      p_y := VPixelRect.Top;
+    if p_y >= FPixelRect.Right then begin
+      p_y := FPixelRect.Top;
       inc(p_x, 256);
     end;
   end;

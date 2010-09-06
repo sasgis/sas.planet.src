@@ -6,7 +6,6 @@ uses
   Windows,
   SysUtils,
   Classes,
-  GR32,
   i_ITileFileNameGenerator,
   UMapType,
   UGeoFun,
