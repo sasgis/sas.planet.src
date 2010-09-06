@@ -61,8 +61,8 @@ begin
   inherited;
   VGeoConvert := FMapType.GeoConvert;
   VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, VGeoConvert);
-  FTilesToProcess := VTileIterator.TilesTotal;
   try
+    FTilesToProcess := VTileIterator.TilesTotal;
     ProgressFormUpdateCaption(
       SAS_STR_ExportTiles,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
@@ -70,7 +70,7 @@ begin
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
     VPixelRect := VGeoConvert.TileRect2PixelRect(VTileIterator.TilesRect, FZoom);
-    VFileStream := TFileStream.Create(FFileName, fmOpenWrite);
+    VFileStream := TFileStream.Create(FFileName, fmCreate);
     try
       while VTileIterator.Next do begin
         if IsCancel then begin
@@ -92,7 +92,7 @@ begin
       VFileStream.Free;
     end;
   finally
-    VTileIterator := nil;
+    FreeAndNil(VTileIterator);
   end;
   ProgressFormUpdateOnProgress;
 end;
