@@ -13,8 +13,11 @@ type
   private
     FFrame: TfrExportGEKml;
   public
+    destructor Destroy; override;
     function GetCaption: string; override;
-    function GetDialogFrame(Azoom: byte): TFrame; override;
+    procedure InitFrame(Azoom: byte); override;
+    procedure Show; override;
+    procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
   end;
 
@@ -28,19 +31,45 @@ uses
 
 { TExportProviderKml }
 
+destructor TExportProviderGEKml.Destroy;
+begin
+  FreeAndNil(FFrame);
+  inherited;
+end;
+
 function TExportProviderGEKml.GetCaption: string;
 begin
   Result := 'KML (Для просмотра в GE)';
 end;
 
-function TExportProviderGEKml.GetDialogFrame(Azoom: byte): TFrame;
+procedure TExportProviderGEKml.InitFrame(Azoom: byte);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportGEKml.Create(FOwner);
+    FFrame := TfrExportGEKml.Create(nil);
+    FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
   FFrame.Init;
-  Result := FFrame;
+end;
+
+procedure TExportProviderGEKml.Hide;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    if FFrame.Visible then begin
+      FFrame.Hide;
+    end;
+  end;
+end;
+
+procedure TExportProviderGEKml.Show;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    if not FFrame.Visible then begin
+      FFrame.Show;
+    end;
+  end;
 end;
 
 procedure TExportProviderGEKml.StartProcess(APolygon: TExtendedPointArray);

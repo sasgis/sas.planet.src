@@ -13,8 +13,11 @@ type
   private
     FFrame: TfrExportYaMaps;
   public
+    destructor Destroy; override;
     function GetCaption: string; override;
-    function GetDialogFrame(Azoom: byte): TFrame; override;
+    procedure InitFrame(Azoom: byte); override;
+    procedure Show; override;
+    procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
   end;
 
@@ -28,19 +31,45 @@ uses
 
 { TExportProviderYaMaps }
 
+destructor TExportProviderYaMaps.Destroy;
+begin
+  FreeAndNil(FFrame);
+  inherited;
+end;
+
 function TExportProviderYaMaps.GetCaption: string;
 begin
   Result := 'Мобильные Яндекс.Карты (версия 3)';
 end;
 
-function TExportProviderYaMaps.GetDialogFrame(Azoom: byte): TFrame;
+procedure TExportProviderYaMaps.InitFrame(Azoom: byte);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportYaMaps.Create(FOwner);
+    FFrame := TfrExportYaMaps.Create(nil);
+    FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
   FFrame.Init;
-  Result := FFrame;
+end;
+
+procedure TExportProviderYaMaps.Hide;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    if FFrame.Visible then begin
+      FFrame.Hide;
+    end;
+  end;
+end;
+
+procedure TExportProviderYaMaps.Show;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    if not FFrame.Visible then begin
+      FFrame.Show;
+    end;
+  end;
 end;
 
 procedure TExportProviderYaMaps.StartProcess(APolygon: TExtendedPointArray);

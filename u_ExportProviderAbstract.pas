@@ -11,21 +11,21 @@ uses
 type
   TExportProviderAbstract = class
   protected
-    FOwner: TComponent;
     FParent: TWinControl;
   public
-    constructor Create(AOwner: TComponent; AParent: TWinControl);
+    constructor Create(AParent: TWinControl);
     function GetCaption: string; virtual; abstract;
-    function GetDialogFrame(Azoom: byte): TFrame; virtual; abstract;
+    procedure InitFrame(Azoom: byte); virtual; abstract;
+    procedure Show; virtual; abstract;
+    procedure Hide; virtual; abstract;
     procedure StartProcess(APolygon: TExtendedPointArray); virtual; abstract;
   end;
 implementation
 
 { TExportProviderAbstract }
 
-constructor TExportProviderAbstract.Create(AOwner: TComponent; AParent: TWinControl);
+constructor TExportProviderAbstract.Create(AParent: TWinControl);
 begin
-  FOwner := AOwner;
   FParent := AParent;
 end;
 

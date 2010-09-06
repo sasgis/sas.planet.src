@@ -215,7 +215,6 @@ end;
 procedure TFsaveas.ExportREG(APolyLL: TExtendedPointArray);
 var
   VExportProvider: TExportProviderAbstract;
-  i: Integer;
 begin
   VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
   if VExportProvider <> nil then begin
@@ -406,6 +405,7 @@ var
   VActiveMap: TMapType;
   VAddedIndex: Integer;
   VMapType: TMapType;
+  VExportProvider: TExportProviderAbstract;
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
@@ -506,6 +506,12 @@ begin
   end else if zagran then begin
     showmessage(SAS_MSG_SelectArea);
   end;
+  for i := 0 to CBFormat.Items.Count - 1 do begin
+    VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
+    if VExportProvider <> nil then begin
+      VExportProvider.InitFrame(Azoom);
+    end;
+  end;
   CBFormatChange(CBFormat);
 
   Fmain.Enabled:=false;
@@ -533,13 +539,13 @@ procedure TFsaveas.FormCreate(Sender: TObject);
 var
   VExportProvider: TExportProviderAbstract;
 begin
-  VExportProvider := TExportProviderIPhone.Create(Self, pnlExport, True);
+  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderIPhone.Create(Self, pnlExport, False);
+  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderGEKml.Create(Self, pnlExport);
+  VExportProvider := TExportProviderGEKml.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMaps.Create(Self, pnlExport);
+  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   CBFormat.ItemIndex := 0;
 end;
@@ -663,13 +669,15 @@ procedure TFsaveas.CBFormatChange(Sender: TObject);
 var
   VExportProvider: TExportProviderAbstract;
   i: Integer;
-  VFrame: TFrame;
 begin
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
-      VFrame := VExportProvider.GetDialogFrame(FZoom_rect);
-      VFrame.Visible := i = CBFormat.ItemIndex;
+      if i = CBFormat.ItemIndex then begin
+        VExportProvider.Show;
+      end else begin
+        VExportProvider.Hide;
+      end;
     end;
   end;
 end;

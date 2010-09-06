@@ -16,10 +16,12 @@ type
     FFrame: TfrExportIPhone;
     FNewFormat: Boolean;
   public
-    constructor Create(AOwner: TComponent; AParent: TWinControl; ANewFormat: Boolean);
+    constructor Create(AParent: TWinControl; ANewFormat: Boolean);
     destructor Destroy; override;
     function GetCaption: string; override;
-    function GetDialogFrame(Azoom: byte): TFrame; override;
+    procedure InitFrame(Azoom: byte); override;
+    procedure Show; override;
+    procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
   end;
 
@@ -33,10 +35,10 @@ uses
 
 { TExportProviderIPhone }
 
-constructor TExportProviderIPhone.Create(AOwner: TComponent;
+constructor TExportProviderIPhone.Create(
   AParent: TWinControl; ANewFormat: Boolean);
 begin
-  inherited Create(AOwner, AParent);
+  inherited Create(AParent);
   FNewFormat := ANewFormat;
 end;
 
@@ -55,14 +57,34 @@ begin
   end;
 end;
 
-function TExportProviderIPhone.GetDialogFrame(Azoom: byte): TFrame;
+procedure TExportProviderIPhone.InitFrame(Azoom: byte);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportIPhone.Create(nil);
+    FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
   FFrame.Init;
-  Result := FFrame;
+end;
+
+procedure TExportProviderIPhone.Hide;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    if FFrame.Visible then begin
+      FFrame.Hide;
+    end;
+  end;
+end;
+
+procedure TExportProviderIPhone.Show;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    if not FFrame.Visible then begin
+      FFrame.Show;
+    end;
+  end;
 end;
 
 procedure TExportProviderIPhone.StartProcess(APolygon: TExtendedPointArray);
