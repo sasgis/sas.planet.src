@@ -21,7 +21,7 @@ type
     FMapTypeArr: array of TMapType;
     FIsReplace: boolean;
     FExportPath: string;
-    csat, cmap, chib: byte;
+    csat, cmap: byte;
   protected
     procedure ProcessRegion; override;
   public
@@ -32,8 +32,7 @@ type
       Atypemaparr: array of TMapType;
       Areplace: boolean;
       Acsat: byte;
-      Acmap: byte;
-      Achib: byte
+      Acmap: byte
     );
   end;
 
@@ -52,7 +51,7 @@ constructor TThreadExportYaMaps.Create(
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Areplace: boolean;
-  Acsat, Acmap, Achib: byte
+  Acsat, Acmap: byte
 );
 var
   i: integer;
@@ -60,7 +59,6 @@ begin
   inherited Create(APolygon, Azoomarr);
   cSat := Acsat;
   cMap := Acmap;
-  cHib := Achib;
   FExportPath := APath;
   FIsReplace := AReplace;
   setlength(FMapTypeArr, length(Atypemaparr));

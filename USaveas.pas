@@ -310,10 +310,9 @@ begin
         typemaparr[2]:=TMapType(CmBExpHibYa.Items.Objects[CmBExpHibYa.ItemIndex]);
         comprSat:=cSatEditYa.Value;
         comprMap:=cMapEditYa.Value;
-        comprHyb:=cSatEditYa.Value;
         path:=IncludeTrailingPathDelimiter(EditPath4.Text);
         Replace:=CkBNotReplaseYa.Checked;
-        TThreadExportYaMaps.Create(path,APolyLL,ZoomArr,typemaparr,Replace,comprSat,comprMap,comprHyb)
+        TThreadExportYaMaps.Create(path,APolyLL,ZoomArr,typemaparr,Replace,comprSat,comprMap)
        end;
     2: begin
         for i:=0 to 23 do ZoomArr[i]:=CkLZoomSel3.Checked[i];
