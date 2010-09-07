@@ -204,6 +204,8 @@ uses
   u_ExportProviderAUX in 'u_ExportProviderAUX.pas',
   fr_ExportToFileCont in 'fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
   u_ExportProviderZip in 'u_ExportProviderZip.pas',
+  fr_TilesDelete in 'fr_TilesDelete.pas' {frTilesDelete: TFrame},
+  u_ProviderTilesDelete in 'u_ProviderTilesDelete.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},
