@@ -201,6 +201,8 @@ uses
   u_ExportProviderIPhone in 'u_ExportProviderIPhone.pas',
   fr_ExportAUX in 'fr_ExportAUX.pas' {frExportAUX: TFrame},
   u_ExportProviderAUX in 'u_ExportProviderAUX.pas',
+  fr_ExportToFileCont in 'fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
+  u_ExportProviderZip in 'u_ExportProviderZip.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},

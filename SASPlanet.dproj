@@ -52,7 +52,6 @@
     </DCCReference>
     <DCCReference Include="fr_ExportAUX.pas">
       <DesignClass>TFrame</DesignClass>
-      <Form>frExportAUX</Form>
     </DCCReference>
     <DCCReference Include="fr_ExportGEKml.pas">
       <Form>frExportGEKml</Form>
@@ -61,6 +60,10 @@
     <DCCReference Include="fr_ExportIPhone.pas">
       <Form>frExportIPhone</Form>
       <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="fr_ExportToFileCont.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportToFileCont</Form>
     </DCCReference>
     <DCCReference Include="fr_ExportYaMaps.pas">
       <Form>frExportYaMaps</Form>
@@ -208,6 +211,7 @@
     <DCCReference Include="u_ExportProviderGEKml.pas" />
     <DCCReference Include="u_ExportProviderIPhone.pas" />
     <DCCReference Include="u_ExportProviderYaMaps.pas" />
+    <DCCReference Include="u_ExportProviderZip.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GECache.pas" />
     <DCCReference Include="u_GECrypt.pas" />
