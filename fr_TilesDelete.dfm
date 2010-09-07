@@ -7,16 +7,6 @@ object frTilesDelete: TfrTilesDelete
   TabOrder = 0
   ExplicitWidth = 526
   ExplicitHeight = 151
-  object seDelSize: TSpinEdit
-    Left = 280
-    Top = 109
-    Width = 97
-    Height = 22
-    MaxValue = 0
-    MinValue = 0
-    TabOrder = 0
-    Value = 0
-  end
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -24,7 +14,7 @@ object frTilesDelete: TfrTilesDelete
     Height = 32
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     ExplicitWidth = 526
     object bvlTop: TBevel
       Left = 0
@@ -50,7 +40,7 @@ object frTilesDelete: TfrTilesDelete
     Height = 101
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     ExplicitLeft = 7
     ExplicitTop = 31
     ExplicitWidth = 526
@@ -90,10 +80,8 @@ object frTilesDelete: TfrTilesDelete
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 152
-      ExplicitTop = 66
-      ExplicitWidth = 185
-      ExplicitHeight = 41
+      ExplicitLeft = -24
+      ExplicitTop = -1
       DesignSize = (
         367
         101)
@@ -132,6 +120,16 @@ object frTilesDelete: TfrTilesDelete
         Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
         TabOrder = 1
         ExplicitWidth = 451
+      end
+      object seDelSize: TSpinEdit
+        Left = 10
+        Top = 66
+        Width = 97
+        Height = 22
+        MaxValue = 0
+        MinValue = 0
+        TabOrder = 2
+        Value = 0
       end
     end
   end
