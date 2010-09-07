@@ -41,7 +41,7 @@ end;
 
 function TExportProviderZip.GetCaption: string;
 begin
-  Result := 'AUX дл€ GeoExpress Server';
+  Result := '”паковка в Zip';
 end;
 
 procedure TExportProviderZip.InitFrame(Azoom: byte);
