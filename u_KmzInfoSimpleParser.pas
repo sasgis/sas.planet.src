@@ -17,33 +17,31 @@ implementation
 
 uses
   SysUtils,
-  VCLUnZip;
+  KAZip;
 
 { TKmzInfoSimpleParser }
 
 procedure TKmzInfoSimpleParser.LoadFromStream(AStream: TStream;
   ABtm: TKmlInfoSimple);
 var
-  UnZip: TVCLUnZip;
+  UnZip: TKAZip;
   VMemStream: TMemoryStream;
   VStreamKml: TMemoryStream;
 begin
-  UnZip := TVCLUnZip.Create(nil);
+  UnZip := TKAZip.Create(nil);
   try
     VMemStream := TMemoryStream.Create;
     try
-      UnZip.ArchiveStream := VMemStream;
       VMemStream.LoadFromStream(AStream);
-      UnZip.ReadZip;
+      UnZip.Open(VMemStream);
       VStreamKml := TMemoryStream.Create;
       try
-        UnZip.UnZipToStream(VStreamKml, UnZip.Filename[0]);
+        UnZip.Entries.Items[0].ExtractToStream(VStreamKml);
         inherited LoadFromStream(VStreamKml, ABtm);
       finally
         VStreamKml.Free;
       end;
     finally
-      UnZip.ArchiveStream := nil;
       FreeAndNil(VMemStream);
     end;
   finally

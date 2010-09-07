@@ -287,7 +287,6 @@ uses
   i_MapTypes,
   i_BitmapTileSaveLoad,
   i_IConfigDataProvider,
-  u_ConfigDataProviderByVCLZip,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderByIniFile,
   u_MapTypeBasic,

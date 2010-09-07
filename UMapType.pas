@@ -162,7 +162,7 @@ implementation
 uses
   Types,
   GR32_Resamplers,
-  VCLUnZip,
+  KAZip,
   u_GlobalState,
   u_GeoToStr,
   UIMGFun,
@@ -557,26 +557,24 @@ end;
 procedure TMapType.SaveTileKmlDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; ty: string);
 var
-  UnZip:TVCLUnZip;
+  UnZip:TKAZip;
+  VMemStream: TMemoryStream;
 begin
   if (ty='application/vnd.google-earth.kmz') then begin
     try
-      UnZip:=TVCLUnZip.Create(nil);
+      UnZip:=TKAZip.Create(nil);
       try
-        UnZip.ArchiveStream:=TMemoryStream.Create;
+        UnZip.Open(ATileStream);
+        VMemStream := TMemoryStream.Create;
         try
-          ATileStream.SaveToStream(UnZip.ArchiveStream);
-          UnZip.ReadZip;
-          ATileStream.Position:=0;
-          UnZip.UnZipToStream(ATileStream,UnZip.Filename[0]);
+          UnZip.Entries.Items[0].ExtractToStream(VMemStream);
+          FStorage.SaveTile(AXY, Azoom, VMemStream);
         finally
-          UnZip.ArchiveStream.Free;
-          UnZip.ArchiveStream := nil;
+          VMemStream.Free;
         end;
       finally
         UnZip.Free;
       end;
-      FStorage.SaveTile(AXY, Azoom, ATileStream);
     except
       try
         FStorage.SaveTile(AXY, Azoom, ATileStream);
