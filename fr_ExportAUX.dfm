@@ -111,7 +111,7 @@ object frExportAUX: TfrExportAUX
     end
   end
   object dlgTargetFileSelect: TSaveDialog
-    DefaultExt = '*.aux'
+    DefaultExt = 'aux'
     Filter = 'AUX |*.aux'
     Left = 312
     Top = 64

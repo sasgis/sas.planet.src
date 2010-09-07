@@ -150,7 +150,7 @@ object frExportGEKml: TfrExportGEKml
     end
   end
   object dlgSaveKML: TSaveDialog
-    DefaultExt = '*.kml'
+    DefaultExt = 'kml'
     Filter = 'KML |*.kml'
     Left = 312
     Top = 64
