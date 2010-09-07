@@ -41,6 +41,8 @@ implementation
 uses
   i_ICoordConverter,
   u_CoordConverterMercatorOnEllipsoid,
+  u_TileIteratorAbstract,
+  u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreSaver;
@@ -70,10 +72,8 @@ end;
 
 procedure TThreadExportYaMaps.ProcessRegion;
 var
-  p_x, p_y, i, j, xi, yi, hxyi, sizeim: integer;
+  i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;
-  polyg: TPointArray;
-  max, min: TPoint;
   bmp32, bmp322, bmp32crop: TBitmap32;
   TileStream: TMemoryStream;
   tc: cardinal;
@@ -83,6 +83,8 @@ var
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
   Vmt: Byte;
+  VTileIterators: array of TTileIteratorAbstract;
+  VTileIterator: TTileIteratorAbstract;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -103,73 +105,71 @@ begin
     bmp32crop.Height := sizeim;
     VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
     FTilesToProcess := 0;
+    SetLength(VTileIterators, Length(FZooms));
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-      polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-      FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, Polyg, true);
+      VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
     end;
-    FTilesProcessed := 0;
+    try
+      FTilesProcessed := 0;
 
-    ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
-    ProgressFormUpdateOnProgress;
+      ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
+      ProgressFormUpdateOnProgress;
 
-    tc := GetTickCount;
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
-      polyg := VGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-      GetDwnlNum(min, max, Polyg, false);
-      p_x := min.x;
-      while p_x < max.x do begin
-        VTile.X := p_x shr 8;
-        p_y := min.Y;
-        while p_y < max.Y do begin
-          VTile.Y := p_y shr 8;
+      tc := GetTickCount;
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
+        VTileIterator := VTileIterators[i];
+        while VTileIterator.Next do begin
           if IsCancel then begin
-            Break;
+            exit;
           end;
-          if RgnAndRgn(Polyg, p_x, p_y, false) then begin
-            for j := 0 to 2 do begin
-              VMapType := FMapTypeArr[j];
-              if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-                bmp322.Clear;
+          VTile := VTileIterator.Current;
+          for j := 0 to 2 do begin
+            VMapType := FMapTypeArr[j];
+            if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
+              bmp322.Clear;
+              if (j = 2) and (FMapTypeArr[0] <> nil) then begin
+                FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
+              end;
+              bmp32.Clear;
+              if VMapType.LoadTileUni(bmp32, VTile, VZoom, False, VGeoConvert, False, False, True) then begin
                 if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                  FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
+                  bmp322.Draw(0, 0, bmp32);
+                  bmp32.Draw(0, 0, bmp322);
                 end;
-                bmp32.Clear;
-                if VMapType.LoadTileUni(bmp32, VTile, VZoom, False, VGeoConvert, False, False, True) then begin
-                  if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                    bmp322.Draw(0, 0, bmp32);
-                    bmp32.Draw(0, 0, bmp322);
-                  end;
-                  if (j = 2) or (j = 0) then begin
-                    VSaver := JPGSaver;
-                    Vmt := 2;
-                  end else begin
-                    VSaver := PNGSaver;
-                    Vmt := 1;
-                  end;
-                  for xi := 0 to hxyi do begin
-                    for yi := 0 to hxyi do begin
-                      bmp32crop.Clear;
-                      bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
-                      TileStream.Clear;
-                      VSaver.SaveToStream(bmp32crop, TileStream);
-                      WriteTileInCache(p_x div 256, p_y div 256, VZoom, Vmt, (yi * 2) + xi, FExportPath, TileStream, FIsReplace);
-                    end;
+                if (j = 2) or (j = 0) then begin
+                  VSaver := JPGSaver;
+                  Vmt := 2;
+                end else begin
+                  VSaver := PNGSaver;
+                  Vmt := 1;
+                end;
+                for xi := 0 to hxyi do begin
+                  for yi := 0 to hxyi do begin
+                    bmp32crop.Clear;
+                    bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
+                    TileStream.Clear;
+                    VSaver.SaveToStream(bmp32crop, TileStream);
+                    WriteTileInCache(VTile.X, VTile.Y, VZoom, Vmt, (yi * 2) + xi, FExportPath, TileStream, FIsReplace);
                   end;
                 end;
               end;
             end;
-            inc(FTilesProcessed);
-            if (GetTickCount - tc > 1000) then begin
-              tc := GetTickCount;
-              ProgressFormUpdateOnProgress;
-            end;
           end;
-          inc(p_y, 256);
+          inc(FTilesProcessed);
+          if (GetTickCount - tc > 1000) then begin
+            tc := GetTickCount;
+            ProgressFormUpdateOnProgress;
+          end;
         end;
-        inc(p_x, 256);
       end;
+    finally
+      for i := 0 to Length(VTileIterators) - 1 do begin
+        VTileIterators[i].Free;
+      end;
+      VTileIterators := nil;
     end;
     ProgressFormUpdateOnProgress
   finally
