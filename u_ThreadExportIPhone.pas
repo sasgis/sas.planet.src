@@ -288,7 +288,7 @@ begin
       FSQLite3Db.Free;
     end;
   finally
-    for i := 0 to Length(FZooms) - 1 do begin
+    for i := 0 to Length(VTileIterators) - 1 do begin
       VTileIterators[i].Free;
     end;
     VTileIterators := nil;
