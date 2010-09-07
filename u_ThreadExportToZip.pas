@@ -19,20 +19,20 @@ uses
 type
   TThreadExportToZip = class(TThreadExportAbstract)
   private
-    FMapTypeArr: array of TMapType;
+    FMapType: TMapType;
     FTileNameGen: ITileFileNameGenerator;
 
-    FPathExport: string;
+    FTargetFile: string;
     FZip: TVCLZip;
   protected
     procedure ProcessRegion; override;
     procedure Terminate; override;
   public
     constructor Create(
-      APath: string;
+      ATargetFile: string;
       APolygon: TExtendedPointArray;
       Azoomarr: array of boolean;
-      Atypemaparr: array of TMapType;
+      AMapType: TMapType;
       ATileNameGen: ITileFileNameGenerator
     );
     destructor Destroy; override;
@@ -52,30 +52,17 @@ begin
 end;
 
 constructor TThreadExportToZip.Create(
-  APath: string;
+  ATargetFile: string;
   APolygon: TExtendedPointArray;
   Azoomarr: array of boolean;
-  Atypemaparr: array of TMapType;
+  AMapType: TMapType;
   ATileNameGen: ITileFileNameGenerator);
-var
-  i: integer;
 begin
   inherited Create(APolygon, Azoomarr);
-  FPathExport := APath;
+  FTargetFile := ATargetFile;
   FTileNameGen := ATileNameGen;
-  setlength(FMapTypeArr, length(Atypemaparr));
-  for i := 0 to length(Atypemaparr) - 1 do begin
-    FMapTypeArr[i] := Atypemaparr[i];
-  end;
+  FMapType := AMapType;
   FZip := TVCLZip.Create(nil);
-end;
-
-function RetDate(inDate: TDateTime): string;
-var
-  xYear, xMonth, xDay: word;
-begin
-  DecodeDate(inDate, xYear, xMonth, xDay);
-  Result := inttostr(xDay) + '.' + inttostr(xMonth) + '.' + inttostr(xYear);
 end;
 
 destructor TThreadExportToZip.Destroy;
@@ -86,34 +73,24 @@ end;
 
 procedure TThreadExportToZip.ProcessRegion;
 var
-  i, j: integer;
+  i: integer;
   VZoom: Byte;
-  pathfrom, persl, perzoom, datestr: string;
+  pathfrom: string;
   VExt: string;
   VPath: string;
   VTile: TPoint;
-  VMapType: TMapType;
-  VTileIterators: array of array of TTileIteratorAbstract;
+  VTileIterators: array of TTileIteratorAbstract;
   VTileIterator: TTileIteratorAbstract;
 begin
   inherited;
   FTilesToProcess := 0;
-  persl := '';
-  datestr := RetDate(now);
-  SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
-  for j := 0 to length(FMapTypeArr) - 1 do begin
-    persl := persl + FMapTypeArr[j].GetShortFolderName + '_';
-    perzoom := '';
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
-      VTileIterators[j, i] := TTileIteratorStuped.Create(VZoom, FPolygLL, FMapTypeArr[j].GeoConvert);
-      FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
-      perzoom := perzoom + inttostr(VZoom + 1) + '_';
-    end;
+  SetLength(VTileIterators, Length(FZooms));
+  for i := 0 to Length(FZooms) - 1 do begin
+    VZoom := FZooms[i];
+    VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, FMapType.GeoConvert);
+    FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
   end;
   try
-    persl := copy(persl, 1, length(persl) - 1);
-    perzoom := copy(perzoom, 1, length(perzoom) - 1);
     ProgressFormUpdateCaption(
       SAS_STR_ExportTiles + ' ' + SAS_STR_CreateArhList,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
@@ -121,24 +98,22 @@ begin
     FZip.Recurse := False;
     FZip.StorePaths := true;
     FZip.PackLevel := 0; // Уровень сжатия
-    FZip.ZipName := FPathExport + 'SG-' + persl + '-' + perzoom + '-' + datestr + '.ZIP';
+    FZip.ZipName := FTargetFile;
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-      for j := 0 to length(FMapTypeArr) - 1 do begin
-        VMapType := FMapTypeArr[j];
-        VExt := VMapType.TileStorage.TileFileExt;
-        VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-        VTileIterator := VTileIterators[j, i];
+        VExt := FMapType.TileStorage.TileFileExt;
+        VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
+        VTileIterator := VTileIterators[i];
         while VTileIterator.Next do begin
           if IsCancel then begin
             exit;
           end;
           VTile := VTileIterator.Current;
-          if VMapType.TileExists(VTile, VZoom) then begin
+          if FMapType.TileExists(VTile, VZoom) then begin
 //TODO: Разобраться и избавиться от путей. Нужно предусмотреть вариант, что тайлы хранятся не в файлах, а перед зипованием сохраняются в файлы.
-            pathfrom := VMapType.GetTileFileName(VTile, VZoom);
+            pathfrom := FMapType.GetTileFileName(VTile, VZoom);
             FZip.FilesList.Add(pathfrom);
           end;
           inc(FTilesProcessed);
@@ -146,10 +121,9 @@ begin
             ProgressFormUpdateOnProgress;
           end;
         end;
-      end;
     end;
     ProgressFormUpdateCaption(
-      SAS_STR_Pack + ' ' + 'SG-' + persl + '-' + perzoom + '-' + datestr + '.ZIP',
+      SAS_STR_Pack + ' ' + FTargetFile,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
     );
     if FileExists(FZip.ZipName) then begin
@@ -159,10 +133,8 @@ begin
       Application.MessageBox(PChar(SAS_ERR_CreateArh), PChar(SAS_MSG_coution), 48);
     end;
   finally
-    for j := 0 to length(FMapTypeArr) - 1 do begin
-      for i := 0 to Length(FZooms) - 1 do begin
-        VTileIterators[j, i].Free;
-      end;
+    for i := 0 to Length(FZooms) - 1 do begin
+      VTileIterators[i].Free;
     end;
     VTileIterators := nil;
   end;

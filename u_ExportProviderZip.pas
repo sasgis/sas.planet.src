@@ -79,18 +79,17 @@ var
   i:integer;
   path:string;
   Zoomarr:array [0..23] of boolean;
-  typemaparr:array of TMapType;
+  VMapType: TMapType;
   VNameGenerator: ITileFileNameGenerator;
 begin
   inherited;
   for i:=0 to 23 do begin
     ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
   end;
-  SetLength(typemaparr, 1);
-  typemaparr[0]:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
   VNameGenerator := GState.TileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
-  TThreadExportToZip.Create(path, APolygon, Zoomarr, typemaparr, VNameGenerator);
+  TThreadExportToZip.Create(path, APolygon, Zoomarr, VMapType, VNameGenerator);
 end;
 
 end.
