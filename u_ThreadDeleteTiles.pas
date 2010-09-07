@@ -35,6 +35,8 @@ type
 implementation
 
 uses
+  u_TileIteratorAbstract,
+  u_TileIteratorStuped,
   Ugeofun;
 
 constructor TThreadDeleteTiles.Create(
@@ -55,36 +57,32 @@ end;
 
 procedure TThreadDeleteTiles.ProcessRegion;
 var
-  i, j: integer;
   VTile: TPoint;
-  polyg: TPointArray;
-  max, min: TPoint;
+  VTileIterator: TTileIteratorAbstract;
 begin
   inherited;
-  polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, (FZoom - 1));
-  FTilesToProcess := GetDwnlNum(min, max, Polyg, true);
-  ProgressFormUpdateCaption(
-    '',
-    SAS_STR_Deleted + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom) + ')'
-  );
-  i := min.x;
-  while (i < max.X) and (not IsCancel) do begin
-    VTile.X := i shr 8;
-    j := min.Y;
-    while (j < max.y) and (not IsCancel) do begin
-      VTile.Y := j shr 8;
-      if RgnAndRgn(Polyg, i, j, false) then begin
-        if (not DelBytes or (DelBytesNum = FMapType.TileSize(VTile, FZoom - 1))) then begin
-          if FMapType.DeleteTile(VTile, FZoom - 1) then begin
-            inc(FDeletedCount);
-          end;
-          ProgressFormUpdateOnProgress;
-        end;
-        inc(FTilesProcessed);
+  VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
+  try
+    FTilesToProcess := VTileIterator.TilesTotal;
+    ProgressFormUpdateCaption(
+      '',
+      SAS_STR_Deleted + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom) + ')'
+    );
+    while VTileIterator.Next do begin
+      if IsCancel then begin
+        exit;
       end;
-      inc(j, 256);
+      VTile := VTileIterator.Current;
+      if (not DelBytes or (DelBytesNum = FMapType.TileSize(VTile, FZoom - 1))) then begin
+        if FMapType.DeleteTile(VTile, FZoom - 1) then begin
+          inc(FDeletedCount);
+        end;
+        ProgressFormUpdateOnProgress;
+      end;
+      inc(FTilesProcessed);
     end;
-    inc(i, 256);
+  finally
+    FreeAndNil(VTileIterator);
   end;
 end;
 
