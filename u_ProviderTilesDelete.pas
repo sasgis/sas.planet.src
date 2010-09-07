@@ -3,6 +3,7 @@ unit u_ProviderTilesDelete;
 interface
 
 uses
+  Windows,
   Forms,
   t_GeoTypes,
   u_ExportProviderAbstract,
@@ -27,6 +28,7 @@ implementation
 uses
   SysUtils,
   u_ThreadDeleteTiles,
+  UResStrings,
   UMapType;
 
 { TExportProviderKml }
@@ -39,7 +41,7 @@ end;
 
 function TProviderTilesDelete.GetCaption: string;
 begin
-  Result := 'AUX для GeoExpress Server';
+  Result := 'Удаление';
 end;
 
 procedure TProviderTilesDelete.InitFrame(Azoom: byte);
@@ -79,16 +81,18 @@ var
   VDelSize: Cardinal;
 begin
   inherited;
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  if FFrame.cbbZoom.ItemIndex < 0 then begin
-    FFrame.cbbZoom.ItemIndex := 0;
+  if (MessageBox(FFrame.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES) then begin
+    VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+    if FFrame.cbbZoom.ItemIndex < 0 then begin
+      FFrame.cbbZoom.ItemIndex := 0;
+    end;
+    VDelSize := 0;
+    VDelBySize := FFrame.chkDelBySize.Checked;
+    if VDelBySize then begin
+      VDelSize := FFrame.seDelSize.Value;
+    end;
+    TThreadDeleteTiles.Create(APolygon,FFrame.cbbZoom.ItemIndex,VMapType,VDelBySize, VDelSize);
   end;
-  VDelSize := 0;
-  VDelBySize := FFrame.chkDelBySize.Checked;
-  if VDelBySize then begin
-    VDelSize := FFrame.seDelSize.Value;
-  end;
-  TThreadDeleteTiles.Create(APolygon,FFrame.cbbZoom.ItemIndex,VMapType,VDelBySize, VDelSize);
 end;
 
 end.

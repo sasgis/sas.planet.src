@@ -5,7 +5,6 @@ object frTilesDelete: TfrTilesDelete
   Height = 133
   Align = alClient
   TabOrder = 0
-  Visible = False
   ExplicitWidth = 526
   ExplicitHeight = 151
   object seDelSize: TSpinEdit
@@ -104,6 +103,13 @@ object frTilesDelete: TfrTilesDelete
         Width = 57
         Height = 13
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
+      end
+      object lblStat: TLabel
+        Left = 10
+        Top = 66
+        Width = 351
+        Height = 13
+        Anchors = [akLeft, akTop, akRight]
       end
       object cbbMap: TComboBox
         Left = 7

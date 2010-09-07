@@ -20,6 +20,7 @@ type
     lblZoom: TLabel;
     cbbZoom: TComboBox;
     pnlCenter: TPanel;
+    lblStat: TLabel;
   private
   public
     procedure Init(AZoom: Byte);
