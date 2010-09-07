@@ -1,30 +1,29 @@
 object frExportAUX: TfrExportAUX
   Left = 0
   Top = 0
-  Width = 643
-  Height = 102
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
-    Top = 28
-    Width = 643
-    Height = 74
+    Top = 32
+    Width = 451
+    Height = 272
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 451
+    ExplicitTop = 28
     ExplicitHeight = 276
     object pnlRight: TPanel
-      Left = 509
+      Left = 317
       Top = 0
       Width = 134
-      Height = 74
+      Height = 272
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 403
-      ExplicitHeight = 137
+      ExplicitHeight = 276
       object lblZoom: TLabel
         Left = 7
         Top = 5
@@ -45,16 +44,15 @@ object frExportAUX: TfrExportAUX
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 509
-      Height = 74
+      Width = 317
+      Height = 272
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 403
-      ExplicitHeight = 137
+      ExplicitHeight = 276
       DesignSize = (
-        509
-        74)
+        317
+        272)
       object lblMap: TLabel
         Left = 1
         Top = 11
@@ -65,29 +63,27 @@ object frExportAUX: TfrExportAUX
       object cbbMap: TComboBox
         Left = 44
         Top = 8
-        Width = 459
+        Width = 267
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 353
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 643
-    Height = 28
+    Width = 451
+    Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 451
     DesignSize = (
-      643
-      28)
+      451
+      32)
     object lblTargetFile: TLabel
       Left = 8
       Top = 6
@@ -98,14 +94,13 @@ object frExportAUX: TfrExportAUX
     object edtTargetFile: TEdit
       Left = 96
       Top = 3
-      Width = 516
+      Width = 324
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 410
     end
     object btnSelectTargetFile: TButton
-      Left = 618
+      Left = 426
       Top = 3
       Width = 21
       Height = 21
@@ -113,7 +108,6 @@ object frExportAUX: TfrExportAUX
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetFileClick
-      ExplicitLeft = 512
     end
   end
   object dlgTargetFileSelect: TSaveDialog

@@ -1,22 +1,21 @@
 object frExportIPhone: TfrExportIPhone
   Left = 0
   Top = 0
-  Width = 463
-  Height = 151
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 463
-    Height = 33
+    Width = 451
+    Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 752
     DesignSize = (
-      463
-      33)
+      451
+      32)
     object lblTargetPath: TLabel
       Left = 8
       Top = 7
@@ -25,7 +24,7 @@ object frExportIPhone: TfrExportIPhone
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
     end
     object btnSelectTargetPath: TButton
-      Left = 439
+      Left = 427
       Top = 4
       Width = 21
       Height = 21
@@ -33,45 +32,38 @@ object frExportIPhone: TfrExportIPhone
       Caption = '...'
       TabOrder = 0
       OnClick = btnSelectTargetPathClick
-      ExplicitLeft = 448
     end
     object edtTargetPath: TEdit
       Left = 96
       Top = 4
-      Width = 343
+      Width = 331
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
-      ExplicitWidth = 352
     end
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 33
-    Width = 463
-    Height = 118
+    Top = 32
+    Width = 451
+    Height = 272
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 312
-    ExplicitTop = 120
-    ExplicitWidth = 185
-    ExplicitHeight = 41
+    ExplicitTop = 33
+    ExplicitHeight = 271
     object pnlMaps: TPanel
       Left = 0
       Top = 0
-      Width = 336
-      Height = 118
+      Width = 324
+      Height = 272
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 32
-      ExplicitTop = 52
-      ExplicitWidth = 473
-      ExplicitHeight = 133
+      ExplicitHeight = 271
       DesignSize = (
-        336
-        118)
+        324
+        272)
       object lblMaps: TLabel
         Left = 5
         Top = 4
@@ -101,7 +93,7 @@ object frExportIPhone: TfrExportIPhone
         Caption = #1043#1080#1073#1088#1080#1076
       end
       object lblCompress: TLabel
-        Left = 222
+        Left = 210
         Top = 4
         Width = 43
         Height = 13
@@ -110,7 +102,7 @@ object frExportIPhone: TfrExportIPhone
         ExplicitLeft = 216
       end
       object lblSatCompress: TLabel
-        Left = 275
+        Left = 263
         Top = 45
         Width = 55
         Height = 13
@@ -119,7 +111,7 @@ object frExportIPhone: TfrExportIPhone
         ExplicitLeft = 269
       end
       object lblMapCompress: TLabel
-        Left = 275
+        Left = 263
         Top = 21
         Width = 43
         Height = 13
@@ -128,7 +120,7 @@ object frExportIPhone: TfrExportIPhone
         ExplicitLeft = 269
       end
       object lblHybrCompress: TLabel
-        Left = 275
+        Left = 263
         Top = 69
         Width = 55
         Height = 13
@@ -139,51 +131,47 @@ object frExportIPhone: TfrExportIPhone
       object cbbSat: TComboBox
         Left = 48
         Top = 42
-        Width = 151
+        Width = 139
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 145
       end
       object cbbMap: TComboBox
         Left = 48
         Top = 18
-        Width = 151
+        Width = 139
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 1
-        ExplicitWidth = 145
       end
       object cbbHybr: TComboBox
         Left = 48
         Top = 66
-        Width = 151
+        Width = 139
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 2
-        ExplicitWidth = 145
       end
       object rbSat: TRadioButton
-        Left = 200
+        Left = 188
         Top = 44
         Width = 17
         Height = 17
         Hint = #1042#1099#1073#1088#1072#1090#1100' '#1089#1087#1091#1090#1085#1080#1082' '#1074' '#1091#1072#1095#1077#1089#1090#1074#1077' '#1086#1089#1085#1086#1074#1085#1086#1075#1086' '#1089#1083#1086#1103
         Anchors = [akTop, akRight]
         TabOrder = 3
-        ExplicitLeft = 194
       end
       object rbMap: TRadioButton
-        Left = 200
+        Left = 188
         Top = 20
         Width = 17
         Height = 17
@@ -192,20 +180,18 @@ object frExportIPhone: TfrExportIPhone
         Checked = True
         TabOrder = 4
         TabStop = True
-        ExplicitLeft = 194
       end
       object rbHybr: TRadioButton
-        Left = 200
+        Left = 188
         Top = 68
         Width = 17
         Height = 17
         Hint = #1042#1099#1073#1088#1072#1090#1100' '#1075#1080#1073#1088#1080#1076' '#1074' '#1082#1072#1095#1077#1089#1090#1074#1077' '#1086#1089#1085#1086#1074#1085#1086#1075#1086' '#1089#1083#1086#1103
         Anchors = [akTop, akRight]
         TabOrder = 5
-        ExplicitLeft = 194
       end
       object seSatCompress: TSpinEdit
-        Left = 222
+        Left = 210
         Top = 42
         Width = 49
         Height = 22
@@ -214,10 +200,9 @@ object frExportIPhone: TfrExportIPhone
         MinValue = 1
         TabOrder = 6
         Value = 85
-        ExplicitLeft = 216
       end
       object seMapCompress: TSpinEdit
-        Left = 222
+        Left = 210
         Top = 18
         Width = 49
         Height = 22
@@ -226,7 +211,6 @@ object frExportIPhone: TfrExportIPhone
         MinValue = 0
         TabOrder = 7
         Value = 2
-        ExplicitLeft = 216
       end
       object chkAppendTilse: TCheckBox
         Left = 8
@@ -237,7 +221,7 @@ object frExportIPhone: TfrExportIPhone
         TabOrder = 8
       end
       object seHybrCompress: TSpinEdit
-        Left = 222
+        Left = 210
         Top = 66
         Width = 49
         Height = 22
@@ -246,23 +230,20 @@ object frExportIPhone: TfrExportIPhone
         MinValue = 1
         TabOrder = 9
         Value = 85
-        ExplicitLeft = 216
       end
     end
     object pnlRight: TPanel
-      Left = 336
+      Left = 324
       Top = 0
       Width = 127
-      Height = 118
+      Height = 272
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 624
-      ExplicitTop = 1
-      ExplicitHeight = 504
+      ExplicitHeight = 271
       DesignSize = (
         127
-        118)
+        272)
       object lblZooms: TLabel
         Left = 4
         Top = 6
@@ -274,11 +255,11 @@ object frExportIPhone: TfrExportIPhone
         Left = 68
         Top = 4
         Width = 57
-        Height = 109
+        Height = 263
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 81
+        ExplicitHeight = 262
       end
       object chkAllZooms: TCheckBox
         Left = 21

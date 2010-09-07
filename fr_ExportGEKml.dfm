@@ -1,27 +1,28 @@
 object frExportGEKml: TfrExportGEKml
   Left = 0
   Top = 0
-  Width = 537
-  Height = 165
+  Width = 549
+  Height = 357
   Align = alClient
   TabOrder = 0
   ExplicitWidth = 451
   ExplicitHeight = 304
   object pnlCenter: TPanel
     Left = 0
-    Top = 28
-    Width = 537
-    Height = 137
+    Top = 32
+    Width = 549
+    Height = 325
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 28
     ExplicitWidth = 451
     ExplicitHeight = 276
     object pnlRight: TPanel
-      Left = 403
+      Left = 415
       Top = 0
       Width = 134
-      Height = 137
+      Height = 325
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
@@ -29,7 +30,7 @@ object frExportGEKml: TfrExportGEKml
       ExplicitHeight = 276
       DesignSize = (
         134
-        137)
+        325)
       object lblZooms: TLabel
         Left = 7
         Top = 5
@@ -48,28 +49,28 @@ object frExportGEKml: TfrExportGEKml
       end
       object chklstZooms: TCheckListBox
         Left = 70
-        Top = 5
+        Top = 2
         Width = 57
-        Height = 126
+        Height = 315
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 1
-        ExplicitHeight = 265
+        ExplicitHeight = 319
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 403
-      Height = 137
+      Width = 415
+      Height = 325
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
       ExplicitWidth = 317
       ExplicitHeight = 276
       DesignSize = (
-        403
-        137)
+        415
+        325)
       object lblMap: TLabel
         Left = 1
         Top = 11
@@ -98,7 +99,7 @@ object frExportGEKml: TfrExportGEKml
       object cbbMap: TComboBox
         Left = 44
         Top = 8
-        Width = 353
+        Width = 365
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -112,15 +113,14 @@ object frExportGEKml: TfrExportGEKml
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 537
-    Height = 28
+    Width = 549
+    Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 451
     DesignSize = (
-      537
-      28)
+      549
+      32)
     object lblTargetFile: TLabel
       Left = 8
       Top = 6
@@ -131,14 +131,14 @@ object frExportGEKml: TfrExportGEKml
     object edtTargetFile: TEdit
       Left = 96
       Top = 3
-      Width = 410
+      Width = 422
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       ExplicitWidth = 324
     end
     object btnSelectTargetFile: TButton
-      Left = 512
+      Left = 524
       Top = 3
       Width = 21
       Height = 21

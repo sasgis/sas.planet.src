@@ -7,23 +7,26 @@ object frExportYaMaps: TfrExportYaMaps
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
-    Top = 41
+    Top = 32
     Width = 451
-    Height = 263
+    Height = 272
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 41
+    ExplicitHeight = 263
     object pnlRight: TPanel
       Left = 271
       Top = 0
       Width = 180
-      Height = 263
+      Height = 272
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 263
       DesignSize = (
         180
-        263)
+        272)
       object lblCompress: TLabel
         Left = 9
         Top = 1
@@ -76,23 +79,25 @@ object frExportYaMaps: TfrExportYaMaps
         Left = 121
         Top = 20
         Width = 55
-        Height = 239
+        Height = 248
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 2
+        ExplicitHeight = 239
       end
     end
     object pnlMapsSelect: TPanel
       Left = 0
       Top = 0
       Width = 271
-      Height = 263
+      Height = 272
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 263
       DesignSize = (
         271
-        263)
+        272)
       object lblMapsSelect: TLabel
         Left = 5
         Top = -4
@@ -157,19 +162,27 @@ object frExportYaMaps: TfrExportYaMaps
         ItemHeight = 13
         TabOrder = 2
       end
+      object chkReplaseTiles: TCheckBox
+        Left = 2
+        Top = 85
+        Width = 185
+        Height = 17
+        Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
+        TabOrder = 3
+      end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
     Width = 451
-    Height = 41
+    Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
       451
-      41)
+      32)
     object lblTargetPath: TLabel
       Left = 8
       Top = 5
@@ -194,14 +207,6 @@ object frExportYaMaps: TfrExportYaMaps
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetPathClick
-    end
-    object chkReplaseTiles: TCheckBox
-      Left = 96
-      Top = 23
-      Width = 185
-      Height = 17
-      Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
-      TabOrder = 2
     end
   end
 end

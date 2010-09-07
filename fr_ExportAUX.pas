@@ -39,8 +39,9 @@ uses
 
 procedure TfrExportAUX.btnSelectTargetFileClick(Sender: TObject);
 begin
- if dlgTargetFileSelect.Execute then
-  edtTargetFile.Text:=dlgTargetFileSelect.FileName;
+  if dlgTargetFileSelect.Execute then begin
+    edtTargetFile.Text := dlgTargetFileSelect.FileName;
+  end;
 end;
 
 procedure TfrExportAUX.Init(AZoom: Byte);
