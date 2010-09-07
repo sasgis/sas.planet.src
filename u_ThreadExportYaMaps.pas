@@ -9,7 +9,6 @@ uses
   Classes,
   GR32,
   UMapType,
-  UGeoFun,
   UResStrings,
   UYaMobile,
   t_GeoTypes,

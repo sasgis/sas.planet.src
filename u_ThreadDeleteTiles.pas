@@ -36,8 +36,7 @@ implementation
 
 uses
   u_TileIteratorAbstract,
-  u_TileIteratorStuped,
-  Ugeofun;
+  u_TileIteratorStuped;
 
 constructor TThreadDeleteTiles.Create(
   APolyLL: TExtendedPointArray;
