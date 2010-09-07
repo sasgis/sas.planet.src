@@ -291,12 +291,12 @@ begin
   for i:=0 to ComboBox.ItemIndex do begin
     if CheckList.Checked[i] then begin
       SetLength(VInZooms, Length(VInZooms)+1);
-      VInZooms[Length(VInZooms)-1]:=ComboBox.ItemIndex - i + 1;
+      VInZooms[Length(VInZooms)-1]:=ComboBox.ItemIndex - i;
     end;
   end;
 
   TThreadGenPrevZoom.Create(
-    ComboBox.ItemIndex+2,
+    ComboBox.ItemIndex+1,
     VInZooms,
     APolyLL,
     TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex]),
