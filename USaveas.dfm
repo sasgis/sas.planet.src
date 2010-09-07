@@ -73,7 +73,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet1
+    ActivePage = TabSheet6
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
@@ -197,10 +197,6 @@ object Fsaveas: TFsaveas
       Caption = #1057#1082#1083#1077#1080#1090#1100
       ImageIndex = 1
       OnShow = TabSheet2Show
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label25: TLabel
         Left = 5
         Top = 26
@@ -252,7 +248,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object QualitiEdit: TSpinEdit
@@ -313,7 +309,7 @@ object Fsaveas: TFsaveas
         Width = 113
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         ItemIndex = 0
         TabOrder = 3
         Text = #1053#1077#1090
@@ -355,10 +351,6 @@ object Fsaveas: TFsaveas
       Tag = 2
       Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel3: TBevel
         Left = 0
         Top = 0
@@ -442,7 +434,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 4
       end
       object CBalhForm: TComboBox
@@ -451,7 +443,7 @@ object Fsaveas: TFsaveas
         Width = 161
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         ItemIndex = 0
         TabOrder = 5
         Text = 'Box'
@@ -476,7 +468,7 @@ object Fsaveas: TFsaveas
         Width = 57
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 6
         OnChange = ComboBoxChange
       end
@@ -523,7 +515,7 @@ object Fsaveas: TFsaveas
         Height = 21
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object SEDelBytes: TSpinEdit
@@ -588,10 +580,6 @@ object Fsaveas: TFsaveas
       Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label32: TLabel
         Left = 5
         Top = 8
@@ -613,7 +601,7 @@ object Fsaveas: TFsaveas
         Width = 249
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         ItemIndex = 1
         TabOrder = 0
         Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -659,22 +647,13 @@ object Fsaveas: TFsaveas
           ItemHeight = 13
           TabOrder = 0
         end
-        object CBZipped: TCheckBox
-          Left = 272
-          Top = 72
-          Width = 113
-          Height = 17
-          Caption = #1059#1087#1072#1082#1086#1074#1072#1090#1100' '#1074' Zip'
-          TabOrder = 1
-          OnClick = CBZippedClick
-        end
         object CBReplace: TCheckBox
           Left = 272
           Top = 56
           Width = 153
           Height = 17
           Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1087#1088#1080' '#1089#1086#1074#1087#1072#1076#1077#1085#1080#1080
-          TabOrder = 2
+          TabOrder = 1
         end
         object Button2: TButton
           Left = 448
@@ -682,7 +661,7 @@ object Fsaveas: TFsaveas
           Width = 21
           Height = 21
           Caption = '...'
-          TabOrder = 3
+          TabOrder = 2
           OnClick = Button2Click
         end
         object CBMove: TCheckBox
@@ -691,14 +670,14 @@ object Fsaveas: TFsaveas
           Width = 97
           Height = 17
           Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100
-          TabOrder = 4
+          TabOrder = 3
         end
         object EditPath: TEdit
           Left = 272
           Top = 16
           Width = 177
           Height = 21
-          TabOrder = 5
+          TabOrder = 4
         end
         object CheckBox4: TCheckBox
           Left = 208
@@ -706,7 +685,7 @@ object Fsaveas: TFsaveas
           Width = 41
           Height = 17
           Caption = #1042#1089#1077
-          TabOrder = 6
+          TabOrder = 5
           OnClick = CheckBox4Click
         end
         object CheckBox3: TCheckBox
@@ -715,7 +694,7 @@ object Fsaveas: TFsaveas
           Width = 41
           Height = 17
           Caption = #1042#1089#1077
-          TabOrder = 7
+          TabOrder = 6
           OnClick = CheckBox3Click
         end
         object CheckListBox2: TCheckListBox
@@ -724,7 +703,7 @@ object Fsaveas: TFsaveas
           Width = 57
           Height = 97
           ItemHeight = 13
-          TabOrder = 8
+          TabOrder = 7
         end
       end
     end

@@ -88,7 +88,6 @@ type
     Label13: TLabel;
     Label12: TLabel;
     CheckListBox1: TCheckListBox;
-    CBZipped: TCheckBox;
     CBReplace: TCheckBox;
     Button2: TButton;
     CBMove: TCheckBox;
@@ -124,7 +123,6 @@ type
     procedure TabSheet1Show(Sender: TObject);
     procedure TabSheet2Show(Sender: TObject);
     procedure TabSheet4Show(Sender: TObject);
-    procedure CBZippedClick(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
   private
     FZoom_rect:byte;
@@ -164,6 +162,7 @@ uses
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
+  u_ExportProviderZip,
   u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
   u_ThreadExportIPhone,
@@ -241,7 +240,6 @@ var i:integer;
     path:string;
     Zoomarr:array [0..23] of boolean;
     typemaparr:array of TMapType;
-    ziped:boolean;
     Replace:boolean;
 begin
   for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
@@ -251,14 +249,9 @@ begin
      setlength(typemaparr,length(typemaparr)+1);
      typemaparr[length(typemaparr)-1]:=TMapType(CheckListBox1.Items.Objects[i]);
     end;
-  ziped:=CBZipped.Checked;
   path:=IncludeTrailingPathDelimiter(EditPath.Text);
   Replace:=CBReplace.Checked;
-  if ziped then begin
-    TThreadExportToZip.Create(path,APolyLL,ZoomArr,typemaparr,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
-  end else begin
-    TThreadExportToFileSystem.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
-  end;
+  TThreadExportToFileSystem.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
@@ -421,6 +414,8 @@ begin
   VExportProvider := TExportProviderYaMaps.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderAUX.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderZip.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   CBFormat.ItemIndex := 0;
 end;
@@ -673,12 +668,6 @@ begin
 Label6.Parent:=TabSheet4;
 Label3.Parent:=TabSheet4;
 CBZoomload.Parent:=TabSheet4;
-end;
-
-procedure TFsaveas.CBZippedClick(Sender: TObject);
-begin
- CBMove.Enabled:=not(TCheckBox(sender).Checked);
- CBReplace.Enabled:=not(TCheckBox(sender).Checked);
 end;
 
 procedure TFsaveas.CBFormatChange(Sender: TObject);
