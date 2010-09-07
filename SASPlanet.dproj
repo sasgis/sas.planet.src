@@ -113,6 +113,7 @@
     <DCCReference Include="src\ijl.pas" />
     <DCCReference Include="src\i_IGUIDList.pas" />
     <DCCReference Include="src\i_JclNotify.pas" />
+    <DCCReference Include="src\KAZip.pas" />
     <DCCReference Include="src\Langs.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\u_GUIDInterfaceList.pas" />

@@ -8,6 +8,7 @@ uses
   sysutils,
   windows,
   ijl in 'src\ijl.pas',
+  KAZip in 'src\KAZip.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
