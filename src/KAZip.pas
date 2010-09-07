@@ -979,7 +979,11 @@ begin
           FillChar(CDFile,SizeOf(TCentralDirectoryFile),0);
           MS.Read(CDFile,SizeOf(TCentralDirectoryFile)-3*SizeOf(String));
           Entry                       := TKAZipEntriesEntry.Create(Self);
-          Entry.FDate                 := FileDateToDateTime(CDFile.LastModFileTimeDate);
+          if CDFile.LastModFileTimeDate > 0 then begin
+            Entry.FDate                 := FileDateToDateTime(CDFile.LastModFileTimeDate);
+          end else begin
+            Entry.FDate                 := 0;
+          end;
           if (CDFile.GeneralPurposeBitFlag And 1) > 0 Then
               Entry.FIsEncrypted := True
           Else
