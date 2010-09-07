@@ -206,6 +206,7 @@ uses
   u_ExportProviderZip in 'u_ExportProviderZip.pas',
   fr_TilesDelete in 'fr_TilesDelete.pas' {frTilesDelete: TFrame},
   u_ProviderTilesDelete in 'u_ProviderTilesDelete.pas',
+  fr_TilesGenPrev in 'fr_TilesGenPrev.pas' {frTilesGenPrev: TFrame},
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},

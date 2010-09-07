@@ -71,8 +71,12 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_TilesDelete.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesDelete</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="fr_TilesGenPrev.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frTilesGenPrev</Form>
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
