@@ -73,7 +73,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet6
+    ActivePage = TabSheet4
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
@@ -485,57 +485,7 @@ object Fsaveas: TFsaveas
       Tag = 3
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 3
-      OnShow = TabSheet4Show
-      object Bevel4: TBevel
-        Left = 0
-        Top = 0
-        Width = 493
-        Height = 17
-        Align = alTop
-        Shape = bsBottomLine
-      end
-      object Label5: TLabel
-        Left = 5
-        Top = 0
-        Width = 114
-        Height = 13
-        Caption = #1059#1076#1072#1083#1080#1090#1100' '#1092#1072#1081#1083#1099' '#1082#1072#1088#1090#1099
-      end
-      object Label23: TLabel
-        Left = 5
-        Top = 26
-        Width = 56
-        Height = 13
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-      end
-      object CBmapDel: TComboBox
-        Left = 88
-        Top = 24
-        Width = 217
-        Height = 21
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 13
-        TabOrder = 0
-      end
-      object SEDelBytes: TSpinEdit
-        Left = 280
-        Top = 69
-        Width = 97
-        Height = 22
-        MaxValue = 0
-        MinValue = 0
-        TabOrder = 1
-        Value = 0
-      end
-      object CBDelBytes: TCheckBox
-        Left = 8
-        Top = 72
-        Width = 265
-        Height = 17
-        Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
-        TabOrder = 2
-      end
+      ExplicitTop = 28
     end
     object TabSheet5: TTabSheet
       Tag = 4

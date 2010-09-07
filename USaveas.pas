@@ -19,6 +19,7 @@ uses
   ComCtrls,
   filectrl,
   GR32,
+  u_ExportProviderAbstract,
   UGeoFun,
   UMapType,
   UResStrings,
@@ -45,9 +46,7 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
-    Bevel4: TBevel;
     Bevel5: TBevel;
-    Label5: TLabel;
     Label8: TLabel;
     Label9: TLabel;
     Label10: TLabel;
@@ -55,8 +54,6 @@ type
     Label2: TLabel;
     CheckBox1: TCheckBox;
     CheckList: TCheckListBox;
-    Label23: TLabel;
-    CBmapDel: TComboBox;
     CBFormat: TComboBox;
     CheckBox7: TCheckBox;
     CBzamena: TCheckBox;
@@ -101,8 +98,6 @@ type
     CBGenFromPrev: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
-    SEDelBytes: TSpinEdit;
-    CBDelBytes: TCheckBox;
     TabSheet6: TTabSheet;
     CBCahceType: TComboBox;
     Label32: TLabel;
@@ -122,11 +117,11 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure TabSheet1Show(Sender: TObject);
     procedure TabSheet2Show(Sender: TObject);
-    procedure TabSheet4Show(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
   private
     FZoom_rect:byte;
     FPolygonLL: TExtendedPointArray;
+    FProviderTilesDelte: TExportProviderAbstract;
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
@@ -157,12 +152,12 @@ uses
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
-  u_ExportProviderAbstract,
   u_ExportProviderYaMaps,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
   u_ExportProviderZip,
+  u_ProviderTilesDelete,
   u_ThreadExportToFileSystem,
   u_ThreadExportToZip,
   u_ThreadExportIPhone,
@@ -202,15 +197,7 @@ end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
-  if (MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES) then begin
-    TThreadDeleteTiles.Create(
-      APolyLL,
-      CBZoomload.ItemIndex+1,
-      TMapType(CBmapDel.Items.Objects[CBmapDel.ItemIndex]),
-      CBDelBytes.Checked,
-      SEDelBytes.Value
-    );
-  end;
+  FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
 destructor TFsaveas.Destroy;
@@ -221,6 +208,7 @@ begin
     CBFormat.Items.Objects[i].Free;
     CBFormat.Items.Objects[i] := nil;
   end;
+  FreeAndNil(FProviderTilesDelte);
   inherited;
 end;
 
@@ -418,6 +406,8 @@ begin
   VExportProvider := TExportProviderZip.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   CBFormat.ItemIndex := 0;
+
+  FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
@@ -448,7 +438,6 @@ begin
   CBMapLoad.Items.Clear;
   CBscleit.Items.Clear;
   CBmtForm.Items.Clear;
-  CBmapDel.Items.Clear;
   CheckListBox1.Items.Clear;
   CBSclHib.Items.Clear;
   CBSclHib.Items.Add(SAS_STR_No);
@@ -476,12 +465,6 @@ begin
         CBmtForm.ItemIndex:=VAddedIndex;
       end;
     end;
-    if (VMapType.TileStorage.GetUseDel) then begin
-      VAddedIndex := CBmapDel.Items.AddObject(VMapType.name, VMapType);
-      if VMapType = VActiveMap then begin
-        CBmapDel.ItemIndex:=VAddedIndex;
-      end;
-    end;
     if (VMapType.TileStorage.GetUseSave) then begin
       VAddedIndex := CheckListBox1.Items.AddObject(VMapType.name,VMapType);
       if VMapType = VActiveMap then begin
@@ -502,7 +485,6 @@ begin
 
   if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
   if CBmtForm.ItemIndex=-1 then CBmtForm.ItemIndex:=0;
-  if CBmapDel.ItemIndex=-1 then CBmapDel.ItemIndex:=0;
   if CBMapLoad.ItemIndex=-1 then CBMapLoad.ItemIndex:=0;
   CBSclHib.ItemIndex:=0;
   FZoom_rect:=Azoom;
@@ -539,7 +521,8 @@ begin
     end;
   end;
   CBFormatChange(CBFormat);
-
+  FProviderTilesDelte.InitFrame(Azoom);
+  FProviderTilesDelte.Show;
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
   CheckBox1.Checked:=false;
@@ -661,13 +644,6 @@ begin
 Label6.Parent:=TabSheet2;
 Label3.Parent:=TabSheet2;
 CBZoomload.Parent:=TabSheet2;
-end;
-
-procedure TFsaveas.TabSheet4Show(Sender: TObject);
-begin
-Label6.Parent:=TabSheet4;
-Label3.Parent:=TabSheet4;
-CBZoomload.Parent:=TabSheet4;
 end;
 
 procedure TFsaveas.CBFormatChange(Sender: TObject);
