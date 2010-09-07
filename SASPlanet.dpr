@@ -30,6 +30,7 @@ uses
   UResStrings in 'UResStrings.pas',
   i_IConfigDataProvider in 'i_IConfigDataProvider.pas',
   u_ConfigDataProviderByVCLZip in 'u_ConfigDataProviderByVCLZip.pas',
+  u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
   u_ConfigDataProviderByIniFileSection in 'u_ConfigDataProviderByIniFileSection.pas',
   u_ConfigDataProviderByFolder in 'u_ConfigDataProviderByFolder.pas',

@@ -288,6 +288,7 @@ uses
   i_BitmapTileSaveLoad,
   i_IConfigDataProvider,
   u_ConfigDataProviderByVCLZip,
+  u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderByIniFile,
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
@@ -613,7 +614,7 @@ begin
         VFileName := startdir + SearchRec.Name;
         VMapType := TMapType.Create;
         try
-          VMapConfig := TConfigDataProviderByVCLZip.Create(VFileName);
+          VMapConfig := TConfigDataProviderByKaZip.Create(VFileName);
           VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
         except
           on E: EBadGUID do begin

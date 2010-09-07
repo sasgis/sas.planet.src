@@ -51,6 +51,7 @@
       <Form>frmSearchResults</Form>
     </DCCReference>
     <DCCReference Include="fr_ExportAUX.pas">
+      <Form>frExportAUX</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ExportGEKml.pas">
@@ -62,8 +63,8 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ExportToFileCont.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportToFileCont</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ExportYaMaps.pas">
       <Form>frExportYaMaps</Form>
@@ -198,6 +199,7 @@
     <DCCReference Include="u_ConfigDataProviderByFolder.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
     <DCCReference Include="u_ConfigDataProviderByVCLZip.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
