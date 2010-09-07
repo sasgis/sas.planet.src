@@ -141,6 +141,8 @@ begin
 
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         FCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;
+      end else begin
+        FCurrentFileName := FFilePath + FFileName + FFileExt;
       end;
 
       for pti := 0 to FMapCalibrationList.Count - 1 do begin
