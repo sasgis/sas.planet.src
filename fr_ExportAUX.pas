@@ -9,8 +9,6 @@ uses
 type
   TfrExportAUX = class(TFrame)
     pnlCenter: TPanel;
-    pnlRight: TPanel;
-    lblZoom: TLabel;
     pnlMain: TPanel;
     lblMap: TLabel;
     cbbMap: TComboBox;
@@ -19,6 +17,8 @@ type
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
     dlgTargetFileSelect: TSaveDialog;
+    pnlRight: TPanel;
+    lblZoom: TLabel;
     cbbZoom: TComboBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
   private

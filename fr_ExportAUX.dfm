@@ -13,8 +13,36 @@ object frExportAUX: TfrExportAUX
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 28
-    ExplicitHeight = 276
+    object pnlMain: TPanel
+      Left = 0
+      Top = 0
+      Width = 317
+      Height = 272
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 0
+      DesignSize = (
+        317
+        272)
+      object lblMap: TLabel
+        Left = 1
+        Top = 5
+        Width = 31
+        Height = 13
+        Caption = #1050#1072#1088#1090#1072
+      end
+      object cbbMap: TComboBox
+        Left = 44
+        Top = 2
+        Width = 267
+        Height = 21
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        DropDownCount = 16
+        ItemHeight = 13
+        TabOrder = 0
+      end
+    end
     object pnlRight: TPanel
       Left = 317
       Top = 0
@@ -22,8 +50,7 @@ object frExportAUX: TfrExportAUX
       Height = 272
       Align = alRight
       BevelOuter = bvNone
-      TabOrder = 0
-      ExplicitHeight = 276
+      TabOrder = 1
       object lblZoom: TLabel
         Left = 7
         Top = 5
@@ -37,37 +64,6 @@ object frExportAUX: TfrExportAUX
         Width = 51
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 0
-      end
-    end
-    object pnlMain: TPanel
-      Left = 0
-      Top = 0
-      Width = 317
-      Height = 272
-      Align = alClient
-      BevelOuter = bvNone
-      TabOrder = 1
-      ExplicitHeight = 276
-      DesignSize = (
-        317
-        272)
-      object lblMap: TLabel
-        Left = 1
-        Top = 11
-        Width = 31
-        Height = 13
-        Caption = #1050#1072#1088#1090#1072
-      end
-      object cbbMap: TComboBox
-        Left = 44
-        Top = 8
-        Width = 267
-        Height = 21
-        Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
-        DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
       end
