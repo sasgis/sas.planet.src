@@ -288,6 +288,7 @@ uses
   i_BitmapTileSaveLoad,
   i_IConfigDataProvider,
   u_ConfigDataProviderByKaZip,
+  u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByIniFile,
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
@@ -606,18 +607,26 @@ begin
   SetLength(MapType, i);
   if FindFirst(startdir + '*.zmp', faAnyFile, SearchRec) = 0 then begin
     repeat
-      if (SearchRec.Attr and faDirectory) = faDirectory then begin
-        continue;
-      end;
+      VFileName := startdir + SearchRec.Name;
       try
-        VFileName := startdir + SearchRec.Name;
         VMapType := TMapType.Create;
-        try
-          VMapConfig := TConfigDataProviderByKaZip.Create(VFileName);
-          VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
-        except
-          on E: EBadGUID do begin
-            raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
+        if (SearchRec.Attr and faDirectory) = faDirectory then begin
+          try
+            VMapConfig := TConfigDataProviderByFolder.Create(VFileName);
+            VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
+          except
+            on E: EBadGUID do begin
+              raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
+            end;
+          end;
+        end else begin
+          try
+            VMapConfig := TConfigDataProviderByKaZip.Create(VFileName);
+            VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
+          except
+            on E: EBadGUID do begin
+              raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
+            end;
           end;
         end;
         VGUIDString := VMapType.GUIDString;
