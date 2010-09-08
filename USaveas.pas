@@ -68,32 +68,14 @@ type
     Label28: TLabel;
     SaveSelDialog: TSaveDialog;
     CBusedReColor: TCheckBox;
-    Panel1: TPanel;
-    Label11: TLabel;
-    Label13: TLabel;
-    Label12: TLabel;
-    CheckListBox1: TCheckListBox;
-    CBReplace: TCheckBox;
-    Button2: TButton;
-    CBMove: TCheckBox;
-    EditPath: TEdit;
-    CheckBox4: TCheckBox;
-    CheckBox3: TCheckBox;
-    CheckListBox2: TCheckListBox;
     CBSecondLoadTNE: TCheckBox;
     CBCloseWithStart: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
     TabSheet6: TTabSheet;
-    CBCahceType: TComboBox;
-    Label32: TLabel;
-    Bevel7: TBevel;
     pnlExport: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure Button2Click(Sender: TObject);
-    procedure CheckBox4Click(Sender: TObject);
-    procedure CheckBox3Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
     procedure CBDateDoClick(Sender: TObject);
@@ -107,6 +89,7 @@ type
     FPolygonLL: TExtendedPointArray;
     FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
+    FProviderTilesCopy: TExportProviderAbstract;
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
@@ -144,6 +127,7 @@ uses
   u_ExportProviderZip,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
+  u_ProviderTilesCopy,
   u_ThreadExportToFileSystem,
   u_ThreadGenPrevZoom,
   UProgress,
@@ -191,6 +175,7 @@ begin
   end;
   FreeAndNil(FProviderTilesDelte);
   FreeAndNil(FProviderTilesGenPrev);
+  FreeAndNil(FProviderTilesCopy);
   inherited;
 end;
 
@@ -206,22 +191,8 @@ end;
 
 
 procedure TFsaveas.savefilesREG(APolyLL: TExtendedPointArray);
-var i:integer;
-    path:string;
-    Zoomarr:array [0..23] of boolean;
-    typemaparr:array of TMapType;
-    Replace:boolean;
 begin
-  for i:=0 to 23 do ZoomArr[i]:=CheckListBox2.Checked[i];
-  for i:=0 to CheckListBox1.Items.Count-1 do
-   if CheckListBox1.Checked[i] then
-    begin
-     setlength(typemaparr,length(typemaparr)+1);
-     typemaparr[length(typemaparr)-1]:=TMapType(CheckListBox1.Items.Objects[i]);
-    end;
-  path:=IncludeTrailingPathDelimiter(EditPath.Text);
-  Replace:=CBReplace.Checked;
-  TThreadExportToFileSystem.Create(path,APolyLL,ZoomArr,typemaparr,CBMove.Checked,Replace,GState.TileNameGenerator.GetGenerator(CBCahceType.ItemIndex + 1))
+  FProviderTilesCopy.StartProcess(APolyLL);
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
@@ -362,6 +333,7 @@ begin
 
   FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
   FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
+  FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
@@ -379,15 +351,12 @@ var
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
-  CheckListBox2.Items.Clear;
   for i:=1 to 24 do begin
     CBZoomload.Items.Add(inttostr(i));
-    CheckListBox2.Items.Add(inttostr(i));
   end;
   DateDo.Date:=now;
   CBMapLoad.Items.Clear;
   CBscleit.Items.Clear;
-  CheckListBox1.Items.Clear;
   CBSclHib.Items.Clear;
   CBSclHib.Items.Add(SAS_STR_No);
   VActiveMap := GState.ViewState.GetCurrentMap;
@@ -406,12 +375,6 @@ begin
       end;
       if VMapType = VActiveMap then begin
         CBscleit.ItemIndex:=VAddedIndex;
-      end;
-    end;
-    if (VMapType.TileStorage.GetUseSave) then begin
-      VAddedIndex := CheckListBox1.Items.AddObject(VMapType.name,VMapType);
-      if VMapType = VActiveMap then begin
-        CheckListBox1.Checked[VAddedIndex]:=true;
       end;
     end;
   end;
@@ -467,6 +430,8 @@ begin
   FProviderTilesDelte.Show;
   FProviderTilesGenPrev.InitFrame(Azoom);
   FProviderTilesGenPrev.Show;
+  FProviderTilesCopy.InitFrame(Azoom);
+  FProviderTilesCopy.Show;
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
   CBZoomload.ItemIndex:=FZoom_rect;
@@ -479,31 +444,6 @@ begin
  Fmain.TBmoveClick(Fmain);
  Fmain.Enabled:=true;
  fsaveas.visible:=false;
-end;
-
-procedure TFsaveas.Button2Click(Sender: TObject);
-var  TempPath: string;
-begin
-  if SelectDirectory('', '', TempPath) then
-  begin
-   EditPath.Text := IncludeTrailingPathDelimiter(TempPath);
-  end;
-end;
-
-procedure TFsaveas.CheckBox4Click(Sender: TObject);
-var i:byte;
-begin
- for i:=0 to CheckListBox2.Count-1 do
-  begin
-   CheckListBox2.Checked[i]:=TCheckBox(sender).Checked;
-  end;
-end;
-
-procedure TFsaveas.CheckBox3Click(Sender: TObject);
-var i:byte;
-begin
- for i:=0 to CheckListBox1.Count-1 do
-  CheckListBox1.Checked[i]:=CheckBox3.Checked;
 end;
 
 procedure TFsaveas.Button3Click(Sender: TObject);

@@ -73,13 +73,15 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       OnShow = TabSheet1Show
+      ExplicitLeft = 0
+      ExplicitTop = 28
       object Bevel1: TBevel
         Left = 0
         Top = 0
@@ -400,132 +402,6 @@ object Fsaveas: TFsaveas
       Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
-      object Label32: TLabel
-        Left = 5
-        Top = 8
-        Width = 205
-        Height = 13
-        Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
-      end
-      object Bevel7: TBevel
-        Left = 0
-        Top = 0
-        Width = 493
-        Height = 33
-        Align = alTop
-        Shape = bsBottomLine
-      end
-      object CBCahceType: TComboBox
-        Left = 220
-        Top = 4
-        Width = 249
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        ItemIndex = 1
-        TabOrder = 0
-        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
-        Items.Strings = (
-          'GoogleMV'
-          'SAS.'#1055#1083#1072#1085#1077#1090#1072
-          'ES1.95'
-          'GMT (GlobalMapper >=10.02)')
-      end
-      object Panel1: TPanel
-        Left = 0
-        Top = 36
-        Width = 473
-        Height = 133
-        BevelOuter = bvNone
-        TabOrder = 1
-        object Label11: TLabel
-          Left = 5
-          Top = 2
-          Width = 167
-          Height = 13
-          Caption = #1042#1082#1083#1102#1095#1080#1090#1100' '#1089#1083#1077#1076#1091#1102#1097#1080#1077' '#1090#1080#1087#1099' '#1082#1072#1088#1090':'
-        end
-        object Label13: TLabel
-          Left = 272
-          Top = 2
-          Width = 82
-          Height = 13
-          Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
-        end
-        object Label12: TLabel
-          Left = 208
-          Top = 2
-          Width = 57
-          Height = 13
-          Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
-        end
-        object CheckListBox1: TCheckListBox
-          Left = 5
-          Top = 16
-          Width = 196
-          Height = 97
-          ItemHeight = 13
-          TabOrder = 0
-        end
-        object CBReplace: TCheckBox
-          Left = 272
-          Top = 56
-          Width = 153
-          Height = 17
-          Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1087#1088#1080' '#1089#1086#1074#1087#1072#1076#1077#1085#1080#1080
-          TabOrder = 1
-        end
-        object Button2: TButton
-          Left = 448
-          Top = 16
-          Width = 21
-          Height = 21
-          Caption = '...'
-          TabOrder = 2
-          OnClick = Button2Click
-        end
-        object CBMove: TCheckBox
-          Left = 272
-          Top = 40
-          Width = 97
-          Height = 17
-          Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100
-          TabOrder = 3
-        end
-        object EditPath: TEdit
-          Left = 272
-          Top = 16
-          Width = 177
-          Height = 21
-          TabOrder = 4
-        end
-        object CheckBox4: TCheckBox
-          Left = 208
-          Top = 113
-          Width = 41
-          Height = 17
-          Caption = #1042#1089#1077
-          TabOrder = 5
-          OnClick = CheckBox4Click
-        end
-        object CheckBox3: TCheckBox
-          Left = 5
-          Top = 113
-          Width = 41
-          Height = 17
-          Caption = #1042#1089#1077
-          TabOrder = 6
-          OnClick = CheckBox3Click
-        end
-        object CheckListBox2: TCheckListBox
-          Left = 208
-          Top = 16
-          Width = 57
-          Height = 97
-          ItemHeight = 13
-          TabOrder = 7
-        end
-      end
     end
   end
   object Button3: TButton
