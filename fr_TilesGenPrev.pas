@@ -62,7 +62,7 @@ var
 begin
   for i := 0 to chklstZooms.Count - 1 do begin
     if chklstZooms.ItemEnabled[i] then begin
-      chkReplace.Checked[i] := chkAllZooms.Checked;
+      chklstZooms.Checked[i] := chkAllZooms.Checked;
     end;
   end;
 end;

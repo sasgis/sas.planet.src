@@ -31,7 +31,7 @@ uses
   UResStrings,
   UMapType;
 
-{ TExportProviderKml }
+{ TProviderTilesDelete }
 
 destructor TProviderTilesDelete.Destroy;
 begin
