@@ -26,21 +26,22 @@ type
     btnSelectTargetPath: TButton;
     chkReplaseTiles: TCheckBox;
     pnlRight: TPanel;
-    seMapCompr: TSpinEdit;
-    lblCompress: TLabel;
-    seSatCompr: TSpinEdit;
-    lblSatCompress: TLabel;
-    lblMapCompress: TLabel;
     lblZooms: TLabel;
     chklstZooms: TCheckListBox;
     pnlMapsSelect: TPanel;
-    lblMapsSelect: TLabel;
+    grdpnlMaps: TGridPanel;
+    lblMapCompress: TLabel;
+    seMapCompress: TSpinEdit;
+    seSatCompress: TSpinEdit;
+    cbbHybr: TComboBox;
     cbbMap: TComboBox;
+    cbbSat: TComboBox;
+    lblSatCompress: TLabel;
+    lblCompress: TLabel;
+    lblHybr: TLabel;
     lblMap: TLabel;
     lblSat: TLabel;
-    cbbSat: TComboBox;
-    cbbHybr: TComboBox;
-    lblHybr: TLabel;
+    lblMaps: TLabel;
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
   public

@@ -87,8 +87,8 @@ begin
   typemaparr[0]:=TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
   typemaparr[1]:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   typemaparr[2]:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
-  comprSat:=FFrame.seSatCompr.Value;
-  comprMap:=FFrame.seMapCompr.Value;
+  comprSat:=FFrame.seSatCompress.Value;
+  comprMap:=FFrame.seMapCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkReplaseTiles.Checked;
   TThreadExportYaMaps.Create(path,APolygon,ZoomArr,typemaparr,Replace,comprSat,comprMap);

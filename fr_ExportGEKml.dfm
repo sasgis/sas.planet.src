@@ -2,100 +2,123 @@ object frExportGEKml: TfrExportGEKml
   Left = 0
   Top = 0
   Width = 451
-  Height = 304
+  Height = 246
   Align = alClient
   TabOrder = 0
+  ExplicitHeight = 304
   object pnlCenter: TPanel
     Left = 0
-    Top = 32
+    Top = 27
     Width = 451
-    Height = 272
+    Height = 219
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 277
     object pnlRight: TPanel
-      Left = 317
+      Left = 376
       Top = 0
-      Width = 134
-      Height = 272
+      Width = 75
+      Height = 219
       Align = alRight
       BevelOuter = bvNone
+      BorderWidth = 3
       TabOrder = 0
-      DesignSize = (
-        134
-        272)
+      ExplicitHeight = 277
       object lblZooms: TLabel
-        Left = 7
-        Top = 5
-        Width = 57
+        Left = 3
+        Top = 3
+        Width = 69
         Height = 13
+        Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        ExplicitLeft = 7
+        ExplicitTop = 5
+        ExplicitWidth = 57
       end
       object chkAllZooms: TCheckBox
-        Left = 23
-        Top = 24
-        Width = 41
+        Left = 3
+        Top = 199
+        Width = 69
         Height = 17
+        Align = alBottom
         Caption = #1042#1089#1077
         TabOrder = 0
         OnClick = chkAllZoomsClick
+        ExplicitLeft = 6
+        ExplicitTop = 232
+        ExplicitWidth = 41
       end
       object chklstZooms: TCheckListBox
-        Left = 70
-        Top = 2
-        Width = 57
-        Height = 262
-        Anchors = [akLeft, akTop, akBottom]
+        Left = 3
+        Top = 16
+        Width = 69
+        Height = 183
+        Align = alClient
         ItemHeight = 13
         TabOrder = 1
+        ExplicitLeft = 50
+        ExplicitTop = 37
+        ExplicitWidth = 57
+        ExplicitHeight = 220
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 317
-      Height = 272
+      Width = 376
+      Height = 219
       Align = alClient
       BevelOuter = bvNone
+      BorderWidth = 3
       TabOrder = 1
-      DesignSize = (
-        317
-        272)
+      ExplicitWidth = 317
+      ExplicitHeight = 277
       object lblMap: TLabel
-        Left = 1
-        Top = 11
-        Width = 31
+        Left = 3
+        Top = 3
+        Width = 370
         Height = 13
+        Align = alTop
+        AutoSize = False
         Caption = #1050#1072#1088#1090#1072
+        ExplicitLeft = 12
+        ExplicitTop = 6
+        ExplicitWidth = 31
       end
       object chkNotSaveNotExists: TCheckBox
-        Left = 4
-        Top = 56
-        Width = 265
+        Left = 3
+        Top = 54
+        Width = 370
         Height = 17
+        Align = alTop
         Caption = #1053#1077' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1087#1091#1090#1080' '#1082' '#1085#1077#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1084' '#1090#1072#1081#1083#1072#1084
         TabOrder = 0
+        ExplicitWidth = 311
       end
       object chkUseRelativePath: TCheckBox
-        Left = 4
-        Top = 36
-        Width = 185
+        Left = 3
+        Top = 37
+        Width = 370
         Height = 17
+        Align = alTop
         Caption = #1054#1090#1085#1086#1089#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1091#1090#1100' '#1082' '#1090#1072#1081#1083#1072#1084
         Checked = True
         State = cbChecked
         TabOrder = 1
+        ExplicitWidth = 311
       end
       object cbbMap: TComboBox
-        Left = 44
-        Top = 8
-        Width = 267
+        Left = 3
+        Top = 16
+        Width = 370
         Height = 21
+        Align = alTop
         Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 2
+        ExplicitWidth = 311
       end
     end
   end
@@ -103,34 +126,35 @@ object frExportGEKml: TfrExportGEKml
     Left = 0
     Top = 0
     Width = 451
-    Height = 32
+    Height = 27
     Align = alTop
     BevelOuter = bvNone
+    BorderWidth = 3
     TabOrder = 1
-    DesignSize = (
-      451
-      32)
     object lblTargetFile: TLabel
-      Left = 8
-      Top = 6
+      Left = 3
+      Top = 3
       Width = 86
-      Height = 13
+      Height = 21
+      Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
-      Left = 100
+      Left = 89
       Top = 3
-      Width = 324
+      Width = 338
       Height = 21
-      Anchors = [akLeft, akTop, akRight]
+      Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 426
+      Left = 427
       Top = 3
       Width = 21
       Height = 21
-      Anchors = [akTop, akRight]
+      Align = alRight
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetFileClick
@@ -139,7 +163,7 @@ object frExportGEKml: TfrExportGEKml
   object dlgSaveKML: TSaveDialog
     DefaultExt = 'kml'
     Filter = 'KML |*.kml'
-    Left = 312
-    Top = 64
+    Left = 184
+    Top = 136
   end
 end

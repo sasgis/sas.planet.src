@@ -36,6 +36,7 @@ type
     lblZooms: TLabel;
     chklstZooms: TCheckListBox;
     chkAllZooms: TCheckBox;
+    grdpnlMaps: TGridPanel;
     procedure chkAllZoomsClick(Sender: TObject);
     procedure btnSelectTargetPathClick(Sender: TObject);
   private

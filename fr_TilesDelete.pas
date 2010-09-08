@@ -11,8 +11,6 @@ type
     cbbMap: TComboBox;
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;
-    bvlTop: TBevel;
-    lblHeader: TLabel;
     lblMap: TLabel;
     pnlTop: TPanel;
     pnlBottom: TPanel;
@@ -21,6 +19,8 @@ type
     cbbZoom: TComboBox;
     pnlCenter: TPanel;
     lblStat: TLabel;
+    pnlDelBySize: TPanel;
+    pnlDelSize: TPanel;
   private
   public
     procedure Init(AZoom: Byte);

@@ -15,8 +15,6 @@ type
     lblStat: TLabel;
     cbbMap: TComboBox;
     pnlTop: TPanel;
-    bvlTop: TBevel;
-    lblCaption: TLabel;
     cbbFromZoom: TComboBox;
     lblFromZoom: TLabel;
     chkAllZooms: TCheckBox;
