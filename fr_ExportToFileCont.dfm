@@ -1,37 +1,36 @@
 object frExportToFileCont: TfrExportToFileCont
   Left = 0
   Top = 0
-  Width = 485
-  Height = 285
+  Width = 552
+  Height = 180
   Align = alClient
   TabOrder = 0
   Visible = False
-  ExplicitWidth = 435
-  ExplicitHeight = 435
+  ExplicitWidth = 451
+  ExplicitHeight = 304
   object pnlCenter: TPanel
     Left = 0
     Top = 32
-    Width = 485
-    Height = 253
+    Width = 552
+    Height = 148
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 28
     ExplicitWidth = 451
-    ExplicitHeight = 276
+    ExplicitHeight = 272
     object pnlRight: TPanel
-      Left = 351
+      Left = 418
       Top = 0
       Width = 134
-      Height = 253
+      Height = 148
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 415
-      ExplicitHeight = 329
+      ExplicitLeft = 317
+      ExplicitHeight = 272
       DesignSize = (
         134
-        253)
+        148)
       object lblZooms: TLabel
         Left = 7
         Top = 5
@@ -51,63 +50,61 @@ object frExportToFileCont: TfrExportToFileCont
       object chklstZooms: TCheckListBox
         Left = 70
         Top = 2
-        Width = 57
-        Height = 243
+        Width = 59
+        Height = 139
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 1
-        ExplicitHeight = 319
+        ExplicitHeight = 263
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 351
-      Height = 253
+      Width = 418
+      Height = 148
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 64
-      ExplicitTop = 2
-      ExplicitWidth = 615
-      ExplicitHeight = 330
+      ExplicitWidth = 317
+      ExplicitHeight = 272
       DesignSize = (
-        351
-        253)
+        418
+        148)
       object lblMap: TLabel
         Left = 8
         Top = 5
-        Width = 337
+        Width = 132
         Height = 13
         Anchors = [akLeft, akTop, akRight]
         Caption = #1050#1072#1088#1090#1072
-        ExplicitWidth = 601
+        ExplicitWidth = 31
       end
       object lblNamesType: TLabel
         Left = 8
         Top = 49
-        Width = 337
+        Width = 316
         Height = 13
         Anchors = [akLeft, akTop, akRight]
         Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
-        ExplicitWidth = 601
+        ExplicitWidth = 207
       end
       object cbbMap: TComboBox
         Left = 3
         Top = 22
-        Width = 342
+        Width = 412
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 606
+        ExplicitWidth = 386
       end
       object cbbNamesType: TComboBox
         Left = 3
         Top = 68
-        Width = 342
+        Width = 412
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -120,21 +117,21 @@ object frExportToFileCont: TfrExportToFileCont
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
-        ExplicitWidth = 606
+        ExplicitWidth = 386
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 485
+    Width = 552
     Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 435
+    ExplicitWidth = 451
     DesignSize = (
-      485
+      552
       32)
     object lblTargetFile: TLabel
       Left = 8
@@ -144,16 +141,15 @@ object frExportToFileCont: TfrExportToFileCont
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
     end
     object edtTargetFile: TEdit
-      Left = 96
+      Left = 100
       Top = 3
-      Width = 358
+      Width = 420
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 422
     end
     object btnSelectTargetFile: TButton
-      Left = 460
+      Left = 526
       Top = 3
       Width = 21
       Height = 21
@@ -161,7 +157,7 @@ object frExportToFileCont: TfrExportToFileCont
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetFileClick
-      ExplicitLeft = 524
+      ExplicitLeft = 440
     end
   end
   object dlgSaveTargetFile: TSaveDialog

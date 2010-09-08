@@ -88,7 +88,7 @@ object frExportAUX: TfrExportAUX
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
     end
     object edtTargetFile: TEdit
-      Left = 96
+      Left = 100
       Top = 3
       Width = 324
       Height = 21

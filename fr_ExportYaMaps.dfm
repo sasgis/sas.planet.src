@@ -13,8 +13,6 @@ object frExportYaMaps: TfrExportYaMaps
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 41
-    ExplicitHeight = 263
     object pnlRight: TPanel
       Left = 271
       Top = 0
@@ -23,7 +21,6 @@ object frExportYaMaps: TfrExportYaMaps
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 263
       DesignSize = (
         180
         272)
@@ -83,7 +80,6 @@ object frExportYaMaps: TfrExportYaMaps
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 2
-        ExplicitHeight = 239
       end
     end
     object pnlMapsSelect: TPanel
@@ -94,7 +90,6 @@ object frExportYaMaps: TfrExportYaMaps
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 263
       DesignSize = (
         271
         272)
@@ -185,22 +180,22 @@ object frExportYaMaps: TfrExportYaMaps
       32)
     object lblTargetPath: TLabel
       Left = 8
-      Top = 5
+      Top = 6
       Width = 86
       Height = 13
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
     end
     object edtTargetPath: TEdit
       Left = 100
-      Top = 2
+      Top = 3
       Width = 322
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
     end
     object btnSelectTargetPath: TButton
-      Left = 428
-      Top = 2
+      Left = 426
+      Top = 3
       Width = 21
       Height = 21
       Anchors = [akTop, akRight]

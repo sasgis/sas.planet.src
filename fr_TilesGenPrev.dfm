@@ -1,34 +1,35 @@
 object frTilesGenPrev: TfrTilesGenPrev
   Left = 0
   Top = 0
-  Width = 606
-  Height = 211
+  Width = 571
+  Height = 160
   Align = alClient
   TabOrder = 0
+  ExplicitWidth = 451
+  ExplicitHeight = 304
   object pnlBottom: TPanel
     Left = 0
     Top = 32
-    Width = 606
-    Height = 179
+    Width = 571
+    Height = 128
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 7
-    ExplicitTop = 31
-    ExplicitWidth = 526
-    ExplicitHeight = 173
+    ExplicitWidth = 451
+    ExplicitHeight = 272
     object pnlRight: TPanel
-      Left = 492
+      Left = 457
       Top = 0
       Width = 114
-      Height = 179
+      Height = 128
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 220
+      ExplicitLeft = 337
+      ExplicitHeight = 272
       DesignSize = (
         114
-        179)
+        128)
       object lblFromZoom: TLabel
         Left = 6
         Top = -1
@@ -43,7 +44,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Height = 13
         Caption = #1042' '#1089#1083#1086#1080' '#1084#1072#1089#1096#1090#1072#1073#1072':'
       end
-      object ComboBox: TComboBox
+      object cbbFromZoom: TComboBox
         Left = 53
         Top = 18
         Width = 57
@@ -51,6 +52,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
+        OnChange = cbbFromZoomChange
       end
       object chkAllZooms: TCheckBox
         Left = 6
@@ -59,30 +61,32 @@ object frTilesGenPrev: TfrTilesGenPrev
         Height = 17
         Caption = #1042#1089#1077
         TabOrder = 1
+        OnClick = chkAllZoomsClick
       end
       object chklstZooms: TCheckListBox
         Left = 53
         Top = 64
         Width = 57
-        Height = 111
+        Height = 61
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 2
+        ExplicitHeight = 197
       end
     end
     object pnlCenter: TPanel
       Left = 0
       Top = 0
-      Width = 492
-      Height = 179
+      Width = 457
+      Height = 128
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 367
-      ExplicitHeight = 101
+      ExplicitWidth = 337
+      ExplicitHeight = 272
       DesignSize = (
-        492
-        179)
+        457
+        128)
       object lblMap: TLabel
         Left = 7
         Top = -1
@@ -93,10 +97,10 @@ object frTilesGenPrev: TfrTilesGenPrev
       object lblStat: TLabel
         Left = 10
         Top = 100
-        Width = 128
+        Width = 123
         Height = 13
         Anchors = [akLeft, akTop, akRight]
-        ExplicitWidth = 28
+        ExplicitWidth = 3
       end
       object lblResampler: TLabel
         Left = 5
@@ -108,14 +112,14 @@ object frTilesGenPrev: TfrTilesGenPrev
       object cbbMap: TComboBox
         Left = 7
         Top = 16
-        Width = 479
+        Width = 444
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 354
+        ExplicitWidth = 324
       end
       object cbbResampler: TComboBox
         Left = 7
@@ -171,20 +175,20 @@ object frTilesGenPrev: TfrTilesGenPrev
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 606
+    Width = 571
     Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 526
+    ExplicitWidth = 451
     object bvlTop: TBevel
       Left = 0
       Top = 0
-      Width = 606
+      Width = 571
       Height = 25
       Align = alTop
       Shape = bsBottomLine
-      ExplicitWidth = 526
+      ExplicitWidth = 451
     end
     object lblCaption: TLabel
       Left = 5

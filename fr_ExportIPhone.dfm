@@ -18,14 +18,14 @@ object frExportIPhone: TfrExportIPhone
       32)
     object lblTargetPath: TLabel
       Left = 8
-      Top = 7
+      Top = 6
       Width = 86
       Height = 13
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
     end
     object btnSelectTargetPath: TButton
       Left = 427
-      Top = 4
+      Top = 3
       Width = 21
       Height = 21
       Anchors = [akTop, akRight]
@@ -34,9 +34,9 @@ object frExportIPhone: TfrExportIPhone
       OnClick = btnSelectTargetPathClick
     end
     object edtTargetPath: TEdit
-      Left = 96
-      Top = 4
-      Width = 331
+      Left = 100
+      Top = 3
+      Width = 324
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
@@ -50,8 +50,6 @@ object frExportIPhone: TfrExportIPhone
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 33
-    ExplicitHeight = 271
     object pnlMaps: TPanel
       Left = 0
       Top = 0
@@ -60,7 +58,6 @@ object frExportIPhone: TfrExportIPhone
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 271
       DesignSize = (
         324
         272)
@@ -240,7 +237,6 @@ object frExportIPhone: TfrExportIPhone
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 271
       DesignSize = (
         127
         272)
@@ -259,7 +255,6 @@ object frExportIPhone: TfrExportIPhone
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 262
       end
       object chkAllZooms: TCheckBox
         Left = 21

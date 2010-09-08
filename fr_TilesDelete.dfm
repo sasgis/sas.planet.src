@@ -1,25 +1,22 @@
 object frTilesDelete: TfrTilesDelete
   Left = 0
   Top = 0
-  Width = 429
-  Height = 133
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
-  ExplicitWidth = 526
-  ExplicitHeight = 151
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 429
+    Width = 451
     Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 526
     object bvlTop: TBevel
       Left = 0
       Top = 0
-      Width = 429
+      Width = 451
       Height = 25
       Align = alTop
       Shape = bsBottomLine
@@ -36,25 +33,19 @@ object frTilesDelete: TfrTilesDelete
   object pnlBottom: TPanel
     Left = 0
     Top = 32
-    Width = 429
-    Height = 101
+    Width = 451
+    Height = 272
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 7
-    ExplicitTop = 31
-    ExplicitWidth = 526
-    ExplicitHeight = 173
     object pnlRight: TPanel
-      Left = 367
+      Left = 389
       Top = 0
       Width = 62
-      Height = 101
+      Height = 272
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 464
-      ExplicitHeight = 119
       object lblZoom: TLabel
         Left = 7
         Top = -1
@@ -75,16 +66,14 @@ object frTilesDelete: TfrTilesDelete
     object pnlCenter: TPanel
       Left = 0
       Top = 0
-      Width = 367
-      Height = 101
+      Width = 389
+      Height = 272
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = -24
-      ExplicitTop = -1
       DesignSize = (
-        367
-        101)
+        389
+        272)
       object lblMap: TLabel
         Left = 7
         Top = -1
@@ -95,34 +84,33 @@ object frTilesDelete: TfrTilesDelete
       object lblStat: TLabel
         Left = 10
         Top = 66
-        Width = 351
+        Width = 25
         Height = 13
         Anchors = [akLeft, akTop, akRight]
+        ExplicitWidth = 3
       end
       object cbbMap: TComboBox
         Left = 7
         Top = 16
-        Width = 354
+        Width = 376
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 451
       end
       object chkDelBySize: TCheckBox
         Left = 7
         Top = 43
-        Width = 354
+        Width = 376
         Height = 17
         Anchors = [akLeft, akTop, akRight]
         Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
         TabOrder = 1
-        ExplicitWidth = 451
       end
       object seDelSize: TSpinEdit
-        Left = 10
+        Left = 7
         Top = 66
         Width = 97
         Height = 22
