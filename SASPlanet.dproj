@@ -70,6 +70,10 @@
       <Form>frExportYaMaps</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="fr_MapCombine.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frMapCombine</Form>
+    </DCCReference>
     <DCCReference Include="fr_TilesCopy.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frTilesCopy</Form>
@@ -292,6 +296,7 @@
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
+    <DCCReference Include="u_ProviderMapCombine.pas" />
     <DCCReference Include="u_ProviderTilesCopy.pas" />
     <DCCReference Include="u_ProviderTilesDelete.pas" />
     <DCCReference Include="u_ProviderTilesGenPrev.pas" />
