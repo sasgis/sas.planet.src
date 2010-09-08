@@ -82,6 +82,10 @@
       <Form>frTilesDelete</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="fr_TilesDownload.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frTilesDownload</Form>
+    </DCCReference>
     <DCCReference Include="fr_TilesGenPrev.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frTilesGenPrev</Form>
