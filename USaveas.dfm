@@ -73,7 +73,7 @@ object Fsaveas: TFsaveas
     Top = 8
     Width = 501
     Height = 206
-    ActivePage = TabSheet4
+    ActivePage = TabSheet3
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
     TabWidth = 83
@@ -351,141 +351,11 @@ object Fsaveas: TFsaveas
       Tag = 2
       Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 2
-      object Bevel3: TBevel
-        Left = 0
-        Top = 0
-        Width = 493
-        Height = 17
-        Align = alTop
-        Shape = bsBottomLine
-      end
-      object Label10: TLabel
-        Left = 5
-        Top = 0
-        Width = 271
-        Height = 13
-        Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1077' '#1089#1083#1086#1080' '#1089#1087#1091#1090#1085#1080#1082#1086#1074#1086#1081' '#1082#1072#1088#1090#1099
-      end
-      object Label1: TLabel
-        Left = 304
-        Top = 34
-        Width = 98
-        Height = 13
-        Caption = #1048#1079' '#1089#1083#1086#1103' '#1084#1072#1089#1096#1090#1072#1073#1072':'
-      end
-      object Label2: TLabel
-        Left = 312
-        Top = 58
-        Width = 91
-        Height = 13
-        Caption = #1042' '#1089#1083#1086#1080' '#1084#1072#1089#1096#1090#1072#1073#1072':'
-      end
-      object Label15: TLabel
-        Left = 8
-        Top = 34
-        Width = 56
-        Height = 13
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-      end
-      object Label18: TLabel
-        Left = 8
-        Top = 74
-        Width = 52
-        Height = 13
-        Caption = #1040#1083#1075#1086#1088#1080#1090#1084':'
-      end
-      object CheckBox1: TCheckBox
-        Left = 360
-        Top = 80
-        Width = 41
-        Height = 17
-        Caption = #1042#1089#1077
-        TabOrder = 0
-        OnClick = CheckBox1Click
-      end
-      object CheckList: TCheckListBox
-        Left = 408
-        Top = 56
-        Width = 57
-        Height = 113
-        ItemHeight = 13
-        TabOrder = 1
-      end
-      object CBzamena: TCheckBox
-        Left = 8
-        Top = 112
-        Width = 209
-        Height = 17
-        Caption = #1048#1079#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1092#1072#1081#1083#1099
-        TabOrder = 2
-      end
-      object CBsavefull: TCheckBox
-        Left = 8
-        Top = 128
-        Width = 281
-        Height = 17
-        Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1087#1086#1083#1085#1086#1089#1090#1100#1102' '#1079#1072#1087#1086#1083#1085#1077#1085#1085#1099#1077' '#1090#1072#1081#1083#1099
-        TabOrder = 3
-      end
-      object CBmtForm: TComboBox
-        Left = 72
-        Top = 32
-        Width = 161
-        Height = 21
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 13
-        TabOrder = 4
-      end
-      object CBalhForm: TComboBox
-        Left = 72
-        Top = 72
-        Width = 161
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        ItemIndex = 0
-        TabOrder = 5
-        Text = 'Box'
-        Items.Strings = (
-          'Box'
-          'Linear'
-          'Cosine'
-          'Spline'
-          'Mitchell'
-          'Cubic'
-          'Hermite'
-          'Lanczos'
-          'Gaussian'
-          'Blackman'
-          'Hann'
-          'Hamming'
-          'Sinsh')
-      end
-      object ComboBox: TComboBox
-        Left = 408
-        Top = 32
-        Width = 57
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 6
-        OnChange = ComboBoxChange
-      end
-      object CBGenFromPrev: TCheckBox
-        Left = 8
-        Top = 144
-        Width = 393
-        Height = 17
-        Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1078#1076#1099#1081' '#1074#1099#1073#1088#1072#1085#1085#1099#1081' '#1084#1072#1089#1096#1090#1072#1073' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1077#1075#1086' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086
-        TabOrder = 7
-      end
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 3
-      ExplicitTop = 28
     end
     object TabSheet5: TTabSheet
       Tag = 4

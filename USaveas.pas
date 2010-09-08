@@ -45,19 +45,11 @@ type
     Label4: TLabel;
     Bevel1: TBevel;
     Bevel2: TBevel;
-    Bevel3: TBevel;
     Bevel5: TBevel;
     Label8: TLabel;
     Label9: TLabel;
-    Label10: TLabel;
-    Label1: TLabel;
-    Label2: TLabel;
-    CheckBox1: TCheckBox;
-    CheckList: TCheckListBox;
     CBFormat: TComboBox;
     CheckBox7: TCheckBox;
-    CBzamena: TCheckBox;
-    CBsavefull: TCheckBox;
     Button3: TButton;
     Bevel6: TBevel;
     CBDateDo: TCheckBox;
@@ -65,10 +57,6 @@ type
     QualitiEdit: TSpinEdit;
     CBMapLoad: TComboBox;
     CBZoomload: TComboBox;
-    CBmtForm: TComboBox;
-    Label15: TLabel;
-    CBalhForm: TComboBox;
-    Label18: TLabel;
     SpeedButton1: TSpeedButton;
     GroupBox1: TGroupBox;
     EditNTg: TSpinEdit;
@@ -92,10 +80,8 @@ type
     CheckBox4: TCheckBox;
     CheckBox3: TCheckBox;
     CheckListBox2: TCheckListBox;
-    ComboBox: TComboBox;
     CBSecondLoadTNE: TCheckBox;
     CBCloseWithStart: TCheckBox;
-    CBGenFromPrev: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
     TabSheet6: TTabSheet;
@@ -104,9 +90,7 @@ type
     Bevel7: TBevel;
     pnlExport: TPanel;
     procedure Button1Click(Sender: TObject);
-    procedure ComboBoxChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure CheckBox1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
     procedure CheckBox3Click(Sender: TObject);
@@ -122,6 +106,7 @@ type
     FZoom_rect:byte;
     FPolygonLL: TExtendedPointArray;
     FProviderTilesDelte: TExportProviderAbstract;
+    FProviderTilesGenPrev: TExportProviderAbstract;
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
@@ -158,6 +143,7 @@ uses
   u_ExportProviderAUX,
   u_ExportProviderZip,
   u_ProviderTilesDelete,
+  u_ProviderTilesGenPrev,
   u_ThreadExportToFileSystem,
   u_ThreadGenPrevZoom,
   UProgress,
@@ -204,6 +190,7 @@ begin
     CBFormat.Items.Objects[i] := nil;
   end;
   FreeAndNil(FProviderTilesDelte);
+  FreeAndNil(FProviderTilesGenPrev);
   inherited;
 end;
 
@@ -260,27 +247,8 @@ begin
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
-var
-  i:integer;
-  VInZooms: TArrayOfByte;
 begin
-  for i:=0 to ComboBox.ItemIndex do begin
-    if CheckList.Checked[i] then begin
-      SetLength(VInZooms, Length(VInZooms)+1);
-      VInZooms[Length(VInZooms)-1]:=ComboBox.ItemIndex - i;
-    end;
-  end;
-
-  TThreadGenPrevZoom.Create(
-    ComboBox.ItemIndex+1,
-    VInZooms,
-    APolyLL,
-    TMapType(CBmtForm.Items.Objects[CBmtForm.ItemIndex]),
-    CBzamena.Checked,
-    CBsavefull.Checked,
-    CBGenFromPrev.Checked,
-    TTileResamplingType(CBalhForm.ItemIndex)
-   );
+  FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
@@ -373,16 +341,6 @@ begin
   end;
 end;
 
-procedure TFsaveas.ComboBoxChange(Sender: TObject);
-var i:integer;
-begin
- CheckList.Items.Clear;
- for i:=ComboBox.ItemIndex+1 downto 1 do CheckList.Items.Add(inttostr(i));
- if ComboBox.ItemIndex+1-7>1 then
- for i:=ComboBox.ItemIndex downto ComboBox.ItemIndex - (ComboBox.ItemIndex-7)+1 do
-  CheckList.ItemEnabled[i]:=false;
-end;
-
 constructor TFsaveas.Create(AOwner: TComponent);
 var
   VExportProvider: TExportProviderAbstract;
@@ -403,6 +361,7 @@ begin
   CBFormat.ItemIndex := 0;
 
   FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
+  FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
@@ -420,19 +379,14 @@ var
 begin
   CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
-  ComboBox.Items.Clear;
   CheckListBox2.Items.Clear;
   for i:=1 to 24 do begin
     CBZoomload.Items.Add(inttostr(i));
-    if i>1 then begin
-      ComboBox.Items.Add(inttostr(i));
-    end;
     CheckListBox2.Items.Add(inttostr(i));
   end;
   DateDo.Date:=now;
   CBMapLoad.Items.Clear;
   CBscleit.Items.Clear;
-  CBmtForm.Items.Clear;
   CheckListBox1.Items.Clear;
   CBSclHib.Items.Clear;
   CBSclHib.Items.Add(SAS_STR_No);
@@ -454,12 +408,6 @@ begin
         CBscleit.ItemIndex:=VAddedIndex;
       end;
     end;
-    if (VMapType.UseGenPrevious) then begin
-      VAddedIndex := CBmtForm.Items.AddObject(VMapType.name,VMapType);
-      if VMapType = VActiveMap then begin
-        CBmtForm.ItemIndex:=VAddedIndex;
-      end;
-    end;
     if (VMapType.TileStorage.GetUseSave) then begin
       VAddedIndex := CheckListBox1.Items.AddObject(VMapType.name,VMapType);
       if VMapType = VActiveMap then begin
@@ -479,7 +427,6 @@ begin
   end;
 
   if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
-  if CBmtForm.ItemIndex=-1 then CBmtForm.ItemIndex:=0;
   if CBMapLoad.ItemIndex=-1 then CBMapLoad.ItemIndex:=0;
   CBSclHib.ItemIndex:=0;
   FZoom_rect:=Azoom;
@@ -518,16 +465,11 @@ begin
   CBFormatChange(CBFormat);
   FProviderTilesDelte.InitFrame(Azoom);
   FProviderTilesDelte.Show;
+  FProviderTilesGenPrev.InitFrame(Azoom);
+  FProviderTilesGenPrev.Show;
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
-  CheckBox1.Checked:=false;
   CBZoomload.ItemIndex:=FZoom_rect;
-  if FZoom_rect=0 then begin
-    combobox.ItemIndex:=0;
-  end else begin
-    combobox.ItemIndex:=FZoom_rect-1;
-  end;
-  ComboBoxChange(self);
   CBZoomloadChange(self);
 end;
 
@@ -537,12 +479,6 @@ begin
  Fmain.TBmoveClick(Fmain);
  Fmain.Enabled:=true;
  fsaveas.visible:=false;
-end;
-
-procedure TFsaveas.CheckBox1Click(Sender: TObject);
-var i:integer;
-begin
- for i:=0 to CheckList.Count-1 do CheckList.Checked[i]:=CheckBox1.Checked;
 end;
 
 procedure TFsaveas.Button2Click(Sender: TObject);
