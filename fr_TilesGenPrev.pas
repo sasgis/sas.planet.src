@@ -94,6 +94,7 @@ begin
       end;
     end;
   end;
+  cbbFromZoomChange(cbbFromZoom);
 end;
 
 end.
