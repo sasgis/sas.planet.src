@@ -19,7 +19,7 @@ type
     constructor Create(AParent: TWinControl; ANewFormat: Boolean);
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte); override;
+    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
     procedure Show; override;
     procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
@@ -57,7 +57,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.InitFrame(Azoom: byte);
+procedure TExportProviderIPhone.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportIPhone.Create(nil);

@@ -422,15 +422,15 @@ begin
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
-      VExportProvider.InitFrame(Azoom);
+      VExportProvider.InitFrame(Azoom, FPolygonLL);
     end;
   end;
   CBFormatChange(CBFormat);
-  FProviderTilesDelte.InitFrame(Azoom);
+  FProviderTilesDelte.InitFrame(Azoom, FPolygonLL);
   FProviderTilesDelte.Show;
-  FProviderTilesGenPrev.InitFrame(Azoom);
+  FProviderTilesGenPrev.InitFrame(Azoom, FPolygonLL);
   FProviderTilesGenPrev.Show;
-  FProviderTilesCopy.InitFrame(Azoom);
+  FProviderTilesCopy.InitFrame(Azoom, FPolygonLL);
   FProviderTilesCopy.Show;
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;

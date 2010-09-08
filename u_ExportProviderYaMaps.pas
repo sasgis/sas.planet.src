@@ -15,7 +15,7 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte); override;
+    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
     procedure Show; override;
     procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
@@ -42,7 +42,7 @@ begin
   Result := 'Мобильные Яндекс.Карты (версия 3)';
 end;
 
-procedure TExportProviderYaMaps.InitFrame(Azoom: byte);
+procedure TExportProviderYaMaps.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportYaMaps.Create(nil);

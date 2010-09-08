@@ -16,7 +16,7 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte); override;
+    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
     procedure Show; override;
     procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
@@ -49,7 +49,7 @@ begin
   Result := 'Удаление';
 end;
 
-procedure TProviderMapCombine.InitFrame(Azoom: byte);
+procedure TProviderMapCombine.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
 begin
   if FFrame = nil then begin
     FFrame := TfrMapCombine.Create(nil);

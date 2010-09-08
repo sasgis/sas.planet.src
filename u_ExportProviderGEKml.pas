@@ -15,7 +15,7 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte); override;
+    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
     procedure Show; override;
     procedure Hide; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
@@ -42,7 +42,7 @@ begin
   Result := 'KML (Для просмотра в GE)';
 end;
 
-procedure TExportProviderGEKml.InitFrame(Azoom: byte);
+procedure TExportProviderGEKml.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportGEKml.Create(nil);
