@@ -91,13 +91,14 @@ begin
   for i:=1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
   end;
-  cbbMap.items.Clear;
   cbbZoom.ItemIndex := AZoom;
 
   VActiveMap := GState.ViewState.GetCurrentMap;
+  cbbMap.Items.Clear;
+  cbbHybr.Items.Clear;
+  cbbHybr.Items.Add(SAS_STR_No);
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
-
     if VMapType.UseStick and VMapType.IsBitmapTiles then begin
       if VMapType.asLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
@@ -113,6 +114,12 @@ begin
         end;
       end;
     end;
+  end;
+  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
+    cbbMap.ItemIndex := 0;
+  end;
+  if (cbbHybr.Items.Count > 0) and (cbbHybr.ItemIndex < 0) then begin
+    cbbHybr.ItemIndex := 0;
   end;
 
   chklstPrTypes.Clear;

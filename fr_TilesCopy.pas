@@ -76,13 +76,12 @@ var
   VActiveMap: TMapType;
   VAddedIndex: Integer;
 begin
-  VActiveMap := GState.ViewState.GetCurrentMap;
-
   chklstZooms.Items.Clear;
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
+  VActiveMap := GState.ViewState.GetCurrentMap;
   chklstMaps.Items.Clear;
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];

@@ -30,8 +30,6 @@ object frExportToFileCont: TfrExportToFileCont
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
-        ExplicitLeft = 7
-        ExplicitTop = 5
         ExplicitWidth = 57
       end
       object chkAllZooms: TCheckBox
@@ -43,9 +41,6 @@ object frExportToFileCont: TfrExportToFileCont
         Caption = #1042#1089#1077
         TabOrder = 0
         OnClick = chkAllZoomsClick
-        ExplicitLeft = 23
-        ExplicitTop = 24
-        ExplicitWidth = 41
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -55,10 +50,6 @@ object frExportToFileCont: TfrExportToFileCont
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
-        ExplicitLeft = 32
-        ExplicitTop = 37
-        ExplicitWidth = 59
-        ExplicitHeight = 210
       end
     end
     object pnlMain: TPanel
@@ -70,7 +61,6 @@ object frExportToFileCont: TfrExportToFileCont
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitWidth = 317
       object lblMap: TLabel
         Left = 3
         Top = 3
@@ -99,7 +89,6 @@ object frExportToFileCont: TfrExportToFileCont
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 311
       end
       object cbbNamesType: TComboBox
         Left = 3
@@ -117,7 +106,6 @@ object frExportToFileCont: TfrExportToFileCont
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
-        ExplicitWidth = 311
       end
     end
   end

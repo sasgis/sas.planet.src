@@ -39,11 +39,10 @@ object frTilesDelete: TfrTilesDelete
       object lblZoom: TLabel
         Left = 3
         Top = 3
-        Width = 56
+        Width = 49
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
-        ExplicitWidth = 49
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -52,7 +51,7 @@ object frTilesDelete: TfrTilesDelete
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end
@@ -83,10 +82,9 @@ object frTilesDelete: TfrTilesDelete
       object lblStat: TLabel
         Left = 10
         Top = 66
-        Width = -29
+        Width = 3
         Height = 13
         Anchors = [akLeft, akTop, akRight]
-        ExplicitWidth = 3
       end
       object cbbMap: TComboBox
         Left = 3
@@ -96,7 +94,7 @@ object frTilesDelete: TfrTilesDelete
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object pnlDelBySize: TPanel

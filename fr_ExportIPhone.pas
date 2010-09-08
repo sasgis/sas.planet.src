@@ -79,19 +79,20 @@ var
   VActiveMap: TMapType;
   VAddedIndex: Integer;
 begin
-  VActiveMap := GState.ViewState.GetCurrentMap;
-
   chklstZooms.Items.Clear;
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
+
+
+  VActiveMap := GState.ViewState.GetCurrentMap;
+
   cbbSat.items.Clear;
   cbbMap.items.Clear;
   cbbHybr.items.Clear;
   cbbSat.Items.AddObject(SAS_STR_No,nil);
   cbbMap.Items.AddObject(SAS_STR_No,nil);
   cbbHybr.Items.AddObject(SAS_STR_No,nil);
-
 
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];

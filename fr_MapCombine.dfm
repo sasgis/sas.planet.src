@@ -17,7 +17,6 @@ object frMapCombine: TfrMapCombine
     BorderWidth = 3
     Caption = #1057#1082#1083#1077#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1092#1088#1072#1075#1084#1077#1085#1090
     TabOrder = 0
-    ExplicitWidth = 637
   end
   object pnlTargetFile: TPanel
     Left = 0
@@ -28,7 +27,6 @@ object frMapCombine: TfrMapCombine
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitWidth = 637
     object lblTargetFile: TLabel
       Left = 3
       Top = 3
@@ -46,7 +44,6 @@ object frMapCombine: TfrMapCombine
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 524
     end
     object btnSelectTargetFile: TButton
       Left = 552
@@ -56,7 +53,6 @@ object frMapCombine: TfrMapCombine
       Align = alRight
       Caption = '...'
       TabOrder = 1
-      ExplicitLeft = 613
     end
   end
   object pnlOutputFormat: TPanel
@@ -68,7 +64,6 @@ object frMapCombine: TfrMapCombine
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
-    ExplicitWidth = 637
     object lblOutputFormat: TLabel
       Left = 3
       Top = 3
@@ -106,10 +101,6 @@ object frMapCombine: TfrMapCombine
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitLeft = -24
-    ExplicitTop = 85
-    ExplicitWidth = 637
-    ExplicitHeight = 376
     object pnlRight: TPanel
       Left = 411
       Top = 0
@@ -119,19 +110,15 @@ object frMapCombine: TfrMapCombine
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitLeft = 472
-      ExplicitHeight = 376
       object lblPrTypes: TLabel
         Left = 3
         Top = 112
         Width = 159
-        Height = 18
+        Height = 13
         Align = alTop
         Caption = #1057#1086#1079#1076#1072#1074#1072#1090#1100' '#1092#1072#1081#1083' '#1087#1088#1080#1074#1103#1079#1082#1080':'
         WordWrap = True
-        ExplicitLeft = 4
-        ExplicitTop = 79
-        ExplicitWidth = 157
+        ExplicitWidth = 138
       end
       object lblZoom: TLabel
         Left = 3
@@ -140,7 +127,7 @@ object frMapCombine: TfrMapCombine
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
-        ExplicitTop = -1
+        ExplicitWidth = 49
       end
       object grpSplit: TGroupBox
         Left = 3
@@ -150,9 +137,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = ' '#1056#1072#1079#1073#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077' '
         TabOrder = 0
-        ExplicitLeft = 4
-        ExplicitTop = 4
-        ExplicitWidth = 177
         object lblSplitHor: TLabel
           Left = 8
           Top = 22
@@ -190,9 +174,9 @@ object frMapCombine: TfrMapCombine
       end
       object chklstPrTypes: TCheckListBox
         Left = 3
-        Top = 130
+        Top = 125
         Width = 159
-        Height = 44
+        Height = 49
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -202,8 +186,6 @@ object frMapCombine: TfrMapCombine
           '.dat'
           '.kml')
         TabOrder = 1
-        ExplicitTop = 102
-        ExplicitHeight = 204
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -214,7 +196,6 @@ object frMapCombine: TfrMapCombine
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 2
-        ExplicitTop = 10
       end
     end
     object pnlCenter: TPanel
@@ -226,10 +207,6 @@ object frMapCombine: TfrMapCombine
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitLeft = 8
-      ExplicitTop = 46
-      ExplicitWidth = 433
-      ExplicitHeight = 307
       object lblMap: TLabel
         Left = 3
         Top = 3
@@ -237,8 +214,6 @@ object frMapCombine: TfrMapCombine
         Height = 13
         Align = alTop
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-        ExplicitLeft = 24
-        ExplicitTop = 6
         ExplicitWidth = 57
       end
       object lblHybr: TLabel
@@ -248,8 +223,6 @@ object frMapCombine: TfrMapCombine
         Height = 13
         Align = alTop
         Caption = #1053#1072#1083#1086#1078#1080#1090#1100':'
-        ExplicitLeft = 88
-        ExplicitTop = 155
         ExplicitWidth = 55
       end
       object cbbMap: TComboBox
@@ -262,9 +235,6 @@ object frMapCombine: TfrMapCombine
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitLeft = 88
-        ExplicitTop = 128
-        ExplicitWidth = 121
       end
       object cbbHybr: TComboBox
         Left = 3
@@ -279,9 +249,6 @@ object frMapCombine: TfrMapCombine
         Text = #1053#1077#1090
         Items.Strings = (
           #1053#1077#1090)
-        ExplicitLeft = 88
-        ExplicitTop = 172
-        ExplicitWidth = 113
       end
       object chkUseMapMarks: TCheckBox
         Left = 3
@@ -291,9 +258,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = #1053#1072#1082#1083#1072#1076#1099#1074#1072#1090#1100' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1077' '#1084#1077#1090#1082#1080
         TabOrder = 2
-        ExplicitLeft = 11
-        ExplicitTop = 151
-        ExplicitWidth = 289
       end
       object chkUseRecolor: TCheckBox
         Left = 3
@@ -303,9 +267,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = #1055#1088#1080#1084#1077#1085#1103#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1094#1074#1077#1090#1072
         TabOrder = 3
-        ExplicitLeft = 11
-        ExplicitTop = 96
-        ExplicitWidth = 289
       end
       object pnlJpegQuality: TPanel
         Left = 3
@@ -316,7 +277,6 @@ object frMapCombine: TfrMapCombine
         BevelOuter = bvNone
         BorderWidth = 2
         TabOrder = 4
-        ExplicitWidth = 466
         object lblJpgQulity: TLabel
           Left = 2
           Top = 2
@@ -324,8 +284,6 @@ object frMapCombine: TfrMapCombine
           Height = 28
           Align = alLeft
           Caption = #1050#1072#1095#1077#1089#1090#1074#1086' ('#1076#1083#1103' JPEG '#1080' ECW):'
-          ExplicitLeft = 16
-          ExplicitTop = 22
           ExplicitHeight = 13
         end
         object pnlJpegQualityValue: TPanel
@@ -336,7 +294,6 @@ object frMapCombine: TfrMapCombine
           Align = alLeft
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitHeight = 36
           object seJpgQuality: TSpinEdit
             Left = 6
             Top = 0

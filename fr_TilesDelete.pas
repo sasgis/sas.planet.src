@@ -44,15 +44,14 @@ var
   VActiveMap: TMapType;
   VAddedIndex: Integer;
 begin
-  VActiveMap := GState.ViewState.GetCurrentMap;
-
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
   end;
-  cbbMap.items.Clear;
   cbbZoom.ItemIndex := AZoom;
 
+  VActiveMap := GState.ViewState.GetCurrentMap;
+  cbbMap.items.Clear;
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.TileStorage.GetUseDel then begin
@@ -61,6 +60,9 @@ begin
         cbbMap.ItemIndex:=VAddedIndex;
       end;
     end;
+  end;
+  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
+    cbbMap.ItemIndex := 0;
   end;
 end;
 
