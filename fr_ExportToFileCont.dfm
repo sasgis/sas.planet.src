@@ -1,8 +1,8 @@
 object frExportToFileCont: TfrExportToFileCont
   Left = 0
   Top = 0
-  Width = 552
-  Height = 180
+  Width = 450
+  Height = 170
   Align = alClient
   TabOrder = 0
   Visible = False
@@ -11,18 +11,18 @@ object frExportToFileCont: TfrExportToFileCont
   object pnlCenter: TPanel
     Left = 0
     Top = 32
-    Width = 552
-    Height = 148
+    Width = 450
+    Height = 138
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     ExplicitWidth = 451
     ExplicitHeight = 272
     object pnlRight: TPanel
-      Left = 418
+      Left = 316
       Top = 0
       Width = 134
-      Height = 148
+      Height = 138
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
@@ -30,7 +30,7 @@ object frExportToFileCont: TfrExportToFileCont
       ExplicitHeight = 272
       DesignSize = (
         134
-        148)
+        138)
       object lblZooms: TLabel
         Left = 7
         Top = 5
@@ -51,30 +51,30 @@ object frExportToFileCont: TfrExportToFileCont
         Left = 70
         Top = 2
         Width = 59
-        Height = 139
+        Height = 131
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 1
-        ExplicitHeight = 263
+        ExplicitHeight = 291
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 418
-      Height = 148
+      Width = 316
+      Height = 138
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
       ExplicitWidth = 317
       ExplicitHeight = 272
       DesignSize = (
-        418
-        148)
+        316
+        138)
       object lblMap: TLabel
         Left = 8
         Top = 5
-        Width = 132
+        Width = 30
         Height = 13
         Anchors = [akLeft, akTop, akRight]
         Caption = #1050#1072#1088#1090#1072
@@ -83,7 +83,7 @@ object frExportToFileCont: TfrExportToFileCont
       object lblNamesType: TLabel
         Left = 8
         Top = 49
-        Width = 316
+        Width = 206
         Height = 13
         Anchors = [akLeft, akTop, akRight]
         Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
@@ -92,19 +92,19 @@ object frExportToFileCont: TfrExportToFileCont
       object cbbMap: TComboBox
         Left = 3
         Top = 22
-        Width = 412
+        Width = 311
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 386
+        ExplicitWidth = 312
       end
       object cbbNamesType: TComboBox
         Left = 3
         Top = 68
-        Width = 412
+        Width = 311
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -117,21 +117,21 @@ object frExportToFileCont: TfrExportToFileCont
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
-        ExplicitWidth = 386
+        ExplicitWidth = 312
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 552
+    Width = 450
     Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
     ExplicitWidth = 451
     DesignSize = (
-      552
+      450
       32)
     object lblTargetFile: TLabel
       Left = 8
@@ -143,13 +143,14 @@ object frExportToFileCont: TfrExportToFileCont
     object edtTargetFile: TEdit
       Left = 100
       Top = 3
-      Width = 420
+      Width = 324
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
+      ExplicitWidth = 325
     end
     object btnSelectTargetFile: TButton
-      Left = 526
+      Left = 427
       Top = 3
       Width = 21
       Height = 21
@@ -157,7 +158,7 @@ object frExportToFileCont: TfrExportToFileCont
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetFileClick
-      ExplicitLeft = 440
+      ExplicitLeft = 428
     end
   end
   object dlgSaveTargetFile: TSaveDialog
