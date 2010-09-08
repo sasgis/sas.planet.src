@@ -207,6 +207,7 @@ uses
   fr_TilesDelete in 'fr_TilesDelete.pas' {frTilesDelete: TFrame},
   u_ProviderTilesDelete in 'u_ProviderTilesDelete.pas',
   fr_TilesGenPrev in 'fr_TilesGenPrev.pas' {frTilesGenPrev: TFrame},
+  u_ProviderTilesGenPrev in 'u_ProviderTilesGenPrev.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},

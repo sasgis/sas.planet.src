@@ -289,6 +289,7 @@
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
     <DCCReference Include="u_ProviderTilesDelete.pas" />
+    <DCCReference Include="u_ProviderTilesGenPrev.pas" />
     <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionLayer.pas" />
