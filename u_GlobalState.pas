@@ -589,66 +589,57 @@ var
   VMapConfig: IConfigDataProvider;
   VLocalMapsConfig: IConfigDataProvider;
   VFileName: string;
+  VMapTypeCount: integer;
 begin
   SetLength(MapType, 0);
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-  i := 0;
   pnum := 0;
   startdir := MapsPath;
-  if FindFirst(startdir + '*.zmp', faAnyFile, SearchRec) = 0 then begin
-    repeat
-      inc(i);
-    until FindNext(SearchRec) <> 0;
-  end;
+
   VMapOnlyCount := 0;
-  SysUtils.FindClose(SearchRec);
-  SetLength(MapType, i);
+  VMapTypeCount := 0;
   if FindFirst(startdir + '*.zmp', faAnyFile, SearchRec) = 0 then begin
-    repeat
-      VFileName := startdir + SearchRec.Name;
-      try
-        VMapType := TMapType.Create;
-        if (SearchRec.Attr and faDirectory) = faDirectory then begin
-          try
+    try
+      repeat
+        VFileName := startdir + SearchRec.Name;
+        try
+          VMapType := TMapType.Create;
+          if (SearchRec.Attr and faDirectory) = faDirectory then begin
             VMapConfig := TConfigDataProviderByFolder.Create(VFileName);
-            VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
-          except
-            on E: EBadGUID do begin
-              raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
-            end;
-          end;
-        end else begin
-          try
+          end else begin
             VMapConfig := TConfigDataProviderByKaZip.Create(VFileName);
-            VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, pnum);
+          end;
+          try
+            VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, VMapTypeCount);
           except
             on E: EBadGUID do begin
               raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
             end;
           end;
+          VGUIDString := VMapType.GUIDString;
+          if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
+            raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.ZmpFileName, VFileName]);
+          end;
+        except
+          if ExceptObject <> nil then begin
+            ShowMessage((ExceptObject as Exception).Message);
+          end;
+          FreeAndNil(VMapType);
         end;
-        VGUIDString := VMapType.GUIDString;
-        if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
-          raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.ZmpFileName, VFileName]);
+        if VMapType <> nil then begin
+          SetLength(MapType, VMapTypeCount + 1);
+          MapType[VMapTypeCount] := VMapType;
+          if not VMapType.asLayer then begin
+            Inc(VMapOnlyCount);
+          end;
+          inc(VMapTypeCount);
         end;
-      except
-        if ExceptObject <> nil then begin
-          ShowMessage((ExceptObject as Exception).Message);
-        end;
-        FreeAndNil(VMapType);
-      end;
-      if VMapType <> nil then begin
-        MapType[pnum] := VMapType;
-        if not VMapType.asLayer then begin
-          Inc(VMapOnlyCount);
-        end;
-        inc(pnum);
-      end;
-    until FindNext(SearchRec) <> 0;
-    SetLength(MapType, pnum);
-    SysUtils.FindClose(SearchRec);
+      until FindNext(SearchRec) <> 0;
+    finally
+      SysUtils.FindClose(SearchRec);
+    end;
   end;
   if Length(MapType) = 0 then begin
     raise Exception.Create(SAS_ERR_NoMaps);
