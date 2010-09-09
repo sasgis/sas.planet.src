@@ -4174,7 +4174,7 @@ var
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
   VThreadLog:ILogForTaskThread;
-  VThread: ThreadAllLoadMap;
+  VThread: TThreadDownloadTiles;
 begin
   if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
     if ExtractFileExt(OpenSessionDialog.FileName)='.sls' then begin
@@ -4182,7 +4182,7 @@ begin
       VLog := TLogForTaskThread.Create(5000, 0);
       VSimpleLog := VLog;
       VThreadLog := VLog;
-      VThread := ThreadAllLoadMap.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
+      VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
       TFProgress.Create(Application, VThread, VThreadLog);
     end else begin
       if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or

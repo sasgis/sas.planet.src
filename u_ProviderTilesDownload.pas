@@ -85,14 +85,14 @@ var
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
   VThreadLog:ILogForTaskThread;
-  VThread: ThreadAllLoadMap;
+  VThread: TThreadDownloadTiles;
 begin
   smb:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   VZoom := FFrame.cbbZoom.ItemIndex;
   VLog := TLogForTaskThread.Create(5000, 0);
   VSimpleLog := VLog;
   VThreadLog := VLog;
-  VThread := ThreadAllLoadMap.Create(
+  VThread := TThreadDownloadTiles.Create(
     VSimpleLog,
     APolygon,
     FFrame.chkReplace.Checked,

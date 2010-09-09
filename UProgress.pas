@@ -46,7 +46,7 @@ type
     procedure ButtonSaveClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
-    FDownloadThread: ThreadAllLoadMap;
+    FDownloadThread: TThreadDownloadTiles;
     FLog: ILogForTaskThread;
     FLastLogID: Cardinal;
     FStoped: boolean;
@@ -59,10 +59,10 @@ type
     procedure ThreadFinish;
     procedure StopThread;
   public
-    constructor Create(AOwner: TComponent; ADownloadThread: ThreadAllLoadMap; ALog: ILogForTaskThread); reintroduce; virtual;
+    constructor Create(AOwner: TComponent; ADownloadThread: TThreadDownloadTiles; ALog: ILogForTaskThread); reintroduce; virtual;
     destructor Destroy; override;
 
-    property DownloadThread: ThreadAllLoadMap read FDownloadThread;
+    property DownloadThread: TThreadDownloadTiles read FDownloadThread;
   public
   end;
 
@@ -109,7 +109,7 @@ begin
 end;
 
 constructor TFProgress.Create(AOwner: TComponent;
-  ADownloadThread: ThreadAllLoadMap; ALog: ILogForTaskThread);
+  ADownloadThread: TThreadDownloadTiles; ALog: ILogForTaskThread);
 begin
   inherited Create(AOwner);
   FDownloadThread := ADownloadThread;

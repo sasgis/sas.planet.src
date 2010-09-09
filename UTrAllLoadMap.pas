@@ -10,7 +10,7 @@ uses
   u_TileDownloaderThreadBase;
 
 type
-  ThreadAllLoadMap = class(TTileDownloaderThreadBase)
+  TThreadDownloadTiles = class(TTileDownloaderThreadBase)
   private
     FPolygLL: TExtendedPointArray;
     FSecondLoadTNE:boolean;
@@ -77,7 +77,7 @@ uses
   UGeoFun,
   UResStrings;
 
-constructor ThreadAllLoadMap.Create(
+constructor TThreadDownloadTiles.Create(
   ALog: ILogSimple;
   APolygon: TExtendedPointArray;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
@@ -105,7 +105,7 @@ begin
   randomize;
 end;
 
-constructor ThreadAllLoadMap.Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean);
+constructor TThreadDownloadTiles.Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean);
 var
   Ini: Tinifile;
   i: integer;
@@ -156,13 +156,13 @@ begin
   end;
 end;
 
-destructor ThreadAllLoadMap.Destroy;
+destructor TThreadDownloadTiles.Destroy;
 begin
   FLog := nil;
   inherited;
 end;
 
-procedure ThreadAllLoadMap.SaveToFile(AFileName: string);
+procedure TThreadDownloadTiles.SaveToFile(AFileName: string);
 var
   Ini: Tinifile;
   i:integer;
@@ -199,7 +199,7 @@ begin
   end;
 end;
 
-procedure ThreadAllLoadMap.Execute;
+procedure TThreadDownloadTiles.Execute;
 var
   ty: string;
   VTileExists: boolean;
@@ -355,17 +355,17 @@ begin
   end;
 end;
 
-procedure ThreadAllLoadMap.DownloadPause;
+procedure TThreadDownloadTiles.DownloadPause;
 begin
   FDownloadPause := True;
 end;
 
-procedure ThreadAllLoadMap.DownloadResume;
+procedure TThreadDownloadTiles.DownloadResume;
 begin
   FDownloadPause := False;
 end;
 
-function ThreadAllLoadMap.GetElapsedTime: TDateTime;
+function TThreadDownloadTiles.GetElapsedTime: TDateTime;
 begin
   if FFinished or FDownloadPause then begin
     Result := FElapsedTime;
