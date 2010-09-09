@@ -193,6 +193,7 @@ uses
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigInIniFileSection in 'u_MapsConfigInIniFileSection.pas',
   u_MapViewPortState in 'u_MapViewPortState.pas',
+  i_IGPSRecorder in 'i_IGPSRecorder.pas',
   u_ExportProviderAbstract in 'u_ExportProviderAbstract.pas',
   fr_ExportYaMaps in 'fr_ExportYaMaps.pas' {frExportYaMaps: TFrame},
   u_ExportProviderYaMaps in 'u_ExportProviderYaMaps.pas',
