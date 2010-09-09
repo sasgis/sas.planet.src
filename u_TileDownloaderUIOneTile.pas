@@ -19,8 +19,7 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(AXY: TPoint; AZoom: byte; MT: TMapType); overload;
-    destructor Destroy; override;
+    constructor Create(AXY: TPoint; AZoom: byte; AMapType: TMapType); overload;
   end;
 
 implementation
@@ -32,21 +31,16 @@ uses
   UResStrings,
   Unit1;
 
-constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; MT: TMapType);
+constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; AMapType: TMapType);
 begin
   inherited Create(False);
   FLoadXY := AXY;
   FZoom := AZoom;
-  FTypeMap := MT;
+  FMapType := AMapType;
 
   Priority := tpLower;
   FreeOnTerminate := true;
   randomize;
-end;
-
-destructor TTileDownloaderUIOneTile.Destroy;
-begin
-  inherited;
 end;
 
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
@@ -65,13 +59,13 @@ begin
   Flastload.TilePos.X := FLoadXY.X;
   Flastload.TilePos.Y := FLoadXY.Y;
   Flastload.Zoom := Fzoom;
-  FlastLoad.mt := Ftypemap;
+  FlastLoad.mt := FMapType;
   FlastLoad.use := true;
-  if FTypeMap.UseDwn then begin
+  if FMapType.UseDwn then begin
     FileBuf := TMemoryStream.Create;
     try
       try
-        res := FTypeMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+        res := FMapType.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
         FErrorString := GetErrStr(res);
         if (res = dtrOK) or (res = dtrSameTileSize) then begin
           GState.IncrementDownloaded(fileBuf.Size / 1024, 1);

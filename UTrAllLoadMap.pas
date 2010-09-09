@@ -12,6 +12,7 @@ uses
 type
   ThreadAllLoadMap = class(TTileDownloaderThreadBase)
   private
+    FPolygLL: TExtendedPointArray;
     FRegionPoly: TPointArray;
     FSecondLoadTNE:boolean;
     FReplaceExistTiles: boolean;
@@ -41,14 +42,14 @@ type
   public
     constructor Create(
       ALog: ILogSimple;
-      APolygon_:TPointArray;
+      APolygon:TPointArray;
       Azamena: boolean;
       ACheckExistTileSize: boolean;
       Azdate: boolean;
       ASecondLoadTNE: boolean;
       AZoom: byte;
       Atypemap: TMapType;
-      AFDate: TDateTime
+      AReplaceOlderDate: TDateTime
     );overload;
     constructor Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean); overload;
     destructor Destroy; override;
@@ -79,11 +80,11 @@ uses
 
 constructor ThreadAllLoadMap.Create(
   ALog: ILogSimple;
-  APolygon_: TPointArray;
+  APolygon: TPointArray;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
   Atypemap: TMapType;
-  AFDate: TDateTime
+  AReplaceOlderDate: TDateTime
 );
 var
   i: integer;
@@ -94,13 +95,13 @@ begin
   FReplaceExistTiles:=Azamena;
   Fzoom:=AZoom;
   FCheckExistTileSize := ACheckExistTileSize;
-  FTypeMap := Atypemap;
-  FCheckTileDate := AFDate;
+  FMapType := Atypemap;
+  FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := AzDate;
   FSecondLoadTNE := ASecondLoadTNE;
-  SetLength(FRegionPoly, length(APolygon_));
-  for i := 0 to length(APolygon_) - 1 do begin
-    FRegionPoly[i] := Apolygon_[i];
+  SetLength(FRegionPoly, length(APolygon));
+  for i := 0 to length(APolygon) - 1 do begin
+    FRegionPoly[i] := APolygon[i];
   end;
   FTotalInRegion := GetDwnlNum(FRegionRect.TopLeft, FRegionRect.BottomRight, FRegionPoly, true);
   FDownloaded := 0;
@@ -151,8 +152,8 @@ begin
   finally
     ini.Free;
   end;
-  FTypeMap := GState.GetMapFromID(VGuid);
-  if FTypeMap = nil then Terminate;
+  FMapType := GState.GetMapFromID(VGuid);
+  if FMapType = nil then Terminate;
   if length(FRegionPoly) = 0 then Terminate;
   if Terminated then begin
     FFinished := true;
@@ -177,7 +178,7 @@ var
 begin
   Ini:=TiniFile.Create(AFileName);
   try
-    Ini.WriteString('Session', 'MapGUID', FTypeMap.GUIDString);
+    Ini.WriteString('Session', 'MapGUID', FMapType.GUIDString);
     Ini.WriteInteger('Session', 'zoom', Fzoom);
     Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
     Ini.WriteBool('Session', 'raz', FCheckExistTileSize);
@@ -245,8 +246,8 @@ begin
       if RgnAndRgn(FRegionPoly, p_x, p_y, false) then begin
         FLoadXY.X := p_x;
         FLoadXY.Y := p_y;
-        FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FTypeMap.GetTileShowName(VTile, Fzoom - 1) + '...', 0);
-        VTileExists := FTypeMap.TileExists(VTile, Fzoom - 1);
+        FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FMapType.GetTileShowName(VTile, Fzoom - 1) + '...', 0);
+        VTileExists := FMapType.TileExists(VTile, Fzoom - 1);
         if (FReplaceExistTiles) or not(VTileExists) then begin
           if VTileExists then begin
             FLog.WriteText(SAS_STR_LoadProcessRepl+' ...', 0);
@@ -255,20 +256,20 @@ begin
           end;
           if (FCheckExistTileDate)
             and (VTileExists)
-            and (FTypeMap.TileLoadDate(VTile, Fzoom - 1) >= FCheckTileDate) then
+            and (FMapType.TileLoadDate(VTile, Fzoom - 1) >= FCheckTileDate) then
           begin
             FLog.WriteText(SAS_MSG_FileBeCreateTime, 0);
             VGotoNextTile := True;
           end else begin
-            razlen := FTypeMap.TileSize(VTile, Fzoom - 1);
+            razlen := FMapType.TileSize(VTile, Fzoom - 1);
 
             FileBuf:=TMemoryStream.Create;
             try
               try
-                if (not(FSecondLoadTNE))and(FTypeMap.TileNotExistsOnServer(VTile, Fzoom - 1))and(GState.SaveTileNotExists) then begin
+                if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom - 1))and(GState.SaveTileNotExists) then begin
                   res := dtrTileNotExists;
                 end else begin
-                  res:=FTypeMap.DownloadTile(Self, VTile, FZoom - 1, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                  res:=FMapType.DownloadTile(Self, VTile, FZoom - 1, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                 end;
 
                 case res of

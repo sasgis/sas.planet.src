@@ -12,7 +12,7 @@ uses
 type
   TTileDownloaderThreadBase = class(TThread)
   protected
-    FTypeMap: TMapType;
+    FMapType: TMapType;
     FLoadXY: TPoint;
     FZoom: byte;
     FLoadUrl: string;

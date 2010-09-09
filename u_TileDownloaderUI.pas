@@ -13,7 +13,7 @@ uses
 type
   TTileDownloaderUI = class(TTileDownloaderThreadBase)
   private
-    UPos: TPoint;
+    FUPos: TPoint;
     FSizeInTile: TPoint;
     FSizeInPixels: TPoint;
     FLastLoad: TlastLoad;
@@ -53,8 +53,8 @@ procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
   GState.ViewState.LockRead;
   try
-    FTypeMap := GState.ViewState.GetCurrentMap;
-    Upos := GState.ViewState.GetCenterMapPixel;
+    FMapType := GState.ViewState.GetCurrentMap;
+    FUPos := GState.ViewState.GetCenterMapPixel;
     FZoom := GState.ViewState.GetCurrentZoom;
   finally
     GState.ViewState.UnLockRead;
@@ -112,7 +112,7 @@ begin
         if Terminated then begin
           break;
         end;
-        VMainMap := FTypeMap;
+        VMainMap := FMapType;
         if VMainMap = nil then begin
           if Terminated then begin
             break;
@@ -170,9 +170,9 @@ begin
                 end;
                 VMap := GState.MapType[ii];
                 if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
-                  BPos := UPos;
+                  BPos := FUPos;
                   VZoom := FZoom;
-                  BPos := VMainMap.GeoConvert.PixelPos2OtherMap(Upos, Fzoom, VMap.GeoConvert);
+                  BPos := VMainMap.GeoConvert.PixelPos2OtherMap(FUPos, Fzoom, VMap.GeoConvert);
                   FLoadXY.X := BPos.x - (FSizeInPixels.X div 2) + (x shl 8);
                   FLoadXY.Y := BPos.y - (FSizeInPixels.Y div 2) + (y shl 8);
                   FLoadXY.X := FLoadXY.X shr 8;
