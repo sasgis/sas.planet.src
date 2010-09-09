@@ -42,13 +42,18 @@ uses
 {$R *.dfm}
 
 procedure TfrTilesDownload.chkReplaceClick(Sender: TObject);
+var
+  VEnabled: Boolean;
 begin
-  pnlTileReplaceCondition.Enabled := chkReplace.Checked;
+  VEnabled := chkReplace.Checked;
+  chkReplaceIfDifSize.Enabled := VEnabled;
+  chkReplaceOlder.Enabled := VEnabled;
+  chkReplaceOlderClick(chkReplaceOlder);
 end;
 
 procedure TfrTilesDownload.chkReplaceOlderClick(Sender: TObject);
 begin
-  dtpReplaceOlderDate.Enabled := chkReplaceOlder.Checked;
+  dtpReplaceOlderDate.Enabled := chkReplaceOlder.Enabled and chkReplaceOlder.Checked;
 end;
 
 procedure TfrTilesDownload.Init(AZoom: Byte);
@@ -78,6 +83,7 @@ begin
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
   end;
+  dtpReplaceOlderDate.Date:=now;
 end;
 
 end.

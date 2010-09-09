@@ -32,7 +32,6 @@ type
     FStartTime: TDateTime;
 
     FLog: ILogSimple;
-    FZoom: Byte;
     FDownloadPause: Boolean;
     FFinished: Boolean;
     function GetElapsedTime: TDateTime;
