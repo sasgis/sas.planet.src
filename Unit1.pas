@@ -2660,7 +2660,7 @@ end;
 procedure TFmain.TBItem5Click(Sender: TObject);
 begin
   if length(GState.GPS_TrackPoints)>1 then begin
-    if SaveLineModal(-1, GState.GPS_TrackPoints, marshrutcomment) then begin
+    if SaveLineModal(-1, GState.GPS_TrackPoints, '') then begin
       setalloperationfalse(ao_movemap);
       generate_im;
     end;
