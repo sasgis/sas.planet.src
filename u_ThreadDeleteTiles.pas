@@ -72,8 +72,8 @@ begin
         exit;
       end;
       VTile := VTileIterator.Current;
-      if (not DelBytes or (DelBytesNum = FMapType.TileSize(VTile, FZoom - 1))) then begin
-        if FMapType.DeleteTile(VTile, FZoom - 1) then begin
+      if (not DelBytes or (DelBytesNum = FMapType.TileSize(VTile, FZoom))) then begin
+        if FMapType.DeleteTile(VTile, FZoom) then begin
           inc(FDeletedCount);
         end;
         ProgressFormUpdateOnProgress;
