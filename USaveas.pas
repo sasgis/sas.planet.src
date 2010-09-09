@@ -17,7 +17,6 @@ uses
   ExtCtrls,
   inifiles,
   ComCtrls,
-  filectrl,
   GR32,
   u_ExportProviderAbstract,
   UGeoFun,
@@ -97,12 +96,8 @@ implementation
 
 uses
   u_GlobalState,
-  i_ILogSimple,
-  i_ILogForTaskThread,
-  u_LogForTaskThread,
   i_IMapCalibration,
   i_ICoordConverter,
-  UTrAllLoadMap,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
@@ -116,10 +111,6 @@ uses
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
   u_ProviderTilesDownload,
-  u_ThreadExportToFileSystem,
-  u_ThreadGenPrevZoom,
-  UProgress,
-  UImgFun,
   unit1;
 
 {$R *.dfm}
