@@ -30,7 +30,7 @@ uses
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,
-  UTrAllLoadMap,
+  u_ThreadDownloadTiles,
   UProgress,
   UResStrings,
   UMapType;

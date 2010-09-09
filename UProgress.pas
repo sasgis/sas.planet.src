@@ -15,7 +15,7 @@ uses
   RarProgress,
   i_ILogForTaskThread,
   UResStrings,
-  UTrAllLoadMap;
+  u_ThreadDownloadTiles;
 
 type
   TFProgress = class(TForm)

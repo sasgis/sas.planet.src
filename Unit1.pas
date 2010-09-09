@@ -688,7 +688,7 @@ uses
   u_GeoCoderByYandex,
   u_MarksSimple,
   u_MarksReadWriteSimple,
-  UTrAllLoadMap,
+  u_ThreadDownloadTiles,
   UGSM,
   UImport, 
   u_MapViewPortState,

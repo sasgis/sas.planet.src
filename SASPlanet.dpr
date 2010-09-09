@@ -45,7 +45,7 @@ uses
   i_ITileObjCache in 'i_ITileObjCache.pas',
   u_TileCacheSimpleGlobal in 'u_TileCacheSimpleGlobal.pas',
   u_BitmapLayerWithSortIndex in 'u_BitmapLayerWithSortIndex.pas',
-  UTrAllLoadMap in 'UTrAllLoadMap.pas',
+  u_ThreadDownloadTiles in 'u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'u_ThreadMapCombineBase.pas',
   u_ThreadMapCombineBMP in 'u_ThreadMapCombineBMP.pas',
   u_ThreadMapCombineECW in 'u_ThreadMapCombineECW.pas',

@@ -209,7 +209,6 @@
       <Form>FShortcutChange</Form>
     </DCCReference>
     <DCCReference Include="UTimeZones.pas" />
-    <DCCReference Include="UTrAllLoadMap.pas" />
     <DCCReference Include="UYaMobile.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
@@ -309,6 +308,7 @@
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionLayer.pas" />
     <DCCReference Include="u_ThreadDeleteTiles.pas" />
+    <DCCReference Include="u_ThreadDownloadTiles.pas" />
     <DCCReference Include="u_ThreadExportAbstract.pas" />
     <DCCReference Include="u_ThreadExportIPhone.pas" />
     <DCCReference Include="u_ThreadExportKML.pas" />

@@ -1,4 +1,4 @@
-unit UTrAllLoadMap;
+unit u_ThreadDownloadTiles;
 interface
 
 uses
