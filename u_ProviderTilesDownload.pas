@@ -81,7 +81,6 @@ end;
 procedure TProviderTilesDownload.StartProcess(APolygon: TExtendedPointArray);
 var
   smb:TMapType;
-  polyg:TPointArray;
   VZoom: byte;
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
@@ -90,14 +89,12 @@ var
 begin
   smb:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   VZoom := FFrame.cbbZoom.ItemIndex;
-  polyg := smb.GeoConvert.LonLatArray2PixelArray(APolygon, VZoom);
-
   VLog := TLogForTaskThread.Create(5000, 0);
   VSimpleLog := VLog;
   VThreadLog := VLog;
   VThread := ThreadAllLoadMap.Create(
     VSimpleLog,
-    Polyg,
+    APolygon,
     FFrame.chkReplace.Checked,
     FFrame.chkReplaceIfDifSize.Checked,
     FFrame.chkReplaceOlder.Checked,
@@ -107,7 +104,6 @@ begin
     FFrame.dtpReplaceOlderDate.DateTime
   );
   TFProgress.Create(Application, VThread, VThreadLog);
-  polyg := nil;
 end;
 
 end.

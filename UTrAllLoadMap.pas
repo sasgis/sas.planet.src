@@ -13,7 +13,6 @@ type
   ThreadAllLoadMap = class(TTileDownloaderThreadBase)
   private
     FPolygLL: TExtendedPointArray;
-    FRegionPoly: TPointArray;
     FSecondLoadTNE:boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
@@ -21,7 +20,6 @@ type
     FCheckTileDate: TDateTime;
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
-    FRegionRect: TRect;
 
     FTotalInRegion: Int64;
     FDownloaded: Int64;
@@ -41,7 +39,7 @@ type
   public
     constructor Create(
       ALog: ILogSimple;
-      APolygon:TPointArray;
+      APolygon: TExtendedPointArray;
       Azamena: boolean;
       ACheckExistTileSize: boolean;
       Azdate: boolean;
@@ -74,19 +72,19 @@ uses
   Types,
   i_ITileDownlodSession,
   u_GlobalState,
+  u_TileIteratorAbstract,
+  u_TileIteratorStuped,
   UGeoFun,
   UResStrings;
 
 constructor ThreadAllLoadMap.Create(
   ALog: ILogSimple;
-  APolygon: TPointArray;
+  APolygon: TExtendedPointArray;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
   Atypemap: TMapType;
   AReplaceOlderDate: TDateTime
 );
-var
-  i: integer;
 begin
   inherited Create(false);
   FLog := ALog;
@@ -98,15 +96,12 @@ begin
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := AzDate;
   FSecondLoadTNE := ASecondLoadTNE;
-  SetLength(FRegionPoly, length(APolygon));
-  for i := 0 to length(APolygon) - 1 do begin
-    FRegionPoly[i] := APolygon[i];
-  end;
-  FTotalInRegion := GetDwnlNum(FRegionRect.TopLeft, FRegionRect.BottomRight, FRegionPoly, true);
+  FPolygLL := copy(APolygon);
   FDownloaded := 0;
   FProcessed := 0;
   FDownloadSize := 0;
   FElapsedTime := 0;
+  FLastProcessedPoint := Point(-1,-1);
   randomize;
 end;
 
@@ -124,7 +119,7 @@ begin
   try
     VGuids:=Ini.ReadString('Session','MapGUID','');
     VGuid := StringToGUID(VGuids);
-    Fzoom := Ini.ReadInteger('Session', 'zoom', GState.ViewState.GetCurrentZoom);
+    Fzoom := Ini.ReadInteger('Session', 'zoom', GState.ViewState.GetCurrentZoom) - 1;
     FReplaceExistTiles := Ini.ReadBool('Session', 'zamena', false);
     FCheckExistTileSize := Ini.ReadBool('Session','raz', false);
     FCheckExistTileDate := Ini.ReadBool('Session','zdate', false);
@@ -141,10 +136,10 @@ begin
       FLastProcessedPoint.Y:=Ini.ReadInteger('Session','StartY',-1);
     end;
     i:=1;
-    while Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647)<>2147483647 do begin
-      setlength(FRegionPoly, i);
-      FRegionPoly[i-1].x := Ini.ReadInteger('Session','PointX_'+inttostr(i),2147483647);
-      FRegionPoly[i-1].y := Ini.ReadInteger('Session','PointY_'+inttostr(i),2147483647);
+    while Ini.ReadFloat('Session','LLPointX_'+inttostr(i),-10000)>-10000 do begin
+      setlength(FPolygLL, i);
+      FPolygLL[i-1].x := Ini.ReadInteger('Session','LLPointX_'+inttostr(i),-10000);
+      FPolygLL[i-1].y := Ini.ReadInteger('Session','LLPointY_'+inttostr(i),-10000);
       inc(i);
     end;
     FElapsedTime := Ini.ReadFloat('Session', 'ElapsedTime', 0);
@@ -153,18 +148,16 @@ begin
   end;
   FMapType := GState.GetMapFromID(VGuid);
   if FMapType = nil then Terminate;
-  if length(FRegionPoly) = 0 then Terminate;
+  if length(FPolygLL) = 0 then Terminate;
   if Terminated then begin
     FFinished := true;
   end else begin
-    FTotalInRegion := GetDwnlNum(FRegionRect.TopLeft, FRegionRect.BottomRight, FRegionPoly, true);
     randomize;
   end;
 end;
 
 destructor ThreadAllLoadMap.Destroy;
 begin
-  FRegionPoly := nil;
   FLog := nil;
   inherited;
 end;
@@ -178,7 +171,7 @@ begin
   Ini:=TiniFile.Create(AFileName);
   try
     Ini.WriteString('Session', 'MapGUID', FMapType.GUIDString);
-    Ini.WriteInteger('Session', 'zoom', Fzoom);
+    Ini.WriteInteger('Session', 'zoom', Fzoom + 1);
     Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
     Ini.WriteBool('Session', 'raz', FCheckExistTileSize);
     Ini.WriteBool('Session', 'zdate', FCheckExistTileDate);
@@ -191,9 +184,9 @@ begin
     Ini.WriteInteger('Session', 'StartY', FLastProcessedPoint.Y);
     Ini.WriteInteger('Session', 'LastSuccessfulStartX', FLastSuccessfulPoint.X);
     Ini.WriteInteger('Session', 'LastSuccessfulStartY', FLastSuccessfulPoint.Y);
-    for i := 1 to length(FRegionPoly) do begin
-      Ini.WriteInteger('Session', 'PointX_'+inttostr(i), FRegionPoly[i-1].x);
-      Ini.WriteInteger('Session', 'PointY_'+inttostr(i), FRegionPoly[i-1].y);
+    for i := 1 to length(FPolygLL) do begin
+      Ini.WriteFloat('Session', 'LLPointX_'+inttostr(i), FPolygLL[i-1].x);
+      Ini.WriteFloat('Session', 'LLPointY_'+inttostr(i), FPolygLL[i-1].y);
     end;
     if (FDownloadPause) then begin
       VElapsedTime := FElapsedTime;
@@ -208,7 +201,6 @@ end;
 
 procedure ThreadAllLoadMap.Execute;
 var
-  p_x,p_y: integer;
   ty: string;
   VTileExists: boolean;
   fileBuf:TMemoryStream;
@@ -216,144 +208,146 @@ var
   razlen: integer;
   VGotoNextTile: Boolean;
   VTile: TPoint;
+  VTileIterator: TTileIteratorAbstract;
 begin
   FStartTime := Now;
-  FLastSuccessfulPoint := Point(-1,-1);
-  if FRegionRect.Left < FLastProcessedPoint.x then begin
-    p_x := FLastProcessedPoint.x;
-  end else begin
-    p_x := FRegionRect.Left;
-  end;
-  if FRegionRect.Top < FLastProcessedPoint.y then begin
-    p_y := FLastProcessedPoint.Y
-  end else begin
-    p_y := FRegionRect.Top;
-  end;
-  VGotoNextTile := True;
-  while p_x < FRegionRect.Right do begin
-    VTile.X := p_x shr 8;
-    while p_y < FRegionRect.Bottom do begin
-      VTile.Y := p_y shr 8;
-      sleep(1);
-      if (FDownloadPause) then begin
-        FElapsedTime := FElapsedTime + (Now - FStartTime);
-        FLog.WriteText(SAS_STR_UserStop, 10);
-        While (FDownloadPause)and (not Terminated) do sleep(100);
-        FStartTime := now;
+
+  VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
+  try
+    FTotalInRegion := VTileIterator.TilesTotal;
+    FLastSuccessfulPoint := Point(-1,-1);
+    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0)  then begin
+      while VTileIterator.Next do begin
+        if Terminated then begin
+          Break;;
+        end;
+        VTile := VTileIterator.Current;
+        if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
+          Break;
+        end;
       end;
-      if Terminated then exit;
-      if RgnAndRgn(FRegionPoly, p_x, p_y, false) then begin
-        FLoadXY.X := p_x;
-        FLoadXY.Y := p_y;
-        FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FMapType.GetTileShowName(VTile, Fzoom - 1) + '...', 0);
-        VTileExists := FMapType.TileExists(VTile, Fzoom - 1);
-        if (FReplaceExistTiles) or not(VTileExists) then begin
-          if VTileExists then begin
-            FLog.WriteText(SAS_STR_LoadProcessRepl+' ...', 0);
-          end else begin
-            FLog.WriteText(SAS_STR_LoadProcess+'...', 0);
+
+    end;
+    if not Terminated then begin
+      while VTileIterator.Next do begin
+        if Terminated then begin
+          Break;
+        end;
+        VTile := VTileIterator.Current;
+        VGotoNextTile := false;
+        while not VGotoNextTile do begin
+          if (FDownloadPause) then begin
+            FElapsedTime := FElapsedTime + (Now - FStartTime);
+            FLog.WriteText(SAS_STR_UserStop, 10);
+            While (FDownloadPause)and (not Terminated) do sleep(100);
+            FStartTime := now;
           end;
-          if (FCheckExistTileDate)
-            and (VTileExists)
-            and (FMapType.TileLoadDate(VTile, Fzoom - 1) >= FCheckTileDate) then
-          begin
-            FLog.WriteText(SAS_MSG_FileBeCreateTime, 0);
-            VGotoNextTile := True;
-          end else begin
-            razlen := FMapType.TileSize(VTile, Fzoom - 1);
+          FLoadXY := VTile;
 
-            FileBuf:=TMemoryStream.Create;
-            try
+          FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FMapType.GetTileShowName(VTile, Fzoom) + '...', 0);
+          VTileExists := FMapType.TileExists(VTile, Fzoom);
+          if (FReplaceExistTiles) or not(VTileExists) then begin
+            if VTileExists then begin
+              FLog.WriteText(SAS_STR_LoadProcessRepl+' ...', 0);
+            end else begin
+              FLog.WriteText(SAS_STR_LoadProcess+'...', 0);
+            end;
+            if (FCheckExistTileDate)
+              and (VTileExists)
+              and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then
+            begin
+              FLog.WriteText(SAS_MSG_FileBeCreateTime, 0);
+              VGotoNextTile := True;
+            end else begin
+              razlen := FMapType.TileSize(VTile, Fzoom);
+
+              FileBuf:=TMemoryStream.Create;
               try
-                if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom - 1))and(GState.SaveTileNotExists) then begin
-                  res := dtrTileNotExists;
-                end else begin
-                  res:=FMapType.DownloadTile(Self, VTile, FZoom - 1, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
-                end;
+                try
+                  if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
+                    res := dtrTileNotExists;
+                  end else begin
+                    res:=FMapType.DownloadTile(Self, VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                  end;
 
-                case res of
-                  dtrOK : begin
-                    FLastSuccessfulPoint := FLoadXY;
-                    GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                    FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
-                    inc(FDownloaded);
-                    FLog.WriteText('(Ok!)', 0);
-                    VGotoNextTile := True;
-                  end;
-                  dtrSameTileSize: begin
-                    FLastSuccessfulPoint := FLoadXY;
-                    GState.IncrementDownloaded(razlen/1024, 1);
-                    FDownloadSize := FDownloadSize + (razlen / 1024);
-                    inc(FDownloaded);
-                    FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
-                    VGotoNextTile := True;
-                  end;
-                  dtrProxyAuthError: begin
-                    FLog.WriteText(SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...', 10);
-                    sleep(5000);
-                    VGotoNextTile := false;
-                  end;
-                  dtrBanError: begin
-                    FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
-                    sleep(10000);
-                    VGotoNextTile := false;
-                  end;
-                  dtrErrorMIMEType: begin
-                    FLog.WriteText(Format(SAS_ERR_BadMIME, [ty]), 1);
-                    VGotoNextTile := True;
-                  end;
-                  dtrTileNotExists: begin
-                    FLog.WriteText(SAS_ERR_TileNotExists, 1);
-                    VGotoNextTile := True;
-                  end;
-                  dtrDownloadError: begin
-                    FLog.WriteText(SAS_ERR_Noconnectionstointernet, 10);
-                    if GState.GoNextTileIfDownloadError then begin
+                  case res of
+                    dtrOK : begin
+                      FLastSuccessfulPoint := FLoadXY;
+                      GState.IncrementDownloaded(fileBuf.Size/1024, 1);
+                      FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
+                      inc(FDownloaded);
+                      FLog.WriteText('(Ok!)', 0);
                       VGotoNextTile := True;
-                    end else begin
+                    end;
+                    dtrSameTileSize: begin
+                      FLastSuccessfulPoint := FLoadXY;
+                      GState.IncrementDownloaded(razlen/1024, 1);
+                      FDownloadSize := FDownloadSize + (razlen / 1024);
+                      inc(FDownloaded);
+                      FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
+                      VGotoNextTile := True;
+                    end;
+                    dtrProxyAuthError: begin
+                      FLog.WriteText(SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...', 10);
+                      sleep(5000);
+                      VGotoNextTile := false;
+                    end;
+                    dtrBanError: begin
+                      FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
+                      sleep(10000);
+                      VGotoNextTile := false;
+                    end;
+                    dtrErrorMIMEType: begin
+                      FLog.WriteText(Format(SAS_ERR_BadMIME, [ty]), 1);
+                      VGotoNextTile := True;
+                    end;
+                    dtrTileNotExists: begin
+                      FLog.WriteText(SAS_ERR_TileNotExists, 1);
+                      VGotoNextTile := True;
+                    end;
+                    dtrDownloadError: begin
+                      FLog.WriteText(SAS_ERR_Noconnectionstointernet, 10);
+                      if GState.GoNextTileIfDownloadError then begin
+                        VGotoNextTile := True;
+                      end else begin
+                        FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
+                        sleep(5000);
+                        VGotoNextTile := false;
+                      end;
+                      continue;
+                    end;
+                    else begin
+                      FLog.WriteText(GetErrStr(res), 10);
                       FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
                       sleep(5000);
                       VGotoNextTile := false;
                     end;
-                    continue;
                   end;
-                  else begin
-                    FLog.WriteText(GetErrStr(res), 10);
-                    FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
-                    sleep(5000);
-                    VGotoNextTile := false;
+                except
+                  on E: Exception do begin
+                    FLog.WriteText(E.Message, 0);
+                    VGotoNextTile := True;
                   end;
                 end;
-              except
-                on E: Exception do begin
-                  FLog.WriteText(E.Message, 0);
-                  VGotoNextTile := True;
-                end;
+              finally
+                FileBuf.Free;
               end;
-            finally
-              FileBuf.Free;
             end;
+          end else begin
+            FLog.WriteText(SAS_ERR_FileExistsShort+';', 0);
+            VGotoNextTile := True;
           end;
-        end else begin
-          FLog.WriteText(SAS_ERR_FileExistsShort+';', 0);
-          VGotoNextTile := True;
+          if VGotoNextTile then begin
+            inc(FProcessed);
+          end;
         end;
-        if VGotoNextTile then begin
-          inc(FProcessed);
+        if Terminated then begin
+          Break;
         end;
-      end else begin
-        VGotoNextTile := True;
       end;
-      if VGotoNextTile then begin
-        inc(p_y,256);
-      end else begin
-        FLog.WriteText(SAS_ERR_RepeatProcess, 0);
-      end;
-      FLastProcessedPoint.Y := p_y;
     end;
-    p_y := FRegionRect.Top;
-    inc(p_x,256);
-    FLastProcessedPoint.X := p_x;
+  finally
+    FreeAndNil(VTileIterator);
   end;
   if not Terminated then begin
     FLog.WriteText(SAS_MSG_ProcessFilesComplete, 0);
