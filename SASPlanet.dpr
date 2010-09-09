@@ -213,6 +213,7 @@ uses
   fr_MapCombine in 'fr_MapCombine.pas' {frMapCombine: TFrame},
   u_ProviderMapCombine in 'u_ProviderMapCombine.pas',
   fr_TilesDownload in 'fr_TilesDownload.pas' {frTilesDownload: TFrame},
+  u_ProviderTilesDownload in 'u_ProviderTilesDownload.pas',
   Unit1 in 'Unit1.pas' {Fmain},
   Unit2 in 'Unit2.pas' {FGoTo},
   UAbout in 'UAbout.pas' {Fabout},

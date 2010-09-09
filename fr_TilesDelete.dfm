@@ -1,16 +1,14 @@
 object frTilesDelete: TfrTilesDelete
   Left = 0
   Top = 0
-  Width = 442
-  Height = 275
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
-  ExplicitWidth = 451
-  ExplicitHeight = 304
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 442
+    Width = 451
     Height = 25
     Align = alTop
     Alignment = taLeftJustify
@@ -20,29 +18,24 @@ object frTilesDelete: TfrTilesDelete
     BorderWidth = 3
     Caption = #1059#1076#1072#1083#1080#1090#1100' '#1092#1072#1081#1083#1099' '#1082#1072#1088#1090#1099
     TabOrder = 0
-    ExplicitWidth = 451
   end
   object pnlBottom: TPanel
     Left = 0
     Top = 25
-    Width = 442
-    Height = 250
+    Width = 451
+    Height = 279
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 451
-    ExplicitHeight = 279
     object pnlRight: TPanel
-      Left = 380
+      Left = 389
       Top = 0
       Width = 62
-      Height = 250
+      Height = 279
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitLeft = 389
-      ExplicitHeight = 279
       object lblZoom: TLabel
         Left = 3
         Top = 3
@@ -66,21 +59,19 @@ object frTilesDelete: TfrTilesDelete
     object pnlCenter: TPanel
       Left = 0
       Top = 0
-      Width = 380
-      Height = 250
+      Width = 389
+      Height = 279
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitWidth = 389
-      ExplicitHeight = 279
       DesignSize = (
-        380
-        250)
+        389
+        279)
       object lblMap: TLabel
         Left = 3
         Top = 3
-        Width = 374
+        Width = 383
         Height = 13
         Align = alTop
         AutoSize = False
@@ -92,7 +83,7 @@ object frTilesDelete: TfrTilesDelete
       object lblStat: TLabel
         Left = 10
         Top = 66
-        Width = -6
+        Width = 12
         Height = 13
         Anchors = [akLeft, akTop, akRight]
         ExplicitWidth = 3
@@ -100,43 +91,39 @@ object frTilesDelete: TfrTilesDelete
       object cbbMap: TComboBox
         Left = 3
         Top = 16
-        Width = 374
+        Width = 383
         Height = 21
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 383
       end
       object pnlDelBySize: TPanel
         Left = 3
         Top = 37
-        Width = 374
+        Width = 383
         Height = 36
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 383
         object chkDelBySize: TCheckBox
           Left = 0
           Top = 0
-          Width = 285
+          Width = 294
           Height = 36
           Align = alClient
           Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
           TabOrder = 0
-          ExplicitWidth = 294
         end
         object pnlDelSize: TPanel
-          Left = 285
+          Left = 294
           Top = 0
           Width = 89
           Height = 36
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitLeft = 294
           object seDelSize: TSpinEdit
             Left = 4
             Top = 4
