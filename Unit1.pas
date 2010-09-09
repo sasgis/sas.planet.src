@@ -3013,36 +3013,42 @@ var s2f,sb:string;
     len:integer;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
     VConverter: ICoordConverter;
+    VPointCurr: TExtendedPoint;
+    VPointPrev: TExtendedPoint;
+    VDistToPrev: Extended;
 begin
- if (GPSReceiver.IsFix=0) then exit;
- setlength(GState.GPS_TrackPoints,length(GState.GPS_TrackPoints)+1);
- len:=length(GState.GPS_TrackPoints);
- GState.GPS_TrackPoints[len-1]:=ExtPoint(GPSReceiver.GetLongitudeAsDecimalDegrees+GState.GPS_Correction.x,GPSReceiver.GetLatitudeAsDecimalDegrees+GState.GPS_Correction.y);
- if (GState.GPS_TrackPoints[len-1].x<>0)or(GState.GPS_TrackPoints[len-1].y<>0) then
-  begin
+  if (GPSReceiver.IsFix=0) then exit;
+  VPointCurr.X := GPSReceiver.GetLongitudeAsDecimalDegrees;
+  VPointCurr.Y := GPSReceiver.GetLatitudeAsDecimalDegrees;
+  if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
+    len:=length(GState.GPS_TrackPoints) + 1;
+    setlength(GState.GPS_TrackPoints, Len);
+    setlength(GState.GPS_ArrayOfSpeed,len);
+    GState.GPS_TrackPoints[len-1]:= VPointCurr;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
-  setlength(GState.GPS_ArrayOfSpeed,len);
-  GPSpar.speed:=GPSReceiver.GetSpeed_KMH;
-  if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
-  inc(GPSpar.sspeednumentr);
-  GPSpar.allspeed:=GPSpar.allspeed+GPSpar.speed;
-  GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
-  GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
-  GPSpar.altitude:=GPSReceiver.GetAltitude;
-  GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
-  GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
-  if len>1 then begin
-    GPSpar.len:=GPSpar.len+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-    GPSpar.Odometr:=GPSpar.Odometr+VConverter.CalcDist(GState.GPS_TrackPoints[len-2], GState.GPS_TrackPoints[len-1]);
-    GPSpar.azimut:=RadToDeg(ArcTan2(GState.GPS_TrackPoints[len-2].y-GState.GPS_TrackPoints[len-1].y,GState.GPS_TrackPoints[len-1].x-GState.GPS_TrackPoints[len-2].x))+90;
-  end;
+    GPSpar.speed:=GPSReceiver.GetSpeed_KMH;
+    if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
+    inc(GPSpar.sspeednumentr);
+    GPSpar.allspeed:=GPSpar.allspeed+GPSpar.speed;
+    GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
+    GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
+    GPSpar.altitude:=GPSReceiver.GetAltitude;
+    GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
+    GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
+    if len>1 then begin
+      VPointPrev := GState.GPS_TrackPoints[len-2];
+      VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
+      GPSpar.len:=GPSpar.len+VDistToPrev;
+      GPSpar.Odometr:=GPSpar.Odometr+VDistToPrev;
+      GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
+    end;
 
   if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=FMain) then
    begin
     if (GState.GPS_MapMove)
      then begin
             GState.ViewState.LockWrite;
-            GState.ViewState.ChangeLonLatAndUnlock(GState.GPS_TrackPoints[len-1]);
+            GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
           end
      else begin
            LayerStatBar.Redraw;
@@ -3051,16 +3057,19 @@ begin
   UpdateGPSsensors;
   if GState.GPS_WriteLog then
    begin
-    if length(GState.GPS_TrackPoints)=1 then sb:='1' else sb:='0';
+    if len=1 then sb:='1' else sb:='0';
     DecodeDate(Date, xYear, xMonth, xDay);
     DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
-    s2f:=R2StrPoint(round(GState.GPS_TrackPoints[len-1].y*10000000)/10000000)+','+R2StrPoint(round(GState.GPS_TrackPoints[len-1].x*10000000)/10000000)+','+sb+','+R2StrPoint(GPSReceiver.MetersToFeet(GPSpar.altitude))+','+
-                    floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','+inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','+
-                    inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
+    s2f:=R2StrPoint(round(VPointCurr.y*10000000)/10000000)+','
+      +R2StrPoint(round(VPointCurr.x*10000000)/10000000)+','
+      +sb+','
+      +R2StrPoint(GPSReceiver.MetersToFeet(GPSpar.altitude))+','
+      +floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','
+      +inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','
+      +inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
     Writeln(GState.GPS_LogFile,s2f);
    end;
-  end
-  else setlength(GState.GPS_TrackPoints,length(GState.GPS_TrackPoints)-1);
+  end;
 end;
 
 procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
