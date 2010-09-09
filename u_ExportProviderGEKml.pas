@@ -78,7 +78,6 @@ var
   path:string;
   Zoomarr:array [0..23] of boolean;
   VMapType: TMapType;
-  comprSat,comprMap:byte;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
 begin
