@@ -113,7 +113,7 @@ var
   j, speed: integer;
   VPolygon: TPolygon32;
   startrarck: integer;
-  VPointPrev, VPointCurr: TPoint;
+  VPointPrev, VPointCurr: TExtendedPoint;
   VPointsCount: Integer;
   VSegmentColor: TColor32;
   VSpeed: Extended;
@@ -131,23 +131,23 @@ begin
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
-        VPointPrev := FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[startrarck], FZoom);
+        VPointPrev := FGeoConvert.LonLat2PixelPosFloat(GState.GPS_TrackPoints[startrarck], FZoom);
         VPointPrev := MapPixel2BitmapPixel(VPointPrev);
         VMaxSpeed := FMain.GPSpar.maxspeed;
         for j := startrarck + 1 to VPointsCount - 1 do begin
-          VPointCurr := FGeoConvert.LonLat2PixelPos(GState.GPS_TrackPoints[j], FZoom);
+          VPointCurr := FGeoConvert.LonLat2PixelPosFloat(GState.GPS_TrackPoints[j], FZoom);
           VPointCurr := MapPixel2BitmapPixel(VPointCurr);
           VSpeed := GState.GPS_ArrayOfSpeed[j - 1];
-          if (VSpeed > 0) and (VMaxSpeed > 0) then begin
-            speed := round(255 / (VMaxSpeed / VSpeed));
+          if (VMaxSpeed > 0) then begin
+            speed := round((255 * VSpeed) / VMaxSpeed);
           end else begin
             speed := 0;
           end;
           VSegmentColor := Color32(speed, 0, 256 - speed, 150);
-          if (VPointPrev.X <> VPointCurr.X) or (VPointPrev.Y <> VPointCurr.Y) then begin
+          if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
             if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
-              VPolygon.Add(FixedPoint(VPointPrev));
-              VPolygon.Add(FixedPoint(VPointCurr));
+              VPolygon.Add(FixedPoint(VPointPrev.X, VPointPrev.Y));
+              VPolygon.Add(FixedPoint(VPointCurr.X, VPointCurr.Y));
               with VPolygon.Outline do try
                 with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
                   DrawFill(FLayer.Bitmap, VSegmentColor);
