@@ -35,27 +35,18 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
-    Label22: TLabel;
     Label3: TLabel;
     Label6: TLabel;
-    CheckBox2: TCheckBox;
     Label25: TLabel;
     CBscleit: TComboBox;
     Label26: TLabel;
-    Label4: TLabel;
-    Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel5: TBevel;
     Label8: TLabel;
     Label9: TLabel;
     CBFormat: TComboBox;
-    CheckBox7: TCheckBox;
     Button3: TButton;
-    Bevel6: TBevel;
-    CBDateDo: TCheckBox;
-    DateDo: TDateTimePicker;
     QualitiEdit: TSpinEdit;
-    CBMapLoad: TComboBox;
     CBZoomload: TComboBox;
     SpeedButton1: TSpeedButton;
     GroupBox1: TGroupBox;
@@ -68,7 +59,6 @@ type
     Label28: TLabel;
     SaveSelDialog: TSaveDialog;
     CBusedReColor: TCheckBox;
-    CBSecondLoadTNE: TCheckBox;
     CBCloseWithStart: TCheckBox;
     PrTypesBox: TCheckListBox;
     CBUsedMarks: TCheckBox;
@@ -77,12 +67,8 @@ type
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button3Click(Sender: TObject);
-    procedure CheckBox2Click(Sender: TObject);
-    procedure CBDateDoClick(Sender: TObject);
     procedure CBZoomloadChange(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
-    procedure TabSheet1Show(Sender: TObject);
-    procedure TabSheet2Show(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
   private
     FZoom_rect:byte;
@@ -90,6 +76,7 @@ type
     FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
+    FProviderTilesDownload: TExportProviderAbstract;
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
@@ -128,6 +115,7 @@ uses
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
+  u_ProviderTilesDownload,
   u_ThreadExportToFileSystem,
   u_ThreadGenPrevZoom,
   UProgress,
@@ -176,6 +164,7 @@ begin
   FreeAndNil(FProviderTilesDelte);
   FreeAndNil(FProviderTilesGenPrev);
   FreeAndNil(FProviderTilesCopy);
+  FreeAndNil(FProviderTilesDownload);
   inherited;
 end;
 
@@ -196,25 +185,8 @@ begin
 end;
 
 procedure TFsaveas.LoadRegion(APolyLL: TExtendedPointArray);
-var
-  smb:TMapType;
-  polyg:TPointArray;
-  VZoom: byte;
-  VLog: TLogForTaskThread;
-  VSimpleLog: ILogSimple;
-  VThreadLog:ILogForTaskThread;
-  VThread: ThreadAllLoadMap;
 begin
-  smb:=TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
-  VZoom := CBZoomload.ItemIndex;
-  polyg := smb.GeoConvert.LonLatArray2PixelArray(APolyLL, VZoom);
-
-  VLog := TLogForTaskThread.Create(5000, 0);
-  VSimpleLog := VLog;
-  VThreadLog := VLog;
-  VThread := ThreadAllLoadMap.Create(VSimpleLog, Polyg,CheckBox2.Checked,CheckBox7.Checked,CBDateDo.Checked,CBSecondLoadTNE.Checked,strtoint(CBZoomload.Text),smb,DateDo.DateTime);
-  TFProgress.Create(Application, VThread, VThreadLog);
-  polyg := nil;
+  FProviderTilesDownload.StartProcess(APolyLL);
 end;
 
 procedure TFsaveas.genbacksatREG(APolyLL: TExtendedPointArray);
@@ -334,6 +306,7 @@ begin
   FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
   FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
   FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
+  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
@@ -349,25 +322,16 @@ var
   VMapType: TMapType;
   VExportProvider: TExportProviderAbstract;
 begin
-  CBSecondLoadTNE.Enabled:=GState.SaveTileNotExists;
   CBZoomload.Items.Clear;
   for i:=1 to 24 do begin
     CBZoomload.Items.Add(inttostr(i));
   end;
-  DateDo.Date:=now;
-  CBMapLoad.Items.Clear;
   CBscleit.Items.Clear;
   CBSclHib.Items.Clear;
   CBSclHib.Items.Add(SAS_STR_No);
   VActiveMap := GState.ViewState.GetCurrentMap;
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
-    if (VMapType.Usedwn) then begin
-      VAddedIndex := CBMapLoad.Items.AddObject(VMapType.name, VMapType);
-      if VMapType = VActiveMap then begin
-        CBMapLoad.ItemIndex := VAddedIndex;
-      end;
-    end;
     if VMapType.Usestick then begin
       VAddedIndex := CBscleit.Items.AddObject(VMapType.name,VMapType);
       if (VMapType.asLayer) then begin
@@ -390,7 +354,6 @@ begin
   end;
 
   if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
-  if CBMapLoad.ItemIndex=-1 then CBMapLoad.ItemIndex:=0;
   CBSclHib.ItemIndex:=0;
   FZoom_rect:=Azoom;
   setlength(FPolygonLL,length(polygon_));
@@ -432,6 +395,8 @@ begin
   FProviderTilesGenPrev.Show;
   FProviderTilesCopy.InitFrame(Azoom, FPolygonLL);
   FProviderTilesCopy.Show;
+  FProviderTilesDownload.InitFrame(Azoom, FPolygonLL);
+  FProviderTilesDownload.Show;
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
   CBZoomload.ItemIndex:=FZoom_rect;
@@ -451,17 +416,6 @@ begin
  close;
 end;
 
-procedure TFsaveas.CheckBox2Click(Sender: TObject);
-begin
- CheckBox7.Enabled:=CheckBox2.Checked;
- CBDateDo.Enabled:=CheckBox2.Checked;
-end;
-
-procedure TFsaveas.CBDateDoClick(Sender: TObject);
-begin
- DateDo.Enabled:=CBDateDo.Checked;
-end;
-
 procedure TFsaveas.CBZoomloadChange(Sender: TObject);
 var polyg:TPointArray;
     min,max:TPoint;
@@ -469,17 +423,15 @@ var polyg:TPointArray;
     Vmt: TMapType;
     VZoom: byte;
 begin
-  Vmt := TMapType(CBmapLoad.Items.Objects[CBmapLoad.ItemIndex]);
+  Vmt := TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
   VZoom := CBZoomload.ItemIndex;
   polyg := Vmt.GeoConvert.LonLatArray2PixelArray(FPolygonLL, VZoom);
   numd:=GetDwnlNum(min,max,polyg,true);
   label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                   +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
-  if PageControl1.TabIndex=1 then begin
-    GetMinMax(min,max,polyg,false);
-    label6.Caption:=label6.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
-                  +inttostr(max.y-min.y);
-  end;
+  GetMinMax(min,max,polyg,false);
+  label6.Caption:=label6.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
+                +inttostr(max.y-min.y);
 end;
 
 procedure TFsaveas.SpeedButton1Click(Sender: TObject);
@@ -501,20 +453,6 @@ begin
     end;
     ini.Free;
   end;
-end;
-
-procedure TFsaveas.TabSheet1Show(Sender: TObject);
-begin
-Label6.Parent:=TabSheet1;
-Label3.Parent:=TabSheet1;
-CBZoomload.Parent:=TabSheet1;
-end;
-
-procedure TFsaveas.TabSheet2Show(Sender: TObject);
-begin
-Label6.Parent:=TabSheet2;
-Label3.Parent:=TabSheet2;
-CBZoomload.Parent:=TabSheet2;
 end;
 
 procedure TFsaveas.CBFormatChange(Sender: TObject);

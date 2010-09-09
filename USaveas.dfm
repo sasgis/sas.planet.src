@@ -69,136 +69,25 @@ object Fsaveas: TFsaveas
     OnClick = Button1Click
   end
   object PageControl1: TPageControl
-    Left = 8
-    Top = 8
-    Width = 501
-    Height = 206
-    ActivePage = TabSheet2
-    Anchors = [akLeft, akTop, akRight, akBottom]
+    Left = 0
+    Top = 0
+    Width = 512
+    Height = 217
+    ActivePage = TabSheet1
+    Align = alTop
     TabOrder = 1
     TabWidth = 83
     object TabSheet1: TTabSheet
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
-      OnShow = TabSheet1Show
-      ExplicitLeft = 0
-      ExplicitTop = 28
-      object Bevel1: TBevel
-        Left = 0
-        Top = 0
-        Width = 493
-        Height = 17
-        Align = alTop
-        Shape = bsBottomLine
-      end
-      object Label22: TLabel
-        Left = 5
-        Top = 26
-        Width = 56
-        Height = 13
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-      end
-      object Label3: TLabel
-        Left = 372
-        Top = 26
-        Width = 49
-        Height = 13
-        Alignment = taRightJustify
-        Caption = #1052#1072#1089#1096#1090#1072#1073':'
-      end
-      object Label6: TLabel
-        Left = 8
-        Top = 52
-        Width = 6
-        Height = 13
-        Caption = '_'
-      end
-      object Label4: TLabel
-        Left = 5
-        Top = 0
-        Width = 193
-        Height = 13
-        Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1080#1079' '#1080#1085#1090#1077#1088#1085#1077#1090#1072
-      end
-      object Bevel6: TBevel
-        Left = 208
-        Top = 88
-        Width = 9
-        Height = 81
-        Shape = bsLeftLine
-      end
-      object CheckBox2: TCheckBox
-        Left = 216
-        Top = 106
-        Width = 153
-        Height = 17
-        Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1090#1072#1088#1099#1077' '#1092#1072#1081#1083#1099
-        TabOrder = 0
-        OnClick = CheckBox2Click
-      end
-      object CheckBox7: TCheckBox
-        Left = 232
-        Top = 128
-        Width = 145
-        Height = 17
-        Caption = #1090#1086#1083#1100#1082#1086' '#1087#1088#1080' '#1080#1093' '#1088#1072#1079#1083#1080#1095#1080#1080
-        Enabled = False
-        TabOrder = 1
-      end
-      object CBDateDo: TCheckBox
-        Left = 232
-        Top = 145
-        Width = 129
-        Height = 17
-        Caption = #1090#1086#1083#1100#1082#1086' '#1089#1086#1079#1076#1072#1085#1085#1099#1077' '#1076#1086
-        Enabled = False
-        TabOrder = 2
-        OnClick = CBDateDoClick
-      end
-      object DateDo: TDateTimePicker
-        Left = 368
-        Top = 144
-        Width = 81
-        Height = 21
-        Date = 39513.436381111110000000
-        Time = 39513.436381111110000000
-        Enabled = False
-        TabOrder = 3
-      end
-      object CBMapLoad: TComboBox
-        Left = 88
-        Top = 24
-        Width = 241
-        Height = 21
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 13
-        TabOrder = 4
-      end
-      object CBZoomload: TComboBox
-        Left = 424
-        Top = 24
-        Width = 41
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 5
-        OnChange = CBZoomloadChange
-      end
-      object CBSecondLoadTNE: TCheckBox
-        Left = 216
-        Top = 90
-        Width = 249
-        Height = 17
-        Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
-        TabOrder = 6
-        OnClick = CheckBox2Click
-      end
+      ExplicitWidth = 493
+      ExplicitHeight = 178
     end
     object TabSheet2: TTabSheet
       Tag = 1
       Caption = #1057#1082#1083#1077#1080#1090#1100
       ImageIndex = 1
-      OnShow = TabSheet2Show
+      ExplicitWidth = 493
+      ExplicitHeight = 178
       object Label25: TLabel
         Left = 5
         Top = 26
@@ -216,10 +105,11 @@ object Fsaveas: TFsaveas
       object Bevel2: TBevel
         Left = 0
         Top = 0
-        Width = 493
+        Width = 504
         Height = 17
         Align = alTop
         Shape = bsBottomLine
+        ExplicitWidth = 493
       end
       object Label8: TLabel
         Left = 5
@@ -242,6 +132,21 @@ object Fsaveas: TFsaveas
         Height = 13
         Alignment = taRightJustify
         Caption = #1053#1072#1083#1086#1078#1080#1090#1100':'
+      end
+      object Label6: TLabel
+        Left = 8
+        Top = 52
+        Width = 6
+        Height = 13
+        Caption = '_'
+      end
+      object Label3: TLabel
+        Left = 372
+        Top = 26
+        Width = 49
+        Height = 13
+        Alignment = taRightJustify
+        Caption = #1052#1072#1089#1096#1090#1072#1073':'
       end
       object CBscleit: TComboBox
         Left = 64
@@ -348,28 +253,45 @@ object Fsaveas: TFsaveas
         Caption = #1053#1072#1082#1083#1072#1076#1099#1074#1072#1090#1100' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1077' '#1084#1077#1090#1082#1080
         TabOrder = 6
       end
+      object CBZoomload: TComboBox
+        Left = 424
+        Top = 24
+        Width = 41
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 7
+        OnChange = CBZoomloadChange
+      end
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 2
+      ExplicitWidth = 493
+      ExplicitHeight = 178
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 3
+      ExplicitWidth = 493
+      ExplicitHeight = 178
     end
     object TabSheet5: TTabSheet
       Tag = 4
       Caption = #1069#1082#1089#1087#1086#1088#1090
       ImageIndex = 4
+      ExplicitWidth = 493
+      ExplicitHeight = 178
       object Bevel5: TBevel
         Left = 0
         Top = 0
-        Width = 493
+        Width = 504
         Height = 33
         Align = alTop
         Shape = bsBottomLine
+        ExplicitWidth = 493
       end
       object Label9: TLabel
         Left = 5
@@ -391,17 +313,21 @@ object Fsaveas: TFsaveas
       object pnlExport: TPanel
         Left = 0
         Top = 33
-        Width = 493
-        Height = 145
+        Width = 504
+        Height = 156
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 493
+        ExplicitHeight = 145
       end
     end
     object TabSheet6: TTabSheet
       Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
+      ExplicitWidth = 493
+      ExplicitHeight = 178
     end
   end
   object Button3: TButton
