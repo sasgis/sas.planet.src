@@ -19,7 +19,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function GetLastPoint: TExtendedPoint;
-    procedure GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint);
+    function GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint): Boolean;
     function LastVisiblePoints: TGPSTrackPointArray;
     function GetAllPoints: TExtendedPointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
@@ -116,9 +116,10 @@ begin
   end;
 end;
 
-procedure TGPSRecorderStuped.GetTwoLastPoints(var APointLast,
-  APointPrev: TExtendedPoint);
+function TGPSRecorderStuped.GetTwoLastPoints(var APointLast,
+  APointPrev: TExtendedPoint): Boolean;
 begin
+  Result := False;
   FLock.BeginRead;
   try
     if FPointsCount = 0 then begin
@@ -129,6 +130,7 @@ begin
       if FPointsCount > 1 then begin
         APointLast := FTrack[FPointsCount - 1].Point;
         APointPrev := FTrack[FPointsCount - 2].Point;
+        Result := True;
       end else begin
         APointLast := FTrack[FPointsCount - 1].Point;
         APointPrev := APointLast;

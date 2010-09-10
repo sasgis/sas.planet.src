@@ -19,7 +19,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function GetLastPoint: TExtendedPoint;
-    procedure GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint);
+    function GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint): Boolean;
     function LastVisiblePoints: TGPSTrackPointArray;
     function GetAllPoints: TExtendedPointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
