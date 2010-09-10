@@ -17,6 +17,7 @@ type
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
     procedure AddPoint(APoint: TGPSTrackPoint);
     procedure ClearTrack;
+    function IsEmpty: Boolean;
     function GetLastPoint: TExtendedPoint;
     procedure GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint);
     function LastVisiblePoints: TGPSTrackPointArray;

@@ -18,6 +18,7 @@ uses
   i_ActiveMapsConfigSaveLoad,
   i_IBitmapLayerProvider,
   i_MapTypeIconsList,
+  i_IGPSRecorder,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -46,6 +47,7 @@ type
     FMapConfigLoader: IActiveMapsConfigLoader;
     FCacheConfig: TGlobalCahceConfig;
     FMarksBitmapProvider: IBitmapLayerProvider;
+    FGPSRecorder: IGPSRecorder;
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
     function GetMarkIconsPath: string;
@@ -250,6 +252,7 @@ type
     property MainConfigFileName: string read GetMainConfigFileName;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
@@ -300,6 +303,7 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_MapMarksBitmapLayerProviderStuped,
+  u_GPSRecorderStuped,
   u_MapTypeIconsList,
   UResStrings,
   u_TileFileNameGeneratorsSimpleList;
@@ -333,6 +337,7 @@ begin
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
+  FGPSRecorder := TGPSRecorderStuped.Create;
   LoadMainParams;
   LoadResources;
   LoadMarkIcons;
@@ -360,6 +365,7 @@ begin
   FMarksBitmapProvider := nil;
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;
+  FGPSRecorder := nil;
   FreeAndNil(FViewState);
   FreeAllMaps;
   FreeAndNil(FCacheConfig);
