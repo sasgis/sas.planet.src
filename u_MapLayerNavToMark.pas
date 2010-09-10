@@ -75,7 +75,7 @@ procedure TNavToMarkLayer.DoRedraw;
 var
   D: Double;
   dl: integer;
-  VMarkPoint: TPoint;
+  VMarkPoint: TExtendedPoint;
   T: TAffineTransformation;
   Alpha: Double;
   VSize: TPoint;
@@ -84,7 +84,7 @@ begin
   FLayer.Bitmap.BeginUpdate;
   try
     FLayer.Bitmap.Clear(clBlack);
-    VMarkPoint := FGeoConvert.LonLat2PixelPos(FMarkPoint, FZoom);
+    VMarkPoint := FGeoConvert.LonLat2PixelPosFloat(FMarkPoint, FZoom);
     D := Sqrt(Sqr(VMarkPoint.X - FScreenCenterPos.X) + Sqr(VMarkPoint.Y - FScreenCenterPos.Y));
     dl := GState.GPS_ArrowSize;
     if D > dl * 2 then begin
@@ -145,24 +145,24 @@ end;
 
 function TNavToMarkLayer.GetScreenCenterInBitmapPixels: TPoint;
 var
-  VMarkPoint: TPoint;
+  VMarkPoint: TExtendedPoint;
   VSize: TPoint;
-  D: Double;
+  D: Extended;
 begin
   VSize := GetBitmapSizeInPixel;
   Result.X := VSize.X div 2;
   Result.Y := VSize.Y div 2;
-  VMarkPoint := FGeoConvert.LonLat2PixelPos(FMarkPoint, FZoom);
+  VMarkPoint := FGeoConvert.LonLat2PixelPosFloat(FMarkPoint, FZoom);
   D := Sqrt(Sqr(VMarkPoint.X - FScreenCenterPos.X) + Sqr(VMarkPoint.Y - FScreenCenterPos.Y));
   if D < GState.GPS_ArrowSize * 2 then begin
-    Result.X := Result.X + (FScreenCenterPos.X - VMarkPoint.X);
-    Result.Y := Result.Y + (FScreenCenterPos.Y - VMarkPoint.Y);
+    Result.X := Result.X + Trunc(FScreenCenterPos.X - VMarkPoint.X);
+    Result.Y := Result.Y + Trunc(FScreenCenterPos.Y - VMarkPoint.Y);
   end else if D > GState.GPS_ArrowSize * 14 then begin
     Result.X := Result.X + Trunc(GState.GPS_ArrowSize * 7 / D * (FScreenCenterPos.X - VMarkPoint.X));
     Result.Y := Result.Y + Trunc(GState.GPS_ArrowSize * 7 / D * (FScreenCenterPos.Y - VMarkPoint.Y));
   end else begin
-    Result.X := Result.X + (FScreenCenterPos.X - VMarkPoint.X) div 2;
-    Result.Y := Result.Y + (FScreenCenterPos.Y - VMarkPoint.Y) div 2;
+    Result.X := Result.X + Trunc((FScreenCenterPos.X - VMarkPoint.X) / 2);
+    Result.Y := Result.Y + Trunc((FScreenCenterPos.Y - VMarkPoint.Y) / 2);
   end;
 end;
 
