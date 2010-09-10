@@ -25,6 +25,7 @@ uses
   Math,
   SysUtils,
   GR32_Polygons,
+  i_IGPSRecorder,
   u_GlobalState,
   Unit1;
 
@@ -42,61 +43,55 @@ var
   VLastPoint: TExtendedPoint;
   VPreLastPoint: TExtendedPoint;
   VIsArrow: Boolean;
-  VPointsCount: Integer;
   VMarkRect: TRect;
 begin
   VIsArrow := False;
-  VPointsCount := length(GState.GPS_TrackPoints);
-  if VPointsCount > 0 then begin
-    VLastPoint := GState.GPS_TrackPoints[VPointsCount - 1];
-    if VPointsCount > 1 then begin
-      try
-        VPreLastPoint := GState.GPS_TrackPoints[VPointsCount - 2];
-        ke := FGeoConvert.LonLat2PixelPosFloat(VLastPoint, FZoom);
-        ke := MapPixel2BitmapPixel(ke);
-        ks := FGeoConvert.LonLat2PixelPosFloat(VPreLastPoint, FZoom);
-        ks := MapPixel2BitmapPixel(ks);
-        VArrowSize := GState.GPS_ArrowSize;
-        D := Sqrt(Sqr(ks.X - ke.X) + Sqr(ks.Y - ke.Y));
-        if D > 0.01 then begin
-          R := D / 2 - (VArrowSize div 2);
-          ke.x := ke.X + (ke.X - ks.X);
-          ke.y := ke.y + (ke.y - ks.y);
-          ke.x := Round((R * ks.x + (D - R) * kE.X) / D);
-          ke.y := Round((R * ks.y + (D - R) * kE.Y) / D);
-          if ks.x = ke.x then begin
-            if Sign(ks.Y - ke.Y) < 0 then begin
-              TanOfAngle := MinExtended / 100;
-            end else begin
-              TanOfAngle := MaxExtended / 100;
-            end;
+  if GState.GPSRecorder.GetTwoLastPoints(VLastPoint, VPreLastPoint) then begin
+    try
+      ke := FGeoConvert.LonLat2PixelPosFloat(VLastPoint, FZoom);
+      ke := MapPixel2BitmapPixel(ke);
+      ks := FGeoConvert.LonLat2PixelPosFloat(VPreLastPoint, FZoom);
+      ks := MapPixel2BitmapPixel(ks);
+      VArrowSize := GState.GPS_ArrowSize;
+      D := Sqrt(Sqr(ks.X - ke.X) + Sqr(ks.Y - ke.Y));
+      if D > 0.01 then begin
+        R := D / 2 - (VArrowSize div 2);
+        ke.x := ke.X + (ke.X - ks.X);
+        ke.y := ke.y + (ke.y - ks.y);
+        ke.x := Round((R * ks.x + (D - R) * kE.X) / D);
+        ke.y := Round((R * ks.y + (D - R) * kE.Y) / D);
+        if ks.x = ke.x then begin
+          if Sign(ks.Y - ke.Y) < 0 then begin
+            TanOfAngle := MinExtended / 100;
           end else begin
-            TanOfAngle := (ks.Y - ke.Y) / (ks.X - ke.X);
+            TanOfAngle := MaxExtended / 100;
           end;
-
-          VPolygonArrow := TPolygon32.Create;
-          try
-            VPolygonArrow.Antialiased := true;
-            VPolygonArrow.AntialiasMode := am4times;
-            VPolygonArrow.Add(FixedPoint(round(ke.X), round(ke.Y)));
-            Angle := ArcTan(TanOfAngle) + 0.28;
-            if ((TanOfAngle < 0) and (ks.X <= ke.X)) or ((TanOfAngle >= 0) and (ks.X <= ke.X)) then begin
-              Angle := Angle + Pi;
-            end;
-            VPolygonArrow.Add(FixedPoint(round(ke.x) + Round(VArrowSize * Cos(Angle)), round(ke.Y) + Round(VArrowSize * Sin(Angle))));
-            Angle := ArcTan(TanOfAngle) - 0.28;
-            if ((TanOfAngle < 0) and (ks.X <= ke.X)) or ((TanOfAngle >= 0) and (ks.X <= ke.X)) then begin
-              Angle := Angle + Pi;
-            end;
-            VPolygonArrow.Add(FixedPoint(round(ke.X) + Round(VArrowSize * Cos(Angle)), round(ke.Y) + Round(VArrowSize * Sin(Angle))));
-            VPolygonArrow.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
-            VIsArrow := true;
-          finally
-            VPolygonArrow.Free;
-          end;
+        end else begin
+          TanOfAngle := (ks.Y - ke.Y) / (ks.X - ke.X);
         end;
-      except
+
+        VPolygonArrow := TPolygon32.Create;
+        try
+          VPolygonArrow.Antialiased := true;
+          VPolygonArrow.AntialiasMode := am4times;
+          VPolygonArrow.Add(FixedPoint(round(ke.X), round(ke.Y)));
+          Angle := ArcTan(TanOfAngle) + 0.28;
+          if ((TanOfAngle < 0) and (ks.X <= ke.X)) or ((TanOfAngle >= 0) and (ks.X <= ke.X)) then begin
+            Angle := Angle + Pi;
+          end;
+          VPolygonArrow.Add(FixedPoint(round(ke.x) + Round(VArrowSize * Cos(Angle)), round(ke.Y) + Round(VArrowSize * Sin(Angle))));
+          Angle := ArcTan(TanOfAngle) - 0.28;
+          if ((TanOfAngle < 0) and (ks.X <= ke.X)) or ((TanOfAngle >= 0) and (ks.X <= ke.X)) then begin
+            Angle := Angle + Pi;
+          end;
+          VPolygonArrow.Add(FixedPoint(round(ke.X) + Round(VArrowSize * Cos(Angle)), round(ke.Y) + Round(VArrowSize * Sin(Angle))));
+          VPolygonArrow.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+          VIsArrow := true;
+        finally
+          VPolygonArrow.Free;
+        end;
       end;
+    except
     end;
     if not VIsArrow then begin
       k1 := FGeoConvert.LonLat2PixelPos(VLastPoint, FZoom);
@@ -118,26 +113,25 @@ var
   VSegmentColor: TColor32;
   VSpeed: Extended;
   VMaxSpeed: Extended;
+  VPoints: TGPSTrackPointArray;
 begin
-  VPointsCount := length(GState.GPS_TrackPoints);
-  startrarck := VPointsCount - GState.GPS_NumTrackPoints;
-  if startrarck < 0 then begin
-    startrarck := 0;
-  end;
+  VPoints := GState.GPSRecorder.LastVisiblePoints;
+  
+  VPointsCount := length(VPoints);
   with FLayer.Bitmap do begin
-    if (VPointsCount - startrarck > 1) then begin
+    if (VPointsCount > 1) then begin
       VPolygon := TPolygon32.Create;
       try
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
-        VPointPrev := FGeoConvert.LonLat2PixelPosFloat(GState.GPS_TrackPoints[startrarck], FZoom);
+        VPointPrev := FGeoConvert.LonLat2PixelPosFloat(VPoints[0].Point, FZoom);
         VPointPrev := MapPixel2BitmapPixel(VPointPrev);
         VMaxSpeed := FMain.GPSpar.maxspeed;
-        for j := startrarck + 1 to VPointsCount - 1 do begin
-          VPointCurr := FGeoConvert.LonLat2PixelPosFloat(GState.GPS_TrackPoints[j], FZoom);
+        for j := 1 to VPointsCount - 1 do begin
+          VPointCurr := FGeoConvert.LonLat2PixelPosFloat(VPoints[j].Point, FZoom);
           VPointCurr := MapPixel2BitmapPixel(VPointCurr);
-          VSpeed := GState.GPS_ArrayOfSpeed[j - 1];
+          VSpeed := VPoints[j - 1].Speed;
           if (VMaxSpeed > 0) then begin
             speed := round((255 * VSpeed) / VMaxSpeed);
           end else begin

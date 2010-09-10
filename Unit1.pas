@@ -58,6 +58,7 @@ uses
   t_LoadEvent,
   u_GeoToStr,
   t_CommonTypes,
+  i_IGPSRecorder,
   Ugeofun,
   u_MapLayerWiki,
   ULogo,
@@ -1076,7 +1077,7 @@ begin
                setalloperationfalse(ao_movemap)
              end;
              if (Msg.wParam=13)and(aoper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(length(add_line_arr)>1) then begin
-               TBEditPathSaveClick(FMain);
+               TBEditPathSaveClick(Self);
              end;
             end;
   end;
@@ -2596,6 +2597,7 @@ procedure TFmain.TBItem3Click(Sender: TObject);
 var F:TextFile;
     i:integer;
     SaveDlg: TSaveDialog;
+    VAllPoints: TExtendedPointArray;
 begin
   Fprogress2.Visible:=true;
   try
@@ -2610,6 +2612,7 @@ begin
         AssignFile(f,SaveDlg.FileName);
         rewrite(f);
         Fprogress2.ProgressBar1.Progress1:=10;
+        VAllPoints := GState.GPSRecorder.GetAllPoints;
         Writeln(f,'<?xml version="1.0" encoding="UTF-8"?>');
         Writeln(f,'<kml xmlns="http://earth.google.com/kml/2.1">');
         Writeln(f,'<Folder>');
@@ -2639,8 +2642,8 @@ begin
         Writeln(f,'	<altitudeMode>absolute</altitudeMode>');
         Writeln(f,' <coordinates>');
         Fprogress2.ProgressBar1.Progress1:=80;
-        for i:=0 to length(GState.GPS_TrackPoints)-1 do
-          Writeln(f,R2strPoint(GState.GPS_TrackPoints[i].x),',',R2strPoint(GState.GPS_TrackPoints[i].y),',0');
+        for i:=0 to length(VAllPoints)-1 do
+          Writeln(f,R2strPoint(VAllPoints[i].x),',',R2strPoint(VAllPoints[i].y),',0');
         Writeln(f,' </coordinates>');
         Fprogress2.ProgressBar1.Progress1:=90;
         Writeln(f,'</LineString>');
@@ -2658,9 +2661,12 @@ begin
 end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
+var
+  VAllPoints: TExtendedPointArray;
 begin
-  if length(GState.GPS_TrackPoints)>1 then begin
-    if SaveLineModal(-1, GState.GPS_TrackPoints, '') then begin
+  VAllPoints := GState.GPSRecorder.GetAllPoints;
+  if length(VAllPoints)>1 then begin
+    if SaveLineModal(-1, VAllPoints, '') then begin
       setalloperationfalse(ao_movemap);
       generate_im;
     end;
@@ -3010,54 +3016,50 @@ end;
 
 procedure TFmain.GPSReceiverReceive(Sender: TObject);
 var s2f,sb:string;
-    len:integer;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
     VConverter: ICoordConverter;
     VPointCurr: TExtendedPoint;
     VPointPrev: TExtendedPoint;
     VDistToPrev: Extended;
+    VTrackPoint: TGPSTrackPoint;
 begin
   if (GPSReceiver.IsFix=0) then exit;
   VPointCurr.X := GPSReceiver.GetLongitudeAsDecimalDegrees;
   VPointCurr.Y := GPSReceiver.GetLatitudeAsDecimalDegrees;
   if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
-    len:=length(GState.GPS_TrackPoints) + 1;
-    setlength(GState.GPS_TrackPoints, Len);
-    setlength(GState.GPS_ArrayOfSpeed,len);
-    GState.GPS_TrackPoints[len-1]:= VPointCurr;
+    VPointPrev := GState.GPSRecorder.GetLastPoint;
+    VTrackPoint.Point := VPointCurr;
+    VTrackPoint.Speed := GPSReceiver.GetSpeed_KMH;
+    GState.GPSRecorder.AddPoint(VTrackPoint);
+
     VConverter := GState.ViewState.GetCurrentCoordConverter;
-    GPSpar.speed:=GPSReceiver.GetSpeed_KMH;
+    GPSpar.speed:=VTrackPoint.Speed;
     if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
     inc(GPSpar.sspeednumentr);
     GPSpar.allspeed:=GPSpar.allspeed+GPSpar.speed;
     GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
-    GState.GPS_ArrayOfSpeed[len-1]:=GPSReceiver.GetSpeed_KMH;
     GPSpar.altitude:=GPSReceiver.GetAltitude;
     GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
     GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
-    if len>1 then begin
-      VPointPrev := GState.GPS_TrackPoints[len-2];
+    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
       VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
       GPSpar.len:=GPSpar.len+VDistToPrev;
       GPSpar.Odometr:=GPSpar.Odometr+VDistToPrev;
       GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
     end;
 
-  if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=FMain) then
-   begin
-    if (GState.GPS_MapMove)
-     then begin
-            GState.ViewState.LockWrite;
-            GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
-          end
-     else begin
-           LayerStatBar.Redraw;
-          end;
+  if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=Self) then begin
+    if (GState.GPS_MapMove) then begin
+      GState.ViewState.LockWrite;
+      GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
+    end else begin
+      LayerStatBar.Redraw;
+      LayerMapGPS.Redraw;
+    end;
    end;
   UpdateGPSsensors;
-  if GState.GPS_WriteLog then
-   begin
-    if len=1 then sb:='1' else sb:='0';
+  if GState.GPS_WriteLog then  begin
+    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then sb:='1' else sb:='0';
     DecodeDate(Date, xYear, xMonth, xDay);
     DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
     s2f:=R2StrPoint(round(VPointCurr.y*10000000)/10000000)+','
@@ -3669,9 +3671,8 @@ end;
 
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
- setlength(GState.GPS_ArrayOfSpeed,0);
- setlength(GState.GPS_TrackPoints,0);
- GPSpar.maxspeed:=0;
+  GState.GPSRecorder.ClearTrack;
+  GPSpar.maxspeed:=0;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
@@ -4144,7 +4145,7 @@ end;
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
   if GState.GPS_enab then begin
-    if AddNewPointModal(GState.GPS_TrackPoints[length(GState.GPS_TrackPoints)-1]) then begin
+    if AddNewPointModal(GState.GPSRecorder.GetLastPoint) then begin
       setalloperationfalse(ao_movemap);
       generate_im;
     end;
@@ -4187,7 +4188,7 @@ var
 begin
   if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
     if ExtractFileExt(OpenSessionDialog.FileName)='.sls' then begin
-      Fmain.Enabled:=true;
+      Self.Enabled:=true;
       VLog := TLogForTaskThread.Create(5000, 0);
       VSimpleLog := VLog;
       VThreadLog := VLog;

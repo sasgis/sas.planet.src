@@ -132,10 +132,6 @@ type
     GPS_WriteLog: boolean;
     //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
     GPS_LogFile: TextFile;
-    //Массив со значенимя скоростей полученными от GPS
-    GPS_ArrayOfSpeed: array of Real;
-    //Точки GPS трека
-    GPS_TrackPoints: TExtendedPointArray;
     //Максимальное количество оотображаемых точек трека
     GPS_NumTrackPoints: integer;
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
