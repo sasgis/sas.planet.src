@@ -63,7 +63,7 @@ begin
     if Result then begin
       Break;
     end;
-    if p_y >= FPixelRect.Right then begin
+    if p_y >= FPixelRect.Bottom then begin
       p_y := FPixelRect.Top;
       inc(p_x, 256);
     end;
