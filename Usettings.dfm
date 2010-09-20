@@ -25,7 +25,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 381
-    ActivePage = TabSheet9
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     ExplicitLeft = 8
@@ -152,215 +152,494 @@ object FSettings: TFSettings
       ImageIndex = 1
       ExplicitWidth = 625
       ExplicitHeight = 341
-      object Label2: TLabel
-        Left = 8
-        Top = 40
-        Width = 117
-        Height = 13
-        Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GoogleMV:'
-      end
-      object Label15: TLabel
-        Left = 8
-        Top = 16
-        Width = 120
-        Height = 13
-        Caption = #1055#1091#1090#1100' '#1082' "'#1088#1086#1076#1085#1086#1084#1091'" '#1082#1101#1096#1091':'
-      end
-      object Label1: TLabel
-        Left = 8
-        Top = 64
-        Width = 117
-        Height = 13
-        Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSliser:'
-      end
-      object Label19: TLabel
-        Left = 8
-        Top = 88
-        Width = 109
-        Height = 13
-        Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GM Tiles:'
-      end
-      object Label30: TLabel
-        Left = 8
-        Top = 160
-        Width = 281
-        Height = 13
-        Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1090#1072#1081#1083#1086#1074' '#1082#1101#1096#1080#1088#1091#1077#1084#1086#1077' '#1074' '#1086#1087#1077#1088#1072#1090#1080#1074#1085#1091#1102' '#1087#1072#1084#1103#1090#1100
-      end
-      object Label31: TLabel
-        Left = 8
-        Top = 112
-        Width = 129
-        Height = 13
-        Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' Google Earth:'
-      end
-      object Label37: TLabel
-        Left = 8
-        Top = 136
-        Width = 48
-        Height = 13
-        Caption = #1058#1080#1087' '#1082#1101#1096#1072
-      end
-      object OldCpath: TEdit
-        Left = 144
-        Top = 36
-        Width = 432
-        Height = 21
+      object flwpnlMemCache: TFlowPanel
+        AlignWithMargins = True
+        Left = 3
+        Top = 163
+        Width = 632
+        Height = 25
+        Align = alTop
+        BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 32
+        ExplicitTop = 216
+        ExplicitWidth = 369
+        object Label30: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 281
+          Height = 13
+          Align = alLeft
+          Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1090#1072#1081#1083#1086#1074' '#1082#1101#1096#1080#1088#1091#1077#1084#1086#1077' '#1074' '#1086#1087#1077#1088#1072#1090#1080#1074#1085#1091#1102' '#1087#1072#1084#1103#1090#1100
+          Layout = tlCenter
+        end
+        object SETilesOCache: TSpinEdit
+          Left = 287
+          Top = 0
+          Width = 65
+          Height = 22
+          MaxValue = 10000
+          MinValue = 0
+          TabOrder = 0
+          Value = 0
+        end
       end
-      object NewCpath: TEdit
-        Left = 144
-        Top = 12
-        Width = 432
-        Height = 21
+      object grdpnlCache: TGridPanel
+        Left = 0
+        Top = 0
+        Width = 638
+        Height = 160
+        Align = alTop
+        BevelOuter = bvNone
+        ColumnCollection = <
+          item
+            SizeStyle = ssAbsolute
+            Value = 150.000000000000000000
+          end
+          item
+            Value = 100.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 20.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 20.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = Label15
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = NewCpath
+            Row = 0
+          end
+          item
+            Column = 2
+            Control = Button6
+            Row = 0
+          end
+          item
+            Column = 3
+            Control = Button7
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = Label2
+            Row = 1
+          end
+          item
+            Column = 1
+            Control = OldCpath
+            Row = 1
+          end
+          item
+            Column = 2
+            Control = Button4
+            Row = 1
+          end
+          item
+            Column = 3
+            Control = Button5
+            Row = 1
+          end
+          item
+            Column = 0
+            Control = Label1
+            Row = 2
+          end
+          item
+            Column = 1
+            Control = EScPath
+            Row = 2
+          end
+          item
+            Column = 2
+            Control = Button8
+            Row = 2
+          end
+          item
+            Column = 3
+            Control = Button9
+            Row = 2
+          end
+          item
+            Column = 0
+            Control = Label19
+            Row = 3
+          end
+          item
+            Column = 1
+            Control = GMTilesPath
+            Row = 3
+          end
+          item
+            Column = 2
+            Control = Button13
+            Row = 3
+          end
+          item
+            Column = 3
+            Control = Button14
+            Row = 3
+          end
+          item
+            Column = 0
+            Control = Label31
+            Row = 4
+          end
+          item
+            Column = 1
+            Control = GECachePath
+            Row = 4
+          end
+          item
+            Column = 2
+            Control = Button10
+            Row = 4
+          end
+          item
+            Column = 3
+            Control = Button17
+            Row = 4
+          end
+          item
+            Column = 0
+            Control = Label37
+            Row = 5
+          end
+          item
+            Column = 1
+            Control = CBCacheType
+            Row = 5
+          end>
+        RowCollection = <
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
+          item
+            Value = 100.000000000000000000
+          end>
         TabOrder = 1
-      end
-      object Button4: TButton
-        Tag = 1
-        Left = 576
-        Top = 36
-        Width = 21
-        Height = 21
-        Caption = '<>'
-        TabOrder = 2
-        OnClick = Button4Click
-      end
-      object Button5: TButton
-        Tag = 1
-        Left = 596
-        Top = 36
-        Width = 21
-        Height = 21
-        Caption = '...'
-        TabOrder = 3
-        OnClick = Button5Click
-      end
-      object Button6: TButton
-        Tag = 2
-        Left = 576
-        Top = 12
-        Width = 21
-        Height = 21
-        Caption = '<>'
-        TabOrder = 4
-        OnClick = Button4Click
-      end
-      object Button7: TButton
-        Tag = 2
-        Left = 596
-        Top = 12
-        Width = 21
-        Height = 21
-        Caption = '...'
-        TabOrder = 5
-        OnClick = Button5Click
-      end
-      object EScPath: TEdit
-        Left = 144
-        Top = 60
-        Width = 432
-        Height = 21
-        TabOrder = 6
-      end
-      object Button8: TButton
-        Tag = 3
-        Left = 576
-        Top = 60
-        Width = 21
-        Height = 21
-        Caption = '<>'
-        TabOrder = 7
-        OnClick = Button4Click
-      end
-      object Button9: TButton
-        Tag = 3
-        Left = 596
-        Top = 60
-        Width = 21
-        Height = 21
-        Caption = '...'
-        TabOrder = 8
-        OnClick = Button5Click
-      end
-      object GMTilesPath: TEdit
-        Left = 144
-        Top = 84
-        Width = 432
-        Height = 21
-        TabOrder = 9
-      end
-      object Button13: TButton
-        Tag = 4
-        Left = 576
-        Top = 84
-        Width = 21
-        Height = 21
-        Caption = '<>'
-        TabOrder = 10
-        OnClick = Button4Click
-      end
-      object Button14: TButton
-        Tag = 4
-        Left = 596
-        Top = 84
-        Width = 21
-        Height = 21
-        Caption = '...'
-        TabOrder = 11
-        OnClick = Button5Click
-      end
-      object SETilesOCache: TSpinEdit
-        Left = 296
-        Top = 157
-        Width = 65
-        Height = 22
-        MaxValue = 10000
-        MinValue = 0
-        TabOrder = 12
-        Value = 0
-      end
-      object GECachePath: TEdit
-        Left = 144
-        Top = 108
-        Width = 432
-        Height = 21
-        TabOrder = 13
-      end
-      object Button10: TButton
-        Tag = 5
-        Left = 576
-        Top = 108
-        Width = 21
-        Height = 21
-        Caption = '<>'
-        TabOrder = 14
-        OnClick = Button4Click
-      end
-      object Button17: TButton
-        Tag = 5
-        Left = 596
-        Top = 108
-        Width = 21
-        Height = 21
-        Caption = '...'
-        TabOrder = 15
-        OnClick = Button5Click
-      end
-      object CBCacheType: TComboBox
-        Left = 144
-        Top = 132
-        Width = 433
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        ItemIndex = 1
-        TabOrder = 16
-        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
-        Items.Strings = (
-          'GoogleMV'
-          'SAS.'#1055#1083#1072#1085#1077#1090#1072
-          'EarthSlicer 1.95'
-          'Googe maps tiles')
+        ExplicitTop = 168
+        DesignSize = (
+          638
+          160)
+        object Label15: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 144
+          Height = 21
+          Align = alClient
+          Caption = #1055#1091#1090#1100' '#1082' "'#1088#1086#1076#1085#1086#1084#1091'" '#1082#1101#1096#1091':'
+          Layout = tlCenter
+          ExplicitLeft = 4
+          ExplicitTop = 4
+          ExplicitWidth = 114
+        end
+        object NewCpath: TEdit
+          AlignWithMargins = True
+          Left = 153
+          Top = 3
+          Width = 442
+          Height = 21
+          Align = alClient
+          TabOrder = 0
+          ExplicitLeft = 124
+          ExplicitTop = 4
+          ExplicitWidth = 470
+          ExplicitHeight = 41
+        end
+        object Button6: TButton
+          Tag = 2
+          Left = 598
+          Top = 3
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 1
+          OnClick = Button4Click
+          ExplicitLeft = 576
+          ExplicitTop = 12
+        end
+        object Button7: TButton
+          Tag = 2
+          Left = 618
+          Top = 3
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
+          TabOrder = 2
+          OnClick = Button5Click
+          ExplicitLeft = 596
+          ExplicitTop = 12
+        end
+        object Label2: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 30
+          Width = 144
+          Height = 21
+          Align = alClient
+          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GoogleMV:'
+          Layout = tlCenter
+          ExplicitLeft = 8
+          ExplicitTop = 40
+          ExplicitWidth = 117
+          ExplicitHeight = 13
+        end
+        object OldCpath: TEdit
+          AlignWithMargins = True
+          Left = 153
+          Top = 30
+          Width = 442
+          Height = 21
+          Align = alClient
+          TabOrder = 3
+          ExplicitLeft = 138
+          ExplicitTop = 33
+          ExplicitWidth = 432
+        end
+        object Button4: TButton
+          Tag = 1
+          Left = 598
+          Top = 30
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 4
+          OnClick = Button4Click
+          ExplicitLeft = 576
+          ExplicitTop = 36
+        end
+        object Button5: TButton
+          Tag = 1
+          Left = 618
+          Top = 30
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
+          TabOrder = 5
+          OnClick = Button5Click
+          ExplicitLeft = 596
+          ExplicitTop = 36
+        end
+        object Label1: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 57
+          Width = 144
+          Height = 21
+          Align = alClient
+          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSliser:'
+          Layout = tlCenter
+          ExplicitLeft = 8
+          ExplicitTop = 64
+          ExplicitWidth = 117
+          ExplicitHeight = 13
+        end
+        object EScPath: TEdit
+          AlignWithMargins = True
+          Left = 153
+          Top = 57
+          Width = 442
+          Height = 21
+          Align = alClient
+          TabOrder = 6
+          ExplicitLeft = 144
+          ExplicitTop = 60
+          ExplicitWidth = 432
+        end
+        object Button8: TButton
+          Tag = 3
+          Left = 598
+          Top = 57
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 7
+          OnClick = Button4Click
+          ExplicitLeft = 576
+          ExplicitTop = 60
+        end
+        object Button9: TButton
+          Tag = 3
+          Left = 618
+          Top = 57
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
+          TabOrder = 8
+          OnClick = Button5Click
+          ExplicitLeft = 596
+          ExplicitTop = 60
+        end
+        object Label19: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 84
+          Width = 144
+          Height = 21
+          Align = alClient
+          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GM Tiles:'
+          Layout = tlCenter
+          ExplicitLeft = 8
+          ExplicitTop = 88
+          ExplicitWidth = 109
+          ExplicitHeight = 13
+        end
+        object GMTilesPath: TEdit
+          AlignWithMargins = True
+          Left = 153
+          Top = 84
+          Width = 442
+          Height = 21
+          Align = alClient
+          TabOrder = 9
+          ExplicitLeft = 144
+          ExplicitWidth = 432
+        end
+        object Button13: TButton
+          Tag = 4
+          Left = 598
+          Top = 84
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 10
+          OnClick = Button4Click
+          ExplicitLeft = 576
+        end
+        object Button14: TButton
+          Tag = 4
+          Left = 618
+          Top = 84
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
+          TabOrder = 11
+          OnClick = Button5Click
+          ExplicitLeft = 596
+        end
+        object Label31: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 111
+          Width = 144
+          Height = 21
+          Align = alClient
+          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' Google Earth:'
+          Layout = tlCenter
+          ExplicitLeft = 8
+          ExplicitTop = 112
+          ExplicitWidth = 129
+          ExplicitHeight = 13
+        end
+        object GECachePath: TEdit
+          AlignWithMargins = True
+          Left = 153
+          Top = 111
+          Width = 442
+          Height = 21
+          Align = alClient
+          TabOrder = 12
+          ExplicitLeft = 144
+          ExplicitTop = 108
+          ExplicitWidth = 432
+        end
+        object Button10: TButton
+          Tag = 5
+          Left = 598
+          Top = 111
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 13
+          OnClick = Button4Click
+          ExplicitLeft = 576
+          ExplicitTop = 108
+        end
+        object Button17: TButton
+          Tag = 5
+          Left = 618
+          Top = 111
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
+          TabOrder = 14
+          OnClick = Button5Click
+          ExplicitLeft = 596
+          ExplicitTop = 108
+        end
+        object Label37: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 138
+          Width = 144
+          Height = 19
+          Align = alClient
+          Caption = #1058#1080#1087' '#1082#1101#1096#1072
+          Layout = tlCenter
+          ExplicitLeft = 8
+          ExplicitTop = 136
+          ExplicitWidth = 48
+          ExplicitHeight = 13
+        end
+        object CBCacheType: TComboBox
+          AlignWithMargins = True
+          Left = 153
+          Top = 138
+          Width = 442
+          Height = 21
+          Align = alClient
+          Style = csDropDownList
+          ItemHeight = 13
+          ItemIndex = 1
+          TabOrder = 15
+          Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+          Items.Strings = (
+            'GoogleMV'
+            'SAS.'#1055#1083#1072#1085#1077#1090#1072
+            'EarthSlicer 1.95'
+            'Googe maps tiles')
+          ExplicitLeft = 144
+          ExplicitTop = 132
+          ExplicitWidth = 433
+        end
       end
     end
     object TabSheet1: TTabSheet

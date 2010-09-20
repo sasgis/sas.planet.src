@@ -197,6 +197,8 @@ type
     CB_GPSlogNmea: TCheckBox;
     pnlBottomButtons: TPanel;
     pnlMapsRightButtons: TPanel;
+    flwpnlMemCache: TFlowPanel;
+    grdpnlCache: TGridPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
