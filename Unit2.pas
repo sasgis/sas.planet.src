@@ -109,13 +109,13 @@ begin
   begin
    textsrch:=EditGF.Text;
    Close;
-   Fmain.EditGoogleSrchAcceptText(Fmain,textsrch,accept);
+   Fmain.FGoogleSearch.ModalSearch(textsrch, GState.ViewState.GetCenterLonLat);
   end;
  if RB4.Checked then
   begin
    textsrch:=EditGF.Text;
    Close;
-   Fmain.TBEditItem1AcceptText(Fmain,textsrch,accept);
+   Fmain.FYandexSerach.ModalSearch(textsrch, GState.ViewState.GetCenterLonLat);
   end;
 end;
 
