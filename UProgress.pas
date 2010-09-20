@@ -130,7 +130,7 @@ begin
   RProgr.Progress1 := FDownloadThread.Downloaded;
   RProgr.Progress2 := FDownloadThread.Processed;
   LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
-  LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (õ'+inttostr(FDownloadThread.Zoom)+')';
+  LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (õ'+inttostr(FDownloadThread.Zoom + 1)+')';
   LabelName1.Caption := SAS_STR_AllProcessed;
   LabelName2.Caption := SAS_STR_AllLoad;
   LabelName3.Caption := SAS_STR_TimeRemained;
