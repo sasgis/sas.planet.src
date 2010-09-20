@@ -65,7 +65,7 @@ begin
     FTilesToProcess := VTileIterator.TilesTotal;
     ProgressFormUpdateCaption(
       '',
-      SAS_STR_Deleted + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom) + ')'
+      SAS_STR_Deleted + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')'
     );
     while VTileIterator.Next do begin
       if IsCancel then begin
