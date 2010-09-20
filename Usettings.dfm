@@ -4,8 +4,8 @@ object FSettings: TFSettings
   BorderStyle = bsDialog
   BorderWidth = 3
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
-  ClientHeight = 410
-  ClientWidth = 643
+  ClientHeight = 412
+  ClientWidth = 646
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -23,8 +23,8 @@ object FSettings: TFSettings
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 643
-    Height = 379
+    Width = 646
+    Height = 381
     ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
@@ -33,42 +33,17 @@ object FSettings: TFSettings
     ExplicitWidth = 633
     ExplicitHeight = 369
     object TabSheet9: TTabSheet
+      BorderWidth = 3
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
-      ExplicitWidth = 625
-      ExplicitHeight = 341
-      object Button11: TButton
-        Left = 544
-        Top = 40
-        Width = 75
-        Height = 25
-        Caption = #1042#1085#1080#1079
-        TabOrder = 0
-        OnClick = Button11Click
-      end
-      object Button12: TButton
-        Left = 544
-        Top = 8
-        Width = 75
-        Height = 25
-        Caption = #1042#1074#1077#1088#1093
-        TabOrder = 1
-        OnClick = Button12Click
-      end
-      object Button15: TButton
-        Left = 544
-        Top = 72
-        Width = 75
-        Height = 25
-        Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
-        TabOrder = 2
-        OnClick = Button15Click
-      end
+      ExplicitWidth = 635
+      ExplicitHeight = 351
       object MapList: TListView
-        Left = 8
-        Top = 8
-        Width = 529
-        Height = 321
+        Left = 0
+        Top = 0
+        Width = 535
+        Height = 347
+        Align = alClient
         Columns = <
           item
             Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1082#1072#1088#1090#1099
@@ -94,20 +69,82 @@ object FSettings: TFSettings
         HideSelection = False
         ReadOnly = True
         RowSelect = True
-        TabOrder = 3
+        TabOrder = 0
         ViewStyle = vsReport
         OnCustomDrawItem = MapListCustomDrawItem
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
+        ExplicitLeft = 8
+        ExplicitTop = 8
+        ExplicitWidth = 529
+        ExplicitHeight = 321
       end
-      object Button18: TButton
-        Left = 544
-        Top = 112
-        Width = 75
-        Height = 25
-        Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
-        TabOrder = 4
-        OnClick = Button18Click
+      object pnlMapsRightButtons: TPanel
+        Left = 535
+        Top = 0
+        Width = 97
+        Height = 347
+        Align = alRight
+        BevelOuter = bvNone
+        TabOrder = 1
+        ExplicitLeft = 559
+        ExplicitHeight = 349
+        object Button15: TButton
+          AlignWithMargins = True
+          Left = 3
+          Top = 65
+          Width = 91
+          Height = 25
+          Align = alTop
+          Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
+          TabOrder = 0
+          OnClick = Button15Click
+          ExplicitLeft = 51
+          ExplicitTop = 72
+          ExplicitWidth = 75
+        end
+        object Button11: TButton
+          AlignWithMargins = True
+          Left = 3
+          Top = 34
+          Width = 91
+          Height = 25
+          Align = alTop
+          Caption = #1042#1085#1080#1079
+          TabOrder = 1
+          OnClick = Button11Click
+          ExplicitLeft = 51
+          ExplicitTop = 40
+          ExplicitWidth = 75
+        end
+        object Button12: TButton
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 91
+          Height = 25
+          Align = alTop
+          Caption = #1042#1074#1077#1088#1093
+          TabOrder = 2
+          OnClick = Button12Click
+          ExplicitLeft = 51
+          ExplicitTop = 8
+          ExplicitWidth = 75
+        end
+        object Button18: TButton
+          AlignWithMargins = True
+          Left = 3
+          Top = 96
+          Width = 91
+          Height = 25
+          Align = alTop
+          Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
+          TabOrder = 3
+          OnClick = Button18Click
+          ExplicitLeft = 51
+          ExplicitTop = 112
+          ExplicitWidth = 75
+        end
       end
     end
     object TabSheet2: TTabSheet
@@ -1538,15 +1575,17 @@ object FSettings: TFSettings
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 379
-    Width = 643
+    Top = 381
+    Width = 646
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 379
+    ExplicitWidth = 643
     object Button1: TButton
       AlignWithMargins = True
-      Left = 565
+      Left = 568
       Top = 3
       Width = 75
       Height = 25
@@ -1560,7 +1599,7 @@ object FSettings: TFSettings
     end
     object Button2: TButton
       AlignWithMargins = True
-      Left = 484
+      Left = 487
       Top = 3
       Width = 75
       Height = 25
@@ -1575,7 +1614,7 @@ object FSettings: TFSettings
     end
     object Button3: TButton
       AlignWithMargins = True
-      Left = 403
+      Left = 406
       Top = 3
       Width = 75
       Height = 25
