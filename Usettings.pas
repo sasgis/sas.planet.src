@@ -195,6 +195,7 @@ type
     Label5: TLabel;
     SE_NumTrackPoints: TSpinEdit;
     CB_GPSlogNmea: TCheckBox;
+    pnlBottomButtons: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);

@@ -2,9 +2,10 @@ object FSettings: TFSettings
   Left = 293
   Top = 114
   BorderStyle = bsDialog
+  BorderWidth = 3
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
-  ClientHeight = 416
-  ClientWidth = 649
+  ClientHeight = 410
+  ClientWidth = 643
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -20,15 +21,22 @@ object FSettings: TFSettings
   PixelsPerInch = 96
   TextHeight = 13
   object PageControl1: TPageControl
-    Left = 8
-    Top = 8
-    Width = 633
-    Height = 369
-    ActivePage = TabSheet5
+    Left = 0
+    Top = 0
+    Width = 643
+    Height = 379
+    ActivePage = TabSheet9
+    Align = alClient
     TabOrder = 0
+    ExplicitLeft = 8
+    ExplicitTop = 8
+    ExplicitWidth = 633
+    ExplicitHeight = 369
     object TabSheet9: TTabSheet
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Button11: TButton
         Left = 544
         Top = 40
@@ -105,6 +113,8 @@ object FSettings: TFSettings
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Label2: TLabel
         Left = 8
         Top = 40
@@ -319,6 +329,8 @@ object FSettings: TFSettings
     object TabSheet1: TTabSheet
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Label13: TLabel
         Left = 8
         Top = 10
@@ -472,6 +484,8 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object GroupBox1: TGroupBox
         Left = 8
         Top = 8
@@ -541,6 +555,8 @@ object FSettings: TFSettings
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Bevel1: TBevel
         Left = 8
         Top = 8
@@ -986,6 +1002,8 @@ object FSettings: TFSettings
     object TabSheet5: TTabSheet
       Caption = 'GPS'
       ImageIndex = 4
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Label4: TLabel
         Left = 8
         Top = 19
@@ -1177,6 +1195,8 @@ object FSettings: TFSettings
           Top = 16
           Width = 40
           Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
           AutoSize = False
           BorderStyle = bsNone
           Ctl3D = True
@@ -1192,6 +1212,8 @@ object FSettings: TFSettings
           Top = 16
           Width = 40
           Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
           AutoSize = False
           BorderStyle = bsNone
           Ctl3D = True
@@ -1207,6 +1229,8 @@ object FSettings: TFSettings
           Top = 38
           Width = 48
           Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
           AutoSize = False
           BorderStyle = bsNone
           Ctl3D = True
@@ -1222,6 +1246,8 @@ object FSettings: TFSettings
           Top = 38
           Width = 40
           Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
           AutoSize = False
           BorderStyle = bsNone
           Ctl3D = True
@@ -1237,6 +1263,8 @@ object FSettings: TFSettings
           Top = 38
           Width = 40
           Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
           AutoSize = False
           BorderStyle = bsNone
           Ctl3D = True
@@ -1252,6 +1280,8 @@ object FSettings: TFSettings
           Top = 16
           Width = 48
           Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
           AutoSize = False
           BorderStyle = bsNone
           Ctl3D = True
@@ -1368,6 +1398,8 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Label76: TLabel
         Left = 38
         Top = 20
@@ -1413,6 +1445,8 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
+      ExplicitWidth = 625
+      ExplicitHeight = 341
       object Label33: TLabel
         Left = 8
         Top = 19
@@ -1502,38 +1536,59 @@ object FSettings: TFSettings
       end
     end
   end
-  object Button1: TButton
-    Left = 566
-    Top = 384
-    Width = 75
-    Height = 25
-    Cancel = True
-    Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+  object pnlBottomButtons: TPanel
+    Left = 0
+    Top = 379
+    Width = 643
+    Height = 31
+    Align = alBottom
+    BevelOuter = bvNone
     TabOrder = 1
-    OnClick = Button1Click
-  end
-  object Button2: TButton
-    Left = 486
-    Top = 384
-    Width = 75
-    Height = 25
-    Caption = #1054#1050
-    Default = True
-    ModalResult = 1
-    TabOrder = 2
-    OnClick = Button3Click
-  end
-  object Button3: TButton
-    Left = 406
-    Top = 384
-    Width = 75
-    Height = 25
-    Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
-    TabOrder = 3
-    OnClick = Button3Click
+    object Button1: TButton
+      AlignWithMargins = True
+      Left = 565
+      Top = 3
+      Width = 75
+      Height = 25
+      Align = alRight
+      Cancel = True
+      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      TabOrder = 0
+      OnClick = Button1Click
+      ExplicitLeft = 538
+      ExplicitTop = 6
+    end
+    object Button2: TButton
+      AlignWithMargins = True
+      Left = 484
+      Top = 3
+      Width = 75
+      Height = 25
+      Align = alRight
+      Caption = #1054#1050
+      Default = True
+      ModalResult = 1
+      TabOrder = 1
+      OnClick = Button3Click
+      ExplicitLeft = 410
+      ExplicitTop = 6
+    end
+    object Button3: TButton
+      AlignWithMargins = True
+      Left = 403
+      Top = 3
+      Width = 75
+      Height = 25
+      Align = alRight
+      Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
+      TabOrder = 2
+      OnClick = Button3Click
+      ExplicitLeft = 177
+      ExplicitTop = 4
+    end
   end
   object XPManifest1: TXPManifest
-    Left = 292
+    Left = 28
     Top = 384
   end
 end
