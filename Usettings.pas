@@ -113,8 +113,6 @@ type
     Label10: TLabel;
     ColorBoxGPSstr: TColorBox;
     Label12: TLabel;
-    Label13: TLabel;
-    RBWinCon: TRadioButton;
     GroupBox4: TGroupBox;
     CBProxyused: TCheckBox;
     EditPass: TEdit;
@@ -122,13 +120,11 @@ type
     Label25: TLabel;
     CBLogin: TCheckBox;
     EditIP: TEdit;
-    RBMyCon: TRadioButton;
     Label27: TLabel;
     Label28: TLabel;
     SpinEditBorderAlpha: TSpinEdit;
     ColorBoxBorder: TColorBox;
     CBDblDwnl: TCheckBox;
-    Bevel14: TBevel;
     CkBGoNextTile: TCheckBox;
     TabSheet9: TTabSheet;
     Button11: TButton;
@@ -184,7 +180,6 @@ type
     Label35: TLabel;
     ColorBoxBackGround: TColorBox;
     CBLastSuccess: TCheckBox;
-    Bevel16: TBevel;
     Label36: TLabel;
     SEWaitingAnswer: TSpinEdit;
     Label37: TLabel;
@@ -199,6 +194,14 @@ type
     pnlMapsRightButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
     grdpnlCache: TGridPanel;
+    pnlProxyUrl: TPanel;
+    lblUseProxy: TLabel;
+    lblProxyLogin: TLabel;
+    flwpnlProxyAuth: TFlowPanel;
+    chkUseIEProxy: TCheckBox;
+    pnlUseIEProxy: TPanel;
+    pnlDownloadParams: TPanel;
+    flwpnlDownloadTimeOut: TFlowPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -219,6 +222,9 @@ type
     procedure Button18Click(Sender: TObject);
     procedure SBGetComNumClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure chkUseIEProxyClick(Sender: TObject);
+    procedure CBProxyusedClick(Sender: TObject);
+    procedure CBLoginClick(Sender: TObject);
   private
     FMapsEdit: boolean;
   public
@@ -484,8 +490,8 @@ begin
  GState.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
  GState.GPS_NumTrackPoints:=SE_NumTrackPoints.Value;
- if (RBWinCon.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
- GState.InetConnect.userwinset:=RBWinCon.Checked;
+ if (chkUseIEProxy.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
+ GState.InetConnect.userwinset:=chkUseIEProxy.Checked;
  GState.InetConnect.proxyused:=CBProxyused.Checked;
  GState.InetConnect.uselogin:=CBLogin.Checked;
  GState.InetConnect.proxystr:=EditIP.Text;
@@ -557,6 +563,37 @@ begin
   end;
 end;
 
+procedure TFSettings.CBLoginClick(Sender: TObject);
+var
+  VUseAuth: Boolean;
+begin
+  VUseAuth := CBLogin.Enabled and CBLogin.Checked;
+  EditLogin.Enabled := VUseAuth;
+  Label25.Enabled := VUseAuth;
+  EditPass.Enabled := VUseAuth;
+end;
+
+procedure TFSettings.CBProxyusedClick(Sender: TObject);
+var
+  VUseProxy: Boolean;
+begin
+  VUseProxy := CBProxyused.Enabled and CBProxyused.Checked;
+  EditIP.Enabled := VUseProxy;
+  CBLogin.Enabled := VUseProxy;
+  lblProxyLogin.Enabled := VUseProxy;
+  CBLoginClick(CBLogin);
+end;
+
+procedure TFSettings.chkUseIEProxyClick(Sender: TObject);
+var
+  VUseIeProxy: Boolean;
+begin
+  VUseIeProxy := chkUseIEProxy.Checked;
+  CBProxyused.Enabled := not VUseIeProxy;
+  lblUseProxy.Enabled := not VUseIeProxy;
+  CBProxyusedClick(CBProxyused);
+end;
+
 procedure TFSettings.FormShow(Sender: TObject);
 var DMS:TDMS;
 begin
@@ -582,8 +619,7 @@ begin
  ChBoxFirstLat.Checked:=GState.FirstLat;
  CBlock_toolbars.Checked:=FMain.lock_toolbars;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
- RBWinCon.Checked:=GState.InetConnect.userwinset;
- RBMyCon.Checked:=not(GState.InetConnect.userwinset);
+ chkUseIEProxy.Checked:=GState.InetConnect.userwinset;
  CBProxyused.Checked:=GState.InetConnect.proxyused;
  CBLogin.Checked:=GState.InetConnect.uselogin;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;

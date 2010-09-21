@@ -28,16 +28,10 @@ object FSettings: TFSettings
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 8
-    ExplicitTop = 8
-    ExplicitWidth = 633
-    ExplicitHeight = 369
     object TabSheet9: TTabSheet
       BorderWidth = 3
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
-      ExplicitWidth = 635
-      ExplicitHeight = 351
       object MapList: TListView
         Left = 0
         Top = 0
@@ -74,10 +68,6 @@ object FSettings: TFSettings
         OnCustomDrawItem = MapListCustomDrawItem
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
-        ExplicitLeft = 8
-        ExplicitTop = 8
-        ExplicitWidth = 529
-        ExplicitHeight = 321
       end
       object pnlMapsRightButtons: TPanel
         Left = 535
@@ -87,8 +77,6 @@ object FSettings: TFSettings
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 559
-        ExplicitHeight = 349
         object Button15: TButton
           AlignWithMargins = True
           Left = 3
@@ -99,9 +87,6 @@ object FSettings: TFSettings
           Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
           TabOrder = 0
           OnClick = Button15Click
-          ExplicitLeft = 51
-          ExplicitTop = 72
-          ExplicitWidth = 75
         end
         object Button11: TButton
           AlignWithMargins = True
@@ -113,9 +98,6 @@ object FSettings: TFSettings
           Caption = #1042#1085#1080#1079
           TabOrder = 1
           OnClick = Button11Click
-          ExplicitLeft = 51
-          ExplicitTop = 40
-          ExplicitWidth = 75
         end
         object Button12: TButton
           AlignWithMargins = True
@@ -127,9 +109,6 @@ object FSettings: TFSettings
           Caption = #1042#1074#1077#1088#1093
           TabOrder = 2
           OnClick = Button12Click
-          ExplicitLeft = 51
-          ExplicitTop = 8
-          ExplicitWidth = 75
         end
         object Button18: TButton
           AlignWithMargins = True
@@ -141,17 +120,12 @@ object FSettings: TFSettings
           Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
           TabOrder = 3
           OnClick = Button18Click
-          ExplicitLeft = 51
-          ExplicitTop = 112
-          ExplicitWidth = 75
         end
       end
     end
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
-      ExplicitWidth = 625
-      ExplicitHeight = 341
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -161,9 +135,6 @@ object FSettings: TFSettings
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 32
-        ExplicitTop = 216
-        ExplicitWidth = 369
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -344,7 +315,6 @@ object FSettings: TFSettings
             Value = 100.000000000000000000
           end>
         TabOrder = 1
-        ExplicitTop = 168
         DesignSize = (
           638
           160)
@@ -357,9 +327,8 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1055#1091#1090#1100' '#1082' "'#1088#1086#1076#1085#1086#1084#1091'" '#1082#1101#1096#1091':'
           Layout = tlCenter
-          ExplicitLeft = 4
-          ExplicitTop = 4
-          ExplicitWidth = 114
+          ExplicitWidth = 120
+          ExplicitHeight = 13
         end
         object NewCpath: TEdit
           AlignWithMargins = True
@@ -369,10 +338,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 0
-          ExplicitLeft = 124
-          ExplicitTop = 4
-          ExplicitWidth = 470
-          ExplicitHeight = 41
         end
         object Button6: TButton
           Tag = 2
@@ -384,8 +349,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 1
           OnClick = Button4Click
-          ExplicitLeft = 576
-          ExplicitTop = 12
         end
         object Button7: TButton
           Tag = 2
@@ -397,8 +360,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 2
           OnClick = Button5Click
-          ExplicitLeft = 596
-          ExplicitTop = 12
         end
         object Label2: TLabel
           AlignWithMargins = True
@@ -409,8 +370,6 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GoogleMV:'
           Layout = tlCenter
-          ExplicitLeft = 8
-          ExplicitTop = 40
           ExplicitWidth = 117
           ExplicitHeight = 13
         end
@@ -422,9 +381,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 3
-          ExplicitLeft = 138
-          ExplicitTop = 33
-          ExplicitWidth = 432
         end
         object Button4: TButton
           Tag = 1
@@ -436,8 +392,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 4
           OnClick = Button4Click
-          ExplicitLeft = 576
-          ExplicitTop = 36
         end
         object Button5: TButton
           Tag = 1
@@ -449,8 +403,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 5
           OnClick = Button5Click
-          ExplicitLeft = 596
-          ExplicitTop = 36
         end
         object Label1: TLabel
           AlignWithMargins = True
@@ -461,8 +413,6 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSliser:'
           Layout = tlCenter
-          ExplicitLeft = 8
-          ExplicitTop = 64
           ExplicitWidth = 117
           ExplicitHeight = 13
         end
@@ -474,9 +424,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 6
-          ExplicitLeft = 144
-          ExplicitTop = 60
-          ExplicitWidth = 432
         end
         object Button8: TButton
           Tag = 3
@@ -488,8 +435,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 7
           OnClick = Button4Click
-          ExplicitLeft = 576
-          ExplicitTop = 60
         end
         object Button9: TButton
           Tag = 3
@@ -501,8 +446,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 8
           OnClick = Button5Click
-          ExplicitLeft = 596
-          ExplicitTop = 60
         end
         object Label19: TLabel
           AlignWithMargins = True
@@ -513,8 +456,6 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GM Tiles:'
           Layout = tlCenter
-          ExplicitLeft = 8
-          ExplicitTop = 88
           ExplicitWidth = 109
           ExplicitHeight = 13
         end
@@ -526,8 +467,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 9
-          ExplicitLeft = 144
-          ExplicitWidth = 432
         end
         object Button13: TButton
           Tag = 4
@@ -539,7 +478,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 10
           OnClick = Button4Click
-          ExplicitLeft = 576
         end
         object Button14: TButton
           Tag = 4
@@ -551,7 +489,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 11
           OnClick = Button5Click
-          ExplicitLeft = 596
         end
         object Label31: TLabel
           AlignWithMargins = True
@@ -562,8 +499,6 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' Google Earth:'
           Layout = tlCenter
-          ExplicitLeft = 8
-          ExplicitTop = 112
           ExplicitWidth = 129
           ExplicitHeight = 13
         end
@@ -575,9 +510,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 12
-          ExplicitLeft = 144
-          ExplicitTop = 108
-          ExplicitWidth = 432
         end
         object Button10: TButton
           Tag = 5
@@ -589,8 +521,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 13
           OnClick = Button4Click
-          ExplicitLeft = 576
-          ExplicitTop = 108
         end
         object Button17: TButton
           Tag = 5
@@ -602,8 +532,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 14
           OnClick = Button5Click
-          ExplicitLeft = 596
-          ExplicitTop = 108
         end
         object Label37: TLabel
           AlignWithMargins = True
@@ -614,8 +542,6 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1058#1080#1087' '#1082#1101#1096#1072
           Layout = tlCenter
-          ExplicitLeft = 8
-          ExplicitTop = 136
           ExplicitWidth = 48
           ExplicitHeight = 13
         end
@@ -636,172 +562,252 @@ object FSettings: TFSettings
             'SAS.'#1055#1083#1072#1085#1077#1090#1072
             'EarthSlicer 1.95'
             'Googe maps tiles')
-          ExplicitLeft = 144
-          ExplicitTop = 132
-          ExplicitWidth = 433
         end
       end
     end
     object TabSheet1: TTabSheet
+      BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
-      ExplicitWidth = 625
-      ExplicitHeight = 341
-      object Label13: TLabel
-        Left = 8
-        Top = 10
-        Width = 147
-        Height = 13
-        Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
-        Font.Charset = RUSSIAN_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
-      object Bevel14: TBevel
-        Left = 8
-        Top = 152
-        Width = 609
-        Height = 9
-        Shape = bsBottomLine
-      end
-      object Label32: TLabel
-        Left = 8
-        Top = 248
-        Width = 175
-        Height = 13
-        Caption = #1058#1072#1081#1084#1072#1091#1090' '#1085#1072' '#1089#1077#1090#1077#1074#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080', '#1084#1089
-      end
-      object Bevel16: TBevel
-        Left = 8
-        Top = 272
-        Width = 609
-        Height = 9
-        Shape = bsBottomLine
-      end
-      object RBWinCon: TRadioButton
-        Left = 17
-        Top = 32
-        Width = 344
-        Height = 17
-        Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
-        Checked = True
-        TabOrder = 0
-        TabStop = True
-      end
+      ExplicitLeft = 10
+      ExplicitTop = 22
       object GroupBox4: TGroupBox
-        Left = 8
-        Top = 59
-        Width = 361
-        Height = 86
-        Caption = '  '
-        TabOrder = 1
-        object Label25: TLabel
-          Left = 223
-          Top = 56
-          Width = 48
-          Height = 13
-          Caption = #1080' '#1087#1072#1088#1086#1083#1100':'
-        end
-        object CBProxyused: TCheckBox
-          Left = 8
-          Top = 23
-          Width = 169
-          Height = 17
-          Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
+        Left = 0
+        Top = 0
+        Width = 632
+        Height = 108
+        Align = alTop
+        Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
+        TabOrder = 0
+        object pnlProxyUrl: TPanel
+          AlignWithMargins = True
+          Left = 5
+          Top = 47
+          Width = 622
+          Height = 23
+          Align = alTop
+          BevelOuter = bvNone
           TabOrder = 0
+          ExplicitLeft = 2
+          ExplicitTop = 15
+          ExplicitWidth = 422
+          object lblUseProxy: TLabel
+            AlignWithMargins = True
+            Left = 24
+            Top = 3
+            Width = 150
+            Height = 17
+            Align = alLeft
+            Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
+            Layout = tlCenter
+            ExplicitLeft = 61
+            ExplicitTop = 5
+            ExplicitHeight = 13
+          end
+          object CBProxyused: TCheckBox
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 15
+            Height = 17
+            Align = alLeft
+            TabOrder = 0
+            OnClick = CBProxyusedClick
+            ExplicitLeft = 8
+            ExplicitTop = 6
+          end
+          object EditIP: TEdit
+            Left = 177
+            Top = 0
+            Width = 445
+            Height = 23
+            Align = alClient
+            TabOrder = 1
+            ExplicitLeft = 199
+            ExplicitTop = 2
+            ExplicitWidth = 169
+            ExplicitHeight = 21
+          end
         end
-        object EditPass: TEdit
-          Left = 272
-          Top = 53
-          Width = 81
-          Height = 21
-          PasswordChar = '*'
+        object flwpnlProxyAuth: TFlowPanel
+          AlignWithMargins = True
+          Left = 5
+          Top = 76
+          Width = 622
+          Height = 23
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
           TabOrder = 1
+          ExplicitTop = 47
+          ExplicitWidth = 416
+          object CBLogin: TCheckBox
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 17
+            Height = 17
+            TabOrder = 0
+            OnClick = CBLoginClick
+          end
+          object lblProxyLogin: TLabel
+            AlignWithMargins = True
+            Left = 26
+            Top = 3
+            Width = 108
+            Height = 13
+            Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1083#1086#1075#1080#1085':'
+          end
+          object EditLogin: TEdit
+            Left = 137
+            Top = 0
+            Width = 81
+            Height = 21
+            TabOrder = 1
+          end
+          object Label25: TLabel
+            AlignWithMargins = True
+            Left = 221
+            Top = 3
+            Width = 48
+            Height = 13
+            Caption = #1080' '#1087#1072#1088#1086#1083#1100':'
+          end
+          object EditPass: TEdit
+            Left = 272
+            Top = 0
+            Width = 81
+            Height = 21
+            PasswordChar = '*'
+            TabOrder = 2
+          end
         end
-        object EditLogin: TEdit
-          Left = 136
-          Top = 53
-          Width = 81
-          Height = 21
+        object pnlUseIEProxy: TPanel
+          AlignWithMargins = True
+          Left = 5
+          Top = 18
+          Width = 622
+          Height = 23
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
           TabOrder = 2
+          ExplicitWidth = 416
+          object chkUseIEProxy: TCheckBox
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 616
+            Height = 17
+            Align = alTop
+            Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
+            TabOrder = 0
+            OnClick = chkUseIEProxyClick
+            ExplicitLeft = 10
+            ExplicitTop = 2
+            ExplicitWidth = 414
+          end
         end
-        object CBLogin: TCheckBox
-          Left = 8
-          Top = 55
-          Width = 128
+      end
+      object pnlDownloadParams: TPanel
+        Left = 0
+        Top = 108
+        Width = 632
+        Height = 131
+        Align = alTop
+        BevelOuter = bvNone
+        BorderWidth = 3
+        TabOrder = 1
+        object CBDblDwnl: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 6
+          Width = 620
           Height = 17
-          Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1083#1086#1075#1080#1085':'
+          Align = alTop
+          Caption = #1055#1086#1074#1090#1086#1088#1085#1086' '#1087#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1087#1088#1080' '#1077#1075#1086' '#1086#1090#1089#1090#1091#1090#1089#1074#1080#1080
+          TabOrder = 0
+          ExplicitLeft = 8
+          ExplicitTop = 24
+          ExplicitWidth = 305
+        end
+        object CkBGoNextTile: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 29
+          Width = 620
+          Height = 17
+          Align = alTop
+          Caption = #1055#1077#1088#1077#1093#1086#1076' '#1082' '#1089#1083#1077#1076#1091#1102#1097#1077#1084#1091' '#1090#1072#1081#1083#1091' '#1077#1089#1083#1080' '#1089#1077#1088#1074#1077#1088' '#1085#1077' '#1086#1090#1074#1077#1095#1072#1077#1090
+          TabOrder = 1
+          ExplicitLeft = 8
+          ExplicitTop = 24
+          ExplicitWidth = 305
+        end
+        object CBSaveTileNotExists: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 52
+          Width = 620
+          Height = 17
+          Align = alTop
+          Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1072' '#1085#1072' '#1089#1077#1088#1074#1077#1088#1077
+          TabOrder = 2
+          ExplicitLeft = 8
+          ExplicitTop = 63
+          ExplicitWidth = 313
+        end
+        object flwpnlDownloadTimeOut: TFlowPanel
+          Left = 3
+          Top = 72
+          Width = 626
+          Height = 22
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
           TabOrder = 3
+          ExplicitLeft = 4
+          ExplicitTop = 73
+          ExplicitWidth = 624
+          object Label32: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 175
+            Height = 13
+            Caption = #1058#1072#1081#1084#1072#1091#1090' '#1085#1072' '#1089#1077#1090#1077#1074#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080', '#1084#1089
+          end
+          object SETimeOut: TSpinEdit
+            Left = 181
+            Top = 0
+            Width = 73
+            Height = 22
+            MaxValue = 0
+            MinValue = 0
+            TabOrder = 0
+            Value = 0
+          end
         end
-        object EditIP: TEdit
-          Left = 184
-          Top = 21
-          Width = 169
-          Height = 21
+        object CBLastSuccess: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 97
+          Width = 620
+          Height = 17
+          Align = alTop
+          Caption = 
+            #1053#1072#1095#1072#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086' '#1091#1076#1072#1095#1085#1086' '#1079#1072#1075#1088#1091#1078#1077#1085#1085 +
+            #1086#1075#1086' '#1090#1072#1081#1083#1072
           TabOrder = 4
+          ExplicitLeft = 8
+          ExplicitTop = 114
+          ExplicitWidth = 609
         end
-      end
-      object RBMyCon: TRadioButton
-        Left = 17
-        Top = 57
-        Width = 172
-        Height = 17
-        Caption = #1057#1074#1086#1080' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
-        TabOrder = 2
-      end
-      object CBDblDwnl: TCheckBox
-        Left = 8
-        Top = 168
-        Width = 305
-        Height = 17
-        Caption = #1055#1086#1074#1090#1086#1088#1085#1086' '#1087#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1087#1088#1080' '#1077#1075#1086' '#1086#1090#1089#1090#1091#1090#1089#1074#1080#1080
-        TabOrder = 3
-      end
-      object CkBGoNextTile: TCheckBox
-        Left = 8
-        Top = 192
-        Width = 305
-        Height = 17
-        Caption = #1055#1077#1088#1077#1093#1086#1076' '#1082' '#1089#1083#1077#1076#1091#1102#1097#1077#1084#1091' '#1090#1072#1081#1083#1091' '#1077#1089#1083#1080' '#1089#1077#1088#1074#1077#1088' '#1085#1077' '#1086#1090#1074#1077#1095#1072#1077#1090
-        TabOrder = 4
-      end
-      object CBSaveTileNotExists: TCheckBox
-        Left = 8
-        Top = 216
-        Width = 313
-        Height = 17
-        Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1072' '#1085#1072' '#1089#1077#1088#1074#1077#1088#1077
-        TabOrder = 5
-      end
-      object SETimeOut: TSpinEdit
-        Left = 192
-        Top = 245
-        Width = 73
-        Height = 22
-        MaxValue = 0
-        MinValue = 0
-        TabOrder = 6
-        Value = 0
-      end
-      object CBLastSuccess: TCheckBox
-        Left = 8
-        Top = 288
-        Width = 609
-        Height = 17
-        Caption = 
-          #1053#1072#1095#1072#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086' '#1091#1076#1072#1095#1085#1086' '#1079#1072#1075#1088#1091#1078#1077#1085#1085 +
-          #1086#1075#1086' '#1090#1072#1081#1083#1072
-        TabOrder = 7
       end
     end
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
-      ExplicitWidth = 625
-      ExplicitHeight = 341
       object GroupBox1: TGroupBox
         Left = 8
         Top = 8
@@ -871,8 +877,6 @@ object FSettings: TFSettings
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
-      ExplicitWidth = 625
-      ExplicitHeight = 341
       object Bevel1: TBevel
         Left = 8
         Top = 8
@@ -1318,8 +1322,6 @@ object FSettings: TFSettings
     object TabSheet5: TTabSheet
       Caption = 'GPS'
       ImageIndex = 4
-      ExplicitWidth = 625
-      ExplicitHeight = 341
       object Label4: TLabel
         Left = 8
         Top = 19
@@ -1714,8 +1716,6 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitWidth = 625
-      ExplicitHeight = 341
       object Label76: TLabel
         Left = 38
         Top = 20
@@ -1761,8 +1761,6 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitWidth = 625
-      ExplicitHeight = 341
       object Label33: TLabel
         Left = 8
         Top = 19
@@ -1860,8 +1858,6 @@ object FSettings: TFSettings
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 379
-    ExplicitWidth = 643
     object Button1: TButton
       AlignWithMargins = True
       Left = 568
@@ -1873,8 +1869,6 @@ object FSettings: TFSettings
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       TabOrder = 0
       OnClick = Button1Click
-      ExplicitLeft = 538
-      ExplicitTop = 6
     end
     object Button2: TButton
       AlignWithMargins = True
@@ -1888,8 +1882,6 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
       OnClick = Button3Click
-      ExplicitLeft = 410
-      ExplicitTop = 6
     end
     object Button3: TButton
       AlignWithMargins = True
@@ -1901,8 +1893,6 @@ object FSettings: TFSettings
       Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
       TabOrder = 2
       OnClick = Button3Click
-      ExplicitLeft = 177
-      ExplicitTop = 4
     end
   end
   object XPManifest1: TXPManifest
