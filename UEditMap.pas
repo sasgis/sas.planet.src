@@ -28,7 +28,6 @@ type
     CheckBox1: TCheckBox;
     Label4: TLabel;
     EditHotKey: THotKey;
-    Bevel1: TBevel;
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
@@ -43,6 +42,16 @@ type
     CBCacheType: TComboBox;
     Label5: TLabel;
     Button9: TButton;
+    pnlBottomButtons: TPanel;
+    pnlSeparator: TPanel;
+    pnlCacheType: TPanel;
+    grdpnlHotKey: TGridPanel;
+    grdpnlSleep: TGridPanel;
+    grdpnlSleepAndKey: TGridPanel;
+    pnlParentItem: TPanel;
+    pnlCacheName: TPanel;
+    pnlUrl: TPanel;
+    pnlUrlRight: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
