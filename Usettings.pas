@@ -161,8 +161,6 @@ type
     CBGSMComPort: TComboBox;
     Label34: TLabel;
     CBGSMBaundRate: TComboBox;
-    RBGSMAuto: TRadioButton;
-    RBGSMManual: TRadioButton;
     Label35: TLabel;
     ColorBoxBackGround: TColorBox;
     CBLastSuccess: TCheckBox;
@@ -191,14 +189,14 @@ type
     pnlHotKeysHeader: TPanel;
     pnlNumbersFormat: TPanel;
     pnlCoordFormat: TPanel;
-    pnlLeft: TPanel;
+    pnlUILeft: TPanel;
     pnlLonLatFormat: TPanel;
     flwpnlMiniMap: TFlowPanel;
     pnlImageProcess: TPanel;
     pnlResize: TPanel;
     flwpnlTileBorders: TFlowPanel;
     pnlTileBorders: TPanel;
-    pnlRight: TPanel;
+    pnlUIRight: TPanel;
     flwpnlMiniMapAlfa: TFlowPanel;
     flwpnlTileBorder: TFlowPanel;
     pnlShowMapName: TPanel;
@@ -209,6 +207,16 @@ type
     pnlShowPointDescr: TPanel;
     pnlBgColor: TPanel;
     grdpnlUI: TGridPanel;
+    pnlGPSLeft: TPanel;
+    flwpnlGpsPort: TFlowPanel;
+    flwpnlGpsParams: TFlowPanel;
+    pnlGpsTrackSave: TPanel;
+    pnlGpsSensors: TPanel;
+    pnlGpsRight: TPanel;
+    grdpnlWiki: TGridPanel;
+    chkPosFromGSM: TCheckBox;
+    pnlGSM: TPanel;
+    flwpnlGSM: TFlowPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -232,6 +240,7 @@ type
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
+    procedure chkPosFromGSMClick(Sender: TObject);
   private
     FMapsEdit: boolean;
   public
@@ -463,7 +472,7 @@ begin
  FMain.map.Color:=GState.BGround;
  GState.GSMpar.BaudRate:=strtoint(CBGSMBaundRate.text);
  GState.GSMpar.Port:=CBGSMComPort.Text;
- GState.GSMpar.auto:=RBGSMAuto.Checked;
+ GState.GSMpar.auto:=chkPosFromGSM.Checked;
  GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  GState.CacheElemensMaxCnt:=SETilesOCache.value;
@@ -591,6 +600,19 @@ begin
   CBLoginClick(CBLogin);
 end;
 
+procedure TFSettings.chkPosFromGSMClick(Sender: TObject);
+var
+  VUseGSM: Boolean;
+  i: Integer;
+  VControl: TControl;
+begin
+  VUseGSM := chkPosFromGSM.Checked;
+  for i := 0 to flwpnlGSM.ControlCount - 1 do begin
+    VControl := flwpnlGSM.Controls[i];
+    VControl.Enabled := VUseGSM;
+  end;
+end;
+
 procedure TFSettings.chkUseIEProxyClick(Sender: TObject);
 var
   VUseIeProxy: Boolean;
@@ -614,8 +636,7 @@ begin
  ColorBoxBackGround.Selected:=GState.BGround;
  CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
  CBGSMComPort.Text:=GState.GSMpar.Port;
- RBGSMAuto.Checked:=GState.GSMpar.auto;
- RBGSMManual.Checked:=not GState.GSMpar.auto;
+ chkPosFromGSM.Checked:=GState.GSMpar.auto;
  SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
  SETimeOut.Value:=GState.InetConnect.TimeOut;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
@@ -676,6 +697,8 @@ begin
  if DMS.N then Lon_we.ItemIndex:=1 else Lon_we.ItemIndex:=0;
 
  SpinEdit3.Value:=GState.TilesOut;
+ chkPosFromGSMClick(chkPosFromGSM);
+ chkUseIEProxyClick(chkUseIEProxy);
 end;
 
 procedure TFSettings.FormCreate(Sender: TObject);
