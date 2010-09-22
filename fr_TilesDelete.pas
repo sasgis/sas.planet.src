@@ -3,11 +3,22 @@ unit fr_TilesDelete;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, Spin;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  ExtCtrls,
+  StdCtrls,
+  Spin,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDelete = class(TFrame)
+  TfrTilesDelete = class(TCommonFrameParent)
     cbbMap: TComboBox;
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;

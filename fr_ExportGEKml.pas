@@ -14,10 +14,11 @@ uses
   Dialogs,
   StdCtrls,
   CheckLst,
-  ExtCtrls;
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrExportGEKml = class(TFrame)
+  TfrExportGEKml = class(TCommonFrameParent)
     pnlCenter: TPanel;
     lblZooms: TLabel;
     chkAllZooms: TCheckBox;

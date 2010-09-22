@@ -3,11 +3,22 @@ unit fr_TilesCopy;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, CheckLst, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  CheckLst,
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrTilesCopy = class(TFrame)
+  TfrTilesCopy = class(TCommonFrameParent)
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;

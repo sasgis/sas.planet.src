@@ -3,11 +3,23 @@ unit fr_ExportIPhone;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, CheckLst, Spin, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  CheckLst,
+  Spin,
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrExportIPhone = class(TFrame)
+  TfrExportIPhone = class(TCommonFrameParent)
     pnlMaps: TPanel;
     lblMaps: TLabel;
     lblSat: TLabel;

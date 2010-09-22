@@ -3,11 +3,21 @@ unit fr_ExportAUX;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrExportAUX = class(TFrame)
+  TfrExportAUX = class(TCommonFrameParent)
     pnlCenter: TPanel;
     pnlMain: TPanel;
     lblMap: TLabel;

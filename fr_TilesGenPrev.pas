@@ -3,11 +3,22 @@ unit fr_TilesGenPrev;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, CheckLst, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  CheckLst,
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrTilesGenPrev = class(TFrame)
+  TfrTilesGenPrev = class(TCommonFrameParent)
     pnlBottom: TPanel;
     pnlRight: TPanel;
     pnlCenter: TPanel;

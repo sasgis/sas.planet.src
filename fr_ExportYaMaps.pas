@@ -15,10 +15,11 @@ uses
   StdCtrls,
   CheckLst,
   Spin,
-  ExtCtrls;
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrExportYaMaps = class(TFrame)
+  TfrExportYaMaps = class(TCommonFrameParent)
     pnlCenter: TPanel;
     pnlTop: TPanel;
     lblTargetPath: TLabel;

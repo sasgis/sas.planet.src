@@ -3,11 +3,22 @@ unit fr_ExportToFileCont;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, CheckLst, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  CheckLst,
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrExportToFileCont = class(TFrame)
+  TfrExportToFileCont = class(TCommonFrameParent)
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;

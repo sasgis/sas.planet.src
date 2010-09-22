@@ -3,11 +3,23 @@ unit fr_MapCombine;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, ExtCtrls, StdCtrls, CheckLst, Spin;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  ExtCtrls,
+  StdCtrls,
+  CheckLst,
+  Spin,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrMapCombine = class(TFrame)
+  TfrMapCombine = class(TCommonFrameParent)
     cbbHybr: TComboBox;
     grpSplit: TGroupBox;
     lblSplitHor: TLabel;

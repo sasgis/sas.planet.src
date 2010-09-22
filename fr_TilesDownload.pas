@@ -3,11 +3,22 @@ unit fr_TilesDownload;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  ExtCtrls,
+  StdCtrls,
+  ComCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDownload = class(TFrame)
+  TfrTilesDownload = class(TCommonFrameParent)
     lblMap: TLabel;
     lblZoom: TLabel;
     lblStat: TLabel;
