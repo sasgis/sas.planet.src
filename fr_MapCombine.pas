@@ -16,7 +16,8 @@ uses
   StdCtrls,
   CheckLst,
   Spin,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents,
+  t_GeoTypes;
 
 type
   TfrMapCombine = class(TFrame)
@@ -51,10 +52,13 @@ type
     dlgSaveTargetFile: TSaveDialog;
     cbbZoom: TComboBox;
     lblZoom: TLabel;
+    lblStat: TLabel;
     procedure cbbOutputFormatChange(Sender: TObject);
+    procedure cbbZoomChange(Sender: TObject);
   private
+    FPolygLL: TExtendedPointArray;
   public
-    procedure Init(AZoom: Byte);
+    procedure Init(AZoom: Byte; APolygLL: TExtendedPointArray);
   end;
 
 implementation
@@ -62,6 +66,7 @@ implementation
 uses
   i_IMapCalibration,
   u_GlobalState,
+  UGeoFun,
   UResStrings,
   UMapType;
 
@@ -91,7 +96,26 @@ begin
   dlgSaveTargetFile.Filter := cbbOutputFormat.Items[cbbOutputFormat.ItemIndex] + ' | *.' + VNewExt;
 end;
 
-procedure TfrMapCombine.Init(AZoom: Byte);
+procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
+var
+  polyg:TPointArray;
+  min,max:TPoint;
+  numd:int64 ;
+  Vmt: TMapType;
+  VZoom: byte;
+begin
+  Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  VZoom := cbbZoom.ItemIndex;
+  polyg := Vmt.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
+  numd:=GetDwnlNum(min,max,polyg,true);
+  lblStat.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
+                  +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
+  GetMinMax(min,max,polyg,false);
+  lblStat.Caption:=lblStat.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
+                +inttostr(max.y-min.y);
+end;
+
+procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TExtendedPointArray);
 var
   i: Integer;
   VMapType: TMapType;
@@ -99,6 +123,7 @@ var
   VAddedIndex: Integer;
   VMapCalibration: IMapCalibration;
 begin
+  FPolygLL := APolygLL;
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));

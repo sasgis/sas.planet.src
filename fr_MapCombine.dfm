@@ -17,6 +17,18 @@ object frMapCombine: TfrMapCombine
     BorderWidth = 3
     Caption = #1057#1082#1083#1077#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1092#1088#1072#1075#1084#1077#1085#1090
     TabOrder = 0
+    ExplicitLeft = -3
+    ExplicitTop = -4
+    object lblStat: TLabel
+      Left = 467
+      Top = 3
+      Width = 6
+      Height = 12
+      Align = alRight
+      Caption = '_'
+      ExplicitLeft = 443
+      ExplicitHeight = 13
+    end
   end
   object pnlTargetFile: TPanel
     Left = 0
@@ -27,8 +39,6 @@ object frMapCombine: TfrMapCombine
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitTop = 48
-    ExplicitWidth = 576
     object lblTargetFile: TLabel
       Left = 3
       Top = 3
@@ -46,7 +56,6 @@ object frMapCombine: TfrMapCombine
       Height = 19
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 463
       ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
@@ -57,8 +66,6 @@ object frMapCombine: TfrMapCombine
       Align = alRight
       Caption = '...'
       TabOrder = 1
-      ExplicitLeft = 552
-      ExplicitHeight = 21
     end
   end
   object pnlOutputFormat: TPanel
@@ -70,7 +77,6 @@ object frMapCombine: TfrMapCombine
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
-    ExplicitTop = 18
     object lblOutputFormat: TLabel
       Left = 3
       Top = 3
@@ -98,7 +104,6 @@ object frMapCombine: TfrMapCombine
         'Bmp (Bitmap Picture) '#1073#1077#1079' '#1089#1078#1072#1090#1080#1103
         'Kmz '#1076#1083#1103' Garmin'
         'JPEG (Joint Photographic Experts Group)')
-      ExplicitWidth = 440
     end
   end
   object pnlBottom: TPanel
@@ -109,9 +114,6 @@ object frMapCombine: TfrMapCombine
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 79
-    ExplicitWidth = 576
-    ExplicitHeight = 177
     object pnlRight: TPanel
       Left = 311
       Top = 0
@@ -121,8 +123,6 @@ object frMapCombine: TfrMapCombine
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitLeft = 411
-      ExplicitHeight = 177
       object lblPrTypes: TLabel
         Left = 3
         Top = 100
@@ -131,7 +131,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = #1057#1086#1079#1076#1072#1074#1072#1090#1100' '#1092#1072#1081#1083' '#1087#1088#1080#1074#1103#1079#1082#1080':'
         WordWrap = True
-        ExplicitTop = 112
         ExplicitWidth = 138
       end
       object lblZoom: TLabel
@@ -200,8 +199,6 @@ object frMapCombine: TfrMapCombine
           '.dat'
           '.kml')
         TabOrder = 1
-        ExplicitTop = 125
-        ExplicitHeight = 49
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -212,6 +209,7 @@ object frMapCombine: TfrMapCombine
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 2
+        OnChange = cbbZoomChange
       end
     end
     object pnlCenter: TPanel
@@ -223,8 +221,6 @@ object frMapCombine: TfrMapCombine
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitWidth = 411
-      ExplicitHeight = 177
       object lblMap: TLabel
         Left = 3
         Top = 3
@@ -253,7 +249,6 @@ object frMapCombine: TfrMapCombine
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 405
       end
       object cbbHybr: TComboBox
         Left = 3
@@ -268,7 +263,6 @@ object frMapCombine: TfrMapCombine
         Text = #1053#1077#1090
         Items.Strings = (
           #1053#1077#1090)
-        ExplicitWidth = 405
       end
       object chkUseMapMarks: TCheckBox
         Left = 3
@@ -278,7 +272,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = #1053#1072#1082#1083#1072#1076#1099#1074#1072#1090#1100' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1077' '#1084#1077#1090#1082#1080
         TabOrder = 2
-        ExplicitWidth = 405
       end
       object chkUseRecolor: TCheckBox
         Left = 3
@@ -288,7 +281,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = #1055#1088#1080#1084#1077#1085#1103#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1094#1074#1077#1090#1072
         TabOrder = 3
-        ExplicitWidth = 405
       end
       object pnlJpegQuality: TPanel
         Left = 3
@@ -299,7 +291,6 @@ object frMapCombine: TfrMapCombine
         BevelOuter = bvNone
         BorderWidth = 2
         TabOrder = 4
-        ExplicitWidth = 405
         object lblJpgQulity: TLabel
           Left = 2
           Top = 2
