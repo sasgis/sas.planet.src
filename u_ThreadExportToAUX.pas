@@ -77,12 +77,14 @@ begin
           exit;
         end;
         VTile := VTileIterator.Current;
-        VRectOfTilePixels := VGeoConvert.TilePos2PixelRect(VTile, FZoom);
-        VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
-        VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
-        VFileName := FMapType.GetTileFileName(VTile, FZoom);
-        VOutString := '"' + VFileName + '" ' + IntToStr(VOutPos.X) + ' ' + IntToStr(VOutPos.Y) + #13#10;
-        VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
+        if FMapType.TileExists(VTile, FZoom) then begin
+          VRectOfTilePixels := VGeoConvert.TilePos2PixelRect(VTile, FZoom);
+          VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
+          VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
+          VFileName := FMapType.GetTileFileName(VTile, FZoom);
+          VOutString := '"' + VFileName + '" ' + IntToStr(VOutPos.X) + ' ' + IntToStr(VOutPos.Y) + #13#10;
+          VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
+        end;
         inc(FTilesProcessed);
         if FTilesProcessed mod 100 = 0 then begin
           ProgressFormUpdateOnProgress;
