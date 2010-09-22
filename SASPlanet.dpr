@@ -193,6 +193,7 @@ uses
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigInIniFileSection in 'u_MapsConfigInIniFileSection.pas',
   u_MapViewPortState in 'u_MapViewPortState.pas',
+  u_ShortcutManager in 'u_ShortcutManager.pas',
   i_IGPSRecorder in 'i_IGPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   u_ExportProviderAbstract in 'u_ExportProviderAbstract.pas',

@@ -309,6 +309,7 @@
     <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionLayer.pas" />
+    <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_ThreadDeleteTiles.pas" />
     <DCCReference Include="u_ThreadDownloadTiles.pas" />
     <DCCReference Include="u_ThreadExportAbstract.pas" />

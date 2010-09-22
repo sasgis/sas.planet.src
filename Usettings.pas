@@ -29,7 +29,7 @@ uses
   Ugeofun,
   UMapType,
   UResStrings,
-  UShortcutEditor;
+  u_ShortcutManager;
 
 type
   TFSettings = class(TForm)
