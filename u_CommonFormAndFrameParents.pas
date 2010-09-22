@@ -9,7 +9,7 @@ uses
 type
   TCommonFormParent = class(TForm);
 
-  TCommonFrameParent = class(TFrame);
+  TFrame = class(Forms.TFrame);
 
 implementation
 

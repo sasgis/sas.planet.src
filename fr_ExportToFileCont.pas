@@ -18,7 +18,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportToFileCont = class(TCommonFrameParent)
+  TfrExportToFileCont = class(TFrame)
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;

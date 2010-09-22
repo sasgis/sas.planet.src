@@ -18,7 +18,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesGenPrev = class(TCommonFrameParent)
+  TfrTilesGenPrev = class(TFrame)
     pnlBottom: TPanel;
     pnlRight: TPanel;
     pnlCenter: TPanel;

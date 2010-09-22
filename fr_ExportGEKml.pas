@@ -18,7 +18,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportGEKml = class(TCommonFrameParent)
+  TfrExportGEKml = class(TFrame)
     pnlCenter: TPanel;
     lblZooms: TLabel;
     chkAllZooms: TCheckBox;

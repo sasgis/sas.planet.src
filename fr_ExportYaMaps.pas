@@ -19,7 +19,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportYaMaps = class(TCommonFrameParent)
+  TfrExportYaMaps = class(TFrame)
     pnlCenter: TPanel;
     pnlTop: TPanel;
     lblTargetPath: TLabel;

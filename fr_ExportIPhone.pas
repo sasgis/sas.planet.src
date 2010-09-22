@@ -19,7 +19,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportIPhone = class(TCommonFrameParent)
+  TfrExportIPhone = class(TFrame)
     pnlMaps: TPanel;
     lblMaps: TLabel;
     lblSat: TLabel;

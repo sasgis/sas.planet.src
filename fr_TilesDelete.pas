@@ -18,7 +18,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDelete = class(TCommonFrameParent)
+  TfrTilesDelete = class(TFrame)
     cbbMap: TComboBox;
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;

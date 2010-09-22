@@ -18,7 +18,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDownload = class(TCommonFrameParent)
+  TfrTilesDownload = class(TFrame)
     lblMap: TLabel;
     lblZoom: TLabel;
     lblStat: TLabel;

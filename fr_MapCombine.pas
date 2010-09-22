@@ -19,7 +19,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrMapCombine = class(TCommonFrameParent)
+  TfrMapCombine = class(TFrame)
     cbbHybr: TComboBox;
     grpSplit: TGroupBox;
     lblSplitHor: TLabel;

@@ -17,7 +17,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportAUX = class(TCommonFrameParent)
+  TfrExportAUX = class(TFrame)
     pnlCenter: TPanel;
     pnlMain: TPanel;
     lblMap: TLabel;

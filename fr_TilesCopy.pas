@@ -18,7 +18,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesCopy = class(TCommonFrameParent)
+  TfrTilesCopy = class(TFrame)
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;
