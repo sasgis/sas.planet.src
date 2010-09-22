@@ -50,6 +50,7 @@ uses
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
   MidasLib,
+  u_CommonFormAndFrameParents,
   i_JclNotify,
   i_IGUIDList,
   i_IMapChangeMessage,
@@ -97,7 +98,7 @@ type
     ao_reg
   );
 
-  TFmain = class(TForm)
+  TFmain = class(TCommonFormParent)
     map: TImage32;
     PopupMenu1: TPopupMenu;
     NaddPoint: TMenuItem;

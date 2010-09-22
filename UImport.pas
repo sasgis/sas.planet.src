@@ -17,11 +17,12 @@ uses
   Buttons,
   GR32,
   GR32_Resamplers,
+  u_CommonFormAndFrameParents,
   UMarksExplorer,
   UPLT;
 
 type
-  TFImport = class(TForm)
+  TFImport = class(TCommonFormParent)
     Label8: TLabel;
     CBKateg: TComboBox;
     GroupBox1: TGroupBox;

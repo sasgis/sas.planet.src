@@ -13,11 +13,12 @@ uses
   StdCtrls,
   rxCurrEdit,
   rxToolEdit,
+  u_CommonFormAndFrameParents,
   Ugeofun,
   UResStrings;
 
 type
-  TFSelLonLat = class(TForm)
+  TFSelLonLat = class(TCommonFormParent)
     Button1: TButton;
     Button2: TButton;
     GroupBox1: TGroupBox;

@@ -21,6 +21,7 @@ uses
   TBX,
   TB2Dock,
   TB2Toolbar,
+  u_CommonFormAndFrameParents,
   Unit1,
   UResStrings,
   UMarksExplorer,
@@ -28,7 +29,7 @@ uses
   t_GeoTypes;
 
 type
-  TFAddPoly = class(TForm)
+  TFAddPoly = class(TCommonFormParent)
     Label1: TLabel;
     Label2: TLabel;
     Bevel2: TBevel;

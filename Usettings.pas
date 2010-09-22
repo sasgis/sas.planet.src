@@ -26,13 +26,14 @@ uses
   TBX,
   rxToolEdit,
   rxCurrEdit,
+  u_CommonFormAndFrameParents,
   Ugeofun,
   UMapType,
   UResStrings,
   u_ShortcutManager;
 
 type
-  TFSettings = class(TForm)
+  TFSettings = class(TCommonFormParent)
     PageControl1: TPageControl;
     TabSheet2: TTabSheet;
     TabSheet1: TTabSheet;

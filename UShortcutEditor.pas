@@ -9,10 +9,11 @@ uses
   Controls,
   ComCtrls,
   StdCtrls,
-  Buttons;
+  Buttons,
+  u_CommonFormAndFrameParents;
 
 type
-  TFShortcutChange = class(TForm)
+  TFShortcutChange = class(TCommonFormParent)
     GroupBox1: TGroupBox;
     HotKey: THotKey;
     Button1: TButton;

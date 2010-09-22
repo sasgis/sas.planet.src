@@ -25,13 +25,14 @@ uses
   ugeofun,
   GR32,
   GR32_Resamplers,
+  u_CommonFormAndFrameParents,
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
   t_GeoTypes;
 
 type
-  TFaddPoint = class(TForm)
+  TFaddPoint = class(TCommonFormParent)
     EditName: TEdit;
     EditComment: TMemo;
     Label1: TLabel;

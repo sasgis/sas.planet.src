@@ -13,12 +13,13 @@ uses
   Classes,
   DateUtils,
   RarProgress,
+  u_CommonFormAndFrameParents,
   i_ILogForTaskThread,
   UResStrings,
   u_ThreadDownloadTiles;
 
 type
-  TFProgress = class(TForm)
+  TFProgress = class(TCommonFormParent)
     Panel1: TPanel;
     Memo1: TMemo;
     Button1: TButton;

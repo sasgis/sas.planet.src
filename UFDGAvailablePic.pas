@@ -17,12 +17,13 @@ uses
   ComCtrls,
   CommCtrl,
   ExtCtrls,
+  u_CommonFormAndFrameParents,
   Unit1,
   UResStrings,
   t_GeoTypes;
 
 type
-  TFDGAvailablePic = class(TForm)
+  TFDGAvailablePic = class(TCommonFormParent)
     GroupBox1: TGroupBox;
     LabelDate: TLabel;
     LabelResolution: TLabel;

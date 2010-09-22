@@ -13,11 +13,12 @@ uses
   Controls,
   rxToolEdit,
   rxCurrEdit,
+  u_CommonFormAndFrameParents,
   Ugeofun;
 
 type
 
-  TFGoTo = class(TForm)
+  TFGoTo = class(TCommonFormParent)
     RB1: TRadioButton;
     GroupBox2: TGroupBox;
     RB3: TRadioButton;

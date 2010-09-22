@@ -13,12 +13,13 @@ uses
   ComCtrls,
   Forms,
   Dialogs,
+  u_CommonFormAndFrameParents,
   i_IMapViewGoto,
   i_GeoCoder,
   i_ISearchResultPresenter;
 
 type
-  TfrmSearchResults = class(TForm)
+  TfrmSearchResults = class(TCommonFormParent)
     lvResults: TListView;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lvResultsDblClick(Sender: TObject);

@@ -8,10 +8,11 @@ uses
   Classes,
   Controls,
   StdCtrls,
-  ExtCtrls;
+  ExtCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TFabout = class(TForm)
+  TFabout = class(TCommonFormParent)
     Bevel1: TBevel;
     Button1: TButton;
     Label1: TLabel;

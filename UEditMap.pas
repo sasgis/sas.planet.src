@@ -15,11 +15,12 @@ uses
   ExtCtrls,
   ComCtrls,
   Spin,
+  u_CommonFormAndFrameParents,
   UMapType,
   UResStrings;
 
 type
-  TFEditMap = class(TForm)
+  TFEditMap = class(TCommonFormParent)
     EditNameinCache: TEdit;
     EditParSubMenu: TEdit;
     Label1: TLabel;

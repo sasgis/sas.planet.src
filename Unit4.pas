@@ -9,10 +9,11 @@ uses
    Controls,
    StdCtrls,
    Dialogs,
-   RarProgress;
+   RarProgress,
+  u_CommonFormAndFrameParents;
 
 type
-  TFprogress2 = class(TForm)
+  TFprogress2 = class(TCommonFormParent)
     ProgressBar1: TRarProgress;
     MemoInfo: TMemo;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);

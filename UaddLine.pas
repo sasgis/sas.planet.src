@@ -20,6 +20,7 @@ uses
   TB2Dock,
   TB2Toolbar,
   GR32,
+  u_CommonFormAndFrameParents,
   Unit1,
   UResStrings,
   UMarksExplorer,
@@ -27,7 +28,7 @@ uses
   t_GeoTypes;
 
 type
-  TFaddLine = class(TForm)
+  TFaddLine = class(TCommonFormParent)
     Label1: TLabel;
     Label2: TLabel;
     Bevel2: TBevel;

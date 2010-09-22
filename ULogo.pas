@@ -8,10 +8,11 @@ uses
   GR32_Image,
   Controls,
   ExtCtrls,
-  StdCtrls;
+  StdCtrls,
+  u_CommonFormAndFrameParents;
 
 type
-  TFLogo = class(TForm)
+  TFLogo = class(TCommonFormParent)
     Timer1: TTimer;
     Image321: TImage32;
     Label1: TLabel;

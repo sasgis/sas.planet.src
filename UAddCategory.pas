@@ -14,11 +14,12 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  u_CommonFormAndFrameParents,
   u_MarksSimple,
   UResStrings;
 
 type
-  TFAddCategory = class(TForm)
+  TFAddCategory = class(TCommonFormParent)
     Label1: TLabel;
     EditName: TEdit;
     CBShow: TCheckBox;

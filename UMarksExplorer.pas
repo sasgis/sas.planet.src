@@ -17,12 +17,13 @@ uses
   ExtCtrls,
   GR32,
   UResStrings,
+  u_CommonFormAndFrameParents,
   t_GeoTypes,
   u_MarksSimple,
   Unit1;
 
 type
-  TFMarksExplorer = class(TForm)
+  TFMarksExplorer = class(TCommonFormParent)
     GroupBox1: TGroupBox;
     BtnGotoMark: TSpeedButton;
     BtnOpMark: TSpeedButton;

@@ -18,6 +18,7 @@ uses
   inifiles,
   ComCtrls,
   GR32,
+  u_CommonFormAndFrameParents,
   u_ExportProviderAbstract,
   UGeoFun,
   UMapType,
@@ -26,7 +27,7 @@ uses
   u_GeoTostr;
 
 type
-  TFsaveas = class(TForm)
+  TFsaveas = class(TCommonFormParent)
     Button1: TButton;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;

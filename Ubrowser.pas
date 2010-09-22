@@ -10,10 +10,11 @@ uses
   OleCtrls,
   EwbCore,
   EmbeddedWB,
-  SHDocVw_EWB;
+  SHDocVw_EWB,
+  u_CommonFormAndFrameParents;
 
 type
-  TFbrowser = class(TForm)
+  TFbrowser = class(TCommonFormParent)
     EmbeddedWB1: TEmbeddedWB;
     procedure EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB;
       var hwnd: HWND; var szUserName, szPassWord: WideString;
