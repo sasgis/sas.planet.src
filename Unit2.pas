@@ -82,8 +82,8 @@ begin
 end;
 
 procedure TFGoTo.BGoClick(Sender: TObject);
-var accept:boolean;
-    textsrch:String;
+var
+  textsrch:String;
   VId: Integer;
   VMark: TMarkFull;
 begin
