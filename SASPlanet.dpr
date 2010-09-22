@@ -29,6 +29,7 @@ uses
   t_LoadEvent in 't_LoadEvent.pas',
   UTimeZones in 'UTimeZones.pas',
   UResStrings in 'UResStrings.pas',
+  u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   i_IConfigDataProvider in 'i_IConfigDataProvider.pas',
   u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
