@@ -35,39 +35,19 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
-    Label3: TLabel;
-    Label6: TLabel;
-    Label25: TLabel;
-    CBscleit: TComboBox;
-    Label26: TLabel;
-    Bevel2: TBevel;
     Bevel5: TBevel;
-    Label8: TLabel;
     Label9: TLabel;
     CBFormat: TComboBox;
     Button3: TButton;
-    QualitiEdit: TSpinEdit;
-    CBZoomload: TComboBox;
     SpeedButton1: TSpeedButton;
-    GroupBox1: TGroupBox;
-    EditNTg: TSpinEdit;
-    Label19: TLabel;
-    Label20: TLabel;
-    EditNTv: TSpinEdit;
-    Label27: TLabel;
-    CBSclHib: TComboBox;
-    Label28: TLabel;
     SaveSelDialog: TSaveDialog;
-    CBusedReColor: TCheckBox;
     CBCloseWithStart: TCheckBox;
-    PrTypesBox: TCheckListBox;
-    CBUsedMarks: TCheckBox;
     TabSheet6: TTabSheet;
     pnlExport: TPanel;
+    pnlBottomButtons: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button3Click(Sender: TObject);
-    procedure CBZoomloadChange(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
   private
@@ -77,6 +57,7 @@ type
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TExportProviderAbstract;
+    FProviderMapCombine: TExportProviderAbstract;
     procedure LoadRegion(APolyLL: TExtendedPointArray);
     procedure DelRegion(APolyLL: TExtendedPointArray);
     procedure genbacksatREG(APolyLL: TExtendedPointArray);
@@ -112,6 +93,7 @@ uses
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
   u_ProviderTilesDownload,
+  u_ProviderMapCombine,
   unit1;
 
 {$R *.dfm}
@@ -157,6 +139,7 @@ begin
   FreeAndNil(FProviderTilesGenPrev);
   FreeAndNil(FProviderTilesCopy);
   FreeAndNil(FProviderTilesDownload);
+  FreeAndNil(FProviderMapCombine);
   inherited;
 end;
 
@@ -187,77 +170,10 @@ begin
 end;
 
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
-var
-  Amt,Hmt:TMapType;
-  i:integer;
-  VPrTypes: IInterfaceList;
-  VFileName: string;
-  VSplitCount: TPoint;
-  VFileExt: string;
 begin
-  Amt:=TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
-  Hmt:=TMapType(CBSclHib.Items.Objects[CBSclHib.ItemIndex]);
-  if (FMain.SaveDialog1.Execute)then begin
-    VFileName := FMain.SaveDialog1.FileName;
-    VPrTypes := TInterfaceList.Create;
-    for i:=0 to PrTypesBox.Items.Count-1 do begin
-      if PrTypesBox.Checked[i] then begin
-        VPrTypes.Add(IInterface(Pointer(PrTypesBox.Items.Objects[i])));
-      end;
-    end;
-    VSplitCount.X := EditNTg.Value;
-    VSplitCount.Y := EditNTv.Value;
-    VFileExt := UpperCase(ExtractFileExt(VFileName));
-    if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
-      TThreadMapCombineECW.Create(
-        VPrTypes,
-        VFileName,
-        APolyLL,
-        VSplitCount,
-        CBZoomload.ItemIndex+1,
-        Amt,Hmt,
-        CBusedReColor.Checked,
-        CBUsedMarks.Checked,
-        QualitiEdit.Value
-      );
-    end else if (VFileExt='.BMP') then begin
-      TThreadMapCombineBMP.Create(
-        VPrTypes,
-        VFileName,
-        APolyLL,
-        VSplitCount,
-        CBZoomload.ItemIndex+1,
-        Amt,Hmt,
-        CBusedReColor.Checked,
-        CBUsedMarks.Checked
-      );
-    end else if (VFileExt='.KMZ') then begin
-      TThreadMapCombineKMZ.Create(
-        VPrTypes,
-        VFileName,
-        APolyLL,
-        VSplitCount,
-        CBZoomload.ItemIndex+1,
-        Amt,Hmt,
-        CBusedReColor.Checked,
-        CBUsedMarks.Checked,
-        QualitiEdit.Value
-      );
-    end else begin
-      TThreadMapCombineJPG.Create(
-        VPrTypes,
-        VFileName,
-        APolyLL,
-        VSplitCount,
-        CBZoomload.ItemIndex+1,
-        Amt,Hmt,
-        CBusedReColor.Checked,
-        CBUsedMarks.Checked,
-        QualitiEdit.Value
-      );
-    end;
-  end;
+  FProviderMapCombine.StartProcess(APolyLL);
 end;
+
 
 procedure TFsaveas.Button1Click(Sender: TObject);
 begin
@@ -299,54 +215,18 @@ begin
   FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
   FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
   FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
+  FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
 var
   i:integer;
   vramkah,zagran:boolean;
-  VMapCalibration: IMapCalibration;
   VConverter: ICoordConverter;
   VPoint: TPoint;
   VZoom: Byte;
-  VActiveMap: TMapType;
-  VAddedIndex: Integer;
-  VMapType: TMapType;
   VExportProvider: TExportProviderAbstract;
 begin
-  CBZoomload.Items.Clear;
-  for i:=1 to 24 do begin
-    CBZoomload.Items.Add(inttostr(i));
-  end;
-  CBscleit.Items.Clear;
-  CBSclHib.Items.Clear;
-  CBSclHib.Items.Add(SAS_STR_No);
-  VActiveMap := GState.ViewState.GetCurrentMap;
-  For i:=0 to length(GState.MapType)-1 do begin
-    VMapType := GState.MapType[i];
-    if VMapType.Usestick then begin
-      VAddedIndex := CBscleit.Items.AddObject(VMapType.name,VMapType);
-      if (VMapType.asLayer) then begin
-        CBSclHib.Items.AddObject(VMapType.name,VMapType);
-      end;
-      if VMapType = VActiveMap then begin
-        CBscleit.ItemIndex:=VAddedIndex;
-      end;
-    end;
-  end;
-  PrTypesBox.Clear;
-  GState.MapCalibrationList.Lock;
-  try
-    for i := 0 to GState.MapCalibrationList.Count - 1 do begin
-      VMapCalibration := GState.MapCalibrationList.Get(i) as IMapCalibration;
-      PrTypesBox.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
-    end;
-  finally
-    GState.MapCalibrationList.Unlock;
-  end;
-
-  if CBscleit.ItemIndex=-1 then CBscleit.ItemIndex:=0;
-  CBSclHib.ItemIndex:=0;
   FZoom_rect:=Azoom;
   setlength(FPolygonLL,length(polygon_));
   setlength(GState.LastSelectionPolygon,length(polygon_));
@@ -389,10 +269,10 @@ begin
   FProviderTilesCopy.Show;
   FProviderTilesDownload.InitFrame(Azoom, FPolygonLL);
   FProviderTilesDownload.Show;
+  FProviderMapCombine.InitFrame(Azoom, FPolygonLL);
+  FProviderMapCombine.Show;
   Fmain.Enabled:=false;
   fSaveas.Visible:=true;
-  CBZoomload.ItemIndex:=FZoom_rect;
-  CBZoomloadChange(self);
 end;
 
 
@@ -406,24 +286,6 @@ end;
 procedure TFsaveas.Button3Click(Sender: TObject);
 begin
  close;
-end;
-
-procedure TFsaveas.CBZoomloadChange(Sender: TObject);
-var polyg:TPointArray;
-    min,max:TPoint;
-    numd:int64 ;
-    Vmt: TMapType;
-    VZoom: byte;
-begin
-  Vmt := TMapType(CBscleit.Items.Objects[CBscleit.ItemIndex]);
-  VZoom := CBZoomload.ItemIndex;
-  polyg := Vmt.GeoConvert.LonLatArray2PixelArray(FPolygonLL, VZoom);
-  numd:=GetDwnlNum(min,max,polyg,true);
-  label6.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
-                  +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
-  GetMinMax(min,max,polyg,false);
-  label6.Caption:=label6.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
-                +inttostr(max.y-min.y);
 end;
 
 procedure TFsaveas.SpeedButton1Click(Sender: TObject);
