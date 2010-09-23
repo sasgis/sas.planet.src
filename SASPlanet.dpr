@@ -2,7 +2,6 @@
 program SASPlanet;
 
 uses
-  reinit,
   Forms,
   iniFiles,
   sysutils,
@@ -248,12 +247,8 @@ begin
 
   GState := TGlobalState.Create;
   try
-    if FileExists(GState.ProgramPath+'SASPlanet.RUS') then begin
-      RenameFile(GState.ProgramPath+'SASPlanet.RUS',GState.ProgramPath+'SASPlanet.~RUS');
-    end;
     Application.Initialize;
     Application.Title := 'SAS.Планета';
-    LoadNewResourceModule(GState.Localization);
     //logo
     if GState.MainIni.ReadBool('VIEW','Show_logo',true) then begin
       FLogo:=TFLogo.Create(application);
