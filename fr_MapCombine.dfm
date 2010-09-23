@@ -3,6 +3,7 @@ object frMapCombine: TfrMapCombine
   Top = 0
   Width = 476
   Height = 226
+  Align = alClient
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
@@ -17,8 +18,6 @@ object frMapCombine: TfrMapCombine
     BorderWidth = 3
     Caption = #1057#1082#1083#1077#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1092#1088#1072#1075#1084#1077#1085#1090
     TabOrder = 0
-    ExplicitLeft = -3
-    ExplicitTop = -4
     object lblStat: TLabel
       Left = 467
       Top = 3
@@ -26,7 +25,6 @@ object frMapCombine: TfrMapCombine
       Height = 12
       Align = alRight
       Caption = '_'
-      ExplicitLeft = 443
       ExplicitHeight = 13
     end
   end
@@ -66,6 +64,7 @@ object frMapCombine: TfrMapCombine
       Align = alRight
       Caption = '...'
       TabOrder = 1
+      OnClick = btnSelectTargetFileClick
     end
   end
   object pnlOutputFormat: TPanel
@@ -103,7 +102,8 @@ object frMapCombine: TfrMapCombine
         'Ecw (Enhanced Compression Wavelet)'
         'Bmp (Bitmap Picture) '#1073#1077#1079' '#1089#1078#1072#1090#1080#1103
         'Kmz '#1076#1083#1103' Garmin'
-        'JPEG (Joint Photographic Experts Group)')
+        'JPEG (Joint Photographic Experts Group)'
+        'Jpeg2000')
     end
   end
   object pnlBottom: TPanel

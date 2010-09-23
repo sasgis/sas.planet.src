@@ -55,6 +55,7 @@ type
     lblStat: TLabel;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
+    procedure btnSelectTargetFileClick(Sender: TObject);
   private
     FPolygLL: TExtendedPointArray;
   public
@@ -74,6 +75,13 @@ uses
 
 { TfrMapCombine }
 
+procedure TfrMapCombine.btnSelectTargetFileClick(Sender: TObject);
+begin
+  if dlgSaveTargetFile.Execute then begin
+    edtTargetFile.Text := dlgSaveTargetFile.FileName;
+  end;
+end;
+
 procedure TfrMapCombine.cbbOutputFormatChange(Sender: TObject);
 var
   VNewExt: string;
@@ -84,12 +92,13 @@ begin
     1: VNewExt := 'bmp';
     2: VNewExt := 'kmz';
     3: VNewExt := 'jpg';
+    4: VNewExt := 'jp2';
   else
     VNewExt := '';
   end;
   VFileName := edtTargetFile.Text;
   if VFileName <> '' then begin
-    ChangeFileExt(VFileName, '.' + VNewExt);
+    VFileName := ChangeFileExt(VFileName, '.' + VNewExt);
   end;
   edtTargetFile.Text := VFileName;
   dlgSaveTargetFile.DefaultExt := VNewExt;
@@ -137,7 +146,7 @@ begin
   For i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.UseStick and VMapType.IsBitmapTiles then begin
-      if VMapType.asLayer then begin
+      if not VMapType.asLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
         if VMapType = VActiveMap then begin
           cbbMap.ItemIndex:=VAddedIndex;
