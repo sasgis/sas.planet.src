@@ -7,12 +7,15 @@ uses
   sysutils,
   windows,
   EmbeddedWB,
+  Controls,
+  Classes,
+  ActnList,
+  Graphics,
   ijl in 'src\ijl.pas',
   KAZip in 'src\KAZip.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
-  GTForm in 'src\GTForm.pas',
   gnugettext in 'src\gnugettext.pas',
   Langs in 'src\Langs.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
@@ -243,6 +246,11 @@ uses
 
 {$R *.res} {$R *Pics.res}
 begin
+
+  TP_GlobalIgnoreClass(TFont);
+  TP_GlobalIgnoreClassProperty(TAction,'Category');
+  TP_GlobalIgnoreClassProperty(TControl,'HelpKeyword');
+  TP_GlobalIgnoreClassProperty(TWinControl,'ImeName');
   TP_GlobalIgnoreClassProperty(TEmbeddedWB,'StatusText');
 
   GState := TGlobalState.Create;
