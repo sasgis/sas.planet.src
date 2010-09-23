@@ -131,6 +131,8 @@
     <DCCReference Include="src\cUnicodeChar.pas" />
     <DCCReference Include="src\ECWReader.pas" />
     <DCCReference Include="src\ECWwriter.pas" />
+    <DCCReference Include="src\gnugettext.pas" />
+    <DCCReference Include="src\GTForm.pas" />
     <DCCReference Include="src\ijl.pas" />
     <DCCReference Include="src\i_IGUIDList.pas" />
     <DCCReference Include="src\i_JclNotify.pas" />

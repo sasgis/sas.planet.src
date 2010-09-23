@@ -7,11 +7,14 @@ uses
   iniFiles,
   sysutils,
   windows,
+  EmbeddedWB,
   ijl in 'src\ijl.pas',
   KAZip in 'src\KAZip.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
+  GTForm in 'src\GTForm.pas',
+  gnugettext in 'src\gnugettext.pas',
   Langs in 'src\Langs.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
   cUnicode in 'src\cUnicode.pas',
@@ -241,6 +244,8 @@ uses
 
 {$R *.res} {$R *Pics.res}
 begin
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'StatusText');
+
   GState := TGlobalState.Create;
   try
     if FileExists(GState.ProgramPath+'SASPlanet.RUS') then begin
@@ -257,6 +262,11 @@ begin
       Application.ProcessMessages;
     end;
     try
+      if GState.Localization = LANG_ENGLISH then begin
+        UseLanguage('en');
+      end else begin
+        UseLanguage('ru');
+      end;
       GState.LoadMaps;
       GState.LoadMapIconsList;
     except

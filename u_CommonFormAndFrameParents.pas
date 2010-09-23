@@ -4,12 +4,13 @@ interface
 
 uses
   Classes,
-  Forms;
+  Forms,
+  GTForm;
 
 type
-  TCommonFormParent = class(TForm);
+  TCommonFormParent = class(TGTForm);
 
-  TFrame = class(Forms.TFrame);
+  TFrame = class(TGTFrame);
 
 implementation
 
