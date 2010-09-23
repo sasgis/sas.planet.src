@@ -73,14 +73,14 @@ end;
 constructor TGTFrame.Create(AOwner: TComponent);
 begin
   inherited;
-  if Owner = Application then begin
+  if (Owner = Application) or (Owner = nil) then begin
     TranslateComponent(self);
   end;
 end;
 
 procedure TGTFrame.RefreshTranslation;
 begin
-  if Owner = Application then begin
+  if (Owner = Application) or (Owner = nil) then begin
     ReTranslateComponent(self);
   end;
 end;
