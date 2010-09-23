@@ -1,0 +1,3767 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2010-09-23 15:10\n"
+"PO-Revision-Date: 2010-09-23 15:10\n"
+"Last-Translator: Somebody <your.email@address.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: dxgettext 1.2.2\n"
+
+#. frExportAUX..pnlCenter..pnlMain..lblMap..Caption
+#: fr_ExportAUX.dfm:32
+#. frExportGEKml..pnlCenter..pnlMain..lblMap..Caption
+#: fr_ExportGEKml.dfm:70
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblMap..Caption
+#: fr_ExportIPhone.dfm:356
+#. frExportToFileCont..pnlCenter..pnlMain..lblMap..Caption
+#: fr_ExportToFileCont.dfm:70
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblMap..Caption
+#: fr_ExportYaMaps.dfm:279
+msgid "Карта"
+msgstr ""
+
+#. frExportAUX..pnlCenter..pnlRight..lblZoom..Caption
+#: fr_ExportAUX.dfm:63
+#. frMapCombine..pnlBottom..pnlRight..lblZoom..Caption
+#: fr_MapCombine.dfm:142
+#. frTilesDelete..pnlBottom..pnlRight..lblZoom..Caption
+#: fr_TilesDelete.dfm:45
+#. frTilesDownload..pnlBottom..pnlRight..lblZoom..Caption
+#: fr_TilesDownload.dfm:45
+msgid "Масштаб:"
+msgstr ""
+
+#. frExportAUX..pnlTop..lblTargetFile..Caption
+#: fr_ExportAUX.dfm:93
+#. frExportGEKml..pnlTop..lblTargetFile..Caption
+#: fr_ExportGEKml.dfm:123
+#. frExportIPhone..pnlTop..lblTargetPath..Caption
+#: fr_ExportIPhone.dfm:24
+#. frExportToFileCont..pnlTop..lblTargetFile..Caption
+#: fr_ExportToFileCont.dfm:127
+#. frExportYaMaps..pnlTop..lblTargetPath..Caption
+#: fr_ExportYaMaps.dfm:333
+#. frMapCombine..pnlTargetFile..lblTargetFile..Caption
+#: fr_MapCombine.dfm:46
+#. frTilesCopy..pnlTop..lblTargetPath..Caption
+#: fr_TilesCopy.dfm:155
+msgid "Куда сохранять:"
+msgstr ""
+
+#. frExportAUX..dlgTargetFileSelect..DefaultExt
+#: fr_ExportAUX.dfm:117
+msgid "aux"
+msgstr ""
+
+#. frExportAUX..dlgTargetFileSelect..Filter
+#: fr_ExportAUX.dfm:118
+msgid "AUX |*.aux"
+msgstr ""
+
+#. frExportGEKml..pnlCenter..pnlRight..lblZooms..Caption
+#: fr_ExportGEKml.dfm:31
+#. frExportIPhone..pnlBottom..pnlRight..lblZooms..Caption
+#: fr_ExportIPhone.dfm:419
+#. frExportToFileCont..pnlCenter..pnlRight..lblZooms..Caption
+#: fr_ExportToFileCont.dfm:32
+#. frExportYaMaps..pnlCenter..pnlRight..lblZooms..Caption
+#: fr_ExportYaMaps.dfm:31
+#. frTilesCopy..pnlCenter..pnlRight..lblZooms..Caption
+#: fr_TilesCopy.dfm:34
+msgid "Масштабы:"
+msgstr ""
+
+#. frExportGEKml..pnlCenter..pnlRight..chkAllZooms..Caption
+#: fr_ExportGEKml.dfm:40
+#. frExportIPhone..pnlBottom..pnlRight..chkAllZooms..Caption
+#: fr_ExportIPhone.dfm:437
+#. frExportToFileCont..pnlCenter..pnlRight..chkAllZooms..Caption
+#: fr_ExportToFileCont.dfm:41
+#. frTilesCopy..pnlCenter..pnlRight..chkAllZooms..Caption
+#: fr_TilesCopy.dfm:42
+#. frTilesCopy..pnlCenter..pnlMain..chkAllMaps..Caption
+#: fr_TilesCopy.dfm:122
+#. frTilesGenPrev..pnlBottom..pnlRight..chkAllZooms..Caption
+#: fr_TilesGenPrev.dfm:58
+#. FMarksExplorer..GroupBox1..CheckBox1..Caption
+#: UMarksExplorer.dfm:342
+#. FMarksExplorer..GroupBox2..CheckBox2..Caption
+#: UMarksExplorer.dfm:545
+msgid "Все"
+msgstr ""
+
+#. frExportGEKml..pnlCenter..pnlMain..chkNotSaveNotExists..Caption
+#: fr_ExportGEKml.dfm:81
+msgid "Не сохранять пути к несуществующим тайлам"
+msgstr ""
+
+#. frExportGEKml..pnlCenter..pnlMain..chkUseRelativePath..Caption
+#: fr_ExportGEKml.dfm:90
+msgid "Относительный путь к тайлам"
+msgstr ""
+
+#. frExportGEKml..dlgSaveKML..DefaultExt
+#: fr_ExportGEKml.dfm:147
+msgid "kml"
+msgstr ""
+
+#. frExportGEKml..dlgSaveKML..Filter
+#: fr_ExportGEKml.dfm:148
+msgid "KML |*.kml"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..chkAppendTilse..Caption
+#: fr_ExportIPhone.dfm:71
+msgid "Добавлять тайлы в существующую базу"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblMapCompress..Caption
+#: fr_ExportIPhone.dfm:215
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblMapCompress..Caption
+#: fr_ExportYaMaps.dfm:178
+msgid "0..9 max"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..rbHybr..Hint
+#: fr_ExportIPhone.dfm:249
+msgid "Выбрать гибрид в качестве основного "
+"слоя"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..rbMap..Hint
+#: fr_ExportIPhone.dfm:258
+msgid "Выбрать карту в уачестве основного слоя"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..rbSat..Hint
+#: fr_ExportIPhone.dfm:269
+msgid "Выбрать спутник в уачестве основного "
+"слоя"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblHybrCompress..Caption
+#: fr_ExportIPhone.dfm:312
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblSatCompress..Caption
+#: fr_ExportIPhone.dfm:323
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblSatCompress..Caption
+#: fr_ExportYaMaps.dfm:246
+msgid "100..1 max"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblCompress..Caption
+#: fr_ExportIPhone.dfm:334
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblCompress..Caption
+#: fr_ExportYaMaps.dfm:257
+msgid "Сжатие:"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblHybr..Caption
+#: fr_ExportIPhone.dfm:343
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblHybr..Caption
+#: fr_ExportYaMaps.dfm:266
+msgid "Гибрид"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblSat..Caption
+#: fr_ExportIPhone.dfm:370
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblSat..Caption
+#: fr_ExportYaMaps.dfm:293
+msgid "Спутник"
+msgstr ""
+
+#. frExportIPhone..pnlBottom..pnlMaps..grdpnlMaps..lblMaps..Caption
+#: fr_ExportIPhone.dfm:384
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..grdpnlMaps..lblMaps..Caption
+#: fr_ExportYaMaps.dfm:307
+msgid "Включить следующие типы карт:"
+msgstr ""
+
+#. frExportToFileCont..pnlCenter..pnlMain..lblNamesType..Caption
+#: fr_ExportToFileCont.dfm:79
+#. frTilesCopy..pnlCenter..pnlMain..lblNamesType..Caption
+#: fr_TilesCopy.dfm:72
+#. Fsaveas..PageControl1..TabSheet5..Label9..Caption
+#: USaveas.dfm:77
+msgid "Экспорт выделенного участка в формат"
+msgstr ""
+
+#. frExportToFileCont..pnlCenter..pnlMain..cbbNamesType..Text
+#: fr_ExportToFileCont.dfm:103
+#. frExportToFileCont..pnlCenter..pnlMain..cbbNamesType....Items.Strings
+#: fr_ExportToFileCont.dfm:106
+#. frTilesCopy..pnlCenter..pnlMain..cbbNamesType..Text
+#: fr_TilesCopy.dfm:85
+#. frTilesCopy..pnlCenter..pnlMain..cbbNamesType....Items.Strings
+#: fr_TilesCopy.dfm:88
+#. Fabout..LabelName..Caption
+#: UAbout.dfm:75
+#. FEditMap..pnlCacheType..CBCacheType....Items.Strings
+#: UEditMap.dfm:137
+#. Fmain..Caption
+#: Unit1.dfm:6
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..CBCacheType..Text
+#: Usettings.dfm:590
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..CBCacheType....Items.Strings
+#: Usettings.dfm:593
+msgid "SAS.Планета"
+msgstr ""
+
+#. frExportToFileCont..pnlCenter..pnlMain..cbbNamesType....Items.Strings
+#: fr_ExportToFileCont.dfm:105
+#. frTilesCopy..pnlCenter..pnlMain..cbbNamesType....Items.Strings
+#: fr_TilesCopy.dfm:87
+#. FEditMap..pnlCacheType..CBCacheType....Items.Strings
+#: UEditMap.dfm:136
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..CBCacheType....Items.Strings
+#: Usettings.dfm:592
+msgid "GoogleMV"
+msgstr ""
+
+#. frExportToFileCont..pnlCenter..pnlMain..cbbNamesType....Items.Strings
+#: fr_ExportToFileCont.dfm:108
+#. frTilesCopy..pnlCenter..pnlMain..cbbNamesType....Items.Strings
+#: fr_TilesCopy.dfm:90
+msgid "GMT (GlobalMapper >=10.02)"
+msgstr ""
+
+#. frExportToFileCont..dlgSaveTargetFile..DefaultExt
+#: fr_ExportToFileCont.dfm:151
+#. frMapCombine..dlgSaveTargetFile..DefaultExt
+#: fr_MapCombine.dfm:326
+msgid "zip"
+msgstr ""
+
+#. frExportToFileCont..dlgSaveTargetFile..Filter
+#: fr_ExportToFileCont.dfm:152
+#. frMapCombine..dlgSaveTargetFile..Filter
+#: fr_MapCombine.dfm:327
+msgid "Zip |*.zip"
+msgstr ""
+
+#. frExportYaMaps..pnlCenter..pnlMapsSelect..chkReplaseTiles..Caption
+#: fr_ExportYaMaps.dfm:59
+msgid "Заменять существующие тайлы"
+msgstr ""
+
+#. frMapCombine..pnlTop..Caption
+#: fr_MapCombine.dfm:19
+msgid "Склеить выделенный фрагмент"
+msgstr ""
+
+#. frMapCombine..pnlOutputFormat..lblOutputFormat..Caption
+#: fr_MapCombine.dfm:85
+msgid "Результирующий формат"
+msgstr ""
+
+#. frMapCombine..pnlOutputFormat..cbbOutputFormat..Text
+#: fr_MapCombine.dfm:99
+#. frMapCombine..pnlOutputFormat..cbbOutputFormat....Items.Strings
+#: fr_MapCombine.dfm:102
+msgid "Ecw (Enhanced Compression Wavelet)"
+msgstr ""
+
+#. frMapCombine..pnlOutputFormat..cbbOutputFormat....Items.Strings
+#: fr_MapCombine.dfm:103
+msgid "Bmp (Bitmap Picture) без сжатия"
+msgstr ""
+
+#. frMapCombine..pnlOutputFormat..cbbOutputFormat....Items.Strings
+#: fr_MapCombine.dfm:104
+msgid "Kmz для Garmin"
+msgstr ""
+
+#. frMapCombine..pnlOutputFormat..cbbOutputFormat....Items.Strings
+#: fr_MapCombine.dfm:105
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlRight..lblPrTypes..Caption
+#: fr_MapCombine.dfm:132
+msgid "Создавать файл привязки:"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlRight..grpSplit..Caption
+#: fr_MapCombine.dfm:151
+msgid " Разбить изображение "
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlRight..grpSplit..lblSplitHor..Caption
+#: fr_MapCombine.dfm:158
+msgid "по горизотали, на"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlRight..grpSplit..lblSplitVert..Caption
+#: fr_MapCombine.dfm:165
+msgid "по вертикали, на"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlRight..chklstPrTypes....Items.Strings
+#: fr_MapCombine.dfm:198
+msgid ".w"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlCenter..lblMap..Caption
+#: fr_MapCombine.dfm:230
+#. frTilesDelete..pnlBottom..pnlCenter..lblMap..Caption
+#: fr_TilesDelete.dfm:78
+#. frTilesDownload..pnlBottom..pnlMain..lblMap..Caption
+#: fr_TilesDownload.dfm:74
+#. frTilesGenPrev..pnlBottom..pnlCenter..lblMap..Caption
+#: fr_TilesGenPrev.dfm:91
+msgid "Тип карты:"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlCenter..lblHybr..Caption
+#: fr_MapCombine.dfm:239
+msgid "Наложить:"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlCenter..cbbHybr..Text
+#: fr_MapCombine.dfm:263
+#. frMapCombine..pnlBottom..pnlCenter..cbbHybr....Items.Strings
+#: fr_MapCombine.dfm:265
+#. Fmain..TBDock..TBXMainMenu..NView..NShowGran..N000..Caption
+#: Unit1.dfm:633
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale0..Caption
+#: Unit1.dfm:701
+#. FShortcutChange..SpeedButton1..Caption
+#: UShortcutEditor.dfm:24
+#. Programmer's name for it: SAS_STR_No
+#: UResStrings.pas:84
+msgid "Нет"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlCenter..chkUseMapMarks..Caption
+#: fr_MapCombine.dfm:273
+msgid "Накладывать отображаемые метки"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlCenter..chkUseRecolor..Caption
+#: fr_MapCombine.dfm:282
+msgid "Применять настройки цвета"
+msgstr ""
+
+#. frMapCombine..pnlBottom..pnlCenter..pnlJpegQuality..lblJpgQulity..Caption
+#: fr_MapCombine.dfm:300
+msgid "Качество (для JPEG и ECW):"
+msgstr ""
+
+#. frTilesCopy..pnlCenter..pnlMain..chkDeleteSource..Caption
+#: fr_TilesCopy.dfm:98
+#. Fmain..TBDock..TBMainToolBar..TBmove..Hint
+#: Unit1.dfm:104
+msgid "Перемещать"
+msgstr ""
+
+#. frTilesCopy..pnlCenter..pnlMain..chkReplaseTarget..Caption
+#: fr_TilesCopy.dfm:110
+msgid "Заменять при совпадении"
+msgstr ""
+
+#. frTilesDelete..pnlTop..Caption
+#: fr_TilesDelete.dfm:19
+msgid "Удалить файлы карты"
+msgstr ""
+
+#. frTilesDelete..pnlBottom..pnlCenter..pnlDelBySize..chkDelBySize..Caption
+#: fr_TilesDelete.dfm:116
+msgid "Удалять только тайлы, размер которых, "
+"байт"
+msgstr ""
+
+#. frTilesDownload..pnlTop..Caption
+#: fr_TilesDownload.dfm:19
+msgid "Загрузить изображения из интернета"
+msgstr ""
+
+#. frTilesDownload..pnlBottom..pnlMain..chkReplace..Caption
+#: fr_TilesDownload.dfm:103
+msgid "Заменять старые файлы"
+msgstr ""
+
+#. frTilesDownload..pnlBottom..pnlMain..chkTryLoadIfTNE..Caption
+#: fr_TilesDownload.dfm:113
+msgid "Пытаться загружать отсутствующие тайлы"
+msgstr ""
+
+#. frTilesDownload..pnlBottom..pnlMain..pnlTileReplaceCondition..chkReplaceIfDifSize..Caption
+#: fr_TilesDownload.dfm:131
+msgid "только при их различии"
+msgstr ""
+
+#. frTilesDownload..pnlBottom..pnlMain..pnlTileReplaceCondition..pnlReplaceOlder..lblReplaceOlder..Caption
+#: fr_TilesDownload.dfm:149
+msgid "только созданные до "
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlRight..lblFromZoom..Caption
+#: fr_TilesGenPrev.dfm:31
+msgid "Из слоя масштаба:"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlRight..lblZooms..Caption
+#: fr_TilesGenPrev.dfm:39
+msgid "В слои масштаба:"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..lblResampler..Caption
+#: fr_TilesGenPrev.dfm:110
+msgid "Алгоритм:"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler..Text
+#: fr_TilesGenPrev.dfm:135
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:137
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2..Text
+#: Usettings.dfm:1200
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1202
+msgid "Box"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:138
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1203
+msgid "Linear"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:139
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1204
+msgid "Cosine"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:140
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1205
+msgid "Spline"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:141
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1206
+msgid "Mitchell"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:142
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1207
+msgid "Cubic"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:143
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1208
+msgid "Hermite"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:144
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1209
+msgid "Lanczos"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:145
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1210
+msgid "Gaussian"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:146
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1211
+msgid "Blackman"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:147
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1212
+msgid "Hann"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:148
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1213
+msgid "Hamming"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..cbbResampler....Items.Strings
+#: fr_TilesGenPrev.dfm:149
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..ComboBox2....Items.Strings
+#: Usettings.dfm:1214
+msgid "Sinsh"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..chkReplace..Caption
+#: fr_TilesGenPrev.dfm:157
+msgid "Изменять существующие файлы"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..chkSaveFullOnly..Caption
+#: fr_TilesGenPrev.dfm:166
+msgid "Сохранять только полностью заполненные "
+"тайлы"
+msgstr ""
+
+#. frTilesGenPrev..pnlBottom..pnlCenter..chkFromPrevZoom..Caption
+#: fr_TilesGenPrev.dfm:175
+msgid "Формировать каждый выбранный масштаб из предыдущего "
+"выбранного"
+msgstr ""
+
+#. frTilesGenPrev..pnlTop..Caption
+#: fr_TilesGenPrev.dfm:191
+msgid "Сформировать предыдущие слои спутниковой "
+"карты"
+msgstr ""
+
+#. frmSearchResults..Caption
+#: frm_SearchResults.dfm:6
+msgid "frmSearchResults"
+msgstr ""
+
+#. frmSearchResults..lvResults......Caption
+#: frm_SearchResults.dfm:29
+#. FAddCategory..Label1..Caption
+#: UAddCategory.dfm:23
+msgid "Название"
+msgstr ""
+
+#. frmSearchResults..lvResults......Caption
+#: frm_SearchResults.dfm:33
+msgid "Широта"
+msgstr ""
+
+#. frmSearchResults..lvResults......Caption
+#: frm_SearchResults.dfm:37
+msgid "Долгота"
+msgstr ""
+
+#. DMMarksDb..CDSKategory......Name
+#: u_MarksDb.dfm:11
+#. DMMarksDb..CDSKategory..CDSKategoryid..FieldName
+#: u_MarksDb.dfm:42
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:64
+#. DMMarksDb..CDSmarks..CDSmarksid..FieldName
+#: u_MarksDb.dfm:166
+#. Fmain..CDSKategory......Name
+#: Unit1.dfm:5233
+#. Fmain..CDSKategory..CDSKategoryid..FieldName
+#: Unit1.dfm:5271
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5293
+#. Fmain..CDSmarks..CDSmarksid..FieldName
+#: Unit1.dfm:5395
+msgid "id"
+msgstr ""
+
+#. DMMarksDb..CDSKategory......Name
+#: u_MarksDb.dfm:16
+#. DMMarksDb..CDSKategory..CDSKategoryname..FieldName
+#: u_MarksDb.dfm:46
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:69
+#. DMMarksDb..CDSmarks..CDSmarksname..FieldName
+#: u_MarksDb.dfm:170
+#. Fmain..CDSKategory......Name
+#: Unit1.dfm:5238
+#. Fmain..CDSKategory..CDSKategoryname..FieldName
+#: Unit1.dfm:5275
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5298
+#. Fmain..CDSmarks..CDSmarksname..FieldName
+#: Unit1.dfm:5399
+msgid "name"
+msgstr ""
+
+#. DMMarksDb..CDSKategory......Name
+#: u_MarksDb.dfm:22
+#. DMMarksDb..CDSKategory..CDSKategoryvisible..FieldName
+#: u_MarksDb.dfm:50
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:125
+#. DMMarksDb..CDSmarks..CDSmarksvisible..FieldName
+#: u_MarksDb.dfm:205
+#. Fmain..CDSKategory......Name
+#: Unit1.dfm:5244
+#. Fmain..CDSKategory..CDSKategoryvisible..FieldName
+#: Unit1.dfm:5279
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5354
+#. Fmain..CDSmarks..CDSmarksvisible..FieldName
+#: Unit1.dfm:5434
+msgid "visible"
+msgstr ""
+
+#. DMMarksDb..CDSKategory......Name
+#: u_MarksDb.dfm:27
+#. DMMarksDb..CDSKategory..CDSKategoryAfterScale..FieldName
+#: u_MarksDb.dfm:53
+#. Fmain..CDSKategory......Name
+#: Unit1.dfm:5249
+#. Fmain..CDSKategory..CDSKategoryAfterScale..FieldName
+#: Unit1.dfm:5282
+msgid "AfterScale"
+msgstr ""
+
+#. DMMarksDb..CDSKategory......Name
+#: u_MarksDb.dfm:32
+#. DMMarksDb..CDSKategory..CDSKategoryBeforeScale..FieldName
+#: u_MarksDb.dfm:56
+#. Fmain..CDSKategory......Name
+#: Unit1.dfm:5254
+#. Fmain..CDSKategory..CDSKategoryBeforeScale..FieldName
+#: Unit1.dfm:5285
+msgid "BeforeScale"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:75
+#. DMMarksDb..CDSmarks..CDSmarksdescr..FieldName
+#: u_MarksDb.dfm:174
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5304
+#. Fmain..CDSmarks..CDSmarksdescr..FieldName
+#: Unit1.dfm:5403
+msgid "descr"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:90
+#. DMMarksDb..CDSmarks..CDSmarkslonlatarr..FieldName
+#: u_MarksDb.dfm:184
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5319
+#. Fmain..CDSmarks..CDSmarkslonlatarr..FieldName
+#: Unit1.dfm:5413
+msgid "lonlatarr"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:95
+#. DMMarksDb..CDSmarks..CDSmarkslonL..FieldName
+#: u_MarksDb.dfm:187
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5324
+#. Fmain..CDSmarks..CDSmarkslonL..FieldName
+#: Unit1.dfm:5416
+msgid "lonL"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:100
+#. DMMarksDb..CDSmarks..CDSmarkslatT..FieldName
+#: u_MarksDb.dfm:190
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5329
+#. Fmain..CDSmarks..CDSmarkslatT..FieldName
+#: Unit1.dfm:5419
+msgid "latT"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:105
+#. DMMarksDb..CDSmarks..CDSmarksLonR..FieldName
+#: u_MarksDb.dfm:193
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5334
+#. Fmain..CDSmarks..CDSmarksLonR..FieldName
+#: Unit1.dfm:5422
+msgid "LonR"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:110
+#. DMMarksDb..CDSmarks..CDSmarksLatB..FieldName
+#: u_MarksDb.dfm:196
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5339
+#. Fmain..CDSmarks..CDSmarksLatB..FieldName
+#: Unit1.dfm:5425
+msgid "LatB"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:130
+#. DMMarksDb..CDSmarks..CDSmarkspicname..FieldName
+#: u_MarksDb.dfm:208
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5359
+#. Fmain..CDSmarks..CDSmarkspicname..FieldName
+#: Unit1.dfm:5438
+msgid "picname"
+msgstr ""
+
+#. DMMarksDb..CDSmarks......Name
+#: u_MarksDb.dfm:136
+#. DMMarksDb..CDSmarks..CDSmarkscategoryid..FieldName
+#: u_MarksDb.dfm:211
+#. Fmain..CDSmarks......Name
+#: Unit1.dfm:5365
+#. Fmain..CDSmarks..CDSmarkscategoryid..FieldName
+#: Unit1.dfm:5441
+msgid "categoryid"
+msgstr ""
+
+#. DMMarksDb..CDSmarks..IndexFieldNames
+#: u_MarksDb.dfm:147
+#. Fmain..CDSmarks..IndexFieldNames
+#: Unit1.dfm:5376
+msgid "LonR;LonL;LatT;LatB;visible"
+msgstr ""
+
+#. Fabout..Caption
+#: UAbout.dfm:5
+#. Fmain..TBDock..TBXMainMenu..NHelp..N16..Caption
+#: Unit1.dfm:1041
+msgid "О программе"
+msgstr ""
+
+#. Fabout..Label1..Caption
+#: UAbout.dfm:32
+msgid "Версия:"
+msgstr ""
+
+#. Fabout..Label3..Caption
+#: UAbout.dfm:40
+msgid "Разработка:"
+msgstr ""
+
+#. Fabout..Label4..Caption
+#: UAbout.dfm:49
+msgid "Сайт:"
+msgstr ""
+
+#. Fabout..Label5..Caption
+#: UAbout.dfm:58
+msgid "Почта:"
+msgstr ""
+
+#. Fabout..Label6..Caption
+#: UAbout.dfm:66
+msgid "Помочь нам:"
+msgstr ""
+
+#. Fabout..Label7..Caption
+#: UAbout.dfm:90
+msgid "WebMoney:"
+msgstr ""
+
+#. Fabout..Label2..Caption
+#: UAbout.dfm:104
+msgid "Группа SAS"
+msgstr ""
+
+#. Fabout..Label8..Caption
+#: UAbout.dfm:112
+msgid "az@sasgis.ru"
+msgstr ""
+
+#. Fabout..Label9..Caption
+#: UAbout.dfm:129
+msgid "Яндекс.Деньги:"
+msgstr ""
+
+#. Fabout..Label10..Caption
+#: UAbout.dfm:137
+#. FLogo..Image321..Label2..Caption
+#: ULogo.dfm:49
+msgid "http://sasgis.ru"
+msgstr ""
+
+#. Fabout..Button1..Caption
+#: UAbout.dfm:152
+#. FMarksExplorer..Button2..Caption
+#: UMarksExplorer.dfm:565
+msgid "Закрыть"
+msgstr ""
+
+#. Fabout..Edit1..Text
+#: UAbout.dfm:168
+msgid "WME: E382109079322"
+msgstr ""
+
+#. Fabout..Edit2..Text
+#: UAbout.dfm:182
+msgid "WMZ: Z122595752786"
+msgstr ""
+
+#. Fabout..Edit6..Text
+#: UAbout.dfm:210
+msgid "WMR: R112587212279"
+msgstr ""
+
+#. FAddCategory..Caption
+#: UAddCategory.dfm:5
+msgid "FAddCategory"
+msgstr ""
+
+#. FAddCategory..Label2..Caption
+#: UAddCategory.dfm:30
+msgid "Масштабы видимости:"
+msgstr ""
+
+#. FAddCategory..Label3..Caption
+#: UAddCategory.dfm:37
+msgid "c"
+msgstr ""
+
+#. FAddCategory..Label4..Caption
+#: UAddCategory.dfm:44
+msgid "до"
+msgstr ""
+
+#. FAddCategory..CBShow..Caption
+#: UAddCategory.dfm:65
+msgid "Отображать на карте"
+msgstr ""
+
+#. FAddCategory..Badd..Caption
+#: UAddCategory.dfm:93
+#. FaddLine..Badd..Caption
+#: UaddLine.dfm:124
+#. FaddPoint..Badd..Caption
+#: UaddPoint.dfm:208
+#. FAddPoly..Badd..Caption
+#: UaddPoly.dfm:160
+#. FMarksExplorer..GroupBox2..BtnAddCategory..Hint
+#: UMarksExplorer.dfm:474
+#. Programmer's name for it: SAS_STR_Add
+#: UResStrings.pas:100
+msgid "Добавить"
+msgstr ""
+
+#. FAddCategory..Button2..Hint
+#: UAddCategory.dfm:103
+#. FAddCategory..Button2..Caption
+#: UAddCategory.dfm:105
+#. FaddLine..Button2..Hint
+#: UaddLine.dfm:133
+#. FaddLine..Button2..Caption
+#: UaddLine.dfm:135
+#. FaddPoint..Button2..Hint
+#: UaddPoint.dfm:217
+#. FaddPoint..Button2..Caption
+#: UaddPoint.dfm:219
+#. FAddPoly..Button2..Hint
+#: UaddPoly.dfm:170
+#. FAddPoly..Button2..Caption
+#: UaddPoly.dfm:172
+#. FEditMap..pnlBottomButtons..Button2..Caption
+#: UEditMap.dfm:65
+#. FImport..Button2..Caption
+#: UImport.dfm:396
+#. FSelLonLat..Button2..Caption
+#: USelLonLat.dfm:34
+#. FSettings..pnlBottomButtons..Button1..Caption
+#: Usettings.dfm:2309
+#. FShortcutChange..Button2..Caption
+#: UShortcutEditor.dfm:60
+msgid "Отменить"
+msgstr ""
+
+#. FaddLine..Caption
+#: UaddLine.dfm:5
+msgid "FaddLine"
+msgstr ""
+
+#. FaddLine..Label1..Caption
+#: UaddLine.dfm:24
+#. FaddPoint..Label1..Caption
+#: UaddPoint.dfm:26
+#. FAddPoly..Label1..Caption
+#: UaddPoly.dfm:24
+msgid "Имя:"
+msgstr ""
+
+#. FaddLine..Label2..Caption
+#: UaddLine.dfm:31
+#. FaddPoint..Label2..Caption
+#: UaddPoint.dfm:33
+#. FAddPoly..Label2..Caption
+#: UaddPoly.dfm:31
+msgid "Описание:"
+msgstr ""
+
+#. FaddLine..Label3..Caption
+#: UaddLine.dfm:66
+#. FAddPoly..Label3..Caption
+#: UaddPoly.dfm:66
+#. FAddPoly..Label6..Caption
+#: UaddPoly.dfm:95
+#. FDGAvailablePic..GroupBox1..LabelColor..Caption
+#: UFDGAvailablePic.dfm:46
+#. FImport..GroupBox2..Label1..Caption
+#: UImport.dfm:187
+#. FImport..GroupBox3..Label10..Caption
+#: UImport.dfm:260
+#. FImport..GroupBox3..Label13..Caption
+#: UImport.dfm:289
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlTileBorders..flwpnlTileBorders..Label27..Caption
+#: Usettings.dfm:1251
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlFillMap..flwpnlFillMap..Label26..Caption
+#: Usettings.dfm:1448
+msgid "Цвет"
+msgstr ""
+
+#. FaddLine..Label5..Caption
+#: UaddLine.dfm:73
+#. FAddPoly..Label5..Caption
+#: UaddPoly.dfm:73
+#. FImport..GroupBox2..Label2..Caption
+#: UImport.dfm:194
+#. FImport..GroupBox3..Label11..Caption
+#: UImport.dfm:267
+msgid "Ширина"
+msgstr ""
+
+#. FaddLine..Label4..Caption
+#: UaddLine.dfm:80
+#. FaddPoint..Label7..Caption
+#: UaddPoint.dfm:140
+#. FAddPoly..Label4..Caption
+#: UaddPoly.dfm:80
+#. FAddPoly..Label8..Caption
+#: UaddPoly.dfm:102
+#. FImport..GroupBox1..Label7..Caption
+#: UImport.dfm:75
+#. FImport..GroupBox2..Label9..Caption
+#: UImport.dfm:201
+#. FImport..GroupBox3..Label12..Caption
+#: UImport.dfm:274
+#. FImport..GroupBox3..Label14..Caption
+#: UImport.dfm:296
+msgid "Прозрачность %"
+msgstr ""
+
+#. FaddLine..Label7..Caption
+#: UaddLine.dfm:95
+#. FaddPoint..Label8..Caption
+#: UaddPoint.dfm:163
+#. FAddPoly..Label7..Caption
+#: UaddPoly.dfm:131
+#. FImport..Label8..Caption
+#: UImport.dfm:25
+msgid "Категория:"
+msgstr ""
+
+#. FaddLine..CheckBox2..Caption
+#: UaddLine.dfm:145
+#. FaddPoint..CheckBox2..Caption
+#: UaddPoint.dfm:228
+#. FAddPoly..CheckBox2..Caption
+#: UaddPoly.dfm:182
+msgid "Отображать это место на карте"
+msgstr ""
+
+#. FaddLine..CBKateg..Text
+#: UaddLine.dfm:191
+#. FaddPoint..CBKateg..Text
+#: UaddPoint.dfm:443
+#. FAddPoly..CBKateg..Text
+#: UaddPoly.dfm:253
+#. Programmer's name for it: SAS_STR_NewCategory
+#: UResStrings.pas:91
+msgid "Новая категория"
+msgstr ""
+
+#. FaddLine..OpenDialog1..Filter
+#: UaddLine.dfm:259
+#. FAddPoly..OpenDialog1..Filter
+#: UaddPoly.dfm:321
+msgid "PNG|*.png"
+msgstr ""
+
+#. FaddPoint..Caption
+#: UaddPoint.dfm:5
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBAdd_Point..Caption
+#: Unit1.dfm:890
+msgid "Добавить метку"
+msgstr ""
+
+#. FaddPoint..Label21..Caption
+#: UaddPoint.dfm:76
+#. FGoTo..GroupBox1..Label21..Caption
+#: Unit2.dfm:137
+#. FSelLonLat..GroupBox1..Label21..Caption
+#: USelLonLat.dfm:51
+#. FSelLonLat..GroupBox2..Label1..Caption
+#: USelLonLat.dfm:235
+msgid "Широта:"
+msgstr ""
+
+#. FaddPoint..Label22..Caption
+#: UaddPoint.dfm:92
+#. FGoTo..GroupBox1..Label22..Caption
+#: Unit2.dfm:153
+#. FSelLonLat..GroupBox1..Label22..Caption
+#: USelLonLat.dfm:67
+#. FSelLonLat..GroupBox2..Label2..Caption
+#: USelLonLat.dfm:251
+msgid "Долгота:"
+msgstr ""
+
+#. FaddPoint..Label3..Caption
+#: UaddPoint.dfm:108
+#. FImport..GroupBox1..Label3..Caption
+#: UImport.dfm:47
+msgid "Цвет текста"
+msgstr ""
+
+#. FaddPoint..Label4..Caption
+#: UaddPoint.dfm:116
+#. FImport..GroupBox1..Label4..Caption
+#: UImport.dfm:54
+msgid "Цвет тени"
+msgstr ""
+
+#. FaddPoint..Label5..Caption
+#: UaddPoint.dfm:124
+#. FImport..GroupBox1..Label5..Caption
+#: UImport.dfm:61
+msgid "Размер шрифта"
+msgstr ""
+
+#. FaddPoint..Label6..Caption
+#: UaddPoint.dfm:132
+#. FImport..GroupBox1..Label6..Caption
+#: UImport.dfm:68
+msgid "Размер иконки"
+msgstr ""
+
+#. FaddPoint..lat_ns..Text
+#: UaddPoint.dfm:253
+#. FaddPoint..lat_ns....Items.Strings
+#: UaddPoint.dfm:255
+#. Fbrowser..EmbeddedWB1..DisableCtrlShortcuts
+#: Ubrowser.dfm:26
+#. Fmain..WebBrowser1..DisableCtrlShortcuts
+#: Unit1.dfm:30
+#. FGoTo..GroupBox1..lat_ns..Text
+#: Unit2.dfm:185
+#. FGoTo..GroupBox1..lat_ns....Items.Strings
+#: Unit2.dfm:188
+#. FSelLonLat..GroupBox1.._lat_ns..Text
+#: USelLonLat.dfm:99
+#. FSelLonLat..GroupBox1.._lat_ns....Items.Strings
+#: USelLonLat.dfm:101
+#. FSelLonLat..GroupBox2..lat_ns..Text
+#: USelLonLat.dfm:283
+#. FSelLonLat..GroupBox2..lat_ns....Items.Strings
+#: USelLonLat.dfm:285
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lat_ns..Text
+#: Usettings.dfm:1887
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lat_ns....Items.Strings
+#: Usettings.dfm:1889
+msgid "N"
+msgstr ""
+
+#. FaddPoint..lat_ns....Items.Strings
+#: UaddPoint.dfm:256
+#. FGoTo..GroupBox1..lat_ns....Items.Strings
+#: Unit2.dfm:189
+#. FSelLonLat..GroupBox1.._lat_ns....Items.Strings
+#: USelLonLat.dfm:102
+#. FSelLonLat..GroupBox2..lat_ns....Items.Strings
+#: USelLonLat.dfm:286
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lat_ns....Items.Strings
+#: Usettings.dfm:1890
+msgid "S"
+msgstr ""
+
+#. FaddPoint..Lon_we..Text
+#: UaddPoint.dfm:370
+#. FaddPoint..Lon_we....Items.Strings
+#: UaddPoint.dfm:372
+#. FGoTo..GroupBox1..Lon_we..Text
+#: Unit2.dfm:213
+#. FGoTo..GroupBox1..Lon_we....Items.Strings
+#: Unit2.dfm:216
+#. FSelLonLat..GroupBox1.._Lon_we..Text
+#: USelLonLat.dfm:126
+#. FSelLonLat..GroupBox1.._Lon_we....Items.Strings
+#: USelLonLat.dfm:128
+#. FSelLonLat..GroupBox2..Lon_we..Text
+#: USelLonLat.dfm:310
+#. FSelLonLat..GroupBox2..Lon_we....Items.Strings
+#: USelLonLat.dfm:312
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Lon_we..Text
+#: Usettings.dfm:1914
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Lon_we....Items.Strings
+#: Usettings.dfm:1916
+msgid "E"
+msgstr ""
+
+#. FaddPoint..Lon_we....Items.Strings
+#: UaddPoint.dfm:373
+#. FGoTo..GroupBox1..Lon_we....Items.Strings
+#: Unit2.dfm:217
+#. FSelLonLat..GroupBox1.._Lon_we....Items.Strings
+#: USelLonLat.dfm:129
+#. FSelLonLat..GroupBox2..Lon_we....Items.Strings
+#: USelLonLat.dfm:313
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Lon_we....Items.Strings
+#: Usettings.dfm:1917
+msgid "W"
+msgstr ""
+
+#. FAddPoly..Caption
+#: UaddPoly.dfm:5
+msgid "FAddPoly"
+msgstr ""
+
+#. FAddPoly..Label9..Caption
+#: UaddPoly.dfm:117
+#. FImport..GroupBox3..Label15..Caption
+#: UImport.dfm:311
+msgid "Линия:"
+msgstr ""
+
+#. FAddPoly..Label10..Caption
+#: UaddPoly.dfm:124
+#. FImport..GroupBox3..Label16..Caption
+#: UImport.dfm:318
+msgid "Заполнение:"
+msgstr ""
+
+#. Fbrowser..EmbeddedWB1..About
+#: Ubrowser.dfm:29
+#. Fmain..WebBrowser1..About
+#: Unit1.dfm:34
+msgid " EmbeddedWB http://bsalsa.com/"
+msgstr ""
+
+#. Fbrowser..EmbeddedWB1....PrintOptions.HTMLHeader.Strings
+#: Ubrowser.dfm:35
+#. Fmain..WebBrowser1....PrintOptions.HTMLHeader.Strings
+#: Unit1.dfm:47
+msgid "<HTML></HTML>"
+msgstr ""
+
+#. Fbrowser..EmbeddedWB1..UserAgent
+#: Ubrowser.dfm:37
+msgid " Embedded Web Browser from: http://bsalsa.com/"
+msgstr ""
+
+#. FEditMap..pnlBottomButtons..Button3..Caption
+#: UEditMap.dfm:37
+msgid "Все по умолчанию"
+msgstr ""
+
+#. FEditMap..pnlBottomButtons..Button1..Caption
+#: UEditMap.dfm:50
+#. FSelLonLat..Button1..Caption
+#: USelLonLat.dfm:23
+#. FShortcutChange..Button1..Caption
+#: UShortcutEditor.dfm:49
+msgid "Принять"
+msgstr ""
+
+#. FEditMap..pnlSeparator..CheckBox1..Caption
+#: UEditMap.dfm:93
+msgid "Добавлять в меню разделитель после названия этой "
+"карты"
+msgstr ""
+
+#. FEditMap..pnlCacheType..Label5..Caption
+#: UEditMap.dfm:118
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..Label37..Caption
+#: Usettings.dfm:574
+msgid "Тип кэша"
+msgstr ""
+
+#. FEditMap..pnlCacheType..CBCacheType....Items.Strings
+#: UEditMap.dfm:135
+msgid "По умолчанию"
+msgstr ""
+
+#. FEditMap..pnlCacheType..CBCacheType....Items.Strings
+#: UEditMap.dfm:138
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..CBCacheType....Items.Strings
+#: Usettings.dfm:594
+msgid "EarthSlicer 1.95"
+msgstr ""
+
+#. FEditMap..pnlCacheType..CBCacheType....Items.Strings
+#: UEditMap.dfm:139
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..CBCacheType....Items.Strings
+#: Usettings.dfm:595
+msgid "Googe maps tiles"
+msgstr ""
+
+#. FEditMap..pnlCacheType..CBCacheType....Items.Strings
+#: UEditMap.dfm:140
+msgid "Google Earth"
+msgstr ""
+
+#. FEditMap..pnlCacheType..Button9..Hint
+#: UEditMap.dfm:151
+#. FEditMap..pnlParentItem..Button5..Hint
+#: UEditMap.dfm:204
+#. FEditMap..pnlCacheName..Button4..Hint
+#: UEditMap.dfm:257
+#. FEditMap..pnlUrl..pnlUrlRight..Button6..Hint
+#: UEditMap.dfm:307
+#. FEditMap..grdpnlSleepAndKey..grdpnlHotKey..Button7..Hint
+#: UEditMap.dfm:433
+#. FEditMap..grdpnlSleepAndKey..grdpnlSleep..Button8..Hint
+#: UEditMap.dfm:513
+msgid "По умолчнию"
+msgstr ""
+
+#. FEditMap..pnlParentItem..Label3..Caption
+#: UEditMap.dfm:180
+msgid "Родительский пункт меню"
+msgstr ""
+
+#. FEditMap..pnlCacheName..Label2..Caption
+#: UEditMap.dfm:233
+msgid "Название в кэше"
+msgstr ""
+
+#. FEditMap..pnlUrl..Label1..Caption
+#: UEditMap.dfm:287
+msgid "URL"
+msgstr ""
+
+#. FEditMap..grdpnlSleepAndKey..grdpnlHotKey..Label4..Caption
+#: UEditMap.dfm:415
+msgid "Горячая кл."
+msgstr ""
+
+#. FEditMap..grdpnlSleepAndKey..grdpnlSleep..Label6..Caption
+#: UEditMap.dfm:491
+msgid "Пауза"
+msgstr ""
+
+#. FDGAvailablePic..Caption
+#: UFDGAvailablePic.dfm:5
+msgid "Информация о доступных снимках на DigitalGlobe"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..Caption
+#: UFDGAvailablePic.dfm:25
+msgid " Описание "
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..LabelDate..Caption
+#: UFDGAvailablePic.dfm:32
+msgid "Дата съемки"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..LabelResolution..Caption
+#: UFDGAvailablePic.dfm:39
+#. Programmer's name for it: SAS_STR_Resolution
+#: UResStrings.pas:111
+msgid "Разрешение"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..LabelProv..Caption
+#: UFDGAvailablePic.dfm:53
+msgid "Источник"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..Label2..Caption
+#: UFDGAvailablePic.dfm:61
+msgid "Дата съемки:"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..Label4..Caption
+#: UFDGAvailablePic.dfm:69
+msgid "Разрешение:"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..Label5..Caption
+#: UFDGAvailablePic.dfm:77
+msgid "Цвет:"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox1..Label6..Caption
+#: UFDGAvailablePic.dfm:85
+msgid "Источник:"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox3..Caption
+#: UFDGAvailablePic.dfm:93
+msgid " Доступные снимки "
+msgstr ""
+
+#. FDGAvailablePic..GroupBox3..Button1..Caption
+#: UFDGAvailablePic.dfm:114
+msgid "Выше"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox3..Button2..Caption
+#: UFDGAvailablePic.dfm:123
+msgid "Ниже"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox3..Button3..Hint
+#: UFDGAvailablePic.dfm:132
+msgid "Копировать выбранные tid для вставки в "
+"URL"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox3..Button3..Caption
+#: UFDGAvailablePic.dfm:133
+msgid "Копировать"
+msgstr ""
+
+#. FDGAvailablePic..GroupBox4..Caption
+#: UFDGAvailablePic.dfm:145
+msgid " Выбор стека снимков "
+msgstr ""
+
+#. FImport..Caption
+#: UImport.dfm:5
+msgid "Параметры импорта"
+msgstr ""
+
+#. FImport..GroupBox1..Caption
+#: UImport.dfm:40
+msgid " Параметры меток "
+msgstr ""
+
+#. FImport..GroupBox1..Label17..Caption
+#: UImport.dfm:98
+msgid "Иконка"
+msgstr ""
+
+#. FImport..GroupBox1..ComboBox1..Hint
+#: UImport.dfm:166
+msgid "Выберите графическое изображение"
+msgstr ""
+
+#. FImport..GroupBox2..Caption
+#: UImport.dfm:180
+msgid " Параметры путей "
+msgstr ""
+
+#. FImport..GroupBox3..Caption
+#: UImport.dfm:253
+msgid " Параметры полигонов "
+msgstr ""
+
+#. FImport..Button1..Caption
+#: UImport.dfm:387
+#. Fsaveas..pnlBottomButtons..Button1..Caption
+#: USaveas.dfm:167
+msgid "Начать"
+msgstr ""
+
+#. FImport..CBMarkIgnor..Caption
+#: UImport.dfm:405
+msgid "Игнорировать метки"
+msgstr ""
+
+#. FImport..CBPathIgnor..Caption
+#: UImport.dfm:413
+msgid "Игнорировать пути"
+msgstr ""
+
+#. FImport..CBPolyIgnor..Caption
+#: UImport.dfm:421
+msgid "Игнорировать полигоны"
+msgstr ""
+
+#. FLogo..Caption
+#: ULogo.dfm:6
+msgid "Logo"
+msgstr ""
+
+#. FLogo..Image321..Bitmap.ResamplerClassName
+#: ULogo.dfm:27
+msgid "TNearestResampler"
+msgstr ""
+
+#. FLogo..Image321..Label2..Font.Name
+#: ULogo.dfm:53
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathOk..FontSettings.Name
+#: Unit1.dfm:1942
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedAvgBar..TBXSensorSpeedAvg..Font.Name
+#: Unit1.dfm:2106
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedBar..TBXSensorSpeed..Font.Name
+#: Unit1.dfm:2144
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorPathBar..TBXOdometrNow..Font.Name
+#: Unit1.dfm:2221
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorBattaryBar..TBXSensorBattary..Font.Name
+#: Unit1.dfm:2264
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorLenToMarkBar..TBXSensorLenToMark..Font.Name
+#: Unit1.dfm:2305
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAltitudeBar..TBXSensorAltitude..Font.Name
+#: Unit1.dfm:2378
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..TBXSensorSpeedMax..Font.Name
+#: Unit1.dfm:2484
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXsensorOdometrBar..TBXSensorOdometr..Font.Name
+#: Unit1.dfm:2557
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAzimutBar..TBXSensorAzimut..Font.Name
+#: Unit1.dfm:2600
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSignalStrengthBar..TBXSignalStrength..Font.Name
+#: Unit1.dfm:2646
+msgid "Arial"
+msgstr ""
+
+#. FMarksExplorer..Caption
+#: UMarksExplorer.dfm:5
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBItem6..Caption
+#: Unit1.dfm:918
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBItem6..Hint
+#: Unit1.dfm:919
+msgid "Управление метками"
+msgstr ""
+
+#. FMarksExplorer..GroupBox1..Caption
+#: UMarksExplorer.dfm:32
+msgid " Метки "
+msgstr ""
+
+#. FMarksExplorer..GroupBox1..BtnGotoMark..Hint
+#: UMarksExplorer.dfm:39
+msgid "Перейти к выбранному объекту"
+msgstr ""
+
+#. FMarksExplorer..GroupBox1..BtnOpMark..Hint
+#: UMarksExplorer.dfm:79
+msgid "Операции с областью в границах выделенного "
+"объекта"
+msgstr ""
+
+#. FMarksExplorer..GroupBox1..BtnDelMark..Hint
+#: UMarksExplorer.dfm:140
+#. FMarksExplorer..GroupBox2..BtnDelKat..Hint
+#: UMarksExplorer.dfm:359
+#. Fmain..PopupMenu1..NMarkDel..Caption
+#: Unit1.dfm:2677
+#. Fsaveas..PageControl1..TabSheet4..Caption
+#: USaveas.dfm:52
+msgid "Удалить"
+msgstr ""
+
+#. FMarksExplorer..GroupBox1..SpeedButton1..Hint
+#: UMarksExplorer.dfm:186
+#. FMarksExplorer..GroupBox2..BtnEditCategory..Hint
+#: UMarksExplorer.dfm:405
+msgid "Редактировать"
+msgstr ""
+
+#. FMarksExplorer..GroupBox1..SBNavOnMark..Hint
+#: UMarksExplorer.dfm:262
+msgid "Навигация на выбранную метку"
+msgstr ""
+
+#. FMarksExplorer..GroupBox2..Caption
+#: UMarksExplorer.dfm:352
+msgid " Категории меток "
+msgstr ""
+
+#. FMarksExplorer..Button1..Caption
+#: UMarksExplorer.dfm:555
+msgid "Импорт"
+msgstr ""
+
+#. FMarksExplorer..RBall..Caption
+#: UMarksExplorer.dfm:574
+msgid "Показывать все метки"
+msgstr ""
+
+#. FMarksExplorer..RBchecked..Caption
+#: UMarksExplorer.dfm:582
+msgid "Показывать только указанные метки"
+msgstr ""
+
+#. FMarksExplorer..RBnot..Caption
+#: UMarksExplorer.dfm:590
+msgid "Не показывать метки"
+msgstr ""
+
+#. FMarksExplorer..Button3..Caption
+#: UMarksExplorer.dfm:598
+#. FSettings..pnlBottomButtons..Button3..Caption
+#: Usettings.dfm:2335
+msgid "Применить"
+msgstr ""
+
+#. FMarksExplorer..OpenDialog1....Filter
+#: UMarksExplorer.dfm:610
+msgid "Google KML files (*.kml)|*.kml|OziExplorer Track Point File Version "
+"2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz"
+msgstr ""
+
+#. Fmain..WebBrowser1..PrintOptions.Header
+#: Unit1.dfm:45
+msgid "&w&bPage &p of &P"
+msgstr ""
+
+#. Fmain..WebBrowser1..PrintOptions.Footer
+#: Unit1.dfm:48
+msgid "&u&b&d"
+msgstr ""
+
+#. Fmain..WebBrowser1....UserAgent
+#: Unit1.dfm:52
+msgid "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR "
+"2.0.50727)"
+msgstr ""
+
+#. Fmain..map..Bitmap.ResamplerClassName
+#: Unit1.dfm:67
+msgid "TLinearResampler"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..Caption
+#: Unit1.dfm:97
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NMainToolBarShow..Caption
+#: Unit1.dfm:449
+msgid "Главная панель"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBRectSave..Hint
+#: Unit1.dfm:114
+msgid "Операции с выделенной областью"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBCalcRas..Hint
+#: Unit1.dfm:121
+#. Fmain..TBDock..TBXMainMenu..NOperations..NCalcRast..Caption
+#: Unit1.dfm:379
+msgid "Измерить расстояние"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBMapZap..Hint
+#: Unit1.dfm:133
+msgid "Карта заполнения слоя"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..Hint
+#: Unit1.dfm:141
+msgid "Перейти к некоторому месту"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..TBEditItem2..EditCaption
+#: Unit1.dfm:143
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..TBEditItem2..Caption
+#: Unit1.dfm:145
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..TBEditItem2..EditCaption
+#: Unit1.dfm:147
+msgid "Локальный"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..TBEditItem1..EditCaption
+#: Unit1.dfm:150
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..TBEditItem1..Caption
+#: Unit1.dfm:152
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..TBEditItem1..EditCaption
+#: Unit1.dfm:154
+#. Fmain..TBDock..TBXToolBarSearch..TBXSelectSrchType..TBXSelectYandexSrch..Caption
+#: Unit1.dfm:1092
+#. FGoTo..RB4..Caption
+#: Unit2.dfm:370
+msgid "Яндекс"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..EditGoogleSrch..EditCaption
+#: Unit1.dfm:157
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..EditGoogleSrch..Caption
+#: Unit1.dfm:160
+#. Fmain..TBDock..TBMainToolBar..TBGoTo..EditGoogleSrch..EditCaption
+#: Unit1.dfm:162
+#. FGoTo..RB2..Caption
+#: Unit2.dfm:119
+msgid "Google!"
+msgstr ""
+
+#. Fmain..TBDock..TBMainToolBar..TBFullSize..Hint
+#: Unit1.dfm:174
+#. Fmain..TBDock..TBXMainMenu..NView..NFoolSize..Caption
+#: Unit1.dfm:778
+msgid "Во весь экран"
+msgstr ""
+
+#. Fmain..TBDock..SrcToolbar..Caption
+#: Unit1.dfm:186
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NsrcToolBarShow..Caption
+#: Unit1.dfm:463
+msgid "Панель источников"
+msgstr ""
+
+#. Fmain..TBDock..SrcToolbar..TBSrc..Hint
+#: Unit1.dfm:192
+msgid "Выберите источник из которого программа будет брать "
+"карты"
+msgstr ""
+
+#. Fmain..TBDock..SrcToolbar..TBSMB..Hint
+#: Unit1.dfm:201
+msgid "Выбрать тип карты"
+msgstr ""
+
+#. Fmain..TBDock..SrcToolbar..TBLayerSel..Hint
+#: Unit1.dfm:208
+msgid "Выбор слоев отображаемых поверх основной "
+"карты"
+msgstr ""
+
+#. Fmain..TBDock..TBMarksToolbar..Caption
+#: Unit1.dfm:221
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NMarksBarShow..Caption
+#: Unit1.dfm:477
+#. Fmain..TBDock..TBXMainMenu..NMarks..Caption
+#: Unit1.dfm:881
+msgid "Метки"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..Caption
+#: Unit1.dfm:232
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NGPSToolBarShow..Caption
+#: Unit1.dfm:470
+msgid "Панель GPS"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSconn..Hint
+#: Unit1.dfm:238
+msgid "Подключиться к GPS приемнику"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSPath..Hint
+#: Unit1.dfm:246
+msgid "Рисовать пройденный путь"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSPath..TBXItem5..Caption
+#: Unit1.dfm:249
+#. Fmain..PopupMenu1..NaddPoint..Caption
+#: Unit1.dfm:2707
+msgid "Поставить метку"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSPath..TBItem3..Caption
+#: Unit1.dfm:260
+msgid "Сохранить в KML"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSPath..TBItem5..Caption
+#: Unit1.dfm:267
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathSave..Hint
+#: Unit1.dfm:1937
+msgid "Сохранить в базе"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSPath..TBItemDelTrack..Caption
+#: Unit1.dfm:278
+#. Fmain..TBDock..TBXMainMenu..NGPS..N39..Caption
+#: Unit1.dfm:969
+msgid "Удалить трек"
+msgstr ""
+
+#. Fmain..TBDock..GPSToolbar..TBGPSToPoint..Hint
+#: Unit1.dfm:287
+msgid "Центрировать карту на координатах переданных GPS "
+"приемником"
+msgstr ""
+
+#. Fmain..TBDock..TBExit..TBXExit..Hint
+#: Unit1.dfm:315
+msgid "Выйти из программы"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..Caption
+#: Unit1.dfm:325
+msgid "Главное меню"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..Caption
+#: Unit1.dfm:327
+msgid "&Операции"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..N35..Caption
+#: Unit1.dfm:332
+msgid "Сохранить ярлык"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..TBXItem6..Caption
+#: Unit1.dfm:339
+msgid "Открыть..."
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NZoomIn..Caption
+#: Unit1.dfm:351
+#. Fmain..TBDockLeft..ZoomToolBar..TBZoomIn..Hint
+#: Unit1.dfm:1144
+msgid "Увеличить"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NZoomOut..Caption
+#: Unit1.dfm:359
+#. Fmain..TBDockLeft..ZoomToolBar..TBZoom_out..Hint
+#: Unit1.dfm:1170
+msgid "Уменьшить"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..N14..Caption
+#: Unit1.dfm:371
+#. FGoTo..Caption
+#: Unit2.dfm:7
+msgid "Перейти к..."
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..Caption
+#: Unit1.dfm:387
+msgid "Выделить"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..TBRECT..Caption
+#: Unit1.dfm:394
+msgid "Прямоугольная область"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..TBREGION..Caption
+#: Unit1.dfm:402
+msgid "Полигональная область"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..TBREGION..Hint
+#: Unit1.dfm:403
+msgid "Операции с выделенной полигональной "
+"областью"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..TBCOORD..Caption
+#: Unit1.dfm:409
+msgid "По координатам"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..TBPrevious..Caption
+#: Unit1.dfm:416
+msgid "Предыдущее выделение"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..NRectSave..TBLoadSelFromFile..Caption
+#: Unit1.dfm:422
+msgid "Загрузить из файла"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NOperations..N6..Caption
+#: Unit1.dfm:434
+#. FProgress..Panel1..Button2..Caption
+#: UProgress.dfm:179
+msgid "Выход"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..Caption
+#: Unit1.dfm:440
+msgid "&Вид"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..Caption
+#: Unit1.dfm:443
+msgid "Панели"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NZoomToolBarShow..Caption
+#: Unit1.dfm:456
+#. Fmain..TBDockLeft..ZoomToolBar..Caption
+#: Unit1.dfm:1136
+msgid "Панель масштаба"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NToolBarSearch..Caption
+#: Unit1.dfm:483
+#. Fmain..TBDock..TBXToolBarSearch..Caption
+#: Unit1.dfm:1082
+msgid "Панель поиска"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensorsBar..Caption
+#: Unit1.dfm:489
+msgid "Панель датчиков"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..Caption
+#: Unit1.dfm:493
+#. Fmain..TBDockRight..TBXSensorsBar..Caption
+#: Unit1.dfm:2031
+msgid "Датчики"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorSpeedBar..Caption
+#: Unit1.dfm:499
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedBar..Caption
+#: Unit1.dfm:2134
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsPort..Label65..Caption
+#: Usettings.dfm:1617
+#. FSettings..PageControl1..TabSheet6..pnlGSM..flwpnlGSM..Label34..Caption
+#: Usettings.dfm:2241
+#. Programmer's name for it: SAS_STR_Speed
+#: UResStrings.pas:61
+msgid "Скорость"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorSpeedAvgBar..Caption
+#: Unit1.dfm:506
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedAvgBar..Caption
+#: Unit1.dfm:2063
+msgid "Скорость средняя"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorSpeedMaxBar..Caption
+#: Unit1.dfm:513
+msgid "Максимальная скорость"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorPathBar..Caption
+#: Unit1.dfm:520
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorPathBar..Caption
+#: Unit1.dfm:2178
+msgid "Пройденный путь"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NsensorOdometrBar..Caption
+#: Unit1.dfm:527
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXsensorOdometrBar..Caption
+#: Unit1.dfm:2514
+msgid "Одометр"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorLenToMarkBar..Caption
+#: Unit1.dfm:534
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorLenToMarkBar..Caption
+#: Unit1.dfm:2295
+#. Programmer's name for it: SAS_STR_LenToMark
+#: UResStrings.pas:63
+msgid "Расстояние до метки"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorBattaryBar..Caption
+#: Unit1.dfm:541
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorBattaryBar..Caption
+#: Unit1.dfm:2254
+msgid "Батарея"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorAltitudeBar..Caption
+#: Unit1.dfm:548
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAltitudeBar..Caption
+#: Unit1.dfm:2335
+msgid "Высота"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSensorAzimutBar..Caption
+#: Unit1.dfm:555
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAzimutBar..Caption
+#: Unit1.dfm:2590
+msgid "Азимут"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N4..NSensors..NSignalStrengthBar..Caption
+#: Unit1.dfm:562
+msgid "Сила сигнала (кол. спут.)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N31..Caption
+#: Unit1.dfm:568
+msgid "Элементы интерфейса"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N31..Showstatus..Caption
+#: Unit1.dfm:574
+msgid "Строка статуса"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N31..ShowMiniMap..Caption
+#: Unit1.dfm:581
+msgid "Карта обзора"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N31..ShowLine..Caption
+#: Unit1.dfm:588
+msgid "Линейка"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NFillMap..Caption
+#: Unit1.dfm:596
+msgid "Карта заполнения"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NFillMap..TBFillingTypeMap..Caption
+#: Unit1.dfm:601
+msgid "Формировать для..."
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NFillMap..TBFillingTypeMap..TBfillMapAsMain..Caption
+#: Unit1.dfm:605
+msgid "Выбранной основной карты"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NShowGran..Caption
+#: Unit1.dfm:627
+msgid "Отображать границы изображений"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NShowGran..N001..Caption
+#: Unit1.dfm:641
+#. Programmer's name for it: SAS_STR_activescale
+#: UResStrings.pas:65
+msgid "Активный масштаб"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..Caption
+#: Unit1.dfm:694
+msgid "Отображать бланковку карт ГШ"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale1000000..Caption
+#: Unit1.dfm:710
+msgid "1:1000000 (10 км)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale500000..Caption
+#: Unit1.dfm:719
+msgid "1:500000 (5 км)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale200000..Caption
+#: Unit1.dfm:728
+msgid "1:200000 (2 км)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale100000..Caption
+#: Unit1.dfm:737
+msgid "1:100000 (1 км)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale50000..Caption
+#: Unit1.dfm:746
+msgid "1:50000 (500 м)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale25000..Caption
+#: Unit1.dfm:755
+msgid "1:25000 (250 м)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N40..NGShScale10000..Caption
+#: Unit1.dfm:764
+msgid "1:10000 (100 м)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NGoToCur..Caption
+#: Unit1.dfm:785
+msgid "Перемещать к курсору"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..Nbackload..Caption
+#: Unit1.dfm:792
+msgid "Брать карты из меньших масштабов"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NbackloadLayer..Caption
+#: Unit1.dfm:799
+msgid "Брать слои из меньших масштабов"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..Nanimate..Caption
+#: Unit1.dfm:806
+msgid "Анимация при масштабировании"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..N32..Caption
+#: Unit1.dfm:812
+msgid "Показывать шкалу"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..Ninvertcolor..Caption
+#: Unit1.dfm:819
+msgid "Ночной режим (Инверсия цветов)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NView..NShowSelection..Caption
+#: Unit1.dfm:825
+msgid "Последнее выделение"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NSources..Caption
+#: Unit1.dfm:830
+msgid "&Источник"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NSources..NSRCesh..Caption
+#: Unit1.dfm:841
+#. FSettings..PageControl1..TabSheet2..Caption
+#: Usettings.dfm:137
+msgid "Кэш"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NSources..NSRCinet..Caption
+#: Unit1.dfm:852
+#. FSettings..PageControl1..TabSheet1..Caption
+#: Usettings.dfm:602
+msgid "Интернет"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NSources..NSRCic..Caption
+#: Unit1.dfm:864
+msgid "Интернет и кеш"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NSMB..Caption
+#: Unit1.dfm:871
+msgid "&Карты"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NLayerSel..Caption
+#: Unit1.dfm:877
+#. Programmer's name for it: SAS_STR_Layers
+#: UResStrings.pas:123
+msgid "Слои"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBAdd_Point..Hint
+#: Unit1.dfm:891
+#. Programmer's name for it: SAS_STR_AddNewMark
+#: UResStrings.pas:93
+msgid "Добавить новую метку"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBAdd_Line..Caption
+#: Unit1.dfm:898
+msgid "Добавить путь"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBAdd_Line..Hint
+#: Unit1.dfm:899
+#. Programmer's name for it: SAS_STR_AddNewPath
+#: UResStrings.pas:92
+msgid "Добавить новый путь"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBAdd_Poly..Caption
+#: Unit1.dfm:906
+#. Fmain..TBDock..TBXMainMenu..NMarks..TBAdd_Poly..Hint
+#: Unit1.dfm:907
+msgid "Добавить полигон"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..Caption
+#: Unit1.dfm:924
+#. FSettings..PageControl1..TabSheet5..Caption
+#: Usettings.dfm:1557
+msgid "GPS"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..NGPSconn..Caption
+#: Unit1.dfm:930
+msgid "Подключить приемник"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..NGPSPath..Caption
+#: Unit1.dfm:937
+msgid "Отображать трек"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..NGPSToPoint..Caption
+#: Unit1.dfm:943
+msgid "Центрировать карту"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..NSaveTreck..Caption
+#: Unit1.dfm:955
+msgid "Сохранить трек"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..N36..Caption
+#: Unit1.dfm:962
+msgid "Сохранить трек в базе"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NGPS..TBXItem7..Caption
+#: Unit1.dfm:978
+msgid "Определить позицию по базовым станциям сотовой "
+"сети"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..Caption
+#: Unit1.dfm:985
+#. FSettings..PageControl1..TabSheet9..pnlMapsRightButtons..Button15..Caption
+#: Usettings.dfm:97
+msgid "Параметры"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..NMapParams..Caption
+#: Unit1.dfm:990
+msgid "Параметры карты"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..NLayerParams..Caption
+#: Unit1.dfm:995
+msgid "Параметры слоя"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..N8..Caption
+#: Unit1.dfm:1006
+#. FSettings..Caption
+#: Usettings.dfm:6
+msgid "Настройки программы"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..TBLang..Caption
+#: Unit1.dfm:1010
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlLang..Label8..Caption
+#: Usettings.dfm:1395
+msgid "Язык"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..TBLang..TBXLangRus..Caption
+#: Unit1.dfm:1014
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlLang..CBoxLocal....Items.Strings
+#: Usettings.dfm:1410
+msgid "Русский"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NParams..TBLang..TBXLangEng..Caption
+#: Unit1.dfm:1020
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlLang..CBoxLocal....Items.Strings
+#: Usettings.dfm:1411
+msgid "English"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NHelp..Caption
+#: Unit1.dfm:1027
+msgid "&Помощь"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NHelp..N29..Caption
+#: Unit1.dfm:1034
+msgid "Справка"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NHelp..NGoToSite..Caption
+#: Unit1.dfm:1050
+msgid "Сайт программы (http://sasgis.ru)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NHelp..NGoToForum..Caption
+#: Unit1.dfm:1055
+msgid "Обсуждение (http://sasgis.ru/forum)"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NHelp..TBXItem8..Caption
+#: Unit1.dfm:1064
+msgid "Основной набор подключаемых карт"
+msgstr ""
+
+#. Fmain..TBDock..TBXMainMenu..NHelp..TBXItem9..Caption
+#: Unit1.dfm:1069
+msgid "Дополнительный набор подключаемых карт"
+msgstr ""
+
+#. Fmain..TBDock..TBXToolBarSearch..TBXSelectSrchType..Caption
+#: Unit1.dfm:1085
+#. Fmain..TBDock..TBXToolBarSearch..TBXSelectSrchType..TBXSelectGoogleSrch..Caption
+#: Unit1.dfm:1099
+msgid "Google"
+msgstr ""
+
+#. Fmain..TBDock..TBXToolBarSearch..TBXSearchEdit..EditCaption
+#: Unit1.dfm:1104
+#. Fmain..TBDock..TBXToolBarSearch..TBXSearchEdit..EditCaption
+#: Unit1.dfm:1109
+msgid "Поиск"
+msgstr ""
+
+#. Fmain..TBDockLeft..ZoomToolBar..labZoom..Hint
+#: Unit1.dfm:1188
+msgid "Масштаб карты на котором вы находитесь"
+msgstr ""
+
+#. Fmain..TBDockLeft..ZoomToolBar..labZoom..Caption
+#: Unit1.dfm:1189
+msgid " 1x "
+msgstr ""
+
+#. Fmain..TBDockLeft..ZoomToolBar..RxSlider1..Hint
+#: Unit1.dfm:1207
+msgid "Изменить масштаб карты"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathDel..Hint
+#: Unit1.dfm:1923
+msgid "Удалить точку"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathLabel..Hint
+#: Unit1.dfm:1930
+msgid "Скрыть/Показать подписи"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathOk..Caption
+#: Unit1.dfm:1945
+msgid "Ok"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathOk..Hint
+#: Unit1.dfm:1946
+msgid "Перейти к окну операций с выделенной "
+"областью"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..Hint
+#: Unit1.dfm:1953
+msgid "Проложить маршрут"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBXLabelItem2..Caption
+#: Unit1.dfm:1958
+msgid "Средствами Карты@mail.ru"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBItem8..Caption
+#: Unit1.dfm:1964
+msgid "По расстоянию"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBItem9..Caption
+#: Unit1.dfm:1970
+msgid "По времени"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBItem7..Caption
+#: Unit1.dfm:1976
+msgid "По времени с учетом пробок"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBXLabelItem1..Caption
+#: Unit1.dfm:1983
+msgid "Средствами yournavigation.org (OSM)"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBXItem1..Caption
+#: Unit1.dfm:1989
+msgid "На автомобиле (по скорости)"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBXItem2..Caption
+#: Unit1.dfm:1995
+msgid "На автомобиле (по длине)"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBXItem4..Caption
+#: Unit1.dfm:2001
+msgid "На велосипеде (по скорости)"
+msgstr ""
+
+#. Fmain..TBDockLeft..TBEditPath..TBEditPathMarsh..TBXItem3..Caption
+#: Unit1.dfm:2007
+msgid "На велосипеде (по длине)"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedAvgBar..Hint
+#: Unit1.dfm:2052
+msgid "Отображает среднюю скорость движения"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedAvgBar..SBClearSensor..Hint
+#: Unit1.dfm:2070
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorPathBar..SpeedButton3..Hint
+#: Unit1.dfm:2185
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAltitudeBar..SpeedButton4..Hint
+#: Unit1.dfm:2342
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..SpeedButton5..Hint
+#: Unit1.dfm:2415
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..SpeedButton6..Hint
+#: Unit1.dfm:2448
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXsensorOdometrBar..SpeedButton2..Hint
+#: Unit1.dfm:2521
+msgid "Сбросить"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedAvgBar..TBXLabel9..Caption
+#: Unit1.dfm:2119
+msgid "Скорость сред., км/ч:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedBar..Hint
+#: Unit1.dfm:2125
+msgid "Отображает текущую скорость движения"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedBar..TBXLabel8..Caption
+#: Unit1.dfm:2159
+msgid "Скорость, км/ч:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorPathBar....Hint
+#: Unit1.dfm:2167
+msgid "Отображает пройденный путь считаемый от подключения к "
+"GPS-приемнику"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorPathBar..TBXLabel10..Caption
+#: Unit1.dfm:2234
+msgid "Пройденный путь:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorBattaryBar..Hint
+#: Unit1.dfm:2240
+msgid "Отображает состояние питания"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorBattaryBar..TBXLabel14..Caption
+#: Unit1.dfm:2278
+msgid "Батарея:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorLenToMarkBar..Hint
+#: Unit1.dfm:2284
+msgid "Отображает расстояние до выбранной метки"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorLenToMarkBar..TBXLabel13..Caption
+#: Unit1.dfm:2318
+msgid "Расстояние до метки:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAltitudeBar..Hint
+#: Unit1.dfm:2324
+msgid "Отображает высоту над уровнем моря по данным "
+"GPS-приемника"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAltitudeBar..TBXLabel2..Caption
+#: Unit1.dfm:2391
+msgid "Высота, м:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..Hint
+#: Unit1.dfm:2397
+msgid "Отображает максимальную скорость движения"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..Caption
+#: Unit1.dfm:2408
+msgid "Скорость максимальная"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..TBXLabel3..Caption
+#: Unit1.dfm:2497
+msgid "Скорость макс., км/ч:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXsensorOdometrBar..Hint
+#: Unit1.dfm:2503
+msgid "Отображает весь пройденный путь"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXsensorOdometrBar..TBXLabel11..Caption
+#: Unit1.dfm:2570
+msgid "Одометр, км:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAzimutBar..Hint
+#: Unit1.dfm:2576
+msgid "Отображает азимут направления"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAzimutBar..TBXLabel4..Caption
+#: Unit1.dfm:2614
+msgid "Азимут:"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSignalStrengthBar....Hint
+#: Unit1.dfm:2622
+msgid "Отображает силу сигнала и количество спутников участвующих в "
+"определении позиции"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSignalStrengthBar..Caption
+#: Unit1.dfm:2636
+msgid "Сила сигнала (кол. сп.)"
+msgstr ""
+
+#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSignalStrengthBar..TBXLabel5..Caption
+#: Unit1.dfm:2660
+msgid "Сила сигнала, dB (кол. сп.):"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarkEdit..Caption
+#: Unit1.dfm:2673
+#. Programmer's name for it: SAS_STR_Edit
+#: UResStrings.pas:101
+msgid "Изменить"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarkOper..Caption
+#: Unit1.dfm:2681
+msgid "Операции с областью"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarkNav..Caption
+#: Unit1.dfm:2685
+msgid "Навигация на метку"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarksCalcs..Caption
+#: Unit1.dfm:2689
+msgid "Измерения"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarksCalcs..NMarksCalcsLen..Caption
+#: Unit1.dfm:2691
+#. Programmer's name for it: SAS_STR_L
+#: UResStrings.pas:119
+msgid "Длина"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarksCalcs..NMarksCalcsPer..Caption
+#: Unit1.dfm:2695
+#. Programmer's name for it: SAS_STR_P
+#: UResStrings.pas:120
+msgid "Периметр"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMarksCalcs..NMarksCalcsSq..Caption
+#: Unit1.dfm:2699
+#. Programmer's name for it: SAS_STR_S
+#: UResStrings.pas:118
+msgid "Площадь"
+msgstr ""
+
+#. Fmain..PopupMenu1..N28..Caption
+#: Unit1.dfm:2715
+msgid "Центрировать с масштабом"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..Caption
+#: Unit1.dfm:2841
+msgid "Копировать в буфер обмена"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..Google1..Caption
+#: Unit1.dfm:2844
+msgid "Ссылку для просмотра в google maps"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..YaLink..Caption
+#: Unit1.dfm:2848
+msgid "Ссылку для просмотра в Яндекс.Карты"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..kosmosnimkiru1..Caption
+#: Unit1.dfm:2852
+msgid "Ссылку для просмотра в kosmosnimki.ru"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..livecom1..Caption
+#: Unit1.dfm:2856
+msgid "Ссылку для просмотра на maps.live.com"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..ImageAtlas1..Caption
+#: Unit1.dfm:2860
+msgid "Ссылку для просмотра в imageatlas.digitalglobe.com"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..N13..Caption
+#: Unit1.dfm:2867
+msgid "Ссылку на тайл основной карты"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..N30..Caption
+#: Unit1.dfm:2871
+#. FGoTo..RB1..Caption
+#: Unit2.dfm:321
+#. Programmer's name for it: SAS_STR_coordinates
+#: UResStrings.pas:57
+msgid "Координаты"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..N20..Caption
+#: Unit1.dfm:2875
+msgid "Тайл основной карты"
+msgstr ""
+
+#. Fmain..PopupMenu1..N43..N15..Caption
+#: Unit1.dfm:2879
+msgid "Относительный путь к изображению"
+msgstr ""
+
+#. Fmain..PopupMenu1..Nopendir..Caption
+#: Unit1.dfm:2884
+msgid "Просмотр тайла основной карты"
+msgstr ""
+
+#. Fmain..PopupMenu1..N25..Caption
+#: Unit1.dfm:2889
+msgid "Открыть папку содержащую тайл основной "
+"карты"
+msgstr ""
+
+#. Fmain..PopupMenu1..N26..Caption
+#: Unit1.dfm:2897
+msgid "Дополнительные операции"
+msgstr ""
+
+#. Fmain..PopupMenu1..N26..NGTOPO30..Caption
+#: Unit1.dfm:2899
+msgid "Высота над уровнем моря GTOPO30 (разрешение "
+"~1км)"
+msgstr ""
+
+#. Fmain..PopupMenu1..N26..NSRTM3..Caption
+#: Unit1.dfm:2903
+msgid "Высота над уровнем моря SRTM3 (разрешение "
+"~90м)"
+msgstr ""
+
+#. Fmain..PopupMenu1..N26..DigitalGlobe1....Caption
+#: Unit1.dfm:2912
+msgid "Загрузить информацию о доступных картах этого места на "
+"DigitalGlobe"
+msgstr ""
+
+#. Fmain..PopupMenu1..N26..N11..Caption
+#: Unit1.dfm:2919
+msgid "Сделать рисунком рабочего стола"
+msgstr ""
+
+#. Fmain..PopupMenu1..N21..Caption
+#: Unit1.dfm:2928
+msgid "Загрузить тайл основной карты (Ins+MLeft)"
+msgstr ""
+
+#. Fmain..PopupMenu1..NDel..Caption
+#: Unit1.dfm:2933
+msgid "Удалить тайл основной карты (Del+MLeft)"
+msgstr ""
+
+#. Fmain..PopupMenu1..ldm..Caption
+#: Unit1.dfm:2938
+msgid "Загрузить тайл слоя"
+msgstr ""
+
+#. Fmain..PopupMenu1..dlm..Caption
+#: Unit1.dfm:2943
+msgid "Удалить тайл слоя"
+msgstr ""
+
+#. Fmain..PopupMenu1..NMapInfo..Caption
+#: Unit1.dfm:2951
+msgid "Информация о карте"
+msgstr ""
+
+#. Fmain..OpenDialog1..Filter
+#: Unit1.dfm:5186
+#. Fsaveas..SaveSelDialog..Filter
+#: USaveas.dfm:207
+msgid "Файл выделения|*.hlg"
+msgstr ""
+
+#. Fmain..SaveDialog1..DefaultExt
+#: Unit1.dfm:5196
+msgid "jpg"
+msgstr ""
+
+#. Fmain..SaveDialog1....Filter
+#: Unit1.dfm:5200
+msgid "Windows Bitmap (*.bmp)|*.bmp|Enhanced compressed wavelet "
+"(*.ECW)|*.ECW|JPEG2000 (*.jp2)|*.jp2|Jpeg (*.jpg)|*.jpg|KMZ for "
+"Garmin (*.kmz)|*.kmz"
+msgstr ""
+
+#. Fmain..SaveLink..DefaultExt
+#: Unit1.dfm:5218
+msgid "lnk"
+msgstr ""
+
+#. Fmain..SaveLink..Filter
+#: Unit1.dfm:5219
+msgid "Ярлык|*.lnk"
+msgstr ""
+
+#. Fmain..PMNRObject..NGoHim..Caption
+#: Unit1.dfm:6521
+msgid "Отслеживать"
+msgstr ""
+
+#. Fmain..OpenSessionDialog....Filter
+#: Unit1.dfm:7566
+msgid "Все поддерживаемые типы (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.plt;*."
+"kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer Track "
+"Point File Version 2.1 (*.plt)|*.plt|Google KMZ files "
+"(*.kmz)|*.kmz|Сессия загрузки (*.sls)|*.sls|Файл выделения "
+"(*.hlg)|*.hlg"
+msgstr ""
+
+#. FGoTo..Hint
+#: Unit2.dfm:4
+msgid "Close"
+msgstr ""
+
+#. FGoTo..Label9..Caption
+#: Unit2.dfm:28
+msgid "Масштаб: x"
+msgstr ""
+
+#. FGoTo..RB3..Caption
+#: Unit2.dfm:64
+msgid "Сохраненные метки"
+msgstr ""
+
+#. FGoTo..BGo..Hint
+#: Unit2.dfm:78
+msgid "Перейти в заданную точку"
+msgstr ""
+
+#. FGoTo..BGo..Caption
+#: Unit2.dfm:79
+msgid "Перейти"
+msgstr ""
+
+#. Fprogress2..Caption
+#: Unit4.dfm:5
+#. FProgress..Caption
+#: UProgress.dfm:5
+msgid "Пожалуйста подождите..."
+msgstr ""
+
+#. FProgress..Panel1..Button1..Caption
+#: UProgress.dfm:170
+#. Programmer's name for it: SAS_STR_Stop
+#: UResStrings.pas:103
+msgid "Стоп"
+msgstr ""
+
+#. FProgress..Panel1..Button3..Caption
+#: UProgress.dfm:188
+msgid "Свернуть"
+msgstr ""
+
+#. FProgress..Panel1..ButtonSave..Hint
+#: UProgress.dfm:197
+msgid "Сохранить текущую сессию"
+msgstr ""
+
+#. FProgress..Panel1..ButtonSave..Caption
+#: UProgress.dfm:198
+msgid "Сохранить"
+msgstr ""
+
+#. FProgress..SaveSessionDialog..Filter
+#: UProgress.dfm:205
+msgid "Сессия загрузки (*.sls)|*.sls"
+msgstr ""
+
+#. Fsaveas..Caption
+#: USaveas.dfm:5
+msgid "Операция с выделенной областью"
+msgstr ""
+
+#. Fsaveas..PageControl1..TabSheet1..Caption
+#: USaveas.dfm:32
+msgid "Загрузить"
+msgstr ""
+
+#. Fsaveas..PageControl1..TabSheet2..Caption
+#: USaveas.dfm:38
+msgid "Склеить"
+msgstr ""
+
+#. Fsaveas..PageControl1..TabSheet3..Caption
+#: USaveas.dfm:45
+msgid "Сформировать"
+msgstr ""
+
+#. Fsaveas..PageControl1..TabSheet5..Caption
+#: USaveas.dfm:59
+msgid "Экспорт"
+msgstr ""
+
+#. Fsaveas..PageControl1..TabSheet6..Caption
+#: USaveas.dfm:103
+msgid "Скопировать"
+msgstr ""
+
+#. Fsaveas..pnlBottomButtons..SpeedButton1..Hint
+#: USaveas.dfm:126
+msgid "Сохранить выделение в отдельный файл"
+msgstr ""
+
+#. Fsaveas..pnlBottomButtons..Button3..Caption
+#: USaveas.dfm:182
+msgid "Отмена"
+msgstr ""
+
+#. Fsaveas..pnlBottomButtons..CBCloseWithStart..Caption
+#: USaveas.dfm:195
+msgid "Закрыть окно после старта"
+msgstr ""
+
+#. FSelLonLat..Caption
+#: USelLonLat.dfm:5
+msgid "Выделение по координатам"
+msgstr ""
+
+#. FSelLonLat..GroupBox1..Caption
+#: USelLonLat.dfm:43
+msgid " Левый верхний угол "
+msgstr ""
+
+#. FSelLonLat..GroupBox2..Caption
+#: USelLonLat.dfm:227
+msgid " Правый нижний угол "
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..Caption
+#: Usettings.dfm:35
+#. Programmer's name for it: SAS_STR_Maps
+#: UResStrings.pas:122
+msgid "Карты"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..MapList......Caption
+#: Usettings.dfm:49
+msgid "Название карты"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..MapList......Caption
+#: Usettings.dfm:53
+msgid "Папка в кэше"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..MapList......Caption
+#: Usettings.dfm:57
+msgid "Путь в меню"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..MapList......Caption
+#: Usettings.dfm:61
+#. FSettings..PageControl1..TabSheet3..GroupBox5..pnlHotKeysHeader..Label55..Caption
+#: Usettings.dfm:892
+msgid "Гор. кл."
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..MapList......Caption
+#: Usettings.dfm:65
+msgid "Путь к файлу"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..pnlMapsRightButtons..Button11..Caption
+#: Usettings.dfm:108
+msgid "Вниз"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..pnlMapsRightButtons..Button12..Caption
+#: Usettings.dfm:119
+msgid "Вверх"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet9..pnlMapsRightButtons..Button18..Caption
+#: Usettings.dfm:130
+msgid "Информация"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet2..flwpnlMemCache..Label30..Caption
+#: Usettings.dfm:160
+msgid "Количество тайлов кэшируемое в оперативную "
+"память"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..Label15..Caption
+#: Usettings.dfm:344
+msgid "Путь к \"родному\" кэшу:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..Label2..Caption
+#: Usettings.dfm:390
+msgid "Путь к кэшу GoogleMV:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..Label1..Caption
+#: Usettings.dfm:436
+msgid "Путь к кэшу EarthSliser:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..Label19..Caption
+#: Usettings.dfm:482
+msgid "Путь к кэшу GM Tiles:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet2..grdpnlCache..Label31..Caption
+#: Usettings.dfm:528
+msgid "Путь к кэшу Google Earth:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..GroupBox4..Caption
+#: Usettings.dfm:614
+msgid "Настройки подключения"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..GroupBox4..pnlProxyUrl..lblUseProxy..Caption
+#: Usettings.dfm:634
+msgid "Использовать прокси (ip:port)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..GroupBox4..flwpnlProxyAuth..lblProxyLogin..Caption
+#: Usettings.dfm:684
+msgid "Использовать логин:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..GroupBox4..flwpnlProxyAuth..Label25..Caption
+#: Usettings.dfm:699
+msgid "и пароль:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..GroupBox4..pnlUseIEProxy..chkUseIEProxy..Caption
+#: Usettings.dfm:728
+msgid "Брать настройки подключения из реестра"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..pnlDownloadParams..CBDblDwnl..Caption
+#: Usettings.dfm:752
+msgid "Повторно пытаться загрузить тайл при его "
+"отстутсвии"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..pnlDownloadParams..CkBGoNextTile..Caption
+#: Usettings.dfm:763
+msgid "Переход к следующему тайлу если сервер не "
+"отвечает"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..pnlDownloadParams..CBSaveTileNotExists..Caption
+#: Usettings.dfm:774
+msgid "Сохранять информацию об отсутствии тайла на "
+"сервере"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..pnlDownloadParams..flwpnlDownloadTimeOut..Label32..Caption
+#: Usettings.dfm:794
+msgid "Таймаут на сетевые операции, мс"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet1..pnlDownloadParams..CBLastSuccess....Caption
+#: Usettings.dfm:816
+msgid "Начать сохраненную сессию загрузки с последнего удачно загруженного "
+"тайла"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet3..Caption
+#: Usettings.dfm:823
+msgid "Управление"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet3..GroupBox1..Caption
+#: Usettings.dfm:835
+msgid " Колесико мыши "
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet3..GroupBox1..ScrolInvert..Caption
+#: Usettings.dfm:845
+msgid "вращение на себя - приближение"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet3..GroupBox5..Caption
+#: Usettings.dfm:856
+msgid " Горячие кл. "
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet3..GroupBox5..pnlHotKeysHeader..Label40..Caption
+#: Usettings.dfm:876
+msgid "Операция"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..Caption
+#: Usettings.dfm:922
+msgid "Внешний вид"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..Caption
+#: Usettings.dfm:934
+msgid "grdpnlUI"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlNumbersFormat..Label3..Caption
+#: Usettings.dfm:988
+msgid "Формат чисел отображения масштаба"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlNumbersFormat..ComboBox1..Text
+#: Usettings.dfm:1003
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlNumbersFormat..ComboBox1....Items.Strings
+#: Usettings.dfm:1005
+msgid "12 км. 423 м."
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlNumbersFormat..ComboBox1....Items.Strings
+#: Usettings.dfm:1006
+msgid "23,4 км."
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..Label84..Caption
+#: Usettings.dfm:1034
+msgid "Формат представления координат"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType..Text
+#: Usettings.dfm:1049
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType....Items.Strings
+#: Usettings.dfm:1051
+msgid "WS г.м.с. (W12°23\"43.35')"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType....Items.Strings
+#: Usettings.dfm:1052
+msgid "WS г.м. (W12°23.454)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType....Items.Strings
+#: Usettings.dfm:1053
+msgid "WS г. (W12.1233°)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType....Items.Strings
+#: Usettings.dfm:1054
+msgid "-- г.м.с. (-12°23\"43.35')"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType....Items.Strings
+#: Usettings.dfm:1055
+msgid "-- г.м. (-12°23.454)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..pnlCoordFormat..CB_llstrType....Items.Strings
+#: Usettings.dfm:1056
+msgid "-- г. (-12.1233°)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlLonLatFormat..ChBoxFirstLat..Caption
+#: Usettings.dfm:1067
+msgid "Отображать в порядке: широта-долгота"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..flwpnlMiniMap..Label14..Caption
+#: Usettings.dfm:1087
+msgid "Разность масштабов карты обзора и основной"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlImageProcess..CBinvertcolor..Caption
+#: Usettings.dfm:1164
+msgid "Инверсия цветов"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlResize..Label16..Caption
+#: Usettings.dfm:1185
+msgid "Алгоритм растягивания изображения"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlTileBorders..Label23..Caption
+#: Usettings.dfm:1233
+msgid "Отображение границ:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlTileBorders..flwpnlTileBorders..Label28..Caption
+#: Usettings.dfm:1268
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlFillMap..flwpnlFillMap..Label29..Caption
+#: Usettings.dfm:1466
+msgid "Прозрачность"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlTileBorders..flwpnlTileBorders..CBBorderText..Caption
+#: Usettings.dfm:1286
+msgid "Подпись"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..flwpnlMiniMapAlfa..Label17..Caption
+#: Usettings.dfm:1318
+msgid "Прозрачность карты обзора"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..flwpnlTileBorder..Label69..Caption
+#: Usettings.dfm:1346
+msgid "Кол-во тайлов отображаемых за границей "
+"экрана"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlShowMapName..CBShowmapname..Caption
+#: Usettings.dfm:1374
+msgid "Отображать название карты на панели "
+"инструментов"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlFillMap..Label24..Caption
+#: Usettings.dfm:1430
+msgid "Карта заполнения:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlLockToolbars..CBlock_toolbars..Caption
+#: Usettings.dfm:1495
+msgid "Закрепить панели инструментов"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlShowPointDescr..CBShowHintOnMarks..Caption
+#: Usettings.dfm:1515
+msgid "Отображать описание метки при наведении "
+"курсора"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUIRight..pnlBgColor..Label35..Caption
+#: Usettings.dfm:1535
+msgid "Цвет фона"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsPort..Label4..Caption
+#: Usettings.dfm:1590
+#. FSettings..PageControl1..TabSheet6..pnlGSM..flwpnlGSM..Label33..Caption
+#: Usettings.dfm:2223
+msgid "COM-порт"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsParams..Label6..Caption
+#: Usettings.dfm:1657
+msgid "Время ожидания ответа от приемника (сек.)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsParams..Label11..Caption
+#: Usettings.dfm:1674
+msgid "Период обновления (сек./1000)"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsParams..Label10..Caption
+#: Usettings.dfm:1691
+msgid "Размер указателя направления:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsParams..Label20..Caption
+#: Usettings.dfm:1708
+msgid "Ширина трека:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsParams..Label12..Caption
+#: Usettings.dfm:1725
+msgid "Цвет трека:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsParams..Label5..Caption
+#: Usettings.dfm:1741
+msgid "Максимальное количество отображаемых точек "
+"трека:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..pnlGpsTrackSave..CB_GPSlog..Caption
+#: Usettings.dfm:1769
+msgid "Автоматически сохранять треки в .plt"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..pnlGpsTrackSave..CB_GPSlogNmea..Caption
+#: Usettings.dfm:1782
+msgid "Автоматически сохранять треки в .nmea"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..pnlGpsSensors..CBSensorsBarAutoShow..Caption
+#: Usettings.dfm:1804
+msgid "Автоматически показывать/скрывать панель "
+"датчиков"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..Caption
+#: Usettings.dfm:1818
+msgid "pnlGpsRight"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Caption
+#: Usettings.dfm:1830
+msgid " Поправка "
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Label21..Caption
+#: Usettings.dfm:1840
+msgid "По широте:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Label22..Caption
+#: Usettings.dfm:1855
+msgid "По долготе:"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox3..Caption
+#: Usettings.dfm:2028
+msgid " Cпутники "
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet8..Caption
+#: Usettings.dfm:2051
+msgid "Wikimapia"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet8..grdpnlWiki..Label76..Caption
+#: Usettings.dfm:2119
+msgid "Основной цвет"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet8..grdpnlWiki..Label77..Caption
+#: Usettings.dfm:2142
+msgid "Цвет окаймления"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet8..grdpnlWiki..Label78..Caption
+#: Usettings.dfm:2164
+msgid "*При выборе черного цвета вы получите прозрачную "
+"линию"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet6..Caption
+#: Usettings.dfm:2171
+msgid "GSM"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet6..pnlGSM..chkPosFromGSM....Caption
+#: Usettings.dfm:2198
+msgid "Автоматически определять параметры базовых станций через подключенный "
+"телефон"
+msgstr ""
+
+#. FSettings..PageControl1..TabSheet6..pnlGSM..flwpnlGSM..Label36..Caption
+#: Usettings.dfm:2274
+msgid "Ожидание ответа"
+msgstr ""
+
+#. FSettings..pnlBottomButtons..Button2..Caption
+#: Usettings.dfm:2321
+msgid "ОК"
+msgstr ""
+
+#. FShortcutChange..Caption
+#: UShortcutEditor.dfm:5
+msgid "Изменить гор. кл."
+msgstr ""
+
+#. FShortcutChange..GroupBox1..Caption
+#: UShortcutEditor.dfm:33
+msgid " Назанчить сочетание "
+msgstr ""
+
+#. GTfraLanguage..lblLanguage..Caption
+#: src/GTLanguageFrame.dfm:16
+msgid "Language"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_need_reload_application
+#: UResStrings.pas:6
+msgid "Necessary to reload application,\n"
+"that change have took effect."
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_need_reload_application_curln
+#: UResStrings.pas:7
+msgid "Для того чтобы изменения вступили в силу\n"
+"необходимо перезапустить программу."
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_needselect
+#: UResStrings.pas:8
+msgid "Необходимо сначало выделить объект"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_coution
+#: UResStrings.pas:9
+msgid "Внимание!"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_youasure
+#: UResStrings.pas:10
+msgid "Подтвердите факт удаления"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_youasurerefrsensor
+#: UResStrings.pas:11
+msgid "Вы действительно хотите обнулить датчик"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_SelectArea
+#: UResStrings.pas:12
+msgid "Часть выделенной области находится вне карты.\n"
+"Область будет ограничена по размерам "
+"карты."
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_FileExists
+#: UResStrings.pas:13
+msgid "уже есть у вас в кеше.\n"
+"Заменить этот файл вновь скачанным?"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_NeedHL
+#: UResStrings.pas:14
+msgid "Сначала необходимо выделить хотябы один раз "
+"область!"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_FunExForPoly
+#: UResStrings.pas:15
+msgid "В данной версии функция доступна только для "
+"полигонов"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_FileBeCreateTime
+#: UResStrings.pas:16
+msgid "Данный файл создан позже указаного срока, пропускаем "
+"загрузку."
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_FileBeCreateLen
+#: UResStrings.pas:17
+msgid "Данный файл равен по размеру существующему, пропускаем "
+"загрузку."
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_ProcessFilesComplete
+#: UResStrings.pas:18
+msgid "Обработка файлов завершена!"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_LoadComplete
+#: UResStrings.pas:19
+msgid "Загрузка завершена"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_NoGPSdetected
+#: UResStrings.pas:20
+msgid "Не найден GPS приемник"
+msgstr ""
+
+#. Programmer's name for it: SAS_MSG_GarminMax1Mp
+#: UResStrings.pas:21
+msgid "Количество полученных jpeg-файлов превысит 100 штук, если ваш\n"
+"навигатор не отображает карту разбейте сохраняемое изображение на "
+"части в \n"
+"диалоге \"Операции с выделенной областью\\склеить\"\n"
+"и используйте полученные kmz по отдельности"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Nopoints
+#: UResStrings.pas:23
+msgid "Необходимый набор точек отсутствует!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_ProxyStrFormat
+#: UResStrings.pas:24
+msgid "Неверный формат записи прокси-сервера"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Write
+#: UResStrings.pas:25
+msgid "Ошибка записи на диск. Операция будет "
+"прервана!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Save
+#: UResStrings.pas:26
+msgid "Ошибка при сохранении!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_code
+#: UResStrings.pas:27
+msgid "Код ошибки:"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Read
+#: UResStrings.pas:28
+msgid "Ошибка чтения файла!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_SelectArea
+#: UResStrings.pas:29
+msgid "Выделенная область находится целиком вне "
+"карты!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_NoMaps
+#: UResStrings.pas:30
+msgid "Без карт программа не будет работать!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_BadFile
+#: UResStrings.pas:31
+msgid "Файл испорчен!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_FileNotFound
+#: UResStrings.pas:32
+msgid "Файл не найден"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_PortOpen
+#: UResStrings.pas:33
+msgid "Ошибка открытия порта!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Communication
+#: UResStrings.pas:34
+msgid "Ошибка коммуникации"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_UnablePposition
+#: UResStrings.pas:35
+msgid "Невозможно определить позицию"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_ParamsInput
+#: UResStrings.pas:36
+msgid "Ошибка ввода параметров!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_LonLat1
+#: UResStrings.pas:37
+msgid "Долгота в левом верхнем углу должна быть меньше \n"
+"долготы в правом нижнем!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_LonLat2
+#: UResStrings.pas:38
+msgid "Широта в левом верхнем углу должна быть меньше \n"
+"широты в правом нижнем!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_CreateArh
+#: UResStrings.pas:39
+msgid "Ошибка создания архива!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_NotLoads
+#: UResStrings.pas:40
+msgid "Карта не позволяет загружать"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Authorization
+#: UResStrings.pas:41
+msgid "Ошибка авторизации на прокси!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Ban
+#: UResStrings.pas:42
+msgid "Высока вероятность того, что вас забанили!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_TileNotExists
+#: UResStrings.pas:43
+msgid "Такого изображения нет на сервере!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Noconnectionstointernet
+#: UResStrings.pas:44
+msgid "Отсутствует подключение к интернет!"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_RepeatProcess
+#: UResStrings.pas:45
+msgid "Пытаемся повторить обработку"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_FileExistsShort
+#: UResStrings.pas:46
+msgid "Данный файл уже имеется в кеше"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_Memory
+#: UResStrings.pas:47
+msgid "Невозможно выделить память для данной "
+"операции"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_UseADifferentFormat
+#: UResStrings.pas:48
+msgid "Для склейки больших размеров используйте другой формат "
+"(ecw,bmp,jp2)"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_BadMIMEForDownloadRastr
+#: UResStrings.pas:49
+msgid "Сервис вернул тип \"%0:s\", это не растровое "
+"изображение"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_BadMIME
+#: UResStrings.pas:50
+msgid "Сервис вернул тип \"%0:s\", а не один из "
+"ожидаемых"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_MapGUIDEmpty
+#: UResStrings.pas:51
+msgid "Пустой GUID"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_MapGUIDBad
+#: UResStrings.pas:52
+msgid "GUID %0:s не соответствует формату"
+msgstr ""
+
+#. Programmer's name for it: SAS_ERR_MapGUIDError
+#: UResStrings.pas:53
+msgid "В карте %0:s ошибка: %1:s"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_MarshLen
+#: UResStrings.pas:55
+msgid "Длина маршрута: "
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Marshtime
+#: UResStrings.pas:56
+msgid "Время в пути: "
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_time
+#: UResStrings.pas:58
+msgid "Время"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_load
+#: UResStrings.pas:59
+msgid "Скачано"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Scale
+#: UResStrings.pas:60
+msgid "Масштаб"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_LenPath
+#: UResStrings.pas:62
+msgid "Длина пути"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_filesnum
+#: UResStrings.pas:64
+msgid "Количество файлов не более"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_for
+#: UResStrings.pas:66
+msgid "Для"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_savetreck
+#: UResStrings.pas:67
+msgid "Сохранение трека..."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_loadhl
+#: UResStrings.pas:68
+msgid "Загрузка выделения..."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_notfound
+#: UResStrings.pas:69
+msgid "Искомая комбинация на карте не встречается."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_foundplace
+#: UResStrings.pas:70
+msgid "Место найденное по запросу"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Process
+#: UResStrings.pas:71
+msgid "Идет обработка..."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_WiteLoad
+#: UResStrings.pas:72
+msgid "Подождите, идет загрузка..."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Processed
+#: UResStrings.pas:73
+msgid "Обработано"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Saves
+#: UResStrings.pas:74
+msgid "Сохранено"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_AllProcessed
+#: UResStrings.pas:75
+msgid "Всего обработано:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_AllLoad
+#: UResStrings.pas:76
+msgid "Всего загружено:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_TimeRemained
+#: UResStrings.pas:77
+msgid "Осталось времени:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_LoadRemained
+#: UResStrings.pas:78
+msgid "Примерно еще загрузить:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_ProcessedNoMore
+#: UResStrings.pas:79
+msgid "Обработать не более"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_AllDelete
+#: UResStrings.pas:80
+msgid "Всего удалено:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_AllSaves
+#: UResStrings.pas:81
+msgid "Всего сохранить:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_files
+#: UResStrings.pas:82
+msgid "файлов"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_file
+#: UResStrings.pas:83
+msgid "файл"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Deleted
+#: UResStrings.pas:85
+msgid "Удаляет:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Gamma
+#: UResStrings.pas:86
+msgid "Цветовая гамма"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Contrast
+#: UResStrings.pas:87
+msgid "Контраст"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_NewPath
+#: UResStrings.pas:88
+msgid "Новый путь"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_NewMark
+#: UResStrings.pas:89
+msgid "Новая метка"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_NewPoly
+#: UResStrings.pas:90
+msgid "Новый полигон"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_AddNewPoly
+#: UResStrings.pas:94
+msgid "Добавить новый полигон"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_AddNewCategory
+#: UResStrings.pas:95
+msgid "Добавить новую категорию"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_EditPath
+#: UResStrings.pas:96
+msgid "Изменить путь"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_EditMark
+#: UResStrings.pas:97
+msgid "Изменить метку"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_EditPoly
+#: UResStrings.pas:98
+msgid "Изменить полигон"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_EditCategory
+#: UResStrings.pas:99
+msgid "Изменить категорию"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_EditMap
+#: UResStrings.pas:102
+msgid "Редактировать описание карты:"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Stop1
+#: UResStrings.pas:104
+msgid "Приостановлено"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Continue
+#: UResStrings.pas:105
+msgid "Продолжить"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_ExportTiles
+#: UResStrings.pas:106
+msgid "Экспорт тайлов"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_CreateArhList
+#: UResStrings.pas:107
+msgid "(Создание списка для архивации...)"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Pack
+#: UResStrings.pas:108
+msgid "Упаковка в файл"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_CreateFile
+#: UResStrings.pas:109
+msgid "Подождите, идет создание файла..."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_DivideInto
+#: UResStrings.pas:110
+msgid "Разбить на"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_SaveFileNum
+#: UResStrings.pas:112
+msgid "Сохранение файла №"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_UserStop
+#: UResStrings.pas:113
+msgid "Приостановлено пользователем..."
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_LoadProcess
+#: UResStrings.pas:114
+msgid "Загрузка"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_LoadProcessRepl
+#: UResStrings.pas:115
+msgid "Загрузка с заменой"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_ProcessedFile
+#: UResStrings.pas:116
+msgid "Обработка файла"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Wite
+#: UResStrings.pas:117
+msgid "Ждем"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_Whole
+#: UResStrings.pas:121
+msgid "Всего"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_InputLacitp
+#: UResStrings.pas:124
+msgid "Введите через запятую mnc, mcc, LAC, CellID (Например: "
+"02,250,17023,13023)"
+msgstr ""
+
+#. Programmer's name for it: SAS_STR_InputLacitpCaption
+#: UResStrings.pas:125
+msgid "Ввод параметров"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_kb
+#: UResStrings.pas:126
+msgid "Кб"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_mb
+#: UResStrings.pas:127
+msgid "Мб"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_gb
+#: UResStrings.pas:128
+msgid "Гб"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_kmperh
+#: UResStrings.pas:129
+msgid "км/час"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_mperp
+#: UResStrings.pas:130
+msgid "/пикс."
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_km
+#: UResStrings.pas:131
+msgid "км"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_sm
+#: UResStrings.pas:132
+msgid "см"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_m
+#: UResStrings.pas:133
+msgid "м"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_Secund
+#: UResStrings.pas:136
+msgid "секунд"
+msgstr ""
+
+#. Programmer's name for it: SAS_UNITS_Min
+#: UResStrings.pas:137
+msgid "мин."
+msgstr ""
+
+#. Programmer's name for it: SInterfaceIsNilError
+#: src/u_GUIDInterfaceList.pas:66
+#. Programmer's name for it: SObjectIsNilError
+#: src/u_GUIDObjectList.pas:49
+msgid "Interface is nil"
+msgstr ""
+
+#. Programmer's name for it: SListIndexError
+#: src/u_GUIDList.pas:70
+msgid "List index out of bounds (%d)"
+msgstr ""
+
+#. Programmer's name for it: SListCapacityError
+#: src/u_GUIDList.pas:71
+msgid "List capacity out of bounds (%d)"
+msgstr ""
+
+#. Programmer's name for it: SListCountError
+#: src/u_GUIDList.pas:72
+msgid "List count out of bounds (%d)"
+msgstr ""
+
