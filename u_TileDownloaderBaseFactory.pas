@@ -24,7 +24,6 @@ type
     FContent_Type: string;
     FDefaultContent_Type: string;
     FSlepOnResetConnection: Cardinal;
-    FWaitInterval: Cardinal;
     function CreateInstance: IInterface;
     function CreateSession: ITileDownlodSession; override;
   public
