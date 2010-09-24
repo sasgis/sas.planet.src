@@ -102,6 +102,7 @@
     <DCCReference Include="i_IGPSRecorder.pas" />
     <DCCReference Include="i_IHybrChangeMessage.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
+    <DCCReference Include="i_ILanguageManager.pas" />
     <DCCReference Include="i_IListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_ILogForTaskThread.pas" />
     <DCCReference Include="i_ILogSimple.pas" />
@@ -254,6 +255,8 @@
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
+    <DCCReference Include="u_LanguageManager.pas" />
+    <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LayerScaleLine.pas" />
     <DCCReference Include="u_LayerStatBar.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
