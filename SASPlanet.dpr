@@ -268,11 +268,6 @@ begin
       Application.ProcessMessages;
     end;
     try
-      if GState.Localization = LANG_ENGLISH then begin
-        UseLanguage('en');
-      end else begin
-        UseLanguage('ru');
-      end;
       GState.LoadMaps;
       GState.LoadMapIconsList;
     except

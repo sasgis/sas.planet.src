@@ -242,6 +242,7 @@ type
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
     procedure chkPosFromGSMClick(Sender: TObject);
+    procedure CBoxLocalChange(Sender: TObject);
   private
     FMapsEdit: boolean;
   public
@@ -590,6 +591,11 @@ begin
   EditPass.Enabled := VUseAuth;
 end;
 
+procedure TFSettings.CBoxLocalChange(Sender: TObject);
+begin
+//  GState.LanguageManager
+end;
+
 procedure TFSettings.CBProxyusedClick(Sender: TObject);
 var
   VUseProxy: Boolean;
@@ -628,10 +634,13 @@ procedure TFSettings.FormShow(Sender: TObject);
 var DMS:TDMS;
 begin
  FMapsEdit:=false;
- case GState.Localization  of
-  LANG_RUSSIAN:CBoxLocal.ItemIndex:=0;
-  LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
- end;
+ CBoxLocal.Clear;
+ 
+
+// case GState.Localization  of
+//  LANG_RUSSIAN:CBoxLocal.ItemIndex:=0;
+//  LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
+// end;
 
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;

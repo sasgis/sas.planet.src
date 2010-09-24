@@ -11,6 +11,7 @@ uses
   GR32,
   t_GeoTypes,
   t_CommonTypes,
+  i_ILanguageManager,
   i_IMemObjCache,
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
@@ -50,6 +51,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
+    FLanguageManager: ILanguageManager;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -258,6 +260,7 @@ type
 
     property GCThread: TGarbageCollectorThread read FGCThread;
     property ViewState: TMapViewPortState read FViewState;
+    property LanguageManager: ILanguageManager read FLanguageManager;
     constructor Create;
     destructor Destroy; override;
     procedure LoadMaps;
@@ -301,6 +304,7 @@ uses
   u_MapMarksBitmapLayerProviderStuped,
   u_GPSRecorderStuped,
   u_MapTypeIconsList,
+  u_LanguageManager,
   UResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -318,6 +322,7 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
+  FLanguageManager := TLanguageManager.Create(MainIni);
 
   VConfigLoadSave := TMapsConfigInIniFileSection.Create(MainIni, 'MainViewMaps');
   FMapConfigSaver := VConfigLoadSave;
@@ -347,6 +352,11 @@ begin
   FreeAndNil(FDwnCS);
   FMapConfigSaver := nil;
   FMapConfigLoader := nil;
+  FLanguageManager := nil;
+  try
+    MainIni.UpdateFile;
+  except
+  end;
   FreeAndNil(MainIni);
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);
