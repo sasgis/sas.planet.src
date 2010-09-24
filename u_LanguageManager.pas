@@ -22,6 +22,7 @@ type
     procedure Add(AName, ACode : string);
     function GetIndexByCode(ACode: string): Integer;
     procedure LoadLangs;
+    procedure SetTranslateIgnore;
   protected
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguage(ACode: string);
@@ -40,6 +41,10 @@ implementation
 uses
   SysUtils,
   Forms,
+  EmbeddedWB,
+  Controls,
+  ActnList,
+  Graphics,
   gnugettext,
   u_JclNotify,
   u_CommonFormAndFrameParents;
@@ -60,6 +65,8 @@ begin
   FNames := TStringList.Create;
   FDefaultLangCode := 'ru';
   FLanguagesEx := TLanguagesEx.Create;
+
+  SetTranslateIgnore;
 
   LoadLangs;
   if FIniFile <> nil then begin
@@ -180,6 +187,15 @@ begin
     end;
   end;
   FNotifier.Notify(nil);
+end;
+
+procedure TLanguageManager.SetTranslateIgnore;
+begin
+  TP_GlobalIgnoreClass(TFont);
+  TP_GlobalIgnoreClassProperty(TAction,'Category');
+  TP_GlobalIgnoreClassProperty(TControl,'HelpKeyword');
+  TP_GlobalIgnoreClassProperty(TWinControl,'ImeName');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'StatusText');
 end;
 
 end.

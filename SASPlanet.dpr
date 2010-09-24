@@ -6,11 +6,6 @@ uses
   iniFiles,
   sysutils,
   windows,
-  EmbeddedWB,
-  Controls,
-  Classes,
-  ActnList,
-  Graphics,
   ijl in 'src\ijl.pas',
   KAZip in 'src\KAZip.pas',
   ECWReader in 'src\ECWReader.pas',
@@ -249,12 +244,6 @@ uses
 
 {$R *.res} {$R *Pics.res}
 begin
-
-  TP_GlobalIgnoreClass(TFont);
-  TP_GlobalIgnoreClassProperty(TAction,'Category');
-  TP_GlobalIgnoreClassProperty(TControl,'HelpKeyword');
-  TP_GlobalIgnoreClassProperty(TWinControl,'ImeName');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'StatusText');
 
   GState := TGlobalState.Create;
   try
