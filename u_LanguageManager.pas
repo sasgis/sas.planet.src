@@ -20,6 +20,7 @@ type
     FNames : TStringList;
     FCodes : TStringList;
     procedure Add(AName, ACode : string);
+    function GetIndexByCode(ACode: string): Integer;
     procedure LoadLangs;
   protected
     function GetCurrentLanguageCode: string;
@@ -79,8 +80,31 @@ begin
 end;
 
 function TLanguageManager.GetCurrentLanguageCode: string;
+var
+  VIndex: Integer;
 begin
-  Result := GetCurrentLanguage;  
+  Result := GetCurrentLanguage;
+  VIndex := GetIndexByCode(Result);
+  if VIndex >= 0 then begin
+    Result := FCodes[VIndex];
+  end else begin
+    VIndex := GetIndexByCode(FDefaultLangCode);
+    Result := FCodes[VIndex];
+  end;
+end;
+
+function TLanguageManager.GetIndexByCode(ACode: string): Integer;
+begin
+  // try to find code in the list
+  Result := FCodes.IndexOf(ACode);
+  if Result > -1 then begin
+  end else begin
+    // else, if length is longer than 2 (hence, includes country info)
+    if length(ACode) > 2 then begin
+      // then try to find the language code alone
+      Result := FCodes.IndexOf(Copy(ACode, 1, 2));
+    end;
+  end;
 end;
 
 procedure TLanguageManager.GetInstalledLanguageCodes(list: TStrings);
@@ -99,21 +123,9 @@ var codeIndex : integer;
 begin
   // by default, result is empty
   Result := '';
-  // try to find code in the list
-  codeIndex := FCodes.IndexOf(ACode);
+  codeIndex := GetIndexByCode(ACode);
   if codeIndex > -1 then begin
-    // if directly found return the associated name
     Result := FNames[codeIndex];
-  end else begin
-    // else, if length is longer than 2 (hence, includes country info)
-    if length(ACode) > 2 then begin
-      // then try to find the language code alone
-      codeIndex := FCodes.IndexOf(Copy(ACode, 1, 2));
-      if codeIndex > -1 then begin
-        // if found, return it
-        Result := FNames[codeIndex];
-      end;
-    end;
   end;
 end;
 
@@ -135,13 +147,13 @@ begin
     for i := 0 to VinstalledLanguages.Count - 1 do begin
       VDefaultFound := VDefaultFound or (VinstalledLanguages[i] = FDefaultLangCode);
       id := FLanguagesEx.GNUGetTextID[VinstalledLanguages[i]];
-      add(dgettext('languages', FLanguagesEx.EngNameFromLocaleID[id]), VinstalledLanguages[i]);
+      add(FLanguagesEx.EngNameFromLocaleID[id], VinstalledLanguages[i]);
     end;
 
     // and always add default, if not already there, this is the default
     if not VDefaultFound then begin
       id := FLanguagesEx.GNUGetTextID[FDefaultLangCode];
-      add(dgettext('languages', FLanguagesEx.EngNameFromLocaleID[id]), FDefaultLangCode);
+      add(FLanguagesEx.EngNameFromLocaleID[id], FDefaultLangCode);
     end;
   finally
     VinstalledLanguages.Free;
@@ -151,8 +163,14 @@ end;
 procedure TLanguageManager.SetCurrentLanguage(ACode: string);
 var
   i: Integer;
+  VIndex: Integer;
 begin
-  UseLanguage(ACode);
+  VIndex := GetIndexByCode(ACode);
+  if VIndex >= 0 then begin
+    UseLanguage(FCodes[VIndex]);
+  end else begin
+    UseLanguage(FDefaultLangCode);
+  end;
   // force reloading forms with new selection
   for i := 0 to application.ComponentCount - 1 do begin
     if application.Components[i] is TCommonFormParent then begin
