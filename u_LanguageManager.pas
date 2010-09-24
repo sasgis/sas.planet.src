@@ -37,8 +37,11 @@ type
 implementation
 
 uses
+  SysUtils,
+  Forms,
   gnugettext,
-  u_JclNotify;
+  u_JclNotify,
+  u_CommonFormAndFrameParents;
 
 { TLanguageManager }
 
@@ -55,14 +58,23 @@ begin
   FCodes := TStringList.Create;
   FNames := TStringList.Create;
   FDefaultLangCode := 'ru';
+  FLanguagesEx := TLanguagesEx.Create;
 
   LoadLangs;
+  if FIniFile <> nil then begin
+    SetCurrentLanguage(FIniFile.ReadString('VIEW', 'Lang', ''));
+  end;
 end;
 
 destructor TLanguageManager.Destroy;
 begin
-  FNames.Free;
-  FCodes.Free;
+  if FIniFile <> nil then begin
+    FIniFile.WriteString('VIEW', 'Lang', GetCurrentLanguageCode);
+  end;
+  FNotifier := nil;
+  FreeAndNil(FNames);
+  FreeAndNil(FCodes);
+  FreeAndNil(FLanguagesEx);
   inherited;
 end;
 
@@ -137,8 +149,19 @@ begin
 end;
 
 procedure TLanguageManager.SetCurrentLanguage(ACode: string);
+var
+  i: Integer;
 begin
   UseLanguage(ACode);
+  // force reloading forms with new selection
+  for i := 0 to application.ComponentCount - 1 do begin
+    if application.Components[i] is TCommonFormParent then begin
+      TCommonFormParent(application.Components[i]).RefreshTranslation;
+    end else if application.Components[i] is TCommonFrameParent then begin
+      TCommonFrameParent(application.Components[i]).RefreshTranslation;
+    end;
+  end;
+  FNotifier.Notify(nil);
 end;
 
 end.

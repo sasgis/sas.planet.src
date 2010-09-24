@@ -13,11 +13,13 @@ type
     procedure RefreshTranslation; virtual;
   end;
 
-  TFrame = class(Forms.TFrame)
+  TCommonFrameParent = class(Forms.TFrame)
   public
     constructor Create(AOwner : TComponent); override;
     procedure RefreshTranslation; virtual;
   end;
+
+  TFrame = class(TCommonFrameParent);
 
 implementation
 
@@ -39,7 +41,7 @@ end;
 
 { TFrame }
 
-constructor TFrame.Create(AOwner: TComponent);
+constructor TCommonFrameParent.Create(AOwner: TComponent);
 begin
   inherited;
   if (Owner = Application) or (Owner = nil) then begin
@@ -47,7 +49,7 @@ begin
   end;
 end;
 
-procedure TFrame.RefreshTranslation;
+procedure TCommonFrameParent.RefreshTranslation;
 begin
   if (Owner = Application) or (Owner = nil) then begin
     ReTranslateComponent(self);
