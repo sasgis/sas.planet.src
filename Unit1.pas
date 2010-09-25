@@ -1516,18 +1516,11 @@ begin
  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
  NGoToCur.Checked := GState.ZoomingAtMousePos;
- GState.CacheConfig.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
  Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
-
- GState.CacheConfig.OldCpath:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
- GState.CacheConfig.NewCpath:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
- GState.CacheConfig.ESCpath:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
- GState.CacheConfig.GMTilesPath:=GState.MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
- GState.CacheConfig.GECachePath:=GState.MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 
  VConverter := GState.MapType[0].GeoConvert;
  VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;

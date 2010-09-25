@@ -647,6 +647,12 @@ begin
   GSMpar.auto:=MainIni.ReadBool('GSM','Auto',true);
   GSMpar.WaitingAnswer:=MainIni.ReadInteger('GSM','WaitingAnswer',200);
   LoadLastSelectionPolygon;
+  CacheConfig.DefCache:=MainIni.readinteger('VIEW','DefCache',2);
+  CacheConfig.OldCpath:=MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
+  CacheConfig.NewCpath:=MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
+  CacheConfig.ESCpath:=MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
+  CacheConfig.GMTilesPath:=MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
+  CacheConfig.GECachePath:=MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
