@@ -25,7 +25,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 626
     Height = 395
-    ActivePage = TabSheet4
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -569,176 +569,59 @@ object FSettings: TFSettings
       BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
-      object GroupBox4: TGroupBox
-        Left = 0
-        Top = 0
-        Width = 612
-        Height = 108
-        Align = alTop
-        Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
-        TabOrder = 0
-        object pnlProxyUrl: TPanel
-          AlignWithMargins = True
-          Left = 5
-          Top = 47
-          Width = 602
-          Height = 23
-          Align = alTop
-          BevelOuter = bvNone
-          TabOrder = 0
-          object lblUseProxy: TLabel
-            AlignWithMargins = True
-            Left = 24
-            Top = 3
-            Width = 150
-            Height = 17
-            Align = alLeft
-            Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
-            Layout = tlCenter
-            ExplicitHeight = 13
-          end
-          object CBProxyused: TCheckBox
-            AlignWithMargins = True
-            Left = 3
-            Top = 3
-            Width = 15
-            Height = 17
-            Align = alLeft
-            TabOrder = 0
-            OnClick = CBProxyusedClick
-          end
-          object EditIP: TEdit
-            Left = 177
-            Top = 0
-            Width = 425
-            Height = 23
-            Align = alClient
-            TabOrder = 1
-            ExplicitHeight = 21
-          end
-        end
-        object flwpnlProxyAuth: TFlowPanel
-          AlignWithMargins = True
-          Left = 5
-          Top = 76
-          Width = 602
-          Height = 23
-          Align = alTop
-          AutoSize = True
-          BevelOuter = bvNone
-          TabOrder = 1
-          object CBLogin: TCheckBox
-            AlignWithMargins = True
-            Left = 3
-            Top = 3
-            Width = 17
-            Height = 17
-            TabOrder = 0
-            OnClick = CBLoginClick
-          end
-          object lblProxyLogin: TLabel
-            AlignWithMargins = True
-            Left = 26
-            Top = 3
-            Width = 108
-            Height = 13
-            Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1083#1086#1075#1080#1085':'
-          end
-          object EditLogin: TEdit
-            Left = 137
-            Top = 0
-            Width = 81
-            Height = 21
-            TabOrder = 1
-          end
-          object Label25: TLabel
-            AlignWithMargins = True
-            Left = 221
-            Top = 3
-            Width = 48
-            Height = 13
-            Caption = #1080' '#1087#1072#1088#1086#1083#1100':'
-          end
-          object EditPass: TEdit
-            Left = 272
-            Top = 0
-            Width = 81
-            Height = 21
-            PasswordChar = '*'
-            TabOrder = 2
-          end
-        end
-        object pnlUseIEProxy: TPanel
-          AlignWithMargins = True
-          Left = 5
-          Top = 18
-          Width = 602
-          Height = 23
-          Align = alTop
-          AutoSize = True
-          BevelOuter = bvNone
-          TabOrder = 2
-          object chkUseIEProxy: TCheckBox
-            AlignWithMargins = True
-            Left = 3
-            Top = 3
-            Width = 596
-            Height = 17
-            Align = alTop
-            Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
-            TabOrder = 0
-            OnClick = chkUseIEProxyClick
-          end
-        end
-      end
       object pnlDownloadParams: TPanel
         Left = 0
-        Top = 108
+        Top = 0
         Width = 612
         Height = 131
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 3
-        TabOrder = 1
+        TabOrder = 0
+        ExplicitTop = 108
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 6
+          Top = 114
           Width = 600
           Height = 17
           Align = alTop
           Caption = #1055#1086#1074#1090#1086#1088#1085#1086' '#1087#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1087#1088#1080' '#1077#1075#1086' '#1086#1090#1089#1090#1091#1090#1089#1074#1080#1080
           TabOrder = 0
+          ExplicitTop = 6
         end
         object CkBGoNextTile: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 29
+          Top = 137
           Width = 600
           Height = 17
           Align = alTop
           Caption = #1055#1077#1088#1077#1093#1086#1076' '#1082' '#1089#1083#1077#1076#1091#1102#1097#1077#1084#1091' '#1090#1072#1081#1083#1091' '#1077#1089#1083#1080' '#1089#1077#1088#1074#1077#1088' '#1085#1077' '#1086#1090#1074#1077#1095#1072#1077#1090
           TabOrder = 1
+          ExplicitTop = 29
         end
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 52
+          Top = 160
           Width = 600
           Height = 17
           Align = alTop
           Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1072' '#1085#1072' '#1089#1077#1088#1074#1077#1088#1077
           TabOrder = 2
+          ExplicitTop = 52
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           Left = 3
-          Top = 72
+          Top = 180
           Width = 606
           Height = 22
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 3
+          ExplicitTop = 72
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -761,7 +644,7 @@ object FSettings: TFSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 97
+          Top = 205
           Width = 600
           Height = 17
           Align = alTop
@@ -769,6 +652,137 @@ object FSettings: TFSettings
             #1053#1072#1095#1072#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086' '#1091#1076#1072#1095#1085#1086' '#1079#1072#1075#1088#1091#1078#1077#1085#1085 +
             #1086#1075#1086' '#1090#1072#1081#1083#1072
           TabOrder = 4
+          ExplicitTop = 97
+        end
+        object GroupBox4: TGroupBox
+          Left = 3
+          Top = 3
+          Width = 606
+          Height = 108
+          Align = alTop
+          Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
+          TabOrder = 5
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 612
+          object pnlProxyUrl: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 47
+            Width = 596
+            Height = 23
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 0
+            ExplicitWidth = 602
+            object lblUseProxy: TLabel
+              AlignWithMargins = True
+              Left = 24
+              Top = 3
+              Width = 150
+              Height = 17
+              Align = alLeft
+              Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
+              Layout = tlCenter
+              ExplicitHeight = 13
+            end
+            object CBProxyused: TCheckBox
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 15
+              Height = 17
+              Align = alLeft
+              TabOrder = 0
+              OnClick = CBProxyusedClick
+            end
+            object EditIP: TEdit
+              Left = 177
+              Top = 0
+              Width = 419
+              Height = 23
+              Align = alClient
+              TabOrder = 1
+              ExplicitWidth = 425
+              ExplicitHeight = 21
+            end
+          end
+          object flwpnlProxyAuth: TFlowPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 76
+            Width = 596
+            Height = 23
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 1
+            ExplicitWidth = 602
+            object CBLogin: TCheckBox
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 17
+              Height = 17
+              TabOrder = 0
+              OnClick = CBLoginClick
+            end
+            object lblProxyLogin: TLabel
+              AlignWithMargins = True
+              Left = 26
+              Top = 3
+              Width = 108
+              Height = 13
+              Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1083#1086#1075#1080#1085':'
+            end
+            object EditLogin: TEdit
+              Left = 137
+              Top = 0
+              Width = 81
+              Height = 21
+              TabOrder = 1
+            end
+            object Label25: TLabel
+              AlignWithMargins = True
+              Left = 221
+              Top = 3
+              Width = 48
+              Height = 13
+              Caption = #1080' '#1087#1072#1088#1086#1083#1100':'
+            end
+            object EditPass: TEdit
+              Left = 272
+              Top = 0
+              Width = 81
+              Height = 21
+              PasswordChar = '*'
+              TabOrder = 2
+            end
+          end
+          object pnlUseIEProxy: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 18
+            Width = 596
+            Height = 23
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 2
+            ExplicitWidth = 602
+            object chkUseIEProxy: TCheckBox
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 590
+              Height = 17
+              Align = alTop
+              Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
+              TabOrder = 0
+              OnClick = chkUseIEProxyClick
+              ExplicitWidth = 596
+            end
+          end
         end
       end
     end
@@ -873,7 +887,7 @@ object FSettings: TFSettings
         Width = 618
         Height = 367
         Align = alClient
-        Caption = 'grdpnlUI'
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000
@@ -898,12 +912,14 @@ object FSettings: TFSettings
           end>
         TabOrder = 0
         object pnlUILeft: TPanel
-          Left = 1
-          Top = 1
+          Left = 0
+          Top = 0
           Width = 308
           Height = 365
           Align = alClient
           TabOrder = 0
+          ExplicitLeft = 1
+          ExplicitTop = 1
           object pnlNumbersFormat: TPanel
             Left = 1
             Top = 1
@@ -1210,12 +1226,14 @@ object FSettings: TFSettings
           end
         end
         object pnlUIRight: TPanel
-          Left = 309
-          Top = 1
+          Left = 308
+          Top = 0
           Width = 308
           Height = 365
           Align = alClient
           TabOrder = 1
+          ExplicitLeft = 309
+          ExplicitTop = 1
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 1
             Top = 1
@@ -1693,7 +1711,6 @@ object FSettings: TFSettings
         Width = 248
         Height = 367
         Align = alClient
-        Caption = 'pnlGpsRight'
         TabOrder = 1
         object GroupBox2: TGroupBox
           Left = 1

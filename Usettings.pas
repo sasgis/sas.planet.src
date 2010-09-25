@@ -531,12 +531,7 @@ begin
  GState.WikiMapMainColor:=CBWMainColor.Selected;
  GState.WikiMapFonColor:=CBWFonColor.Selected;
 
- if ((GState.Localization<>LANG_RUSSIAN)and(CBoxLocal.ItemIndex=0))or
-    ((GState.Localization<>LANG_ENGLISH)and(CBoxLocal.ItemIndex=1)) then ShowMessage(SAS_MSG_need_reload_application);
- case CBoxLocal.ItemIndex of
-  0:GState.Localization:=LANG_RUSSIAN;
-  1:GState.Localization:=LANG_ENGLISH;
- end;
+ GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
  GState.GPS_Correction:=Extpoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
                       DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
@@ -593,7 +588,7 @@ end;
 
 procedure TFSettings.CBoxLocalChange(Sender: TObject);
 begin
-//  GState.LanguageManager
+ GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 end;
 
 procedure TFSettings.CBProxyusedClick(Sender: TObject);
@@ -635,12 +630,8 @@ var DMS:TDMS;
 begin
  FMapsEdit:=false;
  CBoxLocal.Clear;
- 
-
-// case GState.Localization  of
-//  LANG_RUSSIAN:CBoxLocal.ItemIndex:=0;
-//  LANG_ENGLISH:CBoxLocal.ItemIndex:=1;
-// end;
+ GState.LanguageManager.GetLangNames(CBoxLocal.Items);
+ CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
 
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;
