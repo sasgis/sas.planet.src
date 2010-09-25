@@ -68,6 +68,7 @@ type
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
+    procedure SaveLastSelectionPolygon;
   public
 
     MainFileCache: IMemObjCache;
@@ -677,6 +678,25 @@ begin
   FScreenSize := Value;
 end;
 
+procedure TGlobalState.SaveLastSelectionPolygon;
+var
+  i: Integer;
+begin
+  i:=1;
+  while MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647')<>'2147483647' do begin
+    MainIni.DeleteKey('HIGHLIGHTING','pointx_'+inttostr(i));
+    MainIni.DeleteKey('HIGHLIGHTING','pointy_'+inttostr(i));
+    inc(i);
+  end;
+  if length(LastSelectionPolygon)>0 then begin
+    MainIni.WriteInteger('HIGHLIGHTING','zoom',poly_zoom_save);
+    for i := 0 to length(LastSelectionPolygon) - 1 do begin
+      MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i+1),LastSelectionPolygon[i].x);
+      MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i+1),LastSelectionPolygon[i].y);
+    end;
+  end;
+end;
+
 procedure TGlobalState.SaveMainParams;
 var
   VZoom: Byte;
@@ -742,7 +762,35 @@ begin
   MainIni.WriteInteger('GPS','SizeTrack',GPS_TrackWidth);
   MainIni.WriteInteger('GPS','ColorStr',GPS_ArrowColor);
 
+  MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
+  MainIni.WriteBool('GPS','SensorsAutoShow',GPS_SensorsAutoShow);
+  MainIni.WriteInteger('GPS','NumShowTrackPoints',GPS_NumTrackPoints);
 
+  MainIni.WriteString('GSM','port',GSMpar.Port);
+  MainIni.WriteInteger('GSM','BaudRate',GSMpar.BaudRate);
+  MainIni.WriteBool('GSM','Auto',GSMpar.auto);
+  MainIni.WriteInteger('GSM','WaitingAnswer',GSMpar.WaitingAnswer);
+
+  MainIni.Writestring('PATHtoCACHE','GMVC',CacheConfig.OldCpath);
+  MainIni.Writestring('PATHtoCACHE','SASC',CacheConfig.NewCpath);
+  MainIni.Writestring('PATHtoCACHE','ESC',CacheConfig.ESCpath);
+  MainIni.Writestring('PATHtoCACHE','GMTiles',CacheConfig.GMTilesPath);
+  MainIni.Writestring('PATHtoCACHE','GECache',CacheConfig.GECachePath);
+  MainIni.Writebool('INTERNET','userwinset',InetConnect.userwinset);
+  MainIni.Writebool('INTERNET','uselogin',InetConnect.uselogin);
+  MainIni.Writebool('INTERNET','used_proxy',InetConnect.Proxyused);
+  MainIni.Writestring('INTERNET','proxy',InetConnect.proxystr);
+  MainIni.Writestring('INTERNET','login',InetConnect.loginstr);
+  MainIni.Writestring('INTERNET','password',InetConnect.passstr);
+  MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
+  MainIni.WriteBool('INTERNET','IgnoreTileNotExists',IgnoreTileNotExists);
+  MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
+  MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
+  MainIni.WriteInteger('INTERNET','TimeOut',InetConnect.TimeOut);
+  MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
+
+  MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
+  SaveLastSelectionPolygon;
 end;
 
 procedure TGlobalState.SaveMaps;

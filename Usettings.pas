@@ -305,55 +305,11 @@ begin
 
  if FMain.FFillingMap.SourceSelected=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
                        else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
- GState.MainIni.WriteFloat('GPS','Odometr',GState.GPSpar.Odometr);
- GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
- GState.MainIni.WriteInteger('GPS','NumShowTrackPoints',GState.GPS_NumTrackPoints);
 
- GState.MainIni.WriteString('GSM','port',GState.GSMpar.Port);
- GState.MainIni.WriteInteger('GSM','BaudRate',GState.GSMpar.BaudRate);
- GState.MainIni.WriteBool('GSM','Auto',GState.GSMpar.auto);
- GState.MainIni.WriteInteger('GSM','WaitingAnswer',GState.GSMpar.WaitingAnswer);
-
- GState.MainIni.Writestring('PATHtoCACHE','GMVC',GState.CacheConfig.OldCpath);
- GState.MainIni.Writestring('PATHtoCACHE','SASC',GState.CacheConfig.NewCpath);
- GState.MainIni.Writestring('PATHtoCACHE','ESC',GState.CacheConfig.ESCpath);
- GState.MainIni.Writestring('PATHtoCACHE','GMTiles',GState.CacheConfig.GMTilesPath);
- GState.MainIni.Writestring('PATHtoCACHE','GECache',GState.CacheConfig.GECachePath);
- GState.MainIni.Writebool('INTERNET','userwinset',GState.InetConnect.userwinset);
- GState.MainIni.Writebool('INTERNET','uselogin',GState.InetConnect.uselogin);
- GState.MainIni.Writebool('INTERNET','used_proxy',GState.InetConnect.Proxyused);
- GState.MainIni.Writestring('INTERNET','proxy',GState.InetConnect.proxystr);
- GState.MainIni.Writestring('INTERNET','login',GState.InetConnect.loginstr);
- GState.MainIni.Writestring('INTERNET','password',GState.InetConnect.passstr);
- GState.MainIni.WriteBool('INTERNET','SaveTileNotExists',GState.SaveTileNotExists);
- GState.MainIni.WriteBool('INTERNET','IgnoreTileNotExists',GState.IgnoreTileNotExists);
- GState.MainIni.WriteBool('INTERNET','DblDwnl',GState.TwoDownloadAttempt);
- GState.MainIni.Writebool('INTERNET','GoNextTile',GState.GoNextTileIfDownloadError);
- GState.MainIni.WriteInteger('INTERNET','TimeOut',GState.InetConnect.TimeOut);
- GState.MainIni.WriteBool('INTERNET','SessionLastSuccess',GState.SessionLastSuccess);
-
- GState.MainIni.Writebool('NPARAM','stat',GState.WebReportToAuthor);
-
- i:=1;
- while GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647')<>'2147483647' do
-  begin
-   GState.MainIni.DeleteKey('HIGHLIGHTING','pointx_'+inttostr(i));
-   GState.MainIni.DeleteKey('HIGHLIGHTING','pointy_'+inttostr(i));
-   inc(i);
-  end;
- if length(GState.LastSelectionPolygon)>0 then
-  begin
-   GState.MainIni.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save);
-   for i:=1 to length(GState.LastSelectionPolygon) do
-    begin
-     GState.MainIni.WriteFloat('HIGHLIGHTING','pointx_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);
-     GState.MainIni.WriteFloat('HIGHLIGHTING','pointy_'+inttostr(i),GState.LastSelectionPolygon[i-1].y);
-    end;
-  end;
+ FShortcutEditor.Save;
  lock_tb_b:=Fmain.lock_toolbars;
  Fmain.lock_toolbars:=false;
  TBiniSavePositions(Fmain,GState.MainIni,'PANEL_');
- FShortcutEditor.Save;
  Fmain.lock_toolbars:=lock_tb_b;
  GState.MainIni.UpdateFile;
  except
