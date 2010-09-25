@@ -796,14 +796,24 @@ procedure TFmain.ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
 var
   i:integer;
   VMapType: TMapType;
+  VWikiLayersVisible: Boolean;
 begin
+  VWikiLayersVisible := False;
   for i:=0 to length(GState.MapType)-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.asLayer then begin
-      TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
+      if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
+        TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := True;
+        if VMapType.IsKmlTiles then begin
+          VWikiLayersVisible := True;
+        end;
+      end else begin
+        TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := False;
+      end;
     end;
   end;
   generate_im;
+  FWikiLayer.Visible := VWikiLayersVisible;
 end;
 
 procedure TFmain.ProcessMapChangeMessage(AMessage: IMapChangeMessage);
@@ -1238,11 +1248,8 @@ end;
 
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
-  Leyi:integer;
   ts2,ts3,fr:int64;
-  VWikiLayersVisible: Boolean;
   VSelectionRect: TExtendedRect;
-  VMapType: TMapType;
 begin
   QueryPerformanceCounter(ts2);
 
@@ -1250,20 +1257,8 @@ begin
 
   FMainLayer.Redraw;
   LayerScaleLine.Redraw;
-  VWikiLayersVisible := False;
-  for Leyi:=0 to length(GState.MapType)-1 do begin
-    VMapType := GState.MapType[Leyi];
-    if (VMapType.asLayer)then begin
-      if VMapType.IsKmlTiles then begin
-        if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
-          VWikiLayersVisible := True;
-        end;
-      end;
-    end;
-  end;
   LayerMapMarks.Redraw;
   FWikiLayer.Redraw;
-  FWikiLayer.Visible := VWikiLayersVisible;
 
   if (lastload.use)and(err<>'') then begin
     FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
@@ -1272,28 +1267,31 @@ begin
   end;
 
   if not(lastload.use) then begin
-    if aoper=ao_line then begin
-      TBEditPath.Visible:=(length(length_arr)>1);
-      LayerMapNal.DrawLineCalc(length_arr, LenShow);
-    end;
-    if aoper=ao_reg then begin
-      TBEditPath.Visible:=(length(reg_arr)>1);
-      LayerMapNal.DrawReg(reg_arr);
-    end;
-    if aoper=ao_rect then begin
-      LayerMapNal.DrawNothing;
-      VSelectionRect := FSelectionRect;
-      if PrepareSelectionRect([], VSelectionRect) then begin
-        LayerMapNal.DrawSelectionRect(VSelectionRect);
+    case aoper of
+      ao_line: begin
+        TBEditPath.Visible:=(length(length_arr)>1);
+        LayerMapNal.DrawLineCalc(length_arr, LenShow);
+      end;
+      ao_reg: begin
+        TBEditPath.Visible:=(length(reg_arr)>1);
+        LayerMapNal.DrawReg(reg_arr);
+      end;
+      ao_rect: begin
+        LayerMapNal.DrawNothing;
+        VSelectionRect := FSelectionRect;
+        if PrepareSelectionRect([], VSelectionRect) then begin
+          LayerMapNal.DrawSelectionRect(VSelectionRect);
+        end;
+      end;
+      ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly: begin
+        TBEditPath.Visible:=(length(add_line_arr)>1);
+        LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
       end;
     end;
+
     if GState.GPS_enab then begin
        LayerMapGPS.Redraw;
        UpdateGPSsensors;
-    end;
-    if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-      TBEditPath.Visible:=(length(add_line_arr)>1);
-      LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
     try
       LayerMapMarks.Visible := GState.show_point <> mshNone;
