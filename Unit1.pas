@@ -1516,7 +1516,6 @@ begin
  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
  NGoToCur.Checked := GState.ZoomingAtMousePos;
- Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
@@ -1572,7 +1571,7 @@ begin
  if VFillingmaptype<>nil then begin
    TTBXItem(FTBFillingItemList.GetByGUID(Vfillingmaptype.GUID)).Checked:=true
  end else TBfillMapAsMain.Checked:=true;
-
+ Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
 
  LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
