@@ -1445,9 +1445,9 @@ var
   VLonLat: TExtendedPoint;
   VConverter: ICoordConverter;
 begin
- GState.ScreenSize := Point(Screen.Width, Screen.Height);
- if ProgramStart=false then exit;
- Enabled:=false;
+  GState.ScreenSize := Point(Screen.Width, Screen.Height);
+  if ProgramStart=false then exit;
+  Enabled:=false;
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
   TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
@@ -1688,19 +1688,17 @@ var i,steps:integer;
     Scale: Extended;
     VZoom: Byte;
 begin
- if ANewZoom<=1  then TBZoom_Out.Enabled:=false
-          else TBZoom_Out.Enabled:=true;
- if ANewZoom>=24 then TBZoomIn.Enabled:=false
-          else TBZoomIn.Enabled:=true;
- NZoomIn.Enabled:=TBZoomIn.Enabled;
- NZoomOut.Enabled:=TBZoom_Out.Enabled;
- RxSlider1.Value:=ANewZoom;
- VZoom := GState.ViewState.GetCurrentZoom;
- if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom>23) then exit;
- MapZoomAnimtion:=1;
- steps:=11;
+  TBZoom_Out.Enabled:=ANewZoom<=1;
+  TBZoomIn.Enabled:=ANewZoom>=24;
+  NZoomIn.Enabled:=TBZoomIn.Enabled;
+  NZoomOut.Enabled:=TBZoom_Out.Enabled;
+  RxSlider1.Value:=ANewZoom;
+  VZoom := GState.ViewState.GetCurrentZoom;
+  if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom>23) then exit;
+  MapZoomAnimtion:=1;
+  steps:=11;
 
- if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
+  if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
       if VZoom>ANewZoom then begin
@@ -1742,13 +1740,13 @@ begin
      end;
    end;
    application.ProcessMessages;
- end;
+  end;
   if move then begin
     GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, m_m);
   end else begin
     GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom);
   end;
- MapZoomAnimtion:=0;
+  MapZoomAnimtion:=0;
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
