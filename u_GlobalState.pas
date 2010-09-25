@@ -264,6 +264,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure LoadMaps;
+    procedure LoadCacheConfig;
     function GetMapFromID(id: TGUID): TMapType;
     procedure SaveMaps;
     procedure SaveMainParams;
@@ -518,6 +519,16 @@ begin
   end;
 end;
 
+procedure TGlobalState.LoadCacheConfig;
+begin
+  CacheConfig.DefCache:=MainIni.readinteger('VIEW','DefCache',2);
+  CacheConfig.OldCpath:=MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
+  CacheConfig.NewCpath:=MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
+  CacheConfig.ESCpath:=MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
+  CacheConfig.GMTilesPath:=MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
+  CacheConfig.GECachePath:=MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
+end;
+
 procedure TGlobalState.LoadLastSelectionPolygon;
 var
   i: Integer;
@@ -529,7 +540,7 @@ begin
     LastSelectionPolygon[i-1].y:=str2r(MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
     inc(i);
   end;
-  if length(GState.LastSelectionPolygon)>0 then begin
+  if length(LastSelectionPolygon)>0 then begin
     poly_zoom_save:=MainIni.Readinteger('HIGHLIGHTING','zoom',1);
   end;
 end;
@@ -647,12 +658,6 @@ begin
   GSMpar.auto:=MainIni.ReadBool('GSM','Auto',true);
   GSMpar.WaitingAnswer:=MainIni.ReadInteger('GSM','WaitingAnswer',200);
   LoadLastSelectionPolygon;
-  CacheConfig.DefCache:=MainIni.readinteger('VIEW','DefCache',2);
-  CacheConfig.OldCpath:=MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
-  CacheConfig.NewCpath:=MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
-  CacheConfig.ESCpath:=MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
-  CacheConfig.GMTilesPath:=MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
-  CacheConfig.GECachePath:=MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 end;
 
 procedure TGlobalState.LoadMapIconsList;

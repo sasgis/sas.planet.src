@@ -258,6 +258,7 @@ begin
     end;
     try
       GState.LoadMaps;
+      GState.LoadCacheConfig;
       GState.LoadMapIconsList;
     except
       on E: Exception do begin
