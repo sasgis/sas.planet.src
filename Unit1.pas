@@ -1433,11 +1433,11 @@ end;
 
 procedure TFmain.FormActivate(Sender: TObject);
 var
-     i:integer;
-     param:string;
-     MainWindowMaximized: Boolean;
-     VGUID: TGUID;
-     VGUIDString: string;
+  i:integer;
+  param:string;
+  MainWindowMaximized: Boolean;
+  VGUID: TGUID;
+  VGUIDString: string;
   VFillingmaptype: TMapType;
   Vzoom_mapzap: integer;
   VScreenCenterPos: TPoint;
