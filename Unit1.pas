@@ -1564,6 +1564,8 @@ begin
  end else TBfillMapAsMain.Checked:=true;
  Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
+ if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
+                     else TBMapZap.Caption:='';
 
  LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
 
@@ -1604,8 +1606,6 @@ begin
 
  ProgramStart:=false;
 
- if Vzoom_mapzap<>-1 then TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1)
-                     else TBMapZap.Caption:='';
  selectMap(GState.ViewState.GetCurrentMap);
 
  map.Color:=GState.BGround;
