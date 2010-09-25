@@ -69,6 +69,7 @@ type
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
     procedure SaveLastSelectionPolygon;
+    procedure LoadLastSelectionPolygon;
   public
 
     MainFileCache: IMemObjCache;
@@ -517,6 +518,22 @@ begin
   end;
 end;
 
+procedure TGlobalState.LoadLastSelectionPolygon;
+var
+  i: Integer;
+begin
+  i:=1;
+  while str2r(MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do begin
+    setlength(LastSelectionPolygon,i);
+    LastSelectionPolygon[i-1].x:=str2r(MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
+    LastSelectionPolygon[i-1].y:=str2r(MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
+    inc(i);
+  end;
+  if length(GState.LastSelectionPolygon)>0 then begin
+    poly_zoom_save:=MainIni.Readinteger('HIGHLIGHTING','zoom',1);
+  end;
+end;
+
 procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
 var
   ResStream: TResourceStream;
@@ -629,7 +646,7 @@ begin
   GSMpar.BaudRate:=MainIni.ReadInteger('GSM','BaudRate',4800);
   GSMpar.auto:=MainIni.ReadBool('GSM','Auto',true);
   GSMpar.WaitingAnswer:=MainIni.ReadInteger('GSM','WaitingAnswer',200);
-
+  LoadLastSelectionPolygon;
 end;
 
 procedure TGlobalState.LoadMapIconsList;

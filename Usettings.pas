@@ -271,7 +271,6 @@ uses
 
 procedure TFSettings.Save;
 var
-    i:integer;
     lock_tb_b:boolean;
 begin
  try
@@ -516,7 +515,6 @@ begin
 end;
 
 procedure TFSettings.FormShow(Sender: TObject);
-var DMS:TDMS;
 begin
  FMapsEdit:=false;
  CBoxLocal.Clear;

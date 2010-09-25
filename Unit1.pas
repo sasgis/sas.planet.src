@@ -1582,15 +1582,6 @@ begin
 
  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
 
- i:=1;
- while str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'))<>2147483647 do
-  begin
-   setlength(GState.LastSelectionPolygon,i);
-   GState.LastSelectionPolygon[i-1].x:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointx_'+inttostr(i),'2147483647'));
-   GState.LastSelectionPolygon[i-1].y:=str2r(GState.MainIni.ReadString('HIGHLIGHTING','pointy_'+inttostr(i),'2147483647'));
-   inc(i);
-  end;
- if length(GState.LastSelectionPolygon)>0 then GState.poly_zoom_save:=GState.MainIni.Readinteger('HIGHLIGHTING','zoom',1);
  LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
 
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
