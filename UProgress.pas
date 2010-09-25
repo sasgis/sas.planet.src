@@ -226,9 +226,8 @@ end;
 
 procedure TFProgress.ThreadFinish;
 begin
-
+  GState.MainFileCache.Clear;
   if not((FMain.MapMoving)or(FMain.MapZoomAnimtion=1)) then begin
-    GState.MainFileCache.Clear;
     FMain.generate_im;
   end;
 end;

@@ -1688,8 +1688,8 @@ var i,steps:integer;
     Scale: Extended;
     VZoom: Byte;
 begin
-  TBZoom_Out.Enabled:=ANewZoom<=1;
-  TBZoomIn.Enabled:=ANewZoom>=24;
+  TBZoom_Out.Enabled:=ANewZoom<=0;
+  TBZoomIn.Enabled:=ANewZoom>=23;
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   RxSlider1.Value:=ANewZoom;
