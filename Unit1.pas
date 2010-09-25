@@ -1523,11 +1523,6 @@ begin
 
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
- GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
- GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
- GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
- GState.GSMpar.WaitingAnswer:=GState.MainIni.ReadInteger('GSM','WaitingAnswer',200);
-
  GState.CacheConfig.OldCpath:=GState.MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
  GState.CacheConfig.NewCpath:=GState.MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
  GState.CacheConfig.ESCpath:=GState.MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
