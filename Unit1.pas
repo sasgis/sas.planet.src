@@ -764,34 +764,6 @@ begin
   FMainForm.ProcessHybrChangeMessage(VMessage);
 end;
 
-function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
-var
-  hData: HGlobal;
-begin
-  Result := True;
-  if OpenClipboard(Wnd) then
-  begin
-    try
-      hData := GetClipboardData(CF_TEXT);
-      if hData <> 0 then
-      begin
-        try
-          SetString(Str, PChar(GlobalLock(hData)), GlobalSize(hData));
-        finally
-          GlobalUnlock(hData);
-        end;
-      end
-      else
-        Result := False;
-      Str := PChar(@Str[1]);
-    finally
-      CloseClipboard;
-    end;
-  end
-  else
-    Result := False;
-end;
-
 procedure TFmain.ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
 var
   i:integer;
@@ -1866,19 +1838,6 @@ begin
    HORZRES)+(Width-ClientWidth),GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight));
   end
   else Self.BoundsRect:=RectWindow;
-end;
-
-procedure TextToHTMLDoc(Text: string; var Document: IHTMLDocument2);
-var
-  V: OleVariant;
-begin
-  try
-   V:=VarArrayCreate([0, 0], varVariant);
-   V[0]:=Text;
-   Document.Write(PSafeArray(TVarData(v).VArray));
-  finally
-   Document.Close;
-  end;
 end;
 
 procedure TextToWebBrowser(Text: string; var WB: TEmbeddedWB);
