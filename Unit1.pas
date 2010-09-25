@@ -638,7 +638,6 @@ type
     procedure CreateMapUI;
     procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
-    procedure SetStatusBarVisible();
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
     procedure UpdateGPSsensors;
@@ -1450,13 +1449,8 @@ var
 begin
  GState.ScreenSize := Point(Screen.Width, Screen.Height);
  if ProgramStart=false then exit;
+ Enabled:=false;
 
- if length(GState.MapType)=0 then
-  begin
-   ShowMessage(SAS_ERR_NoMaps);
-   Close;
-   exit;
-  end;
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
   TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
   TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
@@ -1474,11 +1468,10 @@ begin
   FNDwnItemList := TGUIDObjectList.Create(False);
   FNDelItemList := TGUIDObjectList.Create(False);
 
- RectWindow := Types.Rect(0, 0, 0, 0);
- Enabled:=false;
- dWhenMovingButton := 5;
- MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
- TBFullSize.Checked:=GState.FullScrean;
+  RectWindow := Types.Rect(0, 0, 0, 0);
+  dWhenMovingButton := 5;
+  MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
+  TBFullSize.Checked:=GState.FullScrean;
   if GState.FullScrean then begin
     TBFullSizeClick(TBFullSize);
   end else if MainWindowMaximized then begin
@@ -1510,8 +1503,6 @@ begin
  MouseDownPoint := point(0,0);
  MouseUpPoint := point(0,0);
  MapZoomAnimtion:=0;
-
- setlength(GState.LastSelectionPolygon,0);
 
  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
@@ -1579,7 +1570,8 @@ begin
  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
  SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
- SetStatusBarVisible();
+ LayerStatBar.Visible:=GState.ShowStatusBar;
+ Showstatus.Checked:=GState.ShowStatusBar;
 
  TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
  N32.Checked:=LayerMapScale.Visible;
@@ -1661,7 +1653,6 @@ begin
 
  zooming(GState.ViewState.GetCurrentZoom,false);
  MapMoving:=false;
- Fsaveas.PageControl1.ActivePageIndex:=0;
 
  SetProxy;
 
@@ -2445,13 +2436,6 @@ begin
  TBmoveClick(Sender);
 end;
 
-procedure TFmain.SetStatusBarVisible();
-begin
- LayerStatBar.Visible:=GState.ShowStatusBar;
- mapResize(nil);
- Showstatus.Checked:=GState.ShowStatusBar;
-end;
-
 procedure TFmain.SetLineScaleVisible(visible:boolean);
 begin
   LayerScaleLine.Visible := visible;
@@ -2468,7 +2452,9 @@ end;
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
   GState.ShowStatusBar := Showstatus.Checked;
-  SetStatusBarVisible();
+  LayerStatBar.Visible:=GState.ShowStatusBar;
+  mapResize(nil);
+  Showstatus.Checked:=GState.ShowStatusBar;
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);

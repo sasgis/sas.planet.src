@@ -216,6 +216,7 @@ begin
   FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
   FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
   FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
+  PageControl1.ActivePageIndex:=0;
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);
