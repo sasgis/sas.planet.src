@@ -250,7 +250,7 @@ begin
     Application.Initialize;
     Application.Title := 'SAS.Планета';
     //logo
-    if GState.MainIni.ReadBool('VIEW','Show_logo',true) then begin
+    if GState.Show_logo then begin
       FLogo:=TFLogo.Create(application);
       FLogo.Label1.Caption:='v '+SASVersion;
       FLogo.Show;

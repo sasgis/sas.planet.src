@@ -81,6 +81,8 @@ type
     // Иконка для указания на точку куда выполнен переход.
     GOToSelIcon: TBitmap32;
 
+    // Отображать окошко с логотипом при запуске
+    Show_logo: Boolean;
     // Заходить на сайт автора при старте программы
     WebReportToAuthor: Boolean;
 
@@ -537,6 +539,26 @@ end;
 procedure TGlobalState.LoadMainParams;
 begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
+  Show_logo := MainIni.ReadBool('VIEW','Show_logo',true);
+  FullScrean:= MainIni.Readbool('VIEW','FullScreen',false);
+  TilesOut:=MainIni.readInteger('VIEW','TilesOut',0);
+  InetConnect.userwinset:=MainIni.Readbool('INTERNET','userwinset',true);
+  InetConnect.uselogin:=MainIni.Readbool('INTERNET','uselogin',false);
+  InetConnect.Proxyused:=MainIni.Readbool('INTERNET','used_proxy',false);
+  InetConnect.proxystr:=MainIni.Readstring('INTERNET','proxy','');
+  InetConnect.loginstr:=MainIni.Readstring('INTERNET','login','');
+  InetConnect.passstr:=MainIni.Readstring('INTERNET','password','');
+  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', True);
+  IgnoreTileNotExists:=MainIni.ReadBool('INTERNET','IgnoreTileNotExists',false);
+
+  TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
+  GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
+  InetConnect.TimeOut:=MainIni.ReadInteger('INTERNET','TimeOut',40000);
+  SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
+
+  ShowMapName:=MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
+  ZoomingAtMousePos:=MainIni.readBool('VIEW','ZoomingAtMousePos',true);
+
 end;
 
 procedure TGlobalState.LoadMapIconsList;

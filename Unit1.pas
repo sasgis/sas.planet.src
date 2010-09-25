@@ -1478,7 +1478,6 @@ begin
  Enabled:=false;
  dWhenMovingButton := 5;
  MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
- GState.FullScrean:=GState.MainIni.Readbool('VIEW','FullScreen',false);
  TBFullSize.Checked:=GState.FullScrean;
   if GState.FullScrean then begin
     TBFullSizeClick(TBFullSize);
@@ -1512,28 +1511,10 @@ begin
  MouseUpPoint := point(0,0);
  MapZoomAnimtion:=0;
 
- GState.TilesOut:=GState.MainIni.readInteger('VIEW','TilesOut',0);
-
  setlength(GState.LastSelectionPolygon,0);
 
  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
- GState.InetConnect.userwinset:=GState.MainIni.Readbool('INTERNET','userwinset',true);
- GState.InetConnect.uselogin:=GState.MainIni.Readbool('INTERNET','uselogin',false);
- GState.InetConnect.Proxyused:=GState.MainIni.Readbool('INTERNET','used_proxy',false);
- GState.InetConnect.proxystr:=GState.MainIni.Readstring('INTERNET','proxy','');
- GState.InetConnect.loginstr:=GState.MainIni.Readstring('INTERNET','login','');
- GState.InetConnect.passstr:=GState.MainIni.Readstring('INTERNET','password','');
- GState.SaveTileNotExists:=GState.MainIni.ReadBool('INTERNET','SaveTileNotExists', True);
- GState.IgnoreTileNotExists:=GState.MainIni.ReadBool('INTERNET','IgnoreTileNotExists',false);
-
- GState.TwoDownloadAttempt:=GState.MainIni.ReadBool('INTERNET','DblDwnl',true);
- GState.GoNextTileIfDownloadError:=GState.MainIni.ReadBool('INTERNET','GoNextTile',false);
- GState.InetConnect.TimeOut:=GState.MainIni.ReadInteger('INTERNET','TimeOut',40000);
- GState.SessionLastSuccess:=GState.MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
-
- GState.ShowMapName:=GState.MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
- GState.ZoomingAtMousePos:=GState.MainIni.readBool('VIEW','ZoomingAtMousePos',true);
  NGoToCur.Checked := GState.ZoomingAtMousePos;
  GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
  GState.CacheConfig.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);

@@ -273,17 +273,7 @@ procedure TFSettings.Save;
 var
     i:integer;
     lock_tb_b:boolean;
-    VZoom: Byte;
-    VScreenCenterPos: TPoint;
 begin
-  GState.ViewState.LockRead;
-  try
-    VZoom := GState.ViewState.GetCurrentZoom;
-    VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-
  try
  GState.SaveMaps;
  GState.ViewState.SaveViewPortState;
