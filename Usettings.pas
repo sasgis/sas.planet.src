@@ -305,7 +305,7 @@ begin
 
  if FMain.FFillingMap.SourceSelected=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
                        else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
- GState.MainIni.WriteFloat('GPS','Odometr',FMain.GPSpar.Odometr);
+ GState.MainIni.WriteFloat('GPS','Odometr',GState.GPSpar.Odometr);
  GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
  GState.MainIni.WriteInteger('GPS','NumShowTrackPoints',GState.GPS_NumTrackPoints);
 

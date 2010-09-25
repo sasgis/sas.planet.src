@@ -627,7 +627,6 @@ type
     MapZoomAnimtion: Integer;
     change_scene: boolean;
     aoper: TAOperation;
-    GPSpar: TGPSpar;
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
@@ -1182,15 +1181,15 @@ var
 begin
  try
    //скорость
-   TBXSensorSpeed.Caption:=RoundEx(GPSpar.speed,2);
+   TBXSensorSpeed.Caption:=RoundEx(GState.GPSpar.speed,2);
    //средн€€ скорость
-   TBXSensorSpeedAvg.Caption:=RoundEx(GPSpar.sspeed,2);
+   TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSpar.sspeed,2);
    //максимальна€ скорость
-   TBXSensorSpeedMax.Caption:=RoundEx(GPSpar.maxspeed,2);
+   TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSpar.maxspeed,2);
    //высота
-   TBXSensorAltitude.Caption:=RoundEx(GPSpar.altitude,2);
+   TBXSensorAltitude.Caption:=RoundEx(GState.GPSpar.altitude,2);
    //пройденный путь
-   s_len := DistToStrWithUnits(GPSpar.len, GState.num_format);
+   s_len := DistToStrWithUnits(GState.GPSpar.len, GState.num_format);
    TBXOdometrNow.Caption:=s_len;
    //рассто€ние до метки
    if (LayerMapNavToMark<>nil)and(LayerMapNavToMark.Visible) then begin
@@ -1200,7 +1199,7 @@ begin
      TBXSensorLenToMark.Caption:='-';
    end;
    //одометр
-   TBXSensorOdometr.Caption:=DistToStrWithUnits(GPSpar.Odometr, GState.num_format);
+   TBXSensorOdometr.Caption:=DistToStrWithUnits(GState.GPSpar.Odometr, GState.num_format);
    //батаре€
    GetSystemPowerStatus(sps);
    if sps.ACLineStatus=0 then begin
@@ -1215,9 +1214,9 @@ begin
      TBXSensorBattary.Caption:='ќт сети';
    end;
    //јзимут
-   TBXSensorAzimut.Caption:=RoundEx(GPSpar.azimut,2)+'∞';
+   TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.azimut,2)+'∞';
    //—ила сигнала, кол-во спутников
-   TBXSignalStrength.Caption:=RoundEx(GPSpar.SignalStrength,2)+' ('+inttostr(GPSpar.SatCount)+')'
+   TBXSignalStrength.Caption:=RoundEx(GState.GPSpar.SignalStrength,2)+' ('+inttostr(GState.GPSpar.SatCount)+')'
  except
  end;
 end;
@@ -1605,7 +1604,7 @@ begin
  GState.GPS_Correction:=extpoint(str2r(GState.MainIni.ReadString('GPS','popr_lon','0')),str2r(GState.MainIni.ReadString('GPS','popr_lat','0')));
  GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
  GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
- GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
+ GState.GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
  GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
  GState.GPS_NumTrackPoints:=GState.MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
 
@@ -3034,19 +3033,19 @@ begin
     GState.GPSRecorder.AddPoint(VTrackPoint);
 
     VConverter := GState.ViewState.GetCurrentCoordConverter;
-    GPSpar.speed:=VTrackPoint.Speed;
-    if GPSpar.maxspeed<GPSpar.speed then GPSpar.maxspeed:=GPSpar.speed;
-    inc(GPSpar.sspeednumentr);
-    GPSpar.allspeed:=GPSpar.allspeed+GPSpar.speed;
-    GPSpar.sspeed:=GPSpar.allspeed/GPSpar.sspeednumentr;
-    GPSpar.altitude:=GPSReceiver.GetAltitude;
-    GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
-    GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
+    GState.GPSpar.speed:=VTrackPoint.Speed;
+    if GState.GPSpar.maxspeed<GState.GPSpar.speed then GState.GPSpar.maxspeed:=GState.GPSpar.speed;
+    inc(GState.GPSpar.sspeednumentr);
+    GState.GPSpar.allspeed:=GState.GPSpar.allspeed+GState.GPSpar.speed;
+    GState.GPSpar.sspeed:=GState.GPSpar.allspeed/GState.GPSpar.sspeednumentr;
+    GState.GPSpar.altitude:=GPSReceiver.GetAltitude;
+    GState.GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
+    GState.GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
     if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
       VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
-      GPSpar.len:=GPSpar.len+VDistToPrev;
-      GPSpar.Odometr:=GPSpar.Odometr+VDistToPrev;
-      GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
+      GState.GPSpar.len:=GState.GPSpar.len+VDistToPrev;
+      GState.GPSpar.Odometr:=GState.GPSpar.Odometr+VDistToPrev;
+      GState.GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
     end;
 
   if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=Self) then begin
@@ -3066,7 +3065,7 @@ begin
     s2f:=R2StrPoint(round(VPointCurr.y*10000000)/10000000)+','
       +R2StrPoint(round(VPointCurr.x*10000000)/10000000)+','
       +sb+','
-      +R2StrPoint(GPSReceiver.MetersToFeet(GPSpar.altitude))+','
+      +R2StrPoint(GPSReceiver.MetersToFeet(GState.GPSpar.altitude))+','
       +floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','
       +inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','
       +inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
@@ -3092,11 +3091,11 @@ end;
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
 var S:string;
 begin
- GPSpar.allspeed:=0;
- GPSpar.sspeed:=0;
- GPSpar.speed:=0;
- GPSpar.maxspeed:=0;
- GPSpar.sspeednumentr:=0;
+ GState.GPSpar.allspeed:=0;
+ GState.GPSpar.sspeed:=0;
+ GState.GPSpar.speed:=0;
+ GState.GPSpar.maxspeed:=0;
+ GState.GPSpar.sspeednumentr:=0;
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
  if GState.GPS_WriteLog then
  try
@@ -3673,7 +3672,7 @@ end;
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
   GState.GPSRecorder.ClearTrack;
-  GPSpar.maxspeed:=0;
+  GState.GPSpar.maxspeed:=0;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
@@ -4076,10 +4075,10 @@ procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
  if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
    case TSpeedButton(sender).Tag of
-    1: GPSpar.sspeed:=0;
-    2: GPSpar.len:=0;
-    3: GPSpar.Odometr:=0;
-    4: GPSpar.maxspeed:=0;
+    1: GState.GPSpar.sspeed:=0;
+    2: GState.GPSpar.len:=0;
+    3: GState.GPSpar.Odometr:=0;
+    4: GState.GPSpar.maxspeed:=0;
    end;
    UpdateGPSsensors;
  end;

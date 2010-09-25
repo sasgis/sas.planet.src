@@ -137,6 +137,7 @@ type
     GPS_SensorsAutoShow: boolean;
     //Писать лог NMEA
     GPS_NMEALog: boolean;
+    GPSpar: TGPSpar;
 
     LastSelectionColor: TColor;
     LastSelectionAlfa: Byte;

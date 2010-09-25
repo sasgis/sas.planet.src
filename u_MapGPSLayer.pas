@@ -107,7 +107,6 @@ procedure TMapGPSLayer.DrawPath;
 var
   j, speed: integer;
   VPolygon: TPolygon32;
-  startrarck: integer;
   VPointPrev, VPointCurr: TExtendedPoint;
   VPointsCount: Integer;
   VSegmentColor: TColor32;
@@ -127,7 +126,7 @@ begin
         VPolygon.Closed := false;
         VPointPrev := FGeoConvert.LonLat2PixelPosFloat(VPoints[0].Point, FZoom);
         VPointPrev := MapPixel2BitmapPixel(VPointPrev);
-        VMaxSpeed := FMain.GPSpar.maxspeed;
+        VMaxSpeed := GState.GPSpar.maxspeed;
         for j := 1 to VPointsCount - 1 do begin
           VPointCurr := FGeoConvert.LonLat2PixelPosFloat(VPoints[j].Point, FZoom);
           VPointCurr := MapPixel2BitmapPixel(VPointCurr);
