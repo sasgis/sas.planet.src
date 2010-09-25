@@ -14,6 +14,13 @@ type
     procedure GetInstalledLanguageCodes(list: TStrings);
     function GetLanguageNameByCode(ACode: string): WideString;
     function GetLangSelectNotifier: IJclNotifier;
+    procedure GetLangNames(AList: TStrings);
+    function GetCount: Integer;
+    function GetCurrentLangIndex: Integer;
+    procedure SetCurrentLangIndex(AValue: Integer);
+    function GetIndexByLangCode(ACode: string): Integer;
+    function GetLangCodeByIndex(AIndex: Integer): string;
+    function GetLangNameByIndex(AIndex: Integer): string;
   end;
 
 implementation
