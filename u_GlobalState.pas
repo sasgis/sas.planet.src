@@ -118,8 +118,6 @@ type
     GPS_TimeOut: integer;
     // Интервал между точками от GPS
     GPS_Delay: Integer;
-    //Поправка GPS
-    GPS_Correction: TExtendedPoint;
     //Размер указателя направления при GPS-навигации
     GPS_ArrowSize: Integer;
     //Цвет указателя направления при навигацци
@@ -608,6 +606,25 @@ begin
   ShowStatusBar := MainIni.readbool('VIEW','statusbar',true);
   WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
+  GammaN:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
+  ContrastN:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
+  InvertColor:=GState.MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
+  GPS_COM:=GState.MainIni.ReadString('GPS','com','COM0');
+  GPS_BaudRate:=GState.MainIni.ReadInteger('GPS','BaudRate',4800);
+  GPS_TimeOut:=GState.MainIni.ReadInteger('GPS','timeout',15);
+  GPS_Delay:=GState.MainIni.ReadInteger('GPS','update',1000);
+  GPS_enab:=GState.MainIni.ReadBool('GPS','enbl',false);
+  GPS_WriteLog:=GState.MainIni.Readbool('GPS','log',true);
+  GPS_NMEALog:=GState.MainIni.Readbool('GPS','NMEAlog',false);
+  GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
+  GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
+  GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed);
+  GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
+  GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
+  GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
+  GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
+  GPS_NumTrackPoints:=GState.MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
+
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -824,8 +841,6 @@ begin
   MainIni.WriteBool('GPS','go',GPS_MapMove);
   MainIni.WriteString('GPS','COM',GPS_COM);
   MainIni.WriteInteger('GPS','BaudRate',GPS_BaudRate);
-  MainIni.WriteFloat('GPS','popr_lon',GPS_Correction.x);
-  MainIni.WriteFloat('GPS','popr_lat',GPS_Correction.y);
   MainIni.Writeinteger('GPS','update',GPS_Delay);
   MainIni.WriteBool('GPS','log',GPS_WriteLog);
   MainIni.WriteBool('GPS','NMEALog',GPS_NMEALog);

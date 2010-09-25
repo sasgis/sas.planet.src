@@ -426,9 +426,6 @@ begin
 
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
- GState.GPS_Correction:=Extpoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
-                      DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
-
  GState.TilesOut:=SpinEdit3.Value;
 
  SetProxy;
@@ -582,13 +579,6 @@ begin
  ComboBox1.ItemIndex := byte(GState.num_format);
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;
-
- DMS:=D2DMS(GState.GPS_Correction.Y);
- lat1.Value:=DMS.D; lat2.Value:=DMS.M; lat3.Value:=DMS.S;
- if DMS.N then Lat_ns.ItemIndex:=1 else Lat_ns.ItemIndex:=0;
- DMS:=D2DMS(GState.GPS_Correction.X);
- lon1.Value:=DMS.D; lon2.Value:=DMS.M; lon3.Value:=DMS.S;
- if DMS.N then Lon_we.ItemIndex:=1 else Lon_we.ItemIndex:=0;
 
  SpinEdit3.Value:=GState.TilesOut;
  chkPosFromGSMClick(chkPosFromGSM);

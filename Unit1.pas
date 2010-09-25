@@ -1523,26 +1523,6 @@ begin
 
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
- GState.GammaN:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
- GState.ContrastN:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
- GState.InvertColor:=GState.MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
- GState.GPS_COM:=GState.MainIni.ReadString('GPS','com','COM0');
- GState.GPS_BaudRate:=GState.MainIni.ReadInteger('GPS','BaudRate',4800);
- GState.GPS_TimeOut:=GState.MainIni.ReadInteger('GPS','timeout',15);
- GState.GPS_Delay:=GState.MainIni.ReadInteger('GPS','update',1000);
- GState.GPS_enab:=GState.MainIni.ReadBool('GPS','enbl',false);
- GState.GPS_WriteLog:=GState.MainIni.Readbool('GPS','log',true);
- GState.GPS_NMEALog:=GState.MainIni.Readbool('GPS','NMEAlog',false);
- GState.GPS_ArrowSize:=GState.MainIni.ReadInteger('GPS','SizeStr',25);
- GState.GPS_TrackWidth:=GState.MainIni.ReadInteger('GPS','SizeTrack',5);
- GState.GPS_ArrowColor:=GState.MainIni.ReadInteger('GPS','ColorStr',clRed);
- GState.GPS_Correction:=extpoint(str2r(GState.MainIni.ReadString('GPS','popr_lon','0')),str2r(GState.MainIni.ReadString('GPS','popr_lat','0')));
- GState.GPS_ShowPath:=GState.MainIni.ReadBool('GPS','path',true);
- GState.GPS_MapMove:=GState.MainIni.ReadBool('GPS','go',true);
- GState.GPSpar.Odometr:=str2r(GState.MainIni.ReadString('GPS','Odometr','0'));
- GState.GPS_SensorsAutoShow:=GState.MainIni.ReadBool('GPS','SensorsAutoShow',true);
- GState.GPS_NumTrackPoints:=GState.MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
-
  GState.GSMpar.Port:=GState.MainIni.ReadString('GSM','port','COM1');
  GState.GSMpar.BaudRate:=GState.MainIni.ReadInteger('GSM','BaudRate',4800);
  GState.GSMpar.auto:=GState.MainIni.ReadBool('GSM','Auto',true);
