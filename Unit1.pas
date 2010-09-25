@@ -4042,11 +4042,11 @@ end;
 
 procedure TFmain.TBItem1Click(Sender: TObject);
 begin
- if ((GState.Localization<>LANG_RUSSIAN)and(TTBXItem(Sender).tag=0))or
-    ((GState.Localization<>LANG_ENGLISH)and(TTBXItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
+// if ((GState.Localization<>LANG_RUSSIAN)and(TTBXItem(Sender).tag=0))or
+//    ((GState.Localization<>LANG_ENGLISH)and(TTBXItem(Sender).tag=1)) then ShowMessage(SAS_MSG_need_reload_application);
  case TTBXItem(Sender).tag of
-  0:GState.Localization:=LANG_RUSSIAN;
-  1:GState.Localization:=LANG_ENGLISH;
+  0:GState.LanguageManager.SetCurrentLanguage('ru');
+  1:GState.LanguageManager.SetCurrentLanguage('en');
  end;
 end;
 

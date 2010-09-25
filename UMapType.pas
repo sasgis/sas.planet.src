@@ -284,7 +284,7 @@ end;
 
 procedure TMapType.LoadMapInfo(AConfig: IConfigDataProvider);
 begin
-  FMapinfo := AConfig.ReadString('info_'+inttostr(GState.Localization)+'.txt', '');
+  FMapinfo := AConfig.ReadString('info_'+GState.LanguageManager.GetCurrentLanguageCode+'.txt', '');
   if FMapInfo = '' then begin
     FMapinfo := AConfig.ReadString('info.txt', '');
   end;
@@ -382,12 +382,12 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
   FName:=VParams.ReadString('name',FName);
-  FName:=VParams.ReadString('name_'+inttostr(GState.Localization),FName);
+  FName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode,FName);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   HotKey:=VParams.ReadInteger('DefHotKey',0);
   FDefHotKey:=HotKey;
   ParentSubMenu:=VParams.ReadString('ParentSubMenu','');
-  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+inttostr(GState.Localization),ParentSubMenu);
+  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode,ParentSubMenu);
   FDefParentSubMenu:=ParentSubMenu;
   separator:=VParams.ReadBool('separator',false);
   FDefseparator:=separator;
