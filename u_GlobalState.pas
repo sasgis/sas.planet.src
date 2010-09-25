@@ -597,6 +597,17 @@ begin
   MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
   MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
 
+  LastSelectionColor:=MainIni.Readinteger('VIEW','LastSelectionColor',clBlack);
+  LastSelectionAlfa:=MainIni.Readinteger('VIEW','LastSelectionAlpha',210);
+
+  CacheElemensMaxCnt:=MainIni.ReadInteger('VIEW','TilesOCache',150);
+  ShowHintOnMarks:=MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
+  SrchType:=TSrchType(MainIni.ReadInteger('VIEW','SearchType',0));
+  BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
+  WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
+  ShowStatusBar := MainIni.readbool('VIEW','statusbar',true);
+  WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
+
 end;
 
 procedure TGlobalState.LoadMapIconsList;

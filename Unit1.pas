@@ -1521,17 +1521,7 @@ begin
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
- GState.LastSelectionColor:=GState.MainIni.Readinteger('VIEW','LastSelectionColor',clBlack);
- GState.LastSelectionAlfa:=GState.MainIni.Readinteger('VIEW','LastSelectionAlpha',210);
-
- GState.CacheElemensMaxCnt:=GState.MainIni.ReadInteger('VIEW','TilesOCache',150);
  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
- GState.ShowHintOnMarks:=GState.MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
- GState.SrchType:=TSrchType(GState.MainIni.ReadInteger('VIEW','SearchType',0));
- GState.BGround:=GState.MainIni.ReadInteger('VIEW','Background',clSilver);
- GState.WikiMapMainColor:=GState.MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
- GState.ShowStatusBar := GState.MainIni.readbool('VIEW','statusbar',true);
- GState.WikiMapFonColor:=GState.MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
  GState.GammaN:=GState.MainIni.Readinteger('COLOR_LEVELS','gamma',50);
  GState.ContrastN:=GState.MainIni.Readinteger('COLOR_LEVELS','contrast',0);
