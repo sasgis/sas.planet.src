@@ -80,9 +80,6 @@ type
     // »конка дл€ указани€ на точку куда выполнен переход.
     GOToSelIcon: TBitmap32;
 
-    // язык интерфейса программы
-    Localization: Integer;
-
     // «аходить на сайт автора при старте программы
     WebReportToAuthor: Boolean;
 
@@ -266,6 +263,7 @@ type
     procedure LoadMaps;
     function GetMapFromID(id: TGUID): TMapType;
     procedure SaveMaps;
+    procedure SaveMainParams;
     procedure LoadMapIconsList;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
@@ -276,7 +274,6 @@ type
 
 const
   SASVersion = '100920.alfa';
-  CProgram_Lang_Default = LANG_RUSSIAN;
 
 var
   GState: TGlobalState;
@@ -536,15 +533,7 @@ begin
 end;
 
 procedure TGlobalState.LoadMainParams;
-var
-  loc: integer;
 begin
-  if SysLocale.PriLangID <> CProgram_Lang_Default then begin
-    loc := LANG_ENGLISH;
-  end else begin
-    loc := CProgram_Lang_Default;
-  end;
-  Localization := MainIni.Readinteger('VIEW', 'localization', loc);
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
 end;
 
@@ -685,6 +674,74 @@ end;
 procedure TGlobalState.SetScreenSize(const Value: TPoint);
 begin
   FScreenSize := Value;
+end;
+
+procedure TGlobalState.SaveMainParams;
+var
+  VZoom: Byte;
+  VScreenCenterPos: TPoint;
+begin
+  ViewState.LockRead;
+  try
+    VZoom := ViewState.GetCurrentZoom;
+    VScreenCenterPos := ViewState.GetCenterMapPixel;
+  finally
+    ViewState.UnLockRead;
+  end;
+  MainIni.WriteBool('VIEW','ShowMapNameOnPanel',ShowMapName);
+  MainIni.WriteBool('VIEW','ZoomingAtMousePos',ZoomingAtMousePos);
+  MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
+  MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
+  MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
+  MainIni.Writeinteger('VIEW','DefCache',CacheConfig.DefCache);
+  MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
+  MainIni.Writeinteger('VIEW','grid', TileGridZoom);
+  MainIni.Writebool('VIEW','invert_mouse',MouseWheelInv);
+  MainIni.Writebool('VIEW','back_load',UsePrevZoom);
+  MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
+  MainIni.Writebool('VIEW','animate',AnimateZoom);
+  MainIni.Writebool('VIEW','FullScreen',FullScrean);
+  MainIni.WriteInteger('VIEW','ShowPointType',Byte(show_point));
+  MainIni.Writeinteger('VIEW','NumberFormat',byte(num_format));
+  MainIni.Writeinteger('VIEW','ResamlingType',byte(resampling));
+  MainIni.Writeinteger('VIEW','llStrType',byte(llStrType));
+  MainIni.WriteBool('VIEW','FirstLat',FirstLat);
+  MainIni.Writeinteger('VIEW','BorderAlpha',BorderAlpha);
+  MainIni.Writeinteger('VIEW','BorderColor',BorderColor);
+  MainIni.WriteBool('VIEW','BorderText',ShowBorderText);
+  MainIni.Writeinteger('VIEW','GShScale',GShScale);
+  MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);
+  MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
+  MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);
+  MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
+  MainIni.WriteInteger('VIEW','TilesOCache', CacheElemensMaxCnt);
+  MainIni.WriteBool('VIEW','ShowHintOnMarks', ShowHintOnMarks);
+  MainIni.Writeinteger('VIEW','LastSelectionColor',LastSelectionColor);
+  MainIni.Writeinteger('VIEW','LastSelectionAlfa',LastSelectionAlfa);
+  MainIni.WriteInteger('VIEW','SearchType',integer(SrchType));
+  MainIni.WriteInteger('VIEW','Background',BGround);
+  MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
+  MainIni.Writeinteger('Wikimapia','FonColor',WikiMapFonColor);
+
+  MainIni.Writeinteger('COLOR_LEVELS','gamma', GammaN);
+  MainIni.Writeinteger('COLOR_LEVELS','contrast',ContrastN);
+  MainIni.WriteBool('COLOR_LEVELS','InvertColor',InvertColor);
+
+  MainIni.WriteBool('GPS','enbl',GPS_enab);
+  MainIni.WriteBool('GPS','path',GPS_ShowPath);
+  MainIni.WriteBool('GPS','go',GPS_MapMove);
+  MainIni.WriteString('GPS','COM',GPS_COM);
+  MainIni.WriteInteger('GPS','BaudRate',GPS_BaudRate);
+  MainIni.WriteFloat('GPS','popr_lon',GPS_Correction.x);
+  MainIni.WriteFloat('GPS','popr_lat',GPS_Correction.y);
+  MainIni.Writeinteger('GPS','update',GPS_Delay);
+  MainIni.WriteBool('GPS','log',GPS_WriteLog);
+  MainIni.WriteBool('GPS','NMEALog',GPS_NMEALog);
+  MainIni.WriteInteger('GPS','SizeStr',GPS_ArrowSize);
+  MainIni.WriteInteger('GPS','SizeTrack',GPS_TrackWidth);
+  MainIni.WriteInteger('GPS','ColorStr',GPS_ArrowColor);
+
+
 end;
 
 procedure TGlobalState.SaveMaps;

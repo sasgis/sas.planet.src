@@ -287,76 +287,24 @@ begin
  try
  GState.SaveMaps;
  GState.ViewState.SaveViewPortState;
- GState.MainIni.WriteBool('VIEW','ShowMapNameOnPanel',GState.ShowMapName);
- GState.MainIni.WriteBool('VIEW','ZoomingAtMousePos',GState.ZoomingAtMousePos);
- GState.MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
- GState.MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
- GState.MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
+ GState.SaveMainParams;
  GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
- GState.MainIni.Writeinteger('VIEW','DefCache',GState.CacheConfig.DefCache);
  GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
  GState.MainIni.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
- GState.MainIni.WriteInteger('VIEW','TilesOut',GState.TilesOut);
- GState.MainIni.Writeinteger('VIEW','grid', GState.TileGridZoom);
- GState.MainIni.Writebool('VIEW','invert_mouse',GState.MouseWheelInv);
- GState.MainIni.Writebool('VIEW','back_load',GState.UsePrevZoom);
- GState.MainIni.Writebool('VIEW','back_load_layer',GState.UsePrevZoomLayer);
- GState.MainIni.Writebool('VIEW','animate',GState.AnimateZoom);
- GState.MainIni.Writebool('VIEW','FullScreen',GState.FullScrean);
  GState.MainIni.WriteInteger('VIEW','FLeft',Fmain.Left);
  GState.MainIni.WriteInteger('VIEW','FTop',Fmain.Top);
  GState.MainIni.WriteInteger('VIEW','FWidth',Fmain.Width);
  GState.MainIni.WriteInteger('VIEW','FHeight',Fmain.Height);
  GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
- if FMain.LayerMapScale<>nil then GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
+ GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
  GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
  Fmain.FMiniMapLayer.WriteIni;
- GState.MainIni.WriteInteger('VIEW','ShowPointType',Byte(GState.show_point));
  GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
- GState.MainIni.Writeinteger('VIEW','NumberFormat',byte(GState.num_format));
  GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
- GState.MainIni.Writeinteger('VIEW','ResamlingType',byte(GState.resampling));
- GState.MainIni.Writeinteger('VIEW','llStrType',byte(GState.llStrType));
- GState.MainIni.WriteBool('VIEW','FirstLat',GState.FirstLat);
- GState.MainIni.Writeinteger('VIEW','BorderAlpha',GState.BorderAlpha);
- GState.MainIni.Writeinteger('VIEW','BorderColor',GState.BorderColor);
- GState.MainIni.WriteBool('VIEW','BorderText',GState.ShowBorderText);
- GState.MainIni.Writeinteger('VIEW','GShScale',GState.GShScale);
- GState.MainIni.Writeinteger('VIEW','MapZapColor',GState.MapZapColor);
- GState.MainIni.WriteBool('VIEW','MapZapShowTNE',GState.MapZapShowTNE);
- GState.MainIni.Writeinteger('VIEW','MapZapTneColor',GState.MapZapTneColor);
- GState.MainIni.Writeinteger('VIEW','MapZapAlpha',GState.MapZapAlpha);
  GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
- GState.MainIni.WriteInteger('VIEW','TilesOCache', GState.CacheElemensMaxCnt);
- GState.MainIni.WriteBool('VIEW','ShowHintOnMarks', GState.ShowHintOnMarks);
- GState.MainIni.Writeinteger('VIEW','LastSelectionColor',GState.LastSelectionColor);
- GState.MainIni.Writeinteger('VIEW','LastSelectionAlfa',GState.LastSelectionAlfa);
 
  if FMain.FFillingMap.SourceSelected=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
                        else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
- GState.MainIni.WriteInteger('VIEW','SearchType',integer(GState.SrchType));
- GState.MainIni.WriteInteger('VIEW','Background',GState.BGround);
- GState.MainIni.Writeinteger('Wikimapia','MainColor',GState.WikiMapMainColor);
- GState.MainIni.Writeinteger('Wikimapia','FonColor',GState.WikiMapFonColor);
-
- GState.MainIni.Writeinteger('COLOR_LEVELS','gamma', GState.GammaN);
- GState.MainIni.Writeinteger('COLOR_LEVELS','contrast',GState.ContrastN);
- GState.MainIni.WriteBool('COLOR_LEVELS','InvertColor',GState.InvertColor);
-
- if GState.GPS_enab then GState.MainIni.WriteBool('GPS','enbl',true)
-                else GState.MainIni.WriteBool('GPS','enbl',false);
- GState.MainIni.WriteBool('GPS','path',GState.GPS_ShowPath);
- GState.MainIni.WriteBool('GPS','go',GState.GPS_MapMove);
- GState.MainIni.WriteString('GPS','COM',GState.GPS_COM);
- GState.MainIni.WriteInteger('GPS','BaudRate',GState.GPS_BaudRate);
- GState.MainIni.WriteFloat('GPS','popr_lon',GState.GPS_Correction.x);
- GState.MainIni.WriteFloat('GPS','popr_lat',GState.GPS_Correction.y);
- GState.MainIni.Writeinteger('GPS','update',GState.GPS_Delay);
- GState.MainIni.WriteBool('GPS','log',GState.GPS_WriteLog);
- GState.MainIni.WriteBool('GPS','NMEALog',GState.GPS_NMEALog);
- GState.MainIni.WriteInteger('GPS','SizeStr',GState.GPS_ArrowSize);
- GState.MainIni.WriteInteger('GPS','SizeTrack',GState.GPS_TrackWidth);
- GState.MainIni.WriteInteger('GPS','ColorStr',GState.GPS_ArrowColor);
  GState.MainIni.WriteFloat('GPS','Odometr',FMain.GPSpar.Odometr);
  GState.MainIni.WriteBool('GPS','SensorsAutoShow',GState.GPS_SensorsAutoShow);
  GState.MainIni.WriteInteger('GPS','NumShowTrackPoints',GState.GPS_NumTrackPoints);
