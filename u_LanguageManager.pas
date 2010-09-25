@@ -156,7 +156,7 @@ end;
 procedure TLanguageManager.GetLangNames(AList: TStrings);
 begin
   AList.Clear;
-  AList.Assign(AList);
+  AList.Assign(FNames);
 end;
 
 function TLanguageManager.GetLangSelectNotifier: IJclNotifier;

@@ -102,7 +102,7 @@ var i:integer;
 begin
   i :=  FEngNames.IndexOfObject(TObject(ID));
   if i >= 0 then
-    Result := FGetText[i]
+    Result := FEngNames[i]
   else
     Result := SUnknown;
 end;
