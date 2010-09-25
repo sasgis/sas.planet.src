@@ -1516,45 +1516,9 @@ begin
  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
  NGoToCur.Checked := GState.ZoomingAtMousePos;
- GState.show_point := TMarksShowType(GState.MainIni.readinteger('VIEW','ShowPointType',2));
  GState.CacheConfig.DefCache:=GState.MainIni.readinteger('VIEW','DefCache',2);
  Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
- GState.TileGridZoom:=GState.MainIni.readinteger('VIEW','grid',0);
- GState.MouseWheelInv:=GState.MainIni.readbool('VIEW','invert_mouse',false);
  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
- GState.num_format:= TDistStrFormat(GState.MainIni.Readinteger('VIEW','NumberFormat',0));
- GState.Resampling := TTileResamplingType(GState.MainIni.Readinteger('VIEW','ResamlingType',1));
- GState.llStrType:=TDegrShowFormat(GState.MainIni.Readinteger('VIEW','llStrType',0));
- GState.FirstLat:=GState.MainIni.ReadBool('VIEW','FirstLat',false);
- GState.BorderAlpha:=GState.MainIni.Readinteger('VIEW','BorderAlpha',150);
- GState.BorderColor:=GState.MainIni.Readinteger('VIEW','BorderColor',$FFFFFF);
- GState.ShowBorderText:=GState.MainIni.ReadBool('VIEW','BorderText',true);
- GState.UsePrevZoom := GState.MainIni.Readbool('VIEW','back_load',true);
- GState.UsePrevZoomLayer := GState.MainIni.Readbool('VIEW','back_load_layer',true);
- GState.AnimateZoom:=GState.MainIni.Readbool('VIEW','animate',true);
- GState.GShScale:=GState.MainIni.Readinteger('VIEW','GShScale',0);
- if GState.GShScale >= 1000000 then begin
-  GState.GShScale := 1000000;
- end else if GState.GShScale >= 500000 then begin
-  GState.GShScale := 500000;
- end else if GState.GShScale >= 200000 then begin
-  GState.GShScale := 200000;
- end else if GState.GShScale >= 100000 then begin
-  GState.GShScale := 100000;
- end else if GState.GShScale >= 50000 then begin
-  GState.GShScale := 50000;
- end else if GState.GShScale >= 25000 then begin
-  GState.GShScale := 25000;
- end else if GState.GShScale >= 10000 then begin
-  GState.GShScale := 10000;
- end else begin
-  GState.GShScale := 0;
- end;
-
- GState.MapZapColor:=GState.MainIni.Readinteger('VIEW','MapZapColor',clBlack);
- GState.MapZapShowTNE:=GState.MainIni.ReadBool('VIEW','MapZapShowTNE', True);
- GState.MapZapTneColor:=GState.MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
- GState.MapZapAlpha:=GState.MainIni.Readinteger('VIEW','MapZapAlpha',110);
  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
  GState.LastSelectionColor:=GState.MainIni.Readinteger('VIEW','LastSelectionColor',clBlack);

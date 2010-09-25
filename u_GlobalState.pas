@@ -559,6 +559,44 @@ begin
   ShowMapName:=MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
   ZoomingAtMousePos:=MainIni.readBool('VIEW','ZoomingAtMousePos',true);
 
+  show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
+  TileGridZoom:=MainIni.readinteger('VIEW','grid',0);
+  MouseWheelInv:=MainIni.readbool('VIEW','invert_mouse',false);
+
+  num_format:= TDistStrFormat(MainIni.Readinteger('VIEW','NumberFormat',0));
+  Resampling := TTileResamplingType(MainIni.Readinteger('VIEW','ResamlingType',1));
+  llStrType:=TDegrShowFormat(MainIni.Readinteger('VIEW','llStrType',0));
+  FirstLat:=MainIni.ReadBool('VIEW','FirstLat',false);
+  BorderAlpha:=MainIni.Readinteger('VIEW','BorderAlpha',150);
+  BorderColor:=MainIni.Readinteger('VIEW','BorderColor',$FFFFFF);
+  ShowBorderText:=MainIni.ReadBool('VIEW','BorderText',true);
+  UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
+  UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
+  AnimateZoom:=MainIni.Readbool('VIEW','animate',true);
+  GShScale:=MainIni.Readinteger('VIEW','GShScale',0);
+  if GShScale >= 1000000 then begin
+    GShScale := 1000000;
+  end else if GShScale >= 500000 then begin
+    GShScale := 500000;
+  end else if GShScale >= 200000 then begin
+    GShScale := 200000;
+  end else if GShScale >= 100000 then begin
+    GShScale := 100000;
+  end else if GShScale >= 50000 then begin
+    GShScale := 50000;
+  end else if GShScale >= 25000 then begin
+    GShScale := 25000;
+  end else if GShScale >= 10000 then begin
+    GShScale := 10000;
+  end else begin
+    GShScale := 0;
+  end;
+
+  MapZapColor:=MainIni.Readinteger('VIEW','MapZapColor',clBlack);
+  MapZapShowTNE:=MainIni.ReadBool('VIEW','MapZapShowTNE', True);
+  MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
+  MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
+
 end;
 
 procedure TGlobalState.LoadMapIconsList;
