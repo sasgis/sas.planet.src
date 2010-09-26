@@ -146,7 +146,6 @@ type
     YaLink: TMenuItem;
     kosmosnimkiru1: TMenuItem;
     N51: TMenuItem;
-    DataSource1: TDataSource;
     NMarkDel: TMenuItem;
     NMarkEdit: TMenuItem;
     NMarkSep: TMenuItem;
@@ -162,29 +161,6 @@ type
     dlm: TMenuItem;
     GPSReceiver: TZylGPSReceiver;
     SaveLink: TSaveDialog;
-    DSKategory: TDataSource;
-    CDSKategory: TClientDataSet;
-    CDSmarks: TClientDataSet;
-    CDSKategoryid: TAutoIncField;
-    CDSKategoryname: TStringField;
-    CDSKategoryvisible: TBooleanField;
-    CDSKategoryAfterScale: TSmallintField;
-    CDSKategoryBeforeScale: TSmallintField;
-    CDSmarksid: TAutoIncField;
-    CDSmarksname: TStringField;
-    CDSmarksdescr: TMemoField;
-    CDSmarksscale1: TIntegerField;
-    CDSmarksscale2: TIntegerField;
-    CDSmarkslonlatarr: TBlobField;
-    CDSmarkslonL: TFloatField;
-    CDSmarkslatT: TFloatField;
-    CDSmarksLonR: TFloatField;
-    CDSmarksLatB: TFloatField;
-    CDSmarkscolor1: TIntegerField;
-    CDSmarkscolor2: TIntegerField;
-    CDSmarksvisible: TBooleanField;
-    CDSmarkspicname: TStringField;
-    CDSmarkscategoryid: TIntegerField;
     NSRTM3: TMenuItem;
     N47: TMenuItem;
     N49: TMenuItem;
@@ -636,7 +612,6 @@ type
     procedure selectMap(AMapType: TMapType);
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
-    procedure ShowErrScript(DATA: string);
     procedure setalloperationfalse(newop: TAOperation);
     procedure SetLineScaleVisible(visible: boolean);
     procedure SetMiniMapVisible(visible: boolean);
@@ -2673,11 +2648,6 @@ begin
   end;
 end;
 
-procedure TFmain.ShowErrScript(DATA:string);
-begin
- ShowMessage(data);
-end;
-
 procedure TFmain.NinvertcolorClick(Sender: TObject);
 begin
  GState.InvertColor:=Ninvertcolor.Checked;
@@ -3606,9 +3576,9 @@ end;
 
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
- Self.Enabled:=false;
+// Self.Enabled:=false;
  FMarksExplorer.ShowModal;
- Self.Enabled:=true;
+// Self.Enabled:=true;
  generate_im;
 end;
 

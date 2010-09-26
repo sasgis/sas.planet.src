@@ -52,7 +52,8 @@ uses
   GR32,
   u_GlobalState,
   t_CommonTypes,
-  Unit1;
+  Unit1,
+  u_MarksDb;
 
 procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TExtendedPointArray);
 var
@@ -92,47 +93,47 @@ end;
 
 procedure ReadCurrentCategory(ACategory: TCategoryId);
 begin
-  ACategory.name := Fmain.CDSKategory.fieldbyname('name').AsString;
-  ACategory.id := Fmain.CDSKategory.fieldbyname('id').AsInteger;
-  ACategory.visible := Fmain.CDSKategory.FieldByName('visible').AsBoolean;
-  ACategory.AfterScale := Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger;
-  ACategory.BeforeScale := Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger;
+  ACategory.name := DMMarksDb.CDSKategory.fieldbyname('name').AsString;
+  ACategory.id := DMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
+  ACategory.visible := DMMarksDb.CDSKategory.FieldByName('visible').AsBoolean;
+  ACategory.AfterScale := DMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger;
+  ACategory.BeforeScale := DMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
 end;
 
 procedure WriteCurrentCategory(ACategory: TCategoryId);
 begin
-  Fmain.CDSKategory.fieldbyname('name').AsString := ACategory.name;
-  Fmain.CDSKategory.FieldByName('visible').AsBoolean := ACategory.visible;
-  Fmain.CDSKategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
-  Fmain.CDSKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
+  DMMarksDb.CDSKategory.fieldbyname('name').AsString := ACategory.name;
+  DMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ACategory.visible;
+  DMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
+  DMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
 procedure WriteCategory(ACategory: TCategoryId);
 begin
   if ACategory.id < 0 then begin
-    Fmain.CDSKategory.Insert;
+    DMMarksDb.CDSKategory.Insert;
   end else begin
-    Fmain.CDSKategory.Locate('id', ACategory.id, []);
-    Fmain.CDSKategory.Edit;
+    DMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
+    DMMarksDb.CDSKategory.Edit;
   end;
   WriteCurrentCategory(ACategory);
-  Fmain.CDSKategory.post;
-  ACategory.id := Fmain.CDSKategory.fieldbyname('id').AsInteger;
+  DMMarksDb.CDSKategory.post;
+  ACategory.id := DMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
   SaveCategory2File;
 end;
 
 procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
 begin
-  if Fmain.CDSKategory.Locate('id', ACategory.id, []) then begin
-    FMain.CDSmarks.Filtered := false;
-    Fmain.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
-    Fmain.CDSmarks.Filtered := true;
-    Fmain.CDSmarks.First;
-    while not (Fmain.CDSmarks.Eof) do begin
-      Fmain.CDSmarks.Delete;
+  if DMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
+    DMMarksDb.CDSmarks.Filtered := false;
+    DMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
+    DMMarksDb.CDSmarks.Filtered := true;
+    DMMarksDb.CDSmarks.First;
+    while not (DMMarksDb.CDSmarks.Eof) do begin
+      DMMarksDb.CDSmarks.Delete;
     end;
-    if Fmain.CDSKategory.Locate('id', ACategory.id, []) then begin
-      Fmain.CDSKategory.Delete;
+    if DMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
+      DMMarksDb.CDSKategory.Delete;
     end;
     SaveCategory2File;
   end;
@@ -143,18 +144,18 @@ function GetMarksFileterByCategories(AZoom: Byte): string;
 begin
   Result := '';
   if GState.show_point = mshChecked then begin
-    FMain.CDSKategory.DisableControls;
+    DMMarksDb.CDSKategory.DisableControls;
     try
-      FMain.CDSKategory.Filter := 'visible = 1 and ( AfterScale <= ' + inttostr(AZoom + 1) + ' and BeforeScale >= ' + inttostr(AZoom + 1) + ' )';
-      FMain.CDSKategory.Filtered := true;
+      DMMarksDb.CDSKategory.Filter := 'visible = 1 and ( AfterScale <= ' + inttostr(AZoom + 1) + ' and BeforeScale >= ' + inttostr(AZoom + 1) + ' )';
+      DMMarksDb.CDSKategory.Filtered := true;
       try
-        FMain.CDSKategory.First;
-        if not (FMain.CDSKategory.Eof) then begin
+        DMMarksDb.CDSKategory.First;
+        if not (DMMarksDb.CDSKategory.Eof) then begin
           Result := '(';
-          while not (FMain.CDSKategory.Eof) do begin
-            Result := Result + 'categoryid=' + FMain.CDSKategory.fieldbyname('id').AsString;
-            FMain.CDSKategory.Next;
-            if not (FMain.CDSKategory.Eof) then begin
+          while not (DMMarksDb.CDSKategory.Eof) do begin
+            Result := Result + 'categoryid=' + DMMarksDb.CDSKategory.fieldbyname('id').AsString;
+            DMMarksDb.CDSKategory.Next;
+            if not (DMMarksDb.CDSKategory.Eof) then begin
               Result := Result + ' or ';
             end;
           end;
@@ -163,65 +164,65 @@ begin
           Result := '(categoryid=-1)';
         end;
       finally
-        FMain.CDSKategory.Filtered := false;
+        DMMarksDb.CDSKategory.Filtered := false;
       end;
     finally
-      FMain.CDSKategory.EnableControls;
+      DMMarksDb.CDSKategory.EnableControls;
     end;
   end;
 end;
 
 procedure ReadCurrentMarkId(AMark: TMarkId);
 begin
-  AMark.id := Fmain.CDSmarks.fieldbyname('id').AsInteger;
-  AMark.name := Fmain.CDSmarks.FieldByName('name').AsString;
-  AMark.visible := Fmain.CDSmarks.FieldByName('Visible').AsBoolean;
+  AMark.id := DMMarksDb.CDSmarks.fieldbyname('id').AsInteger;
+  AMark.name := DMMarksDb.CDSmarks.FieldByName('name').AsString;
+  AMark.visible := DMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean;
 end;
 
 procedure ReadCurrentMark(AMark: TMarkFull);
 begin
   ReadCurrentMarkId(AMark);
-  Blob2ExtArr(Fmain.CDSmarks.FieldByName('LonLatArr'), AMark.Points);
-  AMark.CategoryId := Fmain.CDSmarkscategoryid.AsInteger;
-  AMark.Desc := Fmain.CDSmarks.FieldByName('descr').AsString;
-  AMark.LLRect.Left := Fmain.CDSmarks.FieldByName('LonL').AsFloat;
-  AMark.LLRect.Top := Fmain.CDSmarks.FieldByName('LatT').AsFloat;
-  AMark.LLRect.Right := Fmain.CDSmarks.FieldByName('LonR').AsFloat;
-  AMark.LLRect.Bottom := Fmain.CDSmarks.FieldByName('LatB').AsFloat;
-  AMark.PicName := Fmain.CDSmarks.FieldByName('PicName').AsString;
-  AMark.Color1 := TColor32(Fmain.CDSmarks.FieldByName('Color1').AsInteger);
-  AMark.Color2 := TColor32(Fmain.CDSmarks.FieldByName('Color2').AsInteger);
-  AMark.Scale1 := Fmain.CDSmarks.FieldByName('Scale1').AsInteger;
-  AMark.Scale2 := Fmain.CDSmarks.FieldByName('Scale2').AsInteger;
+  Blob2ExtArr(DMMarksDb.CDSmarks.FieldByName('LonLatArr'), AMark.Points);
+  AMark.CategoryId := DMMarksDb.CDSmarkscategoryid.AsInteger;
+  AMark.Desc := DMMarksDb.CDSmarks.FieldByName('descr').AsString;
+  AMark.LLRect.Left := DMMarksDb.CDSmarks.FieldByName('LonL').AsFloat;
+  AMark.LLRect.Top := DMMarksDb.CDSmarks.FieldByName('LatT').AsFloat;
+  AMark.LLRect.Right := DMMarksDb.CDSmarks.FieldByName('LonR').AsFloat;
+  AMark.LLRect.Bottom := DMMarksDb.CDSmarks.FieldByName('LatB').AsFloat;
+  AMark.PicName := DMMarksDb.CDSmarks.FieldByName('PicName').AsString;
+  AMark.Color1 := TColor32(DMMarksDb.CDSmarks.FieldByName('Color1').AsInteger);
+  AMark.Color2 := TColor32(DMMarksDb.CDSmarks.FieldByName('Color2').AsInteger);
+  AMark.Scale1 := DMMarksDb.CDSmarks.FieldByName('Scale1').AsInteger;
+  AMark.Scale2 := DMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger;
 end;
 
 procedure WriteCurrentMarkId(AMark: TMarkId);
 begin
-  Fmain.CDSmarks.FieldByName('name').AsString := AMark.name;
-  Fmain.CDSmarks.FieldByName('Visible').AsBoolean := AMark.visible;
+  DMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
+  DMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := AMark.visible;
 end;
 
 procedure WriteCurrentMark(AMark: TMarkFull);
 begin
   WriteCurrentMarkId(AMark);
-  BlobFromExtArr(AMark.Points, Fmain.CDSmarks.FieldByName('LonLatArr'));
-  Fmain.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
-  Fmain.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
-  Fmain.CDSmarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
-  Fmain.CDSmarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
-  Fmain.CDSmarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
-  Fmain.CDSmarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
-  Fmain.CDSmarks.FieldByName('PicName').AsString := AMark.PicName;
-  Fmain.CDSmarks.FieldByName('Color1').AsInteger := AMark.Color1;
-  Fmain.CDSmarks.FieldByName('Color2').AsInteger := AMark.Color2;
-  Fmain.CDSmarks.FieldByName('Scale1').AsInteger := AMark.Scale1;
-  Fmain.CDSmarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
+  BlobFromExtArr(AMark.Points, DMMarksDb.CDSmarks.FieldByName('LonLatArr'));
+  DMMarksDb.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
+  DMMarksDb.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
+  DMMarksDb.CDSmarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
+  DMMarksDb.CDSmarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
+  DMMarksDb.CDSmarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
+  DMMarksDb.CDSmarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
+  DMMarksDb.CDSmarks.FieldByName('PicName').AsString := AMark.PicName;
+  DMMarksDb.CDSmarks.FieldByName('Color1').AsInteger := AMark.Color1;
+  DMMarksDb.CDSmarks.FieldByName('Color2').AsInteger := AMark.Color2;
+  DMMarksDb.CDSmarks.FieldByName('Scale1').AsInteger := AMark.Scale1;
+  DMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
 end;
 
 function GetMarkByID(id: integer): TMarkFull;
 begin
   Result := nil;
-  if FMain.CDSmarks.Locate('id', id, []) then begin
+  if DMMarksDb.CDSmarks.Locate('id', id, []) then begin
     Result := TMarkFull.Create;
     ReadCurrentMark(Result);
   end;
@@ -230,7 +231,7 @@ end;
 function GetMarkIdByID(id: integer): TMarkId;
 begin
   Result := nil;
-  if FMain.CDSmarks.Locate('id', id, []) then begin
+  if DMMarksDb.CDSmarks.Locate('id', id, []) then begin
     Result := TMarkId.Create;
     ReadCurrentMarkId(Result);
   end;
@@ -239,30 +240,30 @@ end;
 procedure WriteMark(AMark: TMarkFull);
 begin
   if AMark.id >= 0 then begin
-    Fmain.CDSmarks.Locate('id', AMark.id, []);
-    Fmain.CDSmarks.Edit;
+    DMMarksDb.CDSmarks.Locate('id', AMark.id, []);
+    DMMarksDb.CDSmarks.Edit;
   end else begin
-    Fmain.CDSmarks.Insert;
+    DMMarksDb.CDSmarks.Insert;
   end;
   WriteCurrentMark(AMark);
-  Fmain.CDSmarks.Post;
+  DMMarksDb.CDSmarks.Post;
 end;
 
 procedure WriteMarkId(AMark: TMarkId);
 begin
   if AMark.id >= 0 then begin
-    Fmain.CDSmarks.Locate('id', AMark.id, []);
-    Fmain.CDSmarks.Edit;
+    DMMarksDb.CDSmarks.Locate('id', AMark.id, []);
+    DMMarksDb.CDSmarks.Edit;
     WriteCurrentMarkId(AMark);
-    Fmain.CDSmarks.Post;
+    DMMarksDb.CDSmarks.Post;
   end;
 end;
 
 function DeleteMark(AMarkId: TMarkId): Boolean;
 begin
   result := false;
-  if Fmain.CDSmarks.Locate('id', AMarkId.id, []) then begin
-    Fmain.CDSmarks.Delete;
+  if DMMarksDb.CDSmarks.Locate('id', AMarkId.id, []) then begin
+    DMMarksDb.CDSmarks.Delete;
     SaveMarks2File;
     result := true;
   end;
@@ -289,15 +290,15 @@ begin
     AStrings.Objects[i].Free;
   end;
   AStrings.Clear;
-  Fmain.CDSmarks.Filtered := false;
-  Fmain.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
-  Fmain.CDSmarks.Filtered := true;
-  Fmain.CDSmarks.First;
-  while not (Fmain.CDSmarks.Eof) do begin
+  DMMarksDb.CDSmarks.Filtered := false;
+  DMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
+  DMMarksDb.CDSmarks.Filtered := true;
+  DMMarksDb.CDSmarks.First;
+  while not (DMMarksDb.CDSmarks.Eof) do begin
     VMarkId := TMarkId.Create;
     ReadCurrentMarkId(VMarkId);
     AStrings.AddObject(VMarkId.name, VMarkId);
-    Fmain.CDSmarks.Next;
+    DMMarksDb.CDSmarks.Next;
   end;
 end;
 
@@ -310,13 +311,13 @@ begin
     AStrings.Objects[i].Free;
   end;
   AStrings.Clear;
-  Fmain.CDSmarks.Filtered := false;
-  Fmain.CDSmarks.First;
-  while not (Fmain.CDSmarks.Eof) do begin
+  DMMarksDb.CDSmarks.Filtered := false;
+  DMMarksDb.CDSmarks.First;
+  while not (DMMarksDb.CDSmarks.Eof) do begin
     VMarkId := TMarkId.Create;
     ReadCurrentMarkId(VMarkId);
     AStrings.AddObject(VMarkId.name, VMarkId);
-    Fmain.CDSmarks.Next;
+    DMMarksDb.CDSmarks.Next;
   end;
 end;
 
@@ -341,8 +342,8 @@ begin
   ms := TMemoryStream.Create;
   try
     try
-      Fmain.CDSmarks.MergeChangeLog;
-      XML := Fmain.CDSmarks.XMLData;
+      DMMarksDb.CDSmarks.MergeChangeLog;
+      XML := DMMarksDb.CDSmarks.XMLData;
       ms.Write(XML[1], length(XML));
       ms.SaveToFile(GState.MarksFileName);
     except
@@ -362,8 +363,8 @@ begin
   ms := TMemoryStream.Create;
   try
     try
-      Fmain.CDSKategory.MergeChangeLog;
-      XML := Fmain.CDSKategory.XMLData;
+      DMMarksDb.CDSKategory.MergeChangeLog;
+      XML := DMMarksDb.CDSKategory.XMLData;
       ms.Write(XML[1], length(XML));
       ms.SaveToFile(GState.MarksCategoryFileName);
     except
@@ -377,8 +378,8 @@ end;
 procedure LoadMarksFromFile;
 begin
   if FileExists(GState.MarksFileName) then begin
-    Fmain.CDSMarks.LoadFromFile(GState.MarksFileName);
-    if Fmain.CDSMarks.RecordCount > 0 then begin
+    DMMarksDb.CDSMarks.LoadFromFile(GState.MarksFileName);
+    if DMMarksDb.CDSMarks.RecordCount > 0 then begin
       CopyFile(PChar(GState.MarksFileName), PChar(GState.MarksBackUpFileName), false);
     end;
   end;
@@ -387,8 +388,8 @@ end;
 procedure LoadCategoriesFromFile;
 begin
   if FileExists(GState.MarksCategoryFileName) then begin
-    Fmain.CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
-    if Fmain.CDSKategory.RecordCount > 0 then begin
+    DMMarksDb.CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
+    if DMMarksDb.CDSKategory.RecordCount > 0 then begin
       CopyFile(PChar(GState.MarksCategoryFileName), PChar(GState.MarksCategoryBackUpFileName), false);
     end;
   end;
@@ -400,12 +401,12 @@ constructor TMarksIteratorVisibleInRect.Create(AZoom: Byte;
   ARect: TExtendedRect);
 begin
   inherited Create;
-  Fmain.CDSmarks.DisableControls;
-  FMain.CDSmarks.Filter := GetFilterText(AZoom, ARect);
-  FMain.CDSmarks.Filtered := true;
-  FMain.CDSmarks.First;
+  DMMarksDb.CDSmarks.DisableControls;
+  DMMarksDb.CDSmarks.Filter := GetFilterText(AZoom, ARect);
+  DMMarksDb.CDSmarks.Filtered := true;
+  DMMarksDb.CDSmarks.First;
   FFinished := False;
-  if FMain.CDSmarks.Eof then begin
+  if DMMarksDb.CDSmarks.Eof then begin
     FinishIterate;
   end;
 end;
@@ -421,8 +422,8 @@ end;
 procedure TMarksIteratorVisibleInRect.FinishIterate;
 begin
   FFinished := True;
-  FMain.CDSmarks.Filtered := false;
-  Fmain.CDSmarks.EnableControls;
+  DMMarksDb.CDSmarks.Filtered := false;
+  DMMarksDb.CDSmarks.EnableControls;
 end;
 
 function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
@@ -451,8 +452,8 @@ function TMarksIteratorVisibleInRect.Next: Boolean;
 begin
   if not FFinished then begin
     ReadCurrentMark(FCurrentMark);
-    FMain.CDSmarks.Next;
-    if FMain.CDSmarks.Eof then begin
+    DMMarksDb.CDSmarks.Next;
+    if DMMarksDb.CDSmarks.Eof then begin
       FinishIterate;
     end;
     Result := True;
@@ -483,13 +484,13 @@ begin
     AStrings.Objects[i].Free;
   end;
   AStrings.Clear;
-  Fmain.CDSKategory.Filtered := false;
-  Fmain.CDSKategory.First;
-  while not (Fmain.CDSKategory.Eof) do begin
+  DMMarksDb.CDSKategory.Filtered := false;
+  DMMarksDb.CDSKategory.First;
+  while not (DMMarksDb.CDSKategory.Eof) do begin
     KategoryId := TCategoryId.Create;
     ReadCurrentCategory(KategoryId);
     AStrings.AddObject(KategoryId.name, KategoryId);
-    Fmain.CDSKategory.Next;
+    DMMarksDb.CDSKategory.Next;
   end;
 end;
 
