@@ -1329,6 +1329,9 @@ begin
           NLayerParamsItem.ImageIndex:=VIcon18Index;
           NLayerParamsItem.OnClick:=NMapParamsClick;
           NLayerParams.Add(NLayerParamsItem);
+          NDwnItem.Tag:=longint(VMapType);
+          NDelItem.Tag:=longint(VMapType);
+          NLayerParamsItem.Tag:=longint(VMapType);
         end;
         if (asLayer)and(GState.ViewState.IsHybrGUIDSelected(GUID)) then begin
           MainToolbarItem.Checked:=true;
@@ -1339,11 +1342,6 @@ begin
         end;
         MainToolbarItem.Tag:=Longint(VMapType);
         TBFillingItem.Tag:=Longint(VMapType);
-        if asLayer then begin
-          NDwnItem.Tag:=longint(VMapType);
-          NDelItem.Tag:=longint(VMapType);
-          NLayerParamsItem.Tag:=longint(VMapType);
-        end;
       end;
     end;
   end;
