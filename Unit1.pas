@@ -597,7 +597,7 @@ type
     m_m: Tpoint;
     moveTrue: Tpoint;
     MapMoving: Boolean;
-    MapZoomAnimtion: Integer;
+    MapZoomAnimtion: Boolean;
     change_scene: boolean;
     aoper: TAOperation;
     EditMarkId:integer;
@@ -960,7 +960,7 @@ begin
 
  if Active then
   case Msg.message of
-   WM_MOUSEWHEEL: if MapZoomAnimtion=0 then
+   WM_MOUSEWHEEL: if not MapZoomAnimtion then
                  begin
                   m_m:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
@@ -1179,7 +1179,7 @@ var
 begin
   if not Enabled then Exit;
   if MapMoving then Exit;
-  if MapZoomAnimtion = 1 then Exit;
+  if MapZoomAnimtion then Exit;
 
   QueryPerformanceCounter(ts2);
 
@@ -1428,7 +1428,7 @@ begin
 
  MouseDownPoint := point(0,0);
  MouseUpPoint := point(0,0);
- MapZoomAnimtion:=0;
+ MapZoomAnimtion:=False;
 
  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
@@ -1622,8 +1622,8 @@ begin
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   RxSlider1.Value:=ANewZoom;
   VZoom := GState.ViewState.GetCurrentZoom;
-  if (MapZoomAnimtion=1)or(MapMoving)or(ANewZoom>23) then exit;
-  MapZoomAnimtion:=1;
+  if (MapZoomAnimtion)or(MapMoving)or(ANewZoom>23) then exit;
+  MapZoomAnimtion:=True;
   steps:=11;
 
   if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
@@ -1674,7 +1674,7 @@ begin
   end else begin
     GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom);
   end;
-  MapZoomAnimtion:=0;
+  MapZoomAnimtion:=False;
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
@@ -2833,7 +2833,7 @@ begin
       GState.GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
     end;
 
-  if not((MapMoving)or(MapZoomAnimtion=1))and(Screen.ActiveForm=Self) then begin
+  if not((MapMoving)or(MapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
     if (GState.GPS_MapMove) then begin
       GState.ViewState.LockWrite;
       GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
@@ -2932,7 +2932,7 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
-  if (ssDouble in Shift)or(MapZoomAnimtion=1)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
+  if (ssDouble in Shift)or(MapZoomAnimtion)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
   GState.ViewState.LockRead;
@@ -3109,7 +3109,7 @@ begin
  end;
  if (((aoper<>ao_movemap)and(Button=mbLeft))or
      ((aoper=ao_movemap)and(Button=mbRight))) then exit;
- if (MapZoomAnimtion=1) then exit;
+ if (MapZoomAnimtion) then exit;
  map.Enabled:=false;
  map.Enabled:=true;
  if button=mbMiddle then
@@ -3267,7 +3267,7 @@ begin
     moveTrue:=point(x,y);
     exit;
   end;
- if (MapZoomAnimtion>0)or(
+ if (MapZoomAnimtion)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
    then begin
@@ -3337,7 +3337,7 @@ begin
                                      TBDockRight.Parent:=Self;
                                     end;
                       end;
- if MapZoomAnimtion=1 then exit;
+ if MapZoomAnimtion then exit;
  if MapMoving then begin
               FMainLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
