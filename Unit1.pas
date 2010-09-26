@@ -23,8 +23,6 @@ uses
   OleCtrls,
   Controls,
   Buttons,
-  DB,
-  DBClient,
   WinInet,
   Dialogs,
   ExtDlgs,
@@ -49,7 +47,6 @@ uses
   TBXExtItems,
   ZylGPSReceiver,
   ZylCustomGPSReceiver,
-  MidasLib,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_IGUIDList,
@@ -641,7 +638,6 @@ uses
   UProgress,
   Unit4,
   USelLonLat,
-  UImgFun,
   UEditMap,
   Ubrowser,
   UMarksExplorer,
@@ -665,9 +661,8 @@ uses
   u_MarksReadWriteSimple,
   u_ThreadDownloadTiles,
   UGSM,
-  UImport, 
-  u_MapViewPortState,
-  UShortcutEditor;
+  UImport,
+  u_MapViewPortState;
 
 {$R *.dfm}
 
