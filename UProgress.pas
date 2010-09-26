@@ -227,9 +227,7 @@ end;
 procedure TFProgress.ThreadFinish;
 begin
   GState.MainFileCache.Clear;
-  if not((FMain.MapMoving)or(FMain.MapZoomAnimtion=1)) then begin
-    FMain.generate_im;
-  end;
+  FMain.generate_im;
 end;
 
 procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);

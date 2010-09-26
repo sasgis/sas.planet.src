@@ -1177,7 +1177,17 @@ var
   ts2,ts3,fr:int64;
   VSelectionRect: TExtendedRect;
 begin
+  if not Enabled then Exit;
+  if MapMoving then Exit;
+  if MapZoomAnimtion = 1 then Exit;
+
   QueryPerformanceCounter(ts2);
+
+  if (lastload.use)and(err<>'') then begin
+    FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
+  end else begin
+    FShowErrorLayer.Visible := False;
+  end;
 
   if not(lastload.use) then change_scene:=true;
 
@@ -1185,12 +1195,6 @@ begin
   LayerScaleLine.Redraw;
   LayerMapMarks.Redraw;
   FWikiLayer.Redraw;
-
-  if (lastload.use)and(err<>'') then begin
-    FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
-  end else begin
-    FShowErrorLayer.Visible := False;
-  end;
 
   if not(lastload.use) then begin
     case aoper of
@@ -1370,7 +1374,7 @@ var
   VConverter: ICoordConverter;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
-  if ProgramStart=false then exit;
+  if not ProgramStart then exit;
   Enabled:=false;
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
@@ -2514,7 +2518,7 @@ end;
 
 procedure TFmain.mapResize(Sender: TObject);
 begin
- if (ProgramClose<>true)and(not(ProgramStart))then
+ if (not ProgramClose)and(not ProgramStart)then
   begin
    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
    FMainLayer.Resize;
