@@ -575,7 +575,7 @@ type
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
-    function PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect): Boolean;
+    procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect);
     procedure insertinpath(pos: integer);
     procedure delfrompath(pos: integer);
     procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
@@ -1034,8 +1034,8 @@ begin
   end;
 end;
 
-function TFmain.PrepareSelectionRect(Shift: TShiftState;
-  var ASelectedLonLat: TExtendedRect): Boolean;
+procedure TFmain.PrepareSelectionRect(Shift: TShiftState;
+  var ASelectedLonLat: TExtendedRect);
 var
   VZoomCurr: Byte;
   VSelectedPixels: TRect;
@@ -1044,7 +1044,6 @@ var
   VTileGridZoom: byte;
   VSelectedRelative: TExtendedRect;
   zLonR,zLatR: extended;
-  Poly:  TExtendedPointArray;
   VConverter: ICoordConverter;
 begin
   GState.ViewState.LockRead;
@@ -1107,21 +1106,6 @@ begin
 
     ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-(round(ASelectedLonLat.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
     if ASelectedLonLat.Bottom <= 0 then ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-zLatR;
-  end;
-  if (rect_p2) then begin
-    SetLength(Poly, 5);
-    Poly[0] := ASelectedLonLat.TopLeft;
-    Poly[1] := ExtPoint(ASelectedLonLat.Right, ASelectedLonLat.Top);
-    Poly[2] := ASelectedLonLat.BottomRight;
-    Poly[3] := ExtPoint(ASelectedLonLat.Left, ASelectedLonLat.Bottom);
-    Poly[4] := ASelectedLonLat.TopLeft;
-    fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
-    LayerSelection.Redraw;
-    Poly := nil;
-    rect_p2:=false;
-    Result := False;
-  end else begin
-    Result := True;
   end;
 end;
 
@@ -1221,9 +1205,8 @@ begin
       ao_rect: begin
         LayerMapNal.DrawNothing;
         VSelectionRect := FSelectionRect;
-        if PrepareSelectionRect([], VSelectionRect) then begin
-          LayerMapNal.DrawSelectionRect(VSelectionRect);
-        end;
+        PrepareSelectionRect([], VSelectionRect);
+        LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
       ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly: begin
         TBEditPath.Visible:=(length(add_line_arr)>1);
@@ -2937,6 +2920,7 @@ var
   VClickLonLat: TExtendedPoint;
   VClickRect: TRect;
   VClickLonLatRect: TExtendedRect;
+  VPoly:  TExtendedPointArray;
 begin
   if (HintWindow<>nil) then begin
     HintWindow.ReleaseHandle;
@@ -2984,7 +2968,19 @@ begin
       rect_dwn:=not(rect_dwn);
       LayerMapNal.DrawNothing;
       VSelectionRect := FSelectionRect;
-      if PrepareSelectionRect(Shift, VSelectionRect) then begin
+      PrepareSelectionRect(Shift, VSelectionRect);
+      if (rect_p2) then begin
+        SetLength(VPoly, 5);
+        VPoly[0] := VSelectionRect.TopLeft;
+        VPoly[1] := ExtPoint(VSelectionRect.Right, VSelectionRect.Top);
+        VPoly[2] := VSelectionRect.BottomRight;
+        VPoly[3] := ExtPoint(VSelectionRect.Left, VSelectionRect.Bottom);
+        VPoly[4] := VSelectionRect.TopLeft;
+        fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
+        LayerSelection.Redraw;
+        VPoly := nil;
+        rect_p2:=false;
+      end else begin
         LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
@@ -3141,9 +3137,8 @@ begin
    if aoper=ao_rect then begin
      LayerMapNal.DrawNothing;
      VSelectionRect := FSelectionRect;
-     if PrepareSelectionRect([], VSelectionRect) then begin
-       LayerMapNal.DrawSelectionRect(VSelectionRect);
-     end;
+     PrepareSelectionRect([], VSelectionRect);
+     LayerMapNal.DrawSelectionRect(VSelectionRect);
    end;
    if GState.GPS_enab then begin
      LayerMapGPS.Redraw;
@@ -3305,9 +3300,8 @@ begin
                FSelectionRect.BottomRight:=VLonLat;
                LayerMapNal.DrawNothing;
                VSelectionRect := FSelectionRect;
-               if PrepareSelectionRect(Shift,VSelectionRect) then begin
-                 LayerMapNal.DrawSelectionRect(VSelectionRect);
-               end;
+               PrepareSelectionRect(Shift,VSelectionRect);
+               LayerMapNal.DrawSelectionRect(VSelectionRect);
               end;
  if GState.FullScrean then begin
                        if y<10 then begin
