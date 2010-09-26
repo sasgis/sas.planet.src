@@ -1203,7 +1203,6 @@ begin
         LayerMapNal.DrawReg(reg_arr);
       end;
       ao_rect: begin
-        LayerMapNal.DrawNothing;
         VSelectionRect := FSelectionRect;
         PrepareSelectionRect([], VSelectionRect);
         LayerMapNal.DrawSelectionRect(VSelectionRect);
@@ -2966,9 +2965,9 @@ begin
         FSelectionRect.BottomRight:=FSelectionRect.TopLeft
       end;
       rect_dwn:=not(rect_dwn);
-      LayerMapNal.DrawNothing;
       VSelectionRect := FSelectionRect;
       PrepareSelectionRect(Shift, VSelectionRect);
+      LayerMapNal.DrawSelectionRect(VSelectionRect);
       if (rect_p2) then begin
         SetLength(VPoly, 5);
         VPoly[0] := VSelectionRect.TopLeft;
@@ -2977,11 +2976,10 @@ begin
         VPoly[3] := ExtPoint(VSelectionRect.Left, VSelectionRect.Bottom);
         VPoly[4] := VSelectionRect.TopLeft;
         fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
+        LayerMapNal.DrawNothing;
         LayerSelection.Redraw;
         VPoly := nil;
         rect_p2:=false;
-      end else begin
-        LayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
     end;
     if (aoper=ao_add_point) then begin
@@ -3135,9 +3133,8 @@ begin
     LayerMapNal.DrawReg(reg_arr);
    end;
    if aoper=ao_rect then begin
-     LayerMapNal.DrawNothing;
      VSelectionRect := FSelectionRect;
-     PrepareSelectionRect([], VSelectionRect);
+     PrepareSelectionRect(Shift, VSelectionRect);
      LayerMapNal.DrawSelectionRect(VSelectionRect);
    end;
    if GState.GPS_enab then begin
@@ -3298,7 +3295,6 @@ begin
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))
          then begin
                FSelectionRect.BottomRight:=VLonLat;
-               LayerMapNal.DrawNothing;
                VSelectionRect := FSelectionRect;
                PrepareSelectionRect(Shift,VSelectionRect);
                LayerMapNal.DrawSelectionRect(VSelectionRect);
