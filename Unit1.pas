@@ -2049,16 +2049,16 @@ var
   VConverter: ICoordConverter;
   VMap: TMapType;
 begin
-  GState.ViewState.LockRead;
-  try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VMap := GState.ViewState.GetCurrentMap;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
   if VMap.TileStorage.GetIsStoreFileCache then begin
+    GState.ViewState.LockRead;
+    try
+      VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+      VZoomCurr := GState.ViewState.GetCurrentZoom;
+      VMap := GState.ViewState.GetCurrentMap;
+      VConverter := GState.ViewState.GetCurrentCoordConverter;
+    finally
+      GState.ViewState.UnLockRead;
+    end;
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
@@ -2075,16 +2075,16 @@ var s:string;
   VConverter: ICoordConverter;
   VMap: TMapType;
 begin
-  GState.ViewState.LockRead;
-  try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VMap := GState.ViewState.GetCurrentMap;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
   if VMap.TileStorage.GetIsStoreFileCache then begin
+    GState.ViewState.LockRead;
+    try
+      VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+      VZoomCurr := GState.ViewState.GetCurrentZoom;
+      VMap := GState.ViewState.GetCurrentMap;
+      VConverter := GState.ViewState.GetCurrentCoordConverter;
+    finally
+      GState.ViewState.UnLockRead;
+    end;
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     s:=VMap.GetTileFileName(VPoint, VZoomCurr);
@@ -2158,15 +2158,21 @@ end;
 
 procedure TFmain.TBRectSaveClick(Sender: TObject);
 begin
- if TBRectSave.ImageIndex=6 then setalloperationfalse(ao_rect)
-                            else setalloperationfalse(ao_reg)
+  if TBRectSave.ImageIndex=6 then begin
+    setalloperationfalse(ao_rect);
+  end else begin
+    setalloperationfalse(ao_reg);
+  end;
 end;
 
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
- if length(GState.LastSelectionPolygon)>0 then fsaveas.Show_(GState.poly_zoom_save - 1, GState.LastSelectionPolygon)
-                        else showmessage(SAS_MSG_NeedHL);
- LayerSelection.Redraw;
+  if length(GState.LastSelectionPolygon)>0 then begin
+    fsaveas.Show_(GState.poly_zoom_save - 1, GState.LastSelectionPolygon);
+    LayerSelection.Redraw;
+  end else begin
+    showmessage(SAS_MSG_NeedHL);
+  end;
 end;
 
 //карта заполнения в основном окне
@@ -2183,20 +2189,20 @@ procedure TFmain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACo
 var
   Vzoom_mapzap: integer;
 begin
- Vzoom_mapzap:=((5*ARow)+ACol)-1;
- if Vzoom_mapzap>-1 then begin
-  TBMapZap.Caption:='x'+inttostr(Vzoom_mapzap+1);
-  Vzoom_mapzap := Vzoom_mapzap;
+  Vzoom_mapzap:=((5*ARow)+ACol)-1;
+  if Vzoom_mapzap>-1 then begin
+    TBMapZap.Caption:='x'+inttostr(Vzoom_mapzap+1);
+    Vzoom_mapzap := Vzoom_mapzap;
   end else begin
-   TBMapZap.Caption:='';
+    TBMapZap.Caption:='';
   end;
- FFillingMap.SetSourceMap(FFillingMap.SourceSelected, Vzoom_mapzap);
+  FFillingMap.SetSourceMap(FFillingMap.SourceSelected, Vzoom_mapzap);
 end;
 //X-карта заполнения в основном окне
 
 procedure TFmain.TBCalcRasClick(Sender: TObject);
 begin
- setalloperationfalse(ao_line);
+  setalloperationfalse(ao_line);
 end;
 
 procedure TFmain.N012Click(Sender: TObject);
@@ -2211,7 +2217,7 @@ end;
 
 procedure TFmain.N29Click(Sender: TObject);
 begin
- ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
+  ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
 end;
 
 procedure TFmain.selectMap(AMapType: TMapType);
@@ -2234,8 +2240,8 @@ end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
 begin
- FGoTo.ShowModal;
- end;
+  FGoTo.ShowModal;
+end;
 
 procedure TFmain.TBMainToolBarClose(Sender: TObject);
 begin
