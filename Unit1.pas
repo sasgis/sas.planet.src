@@ -2370,25 +2370,25 @@ end;
 procedure TFmain.TBCOORDClick(Sender: TObject);
 var
   Poly: TExtendedPointArray;
+  VSelLonLat: TFSelLonLat;
 begin
- FSelLonLat:= TFSelLonLat.Create(Self);
-        Try
-          if FSelLonLat.Execute Then
-             Begin
-              SetLength(Poly, 5);
-              Poly[0] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
-              Poly[1] := ExtPoint(FSelLonLat.lon_k,FSelLonLat._lat_k);
-              Poly[2] := ExtPoint(FSelLonLat.lon_k,FSelLonLat.lat_k);
-              Poly[3] := ExtPoint(FSelLonLat._lon_k,FSelLonLat.lat_k);
-              Poly[4] := ExtPoint(FSelLonLat._lon_k,FSelLonLat._lat_k);
-              fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
-              LayerSelection.Redraw;
-              Poly := nil;
-             End;
-        Finally
-          FSelLonLat.Free;
-        End;
- TBmoveClick(Sender);
+  VSelLonLat:= TFSelLonLat.Create(Self);
+  Try
+    if VSelLonLat.Execute Then Begin
+      SetLength(Poly, 5);
+      Poly[0] := ExtPoint(VSelLonLat._lon_k,VSelLonLat._lat_k);
+      Poly[1] := ExtPoint(VSelLonLat.lon_k,VSelLonLat._lat_k);
+      Poly[2] := ExtPoint(VSelLonLat.lon_k,VSelLonLat.lat_k);
+      Poly[3] := ExtPoint(VSelLonLat._lon_k,VSelLonLat.lat_k);
+      Poly[4] := ExtPoint(VSelLonLat._lon_k,VSelLonLat._lat_k);
+      fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
+      LayerSelection.Redraw;
+      Poly := nil;
+    End;
+  Finally
+    VSelLonLat.Free;
+  End;
+  TBmoveClick(Sender);
 end;
 
 procedure TFmain.SetLineScaleVisible(visible:boolean);

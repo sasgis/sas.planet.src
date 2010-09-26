@@ -51,9 +51,6 @@ type
     function Execute: Boolean;
   end;
 
-var
-  FSelLonLat: TFSelLonLat;
-
 implementation
 
 
@@ -80,7 +77,7 @@ begin
                          result:=false;
                          exit;
                         end;
-   FSelLonLat.Visible:=false;
+   Visible:=false;
    result:=true;
   end;
 end;
