@@ -28,6 +28,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   u_ThreadDeleteTiles,
   UResStrings,
   UMapType;
@@ -42,7 +43,7 @@ end;
 
 function TProviderTilesDelete.GetCaption: string;
 begin
-  Result := 'Удаление';
+  Result := _('Удаление');
 end;
 
 procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

@@ -27,6 +27,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   u_ThreadExportToAUX,
   UMapType;
 
@@ -40,7 +41,7 @@ end;
 
 function TExportProviderAUX.GetCaption: string;
 begin
-  Result := 'AUX для GeoExpress Server';
+  Result := _('AUX для GeoExpress Server');
 end;
 
 procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

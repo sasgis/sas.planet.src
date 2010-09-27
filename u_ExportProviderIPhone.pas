@@ -31,6 +31,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   u_ThreadExportIPhone,
   UMapType;
 
@@ -52,9 +53,9 @@ end;
 function TExportProviderIPhone.GetCaption: string;
 begin
   if FNewFormat then begin
-    Result := 'iPhone (2.2 и выше 128х128)';
+    Result := _('iPhone (2.2 и выше 128х128)');
   end else begin
-    Result := 'iPhone (Ниже v2.2 64х64)';
+    Result := _('iPhone (Ниже v2.2 64х64)');
   end;
 end;
 

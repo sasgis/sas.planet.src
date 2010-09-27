@@ -28,6 +28,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   u_GlobalState,
   u_ThreadExportToFileSystem,
   UResStrings,
@@ -43,7 +44,7 @@ end;
 
 function TProviderTilesCopy.GetCaption: string;
 begin
-  Result := 'Удаление';
+  Result := _('Копирование тайлов');
 end;
 
 procedure TProviderTilesCopy.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

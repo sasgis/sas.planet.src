@@ -101,6 +101,37 @@ uses
 
 {$R *.dfm}
 
+constructor TFsaveas.Create(AOwner: TComponent);
+begin
+  TP_Ignore(Self, 'CBFormat.Items');
+  inherited;
+
+  InitExportsList;
+
+  FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
+  FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
+  FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
+  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
+  FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
+  PageControl1.ActivePageIndex:=0;
+end;
+
+destructor TFsaveas.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to CBFormat.Items.Count - 1 do begin
+    CBFormat.Items.Objects[i].Free;
+    CBFormat.Items.Objects[i] := nil;
+  end;
+  FreeAndNil(FProviderTilesDelte);
+  FreeAndNil(FProviderTilesGenPrev);
+  FreeAndNil(FProviderTilesCopy);
+  FreeAndNil(FProviderTilesDownload);
+  FreeAndNil(FProviderMapCombine);
+  inherited;
+end;
+
 procedure TFsaveas.LoadSelFromFile(FileName:string);
 var ini:TMemIniFile;
     i:integer;
@@ -128,11 +159,17 @@ end;
 procedure TFsaveas.RefreshTranslation;
 var
   i: Integer;
+  VProvider: TExportProviderAbstract;
+  VIndex: Integer;
 begin
   inherited;
+  VIndex := CBFormat.ItemIndex;
   for i := 0 to CBFormat.Items.Count - 1 do begin
-    TExportProviderAbstract(CBFormat.Items.Objects[i]).RefreshTranslation;
+    VProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
+    VProvider.RefreshTranslation;
+    CBFormat.Items[i] := VProvider.GetCaption;
   end;
+  CBFormat.ItemIndex := VIndex;
   FProviderTilesDelte.RefreshTranslation;
   FProviderTilesGenPrev.RefreshTranslation;
   FProviderTilesCopy.RefreshTranslation;
@@ -143,22 +180,6 @@ end;
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
 begin
   FProviderTilesDelte.StartProcess(APolyLL);
-end;
-
-destructor TFsaveas.Destroy;
-var
-  i: Integer;
-begin
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    CBFormat.Items.Objects[i].Free;
-    CBFormat.Items.Objects[i] := nil;
-  end;
-  FreeAndNil(FProviderTilesDelte);
-  FreeAndNil(FProviderTilesGenPrev);
-  FreeAndNil(FProviderTilesCopy);
-  FreeAndNil(FProviderTilesDownload);
-  FreeAndNil(FProviderMapCombine);
-  inherited;
 end;
 
 procedure TFsaveas.ExportREG(APolyLL: TExtendedPointArray);
@@ -227,23 +248,6 @@ begin
    Fmain.Enabled:=true;
    close;
   end;
-end;
-
-constructor TFsaveas.Create(AOwner: TComponent);
-var
-  VExportProvider: TExportProviderAbstract;
-begin
-  TP_Ignore(Self, 'CBFormat.Items');
-  inherited;
-
-  InitExportsList;
-
-  FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
-  FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
-  FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
-  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
-  FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
-  PageControl1.ActivePageIndex:=0;
 end;
 
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TExtendedPointArray);

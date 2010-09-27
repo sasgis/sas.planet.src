@@ -29,6 +29,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
@@ -47,7 +48,7 @@ end;
 
 function TProviderMapCombine.GetCaption: string;
 begin
-  Result := 'Удаление';
+  Result := _('Склейка карты');
 end;
 
 procedure TProviderMapCombine.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

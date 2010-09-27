@@ -29,6 +29,7 @@ implementation
 uses
   SysUtils,
   GR32,
+  gnugettext,
   u_ThreadGenPrevZoom,
   UResStrings,
   Uimgfun,
@@ -44,7 +45,7 @@ end;
 
 function TProviderTilesGenPrev.GetCaption: string;
 begin
-  Result := 'Удаление';
+  Result := _('Генерация верхних уровней');
 end;
 
 procedure TProviderTilesGenPrev.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

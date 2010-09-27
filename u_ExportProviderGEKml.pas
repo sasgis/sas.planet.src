@@ -27,6 +27,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   u_ThreadExportKML,
   UMapType;
 
@@ -40,7 +41,7 @@ end;
 
 function TExportProviderGEKml.GetCaption: string;
 begin
-  Result := 'KML (Для просмотра в GE)';
+  Result := _('KML (Для просмотра в GE)');
 end;
 
 procedure TExportProviderGEKml.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

@@ -27,6 +27,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   i_ITileFileNameGenerator,
   u_GlobalState,
   u_ThreadExportToZip,
@@ -42,7 +43,7 @@ end;
 
 function TExportProviderZip.GetCaption: string;
 begin
-  Result := '”паковка в Zip';
+  Result := _('”паковка в Zip');
 end;
 
 procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

@@ -28,6 +28,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,
@@ -46,7 +47,7 @@ end;
 
 function TProviderTilesDownload.GetCaption: string;
 begin
-  Result := 'Удаление';
+  Result := _('Скачивание');
 end;
 
 procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
