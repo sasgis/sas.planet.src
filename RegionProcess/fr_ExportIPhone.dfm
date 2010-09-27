@@ -18,11 +18,10 @@ object frExportIPhone: TfrExportIPhone
       Left = 3
       Top = 3
       Width = 86
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object btnSelectTargetPath: TButton
       Left = 427
@@ -220,7 +219,7 @@ object frExportIPhone: TfrExportIPhone
           Left = 256
           Top = 20
           Width = 40
-          Height = 22
+          Height = 21
           Anchors = []
           MaxValue = 9
           MinValue = 0
@@ -231,7 +230,7 @@ object frExportIPhone: TfrExportIPhone
           Left = 256
           Top = 41
           Width = 40
-          Height = 22
+          Height = 21
           Anchors = []
           MaxValue = 100
           MinValue = 1
@@ -275,7 +274,7 @@ object frExportIPhone: TfrExportIPhone
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 5
         end
         object cbbMap: TComboBox
@@ -286,7 +285,7 @@ object frExportIPhone: TfrExportIPhone
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 6
         end
         object cbbSat: TComboBox
@@ -297,7 +296,7 @@ object frExportIPhone: TfrExportIPhone
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 7
         end
         object lblHybrCompress: TLabel
@@ -389,7 +388,7 @@ object frExportIPhone: TfrExportIPhone
           Left = 256
           Top = 62
           Width = 40
-          Height = 22
+          Height = 21
           Anchors = []
           MaxValue = 100
           MinValue = 1
@@ -410,11 +409,10 @@ object frExportIPhone: TfrExportIPhone
       object lblZooms: TLabel
         Left = 3
         Top = 3
-        Width = 69
+        Width = 57
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
-        ExplicitWidth = 57
       end
       object chklstZooms: TCheckListBox
         Left = 3

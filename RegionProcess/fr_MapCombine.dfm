@@ -2,10 +2,9 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 451
-  Height = 256
+  Height = 304
   Align = alClient
   TabOrder = 0
-  ExplicitHeight = 304
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -23,11 +22,9 @@ object frMapCombine: TfrMapCombine
       Left = 442
       Top = 3
       Width = 6
-      Height = 12
+      Height = 13
       Align = alRight
       Caption = '_'
-      ExplicitLeft = 467
-      ExplicitHeight = 13
     end
   end
   object pnlTargetFile: TPanel
@@ -43,11 +40,10 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 86
-      Height = 19
+      Height = 13
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 89
@@ -112,21 +108,19 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 67
     Width = 451
-    Height = 189
+    Height = 237
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitHeight = 237
     object pnlRight: TPanel
       Left = 286
       Top = 0
       Width = 165
-      Height = 189
+      Height = 237
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitHeight = 237
       object lblPrTypes: TLabel
         Left = 3
         Top = 100
@@ -193,7 +187,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 113
         Width = 159
-        Height = 73
+        Height = 121
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -203,7 +197,6 @@ object frMapCombine: TfrMapCombine
           '.dat'
           '.kml')
         TabOrder = 1
-        ExplicitHeight = 121
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -212,7 +205,7 @@ object frMapCombine: TfrMapCombine
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 2
         OnChange = cbbZoomChange
       end
@@ -221,12 +214,11 @@ object frMapCombine: TfrMapCombine
       Left = 0
       Top = 0
       Width = 286
-      Height = 189
+      Height = 237
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitHeight = 237
       object lblMap: TLabel
         Left = 3
         Top = 3
@@ -253,7 +245,7 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object cbbHybr: TComboBox

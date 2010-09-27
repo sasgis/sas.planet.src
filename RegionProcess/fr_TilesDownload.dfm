@@ -39,11 +39,10 @@ object frTilesDownload: TfrTilesDownload
       object lblZoom: TLabel
         Left = 3
         Top = 3
-        Width = 53
+        Width = 49
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
-        ExplicitWidth = 49
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -52,7 +51,7 @@ object frTilesDownload: TfrTilesDownload
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end
@@ -68,20 +67,18 @@ object frTilesDownload: TfrTilesDownload
       object lblMap: TLabel
         Left = 3
         Top = 3
-        Width = 386
+        Width = 57
         Height = 13
         Align = alTop
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-        ExplicitWidth = 57
       end
       object lblStat: TLabel
         Left = 3
         Top = 37
-        Width = 386
+        Width = 6
         Height = 13
         Align = alTop
         Caption = '_'
-        ExplicitWidth = 6
       end
       object cbbMap: TComboBox
         Left = 3
@@ -91,7 +88,7 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object chkReplace: TCheckBox
@@ -144,11 +141,10 @@ object frTilesDownload: TfrTilesDownload
             Left = 13
             Top = 0
             Width = 113
-            Height = 25
+            Height = 13
             Align = alLeft
             Caption = #1090#1086#1083#1100#1082#1086' '#1089#1086#1079#1076#1072#1085#1085#1099#1077' '#1076#1086' '
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0

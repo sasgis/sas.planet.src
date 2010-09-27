@@ -1,10 +1,11 @@
-object frExportGEKml: TfrExportGEKml
+object frExportToFileCont: TfrExportToFileCont
   Left = 0
   Top = 0
   Width = 451
   Height = 304
   Align = alClient
   TabOrder = 0
+  Visible = False
   object pnlCenter: TPanel
     Left = 0
     Top = 27
@@ -25,11 +26,10 @@ object frExportGEKml: TfrExportGEKml
       object lblZooms: TLabel
         Left = 3
         Top = 3
-        Width = 69
+        Width = 57
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
-        ExplicitWidth = 57
       end
       object chkAllZooms: TCheckBox
         Left = 3
@@ -66,31 +66,17 @@ object frExportGEKml: TfrExportGEKml
         Width = 370
         Height = 13
         Align = alTop
-        AutoSize = False
         Caption = #1050#1072#1088#1090#1072
-        ExplicitLeft = 12
-        ExplicitTop = 6
         ExplicitWidth = 31
       end
-      object chkNotSaveNotExists: TCheckBox
-        Left = 3
-        Top = 54
-        Width = 370
-        Height = 17
-        Align = alTop
-        Caption = #1053#1077' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1087#1091#1090#1080' '#1082' '#1085#1077#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1084' '#1090#1072#1081#1083#1072#1084
-        TabOrder = 0
-      end
-      object chkUseRelativePath: TCheckBox
+      object lblNamesType: TLabel
         Left = 3
         Top = 37
         Width = 370
-        Height = 17
+        Height = 13
         Align = alTop
-        Caption = #1054#1090#1085#1086#1089#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1091#1090#1100' '#1082' '#1090#1072#1081#1083#1072#1084
-        Checked = True
-        State = cbChecked
-        TabOrder = 1
+        Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
+        ExplicitWidth = 207
       end
       object cbbMap: TComboBox
         Left = 3
@@ -100,8 +86,25 @@ object frExportGEKml: TfrExportGEKml
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
+        ItemHeight = 0
+        TabOrder = 0
+      end
+      object cbbNamesType: TComboBox
+        Left = 3
+        Top = 50
+        Width = 370
+        Height = 21
+        Align = alTop
+        Style = csDropDownList
         ItemHeight = 13
-        TabOrder = 2
+        ItemIndex = 1
+        TabOrder = 1
+        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+        Items.Strings = (
+          'GoogleMV'
+          'SAS.'#1055#1083#1072#1085#1077#1090#1072
+          'ES1.95'
+          'GMT (GlobalMapper >=10.02)')
       end
     end
   end
@@ -118,11 +121,10 @@ object frExportGEKml: TfrExportGEKml
       Left = 3
       Top = 3
       Width = 86
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 89
@@ -143,10 +145,10 @@ object frExportGEKml: TfrExportGEKml
       OnClick = btnSelectTargetFileClick
     end
   end
-  object dlgSaveKML: TSaveDialog
-    DefaultExt = 'kml'
-    Filter = 'KML |*.kml'
-    Left = 184
-    Top = 136
+  object dlgSaveTargetFile: TSaveDialog
+    DefaultExt = 'zip'
+    Filter = 'Zip |*.zip'
+    Left = 40
+    Top = 128
   end
 end

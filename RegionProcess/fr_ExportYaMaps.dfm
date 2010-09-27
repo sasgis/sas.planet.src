@@ -25,12 +25,11 @@ object frExportYaMaps: TfrExportYaMaps
       object lblZooms: TLabel
         Left = 3
         Top = 3
-        Width = 85
+        Width = 57
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
         Layout = tlCenter
-        ExplicitWidth = 57
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -186,7 +185,7 @@ object frExportYaMaps: TfrExportYaMaps
           Left = 240
           Top = 20
           Width = 40
-          Height = 22
+          Height = 21
           Anchors = []
           MaxValue = 9
           MinValue = 0
@@ -197,7 +196,7 @@ object frExportYaMaps: TfrExportYaMaps
           Left = 240
           Top = 41
           Width = 40
-          Height = 22
+          Height = 21
           Anchors = []
           MaxValue = 100
           MinValue = 1
@@ -212,7 +211,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 2
         end
         object cbbMap: TComboBox
@@ -223,7 +222,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 3
         end
         object cbbSat: TComboBox
@@ -234,7 +233,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 4
         end
         object lblSatCompress: TLabel
@@ -327,11 +326,10 @@ object frExportYaMaps: TfrExportYaMaps
       Left = 3
       Top = 3
       Width = 86
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 89
