@@ -150,7 +150,6 @@ type
     livecom1: TMenuItem;
     N13: TMenuItem;
     ImageAtlas1: TMenuItem;
-    SaveDialog1: TSaveDialog;
     N26: TMenuItem;
     N27: TMenuItem;
     DigitalGlobe1: TMenuItem;
@@ -197,7 +196,6 @@ type
     NMarksCalcsSq: TMenuItem;
     NMarksCalcsPer: TMenuItem;
     WebBrowser1: TEmbeddedWB;
-    ImageList1: TImageList;
     N1: TMenuItem;
     NMapInfo: TMenuItem;
     TBImageList1_24: TTBImageList;
