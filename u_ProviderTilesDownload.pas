@@ -19,6 +19,7 @@ type
     procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
     procedure Show; override;
     procedure Hide; override;
+    procedure RefreshTranslation; override;
     procedure StartProcess(APolygon: TExtendedPointArray); override;
   end;
 
@@ -56,6 +57,14 @@ begin
     FFrame.Parent := FParent;
   end;
   FFrame.Init(Azoom);
+end;
+
+procedure TProviderTilesDownload.RefreshTranslation;
+begin
+  inherited;
+  if FFrame <> nil then begin
+    FFrame.RefreshTranslation;
+  end;
 end;
 
 procedure TProviderTilesDownload.Hide;

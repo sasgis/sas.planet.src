@@ -25,18 +25,20 @@ object frTilesGenPrev: TfrTilesGenPrev
       object lblFromZoom: TLabel
         Left = 3
         Top = 3
-        Width = 94
+        Width = 108
         Height = 13
         Align = alTop
         Caption = #1048#1079' '#1089#1083#1086#1103' '#1084#1072#1089#1096#1090#1072#1073#1072':'
+        ExplicitWidth = 94
       end
       object lblZooms: TLabel
         Left = 3
         Top = 37
-        Width = 88
+        Width = 108
         Height = 13
         Align = alTop
         Caption = #1042' '#1089#1083#1086#1080' '#1084#1072#1089#1096#1090#1072#1073#1072':'
+        ExplicitWidth = 88
       end
       object cbbFromZoom: TComboBox
         Left = 3
@@ -45,7 +47,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = cbbFromZoomChange
       end
@@ -119,7 +121,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object cbbResampler: TComboBox
@@ -129,7 +131,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         ItemIndex = 0
         TabOrder = 1
         Text = 'Box'

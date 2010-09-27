@@ -40,12 +40,14 @@ type
     procedure chkAllZoomsClick(Sender: TObject);
   private
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Init(AZoom: Byte);
   end;
 
 implementation
 
 uses
+  gnugettext,
   u_GlobalState,
   UResStrings,
   UMapType;
@@ -74,6 +76,14 @@ begin
       chklstZooms.Checked[i] := chkAllZooms.Checked;
     end;
   end;
+end;
+
+constructor TfrTilesGenPrev.Create(AOwner: TComponent);
+begin
+  TP_Ignore(Self, 'cbbResampler.Items');
+  TP_Ignore(Self, 'cbbResampler.Text');
+  inherited;
+
 end;
 
 procedure TfrTilesGenPrev.Init(AZoom: Byte);

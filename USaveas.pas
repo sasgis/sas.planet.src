@@ -64,11 +64,13 @@ type
     procedure scleitRECT(APolyLL: TExtendedPointArray);
     procedure savefilesREG(APolyLL: TExtendedPointArray);
     procedure ExportREG(APolyLL: TExtendedPointArray);
+    procedure InitExportsList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
+    procedure RefreshTranslation; override;
    end;
 
 var
@@ -77,6 +79,7 @@ var
 implementation
 
 uses
+  gnugettext,
   u_GlobalState,
   i_IMapCalibration,
   i_ICoordConverter,
@@ -120,6 +123,21 @@ begin
     end;
     FMain.LayerSelection.Redraw
   end
+end;
+
+procedure TFsaveas.RefreshTranslation;
+var
+  i: Integer;
+begin
+  inherited;
+  for i := 0 to CBFormat.Items.Count - 1 do begin
+    TExportProviderAbstract(CBFormat.Items.Objects[i]).RefreshTranslation;
+  end;
+  FProviderTilesDelte.RefreshTranslation;
+  FProviderTilesGenPrev.RefreshTranslation;
+  FProviderTilesCopy.RefreshTranslation;
+  FProviderTilesDownload.RefreshTranslation;
+  FProviderMapCombine.RefreshTranslation;
 end;
 
 procedure TFsaveas.DelRegion(APolyLL: TExtendedPointArray);
@@ -169,6 +187,25 @@ begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
+procedure TFsaveas.InitExportsList;
+var
+  VExportProvider: TExportProviderAbstract;
+begin
+  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderGEKml.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderAUX.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderZip.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  CBFormat.ItemIndex := 0;
+end;
+
 procedure TFsaveas.scleitRECT(APolyLL: TExtendedPointArray);
 begin
   FProviderMapCombine.StartProcess(APolyLL);
@@ -196,20 +233,10 @@ constructor TFsaveas.Create(AOwner: TComponent);
 var
   VExportProvider: TExportProviderAbstract;
 begin
+  TP_Ignore(Self, 'CBFormat.Items');
   inherited;
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderGEKml.Create(pnlExport);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderAUX.Create(pnlExport);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderZip.Create(pnlExport);
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  CBFormat.ItemIndex := 0;
+
+  InitExportsList;
 
   FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
   FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
