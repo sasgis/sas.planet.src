@@ -1016,6 +1016,7 @@ begin
                End;
              End;
           Entry.FCentralDirectoryFile := CDFile;
+          Finalize(CDFile);
           If Assigned(FParent.FOnZipOpen) Then FParent.FOnZipOpen(FParent,X,FParent.FEndOfCentralDir.TotalNumberOfEntriesOnThisDisk);
         End;
    Except
@@ -1053,6 +1054,7 @@ Var
   Byte_             : Array[0..4] of Byte;
   DataDescriptor    : TDataDescriptor;
 begin
+  Finalize(Result);
   FillChar(Result,SizeOf(Result),0);
   MS.Position := Offset;
   MS.Read(Byte_,4);
