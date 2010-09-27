@@ -59,6 +59,8 @@ type
   private
     FPolygLL: TExtendedPointArray;
   public
+    constructor Create(AOwner: TComponent); override;
+    procedure RefreshTranslation; override;
     procedure Init(AZoom: Byte; APolygLL: TExtendedPointArray);
   end;
 
@@ -124,6 +126,12 @@ begin
                 +inttostr(max.y-min.y);
 end;
 
+constructor TfrMapCombine.Create(AOwner: TComponent);
+begin
+  inherited;
+  cbbOutputFormat.ItemIndex := 0;
+end;
+
 procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TExtendedPointArray);
 var
   i: Integer;
@@ -179,6 +187,15 @@ begin
     GState.MapCalibrationList.Unlock;
   end;
   cbbOutputFormatChange(cbbOutputFormat);
+end;
+
+procedure TfrMapCombine.RefreshTranslation;
+var
+  i: Integer;
+begin
+  i := cbbOutputFormat.ItemIndex;
+  inherited;
+  cbbOutputFormat.ItemIndex := i;
 end;
 
 end.

@@ -1,14 +1,14 @@
 object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
-  Width = 476
-  Height = 226
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 476
+    Width = 451
     Height = 20
     Align = alTop
     Alignment = taLeftJustify
@@ -19,19 +19,20 @@ object frMapCombine: TfrMapCombine
     Caption = #1057#1082#1083#1077#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1092#1088#1072#1075#1084#1077#1085#1090
     TabOrder = 0
     object lblStat: TLabel
-      Left = 467
+      Left = 442
       Top = 3
       Width = 6
       Height = 12
       Align = alRight
       Caption = '_'
+      ExplicitLeft = 467
       ExplicitHeight = 13
     end
   end
   object pnlTargetFile: TPanel
     Left = 0
     Top = 42
-    Width = 476
+    Width = 451
     Height = 25
     Align = alTop
     BevelOuter = bvNone
@@ -50,14 +51,14 @@ object frMapCombine: TfrMapCombine
     object edtTargetFile: TEdit
       Left = 89
       Top = 3
-      Width = 363
+      Width = 338
       Height = 19
       Align = alClient
       TabOrder = 0
       ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
-      Left = 452
+      Left = 427
       Top = 3
       Width = 21
       Height = 19
@@ -70,7 +71,7 @@ object frMapCombine: TfrMapCombine
   object pnlOutputFormat: TPanel
     Left = 0
     Top = 20
-    Width = 476
+    Width = 451
     Height = 22
     Align = alTop
     BevelOuter = bvNone
@@ -89,7 +90,7 @@ object frMapCombine: TfrMapCombine
     object cbbOutputFormat: TComboBox
       Left = 133
       Top = 3
-      Width = 340
+      Width = 315
       Height = 21
       Align = alClient
       Style = csDropDownList
@@ -109,16 +110,16 @@ object frMapCombine: TfrMapCombine
   object pnlBottom: TPanel
     Left = 0
     Top = 67
-    Width = 476
-    Height = 159
+    Width = 451
+    Height = 237
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
     object pnlRight: TPanel
-      Left = 311
+      Left = 286
       Top = 0
       Width = 165
-      Height = 159
+      Height = 237
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -189,7 +190,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 113
         Width = 159
-        Height = 43
+        Height = 121
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -215,8 +216,8 @@ object frMapCombine: TfrMapCombine
     object pnlCenter: TPanel
       Left = 0
       Top = 0
-      Width = 311
-      Height = 159
+      Width = 286
+      Height = 237
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -224,7 +225,7 @@ object frMapCombine: TfrMapCombine
       object lblMap: TLabel
         Left = 3
         Top = 3
-        Width = 305
+        Width = 280
         Height = 13
         Align = alTop
         Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
@@ -233,7 +234,7 @@ object frMapCombine: TfrMapCombine
       object lblHybr: TLabel
         Left = 3
         Top = 37
-        Width = 305
+        Width = 280
         Height = 13
         Align = alTop
         Caption = #1053#1072#1083#1086#1078#1080#1090#1100':'
@@ -242,7 +243,7 @@ object frMapCombine: TfrMapCombine
       object cbbMap: TComboBox
         Left = 3
         Top = 16
-        Width = 305
+        Width = 280
         Height = 21
         Align = alTop
         Style = csDropDownList
@@ -253,7 +254,7 @@ object frMapCombine: TfrMapCombine
       object cbbHybr: TComboBox
         Left = 3
         Top = 50
-        Width = 305
+        Width = 280
         Height = 21
         Align = alTop
         Style = csDropDownList
@@ -267,7 +268,7 @@ object frMapCombine: TfrMapCombine
       object chkUseMapMarks: TCheckBox
         Left = 3
         Top = 88
-        Width = 305
+        Width = 280
         Height = 17
         Align = alTop
         Caption = #1053#1072#1082#1083#1072#1076#1099#1074#1072#1090#1100' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1077' '#1084#1077#1090#1082#1080
@@ -276,7 +277,7 @@ object frMapCombine: TfrMapCombine
       object chkUseRecolor: TCheckBox
         Left = 3
         Top = 71
-        Width = 305
+        Width = 280
         Height = 17
         Align = alTop
         Caption = #1055#1088#1080#1084#1077#1085#1103#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1094#1074#1077#1090#1072
@@ -285,7 +286,7 @@ object frMapCombine: TfrMapCombine
       object pnlJpegQuality: TPanel
         Left = 3
         Top = 105
-        Width = 305
+        Width = 280
         Height = 32
         Align = alTop
         BevelOuter = bvNone
