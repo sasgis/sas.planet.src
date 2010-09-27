@@ -247,8 +247,10 @@ type
     FMapsEdit: boolean;
   public
     FShortcutEditor: TShortcutEditor;
+    constructor Create(AOwner: TComponent); override;
     procedure Save;
     procedure InitMapsList;
+    procedure RefreshTranslation; override;
   end;
 
 var
@@ -514,6 +516,12 @@ begin
   CBProxyusedClick(CBProxyused);
 end;
 
+constructor TFSettings.Create(AOwner: TComponent);
+begin
+  inherited;
+  PageControl1.ActivePageIndex:=0;
+end;
+
 procedure TFSettings.FormShow(Sender: TObject);
 begin
  FMapsEdit:=false;
@@ -545,7 +553,6 @@ begin
  EditPass.Text:=GState.InetConnect.passstr;
  ColorBoxGPSstr.Selected:=GState.GPS_ArrowColor;
  CBinvertcolor.Checked:=GState.InvertColor;
- PageControl1.ActivePageIndex:=0;
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=GState.ShowBorderText;
@@ -667,6 +674,12 @@ procedure TFSettings.PaintBox1Paint(Sender: TObject);
 begin
  Fmain.GPSReceiver.DrawSatellites(TPaintBox(Sender).Canvas, TPaintBox(Sender).Width div 2,
     TPaintBox(Sender).Parent.Brush.Color, clBlack);
+end;
+
+procedure TFSettings.RefreshTranslation;
+begin
+  inherited;
+  FormShow(Self);
 end;
 
 procedure TFSettings.Button18Click(Sender: TObject);
