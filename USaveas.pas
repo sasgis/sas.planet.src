@@ -149,8 +149,8 @@ begin
     end;
    if length(GState.LastSelectionPolygon)>0 then
     begin
-     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1);
-     fsaveas.Show_(GState.poly_zoom_save - 1,GState.LastSelectionPolygon);
+     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1) - 1;
+     fsaveas.Show_(GState.poly_zoom_save, GState.LastSelectionPolygon);
     end;
     FMain.LayerSelection.Redraw
   end
@@ -266,7 +266,7 @@ begin
     FPolygonLL[i]:=polygon_[i];
     GState.LastSelectionPolygon[i]:=polygon_[i];
   end;
-  GState.poly_zoom_save:=FZoom_rect + 1;
+  GState.poly_zoom_save:=FZoom_rect;
   vramkah:=false;
   zagran:=false;
   VConverter := GState.ViewState.GetCurrentCoordConverter;
@@ -330,7 +330,7 @@ begin
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
    if length(GState.LastSelectionPolygon)>0 then
     begin
-     Ini.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save);
+     Ini.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save + 1);
      for i:=1 to length(GState.LastSelectionPolygon) do
       begin
        Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);

@@ -2168,7 +2168,7 @@ end;
 procedure TFmain.TBPreviousClick(Sender: TObject);
 begin
   if length(GState.LastSelectionPolygon)>0 then begin
-    fsaveas.Show_(GState.poly_zoom_save - 1, GState.LastSelectionPolygon);
+    fsaveas.Show_(GState.poly_zoom_save, GState.LastSelectionPolygon);
     LayerSelection.Redraw;
   end else begin
     showmessage(SAS_MSG_NeedHL);
