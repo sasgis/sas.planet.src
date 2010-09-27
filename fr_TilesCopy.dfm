@@ -5,8 +5,6 @@ object frTilesCopy: TfrTilesCopy
   Height = 304
   Align = alClient
   TabOrder = 0
-  ExplicitWidth = 678
-  ExplicitHeight = 248
   object pnlCenter: TPanel
     Left = 0
     Top = 27
@@ -15,7 +13,6 @@ object frTilesCopy: TfrTilesCopy
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = -37
     object pnlRight: TPanel
       Left = 376
       Top = 0
@@ -28,27 +25,27 @@ object frTilesCopy: TfrTilesCopy
       object lblZooms: TLabel
         Left = 3
         Top = 3
-        Width = 57
+        Width = 69
         Height = 13
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        ExplicitWidth = 57
       end
       object chkAllZooms: TCheckBox
         Left = 3
-        Top = 201
+        Top = 257
         Width = 69
         Height = 17
         Align = alBottom
         Caption = #1042#1089#1077
         TabOrder = 0
         OnClick = chkAllZoomsClick
-        ExplicitTop = 257
       end
       object chklstZooms: TCheckListBox
         Left = 3
         Top = 16
         Width = 69
-        Height = 185
+        Height = 241
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
@@ -79,7 +76,7 @@ object frTilesCopy: TfrTilesCopy
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         ItemIndex = 1
         TabOrder = 0
         Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -97,9 +94,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100
         TabOrder = 1
-        ExplicitLeft = 272
-        ExplicitTop = 40
-        ExplicitWidth = 97
       end
       object chkReplaseTarget: TCheckBox
         Left = 3
@@ -109,9 +103,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1087#1088#1080' '#1089#1086#1074#1087#1072#1076#1077#1085#1080#1080
         TabOrder = 2
-        ExplicitLeft = 272
-        ExplicitTop = 56
-        ExplicitWidth = 153
       end
       object chkAllMaps: TCheckBox
         Left = 3
@@ -122,8 +113,6 @@ object frTilesCopy: TfrTilesCopy
         Caption = #1042#1089#1077
         TabOrder = 3
         OnClick = chkAllMapsClick
-        ExplicitTop = 174
-        ExplicitWidth = 41
       end
       object chklstMaps: TCheckListBox
         Left = 3
@@ -161,14 +150,13 @@ object frTilesCopy: TfrTilesCopy
     object edtTargetPath: TEdit
       Left = 89
       Top = 3
-      Width = 565
+      Width = 338
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 338
     end
     object btnSelectTargetPath: TButton
-      Left = 654
+      Left = 427
       Top = 3
       Width = 21
       Height = 21
@@ -176,7 +164,6 @@ object frTilesCopy: TfrTilesCopy
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetPathClick
-      ExplicitLeft = 427
     end
   end
 end

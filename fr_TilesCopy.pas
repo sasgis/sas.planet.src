@@ -41,12 +41,15 @@ type
   private
   public
     procedure Init;
+    constructor Create(AOwner: TComponent); override;
+    procedure RefreshTranslation; override;
   end;
 
 implementation
 
 uses
   FileCtrl,
+  gnugettext,
   u_GlobalState,
   UResStrings,
   UMapType;
@@ -80,6 +83,12 @@ begin
   end;
 end;
 
+constructor TfrTilesCopy.Create(AOwner: TComponent);
+begin
+  inherited;
+  cbbNamesType.ItemIndex := 1;
+end;
+
 procedure TfrTilesCopy.Init;
 var
   i: integer;
@@ -101,6 +110,15 @@ begin
       chklstMaps.ItemIndex := VAddedIndex;
     end;
   end;
+end;
+
+procedure TfrTilesCopy.RefreshTranslation;
+var
+  i: Integer;
+begin
+  i := cbbNamesType.ItemIndex;
+  inherited;
+  cbbNamesType.ItemIndex := i;
 end;
 
 end.

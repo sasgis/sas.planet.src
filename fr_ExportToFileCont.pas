@@ -40,6 +40,7 @@ type
   public
     constructor CreateForFileType(AOwner: TComponent; AFileFilters: string; AFileExtDefault: string);
     procedure Init;
+    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -73,6 +74,7 @@ begin
   inherited Create(AOwner);
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
+  cbbNamesType.ItemIndex := 1;
 end;
 
 procedure TfrExportToFileCont.Init;
@@ -99,6 +101,15 @@ begin
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
   end;
+end;
+
+procedure TfrExportToFileCont.RefreshTranslation;
+var
+  i: Integer;
+begin
+  i := cbbNamesType.ItemIndex;
+  inherited;
+  cbbNamesType.ItemIndex := i;
 end;
 
 end.
