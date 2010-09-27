@@ -30,12 +30,10 @@ uses
   Classes,
   SysUtils,
   gnugettext,
-  u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
-  UResStrings,
   UMapType;
 
 { TProviderTilesDelete }

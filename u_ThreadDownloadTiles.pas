@@ -74,7 +74,6 @@ uses
   u_GlobalState,
   u_TileIteratorAbstract,
   u_TileIteratorStuped,
-  UGeoFun,
   UResStrings;
 
 constructor TThreadDownloadTiles.Create(

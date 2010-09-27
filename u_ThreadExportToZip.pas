@@ -4,14 +4,12 @@ interface
 
 uses
   Windows,
-  Forms,
   SysUtils,
   Classes,
   KAZip,
   GR32,
   i_ITileFileNameGenerator,
   UMapType,
-  UGeoFun,
   UResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;
@@ -42,8 +40,7 @@ implementation
 uses
   u_TileIteratorAbstract,
   u_TileIteratorStuped,
-  u_TileStorageAbstract,
-  u_GeoToStr;
+  u_TileStorageAbstract;
 
 constructor TThreadExportToZip.Create(
   ATargetFile: string;

@@ -26,8 +26,7 @@ uses
   SysUtils,
   GR32_Polygons,
   i_IGPSRecorder,
-  u_GlobalState,
-  Unit1;
+  u_GlobalState;
 
 { TMapGPSLayer }
 

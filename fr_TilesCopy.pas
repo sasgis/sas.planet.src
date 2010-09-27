@@ -49,9 +49,7 @@ implementation
 
 uses
   FileCtrl,
-  gnugettext,
   u_GlobalState,
-  UResStrings,
   UMapType;
 
 {$R *.dfm}

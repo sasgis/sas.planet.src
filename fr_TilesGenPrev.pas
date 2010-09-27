@@ -49,7 +49,6 @@ implementation
 uses
   gnugettext,
   u_GlobalState,
-  UResStrings,
   UMapType;
 
 {$R *.dfm}

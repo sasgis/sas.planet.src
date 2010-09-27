@@ -34,7 +34,6 @@ uses
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
   UProgress,
-  UResStrings,
   UMapType;
 
 { TProviderTilesDownload }

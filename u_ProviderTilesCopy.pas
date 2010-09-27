@@ -31,7 +31,6 @@ uses
   gnugettext,
   u_GlobalState,
   u_ThreadExportToFileSystem,
-  UResStrings,
   UMapType;
 
 { TProviderTilesDelete }

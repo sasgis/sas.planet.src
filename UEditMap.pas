@@ -74,9 +74,6 @@ var
 
 implementation
 
-uses
-  u_MapTypeCacheConfig;
-
 {$R *.dfm}
 
 procedure TFEditMap.Button1Click(Sender: TObject);

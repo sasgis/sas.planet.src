@@ -5,11 +5,8 @@ interface
 uses
   SysUtils,
   Classes,
-  ActiveX,
   DB,
-  DBClient,
-  t_GeoTypes,
-  i_Marks;
+  DBClient;
 
 type
   TDMMarksDb = class(TDataModule)

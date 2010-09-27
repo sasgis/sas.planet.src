@@ -13,7 +13,6 @@ uses
   GR32,
   GR32_Resamplers,
   i_ICoordConverter,
-  UMapType,
   t_GeoTypes,
   u_GECrypt,
   u_GETexture;

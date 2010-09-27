@@ -27,7 +27,6 @@ uses
   rxToolEdit,
   rxCurrEdit,
   u_CommonFormAndFrameParents,
-  Ugeofun,
   UMapType,
   UResStrings,
   u_ShortcutManager;

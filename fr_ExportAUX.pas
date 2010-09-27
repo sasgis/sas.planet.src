@@ -40,7 +40,6 @@ implementation
 
 uses
   u_GlobalState,
-  UResStrings,
   UMapType;
 
 {$R *.dfm}

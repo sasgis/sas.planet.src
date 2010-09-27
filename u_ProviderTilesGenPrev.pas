@@ -31,7 +31,6 @@ uses
   GR32,
   gnugettext,
   u_ThreadGenPrevZoom,
-  UResStrings,
   Uimgfun,
   UMapType;
 
