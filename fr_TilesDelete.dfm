@@ -83,10 +83,9 @@ object frTilesDelete: TfrTilesDelete
       object lblStat: TLabel
         Left = 10
         Top = 66
-        Width = 12
+        Width = 3
         Height = 13
         Anchors = [akLeft, akTop, akRight]
-        ExplicitWidth = 3
       end
       object cbbMap: TComboBox
         Left = 3
@@ -99,41 +98,43 @@ object frTilesDelete: TfrTilesDelete
         ItemHeight = 13
         TabOrder = 0
       end
-      object pnlDelBySize: TPanel
-        Left = 3
-        Top = 37
-        Width = 383
-        Height = 36
+      object flwpnlDelBySize: TFlowPanel
+        AlignWithMargins = True
+        Left = 6
+        Top = 40
+        Width = 377
+        Height = 24
         Align = alTop
+        AutoSize = True
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 3
+        ExplicitTop = 37
+        ExplicitWidth = 383
         object chkDelBySize: TCheckBox
           Left = 0
           Top = 0
-          Width = 294
-          Height = 36
-          Align = alClient
-          Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
+          Width = 16
+          Height = 24
           TabOrder = 0
         end
-        object pnlDelSize: TPanel
-          Left = 294
+        object lblDelSize: TLabel
+          AlignWithMargins = True
+          Left = 19
+          Top = 3
+          Width = 238
+          Height = 13
+          Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
+        end
+        object seDelSize: TSpinEdit
+          Left = 260
           Top = 0
-          Width = 89
-          Height = 36
-          Align = alRight
-          BevelOuter = bvNone
+          Width = 78
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
           TabOrder = 1
-          object seDelSize: TSpinEdit
-            Left = 4
-            Top = 4
-            Width = 78
-            Height = 22
-            MaxValue = 0
-            MinValue = 0
-            TabOrder = 0
-            Value = 0
-          end
+          Value = 0
         end
       end
     end

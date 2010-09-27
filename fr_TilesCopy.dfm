@@ -140,11 +140,8 @@ object frTilesCopy: TfrTilesCopy
       Width = 86
       Height = 21
       Align = alLeft
-      AutoSize = False
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitLeft = 8
-      ExplicitTop = 6
       ExplicitHeight = 13
     end
     object edtTargetPath: TEdit

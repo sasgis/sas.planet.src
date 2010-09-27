@@ -30,8 +30,8 @@ type
     cbbZoom: TComboBox;
     pnlCenter: TPanel;
     lblStat: TLabel;
-    pnlDelBySize: TPanel;
-    pnlDelSize: TPanel;
+    flwpnlDelBySize: TFlowPanel;
+    lblDelSize: TLabel;
   private
   public
     procedure Init(AZoom: Byte);

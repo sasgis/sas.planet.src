@@ -170,7 +170,6 @@ object frTilesDownload: TfrTilesDownload
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
-            ExplicitLeft = 123
           end
         end
       end

@@ -2,9 +2,10 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 451
-  Height = 304
+  Height = 256
   Align = alClient
   TabOrder = 0
+  ExplicitHeight = 304
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -111,19 +112,21 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 67
     Width = 451
-    Height = 237
+    Height = 189
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitHeight = 237
     object pnlRight: TPanel
       Left = 286
       Top = 0
       Width = 165
-      Height = 237
+      Height = 189
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
+      ExplicitHeight = 237
       object lblPrTypes: TLabel
         Left = 3
         Top = 100
@@ -190,7 +193,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 113
         Width = 159
-        Height = 121
+        Height = 73
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -200,6 +203,7 @@ object frMapCombine: TfrMapCombine
           '.dat'
           '.kml')
         TabOrder = 1
+        ExplicitHeight = 121
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -217,11 +221,12 @@ object frMapCombine: TfrMapCombine
       Left = 0
       Top = 0
       Width = 286
-      Height = 237
+      Height = 189
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
+      ExplicitHeight = 237
       object lblMap: TLabel
         Left = 3
         Top = 3
@@ -283,42 +288,34 @@ object frMapCombine: TfrMapCombine
         Caption = #1055#1088#1080#1084#1077#1085#1103#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1094#1074#1077#1090#1072
         TabOrder = 3
       end
-      object pnlJpegQuality: TPanel
+      object flwpnlJpegQuality: TFlowPanel
         Left = 3
         Top = 105
         Width = 280
-        Height = 32
+        Height = 28
         Align = alTop
+        AutoSize = True
         BevelOuter = bvNone
-        BorderWidth = 2
         TabOrder = 4
         object lblJpgQulity: TLabel
-          Left = 2
-          Top = 2
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
           Width = 144
-          Height = 28
-          Align = alLeft
+          Height = 13
           Caption = #1050#1072#1095#1077#1089#1090#1074#1086' ('#1076#1083#1103' JPEG '#1080' ECW):'
-          ExplicitHeight = 13
+          Layout = tlCenter
         end
-        object pnlJpegQualityValue: TPanel
-          Left = 146
-          Top = 2
-          Width = 87
-          Height = 28
-          Align = alLeft
-          BevelOuter = bvNone
+        object seJpgQuality: TSpinEdit
+          AlignWithMargins = True
+          Left = 153
+          Top = 3
+          Width = 73
+          Height = 22
+          MaxValue = 100
+          MinValue = 1
           TabOrder = 0
-          object seJpgQuality: TSpinEdit
-            Left = 6
-            Top = 0
-            Width = 73
-            Height = 22
-            MaxValue = 100
-            MinValue = 1
-            TabOrder = 0
-            Value = 95
-          end
+          Value = 95
         end
       end
     end

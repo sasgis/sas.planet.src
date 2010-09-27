@@ -47,12 +47,11 @@ type
     pnlBottom: TPanel;
     pnlRight: TPanel;
     pnlCenter: TPanel;
-    pnlJpegQuality: TPanel;
-    pnlJpegQualityValue: TPanel;
     dlgSaveTargetFile: TSaveDialog;
     cbbZoom: TComboBox;
     lblZoom: TLabel;
     lblStat: TLabel;
+    flwpnlJpegQuality: TFlowPanel;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
