@@ -37,13 +37,13 @@ type
     TabSheet2: TTabSheet;
     TabSheet1: TTabSheet;
     Label2: TLabel;
-    Button1: TButton;
-    Button2: TButton;
+    btnCancel: TButton;
+    btnOk: TButton;
     TabSheet3: TTabSheet;
     GroupBox1: TGroupBox;
     ScrolInvert: TCheckBox;
     TabSheet4: TTabSheet;
-    Button3: TButton;
+    btnApply: TButton;
     Label15: TLabel;
     OldCpath: TEdit;
     NewCpath: TEdit;
@@ -217,8 +217,8 @@ type
     chkPosFromGSM: TCheckBox;
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
-    procedure Button1Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
+    procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -271,48 +271,19 @@ uses
 {$R *.dfm}
 
 procedure TFSettings.Save;
-var
-    lock_tb_b:boolean;
 begin
   try
     GState.SaveMaps;
     GState.ViewState.SaveViewPortState;
     GState.SaveMainParams;
-
-    GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
-    GState.MainIni.WriteInteger('VIEW','FLeft',Fmain.Left);
-    GState.MainIni.WriteInteger('VIEW','FTop',Fmain.Top);
-    GState.MainIni.WriteInteger('VIEW','FWidth',Fmain.Width);
-    GState.MainIni.WriteInteger('VIEW','FHeight',Fmain.Height);
-
-    GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
-    GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
-    GState.MainIni.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
-    GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
-    GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
-    GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
-    Fmain.FMiniMapLayer.WriteIni;
-
-    GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
-    if FMain.FFillingMap.SourceSelected=nil then begin
-      GState.MainIni.WriteString('VIEW','FillingMap','')
-    end else begin
-      GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
-    end;
-
     FShortcutEditor.Save;
-
-    GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
-    lock_tb_b:=Fmain.lock_toolbars;
-    Fmain.lock_toolbars:=false;
-    TBiniSavePositions(Fmain,GState.MainIni,'PANEL_');
-    Fmain.lock_toolbars:=lock_tb_b;
+    Fmain.SaveWindowConfigToIni;
     GState.MainIni.UpdateFile;
   except
   end;
 end;
 
-procedure TFSettings.Button1Click(Sender: TObject);
+procedure TFSettings.btnCancelClick(Sender: TObject);
 begin
  Close
 end;
@@ -342,7 +313,7 @@ begin
  Dispose (PIInfo) ;
 end;
 
-procedure TFSettings.Button3Click(Sender: TObject);
+procedure TFSettings.btnApplyClick(Sender: TObject);
 var i,k,j:integer;
     MTb:TMapType;
 begin
@@ -436,18 +407,11 @@ begin
 
  SetProxy;
 
- if sender=Button2 then
-  begin
-   Fmain.Enabled:=true;
-   Fsettings.Visible := false;
-   Close
-  end;
  save;
- if FMapsEdit then
-  begin
+ if FMapsEdit then begin
    Fmain.CreateMapUI;
-  end;
- Fmain.selectMap(GState.ViewState.GetCurrentMap);
+ end;
+// Fmain.selectMap(GState.ViewState.GetCurrentMap);
 end;
 
 procedure TFSettings.Button4Click(Sender: TObject);

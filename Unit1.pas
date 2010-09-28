@@ -611,6 +611,7 @@ type
     procedure SetMiniMapVisible(visible: boolean);
     procedure UpdateGPSsensors;
     procedure CopyStringToClipboard(s: Widestring);
+    procedure SaveWindowConfigToIni;
   end;
 
 
@@ -3870,6 +3871,38 @@ end;
 procedure TFmain.NanimateClick(Sender: TObject);
 begin
   GState.AnimateZoom := Nanimate.Checked;
+end;
+
+procedure TFmain.SaveWindowConfigToIni;
+var
+  lock_tb_b:boolean;
+begin
+  GState.MainIni.Writebool('VIEW','Maximized',WindowState=wsMaximized);
+  GState.MainIni.WriteInteger('VIEW','FLeft',Left);
+  GState.MainIni.WriteInteger('VIEW','FTop',Top);
+  GState.MainIni.WriteInteger('VIEW','FWidth',Width);
+  GState.MainIni.WriteInteger('VIEW','FHeight',Height);
+
+  GState.MainIni.Writebool('VIEW','line',ShowLine.Checked);
+  GState.MainIni.Writebool('VIEW','minimap',ShowMiniMap.Checked);
+  GState.MainIni.Writebool('VIEW','statusbar',Showstatus.Checked);
+  GState.MainIni.WriteInteger('VIEW','TileSource',integer(TileSource));
+  GState.MainIni.Writebool('VIEW','showscale', LayerMapScale.Visible);
+  GState.MainIni.Writebool('VIEW','showselection', LayerSelection.Visible);
+  FMiniMapLayer.WriteIni;
+
+  GState.MainIni.Writeinteger('VIEW','MapZap', FFillingMap.SourceZoom);
+  if FFillingMap.SourceSelected=nil then begin
+    GState.MainIni.WriteString('VIEW','FillingMap','')
+  end else begin
+    GState.MainIni.WriteString('VIEW','FillingMap',FFillingMap.SourceSelected.GUIDString);
+  end;
+
+  GState.MainIni.WriteBool('VIEW','lock_toolbars',lock_toolbars);
+  lock_tb_b:=lock_toolbars;
+  lock_toolbars:=false;
+  TBiniSavePositions(Self, GState.MainIni,'PANEL_');
+  lock_toolbars:=lock_tb_b;
 end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
