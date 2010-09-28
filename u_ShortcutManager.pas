@@ -6,13 +6,17 @@ uses
   Types,
   Classes,
   Controls,
+  IniFiles,
+  Graphics,
   StdCtrls,
   TB2Item;
 
 type
-  TTempShortCut = class(TObject)
+  TShortCutInfo = class(TObject)
     ShortCut:TShortCut;
     MenuItem:TTBCustomItem;
+    Icon: TIcon;
+    destructor Destroy; override;
   end;
 
   TShortcutEditor = class(TObject)
@@ -24,6 +28,7 @@ type
     procedure ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
     procedure ClearList;
     function GetCaption(aMenu:TTBCustomItem):String;
+    function GetIcon(aMenu:TTBCustomItem):TIcon;
     procedure AddItems(Menu:TTBCustomItem);
   public
     constructor Create(AList:TListBox);
@@ -33,12 +38,20 @@ type
     procedure RefreshTranslation;
   end;
 
+//  TShortcutManager = class
+//  private
+//    FMainMenu: TTBCustomItem;
+//    FIgnoredItems: TList;
+//  public
+//    constructor Create(AMainMenu: TTBCustomItem; AIgnoredItems: TList);
+//    procedure Load(AIni: TCustomIniFile; ASection: string);
+//    procedure Save(AIni: TCustomIniFile; ASection: string);
+//  end;
 
 implementation
 
 uses
   SysUtils,
-  Graphics,
   Menus,
   Dialogs,
   TBX,
@@ -80,38 +93,15 @@ end;
 procedure TShortcutEditor.ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var
   ShortCut:String;
-  Icon:TIcon;
-  VTempShortCut: TTempShortCut;
-
-  procedure DrawBitmap;
-  var btm:TBitmap;
-  begin
-    btm:=TBitmap.Create;
-    if VTempShortCut.MenuItem.Images.GetBitmap(VTempShortCut.MenuItem.ImageIndex,btm) then begin
-      FList.Canvas.Draw(2,Rect.Top+2, btm);
-    end;
-    freeandnil(btm);
-  end;
-
+  VTempShortCut: TShortCutInfo;
 begin
   with FList.Canvas do begin
     FillRect(Rect);
-    VTempShortCut := TTempShortCut(FList.Items.Objects[Index]);
+    VTempShortCut := TShortCutInfo(FList.Items.Objects[Index]);
     ShortCut := ShortCutToText(VTempShortCut.ShortCut);
-
-    if VTempShortCut.MenuItem.ImageIndex<>-1 then begin
-      if Assigned(fMainMenu.Images) then begin
-        Icon := TIcon.Create;
-        fMainMenu.Images.GetIcon(VTempShortCut.MenuItem.ImageIndex, Icon);
-        Draw(2,Rect.Top+2, Icon);
-        Icon.Free;
-      end else begin
-        DrawBitmap;
-      end
-    end else begin
-    //  DrawBitmap;
+    if VTempShortCut.Icon <> nil then begin
+      Draw(2,Rect.Top+2, VTempShortCut.Icon);
     end;
-
     TextOut(22,Rect.Top+3, FList.Items[Index]);
     TextOut(Rect.Right-TextWidth(ShortCut)-9,Rect.Top+3, ShortCut);
 
@@ -128,7 +118,7 @@ procedure TShortcutEditor.ListDblClick(Sender: TObject);
   begin
     Result := False;
     for i := 0 to FList.Items.Count-1 do begin
-      if TTempShortCut(FList.Items.Objects[i]).ShortCut = A then begin
+      if TShortCutInfo(FList.Items.Objects[i]).ShortCut = A then begin
         Result := True;
         Break;
       end;
@@ -137,12 +127,12 @@ procedure TShortcutEditor.ListDblClick(Sender: TObject);
 
 begin
   if FList.ItemIndex<>-1 then begin
-    FShortcutChange.HotKey.HotKey := TTempShortCut(FList.Items.Objects[FList.ItemIndex]).ShortCut;
+    FShortcutChange.HotKey.HotKey := TShortCutInfo(FList.Items.Objects[FList.ItemIndex]).ShortCut;
     if FShortcutChange.ShowModal = mrOK then begin
       if (ShortCutExists(FShortcutChange.HotKey.HotKey))and(FShortcutChange.HotKey.HotKey<>0) then begin
         ShowMessage('Горячая клавиша уже используется, пожалуйста, выберите другую')
       end else begin
-        TTempShortCut(FList.Items.Objects[FList.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
+        TShortCutInfo(FList.Items.Objects[FList.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
       end;
       FList.Repaint;
     end;
@@ -176,16 +166,30 @@ begin
  until Menu.HasParent = False;
 end;
 
+function TShortcutEditor.GetIcon(aMenu: TTBCustomItem): TIcon;
+begin
+  Result := nil;
+  if aMenu.ImageIndex<>-1 then begin
+    Result := TIcon.Create;
+    if Assigned(fMainMenu.Images) then begin
+      fMainMenu.Images.GetIcon(aMenu.ImageIndex, Result);
+    end else begin
+      aMenu.Images.GetIcon(aMenu.ImageIndex, Result);
+    end;
+  end;
+end;
+
 procedure TShortcutEditor.AddItems(Menu:TTBCustomItem);
   var i:Integer;
-  TempShortCut:  TTempShortCut;
+  TempShortCut:  TShortCutInfo;
 begin
   for i:=0 to Menu.Count-1 do begin
     if (not(inNotHotKey(Menu.Items[i].Name)))and(Menu.Items[i].ClassType<>TTBXSeparatorItem) then begin
       if (Menu.Items[i].Count=0)and(Menu.Items[i].ClassType=TTBXItem) then begin
-        TempShortCut := TTempShortCut.Create;
+        TempShortCut := TShortCutInfo.Create;
         TempShortCut.MenuItem:=Menu.Items[i];
         TempShortCut.ShortCut:=Menu.Items[i].ShortCut;
+        TempShortCut.Icon := GetIcon(Menu.Items[i]);
         FList.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
       end;
       if Menu.Items[i].Count>0 then begin
@@ -224,10 +228,10 @@ end;
 procedure TShortcutEditor.Save;
 var
   i:Integer;
-  VTempShortCut: TTempShortCut;
+  VTempShortCut: TShortCutInfo;
 begin
   for i := 0 to FList.Items.Count-1 do begin
-    VTempShortCut := TTempShortCut(FList.Items.Objects[i]);
+    VTempShortCut := TShortCutInfo(FList.Items.Objects[i]);
     Gstate.MainIni.WriteInteger(fSection, VTempShortCut.MenuItem.Name, VTempShortCut.ShortCut);
     VTempShortCut.MenuItem.ShortCut := VTempShortCut.ShortCut;
   end;
@@ -240,6 +244,14 @@ begin
     FList.Items.Objects[i].Free;
   end;
   FList.Clear;
+end;
+
+{ TShortCutInfo }
+
+destructor TShortCutInfo.Destroy;
+begin
+  FreeAndNil(Icon);
+  inherited;
 end;
 
 end.
