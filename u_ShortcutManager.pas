@@ -334,6 +334,7 @@ begin
   for i := 0 to FItemsList.Count - 1 do begin
     VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
     VMenuItem := VShortCutInfo.MenuItem;
+    VShortCutInfo.ShortCut := VMenuItem.ShortCut;
     AList.AddObject(GetCaption(VMenuItem), VShortCutInfo);
   end;
 end;

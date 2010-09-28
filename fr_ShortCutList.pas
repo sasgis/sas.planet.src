@@ -36,6 +36,7 @@ implementation
 
 uses
   Menus,
+  gnugettext,
   UShortcutEditor;
 
 {$R *.dfm}
@@ -59,7 +60,7 @@ begin
     FShortcutChange.HotKey.HotKey := TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut;
     if FShortcutChange.ShowModal = mrOK then begin
       if (ShortCutExists(FShortcutChange.HotKey.HotKey))and(FShortcutChange.HotKey.HotKey<>0) then begin
-        ShowMessage('Горячая клавиша уже используется, пожалуйста, выберите другую')
+        ShowMessage(_('Горячая клавиша уже используется, пожалуйста, выберите другую'))
       end else begin
         TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
       end;

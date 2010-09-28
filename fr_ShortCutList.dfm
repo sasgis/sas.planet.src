@@ -3,6 +3,7 @@ object frShortCutList: TfrShortCutList
   Top = 0
   Width = 567
   Height = 392
+  Align = alClient
   TabOrder = 0
   object lstShortCutList: TListBox
     AlignWithMargins = True
