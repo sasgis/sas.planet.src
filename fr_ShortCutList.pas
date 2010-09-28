@@ -14,6 +14,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  u_CommonFormAndFrameParents,
   u_ShortcutManager;
 
 type

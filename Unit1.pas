@@ -61,6 +61,7 @@ uses
   ULogo,
   UMapType,
   UResStrings,
+  u_ShortcutManager,
   u_MapMainLayer,
   u_LayerStatBar,
   u_LayerScaleLine,
@@ -564,6 +565,8 @@ type
     FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
     FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
     FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
+
+    FShortCutManager: TShortcutManager;
 
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
