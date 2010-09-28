@@ -603,6 +603,8 @@ type
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property TileSource: TTileSource read FTileSource write Set_TileSource;
+    property ShortCutManager: TShortcutManager read FShortCutManager;
+
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
@@ -1440,7 +1442,8 @@ begin
     MouseDownPoint := point(0,0);
     MouseUpPoint := point(0,0);
     MapZoomAnimtion:=False;
-
+    FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, nil);
+    FShortCutManager.Load(GState.MainIni, 'HOTKEY');
     FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
@@ -1748,6 +1751,7 @@ begin
   FreeAndNil(LayerMapNavToMark);
   FreeAndNil(FMainLayer);
   FreeAndNil(FMiniMapLayer);
+  FreeAndNil(FShortCutManager);
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;
