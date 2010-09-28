@@ -50,6 +50,10 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
+    <DCCReference Include="fr_ShortCutList.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frShortCutList</Form>
+    </DCCReference>
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
