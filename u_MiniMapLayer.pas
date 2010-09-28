@@ -476,8 +476,8 @@ begin
       VViewSize := Point(FParentMap.Width, FParentMap.Height);
       VBitmapOnMapPixelRect.Left := FScreenCenterPos.X - VViewSize.X div 2;
       VBitmapOnMapPixelRect.Top := FScreenCenterPos.Y - VViewSize.Y div 2;
-      VBitmapOnMapPixelRect.Right := FScreenCenterPos.X + VViewSize.X div 2;
-      VBitmapOnMapPixelRect.Bottom := FScreenCenterPos.Y + VViewSize.Y div 2;
+      VBitmapOnMapPixelRect.Right := VBitmapOnMapPixelRect.Left + VViewSize.X;
+      VBitmapOnMapPixelRect.Bottom := VBitmapOnMapPixelRect.Top + VViewSize.Y;
       VZoomSource := FZoom;
       VZoom := GetActualZoom;
       FGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoomSource, False);
