@@ -679,6 +679,7 @@ procedure TFSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
+  FShortcutEditor.RefreshTranslation;
 end;
 
 procedure TFSettings.Button18Click(Sender: TObject);

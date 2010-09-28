@@ -23,11 +23,14 @@ type
     procedure ListDblClick(Sender: TObject);
     procedure ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
     procedure ClearList;
+    function GetCaption(aMenu:TTBCustomItem):String;
+    procedure AddItems(Menu:TTBCustomItem);
   public
     constructor Create(AList:TListBox);
     destructor Destroy; override;
     procedure LoadShortCuts(MainMenu: TTBCustomItem; Section:String);
     procedure Save;
+    procedure RefreshTranslation;
   end;
 
 
@@ -146,6 +149,52 @@ begin
   end;
 end;
 
+function TShortcutEditor.GetCaption(aMenu:TTBCustomItem):String;
+var Menu:TTBCustomItem;
+    AddName:String;
+begin
+ Result:='';
+ Menu:=aMenu;
+ repeat
+  AddName := Menu.Caption;
+  if Pos('&', AddName) <> 0 then begin
+    Delete(AddName, Pos('&', AddName), 1);
+  end;
+  if Result = '' then begin
+    Result := AddName
+  end else begin
+    if AddName <> '' then begin
+      Result :=AddName+' -> '+Result;
+    end;
+  end;
+
+  if Assigned(Menu.Parent) then begin
+    Menu := Menu.Parent
+  end else begin
+    Break;
+  end;
+ until Menu.HasParent = False;
+end;
+
+procedure TShortcutEditor.AddItems(Menu:TTBCustomItem);
+  var i:Integer;
+  TempShortCut:  TTempShortCut;
+begin
+  for i:=0 to Menu.Count-1 do begin
+    if (not(inNotHotKey(Menu.Items[i].Name)))and(Menu.Items[i].ClassType<>TTBXSeparatorItem) then begin
+      if (Menu.Items[i].Count=0)and(Menu.Items[i].ClassType=TTBXItem) then begin
+        TempShortCut := TTempShortCut.Create;
+        TempShortCut.MenuItem:=Menu.Items[i];
+        TempShortCut.ShortCut:=Menu.Items[i].ShortCut;
+        FList.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
+      end;
+      if Menu.Items[i].Count>0 then begin
+         AddItems(Menu.Items[i]);
+      end;
+    end;
+  end;
+end;
+
 procedure TShortcutEditor.LoadShortCuts(MainMenu: TTBCustomItem; Section:String);
   procedure LoadItems(Menu:TTBCustomItem);
   var i:Integer;
@@ -158,56 +207,16 @@ procedure TShortcutEditor.LoadShortCuts(MainMenu: TTBCustomItem; Section:String)
     end;
   end;
 
-  function GetCaption(aMenu:TTBCustomItem):String;
-  var Menu:TTBCustomItem;
-      AddName:String;
-  begin
-   Result:='';
-   Menu:=aMenu;
-   repeat
-    AddName := Menu.Caption;
-    if Pos('&', AddName) <> 0 then begin
-      Delete(AddName, Pos('&', AddName), 1);
-    end;
-    if Result = '' then begin
-      Result := AddName
-    end else begin
-      if AddName <> '' then begin
-        Result :=AddName+' -> '+Result;
-      end;
-    end;
-
-    if Assigned(Menu.Parent) then begin
-      Menu := Menu.Parent
-    end else begin
-      Break;
-    end;
-   until Menu.HasParent = False;
-  end;
-
-  procedure AddItems(Menu:TTBCustomItem);
-    var i:Integer;
-    TempShortCut:  TTempShortCut;
-  begin
-    for i:=0 to Menu.Count-1 do begin
-      if (not(inNotHotKey(Menu.Items[i].Name)))and(Menu.Items[i].ClassType<>TTBXSeparatorItem) then begin
-        if (Menu.Items[i].Count=0)and(Menu.Items[i].ClassType=TTBXItem) then begin
-          TempShortCut := TTempShortCut.Create;
-          TempShortCut.MenuItem:=Menu.Items[i];
-          TempShortCut.ShortCut:=Menu.Items[i].ShortCut;
-          FList.Items.AddObject(GetCaption(Menu.Items[i]), TempShortCut);
-        end;
-        if Menu.Items[i].Count>0 then begin
-           AddItems(Menu.Items[i]);
-        end;
-      end;
-    end;
-  end;
-
 begin
   fSection := Section;
   fMainMenu := MainMenu;
   LoadItems(fMainMenu);
+  ClearList;
+  AddItems(fMainMenu);
+end;
+
+procedure TShortcutEditor.RefreshTranslation;
+begin
   ClearList;
   AddItems(fMainMenu);
 end;
