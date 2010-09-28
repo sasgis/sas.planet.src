@@ -3,8 +3,18 @@ unit fr_ShortCutList;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  u_ShortcutManager;
 
 type
   TfrShortCutList = class(TFrame)
@@ -16,16 +26,16 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure lstShortCutListDblClick(Sender: TObject);
   private
-    { Private declarations }
+    FShortCutManager: TShortcutManager;
   public
-    { Public declarations }
+    procedure SetShortCutManager(AShortCutManager: TShortcutManager);
+    procedure RefreshTranslation; override;
   end;
 
 implementation
 
 uses
   Menus,
-  u_ShortcutManager,
   UShortcutEditor;
 
 {$R *.dfm}
@@ -77,6 +87,23 @@ begin
     Pen.Color := clSilver;
     MoveTo(0, Rect.Bottom-1);
     LineTo(Rect.Right, Rect.Bottom-1);
+  end;
+end;
+
+procedure TfrShortCutList.RefreshTranslation;
+begin
+  inherited;
+  if FShortCutManager <> nil then begin
+    FShortCutManager.GetObjectsList(lstShortCutList.Items);
+  end;
+end;
+
+procedure TfrShortCutList.SetShortCutManager(
+  AShortCutManager: TShortcutManager);
+begin
+  FShortCutManager := AShortCutManager;
+  if FShortCutManager <> nil then begin
+    FShortCutManager.GetObjectsList(lstShortCutList.Items);
   end;
 end;
 
