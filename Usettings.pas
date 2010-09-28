@@ -274,36 +274,42 @@ procedure TFSettings.Save;
 var
     lock_tb_b:boolean;
 begin
- try
- GState.SaveMaps;
- GState.ViewState.SaveViewPortState;
- GState.SaveMainParams;
- GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
- GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
- GState.MainIni.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
- GState.MainIni.WriteInteger('VIEW','FLeft',Fmain.Left);
- GState.MainIni.WriteInteger('VIEW','FTop',Fmain.Top);
- GState.MainIni.WriteInteger('VIEW','FWidth',Fmain.Width);
- GState.MainIni.WriteInteger('VIEW','FHeight',Fmain.Height);
- GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
- GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
- GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
- Fmain.FMiniMapLayer.WriteIni;
- GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
- GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
- GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
+  try
+    GState.SaveMaps;
+    GState.ViewState.SaveViewPortState;
+    GState.SaveMainParams;
 
- if FMain.FFillingMap.SourceSelected=nil then GState.MainIni.WriteString('VIEW','FillingMap','')
-                       else GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
+    GState.MainIni.Writebool('VIEW','Maximized',Fmain.WindowState=wsMaximized);
+    GState.MainIni.WriteInteger('VIEW','FLeft',Fmain.Left);
+    GState.MainIni.WriteInteger('VIEW','FTop',Fmain.Top);
+    GState.MainIni.WriteInteger('VIEW','FWidth',Fmain.Width);
+    GState.MainIni.WriteInteger('VIEW','FHeight',Fmain.Height);
 
- FShortcutEditor.Save;
- lock_tb_b:=Fmain.lock_toolbars;
- Fmain.lock_toolbars:=false;
- TBiniSavePositions(Fmain,GState.MainIni,'PANEL_');
- Fmain.lock_toolbars:=lock_tb_b;
- GState.MainIni.UpdateFile;
- except
- end;
+    GState.MainIni.Writebool('VIEW','line',Fmain.ShowLine.Checked);
+    GState.MainIni.Writebool('VIEW','minimap',Fmain.ShowMiniMap.Checked);
+    GState.MainIni.Writebool('VIEW','statusbar',Fmain.Showstatus.Checked);
+    GState.MainIni.WriteInteger('VIEW','TileSource',integer(Fmain.TileSource));
+    GState.MainIni.Writebool('VIEW','showscale', FMain.LayerMapScale.Visible);
+    GState.MainIni.Writebool('VIEW','showselection', FMain.LayerSelection.Visible);
+    Fmain.FMiniMapLayer.WriteIni;
+
+    GState.MainIni.Writeinteger('VIEW','MapZap', Fmain.FFillingMap.SourceZoom);
+    if FMain.FFillingMap.SourceSelected=nil then begin
+      GState.MainIni.WriteString('VIEW','FillingMap','')
+    end else begin
+      GState.MainIni.WriteString('VIEW','FillingMap',FMain.FFillingMap.SourceSelected.GUIDString);
+    end;
+
+    FShortcutEditor.Save;
+
+    GState.MainIni.WriteBool('VIEW','lock_toolbars',Fmain.lock_toolbars);
+    lock_tb_b:=Fmain.lock_toolbars;
+    Fmain.lock_toolbars:=false;
+    TBiniSavePositions(Fmain,GState.MainIni,'PANEL_');
+    Fmain.lock_toolbars:=lock_tb_b;
+    GState.MainIni.UpdateFile;
+  except
+  end;
 end;
 
 procedure TFSettings.Button1Click(Sender: TObject);
