@@ -258,9 +258,6 @@ begin
   Polygon.AntialiasMode := am32times;
   Polygon.FillMode := pfAlternate;
   with FLayer.Bitmap do begin
-    Canvas.Pen.Style := psSolid;
-    Canvas.Brush.Color := ClWhite;
-    Canvas.Pen.Width := 1;
     for i := 0 to length(FPath) - 1 do begin
       k1 := FGeoConvert.LonLat2PixelPos(FPath[i], FZoom);
       k1 := MapPixel2BitmapPixel(k1);
