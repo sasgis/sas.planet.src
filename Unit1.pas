@@ -2046,16 +2046,16 @@ var
   VConverter: ICoordConverter;
   VMap: TMapType;
 begin
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
   if VMap.TileStorage.GetIsStoreFileCache then begin
-    GState.ViewState.LockRead;
-    try
-      VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
-      VZoomCurr := GState.ViewState.GetCurrentZoom;
-      VMap := GState.ViewState.GetCurrentMap;
-      VConverter := GState.ViewState.GetCurrentCoordConverter;
-    finally
-      GState.ViewState.UnLockRead;
-    end;
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
@@ -2072,16 +2072,16 @@ var s:string;
   VConverter: ICoordConverter;
   VMap: TMapType;
 begin
+  GState.ViewState.LockRead;
+  try
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VMap := GState.ViewState.GetCurrentMap;
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
   if VMap.TileStorage.GetIsStoreFileCache then begin
-    GState.ViewState.LockRead;
-    try
-      VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
-      VZoomCurr := GState.ViewState.GetCurrentZoom;
-      VMap := GState.ViewState.GetCurrentMap;
-      VConverter := GState.ViewState.GetCurrentCoordConverter;
-    finally
-      GState.ViewState.UnLockRead;
-    end;
     VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
     VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
     s:=VMap.GetTileFileName(VPoint, VZoomCurr);
