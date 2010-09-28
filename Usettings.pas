@@ -411,7 +411,6 @@ begin
  if FMapsEdit then begin
    Fmain.CreateMapUI;
  end;
-// Fmain.selectMap(GState.ViewState.GetCurrentMap);
 end;
 
 procedure TFSettings.Button4Click(Sender: TObject);
