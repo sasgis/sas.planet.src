@@ -21,7 +21,6 @@ type
     SpeedButton1: TSpeedButton;
     procedure FormShow(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
   private
   public
   end;
@@ -34,11 +33,6 @@ implementation
 
 
 {$R *.dfm}
-
-procedure TFShortcutChange.Button2Click(Sender: TObject);
-begin
-  Close;
-end;
 
 procedure TFShortcutChange.Button3Click(Sender: TObject);
 begin
