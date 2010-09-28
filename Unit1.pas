@@ -1384,207 +1384,207 @@ begin
 
   Enabled:=false;
   try
-  TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
-  TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
+    TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
 
-  FMainToolbarItemList := TGUIDObjectList.Create(False);
-  FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
-  FTBFillingItemList := TGUIDObjectList.Create(False);
-  FNLayerParamsItemList := TGUIDObjectList.Create(False);
-  FNDwnItemList := TGUIDObjectList.Create(False);
-  FNDelItemList := TGUIDObjectList.Create(False);
+    FMainToolbarItemList := TGUIDObjectList.Create(False);
+    FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
+    FTBFillingItemList := TGUIDObjectList.Create(False);
+    FNLayerParamsItemList := TGUIDObjectList.Create(False);
+    FNDwnItemList := TGUIDObjectList.Create(False);
+    FNDelItemList := TGUIDObjectList.Create(False);
 
-  RectWindow := Types.Rect(0, 0, 0, 0);
-  dWhenMovingButton := 5;
-  MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
-  TBFullSize.Checked:=GState.FullScrean;
-  if GState.FullScrean then begin
-    TBFullSizeClick(TBFullSize);
-  end else if MainWindowMaximized then begin
-    WindowState:=wsMaximized
-  end else begin
-    Self.SetBounds(
-    GState.MainIni.ReadInteger('VIEW','FLeft',Left),
-    GState.MainIni.ReadInteger('VIEW','FTop',Top),
-    GState.MainIni.ReadInteger('VIEW','FWidth',Width),
-    GState.MainIni.ReadInteger('VIEW','FHeight',Height)
-    )
-  end;
-
-  movepoint:=0;
-
-  LoadMarksFromFile;
-  LoadCategoriesFromFile;
-  Enabled:=true;
-  nilLastLoad.use:=false;
-  Application.OnMessage := DoMessageEvent;
-  Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
-  LenShow:=true;
-  Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
-  Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
-  Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
-  Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
-  Map.Cursor:=crDefault;
-
-  MouseDownPoint := point(0,0);
-  MouseUpPoint := point(0,0);
-  MapZoomAnimtion:=False;
-
-  FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
-
-  NGoToCur.Checked := GState.ZoomingAtMousePos;
-  TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
-  lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
-
-  Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
-
-
-  FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
-  FMainLayer.Visible := True;
-  FWikiLayer := TWikiLayer.Create(map, VScreenCenterPos);
-  FFillingMap:=TMapFillingLayer.create(map, VScreenCenterPos);
-  LayerMapMarks:= TMapMarksLayer.Create(map, VScreenCenterPos);
-  LayerMapGPS:= TMapGPSLayer.Create(map, VScreenCenterPos);
-  LayerSelection := TSelectionLayer.Create(map, VScreenCenterPos);
-  LayerMapNal:=TMapNalLayer.Create(map, VScreenCenterPos);
-  LayerGoto := TGotoLayer.Create(map, VScreenCenterPos);
-  LayerMapNavToMark := TNavToMarkLayer.Create(map, VScreenCenterPos);
-  FShowErrorLayer := TTileErrorInfoLayer.Create(map, VScreenCenterPos);
-  LayerMapScale := TCenterScale.Create(map);
-  LayerScaleLine := TLayerScaleLine.Create(map);
-  LayerStatBar:=TLayerStatBar.Create(map);
-  FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos);
-
-  CreateMapUI;
-  FSettings.InitMapsList;
-
-  try
-    VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
-    if VGUIDString <> '' then begin
-      VGUID := StringToGUID(VGUIDString);
-      VFillingmaptype:=GState.GetMapFromID(VGUID);
+    RectWindow := Types.Rect(0, 0, 0, 0);
+    dWhenMovingButton := 5;
+    MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
+    TBFullSize.Checked:=GState.FullScrean;
+    if GState.FullScrean then begin
+      TBFullSizeClick(TBFullSize);
+    end else if MainWindowMaximized then begin
+      WindowState:=wsMaximized
     end else begin
+      Self.SetBounds(
+      GState.MainIni.ReadInteger('VIEW','FLeft',Left),
+      GState.MainIni.ReadInteger('VIEW','FTop',Top),
+      GState.MainIni.ReadInteger('VIEW','FWidth',Width),
+      GState.MainIni.ReadInteger('VIEW','FHeight',Height)
+      )
+    end;
+
+    movepoint:=0;
+
+    LoadMarksFromFile;
+    LoadCategoriesFromFile;
+    Enabled:=true;
+    nilLastLoad.use:=false;
+    Application.OnMessage := DoMessageEvent;
+    Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
+    LenShow:=true;
+    Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
+    Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
+    Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
+    Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
+    Map.Cursor:=crDefault;
+
+    MouseDownPoint := point(0,0);
+    MouseUpPoint := point(0,0);
+    MapZoomAnimtion:=False;
+
+    FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
+
+    NGoToCur.Checked := GState.ZoomingAtMousePos;
+    TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
+    lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
+
+    Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
+
+
+    FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
+    FMainLayer.Visible := True;
+    FWikiLayer := TWikiLayer.Create(map, VScreenCenterPos);
+    FFillingMap:=TMapFillingLayer.create(map, VScreenCenterPos);
+    LayerMapMarks:= TMapMarksLayer.Create(map, VScreenCenterPos);
+    LayerMapGPS:= TMapGPSLayer.Create(map, VScreenCenterPos);
+    LayerSelection := TSelectionLayer.Create(map, VScreenCenterPos);
+    LayerMapNal:=TMapNalLayer.Create(map, VScreenCenterPos);
+    LayerGoto := TGotoLayer.Create(map, VScreenCenterPos);
+    LayerMapNavToMark := TNavToMarkLayer.Create(map, VScreenCenterPos);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, VScreenCenterPos);
+    LayerMapScale := TCenterScale.Create(map);
+    LayerScaleLine := TLayerScaleLine.Create(map);
+    LayerStatBar:=TLayerStatBar.Create(map);
+    FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos);
+
+    CreateMapUI;
+    FSettings.InitMapsList;
+
+    try
+      VGUIDString := GState.MainIni.ReadString('VIEW','FillingMap','');
+      if VGUIDString <> '' then begin
+        VGUID := StringToGUID(VGUIDString);
+        VFillingmaptype:=GState.GetMapFromID(VGUID);
+      end else begin
+        VFillingmaptype := nil;
+      end;
+    except
       VFillingmaptype := nil;
     end;
-  except
-    VFillingmaptype := nil;
-  end;
-  if VFillingmaptype<>nil then begin
-    TTBXItem(FTBFillingItemList.GetByGUID(Vfillingmaptype.GUID)).Checked:=true
-  end else begin
-    TBfillMapAsMain.Checked:=true;
-  end;
-  Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
-  FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
-  if Vzoom_mapzap<>-1 then begin
-    TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1);
-  end else  begin
-    TBMapZap.Caption:='';
-  end;
+    if VFillingmaptype<>nil then begin
+      TTBXItem(FTBFillingItemList.GetByGUID(Vfillingmaptype.GUID)).Checked:=true
+    end else begin
+      TBfillMapAsMain.Checked:=true;
+    end;
+    Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
+    FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
+    if Vzoom_mapzap<>-1 then begin
+      TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1);
+    end else  begin
+      TBMapZap.Caption:='';
+    end;
 
-  TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
-  N32.Checked:=LayerMapScale.Visible;
-  NShowSelection.Checked := LayerSelection.Visible;
-  Ninvertcolor.Checked:=GState.InvertColor;
-  TBGPSconn.Checked := GState.GPS_enab;
-  if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
-  TBGPSPath.Checked:=GState.GPS_ShowPath;
-  NGPSPath.Checked:=GState.GPS_ShowPath;
-  TBGPSToPoint.Checked:=GState.GPS_MapMove;
-  NGPSToPoint.Checked:=GState.GPS_MapMove;
-  Nbackload.Checked:=GState.UsePrevZoom;
-  NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
-  Nanimate.Checked:=GState.AnimateZoom;
+    TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
+    N32.Checked:=LayerMapScale.Visible;
+    NShowSelection.Checked := LayerSelection.Visible;
+    Ninvertcolor.Checked:=GState.InvertColor;
+    TBGPSconn.Checked := GState.GPS_enab;
+    if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
+    TBGPSPath.Checked:=GState.GPS_ShowPath;
+    NGPSPath.Checked:=GState.GPS_ShowPath;
+    TBGPSToPoint.Checked:=GState.GPS_MapMove;
+    NGPSToPoint.Checked:=GState.GPS_MapMove;
+    Nbackload.Checked:=GState.UsePrevZoom;
+    NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
+    Nanimate.Checked:=GState.AnimateZoom;
 
-  if not(FileExists(GState.MainConfigFileName)) then begin
-    TBEditPath.Floating:=true;
-    TBEditPath.MoveOnScreen(true);
-    TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
-  end;
+    if not(FileExists(GState.MainConfigFileName)) then begin
+      TBEditPath.Floating:=true;
+      TBEditPath.MoveOnScreen(true);
+      TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
+    end;
 
-  NMainToolBarShow.Checked:=TBMainToolBar.Visible;
-  NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
-  NsrcToolBarShow.Checked:=SrcToolbar.Visible;
-  NGPSToolBarShow.Checked:=GPSToolBar.Visible;
-  NMarksBarShow.Checked:=TBMarksToolBar.Visible;
+    NMainToolBarShow.Checked:=TBMainToolBar.Visible;
+    NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
+    NsrcToolBarShow.Checked:=SrcToolbar.Visible;
+    NGPSToolBarShow.Checked:=GPSToolBar.Visible;
+    NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
-  TBFullSize.Checked:=GState.FullScrean;
+    TBFullSize.Checked:=GState.FullScrean;
 
-  map.Color:=GState.BGround;
+    map.Color:=GState.BGround;
 
-  FMapPosChangeListener := TChangePosListenerOfMainForm.Create(Self);
-  GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
+    FMapPosChangeListener := TChangePosListenerOfMainForm.Create(Self);
+    GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
 
-  FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
-  GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
+    FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
+    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
 
-  FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
-  GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
+    FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
+    GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
-  GState.ViewState.LoadViewPortState;
-  ProgramStart:=false;
+    GState.ViewState.LoadViewPortState;
+    ProgramStart:=false;
 
 
-  GState.ViewState.LockWrite;
-  GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
+    GState.ViewState.LockWrite;
+    GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 
- if ParamCount > 1 then begin
-  try
-    param:=paramstr(1);
-    if param<>'' then begin
-      VGUID := StringToGUID(param);
-      for i:=0 to length(GState.MapType)-1 do begin
-        if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-          GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
+    if ParamCount > 1 then begin
+    try
+      param:=paramstr(1);
+      if param<>'' then begin
+        VGUID := StringToGUID(param);
+        for i:=0 to length(GState.MapType)-1 do begin
+          if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
+            GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
+          end;
         end;
       end;
+      if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+        GState.ViewState.LockWrite;
+        VZoom := strtoint(paramstr(2)) - 1;
+        GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
+        VLonLat.X := str2r(paramstr(3));
+        VLonLat.Y := str2r(paramstr(4));
+        GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
+        GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
+      end else if paramstr(2)<>'' then begin
+        VZoom := strtoint(paramstr(2)) - 1;
+        GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
+      end;
+    except
     end;
-    if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
-      GState.ViewState.LockWrite;
-      VZoom := strtoint(paramstr(2)) - 1;
-      GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
-      VLonLat.X := str2r(paramstr(3));
-      VLonLat.Y := str2r(paramstr(4));
-      GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
-      GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
-    end else if paramstr(2)<>'' then begin
-      VZoom := strtoint(paramstr(2)) - 1;
-      GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
     end;
-  except
-  end;
- end;
-  InitSearchers;
+    InitSearchers;
 
-  FUIDownLoader := TTileDownloaderUI.Create;
+    FUIDownLoader := TTileDownloaderUI.Create;
 
-  LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
-  LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
-  SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
-  SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
-  LayerStatBar.Visible:=GState.ShowStatusBar;
-  Showstatus.Checked:=GState.ShowStatusBar;
-  LayerMapMarks.Visible := GState.show_point <> mshNone;
+    LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
+    LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
+    SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
+    SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
+    LayerStatBar.Visible:=GState.ShowStatusBar;
+    Showstatus.Checked:=GState.ShowStatusBar;
+    LayerMapMarks.Visible := GState.show_point <> mshNone;
 
-  MapMoving:=false;
+    MapMoving:=false;
 
-  SetProxy;
+    SetProxy;
 
-  case GState.SrchType of
-    stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
-    stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
-  end;
+    case GState.SrchType of
+      stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
+      stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
+    end;
 
-  if GState.WebReportToAuthor then begin
-    WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
-  end;
+    if GState.WebReportToAuthor then begin
+      WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
+    end;
 
   finally
     Enabled:=true;
