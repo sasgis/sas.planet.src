@@ -2551,32 +2551,31 @@ end;
 
 procedure TFmain.mapResize(Sender: TObject);
 begin
- if (not ProgramClose)and(not ProgramStart)then
-  begin
-   GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
-   FMainLayer.Resize;
-   LayerStatBar.Resize;
-   LayerScaleLine.Resize;
-   LayerSelection.Resize;
-   LayerMapNal.Resize;
-   LayerMapMarks.Resize;
-   LayerMapGPS.Resize;
-   LayerMapScale.Resize;
-   FWikiLayer.Resize;
-   FFillingMap.Resize;
-   LayerGoto.Resize;
-   FShowErrorLayer.Resize;
-   LayerMapNavToMark.Resize;
-   FMiniMapLayer.Resize;
-   LayerStatBar.Redraw;
+  if (not ProgramClose)and(not ProgramStart)then begin
+    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
+    FMainLayer.Resize;
+    LayerStatBar.Resize;
+    LayerScaleLine.Resize;
+    LayerSelection.Resize;
+    LayerMapNal.Resize;
+    LayerMapMarks.Resize;
+    LayerMapGPS.Resize;
+    LayerMapScale.Resize;
+    FWikiLayer.Resize;
+    FFillingMap.Resize;
+    LayerGoto.Resize;
+    FShowErrorLayer.Resize;
+    LayerMapNavToMark.Resize;
+    FMiniMapLayer.Resize;
+    LayerStatBar.Redraw;
   end;
 end;
 
 procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
 begin
- if (OpenDialog1.Execute) then begin
-   Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
- end
+  if (OpenDialog1.Execute) then begin
+    Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
+  end
 end;
 
 function TFmain.GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
