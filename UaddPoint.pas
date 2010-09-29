@@ -109,8 +109,6 @@ type
     procedure RefreshTranslation; override;
   end;
 
-  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
-
 var
   FaddPoint: TFaddPoint;
 

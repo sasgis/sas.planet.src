@@ -62,8 +62,6 @@ object FaddPoint: TFaddPoint
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 0
-    ExplicitTop = 465
-    ExplicitWidth = 362
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -73,8 +71,6 @@ object FaddPoint: TFaddPoint
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 494
-    ExplicitWidth = 368
     object Button2: TButton
       AlignWithMargins = True
       Left = 238
@@ -87,7 +83,6 @@ object FaddPoint: TFaddPoint
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       TabOrder = 0
       OnClick = Button2Click
-      ExplicitLeft = 292
     end
     object Badd: TButton
       AlignWithMargins = True
@@ -99,7 +94,6 @@ object FaddPoint: TFaddPoint
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       TabOrder = 1
       OnClick = BaddClick
-      ExplicitLeft = 213
     end
   end
   object grdpnlStyleRows: TGridPanel
@@ -143,8 +137,6 @@ object FaddPoint: TFaddPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 3
-    ExplicitTop = 340
-    ExplicitWidth = 368
     DesignSize = (
       314
       113)
@@ -179,7 +171,6 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 0
-      ExplicitWidth = 368
       DesignSize = (
         314
         41)
@@ -193,7 +184,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 24
         object Label3: TLabel
           AlignWithMargins = True
           Left = 3
@@ -240,7 +230,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 209
         object Label5: TLabel
           AlignWithMargins = True
           Left = 3
@@ -294,7 +283,6 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 1
-      ExplicitWidth = 368
       DesignSize = (
         314
         41)
@@ -308,7 +296,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 30
         object Label4: TLabel
           AlignWithMargins = True
           Left = 3
@@ -354,7 +341,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 210
         object Label6: TLabel
           AlignWithMargins = True
           Left = 3
@@ -387,7 +373,6 @@ object FaddPoint: TFaddPoint
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitLeft = 116
       object Label7: TLabel
         AlignWithMargins = True
         Left = 3
@@ -420,9 +405,6 @@ object FaddPoint: TFaddPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitTop = 216
-    ExplicitWidth = 368
-    ExplicitHeight = 124
   end
   object pnlLonLat: TPanel
     Left = 0
@@ -432,8 +414,6 @@ object FaddPoint: TFaddPoint
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 5
-    ExplicitTop = 328
-    ExplicitWidth = 368
     object Label21: TLabel
       Left = 27
       Top = 5
@@ -631,8 +611,6 @@ object FaddPoint: TFaddPoint
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 6
-    ExplicitTop = 78
-    ExplicitWidth = 368
     object pnlImage: TPanel
       AlignWithMargins = True
       Left = 3
@@ -642,7 +620,6 @@ object FaddPoint: TFaddPoint
       Align = alLeft
       BevelOuter = bvLowered
       TabOrder = 0
-      ExplicitHeight = 59
       object Image1: TImage
         AlignWithMargins = True
         Left = 4
@@ -664,10 +641,6 @@ object FaddPoint: TFaddPoint
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 88
-      ExplicitTop = 24
-      ExplicitWidth = 185
-      ExplicitHeight = 41
       object pnlCategory: TPanel
         Left = 0
         Top = 0
@@ -676,9 +649,6 @@ object FaddPoint: TFaddPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 33
-        ExplicitTop = 33
-        ExplicitWidth = 272
         object Label8: TLabel
           AlignWithMargins = True
           Left = 3
@@ -688,8 +658,6 @@ object FaddPoint: TFaddPoint
           Align = alLeft
           Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
           Layout = tlCenter
-          ExplicitLeft = 64
-          ExplicitTop = 10
           ExplicitHeight = 13
         end
         object CBKateg: TComboBox
@@ -702,7 +670,6 @@ object FaddPoint: TFaddPoint
           ItemHeight = 13
           TabOrder = 0
           Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
-          ExplicitWidth = 204
         end
       end
       object pnlName: TPanel
@@ -713,9 +680,6 @@ object FaddPoint: TFaddPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 30
-        ExplicitTop = 32
-        ExplicitWidth = 251
         object Label1: TLabel
           AlignWithMargins = True
           Left = 3
@@ -725,8 +689,6 @@ object FaddPoint: TFaddPoint
           Align = alLeft
           Caption = #1048#1084#1103':'
           Layout = tlCenter
-          ExplicitLeft = 64
-          ExplicitTop = 28
           ExplicitHeight = 13
         end
         object EditName: TEdit
@@ -744,7 +706,6 @@ object FaddPoint: TFaddPoint
           ParentFont = False
           TabOrder = 0
           OnKeyPress = EditCommentKeyPress
-          ExplicitWidth = 214
         end
       end
     end

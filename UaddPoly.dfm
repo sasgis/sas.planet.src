@@ -113,8 +113,6 @@ object FAddPoly: TFAddPoly
       Height = 13
       Align = alTop
       Caption = #1047#1072#1087#1086#1083#1085#1077#1085#1080#1077':'
-      ExplicitLeft = 8
-      ExplicitTop = 79
       ExplicitWidth = 64
     end
     object flwpnlFill: TFlowPanel
@@ -202,8 +200,6 @@ object FAddPoly: TFAddPoly
       Height = 13
       Align = alTop
       Caption = #1051#1080#1085#1080#1103':'
-      ExplicitLeft = 8
-      ExplicitTop = 49
       ExplicitWidth = 35
     end
     object flwpnlLine: TFlowPanel
@@ -320,12 +316,9 @@ object FAddPoly: TFAddPoly
       Left = 3
       Top = 3
       Width = 56
-      Height = 19
+      Height = 13
       Align = alLeft
       Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
-      ExplicitLeft = 8
-      ExplicitTop = 10
-      ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
@@ -334,12 +327,9 @@ object FAddPoly: TFAddPoly
       Width = 255
       Height = 21
       Align = alClient
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 0
       Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
-      ExplicitLeft = 72
-      ExplicitTop = 8
-      ExplicitWidth = 265
     end
   end
   object pnlName: TPanel
@@ -358,12 +348,9 @@ object FAddPoly: TFAddPoly
       Left = 3
       Top = 3
       Width = 25
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1048#1084#1103':'
-      ExplicitLeft = 9
-      ExplicitTop = 14
-      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True

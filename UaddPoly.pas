@@ -26,6 +26,7 @@ uses
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
+  fr_MarkDescription,
   t_GeoTypes;
 
 type
@@ -68,17 +69,15 @@ type
     procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
-    procedure TBXItem3Click(Sender: TObject);
-    procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
   private
     FMark: TMarkFull;
+    frMarkDescription: TfrMarkDescription;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function EditMark(AMark: TMarkFull):boolean;
+    procedure RefreshTranslation; override;
   end;
-
-  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
 
 var
   FAddPoly: TFAddPoly;
@@ -87,7 +86,7 @@ implementation
 
 uses
   u_MarksReadWriteSimple;
-  
+
 {$R *.dfm}
 
 function TFAddPoly.EditMark(AMark: TMarkFull): boolean;
@@ -98,7 +97,7 @@ var
   VId: integer;
 begin
   FMark := AMark;
-  EditComment.Text:='';
+  frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewPoly;
   namecatbuf:=CBKateg.Text;
   Kategory2StringsWithObjects(CBKateg.Items);
@@ -112,7 +111,7 @@ begin
     Caption:=SAS_STR_EditPoly;
     Badd.Caption:=SAS_STR_Edit;
     EditName.Text:=FMark.name;
-    EditComment.Text:=FMark.Desc;
+    frMarkDescription.Description:=FMark.Desc;
     SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
     SEtransp2.Value:=100-round(AlphaComponent(FMark.Color2)/255*100);
     SpinEdit1.Value:=FMark.Scale1;
@@ -138,6 +137,12 @@ begin
   FMark := nil;
 end;
 
+procedure TFAddPoly.RefreshTranslation;
+begin
+  inherited;
+  frMarkDescription.RefreshTranslation;
+end;
+
 procedure TFAddPoly.BaddClick(Sender: TObject);
 var i:integer;
     alltl,allbr:TExtendedPoint;
@@ -156,7 +161,7 @@ begin
     if allbr.y>FMark.Points[i].y then allbr.y:=FMark.Points[i].y;
   end;
   FMark.name:=EditName.Text;
-  FMark.Desc:=EditComment.Text;
+  FMark.Desc:=frMarkDescription.Description;
   FMark.Scale1:=SpinEdit1.Value;
 
   FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
@@ -187,6 +192,13 @@ begin
   ModalResult:=mrCancel;
 end;
 
+constructor TFAddPoly.Create(AOwner: TComponent);
+begin
+  inherited;
+  frMarkDescription := TfrMarkDescription.Create(nil);
+  frMarkDescription.Parent := pnlDescription
+end;
+
 destructor TFAddPoly.Destroy;
 var
   i: Integer;
@@ -195,6 +207,7 @@ begin
     CBKateg.Items.Objects[i].Free;
   end;
   CBKateg.Items.Clear;
+  FreeAndNil(frMarkDescription);
   inherited;
 end;
 
@@ -206,65 +219,6 @@ end;
 procedure TFAddPoly.SpeedButton2Click(Sender: TObject);
 begin
  if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
-end;
-
-procedure TFAddPoly.TBXItem3Click(Sender: TObject);
-var s:string;
-    seli:integer;
-begin
- s:=EditComment.Text;
- seli:=EditComment.SelStart;
- case TEditBtn(TTBXItem(sender).Tag) of
-  ebB: begin
-        Insert('<b>',s,EditComment.SelStart+1);
-        Insert('</b>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebI: begin
-        Insert('<i>',s,EditComment.SelStart+1);
-        Insert('</i>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebU: begin
-        Insert('<u>',s,EditComment.SelStart+1);
-        Insert('</u>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebImg:
-       begin
-        if (FMain.OpenPictureDialog.Execute)and(FMain.OpenPictureDialog.FileName<>'') then begin
-         Insert('<img src="'+FMain.OpenPictureDialog.FileName+'"/>',s,EditComment.SelStart+1);
-        end;
-       end;
-  ebCenter:
-       begin
-        Insert('<CENTER>',s,EditComment.SelStart+1);
-        Insert('</CENTER>',s,EditComment.SelStart+EditComment.SelLength+8+1);
-       end;
-  ebLeft:
-       begin
-        Insert('<div ALIGN=LEFT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+16+1);
-       end;
-  ebRight:
-       begin
-        Insert('<div ALIGN=RIGHT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+17+1);
-       end;
- end;
- EditComment.Text:=s;
- EditComment.SelStart:=seli;
-end;
-
-procedure TFAddPoly.EditCommentKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-var s:string;
-    seli:integer;
-begin
- if Key=13 then begin
-   Key:=0;
-   s:=EditComment.Text;
-   seli:=EditComment.SelStart;
-   Insert('<BR>',s,EditComment.SelStart+1);
-   EditComment.Text:=s;
-   EditComment.SelStart:=seli+4;
- end;
 end;
 
 end.
