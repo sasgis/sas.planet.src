@@ -1609,7 +1609,7 @@ begin
     if GState.WebReportToAuthor then begin
       WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
     end;
-
+    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
   finally
     Enabled:=true;
     SetFocus;
