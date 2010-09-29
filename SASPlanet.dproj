@@ -50,6 +50,10 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
+    <DCCReference Include="fr_MarkDescription.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frMarkDescription</Form>
+    </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frShortCutList</Form>
