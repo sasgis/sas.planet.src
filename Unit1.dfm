@@ -2242,6 +2242,8 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 3
             OnVisibleChanged = TBXSensorsBarVisibleChanged
+            ExplicitWidth = 32
+            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -2576,6 +2578,8 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 8
             OnVisibleChanged = TBXSensorsBarVisibleChanged
+            ExplicitWidth = 32
+            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -2620,6 +2624,8 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 9
             OnVisibleChanged = TBXSensorsBarVisibleChanged
+            ExplicitWidth = 32
+            ExplicitHeight = 32
             DesignSize = (
               150
               32)

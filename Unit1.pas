@@ -583,6 +583,7 @@ type
     procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
+    function GetIgnoredMenuItemsList: TList;
   public
     FGoogleSearch: TGeoSearcher;
     FYandexSerach: TGeoSearcher;
@@ -1360,6 +1361,23 @@ begin
   end;
 end;
 
+function TFmain.GetIgnoredMenuItemsList: TList;
+begin
+  Result := TList.Create;
+  Result.Add(NSMB);
+  Result.Add(NLayerSel);
+  Result.Add(TBFillingTypeMap);
+  Result.Add(NLayerParams);
+  Result.Add(TBLang);
+  Result.Add(N002);
+  Result.Add(N003);
+  Result.Add(N004);
+  Result.Add(N005);
+  Result.Add(N006);
+  Result.Add(N007);
+  Result.Add(NFillMap);
+end;
+
 procedure TFmain.FormActivate(Sender: TObject);
 var
   i:integer;
@@ -1442,9 +1460,8 @@ begin
     MouseDownPoint := point(0,0);
     MouseUpPoint := point(0,0);
     MapZoomAnimtion:=False;
-    FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, nil);
+    FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
     FShortCutManager.Load(GState.MainIni, 'HOTKEY');
-    FSettings.FShortcutEditor.LoadShortCuts(TBXMainMenu.Items, 'HOTKEY');
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
     TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));

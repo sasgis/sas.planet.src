@@ -29,7 +29,7 @@ uses
   u_CommonFormAndFrameParents,
   UMapType,
   UResStrings,
-  u_ShortcutManager;
+  u_ShortcutManager, fr_ShortCutList;
 
 type
   TFSettings = class(TCommonFormParent)
@@ -168,9 +168,6 @@ type
     SEWaitingAnswer: TSpinEdit;
     Label37: TLabel;
     CBCacheType: TComboBox;
-    List: TListBox;
-    Label40: TLabel;
-    Label55: TLabel;
     Label5: TLabel;
     SE_NumTrackPoints: TSpinEdit;
     CB_GPSlogNmea: TCheckBox;
@@ -186,7 +183,6 @@ type
     pnlUseIEProxy: TPanel;
     pnlDownloadParams: TPanel;
     flwpnlDownloadTimeOut: TFlowPanel;
-    pnlHotKeysHeader: TPanel;
     pnlNumbersFormat: TPanel;
     pnlCoordFormat: TPanel;
     pnlUILeft: TPanel;
@@ -217,6 +213,7 @@ type
     chkPosFromGSM: TCheckBox;
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
+    frShortCutList1: TfrShortCutList;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -236,7 +233,6 @@ type
     procedure PaintBox1Paint(Sender: TObject);
     procedure Button18Click(Sender: TObject);
     procedure SBGetComNumClick(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
@@ -245,7 +241,6 @@ type
   private
     FMapsEdit: boolean;
   public
-    FShortcutEditor: TShortcutEditor;
     constructor Create(AOwner: TComponent); override;
     procedure Save;
     procedure InitMapsList;
@@ -276,7 +271,7 @@ begin
     GState.SaveMaps;
     GState.ViewState.SaveViewPortState;
     GState.SaveMainParams;
-    FShortcutEditor.Save;
+    Fmain.ShortCutManager.Save(GState.MainIni, 'HOTKEY');
     Fmain.SaveWindowConfigToIni;
     GState.MainIni.UpdateFile;
   except
@@ -556,6 +551,7 @@ begin
  SpinEdit3.Value:=GState.TilesOut;
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
+ frShortCutList1.SetShortCutManager(Fmain.ShortCutManager);
 end;
 
 procedure TFSettings.FormCreate(Sender: TObject);
@@ -566,7 +562,6 @@ begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
     ComboBoxCOM.Items.Add('COM'+inttostr(i));
   end;
-  FShortcutEditor := TShortcutEditor.Create(List);
 end;
 
 procedure TFSettings.TrBarGammaChange(Sender: TObject);
@@ -648,7 +643,6 @@ procedure TFSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
-  FShortcutEditor.RefreshTranslation;
 end;
 
 procedure TFSettings.Button18Click(Sender: TObject);
@@ -670,11 +664,6 @@ begin
   end
   else ShowMessage(SAS_MSG_NoGPSdetected);
  SBGetComNum.Enabled:=true;
-end;
-
-procedure TFSettings.FormDestroy(Sender: TObject);
-begin
-  FreeAndNil(FShortcutEditor);
 end;
 
 procedure TFSettings.InitMapsList;

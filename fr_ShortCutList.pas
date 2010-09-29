@@ -103,9 +103,11 @@ end;
 procedure TfrShortCutList.SetShortCutManager(
   AShortCutManager: TShortcutManager);
 begin
-  FShortCutManager := AShortCutManager;
-  if FShortCutManager <> nil then begin
-    FShortCutManager.GetObjectsList(lstShortCutList.Items);
+  if FShortCutManager <> AShortCutManager then begin
+    FShortCutManager := AShortCutManager;
+    if FShortCutManager <> nil then begin
+      FShortCutManager.GetObjectsList(lstShortCutList.Items);
+    end;
   end;
 end;
 

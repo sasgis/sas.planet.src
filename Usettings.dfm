@@ -17,7 +17,6 @@ object FSettings: TFSettings
   Position = poScreenCenter
   ShowHint = True
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -803,65 +802,29 @@ object FSettings: TFSettings
         Align = alClient
         Caption = ' '#1043#1086#1088#1103#1095#1080#1077' '#1082#1083'. '
         TabOrder = 1
-        object pnlHotKeysHeader: TPanel
+        inline frShortCutList1: TfrShortCutList
           Left = 2
           Top = 15
           Width = 612
-          Height = 25
-          Align = alTop
-          BevelOuter = bvNone
-          TabOrder = 0
-          object Label40: TLabel
-            AlignWithMargins = True
-            Left = 3
-            Top = 3
-            Width = 57
-            Height = 19
-            Align = alLeft
-            Caption = #1054#1087#1077#1088#1072#1094#1080#1103
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-            Layout = tlCenter
-            ExplicitHeight = 13
-          end
-          object Label55: TLabel
-            AlignWithMargins = True
-            Left = 566
-            Top = 3
-            Width = 43
-            Height = 19
-            Align = alRight
-            Caption = #1043#1086#1088'. '#1082#1083'.'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-            Layout = tlCenter
-            ExplicitHeight = 13
-          end
-        end
-        object List: TListBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 43
-          Width = 606
-          Height = 275
-          Style = lbOwnerDrawFixed
+          Height = 306
           Align = alClient
-          Font.Charset = RUSSIAN_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ItemHeight = 20
-          ParentFont = False
-          TabOrder = 1
+          TabOrder = 0
+          ExplicitLeft = 2
+          ExplicitTop = 15
+          inherited lstShortCutList: TListBox
+            Width = 606
+            Height = 275
+          end
+          inherited pnlHotKeysHeader: TPanel
+            Width = 612
+            inherited lblOperation: TLabel
+              Height = 19
+            end
+            inherited lblHotKey: TLabel
+              Left = 566
+              Height = 19
+            end
+          end
         end
       end
     end
