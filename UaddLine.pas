@@ -25,18 +25,17 @@ uses
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
-  t_GeoTypes;
+  t_GeoTypes,
+  fr_MarkDescription;
 
 type
   TFaddLine = class(TCommonFormParent)
     Label1: TLabel;
-    Label2: TLabel;
     Bevel2: TBevel;
     Bevel5: TBevel;
     Label3: TLabel;
     Label5: TLabel;
     EditName: TEdit;
-    EditComment: TMemo;
     Badd: TButton;
     Button2: TButton;
     CheckBox2: TCheckBox;
@@ -49,37 +48,22 @@ type
     SpeedButton1: TSpeedButton;
     Label7: TLabel;
     CBKateg: TComboBox;
-    TBXToolbar1: TTBXToolbar;
-    TBXItem3: TTBXItem;
-    TBXItem2: TTBXItem;
-    TBXItem1: TTBXItem;
-    TBXSeparatorItem1: TTBXSeparatorItem;
-    TBXItem4: TTBXItem;
-    TBXItem5: TTBXItem;
-    TBXItem6: TTBXItem;
-    TBXSeparatorItem2: TTBXSeparatorItem;
-    TBXItem7: TTBXItem;
     pnlCategory: TPanel;
     pnlName: TPanel;
     pnlDescription: TPanel;
-    pnlDescriptionTop: TPanel;
     flwpnlStyle: TFlowPanel;
     pnlBottomButtons: TPanel;
+    frMarkDescription1: TfrMarkDescription;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
-    procedure TBXItem3Click(Sender: TObject);
-    procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
   private
     FMark: TMarkFull;
   public
     destructor Destroy; override;
     function EditMark(AMark: TMarkFull):boolean;
   end;
-
-  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
 
 var
   FaddLine: TFaddLine;
@@ -99,7 +83,7 @@ var
   VId: integer;
 begin
   FMark := AMark;
-  EditComment.Text:='';
+  frMarkDescription1.Description := '';
   EditName.Text:=SAS_STR_NewPath;
   namecatbuf:=CBKateg.Text;
   Kategory2StringsWithObjects(CBKateg.Items);
@@ -109,12 +93,12 @@ begin
     Caption:=SAS_STR_AddNewPath;
     Badd.Caption:=SAS_STR_Add;
     CheckBox2.Checked:=true;
-    if FMark.Desc<>'' then faddLine.EditComment.Text:=FMark.Desc;
+    if FMark.Desc<>'' then frMarkDescription1.Description := FMark.Desc;
   end else begin
     Caption:=SAS_STR_EditPath;
     Badd.Caption:=SAS_STR_Edit;
     EditName.Text:=FMark.name;
-    EditComment.Text:=FMark.Desc;
+    frMarkDescription1.Description := FMark.Desc;
     SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
     SpinEdit1.Value:=FMark.Scale1;
     ColorBox1.Selected:=WinColor(FMark.Color1);
@@ -157,7 +141,7 @@ begin
    if allbr.y>FMark.Points[i].y then allbr.y:=FMark.Points[i].y;
   end;
   FMark.name:=EditName.Text;
-  FMark.Desc:=EditComment.Text;
+  FMark.Desc:=frMarkDescription1.Description;
   FMark.Scale1:=SpinEdit1.Value;
   FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
   FMark.visible:=CheckBox2.Checked;
@@ -200,63 +184,6 @@ end;
 procedure TFaddLine.SpeedButton1Click(Sender: TObject);
 begin
  if ColorDialog1.Execute then ColorBox1.Selected:=ColorDialog1.Color;
-end;
-
-procedure TFaddLine.TBXItem3Click(Sender: TObject);
-var s:string;
-    seli:integer;
-begin
- s:=EditComment.Text;
- seli:=EditComment.SelStart;
- case TEditBtn(TTBXItem(sender).Tag) of
-  ebB: begin
-        Insert('<b>',s,EditComment.SelStart+1);
-        Insert('</b>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebI: begin
-        Insert('<i>',s,EditComment.SelStart+1);
-        Insert('</i>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebU: begin
-        Insert('<u>',s,EditComment.SelStart+1);
-        Insert('</u>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebImg:
-       if (FMain.OpenPictureDialog.Execute)and(FMain.OpenPictureDialog.FileName<>'') then begin
-         Insert('<img src="'+FMain.OpenPictureDialog.FileName+'"/>',s,EditComment.SelStart+1);
-       end;
-  ebCenter:
-       begin
-        Insert('<CENTER>',s,EditComment.SelStart+1);
-        Insert('</CENTER>',s,EditComment.SelStart+EditComment.SelLength+8+1);
-       end;
-  ebLeft:
-       begin
-        Insert('<div ALIGN=LEFT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+16+1);
-       end;
-  ebRight:
-       begin
-        Insert('<div ALIGN=RIGHT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+17+1);
-       end;
- end;
- EditComment.Text:=s;
- EditComment.SelStart:=seli;
-end;
-
-procedure TFaddLine.EditCommentKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-var s:string;
-    seli:integer;
-begin
- if Key=13 then begin
-   Key:=0;
-   s:=EditComment.Text;
-   seli:=EditComment.SelStart;
-   Insert('<BR>',s,EditComment.SelStart+1);
-   EditComment.Text:=s;
-   EditComment.SelStart:=seli+4;
- end;
 end;
 
 end.

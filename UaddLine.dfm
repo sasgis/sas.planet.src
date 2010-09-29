@@ -3,7 +3,7 @@ object FaddLine: TFaddLine
   Top = 189
   BorderStyle = bsSizeToolWin
   Caption = 'FaddLine'
-  ClientHeight = 247
+  ClientHeight = 330
   ClientWidth = 328
   Color = clBtnFace
   Constraints.MinHeight = 271
@@ -20,7 +20,7 @@ object FaddLine: TFaddLine
   TextHeight = 13
   object Bevel2: TBevel
     Left = 0
-    Top = 175
+    Top = 258
     Width = 328
     Height = 9
     Align = alBottom
@@ -31,7 +31,7 @@ object FaddLine: TFaddLine
   end
   object Bevel5: TBevel
     Left = 0
-    Top = 207
+    Top = 290
     Width = 328
     Height = 9
     Align = alBottom
@@ -43,15 +43,13 @@ object FaddLine: TFaddLine
   object CheckBox2: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 187
+    Top = 270
     Width = 322
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 0
-    ExplicitLeft = 8
-    ExplicitTop = 251
-    ExplicitWidth = 329
+    ExplicitTop = 187
   end
   object pnlCategory: TPanel
     Left = 0
@@ -61,7 +59,6 @@ object FaddLine: TFaddLine
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 345
     object Label7: TLabel
       AlignWithMargins = True
       Left = 3
@@ -71,8 +68,6 @@ object FaddLine: TFaddLine
       Align = alLeft
       Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
       Layout = tlCenter
-      ExplicitLeft = 8
-      ExplicitTop = 10
       ExplicitHeight = 13
     end
     object CBKateg: TComboBox
@@ -85,9 +80,6 @@ object FaddLine: TFaddLine
       ItemHeight = 13
       TabOrder = 0
       Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
-      ExplicitLeft = 64
-      ExplicitTop = 8
-      ExplicitWidth = 265
     end
   end
   object pnlName: TPanel
@@ -98,7 +90,6 @@ object FaddLine: TFaddLine
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitWidth = 345
     object Label1: TLabel
       AlignWithMargins = True
       Left = 3
@@ -108,8 +99,6 @@ object FaddLine: TFaddLine
       Align = alLeft
       Caption = #1048#1084#1103':'
       Layout = tlCenter
-      ExplicitLeft = 8
-      ExplicitTop = 28
       ExplicitHeight = 13
     end
     object EditName: TEdit
@@ -126,138 +115,94 @@ object FaddLine: TFaddLine
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      ExplicitLeft = 57
-      ExplicitTop = 12
-      ExplicitWidth = 297
     end
   end
   object pnlDescription: TPanel
     Left = 0
     Top = 52
     Width = 328
-    Height = 95
+    Height = 178
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 345
-    ExplicitHeight = 133
-    object pnlDescriptionTop: TPanel
+    ExplicitHeight = 95
+    inline frMarkDescription1: TfrMarkDescription
       Left = 0
       Top = 0
       Width = 328
-      Height = 28
-      Align = alTop
-      BevelOuter = bvNone
-      TabOrder = 0
-      ExplicitWidth = 329
-      object Label2: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 53
-        Height = 22
-        Align = alLeft
-        Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
-        Layout = tlBottom
-        ExplicitLeft = 13
-        ExplicitTop = 12
-        ExplicitHeight = 13
-      end
-      object TBXToolbar1: TTBXToolbar
-        AlignWithMargins = True
-        Left = 152
-        Top = 3
-        Width = 173
-        Height = 22
-        Align = alRight
-        Images = Fmain.EditCommentsImgs
-        TabOrder = 0
-        ExplicitLeft = 153
-        object TBXItem3: TTBXItem
-          ImageIndex = 0
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem2: TTBXItem
-          Tag = 1
-          ImageIndex = 1
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem1: TTBXItem
-          Tag = 2
-          ImageIndex = 2
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-        object TBXSeparatorItem1: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem4: TTBXItem
-          Tag = 3
-          ImageIndex = 3
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem5: TTBXItem
-          Tag = 4
-          ImageIndex = 4
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem6: TTBXItem
-          Tag = 5
-          ImageIndex = 5
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-        object TBXSeparatorItem2: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem7: TTBXItem
-          Tag = 6
-          ImageIndex = 7
-          OnClick = TBXItem3Click
-          Caption = ''
-          Hint = ''
-        end
-      end
-    end
-    object EditComment: TMemo
-      AlignWithMargins = True
-      Left = 3
-      Top = 31
-      Width = 322
-      Height = 57
+      Height = 174
       Align = alClient
-      ScrollBars = ssVertical
-      TabOrder = 1
-      OnKeyDown = EditCommentKeyDown
-      ExplicitWidth = 323
-      ExplicitHeight = 143
+      TabOrder = 0
+      ExplicitLeft = 9
+      ExplicitTop = -39
+      inherited EditComment: TMemo
+        Width = 322
+        Height = 140
+        ExplicitLeft = 3
+        ExplicitWidth = 313
+        ExplicitHeight = 179
+      end
+      inherited pnlDescriptionTop: TPanel
+        Width = 328
+        ExplicitLeft = 0
+        ExplicitWidth = 319
+        inherited TBXToolbar1: TTBXToolbar
+          Left = 152
+          ExplicitLeft = 143
+          inherited TBXItem3: TTBXItem
+            OnClick = nil
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXItem2: TTBXItem
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXItem1: TTBXItem
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXSeparatorItem1: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXItem4: TTBXItem
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXItem5: TTBXItem
+            OnClick = nil
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXItem6: TTBXItem
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXSeparatorItem2: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          inherited TBXItem7: TTBXItem
+            Caption = ''
+            Hint = ''
+          end
+        end
+      end
     end
   end
   object flwpnlStyle: TFlowPanel
     Left = 0
-    Top = 147
+    Top = 230
     Width = 328
     Height = 28
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitTop = 370
-    ExplicitWidth = 345
+    ExplicitTop = 147
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
@@ -333,14 +278,13 @@ object FaddLine: TFaddLine
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 216
+    Top = 299
     Width = 328
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 5
-    ExplicitTop = 463
-    ExplicitWidth = 345
+    ExplicitTop = 216
     object Badd: TButton
       AlignWithMargins = True
       Left = 173
@@ -351,8 +295,6 @@ object FaddLine: TFaddLine
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       TabOrder = 0
       OnClick = BaddClick
-      ExplicitLeft = 184
-      ExplicitTop = 16
     end
     object Button2: TButton
       AlignWithMargins = True
@@ -367,8 +309,6 @@ object FaddLine: TFaddLine
       ModalResult = 2
       TabOrder = 1
       OnClick = Button2Click
-      ExplicitLeft = 264
-      ExplicitTop = 16
     end
   end
   object OpenDialog1: TOpenDialog
