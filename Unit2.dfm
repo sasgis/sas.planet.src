@@ -38,7 +38,6 @@ object FGoTo: TFGoTo
     Top = 4
     Width = 297
     Height = 45
-    Caption = ' '
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -94,7 +93,6 @@ object FGoTo: TFGoTo
     Top = 56
     Width = 297
     Height = 49
-    Caption = ' '
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -126,7 +124,6 @@ object FGoTo: TFGoTo
     Top = 109
     Width = 297
     Height = 68
-    Caption = ' '
     TabOrder = 6
     object Label21: TLabel
       Left = 34
@@ -221,6 +218,8 @@ object FGoTo: TFGoTo
       Top = 16
       Width = 48
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
       AutoSize = False
       BorderStyle = bsNone
       Ctl3D = True
@@ -237,6 +236,8 @@ object FGoTo: TFGoTo
       Top = 16
       Width = 48
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
       AutoSize = False
       BorderStyle = bsNone
       Ctl3D = True
@@ -253,6 +254,8 @@ object FGoTo: TFGoTo
       Top = 38
       Width = 48
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
       AutoSize = False
       BorderStyle = bsNone
       Ctl3D = True
@@ -269,6 +272,8 @@ object FGoTo: TFGoTo
       Top = 38
       Width = 48
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
       AutoSize = False
       BorderStyle = bsNone
       Ctl3D = True
@@ -285,6 +290,8 @@ object FGoTo: TFGoTo
       Top = 38
       Width = 48
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
       AutoSize = False
       BorderStyle = bsNone
       Ctl3D = True
@@ -301,6 +308,8 @@ object FGoTo: TFGoTo
       Top = 16
       Width = 48
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
       AutoSize = False
       BorderStyle = bsNone
       Ctl3D = True
