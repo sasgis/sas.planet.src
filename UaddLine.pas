@@ -53,14 +53,15 @@ type
     pnlDescription: TPanel;
     flwpnlStyle: TFlowPanel;
     pnlBottomButtons: TPanel;
-    frMarkDescription1: TfrMarkDescription;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
   private
     FMark: TMarkFull;
+    frMarkDescription: TfrMarkDescription;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function EditMark(AMark: TMarkFull):boolean;
   end;
@@ -83,7 +84,7 @@ var
   VId: integer;
 begin
   FMark := AMark;
-  frMarkDescription1.Description := '';
+  frMarkDescription.Description := '';
   EditName.Text:=SAS_STR_NewPath;
   namecatbuf:=CBKateg.Text;
   Kategory2StringsWithObjects(CBKateg.Items);
@@ -93,12 +94,12 @@ begin
     Caption:=SAS_STR_AddNewPath;
     Badd.Caption:=SAS_STR_Add;
     CheckBox2.Checked:=true;
-    if FMark.Desc<>'' then frMarkDescription1.Description := FMark.Desc;
+    if FMark.Desc<>'' then frMarkDescription.Description := FMark.Desc;
   end else begin
     Caption:=SAS_STR_EditPath;
     Badd.Caption:=SAS_STR_Edit;
     EditName.Text:=FMark.name;
-    frMarkDescription1.Description := FMark.Desc;
+    frMarkDescription.Description := FMark.Desc;
     SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
     SpinEdit1.Value:=FMark.Scale1;
     ColorBox1.Selected:=WinColor(FMark.Color1);
@@ -141,7 +142,7 @@ begin
    if allbr.y>FMark.Points[i].y then allbr.y:=FMark.Points[i].y;
   end;
   FMark.name:=EditName.Text;
-  FMark.Desc:=frMarkDescription1.Description;
+  FMark.Desc:=frMarkDescription.Description;
   FMark.Scale1:=SpinEdit1.Value;
   FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
   FMark.visible:=CheckBox2.Checked;
@@ -168,6 +169,13 @@ end;
 procedure TFaddLine.Button2Click(Sender: TObject);
 begin
   ModalResult := mrCancel;
+end;
+
+constructor TFaddLine.Create(AOwner: TComponent);
+begin
+  inherited;
+  frMarkDescription := TfrMarkDescription.Create(Application);
+  frMarkDescription.Parent := pnlDescription
 end;
 
 destructor TFaddLine.Destroy;

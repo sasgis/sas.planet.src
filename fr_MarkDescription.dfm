@@ -3,6 +3,7 @@ object frMarkDescription: TfrMarkDescription
   Top = 0
   Width = 319
   Height = 213
+  Align = alClient
   TabOrder = 0
   object EditComment: TMemo
     AlignWithMargins = True
@@ -51,6 +52,7 @@ object frMarkDescription: TfrMarkDescription
       ExplicitLeft = 152
       object TBXItem3: TTBXItem
         ImageIndex = 0
+        OnClick = TBXItem1Click
         Caption = ''
         Hint = ''
       end
@@ -82,6 +84,7 @@ object frMarkDescription: TfrMarkDescription
       object TBXItem5: TTBXItem
         Tag = 4
         ImageIndex = 4
+        OnClick = TBXItem1Click
         Caption = ''
         Hint = ''
       end

@@ -81,12 +81,13 @@ begin
 end;
 
 procedure TfrMarkDescription.TBXItem1Click(Sender: TObject);
-var s:string;
-    seli:integer;
+var
+  s:string;
+  seli:integer;
 begin
- s:=EditComment.Text;
- seli:=EditComment.SelStart;
- case TEditBtn(TTBXItem(sender).Tag) of
+  s:=EditComment.Text;
+  seli:=EditComment.SelStart;
+  case TEditBtn(TTBXItem(sender).Tag) of
   ebB: begin
         Insert('<b>',s,EditComment.SelStart+1);
         Insert('</b>',s,EditComment.SelStart+EditComment.SelLength+3+1);
@@ -118,9 +119,9 @@ begin
         Insert('<div ALIGN=RIGHT>',s,EditComment.SelStart+1);
         Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+17+1);
        end;
- end;
- EditComment.Text:=s;
- EditComment.SelStart:=seli;
+  end;
+  EditComment.Text:=s;
+  EditComment.SelStart:=seli;
 end;
 
 end.
