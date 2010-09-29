@@ -32,8 +32,6 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Bevel2: TBevel;
-    Bevel3: TBevel;
-    Bevel4: TBevel;
     Bevel5: TBevel;
     Label3: TLabel;
     Label5: TLabel;
@@ -61,6 +59,12 @@ type
     TBXItem6: TTBXItem;
     TBXSeparatorItem2: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
+    pnlCategory: TPanel;
+    pnlName: TPanel;
+    pnlDescription: TPanel;
+    pnlDescriptionTop: TPanel;
+    flwpnlStyle: TFlowPanel;
+    pnlBottomButtons: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
