@@ -3,8 +3,8 @@ object FaddPoint: TFaddPoint
   Top = 178
   BorderStyle = bsDialog
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
-  ClientHeight = 407
-  ClientWidth = 345
+  ClientHeight = 435
+  ClientWidth = 368
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -18,498 +18,723 @@ object FaddPoint: TFaddPoint
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    Left = 64
-    Top = 34
-    Width = 25
-    Height = 13
-    Caption = #1048#1084#1103':'
-  end
-  object Label2: TLabel
-    Left = 8
-    Top = 132
-    Width = 53
-    Height = 13
-    Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
-  end
   object Bevel1: TBevel
-    Left = 8
-    Top = 56
-    Width = 329
+    Left = 0
+    Top = 59
+    Width = 368
     Height = 9
+    Align = alTop
     Shape = bsBottomLine
+    ExplicitLeft = 8
+    ExplicitTop = 96
+    ExplicitWidth = 329
   end
   object Bevel2: TBevel
-    Left = 8
-    Top = 336
-    Width = 329
+    Left = 0
+    Top = 363
+    Width = 368
     Height = 9
+    Align = alBottom
     Shape = bsBottomLine
-  end
-  object Bevel3: TBevel
-    Left = 8
-    Top = 112
-    Width = 329
-    Height = 9
-    Shape = bsBottomLine
-  end
-  object Bevel4: TBevel
-    Left = 8
-    Top = 252
-    Width = 329
-    Height = 9
-    Shape = bsBottomLine
+    ExplicitLeft = 8
+    ExplicitTop = 336
+    ExplicitWidth = 329
   end
   object Bevel5: TBevel
-    Left = 8
-    Top = 360
-    Width = 329
+    Left = 0
+    Top = 395
+    Width = 368
     Height = 9
+    Align = alBottom
     Shape = bsBottomLine
-  end
-  object Label21: TLabel
-    Left = 65
-    Top = 75
-    Width = 41
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1064#1080#1088#1086#1090#1072':'
-    Color = clBtnFace
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clBlack
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentColor = False
-    ParentFont = False
-  end
-  object Label22: TLabel
-    Left = 60
-    Top = 97
-    Width = 46
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1044#1086#1083#1075#1086#1090#1072':'
-    Color = clBtnFace
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clBlack
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentColor = False
-    ParentFont = False
-  end
-  object Label3: TLabel
-    Left = 19
-    Top = 272
-    Width = 62
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
-  end
-  object Label4: TLabel
-    Left = 30
-    Top = 296
-    Width = 51
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
-  end
-  object Label5: TLabel
-    Left = 192
-    Top = 272
-    Width = 81
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
-  end
-  object Label6: TLabel
-    Left = 195
-    Top = 296
-    Width = 78
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
-  end
-  object Label7: TLabel
-    Left = 112
-    Top = 320
-    Width = 83
-    Height = 13
-    Alignment = taRightJustify
-    Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
-  end
-  object SpeedButton1: TSpeedButton
-    Left = 126
-    Top = 269
-    Width = 17
-    Height = 22
-    Caption = '...'
-    OnClick = SpeedButton1Click
-  end
-  object SpeedButton2: TSpeedButton
-    Left = 126
-    Top = 293
-    Width = 17
-    Height = 22
-    Caption = '...'
-    OnClick = SpeedButton2Click
-  end
-  object Label8: TLabel
-    Left = 64
-    Top = 10
-    Width = 56
-    Height = 13
-    Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
-  end
-  object Bevel6: TBevel
-    Left = 8
-    Top = 8
-    Width = 47
-    Height = 47
-  end
-  object Image1: TImage
-    Left = 9
-    Top = 9
-    Width = 45
-    Height = 45
-    Cursor = crHandPoint
-    OnMouseDown = Image1MouseDown
-  end
-  object EditName: TEdit
-    Left = 96
-    Top = 32
-    Width = 241
-    Height = 21
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 0
-    OnKeyPress = EditCommentKeyPress
-  end
-  object EditComment: TMemo
-    Left = 8
-    Top = 152
-    Width = 329
-    Height = 99
-    ScrollBars = ssVertical
-    TabOrder = 1
-    OnKeyDown = EditCommentKeyDown
-    OnKeyPress = EditCommentKeyPress
-  end
-  object Badd: TButton
-    Left = 184
-    Top = 376
-    Width = 73
-    Height = 25
-    Caption = #1044#1086#1073#1072#1074#1080#1090#1100
-    TabOrder = 2
-    OnClick = BaddClick
-  end
-  object Button2: TButton
-    Left = 264
-    Top = 376
-    Width = 73
-    Height = 25
-    Hint = #1054#1090#1084#1077#1085#1080#1090#1100
-    Cancel = True
-    Caption = #1054#1090#1084#1077#1085#1080#1090#1100
-    TabOrder = 3
-    OnClick = Button2Click
+    ExplicitLeft = 8
+    ExplicitTop = 360
+    ExplicitWidth = 329
   end
   object CheckBox2: TCheckBox
-    Left = 8
-    Top = 347
-    Width = 329
+    AlignWithMargins = True
+    Left = 3
+    Top = 375
+    Width = 362
     Height = 17
+    Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
+    TabOrder = 0
+    ExplicitTop = 465
+  end
+  object pnlBottomButtons: TPanel
+    Left = 0
+    Top = 404
+    Width = 368
+    Height = 31
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 2
+    ExplicitTop = 494
+    object Button2: TButton
+      AlignWithMargins = True
+      Left = 292
+      Top = 3
+      Width = 73
+      Height = 25
+      Hint = #1054#1090#1084#1077#1085#1080#1090#1100
+      Align = alRight
+      Cancel = True
+      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      TabOrder = 0
+      OnClick = Button2Click
+    end
+    object Badd: TButton
+      AlignWithMargins = True
+      Left = 213
+      Top = 3
+      Width = 73
+      Height = 25
+      Align = alRight
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      TabOrder = 1
+      OnClick = BaddClick
+    end
+  end
+  object grdpnlStyleRows: TGridPanel
+    Left = 0
+    Top = 250
+    Width = 368
+    Height = 113
+    Align = alBottom
+    BevelOuter = bvNone
+    ColumnCollection = <
+      item
+        Value = 100.000000000000000000
+      end>
+    ControlCollection = <
+      item
+        Column = 0
+        Control = grdpnlLine1
+        Row = 0
+      end
+      item
+        Column = 0
+        Control = grdpnlLine2
+        Row = 1
+      end
+      item
+        Column = 0
+        Control = flwpnlTrahsparent
+        Row = 2
+      end>
+    RowCollection = <
+      item
+        SizeStyle = ssAuto
+        Value = 100.000000000000000000
+      end
+      item
+        SizeStyle = ssAuto
+        Value = 50.000000000000000000
+      end
+      item
+        SizeStyle = ssAuto
+        Value = 100.000000000000000000
+      end>
+    TabOrder = 3
+    ExplicitTop = 340
+    DesignSize = (
+      368
+      113)
+    object grdpnlLine1: TGridPanel
+      Left = 0
+      Top = 0
+      Width = 368
+      Height = 41
+      Align = alBottom
+      Anchors = []
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          Value = 50.000000000000000000
+        end
+        item
+          Value = 50.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = flwpnlTextColor
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = flwpnlFontSize
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 100.000000000000000000
+        end>
+      TabOrder = 0
+      DesignSize = (
+        368
+        41)
+      object flwpnlTextColor: TFlowPanel
+        Left = 24
+        Top = 6
+        Width = 135
+        Height = 28
+        Anchors = []
+        AutoSize = True
+        AutoWrap = False
+        BevelOuter = bvNone
+        TabOrder = 0
+        object Label3: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 62
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
+        end
+        object ColorBox1: TColorBox
+          AlignWithMargins = True
+          Left = 71
+          Top = 3
+          Width = 38
+          Height = 22
+          Selected = clYellow
+          Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+          Font.Charset = RUSSIAN_CHARSET
+          Font.Color = clWindow
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ItemHeight = 16
+          ParentFont = False
+          TabOrder = 0
+        end
+        object SpeedButton1: TSpeedButton
+          AlignWithMargins = True
+          Left = 115
+          Top = 3
+          Width = 17
+          Height = 22
+          Caption = '...'
+          OnClick = SpeedButton1Click
+        end
+      end
+      object flwpnlFontSize: TFlowPanel
+        Left = 209
+        Top = 6
+        Width = 134
+        Height = 28
+        Anchors = []
+        AutoSize = True
+        AutoWrap = False
+        BevelOuter = bvNone
+        TabOrder = 1
+        object Label5: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 81
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
+        end
+        object SpinEdit1: TSpinEdit
+          AlignWithMargins = True
+          Left = 90
+          Top = 3
+          Width = 41
+          Height = 22
+          MaxValue = 24
+          MinValue = 0
+          TabOrder = 0
+          Value = 11
+        end
+      end
+    end
+    object grdpnlLine2: TGridPanel
+      Left = 0
+      Top = 41
+      Width = 368
+      Height = 41
+      Align = alBottom
+      Anchors = []
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          Value = 50.000000000000000000
+        end
+        item
+          Value = 50.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = flwpnlShadowColor
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = flwpnlIconSize
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 100.000000000000000000
+        end>
+      TabOrder = 1
+      DesignSize = (
+        368
+        41)
+      object flwpnlShadowColor: TFlowPanel
+        Left = 30
+        Top = 6
+        Width = 124
+        Height = 28
+        Anchors = []
+        AutoSize = True
+        AutoWrap = False
+        BevelOuter = bvNone
+        TabOrder = 0
+        object Label4: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 51
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
+        end
+        object ColorBox2: TColorBox
+          AlignWithMargins = True
+          Left = 60
+          Top = 3
+          Width = 38
+          Height = 22
+          Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
+          Font.Charset = RUSSIAN_CHARSET
+          Font.Color = clWindow
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ItemHeight = 16
+          ParentFont = False
+          TabOrder = 0
+        end
+        object SpeedButton2: TSpeedButton
+          AlignWithMargins = True
+          Left = 104
+          Top = 3
+          Width = 17
+          Height = 22
+          Caption = '...'
+          OnClick = SpeedButton2Click
+        end
+      end
+      object flwpnlIconSize: TFlowPanel
+        Left = 210
+        Top = 6
+        Width = 131
+        Height = 28
+        Anchors = []
+        AutoSize = True
+        AutoWrap = False
+        BevelOuter = bvNone
+        TabOrder = 1
+        object Label6: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 78
+          Height = 13
+          Alignment = taRightJustify
+          Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
+        end
+        object SpinEdit2: TSpinEdit
+          AlignWithMargins = True
+          Left = 87
+          Top = 3
+          Width = 41
+          Height = 22
+          MaxValue = 64
+          MinValue = 1
+          TabOrder = 0
+          Value = 32
+        end
+      end
+    end
+    object flwpnlTrahsparent: TFlowPanel
+      Left = 116
+      Top = 82
+      Width = 136
+      Height = 28
+      Anchors = []
+      AutoSize = True
+      AutoWrap = False
+      BevelOuter = bvNone
+      TabOrder = 2
+      object Label7: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 83
+        Height = 13
+        Alignment = taRightJustify
+        Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+      end
+      object SEtransp: TSpinEdit
+        AlignWithMargins = True
+        Left = 92
+        Top = 3
+        Width = 41
+        Height = 22
+        MaxValue = 100
+        MinValue = 0
+        TabOrder = 0
+        Value = 35
+      end
+    end
+  end
+  object pnlDescription: TPanel
+    Left = 0
+    Top = 115
+    Width = 368
+    Height = 135
+    Align = alClient
+    BevelEdges = [beTop, beBottom]
+    BevelKind = bkTile
+    BevelOuter = bvNone
     TabOrder = 4
+    ExplicitTop = 216
+    ExplicitHeight = 124
   end
-  object lat_ns: TComboBox
-    Left = 112
-    Top = 72
-    Width = 33
-    Height = 21
-    BevelInner = bvNone
-    BevelKind = bkSoft
+  object pnlLonLat: TPanel
+    Left = 0
+    Top = 68
+    Width = 368
+    Height = 47
+    Align = alTop
     BevelOuter = bvNone
-    Style = csDropDownList
-    BiDiMode = bdLeftToRight
-    Ctl3D = False
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ItemHeight = 13
-    ItemIndex = 0
-    ParentBiDiMode = False
-    ParentCtl3D = False
-    ParentFont = False
     TabOrder = 5
-    Text = 'N'
-    Items.Strings = (
-      'N'
-      'S')
+    ExplicitTop = 328
+    object Label21: TLabel
+      Left = 27
+      Top = 5
+      Width = 41
+      Height = 13
+      Alignment = taRightJustify
+      Caption = #1064#1080#1088#1086#1090#1072':'
+      Color = clBtnFace
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label22: TLabel
+      Left = 22
+      Top = 27
+      Width = 46
+      Height = 13
+      Alignment = taRightJustify
+      Caption = #1044#1086#1083#1075#1086#1090#1072':'
+      Color = clBtnFace
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+    end
+    object lat_ns: TComboBox
+      Left = 74
+      Top = 2
+      Width = 33
+      Height = 21
+      BevelInner = bvNone
+      BevelKind = bkSoft
+      BevelOuter = bvNone
+      Style = csDropDownList
+      BiDiMode = bdLeftToRight
+      Ctl3D = False
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ItemHeight = 13
+      ItemIndex = 0
+      ParentBiDiMode = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 0
+      Text = 'N'
+      Items.Strings = (
+        'N'
+        'S')
+    end
+    object Lat1: TCurrencyEdit
+      Left = 107
+      Top = 2
+      Width = 48
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      AutoSize = False
+      BorderStyle = bsNone
+      Ctl3D = True
+      DecimalPlaces = 8
+      DisplayFormat = '0.########'#176
+      FormatOnEditing = True
+      MaxValue = 180.000000000000000000
+      ParentCtl3D = False
+      TabOrder = 1
+    end
+    object lat2: TCurrencyEdit
+      Left = 155
+      Top = 2
+      Width = 48
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      AutoSize = False
+      BorderStyle = bsNone
+      Ctl3D = True
+      DecimalPlaces = 5
+      DisplayFormat = '0.#####`'
+      FormatOnEditing = True
+      MaxValue = 60.000000000000000000
+      ParentCtl3D = False
+      TabOrder = 2
+    end
+    object lat3: TCurrencyEdit
+      Left = 203
+      Top = 2
+      Width = 48
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      AutoSize = False
+      BorderStyle = bsNone
+      Ctl3D = True
+      DecimalPlaces = 4
+      DisplayFormat = '0.####``'
+      FormatOnEditing = True
+      MaxValue = 60.000000000000000000
+      ParentCtl3D = False
+      TabOrder = 3
+    end
+    object Lon_we: TComboBox
+      Left = 74
+      Top = 24
+      Width = 33
+      Height = 21
+      BevelInner = bvNone
+      BevelKind = bkSoft
+      BevelOuter = bvNone
+      Style = csDropDownList
+      BiDiMode = bdLeftToRight
+      Ctl3D = False
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ItemHeight = 13
+      ItemIndex = 0
+      ParentBiDiMode = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 4
+      Text = 'E'
+      Items.Strings = (
+        'E'
+        'W')
+    end
+    object lon1: TCurrencyEdit
+      Left = 107
+      Top = 24
+      Width = 48
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      AutoSize = False
+      BorderStyle = bsNone
+      Ctl3D = True
+      DecimalPlaces = 8
+      DisplayFormat = '0.########'#176
+      FormatOnEditing = True
+      MaxValue = 180.000000000000000000
+      ParentCtl3D = False
+      TabOrder = 5
+    end
+    object lon2: TCurrencyEdit
+      Left = 155
+      Top = 24
+      Width = 48
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      AutoSize = False
+      BorderStyle = bsNone
+      Ctl3D = True
+      DecimalPlaces = 5
+      DisplayFormat = '0.#####`'
+      FormatOnEditing = True
+      MaxValue = 60.000000000000000000
+      ParentCtl3D = False
+      TabOrder = 6
+    end
+    object lon3: TCurrencyEdit
+      Left = 203
+      Top = 24
+      Width = 48
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      AutoSize = False
+      BorderStyle = bsNone
+      Ctl3D = True
+      DecimalPlaces = 4
+      DisplayFormat = '0.####``'
+      FormatOnEditing = True
+      MaxValue = 60.000000000000000000
+      ParentCtl3D = False
+      TabOrder = 7
+    end
   end
-  object Lat1: TCurrencyEdit
-    Left = 145
-    Top = 72
-    Width = 48
-    Height = 21
-    AutoSize = False
-    BorderStyle = bsNone
-    Ctl3D = True
-    DecimalPlaces = 8
-    DisplayFormat = '0.########'#176
-    FormatOnEditing = True
-    MaxValue = 180.000000000000000000
-    ParentCtl3D = False
-    TabOrder = 6
-  end
-  object lat2: TCurrencyEdit
-    Left = 193
-    Top = 72
-    Width = 48
-    Height = 21
-    AutoSize = False
-    BorderStyle = bsNone
-    Ctl3D = True
-    DecimalPlaces = 5
-    DisplayFormat = '0.#####`'
-    FormatOnEditing = True
-    MaxValue = 60.000000000000000000
-    ParentCtl3D = False
-    TabOrder = 7
-  end
-  object lat3: TCurrencyEdit
-    Left = 241
-    Top = 72
-    Width = 48
-    Height = 21
-    AutoSize = False
-    BorderStyle = bsNone
-    Ctl3D = True
-    DecimalPlaces = 4
-    DisplayFormat = '0.####``'
-    FormatOnEditing = True
-    MaxValue = 60.000000000000000000
-    ParentCtl3D = False
-    TabOrder = 8
-  end
-  object lon1: TCurrencyEdit
-    Left = 145
-    Top = 94
-    Width = 48
-    Height = 21
-    AutoSize = False
-    BorderStyle = bsNone
-    Ctl3D = True
-    DecimalPlaces = 8
-    DisplayFormat = '0.########'#176
-    FormatOnEditing = True
-    MaxValue = 180.000000000000000000
-    ParentCtl3D = False
-    TabOrder = 9
-  end
-  object lon2: TCurrencyEdit
-    Left = 193
-    Top = 94
-    Width = 48
-    Height = 21
-    AutoSize = False
-    BorderStyle = bsNone
-    Ctl3D = True
-    DecimalPlaces = 5
-    DisplayFormat = '0.#####`'
-    FormatOnEditing = True
-    MaxValue = 60.000000000000000000
-    ParentCtl3D = False
-    TabOrder = 10
-  end
-  object lon3: TCurrencyEdit
-    Left = 241
-    Top = 94
-    Width = 48
-    Height = 21
-    AutoSize = False
-    BorderStyle = bsNone
-    Ctl3D = True
-    DecimalPlaces = 4
-    DisplayFormat = '0.####``'
-    FormatOnEditing = True
-    MaxValue = 60.000000000000000000
-    ParentCtl3D = False
-    TabOrder = 11
-  end
-  object Lon_we: TComboBox
-    Left = 112
-    Top = 94
-    Width = 33
-    Height = 21
-    BevelInner = bvNone
-    BevelKind = bkSoft
+  object pnlTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 368
+    Height = 59
+    Align = alTop
     BevelOuter = bvNone
-    Style = csDropDownList
-    BiDiMode = bdLeftToRight
-    Ctl3D = False
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ItemHeight = 13
-    ItemIndex = 0
-    ParentBiDiMode = False
-    ParentCtl3D = False
-    ParentFont = False
-    TabOrder = 12
-    Text = 'E'
-    Items.Strings = (
-      'E'
-      'W')
-  end
-  object ColorBox1: TColorBox
-    Left = 88
-    Top = 269
-    Width = 38
-    Height = 22
-    Selected = clYellow
-    Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindow
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ItemHeight = 16
-    ParentFont = False
-    TabOrder = 13
-  end
-  object SpinEdit1: TSpinEdit
-    Left = 280
-    Top = 269
-    Width = 41
-    Height = 22
-    MaxValue = 24
-    MinValue = 0
-    TabOrder = 14
-    Value = 11
-  end
-  object ColorBox2: TColorBox
-    Left = 88
-    Top = 293
-    Width = 38
-    Height = 22
-    Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindow
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ItemHeight = 16
-    ParentFont = False
-    TabOrder = 15
-  end
-  object SpinEdit2: TSpinEdit
-    Left = 280
-    Top = 293
-    Width = 41
-    Height = 22
-    MaxValue = 64
-    MinValue = 1
-    TabOrder = 16
-    Value = 32
-  end
-  object SEtransp: TSpinEdit
-    Left = 200
-    Top = 317
-    Width = 41
-    Height = 22
-    MaxValue = 100
-    MinValue = 0
-    TabOrder = 17
-    Value = 35
-  end
-  object CBKateg: TComboBox
-    Left = 128
-    Top = 8
-    Width = 209
-    Height = 21
-    ItemHeight = 13
-    TabOrder = 18
-    Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
-  end
-  object TBXToolbar1: TTBXToolbar
-    Left = 164
-    Top = 125
-    Width = 173
-    Height = 22
-    Images = Fmain.EditCommentsImgs
-    TabOrder = 19
-    Caption = 'TBXToolbar1'
-    object TBXItem3: TTBXItem
-      ImageIndex = 0
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
+    TabOrder = 6
+    ExplicitTop = 78
+    object pnlImage: TPanel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 53
+      Height = 53
+      Align = alLeft
+      BevelOuter = bvLowered
+      TabOrder = 0
+      ExplicitHeight = 59
+      object Image1: TImage
+        AlignWithMargins = True
+        Left = 4
+        Top = 4
+        Width = 45
+        Height = 45
+        Cursor = crHandPoint
+        Align = alClient
+        OnMouseDown = Image1MouseDown
+        ExplicitLeft = 10
+        ExplicitTop = 14
+      end
     end
-    object TBXItem2: TTBXItem
-      Tag = 1
-      ImageIndex = 1
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
-    end
-    object TBXItem1: TTBXItem
-      Tag = 2
-      ImageIndex = 2
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
-    end
-    object TBXSeparatorItem1: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
-    end
-    object TBXItem4: TTBXItem
-      Tag = 3
-      ImageIndex = 3
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
-    end
-    object TBXItem5: TTBXItem
-      Tag = 4
-      ImageIndex = 4
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
-    end
-    object TBXItem6: TTBXItem
-      Tag = 5
-      ImageIndex = 5
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
-    end
-    object TBXSeparatorItem2: TTBXSeparatorItem
-      Caption = ''
-      Hint = ''
-    end
-    object TBXItem7: TTBXItem
-      Tag = 6
-      ImageIndex = 7
-      OnClick = TBXItem3Click
-      Caption = ''
-      Hint = ''
+    object pnlTopMain: TPanel
+      Left = 59
+      Top = 0
+      Width = 309
+      Height = 59
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 1
+      ExplicitLeft = 88
+      ExplicitTop = 24
+      ExplicitWidth = 185
+      ExplicitHeight = 41
+      object pnlCategory: TPanel
+        Left = 0
+        Top = 0
+        Width = 309
+        Height = 26
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        ExplicitLeft = 33
+        ExplicitTop = 33
+        ExplicitWidth = 272
+        object Label8: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 56
+          Height = 20
+          Align = alLeft
+          Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
+          Layout = tlCenter
+          ExplicitLeft = 64
+          ExplicitTop = 10
+          ExplicitHeight = 13
+        end
+        object CBKateg: TComboBox
+          AlignWithMargins = True
+          Left = 65
+          Top = 3
+          Width = 241
+          Height = 21
+          Align = alClient
+          ItemHeight = 13
+          TabOrder = 0
+          Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
+          ExplicitWidth = 204
+        end
+      end
+      object pnlName: TPanel
+        Left = 0
+        Top = 26
+        Width = 309
+        Height = 27
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 1
+        ExplicitLeft = 30
+        ExplicitTop = 32
+        ExplicitWidth = 251
+        object Label1: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 25
+          Height = 21
+          Align = alLeft
+          Caption = #1048#1084#1103':'
+          Layout = tlCenter
+          ExplicitLeft = 64
+          ExplicitTop = 28
+          ExplicitHeight = 13
+        end
+        object EditName: TEdit
+          AlignWithMargins = True
+          Left = 34
+          Top = 3
+          Width = 272
+          Height = 21
+          Align = alClient
+          Font.Charset = RUSSIAN_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          OnKeyPress = EditCommentKeyPress
+          ExplicitWidth = 214
+        end
+      end
     end
   end
   object DrawGrid1: TDrawGrid
-    Left = 8
-    Top = 54
+    Left = 3
+    Top = 56
     Width = 310
     Height = 182
     ColCount = 8
@@ -521,13 +746,13 @@ object FaddPoint: TFaddPoint
     GridLineWidth = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goThumbTracking]
     ParentCtl3D = False
-    TabOrder = 20
+    TabOrder = 1
     Visible = False
     OnDrawCell = DrawGrid1DrawCell
     OnMouseUp = DrawGrid1MouseUp
   end
   object ColorDialog1: TColorDialog
-    Left = 40
-    Top = 376
+    Left = 56
+    Top = 472
   end
 end

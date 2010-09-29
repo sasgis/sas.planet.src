@@ -31,13 +31,9 @@ uses
 type
   TFAddPoly = class(TCommonFormParent)
     Label1: TLabel;
-    Label2: TLabel;
     Bevel2: TBevel;
-    Bevel3: TBevel;
-    Bevel4: TBevel;
     Bevel5: TBevel;
     EditName: TEdit;
-    EditComment: TMemo;
     Badd: TButton;
     Button2: TButton;
     CheckBox2: TCheckBox;
@@ -59,16 +55,14 @@ type
     ColorDialog1: TColorDialog;
     Label7: TLabel;
     CBKateg: TComboBox;
-    TBXToolbar1: TTBXToolbar;
-    TBXItem3: TTBXItem;
-    TBXItem2: TTBXItem;
-    TBXItem1: TTBXItem;
-    TBXSeparatorItem1: TTBXSeparatorItem;
-    TBXItem4: TTBXItem;
-    TBXItem5: TTBXItem;
-    TBXItem6: TTBXItem;
-    TBXSeparatorItem2: TTBXSeparatorItem;
-    TBXItem7: TTBXItem;
+    pnlBottomButtons: TPanel;
+    flwpnlFill: TFlowPanel;
+    pnlFill: TPanel;
+    pnlLine: TPanel;
+    flwpnlLine: TFlowPanel;
+    pnlDescription: TPanel;
+    pnlCategory: TPanel;
+    pnlName: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);

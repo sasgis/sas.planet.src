@@ -29,20 +29,17 @@ uses
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
+  fr_MarkDescription,
   t_GeoTypes;
 
 type
   TFaddPoint = class(TCommonFormParent)
     EditName: TEdit;
-    EditComment: TMemo;
     Label1: TLabel;
-    Label2: TLabel;
     Badd: TButton;
     Button2: TButton;
     Bevel1: TBevel;
     Bevel2: TBevel;
-    Bevel3: TBevel;
-    Bevel4: TBevel;
     Bevel5: TBevel;
     CheckBox2: TCheckBox;
     lat_ns: TComboBox;
@@ -70,28 +67,30 @@ type
     ColorDialog1: TColorDialog;
     Label8: TLabel;
     CBKateg: TComboBox;
-    TBXToolbar1: TTBXToolbar;
-    TBXItem1: TTBXItem;
-    TBXItem2: TTBXItem;
-    TBXItem3: TTBXItem;
-    TBXSeparatorItem1: TTBXSeparatorItem;
-    TBXItem4: TTBXItem;
-    TBXItem5: TTBXItem;
-    TBXItem6: TTBXItem;
-    TBXSeparatorItem2: TTBXSeparatorItem;
-    TBXItem7: TTBXItem;
     DrawGrid1: TDrawGrid;
-    Bevel6: TBevel;
     Image1: TImage;
+    pnlBottomButtons: TPanel;
+    flwpnlTrahsparent: TFlowPanel;
+    flwpnlTextColor: TFlowPanel;
+    flwpnlShadowColor: TFlowPanel;
+    flwpnlFontSize: TFlowPanel;
+    flwpnlIconSize: TFlowPanel;
+    grdpnlStyleRows: TGridPanel;
+    grdpnlLine1: TGridPanel;
+    grdpnlLine2: TGridPanel;
+    pnlDescription: TPanel;
+    pnlLonLat: TPanel;
+    pnlTop: TPanel;
+    pnlImage: TPanel;
+    pnlTopMain: TPanel;
+    pnlCategory: TPanel;
+    pnlName: TPanel;
     procedure BaddClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditCommentKeyPress(Sender: TObject; var Key: Char);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
-    procedure TBXItem3Click(Sender: TObject);
-    procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure DrawGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -101,10 +100,13 @@ type
     procedure Button2Click(Sender: TObject);
   private
     FMark: TMarkFull;
+    frMarkDescription: TfrMarkDescription;
     procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
   public
-   function EditMark(AMark: TMarkFull):boolean;
-   destructor Destroy; override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function EditMark(AMark: TMarkFull):boolean;
+    procedure RefreshTranslation; override;
   end;
 
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
@@ -131,7 +133,7 @@ var
   DMS:TDMS;
 begin
   FMark := AMark;
-  EditComment.Text:='';
+  frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewMark;
   VLastUsedCategoryName:=CBKateg.Text;
   Kategory2StringsWithObjects(CBKateg.Items);
@@ -153,7 +155,7 @@ begin
     Caption:=SAS_STR_EditMark;
     Badd.Caption:=SAS_STR_Edit;
     EditName.Text:=FMark.name;
-    EditComment.Text:=FMark.Desc;
+    frMarkDescription.Description:=FMark.Desc;
     SpinEdit1.Value:=FMark.Scale1;
     SpinEdit2.Value:=FMark.Scale2;
     SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
@@ -204,7 +206,7 @@ begin
                DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
 
   FMark.name:=EditName.Text;
-  FMark.Desc:=EditComment.Text;
+  FMark.Desc:=frMarkDescription.Description;
   SetLength(FMark.Points, 1);
   FMark.Points[0] := All;
   FMark.Scale1:=SpinEdit1.Value;
@@ -262,68 +264,16 @@ begin
  if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFaddPoint.TBXItem3Click(Sender: TObject);
-var s:string;
-    seli:integer;
-begin
- s:=EditComment.Text;
- seli:=EditComment.SelStart;
- case TEditBtn(TTBXItem(sender).Tag) of
-  ebB: begin
-        Insert('<b>',s,EditComment.SelStart+1);
-        Insert('</b>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebI: begin
-        Insert('<i>',s,EditComment.SelStart+1);
-        Insert('</i>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebU: begin
-        Insert('<u>',s,EditComment.SelStart+1);
-        Insert('</u>',s,EditComment.SelStart+EditComment.SelLength+3+1);
-       end;
-  ebImg:
-       begin
-        if (FMain.OpenPictureDialog.Execute)and(FMain.OpenPictureDialog.FileName<>'') then begin
-         Insert('<img src="'+FMain.OpenPictureDialog.FileName+'"/>',s,EditComment.SelStart+1);
-        end;
-       end;
-  ebCenter:
-       begin
-        Insert('<CENTER>',s,EditComment.SelStart+1);
-        Insert('</CENTER>',s,EditComment.SelStart+EditComment.SelLength+8+1);
-       end;
-  ebLeft:
-       begin
-        Insert('<div ALIGN=LEFT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+16+1);
-       end;
-  ebRight:
-       begin
-        Insert('<div ALIGN=RIGHT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+17+1);
-       end;
- end;
- EditComment.Text:=s;
- EditComment.SelStart:=seli;
-end;
-
-procedure TFaddPoint.EditCommentKeyDown(Sender: TObject; var Key: Word;  Shift: TShiftState);
-var s:string;
-    seli:integer;
-begin
- if Key=13 then begin
-   Key:=0;
-   s:=EditComment.Text;
-   seli:=EditComment.SelStart;
-   Insert('<BR>',s,EditComment.SelStart+1);
-   EditComment.Text:=s;
-   EditComment.SelStart:=seli+4;
- end;
-end;
-
 procedure TFaddPoint.Button2Click(Sender: TObject);
 begin
   ModalResult := mrCancel;
+end;
+
+constructor TFaddPoint.Create(AOwner: TComponent);
+begin
+  inherited;
+  frMarkDescription := TfrMarkDescription.Create(nil);
+  frMarkDescription.Parent := pnlDescription
 end;
 
 destructor TFaddPoint.Destroy;
@@ -334,6 +284,7 @@ begin
     CBKateg.Items.Objects[i].Free;
   end;
   CBKateg.Items.Clear;
+  FreeAndNil(frMarkDescription);
   inherited;
 end;
 
@@ -376,6 +327,12 @@ procedure TFaddPoint.Image1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
  DrawGrid1.Visible:=not(DrawGrid1.Visible);
+end;
+
+procedure TFaddPoint.RefreshTranslation;
+begin
+  inherited;
+
 end;
 
 procedure TFaddPoint.DrawGrid1MouseUp(Sender: TObject;

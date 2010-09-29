@@ -25,8 +25,8 @@ uses
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
-  t_GeoTypes,
-  fr_MarkDescription;
+  fr_MarkDescription,
+  t_GeoTypes;
 
 type
   TFaddLine = class(TCommonFormParent)
@@ -64,6 +64,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function EditMark(AMark: TMarkFull):boolean;
+    procedure RefreshTranslation; override;
   end;
 
 var
@@ -123,6 +124,12 @@ begin
   FMark := nil;
 end;
 
+procedure TFaddLine.RefreshTranslation;
+begin
+  inherited;
+  frMarkDescription.RefreshTranslation;
+end;
+
 procedure TFaddLine.BaddClick(Sender: TObject);
 var i:integer;
     alltl,allbr:TExtendedPoint;
@@ -174,7 +181,7 @@ end;
 constructor TFaddLine.Create(AOwner: TComponent);
 begin
   inherited;
-  frMarkDescription := TfrMarkDescription.Create(Application);
+  frMarkDescription := TfrMarkDescription.Create(nil);
   frMarkDescription.Parent := pnlDescription
 end;
 
@@ -186,6 +193,7 @@ begin
     CBKateg.Items.Objects[i].Free;
   end;
   CBKateg.Items.Clear;
+  FreeAndNil(frMarkDescription);
   inherited;
 end;
 
