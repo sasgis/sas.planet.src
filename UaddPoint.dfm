@@ -1,11 +1,13 @@
 object FaddPoint: TFaddPoint
   Left = 193
   Top = 178
-  BorderStyle = bsDialog
-  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
-  ClientHeight = 435
-  ClientWidth = 368
+  BorderStyle = bsSizeToolWin
+  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1091#1102' '#1084#1077#1090#1082#1091
+  ClientHeight = 428
+  ClientWidth = 314
   Color = clBtnFace
+  Constraints.MinHeight = 452
+  Constraints.MinWidth = 322
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -21,7 +23,7 @@ object FaddPoint: TFaddPoint
   object Bevel1: TBevel
     Left = 0
     Top = 59
-    Width = 368
+    Width = 314
     Height = 9
     Align = alTop
     Shape = bsBottomLine
@@ -31,8 +33,8 @@ object FaddPoint: TFaddPoint
   end
   object Bevel2: TBevel
     Left = 0
-    Top = 363
-    Width = 368
+    Top = 356
+    Width = 314
     Height = 9
     Align = alBottom
     Shape = bsBottomLine
@@ -42,8 +44,8 @@ object FaddPoint: TFaddPoint
   end
   object Bevel5: TBevel
     Left = 0
-    Top = 395
-    Width = 368
+    Top = 388
+    Width = 314
     Height = 9
     Align = alBottom
     Shape = bsBottomLine
@@ -54,26 +56,28 @@ object FaddPoint: TFaddPoint
   object CheckBox2: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 375
-    Width = 362
+    Top = 368
+    Width = 308
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 0
     ExplicitTop = 465
+    ExplicitWidth = 362
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 404
-    Width = 368
+    Top = 397
+    Width = 314
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 2
     ExplicitTop = 494
+    ExplicitWidth = 368
     object Button2: TButton
       AlignWithMargins = True
-      Left = 292
+      Left = 238
       Top = 3
       Width = 73
       Height = 25
@@ -83,10 +87,11 @@ object FaddPoint: TFaddPoint
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       TabOrder = 0
       OnClick = Button2Click
+      ExplicitLeft = 292
     end
     object Badd: TButton
       AlignWithMargins = True
-      Left = 213
+      Left = 159
       Top = 3
       Width = 73
       Height = 25
@@ -94,12 +99,13 @@ object FaddPoint: TFaddPoint
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       TabOrder = 1
       OnClick = BaddClick
+      ExplicitLeft = 213
     end
   end
   object grdpnlStyleRows: TGridPanel
     Left = 0
-    Top = 250
-    Width = 368
+    Top = 243
+    Width = 314
     Height = 113
     Align = alBottom
     BevelOuter = bvNone
@@ -138,13 +144,14 @@ object FaddPoint: TFaddPoint
       end>
     TabOrder = 3
     ExplicitTop = 340
+    ExplicitWidth = 368
     DesignSize = (
-      368
+      314
       113)
     object grdpnlLine1: TGridPanel
       Left = 0
       Top = 0
-      Width = 368
+      Width = 314
       Height = 41
       Align = alBottom
       Anchors = []
@@ -172,11 +179,12 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 0
+      ExplicitWidth = 368
       DesignSize = (
-        368
+        314
         41)
       object flwpnlTextColor: TFlowPanel
-        Left = 24
+        Left = 11
         Top = 6
         Width = 135
         Height = 28
@@ -185,6 +193,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 24
         object Label3: TLabel
           AlignWithMargins = True
           Left = 3
@@ -222,7 +231,7 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlFontSize: TFlowPanel
-        Left = 209
+        Left = 168
         Top = 6
         Width = 134
         Height = 28
@@ -231,6 +240,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 209
         object Label5: TLabel
           AlignWithMargins = True
           Left = 3
@@ -256,7 +266,7 @@ object FaddPoint: TFaddPoint
     object grdpnlLine2: TGridPanel
       Left = 0
       Top = 41
-      Width = 368
+      Width = 314
       Height = 41
       Align = alBottom
       Anchors = []
@@ -284,11 +294,12 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 1
+      ExplicitWidth = 368
       DesignSize = (
-        368
+        314
         41)
       object flwpnlShadowColor: TFlowPanel
-        Left = 30
+        Left = 16
         Top = 6
         Width = 124
         Height = 28
@@ -297,6 +308,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 30
         object Label4: TLabel
           AlignWithMargins = True
           Left = 3
@@ -333,7 +345,7 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlIconSize: TFlowPanel
-        Left = 210
+        Left = 170
         Top = 6
         Width = 131
         Height = 28
@@ -342,6 +354,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 210
         object Label6: TLabel
           AlignWithMargins = True
           Left = 3
@@ -365,7 +378,7 @@ object FaddPoint: TFaddPoint
       end
     end
     object flwpnlTrahsparent: TFlowPanel
-      Left = 116
+      Left = 89
       Top = 82
       Width = 136
       Height = 28
@@ -374,6 +387,7 @@ object FaddPoint: TFaddPoint
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitLeft = 116
       object Label7: TLabel
         AlignWithMargins = True
         Left = 3
@@ -399,25 +413,27 @@ object FaddPoint: TFaddPoint
   object pnlDescription: TPanel
     Left = 0
     Top = 115
-    Width = 368
-    Height = 135
+    Width = 314
+    Height = 128
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 4
     ExplicitTop = 216
+    ExplicitWidth = 368
     ExplicitHeight = 124
   end
   object pnlLonLat: TPanel
     Left = 0
     Top = 68
-    Width = 368
+    Width = 314
     Height = 47
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 5
     ExplicitTop = 328
+    ExplicitWidth = 368
     object Label21: TLabel
       Left = 27
       Top = 5
@@ -610,12 +626,13 @@ object FaddPoint: TFaddPoint
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 368
+    Width = 314
     Height = 59
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 6
     ExplicitTop = 78
+    ExplicitWidth = 368
     object pnlImage: TPanel
       AlignWithMargins = True
       Left = 3
@@ -642,7 +659,7 @@ object FaddPoint: TFaddPoint
     object pnlTopMain: TPanel
       Left = 59
       Top = 0
-      Width = 309
+      Width = 255
       Height = 59
       Align = alClient
       BevelOuter = bvNone
@@ -654,7 +671,7 @@ object FaddPoint: TFaddPoint
       object pnlCategory: TPanel
         Left = 0
         Top = 0
-        Width = 309
+        Width = 255
         Height = 26
         Align = alTop
         BevelOuter = bvNone
@@ -679,7 +696,7 @@ object FaddPoint: TFaddPoint
           AlignWithMargins = True
           Left = 65
           Top = 3
-          Width = 241
+          Width = 187
           Height = 21
           Align = alClient
           ItemHeight = 13
@@ -691,7 +708,7 @@ object FaddPoint: TFaddPoint
       object pnlName: TPanel
         Left = 0
         Top = 26
-        Width = 309
+        Width = 255
         Height = 27
         Align = alTop
         BevelOuter = bvNone
@@ -716,7 +733,7 @@ object FaddPoint: TFaddPoint
           AlignWithMargins = True
           Left = 34
           Top = 3
-          Width = 272
+          Width = 218
           Height = 21
           Align = alClient
           Font.Charset = RUSSIAN_CHARSET

@@ -1,11 +1,13 @@
 object FAddPoly: TFAddPoly
   Left = 360
   Top = 40
-  BorderStyle = bsDialog
-  Caption = 'FAddPoly'
-  ClientHeight = 350
-  ClientWidth = 345
+  BorderStyle = bsSizeToolWin
+  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1099#1081' '#1087#1086#1083#1080#1075#1086#1085
+  ClientHeight = 351
+  ClientWidth = 323
   Color = clBtnFace
+  Constraints.MinHeight = 375
+  Constraints.MinWidth = 331
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -18,8 +20,8 @@ object FAddPoly: TFAddPoly
   TextHeight = 13
   object Bevel2: TBevel
     Left = 0
-    Top = 278
-    Width = 345
+    Top = 279
+    Width = 323
     Height = 9
     Align = alBottom
     Shape = bsBottomLine
@@ -29,8 +31,8 @@ object FAddPoly: TFAddPoly
   end
   object Bevel5: TBevel
     Left = 0
-    Top = 310
-    Width = 345
+    Top = 311
+    Width = 323
     Height = 9
     Align = alBottom
     Shape = bsBottomLine
@@ -41,8 +43,8 @@ object FAddPoly: TFAddPoly
   object CheckBox2: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 290
-    Width = 339
+    Top = 291
+    Width = 317
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
@@ -53,8 +55,8 @@ object FAddPoly: TFAddPoly
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 319
-    Width = 345
+    Top = 320
+    Width = 323
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
@@ -63,7 +65,7 @@ object FAddPoly: TFAddPoly
     ExplicitWidth = 487
     object Badd: TButton
       AlignWithMargins = True
-      Left = 190
+      Left = 168
       Top = 3
       Width = 73
       Height = 25
@@ -77,7 +79,7 @@ object FAddPoly: TFAddPoly
     end
     object Button2: TButton
       AlignWithMargins = True
-      Left = 269
+      Left = 247
       Top = 3
       Width = 73
       Height = 25
@@ -94,8 +96,8 @@ object FAddPoly: TFAddPoly
   end
   object pnlFill: TPanel
     Left = 0
-    Top = 231
-    Width = 345
+    Top = 232
+    Width = 323
     Height = 47
     Align = alBottom
     AutoSize = True
@@ -107,7 +109,7 @@ object FAddPoly: TFAddPoly
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 339
+      Width = 317
       Height = 13
       Align = alTop
       Caption = #1047#1072#1087#1086#1083#1085#1077#1085#1080#1077':'
@@ -118,7 +120,7 @@ object FAddPoly: TFAddPoly
     object flwpnlFill: TFlowPanel
       Left = 0
       Top = 19
-      Width = 345
+      Width = 323
       Height = 28
       Align = alTop
       AutoSize = True
@@ -183,8 +185,8 @@ object FAddPoly: TFAddPoly
   end
   object pnlLine: TPanel
     Left = 0
-    Top = 184
-    Width = 345
+    Top = 185
+    Width = 323
     Height = 47
     Align = alBottom
     AutoSize = True
@@ -196,7 +198,7 @@ object FAddPoly: TFAddPoly
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 339
+      Width = 317
       Height = 13
       Align = alTop
       Caption = #1051#1080#1085#1080#1103':'
@@ -207,7 +209,7 @@ object FAddPoly: TFAddPoly
     object flwpnlLine: TFlowPanel
       Left = 0
       Top = 19
-      Width = 345
+      Width = 323
       Height = 28
       Align = alTop
       AutoSize = True
@@ -291,8 +293,8 @@ object FAddPoly: TFAddPoly
   object pnlDescription: TPanel
     Left = 0
     Top = 52
-    Width = 345
-    Height = 132
+    Width = 323
+    Height = 133
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
@@ -305,7 +307,7 @@ object FAddPoly: TFAddPoly
   object pnlCategory: TPanel
     Left = 0
     Top = 0
-    Width = 345
+    Width = 323
     Height = 25
     Align = alTop
     BevelOuter = bvNone
@@ -329,7 +331,7 @@ object FAddPoly: TFAddPoly
       AlignWithMargins = True
       Left = 65
       Top = 3
-      Width = 277
+      Width = 255
       Height = 21
       Align = alClient
       ItemHeight = 13
@@ -343,7 +345,7 @@ object FAddPoly: TFAddPoly
   object pnlName: TPanel
     Left = 0
     Top = 25
-    Width = 345
+    Width = 323
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -367,7 +369,7 @@ object FAddPoly: TFAddPoly
       AlignWithMargins = True
       Left = 34
       Top = 3
-      Width = 308
+      Width = 286
       Height = 21
       Align = alClient
       Font.Charset = RUSSIAN_CHARSET

@@ -2,7 +2,7 @@ object FaddLine: TFaddLine
   Left = 187
   Top = 189
   BorderStyle = bsSizeToolWin
-  Caption = 'FaddLine'
+  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1099#1081' '#1087#1091#1090#1100
   ClientHeight = 330
   ClientWidth = 328
   Color = clBtnFace
