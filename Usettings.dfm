@@ -802,30 +802,6 @@ object FSettings: TFSettings
         Align = alClient
         Caption = ' '#1043#1086#1088#1103#1095#1080#1077' '#1082#1083'. '
         TabOrder = 1
-        inline frShortCutList1: TfrShortCutList
-          Left = 2
-          Top = 15
-          Width = 612
-          Height = 306
-          Align = alClient
-          TabOrder = 0
-          ExplicitLeft = 2
-          ExplicitTop = 15
-          inherited lstShortCutList: TListBox
-            Width = 606
-            Height = 275
-          end
-          inherited pnlHotKeysHeader: TPanel
-            Width = 612
-            inherited lblOperation: TLabel
-              Height = 19
-            end
-            inherited lblHotKey: TLabel
-              Left = 566
-              Height = 19
-            end
-          end
-        end
       end
     end
     object TabSheet4: TTabSheet

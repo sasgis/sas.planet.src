@@ -213,7 +213,6 @@ type
     chkPosFromGSM: TCheckBox;
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
-    frShortCutList1: TfrShortCutList;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -240,8 +239,10 @@ type
     procedure CBoxLocalChange(Sender: TObject);
   private
     FMapsEdit: boolean;
+    frShortCutList: TfrShortCutList;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure Save;
     procedure InitMapsList;
     procedure RefreshTranslation; override;
@@ -280,7 +281,7 @@ end;
 
 procedure TFSettings.btnCancelClick(Sender: TObject);
 begin
- Close
+  Close
 end;
 
 procedure SetProxy;
@@ -482,7 +483,15 @@ end;
 constructor TFSettings.Create(AOwner: TComponent);
 begin
   inherited;
+  frShortCutList := TfrShortCutList.Create(nil);
+  frShortCutList.Parent := GroupBox5;
   PageControl1.ActivePageIndex:=0;
+end;
+
+destructor TFSettings.Destroy;
+begin
+  FreeAndNil(frShortCutList);
+  inherited;
 end;
 
 procedure TFSettings.FormShow(Sender: TObject);
@@ -551,7 +560,7 @@ begin
  SpinEdit3.Value:=GState.TilesOut;
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- frShortCutList1.SetShortCutManager(Fmain.ShortCutManager);
+ frShortCutList.SetShortCutManager(Fmain.ShortCutManager);
 end;
 
 procedure TFSettings.FormCreate(Sender: TObject);
@@ -643,6 +652,7 @@ procedure TFSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
+  frShortCutList.RefreshTranslation;
 end;
 
 procedure TFSettings.Button18Click(Sender: TObject);
