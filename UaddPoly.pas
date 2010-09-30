@@ -58,9 +58,9 @@ type
     pnlName: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
@@ -129,6 +129,11 @@ begin
   FMark := nil;
 end;
 
+procedure TFAddPoly.FormShow(Sender: TObject);
+begin
+  EditName.SetFocus;
+end;
+
 procedure TFAddPoly.RefreshTranslation;
 begin
   inherited;
@@ -177,11 +182,6 @@ begin
   end;
   FMark.CategoryId := VId;
   ModalResult:=mrOk;
-end;
-
-procedure TFAddPoly.Button2Click(Sender: TObject);
-begin
-  ModalResult:=mrCancel;
 end;
 
 constructor TFAddPoly.Create(AOwner: TComponent);

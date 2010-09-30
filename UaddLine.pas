@@ -48,8 +48,8 @@ type
     pnlBottomButtons: TPanel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
@@ -117,6 +117,11 @@ begin
   FMark := nil;
 end;
 
+procedure TFaddLine.FormShow(Sender: TObject);
+begin
+  EditName.SetFocus;
+end;
+
 procedure TFaddLine.RefreshTranslation;
 begin
   inherited;
@@ -164,11 +169,6 @@ begin
   end;
   FMark.CategoryId := VId;
   ModalResult:=mrOk;
-end;
-
-procedure TFaddLine.Button2Click(Sender: TObject);
-begin
-  ModalResult := mrCancel;
 end;
 
 constructor TFaddLine.Create(AOwner: TComponent);

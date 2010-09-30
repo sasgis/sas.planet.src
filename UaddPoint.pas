@@ -83,8 +83,6 @@ type
     pnlName: TPanel;
     procedure BaddClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure EditCommentKeyPress(Sender: TObject; var Key: Char);
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure DrawGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
@@ -93,7 +91,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure DrawGrid1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure Button2Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
@@ -232,19 +230,24 @@ begin
   FMark := nil;
 end;
 
-procedure TFaddPoint.EditCommentKeyPress(Sender: TObject; var Key: Char);
-begin
- if key='$' then
-  begin
-   if (sender is TEdit) then key:=' ';
-   if (sender is TMemo) then key:=' ';
-  end;
-end;
+//procedure TFaddPoint.EditCommentKeyPress(Sender: TObject; var Key: Char);
+//begin
+// if key='$' then
+//  begin
+//   if (sender is TEdit) then key:=' ';
+//   if (sender is TMemo) then key:=' ';
+//  end;
+//end;
+//
+//procedure TFaddPoint.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+//begin
+// if Key=VK_ESCAPE then close;
+// if Key=VK_RETURN then BaddClick(Sender);
+//end;
 
-procedure TFaddPoint.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TFaddPoint.FormShow(Sender: TObject);
 begin
- if Key=VK_ESCAPE then close;
- if Key=VK_RETURN then BaddClick(Sender);
+  EditName.SetFocus;
 end;
 
 procedure TFaddPoint.SpeedButton1Click(Sender: TObject);
@@ -255,11 +258,6 @@ end;
 procedure TFaddPoint.SpeedButton2Click(Sender: TObject);
 begin
  if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
-end;
-
-procedure TFaddPoint.Button2Click(Sender: TObject);
-begin
-  ModalResult := mrCancel;
 end;
 
 constructor TFaddPoint.Create(AOwner: TComponent);

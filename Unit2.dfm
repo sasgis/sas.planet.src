@@ -67,10 +67,10 @@ object FGoTo: TFGoTo
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 0
   end
   object BGo: TButton
-    Left = 230
+    Left = 149
     Top = 184
     Width = 75
     Height = 25
@@ -85,7 +85,7 @@ object FGoTo: TFGoTo
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 3
+    TabOrder = 7
     OnClick = BGoClick
   end
   object GroupBox3: TGroupBox
@@ -116,7 +116,7 @@ object FGoTo: TFGoTo
     Height = 17
     Caption = 'Google!'
     Checked = True
-    TabOrder = 5
+    TabOrder = 2
     TabStop = True
   end
   object GroupBox1: TGroupBox
@@ -334,7 +334,7 @@ object FGoTo: TFGoTo
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 5
   end
   object CBzoom: TComboBox
     Left = 72
@@ -343,7 +343,7 @@ object FGoTo: TFGoTo
     Height = 21
     ItemHeight = 13
     ItemIndex = 0
-    TabOrder = 7
+    TabOrder = 9
     Text = '01'
     Items.Strings = (
       '01'
@@ -377,16 +377,16 @@ object FGoTo: TFGoTo
     Width = 65
     Height = 17
     Caption = #1071#1085#1076#1077#1082#1089
-    TabOrder = 8
+    TabOrder = 3
   end
   object btnCancel: TButton
-    Left = 149
+    Left = 230
     Top = 184
     Width = 75
     Height = 25
     Cancel = True
     Caption = #1054#1090#1084#1077#1085#1072
     ModalResult = 2
-    TabOrder = 9
+    TabOrder = 8
   end
 end

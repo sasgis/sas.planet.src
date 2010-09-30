@@ -16,6 +16,7 @@ object FaddLine: TFaddLine
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel2: TBevel
@@ -48,8 +49,7 @@ object FaddLine: TFaddLine
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
-    TabOrder = 0
-    ExplicitTop = 187
+    TabOrder = 4
   end
   object pnlCategory: TPanel
     Left = 0
@@ -58,16 +58,17 @@ object FaddLine: TFaddLine
     Height = 25
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     object Label7: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 56
-      Height = 13
+      Height = 19
       Align = alLeft
       Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
@@ -76,7 +77,7 @@ object FaddLine: TFaddLine
       Width = 260
       Height = 21
       Align = alClient
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 0
       Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
     end
@@ -88,16 +89,17 @@ object FaddLine: TFaddLine
     Height = 27
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object Label1: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 25
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = #1048#1084#1103':'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True
@@ -124,8 +126,7 @@ object FaddLine: TFaddLine
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 3
-    ExplicitHeight = 95
+    TabOrder = 2
   end
   object flwpnlStyle: TFlowPanel
     Left = 0
@@ -135,8 +136,7 @@ object FaddLine: TFaddLine
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
-    TabOrder = 4
-    ExplicitTop = 147
+    TabOrder = 3
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
@@ -218,7 +218,6 @@ object FaddLine: TFaddLine
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 5
-    ExplicitTop = 216
     object Badd: TButton
       AlignWithMargins = True
       Left = 173
@@ -227,6 +226,7 @@ object FaddLine: TFaddLine
       Height = 25
       Align = alRight
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Default = True
       TabOrder = 0
       OnClick = BaddClick
     end
@@ -242,7 +242,6 @@ object FaddLine: TFaddLine
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 1
-      OnClick = Button2Click
     end
   end
   object OpenDialog1: TOpenDialog
