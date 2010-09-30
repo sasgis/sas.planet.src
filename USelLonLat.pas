@@ -11,85 +11,78 @@ uses
   Dialogs,
   Mask,
   StdCtrls,
+  ExtCtrls,
   rxCurrEdit,
   rxToolEdit,
   u_CommonFormAndFrameParents,
   Ugeofun,
-  UResStrings;
+  t_GeoTypes,
+  fr_LonLat;
 
 type
   TFSelLonLat = class(TCommonFormParent)
     Button1: TButton;
     Button2: TButton;
-    GroupBox1: TGroupBox;
-    Label21: TLabel;
-    Label22: TLabel;
-    _lat_ns: TComboBox;
-    _Lon_we: TComboBox;
-    _lat2: TCurrencyEdit;
-    _lat3: TCurrencyEdit;
-    _lon1: TCurrencyEdit;
-    _lon2: TCurrencyEdit;
-    _lon3: TCurrencyEdit;
-    _Lat1: TCurrencyEdit;
-    GroupBox2: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    lat_ns: TComboBox;
-    Lon_we: TComboBox;
-    lat2: TCurrencyEdit;
-    lat3: TCurrencyEdit;
-    lon1: TCurrencyEdit;
-    lon2: TCurrencyEdit;
-    lon3: TCurrencyEdit;
-    Lat1: TCurrencyEdit;
-    procedure Button2Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    grpTopLeft: TGroupBox;
+    grpBottomRight: TGroupBox;
+    pnlBottomButtons: TPanel;
+    grdpnlMain: TGridPanel;
   private
+    FfrLonLatTopLeft: TfrLonLat;
+    FfrLonLatBottomRight: TfrLonLat;
   public
-    lon_k,lat_k,_lon_k,_lat_k:extended;
-    function Execute: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function Execute(var ALonLatRect: TExtendedRect): Boolean;
+    procedure RefreshTranslation; override;
   end;
 
 implementation
 
-
+uses
+  UResStrings;
 
 {$R *.dfm}
 
-function TFSelLonLat.Execute: Boolean;
+constructor TFSelLonLat.Create(AOwner: TComponent);
 begin
- result:=false;
- ShowModal;
- if ModalResult = mrOK then
-  begin
-   lon_k:=DMS2G(lon1.Value,lon2.Value,lon3.Value,lon_we.Itemindex=1);
-   lat_k:=DMS2G(lat1.Value,lat2.Value,lat3.Value,lat_ns.Itemindex=1);
-   _lon_k:=DMS2G(_lon1.Value,_lon2.Value,_lon3.Value,_lon_we.Itemindex=1);
-   _lat_k:=DMS2G(_lat1.Value,_lat2.Value,_lat3.Value,_lat_ns.Itemindex=1);
-   if (_lon_k>lon_k)then begin
-                         ShowMessage(SAS_ERR_LonLat1);
-                         result:=false;
-                         exit;
-                        end;
-   if (-_lat_k>-lat_k)then begin
-                         ShowMessage(SAS_ERR_LonLat2);
-                         result:=false;
-                         exit;
-                        end;
-   Visible:=false;
-   result:=true;
+  inherited;
+  FfrLonLatTopLeft := TfrLonLat.Create(nil);
+  FfrLonLatTopLeft.Parent := grpTopLeft;
+  FfrLonLatBottomRight := TfrLonLat.Create(nil);
+  FfrLonLatBottomRight.Parent := grpBottomRight;
+end;
+
+destructor TFSelLonLat.Destroy;
+begin
+  FreeAndNil(FfrLonLatTopLeft);
+  FreeAndNil(FfrLonLatBottomRight);
+  inherited;
+end;
+
+function TFSelLonLat.Execute(var ALonLatRect: TExtendedRect): Boolean;
+begin
+  FfrLonLatTopLeft.LonLat := ALonLatRect.TopLeft;
+  FfrLonLatBottomRight.LonLat := ALonLatRect.BottomRight;
+  Result := ShowModal = mrOK;
+  if Result then begin
+    ALonLatRect.TopLeft := FfrLonLatTopLeft.LonLat;
+    ALonLatRect.BottomRight := FfrLonLatBottomRight.LonLat;
+    if (ALonLatRect.Left>ALonLatRect.Right)then begin
+      ShowMessage(SAS_ERR_LonLat2);
+      result:=false;
+    end else if (ALonLatRect.Top < ALonLatRect.Bottom)then begin
+      ShowMessage(SAS_ERR_LonLat1);
+      result:=false;
+    end;
   end;
 end;
 
-procedure TFSelLonLat.Button2Click(Sender: TObject);
+procedure TFSelLonLat.RefreshTranslation;
 begin
- ModalResult := mrCancel;
-end;
-
-procedure TFSelLonLat.Button1Click(Sender: TObject);
-begin
- ModalResult := mrOK;
+  inherited;
+  FfrLonLatTopLeft.RefreshTranslation;
+  FfrLonLatBottomRight.RefreshTranslation;
 end;
 
 end.

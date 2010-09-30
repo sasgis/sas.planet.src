@@ -2377,16 +2377,13 @@ procedure TFmain.TBCOORDClick(Sender: TObject);
 var
   Poly: TExtendedPointArray;
   VSelLonLat: TFSelLonLat;
+  VLonLatRect: TExtendedRect;
 begin
   VSelLonLat:= TFSelLonLat.Create(Self);
   Try
-    if VSelLonLat.Execute Then Begin
-      SetLength(Poly, 5);
-      Poly[0] := ExtPoint(VSelLonLat._lon_k,VSelLonLat._lat_k);
-      Poly[1] := ExtPoint(VSelLonLat.lon_k,VSelLonLat._lat_k);
-      Poly[2] := ExtPoint(VSelLonLat.lon_k,VSelLonLat.lat_k);
-      Poly[3] := ExtPoint(VSelLonLat._lon_k,VSelLonLat.lat_k);
-      Poly[4] := ExtPoint(VSelLonLat._lon_k,VSelLonLat._lat_k);
+    GetMinMax(VLonLatRect, GState.LastSelectionPolygon);
+    if VSelLonLat.Execute(VLonLatRect) Then Begin
+      Poly := PolygonFromRect(VLonLatRect);
       fsaveas.Show_(GState.ViewState.GetCurrentZoom, Poly);
       LayerSelection.Redraw;
       Poly := nil;
