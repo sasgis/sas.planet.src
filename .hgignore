@@ -8,3 +8,5 @@ syntax: glob
 *.bpg
 *.drc
 *.orig
+*.dproj.local
+*.identcache
