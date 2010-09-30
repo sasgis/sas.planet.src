@@ -29,7 +29,7 @@ object FImport: TFImport
     Top = 8
     Width = 425
     Height = 21
-    ItemHeight = 13
+    ItemHeight = 0
     TabOrder = 0
   end
   object GroupBox1: TGroupBox

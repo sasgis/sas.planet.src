@@ -23,8 +23,6 @@ object FAddCategory: TFAddCategory
     Height = 13
     Align = alTop
     Caption = #1052#1072#1089#1096#1090#1072#1073#1099' '#1074#1080#1076#1080#1084#1086#1089#1090#1080':'
-    ExplicitLeft = 16
-    ExplicitTop = 56
     ExplicitWidth = 115
   end
   object Bevel5: TBevel
@@ -47,9 +45,6 @@ object FAddCategory: TFAddCategory
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 0
-    ExplicitLeft = 16
-    ExplicitTop = 88
-    ExplicitWidth = 137
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -59,8 +54,6 @@ object FAddCategory: TFAddCategory
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 299
-    ExplicitWidth = 382
     object Button2: TButton
       AlignWithMargins = True
       Left = 219
@@ -74,8 +67,6 @@ object FAddCategory: TFAddCategory
       ModalResult = 2
       TabOrder = 0
       OnClick = Button2Click
-      ExplicitLeft = 304
-      ExplicitTop = 6
     end
     object Badd: TButton
       AlignWithMargins = True
@@ -88,8 +79,6 @@ object FAddCategory: TFAddCategory
       ModalResult = 1
       TabOrder = 1
       OnClick = BaddClick
-      ExplicitLeft = 229
-      ExplicitTop = 6
     end
   end
   object flwpnlZooms: TFlowPanel
@@ -100,10 +89,6 @@ object FAddCategory: TFAddCategory
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitLeft = 24
-    ExplicitTop = 152
-    ExplicitWidth = 265
-    ExplicitHeight = 41
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
@@ -151,19 +136,15 @@ object FAddCategory: TFAddCategory
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 382
     object Label1: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 50
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077
       Layout = tlCenter
-      ExplicitLeft = 16
-      ExplicitTop = -4
-      ExplicitHeight = 33
     end
     object EditName: TEdit
       AlignWithMargins = True
@@ -173,9 +154,6 @@ object FAddCategory: TFAddCategory
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 45
-      ExplicitTop = 16
-      ExplicitWidth = 297
     end
   end
 end

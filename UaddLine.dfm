@@ -64,11 +64,10 @@ object FaddLine: TFaddLine
       Left = 3
       Top = 3
       Width = 56
-      Height = 19
+      Height = 13
       Align = alLeft
       Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
@@ -77,7 +76,7 @@ object FaddLine: TFaddLine
       Width = 260
       Height = 21
       Align = alClient
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 0
       Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
     end
@@ -95,11 +94,10 @@ object FaddLine: TFaddLine
       Left = 3
       Top = 3
       Width = 25
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1048#1084#1103':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True

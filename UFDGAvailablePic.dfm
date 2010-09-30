@@ -150,7 +150,7 @@ object FDGAvailablePic: TFDGAvailablePic
       Width = 329
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 0
       OnChange = ComboBox2Change
     end

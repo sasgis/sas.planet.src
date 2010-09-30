@@ -1,10 +1,12 @@
 object frMarkDescription: TfrMarkDescription
   Left = 0
   Top = 0
-  Width = 319
-  Height = 213
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
+  ExplicitWidth = 319
+  ExplicitHeight = 213
   object EditComment: TMemo
     AlignWithMargins = True
     Left = 3
@@ -34,11 +36,10 @@ object frMarkDescription: TfrMarkDescription
       Left = 3
       Top = 3
       Width = 53
-      Height = 22
+      Height = 13
       Align = alLeft
       Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
       Layout = tlBottom
-      ExplicitHeight = 13
     end
     object TBXToolbar1: TTBXToolbar
       AlignWithMargins = True

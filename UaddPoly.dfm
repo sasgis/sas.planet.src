@@ -308,9 +308,6 @@ object FAddPoly: TFAddPoly
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 5
-    ExplicitLeft = 2
-    ExplicitTop = 96
-    ExplicitWidth = 477
     object Label7: TLabel
       AlignWithMargins = True
       Left = 3

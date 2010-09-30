@@ -117,8 +117,6 @@ object FEditMap: TFEditMap
       Align = alLeft
       Caption = #1058#1080#1087' '#1082#1101#1096#1072
       Layout = tlCenter
-      ExplicitLeft = 8
-      ExplicitTop = 28
       ExplicitHeight = 13
     end
     object CBCacheType: TComboBox
@@ -175,13 +173,10 @@ object FEditMap: TFEditMap
       Left = 6
       Top = 6
       Width = 134
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1056#1086#1076#1080#1090#1077#1083#1100#1089#1082#1080#1081' '#1087#1091#1085#1082#1090' '#1084#1077#1085#1102
       Layout = tlCenter
-      ExplicitLeft = 8
-      ExplicitTop = 20
-      ExplicitHeight = 13
     end
     object EditParSubMenu: TEdit
       AlignWithMargins = True
@@ -228,13 +223,10 @@ object FEditMap: TFEditMap
       Left = 6
       Top = 6
       Width = 88
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1074' '#1082#1101#1096#1077
       Layout = tlCenter
-      ExplicitLeft = 8
-      ExplicitTop = 20
-      ExplicitHeight = 13
     end
     object EditNameinCache: TEdit
       AlignWithMargins = True
@@ -282,12 +274,9 @@ object FEditMap: TFEditMap
       Left = 6
       Top = 6
       Width = 22
-      Height = 62
+      Height = 13
       Align = alLeft
       Caption = 'URL'
-      ExplicitLeft = 8
-      ExplicitTop = 11
-      ExplicitHeight = 13
     end
     object pnlUrlRight: TPanel
       Left = 526
@@ -497,7 +486,7 @@ object FEditMap: TFEditMap
         Left = 34
         Top = 3
         Width = 89
-        Height = 22
+        Height = 21
         Anchors = []
         MaxValue = 0
         MinValue = 0
