@@ -35,6 +35,7 @@ uses
   TB2Item,
   TB2Dock,
   TB2Toolbar,
+  TB2ExtItems,
   RXSlider,
   EmbeddedWB,
   SHDocVw_EWB,
@@ -78,8 +79,7 @@ uses
   u_CenterScale,
   u_TileDownloaderUI,
   u_SelectionLayer,
-  u_GeoSearcher,
-  t_GeoTypes, TB2ExtItems;
+  t_GeoTypes;
 
 type
   TTileSource = (tsInternet,tsCache,tsCacheInternet);
