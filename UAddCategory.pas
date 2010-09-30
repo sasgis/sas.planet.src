@@ -31,6 +31,9 @@ type
     Bevel5: TBevel;
     Badd: TButton;
     Button2: TButton;
+    pnlBottomButtons: TPanel;
+    flwpnlZooms: TFlowPanel;
+    pnlName: TPanel;
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
