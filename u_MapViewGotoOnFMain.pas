@@ -15,8 +15,7 @@ type
 implementation
 
 uses
-  Unit1,
-  u_GlobalState;
+  Unit1;
 
 { TMapViewGotoOnFMain }
 

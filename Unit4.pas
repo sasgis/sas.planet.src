@@ -3,13 +3,12 @@ unit Unit4;
 interface
 
 uses
-   Windows,
-   Classes,
-   Forms,
-   Controls,
-   StdCtrls,
-   Dialogs,
-   RarProgress,
+  Windows,
+  Classes,
+  Forms,
+  Controls,
+  StdCtrls,
+  RarProgress,
   u_CommonFormAndFrameParents;
 
 type

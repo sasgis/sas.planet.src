@@ -4,9 +4,7 @@ interface
 
 uses
   Windows,
-  Messages,
   SysUtils,
-  Variants,
   Buttons,
   Classes,
   Controls,
@@ -15,13 +13,8 @@ uses
   Spin,
   StdCtrls,
   ExtCtrls,
-  TB2Item,
-  TBX,
-  TB2Dock,
-  TB2Toolbar,
   GR32,
   u_CommonFormAndFrameParents,
-  Unit1,
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
@@ -74,7 +67,7 @@ implementation
 
 uses
   u_MarksReadWriteSimple;
-  
+
 {$R *.dfm}
 
 function TFaddLine.EditMark(AMark: TMarkFull): boolean;

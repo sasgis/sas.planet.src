@@ -18,16 +18,12 @@ uses
   Spin,
   rxToolEdit,
   rxCurrEdit,
-  TB2Item,
-  TBX,
-  TB2Dock,
-  TB2Toolbar,
-  ugeofun,
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
   UResStrings,
   UMarksExplorer,
+  ugeofun,
   u_MarksSimple,
   fr_MarkDescription,
   t_GeoTypes;
@@ -117,8 +113,7 @@ implementation
 uses
   Math,
   u_GlobalState,
-  u_MarksReadWriteSimple,
-  Unit1;
+  u_MarksReadWriteSimple;
 
 {$R *.dfm}
 

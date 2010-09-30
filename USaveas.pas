@@ -5,10 +5,8 @@ interface
 uses
   Windows,
   SysUtils,
-  Graphics,
   Forms,
   Buttons,
-  CheckLst,
   Classes,
   Controls,
   Dialogs,

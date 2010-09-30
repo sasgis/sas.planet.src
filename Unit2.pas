@@ -6,7 +6,6 @@ uses
   Windows,
   SysUtils,
   Forms,
-  Dialogs,
   Classes,
   Mask,
   StdCtrls,

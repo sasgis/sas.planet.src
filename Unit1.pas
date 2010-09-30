@@ -15,7 +15,6 @@ uses
   MSHTML,
   Variants,
   ActiveX,
-  ComCtrls,
   ShlObj,
   ComObj,
   Graphics,

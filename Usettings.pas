@@ -22,14 +22,12 @@ uses
   GR32,
   XPMan,
   ZylGPSReceiver,
-  TB2Dock,
-  TBX,
   rxToolEdit,
   rxCurrEdit,
   u_CommonFormAndFrameParents,
+  fr_ShortCutList,
   UMapType,
-  UResStrings,
-  u_ShortcutManager, fr_ShortCutList;
+  UResStrings;
 
 type
   TFSettings = class(TCommonFormParent)
@@ -257,7 +255,6 @@ implementation
 uses
   Types,
   Menus,
-  TB2Item,
   u_GlobalState,
   u_GeoToStr,
   Uimgfun,

@@ -5,7 +5,6 @@ interface
 uses
   Types,
   Classes,
-  Controls,
   IniFiles,
   Graphics,
   TB2Item;
@@ -41,8 +40,6 @@ implementation
 
 uses
   SysUtils,
-  Menus,
-  Dialogs,
   TBX;
 
 { TShortCutInfo }
