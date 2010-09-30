@@ -42,6 +42,7 @@ type
     CBzoom: TComboBox;
     RB4: TRadioButton;
     ComboBox1: TComboBox;
+    btnCancel: TButton;
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BGoClick(Sender: TObject);

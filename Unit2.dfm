@@ -379,4 +379,14 @@ object FGoTo: TFGoTo
     Caption = #1071#1085#1076#1077#1082#1089
     TabOrder = 8
   end
+  object btnCancel: TButton
+    Left = 149
+    Top = 184
+    Width = 75
+    Height = 25
+    Cancel = True
+    Caption = #1054#1090#1084#1077#1085#1072
+    ModalResult = 2
+    TabOrder = 9
+  end
 end
