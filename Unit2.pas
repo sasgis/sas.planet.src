@@ -152,7 +152,7 @@ end;
 
 function TFGoTo.ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
 begin
-  if ModalResult = mrOk then begin
+  if ShowModal = mrOk then begin
     Result := true;
     AResult := FResult;
     AZoom := FZoom;
