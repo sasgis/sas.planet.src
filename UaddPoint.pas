@@ -26,6 +26,7 @@ uses
   ugeofun,
   u_MarksSimple,
   fr_MarkDescription,
+  fr_LonLat,
   t_GeoTypes;
 
 type
@@ -38,16 +39,6 @@ type
     Bevel2: TBevel;
     Bevel5: TBevel;
     CheckBox2: TCheckBox;
-    lat_ns: TComboBox;
-    Lat1: TCurrencyEdit;
-    lat2: TCurrencyEdit;
-    lat3: TCurrencyEdit;
-    lon1: TCurrencyEdit;
-    lon2: TCurrencyEdit;
-    lon3: TCurrencyEdit;
-    Lon_we: TComboBox;
-    Label21: TLabel;
-    Label22: TLabel;
     ColorBox1: TColorBox;
     Label3: TLabel;
     Label4: TLabel;
@@ -95,6 +86,7 @@ type
   private
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
+    frLonLatPoint: TfrLonLat;
     procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
   public
     constructor Create(AOwner: TComponent); override;
@@ -166,24 +158,7 @@ begin
       end;
     end;
   end;
-  DMS:=D2DMS(FMark.Points[0].y);
-  lat1.Value:=DMS.D;
-  lat2.Value:=DMS.M;
-  lat3.Value:=DMS.S;
-  if DMS.N then begin
-    Lat_ns.ItemIndex:=1
-  end else begin
-    Lat_ns.ItemIndex:=0;
-  end;
-  DMS:=D2DMS(FMark.Points[0].x);
-  lon1.Value:=DMS.D;
-  lon2.Value:=DMS.M;
-  lon3.Value:=DMS.S;
-  if DMS.N then begin
-    Lon_we.ItemIndex:=1
-  end else begin
-    Lon_we.ItemIndex:=0;
-  end;
+  frLonLatPoint.LonLat := FMark.Points[0];
   result := ShowModal=mrOk;
 end;
 procedure TFaddPoint.BaddClick(Sender: TObject);
@@ -193,8 +168,7 @@ var
     VIndex: Integer;
     VId: Integer;
 begin
- ALL:=ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),
-               DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1));
+  FMark.Points[0] := frLonLatPoint.LonLat;
 
   FMark.name:=EditName.Text;
   FMark.Desc:=frMarkDescription.Description;
@@ -264,7 +238,9 @@ constructor TFaddPoint.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
-  frMarkDescription.Parent := pnlDescription
+  frMarkDescription.Parent := pnlDescription;
+  frLonLatPoint := TfrLonLat.Create(nil);
+  frLonLatPoint.Parent := pnlLonLat;
 end;
 
 destructor TFaddPoint.Destroy;
@@ -276,6 +252,7 @@ begin
   end;
   CBKateg.Items.Clear;
   FreeAndNil(frMarkDescription);
+  FreeAndNil(frLonLatPoint);
   inherited;
 end;
 
@@ -323,7 +300,8 @@ end;
 procedure TFaddPoint.RefreshTranslation;
 begin
   inherited;
-
+  frLonLatPoint.RefreshTranslation;
+  frMarkDescription.RefreshTranslation;
 end;
 
 procedure TFaddPoint.DrawGrid1MouseUp(Sender: TObject;
