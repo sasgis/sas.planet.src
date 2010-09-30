@@ -11,7 +11,7 @@ type
   TSearchResultPresenterStuped = class(TInterfacedObject, ISearchResultPresenter)
   private
     FMapGoto: IMapViewGoto;
-    procedure ShowSearchResults(ASearchResult: IGeoCodeResult);
+    procedure ShowSearchResults(ASearchResult: IGeoCodeResult; AZoom: Byte);
   public
     constructor Create(AMapGoto: IMapViewGoto);
     destructor Destroy; override;
@@ -39,7 +39,7 @@ begin
 end;
 
 procedure TSearchResultPresenterStuped.ShowSearchResults(
-  ASearchResult: IGeoCodeResult);
+  ASearchResult: IGeoCodeResult; AZoom: Byte);
 var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePalcemark;
@@ -50,7 +50,7 @@ begin
   end else begin
     VEnum := ASearchResult.GetPlacemarks;
     if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
-      FMapGoto.GotoPos(VPlacemark.GetPoint);
+      FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
       ShowMessage(SAS_STR_foundplace + ' "' + VPlacemark.GetAddress + '"');
     end;
   end;

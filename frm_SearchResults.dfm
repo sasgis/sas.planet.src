@@ -1,9 +1,9 @@
 object frmSearchResults: TfrmSearchResults
   Left = 646
   Top = 333
-  Width = 226
-  Height = 489
   Caption = 'frmSearchResults'
+  ClientHeight = 462
+  ClientWidth = 218
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,7 +12,6 @@ object frmSearchResults: TfrmSearchResults
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnClose = FormClose
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96
@@ -21,7 +20,7 @@ object frmSearchResults: TfrmSearchResults
     Left = 0
     Top = 0
     Width = 218
-    Height = 455
+    Height = 462
     Align = alClient
     Columns = <
       item
@@ -37,13 +36,11 @@ object frmSearchResults: TfrmSearchResults
         Caption = #1044#1086#1083#1075#1086#1090#1072
       end>
     GridLines = True
-    Items.Data = {
-      210000000100000000000000FFFFFFFFFFFFFFFF000000000000000004CAE8E5
-      E2}
     ReadOnly = True
     TabOrder = 0
     ViewStyle = vsReport
     OnDblClick = lvResultsDblClick
     OnKeyDown = lvResultsKeyDown
+    ExplicitHeight = 455
   end
 end

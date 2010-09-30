@@ -56,6 +56,8 @@ uses
   u_GeoToStr,
   t_CommonTypes,
   i_IGPSRecorder,
+  i_GeoCoder,
+  i_ISearchResultPresenter,
   Ugeofun,
   u_MapLayerWiki,
   ULogo,
@@ -585,8 +587,9 @@ type
     function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
     function GetIgnoredMenuItemsList: TList;
   public
-    FGoogleSearch: TGeoSearcher;
-    FYandexSerach: TGeoSearcher;
+    FSearchPresenter: ISearchResultPresenter;
+    FGoogleGeoCoder: IGeoCoder;
+    FYandexGeoCoder: IGeoCoder;
     FFillingMap: TMapFillingLayer;
     LayerMapMarks: TMapMarksLayer;
     LayerMapNavToMark: TNavToMarkLayer;
@@ -654,9 +657,7 @@ uses
   u_KmlInfoSimple,
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
-  i_ISearchResultPresenter,
   frm_SearchResults,
-  i_GeoCoder,
   i_IProxySettings,
   u_ProxySettingsFromTInetConnect,
   u_GeoCoderByGoogle,
@@ -1747,8 +1748,9 @@ begin
     end;
   end;
   if length(GState.MapType)<>0 then FSettings.Save;
-  FreeAndNil(FGoogleSearch);
-  FreeAndNil(FYandexSerach);
+  FSearchPresenter := nil;
+  FGoogleGeoCoder := nil;
+  FYandexGeoCoder := nil;
   FMapPosChangeListener := nil;
   FMainMapChangeListener := nil;
   FHybrChangeListener := nil;
@@ -2263,13 +2265,29 @@ begin
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+var
+  VResult: IGeoCodeResult;
 begin
-  FGoogleSearch.ModalSearch(NewText, GState.ViewState.GetCenterLonLat);
+  VResult := FGoogleGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+end;
+
+procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+var
+  VResult: IGeoCodeResult;
+begin
+  VResult := FYandexGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
+var
+  VResult: IGeoCodeResult;
+  VZoom: Byte;
 begin
-  FGoTo.ShowModal;
+  if FGoTo.ShowGeocodeModal(VResult, VZoom) then begin
+    FSearchPresenter.ShowSearchResults(VResult, VZoom);
+  end;
 end;
 
 procedure TFmain.TBMainToolBarClose(Sender: TObject);
@@ -2632,11 +2650,6 @@ begin
        end
   else result:=0;
   ms.Position:=0;
-end;
-
-procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-begin
-  FYandexSerach.ModalSearch(NewText, GState.ViewState.GetCenterLonLat);
 end;
 
 procedure TFmain.PopupMenu1Popup(Sender: TObject);
@@ -4162,19 +4175,13 @@ end;
 procedure TFmain.InitSearchers;
 var
   VGoto: IMapViewGoto;
-  VPresenter: ISearchResultPresenter;
-  VGeoCoder: IGeoCoder;
   VProxy: IProxySettings;
 begin
   VGoto := TMapViewGotoOnFMain.Create;
-  VPresenter := TSearchResultPresenterWithForm.Create(VGoto);
+  FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
   VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
-
-  VGeoCoder := TGeoCoderByGoogle.Create(VProxy);
-  FGoogleSearch := TGeoSearcher.Create(VGeoCoder, VPresenter);
-
-  VGeoCoder := TGeoCoderByYandex.Create(VProxy);
-  FYandexSerach := TGeoSearcher.Create(VGeoCoder, VPresenter);
+  FGoogleGeoCoder := TGeoCoderByGoogle.Create(VProxy);
+  FYandexGeoCoder := TGeoCoderByYandex.Create(VProxy);
 end;
 
 procedure TFmain.TBXItem8Click(Sender: TObject);

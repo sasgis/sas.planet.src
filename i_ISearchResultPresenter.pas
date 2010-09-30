@@ -8,7 +8,7 @@ uses
 type
   ISearchResultPresenter = interface
     ['{AAB90C64-76B3-4125-9C32-3F5FDFD127AF}']
-    procedure ShowSearchResults(ASearchResult: IGeoCodeResult);
+    procedure ShowSearchResults(ASearchResult: IGeoCodeResult; AZoom: Byte);
   end;
 
 implementation

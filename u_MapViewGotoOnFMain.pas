@@ -9,7 +9,7 @@ uses
 type
   TMapViewGotoOnFMain = class(TInterfacedObject, IMapViewGoto)
   private
-    procedure GotoPos(ALonLat: TExtendedPoint);
+    procedure GotoPos(ALonLat: TExtendedPoint; AZoom: Byte);
   end;
 
 implementation
@@ -20,13 +20,13 @@ uses
 
 { TMapViewGotoOnFMain }
 
-procedure TMapViewGotoOnFMain.GotoPos(ALonLat: TExtendedPoint);
+procedure TMapViewGotoOnFMain.GotoPos(ALonLat: TExtendedPoint; AZoom: Byte);
 var
   VPoint: TExtendedPoint;
 begin
   VPoint.X := ALonLat.X;
   VPoint.Y := ALonLat.Y;
-  Fmain.topos(VPoint, GState.ViewState.GetCurrentZoom, True);
+  Fmain.topos(VPoint, AZoom, True);
 end;
 
 end.

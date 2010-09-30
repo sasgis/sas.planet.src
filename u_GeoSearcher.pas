@@ -53,7 +53,7 @@ begin
       ShowMessage('Ошибка получения результатов поиска');
     end else begin
       if VResult.GetResultCode = 200 then begin
-        FPresenter.ShowSearchResults(VResult);
+        FPresenter.ShowSearchResults(VResult, 0);
       end else begin
         case VResult.GetResultCode of
           503: begin

@@ -39,7 +39,7 @@ type
   TSearchResultPresenterWithForm = class(TInterfacedObject, ISearchResultPresenter)
   private
     FMapGoto: IMapViewGoto;
-    procedure ShowSearchResults(ASearchResult: IGeoCodeResult);
+    procedure ShowSearchResults(ASearchResult: IGeoCodeResult; AZoom: Byte);
   public
     constructor Create(AMapGoto: IMapViewGoto);
     destructor Destroy; override;
@@ -49,6 +49,7 @@ implementation
 
 uses
   ActiveX,
+  u_GlobalState,
   UResStrings;
 
 {$R *.dfm}
@@ -76,7 +77,7 @@ begin
   VListItem := lvResults.Selected;
   if VListItem <> nil then begin
     VPlacemark := IGeoCodePalcemark(VListItem.Data);
-    FMapGoto.GotoPos(VPlacemark.GetPoint);
+    FMapGoto.GotoPos(VPlacemark.GetPoint, GState.ViewState.GetCurrentZoom);
   end;
 end;
 
@@ -139,24 +140,46 @@ begin
 end;
 
 procedure TSearchResultPresenterWithForm.ShowSearchResults(
-  ASearchResult: IGeoCodeResult);
+  ASearchResult: IGeoCodeResult; AZoom: Byte);
 var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePalcemark;
   i: Cardinal;
 begin
-  if ASearchResult.GetPlacemarksCount <= 0 then begin
-    ShowMessage(SAS_STR_notfound);
-  end else begin
-    if ASearchResult.GetPlacemarksCount = 1 then begin
-      VEnum := ASearchResult.GetPlacemarks;
-      if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
-        FMapGoto.GotoPos(VPlacemark.GetPoint);
-        ShowMessage(SAS_STR_foundplace+' "'+VPlacemark.GetAddress+'"');
-      end;
+  if ASearchResult.GetResultCode in [200, 203] then begin
+    if ASearchResult.GetPlacemarksCount <= 0 then begin
+      ShowMessage(SAS_STR_notfound);
     end else begin
-      TfrmSearchResults.ShowSearchResults(FMapGoto, ASearchResult);
+      if ASearchResult.GetPlacemarksCount = 1 then begin
+        VEnum := ASearchResult.GetPlacemarks;
+        if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
+          FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
+          if ASearchResult.GetResultCode = 200 then begin
+            ShowMessage(SAS_STR_foundplace+' "'+VPlacemark.GetAddress+'"');
+          end;
+        end;
+      end else begin
+        TfrmSearchResults.ShowSearchResults(FMapGoto, ASearchResult);
+      end;
     end;
+  end else begin
+    case ASearchResult.GetResultCode of
+      503: begin
+        ShowMessage(SAS_ERR_Noconnectionstointernet + #13#10 + ASearchResult.GetMessage);
+      end;
+      407: begin
+        ShowMessage(SAS_ERR_Authorization + #13#10 + ASearchResult.GetMessage);
+      end;
+      416: begin
+        ShowMessage('Ошибка разбора ответа: '+ #13#10 + ASearchResult.GetMessage);
+      end;
+      404: begin
+        ShowMessage(SAS_STR_notfound);
+      end;
+      else begin
+        ShowMessage('Неизвестная ошибка: '+ #13#10 + ASearchResult.GetMessage);
+      end;
+    end
   end;
 end;
 

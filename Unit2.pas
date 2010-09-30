@@ -13,6 +13,8 @@ uses
   Controls,
   rxToolEdit,
   rxCurrEdit,
+  t_GeoTypes,
+  i_GeoCoder,
   u_CommonFormAndFrameParents,
   Ugeofun;
 
@@ -50,7 +52,11 @@ type
     procedure FormShow(Sender: TObject);
     procedure ComboBox1Enter(Sender: TObject);
   private
+    FResult: IGeoCodeResult;
+    Fzoom: Byte;
+    function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TExtendedPoint; AMessage: WideString): IGeoCodeResult;
   public
+    function ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
   end;
 
 
@@ -60,7 +66,10 @@ var
 implementation
 
 uses
+  u_GeoToStr,
   u_GlobalState,
+  u_GeoCodeResult,
+  u_GeoCodePalcemark,
   u_MarksSimple,
   u_MarksReadWriteSimple,
   unit1;
@@ -73,12 +82,28 @@ begin
  CBzoom.ItemIndex:=GState.ViewState.GetCurrentZoom;
 end;
 
+procedure TFGoTo.FormShow(Sender: TObject);
+begin
+  AllMarsk2StringsWhitMarkId(ComboBox1.Items);
+end;
+
+function TFGoTo.GeocodeResultFromLonLat(ASearch: WideString;
+  ALonLat: TExtendedPoint; AMessage: WideString): IGeoCodeResult;
+var
+  VPlace: IGeoCodePalcemark;
+  VList: IInterfaceList;
+begin
+  VPlace := TGeoCodePalcemark.Create(ALonLat, AMessage, 4);
+  VList := TInterfaceList.Create;
+  VList.Add(VPlace);
+  Result := TGeoCodeResult.Create(ASearch, 203, '', VList);
+end;
+
 procedure TFGoTo.FormClose(Sender: TObject; var Action: TCloseAction);
 var i:integer;
 begin
  for i:=1 to ComboBox1.items.Count do ComboBox1.Items.Objects[i-1].Free;
  ComboBox1.Clear;
- Fmain.Enabled:=true;
 end;
 
 procedure TFGoTo.BGoClick(Sender: TObject);
@@ -86,43 +111,56 @@ var
   textsrch:String;
   VId: Integer;
   VMark: TMarkFull;
+  VLonLat: TExtendedPoint;
 begin
- if RB3.Checked then
-  begin
-   if ComboBox1.ItemIndex>-1 then
-    begin
+  FZoom := CBzoom.ItemIndex;
+  if RB3.Checked then begin
+    if ComboBox1.ItemIndex>-1 then begin
       VId := TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id;
-      close;
       VMark := GetMarkByID(VId);
       try
-        Fmain.topos(VMark.GetGoToLonLat, CBzoom.ItemIndex, True);
+        VLonLat := VMark.GetGoToLonLat;
+        FResult := GeocodeResultFromLonLat(ComboBox1.Text, VLonLat, VMark.name);
       finally
         VMark.Free
       end;
+      ModalResult := mrOk;
+    end else begin
+      ModalResult := mrCancel;
     end;
-  end;
- if RB1.Checked then
-  begin
-   Close;   
-   Fmain.toPos(ExtPoint(DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1),DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1)),CBzoom.ItemIndex,true);
-  end;
- if RB2.Checked then
-  begin
-   textsrch:=EditGF.Text;
-   Close;
-   Fmain.FGoogleSearch.ModalSearch(textsrch, GState.ViewState.GetCenterLonLat);
-  end;
- if RB4.Checked then
-  begin
-   textsrch:=EditGF.Text;
-   Close;
-   Fmain.FYandexSerach.ModalSearch(textsrch, GState.ViewState.GetCenterLonLat);
+  end else if RB1.Checked then begin
+    VLonLat.X := DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1);
+    VLonLat.Y := DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1);
+    textsrch := lon2str(VLonLat.X, GState.llStrType) + ' ' + lat2str(VLonLat.Y, GState.llStrType);
+    FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
+    ModalResult := mrOk;
+  end else if RB2.Checked then begin
+    textsrch:= Trim(EditGF.Text);
+    FResult := Fmain.FGoogleGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
+    ModalResult := mrOk;
+  end else if RB4.Checked then begin
+    textsrch:= Trim(EditGF.Text);
+    FResult := Fmain.FYandexGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
+    ModalResult := mrOk;
   end;
 end;
 
 procedure TFGoTo.lat_nsClick(Sender: TObject);
 begin
- RB1.Checked:=true;
+  RB1.Checked:=true;
+end;
+
+function TFGoTo.ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
+begin
+  if ModalResult = mrOk then begin
+    Result := true;
+    AResult := FResult;
+    AZoom := FZoom;
+  end else begin
+    Result := False;
+    AResult := nil;
+    AZoom := 0;
+  end;
 end;
 
 procedure TFGoTo.EditGFClick(Sender: TObject);
@@ -133,11 +171,6 @@ end;
 procedure TFGoTo.Lat1Click(Sender: TObject);
 begin
  if (not(RB1.Checked)) then RB1.Checked:=true;
-end;
-
-procedure TFGoTo.FormShow(Sender: TObject);
-begin
-  AllMarsk2StringsWhitMarkId(ComboBox1.Items);
 end;
 
 procedure TFGoTo.ComboBox1Enter(Sender: TObject);
