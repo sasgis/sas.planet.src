@@ -17,6 +17,7 @@ uses
   Mask,
   rxToolEdit,
   rxCurrEdit,
+  u_CommonFormAndFrameParents,
   t_GeoTypes;
 
 type
@@ -52,8 +53,8 @@ uses
 
 function TfrLonLat.GetLonLat: TExtendedPoint;
 begin
-  Result.Y:=DMS2G(edtLonDeg.Value,edtLonMin.Value,edtLonSec.Value,cbbLonWE.Itemindex=1);
-  Result.X:=DMS2G(edtLatDeg.Value,edtLatMin.Value,edtLatSec.Value,cbbLatNS.Itemindex=1);
+  Result.X:=DMS2G(edtLonDeg.Value,edtLonMin.Value,edtLonSec.Value,cbbLonWE.Itemindex=1);
+  Result.Y:=DMS2G(edtLatDeg.Value,edtLatMin.Value,edtLatSec.Value,cbbLatNS.Itemindex=1);
 end;
 
 procedure TfrLonLat.SetLonLat(const Value: TExtendedPoint);

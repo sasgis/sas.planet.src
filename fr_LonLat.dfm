@@ -1,25 +1,26 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 260
+  Width = 266
   Height = 44
-  Constraints.MinHeight = 44
-  Constraints.MinWidth = 260
+  VertScrollBar.Visible = False
+  Align = alClient
   TabOrder = 0
+  ExplicitWidth = 278
   object grdpnlMain: TGridPanel
     Left = 0
     Top = 0
-    Width = 260
+    Width = 266
     Height = 44
     Align = alClient
     BevelOuter = bvNone
     ColumnCollection = <
       item
-        SizeStyle = ssAuto
-        Value = 50.000000000000000000
+        Value = 100.000000000000000000
       end
       item
-        Value = 100.000000000000000000
+        SizeStyle = ssAuto
+        Value = 68.322981366459640000
       end>
     ControlCollection = <
       item
@@ -53,16 +54,15 @@ object frLonLat: TfrLonLat
     ExplicitWidth = 231
     ExplicitHeight = 47
     DesignSize = (
-      260
+      266
       44)
     object lblLat: TLabel
       AlignWithMargins = True
-      Left = 5
-      Top = 4
+      Left = 3
+      Top = 3
       Width = 41
       Height = 13
-      Alignment = taRightJustify
-      Anchors = []
+      Alignment = taCenter
       Caption = #1064#1080#1088#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -72,11 +72,10 @@ object frLonLat: TfrLonLat
       Font.Style = []
       ParentColor = False
       ParentFont = False
-      ExplicitLeft = 3
-      ExplicitTop = 3
+      Layout = tlCenter
     end
     object flwpnlLat: TFlowPanel
-      Left = 67
+      Left = 89
       Top = 0
       Width = 177
       Height = 21
@@ -173,11 +172,10 @@ object frLonLat: TfrLonLat
     object lblLon: TLabel
       AlignWithMargins = True
       Left = 3
-      Top = 26
+      Top = 25
       Width = 46
       Height = 13
-      Alignment = taRightJustify
-      Anchors = []
+      Alignment = taCenter
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -187,10 +185,10 @@ object frLonLat: TfrLonLat
       Font.Style = []
       ParentColor = False
       ParentFont = False
-      ExplicitTop = 3
+      Layout = tlCenter
     end
     object flwpnlLon: TFlowPanel
-      Left = 67
+      Left = 89
       Top = 22
       Width = 177
       Height = 21
