@@ -50,13 +50,17 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
-    <DCCReference Include="fr_MarkDescription.pas">
+    <DCCReference Include="fr_LonLat.pas">
       <DesignClass>TFrame</DesignClass>
+      <Form>frLonLat</Form>
+    </DCCReference>
+    <DCCReference Include="fr_MarkDescription.pas">
       <Form>frMarkDescription</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frShortCutList</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
