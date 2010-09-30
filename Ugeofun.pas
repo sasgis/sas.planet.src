@@ -32,6 +32,7 @@ type
   function GetProj(AConverter: ICoordConverter): string;
   function DMS2G(D,M,S:extended;N:boolean):extended;
   function D2DMS(G:extended):TDMS;
+  function PolygonFromRect(ARect: TExtendedRect): TExtendedPointArray;
   function ExtPoint(X, Y: extended): TExtendedPoint;
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
@@ -43,6 +44,7 @@ type
             var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean); overload;
   Procedure GetMinMax(var ARect:TRect; Polyg:TPointArray;round_:boolean); overload;
+  Procedure GetMinMax(var ARect:TExtendedRect; Polyg:TExtendedPointArray); overload;
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64; overload;
   function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64; overload;
   function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
@@ -425,6 +427,43 @@ function ExtPoint(X, Y: extended): TExtendedPoint;
 begin
   Result.X:=X;
   Result.Y:=Y;
+end;
+
+function PolygonFromRect(ARect: TExtendedRect): TExtendedPointArray;
+begin
+  SetLength(Result, 5);
+  Result[0] := ARect.TopLeft;
+  Result[1] := ExtPoint(ARect.Right, ARect.Top);
+  Result[2] := ARect.BottomRight;
+  Result[3] := ExtPoint(ARect.Left, ARect.Bottom);
+  Result[4] := ARect.TopLeft;
+end;
+
+Procedure GetMinMax(var ARect:TExtendedRect; Polyg:TExtendedPointArray); overload;
+var
+  i: Integer;
+begin
+  if Length(Polyg) > 0 then begin
+    ARect.TopLeft := Polyg[0];
+    ARect.BottomRight := Polyg[0];
+    for i := 1 to Length(Polyg) - 1 do begin
+      if ARect.Left > Polyg[i].X then begin
+        ARect.Left := Polyg[i].X
+      end;
+      if ARect.Top < Polyg[i].Y then begin
+        ARect.Top := Polyg[i].Y
+      end;
+      if ARect.Right < Polyg[i].X then begin
+        ARect.Right := Polyg[i].X
+      end;
+      if ARect.Bottom > Polyg[i].Y then begin
+        ARect.Bottom := Polyg[i].Y
+      end;
+    end;
+  end else begin
+    ARect.TopLeft := ExtPoint(0, 0);
+    ARect.BottomRight := ExtPoint(0, 0);
+  end;
 end;
 
 function DMS2G(D,M,S:extended;N:boolean):extended;
