@@ -48,7 +48,6 @@ uses
   Types,
   Graphics,
   SysUtils,
-  GR32_Backends,
   GR32_Polygons,
   Ugeofun,
   u_GeoToStr,

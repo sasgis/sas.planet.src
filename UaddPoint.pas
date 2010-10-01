@@ -12,12 +12,10 @@ uses
   graphics,
   ExtCtrls,
   StdCtrls,
-  Mask,
   Grids,
   Buttons,
   Spin,
   rxToolEdit,
-  rxCurrEdit,
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
@@ -113,7 +111,6 @@ var
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
-  DMS:TDMS;
 begin
   FMark := AMark;
   frMarkDescription.Description:='';

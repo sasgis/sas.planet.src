@@ -9,13 +9,10 @@ uses
   Controls,
   Forms,
   Dialogs,
-  Mask,
   StdCtrls,
   ExtCtrls,
-  rxCurrEdit,
   rxToolEdit,
   u_CommonFormAndFrameParents,
-  Ugeofun,
   t_GeoTypes,
   fr_LonLat;
 
