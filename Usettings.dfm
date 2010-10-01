@@ -25,17 +25,13 @@ object FSettings: TFSettings
     Top = 0
     Width = 624
     Height = 393
-    ActivePage = TabSheet3
+    ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
       BorderWidth = 3
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object MapList: TListView
         Left = 0
         Top = 0
@@ -130,10 +126,6 @@ object FSettings: TFSettings
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -570,7 +562,6 @@ object FSettings: TFSettings
             'SAS.'#1055#1083#1072#1085#1077#1090#1072
             'EarthSlicer 1.95'
             'Googe maps tiles')
-          ExplicitHeight = 19
         end
       end
     end
@@ -578,10 +569,6 @@ object FSettings: TFSettings
       BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -683,10 +670,11 @@ object FSettings: TFSettings
               Left = 24
               Top = 3
               Width = 150
-              Height = 13
+              Height = 17
               Align = alLeft
               Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -787,10 +775,6 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -823,10 +807,6 @@ object FSettings: TFSettings
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -994,18 +974,20 @@ object FSettings: TFSettings
             object LabelGamma: TLabel
               Left = 1
               Top = 1
-              Width = 6
+              Width = 304
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 1
               Top = 39
-              Width = 6
+              Width = 304
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 1
@@ -1259,11 +1241,12 @@ object FSettings: TFSettings
               Left = 4
               Top = 4
               Width = 28
-              Height = 13
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = #1071#1079#1099#1082
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBoxLocal: TComboBox
               AlignWithMargins = True
@@ -1273,7 +1256,7 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 0
+              ItemHeight = 13
               TabOrder = 0
               OnChange = CBoxLocalChange
             end
@@ -1400,12 +1383,11 @@ object FSettings: TFSettings
               Left = 64
               Top = 4
               Width = 238
-              Height = 21
+              Height = 22
               Align = alClient
               Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
               ItemHeight = 16
               TabOrder = 0
-              ExplicitHeight = 22
             end
           end
         end
@@ -1414,10 +1396,6 @@ object FSettings: TFSettings
     object TabSheet5: TTabSheet
       Caption = 'GPS'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
@@ -1447,7 +1425,7 @@ object FSettings: TFSettings
             Top = 4
             Width = 89
             Height = 21
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 0
             Text = 'COM1'
           end
@@ -1657,215 +1635,21 @@ object FSettings: TFSettings
         Height = 365
         Align = alClient
         TabOrder = 1
-        object GroupBox2: TGroupBox
-          Left = 1
-          Top = 296
-          Width = 244
-          Height = 68
-          Align = alBottom
-          Caption = ' '#1055#1086#1087#1088#1072#1074#1082#1072' '
-          TabOrder = 0
-          object Label21: TLabel
-            Left = 10
-            Top = 19
-            Width = 57
-            Height = 13
-            Caption = #1055#1086' '#1096#1080#1088#1086#1090#1077':'
-            Color = clBtnFace
-            Font.Charset = RUSSIAN_CHARSET
-            Font.Color = clBlack
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentColor = False
-            ParentFont = False
-          end
-          object Label22: TLabel
-            Left = 7
-            Top = 41
-            Width = 60
-            Height = 13
-            Caption = #1055#1086' '#1076#1086#1083#1075#1086#1090#1077':'
-            Color = clBtnFace
-            Font.Charset = RUSSIAN_CHARSET
-            Font.Color = clBlack
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentColor = False
-            ParentFont = False
-          end
-          object lat_ns: TComboBox
-            Left = 72
-            Top = 16
-            Width = 33
-            Height = 21
-            BevelInner = bvNone
-            BevelKind = bkSoft
-            BevelOuter = bvNone
-            Style = csDropDownList
-            BiDiMode = bdLeftToRight
-            Ctl3D = False
-            Font.Charset = RUSSIAN_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ItemHeight = 13
-            ItemIndex = 0
-            ParentBiDiMode = False
-            ParentCtl3D = False
-            ParentFont = False
-            TabOrder = 0
-            Text = 'N'
-            Items.Strings = (
-              'N'
-              'S')
-          end
-          object Lon_we: TComboBox
-            Left = 72
-            Top = 38
-            Width = 33
-            Height = 21
-            BevelInner = bvNone
-            BevelKind = bkSoft
-            BevelOuter = bvNone
-            Style = csDropDownList
-            BiDiMode = bdLeftToRight
-            Ctl3D = False
-            Font.Charset = RUSSIAN_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ItemHeight = 13
-            ItemIndex = 0
-            ParentBiDiMode = False
-            ParentCtl3D = False
-            ParentFont = False
-            TabOrder = 4
-            Text = 'E'
-            Items.Strings = (
-              'E'
-              'W')
-          end
-          object lat2: TCurrencyEdit
-            Left = 153
-            Top = 16
-            Width = 40
-            Height = 21
-            Margins.Left = 0
-            Margins.Top = 0
-            AutoSize = False
-            BorderStyle = bsNone
-            Ctl3D = True
-            DecimalPlaces = 5
-            DisplayFormat = '0.#####`'
-            FormatOnEditing = True
-            MaxValue = 60.000000000000000000
-            ParentCtl3D = False
-            TabOrder = 2
-          end
-          object lat3: TCurrencyEdit
-            Left = 193
-            Top = 16
-            Width = 40
-            Height = 21
-            Margins.Left = 0
-            Margins.Top = 0
-            AutoSize = False
-            BorderStyle = bsNone
-            Ctl3D = True
-            DecimalPlaces = 4
-            DisplayFormat = '0.####``'
-            FormatOnEditing = True
-            MaxValue = 60.000000000000000000
-            ParentCtl3D = False
-            TabOrder = 3
-          end
-          object lon1: TCurrencyEdit
-            Left = 105
-            Top = 38
-            Width = 48
-            Height = 21
-            Margins.Left = 0
-            Margins.Top = 0
-            AutoSize = False
-            BorderStyle = bsNone
-            Ctl3D = True
-            DecimalPlaces = 8
-            DisplayFormat = '0.########'#176
-            FormatOnEditing = True
-            MaxValue = 180.000000000000000000
-            ParentCtl3D = False
-            TabOrder = 5
-          end
-          object lon2: TCurrencyEdit
-            Left = 153
-            Top = 38
-            Width = 40
-            Height = 21
-            Margins.Left = 0
-            Margins.Top = 0
-            AutoSize = False
-            BorderStyle = bsNone
-            Ctl3D = True
-            DecimalPlaces = 5
-            DisplayFormat = '0.#####`'
-            FormatOnEditing = True
-            MaxValue = 60.000000000000000000
-            ParentCtl3D = False
-            TabOrder = 6
-          end
-          object lon3: TCurrencyEdit
-            Left = 193
-            Top = 38
-            Width = 40
-            Height = 21
-            Margins.Left = 0
-            Margins.Top = 0
-            AutoSize = False
-            BorderStyle = bsNone
-            Ctl3D = True
-            DecimalPlaces = 4
-            DisplayFormat = '0.####``'
-            FormatOnEditing = True
-            MaxValue = 60.000000000000000000
-            ParentCtl3D = False
-            TabOrder = 7
-          end
-          object Lat1: TCurrencyEdit
-            Left = 105
-            Top = 16
-            Width = 48
-            Height = 21
-            Margins.Left = 0
-            Margins.Top = 0
-            AutoSize = False
-            BorderStyle = bsNone
-            Ctl3D = True
-            DecimalPlaces = 8
-            DisplayFormat = '0.########'#176
-            FormatOnEditing = True
-            MaxValue = 180.000000000000000000
-            ParentCtl3D = False
-            TabOrder = 1
-          end
-        end
         object GroupBox3: TGroupBox
           Left = 1
           Top = 1
           Width = 244
-          Height = 295
+          Height = 363
           Align = alClient
           Caption = ' C'#1087#1091#1090#1085#1080#1082#1080' '
-          TabOrder = 1
+          TabOrder = 0
+          ExplicitHeight = 295
           object PaintBox1: TPaintBox
             AlignWithMargins = True
             Left = 5
             Top = 18
             Width = 234
-            Height = 272
+            Height = 340
             Align = alClient
             OnPaint = PaintBox1Paint
             ExplicitLeft = 40
@@ -1879,10 +1663,6 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -1994,10 +1774,6 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlGSM: TPanel
         Left = 0
         Top = 0
@@ -2040,7 +1816,7 @@ object FSettings: TFSettings
             Top = 0
             Width = 89
             Height = 21
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 0
             Text = 'COM1'
           end

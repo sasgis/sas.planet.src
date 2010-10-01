@@ -16,14 +16,12 @@ uses
   Dialogs,
   Buttons,
   Spin,
-  Mask,
   urlmon,
   wininet,
   GR32,
   XPMan,
   ZylGPSReceiver,
   rxToolEdit,
-  rxCurrEdit,
   u_CommonFormAndFrameParents,
   fr_ShortCutList,
   UMapType,
@@ -72,17 +70,6 @@ type
     ComboBox2: TComboBox;
     SpinEditMiniMap: TSpinEdit;
     Label17: TLabel;
-    GroupBox2: TGroupBox;
-    Label21: TLabel;
-    Label22: TLabel;
-    lat_ns: TComboBox;
-    Lon_we: TComboBox;
-    lat2: TCurrencyEdit;
-    lat3: TCurrencyEdit;
-    lon1: TCurrencyEdit;
-    lon2: TCurrencyEdit;
-    lon3: TCurrencyEdit;
-    Lat1: TCurrencyEdit;
     SpinEdit3: TSpinEdit;
     Label69: TLabel;
     CB_GPSlog: TCheckBox;
