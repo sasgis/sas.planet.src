@@ -1,7 +1,7 @@
 object frmSearchResults: TfrmSearchResults
   Left = 646
   Top = 333
-  Caption = 'frmSearchResults'
+  Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090#1099' '#1087#1086#1080#1089#1082#1072
   ClientHeight = 462
   ClientWidth = 218
   Color = clBtnFace
@@ -41,6 +41,5 @@ object frmSearchResults: TfrmSearchResults
     ViewStyle = vsReport
     OnDblClick = lvResultsDblClick
     OnKeyDown = lvResultsKeyDown
-    ExplicitHeight = 455
   end
 end

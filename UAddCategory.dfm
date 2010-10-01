@@ -2,7 +2,7 @@ object FAddCategory: TFAddCategory
   Left = 208
   Top = 318
   BorderStyle = bsDialog
-  Caption = 'FAddCategory'
+  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1091#1102' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
   ClientHeight = 140
   ClientWidth = 295
   Color = clBtnFace
@@ -141,10 +141,11 @@ object FAddCategory: TFAddCategory
       Left = 3
       Top = 3
       Width = 50
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True
