@@ -1512,7 +1512,15 @@ begin
       TBMapZap.Caption:='';
     end;
 
-    TTBXItem(FindComponent('NGShScale'+IntToStr(GState.GShScale))).Checked:=true;
+    NGShScale10000.Checked := GState.GShScale = 10000;
+    NGShScale25000.Checked := GState.GShScale = 25000;
+    NGShScale50000.Checked := GState.GShScale = 50000;
+    NGShScale100000.Checked := GState.GShScale = 100000;
+    NGShScale200000.Checked := GState.GShScale = 200000;
+    NGShScale500000.Checked := GState.GShScale = 500000;
+    NGShScale1000000.Checked := GState.GShScale = 1000000;
+    NGShScale0.Checked := GState.GShScale = 0;
+
     N32.Checked:=LayerMapScale.Visible;
     NShowSelection.Checked := LayerSelection.Visible;
     Ninvertcolor.Checked:=GState.InvertColor;
