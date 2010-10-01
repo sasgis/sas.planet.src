@@ -605,7 +605,7 @@ type
     aoper: TAOperation;
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
-    property TileSource: TTileSource read FTileSource write Set_TileSource;
+    property TileSource: TTileSource read FTileSource;
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     procedure generate_im(lastload: TLastLoad; err: string); overload;
@@ -1464,14 +1464,13 @@ begin
     FShortCutManager.Load(GState.MainIni, 'HOTKEY');
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
-    TileSource:=TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1));
+    Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
     lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
     Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
 
     FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
-    FMainLayer.Visible := True;
     FWikiLayer := TWikiLayer.Create(map, VScreenCenterPos);
     FFillingMap:=TMapFillingLayer.create(map, VScreenCenterPos);
     LayerMapMarks:= TMapMarksLayer.Create(map, VScreenCenterPos);
@@ -1560,46 +1559,37 @@ begin
     GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 
     if ParamCount > 1 then begin
-    try
-      param:=paramstr(1);
-      if param<>'' then begin
-        VGUID := StringToGUID(param);
-        for i:=0 to length(GState.MapType)-1 do begin
-          if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-            GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
+      try
+        param:=paramstr(1);
+        if param<>'' then begin
+          VGUID := StringToGUID(param);
+          for i:=0 to length(GState.MapType)-1 do begin
+            if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
+              GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
+            end;
           end;
         end;
+        if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+          GState.ViewState.LockWrite;
+          VZoom := strtoint(paramstr(2)) - 1;
+          GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
+          VLonLat.X := str2r(paramstr(3));
+          VLonLat.Y := str2r(paramstr(4));
+          GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
+          GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
+        end else if paramstr(2)<>'' then begin
+          VZoom := strtoint(paramstr(2)) - 1;
+          GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
+        end;
+      except
       end;
-      if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
-        GState.ViewState.LockWrite;
-        VZoom := strtoint(paramstr(2)) - 1;
-        GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
-        VLonLat.X := str2r(paramstr(3));
-        VLonLat.Y := str2r(paramstr(4));
-        GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
-        GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
-      end else if paramstr(2)<>'' then begin
-        VZoom := strtoint(paramstr(2)) - 1;
-        GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
-      end;
-    except
-    end;
     end;
     InitSearchers;
-
-    FUIDownLoader := TTileDownloaderUI.Create;
-
-    LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
-    LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
-    SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
-    SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
-    LayerStatBar.Visible:=GState.ShowStatusBar;
-    Showstatus.Checked:=GState.ShowStatusBar;
-    LayerMapMarks.Visible := GState.show_point <> mshNone;
-
     MapMoving:=false;
 
     SetProxy;
+
+    FUIDownLoader := TTileDownloaderUI.Create;
 
     case GState.SrchType of
       stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
@@ -1609,10 +1599,20 @@ begin
     if GState.WebReportToAuthor then begin
       WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
     end;
+
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
+    FMainLayer.Visible := True;
+    LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
+    LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
+    SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
+    SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
+    LayerStatBar.Visible:=GState.ShowStatusBar;
+    Showstatus.Checked:=GState.ShowStatusBar;
+    LayerMapMarks.Visible := GState.show_point <> mshNone;
+
   finally
     Enabled:=true;
-    SetFocus;
+    map.SetFocus;
     if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
@@ -2164,7 +2164,7 @@ end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
 begin
- Tilesource:=TTileSource(TTBXItem(Sender).Tag);
+ Set_TileSource(TTileSource(TTBXItem(Sender).Tag));
 end;
 
 procedure TFmain.N16Click(Sender: TObject);
@@ -3918,7 +3918,7 @@ begin
   GState.MainIni.Writebool('VIEW','line',ShowLine.Checked);
   GState.MainIni.Writebool('VIEW','minimap',ShowMiniMap.Checked);
   GState.MainIni.Writebool('VIEW','statusbar',Showstatus.Checked);
-  GState.MainIni.WriteInteger('VIEW','TileSource',integer(TileSource));
+  GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
   GState.MainIni.Writebool('VIEW','showscale', LayerMapScale.Visible);
   GState.MainIni.Writebool('VIEW','showselection', LayerSelection.Visible);
   FMiniMapLayer.WriteIni;
