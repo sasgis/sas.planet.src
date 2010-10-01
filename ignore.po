@@ -1,634 +1,256 @@
 #  Doesn't have any letters
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedAvgBar..TBXSensorSpeedAvg..Caption
-#: Unit1.dfm:2110
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedBar..TBXSensorSpeed..Caption
-#: Unit1.dfm:2148
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorPathBar..TBXOdometrNow..Caption
-#: Unit1.dfm:2225
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorBattaryBar..TBXSensorBattary..Caption
-#: Unit1.dfm:2268
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorLenToMarkBar..TBXSensorLenToMark..Caption
-#: Unit1.dfm:2309
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAltitudeBar..TBXSensorAltitude..Caption
-#: Unit1.dfm:2382
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorSpeedMaxBar..TBXSensorSpeedMax..Caption
-#: Unit1.dfm:2488
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXsensorOdometrBar..TBXSensorOdometr..Caption
-#: Unit1.dfm:2561
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSensorAzimutBar..TBXSensorAzimut..Caption
-#: Unit1.dfm:2604
-#. Fmain..TBDockRight..TBXSensorsBar..ScrollBox1..TBXDock1..TBXSignalStrengthBar..TBXSignalStrength..Caption
-#: Unit1.dfm:2650
-#. Fmain..PopupMenu1..NMarkSep..Caption
-#: Unit1.dfm:2704
-#. Fmain..PopupMenu1..N47..Caption
-#: Unit1.dfm:2712
-#. Fmain..PopupMenu1..N22..Caption
-#: Unit1.dfm:2838
-#. Fmain..PopupMenu1..N43..N51..Caption
-#: Unit1.dfm:2864
-#. Fmain..PopupMenu1..N23..Caption
-#: Unit1.dfm:2894
-#. Fmain..PopupMenu1..N26..N49..Caption
-#: Unit1.dfm:2907
-#. Fmain..PopupMenu1..N26..N27..Caption
-#: Unit1.dfm:2916
-#. Fmain..PopupMenu1..N24..Caption
-#: Unit1.dfm:2925
-#. Fmain..PopupMenu1..N1..Caption
-#: Unit1.dfm:2948
 msgid "-"
 msgstr ""
 
 #  Doesn't have any letters
-#. FGoTo..GroupBox2..Caption
-#: Unit2.dfm:41
-#. FGoTo..GroupBox3..Caption
-#: Unit2.dfm:97
-#. FGoTo..GroupBox1..Caption
-#: Unit2.dfm:129
-#. FProgress..Panel1..LabelName1..Caption
-#: UProgress.dfm:111
 msgid " "
 msgstr ""
 
 #  Doesn't have any letters
-#. FProgress..Panel1..LabelValue0..Caption
-#: UProgress.dfm:58
-#. FProgress..Panel1..LabelValue1..Caption
-#: UProgress.dfm:69
-#. FProgress..Panel1..LabelValue2..Caption
-#: UProgress.dfm:80
-#. FProgress..Panel1..LabelValue3..Caption
-#: UProgress.dfm:91
-#. FProgress..Panel1..LabelName0..Caption
-#: UProgress.dfm:101
-#. FProgress..Panel1..LabelName2..Caption
-#: UProgress.dfm:121
-#. FProgress..Panel1..LabelValue4..Caption
-#: UProgress.dfm:152
 msgid "  "
 msgstr ""
 
 #  Doesn't have any letters
-#. FProgress..Panel1..LabelName3..Caption
-#: UProgress.dfm:131
-#. FProgress..Panel1..LabelName4..Caption
-#: UProgress.dfm:141
 msgid "   "
 msgstr ""
 
 #  Doesn't have any letters
-#. FSettings..PageControl1..TabSheet1..GroupBox4..flwpnlProxyAuth..EditPass..PasswordChar
-#: Usettings.dfm:706
 msgid "*"
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. Fmain..OpenDialog1..DefaultExt
-#: Unit1.dfm:5185
-#. Fsaveas..SaveSelDialog..DefaultExt
-#: USaveas.dfm:206
 msgid "*.hlg"
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. FMarksExplorer..OpenDialog1..DefaultExt
-#: UMarksExplorer.dfm:607
 msgid "*.kml"
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. Fmain..OpenSessionDialog..DefaultExt
-#: Unit1.dfm:7560
-#. FProgress..SaveSessionDialog..DefaultExt
-#: UProgress.dfm:204
 msgid "*.sls"
 msgstr ""
 
+#  Looks like a file extension or file mask
+msgid "aux"
+msgstr ""
+
 #  Doesn't have any letters
-#. frExportAUX..pnlTop..btnSelectTargetFile..Caption
-#: fr_ExportAUX.dfm:111
-#. frExportGEKml..pnlTop..btnSelectTargetFile..Caption
-#: fr_ExportGEKml.dfm:141
-#. frExportIPhone..pnlTop..btnSelectTargetPath..Caption
-#: fr_ExportIPhone.dfm:36
-#. frExportToFileCont..pnlTop..btnSelectTargetFile..Caption
-#: fr_ExportToFileCont.dfm:145
-#. frExportYaMaps..pnlTop..btnSelectTargetPath..Caption
-#: fr_ExportYaMaps.dfm:353
-#. frMapCombine..pnlTargetFile..btnSelectTargetFile..Caption
-#: fr_MapCombine.dfm:65
-#. frTilesCopy..pnlTop..btnSelectTargetPath..Caption
-#: fr_TilesCopy.dfm:176
-#. FaddLine..SpeedButton1..Caption
-#: UaddLine.dfm:87
-#. FaddPoint..SpeedButton1..Caption
-#: UaddPoint.dfm:147
-#. FaddPoint..SpeedButton2..Caption
-#: UaddPoint.dfm:155
-#. FAddPoly..SpeedButton1..Caption
-#: UaddPoly.dfm:87
-#. FAddPoly..SpeedButton2..Caption
-#: UaddPoly.dfm:109
-#. FImport..GroupBox1..SpeedButton1..Caption
-#: UImport.dfm:82
-#. FImport..GroupBox1..SpeedButton2..Caption
-#: UImport.dfm:90
-#. FImport..GroupBox2..SpeedButton3..Caption
-#: UImport.dfm:208
-#. FImport..GroupBox3..SpeedButton4..Caption
-#: UImport.dfm:281
-#. FImport..GroupBox3..SpeedButton5..Caption
-#: UImport.dfm:303
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button7..Caption
-#: Usettings.dfm:378
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button5..Caption
-#: Usettings.dfm:424
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button9..Caption
-#: Usettings.dfm:470
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button14..Caption
-#: Usettings.dfm:516
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button17..Caption
-#: Usettings.dfm:562
 msgid "..."
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. frMapCombine..pnlBottom..pnlRight..chklstPrTypes....Items.Strings
-#: fr_MapCombine.dfm:199
 msgid ".dat"
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. frMapCombine..pnlBottom..pnlRight..chklstPrTypes....Items.Strings
-#: fr_MapCombine.dfm:200
 msgid ".kml"
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. frMapCombine..pnlBottom..pnlRight..chklstPrTypes....Items.Strings
-#: fr_MapCombine.dfm:196
 msgid ".map"
 msgstr ""
 
 #  Looks like a file extension or file mask
-#. frMapCombine..pnlBottom..pnlRight..chklstPrTypes....Items.Strings
-#: fr_MapCombine.dfm:197
 msgid ".tab"
 msgstr ""
 
+#  Looks like a file extension or file mask
+msgid ".w"
+msgstr ""
+
 #  Doesn't have any letters
-#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsPort..SBGetComNum..Caption
-#: Usettings.dfm:1606
 msgid "?"
 msgstr ""
 
 #  Doesn't have any letters
-#. frMapCombine..pnlTop..lblStat..Caption
-#: fr_MapCombine.dfm:27
-#. frTilesDownload..pnlBottom..pnlMain..lblStat..Caption
-#: fr_TilesDownload.dfm:83
-#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlImageProcess..LabelGamma..Caption
-#: Usettings.dfm:1114
-#. FSettings..PageControl1..TabSheet4..grdpnlUI..pnlUILeft..pnlImageProcess..LabelContrast..Caption
-#: Usettings.dfm:1122
 msgid "_"
 msgstr ""
 
 #  Doesn't have any letters
-#. FEditMap..pnlCacheType..Button9..Caption
-#: UEditMap.dfm:153
-#. FEditMap..pnlParentItem..Button5..Caption
-#: UEditMap.dfm:206
-#. FEditMap..pnlCacheName..Button4..Caption
-#: UEditMap.dfm:259
-#. FEditMap..pnlUrl..pnlUrlRight..Button6..Caption
-#: UEditMap.dfm:309
-#. FEditMap..grdpnlSleepAndKey..grdpnlHotKey..Button7..Caption
-#: UEditMap.dfm:434
-#. FEditMap..grdpnlSleepAndKey..grdpnlSleep..Button8..Caption
-#: UEditMap.dfm:515
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button6..Caption
-#: Usettings.dfm:366
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button4..Caption
-#: Usettings.dfm:412
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button8..Caption
-#: Usettings.dfm:458
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button13..Caption
-#: Usettings.dfm:504
-#. FSettings..PageControl1..TabSheet2..grdpnlCache..Button10..Caption
-#: Usettings.dfm:550
 msgid "<>"
 msgstr ""
 
 #  Doesn't look like text
-#. FaddPoint..Lat1..DisplayFormat
-#: UaddPoint.dfm:267
-#. FaddPoint..lon1..DisplayFormat
-#: UaddPoint.dfm:312
-#. FGoTo..GroupBox1..lon1..DisplayFormat
-#: Unit2.dfm:260
-#. FGoTo..GroupBox1..Lat1..DisplayFormat
-#: Unit2.dfm:308
-#. FSelLonLat..GroupBox1.._lon1..DisplayFormat
-#: USelLonLat.dfm:170
-#. FSelLonLat..GroupBox1.._Lat1..DisplayFormat
-#: USelLonLat.dfm:215
-#. FSelLonLat..GroupBox2..lon1..DisplayFormat
-#: USelLonLat.dfm:354
-#. FSelLonLat..GroupBox2..Lat1..DisplayFormat
-#: USelLonLat.dfm:399
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lon1..DisplayFormat
-#: Usettings.dfm:1964
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Lat1..DisplayFormat
-#: Usettings.dfm:2015
-msgid "0.########°"
+msgid "0.########�"
 msgstr ""
 
-#  Doesn't have any letters
-#. FaddPoint..lat2..DisplayFormat
-#: UaddPoint.dfm:282
-#. FaddPoint..lon2..DisplayFormat
-#: UaddPoint.dfm:327
-#. FGoTo..GroupBox1..lat2..DisplayFormat
-#: Unit2.dfm:228
-#. FGoTo..GroupBox1..lon2..DisplayFormat
-#: Unit2.dfm:276
-#. FSelLonLat..GroupBox1.._lat2..DisplayFormat
-#: USelLonLat.dfm:140
-#. FSelLonLat..GroupBox1.._lon2..DisplayFormat
-#: USelLonLat.dfm:185
-#. FSelLonLat..GroupBox2..lat2..DisplayFormat
-#: USelLonLat.dfm:324
-#. FSelLonLat..GroupBox2..lon2..DisplayFormat
-#: USelLonLat.dfm:369
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lat2..DisplayFormat
-#: Usettings.dfm:1930
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lon2..DisplayFormat
-#: Usettings.dfm:1981
+#  Doesn't look like text
 msgid "0.#####`"
 msgstr ""
 
 #  Doesn't have any letters
-#. FaddPoint..lat3..DisplayFormat
-#: UaddPoint.dfm:297
-#. FaddPoint..lon3..DisplayFormat
-#: UaddPoint.dfm:342
-#. FGoTo..GroupBox1..lat3..DisplayFormat
-#: Unit2.dfm:244
-#. FGoTo..GroupBox1..lon3..DisplayFormat
-#: Unit2.dfm:292
-#. FSelLonLat..GroupBox1.._lat3..DisplayFormat
-#: USelLonLat.dfm:155
-#. FSelLonLat..GroupBox1.._lon3..DisplayFormat
-#: USelLonLat.dfm:200
-#. FSelLonLat..GroupBox2..lat3..DisplayFormat
-#: USelLonLat.dfm:339
-#. FSelLonLat..GroupBox2..lon3..DisplayFormat
-#: USelLonLat.dfm:384
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lat3..DisplayFormat
-#: Usettings.dfm:1947
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lon3..DisplayFormat
-#: Usettings.dfm:1998
 msgid "0.####``"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N012..Caption
-#: Unit1.dfm:2718
-#. FGoTo..CBzoom..Text
-#: Unit2.dfm:338
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:340
 msgid "01"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N022..Caption
-#: Unit1.dfm:2723
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:341
 msgid "02"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N032..Caption
-#: Unit1.dfm:2728
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:342
 msgid "03"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N042..Caption
-#: Unit1.dfm:2733
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:343
 msgid "04"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N052..Caption
-#: Unit1.dfm:2738
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:344
 msgid "05"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N062..Caption
-#: Unit1.dfm:2743
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:345
 msgid "06"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N072..Caption
-#: Unit1.dfm:2748
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:346
 msgid "07"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N082..Caption
-#: Unit1.dfm:2753
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:347
 msgid "08"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fmain..PopupMenu1..N28..N091..Caption
-#: Unit1.dfm:2758
-#. FGoTo..CBzoom....Items.Strings
-#: Unit2.dfm:348
 msgid "09"
 msgstr ""
 
 #  Doesn't have any letters
-#. Fabout..Edit5..Text
-#: UAbout.dfm:196
 msgid "41001292446592"
 msgstr ""
 
-#  Seems like a component name
-#. DMMarksDb..CDSmarks......Name
-#: u_MarksDb.dfm:145
-#. Fmain..CDSmarks......Name
-#: Unit1.dfm:5374
-msgid "CHANGEINDEX"
+#  Seems like a Database field name or index field name
+msgid "id"
 msgstr ""
 
-#  Doesn't look like text
-#. DMMarksDb..CDSmarks......Name
-#: u_MarksDb.dfm:115
-#. DMMarksDb..CDSmarks..CDSmarkscolor1..FieldName
-#: u_MarksDb.dfm:199
-#. Fmain..CDSmarks......Name
-#: Unit1.dfm:5344
-#. Fmain..CDSmarks..CDSmarkscolor1..FieldName
-#: Unit1.dfm:5428
+#  Seems like a Database field name or index field name
+msgid "name"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "AfterScale"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "BeforeScale"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "categoryid"
+msgstr ""
+
+#  Seems like a Database field name or index field name
 msgid "color1"
 msgstr ""
 
-#  Doesn't look like text
-#. DMMarksDb..CDSmarks......Name
-#: u_MarksDb.dfm:120
-#. DMMarksDb..CDSmarks..CDSmarkscolor2..FieldName
-#: u_MarksDb.dfm:202
-#. Fmain..CDSmarks......Name
-#: Unit1.dfm:5349
-#. Fmain..CDSmarks..CDSmarkscolor2..FieldName
-#: Unit1.dfm:5431
+#  Seems like a Database field name or index field name
 msgid "color2"
 msgstr ""
 
+#  Seems like a Database field name or index field name
+msgid "descr"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "LatB"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "latT"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "lonL"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "lonlatarr"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "LonR"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "picname"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "scale1"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "scale2"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "visible"
+msgstr ""
+
+#  Seems like a Database field name or index field name
+msgid "LonR;LonL;LatT;LatB;visible"
+msgstr ""
+
 #  Doesn't look like text
-#. FSettings..PageControl1..TabSheet5..pnlGPSLeft..flwpnlGpsPort..ComboBoxCOM..Text
-#: Usettings.dfm:1599
-#. FSettings..PageControl1..TabSheet6..pnlGSM..flwpnlGSM..CBGSMComPort..Text
-#: Usettings.dfm:2232
 msgid "COM1"
 msgstr ""
 
 #  Seems like a component name
-#. DMMarksDb..CDSmarks......Name
-#: u_MarksDb.dfm:142
-#. Fmain..CDSmarks......Name
-#: Unit1.dfm:5371
+msgid "CHANGEINDEX"
+msgstr ""
+
+#  Seems like a component name
 msgid "DEFAULT_ORDER"
 msgstr ""
 
-#  Doesn't look like text
-#. frExportToFileCont..pnlCenter..pnlMain..cbbNamesType....Items.Strings
-#: fr_ExportToFileCont.dfm:107
-#. frTilesCopy..pnlCenter..pnlMain..cbbNamesType....Items.Strings
-#: fr_TilesCopy.dfm:89
-msgid "ES1.95"
-msgstr ""
-
-#  Doesn't look like text
-#. frMapCombine..pnlOutputFormat..cbbOutputFormat....Items.Strings
-#: fr_MapCombine.dfm:106
-msgid "Jpeg2000"
-msgstr ""
-
-#  Doesn't look like text
-#. Fmain..TBDock..GPSToolbar..Label1..Caption
-#: Unit1.dfm:299
-msgid "Label1"
-msgstr ""
-
 #  Seems like a Font.Name extract
-#. Fabout..LabelName..Font.Name
-#: UAbout.dfm:79
 msgid "MS Reference Sans Serif"
 msgstr ""
 
 #  Seems like a Font.Name extract
-#. frmSearchResults..Font.Name
-#: frm_SearchResults.dfm:11
-#. Fabout..Font.Name
-#: UAbout.dfm:12
-#. Fabout..Label8..Font.Name
-#: UAbout.dfm:117
-#. Fabout..Label10..Font.Name
-#: UAbout.dfm:141
-#. FAddCategory..Font.Name
-#: UAddCategory.dfm:12
-#. FaddLine..Font.Name
-#: UaddLine.dfm:12
-#. FaddLine..EditName..Font.Name
-#: UaddLine.dfm:105
-#. FaddLine..ColorBox1..Font.Name
-#: UaddLine.dfm:158
-#. FaddPoint..Font.Name
-#: UaddPoint.dfm:12
-#. FaddPoint..Label21..Font.Name
-#: UaddPoint.dfm:81
-#. FaddPoint..Label22..Font.Name
-#: UaddPoint.dfm:97
-#. FaddPoint..EditName..Font.Name
-#: UaddPoint.dfm:187
-#. FaddPoint..ColorBox1..Font.Name
-#: UaddPoint.dfm:385
-#. FaddPoint..ColorBox2..Font.Name
-#: UaddPoint.dfm:410
-#. FAddPoly..Font.Name
-#: UaddPoly.dfm:12
-#. FAddPoly..EditName..Font.Name
-#: UaddPoly.dfm:141
-#. FAddPoly..ColorBox1..Font.Name
-#: UaddPoly.dfm:194
-#. FAddPoly..ColorBox2..Font.Name
-#: UaddPoly.dfm:230
-#. Fbrowser..Font.Name
-#: Ubrowser.dfm:11
-#. FEditMap..Font.Name
-#: UEditMap.dfm:11
-#. FDGAvailablePic..Font.Name
-#: UFDGAvailablePic.dfm:12
-#. FImport..Font.Name
-#: UImport.dfm:12
-#. FImport..GroupBox1..ColorBox1..Font.Name
-#: UImport.dfm:110
-#. FImport..GroupBox1..ColorBox2..Font.Name
-#: UImport.dfm:135
-#. FImport..GroupBox2..ColorBox3..Font.Name
-#: UImport.dfm:221
-#. FImport..GroupBox3..ColorBox4..Font.Name
-#: UImport.dfm:329
-#. FImport..GroupBox3..ColorBox5..Font.Name
-#: UImport.dfm:365
-#. FLogo..Font.Name
-#: ULogo.dfm:13
-#. FMarksExplorer..Font.Name
-#: UMarksExplorer.dfm:12
-#. Fmain..Font.Name
-#: Unit1.dfm:13
-#. Fmain..TBDockLeft..ZoomToolBar..labZoom..Font.Name
-#: Unit1.dfm:1194
-#. FGoTo..Font.Name
-#: Unit2.dfm:14
-#. FGoTo..Label9..Font.Name
-#: Unit2.dfm:32
-#. FGoTo..GroupBox2..Font.Name
-#: Unit2.dfm:45
-#. FGoTo..RB3..Font.Name
-#: Unit2.dfm:68
-#. FGoTo..BGo..Font.Name
-#: Unit2.dfm:84
-#. FGoTo..GroupBox3..Font.Name
-#: Unit2.dfm:101
-#. FGoTo..GroupBox1..Label21..Font.Name
-#: Unit2.dfm:142
-#. FGoTo..GroupBox1..Label22..Font.Name
-#: Unit2.dfm:158
-#. FGoTo..RB1..Font.Name
-#: Unit2.dfm:325
-#. Fprogress2..Font.Name
-#: Unit4.dfm:12
-#. FProgress..Font.Name
-#: UProgress.dfm:12
-#. Fsaveas..Font.Name
-#: USaveas.dfm:12
-#. FSelLonLat..Font.Name
-#: USelLonLat.dfm:12
-#. FSelLonLat..GroupBox1..Label21..Font.Name
-#: USelLonLat.dfm:56
-#. FSelLonLat..GroupBox1..Label22..Font.Name
-#: USelLonLat.dfm:72
-#. FSelLonLat..GroupBox2..Label1..Font.Name
-#: USelLonLat.dfm:240
-#. FSelLonLat..GroupBox2..Label2..Font.Name
-#: USelLonLat.dfm:256
-#. FSettings..Font.Name
-#: Usettings.dfm:13
-#. FSettings..PageControl1..TabSheet3..GroupBox5..List..Font.Name
-#: Usettings.dfm:913
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Label21..Font.Name
-#: Usettings.dfm:1845
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Label22..Font.Name
-#: Usettings.dfm:1860
 msgid "MS Sans Serif"
 msgstr ""
 
-#  Doesn't look like text
-#. DMMarksDb..CDSmarks......Name
-#: u_MarksDb.dfm:80
-#. DMMarksDb..CDSmarks..CDSmarksscale1..FieldName
-#: u_MarksDb.dfm:178
-#. Fmain..CDSmarks......Name
-#: Unit1.dfm:5309
-#. Fmain..CDSmarks..CDSmarksscale1..FieldName
-#: Unit1.dfm:5407
-msgid "scale1"
-msgstr ""
-
-#  Doesn't look like text
-#. DMMarksDb..CDSmarks......Name
-#: u_MarksDb.dfm:85
-#. DMMarksDb..CDSmarks..CDSmarksscale2..FieldName
-#: u_MarksDb.dfm:181
-#. Fmain..CDSmarks......Name
-#: Unit1.dfm:5314
-#. Fmain..CDSmarks..CDSmarksscale2..FieldName
-#: Unit1.dfm:5410
-msgid "scale2"
-msgstr ""
-
 #  Seems like a Font.Name extract
-#. FaddPoint..lat_ns..Font.Name
-#: UaddPoint.dfm:245
-#. FaddPoint..Lon_we..Font.Name
-#: UaddPoint.dfm:362
-#. FGoTo..GroupBox1..lat_ns..Font.Name
-#: Unit2.dfm:177
-#. FGoTo..GroupBox1..Lon_we..Font.Name
-#: Unit2.dfm:205
-#. FSelLonLat..GroupBox1.._lat_ns..Font.Name
-#: USelLonLat.dfm:91
-#. FSelLonLat..GroupBox1.._Lon_we..Font.Name
-#: USelLonLat.dfm:118
-#. FSelLonLat..GroupBox2..lat_ns..Font.Name
-#: USelLonLat.dfm:275
-#. FSelLonLat..GroupBox2..Lon_we..Font.Name
-#: USelLonLat.dfm:302
-#. FSettings..PageControl1..TabSheet3..GroupBox5..pnlHotKeysHeader..Label40..Font.Name
-#: Usettings.dfm:880
-#. FSettings..PageControl1..TabSheet3..GroupBox5..pnlHotKeysHeader..Label55..Font.Name
-#: Usettings.dfm:896
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..lat_ns..Font.Name
-#: Usettings.dfm:1879
-#. FSettings..PageControl1..TabSheet5..pnlGpsRight..GroupBox2..Lon_we..Font.Name
-#: Usettings.dfm:1906
-#. FShortcutChange..Font.Name
-#: UShortcutEditor.dfm:12
 msgid "Tahoma"
 msgstr ""
 
-#  Doesn't look like text
-#. FaddLine..TBXToolbar1..Caption
-#: UaddLine.dfm:200
-#. FaddPoint..TBXToolbar1..Caption
-#: UaddPoint.dfm:452
-#. FAddPoly..TBXToolbar1..Caption
-#: UaddPoly.dfm:262
-msgid "TBXToolbar1"
+#  Seems like a Font.Name extract
+msgid "Arial"
 msgstr ""
 
 #  Doesn't look like text
-#. Programmer's name for it: SAS_UNITS_km2
-#: UResStrings.pas:135
-msgid "км2"
+msgid " Embedded Web Browser from: http://bsalsa.com/"
 msgstr ""
 
 #  Doesn't look like text
-#. Programmer's name for it: SAS_UNITS_m2
-#: UResStrings.pas:134
-msgid "м2"
+msgid "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR "
+"2.0.50727)"
 msgstr ""
 
+#  Doesn't look like text
+msgid " EmbeddedWB http://bsalsa.com/"
+msgstr ""
+
+#  Doesn't look like text
+msgid "&u&b&d"
+msgstr ""
+
+#  Doesn't look like text
+msgid "&w&bPage &p of &P"
+msgstr ""
+
+#  Doesn't look like text
+msgid "<HTML></HTML>"
+msgstr ""
+
+#  Doesn't look like text
+msgid "TLinearResampler"
+msgstr ""
+
+#  Doesn't look like text
+msgid "TNearestResampler"
+msgstr ""
