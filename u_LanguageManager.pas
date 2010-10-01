@@ -49,10 +49,12 @@ implementation
 uses
   SysUtils,
   Forms,
-  EmbeddedWB,
+  Dialogs,
   Controls,
   ActnList,
   Graphics,
+  GR32,
+  EmbeddedWB,
   gnugettext,
   u_JclNotify,
   u_CommonFormAndFrameParents;
@@ -255,6 +257,11 @@ begin
   TP_GlobalIgnoreClassProperty(TControl,'HelpKeyword');
   TP_GlobalIgnoreClassProperty(TWinControl,'ImeName');
   TP_GlobalIgnoreClassProperty(TEmbeddedWB,'StatusText');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'UserAgent');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'About');
+  TP_GlobalIgnoreClassProperty(TOpenDialog,'DefaultExt');
+  TP_GlobalIgnoreClassProperty(TCustomBitmap32,'ResamplerClassName');
+
 end;
 
 end.
