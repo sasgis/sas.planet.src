@@ -7,15 +7,14 @@ uses
   SysUtils,
   Forms,
   Classes,
-  Mask,
   StdCtrls,
   Controls,
   rxToolEdit,
-  rxCurrEdit,
   t_GeoTypes,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
-  Ugeofun;
+  fr_LonLat,
+  ExtCtrls;
 
 type
 
@@ -29,20 +28,12 @@ type
     RB2: TRadioButton;
     EditGF: TEdit;
     GroupBox1: TGroupBox;
-    Label21: TLabel;
-    Label22: TLabel;
-    lat_ns: TComboBox;
-    Lon_we: TComboBox;
-    lat2: TCurrencyEdit;
-    lat3: TCurrencyEdit;
-    lon1: TCurrencyEdit;
-    lon2: TCurrencyEdit;
-    lon3: TCurrencyEdit;
-    Lat1: TCurrencyEdit;
     CBzoom: TComboBox;
     RB4: TRadioButton;
     ComboBox1: TComboBox;
     btnCancel: TButton;
+    pnlBottomButtons: TPanel;
+    pnlLonLat: TPanel;
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BGoClick(Sender: TObject);
@@ -54,9 +45,13 @@ type
   private
     FResult: IGeoCodeResult;
     Fzoom: Byte;
+    frLonLatPoint: TfrLonLat;
     function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TExtendedPoint; AMessage: WideString): IGeoCodeResult;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
+    procedure RefreshTranslation; override;
   end;
 
 
@@ -78,8 +73,9 @@ uses
 
 procedure TFGoTo.FormActivate(Sender: TObject);
 begin
- if not(sender is TForm) then exit;
- CBzoom.ItemIndex:=GState.ViewState.GetCurrentZoom;
+  if not(sender is TForm) then exit;
+  CBzoom.ItemIndex:=GState.ViewState.GetCurrentZoom;
+  frLonLatPoint.LonLat := GState.ViewState.GetCenterLonLat;
 end;
 
 procedure TFGoTo.FormShow(Sender: TObject);
@@ -102,8 +98,8 @@ end;
 procedure TFGoTo.FormClose(Sender: TObject; var Action: TCloseAction);
 var i:integer;
 begin
- for i:=1 to ComboBox1.items.Count do ComboBox1.Items.Objects[i-1].Free;
- ComboBox1.Clear;
+  for i:=1 to ComboBox1.items.Count do ComboBox1.Items.Objects[i-1].Free;
+  ComboBox1.Clear;
 end;
 
 procedure TFGoTo.BGoClick(Sender: TObject);
@@ -129,9 +125,8 @@ begin
       ModalResult := mrCancel;
     end;
   end else if RB1.Checked then begin
-    VLonLat.X := DMS2G(lon1.Value,lon2.Value,lon3.Value,Lon_we.ItemIndex=1);
-    VLonLat.Y := DMS2G(lat1.Value,lat2.Value,lat3.Value,Lat_ns.ItemIndex=1);
-    textsrch := lon2str(VLonLat.X, GState.llStrType) + ' ' + lat2str(VLonLat.Y, GState.llStrType);
+    VLonLat := frLonLatPoint.LonLat;
+    textsrch := lat2str(VLonLat.Y, GState.llStrType) + ' ' + lon2str(VLonLat.X, GState.llStrType);
     FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
     ModalResult := mrOk;
   end else if RB2.Checked then begin
@@ -148,6 +143,12 @@ end;
 procedure TFGoTo.lat_nsClick(Sender: TObject);
 begin
   RB1.Checked:=true;
+end;
+
+procedure TFGoTo.RefreshTranslation;
+begin
+  inherited;
+  frLonLatPoint.RefreshTranslation;
 end;
 
 function TFGoTo.ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
@@ -176,6 +177,19 @@ end;
 procedure TFGoTo.ComboBox1Enter(Sender: TObject);
 begin
  if (not(RB3.Checked)) then RB3.Checked:=true;
+end;
+
+constructor TFGoTo.Create(AOwner: TComponent);
+begin
+  inherited;
+  frLonLatPoint := TfrLonLat.Create(nil);
+  frLonLatPoint.Parent := pnlLonLat;
+end;
+
+destructor TFGoTo.Destroy;
+begin
+  FreeAndNil(frLonLatPoint);
+  inherited;
 end;
 
 end.

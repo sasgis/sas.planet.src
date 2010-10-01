@@ -1,17 +1,18 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 266
-  Height = 44
+  Width = 270
+  Height = 40
   VertScrollBar.Visible = False
   Align = alClient
   TabOrder = 0
-  ExplicitWidth = 278
+  ExplicitWidth = 451
+  ExplicitHeight = 304
   object grdpnlMain: TGridPanel
     Left = 0
     Top = 0
-    Width = 266
-    Height = 44
+    Width = 270
+    Height = 40
     Align = alClient
     BevelOuter = bvNone
     ColumnCollection = <
@@ -51,18 +52,19 @@ object frLonLat: TfrLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 0
-    ExplicitWidth = 231
-    ExplicitHeight = 47
+    ExplicitWidth = 451
+    ExplicitHeight = 304
     DesignSize = (
-      266
-      44)
+      270
+      40)
     object lblLat: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 41
-      Height = 13
-      Alignment = taCenter
+      Width = 87
+      Height = 14
+      Align = alClient
+      Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -73,9 +75,11 @@ object frLonLat: TfrLonLat
       ParentColor = False
       ParentFont = False
       Layout = tlCenter
+      ExplicitWidth = 41
+      ExplicitHeight = 13
     end
     object flwpnlLat: TFlowPanel
-      Left = 89
+      Left = 93
       Top = 0
       Width = 177
       Height = 21
@@ -84,8 +88,8 @@ object frLonLat: TfrLonLat
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 103
-      ExplicitTop = 1
+      ExplicitLeft = 274
+      ExplicitTop = 65
       DesignSize = (
         177
         21)
@@ -172,10 +176,11 @@ object frLonLat: TfrLonLat
     object lblLon: TLabel
       AlignWithMargins = True
       Left = 3
-      Top = 25
-      Width = 46
-      Height = 13
-      Alignment = taCenter
+      Top = 23
+      Width = 87
+      Height = 14
+      Align = alClient
+      Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Color = clBtnFace
       Font.Charset = RUSSIAN_CHARSET
@@ -186,10 +191,13 @@ object frLonLat: TfrLonLat
       ParentColor = False
       ParentFont = False
       Layout = tlCenter
+      ExplicitTop = 25
+      ExplicitWidth = 46
+      ExplicitHeight = 13
     end
     object flwpnlLon: TFlowPanel
-      Left = 89
-      Top = 22
+      Left = 93
+      Top = 20
       Width = 177
       Height = 21
       Anchors = []
@@ -197,8 +205,8 @@ object frLonLat: TfrLonLat
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 18
-      ExplicitTop = 137
+      ExplicitLeft = 274
+      ExplicitTop = 217
       object cbbLonWE: TComboBox
         Left = 0
         Top = 0
