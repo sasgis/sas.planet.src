@@ -5,6 +5,7 @@ interface
 uses
   Types,
   u_JclNotify,
+  i_ICoordConverter,
   UMapType,
   i_IPosChangeMessage;
 
@@ -14,23 +15,43 @@ type
     FMap: TMapType;
     FZoom: Byte;
     FMapPixel: TPoint;
+    FViewSize: TPoint;
+    FCoordConverter: ICoordConverter;
     function GetMap: TMapType; stdcall;
     function GetZoom: Byte; stdcall;
     function GetMapPixel: TPoint; stdcall;
+    function GetViewSize: TPoint; stdcall;
+    function GetCoordConverter: ICoordConverter; stdcall;
   public
-    constructor Create(AMap: TMapType; AZoom: Byte; AMapPixel: TPoint);
+    constructor Create(
+      AViewSize: TPoint;
+      ACoordConverter: ICoordConverter;
+      AMap: TMapType;
+      AZoom: Byte;
+      AMapPixel: TPoint
+    );
   end;
 
 implementation
 
 { TPosChangeMessage }
 
-constructor TPosChangeMessage.Create(AMap: TMapType; AZoom: Byte;
+constructor TPosChangeMessage.Create(
+  AViewSize: TPoint;
+  ACoordConverter: ICoordConverter;
+  AMap: TMapType; AZoom: Byte;
   AMapPixel: TPoint);
 begin
+  FViewSize := AViewSize;
+  FCoordConverter := ACoordConverter;
   FMap := AMap;
   FZoom := AZoom;
   FMapPixel := AMapPixel;
+end;
+
+function TPosChangeMessage.GetCoordConverter: ICoordConverter;
+begin
+  Result := FCoordConverter;
 end;
 
 function TPosChangeMessage.GetMap: TMapType;
@@ -41,6 +62,11 @@ end;
 function TPosChangeMessage.GetMapPixel: TPoint;
 begin
   Result := FMapPixel;
+end;
+
+function TPosChangeMessage.GetViewSize: TPoint;
+begin
+  Result := FViewSize;
 end;
 
 function TPosChangeMessage.GetZoom: Byte;

@@ -712,7 +712,13 @@ var
 begin
   FSync.BeginRead;
   try
-    VMessage := TPosChangeMessage.Create(InternalGetCurrentMap, FZoom, FCenterPos);
+    VMessage := TPosChangeMessage.Create(
+      FViewSize,
+      InternalGetCurrentCoordConverter,
+      InternalGetCurrentMap,
+      FZoom,
+      FCenterPos
+    );
   finally
     FSync.EndRead;
   end;
