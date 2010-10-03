@@ -70,6 +70,7 @@
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
     <DCCReference Include="i_IConfigDataProvider.pas" />
+    <DCCReference Include="i_IConfigDataWriteProvider.pas" />
     <DCCReference Include="i_ICoordConverter.pas" />
     <DCCReference Include="i_IGPSRecorder.pas" />
     <DCCReference Include="i_IHybrChangeMessage.pas" />

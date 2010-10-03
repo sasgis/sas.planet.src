@@ -31,6 +31,7 @@ uses
   UResStrings in 'UResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   i_IConfigDataProvider in 'i_IConfigDataProvider.pas',
+  i_IConfigDataWriteProvider in 'i_IConfigDataWriteProvider.pas',
   u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
   u_ConfigDataProviderByIniFileSection in 'u_ConfigDataProviderByIniFileSection.pas',
