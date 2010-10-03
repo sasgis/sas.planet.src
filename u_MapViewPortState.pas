@@ -285,6 +285,7 @@ begin
     FSync.EndWrite;
   end;
   if VChanged then begin
+    NotifyChangePos;
     NotifyChangeViewSize;
   end;
 end;
