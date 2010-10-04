@@ -255,7 +255,7 @@ procedure TFSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
     GState.SaveMaps;
-    GState.ViewState.SaveViewPortState;
+    GState.ViewState.SaveViewPortState(AProvider);
     GState.SaveMainParams;
     Fmain.ShortCutManager.Save(GState.MainIni, 'HOTKEY');
     Fmain.SaveWindowConfigToIni(AProvider);

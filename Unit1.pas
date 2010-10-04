@@ -1561,7 +1561,7 @@ begin
     FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
-    GState.ViewState.LoadViewPortState;
+    GState.ViewState.LoadViewPortState(nil);
     ProgramStart:=false;
 
 

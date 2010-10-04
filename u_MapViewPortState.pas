@@ -9,6 +9,8 @@ uses
   t_GeoTypes,
   i_ICoordConverter,
   i_IActiveMapsConfig,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   i_ActiveMapsConfigSaveLoad,
   i_MapTypes,
   UMapType;
@@ -90,8 +92,8 @@ type
     property HybrList: IMapTypeList read GetHybrList;
     property HybrChangeNotifier: IJclNotifier read GetHybrChangeNotifier;
 
-    procedure SaveViewPortState;
-    procedure LoadViewPortState;
+    procedure SaveViewPortState(AProvider: IConfigDataWriteProvider);
+    procedure LoadViewPortState(AProvider: IConfigDataProvider);
   end;
 
 implementation
@@ -776,7 +778,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.LoadViewPortState;
+procedure TMapViewPortState.LoadViewPortState(AProvider: IConfigDataProvider);
 var
   VMapConfigLoader: IActiveMapsConfigLoader;
 begin
@@ -788,7 +790,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.SaveViewPortState;
+procedure TMapViewPortState.SaveViewPortState(AProvider: IConfigDataWriteProvider);
 var
   VMapConfigSaver: IActiveMapsConfigSaver;
 begin
