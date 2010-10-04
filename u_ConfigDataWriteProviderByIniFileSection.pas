@@ -14,6 +14,7 @@ type
     function GetOrCreateSubItem(const AIdent: string): IConfigDataWriteProvider;
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
+    procedure DeleteValues;
     procedure WriteBinaryStream(const AIdent: string; AValue: TStream);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
@@ -41,6 +42,11 @@ procedure TConfigDataWriteProviderByIniFileSection.DeleteValue(
   const AIdent: string);
 begin
   FIniFile.DeleteKey(FSection, AIdent);
+end;
+
+procedure TConfigDataWriteProviderByIniFileSection.DeleteValues;
+begin
+  FIniFile.EraseSection(FSection);
 end;
 
 function TConfigDataWriteProviderByIniFileSection.GetOrCreateSubItem(

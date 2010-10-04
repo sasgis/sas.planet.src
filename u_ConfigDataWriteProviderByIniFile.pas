@@ -14,6 +14,7 @@ type
     function GetOrCreateSubItem(const AIdent: string): IConfigDataWriteProvider;
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
+    procedure DeleteValues;
     procedure WriteBinaryStream(const AIdent: string; AValue: TStream);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
@@ -40,6 +41,11 @@ begin
 end;
 
 procedure TConfigDataWriteProviderByIniFile.DeleteValue(const AIdent: string);
+begin
+  raise Exception.Create('Not expected');
+end;
+
+procedure TConfigDataWriteProviderByIniFile.DeleteValues;
 begin
   raise Exception.Create('Not expected');
 end;
