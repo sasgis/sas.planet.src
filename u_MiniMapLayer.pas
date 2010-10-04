@@ -20,7 +20,9 @@ uses
   i_IActiveMapsConfig,
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
-  i_ActiveMapsConfigSaveLoad,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
+  u_MapViewPortState,
   UMapType,
   u_MapLayerBasic;
 
@@ -96,11 +98,12 @@ type
     procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
     procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure Show; override;
     procedure Hide; override;
-    procedure WriteIni;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
   end;
 
 implementation
@@ -113,6 +116,7 @@ uses
   u_JclNotify,
   i_ICoordConverter,
   Uimgfun,
+  i_ActiveMapsConfigSaveLoad,
   u_GlobalState,
   u_WindowLayerBasic,
   u_MapTypeMenuItemsGeneratorBasic,
@@ -182,7 +186,7 @@ end;
 
 { TMapMainLayer }
 
-constructor TMiniMapLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 var
   VFactory: IMapTypeListFactory;
   VMapConfigLoader: IActiveMapsConfigLoader;
@@ -244,21 +248,6 @@ begin
   inherited;
 end;
 
-procedure TMiniMapLayer.WriteIni;
-var
-  VMapConfigSaver: IActiveMapsConfigSaver;
-begin
-  VMapConfigSaver := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
-  try
-    GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
-    GState.MainIni.WriteInteger('MINIMAP', 'Height', FBitmapSize.Y);
-    GState.MainIni.WriteInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
-    VMapConfigSaver.Save(FMapsActive);
-  finally
-    VMapConfigSaver := nil;
-  end;
-end;
-
 procedure TMiniMapLayer.CreateLayers;
 begin
   FLeftBorder := TBitmapLayer.Create(FParentMap.Layers);
@@ -317,6 +306,12 @@ begin
   FPlusButton.Bitmap.DrawMode := dmTransparent;
   GState.LoadBitmapFromRes('ICONII', FMinusButton.Bitmap);
   FMinusButton.Bitmap.DrawMode := dmTransparent;
+end;
+
+procedure TMiniMapLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+begin
+  inherited;
+
 end;
 
 procedure TMiniMapLayer.BuildPopUpMenu;
@@ -392,6 +387,22 @@ begin
   FMapsActive.SelectMapByGUID(CGUID_Zero);
 end;
 
+
+procedure TMiniMapLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VMapConfigSaver: IActiveMapsConfigSaver;
+begin
+  inherited;
+  GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
+  GState.MainIni.WriteInteger('MINIMAP', 'Height', FBitmapSize.Y);
+  GState.MainIni.WriteInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
+  VMapConfigSaver := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
+  try
+    VMapConfigSaver.Save(FMapsActive);
+  finally
+    VMapConfigSaver := nil;
+  end;
+end;
 
 function TMiniMapLayer.BitmapPixel2MapPixel(
   Pnt: TExtendedPoint): TExtendedPoint;

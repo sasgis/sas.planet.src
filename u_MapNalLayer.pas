@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
@@ -33,7 +34,7 @@ type
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure DrawNothing;
     procedure DrawSelectionRect(ASelectedLonLat: TExtendedRect);
@@ -57,7 +58,7 @@ uses
 
 { TMapNalLayer }
 
-constructor TMapNalLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TMapNalLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   inherited;
   FPolyPointColor := SetAlpha(clYellow32, 150);

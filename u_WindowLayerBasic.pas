@@ -8,6 +8,9 @@ uses
   GR32_Image,
   GR32_Layers,
   t_GeoTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
+  u_MapViewPortState,
   u_BitmapLayerWithSortIndex;
 
 type
@@ -15,16 +18,18 @@ type
   protected
     FParentMap: TImage32;
     FLayer: TBitmapLayerWithSortIndex;
-{
- »спользуемые системы координат:
- VisualPixel - координаты в пикселах компонента ParentMap
- BitmapPixel - координаты в пикселах битмапа текущего сло€
-}
+
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
     // ¬ наследниках нужно перекрывать если уровень сло€ выше чем бекграунд.
     function GetSortIndexForLayer: Integer; virtual;
+
+{
+ »спользуемые системы координат:
+ VisualPixel - координаты в пикселах компонента ParentMap
+ BitmapPixel - координаты в пикселах битмапа текущего сло€
+}
 
     // ѕолучает размер отображаемого изображени€. ѕо сути коордниаты картинки в системе VisualPixel
     function GetVisibleSizeInPixel: TPoint; virtual;
@@ -51,7 +56,9 @@ type
     procedure DoRedraw; virtual; abstract;
     procedure DoResize; virtual;
   public
-    constructor Create(AParentMap: TImage32);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
     procedure Resize; virtual;
     procedure Show; virtual;
     procedure Hide; virtual;
@@ -66,7 +73,7 @@ uses
   Forms,
   Types;
 
-constructor TWindowLayerBasic.Create(AParentMap: TImage32);
+constructor TWindowLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   FParentMap := AParentMap;
   FLayer := TBitmapLayerWithSortIndex.Create(FParentMap.Layers, GetSortIndexForLayer);
@@ -94,11 +101,22 @@ begin
   end;
 end;
 
+procedure TWindowLayerBasic.LoadConfig(AConfigProvider: IConfigDataProvider);
+begin
+  // ѕо умолчанию ничего не делаем
+end;
+
 procedure TWindowLayerBasic.Resize;
 begin
   if FLayer.Visible then begin
     DoResize;
   end;
+end;
+
+procedure TWindowLayerBasic.SaveConfig(
+  AConfigProvider: IConfigDataWriteProvider);
+begin
+  // ѕо умолчанию ничего не делаем
 end;
 
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);

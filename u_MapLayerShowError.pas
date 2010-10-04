@@ -6,6 +6,7 @@ uses
   Windows,
   GR32,
   GR32_Image,
+  u_MapViewPortState,
   UMapType,
   u_MapLayerBasic;
 
@@ -23,7 +24,7 @@ type
     function GetBitmapSizeInPixel: TPoint; override;
     function GetScreenCenterInBitmapPixels: TPoint; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure ShowError(APoint: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
   end;
 
@@ -37,9 +38,9 @@ uses
 { TTileErrorInfoLayer }
 
 constructor TTileErrorInfoLayer.Create(AParentMap: TImage32;
-  ACenter: TPoint);
+  AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
   FBitmapSize.X := 256;
   FBitmapSize.Y := 100;
 end;

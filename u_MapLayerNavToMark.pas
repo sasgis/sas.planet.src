@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
@@ -20,7 +21,7 @@ type
     function GetBitmapSizeInPixel: TPoint; override;
     function GetScreenCenterInBitmapPixels: TPoint; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure StartNav(APoint: TExtendedPoint; Aid: integer);
     function GetDistToMark: Double;
@@ -40,13 +41,13 @@ uses
 
 { TNavToMarkLayer }
 
-constructor TNavToMarkLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TNavToMarkLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 var
   VSize: TPoint;
   Polygon: TPolygon32;
   dl: integer;
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
   FArrowBitmap := TCustomBitmap32.Create;
   VSize := GetBitmapSizeInPixel;
   FArrowBitmap.SetSize(VSize.X, VSize.Y);

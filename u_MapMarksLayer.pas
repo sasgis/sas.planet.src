@@ -7,6 +7,7 @@ uses
   GR32_Image,
   GR32_Polygons,
   t_GeoTypes,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
@@ -25,7 +26,7 @@ type
     procedure DrawMarks;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
   end;
 
@@ -52,9 +53,9 @@ uses
 
 { TMapMarksLayer }
 
-constructor TMapMarksLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TMapMarksLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
   FLayer.Bitmap.Font.Name := 'Tahoma';
   FLayer.Bitmap.Font.Style := [];
   FTempBmp := TCustomBitmap32.Create;

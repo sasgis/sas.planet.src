@@ -14,6 +14,7 @@ uses
   t_GeoTypes,
   i_ICoordConverter,
   i_JclNotify,
+  u_MapViewPortState,
   u_MapLayerBasic,
   uMapType;
 
@@ -27,7 +28,7 @@ type
     FMainMapChangeListener: IJclListener;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
@@ -100,9 +101,9 @@ type
 
 { TFillingMapLayer }
 
-constructor TMapFillingLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TMapFillingLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
   FLayer.Bitmap.DrawMode := dmBlend;
   FThread := TMapFillingThread.Create(Self);
   FMainMapChangeListener := TFillingMapMainMapChangeListener.Create(Self);

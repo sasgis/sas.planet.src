@@ -6,22 +6,32 @@ uses
   IniFiles,
   i_IGUIDList,
   i_IActiveMapsConfig,
+  i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_ActiveMapsConfigSaveLoad;
 
 type
-  TMapsConfigByConfigDataProvider = class(TInterfacedObject, IActiveMapsConfigSaver, IActiveMapsConfigLoader)
+  TMapsConfigLoaderByConfigDataProvider = class(TInterfacedObject, IActiveMapsConfigLoader)
   protected
-    FProvider: IConfigDataWriteProvider;
-    procedure SaveMap(AConfig: IActiveMapWithHybrConfig);
-    procedure SaveHybrids(AConfig: IActiveMapWithHybrConfig);
+    FProvider: IConfigDataProvider;
     procedure LoadMap(AConfig: IActiveMapWithHybrConfig);
     procedure LoadHybrids(AConfig: IActiveMapWithHybrConfig);
     procedure LoadHybridGUIDs(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
     procedure LoadHybridByList(AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
   protected
-    procedure Save(AConfig: IActiveMapWithHybrConfig);
     procedure Load(AConfig: IActiveMapWithHybrConfig);
+  public
+    constructor Create(AProvider: IConfigDataProvider);
+    destructor Destroy; override;
+  end;
+
+  TMapsConfigSaverByConfigDataProvider = class(TInterfacedObject, IActiveMapsConfigSaver)
+  protected
+    FProvider: IConfigDataWriteProvider;
+    procedure SaveMap(AConfig: IActiveMapWithHybrConfig);
+    procedure SaveHybrids(AConfig: IActiveMapWithHybrConfig);
+  protected
+    procedure Save(AConfig: IActiveMapWithHybrConfig);
   public
     constructor Create(AProvider: IConfigDataWriteProvider);
     destructor Destroy; override;
@@ -43,26 +53,26 @@ const
 
 { TMapsConfigByConfigDataProvider }
 
-constructor TMapsConfigByConfigDataProvider.Create(
-  AProvider: IConfigDataWriteProvider);
+constructor TMapsConfigLoaderByConfigDataProvider.Create(
+  AProvider: IConfigDataProvider);
 begin
   FProvider := AProvider;
 end;
 
-destructor TMapsConfigByConfigDataProvider.Destroy;
+destructor TMapsConfigLoaderByConfigDataProvider.Destroy;
 begin
   FProvider := nil;
   inherited;
 end;
 
-procedure TMapsConfigByConfigDataProvider.Load(
+procedure TMapsConfigLoaderByConfigDataProvider.Load(
   AConfig: IActiveMapWithHybrConfig);
 begin
   LoadMap(AConfig);
   LoadHybrids(AConfig);
 end;
 
-procedure TMapsConfigByConfigDataProvider.LoadHybridByList(
+procedure TMapsConfigLoaderByConfigDataProvider.LoadHybridByList(
   AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
 var
   VEnum: IEnumGUID;
@@ -79,7 +89,7 @@ begin
   end;
 end;
 
-procedure TMapsConfigByConfigDataProvider.LoadHybridGUIDs(
+procedure TMapsConfigLoaderByConfigDataProvider.LoadHybridGUIDs(
   AConfig: IActiveMapWithHybrConfig; AGUIDList: IGUIDInterfaceList);
 var
   VList: TStringList;
@@ -118,7 +128,7 @@ begin
   end;
 end;
 
-procedure TMapsConfigByConfigDataProvider.LoadHybrids(
+procedure TMapsConfigLoaderByConfigDataProvider.LoadHybrids(
   AConfig: IActiveMapWithHybrConfig);
 var
   VGUIDList: IGUIDInterfaceList;
@@ -129,7 +139,7 @@ begin
   VGUIDList := nil;
 end;
 
-procedure TMapsConfigByConfigDataProvider.LoadMap(
+procedure TMapsConfigLoaderByConfigDataProvider.LoadMap(
   AConfig: IActiveMapWithHybrConfig);
 var
   VGUIDString: string;
@@ -148,7 +158,19 @@ begin
   AConfig.SelectMapByGUID(VGUID);
 end;
 
-procedure TMapsConfigByConfigDataProvider.Save(
+constructor TMapsConfigSaverByConfigDataProvider.Create(
+  AProvider: IConfigDataWriteProvider);
+begin
+  FProvider := AProvider;
+end;
+
+destructor TMapsConfigSaverByConfigDataProvider.Destroy;
+begin
+  FProvider := nil;
+  inherited;
+end;
+
+procedure TMapsConfigSaverByConfigDataProvider.Save(
   AConfig: IActiveMapWithHybrConfig);
 begin
   FProvider.DeleteValues;
@@ -156,7 +178,7 @@ begin
   SaveHybrids(AConfig);
 end;
 
-procedure TMapsConfigByConfigDataProvider.SaveHybrids(
+procedure TMapsConfigSaverByConfigDataProvider.SaveHybrids(
   AConfig: IActiveMapWithHybrConfig);
 var
   VEnum: IEnumGUID;
@@ -176,7 +198,7 @@ begin
   end;
 end;
 
-procedure TMapsConfigByConfigDataProvider.SaveMap(
+procedure TMapsConfigSaverByConfigDataProvider.SaveMap(
   AConfig: IActiveMapWithHybrConfig);
 var
   VGUIDString: string;

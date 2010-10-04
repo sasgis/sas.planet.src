@@ -12,6 +12,7 @@ uses
   UMapType,
   u_MapLayerBasic,
   t_GeoTypes,
+  u_MapViewPortState,
   u_KmlInfoSimple;
 
 type
@@ -36,7 +37,7 @@ type
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType);
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
   end;
@@ -126,9 +127,9 @@ begin
   FWikiLayerElments := nil;
 end;
 
-constructor TWikiLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
   FLayer.Bitmap.DrawMode := dmTransparent;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 

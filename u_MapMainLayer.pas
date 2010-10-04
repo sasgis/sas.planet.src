@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  u_MapViewPortState,
   UMapType,
   u_MapLayerBasic;
 
@@ -19,7 +20,7 @@ type
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
   end;
 
@@ -42,9 +43,9 @@ uses
 
 { TMapMainLayer }
 
-constructor TMapMainLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TMapMainLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
 end;
 
 destructor TMapMainLayer.Destroy;

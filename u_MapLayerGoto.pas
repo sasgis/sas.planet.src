@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
@@ -20,7 +21,7 @@ type
     function GetBitmapSizeInPixel: TPoint; override;
     function GetScreenCenterInBitmapPixels: TPoint; override;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure ShowGotoIcon(APoint: TExtendedPoint);
   end;
 
@@ -34,9 +35,9 @@ uses
 
 { TGotoLayer }
 
-constructor TGotoLayer.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TGotoLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap, ACenter);
+  inherited;
   FBitmapSize.X := GState.GOToSelIcon.Width;
   FBitmapSize.Y := GState.GOToSelIcon.Height;
 end;

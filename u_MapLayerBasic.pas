@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Image,
   i_ICoordConverter,
+  u_MapViewPortState,
   u_WindowLayerBasic,
   t_GeoTypes;
 
@@ -43,7 +44,7 @@ type
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
   public
-    constructor Create(AParentMap: TImage32; ACenter: TPoint);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure Redraw; override;
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload; virtual;
@@ -64,10 +65,10 @@ uses
 
 { TGPSTrackLayer }
 
-constructor TMapLayerBasic.Create(AParentMap: TImage32; ACenter: TPoint);
+constructor TMapLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap);
-  FScreenCenterPos := ACenter;
+  inherited;
+  FScreenCenterPos := AViewPortState.GetCenterMapPixel;
 end;
 
 function TMapLayerBasic.IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;

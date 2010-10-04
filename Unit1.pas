@@ -53,6 +53,8 @@ uses
   i_IHybrChangeMessage,
   i_IPosChangeMessage,
   t_LoadEvent,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_GeoToStr,
   t_CommonTypes,
   i_IGPSRecorder,
@@ -619,7 +621,7 @@ type
     procedure SetMiniMapVisible(visible: boolean);
     procedure UpdateGPSsensors;
     procedure CopyStringToClipboard(s: Widestring);
-    procedure SaveWindowConfigToIni;
+    procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
   end;
 
 
@@ -1470,20 +1472,20 @@ begin
     Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
 
-    FMainLayer := TMapMainLayer.Create(map, VScreenCenterPos);
-    FWikiLayer := TWikiLayer.Create(map, VScreenCenterPos);
-    FFillingMap:=TMapFillingLayer.create(map, VScreenCenterPos);
-    LayerMapMarks:= TMapMarksLayer.Create(map, VScreenCenterPos);
-    LayerMapGPS:= TMapGPSLayer.Create(map, VScreenCenterPos);
-    LayerSelection := TSelectionLayer.Create(map, VScreenCenterPos);
-    LayerMapNal:=TMapNalLayer.Create(map, VScreenCenterPos);
-    LayerGoto := TGotoLayer.Create(map, VScreenCenterPos);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, VScreenCenterPos);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, VScreenCenterPos);
-    LayerMapScale := TCenterScale.Create(map);
-    LayerScaleLine := TLayerScaleLine.Create(map);
-    LayerStatBar:=TLayerStatBar.Create(map);
-    FMiniMapLayer := TMiniMapLayer.Create(map, VScreenCenterPos);
+    FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
+    FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
+    FFillingMap:=TMapFillingLayer.create(map, GState.ViewState);
+    LayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
+    LayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
+    LayerSelection := TSelectionLayer.Create(map, GState.ViewState);
+    LayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
+    LayerGoto := TGotoLayer.Create(map, GState.ViewState);
+    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
+    LayerMapScale := TCenterScale.Create(map, GState.ViewState);
+    LayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
+    LayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
+    FMiniMapLayer := TMiniMapLayer.Create(map, GState.ViewState);
 
     CreateMapUI;
     FSettings.InitMapsList;
@@ -1754,7 +1756,7 @@ begin
       TerminateThread(FUIDownLoader.Handle, 0);
     end;
   end;
-  if length(GState.MapType)<>0 then FSettings.Save;
+  if length(GState.MapType)<>0 then FSettings.Save(nil);
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;
@@ -3913,7 +3915,7 @@ begin
   GState.AnimateZoom := Nanimate.Checked;
 end;
 
-procedure TFmain.SaveWindowConfigToIni;
+procedure TFmain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
 var
   lock_tb_b:boolean;
 begin
@@ -3929,7 +3931,7 @@ begin
   GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
   GState.MainIni.Writebool('VIEW','showscale', LayerMapScale.Visible);
   GState.MainIni.Writebool('VIEW','showselection', LayerSelection.Visible);
-  FMiniMapLayer.WriteIni;
+  FMiniMapLayer.SaveConfig(AProvider);
 
   GState.MainIni.Writeinteger('VIEW','MapZap', FFillingMap.SourceZoom);
   if FFillingMap.SourceSelected=nil then begin

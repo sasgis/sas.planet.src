@@ -23,6 +23,7 @@ uses
   ZylGPSReceiver,
   rxToolEdit,
   u_CommonFormAndFrameParents,
+  i_IConfigDataWriteProvider,
   fr_ShortCutList,
   UMapType,
   UResStrings;
@@ -228,7 +229,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Save;
+    procedure Save(AProvider: IConfigDataWriteProvider);
     procedure InitMapsList;
     procedure RefreshTranslation; override;
   end;
@@ -250,14 +251,14 @@ uses
 
 {$R *.dfm}
 
-procedure TFSettings.Save;
+procedure TFSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
     GState.SaveMaps;
     GState.ViewState.SaveViewPortState;
     GState.SaveMainParams;
     Fmain.ShortCutManager.Save(GState.MainIni, 'HOTKEY');
-    Fmain.SaveWindowConfigToIni;
+    Fmain.SaveWindowConfigToIni(AProvider);
     GState.MainIni.UpdateFile;
   except
   end;
@@ -387,7 +388,7 @@ begin
 
  SetProxy;
 
- save;
+ save(nil);
  if FMapsEdit then begin
    Fmain.CreateMapUI;
  end;

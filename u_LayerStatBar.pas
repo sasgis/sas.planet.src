@@ -7,6 +7,7 @@ uses
   Types,
   GR32_Image,
   t_GeoTypes,
+  u_MapViewPortState,
   u_WindowLayerBasic;
 
 type
@@ -18,7 +19,7 @@ type
     function GetTimeInLonLat(ALonLat: TExtendedPoint): TDateTime;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
 
 implementation
@@ -32,7 +33,6 @@ uses
   UTimeZones,
   Unit1,
   uMapType,
-  u_MapViewPortState,
   u_GlobalState;
 
 const
@@ -40,9 +40,9 @@ const
 
 { TLayerStatBar }
 
-constructor TLayerStatBar.Create(AParentMap: TImage32);
+constructor TLayerStatBar.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap);
+  inherited;
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
 end;

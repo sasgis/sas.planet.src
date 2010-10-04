@@ -5,6 +5,7 @@ interface
 uses
   Types,
   GR32_Image,
+  u_MapViewPortState,
   u_WindowLayerBasic;
 
 type
@@ -15,7 +16,7 @@ type
     function GetFreezePointInBitmapPixel: TPoint; override;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
 
 implementation
@@ -27,7 +28,6 @@ uses
   i_ICoordConverter,
   UResStrings,
   t_GeoTypes,
-  u_MapViewPortState,
   u_GlobalState;
 
 const
@@ -35,9 +35,9 @@ const
 
 { TLayerScaleLine }
 
-constructor TLayerScaleLine.Create(AParentMap: TImage32);
+constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited Create(AParentMap);
+  inherited;
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
 end;

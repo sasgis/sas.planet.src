@@ -5,6 +5,7 @@ interface
 uses
   Types,
   GR32_Image,
+  u_MapViewPortState,
   u_WindowLayerBasic;
 
 type
@@ -19,7 +20,7 @@ type
     function GetFreezePointInBitmapPixel: TPoint; override;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
 
 implementation
@@ -31,11 +32,11 @@ uses
 
 { TCenterScale }
 
-constructor TCenterScale.Create(AParentMap: TImage32);
+constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 var
 	 textWdth: integer;
 begin
-  inherited Create(AParentMap);
+  inherited;
   FRadius := 115;
   FDigitsOffset := 20;
   FFontSize := 12;
