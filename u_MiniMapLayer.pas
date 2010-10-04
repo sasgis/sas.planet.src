@@ -42,8 +42,6 @@ type
     FViewRectDrawLayer: TBitmapLayer;
     FPosMoved: Boolean;
     FViewRectMoveDelta: TPoint;
-    FMapConfigSaver: IActiveMapsConfigSaver;
-    FMapConfigLoader: IActiveMapsConfigLoader;
 
     FDefoultMap: TBitmap32;
     FBitmapSize: TPoint;
@@ -187,15 +185,11 @@ end;
 constructor TMiniMapLayer.Create(AParentMap: TImage32; ACenter: TPoint);
 var
   VFactory: IMapTypeListFactory;
-  VConfigLoadSave: TMapsConfigInIniFileSection;
+  VMapConfigLoader: IActiveMapsConfigLoader;
 begin
   inherited;
 
   FIconsList := GState.MapTypeIcons18List;
-
-  VConfigLoadSave := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
-  FMapConfigSaver := VConfigLoadSave;
-  FMapConfigLoader := VConfigLoadSave;
 
   FViewRectMoveDelta := Point(0, 0);
 
@@ -225,7 +219,12 @@ begin
 
   LoadBitmaps;
   BuildPopUpMenu;
-  FMapConfigLoader.Load(FMapsActive);
+  VMapConfigLoader := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
+  try
+    VMapConfigLoader.Load(FMapsActive);
+  finally
+    VMapConfigLoader := nil;
+  end;
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -234,8 +233,6 @@ begin
   FMapsActive.MapChangeNotifier.Remove(FMapChangeListener);
   FMapsActive.HybrChangeNotifier.Remove(FHybrChangeListener);
   GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
-  FMapConfigSaver := nil;
-  FMapConfigLoader := nil;
   FMapChangeListener := nil;
   FHybrChangeListener := nil;
   FMainMapChangeListener := nil;
@@ -248,11 +245,18 @@ begin
 end;
 
 procedure TMiniMapLayer.WriteIni;
+var
+  VMapConfigSaver: IActiveMapsConfigSaver;
 begin
-  GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
-  GState.MainIni.WriteInteger('MINIMAP', 'Height', FBitmapSize.Y);
-  GState.MainIni.WriteInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
-  FMapConfigSaver.Save(FMapsActive);
+  VMapConfigSaver := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
+  try
+    GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
+    GState.MainIni.WriteInteger('MINIMAP', 'Height', FBitmapSize.Y);
+    GState.MainIni.WriteInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
+    VMapConfigSaver.Save(FMapsActive);
+  finally
+    VMapConfigSaver := nil;
+  end;
 end;
 
 procedure TMiniMapLayer.CreateLayers;

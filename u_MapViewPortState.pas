@@ -24,8 +24,6 @@ type
     FWriteLocked: Boolean;
     FPosChangeNotifier: IJclNotifier;
     FViewSizeChangeNotifier: IJclNotifier;
-    FMapConfigSaver: IActiveMapsConfigSaver;
-    FMapConfigLoader: IActiveMapsConfigLoader;
     procedure NotifyChangePos;
     procedure NotifyChangeViewSize;
     function GetHybrChangeNotifier: IJclNotifier;
@@ -42,9 +40,7 @@ type
       AMainMap: TMapType;
       AZoom: Byte;
       ACenterPos: TPoint;
-      AScreenSize: TPoint;
-      AMapConfigSaver: IActiveMapsConfigSaver;
-      AMapConfigLoader: IActiveMapsConfigLoader
+      AScreenSize: TPoint
     );
     destructor Destroy; override;
 
@@ -102,7 +98,9 @@ implementation
 
 uses
   u_JclNotify,
+  u_GlobalState,
   u_ActiveMapWithHybrConfig,
+  u_MapsConfigInIniFileSection,
   u_PosChangeMessage;
 
 { TMapViewPortState }
@@ -113,9 +111,7 @@ constructor TMapViewPortState.Create(
   AMainMap: TMapType;
   AZoom: Byte;
   ACenterPos: TPoint;
-  AScreenSize: TPoint;
-  AMapConfigSaver: IActiveMapsConfigSaver;
-  AMapConfigLoader: IActiveMapsConfigLoader
+  AScreenSize: TPoint
 );
 var
   VConverter: ICoordConverter;
@@ -147,9 +143,6 @@ begin
     FViewSize.Y := 768;
   end;
 
-  FMapConfigSaver := AMapConfigSaver;
-  FMapConfigLoader := AMapConfigLoader;
-
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FWriteLocked := False;
 end;
@@ -161,8 +154,6 @@ begin
   FActiveMaps := nil;
   FPosChangeNotifier := nil;
   FViewSizeChangeNotifier := nil;
-  FMapConfigSaver := nil;
-  FMapConfigLoader := nil;
   inherited;
 end;
 
@@ -786,13 +777,27 @@ begin
 end;
 
 procedure TMapViewPortState.LoadViewPortState;
+var
+  VMapConfigLoader: IActiveMapsConfigLoader;
 begin
-  FMapConfigLoader.Load(FActiveMaps);
+  VMapConfigLoader := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MainViewMaps');
+  try
+    VMapConfigLoader.Load(FActiveMaps);
+  finally
+    VMapConfigLoader := nil;
+  end;
 end;
 
 procedure TMapViewPortState.SaveViewPortState;
+var
+  VMapConfigSaver: IActiveMapsConfigSaver;
 begin
-  FMapConfigSaver.Save(FActiveMaps);
+  VMapConfigSaver := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MainViewMaps');
+  try
+    VMapConfigSaver.Save(FActiveMaps);
+  finally
+    VMapConfigSaver := nil;
+  end;
 end;
 
 end.
