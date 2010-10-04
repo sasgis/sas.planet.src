@@ -258,6 +258,8 @@ end;
 procedure TMiniMapLayer.CreateLayers;
 begin
   FLeftBorder := TBitmapLayer.Create(FParentMap.Layers);
+  FLeftBorder.Visible := False;
+  FLeftBorder.MouseEvents := false;
   FLeftBorder.Cursor := crSizeNWSE;
   FLeftBorder.Bitmap.DrawMode := dmBlend;
   FLeftBorder.Bitmap.CombineMode := cmMerge;
@@ -267,11 +269,15 @@ begin
   FLeftBorderMoved := False;
 
   FTopBorder := TBitmapLayer.Create(FParentMap.Layers);
+  FTopBorder.Visible := False;
+  FTopBorder.MouseEvents := false;
   FTopBorder.Bitmap.DrawMode := dmBlend;
   FTopBorder.Bitmap.CombineMode := cmMerge;
 
 
   FViewRectDrawLayer := TBitmapLayer.Create(FParentMap.Layers);
+  FViewRectDrawLayer.Visible := False;
+  FViewRectDrawLayer.MouseEvents := false;
   FViewRectDrawLayer.Bitmap.DrawMode := dmBlend;
   FViewRectDrawLayer.Bitmap.CombineMode := cmMerge;
   FViewRectDrawLayer.OnMouseDown := LayerMouseDown;
@@ -279,6 +285,8 @@ begin
   FViewRectDrawLayer.OnMouseMove := LayerMouseMove;
 
   FPlusButton := TBitmapLayer.Create(FParentMap.Layers);
+  FPlusButton.Visible := False;
+  FPlusButton.MouseEvents := false;
   FPlusButton.Bitmap.DrawMode := dmBlend;
   FPlusButton.Bitmap.CombineMode := cmMerge;
   FPlusButton.OnMouseDown := PlusButtonMouseDown;
@@ -287,6 +295,8 @@ begin
   FPlusButtonPressed := False;
 
   FMinusButton := TBitmapLayer.Create(FParentMap.Layers);
+  FMinusButton.Visible := False;
+  FMinusButton.MouseEvents := false;
   FMinusButton.Bitmap.DrawMode := dmBlend;
   FMinusButton.Bitmap.CombineMode := cmMerge;
   FMinusButton.OnMouseDown := MinusButtonMouseDown;
