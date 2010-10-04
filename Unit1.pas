@@ -60,6 +60,7 @@ uses
   i_IGPSRecorder,
   i_GeoCoder,
   i_ISearchResultPresenter,
+  u_WindowLayerBasicList,
   Ugeofun,
   u_MapLayerWiki,
   ULogo,
@@ -570,6 +571,7 @@ type
     FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
 
     FShortCutManager: TShortcutManager;
+    FLayersList: TWindowLayerBasicList;
 
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
@@ -610,6 +612,7 @@ type
     property TileSource: TTileSource read FTileSource;
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
+    constructor Create(AOwner: TComponent); override;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
@@ -1238,6 +1241,12 @@ begin
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
+constructor TFmain.Create(AOwner: TComponent);
+begin
+  inherited;
+  FLayersList := TWindowLayerBasicList.Create;
+end;
+
 procedure TFmain.CreateMapUI;
 var
   i,j: integer;
@@ -1780,6 +1789,7 @@ begin
   FreeAndNil(FMainLayer);
   FreeAndNil(FMiniMapLayer);
   FreeAndNil(FShortCutManager);
+  FreeAndNil(FLayersList);
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;

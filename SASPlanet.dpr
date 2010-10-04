@@ -127,6 +127,7 @@ uses
   i_IBitmapLayerProvider in 'i_IBitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
   u_WindowLayerBasic in 'u_WindowLayerBasic.pas',
+  u_WindowLayerBasicList in 'u_WindowLayerBasicList.pas',
   u_MiniMapLayer in 'u_MiniMapLayer.pas',
   u_CenterScale in 'u_CenterScale.pas',
   u_LayerStatBar in 'u_LayerStatBar.pas',
