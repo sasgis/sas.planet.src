@@ -195,6 +195,7 @@ uses
   i_IActiveMapsConfig in 'i_IActiveMapsConfig.pas',
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigInIniFileSection in 'u_MapsConfigInIniFileSection.pas',
+  u_MapsConfigByConfigDataProvider in 'u_MapsConfigByConfigDataProvider.pas',
   u_MapViewPortState in 'u_MapViewPortState.pas',
   u_ShortcutManager in 'u_ShortcutManager.pas',
   i_ILanguageManager in 'i_ILanguageManager.pas',
