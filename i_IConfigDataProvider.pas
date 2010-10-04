@@ -11,12 +11,12 @@ type
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer;
     function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; ADefault: Double): Double;
-    function ReadTime(const AIdent: string; ADefault: TDateTime): TDateTime;
+    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
+    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
+    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
+    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
+    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
+    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
 
     procedure ReadSubItemsList(AList: TStrings);
     procedure ReadValuesList(AList: TStrings);

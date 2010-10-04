@@ -17,12 +17,12 @@ type
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
     function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
-    function ReadInteger(const AIdent: string; ADefault: Longint): Longint; virtual;
-    function ReadBool(const AIdent: string; ADefault: Boolean): Boolean; virtual;
-    function ReadDate(const AIdent: string; ADefault: TDateTime): TDateTime; virtual;
-    function ReadDateTime(const AIdent: string; ADefault: TDateTime): TDateTime; virtual;
-    function ReadFloat(const AIdent: string; ADefault: Double): Double; virtual;
-    function ReadTime(const AIdent: string; ADefault: TDateTime): TDateTime; virtual;
+    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
+    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
+    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
+    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
+    function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
+    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
     procedure ReadSubItemsList(AList: TStrings); virtual;
     procedure ReadValuesList(AList: TStrings); virtual;
@@ -65,31 +65,31 @@ begin
 end;
 
 function TConfigDataProviderByIniFileSection.ReadBool(const AIdent: string;
-  ADefault: Boolean): Boolean;
+  const ADefault: Boolean): Boolean;
 begin
   Result := FIniFile.ReadBool(FSection, AIdent, ADefault);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadDate(const AIdent: string;
-  ADefault: TDateTime): TDateTime;
+  const ADefault: TDateTime): TDateTime;
 begin
   Result := FIniFile.ReadDate(FSection, AIdent, ADefault);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadDateTime(const AIdent: string;
-  ADefault: TDateTime): TDateTime;
+  const ADefault: TDateTime): TDateTime;
 begin
   Result := FIniFile.ReadDateTime(FSection, AIdent, ADefault);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadFloat(const AIdent: string;
-  ADefault: Double): Double;
+  const ADefault: Double): Double;
 begin
   Result := FIniFile.ReadFloat(FSection, AIdent, ADefault);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadInteger(const AIdent: string;
-  ADefault: Integer): Longint;
+  const ADefault: Integer): Longint;
 begin
   Result := FIniFile.ReadInteger(FSection, AIdent, ADefault);
 end;
@@ -106,7 +106,7 @@ begin
 end;
 
 function TConfigDataProviderByIniFileSection.ReadTime(const AIdent: string;
-  ADefault: TDateTime): TDateTime;
+  const ADefault: TDateTime): TDateTime;
 begin
   Result := FIniFile.ReadTime(FSection, AIdent, ADefault);
 end;
