@@ -9,7 +9,9 @@ uses
 type
   IConfigDataWriteProvider = interface(IConfigDataProvider)
     ['{2AA51ACD-3056-4328-BDF9-D458E50F5734}']
+    function GetOrCreateSubItem(const AIdent: string): IConfigDataWriteProvider;
     procedure DeleteSubItem(const AIdent: string);
+    procedure DeleteValue(const AIdent: string);
     procedure WriteBinaryStream(const AIdent: string; AValue: TStream);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);

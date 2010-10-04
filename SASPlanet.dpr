@@ -36,6 +36,8 @@ uses
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
   u_ConfigDataProviderByIniFileSection in 'u_ConfigDataProviderByIniFileSection.pas',
   u_ConfigDataProviderByFolder in 'u_ConfigDataProviderByFolder.pas',
+  u_ConfigDataWriteProviderByIniFileSection in 'u_ConfigDataWriteProviderByIniFileSection.pas',
+  u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
   i_ILogSimple in 'i_ILogSimple.pas',
   i_ILogForTaskThread in 'i_ILogForTaskThread.pas',
   i_ITileDownlodSession in 'i_ITileDownlodSession.pas',
