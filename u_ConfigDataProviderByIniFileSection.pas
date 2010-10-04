@@ -134,7 +134,7 @@ function TConfigDataProviderByIniFileSection.ReadFloat(const AIdent: string;
 var
   FloatStr: string;
 begin
-  FloatStr := ReadString(FSection, AIdent, '');
+  FloatStr := FIniFile.ReadString(FSection, AIdent, '');
   Result := ADefault;
   if FloatStr <> '' then
   try
@@ -169,7 +169,7 @@ function TConfigDataProviderByIniFileSection.ReadTime(const AIdent: string;
 var
   TimeStr: string;
 begin
-  TimeStr := ReadString(FSection, AIdent, '');
+  TimeStr := FIniFile.ReadString(FSection, AIdent, '');
   Result := ADefault;
   if TimeStr <> '' then
   try
@@ -180,7 +180,6 @@ begin
     else
       raise;
   end;
-  Result := FIniFile.ReadTime(FSection, AIdent, ADefault);
 end;
 
 procedure TConfigDataProviderByIniFileSection.ReadValuesList(AList: TStrings);
