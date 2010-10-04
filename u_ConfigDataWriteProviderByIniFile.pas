@@ -22,6 +22,8 @@ type
     procedure WriteDateTime(const AIdent: string; const AValue: TDateTime);
     procedure WriteFloat(const AIdent: string; const AValue: Double);
     procedure WriteTime(const AIdent: string; const AValue: TDateTime);
+  public
+    destructor Destroy; override;
   end;
 
 implementation
@@ -40,6 +42,15 @@ end;
 procedure TConfigDataWriteProviderByIniFile.DeleteValue(const AIdent: string);
 begin
   raise Exception.Create('Not expected');
+end;
+
+destructor TConfigDataWriteProviderByIniFile.Destroy;
+begin
+  try
+    FIniFile.UpdateFile;
+  except
+  end;
+  inherited;
 end;
 
 function TConfigDataWriteProviderByIniFile.GetOrCreateSubItem(

@@ -51,7 +51,6 @@ begin
   FFormatSettings.TimeSeparator := ':';
   FFormatSettings.LongTimeFormat := 'HH:mm:ss';
   FFormatSettings.ShortTimeFormat := 'HH:mm:ss';
-  FFormatSettings.ThousandSeparator := '';
   FFormatSettings.ListSeparator := ';';
   FFormatSettings.TwoDigitYearCenturyWindow := 50;
 end;
