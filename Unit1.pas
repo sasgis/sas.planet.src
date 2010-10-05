@@ -1590,8 +1590,8 @@ begin
     FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
-    GState.ViewState.LoadViewPortState(nil);
-    FLayersList.LoadConfig(nil);
+    GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
+    FLayersList.LoadConfig(GState.MainConfigProvider);
     ProgramStart:=false;
 
 
@@ -1786,7 +1786,7 @@ begin
       TerminateThread(FUIDownLoader.Handle, 0);
     end;
   end;
-  if length(GState.MapType)<>0 then FSettings.Save(nil);
+  if length(GState.MapType)<>0 then FSettings.Save(GState.MainConfigProvider);
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;

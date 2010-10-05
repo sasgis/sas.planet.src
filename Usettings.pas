@@ -388,7 +388,7 @@ begin
 
  SetProxy;
 
- save(nil);
+ save(GState.MainConfigProvider);
  if FMapsEdit then begin
    Fmain.CreateMapUI;
  end;
