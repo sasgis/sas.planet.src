@@ -813,7 +813,9 @@ begin
     NZoomOut.Enabled:=TBZoom_Out.Enabled;
     RxSlider1.Value:=VZoomCurr;
     labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
-    FUIDownLoader.change_scene:=true;
+    if FUIDownLoader <> nil then begin
+      FUIDownLoader.change_scene:=true;
+    end;
     map.BeginUpdate;
     try
       LayerStatBar.Redraw;
@@ -849,7 +851,9 @@ begin
   tsCache: NSRCesh.Checked:=true;
   tsCacheInternet: NSRCic.Checked:=true;
  end;
- FUIDownLoader.change_scene:=true
+ if FUIDownLoader <> nil then begin
+   FUIDownLoader.change_scene:=true;
+ end;
 end;
 
 procedure TFMain.Set_lock_toolbars(const Value: boolean);
