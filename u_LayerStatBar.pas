@@ -102,8 +102,8 @@ begin
   GState.ViewState.LockRead;
   try
     VMap := GState.ViewState.GetCurrentMap;
-    ll := GState.ViewState.VisiblePixel2LonLat(Fmain.m_m);
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(Fmain.m_m);
+    ll := GState.ViewState.VisiblePixel2LonLat(Fmain.MouseCursorPos);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(Fmain.MouseCursorPos);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VSize := GState.ViewState.GetVisibleSizeInPixel;
     VConverter := GState.ViewState.GetCurrentCoordConverter;

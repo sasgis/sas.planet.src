@@ -23,6 +23,7 @@ type
   protected
     procedure Execute; override;
   public
+    change_scene: boolean;
     constructor Create(); overload;
     destructor Destroy; override;
   end;
@@ -93,7 +94,7 @@ begin
         break;
       end;
     end else begin
-      if (not FMain.change_scene) then begin
+      if (not change_scene) then begin
         if Terminated then begin
           break;
         end;
@@ -105,7 +106,7 @@ begin
         if Terminated then begin
           break;
         end;
-        FMain.change_scene := false;
+        change_scene := false;
         Synchronize(GetCurrentMapAndPos);
         if Terminated then begin
           break;
@@ -123,7 +124,7 @@ begin
             if Terminated then begin
               break;
             end;
-            if FMain.change_scene then begin
+            if change_scene then begin
               Break;
             end;
             g := (r * 2 - 2);
@@ -136,7 +137,7 @@ begin
               if Terminated then begin
                 break;
               end;
-              if FMain.change_scene then begin
+              if change_scene then begin
                 Break;
               end;
               if (k = 0) then begin
@@ -163,7 +164,7 @@ begin
                 if Terminated then begin
                   break;
                 end;
-                if FMain.change_scene then begin
+                if change_scene then begin
                   Break;
                 end;
                 VMap := GState.MapType[ii];

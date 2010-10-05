@@ -579,6 +579,13 @@ type
     FShortCutManager: TShortcutManager;
     FLayersList: TWindowLayerBasicList;
 
+    FSearchPresenter: ISearchResultPresenter;
+    MouseDownPoint: TPoint;
+    MouseUpPoint: TPoint;
+    moveTrue: Tpoint;
+    MapMoving: Boolean;
+    MapZoomAnimtion: Boolean;
+
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
@@ -596,18 +603,11 @@ type
     function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
     function GetIgnoredMenuItemsList: TList;
   public
-    FSearchPresenter: ISearchResultPresenter;
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
     LayerMapNavToMark: TNavToMarkLayer;
     LayerSelection: TSelectionLayer;
-    MouseDownPoint: TPoint;
-    MouseUpPoint: TPoint;
-    m_m: Tpoint;
-    moveTrue: Tpoint;
-    MapMoving: Boolean;
-    MapZoomAnimtion: Boolean;
-    change_scene: boolean;
+    MouseCursorPos: Tpoint;
     aoper: TAOperation;
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
@@ -813,7 +813,7 @@ begin
     NZoomOut.Enabled:=TBZoom_Out.Enabled;
     RxSlider1.Value:=VZoomCurr;
     labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
-    change_scene:=true;
+    FUIDownLoader.change_scene:=true;
     map.BeginUpdate;
     try
       LayerStatBar.Redraw;
@@ -849,7 +849,7 @@ begin
   tsCache: NSRCesh.Checked:=true;
   tsCacheInternet: NSRCic.Checked:=true;
  end;
- change_scene:=true
+ FUIDownLoader.change_scene:=true
 end;
 
 procedure TFMain.Set_lock_toolbars(const Value: boolean);
@@ -973,7 +973,7 @@ begin
   case Msg.message of
    WM_MOUSEWHEEL: if not MapZoomAnimtion then
                  begin
-                  m_m:=moveTrue;
+                  MouseCursorPos:=moveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
                   VZoom := GState.ViewState.GetCurrentZoom;
                   if Msg.wParam<0 then VNewZoom := VZoom-(1*z)
@@ -1200,7 +1200,7 @@ begin
     FShowErrorLayer.Visible := False;
   end;
 
-  if not(lastload.use) then change_scene:=true;
+  if not(lastload.use) then FUIDownLoader.change_scene:=true;
 
   FMainLayer.Redraw;
   FLayerScaleLine.Redraw;
@@ -1693,16 +1693,16 @@ begin
         Scale := 3 - (1/(1+i/(steps - 1)))*2;
       end;
       if move then begin
-        FMainLayer.ScaleTo(Scale, m_m);
-        LayerSelection.ScaleTo(Scale, m_m);
-        FLayerMapMarks.ScaleTo(Scale, m_m);
-        FLayerMapGPS.ScaleTo(Scale, m_m);
-        FWikiLayer.ScaleTo(Scale, m_m);
-        FLayerFillingMap.ScaleTo(Scale, m_m);
-        FLayerMapNal.ScaleTo(Scale, m_m);
-        FLayerGoto.ScaleTo(Scale, m_m);
-        FShowErrorLayer.ScaleTo(Scale, m_m);
-        LayerMapNavToMark.ScaleTo(Scale, m_m);
+        FMainLayer.ScaleTo(Scale, MouseCursorPos);
+        LayerSelection.ScaleTo(Scale, MouseCursorPos);
+        FLayerMapMarks.ScaleTo(Scale, MouseCursorPos);
+        FLayerMapGPS.ScaleTo(Scale, MouseCursorPos);
+        FWikiLayer.ScaleTo(Scale, MouseCursorPos);
+        FLayerFillingMap.ScaleTo(Scale, MouseCursorPos);
+        FLayerMapNal.ScaleTo(Scale, MouseCursorPos);
+        FLayerGoto.ScaleTo(Scale, MouseCursorPos);
+        FShowErrorLayer.ScaleTo(Scale, MouseCursorPos);
+        LayerMapNavToMark.ScaleTo(Scale, MouseCursorPos);
       end else begin
         FMainLayer.ScaleTo(Scale);
         LayerSelection.ScaleTo(Scale);
@@ -1726,7 +1726,7 @@ begin
    application.ProcessMessages;
   end;
   if move then begin
-    GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, m_m);
+    GState.ViewState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, MouseCursorPos);
   end else begin
     GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom);
   end;
@@ -2104,7 +2104,7 @@ var
 begin
   GState.ViewState.LockRead;
   try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseCursorPos);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VMap := GState.ViewState.GetCurrentMap;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
@@ -2130,7 +2130,7 @@ var s:string;
 begin
   GState.ViewState.LockRead;
   try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(m_m);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseCursorPos);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VMap := GState.ViewState.GetCurrentMap;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
@@ -3414,7 +3414,7 @@ begin
               FShowErrorLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
-        else m_m:=point(x,y);
+        else MouseCursorPos:=point(x,y);
  if not(MapMoving) then begin
     LayerStatBar.Redraw;
  end;
