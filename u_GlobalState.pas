@@ -13,6 +13,8 @@ uses
   t_CommonTypes,
   i_ILanguageManager,
   i_IMemObjCache,
+  i_IConfigDataWriteProvider,
+  i_IConfigDataProvider,
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
   i_IKmlInfoSimpleLoader,
@@ -49,6 +51,7 @@ type
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
+    FMainConfigProvider: IConfigDataWriteProvider;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -258,6 +261,8 @@ type
     property GCThread: TGarbageCollectorThread read FGCThread;
     property ViewState: TMapViewPortState read FViewState;
     property LanguageManager: ILanguageManager read FLanguageManager;
+    property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
+
     constructor Create;
     destructor Destroy; override;
     procedure LoadMaps;
@@ -286,10 +291,10 @@ uses
   Dialogs,
   i_MapTypes,
   i_BitmapTileSaveLoad,
-  i_IConfigDataProvider,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByIniFile,
+  u_ConfigDataWriteProviderByIniFile,
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
   i_IListOfObjectsWithTTL,
@@ -318,6 +323,7 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
+  FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   FLanguageManager := TLanguageManager.Create(MainIni);
 
   FMemFileCache := TMemFileCache.Create;
@@ -347,7 +353,7 @@ begin
     MainIni.UpdateFile;
   except
   end;
-  FreeAndNil(MainIni);
+  FMainConfigProvider := nil;
   FreeMarkIcons;
   FreeAndNil(GOToSelIcon);
   FreeAndNil(InetConnect);
