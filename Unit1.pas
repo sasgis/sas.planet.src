@@ -553,10 +553,16 @@ type
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
     FPWL: TResObj;
-    LayerScaleLine: TLayerScaleLine;
-    LayerMapNal: TMapNalLayer;
-    LayerMapGPS: TMapGPSLayer;
-    LayerGoto: TGotoLayer;
+
+    FLayerScaleLine: TLayerScaleLine;
+    FLayerMapNal: TMapNalLayer;
+    FLayerMapGPS: TMapGPSLayer;
+    FLayerGoto: TGotoLayer;
+    FLayerFillingMap: TMapFillingLayer;
+    FLayerMapMarks: TMapMarksLayer;
+    FLayerMapScale: TCenterScale;
+    FLayerMiniMap: TMiniMapLayer;
+
     ProgramStart: Boolean;
     ProgramClose: Boolean;
     FMapPosChangeListener: IJclListener;
@@ -593,12 +599,8 @@ type
     FSearchPresenter: ISearchResultPresenter;
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
-    FFillingMap: TMapFillingLayer;
-    LayerMapMarks: TMapMarksLayer;
     LayerMapNavToMark: TNavToMarkLayer;
-    LayerMapScale: TCenterScale;
     LayerSelection: TSelectionLayer;
-    FMiniMapLayer: TMiniMapLayer;
     MouseDownPoint: TPoint;
     MouseUpPoint: TPoint;
     m_m: Tpoint;
@@ -815,18 +817,18 @@ begin
     map.BeginUpdate;
     try
       LayerStatBar.Redraw;
-      LayerScaleLine.Redraw;
+      FLayerScaleLine.Redraw;
       FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FLayerFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
       LayerSelection.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      LayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      LayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FLayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FLayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
       FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      LayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      LayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FLayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FLayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
       LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
       FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FMiniMapLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
+      FLayerMiniMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
     finally
       map.EndUpdate;
       map.Changed;
@@ -920,9 +922,9 @@ end;
 procedure TFmain.setalloperationfalse(newop: TAOperation);
 begin
  if aoper=newop then newop:=ao_movemap;
- LayerMapNal.DrawNothing;
+ FLayerMapNal.DrawNothing;
  marshrutcomment:='';
- LayerMapNal.Visible:=newop<>ao_movemap;
+ FLayerMapNal.Visible:=newop<>ao_movemap;
  TBmove.Checked:=newop=ao_movemap;
  TBCalcRas.Checked:=newop=ao_line;
  TBRectSave.Checked:=(newop=ao_reg)or(newop=ao_rect);
@@ -948,7 +950,7 @@ begin
  end;
  if (aoper=ao_edit_line)or(aoper=ao_edit_poly) then begin
    EditMarkId:=-1;
-   LayerMapMarks.Redraw;
+   FLayerMapMarks.Redraw;
  end;
  aoper:=newop;
 end;
@@ -995,34 +997,34 @@ begin
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
                 TBEditPath.Visible:=(length(length_arr)>1);
-                LayerMapNal.DrawLineCalc(length_arr, LenShow);
+                FLayerMapNal.DrawLineCalc(length_arr, LenShow);
                end;
              if (Msg.wParam=VK_Delete)and(aoper=ao_reg) then
                begin
                 if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
                 TBEditPath.Visible:=(length(reg_arr)>1);
-                LayerMapNal.DrawReg(reg_arr);
+                FLayerMapNal.DrawReg(reg_arr);
                end;
              if (Msg.wParam=VK_Delete)and(aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then
               if length(add_line_arr)>0 then
                begin
                 delfrompath(lastpoint);
                 TBEditPath.Visible:=(length(add_line_arr)>1);
-                LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+                FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
                end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_Reg) then
               if length(reg_arr)=0 then TBmoveClick(self)
                                    else begin
                                          setlength(reg_arr,0);
                                          TBEditPath.Visible:=(length(reg_arr)>1);
-                                         LayerMapNal.DrawReg(reg_arr);
+                                         FLayerMapNal.DrawReg(reg_arr);
                                         end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_line) then
               if length(length_arr)=0 then TBmoveClick(self)
                                       else begin
                                             setlength(length_arr,0);
                                             TBEditPath.Visible:=(length(length_arr)>1);
-                                            LayerMapNal.DrawLineCalc(length_arr, LenShow);
+                                            FLayerMapNal.DrawLineCalc(length_arr, LenShow);
                                            end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_rect) then
               begin
@@ -1171,7 +1173,7 @@ begin
   GState.ViewState.ChangeZoomAndUnlock(zoom_, LL);
   zooming(zoom_,false);
   if draw then begin
-    LayerGoto.ShowGotoIcon(LL);
+    FLayerGoto.ShowGotoIcon(LL);
   end;
   generate_im;
 end;
@@ -1201,37 +1203,37 @@ begin
   if not(lastload.use) then change_scene:=true;
 
   FMainLayer.Redraw;
-  LayerScaleLine.Redraw;
-  LayerMapMarks.Redraw;
+  FLayerScaleLine.Redraw;
+  FLayerMapMarks.Redraw;
   FWikiLayer.Redraw;
 
   if not(lastload.use) then begin
     case aoper of
       ao_line: begin
         TBEditPath.Visible:=(length(length_arr)>1);
-        LayerMapNal.DrawLineCalc(length_arr, LenShow);
+        FLayerMapNal.DrawLineCalc(length_arr, LenShow);
       end;
       ao_reg: begin
         TBEditPath.Visible:=(length(reg_arr)>1);
-        LayerMapNal.DrawReg(reg_arr);
+        FLayerMapNal.DrawReg(reg_arr);
       end;
       ao_rect: begin
         VSelectionRect := FSelectionRect;
         PrepareSelectionRect([], VSelectionRect);
-        LayerMapNal.DrawSelectionRect(VSelectionRect);
+        FLayerMapNal.DrawSelectionRect(VSelectionRect);
       end;
       ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly: begin
         TBEditPath.Visible:=(length(add_line_arr)>1);
-        LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+        FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
       end;
     end;
 
     if GState.GPS_enab then begin
-       LayerMapGPS.Redraw;
+       FLayerMapGPS.Redraw;
        UpdateGPSsensors;
     end;
     try
-      LayerMapMarks.Visible := GState.show_point <> mshNone;
+      FLayerMapMarks.Visible := GState.show_point <> mshNone;
     except
     end;
   end;
@@ -1482,19 +1484,33 @@ begin
 
 
     FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FMainLayer);
     FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
-    FFillingMap:=TMapFillingLayer.create(map, GState.ViewState);
-    LayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
-    LayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FWikiLayer);
+    FLayerFillingMap:=TMapFillingLayer.create(map, GState.ViewState);
+    FLayersList.Add(FLayerFillingMap);
+    FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapMarks);
+    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapGPS);
     LayerSelection := TSelectionLayer.Create(map, GState.ViewState);
-    LayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
-    LayerGoto := TGotoLayer.Create(map, GState.ViewState);
+    FLayersList.Add(LayerSelection);
+    FLayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapNal);
+    FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerGoto);
     LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState);
+    FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
-    LayerMapScale := TCenterScale.Create(map, GState.ViewState);
-    LayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
+    FLayersList.Add(FShowErrorLayer);
+    FLayerMapScale := TCenterScale.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapScale);
+    FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerScaleLine);
     LayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
-    FMiniMapLayer := TMiniMapLayer.Create(map, GState.ViewState);
+    FLayersList.Add(LayerStatBar);
+    FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMiniMap);
 
     CreateMapUI;
     FSettings.InitMapsList;
@@ -1516,7 +1532,7 @@ begin
       TBfillMapAsMain.Checked:=true;
     end;
     Vzoom_mapzap:=GState.MainIni.readinteger('VIEW','MapZap',-1);
-    FFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
+    FLayerFillingMap.SetSourceMap(VFillingmaptype, Vzoom_mapzap);
     if Vzoom_mapzap<>-1 then begin
       TBMapZap.Caption:='x'+inttostr(vzoom_mapzap + 1);
     end else  begin
@@ -1532,7 +1548,7 @@ begin
     NGShScale1000000.Checked := GState.GShScale = 1000000;
     NGShScale0.Checked := GState.GShScale = 0;
 
-    N32.Checked:=LayerMapScale.Visible;
+    N32.Checked:=FLayerMapScale.Visible;
     NShowSelection.Checked := LayerSelection.Visible;
     Ninvertcolor.Checked:=GState.InvertColor;
     TBGPSconn.Checked := GState.GPS_enab;
@@ -1571,6 +1587,7 @@ begin
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
     GState.ViewState.LoadViewPortState(nil);
+    FLayersList.LoadConfig(nil);
     ProgramStart:=false;
 
 
@@ -1622,12 +1639,12 @@ begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
     FMainLayer.Visible := True;
     LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
-    LayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
+    FLayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
     SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
     SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
     LayerStatBar.Visible:=GState.ShowStatusBar;
     Showstatus.Checked:=GState.ShowStatusBar;
-    LayerMapMarks.Visible := GState.show_point <> mshNone;
+    FLayerMapMarks.Visible := GState.show_point <> mshNone;
 
   finally
     Enabled:=true;
@@ -1678,23 +1695,23 @@ begin
       if move then begin
         FMainLayer.ScaleTo(Scale, m_m);
         LayerSelection.ScaleTo(Scale, m_m);
-        LayerMapMarks.ScaleTo(Scale, m_m);
-        LayerMapGPS.ScaleTo(Scale, m_m);
+        FLayerMapMarks.ScaleTo(Scale, m_m);
+        FLayerMapGPS.ScaleTo(Scale, m_m);
         FWikiLayer.ScaleTo(Scale, m_m);
-        FFillingMap.ScaleTo(Scale, m_m);
-        LayerMapNal.ScaleTo(Scale, m_m);
-        LayerGoto.ScaleTo(Scale, m_m);
+        FLayerFillingMap.ScaleTo(Scale, m_m);
+        FLayerMapNal.ScaleTo(Scale, m_m);
+        FLayerGoto.ScaleTo(Scale, m_m);
         FShowErrorLayer.ScaleTo(Scale, m_m);
         LayerMapNavToMark.ScaleTo(Scale, m_m);
       end else begin
         FMainLayer.ScaleTo(Scale);
         LayerSelection.ScaleTo(Scale);
-        LayerMapMarks.ScaleTo(Scale);
-        LayerMapGPS.ScaleTo(Scale);
+        FLayerMapMarks.ScaleTo(Scale);
+        FLayerMapGPS.ScaleTo(Scale);
         FWikiLayer.ScaleTo(Scale);
-        FFillingMap.ScaleTo(Scale);
-        LayerMapNal.ScaleTo(Scale);
-        LayerGoto.ScaleTo(Scale);
+        FLayerFillingMap.ScaleTo(Scale);
+        FLayerMapNal.ScaleTo(Scale);
+        FLayerGoto.ScaleTo(Scale);
         FShowErrorLayer.ScaleTo(Scale);
         LayerMapNavToMark.ScaleTo(Scale);
       end;
@@ -1772,24 +1789,10 @@ begin
   FMapPosChangeListener := nil;
   FMainMapChangeListener := nil;
   FHybrChangeListener := nil;
-  FreeAndNil(FFillingMap);
-  FreeAndNil(FWikiLayer);
   Application.ProcessMessages;
-  FreeAndNil(FUIDownLoader);
-  FreeAndNil(LayerMapScale);
-  FreeAndNil(LayerStatBar);
-  FreeAndNil(LayerScaleLine);
-  FreeAndNil(LayerMapGPS);
-  FreeAndNil(LayerMapMarks);
-  FreeAndNil(LayerSelection);
-  FreeAndNil(LayerGoto);
-  FreeAndNil(FShowErrorLayer);
-  FreeAndNil(LayerMapNal);
-  FreeAndNil(LayerMapNavToMark);
-  FreeAndNil(FMainLayer);
-  FreeAndNil(FMiniMapLayer);
-  FreeAndNil(FShortCutManager);
   FreeAndNil(FLayersList);
+  FreeAndNil(FUIDownLoader);
+  FreeAndNil(FShortCutManager);
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;
@@ -2228,8 +2231,8 @@ end;
 //карта заполнения в основном окне
 procedure TFmain.NFillMapClick(Sender: TObject);
 begin
-  if FFillingMap.SourceZoom > -1 then begin
-    TBXToolPalette1.SelectedCell:=Point((FFillingMap.SourceZoom + 1) mod 5,(FFillingMap.SourceZoom + 1) div 5);
+  if FLayerFillingMap.SourceZoom > -1 then begin
+    TBXToolPalette1.SelectedCell:=Point((FLayerFillingMap.SourceZoom + 1) mod 5,(FLayerFillingMap.SourceZoom + 1) div 5);
   end else begin
     TBXToolPalette1.SelectedCell:=Point(0,0);
   end;
@@ -2246,7 +2249,7 @@ begin
   end else begin
     TBMapZap.Caption:='';
   end;
-  FFillingMap.SetSourceMap(FFillingMap.SourceSelected, Vzoom_mapzap);
+  FLayerFillingMap.SetSourceMap(FLayerFillingMap.SourceSelected, Vzoom_mapzap);
 end;
 //X-карта заполнения в основном окне
 
@@ -2354,7 +2357,7 @@ begin
  try
  NGPSconn.Checked:=TTBXitem(sender).Checked;
  TBGPSconn.Checked:=TTBXitem(sender).Checked;
- LayerMapGPS.Visible:=NGPSconn.Checked;
+ FLayerMapGPS.Visible:=NGPSconn.Checked;
  GState.GPS_enab := TBGPSconn.Checked;
  if GState.GPS_enab then
   begin
@@ -2416,14 +2419,14 @@ end;
 
 procedure TFmain.SetLineScaleVisible(visible:boolean);
 begin
-  LayerScaleLine.Visible := visible;
-  LayerScaleLine.Redraw;
+  FLayerScaleLine.Visible := visible;
+  FLayerScaleLine.Redraw;
   ShowLine.Checked:=visible;
 end;
 
 procedure TFmain.SetMiniMapVisible(visible:boolean);
 begin
-  FMiniMapLayer.Visible := visible;
+  FLayerMiniMap.Visible := visible;
   ShowMiniMap.Checked:=visible;
 end;
 
@@ -2447,7 +2450,7 @@ end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- LayerMapScale.Visible:=TTBXItem(sender).Checked;
+ FLayerMapScale.Visible:=TTBXItem(sender).Checked;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);
@@ -2589,18 +2592,18 @@ begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
     FMainLayer.Resize;
     LayerStatBar.Resize;
-    LayerScaleLine.Resize;
+    FLayerScaleLine.Resize;
     LayerSelection.Resize;
-    LayerMapNal.Resize;
-    LayerMapMarks.Resize;
-    LayerMapGPS.Resize;
-    LayerMapScale.Resize;
+    FLayerMapNal.Resize;
+    FLayerMapMarks.Resize;
+    FLayerMapGPS.Resize;
+    FLayerMapScale.Resize;
     FWikiLayer.Resize;
-    FFillingMap.Resize;
-    LayerGoto.Resize;
+    FLayerFillingMap.Resize;
+    FLayerGoto.Resize;
     FShowErrorLayer.Resize;
     LayerMapNavToMark.Resize;
-    FMiniMapLayer.Resize;
+    FLayerMiniMap.Resize;
     LayerStatBar.Redraw;
   end;
 end;
@@ -2900,7 +2903,7 @@ begin
       GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
     end else begin
       LayerStatBar.Redraw;
-      LayerMapGPS.Redraw;
+      FLayerMapGPS.Redraw;
     end;
    end;
   UpdateGPSsensors;
@@ -2927,7 +2930,7 @@ begin
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
  GState.GPS_enab:=false;
- LayerMapGPS.Visible:=false;
+ FLayerMapGPS.Visible:=false;
  NGPSconn.Checked:=false;
  TBGPSconn.Checked:=false;
  except
@@ -3013,13 +3016,13 @@ begin
       setlength(length_arr,length(length_arr)+1);
       length_arr[length(length_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(length_arr)>1);
-      LayerMapNal.DrawLineCalc(length_arr, LenShow);
+      FLayerMapNal.DrawLineCalc(length_arr, LenShow);
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
       reg_arr[length(reg_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(reg_arr)>1);
-      LayerMapNal.DrawReg(reg_arr);
+      FLayerMapNal.DrawReg(reg_arr);
     end;
     if (aoper=ao_rect)then begin
       if rect_dwn then begin
@@ -3032,7 +3035,7 @@ begin
       rect_dwn:=not(rect_dwn);
       VSelectionRect := FSelectionRect;
       PrepareSelectionRect(Shift, VSelectionRect);
-      LayerMapNal.DrawSelectionRect(VSelectionRect);
+      FLayerMapNal.DrawSelectionRect(VSelectionRect);
       if (rect_p2) then begin
         SetLength(VPoly, 5);
         VPoly[0] := VSelectionRect.TopLeft;
@@ -3041,7 +3044,7 @@ begin
         VPoly[3] := ExtPoint(VSelectionRect.Left, VSelectionRect.Bottom);
         VPoly[4] := VSelectionRect.TopLeft;
         fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
-        LayerMapNal.DrawNothing;
+        FLayerMapNal.DrawNothing;
         LayerSelection.Redraw;
         VPoly := nil;
         rect_p2:=false;
@@ -3063,7 +3066,7 @@ begin
           movepoint:=i+1;
           lastpoint:=i;
           TBEditPath.Visible:=(length(add_line_arr)>1);
-          LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+          FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
           exit;
         end;
       end;
@@ -3072,7 +3075,7 @@ begin
       insertinpath(lastpoint);
       add_line_arr[lastpoint]:=VClickLonLat;
       TBEditPath.Visible:=(length(add_line_arr)>1);
-      LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+      FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
     exit;
   end;
@@ -3081,7 +3084,7 @@ begin
     MouseUpPoint:=point(x,y);
     FPWL.find:=false;
     FPWL.S:=0;
-    if LayerMapMarks.Visible then begin
+    if FLayerMapMarks.Visible then begin
       MouseOnMyReg(FPWL,Point(x,y));
     end;  
     NMarkEdit.Visible:=FPWL.find;
@@ -3188,27 +3191,27 @@ begin
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
    LayerStatBar.Redraw;
-   LayerScaleLine.Redraw;
+   FLayerScaleLine.Redraw;
    if aoper=ao_line then begin
     TBEditPath.Visible:=(length(length_arr)>1);
-    LayerMapNal.DrawLineCalc(length_arr, LenShow);
+    FLayerMapNal.DrawLineCalc(length_arr, LenShow);
    end;
    if aoper=ao_reg then begin
     TBEditPath.Visible:=(length(reg_arr)>1);
-    LayerMapNal.DrawReg(reg_arr);
+    FLayerMapNal.DrawReg(reg_arr);
    end;
    if aoper=ao_rect then begin
      VSelectionRect := FSelectionRect;
      PrepareSelectionRect(Shift, VSelectionRect);
-     LayerMapNal.DrawSelectionRect(VSelectionRect);
+     FLayerMapNal.DrawSelectionRect(VSelectionRect);
    end;
    if GState.GPS_enab then begin
-     LayerMapGPS.Redraw;
+     FLayerMapGPS.Redraw;
      UpdateGPSsensors;
    end;
    if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
     TBEditPath.Visible:=(length(add_line_arr)>1);
-    LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+    FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    end;
   end;
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
@@ -3217,7 +3220,7 @@ begin
     VPWL.find:=false;
     if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(VPWL, Point(x,y));
-    if (LayerMapMarks.Visible) then
+    if (FLayerMapMarks.Visible) then
      MouseOnMyReg(VPWL,Point(x,y));
     if VPWL.find then
      begin
@@ -3354,7 +3357,7 @@ begin
   begin
    add_line_arr[movepoint-1]:=VLonLat;
    TBEditPath.Visible:=(length(add_line_arr)>1);
-   LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+   FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    exit;
   end;
  if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))
@@ -3362,7 +3365,7 @@ begin
                FSelectionRect.BottomRight:=VLonLat;
                VSelectionRect := FSelectionRect;
                PrepareSelectionRect(Shift,VSelectionRect);
-               LayerMapNal.DrawSelectionRect(VSelectionRect);
+               FLayerMapNal.DrawSelectionRect(VSelectionRect);
               end;
  if GState.FullScrean then begin
                        if y<10 then begin
@@ -3402,12 +3405,12 @@ begin
  if MapMoving then begin
               FMainLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerMapNal.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FLayerMapNal.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FLayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FLayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FLayerFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              FLayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FShowErrorLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
              end
@@ -3429,7 +3432,7 @@ begin
    FPWL.find:=false;
    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(FPWL,Point(x,y));
-   if (LayerMapMarks.Visible) then
+   if (FLayerMapMarks.Visible) then
      MouseOnMyReg(FPWL,Point(x,y));
    if (FPWL.find) then
     begin
@@ -3560,19 +3563,19 @@ begin
   ao_line: begin
          if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
          TBEditPath.Visible:=(length(length_arr)>1);
-         LayerMapNal.DrawLineCalc(length_arr, LenShow);
+         FLayerMapNal.DrawLineCalc(length_arr, LenShow);
         end;
   ao_Reg : begin
          if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
          TBEditPath.Visible:=(length(reg_arr)>1);
-         LayerMapNal.DrawReg(reg_arr);
+         FLayerMapNal.DrawReg(reg_arr);
         end;
   ao_add_poly,ao_add_line,ao_edit_line,ao_edit_poly:
         if lastpoint>0 then
         begin
          if length(add_line_arr)>0 then delfrompath(lastpoint);
          TBEditPath.Visible:=(length(add_line_arr)>1);
-         LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+         FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
         end;
  end;
 end;
@@ -3581,7 +3584,7 @@ procedure TFmain.TBEditPathLabelClick(Sender: TObject);
 begin
   if aoper = ao_line then begin
     LenShow:=not(LenShow);
-    LayerMapNal.DrawLineCalc(length_arr, LenShow);
+    FLayerMapNal.DrawLineCalc(length_arr, LenShow);
   end;
 end;
 
@@ -3764,7 +3767,7 @@ begin
   end
  else ShowMessage('Connect error!');
  TBEditPath.Visible:=(length(add_line_arr)>1);
- LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+ FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
 end;
 
 procedure TFmain.AdjustFont(Item: TTBCustomItem;
@@ -3797,7 +3800,7 @@ procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
 var
   VFillingMapType: TMapType;
 begin
-  VFillingMapType := FFillingMap.SourceSelected;
+  VFillingMapType := FLayerFillingMap.SourceSelected;
   if TTBXItem(sender).Tag=0 then begin
     if Vfillingmaptype<>nil then begin
       TTBXItem(FTBFillingItemList.GetByGUID(VFillingMapType.GUID)).Checked:=false;
@@ -3812,7 +3815,7 @@ begin
     Vfillingmaptype:=TMapType(TTBXItem(sender).Tag);
     TTBXItem(FTBFillingItemList.GetByGUID(VFillingMapType.GUID)).Checked:=true;
   end;
-  FFillingMap.SetSourceMap(VFillingMapType, FFillingMap.SourceZoom);
+  FLayerFillingMap.SetSourceMap(VFillingMapType, FLayerFillingMap.SourceZoom);
 end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
@@ -3885,7 +3888,7 @@ begin
    ao_reg: begin
          SetLength(reg_arr,length(reg_arr)+1);
          reg_arr[length(reg_arr)-1]:=reg_arr[0];
-         LayerMapNal.DrawNothing;
+         FLayerMapNal.DrawNothing;
          Fsaveas.Show_(GState.ViewState.GetCurrentZoom,reg_arr);
          setalloperationfalse(ao_movemap);
          LayerSelection.Redraw;
@@ -3939,15 +3942,15 @@ begin
   GState.MainIni.Writebool('VIEW','minimap',ShowMiniMap.Checked);
   GState.MainIni.Writebool('VIEW','statusbar',Showstatus.Checked);
   GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
-  GState.MainIni.Writebool('VIEW','showscale', LayerMapScale.Visible);
+  GState.MainIni.Writebool('VIEW','showscale', FLayerMapScale.Visible);
   GState.MainIni.Writebool('VIEW','showselection', LayerSelection.Visible);
-  FMiniMapLayer.SaveConfig(AProvider);
+  FLayersList.SaveConfig(AProvider);
 
-  GState.MainIni.Writeinteger('VIEW','MapZap', FFillingMap.SourceZoom);
-  if FFillingMap.SourceSelected=nil then begin
+  GState.MainIni.Writeinteger('VIEW','MapZap', FLayerFillingMap.SourceZoom);
+  if FLayerFillingMap.SourceSelected=nil then begin
     GState.MainIni.WriteString('VIEW','FillingMap','')
   end else begin
-    GState.MainIni.WriteString('VIEW','FillingMap',FFillingMap.SourceSelected.GUIDString);
+    GState.MainIni.WriteString('VIEW','FillingMap',FLayerFillingMap.SourceSelected.GUIDString);
   end;
 
   GState.MainIni.WriteBool('VIEW','lock_toolbars',lock_toolbars);
@@ -4025,7 +4028,7 @@ begin
    lastpoint:=length(add_line_arr)-1;
  end;
  TBEditPath.Visible:=(length(add_line_arr)>1);
-  LayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+  FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
 end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
