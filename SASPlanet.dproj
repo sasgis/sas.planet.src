@@ -47,6 +47,9 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="bmpUtil.pas" />
+    <DCCReference Include="frm_GoTo.pas">
+      <Form>frmGoTo</Form>
+    </DCCReference>
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
@@ -227,9 +230,6 @@
     </DCCReference>
     <DCCReference Include="Unit1.pas">
       <Form>Fmain</Form>
-    </DCCReference>
-    <DCCReference Include="Unit2.pas">
-      <Form>frmGoTo</Form>
     </DCCReference>
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>

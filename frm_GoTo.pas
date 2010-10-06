@@ -1,4 +1,4 @@
-unit Unit2;
+unit frm_GoTo;
 
 interface
 

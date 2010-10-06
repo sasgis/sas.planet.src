@@ -644,7 +644,7 @@ uses
   u_JclNotify,
   u_GUIDObjectList,
   u_GlobalState,
-  Unit2,
+  frm_GoTo,
   UAbout,
   Usettings,
   USaveas,
