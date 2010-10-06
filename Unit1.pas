@@ -1201,7 +1201,11 @@ begin
     FShowErrorLayer.Visible := False;
   end;
 
-  if not(lastload.use) then FUIDownLoader.change_scene:=true;
+  if not(lastload.use) then begin
+    if FUIDownLoader <> nil then begin
+      FUIDownLoader.change_scene := true;
+    end;
+  end;
 
   FMainLayer.Redraw;
   FLayerScaleLine.Redraw;
