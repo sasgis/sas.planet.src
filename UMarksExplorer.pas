@@ -4,10 +4,8 @@ interface
 
 uses
   Windows,
-  Messages,
   SysUtils,
   Classes,
-  Graphics,
   Controls,
   Forms,
   Dialogs,
@@ -15,7 +13,6 @@ uses
   CheckLst,
   Buttons,
   ExtCtrls,
-  GR32,
   UResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
@@ -69,9 +66,7 @@ type
     procedure SBNavOnMarkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 var

@@ -6,7 +6,7 @@ object FSelLonLat: TFSelLonLat
   ClientHeight = 174
   ClientWidth = 252
   Color = clBtnFace
-  Constraints.MinHeight = 200
+  Constraints.MinHeight = 198
   Constraints.MinWidth = 260
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,8 +25,6 @@ object FSelLonLat: TFSelLonLat
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 238
-    ExplicitWidth = 383
     object Button2: TButton
       AlignWithMargins = True
       Left = 174
@@ -38,7 +36,6 @@ object FSelLonLat: TFSelLonLat
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 0
-      ExplicitTop = 6
     end
     object Button1: TButton
       AlignWithMargins = True
@@ -51,8 +48,6 @@ object FSelLonLat: TFSelLonLat
       Default = True
       ModalResult = 1
       TabOrder = 1
-      ExplicitLeft = 96
-      ExplicitTop = 6
     end
   end
   object grdpnlMain: TGridPanel
@@ -85,10 +80,6 @@ object FSelLonLat: TFSelLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 1
-    ExplicitLeft = 32
-    ExplicitTop = 151
-    ExplicitWidth = 281
-    ExplicitHeight = 151
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3
@@ -98,10 +89,6 @@ object FSelLonLat: TFSelLonLat
       Align = alClient
       Caption = ' '#1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083' '
       TabOrder = 0
-      ExplicitLeft = 8
-      ExplicitTop = 5
-      ExplicitWidth = 241
-      ExplicitHeight = 68
     end
     object grpBottomRight: TGroupBox
       AlignWithMargins = True
@@ -112,10 +99,6 @@ object FSelLonLat: TFSelLonLat
       Align = alClient
       Caption = ' '#1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083' '
       TabOrder = 1
-      ExplicitLeft = 8
-      ExplicitTop = 77
-      ExplicitWidth = 241
-      ExplicitHeight = 68
     end
   end
 end

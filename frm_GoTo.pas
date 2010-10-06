@@ -8,13 +8,12 @@ uses
   Forms,
   Classes,
   StdCtrls,
+  ExtCtrls,
   Controls,
-  rxToolEdit,
   t_GeoTypes,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
-  fr_LonLat,
-  ExtCtrls;
+  fr_LonLat;
 
 type
 

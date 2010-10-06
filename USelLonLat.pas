@@ -11,7 +11,6 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  rxToolEdit,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   fr_LonLat;

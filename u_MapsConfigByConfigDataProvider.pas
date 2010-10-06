@@ -3,7 +3,6 @@ unit u_MapsConfigByConfigDataProvider;
 interface
 
 uses
-  IniFiles,
   i_IGUIDList,
   i_IActiveMapsConfig,
   i_IConfigDataProvider,
