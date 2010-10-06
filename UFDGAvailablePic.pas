@@ -18,7 +18,6 @@ uses
   CommCtrl,
   ExtCtrls,
   u_CommonFormAndFrameParents,
-  Unit1,
   UResStrings,
   t_GeoTypes;
 
@@ -55,6 +54,7 @@ type
     hi,wi:integer;
     procedure CreateTree;
     procedure FormTidList;
+    procedure CopyStringToClipboard(s: Widestring);
   public
     procedure setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
   end;
@@ -515,9 +515,36 @@ begin
   end;
 end;
 
+procedure TFDGAvailablePic.CopyStringToClipboard(s: Widestring);
+var hg: THandle;
+    P: PChar;
+begin
+  if OpenClipboard(Handle) then
+  begin
+    try
+      EmptyClipBoard;
+      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, Length(S)+1);
+      try
+        P:=GlobalLock(hg);
+        try
+          StrPCopy(P, s);
+          SetClipboardData(CF_TEXT, hg);
+        finally
+          GlobalUnlock(hg);
+        end;
+      except
+        GlobalFree(hg);
+        raise
+      end;
+    finally
+      CloseClipboard;
+    end;
+  end
+end;
+
 procedure TFDGAvailablePic.Button3Click(Sender: TObject);
 begin
-  FMain.CopyStringToClipboard(TIDs);
+  CopyStringToClipboard(TIDs);
 end;
 
 procedure TFDGAvailablePic.FormCreate(Sender: TObject);
