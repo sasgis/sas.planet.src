@@ -1782,7 +1782,7 @@ begin
       Screen.Forms[i].Close;
     end;
   end;
-  FLayersList.StartThreads;
+  FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
   if FUIDownLoader <> nil then begin
     VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
