@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
+  i_JclNotify,
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -18,6 +19,8 @@ type
   protected
     FParentMap: TImage32;
     FLayer: TBitmapLayerWithSortIndex;
+    FViewPortState: TMapViewPortState;
+    FMapPosChangeListener: IJclListener;
 
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
