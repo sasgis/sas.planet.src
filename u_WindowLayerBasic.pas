@@ -58,6 +58,8 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
+    procedure StartThreads; virtual;
+    procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
     procedure Resize; virtual;
     procedure Show; virtual;
@@ -119,6 +121,11 @@ begin
   // По умолчанию ничего не делаем
 end;
 
+procedure TWindowLayerBasic.SendTerminateToThreads;
+begin
+  // По умолчанию ничего не делаем
+end;
+
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);
 begin
   if Value then begin
@@ -135,6 +142,11 @@ begin
     Resize;
     Redraw;
   end;
+end;
+
+procedure TWindowLayerBasic.StartThreads;
+begin
+  // По умолчанию ничего не делаем
 end;
 
 function TWindowLayerBasic.GetScale: double;

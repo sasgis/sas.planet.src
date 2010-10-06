@@ -19,6 +19,8 @@ type
     destructor Destroy; override;
     function Add(AItem: TWindowLayerBasic): Integer;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider);
+    procedure StartThreads;
+    procedure SendTerminateToThreads;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
     property Items[Index: Integer]: TWindowLayerBasic read Get; default;
   end;
@@ -72,6 +74,24 @@ var
 begin
   for i := 0 to FList.Count - 1 do begin
     Items[i].SaveConfig(AConfigProvider);
+  end;
+end;
+
+procedure TWindowLayerBasicList.SendTerminateToThreads;
+var
+  i: Integer;
+begin
+  for i := 0 to FList.Count - 1 do begin
+    Items[i].SendTerminateToThreads;
+  end;
+end;
+
+procedure TWindowLayerBasicList.StartThreads;
+var
+  i: Integer;
+begin
+  for i := 0 to FList.Count - 1 do begin
+    Items[i].StartThreads;
   end;
 end;
 
