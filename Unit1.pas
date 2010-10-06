@@ -1592,7 +1592,9 @@ begin
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
+
     FLayersList.LoadConfig(GState.MainConfigProvider);
+    FLayersList.StartThreads;
     ProgramStart:=false;
 
 
@@ -1780,6 +1782,7 @@ begin
       Screen.Forms[i].Close;
     end;
   end;
+  FLayersList.StartThreads;
   Application.ProcessMessages;
   if FUIDownLoader <> nil then begin
     VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);

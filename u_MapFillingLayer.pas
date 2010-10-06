@@ -30,6 +30,8 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Hide; override;
@@ -149,6 +151,12 @@ begin
 
 end;
 
+procedure TMapFillingLayer.SendTerminateToThreads;
+begin
+  inherited;
+  FThread.Terminate;
+end;
+
 procedure TMapFillingLayer.SetScreenCenterPos(
   const AScreenCenterPos: TPoint; const AZoom: byte;
   AGeoConvert: ICoordConverter);
@@ -224,6 +232,12 @@ begin
   end;
   Resize;
 
+end;
+
+procedure TMapFillingLayer.StartThreads;
+begin
+  inherited;
+  FThread.Resume;
 end;
 
 { TFillingMapThread }
@@ -375,7 +389,7 @@ end;
 
 constructor TMapFillingThread.Create(ALayer: TMapFillingLayer);
 begin
-  inherited Create(false);
+  inherited Create(True);
   Priority := tpLowest;
   FLayer := ALayer;
   FStopThread := TEvent.Create(nil, True, False, '');
