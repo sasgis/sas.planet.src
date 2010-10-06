@@ -3,6 +3,8 @@ unit t_CommonTypes;
 interface
 
 type
+  TTileSource = (tsInternet,tsCache,tsCacheInternet);
+
   TInetConnect = class
   public
     userwinset: boolean;

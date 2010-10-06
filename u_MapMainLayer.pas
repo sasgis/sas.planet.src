@@ -8,12 +8,18 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  t_CommonTypes,
   u_MapViewPortState,
+  u_TileDownloaderUI,
   UMapType,
   u_MapLayerBasic;
 
 type
   TMapMainLayer = class(TMapLayerBasic)
+  private
+    FUIDownLoader: TTileDownloaderUI;
+    function GetUseDownload: TTileSource;
+    procedure SetUseDownload(const Value: TTileSource);
   protected
     procedure DrawGenShBorders;
     procedure generate_granica;
@@ -22,6 +28,9 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
+    property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
   end;
 
 const
@@ -46,10 +55,18 @@ uses
 constructor TMapMainLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   inherited;
+  FUIDownLoader := TTileDownloaderUI.Create;
 end;
 
 destructor TMapMainLayer.Destroy;
+var
+  VWaitResult: DWORD;
 begin
+  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
+  if VWaitResult = WAIT_TIMEOUT then begin
+    TerminateThread(FUIDownLoader.Handle, 0);
+  end;
+  FreeAndNil(FUIDownLoader);
   inherited;
 end;
 
@@ -63,6 +80,7 @@ var
   VHybrList: IMapTypeList;
 begin
   inherited;
+  FUIDownLoader.change_scene := true;
   FLayer.Bitmap.Clear(Color32(GState.BGround));
   DrawMap(GState.ViewState.GetCurrentMap, dmOpaque);
 
@@ -439,6 +457,29 @@ begin
       end;
     end;
   end;
+end;
+
+function TMapMainLayer.GetUseDownload: TTileSource;
+begin
+  Result := FUIDownLoader.UseDownload;
+end;
+
+procedure TMapMainLayer.SendTerminateToThreads;
+begin
+  inherited;
+  FUIDownLoader.Terminate;
+end;
+
+procedure TMapMainLayer.SetUseDownload(const Value: TTileSource);
+begin
+  FUIDownLoader.UseDownload := Value;
+  FUIDownLoader.change_scene := True;
+end;
+
+procedure TMapMainLayer.StartThreads;
+begin
+  inherited;
+  FUIDownLoader.Resume;
 end;
 
 end.

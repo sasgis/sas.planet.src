@@ -81,8 +81,6 @@ uses
   t_GeoTypes;
 
 type
-  TTileSource = (tsInternet,tsCache,tsCacheInternet);
-
   TAOperation = (
     ao_movemap,
     ao_add_line ,
@@ -541,7 +539,6 @@ type
     dWhenMovingButton: integer;
     LenShow: boolean;
     RectWindow: TRect;
-    FUIDownLoader: TTileDownloaderUI;
     marshrutcomment: string;
     movepoint: integer;
     lastpoint: integer;
@@ -810,9 +807,6 @@ begin
     NZoomOut.Enabled:=TBZoom_Out.Enabled;
     RxSlider1.Value:=VZoomCurr;
     labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
-    if FUIDownLoader <> nil then begin
-      FUIDownLoader.change_scene:=true;
-    end;
     map.BeginUpdate;
     try
       LayerStatBar.Redraw;
@@ -848,9 +842,7 @@ begin
   tsCache: NSRCesh.Checked:=true;
   tsCacheInternet: NSRCic.Checked:=true;
  end;
- if FUIDownLoader <> nil then begin
-   FUIDownLoader.change_scene:=true;
- end;
+ FMainLayer.UseDownload := Value;
 end;
 
 procedure TFMain.Set_lock_toolbars(const Value: boolean);
@@ -1201,12 +1193,6 @@ begin
     FShowErrorLayer.Visible := False;
   end;
 
-  if not(lastload.use) then begin
-    if FUIDownLoader <> nil then begin
-      FUIDownLoader.change_scene := true;
-    end;
-  end;
-
   FMainLayer.Redraw;
   FLayerScaleLine.Redraw;
   FLayerMapMarks.Redraw;
@@ -1482,7 +1468,6 @@ begin
     FShortCutManager.Load(GState.MainIni, 'HOTKEY');
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
-    Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
     lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
 
     Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
@@ -1597,7 +1582,6 @@ begin
     FLayersList.StartThreads;
     ProgramStart:=false;
 
-
     GState.ViewState.LockWrite;
     GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 
@@ -1632,7 +1616,6 @@ begin
 
     SetProxy;
 
-    FUIDownLoader := TTileDownloaderUI.Create;
 
     case GState.SrchType of
       stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
@@ -1644,6 +1627,7 @@ begin
     end;
 
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
+
     FMainLayer.Visible := True;
     LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
     FLayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
@@ -1652,7 +1636,7 @@ begin
     LayerStatBar.Visible:=GState.ShowStatusBar;
     Showstatus.Checked:=GState.ShowStatusBar;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
-
+    Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1773,9 +1757,6 @@ begin
   //останавливаем GPS
   GPSReceiver.OnDisconnect:=nil;
   GPSReceiver.Close;
-  if FUIDownLoader <> nil then begin
-    FUIDownLoader.Terminate;
-  end;
   GState.StopAllThreads;
   for i := 0 to Screen.FormCount - 1 do begin
     if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
@@ -1784,12 +1765,6 @@ begin
   end;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  if FUIDownLoader <> nil then begin
-    VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
-    if VWaitResult = WAIT_TIMEOUT then begin
-      TerminateThread(FUIDownLoader.Handle, 0);
-    end;
-  end;
   if length(GState.MapType)<>0 then FSettings.Save(GState.MainConfigProvider);
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
@@ -1799,7 +1774,6 @@ begin
   FHybrChangeListener := nil;
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
-  FreeAndNil(FUIDownLoader);
   FreeAndNil(FShortCutManager);
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;

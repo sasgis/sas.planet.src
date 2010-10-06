@@ -7,6 +7,7 @@ uses
   Classes,
   Types,
   t_LoadEvent,
+  t_CommonTypes,
   u_TileDownloaderThreadBase,
   UMapType;
 
@@ -24,6 +25,7 @@ type
     procedure Execute; override;
   public
     change_scene: boolean;
+    UseDownload: TTileSource;
     constructor Create(); overload;
     destructor Destroy; override;
   end;
@@ -39,8 +41,9 @@ uses
 
 constructor TTileDownloaderUI.Create;
 begin
-  inherited Create(False);
+  inherited Create(True);
   Priority := tpLower;
+  UseDownload := tsCache;
   randomize;
 end;
 
@@ -85,7 +88,7 @@ var
   VZoom: Byte;
 begin
   repeat
-    if Fmain.TileSource = tsCache then begin
+    if UseDownload = tsCache then begin
       if Terminated then begin
         break;
       end;
@@ -183,9 +186,9 @@ begin
                   Flastload.Zoom := Fzoom;
                   FlastLoad.mt := VMap;
                   FlastLoad.use := true;
-                  if (FMain.TileSource = tsInternet) or ((FMain.TileSource = tsCacheInternet) and (not (VMap.TileExists(FLoadXY, Fzoom)))) then begin
-                    if VMap.UseDwn then begin
-                      if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
+                  if VMap.UseDwn then begin
+                    if (UseDownload = tsInternet) or ((UseDownload = tsCacheInternet) and (not (VMap.TileExists(FLoadXY, Fzoom)))) then begin
+                        if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
                         FileBuf := TMemoryStream.Create;
                         try
                           try
@@ -207,8 +210,6 @@ begin
                           FileBuf.Free;
                         end;
                       end;
-                    end else begin
-                      FErrorString := SAS_ERR_NotLoads;
                     end;
                   end;
                 end;
