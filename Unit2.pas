@@ -18,7 +18,7 @@ uses
 
 type
 
-  TFGoTo = class(TCommonFormParent)
+  TfrmGoTo = class(TCommonFormParent)
     RB1: TRadioButton;
     GroupBox2: TGroupBox;
     RB3: TRadioButton;
@@ -56,7 +56,7 @@ type
 
 
 var
-  FGoTo: TFGoTo;
+  frmGoTo: TfrmGoTo;
 
 implementation
 
@@ -71,19 +71,19 @@ uses
 
 {$R *.dfm}
 
-procedure TFGoTo.FormActivate(Sender: TObject);
+procedure TfrmGoTo.FormActivate(Sender: TObject);
 begin
   if not(sender is TForm) then exit;
   CBzoom.ItemIndex:=GState.ViewState.GetCurrentZoom;
   frLonLatPoint.LonLat := GState.ViewState.GetCenterLonLat;
 end;
 
-procedure TFGoTo.FormShow(Sender: TObject);
+procedure TfrmGoTo.FormShow(Sender: TObject);
 begin
   AllMarsk2StringsWhitMarkId(ComboBox1.Items);
 end;
 
-function TFGoTo.GeocodeResultFromLonLat(ASearch: WideString;
+function TfrmGoTo.GeocodeResultFromLonLat(ASearch: WideString;
   ALonLat: TExtendedPoint; AMessage: WideString): IGeoCodeResult;
 var
   VPlace: IGeoCodePalcemark;
@@ -95,14 +95,14 @@ begin
   Result := TGeoCodeResult.Create(ASearch, 203, '', VList);
 end;
 
-procedure TFGoTo.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmGoTo.FormClose(Sender: TObject; var Action: TCloseAction);
 var i:integer;
 begin
   for i:=1 to ComboBox1.items.Count do ComboBox1.Items.Objects[i-1].Free;
   ComboBox1.Clear;
 end;
 
-procedure TFGoTo.BGoClick(Sender: TObject);
+procedure TfrmGoTo.BGoClick(Sender: TObject);
 var
   textsrch:String;
   VId: Integer;
@@ -140,18 +140,18 @@ begin
   end;
 end;
 
-procedure TFGoTo.lat_nsClick(Sender: TObject);
+procedure TfrmGoTo.lat_nsClick(Sender: TObject);
 begin
   RB1.Checked:=true;
 end;
 
-procedure TFGoTo.RefreshTranslation;
+procedure TfrmGoTo.RefreshTranslation;
 begin
   inherited;
   frLonLatPoint.RefreshTranslation;
 end;
 
-function TFGoTo.ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
+function TfrmGoTo.ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
 begin
   if ShowModal = mrOk then begin
     Result := true;
@@ -164,29 +164,29 @@ begin
   end;
 end;
 
-procedure TFGoTo.EditGFClick(Sender: TObject);
+procedure TfrmGoTo.EditGFClick(Sender: TObject);
 begin
  if (not(RB2.Checked))and(not(RB4.Checked)) then RB2.Checked:=true;
 end;
 
-procedure TFGoTo.Lat1Click(Sender: TObject);
+procedure TfrmGoTo.Lat1Click(Sender: TObject);
 begin
  if (not(RB1.Checked)) then RB1.Checked:=true;
 end;
 
-procedure TFGoTo.ComboBox1Enter(Sender: TObject);
+procedure TfrmGoTo.ComboBox1Enter(Sender: TObject);
 begin
  if (not(RB3.Checked)) then RB3.Checked:=true;
 end;
 
-constructor TFGoTo.Create(AOwner: TComponent);
+constructor TfrmGoTo.Create(AOwner: TComponent);
 begin
   inherited;
   frLonLatPoint := TfrLonLat.Create(nil);
   frLonLatPoint.Parent := pnlLonLat;
 end;
 
-destructor TFGoTo.Destroy;
+destructor TfrmGoTo.Destroy;
 begin
   FreeAndNil(frLonLatPoint);
   inherited;

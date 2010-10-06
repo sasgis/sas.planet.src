@@ -2311,7 +2311,7 @@ var
   VResult: IGeoCodeResult;
   VZoom: Byte;
 begin
-  if FGoTo.ShowGeocodeModal(VResult, VZoom) then begin
+  if frmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
 end;

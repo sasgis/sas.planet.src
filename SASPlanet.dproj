@@ -229,7 +229,7 @@
       <Form>Fmain</Form>
     </DCCReference>
     <DCCReference Include="Unit2.pas">
-      <Form>FGoTo</Form>
+      <Form>frmGoTo</Form>
     </DCCReference>
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>

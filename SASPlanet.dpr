@@ -229,7 +229,7 @@ uses
   fr_MarkDescription in 'fr_MarkDescription.pas' {frMarkDescription: TFrame},
   fr_LonLat in 'fr_LonLat.pas' {frLonLat: TFrame},
   Unit1 in 'Unit1.pas' {Fmain},
-  Unit2 in 'Unit2.pas' {FGoTo},
+  Unit2 in 'Unit2.pas' {frmGoTo},
   UAbout in 'UAbout.pas' {Fabout},
   Usettings in 'Usettings.pas' {FSettings},
   USaveas in 'USaveas.pas' {Fsaveas},
@@ -276,7 +276,7 @@ begin
     //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TFmain, Fmain);
-  Application.CreateForm(TFGoTo, FGoTo);
+  Application.CreateForm(TfrmGoTo, frmGoTo);
   Application.CreateForm(TFabout, Fabout);
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFsaveas, Fsaveas);

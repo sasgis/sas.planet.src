@@ -1,4 +1,4 @@
-object FGoTo: TFGoTo
+object frmGoTo: TfrmGoTo
   Left = 295
   Top = 179
   Hint = 'Close'
