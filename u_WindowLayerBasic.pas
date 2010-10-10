@@ -60,6 +60,7 @@ type
     procedure DoResize; virtual;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -81,6 +82,8 @@ uses
 constructor TWindowLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   FParentMap := AParentMap;
+  FViewPortState := AViewPortState;
+
   FLayer := TBitmapLayerWithSortIndex.Create(FParentMap.Layers, GetSortIndexForLayer);
 
   FLayer.Bitmap.DrawMode := dmBlend;
@@ -88,6 +91,15 @@ begin
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
+end;
+
+destructor TWindowLayerBasic.Destroy;
+begin
+  FMapPosChangeListener := nil;
+  FViewPortState := nil;
+  FParentMap := nil;
+  FLayer := nil;
+  inherited;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;
@@ -179,7 +191,6 @@ begin
     end;
   end;
 end;
-
 
 procedure TWindowLayerBasic.DoResize;
 begin
