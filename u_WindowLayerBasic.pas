@@ -21,6 +21,7 @@ type
     FLayer: TBitmapLayerWithSortIndex;
     FViewPortState: TMapViewPortState;
     FMapPosChangeListener: IJclListener;
+    FVisibleChangeNotifier: IJclNotifier;
 
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
@@ -70,6 +71,7 @@ type
     procedure Hide; virtual;
     procedure Redraw; virtual;
     property Visible: Boolean read GetVisible write SetVisible;
+    property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
   end;
 
 
@@ -77,7 +79,8 @@ implementation
 
 uses
   Forms,
-  Types;
+  Types,
+  u_JclNotify;
 
 constructor TWindowLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
@@ -91,6 +94,8 @@ begin
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
+
+  FVisibleChangeNotifier := TJclBaseNotifier.Create;
 end;
 
 destructor TWindowLayerBasic.Destroy;
@@ -99,6 +104,7 @@ begin
   FViewPortState := nil;
   FParentMap := nil;
   FLayer := nil;
+  FVisibleChangeNotifier := nil;
   inherited;
 end;
 
@@ -110,6 +116,7 @@ end;
 procedure TWindowLayerBasic.Hide;
 begin
   FLayer.Visible := False;
+  FVisibleChangeNotifier.Notify(nil);
   FLayer.Bitmap.Lock;
   try
     FLayer.Bitmap.SetSize(0, 0);
@@ -154,6 +161,7 @@ procedure TWindowLayerBasic.Show;
 begin
   if not FLayer.Visible then begin
     FLayer.Visible := True;
+    FVisibleChangeNotifier.Notify(nil);
     Resize;
     Redraw;
   end;
