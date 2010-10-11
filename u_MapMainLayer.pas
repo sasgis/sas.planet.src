@@ -294,7 +294,14 @@ var
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
   i, j: integer;
+  VUsePre: Boolean;
 begin
+  if AMapType.asLayer then begin
+    VUsePre := GState.UsePrevZoomLayer;
+  end else begin
+    VUsePre := GState.UsePrevZoom;
+  end;
+
   VBmp := TBitmap32.Create;
   try
     VZoom := FZoom;
@@ -344,7 +351,7 @@ begin
         VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
         Inc(VCurrTilePixelRectAtBitmap.Bottom);
         Inc(VCurrTilePixelRectAtBitmap.Right);
-        if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False) then begin
+        if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
           Gamma(VBmp);
         end;
         FLayer.Bitmap.Lock;

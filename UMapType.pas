@@ -110,7 +110,7 @@ type
     function LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean): boolean; overload;
     function LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean): boolean;
-    function LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
+    function LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean; AUsePre: Boolean): boolean;
     function LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
     function LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
     function LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
@@ -1055,16 +1055,17 @@ begin
 end;
 
 function TMapType.LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean; IgnoreError: Boolean): boolean;
+  caching: boolean; IgnoreError: Boolean; AUsePre: Boolean): boolean;
 var
   VRect: TRect;
   VSize: TPoint;
   bSpr:TCustomBitmap32;
   VBmp: TBitmap32;
 begin
+  Result := False;
+  VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+  VSize := Point(VRect.Right - VRect.Left + 1, VRect.Bottom - VRect.Top + 1);
   if TileExists(AXY, Azoom) then begin
-    VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
-    VSize := Point(VRect.Right - VRect.Left + 1, VRect.Bottom - VRect.Top + 1);
     Result := LoadTile(spr, AXY, Azoom, caching);
     if Result then begin
       if (spr.Width < VSize.X) or
@@ -1078,7 +1079,16 @@ begin
     end;
     if not Result then begin
       if IgnoreError then begin
-        Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
+        if AUsePre then begin
+          Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
+        end else begin
+          VBmp.SetSize(VSize.X, VSize.Y);
+          if asLayer then begin
+            VBmp.Clear(SetAlpha(Color32(GState.BGround),0));
+          end else begin
+            VBmp.Clear(Color32(GState.BGround));
+          end;
+        end;
       end else begin
         VBmp := TBitmap32.Create;
         try
@@ -1096,7 +1106,16 @@ begin
       end;
     end;
   end else begin
-    Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
+    if AUsePre then begin
+      Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
+    end else begin
+      VBmp.SetSize(VSize.X, VSize.Y);
+      if asLayer then begin
+        VBmp.Clear(SetAlpha(Color32(GState.BGround),0));
+      end else begin
+        VBmp.Clear(Color32(GState.BGround));
+      end;
+    end;
   end;
 end;
 
@@ -1143,11 +1162,7 @@ begin
       (VPixelRectCurrTile.Right = APixelRectTarget.Right) and
       (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom)
     then begin
-      if AUsePre then begin
-        Result := LoadTileOrPreZ(spr, VTileRect.TopLeft, Azoom, caching, IgnoreError);
-      end else begin
-        Result := LoadTile(spr, VTileRect.TopLeft, Azoom, caching);
-      end;
+      Result := LoadTileOrPreZ(spr, VTileRect.TopLeft, Azoom, caching, IgnoreError, AUsePre);
       exit;
     end;
   end;
@@ -1179,11 +1194,7 @@ begin
       VTile.Y := i;
       for j := VTileRect.Left to VTileRect.Right do begin
         VTile.X := j;
-        if AUsePre then begin
-          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError);
-        end else begin
-          VLoadResult := LoadTile(VSpr, VTile, Azoom, caching);
-        end;
+        VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError, AUsePre);
         if VLoadResult then begin
           VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
 
@@ -1324,11 +1335,7 @@ begin
         VTile.Y := i;
         for j := VTileRectInSource.Left to VTileRectInSource.Right do begin
           VTile.X := j;
-          if AUsePre then begin
-            VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError);
-          end else begin
-            VLoadResult := LoadTile(VSpr, VTile, Azoom, caching);
-          end;
+          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError, AUsePre);
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
             VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);

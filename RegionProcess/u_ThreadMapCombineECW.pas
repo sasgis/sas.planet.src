@@ -122,7 +122,7 @@ begin
       end else begin
         btmm.Clear(Color32(GState.BGround));
         VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
-        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, true);
+        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, true, GState.UsePrevZoom);
         if FHTypeMap <> nil then begin
           btmh.Clear($FF000000);
           FHTypeMap.LoadTileUni(btmh, FLastTile, FZoom, False, FTypeMap.GeoConvert, True, True, True);
