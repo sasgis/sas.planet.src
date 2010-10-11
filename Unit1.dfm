@@ -1178,12 +1178,13 @@ object Fmain: TFmain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 5
+        Left = 9
         Top = 257
-        Width = 22
+        Width = 14
         Height = 13
         Hint = #1052#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099' '#1085#1072' '#1082#1086#1090#1086#1088#1086#1084' '#1074#1099' '#1085#1072#1093#1086#1076#1080#1090#1077#1089#1100
-        Caption = ' 1x '
+        Alignment = taCenter
+        Caption = '1x'
         Color = clBtnFace
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clHotLight
@@ -2242,8 +2243,6 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 3
             OnVisibleChanged = TBXSensorsBarVisibleChanged
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -2578,8 +2577,6 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 8
             OnVisibleChanged = TBXSensorsBarVisibleChanged
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -2624,8 +2621,6 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 9
             OnVisibleChanged = TBXSensorsBarVisibleChanged
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -5192,7 +5187,7 @@ object Fmain: TFmain
     OnTimeout = GPSReceiverTimeout
     OnReceive = GPSReceiverReceive
     OnSatellitesReceive = GPSReceiver1SatellitesReceive
-    Left = 24
+    Left = 40
     Top = 316
   end
   object SaveLink: TSaveDialog
@@ -5204,7 +5199,7 @@ object Fmain: TFmain
   object TBImageList1_24: TTBImageList
     Height = 17
     Width = 17
-    Left = 28
+    Left = 36
     Top = 345
     Bitmap = {
       494C010119001B00040011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
@@ -6893,7 +6888,7 @@ object Fmain: TFmain
   object MapIcons18: TTBImageList
     Height = 18
     Width = 18
-    Left = 28
+    Left = 36
     Top = 281
   end
   object EditCommentsImgs: TImageList

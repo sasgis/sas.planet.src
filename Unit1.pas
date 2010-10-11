@@ -806,7 +806,7 @@ begin
     NZoomIn.Enabled:=TBZoomIn.Enabled;
     NZoomOut.Enabled:=TBZoom_Out.Enabled;
     RxSlider1.Value:=VZoomCurr;
-    labZoom.caption:=' '+inttostr(VZoomCurr + 1)+'x ';
+    labZoom.caption:=inttostr(VZoomCurr + 1)+'x';
     map.BeginUpdate;
     try
       LayerStatBar.Redraw;
@@ -1865,7 +1865,7 @@ end;
 
 procedure TFmain.RxSlider1Change(Sender: TObject);
 begin
- labZoom.Caption:=' '+inttostr(RxSlider1.Value+1)+'x ';
+ labZoom.Caption:=inttostr(RxSlider1.Value+1)+'x';
 end;
 
 procedure TFmain.RxSlider1Changed(Sender: TObject);
