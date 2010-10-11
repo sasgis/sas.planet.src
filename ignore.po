@@ -26,6 +26,10 @@ msgstr ""
 msgid "_"
 msgstr ""
 
+#  Doesn't look like text
+msgid "1x"
+msgstr ""
+
 #  Doesn't have any letters
 msgid "<>"
 msgstr ""
