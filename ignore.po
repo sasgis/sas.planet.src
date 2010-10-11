@@ -15,47 +15,7 @@ msgid "   "
 msgstr ""
 
 #  Doesn't have any letters
-msgid "*"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid "*.hlg"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid "*.kml"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid "*.sls"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid "aux"
-msgstr ""
-
-#  Doesn't have any letters
 msgid "..."
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid ".dat"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid ".kml"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid ".map"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid ".tab"
-msgstr ""
-
-#  Looks like a file extension or file mask
-msgid ".w"
 msgstr ""
 
 #  Doesn't have any letters
@@ -122,117 +82,8 @@ msgstr ""
 msgid "41001292446592"
 msgstr ""
 
-#  Seems like a Database field name or index field name
-msgid "id"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "name"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "AfterScale"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "BeforeScale"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "categoryid"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "color1"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "color2"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "descr"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "LatB"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "latT"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "lonL"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "lonlatarr"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "LonR"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "picname"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "scale1"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "scale2"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "visible"
-msgstr ""
-
-#  Seems like a Database field name or index field name
-msgid "LonR;LonL;LatT;LatB;visible"
-msgstr ""
-
 #  Doesn't look like text
 msgid "COM1"
-msgstr ""
-
-#  Seems like a component name
-msgid "CHANGEINDEX"
-msgstr ""
-
-#  Seems like a component name
-msgid "DEFAULT_ORDER"
-msgstr ""
-
-#  Seems like a Font.Name extract
-msgid "MS Reference Sans Serif"
-msgstr ""
-
-#  Seems like a Font.Name extract
-msgid "MS Sans Serif"
-msgstr ""
-
-#  Seems like a Font.Name extract
-msgid "Tahoma"
-msgstr ""
-
-#  Seems like a Font.Name extract
-msgid "Arial"
-msgstr ""
-
-#  Doesn't look like text
-msgid " Embedded Web Browser from: http://bsalsa.com/"
-msgstr ""
-
-#  Doesn't look like text
-msgid "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR "
-"2.0.50727)"
-msgstr ""
-
-#  Doesn't look like text
-msgid " EmbeddedWB http://bsalsa.com/"
 msgstr ""
 
 #  Doesn't look like text
@@ -245,12 +96,4 @@ msgstr ""
 
 #  Doesn't look like text
 msgid "<HTML></HTML>"
-msgstr ""
-
-#  Doesn't look like text
-msgid "TLinearResampler"
-msgstr ""
-
-#  Doesn't look like text
-msgid "TNearestResampler"
 msgstr ""
