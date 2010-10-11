@@ -3,8 +3,8 @@ object FDGAvailablePic: TFDGAvailablePic
   Top = 247
   BorderStyle = bsDialog
   Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1076#1086#1089#1090#1091#1087#1085#1099#1093' '#1089#1085#1080#1084#1082#1072#1093' '#1085#1072' DigitalGlobe'
-  ClientHeight = 396
-  ClientWidth = 361
+  ClientHeight = 369
+  ClientWidth = 355
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,12 +18,17 @@ object FDGAvailablePic: TFDGAvailablePic
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
-    Left = 8
-    Top = 304
-    Width = 345
+    AlignWithMargins = True
+    Left = 3
+    Top = 281
+    Width = 349
     Height = 85
-    Caption = ' '#1054#1087#1080#1089#1072#1085#1080#1077' '
+    Align = alBottom
+    Caption = #1054#1087#1080#1089#1072#1085#1080#1077
     TabOrder = 0
+    ExplicitLeft = 8
+    ExplicitTop = 304
+    ExplicitWidth = 345
     object LabelDate: TLabel
       Left = 176
       Top = 16
@@ -86,17 +91,25 @@ object FDGAvailablePic: TFDGAvailablePic
     end
   end
   object GroupBox3: TGroupBox
-    Left = 8
-    Top = 50
-    Width = 345
-    Height = 253
-    Caption = ' '#1044#1086#1089#1090#1091#1087#1085#1099#1077' '#1089#1085#1080#1084#1082#1080' '
+    AlignWithMargins = True
+    Left = 3
+    Top = 58
+    Width = 349
+    Height = 217
+    Align = alClient
+    Caption = #1044#1086#1089#1090#1091#1087#1085#1099#1077' '#1089#1085#1080#1084#1082#1080
     TabOrder = 1
+    ExplicitLeft = 8
+    ExplicitTop = 50
+    ExplicitWidth = 345
+    ExplicitHeight = 253
     object TreeView1: TTreeView
-      Left = 8
-      Top = 16
-      Width = 249
-      Height = 228
+      AlignWithMargins = True
+      Left = 5
+      Top = 18
+      Width = 258
+      Height = 194
+      Align = alClient
       HideSelection = False
       HotTrack = True
       Indent = 19
@@ -105,52 +118,87 @@ object FDGAvailablePic: TFDGAvailablePic
       SortType = stText
       TabOrder = 0
       OnMouseDown = TreeView1MouseDown
+      ExplicitLeft = 8
+      ExplicitTop = 16
+      ExplicitWidth = 249
+      ExplicitHeight = 222
     end
-    object Button1: TButton
-      Left = 264
-      Top = 16
-      Width = 73
-      Height = 25
-      Caption = #1042#1099#1096#1077
+    object pnlRight: TPanel
+      Left = 266
+      Top = 15
+      Width = 81
+      Height = 200
+      Align = alRight
+      BevelOuter = bvNone
       TabOrder = 1
-      OnClick = Button1Click
-    end
-    object Button2: TButton
-      Left = 264
-      Top = 40
-      Width = 73
-      Height = 25
-      Caption = #1053#1080#1078#1077
-      TabOrder = 2
-      OnClick = Button2Click
-    end
-    object Button3: TButton
-      Left = 264
-      Top = 74
-      Width = 73
-      Height = 25
-      Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1099#1077' tid '#1076#1083#1103' '#1074#1089#1090#1072#1074#1082#1080' '#1074' URL'
-      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 3
-      OnClick = Button3Click
+      ExplicitLeft = 272
+      ExplicitHeight = 227
+      object Button1: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 75
+        Height = 25
+        Align = alTop
+        Caption = #1042#1099#1096#1077
+        TabOrder = 0
+        OnClick = Button1Click
+        ExplicitLeft = 34
+        ExplicitTop = 16
+        ExplicitWidth = 73
+      end
+      object Button2: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 34
+        Width = 75
+        Height = 25
+        Align = alTop
+        Caption = #1053#1080#1078#1077
+        TabOrder = 1
+        OnClick = Button2Click
+        ExplicitLeft = 34
+        ExplicitTop = 40
+        ExplicitWidth = 73
+      end
+      object Button3: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 65
+        Width = 75
+        Height = 25
+        Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1099#1077' tid '#1076#1083#1103' '#1074#1089#1090#1072#1074#1082#1080' '#1074' URL'
+        Align = alTop
+        Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+        OnClick = Button3Click
+        ExplicitLeft = 34
+        ExplicitTop = 74
+        ExplicitWidth = 73
+      end
     end
   end
   object GroupBox4: TGroupBox
-    Left = 8
-    Top = 0
-    Width = 345
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 349
     Height = 49
-    Caption = ' '#1042#1099#1073#1086#1088' '#1089#1090#1077#1082#1072' '#1089#1085#1080#1084#1082#1086#1074' '
+    Align = alTop
+    Caption = #1042#1099#1073#1086#1088' '#1089#1090#1077#1082#1072' '#1089#1085#1080#1084#1082#1086#1074
     TabOrder = 2
+    ExplicitLeft = 8
+    ExplicitTop = 0
+    ExplicitWidth = 345
     object ComboBox2: TComboBox
       Left = 8
       Top = 16
       Width = 329
       Height = 21
       Style = csDropDownList
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 0
       OnChange = ComboBox2Change
     end

@@ -39,6 +39,7 @@ type
     GroupBox4: TGroupBox;
     ComboBox2: TComboBox;
     Button3: TButton;
+    pnlRight: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure TreeView1MouseDown(Sender: TObject; Button: TMouseButton;
