@@ -1641,9 +1641,8 @@ object FSettings: TFSettings
           Width = 244
           Height = 363
           Align = alClient
-          Caption = ' C'#1087#1091#1090#1085#1080#1082#1080' '
+          Caption = #1057#1087#1091#1090#1085#1080#1082#1080
           TabOrder = 0
-          ExplicitHeight = 295
           object PaintBox1: TPaintBox
             AlignWithMargins = True
             Left = 5
