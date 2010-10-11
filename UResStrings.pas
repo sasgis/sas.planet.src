@@ -3,7 +3,6 @@ unit UResStrings;
 interface
 
 ResourceString
- SAS_MSG_need_reload_application='Necessary to reload application,'+#13#10+'that change have took effect.';
  SAS_MSG_need_reload_application_curln='Для того чтобы изменения вступили в силу'+#13#10+'необходимо перезапустить программу.';
  SAS_MSG_needselect='Необходимо сначало выделить объект';
  SAS_MSG_coution='Внимание!';

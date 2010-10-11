@@ -46,7 +46,7 @@ begin
     raise Exception.Create('Пустое имя файла с настройками карты');
   end;
   if not FileExists(AFileName) then begin
-    raise Exception.Create('Файл ' + AFileName + ' не найден');
+    raise Exception.CreateFmt('Файл %0:s не найден', [AFileName]);
   end;
   FUnZip := TKAZip.Create(nil);
   FUnZip.Open(AFileName);

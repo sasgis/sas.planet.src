@@ -29,7 +29,7 @@ object FMarksExplorer: TFMarksExplorer
     Top = 8
     Width = 273
     Height = 345
-    Caption = ' '#1052#1077#1090#1082#1080' '
+    Caption = #1052#1077#1090#1082#1080
     TabOrder = 0
     object BtnGotoMark: TSpeedButton
       Left = 80
@@ -349,7 +349,7 @@ object FMarksExplorer: TFMarksExplorer
     Top = 8
     Width = 201
     Height = 345
-    Caption = ' '#1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082' '
+    Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082
     TabOrder = 1
     object BtnDelKat: TSpeedButton
       Left = 72

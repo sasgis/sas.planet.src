@@ -87,7 +87,7 @@ object FSelLonLat: TFSelLonLat
       Width = 246
       Height = 65
       Align = alClient
-      Caption = ' '#1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083' '
+      Caption = #1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 0
     end
     object grpBottomRight: TGroupBox
@@ -97,7 +97,7 @@ object FSelLonLat: TFSelLonLat
       Width = 246
       Height = 66
       Align = alClient
-      Caption = ' '#1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083' '
+      Caption = #1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 1
     end
   end

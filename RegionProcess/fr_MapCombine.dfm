@@ -22,9 +22,10 @@ object frMapCombine: TfrMapCombine
       Left = 442
       Top = 3
       Width = 6
-      Height = 13
+      Height = 12
       Align = alRight
       Caption = '_'
+      ExplicitHeight = 13
     end
   end
   object pnlTargetFile: TPanel
@@ -40,10 +41,11 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 86
-      Height = 13
+      Height = 19
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 89
@@ -146,7 +148,7 @@ object frMapCombine: TfrMapCombine
         Width = 159
         Height = 63
         Align = alTop
-        Caption = ' '#1056#1072#1079#1073#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077' '
+        Caption = #1056#1072#1079#1073#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
         TabOrder = 0
         object lblSplitHor: TLabel
           Left = 7
@@ -205,7 +207,7 @@ object frMapCombine: TfrMapCombine
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 2
         OnChange = cbbZoomChange
       end
@@ -245,7 +247,7 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object cbbHybr: TComboBox

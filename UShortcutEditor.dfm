@@ -30,7 +30,7 @@ object FShortcutChange: TFShortcutChange
     Top = 8
     Width = 185
     Height = 41
-    Caption = ' '#1053#1072#1079#1072#1085#1095#1080#1090#1100' '#1089#1086#1095#1077#1090#1072#1085#1080#1077' '
+    Caption = #1053#1072#1079#1072#1085#1095#1080#1090#1100' '#1089#1086#1095#1077#1090#1072#1085#1080#1077
     TabOrder = 0
     object HotKey: THotKey
       Left = 8

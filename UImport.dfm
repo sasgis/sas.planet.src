@@ -29,7 +29,7 @@ object FImport: TFImport
     Top = 8
     Width = 425
     Height = 21
-    ItemHeight = 0
+    ItemHeight = 13
     TabOrder = 0
   end
   object GroupBox1: TGroupBox
@@ -37,7 +37,7 @@ object FImport: TFImport
     Top = 64
     Width = 489
     Height = 81
-    Caption = ' '#1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1084#1077#1090#1086#1082' '
+    Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1084#1077#1090#1086#1082
     TabOrder = 1
     object Label3: TLabel
       Left = 128
@@ -177,7 +177,7 @@ object FImport: TFImport
     Top = 176
     Width = 489
     Height = 57
-    Caption = ' '#1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1091#1090#1077#1081' '
+    Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1091#1090#1077#1081
     TabOrder = 2
     object Label1: TLabel
       Left = 88
@@ -250,7 +250,7 @@ object FImport: TFImport
     Top = 264
     Width = 489
     Height = 81
-    Caption = ' '#1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1086#1083#1080#1075#1086#1085#1086#1074' '
+    Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1086#1083#1080#1075#1086#1085#1086#1074
     TabOrder = 3
     object Label10: TLabel
       Left = 88
