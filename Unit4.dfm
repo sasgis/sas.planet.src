@@ -14,7 +14,6 @@ object Fprogress2: TFprogress2
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
-  OnClose = FormClose
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13

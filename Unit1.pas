@@ -3611,9 +3611,7 @@ end;
 
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
-// Self.Enabled:=false;
  FMarksExplorer.ShowModal;
-// Self.Enabled:=true;
  generate_im;
 end;
 
@@ -4057,7 +4055,6 @@ var
 begin
   if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
     if ExtractFileExt(OpenSessionDialog.FileName)='.sls' then begin
-      Self.Enabled:=true;
       VLog := TLogForTaskThread.Create(5000, 0);
       VSimpleLog := VLog;
       VThreadLog := VLog;
