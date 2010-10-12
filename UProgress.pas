@@ -52,10 +52,10 @@ type
     FLastLogID: Cardinal;
     FStoped: boolean;
     FFinished: Boolean;
-    procedure SetProgressForm;
+    procedure InitProgressForm;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
-    function GetTimeEnd(loadAll,load:integer):String;
+    function GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
     procedure ThreadFinish;
     procedure StopThread;
@@ -115,7 +115,7 @@ begin
   inherited Create(AOwner);
   FDownloadThread := ADownloadThread;
   FLog := ALog;
-  SetProgressForm;
+  InitProgressForm;
 end;
 
 destructor TFProgress.Destroy;
@@ -125,13 +125,12 @@ begin
   FLog := nil;
   inherited;
 end;
-procedure TFProgress.SetProgressForm;
+procedure TFProgress.InitProgressForm;
 begin
   RProgr.Max := FDownloadThread.TotalInRegion;
   RProgr.Progress1 := FDownloadThread.Downloaded;
   RProgr.Progress2 := FDownloadThread.Processed;
   LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
-  LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (х'+inttostr(FDownloadThread.Zoom + 1)+')';
   LabelName1.Caption := SAS_STR_AllProcessed;
   LabelName2.Caption := SAS_STR_AllLoad;
   LabelName3.Caption := SAS_STR_TimeRemained;
@@ -140,17 +139,26 @@ begin
 end;
 
 procedure TFProgress.UpdateProgressForm;
+var
+  VComplete: string;
 begin
+  if FDownloadThread.TotalInRegion > 0 then begin
+    VComplete := inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%';
+  end else begin
+    VComplete := '~%';
+  end;
   if FDownloadThread.Finished then begin
     if not FFinished then begin
       FFinished := True;
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
-      Caption := SAS_MSG_LoadComplete+' ('+inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%)';
+      Caption := SAS_MSG_LoadComplete+' ('+VComplete+')';
+      LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (х'+inttostr(FDownloadThread.Zoom + 1)+')';
       LabelValue1.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
       LabelValue2.Caption := inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
-      LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed);
+      LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       LabelValue4.Caption := GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
+      RProgr.Max := FDownloadThread.TotalInRegion;
       RProgr.Progress1 := FDownloadThread.Processed;
       RProgr.Progress2 := FDownloadThread.Downloaded;
       Repaint;
@@ -159,15 +167,17 @@ begin
   end else begin
     UpdateMemoProgressForm;
     if (FStoped) then begin
-      Caption:=SAS_STR_Stop1+'... ('+inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%)';
+      Caption:=SAS_STR_Stop1+'... ('+VComplete+')';
     end else begin
-      Caption:=SAS_STR_LoadProcess+'... ('+inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%)';
+      Caption:=SAS_STR_LoadProcess+'... ('+VComplete+')';
       Application.ProcessMessages;
+      LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (х'+inttostr(FDownloadThread.Zoom + 1)+')';
       LabelValue1.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
       LabelValue2.Caption:=inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
-      LabelValue3.Caption:=GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed);
+      LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       LabelValue4.Caption:=GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
       UpdateMemoProgressForm;
+      RProgr.Max := FDownloadThread.TotalInRegion;
       RProgr.Progress1 := FDownloadThread.Processed;
       RProgr.Progress2 := FDownloadThread.Downloaded;
     end;
@@ -192,24 +202,25 @@ function TFProgress.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
 begin
   if loaded=0 then begin
     result:='~  б';
-    exit;
+  end else begin
+    Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
   end;
-  Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
 end;
 
-function TFProgress.GetTimeEnd(loadAll,load:integer):String;
-var dd:integer;
-    VElapsedTime: TDateTime;
+function TFProgress.GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
+var
+  dd:integer;
+  VExpectedTime: TDateTime;
 begin
   if load=0 then begin
     result:='~';
-    exit;
+  end else begin
+    VExpectedTime := AElapsedTime * (loadAll / load);
+    dd := DaysBetween(AElapsedTime, VExpectedTime);
+    Result:='';
+    if dd > 0 then Result := inttostr(dd)+' дней, ';
+    Result := Result+FormatDateTime('hh:nn:ss',VExpectedTime - AElapsedTime);
   end;
-  VElapsedTime := FDownloadThread.ElapsedTime;
-  dd := DaysBetween(VElapsedTime,(VElapsedTime*(loadAll/load)));
-  Result:='';
-  if dd > 0 then Result := inttostr(dd)+' дней, ';
-  Result := Result+FormatDateTime('hh:nn:ss',(VElapsedTime*(loadAll / load))-VElapsedTime);
 end;
 
 procedure TFProgress.UpdateTimerTimer(Sender: TObject);
