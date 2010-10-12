@@ -286,6 +286,7 @@ implementation
 uses
   SysUtils,
   Dialogs,
+  gnugettext,
   i_MapTypes,
   i_BitmapTileSaveLoad,
   u_ConfigDataProviderByKaZip,
@@ -727,7 +728,7 @@ begin
           end;
           VGUIDString := VMapType.GUIDString;
           if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
-            raise Exception.CreateFmt('В файлах %0:s и %1:s одинаковые GUID', [VMapTypeLoaded.ZmpFileName, VFileName]);
+            raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFileName]);
           end;
         except
           if ExceptObject <> nil then begin
@@ -752,7 +753,7 @@ begin
     raise Exception.Create(SAS_ERR_NoMaps);
   end;
   if VMapOnlyCount = 0 then begin
-    raise Exception.Create('Среди ZMP должна быть хотя бы одна карта');
+    raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
 
   k := length(MapType) shr 1;

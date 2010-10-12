@@ -4,7 +4,6 @@ interface
 
 ResourceString
  SAS_MSG_need_reload_application_curln='Для того чтобы изменения вступили в силу'+#13#10+'необходимо перезапустить программу.';
- SAS_MSG_needselect='Необходимо сначало выделить объект';
  SAS_MSG_coution='Внимание!';
  SAS_MSG_youasure='Подтвердите факт удаления';
  SAS_MSG_youasurerefrsensor='Вы действительно хотите обнулить датчик';
@@ -50,6 +49,8 @@ ResourceString
  SAS_ERR_MapGUIDEmpty='Пустой GUID';
  SAS_ERR_MapGUIDBad='GUID %0:s не соответствует формату';
  SAS_ERR_MapGUIDError='В карте %0:s ошибка: %1:s';
+ SAS_ERR_MapGUIDDuplicate='В файлах %0:s и %1:s одинаковые GUID';
+ SAS_ERR_MainMapNotExists='Среди ZMP должна быть хотя бы одна карта';
 
  SAS_STR_MarshLen='Длина маршрута: ';
  SAS_STR_Marshtime='Время в пути: ';
