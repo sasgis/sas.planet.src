@@ -18,6 +18,9 @@ type
     FFolderNamesList: TWideStringList;
     FMaxFolderDepth: integer;
     procedure ProcessAddSubFolders(AFolderNameFromRoot: WideString; ADepth: Integer);
+  protected
+    function IsNeedFolderProcess(AParentFolderNameFromRoot, AFolderName: WideString): Boolean; virtual;
+  protected
     function GetRootFolderName: WideString;
     function Next(var AFileName: WideString): Boolean;
     procedure Reset;
@@ -57,6 +60,13 @@ end;
 function TFileNameIteratorFolderWithSubfolders.GetRootFolderName: WideString;
 begin
   Result := FRootFolderName;
+end;
+
+function TFileNameIteratorFolderWithSubfolders.IsNeedFolderProcess(
+  AParentFolderNameFromRoot, AFolderName: WideString): Boolean;
+begin
+  Result := (WideCompareStr(AFolderName, '.') <> 0) and
+    (WideCompareStr(AFolderName, '..') <> 0);
 end;
 
 function TFileNameIteratorFolderWithSubfolders.Next(
@@ -101,8 +111,7 @@ begin
       try
         repeat
           if (VFindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) <> 0 then begin
-            if (WideCompareStr(VFindFileData.cFileName, '.') <> 0) and
-              (WideCompareStr(VFindFileData.cFileName, '..') <> 0) then begin
+            if IsNeedFolderProcess(AFolderNameFromRoot, VFindFileData.cFileName) then begin
               VPathFromRootNew := AFolderNameFromRoot + VFindFileData.cFileName + '\';
               FFolderNamesList.AddObject(VPathFromRootNew, TObject(ADepth + 1));
             end;

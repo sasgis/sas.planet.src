@@ -12,9 +12,13 @@ type
     FRootFolderName: WideString;
     FFolderNameFromRoot: WideString;
     FFileMask: WideString;
+    FFilesOnly: Boolean;
     FValidFindData: Boolean;
     FFindHandle: THandle;
     FFindFileData: TWIN32FindDataW;
+  protected
+    function IsNeedProcess(AFindFileData: TWIN32FindDataW): Boolean; virtual;
+  protected
     function GetRootFolderName: WideString;
     function Next(var AFileName: WideString): Boolean;
     procedure Reset;
@@ -22,22 +26,28 @@ type
     constructor Create(
       ARootFolderName: WideString;
       AFolderNameFromRoot: WideString;
-      AFileMask: WideString
+      AFileMask: WideString;
+      AFilesOnly: Boolean
     );
     destructor Destroy; override;
   end;
 
 implementation
 
+uses
+  SysUtils;
+
 { TFileNameIteratorInFolderByMask }
 
 constructor TFileNameIteratorInFolderByMask.Create(ARootFolderName,
-  AFolderNameFromRoot, AFileMask: WideString);
+  AFolderNameFromRoot, AFileMask: WideString;
+  AFilesOnly: Boolean);
 begin
   FRootFolderName := ARootFolderName;
   FFolderNameFromRoot := AFolderNameFromRoot;
   FFileMask := AFileMask;
   FFindHandle := INVALID_HANDLE_VALUE;
+  FFilesOnly := AFilesOnly;
   Reset;
 end;
 
@@ -54,6 +64,17 @@ begin
   Result := FRootFolderName;
 end;
 
+function TFileNameIteratorInFolderByMask.IsNeedProcess(
+  AFindFileData: TWIN32FindDataW): Boolean;
+begin
+  if FFilesOnly then begin
+    Result := (AFindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0;
+  end else begin
+    Result := (WideCompareStr(AFindFileData.cFileName, '.') <> 0) and
+      (WideCompareStr(AFindFileData.cFileName, '..') <> 0);
+  end;
+end;
+
 function TFileNameIteratorInFolderByMask.Next(
   var AFileName: WideString): Boolean;
 begin
@@ -61,7 +82,7 @@ begin
   AFileName := '';
   if FValidFindData then begin
     repeat
-      if (FFindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+      if IsNeedProcess(FFindFileData) then begin
         AFileName := FFolderNameFromRoot + FFindFileData.cFileName;
         Result := True;
         FValidFindData := Windows.FindNextFileW(FFindHandle, FFindFileData);
