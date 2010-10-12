@@ -240,7 +240,7 @@ procedure TMapMainLayer.DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
 var
   VZoom: Byte;
   VSourceMapType: TMapType;
-  VBmp: TBitmap32;
+  VBmp: TCustomBitmap32;
 
   {
     ѕр€моугольник пикселей растра в координатах текущей основной карты
@@ -302,7 +302,7 @@ begin
     VUsePre := GState.UsePrevZoom;
   end;
 
-  VBmp := TBitmap32.Create;
+  VBmp := TCustomBitmap32.Create;
   try
     VZoom := FZoom;
     VSourceMapType := AMapType;

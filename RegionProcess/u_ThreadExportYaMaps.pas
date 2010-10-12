@@ -73,7 +73,7 @@ procedure TThreadExportYaMaps.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;
-  bmp32, bmp322, bmp32crop: TBitmap32;
+  bmp32, bmp322, bmp32crop: TCustomBitmap32;
   TileStream: TMemoryStream;
   tc: cardinal;
   VGeoConvert: ICoordConverter;
@@ -89,8 +89,8 @@ begin
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
     exit;
   end;
-  bmp32 := TBitmap32.Create;
-  bmp322 := TBitmap32.Create;
+  bmp32 := TCustomBitmap32.Create;
+  bmp322 := TCustomBitmap32.Create;
   try
     hxyi := 1;
     sizeim := 128;
@@ -100,7 +100,7 @@ begin
     try
       bmp32.DrawMode := dmBlend;
       bmp322.DrawMode := dmBlend;
-      bmp32crop := TBitmap32.Create;
+      bmp32crop := TCustomBitmap32.Create;
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);

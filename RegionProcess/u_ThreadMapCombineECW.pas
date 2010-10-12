@@ -36,8 +36,8 @@ type
     Garr: P256rgb;
     Barr: P256rgb;
     FECWWriter: TECWWrite;
-    btmm: TBitmap32;
-    btmh: TBitmap32;
+    btmm: TCustomBitmap32;
+    btmh: TCustomBitmap32;
     FQuality: Integer;
 
     function ReadLineECW(Line: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
@@ -178,8 +178,8 @@ begin
   ey := (FCurrentPieceRect.Bottom mod 256);
   try
     FECWWriter := TECWWrite.Create;
-    btmm := TBitmap32.Create;
-    btmh := TBitmap32.Create;
+    btmm := TCustomBitmap32.Create;
+    btmh := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;
     btmh.Width := 256;

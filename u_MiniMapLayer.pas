@@ -45,7 +45,7 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TPoint;
 
-    FDefoultMap: TBitmap32;
+    FDefoultMap: TCustomBitmap32;
     FBitmapSize: TPoint;
     FMiniMapSameAsMain: TTBXItem;
     FMapsList: IMapTypeList;
@@ -300,7 +300,7 @@ end;
 
 procedure TMiniMapLayer.LoadBitmaps;
 begin
-  FDefoultMap := TBitmap32.Create;
+  FDefoultMap := TCustomBitmap32.Create;
   GState.LoadBitmapFromRes('MAINMAP', FDefoultMap);
   GState.LoadBitmapFromRes('ICONI', FPlusButton.Bitmap);
   FPlusButton.Bitmap.DrawMode := dmTransparent;
@@ -550,7 +550,7 @@ procedure TMiniMapLayer.DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
 var
   VZoom: Byte;
   VSourceMapType: TMapType;
-  VBmp: TBitmap32;
+  VBmp: TCustomBitmap32;
 
   {
     ѕр€моугольник пикселей растра в координатах текущей основной карты
@@ -611,7 +611,7 @@ begin
   end else begin
     VUsePre := GState.UsePrevZoom;
   end;
-  VBmp := TBitmap32.Create;
+  VBmp := TCustomBitmap32.Create;
   try
     VZoom := GetActualZoom;
     VSourceMapType := AMapType;

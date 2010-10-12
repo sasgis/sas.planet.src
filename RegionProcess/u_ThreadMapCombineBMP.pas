@@ -25,8 +25,8 @@ type
   private
     FArray256BGR: P256ArrayBGR;
     sx, ex, sy, ey: integer;
-    btmm: TBitmap32;
-    btmh: TBitmap32;
+    btmm: TCustomBitmap32;
+    btmh: TCustomBitmap32;
 
     procedure ReadLineBMP(Line: cardinal; LineRGB: PLineRGBb);
   protected
@@ -122,8 +122,8 @@ begin
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
   try
-    btmm := TBitmap32.Create;
-    btmh := TBitmap32.Create;
+    btmm := TCustomBitmap32.Create;
+    btmh := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;
     btmh.Width := 256;
