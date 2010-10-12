@@ -952,6 +952,32 @@ begin
   end;
 end;
 
+function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+begin
+  if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
+    if FStorage.CacheConfig.EffectiveCacheType = 5 then begin
+      result:=GetGETile(btm, FStorage.CacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
+    end else begin
+      result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
+    end;
+    if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
+  end else begin
+    result:=true;
+  end;
+end;
+
+function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
+  caching: boolean): boolean;
+begin
+  if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
+    result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
+    if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
+  end else begin
+    result:=true;
+  end;
+end;
+
 function TMapType.LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint;
   Azoom: byte; caching: boolean): boolean;
 var
@@ -1025,32 +1051,6 @@ begin
       end;
     end;
     Result := true;
-  end;
-end;
-
-function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-begin
-  if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-    if FStorage.CacheConfig.EffectiveCacheType = 5 then begin
-      result:=GetGETile(btm, FStorage.CacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
-    end else begin
-      result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
-    end;
-    if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
-  end else begin
-    result:=true;
-  end;
-end;
-
-function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
-  caching: boolean): boolean;
-begin
-  if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-    result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
-    if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
-  end else begin
-    result:=true;
   end;
 end;
 
