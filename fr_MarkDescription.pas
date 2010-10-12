@@ -35,6 +35,7 @@ type
     TBXItem6: TTBXItem;
     TBXSeparatorItem2: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
+    tbxtmInsertUrl: TTBXItem;
     procedure TBXItem1Click(Sender: TObject);
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -53,20 +54,21 @@ uses
 {$R *.dfm}
 
 type
-  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg);
+  TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg, ebUrl);
 
 procedure TfrMarkDescription.EditCommentKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var s:string;
-    seli:integer;
+var
+  s:string;
+  VSelStart:integer;
 begin
-  if Key=13 then begin
+  if (Key=13) and not(ssCtrl in Shift) then begin
     Key:=0;
     s:=EditComment.Text;
-    seli:=EditComment.SelStart;
-    Insert('<BR>',s,EditComment.SelStart+1);
-    EditComment.Text:=s;
-    EditComment.SelStart:=seli+4;
+    VSelStart:=EditComment.SelStart;
+    Insert('<BR>', s, VSelStart+1);
+    EditComment.Text := s;
+    EditComment.SelStart := VSelStart+4;
   end;
 end;
 
@@ -83,45 +85,72 @@ end;
 procedure TfrMarkDescription.TBXItem1Click(Sender: TObject);
 var
   s:string;
-  seli:integer;
+  VSelStart:integer;
+  VSelLen:integer;
+  VSelectedText: string;
+  VTextBeforeSelection: string;
+  VTextAfterSelection: string;
 begin
-  s:=EditComment.Text;
-  seli:=EditComment.SelStart;
+  s := EditComment.Text;
+  VSelStart := EditComment.SelStart;
+  VSelLen := EditComment.SelLength;
+  VSelectedText := EditComment.SelText;
+  VTextBeforeSelection := '';
+  VTextAfterSelection := '';
   case TEditBtn(TTBXItem(sender).Tag) of
   ebB: begin
-        Insert('<b>',s,EditComment.SelStart+1);
-        Insert('</b>',s,EditComment.SelStart+EditComment.SelLength+3+1);
+        VTextBeforeSelection := '<b>';
+        VTextAfterSelection := '</b>';
        end;
   ebI: begin
-        Insert('<i>',s,EditComment.SelStart+1);
-        Insert('</i>',s,EditComment.SelStart+EditComment.SelLength+3+1);
+        VTextBeforeSelection := '<i>';
+        VTextAfterSelection := '</i>';
        end;
   ebU: begin
-        Insert('<u>',s,EditComment.SelStart+1);
-        Insert('</u>',s,EditComment.SelStart+EditComment.SelLength+3+1);
+        VTextBeforeSelection := '<u>';
+        VTextAfterSelection := '</u>';
+       end;
+  ebUrl: begin
+        if VSelLen = 0 then begin
+          VTextBeforeSelection := '<a href=""></a>';
+          VTextAfterSelection := '';
+        end else begin
+          VTextBeforeSelection := '<a href="'+VSelectedText+'">';
+          VTextAfterSelection := '</a>';
+        end;
        end;
   ebImg:
        if (FMain.OpenPictureDialog.Execute)and(FMain.OpenPictureDialog.FileName<>'') then begin
-         Insert('<img src="'+FMain.OpenPictureDialog.FileName+'"/>',s,EditComment.SelStart+1);
+          VTextBeforeSelection := '<img src="'+FMain.OpenPictureDialog.FileName+'"/>';
+          VTextAfterSelection := '';
        end;
   ebCenter:
        begin
-        Insert('<CENTER>',s,EditComment.SelStart+1);
-        Insert('</CENTER>',s,EditComment.SelStart+EditComment.SelLength+8+1);
+        VTextBeforeSelection := '<CENTER>';
+        VTextAfterSelection := '</CENTER>';
        end;
   ebLeft:
        begin
-        Insert('<div ALIGN=LEFT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+16+1);
+        VTextBeforeSelection := '<div ALIGN=LEFT>';
+        VTextAfterSelection := '</div>';
        end;
   ebRight:
        begin
-        Insert('<div ALIGN=RIGHT>',s,EditComment.SelStart+1);
-        Insert('</div>',s,EditComment.SelStart+EditComment.SelLength+17+1);
+        VTextBeforeSelection := '<div ALIGN=RIGHT>';
+        VTextAfterSelection := '</div>';
        end;
   end;
-  EditComment.Text:=s;
-  EditComment.SelStart:=seli;
+  if (VTextBeforeSelection <> '') or (VTextAfterSelection <> '') then begin
+    Insert(VTextBeforeSelection, s, VSelStart+1);
+    Insert(VTextAfterSelection, s, VSelStart + VSelLen+length(VTextBeforeSelection)+1);
+    EditComment.Text:=s;
+    EditComment.SelStart :=
+      VSelStart +
+      VSelLen +
+      length(VTextBeforeSelection) +
+      Length(VTextAfterSelection);
+  end;
+
 end;
 
 end.

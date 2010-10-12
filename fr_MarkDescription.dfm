@@ -5,32 +5,25 @@ object frMarkDescription: TfrMarkDescription
   Height = 304
   Align = alClient
   TabOrder = 0
-  ExplicitWidth = 319
-  ExplicitHeight = 213
   object EditComment: TMemo
     AlignWithMargins = True
     Left = 3
     Top = 31
-    Width = 313
-    Height = 179
+    Width = 445
+    Height = 270
     Align = alClient
     ScrollBars = ssVertical
     TabOrder = 0
     OnKeyDown = EditCommentKeyDown
-    ExplicitLeft = -2
-    ExplicitWidth = 322
-    ExplicitHeight = 57
   end
   object pnlDescriptionTop: TPanel
     Left = 0
     Top = 0
-    Width = 319
+    Width = 451
     Height = 28
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = -8
-    ExplicitWidth = 328
     object Label2: TLabel
       AlignWithMargins = True
       Left = 3
@@ -43,14 +36,13 @@ object frMarkDescription: TfrMarkDescription
     end
     object TBXToolbar1: TTBXToolbar
       AlignWithMargins = True
-      Left = 143
+      Left = 252
       Top = 3
-      Width = 173
+      Width = 196
       Height = 22
       Align = alRight
       Images = Fmain.EditCommentsImgs
       TabOrder = 0
-      ExplicitLeft = 152
       object TBXItem3: TTBXItem
         ImageIndex = 0
         OnClick = TBXItem1Click
@@ -103,6 +95,13 @@ object frMarkDescription: TfrMarkDescription
       object TBXItem7: TTBXItem
         Tag = 6
         ImageIndex = 7
+        OnClick = TBXItem1Click
+        Caption = ''
+        Hint = ''
+      end
+      object tbxtmInsertUrl: TTBXItem
+        Tag = 7
+        ImageIndex = 8
         OnClick = TBXItem1Click
         Caption = ''
         Hint = ''
