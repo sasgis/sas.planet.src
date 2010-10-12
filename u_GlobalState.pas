@@ -62,7 +62,6 @@ type
     function GetHelpFileName: string;
     function GetMainConfigFileName: string;
     procedure LoadMarkIcons;
-    procedure LoadResources;
     procedure LoadMainParams;
     procedure FreeAllMaps;
     procedure FreeMarkIcons;
@@ -79,8 +78,6 @@ type
     ProgramPath: string;
     // »конки дл€ меток
     MarkIcons: TStringList;
-    // »конка дл€ указани€ на точку куда выполнен переход.
-    GOToSelIcon: TBitmap32;
 
     // ќтображать окошко с логотипом при запуске
     Show_logo: Boolean;
@@ -338,7 +335,6 @@ begin
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   FGPSRecorder := TGPSRecorderStuped.Create;
   LoadMainParams;
-  LoadResources;
   LoadMarkIcons;
 end;
 
@@ -355,7 +351,6 @@ begin
   end;
   FMainConfigProvider := nil;
   FreeMarkIcons;
-  FreeAndNil(GOToSelIcon);
   FreeAndNil(InetConnect);
   FMemFileCache := nil;
   MainFileCache := nil;
@@ -468,13 +463,6 @@ begin
   finally
     FDwnCS.Release;
   end;
-end;
-
-procedure TGlobalState.LoadResources;
-begin
-  GOToSelIcon := TBitmap32.Create;
-  GOToSelIcon.DrawMode := dmBlend;
-  LoadBitmapFromRes('ICONIII', GOToSelIcon);
 end;
 
 procedure TGlobalState.FreeAllMaps;

@@ -17,11 +17,13 @@ type
     FGotoPoint: TExtendedPoint;
     FHideAfterTime: Cardinal;
     FBitmapSize: TPoint;
+    FGoToSelIcon: TCustomBitmap32;
     procedure DoRedraw; override;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetScreenCenterInBitmapPixels: TPoint; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
     procedure ShowGotoIcon(APoint: TExtendedPoint);
   end;
 
@@ -30,6 +32,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_GlobalState,
   u_WindowLayerBasic;
 
@@ -38,8 +41,17 @@ uses
 constructor TGotoLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   inherited;
-  FBitmapSize.X := GState.GOToSelIcon.Width;
-  FBitmapSize.Y := GState.GOToSelIcon.Height;
+  FGoToSelIcon := TCustomBitmap32.Create;
+  FGoToSelIcon.DrawMode := dmBlend;
+  GState.LoadBitmapFromRes('ICONIII', FGoToSelIcon);
+  FBitmapSize.X := FGoToSelIcon.Width;
+  FBitmapSize.Y := FGoToSelIcon.Height;
+end;
+
+destructor TGotoLayer.Destroy;
+begin
+  FreeAndNil(FGoToSelIcon);
+  inherited;
 end;
 
 procedure TGotoLayer.DoRedraw;
@@ -53,7 +65,7 @@ begin
       VGotoPoint := FGeoConvert.LonLat2PixelPos(FGotoPoint, FZoom);
       if (abs(VGotoPoint.X - FScreenCenterPos.X) < (1 shl 20)) and
         (abs(VGotoPoint.Y - FScreenCenterPos.Y) < (1 shl 20)) then begin
-        FLayer.Bitmap.Draw(0, 0, GState.GOToSelIcon);
+        FLayer.Bitmap.Draw(0, 0, FGoToSelIcon);
       end else begin
         Visible := False;
       end;
@@ -90,4 +102,3 @@ begin
 end;
 
 end.
- 
