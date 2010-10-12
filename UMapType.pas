@@ -1082,11 +1082,11 @@ begin
         if AUsePre then begin
           Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
         end else begin
-          VBmp.SetSize(VSize.X, VSize.Y);
+          spr.SetSize(VSize.X, VSize.Y);
           if asLayer then begin
-            VBmp.Clear(SetAlpha(Color32(GState.BGround),0));
+            spr.Clear(SetAlpha(Color32(GState.BGround),0));
           end else begin
-            VBmp.Clear(Color32(GState.BGround));
+            spr.Clear(Color32(GState.BGround));
           end;
         end;
       end else begin
@@ -1109,11 +1109,11 @@ begin
     if AUsePre then begin
       Result := LoadTileFromPreZ(spr, AXY, Azoom, caching);
     end else begin
-      VBmp.SetSize(VSize.X, VSize.Y);
+      spr.SetSize(VSize.X, VSize.Y);
       if asLayer then begin
-        VBmp.Clear(SetAlpha(Color32(GState.BGround),0));
+        spr.Clear(SetAlpha(Color32(GState.BGround),0));
       end else begin
-        VBmp.Clear(Color32(GState.BGround));
+        spr.Clear(Color32(GState.BGround));
       end;
     end;
   end;
