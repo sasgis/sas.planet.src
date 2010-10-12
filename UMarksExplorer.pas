@@ -406,7 +406,7 @@ begin
   VIndex := KategoryListBox.ItemIndex;
   if VIndex >= 0 then begin
     VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
-    if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+    if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
       DeleteCategoryWithMarks(VCategory);
       VCategory.Free;
       KategoryListBox.DeleteSelected;
