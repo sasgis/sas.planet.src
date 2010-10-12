@@ -982,7 +982,7 @@ function TMapType.LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint;
   Azoom: byte; caching: boolean): boolean;
 var
   i: integer;
-  bmp: TCustomBitmap32;
+  VBmp: TCustomBitmap32;
   VTileExists: Boolean;
   VTileTargetBounds:TRect;
   VTileSourceBounds:TRect;
@@ -1003,11 +1003,6 @@ begin
   spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
   if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
              else spr.Clear(Color32(GState.BGround));
-  if (not(GState.UsePrevZoom) and (asLayer=false)) or
-  (not(GState.UsePrevZoomLayer) and (asLayer=true)) then
-  begin
-    exit;
-  end;
   VTileExists := false;
   VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
   VParentZoom := 0;
@@ -1024,13 +1019,13 @@ begin
                else spr.Clear(Color32(GState.BGround));
   end else begin
     if (not caching)or(not FCache.TryLoadTileFromCache(spr, AXY, Azoom)) then begin
-      bmp:=TCustomBitmap32.Create;
+      VBmp:=TCustomBitmap32.Create;
       try
-        if not(LoadTile(bmp, VTileParent, VParentZoom, true))then begin
+        if not(LoadTile(VBmp, VTileParent, VParentZoom, true))then begin
           if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                      else spr.Clear(Color32(GState.BGround));
         end else begin
-          bmp.Resampler := CreateResampler(GState.Resampling);
+          VBmp.Resampler := CreateResampler(GState.Resampling);
           VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
           VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
           VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
@@ -1038,7 +1033,7 @@ begin
           VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left + 1;
           VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top + 1;
           try
-            spr.Draw(VTileTargetBounds, VTileSourceBounds, bmp);
+            spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
             FCache.AddTileToCache(spr, AXY, Azoom);
           except
             Result := false;
@@ -1047,7 +1042,7 @@ begin
           end;
         end;
       finally
-        FreeAndNil(bmp);
+        FreeAndNil(VBmp);
       end;
     end;
     Result := true;
