@@ -61,14 +61,20 @@ procedure TfrMarkDescription.EditCommentKeyDown(Sender: TObject; var Key: Word;
 var
   s:string;
   VSelStart:integer;
+  Form: TCustomForm;
 begin
-  if (Key=13) and not(ssCtrl in Shift) then begin
-    Key:=0;
-    s:=EditComment.Text;
-    VSelStart:=EditComment.SelStart;
-    Insert('<BR>', s, VSelStart+1);
-    EditComment.Text := s;
-    EditComment.SelStart := VSelStart+4;
+  if (Key=VK_RETURN) then begin
+    if not(ssCtrl in Shift) then begin
+      Key:=0;
+      s:=EditComment.Text;
+      VSelStart:=EditComment.SelStart;
+      Insert('<BR>', s, VSelStart+1);
+      EditComment.Text := s;
+      EditComment.SelStart := VSelStart+4;
+    end;
+  end else if Key = VK_ESCAPE then begin
+    Form := GetParentForm(Self);
+    if Form <> nil then Form.ModalResult := mrCancel;
   end;
 end;
 
