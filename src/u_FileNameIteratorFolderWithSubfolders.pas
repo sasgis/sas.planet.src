@@ -12,7 +12,7 @@ uses
 type
   TFileNameIteratorFolderWithSubfolders = class(TInterfacedObject, IFileNameIterator)
   private
-    FFilesInFolderIteratorFactory: IFileNameIteratorFactory
+    FFilesInFolderIteratorFactory: IFileNameIteratorFactory;
     FFoldersIterator: IFileNameIterator;
     FCurrentIterator: IFileNameIterator;
     FEOI: Boolean;

@@ -84,8 +84,10 @@ begin
   AFileName := '';
   Result := False;
   if FFolderNamesList.Count > 0 then begin
-    Result := FFolderNamesList.Strings[0];
-    ProcessAddSubFolders(Result, Integer(FFolderNamesList.Objects[0]));
+    Result := True;
+    AFileName := FFolderNamesList.Strings[0];
+    ProcessAddSubFolders(AFileName, Integer(FFolderNamesList.Objects[0]));
+    FFolderNamesList.Delete(0);
   end;
 end;
 
