@@ -158,24 +158,24 @@ begin
 end;
 procedure TFaddPoint.BaddClick(Sender: TObject);
 var
-    All:TExtendedPoint;
-    VCategory: TCategoryId;
-    VIndex: Integer;
-    VId: Integer;
+  VLonLat:TExtendedPoint;
+  VCategory: TCategoryId;
+  VIndex: Integer;
+  VId: Integer;
 begin
-  FMark.Points[0] := frLonLatPoint.LonLat;
+  VLonLat := frLonLatPoint.LonLat;
 
   FMark.name:=EditName.Text;
   FMark.Desc:=frMarkDescription.Description;
   SetLength(FMark.Points, 1);
-  FMark.Points[0] := All;
+  FMark.Points[0] := VLonLat;
   FMark.Scale1:=SpinEdit1.Value;
   FMark.Scale2:=SpinEdit2.Value;
   FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
   FMark.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
   FMark.visible:=CheckBox2.Checked;
-  FMark.LLRect.TopLeft := All;
-  FMark.LLRect.BottomRight := All;
+  FMark.LLRect.TopLeft := VLonLat;
+  FMark.LLRect.BottomRight := VLonLat;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
     VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
