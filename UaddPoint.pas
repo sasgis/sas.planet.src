@@ -216,6 +216,8 @@ end;
 
 procedure TFaddPoint.FormShow(Sender: TObject);
 begin
+  frLonLatPoint.Parent := pnlLonLat;
+  frMarkDescription.Parent := pnlDescription;
   EditName.SetFocus;
 end;
 
@@ -233,9 +235,7 @@ constructor TFaddPoint.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
-  frMarkDescription.Parent := pnlDescription;
   frLonLatPoint := TfrLonLat.Create(nil);
-  frLonLatPoint.Parent := pnlLonLat;
 end;
 
 destructor TFaddPoint.Destroy;

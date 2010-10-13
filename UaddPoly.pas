@@ -131,6 +131,7 @@ end;
 
 procedure TFAddPoly.FormShow(Sender: TObject);
 begin
+  frMarkDescription.Parent := pnlDescription;
   EditName.SetFocus;
 end;
 
@@ -188,7 +189,6 @@ constructor TFAddPoly.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
-  frMarkDescription.Parent := pnlDescription
 end;
 
 destructor TFAddPoly.Destroy;

@@ -415,8 +415,6 @@ object FaddPoint: TFaddPoint
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitLeft = 32
-    ExplicitTop = 62
   end
   object pnlTop: TPanel
     Left = 0
@@ -528,7 +526,7 @@ object FaddPoint: TFaddPoint
     Left = 3
     Top = 58
     Width = 310
-    Height = 182
+    Height = 185
     ColCount = 8
     Ctl3D = False
     DefaultColWidth = 36

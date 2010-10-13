@@ -467,7 +467,6 @@ constructor TFSettings.Create(AOwner: TComponent);
 begin
   inherited;
   frShortCutList := TfrShortCutList.Create(nil);
-  frShortCutList.Parent := GroupBox5;
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -481,6 +480,7 @@ procedure TFSettings.FormShow(Sender: TObject);
 begin
  FMapsEdit:=false;
  CBoxLocal.Clear;
+ frShortCutList.Parent := GroupBox5;
  GState.LanguageManager.GetLangNames(CBoxLocal.Items);
  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
 

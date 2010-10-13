@@ -119,6 +119,7 @@ end;
 
 procedure TFaddLine.FormShow(Sender: TObject);
 begin
+  frMarkDescription.Parent := pnlDescription;
   EditName.SetFocus;
 end;
 
@@ -175,7 +176,6 @@ constructor TFaddLine.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
-  frMarkDescription.Parent := pnlDescription
 end;
 
 destructor TFaddLine.Destroy;

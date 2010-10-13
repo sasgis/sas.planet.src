@@ -23,6 +23,7 @@ type
     grpBottomRight: TGroupBox;
     pnlBottomButtons: TPanel;
     grdpnlMain: TGridPanel;
+    procedure FormShow(Sender: TObject);
   private
     FfrLonLatTopLeft: TfrLonLat;
     FfrLonLatBottomRight: TfrLonLat;
@@ -44,9 +45,7 @@ constructor TFSelLonLat.Create(AOwner: TComponent);
 begin
   inherited;
   FfrLonLatTopLeft := TfrLonLat.Create(nil);
-  FfrLonLatTopLeft.Parent := grpTopLeft;
   FfrLonLatBottomRight := TfrLonLat.Create(nil);
-  FfrLonLatBottomRight.Parent := grpBottomRight;
 end;
 
 destructor TFSelLonLat.Destroy;
@@ -72,6 +71,12 @@ begin
       result:=false;
     end;
   end;
+end;
+
+procedure TFSelLonLat.FormShow(Sender: TObject);
+begin
+  FfrLonLatTopLeft.Parent := grpTopLeft;
+  FfrLonLatBottomRight.Parent := grpBottomRight;
 end;
 
 procedure TFSelLonLat.RefreshTranslation;

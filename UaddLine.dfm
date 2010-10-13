@@ -95,11 +95,10 @@ object FaddLine: TFaddLine
       Left = 3
       Top = 3
       Width = 25
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = #1048#1084#1103':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True

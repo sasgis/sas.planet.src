@@ -79,6 +79,7 @@ end;
 
 procedure TfrmGoTo.FormShow(Sender: TObject);
 begin
+  frLonLatPoint.Parent := pnlLonLat;
   AllMarsk2StringsWhitMarkId(ComboBox1.Items);
 end;
 
@@ -182,7 +183,6 @@ constructor TfrmGoTo.Create(AOwner: TComponent);
 begin
   inherited;
   frLonLatPoint := TfrLonLat.Create(nil);
-  frLonLatPoint.Parent := pnlLonLat;
 end;
 
 destructor TfrmGoTo.Destroy;
