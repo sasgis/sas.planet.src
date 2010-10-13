@@ -184,6 +184,7 @@
     <DCCReference Include="src\Langs.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
+    <DCCReference Include="src\u_FileNameIteratorFolderWithSubfoldersWithIgnoredFolders.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMaskList.pas" />
     <DCCReference Include="src\u_FoldersIteratorRecursiveByLevels.pas" />
