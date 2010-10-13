@@ -45,6 +45,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FZoom_rect:byte;
     FPolygonLL: TExtendedPointArray;
@@ -282,32 +283,35 @@ begin
       VExportProvider.InitFrame(Azoom, FPolygonLL);
     end;
   end;
-  CBFormatChange(CBFormat);
-  FProviderTilesDelte.InitFrame(Azoom, FPolygonLL);
-  FProviderTilesDelte.Show;
-  FProviderTilesGenPrev.InitFrame(Azoom, FPolygonLL);
-  FProviderTilesGenPrev.Show;
-  FProviderTilesCopy.InitFrame(Azoom, FPolygonLL);
-  FProviderTilesCopy.Show;
-  FProviderTilesDownload.InitFrame(Azoom, FPolygonLL);
-  FProviderTilesDownload.Show;
-  FProviderMapCombine.InitFrame(Azoom, FPolygonLL);
-  FProviderMapCombine.Show;
-  Fmain.Enabled:=false;
-  fSaveas.Visible:=true;
+  fSaveas.Show;
 end;
 
 
 procedure TFsaveas.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- Fmain.TBmoveClick(Fmain);
- Fmain.Enabled:=true;
- fsaveas.visible:=false;
+  Fmain.TBmoveClick(Fmain);
+  Fmain.Enabled:=true;
+end;
+
+procedure TFsaveas.FormShow(Sender: TObject);
+begin
+  CBFormatChange(CBFormat);
+  FProviderTilesDelte.InitFrame(FZoom_rect, FPolygonLL);
+  FProviderTilesDelte.Show;
+  FProviderTilesGenPrev.InitFrame(FZoom_rect, FPolygonLL);
+  FProviderTilesGenPrev.Show;
+  FProviderTilesCopy.InitFrame(FZoom_rect, FPolygonLL);
+  FProviderTilesCopy.Show;
+  FProviderTilesDownload.InitFrame(FZoom_rect, FPolygonLL);
+  FProviderTilesDownload.Show;
+  FProviderMapCombine.InitFrame(FZoom_rect, FPolygonLL);
+  FProviderMapCombine.Show;
+  Fmain.Enabled:=false;
 end;
 
 procedure TFsaveas.Button3Click(Sender: TObject);
 begin
- close;
+  close;
 end;
 
 procedure TFsaveas.SpeedButton1Click(Sender: TObject);
