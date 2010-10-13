@@ -29,6 +29,7 @@ uses
   u_FileNameIteratorInFolderByMaskList in 'src\u_FileNameIteratorInFolderByMaskList.pas',
   u_FileNameIteratorFolderWithSubfolders in 'src\u_FileNameIteratorFolderWithSubfolders.pas',
   u_FileNameIteratorInFolderByMask in 'src\u_FileNameIteratorInFolderByMask.pas',
+  u_FoldersIteratorRecursiveByLevels in 'src\u_FoldersIteratorRecursiveByLevels.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   t_LoadEvent in 't_LoadEvent.pas',

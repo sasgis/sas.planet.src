@@ -12,12 +12,10 @@ uses
 type
   TFileNameIteratorFolderWithSubfolders = class(TInterfacedObject, IFileNameIterator)
   private
-    FRootFolderName: WideString;
-    FFolderIteratorFactory: IFileNameIteratorFactory;
+    FFilesInFolderIteratorFactory: IFileNameIteratorFactory
+    FFoldersIterator: IFileNameIterator;
     FCurrentIterator: IFileNameIterator;
-    FFolderNamesList: TWideStringList;
-    FMaxFolderDepth: integer;
-    procedure ProcessAddSubFolders(AFolderNameFromRoot: WideString; ADepth: Integer);
+    FEOI: Boolean;
   protected
     function IsNeedFolderProcess(AParentFolderNameFromRoot, AFolderName: WideString): Boolean; virtual;
   protected
@@ -27,46 +25,62 @@ type
   public
     constructor Create(
       ARootFolderName: WideString;
-      AMaxFolderDepth: integer;
-      AFolderIteratorFactory: IFileNameIteratorFactory
+      AFolderNameFromRoot: WideString;
+      AFolderIteratorFactory: IFileNameIteratorFactory;
+      AFilesInFolderIteratorFactory: IFileNameIteratorFactory
     );
     destructor Destroy; override;
   end;
 
-
+  TFileNameIteratorFolderWithSubfoldersFactory = class(TInterfacedObject, IFileNameIteratorFactory)
+  private
+    FFolderIteratorFactory: IFileNameIteratorFactory;
+    FFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+  protected
+    function  CreateIterator(
+      ARootFolderName: WideString;
+      AFolderNameFromRoot: WideString
+    ): IFileNameIterator;
+  public
+    constructor Create(
+      AFolderIteratorFactory: IFileNameIteratorFactory;
+      AFilesInFolderIteratorFactory: IFileNameIteratorFactory
+    );
+  end;
 implementation
 
 { TFileNameIteratorFolderWithSubfolders }
 
-constructor TFileNameIteratorFolderWithSubfolders.Create(ARootFolderName: WideString;
-  AMaxFolderDepth: integer;
-  AFolderIteratorFactory: IFileNameIteratorFactory);
+constructor TFileNameIteratorFolderWithSubfolders.Create(
+  ARootFolderName: WideString;
+  AFolderNameFromRoot: WideString;
+  AFolderIteratorFactory: IFileNameIteratorFactory;
+  AFilesInFolderIteratorFactory: IFileNameIteratorFactory
+);
 begin
-  FRootFolderName := ARootFolderName;
-  FFolderIteratorFactory := AFolderIteratorFactory;
-  FFolderNamesList := TWideStringList.Create;
-  FMaxFolderDepth := AMaxFolderDepth;
-  FFolderNamesList.AddObject('', TObject(0));
+  FFilesInFolderIteratorFactory := AFilesInFolderIteratorFactory;
+  FFoldersIterator := AFolderIteratorFactory.CreateIterator(ARootFolderName, AFolderNameFromRoot);
+  FCurrentIterator := nil;
+  FEOI := False;
 end;
 
 destructor TFileNameIteratorFolderWithSubfolders.Destroy;
 begin
   FCurrentIterator := nil;
-  FreeAndNil(FFolderNamesList);
-  FFolderIteratorFactory := nil;
+  FFoldersIterator := nil;
+  FFilesInFolderIteratorFactory := nil;
   inherited;
 end;
 
 function TFileNameIteratorFolderWithSubfolders.GetRootFolderName: WideString;
 begin
-  Result := FRootFolderName;
+  Result := FFoldersIterator.GetRootFolderName;
 end;
 
 function TFileNameIteratorFolderWithSubfolders.IsNeedFolderProcess(
   AParentFolderNameFromRoot, AFolderName: WideString): Boolean;
 begin
-  Result := (WideCompareStr(AFolderName, '.') <> 0) and
-    (WideCompareStr(AFolderName, '..') <> 0);
+  Result := True;
 end;
 
 function TFileNameIteratorFolderWithSubfolders.Next(
@@ -76,7 +90,7 @@ var
 begin
   AFileName := '';
   Result := False;
-  if FFolderNamesList.Count > 0 then begin
+  if not FEOI then begin
     repeat
       if FCurrentIterator <> nil then begin
         Result := FCurrentIterator.Next(AFileName);
@@ -84,51 +98,47 @@ begin
           Break;
         end else begin
           FCurrentIterator := nil;
-          FFolderNamesList.Delete(0);
         end;
       end else begin
-        VFolderName := FFolderNamesList.Strings[0];
-        ProcessAddSubFolders(VFolderName, Integer(FFolderNamesList.Objects[0]));
-        FCurrentIterator := FFolderIteratorFactory.CreateIterator(FRootFolderName, VFolderName);
+        if FFoldersIterator.Next(VFolderName) then begin
+          FCurrentIterator := FFilesInFolderIteratorFactory.CreateIterator(
+            FFoldersIterator.GetRootFolderName,
+            VFolderName
+          );
+        end else begin
+          FEOI := True;
+        end;
       end;
-    until not (FFolderNamesList.Count > 0);
-  end;
-end;
-
-procedure TFileNameIteratorFolderWithSubfolders.ProcessAddSubFolders(
-  AFolderNameFromRoot: WideString; ADepth: Integer);
-var
-  VFindFileData: TWIN32FindDataW;
-  VhFind: THandle;
-  VCurrFullFilesMask: WideString;
-  VPathFromRootNew: WideString;
-begin
-  if ADepth < FMaxFolderDepth then begin
-    VCurrFullFilesMask := FRootFolderName + AFolderNameFromRoot + '*';
-    VhFind := THandle(Windows.FindFirstFileExW(PWideChar(VCurrFullFilesMask),
-      FindExInfoStandard, @VFindFileData, FindExSearchLimitToDirectories, nil, 0));
-    if not(VhFind = INVALID_HANDLE_VALUE) then begin
-      try
-        repeat
-          if (VFindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) <> 0 then begin
-            if IsNeedFolderProcess(AFolderNameFromRoot, VFindFileData.cFileName) then begin
-              VPathFromRootNew := AFolderNameFromRoot + VFindFileData.cFileName + '\';
-              FFolderNamesList.AddObject(VPathFromRootNew, TObject(ADepth + 1));
-            end;
-          end;
-        until not Windows.FindNextFileW(VhFind, VFindFileData);
-      finally
-        Windows.FindClose(VhFind);
-      end;
-    end;
+    until FEOI;
   end;
 end;
 
 procedure TFileNameIteratorFolderWithSubfolders.Reset;
 begin
-  FFolderNamesList.Clear;
-  FFolderNamesList.AddObject('', TObject(0));
+  FFoldersIterator.Reset;
   FCurrentIterator := nil;
+  FEOI := False;
+end;
+
+{ TFileNameIteratorFolderWithSubfoldersFactory }
+
+constructor TFileNameIteratorFolderWithSubfoldersFactory.Create(
+  AFolderIteratorFactory,
+  AFilesInFolderIteratorFactory: IFileNameIteratorFactory);
+begin
+  FFolderIteratorFactory := AFolderIteratorFactory;
+  FFilesInFolderIteratorFactory := AFilesInFolderIteratorFactory;
+end;
+
+function TFileNameIteratorFolderWithSubfoldersFactory.CreateIterator(
+  ARootFolderName, AFolderNameFromRoot: WideString): IFileNameIterator;
+begin
+  Result := TFileNameIteratorFolderWithSubfolders.Create(
+    ARootFolderName,
+    AFolderNameFromRoot,
+    FFolderIteratorFactory,
+    FFilesInFolderIteratorFactory
+  );
 end;
 
 end.
