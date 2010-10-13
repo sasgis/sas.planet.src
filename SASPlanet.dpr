@@ -6,6 +6,7 @@ uses
   iniFiles,
   sysutils,
   windows,
+  MidasLib,
   ijl in 'src\ijl.pas',
   KAZip in 'src\KAZip.pas',
   ECWReader in 'src\ECWReader.pas',
