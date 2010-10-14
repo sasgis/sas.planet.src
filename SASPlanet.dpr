@@ -30,7 +30,7 @@ uses
   u_FileNameIteratorFolderWithSubfolders in 'src\u_FileNameIteratorFolderWithSubfolders.pas',
   u_FileNameIteratorInFolderByMask in 'src\u_FileNameIteratorInFolderByMask.pas',
   u_FoldersIteratorRecursiveByLevels in 'src\u_FoldersIteratorRecursiveByLevels.pas',
-  u_FileNameIteratorFolderWithSubfoldersWithIgnoredFolders in 'src\u_FileNameIteratorFolderWithSubfoldersWithIgnoredFolders.pas',
+  u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders in 'src\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   t_LoadEvent in 't_LoadEvent.pas',

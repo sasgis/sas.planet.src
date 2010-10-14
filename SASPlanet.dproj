@@ -184,10 +184,10 @@
     <DCCReference Include="src\Langs.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
-    <DCCReference Include="src\u_FileNameIteratorFolderWithSubfoldersWithIgnoredFolders.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMaskList.pas" />
     <DCCReference Include="src\u_FoldersIteratorRecursiveByLevels.pas" />
+    <DCCReference Include="src\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas" />
     <DCCReference Include="src\u_GUIDInterfaceList.pas" />
     <DCCReference Include="src\u_GUIDList.pas" />
     <DCCReference Include="src\u_GUIDObjectList.pas" />

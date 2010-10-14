@@ -1,4 +1,4 @@
-unit u_FileNameIteratorFolderWithSubfoldersWithIgnoredFolders;
+unit u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders;
 
 interface
 
@@ -6,10 +6,10 @@ uses
   Windows,
   u_WideStrings,
   i_IFileNameIterator,
-  u_FileNameIteratorFolderWithSubfolders;
+  u_FoldersIteratorRecursiveByLevels;
 
 type
-  TFileNameIteratorFolderWithSubfoldersWithIgnoredFolders = class(TFileNameIteratorFolderWithSubfolders)
+  TFoldersIteratorRecursiveByLevelsWithIgnoredFolders = class(TFoldersIteratorRecursiveByLevels)
   private
     FIgnoredFoldersMasksList: TWideStrings;
   protected
@@ -18,8 +18,7 @@ type
     constructor Create(
       ARootFolderName: WideString;
       AFolderNameFromRoot: WideString;
-      AFolderIteratorFactory: IFileNameIteratorFactory;
-      AFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+      AMaxFolderDepth: integer;
       AIgnoredFoldersMasksList: TWideStrings
     );
     destructor Destroy; override;
@@ -32,30 +31,30 @@ uses
 
 function PathMatchSpecW(pszFile, pszSpec: PWideChar): BOOL; stdcall; external 'shlwapi.dll' name 'PathMatchSpecW';
 
-{ TFileNameIteratorFolderWithSubfoldersWithIgnoredFolders }
+{ TFoldersIteratorRecursiveByLevelsWithIgnoredFolders }
 
-constructor TFileNameIteratorFolderWithSubfoldersWithIgnoredFolders.Create(
-  ARootFolderName, AFolderNameFromRoot: WideString; AFolderIteratorFactory,
-  AFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Create(
+  ARootFolderName: WideString;
+  AFolderNameFromRoot: WideString;
+  AMaxFolderDepth: integer;
   AIgnoredFoldersMasksList: TWideStrings);
 begin
   inherited Create(
     ARootFolderName,
     AFolderNameFromRoot,
-    AFolderIteratorFactory,
-    AFilesInFolderIteratorFactory
+    AMaxFolderDepth
   );
   FIgnoredFoldersMasksList := TWideStringList.Create;
   FIgnoredFoldersMasksList.Assign(AIgnoredFoldersMasksList);
 end;
 
-destructor TFileNameIteratorFolderWithSubfoldersWithIgnoredFolders.Destroy;
+destructor TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Destroy;
 begin
   FreeAndNil(FIgnoredFoldersMasksList);
   inherited;
 end;
 
-function TFileNameIteratorFolderWithSubfoldersWithIgnoredFolders.IsNeedFolderProcess(
+function TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.IsNeedFolderProcess(
   AParentFolderNameFromRoot, AFolderName: WideString): Boolean;
 var
   i: Integer;
