@@ -372,5 +372,6 @@
     <DCCReference Include="u_UrlGenerator.pas" />
     <DCCReference Include="u_WindowLayerBasic.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
+    <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
   </ItemGroup>
 </Project>

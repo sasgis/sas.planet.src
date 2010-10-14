@@ -24,6 +24,24 @@ type
     destructor Destroy; override;
   end;
 
+  TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory = class(TInterfacedObject, IFileNameIteratorFactory)
+  private
+    FMaxFolderDepth: integer;
+    FIgnoredFoldersMasksList: TWideStrings;
+  protected
+    function  CreateIterator(
+      ARootFolderName: WideString;
+      AFolderNameFromRoot: WideString
+    ): IFileNameIterator;
+  public
+    constructor Create(
+      AMaxFolderDepth: integer;
+      AIgnoredFoldersMasksList: TWideStrings
+    );
+    destructor Destroy; override;
+  end;
+
+
 implementation
 
 uses
@@ -70,6 +88,33 @@ begin
       end;
     end;
   end;
+end;
+
+{ TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory }
+
+constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.Create(
+  AMaxFolderDepth: integer; AIgnoredFoldersMasksList: TWideStrings);
+begin
+  FMaxFolderDepth := AMaxFolderDepth;
+  FIgnoredFoldersMasksList := TWideStringList.Create;
+  FIgnoredFoldersMasksList.Assign(AIgnoredFoldersMasksList);
+end;
+
+destructor TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.Destroy;
+begin
+  FreeAndNil(FIgnoredFoldersMasksList);
+  inherited;
+end;
+
+function TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.CreateIterator(
+  ARootFolderName, AFolderNameFromRoot: WideString): IFileNameIterator;
+begin
+  Result := TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Create(
+    ARootFolderName,
+    AFolderNameFromRoot,
+    FMaxFolderDepth,
+    FIgnoredFoldersMasksList
+  );
 end;
 
 end.

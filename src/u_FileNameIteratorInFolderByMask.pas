@@ -45,6 +45,9 @@ constructor TFileNameIteratorInFolderByMask.Create(ARootFolderName,
 begin
   FRootFolderName := ARootFolderName;
   FFolderNameFromRoot := AFolderNameFromRoot;
+  if FFolderNameFromRoot <> '' then begin
+    FFolderNameFromRoot := FFolderNameFromRoot + PathDelim;
+  end;
   FFileMask := AFileMask;
   FFindHandle := INVALID_HANDLE_VALUE;
   FFilesOnly := AFilesOnly;

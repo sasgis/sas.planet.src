@@ -54,7 +54,7 @@ constructor TFoldersIteratorRecursiveByLevels.Create(
   AMaxFolderDepth: integer);
 begin
   FRootFolderName := IncludeTrailingPathDelimiter(ARootFolderName);
-  FFolderNameFromRoot := IncludeTrailingPathDelimiter(AFolderNameFromRoot);
+  FFolderNameFromRoot := AFolderNameFromRoot;
   FMaxFolderDepth := AMaxFolderDepth;
   FFolderNamesList := TWideStringList.Create;
   FFolderNamesList.AddObject(FFolderNameFromRoot, TObject(0));
@@ -101,7 +101,9 @@ var
   VFolderNameFromRoot: WideString;
 begin
   if ADepth < FMaxFolderDepth then begin
-    VFolderNameFromRoot := AFolderNameFromRoot + PathDelim;
+    if AFolderNameFromRoot <> '' then begin
+      VFolderNameFromRoot := AFolderNameFromRoot + PathDelim;
+    end;
     VCurrFullFilesMask := FRootFolderName + VFolderNameFromRoot + '*';
     VhFind := THandle(Windows.FindFirstFileExW(PWideChar(VCurrFullFilesMask),
       FindExInfoStandard, @VFindFileData, FindExSearchLimitToDirectories, nil, 0));
