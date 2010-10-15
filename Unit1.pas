@@ -2859,7 +2859,7 @@ end;
 
 procedure TFmain.GPSReceiver1SatellitesReceive(Sender: TObject);
 begin
- if FSettings.Visible then FSettings.PaintBox1.Repaint;
+ if FSettings.Visible then FSettings.SatellitePaint;
 end;
 
 procedure TFmain.GPSReceiverReceive(Sender: TObject);

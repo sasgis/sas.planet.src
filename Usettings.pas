@@ -24,7 +24,9 @@ uses
   i_IConfigDataWriteProvider,
   fr_ShortCutList,
   UMapType,
-  UResStrings;
+  UResStrings,
+  GR32,
+  GR32_Image;
 
 type
   TFSettings = class(TCommonFormParent)
@@ -196,7 +198,7 @@ type
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
     GroupBox3: TGroupBox;
-    PaintBox1: TPaintBox;
+    SatellitePaintBox: TImage32;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -213,7 +215,6 @@ type
     procedure MapListCustomDrawSubItem(Sender: TCustomListView;
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
-    procedure PaintBox1Paint(Sender: TObject);
     procedure Button18Click(Sender: TObject);
     procedure SBGetComNumClick(Sender: TObject);
     procedure chkUseIEProxyClick(Sender: TObject);
@@ -221,6 +222,8 @@ type
     procedure CBLoginClick(Sender: TObject);
     procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
+    procedure SatellitePaintBoxResize(Sender: TObject);
+    procedure TabSheet5Show(Sender: TObject);
   private
     FMapsEdit: boolean;
     frShortCutList: TfrShortCutList;
@@ -230,6 +233,7 @@ type
     procedure Save(AProvider: IConfigDataWriteProvider);
     procedure InitMapsList;
     procedure RefreshTranslation; override;
+    procedure SatellitePaint;
   end;
 
 var
@@ -548,6 +552,9 @@ end;
 procedure TFSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
+  SatellitePaintBox.Bitmap:=TBitmap32.Create;
+  SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
+
   ComboBoxCOM.Items.Clear;
   for i:=1 to 64 do begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
@@ -559,6 +566,11 @@ procedure TFSettings.TrBarGammaChange(Sender: TObject);
 begin
  if TrBarGamma.Position<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')'
                            else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
+end;
+
+procedure TFSettings.TabSheet5Show(Sender: TObject);
+begin
+ pnlGPSLeft.Repaint;
 end;
 
 procedure TFSettings.TrBarContrastChange(Sender: TObject);
@@ -624,10 +636,53 @@ begin
                          else sender.canvas.brush.Color:=clwhite;
 end;
 
-procedure TFSettings.PaintBox1Paint(Sender: TObject);
+procedure TFSettings.SatellitePaint;
+var i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
 begin
- Fmain.GPSReceiver.DrawSatellites(TPaintBox(Sender).Canvas, TPaintBox(Sender).Width div 2,
-    TPaintBox(Sender).Parent.Brush.Color, clBlack);
+ with SatellitePaintBox.Bitmap do begin
+  Clear(clWhite);
+  Fmain.GPSReceiver.DrawSatellites(Canvas,Width div 2,clWhite,clBlack);
+
+  bar_width:=(Width div 16);
+  bar_height:=42;
+  Canvas.Brush.Color:=clWhite;
+  Canvas.Pen.Color:=clBlack;
+
+  bar_dy:=65;
+  bar_x1:=0;
+  for I := 0 to 31 do begin
+   bar_x1:=(i mod 16)*bar_width;
+   if i=16 then begin
+     bar_dy:=11;
+   end;
+   Canvas.TextOut(bar_x1+1,Height-bar_dy-1,inttostr(i+1));
+   Canvas.Rectangle(bar_x1+1,Height-bar_dy-bar_height,bar_x1+bar_width-1,Height-bar_dy);
+  end;
+
+  bar_x1:=0;
+  for I := 0 to Fmain.GPSReceiver.GetSatellites.Count-1 do begin
+   if Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode>16 then begin
+     bar_dy:=12;
+   end else begin
+     bar_dy:=66;
+   end;
+   bar_x1:=(bar_width*((Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode-1) mod 16));
+   bar_height:=trunc((100-Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/2.5);
+   if i<Fmain.GPSReceiver.GetSatelliteCount then begin
+     Canvas.Brush.Color:=clBlue;
+   end else begin
+     Canvas.Brush.Color:=clGreen;
+   end;
+   Canvas.Pen.Color:=clWhite;
+   Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+ end;
+ end;
+end;
+
+procedure TFSettings.SatellitePaintBoxResize(Sender: TObject);
+begin
+  SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
+  SatellitePaintBox.Bitmap.Clear(clWhite32);
 end;
 
 procedure TFSettings.RefreshTranslation;
