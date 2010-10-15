@@ -1482,7 +1482,7 @@ begin
     MouseUpPoint := point(0,0);
     MapZoomAnimtion:=False;
     FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
-    FShortCutManager.Load(GState.MainIni, 'HOTKEY');
+    FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
     lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);

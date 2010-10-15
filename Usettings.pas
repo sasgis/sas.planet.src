@@ -255,9 +255,8 @@ begin
     GState.SaveMaps;
     GState.ViewState.SaveViewPortState(AProvider);
     GState.SaveMainParams;
-    Fmain.ShortCutManager.Save(GState.MainIni, 'HOTKEY');
+    Fmain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
     Fmain.SaveWindowConfigToIni(AProvider);
-    GState.MainIni.UpdateFile;
   except
   end;
 end;

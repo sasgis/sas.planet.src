@@ -7,7 +7,9 @@ uses
   Classes,
   IniFiles,
   Graphics,
-  TB2Item;
+  TB2Item,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider;
 
 type
   TShortCutInfo = class(TObject)
@@ -31,8 +33,8 @@ type
   public
     constructor Create(AMainMenu: TTBCustomItem; AIgnoredItems: TList);
     destructor Destroy; override;
-    procedure Load(AIni: TCustomIniFile; ASection: string);
-    procedure Save(AIni: TCustomIniFile; ASection: string);
+    procedure Load(AProvider: IConfigDataProvider);
+    procedure Save(AProvider: IConfigDataWriteProvider);
     procedure GetObjectsList(AList: TStrings);
     procedure CancelChanges;
   end;
@@ -147,17 +149,19 @@ begin
   end;
 end;
 
-procedure TShortcutManager.Load(AIni: TCustomIniFile; ASection: string);
+procedure TShortcutManager.Load(AProvider: IConfigDataProvider);
 var
   i: Integer;
   VShortCutInfo: TShortCutInfo;
   VMenuItem: TTBCustomItem;
 begin
-  for i := 0 to FItemsList.Count - 1 do begin
-    VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
-    VMenuItem := VShortCutInfo.MenuItem;
-    VMenuItem.ShortCut := AIni.ReadInteger(ASection, VMenuItem.name, VMenuItem.ShortCut);
-    VShortCutInfo.ShortCut := VMenuItem.ShortCut;
+  if AProvider <> nil then begin
+    for i := 0 to FItemsList.Count - 1 do begin
+      VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
+      VMenuItem := VShortCutInfo.MenuItem;
+      VMenuItem.ShortCut := AProvider.ReadInteger(VMenuItem.name, VMenuItem.ShortCut);
+      VShortCutInfo.ShortCut := VMenuItem.ShortCut;
+    end;
   end;
 end;
 
@@ -186,7 +190,7 @@ begin
   end;
 end;
 
-procedure TShortcutManager.Save(AIni: TCustomIniFile; ASection: string);
+procedure TShortcutManager.Save(AProvider: IConfigDataWriteProvider);
 var
   i: Integer;
   VShortCutInfo: TShortCutInfo;
@@ -195,8 +199,7 @@ begin
   for i := 0 to FItemsList.Count - 1 do begin
     VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
     VMenuItem := VShortCutInfo.MenuItem;
-    AIni.WriteInteger(ASection, VMenuItem.Name, VShortCutInfo.ShortCut);
-    VMenuItem.ShortCut := AIni.ReadInteger(ASection, VMenuItem.name, VMenuItem.ShortCut);
+    AProvider.WriteInteger(VMenuItem.Name, VShortCutInfo.ShortCut);
     VMenuItem.ShortCut := VShortCutInfo.ShortCut;
   end;
 end;

@@ -102,7 +102,7 @@ uses
   u_JclNotify,
   u_GlobalState,
   u_ActiveMapWithHybrConfig,
-  u_MapsConfigInIniFileSection,
+  u_MapsConfigByConfigDataProvider,
   u_PosChangeMessage;
 
 { TMapViewPortState }
@@ -782,7 +782,7 @@ procedure TMapViewPortState.LoadViewPortState(AProvider: IConfigDataProvider);
 var
   VMapConfigLoader: IActiveMapsConfigLoader;
 begin
-  VMapConfigLoader := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MainViewMaps');
+  VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(AProvider.GetSubItem('MainViewMaps'));
   try
     VMapConfigLoader.Load(FActiveMaps);
   finally
@@ -794,7 +794,7 @@ procedure TMapViewPortState.SaveViewPortState(AProvider: IConfigDataWriteProvide
 var
   VMapConfigSaver: IActiveMapsConfigSaver;
 begin
-  VMapConfigSaver := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MainViewMaps');
+  VMapConfigSaver := TMapsConfigSaverByConfigDataProvider.Create(AProvider.GetOrCreateSubItem('MainViewMaps'));
   try
     VMapConfigSaver.Save(FActiveMaps);
   finally

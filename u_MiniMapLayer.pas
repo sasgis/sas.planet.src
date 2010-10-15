@@ -123,7 +123,7 @@ uses
   u_MapTypeListGeneratorFromFullListForMiniMap,
   u_MapTypeBasic,
   u_ActiveMapWithHybrConfig,
-  u_MapsConfigInIniFileSection,
+  u_MapsConfigByConfigDataProvider,
   u_MiniMapMenuItemsFactory;
 
 type
@@ -189,7 +189,6 @@ end;
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 var
   VFactory: IMapTypeListFactory;
-  VMapConfigLoader: IActiveMapsConfigLoader;
 begin
   inherited;
 
@@ -211,10 +210,6 @@ begin
   FBitmapSize.X := 256;
   FBitmapSize.Y := 256;
 
-  FBitmapSize.X := GState.MainIni.readInteger('MINIMAP', 'Width', FBitmapSize.X);
-  FBitmapSize.Y := GState.MainIni.readInteger('MINIMAP', 'Height', FBitmapSize.Y);
-  FZoomDelta := GState.MainIni.readInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
-
   FPopup := TTBXPopupMenu.Create(AParentMap);
   FPopup.Name := 'PopupMiniMap';
   FPopup.Images := FIconsList.GetImageList;
@@ -223,12 +218,6 @@ begin
 
   LoadBitmaps;
   BuildPopUpMenu;
-  VMapConfigLoader := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
-  try
-    VMapConfigLoader.Load(FMapsActive);
-  finally
-    VMapConfigLoader := nil;
-  end;
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -309,9 +298,21 @@ begin
 end;
 
 procedure TMiniMapLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+  VMapConfigLoader: IActiveMapsConfigLoader;
 begin
   inherited;
-
+  VConfigProvider := AConfigProvider.GetSubItem('MINIMAP');
+  FBitmapSize.X := VConfigProvider.ReadInteger('Width', FBitmapSize.X);
+  FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
+  FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
+  VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
+  try
+    VMapConfigLoader.Load(FMapsActive);
+  finally
+    VMapConfigLoader := nil;
+  end;
 end;
 
 procedure TMiniMapLayer.BuildPopUpMenu;
@@ -390,13 +391,15 @@ end;
 
 procedure TMiniMapLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
 var
+  VConfigProvider: IConfigDataWriteProvider;
   VMapConfigSaver: IActiveMapsConfigSaver;
 begin
   inherited;
-  GState.MainIni.WriteInteger('MINIMAP', 'Width', FBitmapSize.X);
-  GState.MainIni.WriteInteger('MINIMAP', 'Height', FBitmapSize.Y);
-  GState.MainIni.WriteInteger('MINIMAP', 'ZoomDelta', FZoomDelta);
-  VMapConfigSaver := TMapsConfigInIniFileSection.Create(GState.MainIni, 'MiniMapMaps');
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('MINIMAP');
+  VConfigProvider.WriteInteger('Width', FBitmapSize.X);
+  VConfigProvider.WriteInteger('Height', FBitmapSize.Y);
+  VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
+  VMapConfigSaver := TMapsConfigSaverByConfigDataProvider.Create(VConfigProvider.GetOrCreateSubItem('Maps'));
   try
     VMapConfigSaver.Save(FMapsActive);
   finally

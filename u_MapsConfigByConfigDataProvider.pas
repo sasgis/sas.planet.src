@@ -98,32 +98,34 @@ var
   VGUID: TGUID;
   VMap: IMapType;
 begin
-  VList := TStringList.Create;
-  try
-    FProvider.ReadValuesList(VList);
-    for i := 0 to VList.Count - 1 do begin
-      VKeyName := VList.Strings[i];
-      if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
-        VGUIDString := FProvider.ReadString(VKeyName, '');
-        if VGUIDString <> '' then begin
-          try
-            VGUID := StringToGUID(VGUIDString);
-          except
+  if FProvider <> nil then begin
+    VList := TStringList.Create;
+    try
+      FProvider.ReadValuesList(VList);
+      for i := 0 to VList.Count - 1 do begin
+        VKeyName := VList.Strings[i];
+        if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
+          VGUIDString := FProvider.ReadString(VKeyName, '');
+          if VGUIDString <> '' then begin
+            try
+              VGUID := StringToGUID(VGUIDString);
+            except
+              VGUID := CGUID_Zero;
+            end;
+          end else begin
             VGUID := CGUID_Zero;
           end;
-        end else begin
-          VGUID := CGUID_Zero;
-        end;
-        if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-          VMap := AConfig.HybrList.GetMapTypeByGUID(VGUID);
-          if VMap <> nil then begin
-            AGUIDList.Add(VGUID, VMap);
+          if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+            VMap := AConfig.HybrList.GetMapTypeByGUID(VGUID);
+            if VMap <> nil then begin
+              AGUIDList.Add(VGUID, VMap);
+            end;
           end;
         end;
       end;
+    finally
+      VList.Free;
     end;
-  finally
-    VList.Free;
   end;
 end;
 
@@ -144,11 +146,15 @@ var
   VGUIDString: string;
   VGUID: TGUID;
 begin
-  VGUIDString := FProvider.ReadString(CKeyNameMap, '');
-  if VGUIDString <> '' then begin
-    try
-      VGUID := StringToGUID(VGUIDString);
-    except
+  if FProvider <> nil then begin
+    VGUIDString := FProvider.ReadString(CKeyNameMap, '');
+    if VGUIDString <> '' then begin
+      try
+        VGUID := StringToGUID(VGUIDString);
+      except
+        VGUID := CGUID_Zero;
+      end;
+    end else begin
       VGUID := CGUID_Zero;
     end;
   end else begin
