@@ -34,6 +34,7 @@ type
     procedure Load(AIni: TCustomIniFile; ASection: string);
     procedure Save(AIni: TCustomIniFile; ASection: string);
     procedure GetObjectsList(AList: TStrings);
+    procedure CancelChanges;
   end;
 
 implementation
@@ -56,6 +57,19 @@ begin
 end;
 
 { TShortcutManager }
+
+procedure TShortcutManager.CancelChanges;
+var
+  i: Integer;
+  VShortCutInfo: TShortCutInfo;
+  VMenuItem: TTBCustomItem;
+begin
+  for i := 0 to FItemsList.Count - 1 do begin
+    VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
+    VMenuItem := VShortCutInfo.MenuItem;
+    VShortCutInfo.ShortCut := VMenuItem.ShortCut;
+  end;
+end;
 
 constructor TShortcutManager.Create(AMainMenu: TTBCustomItem;
   AIgnoredItems: TList);
@@ -129,7 +143,6 @@ begin
   for i := 0 to FItemsList.Count - 1 do begin
     VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
     VMenuItem := VShortCutInfo.MenuItem;
-    VShortCutInfo.ShortCut := VMenuItem.ShortCut;
     AList.AddObject(GetCaption(VMenuItem), VShortCutInfo);
   end;
 end;

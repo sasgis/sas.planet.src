@@ -96,6 +96,7 @@ procedure TfrShortCutList.RefreshTranslation;
 begin
   inherited;
   if FShortCutManager <> nil then begin
+    FShortCutManager.CancelChanges;
     FShortCutManager.GetObjectsList(lstShortCutList.Items);
   end;
 end;

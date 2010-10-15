@@ -228,13 +228,18 @@ begin
 end;
 
 procedure TLanguageManager.SetCurrentLangIndex(AValue: Integer);
+var
+  VLastUsedCode: string;
 begin
+  VLastUsedCode := GetCurrentLanguage;
   if AValue >= 0 then begin
     UseLanguage(FCodes[AValue]);
   end else begin
     UseLanguage(FDefaultLangCode);
   end;
-  AfterLangChange;
+  if VLastUsedCode <> GetCurrentLanguage then begin
+    AfterLangChange;
+  end;
 end;
 
 procedure TLanguageManager.SetCurrentLanguage(ACode: string);
@@ -242,12 +247,7 @@ var
   VIndex: Integer;
 begin
   VIndex := GetIndexByCode(ACode);
-  if VIndex >= 0 then begin
-    UseLanguage(FCodes[VIndex]);
-  end else begin
-    UseLanguage(FDefaultLangCode);
-  end;
-  AfterLangChange;
+  SetCurrentLangIndex(VIndex);
 end;
 
 procedure TLanguageManager.SetTranslateIgnore;
