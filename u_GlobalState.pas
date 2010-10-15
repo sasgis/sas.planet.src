@@ -667,32 +667,10 @@ begin
 end;
 
 procedure TGlobalState.LoadMaps;
-  function FindGUIDInFirstMaps(AGUID: TGUID; Acnt: Cardinal; out AMapType: TMapType): Boolean;
-  var
-    i: Integer;
-    VMapType: TMapType;
-  begin
-    AMapType := nil;
-    Result := false;
-    if Acnt > 0 then begin
-      for i := 0 to Acnt - 1 do begin
-        VMapType := MapType[i];
-        if IsEqualGUID(AGUID, VMapType.GUID) then begin
-          Result := True;
-          AMapType := VMapType;
-          Break;
-        end;
-      end;
-    end;
-  end;
-
 var
   Ini: TMeminifile;
-  i, j, k, pnum: integer;
-  startdir: string;
-  SearchRec: TSearchRec;
+  i, j, k: integer;
   MTb: TMapType;
-  VGUIDString: String;
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
@@ -708,9 +686,6 @@ begin
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-  pnum := 0;
-  startdir := MapsPath;
-
   VMapOnlyCount := 0;
   VMapTypeCount := 0;
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
@@ -731,8 +706,8 @@ begin
           raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
         end;
       end;
-      VGUIDString := VMapType.GUIDString;
-      if FindGUIDInFirstMaps(VMapType.GUID, pnum, VMapTypeLoaded) then begin
+      VMapTypeLoaded := GetMapFromID(VMapType.GUID);
+      if VMapTypeLoaded <> nil then begin
         raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
       end;
     except
