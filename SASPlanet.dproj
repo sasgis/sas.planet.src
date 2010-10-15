@@ -321,7 +321,6 @@
     <DCCReference Include="u_MapMarksLayer.pas" />
     <DCCReference Include="u_MapNalLayer.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />
-    <DCCReference Include="u_MapsConfigInIniFileSection.pas" />
     <DCCReference Include="u_MapTileLayerBasic.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
