@@ -85,7 +85,7 @@ begin
   end;
   try
     ProgressFormUpdateCaption(
-      SAS_STR_ExportTiles + ' ' + SAS_STR_CreateArhList,
+      SAS_STR_ExportTiles,
       SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
     );
     VMemStream := TMemoryStream.Create;

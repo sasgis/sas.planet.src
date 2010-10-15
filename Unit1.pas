@@ -2062,7 +2062,7 @@ begin
   path := VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
 
   if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
-      (MessageBox(handle,pchar(SAS_STR_file+' '+path+' '+SAS_MSG_FileExists),pchar(SAS_MSG_coution),36)=IDYES))
+      (MessageBox(handle,pchar(Format(SAS_MSG_FileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
   then begin
     TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr, VMapType);
   end;
