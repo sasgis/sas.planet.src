@@ -117,8 +117,6 @@ type
     SESizeTrack: TSpinEdit;
     ComboBoxBoudRate: TComboBox;
     Label65: TLabel;
-    GroupBox3: TGroupBox;
-    PaintBox1: TPaintBox;
     CBSaveTileNotExists: TCheckBox;
     CBBorderText: TCheckBox;
     Label23: TLabel;
@@ -197,6 +195,8 @@ type
     chkPosFromGSM: TCheckBox;
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
+    GroupBox3: TGroupBox;
+    PaintBox1: TPaintBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
