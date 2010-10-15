@@ -588,7 +588,7 @@ type
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect);
-    procedure insertinpath(pos: integer);
+    procedure insertinpath(pos: integer; APoint: TExtendedPoint);
     procedure delfrompath(pos: integer);
     procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
@@ -899,17 +899,34 @@ begin
   end
 end;
 
-procedure TFmain.insertinpath(pos: integer);
+procedure TFmain.insertinpath(pos: integer; APoint: TExtendedPoint);
+var
+  VCount: Integer;
 begin
- SetLength(add_line_arr,length(add_line_arr)+1);
- CopyMemory(Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),@add_line_arr[pos],(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
+  VCount := Length(add_line_arr);
+  if (pos >=0) and (pos <= VCount)  then begin
+    SetLength(add_line_arr, VCount + 1);
+    if pos < VCount then begin
+      CopyMemory(@add_line_arr[pos + 1], @add_line_arr[pos], (VCount-pos-1)*sizeOf(TExtendedPoint));
+    end;
+    add_line_arr[pos] := APoint;
+  end;
 end;
 
 procedure TFmain.delfrompath(pos: integer);
+var
+  VCount: Integer;
 begin
- CopyMemory(@add_line_arr[pos],Pointer(integer(@add_line_arr[pos])+sizeOf(TExtendedPoint)),(length(add_line_arr)-pos-1)*sizeOf(TExtendedPoint));
- SetLength(add_line_arr,length(add_line_arr)-1);
- Dec(lastpoint);
+  VCount := Length(add_line_arr);
+  if (pos >=0) and (pos < VCount)  then begin
+    if pos < VCount - 1 then begin
+      CopyMemory(@add_line_arr[pos], @add_line_arr[pos+1], (VCount-pos-1)*sizeOf(TExtendedPoint));
+    end;
+    SetLength(add_line_arr, VCount - 1);
+    if lastpoint > 0 then begin
+      Dec(lastpoint);
+    end;
+  end;
 end;
 
 procedure TFmain.setalloperationfalse(newop: TAOperation);
@@ -3054,8 +3071,7 @@ begin
       end;
       inc(lastpoint);
       movepoint:=lastpoint + 1;
-      insertinpath(lastpoint);
-      add_line_arr[lastpoint]:=VClickLonLat;
+      insertinpath(lastpoint, VClickLonLat);
       TBEditPath.Visible:=(length(add_line_arr)>1);
       FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
