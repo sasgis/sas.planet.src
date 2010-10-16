@@ -49,6 +49,7 @@ type
   function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64; overload;
   function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
+  function GetGhBordersStepByScale(AScale: Integer): TExtendedPoint;
 
 implementation
 
@@ -479,6 +480,20 @@ begin
   result.D:=int(G);
   result.M:=int(Frac(G)*60);
   result.S:=Frac(Frac(G)*60)*60;
+end;
+
+function GetGhBordersStepByScale(AScale: Integer): TExtendedPoint;
+begin
+  case AScale of
+    1000000: begin Result.X:=6; Result.Y:=4; end;
+     500000: begin Result.X:=3; Result.Y:=2; end;
+     200000: begin Result.X:=1; Result.Y:=0.66666666666666666666666666666667; end;
+     100000: begin Result.X:=0.5; Result.Y:=0.33333333333333333333333333333333; end;
+      50000: begin Result.X:=0.25; Result.Y:=0.1666666666666666666666666666665; end;
+      25000: begin Result.X:=0.125; Result.Y:=0.08333333333333333333333333333325; end;
+      10000: begin Result.X:=0.0625; Result.Y:=0.041666666666666666666666666666625; end;
+    else begin Result.X:=360; Result.Y:=180; end;
+  end;
 end;
 
 {

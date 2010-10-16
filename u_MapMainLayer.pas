@@ -101,7 +101,7 @@ end;
 
 procedure TMapMainLayer.DrawGenShBorders;
 var
-  zLonR, zLatR: extended;
+  z: TExtendedPoint;
   twidth, theight: integer;
   ListName: WideString;
   VZoomCurr: Byte;
@@ -118,16 +118,7 @@ begin
   if GState.GShScale = 0 then begin
     exit;
   end;
-  case GState.GShScale of
-    1000000: begin zLonR:=6; zLatR:=4; end;
-     500000: begin zLonR:=3; zLatR:=2; end;
-     200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
-     100000: begin zLonR:=0.5; zLatR:=0.33333333333333333333333333333333; end;
-      50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
-      25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
-      10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
-    else begin zLonR:=6; zLatR:=4; end;
-  end;
+  z := GetGhBordersStepByScale(GState.GShScale);
   VZoomCurr := FZoom;
   VLoadedRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
   VLoadedRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
@@ -135,20 +126,20 @@ begin
   FGeoConvert.CheckPixelRect(VLoadedRect, VZoomCurr, False);
   VLoadedLonLatRect := FGeoConvert.PixelRect2LonLatRect(VLoadedRect, VZoomCurr);
 
-  VGridLonLatRect.Left := VLoadedLonLatRect.Left - zLonR;
-  VGridLonLatRect.Top := VLoadedLonLatRect.Top + zLatR;
-  VGridLonLatRect.Right := VLoadedLonLatRect.Right + zLonR;
-  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom - zLatR;
+  VGridLonLatRect.Left := VLoadedLonLatRect.Left - z.X;
+  VGridLonLatRect.Top := VLoadedLonLatRect.Top + z.Y;
+  VGridLonLatRect.Right := VLoadedLonLatRect.Right + z.X;
+  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom - z.Y;
   FGeoConvert.CheckLonLatRect(VGridLonLatRect);
 
-  VGridLonLatRect.Left := VGridLonLatRect.Left - (round(VGridLonLatRect.Left * GSHprec) mod round(zLonR * GSHprec)) / GSHprec;
-  VGridLonLatRect.Top := VGridLonLatRect.Top - (round(VGridLonLatRect.Top * GSHprec) mod round(zLatR * GSHprec)) / GSHprec;
-  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom - (round(VGridLonLatRect.Bottom * GSHprec) mod round(zLatR * GSHprec)) / GSHprec;
+  VGridLonLatRect.Left := VGridLonLatRect.Left - (round(VGridLonLatRect.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+  VGridLonLatRect.Top := VGridLonLatRect.Top - (round(VGridLonLatRect.Top * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom - (round(VGridLonLatRect.Bottom * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
 
   VGridRect := FGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoomCurr);
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left + zLonR, VGridLonLatRect.Bottom);
+  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
   VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
 
   if abs(VDrawRect.Right - VDrawRect.Left) < 4 then begin
@@ -177,7 +168,7 @@ begin
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
 
-    VDrawLonLatRect.Left := VDrawLonLatRect.Left + zLonR;
+    VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
     VDrawLonLatRect.Right := VDrawLonLatRect.Left;
   end;
 
@@ -196,7 +187,7 @@ begin
     );
 
 
-    VDrawLonLatRect.Top := VDrawLonLatRect.Top - zLatR;
+    VDrawLonLatRect.Top := VDrawLonLatRect.Top - z.Y;
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
   end;
 
@@ -205,13 +196,13 @@ begin
   end;
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
-  VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - zLatR;
+  VDrawLonLatRect.Right := VDrawLonLatRect.Left + z.X;
+  VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - z.Y;
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    while VDrawLonLatRect.Left + zLonR / 2 <= VGridLonLatRect.Right do begin
+    while VDrawLonLatRect.Left + z.X / 2 <= VGridLonLatRect.Right do begin
       VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
       ListName := LonLat2GShListName(
-        ExtPoint(VDrawLonLatRect.Left + zLonR / 2, VDrawLonLatRect.Top - zLatR / 2),
+        ExtPoint(VDrawLonLatRect.Left + z.X / 2, VDrawLonLatRect.Top - z.Y / 2),
         GState.GShScale, GSHprec
       );
       twidth := FLayer.bitmap.TextWidth(ListName);
@@ -227,12 +218,12 @@ begin
       );
 
       VDrawLonLatRect.Left := VDrawLonLatRect.Right;
-      VDrawLonLatRect.Right := VDrawLonLatRect.Right + zLonR;
+      VDrawLonLatRect.Right := VDrawLonLatRect.Right + z.X;
     end;
     VDrawLonLatRect.Left := VGridLonLatRect.Left;
-    VDrawLonLatRect.Right := VDrawLonLatRect.Left + zLonR;
+    VDrawLonLatRect.Right := VDrawLonLatRect.Left + z.X;
     VDrawLonLatRect.Top := VDrawLonLatRect.Bottom;
-    VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom - zLatR;
+    VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom - z.Y;
   end;
 end;
 
