@@ -1064,7 +1064,7 @@ var
   VSelectedTiles: TRect;
   VTileGridZoom: byte;
   VSelectedRelative: TExtendedRect;
-  zLonR,zLatR: extended;
+  z: TExtendedPoint;
   VConverter: ICoordConverter;
 begin
   GState.ViewState.LockRead;
@@ -1105,28 +1105,19 @@ begin
   ASelectedLonLat := VConverter.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
 
   if (ssShift in Shift)and(GState.GShScale>0) then begin
-    case GState.GShScale of
-      1000000: begin zLonR:=6; zLatR:=4; end;
-       500000: begin zLonR:=3; zLatR:=2; end;
-       200000: begin zLonR:=1; zLatR:=0.66666666666666666666666666666667; end;
-       100000: begin zLonR:=0.5; zLatR:=0.33333333333333333333333333333333; end;
-        50000: begin zLonR:=0.25; zLatR:=0.1666666666666666666666666666665; end;
-        25000: begin zLonR:=0.125; zLatR:=0.08333333333333333333333333333325; end;
-        10000: begin zLonR:=0.0625; zLatR:=0.041666666666666666666666666666625; end;
-      else begin zLonR:=6; zLatR:=4; end
-    end;
+    z := GetGhBordersStepByScale(GState.GShScale);
 
-    ASelectedLonLat.Left := ASelectedLonLat.Left-(round(ASelectedLonLat.Left*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-    if ASelectedLonLat.Left < 0 then ASelectedLonLat.Left := ASelectedLonLat.Left-zLonR;
+    ASelectedLonLat.Left := ASelectedLonLat.Left-(round(ASelectedLonLat.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
+    if ASelectedLonLat.Left < 0 then ASelectedLonLat.Left := ASelectedLonLat.Left-z.X;
 
-    ASelectedLonLat.Top := ASelectedLonLat.Top-(round(ASelectedLonLat.Top*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-    if ASelectedLonLat.Top > 0 then ASelectedLonLat.Top := ASelectedLonLat.Top+zLatR;
+    ASelectedLonLat.Top := ASelectedLonLat.Top-(round(ASelectedLonLat.Top*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
+    if ASelectedLonLat.Top > 0 then ASelectedLonLat.Top := ASelectedLonLat.Top+z.Y;
 
-    ASelectedLonLat.Right := ASelectedLonLat.Right-(round(ASelectedLonLat.Right*GSHprec) mod round(zLonR*GSHprec))/GSHprec;
-    if ASelectedLonLat.Right >= 0 then ASelectedLonLat.Right := ASelectedLonLat.Right+zLonR;
+    ASelectedLonLat.Right := ASelectedLonLat.Right-(round(ASelectedLonLat.Right*GSHprec) mod round(z.X*GSHprec))/GSHprec;
+    if ASelectedLonLat.Right >= 0 then ASelectedLonLat.Right := ASelectedLonLat.Right+z.X;
 
-    ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-(round(ASelectedLonLat.Bottom*GSHprec) mod round(zLatR*GSHprec))/GSHprec;
-    if ASelectedLonLat.Bottom <= 0 then ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-zLatR;
+    ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-(round(ASelectedLonLat.Bottom*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
+    if ASelectedLonLat.Bottom <= 0 then ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-z.Y;
   end;
 end;
 
