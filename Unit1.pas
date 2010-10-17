@@ -562,6 +562,7 @@ type
     FMapPosChangeListener: IJclListener;
     FMainMapChangeListener: IJclListener;
     FHybrChangeListener: IJclListener;
+    FMapLayersVsibleChangeListener: IJclListener;
 
     FMainToolbarItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
     FMainToolbarSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
@@ -596,6 +597,7 @@ type
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
     function GetIgnoredMenuItemsList: TList;
+    procedure MapLayersVisibleChange;
   public
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
@@ -705,6 +707,20 @@ begin
   FMainForm.ProcessPosChangeMessage(VMessage);
 end;
 
+{ TMapLayersVisibleChange }
+
+type
+  TMapLayersVisibleChange = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TMapLayersVisibleChange.Notification(
+  msg: IJclNotificationMessage);
+begin
+  FMainForm.MapLayersVisibleChange;
+end;
+
 { TMainMapChangeListenerOfMainForm }
 
 type
@@ -737,6 +753,20 @@ var
 begin
   VMessage := msg as IHybrChangeMessage;
   FMainForm.ProcessHybrChangeMessage(VMessage);
+end;
+
+procedure TFmain.MapLayersVisibleChange;
+begin
+  Showstatus.Checked := LayerStatBar.Visible;
+  if LayerStatBar.Visible then begin
+    FLayerScaleLine.BottomMargin := 17;
+    FLayerMiniMap.BottomMargin := 17;
+  end else begin
+    FLayerScaleLine.BottomMargin := 0;
+    FLayerMiniMap.BottomMargin := 0;
+  end;
+
+  mapResize(nil);
 end;
 
 procedure TFmain.ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
@@ -1584,6 +1614,9 @@ begin
     FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
+    FMapLayersVsibleChangeListener := TMapLayersVisibleChange.Create(Self);
+    LayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
@@ -1641,8 +1674,6 @@ begin
     FLayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
     SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
     SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
-    LayerStatBar.Visible:=GState.ShowStatusBar;
-    Showstatus.Checked:=GState.ShowStatusBar;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
     Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
   finally
@@ -2422,10 +2453,7 @@ end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
-  GState.ShowStatusBar := Showstatus.Checked;
-  LayerStatBar.Visible:=GState.ShowStatusBar;
-  mapResize(nil);
-  Showstatus.Checked:=GState.ShowStatusBar;
+  LayerStatBar.Visible:=Showstatus.Checked;
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
@@ -3925,7 +3953,6 @@ begin
 
   GState.MainIni.Writebool('VIEW','line',ShowLine.Checked);
   GState.MainIni.Writebool('VIEW','minimap',ShowMiniMap.Checked);
-  GState.MainIni.Writebool('VIEW','statusbar',Showstatus.Checked);
   GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
   GState.MainIni.Writebool('VIEW','showscale', FLayerMapScale.Visible);
   GState.MainIni.Writebool('VIEW','showselection', LayerSelection.Visible);

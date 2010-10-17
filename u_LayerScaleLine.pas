@@ -11,12 +11,14 @@ uses
 type
   TLayerScaleLine = class(TWindowLayerBasic)
   protected
+    FBottomMargin: Integer;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
     function GetFreezePointInBitmapPixel: TPoint; override;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    property BottomMargin: Integer read FBottomMargin write FBottomMargin;
   end;
 
 implementation
@@ -125,9 +127,7 @@ var
 begin
   VVisibleSize := GetVisibleSizeInPixel;
   Result := Point(6, VVisibleSize.Y - 6);
-  if GState.ShowStatusBar then begin
-    Result.Y := Result.Y - 17;
-  end;
+  Result.Y := Result.Y - FBottomMargin;
 end;
 
 end.

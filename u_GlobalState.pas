@@ -168,8 +168,6 @@ type
     show_point: TMarksShowType;
     FirstLat: Boolean;
     ShowMapName: Boolean;
-    // Покаызвать строку статуса
-    ShowStatusBar: Boolean;
 
     // Количество тайлов отображаемых за границей экрана
     TilesOut: Integer;
@@ -617,7 +615,6 @@ begin
   SrchType:=TSrchType(MainIni.ReadInteger('VIEW','SearchType',0));
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
   WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
-  ShowStatusBar := MainIni.readbool('VIEW','statusbar',true);
   WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
 
   GammaN:=MainIni.Readinteger('COLOR_LEVELS','gamma',50);

@@ -55,6 +55,7 @@ type
     FMainMapChangeListener: IJclListener;
     FMapChangeListener: IJclListener;
     FHybrChangeListener: IJclListener;
+    FBottomMargin: Integer;
 
 
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
@@ -104,6 +105,7 @@ type
     procedure Hide; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
+    property BottomMargin: Integer read FBottomMargin write FBottomMargin;
   end;
 
 implementation
@@ -715,11 +717,7 @@ var
   VVisibleSize: TPoint;
 begin
   VVisibleSize := GetVisibleSizeInPixel;
-  if GState.ShowStatusBar then begin
-    Result := Point(VVisibleSize.X, VVisibleSize.Y - 17);
-  end else begin
-    Result := Point(VVisibleSize.X, VVisibleSize.Y);
-  end;
+  Result := Point(VVisibleSize.X, VVisibleSize.Y - FBottomMargin);
 end;
 
 procedure TMiniMapLayer.Hide;

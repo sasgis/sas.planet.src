@@ -7,6 +7,8 @@ uses
   Types,
   GR32_Image,
   t_GeoTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_MapViewPortState,
   u_WindowLayerBasic;
 
@@ -20,6 +22,8 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
   end;
 
 implementation
@@ -80,6 +84,24 @@ begin
   prH := trunc(tz);
   prM := round(60 * frac(TZ));
   result := EncodeTime(abs(st.wHour + prH + 24) mod 24, abs(st.wMinute + prM + 60) mod 60, 0, 0);
+end;
+
+procedure TLayerStatBar.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VSubItem: IConfigDataProvider;
+begin
+  inherited;
+  VSubItem := AConfigProvider.GetSubItem('VIEW');
+  Visible := VSubItem.ReadBool('statusbar',true);
+end;
+
+procedure TLayerStatBar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VSubItem: IConfigDataWriteProvider;
+begin
+  inherited;
+  VSubItem := AConfigProvider.GetOrCreateSubItem('VIEW');
+  VSubItem.WriteBool('statusbar', Visible);
 end;
 
 procedure TLayerStatBar.DoRedraw;
