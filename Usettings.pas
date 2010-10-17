@@ -18,15 +18,16 @@ uses
   Spin,
   urlmon,
   wininet,
+  GR32,
+  GR32_Image,
+  GR32_Backends,
   XPMan,
   ZylGPSReceiver,
   u_CommonFormAndFrameParents,
   i_IConfigDataWriteProvider,
   fr_ShortCutList,
   UMapType,
-  UResStrings,
-  GR32,
-  GR32_Image;
+  UResStrings;
 
 type
   TFSettings = class(TCommonFormParent)
