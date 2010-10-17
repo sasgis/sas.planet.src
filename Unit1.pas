@@ -388,7 +388,6 @@ type
     TBPrevious: TTBXItem;
     TBLoadSelFromFile: TTBXItem;
     TBXSignalStrengthBar: TTBXToolWindow;
-    TBXSignalStrength: TTBXLabel;
     TBXLabel5: TTBXLabel;
     NSignalStrengthBar: TTBXItem;
     TBXSeparatorItem19: TTBXSeparatorItem;
@@ -1155,6 +1154,7 @@ procedure TFmain.UpdateGPSsensors;
 var
     s_len,n_len: string;
     sps: _SYSTEM_POWER_STATUS;
+    i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
 begin
  try
    //скорость
@@ -1193,7 +1193,24 @@ begin
    //Азимут
    TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.azimut,2)+'°';
    //Сила сигнала, кол-во спутников
-   TBXSignalStrength.Caption:=RoundEx(GState.GPSpar.SignalStrength,2)+' ('+inttostr(GState.GPSpar.SatCount)+')'
+   TBXSignalStrengthBar.Repaint;
+   if GState.GPSpar.SatCount>0 then begin
+    with TBXSignalStrengthBar do begin
+     Canvas.Lock;
+     bar_width:=((Width-15) div GState.GPSpar.SatCount);
+     bar_height:=42;
+     Canvas.Pen.Color:=clBlack;
+     Canvas.Brush.Color:=clBlue;
+     bar_x1:=0;
+     bar_dy:=8;
+     for I := 0 to GState.GPSpar.SatCount-1 do begin
+      bar_x1:=(bar_width*i);
+      bar_height:=trunc(14*((100-GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/100));
+      Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+     end;
+     Canvas.Unlock;
+    end;
+   end;
  except
  end;
 end;
@@ -2898,7 +2915,6 @@ begin
     VTrackPoint.Point := VPointCurr;
     VTrackPoint.Speed := GPSReceiver.GetSpeed_KMH;
     GState.GPSRecorder.AddPoint(VTrackPoint);
-
     VConverter := GState.ViewState.GetCurrentCoordConverter;
     GState.GPSpar.speed:=VTrackPoint.Speed;
     if GState.GPSpar.maxspeed<GState.GPSpar.speed then GState.GPSpar.maxspeed:=GState.GPSpar.speed;
@@ -2906,7 +2922,6 @@ begin
     GState.GPSpar.allspeed:=GState.GPSpar.allspeed+GState.GPSpar.speed;
     GState.GPSpar.sspeed:=GState.GPSpar.allspeed/GState.GPSpar.sspeednumentr;
     GState.GPSpar.altitude:=GPSReceiver.GetAltitude;
-    GState.GPSpar.SignalStrength:=GPSReceiver.GetReceiverStatus.SignalStrength;
     GState.GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
     if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
       VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);

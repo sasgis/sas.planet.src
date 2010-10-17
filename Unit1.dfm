@@ -2019,7 +2019,7 @@ object Fmain: TFmain
       Top = 0
       ClientAreaHeight = 457
       ClientAreaWidth = 160
-      DockPos = 0
+      DockPos = 6
       PopupMenu = TBXPopupMenuSensors
       Stretch = True
       TabOrder = 0
@@ -2383,7 +2383,7 @@ object Fmain: TFmain
               Height = 13
               Anchors = [akLeft, akTop, akRight]
               Wrapping = twEndEllipsis
-              Caption = #1042#1099#1089#1086#1090#1072', '#1084':'
+              Caption = #1042#1099#1089#1086#1090#1072' ('#1043#1077#1086'), '#1084':'
             end
           end
           object TBXSensorSpeedMaxBar: TTBXToolWindow
@@ -2572,7 +2572,7 @@ object Fmain: TFmain
             Align = alTop
             ClientAreaHeight = 32
             ClientAreaWidth = 150
-            DockPos = 8
+            DockPos = -3
             DockRow = 8
             Stretch = True
             TabOrder = 8
@@ -2611,12 +2611,12 @@ object Fmain: TFmain
             Left = 0
             Top = 324
             Hint = 
-              #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1080#1083#1091' '#1089#1080#1075#1085#1072#1083#1072' '#1080' '#1082#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1089#1087#1091#1090#1085#1080#1082#1086#1074' '#1091#1095#1072#1089#1090#1074#1091#1102#1097#1080#1093' '#1074' '#1086#1087#1088 +
-              #1077#1076#1077#1083#1077#1085#1080#1080' '#1087#1086#1079#1080#1094#1080#1080
+              #1054#1090#1085#1086#1096#1077#1085#1080#1077' '#1089#1080#1075#1085#1072#1083'/'#1096#1091#1084' '#1076#1083#1103' '#1089#1087#1091#1090#1085#1080#1082#1086#1074' '#1091#1095#1072#1089#1090#1074#1091#1102#1097#1080#1093' '#1074' '#1086#1087#1088#1077#1076#1077#1083#1077#1085#1080#1080' '#1087#1086#1079 +
+              #1080#1094#1080#1080
             Align = alTop
             ClientAreaHeight = 32
             ClientAreaWidth = 150
-            DockPos = 0
+            DockPos = 6
             DockRow = 9
             Stretch = True
             TabOrder = 9
@@ -2624,22 +2624,7 @@ object Fmain: TFmain
             DesignSize = (
               150
               32)
-            Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072' ('#1082#1086#1083'. '#1089#1087'.)'
-            object TBXSignalStrength: TTBXLabel
-              Left = 0
-              Top = 13
-              Width = 145
-              Height = 19
-              Anchors = [akLeft, akTop, akRight]
-              Font.Charset = RUSSIAN_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -16
-              Font.Name = 'Arial'
-              Font.Style = [fsBold]
-              ParentFont = False
-              Wrapping = twEndEllipsis
-              Caption = '-'
-            end
+            Caption = #1059#1088#1086#1074#1077#1085#1080' '#1089#1080#1075#1085#1072#1083#1072
             object TBXLabel5: TTBXLabel
               Left = 0
               Top = 0
@@ -2648,7 +2633,7 @@ object Fmain: TFmain
               Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Wrapping = twEndEllipsis
-              Caption = #1057#1080#1083#1072' '#1089#1080#1075#1085#1072#1083#1072', dB ('#1082#1086#1083'. '#1089#1087'.):'
+              Caption = #1059#1088#1086#1074#1077#1085#1080' '#1089#1080#1075#1085#1072#1083#1072':'
             end
           end
         end
