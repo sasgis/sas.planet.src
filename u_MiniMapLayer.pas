@@ -306,9 +306,14 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetSubItem('MINIMAP');
-  FBitmapSize.X := VConfigProvider.ReadInteger('Width', FBitmapSize.X);
-  FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
-  FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
+  if VConfigProvider <> nil then begin
+    FBitmapSize.X := VConfigProvider.ReadInteger('Width', FBitmapSize.X);
+    FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
+    FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
+    Visible := VConfigProvider.ReadBool('Visible', True);
+  end else begin
+    Visible := True;
+  end;
   VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
   try
     VMapConfigLoader.Load(FMapsActive);
@@ -401,6 +406,7 @@ begin
   VConfigProvider.WriteInteger('Width', FBitmapSize.X);
   VConfigProvider.WriteInteger('Height', FBitmapSize.Y);
   VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
+  VConfigProvider.WriteBool('Visible', Visible);
   VMapConfigSaver := TMapsConfigSaverByConfigDataProvider.Create(VConfigProvider.GetOrCreateSubItem('Maps'));
   try
     VMapConfigSaver.Save(FMapsActive);

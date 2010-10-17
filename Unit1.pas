@@ -618,8 +618,6 @@ type
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
     procedure setalloperationfalse(newop: TAOperation);
-    procedure SetLineScaleVisible(visible: boolean);
-    procedure SetMiniMapVisible(visible: boolean);
     procedure UpdateGPSsensors;
     procedure CopyStringToClipboard(s: Widestring);
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -765,7 +763,8 @@ begin
     FLayerScaleLine.BottomMargin := 0;
     FLayerMiniMap.BottomMargin := 0;
   end;
-
+  ShowMiniMap.Checked := FLayerMiniMap.Visible;
+  ShowLine.Checked := FLayerScaleLine.Visible;
   mapResize(nil);
 end;
 
@@ -1616,6 +1615,8 @@ begin
 
     FMapLayersVsibleChangeListener := TMapLayersVisibleChange.Create(Self);
     LayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
@@ -1672,8 +1673,6 @@ begin
     FMainLayer.Visible := True;
     LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
     FLayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
-    SetMiniMapVisible(GState.MainIni.readbool('VIEW','minimap',true));
-    SetLineScaleVisible(GState.MainIni.readbool('VIEW','line',true));
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
     Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
   finally
@@ -1784,7 +1783,6 @@ end;
 
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
-  VWaitResult: DWORD;
   i:integer;
 begin
   ProgramClose:=true;
@@ -2438,19 +2436,6 @@ begin
   TBmoveClick(Sender);
 end;
 
-procedure TFmain.SetLineScaleVisible(visible:boolean);
-begin
-  FLayerScaleLine.Visible := visible;
-  FLayerScaleLine.Redraw;
-  ShowLine.Checked:=visible;
-end;
-
-procedure TFmain.SetMiniMapVisible(visible:boolean);
-begin
-  FLayerMiniMap.Visible := visible;
-  ShowMiniMap.Checked:=visible;
-end;
-
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
   LayerStatBar.Visible:=Showstatus.Checked;
@@ -2458,12 +2443,12 @@ end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
 begin
- SetMiniMapVisible(ShowMiniMap.Checked);
+  FLayerMiniMap.Visible := ShowMiniMap.Checked;
 end;
 
 procedure TFmain.ShowLineClick(Sender: TObject);
 begin
- SetLineScaleVisible(ShowLine.Checked)
+  FLayerScaleLine.Visible := ShowLine.Checked;
 end;
 
 procedure TFmain.N32Click(Sender: TObject);
