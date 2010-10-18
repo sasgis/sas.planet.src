@@ -395,6 +395,11 @@ type
     TBXItem9: TTBXItem;
     TBControlItem3: TTBControlItem;
     Label1: TLabel;
+    TBXsensorOdometr2Bar: TTBXToolWindow;
+    SpeedButton1: TSpeedButton;
+    TBXSensorOdometr2: TTBXLabel;
+    TBXLabel6: TTBXLabel;
+    NsensorOdometr2Bar: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -1178,6 +1183,7 @@ begin
    end;
    //одометр
    TBXSensorOdometr.Caption:=DistToStrWithUnits(GState.GPSpar.Odometr, GState.num_format);
+   TBXSensorOdometr2.Caption:=DistToStrWithUnits(GState.GPSpar.Odometr2, GState.num_format);
    //батарея
    GetSystemPowerStatus(sps);
    if sps.ACLineStatus=0 then begin
@@ -2924,6 +2930,7 @@ begin
       VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
       GState.GPSpar.len:=GState.GPSpar.len+VDistToPrev;
       GState.GPSpar.Odometr:=GState.GPSpar.Odometr+VDistToPrev;
+      GState.GPSpar.Odometr2:=GState.GPSpar.Odometr2+VDistToPrev;
       GState.GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
     end;
 
@@ -2992,6 +2999,7 @@ end;
 procedure TFmain.GPSReceiverTimeout(Sender: TObject);
 begin
  ShowMessage(SAS_ERR_Communication);
+ GPSReceiver.Close;
 end;
 
 procedure TFmain.NMapParamsClick(Sender: TObject);
@@ -3992,6 +4000,7 @@ begin
     2: GState.GPSpar.len:=0;
     3: GState.GPSpar.Odometr:=0;
     4: GState.GPSpar.maxspeed:=0;
+    5: GState.GPSpar.Odometr2:=0;
    end;
    UpdateGPSsensors;
  end;

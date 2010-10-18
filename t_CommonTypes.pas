@@ -28,6 +28,7 @@ type
     nap: integer;
     azimut: extended;
     Odometr: extended;
+    Odometr2: extended;
     SignalStrength: extended;
     SatCount: integer;
   end;
