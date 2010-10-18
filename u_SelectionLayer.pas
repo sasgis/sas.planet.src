@@ -6,6 +6,8 @@ uses
   GR32,
   GR32_Polygons,
   t_GeoTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_MapLayerBasic;
 
 type
@@ -14,6 +16,8 @@ type
     procedure DoRedraw; override;
     function PreparePolygon(APolygon: TPointArray): TPointArray;
   public
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
   end;
 
 implementation
@@ -72,6 +76,12 @@ begin
   end;
 end;
 
+procedure TSelectionLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+begin
+  inherited;
+
+end;
+
 function TSelectionLayer.PreparePolygon(
   APolygon: TPointArray): TPointArray;
 var
@@ -120,6 +130,12 @@ begin
     Result[i].X := Round(VTargetPoint.X);
     Result[i].Y := Round(VTargetPoint.Y);
   end;
+
+end;
+
+procedure TSelectionLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+begin
+  inherited;
 
 end;
 
