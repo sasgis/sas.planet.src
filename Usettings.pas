@@ -553,7 +553,6 @@ end;
 procedure TFSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
-  SatellitePaintBox.Bitmap:=TBitmap32.Create;
   SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
 
   ComboBoxCOM.Items.Clear;
