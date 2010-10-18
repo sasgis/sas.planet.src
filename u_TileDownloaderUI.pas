@@ -19,6 +19,7 @@ type
     FSizeInPixels: TPoint;
     FLastLoad: TlastLoad;
     FErrorString: string;
+    FTileMaxAgeInInternet: TDateTime;
     procedure GetCurrentMapAndPos;
     procedure AfterWriteToFile;
   protected
@@ -28,6 +29,7 @@ type
     UseDownload: TTileSource;
     constructor Create(); overload;
     destructor Destroy; override;
+    property TileMaxAgeInInternet: TDateTime read FTileMaxAgeInInternet;
   end;
 
 implementation
@@ -45,6 +47,7 @@ begin
   Priority := tpLower;
   UseDownload := tsCache;
   randomize;
+  FTileMaxAgeInInternet :=  1/24/60;
 end;
 
 destructor TTileDownloaderUI.Destroy;
@@ -86,6 +89,7 @@ var
   VMainMap: TMapType;
   res: TDownloadTileResult;
   VZoom: Byte;
+  VNeedDownload: Boolean;
 begin
   repeat
     if UseDownload = tsCache then begin
@@ -172,43 +176,55 @@ begin
                 end;
                 VMap := GState.MapType[ii];
                 if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
-                  BPos := FUPos;
-                  VZoom := FZoom;
-                  BPos := VMainMap.GeoConvert.PixelPos2OtherMap(FUPos, Fzoom, VMap.GeoConvert);
-                  FLoadXY.X := BPos.x - (FSizeInPixels.X div 2) + (x shl 8);
-                  FLoadXY.Y := BPos.y - (FSizeInPixels.Y div 2) + (y shl 8);
-                  FLoadXY.X := FLoadXY.X shr 8;
-                  FLoadXY.Y := FLoadXY.Y shr 8;
-                  VMap.GeoConvert.CheckTilePosStrict(FLoadXY, VZoom, True);
-
-                  Flastload.TilePos.X := FLoadXY.X;
-                  Flastload.TilePos.Y := FLoadXY.Y;
-                  Flastload.Zoom := Fzoom;
-                  FlastLoad.mt := VMap;
-                  FlastLoad.use := true;
                   if VMap.UseDwn then begin
-                    if (UseDownload = tsInternet) or ((UseDownload = tsCacheInternet) and (not (VMap.TileExists(FLoadXY, Fzoom)))) then begin
-                        if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
-                        FileBuf := TMemoryStream.Create;
-                        try
-                          try
-                            res := VMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-                            FErrorString := GetErrStr(res);
-                            if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                              GState.IncrementDownloaded(fileBuf.Size / 1024, 1);
-                            end;
-                          except
-                            on E: Exception do begin
-                              FErrorString := E.Message;
-                            end;
-                          end;
-                          if Terminated then begin
-                            break;
-                          end;
-                          Synchronize(AfterWriteToFile);
-                        finally
-                          FileBuf.Free;
+                    BPos := FUPos;
+                    VZoom := FZoom;
+                    BPos := VMainMap.GeoConvert.PixelPos2OtherMap(FUPos, Fzoom, VMap.GeoConvert);
+                    FLoadXY.X := BPos.x - (FSizeInPixels.X div 2) + (x shl 8);
+                    FLoadXY.Y := BPos.y - (FSizeInPixels.Y div 2) + (y shl 8);
+                    FLoadXY.X := FLoadXY.X shr 8;
+                    FLoadXY.Y := FLoadXY.Y shr 8;
+                    VMap.GeoConvert.CheckTilePosStrict(FLoadXY, VZoom, True);
+
+                    Flastload.TilePos.X := FLoadXY.X;
+                    Flastload.TilePos.Y := FLoadXY.Y;
+                    Flastload.Zoom := Fzoom;
+                    FlastLoad.mt := VMap;
+                    FlastLoad.use := true;
+                    VNeedDownload := False;
+                    if VMap.TileExists(FLoadXY, Fzoom) then begin
+                      if UseDownload = tsInternet then begin
+                        if Now - VMap.TileLoadDate(FLoadXY, FZoom) > FTileMaxAgeInInternet then begin
+                          VNeedDownload := True;
                         end;
+                      end;
+                    end else begin
+                      if (UseDownload = tsInternet) or (UseDownload = tsCacheInternet) then begin
+                        if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
+                          VNeedDownload := True;
+                        end;
+                      end;
+                    end;
+                    if VNeedDownload then begin
+                      FileBuf := TMemoryStream.Create;
+                      try
+                        try
+                          res := VMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          FErrorString := GetErrStr(res);
+                          if (res = dtrOK) or (res = dtrSameTileSize) then begin
+                            GState.IncrementDownloaded(fileBuf.Size / 1024, 1);
+                          end;
+                        except
+                          on E: Exception do begin
+                            FErrorString := E.Message;
+                          end;
+                        end;
+                        if Terminated then begin
+                          break;
+                        end;
+                        Synchronize(AfterWriteToFile);
+                      finally
+                        FileBuf.Free;
                       end;
                     end;
                   end;
