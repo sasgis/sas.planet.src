@@ -769,6 +769,7 @@ begin
   NShowSelection.Checked := LayerSelection.Visible;
   N32.Checked:=FLayerMapScale.Visible;
 
+  TBSrc.ImageIndex := integer(FMainLayer.UseDownload);
   case FMainLayer.UseDownload of
     tsInternet: NSRCinet.Checked:=true;
     tsCache: NSRCesh.Checked:=true;
