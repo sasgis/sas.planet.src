@@ -1490,6 +1490,7 @@ var
   VZoom: Byte;
   VLonLat: TExtendedPoint;
   VConverter: ICoordConverter;
+  VMapType: TMapType;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
@@ -1666,10 +1667,9 @@ begin
         param:=paramstr(1);
         if param<>'' then begin
           VGUID := StringToGUID(param);
-          for i:=0 to length(GState.MapType)-1 do begin
-            if IsEqualGUID(GState.MapType[i].GUID, VGUID)then begin
-              GState.ViewState.ChangeMainMapAtCurrentPoint(GState.MapType[i]);
-            end;
+          VMapType := GState.GetMapFromID(VGUID);
+          if VMapType <> nil then begin
+            GState.ViewState.ChangeMainMapAtCurrentPoint(VMapType);
           end;
         end;
         if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin

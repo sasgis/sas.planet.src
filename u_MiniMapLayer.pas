@@ -311,14 +311,14 @@ begin
     FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
     FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
     Visible := VConfigProvider.ReadBool('Visible', True);
+    VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
+    try
+      VMapConfigLoader.Load(FMapsActive);
+    finally
+      VMapConfigLoader := nil;
+    end;
   end else begin
     Visible := True;
-  end;
-  VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
-  try
-    VMapConfigLoader.Load(FMapsActive);
-  finally
-    VMapConfigLoader := nil;
   end;
 end;
 

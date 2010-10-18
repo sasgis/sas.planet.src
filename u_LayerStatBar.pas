@@ -88,11 +88,15 @@ end;
 
 procedure TLayerStatBar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
-  VSubItem: IConfigDataProvider;
+  VConfigProvider: IConfigDataProvider;
 begin
   inherited;
-  VSubItem := AConfigProvider.GetSubItem('VIEW');
-  Visible := VSubItem.ReadBool('statusbar',true);
+  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
+  if VConfigProvider <> nil then begin
+    Visible := VConfigProvider.ReadBool('StatusBar', True);
+  end else begin
+    Visible := True;
+  end;
 end;
 
 procedure TLayerStatBar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
@@ -101,7 +105,7 @@ var
 begin
   inherited;
   VSubItem := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VSubItem.WriteBool('statusbar', Visible);
+  VSubItem.WriteBool('StatusBar', Visible);
 end;
 
 procedure TLayerStatBar.DoRedraw;

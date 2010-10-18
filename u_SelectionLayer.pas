@@ -83,7 +83,7 @@ begin
   inherited;
   VConfigProvider := AConfigProvider.GetSubItem('VIEW');
   if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('showselection',false);
+    Visible := VConfigProvider.ReadBool('ShowLastSelection',false);
   end;
 end;
 
@@ -144,7 +144,7 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VConfigProvider.WriteBool('showselection', Visible);
+  VConfigProvider.WriteBool('ShowLastSelection', Visible);
 end;
 
 end.

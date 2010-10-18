@@ -141,7 +141,9 @@ begin
   inherited;
   VConfigProvider := AConfigProvider.GetSubItem('VIEW');
   if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('line',false);
+    Visible := VConfigProvider.ReadBool('ScaleLine', True);
+  end else begin
+    Visible := True;
   end;
 end;
 
@@ -151,7 +153,7 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VConfigProvider.WriteBool('line', Visible);
+  VConfigProvider.WriteBool('ScaleLine', Visible);
 end;
 
 end.
