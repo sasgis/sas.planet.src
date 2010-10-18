@@ -348,6 +348,7 @@
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
     <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
+    <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionLayer.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
