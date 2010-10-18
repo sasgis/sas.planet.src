@@ -600,6 +600,8 @@ type
     function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange;
+    procedure CopyStringToClipboard(s: Widestring);
+    procedure UpdateGPSsensors;
   public
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
@@ -619,8 +621,6 @@ type
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
     procedure setalloperationfalse(newop: TAOperation);
-    procedure UpdateGPSsensors;
-    procedure CopyStringToClipboard(s: Widestring);
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
   end;
 
@@ -1261,11 +1261,9 @@ procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
   GState.ViewState.LockWrite;
   GState.ViewState.ChangeZoomAndUnlock(zoom_, LL);
-  zooming(zoom_,false);
   if draw then begin
     FLayerGoto.ShowGotoIcon(LL);
   end;
-  generate_im;
 end;
 
 procedure TFmain.generate_im;
@@ -1731,17 +1729,17 @@ var i,steps:integer;
     Scale: Extended;
     VZoom: Byte;
 begin
-  TBZoom_Out.Enabled:=ANewZoom<=0;
-  TBZoomIn.Enabled:=ANewZoom>=23;
-  NZoomIn.Enabled:=TBZoomIn.Enabled;
-  NZoomOut.Enabled:=TBZoom_Out.Enabled;
+  TBZoom_Out.Enabled := False;
+  TBZoomIn.Enabled := False;
+  NZoomIn.Enabled := False;
+  NZoomOut.Enabled := False;
   RxSlider1.Value:=ANewZoom;
   VZoom := GState.ViewState.GetCurrentZoom;
   if (MapZoomAnimtion)or(MapMoving)or(ANewZoom>23) then exit;
   MapZoomAnimtion:=True;
-  steps:=11;
 
   if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
+   steps:=11;
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
       if VZoom>ANewZoom then begin
