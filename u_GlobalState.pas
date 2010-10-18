@@ -633,6 +633,7 @@ begin
   GPS_ShowPath:=MainIni.ReadBool('GPS','path',true);
   GPS_MapMove:=MainIni.ReadBool('GPS','go',true);
   GPSpar.Odometr:=str2r(MainIni.ReadString('GPS','Odometr','0'));
+  GPSpar.Odometr2:=str2r(MainIni.ReadString('GPS','Odometr2','0'));
   GPS_SensorsAutoShow:=MainIni.ReadBool('GPS','SensorsAutoShow',true);
   GPS_NumTrackPoints:=MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
 
@@ -840,6 +841,7 @@ begin
   MainIni.WriteInteger('GPS','ColorStr',GPS_ArrowColor);
 
   MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
+  MainIni.WriteFloat('GPS','Odometr2',GPSpar.Odometr2);
   MainIni.WriteBool('GPS','SensorsAutoShow',GPS_SensorsAutoShow);
   MainIni.WriteInteger('GPS','NumShowTrackPoints',GPS_NumTrackPoints);
 
