@@ -13,6 +13,8 @@ uses
   GR32_Layers,
   t_GeoTypes,
   i_ICoordConverter,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   i_JclNotify,
   u_MapViewPortState,
   u_MapLayerBasic,
@@ -26,18 +28,22 @@ type
     FSourceSelected: TMapType;
     FSourceZoom: integer;
     FMainMapChangeListener: IJclListener;
+    FSourceMapChangeNotifier: IJclNotifier;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Hide; override;
     procedure Redraw; override;
     property SourceSelected: TMapType read FSourceSelected;
     property SourceZoom: integer read FSourceZoom;
+    property SourceMapChangeNotifier: IJclNotifier read FSourceMapChangeNotifier;
   end;
 
 implementation
@@ -109,10 +115,12 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FThread := TMapFillingThread.Create(Self);
   FMainMapChangeListener := TFillingMapMainMapChangeListener.Create(Self);
+  FSourceMapChangeNotifier := TJclBaseNotifier.Create;
 end;
 
 destructor TMapFillingLayer.Destroy;
 begin
+  FSourceMapChangeNotifier := nil;
   FreeAndNil(FThread);
   FSourceMapType := nil;
   FMainMapChangeListener := nil;
@@ -138,6 +146,36 @@ begin
   TMapFillingThread(FThread).PrepareToChangeScene;
 end;
 
+procedure TMapFillingLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+  VGUID: TGUID;
+  VGUIDString: string;
+  VFillingmaptype: TMapType;
+  VZoom: Integer;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetSubItem('FillingMap');
+  if VConfigProvider <> nil then begin
+    try
+      VGUIDString := VConfigProvider.ReadString('Map','');
+      if VGUIDString <> '' then begin
+        VGUID := StringToGUID(VGUIDString);
+        VFillingmaptype:=GState.GetMapFromID(VGUID);
+      end else begin
+        VFillingmaptype := nil;
+      end;
+    except
+      VFillingmaptype := nil;
+    end;
+    VZoom := VConfigProvider.ReadInteger('Zoom', -1);
+  end else begin
+    VFillingmaptype := nil;
+    VZoom := -1;
+  end;
+  SetSourceMap(VFillingmaptype, Vzoom);
+end;
+
 procedure TMapFillingLayer.Redraw;
 begin
   if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom <= FSourceZoom) then begin
@@ -149,6 +187,22 @@ begin
   end;
   inherited;
 
+end;
+
+procedure TMapFillingLayer.SaveConfig(
+  AConfigProvider: IConfigDataWriteProvider);
+var
+  VConfigProvider: IConfigDataWriteProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('FillingMap');
+
+  VConfigProvider.WriteInteger('Zoom', Self.SourceZoom);
+  if Self.SourceSelected = nil then begin
+    VConfigProvider.WriteString('Map','')
+  end else begin
+    VConfigProvider.WriteString('Map', Self.SourceSelected.GUIDString);
+  end;
 end;
 
 procedure TMapFillingLayer.SendTerminateToThreads;
@@ -229,9 +283,9 @@ begin
     end;
     FSourceZoom := AZoom;
     Redraw;
+    FSourceMapChangeNotifier.Notify(nil);
   end;
   Resize;
-
 end;
 
 procedure TMapFillingLayer.StartThreads;
