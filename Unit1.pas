@@ -769,6 +769,7 @@ begin
   end;
   ShowMiniMap.Checked := FLayerMiniMap.Visible;
   ShowLine.Checked := FLayerScaleLine.Visible;
+  NShowSelection.Checked := LayerSelection.Visible;
   mapResize(nil);
 end;
 
@@ -1610,8 +1611,6 @@ begin
     NGShScale1000000.Checked := GState.GShScale = 1000000;
     NGShScale0.Checked := GState.GShScale = 0;
 
-    N32.Checked:=FLayerMapScale.Visible;
-    NShowSelection.Checked := LayerSelection.Visible;
     Ninvertcolor.Checked:=GState.InvertColor;
     TBGPSconn.Checked := GState.GPS_enab;
     if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
@@ -1706,8 +1705,8 @@ begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
     FMainLayer.Visible := True;
-    LayerSelection.Visible := GState.MainIni.readbool('VIEW','showselection',false);
     FLayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
+    N32.Checked:=FLayerMapScale.Visible;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
     Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
   finally
@@ -2478,17 +2477,17 @@ end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
 begin
-  FLayerMiniMap.Visible := ShowMiniMap.Checked;
+  FLayerMiniMap.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.ShowLineClick(Sender: TObject);
 begin
-  FLayerScaleLine.Visible := ShowLine.Checked;
+  FLayerScaleLine.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- FLayerMapScale.Visible:=TTBXItem(sender).Checked;
+ FLayerMapScale.Visible:=TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);
@@ -3971,11 +3970,8 @@ begin
   GState.MainIni.WriteInteger('VIEW','FWidth',Width);
   GState.MainIni.WriteInteger('VIEW','FHeight',Height);
 
-  GState.MainIni.Writebool('VIEW','line',ShowLine.Checked);
-  GState.MainIni.Writebool('VIEW','minimap',ShowMiniMap.Checked);
   GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
   GState.MainIni.Writebool('VIEW','showscale', FLayerMapScale.Visible);
-  GState.MainIni.Writebool('VIEW','showselection', LayerSelection.Visible);
   FLayersList.SaveConfig(AProvider);
 
   GState.MainIni.Writeinteger('VIEW','MapZap', FLayerFillingMap.SourceZoom);
@@ -4131,7 +4127,7 @@ end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);
 begin
- LayerSelection.Visible:=TTBXItem(sender).Checked;
+  LayerSelection.Visible := TTBXItem(sender).Checked;
 end;
 
 procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
