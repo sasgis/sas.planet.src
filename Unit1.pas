@@ -1151,9 +1151,11 @@ end;
 
 procedure TFmain.UpdateGPSsensors;
 var
-    s_len,n_len: string;
-    sps: _SYSTEM_POWER_STATUS;
-    i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
+  s_len,n_len: string;
+  sps: _SYSTEM_POWER_STATUS;
+  i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
+  VSatellites: TSatellites;
+  VSatCount: Integer;
 begin
  try
    //скорость
@@ -1195,19 +1197,29 @@ begin
    TBXSignalStrengthBar.Repaint;
    if GState.GPSpar.SatCount>0 then begin
     with TBXSignalStrengthBar do begin
-     Canvas.Lock;
-     bar_width:=((Width-15) div GState.GPSpar.SatCount);
-     bar_height:=42;
-     Canvas.Pen.Color:=clBlack;
-     Canvas.Brush.Color:=clBlue;
-     bar_x1:=0;
-     bar_dy:=8;
-     for I := 0 to GState.GPSpar.SatCount-1 do begin
-      bar_x1:=(bar_width*i);
-      bar_height:=trunc(14*((100-GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/100));
-      Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+     VSatellites := GPSReceiver.GetSatellites;
+     if VSatellites <> nil then begin
+       Canvas.Lock;
+       try
+         bar_height:=42;
+         Canvas.Pen.Color:=clBlack;
+         Canvas.Brush.Color:=clBlue;
+         bar_x1:=0;
+         bar_dy:=8;
+         VSatCount := VSatellites.Count;
+         if VSatCount > GState.GPSpar.SatCount  then begin
+           VSatCount := GState.GPSpar.SatCount;
+         end;
+         bar_width:=((Width-15) div VSatCount);
+         for I := 0 to VSatCount-1 do begin
+            bar_x1:=(bar_width*i);
+            bar_height:=trunc(14*((100-VSatellites.Items[i].SignalToNoiseRatio)/100));
+            Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+         end;
+       finally
+         Canvas.Unlock;
+       end;
      end;
-     Canvas.Unlock;
     end;
    end;
  except
