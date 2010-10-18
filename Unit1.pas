@@ -535,7 +535,6 @@ type
     Flock_toolbars: boolean;
     rect_dwn: Boolean;
     rect_p2: boolean;
-    FTileSource: TTileSource;
     FMainLayer: TMapMainLayer;
     LayerStatBar: TLayerStatBar;
     FShowErrorLayer: TTileErrorInfoLayer;
@@ -588,7 +587,6 @@ type
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
-    procedure Set_TileSource(const Value: TTileSource);
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
@@ -611,7 +609,6 @@ type
     aoper: TAOperation;
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
-    property TileSource: TTileSource read FTileSource;
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     constructor Create(AOwner: TComponent); override;
@@ -771,6 +768,12 @@ begin
   ShowLine.Checked := FLayerScaleLine.Visible;
   NShowSelection.Checked := LayerSelection.Visible;
   N32.Checked:=FLayerMapScale.Visible;
+
+  case FMainLayer.UseDownload of
+    tsInternet: NSRCinet.Checked:=true;
+    tsCache: NSRCesh.Checked:=true;
+    tsCacheInternet: NSRCic.Checked:=true;
+  end;
   mapResize(nil);
 end;
 
@@ -866,18 +869,6 @@ begin
     QueryPerformanceFrequency(fr);
     Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
   end;
-end;
-
-procedure TFMain.Set_TileSource(const Value: TTileSource);
-begin
- FTileSource:=Value;
- TBSrc.ImageIndex:=integer(Value);
- case Value of
-  tsInternet: NSRCinet.Checked:=true;
-  tsCache: NSRCesh.Checked:=true;
-  tsCacheInternet: NSRCic.Checked:=true;
- end;
- FMainLayer.UseDownload := Value;
 end;
 
 procedure TFMain.Set_lock_toolbars(const Value: boolean);
@@ -1652,6 +1643,7 @@ begin
     LayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
@@ -1706,7 +1698,6 @@ begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
     FMainLayer.Visible := True;
-    Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
   finally
     Enabled:=true;
     map.SetFocus;
@@ -2121,10 +2112,10 @@ begin
 end;
 
 procedure TFmain.N11Click(Sender: TObject);
-var
-  WindirP: PChar;
-  btm_ex:TBitmap;
-  path: string;
+//var
+//  WindirP: PChar;
+//  btm_ex:TBitmap;
+//  path: string;
 begin
   ShowMessage('Временно не работает');
 //  WinDirP:=StrAlloc(MAX_PATH);
@@ -2238,7 +2229,7 @@ end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
 begin
- Set_TileSource(TTileSource(TTBXItem(Sender).Tag));
+  FMainLayer.UseDownload := TTileSource(TTBXItem(Sender).Tag);
 end;
 
 procedure TFmain.N16Click(Sender: TObject);
@@ -3968,7 +3959,6 @@ begin
   GState.MainIni.WriteInteger('VIEW','FWidth',Width);
   GState.MainIni.WriteInteger('VIEW','FHeight',Height);
 
-  GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
   FLayersList.SaveConfig(AProvider);
 
   GState.MainIni.Writeinteger('VIEW','MapZap', FLayerFillingMap.SourceZoom);

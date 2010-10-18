@@ -7,8 +7,11 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   t_CommonTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_MapViewPortState,
   u_TileDownloaderUI,
   UMapType,
@@ -18,6 +21,7 @@ type
   TMapMainLayer = class(TMapLayerBasic)
   private
     FUIDownLoader: TTileDownloaderUI;
+    FUseDownloadChangeNotifier: IJclNotifier;
     function GetUseDownload: TTileSource;
     procedure SetUseDownload(const Value: TTileSource);
   protected
@@ -28,9 +32,12 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
     property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
+    property UseDownloadChangeNotifier: IJclNotifier read FUseDownloadChangeNotifier;
   end;
 
 const
@@ -42,6 +49,7 @@ implementation
 uses
   ActiveX,
   SysUtils,
+  u_JclNotify,
   i_ICoordConverter,
   i_MapTypes,
   Ugeofun,
@@ -56,6 +64,7 @@ constructor TMapMainLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewP
 begin
   inherited;
   FUIDownLoader := TTileDownloaderUI.Create;
+  FUseDownloadChangeNotifier := TJclBaseNotifier.Create;
 end;
 
 destructor TMapMainLayer.Destroy;
@@ -66,6 +75,7 @@ begin
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(FUIDownLoader.Handle, 0);
   end;
+  FUseDownloadChangeNotifier := nil;
   FreeAndNil(FUIDownLoader);
   inherited;
 end;
@@ -462,6 +472,37 @@ begin
   Result := FUIDownLoader.UseDownload;
 end;
 
+procedure TMapMainLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
+  if VConfigProvider <> nil then begin
+    case VConfigProvider.ReadInteger('TileSource',1) of
+      0: UseDownload := tsInternet;
+      2: UseDownload := tsCacheInternet;
+    else
+      UseDownload := tsCache;
+    end;
+  end else begin
+    UseDownload := tsCache;
+  end;
+end;
+
+procedure TMapMainLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VConfigProvider: IConfigDataWriteProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
+  case UseDownload of
+    tsInternet: VConfigProvider.WriteInteger('TileSource', 0);
+    tsCache: VConfigProvider.WriteInteger('TileSource', 1);
+    tsCacheInternet: VConfigProvider.WriteInteger('TileSource', 2);
+  end;
+end;
+
 procedure TMapMainLayer.SendTerminateToThreads;
 begin
   inherited;
@@ -470,8 +511,11 @@ end;
 
 procedure TMapMainLayer.SetUseDownload(const Value: TTileSource);
 begin
-  FUIDownLoader.UseDownload := Value;
-  FUIDownLoader.change_scene := True;
+  if FUIDownLoader.UseDownload <> Value then begin
+    FUIDownLoader.UseDownload := Value;
+    FUIDownLoader.change_scene := True;
+    FUseDownloadChangeNotifier.Notify(nil);
+  end;
 end;
 
 procedure TMapMainLayer.StartThreads;
