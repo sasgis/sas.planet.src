@@ -11,7 +11,7 @@ uses
   u_WindowLayerBasic;
 
 type
-  TLayerScaleLine = class(TWindowLayerBasic)
+  TLayerScaleLine = class(TWindowLayerBasicWithBitmap)
   protected
     FBottomMargin: Integer;
     function GetBitmapSizeInPixel: TPoint; override;

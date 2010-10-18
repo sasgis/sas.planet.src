@@ -13,7 +13,7 @@ uses
   u_WindowLayerBasic;
 
 type
-  TLayerStatBar = class(TWindowLayerBasic)
+  TLayerStatBar = class(TWindowLayerBasicWithBitmap)
   protected
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;

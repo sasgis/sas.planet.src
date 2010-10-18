@@ -11,7 +11,7 @@ uses
   u_WindowLayerBasic;
 
 type
-  TCenterScale = class(TWindowLayerBasic)
+  TCenterScale = class(TWindowLayerBasicWithBitmap)
   protected
     FRadius: Integer;
     FFontSize: Integer;
