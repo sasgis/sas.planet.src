@@ -262,7 +262,6 @@
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
-    <DCCReference Include="u_BitmapLayerWithSortIndex.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_CenterScale.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />

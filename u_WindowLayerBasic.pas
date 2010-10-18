@@ -11,23 +11,19 @@ uses
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  u_MapViewPortState,
-  u_BitmapLayerWithSortIndex;
+  u_MapViewPortState;
 
 type
   TWindowLayerBasic = class
   protected
     FParentMap: TImage32;
-    FLayer: TBitmapLayerWithSortIndex;
+    FLayer: TBitmapLayer;
     FViewPortState: TMapViewPortState;
     FMapPosChangeListener: IJclListener;
     FVisibleChangeNotifier: IJclNotifier;
 
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
-
-    // В наследниках нужно перекрывать если уровень слоя выше чем бекграунд.
-    function GetSortIndexForLayer: Integer; virtual;
 
 {
  Используемые системы координат:
@@ -87,7 +83,7 @@ begin
   FParentMap := AParentMap;
   FViewPortState := AViewPortState;
 
-  FLayer := TBitmapLayerWithSortIndex.Create(FParentMap.Layers, GetSortIndexForLayer);
+  FLayer := TBitmapLayer.Create(FParentMap.Layers);
 
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
@@ -278,11 +274,6 @@ begin
 
   Result.X := (Pnt.X - VFreezePointInBitmapPixel.X) * VScale + VFreezePointInVisualPixel.X;
   Result.Y := (Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y;
-end;
-
-function TWindowLayerBasic.GetSortIndexForLayer: Integer;
-begin
-  Result := 0;
 end;
 
 end.

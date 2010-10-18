@@ -57,7 +57,6 @@ uses
   i_IMemObjCache in 'i_IMemObjCache.pas',
   i_ITileObjCache in 'i_ITileObjCache.pas',
   u_TileCacheSimpleGlobal in 'u_TileCacheSimpleGlobal.pas',
-  u_BitmapLayerWithSortIndex in 'u_BitmapLayerWithSortIndex.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'RegionProcess\u_ThreadMapCombineBase.pas',
   u_ThreadMapCombineBMP in 'RegionProcess\u_ThreadMapCombineBMP.pas',
