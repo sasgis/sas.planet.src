@@ -5,6 +5,8 @@ interface
 uses
   Types,
   GR32_Image,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_MapViewPortState,
   u_WindowLayerBasic;
 
@@ -21,6 +23,8 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
   end;
 
 implementation
@@ -64,6 +68,26 @@ var
 begin
   VVisibleSize := GetVisibleSizeInPixel;
   Result := Point(VVisibleSize.X div 2, VVisibleSize.Y div 2);
+end;
+
+procedure TCenterScale.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
+  if VConfigProvider <> nil then begin
+    Visible := VConfigProvider.ReadBool('showscale',false);
+  end;
+end;
+
+procedure TCenterScale.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VConfigProvider: IConfigDataWriteProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
+  VConfigProvider.WriteBool('showscale', Visible);
 end;
 
 procedure TCenterScale.DoRedraw;

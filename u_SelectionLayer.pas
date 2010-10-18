@@ -85,7 +85,6 @@ begin
   if VConfigProvider <> nil then begin
     Visible := VConfigProvider.ReadBool('showselection',false);
   end;
-
 end;
 
 function TSelectionLayer.PreparePolygon(

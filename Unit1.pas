@@ -770,6 +770,7 @@ begin
   ShowMiniMap.Checked := FLayerMiniMap.Visible;
   ShowLine.Checked := FLayerScaleLine.Visible;
   NShowSelection.Checked := LayerSelection.Visible;
+  N32.Checked:=FLayerMapScale.Visible;
   mapResize(nil);
 end;
 
@@ -1705,9 +1706,6 @@ begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
     FMainLayer.Visible := True;
-    FLayerMapScale.Visible:=GState.MainIni.readbool('VIEW','showscale',false);
-    N32.Checked:=FLayerMapScale.Visible;
-    FLayerMapMarks.Visible := GState.show_point <> mshNone;
     Set_TileSource(TTileSource(GState.MainIni.Readinteger('VIEW','TileSource',1)));
   finally
     Enabled:=true;
@@ -2472,7 +2470,7 @@ end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
-  LayerStatBar.Visible:=Showstatus.Checked;
+  LayerStatBar.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
@@ -2487,7 +2485,7 @@ end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- FLayerMapScale.Visible:=TTBXItem(Sender).Checked;
+ FLayerMapScale.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);
@@ -3971,7 +3969,6 @@ begin
   GState.MainIni.WriteInteger('VIEW','FHeight',Height);
 
   GState.MainIni.WriteInteger('VIEW','TileSource',integer(FTileSource));
-  GState.MainIni.Writebool('VIEW','showscale', FLayerMapScale.Visible);
   FLayersList.SaveConfig(AProvider);
 
   GState.MainIni.Writeinteger('VIEW','MapZap', FLayerFillingMap.SourceZoom);
