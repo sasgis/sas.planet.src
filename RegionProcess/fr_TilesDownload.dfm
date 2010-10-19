@@ -34,25 +34,30 @@ object frTilesDownload: TfrTilesDownload
       Height = 284
       Align = alRight
       BevelOuter = bvNone
-      BorderWidth = 3
+      BorderWidth = 5
       TabOrder = 0
       object lblZoom: TLabel
-        Left = 3
-        Top = 3
+        Left = 5
+        Top = 5
         Width = 49
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
+        ExplicitLeft = 3
+        ExplicitTop = 3
+        ExplicitWidth = 53
       end
       object cbbZoom: TComboBox
-        Left = 3
-        Top = 16
-        Width = 53
+        Left = 5
+        Top = 20
+        Width = 49
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
+        OnChange = cbbZoomChange
+        ExplicitLeft = 6
       end
     end
     object pnlMain: TPanel
@@ -62,110 +67,154 @@ object frTilesDownload: TfrTilesDownload
       Height = 284
       Align = alClient
       BevelOuter = bvNone
-      BorderWidth = 3
+      BorderWidth = 5
       TabOrder = 1
-      object lblMap: TLabel
-        Left = 3
-        Top = 3
-        Width = 57
-        Height = 13
-        Align = alTop
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-      end
+      ExplicitLeft = -3
+      ExplicitTop = 6
       object lblStat: TLabel
-        Left = 3
-        Top = 37
-        Width = 6
-        Height = 13
+        Left = 5
+        Top = 41
+        Width = 382
+        Height = 17
         Align = alTop
+        AutoSize = False
         Caption = '_'
+        ExplicitLeft = 3
+        ExplicitTop = 39
+        ExplicitWidth = 386
+      end
+      object lblMap: TLabel
+        Left = 5
+        Top = 5
+        Width = 382
+        Height = 15
+        Align = alTop
+        AutoSize = False
+        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
+        ExplicitLeft = 3
+        ExplicitTop = 3
+        ExplicitWidth = 386
+      end
+      object Bevel1: TBevel
+        Left = 5
+        Top = 58
+        Width = 382
+        Height = 5
+        Align = alTop
+        Shape = bsTopLine
+        ExplicitLeft = 3
+        ExplicitTop = 54
+        ExplicitWidth = 386
       end
       object cbbMap: TComboBox
-        Left = 3
-        Top = 16
-        Width = 386
+        Left = 5
+        Top = 20
+        Width = 382
         Height = 21
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
+        ExplicitLeft = 3
+        ExplicitTop = 16
+        ExplicitWidth = 386
       end
       object chkReplace: TCheckBox
-        Left = 3
-        Top = 63
-        Width = 386
-        Height = 13
+        Left = 5
+        Top = 79
+        Width = 382
+        Height = 16
         Align = alTop
         Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1090#1072#1088#1099#1077' '#1092#1072#1081#1083#1099
         TabOrder = 1
         OnClick = chkReplaceClick
+        ExplicitLeft = 3
+        ExplicitTop = 66
+        ExplicitWidth = 386
       end
       object chkTryLoadIfTNE: TCheckBox
-        Left = 3
-        Top = 50
-        Width = 386
-        Height = 13
+        Left = 5
+        Top = 63
+        Width = 382
+        Height = 16
         Align = alTop
         Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
         TabOrder = 2
+        ExplicitLeft = 3
+        ExplicitTop = 50
+        ExplicitWidth = 386
       end
       object pnlTileReplaceCondition: TPanel
-        Left = 3
-        Top = 76
-        Width = 386
-        Height = 117
+        Left = 5
+        Top = 95
+        Width = 382
+        Height = 40
         Align = alTop
+        AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
+        Padding.Left = 15
         TabOrder = 3
+        ExplicitLeft = 0
+        ExplicitTop = 82
+        ExplicitWidth = 386
         object chkReplaceIfDifSize: TCheckBox
-          Left = 3
+          Left = 18
           Top = 3
-          Width = 380
+          Width = 361
           Height = 13
           Align = alTop
           Caption = #1090#1086#1083#1100#1082#1086' '#1087#1088#1080' '#1080#1093' '#1088#1072#1079#1083#1080#1095#1080#1080
           Enabled = False
           TabOrder = 0
+          ExplicitTop = 6
+          ExplicitWidth = 365
         end
         object pnlReplaceOlder: TPanel
-          Left = 3
+          Left = 18
           Top = 16
-          Width = 380
-          Height = 25
+          Width = 361
+          Height = 21
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 1
+          ExplicitTop = 22
+          ExplicitWidth = 365
           object lblReplaceOlder: TLabel
-            Left = 13
+            Left = 16
             Top = 0
             Width = 113
-            Height = 13
+            Height = 21
             Align = alLeft
             Caption = #1090#1086#1083#1100#1082#1086' '#1089#1086#1079#1076#1072#1085#1085#1099#1077' '#1076#1086' '
             Layout = tlCenter
+            ExplicitLeft = 21
+            ExplicitTop = 6
+            ExplicitHeight = 15
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
             Top = 0
-            Width = 13
-            Height = 25
+            Width = 16
+            Height = 21
             Align = alLeft
             Enabled = False
             TabOrder = 0
             OnClick = chkReplaceOlderClick
           end
           object dtpReplaceOlderDate: TDateTimePicker
-            Left = 126
+            Left = 129
             Top = 0
             Width = 81
-            Height = 25
+            Height = 21
             Align = alLeft
             Date = 39513.436381111110000000
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
+            ExplicitLeft = 70
+            ExplicitTop = 6
           end
         end
       end
