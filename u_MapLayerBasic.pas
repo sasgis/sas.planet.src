@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   GR32,
+  GR32_Layers,
   GR32_Image,
   i_ICoordConverter,
   u_MapViewPortState,
@@ -12,7 +13,7 @@ uses
   t_GeoTypes;
 
 type
-  TMapLayerBasic = class(TWindowLayerBasicWithBitmap)
+  TMapLayerBasicNoBitmap = class(TWindowLayerBasic)
   protected
 
     FScale: Double;
@@ -25,7 +26,6 @@ type
     FZoom: Byte;
     FGeoConvert: ICoordConverter;
 
-    function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
     function GetFreezePointInBitmapPixel: TPoint; override;
     function GetScale: double; override;
@@ -55,6 +55,17 @@ type
     property GeoConvert: ICoordConverter read FGeoConvert;
   end;
 
+  TMapLayerBasic = class(TMapLayerBasicNoBitmap)
+  protected
+    FLayer: TBitmapLayer;
+    function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; override;
+    procedure DoResizeBitmap; override;
+    function GetBitmapSizeInPixel: TPoint; override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    procedure Hide; override;
+  end;
+
 implementation
 
 uses
@@ -65,23 +76,23 @@ uses
 
 { TGPSTrackLayer }
 
-constructor TMapLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TMapLayerBasicNoBitmap.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   inherited;
   FScreenCenterPos := AViewPortState.GetCenterMapPixel;
 end;
 
-function TMapLayerBasic.IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;
+function TMapLayerBasicNoBitmap.IsNeedFullRedraw(ANewCenterPos: TPoint): Boolean;
 begin
   Result := (FScreenCenterPos.X <> ANewCenterPos.X) or (FScreenCenterPos.Y <> ANewCenterPos.Y);
 end;
 
-procedure TMapLayerBasic.RedrawPartial(ANewCenterPos: TPoint);
+procedure TMapLayerBasicNoBitmap.RedrawPartial(ANewCenterPos: TPoint);
 begin
   // ѕо-умолчанию, не делаем ничего. ≈сли карта поддерживает частичное обновление то должна перекрывать этот метод.
 end;
 
-procedure TMapLayerBasic.SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter);
+procedure TMapLayerBasicNoBitmap.SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter);
 var
   VFullRedraw: Boolean;
 begin
@@ -118,7 +129,7 @@ begin
   Resize;
 end;
 
-function TMapLayerBasic.GetScreenCenterInBitmapPixels: TPoint;
+function TMapLayerBasicNoBitmap.GetScreenCenterInBitmapPixels: TPoint;
 var
   VSizeInPixel: TPoint;
 begin
@@ -127,43 +138,7 @@ begin
   Result.Y := VSizeInPixel.Y div 2;
 end;
 
-function TMapLayerBasic.BitmapPixel2MapPixel(Pnt: TPoint): TPoint;
-var
-  VScreenCenterInBitmap: TPoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  Result.X := ScreenCenterPos.X - VScreenCenterInBitmap.X + Pnt.X;
-  Result.Y := ScreenCenterPos.Y - VScreenCenterInBitmap.Y + Pnt.y;
-end;
-
-function TMapLayerBasic.BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VScreenCenterInBitmap: TPoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  Result.X := ScreenCenterPos.X - VScreenCenterInBitmap.X + Pnt.X;
-  Result.Y := ScreenCenterPos.Y - VScreenCenterInBitmap.Y + Pnt.y;
-end;
-
-function TMapLayerBasic.MapPixel2BitmapPixel(Pnt: TPoint): TPoint;
-var
-  VScreenCenterInBitmap: TPoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  Result.X := Pnt.X - ScreenCenterPos.X + VScreenCenterInBitmap.X;
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + VScreenCenterInBitmap.Y;
-end;
-
-function TMapLayerBasic.MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint;
-var
-  VScreenCenterInBitmap: TPoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  Result.X := Pnt.X - ScreenCenterPos.X + VScreenCenterInBitmap.X;
-  Result.Y := Pnt.Y - ScreenCenterPos.Y + VScreenCenterInBitmap.Y;
-end;
-
-function TMapLayerBasic.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
+function TMapLayerBasicNoBitmap.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
   VPoint: TPoint;
 begin
@@ -171,7 +146,7 @@ begin
   Result := BitmapPixel2VisiblePixel(Pnt);
 end;
 
-function TMapLayerBasic.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TMapLayerBasicNoBitmap.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
 var
   VPoint: TExtendedPoint;
 begin
@@ -179,7 +154,7 @@ begin
   Result := BitmapPixel2VisiblePixel(VPoint);
 end;
 
-function TMapLayerBasic.VisiblePixel2MapPixel(Pnt: TPoint): TPoint;
+function TMapLayerBasicNoBitmap.VisiblePixel2MapPixel(Pnt: TPoint): TPoint;
 var
   VPoint: TPoint;
 begin
@@ -187,7 +162,7 @@ begin
   Result := BitmapPixel2MapPixel(VPoint);
 end;
 
-function TMapLayerBasic.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TMapLayerBasicNoBitmap.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
 var
   VPoint: TExtendedPoint;
 begin
@@ -195,7 +170,7 @@ begin
   Result := BitmapPixel2MapPixel(VPoint);
 end;
 
-procedure TMapLayerBasic.MoveTo(Pnt: TPoint);
+procedure TMapLayerBasicNoBitmap.MoveTo(Pnt: TPoint);
 begin
   if Visible then begin
     FCenterMove := Pnt;
@@ -204,7 +179,7 @@ begin
   end;
 end;
 
-procedure TMapLayerBasic.ScaleTo(AScale: Double);
+procedure TMapLayerBasicNoBitmap.ScaleTo(AScale: Double);
 var
   VCenterPoint: TPoint;
 begin
@@ -214,7 +189,7 @@ begin
   ScaleTo(AScale, VCenterPoint);
 end;
 
-procedure TMapLayerBasic.ScaleTo(AScale: Double; ACenterPoint: TPoint);
+procedure TMapLayerBasicNoBitmap.ScaleTo(AScale: Double; ACenterPoint: TPoint);
 begin
   if Visible then begin
     FScaleCenterInBitmapPixel := VisiblePixel2BitmapPixel(ACenterPoint);
@@ -226,7 +201,7 @@ begin
 end;
 
 
-function TMapLayerBasic.GetFreezePointInBitmapPixel: TPoint;
+function TMapLayerBasicNoBitmap.GetFreezePointInBitmapPixel: TPoint;
 begin
   if FFreezeInCenter then begin
     Result := GetScreenCenterInBitmapPixels;
@@ -235,7 +210,7 @@ begin
   end;
 end;
 
-function TMapLayerBasic.GetFreezePointInVisualPixel: TPoint;
+function TMapLayerBasicNoBitmap.GetFreezePointInVisualPixel: TPoint;
 var
   VVisibleSize: TPoint;
 begin
@@ -247,22 +222,104 @@ begin
   end;
 end;
 
-function TMapLayerBasic.GetScale: double;
+
+function TMapLayerBasicNoBitmap.BitmapPixel2MapPixel(Pnt: TPoint): TPoint;
+var
+  VScreenCenterInBitmap: TPoint;
+begin
+  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
+  Result.X := ScreenCenterPos.X - VScreenCenterInBitmap.X + Pnt.X;
+  Result.Y := ScreenCenterPos.Y - VScreenCenterInBitmap.Y + Pnt.y;
+end;
+
+function TMapLayerBasicNoBitmap.BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VScreenCenterInBitmap: TPoint;
+begin
+  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
+  Result.X := ScreenCenterPos.X - VScreenCenterInBitmap.X + Pnt.X;
+  Result.Y := ScreenCenterPos.Y - VScreenCenterInBitmap.Y + Pnt.y;
+end;
+
+function TMapLayerBasicNoBitmap.MapPixel2BitmapPixel(Pnt: TPoint): TPoint;
+var
+  VScreenCenterInBitmap: TPoint;
+begin
+  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
+  Result.X := Pnt.X - ScreenCenterPos.X + VScreenCenterInBitmap.X;
+  Result.Y := Pnt.Y - ScreenCenterPos.Y + VScreenCenterInBitmap.Y;
+end;
+
+function TMapLayerBasicNoBitmap.MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VScreenCenterInBitmap: TPoint;
+begin
+  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
+  Result.X := Pnt.X - ScreenCenterPos.X + VScreenCenterInBitmap.X;
+  Result.Y := Pnt.Y - ScreenCenterPos.Y + VScreenCenterInBitmap.Y;
+end;
+function TMapLayerBasicNoBitmap.GetScale: double;
 begin
   Result := FScale;
+end;
+
+procedure TMapLayerBasicNoBitmap.Redraw;
+begin
+  if FGeoConvert <> nil then begin
+    inherited;
+  end;
+end;
+
+{ TMapLayerBasic }
+
+constructor TMapLayerBasic.Create(AParentMap: TImage32;
+  AViewPortState: TMapViewPortState);
+begin
+  inherited;
+  FLayer := TBitmapLayer(FLayerPositioned);
+
+  FLayer.Bitmap.DrawMode := dmBlend;
+  FLayer.Bitmap.CombineMode := cmMerge;
+  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+end;
+
+function TMapLayerBasic.CreateLayer(
+  ALayerCollection: TLayerCollection): TPositionedLayer;
+begin
+  Result := TBitmapLayer.Create(ALayerCollection);
+end;
+
+procedure TMapLayerBasic.DoResizeBitmap;
+var
+  VBitmapSizeInPixel: TPoint;
+begin
+  inherited;
+  VBitmapSizeInPixel := GetBitmapSizeInPixel;
+  if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
+    FLayer.Bitmap.Lock;
+    try
+      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+    finally
+      FLayer.Bitmap.Unlock;
+    end;
+  end;
+end;
+
+procedure TMapLayerBasic.Hide;
+begin
+  inherited;
+  FLayer.Bitmap.Lock;
+  try
+    FLayer.Bitmap.SetSize(0, 0);
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
 end;
 
 function TMapLayerBasic.GetBitmapSizeInPixel: TPoint;
 begin
   Result.X := GState.ScreenSize.X + 2 * 256 * GState.TilesOut;
   Result.Y := GState.ScreenSize.Y + 2 * 256 * GState.TilesOut;
-end;
-
-procedure TMapLayerBasic.Redraw;
-begin
-  if FGeoConvert <> nil then begin
-    inherited;
-  end;
 end;
 
 end.
