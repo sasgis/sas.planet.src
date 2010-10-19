@@ -681,9 +681,9 @@ begin
       Canvas.Brush.Color:=clGreen;
     end else begin
       if Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio=0 then begin
-        Canvas.Brush.Color:=clGreen;
+        Canvas.Brush.Color:=clRed;
       end else begin
-        Canvas.Brush.Color:=clBlue;
+        Canvas.Brush.Color:=clYellow;
       end;
     end;
     Canvas.Ellipse(Ellipse_XY1.x-10,Ellipse_XY1.y-10,Ellipse_XY1.x+10,Ellipse_XY1.y+10);
@@ -719,9 +719,9 @@ begin
       Canvas.Brush.Color:=clGreen;
    end else begin
      if Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio=0 then begin
-       Canvas.Brush.Color:=clGreen;
+       Canvas.Brush.Color:=clRed;
      end else begin
-       Canvas.Brush.Color:=clBlue;
+       Canvas.Brush.Color:=clYellow;
      end;
    end;
    Canvas.Pen.Color:=clWhite;
