@@ -90,10 +90,12 @@ begin
   FBitmapWithText := TBitmap32.Create;
   FBitmapWithText.Font.Name := 'Tahoma';
   FBitmapWithText.Font.Style := [];
-  FBitmapWithText.DrawMode := dmTransparent;
+  FBitmapWithText.DrawMode := dmBlend;
+  FBitmapWithText.CombineMode := cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
   FBitmapWithText.Height := FBitmapWithText.TextHeight(CMaxMarkName);
   FBitmapWithText.Width := FBitmapWithText.TextWidth(CMaxMarkName);
+  FBitmapWithText.Resampler := TLinearResampler.Create;
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -221,16 +223,15 @@ begin
   if AFontSize > 0 then begin
     FBitmapWithText.Font.Size := AFontSize;
     VTextSize := FBitmapWithText.TextExtent(AName);
-
-    FBitmapWithText.FillRectS(0, 0, VTextSize.cx, VTextSize.cy, SetAlpha(clBlack32, 0));
-    FBitmapWithText.RenderText(1, 1, AName, 1, AColor2);
-    FBitmapWithText.RenderText(0, 0, AName, 1, AColor1);
     VDstRect.Left := xy.x + (AMarkSize div 2) + 1;
     VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2 + 1;
     VDstRect.Right := VDstRect.Left + VTextSize.cx + 1;
     VDstRect.Bottom := VDstRect.Top + VTextSize.cy + 1;
     VSrcRect := bounds(0, 0, VTextSize.cx + 1, VTextSize.cy + 1);
-    FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
+    BlockTransfer(FBitmapWithText, 0, 0, VSrcRect, FTargetBmp, VDstRect, dmOpaque);
+    FBitmapWithText.RenderText(1, 1, AName, 1, AColor2);
+    FBitmapWithText.RenderText(0, 0, AName, 1, AColor1);
+    BlockTransfer(FTargetBmp, VDstRect.Left, VDstRect.Top, VDstRect, FBitmapWithText, VSrcRect, dmOpaque);
   end;
 end;
 
