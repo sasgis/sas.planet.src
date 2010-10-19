@@ -622,7 +622,7 @@ begin
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
   GPS_COM:=MainIni.ReadString('GPS','com','COM0');
   GPS_BaudRate:=MainIni.ReadInteger('GPS','BaudRate',4800);
-  GPS_TimeOut:=MainIni.ReadInteger('GPS','timeout',15);
+  GPS_TimeOut:=MainIni.ReadInteger('GPS','timeout',300);
   GPS_Delay:=MainIni.ReadInteger('GPS','update',1000);
   GPS_enab:=MainIni.ReadBool('GPS','enbl',false);
   GPS_WriteLog:=MainIni.Readbool('GPS','log',true);
