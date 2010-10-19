@@ -201,6 +201,13 @@ type
     GroupBox3: TGroupBox;
     SatellitePaintBox: TImage32;
     PaintBox1: TPaintBox;
+    Label13: TLabel;
+    Label18: TLabel;
+    Label9: TLabel;
+    Shape1: TShape;
+    Shape2: TShape;
+    Shape3: TShape;
+    Bevel1: TBevel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -638,40 +645,46 @@ begin
 end;
 
 procedure TFSettings.SatellitePaint;
-var i,bar_width,bar_height,bar_x1,bar_dy,bar_i,Ellipse_d,Ellipse_r:integer;
-    Ellipse_XY1,Ellipse_XY2:TPoint;
+var i,bar_width,bar_height,bar_x1,bar_dy,bar_i,Ellipse_d,Ellipse_r,padd:integer;
+    Ellipse_XY1,Ellipse_XY2,Ellipse_center:TPoint;
 begin
  with SatellitePaintBox.Bitmap do begin
   Clear(clWhite);
   Canvas.Pen.Color:=clBlack;
   Canvas.Brush.Color:=clWhite;
-  Ellipse_r:=(Width div 2)-5;
+  padd:=20;
+  Ellipse_r:=(Width div 2)-padd;
+  Ellipse_center:=Point(Width div 2,Ellipse_r+5);
   for I := 0 to 8 do begin
     Ellipse_d:=Ellipse_r-(((Ellipse_r) div 9)*i);
-    Ellipse_XY1.x:=round((Width div 2) + Ellipse_d * cos((0) * (Pi/180)));
-    Ellipse_XY1.y:=round((Width div 2) + Ellipse_d * sin((270) * (Pi/180)));
-    Ellipse_XY2.x:=round((Width div 2) + Ellipse_d * cos((180) * (Pi/180)));
-    Ellipse_XY2.y:=round((Width div 2) + Ellipse_d * sin((90) * (Pi/180)));
+    Ellipse_XY1.x:=round(Ellipse_center.x + Ellipse_d * cos((0) * (Pi/180)));
+    Ellipse_XY1.y:=round(Ellipse_center.y + Ellipse_d * sin((270) * (Pi/180)));
+    Ellipse_XY2.x:=round(Ellipse_center.x + Ellipse_d * cos((180) * (Pi/180)));
+    Ellipse_XY2.y:=round(Ellipse_center.y + Ellipse_d * sin((90) * (Pi/180)));
     Canvas.Ellipse(Ellipse_XY1.x,Ellipse_XY1.y,Ellipse_XY2.x,Ellipse_XY2.y);
   end;
   for I := 0 to 15 do begin
-    Ellipse_XY1.x := round((Width div 2) + Ellipse_r * cos((i*22.5) * (Pi / 180)));
-    Ellipse_XY1.y := round((Width div 2) + Ellipse_r * sin((i*22.5) * (Pi / 180)));
-    Canvas.MoveTo((Width div 2),(Width div 2));
+    Ellipse_XY1.x := round(Ellipse_center.x + Ellipse_r * cos((i*22.5) * (Pi / 180)));
+    Ellipse_XY1.y := round(Ellipse_center.y + Ellipse_r * sin((i*22.5) * (Pi / 180)));
+    Canvas.MoveTo(Ellipse_center.x,Ellipse_center.y);
     Canvas.LineTo(Ellipse_XY1.x,Ellipse_XY1.y);
   end;
 
   for I := 0 to Fmain.GPSReceiver.GetSatellites.Count-1 do begin
-    Ellipse_r:=trunc(((Width div 2)-5)*((90-Fmain.GPSReceiver.GetSatellites.Items[i].Elevation)/90));
-    Ellipse_XY1.x:=round((Width div 2) + Ellipse_r * cos(
+    Ellipse_r:=trunc(((Width div 2)-padd)*((90-Fmain.GPSReceiver.GetSatellites.Items[i].Elevation)/90));
+    Ellipse_XY1.x:=round(Ellipse_center.x + Ellipse_r * cos(
     (Fmain.GPSReceiver.GetSatellites.Items[i].Azimuth-90) * (Pi / 180)));
-    Ellipse_XY1.y:=round((Width div 2) + Ellipse_r * sin(
+    Ellipse_XY1.y:=round(Ellipse_center.y + Ellipse_r * sin(
     (Fmain.GPSReceiver.GetSatellites.Items[i].Azimuth-90) * (Pi / 180)));
     if GState.GPSpar.GetSatActive(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode,
                                  Fmain.GPSReceiver.GetRawData) then begin
-      Canvas.Brush.Color:=clBlue;
-    end else begin
       Canvas.Brush.Color:=clGreen;
+    end else begin
+      if Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio=0 then begin
+        Canvas.Brush.Color:=clGreen;
+      end else begin
+        Canvas.Brush.Color:=clBlue;
+      end;
     end;
     Canvas.Ellipse(Ellipse_XY1.x-10,Ellipse_XY1.y-10,Ellipse_XY1.x+10,Ellipse_XY1.y+10);
     Canvas.TextOut(Ellipse_XY1.x-5,Ellipse_XY1.y-7,inttostr(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode));
@@ -703,9 +716,13 @@ begin
    bar_height:=trunc((Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/2.5);
    if GState.GPSpar.GetSatActive(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode,
                                  Fmain.GPSReceiver.GetRawData) then begin
-     Canvas.Brush.Color:=clBlue;
+      Canvas.Brush.Color:=clGreen;
    end else begin
-     Canvas.Brush.Color:=clGreen;
+     if Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio=0 then begin
+       Canvas.Brush.Color:=clGreen;
+     end else begin
+       Canvas.Brush.Color:=clBlue;
+     end;
    end;
    Canvas.Pen.Color:=clWhite;
    Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);

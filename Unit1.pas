@@ -1239,7 +1239,7 @@ begin
        try
          bar_height:=42;
          Canvas.Pen.Color:=clBlack;
-         Canvas.Brush.Color:=clBlue;
+         Canvas.Brush.Color:=clGreen;
          bar_x1:=0;
          bar_dy:=8;
          bar_width:=((Width-15) div GPSReceiver.GetSatelliteCount);
