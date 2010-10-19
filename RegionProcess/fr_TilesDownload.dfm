@@ -56,7 +56,6 @@ object frTilesDownload: TfrTilesDownload
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
-        OnChange = cbbZoomChange
         ExplicitLeft = 6
       end
     end
@@ -116,9 +115,8 @@ object frTilesDownload: TfrTilesDownload
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitLeft = 3
-        ExplicitTop = 16
-        ExplicitWidth = 386
+        ExplicitLeft = 4
+        ExplicitTop = 14
       end
       object chkReplace: TCheckBox
         Left = 5
@@ -141,9 +139,8 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
         TabOrder = 2
-        ExplicitLeft = 3
-        ExplicitTop = 50
-        ExplicitWidth = 386
+        ExplicitLeft = 4
+        ExplicitTop = 64
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
@@ -213,8 +210,7 @@ object frTilesDownload: TfrTilesDownload
             Time = 39513.436381111110000000
             Enabled = False
             TabOrder = 1
-            ExplicitLeft = 70
-            ExplicitTop = 6
+            ExplicitLeft = 135
           end
         end
       end

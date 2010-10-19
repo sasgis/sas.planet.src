@@ -14,6 +14,7 @@ object Fsaveas: TFsaveas
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnActivate = FormActivate
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
@@ -34,6 +35,8 @@ object Fsaveas: TFsaveas
       Tag = 1
       Caption = #1057#1082#1083#1077#1080#1090#1100
       ImageIndex = 1
+      ExplicitLeft = 6
+      ExplicitTop = 22
     end
     object TabSheet3: TTabSheet
       Tag = 2
@@ -83,12 +86,16 @@ object Fsaveas: TFsaveas
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 2
+        ExplicitTop = 31
       end
     end
     object TabSheet6: TTabSheet
       Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
+      ExplicitLeft = 2
+      ExplicitTop = 28
     end
   end
   object pnlBottomButtons: TPanel

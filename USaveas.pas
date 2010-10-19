@@ -46,6 +46,7 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
     FZoom_rect:byte;
     FPolygonLL: TExtendedPointArray;
@@ -67,7 +68,7 @@ type
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TExtendedPointArray);
     procedure RefreshTranslation; override;
-   end;
+  end;
 
 var
   Fsaveas: TFsaveas;
@@ -104,7 +105,6 @@ begin
   FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
   FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
   FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
-  PageControl1.ActivePageIndex:=0;
 end;
 
 destructor TFsaveas.Destroy;
@@ -286,6 +286,11 @@ begin
   fSaveas.Show;
 end;
 
+
+procedure TFsaveas.FormActivate(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex:=0;
+end;
 
 procedure TFsaveas.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
