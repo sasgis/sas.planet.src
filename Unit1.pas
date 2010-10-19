@@ -479,7 +479,6 @@ type
     procedure RxSlider1Changed(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure GPSReceiver1SatellitesReceive(Sender: TObject);
-    procedure GPSReceiverReceive(Sender: TObject);
     procedure GPSReceiverDisconnect(Sender: TObject; const Port: TCommPort);
     procedure GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
     procedure GPSReceiverTimeout(Sender: TObject);
@@ -528,6 +527,7 @@ type
     procedure NGoToCurClick(Sender: TObject);
     procedure TBXItem8Click(Sender: TObject);
     procedure TBXItem9Click(Sender: TObject);
+    procedure GPSReceiverReceive(Sender: TObject; Buffer: string);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -1205,14 +1205,11 @@ end;
 procedure TFmain.UpdateGPSSatellites;
 var
   i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
-  VSatellites: TSatellites;
   VSatCount: Integer;
 begin
    TBXSignalStrengthBar.Repaint;
    if GState.GPSpar.SatCount>0 then begin
     with TBXSignalStrengthBar do begin
-     VSatellites := GPSReceiver.GetPosition.Satellites;
-     if VSatellites <> nil then begin
        Canvas.Lock;
        try
          bar_height:=42;
@@ -1220,16 +1217,18 @@ begin
          Canvas.Brush.Color:=clBlue;
          bar_x1:=0;
          bar_dy:=8;
-         bar_width:=((Width-15) div VSatellites.Count);
-         for I := 0 to VSatellites.Count-1 do begin
-            bar_x1:=(bar_width*i);
-            bar_height:=trunc(14*((100-VSatellites.Items[i].SignalToNoiseRatio)/100));
-            Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+         bar_width:=((Width-15) div GPSReceiver.GetSatelliteCount);
+         for I := 0 to GPSReceiver.GetSatellites.Count-1 do begin
+           if GState.GPSpar.GetSatActive(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode,
+                                 Fmain.GPSReceiver.GetRawData) then begin
+             bar_height:=trunc(14*((GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/100));
+             Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+             inc(bar_x1,bar_width);
+           end;
          end;
        finally
          Canvas.Unlock;
        end;
-     end;
     end;
    end;
 end;
@@ -2904,7 +2903,21 @@ begin
  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
 end;
 
-procedure TFmain.GPSReceiverReceive(Sender: TObject);
+procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
+  const Port: TCommPort);
+begin
+ try
+ if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
+ if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
+ GState.GPS_enab:=false;
+ FLayerMapGPS.Visible:=false;
+ NGPSconn.Checked:=false;
+ TBGPSconn.Checked:=false;
+ except
+ end;
+end;
+
+procedure TFmain.GPSReceiverReceive(Sender: TObject; Buffer: string);
 var s2f,sb:string;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
     VConverter: ICoordConverter;
@@ -2961,20 +2974,6 @@ begin
     Writeln(GState.GPS_LogFile,s2f);
    end;
   end;
-end;
-
-procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
-  const Port: TCommPort);
-begin
- try
- if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
- if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
- GState.GPS_enab:=false;
- FLayerMapGPS.Visible:=false;
- NGPSconn.Checked:=false;
- TBGPSconn.Checked:=false;
- except
- end;
 end;
 
 procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);

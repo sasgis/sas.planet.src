@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -5244,6 +5243,7 @@ object Fmain: TFmain
     Top = 84
   end
   object GPSReceiver: TZylGPSReceiver
+    CustomBaudRate = 0
     Commands = [GPAAM, GPBWC, GPGGA, GPGLL, GPMSS, GPRMB, GPRMC, GPGSA, GPGSV, GPVTG, GPZDA, GPWPL, GPRTE, GPXTE, AllNMEA]
     Delay = 2000
     IdleInterval = 20
