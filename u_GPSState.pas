@@ -4,11 +4,14 @@ interface
 
 uses
   Graphics,
+  i_IGPSRecorder,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider;
 
 type
   TGPSpar = class
+  private
+    FGPSRecorder: IGPSRecorder;
   public
     speed: extended;
     len: extended;
@@ -41,20 +44,46 @@ type
     GPS_TrackWidth: Integer;
     //Максимальное количество оотображаемых точек трека
     GPS_NumTrackPoints: integer;
-
+    //Отображать GPS трек
+    GPS_ShowPath: Boolean;
+    //Центрировать карту на GPS позиции
+    GPS_MapMove: Boolean;
+    //Заисывать GPS трек в файл
+    GPS_WriteLog: boolean;
+    //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
+    GPS_LogFile: TextFile;
+    //Скрывать/показывать панель датчиков при подключении/отключении GPS
+    GPS_SensorsAutoShow: boolean;
+    //Писать лог NMEA
+    GPS_NMEALog: boolean;
+    constructor Create();
+    destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
 
     function GetSatActive(pcode:integer;NMEA:string):boolean;
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
   end;
 
 implementation
 
 uses
   SysUtils,
-  StrUtils;
+  StrUtils,
+  u_GPSRecorderStuped;
+
+constructor TGPSpar.Create;
+begin
+  FGPSRecorder := TGPSRecorderStuped.Create;
+end;
+
+destructor TGPSpar.Destroy;
+begin
+  FGPSRecorder := nil;
+  inherited;
+end;
 
 function TGPSpar.GetSatActive(pcode:integer;NMEA:string):boolean;
 var str:string;
@@ -97,6 +126,14 @@ begin
     GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr', clRed);
     GPS_TrackWidth := VConfigProvider.ReadInteger('SizeTrack', 5);
     GPS_NumTrackPoints := VConfigProvider.ReadInteger('NumShowTrackPoints', 5000);
+    GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
+    GPS_NMEALog:=VConfigProvider.ReadBool('NMEAlog',false);
+    GPS_ShowPath:=VConfigProvider.ReadBool('path',true);
+    GPS_MapMove:=VConfigProvider.ReadBool('go',true);
+    GPS_SensorsAutoShow:=VConfigProvider.ReadBool('SensorsAutoShow',true);
+
+    Odometr:=VConfigProvider.ReadFloat('Odometr',0);
+    Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
   end else begin
     GPS_enab := False;
     GPS_COM := 'COM0';
@@ -107,6 +144,13 @@ begin
     GPS_ArrowColor := clRed;
     GPS_TrackWidth := 5;
     GPS_NumTrackPoints := 5000;
+    GPS_WriteLog:=true;
+    GPS_NMEALog:=false;
+    GPS_ShowPath:=true;
+    GPS_MapMove:=true;
+    GPS_SensorsAutoShow:=true;
+    Odometr:=0;
+    Odometr2:=0;
   end;
 end;
 
@@ -125,6 +169,14 @@ begin
   VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
   VConfigProvider.WriteInteger('SizeTrack',GPS_TrackWidth);
   VConfigProvider.WriteInteger('NumShowTrackPoints',GPS_NumTrackPoints);
+  VConfigProvider.WriteBool('path',GPS_ShowPath);
+  VConfigProvider.WriteBool('go',GPS_MapMove);
+  VConfigProvider.WriteBool('log',GPS_WriteLog);
+  VConfigProvider.WriteBool('NMEALog',GPS_NMEALog);
+  VConfigProvider.WriteBool('SensorsAutoShow',GPS_SensorsAutoShow);
+
+  VConfigProvider.WriteFloat('Odometr', Odometr);
+  VConfigProvider.WriteFloat('Odometr2', Odometr2);
 end;
 
 procedure TGPSpar.SendTerminateToThreads;

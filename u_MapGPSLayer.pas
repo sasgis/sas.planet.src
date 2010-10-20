@@ -45,7 +45,7 @@ var
   VMarkRect: TRect;
 begin
   VIsArrow := False;
-  if GState.GPSRecorder.GetTwoLastPoints(VLastPoint, VPreLastPoint) then begin
+  if GState.GPSpar.GPSRecorder.GetTwoLastPoints(VLastPoint, VPreLastPoint) then begin
     try
       ke := FGeoConvert.LonLat2PixelPosFloat(VLastPoint, FZoom);
       ke := MapPixel2BitmapPixel(ke);
@@ -113,7 +113,7 @@ var
   VMaxSpeed: Extended;
   VPoints: TGPSTrackPointArray;
 begin
-  VPoints := GState.GPSRecorder.LastVisiblePoints;
+  VPoints := GState.GPSpar.GPSRecorder.LastVisiblePoints;
   
   VPointsCount := length(VPoints);
   with FLayer.Bitmap do begin
@@ -165,7 +165,7 @@ procedure TMapGPSLayer.DoRedraw;
 begin
   inherited;
   FLayer.Bitmap.Clear(clBlack);
-  if GState.GPS_ShowPath then begin
+  if GState.GPSpar.GPS_ShowPath then begin
     DrawPath;
   end;
   DrawArrow;
