@@ -209,7 +209,6 @@ type
     TBItem6: TTBXItem;
     TBGPSconn: TTBXItem;
     TBGPSPath: TTBXSubmenuItem;
-    TBGPSToPoint: TTBXItem;
     TBSrc: TTBXSubmenuItem;
     TBSMB: TTBXSubmenuItem;
     TBLayerSel: TTBXSubmenuItem;
@@ -398,6 +397,9 @@ type
     TBXSensorOdometr2: TTBXLabel;
     TBXLabel6: TTBXLabel;
     NsensorOdometr2Bar: TTBXItem;
+    TBGPSToPoint: TTBXSubmenuItem;
+    TBGPSToPointCenter: TTBXItem;
+    tbitmGPSToPointCenter: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -526,6 +528,7 @@ type
     procedure TBXItem8Click(Sender: TObject);
     procedure TBXItem9Click(Sender: TObject);
     procedure GPSReceiverReceive(Sender: TObject; Buffer: string);
+    procedure TBGPSToPointCenterClick(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -1614,6 +1617,8 @@ begin
     tbitmGPSTrackShow.Checked:=GState.GPS_ShowPath;
     TBGPSToPoint.Checked:=GState.GPS_MapMove;
     tbitmGPSCenterMap.Checked:=GState.GPS_MapMove;
+    TBGPSToPointCenter.Checked:=GState.GPS_MapMoveCentered;
+    tbitmGPSToPointCenter.Checked:=GState.GPS_MapMoveCentered;
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
     Nanimate.Checked:=GState.AnimateZoom;
@@ -2912,6 +2917,7 @@ var s2f,sb:string;
     VConverter: ICoordConverter;
     VPointCurr: TExtendedPoint;
     VPointPrev: TExtendedPoint;
+    VPointDelta: TExtendedPoint;
     VDistToPrev: Extended;
     VTrackPoint: TGPSTrackPoint;
 begin
@@ -2938,11 +2944,28 @@ begin
       GState.GPSpar.Odometr2:=GState.GPSpar.Odometr2+VDistToPrev;
       GState.GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
     end;
-
   if not((MapMoving)or(MapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
     if (GState.GPS_MapMove) then begin
       GState.ViewState.LockWrite;
-      GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
+      if GState.GPS_MapMoveCentered then begin
+        GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
+      end else begin
+        if ((VPointPrev.x<>0)and(VPointPrev.y<>0)) then begin
+          VPointDelta:=GState.ViewState.GetCenterLonLat;
+          VPointDelta:=ExtPoint(VPointDelta.x+VPointCurr.x-VPointPrev.x,
+                                VPointDelta.y+VPointCurr.y-VPointPrev.y);
+          if (GState.ViewState.inVisibleLonLatRect(VPointCurr)) then  begin
+            GState.ViewState.ChangeLonLatAndUnlock(VPointDelta);
+          end else begin
+            GState.ViewState.UnLockWrite;
+          end;
+        end else begin
+          GState.ViewState.UnLockWrite;
+        end;
+      end;
+      //GState.ViewState.ChangeMapPixelByDelta(VConverter.LonLat2PixelPos(VPointDelta, GState.ViewState.GetCurrentZoom));
+      //GState.ViewState.UnLockWrite;
+      //GState.ViewState.ChangeLonLatAndUnlock(VPointDelta);
     end else begin
       LayerStatBar.Redraw;
       FLayerMapGPS.Redraw;
@@ -4098,6 +4121,13 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);
+begin
+ tbitmGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
+ TBGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
+ GState.GPS_MapMoveCentered:=TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);

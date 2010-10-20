@@ -126,6 +126,7 @@ type
     GPS_TrackWidth: Integer;
     //Центрировать карту на GPS позиции
     GPS_MapMove: Boolean;
+    GPS_MapMoveCentered:Boolean;
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
     //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
@@ -632,6 +633,7 @@ begin
   GPS_ArrowColor:=MainIni.ReadInteger('GPS','ColorStr',clRed);
   GPS_ShowPath:=MainIni.ReadBool('GPS','path',true);
   GPS_MapMove:=MainIni.ReadBool('GPS','go',true);
+  GPS_MapMoveCentered:=MainIni.ReadBool('GPS','goCentered',false);
   GPSpar.Odometr:=str2r(MainIni.ReadString('GPS','Odometr','0'));
   GPSpar.Odometr2:=str2r(MainIni.ReadString('GPS','Odometr2','0'));
   GPS_SensorsAutoShow:=MainIni.ReadBool('GPS','SensorsAutoShow',true);
@@ -831,6 +833,7 @@ begin
   MainIni.WriteBool('GPS','enbl',GPS_enab);
   MainIni.WriteBool('GPS','path',GPS_ShowPath);
   MainIni.WriteBool('GPS','go',GPS_MapMove);
+  MainIni.WriteBool('GPS','goCentered',GPS_MapMoveCentered);
   MainIni.WriteString('GPS','COM',GPS_COM);
   MainIni.WriteInteger('GPS','BaudRate',GPS_BaudRate);
   MainIni.Writeinteger('GPS','update',GPS_Delay);

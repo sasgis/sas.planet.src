@@ -79,6 +79,7 @@ type
     function GetVisiblePixelRect: TRect;
     function GetVisibleTopLeft: TPoint;
     function GetVisibleSizeInPixel: TPoint;
+    function inVisibleLonLatRect(ALonLat: TExtendedPoint): boolean;
 
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
@@ -434,6 +435,14 @@ begin
   end;
 end;
 
+function TMapViewPortState.inVisibleLonLatRect(ALonLat: TExtendedPoint): boolean;
+var VLonLatRect:TExtendedRect;
+begin
+  VLonLatRect:=GetViewLonLatRect;
+  result:=(ALonLat.X<=VLonLatRect.Right)and(ALonLat.X>=VLonLatRect.Left)and
+          (ALonLat.Y<=VLonLatRect.Top)and(ALonLat.Y>=VLonLatRect.Bottom);
+end;
+
 function TMapViewPortState.GetViewMapSize: TPoint;
 var
   VRect: TRect;
@@ -573,7 +582,17 @@ end;
 
 procedure TMapViewPortState.UnLockWrite;
 begin
-  FSync.EndWrite;
+  FSync.BeginWrite;
+  try
+    if FWriteLocked then begin
+      FWriteLocked := False;
+      FSync.EndWrite;
+    end else begin
+      raise Exception.Create('Настройки состояния не были заблокированы');
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 procedure TMapViewPortState.ChangeMapPixelByDelta(ADelta: TPoint);
