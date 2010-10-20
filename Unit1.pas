@@ -2403,32 +2403,33 @@ end;
 
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
- try
- tbitmGPSConnect.Checked:=TTBXitem(sender).Checked;
- TBGPSconn.Checked:=tbitmGPSConnect.Checked;
- FLayerMapGPS.Visible:=tbitmGPSConnect.Checked;
- GState.GPSpar.GPS_enab := tbitmGPSConnect.Checked;
- if GState.GPSpar.GPS_enab then
-  begin
-   GPSReceiver.NMEALog:=GState.GPSpar.GPS_NMEALog;
-   GPSReceiver.LogFile:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
-     +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.nmea';
-   GPSReceiver.Delay:=GState.GPSpar.GPS_Delay;
-   GPSReceiver.ConnectionTimeout:=GState.GPSpar.GPS_TimeOut;
-   GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPSpar.GPS_COM);
-   if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(GState.GPSpar.GPS_BaudRate) then
-     GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(GState.GPSpar.GPS_BaudRate);
-   GPSReceiver.NeedSynchronization:=true;
-   try
-    GPSReceiver.Open;
-   except
-    ShowMessage(SAS_ERR_PortOpen);
-    GPSReceiver.Close;
-   end;
-  end
-  else GPSReceiver.Close;
- except
- end;
+  try
+    tbitmGPSConnect.Checked:=TTBXitem(sender).Checked;
+    TBGPSconn.Checked:=tbitmGPSConnect.Checked;
+    FLayerMapGPS.Visible:=tbitmGPSConnect.Checked;
+    GState.GPSpar.GPS_enab := tbitmGPSConnect.Checked;
+    if GState.GPSpar.GPS_enab then begin
+      GPSReceiver.NMEALog:=GState.GPSpar.GPS_NMEALog;
+      GPSReceiver.LogFile:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
+        +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.nmea';
+      GPSReceiver.Delay:=GState.GPSpar.GPS_Delay;
+      GPSReceiver.ConnectionTimeout:=GState.GPSpar.GPS_TimeOut;
+      GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPSpar.GPS_COM);
+      if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(GState.GPSpar.GPS_BaudRate) then begin
+        GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(GState.GPSpar.GPS_BaudRate);
+      end;
+      GPSReceiver.NeedSynchronization:=true;
+      try
+        GPSReceiver.Open;
+      except
+        ShowMessage(SAS_ERR_PortOpen);
+        GPSReceiver.Close;
+      end;
+    end else begin
+      GPSReceiver.Close;
+    end;
+  except
+  end;
 end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
