@@ -24,8 +24,6 @@ uses
 type
   TFaddLine = class(TCommonFormParent)
     Label1: TLabel;
-    Bevel2: TBevel;
-    Bevel5: TBevel;
     Label3: TLabel;
     Label5: TLabel;
     EditName: TEdit;

@@ -24,8 +24,6 @@ uses
 type
   TFAddPoly = class(TCommonFormParent)
     Label1: TLabel;
-    Bevel2: TBevel;
-    Bevel5: TBevel;
     EditName: TEdit;
     Badd: TButton;
     Button2: TButton;
