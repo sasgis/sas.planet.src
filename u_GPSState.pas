@@ -24,6 +24,13 @@ type
     SatCount: integer;
 
     GPS_enab: Boolean;
+    //COM-порт, к которому подключен GPS
+    GPS_COM: string;
+    //Скорость GPS COM порта
+    GPS_BaudRate: Integer;
+    // Максимальное время ожидания данных от GPS
+    GPS_TimeOut: integer;
+
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -71,18 +78,28 @@ begin
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
+    GPS_COM := VConfigProvider.ReadString('com', 'COM0');
+    GPS_BaudRate := VConfigProvider.ReadInteger('BaudRate',4800);
+    GPS_TimeOut := VConfigProvider.ReadInteger('timeout',300);
   end else begin
     GPS_enab := False;
+    GPS_COM := 'COM0';
+    GPS_BaudRate := 4800;
+    GPS_TimeOut := 300;
   end;
 end;
 
 procedure TGPSpar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
 var
-  VSubItem: IConfigDataWriteProvider;
+  VConfigProvider: IConfigDataWriteProvider;
 begin
   inherited;
-  VSubItem := AConfigProvider.GetOrCreateSubItem('GPS');
-  VSubItem.WriteBool('enbl', GPS_enab);
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
+  VConfigProvider.WriteBool('enbl', GPS_enab);
+  VConfigProvider.WriteString('COM', GPS_COM);
+  VConfigProvider.WriteInteger('BaudRate',GPS_BaudRate);
+  // Нет сохранения GPS_TimeOut
+  
 end;
 
 procedure TGPSpar.SendTerminateToThreads;

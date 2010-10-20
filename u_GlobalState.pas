@@ -107,12 +107,6 @@ type
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
 
-    //COM-порт, к которому подключен GPS
-    GPS_COM: string;
-    //Скорость GPS COM порта
-    GPS_BaudRate: Integer;
-    // Максимальное время ожидания данных от GPS
-    GPS_TimeOut: integer;
     // Интервал между точками от GPS
     GPS_Delay: Integer;
     //Размер указателя направления при GPS-навигации
@@ -622,9 +616,6 @@ begin
   GammaN:=MainIni.Readinteger('COLOR_LEVELS','gamma',50);
   ContrastN:=MainIni.Readinteger('COLOR_LEVELS','contrast',0);
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
-  GPS_COM:=MainIni.ReadString('GPS','com','COM0');
-  GPS_BaudRate:=MainIni.ReadInteger('GPS','BaudRate',4800);
-  GPS_TimeOut:=MainIni.ReadInteger('GPS','timeout',300);
   GPS_Delay:=MainIni.ReadInteger('GPS','update',1000);
   GPS_WriteLog:=MainIni.Readbool('GPS','log',true);
   GPS_NMEALog:=MainIni.Readbool('GPS','NMEAlog',false);
@@ -831,8 +822,6 @@ begin
 
   MainIni.WriteBool('GPS','path',GPS_ShowPath);
   MainIni.WriteBool('GPS','go',GPS_MapMove);
-  MainIni.WriteString('GPS','COM',GPS_COM);
-  MainIni.WriteInteger('GPS','BaudRate',GPS_BaudRate);
   MainIni.Writeinteger('GPS','update',GPS_Delay);
   MainIni.WriteBool('GPS','log',GPS_WriteLog);
   MainIni.WriteBool('GPS','NMEALog',GPS_NMEALog);
