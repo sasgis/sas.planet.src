@@ -56,7 +56,7 @@ begin
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
-  FFrame.Init(Azoom);
+  FFrame.Init(Azoom,APolygon);
 end;
 
 procedure TProviderTilesDownload.RefreshTranslation;
