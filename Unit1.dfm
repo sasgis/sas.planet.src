@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -192,16 +193,13 @@ object Fmain: TFmain
       object TBSMB: TTBXSubmenuItem
         DisplayMode = nbdmImageAndText
         ImageIndex = 3
-        Images = MapIcons24
         Options = [tboDropdownArrow]
-        SubMenuImages = MapIcons18
         Caption = ''
         Hint = #1042#1099#1073#1088#1072#1090#1100' '#1090#1080#1087' '#1082#1072#1088#1090#1099
       end
       object TBLayerSel: TTBXSubmenuItem
         ImageIndex = 3
         Options = [tboDropdownArrow]
-        SubMenuImages = MapIcons18
         Caption = ''
         Hint = #1042#1099#1073#1086#1088' '#1089#1083#1086#1077#1074' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093' '#1087#1086#1074#1077#1088#1093' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
       end
@@ -602,7 +600,6 @@ object Fmain: TFmain
           Hint = ''
           object TBFillingTypeMap: TTBXSubmenuItem
             Options = [tboDropdownArrow]
-            SubMenuImages = MapIcons18
             Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1076#1083#1103'...'
             Hint = ''
             object TBfillMapAsMain: TTBXItem
@@ -872,13 +869,11 @@ object Fmain: TFmain
       end
       object NSMB: TTBXSubmenuItem
         LinkSubitems = TBSMB
-        SubMenuImages = MapIcons18
         Caption = '&'#1050#1072#1088#1090#1099
         Hint = ''
       end
       object NLayerSel: TTBXSubmenuItem
         LinkSubitems = TBLayerSel
-        SubMenuImages = MapIcons18
         Caption = #1057#1083#1086#1080
         Hint = ''
       end
@@ -996,7 +991,6 @@ object Fmain: TFmain
           Hint = ''
         end
         object NLayerParams: TTBXSubmenuItem
-          SubMenuImages = MapIcons18
           Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1089#1083#1086#1103
           Hint = ''
         end
@@ -2991,12 +2985,10 @@ object Fmain: TFmain
     end
     object ldm: TMenuItem
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
-      SubMenuImages = MapIcons18
       ImageIndex = 13
     end
     object dlm: TMenuItem
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
-      SubMenuImages = MapIcons18
       ImageIndex = 11
     end
     object N1: TMenuItem
@@ -6943,18 +6935,6 @@ object Fmain: TFmain
       F00008000000800000E00003F80018000003C00001F00007FE000080003FC000
       01F8000FFFFE01FC01FFF00F03FF003F00000000000000000000000000000000
       000000000000}
-  end
-  object MapIcons24: TTBImageList
-    Height = 24
-    Width = 24
-    Left = 28
-    Top = 249
-  end
-  object MapIcons18: TTBImageList
-    Height = 18
-    Width = 18
-    Left = 36
-    Top = 281
   end
   object EditCommentsImgs: TImageList
     Left = 24

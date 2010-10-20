@@ -214,8 +214,6 @@ type
     TBSMB: TTBXSubmenuItem;
     TBLayerSel: TTBXSubmenuItem;
     ImagesSrc24: TTBImageList;
-    MapIcons24: TTBImageList;
-    MapIcons18: TTBImageList;
     TBFullSize: TTBXItem;
     TBmove: TTBXItem;
     TBCalcRas: TTBXItem;
