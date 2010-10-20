@@ -1702,6 +1702,7 @@ begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
     FMainLayer.Visible := True;
+    FLayerMapMarks.Visible := GState.show_point <> mshNone;
   finally
     Enabled:=true;
     map.SetFocus;
