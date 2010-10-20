@@ -24,7 +24,7 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure StartNav(APoint: TExtendedPoint; Aid: integer);
-    function GetDistToMark: Double;
+    function GetMarkLonLat: TExtendedPoint;
     property ID: Integer read FId;
   end;
 
@@ -132,16 +132,9 @@ begin
   Result := Point(GState.GPSpar.GPS_ArrowSize * 2, GState.GPSpar.GPS_ArrowSize * 2);
 end;
 
-function TNavToMarkLayer.GetDistToMark: Double;
-var
-  VPoint: TExtendedPoint;
+function TNavToMarkLayer.GetMarkLonLat: TExtendedPoint;
 begin
-  if Visible then begin
-    VPoint := FGeoConvert.PixelPos2LonLat(FScreenCenterPos, FZoom);
-    Result := FGeoConvert.CalcDist(VPoint, FMarkPoint);
-  end else begin
-    Result := 0;
-  end;
+  Result := FMarkPoint;
 end;
 
 function TNavToMarkLayer.GetScreenCenterInBitmapPixels: TPoint;

@@ -1183,6 +1183,8 @@ procedure TFmain.UpdateGPSsensors;
 var
   s_len,n_len: string;
   sps: _SYSTEM_POWER_STATUS;
+  VPoint: TExtendedPoint;
+  VDist: Extended;
 begin
  try
    //скорость
@@ -1198,7 +1200,9 @@ begin
    TBXOdometrNow.Caption:=s_len;
    //расстояние до метки
    if (LayerMapNavToMark<>nil)and(LayerMapNavToMark.Visible) then begin
-     n_len:=DistToStrWithUnits(LayerMapNavToMark.GetDistToMark, GState.num_format);
+     VPoint := GState.ViewState.GetCenterLonLat;
+     VDist := GState.ViewState.GetCurrentCoordConverter.CalcDist(LayerMapNavToMark.GetMarkLonLat, VPoint);
+     n_len:=DistToStrWithUnits(VDist, GState.num_format);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin
      TBXSensorLenToMark.Caption:='-';
