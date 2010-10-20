@@ -158,7 +158,7 @@ var
 begin
   FLock.BeginRead;
   try
-    VPointsToCopyCount := GState.GPS_NumTrackPoints;
+    VPointsToCopyCount := GState.GPSpar.GPS_NumTrackPoints;
     if FPointsCount <= VPointsToCopyCount then begin
       VPointsToCopyCount := FPointsCount;
       VStartIndex := 0;

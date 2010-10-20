@@ -359,7 +359,7 @@ begin
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
  GState.GPSpar.GPS_ArrowSize:=SESizeStr.Value;
- GState.GPS_TrackWidth:=SESizeTrack.Value;
+ GState.GPSpar.GPS_TrackWidth:=SESizeTrack.Value;
  GState.GPSpar.GPS_TimeOut:=SpinEdit2.Value;
  GState.GPS_WriteLog:=CB_GPSlog.Checked;
  GState.GPS_NMEALog:=CB_GPSlogNmea.Checked;
@@ -368,7 +368,7 @@ begin
  GState.GPSpar.GPS_COM:=ComboBoxCOM.Text;
  GState.GPSpar.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
- GState.GPS_NumTrackPoints:=SE_NumTrackPoints.Value;
+ GState.GPSpar.GPS_NumTrackPoints:=SE_NumTrackPoints.Value;
  if (chkUseIEProxy.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
  GState.InetConnect.userwinset:=chkUseIEProxy.Checked;
  GState.InetConnect.proxyused:=CBProxyused.Checked;
@@ -536,8 +536,8 @@ begin
  CB_GPSlogNmea.Checked:=GState.GPS_NMEALog;
  SpinEdit1.Value:=GState.GPSpar.GPS_Delay;
  SESizeStr.Value:=GState.GPSpar.GPS_ArrowSize;
- SESizeTrack.Value:=GState.GPS_TrackWidth;
- SE_NumTrackPoints.Value:=GState.GPS_NumTrackPoints;
+ SESizeTrack.Value:=GState.GPSpar.GPS_TrackWidth;
+ SE_NumTrackPoints.Value:=GState.GPSpar.GPS_NumTrackPoints;
  CBSensorsBarAutoShow.Checked:=GState.GPS_SensorsAutoShow;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  ComboBox2.ItemIndex:=byte(GState.Resampling);

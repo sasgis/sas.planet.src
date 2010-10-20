@@ -141,7 +141,7 @@ begin
               VPolygon.Add(FixedPoint(VPointPrev.X, VPointPrev.Y));
               VPolygon.Add(FixedPoint(VPointCurr.X, VPointCurr.Y));
               with VPolygon.Outline do try
-                with Grow(Fixed(GState.GPS_TrackWidth / 2), 0.5) do try
+                with Grow(Fixed(GState.GPSpar.GPS_TrackWidth / 2), 0.5) do try
                   DrawFill(FLayer.Bitmap, VSegmentColor);
                 finally
                   free;

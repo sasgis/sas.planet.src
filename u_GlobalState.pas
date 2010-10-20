@@ -109,16 +109,12 @@ type
 
     //Отображать GPS трек
     GPS_ShowPath: Boolean;
-    // Толщина отображемого GPS трека
-    GPS_TrackWidth: Integer;
     //Центрировать карту на GPS позиции
     GPS_MapMove: Boolean;
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
     //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
     GPS_LogFile: TextFile;
-    //Максимальное количество оотображаемых точек трека
-    GPS_NumTrackPoints: integer;
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
     //Писать лог NMEA
@@ -612,13 +608,11 @@ begin
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
   GPS_WriteLog:=MainIni.Readbool('GPS','log',true);
   GPS_NMEALog:=MainIni.Readbool('GPS','NMEAlog',false);
-  GPS_TrackWidth:=MainIni.ReadInteger('GPS','SizeTrack',5);
   GPS_ShowPath:=MainIni.ReadBool('GPS','path',true);
   GPS_MapMove:=MainIni.ReadBool('GPS','go',true);
   GPSpar.Odometr:=str2r(MainIni.ReadString('GPS','Odometr','0'));
   GPSpar.Odometr2:=str2r(MainIni.ReadString('GPS','Odometr2','0'));
   GPS_SensorsAutoShow:=MainIni.ReadBool('GPS','SensorsAutoShow',true);
-  GPS_NumTrackPoints:=MainIni.ReadInteger('GPS','NumShowTrackPoints',5000);
 
   GSMpar.Port:=MainIni.ReadString('GSM','port','COM1');
   GSMpar.BaudRate:=MainIni.ReadInteger('GSM','BaudRate',4800);
@@ -815,12 +809,10 @@ begin
   MainIni.WriteBool('GPS','go',GPS_MapMove);
   MainIni.WriteBool('GPS','log',GPS_WriteLog);
   MainIni.WriteBool('GPS','NMEALog',GPS_NMEALog);
-  MainIni.WriteInteger('GPS','SizeTrack',GPS_TrackWidth);
 
   MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
   MainIni.WriteFloat('GPS','Odometr2',GPSpar.Odometr2);
   MainIni.WriteBool('GPS','SensorsAutoShow',GPS_SensorsAutoShow);
-  MainIni.WriteInteger('GPS','NumShowTrackPoints',GPS_NumTrackPoints);
 
   MainIni.WriteString('GSM','port',GSMpar.Port);
   MainIni.WriteInteger('GSM','BaudRate',GSMpar.BaudRate);

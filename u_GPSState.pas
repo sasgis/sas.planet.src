@@ -37,6 +37,10 @@ type
     GPS_ArrowSize: Integer;
     //Цвет указателя направления при навигацци
     GPS_ArrowColor: TColor;
+    // Толщина отображемого GPS трека
+    GPS_TrackWidth: Integer;
+    //Максимальное количество оотображаемых точек трека
+    GPS_NumTrackPoints: integer;
 
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
@@ -86,11 +90,13 @@ begin
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
     GPS_COM := VConfigProvider.ReadString('com', 'COM0');
-    GPS_BaudRate := VConfigProvider.ReadInteger('BaudRate',4800);
-    GPS_TimeOut := VConfigProvider.ReadInteger('timeout',300);
-    GPS_Delay := VConfigProvider.ReadInteger('update',1000);
-    GPS_ArrowSize := VConfigProvider.ReadInteger('SizeStr',25);
-    GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr',clRed);
+    GPS_BaudRate := VConfigProvider.ReadInteger('BaudRate', 4800);
+    GPS_TimeOut := VConfigProvider.ReadInteger('timeout', 300);
+    GPS_Delay := VConfigProvider.ReadInteger('update', 1000);
+    GPS_ArrowSize := VConfigProvider.ReadInteger('SizeStr', 25);
+    GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr', clRed);
+    GPS_TrackWidth := VConfigProvider.ReadInteger('SizeTrack', 5);
+    GPS_NumTrackPoints := VConfigProvider.ReadInteger('NumShowTrackPoints', 5000);
   end else begin
     GPS_enab := False;
     GPS_COM := 'COM0';
@@ -99,6 +105,8 @@ begin
     GPS_Delay := 1000;
     GPS_ArrowSize := 25;
     GPS_ArrowColor := clRed;
+    GPS_TrackWidth := 5;
+    GPS_NumTrackPoints := 5000;
   end;
 end;
 
@@ -115,6 +123,8 @@ begin
   VConfigProvider.WriteInteger('update',GPS_Delay);
   VConfigProvider.WriteInteger('SizeStr',GPS_ArrowSize);
   VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
+  VConfigProvider.WriteInteger('SizeTrack',GPS_TrackWidth);
+  VConfigProvider.WriteInteger('NumShowTrackPoints',GPS_NumTrackPoints);
 end;
 
 procedure TGPSpar.SendTerminateToThreads;
