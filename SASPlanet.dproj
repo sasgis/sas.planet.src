@@ -68,6 +68,7 @@
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
+    <DCCReference Include="i_GPS.pas" />
     <DCCReference Include="i_IActiveMapsConfig.pas" />
     <DCCReference Include="i_IAntiBan.pas" />
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
@@ -290,7 +291,11 @@
     <DCCReference Include="u_GETexture.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
+    <DCCReference Include="u_GPSPositionStatic.pas" />
+    <DCCReference Include="u_GPSPositionUpdatable.pas" />
     <DCCReference Include="u_GPSRecorderStuped.pas" />
+    <DCCReference Include="u_GPSSatelliteInfo.pas" />
+    <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
