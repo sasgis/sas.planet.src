@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -78,6 +77,8 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitLeft = 38
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -174,7 +175,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 242
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -205,7 +206,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 369
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -217,7 +218,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 505
+      Left = 509
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -275,12 +276,19 @@ object Fmain: TFmain
           Hint = ''
         end
       end
-      object TBGPSToPoint: TTBXItem
+      object TBGPSToPoint: TTBXSubmenuItem
         AutoCheck = True
+        DropdownCombo = True
         ImageIndex = 1
         OnClick = TBGPSToPointClick
         Caption = ''
-        Hint = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091' '#1085#1072' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1093' '#1087#1077#1088#1077#1076#1072#1085#1085#1099#1093' GPS '#1087#1088#1080#1077#1084#1085#1080#1082#1086#1084
+        Hint = ''
+        object TBGPSToPointCenter: TTBXItem
+          AutoCheck = True
+          OnClick = TBGPSToPointCenterClick
+          Caption = #1058#1077#1082#1091#1097#1072#1103' '#1087#1086#1079#1080#1094#1080#1103' '#1074#1089#1077#1075#1076#1072' '#1074' '#1094#1077#1085#1090#1088#1077
+          Hint = ''
+        end
       end
       object TBControlItem3: TTBControlItem
         Control = Label1
@@ -288,7 +296,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 104
+        Left = 119
         Top = 8
         Width = 32
         Height = 13
@@ -940,7 +948,13 @@ object Fmain: TFmain
         object tbitmGPSCenterMap: TTBXItem
           AutoCheck = True
           OnClick = TBGPSToPointClick
-          Caption = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
+          Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1087#1077#1088#1077#1084#1077#1097#1072#1090#1100' '#1082#1072#1088#1090#1091
+          Hint = ''
+        end
+        object tbitmGPSToPointCenter: TTBXItem
+          AutoCheck = True
+          OnClick = TBGPSToPointCenterClick
+          Caption = #1058#1077#1082#1091#1097#1072#1103' '#1087#1086#1079#1080#1094#1080#1103' '#1074#1089#1077#1075#1076#1072' '#1074' '#1094#1077#1085#1090#1088#1077
           Hint = ''
         end
         object tbsprtGPS1: TTBXSeparatorItem

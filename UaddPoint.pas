@@ -32,8 +32,6 @@ type
     Badd: TButton;
     Button2: TButton;
     Bevel1: TBevel;
-    Bevel2: TBevel;
-    Bevel5: TBevel;
     CheckBox2: TCheckBox;
     ColorBox1: TColorBox;
     Label3: TLabel;
@@ -219,6 +217,7 @@ begin
   frLonLatPoint.Parent := pnlLonLat;
   frMarkDescription.Parent := pnlDescription;
   EditName.SetFocus;
+  DrawGrid1.Visible:=false;
 end;
 
 procedure TFaddPoint.SpeedButton1Click(Sender: TObject);
@@ -290,6 +289,7 @@ procedure TFaddPoint.Image1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
  DrawGrid1.Visible:=not(DrawGrid1.Visible);
+ if DrawGrid1.Visible then DrawGrid1.SetFocus;
 end;
 
 procedure TFaddPoint.RefreshTranslation;

@@ -105,6 +105,7 @@ type
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
 
+    GPS_MapMoveCentered:Boolean;
     GPSpar: TGPSpar;
 
     LastSelectionColor: TColor;
@@ -588,6 +589,7 @@ begin
   GammaN:=MainIni.Readinteger('COLOR_LEVELS','gamma',50);
   ContrastN:=MainIni.Readinteger('COLOR_LEVELS','contrast',0);
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
+  GPS_MapMoveCentered:=MainIni.ReadBool('GPS','goCentered',false);
 
   GSMpar.Port:=MainIni.ReadString('GSM','port','COM1');
   GSMpar.BaudRate:=MainIni.ReadInteger('GSM','BaudRate',4800);
@@ -780,6 +782,7 @@ begin
   MainIni.Writeinteger('COLOR_LEVELS','contrast',ContrastN);
   MainIni.WriteBool('COLOR_LEVELS','InvertColor',InvertColor);
 
+  MainIni.WriteBool('GPS','goCentered',GPS_MapMoveCentered);
   MainIni.WriteString('GSM','port',GSMpar.Port);
   MainIni.WriteInteger('GSM','BaudRate',GSMpar.BaudRate);
   MainIni.WriteBool('GSM','Auto',GSMpar.auto);

@@ -19,37 +19,17 @@ object FaddLine: TFaddLine
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Bevel2: TBevel
-    Left = 0
-    Top = 258
-    Width = 328
-    Height = 9
-    Align = alBottom
-    Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 240
-    ExplicitWidth = 329
-  end
-  object Bevel5: TBevel
-    Left = 0
-    Top = 290
-    Width = 328
-    Height = 9
-    Align = alBottom
-    Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 264
-    ExplicitWidth = 329
-  end
   object CheckBox2: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 270
+    Top = 279
     Width = 322
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
+    ExplicitLeft = -2
+    ExplicitTop = 291
   end
   object pnlCategory: TPanel
     Left = 0
@@ -95,10 +75,11 @@ object FaddLine: TFaddLine
       Left = 3
       Top = 3
       Width = 25
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = #1048#1084#1103':'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True
@@ -120,29 +101,36 @@ object FaddLine: TFaddLine
     Left = 0
     Top = 52
     Width = 328
-    Height = 178
+    Height = 194
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 178
   end
   object flwpnlStyle: TFlowPanel
     Left = 0
-    Top = 230
+    Top = 246
     Width = 328
-    Height = 28
+    Height = 30
     Align = alBottom
     AutoSize = True
+    BevelEdges = [beBottom]
+    BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitLeft = 3
+    ExplicitTop = 241
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 25
-      Height = 13
+      Height = 19
+      Align = alLeft
       Caption = #1062#1074#1077#1090
+      Layout = tlCenter
     end
     object ColorBox1: TColorBox
       AlignWithMargins = True
@@ -175,8 +163,9 @@ object FaddLine: TFaddLine
       Left = 101
       Top = 3
       Width = 39
-      Height = 13
+      Height = 19
       Caption = #1064#1080#1088#1080#1085#1072
+      Layout = tlCenter
     end
     object SpinEdit1: TSpinEdit
       AlignWithMargins = True
@@ -194,8 +183,9 @@ object FaddLine: TFaddLine
       Left = 193
       Top = 3
       Width = 83
-      Height = 13
+      Height = 19
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+      Layout = tlCenter
     end
     object SEtransp: TSpinEdit
       AlignWithMargins = True
@@ -215,6 +205,8 @@ object FaddLine: TFaddLine
     Width = 328
     Height = 31
     Align = alBottom
+    BevelEdges = [beTop]
+    BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
     object Badd: TButton
@@ -222,25 +214,27 @@ object FaddLine: TFaddLine
       Left = 173
       Top = 3
       Width = 73
-      Height = 25
+      Height = 23
       Align = alRight
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Default = True
       TabOrder = 0
       OnClick = BaddClick
+      ExplicitHeight = 25
     end
     object Button2: TButton
       AlignWithMargins = True
       Left = 252
       Top = 3
       Width = 73
-      Height = 25
+      Height = 23
       Hint = #1054#1090#1084#1077#1085#1080#1090#1100
       Align = alRight
       Cancel = True
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 1
+      ExplicitHeight = 25
     end
   end
   object OpenDialog1: TOpenDialog
