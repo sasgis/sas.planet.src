@@ -2408,7 +2408,7 @@ begin
    GPSReceiver.NMEALog:=GState.GPS_NMEALog;
    GPSReceiver.LogFile:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
      +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.nmea';
-   GPSReceiver.Delay:=GState.GPS_Delay;
+   GPSReceiver.Delay:=GState.GPSpar.GPS_Delay;
    GPSReceiver.ConnectionTimeout:=GState.GPSpar.GPS_TimeOut;
    GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPSpar.GPS_COM);
    if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(GState.GPSpar.GPS_BaudRate) then

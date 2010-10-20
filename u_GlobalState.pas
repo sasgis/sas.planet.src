@@ -107,8 +107,6 @@ type
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
 
-    // Интервал между точками от GPS
-    GPS_Delay: Integer;
     //Размер указателя направления при GPS-навигации
     GPS_ArrowSize: Integer;
     //Цвет указателя направления при навигацци
@@ -616,7 +614,6 @@ begin
   GammaN:=MainIni.Readinteger('COLOR_LEVELS','gamma',50);
   ContrastN:=MainIni.Readinteger('COLOR_LEVELS','contrast',0);
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
-  GPS_Delay:=MainIni.ReadInteger('GPS','update',1000);
   GPS_WriteLog:=MainIni.Readbool('GPS','log',true);
   GPS_NMEALog:=MainIni.Readbool('GPS','NMEAlog',false);
   GPS_ArrowSize:=MainIni.ReadInteger('GPS','SizeStr',25);
@@ -822,7 +819,6 @@ begin
 
   MainIni.WriteBool('GPS','path',GPS_ShowPath);
   MainIni.WriteBool('GPS','go',GPS_MapMove);
-  MainIni.Writeinteger('GPS','update',GPS_Delay);
   MainIni.WriteBool('GPS','log',GPS_WriteLog);
   MainIni.WriteBool('GPS','NMEALog',GPS_NMEALog);
   MainIni.WriteInteger('GPS','SizeStr',GPS_ArrowSize);

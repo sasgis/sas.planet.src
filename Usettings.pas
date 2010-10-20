@@ -363,7 +363,7 @@ begin
  GState.GPSpar.GPS_TimeOut:=SpinEdit2.Value;
  GState.GPS_WriteLog:=CB_GPSlog.Checked;
  GState.GPS_NMEALog:=CB_GPSlogNmea.Checked;
- GState.GPS_Delay:=SpinEdit1.Value;
+ GState.GPSpar.GPS_Delay:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
  GState.GPSpar.GPS_COM:=ComboBoxCOM.Text;
  GState.GPSpar.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
@@ -534,7 +534,7 @@ begin
  SpinEdit2.Value:=GState.GPSpar.GPS_TimeOut;
  CB_GPSlog.Checked:=GState.GPS_WriteLog;
  CB_GPSlogNmea.Checked:=GState.GPS_NMEALog;
- SpinEdit1.Value:=GState.GPS_Delay;
+ SpinEdit1.Value:=GState.GPSpar.GPS_Delay;
  SESizeStr.Value:=GState.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPS_TrackWidth;
  SE_NumTrackPoints.Value:=GState.GPS_NumTrackPoints;

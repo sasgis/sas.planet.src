@@ -30,6 +30,8 @@ type
     GPS_BaudRate: Integer;
     // Максимальное время ожидания данных от GPS
     GPS_TimeOut: integer;
+    // Интервал между точками от GPS
+    GPS_Delay: Integer;
 
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
@@ -81,11 +83,13 @@ begin
     GPS_COM := VConfigProvider.ReadString('com', 'COM0');
     GPS_BaudRate := VConfigProvider.ReadInteger('BaudRate',4800);
     GPS_TimeOut := VConfigProvider.ReadInteger('timeout',300);
+    GPS_Delay := VConfigProvider.ReadInteger('update',1000);
   end else begin
     GPS_enab := False;
     GPS_COM := 'COM0';
     GPS_BaudRate := 4800;
     GPS_TimeOut := 300;
+    GPS_Delay := 1000;
   end;
 end;
 
@@ -99,7 +103,8 @@ begin
   VConfigProvider.WriteString('COM', GPS_COM);
   VConfigProvider.WriteInteger('BaudRate',GPS_BaudRate);
   // Нет сохранения GPS_TimeOut
-  
+  VConfigProvider.WriteInteger('update',GPS_Delay);
+
 end;
 
 procedure TGPSpar.SendTerminateToThreads;
