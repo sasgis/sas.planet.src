@@ -186,7 +186,7 @@ type
     NView: TTBXSubmenuItem;
     NSources: TTBXSubmenuItem;
     NMarks: TTBXSubmenuItem;
-    NGPS: TTBXSubmenuItem;
+    tbsbmGPS: TTBXSubmenuItem;
     NParams: TTBXSubmenuItem;
     NLayerParams: TTBXSubmenuItem;
     NHelp: TTBXSubmenuItem;
@@ -274,12 +274,12 @@ type
     TBLang: TTBXSubmenuItem;
     TBXLangRus: TTBXItem;
     TBXLangEng: TTBXItem;
-    NGPSconn: TTBXItem;
-    NGPSPath: TTBXItem;
-    NGPSToPoint: TTBXItem;
-    NSaveTreck: TTBXItem;
-    N36: TTBXItem;
-    N39: TTBXItem;
+    tbitmGPSConnect: TTBXItem;
+    tbitmGPSTrackShow: TTBXItem;
+    tbitmGPSCenterMap: TTBXItem;
+    tbitmGPSTrackSave: TTBXItem;
+    tbitmGPSTrackSaveToDb: TTBXItem;
+    tbitmGPSTrackClear: TTBXItem;
     NMainToolBarShow: TTBXItem;
     NZoomToolBarShow: TTBXItem;
     NsrcToolBarShow: TTBXItem;
@@ -307,7 +307,7 @@ type
     TBXSeparatorItem10: TTBXSeparatorItem;
     TBXSeparatorItem11: TTBXSeparatorItem;
     TBXSeparatorItem12: TTBXSeparatorItem;
-    TBXSeparatorItem13: TTBXSeparatorItem;
+    tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
     EditCommentsImgs: TImageList;
@@ -375,8 +375,8 @@ type
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
     NToolBarSearch: TTBXItem;
-    TBXSeparatorItem18: TTBXSeparatorItem;
-    TBXItem7: TTBXItem;
+    tbsprtGPS2: TTBXSeparatorItem;
+    tbitmPositionByGSM: TTBXItem;
     TBXItem6: TTBXItem;
     OpenSessionDialog: TOpenDialog;
     NShowSelection: TTBXItem;
@@ -519,7 +519,7 @@ type
     procedure TBXSelectYandexSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
-    procedure TBXItem7Click(Sender: TObject);
+    procedure tbitmPositionByGSMClick(Sender: TObject);
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
@@ -1611,9 +1611,9 @@ begin
     TBGPSconn.Checked := GState.GPS_enab;
     if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
     TBGPSPath.Checked:=GState.GPS_ShowPath;
-    NGPSPath.Checked:=GState.GPS_ShowPath;
+    tbitmGPSTrackShow.Checked:=GState.GPS_ShowPath;
     TBGPSToPoint.Checked:=GState.GPS_MapMove;
-    NGPSToPoint.Checked:=GState.GPS_MapMove;
+    tbitmGPSCenterMap.Checked:=GState.GPS_MapMove;
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
     Nanimate.Checked:=GState.AnimateZoom;
@@ -2398,10 +2398,10 @@ end;
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
  try
- NGPSconn.Checked:=TTBXitem(sender).Checked;
- TBGPSconn.Checked:=TTBXitem(sender).Checked;
- FLayerMapGPS.Visible:=NGPSconn.Checked;
- GState.GPS_enab := TBGPSconn.Checked;
+ tbitmGPSConnect.Checked:=TTBXitem(sender).Checked;
+ TBGPSconn.Checked:=tbitmGPSConnect.Checked;
+ FLayerMapGPS.Visible:=tbitmGPSConnect.Checked;
+ GState.GPS_enab := tbitmGPSConnect.Checked;
  if GState.GPS_enab then
   begin
    GPSReceiver.NMEALog:=GState.GPS_NMEALog;
@@ -2427,14 +2427,14 @@ end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
- NGPSPath.Checked:=TTBXitem(sender).Checked;
+ tbitmGPSTrackShow.Checked:=TTBXitem(sender).Checked;
  TBGPSPath.Checked:=TTBXitem(sender).Checked;
  GState.GPS_ShowPath:=TBGPSPath.Checked;
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
 begin
- NGPSToPoint.Checked:=TTBXitem(sender).Checked;
+ tbitmGPSCenterMap.Checked:=TTBXitem(sender).Checked;
  TBGPSToPoint.Checked:=TTBXitem(sender).Checked;
  GState.GPS_MapMove:=TBGPSToPoint.Checked;
 end;
@@ -2899,7 +2899,7 @@ begin
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
  GState.GPS_enab:=false;
  FLayerMapGPS.Visible:=false;
- NGPSconn.Checked:=false;
+ tbitmGPSConnect.Checked:=false;
  TBGPSconn.Checked:=false;
  except
  end;
@@ -4060,7 +4060,7 @@ begin
  end;
 end;
 
-procedure TFmain.TBXItem7Click(Sender: TObject);
+procedure TFmain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGPS:TPosFromGPS;
 begin

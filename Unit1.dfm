@@ -919,35 +919,35 @@ object Fmain: TFmain
           Hint = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
         end
       end
-      object NGPS: TTBXSubmenuItem
+      object tbsbmGPS: TTBXSubmenuItem
         SubMenuImages = TBImageList1
         Caption = 'GPS'
         Hint = ''
-        object NGPSconn: TTBXItem
+        object tbitmGPSConnect: TTBXItem
           AutoCheck = True
           ShortCut = 49223
           OnClick = TBGPSconnClick
           Caption = #1055#1086#1076#1082#1083#1102#1095#1080#1090#1100' '#1087#1088#1080#1077#1084#1085#1080#1082
           Hint = ''
         end
-        object NGPSPath: TTBXItem
+        object tbitmGPSTrackShow: TTBXItem
           AutoCheck = True
           ShortCut = 49236
           OnClick = TBGPSPathClick
           Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1090#1088#1077#1082
           Hint = ''
         end
-        object NGPSToPoint: TTBXItem
+        object tbitmGPSCenterMap: TTBXItem
           AutoCheck = True
           OnClick = TBGPSToPointClick
           Caption = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
           Hint = ''
         end
-        object TBXSeparatorItem13: TTBXSeparatorItem
+        object tbsprtGPS1: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
-        object NSaveTreck: TTBXItem
+        object tbitmGPSTrackSave: TTBXItem
           ImageIndex = 18
           Images = TBImageList1
           ShortCut = 49235
@@ -955,26 +955,26 @@ object Fmain: TFmain
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1088#1077#1082
           Hint = ''
         end
-        object N36: TTBXItem
+        object tbitmGPSTrackSaveToDb: TTBXItem
           ImageIndex = 18
           Images = TBImageList1
           OnClick = TBItem5Click
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1088#1077#1082' '#1074' '#1073#1072#1079#1077
           Hint = ''
         end
-        object N39: TTBXItem
+        object tbitmGPSTrackClear: TTBXItem
           ImageIndex = 11
           Images = TBImageList1
           OnClick = TBItemDelTrackClick
           Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1088#1077#1082
           Hint = ''
         end
-        object TBXSeparatorItem18: TTBXSeparatorItem
+        object tbsprtGPS2: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
-        object TBXItem7: TTBXItem
-          OnClick = TBXItem7Click
+        object tbitmPositionByGSM: TTBXItem
+          OnClick = tbitmPositionByGSMClick
           Caption = #1054#1087#1088#1077#1076#1077#1083#1080#1090#1100' '#1087#1086#1079#1080#1094#1080#1102' '#1087#1086' '#1073#1072#1079#1086#1074#1099#1084' '#1089#1090#1072#1085#1094#1080#1103#1084' '#1089#1086#1090#1086#1074#1086#1081' '#1089#1077#1090#1080
           Hint = ''
         end
@@ -1071,9 +1071,9 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 424
+      Left = 430
       Top = 0
-      DockPos = 424
+      DockPos = 430
       Stretch = True
       TabOrder = 6
       Visible = False
