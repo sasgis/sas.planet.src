@@ -344,7 +344,7 @@ begin
  GState.FirstLat:=ChBoxFirstLat.Checked;
  GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
  GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
- GState.GPS_ArrowColor:=ColorBoxGPSstr.selected;
+ GState.GPSpar.GPS_ArrowColor:=ColorBoxGPSstr.selected;
  GState.InvertColor:=CBinvertcolor.Checked;
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
@@ -358,7 +358,7 @@ begin
  GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
- GState.GPS_ArrowSize:=SESizeStr.Value;
+ GState.GPSpar.GPS_ArrowSize:=SESizeStr.Value;
  GState.GPS_TrackWidth:=SESizeTrack.Value;
  GState.GPSpar.GPS_TimeOut:=SpinEdit2.Value;
  GState.GPS_WriteLog:=CB_GPSlog.Checked;
@@ -518,7 +518,7 @@ begin
  EditIP.Text:=GState.InetConnect.proxystr;
  EditLogin.Text:=GState.InetConnect.loginstr;
  EditPass.Text:=GState.InetConnect.passstr;
- ColorBoxGPSstr.Selected:=GState.GPS_ArrowColor;
+ ColorBoxGPSstr.Selected:=GState.GPSpar.GPS_ArrowColor;
  CBinvertcolor.Checked:=GState.InvertColor;
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
@@ -535,7 +535,7 @@ begin
  CB_GPSlog.Checked:=GState.GPS_WriteLog;
  CB_GPSlogNmea.Checked:=GState.GPS_NMEALog;
  SpinEdit1.Value:=GState.GPSpar.GPS_Delay;
- SESizeStr.Value:=GState.GPS_ArrowSize;
+ SESizeStr.Value:=GState.GPSpar.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPS_TrackWidth;
  SE_NumTrackPoints.Value:=GState.GPS_NumTrackPoints;
  CBSensorsBarAutoShow.Checked:=GState.GPS_SensorsAutoShow;

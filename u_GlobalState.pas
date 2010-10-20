@@ -107,10 +107,6 @@ type
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
 
-    //Размер указателя направления при GPS-навигации
-    GPS_ArrowSize: Integer;
-    //Цвет указателя направления при навигацци
-    GPS_ArrowColor: TColor;
     //Отображать GPS трек
     GPS_ShowPath: Boolean;
     // Толщина отображемого GPS трека
@@ -616,9 +612,7 @@ begin
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
   GPS_WriteLog:=MainIni.Readbool('GPS','log',true);
   GPS_NMEALog:=MainIni.Readbool('GPS','NMEAlog',false);
-  GPS_ArrowSize:=MainIni.ReadInteger('GPS','SizeStr',25);
   GPS_TrackWidth:=MainIni.ReadInteger('GPS','SizeTrack',5);
-  GPS_ArrowColor:=MainIni.ReadInteger('GPS','ColorStr',clRed);
   GPS_ShowPath:=MainIni.ReadBool('GPS','path',true);
   GPS_MapMove:=MainIni.ReadBool('GPS','go',true);
   GPSpar.Odometr:=str2r(MainIni.ReadString('GPS','Odometr','0'));
@@ -821,9 +815,7 @@ begin
   MainIni.WriteBool('GPS','go',GPS_MapMove);
   MainIni.WriteBool('GPS','log',GPS_WriteLog);
   MainIni.WriteBool('GPS','NMEALog',GPS_NMEALog);
-  MainIni.WriteInteger('GPS','SizeStr',GPS_ArrowSize);
   MainIni.WriteInteger('GPS','SizeTrack',GPS_TrackWidth);
-  MainIni.WriteInteger('GPS','ColorStr',GPS_ArrowColor);
 
   MainIni.WriteFloat('GPS','Odometr',GPSpar.Odometr);
   MainIni.WriteFloat('GPS','Odometr2',GPSpar.Odometr2);

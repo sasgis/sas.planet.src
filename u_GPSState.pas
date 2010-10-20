@@ -3,6 +3,7 @@ unit u_GPSState;
 interface
 
 uses
+  Graphics,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider;
 
@@ -32,6 +33,10 @@ type
     GPS_TimeOut: integer;
     // Интервал между точками от GPS
     GPS_Delay: Integer;
+    //Размер указателя направления при GPS-навигации
+    GPS_ArrowSize: Integer;
+    //Цвет указателя направления при навигацци
+    GPS_ArrowColor: TColor;
 
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
@@ -84,12 +89,16 @@ begin
     GPS_BaudRate := VConfigProvider.ReadInteger('BaudRate',4800);
     GPS_TimeOut := VConfigProvider.ReadInteger('timeout',300);
     GPS_Delay := VConfigProvider.ReadInteger('update',1000);
+    GPS_ArrowSize := VConfigProvider.ReadInteger('SizeStr',25);
+    GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr',clRed);
   end else begin
     GPS_enab := False;
     GPS_COM := 'COM0';
     GPS_BaudRate := 4800;
     GPS_TimeOut := 300;
     GPS_Delay := 1000;
+    GPS_ArrowSize := 25;
+    GPS_ArrowColor := clRed;
   end;
 end;
 
@@ -104,7 +113,8 @@ begin
   VConfigProvider.WriteInteger('BaudRate',GPS_BaudRate);
   // Нет сохранения GPS_TimeOut
   VConfigProvider.WriteInteger('update',GPS_Delay);
-
+  VConfigProvider.WriteInteger('SizeStr',GPS_ArrowSize);
+  VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
 end;
 
 procedure TGPSpar.SendTerminateToThreads;

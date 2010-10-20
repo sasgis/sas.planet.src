@@ -51,7 +51,7 @@ begin
       ke := MapPixel2BitmapPixel(ke);
       ks := FGeoConvert.LonLat2PixelPosFloat(VPreLastPoint, FZoom);
       ks := MapPixel2BitmapPixel(ks);
-      VArrowSize := GState.GPS_ArrowSize;
+      VArrowSize := GState.GPSpar.GPS_ArrowSize;
       D := Sqrt(Sqr(ks.X - ke.X) + Sqr(ks.Y - ke.Y));
       if D > 0.01 then begin
         R := D / 2 - (VArrowSize div 2);
@@ -84,7 +84,7 @@ begin
             Angle := Angle + Pi;
           end;
           VPolygonArrow.Add(FixedPoint(round(ke.X) + Round(VArrowSize * Cos(Angle)), round(ke.Y) + Round(VArrowSize * Sin(Angle))));
-          VPolygonArrow.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPS_ArrowColor), 150));
+          VPolygonArrow.DrawFill(FLayer.Bitmap, SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 150));
           VIsArrow := true;
         finally
           VPolygonArrow.Free;
@@ -95,7 +95,7 @@ begin
     if not VIsArrow then begin
       k1 := FGeoConvert.LonLat2PixelPos(VLastPoint, FZoom);
       k1 := MapPixel2BitmapPixel(k1);
-      SizeTrackd2 := GState.GPS_ArrowSize div 6;
+      SizeTrackd2 := GState.GPSpar.GPS_ArrowSize div 6;
       VMarkRect := Bounds(k1.x - SizeTrackd2, k1.y - SizeTrackd2, SizeTrackd2, SizeTrackd2);
       FLayer.Bitmap.FillRectS(VMarkRect, SetAlpha(clRed32, 200));
     end;
