@@ -83,6 +83,7 @@ uses
   Ugeofun in 'Ugeofun.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',
+  u_GPSState in 'u_GPSState.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   u_KmlInfoSimple in 'u_KmlInfoSimple.pas',
   i_IKmlInfoSimpleLoader in 'i_IKmlInfoSimpleLoader.pas',

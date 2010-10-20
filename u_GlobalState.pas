@@ -27,6 +27,7 @@ uses
   Uimgfun,
   UMapType,
   u_MemFileCache,
+  u_GPSState,
   u_GlobalCahceConfig;
 
 type

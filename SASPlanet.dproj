@@ -291,6 +291,7 @@
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GPSRecorderStuped.pas" />
+    <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
