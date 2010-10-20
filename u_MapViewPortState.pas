@@ -167,7 +167,7 @@ var
   VPosChanged: Boolean;
 begin
   VPosChanged := false;
-  FSync.BeginWrite;
+    FSync.BeginWrite;
   try
     if FWriteLocked then begin
       try
@@ -573,7 +573,17 @@ end;
 
 procedure TMapViewPortState.UnLockWrite;
 begin
-  FSync.EndWrite;
+  FSync.BeginWrite;
+  try
+    if FWriteLocked then begin
+      FWriteLocked := False;
+      FSync.EndWrite;
+    end else begin
+      raise Exception.Create('Настройки состояния не были заблокированы');
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 procedure TMapViewPortState.ChangeMapPixelByDelta(ADelta: TPoint);
