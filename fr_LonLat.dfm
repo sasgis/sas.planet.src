@@ -1,26 +1,27 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 288
+  Height = 63
   VertScrollBar.Visible = False
   Align = alClient
   TabOrder = 0
+  ExplicitWidth = 451
+  ExplicitHeight = 304
   object grdpnlMain: TGridPanel
     Left = 0
     Top = 0
-    Width = 451
-    Height = 304
+    Width = 288
+    Height = 63
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
     ColumnCollection = <
       item
-        Value = 100.000000000000000000
+        Value = 24.242619197679670000
       end
       item
-        SizeStyle = ssAuto
-        Value = 68.322981366459650000
+        Value = 75.757380802320350000
       end>
     ControlCollection = <
       item
@@ -51,15 +52,17 @@ object frLonLat: TfrLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 0
+    ExplicitWidth = 451
+    ExplicitHeight = 304
     DesignSize = (
-      451
-      304)
+      288
+      63)
     object lblLat: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
-      Width = 262
-      Height = 143
+      Width = 62
+      Height = 22
       Align = alClient
       Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
@@ -72,24 +75,22 @@ object frLonLat: TfrLonLat
       ParentColor = False
       ParentFont = False
       Layout = tlCenter
-      ExplicitLeft = 49
-      ExplicitTop = 3
+      ExplicitLeft = 181
       ExplicitWidth = 41
       ExplicitHeight = 13
     end
     object flwpnlLat: TFlowPanel
-      Left = 271
-      Top = 67
-      Width = 177
+      Left = 71
+      Top = 6
+      Width = 214
       Height = 21
-      Anchors = []
-      AutoSize = True
+      Anchors = [akLeft]
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 272
+      ExplicitTop = 50
       DesignSize = (
-        177
+        214
         21)
       object cbbLatNS: TComboBox
         Left = 0
@@ -174,9 +175,9 @@ object frLonLat: TfrLonLat
     object lblLon: TLabel
       AlignWithMargins = True
       Left = 6
-      Top = 155
-      Width = 262
-      Height = 143
+      Top = 34
+      Width = 62
+      Height = 23
       Align = alClient
       Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
@@ -189,20 +190,21 @@ object frLonLat: TfrLonLat
       ParentColor = False
       ParentFont = False
       Layout = tlCenter
-      ExplicitLeft = 225
+      ExplicitLeft = 176
+      ExplicitTop = 155
       ExplicitWidth = 46
       ExplicitHeight = 13
     end
     object flwpnlLon: TFlowPanel
-      Left = 271
-      Top = 216
-      Width = 177
+      Left = 71
+      Top = 35
+      Width = 214
       Height = 21
-      Anchors = []
-      AutoSize = True
+      Anchors = [akLeft]
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 178
       object cbbLonWE: TComboBox
         Left = 0
         Top = 0

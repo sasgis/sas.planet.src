@@ -138,6 +138,7 @@ object FaddPoint: TFaddPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
+    ExplicitTop = 249
     DesignSize = (
       314
       113)
@@ -176,15 +177,17 @@ object FaddPoint: TFaddPoint
         314
         41)
       object flwpnlTextColor: TFlowPanel
-        Left = 11
-        Top = 6
-        Width = 135
-        Height = 28
+        Left = 14
+        Top = 9
+        Width = 128
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 11
+        ExplicitTop = 6
         object Label3: TLabel
           AlignWithMargins = True
           Left = 3
@@ -195,9 +198,8 @@ object FaddPoint: TFaddPoint
           Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
         end
         object ColorBox1: TColorBox
-          AlignWithMargins = True
-          Left = 71
-          Top = 3
+          Left = 68
+          Top = 0
           Width = 38
           Height = 22
           Selected = clYellow
@@ -212,25 +214,26 @@ object FaddPoint: TFaddPoint
           TabOrder = 0
         end
         object SpeedButton1: TSpeedButton
-          AlignWithMargins = True
-          Left = 115
-          Top = 3
-          Width = 17
+          Left = 106
+          Top = 0
+          Width = 22
           Height = 22
           Caption = '...'
           OnClick = SpeedButton1Click
         end
       end
       object flwpnlFontSize: TFlowPanel
-        Left = 168
-        Top = 6
-        Width = 134
-        Height = 28
+        Left = 171
+        Top = 9
+        Width = 128
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 168
+        ExplicitTop = 6
         object Label5: TLabel
           AlignWithMargins = True
           Left = 3
@@ -241,9 +244,8 @@ object FaddPoint: TFaddPoint
           Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
         end
         object SpinEdit1: TSpinEdit
-          AlignWithMargins = True
-          Left = 90
-          Top = 3
+          Left = 87
+          Top = 0
           Width = 41
           Height = 22
           MaxValue = 24
@@ -255,9 +257,9 @@ object FaddPoint: TFaddPoint
     end
     object grdpnlLine2: TGridPanel
       Left = 0
-      Top = 41
+      Top = 44
       Width = 314
-      Height = 41
+      Height = 38
       Align = alBottom
       Anchors = []
       BevelOuter = bvNone
@@ -284,19 +286,22 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 1
+      ExplicitTop = 43
       DesignSize = (
         314
-        41)
+        38)
       object flwpnlShadowColor: TFlowPanel
-        Left = 16
-        Top = 6
-        Width = 124
-        Height = 28
+        Left = 22
+        Top = 8
+        Width = 112
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 19
+        ExplicitTop = 6
         object Label4: TLabel
           AlignWithMargins = True
           Left = 3
@@ -307,9 +312,8 @@ object FaddPoint: TFaddPoint
           Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
         end
         object ColorBox2: TColorBox
-          AlignWithMargins = True
-          Left = 60
-          Top = 3
+          Left = 57
+          Top = 0
           Width = 38
           Height = 22
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
@@ -323,9 +327,8 @@ object FaddPoint: TFaddPoint
           TabOrder = 0
         end
         object SpeedButton2: TSpeedButton
-          AlignWithMargins = True
-          Left = 104
-          Top = 3
+          Left = 95
+          Top = 0
           Width = 17
           Height = 22
           Caption = '...'
@@ -333,15 +336,17 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlIconSize: TFlowPanel
-        Left = 170
-        Top = 6
-        Width = 131
-        Height = 28
+        Left = 173
+        Top = 8
+        Width = 125
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 170
+        ExplicitTop = 6
         object Label6: TLabel
           AlignWithMargins = True
           Left = 3
@@ -352,9 +357,8 @@ object FaddPoint: TFaddPoint
           Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
         end
         object SpinEdit2: TSpinEdit
-          AlignWithMargins = True
-          Left = 87
-          Top = 3
+          Left = 84
+          Top = 0
           Width = 41
           Height = 22
           MaxValue = 64
@@ -365,15 +369,17 @@ object FaddPoint: TFaddPoint
       end
     end
     object flwpnlTrahsparent: TFlowPanel
-      Left = 89
+      Left = 92
       Top = 82
-      Width = 136
-      Height = 28
+      Width = 130
+      Height = 22
       Anchors = []
       AutoSize = True
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitLeft = 95
+      ExplicitTop = 85
       object Label7: TLabel
         AlignWithMargins = True
         Left = 3
@@ -384,9 +390,8 @@ object FaddPoint: TFaddPoint
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
       end
       object SEtransp: TSpinEdit
-        AlignWithMargins = True
-        Left = 92
-        Top = 3
+        Left = 89
+        Top = 0
         Width = 41
         Height = 22
         MaxValue = 100
@@ -523,8 +528,8 @@ object FaddPoint: TFaddPoint
     end
   end
   object DrawGrid1: TDrawGrid
-    Left = 3
-    Top = 58
+    Left = 238
+    Top = 59
     Width = 310
     Height = 185
     ColCount = 8
