@@ -20,7 +20,7 @@ uses
 type
   TfrTilesDownload = class(TFrame)
     lblZoom: TLabel;
-    lblStat: TLabel;
+    lblTilesNumber: TLabel;
     chkReplace: TCheckBox;
     chkReplaceIfDifSize: TCheckBox;
     chkReplaceOlder: TCheckBox;
