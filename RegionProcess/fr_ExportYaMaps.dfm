@@ -23,22 +23,29 @@ object frExportYaMaps: TfrExportYaMaps
       BorderWidth = 3
       TabOrder = 0
       object lblZooms: TLabel
+        AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 57
+        Width = 85
         Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
         Layout = tlCenter
+        ExplicitWidth = 57
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 16
+        Top = 19
         Width = 85
-        Height = 258
+        Height = 255
         Align = alClient
         ItemHeight = 13
         TabOrder = 0
+        ExplicitTop = 16
+        ExplicitHeight = 258
       end
     end
     object pnlMapsSelect: TPanel
@@ -185,7 +192,7 @@ object frExportYaMaps: TfrExportYaMaps
           Left = 240
           Top = 20
           Width = 40
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 9
           MinValue = 0
@@ -196,7 +203,7 @@ object frExportYaMaps: TfrExportYaMaps
           Left = 240
           Top = 41
           Width = 40
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 100
           MinValue = 1
@@ -211,7 +218,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 2
         end
         object cbbMap: TComboBox
@@ -222,7 +229,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 3
         end
         object cbbSat: TComboBox
@@ -233,7 +240,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Style = csDropDownList
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 4
         end
         object lblSatCompress: TLabel
@@ -323,21 +330,28 @@ object frExportYaMaps: TfrExportYaMaps
     BorderWidth = 3
     TabOrder = 1
     object lblTargetPath: TLabel
+      AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 86
-      Height = 13
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
-      Left = 89
+      Left = 92
       Top = 3
-      Width = 338
+      Width = 335
       Height = 21
       Align = alClient
       TabOrder = 0
+      ExplicitLeft = 89
+      ExplicitWidth = 338
     end
     object btnSelectTargetPath: TButton
       Left = 427

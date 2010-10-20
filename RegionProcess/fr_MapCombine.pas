@@ -30,14 +30,12 @@ type
     cbbOutputFormat: TComboBox;
     lblOutputFormat: TLabel;
     dlgSaveTargetFile: TSaveDialog;
-    lblStat: TLabel;
     pnlRight: TPanel;
     grpSplit: TGroupBox;
     lblSplitHor: TLabel;
     lblSplitVert: TLabel;
     seSplitHor: TSpinEdit;
     seSplitVert: TSpinEdit;
-    Bevel1: TBevel;
     Panel1: TPanel;
     Panel2: TPanel;
     lblMap: TLabel;
@@ -52,10 +50,11 @@ type
     chkUseRecolor: TCheckBox;
     flwpnlJpegQuality: TFlowPanel;
     lblJpgQulity: TLabel;
-    seJpgQuality: TSpinEdit;
     Panel4: TPanel;
     lblPrTypes: TLabel;
     chklstPrTypes: TCheckListBox;
+    seJpgQuality: TSpinEdit;
+    lblStat: TLabel;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
@@ -190,6 +189,7 @@ begin
     GState.MapCalibrationList.Unlock;
   end;
   cbbOutputFormatChange(cbbOutputFormat);
+  cbbZoomChange(nil);
 end;
 
 procedure TfrMapCombine.RefreshTranslation;

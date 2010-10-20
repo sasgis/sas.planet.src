@@ -69,7 +69,7 @@ ResourceString
   SAS_STR_Speed = 'Скорость';
   SAS_STR_LenPath = 'Длина пути';
   SAS_STR_LenToMark = 'Расстояние до метки';
-  SAS_STR_filesnum = 'Количество файлов не более';
+  SAS_STR_filesnum = 'Количество файлов';
   SAS_STR_activescale = 'Активный масштаб';
   SAS_STR_for = 'Для';
   SAS_STR_savetreck = 'Сохранение трека...';

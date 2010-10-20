@@ -145,8 +145,11 @@ object frmGoTo: TfrmGoTo
     Width = 276
     Height = 31
     Align = alBottom
+    AutoSize = True
     BevelOuter = bvNone
     TabOrder = 7
+    ExplicitLeft = 3
+    ExplicitTop = 177
     object Label9: TLabel
       AlignWithMargins = True
       Left = 3
@@ -154,6 +157,7 @@ object frmGoTo: TfrmGoTo
       Width = 57
       Height = 25
       Align = alLeft
+      Alignment = taRightJustify
       Caption = #1052#1072#1089#1096#1090#1072#1073': x'
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clBlack
@@ -162,7 +166,7 @@ object frmGoTo: TfrmGoTo
       Font.Style = []
       ParentFont = False
       Layout = tlCenter
-      ExplicitHeight = 13
+      ExplicitHeight = 21
     end
     object CBzoom: TComboBox
       AlignWithMargins = True
@@ -200,6 +204,7 @@ object frmGoTo: TfrmGoTo
         '22'
         '23'
         '24')
+      ExplicitLeft = 104
     end
     object btnCancel: TButton
       AlignWithMargins = True
