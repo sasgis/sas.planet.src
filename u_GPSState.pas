@@ -2,6 +2,10 @@ unit u_GPSState;
 
 interface
 
+uses
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider;
+
 type
   TGPSpar = class
   public
@@ -18,6 +22,13 @@ type
     Odometr2: extended;
     SignalStrength: extended;
     SatCount: integer;
+
+    GPS_enab: Boolean;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
+    procedure StartThreads; virtual;
+    procedure SendTerminateToThreads; virtual;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
+
     function GetSatActive(pcode:integer;NMEA:string):boolean;
   end;
 
@@ -51,6 +62,37 @@ begin
   end else begin
     result:=false;
   end;
+end;
+
+procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+begin
+  VConfigProvider := AConfigProvider.GetSubItem('GPS');
+  if VConfigProvider <> nil then begin
+    GPS_enab := VConfigProvider.ReadBool('enbl', false);
+  end else begin
+    GPS_enab := False;
+  end;
+end;
+
+procedure TGPSpar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VSubItem: IConfigDataWriteProvider;
+begin
+  inherited;
+  VSubItem := AConfigProvider.GetOrCreateSubItem('GPS');
+  VSubItem.WriteBool('enbl', GPS_enab);
+end;
+
+procedure TGPSpar.SendTerminateToThreads;
+begin
+  // Пока ничего не делаем
+end;
+
+procedure TGPSpar.StartThreads;
+begin
+  // Пока ничего не делаем
 end;
 
 end.

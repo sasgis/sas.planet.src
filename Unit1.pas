@@ -1313,7 +1313,7 @@ begin
       end;
     end;
 
-    if GState.GPS_enab then begin
+    if GState.GPSpar.GPS_enab then begin
        FLayerMapGPS.Redraw;
        UpdateGPSsensors;
     end;
@@ -1608,8 +1608,8 @@ begin
     NGShScale0.Checked := GState.GShScale = 0;
 
     Ninvertcolor.Checked:=GState.InvertColor;
-    TBGPSconn.Checked := GState.GPS_enab;
-    if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
+    TBGPSconn.Checked := GState.GPSpar.GPS_enab;
+    if GState.GPSpar.GPS_enab then TBGPSconnClick(TBGPSconn);
     TBGPSPath.Checked:=GState.GPS_ShowPath;
     tbitmGPSTrackShow.Checked:=GState.GPS_ShowPath;
     TBGPSToPoint.Checked:=GState.GPS_MapMove;
@@ -2402,8 +2402,8 @@ begin
  tbitmGPSConnect.Checked:=TTBXitem(sender).Checked;
  TBGPSconn.Checked:=tbitmGPSConnect.Checked;
  FLayerMapGPS.Visible:=tbitmGPSConnect.Checked;
- GState.GPS_enab := tbitmGPSConnect.Checked;
- if GState.GPS_enab then
+ GState.GPSpar.GPS_enab := tbitmGPSConnect.Checked;
+ if GState.GPSpar.GPS_enab then
   begin
    GPSReceiver.NMEALog:=GState.GPS_NMEALog;
    GPSReceiver.LogFile:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
@@ -2898,7 +2898,7 @@ begin
  try
  if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
  if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
- GState.GPS_enab:=false;
+ GState.GPSpar.GPS_enab:=false;
  FLayerMapGPS.Visible:=false;
  tbitmGPSConnect.Checked:=false;
  TBGPSconn.Checked:=false;
@@ -3233,7 +3233,7 @@ begin
      PrepareSelectionRect(Shift, VSelectionRect);
      FLayerMapNal.DrawSelectionRect(VSelectionRect);
    end;
-   if GState.GPS_enab then begin
+   if GState.GPSpar.GPS_enab then begin
      FLayerMapGPS.Redraw;
      UpdateGPSsensors;
    end;
@@ -4037,7 +4037,7 @@ end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
-  if GState.GPS_enab then begin
+  if GState.GPSpar.GPS_enab then begin
     if AddNewPointModal(GState.GPSRecorder.GetLastPoint) then begin
       setalloperationfalse(ao_movemap);
       generate_im;

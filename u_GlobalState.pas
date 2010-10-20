@@ -107,8 +107,6 @@ type
     // Способ ресамплинга картинки
     Resampling: TTileResamplingType;
 
-    GPS_enab: Boolean;
-
     //COM-порт, к которому подключен GPS
     GPS_COM: string;
     //Скорость GPS COM порта
@@ -338,6 +336,7 @@ begin
   GPSpar := TGPSpar.Create;
   FGPSRecorder := TGPSRecorderStuped.Create;
   LoadMainParams;
+  GPSpar.LoadConfig(MainConfigProvider);
   LoadMarkIcons;
 end;
 
@@ -627,7 +626,6 @@ begin
   GPS_BaudRate:=MainIni.ReadInteger('GPS','BaudRate',4800);
   GPS_TimeOut:=MainIni.ReadInteger('GPS','timeout',300);
   GPS_Delay:=MainIni.ReadInteger('GPS','update',1000);
-  GPS_enab:=MainIni.ReadBool('GPS','enbl',false);
   GPS_WriteLog:=MainIni.Readbool('GPS','log',true);
   GPS_NMEALog:=MainIni.Readbool('GPS','NMEAlog',false);
   GPS_ArrowSize:=MainIni.ReadInteger('GPS','SizeStr',25);
@@ -831,7 +829,6 @@ begin
   MainIni.Writeinteger('COLOR_LEVELS','contrast',ContrastN);
   MainIni.WriteBool('COLOR_LEVELS','InvertColor',InvertColor);
 
-  MainIni.WriteBool('GPS','enbl',GPS_enab);
   MainIni.WriteBool('GPS','path',GPS_ShowPath);
   MainIni.WriteBool('GPS','go',GPS_MapMove);
   MainIni.WriteString('GPS','COM',GPS_COM);
@@ -872,6 +869,7 @@ begin
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
+  GPSpar.SaveConfig(MainConfigProvider);
   SaveLastSelectionPolygon;
 end;
 
