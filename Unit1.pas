@@ -1622,8 +1622,8 @@ begin
     tbitmGPSTrackShow.Checked:=GState.GPSpar.GPS_ShowPath;
     TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
     tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
-    TBGPSToPointCenter.Checked:=GState.GPS_MapMoveCentered;
-    tbitmGPSToPointCenter.Checked:=GState.GPS_MapMoveCentered;
+    TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
+    tbitmGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
     Nanimate.Checked:=GState.AnimateZoom;
@@ -2953,7 +2953,7 @@ begin
   if not((MapMoving)or(MapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
     if (GState.GPSpar.GPS_MapMove) then begin
       GState.ViewState.LockWrite;
-      if GState.GPS_MapMoveCentered then begin
+      if GState.GPSpar.GPS_MapMoveCentered then begin
         GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
       end else begin
         if ((VPointPrev.x<>0)and(VPointPrev.y<>0)) then begin
@@ -4133,7 +4133,7 @@ procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);
 begin
  tbitmGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
  TBGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
- GState.GPS_MapMoveCentered:=TTBXitem(sender).Checked;
+ GState.GPSpar.GPS_MapMoveCentered:=TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);

@@ -48,6 +48,7 @@ type
     GPS_ShowPath: Boolean;
     //Центрировать карту на GPS позиции
     GPS_MapMove: Boolean;
+    GPS_MapMoveCentered: Boolean;
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
     //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
@@ -130,6 +131,7 @@ begin
     GPS_NMEALog:=VConfigProvider.ReadBool('NMEAlog',false);
     GPS_ShowPath:=VConfigProvider.ReadBool('path',true);
     GPS_MapMove:=VConfigProvider.ReadBool('go',true);
+    GPS_MapMoveCentered:=VConfigProvider.ReadBool('goCentered',false);
     GPS_SensorsAutoShow:=VConfigProvider.ReadBool('SensorsAutoShow',true);
 
     Odometr:=VConfigProvider.ReadFloat('Odometr',0);
@@ -148,6 +150,7 @@ begin
     GPS_NMEALog:=false;
     GPS_ShowPath:=true;
     GPS_MapMove:=true;
+    GPS_MapMoveCentered:=false;
     GPS_SensorsAutoShow:=true;
     Odometr:=0;
     Odometr2:=0;
@@ -171,6 +174,7 @@ begin
   VConfigProvider.WriteInteger('NumShowTrackPoints',GPS_NumTrackPoints);
   VConfigProvider.WriteBool('path',GPS_ShowPath);
   VConfigProvider.WriteBool('go',GPS_MapMove);
+  VConfigProvider.WriteBool('goCentered',GPS_MapMoveCentered);
   VConfigProvider.WriteBool('log',GPS_WriteLog);
   VConfigProvider.WriteBool('NMEALog',GPS_NMEALog);
   VConfigProvider.WriteBool('SensorsAutoShow',GPS_SensorsAutoShow);
