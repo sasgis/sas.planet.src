@@ -335,6 +335,7 @@ begin
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
+  GPSpar := TGPSpar.Create;
   FGPSRecorder := TGPSRecorderStuped.Create;
   LoadMainParams;
   LoadMarkIcons;
@@ -368,6 +369,7 @@ begin
   FreeAndNil(FViewState);
   FreeAllMaps;
   FreeAndNil(FCacheConfig);
+  FreeAndNil(GPSpar);
   inherited;
 end;
 

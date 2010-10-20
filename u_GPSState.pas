@@ -3,7 +3,8 @@ unit u_GPSState;
 interface
 
 type
-  TGPSpar = record
+  TGPSpar = class
+  public
     speed: extended;
     len: extended;
     sspeed: extended;
