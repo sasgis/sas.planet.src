@@ -3,16 +3,15 @@ unit u_GPSSatellitesInView;
 interface
 
 uses
+  Classes,
   SysUtils,
   i_GPS;
 
 type
-  TArrayOfIGPSSatelliteInfo = array of IGPSSatelliteInfo;
-
   TGPSSatellitesInView = class(TInterfacedObject, IGPSSatellitesInView)
   private
     FFixCount: Integer;
-    FItems: TArrayOfIGPSSatelliteInfo;
+    FItems: IInterfaceList;
   protected
     function GetCount: Integer; stdcall;
     function GetFixCount: Integer; stdcall;
@@ -20,7 +19,7 @@ type
   public
     constructor Create(
       AFixCount: Integer;
-      AItems: TArrayOfIGPSSatelliteInfo
+      AItems: IInterfaceList
     );
     destructor Destroy; override;
   end;
@@ -29,10 +28,13 @@ implementation
 { TGPSSatellitesInView }
 
 constructor TGPSSatellitesInView.Create(
-  AFixCount: Integer; AItems: TArrayOfIGPSSatelliteInfo);
+  AFixCount: Integer; AItems: IInterfaceList);
 begin
   FFixCount := AFixCount;
   FItems := AItems;
+  if FItems.Count < FFixCount then begin
+    FFixCount := FItems.Count;
+  end;
 end;
 
 destructor TGPSSatellitesInView.Destroy;
@@ -43,7 +45,7 @@ end;
 
 function TGPSSatellitesInView.GetCount: Integer;
 begin
-  Result := Length(FItems);
+  Result := FItems.Count;
 end;
 
 function TGPSSatellitesInView.GetFixCount: Integer;
@@ -53,7 +55,7 @@ end;
 
 function TGPSSatellitesInView.GetItem(AIndex: Integer): IGPSSatelliteInfo;
 begin
-  Result := FItems[AIndex];
+  Result := IGPSSatelliteInfo(FItems[AIndex]);
 end;
 
 end.
