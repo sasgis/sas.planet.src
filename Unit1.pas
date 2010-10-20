@@ -665,6 +665,7 @@ uses
   u_MarksSimple,
   u_MarksReadWriteSimple,
   u_ThreadDownloadTiles,
+  u_SaveLoadTBConfigByConfigProvider,
   UGSM,
   UImport,
   u_MapViewPortState;
@@ -1561,7 +1562,7 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
-    lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
+    lock_toolbars:=GState.MainIni.ReadBool('PANEL','lock_toolbars',false);
 
     Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
@@ -1803,7 +1804,7 @@ end;
 procedure TFmain.FormCreate(Sender: TObject);
 begin
  Application.Title:=Caption;
- TBiniLoadPositions(Self,GState.MainIni,'PANEL_');
+ TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
  TBEditPath.Visible:=false;
  Caption:=Caption+' '+SASVersion;
  ProgramStart:=true;
@@ -3956,10 +3957,10 @@ begin
 
   FLayersList.SaveConfig(AProvider);
 
-  GState.MainIni.WriteBool('VIEW','lock_toolbars',lock_toolbars);
+  GState.MainIni.WriteBool('PANEL','lock_toolbars',lock_toolbars);
   lock_tb_b:=lock_toolbars;
   lock_toolbars:=false;
-  TBiniSavePositions(Self, GState.MainIni,'PANEL_');
+  TBConfigProviderSavePositions(Self, GState.MainConfigProvider.GetOrCreateSubItem('PANEL'));
   lock_toolbars:=lock_tb_b;
 end;
 
