@@ -166,7 +166,7 @@ begin
   VConfigProvider.WriteBool('enbl', GPS_enab);
   VConfigProvider.WriteString('COM', GPS_COM);
   VConfigProvider.WriteInteger('BaudRate',GPS_BaudRate);
-  // Нет сохранения GPS_TimeOut
+  VConfigProvider.WriteInteger('timeout',GPS_TimeOut);
   VConfigProvider.WriteInteger('update',GPS_Delay);
   VConfigProvider.WriteInteger('SizeStr',GPS_ArrowSize);
   VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
