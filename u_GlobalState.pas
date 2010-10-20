@@ -274,7 +274,7 @@ type
   end;
 
 const
-  SASVersion = '101014.alfa';
+  SASVersion = '101019.alfa';
 
 var
   GState: TGlobalState;
