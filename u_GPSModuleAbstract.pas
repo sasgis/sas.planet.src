@@ -1,15 +1,16 @@
-unit u_GPSPositionUpdatable;
+unit u_GPSModuleAbstract;
 
 interface
 
 uses
   Classes,
   SyncObjs,
+  i_JclNotify,
   t_GeoTypes,
   i_GPS;
 
 type
-  TGPSPositionUpdatable = class
+  TGPSModuleAbstract = class
   private
     FCS: TCriticalSection;
     FPosChanged: Boolean;
@@ -60,6 +61,11 @@ type
     constructor Create();
     destructor Destroy; override;
     function GetPosition: IGPSPosition;
+
+    function GetDataReciveNotifier: IJclNotifier; safecall;
+    function GetConnectNotifier: IJclNotifier; safecall;
+    function GetDisconnectNotifier: IJclNotifier; safecall;
+    function GetTimeOutNotifier: IJclNotifier; safecall;
   end;
 
 implementation
@@ -72,7 +78,7 @@ uses
 
 { TGPSPositionUpdatable }
 
-constructor TGPSPositionUpdatable.Create;
+constructor TGPSModuleAbstract.Create;
 begin
   FCS := TCriticalSection.Create;
   FSatellites := TInterfaceList.Create;
@@ -82,7 +88,7 @@ begin
   FLastStaticPosition := nil;
 end;
 
-destructor TGPSPositionUpdatable.Destroy;
+destructor TGPSModuleAbstract.Destroy;
 begin
   FreeAndNil(FCS);
   FSatellites := nil;
@@ -90,7 +96,7 @@ begin
   inherited;
 end;
 
-function TGPSPositionUpdatable.GetPosition: IGPSPosition;
+function TGPSModuleAbstract.GetPosition: IGPSPosition;
 begin
   FCS.Acquire;
   try
@@ -136,17 +142,17 @@ begin
   end;
 end;
 
-procedure TGPSPositionUpdatable.Lock;
+procedure TGPSModuleAbstract.Lock;
 begin
   FCS.Acquire;
 end;
 
-procedure TGPSPositionUpdatable.UnLock;
+procedure TGPSModuleAbstract.UnLock;
 begin
   FCS.Release;
 end;
 
-function TGPSPositionUpdatable._GetSatellitesCopy: IInterfaceList;
+function TGPSModuleAbstract._GetSatellitesCopy: IInterfaceList;
 var
   i: Integer;
 begin
@@ -157,7 +163,7 @@ begin
   end;
 end;
 
-procedure TGPSPositionUpdatable._UpdatePosition(APosition: TExtendedPoint;
+procedure TGPSModuleAbstract._UpdatePosition(APosition: TExtendedPoint;
   AAltitude, ASpeed_KMH, AHeading: Extended; AUTCDateTime,
   ALocalDateTime: TDateTime; AIsFix: Word; AHDOP, AVDOP, APDOP: Extended);
 begin
@@ -216,7 +222,7 @@ begin
   end;
 end;
 
-procedure TGPSPositionUpdatable._UpdateSatellitesCount(AFixCount,
+procedure TGPSModuleAbstract._UpdateSatellitesCount(AFixCount,
   ACount: Integer);
 begin
   if FFixCount <> AFixCount then begin
@@ -229,7 +235,7 @@ begin
   end;
 end;
 
-procedure TGPSPositionUpdatable._UpdateSattelite(AIndex, APseudoRandomCode,
+procedure TGPSModuleAbstract._UpdateSattelite(AIndex, APseudoRandomCode,
   AElevation, AAzimuth, ASignalToNoiseRatio: Integer; AIsFix: Boolean);
 var
   VSattelite: IGPSSatelliteInfo;

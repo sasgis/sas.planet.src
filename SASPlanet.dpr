@@ -216,7 +216,7 @@ uses
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
   u_GPSSatellitesInView in 'u_GPSSatellitesInView.pas',
   u_GPSPositionStatic in 'u_GPSPositionStatic.pas',
-  u_GPSPositionUpdatable in 'u_GPSPositionUpdatable.pas',
+  u_GPSModuleAbstract in 'u_GPSModuleAbstract.pas',
   u_GPSPositionByZylGPS in 'u_GPSPositionByZylGPS.pas',
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   fr_ExportYaMaps in 'RegionProcess\fr_ExportYaMaps.pas' {frExportYaMaps: TFrame},
