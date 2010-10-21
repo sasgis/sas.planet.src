@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -77,8 +78,6 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitLeft = 38
-    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -5247,19 +5246,6 @@ object Fmain: TFmain
     Filter = #1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077#1085#1080#1103'|*.hlg'
     Left = 161
     Top = 84
-  end
-  object GPSReceiver: TZylGPSReceiver
-    CustomBaudRate = 0
-    Commands = [GPAAM, GPBWC, GPGGA, GPGLL, GPMSS, GPRMB, GPRMC, GPGSA, GPGSV, GPVTG, GPZDA, GPWPL, GPRTE, GPXTE, AllNMEA]
-    Delay = 2000
-    IdleInterval = 20
-    OnConnect = GPSReceiverConnect
-    OnDisconnect = GPSReceiverDisconnect
-    OnTimeout = GPSReceiverTimeout
-    OnReceive = GPSReceiverReceive
-    OnSatellitesReceive = GPSReceiver1SatellitesReceive
-    Left = 40
-    Top = 316
   end
   object SaveLink: TSaveDialog
     DefaultExt = 'lnk'

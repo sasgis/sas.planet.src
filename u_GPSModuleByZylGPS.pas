@@ -46,23 +46,34 @@ const
   CMaxSatCount = 32;
 
 procedure TGPSModuleByZylGPS.Connect;
+var
+  VState: TConnectState;
 begin
   inherited;
   Lock;
   try
+    VState := FConnectState;
     if FConnectState = csDisconnected then begin
-      _UpdateReceiverSettings;
       FConnectState := csConnecting;
-      try
-        FGPSReceiver.Open;
-      except
-        FConnectState := csDisconnected;
-        GetConnectErrorNotifier.Notify(nil);
-        FGPSReceiver.Close;
-      end;
     end;
   finally
     UnLock;
+  end;
+  if VState = csDisconnected then begin
+    _UpdateReceiverSettings;
+    try
+      FGPSReceiver.Open;
+    except
+      FGPSReceiver.Close;
+      GetConnectErrorNotifier.Notify(nil);
+      Lock;
+      try
+        FConnectState := csDisconnected;
+      finally
+        UnLock;
+      end;
+      GetDisconnectNotifier.Notify(nil);
+    end;
   end;
 end;
 
@@ -103,16 +114,21 @@ begin
 end;
 
 procedure TGPSModuleByZylGPS.Disconnect;
+var
+  VState: TConnectState;
 begin
   inherited;
   Lock;
   try
+    VState := FConnectState;
     if FConnectState <> csDisconnected then begin
       FConnectState := csDisconnecting;
-      FGPSReceiver.Close;
     end;
   finally
     UnLock;
+  end;
+  if VState = csConnected then begin
+    FGPSReceiver.Close;
   end;
 end;
 
@@ -243,14 +259,9 @@ end;
 
 procedure TGPSModuleByZylGPS.GPSReceiverTimeout(Sender: TObject);
 begin
-  Lock;
-  try
-    FConnectState := csDisconnecting;
-    FGPSReceiver.Close;
-  finally
-    UnLock;
-  end;
   GetTimeOutNotifier.Notify(nil);
+  Disconnect;
+  GetDisconnectNotifier.Notify(nil);
 end;
 
 procedure TGPSModuleByZylGPS._UpdateReceiverSettings;

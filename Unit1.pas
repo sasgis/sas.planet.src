@@ -42,8 +42,6 @@ uses
   TBX,
   TBXControls,
   TBXExtItems,
-  ZylGPSReceiver,
-  ZylCustomGPSReceiver,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_IGUIDList,
@@ -2500,12 +2498,12 @@ end;
 
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
-  tbitmGPSConnect.Enabled := False;
-  TBGPSconn.Enabled := False;
+  TTBXitem(sender).Enabled := False;
+  TTBXitem(sender).Checked := GState.GPSpar.GPSModele.IsConnected;
   if TTBXitem(sender).Checked then begin
-    GState.GPSpar.GPSModele.Connect;
-  end else begin
     GState.GPSpar.GPSModele.Disconnect;
+  end else begin
+    GState.GPSpar.GPSModele.Connect;
   end;
 end;
 
@@ -2971,7 +2969,10 @@ end;
 
 procedure TFmain.GPSReceiverDisconnect;
 begin
-  if GState.GPSpar.GPS_WriteLog then CloseFile(GState.GPSpar.GPS_LogFile);
+  try
+    if GState.GPSpar.GPS_WriteLog then CloseFile(GState.GPSpar.GPS_LogFile);
+  except
+  end;
   if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
