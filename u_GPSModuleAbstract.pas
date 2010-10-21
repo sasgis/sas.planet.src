@@ -7,10 +7,11 @@ uses
   SyncObjs,
   i_JclNotify,
   t_GeoTypes,
-  i_GPS;
+  i_GPS,
+  i_IGPSModule;
 
 type
-  TGPSModuleAbstract = class
+  TGPSModuleAbstract = class(TInterfacedObject, IGPSModule)
   private
     FCS: TCriticalSection;
     FPosChanged: Boolean;
@@ -29,6 +30,11 @@ type
     FPDOP: Extended;
     FFixCount: Integer;
     FSatellites: IInterfaceList;
+
+    FDataReciveNotifier: IJclNotifier;
+    FConnectNotifier: IJclNotifier;
+    FDisconnectNotifier: IJclNotifier;
+    FTimeOutNotifier: IJclNotifier;
   protected
     function _GetSatellitesCopy: IInterfaceList;
     procedure _UpdatePosition(
@@ -57,15 +63,19 @@ type
     );
     procedure Lock;
     procedure UnLock;
+  protected
+    procedure Connect; virtual; safecall; abstract;
+    procedure Disconnect; virtual; safecall; abstract;
+    function GetIsConnected: Boolean; virtual; safecall; abstract;
+    function GetPosition: IGPSPosition; virtual; safecall;
+
+    function GetDataReciveNotifier: IJclNotifier; virtual; safecall;
+    function GetConnectNotifier: IJclNotifier; virtual; safecall;
+    function GetDisconnectNotifier: IJclNotifier; virtual; safecall;
+    function GetTimeOutNotifier: IJclNotifier; virtual; safecall;
   public
     constructor Create();
     destructor Destroy; override;
-    function GetPosition: IGPSPosition;
-
-    function GetDataReciveNotifier: IJclNotifier; safecall;
-    function GetConnectNotifier: IJclNotifier; safecall;
-    function GetDisconnectNotifier: IJclNotifier; safecall;
-    function GetTimeOutNotifier: IJclNotifier; safecall;
   end;
 
 implementation
@@ -94,6 +104,21 @@ begin
   FSatellites := nil;
   FLastStaticPosition := nil;
   inherited;
+end;
+
+function TGPSModuleAbstract.GetConnectNotifier: IJclNotifier;
+begin
+  Result := FConnectNotifier;
+end;
+
+function TGPSModuleAbstract.GetDataReciveNotifier: IJclNotifier;
+begin
+  Result := FDataReciveNotifier;
+end;
+
+function TGPSModuleAbstract.GetDisconnectNotifier: IJclNotifier;
+begin
+  Result := FDisconnectNotifier;
 end;
 
 function TGPSModuleAbstract.GetPosition: IGPSPosition;
@@ -140,6 +165,11 @@ begin
   finally
     FCS.Release;
   end;
+end;
+
+function TGPSModuleAbstract.GetTimeOutNotifier: IJclNotifier;
+begin
+  Result := FTimeOutNotifier;
 end;
 
 procedure TGPSModuleAbstract.Lock;

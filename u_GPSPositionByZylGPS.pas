@@ -3,10 +3,10 @@ unit u_GPSPositionByZylGPS;
 interface
 
 uses
-  u_GPSPositionUpdatable;
+  u_GPSModuleAbstract;
 
 type
-  TGPSPositionByZylGPS = class(TGPSPositionUpdatable)
+  TGPSPositionByZylGPS = class(TGPSModuleAbstract)
   protected
     procedure GPSReceiver1SatellitesReceive(Sender: TObject);
     procedure GPSReceiverReceive(Sender: TObject; Buffer: string);
