@@ -4,14 +4,22 @@ interface
 
 uses
   Graphics,
+  i_JclNotify,
   i_IGPSRecorder,
   i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_IConfigDataWriteProvider,
+  i_IGPSModule,
+  i_IGPSModuleByCOMPortSettings,
+  u_GPSModuleByCOMPortSettings;
 
 type
   TGPSpar = class
   private
     FGPSRecorder: IGPSRecorder;
+    FSettings: IGPSModuleByCOMPortSettings;
+    FSettingsObj: TGPSModuleByCOMPortSettings;
+    FGPSModele: IGPSModule;
+    GPS_enab: Boolean;
   public
     speed: extended;
     len: extended;
@@ -27,15 +35,6 @@ type
     SignalStrength: extended;
     SatCount: integer;
 
-    GPS_enab: Boolean;
-    //COM-порт, к которому подключен GPS
-    GPS_COM: string;
-    //Скорость GPS COM порта
-    GPS_BaudRate: Integer;
-    // Максимальное время ожидания данных от GPS
-    GPS_TimeOut: integer;
-    // Интервал между точками от GPS
-    GPS_Delay: Integer;
     //Размер указателя направления при GPS-навигации
     GPS_ArrowSize: Integer;
     //Цвет указателя направления при навигацци
@@ -55,8 +54,6 @@ type
     GPS_LogFile: TextFile;
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
-    //Писать лог NMEA
-    GPS_NMEALog: boolean;
     constructor Create();
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
@@ -64,8 +61,16 @@ type
     procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
 
+    function GetDataReciveNotifier: IJclNotifier;
+    function GetConnectErrorNotifier: IJclNotifier;
+    function GetConnectNotifier: IJclNotifier;
+    function GetDisconnectNotifier: IJclNotifier;
+    function GetTimeOutNotifier: IJclNotifier;
+
     function GetSatActive(pcode:integer;NMEA:string):boolean;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
+    property GPSSettings: TGPSModuleByCOMPortSettings read FSettingsObj;
+    property GPSModele: IGPSModule read FGPSModele;
   end;
 
 implementation
@@ -73,17 +78,44 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
 
 constructor TGPSpar.Create;
 begin
   FGPSRecorder := TGPSRecorderStuped.Create;
+  FSettingsObj := TGPSModuleByCOMPortSettings.Create;
+  FSettings := FSettingsObj;
+  FGPSModele := TGPSModuleByZylGPS.Create(FSettings);
 end;
 
 destructor TGPSpar.Destroy;
 begin
   FGPSRecorder := nil;
+  FSettingsObj := nil;
+  FSettings := nil;
+  FGPSModele := nil;
   inherited;
+end;
+
+function TGPSpar.GetConnectErrorNotifier: IJclNotifier;
+begin
+  Result := FGPSModele.ConnectErrorNotifier;
+end;
+
+function TGPSpar.GetConnectNotifier: IJclNotifier;
+begin
+  Result := FGPSModele.ConnectNotifier;
+end;
+
+function TGPSpar.GetDataReciveNotifier: IJclNotifier;
+begin
+  Result := FGPSModele.DataReciveNotifier;
+end;
+
+function TGPSpar.GetDisconnectNotifier: IJclNotifier;
+begin
+  Result := FGPSModele.DisconnectNotifier;
 end;
 
 function TGPSpar.GetSatActive(pcode:integer;NMEA:string):boolean;
@@ -112,6 +144,11 @@ begin
   end;
 end;
 
+function TGPSpar.GetTimeOutNotifier: IJclNotifier;
+begin
+  Result := FGPSModele.TimeOutNotifier;
+end;
+
 procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
@@ -119,16 +156,18 @@ begin
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
-    GPS_COM := VConfigProvider.ReadString('com', 'COM0');
-    GPS_BaudRate := VConfigProvider.ReadInteger('BaudRate', 4800);
-    GPS_TimeOut := VConfigProvider.ReadInteger('timeout', 300);
-    GPS_Delay := VConfigProvider.ReadInteger('update', 1000);
+
+    FSettingsObj.Port := VConfigProvider.ReadInteger('COM', FSettings.Port);
+    FSettingsObj.BaudRate := VConfigProvider.ReadInteger('BaudRate', FSettings.BaudRate);
+    FSettingsObj.ConnectionTimeout := VConfigProvider.ReadInteger('timeout', FSettings.ConnectionTimeout);
+    FSettingsObj.Delay := VConfigProvider.ReadInteger('update', FSettings.Delay);
+    FSettingsObj.NMEALog := VConfigProvider.ReadBool('NMEAlog', FSettings.NMEALog);
+
     GPS_ArrowSize := VConfigProvider.ReadInteger('SizeStr', 25);
     GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr', clRed);
     GPS_TrackWidth := VConfigProvider.ReadInteger('SizeTrack', 5);
     GPS_NumTrackPoints := VConfigProvider.ReadInteger('NumShowTrackPoints', 5000);
     GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
-    GPS_NMEALog:=VConfigProvider.ReadBool('NMEAlog',false);
     GPS_ShowPath:=VConfigProvider.ReadBool('path',true);
     GPS_MapMove:=VConfigProvider.ReadBool('go',true);
     GPS_MapMoveCentered:=VConfigProvider.ReadBool('goCentered',false);
@@ -138,16 +177,11 @@ begin
     Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
   end else begin
     GPS_enab := False;
-    GPS_COM := 'COM0';
-    GPS_BaudRate := 4800;
-    GPS_TimeOut := 300;
-    GPS_Delay := 1000;
     GPS_ArrowSize := 25;
     GPS_ArrowColor := clRed;
     GPS_TrackWidth := 5;
     GPS_NumTrackPoints := 5000;
     GPS_WriteLog:=true;
-    GPS_NMEALog:=false;
     GPS_ShowPath:=true;
     GPS_MapMove:=true;
     GPS_MapMoveCentered:=false;
@@ -164,10 +198,13 @@ begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
   VConfigProvider.WriteBool('enbl', GPS_enab);
-  VConfigProvider.WriteString('COM', GPS_COM);
-  VConfigProvider.WriteInteger('BaudRate',GPS_BaudRate);
-  VConfigProvider.WriteInteger('timeout',GPS_TimeOut);
-  VConfigProvider.WriteInteger('update',GPS_Delay);
+
+  VConfigProvider.WriteInteger('COM', FSettings.Port);
+  VConfigProvider.WriteInteger('BaudRate',FSettings.BaudRate);
+  VConfigProvider.WriteInteger('timeout',FSettings.ConnectionTimeout);
+  VConfigProvider.WriteInteger('update',FSettings.Delay);
+  VConfigProvider.WriteBool('NMEALog',FSettings.NMEALog);
+
   VConfigProvider.WriteInteger('SizeStr',GPS_ArrowSize);
   VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
   VConfigProvider.WriteInteger('SizeTrack',GPS_TrackWidth);
@@ -176,7 +213,6 @@ begin
   VConfigProvider.WriteBool('go',GPS_MapMove);
   VConfigProvider.WriteBool('goCentered',GPS_MapMoveCentered);
   VConfigProvider.WriteBool('log',GPS_WriteLog);
-  VConfigProvider.WriteBool('NMEALog',GPS_NMEALog);
   VConfigProvider.WriteBool('SensorsAutoShow',GPS_SensorsAutoShow);
 
   VConfigProvider.WriteFloat('Odometr', Odometr);

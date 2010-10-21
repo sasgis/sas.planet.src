@@ -27,6 +27,7 @@ type
       ASignalToNoiseRatio: Integer;
       AIsFix: Boolean
     );
+    destructor Destroy; override;
   end;
 
 
@@ -42,6 +43,12 @@ begin
   FAzimuth := AAzimuth;
   FSignalToNoiseRatio := ASignalToNoiseRatio;
   FIsFix := AIsFix;
+end;
+
+destructor TGPSSatelliteInfo.Destroy;
+begin
+  FPseudoRandomCode := 0;
+  inherited;
 end;
 
 function TGPSSatelliteInfo.GetAzimuth: Integer;

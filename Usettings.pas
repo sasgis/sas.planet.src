@@ -254,6 +254,7 @@ implementation
 uses
   Types,
   Menus,
+  i_GPS,
   u_GlobalState,
   u_GeoToStr,
   Uimgfun,
@@ -360,13 +361,13 @@ begin
 
  GState.GPSpar.GPS_ArrowSize:=SESizeStr.Value;
  GState.GPSpar.GPS_TrackWidth:=SESizeTrack.Value;
- GState.GPSpar.GPS_TimeOut:=SpinEdit2.Value;
+ GState.GPSpar.GPSSettings.ConnectionTimeout:=SpinEdit2.Value;
  GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
- GState.GPSpar.GPS_NMEALog:=CB_GPSlogNmea.Checked;
- GState.GPSpar.GPS_Delay:=SpinEdit1.Value;
+ GState.GPSpar.GPSSettings.NMEALog:=CB_GPSlogNmea.Checked;
+ GState.GPSpar.GPSSettings.Delay:=SpinEdit1.Value;
  FMain.lock_toolbars:=CBlock_toolbars.Checked;
- GState.GPSpar.GPS_COM:=ComboBoxCOM.Text;
- GState.GPSpar.GPS_BaudRate:=StrToint(ComboBoxBoudRate.Text);
+ GState.GPSpar.GPSSettings.Port := StrToInt(Copy(ComboBoxCOM.Text, 4, 2));
+ GState.GPSpar.GPSSettings.BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPSpar.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
  GState.GPSpar.GPS_NumTrackPoints:=SE_NumTrackPoints.Value;
  if (chkUseIEProxy.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
@@ -531,18 +532,18 @@ begin
  ESCPath.text:=GState.CacheConfig.ESCPath;
  GMTilesPath.text:=GState.CacheConfig.GMTilesPath;
  GECachePath.text:=GState.CacheConfig.GECachePath;
- SpinEdit2.Value:=GState.GPSpar.GPS_TimeOut;
+ SpinEdit2.Value:=GState.GPSpar.GPSSettings.ConnectionTimeout;
  CB_GPSlog.Checked:=GState.GPSpar.GPS_WriteLog;
- CB_GPSlogNmea.Checked:=GState.GPSpar.GPS_NMEALog;
- SpinEdit1.Value:=GState.GPSpar.GPS_Delay;
+ CB_GPSlogNmea.Checked:=GState.GPSpar.GPSSettings.NMEALog;
+ SpinEdit1.Value:=GState.GPSpar.GPSSettings.Delay;
  SESizeStr.Value:=GState.GPSpar.GPS_ArrowSize;
  SESizeTrack.Value:=GState.GPSpar.GPS_TrackWidth;
  SE_NumTrackPoints.Value:=GState.GPSpar.GPS_NumTrackPoints;
  CBSensorsBarAutoShow.Checked:=GState.GPSpar.GPS_SensorsAutoShow;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
- ComboBoxCOM.Text:=GState.GPSpar.GPS_COM;
- ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPS_BaudRate);
+ ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
+ ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
  TrBarGamma.Position:=GState.GammaN;
  if GState.GammaN<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((GState.GammaN*2)/100)+')'
               else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((GState.GammaN-40)/10)+')';
@@ -645,8 +646,11 @@ begin
 end;
 
 procedure TFSettings.SatellitePaint;
-var i,bar_width,bar_height,bar_x1,bar_dy,bar_i,Ellipse_d,Ellipse_r,padd:integer;
-    Ellipse_XY1,Ellipse_XY2,Ellipse_center:TPoint;
+var
+  i,bar_width,bar_height,bar_x1,bar_dy,bar_i,Ellipse_d,Ellipse_r,padd:integer;
+  Ellipse_XY1,Ellipse_XY2,Ellipse_center:TPoint;
+  VPosition: IGPSPosition;
+  VSattelite: IGPSSatelliteInfo;
 begin
  with SatellitePaintBox.Bitmap do begin
   Clear(clWhite);
@@ -670,24 +674,24 @@ begin
     Canvas.LineTo(Ellipse_XY1.x,Ellipse_XY1.y);
   end;
 
-  for I := 0 to Fmain.GPSReceiver.GetSatellites.Count-1 do begin
-    Ellipse_r:=trunc(((Width div 2)-padd)*((90-Fmain.GPSReceiver.GetSatellites.Items[i].Elevation)/90));
-    Ellipse_XY1.x:=round(Ellipse_center.x + Ellipse_r * cos(
-    (Fmain.GPSReceiver.GetSatellites.Items[i].Azimuth-90) * (Pi / 180)));
-    Ellipse_XY1.y:=round(Ellipse_center.y + Ellipse_r * sin(
-    (Fmain.GPSReceiver.GetSatellites.Items[i].Azimuth-90) * (Pi / 180)));
-    if GState.GPSpar.GetSatActive(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode,
-                                 Fmain.GPSReceiver.GetRawData) then begin
+  VPosition := GState.GPSpar.GPSModele.Position;
+
+  for I := 0 to VPosition.Satellites.Count-1 do begin
+    VSattelite := VPosition.Satellites.Item[i];
+    Ellipse_r:=trunc(((Width div 2)-padd)*((90-VSattelite.Elevation)/90));
+    Ellipse_XY1.x:=round(Ellipse_center.x + Ellipse_r * cos((VSattelite.Azimuth-90) * (Pi / 180)));
+    Ellipse_XY1.y:=round(Ellipse_center.y + Ellipse_r * sin((VSattelite.Azimuth-90) * (Pi / 180)));
+    if VSattelite.IsFix then begin
       Canvas.Brush.Color:=clGreen;
     end else begin
-      if Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio=0 then begin
+      if VSattelite.SignalToNoiseRatio=0 then begin
         Canvas.Brush.Color:=clRed;
       end else begin
         Canvas.Brush.Color:=clYellow;
       end;
     end;
     Canvas.Ellipse(Ellipse_XY1.x-10,Ellipse_XY1.y-10,Ellipse_XY1.x+10,Ellipse_XY1.y+10);
-    Canvas.TextOut(Ellipse_XY1.x-5,Ellipse_XY1.y-7,inttostr(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode));
+    Canvas.TextOut(Ellipse_XY1.x-5,Ellipse_XY1.y-7,inttostr(VSattelite.PseudoRandomCode));
   end;
 
   bar_width:=(Width div 16);
@@ -706,19 +710,19 @@ begin
    Canvas.Rectangle(bar_x1+1,Height-bar_dy-bar_height,bar_x1+bar_width-1,Height-bar_dy);
   end;
   bar_x1:=0;
-  for I := 0 to Fmain.GPSReceiver.GetSatellites.Count-1 do begin
-   if Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode>16 then begin
+  for I := 0 to VPosition.Satellites.Count-1 do begin
+   VSattelite := VPosition.Satellites.Item[i];
+   if VSattelite.PseudoRandomCode>16 then begin
      bar_dy:=12;
    end else begin
      bar_dy:=66;
    end;
-   bar_x1:=(bar_width*((Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode-1) mod 16));
-   bar_height:=trunc((Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/2.5);
-   if GState.GPSpar.GetSatActive(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode,
-                                 Fmain.GPSReceiver.GetRawData) then begin
+   bar_x1:=(bar_width*((VSattelite.PseudoRandomCode-1) mod 16));
+   bar_height:=trunc((VSattelite.SignalToNoiseRatio)/2.5);
+   if VSattelite.IsFix then begin
       Canvas.Brush.Color:=clGreen;
    end else begin
-     if Fmain.GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio=0 then begin
+     if VSattelite.SignalToNoiseRatio=0 then begin
        Canvas.Brush.Color:=clRed;
      end else begin
        Canvas.Brush.Color:=clYellow;
@@ -754,13 +758,7 @@ var
   pBaudRate: TBaudRate;
 begin
  SBGetComNum.Enabled:=false;
- if Fmain.GPSReceiver.FastDetectGPS(pPort, pBaudRate) then
-  begin
-   ComboBoxCOM.Text := Fmain.GPSReceiver.CommPortToString(pPort);
-   ComboBoxBoudRate.Text := IntToStr( Fmain.GPSReceiver.BaudRateToInt(pBaudRate));
-   ShowMessage('Ok');
-  end
-  else ShowMessage(SAS_MSG_NoGPSdetected);
+ ShowMessage(SAS_MSG_NoGPSdetected);
  SBGetComNum.Enabled:=true;
 end;
 

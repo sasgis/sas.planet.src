@@ -879,6 +879,7 @@ end;
 
 procedure TGlobalState.StopAllThreads;
 begin
+  GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
 end;
 
