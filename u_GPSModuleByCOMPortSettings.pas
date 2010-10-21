@@ -17,6 +17,13 @@ type
     FLogPath: WideString;
     FConfigChangeNotifier: IJclNotifier;
   protected
+    procedure SetPort(AValue: Integer);
+    procedure SetBaudRate(AValue: Integer);
+    procedure SetConnectionTimeout(AValue: Integer);
+    procedure SetDelay(AValue: Integer);
+    procedure SetNMEALog(AValue: Boolean);
+    procedure SetLogPath(AValue: WideString);
+  protected
     function GetPort: Integer; safecall;
     function GetBaudRate: Integer; safecall;
     function GetConnectionTimeout: Integer; safecall;
@@ -28,12 +35,12 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure SetPort(AValue: Integer);
-    procedure SetBaudRate(AValue: Integer);
-    procedure SetConnectionTimeout(AValue: Integer);
-    procedure SetDelay(AValue: Integer);
-    procedure SetNMEALog(AValue: Boolean);
-    procedure SetLogPath(AValue: WideString);
+    property Port: Integer read GetPort write SetPort;
+    property BaudRate: Integer read GetBaudRate write SetBaudRate;
+    property ConnectionTimeout: Integer read GetConnectionTimeout write SetConnectionTimeout;
+    property Delay: Integer read GetDelay write SetDelay;
+    property NMEALog: Boolean read GetNMEALog write SetNMEALog;
+    property LogPath: WideString read GetLogPath write SetLogPath;
   end;
 
 implementation
