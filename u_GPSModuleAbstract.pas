@@ -32,6 +32,7 @@ type
     FSatellites: IInterfaceList;
 
     FDataReciveNotifier: IJclNotifier;
+    FConnectErrorNotifier: IJclNotifier;
     FConnectNotifier: IJclNotifier;
     FDisconnectNotifier: IJclNotifier;
     FTimeOutNotifier: IJclNotifier;
@@ -70,6 +71,7 @@ type
     function GetPosition: IGPSPosition; virtual; safecall;
 
     function GetDataReciveNotifier: IJclNotifier; virtual; safecall;
+    function GetConnectErrorNotifier: IJclNotifier; virtual; safecall;
     function GetConnectNotifier: IJclNotifier; virtual; safecall;
     function GetDisconnectNotifier: IJclNotifier; virtual; safecall;
     function GetTimeOutNotifier: IJclNotifier; virtual; safecall;
@@ -82,6 +84,7 @@ implementation
 
 uses
   SysUtils,
+  u_JclNotify,
   u_GPSPositionStatic,
   u_GPSSatellitesInView,
   u_GPSSatelliteInfo;
@@ -96,6 +99,11 @@ begin
   FPosChanged := True;
   FSatellitesChanged := True;
   FLastStaticPosition := nil;
+  FConnectErrorNotifier := TJclBaseNotifier.Create;
+  FConnectNotifier := TJclBaseNotifier.Create;
+  FDataReciveNotifier := TJclBaseNotifier.Create;
+  FTimeOutNotifier := TJclBaseNotifier.Create;
+  FDisconnectNotifier := TJclBaseNotifier.Create;
 end;
 
 destructor TGPSModuleAbstract.Destroy;
@@ -103,7 +111,17 @@ begin
   FreeAndNil(FCS);
   FSatellites := nil;
   FLastStaticPosition := nil;
+  FConnectErrorNotifier := nil;
+  FConnectNotifier := nil;
+  FDataReciveNotifier := nil;
+  FTimeOutNotifier := nil;
+  FDisconnectNotifier := nil;
   inherited;
+end;
+
+function TGPSModuleAbstract.GetConnectErrorNotifier: IJclNotifier;
+begin
+  Result := FConnectErrorNotifier;
 end;
 
 function TGPSModuleAbstract.GetConnectNotifier: IJclNotifier;

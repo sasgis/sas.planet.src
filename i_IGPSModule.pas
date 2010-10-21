@@ -15,6 +15,7 @@ type
     function GetPosition: IGPSPosition; safecall;
 
     function GetDataReciveNotifier: IJclNotifier; safecall;
+    function GetConnectErrorNotifier: IJclNotifier; safecall;
     function GetConnectNotifier: IJclNotifier; safecall;
     function GetDisconnectNotifier: IJclNotifier; safecall;
     function GetTimeOutNotifier: IJclNotifier; safecall;
@@ -22,6 +23,7 @@ type
     property IsConnected: Boolean read GetIsConnected;
     property Position: IGPSPosition read GetPosition;
     property DataReciveNotifier: IJclNotifier read GetDataReciveNotifier;
+    property ConnectErrorNotifier: IJclNotifier read GetConnectErrorNotifier;
     property ConnectNotifier: IJclNotifier read GetConnectNotifier;
     property DisconnectNotifier: IJclNotifier read GetDisconnectNotifier;
     property TimeOutNotifier: IJclNotifier read GetTimeOutNotifier;
