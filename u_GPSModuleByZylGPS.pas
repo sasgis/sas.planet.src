@@ -211,7 +211,7 @@ begin
   finally
     UnLock;
   end;
-  GetConnectNotifier.Notify(nil);
+  GetDisconnectNotifier.Notify(nil);
 end;
 
 procedure TGPSModuleByZylGPS.GPSReceiverReceive(Sender: TObject;
