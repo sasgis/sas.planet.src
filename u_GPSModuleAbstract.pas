@@ -312,13 +312,14 @@ begin
   end;
 
   if VSatteliteChanged then begin
-    FSatellites[AIndex] := TGPSSatelliteInfo.Create(
+    VSattelite := TGPSSatelliteInfo.Create(
       APseudoRandomCode,
       AElevation,
       AAzimuth,
       ASignalToNoiseRatio,
       AIsFix
     );
+    FSatellites[AIndex] := VSattelite;
     FSatellitesChanged := True;
   end;
 end;
