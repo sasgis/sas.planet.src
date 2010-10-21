@@ -213,6 +213,7 @@ uses
   i_IGPSRecorder in 'i_IGPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
+  i_IGPSModule in 'i_IGPSModule.pas',
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
   u_GPSSatellitesInView in 'u_GPSSatellitesInView.pas',
   u_GPSPositionStatic in 'u_GPSPositionStatic.pas',
