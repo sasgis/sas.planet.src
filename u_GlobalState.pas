@@ -331,10 +331,10 @@ begin
   FMarksBitmapProvider := nil;
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;
+  FreeAndNil(GPSpar);
   FreeAndNil(FViewState);
   FreeAllMaps;
   FreeAndNil(FCacheConfig);
-  FreeAndNil(GPSpar);
   inherited;
 end;
 
