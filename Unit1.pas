@@ -2974,6 +2974,7 @@ begin
   except
   end;
   if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
+  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
   FLayerMapGPS.Visible:=false;

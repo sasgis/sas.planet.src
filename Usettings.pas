@@ -557,6 +557,7 @@ begin
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
  frShortCutList.SetShortCutManager(Fmain.ShortCutManager);
+ SatellitePaint;
 end;
 
 procedure TFSettings.FormCreate(Sender: TObject);
