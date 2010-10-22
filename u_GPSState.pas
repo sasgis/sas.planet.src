@@ -316,12 +316,19 @@ end;
 
 procedure TGPSpar.SendTerminateToThreads;
 begin
-  // Пока ничего не делаем
+  if FGPSModele.IsConnected then begin
+    GPS_enab := True;
+    FGPSModele.Disconnect;
+  end else begin
+    GPS_enab := False;
+  end;
 end;
 
 procedure TGPSpar.StartThreads;
 begin
-  // Пока ничего не делаем
+  if GPS_enab then begin
+    FGPSModele.Connect;
+  end;
 end;
 
 end.

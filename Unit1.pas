@@ -1798,6 +1798,7 @@ begin
 
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
+    GState.StartThreads;
     FMainLayer.Visible := True;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
   finally
@@ -1922,7 +1923,7 @@ begin
     GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
   end;
   //останавливаем GPS
-  GState.StopAllThreads;
+  GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
     if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
       Screen.Forms[i].Close;

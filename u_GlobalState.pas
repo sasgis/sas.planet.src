@@ -236,7 +236,8 @@ type
     procedure SaveMaps;
     procedure SaveMainParams;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
-    procedure StopAllThreads;
+    procedure StartThreads;
+    procedure SendTerminateToThreads;
     procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
     procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
     procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
@@ -335,6 +336,11 @@ begin
   FreeAllMaps;
   FreeAndNil(FCacheConfig);
   inherited;
+end;
+
+procedure TGlobalState.StartThreads;
+begin
+  GPSpar.StartThreads;
 end;
 
 function TGlobalState.GetMarkIconsPath: string;
@@ -885,7 +891,7 @@ begin
   FMemFileCache.CacheElemensMaxCnt := FCacheElemensMaxCnt;
 end;
 
-procedure TGlobalState.StopAllThreads;
+procedure TGlobalState.SendTerminateToThreads;
 begin
   GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
