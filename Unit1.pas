@@ -2969,10 +2969,6 @@ end;
 
 procedure TFmain.GPSReceiverDisconnect;
 begin
-  try
-    if GState.GPSpar.GPS_WriteLog then CloseFile(GState.GPSpar.GPS_LogFile);
-  except
-  end;
   if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
   tbitmGPSConnect.Enabled := True;
@@ -2985,7 +2981,6 @@ end;
 procedure TFmain.GPSReceiverReceive;
 var s2f,sb:string;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
-    VConverter: ICoordConverter;
     VPointCurr: TExtendedPoint;
     VPointPrev: TExtendedPoint;
     VPointDelta: TExtendedPoint;
@@ -2997,33 +2992,15 @@ begin
   if FSettings.Visible then FSettings.SatellitePaint;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
   if (VPosition.IsFix=0) then exit;
-  VPointCurr := VPosition.Position;
-  if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
-    VPointPrev := GState.GPSpar.GPSRecorder.GetLastPoint;
-    VTrackPoint.Point := VPointCurr;
-    VTrackPoint.Speed := VPosition.Speed_KMH;
-    GState.GPSpar.GPSRecorder.AddPoint(VTrackPoint);
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    GState.GPSpar.speed:=VTrackPoint.Speed;
-    if GState.GPSpar.maxspeed<GState.GPSpar.speed then GState.GPSpar.maxspeed:=GState.GPSpar.speed;
-    inc(GState.GPSpar.sspeednumentr);
-    GState.GPSpar.allspeed:=GState.GPSpar.allspeed+GState.GPSpar.speed;
-    GState.GPSpar.sspeed:=GState.GPSpar.allspeed/GState.GPSpar.sspeednumentr;
-    GState.GPSpar.altitude:=VPosition.Altitude;
-    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
-      VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
-      GState.GPSpar.len:=GState.GPSpar.len+VDistToPrev;
-      GState.GPSpar.Odometr:=GState.GPSpar.Odometr+VDistToPrev;
-      GState.GPSpar.Odometr2:=GState.GPSpar.Odometr2+VDistToPrev;
-      GState.GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
-    end;
   if not((MapMoving)or(MapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
     if (GState.GPSpar.GPS_MapMove) then begin
-      GState.ViewState.LockWrite;
       if GState.GPSpar.GPS_MapMoveCentered then begin
+        VPointCurr := GState.GPSpar.GPSRecorder.GetLastPoint;
+        GState.ViewState.LockWrite;
         GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
       end else begin
-        if ((VPointPrev.x<>0)and(VPointPrev.y<>0)) then begin
+        if GState.GPSpar.GPSRecorder.GetTwoLastPoints(VPointCurr, VPointPrev) then begin
+          GState.ViewState.LockWrite;
           VPointDelta:=GState.ViewState.GetCenterLonLat;
           VPointDelta:=ExtPoint(VPointDelta.x+VPointCurr.x-VPointPrev.x,
                                 VPointDelta.y+VPointCurr.y-VPointPrev.y);
@@ -3032,33 +3009,14 @@ begin
           end else begin
             GState.ViewState.UnLockWrite;
           end;
-        end else begin
-          GState.ViewState.UnLockWrite;
         end;
       end;
-      //GState.ViewState.ChangeMapPixelByDelta(VConverter.LonLat2PixelPos(VPointDelta, GState.ViewState.GetCurrentZoom));
-      //GState.ViewState.UnLockWrite;
-      //GState.ViewState.ChangeLonLatAndUnlock(VPointDelta);
     end else begin
       LayerStatBar.Redraw;
       FLayerMapGPS.Redraw;
     end;
    end;
   UpdateGPSsensors;
-  if GState.GPSpar.GPS_WriteLog then  begin
-    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then sb:='1' else sb:='0';
-    DecodeDate(Date, xYear, xMonth, xDay);
-    DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
-    s2f:=R2StrPoint(round(VPointCurr.y*10000000)/10000000)+','
-      +R2StrPoint(round(VPointCurr.x*10000000)/10000000)+','
-      +sb+','
-      +R2StrPoint(GState.GPSpar.altitude*3.2808399)+','
-      +floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','
-      +inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','
-      +inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
-    Writeln(GState.GPSpar.GPS_LogFile,s2f);
-   end;
-  end;
 end;
 
 procedure TFmain.GPSReceiverConnect;
@@ -3069,31 +3027,11 @@ begin
   FLayerMapGPS.Visible:=True;
   tbitmGPSConnect.Checked:=True;
   TBGPSconn.Checked:=True;
-
- GState.GPSpar.allspeed:=0;
- GState.GPSpar.sspeed:=0;
- GState.GPSpar.speed:=0;
- GState.GPSpar.maxspeed:=0;
- GState.GPSpar.sspeednumentr:=0;
-
- if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
- if GState.GPSpar.GPS_WriteLog then
- try
-  CreateDir(GState.TrackLogPath);
-  s:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
-     +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.plt';
-  AssignFile(GState.GPSpar.GPS_LogFile,s);
-  rewrite(GState.GPSpar.GPS_LogFile);
-  Write(GState.GPSpar.GPS_LogFile,'OziExplorer Track Point File Version 2.0'+#13#10+'WGS 84'+#13#10+'Altitude is in Feet'+#13#10+'Reserved 3'+#13#10+'0,2,255,Track Log File - '+DateTimeToStr(Now)+',1'+#13#10+'0'+#13#10)
- except
-  GState.GPSpar.GPS_WriteLog:=false;
- end;
+  if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
 end;
 
 procedure TFmain.GPSReceiverConnectError;
 begin
-  tbitmGPSConnect.Enabled := True;
-  TBGPSconn.Enabled := True;
   ShowMessage(SAS_ERR_PortOpen);
 end;
 
