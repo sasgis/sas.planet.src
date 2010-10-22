@@ -30,10 +30,14 @@ implementation
 constructor TGPSSatellitesInView.Create(
   AFixCount: Integer; AItems: IInterfaceList);
 begin
-  FFixCount := AFixCount;
   FItems := AItems;
-  if FItems.Count < FFixCount then begin
-    FFixCount := FItems.Count;
+  if FItems <> nil then begin
+    FFixCount := AFixCount;
+    if FItems.Count < FFixCount then begin
+      FFixCount := FItems.Count;
+    end;
+  end else begin
+    FFixCount := 0;
   end;
 end;
 
@@ -45,7 +49,11 @@ end;
 
 function TGPSSatellitesInView.GetCount: Integer;
 begin
-  Result := FItems.Count;
+  if FItems <> nil then begin
+    Result := FItems.Count;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function TGPSSatellitesInView.GetFixCount: Integer;
@@ -55,7 +63,11 @@ end;
 
 function TGPSSatellitesInView.GetItem(AIndex: Integer): IGPSSatelliteInfo;
 begin
-  Result := IGPSSatelliteInfo(FItems[AIndex]);
+  if FItems <> nil then begin
+    Result := IGPSSatelliteInfo(FItems[AIndex]);
+  end else begin
+    Result := nil;
+  end;
 end;
 
 end.

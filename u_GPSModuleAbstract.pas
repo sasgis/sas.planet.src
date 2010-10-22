@@ -17,6 +17,7 @@ type
     FPosChanged: Boolean;
     FSatellitesChanged: Boolean;
     FLastStaticPosition: IGPSPosition;
+    FEmptyDataPosition: IGPSPosition;
 
     FPosition: TExtendedPoint;
     FAltitude: Extended;
@@ -62,6 +63,7 @@ type
       ASignalToNoiseRatio: Integer;
       AIsFix: Boolean
     );
+    procedure _UpdateToEmptyPosition;
     procedure Lock;
     procedure UnLock;
   protected
@@ -92,6 +94,8 @@ uses
 { TGPSPositionUpdatable }
 
 constructor TGPSModuleAbstract.Create;
+var
+  VPoint: TExtendedPoint;
 begin
   FCS := TCriticalSection.Create;
   FSatellites := TInterfaceList.Create;
@@ -104,6 +108,11 @@ begin
   FDataReciveNotifier := TJclBaseNotifier.Create;
   FTimeOutNotifier := TJclBaseNotifier.Create;
   FDisconnectNotifier := TJclBaseNotifier.Create;
+  VPoint.X := 0;
+  VPoint.Y := 0;
+  FEmptyDataPosition := TGPSPositionStatic.Create(
+    VPoint, 0, 0, 0, 0, 0, 0, 0, 0, 0, TGPSSatellitesInView.Create(0, nil)
+  );
 end;
 
 destructor TGPSModuleAbstract.Destroy;
@@ -111,6 +120,7 @@ begin
   FreeAndNil(FCS);
   FSatellites := nil;
   FLastStaticPosition := nil;
+  FEmptyDataPosition := nil;
   FConnectErrorNotifier := nil;
   FConnectNotifier := nil;
   FDataReciveNotifier := nil;
@@ -141,7 +151,7 @@ end;
 
 function TGPSModuleAbstract.GetPosition: IGPSPosition;
 begin
-  FCS.Acquire;
+  Lock;
   try
     if FSatellitesChanged or FPosChanged then begin
       if not FSatellitesChanged then begin
@@ -181,7 +191,7 @@ begin
       Result := FLastStaticPosition;
     end;
   finally
-    FCS.Release;
+    UnLock;
   end;
 end;
 
@@ -322,6 +332,13 @@ begin
     FSatellites[AIndex] := VSattelite;
     FSatellitesChanged := True;
   end;
+end;
+
+procedure TGPSModuleAbstract._UpdateToEmptyPosition;
+begin
+  FPosChanged := False;
+  FSatellitesChanged := False;
+  FLastStaticPosition := FEmptyDataPosition;
 end;
 
 end.

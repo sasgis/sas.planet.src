@@ -45,38 +45,6 @@ uses
 const
   CMaxSatCount = 32;
 
-procedure TGPSModuleByZylGPS.Connect;
-var
-  VState: TConnectState;
-begin
-  inherited;
-  Lock;
-  try
-    VState := FConnectState;
-    if FConnectState = csDisconnected then begin
-      FConnectState := csConnecting;
-    end;
-  finally
-    UnLock;
-  end;
-  if VState = csDisconnected then begin
-    _UpdateReceiverSettings;
-    try
-      FGPSReceiver.Open;
-    except
-      FGPSReceiver.Close;
-      GetConnectErrorNotifier.Notify(nil);
-      Lock;
-      try
-        FConnectState := csDisconnected;
-      finally
-        UnLock;
-      end;
-      GetDisconnectNotifier.Notify(nil);
-    end;
-  end;
-end;
-
 constructor TGPSModuleByZylGPS.Create(ASettings: IGPSModuleByCOMPortSettings);
 begin
   inherited Create;
@@ -113,6 +81,70 @@ begin
   inherited;
 end;
 
+procedure TGPSModuleByZylGPS._UpdateReceiverSettings;
+var
+  VLogFile: string;
+begin
+  VLogFile := FSettings.LogPath + DateTimeToStr(Now, FFormatSettings) +'.nmea';
+  FGPSReceiver.LogFile := VLogFile;
+  FGPSReceiver.NMEALog := FSettings.NMEALog;
+  FGPSReceiver.Delay := FSettings.Delay;
+  FGPSReceiver.ConnectionTimeout := FSettings.ConnectionTimeout;
+  FGPSReceiver.Port :=  FGPSReceiver.StringToCommPort('COM' + IntToStr(FSettings.Port));
+  FGPSReceiver.BaudRate := FGPSReceiver.IntToBaudRate(FSettings.BaudRate);
+end;
+
+procedure TGPSModuleByZylGPS.Connect;
+var
+  VState: TConnectState;
+begin
+  inherited;
+  Lock;
+  try
+    VState := FConnectState;
+    if FConnectState = csDisconnected then begin
+      FConnectState := csConnecting;
+    end;
+  finally
+    UnLock;
+  end;
+  if VState = csDisconnected then begin
+    _UpdateReceiverSettings;
+    try
+      FGPSReceiver.Open;
+    except
+      GetConnectErrorNotifier.Notify(nil);
+      Lock;
+      try
+        if (FConnectState = csConnecting) or (FConnectState = csConnected) then begin
+          FConnectState := csDisconnecting;
+        end;
+      finally
+        UnLock;
+      end;
+      FGPSReceiver.Close;
+      GPSReceiverDisconnect(FGPSReceiver, spNone);
+    end;
+  end;
+end;
+
+procedure TGPSModuleByZylGPS.GPSReceiverConnect(Sender: TObject;
+  const Port: TCommPort);
+var
+  VState: TConnectState;
+begin
+  Lock;
+  try
+    VState := FConnectState;
+    FConnectState := csConnected;
+  finally
+    UnLock;
+  end;
+  if VState = csConnecting then begin
+    GetConnectNotifier.Notify(nil);
+  end;
+end;
+
 procedure TGPSModuleByZylGPS.Disconnect;
 var
   VState: TConnectState;
@@ -121,7 +153,7 @@ begin
   Lock;
   try
     VState := FConnectState;
-    if FConnectState <> csDisconnected then begin
+    if FConnectState = csConnected then begin
       FConnectState := csDisconnecting;
     end;
   finally
@@ -130,6 +162,31 @@ begin
   if VState = csConnected then begin
     FGPSReceiver.Close;
   end;
+end;
+
+procedure TGPSModuleByZylGPS.GPSReceiverDisconnect(Sender: TObject;
+  const Port: TCommPort);
+var
+  VState: TConnectState;
+begin
+  Lock;
+  try
+    VState := FConnectState;
+    FConnectState := csDisconnected;
+    _UpdateToEmptyPosition;
+  finally
+    UnLock;
+  end;
+  if VState = csDisconnecting then begin
+    GetDisconnectNotifier.Notify(nil);
+  end;
+end;
+
+procedure TGPSModuleByZylGPS.GPSReceiverTimeout(Sender: TObject);
+begin
+  GetTimeOutNotifier.Notify(nil);
+  Disconnect;
+  GPSReceiverDisconnect(FGPSReceiver, spNone);
 end;
 
 function TGPSModuleByZylGPS.GetIsConnected: Boolean;
@@ -206,30 +263,6 @@ begin
   end;
 end;
 
-procedure TGPSModuleByZylGPS.GPSReceiverConnect(Sender: TObject;
-  const Port: TCommPort);
-begin
-  Lock;
-  try
-    FConnectState := csConnected;
-  finally
-    UnLock;
-  end;
-  GetConnectNotifier.Notify(nil);
-end;
-
-procedure TGPSModuleByZylGPS.GPSReceiverDisconnect(Sender: TObject;
-  const Port: TCommPort);
-begin
-  Lock;
-  try
-    FConnectState := csDisconnected;
-  finally
-    UnLock;
-  end;
-  GetDisconnectNotifier.Notify(nil);
-end;
-
 procedure TGPSModuleByZylGPS.GPSReceiverReceive(Sender: TObject;
   Buffer: string);
 var
@@ -255,26 +288,6 @@ begin
     UnLock;
   end;
   GetDataReciveNotifier.Notify(nil);
-end;
-
-procedure TGPSModuleByZylGPS.GPSReceiverTimeout(Sender: TObject);
-begin
-  GetTimeOutNotifier.Notify(nil);
-  Disconnect;
-  GetDisconnectNotifier.Notify(nil);
-end;
-
-procedure TGPSModuleByZylGPS._UpdateReceiverSettings;
-var
-  VLogFile: string;
-begin
-  VLogFile := FSettings.LogPath + DateTimeToStr(Now, FFormatSettings) +'.nmea';
-  FGPSReceiver.LogFile := VLogFile;
-  FGPSReceiver.NMEALog := FSettings.NMEALog;
-  FGPSReceiver.Delay := FSettings.Delay;
-  FGPSReceiver.ConnectionTimeout := FSettings.ConnectionTimeout;
-  FGPSReceiver.Port :=  FGPSReceiver.StringToCommPort('COM' + IntToStr(FSettings.Port));
-  FGPSReceiver.BaudRate := FGPSReceiver.IntToBaudRate(FSettings.BaudRate);
 end;
 
 end.
