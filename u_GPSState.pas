@@ -199,6 +199,7 @@ procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
 begin
+  FSettingsObj.LogPath := GState.TrackLogPath;
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);

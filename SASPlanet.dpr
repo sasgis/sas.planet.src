@@ -281,9 +281,7 @@ begin
       Application.ProcessMessages;
     end;
     try
-      GState.LoadMaps;
-      GState.LoadCacheConfig;
-      GState.LoadMapIconsList;
+      GState.LoadConfig;
     except
       on E: Exception do begin
         Application.ShowException(E);

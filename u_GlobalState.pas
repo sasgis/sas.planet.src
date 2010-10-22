@@ -68,6 +68,9 @@ type
     procedure SetCacheElemensMaxCnt(const Value: integer);
     procedure SaveLastSelectionPolygon;
     procedure LoadLastSelectionPolygon;
+    procedure LoadMaps;
+    procedure LoadCacheConfig;
+    procedure LoadMapIconsList;
   public
 
     MainFileCache: IMemObjCache;
@@ -228,12 +231,10 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure LoadMaps;
-    procedure LoadCacheConfig;
+    procedure LoadConfig;
     function GetMapFromID(id: TGUID): TMapType;
     procedure SaveMaps;
     procedure SaveMainParams;
-    procedure LoadMapIconsList;
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StopAllThreads;
     procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
@@ -288,6 +289,7 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
+  Show_logo := MainIni.ReadBool('VIEW','Show_logo',true);
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   FLanguageManager := TLanguageManager.Create(MainIni);
 
@@ -302,9 +304,6 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   GPSpar := TGPSpar.Create;
-  LoadMainParams;
-  GPSpar.LoadConfig(MainConfigProvider);
-  LoadMarkIcons;
 end;
 
 destructor TGlobalState.Destroy;
@@ -481,6 +480,16 @@ begin
   CacheConfig.GECachePath:=MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
 end;
 
+procedure TGlobalState.LoadConfig;
+begin
+  LoadMainParams;
+  LoadMarkIcons;
+  LoadMaps;
+  LoadCacheConfig;
+  LoadMapIconsList;
+  GPSpar.LoadConfig(MainConfigProvider);
+end;
+
 procedure TGlobalState.LoadLastSelectionPolygon;
 var
   i: Integer;
@@ -517,7 +526,6 @@ end;
 procedure TGlobalState.LoadMainParams;
 begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
-  Show_logo := MainIni.ReadBool('VIEW','Show_logo',true);
   FullScrean:= MainIni.Readbool('VIEW','FullScreen',false);
   TilesOut:=MainIni.readInteger('VIEW','TilesOut',0);
   InetConnect.userwinset:=MainIni.Readbool('INTERNET','userwinset',true);
