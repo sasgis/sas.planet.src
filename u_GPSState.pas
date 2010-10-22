@@ -11,7 +11,8 @@ uses
   i_IConfigDataWriteProvider,
   i_IGPSModule,
   i_IGPSModuleByCOMPortSettings,
-  u_GPSModuleByCOMPortSettings;
+  u_GPSModuleByCOMPortSettings,
+  u_GPSLogWriterToPlt;
 
 type
   TGPSpar = class
@@ -25,8 +26,7 @@ type
     FGpsConnectListener: IJclListener;
     FGpsDataReceiveListener: IJclListener;
     FGpsDisconnectListener: IJclListener;
-    FTrackFileNameFormatSettings: TFormatSettings;
-    FPltFormatSettings: TFormatSettings;
+    FLogWriter: TPltLogWriter;
 
     procedure OnGpsConnect;
     procedure OnGpsDataReceive;
@@ -60,8 +60,6 @@ type
     GPS_MapMoveCentered: Boolean;
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
-    //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
-    GPS_LogFile: TextFile;
     //Скрывать/показывать панель датчиков при подключении/отключении GPS
     GPS_SensorsAutoShow: boolean;
     constructor Create();
@@ -149,24 +147,6 @@ end;
 
 constructor TGPSpar.Create;
 begin
-  FTrackFileNameFormatSettings.DecimalSeparator := '.';
-  FTrackFileNameFormatSettings.DateSeparator := '.';
-  FTrackFileNameFormatSettings.ShortDateFormat := 'yyyy.MM.dd';
-  FTrackFileNameFormatSettings.TimeSeparator := ':';
-  FTrackFileNameFormatSettings.LongTimeFormat := 'HH-mm-ss';
-  FTrackFileNameFormatSettings.ShortTimeFormat := 'HH-mm-ss';
-  FTrackFileNameFormatSettings.ListSeparator := ';';
-  FTrackFileNameFormatSettings.TwoDigitYearCenturyWindow := 50;
-
-  FPltFormatSettings.DecimalSeparator := '.';
-  FPltFormatSettings.DateSeparator := '.';
-  FPltFormatSettings.ShortDateFormat := 'dd.MM.yyyy';
-  FPltFormatSettings.TimeSeparator := ':';
-  FPltFormatSettings.LongTimeFormat := 'HH:mm:ss';
-  FPltFormatSettings.ShortTimeFormat := 'HH:mm:ss';
-  FPltFormatSettings.ListSeparator := ';';
-  FPltFormatSettings.TwoDigitYearCenturyWindow := 50;
-
   FGPSRecorder := TGPSRecorderStuped.Create;
   FSettingsObj := TGPSModuleByCOMPortSettings.Create;
   FSettings := FSettingsObj;
@@ -192,6 +172,7 @@ begin
   FGpsDataReceiveListener := nil;
   FGpsDisconnectListener := nil;
   FGPSModele := nil;
+  FreeAndNil(FLogWriter);
   inherited;
 end;
 
@@ -200,6 +181,7 @@ var
   VConfigProvider: IConfigDataProvider;
 begin
   FSettingsObj.LogPath := GState.TrackLogPath;
+  FLogWriter := TPltLogWriter.Create(GState.TrackLogPath);
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
@@ -251,12 +233,7 @@ begin
 
   if GPS_WriteLog then begin
     try
-      VPath := GState.TrackLogPath;
-      ForceDirectories(VPath);
-      VFileName := VPath + DateTimeToStr(Now, FTrackFileNameFormatSettings) +'.plt';
-      AssignFile(GPS_LogFile,VFileName);
-      rewrite(GPS_LogFile);
-      Write(GPS_LogFile,'OziExplorer Track Point File Version 2.0'+#13#10+'WGS 84'+#13#10+'Altitude is in Feet'+#13#10+'Reserved 3'+#13#10+'0,2,255,Track Log File - '+DateTimeToStr(Now)+',1'+#13#10+'0'+#13#10)
+      FLogWriter.StartWrite;
     except
       GPS_WriteLog := false;
     end;
@@ -271,9 +248,6 @@ var
   VTrackPoint: TGPSTrackPoint;
   VDistToPrev: Extended;
   VConverter: ICoordConverter;
-  VPltString: string;
-  VNow: TDateTime;
-  sb: string;
 begin
   VPosition := GPSModele.Position;
   if (VPosition.IsFix=0) then exit;
@@ -299,27 +273,16 @@ begin
       Odometr2:=Odometr2+VDistToPrev;
       azimut:=VPosition.Heading;
     end;
-   end;
-  if GPS_WriteLog then  begin
-    VNow := Now;
-    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then sb:='1' else sb:='0';
-    VPltString:=FloatToStr(VPointCurr.Y, FPltFormatSettings)+','
-      +FloatToStr(VPointCurr.X, FPltFormatSettings)+','
-      +sb+','
-      +FloatToStr(altitude*3.2808399, FPltFormatSettings)+','
-      +FloatToStr(VNow, FPltFormatSettings)+','
-      +DateToStr(VNow, FPltFormatSettings)+','
-      +TimeToStr(VNow, FPltFormatSettings);
-    Writeln(GPS_LogFile,VPltString);
-   end;
+  end;
+  if FLogWriter.Started then begin
+    FLogWriter.AddPoint(VPosition);
+  end;
 end;
 
 procedure TGPSpar.OnGpsDisconnect;
 begin
   try
-    if GPS_WriteLog then begin
-      CloseFile(GPS_LogFile);
-    end;
+    FLogWriter.CloseLog;
   except
   end;
 end;
