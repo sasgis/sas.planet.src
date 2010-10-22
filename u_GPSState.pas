@@ -77,7 +77,6 @@ type
 implementation
 
 uses
-  StrUtils,
   u_JclNotify,
   t_GeoTypes,
   i_GPS,
