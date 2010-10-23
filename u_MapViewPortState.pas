@@ -67,6 +67,10 @@ type
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
 
+    procedure MoveTo(Pnt: TPoint); virtual;
+    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload; virtual;
+    procedure ScaleTo(AScale: Double); overload; virtual;
+
     function GetCenterMapPixel: TPoint;
     function GetCenterLonLat: TExtendedPoint;
     function GetCurrentZoom: Byte;
@@ -75,21 +79,17 @@ type
     function GetViewRectInMapPixel: TRect;
     function GetViewRectInVisualPixel: TRect;
     function GetViewSizeInMapPixel: TPoint;
+    function GetViewSizeInVisiblePixel: TPoint;
     function GetViewLonLatRect: TExtendedRect;
     function GetViewCenterInVisualPixel: TPoint;
+    function GetViewTopLeftInMapPixel: TPoint;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
-    procedure MoveTo(Pnt: TPoint); virtual;
-    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload; virtual;
-    procedure ScaleTo(AScale: Double); overload; virtual;
-
     function VisiblePixel2LonLat(Pnt: TPoint): TExtendedPoint; overload;
-    function GetVisibleTopLeft: TPoint;
-    function GetViewSizeInVisiblePixel: TPoint;
 
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
@@ -496,15 +496,13 @@ begin
   end;
 end;
 
-function TMapViewPortState.GetVisibleTopLeft: TPoint;
+function TMapViewPortState.GetViewTopLeftInMapPixel: TPoint;
 var
   VViewCenter: TPoint;
 begin
   FSync.BeginRead;
   try
-    VViewCenter := GetViewCenterInVisualPixel;
-    Result.X := FCenterPos.X - VViewCenter.X;
-    Result.Y := FCenterPos.Y - VViewCenter.Y;
+    Result := VisiblePixel2MapPixel(Point(0,0));
   finally
     FSync.EndRead;
   end;
