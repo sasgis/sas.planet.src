@@ -22,6 +22,11 @@ type
     FCenterPos: TPoint;
     FZoom: Byte;
     FViewSize: TPoint;
+
+    FVisibleMove: TExtendedPoint;
+    FBaseScale: TExtendedPoint;
+    FMapScale: TExtendedPoint;
+
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FWriteLocked: Boolean;
     FPosChangeNotifier: IJclNotifier;
@@ -67,18 +72,24 @@ type
     function GetCurrentZoom: Byte;
     function GetCurrentMap: TMapType;
     function GetCurrentCoordConverter: ICoordConverter;
-    function GetViewMapRect: TRect;
-    function GetViewMapSize: TPoint;
+    function GetViewRectInMapPixel: TRect;
+    function GetViewRectInVisualPixel: TRect;
+    function GetViewSizeInMapPixel: TPoint;
     function GetViewLonLatRect: TExtendedRect;
+    function GetViewCenterInVisualPixel: TPoint;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
     function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+
+    procedure MoveTo(Pnt: TPoint); virtual;
+    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload; virtual;
+    procedure ScaleTo(AScale: Double); overload; virtual;
+
     function VisiblePixel2LonLat(Pnt: TPoint): TExtendedPoint; overload;
-    function GetVisiblePixelRect: TRect;
     function GetVisibleTopLeft: TPoint;
-    function GetVisibleSizeInPixel: TPoint;
+    function GetViewSizeInVisiblePixel: TPoint;
 
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
@@ -145,6 +156,11 @@ begin
     FViewSize.Y := 768;
   end;
 
+  FVisibleMove.X := 0;
+  FVisibleMove.Y := 0;
+  FBaseScale.X := 1;
+  FBaseScale.Y := 1;
+  FMapScale := FBaseScale;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FWriteLocked := False;
 end;
@@ -410,62 +426,67 @@ begin
   end;
 end;
 
-function TMapViewPortState.GetViewMapRect: TRect;
+function TMapViewPortState.GetViewRectInMapPixel: TRect;
+var
+  VViewRect: TRect;
 begin
   FSync.BeginRead;
   try
-    Result.Left := FCenterPos.X - FViewSize.X div 2;
-    Result.Top := FCenterPos.Y - FViewSize.Y div 2;
-    Result.Right := Result.Left + FViewSize.X;
-    Result.Bottom := Result.Top + FViewSize.Y;
-    InternalGetCurrentCoordConverter.CheckPixelRect(Result, FZoom, False);
+    VViewRect := GetViewRectInVisualPixel;
+    Dec(VViewRect.Right);
+    Dec(VViewRect.Bottom);
+    Result.TopLeft := VisiblePixel2MapPixel(VViewRect.TopLeft);
+    Result.BottomRight := VisiblePixel2MapPixel(VViewRect.BottomRight);
+  finally
+    FSync.EndRead;
+  end;
+end;
+
+function TMapViewPortState.GetViewRectInVisualPixel: TRect;
+begin
+  FSync.BeginRead;
+  try
+    Result.TopLeft := Point(0, 0);
+    Result.BottomRight := FViewSize;
+  finally
+    FSync.EndRead;
+  end;
+end;
+
+function TMapViewPortState.GetViewCenterInVisualPixel: TPoint;
+begin
+  FSync.BeginRead;
+  try
+    Result := Point(FViewSize.X div 2, FViewSize.Y div 2);
   finally
     FSync.EndRead;
   end;
 end;
 
 function TMapViewPortState.GetViewLonLatRect: TExtendedRect;
+var
+  VMapRect: TRect;
 begin
   FSync.BeginRead;
   try
-    Result := InternalGetCurrentCoordConverter.PixelRect2LonLatRect(GetViewMapRect, FZoom);
+    VMapRect := GetViewRectInMapPixel;
+    InternalGetCurrentCoordConverter.CheckPixelRect(VMapRect, FZoom, False);
+    Result := InternalGetCurrentCoordConverter.PixelRect2LonLatRect(VMapRect, FZoom);
   finally
     FSync.EndRead;
   end;
 end;
 
-function TMapViewPortState.GetViewMapSize: TPoint;
+function TMapViewPortState.GetViewSizeInMapPixel: TPoint;
 var
   VRect: TRect;
 begin
-  FSync.BeginRead;
-  try
-    VRect.Left := FCenterPos.X - FViewSize.X div 2;
-    VRect.Top := FCenterPos.Y - FViewSize.Y div 2;
-    VRect.Right := VRect.Left + FViewSize.X;
-    VRect.Bottom := VRect.Top + FViewSize.Y;
-    InternalGetCurrentCoordConverter.CheckPixelRect(VRect, FZoom, False);
-    Result.X := VRect.Right - VRect.Left + 1;
-    Result.Y := VRect.Bottom - VRect.Top + 1;
-  finally
-    FSync.EndRead;
-  end;
+  VRect := GetViewRectInMapPixel;
+  Result.X := VRect.Right - VRect.Left + 1;
+  Result.Y := VRect.Bottom - VRect.Top + 1;
 end;
 
-function TMapViewPortState.GetVisiblePixelRect: TRect;
-begin
-  FSync.BeginRead;
-  try
-    Result.Left := FCenterPos.X - FViewSize.X div 2;
-    Result.Top := FCenterPos.Y - FViewSize.Y div 2;
-    Result.Right := Result.Left + FViewSize.X;
-    Result.Bottom := Result.Top + FViewSize.Y;
-  finally
-    FSync.EndRead;
-  end;
-end;
-
-function TMapViewPortState.GetVisibleSizeInPixel: TPoint;
+function TMapViewPortState.GetViewSizeInVisiblePixel: TPoint;
 begin
   FSync.BeginRead;
   try
@@ -476,11 +497,14 @@ begin
 end;
 
 function TMapViewPortState.GetVisibleTopLeft: TPoint;
+var
+  VViewCenter: TPoint;
 begin
   FSync.BeginRead;
   try
-    Result.X := FCenterPos.X - FViewSize.X div 2;
-    Result.Y := FCenterPos.Y - FViewSize.Y div 2;
+    VViewCenter := GetViewCenterInVisualPixel;
+    Result.X := FCenterPos.X - VViewCenter.X;
+    Result.Y := FCenterPos.Y - VViewCenter.Y;
   finally
     FSync.EndRead;
   end;
@@ -503,48 +527,54 @@ end;
 
 function TMapViewPortState.MapPixel2VisiblePixel(
   Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VViewCenter: TPoint;
 begin
   FSync.BeginRead;
   try
-    Result.X := Pnt.X - FCenterPos.X + FViewSize.X div 2;
-    Result.Y := Pnt.Y - FCenterPos.Y + FViewSize.Y div 2;
+    VViewCenter := GetViewCenterInVisualPixel;
+    Result.X := (Pnt.X - FCenterPos.X) * FMapScale.X + VViewCenter.X + FVisibleMove.X;
+    Result.Y := (Pnt.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y + FVisibleMove.Y;
   finally
     FSync.EndRead;
   end;
 end;
 
 function TMapViewPortState.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
+var
+  VSourcePoint: TExtendedPoint;
+  VResultPoint: TExtendedPoint;
+begin
+  VSourcePoint.X := Pnt.X;
+  VSourcePoint.Y := Pnt.Y;
+  VResultPoint := MapPixel2VisiblePixel(VSourcePoint);
+  Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
+end;
+
+function TMapViewPortState.VisiblePixel2MapPixel(
+  Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VViewCenter: TPoint;
 begin
   FSync.BeginRead;
   try
-    Result.X := Pnt.X - FCenterPos.X + FViewSize.X div 2;
-    Result.Y := Pnt.Y - FCenterPos.Y + FViewSize.Y div 2;
+    VViewCenter := GetViewCenterInVisualPixel;
+    Result.X := (Pnt.X - VViewCenter.X - FVisibleMove.X) / FMapScale.X + FCenterPos.X;
+    Result.Y := (Pnt.Y - VViewCenter.Y - FVisibleMove.Y) / FMapScale.Y + FCenterPos.Y;
   finally
     FSync.EndRead;
   end;
 end;
 
 function TMapViewPortState.VisiblePixel2MapPixel(Pnt: TPoint): TPoint;
+var
+  VSourcePoint: TExtendedPoint;
+  VResultPoint: TExtendedPoint;
 begin
-  FSync.BeginRead;
-  try
-    Result.X := Pnt.X + FCenterPos.X - FViewSize.X div 2;
-    Result.Y := Pnt.Y + FCenterPos.Y - FViewSize.Y div 2;
-  finally
-    FSync.EndRead;
-  end;
-end;
-
-function TMapViewPortState.VisiblePixel2MapPixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
-begin
-  FSync.BeginRead;
-  try
-    Result.X := Pnt.X + FCenterPos.X - FViewSize.X div 2;
-    Result.Y := Pnt.Y + FCenterPos.Y - FViewSize.Y div 2;
-  finally
-    FSync.EndRead;
-  end;
+  VSourcePoint.X := Pnt.X;
+  VSourcePoint.Y := Pnt.Y;
+  VResultPoint := VisiblePixel2MapPixel(VSourcePoint);
+  Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
 end;
 
 function TMapViewPortState.VisiblePixel2LonLat(
@@ -799,6 +829,66 @@ begin
     VMapConfigSaver.Save(FActiveMaps);
   finally
     VMapConfigSaver := nil;
+  end;
+end;
+
+procedure TMapViewPortState.MoveTo(Pnt: TPoint);
+begin
+  FSync.BeginWrite;
+  try
+    FMapScale := FBaseScale;
+    FVisibleMove.X := Pnt.X;
+    FVisibleMove.Y := Pnt.Y;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+procedure TMapViewPortState.ScaleTo(AScale: Double; ACenterPoint: TPoint);
+var
+  VVisiblePointFixed: TExtendedPoint;
+  VMapPointFixed: TExtendedPoint;
+  VNewVisualPoint: TExtendedPoint;
+begin
+  VVisiblePointFixed.X := ACenterPoint.X;
+  VVisiblePointFixed.Y := ACenterPoint.Y;
+  FSync.BeginWrite;
+  try
+    VMapPointFixed := VisiblePixel2MapPixel(VVisiblePointFixed);
+    FVisibleMove.X := 0;
+    FVisibleMove.Y := 0;
+    FMapScale.X := FBaseScale.X * AScale;
+    FMapScale.Y := FBaseScale.X * AScale;
+    VNewVisualPoint := MapPixel2VisiblePixel(VMapPointFixed);
+    FVisibleMove.X := VVisiblePointFixed.X - VNewVisualPoint.X;
+    FVisibleMove.Y := VVisiblePointFixed.Y - VNewVisualPoint.Y;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+procedure TMapViewPortState.ScaleTo(AScale: Double);
+var
+  VVisiblePointFixed: TExtendedPoint;
+  VMapPointFixed: TExtendedPoint;
+  VNewVisualPoint: TExtendedPoint;
+  VViewCenter: TPoint;
+begin
+  FSync.BeginWrite;
+  try
+    VViewCenter := GetViewCenterInVisualPixel;
+    VVisiblePointFixed.X := VViewCenter.X;
+    VVisiblePointFixed.Y := VViewCenter.Y;
+    VMapPointFixed := VisiblePixel2MapPixel(VVisiblePointFixed);
+    FVisibleMove.X := 0;
+    FVisibleMove.Y := 0;
+    FMapScale.X := FBaseScale.X * AScale;
+    FMapScale.Y := FBaseScale.X * AScale;
+    VNewVisualPoint := MapPixel2VisiblePixel(VMapPointFixed);
+    FVisibleMove.X := VVisiblePointFixed.X - VNewVisualPoint.X;
+    FVisibleMove.Y := VVisiblePointFixed.Y - VNewVisualPoint.Y;
+  finally
+    FSync.EndWrite;
   end;
 end;
 

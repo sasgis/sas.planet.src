@@ -2870,7 +2870,7 @@ var
 begin
   GState.ViewState.LockRead;
   try
-    VSize := GState.ViewState.GetVisibleSizeInPixel;
+    VSize := GState.ViewState.GetViewSizeInVisiblePixel;
     VPos:=GState.ViewState.VisiblePixel2LonLat(moveTrue);
   finally
     GState.ViewState.UnLockRead;
@@ -3172,7 +3172,7 @@ begin
     VLonLat := GState.ViewState.VisiblePixel2LonLat(moveTrue);
     VMap := GState.ViewState.GetCurrentMap;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
-    VVisibleSizeInPixel := GState.ViewState.GetVisibleSizeInPixel;
+    VVisibleSizeInPixel := GState.ViewState.GetViewSizeInVisiblePixel;
  finally
    GState.ViewState.UnLockRead;
  end;
