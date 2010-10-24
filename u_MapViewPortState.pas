@@ -97,6 +97,8 @@ type
     function MapRect2VisibleRect(ARect: TExtendedRect): TExtendedRect; overload;
 
     function VisiblePixel2LonLat(Pnt: TPoint): TExtendedPoint; overload;
+    function VisiblePixel2LonLat(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function LonLat2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
 
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
@@ -526,6 +528,23 @@ begin
   end;
 end;
 
+function TMapViewPortState.LonLat2VisiblePixel(
+  Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VMapPixel: TExtendedPoint;
+  VConverter: ICoordConverter;
+begin
+  FSync.BeginRead;
+  try
+    VConverter := InternalGetCurrentCoordConverter;
+    VConverter.CheckLonLatPos(Pnt);
+    VMapPixel := VConverter.LonLat2PixelPosFloat(Pnt, FZoom);
+    Result := MapPixel2VisiblePixel(VMapPixel);
+  finally
+    FSync.EndRead;
+  end;
+end;
+
 function TMapViewPortState.MapPixel2VisiblePixel(
   Pnt: TExtendedPoint): TExtendedPoint;
 var
@@ -638,6 +657,25 @@ begin
     VConverter := InternalGetCurrentCoordConverter;
     VConverter.CheckPixelPos(VMapPixel, VZoom, False);
     Result := VConverter.PixelPos2LonLat(VMapPixel, VZoom);
+  finally
+    FSync.EndRead;
+  end;
+end;
+
+function TMapViewPortState.VisiblePixel2LonLat(
+  Pnt: TExtendedPoint): TExtendedPoint;
+var
+  VZoom: Byte;
+  VMapPixel: TExtendedPoint;
+  VConverter: ICoordConverter;
+begin
+  FSync.BeginRead;
+  try
+    VZoom := FZoom;
+    VMapPixel := VisiblePixel2MapPixel(Pnt);
+    VConverter := InternalGetCurrentCoordConverter;
+    VConverter.CheckPixelPosFloat(VMapPixel, VZoom, False);
+    Result := VConverter.PixelPosFloat2LonLat(VMapPixel, VZoom);
   finally
     FSync.EndRead;
   end;
