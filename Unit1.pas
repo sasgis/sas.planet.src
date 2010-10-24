@@ -673,10 +673,9 @@ uses
 
 {$R *.dfm}
 
-type
-
 { TListenerOfMainForm }
 
+type
   TListenerOfMainForm = class(TJclBaseListener)
   protected
     FMainForm: TFmain;
