@@ -20,13 +20,14 @@ type
     FParentMap: TImage32;
     FLayerPositioned: TPositionedLayer;
     FViewPortState: TMapViewPortState;
-    FMapPosChangeListener: IJclListener;
     FVisibleChangeNotifier: IJclNotifier;
 
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
     function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; virtual;
+    procedure DoShow; virtual;
+    procedure DoHide; virtual;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -34,7 +35,7 @@ type
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
-    procedure Show; virtual; abstract;
+    procedure Show; virtual;
     procedure Hide; virtual;
     procedure Redraw; virtual; abstract;
     property Visible: Boolean read GetVisible write SetVisible;
@@ -74,8 +75,8 @@ type
     procedure DoRedraw; virtual; abstract;
     procedure DoResizeBitmap; virtual;
     procedure DoResize; virtual;
+    procedure DoShow; override;
   public
-    procedure Show; override;
     procedure Resize; virtual;
     procedure Redraw; override;
   end;
@@ -85,9 +86,9 @@ type
     FLayer: TBitmapLayer;
     function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; override;
     procedure DoResizeBitmap; override;
+    procedure DoHide; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-    procedure Hide; override;
   end;
 
 implementation
@@ -120,12 +121,21 @@ end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
-  FMapPosChangeListener := nil;
   FViewPortState := nil;
   FParentMap := nil;
   FLayerPositioned := nil;
   FVisibleChangeNotifier := nil;
   inherited;
+end;
+
+procedure TWindowLayerBasic.DoHide;
+begin
+  FLayerPositioned.Visible := False;
+end;
+
+procedure TWindowLayerBasic.DoShow;
+begin
+  FLayerPositioned.Visible := True;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;
@@ -136,7 +146,7 @@ end;
 procedure TWindowLayerBasic.Hide;
 begin
   if FLayerPositioned.Visible then begin
-    FLayerPositioned.Visible := False;
+    DoHide;
     FVisibleChangeNotifier.Notify(nil);
   end;
 end;
@@ -166,6 +176,14 @@ begin
   end;
 end;
 
+procedure TWindowLayerBasic.Show;
+begin
+  if not FLayerPositioned.Visible then begin
+    DoShow;
+    FVisibleChangeNotifier.Notify(nil);
+  end;
+end;
+
 procedure TWindowLayerBasic.StartThreads;
 begin
   // По умолчанию ничего не делаем
@@ -177,16 +195,6 @@ procedure TWindowLayerBasicOld.Resize;
 begin
   if FLayerPositioned.Visible then begin
     DoResize;
-  end;
-end;
-
-procedure TWindowLayerBasicOld.Show;
-begin
-  if not FLayerPositioned.Visible then begin
-    FLayerPositioned.Visible := True;
-    FVisibleChangeNotifier.Notify(nil);
-    Resize;
-    Redraw;
   end;
 end;
 
@@ -205,6 +213,13 @@ end;
 
 procedure TWindowLayerBasicOld.DoResizeBitmap;
 begin
+end;
+
+procedure TWindowLayerBasicOld.DoShow;
+begin
+  inherited;
+  Resize;
+  Redraw;
 end;
 
 procedure TWindowLayerBasicOld.DoResize;
@@ -320,7 +335,7 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasicWithBitmap.Hide;
+procedure TWindowLayerBasicWithBitmap.DoHide;
 begin
   inherited;
   FLayer.Bitmap.Lock;
