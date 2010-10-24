@@ -13,7 +13,7 @@ uses
   t_GeoTypes;
 
 type
-  TMapLayerBasicNoBitmap = class(TWindowLayerBasic)
+  TMapLayerBasicNoBitmap = class(TWindowLayerBasicOld)
   protected
 
     FScale: Double;
