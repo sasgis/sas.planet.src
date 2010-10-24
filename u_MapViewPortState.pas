@@ -31,8 +31,10 @@ type
     FWriteLocked: Boolean;
     FPosChangeNotifier: IJclNotifier;
     FViewSizeChangeNotifier: IJclNotifier;
+    FScaleChangeNotifier: IJclNotifier;
     procedure NotifyChangePos;
     procedure NotifyChangeViewSize;
+    procedure NotifyChangeScale;
     function GetHybrChangeNotifier: IJclNotifier;
     function GetHybrList: IMapTypeList;
     function GetMapsList: IMapTypeList;
@@ -98,6 +100,7 @@ type
 
     property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
     property PosChangeNotifier: IJclNotifier read FPosChangeNotifier;
+    property ScaleChangeNotifier: IJclNotifier read FScaleChangeNotifier;
     property ViewSizeChangeNotifier: IJclNotifier read FViewSizeChangeNotifier;
     property MapsList: IMapTypeList read GetMapsList;
     property HybrList: IMapTypeList read GetHybrList;
@@ -135,6 +138,7 @@ begin
   FActiveMaps := TActiveMapWithHybrConfig.Create(False, AMainMap.GUID, AMapsList, ALayersList);
 
   FPosChangeNotifier := TJclBaseNotifier.Create;
+  FScaleChangeNotifier := TJclBaseNotifier.Create;
   FViewSizeChangeNotifier := TJclBaseNotifier.Create;
 
   VConverter := InternalGetCurrentCoordConverter;
@@ -171,6 +175,7 @@ begin
   FreeAndNil(FSync);
   FActiveMaps := nil;
   FPosChangeNotifier := nil;
+  FScaleChangeNotifier := nil;
   FViewSizeChangeNotifier := nil;
   inherited;
 end;
@@ -497,15 +502,8 @@ begin
 end;
 
 function TMapViewPortState.GetViewTopLeftInMapPixel: TPoint;
-var
-  VViewCenter: TPoint;
 begin
-  FSync.BeginRead;
-  try
-    Result := VisiblePixel2MapPixel(Point(0,0));
-  finally
-    FSync.EndRead;
-  end;
+  Result := VisiblePixel2MapPixel(Point(0,0));
 end;
 
 procedure TMapViewPortState.LockRead;
@@ -601,7 +599,17 @@ end;
 
 procedure TMapViewPortState.UnLockWrite;
 begin
-  FSync.EndWrite;
+  FSync.BeginWrite;
+  try
+    if FWriteLocked then begin
+      FWriteLocked := False;
+      FSync.EndWrite;
+    end else begin
+      raise Exception.Create('Настройки состояния не были заблокированы');
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 procedure TMapViewPortState.ChangeMapPixelByDelta(ADelta: TPoint);
@@ -616,8 +624,11 @@ begin
     try
       VConverter := InternalGetCurrentCoordConverter;
       VZoom := FZoom;
-      VNewPos.X := FCenterPos.X + ADelta.X;
-      VNewPos.Y := FCenterPos.Y + ADelta.Y;
+      VNewPos.X := FCenterPos.X + Trunc(ADelta.X / FBaseScale.X);
+      VNewPos.Y := FCenterPos.Y + Trunc(ADelta.Y / FBaseScale.Y);
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      FMapScale := FBaseScale;
       VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
       VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
       FCenterPos := VNewPos;
@@ -645,6 +656,9 @@ begin
     VNewPos := VisiblePixel2MapPixel(AVisualPoint);
     VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
     VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
+    FVisibleMove.X := 0;
+    FVisibleMove.Y := 0;
+    FMapScale := FBaseScale;
     FCenterPos := VNewPos;
   finally
     FSync.EndWrite;
@@ -666,6 +680,7 @@ var
   VNewCenterPos: TPoint;
   VFreezeDelta: TPoint;
   VChanged: Boolean;
+  VTempMapPoint: TPoint;
 begin
   VChanged := False;
   FSync.BeginWrite;
@@ -678,18 +693,26 @@ begin
       VZoomOld := FZoom;
       VMapFreezePoint := VisiblePixel2MapPixel(AFreezePoint);
       VConverter.CheckPixelPos(VMapFreezePoint, VZoomOld, False);
-      VFreezeDelta.X := FCenterPos.X - VMapFreezePoint.X;
-      VFreezeDelta.Y := FCenterPos.Y - VMapFreezePoint.Y;
-
       VRelativeFreezePoint := VConverter.PixelPos2Relative(VMapFreezePoint, VZoomOld);
       VMapFreezPointAtNewZoom := VConverter.Relative2Pixel(VRelativeFreezePoint, VZoom);
 
-      VNewCenterPos.X := VMapFreezPointAtNewZoom.X + VFreezeDelta.X;
-      VNewCenterPos.Y := VMapFreezPointAtNewZoom.Y + VFreezeDelta.Y;
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      FMapScale := FBaseScale;
+      FCenterPos := VMapFreezPointAtNewZoom;
+      FZoom := VZoom;
+
+      VTempMapPoint := VisiblePixel2MapPixel(AFreezePoint);
+
+      VFreezeDelta.X := VTempMapPoint.X - FCenterPos.X;
+      VFreezeDelta.Y := VTempMapPoint.Y - FCenterPos.Y;
+
+
+      VNewCenterPos.X := FCenterPos.X - VFreezeDelta.X;
+      VNewCenterPos.Y := FCenterPos.Y - VFreezeDelta.Y;
 
       VConverter.CheckPixelPosStrict(VNewCenterPos, VZoom, False);
       FCenterPos := VNewCenterPos;
-      FZoom := VZoom;
     end;
   finally
     FSync.EndWrite;
@@ -745,6 +768,11 @@ begin
     FSync.EndRead;
   end;
   FPosChangeNotifier.Notify(VMessage);
+end;
+
+procedure TMapViewPortState.NotifyChangeScale;
+begin
+  FScaleChangeNotifier.Notify(nil);
 end;
 
 procedure TMapViewPortState.NotifyChangeViewSize;
@@ -837,6 +865,7 @@ begin
     FMapScale := FBaseScale;
     FVisibleMove.X := Pnt.X;
     FVisibleMove.Y := Pnt.Y;
+    NotifyChangeScale;
   finally
     FSync.EndWrite;
   end;
@@ -860,6 +889,7 @@ begin
     VNewVisualPoint := MapPixel2VisiblePixel(VMapPointFixed);
     FVisibleMove.X := VVisiblePointFixed.X - VNewVisualPoint.X;
     FVisibleMove.Y := VVisiblePointFixed.Y - VNewVisualPoint.Y;
+    NotifyChangeScale;
   finally
     FSync.EndWrite;
   end;
@@ -885,6 +915,7 @@ begin
     VNewVisualPoint := MapPixel2VisiblePixel(VMapPointFixed);
     FVisibleMove.X := VVisiblePointFixed.X - VNewVisualPoint.X;
     FVisibleMove.Y := VVisiblePointFixed.Y - VNewVisualPoint.Y;
+    NotifyChangeScale;
   finally
     FSync.EndWrite;
   end;
