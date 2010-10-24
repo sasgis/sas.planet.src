@@ -21,21 +21,6 @@ uses
 
 type
   TfrMapCombine = class(TFrame)
-    cbbHybr: TComboBox;
-    grpSplit: TGroupBox;
-    lblSplitHor: TLabel;
-    lblSplitVert: TLabel;
-    seSplitHor: TSpinEdit;
-    seSplitVert: TSpinEdit;
-    seJpgQuality: TSpinEdit;
-    chkUseMapMarks: TCheckBox;
-    chklstPrTypes: TCheckListBox;
-    chkUseRecolor: TCheckBox;
-    cbbMap: TComboBox;
-    lblJpgQulity: TLabel;
-    lblMap: TLabel;
-    lblHybr: TLabel;
-    lblPrTypes: TLabel;
     pnlTop: TPanel;
     pnlTargetFile: TPanel;
     lblTargetFile: TLabel;
@@ -44,14 +29,32 @@ type
     pnlOutputFormat: TPanel;
     cbbOutputFormat: TComboBox;
     lblOutputFormat: TLabel;
-    pnlBottom: TPanel;
-    pnlRight: TPanel;
-    pnlCenter: TPanel;
     dlgSaveTargetFile: TSaveDialog;
-    cbbZoom: TComboBox;
+    pnlRight: TPanel;
+    grpSplit: TGroupBox;
+    lblSplitHor: TLabel;
+    lblSplitVert: TLabel;
+    seSplitHor: TSpinEdit;
+    seSplitVert: TSpinEdit;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    lblMap: TLabel;
+    cbbMap: TComboBox;
+    Panel3: TPanel;
     lblZoom: TLabel;
-    lblStat: TLabel;
+    cbbZoom: TComboBox;
+    lblHybr: TLabel;
+    cbbHybr: TComboBox;
+    pnlCenter: TPanel;
+    chkUseMapMarks: TCheckBox;
+    chkUseRecolor: TCheckBox;
     flwpnlJpegQuality: TFlowPanel;
+    lblJpgQulity: TLabel;
+    Panel4: TPanel;
+    lblPrTypes: TLabel;
+    chklstPrTypes: TCheckListBox;
+    seJpgQuality: TSpinEdit;
+    lblStat: TLabel;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
@@ -186,6 +189,7 @@ begin
     GState.MapCalibrationList.Unlock;
   end;
   cbbOutputFormatChange(cbbOutputFormat);
+  cbbZoomChange(nil);
 end;
 
 procedure TfrMapCombine.RefreshTranslation;

@@ -42,8 +42,6 @@ uses
   TBX,
   TBXControls,
   TBXExtItems,
-  ZylGPSReceiver,
-  ZylCustomGPSReceiver,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_IGUIDList,
@@ -154,7 +152,6 @@ type
     DigitalGlobe1: TMenuItem;
     ldm: TMenuItem;
     dlm: TMenuItem;
-    GPSReceiver: TZylGPSReceiver;
     SaveLink: TSaveDialog;
     NSRTM3: TMenuItem;
     N47: TMenuItem;
@@ -186,7 +183,7 @@ type
     NView: TTBXSubmenuItem;
     NSources: TTBXSubmenuItem;
     NMarks: TTBXSubmenuItem;
-    NGPS: TTBXSubmenuItem;
+    tbsbmGPS: TTBXSubmenuItem;
     NParams: TTBXSubmenuItem;
     NLayerParams: TTBXSubmenuItem;
     NHelp: TTBXSubmenuItem;
@@ -209,13 +206,10 @@ type
     TBItem6: TTBXItem;
     TBGPSconn: TTBXItem;
     TBGPSPath: TTBXSubmenuItem;
-    TBGPSToPoint: TTBXItem;
     TBSrc: TTBXSubmenuItem;
     TBSMB: TTBXSubmenuItem;
     TBLayerSel: TTBXSubmenuItem;
     ImagesSrc24: TTBImageList;
-    MapIcons24: TTBImageList;
-    MapIcons18: TTBImageList;
     TBFullSize: TTBXItem;
     TBmove: TTBXItem;
     TBCalcRas: TTBXItem;
@@ -276,12 +270,12 @@ type
     TBLang: TTBXSubmenuItem;
     TBXLangRus: TTBXItem;
     TBXLangEng: TTBXItem;
-    NGPSconn: TTBXItem;
-    NGPSPath: TTBXItem;
-    NGPSToPoint: TTBXItem;
-    NSaveTreck: TTBXItem;
-    N36: TTBXItem;
-    N39: TTBXItem;
+    tbitmGPSConnect: TTBXItem;
+    tbitmGPSTrackShow: TTBXItem;
+    tbitmGPSCenterMap: TTBXItem;
+    tbitmGPSTrackSave: TTBXItem;
+    tbitmGPSTrackSaveToDb: TTBXItem;
+    tbitmGPSTrackClear: TTBXItem;
     NMainToolBarShow: TTBXItem;
     NZoomToolBarShow: TTBXItem;
     NsrcToolBarShow: TTBXItem;
@@ -309,7 +303,7 @@ type
     TBXSeparatorItem10: TTBXSeparatorItem;
     TBXSeparatorItem11: TTBXSeparatorItem;
     TBXSeparatorItem12: TTBXSeparatorItem;
-    TBXSeparatorItem13: TTBXSeparatorItem;
+    tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
     EditCommentsImgs: TImageList;
@@ -377,8 +371,8 @@ type
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
     NToolBarSearch: TTBXItem;
-    TBXSeparatorItem18: TTBXSeparatorItem;
-    TBXItem7: TTBXItem;
+    tbsprtGPS2: TTBXSeparatorItem;
+    tbitmPositionByGSM: TTBXItem;
     TBXItem6: TTBXItem;
     OpenSessionDialog: TOpenDialog;
     NShowSelection: TTBXItem;
@@ -400,6 +394,9 @@ type
     TBXSensorOdometr2: TTBXLabel;
     TBXLabel6: TTBXLabel;
     NsensorOdometr2Bar: TTBXItem;
+    TBGPSToPoint: TTBXSubmenuItem;
+    TBGPSToPointCenter: TTBXItem;
+    tbitmGPSToPointCenter: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -478,10 +475,11 @@ type
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure RxSlider1Changed(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
-    procedure GPSReceiver1SatellitesReceive(Sender: TObject);
-    procedure GPSReceiverDisconnect(Sender: TObject; const Port: TCommPort);
-    procedure GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
-    procedure GPSReceiverTimeout(Sender: TObject);
+    procedure GPSReceiverDisconnect;
+    procedure GPSReceiverConnect;
+    procedure GPSReceiverTimeout;
+    procedure GPSReceiverConnectError;
+    procedure GPSReceiverReceive;
     procedure NMapParamsClick(Sender: TObject);
     procedure mapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
@@ -521,13 +519,13 @@ type
     procedure TBXSelectYandexSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
-    procedure TBXItem7Click(Sender: TObject);
+    procedure tbitmPositionByGSMClick(Sender: TObject);
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
     procedure TBXItem8Click(Sender: TObject);
     procedure TBXItem9Click(Sender: TObject);
-    procedure GPSReceiverReceive(Sender: TObject; Buffer: string);
+    procedure TBGPSToPointCenterClick(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -566,6 +564,11 @@ type
     FMainMapChangeListener: IJclListener;
     FHybrChangeListener: IJclListener;
     FMapLayersVsibleChangeListener: IJclListener;
+    FGPSConntectListener: IJclListener;
+    FGPSDisconntectListener: IJclListener;
+    FGPSConntectErrorListener: IJclListener;
+    FGPSTimeOutListener: IJclListener;
+    FGPSReceiveListener: IJclListener;
 
     FMainToolbarItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
     FMainToolbarSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
@@ -653,6 +656,7 @@ uses
   UFDGAvailablePic,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
+  i_GPS,
   i_ILogSimple,
   i_ILogForTaskThread,
   i_ICoordConverter,
@@ -667,6 +671,7 @@ uses
   u_MarksSimple,
   u_MarksReadWriteSimple,
   u_ThreadDownloadTiles,
+  u_SaveLoadTBConfigByConfigProvider,
   UGSM,
   UImport,
   u_MapViewPortState;
@@ -718,6 +723,76 @@ procedure TMapLayersVisibleChange.Notification(
   msg: IJclNotificationMessage);
 begin
   FMainForm.MapLayersVisibleChange;
+end;
+
+{ TGPSConnected }
+
+type
+  TGPSConnected = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TGPSConnected.Notification(
+  msg: IJclNotificationMessage);
+begin
+  TThread.Synchronize(nil, FMainForm.GPSReceiverConnect);
+end;
+
+{ TGPSDisonnected }
+
+type
+  TGPSDisonnected = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TGPSDisonnected.Notification(
+  msg: IJclNotificationMessage);
+begin
+  TThread.Synchronize(nil, FMainForm.GPSReceiverDisconnect);
+end;
+
+{ TGPSReceive }
+
+type
+  TGPSReceive = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TGPSReceive.Notification(
+  msg: IJclNotificationMessage);
+begin
+  TThread.Synchronize(nil, FMainForm.GPSReceiverReceive);
+end;
+
+{ TGPSTimeOut }
+
+type
+  TGPSTimeOut = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TGPSTimeOut.Notification(
+  msg: IJclNotificationMessage);
+begin
+  TThread.Synchronize(nil, FMainForm.GPSReceiverTimeout);
+end;
+
+{ TGPSConnectError }
+
+type
+  TGPSConnectError = class(TListenerOfMainForm)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+procedure TGPSConnectError.Notification(
+  msg: IJclNotificationMessage);
+begin
+  TThread.Synchronize(nil, FMainForm.GPSReceiverConnectError);
 end;
 
 { TMainMapChangeListenerOfMainForm }
@@ -1183,6 +1258,8 @@ procedure TFmain.UpdateGPSsensors;
 var
   s_len,n_len: string;
   sps: _SYSTEM_POWER_STATUS;
+  VPoint: TExtendedPoint;
+  VDist: Extended;
 begin
  try
    //скорость
@@ -1198,7 +1275,9 @@ begin
    TBXOdometrNow.Caption:=s_len;
    //расстояние до метки
    if (LayerMapNavToMark<>nil)and(LayerMapNavToMark.Visible) then begin
-     n_len:=DistToStrWithUnits(LayerMapNavToMark.GetDistToMark, GState.num_format);
+     VPoint := GState.ViewState.GetCenterLonLat;
+     VDist := GState.ViewState.GetCurrentCoordConverter.CalcDist(LayerMapNavToMark.GetMarkLonLat, VPoint);
+     n_len:=DistToStrWithUnits(VDist, GState.num_format);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin
      TBXSensorLenToMark.Caption:='-';
@@ -1230,9 +1309,12 @@ procedure TFmain.UpdateGPSSatellites;
 var
   i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
   VSatCount: Integer;
+  VPosition: IGPSPosition;
+  VSattelite: IGPSSatelliteInfo;
 begin
    TBXSignalStrengthBar.Repaint;
-   if GState.GPSpar.SatCount>0 then begin
+   VPosition := GState.GPSpar.GPSModele.Position;
+   if VPosition.Satellites.FixCount > 0 then begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
        try
@@ -1241,11 +1323,11 @@ begin
          Canvas.Brush.Color:=clGreen;
          bar_x1:=0;
          bar_dy:=8;
-         bar_width:=((Width-15) div GPSReceiver.GetSatelliteCount);
-         for I := 0 to GPSReceiver.GetSatellites.Count-1 do begin
-           if GState.GPSpar.GetSatActive(Fmain.GPSReceiver.GetSatellites.Items[i].PseudoRandomCode,
-                                 Fmain.GPSReceiver.GetRawData) then begin
-             bar_height:=trunc(14*((GPSReceiver.GetSatellites.Items[i].SignalToNoiseRatio)/100));
+         bar_width:=((Width-15) div VPosition.Satellites.FixCount);
+         for I := 0 to VPosition.Satellites.Count-1 do begin
+           VSattelite := VPosition.Satellites.Item[i];
+           if VSattelite.IsFix then begin
+             bar_height:=trunc(14*((VSattelite.SignalToNoiseRatio)/100));
              Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
              inc(bar_x1,bar_width);
            end;
@@ -1314,7 +1396,7 @@ begin
       end;
     end;
 
-    if GState.GPS_enab then begin
+    if GState.GPSpar.GPSModele.IsConnected then begin
        FLayerMapGPS.Redraw;
        UpdateGPSsensors;
     end;
@@ -1562,7 +1644,7 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
-    lock_toolbars:=GState.MainIni.ReadBool('VIEW','lock_toolbars',false);
+    lock_toolbars:=GState.MainIni.ReadBool('PANEL','lock_toolbars',false);
 
     Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
@@ -1609,12 +1691,14 @@ begin
     NGShScale0.Checked := GState.GShScale = 0;
 
     Ninvertcolor.Checked:=GState.InvertColor;
-    TBGPSconn.Checked := GState.GPS_enab;
-    if GState.GPS_enab then TBGPSconnClick(TBGPSconn);
-    TBGPSPath.Checked:=GState.GPS_ShowPath;
-    NGPSPath.Checked:=GState.GPS_ShowPath;
-    TBGPSToPoint.Checked:=GState.GPS_MapMove;
-    NGPSToPoint.Checked:=GState.GPS_MapMove;
+//    TBGPSconn.Checked := GState.GPSpar.GPS_enab;
+//    if GState.GPSpar.GPS_enab then TBGPSconnClick(TBGPSconn);
+    TBGPSPath.Checked:=GState.GPSpar.GPS_ShowPath;
+    tbitmGPSTrackShow.Checked:=GState.GPSpar.GPS_ShowPath;
+    TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
+    tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
+    TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
+    tbitmGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
     Nanimate.Checked:=GState.AnimateZoom;
@@ -1650,6 +1734,17 @@ begin
     FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
+
+    FGPSConntectListener := TGPSConnected.Create(Self);
+    GState.GPSpar.GPSModele.ConnectNotifier.Add(FGPSConntectListener);
+    FGPSDisconntectListener := TGPSDisonnected.Create(Self);
+    GState.GPSpar.GPSModele.DisconnectNotifier.Add(FGPSDisconntectListener);
+    FGPSConntectErrorListener := TGPSConnectError.Create(Self);
+    GState.GPSpar.GPSModele.ConnectErrorNotifier.Add(FGPSConntectErrorListener);
+    FGPSTimeOutListener := TGPSTimeOut.Create(Self);
+    GState.GPSpar.GPSModele.TimeOutNotifier.Add(FGPSTimeOutListener);
+    FGPSReceiveListener := TGPSReceive.Create(Self);
+    GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
@@ -1702,7 +1797,9 @@ begin
 
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
+    GState.StartThreads;
     FMainLayer.Visible := True;
+    FLayerMapMarks.Visible := GState.show_point <> mshNone;
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1804,7 +1901,7 @@ end;
 procedure TFmain.FormCreate(Sender: TObject);
 begin
  Application.Title:=Caption;
- TBiniLoadPositions(Self,GState.MainIni,'PANEL_');
+ TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
  TBEditPath.Visible:=false;
  Caption:=Caption+' '+SASVersion;
  ProgramStart:=true;
@@ -1815,6 +1912,11 @@ var
   i:integer;
 begin
   ProgramClose:=true;
+  GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
+  GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
+  GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
+  GState.GPSpar.GPSModele.TimeOutNotifier.Remove(FGPSTimeOutListener);
+  GState.GPSpar.GPSModele.DataReciveNotifier.Remove(FGPSReceiveListener);
   if GState.ViewState <> nil then begin
     GState.ViewState.PosChangeNotifier.Remove(FMapPosChangeListener);
     GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
@@ -1827,9 +1929,7 @@ begin
   FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FMapLayersVsibleChangeListener := nil;
   //останавливаем GPS
-  GPSReceiver.OnDisconnect:=nil;
-  GPSReceiver.Close;
-  GState.StopAllThreads;
+  GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
     if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
       Screen.Forms[i].Close;
@@ -2405,46 +2505,27 @@ end;
 
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
- try
- NGPSconn.Checked:=TTBXitem(sender).Checked;
- TBGPSconn.Checked:=TTBXitem(sender).Checked;
- FLayerMapGPS.Visible:=NGPSconn.Checked;
- GState.GPS_enab := TBGPSconn.Checked;
- if GState.GPS_enab then
-  begin
-   GPSReceiver.NMEALog:=GState.GPS_NMEALog;
-   GPSReceiver.LogFile:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
-     +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.nmea';
-   GPSReceiver.Delay:=GState.GPS_Delay;
-   GPSReceiver.ConnectionTimeout:=GState.GPS_TimeOut;
-   GPSReceiver.Port :=  GPSReceiver.StringToCommPort(GState.GPS_COM);
-   if GPSReceiver.BaudRate<>GPSReceiver.IntToBaudRate(GState.GPS_BaudRate) then
-     GPSReceiver.BaudRate:=GPSReceiver.IntToBaudRate(GState.GPS_BaudRate);
-   GPSReceiver.NeedSynchronization:=true;
-   try
-    GPSReceiver.Open;
-   except
-    ShowMessage(SAS_ERR_PortOpen);
-    GPSReceiver.Close;
-   end;
-  end
-  else GPSReceiver.Close;
- except
- end;
+  TTBXitem(sender).Enabled := False;
+  TTBXitem(sender).Checked := GState.GPSpar.GPSModele.IsConnected;
+  if TTBXitem(sender).Checked then begin
+    GState.GPSpar.GPSModele.Disconnect;
+  end else begin
+    GState.GPSpar.GPSModele.Connect;
+  end;
 end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
- NGPSPath.Checked:=TTBXitem(sender).Checked;
+ tbitmGPSTrackShow.Checked:=TTBXitem(sender).Checked;
  TBGPSPath.Checked:=TTBXitem(sender).Checked;
- GState.GPS_ShowPath:=TBGPSPath.Checked;
+ GState.GPSpar.GPS_ShowPath:=TBGPSPath.Checked;
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
 begin
- NGPSToPoint.Checked:=TTBXitem(sender).Checked;
+ tbitmGPSCenterMap.Checked:=TTBXitem(sender).Checked;
  TBGPSToPoint.Checked:=TTBXitem(sender).Checked;
- GState.GPS_MapMove:=TBGPSToPoint.Checked;
+ GState.GPSpar.GPS_MapMove:=TBGPSToPoint.Checked;
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
@@ -2507,7 +2588,7 @@ begin
         AssignFile(f,SaveDlg.FileName);
         rewrite(f);
         Fprogress2.ProgressBar1.Progress1:=10;
-        VAllPoints := GState.GPSRecorder.GetAllPoints;
+        VAllPoints := GState.GPSpar.GPSRecorder.GetAllPoints;
         Writeln(f,'<?xml version="1.0" encoding="UTF-8"?>');
         Writeln(f,'<kml xmlns="http://earth.google.com/kml/2.1">');
         Writeln(f,'<Folder>');
@@ -2559,7 +2640,7 @@ procedure TFmain.TBItem5Click(Sender: TObject);
 var
   VAllPoints: TExtendedPointArray;
 begin
-  VAllPoints := GState.GPSRecorder.GetAllPoints;
+  VAllPoints := GState.GPSpar.GPSRecorder.GetAllPoints;
   if length(VAllPoints)>1 then begin
     if SaveLineModal(-1, VAllPoints, '') then begin
       setalloperationfalse(ao_movemap);
@@ -2893,111 +2974,79 @@ begin
   end;
 end;
 
-procedure TFmain.GPSReceiver1SatellitesReceive(Sender: TObject);
+procedure TFmain.GPSReceiverDisconnect;
 begin
- if FSettings.Visible then FSettings.SatellitePaint;
- if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
+  if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
+  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
+  tbitmGPSConnect.Enabled := True;
+  TBGPSconn.Enabled := True;
+  FLayerMapGPS.Visible:=false;
+  tbitmGPSConnect.Checked:=false;
+  TBGPSconn.Checked:=false;
 end;
 
-procedure TFmain.GPSReceiverDisconnect(Sender: TObject;
-  const Port: TCommPort);
-begin
- try
- if GState.GPS_WriteLog then CloseFile(GState.GPS_LogFile);
- if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
- GState.GPS_enab:=false;
- FLayerMapGPS.Visible:=false;
- NGPSconn.Checked:=false;
- TBGPSconn.Checked:=false;
- except
- end;
-end;
-
-procedure TFmain.GPSReceiverReceive(Sender: TObject; Buffer: string);
+procedure TFmain.GPSReceiverReceive;
 var s2f,sb:string;
     xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
-    VConverter: ICoordConverter;
     VPointCurr: TExtendedPoint;
     VPointPrev: TExtendedPoint;
+    VPointDelta: TExtendedPoint;
     VDistToPrev: Extended;
     VTrackPoint: TGPSTrackPoint;
+    VPosition: IGPSPosition;
 begin
-  if (GPSReceiver.IsFix=0) then exit;
-  VPointCurr.X := GPSReceiver.GetLongitudeAsDecimalDegrees;
-  VPointCurr.Y := GPSReceiver.GetLatitudeAsDecimalDegrees;
-  if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
-    VPointPrev := GState.GPSRecorder.GetLastPoint;
-    VTrackPoint.Point := VPointCurr;
-    VTrackPoint.Speed := GPSReceiver.GetSpeed_KMH;
-    GState.GPSRecorder.AddPoint(VTrackPoint);
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    GState.GPSpar.speed:=VTrackPoint.Speed;
-    if GState.GPSpar.maxspeed<GState.GPSpar.speed then GState.GPSpar.maxspeed:=GState.GPSpar.speed;
-    inc(GState.GPSpar.sspeednumentr);
-    GState.GPSpar.allspeed:=GState.GPSpar.allspeed+GState.GPSpar.speed;
-    GState.GPSpar.sspeed:=GState.GPSpar.allspeed/GState.GPSpar.sspeednumentr;
-    GState.GPSpar.altitude:=GPSReceiver.GetAltitude;
-    GState.GPSpar.SatCount:=GPSReceiver.GetSatelliteCount;
-    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
-      VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
-      GState.GPSpar.len:=GState.GPSpar.len+VDistToPrev;
-      GState.GPSpar.Odometr:=GState.GPSpar.Odometr+VDistToPrev;
-      GState.GPSpar.Odometr2:=GState.GPSpar.Odometr2+VDistToPrev;
-      GState.GPSpar.azimut:=RadToDeg(ArcTan2(VPointPrev.y-VPointCurr.y,VPointCurr.x-VPointPrev.x))+90;
-    end;
-
+  VPosition := GState.GPSpar.GPSModele.Position;
+  if FSettings.Visible then FSettings.SatellitePaint;
+  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
+  if (VPosition.IsFix=0) then exit;
   if not((MapMoving)or(MapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
-    if (GState.GPS_MapMove) then begin
-      GState.ViewState.LockWrite;
-      GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
+    if (GState.GPSpar.GPS_MapMove) then begin
+      if GState.GPSpar.GPS_MapMoveCentered then begin
+        VPointCurr := GState.GPSpar.GPSRecorder.GetLastPoint;
+        GState.ViewState.LockWrite;
+        GState.ViewState.ChangeLonLatAndUnlock(VPointCurr);
+      end else begin
+        if GState.GPSpar.GPSRecorder.GetTwoLastPoints(VPointCurr, VPointPrev) then begin
+          GState.ViewState.LockWrite;
+          VPointDelta:=GState.ViewState.GetCenterLonLat;
+          VPointDelta:=ExtPoint(VPointDelta.x+VPointCurr.x-VPointPrev.x,
+                                VPointDelta.y+VPointCurr.y-VPointPrev.y);
+          if PointInRect(VPointCurr, GState.ViewState.GetViewLonLatRect) then  begin
+            GState.ViewState.ChangeLonLatAndUnlock(VPointDelta);
+          end else begin
+            GState.ViewState.UnLockWrite;
+          end;
+        end;
+      end;
     end else begin
       LayerStatBar.Redraw;
       FLayerMapGPS.Redraw;
     end;
    end;
   UpdateGPSsensors;
-  if GState.GPS_WriteLog then  begin
-    if (VPointPrev.x<>0)or(VPointPrev.y<>0) then sb:='1' else sb:='0';
-    DecodeDate(Date, xYear, xMonth, xDay);
-    DecodeTime(GetTime, xHr, xMin, xSec, xMSec);
-    s2f:=R2StrPoint(round(VPointCurr.y*10000000)/10000000)+','
-      +R2StrPoint(round(VPointCurr.x*10000000)/10000000)+','
-      +sb+','
-      +R2StrPoint(GPSReceiver.MetersToFeet(GState.GPSpar.altitude))+','
-      +floattostr(Double(Date))+'.'+inttostr(round(Double(GetTime)*1000000))+','
-      +inttostr(xDay)+'.'+inttostr(xMonth)+'.'+inttostr(xYear)+','
-      +inttostr(xHr)+':'+inttostr(xMin)+':'+inttostr(xSec);
-    Writeln(GState.GPS_LogFile,s2f);
-   end;
-  end;
 end;
 
-procedure TFmain.GPSReceiverConnect(Sender: TObject; const Port: TCommPort);
+procedure TFmain.GPSReceiverConnect;
 var S:string;
 begin
- GState.GPSpar.allspeed:=0;
- GState.GPSpar.sspeed:=0;
- GState.GPSpar.speed:=0;
- GState.GPSpar.maxspeed:=0;
- GState.GPSpar.sspeednumentr:=0;
- if GState.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
- if GState.GPS_WriteLog then
- try
-  CreateDir(GState.TrackLogPath);
-  s:=GState.TrackLogPath+inttostr(YearOf(Date))+'.'+inttostr(MonthOf(Date))+'.'+inttostr(DayOf(Date))
-     +'-'+inttostr(HourOf(GetTime))+'-'+inttostr(MinuteOf(GetTime))+'-'+inttostr(SecondOf(GetTime))+'.plt';
-  AssignFile(GState.GPS_LogFile,s);
-  rewrite(GState.GPS_LogFile);
-  Write(GState.GPS_LogFile,'OziExplorer Track Point File Version 2.0'+#13#10+'WGS 84'+#13#10+'Altitude is in Feet'+#13#10+'Reserved 3'+#13#10+'0,2,255,Track Log File - '+DateTimeToStr(Now)+',1'+#13#10+'0'+#13#10)
- except
-  GState.GPS_WriteLog:=false;
- end;
+  tbitmGPSConnect.Enabled := True;
+  TBGPSconn.Enabled := True;
+  FLayerMapGPS.Visible:=True;
+  tbitmGPSConnect.Checked:=True;
+  TBGPSconn.Checked:=True;
+  if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
 end;
 
-procedure TFmain.GPSReceiverTimeout(Sender: TObject);
+procedure TFmain.GPSReceiverConnectError;
 begin
- ShowMessage(SAS_ERR_Communication);
- GPSReceiver.Close;
+  ShowMessage(SAS_ERR_PortOpen);
+end;
+
+procedure TFmain.GPSReceiverTimeout;
+begin
+  tbitmGPSConnect.Enabled := True;
+  TBGPSconn.Enabled := True;
+  ShowMessage(SAS_ERR_Communication);
 end;
 
 procedure TFmain.NMapParamsClick(Sender: TObject);
@@ -3240,8 +3289,7 @@ begin
      PrepareSelectionRect(Shift, VSelectionRect);
      FLayerMapNal.DrawSelectionRect(VSelectionRect);
    end;
-   if GState.GPS_enab then begin
-     FLayerMapGPS.Redraw;
+   if GState.GPSpar.GPSModele.IsConnected then begin
      UpdateGPSsensors;
    end;
    if aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
@@ -3564,7 +3612,7 @@ end;
 
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
-  GState.GPSRecorder.ClearTrack;
+  GState.GPSpar.GPSRecorder.ClearTrack;
   GState.GPSpar.maxspeed:=0;
 end;
 
@@ -3964,10 +4012,10 @@ begin
 
   FLayersList.SaveConfig(AProvider);
 
-  GState.MainIni.WriteBool('VIEW','lock_toolbars',lock_toolbars);
+  GState.MainIni.WriteBool('PANEL','lock_toolbars',lock_toolbars);
   lock_tb_b:=lock_toolbars;
   lock_toolbars:=false;
-  TBiniSavePositions(Self, GState.MainIni,'PANEL_');
+  TBConfigProviderSavePositions(Self, GState.MainConfigProvider.GetOrCreateSubItem('PANEL'));
   lock_toolbars:=lock_tb_b;
 end;
 
@@ -4045,8 +4093,8 @@ end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
-  if GState.GPS_enab then begin
-    if AddNewPointModal(GState.GPSRecorder.GetLastPoint) then begin
+  if GState.GPSpar.GPSModele.IsConnected then begin
+    if AddNewPointModal(GState.GPSpar.GPSRecorder.GetLastPoint) then begin
       setalloperationfalse(ao_movemap);
       generate_im;
     end;
@@ -4069,7 +4117,7 @@ begin
  end;
 end;
 
-procedure TFmain.TBXItem7Click(Sender: TObject);
+procedure TFmain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGPS:TPosFromGPS;
 begin
@@ -4106,6 +4154,13 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);
+begin
+ tbitmGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
+ TBGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
+ GState.GPSpar.GPS_MapMoveCentered:=TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);

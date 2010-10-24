@@ -4,10 +4,10 @@ object FAddPoly: TFAddPoly
   BorderStyle = bsSizeToolWin
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1099#1081' '#1087#1086#1083#1080#1075#1086#1085
   ClientHeight = 351
-  ClientWidth = 323
+  ClientWidth = 327
   Color = clBtnFace
   Constraints.MinHeight = 375
-  Constraints.MinWidth = 331
+  Constraints.MinWidth = 335
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -19,87 +19,76 @@ object FAddPoly: TFAddPoly
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Bevel2: TBevel
-    Left = 0
-    Top = 279
-    Width = 323
-    Height = 9
-    Align = alBottom
-    Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 288
-    ExplicitWidth = 329
-  end
-  object Bevel5: TBevel
-    Left = 0
-    Top = 311
-    Width = 323
-    Height = 9
-    Align = alBottom
-    Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 312
-    ExplicitWidth = 329
-  end
   object CheckBox2: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 291
-    Width = 317
+    Top = 300
+    Width = 321
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 5
+    ExplicitTop = 291
+    ExplicitWidth = 317
   end
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 320
-    Width = 323
+    Width = 327
     Height = 31
     Align = alBottom
+    BevelEdges = [beTop]
+    BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
+    ExplicitWidth = 323
     object Badd: TButton
       AlignWithMargins = True
-      Left = 168
+      Left = 172
       Top = 3
       Width = 73
-      Height = 25
+      Height = 23
       Align = alRight
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Default = True
       ModalResult = 1
       TabOrder = 0
       OnClick = BaddClick
+      ExplicitLeft = 168
+      ExplicitHeight = 25
     end
     object Button2: TButton
       AlignWithMargins = True
-      Left = 247
+      Left = 251
       Top = 3
       Width = 73
-      Height = 25
+      Height = 23
       Hint = #1054#1090#1084#1077#1085#1080#1090#1100
       Align = alRight
       Cancel = True
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 1
+      ExplicitLeft = 247
+      ExplicitHeight = 25
     end
   end
   object pnlFill: TPanel
     Left = 0
-    Top = 232
-    Width = 323
-    Height = 47
+    Top = 248
+    Width = 327
+    Height = 49
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 4
+    ExplicitTop = 237
+    ExplicitWidth = 323
     object Label10: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 317
+      Width = 321
       Height = 13
       Align = alTop
       Caption = #1047#1072#1087#1086#1083#1085#1077#1085#1080#1077':'
@@ -108,13 +97,16 @@ object FAddPoly: TFAddPoly
     object flwpnlFill: TFlowPanel
       Left = 0
       Top = 19
-      Width = 323
-      Height = 28
+      Width = 327
+      Height = 30
       Align = alTop
       AutoSize = True
       AutoWrap = False
+      BevelEdges = [beBottom]
+      BevelKind = bkTile
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitWidth = 323
       object Label6: TLabel
         AlignWithMargins = True
         Left = 3
@@ -172,18 +164,20 @@ object FAddPoly: TFAddPoly
   end
   object pnlLine: TPanel
     Left = 0
-    Top = 185
-    Width = 323
+    Top = 201
+    Width = 327
     Height = 47
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 185
+    ExplicitWidth = 323
     object Label9: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 317
+      Width = 321
       Height = 13
       Align = alTop
       Caption = #1051#1080#1085#1080#1103':'
@@ -192,7 +186,7 @@ object FAddPoly: TFAddPoly
     object flwpnlLine: TFlowPanel
       Left = 0
       Top = 19
-      Width = 323
+      Width = 327
       Height = 28
       Align = alTop
       AutoSize = True
@@ -275,65 +269,72 @@ object FAddPoly: TFAddPoly
   object pnlDescription: TPanel
     Left = 0
     Top = 52
-    Width = 323
-    Height = 133
+    Width = 327
+    Height = 149
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitWidth = 323
+    ExplicitHeight = 133
   end
   object pnlCategory: TPanel
     Left = 0
     Top = 0
-    Width = 323
+    Width = 327
     Height = 25
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 323
     object Label7: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 56
-      Height = 13
+      Height = 19
       Align = alLeft
       Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
+      ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
       Left = 65
       Top = 3
-      Width = 255
+      Width = 259
       Height = 21
       Align = alClient
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 0
       Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
+      ExplicitWidth = 255
     end
   end
   object pnlName: TPanel
     Left = 0
     Top = 25
-    Width = 323
+    Width = 327
     Height = 27
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 323
     object Label1: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 25
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = #1048#1084#1103':'
+      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True
       Left = 34
       Top = 3
-      Width = 286
+      Width = 290
       Height = 21
       Align = alClient
       Font.Charset = RUSSIAN_CHARSET
@@ -343,6 +344,7 @@ object FAddPoly: TFAddPoly
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      ExplicitWidth = 286
     end
   end
   object OpenDialog1: TOpenDialog

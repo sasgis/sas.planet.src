@@ -73,7 +73,9 @@ end;
 procedure TBConfigProviderLoadPositions(const OwnerComponent: TComponent;
   const AConfigProvider: IConfigDataProvider);
 begin
-  TBCustomLoadPositions(OwnerComponent, ConfigProviderReadInt, ConfigProviderReadString, Pointer(AConfigProvider));
+  if AConfigProvider <> nil then begin
+    TBCustomLoadPositions(OwnerComponent, ConfigProviderReadInt, ConfigProviderReadString, Pointer(AConfigProvider));
+  end;
 end;
 
 procedure TBConfigProviderSavePositions(const OwnerComponent: TComponent;

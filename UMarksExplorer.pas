@@ -17,7 +17,7 @@ uses
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   u_MarksSimple,
-  Unit1;
+  Unit1, ComCtrls, ImgList;
 
 type
   TFMarksExplorer = class(TCommonFormParent)
@@ -27,7 +27,6 @@ type
     MarksListBox: TCheckListBox;
     GroupBox2: TGroupBox;
     BtnDelKat: TSpeedButton;
-    KategoryListBox: TCheckListBox;
     OpenDialog: TOpenDialog;
     Button1: TButton;
     Button2: TButton;
@@ -45,31 +44,35 @@ type
     BtnAddCategory: TSpeedButton;
     SBNavOnMark: TSpeedButton;
     OpenDialog1: TOpenDialog;
+    TreeView1: TTreeView;
+    imlStates: TImageList;
     procedure FormShow(Sender: TObject);
-    procedure KategoryListBoxMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnOpMarkClick(Sender: TObject);
     procedure BtnGotoMarkClick(Sender: TObject);
-    procedure KategoryListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
     procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure KategoryListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure SBNavOnMarkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure TreeView1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
   public
   end;
 
 var
+  katitems:TStrings;
   FMarksExplorer: TFMarksExplorer;
   function DeleteMarkModal(id:integer;handle:THandle):boolean;
   function OperationMark(AMark: TMarkFull):boolean;
@@ -226,6 +229,91 @@ begin
   end;
 end;
 
+procedure DrawTreeCategory(TreeView1: TTreeView; Strs: TStrings);
+var
+  CachedStrs: TStringList; // CachedStrs вводитс€ дл€ ускорени€ поиска
+  // в уже готовом дереве.
+
+  procedure AddItem(Lev: Integer; ParentNode: TTreeNode; S: string; Data:TObject);
+    function FindNodeWithText(AParent: TTreeNode; const S: string): TTreeNode;
+    var
+      K: Integer;
+      fStr: string;
+      tmpNode: TTreeNode;
+    begin
+      if TCategoryId(Data).id<>123123123 then
+      Result := nil;
+      fStr := S + IntToStr(Integer(AParent));
+      K := CachedStrs.IndexOf(fStr);
+      if K > -1 then
+        Result := Pointer(CachedStrs.Objects[K])
+      else
+      begin
+        if AParent <> nil then
+          tmpNode := AParent.getFirstChild
+        else
+          tmpNode := TreeView1.Items.GetFirstNode;
+        while tmpNode <> nil do
+        begin
+          if tmpNode.Text = S then
+          begin
+            Result := tmpNode;
+            CachedStrs.AddObject(fStr, Pointer(tmpNode));
+            break;
+          end;
+          tmpNode := tmpNode.getNextSibling;
+        end;
+      end
+    end;
+
+  var
+    prefix: string;
+    ID: Integer;
+    aNode: TTreeNode;
+  begin
+    if TCategoryId(Data).id<>123123123 then
+    if S='' then begin
+      Exit;
+    end;
+    ID:=Pos('\', S);
+    prefix:='';
+    if ID > 0 then begin
+      prefix:=Copy(S, 1, ID - 1)
+    end else begin
+      prefix:=S;
+      S := '';
+    end;
+    aNode := FindNodeWithText(ParentNode, prefix);
+    if aNode = nil then
+    begin
+      aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, Data);
+      aNode.StateIndex :=2;
+      if TCategoryId(Data).visible then begin
+        aNode.StateIndex :=1
+      end;
+    end;
+    AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data);
+  end;
+
+var
+  K: Integer;
+begin
+  CachedStrs := TStringList.Create;
+  CachedStrs.Duplicates := dupIgnore;
+  CachedStrs.Sorted := True;
+  try
+    TreeView1.Items.Clear;
+    TreeView1.Items.BeginUpdate;
+    TreeView1.SortType := stNone;
+    for K := 0 to Strs.Count - 1 do
+      AddItem(0, nil, Strs[K], Strs.Objects[K]);
+    TreeView1.SortType:=stText;
+  finally
+    TreeView1.Items.EndUpdate;
+    CachedStrs.Free;
+  end;
+end;
+
 procedure TFMarksExplorer.FormShow(Sender: TObject);
 var
     i:integer;
@@ -237,27 +325,10 @@ begin
  end;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
- Kategory2StringsWithObjects(KategoryListBox.items);
-  for i:=0 to KategoryListBox.items.Count - 1 do begin
-    KategoryListBox.Checked[i] := TCategoryId(KategoryListBox.Items.Objects[i]).visible;
-  end;
-
+ katitems:=TStringList.create;
+ Kategory2StringsWithObjects(katitems);
+ DrawTreeCategory(TreeView1,katitems);
  SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
-end;
-
-procedure TFMarksExplorer.KategoryListBoxMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  VIndex: integer;
-  i:integer;
-begin
-  VIndex := KategoryListBox.ItemIndex;
-  if VIndex >= 0 then begin
-    Marsk2StringsWithMarkId(TCategoryId(KategoryListBox.Items.Objects[VIndex]), MarksListBox.Items);
-    for i:=0 to MarksListBox.Count-1 do begin
-      MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
-    end;
-  end;
 end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
@@ -387,29 +458,17 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.KategoryListBoxClickCheck(Sender: TObject);
-var
-  VIndex: integer;
-  VCategory: TCategoryId;
-begin
-  VIndex := KategoryListBox.ItemIndex;
-  VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
-  VCategory.visible := KategoryListBox.Checked[VIndex];
-  WriteCategory(VCategory);
-end;
-
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
 var
-  VIndex: Integer;
   VCategory: TCategoryId;
 begin
-  VIndex := KategoryListBox.ItemIndex;
-  if VIndex >= 0 then begin
-    VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+  if TreeView1.Selected <> nil then begin
+    VCategory := TCategoryId(TreeView1.Selected.Data);
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
       DeleteCategoryWithMarks(VCategory);
+      katitems.Delete(katitems.IndexOfObject(VCategory));
       VCategory.Free;
-      KategoryListBox.DeleteSelected;
+      DrawTreeCategory(TreeView1,katitems);
     end;
   end;
 end;
@@ -430,7 +489,7 @@ begin
         if EditMarkModal(VMark) then begin
           WriteMark(VMark);
           SaveMarks2File;
-          if VMark.CategoryId<>TCategoryId(KategoryListBox.Items.Objects[KategoryListBox.ItemIndex]).id then begin
+          if VMark.CategoryId<>TCategoryId(TreeView1.Selected.Data).id then begin
             MarksListBox.Items.Objects[VIndex].Free;
             MarksListBox.DeleteSelected;
           end else begin
@@ -442,6 +501,63 @@ begin
         end;
       finally
         VMark.Free;
+      end;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.TreeView1KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  VCategory: TCategoryId;
+begin
+  If key=VK_DELETE then begin
+    if TreeView1.Selected <> nil then begin
+      VCategory := TCategoryId(TreeView1.Selected.Data);
+      if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+        DeleteCategoryWithMarks(VCategory);
+        VCategory.Free;
+        //KategoryListBox.DeleteSelected;
+      end;
+    end;
+  end;
+
+  if Key=VK_SPACE then begin
+    if TreeView1.Selected<>nil then begin
+      VCategory := TCategoryId(TreeView1.Selected.Data);
+      if TreeView1.Selected.StateIndex=1 then begin
+        VCategory.visible := false;
+        TreeView1.Selected.StateIndex:=2;
+      end else begin
+        VCategory.visible := true;
+        TreeView1.Selected.StateIndex:=1;
+      end;
+      WriteCategory(VCategory);
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.TreeView1MouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  i:integer;
+  VCategory: TCategoryId;
+begin
+  if htOnStateIcon in TreeView1.GetHitTestInfoAt(X,Y) then begin
+    VCategory := TCategoryId(TreeView1.GetNodeAt(X,Y).Data);
+    if TreeView1.GetNodeAt(X,Y).StateIndex=1 then begin
+      VCategory.visible := false;
+      TreeView1.GetNodeAt(X,Y).StateIndex:=2;
+    end else begin
+      VCategory.visible := true;
+      TreeView1.GetNodeAt(X,Y).StateIndex:=1;
+    end;
+    WriteCategory(VCategory);
+  end else begin
+    if TreeView1.Selected<>nil then begin
+      Marsk2StringsWithMarkId(TCategoryId(TreeView1.Selected.Data), MarksListBox.Items);
+      for i:=0 to MarksListBox.Count-1 do begin
+        MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
       end;
     end;
   end;
@@ -459,16 +575,18 @@ end;
 
 procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
 var
-  VIndex: integer;
   VCategory: TCategoryId;
 begin
-  VIndex := KategoryListBox.ItemIndex;
-  if VIndex >=0 then begin
-    VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
+  if TreeView1.Selected <> nil then begin
+    VCategory := TCategoryId(TreeView1.Selected.data);
     if FaddCategory.EditCategory(VCategory) then begin
       WriteCategory(VCategory);
-      KategoryListBox.Items.Strings[VIndex] := VCategory.name;
-      KategoryListBox.Checked[VIndex] := VCategory.visible;
+      TreeView1.Selected.Text:=VCategory.name;
+      if VCategory.visible then begin
+        TreeView1.Selected.StateIndex:=1;
+      end else begin
+        TreeView1.Selected.StateIndex:=2;
+      end;
     end;
   end;
 end;
@@ -491,37 +609,23 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.KategoryListBoxKeyUp(Sender: TObject;
-  var Key: Word; Shift: TShiftState);
-var
-  VIndex: Integer;
-  VCategory: TCategoryId;
-begin
-  If key=VK_DELETE then begin
-    VIndex := KategoryListBox.ItemIndex;
-    if VIndex >= 0 then begin
-      VCategory := TCategoryId(KategoryListBox.Items.Objects[VIndex]);
-      if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
-        DeleteCategoryWithMarks(VCategory);
-        VCategory.Free;
-        KategoryListBox.DeleteSelected;
-      end;
-    end;
-  end;
-end;
-
 procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
 var
   i:integer;
   VNewVisible: Boolean;
 begin
-  if KategoryListBox.Count>0 then begin
+  if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
-    for i:=0 to KategoryListBox.Count-1 do begin
-      KategoryListBox.Checked[i] := VNewVisible;
-      TCategoryId(KategoryListBox.Items.Objects[i]).visible := VNewVisible;
+    for i:=0 to TreeView1.Items.Count-1 do begin
+      if VNewVisible then begin
+        TreeView1.Items.Item[i].StateIndex := 1;
+      end else begin
+        TreeView1.Items.Item[i].StateIndex := 2;
+      end;
+      TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
+      WriteCategory(TreeView1.Items.Item[i].Data);
     end;
-    WriteCategoriesList(KategoryListBox.Items);
+    //WriteCategoriesList(TreeView1.Items.Items);
   end;
 end;
 
@@ -556,8 +660,8 @@ begin
   VCategory.id := -1;
   if FaddCategory.EditCategory(VCategory) then begin
     WriteCategory(VCategory);
-    VIndex := KategoryListBox.Items.AddObject(VCategory.name, VCategory);
-    KategoryListBox.Checked[VIndex]:=VCategory.visible;
+    katitems.AddObject(VCategory.name, VCategory);
+    DrawTreeCategory(TreeView1,katitems);
   end else begin
     VCategory.Free;
   end;
@@ -596,8 +700,9 @@ var
 begin
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
- for i:=1 to KategoryListBox.items.Count do KategoryListBox.Items.Objects[i-1].Free;
- KategoryListBox.Clear;
+ for i:=0 to katitems.Count-1 do katitems.Objects[i].Free;
+ TreeView1.Items.Clear;
+ katitems.free;
 end;
 
 end.

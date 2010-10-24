@@ -68,6 +68,7 @@
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
+    <DCCReference Include="i_GPS.pas" />
     <DCCReference Include="i_IActiveMapsConfig.pas" />
     <DCCReference Include="i_IAntiBan.pas" />
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
@@ -75,6 +76,8 @@
     <DCCReference Include="i_IConfigDataProvider.pas" />
     <DCCReference Include="i_IConfigDataWriteProvider.pas" />
     <DCCReference Include="i_ICoordConverter.pas" />
+    <DCCReference Include="i_IGPSModule.pas" />
+    <DCCReference Include="i_IGPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="i_IGPSRecorder.pas" />
     <DCCReference Include="i_IHybrChangeMessage.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
@@ -290,7 +293,15 @@
     <DCCReference Include="u_GETexture.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
+    <DCCReference Include="u_GPSLogWriterToPlt.pas" />
+    <DCCReference Include="u_GPSModuleAbstract.pas" />
+    <DCCReference Include="u_GPSModuleByCOMPortSettings.pas" />
+    <DCCReference Include="u_GPSModuleByZylGPS.pas" />
+    <DCCReference Include="u_GPSPositionStatic.pas" />
     <DCCReference Include="u_GPSRecorderStuped.pas" />
+    <DCCReference Include="u_GPSSatelliteInfo.pas" />
+    <DCCReference Include="u_GPSSatellitesInView.pas" />
+    <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />

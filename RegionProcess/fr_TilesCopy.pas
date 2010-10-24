@@ -35,6 +35,7 @@ type
     chkReplaseTarget: TCheckBox;
     chkAllMaps: TCheckBox;
     chklstMaps: TCheckListBox;
+    Panel1: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chkAllMapsClick(Sender: TObject);

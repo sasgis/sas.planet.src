@@ -3,10 +3,10 @@ object FSettings: TFSettings
   Top = 114
   BorderWidth = 3
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
-  ClientHeight = 447
+  ClientHeight = 440
   ClientWidth = 626
   Color = clBtnFace
-  Constraints.MinHeight = 475
+  Constraints.MinHeight = 480
   Constraints.MinWidth = 640
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -24,21 +24,19 @@ object FSettings: TFSettings
     Left = 0
     Top = 0
     Width = 626
-    Height = 416
-    ActivePage = TabSheet5
+    Height = 409
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 404
     object TabSheet9: TTabSheet
       BorderWidth = 3
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
-      ExplicitHeight = 376
       object MapList: TListView
         Left = 0
         Top = 0
         Width = 515
-        Height = 382
+        Height = 375
         Align = alClient
         Columns = <
           item
@@ -70,17 +68,15 @@ object FSettings: TFSettings
         OnCustomDrawItem = MapListCustomDrawItem
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
-        ExplicitHeight = 370
       end
       object pnlMapsRightButtons: TPanel
         Left = 515
         Top = 0
         Width = 97
-        Height = 382
+        Height = 375
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitHeight = 370
         object Button15: TButton
           AlignWithMargins = True
           Left = 3
@@ -130,7 +126,6 @@ object FSettings: TFSettings
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
-      ExplicitHeight = 376
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -574,17 +569,15 @@ object FSettings: TFSettings
       BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
-      ExplicitHeight = 376
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
         Width = 612
-        Height = 382
+        Height = 375
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitHeight = 370
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
@@ -782,7 +775,6 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
-      ExplicitHeight = 376
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -806,22 +798,20 @@ object FSettings: TFSettings
         Left = 0
         Top = 42
         Width = 618
-        Height = 346
+        Height = 339
         Align = alClient
         Caption = #1043#1086#1088#1103#1095#1080#1077' '#1082#1083'.'
         TabOrder = 1
-        ExplicitHeight = 334
       end
     end
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
-      ExplicitHeight = 376
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
         Width = 618
-        Height = 388
+        Height = 381
         Align = alClient
         BevelOuter = bvNone
         ColumnCollection = <
@@ -847,17 +837,15 @@ object FSettings: TFSettings
             Value = 100.000000000000000000
           end>
         TabOrder = 0
-        ExplicitHeight = 376
         object pnlUILeft: TPanel
           Left = 0
           Top = 0
           Width = 309
-          Height = 388
+          Height = 381
           Align = alClient
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 0
-          ExplicitHeight = 376
           object pnlNumbersFormat: TPanel
             Left = 3
             Top = 3
@@ -1200,14 +1188,13 @@ object FSettings: TFSettings
           Left = 309
           Top = 0
           Width = 309
-          Height = 388
+          Height = 381
           Align = alClient
           BevelEdges = [beLeft]
           BevelKind = bkTile
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 1
-          ExplicitHeight = 376
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
             Top = 3
@@ -1488,19 +1475,15 @@ object FSettings: TFSettings
       Caption = 'GPS'
       ImageIndex = 4
       OnShow = TabSheet5Show
-      ExplicitHeight = 376
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
         Width = 368
-        Height = 388
+        Height = 381
         Align = alClient
         BevelOuter = bvNone
         Padding.Right = 3
         TabOrder = 0
-        ExplicitLeft = 4
-        ExplicitTop = -2
-        ExplicitHeight = 376
         object flwpnlGpsPort: TFlowPanel
           Left = 0
           Top = 0
@@ -1698,7 +1681,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 2
-          ExplicitLeft = 3
           object CB_GPSlog: TCheckBox
             AlignWithMargins = True
             Left = 6
@@ -1724,8 +1706,6 @@ object FSettings: TFSettings
             Align = alTop
             Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080' '#1074' .nmea'
             TabOrder = 1
-            ExplicitLeft = 9
-            ExplicitTop = 31
           end
         end
         object pnlGpsSensors: TPanel
@@ -1740,8 +1720,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 3
-          ExplicitLeft = 2
-          ExplicitTop = 315
           object CBSensorsBarAutoShow: TCheckBox
             AlignWithMargins = True
             Left = 6
@@ -1758,66 +1736,63 @@ object FSettings: TFSettings
         Left = 368
         Top = 0
         Width = 250
-        Height = 388
+        Height = 381
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitHeight = 376
         object GroupBox3: TGroupBox
           Left = 0
           Top = 0
           Width = 250
-          Height = 388
+          Height = 381
           Align = alClient
           Caption = #1057#1087#1091#1090#1085#1080#1082#1080
           TabOrder = 0
-          ExplicitLeft = 3
-          ExplicitTop = 1
           object Label13: TLabel
             Left = 21
-            Top = 357
+            Top = 351
             Width = 47
             Height = 13
             Caption = #1042#1080#1076#1080#1084#1099#1077
           end
           object Label18: TLabel
             Left = 21
-            Top = 370
+            Top = 364
             Width = 128
             Height = 13
             Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' 0-'#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
           end
           object Label9: TLabel
             Left = 21
-            Top = 344
+            Top = 338
             Width = 99
             Height = 13
             Caption = #1040#1082#1090#1080#1074#1085#1099#1077' '#1089#1087#1091#1090#1085#1080#1082#1080
           end
           object Shape1: TShape
             Left = 5
-            Top = 344
+            Top = 338
             Width = 12
             Height = 12
             Brush.Color = clGreen
           end
           object Shape2: TShape
             Left = 5
-            Top = 357
+            Top = 351
             Width = 12
             Height = 12
-            Brush.Color = clBlue
+            Brush.Color = clYellow
           end
           object Shape3: TShape
             Left = 5
-            Top = 370
+            Top = 364
             Width = 12
             Height = 12
             Brush.Color = clRed
           end
           object Bevel1: TBevel
-            Left = 6
-            Top = 338
+            Left = 5
+            Top = 334
             Width = 240
             Height = 4
             Shape = bsTopLine
@@ -1827,7 +1802,7 @@ object FSettings: TFSettings
             Left = 5
             Top = 14
             Width = 240
-            Height = 321
+            Height = 318
             Bitmap.ResamplerClassName = 'TNearestResampler'
             BitmapAlign = baTopLeft
             Scale = 1.000000000000000000
@@ -1841,7 +1816,6 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitHeight = 376
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -1952,17 +1926,15 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitHeight = 376
       object pnlGSM: TPanel
         Left = 0
         Top = 0
         Width = 618
-        Height = 388
+        Height = 381
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitHeight = 376
         object PaintBox1: TPaintBox
           Left = 108
           Top = 79
@@ -2068,13 +2040,12 @@ object FSettings: TFSettings
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 416
+    Top = 409
     Width = 626
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 418
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 548

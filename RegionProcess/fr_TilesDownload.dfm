@@ -9,7 +9,7 @@ object frTilesDownload: TfrTilesDownload
     Left = 0
     Top = 0
     Width = 451
-    Height = 20
+    Height = 22
     Align = alTop
     Alignment = taLeftJustify
     BevelEdges = [beBottom]
@@ -21,108 +21,153 @@ object frTilesDownload: TfrTilesDownload
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 20
+    Top = 22
     Width = 451
-    Height = 284
+    Height = 282
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 20
+    ExplicitHeight = 284
     object pnlRight: TPanel
       Left = 392
       Top = 0
       Width = 59
-      Height = 284
+      Height = 282
       Align = alRight
       BevelOuter = bvNone
-      BorderWidth = 3
+      BorderWidth = 5
       TabOrder = 0
+      ExplicitHeight = 284
       object lblZoom: TLabel
-        Left = 3
-        Top = 3
+        AlignWithMargins = True
+        Left = 5
+        Top = 5
         Width = 49
         Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
       end
       object cbbZoom: TComboBox
-        Left = 3
-        Top = 16
-        Width = 53
+        Left = 5
+        Top = 21
+        Width = 49
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
+        OnChange = cbbZoomChange
+        ExplicitTop = 18
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
       Width = 392
-      Height = 284
+      Height = 282
       Align = alClient
       BevelOuter = bvNone
-      BorderWidth = 3
+      BorderWidth = 5
       TabOrder = 1
-      object lblMap: TLabel
-        Left = 3
-        Top = 3
-        Width = 57
-        Height = 13
-        Align = alTop
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
-      end
+      ExplicitLeft = -1
+      ExplicitTop = 6
       object lblStat: TLabel
-        Left = 3
-        Top = 37
-        Width = 6
+        AlignWithMargins = True
+        Left = 5
+        Top = 45
+        Width = 382
         Height = 13
+        Margins.Left = 0
+        Margins.Right = 0
         Align = alTop
         Caption = '_'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGray
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ExplicitTop = 43
+        ExplicitWidth = 6
+      end
+      object lblMap: TLabel
+        AlignWithMargins = True
+        Left = 5
+        Top = 5
+        Width = 382
+        Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Align = alTop
+        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
+        ExplicitWidth = 57
+      end
+      object Bevel1: TBevel
+        Left = 5
+        Top = 61
+        Width = 382
+        Height = 5
+        Align = alTop
+        Shape = bsTopLine
+        ExplicitLeft = 3
+        ExplicitTop = 54
+        ExplicitWidth = 386
       end
       object cbbMap: TComboBox
-        Left = 3
-        Top = 16
-        Width = 386
+        Left = 5
+        Top = 21
+        Width = 382
         Height = 21
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
+        ExplicitLeft = 9
+        ExplicitTop = 6
       end
       object chkReplace: TCheckBox
-        Left = 3
-        Top = 63
-        Width = 386
-        Height = 13
+        Left = 5
+        Top = 82
+        Width = 382
+        Height = 16
         Align = alTop
         Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1090#1072#1088#1099#1077' '#1092#1072#1081#1083#1099
         TabOrder = 1
         OnClick = chkReplaceClick
+        ExplicitTop = 79
       end
       object chkTryLoadIfTNE: TCheckBox
-        Left = 3
-        Top = 50
-        Width = 386
-        Height = 13
+        Left = 5
+        Top = 66
+        Width = 382
+        Height = 16
         Align = alTop
         Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
         TabOrder = 2
+        ExplicitTop = 63
       end
       object pnlTileReplaceCondition: TPanel
-        Left = 3
-        Top = 76
-        Width = 386
-        Height = 117
+        Left = 5
+        Top = 98
+        Width = 382
+        Height = 40
         Align = alTop
+        AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
+        Padding.Left = 15
         TabOrder = 3
+        ExplicitTop = 95
         object chkReplaceIfDifSize: TCheckBox
-          Left = 3
+          Left = 18
           Top = 3
-          Width = 380
+          Width = 361
           Height = 13
           Align = alTop
           Caption = #1090#1086#1083#1100#1082#1086' '#1087#1088#1080' '#1080#1093' '#1088#1072#1079#1083#1080#1095#1080#1080
@@ -130,37 +175,38 @@ object frTilesDownload: TfrTilesDownload
           TabOrder = 0
         end
         object pnlReplaceOlder: TPanel
-          Left = 3
+          Left = 18
           Top = 16
-          Width = 380
-          Height = 25
+          Width = 361
+          Height = 21
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 1
           object lblReplaceOlder: TLabel
-            Left = 13
+            Left = 16
             Top = 0
             Width = 113
-            Height = 13
+            Height = 21
             Align = alLeft
             Caption = #1090#1086#1083#1100#1082#1086' '#1089#1086#1079#1076#1072#1085#1085#1099#1077' '#1076#1086' '
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
             Top = 0
-            Width = 13
-            Height = 25
+            Width = 16
+            Height = 21
             Align = alLeft
             Enabled = False
             TabOrder = 0
             OnClick = chkReplaceOlderClick
           end
           object dtpReplaceOlderDate: TDateTimePicker
-            Left = 126
+            Left = 129
             Top = 0
             Width = 81
-            Height = 25
+            Height = 21
             Align = alLeft
             Date = 39513.436381111110000000
             Time = 39513.436381111110000000

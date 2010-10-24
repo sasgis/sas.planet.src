@@ -36,6 +36,7 @@ type
     chkReplace: TCheckBox;
     chkSaveFullOnly: TCheckBox;
     chkFromPrevZoom: TCheckBox;
+    Bevel1: TBevel;
     procedure cbbFromZoomChange(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
   private
@@ -61,9 +62,10 @@ begin
   for i:= cbbFromZoom.ItemIndex+1 downto 1 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
-  for i:= 8 to cbbFromZoom.ItemIndex do begin
+  for i:=8 to chklstZooms.Items.Count-1 do begin
     chklstZooms.ItemEnabled[i]:=false;
   end;
+  chklstZooms.Repaint;
 end;
 
 procedure TfrTilesGenPrev.chkAllZoomsClick(Sender: TObject);

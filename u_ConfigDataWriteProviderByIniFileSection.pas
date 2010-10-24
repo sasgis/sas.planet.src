@@ -86,7 +86,7 @@ end;
 procedure TConfigDataWriteProviderByIniFileSection.WriteFloat(
   const AIdent: string; const AValue: Double);
 begin
-  FIniFile.WriteString(FSection, AIdent, DateTimeToStr(AValue, FFormatSettings));
+  FIniFile.WriteString(FSection, AIdent, FloatToStr(AValue, FFormatSettings));
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteInteger(

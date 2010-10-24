@@ -83,6 +83,7 @@ uses
   Ugeofun in 'Ugeofun.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',
+  u_GPSState in 'u_GPSState.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   u_KmlInfoSimple in 'u_KmlInfoSimple.pas',
   i_IKmlInfoSimpleLoader in 'i_IKmlInfoSimpleLoader.pas',
@@ -212,6 +213,16 @@ uses
   u_LanguagesEx in 'u_LanguagesEx.pas',
   i_IGPSRecorder in 'i_IGPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
+  i_GPS in 'i_GPS.pas',
+  i_IGPSModule in 'i_IGPSModule.pas',
+  i_IGPSModuleByCOMPortSettings in 'i_IGPSModuleByCOMPortSettings.pas',
+  u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
+  u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
+  u_GPSSatellitesInView in 'u_GPSSatellitesInView.pas',
+  u_GPSPositionStatic in 'u_GPSPositionStatic.pas',
+  u_GPSModuleAbstract in 'u_GPSModuleAbstract.pas',
+  u_GPSModuleByZylGPS in 'u_GPSModuleByZylGPS.pas',
+  u_GPSLogWriterToPlt in 'u_GPSLogWriterToPlt.pas',
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   fr_ExportYaMaps in 'RegionProcess\fr_ExportYaMaps.pas' {frExportYaMaps: TFrame},
   u_ExportProviderYaMaps in 'RegionProcess\u_ExportProviderYaMaps.pas',
@@ -272,9 +283,7 @@ begin
       Application.ProcessMessages;
     end;
     try
-      GState.LoadMaps;
-      GState.LoadCacheConfig;
-      GState.LoadMapIconsList;
+      GState.LoadConfig;
     except
       on E: Exception do begin
         Application.ShowException(E);

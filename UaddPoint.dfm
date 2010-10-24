@@ -3,10 +3,10 @@ object FaddPoint: TFaddPoint
   Top = 178
   BorderStyle = bsSizeToolWin
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1091#1102' '#1084#1077#1090#1082#1091
-  ClientHeight = 428
+  ClientHeight = 404
   ClientWidth = 314
   Color = clBtnFace
-  Constraints.MinHeight = 452
+  Constraints.MinHeight = 430
   Constraints.MinWidth = 322
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -31,78 +31,65 @@ object FaddPoint: TFaddPoint
     ExplicitTop = 96
     ExplicitWidth = 329
   end
-  object Bevel2: TBevel
-    Left = 0
-    Top = 356
-    Width = 314
-    Height = 9
-    Align = alBottom
-    Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 336
-    ExplicitWidth = 329
-  end
-  object Bevel5: TBevel
-    Left = 0
-    Top = 388
-    Width = 314
-    Height = 9
-    Align = alBottom
-    Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 360
-    ExplicitWidth = 329
-  end
   object CheckBox2: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 368
+    Top = 353
     Width = 308
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 5
+    ExplicitLeft = -2
+    ExplicitTop = 374
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 397
+    Top = 373
     Width = 314
     Height = 31
     Align = alBottom
+    BevelEdges = [beTop]
+    BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
+    ExplicitTop = 397
     object Button2: TButton
       AlignWithMargins = True
       Left = 238
       Top = 3
       Width = 73
-      Height = 25
+      Height = 23
       Hint = #1054#1090#1084#1077#1085#1080#1090#1100
       Align = alRight
       Cancel = True
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 1
+      ExplicitHeight = 25
     end
     object Badd: TButton
       AlignWithMargins = True
       Left = 159
       Top = 3
       Width = 73
-      Height = 25
+      Height = 23
       Align = alRight
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Default = True
       TabOrder = 0
       OnClick = BaddClick
+      ExplicitHeight = 25
     end
   end
   object grdpnlStyleRows: TGridPanel
     Left = 0
-    Top = 243
+    Top = 259
     Width = 314
-    Height = 113
+    Height = 91
     Align = alBottom
+    BevelEdges = [beBottom]
+    BevelKind = bkTile
     BevelOuter = bvNone
     ColumnCollection = <
       item
@@ -138,14 +125,15 @@ object FaddPoint: TFaddPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
+    ExplicitTop = 278
     DesignSize = (
       314
-      113)
+      89)
     object grdpnlLine1: TGridPanel
       Left = 0
       Top = 0
       Width = 314
-      Height = 41
+      Height = 29
       Align = alBottom
       Anchors = []
       BevelOuter = bvNone
@@ -174,17 +162,19 @@ object FaddPoint: TFaddPoint
       TabOrder = 0
       DesignSize = (
         314
-        41)
+        29)
       object flwpnlTextColor: TFlowPanel
-        Left = 11
-        Top = 6
-        Width = 135
-        Height = 28
+        Left = 17
+        Top = 3
+        Width = 123
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 14
+        ExplicitTop = 9
         object Label3: TLabel
           AlignWithMargins = True
           Left = 3
@@ -195,9 +185,8 @@ object FaddPoint: TFaddPoint
           Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
         end
         object ColorBox1: TColorBox
-          AlignWithMargins = True
-          Left = 71
-          Top = 3
+          Left = 68
+          Top = 0
           Width = 38
           Height = 22
           Selected = clYellow
@@ -212,9 +201,8 @@ object FaddPoint: TFaddPoint
           TabOrder = 0
         end
         object SpeedButton1: TSpeedButton
-          AlignWithMargins = True
-          Left = 115
-          Top = 3
+          Left = 106
+          Top = 0
           Width = 17
           Height = 22
           Caption = '...'
@@ -222,15 +210,16 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlFontSize: TFlowPanel
-        Left = 168
-        Top = 6
-        Width = 134
-        Height = 28
+        Left = 171
+        Top = 3
+        Width = 128
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 9
         object Label5: TLabel
           AlignWithMargins = True
           Left = 3
@@ -241,9 +230,8 @@ object FaddPoint: TFaddPoint
           Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
         end
         object SpinEdit1: TSpinEdit
-          AlignWithMargins = True
-          Left = 90
-          Top = 3
+          Left = 87
+          Top = 0
           Width = 41
           Height = 22
           MaxValue = 24
@@ -255,9 +243,9 @@ object FaddPoint: TFaddPoint
     end
     object grdpnlLine2: TGridPanel
       Left = 0
-      Top = 41
+      Top = 29
       Width = 314
-      Height = 41
+      Height = 29
       Align = alBottom
       Anchors = []
       BevelOuter = bvNone
@@ -284,19 +272,22 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 1
+      ExplicitTop = 44
       DesignSize = (
         314
-        41)
+        29)
       object flwpnlShadowColor: TFlowPanel
-        Left = 16
-        Top = 6
-        Width = 124
-        Height = 28
+        Left = 22
+        Top = 3
+        Width = 112
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 18
+        ExplicitTop = 8
         object Label4: TLabel
           AlignWithMargins = True
           Left = 3
@@ -307,9 +298,8 @@ object FaddPoint: TFaddPoint
           Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
         end
         object ColorBox2: TColorBox
-          AlignWithMargins = True
-          Left = 60
-          Top = 3
+          Left = 57
+          Top = 0
           Width = 38
           Height = 22
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
@@ -323,9 +313,8 @@ object FaddPoint: TFaddPoint
           TabOrder = 0
         end
         object SpeedButton2: TSpeedButton
-          AlignWithMargins = True
-          Left = 104
-          Top = 3
+          Left = 95
+          Top = 0
           Width = 17
           Height = 22
           Caption = '...'
@@ -333,15 +322,16 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlIconSize: TFlowPanel
-        Left = 170
-        Top = 6
-        Width = 131
-        Height = 28
+        Left = 173
+        Top = 3
+        Width = 125
+        Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 8
         object Label6: TLabel
           AlignWithMargins = True
           Left = 3
@@ -352,9 +342,8 @@ object FaddPoint: TFaddPoint
           Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
         end
         object SpinEdit2: TSpinEdit
-          AlignWithMargins = True
-          Left = 87
-          Top = 3
+          Left = 84
+          Top = 0
           Width = 41
           Height = 22
           MaxValue = 64
@@ -365,15 +354,16 @@ object FaddPoint: TFaddPoint
       end
     end
     object flwpnlTrahsparent: TFlowPanel
-      Left = 89
-      Top = 82
-      Width = 136
-      Height = 28
+      Left = 92
+      Top = 58
+      Width = 130
+      Height = 22
       Anchors = []
       AutoSize = True
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitTop = 79
       object Label7: TLabel
         AlignWithMargins = True
         Left = 3
@@ -384,9 +374,8 @@ object FaddPoint: TFaddPoint
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
       end
       object SEtransp: TSpinEdit
-        AlignWithMargins = True
-        Left = 92
-        Top = 3
+        Left = 89
+        Top = 0
         Width = 41
         Height = 22
         MaxValue = 100
@@ -400,12 +389,13 @@ object FaddPoint: TFaddPoint
     Left = 0
     Top = 115
     Width = 314
-    Height = 128
+    Height = 144
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitHeight = 166
   end
   object pnlLonLat: TPanel
     Left = 0
@@ -493,6 +483,8 @@ object FaddPoint: TFaddPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = -1
+        ExplicitTop = 25
         object Label1: TLabel
           AlignWithMargins = True
           Left = 3

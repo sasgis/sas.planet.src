@@ -24,18 +24,27 @@ object frExportToFileCont: TfrExportToFileCont
       BorderWidth = 3
       TabOrder = 0
       object lblZooms: TLabel
+        AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 57
+        Width = 69
         Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        ExplicitWidth = 57
       end
       object chkAllZooms: TCheckBox
+        AlignWithMargins = True
         Left = 3
         Top = 257
         Width = 69
         Height = 17
+        Margins.Left = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
         Align = alBottom
         Caption = #1042#1089#1077
         TabOrder = 0
@@ -43,12 +52,14 @@ object frExportToFileCont: TfrExportToFileCont
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 16
+        Top = 19
         Width = 69
-        Height = 241
+        Height = 235
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
+        ExplicitTop = 16
+        ExplicitHeight = 241
       end
     end
     object pnlMain: TPanel
@@ -57,41 +68,52 @@ object frExportToFileCont: TfrExportToFileCont
       Width = 376
       Height = 277
       Align = alClient
+      AutoSize = True
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
+      ExplicitHeight = 83
       object lblMap: TLabel
+        AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 370
         Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
         Align = alTop
         Caption = #1050#1072#1088#1090#1072
         ExplicitWidth = 31
       end
       object lblNamesType: TLabel
+        AlignWithMargins = True
         Left = 3
-        Top = 37
+        Top = 43
         Width = 370
         Height = 13
+        Margins.Left = 0
+        Margins.Right = 0
         Align = alTop
         Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
+        ExplicitTop = 37
         ExplicitWidth = 207
       end
       object cbbMap: TComboBox
         Left = 3
-        Top = 16
+        Top = 19
         Width = 370
         Height = 21
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
+        ExplicitTop = 16
       end
       object cbbNamesType: TComboBox
         Left = 3
-        Top = 50
+        Top = 59
         Width = 370
         Height = 21
         Align = alTop
@@ -105,6 +127,7 @@ object frExportToFileCont: TfrExportToFileCont
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
+        ExplicitTop = 50
       end
     end
   end
@@ -118,21 +141,29 @@ object frExportToFileCont: TfrExportToFileCont
     BorderWidth = 3
     TabOrder = 1
     object lblTargetFile: TLabel
+      AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 86
-      Height = 13
+      Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alLeft
+      Alignment = taRightJustify
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
-      Left = 89
+      Left = 92
       Top = 3
-      Width = 338
+      Width = 335
       Height = 21
       Align = alClient
       TabOrder = 0
+      ExplicitLeft = 89
+      ExplicitWidth = 338
     end
     object btnSelectTargetFile: TButton
       Left = 427
