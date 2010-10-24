@@ -37,6 +37,7 @@ type
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
+  function PointInRect(const APoint: TExtendedPoint; const ARect: TExtendedRect): Boolean;
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
@@ -496,8 +497,14 @@ begin
   end;
 end;
 
+function PointInRect(const APoint: TExtendedPoint; const ARect: TExtendedRect): Boolean;
+begin
+  result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
+          (APoint.Y<=ARect.Top)and(APoint.Y>=ARect.Bottom);
+end;
+
 {
-ֿונוסקוע רטנמעû טח ׁÊ-42 ג WGS-84: WGS84_SK42_Lat(Lat,Long,Height) 
+ֿונוסקוע רטנמעû טח ׁÊ-42 ג WGS-84: WGS84_SK42_Lat(Lat,Long,Height)
 ֿונוסקוע המכדמעû טח ׁÊ-42 ג WGS-84: WGS84_SK42_Long(Lat,Long,Height)
 ֿונוסקוע רטנמעû טח WGS-84 ג ׁÊ-42: SK42_WGS84_Lat(Lat,Long,Height)
 ֿונוסקוע המכדמעû טח WGS-84 ג ׁÊ-42: SK42_WGS84_Long(Lat,Long,Height)

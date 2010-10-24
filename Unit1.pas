@@ -3005,7 +3005,7 @@ begin
           VPointDelta:=GState.ViewState.GetCenterLonLat;
           VPointDelta:=ExtPoint(VPointDelta.x+VPointCurr.x-VPointPrev.x,
                                 VPointDelta.y+VPointCurr.y-VPointPrev.y);
-          if (GState.ViewState.inVisibleLonLatRect(VPointCurr)) then  begin
+          if PointInRect(VPointCurr, GState.ViewState.GetViewLonLatRect) then  begin
             GState.ViewState.ChangeLonLatAndUnlock(VPointDelta);
           end else begin
             GState.ViewState.UnLockWrite;
