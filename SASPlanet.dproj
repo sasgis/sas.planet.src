@@ -310,6 +310,7 @@
     <DCCReference Include="u_MapChangeMessage.pas" />
     <DCCReference Include="u_MapFillingLayer.pas" />
     <DCCReference Include="u_MapGPSLayer.pas" />
+    <DCCReference Include="u_MapLayerBase.pas" />
     <DCCReference Include="u_MapLayerBasic.pas" />
     <DCCReference Include="u_MapLayerGoto.pas" />
     <DCCReference Include="u_MapLayerNavToMark.pas" />
