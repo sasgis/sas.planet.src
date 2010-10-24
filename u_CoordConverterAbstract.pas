@@ -203,7 +203,9 @@ type
     function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
 
     function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
+    function CheckPixelPosFloat(var XY: TExtendedPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
+    function CheckPixelPosFloatStrict(var XY: TExtendedPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
 
     function CheckRelativePos(var XY: TExtendedPoint): boolean; virtual; stdcall; abstract;
