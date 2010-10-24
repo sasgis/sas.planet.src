@@ -28,6 +28,7 @@ type
     function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; virtual;
     procedure DoShow; virtual;
     procedure DoHide; virtual;
+    procedure DoRedraw; virtual; abstract;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -37,7 +38,7 @@ type
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
     procedure Show; virtual;
     procedure Hide; virtual;
-    procedure Redraw; virtual; abstract;
+    procedure Redraw; virtual;
     property Visible: Boolean read GetVisible write SetVisible;
     property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
   end;
@@ -72,13 +73,12 @@ type
     // Переводит координаты прямоугольника битмапки в координаты VisualPixel
     function GetMapLayerLocationRect: TRect; virtual;
 
-    procedure DoRedraw; virtual; abstract;
+    procedure DoRedraw; override;
     procedure DoResizeBitmap; virtual;
     procedure DoResize; virtual;
     procedure DoShow; override;
   public
     procedure Resize; virtual;
-    procedure Redraw; override;
   end;
 
   TWindowLayerBasicWithBitmap = class(TWindowLayerBasicOld)
@@ -156,6 +156,13 @@ begin
   // По умолчанию ничего не делаем
 end;
 
+procedure TWindowLayerBasic.Redraw;
+begin
+  if Visible then begin
+    DoRedraw;
+  end;
+end;
+
 procedure TWindowLayerBasic.SaveConfig(
   AConfigProvider: IConfigDataWriteProvider);
 begin
@@ -203,14 +210,6 @@ begin
   Result := 1;
 end;
 
-procedure TWindowLayerBasicOld.Redraw;
-begin
-  if Visible then begin
-    DoResizeBitmap;
-    DoRedraw;
-  end;
-end;
-
 procedure TWindowLayerBasicOld.DoResizeBitmap;
 begin
 end;
@@ -220,6 +219,12 @@ begin
   inherited;
   Resize;
   Redraw;
+end;
+
+procedure TWindowLayerBasicOld.DoRedraw;
+begin
+  DoResizeBitmap;
+  inherited;
 end;
 
 procedure TWindowLayerBasicOld.DoResize;

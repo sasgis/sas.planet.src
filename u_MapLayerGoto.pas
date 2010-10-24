@@ -65,6 +65,7 @@ begin
       VGotoPoint := FGeoConvert.LonLat2PixelPos(FGotoPoint, FZoom);
       if (abs(VGotoPoint.X - FScreenCenterPos.X) < (1 shl 20)) and
         (abs(VGotoPoint.Y - FScreenCenterPos.Y) < (1 shl 20)) then begin
+        inherited;
         FLayer.Bitmap.Draw(0, 0, FGoToSelIcon);
       end else begin
         Visible := False;
