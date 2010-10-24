@@ -81,36 +81,38 @@ var
 begin
   VPolygon := nil;
   VPolygonOnBitmap := nil;
-  if Length(GState.LastSelectionPolygon) > 0 then begin
-    VZoomCurr := FZoom;
-    VPolygon := FGeoConvert.LonLatArray2PixelArray(GState.LastSelectionPolygon, VZoomCurr);
-    try
-      VPolygonOnBitmap := PreparePolygon(VPolygon);
-      VPolygon32 := TPolygon32.Create;
+  if FGeoConvert <> nil then begin
+    if Length(GState.LastSelectionPolygon) > 0 then begin
+      VZoomCurr := FZoom;
+      VPolygon := FGeoConvert.LonLatArray2PixelArray(GState.LastSelectionPolygon, VZoomCurr);
       try
-        for i := 0 to Length(VPolygonOnBitmap) - 1 do begin
-          VPolygon32.Add(FixedPoint(VPolygonOnBitmap[i]));
-        end;
-        VPolygon32.Antialiased:=True;
-        VPolygon32.Closed:=true;
-        with VPolygon32.Outline do try
-          with Grow(Fixed(1), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(Buffer, SetAlpha(GState.LastSelectionColor, GState.LastSelectionAlfa));
+        VPolygonOnBitmap := PreparePolygon(VPolygon);
+        VPolygon32 := TPolygon32.Create;
+        try
+          for i := 0 to Length(VPolygonOnBitmap) - 1 do begin
+            VPolygon32.Add(FixedPoint(VPolygonOnBitmap[i]));
+          end;
+          VPolygon32.Antialiased:=True;
+          VPolygon32.Closed:=true;
+          with VPolygon32.Outline do try
+            with Grow(Fixed(1), 0.5) do try
+              FillMode := pfWinding;
+              DrawFill(Buffer, SetAlpha(GState.LastSelectionColor, GState.LastSelectionAlfa));
+            finally
+              free;
+            end;
           finally
             free;
           end;
         finally
-          free;
+          FreeAndNil(VPolygon32);
         end;
       finally
-        FreeAndNil(VPolygon32);
+        VPolygon := nil;
       end;
-    finally
-      VPolygon := nil;
+    end else begin
+      Visible := False;
     end;
-  end else begin
-    Visible := False;
   end;
 end;
 

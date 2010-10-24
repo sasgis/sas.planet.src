@@ -1751,6 +1751,7 @@ begin
         Scale := 3 - (1/(1+i/(steps - 1)))*2;
       end;
       if move then begin
+        GState.ViewState.ScaleTo(Scale, MouseCursorPos);
         FMainLayer.ScaleTo(Scale, MouseCursorPos);
         LayerSelection.ScaleTo(Scale, MouseCursorPos);
         FLayerMapMarks.ScaleTo(Scale, MouseCursorPos);
@@ -1820,6 +1821,12 @@ begin
     GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
     GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
   end;
+  LayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerMiniMap.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FMapLayersVsibleChangeListener := nil;
   //останавливаем GPS
   GPSReceiver.OnDisconnect:=nil;
   GPSReceiver.Close;
@@ -3432,6 +3439,7 @@ begin
                       end;
  if MapZoomAnimtion then exit;
  if MapMoving then begin
+              GState.ViewState.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FMainLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FLayerMapNal.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
