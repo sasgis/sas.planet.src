@@ -244,7 +244,7 @@ type
   end;
 
 const
-  SASVersion = '101019.alfa';
+  SASVersion = {$INCLUDE Version.inc};
 
 var
   GState: TGlobalState;
