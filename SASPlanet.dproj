@@ -323,8 +323,10 @@
     <DCCReference Include="u_MapGPSLayer.pas" />
     <DCCReference Include="u_MapLayerBase.pas" />
     <DCCReference Include="u_MapLayerBasic.pas" />
+    <DCCReference Include="u_MapLayerFixedBase.pas" />
     <DCCReference Include="u_MapLayerGoto.pas" />
     <DCCReference Include="u_MapLayerNavToMark.pas" />
+    <DCCReference Include="u_MapLayerScaledBase.pas" />
     <DCCReference Include="u_MapLayerShowError.pas" />
     <DCCReference Include="u_MapLayerWiki.pas" />
     <DCCReference Include="u_MapMainLayer.pas" />

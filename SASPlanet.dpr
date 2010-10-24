@@ -142,6 +142,8 @@ uses
   u_LayerStatBar in 'u_LayerStatBar.pas',
   u_MapLayerBasic in 'u_MapLayerBasic.pas',
   u_MapLayerBase in 'u_MapLayerBase.pas',
+  u_MapLayerFixedBase in 'u_MapLayerFixedBase.pas',
+  u_MapLayerScaledBase in 'u_MapLayerScaledBase.pas',
   u_MapTileLayerBasic in 'u_MapTileLayerBasic.pas',
   u_MapMainLayer in 'u_MapMainLayer.pas',
   u_MapMarksLayer in 'u_MapMarksLayer.pas',

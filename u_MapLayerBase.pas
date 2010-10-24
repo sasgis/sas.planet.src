@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  GR32,
   GR32_Image,
   i_JclNotify,
   i_ICoordConverter,
@@ -21,13 +22,12 @@ type
 
     FMapPosChangeListener: IJclListener;
     FViewScaleChangeListener: IJclListener;
-    procedure ProcessPosChange(AMessage: IPosChangeMessage);
-    procedure ProcessViewScaleChange(AMessage: IJclNotificationMessage);
-    
+    procedure ProcessPosChange(AMessage: IPosChangeMessage); virtual;
+    procedure ProcessViewScaleChange(AMessage: IJclNotificationMessage); virtual;
+    procedure UpdatelLayerLocation; virtual; abstract;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
-
   end;
 
 implementation
