@@ -34,6 +34,12 @@ type
   function D2DMS(G:extended):TDMS;
   function PolygonFromRect(ARect: TExtendedRect): TExtendedPointArray;
   function ExtPoint(X, Y: extended): TExtendedPoint;
+  function ExtendedPoint(APoint: TPoint): TExtendedPoint; overload;
+  function ExtendedPoint(X, Y: Extended): TExtendedPoint; overload;
+  function ExtendedRect(ARect: TRect): TExtendedRect; overload;
+  function ExtendedRect(ATopLeft, ABottomRight: TExtendedPoint): TExtendedRect; overload;
+  function ExtendedRect(ALeft, ATop, ARight, ABottom: Extended): TExtendedRect; overload;
+
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
@@ -502,6 +508,41 @@ begin
   result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
           (APoint.Y<=ARect.Top)and(APoint.Y>=ARect.Bottom);
 end;
+
+function ExtendedPoint(APoint: TPoint): TExtendedPoint; overload;
+begin
+  Result.X := APoint.X;
+  Result.Y := APoint.Y;
+end;
+
+function ExtendedPoint(X, Y: Extended): TExtendedPoint; overload;
+begin
+  Result.X := X;
+  Result.Y := Y;
+end;
+
+function ExtendedRect(ARect: TRect): TExtendedRect; overload;
+begin
+  Result.Left := ARect.Left;
+  Result.Top := ARect.Top;
+  Result.Right := ARect.Right;
+  Result.Bottom := ARect.Bottom;
+end;
+
+function ExtendedRect(ATopLeft, ABottomRight: TExtendedPoint): TExtendedRect; overload;
+begin
+  Result.TopLeft := ATopLeft;
+  Result.BottomRight := ABottomRight;
+end;
+
+function ExtendedRect(ALeft, ATop, ARight, ABottom: Extended): TExtendedRect; overload;
+begin
+  Result.Left := ALeft;
+  Result.Top := ATop;
+  Result.Right := ARight;
+  Result.Bottom := ABottom;
+end;
+
 
 {
 ֿונוסקוע רטנמעû טח ׁÊ-42 ג WGS-84: WGS84_SK42_Lat(Lat,Long,Height)

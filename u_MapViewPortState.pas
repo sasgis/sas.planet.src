@@ -91,6 +91,11 @@ type
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
     function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
 
+    function VisibleRect2MapRect(ARect: TRect): TRect; overload;
+    function VisibleRect2MapRect(ARect: TExtendedRect): TExtendedRect; overload;
+    function MapRect2VisibleRect(ARect: TRect): TRect; overload;
+    function MapRect2VisibleRect(ARect: TExtendedRect): TExtendedRect; overload;
+
     function VisiblePixel2LonLat(Pnt: TPoint): TExtendedPoint; overload;
 
     procedure SelectHybrByGUID(AMapGUID: TGUID);
@@ -536,6 +541,29 @@ begin
   end;
 end;
 
+function TMapViewPortState.MapRect2VisibleRect(ARect: TRect): TRect;
+begin
+  LockRead;
+  try
+    Result.TopLeft := MapPixel2VisiblePixel(ARect.TopLeft);
+    Result.BottomRight := MapPixel2VisiblePixel(ARect.BottomRight);
+  finally
+    UnLockRead;
+  end;
+end;
+
+function TMapViewPortState.MapRect2VisibleRect(
+  ARect: TExtendedRect): TExtendedRect;
+begin
+  LockRead;
+  try
+    Result.TopLeft := MapPixel2VisiblePixel(ARect.TopLeft);
+    Result.BottomRight := MapPixel2VisiblePixel(ARect.BottomRight);
+  finally
+    UnLockRead;
+  end;
+end;
+
 function TMapViewPortState.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
   VSourcePoint: TExtendedPoint;
@@ -559,6 +587,29 @@ begin
     Result.Y := (Pnt.Y - VViewCenter.Y - FVisibleMove.Y) / FMapScale.Y + FCenterPos.Y;
   finally
     FSync.EndRead;
+  end;
+end;
+
+function TMapViewPortState.VisibleRect2MapRect(ARect: TRect): TRect;
+begin
+  LockRead;
+  try
+    Result.TopLeft := VisiblePixel2MapPixel(ARect.TopLeft);
+    Result.BottomRight := VisiblePixel2MapPixel(ARect.BottomRight);
+  finally
+    UnLockRead;
+  end;
+end;
+
+function TMapViewPortState.VisibleRect2MapRect(
+  ARect: TExtendedRect): TExtendedRect;
+begin
+  LockRead;
+  try
+    Result.TopLeft := VisiblePixel2MapPixel(ARect.TopLeft);
+    Result.BottomRight := VisiblePixel2MapPixel(ARect.BottomRight);
+  finally
+    UnLockRead;
   end;
 end;
 
