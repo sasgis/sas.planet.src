@@ -27,7 +27,8 @@ type
 implementation
 
 uses
-  i_ICoordConverter;
+  i_ICoordConverter,
+  Ugeofun;
 
 { TSelectionLayer }
 
@@ -60,6 +61,7 @@ function TSelectionLayerNew.LonLatArrayToVisualFloatArray(
 var
   i: Integer;
   VPointsCount: Integer;
+  VViewRect: TExtendedRect;
 begin
   VPointsCount := Length(APolygon);
   SetLength(Result, VPointsCount);
@@ -68,8 +70,12 @@ begin
     for i := 0 to VPointsCount - 1 do begin
       Result[i] := FViewPortState.LonLat2VisiblePixel(APolygon[i]);
     end;
+    VViewRect := ExtendedRect(FViewPortState.GetViewRectInVisualPixel);
   finally
     FViewPortState.UnLockRead;
+  end;
+  for i := 0 to VPointsCount - 1 do begin
+    Result[i]
   end;
 end;
 
