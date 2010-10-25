@@ -18,10 +18,11 @@ type
   TWindowLayerBasic = class
   protected
     FParentMap: TImage32;
-    FLayerPositioned: TPositionedLayer;
     FViewPortState: TMapViewPortState;
+    FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
 
+    FLayerPositioned: TPositionedLayer;
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
@@ -109,6 +110,7 @@ begin
 
   FLayerPositioned.MouseEvents := false;
   FLayerPositioned.Visible := false;
+  FVisible := False;
 
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
 end;
@@ -130,22 +132,24 @@ end;
 
 procedure TWindowLayerBasic.DoHide;
 begin
+  FVisible := False;
   FLayerPositioned.Visible := False;
 end;
 
 procedure TWindowLayerBasic.DoShow;
 begin
+  FVisible := True;
   FLayerPositioned.Visible := True;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;
 begin
-  Result := FLayerPositioned.Visible;
+  Result := FVisible;
 end;
 
 procedure TWindowLayerBasic.Hide;
 begin
-  if FLayerPositioned.Visible then begin
+  if Visible then begin
     DoHide;
     FVisibleChangeNotifier.Notify(nil);
   end;
@@ -185,7 +189,7 @@ end;
 
 procedure TWindowLayerBasic.Show;
 begin
-  if not FLayerPositioned.Visible then begin
+  if not Visible then begin
     DoShow;
     FVisibleChangeNotifier.Notify(nil);
   end;
@@ -200,7 +204,7 @@ end;
 
 procedure TWindowLayerBasicOld.Resize;
 begin
-  if FLayerPositioned.Visible then begin
+  if Visible then begin
     DoResize;
   end;
 end;
