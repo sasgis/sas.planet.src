@@ -2,6 +2,7 @@
 program SASPlanet;
 
 uses
+  FastMM4,
   Forms,
   iniFiles,
   sysutils,
