@@ -9,6 +9,7 @@ uses
   i_JclNotify,
   i_ICoordConverter,
   i_IPosChangeMessage,
+  UMapType,
   u_MapViewPortState,
   u_WindowLayerBasic;
 
@@ -18,12 +19,12 @@ type
     FScreenCenterPos: TPoint;
     FZoom: Byte;
     FGeoConvert: ICoordConverter;
+    FMapType: TMapType;
     FViewSize: TPoint;
 
     FMapPosChangeListener: IJclListener;
     FViewScaleChangeListener: IJclListener;
     procedure ProcessPosChange(AMessage: IPosChangeMessage); virtual;
-    procedure ProcessViewScaleChange(AMessage: IJclNotificationMessage); virtual;
     procedure UpdatelLayerLocation; virtual;
     procedure DoUpdatelLayerLocation; virtual; abstract;
   public
@@ -79,7 +80,7 @@ type
 procedure TChangeViewScaleListener.Notification(
   msg: IJclNotificationMessage);
 begin
-  FMapLayer.ProcessViewScaleChange(msg);
+  FMapLayer.UpdatelLayerLocation;
 end;
 
 { TMapLayerBase }
@@ -104,14 +105,45 @@ begin
 end;
 
 procedure TMapLayerBase.ProcessPosChange(AMessage: IPosChangeMessage);
+var
+  VNeedRedraw: Boolean;
+  VNewPos: TPoint;
+  VNewSize: TPoint;
 begin
+  if Visible then begin
+    VNeedRedraw := False;
+    if FZoom <> AMessage.GetZoom then begin
+      FZoom := AMessage.GetZoom;
+      VNeedRedraw := True;
+    end;
 
-end;
+    VNewPos := AMessage.GetMapPixel;
+    if (FScreenCenterPos.X <> VNewPos.X) or (FScreenCenterPos.Y <> VNewPos.Y) then begin
+      FScreenCenterPos := VNewPos;
+      VNeedRedraw := True;
+    end;
 
-procedure TMapLayerBase.ProcessViewScaleChange(
-  AMessage: IJclNotificationMessage);
-begin
-  UpdatelLayerLocation;
+    if not FGeoConvert.IsSameConverter(AMessage.GetCoordConverter) then begin
+      FGeoConvert := AMessage.GetCoordConverter;
+      VNeedRedraw := True;
+    end;
+
+    VNewSize := AMessage.GetViewSize;
+    if (FViewSize.X <> VNewSize.X) or (FViewSize.Y <> VNewSize.Y) then begin
+      FViewSize := VNewSize;
+      VNeedRedraw := True;
+    end;
+
+    if FMapType <> AMessage.GetMap then begin
+      FMapType := AMessage.GetMap;
+      VNeedRedraw := True;
+    end;
+
+    if VNeedRedraw then begin
+      Redraw;
+    end;
+    UpdatelLayerLocation;
+  end;
 end;
 
 procedure TMapLayerBase.UpdatelLayerLocation;
