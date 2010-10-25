@@ -44,6 +44,9 @@ type
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
   function PointInRect(const APoint: TExtendedPoint; const ARect: TExtendedRect): Boolean;
+  function IsExtendedRectEmpty(const Rect: TExtendedRect): Boolean;
+  function IntersectExtendedRect(out Rect: TExtendedRect; const R1, R2: TExtendedRect): Boolean;
+
   function compare2EP(p1,p2:TExtendedPoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
@@ -541,6 +544,22 @@ begin
   Result.Top := ATop;
   Result.Right := ARight;
   Result.Bottom := ABottom;
+end;
+
+function IsExtendedRectEmpty(const Rect: TExtendedRect): Boolean;
+begin
+  Result := (Rect.Right <= Rect.Left) or (Rect.Bottom <= Rect.Top);
+end;
+
+function IntersectExtendedRect(out Rect: TExtendedRect; const R1, R2: TExtendedRect): Boolean;
+begin
+  Rect := R1;
+  if R2.Left > R1.Left then Rect.Left := R2.Left;
+  if R2.Top > R1.Top then Rect.Top := R2.Top;
+  if R2.Right < R1.Right then Rect.Right := R2.Right;
+  if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
+  Result := not IsExtendedRectEmpty(Rect);
+  if not Result then FillChar(Rect, SizeOf(Rect), 0);
 end;
 
 
