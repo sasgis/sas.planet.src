@@ -105,6 +105,23 @@
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_Marks.pas" />
     <DCCReference Include="i_MemCache.pas" />
+    <DCCReference Include="MapLayers\u_CenterScale.pas" />
+    <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
+    <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
+    <DCCReference Include="MapLayers\u_MapFillingLayer.pas" />
+    <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
+    <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
+    <DCCReference Include="MapLayers\u_MapMarksLayer.pas" />
+    <DCCReference Include="MapLayers\u_MapNalLayer.pas" />
+    <DCCReference Include="MapLayers\u_MapTileLayerBasic.pas" />
+    <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
+    <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
+    <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
       <DesignClass>TFrame</DesignClass>
@@ -266,7 +283,6 @@
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
-    <DCCReference Include="u_CenterScale.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_ConfigDataProviderByFolder.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
@@ -308,8 +324,6 @@
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
-    <DCCReference Include="u_LayerScaleLine.pas" />
-    <DCCReference Include="u_LayerStatBar.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
@@ -319,19 +333,8 @@
     <DCCReference Include="u_MapCalibrationTab.pas" />
     <DCCReference Include="u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapChangeMessage.pas" />
-    <DCCReference Include="u_MapFillingLayer.pas" />
-    <DCCReference Include="u_MapGPSLayer.pas" />
-    <DCCReference Include="u_MapLayerBasic.pas" />
-    <DCCReference Include="u_MapLayerGoto.pas" />
-    <DCCReference Include="u_MapLayerNavToMark.pas" />
-    <DCCReference Include="u_MapLayerShowError.pas" />
-    <DCCReference Include="u_MapLayerWiki.pas" />
-    <DCCReference Include="u_MapMainLayer.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderStuped.pas" />
-    <DCCReference Include="u_MapMarksLayer.pas" />
-    <DCCReference Include="u_MapNalLayer.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />
-    <DCCReference Include="u_MapTileLayerBasic.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
@@ -352,7 +355,6 @@
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
-    <DCCReference Include="u_MiniMapLayer.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
@@ -360,7 +362,6 @@
     <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
-    <DCCReference Include="u_SelectionLayer.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
@@ -380,7 +381,6 @@
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGEStuped.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
-    <DCCReference Include="u_WindowLayerBasic.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
   </ItemGroup>
