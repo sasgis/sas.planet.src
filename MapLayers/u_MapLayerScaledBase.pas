@@ -10,7 +10,7 @@ type
   TMapLayerScaledBase = class(TMapLayerBase)
   protected
     function GetVisibleRectInMapPixels: TRect; virtual; abstract;
-    procedure UpdatelLayerLocation; override;
+    procedure DoUpdatelLayerLocation; override;
   end;
 
 implementation
@@ -22,7 +22,7 @@ uses
 
 { TMapLayerScaledBase }
 
-procedure TMapLayerScaledBase.UpdatelLayerLocation;
+procedure TMapLayerScaledBase.DoUpdatelLayerLocation;
 var
   VMapRect: TRect;
   VVisibleRect: TExtendedRect;

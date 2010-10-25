@@ -13,7 +13,7 @@ type
     function GetLayerVisibleSize: TPoint; virtual; abstract;
     function GetLonLat: TExtendedPoint; virtual; abstract;
     function GetLayerTopLeftVisibleShift: TPoint; virtual; abstract;
-    procedure UpdatelLayerLocation; override;
+    procedure DoUpdatelLayerLocation; override;
 
   end;
 implementation
@@ -24,7 +24,7 @@ uses
 
 { TMapLayerFixedBase }
 
-procedure TMapLayerFixedBase.UpdatelLayerLocation;
+procedure TMapLayerFixedBase.DoUpdatelLayerLocation;
 var
   VLonLat: TExtendedPoint;
   VVisiblePoint: TExtendedPoint;

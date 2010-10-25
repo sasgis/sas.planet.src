@@ -24,7 +24,8 @@ type
     FViewScaleChangeListener: IJclListener;
     procedure ProcessPosChange(AMessage: IPosChangeMessage); virtual;
     procedure ProcessViewScaleChange(AMessage: IJclNotificationMessage); virtual;
-    procedure UpdatelLayerLocation; virtual; abstract;
+    procedure UpdatelLayerLocation; virtual;
+    procedure DoUpdatelLayerLocation; virtual; abstract;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -110,7 +111,14 @@ end;
 procedure TMapLayerBase.ProcessViewScaleChange(
   AMessage: IJclNotificationMessage);
 begin
+  UpdatelLayerLocation;
+end;
 
+procedure TMapLayerBase.UpdatelLayerLocation;
+begin
+  if Visible then begin
+    DoUpdatelLayerLocation;
+  end;
 end;
 
 end.
