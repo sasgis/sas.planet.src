@@ -92,6 +92,8 @@ type
     procedure CreateLayers;
     procedure DoResize; override;
     procedure DoResizeBitmap; override;
+    procedure DoShow; override;
+    procedure DoHide; override;
     procedure AdjustFont(Item: TTBCustomItem;
       Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
     procedure SameAsMainClick(Sender: TObject);
@@ -101,8 +103,6 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
-    procedure Show; override;
-    procedure Hide; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
@@ -726,7 +726,7 @@ begin
   Result := Point(VVisibleSize.X, VVisibleSize.Y - FBottomMargin);
 end;
 
-procedure TMiniMapLayer.Hide;
+procedure TMiniMapLayer.DoHide;
 begin
   inherited;
   FViewRectDrawLayer.Visible := false;
@@ -916,7 +916,7 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.Show;
+procedure TMiniMapLayer.DoShow;
 begin
   inherited;
   FViewRectDrawLayer.Visible := True;
