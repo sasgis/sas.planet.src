@@ -155,6 +155,7 @@ uses
   u_MapLayerShowError in 'MapLayers\u_MapLayerShowError.pas',
   u_MapNalLayer in 'MapLayers\u_MapNalLayer.pas',
   u_MapLayerGoto in 'MapLayers\u_MapLayerGoto.pas',
+  u_SelectionLayerNew in 'MapLayers\u_SelectionLayerNew.pas',
   i_Marks in 'i_Marks.pas',
   u_MarkBasic in 'u_MarkBasic.pas',
   u_MarkCategory in 'u_MarkCategory.pas',
