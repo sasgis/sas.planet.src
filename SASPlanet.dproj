@@ -127,7 +127,6 @@
     <DCCReference Include="MapLayers\u_MapTileLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
-    <DCCReference Include="MapLayers\u_SelectionLayerNew.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>

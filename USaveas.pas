@@ -124,8 +124,11 @@ begin
 end;
 
 procedure TFsaveas.LoadSelFromFile(FileName:string);
-var ini:TMemIniFile;
-    i:integer;
+var
+  ini:TMemIniFile;
+  i:integer;
+  VPolygon: TExtendedPointArray;
+  VZoom: Byte;
 begin
  if FileExists(FileName) then
   begin
@@ -133,17 +136,16 @@ begin
    i:=1;
    while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
     begin
-     setlength(GState.LastSelectionPolygon,i);
-     GState.LastSelectionPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-     GState.LastSelectionPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+     setlength(VPolygon,i);
+     VPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+     VPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
      inc(i);
     end;
-   if length(GState.LastSelectionPolygon)>0 then
+   if length(VPolygon)>0 then
     begin
-     GState.poly_zoom_save:=Ini.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-     fsaveas.Show_(GState.poly_zoom_save, GState.LastSelectionPolygon);
+     VZoom := Ini.Readinteger('HIGHLIGHTING','zoom',1) - 1;
+     fsaveas.Show_(VZoom, VPolygon);
     end;
-    FMain.LayerSelection.Redraw
   end
 end;
 
@@ -251,13 +253,8 @@ var
   VExportProvider: TExportProviderAbstract;
 begin
   FZoom_rect:=Azoom;
-  setlength(FPolygonLL,length(polygon_));
-  setlength(GState.LastSelectionPolygon,length(polygon_));
-  for i:=0 to length(polygon_)-1 do begin
-    FPolygonLL[i]:=polygon_[i];
-    GState.LastSelectionPolygon[i]:=polygon_[i];
-  end;
-  GState.poly_zoom_save:=FZoom_rect;
+  FPolygonLL := copy(polygon_);
+  GState.LastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
   vramkah:=false;
   zagran:=false;
   VConverter := GState.ViewState.GetCurrentCoordConverter;
@@ -320,23 +317,31 @@ begin
 end;
 
 procedure TFsaveas.SpeedButton1Click(Sender: TObject);
-var Ini: Tinifile;
-    i:integer;
+var
+  Ini: Tinifile;
+  i:integer;
+  VZoom: Byte;
+  VPolygon: TExtendedPointArray;
 begin
  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then
   begin
    If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
+   VZoom := GState.LastSelectionInfo.Zoom;
+   VPolygon := copy(GState.LastSelectionInfo.Polygon);
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
-   if length(GState.LastSelectionPolygon)>0 then
+   try
+   if length(VPolygon)>0 then
     begin
-     Ini.WriteInteger('HIGHLIGHTING','zoom',GState.poly_zoom_save + 1);
-     for i:=1 to length(GState.LastSelectionPolygon) do
+     Ini.WriteInteger('HIGHLIGHTING','zoom',VZoom + 1);
+     for i:=1 to length(VPolygon) do
       begin
-       Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),GState.LastSelectionPolygon[i-1].x);
-       Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i),GState.LastSelectionPolygon[i-1].y);
+       Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),VPolygon[i-1].x);
+       Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i),VPolygon[i-1].y);
       end;
     end;
+   finally
     ini.Free;
+   end;
   end;
 end;
 

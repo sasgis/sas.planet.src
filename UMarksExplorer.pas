@@ -388,7 +388,6 @@ begin
   Result:=false;
   if AMark.IsPoly then begin
     Fsaveas.Show_(GState.ViewState.GetCurrentZoom, AMark.Points);
-    Fmain.LayerSelection.Redraw;
     Result:=true;
   end else begin
     ShowMessage(SAS_MSG_FunExForPoly);
