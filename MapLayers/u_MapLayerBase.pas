@@ -123,7 +123,7 @@ begin
       VNeedRedraw := True;
     end;
 
-    if not FGeoConvert.IsSameConverter(AMessage.GetCoordConverter) then begin
+    if (FGeoConvert = nil) or not FGeoConvert.IsSameConverter(AMessage.GetCoordConverter) then begin
       FGeoConvert := AMessage.GetCoordConverter;
       VNeedRedraw := True;
     end;
