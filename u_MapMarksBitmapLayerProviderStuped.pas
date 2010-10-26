@@ -36,7 +36,6 @@ uses
 
 const
   CMaxFontSize = 20;
-  CMaxMarkName = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 { TMapMarksBitmapLayerProviderStupedThreaded }
 
@@ -77,11 +76,6 @@ begin
   FTargetRect := ATargetRect;
   FZoom := ATargetZoom;
   FLLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
-//  VDeltaLL:=ExtPoint((FLLRect.Right-FLLRect.Left)/2,(FLLRect.Top-FLLRect.Bottom)/2);
-//  FLLRect.Left := FLLRect.Left - VDeltaLL.X;
-//  FLLRect.Top := FLLRect.Top + VDeltaLL.Y;
-//  FLLRect.Right := FLLRect.Right + VDeltaLL.X;
-//  FLLRect.Bottom := FLLRect.Bottom - VDeltaLL.Y;
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -92,8 +86,6 @@ begin
   FBitmapWithText.Font.Style := [];
   FBitmapWithText.DrawMode := dmTransparent;
   FBitmapWithText.Font.Size := CMaxFontSize;
-  FBitmapWithText.Height := FBitmapWithText.TextHeight(CMaxMarkName);
-  FBitmapWithText.Width := FBitmapWithText.TextWidth(CMaxMarkName);
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -221,8 +213,8 @@ begin
   if AFontSize > 0 then begin
     FBitmapWithText.Font.Size := AFontSize;
     VTextSize := FBitmapWithText.TextExtent(AName);
-
-    FBitmapWithText.FillRectS(0, 0, VTextSize.cx, VTextSize.cy, SetAlpha(clBlack32, 0));
+    FBitmapWithText.SetSize(VTextSize.cx,VTextSize.cy);
+    FBitmapWithText.Clear(SetAlpha(clBlack32,0));
     FBitmapWithText.RenderText(1, 1, AName, 1, AColor2);
     FBitmapWithText.RenderText(0, 0, AName, 1, AColor1);
     VDstRect.Left := xy.x + (AMarkSize div 2) + 1;
