@@ -952,8 +952,8 @@ begin
   FSync.BeginWrite;
   try
     FMapScale := FBaseScale;
-    FVisibleMove.X := Pnt.X;
-    FVisibleMove.Y := Pnt.Y;
+    FVisibleMove.X := - Pnt.X;
+    FVisibleMove.Y := - Pnt.Y;
     NotifyChangeScale;
   finally
     FSync.EndWrite;
