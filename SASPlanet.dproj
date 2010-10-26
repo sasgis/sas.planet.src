@@ -331,6 +331,7 @@
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
+    <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
