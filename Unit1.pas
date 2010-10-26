@@ -1845,6 +1845,8 @@ begin
         //Scale := 1 + i/(steps - 1);
         Scale := 3 - (1/(1+i/(steps - 1)))*2;
       end;
+      map.BeginUpdate;
+      try
       if move then begin
         GState.ViewState.ScaleTo(Scale, MouseCursorPos);
         FMainLayer.ScaleTo(Scale, MouseCursorPos);
@@ -1858,6 +1860,7 @@ begin
         FShowErrorLayer.ScaleTo(Scale, MouseCursorPos);
         LayerMapNavToMark.ScaleTo(Scale, MouseCursorPos);
       end else begin
+        GState.ViewState.ScaleTo(Scale);
         FMainLayer.ScaleTo(Scale);
         LayerSelection.ScaleTo(Scale);
         FLayerMapMarks.ScaleTo(Scale);
@@ -1868,6 +1871,10 @@ begin
         FLayerGoto.ScaleTo(Scale);
         FShowErrorLayer.ScaleTo(Scale);
         LayerMapNavToMark.ScaleTo(Scale);
+      end;
+      finally
+        map.EndUpdate;
+        map.Invalidate;
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -3481,6 +3488,8 @@ begin
                       end;
  if MapZoomAnimtion then exit;
  if MapMoving then begin
+              map.BeginUpdate;
+              try
               GState.ViewState.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FMainLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerSelection.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
@@ -3492,6 +3501,10 @@ begin
               FLayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               FShowErrorLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
               LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              finally
+                map.EndUpdate;
+                map.Invalidate;
+              end;
              end
         else MouseCursorPos:=point(x,y);
  if not(MapMoving) then begin
