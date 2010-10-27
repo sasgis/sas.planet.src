@@ -5,6 +5,7 @@ interface
 uses
   Types,
   GR32,
+  graphics,
   i_ICoordConverter,
   i_IBitmapLayerProvider;
 
@@ -212,6 +213,7 @@ begin
   end;
   if AFontSize > 0 then begin
     FBitmapWithText.Font.Size := AFontSize;
+    //FBitmapWithText.Font.Style:=[fsBold];
     VTextSize := FBitmapWithText.TextExtent(AName);
     FBitmapWithText.SetSize(VTextSize.cx,VTextSize.cy);
     FBitmapWithText.Clear(SetAlpha(clBlack32,0));
