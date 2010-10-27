@@ -984,8 +984,8 @@ begin
         Polygon.Closed := false;
         Polygon.Add(FixedPoint(4, 0));
         Polygon.Add(FixedPoint(0, 0));
-        Polygon.Add(FixedPoint(0, VBitmapSizeInPixel.Y + 4));
-        Polygon.Add(FixedPoint(4, VBitmapSizeInPixel.Y + 4));
+        Polygon.Add(FixedPoint(0, VBitmapSizeInPixel.Y + 5));
+        Polygon.Add(FixedPoint(4, VBitmapSizeInPixel.Y + 5));
         Polygon.Add(FixedPoint(4, 3));
         Polygon.DrawEdge(FLeftBorder.Bitmap, clBlack32);
       finally
