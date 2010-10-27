@@ -66,13 +66,11 @@ type
     Label6: TLabel;
     SpinEdit1: TSpinEdit;
     SpinEdit2: TSpinEdit;
-    Label14: TLabel;
-    smmapdif: TSpinEdit;
     Label16: TLabel;
     ComboBox2: TComboBox;
-    SpinEditMiniMap: TSpinEdit;
+    MiniMapAlphaEdit: TSpinEdit;
     Label17: TLabel;
-    SpinEdit3: TSpinEdit;
+    TilesOverScreenEdit: TSpinEdit;
     Label69: TLabel;
     CB_GPSlog: TCheckBox;
     TabSheet8: TTabSheet;
@@ -172,7 +170,6 @@ type
     pnlCoordFormat: TPanel;
     pnlUILeft: TPanel;
     pnlLonLatFormat: TPanel;
-    flwpnlMiniMap: TFlowPanel;
     pnlImageProcess: TPanel;
     pnlResize: TPanel;
     flwpnlTileBorders: TFlowPanel;
@@ -331,6 +328,8 @@ begin
    k:=k shr 1;
   end;
 
+ Fmain.LayerMiniMap.Alpha:=MiniMapAlphaEdit.Value;
+
  GState.SessionLastSuccess:=CBLastSuccess.Checked;
  GState.BGround:=ColorBoxBackGround.Selected;
  FMain.map.Color:=GState.BGround;
@@ -395,7 +394,7 @@ begin
 
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
- GState.TilesOut:=SpinEdit3.Value;
+ GState.TilesOut:=TilesOverScreenEdit.Value;
 
  SetProxy;
 
@@ -497,6 +496,8 @@ begin
  GState.LanguageManager.GetLangNames(CBoxLocal.Items);
  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
 
+ MiniMapAlphaEdit.Value:=Fmain.LayerMiniMap.Alpha;
+
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;
  CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
@@ -553,7 +554,7 @@ begin
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;
 
- SpinEdit3.Value:=GState.TilesOut;
+ TilesOverScreenEdit.Value:=GState.TilesOut;
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
  frShortCutList.SetShortCutManager(Fmain.ShortCutManager);

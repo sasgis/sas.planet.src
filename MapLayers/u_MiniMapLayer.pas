@@ -98,6 +98,7 @@ type
     procedure OnNotifyMapChange(msg: IMapChangeMessage); virtual;
     procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
     procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
+    procedure FSetAlpha(value:integer);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -106,6 +107,7 @@ type
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
+    property Alpha: integer read FAlpha write FSetAlpha;
   end;
 
 implementation
@@ -258,7 +260,6 @@ begin
   FTopBorder.Bitmap.DrawMode := dmBlend;
   FTopBorder.Bitmap.CombineMode := cmMerge;
 
-
   FViewRectDrawLayer := TBitmapLayer.Create(FParentMap.Layers);
   FViewRectDrawLayer.Visible := False;
   FViewRectDrawLayer.MouseEvents := false;
@@ -311,6 +312,7 @@ begin
     FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
     FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
     Visible := VConfigProvider.ReadBool('Visible', True);
+    Alpha := VConfigProvider.ReadInteger('Alpha', 150);
     VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
     try
       VMapConfigLoader.Load(FMapsActive);
@@ -406,7 +408,9 @@ begin
   VConfigProvider.WriteInteger('Width', FBitmapSize.X);
   VConfigProvider.WriteInteger('Height', FBitmapSize.Y);
   VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
+  VConfigProvider.WriteInteger('Alpha', Alpha);
   VConfigProvider.WriteBool('Visible', Visible);
+
   VMapConfigSaver := TMapsConfigSaverByConfigDataProvider.Create(VConfigProvider.GetOrCreateSubItem('Maps'));
   try
     VMapConfigSaver.Save(FMapsActive);
@@ -1040,6 +1044,16 @@ begin
   if IsEqualGUID(FMapsActive.SelectedMapGUID, CGUID_Zero) then begin
     Redraw;
   end;
+end;
+
+procedure TMiniMapLayer.FSetAlpha(value:integer);
+begin
+  FAlpha:=value;
+  FMinusButton.Bitmap.MasterAlpha:=FAlpha;
+  FPlusButton.Bitmap.MasterAlpha:=FAlpha;
+  FTopBorder.Bitmap.MasterAlpha:=FAlpha;
+  FLeftBorder.Bitmap.MasterAlpha:=FAlpha;
+  FLayer.Bitmap.MasterAlpha:=FAlpha;
 end;
 
 end.

@@ -26,6 +26,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -77,6 +78,8 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitLeft = 38
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -2395,7 +2398,7 @@ object Fmain: TFmain
               Height = 13
               Anchors = [akLeft, akTop, akRight]
               Wrapping = twEndEllipsis
-              Caption = #1042#1099#1089#1086#1090#1072' ('#1043#1077#1086'), '#1084':'
+              Caption = #1042#1099#1089#1086#1090#1072', '#1084':'
             end
           end
           object TBXSensorSpeedMaxBar: TTBXToolWindow

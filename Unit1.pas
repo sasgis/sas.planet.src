@@ -615,6 +615,7 @@ type
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property ShortCutManager: TShortcutManager read FShortCutManager;
+    property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
 
     constructor Create(AOwner: TComponent); override;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
