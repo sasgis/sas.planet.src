@@ -1042,7 +1042,7 @@ begin
   if (pos >=0) and (pos <= VCount)  then begin
     SetLength(add_line_arr, VCount + 1);
     if pos < VCount then begin
-      CopyMemory(@add_line_arr[pos + 1], @add_line_arr[pos], (VCount-pos-1)*sizeOf(TExtendedPoint));
+      CopyMemory(@add_line_arr[pos + 1], @add_line_arr[pos], (VCount-pos)*sizeOf(TExtendedPoint));
     end;
     add_line_arr[pos] := APoint;
   end;
