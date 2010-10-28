@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   GR32,
   GR32_Image,
   GR32_Layers,
@@ -16,6 +17,10 @@ uses
 type
 
   TWindowLayerBasic = class
+  private
+    FCS: TCriticalSection;
+    FRedrawCounter: Cardinal;
+    FRedrawTime: TDateTime;
   protected
     FParentMap: TImage32;
     FViewPortState: TMapViewPortState;
@@ -30,6 +35,7 @@ type
     procedure DoShow; virtual;
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
+    procedure IncRedrawCounter(ATime: TDateTime);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -42,6 +48,8 @@ type
     procedure Redraw; virtual;
     property Visible: Boolean read GetVisible write SetVisible;
     property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
+    property RedrawCounter: Cardinal read FRedrawCounter;
+    property RedrawTime: TDateTime read FRedrawTime;
   end;
 
   TWindowLayerBasicOld = class(TWindowLayerBasic)
@@ -95,6 +103,7 @@ type
 implementation
 
 uses
+  SysUtils,
   Forms,
   Types,
   u_JclNotify;
@@ -103,6 +112,7 @@ uses
 
 constructor TWindowLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
+  FCS := TCriticalSection.Create;
   FParentMap := AParentMap;
   FViewPortState := AViewPortState;
 
@@ -113,6 +123,8 @@ begin
   FVisible := False;
 
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
+  FRedrawCounter := 0;
+  FRedrawTime  := 0;
 end;
 
 function TWindowLayerBasic.CreateLayer(
@@ -123,6 +135,7 @@ end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
+  FreeAndNil(FCS);
   FViewPortState := nil;
   FParentMap := nil;
   FLayerPositioned := nil;
@@ -155,15 +168,39 @@ begin
   end;
 end;
 
+procedure TWindowLayerBasic.IncRedrawCounter(ATime: TDateTime);
+begin
+  FCS.Acquire;
+  try
+    Inc(FRedrawCounter);
+    FRedrawTime := FRedrawTime + ATime;
+  finally
+    FCS.Release;
+  end;
+end;
+
 procedure TWindowLayerBasic.LoadConfig(AConfigProvider: IConfigDataProvider);
 begin
   // По умолчанию ничего не делаем
 end;
 
 procedure TWindowLayerBasic.Redraw;
+var
+  VPerformanceCounterBegin: Int64;
+  VPerformanceCounterEnd: Int64;
+  VPerformanceCounterFr: Int64;
+  VUpdateTime: TDateTime;
 begin
   if Visible then begin
-    DoRedraw;
+    try
+      QueryPerformanceCounter(VPerformanceCounterBegin);
+      DoRedraw;
+    finally
+      QueryPerformanceCounter(VPerformanceCounterEnd);
+      QueryPerformanceFrequency(VPerformanceCounterFr);
+      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr;
+      IncRedrawCounter(VUpdateTime);
+    end;
   end;
 end;
 
