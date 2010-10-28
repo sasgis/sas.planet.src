@@ -343,6 +343,8 @@ begin
   inherited;
   if (GState.show_point <> mshNone) then begin
     VProv := GState.MarksBitmapProvider;
+    FLayer.Bitmap.DrawMode:=dmBlend;
+    FLayer.Bitmap.CombineMode:=cmMerge;
     FLayer.Bitmap.Clear(clBlack);
     VBitmapSize := GetBitmapSizeInPixel;
     VRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));

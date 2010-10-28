@@ -7,7 +7,8 @@ uses
   GR32,
   graphics,
   i_ICoordConverter,
-  i_IBitmapLayerProvider;
+  i_IBitmapLayerProvider,
+  WinTypes;
 
 type
   TMapMarksBitmapLayerProviderStuped = class(TInterfacedObject, IBitmapLayerProvider)
@@ -85,7 +86,8 @@ begin
   FBitmapWithText := TBitmap32.Create;
   FBitmapWithText.Font.Name := 'Tahoma';
   FBitmapWithText.Font.Style := [];
-  FBitmapWithText.DrawMode := dmTransparent;
+  FBitmapWithText.DrawMode := dmBlend;
+  FBitmapWithText.CombineMode:=cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
 end;
 
@@ -169,7 +171,7 @@ begin
           Polygon.DrawFill(FTargetBmp, color2);
         end;
         with Polygon.Outline do try
-          with Grow(Fixed(linew / 2), 0.5) do try
+          with Grow(GR32.Fixed(linew / 2), 0.5) do try
             FillMode := pfWinding;
             DrawFill(FTargetBmp, color1);
           finally
@@ -212,18 +214,22 @@ begin
     FTargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
   end;
   if AFontSize > 0 then begin
+    FBitmapWithText.MasterAlpha:=AlphaComponent(AColor1);
     FBitmapWithText.Font.Size := AFontSize;
-    //FBitmapWithText.Font.Style:=[fsBold];
     VTextSize := FBitmapWithText.TextExtent(AName);
+    VTextSize.cx:=VTextSize.cx+2;
+    VTextSize.cy:=VTextSize.cy+2;
     FBitmapWithText.SetSize(VTextSize.cx,VTextSize.cy);
-    FBitmapWithText.Clear(SetAlpha(clBlack32,0));
-    FBitmapWithText.RenderText(1, 1, AName, 1, AColor2);
-    FBitmapWithText.RenderText(0, 0, AName, 1, AColor1);
-    VDstRect.Left := xy.x + (AMarkSize div 2) + 1;
-    VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2 + 1;
-    VDstRect.Right := VDstRect.Left + VTextSize.cx + 1;
-    VDstRect.Bottom := VDstRect.Top + VTextSize.cy + 1;
-    VSrcRect := bounds(0, 0, VTextSize.cx + 1, VTextSize.cy + 1);
+    VDstRect.Left := xy.x + (AMarkSize div 2);
+    VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2;
+    VDstRect.Right := VDstRect.Left + VTextSize.cx;
+    VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
+    VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
+    FBitmapWithText.Clear(clBlack);
+    FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
+    FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
+    FBitmapWithText.Clear(clBlack);
+    FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
     FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
   end;
 end;
