@@ -219,7 +219,7 @@ begin
     VTextSize := FBitmapWithText.TextExtent(AName);
     VTextSize.cx:=VTextSize.cx+2;
     VTextSize.cy:=VTextSize.cy+2;
-    FBitmapWithText.SetSize(VTextSize.cx,VTextSize.cy);
+    FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
     VDstRect.Left := xy.x + (AMarkSize div 2);
     VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2;
     VDstRect.Right := VDstRect.Left + VTextSize.cx;
@@ -227,8 +227,6 @@ begin
     VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
     FBitmapWithText.Clear(clBlack);
     FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
-    FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
-    FBitmapWithText.Clear(clBlack);
     FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
     FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
   end;
