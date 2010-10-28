@@ -98,8 +98,6 @@ type
     InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
-    // Загружать тайл дае есть информация о отсутствии его на сервере
-    IgnoreTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
     TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
@@ -541,7 +539,6 @@ begin
   InetConnect.loginstr:=MainIni.Readstring('INTERNET','login','');
   InetConnect.passstr:=MainIni.Readstring('INTERNET','password','');
   SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
-  IgnoreTileNotExists:=MainIni.ReadBool('INTERNET','IgnoreTileNotExists',false);
 
   TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
@@ -811,7 +808,6 @@ begin
   MainIni.Writestring('INTERNET','login',InetConnect.loginstr);
   MainIni.Writestring('INTERNET','password',InetConnect.passstr);
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
-  MainIni.WriteBool('INTERNET','IgnoreTileNotExists',IgnoreTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
   MainIni.WriteInteger('INTERNET','TimeOut',InetConnect.TimeOut);
