@@ -463,12 +463,16 @@ var
   VCategory: TCategoryId;
 begin
   if TreeView1.Selected <> nil then begin
-    VCategory := TCategoryId(TreeView1.Selected.Data);
-    if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-      DeleteCategoryWithMarks(VCategory);
-      katitems.Delete(katitems.IndexOfObject(VCategory));
-      VCategory.Free;
-      DrawTreeCategory(TreeView1,katitems);
+    if not TreeView1.Selected.HasChildren then begin
+      VCategory := TCategoryId(TreeView1.Selected.Data);
+      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+        DeleteCategoryWithMarks(VCategory);
+        katitems.Delete(katitems.IndexOfObject(VCategory));
+        VCategory.Free;
+        DrawTreeCategory(TreeView1,katitems);
+      end;
+    end else begin
+      ShowMessage(SAS_MSG_NotDelWhereHasChildren);
     end;
   end;
 end;

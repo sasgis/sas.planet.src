@@ -540,6 +540,7 @@ object FMarksExplorer: TFMarksExplorer
       Width = 185
       Height = 263
       Indent = 19
+      ReadOnly = True
       StateImages = imlStates
       TabOrder = 1
       OnKeyUp = TreeView1KeyUp
