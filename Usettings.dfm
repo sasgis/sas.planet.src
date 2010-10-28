@@ -25,15 +25,13 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet4
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 626
     object TabSheet9: TTabSheet
       BorderWidth = 3
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
-      ExplicitWidth = 618
       object MapList: TListView
         Left = 0
         Top = 0
@@ -70,7 +68,6 @@ object FSettings: TFSettings
         OnCustomDrawItem = MapListCustomDrawItem
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
-        ExplicitWidth = 515
       end
       object pnlMapsRightButtons: TPanel
         Left = 535
@@ -80,7 +77,6 @@ object FSettings: TFSettings
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 515
         object Button15: TButton
           AlignWithMargins = True
           Left = 3
@@ -130,7 +126,6 @@ object FSettings: TFSettings
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
-      ExplicitWidth = 618
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -140,7 +135,6 @@ object FSettings: TFSettings
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 612
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -321,7 +315,6 @@ object FSettings: TFSettings
             Value = 100.000000000000000000
           end>
         TabOrder = 1
-        ExplicitWidth = 618
         DesignSize = (
           638
           160)
@@ -345,7 +338,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 422
         end
         object Button6: TButton
           Tag = 2
@@ -357,7 +349,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 1
           OnClick = Button4Click
-          ExplicitLeft = 578
         end
         object Button7: TButton
           Tag = 2
@@ -369,7 +360,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 2
           OnClick = Button5Click
-          ExplicitLeft = 598
         end
         object Label2: TLabel
           AlignWithMargins = True
@@ -391,7 +381,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 3
-          ExplicitWidth = 422
         end
         object Button4: TButton
           Tag = 1
@@ -403,7 +392,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 4
           OnClick = Button4Click
-          ExplicitLeft = 578
         end
         object Button5: TButton
           Tag = 1
@@ -415,7 +403,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 5
           OnClick = Button5Click
-          ExplicitLeft = 598
         end
         object Label1: TLabel
           AlignWithMargins = True
@@ -437,7 +424,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 6
-          ExplicitWidth = 422
         end
         object Button8: TButton
           Tag = 3
@@ -449,7 +435,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 7
           OnClick = Button4Click
-          ExplicitLeft = 578
         end
         object Button9: TButton
           Tag = 3
@@ -461,7 +446,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 8
           OnClick = Button5Click
-          ExplicitLeft = 598
         end
         object Label19: TLabel
           AlignWithMargins = True
@@ -483,7 +467,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 9
-          ExplicitWidth = 422
         end
         object Button13: TButton
           Tag = 4
@@ -495,7 +478,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 10
           OnClick = Button4Click
-          ExplicitLeft = 578
         end
         object Button14: TButton
           Tag = 4
@@ -507,7 +489,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 11
           OnClick = Button5Click
-          ExplicitLeft = 598
         end
         object Label31: TLabel
           AlignWithMargins = True
@@ -529,7 +510,6 @@ object FSettings: TFSettings
           Height = 21
           Align = alClient
           TabOrder = 12
-          ExplicitWidth = 422
         end
         object Button10: TButton
           Tag = 5
@@ -541,7 +521,6 @@ object FSettings: TFSettings
           Caption = '<>'
           TabOrder = 13
           OnClick = Button4Click
-          ExplicitLeft = 578
         end
         object Button17: TButton
           Tag = 5
@@ -553,7 +532,6 @@ object FSettings: TFSettings
           Caption = '...'
           TabOrder = 14
           OnClick = Button5Click
-          ExplicitLeft = 598
         end
         object Label37: TLabel
           AlignWithMargins = True
@@ -584,7 +562,6 @@ object FSettings: TFSettings
             'SAS.'#1055#1083#1072#1085#1077#1090#1072
             'EarthSlicer 1.95'
             'Googe maps tiles')
-          ExplicitWidth = 422
         end
       end
     end
@@ -592,7 +569,6 @@ object FSettings: TFSettings
       BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
-      ExplicitWidth = 618
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -602,7 +578,6 @@ object FSettings: TFSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitWidth = 612
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
@@ -612,7 +587,6 @@ object FSettings: TFSettings
           Align = alTop
           Caption = #1055#1086#1074#1090#1086#1088#1085#1086' '#1087#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1087#1088#1080' '#1077#1075#1086' '#1086#1090#1089#1090#1091#1090#1089#1074#1080#1080
           TabOrder = 0
-          ExplicitWidth = 600
         end
         object CkBGoNextTile: TCheckBox
           AlignWithMargins = True
@@ -623,7 +597,6 @@ object FSettings: TFSettings
           Align = alTop
           Caption = #1055#1077#1088#1077#1093#1086#1076' '#1082' '#1089#1083#1077#1076#1091#1102#1097#1077#1084#1091' '#1090#1072#1081#1083#1091' '#1077#1089#1083#1080' '#1089#1077#1088#1074#1077#1088' '#1085#1077' '#1086#1090#1074#1077#1095#1072#1077#1090
           TabOrder = 1
-          ExplicitWidth = 600
         end
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
@@ -632,9 +605,8 @@ object FSettings: TFSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1072' '#1085#1072' '#1089#1077#1088#1074#1077#1088#1077
+          Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1072
           TabOrder = 2
-          ExplicitWidth = 600
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           Left = 3
@@ -645,7 +617,6 @@ object FSettings: TFSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 3
-          ExplicitWidth = 606
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -676,7 +647,6 @@ object FSettings: TFSettings
             #1053#1072#1095#1072#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086' '#1091#1076#1072#1095#1085#1086' '#1079#1072#1075#1088#1091#1078#1077#1085#1085 +
             #1086#1075#1086' '#1090#1072#1081#1083#1072
           TabOrder = 4
-          ExplicitWidth = 600
         end
         object GroupBox4: TGroupBox
           Left = 3
@@ -686,7 +656,6 @@ object FSettings: TFSettings
           Align = alTop
           Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
           TabOrder = 5
-          ExplicitWidth = 606
           object pnlProxyUrl: TPanel
             AlignWithMargins = True
             Left = 5
@@ -696,7 +665,6 @@ object FSettings: TFSettings
             Align = alTop
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitWidth = 596
             object lblUseProxy: TLabel
               AlignWithMargins = True
               Left = 24
@@ -725,7 +693,6 @@ object FSettings: TFSettings
               Height = 23
               Align = alClient
               TabOrder = 1
-              ExplicitWidth = 419
               ExplicitHeight = 21
             end
           end
@@ -739,7 +706,6 @@ object FSettings: TFSettings
             AutoSize = True
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitWidth = 596
             object CBLogin: TCheckBox
               AlignWithMargins = True
               Left = 3
@@ -791,7 +757,6 @@ object FSettings: TFSettings
             AutoSize = True
             BevelOuter = bvNone
             TabOrder = 2
-            ExplicitWidth = 596
             object chkUseIEProxy: TCheckBox
               AlignWithMargins = True
               Left = 3
@@ -802,7 +767,6 @@ object FSettings: TFSettings
               Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
               TabOrder = 0
               OnClick = chkUseIEProxyClick
-              ExplicitWidth = 590
             end
           end
         end
@@ -811,7 +775,6 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
-      ExplicitWidth = 618
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -820,7 +783,6 @@ object FSettings: TFSettings
         Align = alTop
         Caption = #1050#1086#1083#1077#1089#1080#1082#1086' '#1084#1099#1096#1080
         TabOrder = 0
-        ExplicitWidth = 618
         object ScrolInvert: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -830,7 +792,6 @@ object FSettings: TFSettings
           Align = alTop
           Caption = #1074#1088#1072#1097#1077#1085#1080#1077' '#1085#1072' '#1089#1077#1073#1103' - '#1087#1088#1080#1073#1083#1080#1078#1077#1085#1080#1077
           TabOrder = 0
-          ExplicitWidth = 608
         end
       end
       object GroupBox5: TGroupBox
@@ -841,13 +802,11 @@ object FSettings: TFSettings
         Align = alClient
         Caption = #1043#1086#1088#1103#1095#1080#1077' '#1082#1083'.'
         TabOrder = 1
-        ExplicitWidth = 618
       end
     end
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
-      ExplicitWidth = 618
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -878,7 +837,6 @@ object FSettings: TFSettings
             Value = 100.000000000000000000
           end>
         TabOrder = 0
-        ExplicitWidth = 618
         object pnlUILeft: TPanel
           Left = 0
           Top = 0
@@ -888,7 +846,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 0
-          ExplicitWidth = 309
           object pnlNumbersFormat: TPanel
             Left = 3
             Top = 3
@@ -901,7 +858,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 0
-            ExplicitWidth = 303
             object Label3: TLabel
               Left = 3
               Top = 3
@@ -928,7 +884,6 @@ object FSettings: TFSettings
               Items.Strings = (
                 '12 '#1082#1084'. 423 '#1084'.'
                 '23,4 '#1082#1084'.')
-              ExplicitWidth = 93
             end
           end
           object pnlLonLatFormat: TPanel
@@ -943,7 +898,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 1
-            ExplicitWidth = 303
             object pnlCoordFormat: TPanel
               Left = 3
               Top = 3
@@ -952,7 +906,6 @@ object FSettings: TFSettings
               Align = alTop
               BevelOuter = bvNone
               TabOrder = 0
-              ExplicitWidth = 297
               object Label84: TLabel
                 Left = 0
                 Top = 0
@@ -983,7 +936,6 @@ object FSettings: TFSettings
                   '-- '#1075'.'#1084'.'#1089'. (-12'#176'23"43.35'#39')'
                   '-- '#1075'.'#1084'. (-12'#176'23.454)'
                   '-- '#1075'. (-12.1233'#176')')
-                ExplicitWidth = 113
               end
             end
             object ChBoxFirstLat: TCheckBox
@@ -995,7 +947,6 @@ object FSettings: TFSettings
               Align = alTop
               Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1074' '#1087#1086#1088#1103#1076#1082#1077': '#1096#1080#1088#1086#1090#1072'-'#1076#1086#1083#1075#1086#1090#1072
               TabOrder = 1
-              ExplicitWidth = 291
             end
           end
           object pnlImageProcess: TPanel
@@ -1010,8 +961,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 2
-            ExplicitTop = 128
-            ExplicitWidth = 303
             object LabelGamma: TLabel
               Left = 3
               Top = 3
@@ -1046,7 +995,6 @@ object FSettings: TFSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarGammaChange
-              ExplicitWidth = 297
             end
             object TrBarContrast: TTrackBar
               Left = 3
@@ -1061,7 +1009,6 @@ object FSettings: TFSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarContrastChange
-              ExplicitWidth = 297
             end
             object CBinvertcolor: TCheckBox
               AlignWithMargins = True
@@ -1072,7 +1019,6 @@ object FSettings: TFSettings
               Align = alTop
               Caption = #1048#1085#1074#1077#1088#1089#1080#1103' '#1094#1074#1077#1090#1086#1074
               TabOrder = 2
-              ExplicitWidth = 291
             end
           end
           object pnlResize: TPanel
@@ -1087,8 +1033,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 3
-            ExplicitTop = 235
-            ExplicitWidth = 303
             object Label16: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1127,7 +1071,6 @@ object FSettings: TFSettings
                 'Hann'
                 'Hamming'
                 'Sinsh')
-              ExplicitWidth = 92
             end
           end
           object pnlTileBorders: TPanel
@@ -1142,7 +1085,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 4
-            ExplicitWidth = 326
             object Label23: TLabel
               Left = 3
               Top = 3
@@ -1163,7 +1105,6 @@ object FSettings: TFSettings
               BevelOuter = bvNone
               Padding.Top = 3
               TabOrder = 0
-              ExplicitWidth = 320
               object Label27: TLabel
                 AlignWithMargins = True
                 Left = 3
@@ -1222,8 +1163,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 1
-          ExplicitLeft = 309
-          ExplicitWidth = 309
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
             Top = 3
@@ -1236,7 +1175,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 0
-            ExplicitWidth = 301
             object Label17: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1269,7 +1207,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 1
-            ExplicitWidth = 310
             object Label69: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1302,8 +1239,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 2
-            ExplicitTop = 82
-            ExplicitWidth = 301
             object CBShowmapname: TCheckBox
               AlignWithMargins = True
               Left = 6
@@ -1313,7 +1248,6 @@ object FSettings: TFSettings
               Align = alTop
               Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1085#1072#1079#1074#1072#1085#1080#1077' '#1082#1072#1088#1090#1099' '#1085#1072' '#1087#1072#1085#1077#1083#1080' '#1080#1085#1089#1090#1088#1091#1084#1077#1085#1090#1086#1074
               TabOrder = 0
-              ExplicitWidth = 289
             end
           end
           object pnlLang: TPanel
@@ -1328,8 +1262,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 3
-            ExplicitTop = 113
-            ExplicitWidth = 301
             object Label8: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1353,7 +1285,6 @@ object FSettings: TFSettings
               ItemHeight = 13
               TabOrder = 0
               OnChange = CBoxLocalChange
-              ExplicitWidth = 255
             end
           end
           object pnlFillMap: TPanel
@@ -1368,8 +1299,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 4
-            ExplicitTop = 148
-            ExplicitWidth = 301
             object Label24: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1388,7 +1317,6 @@ object FSettings: TFSettings
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
-              ExplicitWidth = 295
               object Label26: TLabel
                 AlignWithMargins = True
                 Left = 3
@@ -1439,8 +1367,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 5
-            ExplicitTop = 199
-            ExplicitWidth = 301
             object CBlock_toolbars: TCheckBox
               AlignWithMargins = True
               Left = 6
@@ -1450,7 +1376,6 @@ object FSettings: TFSettings
               Align = alTop
               Caption = #1047#1072#1082#1088#1077#1087#1080#1090#1100' '#1087#1072#1085#1077#1083#1080' '#1080#1085#1089#1090#1088#1091#1084#1077#1085#1090#1086#1074
               TabOrder = 0
-              ExplicitWidth = 289
             end
           end
           object pnlShowPointDescr: TPanel
@@ -1465,8 +1390,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 6
-            ExplicitTop = 230
-            ExplicitWidth = 301
             object CBShowHintOnMarks: TCheckBox
               AlignWithMargins = True
               Left = 6
@@ -1476,7 +1399,6 @@ object FSettings: TFSettings
               Align = alTop
               Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1077' '#1084#1077#1090#1082#1080' '#1087#1088#1080' '#1085#1072#1074#1077#1076#1077#1085#1080#1080' '#1082#1091#1088#1089#1086#1088#1072
               TabOrder = 0
-              ExplicitWidth = 289
             end
           end
           object pnlBgColor: TPanel
@@ -1491,8 +1413,6 @@ object FSettings: TFSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 7
-            ExplicitTop = 261
-            ExplicitWidth = 301
             object Label35: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1514,7 +1434,6 @@ object FSettings: TFSettings
               Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
               ItemHeight = 16
               TabOrder = 0
-              ExplicitWidth = 229
             end
           end
         end
@@ -1524,7 +1443,6 @@ object FSettings: TFSettings
       Caption = 'GPS'
       ImageIndex = 4
       OnShow = TabSheet5Show
-      ExplicitWidth = 618
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
@@ -1534,7 +1452,6 @@ object FSettings: TFSettings
         BevelOuter = bvNone
         Padding.Right = 3
         TabOrder = 0
-        ExplicitWidth = 368
         object flwpnlGpsPort: TFlowPanel
           Left = 0
           Top = 0
@@ -1547,7 +1464,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 0
-          ExplicitWidth = 365
           object Label4: TLabel
             AlignWithMargins = True
             Left = 6
@@ -1619,7 +1535,6 @@ object FSettings: TFSettings
           BorderWidth = 3
           FlowStyle = fsTopBottomLeftRight
           TabOrder = 1
-          ExplicitWidth = 365
           object Label6: TLabel
             Left = 3
             Top = 3
@@ -1734,7 +1649,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 2
-          ExplicitWidth = 365
           object CB_GPSlog: TCheckBox
             AlignWithMargins = True
             Left = 6
@@ -1750,7 +1664,6 @@ object FSettings: TFSettings
             Font.Style = []
             ParentFont = False
             TabOrder = 0
-            ExplicitWidth = 353
           end
           object CB_GPSlogNmea: TCheckBox
             AlignWithMargins = True
@@ -1761,7 +1674,6 @@ object FSettings: TFSettings
             Align = alTop
             Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080' '#1074' .nmea'
             TabOrder = 1
-            ExplicitWidth = 353
           end
         end
         object pnlGpsSensors: TPanel
@@ -1776,7 +1688,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 3
-          ExplicitWidth = 365
           object CBSensorsBarAutoShow: TCheckBox
             AlignWithMargins = True
             Left = 6
@@ -1786,7 +1697,6 @@ object FSettings: TFSettings
             Align = alTop
             Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100'/'#1089#1082#1088#1099#1074#1072#1090#1100' '#1087#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
             TabOrder = 0
-            ExplicitWidth = 353
           end
         end
       end
@@ -1798,7 +1708,6 @@ object FSettings: TFSettings
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 368
         object GroupBox3: TGroupBox
           Left = 0
           Top = 0
@@ -1875,7 +1784,6 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitWidth = 618
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -1928,7 +1836,6 @@ object FSettings: TFSettings
             SizeStyle = ssAuto
           end>
         TabOrder = 0
-        ExplicitWidth = 618
         DesignSize = (
           638
           73)
@@ -1987,7 +1894,6 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitWidth = 618
       object pnlGSM: TPanel
         Left = 0
         Top = 0
@@ -1997,7 +1903,6 @@ object FSettings: TFSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitWidth = 618
         object PaintBox1: TPaintBox
           Left = 108
           Top = 79
@@ -2015,7 +1920,6 @@ object FSettings: TFSettings
             #1077#1085#1085#1099#1081' '#1090#1077#1083#1077#1092#1086#1085
           TabOrder = 0
           OnClick = chkPosFromGSMClick
-          ExplicitWidth = 612
         end
         object flwpnlGSM: TFlowPanel
           Left = 3
@@ -2028,7 +1932,6 @@ object FSettings: TFSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 1
-          ExplicitWidth = 612
           object Label33: TLabel
             AlignWithMargins = True
             Left = 6
@@ -2111,7 +2014,6 @@ object FSettings: TFSettings
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 626
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 568
@@ -2123,7 +2025,6 @@ object FSettings: TFSettings
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       TabOrder = 0
       OnClick = btnCancelClick
-      ExplicitLeft = 548
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -2137,7 +2038,6 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
       OnClick = btnApplyClick
-      ExplicitLeft = 467
     end
     object btnApply: TButton
       AlignWithMargins = True
@@ -2149,7 +2049,6 @@ object FSettings: TFSettings
       Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
       TabOrder = 2
       OnClick = btnApplyClick
-      ExplicitLeft = 386
     end
   end
   object XPManifest1: TXPManifest
