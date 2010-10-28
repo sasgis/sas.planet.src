@@ -540,7 +540,7 @@ begin
   InetConnect.proxystr:=MainIni.Readstring('INTERNET','proxy','');
   InetConnect.loginstr:=MainIni.Readstring('INTERNET','login','');
   InetConnect.passstr:=MainIni.Readstring('INTERNET','password','');
-  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', True);
+  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
   IgnoreTileNotExists:=MainIni.ReadBool('INTERNET','IgnoreTileNotExists',false);
 
   TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
