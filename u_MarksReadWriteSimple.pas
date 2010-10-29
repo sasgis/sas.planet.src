@@ -11,6 +11,14 @@ uses
 
 type
   TMarksDB = class
+  private
+    procedure ReadCurrentMark(AMark: TMarkFull);
+    procedure ReadCurrentMarkId(AMark: TMarkId);
+    procedure WriteCurrentMarkId(AMark: TMarkId);
+    procedure WriteCurrentMark(AMark: TMarkFull);
+    procedure ReadCurrentCategory(ACategory: TCategoryId);
+    procedure WriteCurrentCategory(ACategory: TCategoryId);
+    function GetMarksFileterByCategories(AZoom: Byte; AShowType: TMarksShowType): string;
   public
     function GetMarkByID(id: integer): TMarkFull;
     function GetMarkIdByID(id: integer): TMarkId;
@@ -45,13 +53,14 @@ uses
 type
   TMarksIteratorVisibleInRect = class(TMarksIteratorBase)
   private
+    FMarksDb: TMarksDB;
     FFinished: Boolean;
     FShowType: TMarksShowType;
   protected
     function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; virtual;
     procedure FinishIterate;
   public
-    constructor Create(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType);
+    constructor Create(AMarksDb: TMarksDB; AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType);
     destructor Destroy; override;
     function Next: Boolean; override;
   end;
@@ -62,8 +71,96 @@ type
   protected
     function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; override;
   public
-    constructor Create(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
+    constructor Create(AMarksDb: TMarksDB; AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
   end;
+
+{ TMarksIteratorVisibleInRect }
+
+constructor TMarksIteratorVisibleInRect.Create(AMarksDb: TMarksDB; AZoom: Byte;
+  ARect: TExtendedRect; AShowType: TMarksShowType);
+begin
+  inherited Create;
+  FMarksDb := AMarksDb;
+  FShowType := AShowType;
+  DMMarksDb.CDSmarks.DisableControls;
+  DMMarksDb.CDSmarks.Filter := GetFilterText(AZoom, ARect);
+  DMMarksDb.CDSmarks.Filtered := true;
+  DMMarksDb.CDSmarks.First;
+  FFinished := False;
+  if DMMarksDb.CDSmarks.Eof then begin
+    FinishIterate;
+  end;
+end;
+
+destructor TMarksIteratorVisibleInRect.Destroy;
+begin
+  if not FFinished then begin
+    FinishIterate;
+  end;
+  inherited;
+end;
+
+procedure TMarksIteratorVisibleInRect.FinishIterate;
+begin
+  FFinished := True;
+  DMMarksDb.CDSmarks.Filtered := false;
+  DMMarksDb.CDSmarks.EnableControls;
+end;
+
+function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
+  ARect: TExtendedRect): string;
+var
+  VCategoryFilter: string;
+begin
+  Result := '';
+  if FShowType = mshChecked then begin
+    Result := Result + 'visible=1';
+    Result := Result + ' and ';
+    VCategoryFilter := FMarksDb.GetMarksFileterByCategories(AZoom, FShowType);
+    if Length(VCategoryFilter) > 0 then begin
+      Result := Result + VCategoryFilter + ' and ';
+    end;
+  end;
+  Result := Result + '(' +
+    ' LonR>' + floattostr(ARect.Left) + ' and' +
+    ' LonL<' + floattostr(ARect.Right) + ' and' +
+    ' LatB<' + floattostr(ARect.Top) + ' and' +
+    ' LatT>' + floattostr(ARect.Bottom) +
+    ')';
+end;
+
+function TMarksIteratorVisibleInRect.Next: Boolean;
+begin
+  if not FFinished then begin
+    FMarksDb.ReadCurrentMark(FCurrentMark);
+    DMMarksDb.CDSmarks.Next;
+    if DMMarksDb.CDSmarks.Eof then begin
+      FinishIterate;
+    end;
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
+
+{ TMarksIteratorVisibleInRectWithIgnore }
+
+constructor TMarksIteratorVisibleInRectWithIgnore.Create(AMarksDb: TMarksDB; AZoom: Byte;
+  ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
+begin
+  inherited Create(AMarksDb, AZoom, ARect, AShowType);
+  FIgnoredID := AIgnoredID;
+end;
+
+function TMarksIteratorVisibleInRectWithIgnore.GetFilterText(AZoom: Byte;
+  ARect: TExtendedRect): string;
+begin
+  Result := '';
+  if FIgnoredID >= 0 then begin
+    Result := 'id<>' + inttostr(FIgnoredID) + ' and ';
+  end;
+  Result := Result + inherited GetFilterText(AZoom, ARect);
+end;
 
 
 procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TExtendedPointArray);
@@ -102,7 +199,7 @@ begin
   end;
 end;
 
-procedure ReadCurrentCategory(ACategory: TCategoryId);
+procedure TMarksDB.ReadCurrentCategory(ACategory: TCategoryId);
 begin
   ACategory.name := DMMarksDb.CDSKategory.fieldbyname('name').AsString;
   ACategory.id := DMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
@@ -111,7 +208,7 @@ begin
   ACategory.BeforeScale := DMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
 end;
 
-procedure WriteCurrentCategory(ACategory: TCategoryId);
+procedure TMarksDB.WriteCurrentCategory(ACategory: TCategoryId);
 begin
   DMMarksDb.CDSKategory.fieldbyname('name').AsString := ACategory.name;
   DMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ACategory.visible;
@@ -151,7 +248,7 @@ begin
 end;
 
 
-function GetMarksFileterByCategories(AZoom: Byte; AShowType: TMarksShowType): string;
+function TMarksDB.GetMarksFileterByCategories(AZoom: Byte; AShowType: TMarksShowType): string;
 begin
   Result := '';
   if AShowType = mshChecked then begin
@@ -183,14 +280,14 @@ begin
   end;
 end;
 
-procedure ReadCurrentMarkId(AMark: TMarkId);
+procedure TMarksDB.ReadCurrentMarkId(AMark: TMarkId);
 begin
   AMark.id := DMMarksDb.CDSmarks.fieldbyname('id').AsInteger;
   AMark.name := DMMarksDb.CDSmarks.FieldByName('name').AsString;
   AMark.visible := DMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean;
 end;
 
-procedure ReadCurrentMark(AMark: TMarkFull);
+procedure TMarksDB.ReadCurrentMark(AMark: TMarkFull);
 begin
   ReadCurrentMarkId(AMark);
   Blob2ExtArr(DMMarksDb.CDSmarks.FieldByName('LonLatArr'), AMark.Points);
@@ -207,13 +304,13 @@ begin
   AMark.Scale2 := DMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger;
 end;
 
-procedure WriteCurrentMarkId(AMark: TMarkId);
+procedure TMarksDB.WriteCurrentMarkId(AMark: TMarkId);
 begin
   DMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
   DMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := AMark.visible;
 end;
 
-procedure WriteCurrentMark(AMark: TMarkFull);
+procedure TMarksDB.WriteCurrentMark(AMark: TMarkFull);
 begin
   WriteCurrentMarkId(AMark);
   BlobFromExtArr(AMark.Points, DMMarksDb.CDSmarks.FieldByName('LonLatArr'));
@@ -251,13 +348,13 @@ end;
 function TMarksDB.GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
   AShowType: TMarksShowType): TMarksIteratorBase;
 begin
-
+  Result := TMarksIteratorVisibleInRect.Create(Self, AZoom, ARect, AShowType);
 end;
 
 function TMarksDB.GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TExtendedRect;
   AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
 begin
-
+  Result := TMarksIteratorVisibleInRectWithIgnore.Create(Self, AZoom, ARect, AShowType, AIgnoredID);
 end;
 
 procedure TMarksDB.WriteMark(AMark: TMarkFull);
@@ -416,93 +513,6 @@ begin
       CopyFile(PChar(GState.MarksCategoryFileName), PChar(GState.MarksCategoryBackUpFileName), false);
     end;
   end;
-end;
-
-{ TMarksIteratorVisibleInRect }
-
-constructor TMarksIteratorVisibleInRect.Create(AZoom: Byte;
-  ARect: TExtendedRect; AShowType: TMarksShowType);
-begin
-  inherited Create;
-  FShowType := AShowType;
-  DMMarksDb.CDSmarks.DisableControls;
-  DMMarksDb.CDSmarks.Filter := GetFilterText(AZoom, ARect);
-  DMMarksDb.CDSmarks.Filtered := true;
-  DMMarksDb.CDSmarks.First;
-  FFinished := False;
-  if DMMarksDb.CDSmarks.Eof then begin
-    FinishIterate;
-  end;
-end;
-
-destructor TMarksIteratorVisibleInRect.Destroy;
-begin
-  if not FFinished then begin
-    FinishIterate;
-  end;
-  inherited;
-end;
-
-procedure TMarksIteratorVisibleInRect.FinishIterate;
-begin
-  FFinished := True;
-  DMMarksDb.CDSmarks.Filtered := false;
-  DMMarksDb.CDSmarks.EnableControls;
-end;
-
-function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
-  ARect: TExtendedRect): string;
-var
-  VCategoryFilter: string;
-begin
-  Result := '';
-  if FShowType = mshChecked then begin
-    Result := Result + 'visible=1';
-    Result := Result + ' and ';
-    VCategoryFilter := GetMarksFileterByCategories(AZoom, FShowType);
-    if Length(VCategoryFilter) > 0 then begin
-      Result := Result + VCategoryFilter + ' and ';
-    end;
-  end;
-  Result := Result + '(' +
-    ' LonR>' + floattostr(ARect.Left) + ' and' +
-    ' LonL<' + floattostr(ARect.Right) + ' and' +
-    ' LatB<' + floattostr(ARect.Top) + ' and' +
-    ' LatT>' + floattostr(ARect.Bottom) +
-    ')';
-end;
-
-function TMarksIteratorVisibleInRect.Next: Boolean;
-begin
-  if not FFinished then begin
-    ReadCurrentMark(FCurrentMark);
-    DMMarksDb.CDSmarks.Next;
-    if DMMarksDb.CDSmarks.Eof then begin
-      FinishIterate;
-    end;
-    Result := True;
-  end else begin
-    Result := False;
-  end;
-end;
-
-{ TMarksIteratorVisibleInRectWithIgnore }
-
-constructor TMarksIteratorVisibleInRectWithIgnore.Create(AZoom: Byte;
-  ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
-begin
-  inherited Create(AZoom, ARect, AShowType);
-  FIgnoredID := AIgnoredID;
-end;
-
-function TMarksIteratorVisibleInRectWithIgnore.GetFilterText(AZoom: Byte;
-  ARect: TExtendedRect): string;
-begin
-  Result := '';
-  if FIgnoredID >= 0 then begin
-    Result := 'id<>' + inttostr(FIgnoredID) + ' and ';
-  end;
-  Result := Result + inherited GetFilterText(AZoom, ARect);
 end;
 
 procedure TMarksDB.Kategory2StringsWithObjects(AStrings: TStrings);
