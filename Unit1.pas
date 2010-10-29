@@ -527,17 +527,17 @@ type
     procedure TBGPSToPointCenterClick(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
-    ShowActivHint: boolean;
-    HintWindow: THintWindow;
+    FShowActivHint: boolean;
+    FHintWindow: THintWindow;
     Flock_toolbars: boolean;
-    rect_dwn: Boolean;
-    rect_p2: boolean;
+    Frect_dwn: Boolean;
+    Frect_p2: boolean;
     FMainLayer: TMapMainLayer;
-    LayerStatBar: TLayerStatBar;
+    FLayerStatBar: TLayerStatBar;
     FShowErrorLayer: TTileErrorInfoLayer;
     FWikiLayer: TWikiLayer;
-    dWhenMovingButton: integer;
-    LenShow: boolean;
+    FdWhenMovingButton: integer;
+    FLenShow: boolean;
     RectWindow: TRect;
     marshrutcomment: string;
     movepoint: integer;
@@ -836,8 +836,8 @@ var
   i: Cardinal;
   VMapType: TMapType;
 begin
-  Showstatus.Checked := LayerStatBar.Visible;
-  if LayerStatBar.Visible then begin
+  Showstatus.Checked := FLayerStatBar.Visible;
+  if FLayerStatBar.Visible then begin
     FLayerScaleLine.BottomMargin := 17;
     FLayerMiniMap.BottomMargin := 17;
   end else begin
@@ -954,7 +954,7 @@ begin
     labZoom.caption:=inttostr(VZoomCurr + 1)+'x';
     map.BeginUpdate;
     try
-      LayerStatBar.Redraw;
+      FLayerStatBar.Redraw;
       FLayerScaleLine.Redraw;
       FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
       FLayerFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
@@ -1078,11 +1078,11 @@ begin
  TBEditPathOk.Visible:=(newop=ao_reg);
  TBEditPathLabel.Visible:=(newop=ao_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
- rect_dwn:=false;
+ Frect_dwn:=false;
  setlength(length_arr,0);
  setlength(add_line_arr,0);
  setlength(reg_arr,0);
- rect_p2:=false;
+ Frect_p2:=false;
  lastpoint:=-1;
  case newop of
   ao_movemap:  map.Cursor:=crDefault;
@@ -1124,22 +1124,22 @@ begin
                   zooming(VNewZoom, GState.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
-                 if (dWhenMovingButton<35) then begin
-                  inc(dWhenMovingButton);
+                 if (FdWhenMovingButton<35) then begin
+                  inc(FdWhenMovingButton);
                  end;
-                 dWMB:=trunc(Power(dWhenMovingButton,1.5));
+                 dWMB:=trunc(Power(FdWhenMovingButton,1.5));
                  if Msg.wParam=VK_RIGHT then GState.ViewState.ChangeMapPixelByDelta(Point(dWMB, 0));
                  if Msg.wParam=VK_Left then GState.ViewState.ChangeMapPixelByDelta(Point(-dWMB, 0));
                  if Msg.wParam=VK_Down then GState.ViewState.ChangeMapPixelByDelta(Point(0, dWMB));
                  if Msg.wParam=VK_Up then GState.ViewState.ChangeMapPixelByDelta(Point(0, -dWMB));
                 end;
    WM_KEYUP: begin
-             dWhenMovingButton:=5;
+             FdWhenMovingButton:=5;
              if (Msg.wParam=VK_Delete)and(aoper=ao_line) then
                begin
                 if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
                 TBEditPath.Visible:=(length(length_arr)>1);
-                FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+                FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
                end;
              if (Msg.wParam=VK_Delete)and(aoper=ao_reg) then
                begin
@@ -1166,11 +1166,11 @@ begin
                                       else begin
                                             setlength(length_arr,0);
                                             TBEditPath.Visible:=(length(length_arr)>1);
-                                            FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+                                            FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
                                            end;
              if (Msg.wParam=VK_ESCAPE)and(aoper=ao_rect) then
               begin
-               if rect_dwn then begin
+               if Frect_dwn then begin
                                  setalloperationfalse(ao_movemap);
                                  setalloperationfalse(ao_rect);
                                 end
@@ -1377,7 +1377,7 @@ begin
     case aoper of
       ao_line: begin
         TBEditPath.Visible:=(length(length_arr)>1);
-        FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+        FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
       end;
       ao_reg: begin
         TBEditPath.Visible:=(length(reg_arr)>1);
@@ -1403,7 +1403,7 @@ begin
     except
     end;
   end;
-  LayerStatBar.Redraw;
+  FLayerStatBar.Redraw;
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
@@ -1604,7 +1604,7 @@ begin
     FNDelItemList := TGUIDObjectList.Create(False);
 
     RectWindow := Types.Rect(0, 0, 0, 0);
-    dWhenMovingButton := 5;
+    FdWhenMovingButton := 5;
     MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
     TBFullSize.Checked:=GState.FullScrean;
     if GState.FullScrean then begin
@@ -1628,7 +1628,7 @@ begin
     nilLastLoad.use:=false;
     Application.OnMessage := DoMessageEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
-    LenShow:=true;
+    FLenShow:=true;
     Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
     Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
@@ -1671,8 +1671,8 @@ begin
     FLayersList.Add(FLayerMapScale);
     FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
     FLayersList.Add(FLayerScaleLine);
-    LayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
-    FLayersList.Add(LayerStatBar);
+    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
 
@@ -1727,7 +1727,7 @@ begin
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
     FMapLayersVsibleChangeListener := TMapLayersVisibleChange.Create(Self);
-    LayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
@@ -1925,7 +1925,7 @@ begin
     GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
     GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
   end;
-  LayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerMiniMap.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
@@ -2558,7 +2558,7 @@ end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
-  LayerStatBar.Visible := TTBXItem(Sender).Checked;
+  FLayerStatBar.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
@@ -2714,7 +2714,7 @@ begin
   if (not ProgramClose)and(not ProgramStart)then begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
     FMainLayer.Resize;
-    LayerStatBar.Resize;
+    FLayerStatBar.Resize;
     FLayerScaleLine.Resize;
     FLayerMapNal.Resize;
     FLayerMapMarks.Resize;
@@ -2726,7 +2726,7 @@ begin
     FShowErrorLayer.Resize;
     LayerMapNavToMark.Resize;
     FLayerMiniMap.Resize;
-    LayerStatBar.Redraw;
+    FLayerStatBar.Redraw;
   end;
 end;
 
@@ -2973,10 +2973,10 @@ end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
 begin
- if (HintWindow<>nil) then
+ if (FHintWindow<>nil) then
   begin
-   HintWindow.ReleaseHandle;
-   FreeAndNil(HintWindow);
+   FHintWindow.ReleaseHandle;
+   FreeAndNil(FHintWindow);
   end;
 end;
 
@@ -3022,7 +3022,7 @@ begin
         end;
       end;
     end else begin
-      LayerStatBar.Redraw;
+      FLayerStatBar.Redraw;
       FLayerMapGPS.Redraw;
     end;
    end;
@@ -3076,9 +3076,9 @@ var
   VClickLonLatRect: TExtendedRect;
   VPoly:  TExtendedPointArray;
 begin
-  if (HintWindow<>nil) then begin
-    HintWindow.ReleaseHandle;
-    FreeAndNil(HintWindow);
+  if (FHintWindow<>nil) then begin
+    FHintWindow.ReleaseHandle;
+    FreeAndNil(FHintWindow);
   end;
   if (Layer <> nil) then begin
     exit;
@@ -3103,7 +3103,7 @@ begin
       setlength(length_arr,length(length_arr)+1);
       length_arr[length(length_arr)-1]:= VClickLonLat;
       TBEditPath.Visible:=(length(length_arr)>1);
-      FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+      FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
@@ -3112,18 +3112,18 @@ begin
       FLayerMapNal.DrawReg(reg_arr);
     end;
     if (aoper=ao_rect)then begin
-      if rect_dwn then begin
+      if Frect_dwn then begin
         FSelectionRect.BottomRight:= VClickLonLat;
-        rect_p2:=true;
+        Frect_p2:=true;
       end else begin
         FSelectionRect.TopLeft:= VClickLonLat;
         FSelectionRect.BottomRight:=FSelectionRect.TopLeft
       end;
-      rect_dwn:=not(rect_dwn);
+      Frect_dwn:=not(Frect_dwn);
       VSelectionRect := FSelectionRect;
       PrepareSelectionRect(Shift, VSelectionRect);
       FLayerMapNal.DrawSelectionRect(VSelectionRect);
-      if (rect_p2) then begin
+      if (Frect_p2) then begin
         SetLength(VPoly, 5);
         VPoly[0] := VSelectionRect.TopLeft;
         VPoly[1] := ExtPoint(VSelectionRect.Right, VSelectionRect.Top);
@@ -3133,7 +3133,7 @@ begin
         fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
         FLayerMapNal.DrawNothing;
         VPoly := nil;
-        rect_p2:=false;
+        Frect_p2:=false;
       end;
     end;
     if (aoper=ao_add_point) then begin
@@ -3275,11 +3275,11 @@ begin
  MouseUpPoint:=Point(x,y);
  if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
   begin
-   LayerStatBar.Redraw;
+   FLayerStatBar.Redraw;
    FLayerScaleLine.Redraw;
    if aoper=ao_line then begin
     TBEditPath.Visible:=(length(length_arr)>1);
-    FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+    FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
    end;
    if aoper=ao_reg then begin
     TBEditPath.Visible:=(length(reg_arr)>1);
@@ -3444,7 +3444,7 @@ begin
    FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
    exit;
   end;
- if (aoper=ao_rect)and(rect_dwn)and(not(ssRight in Shift))
+ if (aoper=ao_rect)and(Frect_dwn)and(not(ssRight in Shift))
          then begin
                FSelectionRect.BottomRight:=VLonLat;
                VSelectionRect := FSelectionRect;
@@ -3506,16 +3506,16 @@ begin
              end
         else MouseCursorPos:=point(x,y);
  if not(MapMoving) then begin
-    LayerStatBar.Redraw;
+    FLayerStatBar.Redraw;
  end;
 
- if (not ShowActivHint) then begin
-   if (HintWindow<>nil) then begin
-     HintWindow.ReleaseHandle;
-     FreeAndNil(HintWindow);
+ if (not FShowActivHint) then begin
+   if (FHintWindow<>nil) then begin
+     FHintWindow.ReleaseHandle;
+     FreeAndNil(FHintWindow);
     end;
   end;
- ShowActivHint:=false;
+ FShowActivHint:=false;
  if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
    FPWL.S:=0;
@@ -3526,7 +3526,7 @@ begin
      MouseOnMyReg(FPWL,Point(x,y));
    if (FPWL.find) then
     begin
-     if HintWindow<>nil then HintWindow.ReleaseHandle;
+     if FHintWindow<>nil then FHintWindow.ReleaseHandle;
      if (length(FPWL.name)>0) then
       begin
        if System.Pos('<',FPWL.name)>0 then nms:=HTML2Txt(FPWL.name)
@@ -3561,17 +3561,17 @@ begin
       end;
      if nms<>'' then
      begin
-      if HintWindow=nil then
+      if FHintWindow=nil then
        begin
-        HintWindow:=THintWindow.Create(Self);
-        HintWindow.Brush.Color:=clInfoBk;
-        HintWindow.Font.Charset:=RUSSIAN_CHARSET;
+        FHintWindow:=THintWindow.Create(Self);
+        FHintWindow.Brush.Color:=clInfoBk;
+        FHintWindow.Font.Charset:=RUSSIAN_CHARSET;
        end;
-      hintrect:=HintWindow.CalcHintRect(Screen.Width, nms, nil);
-      HintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
-      HintWindow.Repaint;
+      hintrect:=FHintWindow.CalcHintRect(Screen.Width, nms, nil);
+      FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
+      FHintWindow.Repaint;
      end;
-     ShowActivHint:=true;
+     FShowActivHint:=true;
     end;
   end;
  moveTrue:=point(x,y);
@@ -3653,7 +3653,7 @@ begin
   ao_line: begin
          if length(length_arr)>0 then setlength(length_arr,length(length_arr)-1);
          TBEditPath.Visible:=(length(length_arr)>1);
-         FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+         FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
         end;
   ao_Reg : begin
          if length(reg_arr)>0 then setlength(reg_arr,length(reg_arr)-1);
@@ -3673,8 +3673,8 @@ end;
 procedure TFmain.TBEditPathLabelClick(Sender: TObject);
 begin
   if aoper = ao_line then begin
-    LenShow:=not(LenShow);
-    FLayerMapNal.DrawLineCalc(length_arr, LenShow);
+    FLenShow:=not(FLenShow);
+    FLayerMapNal.DrawLineCalc(length_arr, FLenShow);
   end;
 end;
 
