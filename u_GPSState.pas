@@ -220,9 +220,6 @@ begin
 end;
 
 procedure TGPSpar.OnGpsConnect;
-var
-  VPath: string;
-  VFileName: string;
 begin
   allspeed:=0;
   sspeed:=0;

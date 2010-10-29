@@ -649,7 +649,7 @@ end;
 
 procedure TFSettings.SatellitePaint;
 var
-  i,bar_width,bar_height,bar_x1,bar_dy,bar_i,Ellipse_d,Ellipse_r,padd:integer;
+  i,bar_width,bar_height,bar_x1,bar_dy,Ellipse_d,Ellipse_r,padd:integer;
   Ellipse_XY1,Ellipse_XY2,Ellipse_center:TPoint;
   VPosition: IGPSPosition;
   VSattelite: IGPSSatelliteInfo;
@@ -702,7 +702,6 @@ begin
   Canvas.Pen.Color:=clBlack;
 
   bar_dy:=65;
-  bar_x1:=0;
   for I := 0 to 31 do begin
    bar_x1:=(i mod 16)*bar_width;
    if i=16 then begin
@@ -711,7 +710,6 @@ begin
    Canvas.TextOut(bar_x1+1,Height-bar_dy-1,inttostr(i+1));
    Canvas.Rectangle(bar_x1+1,Height-bar_dy-bar_height,bar_x1+bar_width-1,Height-bar_dy);
   end;
-  bar_x1:=0;
   for I := 0 to VPosition.Satellites.Count-1 do begin
    VSattelite := VPosition.Satellites.Item[i];
    if VSattelite.PseudoRandomCode>16 then begin

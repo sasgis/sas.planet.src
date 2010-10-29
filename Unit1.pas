@@ -1309,8 +1309,7 @@ end;
 
 procedure TFmain.UpdateGPSSatellites;
 var
-  i,bar_width,bar_height,bar_x1,bar_dy,bar_i:integer;
-  VSatCount: Integer;
+  i,bar_width,bar_height,bar_x1,bar_dy:integer;
   VPosition: IGPSPosition;
   VSattelite: IGPSSatelliteInfo;
 begin
@@ -2981,14 +2980,11 @@ begin
 end;
 
 procedure TFmain.GPSReceiverReceive;
-var s2f,sb:string;
-    xYear, xMonth, xDay, xHr, xMin, xSec, xMSec: word;
-    VPointCurr: TExtendedPoint;
-    VPointPrev: TExtendedPoint;
-    VPointDelta: TExtendedPoint;
-    VDistToPrev: Extended;
-    VTrackPoint: TGPSTrackPoint;
-    VPosition: IGPSPosition;
+var
+  VPointCurr: TExtendedPoint;
+  VPointPrev: TExtendedPoint;
+  VPointDelta: TExtendedPoint;
+  VPosition: IGPSPosition;
 begin
   VPosition := GState.GPSpar.GPSModele.Position;
   if FSettings.Visible then FSettings.SatellitePaint;
@@ -3022,7 +3018,6 @@ begin
 end;
 
 procedure TFmain.GPSReceiverConnect;
-var S:string;
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
