@@ -328,7 +328,7 @@ begin
    k:=k shr 1;
   end;
 
- Fmain.LayerMiniMap.Alpha:=MiniMapAlphaEdit.Value;
+ Fmain.LayerMiniMap.MasterAlpha:=MiniMapAlphaEdit.Value;
 
  GState.SessionLastSuccess:=CBLastSuccess.Checked;
  GState.BGround:=ColorBoxBackGround.Selected;
@@ -496,7 +496,7 @@ begin
  GState.LanguageManager.GetLangNames(CBoxLocal.Items);
  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
 
- MiniMapAlphaEdit.Value:=Fmain.LayerMiniMap.Alpha;
+ MiniMapAlphaEdit.Value:=Fmain.LayerMiniMap.MasterAlpha;
 
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;
