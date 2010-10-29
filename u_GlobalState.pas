@@ -23,6 +23,7 @@ uses
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
+  u_MarksReadWriteSimple,
   Uimgfun,
   UMapType,
   u_MemFileCache,
@@ -51,6 +52,7 @@ type
     FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
     FMainConfigProvider: IConfigDataWriteProvider;
+    FMarksDB: TMarksDB;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -226,6 +228,7 @@ type
     property ViewState: TMapViewPortState read FViewState;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
+    property MarksDB: TMarksDB read FMarksDB;
 
     constructor Create;
     destructor Destroy; override;
@@ -301,6 +304,7 @@ begin
   FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
+  FMarksDB := TMarksDB.Create;
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   GPSpar := TGPSpar.Create;
 end;
@@ -327,6 +331,7 @@ begin
   FKmlLoader := nil;
   FKmzLoader := nil;
   FMarksBitmapProvider := nil;
+  FreeAndNil(FMarksDB);
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;
   FreeAndNil(GPSpar);

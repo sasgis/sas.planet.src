@@ -202,7 +202,7 @@ end;
 
 procedure TFImport.FormShow(Sender: TObject);
 begin
- Kategory2StringsWithObjects(CBKateg.Items);
+  GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
 end;
 
 function TFImport.ImportFile(AFileName: string): Boolean;
@@ -315,7 +315,7 @@ begin
         if VMark <> nil then begin
           try
             KMLDataToMark(KML.Data[i], VMark);
-            WriteMark(VMark);
+            GState.MarksDb.WriteMark(VMark);
           finally
             VMark.Free;
           end;
@@ -351,7 +351,7 @@ begin
         if VMark <> nil then begin
           try
             PLTDataToMark(PLT.Data[i], VMark);
-            WriteMark(VMark);
+            GState.MarksDb.WriteMark(VMark);
           finally
             VMark.Free;
           end;
@@ -361,7 +361,7 @@ begin
        plt.Free;
      end;
     end;
-    SaveMarks2File;
+    GState.MarksDb.SaveMarks2File;
   finally
     VMarkTemplatePoint.Free;
     VMarkTemplateLine.Free;

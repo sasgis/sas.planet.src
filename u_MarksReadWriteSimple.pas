@@ -10,6 +10,39 @@ uses
   u_MarksSimple;
 
 type
+  TMarksDB = class
+  public
+    function GetMarkByID(id: integer): TMarkFull;
+    function GetMarkIdByID(id: integer): TMarkId;
+    function DeleteMark(AMarkId: TMarkId): Boolean;
+    procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
+    procedure WriteCategory(ACategory: TCategoryId);
+    procedure WriteCategoriesList(AStrings: TStrings);
+    procedure WriteMark(AMark: TMarkFull);
+    procedure WriteMarkId(AMark: TMarkId);
+    procedure WriteMarkIdList(AStrings: TStrings);
+    procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
+    procedure Kategory2StringsWithObjects(AStrings: TStrings);
+    procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
+    procedure LoadMarksFromFile;
+    procedure LoadCategoriesFromFile;
+    function SaveMarks2File: boolean;
+    function SaveCategory2File: boolean;
+    function GetMarksIterator(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType): TMarksIteratorBase;
+    function GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
+  end;
+
+
+implementation
+
+uses
+  DB,
+  SysUtils,
+  GR32,
+  u_GlobalState,
+  dm_MarksDb;
+
+type
   TMarksIteratorVisibleInRect = class(TMarksIteratorBase)
   private
     FFinished: Boolean;
@@ -32,32 +65,6 @@ type
     constructor Create(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
   end;
 
-function GetMarkByID(id: integer): TMarkFull;
-function GetMarkIdByID(id: integer): TMarkId;
-function DeleteMark(AMarkId: TMarkId): Boolean;
-procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
-procedure WriteCategory(ACategory: TCategoryId);
-procedure WriteCategoriesList(AStrings: TStrings);
-procedure WriteMark(AMark: TMarkFull);
-procedure WriteMarkId(AMark: TMarkId);
-procedure WriteMarkIdList(AStrings: TStrings);
-procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
-procedure Kategory2StringsWithObjects(AStrings: TStrings);
-procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
-procedure LoadMarksFromFile;
-procedure LoadCategoriesFromFile;
-function SaveMarks2File: boolean;
-function SaveCategory2File: boolean;
-
-
-implementation
-
-uses
-  DB,
-  SysUtils,
-  GR32,
-  u_GlobalState,
-  dm_MarksDb;
 
 procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TExtendedPointArray);
 var
@@ -112,7 +119,7 @@ begin
   DMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
-procedure WriteCategory(ACategory: TCategoryId);
+procedure TMarksDB.WriteCategory(ACategory: TCategoryId);
 begin
   if ACategory.id < 0 then begin
     DMMarksDb.CDSKategory.Insert;
@@ -126,7 +133,7 @@ begin
   SaveCategory2File;
 end;
 
-procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
+procedure TMarksDB.DeleteCategoryWithMarks(ACategory: TCategoryId);
 begin
   if DMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
     DMMarksDb.CDSmarks.Filtered := false;
@@ -223,7 +230,7 @@ begin
   DMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
 end;
 
-function GetMarkByID(id: integer): TMarkFull;
+function TMarksDB.GetMarkByID(id: integer): TMarkFull;
 begin
   Result := nil;
   if DMMarksDb.CDSmarks.Locate('id', id, []) then begin
@@ -232,7 +239,7 @@ begin
   end;
 end;
 
-function GetMarkIdByID(id: integer): TMarkId;
+function TMarksDB.GetMarkIdByID(id: integer): TMarkId;
 begin
   Result := nil;
   if DMMarksDb.CDSmarks.Locate('id', id, []) then begin
@@ -241,7 +248,19 @@ begin
   end;
 end;
 
-procedure WriteMark(AMark: TMarkFull);
+function TMarksDB.GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
+  AShowType: TMarksShowType): TMarksIteratorBase;
+begin
+
+end;
+
+function TMarksDB.GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TExtendedRect;
+  AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
+begin
+
+end;
+
+procedure TMarksDB.WriteMark(AMark: TMarkFull);
 begin
   if AMark.id >= 0 then begin
     DMMarksDb.CDSmarks.Locate('id', AMark.id, []);
@@ -253,7 +272,7 @@ begin
   DMMarksDb.CDSmarks.Post;
 end;
 
-procedure WriteMarkId(AMark: TMarkId);
+procedure TMarksDB.WriteMarkId(AMark: TMarkId);
 begin
   if AMark.id >= 0 then begin
     DMMarksDb.CDSmarks.Locate('id', AMark.id, []);
@@ -263,7 +282,7 @@ begin
   end;
 end;
 
-function DeleteMark(AMarkId: TMarkId): Boolean;
+function TMarksDB.DeleteMark(AMarkId: TMarkId): Boolean;
 begin
   result := false;
   if DMMarksDb.CDSmarks.Locate('id', AMarkId.id, []) then begin
@@ -273,7 +292,7 @@ begin
   end;
 end;
 
-procedure WriteCategoriesList(AStrings: TStrings);
+procedure TMarksDB.WriteCategoriesList(AStrings: TStrings);
 var
   VCategoryId: TCategoryId;
   i: Integer;
@@ -285,7 +304,7 @@ begin
   SaveCategory2File;
 end;
 
-procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
+procedure TMarksDB.Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
 var
   i: Integer;
   VMarkId: TMarkId;
@@ -306,7 +325,7 @@ begin
   end;
 end;
 
-procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
+procedure TMarksDB.AllMarsk2StringsWhitMarkId(AStrings: TStrings);
 var
   i: Integer;
   VMarkId: TMarkId;
@@ -325,7 +344,7 @@ begin
   end;
 end;
 
-procedure WriteMarkIdList(AStrings: TStrings);
+procedure TMarksDB.WriteMarkIdList(AStrings: TStrings);
 var
   VMarkId: TMarkId;
   i: Integer;
@@ -337,7 +356,7 @@ begin
   SaveCategory2File;
 end;
 
-function SaveMarks2File: boolean;
+function TMarksDB.SaveMarks2File: boolean;
 var
   ms: TMemoryStream;
   XML: string;
@@ -358,7 +377,7 @@ begin
   end;
 end;
 
-function SaveCategory2File: boolean;
+function TMarksDB.SaveCategory2File: boolean;
 var
   ms: TMemoryStream;
   XML: string;
@@ -379,7 +398,7 @@ begin
   end;
 end;
 
-procedure LoadMarksFromFile;
+procedure TMarksDB.LoadMarksFromFile;
 begin
   if FileExists(GState.MarksFileName) then begin
     DMMarksDb.CDSMarks.LoadFromFile(GState.MarksFileName);
@@ -389,7 +408,7 @@ begin
   end;
 end;
 
-procedure LoadCategoriesFromFile;
+procedure TMarksDB.LoadCategoriesFromFile;
 begin
   if FileExists(GState.MarksCategoryFileName) then begin
     DMMarksDb.CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
@@ -486,7 +505,7 @@ begin
   Result := Result + inherited GetFilterText(AZoom, ARect);
 end;
 
-procedure Kategory2StringsWithObjects(AStrings: TStrings);
+procedure TMarksDB.Kategory2StringsWithObjects(AStrings: TStrings);
 var
   KategoryId: TCategoryId;
   i: Integer;

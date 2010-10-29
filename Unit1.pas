@@ -1626,8 +1626,8 @@ begin
 
     movepoint:=0;
 
-    LoadMarksFromFile;
-    LoadCategoriesFromFile;
+    GState.MarksDb.LoadMarksFromFile;
+    GState.MarksDb.LoadCategoriesFromFile;
     Enabled:=true;
     nilLastLoad.use:=false;
     Application.OnMessage := DoMessageEvent;
@@ -2882,7 +2882,7 @@ var
 begin
   FWikiLayer.MouseOnReg(FPWL,moveTrue);
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       OperationMark(VMark);
@@ -3740,7 +3740,7 @@ begin
  FWikiLayer.MouseOnReg(FPWL, moveTrue);
  if (not NMarkNav.Checked) then begin
    id:=strtoint(FPWL.numid);
-   VMark := GetMarkByID(id);
+   VMark := GState.MarksDb.GetMarkByID(id);
    if VMark = nil then Exit;
    try
      LL := VMark.GetGoToLonLat;
@@ -3894,7 +3894,7 @@ var
   VMessage: string;
 begin
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       VLen := GetMarkLength(VMark);
@@ -3914,7 +3914,7 @@ var
   VMessage: string;
 begin
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       VArea := GetMarkSq(VMark);
@@ -3938,7 +3938,7 @@ var
   VMessage: string;
 begin
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       VLen := GetMarkLength(VMark);
@@ -4173,7 +4173,7 @@ var
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
   VZoom: Byte;
-  VMarksIterator: TMarksIteratorVisibleInRectWithIgnore;
+  VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
   VIgnoredID: Integer;
 begin
@@ -4199,7 +4199,7 @@ begin
   end else begin
     VIgnoredID := -1;
   end;
-  VMarksIterator := TMarksIteratorVisibleInRectWithIgnore.Create(VZoom, VLonLatRect, GState.show_point, VIgnoredID);
+  VMarksIterator := GState.MarksDb.GetMarksIteratorWithIgnore(VZoom, VLonLatRect, GState.show_point, VIgnoredID);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

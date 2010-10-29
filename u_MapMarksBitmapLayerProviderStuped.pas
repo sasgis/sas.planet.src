@@ -238,10 +238,10 @@ var
   TestArrLenPixelRect: TExtendedRect;
   VScale1: Integer;
   VPointCount: Integer;
-  VMarksIterator: TMarksIteratorVisibleInRect;
+  VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
 begin
-  VMarksIterator := TMarksIteratorVisibleInRect.Create(FZoom, FLLRect, GState.show_point);
+  VMarksIterator := GState.MarksDb.GetMarksIterator(FZoom, FLLRect, GState.show_point);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;
