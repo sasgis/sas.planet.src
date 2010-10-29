@@ -57,7 +57,7 @@ uses
   SysUtils,
   GR32,
   u_GlobalState,
-  u_MarksDb;
+  dm_MarksDb;
 
 procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TExtendedPointArray);
 var
