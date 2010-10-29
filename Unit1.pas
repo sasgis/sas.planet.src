@@ -4173,8 +4173,9 @@ var
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
   VZoom: Byte;
-  VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
+  VMarksIterator: TMarksIteratorVisibleInRectWithIgnore;
   VMark: TMarkFull;
+  VIgnoredID: Integer;
 begin
   if GState.show_point = mshNone then exit;
 
@@ -4193,7 +4194,12 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(VZoom, VLonLatRect, GState.show_point);
+  if (aoper = ao_edit_line) or (aoper = ao_edit_poly) then begin
+    VIgnoredID := EditMarkId;
+  end else begin
+    VIgnoredID := -1;
+  end;
+  VMarksIterator := TMarksIteratorVisibleInRectWithIgnore.Create(VZoom, VLonLatRect, GState.show_point, VIgnoredID);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

@@ -47,6 +47,7 @@ uses
   u_GlobalState,
   i_IBitmapLayerProvider,
   Ugeofun,
+  Unit1,
   u_MarksSimple,
   u_MarksReadWriteSimple,
   u_WindowLayerBasic;
@@ -279,10 +280,16 @@ var
   TestArrLenPixelRect: TExtendedRect;
   VScale1: Integer;
   VPointCount: Integer;
-  VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
+  VMarksIterator: TMarksIteratorVisibleInRectWithIgnore;
   VMark: TMarkFull;
+  VIgnoredID: Integer;
 begin
-  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(FZoom, FLLRect, GState.show_point);
+  if (Fmain.aoper = ao_edit_line) or (Fmain.aoper = ao_edit_poly) then begin
+    VIgnoredID := Fmain.EditMarkId;
+  end else begin
+    VIgnoredID := -1;
+  end;
+  VMarksIterator := TMarksIteratorVisibleInRectWithIgnore.Create(FZoom, FLLRect, GState.show_point, VIgnoredID);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

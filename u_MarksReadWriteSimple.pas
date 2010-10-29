@@ -23,9 +23,13 @@ type
     function Next: Boolean; override;
   end;
 
-  TMarksIteratorVisibleInRectIgnoreEdit = class(TMarksIteratorVisibleInRect)
+  TMarksIteratorVisibleInRectWithIgnore = class(TMarksIteratorVisibleInRect)
+  private
+    FIgnoredID: Integer;
   protected
     function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; override;
+  public
+    constructor Create(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
   end;
 
 function GetMarkByID(id: integer): TMarkFull;
@@ -53,7 +57,6 @@ uses
   SysUtils,
   GR32,
   u_GlobalState,
-  Unit1,
   u_MarksDb;
 
 procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TExtendedPointArray);
@@ -464,15 +467,21 @@ begin
   end;
 end;
 
-{ TMarksIteratorVisibleInRectIgnoreEdit }
+{ TMarksIteratorVisibleInRectWithIgnore }
 
-function TMarksIteratorVisibleInRectIgnoreEdit.GetFilterText(AZoom: Byte;
+constructor TMarksIteratorVisibleInRectWithIgnore.Create(AZoom: Byte;
+  ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
+begin
+  inherited Create(AZoom, ARect, AShowType);
+  FIgnoredID := AIgnoredID;
+end;
+
+function TMarksIteratorVisibleInRectWithIgnore.GetFilterText(AZoom: Byte;
   ARect: TExtendedRect): string;
 begin
-  if (Fmain.aoper = ao_edit_line) or (Fmain.aoper = ao_edit_poly) then begin
-    Result := 'id<>' + inttostr(Fmain.EditMarkId) + ' and ';
-  end else begin
-    Result := '';
+  Result := '';
+  if FIgnoredID >= 0 then begin
+    Result := 'id<>' + inttostr(FIgnoredID) + ' and ';
   end;
   Result := Result + inherited GetFilterText(AZoom, ARect);
 end;
