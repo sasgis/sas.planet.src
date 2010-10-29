@@ -6,7 +6,6 @@ uses
   Windows,
   Classes,
   SysUtils,
-  u_WideStrings,
   i_IFileNameIterator;
 
 type

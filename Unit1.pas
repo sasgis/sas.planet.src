@@ -74,7 +74,6 @@ uses
   u_MapLayerGoto,
   u_MapLayerShowError,
   u_CenterScale,
-  u_TileDownloaderUI,
   u_SelectionLayer,
   t_GeoTypes;
 

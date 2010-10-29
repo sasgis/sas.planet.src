@@ -38,7 +38,6 @@ uses
   SysUtils,
   u_GlobalState,
   i_ITileDownlodSession,
-  UResStrings,
   Unit1;
 
 constructor TTileDownloaderUI.Create;

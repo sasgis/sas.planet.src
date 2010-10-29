@@ -5,7 +5,6 @@ interface
 uses
   Types,
   Classes,
-  IniFiles,
   Graphics,
   TB2Item,
   i_IConfigDataProvider,

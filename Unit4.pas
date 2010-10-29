@@ -26,8 +26,7 @@ var Fprogress2: TFprogress2;
 
 implementation
 
-uses
-  Unit1;
+
 
 {$R *.dfm}
 
