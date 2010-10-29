@@ -241,7 +241,7 @@ var
   VMarksIterator: TMarksIteratorVisibleInRect;
   VMark: TMarkFull;
 begin
-  VMarksIterator := TMarksIteratorVisibleInRect.Create(FZoom, FLLRect);
+  VMarksIterator := TMarksIteratorVisibleInRect.Create(FZoom, FLLRect, GState.show_point);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

@@ -4193,7 +4193,7 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(VZoom, VLonLatRect);
+  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(VZoom, VLonLatRect, GState.show_point);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

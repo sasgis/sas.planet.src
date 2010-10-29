@@ -6,17 +6,19 @@ uses
   Windows,
   Classes,
   t_GeoTypes,
+  t_CommonTypes,
   u_MarksSimple;
 
 type
   TMarksIteratorVisibleInRect = class(TMarksIteratorBase)
   private
     FFinished: Boolean;
+    FShowType: TMarksShowType;
   protected
     function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; virtual;
     procedure FinishIterate;
   public
-    constructor Create(AZoom: Byte; ARect: TExtendedRect);
+    constructor Create(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType);
     destructor Destroy; override;
     function Next: Boolean; override;
   end;
@@ -51,7 +53,6 @@ uses
   SysUtils,
   GR32,
   u_GlobalState,
-  t_CommonTypes,
   Unit1,
   u_MarksDb;
 
@@ -140,10 +141,10 @@ begin
 end;
 
 
-function GetMarksFileterByCategories(AZoom: Byte): string;
+function GetMarksFileterByCategories(AZoom: Byte; AShowType: TMarksShowType): string;
 begin
   Result := '';
-  if GState.show_point = mshChecked then begin
+  if AShowType = mshChecked then begin
     DMMarksDb.CDSKategory.DisableControls;
     try
       DMMarksDb.CDSKategory.Filter := 'visible = 1 and ( AfterScale <= ' + inttostr(AZoom + 1) + ' and BeforeScale >= ' + inttostr(AZoom + 1) + ' )';
@@ -398,9 +399,10 @@ end;
 { TMarksIteratorVisibleInRect }
 
 constructor TMarksIteratorVisibleInRect.Create(AZoom: Byte;
-  ARect: TExtendedRect);
+  ARect: TExtendedRect; AShowType: TMarksShowType);
 begin
   inherited Create;
+  FShowType := AShowType;
   DMMarksDb.CDSmarks.DisableControls;
   DMMarksDb.CDSmarks.Filter := GetFilterText(AZoom, ARect);
   DMMarksDb.CDSmarks.Filtered := true;
@@ -432,10 +434,10 @@ var
   VCategoryFilter: string;
 begin
   Result := '';
-  if GState.show_point = mshChecked then begin
+  if FShowType = mshChecked then begin
     Result := Result + 'visible=1';
     Result := Result + ' and ';
-    VCategoryFilter := GetMarksFileterByCategories(AZoom);
+    VCategoryFilter := GetMarksFileterByCategories(AZoom, FShowType);
     if Length(VCategoryFilter) > 0 then begin
       Result := Result + VCategoryFilter + ' and ';
     end;
