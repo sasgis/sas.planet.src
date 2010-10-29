@@ -26,7 +26,6 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -2396,7 +2395,7 @@ object Fmain: TFmain
               Height = 13
               Anchors = [akLeft, akTop, akRight]
               Wrapping = twEndEllipsis
-              Caption = #1042#1099#1089#1086#1090#1072' ('#1043#1077#1086'), '#1084':'
+              Caption = #1042#1099#1089#1086#1090#1072', '#1084':'
             end
           end
           object TBXSensorSpeedMaxBar: TTBXToolWindow
@@ -5256,8 +5255,8 @@ object Fmain: TFmain
   object TBImageList1_24: TTBImageList
     Height = 17
     Width = 17
-    Left = 36
-    Top = 345
+    Left = 28
+    Top = 241
     Bitmap = {
       494C010119001B00040011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000044000000770000000100200000000000707E

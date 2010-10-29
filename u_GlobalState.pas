@@ -24,6 +24,7 @@ uses
   u_GeoToStr,
   u_MapViewPortState,
   u_LastSelectionInfo,
+  u_MarksReadWriteSimple,
   Uimgfun,
   UMapType,
   u_MemFileCache,
@@ -53,6 +54,7 @@ type
     FLanguageManager: ILanguageManager;
     FMainConfigProvider: IConfigDataWriteProvider;
     FLastSelectionInfo: TLastSelectionInfo;
+    FMarksDB: TMarksDB;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -98,8 +100,6 @@ type
     InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
-    // Загружать тайл дае есть информация о отсутствии его на сервере
-    IgnoreTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
     TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
@@ -221,6 +221,7 @@ type
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property LastSelectionInfo: TLastSelectionInfo read FLastSelectionInfo;
+    property MarksDB: TMarksDB read FMarksDB;
 
     constructor Create;
     destructor Destroy; override;
@@ -296,6 +297,7 @@ begin
   FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
+  FMarksDB := TMarksDB.Create;
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   GPSpar := TGPSpar.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
@@ -323,6 +325,7 @@ begin
   FKmlLoader := nil;
   FKmzLoader := nil;
   FMarksBitmapProvider := nil;
+  FreeAndNil(FMarksDB);
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;
   FreeAndNil(FLastSelectionInfo);
@@ -520,8 +523,7 @@ begin
   InetConnect.proxystr:=MainIni.Readstring('INTERNET','proxy','');
   InetConnect.loginstr:=MainIni.Readstring('INTERNET','login','');
   InetConnect.passstr:=MainIni.Readstring('INTERNET','password','');
-  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', True);
-  IgnoreTileNotExists:=MainIni.ReadBool('INTERNET','IgnoreTileNotExists',false);
+  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
 
   TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
@@ -766,7 +768,6 @@ begin
   MainIni.Writestring('INTERNET','login',InetConnect.loginstr);
   MainIni.Writestring('INTERNET','password',InetConnect.passstr);
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
-  MainIni.WriteBool('INTERNET','IgnoreTileNotExists',IgnoreTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
   MainIni.WriteInteger('INTERNET','TimeOut',InetConnect.TimeOut);

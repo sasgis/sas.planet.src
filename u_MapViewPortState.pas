@@ -121,7 +121,6 @@ implementation
 
 uses
   u_JclNotify,
-  u_GlobalState,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigByConfigDataProvider,
   u_PosChangeMessage;

@@ -5,8 +5,10 @@ interface
 uses
   Types,
   GR32,
+  graphics,
   i_ICoordConverter,
-  i_IBitmapLayerProvider;
+  i_IBitmapLayerProvider,
+  WinTypes;
 
 type
   TMapMarksBitmapLayerProviderStuped = class(TInterfacedObject, IBitmapLayerProvider)
@@ -36,7 +38,6 @@ uses
 
 const
   CMaxFontSize = 20;
-  CMaxMarkName = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 { TMapMarksBitmapLayerProviderStupedThreaded }
 
@@ -77,11 +78,6 @@ begin
   FTargetRect := ATargetRect;
   FZoom := ATargetZoom;
   FLLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
-//  VDeltaLL:=ExtPoint((FLLRect.Right-FLLRect.Left)/2,(FLLRect.Top-FLLRect.Bottom)/2);
-//  FLLRect.Left := FLLRect.Left - VDeltaLL.X;
-//  FLLRect.Top := FLLRect.Top + VDeltaLL.Y;
-//  FLLRect.Right := FLLRect.Right + VDeltaLL.X;
-//  FLLRect.Bottom := FLLRect.Bottom - VDeltaLL.Y;
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -93,8 +89,6 @@ begin
   FBitmapWithText.DrawMode := dmBlend;
   FBitmapWithText.CombineMode := cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
-  FBitmapWithText.Height := FBitmapWithText.TextHeight(CMaxMarkName);
-  FBitmapWithText.Width := FBitmapWithText.TextWidth(CMaxMarkName);
   FBitmapWithText.Resampler := TLinearResampler.Create;
 end;
 
@@ -178,7 +172,7 @@ begin
           Polygon.DrawFill(FTargetBmp, color2);
         end;
         with Polygon.Outline do try
-          with Grow(Fixed(linew / 2), 0.5) do try
+          with Grow(GR32.Fixed(linew / 2), 0.5) do try
             FillMode := pfWinding;
             DrawFill(FTargetBmp, color1);
           finally
@@ -221,17 +215,21 @@ begin
     FTargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
   end;
   if AFontSize > 0 then begin
+    FBitmapWithText.MasterAlpha:=AlphaComponent(AColor1);
     FBitmapWithText.Font.Size := AFontSize;
     VTextSize := FBitmapWithText.TextExtent(AName);
-    VDstRect.Left := xy.x + (AMarkSize div 2) + 1;
-    VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2 + 1;
-    VDstRect.Right := VDstRect.Left + VTextSize.cx + 1;
-    VDstRect.Bottom := VDstRect.Top + VTextSize.cy + 1;
-    VSrcRect := bounds(0, 0, VTextSize.cx + 1, VTextSize.cy + 1);
-    BlockTransfer(FBitmapWithText, 0, 0, VSrcRect, FTargetBmp, VDstRect, dmOpaque);
-    FBitmapWithText.RenderText(1, 1, AName, 1, AColor2);
-    FBitmapWithText.RenderText(0, 0, AName, 1, AColor1);
-    BlockTransfer(FTargetBmp, VDstRect.Left, VDstRect.Top, VDstRect, FBitmapWithText, VSrcRect, dmOpaque);
+    VTextSize.cx:=VTextSize.cx+2;
+    VTextSize.cy:=VTextSize.cy+2;
+    FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
+    VDstRect.Left := xy.x + (AMarkSize div 2);
+    VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2;
+    VDstRect.Right := VDstRect.Left + VTextSize.cx;
+    VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
+    VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
+    FBitmapWithText.Clear(clBlack);
+    FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
+    FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
+    FTargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
   end;
 end;
 
@@ -241,10 +239,10 @@ var
   TestArrLenPixelRect: TExtendedRect;
   VScale1: Integer;
   VPointCount: Integer;
-  VMarksIterator: TMarksIteratorVisibleInRect;
+  VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
 begin
-  VMarksIterator := TMarksIteratorVisibleInRect.Create(FZoom, FLLRect);
+  VMarksIterator := GState.MarksDb.GetMarksIterator(FZoom, FLLRect, GState.show_point);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

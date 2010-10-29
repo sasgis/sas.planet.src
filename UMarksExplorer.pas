@@ -111,7 +111,7 @@ begin
     VCategory.visible := True;
     VCategory.AfterScale := 3;
     VCategory.BeforeScale := 19;
-    WriteCategory(VCategory);
+    GState.MarksDb.WriteCategory(VCategory);
     Result := VCategory.id;
   finally
     VCategory.Free;
@@ -129,8 +129,8 @@ begin
     VMark.Points[0] := ALonLat;
     Result := FaddPoint.EditMark(VMark);
     if Result then begin
-      WriteMark(VMark);
-      SaveMarks2File;
+      GState.MarksDb.WriteMark(VMark);
+      GState.MarksDb.SaveMarks2File;
     end;
   finally
     VMark.Free;
@@ -145,7 +145,7 @@ begin
   if AID < 0 then begin
     VMark := TMarkFull.Create;
   end else begin
-    VMark := GetMarkByID(AID)
+    VMark := GState.MarksDb.GetMarkByID(AID)
   end;
   if VMark <> nil then begin
     try
@@ -154,8 +154,8 @@ begin
       VMark.ClosePoly;
       Result := FaddPoly.EditMark(VMark);
       if Result then begin
-        WriteMark(VMark);
-        SaveMarks2File;
+        GState.MarksDb.WriteMark(VMark);
+        GState.MarksDb.SaveMarks2File;
       end;
     finally
       VMark.Free;
@@ -171,7 +171,7 @@ begin
   if AID < 0 then begin
     VMark := TMarkFull.Create;
   end else begin
-    VMark := GetMarkByID(AID)
+    VMark := GState.MarksDb.GetMarkByID(AID)
   end;
   if VMark <> nil then begin
     try
@@ -182,8 +182,8 @@ begin
       VMark.Points := Copy(ANewArrLL);
       Result := FaddLine.EditMark(VMark);
       if Result then begin
-        WriteMark(VMark);
-        SaveMarks2File;
+        GState.MarksDb.WriteMark(VMark);
+        GState.MarksDb.SaveMarks2File;
       end;
     finally
       VMark.Free;
@@ -208,13 +208,13 @@ var
   VMark: TMarkFull;
 begin
   Result := ao_movemap;
-  VMark := GetMarkByID(id);
+  VMark := GState.MarksDb.GetMarkByID(id);
   try
     if VMark.IsPoint then begin
       result:=ao_edit_point;
       if FaddPoint.EditMark(VMark) then begin
-        WriteMark(VMark);
-        SaveMarks2File;
+        GState.MarksDb.WriteMark(VMark);
+        GState.MarksDb.SaveMarks2File;
       end;
       Result := ao_movemap;
     end else if VMark.IsPoly then begin
@@ -326,14 +326,14 @@ begin
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
  katitems:=TStringList.create;
- Kategory2StringsWithObjects(katitems);
+ GState.MarksDb.Kategory2StringsWithObjects(katitems);
  DrawTreeCategory(TreeView1,katitems);
  SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
 end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
- SaveMarks2File;
+ GState.MarksDb.SaveMarks2File;
  if RBall.Checked then GState.show_point := mshAll;
  if RBchecked.Checked then GState.show_point := mshChecked;
  if RBnot.Checked then GState.show_point := mshNone;
@@ -345,11 +345,11 @@ var
   VMarkId: TMarkId;
 begin
   result:=false;
-  VMarkId := GetMarkIdByID(id);
+  VMarkId := GState.MarksDb.GetMarkIdByID(id);
   if VMarkId <> nil then begin
     try
       if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMarkId.name+'"'),pchar(SAS_MSG_coution),36)=IDNO then exit;
-      result:=DeleteMark(VMarkId);
+      result:=GState.MarksDb.DeleteMark(VMarkId);
     finally
       VMarkId.Free;
     end;
@@ -417,8 +417,8 @@ begin
   VIndex := MarksListBox.ItemIndex;
   VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
   VMark.visible := MarksListBox.Checked[VIndex];
-  WriteMarkId(VMark);
-  SaveMarks2File;
+  GState.MarksDb.WriteMarkId(VMark);
+  GState.MarksDb.SaveMarks2File;
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -428,7 +428,7 @@ var
 begin
   if MarksListBox.ItemIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
-    VMark := GetMarkByID(VId);
+    VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
         if OperationMark(VMark) then begin
@@ -448,7 +448,7 @@ var
 begin
   if MarksListBox.ItemIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
-    VMark := GetMarkByID(VId);
+    VMark := GState.MarksDb.GetMarkByID(VId);
     try
       Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
     finally
@@ -462,12 +462,16 @@ var
   VCategory: TCategoryId;
 begin
   if TreeView1.Selected <> nil then begin
-    VCategory := TCategoryId(TreeView1.Selected.Data);
-    if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-      DeleteCategoryWithMarks(VCategory);
-      katitems.Delete(katitems.IndexOfObject(VCategory));
-      VCategory.Free;
-      DrawTreeCategory(TreeView1,katitems);
+    if not TreeView1.Selected.HasChildren then begin
+      VCategory := TCategoryId(TreeView1.Selected.Data);
+      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+        GState.MarksDb.DeleteCategoryWithMarks(VCategory);
+        katitems.Delete(katitems.IndexOfObject(VCategory));
+        VCategory.Free;
+        DrawTreeCategory(TreeView1,katitems);
+      end;
+    end else begin
+      ShowMessage(SAS_MSG_NotDelWhereHasChildren);
     end;
   end;
 end;
@@ -482,12 +486,12 @@ begin
   VIndex := MarksListBox.ItemIndex;
   if VIndex >= 0 then begin
     VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
-    VMark := GetMarkByID(VMarkId.id);
+    VMark := GState.MarksDb.GetMarkByID(VMarkId.id);
     if VMark <> nil then begin
       try
         if EditMarkModal(VMark) then begin
-          WriteMark(VMark);
-          SaveMarks2File;
+          GState.MarksDb.WriteMark(VMark);
+          GState.MarksDb.SaveMarks2File;
           if VMark.CategoryId<>TCategoryId(TreeView1.Selected.Data).id then begin
             MarksListBox.Items.Objects[VIndex].Free;
             MarksListBox.DeleteSelected;
@@ -514,7 +518,7 @@ begin
     if TreeView1.Selected <> nil then begin
       VCategory := TCategoryId(TreeView1.Selected.Data);
       if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
-        DeleteCategoryWithMarks(VCategory);
+        GState.MarksDb.DeleteCategoryWithMarks(VCategory);
         VCategory.Free;
         //KategoryListBox.DeleteSelected;
       end;
@@ -531,7 +535,7 @@ begin
         VCategory.visible := true;
         TreeView1.Selected.StateIndex:=1;
       end;
-      WriteCategory(VCategory);
+      GState.MarksDb.WriteCategory(VCategory);
     end;
   end;
 end;
@@ -551,10 +555,10 @@ begin
       VCategory.visible := true;
       TreeView1.GetNodeAt(X,Y).StateIndex:=1;
     end;
-    WriteCategory(VCategory);
+    GState.MarksDb.WriteCategory(VCategory);
   end else begin
     if TreeView1.Selected<>nil then begin
-      Marsk2StringsWithMarkId(TCategoryId(TreeView1.Selected.Data), MarksListBox.Items);
+      GState.MarksDb.Marsk2StringsWithMarkId(TCategoryId(TreeView1.Selected.Data), MarksListBox.Items);
       for i:=0 to MarksListBox.Count-1 do begin
         MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
       end;
@@ -579,7 +583,7 @@ begin
   if TreeView1.Selected <> nil then begin
     VCategory := TCategoryId(TreeView1.Selected.data);
     if FaddCategory.EditCategory(VCategory) then begin
-      WriteCategory(VCategory);
+      GState.MarksDb.WriteCategory(VCategory);
       TreeView1.Selected.Text:=VCategory.name;
       if VCategory.visible then begin
         TreeView1.Selected.StateIndex:=1;
@@ -622,7 +626,7 @@ begin
         TreeView1.Items.Item[i].StateIndex := 2;
       end;
       TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
-      WriteCategory(TreeView1.Items.Item[i].Data);
+      GState.MarksDb.WriteCategory(TreeView1.Items.Item[i].Data);
     end;
     //WriteCategoriesList(TreeView1.Items.Items);
   end;
@@ -639,15 +643,15 @@ begin
       MarksListBox.Checked[i]:=VNewVisible;
       TMarkId(MarksListBox.Items.Objects[i]).visible := VNewVisible;
     end;
-    WriteMarkIdList(MarksListBox.Items);
-    SaveMarks2File;
+    GState.MarksDb.WriteMarkIdList(MarksListBox.Items);
+    GState.MarksDb.SaveMarks2File;
   end;
 end;
 
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
 begin
- SaveMarks2File;
- fmain.generate_im;
+  GState.MarksDb.SaveMarks2File;
+  fmain.generate_im;
 end;
 
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);
@@ -658,7 +662,7 @@ begin
   VCategory := TCategoryId.Create;
   VCategory.id := -1;
   if FaddCategory.EditCategory(VCategory) then begin
-    WriteCategory(VCategory);
+    GState.MarksDb.WriteCategory(VCategory);
     katitems.AddObject(VCategory.name, VCategory);
     DrawTreeCategory(TreeView1,katitems);
   end else begin
@@ -677,7 +681,7 @@ begin
     VIndex := MarksListBox.ItemIndex;
     if (VIndex >= 0) then begin
       VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
-      VMark := GetMarkByID(VId);
+      VMark := GState.MarksDb.GetMarkByID(VId);
       try
         LL := VMark.GetGoToLonLat;
         FMain.LayerMapNavToMark.StartNav(LL, VId);

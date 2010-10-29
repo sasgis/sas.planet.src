@@ -112,7 +112,7 @@ begin
   frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewMark;
   VLastUsedCategoryName:=CBKateg.Text;
-  Kategory2StringsWithObjects(CBKateg.Items);
+  GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
   CBKateg.Sorted:=true;
   CBKateg.Text:=VLastUsedCategoryName;
   DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);

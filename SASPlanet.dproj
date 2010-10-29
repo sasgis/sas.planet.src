@@ -47,6 +47,10 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="bmpUtil.pas" />
+    <DCCReference Include="dm_MarksDb.pas">
+      <Form>DMMarksDb</Form>
+      <DesignClass>TDataModule</DesignClass>
+    </DCCReference>
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
@@ -352,10 +356,6 @@
     <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MarkBasic.pas" />
     <DCCReference Include="u_MarkCategory.pas" />
-    <DCCReference Include="u_MarksDb.pas">
-      <Form>DMMarksDb</Form>
-      <DesignClass>TDataModule</DesignClass>
-    </DCCReference>
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MemFileCache.pas" />

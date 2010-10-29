@@ -74,7 +74,6 @@ uses
   u_MapLayerGoto,
   u_MapLayerShowError,
   u_CenterScale,
-  u_TileDownloaderUI,
   u_SelectionLayer,
   t_GeoTypes;
 
@@ -615,6 +614,7 @@ type
     EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property ShortCutManager: TShortcutManager read FShortCutManager;
+    property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
 
     constructor Create(AOwner: TComponent); override;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
@@ -1039,7 +1039,7 @@ begin
   if (pos >=0) and (pos <= VCount)  then begin
     SetLength(add_line_arr, VCount + 1);
     if pos < VCount then begin
-      CopyMemory(@add_line_arr[pos + 1], @add_line_arr[pos], (VCount-pos-1)*sizeOf(TExtendedPoint));
+      CopyMemory(@add_line_arr[pos + 1], @add_line_arr[pos], (VCount-pos)*sizeOf(TExtendedPoint));
     end;
     add_line_arr[pos] := APoint;
   end;
@@ -1622,8 +1622,8 @@ begin
 
     movepoint:=0;
 
-    LoadMarksFromFile;
-    LoadCategoriesFromFile;
+    GState.MarksDb.LoadMarksFromFile;
+    GState.MarksDb.LoadCategoriesFromFile;
     Enabled:=true;
     nilLastLoad.use:=false;
     Application.OnMessage := DoMessageEvent;
@@ -2893,7 +2893,7 @@ var
 begin
   FWikiLayer.MouseOnReg(FPWL,moveTrue);
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       OperationMark(VMark);
@@ -3752,7 +3752,7 @@ begin
  FWikiLayer.MouseOnReg(FPWL, moveTrue);
  if (not NMarkNav.Checked) then begin
    id:=strtoint(FPWL.numid);
-   VMark := GetMarkByID(id);
+   VMark := GState.MarksDb.GetMarkByID(id);
    if VMark = nil then Exit;
    try
      LL := VMark.GetGoToLonLat;
@@ -3906,7 +3906,7 @@ var
   VMessage: string;
 begin
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       VLen := GetMarkLength(VMark);
@@ -3926,7 +3926,7 @@ var
   VMessage: string;
 begin
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       VArea := GetMarkSq(VMark);
@@ -3950,7 +3950,7 @@ var
   VMessage: string;
 begin
   VId := strtoint(FPWL.numid);
-  VMark := GetMarkByID(VId);
+  VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
     try
       VLen := GetMarkLength(VMark);
@@ -4184,8 +4184,9 @@ var
   VMarkLonLatRect: TExtendedRect;
   VPixelPos: TPoint;
   VZoom: Byte;
-  VMarksIterator: TMarksIteratorVisibleInRectIgnoreEdit;
+  VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
+  VIgnoredID: Integer;
 begin
   if GState.show_point = mshNone then exit;
 
@@ -4204,7 +4205,12 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  VMarksIterator := TMarksIteratorVisibleInRectIgnoreEdit.Create(VZoom, VLonLatRect);
+  if (aoper = ao_edit_line) or (aoper = ao_edit_poly) then begin
+    VIgnoredID := EditMarkId;
+  end else begin
+    VIgnoredID := -1;
+  end;
+  VMarksIterator := GState.MarksDb.GetMarksIteratorWithIgnore(VZoom, VLonLatRect, GState.show_point, VIgnoredID);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

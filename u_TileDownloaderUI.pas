@@ -38,7 +38,6 @@ uses
   SysUtils,
   u_GlobalState,
   i_ITileDownlodSession,
-  UResStrings,
   Unit1;
 
 constructor TTileDownloaderUI.Create;
@@ -200,7 +199,7 @@ begin
                       end;
                     end else begin
                       if (UseDownload = tsInternet) or (UseDownload = tsCacheInternet) then begin
-                        if GState.IgnoreTileNotExists or not VMap.TileNotExistsOnServer(FLoadXY, Fzoom) then begin
+                        if not(VMap.TileNotExistsOnServer(FLoadXY, Fzoom)) then begin
                           VNeedDownload := True;
                         end;
                       end;

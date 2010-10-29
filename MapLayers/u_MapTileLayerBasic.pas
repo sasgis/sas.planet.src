@@ -68,7 +68,6 @@ begin
     end;
 
     VConverter.CheckPixelRect(VVisibleMapRect, VZoom, False);
-    Result := VConverter.PixelRect2TileRect(VVisibleMapRect, VZoom);
     if GState.TilesOut > 0 then begin
       if (Result.Left > Result.Right) and (Result.Left - Result.Right <= GState.TilesOut * 2) then begin
       end else begin

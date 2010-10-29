@@ -32,7 +32,7 @@ type
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
-    FAlpha: Integer;
+    FMasterAlpha: Integer;
     FZoomDelta: integer;
     FPlusButton: TBitmapLayer;
     FPlusButtonPressed: Boolean;
@@ -100,12 +100,14 @@ type
     procedure OnNotifyMapChange(msg: IMapChangeMessage); virtual;
     procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
     procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
+    procedure SetMasterAlpha(value:integer);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
+    property MasterAlpha: integer read FMasterAlpha write SetMasterAlpha;
   end;
 
 implementation
@@ -258,7 +260,6 @@ begin
   FTopBorder.Bitmap.DrawMode := dmBlend;
   FTopBorder.Bitmap.CombineMode := cmMerge;
 
-
   FViewRectDrawLayer := TBitmapLayer.Create(FParentMap.Layers);
   FViewRectDrawLayer.Visible := False;
   FViewRectDrawLayer.MouseEvents := false;
@@ -311,6 +312,7 @@ begin
     FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
     FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
     Visible := VConfigProvider.ReadBool('Visible', True);
+    MasterAlpha := VConfigProvider.ReadInteger('Alpha', 150);
     VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
     try
       VMapConfigLoader.Load(FMapsActive);
@@ -406,7 +408,9 @@ begin
   VConfigProvider.WriteInteger('Width', FBitmapSize.X);
   VConfigProvider.WriteInteger('Height', FBitmapSize.Y);
   VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
+  VConfigProvider.WriteInteger('Alpha', MasterAlpha);
   VConfigProvider.WriteBool('Visible', Visible);
+
   VMapConfigSaver := TMapsConfigSaverByConfigDataProvider.Create(VConfigProvider.GetOrCreateSubItem('Maps'));
   try
     VMapConfigSaver.Save(FMapsActive);
@@ -980,8 +984,8 @@ begin
         Polygon.Closed := false;
         Polygon.Add(FixedPoint(4, 0));
         Polygon.Add(FixedPoint(0, 0));
-        Polygon.Add(FixedPoint(0, VBitmapSizeInPixel.Y + 4));
-        Polygon.Add(FixedPoint(4, VBitmapSizeInPixel.Y + 4));
+        Polygon.Add(FixedPoint(0, VBitmapSizeInPixel.Y + 5));
+        Polygon.Add(FixedPoint(4, VBitmapSizeInPixel.Y + 5));
         Polygon.Add(FixedPoint(4, 3));
         Polygon.DrawEdge(FLeftBorder.Bitmap, clBlack32);
       finally
@@ -1040,6 +1044,16 @@ begin
   if IsEqualGUID(FMapsActive.SelectedMapGUID, CGUID_Zero) then begin
     Redraw;
   end;
+end;
+
+procedure TMiniMapLayer.SetMasterAlpha(value:integer);
+begin
+  FMasterAlpha:=value;
+  FMinusButton.Bitmap.MasterAlpha:=FMasterAlpha;
+  FPlusButton.Bitmap.MasterAlpha:=FMasterAlpha;
+  FTopBorder.Bitmap.MasterAlpha:=FMasterAlpha;
+  FLeftBorder.Bitmap.MasterAlpha:=FMasterAlpha;
+  FLayer.Bitmap.MasterAlpha:=FMasterAlpha;
 end;
 
 end.

@@ -66,13 +66,11 @@ type
     Label6: TLabel;
     SpinEdit1: TSpinEdit;
     SpinEdit2: TSpinEdit;
-    Label14: TLabel;
-    smmapdif: TSpinEdit;
     Label16: TLabel;
     ComboBox2: TComboBox;
-    SpinEditMiniMap: TSpinEdit;
+    MiniMapAlphaEdit: TSpinEdit;
     Label17: TLabel;
-    SpinEdit3: TSpinEdit;
+    TilesOverScreenEdit: TSpinEdit;
     Label69: TLabel;
     CB_GPSlog: TCheckBox;
     TabSheet8: TTabSheet;
@@ -172,7 +170,6 @@ type
     pnlCoordFormat: TPanel;
     pnlUILeft: TPanel;
     pnlLonLatFormat: TPanel;
-    flwpnlMiniMap: TFlowPanel;
     pnlImageProcess: TPanel;
     pnlResize: TPanel;
     flwpnlTileBorders: TFlowPanel;
@@ -331,6 +328,8 @@ begin
    k:=k shr 1;
   end;
 
+ Fmain.LayerMiniMap.MasterAlpha:=MiniMapAlphaEdit.Value;
+
  GState.SessionLastSuccess:=CBLastSuccess.Checked;
  GState.BGround:=ColorBoxBackGround.Selected;
  FMain.map.Color:=GState.BGround;
@@ -395,7 +394,7 @@ begin
 
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
- GState.TilesOut:=SpinEdit3.Value;
+ GState.TilesOut:=TilesOverScreenEdit.Value;
 
  SetProxy;
 
@@ -497,6 +496,8 @@ begin
  GState.LanguageManager.GetLangNames(CBoxLocal.Items);
  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
 
+ MiniMapAlphaEdit.Value:=Fmain.LayerMiniMap.MasterAlpha;
+
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;
  CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
@@ -553,7 +554,7 @@ begin
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;
 
- SpinEdit3.Value:=GState.TilesOut;
+ TilesOverScreenEdit.Value:=GState.TilesOut;
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
  frShortCutList.SetShortCutManager(Fmain.ShortCutManager);
@@ -648,7 +649,7 @@ end;
 
 procedure TFSettings.SatellitePaint;
 var
-  i,bar_width,bar_height,bar_x1,bar_dy,bar_i,Ellipse_d,Ellipse_r,padd:integer;
+  i,bar_width,bar_height,bar_x1,bar_dy,Ellipse_d,Ellipse_r,padd:integer;
   Ellipse_XY1,Ellipse_XY2,Ellipse_center:TPoint;
   VPosition: IGPSPosition;
   VSattelite: IGPSSatelliteInfo;
@@ -701,7 +702,6 @@ begin
   Canvas.Pen.Color:=clBlack;
 
   bar_dy:=65;
-  bar_x1:=0;
   for I := 0 to 31 do begin
    bar_x1:=(i mod 16)*bar_width;
    if i=16 then begin
@@ -710,7 +710,6 @@ begin
    Canvas.TextOut(bar_x1+1,Height-bar_dy-1,inttostr(i+1));
    Canvas.Rectangle(bar_x1+1,Height-bar_dy-bar_height,bar_x1+bar_width-1,Height-bar_dy);
   end;
-  bar_x1:=0;
   for I := 0 to VPosition.Satellites.Count-1 do begin
    VSattelite := VPosition.Satellites.Item[i];
    if VSattelite.PseudoRandomCode>16 then begin

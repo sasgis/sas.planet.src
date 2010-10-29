@@ -1,9 +1,9 @@
 object FEditMap: TFEditMap
   Left = 198
   Top = 305
-  BorderStyle = bsDialog
-  ClientHeight = 274
-  ClientWidth = 556
+  BorderIcons = [biSystemMenu]
+  ClientHeight = 279
+  ClientWidth = 508
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,15 +18,15 @@ object FEditMap: TFEditMap
   TextHeight = 13
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 237
-    Width = 556
+    Top = 242
+    Width = 508
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 0
-    ExplicitTop = 351
-    ExplicitWidth = 586
+    ExplicitTop = 237
+    ExplicitWidth = 556
     object Button3: TButton
       AlignWithMargins = True
       Left = 6
@@ -37,12 +37,10 @@ object FEditMap: TFEditMap
       Caption = #1042#1089#1077' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       TabOrder = 0
       OnClick = Button3Click
-      ExplicitLeft = 37
-      ExplicitTop = 16
     end
     object Button1: TButton
       AlignWithMargins = True
-      Left = 394
+      Left = 346
       Top = 6
       Width = 75
       Height = 25
@@ -51,12 +49,11 @@ object FEditMap: TFEditMap
       ModalResult = 1
       TabOrder = 1
       OnClick = Button1Click
-      ExplicitLeft = 280
-      ExplicitTop = 16
+      ExplicitLeft = 394
     end
     object Button2: TButton
       AlignWithMargins = True
-      Left = 475
+      Left = 427
       Top = 6
       Width = 75
       Height = 25
@@ -66,14 +63,13 @@ object FEditMap: TFEditMap
       ModalResult = 2
       TabOrder = 2
       OnClick = Button2Click
-      ExplicitLeft = 360
-      ExplicitTop = 16
+      ExplicitLeft = 475
     end
   end
   object pnlSeparator: TPanel
     Left = 0
-    Top = 206
-    Width = 556
+    Top = 211
+    Width = 508
     Height = 31
     Align = alBottom
     BevelEdges = [beBottom]
@@ -81,33 +77,31 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitTop = 320
-    ExplicitWidth = 586
+    ExplicitTop = 206
+    ExplicitWidth = 556
     object CheckBox1: TCheckBox
       AlignWithMargins = True
       Left = 6
       Top = 6
-      Width = 544
+      Width = 496
       Height = 17
       Align = alTop
       Caption = #1044#1086#1073#1072#1074#1083#1103#1090#1100' '#1074' '#1084#1077#1085#1102' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' '#1087#1086#1089#1083#1077' '#1085#1072#1079#1074#1072#1085#1080#1103' '#1101#1090#1086#1081' '#1082#1072#1088#1090#1099
       TabOrder = 0
-      ExplicitLeft = 8
-      ExplicitTop = 24
-      ExplicitWidth = 329
+      ExplicitWidth = 544
     end
   end
   object pnlCacheType: TPanel
     Left = 0
-    Top = 173
-    Width = 556
+    Top = 178
+    Width = 508
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
-    ExplicitTop = 287
-    ExplicitWidth = 586
+    ExplicitTop = 173
+    ExplicitWidth = 556
     object Label5: TLabel
       AlignWithMargins = True
       Left = 6
@@ -123,7 +117,7 @@ object FEditMap: TFEditMap
       AlignWithMargins = True
       Left = 60
       Top = 6
-      Width = 463
+      Width = 415
       Height = 21
       Align = alClient
       Style = csDropDownList
@@ -136,13 +130,11 @@ object FEditMap: TFEditMap
         'EarthSlicer 1.95'
         'Googe maps tiles'
         'Google Earth')
-      ExplicitLeft = 72
-      ExplicitTop = 14
-      ExplicitWidth = 329
+      ExplicitWidth = 463
     end
     object Button9: TButton
       AlignWithMargins = True
-      Left = 529
+      Left = 481
       Top = 6
       Width = 21
       Height = 21
@@ -153,46 +145,44 @@ object FEditMap: TFEditMap
       ShowHint = True
       TabOrder = 1
       OnClick = Button9Click
-      ExplicitLeft = 424
-      ExplicitTop = 14
+      ExplicitLeft = 529
     end
   end
   object pnlParentItem: TPanel
     Left = 0
-    Top = 140
-    Width = 556
+    Top = 145
+    Width = 508
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 3
-    ExplicitTop = 182
-    ExplicitWidth = 531
+    ExplicitTop = 140
+    ExplicitWidth = 556
     object Label3: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
       Width = 134
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = #1056#1086#1076#1080#1090#1077#1083#1100#1089#1082#1080#1081' '#1087#1091#1085#1082#1090' '#1084#1077#1085#1102
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditParSubMenu: TEdit
       AlignWithMargins = True
       Left = 146
       Top = 6
-      Width = 377
+      Width = 329
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 152
-      ExplicitTop = 12
-      ExplicitWidth = 257
+      ExplicitWidth = 377
     end
     object Button5: TButton
       AlignWithMargins = True
-      Left = 529
+      Left = 481
       Top = 6
       Width = 21
       Height = 21
@@ -203,46 +193,44 @@ object FEditMap: TFEditMap
       ShowHint = True
       TabOrder = 1
       OnClick = Button5Click
-      ExplicitLeft = 413
-      ExplicitTop = 12
+      ExplicitLeft = 529
     end
   end
   object pnlCacheName: TPanel
     Left = 0
-    Top = 107
-    Width = 556
+    Top = 112
+    Width = 508
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 4
-    ExplicitTop = 149
-    ExplicitWidth = 531
+    ExplicitTop = 107
+    ExplicitWidth = 556
     object Label2: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
       Width = 88
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1074' '#1082#1101#1096#1077
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditNameinCache: TEdit
       AlignWithMargins = True
       Left = 100
       Top = 6
-      Width = 423
+      Width = 375
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 104
-      ExplicitTop = 12
-      ExplicitWidth = 305
+      ExplicitWidth = 423
     end
     object Button4: TButton
       AlignWithMargins = True
-      Left = 529
+      Left = 481
       Top = 6
       Width = 21
       Height = 21
@@ -253,40 +241,40 @@ object FEditMap: TFEditMap
       ShowHint = True
       TabOrder = 1
       OnClick = Button4Click
-      ExplicitLeft = 413
-      ExplicitTop = 12
+      ExplicitLeft = 529
     end
   end
   object pnlUrl: TPanel
     Left = 0
     Top = 0
-    Width = 556
-    Height = 74
+    Width = 508
+    Height = 79
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 5
-    ExplicitLeft = 24
-    ExplicitTop = 21
-    ExplicitHeight = 61
+    ExplicitWidth = 556
+    ExplicitHeight = 74
     object Label1: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
       Width = 22
-      Height = 13
+      Height = 67
       Align = alLeft
       Caption = 'URL'
+      ExplicitHeight = 13
     end
     object pnlUrlRight: TPanel
-      Left = 526
+      Left = 478
       Top = 3
       Width = 27
-      Height = 68
+      Height = 73
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 55
+      ExplicitLeft = 526
+      ExplicitHeight = 68
       object Button6: TButton
         AlignWithMargins = True
         Left = 3
@@ -300,29 +288,26 @@ object FEditMap: TFEditMap
         ShowHint = True
         TabOrder = 0
         OnClick = Button6Click
-        ExplicitLeft = 12
-        ExplicitTop = 8
       end
     end
     object EditURL: TMemo
       AlignWithMargins = True
       Left = 34
       Top = 6
-      Width = 489
-      Height = 62
+      Width = 441
+      Height = 67
       Align = alClient
       ScrollBars = ssVertical
       TabOrder = 1
       WantReturns = False
-      ExplicitLeft = 112
-      ExplicitWidth = 369
-      ExplicitHeight = 49
+      ExplicitWidth = 489
+      ExplicitHeight = 62
     end
   end
   object grdpnlSleepAndKey: TGridPanel
     Left = 0
-    Top = 74
-    Width = 556
+    Top = 79
+    Width = 508
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
@@ -350,9 +335,8 @@ object FEditMap: TFEditMap
         Value = 100.000000000000000000
       end>
     TabOrder = 6
-    ExplicitLeft = 3
-    ExplicitTop = 25
-    ExplicitWidth = 550
+    ExplicitTop = 74
+    ExplicitWidth = 556
     object grdpnlHotKey: TGridPanel
       Left = 3
       Top = 3
@@ -428,7 +412,7 @@ object FEditMap: TFEditMap
       end
     end
     object grdpnlSleep: TGridPanel
-      Left = 400
+      Left = 352
       Top = 3
       Width = 153
       Height = 27
@@ -467,7 +451,7 @@ object FEditMap: TFEditMap
           Value = 100.000000000000000000
         end>
       TabOrder = 1
-      ExplicitLeft = 394
+      ExplicitLeft = 400
       DesignSize = (
         153
         27)
@@ -486,7 +470,7 @@ object FEditMap: TFEditMap
         Left = 34
         Top = 3
         Width = 89
-        Height = 21
+        Height = 22
         Anchors = []
         MaxValue = 0
         MinValue = 0

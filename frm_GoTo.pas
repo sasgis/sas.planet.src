@@ -80,7 +80,7 @@ end;
 procedure TfrmGoTo.FormShow(Sender: TObject);
 begin
   frLonLatPoint.Parent := pnlLonLat;
-  AllMarsk2StringsWhitMarkId(ComboBox1.Items);
+  GState.MarksDb.AllMarsk2StringsWhitMarkId(ComboBox1.Items);
 end;
 
 function TfrmGoTo.GeocodeResultFromLonLat(ASearch: WideString;
@@ -113,7 +113,7 @@ begin
   if RB3.Checked then begin
     if ComboBox1.ItemIndex>-1 then begin
       VId := TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id;
-      VMark := GetMarkByID(VId);
+      VMark := GState.MarksDb.GetMarkByID(VId);
       try
         VLonLat := VMark.GetGoToLonLat;
         FResult := GeocodeResultFromLonLat(ComboBox1.Text, VLonLat, VMark.name);
