@@ -580,11 +580,11 @@ type
     FLayersList: TWindowLayerBasicList;
 
     FSearchPresenter: ISearchResultPresenter;
-    MouseDownPoint: TPoint;
-    MouseUpPoint: TPoint;
-    moveTrue: Tpoint;
-    MapMoving: Boolean;
-    MapZoomAnimtion: Boolean;
+    FMouseDownPoint: TPoint;
+    FMouseUpPoint: TPoint;
+    FmoveTrue: Tpoint;
+    FMapMoving: Boolean;
+    FMapZoomAnimtion: Boolean;
 
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
@@ -1113,9 +1113,9 @@ begin
 
  if Active then
   case Msg.message of
-   WM_MOUSEWHEEL: if not MapZoomAnimtion then
+   WM_MOUSEWHEEL: if not FMapZoomAnimtion then
                  begin
-                  MouseCursorPos:=moveTrue;
+                  MouseCursorPos:=FmoveTrue;
                   if GState.MouseWheelInv then z:=-1 else z:=1;
                   VZoom := GState.ViewState.GetCurrentZoom;
                   if Msg.wParam<0 then VNewZoom := VZoom-(1*z)
@@ -1357,8 +1357,8 @@ var
   VSelectionRect: TExtendedRect;
 begin
   if not Enabled then Exit;
-  if MapMoving then Exit;
-  if MapZoomAnimtion then Exit;
+  if FMapMoving then Exit;
+  if FMapZoomAnimtion then Exit;
 
   QueryPerformanceCounter(ts2);
 
@@ -1635,9 +1635,9 @@ begin
     Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
     Map.Cursor:=crDefault;
 
-    MouseDownPoint := point(0,0);
-    MouseUpPoint := point(0,0);
-    MapZoomAnimtion:=False;
+    FMouseDownPoint := point(0,0);
+    FMouseUpPoint := point(0,0);
+    FMapZoomAnimtion:=False;
     FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
@@ -1779,7 +1779,7 @@ begin
       end;
     end;
     InitSearchers;
-    MapMoving:=false;
+    FMapMoving:=false;
 
     SetProxy;
 
@@ -1830,8 +1830,8 @@ begin
   NZoomOut.Enabled := False;
   RxSlider1.Value:=ANewZoom;
   VZoom := GState.ViewState.GetCurrentZoom;
-  if (MapZoomAnimtion)or(MapMoving)or(ANewZoom>23) then exit;
-  MapZoomAnimtion:=True;
+  if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
+  FMapZoomAnimtion:=True;
 
   if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
    steps:=11;
@@ -1888,7 +1888,7 @@ begin
   end else begin
     GState.ViewState.ChangeZoomWithFreezeAtCenter(ANewZoom);
   end;
-  MapZoomAnimtion:=False;
+  FMapZoomAnimtion:=False;
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
@@ -2110,7 +2110,7 @@ end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
-  if AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(MouseUpPoint)) then begin
+  if AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(FMouseUpPoint)) then begin
     setalloperationfalse(ao_movemap);
     generate_im;
   end;
@@ -2127,7 +2127,7 @@ var
 begin
   GState.ViewState.LockRead;
   try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseDownPoint);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VMap := GState.ViewState.GetCurrentMap;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
@@ -2158,7 +2158,7 @@ procedure TFmain.N30Click(Sender: TObject);
 var
   ll:TExtendedPoint;
 begin
-  ll := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
+  ll := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
   if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
              else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
 end;
@@ -2172,7 +2172,7 @@ var
 begin
   GState.ViewState.LockRead;
   try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseDownPoint);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VMap := GState.ViewState.GetCurrentMap;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
@@ -2208,7 +2208,7 @@ begin
     if VMapType = nil then begin
       VMapType := GState.ViewState.GetCurrentMap;
     end;
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseUpPoint);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseUpPoint);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
   finally
     GState.ViewState.UnLockRead;
@@ -2325,7 +2325,7 @@ begin
     if VMapType = nil then begin
       VMapType := GState.ViewState.GetCurrentMap;
     end;
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseUpPoint);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseUpPoint);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
   finally
     GState.ViewState.UnLockRead;
@@ -2836,7 +2836,7 @@ begin
       end;
     end;
   end;
-  MapMoving:=false;
+  FMapMoving:=false;
   if (aoper=ao_movemap) then begin
     GState.ViewState.ChangeMapPixelToVisualPoint(r);
   end;
@@ -2876,7 +2876,7 @@ end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 begin
- FWikiLayer.MouseOnReg(FPWL,moveTrue);
+ FWikiLayer.MouseOnReg(FPWL,FmoveTrue);
  if DeleteMarkModal(StrToInt(FPWL.numid),Handle) then
   generate_im;
 end;
@@ -2891,7 +2891,7 @@ var
   VId: Integer;
   VMark: TMarkFull;
 begin
-  FWikiLayer.MouseOnReg(FPWL,moveTrue);
+  FWikiLayer.MouseOnReg(FPWL,FmoveTrue);
   VId := strtoint(FPWL.numid);
   VMark := GState.MarksDb.GetMarkByID(VId);
   if VMark <> nil then begin
@@ -2927,7 +2927,7 @@ begin
   GState.ViewState.LockRead;
   try
     VMap := GState.ViewState.GetCurrentMap;
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseDownPoint);
+    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseDownPoint);
     VZoomCurr := GState.ViewState.GetCurrentZoom;
   finally
     GState.ViewState.UnLockRead;
@@ -2964,7 +2964,7 @@ begin
   GState.ViewState.LockRead;
   try
     VSize := GState.ViewState.GetViewSizeInVisiblePixel;
-    VPos:=GState.ViewState.VisiblePixel2LonLat(moveTrue);
+    VPos:=GState.ViewState.VisiblePixel2LonLat(FmoveTrue);
   finally
     GState.ViewState.UnLockRead;
   end;
@@ -3002,7 +3002,7 @@ begin
   if FSettings.Visible then FSettings.SatellitePaint;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
   if (VPosition.IsFix=0) then exit;
-  if not((MapMoving)or(MapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
+  if not((FMapMoving)or(FMapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
     if (GState.GPSpar.GPS_MapMove) then begin
       if GState.GPSpar.GPS_MapMoveCentered then begin
         VPointCurr := GState.GPSpar.GPSRecorder.GetLastPoint;
@@ -3083,7 +3083,7 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
-  if (ssDouble in Shift)or(MapZoomAnimtion)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
+  if (ssDouble in Shift)or(FMapZoomAnimtion)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
   GState.ViewState.LockRead;
@@ -3164,9 +3164,9 @@ begin
     end;
     exit;
   end;
-  if MapMoving then exit;
+  if FMapMoving then exit;
   if (Button=mbright)and(aoper=ao_movemap) then begin
-    MouseUpPoint:=point(x,y);
+    FMouseUpPoint:=point(x,y);
     FPWL.find:=false;
     FPWL.S:=0;
     if FLayerMapMarks.Visible then begin
@@ -3192,10 +3192,10 @@ begin
     end;
     map.PopupMenu:=PopupMenu1;
   end else begin
-    MapMoving:=true;
+    FMapMoving:=true;
     map.PopupMenu:=nil;
   end;
-  MouseDownPoint:=Point(x,y);
+  FMouseDownPoint:=Point(x,y);
 end;
 
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
@@ -3218,14 +3218,14 @@ begin
     exit;
   end;
  if (ssDouble in Shift) then exit;
- VMapMoving := MapMoving;
- MapMoving:=false;
+ VMapMoving := FMapMoving;
+ FMapMoving:=false;
 
  GState.ViewState.LockRead;
  try
     VZoomCurr := GState.ViewState.GetCurrentZoom;
     VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x, y));
-    VLonLat := GState.ViewState.VisiblePixel2LonLat(moveTrue);
+    VLonLat := GState.ViewState.VisiblePixel2LonLat(FmoveTrue);
     VMap := GState.ViewState.GetCurrentMap;
     VConverter := GState.ViewState.GetCurrentCoordConverter;
     VVisibleSizeInPixel := GState.ViewState.GetViewSizeInVisiblePixel;
@@ -3258,7 +3258,7 @@ begin
  end;
  if (((aoper<>ao_movemap)and(Button=mbLeft))or
      ((aoper=ao_movemap)and(Button=mbRight))) then exit;
- if (MapZoomAnimtion) then exit;
+ if (FMapZoomAnimtion) then exit;
  map.Enabled:=false;
  map.Enabled:=true;
  if button=mbMiddle then
@@ -3269,11 +3269,11 @@ begin
    end;
 
  if VMapMoving then begin
-   GState.ViewState.ChangeMapPixelByDelta(Point(MouseDownPoint.x-x, MouseDownPoint.y-y));
+   GState.ViewState.ChangeMapPixelByDelta(Point(FMouseDownPoint.x-x, FMouseDownPoint.y-y));
  end;
 
- MouseUpPoint:=Point(x,y);
- if (y=MouseDownPoint.y)and(x=MouseDownPoint.x) then
+ FMouseUpPoint:=Point(x,y);
+ if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x) then
   begin
    FLayerStatBar.Redraw;
    FLayerScaleLine.Redraw;
@@ -3298,7 +3298,7 @@ begin
     FLayerMapNal.DrawNewPath(Fadd_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), Flastpoint);
    end;
   end;
- if (y=MouseDownPoint.y)and(x=MouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
+ if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x)and(aoper=ao_movemap)and(button=mbLeft) then
   begin
     VPWL.S:=0;
     VPWL.find:=false;
@@ -3412,14 +3412,14 @@ begin
     exit;
   end;
   if (Layer <> nil) then begin
-    moveTrue:=point(x,y);
+    FmoveTrue:=point(x,y);
     exit;
   end;
- if (MapZoomAnimtion)or(
+ if (FMapZoomAnimtion)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
    then begin
-         moveTrue:=point(x,y);
+         FmoveTrue:=point(x,y);
          exit;
         end;
  CState:=ShowCursor(True);
@@ -3485,27 +3485,27 @@ begin
                                      TBDockRight.Parent:=Self;
                                     end;
                       end;
- if MapZoomAnimtion then exit;
- if MapMoving then begin
+ if FMapZoomAnimtion then exit;
+ if FMapMoving then begin
               map.BeginUpdate;
               try
-              GState.ViewState.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FMainLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FLayerMapNal.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FLayerMapMarks.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FWikiLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FLayerMapGPS.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FLayerFillingMap.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FLayerGoto.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              FShowErrorLayer.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
-              LayerMapNavToMark.MoveTo(Point(MouseDownPoint.X-x, MouseDownPoint.Y-y));
+              GState.ViewState.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FMainLayer.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FLayerMapNal.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FLayerMapMarks.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FWikiLayer.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FLayerMapGPS.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FLayerFillingMap.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FLayerGoto.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              FShowErrorLayer.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
+              LayerMapNavToMark.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
               finally
                 map.EndUpdate;
                 map.Invalidate;
               end;
              end
         else MouseCursorPos:=point(x,y);
- if not(MapMoving) then begin
+ if not(FMapMoving) then begin
     FLayerStatBar.Redraw;
  end;
 
@@ -3516,7 +3516,7 @@ begin
     end;
   end;
  FShowActivHint:=false;
- if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
+ if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
    FPWL.S:=0;
    FPWL.find:=false;
@@ -3574,7 +3574,7 @@ begin
      FShowActivHint:=true;
     end;
   end;
- moveTrue:=point(x,y);
+ FmoveTrue:=point(x,y);
 end;
 
 procedure CreateLink(const PathObj,PathLink, Desc, Param: string);
@@ -3727,7 +3727,7 @@ procedure TFmain.NSRTM3Click(Sender: TObject);
 var
   VLonLat:TExtendedPoint;
 begin
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
   TextToWebBrowser(SAS_STR_WiteLoad, Fbrowser.EmbeddedWB1);
   Fbrowser.Visible := true;
   Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
@@ -3737,7 +3737,7 @@ procedure TFmain.NGTOPO30Click(Sender: TObject);
 var
   VLonLat:TExtendedPoint;
 begin
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(MouseDownPoint);
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
   TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
   Fbrowser.Visible:=true;
   Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
@@ -3749,7 +3749,7 @@ var
   id:integer;
   VMark: TMarkFull;
 begin
- FWikiLayer.MouseOnReg(FPWL, moveTrue);
+ FWikiLayer.MouseOnReg(FPWL, FmoveTrue);
  if (not NMarkNav.Checked) then begin
    id:=strtoint(FPWL.numid);
    VMark := GState.MarksDb.GetMarkByID(id);
