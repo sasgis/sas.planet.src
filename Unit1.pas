@@ -2875,23 +2875,25 @@ var
 begin
   FEditMarkId:=strtoint(FPWL.numid);
   VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
-  try
-    if VMark.IsPoint then begin
-      if EditMarkModal(VMark) then begin
-        GState.MarksDb.WriteMark(VMark);
-        GState.MarksDb.SaveMarks2File;
+  if VMark <> nil then begin
+    try
+      if VMark.IsPoint then begin
+        if EditMarkModal(VMark) then begin
+          GState.MarksDb.WriteMark(VMark);
+          GState.MarksDb.SaveMarks2File;
+        end;
+      end else if VMark.IsPoly then begin
+        Fadd_line_arr:=VMark.Points;
+        setalloperationfalse(ao_edit_poly);
+      end else if VMark.IsLine then begin
+        Fadd_line_arr:=VMark.Points;
+        setalloperationfalse(ao_edit_line);
       end;
-    end else if VMark.IsPoly then begin
-      setalloperationfalse(ao_edit_poly);
-      Fadd_line_arr:=VMark.Points;
-    end else if VMark.IsLine then begin
-      Fadd_line_arr:=VMark.Points;
-      setalloperationfalse(ao_edit_line);
+    finally
+      VMark.Free;
     end;
-  finally
-    VMark.Free;
+    generate_im;
   end;
-  generate_im;
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
