@@ -608,6 +608,8 @@ type
     procedure MapLayersVisibleChange;
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
+    procedure setalloperationfalse(newop: TAOperation);
+    procedure UpdateGPSSatellites;
   public
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
@@ -623,8 +625,6 @@ type
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
-    procedure setalloperationfalse(newop: TAOperation);
-    procedure UpdateGPSSatellites;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     function GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
       AShowType: TMarksShowType): TMarksIteratorBase;
