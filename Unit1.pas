@@ -4208,7 +4208,6 @@ var
   VZoom: Byte;
   VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
-  VIgnoredID: Integer;
 begin
   if GState.show_point = mshNone then exit;
 
@@ -4227,12 +4226,7 @@ begin
   finally
     GState.ViewState.UnLockRead;
   end;
-  if (FCurrentOper = ao_edit_line) or (FCurrentOper = ao_edit_poly) then begin
-    VIgnoredID := FEditMarkId;
-  end else begin
-    VIgnoredID := -1;
-  end;
-  VMarksIterator := GState.MarksDb.GetMarksIteratorWithIgnore(VZoom, VLonLatRect, GState.show_point, VIgnoredID);
+  VMarksIterator := GetMarksIterator(VZoom, VLonLatRect, GState.show_point);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;
