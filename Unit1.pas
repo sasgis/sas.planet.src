@@ -621,7 +621,6 @@ type
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
-    procedure selectMap(AMapType: TMapType);
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
     procedure setalloperationfalse(newop: TAOperation);
@@ -2102,8 +2101,19 @@ begin
 end;
 
 procedure TFmain.TBmap1Click(Sender: TObject);
+var
+  VMapType: TMapType;
 begin
- selectMap(TMapType(TTBXItem(sender).tag));
+  VMapType := TMapType(TTBXItem(sender).tag);
+  if not(VMapType.asLayer) then begin
+    if (VMapType.showinfo)and(VMapType.MapInfo<>'') then begin
+      ShowMessage(VMapType.MapInfo);
+      VMapType.showinfo:=false;
+    end;
+    GState.ViewState.ChangeMainMapAtCurrentPoint(VMapType);
+  end else begin
+    GState.ViewState.ChangeSelectHybrByGUID(VMapType.GUID);
+  end;
 end;
 
 procedure TFmain.N8Click(Sender: TObject);
@@ -2444,19 +2454,6 @@ end;
 procedure TFmain.N29Click(Sender: TObject);
 begin
   ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
-end;
-
-procedure TFmain.selectMap(AMapType: TMapType);
-begin
-  if not(AMapType.asLayer) then begin
-    if (AMapType.showinfo)and(AMapType.MapInfo<>'') then begin
-      ShowMessage(AMapType.MapInfo);
-      AMapType.showinfo:=false;
-    end;
-    GState.ViewState.ChangeMainMapAtCurrentPoint(AMapType);
-  end else begin
-    GState.ViewState.ChangeSelectHybrByGUID(AMapType.GUID);
-  end;
 end;
 
 procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
