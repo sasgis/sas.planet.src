@@ -4240,8 +4240,7 @@ begin
 
       if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
       (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-        poly := VMark.Points;
-        if length(poly)=1 then begin
+        if VMark.IsPoint then begin
           APWL.name:=VMark.name;
           APWL.descr:=VMark.Desc;
           APWL.numid:=IntToStr(VMark.id);
@@ -4249,9 +4248,9 @@ begin
           APWL.type_:=ROTpoint;
           exit;
         end else begin
+          poly := VMark.Points;
           arLL := VConverter.LonLatArray2PixelArray(poly, VZoom);
-          if (poly[0].x<>poly[length(poly)-1].x)or
-          (poly[0].y<>poly[length(poly)-1].y)then begin
+          if VMark.IsLine then begin
             j:=1;
             while (j<length(poly)) do begin
               if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(VMark.Scale1 div 2)+1)
