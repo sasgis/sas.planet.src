@@ -282,14 +282,8 @@ var
   VPointCount: Integer;
   VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
-  VIgnoredID: Integer;
 begin
-  if (Fmain.aoper = ao_edit_line) or (Fmain.aoper = ao_edit_poly) then begin
-    VIgnoredID := Fmain.EditMarkId;
-  end else begin
-    VIgnoredID := -1;
-  end;
-  VMarksIterator := GState.MarksDb.GetMarksIteratorWithIgnore(FZoom, FLLRect, GState.show_point, VIgnoredID);
+  VMarksIterator := Fmain.GetMarksIterator(FZoom, FLLRect, GState.show_point);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

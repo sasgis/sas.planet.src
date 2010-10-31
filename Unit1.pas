@@ -56,6 +56,7 @@ uses
   i_GeoCoder,
   i_ISearchResultPresenter,
   u_WindowLayerBasicList,
+  u_MarksSimple,
   Ugeofun,
   u_MapLayerWiki,
   ULogo,
@@ -585,6 +586,7 @@ type
     FmoveTrue: Tpoint;
     FMapMoving: Boolean;
     FMapZoomAnimtion: Boolean;
+    FEditMarkId:integer;
 
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
@@ -611,7 +613,6 @@ type
     LayerSelection: TSelectionLayer;
     MouseCursorPos: Tpoint;
     aoper: TAOperation;
-    EditMarkId:integer;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property ShortCutManager: TShortcutManager read FShortCutManager;
     property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
@@ -626,6 +627,8 @@ type
     procedure setalloperationfalse(newop: TAOperation);
     procedure UpdateGPSSatellites;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    function GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
+      AShowType: TMarksShowType): TMarksIteratorBase;
   end;
 
 
@@ -668,7 +671,6 @@ uses
   u_ProxySettingsFromTInetConnect,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
-  u_MarksSimple,
   u_MarksReadWriteSimple,
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
@@ -1091,7 +1093,7 @@ begin
   ao_Add_Point,ao_Add_Poly,ao_Add_Line,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
  end;
  if (aoper=ao_edit_line)or(aoper=ao_edit_poly) then begin
-   EditMarkId:=-1;
+   FEditMarkId:=-1;
    FLayerMapMarks.Redraw;
  end;
  aoper:=newop;
@@ -1555,6 +1557,19 @@ begin
   Result.Add(N006);
   Result.Add(N007);
   Result.Add(NFillMap);
+end;
+
+function TFmain.GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
+  AShowType: TMarksShowType): TMarksIteratorBase;
+var
+  VIgnoredID: Integer;
+begin
+  if (aoper = ao_edit_line) or (aoper = ao_edit_poly) then begin
+    VIgnoredID := FEditMarkId;
+  end else begin
+    VIgnoredID := -1;
+  end;
+  Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
@@ -2861,8 +2876,8 @@ procedure TFmain.NMarkEditClick(Sender: TObject);
 var arr:TExtendedPointArray;
     op:TAOperation;
 begin
- EditMarkId:=strtoint(FPWL.numid);
- op:=EditMarkF(EditMarkId,arr);
+ FEditMarkId:=strtoint(FPWL.numid);
+ op:=EditMarkF(FEditMarkId,arr);
  if op=ao_edit_line then begin
    setalloperationfalse(ao_edit_line);
    Fadd_line_arr:=arr;
@@ -3687,13 +3702,13 @@ begin
       result:=SavePolyModal(-1, Fadd_line_arr);
     end;
     ao_edit_poly: begin
-      result:=SavePolyModal(EditMarkId, Fadd_line_arr);
+      result:=SavePolyModal(FEditMarkId, Fadd_line_arr);
     end;
     ao_add_Line: begin
       result:=SaveLineModal(-1, Fadd_line_arr, FMarshrutComment);
     end;
     ao_edit_line: begin
-      result:=SaveLineModal(EditMarkId, Fadd_line_arr, '');
+      result:=SaveLineModal(FEditMarkId, Fadd_line_arr, '');
     end;
   end;
   if result then begin
@@ -4206,7 +4221,7 @@ begin
     GState.ViewState.UnLockRead;
   end;
   if (aoper = ao_edit_line) or (aoper = ao_edit_poly) then begin
-    VIgnoredID := EditMarkId;
+    VIgnoredID := FEditMarkId;
   end else begin
     VIgnoredID := -1;
   end;
