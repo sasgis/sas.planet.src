@@ -79,7 +79,7 @@ var
   function AddKategory(name:string): integer;
   function GetMarkLength(AMark: TMarkFull):extended;
   function GetMarkSq(AMark: TMarkFull):extended;
-  function EditMarkF(id:integer; var arr:TExtendedPointArray):TAOperation;
+  function EditMarkModal(AMark: TMarkFull):boolean;
   function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
   function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
   function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescription: string): Boolean;
@@ -200,32 +200,6 @@ begin
     result:=FaddPoly.EditMark(AMark);
   end else if AMark.IsLine then begin
     result:=FaddLine.EditMark(AMark);
-  end;
-end;
-
-function EditMarkF(id:integer;var arr:TExtendedPointArray):TAOperation;
-var
-  VMark: TMarkFull;
-begin
-  Result := ao_movemap;
-  VMark := GState.MarksDb.GetMarkByID(id);
-  try
-    if VMark.IsPoint then begin
-      result:=ao_edit_point;
-      if FaddPoint.EditMark(VMark) then begin
-        GState.MarksDb.WriteMark(VMark);
-        GState.MarksDb.SaveMarks2File;
-      end;
-      Result := ao_movemap;
-    end else if VMark.IsPoly then begin
-      arr:=VMark.Points;
-      result:=ao_edit_poly;
-    end else if VMark.IsLine then begin
-      arr:=VMark.Points;
-      result:=ao_edit_line;
-    end;
-  finally
-    VMark.Free;
   end;
 end;
 

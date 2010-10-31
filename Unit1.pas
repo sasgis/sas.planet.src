@@ -2870,20 +2870,28 @@ begin
 end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
-var arr:TExtendedPointArray;
-    op:TAOperation;
+var
+  VMark: TMarkFull;
 begin
- FEditMarkId:=strtoint(FPWL.numid);
- op:=EditMarkF(FEditMarkId,arr);
- if op=ao_edit_line then begin
-   setalloperationfalse(ao_edit_line);
-   Fadd_line_arr:=arr;
- end;
- if op=ao_edit_poly then begin
-   setalloperationfalse(ao_edit_poly);
-   Fadd_line_arr:=arr;
- end;
- generate_im;
+  FEditMarkId:=strtoint(FPWL.numid);
+  VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
+  try
+    if VMark.IsPoint then begin
+      if EditMarkModal(VMark) then begin
+        GState.MarksDb.WriteMark(VMark);
+        GState.MarksDb.SaveMarks2File;
+      end;
+    end else if VMark.IsPoly then begin
+      setalloperationfalse(ao_edit_poly);
+      Fadd_line_arr:=VMark.Points;
+    end else if VMark.IsLine then begin
+      Fadd_line_arr:=VMark.Points;
+      setalloperationfalse(ao_edit_line);
+    end;
+  finally
+    VMark.Free;
+  end;
+  generate_im;
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
