@@ -557,6 +557,7 @@ type
     FLayerMapMarks: TMapMarksLayer;
     FLayerMapScale: TCenterScale;
     FLayerMiniMap: TMiniMapLayer;
+    FLayerSelection: TSelectionLayer;
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
@@ -611,7 +612,6 @@ type
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
     LayerMapNavToMark: TNavToMarkLayer;
-    LayerSelection: TSelectionLayer;
     MouseCursorPos: Tpoint;
     property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property ShortCutManager: TShortcutManager read FShortCutManager;
@@ -848,7 +848,7 @@ begin
   end;
   ShowMiniMap.Checked := FLayerMiniMap.Visible;
   ShowLine.Checked := FLayerScaleLine.Visible;
-  NShowSelection.Checked := LayerSelection.Visible;
+  NShowSelection.Checked := FLayerSelection.Visible;
   N32.Checked:=FLayerMapScale.Visible;
 
   TBSrc.ImageIndex := integer(FMainLayer.UseDownload);
@@ -1672,8 +1672,8 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapGPS);
-    LayerSelection := TSelectionLayer.Create(map, GState.ViewState);
-    FLayersList.Add(LayerSelection);
+    FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerSelection);
     FLayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapNal);
     FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
@@ -4185,7 +4185,7 @@ end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);
 begin
-  LayerSelection.Visible := TTBXItem(sender).Checked;
+  FLayerSelection.Visible := TTBXItem(sender).Checked;
 end;
 
 procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
