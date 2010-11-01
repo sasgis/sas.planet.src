@@ -23,6 +23,7 @@ type
     function GetMarksFileterByCategories(AZoom: Byte; AShowType: TMarksShowType): string;
   public
     constructor Create;
+    destructor Destroy; override;
     function GetMarkByID(id: integer): TMarkFull;
     function GetMarkIdByID(id: integer): TMarkId;
     function DeleteMark(AMarkId: TMarkId): Boolean;
@@ -234,7 +235,13 @@ end;
 
 constructor TMarksDB.Create;
 begin
-  FDMMarksDb := DMMarksDb;
+  FDMMarksDb := TDMMarksDb.Create(nil);
+end;
+
+destructor TMarksDB.Destroy;
+begin
+  FreeAndNil(FDMMarksDb);
+  inherited;
 end;
 
 procedure TMarksDB.DeleteCategoryWithMarks(ACategory: TCategoryId);

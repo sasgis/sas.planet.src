@@ -306,7 +306,6 @@ begin
   Application.CreateForm(TFaddLine, FaddLine);
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
-  Application.CreateForm(TDMMarksDb, DMMarksDb);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
   Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');

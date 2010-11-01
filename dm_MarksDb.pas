@@ -36,9 +36,6 @@ type
   public
   end;
 
-var
-  DMMarksDb: TDMMarksDb;
-
 implementation
 
 {$R *.dfm}
