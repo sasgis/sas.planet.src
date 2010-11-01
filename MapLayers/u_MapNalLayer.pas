@@ -39,7 +39,7 @@ type
     procedure DrawNothing;
     procedure DrawSelectionRect(ASelectedLonLat: TExtendedRect);
     procedure DrawReg(ASelectedLonLatPoly: TExtendedPointArray);
-    procedure DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean);
+    procedure DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean; AActiveIndex: Integer);
     procedure DrawNewPath(APathLonLat: TExtendedPointArray; AIsPoly: boolean; AActiveIndex: Integer);
   end;
 
@@ -141,7 +141,7 @@ begin
           continue;
         end;
         FrameRectS(k2.x - 3, k2.y - 3, k2.X + 3, k2.Y + 3, SetAlpha(ClRed32, 150));
-        FillRectS(k1.x - 2, k1.y - 2, k1.X + 2, k1.y + 2, SetAlpha(ClWhite32, 150));
+        FillRectS(k2.x - 2, k2.y - 2, k2.X + 2, k2.y + 2, SetAlpha(ClWhite32, 150));
         if i = length(FPath) - 2 then begin
           len := 0;
           for j := 0 to i do begin
@@ -166,7 +166,7 @@ begin
       k1 := MapPixel2BitmapPixel(k1);
       k1 := Point(k1.x - 3, k1.y - 3);
       FillRectS(bounds(k1.x, k1.y, 6, 6), SetAlpha(ClGreen32, 255));
-      k1 := FGeoConvert.LonLat2PixelPos(FPath[length(FPath) - 1], FZoom);
+      k1 := FGeoConvert.LonLat2PixelPos(FPath[FPolyActivePointIndex], FZoom);
       k1 := MapPixel2BitmapPixel(k1);
       k1 := Point(k1.x - 3, k1.y - 3);
       FillRectS(bounds(k1.x, k1.y, 6, 6), SetAlpha(ClRed32, 255));
@@ -358,10 +358,11 @@ begin
   end;
 end;
 
-procedure TMapNalLayer.DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean);
+procedure TMapNalLayer.DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean; AActiveIndex: Integer);
 begin
   FDrawType := mndtCalcLen;
   FPath := Copy(APathLonLat);
+  FPolyActivePointIndex := AActiveIndex;
   FLenShow := ALenShow;
   Redraw;
 end;
