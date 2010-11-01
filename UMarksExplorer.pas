@@ -287,7 +287,11 @@ var
     aNode := FindNodeWithText(ParentNode, prefix);
     if aNode = nil then
     begin
-      aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, Data);
+      if ID>0 then begin
+        aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, nil);
+      end else begin
+        aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, Data);
+      end;
       aNode.StateIndex :=2;
       if TCategoryId(Data).visible then begin
         aNode.StateIndex :=1
@@ -518,11 +522,13 @@ var
   i:integer;
   VCategory: TCategoryId;
 begin
-  if (node<>nil) then begin
+  if (node<>nil)and(node.Data<>nil) then begin
     GState.MarksDb.Marsk2StringsWithMarkId(TCategoryId(node.Data), MarksListBox.Items);
     for i:=0 to MarksListBox.Count-1 do begin
       MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
     end;
+  end else begin
+    MarksListBox.Clear;
   end;
 end;
 
