@@ -67,6 +67,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
   private
   public
   end;
@@ -302,6 +303,7 @@ begin
   CachedStrs.Duplicates := dupIgnore;
   CachedStrs.Sorted := True;
   try
+    TreeView1.OnChange:=nil;
     TreeView1.Items.Clear;
     TreeView1.Items.BeginUpdate;
     TreeView1.SortType := stNone;
@@ -311,6 +313,7 @@ begin
   finally
     TreeView1.Items.EndUpdate;
     CachedStrs.Free;
+    TreeView1.OnChange:=fMarksExplorer.TreeView1Change;
   end;
 end;
 
@@ -510,6 +513,19 @@ begin
   end;
 end;
 
+procedure TFMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
+var
+  i:integer;
+  VCategory: TCategoryId;
+begin
+  if (node<>nil) then begin
+    GState.MarksDb.Marsk2StringsWithMarkId(TCategoryId(node.Data), MarksListBox.Items);
+    for i:=0 to MarksListBox.Count-1 do begin
+      MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
+    end;
+  end;
+end;
+
 procedure TFMarksExplorer.TreeView1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
@@ -557,13 +573,6 @@ begin
       TreeView1.GetNodeAt(X,Y).StateIndex:=1;
     end;
     GState.MarksDb.WriteCategory(VCategory);
-  end else begin
-    if TreeView1.Selected<>nil then begin
-      GState.MarksDb.Marsk2StringsWithMarkId(TCategoryId(TreeView1.Selected.Data), MarksListBox.Items);
-      for i:=0 to MarksListBox.Count-1 do begin
-        MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
-      end;
-    end;
   end;
 end;
 
@@ -705,6 +714,7 @@ begin
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
  for i:=0 to katitems.Count-1 do katitems.Objects[i].Free;
+ TreeView1.OnChange:=nil;
  TreeView1.Items.Clear;
  katitems.free;
 end;

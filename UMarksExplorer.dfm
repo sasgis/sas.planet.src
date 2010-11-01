@@ -543,6 +543,7 @@ object FMarksExplorer: TFMarksExplorer
       ReadOnly = True
       StateImages = imlStates
       TabOrder = 1
+      OnChange = TreeView1Change
       OnKeyUp = TreeView1KeyUp
       OnMouseUp = TreeView1MouseUp
     end
