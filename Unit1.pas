@@ -2875,28 +2875,29 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
-    EditMarkId:=strtoint(VPWL.numid);
-  VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
-  if VMark <> nil then begin
-    try
-      if VMark.IsPoint then begin
-        if EditMarkModal(VMark) then begin
-          GState.MarksDb.WriteMark(VMark);
-          GState.MarksDb.SaveMarks2File;
+    FEditMarkId:=strtoint(VPWL.numid);
+    VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
+    if VMark <> nil then begin
+      try
+        if VMark.IsPoint then begin
+          if EditMarkModal(VMark) then begin
+            GState.MarksDb.WriteMark(VMark);
+            GState.MarksDb.SaveMarks2File;
+          end;
+        end else if VMark.IsPoly then begin
+          Fadd_line_arr:=VMark.Points;
+          setalloperationfalse(ao_edit_poly);
+        end else if VMark.IsLine then begin
+          Fadd_line_arr:=VMark.Points;
+          setalloperationfalse(ao_edit_line);
         end;
-      end else if VMark.IsPoly then begin
-        Fadd_line_arr:=VMark.Points;
-        setalloperationfalse(ao_edit_poly);
-      end else if VMark.IsLine then begin
-        Fadd_line_arr:=VMark.Points;
-        setalloperationfalse(ao_edit_line);
+      finally
+        VMark.Free;
       end;
-    finally
-      VMark.Free;
+      generate_im;
     end;
-    generate_im;
   end;
 end;
 
@@ -2906,7 +2907,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     if DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
       generate_im;
@@ -2926,7 +2927,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -3791,7 +3792,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     if (not NMarkNav.Checked) then begin
       id:=strtoint(VPWL.numid);
@@ -3952,7 +3953,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -3978,7 +3979,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -4008,7 +4009,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, moveTrue);
+  MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
