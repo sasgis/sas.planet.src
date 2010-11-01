@@ -543,7 +543,6 @@ type
     movepoint: integer;
     lastpoint: integer;
     FSelectionRect: TExtendedRect;
-    length_arr: TExtendedPointArray;
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
     FPWL: TResObj;
@@ -1081,7 +1080,6 @@ begin
  TBEditPathLabel.Visible:=(newop=ao_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
  rect_dwn:=false;
- setlength(length_arr,0);
  setlength(add_line_arr,0);
  setlength(reg_arr,0);
  rect_p2:=false;
@@ -3104,11 +3102,7 @@ begin
     GState.ViewState.UnLockRead;
   end;
   if (Button=mbLeft)and(aoper<>ao_movemap) then begin
-    if (aoper=ao_line)then begin
-     { setlength(length_arr,length(length_arr)+1);
-      length_arr[length(length_arr)-1]:= VClickLonLat;
-      TBEditPath.Visible:=(length(length_arr)>1);
-      FLayerMapNal.DrawLineCalc(length_arr, LenShow); }
+    if (aoper=ao_line)then begin                 
       for i:=0 to length(add_line_arr)-1 do begin
         if (VClickLonLatRect.Left < add_line_arr[i].X) and
           (VClickLonLatRect.Top > add_line_arr[i].Y) and
