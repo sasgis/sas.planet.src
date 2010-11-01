@@ -3078,6 +3078,7 @@ var
   VClickRect: TRect;
   VClickLonLatRect: TExtendedRect;
   VPoly:  TExtendedPointArray;
+  SelPointOnLine:boolean;
 begin
   if (HintWindow<>nil) then begin
     HintWindow.ReleaseHandle;
@@ -3102,24 +3103,31 @@ begin
     GState.ViewState.UnLockRead;
   end;
   if (Button=mbLeft)and(aoper<>ao_movemap) then begin
-    if (aoper=ao_line)then begin
+    if (aoper in [ao_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
       movepoint:=true;
+      TBEditPath.Visible:=(length(add_line_arr)>1);
+      SelPointOnLine:=false;
       for i:=0 to length(add_line_arr)-1 do begin
         if (VClickLonLatRect.Left < add_line_arr[i].X) and
-          (VClickLonLatRect.Top > add_line_arr[i].Y) and
-          (VClickLonLatRect.Right > add_line_arr[i].X) and
-          (VClickLonLatRect.Bottom < add_line_arr[i].Y)
+           (VClickLonLatRect.Top > add_line_arr[i].Y) and
+           (VClickLonLatRect.Right > add_line_arr[i].X) and
+           (VClickLonLatRect.Bottom < add_line_arr[i].Y)
         then begin
           lastpoint:=i;
-          TBEditPath.Visible:=(length(add_line_arr)>1);
-          FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
-          exit;
+          SelPointOnLine:=true;
+          Break;
         end;
       end;
-      inc(lastpoint);
-      insertinpath(lastpoint, VClickLonLat,add_line_arr);
-      TBEditPath.Visible:=(length(add_line_arr)>1);
-      FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+      if not(SelPointOnLine) then begin
+        inc(lastpoint);
+        insertinpath(lastpoint, VClickLonLat,add_line_arr);
+      end;
+      case aoper of
+        ao_line:
+          FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+        ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly:
+          FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+      end;
     end;
     if (aoper=ao_Reg) then begin
       setlength(reg_arr,length(reg_arr)+1);
@@ -3158,25 +3166,6 @@ begin
         setalloperationfalse(ao_movemap);
         generate_im;
       end;
-    end;
-    if (aoper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
-      movepoint:=true;
-      for i:=0 to length(add_line_arr)-1 do begin
-        if (VClickLonLatRect.Left < add_line_arr[i].X) and
-          (VClickLonLatRect.Top > add_line_arr[i].Y) and
-          (VClickLonLatRect.Right > add_line_arr[i].X) and
-          (VClickLonLatRect.Bottom < add_line_arr[i].Y)
-        then begin
-          lastpoint:=i;
-          TBEditPath.Visible:=(length(add_line_arr)>1);
-          FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
-          exit;
-        end;
-      end;
-      inc(lastpoint);
-      insertinpath(lastpoint, VClickLonLat,add_line_arr);
-      TBEditPath.Visible:=(length(add_line_arr)>1);
-      FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
     end;
     exit;
   end;
