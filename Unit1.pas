@@ -547,7 +547,6 @@ type
     Flength_arr: TExtendedPointArray;
     Fadd_line_arr: TExtendedPointArray;
     Freg_arr: TExtendedPointArray;
-    FPWL: TResObj;
 
     FLayerScaleLine: TLayerScaleLine;
     FLayerMapNal: TMapNalLayer;
@@ -2872,8 +2871,13 @@ end;
 procedure TFmain.NMarkEditClick(Sender: TObject);
 var
   VMark: TMarkFull;
+  VPWL: TResObj;
 begin
-  FEditMarkId:=strtoint(FPWL.numid);
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    EditMarkId:=strtoint(VPWL.numid);
   VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
   if VMark <> nil then begin
     try
@@ -2897,10 +2901,16 @@ begin
 end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
+var
+  VPWL: TResObj;
 begin
- FWikiLayer.MouseOnReg(FPWL,FmoveTrue);
- if DeleteMarkModal(StrToInt(FPWL.numid),Handle) then
-  generate_im;
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    if DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
+      generate_im;
+  end;
 end;
 
 procedure TFmain.NMarksBarShowClick(Sender: TObject);
@@ -2912,15 +2922,20 @@ procedure TFmain.NMarkOperClick(Sender: TObject);
 var
   VId: Integer;
   VMark: TMarkFull;
+  VPWL: TResObj;
 begin
-  FWikiLayer.MouseOnReg(FPWL,FmoveTrue);
-  VId := strtoint(FPWL.numid);
-  VMark := GState.MarksDb.GetMarkByID(VId);
-  if VMark <> nil then begin
-    try
-      OperationMark(VMark);
-    finally
-      VMark.Free;
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    VId := strtoint(VPWL.numid);
+    VMark := GState.MarksDb.GetMarkByID(VId);
+    if VMark <> nil then begin
+      try
+        OperationMark(VMark);
+      finally
+        VMark.Free;
+      end;
     end;
   end;
 end;
@@ -3097,6 +3112,7 @@ var
   VClickRect: TRect;
   VClickLonLatRect: TExtendedRect;
   VPoly:  TExtendedPointArray;
+  VPWL: TResObj;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -3189,25 +3205,25 @@ begin
   if FMapMoving then exit;
   if (Button=mbright)and(FCurrentOper=ao_movemap) then begin
     FMouseUpPoint:=point(x,y);
-    FPWL.find:=false;
-    FPWL.S:=0;
+    VPWL.find:=false;
+    VPWL.S:=0;
     if FLayerMapMarks.Visible then begin
-      MouseOnMyReg(FPWL,Point(x,y));
+      MouseOnMyReg(VPWL,Point(x,y));
     end;  
-    NMarkEdit.Visible:=FPWL.find;
-    NMarkDel.Visible:=FPWL.find;
-    NMarkSep.Visible:=FPWL.find;
-    NMarkOper.Visible:=FPWL.find;
-    NMarkNav.Visible:=FPWL.find;
-    if (FPWL.find)and(FPWL.type_<>ROTpoint) then begin
-      NMarksCalcsSq.Visible:=(FPWL.type_=ROTPoly);
-      NMarksCalcsPer.Visible:=(FPWL.type_=ROTPoly);
-      NMarksCalcsLen.Visible:=(FPWL.type_=ROTline);
+    NMarkEdit.Visible:=VPWL.find;
+    NMarkDel.Visible:=VPWL.find;
+    NMarkSep.Visible:=VPWL.find;
+    NMarkOper.Visible:=VPWL.find;
+    NMarkNav.Visible:=VPWL.find;
+    if (VPWL.find)and(VPWL.type_<>ROTpoint) then begin
+      NMarksCalcsSq.Visible:=(VPWL.type_=ROTPoly);
+      NMarksCalcsPer.Visible:=(VPWL.type_=ROTPoly);
+      NMarksCalcsLen.Visible:=(VPWL.type_=ROTline);
       NMarksCalcs.Visible:=true;
     end else begin
       NMarksCalcs.Visible:=false;
     end;
-    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(FPWL.numid)) then begin
+    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(VPWL.numid)) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3429,6 +3445,7 @@ var
   VSelectionRect: TExtendedRect;
   VConverter: ICoordConverter;
   VLonLat: TExtendedPoint;
+  VPWL: TResObj;
 begin
   if ProgramClose then begin
     exit;
@@ -3540,25 +3557,25 @@ begin
  FShowActivHint:=false;
  if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
-   FPWL.S:=0;
-   FPWL.find:=false;
+   VPWL.S:=0;
+   VPWL.find:=false;
    if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(FPWL,Point(x,y));
+     FWikiLayer.MouseOnReg(VPWL,Point(x,y));
    if (FLayerMapMarks.Visible) then
-     MouseOnMyReg(FPWL,Point(x,y));
-   if (FPWL.find) then
+     MouseOnMyReg(VPWL,Point(x,y));
+   if (VPWL.find) then
     begin
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
-     if (length(FPWL.name)>0) then
+     if (length(VPWL.name)>0) then
       begin
-       if System.Pos('<',FPWL.name)>0 then nms:=HTML2Txt(FPWL.name)
-                                     else nms:=FPWL.name;
+       if System.Pos('<',VPWL.name)>0 then nms:=HTML2Txt(VPWL.name)
+                                     else nms:=VPWL.name;
       end;
-     if (length(FPWL.descr)>0) then
+     if (length(VPWL.descr)>0) then
       begin
        if length(nms)>0 then nms:=nms+#13#10;
-       if System.Pos('<',FPWL.descr)>0 then nms:=nms+HTML2Txt(FPWL.descr)
-                                      else nms:=nms+FPWL.descr;
+       if System.Pos('<',VPWL.descr)>0 then nms:=nms+HTML2Txt(VPWL.descr)
+                                      else nms:=nms+VPWL.descr;
       end;
      i:=1;
      j:=0;
@@ -3770,20 +3787,25 @@ var
   LL:TExtendedPoint;
   id:integer;
   VMark: TMarkFull;
+  VPWL: TResObj;
 begin
- FWikiLayer.MouseOnReg(FPWL, FmoveTrue);
- if (not NMarkNav.Checked) then begin
-   id:=strtoint(FPWL.numid);
-   VMark := GState.MarksDb.GetMarkByID(id);
-   if VMark = nil then Exit;
-   try
-     LL := VMark.GetGoToLonLat;
-     LayerMapNavToMark.StartNav(LL, Id);
-   finally
-    VMark.Free;
-   end;
-  end else  begin
-    LayerMapNavToMark.Visible := false;
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    if (not NMarkNav.Checked) then begin
+      id:=strtoint(VPWL.numid);
+      VMark := GState.MarksDb.GetMarkByID(id);
+      if VMark = nil then Exit;
+      try
+        LL := VMark.GetGoToLonLat;
+        LayerMapNavToMark.StartNav(LL, Id);
+      finally
+        VMark.Free;
+      end;
+    end else  begin
+      LayerMapNavToMark.Visible := false;
+    end;
   end;
 end;
 
@@ -3926,16 +3948,22 @@ var
   VMark: TMarkFull;
   VLen: Extended;
   VMessage: string;
+  VPWL: TResObj;
 begin
-  VId := strtoint(FPWL.numid);
-  VMark := GState.MarksDb.GetMarkByID(VId);
-  if VMark <> nil then begin
-    try
-      VLen := GetMarkLength(VMark);
-      VMessage := SAS_STR_L+' - '+DistToStrWithUnits(VLen, GState.num_format);
-      MessageBox(Self.Handle, pchar(VMessage), pchar(FPWL.name),0);
-    finally
-      VMark.Free;
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    VId := strtoint(VPWL.numid);
+    VMark := GState.MarksDb.GetMarkByID(VId);
+    if VMark <> nil then begin
+      try
+        VLen := GetMarkLength(VMark);
+        VMessage := SAS_STR_L+' - '+DistToStrWithUnits(VLen, GState.num_format);
+        MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
+      finally
+        VMark.Free;
+      end;
     end;
   end;
 end;
@@ -3946,20 +3974,26 @@ var
   VMark: TMarkFull;
   VArea: Extended;
   VMessage: string;
+  VPWL: TResObj;
 begin
-  VId := strtoint(FPWL.numid);
-  VMark := GState.MarksDb.GetMarkByID(VId);
-  if VMark <> nil then begin
-    try
-      VArea := GetMarkSq(VMark);
-      if VArea < 0.1 then begin
-        VMessage := SAS_STR_S+' - '+RoundEx(VArea * 1000000,2)+' '+SAS_UNITS_m2;
-      end else begin
-        VMessage := SAS_STR_S+' - '+RoundEx(VArea,2)+' '+SAS_UNITS_km2;
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    VId := strtoint(VPWL.numid);
+    VMark := GState.MarksDb.GetMarkByID(VId);
+    if VMark <> nil then begin
+      try
+        VArea := GetMarkSq(VMark);
+        if VArea < 0.1 then begin
+          VMessage := SAS_STR_S+' - '+RoundEx(VArea * 1000000,2)+' '+SAS_UNITS_m2;
+        end else begin
+          VMessage := SAS_STR_S+' - '+RoundEx(VArea,2)+' '+SAS_UNITS_km2;
+        end;
+        MessageBox(Handle,pchar(VMessage),pchar(VPWL.name),0);
+      finally
+        VMark.Free;
       end;
-      MessageBox(Handle,pchar(VMessage),pchar(FPWL.name),0);
-    finally
-      VMark.Free;
     end;
   end;
 end;
@@ -3970,16 +4004,22 @@ var
   VMark: TMarkFull;
   VLen: Extended;
   VMessage: string;
+  VPWL: TResObj;
 begin
-  VId := strtoint(FPWL.numid);
-  VMark := GState.MarksDb.GetMarkByID(VId);
-  if VMark <> nil then begin
-    try
-      VLen := GetMarkLength(VMark);
-      VMessage := SAS_STR_P+' - '+DistToStrWithUnits(VLen, GState.num_format);
-      MessageBox(Self.Handle, pchar(VMessage), pchar(FPWL.name),0);
-    finally
-      VMark.Free;
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    VId := strtoint(VPWL.numid);
+    VMark := GState.MarksDb.GetMarkByID(VId);
+    if VMark <> nil then begin
+      try
+        VLen := GetMarkLength(VMark);
+        VMessage := SAS_STR_P+' - '+DistToStrWithUnits(VLen, GState.num_format);
+        MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
+      finally
+        VMark.Free;
+      end;
     end;
   end;
 end;
