@@ -52,7 +52,9 @@ uses
   Graphics,
   u_GlobalState,
   u_JclNotify,
-  u_WindowLayerBasic;
+  u_WindowLayerBasic,
+  u_TileIteratorAbstract,
+  u_TileIteratorStuped;
 
 type
   TFillingMapListener = class(TJclBaseListener)
@@ -351,6 +353,7 @@ var
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
   i, j: integer;
+  VTileIterator: TTileIteratorAbstract;
 begin
   VBmp := TCustomBitmap32.Create;
   try
@@ -366,59 +369,57 @@ begin
       VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
       VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
-
-      for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
+      VTileIterator := TTileIteratorStuped.Create(VZoom, VSourceLonLatRect, VSourceGeoConvert);
+      while VTileIterator.Next do begin
         if FNeedRedrow then begin
           break;
         end;
-        VTile.X := i;
-        for j := VTileSourceRect.Top to VTileSourceRect.Bottom do begin
-          VTile.Y := j;
-          VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
-          VTilePixelsToDraw.TopLeft := Point(0, 0);
-          VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;
-          VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top + 1;
+        VTile.X := VTileIterator.Current.X;
+        VTile.Y := VTileIterator.Current.Y;
+        VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
+        VTilePixelsToDraw.TopLeft := Point(0, 0);
+        VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;
+        VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top + 1;
 
-          if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
-            VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
-            VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
-          end;
+        if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
+          VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
+          VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
+        end;
 
-          if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
-            VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
-            VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
-          end;
+        if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
+          VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
+          VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
+        end;
 
-          if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
-            VTilePixelsToDraw.Right := VPixelSourceRect.Right - VCurrTilePixelRectSource.Left + 1;
-            VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
-          end;
+        if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
+          VTilePixelsToDraw.Right := VPixelSourceRect.Right - VCurrTilePixelRectSource.Left + 1;
+          VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
+        end;
 
-          if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
-            VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top + 1;
-            VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
-          end;
+        if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
+          VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top + 1;
+          VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
+        end;
 
-          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
-          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
+        VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
+        VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-          if FNeedRedrow then begin
-            break;
-          end;
-          VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
-          VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
-          Inc(VCurrTilePixelRectAtBitmap.Bottom);
-          Inc(VCurrTilePixelRectAtBitmap.Right);
-          if FNeedRedrow then begin
-            break;
-          end;
-          if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
-            FLayer.FLayer.Bitmap.Lock;
-            try
-              FLayer.FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
-            finally
-              FLayer.FLayer.Bitmap.UnLock;
-            end;
+        if FNeedRedrow then begin
+          break;
+        end;
+        VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
+        VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+        Inc(VCurrTilePixelRectAtBitmap.Bottom);
+        Inc(VCurrTilePixelRectAtBitmap.Right);
+        if FNeedRedrow then begin
+          break;
+        end;
+        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
+          FLayer.FLayer.Bitmap.Lock;
+          try
+            FLayer.FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+          finally
+            FLayer.FLayer.Bitmap.UnLock;
           end;
         end;
       end;
@@ -427,6 +428,7 @@ begin
       Synchronize(UpdateLayer);
     end;
   finally
+    FreeAndNil(VTileIterator);
     VBmp.Free;
   end;
 end;

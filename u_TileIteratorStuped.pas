@@ -15,7 +15,8 @@ type
     FPolyg: TPointArray;
     FPixelRect: TRect;
   public
-    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
+    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter); overload;
+    constructor Create(AZoom: byte; ARectLL: TExtendedRect; AGeoConvert: ICoordConverter); overload;
     destructor Destroy; override;
     function Next: Boolean; override;
   end;
@@ -29,6 +30,17 @@ uses
 
 constructor TTileIteratorStuped.Create(AZoom: byte;
   APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
+begin
+  inherited;
+  FPolyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
+  FTilesTotal := GetDwnlNum(FPixelRect, FPolyg, true);
+  FTilesRect := FGeoConvert.PixelRect2TileRect(FPixelRect, FZoom);
+  p_x := FPixelRect.Left;
+  p_y := FPixelRect.Top;
+end;
+
+constructor TTileIteratorStuped.Create(AZoom: byte;
+  ARectLL: TExtendedRect; AGeoConvert: ICoordConverter);
 begin
   inherited;
   FPolyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
