@@ -545,7 +545,6 @@ type
     FSelectionRect: TExtendedRect;
     add_line_arr: TExtendedPointArray;
     reg_arr: TExtendedPointArray;
-    FPWL: TResObj;
 
     FLayerScaleLine: TLayerScaleLine;
     FLayerMapNal: TMapNalLayer;
@@ -3083,6 +3082,7 @@ var
   VClickLonLatRect: TExtendedRect;
   VPoly:  TExtendedPointArray;
   SelPointOnLine:boolean;
+  VPWL: TResObj;
 begin
   if (HintWindow<>nil) then begin
     HintWindow.ReleaseHandle;
@@ -3176,25 +3176,25 @@ begin
   if MapMoving then exit;
   if (Button=mbright)and(aoper=ao_movemap) then begin
     MouseUpPoint:=point(x,y);
-    FPWL.find:=false;
-    FPWL.S:=0;
+    VPWL.find:=false;
+    VPWL.S:=0;
     if FLayerMapMarks.Visible then begin
-      MouseOnMyReg(FPWL,Point(x,y));
+      MouseOnMyReg(VPWL,Point(x,y));
     end;  
-    NMarkEdit.Visible:=FPWL.find;
-    NMarkDel.Visible:=FPWL.find;
-    NMarkSep.Visible:=FPWL.find;
-    NMarkOper.Visible:=FPWL.find;
-    NMarkNav.Visible:=FPWL.find;
-    if (FPWL.find)and(FPWL.type_<>ROTpoint) then begin
-      NMarksCalcsSq.Visible:=(FPWL.type_=ROTPoly);
-      NMarksCalcsPer.Visible:=(FPWL.type_=ROTPoly);
-      NMarksCalcsLen.Visible:=(FPWL.type_=ROTline);
+    NMarkEdit.Visible:=VPWL.find;
+    NMarkDel.Visible:=VPWL.find;
+    NMarkSep.Visible:=VPWL.find;
+    NMarkOper.Visible:=VPWL.find;
+    NMarkNav.Visible:=VPWL.find;
+    if (VPWL.find)and(VPWL.type_<>ROTpoint) then begin
+      NMarksCalcsSq.Visible:=(VPWL.type_=ROTPoly);
+      NMarksCalcsPer.Visible:=(VPWL.type_=ROTPoly);
+      NMarksCalcsLen.Visible:=(VPWL.type_=ROTline);
       NMarksCalcs.Visible:=true;
     end else begin
       NMarksCalcs.Visible:=false;
     end;
-    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(FPWL.numid)) then begin
+    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(VPWL.numid)) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3415,6 +3415,7 @@ var
   VSelectionRect: TExtendedRect;
   VConverter: ICoordConverter;
   VLonLat: TExtendedPoint;
+  VPWL: TResObj;
 begin
   if ProgramClose then begin
     exit;
@@ -3524,25 +3525,25 @@ begin
  ShowActivHint:=false;
  if not(MapMoving)and((moveTrue.x<>X)or(moveTrue.y<>y))and(GState.ShowHintOnMarks) then
   begin
-   FPWL.S:=0;
-   FPWL.find:=false;
+   VPWL.S:=0;
+   VPWL.find:=false;
    if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(FPWL,Point(x,y));
+     FWikiLayer.MouseOnReg(VPWL,Point(x,y));
    if (FLayerMapMarks.Visible) then
-     MouseOnMyReg(FPWL,Point(x,y));
-   if (FPWL.find) then
+     MouseOnMyReg(VPWL,Point(x,y));
+   if (VPWL.find) then
     begin
      if HintWindow<>nil then HintWindow.ReleaseHandle;
-     if (length(FPWL.name)>0) then
+     if (length(VPWL.name)>0) then
       begin
-       if System.Pos('<',FPWL.name)>0 then nms:=HTML2Txt(FPWL.name)
-                                     else nms:=FPWL.name;
+       if System.Pos('<',VPWL.name)>0 then nms:=HTML2Txt(VPWL.name)
+                                     else nms:=VPWL.name;
       end;
-     if (length(FPWL.descr)>0) then
+     if (length(VPWL.descr)>0) then
       begin
        if length(nms)>0 then nms:=nms+#13#10;
-       if System.Pos('<',FPWL.descr)>0 then nms:=nms+HTML2Txt(FPWL.descr)
-                                      else nms:=nms+FPWL.descr;
+       if System.Pos('<',VPWL.descr)>0 then nms:=nms+HTML2Txt(VPWL.descr)
+                                      else nms:=nms+VPWL.descr;
       end;
      i:=1;
      j:=0;
