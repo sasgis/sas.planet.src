@@ -289,13 +289,16 @@ var
     begin
       if ID>0 then begin
         aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, nil);
+        aNode.StateIndex:=0;
       end else begin
         aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, Data);
+        aNode.StateIndex :=2;
+        if TCategoryId(Data).visible then begin
+          aNode.StateIndex :=1
+        end;
       end;
-      aNode.StateIndex :=2;
-      if TCategoryId(Data).visible then begin
-        aNode.StateIndex :=1
-      end;
+    end else begin
+      aNode.Data:=Data;
     end;
     AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data);
   end;
@@ -600,12 +603,9 @@ begin
     VCategory := TCategoryId(TreeView1.Selected.data);
     if FaddCategory.EditCategory(VCategory) then begin
       GState.MarksDb.WriteCategory(VCategory);
-      TreeView1.Selected.Text:=VCategory.name;
-      if VCategory.visible then begin
-        TreeView1.Selected.StateIndex:=1;
-      end else begin
-        TreeView1.Selected.StateIndex:=2;
-      end;
+
+      GState.MarksDb.Kategory2StringsWithObjects(katitems);
+      DrawTreeCategory(TreeView1,katitems);
     end;
   end;
 end;
