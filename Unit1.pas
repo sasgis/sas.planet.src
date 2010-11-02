@@ -1579,7 +1579,7 @@ begin
   VConverter := GState.MapType[0].GeoConvert;
   VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
   VConverter.CheckZoom(VZoom);
-  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2 + 1;
+  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2;
   VScreenCenterPos.Y := VScreenCenterPos.X;
   VScreenCenterPos := Point(
     GState.MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
