@@ -219,6 +219,7 @@ begin
   FPopup.Images := FIconsList.GetImageList;
 
   CreateLayers;
+  MasterAlpha := 150;
 
   LoadBitmaps;
   BuildPopUpMenu;
@@ -311,7 +312,6 @@ begin
     FBitmapSize.X := VConfigProvider.ReadInteger('Width', FBitmapSize.X);
     FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
     FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
-    Visible := VConfigProvider.ReadBool('Visible', True);
     MasterAlpha := VConfigProvider.ReadInteger('Alpha', 150);
     VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
     try
@@ -319,6 +319,7 @@ begin
     finally
       VMapConfigLoader := nil;
     end;
+    Visible := VConfigProvider.ReadBool('Visible', True);
   end else begin
     Visible := True;
   end;

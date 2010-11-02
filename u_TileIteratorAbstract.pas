@@ -17,7 +17,8 @@ type
     FTilesTotal: Int64;
     FTilesRect: TRect;
   public
-    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
+    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter); overload; virtual;
+    constructor Create(AZoom: byte; ARectLL: TExtendedRect; AGeoConvert: ICoordConverter); overload; virtual;
     destructor Destroy; override;
     function Next: Boolean; virtual; abstract;
     property Current: TPoint read FCurrent;
@@ -26,6 +27,9 @@ type
   end;
 
 implementation
+
+uses
+  Ugeofun;
 
 { TTileIteratorAbstract }
 
@@ -37,6 +41,11 @@ begin
   FGeoConvert := AGeoConvert;
 end;
 
+constructor TTileIteratorAbstract.Create(AZoom: byte;
+  ARectLL: TExtendedRect; AGeoConvert: ICoordConverter);
+begin
+  Create(AZoom, PolygonFromRect(ARectLL), AGeoConvert);
+end;
 
 destructor TTileIteratorAbstract.Destroy;
 begin

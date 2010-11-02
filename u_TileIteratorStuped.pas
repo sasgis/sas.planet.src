@@ -15,7 +15,7 @@ type
     FPolyg: TPointArray;
     FPixelRect: TRect;
   public
-    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
+    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter); override;
     destructor Destroy; override;
     function Next: Boolean; override;
   end;

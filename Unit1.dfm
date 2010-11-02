@@ -1,6 +1,6 @@
 object Fmain: TFmain
-  Left = 407
-  Top = 116
+  Left = 488
+  Top = 165
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -13,7 +13,7 @@ object Fmain: TFmain
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDesigned
   ShowHint = True
   OnActivate = FormActivate
   OnClose = FormClose
@@ -3017,7 +3017,7 @@ object Fmain: TFmain
     Height = 18
     ShareImages = True
     Width = 18
-    Left = 24
+    Left = 16
     Top = 136
     Bitmap = {
       494C010115001700040012001200E0DFE300FF10FFFFFFFFFFFFFFFF424D3600
@@ -4042,8 +4042,8 @@ object Fmain: TFmain
   object TBImageList2: TTBImageList
     Height = 24
     Width = 24
-    Left = 25
-    Top = 200
+    Left = 16
+    Top = 168
     Bitmap = {
       494C01010F001100040018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
@@ -5255,8 +5255,8 @@ object Fmain: TFmain
   object TBImageList1_24: TTBImageList
     Height = 17
     Width = 17
-    Left = 28
-    Top = 241
+    Left = 12
+    Top = 233
     Bitmap = {
       494C010119001B00040011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000044000000770000000100200000000000707E
@@ -6331,8 +6331,8 @@ object Fmain: TFmain
   object ImagesSrc24: TTBImageList
     Height = 24
     Width = 24
-    Left = 20
-    Top = 169
+    Left = 12
+    Top = 201
     Bitmap = {
       494C010104000600040018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
@@ -6936,8 +6936,8 @@ object Fmain: TFmain
       000000000000}
   end
   object EditCommentsImgs: TImageList
-    Left = 24
-    Top = 100
+    Left = 16
+    Top = 108
     Bitmap = {
       494C010109000B00040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
