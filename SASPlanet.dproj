@@ -356,6 +356,7 @@
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
+    <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />

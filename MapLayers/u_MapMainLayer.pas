@@ -14,6 +14,7 @@ uses
   i_IConfigDataWriteProvider,
   u_MapViewPortState,
   u_TileDownloaderUI,
+  u_MapLayerShowError,
   UMapType,
   u_MapLayerBasic;
 
@@ -21,9 +22,10 @@ type
   TMapMainLayer = class(TMapLayerBasic)
   private
     FUIDownLoader: TTileDownloaderUI;
-    FUseDownloadChangeNotifier: IJclNotifier;
     function GetUseDownload: TTileSource;
     procedure SetUseDownload(const Value: TTileSource);
+    procedure SetErrorShowLayer(const Value: TTileErrorInfoLayer);
+    function GetUseDownloadChangeNotifier: IJclNotifier;
   protected
     procedure DrawGenShBorders;
     procedure generate_granica;
@@ -37,7 +39,8 @@ type
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
     property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
-    property UseDownloadChangeNotifier: IJclNotifier read FUseDownloadChangeNotifier;
+    property UseDownloadChangeNotifier: IJclNotifier read GetUseDownloadChangeNotifier;
+    property ErrorShowLayer: TTileErrorInfoLayer write SetErrorShowLayer;
   end;
 
 const
@@ -60,11 +63,14 @@ uses
 
 { TMapMainLayer }
 
-constructor TMapMainLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TMapMainLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: TMapViewPortState
+);
 begin
   inherited;
-  FUIDownLoader := TTileDownloaderUI.Create;
-  FUseDownloadChangeNotifier := TJclBaseNotifier.Create;
+  FUIDownLoader := TTileDownloaderUI.Create(AViewPortState);
+  FUIDownLoader.MainLayer := Self;
 end;
 
 destructor TMapMainLayer.Destroy;
@@ -75,7 +81,6 @@ begin
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(FUIDownLoader.Handle, 0);
   end;
-  FUseDownloadChangeNotifier := nil;
   FreeAndNil(FUIDownLoader);
   inherited;
 end;
@@ -90,7 +95,6 @@ var
   VHybrList: IMapTypeList;
 begin
   inherited;
-  FUIDownLoader.change_scene := true;
   FLayer.Bitmap.Clear(Color32(GState.BGround));
   DrawMap(GState.ViewState.GetCurrentMap, dmOpaque);
 
@@ -472,6 +476,11 @@ begin
   Result := FUIDownLoader.UseDownload;
 end;
 
+function TMapMainLayer.GetUseDownloadChangeNotifier: IJclNotifier;
+begin
+  Result := FUIDownLoader.UseDownloadChangeNotifier;
+end;
+
 procedure TMapMainLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
@@ -509,13 +518,14 @@ begin
   FUIDownLoader.Terminate;
 end;
 
+procedure TMapMainLayer.SetErrorShowLayer(const Value: TTileErrorInfoLayer);
+begin
+  FUIDownLoader.ErrorShowLayer := Value;
+end;
+
 procedure TMapMainLayer.SetUseDownload(const Value: TTileSource);
 begin
-  if FUIDownLoader.UseDownload <> Value then begin
-    FUIDownLoader.UseDownload := Value;
-    FUIDownLoader.change_scene := True;
-    FUseDownloadChangeNotifier.Notify(nil);
-  end;
+  FUIDownLoader.UseDownload := Value;
 end;
 
 procedure TMapMainLayer.StartThreads;

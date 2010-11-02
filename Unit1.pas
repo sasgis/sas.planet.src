@@ -1680,6 +1680,8 @@ begin
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
 
+    FMainLayer.ErrorShowLayer := FShowErrorLayer;
+    
     CreateMapUI;
     FSettings.InitMapsList;
 
