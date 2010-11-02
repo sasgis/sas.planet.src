@@ -1134,13 +1134,13 @@ begin
                 end;
    WM_KEYUP: begin
              FdWhenMovingButton:=5;
-             if (Msg.wParam=VK_Delete)and(aoper=ao_line) then begin
-               if length(add_line_arr)>0 then begin
-                 delfrompath(lastpoint);
-                 TBEditPath.Visible:=(length(add_line_arr)>1);
-                 FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+             if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_line) then begin
+               if length(Fadd_line_arr)>0 then begin
+                 delfrompath(Flastpoint);
+                 TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+                 FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
                end else begin
-                 lastpoint:=-1;
+                 Flastpoint:=-1;
                end;
              end;
              if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_reg) then
@@ -1156,7 +1156,7 @@ begin
                 TBEditPath.Visible:=(length(Fadd_line_arr)>1);
                 FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
                end else begin
-                 lastpoint:=-1;
+                 Flastpoint:=-1;
                end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_Reg) then
               if length(Freg_arr)=0 then TBmoveClick(self)
@@ -1174,9 +1174,9 @@ begin
                            else setalloperationfalse(ao_movemap);
               end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_Add_Point) then setalloperationfalse(ao_movemap);
-             if (Msg.wParam=VK_ESCAPE)and(aoper in [ao_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
-               if (lastpoint>=0) then begin
-                 bkAO:=aoper;
+             if (Msg.wParam=VK_ESCAPE)and(FCurrentOper in [ao_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
+               if (Flastpoint>=0) then begin
+                 bkAO:=FCurrentOper;
                  setalloperationfalse(ao_movemap);
                  setalloperationfalse(bkAO);
                end else begin
@@ -1379,8 +1379,8 @@ begin
   if not(lastload.use) then begin
     case FCurrentOper of
       ao_line: begin
-        TBEditPath.Visible:=(length(add_line_arr)>1);
-        FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+        TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+        FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
       end;
       ao_reg: begin
         TBEditPath.Visible:=(length(Freg_arr)>1);
@@ -3144,30 +3144,30 @@ begin
     GState.ViewState.UnLockRead;
   end;
   if (Button=mbLeft)and(FCurrentOper<>ao_movemap) then begin
-    if (aoper in [ao_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
+    if (FCurrentOper in [ao_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
       movepoint:=true;
       SelPointOnLine:=false;
-      for i:=0 to length(add_line_arr)-1 do begin
-        if (VClickLonLatRect.Left < add_line_arr[i].X) and
-           (VClickLonLatRect.Top > add_line_arr[i].Y) and
-           (VClickLonLatRect.Right > add_line_arr[i].X) and
-           (VClickLonLatRect.Bottom < add_line_arr[i].Y)
+      for i:=0 to length(Fadd_line_arr)-1 do begin
+        if (VClickLonLatRect.Left < Fadd_line_arr[i].X) and
+           (VClickLonLatRect.Top > Fadd_line_arr[i].Y) and
+           (VClickLonLatRect.Right > Fadd_line_arr[i].X) and
+           (VClickLonLatRect.Bottom < Fadd_line_arr[i].Y)
         then begin
-          lastpoint:=i;
+          Flastpoint:=i;
           SelPointOnLine:=true;
           Break;
         end;
       end;
       if not(SelPointOnLine) then begin
-        inc(lastpoint);
-        insertinpath(lastpoint, VClickLonLat,add_line_arr);
+        inc(Flastpoint);
+        insertinpath(Flastpoint, VClickLonLat,Fadd_line_arr);
       end;
-      TBEditPath.Visible:=(length(add_line_arr)>1);
-      case aoper of
+      TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+      case FCurrentOper of
         ao_line:
-          FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+          FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
         ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly:
-          FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+          FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
       end;
     end;
     if (FCurrentOper=ao_Reg) then begin
@@ -3322,8 +3322,8 @@ begin
    FLayerStatBar.Redraw;
    FLayerScaleLine.Redraw;
    if FCurrentOper=ao_line then begin
-    TBEditPath.Visible:=(length(add_line_arr)>1);
-    FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+    TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+    FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
    end;
    if FCurrentOper=ao_reg then begin
     TBEditPath.Visible:=(length(Freg_arr)>1);
@@ -3484,12 +3484,12 @@ begin
  VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
  if (movepoint) then
   begin
-   add_line_arr[lastpoint]:=VLonLat;
+   Fadd_line_arr[Flastpoint]:=VLonLat;
    TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-   if (aoper=ao_line) then begin
-     FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+   if (FCurrentOper=ao_line) then begin
+     FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
    end else begin
-     FLayerMapNal.DrawNewPath(add_line_arr, (aoper=ao_add_poly)or(aoper=ao_edit_poly), lastpoint);
+     FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
    end;
    exit;
   end;
@@ -3700,10 +3700,10 @@ procedure TFmain.TBEditPathDelClick(Sender: TObject);
 begin
  case FCurrentOper of
   ao_line:
-        if lastpoint>0 then begin
-         if length(add_line_arr)>0 then delfrompath(lastpoint);
-         TBEditPath.Visible:=(length(add_line_arr)>1);
-         FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+        if Flastpoint>0 then begin
+         if length(Fadd_line_arr)>0 then delfrompath(Flastpoint);
+         TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+         FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
         end;
   ao_Reg : begin
          if length(Freg_arr)>0 then setlength(Freg_arr,length(Freg_arr)-1);
@@ -3724,7 +3724,7 @@ procedure TFmain.TBEditPathLabelClick(Sender: TObject);
 begin
   if FCurrentOper = ao_line then begin
     FLenShow:=not(FLenShow);
-    FLayerMapNal.DrawLineCalc(add_line_arr, LenShow, lastpoint);
+    FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
   end;
 end;
 
