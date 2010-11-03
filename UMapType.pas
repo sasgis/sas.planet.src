@@ -1066,10 +1066,18 @@ begin
       if (spr.Width < VSize.X) or
         (spr.Height < VSize.Y) then begin
         bSpr:=TCustomBitmap32.Create;
-        bSpr.Assign(spr);
-        spr.SetSize(VSize.X, VSize.Y);
-        spr.Draw(0,0,bSpr);
-        bSpr.Free;
+        try
+          bSpr.Assign(spr);
+          spr.SetSize(VSize.X, VSize.Y);
+          if asLayer then begin
+            spr.Clear(SetAlpha(Color32(GState.BGround),0));
+          end else begin
+            spr.Clear(Color32(GState.BGround));
+          end;
+          spr.Draw(0,0,bSpr);
+        finally
+          bSpr.Free;
+        end;
       end;
     end;
     if not Result then begin
