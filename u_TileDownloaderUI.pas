@@ -158,7 +158,7 @@ var
   VNeedDownload: Boolean;
 begin
   repeat
-    if UseDownload = tsCache then begin
+    if FUseDownload = tsCache then begin
       if Terminated then begin
         break;
       end;
@@ -259,13 +259,13 @@ begin
                     FlastLoad.use := true;
                     VNeedDownload := False;
                     if VMap.TileExists(FLoadXY, Fzoom) then begin
-                      if UseDownload = tsInternet then begin
+                      if FUseDownload = tsInternet then begin
                         if Now - VMap.TileLoadDate(FLoadXY, FZoom) > FTileMaxAgeInInternet then begin
                           VNeedDownload := True;
                         end;
                       end;
                     end else begin
-                      if (UseDownload = tsInternet) or (UseDownload = tsCacheInternet) then begin
+                      if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
                         if not(VMap.TileNotExistsOnServer(FLoadXY, Fzoom)) then begin
                           VNeedDownload := True;
                         end;
