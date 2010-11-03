@@ -481,7 +481,7 @@ begin
   FSync.BeginRead;
   try
     VMapRect := GetViewRectInMapPixel;
-    InternalGetCurrentCoordConverter.CheckPixelRect(VMapRect, FZoom, False);
+    InternalGetCurrentCoordConverter.CheckPixelRect(VMapRect, FZoom);
     Result := InternalGetCurrentCoordConverter.PixelRect2LonLatRect(VMapRect, FZoom);
   finally
     FSync.EndRead;

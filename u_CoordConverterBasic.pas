@@ -111,13 +111,13 @@ type
     function CheckZoom(var AZoom: Byte): boolean; override;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
-    function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; override;
+    function CheckTileRect(var XY: TRect; var Azoom: byte): boolean; override;
 
     function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelPosFloat(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelPosFloatStrict(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
-    function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; override;
+    function CheckPixelRect(var XY: TRect; var Azoom: byte): boolean; override;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; override;
     function CheckRelativeRect(var XY: TDoubleRect): boolean; override;
@@ -1016,8 +1016,8 @@ function TCoordConverterBasic.TileRect2PixelRectInternal(const XY: TRect;
 begin
   Result.Left := XY.Left shl 8;
   Result.Top := XY.Top shl 8;
-  Result.Right := (XY.Right + 1) shl 8 - 1;
-  Result.Bottom := (XY.Bottom + 1) shl 8 - 1;
+  Result.Right := (XY.Right + 1) shl 8;
+  Result.Bottom := (XY.Bottom + 1) shl 8;
 end;
 
 function TCoordConverterBasic.TileRect2LonLatRectInternal(
@@ -1034,8 +1034,8 @@ begin
   VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
   Result.Left := XY.Left / VTilesAtZoom;
   Result.Top := XY.Top / VTilesAtZoom;
-  Result.Right := (XY.Right + 1) / VTilesAtZoom;
-  Result.Bottom := (XY.Bottom + 1) / VTilesAtZoom;
+  Result.Right := (XY.Right) / VTilesAtZoom;
+  Result.Bottom := (XY.Bottom) / VTilesAtZoom;
 end;
 
 //------------------------------------------------------------------------------
@@ -1175,11 +1175,11 @@ var
 begin
   VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
 
-  Result.Left := Trunc((XY.Left + CTileRelativeEpsilon) * VTilesAtZoom);
-  Result.Top := Trunc((XY.Top + CTileRelativeEpsilon) * VTilesAtZoom);
+  Result.Left := Trunc((XY.Left) * VTilesAtZoom);
+  Result.Top := Trunc((XY.Top) * VTilesAtZoom);
 
-  Result.Right := Trunc((XY.Right - CTileRelativeEpsilon) * VTilesAtZoom);
-  Result.Bottom := Trunc((XY.Bottom - CTileRelativeEpsilon) * VTilesAtZoom);
+  Result.Right := Trunc((XY.Right) * VTilesAtZoom);
+  Result.Bottom := Trunc((XY.Bottom) * VTilesAtZoom);
 end;
 
 function TCoordConverterBasic.RelativeRect2TileRectFloatInternal(
@@ -1322,7 +1322,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean;
+function TCoordConverterBasic.CheckTileRect(var XY: TRect; var Azoom: byte): boolean;
 var
   VTilesAtZoom: Integer;
 begin
@@ -1335,19 +1335,11 @@ begin
 
   if XY.Left < 0 then begin
     Result := False;
-    if ACicleMap then begin
-      XY.Left := XY.Left mod VTilesAtZoom + VTilesAtZoom;
-    end else begin
-      XY.Left := 0;
-    end;
+    XY.Left := 0;
   end else begin
-    if XY.Left >= VTilesAtZoom then begin
+    if XY.Left > VTilesAtZoom then begin
       Result := False;
-      if ACicleMap then begin
-        XY.Left := XY.Left mod VTilesAtZoom;
-      end else begin
-        XY.Left := VTilesAtZoom - 1;
-      end;
+      XY.Left := VTilesAtZoom;
     end;
   end;
 
@@ -1355,27 +1347,19 @@ begin
     Result := False;
     XY.Top := 0;
   end else begin
-    if XY.Top >= VTilesAtZoom then begin
+    if XY.Top > VTilesAtZoom then begin
       Result := False;
-      XY.Top := VTilesAtZoom - 1;
+      XY.Top := VTilesAtZoom;
     end;
   end;
 
   if XY.Right < 0 then begin
     Result := False;
-    if ACicleMap then begin
-      XY.Right := XY.Right mod VTilesAtZoom + VTilesAtZoom;
-    end else begin
-      XY.Right := 0;
-    end;
+    XY.Right := 0;
   end else begin
-    if XY.Right >= VTilesAtZoom then begin
+    if XY.Right > VTilesAtZoom then begin
       Result := False;
-      if ACicleMap then begin
-        XY.Right := XY.Right mod VTilesAtZoom;
-      end else begin
-        XY.Right := VTilesAtZoom - 1;
-      end;
+      XY.Right := VTilesAtZoom;
     end;
   end;
 
@@ -1383,9 +1367,9 @@ begin
     Result := False;
     XY.Bottom := 0;
   end else begin
-    if XY.Bottom >= VTilesAtZoom then begin
+    if XY.Bottom > VTilesAtZoom then begin
       Result := False;
-      XY.Bottom := VTilesAtZoom - 1;
+      XY.Bottom := VTilesAtZoom;
     end;
   end;
 end;
@@ -1524,7 +1508,7 @@ begin
   end;
 end;
 
-function TCoordConverterBasic.CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean;
+function TCoordConverterBasic.CheckPixelRect(var XY: TRect; var Azoom: byte): boolean;
 var
   VPixelsAtZoom: Integer;
 begin
@@ -1537,19 +1521,11 @@ begin
 
   if XY.Left < 0 then begin
     Result := False;
-    if ACicleMap then begin
-      XY.Left := XY.Left mod VPixelsAtZoom + VPixelsAtZoom;
-    end else begin
-      XY.Left := 0;
-    end;
+    XY.Left := 0;
   end else begin
-    if (Azoom < 23) and (XY.Left >= VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Left > VPixelsAtZoom) then begin
       Result := False;
-      if ACicleMap then begin
-        XY.Left := XY.Left mod VPixelsAtZoom;
-      end else begin
-        XY.Left := VPixelsAtZoom - 1;
-      end;
+      XY.Left := VPixelsAtZoom;
     end;
   end;
 
@@ -1557,27 +1533,19 @@ begin
     Result := False;
     XY.Top := 0;
   end else begin
-    if (Azoom < 23) and (XY.Top >= VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
       Result := False;
-      XY.Top := VPixelsAtZoom - 1;
+      XY.Top := VPixelsAtZoom;
     end;
   end;
 
   if XY.Right < 0 then begin
     Result := False;
-    if ACicleMap then begin
-      XY.Right := XY.Right mod VPixelsAtZoom + VPixelsAtZoom;
-    end else begin
-      XY.Right := 0;
-    end;
+    XY.Right := 0;
   end else begin
-    if (Azoom < 23) and (XY.Right >= VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Right > VPixelsAtZoom) then begin
       Result := False;
-      if ACicleMap then begin
-        XY.Right := XY.Right mod VPixelsAtZoom;
-      end else begin
-        XY.Right := VPixelsAtZoom - 1;
-      end;
+      XY.Right := VPixelsAtZoom;
     end;
   end;
 
@@ -1585,9 +1553,9 @@ begin
     Result := False;
     XY.Bottom := 0;
   end else begin
-    if (Azoom < 23) and (XY.Bottom >= VPixelsAtZoom) then begin
+    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
       Result := False;
-      XY.Bottom := VPixelsAtZoom - 1;
+      XY.Bottom := VPixelsAtZoom;
     end;
   end;
 end;

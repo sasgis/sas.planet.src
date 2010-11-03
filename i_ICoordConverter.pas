@@ -142,13 +142,13 @@ type
     function CheckZoom(var AZoom: Byte): boolean; stdcall;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
     function CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
-    function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
+    function CheckTileRect(var XY: TRect; var Azoom: byte): boolean; stdcall;
 
     function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
     function CheckPixelPosFloat(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
     function CheckPixelPosFloatStrict(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
-    function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
+    function CheckPixelRect(var XY: TRect; var Azoom: byte): boolean; stdcall;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; stdcall;
     function CheckRelativeRect(var XY: TDoubleRect): boolean; stdcall;

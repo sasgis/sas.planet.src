@@ -67,7 +67,7 @@ begin
       VVisibleMapRect.Bottom := VVisibleMapRect.Top + VVisibleSize.Y;
     end;
 
-    VConverter.CheckPixelRect(VVisibleMapRect, VZoom, False);
+    VConverter.CheckPixelRect(VVisibleMapRect, VZoom);
     if GState.TilesOut > 0 then begin
       if (Result.Left > Result.Right) and (Result.Left - Result.Right <= GState.TilesOut * 2) then begin
       end else begin
@@ -76,7 +76,7 @@ begin
       end;
       Dec(Result.Top, GState.TilesOut);
       Inc(Result.Bottom, GState.TilesOut);
-      VConverter.CheckTileRect(Result, VZoom, False);
+      VConverter.CheckTileRect(Result, VZoom);
     end;
   end;
 end;

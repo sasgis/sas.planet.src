@@ -365,7 +365,7 @@ begin
     VBitmapOnMapPixelRect.TopLeft := FLayer.BitmapPixel2MapPixel(Point(0, 0));
     VBitmapOnMapPixelRect.BottomRight := FLayer.BitmapPixel2MapPixel(FLayer.GetBitmapSizeInPixel);
     if not FNeedRedrow then begin
-      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom, False);
+      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
       VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
       VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);

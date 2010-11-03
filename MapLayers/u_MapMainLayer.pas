@@ -139,7 +139,7 @@ begin
   VLoadedRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
   VLoadedRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
 
-  FGeoConvert.CheckPixelRect(VLoadedRect, VZoomCurr, False);
+  FGeoConvert.CheckPixelRect(VLoadedRect, VZoomCurr);
   VLoadedLonLatRect := FGeoConvert.PixelRect2LonLatRect(VLoadedRect, VZoomCurr);
 
   VGridLonLatRect.Left := VLoadedLonLatRect.Left - z.X;
@@ -317,7 +317,7 @@ begin
     VGeoConvert := FGeoConvert;
     VBitmapOnMapPixelRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
     VBitmapOnMapPixelRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
-    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom, False);
+    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
     VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
     VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
     VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
@@ -407,7 +407,7 @@ begin
   VLoadedRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
   VLoadedRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
 
-  FGeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom, False);
+  FGeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom);
   VLoadedRelativeRect := FGeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
   VTilesRect := FGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
 

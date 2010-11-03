@@ -200,13 +200,13 @@ type
     function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckTilePosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
-    function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
+    function CheckTileRect(var XY: TRect; var Azoom: byte): boolean; virtual; stdcall; abstract;
 
     function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelPosFloat(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelPosFloatStrict(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
-    function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
+    function CheckPixelRect(var XY: TRect; var Azoom: byte): boolean; virtual; stdcall; abstract;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function CheckRelativeRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
