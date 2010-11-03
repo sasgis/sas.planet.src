@@ -294,6 +294,7 @@ var
   VCurCoord: TDoublePoint;
   VAllocated: Integer;
   VUsed: Integer;
+  VValue: Extended;
 begin
   len := ALen;
   ii := 1;
@@ -312,7 +313,8 @@ begin
         VNumEndPos := PosOfChar(',', VCurPos, len - ii + 1);
         if VNumEndPos <> nil then begin
           VNumEndPos^ := #0;
-          if TextToFloat(VCurPos, VCurCoord.x, fvExtended, FFormat) then begin
+          if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
+            VCurCoord.x := VValue;
             VCurPos := VNumEndPos;
             Inc(VCurPos);
             ii := VCurPos - VLineStart + 1;
@@ -336,7 +338,8 @@ begin
               VNumEndPos := VLineStart + Len;
             end;
             VNumEndPos^ := #0;
-            if TextToFloat(VCurPos, VCurCoord.y, fvExtended, FFormat) then begin
+            if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
+              VCurCoord.Y := VValue;
               if VUsed >= VAllocated then begin
                 VAllocated := VAllocated * 2;
                 SetLength(Adata.coordinates, VAllocated);
