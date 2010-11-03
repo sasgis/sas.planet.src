@@ -253,27 +253,27 @@ begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.Left := 0;
   end else begin
-    if XY.Left >= VTilesAtZoom then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
-      XY.Left := VTilesAtZoom - 1;
+    if XY.Left > VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.Left := VTilesAtZoom;
     end;
   end;
   if XY.Top < 0 then begin
     Assert(False, 'Координата Y тайла не может быть меньше нуля');
     XY.Top := 0;
   end else begin
-    if XY.Top >= VTilesAtZoom then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
-      XY.Top := VTilesAtZoom - 1;
+    if XY.Top > VTilesAtZoom then begin
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.Top := VTilesAtZoom;
     end;
   end;
   if XY.Right < 0 then begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.Right := 0;
   end else begin
-    if XY.Right >= VTilesAtZoom then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
-      XY.Right := VTilesAtZoom - 1;
+    if XY.Right > VTilesAtZoom then begin
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.Right := VTilesAtZoom;
     end;
   end;
   if XY.Bottom < 0 then begin
@@ -281,8 +281,8 @@ begin
     XY.Bottom := 0;
   end else begin
     if XY.Bottom >= VTilesAtZoom then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равна ' + IntToStr(VTilesAtZoom));
-      XY.Bottom := VTilesAtZoom - 1;
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
+      XY.Bottom := VTilesAtZoom;
     end;
   end;
 end;
@@ -366,9 +366,9 @@ begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.Left := 0;
   end else begin
-    if (Azoom < 23) and (XY.Left >= VPixelsAtZoom) then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
-      XY.Left := VPixelsAtZoom - 1;
+    if (Azoom < 23) and (XY.Left > VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
+      XY.Left := VPixelsAtZoom;
     end;
   end;
 
@@ -377,8 +377,8 @@ begin
     XY.Top := 0;
   end else begin
     if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
-      XY.Top := VPixelsAtZoom - 1;
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
+      XY.Top := VPixelsAtZoom;
     end;
   end;
 
@@ -386,9 +386,9 @@ begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.Right := 0;
   end else begin
-    if (Azoom < 23) and (XY.Right >= VPixelsAtZoom) then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
-      XY.Right := VPixelsAtZoom - 1;
+    if (Azoom < 23) and (XY.Right > VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
+      XY.Right := VPixelsAtZoom;
     end;
   end;
 
@@ -397,8 +397,8 @@ begin
     XY.Bottom := 0;
   end else begin
     if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
-      XY.Bottom := VPixelsAtZoom - 1;
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
+      XY.Bottom := VPixelsAtZoom;
     end;
   end;
 end;
@@ -577,7 +577,7 @@ begin
     XY.X := 0;
   end else begin
     if XY.X > VTilesAtZoom then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равной ' + FloatToStr(VTilesAtZoom));
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + FloatToStr(VTilesAtZoom));
       XY.X := VTilesAtZoom;
     end;
   end;
@@ -586,7 +586,7 @@ begin
     XY.Y := 0;
   end else begin
     if XY.Y > VTilesAtZoom then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равной ' + FloatToStr(VTilesAtZoom));
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + FloatToStr(VTilesAtZoom));
       XY.Y := VTilesAtZoom;
     end;
   end;
@@ -608,7 +608,7 @@ begin
     XY.Left := 0;
   end else begin
     if (XY.Left > VPixelsAtZoom) then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + FloatToStr(VPixelsAtZoom));
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + FloatToStr(VPixelsAtZoom));
       XY.Left := VPixelsAtZoom;
     end;
   end;
@@ -618,7 +618,7 @@ begin
     XY.Top := 0;
   end else begin
     if (XY.Top > VPixelsAtZoom) then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + FloatToStr(VPixelsAtZoom));
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + FloatToStr(VPixelsAtZoom));
       XY.Top := VPixelsAtZoom;
     end;
   end;
@@ -627,8 +627,8 @@ begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.Right := 0;
   end else begin
-    if (XY.Right >= VPixelsAtZoom) then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + FloatToStr(VPixelsAtZoom));
+    if (XY.Right > VPixelsAtZoom) then begin
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + FloatToStr(VPixelsAtZoom));
       XY.Right := VPixelsAtZoom;
     end;
   end;
@@ -638,7 +638,7 @@ begin
     XY.Bottom := 0;
   end else begin
     if (XY.Bottom > VPixelsAtZoom) then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + FloatToStr(VPixelsAtZoom));
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + FloatToStr(VPixelsAtZoom));
       XY.Bottom := VPixelsAtZoom;
     end;
   end;
@@ -660,7 +660,7 @@ begin
     XY.X := 0;
   end else begin
     if XY.X > VPixelsAtZoom then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + FloatToStr(VPixelsAtZoom));
+      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + FloatToStr(VPixelsAtZoom));
       XY.X := VPixelsAtZoom;
     end;
   end;
@@ -670,7 +670,7 @@ begin
     XY.Y := 0;
   end else begin
     if XY.Y > VPixelsAtZoom then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + FloatToStr(VPixelsAtZoom));
+      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + FloatToStr(VPixelsAtZoom));
       XY.Y := VPixelsAtZoom;
     end;
   end;
@@ -700,7 +700,7 @@ begin
     XY.Top := 0;
   end else begin
     if XY.Top > VTilesAtZoom then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равна ' + FloatToStr(VTilesAtZoom));
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + FloatToStr(VTilesAtZoom));
       XY.Top := VTilesAtZoom;
     end;
   end;
@@ -709,7 +709,7 @@ begin
     XY.Right := 0;
   end else begin
     if XY.Right > VTilesAtZoom then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + FloatToStr(VTilesAtZoom));
+      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + FloatToStr(VTilesAtZoom));
       XY.Right := VTilesAtZoom;
     end;
   end;
@@ -718,7 +718,7 @@ begin
     XY.Bottom := 0;
   end else begin
     if XY.Bottom > VTilesAtZoom then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равна ' + FloatToStr(VTilesAtZoom));
+      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + FloatToStr(VTilesAtZoom));
       XY.Bottom := VTilesAtZoom;
     end;
   end;
@@ -727,7 +727,11 @@ end;
 //------------------------------------------------------------------------------
 function TCoordConverterBasic.PixelsAtZoomInternal(AZoom: byte): Longint;
 begin
-  Result := 1 shl (AZoom + 8);
+  if AZoom < 23 then begin
+    Result := 1 shl (AZoom + 8);
+  end else begin
+    Result := MaxInt;
+  end;
 end;
 
 function TCoordConverterBasic.PixelsAtZoomFloatInternal(
@@ -846,13 +850,9 @@ end;
 
 function TCoordConverterBasic.PixelRect2RelativeRectInternal(const XY: TRect;
   AZoom: byte): TDoubleRect;
-var
-  VBottomRight: TPoint;
 begin
   Result.TopLeft := PixelPos2RelativeInternal(XY.TopLeft, AZoom);
-  VBottomRight.X := XY.Right + 1;
-  VBottomRight.Y := XY.Bottom + 1;
-  Result.BottomRight := PixelPos2RelativeInternal(VBottomRight, AZoom);
+  Result.BottomRight := PixelPos2RelativeInternal(XY.BottomRight, AZoom);
 end;
 
 function TCoordConverterBasic.PixelRect2LonLatRectInternal(
@@ -926,8 +926,8 @@ function TCoordConverterBasic.TilePos2PixelRectInternal(const XY: TPoint;
 begin
   Result.Left := XY.X shl 8;
   Result.Top := XY.Y shl 8;
-  Result.Right := Result.Left + ((1 shl 8) - 1);
-  Result.Bottom := Result.Top + ((1 shl 8) - 1);
+  Result.Right := Result.Left + (1 shl 8);
+  Result.Bottom := Result.Top + (1 shl 8);
 end;
 
 function TCoordConverterBasic.TilePos2LonLatRectInternal(const XY: TPoint;
@@ -1016,8 +1016,8 @@ function TCoordConverterBasic.TileRect2PixelRectInternal(const XY: TRect;
 begin
   Result.Left := XY.Left shl 8;
   Result.Top := XY.Top shl 8;
-  Result.Right := (XY.Right + 1) shl 8;
-  Result.Bottom := (XY.Bottom + 1) shl 8;
+  Result.Right := XY.Right shl 8;
+  Result.Bottom := XY.Bottom shl 8;
 end;
 
 function TCoordConverterBasic.TileRect2LonLatRectInternal(
@@ -1034,8 +1034,8 @@ begin
   VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
   Result.Left := XY.Left / VTilesAtZoom;
   Result.Top := XY.Top / VTilesAtZoom;
-  Result.Right := (XY.Right) / VTilesAtZoom;
-  Result.Bottom := (XY.Bottom) / VTilesAtZoom;
+  Result.Right := XY.Right / VTilesAtZoom;
+  Result.Bottom := XY.Bottom / VTilesAtZoom;
 end;
 
 //------------------------------------------------------------------------------
@@ -1147,11 +1147,11 @@ var
 begin
   VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
 
-  Result.Left := Trunc((XY.Left + CTileRelativeEpsilon) * VPixelsAtZoom);
-  Result.Top := Trunc((XY.Top + CTileRelativeEpsilon) * VPixelsAtZoom);
+  Result.Left := Trunc(XY.Left * VPixelsAtZoom);
+  Result.Top := Trunc(XY.Top * VPixelsAtZoom);
 
-  Result.Right := Trunc((XY.Right - CTileRelativeEpsilon) * VPixelsAtZoom);
-  Result.Bottom := Trunc((XY.Bottom - CTileRelativeEpsilon) * VPixelsAtZoom);
+  Result.Right := Trunc(XY.Right * VPixelsAtZoom);
+  Result.Bottom := Trunc(XY.Bottom * VPixelsAtZoom);
 end;
 
 function TCoordConverterBasic.RelativeRect2PixelRectFloatInternal(
@@ -1623,7 +1623,7 @@ begin
       if ACicleMap then begin
         XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom + VPixelsAtZoom;
       end else begin
-        XY.X := VPixelsAtZoom - 0.000000000001;
+        XY.X := VPixelsAtZoom;
       end;
     end;
   end;
@@ -1634,7 +1634,7 @@ begin
   end else begin
     if (XY.Y >= VPixelsAtZoom) then begin
       Result := False;
-      XY.Y := VPixelsAtZoom - 0.0000000000001;
+      XY.Y := VPixelsAtZoom;
     end;
   end;
 end;
