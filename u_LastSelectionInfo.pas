@@ -18,7 +18,7 @@ type
     FColor32: TColor32;
     FChangeNotifier: IJclNotifier;
     // Полигон последнего выделения при операциях с областью.
-    FPolygon: TExtendedPointArray;
+    FPolygon: TDoublePointArray;
     // Масштаб, на котором было последнее выделение
     FZoom: Byte;
   public
@@ -27,10 +27,10 @@ type
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
     procedure SetColor(AColor: TColor; AAlfa: Byte);
-    procedure SetPolygon(APolygon: TExtendedPointArray; AZoom: Byte);
+    procedure SetPolygon(APolygon: TDoublePointArray; AZoom: Byte);
 
     property Zoom: Byte read FZoom;
-    property Polygon: TExtendedPointArray read FPolygon;
+    property Polygon: TDoublePointArray read FPolygon;
     property Color: TColor read FColor;
     property Alfa: Byte read FAlfa;
     property Color32: TColor32 read FColor32;
@@ -63,7 +63,7 @@ end;
 procedure TLastSelectionInfo.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   i: Integer;
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
   VValidPoint: Boolean;
 begin
   if AConfigProvider <> nil then begin
@@ -114,7 +114,7 @@ begin
   FChangeNotifier.Notify(nil);
 end;
 
-procedure TLastSelectionInfo.SetPolygon(APolygon: TExtendedPointArray;
+procedure TLastSelectionInfo.SetPolygon(APolygon: TDoublePointArray;
   AZoom: Byte);
 begin
   FPolygon := copy(APolygon);

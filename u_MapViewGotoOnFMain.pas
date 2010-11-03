@@ -9,7 +9,7 @@ uses
 type
   TMapViewGotoOnFMain = class(TInterfacedObject, IMapViewGoto)
   private
-    procedure GotoPos(ALonLat: TExtendedPoint; AZoom: Byte);
+    procedure GotoPos(ALonLat: TDoublePoint; AZoom: Byte);
   end;
 
 implementation
@@ -19,9 +19,9 @@ uses
 
 { TMapViewGotoOnFMain }
 
-procedure TMapViewGotoOnFMain.GotoPos(ALonLat: TExtendedPoint; AZoom: Byte);
+procedure TMapViewGotoOnFMain.GotoPos(ALonLat: TDoublePoint; AZoom: Byte);
 var
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
   VPoint.X := ALonLat.X;
   VPoint.Y := ALonLat.Y;

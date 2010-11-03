@@ -69,7 +69,7 @@ function TTileStorageAbstract.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint;
   Azoom, ASourceZoom: byte; IsStop: PBoolean): boolean;
 var
   VPixelsRect: TRect;
-  VRelativeRect: TExtendedRect;
+  VRelativeRect: TDoubleRect;
   VSourceTilesRect: TRect;
   VCurrTile: TPoint;
   VTileSize: TPoint;

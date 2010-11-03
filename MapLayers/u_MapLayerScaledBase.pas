@@ -25,11 +25,11 @@ uses
 procedure TMapLayerScaledBase.DoUpdatelLayerLocation;
 var
   VMapRect: TRect;
-  VVisibleRect: TExtendedRect;
+  VVisibleRect: TDoubleRect;
 begin
   inherited;
   VMapRect := GetVisibleRectInMapPixels;
-  VVisibleRect := FViewPortState.MapRect2VisibleRect(ExtendedRect(VMapRect));
+  VVisibleRect := FViewPortState.MapRect2VisibleRect(DoubleRect(VMapRect));
   FLayerPositioned.Location := FloatRect(
     VVisibleRect.Left,
     VVisibleRect.Top,

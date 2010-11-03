@@ -15,11 +15,11 @@ type
   public
     constructor Create(AParent: TWinControl);
     function GetCaption: string; virtual; abstract;
-    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); virtual; abstract;
+    procedure InitFrame(Azoom: byte; APolygon: TDoublePointArray); virtual; abstract;
     procedure Show; virtual; abstract;
     procedure Hide; virtual; abstract;
     procedure RefreshTranslation; virtual; abstract;
-    procedure StartProcess(APolygon: TExtendedPointArray); virtual; abstract;
+    procedure StartProcess(APolygon: TDoublePointArray); virtual; abstract;
   end;
 implementation
 

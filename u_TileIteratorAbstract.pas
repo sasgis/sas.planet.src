@@ -20,13 +20,13 @@ type
 
   TTileIteratorByPolygonAbstract = class(TTileIteratorAbstract)
   protected
-    FPolygLL: TExtendedPointArray;
+    FPolygLL: TDoublePointArray;
     FZoom: byte;
     FGeoConvert: ICoordConverter;
     FCurrent: TPoint;
   public
-    constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter); overload; virtual;
-    constructor Create(AZoom: byte; ARectLL: TExtendedRect; AGeoConvert: ICoordConverter); overload; virtual;
+    constructor Create(AZoom: byte; APolygLL: TDoublePointArray; AGeoConvert: ICoordConverter); overload; virtual;
+    constructor Create(AZoom: byte; ARectLL: TDoubleRect; AGeoConvert: ICoordConverter); overload; virtual;
     destructor Destroy; override;
   end;
 
@@ -38,7 +38,7 @@ uses
 { TTileIteratorByPolygonAbstract }
 
 constructor TTileIteratorByPolygonAbstract.Create(AZoom: byte;
-  APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
+  APolygLL: TDoublePointArray; AGeoConvert: ICoordConverter);
 begin
   FZoom := AZoom;
   FPolygLL := Copy(APolygLL);
@@ -46,7 +46,7 @@ begin
 end;
 
 constructor TTileIteratorByPolygonAbstract.Create(AZoom: byte;
-  ARectLL: TExtendedRect; AGeoConvert: ICoordConverter);
+  ARectLL: TDoubleRect; AGeoConvert: ICoordConverter);
 begin
   Create(AZoom, PolygonFromRect(ARectLL), AGeoConvert);
 end;
@@ -59,3 +59,5 @@ begin
 end;
 
 end.
+
+

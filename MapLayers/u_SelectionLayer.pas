@@ -17,12 +17,12 @@ type
   TSelectionLayer = class(TMapLayerScaledBase)
   protected
     FColor: TColor32;
-    FPolygon: TExtendedPointArray;
+    FPolygon: TDoublePointArray;
     FSelectionChangeListener: IJclListener;
     procedure DoRedraw; override;
     function GetVisibleRectInMapPixels: TRect; override;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
-    function LonLatArrayToVisualFloatArray(APolygon: TExtendedPointArray): TExtendedPointArray;
+    function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
     procedure ChangeSelection(Sender: TObject);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -118,11 +118,11 @@ begin
 end;
 
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
-  APolygon: TExtendedPointArray): TExtendedPointArray;
+  APolygon: TDoublePointArray): TDoublePointArray;
 var
   i: Integer;
   VPointsCount: Integer;
-  VViewRect: TExtendedRect;
+  VViewRect: TDoubleRect;
 begin
   VPointsCount := Length(APolygon);
   SetLength(Result, VPointsCount);
@@ -131,7 +131,7 @@ begin
     for i := 0 to VPointsCount - 1 do begin
       Result[i] := FViewPortState.LonLat2VisiblePixel(APolygon[i]);
     end;
-    VViewRect := ExtendedRect(FViewPortState.GetViewRectInVisualPixel);
+    VViewRect := DoubleRect(FViewPortState.GetViewRectInVisualPixel);
   finally
     FViewPortState.UnLockRead;
   end;
@@ -139,7 +139,7 @@ end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
 var
-  VVisualPolygon: TExtendedPointArray;
+  VVisualPolygon: TDoublePointArray;
   VFloatPoints: TArrayOfFloatPoint;
   VPointCount: Integer;
   i: Integer;

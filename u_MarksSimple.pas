@@ -24,8 +24,8 @@ type
   TMarkFull = class(TMarkId)
     CategoryId: Integer;
     Desc: string;
-    LLRect: TExtendedRect;
-    Points: TExtendedPointArray;
+    LLRect: TDoubleRect;
+    Points: TDoublePointArray;
     PicName: string;
     Color1: TColor32;
     Color2: TColor32;
@@ -36,7 +36,7 @@ type
     function IsLine: Boolean;
     function IsPoly: Boolean;
     procedure ClosePoly;
-    function GetGoToLonLat: TExtendedPoint;
+    function GetGoToLonLat: TDoublePoint;
     procedure Assign(ASource: TMarkFull);
   end;
 
@@ -87,7 +87,7 @@ begin
   end;
 end;
 
-function TMarkFull.GetGoToLonLat: TExtendedPoint;
+function TMarkFull.GetGoToLonLat: TDoublePoint;
 begin
   Result.X := 0;
   Result.Y := 0;

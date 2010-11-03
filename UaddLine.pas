@@ -130,7 +130,7 @@ end;
 
 procedure TFaddLine.BaddClick(Sender: TObject);
 var i:integer;
-    alltl,allbr:TExtendedPoint;
+    alltl,allbr:TDoublePoint;
     VPointCount: integer;
     VCategory: TCategoryId;
     VIndex: Integer;

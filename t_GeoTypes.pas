@@ -10,18 +10,6 @@ type
     X, Y: Double;
   end;
 
-  TExtendedPoint = record
-    X, Y: Extended;
-  end;
-
-  TExtendedRect = packed record
-    case Integer of
-      0: (Left, Top: Extended;
-        Reserved: Longint;
-        Right, Bottom: Extended);
-      1: (TopLeft, BottomRight: TExtendedPoint);
-  end;
-
   TDoubleRect = packed record
     case Integer of
       0: (Left, Top: Double;
@@ -31,7 +19,7 @@ type
 
   TPointArray = array of TPoint;
 
-  TExtendedPointArray = array of TExtendedPoint;
+  TDoublePointArray = array of TDoublePoint;
 
 // Скопировал из ECWReader что бы не добавлять лишние зависимости от того юнита.
 {$MINENUMSIZE 4}

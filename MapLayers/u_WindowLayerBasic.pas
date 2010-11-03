@@ -75,9 +75,9 @@ type
     function GetFreezePointInBitmapPixel: TPoint; virtual; abstract;
 
     function BitmapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload; virtual;
-    function BitmapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+    function BitmapPixel2VisiblePixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
     function VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
-    function VisiblePixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+    function VisiblePixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
 
     // Переводит координаты прямоугольника битмапки в координаты VisualPixel
     function GetMapLayerLocationRect: TRect; virtual;
@@ -289,7 +289,7 @@ begin
 end;
 
 function TWindowLayerBasicOld.VisiblePixel2BitmapPixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VFreezePointInVisualPixel: TPoint;
   VFreezePointInBitmapPixel: TPoint;
@@ -333,7 +333,7 @@ begin
 end;
 
 function TWindowLayerBasicOld.BitmapPixel2VisiblePixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VFreezePointInVisualPixel: TPoint;
   VFreezePointInBitmapPixel: TPoint;

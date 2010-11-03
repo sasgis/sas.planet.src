@@ -10,41 +10,41 @@ uses
 type
   TGPSPositionStatic = class(TInterfacedObject, IGPSPosition)
   private
-    FPosition: TExtendedPoint;
-    FAltitude: Extended;
-    FSpeed_KMH: Extended;
-    FHeading: Extended;
+    FPosition: TDoublePoint;
+    FAltitude: Double;
+    FSpeed_KMH: Double;
+    FHeading: Double;
     FUTCDateTime: TDateTime;
     FLocalDateTime: TDateTime;
     FIsFix: Word;
-    FHDOP: Extended;
-    FVDOP: Extended;
-    FPDOP: Extended;
+    FHDOP: Double;
+    FVDOP: Double;
+    FPDOP: Double;
     FSatellites: IGPSSatellitesInView;
   protected
-    function GetPosition: TExtendedPoint; stdcall;
-    function GetAltitude: Extended; stdcall;
-    function GetSpeed_KMH: Extended; stdcall;
-    function GetHeading: Extended; stdcall;
+    function GetPosition: TDoublePoint; stdcall;
+    function GetAltitude: Double; stdcall;
+    function GetSpeed_KMH: Double; stdcall;
+    function GetHeading: Double; stdcall;
     function GetUTCDateTime: TDateTime; stdcall;
     function GetLocalDateTime: TDateTime; stdcall;
     function GetIsFix: Word; stdcall;
-    function GetHDOP: Extended; stdcall;
-    function GetVDOP: Extended; stdcall;
-    function GetPDOP: Extended; stdcall;
+    function GetHDOP: Double; stdcall;
+    function GetVDOP: Double; stdcall;
+    function GetPDOP: Double; stdcall;
     function GetSatellites: IGPSSatellitesInView; stdcall;
   public
     constructor Create(
-      APosition: TExtendedPoint;
-      AAltitude: Extended;
-      ASpeed_KMH: Extended;
-      AHeading: Extended;
+      APosition: TDoublePoint;
+      AAltitude: Double;
+      ASpeed_KMH: Double;
+      AHeading: Double;
       AUTCDateTime: TDateTime;
       ALocalDateTime: TDateTime;
       AIsFix: Word;
-      AHDOP: Extended;
-      AVDOP: Extended;
-      APDOP: Extended;
+      AHDOP: Double;
+      AVDOP: Double;
+      APDOP: Double;
       ASatellites: IGPSSatellitesInView
     );
     destructor Destroy; override;
@@ -55,9 +55,9 @@ implementation
 { TGPSPosition }
 
 constructor TGPSPositionStatic.Create(
-  APosition: TExtendedPoint; AAltitude, ASpeed_KMH, AHeading: Extended;
+  APosition: TDoublePoint; AAltitude, ASpeed_KMH, AHeading: Double;
   AUTCDateTime, ALocalDateTime: TDateTime; AIsFix: Word; AHDOP, AVDOP,
-  APDOP: Extended; ASatellites: IGPSSatellitesInView);
+  APDOP: Double; ASatellites: IGPSSatellitesInView);
 begin
   FPosition := APosition;
   FAltitude := AAltitude;
@@ -78,17 +78,17 @@ begin
   inherited;
 end;
 
-function TGPSPositionStatic.GetAltitude: Extended;
+function TGPSPositionStatic.GetAltitude: Double;
 begin
   Result := FAltitude;
 end;
 
-function TGPSPositionStatic.GetHDOP: Extended;
+function TGPSPositionStatic.GetHDOP: Double;
 begin
   Result := FHDOP;
 end;
 
-function TGPSPositionStatic.GetHeading: Extended;
+function TGPSPositionStatic.GetHeading: Double;
 begin
   Result := FHeading;
 end;
@@ -103,12 +103,12 @@ begin
   Result := FLocalDateTime;
 end;
 
-function TGPSPositionStatic.GetPDOP: Extended;
+function TGPSPositionStatic.GetPDOP: Double;
 begin
   Result := FPDOP;
 end;
 
-function TGPSPositionStatic.GetPosition: TExtendedPoint;
+function TGPSPositionStatic.GetPosition: TDoublePoint;
 begin
   Result := FPosition;
 end;
@@ -118,7 +118,7 @@ begin
   Result := FSatellites;
 end;
 
-function TGPSPositionStatic.GetSpeed_KMH: Extended;
+function TGPSPositionStatic.GetSpeed_KMH: Double;
 begin
   Result := FSpeed_KMH;
 end;
@@ -128,7 +128,7 @@ begin
   Result := FUTCDateTime;
 end;
 
-function TGPSPositionStatic.GetVDOP: Extended;
+function TGPSPositionStatic.GetVDOP: Double;
 begin
   Result := FVDOP;
 end;

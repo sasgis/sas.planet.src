@@ -16,11 +16,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
+    procedure InitFrame(Azoom: byte; APolygon: TDoublePointArray); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TExtendedPointArray); override;
+    procedure StartProcess(APolygon: TDoublePointArray); override;
   end;
 
 
@@ -46,7 +46,7 @@ begin
   Result := _('Удаление');
 end;
 
-procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
+procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TDoublePointArray);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDelete.Create(nil);
@@ -84,7 +84,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDelete.StartProcess(APolygon: TExtendedPointArray);
+procedure TProviderTilesDelete.StartProcess(APolygon: TDoublePointArray);
 var
   VMapType: TMapType;
   VDelBySize: Boolean;

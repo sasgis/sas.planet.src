@@ -19,8 +19,8 @@ uses
 
 type
 TBMPbuf = record BMPTile: array [1..2] of TCustomBitmap32;
-                 UpLatLon: array [1..2] of TExtendedPoint;
-                 DownLatLon: array [1..2] of TExtendedPoint;
+                 UpLatLon: array [1..2] of TDoublePoint;
+                 DownLatLon: array [1..2] of TDoublePoint;
                  TileRez: array [1..2] of Extended;
                  count:byte; end;
 
@@ -214,7 +214,7 @@ function FillBuff(cachepath:string;var x,y:integer;var z:byte;SourcePoint:TPoint
 
 var TileStream:TmemoryStream;
     XY:TPoint;
-    LatLon:TExtendedPoint;
+    LatLon:TDoublePoint;
     i:byte;
     inBuf,isJpgStream:Boolean;
 begin
@@ -259,7 +259,7 @@ begin
      end;
 end;
 
-function GetPixNum(var PixCoord:TExtendedPoint;var ID:byte):TPoint;
+function GetPixNum(var PixCoord:TDoublePoint;var ID:byte):TPoint;
 begin
   if (PixCoord.x=BMP_Bufer.UpLatLon[ID].x) and
      (PixCoord.y<=BMP_Bufer.UpLatLon[ID].y) and
@@ -273,7 +273,7 @@ begin
 end;
 
 procedure MakeInterlaseTile(ResTile:TCustomBitmap32;UpXY:TPoint;Level,id1,id2:byte;Aconv:ICoordConverter);
-var LineCoord:TExtendedPoint;
+var LineCoord:TDoublePoint;
     J_GE:Tpoint;
     J_GM:byte;
 begin
@@ -296,7 +296,7 @@ begin
 end;
 
 function GetGETile(ResTile:TCustomBitmap32;cachepath:string;x,y:integer;z:byte;AConv:ICoordConverter):boolean;
-var Up,Down:TExtendedPoint;
+var Up,Down:TDoublePoint;
     UpXY,DownXY,gXY1,gXY2:TPoint;
     id1,id2:byte;
     abort:boolean;
@@ -331,7 +331,7 @@ begin
 end;
 
 function GETileExists(cachepath:string;x,y:integer;z:byte;AConv:ICoordConverter):boolean;
-var Up,Down:TExtendedPoint;
+var Up,Down:TDoublePoint;
     UpXY,DownXY,gXY1,gXY2:TPoint;
     bsize:integer;
     CoordConverter:ICoordConverter;

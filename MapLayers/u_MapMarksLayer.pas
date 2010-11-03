@@ -13,16 +13,16 @@ uses
 type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
-    FLLRect: TExtendedRect;
+    FLLRect: TDoubleRect;
     FTempBmp: TCustomBitmap32;
 {$IFDEF USE_VPR}
     FFixedPointArray: TArrayOfFloatPoint;
-    procedure PreparePolygonNew(pathll: TExtendedPointArray; poly: Boolean; var ATargetPointsCount: Integer);
-    procedure drawPathNew(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
+    procedure PreparePolygonNew(pathll: TDoublePointArray; poly: Boolean; var ATargetPointsCount: Integer);
+    procedure drawPathNew(pathll: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
 {$ENDIF}
-    procedure PreparePolygon(pathll: TExtendedPointArray; polygon: TPolygon32);
-    procedure drawPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
-    procedure DrawPoint(ALL: TExtendedPoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
+    procedure PreparePolygon(pathll: TDoublePointArray; polygon: TPolygon32);
+    procedure drawPath(pathll: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
+    procedure DrawPoint(ALL: TDoublePoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
     procedure DrawMarks;
     procedure DoRedraw; override;
   public
@@ -64,15 +64,15 @@ begin
   FTempBmp.Resampler := TLinearResampler.Create;
 end;
 
-procedure TMapMarksLayer.PreparePolygon(pathll: TExtendedPointArray;
+procedure TMapMarksLayer.PreparePolygon(pathll: TDoublePointArray;
   polygon: TPolygon32);
 var
   i, adp, j: integer;
-  k1: TextendedPoint;
-  k2: TextendedPoint;
-  k4: TextendedPoint;
-  k3: TextendedPoint;
-  VLonLat: TExtendedPoint;
+  k1: TDoublePoint;
+  k2: TDoublePoint;
+  k4: TDoublePoint;
+  k3: TDoublePoint;
+  VLonLat: TDoublePoint;
 begin
   for i := 0 to length(pathll) - 1 do begin
     VLonLat := pathll[i];
@@ -92,10 +92,10 @@ begin
       end else begin
         adp := Trunc((k2.y - k1.y) / 32767) + 2;
       end;
-      k3 := extPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+      k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
       if adp > 2 then begin
         for j := 1 to adp - 1 do begin
-          k4 := extPoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
+          k4 := DoublePoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
           if (k4.x < 32767) and (k4.x > -32767) and (k4.y < 32767) and (k4.y > -32767) then begin
             polygon.Add(FixedPoint(k4.x, k4.y));
           end;
@@ -105,7 +105,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.drawPath(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
+procedure TMapMarksLayer.drawPath(pathll: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
 var
   polygon: TPolygon32;
 begin
@@ -139,22 +139,22 @@ begin
 end;
 
 {$IFDEF USE_VPR}
-procedure TMapMarksLayer.PreparePolygonNew(pathll: TExtendedPointArray;
+procedure TMapMarksLayer.PreparePolygonNew(pathll: TDoublePointArray;
   poly: Boolean; var ATargetPointsCount: Integer);
 var
   i, j: integer;
-  VLonLat: TExtendedPoint;
-  VMapPoint: TExtendedPoint;
-  VBitmapPointCurr: TExtendedPoint;
-  VBitmapPointPrev: TExtendedPoint;
+  VLonLat: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VBitmapPointCurr: TDoublePoint;
+  VBitmapPointPrev: TDoublePoint;
   VPointsCount: Integer;
   VDist: Extended;
   VArrayLen: integer;
-  VDelta: TExtendedPoint;
+  VDelta: TDoublePoint;
   VMaxDelta: Extended;
   VSplitCount: Integer;
-  VStepDelta: TExtendedPoint;
-  VTempPoint: TExtendedPoint;
+  VStepDelta: TDoublePoint;
+  VTempPoint: TDoublePoint;
 const
   CRectSize = 1 shl 14;
 begin
@@ -224,7 +224,7 @@ begin
   SetLength(FFixedPointArray, ATargetPointsCount);
 end;
 
-procedure TMapMarksLayer.drawPathNew(pathll: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
+procedure TMapMarksLayer.drawPathNew(pathll: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
 var
   VTargetPointsCount: Integer;
   VPolyline: TArrayOfFloatPoint;
@@ -246,7 +246,7 @@ end;
 
 {$ENDIF}
 
-procedure TMapMarksLayer.DrawPoint(ALL: TExtendedPoint; AName, APicName: string;
+procedure TMapMarksLayer.DrawPoint(ALL: TDoublePoint; AName, APicName: string;
   AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
 var
   xy: Tpoint;
@@ -276,8 +276,8 @@ end;
 
 procedure TMapMarksLayer.DrawMarks;
 var
-  TestArrLenLonLatRect: TExtendedRect;
-  TestArrLenPixelRect: TExtendedRect;
+  TestArrLenLonLatRect: TDoubleRect;
+  TestArrLenPixelRect: TDoubleRect;
   VScale1: Integer;
   VPointCount: Integer;
   VMarksIterator: TMarksIteratorBase;

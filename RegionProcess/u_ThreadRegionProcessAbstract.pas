@@ -27,7 +27,7 @@ type
     procedure UpdateProgressFormClose;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction); virtual;
   protected
-    FPolygLL: TExtendedPointArray;
+    FPolygLL: TDoublePointArray;
 
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
@@ -43,7 +43,7 @@ type
     procedure Terminate; reintroduce; virtual;
   public
     constructor Create(
-      APolygon: TExtendedPointArray
+      APolygon: TDoublePointArray
     );
     destructor Destroy; override;
   end;
@@ -60,7 +60,7 @@ begin
   Terminate;
 end;
 
-constructor TThreadRegionProcessAbstract.Create(APolygon: TExtendedPointArray);
+constructor TThreadRegionProcessAbstract.Create(APolygon: TDoublePointArray);
 begin
   inherited Create(false);
   Priority := tpLowest;

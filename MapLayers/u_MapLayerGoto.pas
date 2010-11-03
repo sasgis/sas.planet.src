@@ -14,7 +14,7 @@ uses
 type
   TGotoLayer = class(TMapLayerBasic)
   protected
-    FGotoPoint: TExtendedPoint;
+    FGotoPoint: TDoublePoint;
     FHideAfterTime: Cardinal;
     FBitmapSize: TPoint;
     FGoToSelIcon: TCustomBitmap32;
@@ -24,7 +24,7 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
-    procedure ShowGotoIcon(APoint: TExtendedPoint);
+    procedure ShowGotoIcon(APoint: TDoublePoint);
   end;
 
 
@@ -94,7 +94,7 @@ begin
   Result.Y := Result.Y + (FScreenCenterPos.Y - VGotoPoint.Y);
 end;
 
-procedure TGotoLayer.ShowGotoIcon(APoint: TExtendedPoint);
+procedure TGotoLayer.ShowGotoIcon(APoint: TDoublePoint);
 begin
   FGotoPoint := APoint;
   FHideAfterTime := GetTickCount + 100000;

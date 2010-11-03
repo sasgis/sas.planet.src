@@ -30,7 +30,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function Execute(var ALonLatRect: TExtendedRect): Boolean;
+    function Execute(var ALonLatRect: TDoubleRect): Boolean;
     procedure RefreshTranslation; override;
   end;
 
@@ -55,7 +55,7 @@ begin
   inherited;
 end;
 
-function TFSelLonLat.Execute(var ALonLatRect: TExtendedRect): Boolean;
+function TFSelLonLat.Execute(var ALonLatRect: TDoubleRect): Boolean;
 begin
   FfrLonLatTopLeft.LonLat := ALonLatRect.TopLeft;
   FfrLonLatBottomRight.LonLat := ALonLatRect.BottomRight;

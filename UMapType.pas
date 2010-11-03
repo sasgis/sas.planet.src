@@ -322,8 +322,8 @@ var
   projection: byte;
   VConverter: TCoordConverterBasic;
   VParams: IConfigDataProvider;
-  VRadiusA: extended;
-  VRadiusB: extended;
+  VRadiusA: Double;
+  VRadiusB: Double;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
@@ -653,7 +653,7 @@ function TMapType.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
 var
   VPixelsRect: TRect;
-  VRelativeRect: TExtendedRect;
+  VRelativeRect: TDoubleRect;
   VSourceTilesRect: TRect;
   VCurrTile: TPoint;
   VTileSize: TPoint;
@@ -989,8 +989,8 @@ var
   VTileParent: TPoint;
   VTargetTilePixelRect: TRect;
   VSourceTilePixelRect: TRect;
-  VRelative: TExtendedPoint;
-  VRelativeRect: TExtendedRect;
+  VRelative: TDoublePoint;
+  VRelativeRect: TDoubleRect;
   VParentZoom: Byte;
 begin
   result:=false;
@@ -1272,7 +1272,7 @@ function TMapType.LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect;
   AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
 var
   VSameCoordConvert: Boolean;
-  VLonLatRectTarget: TExtendedRect;
+  VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
   VAllTilesExits: Boolean;
@@ -1281,7 +1281,7 @@ var
   VSpr:TCustomBitmap32;
   VLoadResult: Boolean;
   VPixelRectCurTileInSource:  TRect;
-  VLonLatRectCurTile:  TExtendedRect;
+  VLonLatRectCurTile:  TDoubleRect;
   VPixelRectCurTileInTarget:  TRect;
   VSourceBounds: TRect;
   VTargetBounds: TRect;
@@ -1412,3 +1412,5 @@ begin
 end;
 
 end.
+
+

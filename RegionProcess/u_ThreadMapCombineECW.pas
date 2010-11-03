@@ -47,7 +47,7 @@ type
     constructor Create(
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: TExtendedPointArray;
+      APolygon: TDoublePointArray;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -68,7 +68,7 @@ uses
 constructor TThreadMapCombineECW.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: TExtendedPointArray;
+  APolygon: TDoublePointArray;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap, AHtypemap: TMapType;
@@ -168,7 +168,7 @@ var
   k: integer;
   Datum, Proj: string;
   Units: TCellSizeUnits;
-  CellIncrementX, CellIncrementY, OriginX, OriginY: extended;
+  CellIncrementX, CellIncrementY, OriginX, OriginY: Double;
   errecw: integer;
   Path: string;
 begin

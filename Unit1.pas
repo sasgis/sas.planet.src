@@ -543,9 +543,9 @@ type
     FMarshrutComment: string;
     movepoint: boolean;
     Flastpoint: integer;
-    FSelectionRect: TExtendedRect;
-    Fadd_line_arr: TExtendedPointArray;
-    Freg_arr: TExtendedPointArray;
+    FSelectionRect: TDoubleRect;
+    Fadd_line_arr: TDoublePointArray;
+    Freg_arr: TDoublePointArray;
 
     FLayerScaleLine: TLayerScaleLine;
     FLayerMapNal: TMapNalLayer;
@@ -594,8 +594,8 @@ type
     procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
-    procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TExtendedRect);
-    procedure insertinpath(pos: integer; APoint: TExtendedPoint; var add_line_arr:TExtendedPointArray);
+    procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
+    procedure insertinpath(pos: integer; APoint: TDoublePoint; var add_line_arr:TDoublePointArray);
     procedure delfrompath(pos: integer);
     procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
@@ -620,11 +620,11 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
-    procedure topos(LL: TExtendedPoint; zoom_: byte; draw: boolean);
+    procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
-    function GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
+    function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
       AShowType: TMarksShowType): TMarksIteratorBase;
   end;
 
@@ -1030,7 +1030,7 @@ begin
   end
 end;
 
-procedure TFmain.insertinpath(pos: integer; APoint: TExtendedPoint; var add_line_arr:TExtendedPointArray);
+procedure TFmain.insertinpath(pos: integer; APoint: TDoublePoint; var add_line_arr:TDoublePointArray);
 var
   VCount: Integer;
 begin
@@ -1038,7 +1038,7 @@ begin
   if (pos >=0) and (pos <= VCount)  then begin
     SetLength(Fadd_line_arr, VCount + 1);
     if pos < VCount then begin
-      CopyMemory(@Fadd_line_arr[pos + 1], @Fadd_line_arr[pos], (VCount-pos)*sizeOf(TExtendedPoint));
+      CopyMemory(@Fadd_line_arr[pos + 1], @Fadd_line_arr[pos], (VCount-pos)*sizeOf(TDoublePoint));
     end;
     Fadd_line_arr[pos] := APoint;
   end;
@@ -1051,7 +1051,7 @@ begin
   VCount := Length(Fadd_line_arr);
   if (pos >=0) and (pos < VCount)  then begin
     if pos < VCount - 1 then begin
-      CopyMemory(@Fadd_line_arr[pos], @Fadd_line_arr[pos+1], (VCount-pos-1)*sizeOf(TExtendedPoint));
+      CopyMemory(@Fadd_line_arr[pos], @Fadd_line_arr[pos+1], (VCount-pos-1)*sizeOf(TDoublePoint));
     end;
     SetLength(Fadd_line_arr, VCount - 1);
     if Flastpoint > 0 then begin
@@ -1191,15 +1191,15 @@ begin
 end;
 
 procedure TFmain.PrepareSelectionRect(Shift: TShiftState;
-  var ASelectedLonLat: TExtendedRect);
+  var ASelectedLonLat: TDoubleRect);
 var
   VZoomCurr: Byte;
   VSelectedPixels: TRect;
   bxy: Integer;
   VSelectedTiles: TRect;
   VTileGridZoom: byte;
-  VSelectedRelative: TExtendedRect;
-  z: TExtendedPoint;
+  VSelectedRelative: TDoubleRect;
+  z: TDoublePoint;
   VConverter: ICoordConverter;
 begin
   GState.ViewState.LockRead;
@@ -1260,7 +1260,7 @@ procedure TFmain.UpdateGPSsensors;
 var
   s_len,n_len: string;
   sps: _SYSTEM_POWER_STATUS;
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
   VDist: Extended;
 begin
  try
@@ -1340,7 +1340,7 @@ begin
    end;
 end;
 
-procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
+procedure TFmain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
 begin
   GState.ViewState.LockWrite;
   GState.ViewState.ChangeZoomAndUnlock(zoom_, LL);
@@ -1357,7 +1357,7 @@ end;
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
   ts2,ts3,fr:int64;
-  VSelectionRect: TExtendedRect;
+  VSelectionRect: TDoubleRect;
 begin
   if not Enabled then Exit;
   if FMapMoving then Exit;
@@ -1560,7 +1560,7 @@ begin
   Result.Add(NFillMap);
 end;
 
-function TFmain.GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
+function TFmain.GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
   AShowType: TMarksShowType): TMarksIteratorBase;
 var
   VIgnoredID: Integer;
@@ -1582,7 +1582,7 @@ var
   VGUIDString: string;
   VScreenCenterPos: TPoint;
   VZoom: Byte;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VConverter: ICoordConverter;
   VMapType: TMapType;
 begin
@@ -2186,7 +2186,7 @@ end;
 
 procedure TFmain.N30Click(Sender: TObject);
 var
-  ll:TExtendedPoint;
+  ll:TDoublePoint;
 begin
   ll := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
   if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
@@ -2408,7 +2408,7 @@ end;
 procedure TFmain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
-  VPolygon: TExtendedPointArray;
+  VPolygon: TDoublePointArray;
 begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := Copy(GState.LastSelectionInfo.Polygon);
@@ -2449,7 +2449,7 @@ end;
 procedure TFmain.N012Click(Sender: TObject);
 var
   VZoom: Byte;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
 begin
   VZoom := TMenuItem(sender).tag - 1;
   VLonLat := GState.ViewState.GetCenterLonLat;
@@ -2554,9 +2554,9 @@ end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
 var
-  Poly: TExtendedPointArray;
+  Poly: TDoublePointArray;
   VSelLonLat: TFSelLonLat;
-  VLonLatRect: TExtendedRect;
+  VLonLatRect: TDoubleRect;
 begin
   VSelLonLat:= TFSelLonLat.Create(Self);
   Try
@@ -2597,7 +2597,7 @@ procedure TFmain.TBItem3Click(Sender: TObject);
 var F:TextFile;
     i:integer;
     SaveDlg: TSaveDialog;
-    VAllPoints: TExtendedPointArray;
+    VAllPoints: TDoublePointArray;
 begin
   Fprogress2.Visible:=true;
   try
@@ -2662,7 +2662,7 @@ end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
 var
-  VAllPoints: TExtendedPointArray;
+  VAllPoints: TDoublePointArray;
 begin
   VAllPoints := GState.GPSpar.GPSRecorder.GetAllPoints;
   if length(VAllPoints)>1 then begin
@@ -2677,7 +2677,7 @@ end;
 
 procedure TFmain.Google1Click(Sender: TObject);
 var
-  VLonLat:tExtendedPoint;
+  VLonLat:TDoublePoint;
   VZoomCurr: Byte;
 begin
   GState.ViewState.LockRead;
@@ -2692,8 +2692,8 @@ end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
 var
-  Vpos:tExtendedPoint;
-  VExtRect: TExtendedRect;
+  Vpos:TDoublePoint;
+  VExtRect: TDoubleRect;
 begin
   GState.ViewState.LockRead;
   try
@@ -2713,7 +2713,7 @@ end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
 var
-  VLonLat:tExtendedPoint;
+  VLonLat:TDoublePoint;
   VZoomCurr: Byte;
 begin
   GState.ViewState.LockRead;
@@ -2949,7 +2949,7 @@ end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
 var
-  VLonLat:tExtendedPoint;
+  VLonLat:TDoublePoint;
   VZoomCurr: Byte;
 begin
   GState.ViewState.LockRead;
@@ -2983,7 +2983,7 @@ end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
 var
-  VPos: TExtendedPoint;
+  VPos: TDoublePoint;
   VZoomCurr: Byte;
 begin
   GState.ViewState.LockRead;
@@ -3002,7 +3002,7 @@ end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
 var
-  VPos: TExtendedPoint;
+  VPos: TDoublePoint;
   VSize: TPoint;
 begin
   GState.ViewState.LockRead;
@@ -3037,9 +3037,9 @@ end;
 
 procedure TFmain.GPSReceiverReceive;
 var
-  VPointCurr: TExtendedPoint;
-  VPointPrev: TExtendedPoint;
-  VPointDelta: TExtendedPoint;
+  VPointCurr: TDoublePoint;
+  VPointPrev: TDoublePoint;
+  VPointDelta: TDoublePoint;
   VPosition: IGPSPosition;
 begin
   VPosition := GState.GPSpar.GPSModele.Position;
@@ -3056,7 +3056,7 @@ begin
         if GState.GPSpar.GPSRecorder.GetTwoLastPoints(VPointCurr, VPointPrev) then begin
           GState.ViewState.LockWrite;
           VPointDelta:=GState.ViewState.GetCenterLonLat;
-          VPointDelta:=ExtPoint(VPointDelta.x+VPointCurr.x-VPointPrev.x,
+          VPointDelta:=DoublePoint(VPointDelta.x+VPointCurr.x-VPointPrev.x,
                                 VPointDelta.y+VPointCurr.y-VPointPrev.y);
           if PointInRect(VPointCurr, GState.ViewState.GetViewLonLatRect) then  begin
             GState.ViewState.ChangeLonLatAndUnlock(VPointDelta);
@@ -3114,11 +3114,11 @@ procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
   i:integer;
-  VSelectionRect: TExtendedRect;
-  VClickLonLat: TExtendedPoint;
+  VSelectionRect: TDoubleRect;
+  VClickLonLat: TDoublePoint;
   VClickRect: TRect;
-  VClickLonLatRect: TExtendedRect;
-  VPoly:  TExtendedPointArray;
+  VClickLonLatRect: TDoubleRect;
+  VPoly:  TDoublePointArray;
   SelPointOnLine:boolean;
   VPWL: TResObj;
 begin
@@ -3192,9 +3192,9 @@ begin
       if (Frect_p2) then begin
         SetLength(VPoly, 5);
         VPoly[0] := VSelectionRect.TopLeft;
-        VPoly[1] := ExtPoint(VSelectionRect.Right, VSelectionRect.Top);
+        VPoly[1] := DoublePoint(VSelectionRect.Right, VSelectionRect.Top);
         VPoly[2] := VSelectionRect.BottomRight;
-        VPoly[3] := ExtPoint(VSelectionRect.Left, VSelectionRect.Bottom);
+        VPoly[3] := DoublePoint(VSelectionRect.Left, VSelectionRect.Bottom);
         VPoly[4] := VSelectionRect.TopLeft;
         fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
         FLayerMapNal.DrawNothing;
@@ -3251,13 +3251,13 @@ var
   stw:String;
   VPoint: TPoint;
   VZoomCurr: Byte;
-  VSelectionRect: TExtendedRect;
+  VSelectionRect: TDoubleRect;
   VMapMoving: Boolean;
   VMap: TMapType;
   VValidPoint: Boolean;
   VConverter: ICoordConverter;
   VTile: TPoint;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VVisibleSizeInPixel: TPoint;
 begin
   if (Layer <> nil) then begin
@@ -3449,9 +3449,9 @@ var
   CState: Integer;
   VPoint: TPoint;
   VZoomCurr: Byte;
-  VSelectionRect: TExtendedRect;
+  VSelectionRect: TDoubleRect;
   VConverter: ICoordConverter;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VPWL: TResObj;
 begin
   if ProgramClose then begin
@@ -3647,7 +3647,7 @@ end;
 
 procedure TFmain.N35Click(Sender: TObject);
 var
-  VLonLat:TExtendedPoint;
+  VLonLat:TDoublePoint;
   param:string;
   VZoomCurr: Byte;
   VMap: TMapType;
@@ -3776,7 +3776,7 @@ end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
 var
-  VLonLat:TExtendedPoint;
+  VLonLat:TDoublePoint;
 begin
   VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
   TextToWebBrowser(SAS_STR_WiteLoad, Fbrowser.EmbeddedWB1);
@@ -3786,7 +3786,7 @@ end;
 
 procedure TFmain.NGTOPO30Click(Sender: TObject);
 var
-  VLonLat:TExtendedPoint;
+  VLonLat:TDoublePoint;
 begin
   VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
   TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
@@ -3796,7 +3796,7 @@ end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);
 var
-  LL:TExtendedPoint;
+  LL:TDoublePoint;
   id:integer;
   VMark: TMarkFull;
   VPWL: TResObj;
@@ -4130,7 +4130,7 @@ var ms:TMemoryStream;
     kml:TKmlInfoSimple;
     s,l:integer;
     conerr:boolean;
-    add_line_arr_b:TExtendedPointArray;
+    add_line_arr_b:TDoublePointArray;
 begin
  ms:=TMemoryStream.Create;
  case TTBXItem(sender).Tag of
@@ -4153,7 +4153,7 @@ begin
      s:=length(add_line_arr_b);
      l:=length(kml.Data[0].coordinates);
      SetLength(add_line_arr_b,(s+l));
-     Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TExtendedPoint));
+     Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TDoublePoint));
    end;
    kml.Free;
   end
@@ -4251,11 +4251,11 @@ procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
   arLL: TPointArray;
-  poly:TExtendedPointArray;
-  VLonLatRect: TExtendedRect;
+  poly:TDoublePointArray;
+  VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;
-  VMarkLonLatRect: TExtendedRect;
+  VMarkLonLatRect: TDoubleRect;
   VPixelPos: TPoint;
   VZoom: Byte;
   VMarksIterator: TMarksIteratorBase;
@@ -4358,3 +4358,6 @@ begin
 end;
 
 end.
+
+
+

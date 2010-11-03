@@ -26,7 +26,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TExtendedPointArray;
+      APolygon: TDoublePointArray;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Amove: boolean;
@@ -44,7 +44,7 @@ uses
 
 constructor TThreadExportToFileSystem.Create(
   APath: string;
-  APolygon: TExtendedPointArray;
+  APolygon: TDoublePointArray;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Amove, Areplace: boolean;

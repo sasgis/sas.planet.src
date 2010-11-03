@@ -12,7 +12,7 @@ uses
 type
   TThreadDownloadTiles = class(TTileDownloaderThreadBase)
   private
-    FPolygLL: TExtendedPointArray;
+    FPolygLL: TDoublePointArray;
     FSecondLoadTNE:boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
@@ -39,7 +39,7 @@ type
   public
     constructor Create(
       ALog: ILogSimple;
-      APolygon: TExtendedPointArray;
+      APolygon: TDoublePointArray;
       Azamena: boolean;
       ACheckExistTileSize: boolean;
       Azdate: boolean;
@@ -78,7 +78,7 @@ uses
 
 constructor TThreadDownloadTiles.Create(
   ALog: ILogSimple;
-  APolygon: TExtendedPointArray;
+  APolygon: TDoublePointArray;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
   Atypemap: TMapType;
@@ -372,3 +372,4 @@ begin
 end;
 
 end.
+

@@ -30,7 +30,7 @@ function TGeoCoderByYandex.ParseStringToPlacemarksList(
 var
   slat, slon: string;
   i, j: integer;
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
   VPlace: IGeoCodePalcemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;

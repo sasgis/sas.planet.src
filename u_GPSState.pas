@@ -239,8 +239,8 @@ end;
 procedure TGPSpar.OnGpsDataReceive;
 var
   VPosition: IGPSPosition;
-  VPointCurr: TExtendedPoint;
-  VPointPrev: TExtendedPoint;
+  VPointCurr: TDoublePoint;
+  VPointPrev: TDoublePoint;
   VTrackPoint: TGPSTrackPoint;
   VDistToPrev: Extended;
   VConverter: ICoordConverter;
@@ -329,3 +329,4 @@ begin
 end;
 
 end.
+

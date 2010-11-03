@@ -82,9 +82,9 @@ type
     function GetActualZoom: Byte;
 
     function BitmapPixel2MapPixel(Pnt: TPoint): TPoint; overload; override;
-    function BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; override;
+    function BitmapPixel2MapPixel(Pnt: TDoublePoint): TDoublePoint; overload; override;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; override;
-    function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; override;
+    function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; override;
 
     procedure LoadBitmaps;
     procedure BuildPopUpMenu;
@@ -421,10 +421,10 @@ begin
 end;
 
 function TMiniMapLayer.BitmapPixel2MapPixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VScreenCenterInBitmap: TPoint;
-  VMapCenter: TExtendedPoint;
+  VMapCenter: TDoublePoint;
 begin
   VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
   VMapCenter := FGeoConvert.Relative2PixelPosFloat(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
@@ -444,10 +444,10 @@ begin
 end;
 
 function TMiniMapLayer.MapPixel2BitmapPixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VScreenCenterInBitmap: TPoint;
-  VMapCenter: TExtendedPoint;
+  VMapCenter: TDoublePoint;
 begin
   VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
   VMapCenter := FGeoConvert.Relative2PixelPosFloat(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
@@ -507,7 +507,7 @@ var
   VZoom: Byte;
   VMiniMapRect: TRect;
   VBitmapRect: TRect;
-  VRelRect: TExtendedRect;
+  VRelRect: TDoubleRect;
   VPolygon: TPolygon32;
   VBitmapSize: TPoint;
 begin
@@ -576,7 +576,7 @@ var
   {
     Географические координаты растра
   }
-  VSourceLonLatRect: TExtendedRect;
+  VSourceLonLatRect: TDoubleRect;
 
   {
     Прямоугольник пикселов текущего зума, покрывающий растр, в кооординатах
@@ -1058,3 +1058,5 @@ begin
 end;
 
 end.
+
+

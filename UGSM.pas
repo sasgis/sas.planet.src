@@ -20,7 +20,7 @@ uses
   UResStrings;
 
 type
-  TToPos = procedure (LL:TExtendedPoint;zoom_:byte;draw:boolean) of object;
+  TToPos = procedure (LL:TDoublePoint;zoom_:byte;draw:boolean) of object;
   TPosFromGPS = class
     FToPos:TToPos;
     CommPortDriver:TCommPortDriver;
@@ -32,13 +32,13 @@ type
     Port:string;
     function GetPos:boolean;
     procedure CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
-    function GetCoordFromGoogle(var LL:TExtendedPoint): boolean;
+    function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
     property OnToPos:TToPos read FToPos write FToPos;
   end;
 
 implementation
 
-function TPosFromGPS.GetCoordFromGoogle(var LL:TExtendedPoint): boolean;
+function TPosFromGPS.GetCoordFromGoogle(var LL:TDoublePoint): boolean;
 var
   strA, strB, strC, strAll: string;
   sResult: string;
@@ -136,7 +136,7 @@ procedure TPosFromGPS.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Point
  end;
 var s:string;
     pos,pose:integer;
-    LL:TExtendedPoint;
+    LL:TDoublePoint;
 begin
  setlength(s,DataSize);
  if DataSize<10 then exit;
@@ -197,7 +197,7 @@ end;
 
 function TPosFromGPS.GetPos:boolean;
 var paramss:string;
-    LL:TExtendedPoint;
+    LL:TDoublePoint;
 begin
  if GState.GSMpar.auto then begin
    CommPortDriver:=TCommPortDriver.Create(nil);

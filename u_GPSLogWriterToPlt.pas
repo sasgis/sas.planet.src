@@ -96,8 +96,8 @@ var
   VPltString: string;
   VNow: TDateTime;
   sb: string;
-  VPoint: TExtendedPoint;
-  VAltitude: Extended;
+  VPoint: TDoublePoint;
+  VAltitude: Double;
 begin
   FCS.Acquire;
   try

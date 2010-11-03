@@ -14,7 +14,7 @@ uses
 type
   TNavToMarkLayer = class(TMapLayerBasic)
   protected
-    FMarkPoint: TExtendedPoint;
+    FMarkPoint: TDoublePoint;
     FId: integer;
     FArrowBitmap: TCustomBitmap32;
     procedure DoRedraw; override;
@@ -23,8 +23,8 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
-    procedure StartNav(APoint: TExtendedPoint; Aid: integer);
-    function GetMarkLonLat: TExtendedPoint;
+    procedure StartNav(APoint: TDoublePoint; Aid: integer);
+    function GetMarkLonLat: TDoublePoint;
     property ID: Integer read FId;
   end;
 
@@ -76,7 +76,7 @@ procedure TNavToMarkLayer.DoRedraw;
 var
   D: Double;
   dl: integer;
-  VMarkPoint: TExtendedPoint;
+  VMarkPoint: TDoublePoint;
   T: TAffineTransformation;
   Alpha: Double;
   VSize: TPoint;
@@ -132,14 +132,14 @@ begin
   Result := Point(GState.GPSpar.GPS_ArrowSize * 2, GState.GPSpar.GPS_ArrowSize * 2);
 end;
 
-function TNavToMarkLayer.GetMarkLonLat: TExtendedPoint;
+function TNavToMarkLayer.GetMarkLonLat: TDoublePoint;
 begin
   Result := FMarkPoint;
 end;
 
 function TNavToMarkLayer.GetScreenCenterInBitmapPixels: TPoint;
 var
-  VMarkPoint: TExtendedPoint;
+  VMarkPoint: TDoublePoint;
   VSize: TPoint;
   D: Extended;
 begin
@@ -160,7 +160,7 @@ begin
   end;
 end;
 
-procedure TNavToMarkLayer.StartNav(APoint: TExtendedPoint; Aid: integer);
+procedure TNavToMarkLayer.StartNav(APoint: TDoublePoint; Aid: integer);
 begin
   FMarkPoint := APoint;
   FId := Aid;

@@ -16,11 +16,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TExtendedPointArray); override;
+    procedure InitFrame(Azoom: byte; APolygon: TDoublePointArray); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TExtendedPointArray); override;
+    procedure StartProcess(APolygon: TDoublePointArray); override;
   end;
 
 
@@ -49,7 +49,7 @@ begin
   Result := _('Скачивание');
 end;
 
-procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
+procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TDoublePointArray);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDownload.Create(nil);
@@ -87,7 +87,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartProcess(APolygon: TExtendedPointArray);
+procedure TProviderTilesDownload.StartProcess(APolygon: TDoublePointArray);
 var
   smb:TMapType;
   VZoom: byte;

@@ -40,8 +40,8 @@ type
     procedure LoadCategoriesFromFile;
     function SaveMarks2File: boolean;
     function SaveCategory2File: boolean;
-    function GetMarksIterator(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType): TMarksIteratorBase;
-    function GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
+    function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType): TMarksIteratorBase;
+    function GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
   end;
 
 
@@ -60,10 +60,10 @@ type
     FFinished: Boolean;
     FShowType: TMarksShowType;
   protected
-    function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; virtual;
+    function GetFilterText(AZoom: Byte; ARect: TDoubleRect): string; virtual;
     procedure FinishIterate;
   public
-    constructor Create(AMarksDb: TMarksDB; AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType);
+    constructor Create(AMarksDb: TMarksDB; AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType);
     destructor Destroy; override;
     function Next: Boolean; override;
   end;
@@ -72,15 +72,15 @@ type
   private
     FIgnoredID: Integer;
   protected
-    function GetFilterText(AZoom: Byte; ARect: TExtendedRect): string; override;
+    function GetFilterText(AZoom: Byte; ARect: TDoubleRect): string; override;
   public
-    constructor Create(AMarksDb: TMarksDB; AZoom: Byte; ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
+    constructor Create(AMarksDb: TMarksDB; AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType; AIgnoredID: Integer);
   end;
 
 { TMarksIteratorVisibleInRect }
 
 constructor TMarksIteratorVisibleInRect.Create(AMarksDb: TMarksDB; AZoom: Byte;
-  ARect: TExtendedRect; AShowType: TMarksShowType);
+  ARect: TDoubleRect; AShowType: TMarksShowType);
 begin
   inherited Create;
   FMarksDb := AMarksDb;
@@ -111,7 +111,7 @@ begin
 end;
 
 function TMarksIteratorVisibleInRect.GetFilterText(AZoom: Byte;
-  ARect: TExtendedRect): string;
+  ARect: TDoubleRect): string;
 var
   VCategoryFilter: string;
 begin
@@ -149,14 +149,14 @@ end;
 { TMarksIteratorVisibleInRectWithIgnore }
 
 constructor TMarksIteratorVisibleInRectWithIgnore.Create(AMarksDb: TMarksDB; AZoom: Byte;
-  ARect: TExtendedRect; AShowType: TMarksShowType; AIgnoredID: Integer);
+  ARect: TDoubleRect; AShowType: TMarksShowType; AIgnoredID: Integer);
 begin
   inherited Create(AMarksDb, AZoom, ARect, AShowType);
   FIgnoredID := AIgnoredID;
 end;
 
 function TMarksIteratorVisibleInRectWithIgnore.GetFilterText(AZoom: Byte;
-  ARect: TExtendedRect): string;
+  ARect: TDoubleRect): string;
 begin
   Result := '';
   if FIgnoredID >= 0 then begin
@@ -165,38 +165,54 @@ begin
   Result := Result + inherited GetFilterText(AZoom, ARect);
 end;
 
+type
+  TExtendedPoint = record
+    X, Y: Extended;
+  end;
 
-procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TExtendedPointArray);
+
+procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TDoublePointArray);
 var
   VSize: Integer;
   VPointsCount: Integer;
   VField: TBlobfield;
   VStream: TStream;
+  i: Integer;
+  VPoint: TExtendedPoint;
 begin
   VField := TBlobfield(BlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
   try
     VSize := VStream.Size;
     VPointsCount := VSize div SizeOf(TExtendedPoint);
-    VSize := VPointsCount * SizeOf(TExtendedPoint);
     SetLength(APoints, VPointsCount);
-    VStream.ReadBuffer(APoints[0], VSize);
+    for i := 0 to VPointsCount - 1 do begin
+      VStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
+      APoints[i].X := VPoint.X;
+      APoints[i].Y := VPoint.Y;
+    end;
   finally
     VStream.Free;
   end;
 end;
 
-procedure BlobFromExtArr(AArr: TExtendedPointArray; Blobfield: Tfield);
+procedure BlobFromExtArr(AArr: TDoublePointArray; Blobfield: Tfield);
 var
   VField: TBlobfield;
   VStream: TStream;
   VPointsCount: Integer;
+  i: Integer;
+  VPoint: TExtendedPoint;
 begin
   VField := TBlobfield(BlobField);
   VPointsCount := Length(AArr);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
-    VStream.Write(AArr[0], VPointsCount * SizeOf(AArr[0]));
+    for i := 0 to VPointsCount - 1 do begin
+      VPoint.X := AArr[i].X;
+      VPoint.Y := AArr[i].Y;
+      VStream.Write(VPoint, SizeOf(VPoint));
+    end;
   finally
     VStream.Free;
   end;
@@ -359,13 +375,13 @@ begin
   end;
 end;
 
-function TMarksDB.GetMarksIterator(AZoom: Byte; ARect: TExtendedRect;
+function TMarksDB.GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
   AShowType: TMarksShowType): TMarksIteratorBase;
 begin
   Result := TMarksIteratorVisibleInRect.Create(Self, AZoom, ARect, AShowType);
 end;
 
-function TMarksDB.GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TExtendedRect;
+function TMarksDB.GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TDoubleRect;
   AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
 begin
   Result := TMarksIteratorVisibleInRectWithIgnore.Create(Self, AZoom, ARect, AShowType, AIgnoredID);
@@ -549,3 +565,6 @@ begin
 end;
 
 end.
+
+
+

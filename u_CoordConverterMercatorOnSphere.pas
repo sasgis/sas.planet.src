@@ -11,20 +11,20 @@ uses
 type
   TCoordConverterMercatorOnSphere = class(TCoordConverterBasic)
   protected
-    function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
+    function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
+    function LonLat2MetrS(ALL: TDoublePoint): TDoublePoint; override;
+    function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
+    function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
-    constructor Create(Aradiusa: Extended);
-    function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    constructor Create(Aradiusa: Double);
+    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double; override;
   end;
 
 implementation
 
 { TCoordConverterMercatorOnSphere }
 
-constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Extended);
+constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Double);
 begin
   inherited Create;
   Fradiusa := Aradiusa;
@@ -44,7 +44,7 @@ begin
 
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnSphere.LonLat2MetrS(ALL: TDoublePoint): TDoublePoint;
 begin
   All.x := All.x * (Pi / 180);
   All.Y := All.y * (Pi / 180);
@@ -53,9 +53,9 @@ begin
     Power((1 - 0 * Sin(all.y)) / (1 + 0 * Sin(All.y)), 0 / 2)) / 2;
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
 var
-  VLl: TExtendedPoint;
+  VLl: TDoublePoint;
 begin
   VLl := ALl;
   Vll.x := Vll.x * (Pi / 180);
@@ -65,12 +65,12 @@ begin
 end;
 
 function TCoordConverterMercatorOnSphere.CalcDist(AStart,
-  AFinish: TExtendedPoint): Extended;
+  AFinish: TDoublePoint): Double;
 const
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
 var
   fdLambda, fdPhi, fz, a: Double;
-  VStart, VFinish: TExtendedPoint; // Координаты в радианах
+  VStart, VFinish: TDoublePoint; // Координаты в радианах
 begin
   result := 0;
   if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then begin
@@ -90,7 +90,7 @@ begin
   result := (fz * a);
 end;
 
-function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint;
 var
   z, c: Extended;
 begin
@@ -101,7 +101,7 @@ begin
 end;
 
 function TCoordConverterMercatorOnSphere.Relative2LonLatInternal(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const XY: TDoublePoint): TDoublePoint;
 begin
   Result.X := (XY.x - 0.5) * 360;
   Result.Y := -(XY.y - 0.5) * (2 * PI);

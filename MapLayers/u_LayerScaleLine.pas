@@ -52,7 +52,7 @@ procedure TLayerScaleLine.DoRedraw;
 var
   rnum, len_p, textstrt, textwidth: integer;
   s, se: string;
-  LL: TExtendedPoint;
+  LL: TDoublePoint;
   temp, num: real;
   VBitmapSize: TPoint;
   VRad: Extended;

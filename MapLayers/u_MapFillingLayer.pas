@@ -313,7 +313,7 @@ var
   {
     Географические координаты растра
   }
-  VSourceLonLatRect: TExtendedRect;
+  VSourceLonLatRect: TDoubleRect;
 
   {
     Прямоугольник пикселов текущего зума, покрывающий растр, в кооординатах

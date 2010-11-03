@@ -14,14 +14,14 @@ type
 
   TDegrShowFormat = (dshCharDegrMinSec = 0, dshCharDegrMin = 1, dshCharDegr = 2, dshSignDegrMinSec = 3, dshSignDegrMin = 4, dshSignDegr = 5);
 
-function RoundEx(chislo: Extended; Precision: Integer): string;
-function R2StrPoint(r: Extended): string;
-function LonLat2GShListName(LL: TExtendedPoint; Scale: integer; Prec: integer):string;
-function kb2KbMbGb(kb: Extended): string;
+function RoundEx(chislo: Double; Precision: Integer): string;
+function R2StrPoint(r: Double): string;
+function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer):string;
+function kb2KbMbGb(kb: Double): string;
 function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
 function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
 function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
-function str2r(inp:string):Extended;
+function str2r(inp:string):Double;
 
 implementation
 
@@ -32,12 +32,12 @@ uses
 var
   GFormatSettings : TFormatSettings;
 
-function RoundEx(chislo: Extended; Precision: Integer): string;
+function RoundEx(chislo: Double; Precision: Integer): string;
 begin
   Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
 end;
 
-function str2r(inp:string):Extended;
+function str2r(inp:string):Double;
 var p:integer;
 begin
  p:=System.pos(DecimalSeparator,inp);
@@ -50,12 +50,12 @@ begin
 end;
 
 
-function R2StrPoint(r: Extended): string;
+function R2StrPoint(r: Double): string;
 begin
   Result := FloatToStr(r, GFormatSettings);
 end;
 
-function LonLat2GShListName(LL: TExtendedPoint; Scale: integer; Prec: integer): string;
+function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer): string;
 const
   Roman: array[1..36] of string[6] = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
              'XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV',
@@ -79,7 +79,7 @@ begin
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
 end;
 
-function kb2KbMbGb(kb: Extended): string;
+function kb2KbMbGb(kb: Double): string;
 begin
   if kb > 1048576 then begin
     result := RoundEx(kb/1048576, 1) + ' ' + SAS_UNITS_gb;

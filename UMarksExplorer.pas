@@ -81,9 +81,9 @@ var
   function GetMarkLength(AMark: TMarkFull):extended;
   function GetMarkSq(AMark: TMarkFull):extended;
   function EditMarkModal(AMark: TMarkFull):boolean;
-  function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
-  function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
-  function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescription: string): Boolean;
+  function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
+  function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
+  function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
 
 implementation
 
@@ -119,7 +119,7 @@ begin
   end;
 end;
 
-function AddNewPointModal(ALonLat: TExtendedPoint): Boolean;
+function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
 var
   VMark: TMarkFull;
 begin
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-function SavePolyModal(AID: Integer; ANewArrLL: TExtendedPointArray): Boolean;
+function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
 var
   VMark: TMarkFull;
 begin
@@ -164,7 +164,7 @@ begin
   end;
 end;
 
-function SaveLineModal(AID: Integer; ANewArrLL: TExtendedPointArray; ADescription: string): Boolean;
+function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
 var
   VMark: TMarkFull;
 begin
@@ -664,7 +664,7 @@ var
   VIndex: Integer;
   VId:integer;
   VMark: TMarkFull;
-  LL:TExtendedPoint;
+  LL:TDoublePoint;
 begin
   if (SBNavOnMark.Down) then begin
     VIndex := MarksListBox.ItemIndex;

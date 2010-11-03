@@ -117,15 +117,15 @@ end;
 
 procedure TMapMainLayer.DrawGenShBorders;
 var
-  z: TExtendedPoint;
+  z: TDoublePoint;
   twidth, theight: integer;
   ListName: WideString;
   VZoomCurr: Byte;
   VLoadedRect: TRect;
-  VLoadedLonLatRect: TExtendedRect;
-  VGridLonLatRect: TExtendedRect;
+  VLoadedLonLatRect: TDoubleRect;
+  VGridLonLatRect: TDoubleRect;
   VGridRect: TRect;
-  VDrawLonLatRect: TExtendedRect;
+  VDrawLonLatRect: TDoubleRect;
   VDrawRect: TRect;
   VColor: TColor32;
   VDrawScreenRect: TRect;
@@ -155,7 +155,7 @@ begin
   VGridRect := FGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoomCurr);
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
+  VDrawLonLatRect.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
   VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
 
   if abs(VDrawRect.Right - VDrawRect.Left) < 4 then begin
@@ -218,7 +218,7 @@ begin
     while VDrawLonLatRect.Left + z.X / 2 <= VGridLonLatRect.Right do begin
       VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
       ListName := LonLat2GShListName(
-        ExtPoint(VDrawLonLatRect.Left + z.X / 2, VDrawLonLatRect.Top - z.Y / 2),
+        DoublePoint(VDrawLonLatRect.Left + z.X / 2, VDrawLonLatRect.Top - z.Y / 2),
         GState.GShScale, GSHprec
       );
       twidth := FLayer.bitmap.TextWidth(ListName);
@@ -257,7 +257,7 @@ var
   {
     Географические координаты растра
   }
-  VSourceLonLatRect: TExtendedRect;
+  VSourceLonLatRect: TDoubleRect;
 
   {
     Прямоугольник пикселов текущего зума, покрывающий растр, в кооординатах
@@ -382,10 +382,10 @@ var
   textoutx, textouty: string;
   Sz1, Sz2: TSize;
   VLoadedRect: TRect;
-  VLoadedRelativeRect: TExtendedRect;
+  VLoadedRelativeRect: TDoubleRect;
   VCurrentZoom: Byte;
   VTilesRect: TRect;
-  VTileRelativeRect: TExtendedRect;
+  VTileRelativeRect: TDoubleRect;
   VTileRect: TRect;
   VTileIndex: TPoint;
   VTileScreenRect: TRect;
@@ -542,3 +542,5 @@ begin
 end;
 
 end.
+
+

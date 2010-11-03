@@ -20,7 +20,7 @@ type
     procedure ProgressFormUpdateOnProgress; virtual;
   public
     constructor Create(
-      APolygon: TExtendedPointArray;
+      APolygon: TDoublePointArray;
       AZoom: Byte;
       AMapType: TMapType;
       AFileName: string
@@ -37,7 +37,7 @@ uses
 
 { TThreadExportToAUX }
 
-constructor TThreadExportToAUX.Create(APolygon: TExtendedPointArray;
+constructor TThreadExportToAUX.Create(APolygon: TDoublePointArray;
   AZoom: Byte; AMapType: TMapType; AFileName: string);
 begin
   inherited Create(APolygon);

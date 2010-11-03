@@ -266,7 +266,7 @@ end;
 procedure TGPSModuleByZylGPS.GPSReceiverReceive(Sender: TObject;
   Buffer: string);
 var
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
   Lock;
   try

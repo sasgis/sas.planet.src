@@ -11,7 +11,7 @@ type
   TMapLayerFixedBase = class(TMapLayerBase)
   protected
     function GetLayerVisibleSize: TPoint; virtual; abstract;
-    function GetLonLat: TExtendedPoint; virtual; abstract;
+    function GetLonLat: TDoublePoint; virtual; abstract;
     function GetLayerTopLeftVisibleShift: TPoint; virtual; abstract;
     procedure DoUpdatelLayerLocation; override;
 
@@ -26,20 +26,20 @@ uses
 
 procedure TMapLayerFixedBase.DoUpdatelLayerLocation;
 var
-  VLonLat: TExtendedPoint;
-  VVisiblePoint: TExtendedPoint;
-  VVisibleLayerRect: TExtendedRect;
+  VLonLat: TDoublePoint;
+  VVisiblePoint: TDoublePoint;
+  VVisibleLayerRect: TDoubleRect;
   VVisibleLayerSize: TPoint;
   VVisibleLayerShift: TPoint;
-  VViewPortVisualRect: TExtendedRect;
-  VTempRect: TExtendedRect;
+  VViewPortVisualRect: TDoubleRect;
+  VTempRect: TDoubleRect;
 begin
   inherited;
   VLonLat := GetLonLat;
   FViewPortState.LockRead;
   try
     VVisiblePoint := FViewPortState.LonLat2VisiblePixel(VLonLat);
-    VViewPortVisualRect := ExtendedRect(FViewPortState.GetViewRectInVisualPixel);
+    VViewPortVisualRect := DoubleRect(FViewPortState.GetViewRectInVisualPixel);
   finally
     FViewPortState.UnLockRead;
   end;
@@ -51,7 +51,7 @@ begin
   VVisibleLayerRect.Right := VVisibleLayerRect.Left + VVisibleLayerSize.X;
   VVisibleLayerRect.Bottom := VVisibleLayerRect.Top + VVisibleLayerSize.Y;
 
-  if IntersectExtendedRect(VTempRect, VVisibleLayerRect, VViewPortVisualRect) then begin
+  if IntersecTDoubleRect(VTempRect, VVisibleLayerRect, VViewPortVisualRect) then begin
     FLayerPositioned.Location := FloatRect(
       VVisibleLayerRect.Left,
       VVisibleLayerRect.Top,

@@ -64,8 +64,8 @@ procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   AConverter: ICoordConverter);
 var
   f: TextFile;
-  ll1, ll2: TExtendedPoint;
-  CellX, CellY, OrigX, OrigY: extended;
+  ll1, ll2: TDoublePoint;
+  CellX, CellY, OrigX, OrigY: Double;
 begin
   ll1 := AConverter.PixelPos2LonLat(xy1, Azoom);
   ll2 := AConverter.PixelPos2LonLat(xy2, Azoom);

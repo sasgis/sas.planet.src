@@ -10,9 +10,9 @@ type
     PlacemarkID: string;
     Name: string;
     description: string;
-    coordinates: TExtendedPointArray;
-    coordinatesLT: TExtendedPoint;
-    coordinatesRD: TExtendedPoint;
+    coordinates: TDoublePointArray;
+    coordinatesLT: TDoublePoint;
+    coordinatesRD: TDoublePoint;
     function IsEmpty: Boolean;
     function IsPoint: Boolean;
     function IsLine: Boolean;
@@ -111,4 +111,4 @@ begin
 end;
 
 end.
- 
+  

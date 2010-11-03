@@ -291,7 +291,7 @@ var
   VComa: PChar;
   VSpace: PChar;
   VLineStart: PChar;
-  VCurCoord: TExtendedPoint;
+  VCurCoord: TDoublePoint;
   VAllocated: Integer;
   VUsed: Integer;
 begin

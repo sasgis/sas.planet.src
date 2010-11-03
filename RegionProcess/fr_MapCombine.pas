@@ -59,11 +59,11 @@ type
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
-    FPolygLL: TExtendedPointArray;
+    FPolygLL: TDoublePointArray;
   public
     constructor Create(AOwner: TComponent); override;
     procedure RefreshTranslation; override;
-    procedure Init(AZoom: Byte; APolygLL: TExtendedPointArray);
+    procedure Init(AZoom: Byte; APolygLL: TDoublePointArray);
   end;
 
 implementation
@@ -134,7 +134,7 @@ begin
   cbbOutputFormat.ItemIndex := 0;
 end;
 
-procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TExtendedPointArray);
+procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TDoublePointArray);
 var
   i: Integer;
   VMapType: TMapType;

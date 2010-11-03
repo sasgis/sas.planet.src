@@ -9,7 +9,7 @@ uses
 
 type
   IMarkSimple = interface
-    function GetRect: TExtendedRect; safecall;
+    function GetRect: TDoubleRect; safecall;
     function GetName: WideString; safecall;
     function GetDescr: WideString; safecall;
   end;
@@ -66,10 +66,10 @@ type
     function GetColor1: integer; stdcall;
     function GetColor2: integer; stdcall;
     function GetDescr: string; stdcall;
-    function GetLonLatArr: TExtendedPointArray; stdcall;
+    function GetLonLatArr: TDoublePointArray; stdcall;
     function GetName: string; stdcall;
     function GetPicName: string; stdcall;
-    function GetRect: TExtendedRect; stdcall;
+    function GetRect: TDoubleRect; stdcall;
     function GetScale1: integer; stdcall;
     function GetScale2: integer; stdcall;
     function GetVisible: boolean; stdcall;
@@ -79,8 +79,8 @@ type
     property Descr: string read GetDescr;
     property Scale1: integer read GetScale1;
     property Scale2: integer read GetScale2;
-    property LonLatArr: TExtendedPointArray read GetLonLatArr;
-    property Rect: TExtendedRect read GetRect;
+    property LonLatArr: TDoublePointArray read GetLonLatArr;
+    property Rect: TDoubleRect read GetRect;
     property Color1: integer read GetColor1;
     property Color2: integer read GetColor2;
     property Visible: boolean read GetVisible;
@@ -118,7 +118,7 @@ type
     function GetAllCategories: IEnumUnknown;
     function GetVisibleCategories: IEnumUnknown;
     function GetAllMarksOfCategory(ACategoryId: integer): IEnumUnknown;
-    function GetMarksVisibleInRect(ALonLat: TExtendedRect): IEnumUnknown;
+    function GetMarksVisibleInRect(ALonLat: TDoubleRect): IEnumUnknown;
   end;
 implementation
 

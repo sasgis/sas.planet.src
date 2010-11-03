@@ -41,7 +41,7 @@ procedure TMapCalibrationDat.SaveCalibrationInfo(AFileName: WideString;
   xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter);
 var
   f: TextFile;
-  LL1, LL2: TExtendedPoint;
+  LL1, LL2: TDoublePoint;
 begin
   assignfile(f, ChangeFileExt(AFileName, '.dat'));
   rewrite(f);

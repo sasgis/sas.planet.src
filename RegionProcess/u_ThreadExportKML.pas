@@ -28,7 +28,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TExtendedPointArray;
+      APolygon: TDoublePointArray;
       Azoomarr: array of boolean;
       Atypemap: TMapType;
       ANotSaveNotExists: boolean;
@@ -45,7 +45,7 @@ uses
 
 constructor TThreadExportKML.Create(
   APath: string;
-  APolygon: TExtendedPointArray;
+  APolygon: TDoublePointArray;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
   ANotSaveNotExists: boolean;
@@ -66,7 +66,7 @@ var
   nxy, xi, yi: integer;
   savepath, north, south, east, west: string;
   ToFile: string;
-  VExtRect: TExtendedRect;
+  VExtRect: TDoubleRect;
   VTile: TPoint;
 begin
   VTile := Point(x shr 8, y shr 8);

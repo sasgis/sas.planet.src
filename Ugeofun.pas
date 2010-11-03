@@ -10,12 +10,8 @@ uses
 
 type
  TDMS = record
-  D,M,S: extended;
+  D,M,S: Double;
   N:boolean;
- end;
-
- TRealPoint = record
-   X, Y: Real;
  end;
 
  TResObjType = (ROTpoint,ROTline,ROTPoly);
@@ -23,43 +19,42 @@ type
   TResObj = record
    type_:TResObjType;
    find:boolean;
-   S:Extended;
+   S:Double;
    numid:String;
    name:String;
    descr:String;
   end;
 
   function GetProj(AConverter: ICoordConverter): string;
-  function DMS2G(D,M,S:extended;N:boolean):extended;
-  function D2DMS(G:extended):TDMS;
-  function PolygonFromRect(ARect: TExtendedRect): TExtendedPointArray;
-  function ExtPoint(X, Y: extended): TExtendedPoint;
-  function ExtendedPoint(APoint: TPoint): TExtendedPoint; overload;
-  function ExtendedPoint(X, Y: Extended): TExtendedPoint; overload;
-  function ExtendedRect(ARect: TRect): TExtendedRect; overload;
-  function ExtendedRect(ATopLeft, ABottomRight: TExtendedPoint): TExtendedRect; overload;
-  function ExtendedRect(ALeft, ATop, ARight, ABottom: Extended): TExtendedRect; overload;
+  function DMS2G(D,M,S:Double;N:boolean): Double;
+  function D2DMS(G:Double):TDMS;
+  function PolygonFromRect(ARect: TDoubleRect): TDoublePointArray;
+  function DoublePoint(APoint: TPoint): TDoublePoint; overload;
+  function DoublePoint(X, Y: Double): TDoublePoint; overload;
+  function DoubleRect(ARect: TRect): TDoubleRect; overload;
+  function DoubleRect(ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
+  function DoubleRect(ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
 
   function compare2P(p1,p2:TPoint):boolean;
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
-  function PointInRect(const APoint: TExtendedPoint; const ARect: TExtendedRect): Boolean;
-  function IsExtendedRectEmpty(const Rect: TExtendedRect): Boolean;
-  function IntersectExtendedRect(out Rect: TExtendedRect; const R1, R2: TExtendedRect): Boolean;
+  function PointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
+  function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
+  function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
-  function compare2EP(p1,p2:TExtendedPoint):boolean;
+  function compare2EP(p1,p2:TDoublePoint):boolean;
   function PolygonSquare(Poly:TPointArray): Double;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-  procedure CalculateWFileParams(LL1,LL2:TExtendedPoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:extended);
+  procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
+            var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean); overload;
   Procedure GetMinMax(var ARect:TRect; Polyg:TPointArray;round_:boolean); overload;
-  Procedure GetMinMax(var ARect:TExtendedRect; Polyg:TExtendedPointArray); overload;
+  Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TDoublePointArray); overload;
   function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64; overload;
   function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64; overload;
   function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
-  function GetGhBordersStepByScale(AScale: Integer): TExtendedPoint;
+  function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
 
 implementation
 
@@ -323,14 +318,14 @@ begin
 end;
 
 procedure CalculateWFileParams(
-  LL1, LL2: TExtendedPoint;
+  LL1, LL2: TDoublePoint;
   ImageWidth, ImageHeight: integer;
   AConverter: ICoordConverter;
-  var CellIncrementX, CellIncrementY, OriginX, OriginY: extended
+  var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
 );
 var
-  VM1: TExtendedPoint;
-  VM2: TExtendedPoint;
+  VM1: TDoublePoint;
+  VM2: TDoublePoint;
 begin
   case AConverter.GetCellSizeUnits of
     CELL_UNITS_METERS: begin
@@ -428,29 +423,23 @@ begin
                               else result:=false;
 end;
 
-function compare2EP(p1,p2:TExtendedPoint):boolean;
+function compare2EP(p1,p2:TDoublePoint):boolean;
 begin
  if (p1.x=p2.X)and(p1.y=p2.y) then result:=true
                               else result:=false;
 end;
 
-function ExtPoint(X, Y: extended): TExtendedPoint;
-begin
-  Result.X:=X;
-  Result.Y:=Y;
-end;
-
-function PolygonFromRect(ARect: TExtendedRect): TExtendedPointArray;
+function PolygonFromRect(ARect: TDoubleRect): TDoublePointArray;
 begin
   SetLength(Result, 5);
   Result[0] := ARect.TopLeft;
-  Result[1] := ExtPoint(ARect.Right, ARect.Top);
+  Result[1] := DoublePoint(ARect.Right, ARect.Top);
   Result[2] := ARect.BottomRight;
-  Result[3] := ExtPoint(ARect.Left, ARect.Bottom);
+  Result[3] := DoublePoint(ARect.Left, ARect.Bottom);
   Result[4] := ARect.TopLeft;
 end;
 
-Procedure GetMinMax(var ARect:TExtendedRect; Polyg:TExtendedPointArray); overload;
+Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TDoublePointArray); overload;
 var
   i: Integer;
 begin
@@ -472,18 +461,18 @@ begin
       end;
     end;
   end else begin
-    ARect.TopLeft := ExtPoint(0, 0);
-    ARect.BottomRight := ExtPoint(0, 0);
+    ARect.TopLeft := DoublePoint(0, 0);
+    ARect.BottomRight := DoublePoint(0, 0);
   end;
 end;
 
-function DMS2G(D,M,S:extended;N:boolean):extended;
+function DMS2G(D,M,S:Double;N:boolean):Double;
 begin
   result:=D+M/60+S/3600;
   if N then result:=-result;
 end;
 
-function D2DMS(G:extended):TDMS;
+function D2DMS(G:Double):TDMS;
 begin
   result.N:=G<0;
   G:=abs(G);
@@ -492,7 +481,7 @@ begin
   result.S:=Frac(Frac(G)*60)*60;
 end;
 
-function GetGhBordersStepByScale(AScale: Integer): TExtendedPoint;
+function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
 begin
   case AScale of
     1000000: begin Result.X:=6; Result.Y:=4; end;
@@ -506,25 +495,25 @@ begin
   end;
 end;
 
-function PointInRect(const APoint: TExtendedPoint; const ARect: TExtendedRect): Boolean;
+function PointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
 begin
   result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
           (APoint.Y<=ARect.Top)and(APoint.Y>=ARect.Bottom);
 end;
 
-function ExtendedPoint(APoint: TPoint): TExtendedPoint; overload;
+function DoublePoint(APoint: TPoint): TDoublePoint; overload;
 begin
   Result.X := APoint.X;
   Result.Y := APoint.Y;
 end;
 
-function ExtendedPoint(X, Y: Extended): TExtendedPoint; overload;
+function DoublePoint(X, Y: Double): TDoublePoint; overload;
 begin
   Result.X := X;
   Result.Y := Y;
 end;
 
-function ExtendedRect(ARect: TRect): TExtendedRect; overload;
+function DoubleRect(ARect: TRect): TDoubleRect; overload;
 begin
   Result.Left := ARect.Left;
   Result.Top := ARect.Top;
@@ -532,13 +521,13 @@ begin
   Result.Bottom := ARect.Bottom;
 end;
 
-function ExtendedRect(ATopLeft, ABottomRight: TExtendedPoint): TExtendedRect; overload;
+function DoubleRect(ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
 begin
   Result.TopLeft := ATopLeft;
   Result.BottomRight := ABottomRight;
 end;
 
-function ExtendedRect(ALeft, ATop, ARight, ABottom: Extended): TExtendedRect; overload;
+function DoubleRect(ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
 begin
   Result.Left := ALeft;
   Result.Top := ATop;
@@ -546,19 +535,19 @@ begin
   Result.Bottom := ABottom;
 end;
 
-function IsExtendedRectEmpty(const Rect: TExtendedRect): Boolean;
+function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
 begin
   Result := (Rect.Right <= Rect.Left) or (Rect.Bottom <= Rect.Top);
 end;
 
-function IntersectExtendedRect(out Rect: TExtendedRect; const R1, R2: TExtendedRect): Boolean;
+function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 begin
   Rect := R1;
   if R2.Left > R1.Left then Rect.Left := R2.Left;
   if R2.Top > R1.Top then Rect.Top := R2.Top;
   if R2.Right < R1.Right then Rect.Right := R2.Right;
   if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
-  Result := not IsExtendedRectEmpty(Rect);
+  Result := not IsDoubleRectEmpty(Rect);
   if not Result then FillChar(Rect, SizeOf(Rect), 0);
 end;
 
@@ -647,3 +636,6 @@ End Function
 
 }
 end.
+
+
+

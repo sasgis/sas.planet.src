@@ -34,28 +34,28 @@ type
 
   IGPSPosition = interface
     ['{B2422759-9B8B-4CC5-AAA5-46A7240759D0}']
-    function GetPosition: TExtendedPoint; stdcall;
-    function GetAltitude: Extended; stdcall;
-    function GetSpeed_KMH: Extended; stdcall;
-    function GetHeading: Extended; stdcall;
+    function GetPosition: TDoublePoint; stdcall;
+    function GetAltitude: Double; stdcall;
+    function GetSpeed_KMH: Double; stdcall;
+    function GetHeading: Double; stdcall;
     function GetUTCDateTime: TDateTime; stdcall;
     function GetLocalDateTime: TDateTime; stdcall;
     function GetIsFix: Word; stdcall;
-    function GetHDOP: Extended; stdcall;
-    function GetVDOP: Extended; stdcall;
-    function GetPDOP: Extended; stdcall;
+    function GetHDOP: Double; stdcall;
+    function GetVDOP: Double; stdcall;
+    function GetPDOP: Double; stdcall;
     function GetSatellites: IGPSSatellitesInView; stdcall;
 
-    property Position: TExtendedPoint read GetPosition;
-    property Altitude: Extended read GetAltitude;
-    property Speed_KMH: Extended read GetSpeed_KMH;
-    property Heading: Extended read GetHeading;
+    property Position: TDoublePoint read GetPosition;
+    property Altitude: Double read GetAltitude;
+    property Speed_KMH: Double read GetSpeed_KMH;
+    property Heading: Double read GetHeading;
     property UTCDateTime: TDateTime read GetUTCDateTime;
     property LocalDateTime: TDateTime read GetLocalDateTime;
     property IsFix: Word read GetIsFix;
-    property HDOP: Extended read GetHDOP;
-    property VDOP: Extended read GetVDOP;
-    property PDOP: Extended read GetPDOP;
+    property HDOP: Double read GetHDOP;
+    property VDOP: Double read GetVDOP;
+    property PDOP: Double read GetPDOP;
     property Satellites: IGPSSatellitesInView  read GetSatellites;
   end;
 

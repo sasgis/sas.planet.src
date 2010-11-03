@@ -50,8 +50,8 @@ var
   lats, lons: array[1..3] of string;
   VFormat: TFormatSettings;
   VFileName: String;
-  VLL1, VLL2: TExtendedPoint;
-  VLL: TExtendedPoint;
+  VLL1, VLL2: TDoublePoint;
+  VLL: TDoublePoint;
 begin
   VFormat.DecimalSeparator := '.';
   VFileName := ChangeFileExt(AFileName, '.map');

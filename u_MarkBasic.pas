@@ -13,8 +13,8 @@ type
     FDescr: string;
     FScale1: integer;
     FScale2: integer;
-    FLonLatArr: TExtendedPointArray;
-    FRect: TExtendedRect;
+    FLonLatArr: TDoublePointArray;
+    FRect: TDoubleRect;
     FColor1: integer;
     FColor2: integer;
     FVisible: boolean;
@@ -25,10 +25,10 @@ type
     function GetColor1: integer; virtual; stdcall;
     function GetColor2: integer; virtual; stdcall;
     function GetDescr: string; virtual; stdcall;
-    function GetLonLatArr: TExtendedPointArray; virtual; stdcall;
+    function GetLonLatArr: TDoublePointArray; virtual; stdcall;
     function GetName: string; virtual; stdcall;
     function GetPicName: string; virtual; stdcall;
-    function GetRect: TExtendedRect; virtual; stdcall;
+    function GetRect: TDoubleRect; virtual; stdcall;
     function GetScale1: integer; virtual; stdcall;
     function GetScale2: integer; virtual; stdcall;
     function GetVisible: boolean; virtual; stdcall;
@@ -39,8 +39,8 @@ type
     property Descr: string read GetDescr;
     property Scale1: integer read GetScale1;
     property Scale2: integer read GetScale2;
-    property LonLatArr: TExtendedPointArray read GetLonLatArr;
-    property Rect: TExtendedRect read GetRect;
+    property LonLatArr: TDoublePointArray read GetLonLatArr;
+    property Rect: TDoubleRect read GetRect;
     property Color1: integer read GetColor1;
     property Color2: integer read GetColor2;
     property Visible: boolean read GetVisible;
@@ -100,7 +100,7 @@ begin
   Result := FId;
 end;
 
-function TMarkBasic.GetLonLatArr: TExtendedPointArray;
+function TMarkBasic.GetLonLatArr: TDoublePointArray;
 begin
   Result := FLonLatArr;
 end;
@@ -115,7 +115,7 @@ begin
   Result := FPicName;
 end;
 
-function TMarkBasic.GetRect: TExtendedRect;
+function TMarkBasic.GetRect: TDoubleRect;
 begin
   Result := FRect;
 end;

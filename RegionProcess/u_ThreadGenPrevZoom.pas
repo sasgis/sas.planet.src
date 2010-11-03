@@ -34,7 +34,7 @@ type
     constructor Create(
       Azoom: byte;
       AInZooms: TArrayOfByte;
-      APolygLL: TExtendedPointArray;
+      APolygLL: TDoublePointArray;
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
@@ -51,7 +51,7 @@ uses
   u_TileIteratorStuped,
   u_GlobalState;
 
-constructor TThreadGenPrevZoom.Create(Azoom: byte; AInZooms: TArrayOfByte; APolygLL: TExtendedPointArray; Atypemap: TMapType; AReplace: boolean; Asavefull: boolean; AGenFormPrev: boolean; AResampler: TTileResamplingType);
+constructor TThreadGenPrevZoom.Create(Azoom: byte; AInZooms: TArrayOfByte; APolygLL: TDoublePointArray; Atypemap: TMapType; AReplace: boolean; Asavefull: boolean; AGenFormPrev: boolean; AResampler: TTileResamplingType);
 begin
   inherited Create(APolygLL);
   FIsReplace := AReplace;
@@ -81,7 +81,7 @@ var
   VZoomDelta: Integer;
   VRectOfSubTiles: TRect;
   VCurrentTilePixelRect: TRect;
-  VRelativeRect: TExtendedRect;
+  VRelativeRect: TDoubleRect;
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
 begin

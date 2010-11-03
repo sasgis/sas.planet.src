@@ -49,7 +49,7 @@ type
     procedure FormCreate(Sender: TObject);
   private
     ms:TMemoryStream;
-    FLonLat:tExtendedPoint;
+    FLonLat:TDoublePoint;
     tids,ls:string;
     mpp:extended;
     hi,wi:integer;
@@ -57,7 +57,7 @@ type
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
-    procedure setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
+    procedure setup(ALonLat: TDoublePoint; AViewSize: TPoint);
   end;
 
 var
@@ -379,11 +379,11 @@ begin
  pltstr.Free;
 end;
 
-procedure TFDGAvailablePic.setup(ALonLat: TExtendedPoint; AViewSize: TPoint);
+procedure TFDGAvailablePic.setup(ALonLat: TDoublePoint; AViewSize: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
-  VPixelsAtZoom: Extended;
+  VPixelsAtZoom: Double;
   VConverter: ICoordConverter;
   VZoom: Byte;
 begin

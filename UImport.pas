@@ -98,7 +98,7 @@ uses
 
 procedure KMLDataToMark(ASource: TKMLData; ATarget: TMarkFull);
 var
-  alltl,allbr:TExtendedPoint;
+  alltl,allbr:TDoublePoint;
   j: Integer;
 begin
   ATarget.name := ASource.Name;
@@ -119,7 +119,7 @@ end;
 
 procedure PLTDataToMark(ASource: TPLTData; ATarget: TMarkFull);
 var
-  alltl,allbr:TExtendedPoint;
+  alltl,allbr:TDoublePoint;
   j: Integer;
 begin
   ATarget.name := ASource.Name;
@@ -217,7 +217,7 @@ var
   PLT:TPLT;
   i,j,lenarr:integer;
   ms:TMemoryStream;
-  alltl,allbr:TExtendedPoint;
+  alltl,allbr:TDoublePoint;
   markignor,pathignor,polyignor:boolean;
   VCategory: TCategoryId;
   VIndex: Integer;

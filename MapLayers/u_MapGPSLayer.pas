@@ -33,14 +33,14 @@ uses
 procedure TMapGPSLayer.DrawArrow;
 var
   VPolygonArrow: TPolygon32;
-  ke, ks: TExtendedPoint;
+  ke, ks: TDoublePoint;
   VArrowSize: integer;
   Angle, D, R: Extended;
   TanOfAngle: Extended;
   k1: TPoint;
   SizeTrackd2: integer;
-  VLastPoint: TExtendedPoint;
-  VPreLastPoint: TExtendedPoint;
+  VLastPoint: TDoublePoint;
+  VPreLastPoint: TDoublePoint;
   VIsArrow: Boolean;
   VMarkRect: TRect;
 begin
@@ -106,7 +106,7 @@ procedure TMapGPSLayer.DrawPath;
 var
   j, speed: integer;
   VPolygon: TPolygon32;
-  VPointPrev, VPointCurr: TExtendedPoint;
+  VPointPrev, VPointCurr: TDoublePoint;
   VPointsCount: Integer;
   VSegmentColor: TColor32;
   VSpeed: Extended;

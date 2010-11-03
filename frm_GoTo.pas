@@ -45,7 +45,7 @@ type
     FResult: IGeoCodeResult;
     Fzoom: Byte;
     frLonLatPoint: TfrLonLat;
-    function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TExtendedPoint; AMessage: WideString): IGeoCodeResult;
+    function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -84,7 +84,7 @@ begin
 end;
 
 function TfrmGoTo.GeocodeResultFromLonLat(ASearch: WideString;
-  ALonLat: TExtendedPoint; AMessage: WideString): IGeoCodeResult;
+  ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
 var
   VPlace: IGeoCodePalcemark;
   VList: IInterfaceList;
@@ -107,7 +107,7 @@ var
   textsrch:String;
   VId: Integer;
   VMark: TMarkFull;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
 begin
   FZoom := CBzoom.ItemIndex;
   if RB3.Checked then begin

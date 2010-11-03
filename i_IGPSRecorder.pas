@@ -7,8 +7,8 @@ uses
 
 type
   TGPSTrackPoint = record
-    Point: TExtendedPoint;
-    Speed: Extended;
+    Point: TDoublePoint;
+    Speed: Double;
   end;
 
   TGPSTrackPointArray = array of TGPSTrackPoint;
@@ -18,10 +18,10 @@ type
     procedure AddPoint(APoint: TGPSTrackPoint);
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function GetLastPoint: TExtendedPoint;
-    function GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint): Boolean;
+    function GetLastPoint: TDoublePoint;
+    function GetTwoLastPoints(var APointLast, APointPrev: TDoublePoint): Boolean;
     function LastVisiblePoints: TGPSTrackPointArray;
-    function GetAllPoints: TExtendedPointArray;
+    function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
   end;
 

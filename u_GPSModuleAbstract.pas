@@ -19,7 +19,7 @@ type
     FLastStaticPosition: IGPSPosition;
     FEmptyDataPosition: IGPSPosition;
 
-    FPosition: TExtendedPoint;
+    FPosition: TDoublePoint;
     FAltitude: Extended;
     FSpeed_KMH: Extended;
     FHeading: Extended;
@@ -40,7 +40,7 @@ type
   protected
     function _GetSatellitesCopy: IInterfaceList;
     procedure _UpdatePosition(
-      APosition: TExtendedPoint;
+      APosition: TDoublePoint;
       AAltitude: Extended;
       ASpeed_KMH: Extended;
       AHeading: Extended;
@@ -95,7 +95,7 @@ uses
 
 constructor TGPSModuleAbstract.Create;
 var
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
   FCS := TCriticalSection.Create;
   FSatellites := TInterfaceList.Create;
@@ -221,7 +221,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleAbstract._UpdatePosition(APosition: TExtendedPoint;
+procedure TGPSModuleAbstract._UpdatePosition(APosition: TDoublePoint;
   AAltitude, ASpeed_KMH, AHeading: Extended; AUTCDateTime,
   ALocalDateTime: TDateTime; AIsFix: Word; AHDOP, AVDOP, APDOP: Extended);
 begin

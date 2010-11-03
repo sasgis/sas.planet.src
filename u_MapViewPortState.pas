@@ -23,9 +23,9 @@ type
     FZoom: Byte;
     FViewSize: TPoint;
 
-    FVisibleMove: TExtendedPoint;
-    FBaseScale: TExtendedPoint;
-    FMapScale: TExtendedPoint;
+    FVisibleMove: TDoublePoint;
+    FBaseScale: TDoublePoint;
+    FMapScale: TDoublePoint;
 
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FWriteLocked: Boolean;
@@ -65,16 +65,16 @@ type
     procedure ChangeViewSize(ANewSize: TPoint);
 
     procedure ChangeMapPixelPosAndUnlock(ANewPos: TPoint);
-    procedure ChangeLonLatAndUnlock(ALonLat: TExtendedPoint); overload;
+    procedure ChangeLonLatAndUnlock(ALonLat: TDoublePoint); overload;
     procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TPoint); overload;
-    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TExtendedPoint); overload;
+    procedure ChangeZoomAndUnlock(ANewZoom: Byte; ANewPos: TDoublePoint); overload;
 
     procedure MoveTo(Pnt: TPoint); virtual;
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload; virtual;
     procedure ScaleTo(AScale: Double); overload; virtual;
 
     function GetCenterMapPixel: TPoint;
-    function GetCenterLonLat: TExtendedPoint;
+    function GetCenterLonLat: TDoublePoint;
     function GetCurrentZoom: Byte;
     function GetCurrentMap: TMapType;
     function GetCurrentCoordConverter: ICoordConverter;
@@ -82,23 +82,23 @@ type
     function GetViewRectInVisualPixel: TRect;
     function GetViewSizeInMapPixel: TPoint;
     function GetViewSizeInVisiblePixel: TPoint;
-    function GetViewLonLatRect: TExtendedRect;
+    function GetViewLonLatRect: TDoubleRect;
     function GetViewCenterInVisualPixel: TPoint;
     function GetViewTopLeftInMapPixel: TPoint;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
-    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function VisiblePixel2MapPixel(Pnt: TDoublePoint): TDoublePoint; overload;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload;
-    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload;
+    function MapPixel2VisiblePixel(Pnt: TDoublePoint): TDoublePoint; overload;
 
     function VisibleRect2MapRect(ARect: TRect): TRect; overload;
-    function VisibleRect2MapRect(ARect: TExtendedRect): TExtendedRect; overload;
+    function VisibleRect2MapRect(ARect: TDoubleRect): TDoubleRect; overload;
     function MapRect2VisibleRect(ARect: TRect): TRect; overload;
-    function MapRect2VisibleRect(ARect: TExtendedRect): TExtendedRect; overload;
+    function MapRect2VisibleRect(ARect: TDoubleRect): TDoubleRect; overload;
 
-    function VisiblePixel2LonLat(Pnt: TPoint): TExtendedPoint; overload;
-    function VisiblePixel2LonLat(Pnt: TExtendedPoint): TExtendedPoint; overload;
-    function LonLat2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
+    function VisiblePixel2LonLat(Pnt: TPoint): TDoublePoint; overload;
+    function VisiblePixel2LonLat(Pnt: TDoublePoint): TDoublePoint; overload;
+    function LonLat2VisiblePixel(Pnt: TDoublePoint): TDoublePoint;
 
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
@@ -186,9 +186,9 @@ begin
   inherited;
 end;
 
-procedure TMapViewPortState.ChangeLonLatAndUnlock(ALonLat: TExtendedPoint);
+procedure TMapViewPortState.ChangeLonLatAndUnlock(ALonLat: TDoublePoint);
 var
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VConverter: ICoordConverter;
   VPixelPos: TPoint;
   VPosChanged: Boolean;
@@ -221,7 +221,7 @@ end;
 
 procedure TMapViewPortState.ChangeMainMapAtCurrentPoint(AMainMap: TMapType);
 var
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VConverterOld: ICoordConverter;
   VConverterNew: ICoordConverter;
   VNewPos: TPoint;
@@ -347,10 +347,10 @@ begin
 end;
 
 procedure TMapViewPortState.ChangeZoomAndUnlock(ANewZoom: Byte;
-  ANewPos: TExtendedPoint);
+  ANewPos: TDoublePoint);
 var
   VZoom: Byte;
-  VNewPos: TExtendedPoint;
+  VNewPos: TDoublePoint;
   VConverter: ICoordConverter;
   VPixelPos: TPoint;
   VChanged: Boolean;
@@ -384,7 +384,7 @@ begin
   end;
 end;
 
-function TMapViewPortState.GetCenterLonLat: TExtendedPoint;
+function TMapViewPortState.GetCenterLonLat: TDoublePoint;
 var
   VConverter: ICoordConverter;
 begin
@@ -474,7 +474,7 @@ begin
   end;
 end;
 
-function TMapViewPortState.GetViewLonLatRect: TExtendedRect;
+function TMapViewPortState.GetViewLonLatRect: TDoubleRect;
 var
   VMapRect: TRect;
 begin
@@ -528,9 +528,9 @@ begin
 end;
 
 function TMapViewPortState.LonLat2VisiblePixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
-  VMapPixel: TExtendedPoint;
+  VMapPixel: TDoublePoint;
   VConverter: ICoordConverter;
 begin
   FSync.BeginRead;
@@ -545,7 +545,7 @@ begin
 end;
 
 function TMapViewPortState.MapPixel2VisiblePixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VViewCenter: TPoint;
 begin
@@ -571,7 +571,7 @@ begin
 end;
 
 function TMapViewPortState.MapRect2VisibleRect(
-  ARect: TExtendedRect): TExtendedRect;
+  ARect: TDoubleRect): TDoubleRect;
 begin
   LockRead;
   try
@@ -584,8 +584,8 @@ end;
 
 function TMapViewPortState.MapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
-  VSourcePoint: TExtendedPoint;
-  VResultPoint: TExtendedPoint;
+  VSourcePoint: TDoublePoint;
+  VResultPoint: TDoublePoint;
 begin
   VSourcePoint.X := Pnt.X;
   VSourcePoint.Y := Pnt.Y;
@@ -594,7 +594,7 @@ begin
 end;
 
 function TMapViewPortState.VisiblePixel2MapPixel(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VViewCenter: TPoint;
 begin
@@ -620,7 +620,7 @@ begin
 end;
 
 function TMapViewPortState.VisibleRect2MapRect(
-  ARect: TExtendedRect): TExtendedRect;
+  ARect: TDoubleRect): TDoubleRect;
 begin
   LockRead;
   try
@@ -633,8 +633,8 @@ end;
 
 function TMapViewPortState.VisiblePixel2MapPixel(Pnt: TPoint): TPoint;
 var
-  VSourcePoint: TExtendedPoint;
-  VResultPoint: TExtendedPoint;
+  VSourcePoint: TDoublePoint;
+  VResultPoint: TDoublePoint;
 begin
   VSourcePoint.X := Pnt.X;
   VSourcePoint.Y := Pnt.Y;
@@ -643,7 +643,7 @@ begin
 end;
 
 function TMapViewPortState.VisiblePixel2LonLat(
-  Pnt: TPoint): TExtendedPoint;
+  Pnt: TPoint): TDoublePoint;
 var
   VZoom: Byte;
   VMapPixel: TPoint;
@@ -662,10 +662,10 @@ begin
 end;
 
 function TMapViewPortState.VisiblePixel2LonLat(
-  Pnt: TExtendedPoint): TExtendedPoint;
+  Pnt: TDoublePoint): TDoublePoint;
 var
   VZoom: Byte;
-  VMapPixel: TExtendedPoint;
+  VMapPixel: TDoublePoint;
   VConverter: ICoordConverter;
 begin
   FSync.BeginRead;
@@ -763,7 +763,7 @@ var
   VZoom: Byte;
   VZoomOld: Byte;
   VMapFreezePoint: TPoint;
-  VRelativeFreezePoint: TExtendedPoint;
+  VRelativeFreezePoint: TDoublePoint;
   VMapFreezPointAtNewZoom: TPoint;
   VNewCenterPos: TPoint;
   VFreezeDelta: TPoint;
@@ -813,7 +813,7 @@ end;
 procedure TMapViewPortState.ChangeZoomWithFreezeAtCenter(AZoom: Byte);
 var
   VConverter: ICoordConverter;
-  VRelativePoint: TExtendedPoint;
+  VRelativePoint: TDoublePoint;
   VZoom: Byte;
   VZoomOld: Byte;
   VChanged: Boolean;
@@ -961,9 +961,9 @@ end;
 
 procedure TMapViewPortState.ScaleTo(AScale: Double; ACenterPoint: TPoint);
 var
-  VVisiblePointFixed: TExtendedPoint;
-  VMapPointFixed: TExtendedPoint;
-  VNewVisualPoint: TExtendedPoint;
+  VVisiblePointFixed: TDoublePoint;
+  VMapPointFixed: TDoublePoint;
+  VNewVisualPoint: TDoublePoint;
 begin
   VVisiblePointFixed.X := ACenterPoint.X;
   VVisiblePointFixed.Y := ACenterPoint.Y;
@@ -985,9 +985,9 @@ end;
 
 procedure TMapViewPortState.ScaleTo(AScale: Double);
 var
-  VVisiblePointFixed: TExtendedPoint;
-  VMapPointFixed: TExtendedPoint;
-  VNewVisualPoint: TExtendedPoint;
+  VVisiblePointFixed: TDoublePoint;
+  VMapPointFixed: TDoublePoint;
+  VNewVisualPoint: TDoublePoint;
   VViewCenter: TPoint;
 begin
   FSync.BeginWrite;
@@ -1010,3 +1010,5 @@ begin
 end;
 
 end.
+
+

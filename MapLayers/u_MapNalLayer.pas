@@ -16,8 +16,8 @@ type
   TMapNalLayer = class(TMapLayerBasic)
   private
     FDrawType: TMapNalDrawType;
-    FPath: TExtendedPointArray;
-    FSelectedLonLat: TExtendedRect;
+    FPath: TDoublePointArray;
+    FSelectedLonLat: TDoubleRect;
     FPolyActivePointIndex: integer;
     FLenShow: Boolean;
 
@@ -37,10 +37,10 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure DrawNothing;
-    procedure DrawSelectionRect(ASelectedLonLat: TExtendedRect);
-    procedure DrawReg(ASelectedLonLatPoly: TExtendedPointArray);
-    procedure DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean; AActiveIndex: Integer);
-    procedure DrawNewPath(APathLonLat: TExtendedPointArray; AIsPoly: boolean; AActiveIndex: Integer);
+    procedure DrawSelectionRect(ASelectedLonLat: TDoubleRect);
+    procedure DrawReg(ASelectedLonLatPoly: TDoublePointArray);
+    procedure DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);
+    procedure DrawNewPath(APathLonLat: TDoublePointArray; AIsPoly: boolean; AActiveIndex: Integer);
   end;
 
 implementation
@@ -79,7 +79,7 @@ procedure TMapNalLayer.DoDrawCalcLine;
 var
   i, j, textW, adp: integer;
   k1, k2, k4: TPoint;
-  k3: TExtendedPoint;
+  k3: TDoublePoint;
   len: real;
   text: string;
   polygon: TPolygon32;
@@ -108,7 +108,7 @@ begin
             end else begin
               adp := (k2.y - k1.y) div 32767 + 2;
             end;
-            k3 := extPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+            k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
             if adp > 2 then begin
               for j := 1 to adp - 1 do begin
                 k4 := Point(round(k1.x + k3.x * j), round(k1.Y + k3.y * j));
@@ -178,7 +178,7 @@ procedure TMapNalLayer.DoDrawNewPath(AIsPoly: Boolean);
 var
   i, adp, j: integer;
   k1, k2, k4: TPoint;
-  k3: TextendedPoint;
+  k3: TDoublePoint;
   polygon: TPolygon32;
 begin
   polygon := TPolygon32.Create;
@@ -201,7 +201,7 @@ begin
           end else begin
             adp := (k2.y - k1.y) div 32767 + 2;
           end;
-          k3 := extPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+          k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
           if adp > 2 then begin
             for j := 1 to adp - 1 do begin
               k4 := Point(round(k1.x + k3.x * j), round(k1.Y + k3.y * j));
@@ -295,7 +295,7 @@ var
   VSelectedPixels: TRect;
   VZoomDelta: Byte;
   VColor: TColor32;
-  VSelectedRelative: TExtendedRect;
+  VSelectedRelative: TDoubleRect;
   VSelectedTiles: TRect;
 begin
   VSelectedPixels := FGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, FZoom);
@@ -358,7 +358,7 @@ begin
   end;
 end;
 
-procedure TMapNalLayer.DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean; AActiveIndex: Integer);
+procedure TMapNalLayer.DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);
 begin
   FDrawType := mndtCalcLen;
   FPath := Copy(APathLonLat);
@@ -367,7 +367,7 @@ begin
   Redraw;
 end;
 
-procedure TMapNalLayer.DrawNewPath(APathLonLat: TExtendedPointArray;
+procedure TMapNalLayer.DrawNewPath(APathLonLat: TDoublePointArray;
   AIsPoly: boolean; AActiveIndex: Integer);
 begin
   if AIsPoly then begin
@@ -390,14 +390,14 @@ begin
   Redraw;
 end;
 
-procedure TMapNalLayer.DrawReg(ASelectedLonLatPoly: TExtendedPointArray);
+procedure TMapNalLayer.DrawReg(ASelectedLonLatPoly: TDoublePointArray);
 begin
   FDrawType := mndtSelectPoly;
   FPath := Copy(ASelectedLonLatPoly);
   Redraw;
 end;
 
-procedure TMapNalLayer.DrawSelectionRect(ASelectedLonLat: TExtendedRect);
+procedure TMapNalLayer.DrawSelectionRect(ASelectedLonLat: TDoubleRect);
 begin
   FDrawType := mndtSelectRect;
   FPath := nil;

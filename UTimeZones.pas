@@ -1695,13 +1695,13 @@ timezone_12d75_1:array [0..4,0..1]of smallint = (
 timezone_13:array [0..6,0..1]of smallint = (
 (-18000,-2188),(-17700,-2099),(-17700,-1500),(-17250,-1500),(-17250,-2350),(-18000,-2350),(-18000,-2188));
 
- function GetTZ_(p:TextendedPoint):real;
- function PtInTZ(TestPolygon:Pointer;hg:integer; P:TextendedPoint):boolean;
+ function GetTZ_(p:TDoublePoint):Double;
+ function PtInTZ(TestPolygon:Pointer;hg:integer; P:TDoublePoint):boolean;
 
 implementation
 
 
-function PtInTZ(TestPolygon:Pointer;hg:integer; P:TextendedPoint):boolean;
+function PtInTZ(TestPolygon:Pointer;hg:integer; P:TDoublePoint):boolean;
 function GetV(x,y:integer):Single	;
 begin
  result:=SmallInt(Pointer(integer(TestPolygon)+SizeOf(SmallInt)*2*x+SizeOf(SmallInt)*y)^)/100;
@@ -1718,7 +1718,7 @@ begin
 end;
 
 
-function GetTZ_(p:TextendedPoint):real;
+function GetTZ_(p:TDoublePoint):Double;
 begin
   Result := 0;
  if (PtInTZ(@timezone_m12,length(timezone_m12),p))or

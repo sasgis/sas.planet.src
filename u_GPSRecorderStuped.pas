@@ -18,10 +18,10 @@ type
     procedure AddPoint(APoint: TGPSTrackPoint);
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function GetLastPoint: TExtendedPoint;
-    function GetTwoLastPoints(var APointLast, APointPrev: TExtendedPoint): Boolean;
+    function GetLastPoint: TDoublePoint;
+    function GetTwoLastPoints(var APointLast, APointPrev: TDoublePoint): Boolean;
     function LastVisiblePoints: TGPSTrackPointArray;
-    function GetAllPoints: TExtendedPointArray;
+    function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
   public
     constructor Create;
@@ -76,7 +76,7 @@ begin
   inherited;
 end;
 
-function TGPSRecorderStuped.GetAllPoints: TExtendedPointArray;
+function TGPSRecorderStuped.GetAllPoints: TDoublePointArray;
 var
   i: Cardinal;
 begin
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-function TGPSRecorderStuped.GetLastPoint: TExtendedPoint;
+function TGPSRecorderStuped.GetLastPoint: TDoublePoint;
 begin
   FLock.BeginRead;
   try
@@ -117,7 +117,7 @@ begin
 end;
 
 function TGPSRecorderStuped.GetTwoLastPoints(var APointLast,
-  APointPrev: TExtendedPoint): Boolean;
+  APointPrev: TDoublePoint): Boolean;
 begin
   Result := False;
   FLock.BeginRead;

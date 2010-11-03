@@ -10,14 +10,14 @@ uses
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterBasic)
   protected
-    FExct, FRadiusb: Extended;
-	   function LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
+    FExct, FRadiusb: Double;
+	   function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
+    function LonLat2MetrS(ALL: TDoublePoint): TDoublePoint; override;
+    function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
+    function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
-    constructor Create(Aradiusa, Aradiusb: Extended);
-    function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    constructor Create(Aradiusa, Aradiusb: Double);
+    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double; override;
   end;
 
 implementation
@@ -27,7 +27,7 @@ uses
 
 { TCoordConverterSimpleLonLat }
 
-constructor TCoordConverterSimpleLonLat.Create(Aradiusa, Aradiusb: Extended);
+constructor TCoordConverterSimpleLonLat.Create(Aradiusa, Aradiusb: Double);
 begin
   inherited Create;
   FRadiusa := Aradiusa;
@@ -44,7 +44,7 @@ begin
   end;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2MetrS(ALL: TDoublePoint): TDoublePoint;
 begin
   All.x := All.x * (Pi / 180);
   All.Y := All.y * (Pi / 180);
@@ -53,9 +53,9 @@ begin
     Power((1 - FExct * Sin(all.y)) / (1 + FExct * Sin(All.y)), FExct / 2)) / 2;
 end;
 
-function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
+function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
 var
-  VLL: TExtendedPoint;
+  VLL: TDoublePoint;
   b, bs: extended;
 begin
   VLL := ALL;
@@ -72,12 +72,12 @@ begin
 end;
 
 function TCoordConverterSimpleLonLat.CalcDist(AStart,
-  AFinish: TExtendedPoint): Extended;
+  AFinish: TDoublePoint): Double;
 const
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
 var
   fPhimean, fdLambda, fdPhi, fAlpha, fRho, fNu, fR, fz, fTemp, a, e2: Double;
-  VStart, VFinish: TExtendedPoint; // Координаты в радианах
+  VStart, VFinish: TDoublePoint; // Координаты в радианах
 begin
   result := 0;
   if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then begin
@@ -106,14 +106,14 @@ begin
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const XY: TDoublePoint): TDoublePoint;
 begin
   Result.x := (0.5 + XY.x / 360);
   Result.y := (0.5 - XY.y / 360);
 end;
 
 function TCoordConverterSimpleLonLat.Relative2LonLatInternal(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const XY: TDoublePoint): TDoublePoint;
 begin
   Result.X := (XY.x - 0.5) * 360;
   Result.y := -(XY.y - 0.5) * 360;

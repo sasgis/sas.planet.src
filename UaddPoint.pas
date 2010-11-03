@@ -156,7 +156,7 @@ begin
 end;
 procedure TFaddPoint.BaddClick(Sender: TObject);
 var
-  VLonLat:TExtendedPoint;
+  VLonLat:TDoublePoint;
   VCategory: TCategoryId;
   VIndex: Integer;
   VId: Integer;

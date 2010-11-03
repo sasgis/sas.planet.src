@@ -10,14 +10,14 @@ uses
 type
   TCoordConverterMercatorOnEllipsoid = class(TCoordConverterBasic)
   protected
-    FExct, FRadiusb: Extended;
-    function LonLat2MetrInternal(const ALL: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint; override;
-    function LonLat2RelativeInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
-    function Relative2LonLatInternal(const XY: TExtendedPoint): TExtendedPoint; override; stdcall;
+    FExct, FRadiusb: Double;
+    function LonLat2MetrInternal(const ALL: TDoublePoint): TDoublePoint; override;
+    function LonLat2MetrS(ALL: TDoublePoint): TDoublePoint; override;
+    function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
+    function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
-    constructor Create(Aradiusa, Aradiusb: Extended);
-    function CalcDist(AStart: TExtendedPoint; AFinish: TExtendedPoint): Extended; override;
+    constructor Create(Aradiusa, Aradiusb: Double);
+    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double; override;
   end;
 
 implementation
@@ -30,7 +30,7 @@ const
 
 { TCoordConverterMercatorOnEllipsoid }
 
-constructor TCoordConverterMercatorOnEllipsoid.Create(Aradiusa, Aradiusb: Extended);
+constructor TCoordConverterMercatorOnEllipsoid.Create(Aradiusa, Aradiusb: Double);
 begin
   inherited Create;
   Fradiusa := Aradiusa;
@@ -48,7 +48,7 @@ begin
 
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2MetrS(ALL: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnEllipsoid.LonLat2MetrS(ALL: TDoublePoint): TDoublePoint;
 begin
   All.x := All.x * (Pi / 180);
   All.Y := All.y * (Pi / 180);
@@ -57,9 +57,9 @@ begin
     Power((1 - FExct * Sin(all.y)) / (1 + FExct * Sin(All.y)), FExct / 2)) / 2;
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TExtendedPoint): TExtendedPoint;
+function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
 var
-  VLL: TExtendedPoint;
+  VLL: TDoublePoint;
   b, bs: extended;
 begin
   VLL := ALL;
@@ -73,12 +73,12 @@ begin
 end;
 
 function TCoordConverterMercatorOnEllipsoid.CalcDist(AStart,
-  AFinish: TExtendedPoint): Extended;
+  AFinish: TDoublePoint): Double;
 const
   D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
 var
   fPhimean, fdLambda, fdPhi, fAlpha, fRho, fNu, fR, fz, fTemp, a, e2: Double;
-  VStart, VFinish: TExtendedPoint; // Координаты в радианах
+  VStart, VFinish: TDoublePoint; // Координаты в радианах
 begin
   result := 0;
   if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then begin
@@ -107,10 +107,10 @@ begin
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const XY: TDoublePoint): TDoublePoint;
 var
   z, c: Extended;
-  VLL: TExtendedPoint;
+  VLL: TDoublePoint;
 begin
   VLL := XY;
   Result.x := (0.5 + VLl.x / 360);
@@ -120,10 +120,10 @@ begin
 end;
 
 function TCoordConverterMercatorOnEllipsoid.Relative2LonLatInternal(
-  const XY: TExtendedPoint): TExtendedPoint;
+  const XY: TDoublePoint): TDoublePoint;
 var
   zu, zum1, yy: extended;
-  VXY: TExtendedPoint;
+  VXY: TDoublePoint;
   VSin: Extended;
   e_y: Extended;
 begin

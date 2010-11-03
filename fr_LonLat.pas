@@ -36,10 +36,10 @@ type
     flwpnlLon: TFlowPanel;
     grdpnlMain: TGridPanel;
   private
-    function GetLonLat: TExtendedPoint;
-    procedure SetLonLat(const Value: TExtendedPoint);
+    function GetLonLat: TDoublePoint;
+    procedure SetLonLat(const Value: TDoublePoint);
   public
-    property LonLat: TExtendedPoint read GetLonLat write SetLonLat;
+    property LonLat: TDoublePoint read GetLonLat write SetLonLat;
   end;
 
 implementation
@@ -51,13 +51,13 @@ uses
 
 { TfrLonLat }
 
-function TfrLonLat.GetLonLat: TExtendedPoint;
+function TfrLonLat.GetLonLat: TDoublePoint;
 begin
   Result.X:=DMS2G(edtLonDeg.Value,edtLonMin.Value,edtLonSec.Value,cbbLonWE.Itemindex=1);
   Result.Y:=DMS2G(edtLatDeg.Value,edtLatMin.Value,edtLatSec.Value,cbbLatNS.Itemindex=1);
 end;
 
-procedure TfrLonLat.SetLonLat(const Value: TExtendedPoint);
+procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
 var
   DMS:TDMS;
 begin

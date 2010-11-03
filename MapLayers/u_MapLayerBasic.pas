@@ -35,14 +35,14 @@ type
     procedure RedrawPartial(ANewCenterPos: TPoint); virtual;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload; virtual;
-    function VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+    function VisiblePixel2MapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
     function MapPixel2VisiblePixel(Pnt: TPoint): TPoint; overload; virtual;
-    function MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+    function MapPixel2VisiblePixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
 
     function BitmapPixel2MapPixel(Pnt: TPoint): TPoint; overload; virtual;
-    function BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+    function BitmapPixel2MapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
-    function MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint; overload; virtual;
+    function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure Redraw; override;
@@ -146,9 +146,9 @@ begin
   Result := BitmapPixel2VisiblePixel(Pnt);
 end;
 
-function TMapLayerBasicNoBitmap.MapPixel2VisiblePixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TMapLayerBasicNoBitmap.MapPixel2VisiblePixel(Pnt: TDoublePoint): TDoublePoint;
 var
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
   VPoint := MapPixel2BitmapPixel(Pnt);
   Result := BitmapPixel2VisiblePixel(VPoint);
@@ -162,9 +162,9 @@ begin
   Result := BitmapPixel2MapPixel(VPoint);
 end;
 
-function TMapLayerBasicNoBitmap.VisiblePixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TMapLayerBasicNoBitmap.VisiblePixel2MapPixel(Pnt: TDoublePoint): TDoublePoint;
 var
-  VPoint: TExtendedPoint;
+  VPoint: TDoublePoint;
 begin
   VPoint := VisiblePixel2BitmapPixel(Pnt);
   Result := BitmapPixel2MapPixel(VPoint);
@@ -232,7 +232,7 @@ begin
   Result.Y := ScreenCenterPos.Y - VScreenCenterInBitmap.Y + Pnt.y;
 end;
 
-function TMapLayerBasicNoBitmap.BitmapPixel2MapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TMapLayerBasicNoBitmap.BitmapPixel2MapPixel(Pnt: TDoublePoint): TDoublePoint;
 var
   VScreenCenterInBitmap: TPoint;
 begin
@@ -250,7 +250,7 @@ begin
   Result.Y := Pnt.Y - ScreenCenterPos.Y + VScreenCenterInBitmap.Y;
 end;
 
-function TMapLayerBasicNoBitmap.MapPixel2BitmapPixel(Pnt: TExtendedPoint): TExtendedPoint;
+function TMapLayerBasicNoBitmap.MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint;
 var
   VScreenCenterInBitmap: TPoint;
 begin

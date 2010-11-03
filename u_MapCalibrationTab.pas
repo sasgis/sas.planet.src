@@ -43,8 +43,8 @@ var
   f: TextFile;
   xy: TPoint;
   lat, lon: array[1..3] of real;
-  VLL1, VLL2: TExtendedPoint;
-  VLL: TExtendedPoint;
+  VLL1, VLL2: TDoublePoint;
+  VLL: TDoublePoint;
 begin
   assignfile(f, ChangeFileExt(AFileName, '.tab'));
   rewrite(f);
