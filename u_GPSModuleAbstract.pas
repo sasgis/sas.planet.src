@@ -20,15 +20,15 @@ type
     FEmptyDataPosition: IGPSPosition;
 
     FPosition: TDoublePoint;
-    FAltitude: Extended;
-    FSpeed_KMH: Extended;
-    FHeading: Extended;
+    FAltitude: Double;
+    FSpeed_KMH: Double;
+    FHeading: Double;
     FUTCDateTime: TDateTime;
     FLocalDateTime: TDateTime;
     FIsFix: Word;
-    FHDOP: Extended;
-    FVDOP: Extended;
-    FPDOP: Extended;
+    FHDOP: Double;
+    FVDOP: Double;
+    FPDOP: Double;
     FFixCount: Integer;
     FSatellites: IInterfaceList;
 
@@ -41,15 +41,15 @@ type
     function _GetSatellitesCopy: IInterfaceList;
     procedure _UpdatePosition(
       APosition: TDoublePoint;
-      AAltitude: Extended;
-      ASpeed_KMH: Extended;
-      AHeading: Extended;
+      AAltitude: Double;
+      ASpeed_KMH: Double;
+      AHeading: Double;
       AUTCDateTime: TDateTime;
       ALocalDateTime: TDateTime;
       AIsFix: Word;
-      AHDOP: Extended;
-      AVDOP: Extended;
-      APDOP: Extended
+      AHDOP: Double;
+      AVDOP: Double;
+      APDOP: Double
     );
     procedure _UpdateSatellitesCount(
       AFixCount: Integer;
@@ -222,8 +222,8 @@ begin
 end;
 
 procedure TGPSModuleAbstract._UpdatePosition(APosition: TDoublePoint;
-  AAltitude, ASpeed_KMH, AHeading: Extended; AUTCDateTime,
-  ALocalDateTime: TDateTime; AIsFix: Word; AHDOP, AVDOP, APDOP: Extended);
+  AAltitude, ASpeed_KMH, AHeading: Double; AUTCDateTime,
+  ALocalDateTime: TDateTime; AIsFix: Word; AHDOP, AVDOP, APDOP: Double);
 begin
   if FPosition.X <> APosition.X then begin
     FPosition.X := APosition.X;

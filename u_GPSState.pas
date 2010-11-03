@@ -32,18 +32,18 @@ type
     procedure OnGpsDataReceive;
     procedure OnGpsDisconnect;
   public
-    speed: extended;
-    len: extended;
-    sspeed: extended;
-    allspeed: extended;
+    speed: Double;
+    len: Double;
+    sspeed: Double;
+    allspeed: Double;
     sspeednumentr: integer;
-    altitude: extended;
-    maxspeed: extended;
+    altitude: Double;
+    maxspeed: Double;
     nap: integer;
-    azimut: extended;
-    Odometr: extended;
-    Odometr2: extended;
-    SignalStrength: extended;
+    azimut: Double;
+    Odometr: Double;
+    Odometr2: Double;
+    SignalStrength: Double;
 
     //–азмер указател€ направлени€ при GPS-навигации
     GPS_ArrowSize: Integer;
@@ -242,7 +242,7 @@ var
   VPointCurr: TDoublePoint;
   VPointPrev: TDoublePoint;
   VTrackPoint: TGPSTrackPoint;
-  VDistToPrev: Extended;
+  VDistToPrev: Double;
   VConverter: ICoordConverter;
 begin
   VPosition := GPSModele.Position;

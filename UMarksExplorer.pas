@@ -78,8 +78,8 @@ var
   function DeleteMarkModal(id:integer;handle:THandle):boolean;
   function OperationMark(AMark: TMarkFull):boolean;
   function AddKategory(name:string): integer;
-  function GetMarkLength(AMark: TMarkFull):extended;
-  function GetMarkSq(AMark: TMarkFull):extended;
+  function GetMarkLength(AMark: TMarkFull):Double;
+  function GetMarkSq(AMark: TMarkFull):Double;
   function EditMarkModal(AMark: TMarkFull):boolean;
   function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
   function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
@@ -340,7 +340,7 @@ begin
   end;
 end;
 
-function GetMarkLength(AMark: TMarkFull):extended;
+function GetMarkLength(AMark: TMarkFull):Double;
 var
   i:integer;
   VConverter: ICoordConverter;
@@ -356,7 +356,7 @@ begin
   end;
 end;
 
-function GetMarkSq(AMark: TMarkFull):extended;
+function GetMarkSq(AMark: TMarkFull):Double;
 var
   VConverter: ICoordConverter;
 begin

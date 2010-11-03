@@ -1261,7 +1261,7 @@ var
   s_len,n_len: string;
   sps: _SYSTEM_POWER_STATUS;
   VPoint: TDoublePoint;
-  VDist: Extended;
+  VDist: Double;
 begin
  try
    //скорость
@@ -1840,7 +1840,7 @@ procedure TFmain.zooming(ANewZoom:byte;move:boolean);
   end;
 var i,steps:integer;
     ts1,ts2,fr:int64;
-    Scale: Extended;
+    Scale: Double;
     VZoom: Byte;
 begin
   TBZoom_Out.Enabled := False;
@@ -3958,7 +3958,7 @@ procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 var
   VId: Integer;
   VMark: TMarkFull;
-  VLen: Extended;
+  VLen: Double;
   VMessage: string;
   VPWL: TResObj;
 begin
@@ -3984,7 +3984,7 @@ procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
 var
   VId: Integer;
   VMark: TMarkFull;
-  VArea: Extended;
+  VArea: Double;
   VMessage: string;
   VPWL: TResObj;
 begin
@@ -4014,7 +4014,7 @@ procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 var
   VId: Integer;
   VMark: TMarkFull;
-  VLen: Extended;
+  VLen: Double;
   VMessage: string;
   VPWL: TResObj;
 begin
