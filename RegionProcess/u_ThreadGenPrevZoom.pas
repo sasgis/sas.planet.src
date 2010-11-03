@@ -49,6 +49,7 @@ uses
   i_ICoordConverter,
   u_TileIteratorAbstract,
   u_TileIteratorStuped,
+  u_TileIteratorByRect,
   u_GlobalState;
 
 constructor TThreadGenPrevZoom.Create(Azoom: byte; AInZooms: TArrayOfByte; APolygLL: TDoublePointArray; Atypemap: TMapType; AReplace: boolean; Asavefull: boolean; AGenFormPrev: boolean; AResampler: TTileResamplingType);
@@ -69,7 +70,7 @@ procedure TThreadGenPrevZoom.ProcessRegion;
 var
   bmp_ex: TCustomBitmap32;
   bmp: TCustomBitmap32;
-  i, VSubTileCount, p_i, p_j: integer;
+  i, VSubTileCount: integer;
   VSubTilesSavedCount: integer;
   VZoomPrev: Byte;
   VZoom: Byte;
@@ -84,6 +85,7 @@ var
   VRelativeRect: TDoubleRect;
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
+  VSubTileIterator: TTileIteratorAbstract;
 begin
   inherited;
   FTilesToProcess := 0;
@@ -139,37 +141,32 @@ begin
           end;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
           VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
-          VSubTileCount :=
-            (VRectOfSubTiles.Right - VRectOfSubTiles.Left)
-            *(VRectOfSubTiles.Bottom - VRectOfSubTiles.Top);
+          VSubTileIterator := TTileIteratorByRect.Create(VRectOfSubTiles);
+          VSubTileCount := VSubTileIterator.TilesTotal;
           VSubTilesSavedCount := 0;
-          for p_i := VRectOfSubTiles.Left to VRectOfSubTiles.Right - 1 do begin
-            VSubTile.X := p_i;
-            for p_j := VRectOfSubTiles.Top to VRectOfSubTiles.Bottom - 1 do begin
-              VSubTile.Y := p_j;
-              if FMapType.TileExists(VSubTile, VZoomPrev) then begin
-                if (FMapType.LoadTile(bmp, VSubTile, VZoomPrev, false)) then begin
-                  VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
-                  VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
-                  VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
-                  VSubTileBounds.Left := 0;
-                  VSubTileBounds.Top := 0;
-                  VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
-                  VSubTileInTargetBounds := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, VZoom);
-                  VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
-                  VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
-                  VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
-                  VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
-                  bmp_ex.Draw(VSubTileInTargetBounds, VSubTileBounds, bmp);
-                  inc(VSubTilesSavedCount);
-                end else begin
-                  Assert(False, 'Ошибка чтения тайла.');
-                end;
+          while VSubTileIterator.Next(VSubTile) do begin
+            if FMapType.TileExists(VSubTile, VZoomPrev) then begin
+              if (FMapType.LoadTile(bmp, VSubTile, VZoomPrev, false)) then begin
+                VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
+                VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
+                VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
+                VSubTileBounds.Left := 0;
+                VSubTileBounds.Top := 0;
+                VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
+                VSubTileInTargetBounds := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, VZoom);
+                VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
+                VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
+                VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
+                VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
+                bmp_ex.Draw(VSubTileInTargetBounds, VSubTileBounds, bmp);
+                inc(VSubTilesSavedCount);
+              end else begin
+                Assert(False, 'Ошибка чтения тайла.');
               end;
-              inc(FTilesProcessed);
-              if (FTilesProcessed mod 30 = 0) then begin
-                ProgressFormUpdateOnProgress;
-              end;
+            end;
+            inc(FTilesProcessed);
+            if (FTilesProcessed mod 30 = 0) then begin
+              ProgressFormUpdateOnProgress;
             end;
           end;
           if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
