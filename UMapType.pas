@@ -175,6 +175,8 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_GECache,
+  u_TileIteratorAbstract,
+  u_TileIteratorByRect,
   u_TileStorageGEStuped,
   u_TileStorageFileSystem,
   u_CoordConverterBasic,
@@ -658,10 +660,10 @@ var
   VCurrTile: TPoint;
   VTileSize: TPoint;
   VSourceTilePixels: TRect;
-  i, j: Integer;
   VClMZ: TColor32;
   VClTne: TColor32;
   VSolidDrow: Boolean;
+  VIterator: TTileIteratorAbstract;
 begin
   Result := true;
   try
@@ -685,55 +687,48 @@ begin
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
       VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
-
-      for i := VSourceTilesRect.Top to VSourceTilesRect.Bottom - 1 do begin
-        VCurrTile.Y := i;
+      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
+      while VIterator.Next(VCurrTile) do begin
         if IsStop^ then break;
-        for j := VSourceTilesRect.Left to VSourceTilesRect.Right - 1 do begin
-          VCurrTile.X := j;
+        if not TileExists(VCurrTile, ASourceZoom) then begin
           if IsStop^ then break;
-          if not TileExists(VCurrTile, ASourceZoom) then begin
-            if IsStop^ then break;
-            VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-            VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
-            if VSourceTilePixels.Left < VPixelsRect.Left then begin
-              VSourceTilePixels.Left := VPixelsRect.Left;
-            end;
-            if VSourceTilePixels.Top < VPixelsRect.Top then begin
-              VSourceTilePixels.Top := VPixelsRect.Top;
-            end;
-            if VSourceTilePixels.Right > VPixelsRect.Right then begin
-              VSourceTilePixels.Right := VPixelsRect.Right;
-            end;
-            if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
-              VSourceTilePixels.Bottom := VPixelsRect.Bottom;
-            end;
-            VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
-            VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
-            VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
-            VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-            if not VSolidDrow then begin
-              Dec(VSourceTilePixels.Right);
-              Dec(VSourceTilePixels.Bottom);
-            end;
-            if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-               ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-              if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
-                btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClTne;
-              end else begin
-                btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClMZ;
-              end;
+          VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
+          VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+          if VSourceTilePixels.Left < VPixelsRect.Left then begin
+            VSourceTilePixels.Left := VPixelsRect.Left;
+          end;
+          if VSourceTilePixels.Top < VPixelsRect.Top then begin
+            VSourceTilePixels.Top := VPixelsRect.Top;
+          end;
+          if VSourceTilePixels.Right > VPixelsRect.Right then begin
+            VSourceTilePixels.Right := VPixelsRect.Right;
+          end;
+          if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
+            VSourceTilePixels.Bottom := VPixelsRect.Bottom;
+          end;
+          VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
+          VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
+          VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
+          VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
+          if not VSolidDrow then begin
+            Dec(VSourceTilePixels.Right);
+            Dec(VSourceTilePixels.Bottom);
+          end;
+          if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
+             ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
+            if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
+              btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClTne;
             end else begin
-              if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
-                btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClTne);
-              end else begin
-                btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClMZ);
-              end;
+              btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClMZ;
+            end;
+          end else begin
+            if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
+              btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClTne);
+            end else begin
+              btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClMZ);
             end;
           end;
-          if IsStop^ then break;
         end;
-        if IsStop^ then break;
       end;
     end;
     if IsStop^ then begin
