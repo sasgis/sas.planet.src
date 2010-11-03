@@ -103,11 +103,10 @@ begin
           VExt := FMapType.TileStorage.TileFileExt;
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
           VTileIterator := VTileIterators[i];
-          while VTileIterator.Next do begin
+          while VTileIterator.Next(VTile) do begin
             if IsCancel then begin
               exit;
             end;
-            VTile := VTileIterator.Current;
             if VTileStorage.ExistsTile(VTile, VZoom) then begin
               VMemStream.Position := 0;
               if VTileStorage.LoadTile(VTile, VZoom, VMemStream) then begin

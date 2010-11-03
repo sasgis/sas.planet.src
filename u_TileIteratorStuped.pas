@@ -9,7 +9,7 @@ uses
   u_TileIteratorAbstract;
 
 type
-  TTileIteratorStuped = class(TTileIteratorAbstract)
+  TTileIteratorStuped = class(TTileIteratorByPolygonAbstract)
   private
     p_x, p_y: Integer;
     FPolyg: TPointArray;
@@ -17,7 +17,7 @@ type
   public
     constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter); override;
     destructor Destroy; override;
-    function Next: Boolean; override;
+    function Next(out ATile: TPoint): Boolean; override;
   end;
 
 implementation
@@ -44,9 +44,8 @@ begin
   inherited;
 end;
 
-function TTileIteratorStuped.Next: Boolean;
+function TTileIteratorStuped.Next(out ATile: TPoint): Boolean;
 begin
-
   Result := False;
   while p_x < FPixelRect.Right do begin
     FCurrent.X := p_x shr 8;
@@ -68,6 +67,7 @@ begin
       inc(p_x, 256);
     end;
   end;
+  ATile := FCurrent;
 end;
 
 end.

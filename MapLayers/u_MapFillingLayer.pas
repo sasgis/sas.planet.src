@@ -370,12 +370,10 @@ begin
       VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
       VTileIterator := TTileIteratorStuped.Create(VZoom, VSourceLonLatRect, VSourceGeoConvert);
-      while VTileIterator.Next do begin
+      while VTileIterator.Next(VTile) do begin
         if FNeedRedrow then begin
           break;
         end;
-        VTile.X := VTileIterator.Current.X;
-        VTile.Y := VTileIterator.Current.Y;
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
         VTilePixelsToDraw.TopLeft := Point(0, 0);
         VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;

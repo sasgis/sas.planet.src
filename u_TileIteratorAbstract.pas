@@ -10,20 +10,24 @@ uses
 type
   TTileIteratorAbstract = class
   protected
+    FTilesTotal: Int64;
+    FTilesRect: TRect;
+  public
+    function Next(out ATile: TPoint): Boolean; virtual; abstract;
+    property TilesTotal: Int64 read FTilesTotal;
+    property TilesRect: TRect read FTilesRect;
+  end;
+
+  TTileIteratorByPolygonAbstract = class(TTileIteratorAbstract)
+  protected
     FPolygLL: TExtendedPointArray;
     FZoom: byte;
     FGeoConvert: ICoordConverter;
     FCurrent: TPoint;
-    FTilesTotal: Int64;
-    FTilesRect: TRect;
   public
     constructor Create(AZoom: byte; APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter); overload; virtual;
     constructor Create(AZoom: byte; ARectLL: TExtendedRect; AGeoConvert: ICoordConverter); overload; virtual;
     destructor Destroy; override;
-    function Next: Boolean; virtual; abstract;
-    property Current: TPoint read FCurrent;
-    property TilesTotal: Int64 read FTilesTotal;
-    property TilesRect: TRect read FTilesRect;
   end;
 
 implementation
@@ -31,9 +35,9 @@ implementation
 uses
   Ugeofun;
 
-{ TTileIteratorAbstract }
+{ TTileIteratorByPolygonAbstract }
 
-constructor TTileIteratorAbstract.Create(AZoom: byte;
+constructor TTileIteratorByPolygonAbstract.Create(AZoom: byte;
   APolygLL: TExtendedPointArray; AGeoConvert: ICoordConverter);
 begin
   FZoom := AZoom;
@@ -41,13 +45,13 @@ begin
   FGeoConvert := AGeoConvert;
 end;
 
-constructor TTileIteratorAbstract.Create(AZoom: byte;
+constructor TTileIteratorByPolygonAbstract.Create(AZoom: byte;
   ARectLL: TExtendedRect; AGeoConvert: ICoordConverter);
 begin
   Create(AZoom, PolygonFromRect(ARectLL), AGeoConvert);
 end;
 
-destructor TTileIteratorAbstract.Destroy;
+destructor TTileIteratorByPolygonAbstract.Destroy;
 begin
   FPolygLL := nil;
   FGeoConvert := nil;

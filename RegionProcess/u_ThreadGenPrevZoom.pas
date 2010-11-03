@@ -120,11 +120,10 @@ begin
         end;
         VZoom := FZooms[i];
         VTileIterator := VTileIterators[i];
-        while VTileIterator.Next do begin
+        while VTileIterator.Next(VTile) do begin
           if IsCancel then begin
             exit;
           end;
-          VTile := VTileIterator.Current;
           VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
           if FMapType.TileExists(VTile, VZoom) then begin
             if not (FIsReplace) then begin

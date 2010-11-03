@@ -121,11 +121,10 @@ begin
         for i := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[i];
           VTileIterator := VTileIterators[i];
-          while VTileIterator.Next do begin
+          while VTileIterator.Next(VTile) do begin
             if IsCancel then begin
               exit;
             end;
-            VTile := VTileIterator.Current;
             for j := 0 to 2 do begin
               VMapType := FMapTypeArr[j];
               if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin

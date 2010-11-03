@@ -242,11 +242,10 @@ begin
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
         VTileIterator := VTileIterators[i];
-        while VTileIterator.Next do begin
+        while VTileIterator.Next(VTile) do begin
           if IsCancel then begin
             exit;
           end;
-          VTile := VTileIterator.Current;
           for j := 0 to Length(FMapTypeArr) - 1 do begin
             if FMapTypeArr[j] <> nil then begin
               if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, False, VGeoConvert, False, true, true) then begin

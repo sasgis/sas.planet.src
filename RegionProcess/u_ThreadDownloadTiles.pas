@@ -216,11 +216,10 @@ begin
     FTotalInRegion := VTileIterator.TilesTotal;
     FLastSuccessfulPoint := Point(-1,-1);
     if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0)  then begin
-      while VTileIterator.Next do begin
+      while VTileIterator.Next(VTile) do begin
         if Terminated then begin
           Break;;
         end;
-        VTile := VTileIterator.Current;
         if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
           Break;
         end;
@@ -228,11 +227,10 @@ begin
 
     end;
     if not Terminated then begin
-      while VTileIterator.Next do begin
+      while VTileIterator.Next(VTile) do begin
         if Terminated then begin
           Break;
         end;
-        VTile := VTileIterator.Current;
         VGotoNextTile := false;
         while not VGotoNextTile do begin
           if (FDownloadPause) then begin

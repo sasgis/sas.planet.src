@@ -67,11 +67,10 @@ begin
       '',
       SAS_STR_Deleted + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')'
     );
-    while VTileIterator.Next do begin
+    while VTileIterator.Next(VTile) do begin
       if IsCancel then begin
         exit;
       end;
-      VTile := VTileIterator.Current;
       if (not DelBytes or (DelBytesNum = FMapType.TileSize(VTile, FZoom))) then begin
         if FMapType.DeleteTile(VTile, FZoom) then begin
           inc(FDeletedCount);

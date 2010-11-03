@@ -102,11 +102,10 @@ begin
         VExt := VMapType.TileStorage.TileFileExt;
         VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
         VTileIterator := VTileIterators[j, i];
-        while VTileIterator.Next do begin
+        while VTileIterator.Next(VTile) do begin
           if IsCancel then begin
             exit;
           end;
-          VTile := VTileIterator.Current;
           if VMapType.TileExists(VTile, VZoom) then begin
             pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
             if VMapType.TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
