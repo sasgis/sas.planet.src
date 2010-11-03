@@ -128,9 +128,9 @@ begin
             VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
             VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
             VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-            if VSolidDrow then begin
-              Inc(VSourceTilePixels.Right);
-              Inc(VSourceTilePixels.Bottom);
+            if not VSolidDrow then begin
+              Dec(VSourceTilePixels.Right);
+              Dec(VSourceTilePixels.Bottom);
             end;
             if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
                ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin

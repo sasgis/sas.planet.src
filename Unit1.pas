@@ -1766,7 +1766,6 @@ begin
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
-    FLayersList.StartThreads;
     ProgramStart:=false;
 
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1814,6 +1813,7 @@ begin
     end;
 
 
+    FLayersList.StartThreads;
     GState.StartThreads;
     FMainLayer.Visible := True;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;

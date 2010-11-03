@@ -181,11 +181,11 @@ end;
 procedure TMapFillingLayer.Redraw;
 begin
   if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom <= FSourceZoom) then begin
-    if not FLayer.Visible then begin
-      FLayer.Visible := true;
+    if not Visible then begin
+      Visible := true;
     end;
   end else begin
-    FLayer.Visible := false;
+    Visible := false;
   end;
   inherited;
 
