@@ -117,6 +117,7 @@ uses
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   u_TileIteratorAbstract in 'u_TileIteratorAbstract.pas',
   u_TileIteratorStuped in 'u_TileIteratorStuped.pas',
+  u_TileIteratorSpiralByRect in 'u_TileIteratorSpiralByRect.pas',
   u_GECache in 'u_GECache.pas',
   u_GECrypt in 'u_GECrypt.pas',
   u_GETexture in 'u_GETexture.pas',
