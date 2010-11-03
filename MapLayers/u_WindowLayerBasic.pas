@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   GR32,
   GR32_Image,
   GR32_Layers,
@@ -14,16 +15,45 @@ uses
   u_MapViewPortState;
 
 type
+
   TWindowLayerBasic = class
+  private
+    FCS: TCriticalSection;
+    FRedrawCounter: Cardinal;
+    FRedrawTime: TDateTime;
   protected
     FParentMap: TImage32;
-    FLayerPositioned: TPositionedLayer;
     FViewPortState: TMapViewPortState;
-    FMapPosChangeListener: IJclListener;
+    FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
 
+    FLayerPositioned: TPositionedLayer;
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
+
+    function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; virtual;
+    procedure DoShow; virtual;
+    procedure DoHide; virtual;
+    procedure DoRedraw; virtual; abstract;
+    procedure IncRedrawCounter(ATime: TDateTime);
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
+    procedure StartThreads; virtual;
+    procedure SendTerminateToThreads; virtual;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
+    procedure Show; virtual;
+    procedure Hide; virtual;
+    procedure Redraw; virtual;
+    property Visible: Boolean read GetVisible write SetVisible;
+    property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
+    property RedrawCounter: Cardinal read FRedrawCounter;
+    property RedrawTime: TDateTime read FRedrawTime;
+  end;
+
+  TWindowLayerBasicOld = class(TWindowLayerBasic)
+  protected
 
 {
  Используемые системы координат:
@@ -52,44 +82,37 @@ type
     // Переводит координаты прямоугольника битмапки в координаты VisualPixel
     function GetMapLayerLocationRect: TRect; virtual;
 
+    procedure DoRedraw; override;
     procedure DoResizeBitmap; virtual;
-    procedure DoRedraw; virtual; abstract;
     procedure DoResize; virtual;
-    function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; virtual;
+    procedure DoShow; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-    destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
-    procedure StartThreads; virtual;
-    procedure SendTerminateToThreads; virtual;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
     procedure Resize; virtual;
-    procedure Show; virtual;
-    procedure Hide; virtual;
-    procedure Redraw; virtual;
-    property Visible: Boolean read GetVisible write SetVisible;
-    property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
   end;
 
-  TWindowLayerBasicWithBitmap = class(TWindowLayerBasic)
+  TWindowLayerBasicWithBitmap = class(TWindowLayerBasicOld)
   protected
     FLayer: TBitmapLayer;
     function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; override;
     procedure DoResizeBitmap; override;
+    procedure DoHide; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-    procedure Hide; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   Forms,
   Types,
   u_JclNotify;
 
+{ TWindowLayerBasic }
+
 constructor TWindowLayerBasic.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
+  FCS := TCriticalSection.Create;
   FParentMap := AParentMap;
   FViewPortState := AViewPortState;
 
@@ -97,8 +120,11 @@ begin
 
   FLayerPositioned.MouseEvents := false;
   FLayerPositioned.Visible := false;
+  FVisible := False;
 
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
+  FRedrawCounter := 0;
+  FRedrawTime  := 0;
 end;
 
 function TWindowLayerBasic.CreateLayer(
@@ -109,7 +135,7 @@ end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
-  FMapPosChangeListener := nil;
+  FreeAndNil(FCS);
   FViewPortState := nil;
   FParentMap := nil;
   FLayerPositioned := nil;
@@ -117,15 +143,40 @@ begin
   inherited;
 end;
 
+procedure TWindowLayerBasic.DoHide;
+begin
+  FVisible := False;
+  FLayerPositioned.Visible := False;
+end;
+
+procedure TWindowLayerBasic.DoShow;
+begin
+  FVisible := True;
+  FLayerPositioned.Visible := True;
+end;
+
 function TWindowLayerBasic.GetVisible: Boolean;
 begin
-  Result := FLayerPositioned.Visible;
+  Result := FVisible;
 end;
 
 procedure TWindowLayerBasic.Hide;
 begin
-  FLayerPositioned.Visible := False;
-  FVisibleChangeNotifier.Notify(nil);
+  if Visible then begin
+    DoHide;
+    FVisibleChangeNotifier.Notify(nil);
+  end;
+end;
+
+procedure TWindowLayerBasic.IncRedrawCounter(ATime: TDateTime);
+begin
+  FCS.Acquire;
+  try
+    Inc(FRedrawCounter);
+    FRedrawTime := FRedrawTime + ATime;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TWindowLayerBasic.LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -133,10 +184,23 @@ begin
   // По умолчанию ничего не делаем
 end;
 
-procedure TWindowLayerBasic.Resize;
+procedure TWindowLayerBasic.Redraw;
+var
+  VPerformanceCounterBegin: Int64;
+  VPerformanceCounterEnd: Int64;
+  VPerformanceCounterFr: Int64;
+  VUpdateTime: TDateTime;
 begin
-  if FLayerPositioned.Visible then begin
-    DoResize;
+  if Visible then begin
+    try
+      QueryPerformanceCounter(VPerformanceCounterBegin);
+      DoRedraw;
+    finally
+      QueryPerformanceCounter(VPerformanceCounterEnd);
+      QueryPerformanceFrequency(VPerformanceCounterFr);
+      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr;
+      IncRedrawCounter(VUpdateTime);
+    end;
   end;
 end;
 
@@ -162,11 +226,9 @@ end;
 
 procedure TWindowLayerBasic.Show;
 begin
-  if not FLayerPositioned.Visible then begin
-    FLayerPositioned.Visible := True;
+  if not Visible then begin
+    DoShow;
     FVisibleChangeNotifier.Notify(nil);
-    Resize;
-    Redraw;
   end;
 end;
 
@@ -175,35 +237,49 @@ begin
   // По умолчанию ничего не делаем
 end;
 
-function TWindowLayerBasic.GetScale: double;
+{ TWindowLayerBasicOld }
+
+procedure TWindowLayerBasicOld.Resize;
+begin
+  if Visible then begin
+    DoResize;
+  end;
+end;
+
+function TWindowLayerBasicOld.GetScale: double;
 begin
   Result := 1;
 end;
 
-procedure TWindowLayerBasic.Redraw;
-begin
-  if Visible then begin
-    DoResizeBitmap;
-    DoRedraw;
-  end;
-end;
-
-procedure TWindowLayerBasic.DoResizeBitmap;
+procedure TWindowLayerBasicOld.DoResizeBitmap;
 begin
 end;
 
-procedure TWindowLayerBasic.DoResize;
+procedure TWindowLayerBasicOld.DoShow;
+begin
+  inherited;
+  Resize;
+  Redraw;
+end;
+
+procedure TWindowLayerBasicOld.DoRedraw;
+begin
+  DoResizeBitmap;
+  inherited;
+end;
+
+procedure TWindowLayerBasicOld.DoResize;
 begin
   FLayerPositioned.Location := floatrect(GetMapLayerLocationRect);
 end;
 
-function TWindowLayerBasic.GetVisibleSizeInPixel: TPoint;
+function TWindowLayerBasicOld.GetVisibleSizeInPixel: TPoint;
 begin
   Result.X := FParentMap.Width;
   Result.Y := FParentMap.Height;
 end;
 
-function TWindowLayerBasic.GetMapLayerLocationRect: TRect;
+function TWindowLayerBasicOld.GetMapLayerLocationRect: TRect;
 var
   VBitmapSize: TPoint;
 begin
@@ -212,8 +288,7 @@ begin
   Result.BottomRight := BitmapPixel2VisiblePixel(VBitmapSize);
 end;
 
-
-function TWindowLayerBasic.VisiblePixel2BitmapPixel(
+function TWindowLayerBasicOld.VisiblePixel2BitmapPixel(
   Pnt: TExtendedPoint): TExtendedPoint;
 var
   VFreezePointInVisualPixel: TPoint;
@@ -228,7 +303,7 @@ begin
   Result.Y := (Pnt.Y - VFreezePointInVisualPixel.Y) / VScale + VFreezePointInBitmapPixel.Y;
 end;
 
-function TWindowLayerBasic.VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint;
+function TWindowLayerBasicOld.VisiblePixel2BitmapPixel(Pnt: TPoint): TPoint;
 var
   VFreezePointInVisualPixel: TPoint;
   VFreezePointInBitmapPixel: TPoint;
@@ -243,7 +318,7 @@ begin
 end;
 
 
-function TWindowLayerBasic.BitmapPixel2VisiblePixel(Pnt: TPoint): TPoint;
+function TWindowLayerBasicOld.BitmapPixel2VisiblePixel(Pnt: TPoint): TPoint;
 var
   VFreezePointInVisualPixel: TPoint;
   VFreezePointInBitmapPixel: TPoint;
@@ -257,7 +332,7 @@ begin
   Result.Y := Trunc((Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y);
 end;
 
-function TWindowLayerBasic.BitmapPixel2VisiblePixel(
+function TWindowLayerBasicOld.BitmapPixel2VisiblePixel(
   Pnt: TExtendedPoint): TExtendedPoint;
 var
   VFreezePointInVisualPixel: TPoint;
@@ -271,6 +346,8 @@ begin
   Result.X := (Pnt.X - VFreezePointInBitmapPixel.X) * VScale + VFreezePointInVisualPixel.X;
   Result.Y := (Pnt.Y - VFreezePointInBitmapPixel.Y) * VScale + VFreezePointInVisualPixel.Y;
 end;
+
+{ TWindowLayerBasicWithBitmap }
 
 constructor TWindowLayerBasicWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
@@ -304,7 +381,7 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasicWithBitmap.Hide;
+procedure TWindowLayerBasicWithBitmap.DoHide;
 begin
   inherited;
   FLayer.Bitmap.Lock;

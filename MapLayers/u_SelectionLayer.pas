@@ -3,77 +3,107 @@ unit u_SelectionLayer;
 interface
 
 uses
+  Types,
   GR32,
-  GR32_Polygons,
+  GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  u_MapLayerBasic;
+  u_MapViewPortState,
+  u_MapLayerScaledBase;
 
 type
-  TSelectionLayer = class(TMapLayerBasic)
+  TSelectionLayer = class(TMapLayerScaledBase)
   protected
+    FColor: TColor32;
+    FPolygon: TExtendedPointArray;
+    FSelectionChangeListener: IJclListener;
     procedure DoRedraw; override;
-    function PreparePolygon(APolygon: TPointArray): TPointArray;
+    function GetVisibleRectInMapPixels: TRect; override;
+    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
+    function LonLatArrayToVisualFloatArray(APolygon: TExtendedPointArray): TExtendedPointArray;
+    procedure ChangeSelection(Sender: TObject);
   public
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
   end;
 
+
 implementation
 
 uses
-  Types,
-  SysUtils,
-  Graphics,
+  Classes,
+  GR32_PolygonsEx,
+  GR32_VPR,
+  GR32_VectorUtils,
+  u_JclNotify,
+  i_ICoordConverter,
   u_GlobalState,
-  u_WindowLayerBasic;
+  Ugeofun;
+
+{ TSelectionChangeListener }
+
+type
+  TSelectionChangeListener = class(TJclBaseListener)
+  private
+    FEvent: TNotifyEvent;
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  public
+    constructor Create(AEvent: TNotifyEvent);
+  end;
+
+constructor TSelectionChangeListener.Create(AEvent: TNotifyEvent);
+begin
+  FEvent := AEvent;
+end;
+
+procedure TSelectionChangeListener.Notification(msg: IJclNotificationMessage);
+begin
+  inherited;
+  if Assigned(FEvent) then begin
+    FEvent(nil);
+  end;
+end;
 
 { TSelectionLayer }
 
-procedure TSelectionLayer.DoRedraw;
-var
-  VZoomCurr: Byte;
-  VPolygon: TPointArray;
-  VPolygonOnBitmap: TPointArray;
-  i: integer;
-  VPolygon32: TPolygon32;
+procedure TSelectionLayer.ChangeSelection(Sender: TObject);
+begin
+  FColor := GState.LastSelectionInfo.Color32;
+  FPolygon := GState.LastSelectionInfo.Polygon;
+  FLayerPositioned.Changed;
+end;
+
+constructor TSelectionLayer.Create(AParentMap: TImage32;
+  AViewPortState: TMapViewPortState);
 begin
   inherited;
-  VPolygon := nil;
-  VPolygonOnBitmap := nil;
-  if Length(GState.LastSelectionPolygon) > 0 then begin
-    FLayer.Bitmap.Clear(clBlack);
-    VZoomCurr := FZoom;
-    VPolygon := FGeoConvert.LonLatArray2PixelArray(GState.LastSelectionPolygon, VZoomCurr);
-    try
-      VPolygonOnBitmap := PreparePolygon(VPolygon);
-      VPolygon32 := TPolygon32.Create;
-      try
-        for i := 0 to Length(VPolygonOnBitmap) - 1 do begin
-          VPolygon32.Add(FixedPoint(VPolygonOnBitmap[i]));
-        end;
-        VPolygon32.Antialiased:=True;
-        VPolygon32.Closed:=true;
-        with VPolygon32.Outline do try
-          with Grow(Fixed(1), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(FLayer.Bitmap, SetAlpha(GState.LastSelectionColor, GState.LastSelectionAlfa));
-          finally
-            free;
-          end;
-        finally
-          free;
-        end;
-      finally
-        FreeAndNil(VPolygon32);
-      end;
-    finally
-      VPolygon := nil;
-    end;
-  end else begin
-    Visible := False;
-  end;
+  FLayerPositioned.OnPaint := PaintLayer;
+  FSelectionChangeListener := TSelectionChangeListener.Create(ChangeSelection);
+  GState.LastSelectionInfo.ChangeNotifier.Add(FSelectionChangeListener);
+end;
+
+destructor TSelectionLayer.Destroy;
+begin
+  GState.LastSelectionInfo.ChangeNotifier.Remove(FSelectionChangeListener);
+  FSelectionChangeListener := nil;
+  inherited;
+end;
+
+procedure TSelectionLayer.DoRedraw;
+begin
+  inherited;
+  FColor := GState.LastSelectionInfo.Color32;
+  FPolygon := Copy(GState.LastSelectionInfo.Polygon);
+end;
+
+function TSelectionLayer.GetVisibleRectInMapPixels: TRect;
+begin
+  Result := MakeRect(0, 0, FViewSize.X, FViewSize.Y);
 end;
 
 procedure TSelectionLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -87,55 +117,43 @@ begin
   end;
 end;
 
-function TSelectionLayer.PreparePolygon(
-  APolygon: TPointArray): TPointArray;
+function TSelectionLayer.LonLatArrayToVisualFloatArray(
+  APolygon: TExtendedPointArray): TExtendedPointArray;
 var
-  i: integer;
-  VSourcePoint: TExtendedPoint;
-  VTargetPoint: TExtendedPoint;
-  VTargetPointAbs: TExtendedPoint;
-const
-  CRectSize = 1 shl 14;
+  i: Integer;
+  VPointsCount: Integer;
+  VViewRect: TExtendedRect;
 begin
-  SetLength(Result, Length(APolygon));
-  for i := 0 to Length(APolygon) - 1 do begin
-    VSourcePoint.X := APolygon[i].X;
-    VSourcePoint.Y := APolygon[i].Y;
-    VTargetPoint := MapPixel2BitmapPixel(VSourcePoint);
-    VTargetPointAbs.X := Abs(VTargetPoint.X);
-    VTargetPointAbs.Y := Abs(VTargetPoint.Y);
-    if (VTargetPointAbs.X >= CRectSize) or (VTargetPointAbs.Y >= CRectSize) then begin
-      if (VTargetPointAbs.X >= CRectSize) and (VTargetPointAbs.Y >= CRectSize) then begin
-        if VTargetPoint.Y > 0 then begin
-          VTargetPoint.Y := CRectSize;
-        end else begin
-          VTargetPoint.Y := -CRectSize;
-        end;
-        if VTargetPoint.X > 0 then begin
-          VTargetPoint.X := CRectSize;
-        end else begin
-          VTargetPoint.X := -CRectSize;
-        end;
-      end else begin
-        if VTargetPointAbs.X < VTargetPointAbs.Y then begin
-          if VTargetPoint.Y > 0 then begin
-            VTargetPoint.Y := CRectSize;
-          end else begin
-            VTargetPoint.Y := -CRectSize;
-          end;
-        end else begin
-          if VTargetPoint.X > 0 then begin
-            VTargetPoint.X := CRectSize;
-          end else begin
-            VTargetPoint.X := -CRectSize;
-          end;
-        end;
-      end;
+  VPointsCount := Length(APolygon);
+  SetLength(Result, VPointsCount);
+  FViewPortState.LockRead;
+  try
+    for i := 0 to VPointsCount - 1 do begin
+      Result[i] := FViewPortState.LonLat2VisiblePixel(APolygon[i]);
     end;
-    Result[i].X := Round(VTargetPoint.X);
-    Result[i].Y := Round(VTargetPoint.Y);
+    VViewRect := ExtendedRect(FViewPortState.GetViewRectInVisualPixel);
+  finally
+    FViewPortState.UnLockRead;
   end;
+end;
 
+procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+var
+  VVisualPolygon: TExtendedPointArray;
+  VFloatPoints: TArrayOfFloatPoint;
+  VPointCount: Integer;
+  i: Integer;
+begin
+  VPointCount := Length(FPolygon);
+  if VPointCount > 0 then begin
+    VVisualPolygon := LonLatArrayToVisualFloatArray(FPolygon);
+
+    SetLength(VFloatPoints, VPointCount);
+    for i := 0 to VPointCount - 1 do begin
+      VFloatPoints[i] := FloatPoint(VVisualPolygon[i].X, VVisualPolygon[i].Y);
+    end;
+    PolylineFS(Buffer, VFloatPoints, FColor, True, 2, jsBevel);
+  end;
 end;
 
 procedure TSelectionLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);

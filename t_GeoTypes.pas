@@ -22,6 +22,12 @@ type
       1: (TopLeft, BottomRight: TExtendedPoint);
   end;
 
+  TDoubleRect = packed record
+    case Integer of
+      0: (Left, Top: Double;
+        Right, Bottom: Double);
+      1: (TopLeft, BottomRight: TDoublePoint);
+  end;
 
   TPointArray = array of TPoint;
 
@@ -47,4 +53,3 @@ type
 implementation
 
 end.
- 

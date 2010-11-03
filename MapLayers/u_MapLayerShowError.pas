@@ -59,6 +59,7 @@ begin
         if (abs(VTilePixel.X - FScreenCenterPos.X) < (1 shl 15)) and
           (abs(VTilePixel.Y - FScreenCenterPos.Y) < (1 shl 15)) then
         begin
+          inherited;
           RenderText;
         end else begin
           Visible := False;

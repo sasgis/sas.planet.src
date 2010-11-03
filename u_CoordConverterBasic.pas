@@ -114,7 +114,9 @@ type
     function CheckTileRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; override;
 
     function CheckPixelPos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
+    function CheckPixelPosFloat(var XY: TExtendedPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
+    function CheckPixelPosFloatStrict(var XY: TExtendedPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean; override;
 
     function CheckRelativePos(var XY: TExtendedPoint): boolean; override;
@@ -1480,6 +1482,48 @@ begin
   end;
 end;
 
+function TCoordConverterBasic.CheckPixelPosFloat(var XY: TExtendedPoint;
+  var Azoom: byte; ACicleMap: Boolean): boolean;
+var
+  VPixelsAtZoom: Extended;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    AZoom := 23;
+  end;
+
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+
+  if XY.X < 0 then begin
+    Result := False;
+    if ACicleMap then begin
+      XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom + VPixelsAtZoom;
+    end else begin
+      XY.X := 0;
+    end;
+  end else begin
+    if (XY.X > VPixelsAtZoom) then begin
+      Result := False;
+      if ACicleMap then begin
+        XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom;
+      end else begin
+        XY.X := VPixelsAtZoom;
+      end;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    XY.Y := 0;
+  end else begin
+    if (XY.Y > VPixelsAtZoom) then begin
+      Result := False;
+      XY.Y := VPixelsAtZoom;
+    end;
+  end;
+end;
+
 function TCoordConverterBasic.CheckPixelRect(var XY: TRect; var Azoom: byte; ACicleMap: Boolean): boolean;
 var
   VPixelsAtZoom: Integer;
@@ -1583,6 +1627,46 @@ begin
     if (Azoom < 23) and (XY.Y >= VPixelsAtZoom) then begin
       Result := False;
       XY.Y := VPixelsAtZoom - 1;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelPosFloatStrict(var XY: TExtendedPoint;
+  var Azoom: byte; ACicleMap: Boolean): boolean;
+var
+  VPixelsAtZoom: Extended;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  if XY.X < 0 then begin
+    Result := False;
+    if ACicleMap then begin
+      XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom + VPixelsAtZoom;
+    end else begin
+      XY.X := 0;
+    end;
+  end else begin
+    if (XY.X >= VPixelsAtZoom) then begin
+      Result := False;
+      if ACicleMap then begin
+        XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom + VPixelsAtZoom;
+      end else begin
+        XY.X := VPixelsAtZoom - 0.000000000001;
+      end;
+    end;
+  end;
+
+  if XY.Y < 0 then begin
+    Result := False;
+    XY.Y := 0;
+  end else begin
+    if (XY.Y >= VPixelsAtZoom) then begin
+      Result := False;
+      XY.Y := VPixelsAtZoom - 0.0000000000001;
     end;
   end;
 end;

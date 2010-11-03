@@ -87,8 +87,9 @@ begin
   FBitmapWithText.Font.Name := 'Tahoma';
   FBitmapWithText.Font.Style := [];
   FBitmapWithText.DrawMode := dmBlend;
-  FBitmapWithText.CombineMode:=cmMerge;
+  FBitmapWithText.CombineMode := cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
+  FBitmapWithText.Resampler := TLinearResampler.Create;
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
