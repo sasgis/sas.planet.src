@@ -26,6 +26,7 @@ type
     FErrorString: string;
     FTileMaxAgeInInternet: TDateTime;
     FMainLayer: TMapLayerBasic;
+    FKmlLayer: TMapLayerBasic;
     FErrorShowLayer: TTileErrorInfoLayer;
     FViewPortState: TMapViewPortState;
     FUseDownloadChangeNotifier: IJclNotifier;
@@ -43,6 +44,7 @@ type
     destructor Destroy; override;
     property TileMaxAgeInInternet: TDateTime read FTileMaxAgeInInternet;
     property MainLayer: TMapLayerBasic read FMainLayer write FMainLayer;
+    property KmlLayer: TMapLayerBasic read FKmlLayer write FKmlLayer;
     property ErrorShowLayer: TTileErrorInfoLayer read FErrorShowLayer write FErrorShowLayer;
     property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
     property UseDownloadChangeNotifier: IJclNotifier read FUseDownloadChangeNotifier;
@@ -131,8 +133,14 @@ begin
     if FErrorShowLayer <> nil then begin
       FErrorShowLayer.Visible := False;
     end;
-    if FMainLayer <> nil then begin
-      FMainLayer.Redraw;
+    if FLastLoad.mt.IsBitmapTiles then begin
+      if FMainLayer <> nil then begin
+        FMainLayer.Redraw;
+      end;
+    end else if FLastLoad.mt.IsKmlTiles then begin
+      if FKmlLayer <> nil then begin
+        FKmlLayer.Redraw;
+      end;
     end;
   end;
 end;

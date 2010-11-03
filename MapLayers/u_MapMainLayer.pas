@@ -26,6 +26,7 @@ type
     procedure SetUseDownload(const Value: TTileSource);
     procedure SetErrorShowLayer(const Value: TTileErrorInfoLayer);
     function GetUseDownloadChangeNotifier: IJclNotifier;
+    procedure SetKmlLayer(const Value: TMapLayerBasic);
   protected
     procedure DrawGenShBorders;
     procedure generate_granica;
@@ -41,6 +42,7 @@ type
     property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
     property UseDownloadChangeNotifier: IJclNotifier read GetUseDownloadChangeNotifier;
     property ErrorShowLayer: TTileErrorInfoLayer write SetErrorShowLayer;
+    property KmlLayer: TMapLayerBasic write SetKmlLayer;
   end;
 
 const
@@ -521,6 +523,11 @@ end;
 procedure TMapMainLayer.SetErrorShowLayer(const Value: TTileErrorInfoLayer);
 begin
   FUIDownLoader.ErrorShowLayer := Value;
+end;
+
+procedure TMapMainLayer.SetKmlLayer(const Value: TMapLayerBasic);
+begin
+  FUIDownLoader.KmlLayer := Value;
 end;
 
 procedure TMapMainLayer.SetUseDownload(const Value: TTileSource);

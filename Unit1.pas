@@ -1681,7 +1681,8 @@ begin
     FLayersList.Add(FLayerMiniMap);
 
     FMainLayer.ErrorShowLayer := FShowErrorLayer;
-    
+    FMainLayer.KmlLayer := FWikiLayer;
+
     CreateMapUI;
     FSettings.InitMapsList;
 
