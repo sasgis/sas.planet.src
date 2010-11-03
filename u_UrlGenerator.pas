@@ -54,7 +54,6 @@ type
     FpGetBMetr: PPSVariantExtended;
     FpConverter: PPSVariantInterface;
     procedure SetVar(AXY: TPoint; AZoom: Byte);
-    procedure SetURLBase(const Value: string); override;
   public
     constructor Create(
       AConfig: IConfigDataProvider;
@@ -269,6 +268,7 @@ begin
   FpGetRMetr.Data := Ll.X;
   FpGetBMetr.Data := Ll.Y;
   FpConverter.Data := FCoordConverter;
+  FpGetURLBase.Data := FURLBase;
 end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
@@ -288,12 +288,6 @@ begin
   finally
     LeaveCriticalSection(FCS);
   end;
-end;
-
-procedure TUrlGenerator.SetURLBase(const Value: string);
-begin
-  inherited;
-  FpGetURLBase.Data := Value;
 end;
 
 end.
