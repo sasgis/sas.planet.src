@@ -87,8 +87,8 @@ var
 begin
   if FTileZoom = FZoom then begin
     VTileRect := FMapType.GeoConvert.TilePos2PixelRect(FTilePos, FZoom);
-    VTileCenter.X := VTileRect.Left + (VTileRect.Right - VTileRect.Left + 1) div 2;
-    VTileCenter.Y := VTileRect.Top + (VTileRect.Bottom - VTileRect.Top + 1) div 2;
+    VTileCenter.X := VTileRect.Left + (VTileRect.Right - VTileRect.Left) div 2;
+    VTileCenter.Y := VTileRect.Top + (VTileRect.Bottom - VTileRect.Top) div 2;
     VTileCenter := FMapType.GeoConvert.PixelPos2OtherMap(VTileCenter, FZoom, FGeoConvert);
     Result := GetBitmapSizeInPixel;
     Result.X := Result.X div 2 + (FScreenCenterPos.X - VTileCenter.X);

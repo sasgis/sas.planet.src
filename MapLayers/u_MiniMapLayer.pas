@@ -641,14 +641,14 @@ begin
     VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
     VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
 
-    for i := VTileSourceRect.Left to VTileSourceRect.Right do begin
+    for i := VTileSourceRect.Left to VTileSourceRect.Right - 1 do begin
       VTile.X := i;
-      for j := VTileSourceRect.Top to VTileSourceRect.Bottom do begin
+      for j := VTileSourceRect.Top to VTileSourceRect.Bottom - 1 do begin
         VTile.Y := j;
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
         VTilePixelsToDraw.TopLeft := Point(0, 0);
-        VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left + 1;
-        VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top + 1;
+        VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left;
+        VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top;
 
         if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
           VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
@@ -675,8 +675,6 @@ begin
 
         VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
         VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
-        Inc(VCurrTilePixelRectAtBitmap.Bottom);
-        Inc(VCurrTilePixelRectAtBitmap.Right);
         if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
           Gamma(VBmp);
         end;

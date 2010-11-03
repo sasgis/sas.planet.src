@@ -96,8 +96,8 @@ begin
   VMapSize := VConverter.PixelsAtZoom(VZoom);
   VVisibleTilesRect := GetBitmapRectInTiles;
   VMapPixelsRect := VConverter.TileRect2PixelRect(VVisibleTilesRect, VZoom);
-  Result.X := VMapPixelsRect.Right - VMapPixelsRect.Left + 1;
-  Result.Y := VMapPixelsRect.Bottom - VMapPixelsRect.Top + 1;
+  Result.X := VMapPixelsRect.Right - VMapPixelsRect.Left;
+  Result.Y := VMapPixelsRect.Bottom - VMapPixelsRect.Top;
   if VMapPixelsRect.Left > VMapPixelsRect.Right then begin
     Result.X := Result.X + VMapSize;
   end;

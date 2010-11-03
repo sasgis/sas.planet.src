@@ -86,7 +86,7 @@ begin
 
     VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
 
-    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left + 1, VPixelsRect.Bottom - VPixelsRect.Top + 1);
+    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
     btm.Width := VTileSize.X;
     btm.Height := VTileSize.Y;
@@ -97,15 +97,15 @@ begin
    { if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
       (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then  }
     begin
-      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1))
-        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left + 1));
+      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
+        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
       VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
 
-      for i := VSourceTilesRect.Top to VSourceTilesRect.Bottom do begin
+      for i := VSourceTilesRect.Top to VSourceTilesRect.Bottom - 1 do begin
         VCurrTile.Y := i;
         if IsStop^ then break;
-        for j := VSourceTilesRect.Left to VSourceTilesRect.Right do begin
+        for j := VSourceTilesRect.Left to VSourceTilesRect.Right - 1 do begin
           VCurrTile.X := j;
           if IsStop^ then break;
           if not ExistsTile(VCurrTile, ASourceZoom) then begin

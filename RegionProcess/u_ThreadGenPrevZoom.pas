@@ -132,34 +132,34 @@ begin
             FMapType.LoadTile(bmp_Ex, VTile, VZoom, false);
           end else begin
             bmp_ex.SetSize(
-              VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left + 1,
-              VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top + 1
+              VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
+              VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
             );
             bmp_ex.Clear(Color32(GState.BGround));
           end;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
           VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
           VSubTileCount :=
-            (VRectOfSubTiles.Right - VRectOfSubTiles.Left + 1)
-            *(VRectOfSubTiles.Bottom - VRectOfSubTiles.Top + 1);
+            (VRectOfSubTiles.Right - VRectOfSubTiles.Left)
+            *(VRectOfSubTiles.Bottom - VRectOfSubTiles.Top);
           VSubTilesSavedCount := 0;
-          for p_i := VRectOfSubTiles.Left to VRectOfSubTiles.Right do begin
+          for p_i := VRectOfSubTiles.Left to VRectOfSubTiles.Right - 1 do begin
             VSubTile.X := p_i;
-            for p_j := VRectOfSubTiles.Top to VRectOfSubTiles.Bottom do begin
+            for p_j := VRectOfSubTiles.Top to VRectOfSubTiles.Bottom - 1 do begin
               VSubTile.Y := p_j;
               if FMapType.TileExists(VSubTile, VZoomPrev) then begin
                 if (FMapType.LoadTile(bmp, VSubTile, VZoomPrev, false)) then begin
                   VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
-                  VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left + 1;
-                  VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top + 1;
+                  VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
+                  VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
                   VSubTileBounds.Left := 0;
                   VSubTileBounds.Top := 0;
                   VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
                   VSubTileInTargetBounds := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, VZoom);
                   VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
                   VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
-                  VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left + 1;
-                  VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top + 1;
+                  VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
+                  VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
                   bmp_ex.Draw(VSubTileInTargetBounds, VSubTileBounds, bmp);
                   inc(VSubTilesSavedCount);
                 end else begin
