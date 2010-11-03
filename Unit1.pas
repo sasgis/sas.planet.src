@@ -1757,6 +1757,7 @@ begin
     FLayersList.StartThreads;
     ProgramStart:=false;
 
+    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
     GState.ViewState.LockWrite;
     GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 
@@ -1800,7 +1801,6 @@ begin
       WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
     end;
 
-    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
 
     GState.StartThreads;
     FMainLayer.Visible := True;
