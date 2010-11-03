@@ -381,6 +381,7 @@
     <DCCReference Include="u_TileFileNameGMV.pas" />
     <DCCReference Include="u_TileFileNameSAS.pas" />
     <DCCReference Include="u_TileIteratorAbstract.pas" />
+    <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileIteratorStuped.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
