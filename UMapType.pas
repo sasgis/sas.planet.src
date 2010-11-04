@@ -304,16 +304,16 @@ begin
   end;
 
   FCache := TTileCacheSimpleGlobal.Create(Self);
-  if GetIsBitmapTiles then begin
-    FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(TileStorage.TileFileExt);
-    FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(TileStorage.TileFileExt);
+  FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(TileStorage.TileFileExt);
+  if FBitmapLoaderFromStorage <> nil then begin
+    if FStorage.GetUseSave then begin
+      FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(TileStorage.TileFileExt);
+    end;
   end else begin
-    if GetIsKmlTiles then begin
-      if TileStorage.TileFileExt = '.kmz' then begin
-        FKmlLoaderFromStorage := TKmzInfoSimpleParser.Create;
-      end else begin
-        FKmlLoaderFromStorage := TKmlInfoSimpleParser.Create;
-      end;
+    if TileStorage.TileFileExt = '.kmz' then begin
+      FKmlLoaderFromStorage := TKmzInfoSimpleParser.Create;
+    end else if TileStorage.TileFileExt = '.kml' then begin
+      FKmlLoaderFromStorage := TKmlInfoSimpleParser.Create;
     end;
   end;
 end;
@@ -594,8 +594,10 @@ begin
   if FStorage.GetUseSave then begin
     if GetIsKmlTiles then begin
       SaveTileKmlDownload(AXY, Azoom, ATileStream, ty);
-    end else begin
+    end else if GetIsBitmapTiles then begin
       SaveTileBitmapDownload(AXY, Azoom, ATileStream, ty);
+    end else begin
+      raise Exception.Create('В этой карте неизвестный тип тайлов.');
     end;
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
@@ -902,35 +904,17 @@ end;
 
 function TMapType.GetIsBitmapTiles: Boolean;
 begin
-  if SameText(FStorage.TileFileExt, '.jpg')
-    or SameText(FStorage.TileFileExt, '.png')
-    or SameText(FStorage.TileFileExt, '.gif')
-    or SameText(FStorage.TileFileExt, '.bmp')
-  then begin
-    Result := true;
-  end else begin
-    Result := false;
-  end;
+  Result := FBitmapLoaderFromStorage <> nil;
 end;
 
 function TMapType.GetIsKmlTiles: Boolean;
 begin
-  if SameText(FStorage.TileFileExt, '.kml')
-    or SameText(FStorage.TileFileExt, '.kmz')
-  then begin
-    Result := True;
-  end else begin
-    Result := False;
-  end;
+  Result := FKmlLoaderFromStorage <> nil;
 end;
 
 function TMapType.GetIsHybridLayer: Boolean;
 begin
-  if asLayer and SameText(FStorage.TileFileExt, '.png') then begin
-    Result := True;
-  end else begin
-    Result := False;
-  end;
+  Result := IsBitmapTiles and asLayer;
 end;
 
 function TMapType.GetGUIDString: string;
