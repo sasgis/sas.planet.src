@@ -35,6 +35,7 @@ begin
     ATile := FCurrent;
     Inc(FCurrent.X);
     if FCurrent.X >= FTilesRect.Right then begin
+      FCurrent.X := FTilesRect.Left;
       Inc(FCurrent.Y);
       if FCurrent.Y >= FTilesRect.Bottom then begin
         FEOI := True;
