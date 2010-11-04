@@ -104,6 +104,7 @@
     <DCCReference Include="i_ITileDownlodSession.pas" />
     <DCCReference Include="i_ITileFileNameGenerator.pas" />
     <DCCReference Include="i_ITileFileNameGeneratorsList.pas" />
+    <DCCReference Include="i_ITileIterator.pas" />
     <DCCReference Include="i_ITileObjCache.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />

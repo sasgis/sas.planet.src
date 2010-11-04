@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  i_ITileIterator,
   u_TileIteratorAbstract;
 
 type
@@ -19,7 +20,7 @@ type
 
 
 
-  TTileIteratorByRect = class(TTileIteratorByRectBase)
+  TTileIteratorByRect = class(TTileIteratorByRectBase, ITileIteratorByRows)
   protected
     FEOI: Boolean;
     FCurrent: TPoint;

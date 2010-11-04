@@ -5,10 +5,11 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_ICoordConverter;
+  i_ICoordConverter,
+  i_ITileIterator;
 
 type
-  TTileIteratorAbstract = class
+  TTileIteratorAbstract = class(TInterfacedObject, ITileIterator)
   protected
     function GetTilesTotal: Int64; virtual; abstract;
     function GetTilesRect: TRect; virtual; abstract;
