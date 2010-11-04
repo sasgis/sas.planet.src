@@ -174,6 +174,7 @@ uses
   i_ITileFileNameGeneratorsList in 'i_ITileFileNameGeneratorsList.pas',
   u_TileStorageAbstract in 'u_TileStorageAbstract.pas',
   u_TileStorageGEStuped in 'u_TileStorageGEStuped.pas',
+  u_TileStorageGE in 'u_TileStorageGE.pas',
   u_TileStorageFileSystem in 'u_TileStorageFileSystem.pas',
   i_MemCache in 'i_MemCache.pas',
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',

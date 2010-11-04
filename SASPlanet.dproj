@@ -387,6 +387,7 @@
     <DCCReference Include="u_TileIteratorStuped.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
+    <DCCReference Include="u_TileStorageGE.pas" />
     <DCCReference Include="u_TileStorageGEStuped.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
