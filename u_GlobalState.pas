@@ -238,7 +238,8 @@ type
   end;
 
 const
-  SASVersion = {$INCLUDE Version.inc};
+  SASVersion =
+    {$INCLUDE Version.inc};
 
 var
   GState: TGlobalState;
