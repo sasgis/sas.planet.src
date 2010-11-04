@@ -54,7 +54,7 @@ uses
   u_JclNotify,
   u_WindowLayerBasic,
   u_TileIteratorAbstract,
-  u_TileIteratorByRect;
+  u_TileIteratorSpiralByRect;
 
 type
   TFillingMapListener = class(TJclBaseListener)
@@ -368,7 +368,7 @@ begin
       VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
       VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
-      VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
+      VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
       while VTileIterator.Next(VTile) do begin
         if FNeedRedrow then begin
           break;
