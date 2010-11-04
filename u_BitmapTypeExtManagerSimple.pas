@@ -79,7 +79,7 @@ begin
   end else if SameText(AExt, '.bmp') then begin
     Result := FLoaders[3];
   end else begin
-    raise Exception.Create('Неизвестное расширение. Не знаю как загружать.');
+    Result := nil;
   end;
 end;
 
@@ -95,7 +95,7 @@ begin
   end else if SameText(AType, 'image/bmp') or SameText(AType, 'image/x-ms-bmp') or SameText(AType, 'image/x-windows-bmp') then begin
     Result := FLoaders[3];
   end else begin
-    raise Exception.Create('Неизвестный тип. Не знаю как загружать.');
+    Result := nil;
   end;
 end;
 
