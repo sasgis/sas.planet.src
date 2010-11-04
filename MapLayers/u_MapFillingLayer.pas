@@ -53,7 +53,7 @@ uses
   u_GlobalState,
   u_JclNotify,
   u_WindowLayerBasic,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorSpiralByRect;
 
 type
@@ -352,7 +352,7 @@ var
 
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterator: ITileIterator;
 begin
   VBmp := TCustomBitmap32.Create;
   try
@@ -423,7 +423,7 @@ begin
       Synchronize(UpdateLayer);
     end;
   finally
-    FreeAndNil(VTileIterator);
+    VTileIterator := nil;
     VBmp.Free;
   end;
 end;

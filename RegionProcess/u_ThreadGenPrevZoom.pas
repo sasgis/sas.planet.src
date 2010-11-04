@@ -47,7 +47,7 @@ implementation
 
 uses
   i_ICoordConverter,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorStuped,
   u_TileIteratorByRect,
   u_GlobalState;
@@ -77,15 +77,15 @@ var
   VTile: TPoint;
   VSubTile: TPoint;
   VGeoConvert: ICoordConverter;
-  VTileIterators: array of TTileIteratorAbstract;
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterators: array of ITileIterator;
+  VTileIterator: ITileIterator;
   VZoomDelta: Integer;
   VRectOfSubTiles: TRect;
   VCurrentTilePixelRect: TRect;
   VRelativeRect: TDoubleRect;
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
-  VSubTileIterator: TTileIteratorAbstract;
+  VSubTileIterator: ITileIterator;
 begin
   inherited;
   FTilesToProcess := 0;
@@ -171,7 +171,7 @@ begin
               end;
             end;
           finally
-            VSubTileIterator.Free;
+            VSubTileIterator := nil;
           end;
           if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
             FMapType.SaveTileSimple(VTile, VZoom, bmp_ex);
@@ -186,7 +186,7 @@ begin
     GState.MainFileCache.Clear;
   finally
     for i := 0 to Length(VTileIterators) - 1 do begin
-      VTileIterators[i].Free;
+      VTileIterators[i] := nil;
     end;
     VTileIterators := nil;
   end;

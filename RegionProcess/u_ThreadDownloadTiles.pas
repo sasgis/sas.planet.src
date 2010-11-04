@@ -72,7 +72,7 @@ uses
   Types,
   i_ITileDownlodSession,
   u_GlobalState,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorStuped,
   UResStrings;
 
@@ -207,7 +207,7 @@ var
   razlen: integer;
   VGotoNextTile: Boolean;
   VTile: TPoint;
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterator: ITileIterator;
 begin
   FStartTime := Now;
 
@@ -344,7 +344,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(VTileIterator);
+    VTileIterator := nil;
   end;
   if not Terminated then begin
     FLog.WriteText(SAS_MSG_ProcessFilesComplete, 0);

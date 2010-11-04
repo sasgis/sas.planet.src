@@ -38,7 +38,7 @@ type
 implementation
 
 uses
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorStuped,
   u_TileStorageAbstract;
 
@@ -69,8 +69,8 @@ var
   VExt: string;
   VPath: string;
   VTile: TPoint;
-  VTileIterators: array of TTileIteratorAbstract;
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterators: array of ITileIterator;
+  VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
   VMemStream: TMemoryStream;
   VFileTime: TDateTime;
@@ -131,7 +131,7 @@ begin
     end;
   finally
     for i := 0 to Length(FZooms) - 1 do begin
-      VTileIterators[i].Free;
+      VTileIterators[i] := nil;
     end;
     VTileIterators := nil;
   end;

@@ -50,7 +50,7 @@ implementation
 uses
   Graphics,
   t_GeoTypes,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorByRect,
   u_GlobalState;
 
@@ -79,7 +79,7 @@ var
   VClMZ: TColor32;
   VClTne: TColor32;
   VSolidDrow: Boolean;
-  VIterator: TTileIteratorAbstract;
+  VIterator: ITileIterator;
 begin
   Result := true;
   try

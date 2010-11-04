@@ -32,7 +32,7 @@ uses
   Classes,
   i_ICoordConverter,
   UResStrings,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorStuped;
 
 { TThreadExportToAUX }
@@ -48,7 +48,7 @@ end;
 
 procedure TThreadExportToAUX.ProcessRegion;
 var
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterator: ITileIterator;
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VFileStream: TFileStream;
@@ -93,7 +93,7 @@ begin
       VFileStream.Free;
     end;
   finally
-    FreeAndNil(VTileIterator);
+    VTileIterator := nil;
   end;
   ProgressFormUpdateOnProgress;
 end;

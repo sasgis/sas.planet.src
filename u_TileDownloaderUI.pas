@@ -65,7 +65,7 @@ uses
   u_JclNotify,
   u_GlobalState,
   u_NotifyEventListener,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorSpiralByRect,
   UResStrings;
 
@@ -191,7 +191,7 @@ var
   fileBuf: TMemoryStream;
   res: TDownloadTileResult;
   VNeedDownload: Boolean;
-  VIterator: TTileIteratorAbstract;
+  VIterator: ITileIterator;
   VTile: TPoint;
 begin
   repeat
@@ -293,7 +293,7 @@ begin
               end;
             end;
           finally
-            VIterator.Free;
+            VIterator := nil;
           end;
         end;
       end;

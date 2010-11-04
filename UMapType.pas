@@ -175,7 +175,7 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_GECache,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorByRect,
   u_TileStorageGEStuped,
   u_TileStorageFileSystem,
@@ -663,7 +663,7 @@ var
   VClMZ: TColor32;
   VClTne: TColor32;
   VSolidDrow: Boolean;
-  VIterator: TTileIteratorAbstract;
+  VIterator: ITileIterator;
 begin
   Result := true;
   try
@@ -732,7 +732,7 @@ begin
           end;
         end;
       finally
-        VIterator.Free;
+        VIterator := nil;
       end;
     end;
     if IsStop^ then begin

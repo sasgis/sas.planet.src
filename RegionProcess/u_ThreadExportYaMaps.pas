@@ -40,7 +40,7 @@ implementation
 uses
   i_ICoordConverter,
   u_CoordConverterMercatorOnEllipsoid,
-  u_TileIteratorAbstract,
+  i_ITileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileJpegSaverIJL,
@@ -82,8 +82,8 @@ var
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
   Vmt: Byte;
-  VTileIterators: array of TTileIteratorAbstract;
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterators: array of ITileIterator;
+  VTileIterator: ITileIterator;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -166,7 +166,7 @@ begin
         end;
       finally
         for i := 0 to Length(VTileIterators) - 1 do begin
-          VTileIterators[i].Free;
+          VTileIterators[i] := nil;
         end;
         VTileIterators := nil;
       end;
