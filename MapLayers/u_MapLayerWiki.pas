@@ -198,6 +198,7 @@ var
   i, lenLay: integer;
   VConverter: ICoordConverter;
   VSize: TPoint;
+  VRect: TRect;
 begin
   VSize := GetBitmapSizeInPixel;
   VConverter := FGeoConvert;
@@ -206,17 +207,15 @@ begin
   lenLay := length(FWikiLayerElments);
   FWikiLayerElments[lenLay - 1] := TWikiLayerElement.Create;
   With FWikiLayerElments[lenLay - 1] do begin
-    VConverter.CheckLonLatPos(AData.coordinatesLT);
-    LT := VConverter.LonLat2PixelPos(AData.coordinatesLT, FZoom);
-    LT := MapPixel2BitmapPixel(LT);
-    VConverter.CheckLonLatPos(AData.coordinatesRD);
-    RD := VConverter.LonLat2PixelPos(AData.coordinatesRD, FZoom);
-    RD := MapPixel2BitmapPixel(RD);
-    if AData.coordinatesLT.X = AData.coordinatesRD.x then begin
+    VConverter.CheckLonLatRect(AData.Bounds);
+    VRect := VConverter.LonLatRect2PixelRect(AData.Bounds, FZoom);
+    LT := MapPixel2BitmapPixel(VRect.TopLeft);
+    RD := MapPixel2BitmapPixel(VRect.BottomRight);
+    if AData.Bounds.Left = AData.Bounds.Right then begin
       LT.X := LT.X - 3;
       RD.x := RD.x + 3;
     end;
-    if AData.coordinatesLT.y = AData.coordinatesRD.y then begin
+    if AData.Bounds.Top = AData.Bounds.Bottom then begin
       LT.Y := LT.Y - 3;
       RD.Y := RD.Y + 3;
     end;

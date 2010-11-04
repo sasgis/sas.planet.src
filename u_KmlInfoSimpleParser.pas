@@ -371,20 +371,20 @@ begin
   end;
   SetLength(Adata.coordinates, VUsed);
   if VUsed > 0 then begin
-    Adata.coordinatesLT := Adata.coordinates[0];
-    Adata.coordinatesRD := Adata.coordinates[0];
+    Adata.Bounds.TopLeft := Adata.coordinates[0];
+    Adata.Bounds.BottomRight := Adata.coordinates[0];
     for ii := 0 to length(Adata.coordinates) - 1 do begin
-      if Adata.coordinatesLT.x > Adata.coordinates[ii].X then begin
-        Adata.coordinatesLT.x := Adata.coordinates[ii].X;
+      if Adata.Bounds.Left > Adata.coordinates[ii].X then begin
+        Adata.Bounds.Left := Adata.coordinates[ii].X;
       end;
-      if Adata.coordinatesRD.x < Adata.coordinates[ii].X then begin
-        Adata.coordinatesRD.x := Adata.coordinates[ii].X;
+      if Adata.Bounds.Right < Adata.coordinates[ii].X then begin
+        Adata.Bounds.Right := Adata.coordinates[ii].X;
       end;
-      if Adata.coordinatesLT.y < Adata.coordinates[ii].y then begin
-        Adata.coordinatesLT.y := Adata.coordinates[ii].y;
+      if Adata.Bounds.Top < Adata.coordinates[ii].y then begin
+        Adata.Bounds.Top := Adata.coordinates[ii].y;
       end;
-      if Adata.coordinatesRD.y > Adata.coordinates[ii].y then begin
-        Adata.coordinatesRD.y := Adata.coordinates[ii].y;
+      if Adata.Bounds.Bottom > Adata.coordinates[ii].y then begin
+        Adata.Bounds.Bottom := Adata.coordinates[ii].y;
       end;
     end;
     Result := True;

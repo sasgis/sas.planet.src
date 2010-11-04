@@ -11,8 +11,7 @@ type
     Name: string;
     description: string;
     coordinates: TDoublePointArray;
-    coordinatesLT: TDoublePoint;
-    coordinatesRD: TDoublePoint;
+    Bounds: TDoubleRect;
     function IsEmpty: Boolean;
     function IsPoint: Boolean;
     function IsLine: Boolean;
@@ -45,8 +44,7 @@ begin
       Data[i].PlacemarkID := Source.Data[i].PlacemarkID;
       Data[i].Name := Source.Data[i].Name;
       Data[i].description := Source.Data[i].description;
-      Data[i].coordinatesLT := Source.Data[i].coordinatesLT;
-      Data[i].coordinatesRD := Source.Data[i].coordinatesRD;
+      Data[i].Bounds := Source.Data[i].Bounds;
       Data[i].coordinates := Copy(Source.Data[i].coordinates);
     end;
   end;
