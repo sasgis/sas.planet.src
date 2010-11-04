@@ -21,7 +21,8 @@ type
     class function GetTilesInRingCount(ARad: Integer): Integer;
     class function GetDeltaByRingAndIndex(ARad: Integer; AIndex: Integer): TPoint;
   public
-    constructor Create(ARect: TRect; APoint: TPoint);
+    constructor Create(ARect: TRect; APoint: TPoint); overload;
+    constructor Create(ARect: TRect); overload;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset;
   end;
@@ -47,6 +48,11 @@ begin
     (APoint.Y >= FTilesRect.Top) and
     (APoint.X < FTilesRect.Right) and
     (APoint.Y < FTilesRect.Bottom);
+end;
+
+constructor TTileIteratorSpiralByRect.Create(ARect: TRect);
+begin
+  Create(ARect, Point((ARect.Left + ARect.Right) div 2, (ARect.Top + ARect.Bottom) div 2));
 end;
 
 class function TTileIteratorSpiralByRect.GetDeltaByRingAndIndex(ARad,
