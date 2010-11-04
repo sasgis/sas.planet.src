@@ -30,6 +30,7 @@ type
     FMainMapChangeListener: IJclListener;
     FSourceMapChangeNotifier: IJclNotifier;
     procedure DoRedraw; override;
+    procedure DoHide; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -39,7 +40,6 @@ type
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
     procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
-    procedure Hide; override;
     procedure Redraw; override;
     property SourceSelected: TMapType read FSourceSelected;
     property SourceZoom: integer read FSourceZoom;
@@ -142,10 +142,10 @@ begin
   end;
 end;
 
-procedure TMapFillingLayer.Hide;
+procedure TMapFillingLayer.DoHide;
 begin
-  inherited;
   TMapFillingThread(FThread).PrepareToChangeScene;
+  inherited;
 end;
 
 procedure TMapFillingLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
