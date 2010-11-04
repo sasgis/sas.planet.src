@@ -7,22 +7,25 @@ uses
   Classes,
   Types,
   i_JclNotify,
-  t_LoadEvent,
   t_CommonTypes,
-  u_TileDownloaderThreadBase,
+  i_ICoordConverter,
+  i_ITileDownlodSession,
   u_MapViewPortState,
   u_MapLayerShowError,
   u_MapLayerBasic,
   UMapType;
 
 type
-  TTileDownloaderUI = class(TTileDownloaderThreadBase)
+  TTileDownloaderUI = class(TThread)
   private
+    FCoordConverter: ICoordConverter;
+    FZoom: byte;
+    FPixelRect: TRect;
+    FMainMap: TMapType;
+    FMapType: TMapType;
+
     change_scene: boolean;
-    FUPos: TPoint;
-    FSizeInTile: TPoint;
-    FSizeInPixels: TPoint;
-    FLastLoad: TlastLoad;
+
     FErrorString: string;
     FTileMaxAgeInInternet: TDateTime;
     FMainLayer: TMapLayerBasic;
@@ -32,6 +35,11 @@ type
     FUseDownloadChangeNotifier: IJclNotifier;
     FUseDownload: TTileSource;
     FChangePosListener: IJclListener;
+
+    FLoadXY: TPoint;
+    FLoadUrl: string;
+
+    class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
     procedure GetCurrentMapAndPos;
     procedure AfterWriteToFile;
     function GetUseDownload: TTileSource;
@@ -56,9 +64,10 @@ uses
   SysUtils,
   u_JclNotify,
   u_GlobalState,
-  i_ITileDownlodSession,
   u_NotifyEventListener,
-  Unit1;
+  u_TileIteratorAbstract,
+  u_TileIteratorSpiralByRect,
+  UResStrings;
 
 constructor TTileDownloaderUI.Create(AViewPortState: TMapViewPortState);
 begin
@@ -95,18 +104,47 @@ procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
   GState.ViewState.LockRead;
   try
-    FMapType := GState.ViewState.GetCurrentMap;
-    FUPos := GState.ViewState.GetCenterMapPixel;
+    FCoordConverter := GState.ViewState.GetCurrentCoordConverter;
+    FMainMap := GState.ViewState.GetCurrentMap;
     FZoom := GState.ViewState.GetCurrentZoom;
+    FPixelRect := GState.ViewState.GetViewRectInMapPixel;
   finally
     GState.ViewState.UnLockRead;
   end;
- //TODO: Переписать нормально с учетом настроек.
-  FSizeInPixels.X := ((GState.ScreenSize.X + 255) div 256) * 256;
-  FSizeInPixels.Y := ((GState.ScreenSize.Y + 255) div 256) * 256;
+end;
 
-  FSizeInTile.X := FSizeInPixels.X div 256;
-  FSizeInTile.Y := FSizeInPixels.Y div 256;
+class function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
+begin
+  case Aerr of
+    dtrProxyAuthError:
+    begin
+      result := SAS_ERR_Authorization;
+    end;
+    dtrBanError:
+    begin
+      result := SAS_ERR_Ban;
+    end;
+    dtrTileNotExists:
+    begin
+      result := SAS_ERR_TileNotExists;
+    end;
+    dtrDownloadError,
+    dtrErrorInternetOpen,
+    dtrErrorInternetOpenURL:
+    begin
+      result := SAS_ERR_Noconnectionstointernet;
+    end;
+    dtrErrorMIMEType:
+    begin
+      result := 'Ошибочный тип данных';
+    end; //TODO: Заменить на ресурсную строку
+    dtrUnknownError:
+    begin
+      Result := 'Неизвестная ошибка при скачивании';
+    end else begin
+    result := '';
+  end;
+  end;
 end;
 
 function TTileDownloaderUI.GetUseDownload: TTileSource;
@@ -127,17 +165,17 @@ procedure TTileDownloaderUI.AfterWriteToFile;
 begin
   if FErrorString <> '' then begin
     if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.ShowError(FLastLoad.TilePos, FLastLoad.Zoom, FLastLoad.mt, FErrorString);
+      FErrorShowLayer.ShowError(FLoadXY, FZoom, FMapType, FErrorString);
     end;
   end else begin
     if FErrorShowLayer <> nil then begin
       FErrorShowLayer.Visible := False;
     end;
-    if FLastLoad.mt.IsBitmapTiles then begin
+    if FMapType.IsBitmapTiles then begin
       if FMainLayer <> nil then begin
         FMainLayer.Redraw;
       end;
-    end else if FLastLoad.mt.IsKmlTiles then begin
+    end else if FMapType.IsKmlTiles then begin
       if FKmlLayer <> nil then begin
         FKmlLayer.Redraw;
       end;
@@ -147,15 +185,14 @@ end;
 
 procedure TTileDownloaderUI.Execute;
 var
-  i, j, ii, k, r, g, x, y, m1: integer;
-  Bpos: TPoint;
+  ii: integer;
+  VPixelInTargetMap: TPoint;
   ty: string;
   fileBuf: TMemoryStream;
-  VMap: TMapType;
-  VMainMap: TMapType;
   res: TDownloadTileResult;
-  VZoom: Byte;
   VNeedDownload: Boolean;
+  VIterator: TTileIteratorAbstract;
+  VTile: TPoint;
 begin
   repeat
     if FUseDownload = tsCache then begin
@@ -184,55 +221,21 @@ begin
         if Terminated then begin
           break;
         end;
-        VMainMap := FMapType;
-        if VMainMap = nil then begin
+        if FCoordConverter = nil then begin
           if Terminated then begin
             break;
           end;
           Sleep(1000);
         end else begin
-          j := 0;
-          i := -1;
-          for r := 1 to (FSizeInTile.x div 2) + 2 do begin
-            if Terminated then begin
-              break;
-            end;
-            if change_scene then begin
-              Break;
-            end;
-            g := (r * 2 - 2);
-            if r = 1 then begin
-              m1 := 0;
-            end else begin
-              m1 := 1;
-            end;
-            for k := 0 to g * 4 - m1 do begin
+          VIterator := TTileIteratorSpiralByRect.Create(FCoordConverter.PixelRect2TileRect(FPixelRect, FZoom));
+          try
+            while VIterator.Next(VTile) do begin
               if Terminated then begin
                 break;
               end;
               if change_scene then begin
                 Break;
               end;
-              if (k = 0) then begin
-                inc(i);
-              end;
-              if (k > 0) and (k < g) then begin
-                inc(j);
-              end;
-              if (k >= g) and (k < g * 2) then begin
-                dec(i);
-              end;
-              if (k >= g * 2) and (k < g * 3) then begin
-                dec(j);
-              end;
-              if (k >= g * 3) then begin
-                inc(i);
-              end;
-              if g = 0 then begin
-                i := 0;
-              end;
-              x := (FSizeInTile.x div 2) + i;
-              y := (FSizeInTile.y div 2) + j;
               for ii := 0 to length(GState.MapType) - 1 do begin
                 if Terminated then begin
                   break;
@@ -240,33 +243,25 @@ begin
                 if change_scene then begin
                   Break;
                 end;
-                VMap := GState.MapType[ii];
-                if (VMap = VMainMap) or (VMap.asLayer and GState.ViewState.IsHybrGUIDSelected(VMap.GUID)) then begin
-                  if VMap.UseDwn then begin
-                    BPos := FUPos;
-                    VZoom := FZoom;
-                    BPos := VMainMap.GeoConvert.PixelPos2OtherMap(FUPos, Fzoom, VMap.GeoConvert);
-                    FLoadXY.X := BPos.x - (FSizeInPixels.X div 2) + (x shl 8);
-                    FLoadXY.Y := BPos.y - (FSizeInPixels.Y div 2) + (y shl 8);
-                    FLoadXY.X := FLoadXY.X shr 8;
-                    FLoadXY.Y := FLoadXY.Y shr 8;
-                    VMap.GeoConvert.CheckTilePosStrict(FLoadXY, VZoom, True);
-
-                    Flastload.TilePos.X := FLoadXY.X;
-                    Flastload.TilePos.Y := FLoadXY.Y;
-                    Flastload.Zoom := Fzoom;
-                    FlastLoad.mt := VMap;
-                    FlastLoad.use := true;
+                FMapType := GState.MapType[ii];
+                if (FMapType = FMainMap) or (FMapType.asLayer and GState.ViewState.IsHybrGUIDSelected(FMapType.GUID)) then begin
+                  if FMapType.UseDwn then begin
+                    VPixelInTargetMap := FCoordConverter.PixelPos2OtherMap(
+                      FCoordConverter.TilePos2PixelPos(VTile, FZoom),
+                      Fzoom,
+                      FMapType.GeoConvert
+                    );
+                    FLoadXY := FMapType.GeoConvert.PixelPos2TilePos(VPixelInTargetMap, FZoom);
                     VNeedDownload := False;
-                    if VMap.TileExists(FLoadXY, Fzoom) then begin
+                    if FMapType.TileExists(FLoadXY, Fzoom) then begin
                       if FUseDownload = tsInternet then begin
-                        if Now - VMap.TileLoadDate(FLoadXY, FZoom) > FTileMaxAgeInInternet then begin
+                        if Now - FMapType.TileLoadDate(FLoadXY, FZoom) > FTileMaxAgeInInternet then begin
                           VNeedDownload := True;
                         end;
                       end;
                     end else begin
                       if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-                        if not(VMap.TileNotExistsOnServer(FLoadXY, Fzoom)) then begin
+                        if not(FMapType.TileNotExistsOnServer(FLoadXY, Fzoom)) then begin
                           VNeedDownload := True;
                         end;
                       end;
@@ -275,7 +270,7 @@ begin
                       FileBuf := TMemoryStream.Create;
                       try
                         try
-                          res := VMap.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          res := FMapType.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
                           FErrorString := GetErrStr(res);
                           if (res = dtrOK) or (res = dtrSameTileSize) then begin
                             GState.IncrementDownloaded(fileBuf.Size / 1024, 1);
@@ -297,6 +292,8 @@ begin
                 end;
               end;
             end;
+          finally
+            VIterator.Free;
           end;
         end;
       end;
