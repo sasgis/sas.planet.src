@@ -4,10 +4,10 @@ interface
 
 uses
   Types,
-  u_TileIteratorAbstract;
+  u_TileIteratorByRect;
 
 type
-  TTileIteratorSpiralByRect = class(TTileIteratorAbstract)
+  TTileIteratorSpiralByRect = class(TTileIteratorByRectBase)
   protected
     FCenterPoint: TPoint;
     FMaxRadius: Integer;
@@ -21,19 +21,20 @@ type
     class function GetTilesInRingCount(ARad: Integer): Integer;
     class function GetDeltaByRingAndIndex(ARad: Integer; AIndex: Integer): TPoint;
   public
-    constructor Create(ARect: TRect; APoint: TPoint); overload;
-    constructor Create(ARect: TRect); overload;
+    constructor CreateWithCenter(ARect: TRect; APoint: TPoint);
+    constructor Create(ARect: TRect); override;
     function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset;
+    procedure Reset; override;
   end;
 
 implementation
 
 { TTileIteratorSpiralByRect }
 
-constructor TTileIteratorSpiralByRect.Create(ARect: TRect; APoint: TPoint);
+constructor TTileIteratorSpiralByRect.CreateWithCenter(ARect: TRect; APoint: TPoint);
 begin
-  FTilesRect:=ARect;
+  inherited Create(ARect);
+
   FCenterPoint:=APoint;
 
   FMaxRadius:=GetMaxRing(FCenterPoint, FTilesRect);
@@ -52,7 +53,7 @@ end;
 
 constructor TTileIteratorSpiralByRect.Create(ARect: TRect);
 begin
-  Create(ARect, Point((ARect.Left + ARect.Right) div 2, (ARect.Top + ARect.Bottom) div 2));
+  CreateWithCenter(ARect, Point((ARect.Left + ARect.Right) div 2, (ARect.Top + ARect.Bottom) div 2));
 end;
 
 class function TTileIteratorSpiralByRect.GetDeltaByRingAndIndex(ARad,

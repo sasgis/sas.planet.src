@@ -7,14 +7,26 @@ uses
   u_TileIteratorAbstract;
 
 type
-  TTileIteratorByRect = class(TTileIteratorAbstract)
+  TTileIteratorByRectBase = class(TTileIteratorAbstract)
+  protected
+    FTilesTotal: Int64;
+    FTilesRect: TRect;
+    function GetTilesTotal: Int64; override;
+    function GetTilesRect: TRect; override;
+  public
+    constructor Create(ARect: TRect); virtual;
+  end;
+
+
+
+  TTileIteratorByRect = class(TTileIteratorByRectBase)
   protected
     FEOI: Boolean;
     FCurrent: TPoint;
   public
-    constructor Create(ARect: TRect);
+    constructor Create(ARect: TRect); override;
     function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset;
+    procedure Reset; override;
   end;
 
 implementation
@@ -23,7 +35,7 @@ implementation
 
 constructor TTileIteratorByRect.Create(ARect: TRect);
 begin
-  FTilesRect := ARect;
+  inherited;
   Reset;
 end;
 
@@ -55,6 +67,23 @@ begin
     FTilesTotal := FTilesTotal * (FTilesRect.Bottom - FTilesRect.Top);
     FCurrent := FTilesRect.TopLeft;
   end;
+end;
+
+{ TTileIteratorByRectBase }
+
+constructor TTileIteratorByRectBase.Create(ARect: TRect);
+begin
+  FTilesRect := ARect;
+end;
+
+function TTileIteratorByRectBase.GetTilesRect: TRect;
+begin
+  Result := FTilesRect;
+end;
+
+function TTileIteratorByRectBase.GetTilesTotal: Int64;
+begin
+  Result := FTilesTotal;
 end;
 
 end.
