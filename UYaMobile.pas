@@ -81,11 +81,9 @@ var MobileFilePath:string;
     realTableOffset:integer;
  Header:array [0..7] of byte;
  TableSize:integer;
- DataOffset:integer;
 begin
  if z>7 then TableSize:=256
         else TableSize:=2 shl Z;
- DataOffset:=TableOffset+sqr(TableSize)*6;
  MobileFilePath:=cache_path+GetMobileFile(X,Y,Z,Mt);
  if not(FileExists(MobileFilePath))
   then CreateNilFile(MobileFilePath, TableSize);

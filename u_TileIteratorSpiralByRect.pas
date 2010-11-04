@@ -136,7 +136,6 @@ end;
 function TTileIteratorSpiralByRect.Next(out ATile: TPoint): Boolean;
 var
   VDelta: TPoint;
-  VFound: Boolean;
 begin
   Result := False;
   while (not FEOI) and (not Result) do begin
