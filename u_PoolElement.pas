@@ -13,12 +13,13 @@ type
     FRefCount: Integer;
     FObject: Iunknown;
     FLastUseTime: Cardinal;
+    FSemaphore: THandle;
     FFactory: ISimpleFactory;
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
   public
-    constructor Create(AFactory: ISimpleFactory);
+    constructor Create(AFactory: ISimpleFactory; ASemaphore: THandle);
     destructor Destroy; override;
     function GetLastUseTime: Cardinal;
     function GetObject: IUnknown;
@@ -31,8 +32,9 @@ implementation
 uses
   SysUtils;
 
-constructor TPoolElement.Create(AFactory: ISimpleFactory);
+constructor TPoolElement.Create(AFactory: ISimpleFactory; ASemaphore: THandle);
 begin
+  FSemaphore := ASemaphore;
   FFactory := AFactory;
   FLastUseTime := 0;
   FRefCount := 0;
@@ -108,7 +110,9 @@ begin
   Result := InterlockedDecrement(FRefCount);
   if Result = 0 then begin
     FLastUseTime := GetTickCount;
-    Sleep(50);
+    if FSemaphore <> 0 then begin
+      ReleaseSemaphore(FSemaphore, 1, nil);
+    end;
   end;
 end;
 

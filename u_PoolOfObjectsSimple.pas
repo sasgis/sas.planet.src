@@ -19,7 +19,7 @@ type
     FCheckInterval: Cardinal;
     FOldestObjectTime: Cardinal;
     FLastCheckTime: Cardinal;
-    FWaitSleep: Cardinal;
+    FSemaphore: THandle;
   public
     constructor Create(APoolSize: Cardinal; AObjectFactory: ISimpleFactory;
       AObjectTimeToLive: Cardinal; ACheckInterval: Cardinal);
@@ -49,11 +49,11 @@ begin
   FCheckInterval := ACheckInterval;
   FList := TList.Create;
   FList.Count := APoolSize;
+  FSemaphore := CreateSemaphore(nil, FList.Count, FList.Count, '');
   for i := 0 to FList.Count - 1 do begin
-    FList.Items[i] := TPoolElement.Create(FObjectFactory);
+    FList.Items[i] := TPoolElement.Create(FObjectFactory, FSemaphore);
   end;
   FOldestObjectTime := 0;
-  FWaitSleep := 100;
   FLastCheckTime := GetTickCount;
 end;
 
@@ -65,6 +65,10 @@ begin
     TPoolElement(FList.Items[i]).Free;
   end;
   FreeAndNil(FList);
+  if FSemaphore <> 0 then begin
+    CloseHandle(FSemaphore);
+    FSemaphore := 0;
+  end;
   inherited;
 end;
 
@@ -114,24 +118,14 @@ var
   VStep: Cardinal;
 begin
   Result := nil;
-  for i := 0 to FList.Count - 1 do begin
-    Result := TPoolElement(FList.Items[i]).TryLock;
-    if Result <> nil then begin
-      Break;
-    end;
-  end;
-  if Result = nil then begin
-    VStepsCount := ATimeOut div FWaitSleep;
-    VStep := 0;
-    while (Result = nil) and (VStep < VStepsCount) do begin
-      Sleep(FWaitSleep);
+  if WaitForSingleObject(FSemaphore, ATimeOut) = WAIT_OBJECT_0 then begin
+    while Result = nil do begin
       for i := 0 to FList.Count - 1 do begin
         Result := TPoolElement(FList.Items[i]).TryLock;
         if Result <> nil then begin
           Break;
         end;
       end;
-      Inc(VStep);
     end;
   end;
 end;
