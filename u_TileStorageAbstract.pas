@@ -7,6 +7,7 @@ uses
   Classes,
   GR32,
   i_ICoordConverter,
+  i_ITileInfoBasic,
   u_MapTypeCacheConfig;
 
 type
@@ -20,25 +21,19 @@ type
     function GetUseDel: boolean; virtual; abstract;
     function GetUseSave: boolean; virtual; abstract;
     function GetIsStoreReadOnly: boolean; virtual; abstract;
-
-    function ExistsTile(AXY: TPoint; Azoom: byte): Boolean; virtual; abstract;
-    function ExistsTNE(AXY: TPoint; Azoom: byte): Boolean; virtual; abstract;
-
-    function DeleteTile(AXY: TPoint; Azoom: byte): Boolean; virtual; abstract;
-    function DeleteTNE(AXY: TPoint; Azoom: byte): Boolean; virtual; abstract;
-
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; virtual; abstract;
     function GetTileFileExt: string; virtual; abstract;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
-    function LoadTile(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean; virtual; abstract;
-    function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; virtual; abstract;
-    function TileSize(AXY: TPoint; Azoom: byte): integer; virtual; abstract;
+    function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; virtual; abstract;
+    function GetTileInfo(AXY: TPoint; Azoom: byte; AVersion: Variant): ITileInfoBasic; virtual; abstract;
 
-    procedure SaveTile(AXY: TPoint; Azoom: byte; AStream: TStream); virtual; abstract;
-    procedure SaveTNE(AXY: TPoint; Azoom: byte); virtual; abstract;
+    function LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean; virtual; abstract;
+    function DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; virtual; abstract;
+    function DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; virtual; abstract;
+    procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); virtual; abstract;
+    procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); virtual; abstract;
 
-    function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean; virtual;
+    function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean; virtual;
 
     property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
     property TileFileExt: string read GetTileFileExt;
@@ -68,7 +63,7 @@ begin
 end;
 
 function TTileStorageAbstract.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint;
-  Azoom, ASourceZoom: byte; IsStop: PBoolean): boolean;
+  Azoom, ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean;
 var
   VPixelsRect: TRect;
   VRelativeRect: TDoubleRect;
@@ -80,6 +75,7 @@ var
   VClTne: TColor32;
   VSolidDrow: Boolean;
   VIterator: ITileIterator;
+  VTileInfo: ITileInfoBasic;
 begin
   Result := true;
   try
@@ -106,7 +102,8 @@ begin
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
         if IsStop^ then break;
-        if not ExistsTile(VCurrTile, ASourceZoom) then begin
+        VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersion);
+        if not VTileInfo.GetIsExists then begin
           if IsStop^ then break;
           VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
@@ -132,13 +129,13 @@ begin
           end;
           if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
              ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-            if GState.MapZapShowTNE and ExistsTNE(VCurrTile, ASourceZoom) then begin
+            if GState.MapZapShowTNE and VTileInfo.GetIsExistsTNE then begin
               btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClTne;
             end else begin
               btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClMZ;
             end;
           end else begin
-            if GState.MapZapShowTNE and ExistsTNE(VCurrTile, ASourceZoom) then begin
+            if GState.MapZapShowTNE and VTileInfo.GetIsExistsTNE then begin
               btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClTne);
             end else begin
               btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClMZ);

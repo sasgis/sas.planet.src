@@ -115,6 +115,8 @@ uses
   u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',
   u_CoordConverterMercatorOnSphere in 'u_CoordConverterMercatorOnSphere.pas',
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
+  i_ITileInfoBasic in 'i_ITileInfoBasic.pas',
+  u_TileInfoBasic in 'u_TileInfoBasic.pas',
   i_ITileIterator in 'i_ITileIterator.pas',
   u_TileIteratorAbstract in 'u_TileIteratorAbstract.pas',
   u_TileIteratorStuped in 'u_TileIteratorStuped.pas',

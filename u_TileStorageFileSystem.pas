@@ -9,6 +9,7 @@ uses
   GR32,
   i_IConfigDataProvider,
   i_ICoordConverter,
+  i_ITileInfoBasic,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
 
@@ -21,6 +22,7 @@ type
     FTileFileExt: string;
     FCacheConfig: TMapTypeCacheConfigAbstract;
     procedure CreateDirIfNotExists(APath: string);
+    function GetTileInfoByPath(APath: string; AVersion: Variant): ITileInfoBasic;
   public
     constructor Create(ACoordConverter: ICoordConverter; AConfig: IConfigDataProvider);
     destructor Destroy; override;
@@ -29,29 +31,26 @@ type
     function GetUseDel: boolean; override;
     function GetUseSave: boolean; override;
     function GetIsStoreReadOnly: boolean; override;
-
-    function ExistsTile(AXY: TPoint; Azoom: byte): Boolean; override;
-    function ExistsTNE(AXY: TPoint; Azoom: byte): Boolean; override;
-
-    function DeleteTile(AXY: TPoint; Azoom: byte): Boolean; override;
-    function DeleteTNE(AXY: TPoint; Azoom: byte): Boolean; override;
-
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; override;
     function GetTileFileExt: string; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
-    function LoadTile(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean; override;
-    function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; override;
-    function TileSize(AXY: TPoint; Azoom: byte): integer; override;
+    function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; override;
+    function GetTileInfo(AXY: TPoint; Azoom: byte; AVersion: Variant): ITileInfoBasic; override;
 
-    procedure SaveTile(AXY: TPoint; Azoom: byte; AStream: TStream); override;
-    procedure SaveTNE(AXY: TPoint; Azoom: byte); override;
+    function LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean; override;
+
+    function DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; override;
+    function DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; override;
+
+    procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); override;
+    procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); override;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_TileInfoBasic;
 
 { TTileStorageFileSystem }
 
@@ -81,7 +80,7 @@ begin
   end;
 end;
 
-function TTileStorageFileSystem.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
+function TTileStorageFileSystem.DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
 var
   VPath: string;
 begin
@@ -92,7 +91,7 @@ begin
       if FileExists(VPath) then begin
         result := DeleteFile(VPath);
       end;
-      DeleteTNE(AXY, Azoom);
+      DeleteTNE(AXY, Azoom, AVersion);
     except
       Result := false;
     end;
@@ -101,7 +100,7 @@ begin
   end;
 end;
 
-function TTileStorageFileSystem.DeleteTNE(AXY: TPoint; Azoom: byte): Boolean;
+function TTileStorageFileSystem.DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
 var
   VPath: string;
 begin
@@ -127,22 +126,22 @@ begin
   inherited;
 end;
 
-function TTileStorageFileSystem.ExistsTile(AXY: TPoint; Azoom: byte): Boolean;
-var
-  VPath: String;
-begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  Result := Fileexists(VPath);
-end;
-
-function TTileStorageFileSystem.ExistsTNE(AXY: TPoint; Azoom: byte): Boolean;
-var
-  VPath: String;
-begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  Result := Fileexists(ChangeFileExt(VPath, '.tne'));
-end;
-
+//function TTileStorageFileSystem.ExistsTile(AXY: TPoint; Azoom: byte): Boolean;
+//var
+//  VPath: String;
+//begin
+//  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+//  Result := Fileexists(VPath);
+//end;
+//
+//function TTileStorageFileSystem.ExistsTNE(AXY: TPoint; Azoom: byte): Boolean;
+//var
+//  VPath: String;
+//begin
+//  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+//  Result := Fileexists(ChangeFileExt(VPath, '.tne'));
+//end;
+//
 function TTileStorageFileSystem.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
@@ -163,9 +162,39 @@ begin
   Result := FTileFileExt;
 end;
 
-function TTileStorageFileSystem.GetTileFileName(AXY: TPoint; Azoom: byte): string;
+function TTileStorageFileSystem.GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string;
 begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom);
+end;
+
+function TTileStorageFileSystem.GetTileInfoByPath(APath: string; AVersion: Variant): ITileInfoBasic;
+var
+  InfoFile: TSearchRec;
+  VSearchResult: Integer;
+begin
+  VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
+  if VSearchResult <> 0 then begin
+    APath := ChangeFileExt(APath, '.tne');
+    VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
+    if VSearchResult <> 0 then begin
+      Result := TTileInfoBasicNotExists.Create(0, AVersion);
+    end else begin
+      Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), AVersion);
+      FindClose(InfoFile);
+    end;
+  end else begin
+    Result := TTileInfoBasicExists.Create(FileDateToDateTime(InfoFile.Time), InfoFile.Size, AVersion);
+    FindClose(InfoFile);
+  end;
+end;
+
+function TTileStorageFileSystem.GetTileInfo(AXY: TPoint; Azoom: byte;
+  AVersion: Variant): ITileInfoBasic;
+var
+  VPath: String;
+begin
+  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+  Result := GetTileInfoByPath(VPath, AVersion);
 end;
 
 function TTileStorageFileSystem.GetUseDel: boolean;
@@ -178,14 +207,16 @@ begin
   Result := FUseSave;
 end;
 
-function TTileStorageFileSystem.LoadTile(AXY: TPoint; Azoom: byte;
-  AStream: TStream): Boolean;
+function TTileStorageFileSystem.LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
+  AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean;
 var
   VPath: String;
   VMemStream: TMemoryStream;
+  VTileInfo: ITileInfoBasic;
 begin
   VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  if FileExists(VPath) then begin
+  VTileInfo := GetTileInfoByPath(VPath, AVersion);
+  if VTileInfo.GetIsExists then begin
     if AStream is TMemoryStream then begin
       VMemStream := TMemoryStream(AStream);
       VMemStream.LoadFromFile(VPath);
@@ -205,7 +236,7 @@ begin
   end;
 end;
 
-procedure TTileStorageFileSystem.SaveTile(AXY: TPoint; Azoom: byte;
+procedure TTileStorageFileSystem.SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
   AStream: TStream);
 var
   VPath: String;
@@ -231,7 +262,7 @@ begin
   end;
 end;
 
-procedure TTileStorageFileSystem.SaveTNE(AXY: TPoint; Azoom: byte);
+procedure TTileStorageFileSystem.SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant);
 var
   VPath: String;
   F:textfile;
@@ -249,28 +280,6 @@ begin
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
-end;
-
-function TTileStorageFileSystem.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
-var
-  VPath: String;
-begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  Result := FileDateToDateTime(FileAge(VPath));
-end;
-
-function TTileStorageFileSystem.TileSize(AXY: TPoint; Azoom: byte): integer;
-var
-  InfoFile: TSearchRec;
-  VPath: String;
-begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  if FindFirst(VPath, faAnyFile, InfoFile) <> 0 then begin
-    Result := -1;
-  end else begin
-    Result := InfoFile.Size;
-  end;
-  SysUtils.FindClose(InfoFile);
 end;
 
 end.

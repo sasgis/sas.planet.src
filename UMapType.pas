@@ -34,6 +34,7 @@ type
     FGuid: TGUID;
     FName: string;
     FasLayer: boolean;
+    FVersion: Variant;
     FTileRect: TRect;
     FZMPFileName: string;
     FMapInfo: string;
@@ -63,6 +64,7 @@ type
     FConverterForUrlGenerator: ICoordConverterSimple;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     FTileDownlodSessionFactory: ITileDownlodSessionFactory;
+
     function GetCoordConverter: ICoordConverter;
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
@@ -161,6 +163,7 @@ implementation
 
 uses
   Types,
+  Variants,
   GR32_Resamplers,
   KAZip,
   u_GlobalState,
@@ -168,6 +171,7 @@ uses
   UIMGFun,
   i_IObjectWithTTL,
   i_IPoolElement,
+  i_ITileInfoBasic,
   u_PoolOfObjectsSimple,
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
@@ -460,22 +464,28 @@ end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := FStorage.GetTileFileName(AXY, Azoom);
+  Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
+var
+  VTileInfo: ITileInfoBasic;
 begin
-  Result := FStorage.ExistsTile(AXY, Azoom);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  Result := VTileInfo.GetIsExists;
 end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
-  Result := FStorage.DeleteTile(AXY, Azoom);
+  Result := FStorage.DeleteTile(AXY, Azoom, FVersion);
 end;
 
 function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
+var
+  VTileInfo: ITileInfoBasic;
 begin
-  Result := FStorage.ExistsTNE(AXY, Azoom);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  Result := VTileInfo.GetIsExistsTNE;
 end;
 
 procedure TMapType.SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte;
@@ -486,7 +496,7 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-    FStorage.SaveTile(AXY, Azoom, VMemStream);
+    FStorage.SaveTile(AXY, Azoom, FVersion, VMemStream);
   finally
     VMemStream.Free;
   end;
@@ -495,11 +505,12 @@ end;
 function TMapType.LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte;
   btm: TCustomBitmap32): Boolean;
 var
+  VTileInfo: ITileInfoBasic;
   VMemStream: TMemoryStream;
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := FStorage.LoadTile(AXY, Azoom, VMemStream);
+    Result := FStorage.LoadTile(AXY, Azoom, FVersion, VMemStream, VTileInfo);
     if Result then begin
       FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
     end;
@@ -511,11 +522,12 @@ end;
 function TMapType.LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte;
   AKml: TKmlInfoSimple): boolean;
 var
+  VTileInfo: ITileInfoBasic;
   VMemStream: TMemoryStream;
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := FStorage.LoadTile(AXY, Azoom, VMemStream);
+    Result := FStorage.LoadTile(AXY, Azoom, FVersion, VMemStream, VTileInfo);
     if Result then  begin
       FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
     end;
@@ -535,7 +547,7 @@ begin
   VMimeType := GetMIMETypeSubst(AMimeType);
   if VManager.GetIsBitmapType(VMimeType) then begin
     if not IsCropOnDownload and SameText(FStorage.TileFileExt, VManager.GetExtForType(VMimeType)) then begin
-      FStorage.SaveTile(AXY, Azoom, ATileStream);
+      FStorage.SaveTile(AXY, Azoom, FVersion, ATileStream);
     end else begin
       btmsrc := TCustomBitmap32.Create;
       try
@@ -570,7 +582,7 @@ begin
         VMemStream := TMemoryStream.Create;
         try
           UnZip.Entries.Items[0].ExtractToStream(VMemStream);
-          FStorage.SaveTile(AXY, Azoom, VMemStream);
+          FStorage.SaveTile(AXY, Azoom, FVersion, VMemStream);
         finally
           VMemStream.Free;
         end;
@@ -579,12 +591,12 @@ begin
       end;
     except
       try
-        FStorage.SaveTile(AXY, Azoom, ATileStream);
+        FStorage.SaveTile(AXY, Azoom, FVersion, ATileStream);
       except
       end;
     end;
   end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-    FStorage.SaveTile(AXY, Azoom, ATileStream);
+    FStorage.SaveTile(AXY, Azoom, FVersion, ATileStream);
   end;
 end;
 
@@ -605,18 +617,24 @@ begin
 end;
 
 function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
+var
+  VTileInfo: ITileInfoBasic;
 begin
-  Result := FStorage.TileLoadDate(AXY, Azoom);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  Result := VTileInfo.GetLoadDate;
 end;
 
 function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
+var
+  VTileInfo: ITileInfoBasic;
 begin
-  Result := FStorage.TileSize(AXY, Azoom);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  Result := VTileInfo.GetSize;
 end;
 
 procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
 begin
-  FStorage.SaveTNE(AXY, Azoom);
+  FStorage.SaveTNE(AXY, Azoom, FVersion);
 end;
 
 procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
@@ -627,10 +645,10 @@ end;
 function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
   AFileName: string; OverWrite: boolean): boolean;
 var
-  VTileTime: TDateTime;
   VFileStream: TFileStream;
   VFileExists: Boolean;
   VExportPath: string;
+  VTileInfo: ITileInfoBasic;
 begin
   VFileExists := FileExists(AFileName);
   if VFileExists and not OverWrite then begin
@@ -642,11 +660,12 @@ begin
       VExportPath := ExtractFilePath(AFileName);
       ForceDirectories(VExportPath);
     end;
-    VTileTime := FStorage.TileLoadDate(AXY, Azoom);
     VFileStream := TFileStream.Create(AFileName, fmCreate);
     try
-      FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileTime));
-      Result := FStorage.LoadTile(AXY, Azoom, VFileStream);
+      Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
+      if Result then begin
+        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
+      end;
     finally
       VFileStream.Free;
     end;
@@ -655,94 +674,8 @@ end;
 
 function TMapType.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom,
   ASourceZoom: byte; IsStop: PBoolean): boolean;
-var
-  VPixelsRect: TRect;
-  VRelativeRect: TDoubleRect;
-  VSourceTilesRect: TRect;
-  VCurrTile: TPoint;
-  VTileSize: TPoint;
-  VSourceTilePixels: TRect;
-  VClMZ: TColor32;
-  VClTne: TColor32;
-  VSolidDrow: Boolean;
-  VIterator: ITileIterator;
 begin
-  Result := true;
-  try
-    GeoConvert.CheckTilePosStrict(AXY, Azoom, True);
-    GeoConvert.CheckZoom(ASourceZoom);
-
-    VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
-
-    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
-
-    btm.Width := VTileSize.X;
-    btm.Height := VTileSize.Y;
-    btm.Clear(clBlack);
-
-    VRelativeRect := GeoConvert.TilePos2RelativeRect(AXY, Azoom);
-    VSourceTilesRect := GeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
-   { if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
-      (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then  }
-    begin
-      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
-        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
-      VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
-      VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
-      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
-      try
-        while VIterator.Next(VCurrTile) do begin
-          if IsStop^ then break;
-          if not TileExists(VCurrTile, ASourceZoom) then begin
-            if IsStop^ then break;
-            VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-            VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
-            if VSourceTilePixels.Left < VPixelsRect.Left then begin
-              VSourceTilePixels.Left := VPixelsRect.Left;
-            end;
-            if VSourceTilePixels.Top < VPixelsRect.Top then begin
-              VSourceTilePixels.Top := VPixelsRect.Top;
-            end;
-            if VSourceTilePixels.Right > VPixelsRect.Right then begin
-              VSourceTilePixels.Right := VPixelsRect.Right;
-            end;
-            if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
-              VSourceTilePixels.Bottom := VPixelsRect.Bottom;
-            end;
-            VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
-            VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
-            VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
-            VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-            if not VSolidDrow then begin
-              Dec(VSourceTilePixels.Right);
-              Dec(VSourceTilePixels.Bottom);
-            end;
-            if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-               ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-              if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
-                btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClTne;
-              end else begin
-                btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClMZ;
-              end;
-            end else begin
-              if GState.MapZapShowTNE and TileNotExistsOnServer(VCurrTile, ASourceZoom) then begin
-                btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClTne);
-              end else begin
-                btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClMZ);
-              end;
-            end;
-          end;
-        end;
-      finally
-        VIterator := nil;
-      end;
-    end;
-    if IsStop^ then begin
-      Result := false;
-    end;
-  except
-    Result := false;
-  end;
+  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, IsStop);
 end;
 
 function TMapType.GetShortFolderName: string;

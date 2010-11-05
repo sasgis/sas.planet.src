@@ -6,6 +6,7 @@ uses
   Types,
   Classes,
   i_ICoordConverter,
+  i_ITileInfoBasic,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
 
@@ -26,23 +27,20 @@ type
     function GetUseDel: boolean; override;
     function GetUseSave: boolean; override;
     function GetIsStoreReadOnly: boolean; override;
-
-    function ExistsTile(AXY: TPoint; Azoom: byte): Boolean; override;
-    function ExistsTNE(AXY: TPoint; Azoom: byte): Boolean; override;
-
-    function DeleteTile(AXY: TPoint; Azoom: byte): Boolean; override;
-    function DeleteTNE(AXY: TPoint; Azoom: byte): Boolean; override;
-
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; override;
     function GetTileFileExt: string; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
-    function LoadTile(AXY: TPoint; Azoom: byte; AStream: TStream): Boolean; override;
-    function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime; override;
-    function TileSize(AXY: TPoint; Azoom: byte): integer; override;
+    function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; override;
 
-    procedure SaveTile(AXY: TPoint; Azoom: byte; AStream: TStream); override;
-    procedure SaveTNE(AXY: TPoint; Azoom: byte); override;
+    function GetTileInfo(AXY: TPoint; Azoom: byte; AVersion: Variant): ITileInfoBasic; override;
+
+    function LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean; override;
+
+    function DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; override;
+    function DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; override;
+
+    procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); override;
+    procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); override;
   end;
 
 implementation
@@ -83,23 +81,12 @@ begin
   inherited;
 end;
 
-function TTileStorageGE.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
+function TTileStorageGE.DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageGE.DeleteTNE(AXY: TPoint; Azoom: byte): Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGE.ExistsTile(AXY: TPoint; Azoom: byte): Boolean;
-begin
-  Result := False;
-  Abort;
-end;
-
-function TTileStorageGE.ExistsTNE(AXY: TPoint; Azoom: byte): Boolean;
+function TTileStorageGE.DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
 begin
   Result := False;
 end;
@@ -191,9 +178,15 @@ begin
   Result := 'ge_tile';
 end;
 
-function TTileStorageGE.GetTileFileName(AXY: TPoint; Azoom: byte): string;
+function TTileStorageGE.GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string;
 begin
   Abort;
+end;
+
+function TTileStorageGE.GetTileInfo(AXY: TPoint; Azoom: byte;
+  AVersion: Variant): ITileInfoBasic;
+begin
+  Result := nil;
 end;
 
 function TTileStorageGE.GetUseDel: boolean;
@@ -206,32 +199,22 @@ begin
   Result := False;
 end;
 
-function TTileStorageGE.LoadTile(AXY: TPoint; Azoom: byte;
-  AStream: TStream): Boolean;
+function TTileStorageGE.LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
+  AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean;
 begin
   Result := False;
   Abort;
 end;
 
-procedure TTileStorageGE.SaveTile(AXY: TPoint; Azoom: byte;
+procedure TTileStorageGE.SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
   AStream: TStream);
 begin
   Abort;
 end;
 
-procedure TTileStorageGE.SaveTNE(AXY: TPoint; Azoom: byte);
+procedure TTileStorageGE.SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant);
 begin
   Abort;
-end;
-
-function TTileStorageGE.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
-begin
-  Result := 0;
-end;
-
-function TTileStorageGE.TileSize(AXY: TPoint; Azoom: byte): integer;
-begin
-  Result := 0;
 end;
 
 end.
