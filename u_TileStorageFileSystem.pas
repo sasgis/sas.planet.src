@@ -44,12 +44,18 @@ type
 
     procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); override;
     procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); override;
+
+    function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean; override;
   end;
 
 implementation
 
 uses
   SysUtils,
+  t_GeoTypes,
+  i_ITileIterator,
+  u_GlobalState,
+  u_TileIteratorByRect,
   u_TileInfoBasic;
 
 { TTileStorageFileSystem }
@@ -126,22 +132,6 @@ begin
   inherited;
 end;
 
-//function TTileStorageFileSystem.ExistsTile(AXY: TPoint; Azoom: byte): Boolean;
-//var
-//  VPath: String;
-//begin
-//  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-//  Result := Fileexists(VPath);
-//end;
-//
-//function TTileStorageFileSystem.ExistsTNE(AXY: TPoint; Azoom: byte): Boolean;
-//var
-//  VPath: String;
-//begin
-//  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-//  Result := Fileexists(ChangeFileExt(VPath, '.tne'));
-//end;
-//
 function TTileStorageFileSystem.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
@@ -205,6 +195,123 @@ end;
 function TTileStorageFileSystem.GetUseSave: boolean;
 begin
   Result := FUseSave;
+end;
+
+function TTileStorageFileSystem.LoadFillingMap(btm: TCustomBitmap32;
+  AXY: TPoint; Azoom, ASourceZoom: byte; AVersion: Variant;
+  IsStop: PBoolean): boolean;
+var
+  VPixelsRect: TRect;
+  VRelativeRect: TDoubleRect;
+  VSourceTilesRect: TRect;
+  VCurrTile: TPoint;
+  VTileSize: TPoint;
+  VSourceTilePixels: TRect;
+  VClMZ: TColor32;
+  VClTne: TColor32;
+  VSolidDrow: Boolean;
+  VIterator: ITileIterator;
+  VFileName: string;
+  VFolderName: string;
+  VTileColor: TColor32;
+  VPrevFolderName: string;
+  VPrevFolderExist: Boolean;
+  VFolderExists: Boolean;
+  VFileExists: Boolean;
+begin
+  Result := true;
+  try
+    GeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+    GeoConvert.CheckZoom(ASourceZoom);
+
+    VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
+
+    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
+
+    btm.Width := VTileSize.X;
+    btm.Height := VTileSize.Y;
+    btm.Clear(0);
+
+    VRelativeRect := GeoConvert.TilePos2RelativeRect(AXY, Azoom);
+    VSourceTilesRect := GeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+    VPrevFolderName := '';
+    VPrevFolderExist := False;
+    begin
+      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
+        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
+      VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
+      VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
+      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
+      while VIterator.Next(VCurrTile) do begin
+        if IsStop^ then break;
+        VFileName := FCacheConfig.GetTileFileName(AXY, Azoom);
+        VFolderName := ExtractFilePath(VFileName);
+        if VFolderName = VPrevFolderName then begin
+          VFolderExists := VPrevFolderExist;
+        end else begin
+          VFolderExists := DirectoryExists(VFolderName);
+          VPrevFolderName := VFolderName;
+          VPrevFolderExist := VFolderExists;
+        end;
+        if VFolderExists then begin
+          VFileExists := FileExists(VFileName);
+        end else begin
+          VFileExists := False;
+        end;
+
+        if not VFileExists then begin
+          if IsStop^ then break;
+          VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
+          VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+          if VSourceTilePixels.Left < VPixelsRect.Left then begin
+            VSourceTilePixels.Left := VPixelsRect.Left;
+          end;
+          if VSourceTilePixels.Top < VPixelsRect.Top then begin
+            VSourceTilePixels.Top := VPixelsRect.Top;
+          end;
+          if VSourceTilePixels.Right > VPixelsRect.Right then begin
+            VSourceTilePixels.Right := VPixelsRect.Right;
+          end;
+          if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
+            VSourceTilePixels.Bottom := VPixelsRect.Bottom;
+          end;
+          VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
+          VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
+          VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
+          VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
+          if not VSolidDrow then begin
+            Dec(VSourceTilePixels.Right);
+            Dec(VSourceTilePixels.Bottom);
+          end;
+          if GState.MapZapShowTNE then begin
+            if VFolderExists then begin
+              VFileName := ChangeFileExt(VFileName, '.tne');
+              if FileExists(VFileName) then begin
+                VTileColor := VClTne;
+              end else begin
+                VTileColor := VClMZ;
+              end;
+            end else begin
+              VTileColor := VClMZ;
+            end;
+          end else begin
+            VTileColor := VClMZ;
+          end;
+          if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
+             ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
+            btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+          end else begin
+            btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+          end;
+        end;
+      end;
+    end;
+    if IsStop^ then begin
+      Result := false;
+    end;
+  except
+    Result := false;
+  end;
 end;
 
 function TTileStorageFileSystem.LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
