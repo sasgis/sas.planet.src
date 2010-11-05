@@ -76,6 +76,7 @@ var
   VSolidDrow: Boolean;
   VIterator: ITileIterator;
   VTileInfo: ITileInfoBasic;
+  VTileColor: TColor32;
 begin
   Result := true;
   try
@@ -127,19 +128,21 @@ begin
             Dec(VSourceTilePixels.Right);
             Dec(VSourceTilePixels.Bottom);
           end;
-          if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-             ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-            if GState.MapZapShowTNE and VTileInfo.GetIsExistsTNE then begin
-              btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClTne;
+          if GState.MapZapShowTNE then begin
+            if VTileInfo.GetIsExistsTNE then begin
+              VTileColor := VClTne;
             end else begin
-              btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VClMZ;
+              VTileColor := VClMZ;
             end;
           end else begin
-            if GState.MapZapShowTNE and VTileInfo.GetIsExistsTNE then begin
-              btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClTne);
-            end else begin
-              btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VClMZ);
-            end;
+            VTileColor := VClMZ;
+          end;
+
+          if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
+             ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
+            btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+          end else begin
+            btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
           end;
         end;
       end;
