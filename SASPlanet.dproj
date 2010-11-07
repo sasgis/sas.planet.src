@@ -309,6 +309,7 @@
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GECache.pas" />
     <DCCReference Include="u_GECrypt.pas" />
+    <DCCReference Include="u_GEIndexFile.pas" />
     <DCCReference Include="u_GeoCodePalcemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
