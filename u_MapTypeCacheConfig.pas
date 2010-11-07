@@ -55,6 +55,8 @@ type
     procedure SetCacheType(const Value: byte); override;
   public
     constructor Create;
+    function GetIndexFileName: string;
+    function GetDataFileName: string;
   end;
 
 
@@ -195,6 +197,16 @@ begin
   FDefCacheType := FCacheType;
   FNameInCache := '';
   FDefNameInCache := FNameInCache;
+end;
+
+function TMapTypeCacheConfigGE.GetDataFileName: string;
+begin
+  Result := FBasePath + 'dbCache.dat';
+end;
+
+function TMapTypeCacheConfigGE.GetIndexFileName: string;
+begin
+  Result := FBasePath + 'dbCache.dat.index';
 end;
 
 procedure TMapTypeCacheConfigGE.SetCacheType(const Value: byte);
