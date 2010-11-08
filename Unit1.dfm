@@ -7,11 +7,7 @@ object Fmain: TFmain
   ClientHeight = 535
   ClientWidth = 842
   Color = clBtnFace
-  Font.Charset = RUSSIAN_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   OldCreateOrder = False
   Position = poDesigned
   ShowHint = True
@@ -26,6 +22,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -173,7 +170,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -204,7 +201,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -216,7 +213,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 509
+      Left = 505
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -294,9 +291,9 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 119
+        Left = 115
         Top = 8
-        Width = 32
+        Width = 31
         Height = 13
         Caption = 'Label1'
         Visible = False
