@@ -41,7 +41,7 @@ type
   TMapTypeCacheConfig = class(TMapTypeCacheConfigAbstract)
   private
     FGlobalSettingsListener: IJclListener;
-    procedure OnSettingsEdit;
+    procedure OnSettingsEdit(Sender: TObject);
   protected
     procedure SetCacheType(const Value: byte); override;
     procedure SetNameInCache(const Value: string); override;
@@ -65,6 +65,7 @@ implementation
 uses
   SysUtils,
   u_JclNotify,
+  u_NotifyEventListener,
   u_GlobalState;
 
 { TMapTypeCacheConfigAbstract }
@@ -81,31 +82,6 @@ begin
   end;
 end;
 
-
-
-{ TListenerOfTMapCacheConfig }
-
-type
-  TListenerOfTMapCacheConfig = class(TJclBaseListener)
-  protected
-    FConfig: TMapTypeCacheConfig;
-  public
-    constructor Create(AConfig: TMapTypeCacheConfig);
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-constructor TListenerOfTMapCacheConfig.Create(AConfig: TMapTypeCacheConfig);
-begin
-  FConfig := AConfig;
-end;
-
-procedure TListenerOfTMapCacheConfig.Notification(
-  msg: IJclNotificationMessage);
-begin
-  inherited;
-  FConfig.OnSettingsEdit;
-end;
-
 { TMapTypeCacheConfig }
 
 constructor TMapTypeCacheConfig.Create(AConfig: IConfigDataProvider);
@@ -114,7 +90,7 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
-  FGlobalSettingsListener := TListenerOfTMapCacheConfig.Create(Self);
+  FGlobalSettingsListener := TNotifyEventListener.Create(OnSettingsEdit);
   GState.CacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
 
   FTileFileExt := LowerCase(VParams.ReadString('Ext', '.jpg'));
@@ -131,7 +107,7 @@ begin
   inherited;
 end;
 
-procedure TMapTypeCacheConfig.OnSettingsEdit;
+procedure TMapTypeCacheConfig.OnSettingsEdit(Sender: TObject);
 var
   VCacheType: Byte;
   VBasePath: string;
@@ -176,7 +152,7 @@ procedure TMapTypeCacheConfig.SetCacheType(const Value: byte);
 begin
   if FCacheType <> Value then begin
     FCacheType := Value;
-    OnSettingsEdit;
+    OnSettingsEdit(nil);
   end;
 end;
 
@@ -184,7 +160,7 @@ procedure TMapTypeCacheConfig.SetNameInCache(const Value: string);
 begin
   if FNameInCache <> Value then begin
     FNameInCache := Value;
-    OnSettingsEdit;
+    OnSettingsEdit(nil);
   end;
 end;
 
