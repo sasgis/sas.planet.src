@@ -8,11 +8,6 @@ object frmGoTo: TfrmGoTo
   ClientHeight = 207
   ClientWidth = 276
   Color = clBtnFace
-  Font.Charset = RUSSIAN_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
   OnActivate = FormActivate
@@ -27,12 +22,6 @@ object frmGoTo: TfrmGoTo
     Width = 270
     Height = 45
     Align = alTop
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 1
     object ComboBox1: TComboBox
       AlignWithMargins = True
@@ -52,12 +41,6 @@ object frmGoTo: TfrmGoTo
     Width = 124
     Height = 17
     Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 0
   end
   object GroupBox3: TGroupBox
@@ -67,12 +50,6 @@ object frmGoTo: TfrmGoTo
     Width = 270
     Height = 49
     Align = alTop
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 4
     object EditGF: TEdit
       AlignWithMargins = True
@@ -123,12 +100,6 @@ object frmGoTo: TfrmGoTo
     Width = 85
     Height = 17
     Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 5
   end
   object RB4: TRadioButton
@@ -159,12 +130,6 @@ object frmGoTo: TfrmGoTo
       Align = alLeft
       Alignment = taRightJustify
       Caption = #1052#1072#1089#1096#1090#1072#1073': x'
-      Font.Charset = RUSSIAN_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
       Layout = tlCenter
       ExplicitHeight = 21
     end
@@ -228,13 +193,6 @@ object frmGoTo: TfrmGoTo
       Align = alRight
       Caption = #1055#1077#1088#1077#1081#1090#1080
       Default = True
-      Font.Charset = RUSSIAN_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-      ParentShowHint = False
       ShowHint = True
       TabOrder = 2
       OnClick = BGoClick
