@@ -6,11 +6,7 @@ object FImport: TFImport
   ClientHeight = 385
   ClientWidth = 505
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   OldCreateOrder = False
   Position = poScreenCenter
   OnActivate = FormActivate
@@ -20,7 +16,7 @@ object FImport: TFImport
   object Label8: TLabel
     Left = 8
     Top = 10
-    Width = 56
+    Width = 58
     Height = 13
     Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
   end
@@ -42,35 +38,35 @@ object FImport: TFImport
     object Label3: TLabel
       Left = 128
       Top = 24
-      Width = 62
+      Width = 64
       Height = 13
       Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
     end
     object Label4: TLabel
       Left = 128
       Top = 48
-      Width = 51
+      Width = 53
       Height = 13
       Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
     end
     object Label5: TLabel
       Left = 256
       Top = 24
-      Width = 81
+      Width = 78
       Height = 13
       Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
     end
     object Label6: TLabel
       Left = 256
       Top = 48
-      Width = 78
+      Width = 74
       Height = 13
       Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
     end
     object Label7: TLabel
       Left = 392
       Top = 24
-      Width = 83
+      Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
@@ -93,7 +89,7 @@ object FImport: TFImport
     object Label17: TLabel
       Left = 16
       Top = 32
-      Width = 38
+      Width = 37
       Height = 13
       Caption = #1048#1082#1086#1085#1082#1072
     end
@@ -104,13 +100,7 @@ object FImport: TFImport
       Height = 22
       Selected = clYellow
       Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-      Font.Charset = RUSSIAN_CHARSET
-      Font.Color = clWindow
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
       ItemHeight = 16
-      ParentFont = False
       TabOrder = 0
     end
     object SpinEdit1: TSpinEdit
@@ -129,13 +119,7 @@ object FImport: TFImport
       Width = 38
       Height = 22
       Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
-      Font.Charset = RUSSIAN_CHARSET
-      Font.Color = clWindow
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
       ItemHeight = 16
-      ParentFont = False
       TabOrder = 2
     end
     object SpinEdit2: TSpinEdit
@@ -182,21 +166,21 @@ object FImport: TFImport
     object Label1: TLabel
       Left = 88
       Top = 24
-      Width = 25
+      Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
     object Label2: TLabel
       Left = 194
       Top = 24
-      Width = 39
+      Width = 40
       Height = 13
       Caption = #1064#1080#1088#1080#1085#1072
     end
     object Label9: TLabel
       Left = 298
       Top = 24
-      Width = 83
+      Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
@@ -215,13 +199,7 @@ object FImport: TFImport
       Height = 22
       Selected = clRed
       Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindow
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
       ItemHeight = 16
-      ParentFont = False
       TabOrder = 0
     end
     object SpinEdit3: TSpinEdit
@@ -255,21 +233,21 @@ object FImport: TFImport
     object Label10: TLabel
       Left = 88
       Top = 24
-      Width = 25
+      Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
     object Label11: TLabel
       Left = 194
       Top = 24
-      Width = 39
+      Width = 40
       Height = 13
       Caption = #1064#1080#1088#1080#1085#1072
     end
     object Label12: TLabel
       Left = 298
       Top = 24
-      Width = 83
+      Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
@@ -284,14 +262,14 @@ object FImport: TFImport
     object Label13: TLabel
       Left = 88
       Top = 48
-      Width = 25
+      Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
     object Label14: TLabel
       Left = 194
       Top = 48
-      Width = 83
+      Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
@@ -323,13 +301,7 @@ object FImport: TFImport
       Width = 38
       Height = 22
       Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindow
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
       ItemHeight = 16
-      ParentFont = False
       TabOrder = 0
     end
     object SpinEdit5: TSpinEdit
@@ -359,13 +331,7 @@ object FImport: TFImport
       Height = 22
       Selected = clWhite
       Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindow
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
       ItemHeight = 16
-      ParentFont = False
       TabOrder = 3
     end
     object SEtransp2: TSpinEdit

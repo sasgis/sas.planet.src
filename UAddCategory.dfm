@@ -6,11 +6,7 @@ object FAddCategory: TFAddCategory
   ClientHeight = 140
   ClientWidth = 295
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   OldCreateOrder = False
   Position = poScreenCenter
   PixelsPerInch = 96
@@ -23,7 +19,7 @@ object FAddCategory: TFAddCategory
     Height = 13
     Align = alTop
     Caption = #1052#1072#1089#1096#1090#1072#1073#1099' '#1074#1080#1076#1080#1084#1086#1089#1090#1080':'
-    ExplicitWidth = 115
+    ExplicitWidth = 114
   end
   object Bevel5: TBevel
     Left = 0
@@ -93,13 +89,13 @@ object FAddCategory: TFAddCategory
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 6
+      Width = 5
       Height = 13
       Caption = 'c'
     end
     object EditS1: TSpinEdit
       AlignWithMargins = True
-      Left = 15
+      Left = 14
       Top = 3
       Width = 41
       Height = 22
@@ -110,9 +106,9 @@ object FAddCategory: TFAddCategory
     end
     object Label4: TLabel
       AlignWithMargins = True
-      Left = 62
+      Left = 61
       Top = 3
-      Width = 12
+      Width = 13
       Height = 13
       Caption = #1076#1086
     end
@@ -140,7 +136,7 @@ object FAddCategory: TFAddCategory
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 50
+      Width = 48
       Height = 21
       Align = alLeft
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077
@@ -149,12 +145,14 @@ object FAddCategory: TFAddCategory
     end
     object EditName: TEdit
       AlignWithMargins = True
-      Left = 59
+      Left = 57
       Top = 3
-      Width = 233
+      Width = 235
       Height = 21
       Align = alClient
       TabOrder = 0
+      ExplicitLeft = 59
+      ExplicitWidth = 233
     end
   end
 end

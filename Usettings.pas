@@ -216,8 +216,6 @@ type
     procedure Button12Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
     procedure Button15Click(Sender: TObject);
-    procedure MapListCustomDrawItem(Sender: TCustomListView;
-      Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure MapListCustomDrawSubItem(Sender: TCustomListView;
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
@@ -627,11 +625,6 @@ begin
   if FEditMap.EditMapModadl(VMapType) then begin
     FMapsEdit := True;
   end;
-end;
-
-procedure TFSettings.MapListCustomDrawItem(Sender:TCustomListView; Item:TListItem; State:TCustomDrawState; var DefaultDraw:Boolean);
-begin
-  sender.Canvas.Font.Height:=8;
 end;
 
 procedure TFSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);

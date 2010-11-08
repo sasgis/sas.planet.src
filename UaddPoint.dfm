@@ -6,13 +6,9 @@ object FaddPoint: TFaddPoint
   ClientHeight = 404
   ClientWidth = 314
   Color = clBtnFace
-  Constraints.MinHeight = 430
+  Constraints.MinHeight = 428
   Constraints.MinWidth = 322
-  Font.Charset = RUSSIAN_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -40,8 +36,6 @@ object FaddPoint: TFaddPoint
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 5
-    ExplicitLeft = -2
-    ExplicitTop = 374
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -53,7 +47,6 @@ object FaddPoint: TFaddPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
-    ExplicitTop = 397
     object Button2: TButton
       AlignWithMargins = True
       Left = 238
@@ -66,7 +59,6 @@ object FaddPoint: TFaddPoint
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 1
-      ExplicitHeight = 25
     end
     object Badd: TButton
       AlignWithMargins = True
@@ -79,7 +71,6 @@ object FaddPoint: TFaddPoint
       Default = True
       TabOrder = 0
       OnClick = BaddClick
-      ExplicitHeight = 25
     end
   end
   object grdpnlStyleRows: TGridPanel
@@ -125,7 +116,6 @@ object FaddPoint: TFaddPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
-    ExplicitTop = 278
     DesignSize = (
       314
       89)
@@ -164,44 +154,37 @@ object FaddPoint: TFaddPoint
         314
         29)
       object flwpnlTextColor: TFlowPanel
-        Left = 17
+        Left = 16
         Top = 3
-        Width = 123
+        Width = 125
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 14
-        ExplicitTop = 9
+        ExplicitLeft = 17
         object Label3: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 62
+          Width = 64
           Height = 13
           Alignment = taRightJustify
           Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
         end
         object ColorBox1: TColorBox
-          Left = 68
+          Left = 70
           Top = 0
           Width = 38
           Height = 22
           Selected = clYellow
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-          Font.Charset = RUSSIAN_CHARSET
-          Font.Color = clWindow
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 16
-          ParentFont = False
           TabOrder = 0
         end
         object SpeedButton1: TSpeedButton
-          Left = 106
+          Left = 108
           Top = 0
           Width = 17
           Height = 22
@@ -210,27 +193,27 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlFontSize: TFlowPanel
-        Left = 171
+        Left = 173
         Top = 3
-        Width = 128
+        Width = 125
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 9
+        ExplicitLeft = 171
         object Label5: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 81
+          Width = 78
           Height = 13
           Alignment = taRightJustify
           Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
         end
         object SpinEdit1: TSpinEdit
-          Left = 87
+          Left = 84
           Top = 0
           Width = 41
           Height = 22
@@ -272,48 +255,40 @@ object FaddPoint: TFaddPoint
           Value = 100.000000000000000000
         end>
       TabOrder = 1
-      ExplicitTop = 44
       DesignSize = (
         314
         29)
       object flwpnlShadowColor: TFlowPanel
-        Left = 22
+        Left = 21
         Top = 3
-        Width = 112
+        Width = 114
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 18
-        ExplicitTop = 8
+        ExplicitLeft = 22
         object Label4: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 51
+          Width = 53
           Height = 13
           Alignment = taRightJustify
           Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
         end
         object ColorBox2: TColorBox
-          Left = 57
+          Left = 59
           Top = 0
           Width = 38
           Height = 22
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
-          Font.Charset = RUSSIAN_CHARSET
-          Font.Color = clWindow
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 16
-          ParentFont = False
           TabOrder = 0
         end
         object SpeedButton2: TSpeedButton
-          Left = 95
+          Left = 97
           Top = 0
           Width = 17
           Height = 22
@@ -322,27 +297,27 @@ object FaddPoint: TFaddPoint
         end
       end
       object flwpnlIconSize: TFlowPanel
-        Left = 173
+        Left = 175
         Top = 3
-        Width = 125
+        Width = 121
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 8
+        ExplicitLeft = 173
         object Label6: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 78
+          Width = 74
           Height = 13
           Alignment = taRightJustify
           Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
         end
         object SpinEdit2: TSpinEdit
-          Left = 84
+          Left = 80
           Top = 0
           Width = 41
           Height = 22
@@ -354,27 +329,27 @@ object FaddPoint: TFaddPoint
       end
     end
     object flwpnlTrahsparent: TFlowPanel
-      Left = 92
+      Left = 91
       Top = 58
-      Width = 130
+      Width = 132
       Height = 22
       Anchors = []
       AutoSize = True
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitTop = 79
+      ExplicitLeft = 92
       object Label7: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 83
+        Width = 85
         Height = 13
         Alignment = taRightJustify
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
       end
       object SEtransp: TSpinEdit
-        Left = 89
+        Left = 91
         Top = 0
         Width = 41
         Height = 22
@@ -395,7 +370,6 @@ object FaddPoint: TFaddPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitHeight = 166
   end
   object pnlLonLat: TPanel
     Left = 0
@@ -456,7 +430,7 @@ object FaddPoint: TFaddPoint
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 56
+          Width = 58
           Height = 20
           Align = alLeft
           Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
@@ -465,9 +439,9 @@ object FaddPoint: TFaddPoint
         end
         object CBKateg: TComboBox
           AlignWithMargins = True
-          Left = 65
+          Left = 67
           Top = 3
-          Width = 187
+          Width = 185
           Height = 21
           Align = alClient
           ItemHeight = 13
@@ -483,13 +457,11 @@ object FaddPoint: TFaddPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = -1
-        ExplicitTop = 25
         object Label1: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 25
+          Width = 23
           Height = 21
           Align = alLeft
           Caption = #1048#1084#1103':'
@@ -498,17 +470,11 @@ object FaddPoint: TFaddPoint
         end
         object EditName: TEdit
           AlignWithMargins = True
-          Left = 34
+          Left = 32
           Top = 3
-          Width = 218
+          Width = 220
           Height = 21
           Align = alClient
-          Font.Charset = RUSSIAN_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
       end

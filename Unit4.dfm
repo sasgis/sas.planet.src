@@ -6,13 +6,9 @@ object Fprogress2: TFprogress2
   ClientHeight = 49
   ClientWidth = 329
   Color = clBtnFace
-  Font.Charset = RUSSIAN_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  ParentFont = True
   Position = poScreenCenter
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96

@@ -306,7 +306,7 @@ begin
             VMark := TMarkFull.Create;
             VMark.Assign(VMarkTemplatePoly);
           end;
-        end else if KML.Data[i].IsPoly then begin
+        end else if KML.Data[i].IsLine then begin
           if VMarkTemplateLine <> nil then begin
             VMark := TMarkFull.Create;
             VMark.Assign(VMarkTemplateLine);
@@ -342,7 +342,7 @@ begin
             VMark := TMarkFull.Create;
             VMark.Assign(VMarkTemplatePoly);
           end;
-        end else if PLT.Data[i].IsPoly then begin
+        end else if PLT.Data[i].IsLine then begin
           if VMarkTemplateLine <> nil then begin
             VMark := TMarkFull.Create;
             VMark.Assign(VMarkTemplateLine);

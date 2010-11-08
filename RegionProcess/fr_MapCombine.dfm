@@ -238,12 +238,6 @@ object frMapCombine: TfrMapCombine
         Margins.Bottom = 0
         Align = alTop
         Caption = '_'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clGray
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
         ExplicitTop = 73
         ExplicitWidth = 6
       end

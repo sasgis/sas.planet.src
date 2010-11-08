@@ -6,11 +6,7 @@ object FShortcutChange: TFShortcutChange
   ClientHeight = 88
   ClientWidth = 201
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
   OldCreateOrder = False
   Position = poDesktopCenter
   OnShow = FormShow

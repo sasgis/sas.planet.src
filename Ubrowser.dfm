@@ -5,11 +5,7 @@ object Fbrowser: TFbrowser
   ClientHeight = 306
   ClientWidth = 554
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -23,7 +19,6 @@ object Fbrowser: TFbrowser
     Height = 306
     Align = alClient
     TabOrder = 0
-    Silent = False
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     OnAuthenticate = EmbeddedWB1Authenticate

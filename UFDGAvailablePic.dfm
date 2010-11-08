@@ -6,11 +6,7 @@ object FDGAvailablePic: TFDGAvailablePic
   ClientHeight = 369
   ClientWidth = 355
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -26,27 +22,24 @@ object FDGAvailablePic: TFDGAvailablePic
     Align = alBottom
     Caption = #1054#1087#1080#1089#1072#1085#1080#1077
     TabOrder = 0
-    ExplicitLeft = 8
-    ExplicitTop = 304
-    ExplicitWidth = 345
     object LabelDate: TLabel
       Left = 176
       Top = 16
-      Width = 68
+      Width = 65
       Height = 13
       Caption = #1044#1072#1090#1072' '#1089#1098#1077#1084#1082#1080
     end
     object LabelResolution: TLabel
       Left = 176
       Top = 32
-      Width = 63
+      Width = 61
       Height = 13
       Caption = #1056#1072#1079#1088#1077#1096#1077#1085#1080#1077
     end
     object LabelColor: TLabel
       Left = 176
       Top = 48
-      Width = 25
+      Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
@@ -58,33 +51,33 @@ object FDGAvailablePic: TFDGAvailablePic
       Caption = #1048#1089#1090#1086#1095#1085#1080#1082
     end
     object Label2: TLabel
-      Left = 98
+      Left = 100
       Top = 16
-      Width = 71
+      Width = 69
       Height = 13
       Alignment = taRightJustify
       Caption = #1044#1072#1090#1072' '#1089#1098#1077#1084#1082#1080':'
     end
     object Label4: TLabel
-      Left = 103
+      Left = 104
       Top = 32
-      Width = 66
+      Width = 65
       Height = 13
       Alignment = taRightJustify
       Caption = #1056#1072#1079#1088#1077#1096#1077#1085#1080#1077':'
     end
     object Label5: TLabel
-      Left = 141
+      Left = 139
       Top = 48
-      Width = 28
+      Width = 30
       Height = 13
       Alignment = taRightJustify
       Caption = #1062#1074#1077#1090':'
     end
     object Label6: TLabel
-      Left = 118
+      Left = 117
       Top = 64
-      Width = 51
+      Width = 52
       Height = 13
       Alignment = taRightJustify
       Caption = #1048#1089#1090#1086#1095#1085#1080#1082':'
@@ -99,10 +92,6 @@ object FDGAvailablePic: TFDGAvailablePic
     Align = alClient
     Caption = #1044#1086#1089#1090#1091#1087#1085#1099#1077' '#1089#1085#1080#1084#1082#1080
     TabOrder = 1
-    ExplicitLeft = 8
-    ExplicitTop = 50
-    ExplicitWidth = 345
-    ExplicitHeight = 253
     object TreeView1: TTreeView
       AlignWithMargins = True
       Left = 5
@@ -118,10 +107,6 @@ object FDGAvailablePic: TFDGAvailablePic
       SortType = stText
       TabOrder = 0
       OnMouseDown = TreeView1MouseDown
-      ExplicitLeft = 8
-      ExplicitTop = 16
-      ExplicitWidth = 249
-      ExplicitHeight = 222
     end
     object pnlRight: TPanel
       Left = 266
@@ -131,8 +116,6 @@ object FDGAvailablePic: TFDGAvailablePic
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 272
-      ExplicitHeight = 227
       object Button1: TButton
         AlignWithMargins = True
         Left = 3
@@ -143,9 +126,6 @@ object FDGAvailablePic: TFDGAvailablePic
         Caption = #1042#1099#1096#1077
         TabOrder = 0
         OnClick = Button1Click
-        ExplicitLeft = 34
-        ExplicitTop = 16
-        ExplicitWidth = 73
       end
       object Button2: TButton
         AlignWithMargins = True
@@ -157,9 +137,6 @@ object FDGAvailablePic: TFDGAvailablePic
         Caption = #1053#1080#1078#1077
         TabOrder = 1
         OnClick = Button2Click
-        ExplicitLeft = 34
-        ExplicitTop = 40
-        ExplicitWidth = 73
       end
       object Button3: TButton
         AlignWithMargins = True
@@ -174,9 +151,6 @@ object FDGAvailablePic: TFDGAvailablePic
         ShowHint = True
         TabOrder = 2
         OnClick = Button3Click
-        ExplicitLeft = 34
-        ExplicitTop = 74
-        ExplicitWidth = 73
       end
     end
   end
@@ -189,9 +163,6 @@ object FDGAvailablePic: TFDGAvailablePic
     Align = alTop
     Caption = #1042#1099#1073#1086#1088' '#1089#1090#1077#1082#1072' '#1089#1085#1080#1084#1082#1086#1074
     TabOrder = 2
-    ExplicitLeft = 8
-    ExplicitTop = 0
-    ExplicitWidth = 345
     object ComboBox2: TComboBox
       Left = 8
       Top = 16

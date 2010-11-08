@@ -85,12 +85,6 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = '_'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clGray
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
         ExplicitTop = 43
         ExplicitWidth = 6
       end
