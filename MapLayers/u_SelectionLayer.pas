@@ -41,33 +41,9 @@ uses
   GR32_VectorUtils,
   u_JclNotify,
   i_ICoordConverter,
+  u_NotifyEventListener,
   u_GlobalState,
   Ugeofun;
-
-{ TSelectionChangeListener }
-
-type
-  TSelectionChangeListener = class(TJclBaseListener)
-  private
-    FEvent: TNotifyEvent;
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  public
-    constructor Create(AEvent: TNotifyEvent);
-  end;
-
-constructor TSelectionChangeListener.Create(AEvent: TNotifyEvent);
-begin
-  FEvent := AEvent;
-end;
-
-procedure TSelectionChangeListener.Notification(msg: IJclNotificationMessage);
-begin
-  inherited;
-  if Assigned(FEvent) then begin
-    FEvent(nil);
-  end;
-end;
 
 { TSelectionLayer }
 
@@ -83,7 +59,7 @@ constructor TSelectionLayer.Create(AParentMap: TImage32;
 begin
   inherited;
   FLayerPositioned.OnPaint := PaintLayer;
-  FSelectionChangeListener := TSelectionChangeListener.Create(ChangeSelection);
+  FSelectionChangeListener := TNotifyEventListener.Create(ChangeSelection);
   GState.LastSelectionInfo.ChangeNotifier.Add(FSelectionChangeListener);
 end;
 
