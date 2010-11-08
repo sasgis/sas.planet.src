@@ -2452,7 +2452,7 @@ var
   VLonLat: TDoublePoint;
 begin
   VZoom := TMenuItem(sender).tag - 1;
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(moveTrue);
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(FmoveTrue);
   topos(VLonLat,VZoom,true);
 end;
 
