@@ -7,11 +7,7 @@ object FLogo: TFLogo
   ClientHeight = 276
   ClientWidth = 480
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
