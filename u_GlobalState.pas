@@ -245,7 +245,8 @@ type
   end;
 
 const
-  SASVersion = '101102';
+  SASVersion =
+    {$INCLUDE Version.inc};
 
 var
   GState: TGlobalState;
