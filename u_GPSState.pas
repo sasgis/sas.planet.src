@@ -28,9 +28,9 @@ type
     FGpsDisconnectListener: IJclListener;
     FLogWriter: TPltLogWriter;
 
-    procedure OnGpsConnect;
-    procedure OnGpsDataReceive;
-    procedure OnGpsDisconnect;
+    procedure OnGpsConnect(Sender: TObject);
+    procedure OnGpsDataReceive(Sender: TObject);
+    procedure OnGpsDisconnect(Sender: TObject);
   public
     speed: Double;
     len: Double;
@@ -81,68 +81,10 @@ uses
   t_GeoTypes,
   i_GPS,
   i_ICoordConverter,
+  u_NotifyEventListener,
   u_GlobalState,
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
-
-{ TGPSManagerListener }
-
-type
-  TGPSManagerListener = class(TJclBaseListener)
-  private
-    FGPSManager: TGPSpar;
-  public
-    constructor Create(AGPSManager: TGPSpar);
-  end;
-
-constructor TGPSManagerListener.Create(AGPSManager: TGPSpar);
-begin
-  FGPSManager := AGPSManager;
-end;
-
-{ TGPSConnect }
-
-type
-  TGPSConnect = class(TGPSManagerListener)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSConnect.Notification(msg: IJclNotificationMessage);
-begin
-  inherited;
-  FGPSManager.OnGpsConnect;
-end;
-
-{ TGPSDisconnect }
-
-type
-  TGPSDisconnect = class(TGPSManagerListener)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSDisconnect.Notification(msg: IJclNotificationMessage);
-begin
-  inherited;
-  FGPSManager.OnGpsDisconnect;
-end;
-
-{ TGPSDataReceive }
-
-type
-  TGPSDataReceive = class(TGPSManagerListener)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSDataReceive.Notification(msg: IJclNotificationMessage);
-begin
-  inherited;
-  FGPSManager.OnGpsDataReceive;
-end;
-
-
 
 constructor TGPSpar.Create;
 begin
@@ -151,11 +93,11 @@ begin
   FSettings := FSettingsObj;
   FGPSModele := TGPSModuleByZylGPS.Create(FSettings);
 
-  FGpsConnectListener := TGPSConnect.Create(Self);
+  FGpsConnectListener := TNotifyEventListener.Create(OnGpsConnect);
   FGPSModele.ConnectNotifier.Add(FGpsConnectListener);
-  FGpsDataReceiveListener := TGPSDataReceive.Create(Self);
+  FGpsDataReceiveListener := TNotifyEventListener.Create(OnGpsDataReceive);
   FGPSModele.DataReciveNotifier.Add(FGpsDataReceiveListener);
-  FGpsDisconnectListener := TGPSDisconnect.Create(Self);
+  FGpsDisconnectListener := TNotifyEventListener.Create(OnGpsDisconnect);
   FGPSModele.DisconnectNotifier.Add(FGpsDisconnectListener);
 end;
 
