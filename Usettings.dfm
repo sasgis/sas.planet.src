@@ -21,17 +21,13 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet5
+    ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
       BorderWidth = 3
       Caption = #1050#1072#1088#1090#1099
       ImageIndex = 8
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object MapList: TListView
         Left = 0
         Top = 0
@@ -65,7 +61,6 @@ object FSettings: TFSettings
         RowSelect = True
         TabOrder = 0
         ViewStyle = vsReport
-        OnCustomDrawItem = MapListCustomDrawItem
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
       end
@@ -126,10 +121,6 @@ object FSettings: TFSettings
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -153,7 +144,7 @@ object FSettings: TFSettings
           Left = 289
           Top = 0
           Width = 65
-          Height = 21
+          Height = 22
           MaxValue = 10000
           MinValue = 0
           TabOrder = 0
@@ -554,10 +545,10 @@ object FSettings: TFSettings
           Left = 153
           Top = 138
           Width = 442
-          Height = 19
+          Height = 21
           Align = alClient
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           ItemIndex = 1
           TabOrder = 15
           Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -573,10 +564,6 @@ object FSettings: TFSettings
       BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -620,7 +607,7 @@ object FSettings: TFSettings
           Left = 3
           Top = 180
           Width = 626
-          Height = 22
+          Height = 21
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -637,7 +624,7 @@ object FSettings: TFSettings
             Left = 178
             Top = 0
             Width = 73
-            Height = 21
+            Height = 22
             MaxValue = 0
             MinValue = 0
             TabOrder = 0
@@ -647,7 +634,7 @@ object FSettings: TFSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 205
+          Top = 204
           Width = 620
           Height = 17
           Align = alTop
@@ -678,10 +665,11 @@ object FSettings: TFSettings
               Left = 24
               Top = 3
               Width = 152
-              Height = 13
+              Height = 17
               Align = alLeft
               Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -697,9 +685,10 @@ object FSettings: TFSettings
               Left = 179
               Top = 0
               Width = 437
-              Height = 21
+              Height = 23
               Align = alClient
               TabOrder = 1
+              ExplicitHeight = 21
             end
           end
           object flwpnlProxyAuth: TFlowPanel
@@ -781,10 +770,6 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -817,10 +802,6 @@ object FSettings: TFSettings
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -876,11 +857,12 @@ object FSettings: TFSettings
               Left = 3
               Top = 3
               Width = 193
-              Height = 13
+              Height = 27
               Align = alLeft
               Alignment = taRightJustify
               Caption = #1060#1086#1088#1084#1072#1090' '#1095#1080#1089#1077#1083' '#1086#1090#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1084#1072#1089#1096#1090#1072#1073#1072
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object ComboBox1: TComboBox
               AlignWithMargins = True
@@ -890,7 +872,7 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 0
+              ItemHeight = 13
               ItemIndex = 0
               TabOrder = 0
               Text = '12 '#1082#1084'. 423 '#1084'.'
@@ -923,11 +905,12 @@ object FSettings: TFSettings
                 Left = 0
                 Top = 0
                 Width = 177
-                Height = 13
+                Height = 29
                 Align = alLeft
                 Alignment = taRightJustify
                 Caption = #1060#1086#1088#1084#1072#1090' '#1087#1088#1077#1076#1089#1090#1072#1074#1083#1077#1085#1080#1103' '#1082#1086#1086#1088#1076#1080#1085#1072#1090
                 Layout = tlCenter
+                ExplicitHeight = 13
               end
               object CB_llstrType: TComboBox
                 AlignWithMargins = True
@@ -937,7 +920,7 @@ object FSettings: TFSettings
                 Height = 21
                 Align = alClient
                 Style = csDropDownList
-                ItemHeight = 0
+                ItemHeight = 13
                 ItemIndex = 0
                 TabOrder = 0
                 Text = 'WS '#1075'.'#1084'.'#1089'. (W12'#176'23"43.35'#39')'
@@ -976,18 +959,20 @@ object FSettings: TFSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 3
-              Width = 6
+              Width = 307
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
               Top = 41
-              Width = 6
+              Width = 307
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1048,11 +1033,12 @@ object FSettings: TFSettings
               Left = 6
               Top = 6
               Width = 191
-              Height = 13
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = #1040#1083#1075#1086#1088#1080#1090#1084' '#1088#1072#1089#1090#1103#1075#1080#1074#1072#1085#1080#1103' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object ComboBox2: TComboBox
               AlignWithMargins = True
@@ -1062,7 +1048,7 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 0
+              ItemHeight = 13
               ItemIndex = 0
               TabOrder = 0
               Text = 'Box'
@@ -1097,10 +1083,11 @@ object FSettings: TFSettings
             object Label23: TLabel
               Left = 3
               Top = 3
-              Width = 112
+              Width = 307
               Height = 13
               Align = alTop
               Caption = #1054#1090#1086#1073#1088#1072#1078#1077#1085#1080#1077' '#1075#1088#1072#1085#1080#1094':'
+              ExplicitWidth = 112
             end
             object flwpnlTileBorders: TFlowPanel
               Left = 3
@@ -1142,7 +1129,7 @@ object FSettings: TFSettings
                 Left = 187
                 Top = 3
                 Width = 41
-                Height = 21
+                Height = 22
                 MaxValue = 255
                 MinValue = 0
                 TabOrder = 1
@@ -1175,7 +1162,7 @@ object FSettings: TFSettings
             Left = 3
             Top = 3
             Width = 311
-            Height = 30
+            Height = 29
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1196,7 +1183,7 @@ object FSettings: TFSettings
               Left = 153
               Top = 3
               Width = 57
-              Height = 21
+              Height = 22
               MaxValue = 255
               MinValue = 0
               TabOrder = 0
@@ -1205,9 +1192,9 @@ object FSettings: TFSettings
           end
           object flwpnlTileBorder: TFlowPanel
             Left = 3
-            Top = 33
+            Top = 32
             Width = 311
-            Height = 30
+            Height = 29
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1228,7 +1215,7 @@ object FSettings: TFSettings
               Left = 264
               Top = 3
               Width = 37
-              Height = 21
+              Height = 22
               MaxValue = 24
               MinValue = -2
               TabOrder = 0
@@ -1237,7 +1224,7 @@ object FSettings: TFSettings
           end
           object pnlShowMapName: TPanel
             Left = 3
-            Top = 63
+            Top = 61
             Width = 311
             Height = 31
             Align = alTop
@@ -1260,7 +1247,7 @@ object FSettings: TFSettings
           end
           object pnlLang: TPanel
             Left = 3
-            Top = 94
+            Top = 92
             Width = 311
             Height = 35
             Align = alTop
@@ -1275,11 +1262,12 @@ object FSettings: TFSettings
               Left = 6
               Top = 6
               Width = 26
-              Height = 13
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = #1071#1079#1099#1082
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBoxLocal: TComboBox
               AlignWithMargins = True
@@ -1289,14 +1277,14 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 0
+              ItemHeight = 13
               TabOrder = 0
               OnChange = CBoxLocalChange
             end
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 129
+            Top = 127
             Width = 311
             Height = 51
             Align = alTop
@@ -1310,10 +1298,11 @@ object FSettings: TFSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 97
+              Width = 299
               Height = 13
               Align = alTop
               Caption = #1050#1072#1088#1090#1072' '#1079#1072#1087#1086#1083#1085#1077#1085#1080#1103':'
+              ExplicitWidth = 97
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
@@ -1353,7 +1342,7 @@ object FSettings: TFSettings
                 Left = 187
                 Top = 0
                 Width = 41
-                Height = 21
+                Height = 22
                 MaxValue = 255
                 MinValue = 0
                 TabOrder = 1
@@ -1363,7 +1352,7 @@ object FSettings: TFSettings
           end
           object pnlLockToolbars: TPanel
             Left = 3
-            Top = 180
+            Top = 178
             Width = 311
             Height = 31
             Align = alTop
@@ -1386,7 +1375,7 @@ object FSettings: TFSettings
           end
           object pnlShowPointDescr: TPanel
             Left = 3
-            Top = 211
+            Top = 209
             Width = 311
             Height = 31
             Align = alTop
@@ -1409,7 +1398,7 @@ object FSettings: TFSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 242
+            Top = 240
             Width = 311
             Height = 36
             Align = alTop
@@ -1424,10 +1413,11 @@ object FSettings: TFSettings
               Left = 6
               Top = 6
               Width = 55
-              Height = 13
+              Height = 22
               Align = alLeft
               Caption = #1062#1074#1077#1090' '#1092#1086#1085#1072
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object ColorBoxBackGround: TColorBox
               AlignWithMargins = True
@@ -1783,10 +1773,6 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -1896,10 +1882,6 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlGSM: TPanel
         Left = 0
         Top = 0
@@ -1931,7 +1913,7 @@ object FSettings: TFSettings
           Left = 3
           Top = 20
           Width = 632
-          Height = 28
+          Height = 27
           Align = alTop
           AutoSize = True
           BevelEdges = [beBottom]
@@ -1951,7 +1933,7 @@ object FSettings: TFSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 0
             Text = 'COM1'
           end
@@ -1969,7 +1951,7 @@ object FSettings: TFSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 0
+            ItemHeight = 13
             ItemIndex = 5
             TabOrder = 1
             Text = '4800'
@@ -2002,7 +1984,7 @@ object FSettings: TFSettings
             Left = 390
             Top = 3
             Width = 63
-            Height = 21
+            Height = 22
             MaxValue = 0
             MinValue = 0
             TabOrder = 2
