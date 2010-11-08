@@ -31,6 +31,7 @@ type
     FSourceMapChangeNotifier: IJclNotifier;
     procedure DoRedraw; override;
     procedure DoHide; override;
+    procedure OnMainMapchange(Sender: TObject);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -52,41 +53,10 @@ uses
   Graphics,
   u_GlobalState,
   u_JclNotify,
+  u_NotifyEventListener,
   u_WindowLayerBasic,
   i_ITileIterator,
   u_TileIteratorSpiralByRect;
-
-type
-  TFillingMapListener = class(TJclBaseListener)
-  private
-    FOwnerItem: TMapFillingLayer;
-  public
-    constructor Create(AOwnerItem: TMapFillingLayer);
-  end;
-
-{ TFillingMapListener }
-
-constructor TFillingMapListener.Create(
-  AOwnerItem: TMapFillingLayer);
-begin
-  FOwnerItem := AOwnerItem;
-end;
-
-type
-  TFillingMapMainMapChangeListener = class(TFillingMapListener)
-  public
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-{ TFillingMapMainMapChangeListener }
-
-procedure TFillingMapMainMapChangeListener.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FOwnerItem.Redraw;
-end;
-
-
 
 type
   TMapFillingThread = class(TThread)
@@ -116,7 +86,7 @@ begin
   inherited;
   FLayer.Bitmap.DrawMode := dmBlend;
   FThread := TMapFillingThread.Create(Self);
-  FMainMapChangeListener := TFillingMapMainMapChangeListener.Create(Self);
+  FMainMapChangeListener := TNotifyEventListener.Create(OnMainMapchange);
   FSourceMapChangeNotifier := TJclBaseNotifier.Create;
 end;
 
@@ -176,6 +146,11 @@ begin
     VZoom := -1;
   end;
   SetSourceMap(VFillingmaptype, Vzoom);
+end;
+
+procedure TMapFillingLayer.OnMainMapchange(Sender: TObject);
+begin
+  Redraw;
 end;
 
 procedure TMapFillingLayer.Redraw;
