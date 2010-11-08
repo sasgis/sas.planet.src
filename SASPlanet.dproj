@@ -216,6 +216,7 @@
     <DCCReference Include="src\u_GUIDList.pas" />
     <DCCReference Include="src\u_GUIDObjectList.pas" />
     <DCCReference Include="src\u_JclNotify.pas" />
+    <DCCReference Include="src\u_UseNewFonts.pas" />
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />

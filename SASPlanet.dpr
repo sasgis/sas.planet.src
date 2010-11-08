@@ -25,6 +25,7 @@ uses
   u_GUIDObjectList in 'src\u_GUIDObjectList.pas',
   i_JclNotify in 'src\i_JclNotify.pas',
   u_JclNotify in 'src\u_JclNotify.pas',
+  u_UseNewFonts in 'src\u_UseNewFonts.pas',
   i_IFileNameIterator in 'src\i_IFileNameIterator.pas',
   u_FileNameIteratorInFolderByMaskList in 'src\u_FileNameIteratorInFolderByMaskList.pas',
   u_FileNameIteratorFolderWithSubfolders in 'src\u_FileNameIteratorFolderWithSubfolders.pas',
