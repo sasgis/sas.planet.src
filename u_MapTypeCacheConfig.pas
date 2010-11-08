@@ -22,9 +22,14 @@ type
 
     FBasePath: String;
     FFileNameGenerator: ITileFileNameGenerator;
+
+    FConfigChangeNotifier: IJclNotifier;
+
     procedure SetCacheType(const Value: byte); virtual; abstract;
     procedure SetNameInCache(const Value: string); virtual;
   public
+    constructor Create;
+    destructor Destroy; override;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
 
     property DefCachetype: byte read FDefCachetype;
@@ -36,6 +41,7 @@ type
     property NameInCache: string read FNameInCache write SetNameInCache;
 
     property BasePath: string read FBasePath;
+    property ConfigChangeNotifier: IJclNotifier read FConfigChangeNotifier;
   end;
 
   TMapTypeCacheConfig = class(TMapTypeCacheConfigAbstract)
@@ -70,6 +76,17 @@ uses
 
 { TMapTypeCacheConfigAbstract }
 
+constructor TMapTypeCacheConfigAbstract.Create;
+begin
+  FConfigChangeNotifier := TJclBaseNotifier.Create;
+end;
+
+destructor TMapTypeCacheConfigAbstract.Destroy;
+begin
+  FConfigChangeNotifier := nil;
+  inherited;
+end;
+
 function TMapTypeCacheConfigAbstract.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FTileFileExt;
@@ -88,6 +105,7 @@ constructor TMapTypeCacheConfig.Create(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
+  inherited Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
   FGlobalSettingsListener := TNotifyEventListener.Create(OnSettingsEdit);
