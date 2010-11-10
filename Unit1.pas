@@ -654,6 +654,7 @@ uses
   Ubrowser,
   UMarksExplorer,
   UFDGAvailablePic,
+  c_SasVersion,  
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   i_GPS,

@@ -237,10 +237,6 @@ type
     procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
 
-const
-  SASVersion =
-    {$INCLUDE Version.inc};
-
 var
   GState: TGlobalState;
 
