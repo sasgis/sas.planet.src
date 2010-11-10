@@ -273,12 +273,12 @@ begin
       //GetLink(0,0,0);
     except
       on E: Exception do begin
-        ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+ E.Message);
+        ShowMessage('Ошибка скрипта карты '+name+' ('+ZmpFileName+')'+' :'+#13#10+ E.Message);
         FUrlGenerator := nil;
         FUseDwn := False;
       end;
      else
-      ShowMessage('Ошибка скрипта карты '+name+' :'+#13#10+'Неожиданная ошибка');
+      ShowMessage('Ошибка скрипта карты '+name+' ('+ZmpFileName+')'+' :'+#13#10+'Неожиданная ошибка');
       FUrlGenerator := nil;
       FUseDwn := False;
     end;
