@@ -134,13 +134,13 @@ type
 
 const
   CTileRelativeEpsilon = (1 / (1 shl 30 + (1 shl 30 - 1))) / 2;
-  CTileSplitQuadrate256x256 = 1;
 
 implementation
 
 uses
   SysUtils,
-  Math;
+  Math,
+  c_CoordConverter;
 
 function TCoordConverterBasic.GetValidLonLatRect: TDoubleRect;
 begin

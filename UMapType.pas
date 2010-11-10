@@ -302,9 +302,9 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   if VParams.ReadInteger('CacheType', 0) = 5  then begin
-    FStorage := TTileStorageGEStuped.Create(FCoordConverter);
+    FStorage := TTileStorageGEStuped.Create(AConfig);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(FCoordConverter, AConfig);
+    FStorage := TTileStorageFileSystem.Create(AConfig);
   end;
 
   FCache := TTileCacheSimpleGlobal.Create(Self);

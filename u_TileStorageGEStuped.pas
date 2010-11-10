@@ -8,22 +8,28 @@ uses
   GR32,
   i_ICoordConverter,
   i_ITileInfoBasic,
+  i_IConfigDataProvider,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
 
 type
   TTileStorageGEStuped = class(TTileStorageAbstract)
   private
+    FCoordConverter: ICoordConverter;
     FCacheConfig: TMapTypeCacheConfigAbstract;
   public
-    constructor Create(ACoordConverter: ICoordConverter);
+    constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
+
+    function GetMainContentType: string; override;
+    function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetIsStoreFileCache: Boolean; override;
     function GetUseDel: boolean; override;
     function GetUseSave: boolean; override;
     function GetIsStoreReadOnly: boolean; override;
     function GetTileFileExt: string; override;
+    function GetCoordConverter: ICoordConverter; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; override;
@@ -45,14 +51,25 @@ uses
   SysUtils,
   Variants,
   u_TileInfoBasic,
+  u_GlobalState,
   u_GECache;
 
 { TTileStorageGEStuped }
 
-constructor TTileStorageGEStuped.Create(ACoordConverter: ICoordConverter);
+constructor TTileStorageGEStuped.Create(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
 begin
-  inherited Create(ACoordConverter);
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
   FCacheConfig := TMapTypeCacheConfigGE.Create;
+end;
+
+destructor TTileStorageGEStuped.Destroy;
+begin
+  FCoordConverter := nil;
+  FreeAndNil(FCacheConfig);
+  inherited;
 end;
 
 function TTileStorageGEStuped.DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
@@ -67,15 +84,19 @@ begin
   Abort;
 end;
 
-destructor TTileStorageGEStuped.Destroy;
+function TTileStorageGEStuped.GetAllowDifferentContentTypes: Boolean;
 begin
-  FreeAndNil(FCacheConfig);
-  inherited;
+  Result := False;
 end;
 
 function TTileStorageGEStuped.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
+end;
+
+function TTileStorageGEStuped.GetCoordConverter: ICoordConverter;
+begin
+  Result := FCoordConverter;
 end;
 
 function TTileStorageGEStuped.GetIsStoreFileCache: Boolean;
@@ -86,6 +107,11 @@ end;
 function TTileStorageGEStuped.GetIsStoreReadOnly: boolean;
 begin
   Result := True;
+end;
+
+function TTileStorageGEStuped.GetMainContentType: string;
+begin
+  Result := 'image/jpeg';
 end;
 
 function TTileStorageGEStuped.GetTileFileExt: string;
@@ -101,7 +127,7 @@ end;
 function TTileStorageGEStuped.GetTileInfo(AXY: TPoint; Azoom: byte;
   AVersion: Variant): ITileInfoBasic;
 begin
-  if GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1,GeoConvert) then begin
+  if GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1, FCoordConverter) then begin
     Result := TTileInfoBasicExists.Create(0, 0, Unassigned);
   end else begin
     Result := TTileInfoBasicNotExists.Create(0, Unassigned);

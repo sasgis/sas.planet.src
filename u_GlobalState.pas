@@ -20,6 +20,7 @@ uses
   i_IKmlInfoSimpleLoader,
   i_IBitmapLayerProvider,
   i_MapTypeIconsList,
+  i_ICoordConverterFactory,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -55,6 +56,7 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
     FLastSelectionInfo: TLastSelectionInfo;
     FMarksDB: TMarksDB;
+    FCoordConverterFactory: ICoordConverterFactory;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -209,6 +211,7 @@ type
     property MainConfigFileName: string read GetMainConfigFileName;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
+    property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
@@ -264,6 +267,7 @@ uses
   u_KmzInfoSimpleParser,
   u_MapMarksBitmapLayerProviderStuped,
   u_MapTypeIconsList,
+  u_CoordConverterFactorySimple,
   u_LanguageManager,
   UResStrings,
   u_TileFileNameGeneratorsSimpleList;
@@ -285,6 +289,7 @@ begin
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   FLanguageManager := TLanguageManager.Create(MainIni);
 
+  FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMemFileCache := TMemFileCache.Create;
   MainFileCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
@@ -329,6 +334,7 @@ begin
   FreeAndNil(GPSpar);
   FreeAndNil(FViewState);
   FreeAllMaps;
+  FCoordConverterFactory := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;

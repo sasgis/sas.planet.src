@@ -8,20 +8,21 @@ uses
   GR32,
   i_ICoordConverter,
   i_ITileInfoBasic,
+  i_IConfigDataProvider,
   u_MapTypeCacheConfig;
 
 type
   TTileStorageAbstract = class
-  private
-    FCoordConverter: ICoordConverter;
   public
-    constructor Create(ACoordConverter: ICoordConverter);
-    destructor Destroy; override;
+    function GetMainContentType: string; virtual; abstract;
+    function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
+
     function GetIsStoreFileCache: Boolean; virtual; abstract;
     function GetUseDel: boolean; virtual; abstract;
     function GetUseSave: boolean; virtual; abstract;
     function GetIsStoreReadOnly: boolean; virtual; abstract;
     function GetTileFileExt: string; virtual; abstract;
+    function GetCoordConverter: ICoordConverter; virtual; abstract;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
     function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; virtual; abstract;
@@ -37,7 +38,7 @@ type
 
     property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
     property TileFileExt: string read GetTileFileExt;
-    property GeoConvert: ICoordConverter read FCoordConverter;
+//    property GeoConvert: ICoordConverter read FCoordConverter;
   end;
 
 implementation
@@ -50,17 +51,6 @@ uses
   u_GlobalState;
 
 { TTileStorageAbstract }
-
-constructor TTileStorageAbstract.Create(ACoordConverter: ICoordConverter);
-begin
-  FCoordConverter := ACoordConverter;
-end;
-
-destructor TTileStorageAbstract.Destroy;
-begin
-  FCoordConverter := nil;
-  inherited;
-end;
 
 function TTileStorageAbstract.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint;
   Azoom, ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean;
@@ -77,13 +67,16 @@ var
   VIterator: ITileIterator;
   VTileInfo: ITileInfoBasic;
   VTileColor: TColor32;
+  VGeoConvert: ICoordConverter;
 begin
   Result := true;
   try
-    GeoConvert.CheckTilePosStrict(AXY, Azoom, True);
-    GeoConvert.CheckZoom(ASourceZoom);
+    VGeoConvert := GetCoordConverter;
 
-    VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
+    VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+    VGeoConvert.CheckZoom(ASourceZoom);
+
+    VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
 
     VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
@@ -91,8 +84,8 @@ begin
     btm.Height := VTileSize.Y;
     btm.Clear(clBlack);
 
-    VRelativeRect := GeoConvert.TilePos2RelativeRect(AXY, Azoom);
-    VSourceTilesRect := GeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+    VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+    VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
    { if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
       (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then  }
     begin
@@ -106,8 +99,8 @@ begin
         VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersion);
         if not VTileInfo.GetIsExists then begin
           if IsStop^ then break;
-          VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-          VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+          VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
+          VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
           if VSourceTilePixels.Left < VPixelsRect.Left then begin
             VSourceTilePixels.Left := VPixelsRect.Left;
           end;

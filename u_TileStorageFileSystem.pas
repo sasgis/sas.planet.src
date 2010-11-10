@@ -21,17 +21,23 @@ type
     FUseSave: boolean;
     FTileFileExt: string;
     FCacheConfig: TMapTypeCacheConfigAbstract;
+    FCoordConverter: ICoordConverter;
+    FContentType: string;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(APath: string; AVersion: Variant): ITileInfoBasic;
   public
-    constructor Create(ACoordConverter: ICoordConverter; AConfig: IConfigDataProvider);
+    constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
+
+    function GetMainContentType: string; override;
+    function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetIsStoreFileCache: Boolean; override;
     function GetUseDel: boolean; override;
     function GetUseSave: boolean; override;
     function GetIsStoreReadOnly: boolean; override;
     function GetTileFileExt: string; override;
+    function GetCoordConverter: ICoordConverter; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; override;
@@ -60,19 +66,18 @@ uses
 
 { TTileStorageFileSystem }
 
-constructor TTileStorageFileSystem.Create(ACoordConverter: ICoordConverter; AConfig: IConfigDataProvider);
+constructor TTileStorageFileSystem.Create(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
-  inherited Create(ACoordConverter);
-
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
   FUseDel:=VParams.ReadBool('Usedel',true);
   FIsStoreReadOnly:=VParams.ReadBool('ReadOnly', false);
   FUseSave:=VParams.ReadBool('Usesave',true);
   FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig);
+  FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
+//  FContentType := GState.BitmapTypeManager.GetIsBitmapType()
 end;
 
 procedure TTileStorageFileSystem.CreateDirIfNotExists(APath: string);
@@ -132,9 +137,19 @@ begin
   inherited;
 end;
 
+function TTileStorageFileSystem.GetAllowDifferentContentTypes: Boolean;
+begin
+  Result := False;
+end;
+
 function TTileStorageFileSystem.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
+end;
+
+function TTileStorageFileSystem.GetCoordConverter: ICoordConverter;
+begin
+  Result := FCoordConverter;
 end;
 
 function TTileStorageFileSystem.GetIsStoreFileCache: Boolean;
@@ -145,6 +160,11 @@ end;
 function TTileStorageFileSystem.GetIsStoreReadOnly: boolean;
 begin
   Result := FIsStoreReadOnly;
+end;
+
+function TTileStorageFileSystem.GetMainContentType: string;
+begin
+
 end;
 
 function TTileStorageFileSystem.GetTileFileExt: string;
@@ -218,13 +238,15 @@ var
   VPrevFolderExist: Boolean;
   VFolderExists: Boolean;
   VFileExists: Boolean;
+  VGeoConvert: ICoordConverter;
 begin
   Result := true;
   try
-    GeoConvert.CheckTilePosStrict(AXY, Azoom, True);
-    GeoConvert.CheckZoom(ASourceZoom);
+    VGeoConvert := GetCoordConverter;
+    VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+    VGeoConvert.CheckZoom(ASourceZoom);
 
-    VPixelsRect := GeoConvert.TilePos2PixelRect(AXY, Azoom);
+    VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
 
     VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
@@ -232,8 +254,8 @@ begin
     btm.Height := VTileSize.Y;
     btm.Clear(0);
 
-    VRelativeRect := GeoConvert.TilePos2RelativeRect(AXY, Azoom);
-    VSourceTilesRect := GeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+    VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+    VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
     VPrevFolderName := '';
     VPrevFolderExist := False;
     begin
@@ -261,8 +283,8 @@ begin
 
         if not VFileExists then begin
           if IsStop^ then break;
-          VRelativeRect := GeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-          VSourceTilePixels := GeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+          VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
+          VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
           if VSourceTilePixels.Left < VPixelsRect.Left then begin
             VSourceTilePixels.Left := VPixelsRect.Left;
           end;

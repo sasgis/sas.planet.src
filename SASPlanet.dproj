@@ -47,6 +47,8 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="bmpUtil.pas" />
+    <DCCReference Include="c_CoordConverter.pas" />
+    <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="dm_MarksDb.pas">
       <Form>DMMarksDb</Form>
       <DesignClass>TDataModule</DesignClass>
@@ -71,6 +73,7 @@
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
+    <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GPS.pas" />
     <DCCReference Include="i_IActiveMapsConfig.pas" />
@@ -79,7 +82,10 @@
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
     <DCCReference Include="i_IConfigDataProvider.pas" />
     <DCCReference Include="i_IConfigDataWriteProvider.pas" />
+    <DCCReference Include="i_IContentConverter.pas" />
+    <DCCReference Include="i_IContentTypeManager.pas" />
     <DCCReference Include="i_ICoordConverter.pas" />
+    <DCCReference Include="i_ICoordConverterFactory.pas" />
     <DCCReference Include="i_IGPSModule.pas" />
     <DCCReference Include="i_IGPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="i_IGPSRecorder.pas" />
@@ -300,8 +306,13 @@
     <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ContentConverterBase.pas" />
+    <DCCReference Include="u_ContentConverterBitmap.pas" />
+    <DCCReference Include="u_ContentConverterKmz2Kml.pas" />
+    <DCCReference Include="u_ContentTypeInfo.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
+    <DCCReference Include="u_CoordConverterFactorySimple.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />

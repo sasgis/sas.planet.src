@@ -6,6 +6,7 @@ uses
   Types,
   Classes,
   i_ICoordConverter,
+  i_IConfigDataProvider,
   i_ITileInfoBasic,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
@@ -31,6 +32,7 @@ type
   TTileStorageGE = class(TTileStorageAbstract)
   private
     FCacheConfig: TMapTypeCacheConfigGE;
+    FCoordConverter: ICoordConverter;
 
     indexfilename:string;
     FIndexInfo: array of TIndexRec;
@@ -38,14 +40,18 @@ type
     function GEFindTileAdr(indexpath: string; APoint: TPoint; AZoom: Byte; var size:integer):integer;
     procedure UpdateIndexInfo;
   public
-    constructor Create(ACoordConverter: ICoordConverter);
+    constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
+
+    function GetMainContentType: string; override;
+    function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetIsStoreFileCache: Boolean; override;
     function GetUseDel: boolean; override;
     function GetUseSave: boolean; override;
     function GetIsStoreReadOnly: boolean; override;
     function GetTileFileExt: string; override;
+    function GetCoordConverter: ICoordConverter; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; override;
@@ -64,14 +70,16 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  c_CoordConverter,
+  u_GlobalState;
 
 { TTileStorageGEStuped }
 
-constructor TTileStorageGE.Create(ACoordConverter: ICoordConverter);
+constructor TTileStorageGE.Create(AConfig: IConfigDataProvider);
 begin
-  inherited Create(ACoordConverter);
   FCacheConfig := TMapTypeCacheConfigGE.Create;
+  FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
 end;
 
 destructor TTileStorageGE.Destroy;
@@ -154,9 +162,19 @@ begin
   end;
 end;
 
+function TTileStorageGE.GetAllowDifferentContentTypes: Boolean;
+begin
+  Result := True;
+end;
+
 function TTileStorageGE.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
+end;
+
+function TTileStorageGE.GetCoordConverter: ICoordConverter;
+begin
+  Result := FCoordConverter;
 end;
 
 function TTileStorageGE.GetIsStoreFileCache: Boolean;
@@ -167,6 +185,11 @@ end;
 function TTileStorageGE.GetIsStoreReadOnly: boolean;
 begin
   Result := True;
+end;
+
+function TTileStorageGE.GetMainContentType: string;
+begin
+  Result := 'image/jpeg';
 end;
 
 function TTileStorageGE.GetTileFileExt: string;

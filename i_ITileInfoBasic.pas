@@ -10,6 +10,7 @@ type
     function GetLoadDate: TDateTime;
     function GetSize: Cardinal;
     function GetVersion: Variant;
+    function GetContentType: WideString;
   end;
 
 

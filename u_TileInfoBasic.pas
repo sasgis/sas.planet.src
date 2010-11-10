@@ -16,6 +16,7 @@ type
     function GetLoadDate: TDateTime; virtual;
     function GetSize: Cardinal; virtual; abstract;
     function GetVersion: Variant; virtual;
+    function GetContentType: WideString; virtual; abstract;
   public
     constructor Create(ADate: TDateTime; AVersion: Variant);
   end;
