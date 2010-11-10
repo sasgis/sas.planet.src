@@ -308,8 +308,10 @@
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
     <DCCReference Include="u_ContentConverterBase.pas" />
     <DCCReference Include="u_ContentConverterBitmap.pas" />
+    <DCCReference Include="u_ContentConverterKml2Kmz.pas" />
     <DCCReference Include="u_ContentConverterKmz2Kml.pas" />
     <DCCReference Include="u_ContentTypeInfo.pas" />
+    <DCCReference Include="u_ContentTypeManagerSimple.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterFactorySimple.pas" />
