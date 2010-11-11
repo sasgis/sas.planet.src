@@ -552,7 +552,7 @@ begin
   end;
 
   if Key=VK_SPACE then begin
-    if TreeView1.Selected<>nil then begin
+    if (TreeView1.Selected<>nil)and(TreeView1.Selected.Data<>nil) then begin
       VCategory := TCategoryId(TreeView1.Selected.Data);
       if TreeView1.Selected.StateIndex=1 then begin
         VCategory.visible := false;
@@ -636,13 +636,15 @@ begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
     for i:=0 to TreeView1.Items.Count-1 do begin
-      if VNewVisible then begin
-        TreeView1.Items.Item[i].StateIndex := 1;
-      end else begin
-        TreeView1.Items.Item[i].StateIndex := 2;
+      if TreeView1.Items.Item[i].Data<>nil then begin
+        if VNewVisible then begin
+          TreeView1.Items.Item[i].StateIndex := 1;
+        end else begin
+          TreeView1.Items.Item[i].StateIndex := 2;
+        end;
+        TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
+        GState.MarksDb.WriteCategory(TreeView1.Items.Item[i].Data);
       end;
-      TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
-      GState.MarksDb.WriteCategory(TreeView1.Items.Item[i].Data);
     end;
     //WriteCategoriesList(TreeView1.Items.Items);
   end;
