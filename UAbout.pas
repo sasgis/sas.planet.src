@@ -45,7 +45,7 @@ var
 implementation
 
 uses
-  u_GlobalState,
+  c_SasVersion,
   Unit1;
 
 {$R *.dfm}
