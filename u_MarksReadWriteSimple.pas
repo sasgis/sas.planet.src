@@ -5,10 +5,12 @@ interface
 uses
   Windows,
   Classes,
+  Dialogs,
   t_GeoTypes,
   t_CommonTypes,
   dm_MarksDb,
-  u_MarksSimple;
+  u_MarksSimple,
+  UResStrings;
 
 type
   TMarksDB = class
@@ -221,16 +223,20 @@ end;
 
 procedure TMarksDB.WriteCategory(ACategory: TCategoryId);
 begin
-  if ACategory.id < 0 then begin
-    FDMMarksDb.CDSKategory.Insert;
+  if not(FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[])) then begin
+    if ACategory.id < 0 then begin
+      FDMMarksDb.CDSKategory.Insert;
+    end else begin
+      FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
+      FDMMarksDb.CDSKategory.Edit;
+    end;
+    WriteCurrentCategory(ACategory);
+    FDMMarksDb.CDSKategory.post;
+    ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
+    SaveCategory2File;
   end else begin
-    FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
-    FDMMarksDb.CDSKategory.Edit;
+    showmessage(SAS_ERR_CategoryNameDoubling);
   end;
-  WriteCurrentCategory(ACategory);
-  FDMMarksDb.CDSKategory.post;
-  ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
-  SaveCategory2File;
 end;
 
 constructor TMarksDB.Create;

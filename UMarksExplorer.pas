@@ -232,8 +232,7 @@ end;
 
 procedure DrawTreeCategory(TreeView1: TTreeView; Strs: TStrings);
 var
-  CachedStrs: TStringList; // CachedStrs вводитс€ дл€ ускорени€ поиска
-  // в уже готовом дереве.
+  CachedStrs: TStringList;
 
   procedure AddItem(Lev: Integer; ParentNode: TTreeNode; S: string; Data:TObject);
     function FindNodeWithText(AParent: TTreeNode; const S: string): TTreeNode;
@@ -272,7 +271,6 @@ var
     ID: Integer;
     aNode: TTreeNode;
   begin
-    if TCategoryId(Data).id<>123123123 then
     if S='' then begin
       Exit;
     end;
@@ -298,7 +296,9 @@ var
         end;
       end;
     end else begin
-      aNode.Data:=Data;
+      if ID=0 then begin
+        aNode.Data:=Data;
+      end;
     end;
     AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data);
   end;
