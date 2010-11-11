@@ -135,6 +135,7 @@ begin
   FreeAndNil(FBMSrchPlacemark);
   FreeAndNil(FBMSrchPlacemarkE);
   FreeAndNil(FBMSrchName);
+  FreeAndNil(FBMSrchCloseQ);
   FreeAndNil(FBMSrchNameE);
   FreeAndNil(FBMSrchId);
   FreeAndNil(FBMSrchCDATA);
