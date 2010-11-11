@@ -77,6 +77,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
+    procedure SpeedButton5Click(Sender: TObject);
   private
     { Private declarations }
     FileName:string;
@@ -197,7 +199,17 @@ end;
 
 procedure TFImport.SpeedButton3Click(Sender: TObject);
 begin
- if ColorDialog1.Execute then ColorBox1.Selected:=ColorDialog1.Color;
+ if ColorDialog1.Execute then ColorBox3.Selected:=ColorDialog1.Color;
+end;
+
+procedure TFImport.SpeedButton4Click(Sender: TObject);
+begin
+ if ColorDialog1.Execute then ColorBox4.Selected:=ColorDialog1.Color;
+end;
+
+procedure TFImport.SpeedButton5Click(Sender: TObject);
+begin
+ if ColorDialog1.Execute then ColorBox5.Selected:=ColorDialog1.Color;
 end;
 
 procedure TFImport.FormShow(Sender: TObject);
