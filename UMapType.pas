@@ -151,6 +151,7 @@ type
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
+    property Cache: ITileObjCache read FCache;
 
     constructor Create;
     destructor Destroy; override;
