@@ -114,6 +114,26 @@ begin
   generate_granica;
   DrawGenShBorders;
 end;
+function FloatPoint2RectWihtClip(ASource: TExtendedPoint): TPoint;
+const
+  CMaxClip = 1 shl 14;
+begin
+  if ASource.X < - CMaxClip then begin
+    Result.X := - CMaxClip;
+  end else if ASource.X > CMaxClip then begin
+    Result.X := CMaxClip;
+  end else begin
+    Result.X := trunc(ASource.X);
+  end;
+
+  if ASource.Y < - CMaxClip then begin
+    Result.Y := - CMaxClip;
+  end else if ASource.Y > CMaxClip then begin
+    Result.Y := CMaxClip;
+  end else begin
+    Result.Y := trunc(ASource.Y);
+  end;
+end;
 
 procedure TMapMainLayer.DrawGenShBorders;
 var
@@ -126,7 +146,7 @@ var
   VGridLonLatRect: TExtendedRect;
   VGridRect: TRect;
   VDrawLonLatRect: TExtendedRect;
-  VDrawRect: TRect;
+  VDrawRectFloat: TExtendedRect;
   VColor: TColor32;
   VDrawScreenRect: TRect;
   VShowText: Boolean;
@@ -156,13 +176,13 @@ begin
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
   VDrawLonLatRect.BottomRight := ExtPoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
-  VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+  VDrawRectFloat := FGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoomCurr);
 
-  if abs(VDrawRect.Right - VDrawRect.Left) < 4 then begin
+  if abs(VDrawRectFloat.Right - VDrawRectFloat.Left) < 4 then begin
     exit;
   end;
 
-  if (abs(VDrawRect.Right - VDrawRect.Left) > 30) and (GState.ShowBorderText) then begin
+  if (abs(VDrawRectFloat.Right - VDrawRectFloat.Left) > 30) and (GState.ShowBorderText) then begin
     VShowText := true;
   end else begin
     VShowText := false;
@@ -175,10 +195,11 @@ begin
   VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
 
   while VDrawLonLatRect.Left <= VGridLonLatRect.Right do begin
-    VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+    VDrawRectFloat := FGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoomCurr);
 
-    VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
-    VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
+    VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(MapPixel2BitmapPixel(VDrawRectFloat.TopLeft));
+    VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(MapPixel2BitmapPixel(VDrawRectFloat.BottomRight));
+
     FLayer.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
@@ -193,10 +214,10 @@ begin
   VDrawLonLatRect.Bottom := VGridLonLatRect.Top;
 
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
-    VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+    VDrawRectFloat := FGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoomCurr);
 
-    VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
-    VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
+    VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(MapPixel2BitmapPixel(VDrawRectFloat.TopLeft));
+    VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(MapPixel2BitmapPixel(VDrawRectFloat.BottomRight));
     FLayer.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
@@ -216,7 +237,7 @@ begin
   VDrawLonLatRect.Bottom := VDrawLonLatRect.Top - z.Y;
   while VDrawLonLatRect.Top - VGridLonLatRect.Bottom > -0.000001 do begin
     while VDrawLonLatRect.Left + z.X / 2 <= VGridLonLatRect.Right do begin
-      VDrawRect := FGeoConvert.LonLatRect2PixelRect(VDrawLonLatRect, VZoomCurr);
+      VDrawRectFloat := FGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoomCurr);
       ListName := LonLat2GShListName(
         ExtPoint(VDrawLonLatRect.Left + z.X / 2, VDrawLonLatRect.Top - z.Y / 2),
         GState.GShScale, GSHprec
@@ -224,8 +245,8 @@ begin
       twidth := FLayer.bitmap.TextWidth(ListName);
       theight := FLayer.bitmap.TextHeight(ListName);
 
-      VDrawScreenRect.TopLeft := MapPixel2BitmapPixel(VDrawRect.TopLeft);
-      VDrawScreenRect.BottomRight := MapPixel2BitmapPixel(VDrawRect.BottomRight);
+      VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(MapPixel2BitmapPixel(VDrawRectFloat.TopLeft));
+      VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(MapPixel2BitmapPixel(VDrawRectFloat.BottomRight));
 
       FLayer.bitmap.RenderTextW(
         VDrawScreenRect.Left + (VDrawScreenRect.Right - VDrawScreenRect.Left) div 2 - (twidth div 2),
