@@ -223,10 +223,18 @@ end;
 
 procedure TMarksDB.WriteCategory(ACategory: TCategoryId);
 begin
-  if not(FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[])) then begin
     if ACategory.id < 0 then begin
+      if FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[]) then begin
+        showmessage(SAS_ERR_CategoryNameDoubling);
+        exit;
+      end;
       FDMMarksDb.CDSKategory.Insert;
     end else begin
+      if (FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[])and(ACategory.id<>FDMMarksDb.CDSKategory.FieldByName('id').AsInteger))or
+         (FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[])and(ACategory.id<>FDMMarksDb.CDSKategory.FieldByName('id').AsInteger)) then begin
+        showmessage(SAS_ERR_CategoryNameDoubling);
+        exit;
+      end;
       FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
       FDMMarksDb.CDSKategory.Edit;
     end;
@@ -234,9 +242,6 @@ begin
     FDMMarksDb.CDSKategory.post;
     ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
     SaveCategory2File;
-  end else begin
-    showmessage(SAS_ERR_CategoryNameDoubling);
-  end;
 end;
 
 constructor TMarksDB.Create;
