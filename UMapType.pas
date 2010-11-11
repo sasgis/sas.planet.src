@@ -499,7 +499,11 @@ begin
   try
     Result := FStorage.LoadTile(AXY, Azoom, VMemStream);
     if Result then begin
-      FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+      try
+        FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+      except
+        Result := False;
+      end;
     end;
   finally
     VMemStream.Free;
@@ -515,7 +519,11 @@ begin
   try
     Result := FStorage.LoadTile(AXY, Azoom, VMemStream);
     if Result then  begin
-      FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+      try
+        FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+      except
+        Result := False;
+      end;
     end;
   finally
     VMemStream.Free;
