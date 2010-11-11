@@ -257,12 +257,10 @@ begin
   Polygon.Antialiased := true;
   Polygon.AntialiasMode := am32times;
   Polygon.FillMode := pfAlternate;
-  with FLayer.Bitmap do begin
-    for i := 0 to length(FPath) - 1 do begin
-      k1 := FGeoConvert.LonLat2PixelPos(FPath[i], FZoom);
-      k1 := MapPixel2BitmapPixel(k1);
-      Polygon.add(FixedPoint(k1.x, k1.Y));
-    end;
+  for i := 0 to length(FPath) - 1 do begin
+    k1 := FGeoConvert.LonLat2PixelPos(FPath[i], FZoom);
+    k1 := MapPixel2BitmapPixel(k1);
+    Polygon.add(FixedPoint(k1.x, k1.Y));
   end;
   with Polygon.Outline do begin
     FillMode := pfWinding;
