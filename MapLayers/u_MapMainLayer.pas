@@ -114,7 +114,7 @@ begin
   generate_granica;
   DrawGenShBorders;
 end;
-function FloatPoint2RectWihtClip(ASource: TExtendedPoint): TPoint;
+function FloatPoint2RectWihtClip(ASource: TDoublePoint): TPoint;
 const
   CMaxClip = 1 shl 14;
 begin
@@ -146,7 +146,7 @@ var
   VGridLonLatRect: TDoubleRect;
   VGridRect: TRect;
   VDrawLonLatRect: TDoubleRect;
-  VDrawRectFloat: TExtendedRect;
+  VDrawRectFloat: TDoubleRect;
   VColor: TColor32;
   VDrawScreenRect: TRect;
   VShowText: Boolean;

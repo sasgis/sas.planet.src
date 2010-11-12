@@ -81,15 +81,15 @@ end;
 procedure TMapNalLayer.DoDrawCalcLine;
 var
   i, j, textW, adp: integer;
-  k1: TExtendedPoint;
-  k2: TExtendedPoint;
-  k4: TExtendedPoint;
-  k3: TExtendedPoint;
+  k1: TDoublePoint;
+  k2: TDoublePoint;
+  k4: TDoublePoint;
+  k3: TDoublePoint;
   len: real;
   text: string;
   polygon: TPolygon32;
   VBitmapSize: TPoint;
-  VPointsOnBitmap: TExtendedPointArray;
+  VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
 begin
   VBitmapSize := GetBitmapSizeInPixel;
@@ -118,10 +118,10 @@ begin
             end else begin
               adp := Trunc((k2.y - k1.y) / 32767) + 2;
             end;
-            k3 := ExtPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+            k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
             if adp > 2 then begin
               for j := 1 to adp - 1 do begin
-                k4 := ExtPoint(k1.x + k3.x * j, k1.Y + k3.y * j);
+                k4 := DoublePoint(k1.x + k3.x * j, k1.Y + k3.y * j);
                 if (k4.x < 32767) and (k4.x > -32767) and (k4.y < 32767) and (k4.y > -32767) then begin
                   polygon.Add(FixedPoint(k4.x, k4.y));
                 end;
@@ -207,12 +207,12 @@ begin
       end;
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 3, k1.y - 3);
+        k1 := DoublePoint(k1.x - 3, k1.y - 3);
         FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), SetAlpha(ClGreen32, 255));
       end;
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 3, k1.y - 3);
+        k1 := DoublePoint(k1.x - 3, k1.y - 3);
         FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), SetAlpha(ClRed32, 255));
       end;
     finally
@@ -224,11 +224,11 @@ end;
 procedure TMapNalLayer.DoDrawNewPath(AIsPoly: Boolean);
 var
   i, adp, j: integer;
-  k1, k2, k4: TExtendedPoint;
+  k1, k2, k4: TDoublePoint;
   k3: TDoublePoint;
   polygon: TPolygon32;
   VBitmapSize: TPoint;
-  VPointsOnBitmap: TExtendedPointArray;
+  VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
 begin
   VBitmapSize := GetBitmapSizeInPixel;
@@ -256,10 +256,10 @@ begin
             end else begin
               adp := Round((k2.y - k1.y) / 32767) + 2;
             end;
-            k3 := ExtPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+            k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
             if adp > 2 then begin
               for j := 1 to adp - 1 do begin
-                k4 := ExtPoint(k1.x + k3.x * j, k1.Y + k3.y * j);
+                k4 := DoublePoint(k1.x + k3.x * j, k1.Y + k3.y * j);
                 if (k4.x < 32767) and (k4.x > -32767) and (k4.y < 32767) and (k4.y > -32767) then begin
                   polygon.Add(FixedPoint(k4.x, k4.y));
                 end;
@@ -286,18 +286,18 @@ begin
       for i := 1 to VPointsCount - 1 do begin
         k1 := VPointsOnBitmap[i];
         if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          k1 := ExtPoint(k1.x - 4, k1.y - 4);
+          k1 := DoublePoint(k1.x - 4, k1.y - 4);
           FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyPointColor);
         end;
       end;
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 4, k1.y - 4);
+        k1 := DoublePoint(k1.x - 4, k1.y - 4);
         FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyFirstPointColor);
       end;
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 4, k1.y - 4);
+        k1 := DoublePoint(k1.x - 4, k1.y - 4);
         FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyActivePointColor);
       end;
     finally
@@ -309,10 +309,10 @@ end;
 procedure TMapNalLayer.DoDrawSelectionPoly;
 var
   i: integer;
-  k1: TExtendedPoint;
+  k1: TDoublePoint;
   Polygon: TPolygon32;
   VBitmapSize: TPoint;
-  VPointsOnBitmap: TExtendedPointArray;
+  VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
 begin
   VBitmapSize := GetBitmapSizeInPixel;
@@ -346,13 +346,13 @@ begin
       end;
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 3, k1.y - 3);
+        k1 := DoublePoint(k1.x - 3, k1.y - 3);
         FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClGreen32, 255));
       end;
       if VPointsCount > 1 then begin
         k1 := VPointsOnBitmap[VPointsCount - 1];
         if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          k1 := ExtPoint(k1.x - 3, k1.y - 3);
+          k1 := DoublePoint(k1.x - 3, k1.y - 3);
           FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClRed32, 255));
         end;
       end;

@@ -642,7 +642,6 @@ uses
   DateUtils,
   u_JclNotify,
   u_GUIDObjectList,
-  c_SasVersion,
   u_GlobalState,
   frm_GoTo,
   UAbout,

@@ -81,7 +81,7 @@ var
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
   Vmt: Byte;
-  VTileIterators: array [0..2] of array of TTileIteratorAbstract;
+  VTileIterators: array [0..2] of array of ITileIterator;
   VTileIterator: ITileIterator;
 begin
   inherited;
@@ -172,9 +172,7 @@ begin
       finally
         for i := 0 to Length(FZooms)-1 do begin
           for j := 0 to 2 do begin
-            if VTileIterators[j][i]<>nil then begin
-              VTileIterators[j][i].Free;
-            end;
+            VTileIterators[j][i] := nil;
           end;
         end;
         VTileIterators[0]:=nil;
