@@ -130,6 +130,8 @@ uses
   u_ContentConverterKml2Kmz in 'u_ContentConverterKml2Kmz.pas',
   u_ContentTypeListByKey in 'u_ContentTypeListByKey.pas',
   u_ContentTypeManagerSimple in 'u_ContentTypeManagerSimple.pas',
+  u_ContentConvertersListByKey in 'u_ContentConvertersListByKey.pas',
+  u_ContentConverterMatrix in 'u_ContentConverterMatrix.pas',
   i_ITileInfoBasic in 'i_ITileInfoBasic.pas',
   u_TileInfoBasic in 'u_TileInfoBasic.pas',
   i_ITileIterator in 'i_ITileIterator.pas',

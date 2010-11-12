@@ -310,6 +310,8 @@
     <DCCReference Include="u_ContentConverterBitmap.pas" />
     <DCCReference Include="u_ContentConverterKml2Kmz.pas" />
     <DCCReference Include="u_ContentConverterKmz2Kml.pas" />
+    <DCCReference Include="u_ContentConverterMatrix.pas" />
+    <DCCReference Include="u_ContentConvertersListByKey.pas" />
     <DCCReference Include="u_ContentTypeInfo.pas" />
     <DCCReference Include="u_ContentTypeListByKey.pas" />
     <DCCReference Include="u_ContentTypeManagerSimple.pas" />
