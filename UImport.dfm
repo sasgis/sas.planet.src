@@ -257,7 +257,7 @@ object FImport: TFImport
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton1Click
+      OnClick = SpeedButton4Click
     end
     object Label13: TLabel
       Left = 88
@@ -279,7 +279,7 @@ object FImport: TFImport
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton2Click
+      OnClick = SpeedButton5Click
     end
     object Label15: TLabel
       Left = 8
@@ -389,6 +389,6 @@ object FImport: TFImport
   end
   object ColorDialog1: TColorDialog
     Left = 472
-    Top = 8
+    Top = 32
   end
 end

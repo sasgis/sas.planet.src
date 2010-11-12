@@ -642,6 +642,7 @@ uses
   DateUtils,
   u_JclNotify,
   u_GUIDObjectList,
+  c_SasVersion,
   u_GlobalState,
   frm_GoTo,
   UAbout,
@@ -2368,6 +2369,7 @@ begin
     s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
     if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
       VMapType.DeleteTile(VLoadPoint, VZoomCurr);
+      VMapType.Cache.DeleteTileFromCache(VLoadPoint, VZoomCurr);
       generate_im;
     end;
   end;
@@ -3284,6 +3286,7 @@ begin
  if HiWord(GetKeyState(VK_DELETE))<>0 then begin
   if VValidPoint then begin
    VMap.DeleteTile(VTile, VZoomCurr);
+   VMap.Cache.DeleteTileFromCache(VTile, VZoomCurr);
    generate_im;
   end;
   exit;

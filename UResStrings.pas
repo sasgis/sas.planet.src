@@ -60,6 +60,7 @@ ResourceString
   SAS_ERR_MapGUIDError = 'В карте %0:s ошибка: %1:s';
   SAS_ERR_MapGUIDDuplicate = 'В файлах %0:s и %1:s одинаковые GUID';
   SAS_ERR_MainMapNotExists = 'Среди ZMP должна быть хотя бы одна карта';
+  SAS_ERR_CategoryNameDoubling = 'Такое имя категории уже существует';
 
   SAS_STR_MarshLen = 'Длина маршрута: ';
   SAS_STR_Marshtime = 'Время в пути: ';

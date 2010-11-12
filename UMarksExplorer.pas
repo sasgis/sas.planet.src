@@ -206,8 +206,7 @@ end;
 
 procedure DrawTreeCategory(TreeView1: TTreeView; Strs: TStrings);
 var
-  CachedStrs: TStringList; // CachedStrs вводитс€ дл€ ускорени€ поиска
-  // в уже готовом дереве.
+  CachedStrs: TStringList;
 
   procedure AddItem(Lev: Integer; ParentNode: TTreeNode; S: string; Data:TObject);
     function FindNodeWithText(AParent: TTreeNode; const S: string): TTreeNode;
@@ -246,7 +245,6 @@ var
     ID: Integer;
     aNode: TTreeNode;
   begin
-    if TCategoryId(Data).id<>123123123 then
     if S='' then begin
       Exit;
     end;
@@ -272,7 +270,9 @@ var
         end;
       end;
     end else begin
-      aNode.Data:=Data;
+      if ID=0 then begin
+        aNode.Data:=Data;
+      end;
     end;
     AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data);
   end;
@@ -525,7 +525,7 @@ begin
   end;
 
   if Key=VK_SPACE then begin
-    if TreeView1.Selected<>nil then begin
+    if (TreeView1.Selected<>nil)and(TreeView1.Selected.Data<>nil) then begin
       VCategory := TCategoryId(TreeView1.Selected.Data);
       if TreeView1.Selected.StateIndex=1 then begin
         VCategory.visible := false;
@@ -609,13 +609,15 @@ begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
     for i:=0 to TreeView1.Items.Count-1 do begin
-      if VNewVisible then begin
-        TreeView1.Items.Item[i].StateIndex := 1;
-      end else begin
-        TreeView1.Items.Item[i].StateIndex := 2;
+      if TreeView1.Items.Item[i].Data<>nil then begin
+        if VNewVisible then begin
+          TreeView1.Items.Item[i].StateIndex := 1;
+        end else begin
+          TreeView1.Items.Item[i].StateIndex := 2;
+        end;
+        TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
+        GState.MarksDb.WriteCategory(TreeView1.Items.Item[i].Data);
       end;
-      TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
-      GState.MarksDb.WriteCategory(TreeView1.Items.Item[i].Data);
     end;
     //WriteCategoriesList(TreeView1.Items.Items);
   end;

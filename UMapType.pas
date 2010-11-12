@@ -153,6 +153,7 @@ type
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
+    property Cache: ITileObjCache read FCache;
 
     constructor Create;
     destructor Destroy; override;
@@ -512,7 +513,11 @@ begin
   try
     Result := FStorage.LoadTile(AXY, Azoom, FVersion, VMemStream, VTileInfo);
     if Result then begin
-      FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+      try
+        FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
+      except
+        Result := False;
+      end;
     end;
   finally
     VMemStream.Free;
@@ -529,7 +534,11 @@ begin
   try
     Result := FStorage.LoadTile(AXY, Azoom, FVersion, VMemStream, VTileInfo);
     if Result then  begin
-      FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+      try
+        FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+      except
+        Result := False;
+      end;
     end;
   finally
     VMemStream.Free;
@@ -1045,7 +1054,7 @@ var
   VPixelRect: TRect;
 begin
   VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, Azoom);
-  Result := LoadBtimapUni(spr, VPixelRect, Azoom, caching, FCoordConverter, AUsePre, AAllowPartial, IgnoreError);
+  Result := LoadBtimapUni(spr, VPixelRect, Azoom, caching, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError);
 end;
 
 function TMapType.LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect;
