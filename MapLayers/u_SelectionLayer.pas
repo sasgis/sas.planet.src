@@ -14,7 +14,7 @@ type
   TSelectionLayer = class(TMapLayerBasic)
   protected
     procedure DoRedraw; override;
-    function PreparePolygon(APolygon: TPointArray): TPointArray;
+    function PreparePolygon(APolygon: TExtendedPointArray): TPointArray;
   public
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -34,7 +34,7 @@ uses
 procedure TSelectionLayer.DoRedraw;
 var
   VZoomCurr: Byte;
-  VPolygon: TPointArray;
+  VPolygon: TExtendedPointArray;
   VPolygonOnBitmap: TPointArray;
   i: integer;
   VPolygon32: TPolygon32;
@@ -45,7 +45,7 @@ begin
   if Length(GState.LastSelectionPolygon) > 0 then begin
     FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := FZoom;
-    VPolygon := FGeoConvert.LonLatArray2PixelArray(GState.LastSelectionPolygon, VZoomCurr);
+    VPolygon := FGeoConvert.LonLatArray2PixelArrayFloat(GState.LastSelectionPolygon, VZoomCurr);
     try
       VPolygonOnBitmap := PreparePolygon(VPolygon);
       VPolygon32 := TPolygon32.Create;
@@ -88,7 +88,7 @@ begin
 end;
 
 function TSelectionLayer.PreparePolygon(
-  APolygon: TPointArray): TPointArray;
+  APolygon: TExtendedPointArray): TPointArray;
 var
   i: integer;
   VSourcePoint: TExtendedPoint;
@@ -99,8 +99,7 @@ const
 begin
   SetLength(Result, Length(APolygon));
   for i := 0 to Length(APolygon) - 1 do begin
-    VSourcePoint.X := APolygon[i].X;
-    VSourcePoint.Y := APolygon[i].Y;
+    VSourcePoint := APolygon[i];
     VTargetPoint := MapPixel2BitmapPixel(VSourcePoint);
     VTargetPointAbs.X := Abs(VTargetPoint.X);
     VTargetPointAbs.Y := Abs(VTargetPoint.Y);

@@ -4,7 +4,7 @@ function DateToVersionString(dtmDate){
    }
    var Year, Month, Day;
    Year = dtmDate.getFullYear();
-   Month = dtmDate.getMonth();
+   Month = dtmDate.getMonth() + 1;
    Month = Month>9?Month:"0"+Month;
    Day = dtmDate.getDate();
    Day = Day>9?Day:"0"+Day;
