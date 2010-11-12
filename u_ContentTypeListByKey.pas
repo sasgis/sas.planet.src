@@ -15,6 +15,7 @@ type
     destructor Destroy; override;
     procedure Add(AKey: string; AType: IContentTypeInfoBasic);
     function Get(AKey: string):  IContentTypeInfoBasic;
+    function GetEnumerator: TStringsEnumerator;
   end;
 
 
@@ -59,6 +60,11 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TContentTypeListByKey.GetEnumerator: TStringsEnumerator;
+begin
+  Result := FList.GetEnumerator;
 end;
 
 end.
