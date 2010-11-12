@@ -128,6 +128,7 @@ uses
   u_ContentConverterBitmap in 'u_ContentConverterBitmap.pas',
   u_ContentConverterKmz2Kml in 'u_ContentConverterKmz2Kml.pas',
   u_ContentConverterKml2Kmz in 'u_ContentConverterKml2Kmz.pas',
+  u_ContentTypeListByKey in 'u_ContentTypeListByKey.pas',
   u_ContentTypeManagerSimple in 'u_ContentTypeManagerSimple.pas',
   i_ITileInfoBasic in 'i_ITileInfoBasic.pas',
   u_TileInfoBasic in 'u_TileInfoBasic.pas',

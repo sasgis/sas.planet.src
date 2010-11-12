@@ -311,6 +311,7 @@
     <DCCReference Include="u_ContentConverterKml2Kmz.pas" />
     <DCCReference Include="u_ContentConverterKmz2Kml.pas" />
     <DCCReference Include="u_ContentTypeInfo.pas" />
+    <DCCReference Include="u_ContentTypeListByKey.pas" />
     <DCCReference Include="u_ContentTypeManagerSimple.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
