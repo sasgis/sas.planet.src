@@ -309,40 +309,57 @@ end;
 procedure TMapNalLayer.DoDrawSelectionPoly;
 var
   i: integer;
-  k1: TPoint;
+  k1: TExtendedPoint;
   Polygon: TPolygon32;
+  VBitmapSize: TPoint;
+  VPointsOnBitmap: TExtendedPointArray;
+  VPointsCount: Integer;
 begin
-  Polygon := TPolygon32.Create;
-  Polygon.Antialiased := true;
-  Polygon.AntialiasMode := am32times;
-  Polygon.FillMode := pfAlternate;
-  for i := 0 to length(FPath) - 1 do begin
-    k1 := FGeoConvert.LonLat2PixelPos(FPath[i], FZoom);
-    k1 := MapPixel2BitmapPixel(k1);
-    Polygon.add(FixedPoint(k1.x, k1.Y));
-  end;
-  with Polygon.Outline do begin
-    FillMode := pfWinding;
-    with Grow(Fixed(2 / 2), 0.5) do begin
-      DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
-      free;
+  VBitmapSize := GetBitmapSizeInPixel;
+  VPointsCount := Length(FPath);
+  if VPointsCount > 0 then begin
+    SetLength(VPointsOnBitmap, VPointsCount);
+    try
+      for i := 0 to VPointsCount - 1 do begin
+        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      end;
+      Polygon := TPolygon32.Create;
+      try
+        Polygon.Antialiased := true;
+        Polygon.AntialiasMode := am32times;
+        Polygon.FillMode := pfAlternate;
+        for i := 0 to VPointsCount - 1 do begin
+          k1 := VPointsOnBitmap[i];
+          Polygon.add(FixedPoint(k1.x, k1.Y));
+        end;
+        with Polygon.Outline do begin
+          FillMode := pfWinding;
+          with Grow(Fixed(2 / 2), 0.5) do begin
+            DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
+            free;
+          end;
+          free;
+        end;
+        Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
+      finally
+        Polygon.Free;
+      end;
+      k1 := VPointsOnBitmap[0];
+      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
+        k1 := ExtPoint(k1.x - 3, k1.y - 3);
+        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClGreen32, 255));
+      end;
+      if VPointsCount > 1 then begin
+        k1 := VPointsOnBitmap[VPointsCount - 1];
+        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
+          k1 := ExtPoint(k1.x - 3, k1.y - 3);
+          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClRed32, 255));
+        end;
+      end;
+    finally
+      VPointsOnBitmap := nil;
     end;
-    free;
   end;
-  Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
-  if length(FPath) > 0 then begin
-    k1 := FGeoConvert.LonLat2PixelPos(FPath[0], FZoom);
-    k1 := MapPixel2BitmapPixel(k1);
-    k1 := Point(k1.x - 3, k1.y - 3);
-    FLayer.Bitmap.FillRectS(bounds(k1.X, k1.Y, 6, 6), SetAlpha(ClGreen32, 255));
-    if length(FPath) > 1 then begin
-      k1 := FGeoConvert.LonLat2PixelPos(FPath[length(FPath) - 1], FZoom);
-      k1 := MapPixel2BitmapPixel(k1);
-      k1 := Point(k1.x - 3, k1.y - 3);
-      FLayer.Bitmap.FillRectS(bounds(k1.X, k1.Y, 6, 6), SetAlpha(ClRed32, 255));
-    end;
-  end;
-  Polygon.Free;
 end;
 
 procedure TMapNalLayer.DoDrawSelectionRect;
