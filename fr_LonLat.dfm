@@ -1,18 +1,16 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 318
-  Height = 60
+  Width = 451
+  Height = 304
   VertScrollBar.Visible = False
   Align = alClient
   TabOrder = 0
-  ExplicitWidth = 451
-  ExplicitHeight = 304
   object grdpnlMain: TGridPanel
     Left = 0
     Top = 0
-    Width = 318
-    Height = 60
+    Width = 451
+    Height = 304
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
@@ -52,35 +50,32 @@ object frLonLat: TfrLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 0
-    ExplicitWidth = 451
-    ExplicitHeight = 304
     DesignSize = (
-      318
-      60)
+      451
+      304)
     object lblLat: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
-      Width = 69
-      Height = 21
+      Width = 101
+      Height = 143
       Align = alClient
       Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Layout = tlCenter
-      ExplicitLeft = 25
+      ExplicitLeft = 31
       ExplicitWidth = 44
       ExplicitHeight = 13
     end
     object flwpnlLat: TFlowPanel
-      Left = 78
-      Top = 6
+      Left = 110
+      Top = 67
       Width = 214
       Height = 20
       Anchors = [akLeft]
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 67
       DesignSize = (
         214
         20)
@@ -128,7 +123,7 @@ object frLonLat: TfrLonLat
         AutoSize = False
         BorderStyle = bsNone
         DecimalPlaces = 5
-        DisplayFormat = '0.#####`'
+        DisplayFormat = '0.#####'#8217
         FormatOnEditing = True
         Anchors = []
         MaxValue = 60.000000000000000000
@@ -143,38 +138,43 @@ object frLonLat: TfrLonLat
         AutoSize = False
         BorderStyle = bsNone
         DecimalPlaces = 4
-        DisplayFormat = '0.####``'
+        DisplayFormat = '0.####'#8221
+        Font.Charset = RUSSIAN_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
         FormatOnEditing = True
         Anchors = []
         MaxValue = 60.000000000000000000
+        ParentFont = False
         TabOrder = 3
       end
     end
     object lblLon: TLabel
       AlignWithMargins = True
       Left = 6
-      Top = 33
-      Width = 69
-      Height = 21
+      Top = 155
+      Width = 101
+      Height = 143
       Align = alClient
       Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Layout = tlCenter
       ExplicitLeft = 60
-      ExplicitTop = 155
       ExplicitWidth = 47
       ExplicitHeight = 13
     end
     object flwpnlLon: TFlowPanel
-      Left = 78
-      Top = 33
+      Left = 110
+      Top = 216
       Width = 214
       Height = 21
       Anchors = [akLeft]
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 216
       object cbbLonWE: TComboBox
         Left = 0
         Top = 0
@@ -217,7 +217,7 @@ object frLonLat: TfrLonLat
         AutoSize = False
         BorderStyle = bsNone
         DecimalPlaces = 5
-        DisplayFormat = '0.#####`'
+        DisplayFormat = '0.#####'#8217
         FormatOnEditing = True
         MaxValue = 60.000000000000000000
         TabOrder = 2
@@ -231,7 +231,7 @@ object frLonLat: TfrLonLat
         AutoSize = False
         BorderStyle = bsNone
         DecimalPlaces = 4
-        DisplayFormat = '0.####``'
+        DisplayFormat = '0.####'#8221
         FormatOnEditing = True
         MaxValue = 60.000000000000000000
         TabOrder = 3
