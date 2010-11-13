@@ -475,11 +475,11 @@ type
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure RxSlider1Changed(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
-    procedure GPSReceiverDisconnect;
-    procedure GPSReceiverConnect;
-    procedure GPSReceiverTimeout;
-    procedure GPSReceiverConnectError;
-    procedure GPSReceiverReceive;
+    procedure GPSReceiverDisconnect(Sender: TObject);
+    procedure GPSReceiverConnect(Sender: TObject);
+    procedure GPSReceiverTimeout(Sender: TObject);
+    procedure GPSReceiverConnectError(Sender: TObject);
+    procedure GPSReceiverReceive(Sender: TObject);
     procedure NMapParamsClick(Sender: TObject);
     procedure mapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
@@ -657,6 +657,7 @@ uses
   c_SasVersion,  
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
+  u_NotifyEventListener,
   i_GPS,
   i_ILogSimple,
   i_ILogForTaskThread,
@@ -723,76 +724,6 @@ procedure TMapLayersVisibleChange.Notification(
   msg: IJclNotificationMessage);
 begin
   FMainForm.MapLayersVisibleChange;
-end;
-
-{ TGPSConnected }
-
-type
-  TGPSConnected = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSConnected.Notification(
-  msg: IJclNotificationMessage);
-begin
-  TThread.Synchronize(nil, FMainForm.GPSReceiverConnect);
-end;
-
-{ TGPSDisonnected }
-
-type
-  TGPSDisonnected = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSDisonnected.Notification(
-  msg: IJclNotificationMessage);
-begin
-  TThread.Synchronize(nil, FMainForm.GPSReceiverDisconnect);
-end;
-
-{ TGPSReceive }
-
-type
-  TGPSReceive = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSReceive.Notification(
-  msg: IJclNotificationMessage);
-begin
-  TThread.Synchronize(nil, FMainForm.GPSReceiverReceive);
-end;
-
-{ TGPSTimeOut }
-
-type
-  TGPSTimeOut = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSTimeOut.Notification(
-  msg: IJclNotificationMessage);
-begin
-  TThread.Synchronize(nil, FMainForm.GPSReceiverTimeout);
-end;
-
-{ TGPSConnectError }
-
-type
-  TGPSConnectError = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TGPSConnectError.Notification(
-  msg: IJclNotificationMessage);
-begin
-  TThread.Synchronize(nil, FMainForm.GPSReceiverConnectError);
 end;
 
 { TMainMapChangeListenerOfMainForm }
@@ -1753,15 +1684,15 @@ begin
     FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
 
-    FGPSConntectListener := TGPSConnected.Create(Self);
+    FGPSConntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnect);
     GState.GPSpar.GPSModele.ConnectNotifier.Add(FGPSConntectListener);
-    FGPSDisconntectListener := TGPSDisonnected.Create(Self);
+    FGPSDisconntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect);
     GState.GPSpar.GPSModele.DisconnectNotifier.Add(FGPSDisconntectListener);
-    FGPSConntectErrorListener := TGPSConnectError.Create(Self);
+    FGPSConntectErrorListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError);
     GState.GPSpar.GPSModele.ConnectErrorNotifier.Add(FGPSConntectErrorListener);
-    FGPSTimeOutListener := TGPSTimeOut.Create(Self);
+    FGPSTimeOutListener := TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout);
     GState.GPSpar.GPSModele.TimeOutNotifier.Add(FGPSTimeOutListener);
-    FGPSReceiveListener := TGPSReceive.Create(Self);
+    FGPSReceiveListener := TNotifyEventListenerSync.Create(Self.GPSReceiverReceive);
     GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
@@ -3026,7 +2957,7 @@ begin
   end;
 end;
 
-procedure TFmain.GPSReceiverDisconnect;
+procedure TFmain.GPSReceiverDisconnect(Sender: TObject);
 begin
   if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
@@ -3037,7 +2968,7 @@ begin
   TBGPSconn.Checked:=false;
 end;
 
-procedure TFmain.GPSReceiverReceive;
+procedure TFmain.GPSReceiverReceive(Sender: TObject);
 var
   VPointCurr: TDoublePoint;
   VPointPrev: TDoublePoint;
@@ -3075,7 +3006,7 @@ begin
   UpdateGPSsensors;
 end;
 
-procedure TFmain.GPSReceiverConnect;
+procedure TFmain.GPSReceiverConnect(Sender: TObject);
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
@@ -3085,12 +3016,12 @@ begin
   if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
 end;
 
-procedure TFmain.GPSReceiverConnectError;
+procedure TFmain.GPSReceiverConnectError(Sender: TObject);
 begin
   ShowMessage(SAS_ERR_PortOpen);
 end;
 
-procedure TFmain.GPSReceiverTimeout;
+procedure TFmain.GPSReceiverTimeout(Sender: TObject);
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
