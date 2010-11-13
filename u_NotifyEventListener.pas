@@ -8,30 +8,55 @@ uses
   u_JclNotify;
 
 type
-  TNotifyEventListener = class(TJclBaseListener)
+  TNotifyEventListenerBase = class(TJclBaseListener)
   private
     FEvent: TNotifyEvent;
   protected
-    procedure Notification(msg: IJclNotificationMessage); override;
+    procedure DoEvent; virtual;
   public
     constructor Create(AEvent: TNotifyEvent);
   end;
 
+  TNotifyEventListener = class(TNotifyEventListenerBase)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
+  TNotifyEventListenerSync = class(TNotifyEventListenerBase)
+  protected
+    procedure Notification(msg: IJclNotificationMessage); override;
+  end;
+
 implementation
 
-{ TSimpleEventListener }
+{ TSimpleEventListenerBase }
 
-constructor TNotifyEventListener.Create(AEvent: TNotifyEvent);
+constructor TNotifyEventListenerBase.Create(AEvent: TNotifyEvent);
 begin
   FEvent := AEvent;
 end;
 
-procedure TNotifyEventListener.Notification(msg: IJclNotificationMessage);
+procedure TNotifyEventListenerBase.DoEvent;
 begin
-  inherited;
   if Assigned(FEvent) then begin
     FEvent(nil);
   end;
+end;
+
+{ TSimpleEventListener }
+
+procedure TNotifyEventListener.Notification(msg: IJclNotificationMessage);
+begin
+  inherited;
+  DoEvent;
+end;
+
+{ TNotifyEventListenerSync }
+
+procedure TNotifyEventListenerSync.Notification(msg: IJclNotificationMessage);
+begin
+  inherited;
+  TThread.Synchronize(nil, DoEvent);
 end;
 
 end.
