@@ -49,6 +49,8 @@ var
 begin
   inherited;
   FArrowBitmap := TCustomBitmap32.Create;
+  FArrowBitmap.DrawMode:=dmBlend;
+  FArrowBitmap.CombineMode:=cmMerge;
   VSize := GetBitmapSizeInPixel;
   FArrowBitmap.SetSize(VSize.X, VSize.Y);
   dl := GState.GPSpar.GPS_ArrowSize;
@@ -56,7 +58,7 @@ begin
   Polygon := TPolygon32.Create;
   try
     Polygon.Antialiased := true;
-    Polygon.AntialiasMode := am4times;
+    Polygon.AntialiasMode := am32times;
     Polygon.Add(FixedPoint(dl, dl div 3));
     Polygon.Add(FixedPoint(dl - dl div 5, dl + dl div 3));
     Polygon.Add(FixedPoint(dl + dl div 5, dl + dl div 3));

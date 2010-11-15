@@ -4,6 +4,8 @@ object frExportGEKml: TfrExportGEKml
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
@@ -57,8 +59,6 @@ object frExportGEKml: TfrExportGEKml
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
-        ExplicitTop = 16
-        ExplicitHeight = 241
       end
     end
     object pnlMain: TPanel
@@ -70,7 +70,6 @@ object frExportGEKml: TfrExportGEKml
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitLeft = -3
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -95,7 +94,6 @@ object frExportGEKml: TfrExportGEKml
         Align = alTop
         Caption = #1053#1077' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1087#1091#1090#1080' '#1082' '#1085#1077#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1084' '#1090#1072#1081#1083#1072#1084
         TabOrder = 0
-        ExplicitTop = 66
       end
       object chkUseRelativePath: TCheckBox
         AlignWithMargins = True
@@ -111,7 +109,6 @@ object frExportGEKml: TfrExportGEKml
         Checked = True
         State = cbChecked
         TabOrder = 1
-        ExplicitTop = 37
       end
       object cbbMap: TComboBox
         Left = 3
@@ -123,7 +120,6 @@ object frExportGEKml: TfrExportGEKml
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 2
-        ExplicitTop = 16
       end
     end
   end
@@ -148,8 +144,6 @@ object frExportGEKml: TfrExportGEKml
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitLeft = 6
-      ExplicitTop = 6
       ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
@@ -159,8 +153,6 @@ object frExportGEKml: TfrExportGEKml
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 89
-      ExplicitWidth = 338
     end
     object btnSelectTargetFile: TButton
       Left = 427

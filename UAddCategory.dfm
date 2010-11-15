@@ -9,6 +9,7 @@ object FAddCategory: TFAddCategory
   ParentFont = True
   OldCreateOrder = False
   Position = poScreenCenter
+  ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
@@ -41,6 +42,7 @@ object FAddCategory: TFAddCategory
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 0
+    ExplicitLeft = 4
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -85,6 +87,7 @@ object FAddCategory: TFAddCategory
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitTop = 43
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
@@ -151,8 +154,6 @@ object FAddCategory: TFAddCategory
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 59
-      ExplicitWidth = 233
     end
   end
 end

@@ -9,6 +9,7 @@ object FImport: TFImport
   ParentFont = True
   OldCreateOrder = False
   Position = poScreenCenter
+  ShowHint = True
   OnActivate = FormActivate
   OnShow = FormShow
   PixelsPerInch = 96

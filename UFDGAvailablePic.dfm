@@ -10,6 +10,7 @@ object FDGAvailablePic: TFDGAvailablePic
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13

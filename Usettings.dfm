@@ -21,7 +21,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet9
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -607,7 +607,7 @@ object FSettings: TFSettings
           Left = 3
           Top = 180
           Width = 626
-          Height = 21
+          Height = 22
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -634,7 +634,7 @@ object FSettings: TFSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 204
+          Top = 205
           Width = 620
           Height = 17
           Align = alTop
@@ -1162,7 +1162,7 @@ object FSettings: TFSettings
             Left = 3
             Top = 3
             Width = 311
-            Height = 29
+            Height = 30
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1192,9 +1192,9 @@ object FSettings: TFSettings
           end
           object flwpnlTileBorder: TFlowPanel
             Left = 3
-            Top = 32
+            Top = 33
             Width = 311
-            Height = 29
+            Height = 30
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1224,7 +1224,7 @@ object FSettings: TFSettings
           end
           object pnlShowMapName: TPanel
             Left = 3
-            Top = 61
+            Top = 63
             Width = 311
             Height = 31
             Align = alTop
@@ -1247,7 +1247,7 @@ object FSettings: TFSettings
           end
           object pnlLang: TPanel
             Left = 3
-            Top = 92
+            Top = 94
             Width = 311
             Height = 35
             Align = alTop
@@ -1284,7 +1284,7 @@ object FSettings: TFSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 127
+            Top = 129
             Width = 311
             Height = 51
             Align = alTop
@@ -1352,7 +1352,7 @@ object FSettings: TFSettings
           end
           object pnlLockToolbars: TPanel
             Left = 3
-            Top = 178
+            Top = 180
             Width = 311
             Height = 31
             Align = alTop
@@ -1375,7 +1375,7 @@ object FSettings: TFSettings
           end
           object pnlShowPointDescr: TPanel
             Left = 3
-            Top = 209
+            Top = 211
             Width = 311
             Height = 31
             Align = alTop
@@ -1398,7 +1398,7 @@ object FSettings: TFSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 240
+            Top = 242
             Width = 311
             Height = 36
             Align = alTop
@@ -1913,7 +1913,7 @@ object FSettings: TFSettings
           Left = 3
           Top = 20
           Width = 632
-          Height = 27
+          Height = 28
           Align = alTop
           AutoSize = True
           BevelEdges = [beBottom]

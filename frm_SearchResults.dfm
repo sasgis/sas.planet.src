@@ -8,6 +8,7 @@ object frmSearchResults: TfrmSearchResults
   ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  ShowHint = True
   OnClose = FormClose
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96

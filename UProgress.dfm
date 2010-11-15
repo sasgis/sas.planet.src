@@ -6,11 +6,12 @@ object FProgress: TFProgress
   ClientHeight = 250
   ClientWidth = 330
   Color = clBtnFace
+  ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  ParentFont = True
   Position = poScreenCenter
   ScreenSnap = True
+  ShowHint = True
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96

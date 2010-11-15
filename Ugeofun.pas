@@ -6,7 +6,8 @@ uses
   SysUtils,
   Types,
   i_ICoordConverter,
-  t_GeoTypes;
+  t_GeoTypes,
+  GR32_polygons;
 
 type
  TDMS = record

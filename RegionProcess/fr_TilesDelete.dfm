@@ -4,6 +4,8 @@ object frTilesDelete: TfrTilesDelete
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
@@ -27,8 +29,6 @@ object frTilesDelete: TfrTilesDelete
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 25
-    ExplicitHeight = 279
     object pnlRight: TPanel
       Left = 389
       Top = 0
@@ -38,7 +38,6 @@ object frTilesDelete: TfrTilesDelete
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitHeight = 279
       object lblZoom: TLabel
         AlignWithMargins = True
         Left = 3
@@ -61,7 +60,6 @@ object frTilesDelete: TfrTilesDelete
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
       end
     end
     object pnlCenter: TPanel
@@ -73,8 +71,6 @@ object frTilesDelete: TfrTilesDelete
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitLeft = -3
-      ExplicitHeight = 279
       DesignSize = (
         389
         282)
@@ -108,7 +104,6 @@ object frTilesDelete: TfrTilesDelete
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
       end
       object flwpnlDelBySize: TFlowPanel
         AlignWithMargins = True
@@ -121,7 +116,6 @@ object frTilesDelete: TfrTilesDelete
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 1
-        ExplicitTop = 41
         object chkDelBySize: TCheckBox
           Left = 0
           Top = 2

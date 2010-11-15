@@ -3133,7 +3133,7 @@ begin
     end else begin
       NMarksCalcs.Visible:=false;
     end;
-    if (LayerMapNavToMark.Visible)and(LayerMapNavToMark.id=strtoint(VPWL.numid)) then begin
+    if (LayerMapNavToMark.Visible)and(inttostr(LayerMapNavToMark.id)=VPWL.numid) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;

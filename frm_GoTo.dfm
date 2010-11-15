@@ -8,8 +8,14 @@ object frmGoTo: TfrmGoTo
   ClientHeight = 207
   ClientWidth = 276
   Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnActivate = FormActivate
   OnClose = FormClose
   OnShow = FormShow
@@ -119,23 +125,22 @@ object frmGoTo: TfrmGoTo
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 7
-    ExplicitLeft = 3
-    ExplicitTop = 177
     object Label9: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 57
+      Width = 58
       Height = 25
       Align = alLeft
       Alignment = taRightJustify
       Caption = #1052#1072#1089#1096#1090#1072#1073': x'
       Layout = tlCenter
-      ExplicitHeight = 21
+      ExplicitLeft = 2
+      ExplicitHeight = 13
     end
     object CBzoom: TComboBox
       AlignWithMargins = True
-      Left = 66
+      Left = 67
       Top = 3
       Width = 41
       Height = 21
@@ -169,7 +174,6 @@ object frmGoTo: TfrmGoTo
         '22'
         '23'
         '24')
-      ExplicitLeft = 104
     end
     object btnCancel: TButton
       AlignWithMargins = True
@@ -193,6 +197,7 @@ object frmGoTo: TfrmGoTo
       Align = alRight
       Caption = #1055#1077#1088#1077#1081#1090#1080
       Default = True
+      ParentShowHint = False
       ShowHint = True
       TabOrder = 2
       OnClick = BGoClick

@@ -11,6 +11,7 @@ object FSelLonLat: TFSelLonLat
   ParentFont = True
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

@@ -11,6 +11,7 @@ object FaddLine: TFaddLine
   ParentFont = True
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96

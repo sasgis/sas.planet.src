@@ -9,6 +9,7 @@ object FShortcutChange: TFShortcutChange
   ParentFont = True
   OldCreateOrder = False
   Position = poDesktopCenter
+  ShowHint = True
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

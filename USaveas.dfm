@@ -11,6 +11,7 @@ object Fsaveas: TFsaveas
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnActivate = FormActivate
   OnClose = FormClose
   OnShow = FormShow
