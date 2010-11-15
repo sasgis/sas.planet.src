@@ -383,6 +383,7 @@
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
+    <DCCReference Include="u_PosChangeListener.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
     <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
