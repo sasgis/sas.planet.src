@@ -9,6 +9,7 @@ uses
   GR32,
   i_IConfigDataProvider,
   i_ICoordConverter,
+  i_ContentTypeInfo,
   i_ITileInfoBasic,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
@@ -22,14 +23,14 @@ type
     FTileFileExt: string;
     FCacheConfig: TMapTypeCacheConfigAbstract;
     FCoordConverter: ICoordConverter;
-    FContentType: string;
+    FMainContentType: IContentTypeInfoBasic;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(APath: string; AVersion: Variant): ITileInfoBasic;
   public
     constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
-    function GetMainContentType: string; override;
+    function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetIsStoreFileCache: Boolean; override;
@@ -77,7 +78,7 @@ begin
   FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig);
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
-//  FContentType := GState.BitmapTypeManager.GetIsBitmapType()
+  FMainContentType := GState.ContentTypeManager.GetInfoByExt(FTileFileExt);
 end;
 
 procedure TTileStorageFileSystem.CreateDirIfNotExists(APath: string);
@@ -162,9 +163,9 @@ begin
   Result := FIsStoreReadOnly;
 end;
 
-function TTileStorageFileSystem.GetMainContentType: string;
+function TTileStorageFileSystem.GetMainContentType: IContentTypeInfoBasic;
 begin
-
+  Result := FMainContentType;
 end;
 
 function TTileStorageFileSystem.GetTileFileExt: string;
@@ -193,7 +194,12 @@ begin
       FindClose(InfoFile);
     end;
   end else begin
-    Result := TTileInfoBasicExists.Create(FileDateToDateTime(InfoFile.Time), InfoFile.Size, AVersion);
+    Result := TTileInfoBasicExists.Create(
+      FileDateToDateTime(InfoFile.Time),
+      InfoFile.Size,
+      AVersion,
+      FMainContentType
+    );
     FindClose(InfoFile);
   end;
 end;

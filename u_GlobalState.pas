@@ -17,6 +17,7 @@ uses
   i_IConfigDataProvider,
   i_ITileFileNameGeneratorsList,
   i_IBitmapTypeExtManager,
+  i_IContentTypeManager,
   i_IKmlInfoSimpleLoader,
   i_IBitmapLayerProvider,
   i_MapTypeIconsList,
@@ -44,6 +45,7 @@ type
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
+    FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
@@ -211,6 +213,7 @@ type
     property MainConfigFileName: string read GetMainConfigFileName;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
+    property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
@@ -262,6 +265,7 @@ uses
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
+  u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
@@ -294,6 +298,7 @@ begin
   MainFileCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
+  FContentTypeManager := TContentTypeManagerSimple.Create;
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FKmlLoader := TKmlInfoSimpleParser.Create;
   FKmzLoader := TKmzInfoSimpleParser.Create;
@@ -323,6 +328,7 @@ begin
   MainFileCache := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
+  FContentTypeManager := nil;
   FMapCalibrationList := nil;
   FKmlLoader := nil;
   FKmzLoader := nil;

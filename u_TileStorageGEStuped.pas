@@ -7,6 +7,7 @@ uses
   Classes,
   GR32,
   i_ICoordConverter,
+  i_ContentTypeInfo,
   i_ITileInfoBasic,
   i_IConfigDataProvider,
   u_MapTypeCacheConfig,
@@ -17,11 +18,12 @@ type
   private
     FCoordConverter: ICoordConverter;
     FCacheConfig: TMapTypeCacheConfigAbstract;
+    FMainContentType: IContentTypeInfoBasic;
   public
     constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
-    function GetMainContentType: string; override;
+    function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetIsStoreFileCache: Boolean; override;
@@ -63,6 +65,7 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
   FCacheConfig := TMapTypeCacheConfigGE.Create;
+  FMainContentType := GState.ContentTypeManager.GetInfo('image/jpeg');
 end;
 
 destructor TTileStorageGEStuped.Destroy;
@@ -109,9 +112,9 @@ begin
   Result := True;
 end;
 
-function TTileStorageGEStuped.GetMainContentType: string;
+function TTileStorageGEStuped.GetMainContentType: IContentTypeInfoBasic;
 begin
-  Result := 'image/jpeg';
+  Result := FMainContentType;
 end;
 
 function TTileStorageGEStuped.GetTileFileExt: string;
@@ -128,7 +131,7 @@ function TTileStorageGEStuped.GetTileInfo(AXY: TPoint; Azoom: byte;
   AVersion: Variant): ITileInfoBasic;
 begin
   if GETileExists(FCacheConfig.BasePath+'dbCache.dat.index', AXY.X, AXY.Y, Azoom + 1, FCoordConverter) then begin
-    Result := TTileInfoBasicExists.Create(0, 0, Unassigned);
+    Result := TTileInfoBasicExists.Create(0, 0, Unassigned, FMainContentType);
   end else begin
     Result := TTileInfoBasicNotExists.Create(0, Unassigned);
   end;

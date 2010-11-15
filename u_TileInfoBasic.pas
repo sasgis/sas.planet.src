@@ -3,6 +3,7 @@ unit u_TileInfoBasic;
 interface
 
 uses
+  i_ContentTypeInfo,
   i_ITileInfoBasic;
 
 type
@@ -16,7 +17,7 @@ type
     function GetLoadDate: TDateTime; virtual;
     function GetSize: Cardinal; virtual; abstract;
     function GetVersion: Variant; virtual;
-    function GetContentType: WideString; virtual; abstract;
+    function GetContentType: IContentTypeInfoBasic; virtual; abstract;
   public
     constructor Create(ADate: TDateTime; AVersion: Variant);
   end;
@@ -26,6 +27,7 @@ type
     function GetIsExists: Boolean; override;
     function GetIsExistsTNE: Boolean; override;
     function GetSize: Cardinal; override;
+    function GetContentType: IContentTypeInfoBasic; override;
   end;
 
   TTileInfoBasicTNE = class(TTileInfoBasicBase)
@@ -33,17 +35,25 @@ type
     function GetIsExists: Boolean; override;
     function GetIsExistsTNE: Boolean; override;
     function GetSize: Cardinal; override;
+    function GetContentType: IContentTypeInfoBasic; override;
   end;
 
   TTileInfoBasicExists = class(TTileInfoBasicBase)
   private
     FSize: Cardinal;
+    FContentType: IContentTypeInfoBasic;
   protected
     function GetIsExists: Boolean; override;
     function GetIsExistsTNE: Boolean; override;
     function GetSize: Cardinal; override;
+    function GetContentType: IContentTypeInfoBasic; override;
   public
-    constructor Create(ADate: TDateTime; ASize: Cardinal; AVersion: Variant);
+    constructor Create(
+      ADate: TDateTime;
+      ASize: Cardinal;
+      AVersion: Variant;
+      AContentType: IContentTypeInfoBasic
+    );
   end;
 
 implementation
@@ -68,6 +78,11 @@ end;
 
 { TTileInfoBasicTNE }
 
+function TTileInfoBasicTNE.GetContentType: IContentTypeInfoBasic;
+begin
+  Result := nil;
+end;
+
 function TTileInfoBasicTNE.GetIsExists: Boolean;
 begin
   Result := False;
@@ -85,11 +100,21 @@ end;
 
 { TTileInfoBasicExists }
 
-constructor TTileInfoBasicExists.Create(ADate: TDateTime; ASize: Cardinal;
-  AVersion: Variant);
+constructor TTileInfoBasicExists.Create(
+  ADate: TDateTime;
+  ASize: Cardinal;
+  AVersion: Variant;
+  AContentType: IContentTypeInfoBasic
+);
 begin
   inherited Create(ADate, AVersion);
   FSize := ASize;
+  FContentType := AContentType;
+end;
+
+function TTileInfoBasicExists.GetContentType: IContentTypeInfoBasic;
+begin
+  Result := FContentType;
 end;
 
 function TTileInfoBasicExists.GetIsExists: Boolean;
@@ -108,6 +133,11 @@ begin
 end;
 
 { TTileInfoBasicNotExists }
+
+function TTileInfoBasicNotExists.GetContentType: IContentTypeInfoBasic;
+begin
+  Result := nil;
+end;
 
 function TTileInfoBasicNotExists.GetIsExists: Boolean;
 begin

@@ -7,6 +7,7 @@ uses
   Classes,
   GR32,
   i_ICoordConverter,
+  i_ContentTypeInfo,
   i_ITileInfoBasic,
   i_IConfigDataProvider,
   u_MapTypeCacheConfig;
@@ -14,7 +15,7 @@ uses
 type
   TTileStorageAbstract = class
   public
-    function GetMainContentType: string; virtual; abstract;
+    function GetMainContentType: IContentTypeInfoBasic; virtual; abstract;
     function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
 
     function GetIsStoreFileCache: Boolean; virtual; abstract;

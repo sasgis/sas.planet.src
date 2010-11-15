@@ -7,6 +7,7 @@ uses
   Classes,
   i_ICoordConverter,
   i_IConfigDataProvider,
+  i_ContentTypeInfo,
   i_ITileInfoBasic,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
@@ -43,7 +44,7 @@ type
     constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
-    function GetMainContentType: string; override;
+    function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetIsStoreFileCache: Boolean; override;
@@ -187,9 +188,9 @@ begin
   Result := True;
 end;
 
-function TTileStorageGE.GetMainContentType: string;
+function TTileStorageGE.GetMainContentType: IContentTypeInfoBasic;
 begin
-  Result := 'image/jpeg';
+  Result := nil;
 end;
 
 function TTileStorageGE.GetTileFileExt: string;
