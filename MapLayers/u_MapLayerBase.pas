@@ -24,6 +24,7 @@ type
 
     FMapPosChangeListener: IJclListener;
     FViewScaleChangeListener: IJclListener;
+    procedure OnChangeViewScale(Sender: TObject);
     procedure ProcessPosChange(AMessage: IPosChangeMessage); virtual;
     procedure UpdatelLayerLocation; virtual;
     procedure DoUpdatelLayerLocation; virtual; abstract;
@@ -35,53 +36,9 @@ type
 implementation
 
 uses
-  u_JclNotify;
-
-{ TListenerOfMapLayer }
-
-type
-  TListenerOfMapLayer = class(TJclBaseListener)
-  protected
-    FMapLayer: TMapLayerBase;
-  public
-    constructor Create(AMapLayer: TMapLayerBase);
-  end;
-
-constructor TListenerOfMapLayer.Create(AMapLayer: TMapLayerBase);
-begin
-  FMapLayer := AMapLayer;
-end;
-
-{ TChangePosListener }
-
-type
-  TChangePosListener = class(TListenerOfMapLayer)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TChangePosListener.Notification(
-  msg: IJclNotificationMessage);
-var
-  VMessage: IPosChangeMessage;
-begin
-  VMessage := msg as IPosChangeMessage;
-  FMapLayer.ProcessPosChange(VMessage);
-end;
-
-{ TChangeViewScaleListener }
-
-type
-  TChangeViewScaleListener = class(TListenerOfMapLayer)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TChangeViewScaleListener.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FMapLayer.UpdatelLayerLocation;
-end;
+  u_JclNotify,
+  u_PosChangeListener,
+  u_NotifyEventListener;
 
 { TMapLayerBase }
 
@@ -89,9 +46,9 @@ constructor TMapLayerBase.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
 begin
   inherited;
-  FMapPosChangeListener := TChangePosListener.Create(Self);
+  FMapPosChangeListener := TPosChangeListener.Create(Self.ProcessPosChange);
   FViewPortState.PosChangeNotifier.Add(FMapPosChangeListener);
-  FViewScaleChangeListener := TChangeViewScaleListener.Create(Self);
+  FViewScaleChangeListener := TNotifyEventListener.Create(Self.OnChangeViewScale);
   FViewPortState.ScaleChangeNotifier.Add(FViewScaleChangeListener);
 end;
 
@@ -102,6 +59,11 @@ begin
   FViewPortState.PosChangeNotifier.Remove(FViewScaleChangeListener);
   FViewScaleChangeListener := nil;
   inherited;
+end;
+
+procedure TMapLayerBase.OnChangeViewScale(Sender: TObject);
+begin
+  UpdatelLayerLocation;
 end;
 
 procedure TMapLayerBase.ProcessPosChange(AMessage: IPosChangeMessage);
