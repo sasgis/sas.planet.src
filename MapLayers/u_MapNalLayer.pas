@@ -32,7 +32,7 @@ type
     procedure DoDrawSelectionPoly;
     procedure DoDrawCalcLine;
     procedure DoDrawNewPath(AIsPoly: Boolean);
-    procedure PreparePolygon(pathll: TExtendedPointArray; polygon: TPolygon32);
+    procedure PreparePolygon(pathll: TDoublePointArray; polygon: TPolygon32);
   protected
     procedure DoRedraw; override;
   public
@@ -91,8 +91,8 @@ var
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
 begin
+  polygon := TPolygon32.Create;
   try
-    polygon := TPolygon32.Create;
     polygon.Antialiased := true;
     polygon.AntialiasMode := am4times;
     polygon.Closed := false;
@@ -202,14 +202,14 @@ end;
 procedure TMapNalLayer.DoDrawNewPath(AIsPoly: Boolean);
 var
   i: integer;
-  k1: TExtendedPoint;
+  k1: TDoublePoint;
   polygon: TPolygon32;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
 begin
+  polygon := TPolygon32.Create;
   try
-    polygon := TPolygon32.Create;
     polygon.Antialiased := true;
     polygon.AntialiasMode := am4times;
     polygon.Closed := AIsPoly;
@@ -271,8 +271,8 @@ var
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
 begin
+  polygon := TPolygon32.Create;
   try
-    polygon := TPolygon32.Create;
     polygon.Antialiased := true;
     polygon.AntialiasMode := am4times;
     polygon.Closed := true;
@@ -437,26 +437,14 @@ begin
   Redraw;
 end;
 
-procedure TMapNalLayer.PreparePolygon(pathll: TExtendedPointArray; polygon: TPolygon32);
-
-function MapPixel2BitmapPixel( Pnt: TExtendedPoint): TExtendedPoint;
-var     VRect: TRect;
-begin
-  VRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
-  VRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
-  Result.X := Pnt.X - VRect.Left;
-  Result.Y := Pnt.Y - VRect.Top;
-end;
-
+procedure TMapNalLayer.PreparePolygon(pathll: TDoublePointArray; polygon: TPolygon32);
 var
   i, adp, j, lenpath: integer;
-  k1: TextendedPoint;
-  k2: TextendedPoint;
-  k4: TextendedPoint;
-  k3: TextendedPoint;
-  kOld: TextendedPoint;
-  VLonLat: TExtendedPoint;
-  pathllbuf:TExtendedPointArray;
+  k1: TDoublePoint;
+  k2: TDoublePoint;
+  k4: TDoublePoint;
+  k3: TDoublePoint;
+  VLonLat: TDoublePoint;
 begin
    lenpath:=length(pathll);
    VLonLat := pathll[0];
@@ -480,9 +468,9 @@ begin
           adp := (Trunc(abs(k2.y - k1.y) / 32766) + 1)*3;
         end;
         if adp > 1 then begin
-          k3 := extPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+          k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
           for j := 1 to adp - 1 do begin
-            k4 := extPoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
+            k4 := DoublePoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
             if (k4.X<32766)and(k4.X>-32766)and(k4.Y<32766)and(k4.Y>-32766) then begin
               polygon.Add(FixedPoint(k4.X, k4.Y));
             end;

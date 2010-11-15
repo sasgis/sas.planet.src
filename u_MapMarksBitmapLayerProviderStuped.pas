@@ -114,9 +114,9 @@ var
   k2: TDoublePoint;
   k4: TDoublePoint;
   k3: TDoublePoint;
-  kOld: TextendedPoint;
+  kOld: TDoublePoint;
   VLonLat: TDoublePoint;
-  pathllbuf:TExtendedPointArray;
+  pathllbuf:TDoublePointArray;
 begin
    lenpath:=length(pathll);
    VLonLat := pathll[0];
@@ -140,9 +140,9 @@ begin
           adp := (Trunc(abs(k2.y - k1.y) / 32766) + 1)*3;
         end;
         if adp > 1 then begin
-          k3 := extPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+          k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
           for j := 1 to adp - 1 do begin
-            k4 := extPoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
+            k4 := DoublePoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
             if (k4.X<32766)and(k4.X>-32766)and(k4.Y<32766)and(k4.Y>-32766) then begin
               polygon.Add(FixedPoint(k4.X, k4.Y));
             end;
