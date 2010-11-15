@@ -603,7 +603,7 @@ type
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
     function GetIgnoredMenuItemsList: TList;
-    procedure MapLayersVisibleChange;
+    procedure MapLayersVisibleChange(Sender: TObject);
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
     procedure setalloperationfalse(newop: TAOperation);
@@ -695,20 +695,6 @@ begin
   FMainForm := AMainForm;
 end;
 
-{ TMapLayersVisibleChange }
-
-type
-  TMapLayersVisibleChange = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TMapLayersVisibleChange.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FMainForm.MapLayersVisibleChange;
-end;
-
 { TMainMapChangeListenerOfMainForm }
 
 type
@@ -743,7 +729,7 @@ begin
   FMainForm.ProcessHybrChangeMessage(VMessage);
 end;
 
-procedure TFmain.MapLayersVisibleChange;
+procedure TFmain.MapLayersVisibleChange(Sender: TObject);
 var
   VGUID: TGUID;
   VEnumGUID: IEnumGUID;
@@ -1660,7 +1646,7 @@ begin
     FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
     GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
 
-    FMapLayersVsibleChangeListener := TMapLayersVisibleChange.Create(Self);
+    FMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
     FLayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
