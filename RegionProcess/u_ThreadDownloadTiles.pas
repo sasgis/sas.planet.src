@@ -137,8 +137,8 @@ begin
     i:=1;
     while Ini.ReadFloat('Session','LLPointX_'+inttostr(i),-10000)>-10000 do begin
       setlength(FPolygLL, i);
-      FPolygLL[i-1].x := Ini.ReadInteger('Session','LLPointX_'+inttostr(i),-10000);
-      FPolygLL[i-1].y := Ini.ReadInteger('Session','LLPointY_'+inttostr(i),-10000);
+      FPolygLL[i-1].x := Ini.ReadFloat('Session','LLPointX_'+inttostr(i),-10000);
+      FPolygLL[i-1].y := Ini.ReadFloat('Session','LLPointY_'+inttostr(i),-10000);
       inc(i);
     end;
     FElapsedTime := Ini.ReadFloat('Session', 'ElapsedTime', 0);
@@ -266,7 +266,7 @@ begin
                   end else begin
                     res:=FMapType.DownloadTile(Self, VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                   end;
-
+                  FLastProcessedPoint := FLoadXY;
                   case res of
                     dtrOK : begin
                       FLastSuccessfulPoint := FLoadXY;
