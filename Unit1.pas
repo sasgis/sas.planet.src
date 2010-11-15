@@ -658,6 +658,7 @@ uses
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
+  u_PosChangeListener,
   i_GPS,
   i_ILogSimple,
   i_ILogForTaskThread,
@@ -692,24 +693,6 @@ type
 constructor TListenerOfMainForm.Create(AMainForm: TFmain);
 begin
   FMainForm := AMainForm;
-end;
-
-
-{ TChangePosListenerOfMainForm }
-
-type
-  TChangePosListenerOfMainForm = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TChangePosListenerOfMainForm.Notification(
-  msg: IJclNotificationMessage);
-var
-  VMessage: IPosChangeMessage;
-begin
-  VMessage := msg as IPosChangeMessage;
-  FMainForm.ProcessPosChangeMessage(VMessage);
 end;
 
 { TMapLayersVisibleChange }
@@ -1668,7 +1651,7 @@ begin
 
     map.Color:=GState.BGround;
 
-    FMapPosChangeListener := TChangePosListenerOfMainForm.Create(Self);
+    FMapPosChangeListener := TPosChangeListener.Create(Self.ProcessPosChangeMessage);
     GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
 
     FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
