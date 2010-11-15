@@ -8,13 +8,15 @@ uses
   i_IContentConverter;
 
 type
-  TContentConverterBase = class(TInterfacedObject, IContentConverter)
+
+  TContentConverterAbstract = class(TInterfacedObject, IContentConverter)
   private
     FSource: IContentTypeInfoBasic;
     FTarget: IContentTypeInfoBasic;
   protected
     function GetSource: IContentTypeInfoBasic;
     function GetTarget: IContentTypeInfoBasic;
+    function GetIsSimpleCopy: Boolean; virtual; abstract;
     procedure ConvertStream(ASource, ATarget: TStream); virtual; abstract;
   public
     constructor Create(
@@ -24,32 +26,62 @@ type
     destructor Destroy; override;
   end;
 
+  TContentConverterBase = class(TContentConverterAbstract)
+  protected
+    function GetIsSimpleCopy: Boolean; override;
+  end;
+
+  TContentConverterSimpleCopy = class(TContentConverterAbstract)
+  protected
+    function GetIsSimpleCopy: Boolean; override;
+    procedure ConvertStream(ASource, ATarget: TStream); override;
+  end;
+
 implementation
 
-{ TContentConverterBase }
+{ TContentConverterAbstract }
 
-constructor TContentConverterBase.Create(ASource,
+constructor TContentConverterAbstract.Create(ASource,
   ATarget: IContentTypeInfoBasic);
 begin
   FSource := ASource;
   FTarget := ATarget;
 end;
 
-destructor TContentConverterBase.Destroy;
+destructor TContentConverterAbstract.Destroy;
 begin
   FSource := nil;
   FTarget := nil;
   inherited;
 end;
 
-function TContentConverterBase.GetSource: IContentTypeInfoBasic;
+function TContentConverterAbstract.GetSource: IContentTypeInfoBasic;
 begin
   Result := FSource;
 end;
 
-function TContentConverterBase.GetTarget: IContentTypeInfoBasic;
+function TContentConverterAbstract.GetTarget: IContentTypeInfoBasic;
 begin
   Result := FTarget;
+end;
+
+{ TContentConverterBase }
+
+function TContentConverterBase.GetIsSimpleCopy: Boolean;
+begin
+  Result := False;
+end;
+
+{ TContentConverterSimpleCopy }
+
+procedure TContentConverterSimpleCopy.ConvertStream(ASource, ATarget: TStream);
+begin
+  ATarget.CopyFrom(ASource, ASource.Size);
+end;
+
+function TContentConverterSimpleCopy.GetIsSimpleCopy: Boolean;
+begin
+  Result := True;
 end;
 
 end.
