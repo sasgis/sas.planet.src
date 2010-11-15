@@ -10,36 +10,16 @@ uses
   i_ContentTypeInfo,
   i_ITileInfoBasic,
   u_MapTypeCacheConfig,
+  u_GEIndexFile,
   u_TileStorageAbstract;
-
-type
-   TIndexRec = packed record
-     Magic  : LongWord;  // число-идентификатор =  D5 BF 93 75
-     Ver    : Word;      // версия тайла
-     TileID : Byte;      // тип тайла
-     Res1   : Byte;
-     Zoom   : Byte;      // уровень зума
-     Res2   : Byte;
-     Layer  : Word;      // номер слоя (только для слоя, иначе = 0)
-     NameLo : LongWord;  // первая часть имени
-     NameHi : LongWord;  // вторая часть имени
-     ServID : Word;      // номер сервера из списка в dbCache.dat
-     Unk    : Word;
-     Offset : LongWord;  // позиция тайла в кэше dbCache.dat
-     Size   : LongWord;  // размер тайла
-   end;
 
 type
   TTileStorageGE = class(TTileStorageAbstract)
   private
     FCacheConfig: TMapTypeCacheConfigGE;
     FCoordConverter: ICoordConverter;
-
-    indexfilename:string;
-    FIndexInfo: array of TIndexRec;
-    procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
-    function GEFindTileAdr(indexpath: string; APoint: TPoint; AZoom: Byte; var size:integer):integer;
-    procedure UpdateIndexInfo;
+    FIndex: TGEIndexFile;
+    FMainContentType: IContentTypeInfoBasic;
   public
     constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
@@ -72,7 +52,10 @@ implementation
 
 uses
   SysUtils,
+  Variants,
   c_CoordConverter,
+  u_ContentTypeInfo,
+  u_TileInfoBasic,
   u_GlobalState;
 
 { TTileStorageGEStuped }
@@ -81,12 +64,19 @@ constructor TTileStorageGE.Create(AConfig: IConfigDataProvider);
 begin
   FCacheConfig := TMapTypeCacheConfigGE.Create;
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
+  FIndex := TGEIndexFile.Create(FCacheConfig);
+  FMainContentType := TContentTypeInfoBitmap.Create(
+    'application/ge+image+decrypted',
+    '.ge_tile',
+    nil,
+    nil
+  );
 end;
 
 destructor TTileStorageGE.Destroy;
 begin
+  FreeAndNil(FIndex);
   FreeAndNil(FCacheConfig);
-  FIndexInfo := nil;
   inherited;
 end;
 
@@ -98,69 +88,6 @@ end;
 function TTileStorageGE.DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
 begin
   Result := False;
-end;
-
-procedure TTileStorageGE.GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
-var
-  VMask: Integer;
-  i: byte;
-  VValue: Byte;
-begin
-  ANameHi := 0;
-  ANameLo := 0;
-  if AZoom > 0 then begin
-    VMask := 1 shl (AZoom - 1);
-    for i := 1 to AZoom do begin
-      if (APoint.X and VMask) > 0 then begin
-        if (APoint.y and VMask) > 0 then begin
-          VValue := 3;
-        end else begin
-          VValue := 0;
-        end;
-      end else begin
-        if (APoint.y and VMask) > 0 then begin
-          VValue := 2;
-        end else begin
-          VValue := 1;
-        end;
-      end;
-      if i < 16 then begin
-        ANameHi := ANameHi or (LongWord(VValue) shl (30 - i * 2));
-      end else begin
-        ANameLo := ANameLo or (LongWord(VValue) shl (30 - (i - 16) * 2));
-      end;
-      VMask := VMask shr 1;
-    end;
-  end;
-end;
-
-function TTileStorageGE.GEFindTileAdr(indexpath: string; APoint: TPoint; AZoom: Byte;
-  var size: integer): integer;
-var
-  VNameLo, VNameHi: LongWord;
-  i: Integer;
-begin
-  result:=0;
-  size:=0;
-  try
-    UpdateIndexInfo;
-    if Length(FIndexInfo) > 0  then begin
-      GEXYZtoHexTileName(APoint, AZoom, VNameHi, VNameLo);
-      for i := 0 to Length(FIndexInfo) - 1 do begin
-        if FIndexInfo[i].TileID = 130 then begin
-          if FIndexInfo[i].Zoom = AZoom then begin
-            if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
-              Result := FIndexInfo[i].Offset;
-              size := FIndexInfo[i].Size;
-            end;
-          end;
-        end;
-      end;
-    end;
-  except
-    result := 0;
-    size := 0;
-  end;
 end;
 
 function TTileStorageGE.GetAllowDifferentContentTypes: Boolean;
@@ -190,12 +117,12 @@ end;
 
 function TTileStorageGE.GetMainContentType: IContentTypeInfoBasic;
 begin
-  Result := nil;
+  Result := FMainContentType;
 end;
 
 function TTileStorageGE.GetTileFileExt: string;
 begin
-  Result := 'ge_tile';
+  Result := '.ge_tile';
 end;
 
 function TTileStorageGE.GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string;
@@ -205,8 +132,26 @@ end;
 
 function TTileStorageGE.GetTileInfo(AXY: TPoint; Azoom: byte;
   AVersion: Variant): ITileInfoBasic;
+var
+  VVersion: Word;
+  VOffset: Integer;
+  VSize: Integer;
 begin
-  Result := nil;
+  try
+    VVersion := AVersion;
+  except
+    VVersion := 0;
+  end;
+  if FIndex.FindTileInfo(AXY, Azoom, VVersion, VOffset, VSize) then begin
+    Result := TTileInfoBasicExists.Create(
+      0,
+      VSize,
+      VVersion,
+      FMainContentType
+    );
+  end else begin
+    Result := TTileInfoBasicNotExists.Create(0, VVersion);
+  end;
 end;
 
 function TTileStorageGE.GetUseDel: boolean;
@@ -221,9 +166,40 @@ end;
 
 function TTileStorageGE.LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
   AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean;
+var
+  VFileName: string;
+  VFileStream: TFileStream;
+  VVersion: Word;
+  VOffset: Integer;
+  VSize: Integer;
 begin
   Result := False;
-  Abort;
+  try
+    VVersion := AVersion;
+  except
+    VVersion := 0;
+  end;
+  if FIndex.FindTileInfo(AXY, Azoom, VVersion, VOffset, VSize) then begin
+    VFileName := FCacheConfig.GetDataFileName;
+    if FileExists(VFileName) then begin
+      VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
+      try
+        VFileStream.Position := VOffset + 36;
+        AStream.CopyFrom(VFileStream, VSize);
+        Result := True;
+          ATileInfo := TTileInfoBasicExists.Create(
+            0,
+            VSize,
+            VVersion,
+            FMainContentType
+          );
+      finally
+        VFileStream.Free;
+      end;
+    end;
+  end else begin
+    ATileInfo := TTileInfoBasicNotExists.Create(0, VVersion);
+  end;
 end;
 
 procedure TTileStorageGE.SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
@@ -235,30 +211,6 @@ end;
 procedure TTileStorageGE.SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant);
 begin
   Abort;
-end;
-
-procedure TTileStorageGE.UpdateIndexInfo;
-var
-  indexpath: string;
-  VFileStream: TFileStream;
-  VCount: Cardinal;
-begin
-  indexpath := FCacheConfig.GetIndexFileName;
-  if FileExists(indexpath) then begin
-    if (indexfilename<>indexpath) then begin
-      VFileStream := TFileStream.Create(indexpath, fmOpenRead);
-      try
-        VCount := VFileStream.Size div SizeOf(FIndexInfo[0]);
-        SetLength(FIndexInfo, VCount );
-        VFileStream.Read(FIndexInfo[0], VCount * SizeOf(FIndexInfo[0]));
-      finally
-        FreeAndNil(VFileStream);
-      end;
-      indexfilename:=indexpath;
-    end;
-  end else begin
-    FIndexInfo := nil;
-  end;
 end;
 
 end.
