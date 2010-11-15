@@ -114,8 +114,6 @@ function TPoolOfObjectsSimple.TryGetPoolElement(
   ATimeOut: Cardinal): IPoolElement;
 var
   i: integer;
-  VStepsCount: Cardinal;
-  VStep: Cardinal;
 begin
   Result := nil;
   if WaitForSingleObject(FSemaphore, ATimeOut) = WAIT_OBJECT_0 then begin

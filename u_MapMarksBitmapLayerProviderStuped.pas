@@ -70,8 +70,6 @@ type
 constructor TMapMarksBitmapLayerProviderStupedThreaded.Create(
   ATargetBmp: TCustomBitmap32; AConverter: ICoordConverter;
   ATargetRect: TRect; ATargetZoom: Byte);
-var
-  VDeltaLL: TDoublePoint;
 begin
   FTargetBmp := ATargetBmp;
   FGeoConvert := AConverter;
@@ -114,9 +112,7 @@ var
   k2: TDoublePoint;
   k4: TDoublePoint;
   k3: TDoublePoint;
-  kOld: TDoublePoint;
   VLonLat: TDoublePoint;
-  pathllbuf:TDoublePointArray;
 begin
    lenpath:=length(pathll);
    VLonLat := pathll[0];

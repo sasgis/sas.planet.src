@@ -1220,7 +1220,6 @@ begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
        try
-         bar_height:=42;
          Canvas.Pen.Color:=clBlack;
          Canvas.Brush.Color:=clGreen;
          bar_x1:=0;
