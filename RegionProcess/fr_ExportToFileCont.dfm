@@ -4,6 +4,8 @@ object frExportToFileCont: TfrExportToFileCont
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   Visible = False
   object pnlCenter: TPanel
@@ -58,8 +60,6 @@ object frExportToFileCont: TfrExportToFileCont
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
-        ExplicitTop = 16
-        ExplicitHeight = 241
       end
     end
     object pnlMain: TPanel
@@ -72,7 +72,6 @@ object frExportToFileCont: TfrExportToFileCont
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitHeight = 83
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -96,7 +95,6 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Right = 0
         Align = alTop
         Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
-        ExplicitTop = 37
         ExplicitWidth = 207
       end
       object cbbMap: TComboBox
@@ -109,7 +107,6 @@ object frExportToFileCont: TfrExportToFileCont
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
       end
       object cbbNamesType: TComboBox
         Left = 3
@@ -127,7 +124,6 @@ object frExportToFileCont: TfrExportToFileCont
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
-        ExplicitTop = 50
       end
     end
   end
@@ -162,8 +158,6 @@ object frExportToFileCont: TfrExportToFileCont
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 89
-      ExplicitWidth = 338
     end
     object btnSelectTargetFile: TButton
       Left = 427

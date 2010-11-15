@@ -4,6 +4,8 @@ object frTilesGenPrev: TfrTilesGenPrev
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlBottom: TPanel
     Left = 0
@@ -13,8 +15,6 @@ object frTilesGenPrev: TfrTilesGenPrev
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 25
-    ExplicitHeight = 279
     object pnlRight: TPanel
       Left = 337
       Top = 0
@@ -24,7 +24,6 @@ object frTilesGenPrev: TfrTilesGenPrev
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitHeight = 279
       object lblFromZoom: TLabel
         AlignWithMargins = True
         Left = 3
@@ -48,7 +47,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Right = 0
         Align = alTop
         Caption = #1042' '#1089#1083#1086#1080' '#1084#1072#1089#1096#1090#1072#1073#1072':'
-        ExplicitTop = 37
         ExplicitWidth = 88
       end
       object cbbFromZoom: TComboBox
@@ -61,7 +59,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         ItemHeight = 13
         TabOrder = 0
         OnChange = cbbFromZoomChange
-        ExplicitTop = 16
       end
       object chkAllZooms: TCheckBox
         Left = 3
@@ -72,7 +69,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Caption = #1042#1089#1077
         TabOrder = 1
         OnClick = chkAllZoomsClick
-        ExplicitTop = 259
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -82,8 +78,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alClient
         ItemHeight = 13
         TabOrder = 2
-        ExplicitTop = 50
-        ExplicitHeight = 209
       end
     end
     object pnlCenter: TPanel
@@ -95,7 +89,6 @@ object frTilesGenPrev: TfrTilesGenPrev
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitHeight = 279
       DesignSize = (
         337
         282)
@@ -161,7 +154,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
       end
       object cbbResampler: TComboBox
         Left = 3
@@ -188,7 +180,6 @@ object frTilesGenPrev: TfrTilesGenPrev
           'Hann'
           'Hamming'
           'Sinsh')
-        ExplicitTop = 50
       end
       object chkReplace: TCheckBox
         AlignWithMargins = True
@@ -202,7 +193,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         Caption = #1048#1079#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1092#1072#1081#1083#1099
         TabOrder = 2
-        ExplicitTop = 71
       end
       object chkSaveFullOnly: TCheckBox
         Left = 3
@@ -212,7 +202,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1087#1086#1083#1085#1086#1089#1090#1100#1102' '#1079#1072#1087#1086#1083#1085#1077#1085#1085#1099#1077' '#1090#1072#1081#1083#1099
         TabOrder = 3
-        ExplicitTop = 105
       end
       object chkFromPrevZoom: TCheckBox
         Left = 3
@@ -222,7 +211,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1078#1076#1099#1081' '#1074#1099#1073#1088#1072#1085#1085#1099#1081' '#1084#1072#1089#1096#1090#1072#1073' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1077#1075#1086' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086
         TabOrder = 4
-        ExplicitTop = 105
       end
     end
   end

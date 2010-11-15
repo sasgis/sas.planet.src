@@ -4,6 +4,8 @@ object frExportYaMaps: TfrExportYaMaps
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
@@ -44,8 +46,6 @@ object frExportYaMaps: TfrExportYaMaps
         Align = alClient
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
-        ExplicitHeight = 258
       end
     end
     object pnlMapsSelect: TPanel
@@ -350,8 +350,6 @@ object frExportYaMaps: TfrExportYaMaps
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 89
-      ExplicitWidth = 338
     end
     object btnSelectTargetPath: TButton
       Left = 427

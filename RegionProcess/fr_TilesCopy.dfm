@@ -4,6 +4,8 @@ object frTilesCopy: TfrTilesCopy
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
@@ -13,8 +15,6 @@ object frTilesCopy: TfrTilesCopy
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 27
-    ExplicitHeight = 277
     object pnlRight: TPanel
       Left = 376
       Top = 0
@@ -24,7 +24,6 @@ object frTilesCopy: TfrTilesCopy
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitHeight = 277
       object lblZooms: TLabel
         AlignWithMargins = True
         Left = 3
@@ -51,7 +50,6 @@ object frTilesCopy: TfrTilesCopy
         Caption = #1042#1089#1077
         TabOrder = 0
         OnClick = chkAllZoomsClick
-        ExplicitTop = 257
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -61,8 +59,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
-        ExplicitTop = 11
-        ExplicitHeight = 240
       end
     end
     object pnlMain: TPanel
@@ -74,7 +70,6 @@ object frTilesCopy: TfrTilesCopy
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitHeight = 277
       object lblNamesType: TLabel
         AlignWithMargins = True
         Left = 3
@@ -104,7 +99,6 @@ object frTilesCopy: TfrTilesCopy
           'SAS.'#1055#1083#1072#1085#1077#1090#1072
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
-        ExplicitTop = 16
       end
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True
@@ -118,7 +112,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100
         TabOrder = 1
-        ExplicitTop = 37
       end
       object chkReplaseTarget: TCheckBox
         AlignWithMargins = True
@@ -132,7 +125,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1087#1088#1080' '#1089#1086#1074#1087#1072#1076#1077#1085#1080#1080
         TabOrder = 2
-        ExplicitTop = 58
       end
       object chkAllMaps: TCheckBox
         AlignWithMargins = True
@@ -147,7 +139,6 @@ object frTilesCopy: TfrTilesCopy
         Caption = #1042#1089#1077
         TabOrder = 3
         OnClick = chkAllMapsClick
-        ExplicitTop = 263
       end
       object chklstMaps: TCheckListBox
         Left = 3
@@ -157,8 +148,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alClient
         ItemHeight = 13
         TabOrder = 4
-        ExplicitTop = 78
-        ExplicitHeight = 185
       end
     end
   end
@@ -171,7 +160,6 @@ object frTilesCopy: TfrTilesCopy
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitTop = 0
     object lblTargetPath: TLabel
       AlignWithMargins = True
       Left = 3
@@ -193,8 +181,6 @@ object frTilesCopy: TfrTilesCopy
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 89
-      ExplicitWidth = 338
     end
     object btnSelectTargetPath: TButton
       Left = 427
@@ -220,7 +206,5 @@ object frTilesCopy: TfrTilesCopy
     BorderWidth = 3
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1101#1096'  '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1082#1072#1088#1090#1099
     TabOrder = 2
-    ExplicitLeft = 3
-    ExplicitTop = -5
   end
 end

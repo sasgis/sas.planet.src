@@ -4,6 +4,8 @@ object frExportAUX: TfrExportAUX
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlCenter: TPanel
     Left = 0
@@ -33,8 +35,6 @@ object frExportAUX: TfrExportAUX
         Margins.Right = 0
         Align = alTop
         Caption = #1050#1072#1088#1090#1072
-        ExplicitLeft = 6
-        ExplicitTop = 6
         ExplicitWidth = 31
       end
       object cbbMap: TComboBox
@@ -47,7 +47,6 @@ object frExportAUX: TfrExportAUX
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
       end
     end
     object pnlRight: TPanel
@@ -81,7 +80,6 @@ object frExportAUX: TfrExportAUX
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 16
       end
     end
   end
@@ -115,8 +113,6 @@ object frExportAUX: TfrExportAUX
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 95
-      ExplicitTop = 0
     end
     object btnSelectTargetFile: TButton
       Left = 427

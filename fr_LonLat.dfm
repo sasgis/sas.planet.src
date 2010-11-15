@@ -5,6 +5,8 @@ object frLonLat: TfrLonLat
   Height = 304
   VertScrollBar.Visible = False
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object grdpnlMain: TGridPanel
     Left = 0
@@ -63,7 +65,7 @@ object frLonLat: TfrLonLat
       Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Layout = tlCenter
-      ExplicitLeft = 31
+      ExplicitLeft = 63
       ExplicitWidth = 44
       ExplicitHeight = 13
     end

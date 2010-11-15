@@ -12,6 +12,7 @@ object FaddPoint: TFaddPoint
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
@@ -163,7 +164,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 17
         object Label3: TLabel
           AlignWithMargins = True
           Left = 3
@@ -202,7 +202,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 171
         object Label5: TLabel
           AlignWithMargins = True
           Left = 3
@@ -268,7 +267,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 22
         object Label4: TLabel
           AlignWithMargins = True
           Left = 3
@@ -306,7 +304,6 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 173
         object Label6: TLabel
           AlignWithMargins = True
           Left = 3
@@ -338,7 +335,6 @@ object FaddPoint: TFaddPoint
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitLeft = 92
       object Label7: TLabel
         AlignWithMargins = True
         Left = 3

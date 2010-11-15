@@ -4,6 +4,8 @@ object frTilesDownload: TfrTilesDownload
   Width = 451
   Height = 304
   Align = alClient
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
@@ -27,8 +29,6 @@ object frTilesDownload: TfrTilesDownload
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 20
-    ExplicitHeight = 284
     object pnlRight: TPanel
       Left = 392
       Top = 0
@@ -38,7 +38,6 @@ object frTilesDownload: TfrTilesDownload
       BevelOuter = bvNone
       BorderWidth = 5
       TabOrder = 0
-      ExplicitHeight = 284
       object lblZoom: TLabel
         AlignWithMargins = True
         Left = 5
@@ -61,7 +60,6 @@ object frTilesDownload: TfrTilesDownload
         ItemHeight = 13
         TabOrder = 0
         OnChange = cbbZoomChange
-        ExplicitTop = 18
       end
     end
     object pnlMain: TPanel
@@ -73,8 +71,6 @@ object frTilesDownload: TfrTilesDownload
       BevelOuter = bvNone
       BorderWidth = 5
       TabOrder = 1
-      ExplicitLeft = -1
-      ExplicitTop = 6
       object lblStat: TLabel
         AlignWithMargins = True
         Left = 5
@@ -85,7 +81,6 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = '_'
-        ExplicitTop = 43
         ExplicitWidth = 6
       end
       object lblMap: TLabel
@@ -122,8 +117,6 @@ object frTilesDownload: TfrTilesDownload
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitLeft = 9
-        ExplicitTop = 6
       end
       object chkReplace: TCheckBox
         Left = 5
@@ -134,7 +127,6 @@ object frTilesDownload: TfrTilesDownload
         Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1090#1072#1088#1099#1077' '#1092#1072#1081#1083#1099
         TabOrder = 1
         OnClick = chkReplaceClick
-        ExplicitTop = 79
       end
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
@@ -144,7 +136,6 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
         TabOrder = 2
-        ExplicitTop = 63
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
@@ -157,7 +148,6 @@ object frTilesDownload: TfrTilesDownload
         BorderWidth = 3
         Padding.Left = 15
         TabOrder = 3
-        ExplicitTop = 95
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
