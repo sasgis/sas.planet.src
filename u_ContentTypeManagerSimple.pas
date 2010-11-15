@@ -5,36 +5,22 @@ interface
 uses
   i_ContentTypeInfo,
   i_IContentConverter,
-  i_IContentTypeManager,
   u_ContentTypeListByKey,
-  u_ContentConverterMatrix;
+  u_ContentConverterMatrix,
+  u_ContentTypeManagerBase;
 
 type
-  TContentTypeManagerSimple = class(TInterfacedObject, IContentTypeManager)
+  TContentTypeManagerSimple = class(TContentTypeManagerBase)
   private
-    FExtList: TContentTypeListByKey;
-    FTypeList: TContentTypeListByKey;
-    FBitmapExtList: TContentTypeListByKey;
-    FBitmapTypeList: TContentTypeListByKey;
-    FKmlExtList: TContentTypeListByKey;
-    FKmlTypeList: TContentTypeListByKey;
-    FConverterMatrix: TContentConverterMatrix;
-  protected
-    procedure AddByType(AInfo: IContentTypeInfoBasic; AType: string);
-    procedure AddByExt(AInfo: IContentTypeInfoBasic; AExt: string);
-    procedure UpdateBitmapConverterMatrix;
+    procedure ConverterMatrixUpdateFixed;
+    procedure ConverterMatrixUpdateSynonyms;
+    procedure ConverterMatrixUpdateFixedWithSynonyms;
+    procedure ConverterMatrixUpdateBitmaps;
+    function FindConverterWithSynonyms(ASourceType, ATargetType: string): IContentConverter;
+    procedure UpdateConverterMatrix;
     procedure InitLists;
-  protected
-    function GetInfo(AType: WideString): IContentTypeInfoBasic;
-    function GetInfoByExt(AExt: WideString): IContentTypeInfoBasic;
-    function GetIsBitmapType(AType: WideString): Boolean;
-    function GetIsBitmapExt(AExt: WideString): Boolean;
-    function GetIsKmlType(AType: WideString): Boolean;
-    function GetIsKmlExt(AExt: WideString): Boolean;
-    function GetConverter(ATypeSource, ATypeTarget: WideString): IContentConverter;
   public
     constructor Create();
-    destructor Destroy; override;
   end;
 
 implementation
@@ -49,92 +35,17 @@ uses
   u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
+  u_KmlInfoSimpleParser,
+  u_KmzInfoSimpleParser,
+  u_ContentConverterBase,
   u_ContentConverterBitmap;
 
 { TContentTypeManagerSimple }
 
-procedure TContentTypeManagerSimple.AddByExt(AInfo: IContentTypeInfoBasic;
-  AExt: string);
-begin
-  FExtList.Add(AExt, AInfo);
-  if Supports(AInfo, IContentTypeInfoBitmap) then begin
-    FBitmapExtList.Add(AExt, AInfo);
-  end else if Supports(AInfo, IContentTypeInfoBitmap) then begin
-    FKmlExtList.Add(AExt, AInfo);
-  end;
-end;
-
-procedure TContentTypeManagerSimple.AddByType(AInfo: IContentTypeInfoBasic;
-  AType: string);
-begin
-  FTypeList.Add(AType, AInfo);
-  if Supports(AInfo, IContentTypeInfoBitmap) then begin
-    FBitmapTypeList.Add(AType, AInfo);
-  end else if Supports(AInfo, IContentTypeInfoBitmap) then begin
-    FKmlTypeList.Add(AType, AInfo);
-  end;
-end;
-
 constructor TContentTypeManagerSimple.Create;
 begin
-  FExtList := TContentTypeListByKey.Create;
-  FTypeList := TContentTypeListByKey.Create;
-  FBitmapExtList := TContentTypeListByKey.Create;
-  FBitmapTypeList := TContentTypeListByKey.Create;
-  FKmlExtList := TContentTypeListByKey.Create;
-  FKmlTypeList := TContentTypeListByKey.Create;
-  FConverterMatrix := TContentConverterMatrix.Create;
-  InitLists;
-end;
-
-destructor TContentTypeManagerSimple.Destroy;
-begin
-  FreeAndNil(FExtList);
-  FreeAndNil(FTypeList);
-  FreeAndNil(FBitmapExtList);
-  FreeAndNil(FBitmapTypeList);
-  FreeAndNil(FKmlExtList);
-  FreeAndNil(FKmlTypeList);
-  FreeAndNil(FConverterMatrix);
   inherited;
-end;
-
-function TContentTypeManagerSimple.GetConverter(ATypeSource,
-  ATypeTarget: WideString): IContentConverter;
-begin
-  Result := FConverterMatrix.Get(ATypeSource, ATypeTarget);
-end;
-
-function TContentTypeManagerSimple.GetInfo(
-  AType: WideString): IContentTypeInfoBasic;
-begin
-  Result := FTypeList.Get(AType);
-end;
-
-function TContentTypeManagerSimple.GetInfoByExt(
-  AExt: WideString): IContentTypeInfoBasic;
-begin
-  Result := FExtList.Get(AExt);
-end;
-
-function TContentTypeManagerSimple.GetIsBitmapExt(AExt: WideString): Boolean;
-begin
-  Result := FBitmapExtList.Get(AExt) <> nil;
-end;
-
-function TContentTypeManagerSimple.GetIsBitmapType(AType: WideString): Boolean;
-begin
-  Result := FBitmapTypeList.Get(AType) <> nil;
-end;
-
-function TContentTypeManagerSimple.GetIsKmlExt(AExt: WideString): Boolean;
-begin
-  Result := FKmlExtList.Get(AExt) <> nil;
-end;
-
-function TContentTypeManagerSimple.GetIsKmlType(AType: WideString): Boolean;
-begin
-  Result := FKmlTypeList.Get(AType) <> nil;
+  InitLists;
 end;
 
 procedure TContentTypeManagerSimple.InitLists;
@@ -184,9 +95,181 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
+  VContentType := TContentTypeInfoKml.Create(
+    'application/vnd.google-earth.kml+xml',
+    '.kml',
+    TKmlInfoSimpleParser.Create
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  VContentType := TContentTypeInfoKml.Create(
+    'application/vnd.google-earth.kmz',
+    '.kmz',
+    TKmzInfoSimpleParser.Create
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  UpdateConverterMatrix;
 end;
 
-procedure TContentTypeManagerSimple.UpdateBitmapConverterMatrix;
+procedure TContentTypeManagerSimple.UpdateConverterMatrix;
+begin
+  ConverterMatrixUpdateFixed;
+  ConverterMatrixUpdateSynonyms;
+  ConverterMatrixUpdateFixedWithSynonyms;
+  ConverterMatrixUpdateBitmaps;
+end;
+
+procedure TContentTypeManagerSimple.ConverterMatrixUpdateFixed;
+var
+  VSoruceName: string;
+  VSourceContent: IContentTypeInfoBasic;
+  VTargetName: string;
+  VTargetContent: IContentTypeInfoBasic;
+  VConverter: IContentConverter;
+begin
+  VSoruceName := 'application/vnd.google-earth.kmz';
+  VSourceContent := TypeList.Get(VSoruceName);
+
+  VTargetName := 'application/vnd.google-earth.kml+xml';
+  VTargetContent := TypeList.Get(VTargetName);
+
+  VConverter := TContentConverterKmz2Kml.Create(VSourceContent, VTargetContent);
+  ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+
+  VSoruceName := 'application/vnd.google-earth.kml+xml';
+  VSourceContent := TypeList.Get(VSoruceName);
+
+  VTargetName := 'application/vnd.google-earth.kmz';
+  VTargetContent := TypeList.Get(VTargetName);
+
+  VConverter := TContentConverterKml2Kmz.Create(VSourceContent, VTargetContent);
+  ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+end;
+
+procedure TContentTypeManagerSimple.ConverterMatrixUpdateSynonyms;
+var
+  VSourceEnumerator: TStringsEnumerator;
+  VSoruceName: string;
+  VSourceContent: IContentTypeInfoBasic;
+  VTargetEnumerator: TStringsEnumerator;
+  VTargetName: string;
+  VTargetContent: IContentTypeInfoBasic;
+  VConverter: IContentConverter;
+begin
+  VSourceEnumerator := TypeList.GetEnumerator;
+  try
+    while VSourceEnumerator.MoveNext do begin
+      VSoruceName := VSourceEnumerator.Current;
+      VSourceContent := TypeList.Get(VSoruceName);
+      VTargetEnumerator := TypeList.GetEnumerator;
+      try
+        while VTargetEnumerator.MoveNext do begin
+          VTargetName := VTargetEnumerator.Current;
+          VTargetContent := TypeList.Get(VTargetName);
+          if ConverterMatrix.Get(VSoruceName, VTargetName) = nil then begin
+            if VSourceContent.GetContentType = VTargetContent.GetContentType then begin
+              VConverter := TContentConverterSimpleCopy.Create(VSourceContent, VTargetContent);
+              ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+            end;
+          end;
+        end;
+      finally
+        VSourceEnumerator.Free;
+      end;
+    end;
+  finally
+    VSourceEnumerator.Free;
+  end;
+end;
+
+function TContentTypeManagerSimple.FindConverterWithSynonyms(ASourceType,
+  ATargetType: string): IContentConverter;
+var
+  VSourceEnumerator: TStringsEnumerator;
+  VSoruceName: string;
+  VTargetEnumerator: TStringsEnumerator;
+  VTargetName: string;
+  VConverter: IContentConverter;
+begin
+  Result := nil;
+  VSourceEnumerator := TypeList.GetEnumerator;
+  try
+    while VSourceEnumerator.MoveNext do begin
+      VSoruceName := VSourceEnumerator.Current;
+      VConverter := ConverterMatrix.Get(ASourceType, VSoruceName);
+      if VConverter <> nil then begin
+        if VConverter.GetIsSimpleCopy then begin
+          VTargetEnumerator := TypeList.GetEnumerator;
+          try
+            while VTargetEnumerator.MoveNext do begin
+              VTargetName := VTargetEnumerator.Current;
+              VConverter := ConverterMatrix.Get(VTargetName, ATargetType);
+              if VConverter <> nil then begin
+                if VConverter.GetIsSimpleCopy then begin
+                  VConverter := ConverterMatrix.Get(VSoruceName, VTargetName);
+                  if VConverter <> nil then begin
+                    Result := VConverter;
+                  end;
+                end;
+              end;
+              if Result <> nil then begin
+                Break;
+              end;
+            end;
+          finally
+            VSourceEnumerator.Free;
+          end;
+        end;
+      end;
+      if Result <> nil then begin
+        Break;
+      end;
+    end;
+  finally
+    VSourceEnumerator.Free;
+  end;
+end;
+
+procedure TContentTypeManagerSimple.ConverterMatrixUpdateFixedWithSynonyms;
+var
+  VSourceEnumerator: TStringsEnumerator;
+  VSoruceName: string;
+  VSourceContent: IContentTypeInfoBasic;
+  VTargetEnumerator: TStringsEnumerator;
+  VTargetName: string;
+  VTargetContent: IContentTypeInfoBasic;
+  VConverter: IContentConverter;
+begin
+  VSourceEnumerator := TypeList.GetEnumerator;
+  try
+    while VSourceEnumerator.MoveNext do begin
+      VSoruceName := VSourceEnumerator.Current;
+      VSourceContent := TypeList.Get(VSoruceName);
+      VTargetEnumerator := TypeList.GetEnumerator;
+      try
+        while VTargetEnumerator.MoveNext do begin
+          VTargetName := VTargetEnumerator.Current;
+          VTargetContent := TypeList.Get(VTargetName);
+          if ConverterMatrix.Get(VSoruceName, VTargetName) = nil then begin
+            VConverter := FindConverterWithSynonyms(VSoruceName, VTargetName);
+            if VConverter <> nil then begin
+              ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+            end;
+          end;
+        end;
+      finally
+        VSourceEnumerator.Free;
+      end;
+    end;
+  finally
+    VSourceEnumerator.Free;
+  end;
+end;
+
+procedure TContentTypeManagerSimple.ConverterMatrixUpdateBitmaps;
 var
   VSourceEnumerator: TStringsEnumerator;
   VSoruceName: string;
@@ -196,26 +279,28 @@ var
   VTargetContent: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
 begin
-  VSourceEnumerator := FBitmapTypeList.GetEnumerator;
+  VSourceEnumerator := BitmapTypeList.GetEnumerator;
   try
-    VTargetEnumerator := FBitmapTypeList.GetEnumerator;
-    try
-      while VSourceEnumerator.MoveNext do begin
-        VSoruceName := VSourceEnumerator.Current;
-        VSourceContent := FBitmapTypeList.Get(VSoruceName) as IContentTypeInfoBitmap;
-        if VSourceContent.GetLoader <> nil then begin
-          while VTargetEnumerator.MoveNext do begin
-            VTargetName := VTargetEnumerator.Current;
-            VTargetContent := FBitmapTypeList.Get(VTargetName) as IContentTypeInfoBitmap;
-            if VTargetContent.GetSaver <> nil then begin
-              VConverter := TContentConverterBitmap.Create(VSourceContent, VTargetContent);
-              FConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+    while VSourceEnumerator.MoveNext do begin
+      VSoruceName := VSourceEnumerator.Current;
+      VSourceContent := BitmapTypeList.Get(VSoruceName) as IContentTypeInfoBitmap;
+      VTargetEnumerator := BitmapTypeList.GetEnumerator;
+      try
+        while VTargetEnumerator.MoveNext do begin
+          VTargetName := VTargetEnumerator.Current;
+          VTargetContent := BitmapTypeList.Get(VTargetName) as IContentTypeInfoBitmap;
+          if ConverterMatrix.Get(VSoruceName, VTargetName) = nil then begin
+            if VSourceContent.GetLoader <> nil then begin
+              if VTargetContent.GetSaver <> nil then begin
+                VConverter := TContentConverterBitmap.Create(VSourceContent, VTargetContent);
+                ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+              end;
             end;
           end;
         end;
+      finally
+        VSourceEnumerator.Free;
       end;
-    finally
-      VSourceEnumerator.Free;
     end;
   finally
     VSourceEnumerator.Free;

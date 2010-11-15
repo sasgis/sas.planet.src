@@ -129,6 +129,7 @@ uses
   u_ContentConverterKmz2Kml in 'u_ContentConverterKmz2Kml.pas',
   u_ContentConverterKml2Kmz in 'u_ContentConverterKml2Kmz.pas',
   u_ContentTypeListByKey in 'u_ContentTypeListByKey.pas',
+  u_ContentTypeManagerBase in 'u_ContentTypeManagerBase.pas',
   u_ContentTypeManagerSimple in 'u_ContentTypeManagerSimple.pas',
   u_ContentConvertersListByKey in 'u_ContentConvertersListByKey.pas',
   u_ContentConverterMatrix in 'u_ContentConverterMatrix.pas',

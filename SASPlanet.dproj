@@ -314,6 +314,7 @@
     <DCCReference Include="u_ContentConvertersListByKey.pas" />
     <DCCReference Include="u_ContentTypeInfo.pas" />
     <DCCReference Include="u_ContentTypeListByKey.pas" />
+    <DCCReference Include="u_ContentTypeManagerBase.pas" />
     <DCCReference Include="u_ContentTypeManagerSimple.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
