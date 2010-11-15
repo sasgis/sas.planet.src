@@ -5,6 +5,7 @@ interface
 uses
   Types,
   SysUtils,
+  i_JclNotify,
   u_MapTypeCacheConfig;
 
 type
@@ -28,11 +29,13 @@ type
   private
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FCacheConfig: TMapTypeCacheConfigGE;
-    indexfilename: string;
+    FIndexFileName: string;
     FIndexInfo: array of TIndexRec;
+    FConfigChangeListener: IJclListener;
+    FFileInited: Boolean;
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
-    function GEFindTileAdr(indexpath: string; APoint: TPoint; AZoom: Byte; var size:integer):integer;
-    procedure UpdateIndexInfo;
+    procedure _UpdateIndexInfo;
+    procedure OnConfigChange(Sender: TObject);
   protected
   public
     constructor Create(ACacheConfig: TMapTypeCacheConfigGE);
@@ -48,59 +51,31 @@ type
 
 implementation
 
+uses
+  Classes,
+  u_NotifyEventListener;
+
 { TGEIndexFile }
 
 constructor TGEIndexFile.Create(ACacheConfig: TMapTypeCacheConfigGE);
 begin
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := ACacheConfig;
-
+  FFileInited := False;
+  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FCacheConfig.ConfigChangeNotifier.Add(FConfigChangeListener);
 end;
 
 destructor TGEIndexFile.Destroy;
 begin
+  FCacheConfig.ConfigChangeNotifier.Remove(FConfigChangeListener);
+  FConfigChangeListener := nil;
   FreeAndNil(FSync);
   FIndexInfo := nil;
   inherited;
 end;
 
-function TGEIndexFile.FindTileInfo(APoint: TPoint; AZoom: Byte;
-  var AVersion: Word; out AOffset, ASize: Integer): Boolean;
-begin
-
-end;
-
-function TGEIndexFile.GEFindTileAdr(indexpath: string; APoint: TPoint;
-  AZoom: Byte; var size: integer): integer;
-var
-  VNameLo, VNameHi: LongWord;
-  i: Integer;
-begin
-  result:=0;
-  size:=0;
-  try
-    UpdateIndexInfo;
-    if Length(FIndexInfo) > 0  then begin
-      GEXYZtoHexTileName(APoint, AZoom, VNameHi, VNameLo);
-      for i := 0 to Length(FIndexInfo) - 1 do begin
-        if FIndexInfo[i].TileID = 130 then begin
-          if FIndexInfo[i].Zoom = AZoom then begin
-            if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
-              Result := FIndexInfo[i].Offset;
-              size := FIndexInfo[i].Size;
-            end;
-          end;
-        end;
-      end;
-    end;
-  except
-    result := 0;
-    size := 0;
-  end;
-end;
-
-procedure TGEIndexFile.GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte;
-  out ANameHi, ANameLo: LongWord);
+procedure TGEIndexFile.GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
 var
   VMask: Integer;
   i: byte;
@@ -134,9 +109,83 @@ begin
   end;
 end;
 
-procedure TGEIndexFile.UpdateIndexInfo;
+function TGEIndexFile.FindTileInfo(APoint: TPoint; AZoom: Byte;
+  var AVersion: Word; out AOffset, ASize: Integer): Boolean;
+var
+  VNameLo: LongWord;
+  VNameHi: LongWord;
+  i: Integer;
 begin
+  Result := False;
+  AOffset := 0;
+  ASize := 0;
+  AVersion := 0;
+  if not FFileInited then begin
+    FSync.BeginWrite;
+    try
+      if not FFileInited then begin
+        _UpdateIndexInfo;
+      end;
+    finally
+      FSync.EndWrite;
+    end;
+  end;
+  FSync.BeginRead;
+  try
+    if Length(FIndexInfo) > 0 then begin
+      GEXYZtoHexTileName(APoint, AZoom, VNameHi, VNameLo);
+      for i := 0 to Length(FIndexInfo) - 1 do begin
+        if FIndexInfo[i].TileID = 130 then begin
+          if FIndexInfo[i].Zoom = AZoom then begin
+            if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
+              AOffset := FIndexInfo[i].Offset;
+              ASize := FIndexInfo[i].Size;
+              AVersion := FIndexInfo[i].Ver;
+              Result := True;
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    FSync.EndRead;
+  end;
+end;
 
+procedure TGEIndexFile.OnConfigChange(Sender: TObject);
+begin
+  FSync.BeginWrite;
+  try
+    if FFileInited then begin
+      _UpdateIndexInfo;
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+procedure TGEIndexFile._UpdateIndexInfo;
+var
+  VFileName: string;
+  VFileStream: TFileStream;
+  VCount: Cardinal;
+begin
+  VFileName := FCacheConfig.GetIndexFileName;
+  if VFileName <> FIndexFileName then begin
+    FIndexInfo := nil;
+    FIndexFileName := VFileName;
+    if FileExists(VFileName) then begin
+      VFileStream := TFileStream.Create(VFileName, fmOpenRead);
+      try
+        VCount := VFileStream.Size div SizeOf(FIndexInfo[0]);
+        SetLength(FIndexInfo, VCount );
+        VFileStream.ReadBuffer(FIndexInfo[0], VCount * SizeOf(FIndexInfo[0]));
+      finally
+        FreeAndNil(VFileStream);
+      end;
+    end;
+  end;
+  FFileInited := True;
 end;
 
 end.
