@@ -28,6 +28,7 @@ uses
 
 procedure TContentTypeListByKey.Add(AKey: string; AType: IContentTypeInfoBasic);
 begin
+  AType._AddRef;
   FList.AddObject(AKey, Pointer(AType));
 end;
 

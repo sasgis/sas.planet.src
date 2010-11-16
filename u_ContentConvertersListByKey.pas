@@ -27,6 +27,7 @@ uses
 procedure TContentConvertersListByKey.Add(AKey: string;
   AConverter: IContentConverter);
 begin
+  AConverter._AddRef;
   FList.AddObject(AKey, Pointer(AConverter));
 end;
 
