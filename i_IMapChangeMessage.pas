@@ -7,7 +7,7 @@ uses
 
 type
   IMapChangeMessage = interface
-    ['{D804ACF7-73BF-4FD3-9907-6FF1F1334D01}']
+    ['{DF7B8E36-4893-4B7F-8824-F011993E9E73}']
     function GetSorurceMap: TMapType; stdcall;
     function GetNewMap: TMapType; stdcall;
   end;

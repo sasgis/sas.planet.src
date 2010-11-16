@@ -20,7 +20,7 @@ type
   end;
 
   IActiveMapWithHybrConfig = interface(IActiveMapConfig)
-    ['{D33FE9FA-B243-4783-9D55-F15B813BADF9}']
+    ['{74D5CD4A-75DC-4926-B9D9-5AA7FD13CA2C}']
     procedure SelectHybrByGUID(AMapGUID: TGUID);
     procedure UnSelectHybrByGUID(AMapGUID: TGUID);
     function IsHybrGUIDSelected(AMapGUID: TGUID): Boolean;
