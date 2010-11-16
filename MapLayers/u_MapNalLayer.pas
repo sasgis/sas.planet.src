@@ -32,7 +32,7 @@ type
     procedure DoDrawSelectionPoly;
     procedure DoDrawCalcLine;
     procedure DoDrawNewPath(AIsPoly: Boolean);
-    procedure PreparePolygon(pathll: TExtendedPointArray; polygon: TPolygon32);
+    procedure PreparePolygon(APointsOnBitmap: TExtendedPointArray; polygon: TPolygon32);
   protected
     procedure DoRedraw; override;
   public
@@ -90,13 +90,16 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     FLayer.Bitmap.Font.Name := 'Tahoma';
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      VLonLat := FPath[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
 
     polygon := TPolygon32.Create;
@@ -104,7 +107,7 @@ begin
       polygon.Antialiased := true;
       polygon.AntialiasMode := am4times;
       polygon.Closed := false;
-      PreparePolygon(FPath,polygon);
+      PreparePolygon(VPointsOnBitmap, polygon);
       with Polygon.Outline do try
          with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
@@ -208,19 +211,22 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      VLonLat := FPath[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
     polygon := TPolygon32.Create;
     try
       polygon.Antialiased := true;
       polygon.AntialiasMode := am4times;
       polygon.Closed := AIsPoly;
-      PreparePolygon(FPath,polygon);
+      PreparePolygon(VPointsOnBitmap, polygon);
       if AIsPoly then begin
         Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
       end;
@@ -271,19 +277,22 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      VLonLat := FPath[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
     polygon := TPolygon32.Create;
     try
       polygon.Antialiased := true;
       polygon.AntialiasMode := am4times;
       polygon.Closed := true;
-      PreparePolygon(FPath,polygon);
+      PreparePolygon(VPointsOnBitmap, polygon);
       Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
       with Polygon.Outline do try
          with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
@@ -438,7 +447,7 @@ begin
   Redraw;
 end;
 
-procedure TMapNalLayer.PreparePolygon(pathll: TExtendedPointArray; polygon: TPolygon32);
+procedure TMapNalLayer.PreparePolygon(APointsOnBitmap: TExtendedPointArray; polygon: TPolygon32);
 
 var
   i, adp, j, lenpath: integer;
@@ -446,18 +455,11 @@ var
   k2: TextendedPoint;
   k4: TextendedPoint;
   k3: TextendedPoint;
-  VLonLat: TExtendedPoint;
 begin
-   lenpath:=length(pathll);
-   VLonLat := pathll[0];
-   FGeoConvert.CheckLonLatPos(VLonLat);
-   k1 := FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom);
-   k1 := MapPixel2BitmapPixel(k1);
+   lenpath:=length(APointsOnBitmap);
+   k1 := APointsOnBitmap[0];
    for i := 0 to lenpath-2 do begin
-      VLonLat := pathll[i+1];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      k2 := FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom);
-      k2 := MapPixel2BitmapPixel(k2);
+      k2 := APointsOnBitmap[i+1];
 
       if (k1.X<32766)and(k1.X>-32766)and(k1.Y<32766)and(k1.Y>-32766) then begin
         polygon.Add(FixedPoint(k1.X, k1.Y));
