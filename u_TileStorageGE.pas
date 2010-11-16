@@ -56,6 +56,7 @@ uses
   c_CoordConverter,
   u_ContentTypeInfo,
   u_TileInfoBasic,
+  u_GECrypt,
   u_GlobalState;
 
 { TTileStorageGEStuped }
@@ -172,6 +173,8 @@ var
   VVersion: Word;
   VOffset: Integer;
   VSize: Integer;
+  VMemStream: TMemoryStream;
+  VTileStart: LongWord;
 begin
   Result := False;
   try
@@ -185,14 +188,39 @@ begin
       VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
       try
         VFileStream.Position := VOffset + 36;
-        AStream.CopyFrom(VFileStream, VSize);
-        Result := True;
+        VMemStream := TMemoryStream.Create;
+        try
+          VMemStream.CopyFrom(VFileStream, VSize);
+          VMemStream.Position := 0;
+          VMemStream.ReadBuffer(VTileStart, SizeOf(VTileStart));
+          case VTileStart of
+            CRYPTED_JPEG: begin
+              GEcrypt(VMemStream.Memory, VMemStream.Size);
+              Result := True;
+            end;
+            DECRYPTED_JPEG: begin
+              Result := True;
+            end;
+            CRYPTED_DXT1: begin
+              GEcrypt(VMemStream.Memory, VMemStream.Size);
+              Result := True;
+            end;
+            DECRYPTED_DXT1: begin
+              Result := True;
+            end;
+          end;
+          if Result then begin
+            VMemStream.SaveToStream(AStream);
+          end;
           ATileInfo := TTileInfoBasicExists.Create(
             0,
             VSize,
             VVersion,
             FMainContentType
           );
+        finally
+          VMemStream.Free;
+        end;
       finally
         VFileStream.Free;
       end;
