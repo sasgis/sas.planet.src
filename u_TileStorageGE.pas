@@ -66,12 +66,7 @@ begin
   FCacheConfig := TMapTypeCacheConfigGE.Create;
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   FIndex := TGEIndexFile.Create(FCacheConfig);
-  FMainContentType := TContentTypeInfoBitmap.Create(
-    'application/ge+image+decrypted',
-    '.ge_tile',
-    nil,
-    nil
-  );
+  FMainContentType := GState.ContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
 end;
 
 destructor TTileStorageGE.Destroy;
@@ -123,7 +118,7 @@ end;
 
 function TTileStorageGE.GetTileFileExt: string;
 begin
-  Result := '.ge_tile';
+  Result := FMainContentType.GetDefaultExt;
 end;
 
 function TTileStorageGE.GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string;

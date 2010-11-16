@@ -35,6 +35,7 @@ uses
   u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
+  u_BitmapTileGELoader,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_ContentConverterBase,
@@ -94,6 +95,16 @@ begin
   AddByType(VContentType, 'image/x-ms-bmp');
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  VContentType := TContentTypeInfoBitmap.Create(
+    'application/vnd.google-earth.tile-image',
+    '.ge_image',
+    TBitmapTileGELoader.Create,
+    nil
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
 
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kml+xml',
