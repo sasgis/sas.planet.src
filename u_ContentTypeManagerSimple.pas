@@ -177,7 +177,7 @@ begin
           end;
         end;
       finally
-        VSourceEnumerator.Free;
+        VTargetEnumerator.Free;
       end;
     end;
   finally
@@ -220,7 +220,7 @@ begin
               end;
             end;
           finally
-            VSourceEnumerator.Free;
+            VTargetEnumerator.Free;
           end;
         end;
       end;
@@ -261,7 +261,7 @@ begin
           end;
         end;
       finally
-        VSourceEnumerator.Free;
+        VTargetEnumerator.Free;
       end;
     end;
   finally
@@ -299,7 +299,7 @@ begin
           end;
         end;
       finally
-        VSourceEnumerator.Free;
+        VTargetEnumerator.Free;
       end;
     end;
   finally
