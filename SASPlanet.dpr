@@ -102,6 +102,8 @@ uses
   u_BitmapTileJpegSaverIJL in 'BitmapTileSaveLoad\u_BitmapTileJpegSaverIJL.pas',
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
+  u_BitmapTileGELoader in 'BitmapTileSaveLoad\u_BitmapTileGELoader.pas',
+  u_BitmapTileGEDXTextureLoader in 'BitmapTileSaveLoad\u_BitmapTileGEDXTextureLoader.pas',
   i_IBitmapTypeExtManager in 'i_IBitmapTypeExtManager.pas',
   u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',

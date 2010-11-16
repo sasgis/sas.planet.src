@@ -42,6 +42,8 @@
     <DelphiCompile Include="SASPlanet.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileGEDXTextureLoader.pas" />
+    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileGELoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileJpegLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileJpegSaverIJL.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
