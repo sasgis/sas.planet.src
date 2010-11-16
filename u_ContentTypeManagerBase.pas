@@ -54,7 +54,7 @@ begin
   FExtList.Add(AExt, AInfo);
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
     FBitmapExtList.Add(AExt, AInfo);
-  end else if Supports(AInfo, IContentTypeInfoBitmap) then begin
+  end else if Supports(AInfo, IContentTypeInfoKml) then begin
     FKmlExtList.Add(AExt, AInfo);
   end;
 end;
@@ -65,7 +65,7 @@ begin
   FTypeList.Add(AType, AInfo);
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
     FBitmapTypeList.Add(AType, AInfo);
-  end else if Supports(AInfo, IContentTypeInfoBitmap) then begin
+  end else if Supports(AInfo, IContentTypeInfoKml) then begin
     FKmlTypeList.Add(AType, AInfo);
   end;
 end;
