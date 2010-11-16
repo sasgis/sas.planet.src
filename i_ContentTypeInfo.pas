@@ -20,7 +20,7 @@ type
   end;
 
   IContentTypeInfoKml = interface(IContentTypeInfoBasic)
-    ['{DB6FAD7E-CACD-47C7-BA5E-9D1A0959FE88}']
+    ['{62A84A15-D775-4F23-A12D-C25948182757}']
     function GetLoader: IKmlInfoSimpleLoader;
   end;
 
