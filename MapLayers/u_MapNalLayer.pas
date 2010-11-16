@@ -91,35 +91,36 @@ var
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
 begin
-  polygon := TPolygon32.Create;
-  try
-    polygon.Antialiased := true;
-    polygon.AntialiasMode := am4times;
-    polygon.Closed := false;
-    PreparePolygon(FPath,polygon);
-    with Polygon.Outline do try
-       with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
-         FillMode := pfWinding;
-         DrawFill(FLayer.Bitmap, SetAlpha(ClRed32, 150));
-       finally
-         free;
-       end;
-    finally
-      free;
-    end;
-  finally
-    polygon.Free;
-  end;
-
-  VBitmapSize := GetBitmapSizeInPixel;
-  FLayer.Bitmap.Font.Name := 'Tahoma';
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
+    FLayer.Bitmap.Font.Name := 'Tahoma';
     SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+    end;
+
+    polygon := TPolygon32.Create;
     try
-      for i := 0 to VPointsCount - 1 do begin
-        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      polygon.Antialiased := true;
+      polygon.AntialiasMode := am4times;
+      polygon.Closed := false;
+      PreparePolygon(FPath,polygon);
+      with Polygon.Outline do try
+         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+           FillMode := pfWinding;
+           DrawFill(FLayer.Bitmap, SetAlpha(ClRed32, 150));
+         finally
+           free;
+         end;
+      finally
+        free;
       end;
+    finally
+      polygon.Free;
+    end;
+
+    VBitmapSize := GetBitmapSizeInPixel;
+    try
       for i := 0 to VPointsCount - 2 do begin
         k2 := VPointsOnBitmap[i + 1];
         if not ((k2.x > 0) and (k2.y > 0)) and ((k2.x < VBitmapSize.X) and (k2.y < VBitmapSize.Y)) then begin
@@ -208,37 +209,37 @@ var
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
 begin
-  polygon := TPolygon32.Create;
-  try
-    polygon.Antialiased := true;
-    polygon.AntialiasMode := am4times;
-    polygon.Closed := AIsPoly;
-    PreparePolygon(FPath,polygon);
-    if AIsPoly then begin
-      Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
-    end;
-    with Polygon.Outline do try
-       with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
-         FillMode := pfWinding;
-         DrawFill(FLayer.Bitmap, FPolyLineColor);
-       finally
-         free;
-       end;
-    finally
-      free;
-    end;
-  finally
-    polygon.Free;
-  end;
-
-  VBitmapSize := GetBitmapSizeInPixel;
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+    end;
+    polygon := TPolygon32.Create;
     try
-      for i := 0 to VPointsCount - 1 do begin
-        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      polygon.Antialiased := true;
+      polygon.AntialiasMode := am4times;
+      polygon.Closed := AIsPoly;
+      PreparePolygon(FPath,polygon);
+      if AIsPoly then begin
+        Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
       end;
+      with Polygon.Outline do try
+         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+           FillMode := pfWinding;
+           DrawFill(FLayer.Bitmap, FPolyLineColor);
+         finally
+           free;
+         end;
+      finally
+        free;
+      end;
+    finally
+      polygon.Free;
+    end;
+
+    VBitmapSize := GetBitmapSizeInPixel;
+    try
       for i := 1 to VPointsCount - 1 do begin
         k1 := VPointsOnBitmap[i];
         if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
@@ -271,35 +272,35 @@ var
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
 begin
-  polygon := TPolygon32.Create;
-  try
-    polygon.Antialiased := true;
-    polygon.AntialiasMode := am4times;
-    polygon.Closed := true;
-    PreparePolygon(FPath,polygon);
-    Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
-    with Polygon.Outline do try
-       with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
-         FillMode := pfWinding;
-         DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
-       finally
-         free;
-       end;
-    finally
-      free;
-    end;
-  finally
-    polygon.Free;
-  end;
-
-  VBitmapSize := GetBitmapSizeInPixel;
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+    end;
+    polygon := TPolygon32.Create;
     try
-      for i := 0 to VPointsCount - 1 do begin
-        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      polygon.Antialiased := true;
+      polygon.AntialiasMode := am4times;
+      polygon.Closed := true;
+      PreparePolygon(FPath,polygon);
+      Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
+      with Polygon.Outline do try
+         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+           FillMode := pfWinding;
+           DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
+         finally
+           free;
+         end;
+      finally
+        free;
       end;
+    finally
+      polygon.Free;
+    end;
+
+    VBitmapSize := GetBitmapSizeInPixel;
+    try
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
         k1 := ExtPoint(k1.x - 3, k1.y - 3);
