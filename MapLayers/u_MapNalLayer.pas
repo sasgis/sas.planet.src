@@ -32,7 +32,6 @@ type
     procedure DoDrawSelectionPoly;
     procedure DoDrawCalcLine;
     procedure DoDrawNewPath(AIsPoly: Boolean);
-    procedure PreparePolygon(pathll: TDoublePointArray; polygon: TPolygon32);
   protected
     procedure DoRedraw; override;
   public
@@ -90,36 +89,40 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
-  polygon := TPolygon32.Create;
-  try
-    polygon.Antialiased := true;
-    polygon.AntialiasMode := am4times;
-    polygon.Closed := false;
-    PreparePolygon(FPath,polygon);
-    with Polygon.Outline do try
-       with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
-         FillMode := pfWinding;
-         DrawFill(FLayer.Bitmap, SetAlpha(ClRed32, 150));
-       finally
-         free;
-       end;
-    finally
-      free;
-    end;
-  finally
-    polygon.Free;
-  end;
-
-  VBitmapSize := GetBitmapSizeInPixel;
-  FLayer.Bitmap.Font.Name := 'Tahoma';
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
+    FLayer.Bitmap.Font.Name := 'Tahoma';
     SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VLonLat := FPath[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+    end;
+
+    polygon := TPolygon32.Create;
     try
-      for i := 0 to VPointsCount - 1 do begin
-        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      polygon.Antialiased := true;
+      polygon.AntialiasMode := am4times;
+      polygon.Closed := false;
+      PrepareGR32Polygon(VPointsOnBitmap, polygon);
+      with Polygon.Outline do try
+         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+           FillMode := pfWinding;
+           DrawFill(FLayer.Bitmap, SetAlpha(ClRed32, 150));
+         finally
+           free;
+         end;
+      finally
+        free;
       end;
+    finally
+      polygon.Free;
+    end;
+
+    VBitmapSize := GetBitmapSizeInPixel;
+    try
       for i := 0 to VPointsCount - 2 do begin
         k2 := VPointsOnBitmap[i + 1];
         if not ((k2.x > 0) and (k2.y > 0)) and ((k2.x < VBitmapSize.X) and (k2.y < VBitmapSize.Y)) then begin
@@ -207,38 +210,41 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
-  polygon := TPolygon32.Create;
-  try
-    polygon.Antialiased := true;
-    polygon.AntialiasMode := am4times;
-    polygon.Closed := AIsPoly;
-    PreparePolygon(FPath,polygon);
-    if AIsPoly then begin
-      Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
-    end;
-    with Polygon.Outline do try
-       with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
-         FillMode := pfWinding;
-         DrawFill(FLayer.Bitmap, FPolyLineColor);
-       finally
-         free;
-       end;
-    finally
-      free;
-    end;
-  finally
-    polygon.Free;
-  end;
-
-  VBitmapSize := GetBitmapSizeInPixel;
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VLonLat := FPath[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+    end;
+    polygon := TPolygon32.Create;
     try
-      for i := 0 to VPointsCount - 1 do begin
-        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      polygon.Antialiased := true;
+      polygon.AntialiasMode := am4times;
+      polygon.Closed := AIsPoly;
+      PrepareGR32Polygon(VPointsOnBitmap, polygon);
+      if AIsPoly then begin
+        Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
       end;
+      with Polygon.Outline do try
+         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+           FillMode := pfWinding;
+           DrawFill(FLayer.Bitmap, FPolyLineColor);
+         finally
+           free;
+         end;
+      finally
+        free;
+      end;
+    finally
+      polygon.Free;
+    end;
+
+    VBitmapSize := GetBitmapSizeInPixel;
+    try
       for i := 1 to VPointsCount - 1 do begin
         k1 := VPointsOnBitmap[i];
         if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
@@ -270,36 +276,39 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
-  polygon := TPolygon32.Create;
-  try
-    polygon.Antialiased := true;
-    polygon.AntialiasMode := am4times;
-    polygon.Closed := true;
-    PreparePolygon(FPath,polygon);
-    Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
-    with Polygon.Outline do try
-       with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
-         FillMode := pfWinding;
-         DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
-       finally
-         free;
-       end;
-    finally
-      free;
-    end;
-  finally
-    polygon.Free;
-  end;
-
-  VBitmapSize := GetBitmapSizeInPixel;
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VLonLat := FPath[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+    end;
+    polygon := TPolygon32.Create;
     try
-      for i := 0 to VPointsCount - 1 do begin
-        VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(FPath[i], FZoom));
+      polygon.Antialiased := true;
+      polygon.AntialiasMode := am4times;
+      polygon.Closed := true;
+      PrepareGR32Polygon(VPointsOnBitmap, polygon);
+      Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
+      with Polygon.Outline do try
+         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+           FillMode := pfWinding;
+           DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
+         finally
+           free;
+         end;
+      finally
+        free;
       end;
+    finally
+      polygon.Free;
+    end;
+
+    VBitmapSize := GetBitmapSizeInPixel;
+    try
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
         k1 := DoublePoint(k1.x - 3, k1.y - 3);
@@ -435,55 +444,6 @@ begin
   FPath := nil;
   FSelectedLonLat := ASelectedLonLat;
   Redraw;
-end;
-
-procedure TMapNalLayer.PreparePolygon(pathll: TDoublePointArray; polygon: TPolygon32);
-var
-  i, adp, j, lenpath: integer;
-  k1: TDoublePoint;
-  k2: TDoublePoint;
-  k4: TDoublePoint;
-  k3: TDoublePoint;
-  VLonLat: TDoublePoint;
-begin
-   lenpath:=length(pathll);
-   VLonLat := pathll[0];
-   FGeoConvert.CheckLonLatPos(VLonLat);
-   k1 := FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom);
-   k1 := MapPixel2BitmapPixel(k1);
-   for i := 0 to lenpath-2 do begin
-      VLonLat := pathll[i+1];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      k2 := FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom);
-      k2 := MapPixel2BitmapPixel(k2);
-
-      if (k1.X<32766)and(k1.X>-32766)and(k1.Y<32766)and(k1.Y>-32766) then begin
-        polygon.Add(FixedPoint(k1.X, k1.Y));
-      end;
-
-      if (abs(k1.x)>16383)or(abs(k2.x)>16383)or(abs(k1.y)>16383)or(abs(k2.y)>16383) then begin
-        if abs(k2.x - k1.x) > abs(k2.y - k1.y) then begin
-          adp := (Trunc(abs(k2.x - k1.x) / 32766) + 1)*3;
-        end else begin
-          adp := (Trunc(abs(k2.y - k1.y) / 32766) + 1)*3;
-        end;
-        if adp > 1 then begin
-          k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
-          for j := 1 to adp - 1 do begin
-            k4 := DoublePoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
-            if (k4.X<32766)and(k4.X>-32766)and(k4.Y<32766)and(k4.Y>-32766) then begin
-              polygon.Add(FixedPoint(k4.X, k4.Y));
-            end;
-          end;
-        end;
-      end;
-
-      if (k2.X<32766)and(k2.X>-32766)and(k2.Y<32766)and(k2.Y>-32766) then begin
-        polygon.Add(FixedPoint(k2.X, k2.Y));
-      end;
-
-      k1:=k2;
-  end;
 end;
 
 end.

@@ -5,9 +5,10 @@ interface
 uses
   SysUtils,
   Types,
-  i_ICoordConverter,
+  GR32,
+  GR32_polygons,
   t_GeoTypes,
-  GR32_polygons;
+  i_ICoordConverter;
 
 type
  TDMS = record
@@ -56,8 +57,10 @@ type
   function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
+  procedure PrepareGR32Polygon(APointsOnBitmap: TExtendedPointArray; polygon: TPolygon32);
 
 implementation
+
 
 function GetProj(AConverter: ICoordConverter): string;
 begin
@@ -552,6 +555,48 @@ begin
   if not Result then FillChar(Rect, SizeOf(Rect), 0);
 end;
 
+procedure PrepareGR32Polygon(APointsOnBitmap: TExtendedPointArray; polygon: TPolygon32);
+
+var
+  i, adp, j, lenpath: integer;
+  k1: TextendedPoint;
+  k2: TextendedPoint;
+  k4: TextendedPoint;
+  k3: TextendedPoint;
+begin
+   lenpath:=length(APointsOnBitmap);
+   k1 := APointsOnBitmap[0];
+   for i := 0 to lenpath-2 do begin
+      k2 := APointsOnBitmap[i+1];
+
+      if (k1.X<32766)and(k1.X>-32766)and(k1.Y<32766)and(k1.Y>-32766) then begin
+        polygon.Add(FixedPoint(k1.X, k1.Y));
+      end;
+
+      if (abs(k1.x)>16383)or(abs(k2.x)>16383)or(abs(k1.y)>16383)or(abs(k2.y)>16383) then begin
+        if abs(k2.x - k1.x) > abs(k2.y - k1.y) then begin
+          adp := (Trunc(abs(k2.x - k1.x) / 32766) + 1)*3;
+        end else begin
+          adp := (Trunc(abs(k2.y - k1.y) / 32766) + 1)*3;
+        end;
+        if adp > 1 then begin
+          k3 := extPoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
+          for j := 1 to adp - 1 do begin
+            k4 := extPoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
+            if (k4.X<32766)and(k4.X>-32766)and(k4.Y<32766)and(k4.Y>-32766) then begin
+              polygon.Add(FixedPoint(k4.X, k4.Y));
+            end;
+          end;
+        end;
+      end;
+
+      if (k2.X<32766)and(k2.X>-32766)and(k2.Y<32766)and(k2.Y>-32766) then begin
+        polygon.Add(FixedPoint(k2.X, k2.Y));
+      end;
+
+      k1:=k2;
+  end;
+end;
 
 {
 ֿונוסקוע רטנמעû טח ׁÊ-42 ג WGS-84: WGS84_SK42_Lat(Lat,Long,Height)

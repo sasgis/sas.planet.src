@@ -53,7 +53,6 @@ type
     FBitmapWithText: TBitmap32;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
-    procedure PreparePolygon(pathll: TDoublePointArray; polygon: TPolygon32);
     procedure drawPath(pathll: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
     procedure DrawPoint(ALL: TDoublePoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
   public
@@ -104,56 +103,6 @@ begin
   Result.Y := Pnt.Y - FTargetRect.Top;
 end;
 
-procedure TMapMarksBitmapLayerProviderStupedThreaded.PreparePolygon(
-  pathll: TDoublePointArray; polygon: TPolygon32);
-var
-  i, adp, j, lenpath: integer;
-  k1: TDoublePoint;
-  k2: TDoublePoint;
-  k4: TDoublePoint;
-  k3: TDoublePoint;
-  VLonLat: TDoublePoint;
-begin
-   lenpath:=length(pathll);
-   VLonLat := pathll[0];
-   FGeoConvert.CheckLonLatPos(VLonLat);
-   k1 := FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom);
-   k1 := MapPixel2BitmapPixel(k1);
-   for i := 0 to lenpath-2 do begin
-      VLonLat := pathll[i+1];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      k2 := FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom);
-      k2 := MapPixel2BitmapPixel(k2);
-
-      if (k1.X<32766)and(k1.X>-32766)and(k1.Y<32766)and(k1.Y>-32766) then begin
-        polygon.Add(FixedPoint(k1.X, k1.Y));
-      end;
-
-      if (abs(k1.x)>16383)or(abs(k2.x)>16383)or(abs(k1.y)>16383)or(abs(k2.y)>16383) then begin
-        if abs(k2.x - k1.x) > abs(k2.y - k1.y) then begin
-          adp := (Trunc(abs(k2.x - k1.x) / 32766) + 1)*3;
-        end else begin
-          adp := (Trunc(abs(k2.y - k1.y) / 32766) + 1)*3;
-        end;
-        if adp > 1 then begin
-          k3 := DoublePoint(((k2.X - k1.x) / adp), ((k2.y - k1.y) / adp));
-          for j := 1 to adp - 1 do begin
-            k4 := DoublePoint((k1.x + k3.x * j), (k1.Y + k3.y * j));
-            if (k4.X<32766)and(k4.X>-32766)and(k4.Y<32766)and(k4.Y>-32766) then begin
-              polygon.Add(FixedPoint(k4.X, k4.Y));
-            end;
-          end;
-        end;
-      end;
-
-      if (k2.X<32766)and(k2.X>-32766)and(k2.Y<32766)and(k2.Y>-32766) then begin
-        polygon.Add(FixedPoint(k2.X, k2.Y));
-      end;
-
-      k1:=k2;
-  end;
-end;
-
 destructor TMapMarksBitmapLayerProviderStupedThreaded.Destroy;
 begin
   FreeAndNil(FTempBmp);
@@ -166,33 +115,46 @@ procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath(
   poly: boolean);
 var
   polygon: TPolygon32;
+  i: Integer;
+  VPointsOnBitmap: TExtendedPointArray;
+  VPointsCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
-  try
-    polygon := TPolygon32.Create;
+  VPointsCount := Length(pathll);
+  if VPointsCount > 0 then begin
+    SetLength(VPointsOnBitmap, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VLonLat := pathll[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+    end;
     try
-      polygon.Antialiased := true;
-      polygon.AntialiasMode := am4times;
-      polygon.Closed := poly;
-      if length(pathll) > 0 then begin
-        PreparePolygon(pathll, polygon);
-        if poly then begin
-          Polygon.DrawFill(FTargetBmp, color2);
-        end;
-        with Polygon.Outline do try
-          with Grow(GR32.Fixed(linew / 2), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(FTargetBmp, color1);
+      polygon := TPolygon32.Create;
+      try
+        polygon.Antialiased := true;
+        polygon.AntialiasMode := am4times;
+        polygon.Closed := poly;
+        if length(pathll) > 0 then begin
+          PrepareGR32Polygon(VPointsOnBitmap, polygon);
+          if poly then begin
+            Polygon.DrawFill(FTargetBmp, color2);
+          end;
+          with Polygon.Outline do try
+            with Grow(GR32.Fixed(linew / 2), 0.5) do try
+              FillMode := pfWinding;
+              DrawFill(FTargetBmp, color1);
+            finally
+              free;
+            end;
           finally
             free;
           end;
-        finally
-          free;
         end;
+      finally
+        polygon.Free;
       end;
-    finally
-      polygon.Free;
+    except
     end;
-  except
   end;
 end;
 
