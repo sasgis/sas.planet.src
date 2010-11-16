@@ -91,8 +91,8 @@ var
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
 begin
+  polygon := TPolygon32.Create;
   try
-    polygon := TPolygon32.Create;
     polygon.Antialiased := true;
     polygon.AntialiasMode := am4times;
     polygon.Closed := false;
@@ -208,8 +208,8 @@ var
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
 begin
+  polygon := TPolygon32.Create;
   try
-    polygon := TPolygon32.Create;
     polygon.Antialiased := true;
     polygon.AntialiasMode := am4times;
     polygon.Closed := AIsPoly;
@@ -271,8 +271,8 @@ var
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
 begin
+  polygon := TPolygon32.Create;
   try
-    polygon := TPolygon32.Create;
     polygon.Antialiased := true;
     polygon.AntialiasMode := am4times;
     polygon.Closed := true;
@@ -439,24 +439,13 @@ end;
 
 procedure TMapNalLayer.PreparePolygon(pathll: TExtendedPointArray; polygon: TPolygon32);
 
-function MapPixel2BitmapPixel( Pnt: TExtendedPoint): TExtendedPoint;
-var     VRect: TRect;
-begin
-  VRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
-  VRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
-  Result.X := Pnt.X - VRect.Left;
-  Result.Y := Pnt.Y - VRect.Top;
-end;
-
 var
   i, adp, j, lenpath: integer;
   k1: TextendedPoint;
   k2: TextendedPoint;
   k4: TextendedPoint;
   k3: TextendedPoint;
-  kOld: TextendedPoint;
   VLonLat: TExtendedPoint;
-  pathllbuf:TExtendedPointArray;
 begin
    lenpath:=length(pathll);
    VLonLat := pathll[0];
