@@ -116,9 +116,9 @@ procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath(
 var
   polygon: TPolygon32;
   i: Integer;
-  VPointsOnBitmap: TExtendedPointArray;
+  VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
 begin
   VPointsCount := Length(pathll);
   if VPointsCount > 0 then begin

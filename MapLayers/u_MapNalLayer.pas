@@ -89,7 +89,7 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
@@ -210,7 +210,7 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
@@ -276,7 +276,7 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
