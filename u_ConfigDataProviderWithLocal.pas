@@ -104,8 +104,8 @@ begin
   VSeparatorPos := Pos(':', AIdent);
   if VSeparatorPos > 0 then begin
     VIdentLength := Length(AIdent);
-    VPrefix := UpperCase(LeftStr(AIdent, VSeparatorPos));
-    Result := MidStr(AIdent, VSeparatorPos + 1, VIdentLength - VSeparatorPos - 1);
+    VPrefix := UpperCase(LeftStr(AIdent, VSeparatorPos - 1));
+    Result := MidStr(AIdent, VSeparatorPos + 1, VIdentLength - VSeparatorPos);
   end else begin
     Result := AIdent;
   end;
