@@ -49,7 +49,6 @@ uses
   Ugeofun,
   Unit1,
   u_MarksSimple,
-  u_MarksReadWriteSimple,
   u_WindowLayerBasic;
 
 { TMapMarksLayer }

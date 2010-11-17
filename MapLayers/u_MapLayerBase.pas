@@ -36,7 +36,6 @@ type
 implementation
 
 uses
-  u_JclNotify,
   u_PosChangeListener,
   u_NotifyEventListener;
 

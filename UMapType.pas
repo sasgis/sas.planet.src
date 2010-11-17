@@ -164,7 +164,6 @@ implementation
 
 uses
   Types,
-  Variants,
   GR32_Resamplers,
   KAZip,
   u_GlobalState,
@@ -180,8 +179,6 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_GECache,
-  i_ITileIterator,
-  u_TileIteratorByRect,
   u_TileStorageGEStuped,
   u_TileStorageFileSystem,
   u_CoordConverterBasic,

@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  Imaging,
   GR32,
   i_BitmapTileSaveLoad;
 

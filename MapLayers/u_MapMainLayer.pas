@@ -54,7 +54,6 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  u_JclNotify,
   i_ICoordConverter,
   i_MapTypes,
   Ugeofun,

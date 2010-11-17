@@ -9,7 +9,6 @@ uses
   i_ICoordConverter,
   i_ContentTypeInfo,
   i_ITileInfoBasic,
-  i_IConfigDataProvider,
   u_MapTypeCacheConfig;
 
 type

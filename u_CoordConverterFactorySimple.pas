@@ -19,7 +19,6 @@ implementation
 uses
   SysUtils,
   c_CoordConverter,
-  u_CoordConverterBasic,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;

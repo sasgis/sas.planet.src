@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  i_ContentTypeInfo,
   u_ContentConverterBase;
 
 type

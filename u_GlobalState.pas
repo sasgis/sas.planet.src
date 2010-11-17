@@ -9,7 +9,6 @@ uses
   IniFiles,
   SyncObjs,
   GR32,
-  t_GeoTypes,
   t_CommonTypes,
   i_ILanguageManager,
   i_IMemObjCache,
@@ -248,18 +247,12 @@ implementation
 
 uses
   SysUtils,
-  Dialogs,
-  gnugettext,
   i_MapTypes,
   i_BitmapTileSaveLoad,
-  u_ConfigDataProviderByKaZip,
-  u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_MapTypeBasic,
   u_MapTypeListGeneratorFromFullListBasic,
-  i_IFileNameIterator,
-  u_ZmpFileNamesIteratorFactory,
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
@@ -271,7 +264,6 @@ uses
   u_MapTypeIconsList,
   u_CoordConverterFactorySimple,
   u_LanguageManager,
-  UResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }

@@ -37,7 +37,6 @@ implementation
 uses
   Classes,
   GR32_PolygonsEx,
-  GR32_VPR,
   GR32_VectorUtils,
   u_JclNotify,
   i_ICoordConverter,

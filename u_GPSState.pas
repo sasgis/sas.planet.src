@@ -77,7 +77,6 @@ type
 implementation
 
 uses
-  u_JclNotify,
   t_GeoTypes,
   i_GPS,
   i_ICoordConverter,

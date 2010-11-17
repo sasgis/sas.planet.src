@@ -54,7 +54,6 @@ uses
   SysUtils,
   Variants,
   c_CoordConverter,
-  u_ContentTypeInfo,
   u_TileInfoBasic,
   u_GECrypt,
   u_GlobalState;

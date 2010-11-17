@@ -33,8 +33,7 @@ type
 
 implementation
 
-uses
-  Ugeofun;
+
 
 { TTileIteratorByPolygonAbstract }
 
