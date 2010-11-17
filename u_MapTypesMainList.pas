@@ -3,6 +3,7 @@ unit u_MapTypesMainList;
 interface
 
 uses
+  i_IConfigDataProvider,
   UMapType;
 
 type
@@ -11,6 +12,7 @@ type
     FMapType: array of TMapType;
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
+    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
   public
     destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
@@ -26,7 +28,6 @@ uses
   SysUtils,
   IniFiles,
   Dialogs,
-  i_IConfigDataProvider,
   i_IFileNameIterator,
   u_ZmpFileNamesIteratorFactory,
   u_ConfigDataProviderByIniFile,
@@ -73,6 +74,33 @@ begin
   Result := FMapType[index];
 end;
 
+function TMapTypesMainList.LoadGUID(AConfig: IConfigDataProvider): TGUID;
+var
+  VGUIDStr: String;
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('params.txt');
+  if VParams <> nil then begin
+    VParams := VParams.GetSubItem('PARAMS');
+    if VParams <> nil then begin
+      VGUIDStr := VParams.ReadString('GUID', '');
+      if Length(VGUIDStr) > 0 then begin
+        try
+          Result := StringToGUID(VGUIDStr);
+        except
+          raise EBadGUID.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
+        end;
+      end else begin
+        raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
+      end;
+    end else begin
+      raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
+    end;
+  end else begin
+    raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
+  end;
+end;
+
 procedure TMapTypesMainList.LoadMaps;
 var
   Ini: TMeminifile;
@@ -86,6 +114,7 @@ var
   VMapTypeCount: integer;
   VFilesIteratorFactory: IFileNameIteratorFactory;
   VFilesIterator: IFileNameIterator;
+  VGUID: TGUID;
 begin
   SetLength(FMapType, 0);
   CreateDir(GState.MapsPath);
@@ -98,28 +127,28 @@ begin
   while VFilesIterator.Next(VFileName) do begin
     VFullFileName := VFilesIterator.GetRootFolderName + VFileName;
     try
-      VMapType := TMapType.Create;
       if FileExists(VFullFileName) then begin
         VMapConfig := TConfigDataProviderByKaZip.Create(VFullFileName);
       end else begin
         VMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
       end;
       try
-        VMapType.LoadMapType(VMapConfig, VLocalMapsConfig, VMapTypeCount);
+        VGUID := LoadGUID(VMapConfig);
       except
         on E: EBadGUID do begin
           raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
         end;
       end;
-      VMapTypeLoaded := GetMapFromID(VMapType.GUID);
+      VMapTypeLoaded := GetMapFromID(VGUID);
       if VMapTypeLoaded <> nil then begin
         raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
       end;
+      VMapType := TMapType.Create(VGUID, VMapConfig, VLocalMapsConfig, VMapTypeCount);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);
       end;
-      FreeAndNil(VMapType);
+      VMapType := nil;
     end;
     if VMapType <> nil then begin
       SetLength(FMapType, VMapTypeCount + 1);

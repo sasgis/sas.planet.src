@@ -77,7 +77,6 @@ type
     function GetGUIDString: string;
     function GetMIMETypeSubst(AMimeType: string): string;
     procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
-    procedure LoadGUIDFromIni(AConfig : IConfigDataProvider);
     procedure LoadMapIcons(AConfig : IConfigDataProvider);
     procedure LoadUrlScript(AConfig : IConfigDataProvider);
     procedure LoadDownloader(AConfig : IConfigDataProvider);
@@ -93,6 +92,7 @@ type
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
+    procedure LoadMapType(AConfig, AAllMapsConfig : IConfigDataProvider; Apnum : Integer);
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
@@ -155,9 +155,8 @@ type
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
     property Cache: ITileObjCache read FCache;
 
-    constructor Create;
+    constructor Create(AGUID: TGUID; AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
     destructor Destroy; override;
-    procedure LoadMapType(AConfig, AAllMapsConfig : IConfigDataProvider; Apnum : Integer);
  end;
 
 implementation
@@ -204,24 +203,6 @@ begin
   end else begin
       showinfo:=true;
       if id < 0 then id := 1000;
-  end;
-end;
-
-procedure TMapType.LoadGUIDFromIni(AConfig: IConfigDataProvider);
-var
-  VGUIDStr: String;
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  VGUIDStr := VParams.ReadString('GUID', '');
-  if Length(VGUIDStr) > 0 then begin
-    try
-      FGuid := StringToGUID(VGUIDStr);
-    except
-      raise EBadGUID.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
-    end;
-  end else begin
-    raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
   end;
 end;
 
@@ -437,7 +418,6 @@ var
 begin
   FName:='map#'+inttostr(Apnum);
   FZMPFileName := AConfig.ReadString('::FileName', FName);
-  LoadGUIDFromIni(AConfig);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
@@ -697,12 +677,14 @@ begin
   else Result:= FCoordConverter;
 end;
 
-constructor TMapType.Create;
+constructor TMapType.Create(AGUID: TGUID; AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
 begin
+  FGuid := AGUID;
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
+  LoadMapType(AConfig, AAllMapsConfig, Apnum);
 end;
 
 destructor TMapType.Destroy;
