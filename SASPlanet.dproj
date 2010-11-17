@@ -377,6 +377,7 @@
     <DCCReference Include="u_MapTypeMenuItemBasic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeMenuItmesList.pas" />
+    <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapViewGotoOnFMain.pas" />
     <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MarkBasic.pas" />
