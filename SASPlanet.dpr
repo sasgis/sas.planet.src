@@ -47,6 +47,7 @@ uses
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
   u_ConfigDataProviderByIniFileSection in 'u_ConfigDataProviderByIniFileSection.pas',
   u_ConfigDataProviderByFolder in 'u_ConfigDataProviderByFolder.pas',
+  u_ConfigProviderWithLocal in 'u_ConfigProviderWithLocal.pas',
   u_ConfigDataWriteProviderByIniFileSection in 'u_ConfigDataWriteProviderByIniFileSection.pas',
   u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
   u_SaveLoadTBConfigByConfigProvider in 'u_SaveLoadTBConfigByConfigProvider.pas',
