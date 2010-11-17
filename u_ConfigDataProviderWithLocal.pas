@@ -11,7 +11,7 @@ type
   private
     FProviderMain: IConfigDataProvider;
     FProviderLocal: IConfigDataProvider;
-    function PrepareIdent(const AIdent: string; var AUseMain, AUseLocal: Boolean): string;
+    function PrepareIdent(const AIdent: string; out AUseMain, AUseLocal: Boolean): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
     function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
@@ -66,7 +66,7 @@ var
   VSubItemMain: IConfigDataProvider;
   VSubItemLocal: IConfigDataProvider;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   if VUseMain then begin
     if FProviderMain <> nil then begin
       VSubItemMain := FProviderMain.GetSubItem(VIdent);
@@ -81,7 +81,7 @@ begin
     if (VSubItemMain = nil) and (VSubItemLocal = nil) then begin
       Result := nil;
     end else begin
-      Result := TConfigDataProviderWithLocal.Create;
+      Result := TConfigDataProviderWithLocal.Create(VSubItemMain, VSubItemLocal);
     end;
   end else if VUseLocal then begin
     Result := VSubItemLocal;
@@ -94,7 +94,7 @@ end;
 
 function TConfigDataProviderWithLocal.PrepareIdent(
   const AIdent: string;
-  var AUseMain,
+  out AUseMain,
   AUseLocal: Boolean): string;
 var
   VPrefix: string;
@@ -125,7 +125,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := 0;
   if VUseLocal and (FProviderLocal <> nil) then begin
     Result := FProviderLocal.ReadBinaryStream(VIdent, AValue);
@@ -142,7 +142,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadBool(VIdent, Result);
@@ -159,7 +159,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadDate(VIdent, Result);
@@ -176,7 +176,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadDateTime(VIdent, Result);
@@ -193,7 +193,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadFloat(VIdent, Result);
@@ -210,7 +210,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadInteger(VIdent, Result);
@@ -227,7 +227,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadString(VIdent, Result);
@@ -265,7 +265,7 @@ var
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
+  VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
   Result := ADefault;
   if VUseMain and (FProviderMain <> nil) then begin
     Result := FProviderMain.ReadTime(VIdent, Result);
