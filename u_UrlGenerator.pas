@@ -80,7 +80,7 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FURLBase := VParams.ReadString('DefURLBase', 'http://maps.google.com/');
+  FURLBase := VParams.ReadString('DefURLBase', '');
   FDefUrlBase := URLBase;
 end;
 
