@@ -61,7 +61,7 @@ var
   VMapType: TMapType;
   VGUID: TGUID;
 begin
-  for i := 0 to Length(GState.MapType) - 1 do begin
+  for i := 0 to GState.MapType.Count - 1 do begin
     VMapType := GState.MapType[i];
     VGUID := VMapType.GUID;
     if FList.GetMapTypeByGUID(VGUID) <> nil then begin

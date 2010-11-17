@@ -153,7 +153,7 @@ begin
   cbbMap.Items.Clear;
   cbbHybr.Items.Clear;
   cbbHybr.Items.Add(SAS_STR_No);
-  For i:=0 to length(GState.MapType)-1 do begin
+  For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.UseStick and VMapType.IsBitmapTiles then begin
       if not VMapType.asLayer then begin

@@ -261,7 +261,6 @@ uses
 procedure TFSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
-    GState.SaveMaps;
     GState.ViewState.SaveViewPortState(AProvider);
     GState.SaveMainParams;
     Fmain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
@@ -301,30 +300,14 @@ begin
 end;
 
 procedure TFSettings.btnApplyClick(Sender: TObject);
-var i,k,j:integer;
-    MTb:TMapType;
+var
+  i: integer;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
    TMapType(MapList.Items.Item[i].data).id:=i+1;
   end;
-  k := length(GState.MapType) shr 1;
- while k>0 do
-  begin
-   for i:=0 to length(GState.MapType)-k-1 do
-    begin
-      j:=i;
-      while (j>=0)and(GState.MapType[j].id>GState.MapType[j+k].id) do
-      begin
-        MTb:=GState.MapType[j];
-        GState.MapType[j]:=GState.MapType[j+k];
-        GState.MapType[j+k]:=MTb;
-        if j>k then Dec(j,k)
-               else j:=0;
-      end;
-    end;
-   k:=k shr 1;
-  end;
+ GState.MapType.SortList;
 
  Fmain.LayerMiniMap.MasterAlpha:=MiniMapAlphaEdit.Value;
 
@@ -761,7 +744,7 @@ var
   VMapType: TMapType;
 begin
   MapList.Clear;
-  for i:=0 to length(GState.MapType)-1 do begin
+  for i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     With VMapType do begin
       MapList.AddItem(VMapType.name,nil);

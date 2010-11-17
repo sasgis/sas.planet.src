@@ -102,7 +102,7 @@ begin
 
   VActiveMap := GState.ViewState.GetCurrentMap;
   chklstMaps.Items.Clear;
-  For i:=0 to length(GState.MapType)-1 do begin
+  For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     VAddedIndex := chklstMaps.Items.AddObject(VMapType.name, VMapType);
     if VMapType = VActiveMap then begin

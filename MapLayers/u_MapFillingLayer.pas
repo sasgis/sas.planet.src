@@ -133,7 +133,7 @@ begin
       VGUIDString := VConfigProvider.ReadString('Map','');
       if VGUIDString <> '' then begin
         VGUID := StringToGUID(VGUIDString);
-        VFillingmaptype:=GState.GetMapFromID(VGUID);
+        VFillingmaptype:=GState.MapType.GetMapFromID(VGUID);
       end else begin
         VFillingmaptype := nil;
       end;

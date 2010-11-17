@@ -51,7 +51,7 @@ var
 begin
   VList := TMapTypeList.Create;
   Result := VList;
-  for i := 0 to Length(GState.MapType) - 1 do begin
+  for i := 0 to GState.MapType.Count - 1 do begin
     VMapType := GState.MapType[i];
     if CheckIsAddMap(VMapType) then begin
       VList.Add(FItemFactory.CreateItem(VMapType));

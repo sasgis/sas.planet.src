@@ -68,7 +68,7 @@ begin
   cbbZoom.ItemIndex := AZoom;
 
   VActiveMap := GState.ViewState.GetCurrentMap;
-  For i:=0 to length(GState.MapType)-1 do begin
+  For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.IsBitmapTiles then begin
       if VMapType.TileStorage.GetIsStoreFileCache then begin

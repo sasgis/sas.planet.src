@@ -791,7 +791,7 @@ var
   VWikiLayersVisible: Boolean;
 begin
   VWikiLayersVisible := False;
-  for i:=0 to length(GState.MapType)-1 do begin
+  for i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.asLayer then begin
       if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
@@ -1350,8 +1350,8 @@ begin
   for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
   for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
 
-  if length(GState.MapType)>0 then begin
-    for i:=0 to length(GState.MapType)-1 do begin
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
       VMapType := GState.MapType[i];
       VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
       With VMapType do begin
@@ -1677,7 +1677,7 @@ begin
         param:=paramstr(1);
         if param<>'' then begin
           VGUID := StringToGUID(param);
-          VMapType := GState.GetMapFromID(VGUID);
+          VMapType := GState.MapType.GetMapFromID(VGUID);
           if VMapType <> nil then begin
             GState.ViewState.ChangeMainMapAtCurrentPoint(VMapType);
           end;
@@ -1859,7 +1859,7 @@ begin
   end;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  if length(GState.MapType)<>0 then FSettings.Save(GState.MainConfigProvider);
+  if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;
@@ -2719,7 +2719,7 @@ var
 begin
   ldm.Visible:=false;
   dlm.Visible:=false;
-  For i:=0 to length(GState.MapType)-1 do begin
+  For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
       VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
@@ -3830,7 +3830,7 @@ var
   VLayerIsActive: Boolean;
 begin
   NLayerParams.Visible:=false;
-  For i:=0 to length(GState.MapType)-1 do begin
+  For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
       VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);

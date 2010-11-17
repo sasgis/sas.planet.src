@@ -236,7 +236,7 @@ begin
               if change_scene then begin
                 Break;
               end;
-              for ii := 0 to length(GState.MapType) - 1 do begin
+              for ii := 0 to GState.MapType.Count - 1 do begin
                 if Terminated then begin
                   break;
                 end;

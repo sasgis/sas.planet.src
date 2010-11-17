@@ -145,7 +145,7 @@ begin
   finally
     ini.Free;
   end;
-  FMapType := GState.GetMapFromID(VGuid);
+  FMapType := GState.MapType.GetMapFromID(VGuid);
   if FMapType = nil then Terminate;
   if length(FPolygLL) = 0 then Terminate;
   if Terminated then begin
