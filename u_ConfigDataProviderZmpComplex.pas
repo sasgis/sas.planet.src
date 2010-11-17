@@ -20,6 +20,7 @@ implementation
 uses
   Classes,
   u_ConfigDataProviderWithUseDepreciated,
+  u_ConfigDataProviderVirtualWithSubItem,
   u_ConfigDataProviderWithReplacedSubItem;
 
 { TConfigDataProviderZmpComplex }
@@ -31,6 +32,7 @@ var
   VParamsTXT: IConfigDataProvider;
   VParams: IConfigDataProvider;
   VRenamesList: TStringList;
+  VLocalMapConfig: IConfigDataProvider;
 begin
   VConfig := AZmpMapConfig;
   VParamsTXT := VConfig.GetSubItem('params.txt');
@@ -46,7 +48,17 @@ begin
   end;
   VParamsTXT := TConfigDataProviderWithReplacedSubItem.Create(VParamsTXT, 'PARAMS', VParams);
   VConfig := TConfigDataProviderWithReplacedSubItem.Create(VConfig, 'params.txt', VParamsTXT);
-  inherited Create(VConfig, ALocalMapConfig);
+
+  VLocalMapConfig :=
+    TConfigDataProviderVirtualWithSubItem.Create(
+      'params.txt',
+      TConfigDataProviderVirtualWithSubItem.Create(
+        'PARAMS',
+        ALocalMapConfig
+      )
+    );
+
+  inherited Create(VConfig, VLocalMapConfig);
 end;
 
 end.
