@@ -40,8 +40,8 @@ begin
 
   VRenamesList := TStringList.Create;
   try
-    VRenamesList.Values['DefURLBase'] := 'URLBase';
-    VRenamesList.Values['DefHotKey'] := 'HotKey';
+    VRenamesList.Values['URLBase'] := 'DefURLBase';
+    VRenamesList.Values['HotKey'] := 'DefHotKey';
     VParams := TConfigDataProviderWithUseDepreciated.Create(VParams, VRenamesList);
   finally
     VRenamesList.Free;
