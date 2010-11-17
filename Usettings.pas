@@ -305,7 +305,7 @@ var
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
-   TMapType(MapList.Items.Item[i].data).id:=i+1;
+   TMapType(MapList.Items.Item[i].data).FSortIndex:=i+1;
   end;
  GState.MapType.SortList;
 

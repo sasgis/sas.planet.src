@@ -33,6 +33,7 @@ uses
   u_ConfigDataProviderByIniFile,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByKaZip,
+  u_ConfigDataProviderZmpComplex,
   u_GlobalState,
   UResStrings;
 
@@ -107,8 +108,11 @@ var
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
-  VMapConfig: IConfigDataProvider;
   VLocalMapsConfig: IConfigDataProvider;
+
+  VZmpMapConfig: IConfigDataProvider;
+  VLocalMapConfig: IConfigDataProvider;
+  VMapConfig: IConfigDataProvider;
   VFileName: WideString;
   VFullFileName: string;
   VMapTypeCount: integer;
@@ -128,12 +132,12 @@ begin
     VFullFileName := VFilesIterator.GetRootFolderName + VFileName;
     try
       if FileExists(VFullFileName) then begin
-        VMapConfig := TConfigDataProviderByKaZip.Create(VFullFileName);
+        VZmpMapConfig := TConfigDataProviderByKaZip.Create(VFullFileName);
       end else begin
-        VMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
+        VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
       end;
       try
-        VGUID := LoadGUID(VMapConfig);
+        VGUID := LoadGUID(VZmpMapConfig);
       except
         on E: EBadGUID do begin
           raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
@@ -143,7 +147,10 @@ begin
       if VMapTypeLoaded <> nil then begin
         raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
       end;
-      VMapType := TMapType.Create(VGUID, VMapConfig, VLocalMapsConfig, VMapTypeCount);
+
+      VLocalMapConfig := VLocalMapsConfig.GetSubItem(GUIDToString(VGUID));
+      VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
+      VMapType := TMapType.Create(VGUID, VMapConfig, VMapTypeCount);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);
@@ -181,7 +188,7 @@ begin
     for i := 0 to length(FMapType) - 1 do begin
       VMapType := FMapType[i];
       VGUIDString := VMapType.GUIDString;
-      ini.WriteInteger(VGUIDString, 'pnum', VMapType.id);
+      ini.WriteInteger(VGUIDString, 'pnum', VMapType.FSortIndex);
 
 
       if VMapType.UrlGenerator.URLBase <> VMapType.UrlGenerator.DefURLBase then begin
@@ -241,7 +248,7 @@ begin
   while k > 0 do begin
     for i := 0 to length(FMapType) - k - 1 do begin
       j := i;
-      while (j >= 0) and (FMapType[j].id > FMapType[j + k].id) do begin
+      while (j >= 0) and (FMapType[j].FSortIndex > FMapType[j + k].FSortIndex) do begin
         MTb := FMapType[j];
         FMapType[j] := FMapType[j + k];
         FMapType[j + k] := MTb;
@@ -255,7 +262,7 @@ begin
     k := k shr 1;
   end;
   for i := 0 to length(FMapType) - 1 do begin
-    FMapType[i].id := i + 1;
+    FMapType[i].FSortIndex := i + 1;
   end;
 end;
 

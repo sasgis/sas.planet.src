@@ -85,20 +85,19 @@ type
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
     procedure LoadUIParams(AConfig : IConfigDataProvider);
     procedure LoadMapInfo(AConfig : IConfigDataProvider);
-    procedure LoadGlobalConfig(AConfig : IConfigDataProvider);
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
-    procedure LoadMapType(AConfig, AAllMapsConfig : IConfigDataProvider; Apnum : Integer);
+    procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     function GetUseGenPrevious: boolean;
    public
-    id: integer;
+    FSortIndex: integer;
     HotKey: TShortCut;
     separator: boolean;
     ParentSubMenu: string;
@@ -155,7 +154,7 @@ type
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
     property Cache: ITileObjCache read FCache;
 
-    constructor Create(AGUID: TGUID; AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
+    constructor Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);
     destructor Destroy; override;
  end;
 
@@ -184,27 +183,6 @@ uses
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat;
-
-procedure TMapType.LoadGlobalConfig(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem(GUIDString);
-  if VParams <> nil then begin
-      id:=VParams.ReadInteger('pnum',id);
-      FUrlGenerator.URLBase:=VParams.ReadString('URLBase',FUrlGenerator.URLBase);
-      TileStorage.CacheConfig.CacheType:=VParams.ReadInteger('CacheType',TileStorage.CacheConfig.cachetype);
-      TileStorage.CacheConfig.NameInCache:=VParams.ReadString('NameInCache',TileStorage.CacheConfig.NameInCache);
-      HotKey:=VParams.ReadInteger('HotKey',HotKey);
-      ParentSubMenu:=VParams.ReadString('ParentSubMenu',ParentSubMenu);
-      DownloaderFactory.WaitInterval:=VParams.ReadInteger('Sleep',DownloaderFactory.WaitInterval);
-      separator:=VParams.ReadBool('separator',separator);
-      showinfo:=false;
-  end else begin
-      showinfo:=true;
-      if id < 0 then id := 1000;
-  end;
-end;
 
 procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
 var
@@ -376,7 +354,7 @@ begin
   FDefParentSubMenu:=ParentSubMenu;
   separator:=VParams.ReadBool('separator',false);
   FDefseparator:=separator;
-  id:=VParams.ReadInteger('pnum',-1);
+  FSortIndex:=VParams.ReadInteger('pnum',-1);
 end;
 
 procedure TMapType.LoadDownloader(AConfig: IConfigDataProvider);
@@ -412,7 +390,7 @@ begin
   end;
 end;
 
-procedure TMapType.LoadMapType(AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
+procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
 var
   VParams: IConfigDataProvider;
 begin
@@ -421,6 +399,13 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
+  if FSortIndex < 0 then begin
+    FSortIndex := 1000;
+    showinfo := True;
+  end else begin
+    showinfo := False;
+  end;
+
   LoadMapInfo(AConfig);
   LoadProjectionInfo(AConfig);
   LoadStorageParams(AConfig);
@@ -431,7 +416,6 @@ begin
   LoadMimeTypeSubstList(AConfig);
   LoadUrlScript(AConfig);
   LoadDownloader(AConfig);
-  LoadGlobalConfig(AAllMapsConfig);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -677,14 +661,14 @@ begin
   else Result:= FCoordConverter;
 end;
 
-constructor TMapType.Create(AGUID: TGUID; AConfig, AAllMapsConfig: IConfigDataProvider; Apnum: Integer);
+constructor TMapType.Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);
 begin
   FGuid := AGUID;
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
-  LoadMapType(AConfig, AAllMapsConfig, Apnum);
+  LoadMapType(AConfig, Apnum);
 end;
 
 destructor TMapType.Destroy;

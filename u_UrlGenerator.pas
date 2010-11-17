@@ -80,8 +80,8 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FURLBase := VParams.ReadString('DefURLBase', '');
-  FDefUrlBase := URLBase;
+  FURLBase := VParams.ReadString('URLBase', '');
+  FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');;
 end;
 
 function TUrlGeneratorBasic.GenLink(Ax, Ay: Integer; Azoom: byte): string;

@@ -1380,7 +1380,7 @@ begin
           MainToolbarSubMenuItem := TTBXSubmenuItem(FMainToolbarSubMenuItemList.GetByGUID(GState.MapType[j].GUID));
           MainToolbarSubMenuItem.Add(MainToolbarItem);
         end;
-        MainToolbarItem.Name:='TBMapN'+inttostr(id);
+        MainToolbarItem.Name:='TBMapN'+inttostr(FSortIndex);
         MainToolbarItem.ShortCut:=HotKey;
         MainToolbarItem.ImageIndex:= VIcon18Index;
         MainToolbarItem.Caption:=name;
@@ -1389,7 +1389,7 @@ begin
 
         TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
         FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
-        TBFillingItem.name:='TBMapFM'+inttostr(id);
+        TBFillingItem.name:='TBMapFM'+inttostr(FSortIndex);
         TBFillingItem.ImageIndex:=VIcon18Index;
         TBFillingItem.Caption:=name;
         TBFillingItem.OnAdjustFont:=AdjustFont;
