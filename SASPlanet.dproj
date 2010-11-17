@@ -308,6 +308,8 @@
     <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
     <DCCReference Include="u_ConfigDataProviderVirtualWithSubItem.pas" />
     <DCCReference Include="u_ConfigDataProviderWithLocal.pas" />
+    <DCCReference Include="u_ConfigDataProviderWithReplacedSubItem.pas" />
+    <DCCReference Include="u_ConfigDataProviderWithUseDepreciated.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
     <DCCReference Include="u_ContentConverterBase.pas" />
