@@ -1,4 +1,4 @@
-unit u_ConfigProviderWithLocal;
+unit u_ConfigDataProviderWithLocal;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   i_IConfigDataProvider;
 
 type
-  TConfigProviderWithLocal = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderWithLocal = class(TInterfacedObject, IConfigDataProvider)
   private
     FProviderMain: IConfigDataProvider;
     FProviderLocal: IConfigDataProvider;
@@ -35,9 +35,9 @@ uses
   StrUtils,
   SysUtils;
 
-{ TConfigProviderWithLocal }
+{ TConfigDataProviderWithLocal }
 
-function TConfigProviderWithLocal.GetSubItem(
+function TConfigDataProviderWithLocal.GetSubItem(
   const AIdent: string): IConfigDataProvider;
 var
   VIdent: string;
@@ -61,7 +61,7 @@ begin
     if (VSubItemMain = nil) and (VSubItemLocal = nil) then begin
       Result := nil;
     end else begin
-      Result := TConfigProviderWithLocal.Create;
+      Result := TConfigDataProviderWithLocal.Create;
     end;
   end else if VUseLocal then begin
     Result := VSubItemLocal;
@@ -72,7 +72,7 @@ begin
   end;
 end;
 
-function TConfigProviderWithLocal.PrepareIdent(
+function TConfigDataProviderWithLocal.PrepareIdent(
   const AIdent: string;
   var AUseMain,
   AUseLocal: Boolean): string;
@@ -98,7 +98,7 @@ begin
   end;
 end;
 
-function TConfigProviderWithLocal.ReadBinaryStream(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadBinaryStream(const AIdent: string;
   AValue: TStream): Integer;
 var
   VIdent: string;
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-function TConfigProviderWithLocal.ReadBool(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadBool(const AIdent: string;
   const ADefault: Boolean): Boolean;
 var
   VIdent: string;
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-function TConfigProviderWithLocal.ReadDate(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadDate(const AIdent: string;
   const ADefault: TDateTime): TDateTime;
 var
   VIdent: string;
@@ -140,10 +140,16 @@ var
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  Result := ADefault;
+  if VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadDate(VIdent, Result);
+  end;
+  if VUseLocal and (FProviderLocal <> nil) then begin
+    Result := FProviderLocal.ReadDate(VIdent, Result);
+  end;
 end;
 
-function TConfigProviderWithLocal.ReadDateTime(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadDateTime(const AIdent: string;
   const ADefault: TDateTime): TDateTime;
 var
   VIdent: string;
@@ -151,10 +157,16 @@ var
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  Result := ADefault;
+  if VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadDateTime(VIdent, Result);
+  end;
+  if VUseLocal and (FProviderLocal <> nil) then begin
+    Result := FProviderLocal.ReadDateTime(VIdent, Result);
+  end;
 end;
 
-function TConfigProviderWithLocal.ReadFloat(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadFloat(const AIdent: string;
   const ADefault: Double): Double;
 var
   VIdent: string;
@@ -162,10 +174,16 @@ var
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  Result := ADefault;
+  if VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadFloat(VIdent, Result);
+  end;
+  if VUseLocal and (FProviderLocal <> nil) then begin
+    Result := FProviderLocal.ReadFloat(VIdent, Result);
+  end;
 end;
 
-function TConfigProviderWithLocal.ReadInteger(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadInteger(const AIdent: string;
   const ADefault: Integer): Longint;
 var
   VIdent: string;
@@ -173,10 +191,16 @@ var
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  Result := ADefault;
+  if VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadInteger(VIdent, Result);
+  end;
+  if VUseLocal and (FProviderLocal <> nil) then begin
+    Result := FProviderLocal.ReadInteger(VIdent, Result);
+  end;
 end;
 
-function TConfigProviderWithLocal.ReadString(const AIdent,
+function TConfigDataProviderWithLocal.ReadString(const AIdent,
   ADefault: string): string;
 var
   VIdent: string;
@@ -184,20 +208,37 @@ var
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  Result := ADefault;
+  if VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadString(VIdent, Result);
+  end;
+  if VUseLocal and (FProviderLocal <> nil) then begin
+    Result := FProviderLocal.ReadString(VIdent, Result);
+  end;
 end;
 
-procedure TConfigProviderWithLocal.ReadSubItemsList(AList: TStrings);
+procedure TConfigDataProviderWithLocal.ReadSubItemsList(AList: TStrings);
 var
-  VIdent: string;
-  VUseLocal: Boolean;
-  VUseMain: Boolean;
+  VList: TStrings;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  VList := TStringList.Create;
+  try
+    if (FProviderMain <> nil) then begin
+      VList.Clear;
+      FProviderMain.ReadSubItemsList(VList);
+      AList.AddStrings(VList);
+    end;
+    if (FProviderLocal <> nil) then begin
+      VList.Clear;
+      FProviderLocal.ReadSubItemsList(VList);
+      AList.AddStrings(VList);
+    end;
+  finally
+    VList.Free;
+  end;
 end;
 
-function TConfigProviderWithLocal.ReadTime(const AIdent: string;
+function TConfigDataProviderWithLocal.ReadTime(const AIdent: string;
   const ADefault: TDateTime): TDateTime;
 var
   VIdent: string;
@@ -205,17 +246,34 @@ var
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  Result := ADefault;
+  if VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadTime(VIdent, Result);
+  end;
+  if VUseLocal and (FProviderLocal <> nil) then begin
+    Result := FProviderLocal.ReadTime(VIdent, Result);
+  end;
 end;
 
-procedure TConfigProviderWithLocal.ReadValuesList(AList: TStrings);
+procedure TConfigDataProviderWithLocal.ReadValuesList(AList: TStrings);
 var
-  VIdent: string;
-  VUseLocal: Boolean;
-  VUseMain: Boolean;
+  VList: TStrings;
 begin
-  VIdent := PrepareIdent(AIdent, VUseLocal, VUseLocal);
-
+  VList := TStringList.Create;
+  try
+    if (FProviderMain <> nil) then begin
+      VList.Clear;
+      FProviderMain.ReadValuesList(VList);
+      AList.AddStrings(VList);
+    end;
+    if (FProviderLocal <> nil) then begin
+      VList.Clear;
+      FProviderLocal.ReadValuesList(VList);
+      AList.AddStrings(VList);
+    end;
+  finally
+    VList.Free;
+  end;
 end;
 
 end.
