@@ -12,11 +12,13 @@ type
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
   public
+    destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
     property Count: Integer read GetCount;
     procedure SaveMaps;
     procedure LoadMaps;
     function GetMapFromID(id: TGUID): TMapType;
+    procedure SortList;
   end;
 implementation
 
@@ -34,6 +36,17 @@ uses
   UResStrings;
 
 { TMapTypesMainList }
+
+destructor TMapTypesMainList.Destroy;
+var
+  i: integer;
+begin
+  for i := 0 to Length(FMapType) - 1 do begin
+    FreeAndNil(FMapType[i]);
+  end;
+  FMapType := nil;
+  inherited;
+end;
 
 function TMapTypesMainList.GetCount: Integer;
 begin
@@ -63,8 +76,6 @@ end;
 procedure TMapTypesMainList.LoadMaps;
 var
   Ini: TMeminifile;
-  i, j, k: integer;
-  MTb: TMapType;
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
@@ -126,27 +137,7 @@ begin
   if VMapOnlyCount = 0 then begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
-
-  k := length(FMapType) shr 1;
-  while k > 0 do begin
-    for i := 0 to length(FMapType) - k - 1 do begin
-      j := i;
-      while (j >= 0) and (FMapType[j].id > FMapType[j + k].id) do begin
-        MTb := FMapType[j];
-        FMapType[j] := FMapType[j + k];
-        FMapType[j + k] := MTb;
-        if j > k then begin
-          Dec(j, k);
-        end else begin
-          j := 0;
-        end;
-      end;
-    end;
-    k := k shr 1;
-  end;
-  for i := 0 to length(FMapType) - 1 do begin
-    FMapType[i].id := i + 1;
-  end;
+  SortList;
 end;
 
 procedure TMapTypesMainList.SaveMaps;
@@ -209,6 +200,33 @@ begin
     Ini.UpdateFile;
   finally
     ini.Free;
+  end;
+end;
+
+procedure TMapTypesMainList.SortList;
+var
+  i, j, k: integer;
+  MTb: TMapType;
+begin
+  k := length(FMapType) shr 1;
+  while k > 0 do begin
+    for i := 0 to length(FMapType) - k - 1 do begin
+      j := i;
+      while (j >= 0) and (FMapType[j].id > FMapType[j + k].id) do begin
+        MTb := FMapType[j];
+        FMapType[j] := FMapType[j + k];
+        FMapType[j + k] := MTb;
+        if j > k then begin
+          Dec(j, k);
+        end else begin
+          j := 0;
+        end;
+      end;
+    end;
+    k := k shr 1;
+  end;
+  for i := 0 to length(FMapType) - 1 do begin
+    FMapType[i].id := i + 1;
   end;
 end;
 
