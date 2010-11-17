@@ -43,6 +43,7 @@ uses
 constructor TConfigDataProviderWithUseDepreciated.Create(
   ASource: IConfigDataProvider; AIdentRenamesList: TStringList);
 begin
+  FSource := ASource;
   FIdentRenamesList := TStringList.Create;
   FIdentRenamesList.Assign(AIdentRenamesList);
 end;
