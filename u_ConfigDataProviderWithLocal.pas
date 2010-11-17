@@ -26,6 +26,12 @@ type
     procedure ReadSubItemsList(AList: TStrings); virtual;
     procedure ReadValuesList(AList: TStrings); virtual;
   public
+    constructor Create(
+      AProviderMain: IConfigDataProvider;
+      AProviderLocal: IConfigDataProvider
+    );
+    destructor Destroy; override;
+  public
 
   end;
 
@@ -36,6 +42,20 @@ uses
   SysUtils;
 
 { TConfigDataProviderWithLocal }
+
+constructor TConfigDataProviderWithLocal.Create(AProviderMain,
+  AProviderLocal: IConfigDataProvider);
+begin
+  FProviderMain := AProviderMain;
+  FProviderLocal := AProviderLocal;
+end;
+
+destructor TConfigDataProviderWithLocal.Destroy;
+begin
+  FProviderMain := nil;
+  FProviderLocal := nil;
+  inherited;
+end;
 
 function TConfigDataProviderWithLocal.GetSubItem(
   const AIdent: string): IConfigDataProvider;
