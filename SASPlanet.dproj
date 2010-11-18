@@ -102,6 +102,7 @@
     <DCCReference Include="i_IMapTypeMenuItem.pas" />
     <DCCReference Include="i_IMapTypeMenuItmesList.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
+    <DCCReference Include="i_IMarkPicture.pas" />
     <DCCReference Include="i_IMemObjCache.pas" />
     <DCCReference Include="i_IObjectWithTTL.pas" />
     <DCCReference Include="i_IPoolElement.pas" />
@@ -385,6 +386,7 @@
     <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MarkBasic.pas" />
     <DCCReference Include="u_MarkCategory.pas" />
+    <DCCReference Include="u_MarkPictureSimple.pas" />
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MemFileCache.pas" />

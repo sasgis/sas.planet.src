@@ -141,6 +141,8 @@ uses
   u_ContentTypeManagerSimple in 'u_ContentTypeManagerSimple.pas',
   u_ContentConvertersListByKey in 'u_ContentConvertersListByKey.pas',
   u_ContentConverterMatrix in 'u_ContentConverterMatrix.pas',
+  i_IMarkPicture in 'i_IMarkPicture.pas',
+  u_MarkPictureSimple in 'u_MarkPictureSimple.pas',
   i_ITileInfoBasic in 'i_ITileInfoBasic.pas',
   u_TileInfoBasic in 'u_TileInfoBasic.pas',
   i_ITileIterator in 'i_ITileIterator.pas',
