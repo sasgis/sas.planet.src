@@ -334,7 +334,7 @@ begin
   FTileRect.Right:=VParams.ReadInteger('TileRRight',0);
   FTileRect.Bottom:=VParams.ReadInteger('TileRBottom',0);
 
-  FDefSleep:=VParams.ReadInteger('Sleep',0);
+  FDefSleep:=VParams.ReadInteger('MAIN:Sleep',0);
   FUseDwn:=VParams.ReadBool('UseDwn',true);
 end;
 
@@ -347,13 +347,14 @@ begin
   FName:=VParams.ReadString('name',FName);
   FName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode,FName);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
-  HotKey:=VParams.ReadInteger('DefHotKey',0);
-  FDefHotKey:=HotKey;
+  HotKey:=VParams.ReadInteger('HotKey',0);
+  FDefHotKey := VParams.ReadInteger('MAIN:HotKey',0);
   ParentSubMenu:=VParams.ReadString('ParentSubMenu','');
   ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode,ParentSubMenu);
-  FDefParentSubMenu:=ParentSubMenu;
+  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu','');
+  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
   separator:=VParams.ReadBool('separator',false);
-  FDefseparator:=separator;
+  FDefseparator:=VParams.ReadBool('MAIN:separator',false);
   FSortIndex:=VParams.ReadInteger('pnum',-1);
 end;
 
