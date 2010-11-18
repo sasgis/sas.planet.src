@@ -2794,11 +2794,11 @@ begin
             GState.MarksDb.SaveMarks2File;
           end;
         end else if VMark.IsPoly then begin
-          Fadd_line_arr:=VMark.Points;
           setalloperationfalse(ao_edit_poly);
+          Fadd_line_arr:= Copy(VMark.Points);
         end else if VMark.IsLine then begin
-          Fadd_line_arr:=VMark.Points;
           setalloperationfalse(ao_edit_line);
+          Fadd_line_arr:= Copy(VMark.Points);
         end;
       finally
         VMark.Free;
