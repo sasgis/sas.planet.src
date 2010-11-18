@@ -116,6 +116,9 @@
     <DCCReference Include="i_ITileInfoBasic.pas" />
     <DCCReference Include="i_ITileIterator.pas" />
     <DCCReference Include="i_ITileObjCache.pas" />
+    <DCCReference Include="i_ITileStorage.pas" />
+    <DCCReference Include="i_ITileStorageType.pas" />
+    <DCCReference Include="i_ITileStorageTypeInfo.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_Marks.pas" />
@@ -421,6 +424,7 @@
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
     <DCCReference Include="u_TileStorageGEStuped.pas" />
+    <DCCReference Include="u_TileStorageTypeInfo.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
