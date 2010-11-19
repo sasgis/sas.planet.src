@@ -15,6 +15,7 @@ type
     procedure SetBasePath(AValue: string);
     function BuildStorage(AName: string): ITileStorage;
     function GetBasePathChangeNotifier: IJclNotifier;
+    function GetCaption: string;
   end;
 
 implementation
