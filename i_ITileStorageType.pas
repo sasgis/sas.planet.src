@@ -16,6 +16,7 @@ type
     function BuildStorage(AName: string): ITileStorage;
     function GetBasePathChangeNotifier: IJclNotifier;
   end;
+
 implementation
 
 end.
