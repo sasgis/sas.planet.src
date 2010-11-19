@@ -115,40 +115,47 @@ var
   VNameLo: LongWord;
   VNameHi: LongWord;
   i: Integer;
+  VProcessed: Boolean;
 begin
   Result := False;
   AOffset := 0;
   ASize := 0;
   AVersion := 0;
-  if not FFileInited then begin
-    FSync.BeginWrite;
-    try
-      if not FFileInited then begin
-        _UpdateIndexInfo;
+  VProcessed := False;
+  while not VProcessed do begin
+    if not FFileInited then begin
+      FSync.BeginWrite;
+      try
+        if not FFileInited then begin
+          _UpdateIndexInfo;
+        end;
+      finally
+        FSync.EndWrite;
       end;
-    finally
-      FSync.EndWrite;
     end;
-  end;
-  FSync.BeginRead;
-  try
-    if Length(FIndexInfo) > 0 then begin
-      GEXYZtoHexTileName(APoint, AZoom, VNameHi, VNameLo);
-      for i := 0 to Length(FIndexInfo) - 1 do begin
-        if FIndexInfo[i].TileID = 130 then begin
-          if FIndexInfo[i].Zoom = AZoom then begin
-            if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
-              AOffset := FIndexInfo[i].Offset;
-              ASize := FIndexInfo[i].Size;
-              AVersion := FIndexInfo[i].Ver;
-              Result := True;
+    FSync.BeginRead;
+    try
+      if FFileInited then begin
+        if Length(FIndexInfo) > 0 then begin
+          GEXYZtoHexTileName(APoint, AZoom, VNameHi, VNameLo);
+          for i := 0 to Length(FIndexInfo) - 1 do begin
+            if FIndexInfo[i].TileID = 130 then begin
+              if FIndexInfo[i].Zoom = AZoom then begin
+                if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
+                  AOffset := FIndexInfo[i].Offset;
+                  ASize := FIndexInfo[i].Size;
+                  AVersion := FIndexInfo[i].Ver;
+                  Result := True;
+                end;
+              end;
             end;
           end;
         end;
+        VProcessed := True;
       end;
+    finally
+      FSync.EndRead;
     end;
-  finally
-    FSync.EndRead;
   end;
 end;
 
@@ -156,9 +163,7 @@ procedure TGEIndexFile.OnConfigChange(Sender: TObject);
 begin
   FSync.BeginWrite;
   try
-    if FFileInited then begin
-      _UpdateIndexInfo;
-    end;
+    FFileInited := False;
   finally
     FSync.EndWrite;
   end;
