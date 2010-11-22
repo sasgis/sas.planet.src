@@ -41,7 +41,7 @@ type
     FSelectionPolyFillColor: TColor32;
     FSelectionPolyBorderColor: TColor32;
     FSelectionPolyPointFirstColor: TColor32;
-    FSelectionPolyPointColor: TColor32;
+    FSelectionPolyPointLastColor: TColor32;
     FSelectionPolyLineWidth: Integer;
     FSelectionPolyPointSize: Integer;
     FSelectionRectFillColor: TColor32;
@@ -113,7 +113,7 @@ begin
   FSelectionPolyFillColor := SetAlpha(clWhite32, 40);
   FSelectionPolyBorderColor := SetAlpha(clBlue32, 180);
   FSelectionPolyPointFirstColor := SetAlpha(ClGreen32, 255);
-  FSelectionPolyPointColor := SetAlpha(ClRed32, 255);
+  FSelectionPolyPointLastColor := SetAlpha(ClRed32, 255);
   FSelectionPolyLineWidth := 3;
   FSelectionPolyPointSize := 6;
   FSelectionRectFillColor := SetAlpha(clWhite32, 20);
@@ -334,7 +334,7 @@ begin
       DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointFirstColor, FSelectionPolyPointFirstColor);
       if VPointsCount > 1 then begin
         k1 := VPointsOnBitmap[VPointsCount - 1];
-        DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointColor, FSelectionPolyPointColor);
+        DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointLastColor, FSelectionPolyPointLastColor);
       end;
     finally
       VPointsOnBitmap := nil;
