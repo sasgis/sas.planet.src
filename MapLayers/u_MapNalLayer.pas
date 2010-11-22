@@ -28,6 +28,7 @@ type
     FPolyLineColor: TColor32;
     FPolyFillColor: TColor32;
     FPolyLineWidth: Integer;
+    FPolyPointSize: Integer;
     FCalcLineColor: TColor32;
     FCalcTextColor: TColor32;
     FCalcTextBGColor: TColor32;
@@ -36,14 +37,23 @@ type
     FCalcPointFirstColor: TColor32;
     FCalcPointActiveColor: TColor32;
     FCalcLineWidth: integer;
+    FCalcPointSize: integer;
     FSelectionPolyFillColor: TColor32;
     FSelectionPolyBorderColor: TColor32;
     FSelectionPolyPointFirstColor: TColor32;
     FSelectionPolyPointColor: TColor32;
     FSelectionPolyLineWidth: Integer;
+    FSelectionPolyPointSize: Integer;
     FSelectionRectFillColor: TColor32;
     FSelectionRectBorderColor: TColor32;
     FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
+    procedure DrawPolyPoint(
+      const ABitmapSize: TPoint;
+      const APosOnBitmap: TExtendedPoint;
+      const ASize: Integer;
+      const AFillColor: TColor32;
+      const ARectColor: TColor32
+    );
     procedure DoDrawSelectionRect;
     procedure DoDrawSelectionPoly;
     procedure DoDrawCalcLine;
@@ -90,6 +100,7 @@ begin
   FPolyLineColor := SetAlpha(ClRed32, 150);
   FPolyFillColor := SetAlpha(ClWhite32, 50);
   FPolyLineWidth := 3;
+  FPolyPointSize := 8;
   FCalcLineColor := SetAlpha(ClRed32, 150);
   FCalcTextColor := clBlack32;
   FCalcTextBGColor := SetAlpha(ClWhite32, 110);
@@ -98,11 +109,13 @@ begin
   FCalcPointFirstColor := SetAlpha(ClGreen32, 255);
   FCalcPointActiveColor := SetAlpha(ClRed32, 255);
   FCalcLineWidth := 3;
+  FCalcPointSize := 6;
   FSelectionPolyFillColor := SetAlpha(clWhite32, 40);
   FSelectionPolyBorderColor := SetAlpha(clBlue32, 180);
   FSelectionPolyPointFirstColor := SetAlpha(ClGreen32, 255);
   FSelectionPolyPointColor := SetAlpha(ClRed32, 255);
   FSelectionPolyLineWidth := 3;
+  FSelectionPolyPointSize := 6;
   FSelectionRectFillColor := SetAlpha(clWhite32, 20);
   FSelectionRectBorderColor := SetAlpha(clBlue32, 150);
   for i := 0 to Length(FSelectionRectZoomDeltaColor) - 1 do begin
@@ -466,6 +479,40 @@ begin
   FDrawType := mndtNothing;
   FPath := nil;
   Redraw;
+end;
+
+procedure TMapNalLayer.DrawPolyPoint(const ABitmapSize: TPoint;
+  const APosOnBitmap: TExtendedPoint; const ASize: Integer; const AFillColor,
+  ARectColor: TColor32);
+var
+  VHalfSize: Extended;
+  VRect: TRect;
+  VRectFloat: TExtendedRect;
+begin
+  VHalfSize := ASize / 2;
+  VRectFloat.Left := APosOnBitmap.X - VHalfSize;
+  VRectFloat.Top := APosOnBitmap.Y - VHalfSize;
+  VRectFloat.Right := VRectFloat.Left + ASize;
+  VRectFloat.Bottom := VRectFloat.Top + ASize;
+  if
+    (VRectFloat.Left > 0) and
+    (VRectFloat.Top > 0) and
+    (VRectFloat.Right < ABitmapSize.X) and
+    (VRectFloat.Bottom < ABitmapSize.Y)
+  then begin
+    VRect.Left := Trunc(VRectFloat.Left);
+    VRect.Top := Trunc(VRectFloat.Top);
+    VRect.Right := Trunc(VRectFloat.Right);
+    VRect.Bottom := Trunc(VRectFloat.Bottom);
+    FLayer.Bitmap.FillRectS(VRect, ARectColor);
+    if AFillColor <> ARectColor then begin
+      Inc(VRect.Left);
+      Inc(VRect.Top);
+      Dec(VRect.Right);
+      Dec(VRect.Bottom);
+      FLayer.Bitmap.FillRectS(VRect, AFillColor);
+    end;
+  end;
 end;
 
 procedure TMapNalLayer.DrawReg(ASelectedLonLatPoly: TExtendedPointArray);
