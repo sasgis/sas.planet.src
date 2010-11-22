@@ -838,8 +838,8 @@ var
 begin
   Showstatus.Checked := LayerStatBar.Visible;
   if LayerStatBar.Visible then begin
-    FLayerScaleLine.BottomMargin := 17;
-    FLayerMiniMap.BottomMargin := 17;
+    FLayerScaleLine.BottomMargin := LayerStatBar.Height;
+    FLayerMiniMap.BottomMargin := LayerStatBar.Height;
   end else begin
     FLayerScaleLine.BottomMargin := 0;
     FLayerMiniMap.BottomMargin := 0;
