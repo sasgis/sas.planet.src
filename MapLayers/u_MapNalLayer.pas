@@ -35,10 +35,12 @@ type
     FCalcPointRectColor: TColor32;
     FCalcPointFirstColor: TColor32;
     FCalcPointActiveColor: TColor32;
+    FCalcLineWidth: integer;
     FSelectionPolyFillColor: TColor32;
     FSelectionPolyBorderColor: TColor32;
     FSelectionPolyPointFirstColor: TColor32;
     FSelectionPolyPointColor: TColor32;
+    FSelectionPolyLineWidth: Integer;
     FSelectionRectFillColor: TColor32;
     FSelectionRectBorderColor: TColor32;
     FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
@@ -95,10 +97,12 @@ begin
   FCalcPointRectColor := SetAlpha(ClRed32, 150);
   FCalcPointFirstColor := SetAlpha(ClGreen32, 255);
   FCalcPointActiveColor := SetAlpha(ClRed32, 255);
+  FCalcLineWidth := 3;
   FSelectionPolyFillColor := SetAlpha(clWhite32, 40);
   FSelectionPolyBorderColor := SetAlpha(clBlue32, 180);
   FSelectionPolyPointFirstColor := SetAlpha(ClGreen32, 255);
   FSelectionPolyPointColor := SetAlpha(ClRed32, 255);
+  FSelectionPolyLineWidth := 3;
   FSelectionRectFillColor := SetAlpha(clWhite32, 20);
   FSelectionRectBorderColor := SetAlpha(clBlue32, 150);
   for i := 0 to Length(FSelectionRectZoomDeltaColor) - 1 do begin
@@ -142,7 +146,7 @@ begin
       polygon.Closed := false;
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
       with Polygon.Outline do try
-         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+         with Grow(Fixed(FCalcLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
            DrawFill(FLayer.Bitmap, FCalcLineColor);
          finally
@@ -328,7 +332,7 @@ begin
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
       Polygon.DrawFill(FLayer.Bitmap, FSelectionPolyFillColor);
       with Polygon.Outline do try
-         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+         with Grow(Fixed(FSelectionPolyLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
            DrawFill(FLayer.Bitmap, FSelectionPolyBorderColor);
          finally
