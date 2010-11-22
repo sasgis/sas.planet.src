@@ -121,7 +121,6 @@ procedure TMapNalLayer.DoDrawCalcLine;
 var
   i, j, textW: integer;
   k1: TExtendedPoint;
-  k2: TExtendedPoint;
   len: real;
   text: string;
   polygon: TPolygon32;
@@ -162,64 +161,63 @@ begin
     VBitmapSize := GetBitmapSizeInPixel;
     try
       for i := 0 to VPointsCount - 2 do begin
-        k2 := VPointsOnBitmap[i + 1];
-        if not ((k2.x > 0) and (k2.y > 0)) and ((k2.x < VBitmapSize.X) and (k2.y < VBitmapSize.Y)) then begin
-          continue;
-        end;
-        FLayer.Bitmap.FrameRectS(
-          Trunc(k2.x - 3),
-          Trunc(k2.y - 3),
-          Trunc(k2.X + 3),
-          Trunc(k2.Y + 3),
-          FCalcPointRectColor
-        );
-        FLayer.Bitmap.FillRectS(
-          Trunc(k2.x - 2),
-          Trunc(k2.y - 2),
-          Trunc(k2.X + 2),
-          Trunc(k2.y + 2),
-          FCalcPointFillColor
-        );
-        if i = VPointsCount - 2 then begin
-          len := 0;
-          for j := 0 to i do begin
-            len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
-          end;
-          text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
-          FLayer.Bitmap.Font.Size := 9;
-          textW := FLayer.Bitmap.TextWidth(text) + 11;
-          FLayer.Bitmap.FillRectS(
-            Trunc(k2.x + 12),
-            Trunc(k2.y),
-            Trunc(k2.X + textW),
-            Trunc(k2.y + 15),
-            FCalcTextBGColor
-          );
-          FLayer.Bitmap.RenderText(
-            Trunc(k2.X + 15),
-            Trunc(k2.y),
-            text,
-            3,
-            FCalcTextColor
-          );
-        end else begin
-          if FLenShow then begin
-            text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
-            FLayer.Bitmap.Font.Size := 7;
+        k1 := VPointsOnBitmap[i + 1];
+        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
+          if i = VPointsCount - 2 then begin
+            len := 0;
+            for j := 0 to i do begin
+              len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
+            end;
+            text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
+            FLayer.Bitmap.Font.Size := 9;
             textW := FLayer.Bitmap.TextWidth(text) + 11;
             FLayer.Bitmap.FillRectS(
-              Trunc(k2.x + 5),
-              Trunc(k2.y + 5),
-              Trunc(k2.X + textW),
-              Trunc(k2.y + 16),
+              Trunc(k1.x + 12),
+              Trunc(k1.y),
+              Trunc(k1.X + textW),
+              Trunc(k1.y + 15),
               FCalcTextBGColor
             );
             FLayer.Bitmap.RenderText(
-              Trunc(k2.X + 8),
-              Trunc(k2.y + 5),
+              Trunc(k1.X + 15),
+              Trunc(k1.y),
               text,
-              0,
+              3,
               FCalcTextColor
+            );
+          end else begin
+            if FLenShow then begin
+              text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
+              FLayer.Bitmap.Font.Size := 7;
+              textW := FLayer.Bitmap.TextWidth(text) + 11;
+              FLayer.Bitmap.FillRectS(
+                Trunc(k1.x + 5),
+                Trunc(k1.y + 5),
+                Trunc(k1.X + textW),
+                Trunc(k1.y + 16),
+                FCalcTextBGColor
+              );
+              FLayer.Bitmap.RenderText(
+                Trunc(k1.X + 8),
+                Trunc(k1.y + 5),
+                text,
+                0,
+                FCalcTextColor
+              );
+            end;
+            FLayer.Bitmap.FrameRectS(
+              Trunc(k1.x - 3),
+              Trunc(k1.y - 3),
+              Trunc(k1.X + 3),
+              Trunc(k1.Y + 3),
+              FCalcPointRectColor
+            );
+            FLayer.Bitmap.FillRectS(
+              Trunc(k1.x - 2),
+              Trunc(k1.y - 2),
+              Trunc(k1.X + 2),
+              Trunc(k1.y + 2),
+              FCalcPointFillColor
             );
           end;
         end;
