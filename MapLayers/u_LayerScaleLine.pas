@@ -76,12 +76,12 @@ begin
   num := 106 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(LL.y * D2R)));
   if num > 10000 then begin
     num := num / 1000;
-    se := ' ' + SAS_UNITS_km + '.';
+    se := ' ' + SAS_UNITS_km + ' ';
   end else if num < 10 then begin
     num := num * 100;
-    se := ' ' + SAS_UNITS_sm + '.';
+    se := ' ' + SAS_UNITS_sm + ' ';
   end else begin
-    se := ' ' + SAS_UNITS_m + '.';
+    se := ' ' + SAS_UNITS_m + ' ';
   end;
   rnum := round(num);
   temp := power(5, (length(inttostr(rnum)) - 1));
