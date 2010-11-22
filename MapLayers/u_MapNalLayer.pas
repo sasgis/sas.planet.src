@@ -277,21 +277,12 @@ begin
     try
       for i := 1 to VPointsCount - 1 do begin
         k1 := VPointsOnBitmap[i];
-        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          k1 := ExtPoint(k1.x - 4, k1.y - 4);
-          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyPointColor);
-        end;
+        DrawPolyPoint(VBitmapSize, k1, FPolyPointSize, FPolyPointColor, FPolyPointColor);
       end;
       k1 := VPointsOnBitmap[0];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 4, k1.y - 4);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyFirstPointColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FPolyPointSize, FPolyFirstPointColor, FPolyFirstPointColor);
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 4, k1.y - 4);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyActivePointColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FPolyPointSize, FPolyActivePointColor, FPolyActivePointColor);
     finally
       VPointsOnBitmap := nil;
     end;
@@ -340,16 +331,10 @@ begin
     VBitmapSize := GetBitmapSizeInPixel;
     try
       k1 := VPointsOnBitmap[0];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), FSelectionPolyPointFirstColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointFirstColor, FSelectionPolyPointFirstColor);
       if VPointsCount > 1 then begin
         k1 := VPointsOnBitmap[VPointsCount - 1];
-        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          k1 := ExtPoint(k1.x - 3, k1.y - 3);
-          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), FSelectionPolyPointColor);
-        end;
+        DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointColor, FSelectionPolyPointColor);
       end;
     finally
       VPointsOnBitmap := nil;
