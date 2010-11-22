@@ -28,6 +28,20 @@ type
     FPolyLineColor: TColor32;
     FPolyFillColor: TColor32;
     FPolyLineWidth: Integer;
+    FCalcLineColor: TColor32;
+    FCalcTextColor: TColor32;
+    FCalcTextBGColor: TColor32;
+    FCalcPointFillColor: TColor32;
+    FCalcPointRectColor: TColor32;
+    FCalcPointFirstColor: TColor32;
+    FCalcPointActiveColor: TColor32;
+    FSelectionPolyFillColor: TColor32;
+    FSelectionPolyBorderColor: TColor32;
+    FSelectionPolyPointFirstColor: TColor32;
+    FSelectionPolyPointColor: TColor32;
+    FSelectionRectFillColor: TColor32;
+    FSelectionRectBorderColor: TColor32;
+    FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
     procedure DoDrawSelectionRect;
     procedure DoDrawSelectionPoly;
     procedure DoDrawCalcLine;
@@ -62,14 +76,35 @@ const
 { TMapNalLayer }
 
 constructor TMapNalLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+var
+  i: Integer;
+  kz: Integer;
 begin
   inherited;
+  FLayer.Bitmap.Font.Name := 'Tahoma';
   FPolyPointColor := SetAlpha(clYellow32, 150);
   FPolyActivePointColor := SetAlpha(ClRed32, 255);
   FPolyFirstPointColor := SetAlpha(ClGreen32, 255);
   FPolyLineColor := SetAlpha(ClRed32, 150);
   FPolyFillColor := SetAlpha(ClWhite32, 50);
   FPolyLineWidth := 3;
+  FCalcLineColor := SetAlpha(ClRed32, 150);
+  FCalcTextColor := clBlack32;
+  FCalcTextBGColor := SetAlpha(ClWhite32, 110);
+  FCalcPointFillColor := SetAlpha(ClWhite32, 150);
+  FCalcPointRectColor := SetAlpha(ClRed32, 150);
+  FCalcPointFirstColor := SetAlpha(ClGreen32, 255);
+  FCalcPointActiveColor := SetAlpha(ClRed32, 255);
+  FSelectionPolyFillColor := SetAlpha(clWhite32, 40);
+  FSelectionPolyBorderColor := SetAlpha(clBlue32, 180);
+  FSelectionPolyPointFirstColor := SetAlpha(ClGreen32, 255);
+  FSelectionPolyPointColor := SetAlpha(ClRed32, 255);
+  FSelectionRectFillColor := SetAlpha(clWhite32, 20);
+  FSelectionRectBorderColor := SetAlpha(clBlue32, 150);
+  for i := 0 to Length(FSelectionRectZoomDeltaColor) - 1 do begin
+    kz := 256 shr i;
+    FSelectionRectZoomDeltaColor[i] := SetAlpha(RGB(kz - 1, kz - 1, kz - 1), 255);
+  end;
 end;
 
 destructor TMapNalLayer.Destroy;
@@ -93,7 +128,6 @@ var
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
-    FLayer.Bitmap.Font.Name := 'Tahoma';
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
@@ -110,7 +144,7 @@ begin
       with Polygon.Outline do try
          with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, SetAlpha(ClRed32, 150));
+           DrawFill(FLayer.Bitmap, FCalcLineColor);
          finally
            free;
          end;
@@ -133,14 +167,14 @@ begin
           Trunc(k2.y - 3),
           Trunc(k2.X + 3),
           Trunc(k2.Y + 3),
-          SetAlpha(ClRed32, 150)
+          FCalcPointRectColor
         );
         FLayer.Bitmap.FillRectS(
           Trunc(k2.x - 2),
           Trunc(k2.y - 2),
           Trunc(k2.X + 2),
           Trunc(k2.y + 2),
-          SetAlpha(ClWhite32, 150)
+          FCalcPointFillColor
         );
         if i = VPointsCount - 2 then begin
           len := 0;
@@ -155,14 +189,14 @@ begin
             Trunc(k2.y),
             Trunc(k2.X + textW),
             Trunc(k2.y + 15),
-            SetAlpha(ClWhite32, 110)
+            FCalcTextBGColor
           );
           FLayer.Bitmap.RenderText(
             Trunc(k2.X + 15),
             Trunc(k2.y),
             text,
             3,
-            clBlack32
+            FCalcTextColor
           );
         end else begin
           if FLenShow then begin
@@ -174,14 +208,14 @@ begin
               Trunc(k2.y + 5),
               Trunc(k2.X + textW),
               Trunc(k2.y + 16),
-              SetAlpha(ClWhite32, 110)
+              FCalcTextBGColor
             );
             FLayer.Bitmap.RenderText(
               Trunc(k2.X + 8),
               Trunc(k2.y + 5),
               text,
               0,
-              clBlack32
+              FCalcTextColor
             );
           end;
         end;
@@ -189,12 +223,12 @@ begin
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
         k1 := ExtPoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), SetAlpha(ClGreen32, 255));
+        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), FCalcPointFirstColor);
       end;
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
         k1 := ExtPoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), SetAlpha(ClRed32, 255));
+        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), FCalcPointActiveColor);
       end;
     finally
       VPointsOnBitmap := nil;
@@ -292,11 +326,11 @@ begin
       polygon.AntialiasMode := am4times;
       polygon.Closed := true;
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
-      Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
+      Polygon.DrawFill(FLayer.Bitmap, FSelectionPolyFillColor);
       with Polygon.Outline do try
          with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
+           DrawFill(FLayer.Bitmap, FSelectionPolyBorderColor);
          finally
            free;
          end;
@@ -312,13 +346,13 @@ begin
       k1 := VPointsOnBitmap[0];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
         k1 := ExtPoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClGreen32, 255));
+        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), FSelectionPolyPointFirstColor);
       end;
       if VPointsCount > 1 then begin
         k1 := VPointsOnBitmap[VPointsCount - 1];
         if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
           k1 := ExtPoint(k1.x - 3, k1.y - 3);
-          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClRed32, 255));
+          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), FSelectionPolyPointColor);
         end;
       end;
     finally
@@ -329,13 +363,14 @@ end;
 
 procedure TMapNalLayer.DoDrawSelectionRect;
 var
-  kz, jj: integer;
+  jj: integer;
   xy1, xy2: TPoint;
   VSelectedPixels: TRect;
   VZoomDelta: Byte;
   VColor: TColor32;
   VSelectedRelative: TExtendedRect;
   VSelectedTiles: TRect;
+  VMaxZoomDelta: Integer;
 begin
   VSelectedPixels := FGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, FZoom);
 
@@ -346,15 +381,16 @@ begin
   xy2.x := xy2.x;
   xy2.y := xy2.y;
 
-  FLayer.Bitmap.FillRectS(xy1.x, xy1.y, xy2.x, xy2.y, SetAlpha(clWhite32, 20));
-  FLayer.Bitmap.FrameRectS(xy1.x, xy1.y, xy2.x, xy2.y, SetAlpha(clBlue32, 150));
-  FLayer.Bitmap.FrameRectS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, SetAlpha(clBlue32, 150));
+  FLayer.Bitmap.FillRectS(xy1.x, xy1.y, xy2.x, xy2.y, FSelectionRectFillColor);
+  FLayer.Bitmap.FrameRectS(xy1.x, xy1.y, xy2.x, xy2.y, FSelectionRectBorderColor);
+  FLayer.Bitmap.FrameRectS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FSelectionRectBorderColor);
 
   VSelectedRelative := FGeoConvert.PixelRect2RelativeRect(VSelectedPixels, FZoom);
 
   jj := FZoom;
   VZoomDelta := 0;
-  while (VZoomDelta < 3) and (jj < 24) do begin
+  VMaxZoomDelta := Length(FSelectionRectZoomDeltaColor) - 1;
+  while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
     VSelectedTiles := FGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
     VSelectedPixels := FGeoConvert.RelativeRect2PixelRect(
       FGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), FZoom
@@ -363,8 +399,7 @@ begin
     xy1 := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
     xy2 := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
 
-    kz := 256 shr VZoomDelta;
-    VColor := SetAlpha(RGB(kz - 1, kz - 1, kz - 1), 255);
+    VColor := FSelectionRectZoomDeltaColor[VZoomDelta];
 
     FLayer.Bitmap.FrameRectS(
       xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
