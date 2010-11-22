@@ -15,6 +15,7 @@ uses
 type
   TLayerStatBar = class(TWindowLayerBasicWithBitmap)
   protected
+    FHeight: Integer;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
     function GetFreezePointInBitmapPixel: TPoint; override;
@@ -24,6 +25,7 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
+    property Height: Integer read FHeight;
   end;
 
 implementation
@@ -49,12 +51,13 @@ begin
   inherited;
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
+  FHeight := 17;
 end;
 
 function TLayerStatBar.GetBitmapSizeInPixel: TPoint;
 begin
   Result.X := FParentMap.Width;
-  Result.Y := 17;
+  Result.Y := FHeight;
 end;
 
 function TLayerStatBar.GetFreezePointInBitmapPixel: TPoint;
