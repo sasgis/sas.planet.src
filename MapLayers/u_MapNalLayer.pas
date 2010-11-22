@@ -218,33 +218,14 @@ begin
                 FCalcTextColor
               );
             end;
-            FLayer.Bitmap.FrameRectS(
-              Trunc(k1.x - 3),
-              Trunc(k1.y - 3),
-              Trunc(k1.X + 3),
-              Trunc(k1.Y + 3),
-              FCalcPointRectColor
-            );
-            FLayer.Bitmap.FillRectS(
-              Trunc(k1.x - 2),
-              Trunc(k1.y - 2),
-              Trunc(k1.X + 2),
-              Trunc(k1.y + 2),
-              FCalcPointFillColor
-            );
           end;
+          DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFillColor, FCalcPointRectColor);
         end;
       end;
       k1 := VPointsOnBitmap[0];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), FCalcPointFirstColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFirstColor, FCalcPointFirstColor);
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := ExtPoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), FCalcPointActiveColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointActiveColor, FCalcPointActiveColor);
     finally
       VPointsOnBitmap := nil;
     end;
