@@ -22,13 +22,13 @@ type
     FPolyActivePointIndex: integer;
     FLenShow: Boolean;
 
-    FPolyPointColor: TColor32;
-    FPolyActivePointColor: TColor32;
-    FPolyFirstPointColor: TColor32;
-    FPolyLineColor: TColor32;
-    FPolyFillColor: TColor32;
-    FPolyLineWidth: Integer;
-    FPolyPointSize: Integer;
+    FEditMarkLineColor: TColor32;
+    FEditMarkFillColor: TColor32;
+    FEditMarkLineWidth: Integer;
+    FEditMarkPointColor: TColor32;
+    FEditMarkActivePointColor: TColor32;
+    FEditMarkFirstPointColor: TColor32;
+    FEditMarkPointSize: Integer;
     FCalcLineColor: TColor32;
     FCalcTextColor: TColor32;
     FCalcTextBGColor: TColor32;
@@ -94,13 +94,13 @@ var
 begin
   inherited;
   FLayer.Bitmap.Font.Name := 'Tahoma';
-  FPolyPointColor := SetAlpha(clYellow32, 150);
-  FPolyActivePointColor := SetAlpha(ClRed32, 255);
-  FPolyFirstPointColor := SetAlpha(ClGreen32, 255);
-  FPolyLineColor := SetAlpha(ClRed32, 150);
-  FPolyFillColor := SetAlpha(ClWhite32, 50);
-  FPolyLineWidth := 3;
-  FPolyPointSize := 8;
+  FEditMarkPointColor := SetAlpha(clYellow32, 150);
+  FEditMarkActivePointColor := SetAlpha(ClRed32, 255);
+  FEditMarkFirstPointColor := SetAlpha(ClGreen32, 255);
+  FEditMarkLineColor := SetAlpha(ClRed32, 150);
+  FEditMarkFillColor := SetAlpha(ClWhite32, 50);
+  FEditMarkLineWidth := 3;
+  FEditMarkPointSize := 8;
   FCalcLineColor := SetAlpha(ClRed32, 150);
   FCalcTextColor := clBlack32;
   FCalcTextBGColor := SetAlpha(ClWhite32, 110);
@@ -257,12 +257,12 @@ begin
       polygon.Closed := AIsPoly;
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
       if AIsPoly then begin
-        Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
+        Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
       end;
       with Polygon.Outline do try
-         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+         with Grow(Fixed(FEditMarkLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, FPolyLineColor);
+           DrawFill(FLayer.Bitmap, FEditMarkLineColor);
          finally
            free;
          end;
@@ -277,12 +277,12 @@ begin
     try
       for i := 1 to VPointsCount - 1 do begin
         k1 := VPointsOnBitmap[i];
-        DrawPolyPoint(VBitmapSize, k1, FPolyPointSize, FPolyPointColor, FPolyPointColor);
+        DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
       end;
       k1 := VPointsOnBitmap[0];
-      DrawPolyPoint(VBitmapSize, k1, FPolyPointSize, FPolyFirstPointColor, FPolyFirstPointColor);
+      DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkFirstPointColor, FEditMarkFirstPointColor);
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
-      DrawPolyPoint(VBitmapSize, k1, FPolyPointSize, FPolyActivePointColor, FPolyActivePointColor);
+      DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkActivePointColor, FEditMarkActivePointColor);
     finally
       VPointsOnBitmap := nil;
     end;
