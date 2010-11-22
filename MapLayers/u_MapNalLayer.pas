@@ -41,11 +41,12 @@ type
     FCalcTextBGColor: TColor32;
 
     FSelectionPolyFillColor: TColor32;
-    FSelectionPolyBorderColor: TColor32;
+    FSelectionPolyLineColor: TColor32;
+    FSelectionPolyLineWidth: Integer;
     FSelectionPolyPointFirstColor: TColor32;
     FSelectionPolyPointLastColor: TColor32;
-    FSelectionPolyLineWidth: Integer;
     FSelectionPolyPointSize: Integer;
+
     FSelectionRectFillColor: TColor32;
     FSelectionRectBorderColor: TColor32;
     FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
@@ -113,7 +114,7 @@ begin
   FCalcLineWidth := 3;
   FCalcPointSize := 6;
   FSelectionPolyFillColor := SetAlpha(clWhite32, 40);
-  FSelectionPolyBorderColor := SetAlpha(clBlue32, 180);
+  FSelectionPolyLineColor := SetAlpha(clBlue32, 180);
   FSelectionPolyPointFirstColor := SetAlpha(ClGreen32, 255);
   FSelectionPolyPointLastColor := SetAlpha(ClRed32, 255);
   FSelectionPolyLineWidth := 3;
@@ -319,7 +320,7 @@ begin
       with Polygon.Outline do try
          with Grow(Fixed(FSelectionPolyLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, FSelectionPolyBorderColor);
+           DrawFill(FLayer.Bitmap, FSelectionPolyLineColor);
          finally
            free;
          end;
