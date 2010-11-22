@@ -8,6 +8,8 @@ uses
   GR32_Image,
   GR32_Polygons,
   t_GeoTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_MapViewPortState,
   u_MapLayerBasic;
 
@@ -50,7 +52,7 @@ type
     FSelectionRectFillColor: TColor32;
     FSelectionRectBorderColor: TColor32;
     FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
-    
+
     procedure DrawPolyPoint(
       const ABitmapSize: TPoint;
       const APosOnBitmap: TExtendedPoint;
@@ -67,6 +69,8 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure DrawNothing;
     procedure DrawSelectionRect(ASelectedLonLat: TExtendedRect);
     procedure DrawReg(ASelectedLonLatPoly: TExtendedPointArray);
@@ -85,9 +89,6 @@ uses
   UResStrings,
   u_GlobalState,
   u_WindowLayerBasic;
-
-const
-  CRectSize = 1 shl 14;
 
 { TMapNalLayer }
 
@@ -498,6 +499,72 @@ begin
   FPath := nil;
   FSelectedLonLat := ASelectedLonLat;
   Redraw;
+end;
+
+function LoadColor32(
+  AConfigProvider: IConfigDataProvider;
+  AIdent: string;
+  ADefault: TColor32
+): TColor32;
+var
+  VColor: TColor;
+  VAlfa: Integer;
+begin
+  Result := ADefault;
+  if AConfigProvider <> nil then begin
+    VAlfa := AlphaComponent(Result);
+    VColor := WinColor(Result);
+    VAlfa := AConfigProvider.ReadInteger(AIdent + 'Alfa', VAlfa);
+    VColor := AConfigProvider.ReadInteger(AIdent, VColor);
+    Result := SetAlpha(Color32(VColor), VAlfa);
+  end;
+end;
+
+procedure TMapNalLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
+  if VConfigProvider <> nil then begin
+    VConfigProvider := VConfigProvider.GetSubItem('EditMark');
+    if VConfigProvider <> nil then begin
+      FEditMarkLineColor := LoadColor32(VConfigProvider, 'LineColor', FEditMarkLineColor);
+      FEditMarkFillColor := LoadColor32(VConfigProvider, 'FillColor', FEditMarkFillColor);
+      FEditMarkLineWidth := VConfigProvider.ReadInteger('LineWidth', FEditMarkLineWidth);
+      FEditMarkPointColor := LoadColor32(VConfigProvider, 'PointColor', FEditMarkPointColor);
+      FEditMarkActivePointColor := LoadColor32(VConfigProvider, 'ActivePointColor', FEditMarkActivePointColor);
+      FEditMarkFirstPointColor := LoadColor32(VConfigProvider, 'FirstPointColor', FEditMarkFirstPointColor);
+      FEditMarkPointSize := VConfigProvider.ReadInteger('PointSize', FEditMarkPointSize);
+    end;
+  end;
+end;
+
+procedure WriteColor32(
+  AConfigProvider: IConfigDataWriteProvider;
+  AIdent: string;
+  AValue: TColor32
+);
+begin
+  AConfigProvider.WriteInteger(AIdent + 'Alfa', AlphaComponent(AValue));
+  AConfigProvider.WriteInteger(AIdent, WinColor(AValue));
+end;
+
+procedure TMapNalLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VConfigProvider: IConfigDataWriteProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
+  VConfigProvider := VConfigProvider.GetOrCreateSubItem('EditMark');
+
+  WriteColor32(VConfigProvider, 'LineColor', FEditMarkLineColor);
+  WriteColor32(VConfigProvider, 'FillColor', FEditMarkFillColor);
+  VConfigProvider.WriteInteger('LineWidth', FEditMarkLineWidth);
+  WriteColor32(VConfigProvider, 'PointColor', FEditMarkPointColor);
+  WriteColor32(VConfigProvider, 'ActivePointColor', FEditMarkActivePointColor);
+  WriteColor32(VConfigProvider, 'FirstPointColor', FEditMarkFirstPointColor);
+  VConfigProvider.WriteInteger('PointSize', FEditMarkPointSize);
 end;
 
 end.
