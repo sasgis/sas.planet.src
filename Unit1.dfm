@@ -22,6 +22,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -317,7 +318,7 @@ object Fmain: TFmain
       Left = 0
       Top = 0
       CloseButton = False
-      DockPos = 0
+      DockPos = -6
       Stretch = True
       TabOrder = 5
       Caption = #1043#1083#1072#1074#1085#1086#1077' '#1084#1077#1085#1102
@@ -1192,7 +1193,7 @@ object Fmain: TFmain
         Height = 13
         Hint = #1052#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099' '#1085#1072' '#1082#1086#1090#1086#1088#1086#1084' '#1074#1099' '#1085#1072#1093#1086#1076#1080#1090#1077#1089#1100
         Alignment = taCenter
-        Caption = '1x'
+        Caption = 'z1'
         Color = clBtnFace
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clHotLight

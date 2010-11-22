@@ -397,7 +397,7 @@ begin
     FLayer.Bitmap.RenderText(
       xy2.x - ((xy2.x - xy1.x) div 2) - 42 + VZoomDelta * 26,
       xy2.y - ((xy2.y - xy1.y) div 2) - 6,
-      'x' + inttostr(jj + 1), 3, VColor
+      'z' + inttostr(jj + 1), 3, VColor
     );
     Inc(jj);
     Inc(VZoomDelta);

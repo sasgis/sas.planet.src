@@ -860,7 +860,7 @@ begin
   end;
 
   if FLayerFillingMap.SourceZoom >-1 then begin
-    TBMapZap.Caption:='x'+inttostr(FLayerFillingMap.SourceZoom+1);
+    TBMapZap.Caption:='z'+inttostr(FLayerFillingMap.SourceZoom+1);
   end else begin
     TBMapZap.Caption:='';
   end;
@@ -954,7 +954,7 @@ begin
     NZoomIn.Enabled:=TBZoomIn.Enabled;
     NZoomOut.Enabled:=TBZoom_Out.Enabled;
     RxSlider1.Value:=VZoomCurr;
-    labZoom.caption:=inttostr(VZoomCurr + 1)+'x';
+    labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
     map.BeginUpdate;
     try
       LayerStatBar.Redraw;
@@ -2046,7 +2046,7 @@ end;
 
 procedure TFmain.RxSlider1Change(Sender: TObject);
 begin
- labZoom.Caption:=inttostr(RxSlider1.Value+1)+'x';
+ labZoom.Caption:= 'z' + inttostr(RxSlider1.Value+1);
 end;
 
 procedure TFmain.RxSlider1Changed(Sender: TObject);
