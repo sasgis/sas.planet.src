@@ -21,6 +21,7 @@ uses
   StdCtrls,
   OleCtrls,
   Controls,
+  ExtCtrls,
   Buttons,
   WinInet,
   Dialogs,
@@ -396,6 +397,7 @@ type
     TBGPSToPoint: TTBXSubmenuItem;
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
+    tmrMapUpdate: TTimer;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -525,6 +527,7 @@ type
     procedure TBXItem8Click(Sender: TObject);
     procedure TBXItem9Click(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
+    procedure tmrMapUpdateTimer(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -1342,6 +1345,11 @@ begin
    end;
 end;
 
+procedure TFmain.tmrMapUpdateTimer(Sender: TObject);
+begin
+  LayerStatBar.Redraw;
+end;
+
 procedure TFmain.topos(LL:TExtendedPoint;zoom_:byte;draw:boolean);
 begin
   GState.ViewState.LockWrite;
@@ -1806,6 +1814,7 @@ begin
     GState.StartThreads;
     FMainLayer.Visible := True;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
+    tmrMapUpdate.Enabled := True;
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1917,6 +1926,7 @@ var
   i:integer;
 begin
   ProgramClose:=true;
+  tmrMapUpdate.Enabled := false;
   GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
   GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
   GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);

@@ -22,7 +22,6 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
-    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -170,7 +169,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -201,7 +200,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -213,7 +212,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 509
+      Left = 505
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -291,7 +290,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 119
+        Left = 115
         Top = 8
         Width = 31
         Height = 13
@@ -445,28 +444,28 @@ object Fmain: TFmain
             AutoCheck = True
             Checked = True
             OnClick = NMainToolBarShowClick
-            Caption = #1043#1083#1072#1074#1085#1072#1103' '#1087#1072#1085#1077#1083#1100
+            Caption = #1043#1083#1072#1074#1085#1072#1103
             Hint = ''
           end
           object NZoomToolBarShow: TTBXItem
             AutoCheck = True
             Checked = True
             OnClick = NZoomToolBarShowClick
-            Caption = #1055#1072#1085#1077#1083#1100' '#1084#1072#1089#1096#1090#1072#1073#1072
+            Caption = #1052#1072#1089#1096#1090#1072#1073
             Hint = ''
           end
           object NsrcToolBarShow: TTBXItem
             AutoCheck = True
             Checked = True
             OnClick = NsrcToolBarShowClick
-            Caption = #1055#1072#1085#1077#1083#1100' '#1080#1089#1090#1086#1095#1085#1080#1082#1086#1074
+            Caption = #1048#1089#1090#1086#1095#1085#1080#1082#1080
             Hint = ''
           end
           object NGPSToolBarShow: TTBXItem
             AutoCheck = True
             Checked = True
             OnClick = NGPSToolBarShowClick
-            Caption = #1055#1072#1085#1077#1083#1100' GPS'
+            Caption = 'GPS'
             Hint = ''
           end
           object NMarksBarShow: TTBXItem
@@ -479,13 +478,13 @@ object Fmain: TFmain
           object NToolBarSearch: TTBXItem
             AutoCheck = True
             OnClick = NSensorsBarClick
-            Caption = #1055#1072#1085#1077#1083#1100' '#1087#1086#1080#1089#1082#1072
+            Caption = #1055#1086#1080#1089#1082
             Hint = ''
           end
           object NSensorsBar: TTBXItem
             AutoCheck = True
             OnClick = NSensorsBarClick
-            Caption = #1055#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
+            Caption = #1044#1072#1090#1095#1080#1082#1080
             Hint = ''
           end
           object NSensors: TTBXSubmenuItem
@@ -7357,5 +7356,12 @@ object Fmain: TFmain
       '*.hlg'
     Left = 208
     Top = 208
+  end
+  object tmrMapUpdate: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = tmrMapUpdateTimer
+    Left = 48
+    Top = 72
   end
 end

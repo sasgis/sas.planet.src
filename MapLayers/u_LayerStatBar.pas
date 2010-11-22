@@ -16,6 +16,8 @@ type
   TLayerStatBar = class(TWindowLayerBasicWithBitmap)
   protected
     FHeight: Integer;
+    FMinUpdateTickCount: Cardinal;
+    FLastUpdateTick: DWORD;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetFreezePointInVisualPixel: TPoint; override;
     function GetFreezePointInBitmapPixel: TPoint; override;
@@ -52,6 +54,8 @@ begin
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
   FHeight := 17;
+  FLastUpdateTick := 0;
+  FMinUpdateTickCount := 100;
 end;
 
 function TLayerStatBar.GetBitmapSizeInPixel: TPoint;
@@ -126,41 +130,46 @@ var
   VMap: TMapType;
   VConverter: ICoordConverter;
   VPixelsAtZoom: Extended;
+  VCurrentTick: DWORD;
 begin
   inherited;
-  GState.ViewState.LockRead;
-  try
-    VMap := GState.ViewState.GetCurrentMap;
-    ll := GState.ViewState.VisiblePixel2LonLat(Fmain.MouseCursorPos);
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(Fmain.MouseCursorPos);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VSize := GState.ViewState.GetVisibleSizeInPixel;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  VMap.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-  VTile := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
-  if GState.FirstLat then begin
-    VLonLatStr := lat2str(ll.y, GState.llStrType) + ' ' + lon2str(ll.x, GState.llStrType);
-  end else begin
-    VLonLatStr := lon2str(ll.x, GState.llStrType) + ' ' + lat2str(ll.y, GState.llStrType);
-  end;
-  FLayer.Bitmap.Clear(SetAlpha(clWhite32, 160));
-  FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 256));
-  FLayer.Bitmap.RenderText(4, 1, inttostr(VZoomCurr + 1) + 'x', 0, clBlack32);
-  FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
+  VCurrentTick := GetTickCount;
+  if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + 100) then begin
+    GState.ViewState.LockRead;
+    try
+      VMap := GState.ViewState.GetCurrentMap;
+      ll := GState.ViewState.VisiblePixel2LonLat(Fmain.MouseCursorPos);
+      VPoint := GState.ViewState.VisiblePixel2MapPixel(Fmain.MouseCursorPos);
+      VZoomCurr := GState.ViewState.GetCurrentZoom;
+      VSize := GState.ViewState.GetVisibleSizeInPixel;
+      VConverter := GState.ViewState.GetCurrentCoordConverter;
+    finally
+      GState.ViewState.UnLockRead;
+    end;
+    VMap.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
+    VTile := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+    if GState.FirstLat then begin
+      VLonLatStr := lat2str(ll.y, GState.llStrType) + ' ' + lon2str(ll.x, GState.llStrType);
+    end else begin
+      VLonLatStr := lon2str(ll.x, GState.llStrType) + ' ' + lat2str(ll.y, GState.llStrType);
+    end;
+    FLayer.Bitmap.Clear(SetAlpha(clWhite32, 160));
+    FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 256));
+    FLayer.Bitmap.RenderText(4, 1, inttostr(VZoomCurr + 1) + 'x', 0, clBlack32);
+    FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
 
-  VRad := VConverter.GetSpheroidRadius;
-  VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
-  subs2 := DistToStrWithUnits(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R))), GState.num_format) + SAS_UNITS_mperp;
-  FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, clBlack32);
-  posnext := 273 + FLayer.Bitmap.TextWidth(subs2) + 70;
-  TameTZ := GetTimeInLonLat(ll);
-  FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, clBlack32);
-  posnext := posnext + FLayer.Bitmap.TextWidth(SAS_STR_time + ' ' + TimeToStr(TameTZ)) + 10;
-  subs2 := VMap.GetTileShowName(VTile, VZoomCurr);
-  FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, clBlack32);
+    VRad := VConverter.GetSpheroidRadius;
+    VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
+    subs2 := DistToStrWithUnits(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R))), GState.num_format) + SAS_UNITS_mperp;
+    FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, clBlack32);
+    posnext := 273 + FLayer.Bitmap.TextWidth(subs2) + 70;
+    TameTZ := GetTimeInLonLat(ll);
+    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, clBlack32);
+    posnext := posnext + FLayer.Bitmap.TextWidth(SAS_STR_time + ' ' + TimeToStr(TameTZ)) + 10;
+    subs2 := VMap.GetTileShowName(VTile, VZoomCurr);
+    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, clBlack32);
+    FLastUpdateTick := GetTickCount;
+  end;
 end;
 
 end.
