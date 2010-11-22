@@ -29,15 +29,17 @@ type
     FEditMarkActivePointColor: TColor32;
     FEditMarkFirstPointColor: TColor32;
     FEditMarkPointSize: Integer;
+
     FCalcLineColor: TColor32;
-    FCalcTextColor: TColor32;
-    FCalcTextBGColor: TColor32;
+    FCalcLineWidth: integer;
     FCalcPointFillColor: TColor32;
     FCalcPointRectColor: TColor32;
     FCalcPointFirstColor: TColor32;
     FCalcPointActiveColor: TColor32;
-    FCalcLineWidth: integer;
     FCalcPointSize: integer;
+    FCalcTextColor: TColor32;
+    FCalcTextBGColor: TColor32;
+
     FSelectionPolyFillColor: TColor32;
     FSelectionPolyBorderColor: TColor32;
     FSelectionPolyPointFirstColor: TColor32;
