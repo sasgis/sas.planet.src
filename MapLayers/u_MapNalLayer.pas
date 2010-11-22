@@ -50,6 +50,7 @@ type
     FSelectionRectFillColor: TColor32;
     FSelectionRectBorderColor: TColor32;
     FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
+    
     procedure DrawPolyPoint(
       const ABitmapSize: TPoint;
       const APosOnBitmap: TExtendedPoint;
