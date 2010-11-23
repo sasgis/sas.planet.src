@@ -605,6 +605,7 @@ type
     procedure MapLayersVisibleChange;
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
+    procedure BuildImageListMapZapSelect;
   public
     FGoogleGeoCoder: IGeoCoder;
     FYandexGeoCoder: IGeoCoder;
@@ -988,6 +989,30 @@ begin
  TBDockRight.AllowDrag:=not value;
  TBDockBottom.AllowDrag:=not value;
  Flock_toolbars:=value;
+end;
+
+procedure TFmain.BuildImageListMapZapSelect;
+var
+  i: Integer;
+  VBmp: TBitmap;
+  VMaskColor: TColor;
+  VTextSize: tagSIZE;
+  VText: string;
+begin
+  VBmp := TBitmap.Create;
+  try
+    VBmp.SetSize(TBImageList1_24.Width, TBImageList1_24.Height);
+    VMaskColor := TBImageList1_24.ImagesBitmapMaskColor;
+    for i := 1 to TBImageList1_24.Count - 1 do begin
+      VBmp.Canvas.Brush.Color := VMaskColor;
+      VBmp.Canvas.FillRect(MakeRect(0,0,VBmp.Width, VBmp.Height));
+      VBmp.Canvas.Pen.Color := clBlack;
+      VBmp.Canvas.TextExtent()
+      TBImageList1_24.ReplaceMasked(i, VBmp, VMaskColor);
+    end;
+  finally
+    VBmp.Free;
+  end;
 end;
 
 procedure TFmain.CopyBtmToClipboard(btm: TBitmap);
