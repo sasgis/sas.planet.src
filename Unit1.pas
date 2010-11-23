@@ -2526,10 +2526,10 @@ begin
  if GState.TileGridZoom=0 then NShowGran.Items[0].Checked:=true;
  if GState.TileGridZoom=99 then NShowGran.Items[1].Checked:=true;
  VZoom := GState.ViewState.GetCurrentZoom;
- NShowGran.Items[1].Caption:=SAS_STR_activescale+' (õ'+inttostr(VZoom + 1)+')';
+ NShowGran.Items[1].Caption:=SAS_STR_activescale+' (z'+inttostr(VZoom + 1)+')';
  for i:=2 to 7 do
   if VZoom+i-1<24 then begin
-                            NShowGran.Items[i].Caption:=SAS_STR_for+' õ'+inttostr(VZoom+i-1);
+                            NShowGran.Items[i].Caption:=SAS_STR_for+' z'+inttostr(VZoom+i-1);
                             NShowGran.Items[i].Visible:=true;
                             NShowGran.Items[i].Tag:=VZoom+i-1;
                             if NShowGran.Items[i].Tag=GState.TileGridZoom then NShowGran.Items[i].Checked:=true

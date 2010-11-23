@@ -155,7 +155,7 @@ begin
     end;
     FLayer.Bitmap.Clear(SetAlpha(clWhite32, 160));
     FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 256));
-    FLayer.Bitmap.RenderText(4, 1, inttostr(VZoomCurr + 1) + 'x', 0, clBlack32);
+    FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), 0, clBlack32);
     FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
 
     VRad := VConverter.GetSpheroidRadius;
