@@ -21,17 +21,16 @@ uses
 
 type
   TFMarksExplorer = class(TCommonFormParent)
-    GroupBox1: TGroupBox;
+    grpMarks: TGroupBox;
     BtnGotoMark: TSpeedButton;
     BtnOpMark: TSpeedButton;
     MarksListBox: TCheckListBox;
-    GroupBox2: TGroupBox;
+    grpCategory: TGroupBox;
     BtnDelKat: TSpeedButton;
     OpenDialog: TOpenDialog;
     Button1: TButton;
     Button2: TButton;
     BtnDelMark: TSpeedButton;
-    Bevel1: TBevel;
     RBall: TRadioButton;
     RBchecked: TRadioButton;
     RBnot: TRadioButton;
@@ -46,6 +45,13 @@ type
     OpenDialog1: TOpenDialog;
     TreeView1: TTreeView;
     imlStates: TImageList;
+    pnlBottom: TPanel;
+    pnlButtons: TPanel;
+    pnlMainWithButtons: TPanel;
+    pnlMain: TPanel;
+    splCatMarks: TSplitter;
+    pnlMarksTop: TPanel;
+    pnlCategoriesTop: TPanel;
     procedure FormShow(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);

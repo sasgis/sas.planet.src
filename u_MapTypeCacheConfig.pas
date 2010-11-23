@@ -58,9 +58,12 @@ type
 
   TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
   protected
+    FGlobalSettingsListener: IJclListener;
+    procedure OnSettingsEdit(Sender: TObject);
     procedure SetCacheType(const Value: byte); override;
+    procedure SetNameInCache(const Value: string); override;
   public
-    constructor Create;
+    constructor Create(AConfig: IConfigDataProvider);
     function GetIndexFileName: string;
     function GetDataFileName: string;
   end;
@@ -108,7 +111,7 @@ begin
   inherited Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
-  FGlobalSettingsListener := TNotifyEventListener.Create(OnSettingsEdit);
+  FGlobalSettingsListener := TNotifyEventListener.Create(Self.OnSettingsEdit);
   GState.CacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
 
   FTileFileExt := LowerCase(VParams.ReadString('Ext', '.jpg'));
@@ -184,15 +187,50 @@ end;
 
 { TMapTypeCacheConfigGE }
 
-constructor TMapTypeCacheConfigGE.Create;
+constructor TMapTypeCacheConfigGE.Create(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
 begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FTileFileExt := '';
   FCacheType := 5;
+  FEffectiveCacheType := 5;
   FDefCacheType := FCacheType;
-  FNameInCache := '';
+  FNameInCache := VParams.ReadString('NameInCache', '');
   FDefNameInCache := FNameInCache;
+  FGlobalSettingsListener := TNotifyEventListener.Create(Self.OnSettingsEdit);
+  GState.CacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
 end;
 
+procedure TMapTypeCacheConfigGE.OnSettingsEdit(Sender: TObject);
+var
+  VBasePath: string;
+begin
+  VBasePath := FNameInCache;
+  //TODO: — этим бардаком нужно что-то будет сделать
+  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
+    VBasePath:=IncludeTrailingPathDelimiter(GState.CacheConfig.GECachepath)+VBasePath;
+  end;
+  //TODO: — этим бардаком нужно что-то будет сделать
+  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
+    VBasePath := IncludeTrailingPathDelimiter(GState.ProgramPath) + VBasePath;
+  end;
+  VBasePath := IncludeTrailingPathDelimiter(VBasePath);
+  FBasePath := VBasePath;
+end;
+
+procedure TMapTypeCacheConfigGE.SetCacheType(const Value: byte);
+begin
+end;
+
+procedure TMapTypeCacheConfigGE.SetNameInCache(const Value: string);
+begin
+  if FNameInCache <> Value then begin
+    FNameInCache := Value;
+    OnSettingsEdit(nil);
+  end;
+end;
+ 
 function TMapTypeCacheConfigGE.GetDataFileName: string;
 begin
   Result := FBasePath + 'dbCache.dat';
@@ -201,10 +239,6 @@ end;
 function TMapTypeCacheConfigGE.GetIndexFileName: string;
 begin
   Result := FBasePath + 'dbCache.dat.index';
-end;
-
-procedure TMapTypeCacheConfigGE.SetCacheType(const Value: byte);
-begin
 end;
 
 end.

@@ -44,6 +44,7 @@ const
 type
   TMapMarksBitmapLayerProviderStupedThreaded = class
   private
+    FDeltaSizeInPixel: TPoint;
     FTargetBmp: TCustomBitmap32;
     FGeoConvert: ICoordConverter;
     FTargetRect: TRect;
@@ -69,12 +70,20 @@ type
 constructor TMapMarksBitmapLayerProviderStupedThreaded.Create(
   ATargetBmp: TCustomBitmap32; AConverter: ICoordConverter;
   ATargetRect: TRect; ATargetZoom: Byte);
+var
+  VRectWithDelta: TRect;
 begin
+  FDeltaSizeInPixel := Point(128, 128);
   FTargetBmp := ATargetBmp;
   FGeoConvert := AConverter;
   FTargetRect := ATargetRect;
   FZoom := ATargetZoom;
-  FLLRect := FGeoConvert.PixelRect2LonLatRect(FTargetRect, FZoom);
+  VRectWithDelta.Left := FTargetRect.Left - FDeltaSizeInPixel.X;
+  VRectWithDelta.Top := FTargetRect.Top - FDeltaSizeInPixel.Y;
+  VRectWithDelta.Right := FTargetRect.Right + FDeltaSizeInPixel.X;
+  VRectWithDelta.Bottom := FTargetRect.Bottom + FDeltaSizeInPixel.Y;
+  FGeoConvert.CheckPixelRect(VRectWithDelta, FZoom);
+  FLLRect := FGeoConvert.PixelRect2LonLatRect(VRectWithDelta, FZoom);
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;

@@ -8,6 +8,8 @@ uses
   GR32_Image,
   GR32_Polygons,
   t_GeoTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   u_MapViewPortState,
   u_MapLayerBasic;
 
@@ -22,12 +24,42 @@ type
     FPolyActivePointIndex: integer;
     FLenShow: Boolean;
 
-    FPolyPointColor: TColor32;
-    FPolyActivePointColor: TColor32;
-    FPolyFirstPointColor: TColor32;
-    FPolyLineColor: TColor32;
-    FPolyFillColor: TColor32;
-    FPolyLineWidth: Integer;
+    FEditMarkLineColor: TColor32;
+    FEditMarkFillColor: TColor32;
+    FEditMarkLineWidth: Integer;
+    FEditMarkPointColor: TColor32;
+    FEditMarkActivePointColor: TColor32;
+    FEditMarkFirstPointColor: TColor32;
+    FEditMarkPointSize: Integer;
+
+    FCalcLineColor: TColor32;
+    FCalcLineWidth: integer;
+    FCalcPointFillColor: TColor32;
+    FCalcPointRectColor: TColor32;
+    FCalcPointFirstColor: TColor32;
+    FCalcPointActiveColor: TColor32;
+    FCalcPointSize: integer;
+    FCalcTextColor: TColor32;
+    FCalcTextBGColor: TColor32;
+
+    FSelectionPolyFillColor: TColor32;
+    FSelectionPolyLineColor: TColor32;
+    FSelectionPolyLineWidth: Integer;
+    FSelectionPolyPointFirstColor: TColor32;
+    FSelectionPolyPointLastColor: TColor32;
+    FSelectionPolyPointSize: Integer;
+
+    FSelectionRectFillColor: TColor32;
+    FSelectionRectBorderColor: TColor32;
+    FSelectionRectZoomDeltaColor: array [0..2] of TColor32;
+
+    procedure DrawPolyPoint(
+      const ABitmapSize: TPoint;
+      const APosOnBitmap: TDoublePoint;
+      const ASize: Integer;
+      const AFillColor: TColor32;
+      const ARectColor: TColor32
+    );
     procedure DoDrawSelectionRect;
     procedure DoDrawSelectionPoly;
     procedure DoDrawCalcLine;
@@ -37,6 +69,8 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure DrawNothing;
     procedure DrawSelectionRect(ASelectedLonLat: TDoubleRect);
     procedure DrawReg(ASelectedLonLatPoly: TDoublePointArray);
@@ -56,20 +90,43 @@ uses
   u_GlobalState,
   u_WindowLayerBasic;
 
-const
-  CRectSize = 1 shl 14;
-
 { TMapNalLayer }
 
 constructor TMapNalLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+var
+  i: Integer;
+  kz: Integer;
 begin
   inherited;
-  FPolyPointColor := SetAlpha(clYellow32, 150);
-  FPolyActivePointColor := SetAlpha(ClRed32, 255);
-  FPolyFirstPointColor := SetAlpha(ClGreen32, 255);
-  FPolyLineColor := SetAlpha(ClRed32, 150);
-  FPolyFillColor := SetAlpha(ClWhite32, 50);
-  FPolyLineWidth := 3;
+  FLayer.Bitmap.Font.Name := 'Tahoma';
+  FEditMarkPointColor := SetAlpha(clYellow32, 150);
+  FEditMarkActivePointColor := SetAlpha(ClRed32, 255);
+  FEditMarkFirstPointColor := SetAlpha(ClGreen32, 255);
+  FEditMarkLineColor := SetAlpha(ClRed32, 150);
+  FEditMarkFillColor := SetAlpha(ClWhite32, 50);
+  FEditMarkLineWidth := 3;
+  FEditMarkPointSize := 8;
+  FCalcLineColor := SetAlpha(ClRed32, 150);
+  FCalcTextColor := clBlack32;
+  FCalcTextBGColor := SetAlpha(ClWhite32, 110);
+  FCalcPointFillColor := SetAlpha(ClWhite32, 150);
+  FCalcPointRectColor := SetAlpha(ClRed32, 150);
+  FCalcPointFirstColor := SetAlpha(ClGreen32, 255);
+  FCalcPointActiveColor := SetAlpha(ClRed32, 255);
+  FCalcLineWidth := 3;
+  FCalcPointSize := 6;
+  FSelectionPolyFillColor := SetAlpha(clWhite32, 40);
+  FSelectionPolyLineColor := SetAlpha(clBlue32, 180);
+  FSelectionPolyPointFirstColor := SetAlpha(ClGreen32, 255);
+  FSelectionPolyPointLastColor := SetAlpha(ClRed32, 255);
+  FSelectionPolyLineWidth := 3;
+  FSelectionPolyPointSize := 6;
+  FSelectionRectFillColor := SetAlpha(clWhite32, 20);
+  FSelectionRectBorderColor := SetAlpha(clBlue32, 150);
+  for i := 0 to Length(FSelectionRectZoomDeltaColor) - 1 do begin
+    kz := 256 shr i;
+    FSelectionRectZoomDeltaColor[i] := SetAlpha(RGB(kz - 1, kz - 1, kz - 1), 255);
+  end;
 end;
 
 destructor TMapNalLayer.Destroy;
@@ -82,7 +139,6 @@ procedure TMapNalLayer.DoDrawCalcLine;
 var
   i, j, textW: integer;
   k1: TDoublePoint;
-  k2: TDoublePoint;
   len: real;
   text: string;
   polygon: TPolygon32;
@@ -93,7 +149,6 @@ var
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
-    FLayer.Bitmap.Font.Name := 'Tahoma';
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
@@ -108,9 +163,9 @@ begin
       polygon.Closed := false;
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
       with Polygon.Outline do try
-         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+         with Grow(Fixed(FCalcLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, SetAlpha(ClRed32, 150));
+           DrawFill(FLayer.Bitmap, FCalcLineColor);
          finally
            free;
          end;
@@ -124,78 +179,58 @@ begin
     VBitmapSize := GetBitmapSizeInPixel;
     try
       for i := 0 to VPointsCount - 2 do begin
-        k2 := VPointsOnBitmap[i + 1];
-        if not ((k2.x > 0) and (k2.y > 0)) and ((k2.x < VBitmapSize.X) and (k2.y < VBitmapSize.Y)) then begin
-          continue;
-        end;
-        FLayer.Bitmap.FrameRectS(
-          Trunc(k2.x - 3),
-          Trunc(k2.y - 3),
-          Trunc(k2.X + 3),
-          Trunc(k2.Y + 3),
-          SetAlpha(ClRed32, 150)
-        );
-        FLayer.Bitmap.FillRectS(
-          Trunc(k2.x - 2),
-          Trunc(k2.y - 2),
-          Trunc(k2.X + 2),
-          Trunc(k2.y + 2),
-          SetAlpha(ClWhite32, 150)
-        );
-        if i = VPointsCount - 2 then begin
-          len := 0;
-          for j := 0 to i do begin
-            len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
-          end;
-          text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
-          FLayer.Bitmap.Font.Size := 9;
-          textW := FLayer.Bitmap.TextWidth(text) + 11;
-          FLayer.Bitmap.FillRectS(
-            Trunc(k2.x + 12),
-            Trunc(k2.y),
-            Trunc(k2.X + textW),
-            Trunc(k2.y + 15),
-            SetAlpha(ClWhite32, 110)
-          );
-          FLayer.Bitmap.RenderText(
-            Trunc(k2.X + 15),
-            Trunc(k2.y),
-            text,
-            3,
-            clBlack32
-          );
-        end else begin
-          if FLenShow then begin
-            text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
-            FLayer.Bitmap.Font.Size := 7;
+        k1 := VPointsOnBitmap[i + 1];
+        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
+          if i = VPointsCount - 2 then begin
+            len := 0;
+            for j := 0 to i do begin
+              len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
+            end;
+            text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
+            FLayer.Bitmap.Font.Size := 9;
             textW := FLayer.Bitmap.TextWidth(text) + 11;
             FLayer.Bitmap.FillRectS(
-              Trunc(k2.x + 5),
-              Trunc(k2.y + 5),
-              Trunc(k2.X + textW),
-              Trunc(k2.y + 16),
-              SetAlpha(ClWhite32, 110)
+              Trunc(k1.x + 12),
+              Trunc(k1.y),
+              Trunc(k1.X + textW),
+              Trunc(k1.y + 15),
+              FCalcTextBGColor
             );
             FLayer.Bitmap.RenderText(
-              Trunc(k2.X + 8),
-              Trunc(k2.y + 5),
+              Trunc(k1.X + 15),
+              Trunc(k1.y),
               text,
-              0,
-              clBlack32
+              3,
+              FCalcTextColor
             );
+          end else begin
+            if FLenShow then begin
+              text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
+              FLayer.Bitmap.Font.Size := 7;
+              textW := FLayer.Bitmap.TextWidth(text) + 11;
+              FLayer.Bitmap.FillRectS(
+                Trunc(k1.x + 5),
+                Trunc(k1.y + 5),
+                Trunc(k1.X + textW),
+                Trunc(k1.y + 16),
+                FCalcTextBGColor
+              );
+              FLayer.Bitmap.RenderText(
+                Trunc(k1.X + 8),
+                Trunc(k1.y + 5),
+                text,
+                0,
+                FCalcTextColor
+              );
+            end;
           end;
+          DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFillColor, FCalcPointRectColor);
         end;
       end;
       k1 := VPointsOnBitmap[0];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := DoublePoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), SetAlpha(ClGreen32, 255));
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFirstColor, FCalcPointFirstColor);
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := DoublePoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.x), Round(k1.y), 6, 6), SetAlpha(ClRed32, 255));
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointActiveColor, FCalcPointActiveColor);
     finally
       VPointsOnBitmap := nil;
     end;
@@ -227,12 +262,12 @@ begin
       polygon.Closed := AIsPoly;
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
       if AIsPoly then begin
-        Polygon.DrawFill(FLayer.Bitmap, FPolyFillColor);
+        Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
       end;
       with Polygon.Outline do try
-         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+         with Grow(Fixed(FEditMarkLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, FPolyLineColor);
+           DrawFill(FLayer.Bitmap, FEditMarkLineColor);
          finally
            free;
          end;
@@ -247,21 +282,12 @@ begin
     try
       for i := 1 to VPointsCount - 1 do begin
         k1 := VPointsOnBitmap[i];
-        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          k1 := DoublePoint(k1.x - 4, k1.y - 4);
-          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyPointColor);
-        end;
+        DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
       end;
       k1 := VPointsOnBitmap[0];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := DoublePoint(k1.x - 4, k1.y - 4);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyFirstPointColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkFirstPointColor, FEditMarkFirstPointColor);
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := DoublePoint(k1.x - 4, k1.y - 4);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.y), 8, 8), FPolyActivePointColor);
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkActivePointColor, FEditMarkActivePointColor);
     finally
       VPointsOnBitmap := nil;
     end;
@@ -292,11 +318,11 @@ begin
       polygon.AntialiasMode := am4times;
       polygon.Closed := true;
       PrepareGR32Polygon(VPointsOnBitmap, polygon);
-      Polygon.DrawFill(FLayer.Bitmap, SetAlpha(clWhite32, 40));
+      Polygon.DrawFill(FLayer.Bitmap, FSelectionPolyFillColor);
       with Polygon.Outline do try
-         with Grow(Fixed(FPolyLineWidth / 2), 0.5) do try
+         with Grow(Fixed(FSelectionPolyLineWidth / 2), 0.5) do try
            FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, SetAlpha(clBlue32, 180));
+           DrawFill(FLayer.Bitmap, FSelectionPolyLineColor);
          finally
            free;
          end;
@@ -310,16 +336,10 @@ begin
     VBitmapSize := GetBitmapSizeInPixel;
     try
       k1 := VPointsOnBitmap[0];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-        k1 := DoublePoint(k1.x - 3, k1.y - 3);
-        FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClGreen32, 255));
-      end;
+      DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointFirstColor, FSelectionPolyPointFirstColor);
       if VPointsCount > 1 then begin
         k1 := VPointsOnBitmap[VPointsCount - 1];
-        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          k1 := DoublePoint(k1.x - 3, k1.y - 3);
-          FLayer.Bitmap.FillRectS(bounds(Round(k1.X), Round(k1.Y), 6, 6), SetAlpha(ClRed32, 255));
-        end;
+        DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointLastColor, FSelectionPolyPointLastColor);
       end;
     finally
       VPointsOnBitmap := nil;
@@ -329,13 +349,14 @@ end;
 
 procedure TMapNalLayer.DoDrawSelectionRect;
 var
-  kz, jj: integer;
+  jj: integer;
   xy1, xy2: TPoint;
   VSelectedPixels: TRect;
   VZoomDelta: Byte;
   VColor: TColor32;
   VSelectedRelative: TDoubleRect;
   VSelectedTiles: TRect;
+  VMaxZoomDelta: Integer;
 begin
   VSelectedPixels := FGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, FZoom);
 
@@ -346,15 +367,16 @@ begin
   xy2.x := xy2.x;
   xy2.y := xy2.y;
 
-  FLayer.Bitmap.FillRectS(xy1.x, xy1.y, xy2.x, xy2.y, SetAlpha(clWhite32, 20));
-  FLayer.Bitmap.FrameRectS(xy1.x, xy1.y, xy2.x, xy2.y, SetAlpha(clBlue32, 150));
-  FLayer.Bitmap.FrameRectS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, SetAlpha(clBlue32, 150));
+  FLayer.Bitmap.FillRectS(xy1.x, xy1.y, xy2.x, xy2.y, FSelectionRectFillColor);
+  FLayer.Bitmap.FrameRectS(xy1.x, xy1.y, xy2.x, xy2.y, FSelectionRectBorderColor);
+  FLayer.Bitmap.FrameRectS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FSelectionRectBorderColor);
 
   VSelectedRelative := FGeoConvert.PixelRect2RelativeRect(VSelectedPixels, FZoom);
 
   jj := FZoom;
   VZoomDelta := 0;
-  while (VZoomDelta < 3) and (jj < 24) do begin
+  VMaxZoomDelta := Length(FSelectionRectZoomDeltaColor) - 1;
+  while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
     VSelectedTiles := FGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
     VSelectedPixels := FGeoConvert.RelativeRect2PixelRect(
       FGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), FZoom
@@ -363,8 +385,7 @@ begin
     xy1 := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
     xy2 := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
 
-    kz := 256 shr VZoomDelta;
-    VColor := SetAlpha(RGB(kz - 1, kz - 1, kz - 1), 255);
+    VColor := FSelectionRectZoomDeltaColor[VZoomDelta];
 
     FLayer.Bitmap.FrameRectS(
       xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
@@ -376,7 +397,7 @@ begin
     FLayer.Bitmap.RenderText(
       xy2.x - ((xy2.x - xy1.x) div 2) - 42 + VZoomDelta * 26,
       xy2.y - ((xy2.y - xy1.y) div 2) - 6,
-      'x' + inttostr(jj + 1), 3, VColor
+      'z' + inttostr(jj + 1), 3, VColor
     );
     Inc(jj);
     Inc(VZoomDelta);
@@ -431,6 +452,40 @@ begin
   Redraw;
 end;
 
+procedure TMapNalLayer.DrawPolyPoint(const ABitmapSize: TPoint;
+  const APosOnBitmap: TDoublePoint; const ASize: Integer; const AFillColor,
+  ARectColor: TColor32);
+var
+  VHalfSize: Double;
+  VRect: TRect;
+  VRectFloat: TDoubleRect;
+begin
+  VHalfSize := ASize / 2;
+  VRectFloat.Left := APosOnBitmap.X - VHalfSize;
+  VRectFloat.Top := APosOnBitmap.Y - VHalfSize;
+  VRectFloat.Right := VRectFloat.Left + ASize;
+  VRectFloat.Bottom := VRectFloat.Top + ASize;
+  if
+    (VRectFloat.Left > 0) and
+    (VRectFloat.Top > 0) and
+    (VRectFloat.Right < ABitmapSize.X) and
+    (VRectFloat.Bottom < ABitmapSize.Y)
+  then begin
+    VRect.Left := Trunc(VRectFloat.Left);
+    VRect.Top := Trunc(VRectFloat.Top);
+    VRect.Right := Trunc(VRectFloat.Right);
+    VRect.Bottom := Trunc(VRectFloat.Bottom);
+    FLayer.Bitmap.FillRectS(VRect, ARectColor);
+    if AFillColor <> ARectColor then begin
+      Inc(VRect.Left);
+      Inc(VRect.Top);
+      Dec(VRect.Right);
+      Dec(VRect.Bottom);
+      FLayer.Bitmap.FillRectS(VRect, AFillColor);
+    end;
+  end;
+end;
+
 procedure TMapNalLayer.DrawReg(ASelectedLonLatPoly: TDoublePointArray);
 begin
   FDrawType := mndtSelectPoly;
@@ -444,6 +499,72 @@ begin
   FPath := nil;
   FSelectedLonLat := ASelectedLonLat;
   Redraw;
+end;
+
+function LoadColor32(
+  AConfigProvider: IConfigDataProvider;
+  AIdent: string;
+  ADefault: TColor32
+): TColor32;
+var
+  VColor: TColor;
+  VAlfa: Integer;
+begin
+  Result := ADefault;
+  if AConfigProvider <> nil then begin
+    VAlfa := AlphaComponent(Result);
+    VColor := WinColor(Result);
+    VAlfa := AConfigProvider.ReadInteger(AIdent + 'Alfa', VAlfa);
+    VColor := AConfigProvider.ReadInteger(AIdent, VColor);
+    Result := SetAlpha(Color32(VColor), VAlfa);
+  end;
+end;
+
+procedure TMapNalLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
+  if VConfigProvider <> nil then begin
+    VConfigProvider := VConfigProvider.GetSubItem('EditMark');
+    if VConfigProvider <> nil then begin
+      FEditMarkLineColor := LoadColor32(VConfigProvider, 'LineColor', FEditMarkLineColor);
+      FEditMarkFillColor := LoadColor32(VConfigProvider, 'FillColor', FEditMarkFillColor);
+      FEditMarkLineWidth := VConfigProvider.ReadInteger('LineWidth', FEditMarkLineWidth);
+      FEditMarkPointColor := LoadColor32(VConfigProvider, 'PointColor', FEditMarkPointColor);
+      FEditMarkActivePointColor := LoadColor32(VConfigProvider, 'ActivePointColor', FEditMarkActivePointColor);
+      FEditMarkFirstPointColor := LoadColor32(VConfigProvider, 'FirstPointColor', FEditMarkFirstPointColor);
+      FEditMarkPointSize := VConfigProvider.ReadInteger('PointSize', FEditMarkPointSize);
+    end;
+  end;
+end;
+
+procedure WriteColor32(
+  AConfigProvider: IConfigDataWriteProvider;
+  AIdent: string;
+  AValue: TColor32
+);
+begin
+  AConfigProvider.WriteInteger(AIdent + 'Alfa', AlphaComponent(AValue));
+  AConfigProvider.WriteInteger(AIdent, WinColor(AValue));
+end;
+
+procedure TMapNalLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+var
+  VConfigProvider: IConfigDataWriteProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
+  VConfigProvider := VConfigProvider.GetOrCreateSubItem('EditMark');
+
+  WriteColor32(VConfigProvider, 'LineColor', FEditMarkLineColor);
+  WriteColor32(VConfigProvider, 'FillColor', FEditMarkFillColor);
+  VConfigProvider.WriteInteger('LineWidth', FEditMarkLineWidth);
+  WriteColor32(VConfigProvider, 'PointColor', FEditMarkPointColor);
+  WriteColor32(VConfigProvider, 'ActivePointColor', FEditMarkActivePointColor);
+  WriteColor32(VConfigProvider, 'FirstPointColor', FEditMarkFirstPointColor);
+  VConfigProvider.WriteInteger('PointSize', FEditMarkPointSize);
 end;
 
 end.

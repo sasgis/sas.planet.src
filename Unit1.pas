@@ -21,6 +21,7 @@ uses
   StdCtrls,
   OleCtrls,
   Controls,
+  ExtCtrls,
   Buttons,
   WinInet,
   Dialogs,
@@ -397,6 +398,7 @@ type
     TBGPSToPoint: TTBXSubmenuItem;
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
+    tmrMapUpdate: TTimer;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -526,6 +528,7 @@ type
     procedure TBXItem8Click(Sender: TObject);
     procedure TBXItem9Click(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
+    procedure tmrMapUpdateTimer(Sender: TObject);
   private
     FnilLastLoad: TLastLoad;
     FShowActivHint: boolean;
@@ -607,6 +610,7 @@ type
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
     procedure setalloperationfalse(newop: TAOperation);
+    procedure BuildImageListMapZapSelect;
     procedure UpdateGPSSatellites;
   public
     FGoogleGeoCoder: IGeoCoder;
@@ -738,8 +742,8 @@ var
 begin
   Showstatus.Checked := FLayerStatBar.Visible;
   if FLayerStatBar.Visible then begin
-    FLayerScaleLine.BottomMargin := 17;
-    FLayerMiniMap.BottomMargin := 17;
+    FLayerScaleLine.BottomMargin := FLayerStatBar.Height;
+    FLayerMiniMap.BottomMargin := FLayerStatBar.Height;
   end else begin
     FLayerScaleLine.BottomMargin := 0;
     FLayerMiniMap.BottomMargin := 0;
@@ -757,7 +761,7 @@ begin
   end;
 
   if FLayerFillingMap.SourceZoom >-1 then begin
-    TBMapZap.Caption:='x'+inttostr(FLayerFillingMap.SourceZoom+1);
+    TBMapZap.Caption:='z'+inttostr(FLayerFillingMap.SourceZoom+1);
   end else begin
     TBMapZap.Caption:='';
   end;
@@ -851,7 +855,7 @@ begin
     NZoomIn.Enabled:=TBZoomIn.Enabled;
     NZoomOut.Enabled:=TBZoom_Out.Enabled;
     RxSlider1.Value:=VZoomCurr;
-    labZoom.caption:=inttostr(VZoomCurr + 1)+'x';
+    labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
     map.BeginUpdate;
     try
       FLayerStatBar.Redraw;
@@ -884,6 +888,34 @@ begin
  TBDockRight.AllowDrag:=not value;
  TBDockBottom.AllowDrag:=not value;
  Flock_toolbars:=value;
+end;
+
+procedure TFmain.BuildImageListMapZapSelect;
+var
+  i: Integer;
+  VBmp: TBitmap;
+  VMaskColor: TColor;
+  VTextSize: Types.tagSIZE;
+  VText: string;
+  VBmpSize: TPoint;
+begin
+  VBmp := TBitmap.Create;
+  try
+    VBmpSize := Point(TBImageList1_24.Width, TBImageList1_24.Height);
+    VBmp.SetSize(VBmpSize.X, VBmpSize.Y);
+    VMaskColor := TBImageList1_24.ImagesBitmapMaskColor;
+    for i := 1 to TBImageList1_24.Count - 1 do begin
+      VBmp.Canvas.Brush.Color := VMaskColor;
+      VBmp.Canvas.FillRect(MakeRect(0,0,VBmpSize.X, VBmpSize.Y));
+      VBmp.Canvas.Pen.Color := clBlack;
+      VText := 'z' + IntToStr(i);
+      VTextSize := VBmp.Canvas.TextExtent(VText);
+      VBmp.Canvas.TextOut((VBmpSize.X div 2) - (VTextSize.cx div 2), (VBmpSize.Y div 2) - (VTextSize.cy div 2), VText);
+      TBImageList1_24.ReplaceMasked(i, VBmp, VMaskColor);
+    end;
+  finally
+    VBmp.Free;
+  end;
 end;
 
 procedure TFmain.CopyBtmToClipboard(btm: TBitmap);
@@ -1240,6 +1272,11 @@ begin
    end;
 end;
 
+procedure TFmain.tmrMapUpdateTimer(Sender: TObject);
+begin
+  FLayerStatBar.Redraw;
+end;
+
 procedure TFmain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
 begin
   GState.ViewState.LockWrite;
@@ -1488,6 +1525,7 @@ var
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
+  BuildImageListMapZapSelect;
   VConverter := GState.MapType[0].GeoConvert;
   VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
   VConverter.CheckZoom(VZoom);
@@ -1717,6 +1755,7 @@ begin
     GState.StartThreads;
     FMainLayer.Visible := True;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
+    tmrMapUpdate.Enabled := True;
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1834,6 +1873,7 @@ var
   i:integer;
 begin
   ProgramClose:=true;
+  tmrMapUpdate.Enabled := false;
   GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
   GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
   GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
@@ -1959,7 +1999,7 @@ end;
 
 procedure TFmain.RxSlider1Change(Sender: TObject);
 begin
- labZoom.Caption:=inttostr(RxSlider1.Value+1)+'x';
+ labZoom.Caption:= 'z' + inttostr(RxSlider1.Value+1);
 end;
 
 procedure TFmain.RxSlider1Changed(Sender: TObject);
@@ -2411,10 +2451,10 @@ begin
  if GState.TileGridZoom=0 then NShowGran.Items[0].Checked:=true;
  if GState.TileGridZoom=99 then NShowGran.Items[1].Checked:=true;
  VZoom := GState.ViewState.GetCurrentZoom;
- NShowGran.Items[1].Caption:=SAS_STR_activescale+' (õ'+inttostr(VZoom + 1)+')';
+ NShowGran.Items[1].Caption:=SAS_STR_activescale+' (z'+inttostr(VZoom + 1)+')';
  for i:=2 to 7 do
   if VZoom+i-1<24 then begin
-                            NShowGran.Items[i].Caption:=SAS_STR_for+' õ'+inttostr(VZoom+i-1);
+                            NShowGran.Items[i].Caption:=SAS_STR_for+' z'+inttostr(VZoom+i-1);
                             NShowGran.Items[i].Visible:=true;
                             NShowGran.Items[i].Tag:=VZoom+i-1;
                             if NShowGran.Items[i].Tag=GState.TileGridZoom then NShowGran.Items[i].Checked:=true

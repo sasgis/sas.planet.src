@@ -102,17 +102,17 @@ begin
     dsfKmAndM: begin
       if r > 1000 then begin
         VKmDist :=r/1000;
-        Result := IntToStr(Trunc(VKmDist)) +SAS_UNITS_km + ' ';
-        Result := Result + RoundEx(frac(VKmDist)*1000, 2) + SAS_UNITS_m
+        Result := IntToStr(Trunc(VKmDist)) + ' ' + SAS_UNITS_km + ' ';
+        Result := Result + RoundEx(frac(VKmDist)*1000, 2) + ' ' + SAS_UNITS_m
       end else begin
-        Result := RoundEx(r, 2) + SAS_UNITS_m;
+        Result := RoundEx(r, 2) + ' ' + SAS_UNITS_m;
       end;
     end;
     dsfSimpleKM: begin
       if r<10000 then begin
-        Result := RoundEx(r, 2) + SAS_UNITS_m;
+        Result := RoundEx(r, 2) + ' ' + SAS_UNITS_m;
       end else begin
-        Result := RoundEx(r/1000, 2) + SAS_UNITS_km;
+        Result := RoundEx(r/1000, 2) + ' ' + SAS_UNITS_km;
       end;
     end;
   end;

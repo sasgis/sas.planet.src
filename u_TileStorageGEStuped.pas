@@ -64,7 +64,7 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
-  FCacheConfig := TMapTypeCacheConfigGE.Create;
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig);
   FMainContentType := GState.ContentTypeManager.GetInfo('image/jpeg');
 end;
 

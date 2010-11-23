@@ -62,7 +62,7 @@ uses
 
 constructor TTileStorageGE.Create(AConfig: IConfigDataProvider);
 begin
-  FCacheConfig := TMapTypeCacheConfigGE.Create;
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig);
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   FIndex := TGEIndexFile.Create(FCacheConfig);
   FMainContentType := GState.ContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');

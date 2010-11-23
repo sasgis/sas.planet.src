@@ -153,7 +153,7 @@ begin
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
       Caption := SAS_MSG_LoadComplete+' ('+VComplete+')';
-      LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (õ'+inttostr(FDownloadThread.Zoom + 1)+')';
+      LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       LabelValue1.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
       LabelValue2.Caption := inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
@@ -171,7 +171,7 @@ begin
     end else begin
       Caption:=SAS_STR_LoadProcess+'... ('+VComplete+')';
       Application.ProcessMessages;
-      LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (õ'+inttostr(FDownloadThread.Zoom + 1)+')';
+      LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       LabelValue1.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
       LabelValue2.Caption:=inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
