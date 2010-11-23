@@ -2221,7 +2221,7 @@ begin
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
    CopyStringToClipboard(VMap.GetTileFileName(VPoint, VZoomCurr));
   end else begin
-    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+    ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -2310,7 +2310,7 @@ begin
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
     ShellExecute(0,'open',PChar(VMap.GetTileFileName(VPoint, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
-    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+    ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -2337,7 +2337,7 @@ begin
     s := ExtractFilePath(s);
     ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
-    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+    ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -4066,7 +4066,7 @@ var
   VMap: TMapType;
 begin
  VMap := GState.ViewState.GetCurrentMap;
- ShowMessage('Файл: '+VMap.zmpfilename+#13#10+VMap.MapInfo);
+ ShowMessageFmt(SAS_MSG_MapInfoShow,[VMap.zmpfilename, VMap.MapInfo]);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);

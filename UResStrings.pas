@@ -25,6 +25,8 @@ ResourceString
     'и используйте полученные kmz по отдельности';
   SAS_MSG_NotDelWhereHasChildren = 'Категория не пуста! Удалите все дочерние категории.';
   SAS_MSG_HotKeyExists = 'Горячая клавиша уже используется, пожалуйста, выберите другую';
+  SAS_MSG_CantGetTileFileName = 'Это не тайловый кеш, невозможно получить имя файла с тайлом.';
+  SAS_MSG_MapInfoShow = 'Файл: %0:s'#13#10'%1:s';  
 
   SAS_ERR_Nopoints = 'Необходимый набор точек отсутствует!';
   SAS_ERR_ProxyStrFormat = 'Неверный формат записи прокси-сервера';
@@ -62,6 +64,12 @@ ResourceString
   SAS_ERR_MapGUIDDuplicate = 'В файлах %0:s и %1:s одинаковые GUID';
   SAS_ERR_MainMapNotExists = 'Среди ZMP должна быть хотя бы одна карта';
   SAS_ERR_CategoryNameDoubling = 'Такое имя категории уже существует';
+  SAS_ERR_UrlScriptError = 'Ошибка скрипта карты %0:s:'#13#10'%1:s';
+  SAS_ERR_UrlScriptUnexpectedError = 'Ошибка скрипта карты %0:s:'#13#10'Неожиданная ошибка';
+  SAS_ERR_UrlScriptCompileError = 'Ошибка в скрипте при компиляции'#13#10'%0:s';
+  SAS_ERR_UrlScriptByteCodeLoad = 'Ошибка при загрузке байткода';
+  SAS_ERR_MapProjectionUnexpectedType = 'Ошибочный тип проэкции карты %0:s';
+  SAS_ERR_MapDownloadByError = 'Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s';
 
   SAS_STR_MarshLen = 'Длина маршрута: ';
   SAS_STR_Marshtime = 'Время в пути: ';

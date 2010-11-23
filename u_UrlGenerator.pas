@@ -71,6 +71,7 @@ uses
   Types,
   uPSUtils,
   u_GeoToStr,
+  UResStrings,
   t_GeoTypes;
 
 { TUrlGeneratorBasic }
@@ -203,7 +204,7 @@ begin
     For i := 0 to VCompiler.MsgCount - 1 do begin
       MSG := Msg + VCompiler.Msg[i].MessageToString + #13#10;
     end;
-    raise EUrlGeneratorScriptCompileError.Create('ќшибка в скрипте при компил€ции'#13#10 + Msg);
+    raise EUrlGeneratorScriptCompileError.CreateFmt(SAS_ERR_UrlScriptCompileError, [Msg]);
   end;
   VCompiler.GetOutput(VData); // Save the output of the compiler in the string Data.
   VCompiler.Free;            // After compiling the script, there is no further need for the compiler.
@@ -216,7 +217,7 @@ begin
   FExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
 
   if not FExec.LoadData(VData) then begin // Load the data from the Data string.
-    raise Exception.Create('ќшибка при загрузке байткода');
+    raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);
   end;
   FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
