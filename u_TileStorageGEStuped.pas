@@ -7,6 +7,7 @@ uses
   Classes,
   GR32,
   i_ICoordConverter,
+  i_IConfigDataProvider,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
 
@@ -15,7 +16,7 @@ type
   private
     FCacheConfig: TMapTypeCacheConfigAbstract;
   public
-    constructor Create(ACoordConverter: ICoordConverter);
+    constructor Create(ACoordConverter: ICoordConverter; AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
     function GetIsStoreFileCache: Boolean; override;
@@ -49,10 +50,10 @@ uses
 
 { TTileStorageGEStuped }
 
-constructor TTileStorageGEStuped.Create(ACoordConverter: ICoordConverter);
+constructor TTileStorageGEStuped.Create(ACoordConverter: ICoordConverter; AConfig: IConfigDataProvider);
 begin
   inherited Create(ACoordConverter);
-  FCacheConfig := TMapTypeCacheConfigGE.Create;
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig);
 end;
 
 function TTileStorageGEStuped.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
