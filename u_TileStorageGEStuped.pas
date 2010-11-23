@@ -101,7 +101,7 @@ end;
 
 function TTileStorageGEStuped.GetTileFileExt: string;
 begin
-  Result := '';
+  Result := '.jpg';
 end;
 
 function TTileStorageGEStuped.GetTileFileName(AXY: TPoint; Azoom: byte): string;
