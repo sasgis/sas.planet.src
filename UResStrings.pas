@@ -141,6 +141,10 @@ ResourceString
   SAS_STR_OperationTilesCopyCaption = 'Копирование тайлов';
   SAS_STR_OperationMapCombineCaption = 'Склейка карты';
   SAS_STR_OperationDownloadCaption = 'Скачивание';
+  SAS_STR_ApplicationTitle = 'SAS.Планета';
+  SAS_STR_BattaryStateOnLine = 'От сети';
+  SAS_STR_BattaryStateCharge = 'Заряжается';
+  SAS_STR_BattaryStateUnknown = 'Неизвестно';
 
   SAS_UNITS_kb = 'Кб';
   SAS_UNITS_mb = 'Мб';

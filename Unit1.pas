@@ -1325,14 +1325,14 @@ begin
    GetSystemPowerStatus(sps);
    if sps.ACLineStatus=0 then begin
      case sps.BatteryFlag of
-       128: TBXSensorBattary.Caption:='От сети';
-         8: TBXSensorBattary.Caption:='Заряжается';
-       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:='Неизвестно'
+       128: TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
+         8: TBXSensorBattary.Caption:=SAS_STR_BattaryStateCharge;
+       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:=SAS_STR_BattaryStateUnknown
                                           else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
      end
    end
    else begin
-     TBXSensorBattary.Caption:='От сети';
+     TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
    end;
    //Азимут
    TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.azimut,2)+'°';
