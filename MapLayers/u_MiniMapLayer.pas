@@ -335,7 +335,7 @@ begin
   VMenuItem.Name := 'MiniMapSameAsMain';
   VMenuItem.OnAdjustFont := AdjustFont;
   VMenuItem.OnClick := SameAsMainClick;
-  VMenuItem.Caption := 'Как на главной карте';
+  VMenuItem.Caption := SAS_STR_MiniMapAsMainMap;
   VMenuItem.Hint := '';
   VMenuItem.Checked := true;
   FPopup.Items.Add(VMenuItem);
@@ -343,7 +343,7 @@ begin
 
   VSubMenuItem := TTBXSubmenuItem.Create(FPopup);
   VSubMenuItem.Name := 'MiniMapLayers';
-  VSubMenuItem.Caption := 'Слои';
+  VSubMenuItem.Caption := SAS_STR_Layers;
   VSubMenuItem.Hint := '';
   VSubMenuItem.SubMenuImages := FPopup.Images;
   FPopup.Items.Add(VSubMenuItem);

@@ -157,6 +157,7 @@ ResourceString
   SAS_STR_BattaryStateUnknown = 'Неизвестно';
   SAS_STR_MapCombineProgressLine0 = 'Склеить: %0:dx%1:d (%2:d) файлов';
   SAS_STR_MapCombineProgressCaption = 'Разрешение: %0:dx%1:d Разбить на %2:d файлов';
+  SAS_STR_MiniMapAsMainMap = 'Как на главной карте';
 
   SAS_UNITS_kb = 'Кб';
   SAS_UNITS_mb = 'Мб';
