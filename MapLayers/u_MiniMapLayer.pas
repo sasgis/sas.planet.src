@@ -120,6 +120,7 @@ uses
   u_JclNotify,
   i_ICoordConverter,
   Uimgfun,
+  UResStrings,
   i_ActiveMapsConfigSaveLoad,
   u_GlobalState,
   u_WindowLayerBasic,
