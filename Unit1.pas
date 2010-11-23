@@ -996,18 +996,22 @@ var
   i: Integer;
   VBmp: TBitmap;
   VMaskColor: TColor;
-  VTextSize: tagSIZE;
+  VTextSize: Types.tagSIZE;
   VText: string;
+  VBmpSize: TPoint;
 begin
   VBmp := TBitmap.Create;
   try
-    VBmp.SetSize(TBImageList1_24.Width, TBImageList1_24.Height);
+    VBmpSize := Point(TBImageList1_24.Width, TBImageList1_24.Height);
+    VBmp.SetSize(VBmpSize.X, VBmpSize.Y);
     VMaskColor := TBImageList1_24.ImagesBitmapMaskColor;
     for i := 1 to TBImageList1_24.Count - 1 do begin
       VBmp.Canvas.Brush.Color := VMaskColor;
-      VBmp.Canvas.FillRect(MakeRect(0,0,VBmp.Width, VBmp.Height));
+      VBmp.Canvas.FillRect(MakeRect(0,0,VBmpSize.X, VBmpSize.Y));
       VBmp.Canvas.Pen.Color := clBlack;
-      VBmp.Canvas.TextExtent()
+      VText := 'z' + IntToStr(i);
+      VTextSize := VBmp.Canvas.TextExtent(VText);
+      VBmp.Canvas.TextOut((VBmpSize.X div 2) - (VTextSize.cx div 2), (VBmpSize.Y div 2) - (VTextSize.cy div 2), VText);
       TBImageList1_24.ReplaceMasked(i, VBmp, VMaskColor);
     end;
   finally
@@ -1610,6 +1614,7 @@ var
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
+  BuildImageListMapZapSelect;
   VConverter := GState.MapType[0].GeoConvert;
   VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
   VConverter.CheckZoom(VZoom);
