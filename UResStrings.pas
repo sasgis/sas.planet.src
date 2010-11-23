@@ -24,6 +24,7 @@ ResourceString
     'диалоге "Операции с выделенной областью\склеить"'#13#10 +
     'и используйте полученные kmz по отдельности';
   SAS_MSG_NotDelWhereHasChildren = 'Категория не пуста! Удалите все дочерние категории.';
+  SAS_MSG_HotKeyExists = 'Горячая клавиша уже используется, пожалуйста, выберите другую';
 
   SAS_ERR_Nopoints = 'Необходимый набор точек отсутствует!';
   SAS_ERR_ProxyStrFormat = 'Неверный формат записи прокси-сервера';
@@ -129,6 +130,18 @@ ResourceString
   SAS_STR_Layers = 'Слои';
   SAS_STR_InputLacitp = 'Введите через запятую mnc, mcc, LAC, CellID (Например: 02,250,17023,13023)';
   SAS_STR_InputLacitpCaption = 'Ввод параметров';
+  SAS_STR_ExportYaMapsCaption = 'Мобильные Яндекс.Карты (версия 3)';
+  SAS_STR_ExportGEKmlExportCaption = 'KML (Для просмотра в GE)';
+  SAS_STR_ExportIPhone128Caption = 'iPhone (2.2 и выше 128х128)';
+  SAS_STR_ExportIPhone64Caption = 'iPhone (Ниже v2.2 64х64)';
+  SAS_STR_ExportAUXGeoServerCaption = 'AUX для GeoExpress Server';
+  SAS_STR_ExportZipPackCaption = 'Упаковка в Zip';
+  SAS_STR_OperationDeleteCaption = 'Удаление';
+  SAS_STR_OperationGenPrevCaption = 'Генерация верхних уровней';
+  SAS_STR_OperationTilesCopyCaption = 'Копирование тайлов';
+  SAS_STR_OperationMapCombineCaption = 'Склейка карты';
+  SAS_STR_OperationDownloadCaption = 'Скачивание';
+
   SAS_UNITS_kb = 'Кб';
   SAS_UNITS_mb = 'Мб';
   SAS_UNITS_gb = 'Гб';

@@ -43,7 +43,7 @@ end;
 
 function TProviderTilesDelete.GetCaption: string;
 begin
-  Result := _('Удаление');
+  Result := SAS_STR_OperationDeleteCaption;
 end;
 
 procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

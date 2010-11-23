@@ -33,6 +33,7 @@ uses
   SysUtils,
   gnugettext,
   u_ThreadExportIPhone,
+  UResStrings,
   UMapType;
 
 { TExportProviderIPhone }
@@ -53,9 +54,9 @@ end;
 function TExportProviderIPhone.GetCaption: string;
 begin
   if FNewFormat then begin
-    Result := _('iPhone (2.2 и выше 128х128)');
+    Result := SAS_STR_ExportIPhone128Caption;
   end else begin
-    Result := _('iPhone (Ниже v2.2 64х64)');
+    Result := SAS_STR_ExportIPhone64Caption;
   end;
 end;
 

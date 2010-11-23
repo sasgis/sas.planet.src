@@ -29,6 +29,7 @@ uses
   SysUtils,
   gnugettext,
   u_ThreadExportYaMaps,
+  UResStrings,
   UMapType;
 
 { TExportProviderYaMaps }
@@ -41,7 +42,7 @@ end;
 
 function TExportProviderYaMaps.GetCaption: string;
 begin
-  Result := _('Мобильные Яндекс.Карты (версия 3)');
+  Result := SAS_STR_ExportYaMapsCaption;
 end;
 
 procedure TExportProviderYaMaps.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

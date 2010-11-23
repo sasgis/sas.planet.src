@@ -32,6 +32,7 @@ uses
   gnugettext,
   u_ThreadGenPrevZoom,
   Uimgfun,
+  UResStrings,
   UMapType;
 
 { TProviderTilesGenPrev }
@@ -44,7 +45,7 @@ end;
 
 function TProviderTilesGenPrev.GetCaption: string;
 begin
-  Result := _('Генерация верхних уровней');
+  Result := SAS_STR_OperationGenPrevCaption;
 end;
 
 procedure TProviderTilesGenPrev.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

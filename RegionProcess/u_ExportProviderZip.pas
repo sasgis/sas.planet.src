@@ -31,6 +31,7 @@ uses
   i_ITileFileNameGenerator,
   u_GlobalState,
   u_ThreadExportToZip,
+  UResStrings,
   UMapType;
 
 { TExportProviderKml }
@@ -43,7 +44,7 @@ end;
 
 function TExportProviderZip.GetCaption: string;
 begin
-  Result := _('”паковка в Zip');
+  Result := SAS_STR_ExportZipPackCaption;
 end;
 
 procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

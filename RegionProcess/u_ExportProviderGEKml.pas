@@ -29,6 +29,7 @@ uses
   SysUtils,
   gnugettext,
   u_ThreadExportKML,
+  UResStrings,
   UMapType;
 
 { TExportProviderKml }
@@ -41,7 +42,7 @@ end;
 
 function TExportProviderGEKml.GetCaption: string;
 begin
-  Result := _('KML (Для просмотра в GE)');
+  Result := SAS_STR_ExportGEKmlExportCaption;
 end;
 
 procedure TExportProviderGEKml.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

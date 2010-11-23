@@ -29,6 +29,7 @@ uses
   SysUtils,
   gnugettext,
   u_ThreadExportToAUX,
+  UResStrings,
   UMapType;
 
 { TExportProviderKml }
@@ -41,7 +42,7 @@ end;
 
 function TExportProviderAUX.GetCaption: string;
 begin
-  Result := _('AUX для GeoExpress Server');
+  Result := SAS_STR_ExportAUXGeoServerCaption;
 end;
 
 procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);

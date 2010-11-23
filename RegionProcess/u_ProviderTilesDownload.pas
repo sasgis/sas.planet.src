@@ -34,6 +34,7 @@ uses
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
   UProgress,
+  UResStrings,
   UMapType;
 
 { TProviderTilesDownload }
@@ -46,7 +47,7 @@ end;
 
 function TProviderTilesDownload.GetCaption: string;
 begin
-  Result := _('Скачивание');
+  Result := SAS_STR_OperationDownloadCaption;
 end;
 
 procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TExtendedPointArray);
