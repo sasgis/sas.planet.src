@@ -318,7 +318,7 @@ begin
   GState := TGlobalState.Create;
   try
     Application.Initialize;
-    Application.Title := 'SAS.Планета';
+    Application.Title := SAS_STR_ApplicationTitle;
     //logo
     if GState.Show_logo then begin
       FLogo:=TFLogo.Create(application);

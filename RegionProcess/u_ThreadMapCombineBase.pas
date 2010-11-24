@@ -123,11 +123,14 @@ begin
   FNumImgsSaved := 0;
 
   ProgressFormUpdateCaption(
-    'Ñךכוטעü: ' + inttostr((FMapSize.X) div 256 + 1) + 'x' 
-    + inttostr((FMapSize.Y) div 256 + 1) + '(' + inttostr(VProcessTiles) + ') ' 
-    + SAS_STR_files,
-    SAS_STR_Resolution + ': ' + inttostr(FMapSize.X) + 'x' + inttostr(FMapSize.Y) + ' ' 
-    + SAS_STR_DivideInto + ' ' + inttostr(FNumImgs) + ' ' + SAS_STR_files
+    Format(
+      SAS_STR_MapCombineProgressLine0,
+      [FMapSize.X div 256 + 1, FMapSize.Y div 256 + 1, VProcessTiles]
+    ),
+    Format(
+      SAS_STR_MapCombineProgressCaption,
+      [FMapSize.X, FMapSize.Y, FNumImgs]
+    )
   );
 
   ProgressFormUpdateOnProgress;

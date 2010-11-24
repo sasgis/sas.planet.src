@@ -1224,14 +1224,14 @@ begin
    GetSystemPowerStatus(sps);
    if sps.ACLineStatus=0 then begin
      case sps.BatteryFlag of
-       128: TBXSensorBattary.Caption:='От сети';
-         8: TBXSensorBattary.Caption:='Заряжается';
-       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:='Неизвестно'
+       128: TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
+         8: TBXSensorBattary.Caption:=SAS_STR_BattaryStateCharge;
+       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:=SAS_STR_BattaryStateUnknown
                                           else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
      end
    end
    else begin
-     TBXSensorBattary.Caption:='От сети';
+     TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
    end;
    //Азимут
    TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.azimut,2)+'°';
@@ -2155,7 +2155,7 @@ begin
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
    CopyStringToClipboard(VMap.GetTileFileName(VPoint, VZoomCurr));
   end else begin
-    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+    ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -2244,7 +2244,7 @@ begin
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
     ShellExecute(0,'open',PChar(VMap.GetTileFileName(VPoint, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
-    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+    ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -2271,7 +2271,7 @@ begin
     s := ExtractFilePath(s);
     ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
-    ShowMessage('Это не тайловый кеш, невозможно получить имя файла с тайлом.');
+    ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -4004,7 +4004,7 @@ var
   VMap: TMapType;
 begin
  VMap := GState.ViewState.GetCurrentMap;
- ShowMessage('Файл: '+VMap.zmpfilename+#13#10+VMap.MapInfo);
+ ShowMessageFmt(SAS_MSG_MapInfoShow,[VMap.zmpfilename, VMap.MapInfo]);
 end;
 
 procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);

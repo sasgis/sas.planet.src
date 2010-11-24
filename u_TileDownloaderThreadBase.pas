@@ -48,11 +48,11 @@ begin
     end;
     dtrErrorMIMEType:
     begin
-      result := 'Ошибочный тип данных';
+      result := SAS_ERR_TileDownloadContentTypeUnexpcted;
     end; //TODO: Заменить на ресурсную строку
     dtrUnknownError:
     begin
-      Result := 'Неизвестная ошибка при скачивании';
+      Result := SAS_ERR_TileDownloadUnexpectedError;
     end else begin
     result := '';
   end;

@@ -230,12 +230,12 @@ begin
       //GetLink(0,0,0);
     except
       on E: Exception do begin
-        ShowMessage('Ошибка скрипта карты '+name+' ('+ZmpFileName+')'+' :'+#13#10+ E.Message);
+        ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, ZmpFileName]);
         FUrlGenerator := nil;
         FUseDwn := False;
       end;
      else
-      ShowMessage('Ошибка скрипта карты '+name+' ('+ZmpFileName+')'+' :'+#13#10+'Неожиданная ошибка');
+      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, ZmpFileName]);
       FUrlGenerator := nil;
       FUseDwn := False;
     end;
@@ -299,7 +299,7 @@ begin
     1: VConverter := TCoordConverterMercatorOnSphere.Create(VRadiusA);
     2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
     3: VConverter := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
-    else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(projection));
+    else raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(projection)]);
   end;
   FCoordConverter := VConverter;
   FConverterForUrlGenerator := VConverter;
@@ -380,7 +380,7 @@ begin
       FAntiBan := TAntiBanStuped.Create(AConfig);
     except
       if ExceptObject <> nil then begin
-        ShowMessageFmt('Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s',[FZMPFileName, (ExceptObject as Exception).Message]);
+        ShowMessageFmt(SAS_ERR_MapDownloadByError,[FZMPFileName, (ExceptObject as Exception).Message]);
       end;
       FTileDownlodSessionFactory := nil;
       FUseDwn := false;

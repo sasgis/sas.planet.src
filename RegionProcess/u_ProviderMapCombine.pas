@@ -34,6 +34,7 @@ uses
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
+  UResStrings,
   UMapType;
 
 { TProviderTilesDelete }
@@ -46,7 +47,7 @@ end;
 
 function TProviderMapCombine.GetCaption: string;
 begin
-  Result := _('Склейка карты');
+  Result := SAS_STR_OperationMapCombineCaption;
 end;
 
 procedure TProviderMapCombine.InitFrame(Azoom: byte; APolygon: TDoublePointArray);

@@ -31,6 +31,7 @@ uses
   gnugettext,
   u_GlobalState,
   u_ThreadExportToFileSystem,
+  UResStrings,
   UMapType;
 
 { TProviderTilesDelete }
@@ -43,7 +44,7 @@ end;
 
 function TProviderTilesCopy.GetCaption: string;
 begin
-  Result := _('Копирование тайлов');
+  Result := SAS_STR_OperationTilesCopyCaption;
 end;
 
 procedure TProviderTilesCopy.InitFrame(Azoom: byte; APolygon: TDoublePointArray);
