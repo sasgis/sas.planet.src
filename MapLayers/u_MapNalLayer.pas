@@ -11,6 +11,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_MapViewPortState,
+  u_ClipPolygonByRect,
   u_MapLayerBasic;
 
 type
@@ -18,6 +19,7 @@ type
 
   TMapNalLayer = class(TMapLayerBasic)
   private
+    FBitmapClip: IPolyClip;
     FDrawType: TMapNalDrawType;
     FPath: TExtendedPointArray;
     FSelectedLonLat: TExtendedRect;
@@ -66,6 +68,7 @@ type
     procedure DoDrawNewPath(AIsPoly: Boolean);
   protected
     procedure DoRedraw; override;
+    procedure DoResizeBitmap; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -245,6 +248,8 @@ var
   VBitmapSize: TPoint;
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
+  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsProcessedCount: Integer;
   VLonLat: TExtendedPoint;
 begin
   VPointsCount := Length(FPath);
@@ -255,12 +260,15 @@ begin
       FGeoConvert.CheckLonLatPos(VLonLat);
       VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
+    VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
     polygon := TPolygon32.Create;
     try
       polygon.Antialiased := true;
       polygon.AntialiasMode := am4times;
       polygon.Closed := AIsPoly;
-      PrepareGR32Polygon(VPointsOnBitmap, polygon);
+      for i := 0 to VPointsProcessedCount - 1 do begin
+        polygon.Add(FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y));
+      end;
       if AIsPoly then begin
         Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
       end;
@@ -416,6 +424,15 @@ begin
     mndtNewPath: DoDrawNewPath(False);
     mndtNewPoly: DoDrawNewPath(True);
   end;
+end;
+
+procedure TMapNalLayer.DoResizeBitmap;
+var
+  VSize: TPoint;
+begin
+  inherited;
+  VSize := GetBitmapSizeInPixel;
+  FBitmapClip := TPolyClipByRect.Create(MakeRect(0, 0, VSize.X, VSize.Y));
 end;
 
 procedure TMapNalLayer.DrawLineCalc(APathLonLat: TExtendedPointArray; ALenShow: Boolean; AActiveIndex: Integer);
