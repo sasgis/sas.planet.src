@@ -33,6 +33,7 @@ uses
   t_CommonTypes,
   u_GlobalState,
   Ugeofun,
+  u_ClipPolygonByRect,
   u_MarksSimple,
   u_MarksReadWriteSimple;
 
@@ -44,6 +45,7 @@ const
 type
   TMapMarksBitmapLayerProviderStupedThreaded = class
   private
+    FBitmapClip: IPolyClip;
     FDeltaSizeInPixel: TPoint;
     FTargetBmp: TCustomBitmap32;
     FGeoConvert: ICoordConverter;
@@ -95,6 +97,8 @@ begin
   FBitmapWithText.DrawMode := dmBlend;
   FBitmapWithText.CombineMode:=cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
+
+  FBitmapClip := TPolyClipByRect.Create(MakeRect(0, 0, FTargetBmp.Width, FTargetBmp.Height));
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -126,6 +130,8 @@ var
   i: Integer;
   VPointsOnBitmap: TExtendedPointArray;
   VPointsCount: Integer;
+  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsProcessedCount: Integer;
   VLonLat: TExtendedPoint;
 begin
   VPointsCount := Length(pathll);
@@ -137,13 +143,16 @@ begin
       VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
     try
+      VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
       polygon := TPolygon32.Create;
       try
         polygon.Antialiased := true;
         polygon.AntialiasMode := am4times;
         polygon.Closed := poly;
-        if length(pathll) > 0 then begin
-          PrepareGR32Polygon(VPointsOnBitmap, polygon);
+        if VPointsProcessedCount > 0 then begin
+          for i := 0 to VPointsProcessedCount - 1 do begin
+            polygon.Add(FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y));
+          end;
           if poly then begin
             Polygon.DrawFill(FTargetBmp, color2);
           end;
