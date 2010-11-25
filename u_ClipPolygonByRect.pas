@@ -73,7 +73,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Ugeofun;
 
 { TPolyClipByLineAbstract }
 
@@ -97,27 +98,39 @@ begin
     VOutPointsCapacity := Length(AResultPoints);
     VCurrPoint := APoints[0];
     VCurrPointCode := GetPointCode(VCurrPoint);
-    for i := 1 to APointsCount - 1 do begin
-      VPrevPoint := VCurrPoint;
-      VPrevPointCode := VCurrPointCode;
-      VCurrPoint := APoints[i];
-      VCurrPointCode := GetPointCode(VCurrPoint);
-      VLineCode := VPrevPointCode * 3 + VCurrPointCode;
-      {
-       од   —тар Ќов ¬ыход
-      0:     вне-вне нет
-      1:     вне-на  конечна€
-      2:     вне-вну перес,кон
-      3:     на -вне нет
-      4:     на -на  конечна€
-      5:     на -вну конечна€
-      6:     вну-вне пересечен
-      7:     вну-на  конечна€
-      8:     вну-вну конечна€
-      }
-      case VLineCode of
-        1, 4, 5, 7, 8: begin
-          if Result = 0 then begin
+    if APointsCount > 1 then begin
+      for i := 1 to APointsCount - 1 do begin
+        VPrevPoint := VCurrPoint;
+        VPrevPointCode := VCurrPointCode;
+        VCurrPoint := APoints[i];
+        VCurrPointCode := GetPointCode(VCurrPoint);
+        VLineCode := VPrevPointCode * 3 + VCurrPointCode;
+        {
+         од   —тар Ќов ¬ыход
+        0:     вне-вне нет
+        1:     вне-на  конечна€
+        2:     вне-вну перес,кон
+        3:     на -вне нет
+        4:     на -на  конечна€
+        5:     на -вну конечна€
+        6:     вну-вне пересечен
+        7:     вну-на  конечна€
+        8:     вну-вну конечна€
+        }
+        case VLineCode of
+          1, 4, 5, 7, 8: begin
+            if Result = 0 then begin
+              if Result >= VOutPointsCapacity then begin
+                if VOutPointsCapacity  >= 32 then begin
+                  VOutPointsCapacity := VOutPointsCapacity * 2;
+                end else begin
+                  VOutPointsCapacity := 32;
+                end;
+                SetLength(AResultPoints, VOutPointsCapacity);
+              end;
+              AResultPoints[Result] := VPrevPoint;
+              Inc(Result);
+            end;
             if Result >= VOutPointsCapacity then begin
               if VOutPointsCapacity  >= 32 then begin
                 VOutPointsCapacity := VOutPointsCapacity * 2;
@@ -126,56 +139,83 @@ begin
               end;
               SetLength(AResultPoints, VOutPointsCapacity);
             end;
-            AResultPoints[Result] := VPrevPoint;
+            AResultPoints[Result] := VCurrPoint;
             Inc(Result);
           end;
-          if Result >= VOutPointsCapacity then begin
-            if VOutPointsCapacity  >= 32 then begin
-              VOutPointsCapacity := VOutPointsCapacity * 2;
-            end else begin
-              VOutPointsCapacity := 32;
+          2: begin
+            VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
+            if Result >= VOutPointsCapacity then begin
+              if VOutPointsCapacity  >= 32 then begin
+                VOutPointsCapacity := VOutPointsCapacity * 2;
+              end else begin
+                VOutPointsCapacity := 32;
+              end;
+              SetLength(AResultPoints, VOutPointsCapacity);
             end;
-            SetLength(AResultPoints, VOutPointsCapacity);
+            AResultPoints[Result] := VIntersectPoint;
+            Inc(Result);
+            if Result >= VOutPointsCapacity then begin
+              if VOutPointsCapacity  >= 32 then begin
+                VOutPointsCapacity := VOutPointsCapacity * 2;
+              end else begin
+                VOutPointsCapacity := 32;
+              end;
+              SetLength(AResultPoints, VOutPointsCapacity);
+            end;
+            AResultPoints[Result] := VCurrPoint;
+            Inc(Result);
           end;
-          AResultPoints[Result] := VCurrPoint;
-          Inc(Result);
+          6: begin
+            if Result = 0 then begin
+              if Result >= VOutPointsCapacity then begin
+                if VOutPointsCapacity  >= 32 then begin
+                  VOutPointsCapacity := VOutPointsCapacity * 2;
+                end else begin
+                  VOutPointsCapacity := 32;
+                end;
+                SetLength(AResultPoints, VOutPointsCapacity);
+              end;
+              AResultPoints[Result] := VPrevPoint;
+              Inc(Result);
+            end;
+            VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
+            if Result >= VOutPointsCapacity then begin
+              if VOutPointsCapacity  >= 32 then begin
+                VOutPointsCapacity := VOutPointsCapacity * 2;
+              end else begin
+                VOutPointsCapacity := 32;
+              end;
+              SetLength(AResultPoints, VOutPointsCapacity);
+            end;
+            AResultPoints[Result] := VIntersectPoint;
+            Inc(Result);
+          end;
         end;
-        2: begin
-          VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
-          if Result >= VOutPointsCapacity then begin
-            if VOutPointsCapacity  >= 32 then begin
-              VOutPointsCapacity := VOutPointsCapacity * 2;
-            end else begin
-              VOutPointsCapacity := 32;
+      end;
+      if Result > 0 then begin
+        if compare2EP(APoints[0], APoints[APointsCount - 1]) then begin
+          if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
+            if Result >= VOutPointsCapacity then begin
+              if VOutPointsCapacity  >= 32 then begin
+                VOutPointsCapacity := VOutPointsCapacity * 2;
+              end else begin
+                VOutPointsCapacity := 32;
+              end;
+              SetLength(AResultPoints, VOutPointsCapacity);
             end;
-            SetLength(AResultPoints, VOutPointsCapacity);
+            AResultPoints[Result] := AResultPoints[0];
+            Inc(Result);
           end;
-          AResultPoints[Result] := VIntersectPoint;
-          Inc(Result);
-          if Result >= VOutPointsCapacity then begin
-            if VOutPointsCapacity  >= 32 then begin
-              VOutPointsCapacity := VOutPointsCapacity * 2;
-            end else begin
-              VOutPointsCapacity := 32;
-            end;
-            SetLength(AResultPoints, VOutPointsCapacity);
-          end;
-          AResultPoints[Result] := VCurrPoint;
-          Inc(Result);
         end;
-        6: begin
-          VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
-          if Result >= VOutPointsCapacity then begin
-            if VOutPointsCapacity  >= 32 then begin
-              VOutPointsCapacity := VOutPointsCapacity * 2;
-            end else begin
-              VOutPointsCapacity := 32;
-            end;
-            SetLength(AResultPoints, VOutPointsCapacity);
-          end;
-          AResultPoints[Result] := VIntersectPoint;
-          Inc(Result);
+      end;
+    end else begin
+      if VCurrPointCode = 2 then begin
+        if Result >= VOutPointsCapacity then begin
+          VOutPointsCapacity := 1;
+          SetLength(AResultPoints, VOutPointsCapacity);
         end;
+        AResultPoints[Result] := VIntersectPoint;
+        Inc(Result);
       end;
     end;
   end;
