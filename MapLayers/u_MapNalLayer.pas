@@ -145,11 +145,11 @@ var
   len: real;
   text: string;
   polygon: TPolygon32;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsOnBitmapPrepared: TDoublePointArray;
   VPointsProcessedCount: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
 begin
@@ -252,11 +252,11 @@ var
   i: integer;
   k1: TDoublePoint;
   polygon: TPolygon32;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsOnBitmapPrepared: TDoublePointArray;
   VPointsProcessedCount: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
 begin
@@ -322,11 +322,11 @@ var
   i: integer;
   k1: TDoublePoint;
   Polygon: TPolygon32;
-  VLonLat: TExtendedPoint;
+  VLonLat: TDoublePoint;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsOnBitmapPrepared: TDoublePointArray;
   VPointsProcessedCount: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
 begin

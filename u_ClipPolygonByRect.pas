@@ -9,53 +9,53 @@ uses
 type
   IPolyClip = interface
     ['{DD70326E-B6E0-4550-91B4-8AA974AD2DE5}']
-    function Clip(const APoints: TExtendedPointArray; APointsCount: Integer; var AResultPoints: TExtendedPointArray): Integer;
+    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
   end;
 
   TPolyClipByLineAbstract = class(TInterfacedObject, IPolyClip)
   protected
-    function GetPointCode(APoint: TExtendedPoint): Byte; virtual; abstract;
-    function GetIntersectPoint(APrevPoint,ACurrPoint: TExtendedPoint): TExtendedPoint; virtual; abstract;
+    function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
+    function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
-    function Clip(const APoints: TExtendedPointArray; APointsCount: Integer; var AResultPoints: TExtendedPointArray): Integer;
+    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
   end;
 
   TPolyClipByVerticalLine = class(TPolyClipByLineAbstract)
   protected
-    FX: Extended;
+    FX: Double;
   protected
-    function GetIntersectPoint(APrevPoint,ACurrPoint: TExtendedPoint): TExtendedPoint; override;
+    function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
   public
-    constructor Create(AX: Extended);
+    constructor Create(AX: Double);
   end;
 
   TPolyClipByLeftBorder = class(TPolyClipByVerticalLine)
   protected
-    function GetPointCode(APoint: TExtendedPoint): Byte; override;
+    function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
   TPolyClipByRightBorder = class(TPolyClipByVerticalLine)
   protected
-    function GetPointCode(APoint: TExtendedPoint): Byte; override;
+    function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
   TPolyClipByHorizontalLine = class(TPolyClipByLineAbstract)
   protected
-    FY: Extended;
+    FY: Double;
   protected
-    function GetIntersectPoint(APrevPoint,ACurrPoint: TExtendedPoint): TExtendedPoint; override;
+    function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
   public
-    constructor Create(AY: Extended);
+    constructor Create(AY: Double);
   end;
 
   TPolyClipByTopBorder = class(TPolyClipByHorizontalLine)
   protected
-    function GetPointCode(APoint: TExtendedPoint): Byte; override;
+    function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
   TPolyClipByBottomBorder = class(TPolyClipByHorizontalLine)
   protected
-    function GetPointCode(APoint: TExtendedPoint): Byte; override;
+    function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
   TPolyClipByRect = class(TInterfacedObject, IPolyClip)
@@ -67,7 +67,7 @@ type
   public
     constructor Create(ARect: TRect);
     destructor Destroy; override;
-    function Clip(const APoints: TExtendedPointArray; APointsCount: Integer; var AResultPoints: TExtendedPointArray): Integer;
+    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
   end;
 
 implementation
@@ -78,16 +78,16 @@ uses
 
 { TPolyClipByLineAbstract }
 
-function TPolyClipByLineAbstract.Clip(const APoints: TExtendedPointArray;
-  APointsCount: Integer; var AResultPoints: TExtendedPointArray): Integer;
+function TPolyClipByLineAbstract.Clip(const APoints: TDoublePointArray;
+  APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
 var
-  VPrevPoint: TExtendedPoint;
+  VPrevPoint: TDoublePoint;
   VPrevPointCode: Byte;
-  VCurrPoint: TExtendedPoint;
+  VCurrPoint: TDoublePoint;
   VCurrPointCode: Byte;
   VLineCode: Byte;
   i: Integer;
-  VIntersectPoint: TExtendedPoint;
+  VIntersectPoint: TDoublePoint;
   VOutPointsCapacity: Integer;
 begin
   Result := 0;
@@ -223,13 +223,13 @@ end;
 
 { TPolyClipByVerticalLine }
 
-constructor TPolyClipByVerticalLine.Create(AX: Extended);
+constructor TPolyClipByVerticalLine.Create(AX: Double);
 begin
   FX := AX;
 end;
 
 function TPolyClipByVerticalLine.GetIntersectPoint(APrevPoint,
-  ACurrPoint: TExtendedPoint): TExtendedPoint;
+  ACurrPoint: TDoublePoint): TDoublePoint;
 begin
   Result.X := FX;
   Result.Y := (ACurrPoint.Y - APrevPoint.Y) / (ACurrPoint.X - APrevPoint.X) * (FX - APrevPoint.X) + APrevPoint.Y;
@@ -237,7 +237,7 @@ end;
 
 { TPolyClipByLeftBorder }
 
-function TPolyClipByLeftBorder.GetPointCode(APoint: TExtendedPoint): Byte;
+function TPolyClipByLeftBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.X < FX then begin
     Result := 0;
@@ -250,7 +250,7 @@ end;
 
 { TPolyClipByRightBorder }
 
-function TPolyClipByRightBorder.GetPointCode(APoint: TExtendedPoint): Byte;
+function TPolyClipByRightBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.X > FX then begin
     Result := 0;
@@ -263,13 +263,13 @@ end;
 
 { TPolyClipByHorizontalLine }
 
-constructor TPolyClipByHorizontalLine.Create(AY: Extended);
+constructor TPolyClipByHorizontalLine.Create(AY: Double);
 begin
   FY := AY;
 end;
 
 function TPolyClipByHorizontalLine.GetIntersectPoint(APrevPoint,
-  ACurrPoint: TExtendedPoint): TExtendedPoint;
+  ACurrPoint: TDoublePoint): TDoublePoint;
 begin
   Result.X := (ACurrPoint.X - APrevPoint.X) / (ACurrPoint.Y - APrevPoint.Y) * (FY - APrevPoint.Y) + APrevPoint.X;
   Result.Y := FY;
@@ -277,7 +277,7 @@ end;
 
 { TPolyClipByTopBorder }
 
-function TPolyClipByTopBorder.GetPointCode(APoint: TExtendedPoint): Byte;
+function TPolyClipByTopBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.Y < FY then begin
     Result := 0;
@@ -290,7 +290,7 @@ end;
 
 { TPolyClipByBottomBorder }
 
-function TPolyClipByBottomBorder.GetPointCode(APoint: TExtendedPoint): Byte;
+function TPolyClipByBottomBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.Y > FY then begin
     Result := 0;
@@ -303,10 +303,10 @@ end;
 
 { TPolyClipByRect }
 
-function TPolyClipByRect.Clip(const APoints: TExtendedPointArray;
-  APointsCount: Integer; var AResultPoints: TExtendedPointArray): Integer;
+function TPolyClipByRect.Clip(const APoints: TDoublePointArray;
+  APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
 var
-  VTempArray: TExtendedPointArray;
+  VTempArray: TDoublePointArray;
 begin
   Result := 0;
   if APointsCount > 0 then begin
