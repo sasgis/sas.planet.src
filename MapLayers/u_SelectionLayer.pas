@@ -4,18 +4,26 @@ interface
 
 uses
   GR32,
-  GR32_Polygons,
+  GR32_Image,
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  u_MapViewPortState,
+  u_ClipPolygonByRect,
   u_MapLayerBasic;
 
 type
   TSelectionLayer = class(TMapLayerBasic)
   protected
+    FBitmapClip: IPolyClip;
+    FLineColor: TColor32;
+    FLineWidth: Integer;
+  protected
+    procedure DoResizeBitmap; override;
     procedure DoRedraw; override;
-    function PreparePolygon(APolygon: TExtendedPointArray): TPointArray;
   public
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
   end;
@@ -26,54 +34,95 @@ uses
   Types,
   SysUtils,
   Graphics,
+  GR32_Polygons,
   u_GlobalState,
+  Ugeofun,
+  u_ConfigProviderHelpers,
   u_WindowLayerBasic;
 
 { TSelectionLayer }
 
+constructor TSelectionLayer.Create(AParentMap: TImage32;
+  AViewPortState: TMapViewPortState);
+begin
+  inherited;
+  FLineColor := SetAlpha(Color32(clBlack), 210);
+  FLineWidth := 2;
+end;
+
+destructor TSelectionLayer.Destroy;
+begin
+  FBitmapClip := nil;
+  inherited;
+end;
+
 procedure TSelectionLayer.DoRedraw;
 var
   VZoomCurr: Byte;
-  VPolygon: TExtendedPointArray;
-  VPolygonOnBitmap: TPointArray;
   i: integer;
+  VLonLat: TExtendedPoint;
+  VPolygon: TExtendedPointArray;
   VPolygon32: TPolygon32;
+  VPointsOnBitmap: TExtendedPointArray;
+  VPointsCount: Integer;
+  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsProcessedCount: Integer;
+  VPathFixedPoints: TArrayOfFixedPoint;
 begin
   inherited;
-  VPolygon := nil;
-  VPolygonOnBitmap := nil;
-  if Length(GState.LastSelectionPolygon) > 0 then begin
+  VPolygon := Copy(GState.LastSelectionPolygon);
+  VPointsCount := Length(VPolygon);
+  if VPointsCount > 0 then begin
     FLayer.Bitmap.Clear(clBlack);
     VZoomCurr := FZoom;
-    VPolygon := FGeoConvert.LonLatArray2PixelArrayFloat(GState.LastSelectionPolygon, VZoomCurr);
-    try
-      VPolygonOnBitmap := PreparePolygon(VPolygon);
+    SetLength(VPointsOnBitmap, VPointsCount + 1);
+    for i := 0 to VPointsCount - 1 do begin
+      VLonLat := VPolygon[i];
+      FGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, VZoomCurr));
+    end;
+    if not compare2EP(VPointsOnBitmap[0], VPointsOnBitmap[VPointsCount - 1]) then begin
+      VPointsOnBitmap[VPointsCount] := VPointsOnBitmap[0];
+      Inc(VPointsCount);
+    end;
+    VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
+    if VPointsProcessedCount > 0 then begin
+      SetLength(VPathFixedPoints, VPointsProcessedCount);
+      for i := 0 to VPointsProcessedCount - 1 do begin
+        VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+      end;
       VPolygon32 := TPolygon32.Create;
       try
-        for i := 0 to Length(VPolygonOnBitmap) - 1 do begin
-          VPolygon32.Add(FixedPoint(VPolygonOnBitmap[i]));
-        end;
-        VPolygon32.Antialiased:=True;
-        VPolygon32.Closed:=true;
+        VPolygon32.Antialiased := true;
+        VPolygon32.AntialiasMode := am4times;
+        VPolygon32.Closed := True;
+        VPolygon32.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
         with VPolygon32.Outline do try
-          with Grow(Fixed(1), 0.5) do try
-            FillMode := pfWinding;
-            DrawFill(FLayer.Bitmap, SetAlpha(GState.LastSelectionColor, GState.LastSelectionAlfa));
-          finally
-            free;
-          end;
+           with Grow(Fixed(FLineWidth / 2), 0.5) do try
+             FillMode := pfWinding;
+             DrawFill(FLayer.Bitmap, FLineColor);
+           finally
+             free;
+           end;
         finally
           free;
         end;
       finally
-        FreeAndNil(VPolygon32);
+        VPolygon32.Free;
       end;
-    finally
-      VPolygon := nil;
     end;
   end else begin
     Visible := False;
   end;
+end;
+
+procedure TSelectionLayer.DoResizeBitmap;
+var
+  VSize: TPoint;
+begin
+  inherited;
+  VSize := GetBitmapSizeInPixel;
+  FBitmapClip := TPolyClipByRect.Create(MakeRect(0, 0, VSize.X, VSize.Y));
 end;
 
 procedure TSelectionLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -83,58 +132,13 @@ begin
   inherited;
   VConfigProvider := AConfigProvider.GetSubItem('VIEW');
   if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('ShowLastSelection',false);
-  end;
-end;
-
-function TSelectionLayer.PreparePolygon(
-  APolygon: TExtendedPointArray): TPointArray;
-var
-  i: integer;
-  VSourcePoint: TExtendedPoint;
-  VTargetPoint: TExtendedPoint;
-  VTargetPointAbs: TExtendedPoint;
-const
-  CRectSize = 1 shl 14;
-begin
-  SetLength(Result, Length(APolygon));
-  for i := 0 to Length(APolygon) - 1 do begin
-    VSourcePoint := APolygon[i];
-    VTargetPoint := MapPixel2BitmapPixel(VSourcePoint);
-    VTargetPointAbs.X := Abs(VTargetPoint.X);
-    VTargetPointAbs.Y := Abs(VTargetPoint.Y);
-    if (VTargetPointAbs.X >= CRectSize) or (VTargetPointAbs.Y >= CRectSize) then begin
-      if (VTargetPointAbs.X >= CRectSize) and (VTargetPointAbs.Y >= CRectSize) then begin
-        if VTargetPoint.Y > 0 then begin
-          VTargetPoint.Y := CRectSize;
-        end else begin
-          VTargetPoint.Y := -CRectSize;
-        end;
-        if VTargetPoint.X > 0 then begin
-          VTargetPoint.X := CRectSize;
-        end else begin
-          VTargetPoint.X := -CRectSize;
-        end;
-      end else begin
-        if VTargetPointAbs.X < VTargetPointAbs.Y then begin
-          if VTargetPoint.Y > 0 then begin
-            VTargetPoint.Y := CRectSize;
-          end else begin
-            VTargetPoint.Y := -CRectSize;
-          end;
-        end else begin
-          if VTargetPoint.X > 0 then begin
-            VTargetPoint.X := CRectSize;
-          end else begin
-            VTargetPoint.X := -CRectSize;
-          end;
-        end;
-      end;
+    VConfigProvider := VConfigProvider.GetSubItem('LastSelection');
+    if VConfigProvider <> nil then begin
+      FLineColor := LoadColor32(VConfigProvider, 'LineColor', FLineColor);
+      FLineWidth := VConfigProvider.ReadInteger('LineWidth', FLineWidth);
+      Visible := VConfigProvider.ReadBool('Visible',false);
     end;
-    Result[i].X := Round(VTargetPoint.X);
-    Result[i].Y := Round(VTargetPoint.Y);
   end;
-
 end;
 
 procedure TSelectionLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
@@ -143,7 +147,10 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VConfigProvider.WriteBool('ShowLastSelection', Visible);
+  VConfigProvider := VConfigProvider.GetOrCreateSubItem('LastSelection');
+  VConfigProvider.WriteBool('Visible', Visible);
+  WriteColor32(VConfigProvider, 'LineColor', FLineColor);
+  VConfigProvider.WriteInteger('LineWidth', FLineWidth);
 end;
 
 end.
