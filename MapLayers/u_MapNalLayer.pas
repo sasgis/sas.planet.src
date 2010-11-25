@@ -305,18 +305,14 @@ begin
         end;
       end;
       VBitmapSize := GetBitmapSizeInPixel;
-      try
-        for i := 1 to VPointsProcessedCount - 1 do begin
-          k1 := VPointsOnBitmapPrepared[i];
-          DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
-        end;
-        k1 := VPointsOnBitmapPrepared[0];
-        DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkFirstPointColor, FEditMarkFirstPointColor);
-        k1 := VPointsOnBitmapPrepared[FPolyActivePointIndex];
-        DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkActivePointColor, FEditMarkActivePointColor);
-      finally
-        VPointsOnBitmap := nil;
+      for i := 1 to VPointsProcessedCount - 1 do begin
+        k1 := VPointsOnBitmapPrepared[i];
+        DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
       end;
+      k1 := VPointsOnBitmap[0];
+      DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkFirstPointColor, FEditMarkFirstPointColor);
+      k1 := VPointsOnBitmap[FPolyActivePointIndex];
+      DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkActivePointColor, FEditMarkActivePointColor);
     end;
   end;
 end;
