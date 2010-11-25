@@ -318,6 +318,7 @@
     <DCCReference Include="u_ConfigDataProviderZmpComplex.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ConfigProviderHelpers.pas" />
     <DCCReference Include="u_ContentConverterBase.pas" />
     <DCCReference Include="u_ContentConverterBitmap.pas" />
     <DCCReference Include="u_ContentConverterKml2Kmz.pas" />

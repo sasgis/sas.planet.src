@@ -55,6 +55,7 @@ uses
   u_ConfigDataWriteProviderByIniFileSection in 'u_ConfigDataWriteProviderByIniFileSection.pas',
   u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
   u_SaveLoadTBConfigByConfigProvider in 'u_SaveLoadTBConfigByConfigProvider.pas',
+  u_ConfigProviderHelpers in 'u_ConfigProviderHelpers.pas',
   i_ILogSimple in 'i_ILogSimple.pas',
   i_ILogForTaskThread in 'i_ILogForTaskThread.pas',
   i_ITileDownlodSession in 'i_ITileDownlodSession.pas',
