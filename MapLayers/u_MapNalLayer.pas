@@ -89,6 +89,7 @@ uses
   SysUtils,
   Ugeofun,
   u_GeoToStr,
+  u_ConfigProviderHelpers,
   UResStrings,
   u_GlobalState,
   u_WindowLayerBasic;
@@ -540,25 +541,6 @@ begin
   Redraw;
 end;
 
-function LoadColor32(
-  AConfigProvider: IConfigDataProvider;
-  AIdent: string;
-  ADefault: TColor32
-): TColor32;
-var
-  VColor: TColor;
-  VAlfa: Integer;
-begin
-  Result := ADefault;
-  if AConfigProvider <> nil then begin
-    VAlfa := AlphaComponent(Result);
-    VColor := WinColor(Result);
-    VAlfa := AConfigProvider.ReadInteger(AIdent + 'Alfa', VAlfa);
-    VColor := AConfigProvider.ReadInteger(AIdent, VColor);
-    Result := SetAlpha(Color32(VColor), VAlfa);
-  end;
-end;
-
 procedure TMapNalLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
@@ -577,16 +559,6 @@ begin
       FEditMarkPointSize := VConfigProvider.ReadInteger('PointSize', FEditMarkPointSize);
     end;
   end;
-end;
-
-procedure WriteColor32(
-  AConfigProvider: IConfigDataWriteProvider;
-  AIdent: string;
-  AValue: TColor32
-);
-begin
-  AConfigProvider.WriteInteger(AIdent + 'Alfa', AlphaComponent(AValue));
-  AConfigProvider.WriteInteger(AIdent, WinColor(AValue));
 end;
 
 procedure TMapNalLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);

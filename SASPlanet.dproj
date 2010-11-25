@@ -297,6 +297,7 @@
     <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ConfigProviderHelpers.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
