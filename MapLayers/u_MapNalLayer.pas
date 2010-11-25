@@ -265,37 +265,38 @@ begin
       if not compare2EP(VPointsOnBitmap[0], VPointsOnBitmap[VPointsCount - 1]) then begin
         VPointsOnBitmap[VPointsCount] := VPointsOnBitmap[0];
         Inc(VPointsCount);
-      end; 
+      end;
     end;
     VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
-      SetLength(VPathFixedPoints, VPointsProcessedCount);
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
-      end;
-      polygon := TPolygon32.Create;
-      try
-        polygon.Antialiased := true;
-        polygon.AntialiasMode := am4times;
-        polygon.Closed := AIsPoly;
-        polygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
-        if AIsPoly then begin
-          Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
+      if VPointsProcessedCount > 1 then begin
+        SetLength(VPathFixedPoints, VPointsProcessedCount);
+        for i := 0 to VPointsProcessedCount - 1 do begin
+          VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
         end;
-        with Polygon.Outline do try
-           with Grow(Fixed(FEditMarkLineWidth / 2), 0.5) do try
-             FillMode := pfWinding;
-             DrawFill(FLayer.Bitmap, FEditMarkLineColor);
-           finally
-             free;
-           end;
+        polygon := TPolygon32.Create;
+        try
+          polygon.Antialiased := true;
+          polygon.AntialiasMode := am4times;
+          polygon.Closed := AIsPoly;
+          polygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
+          if AIsPoly then begin
+            Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
+          end;
+          with Polygon.Outline do try
+             with Grow(Fixed(FEditMarkLineWidth / 2), 0.5) do try
+               FillMode := pfWinding;
+               DrawFill(FLayer.Bitmap, FEditMarkLineColor);
+             finally
+               free;
+             end;
+          finally
+            free;
+          end;
         finally
-          free;
+          polygon.Free;
         end;
-      finally
-        polygon.Free;
       end;
-
       VBitmapSize := GetBitmapSizeInPixel;
       try
         for i := 1 to VPointsProcessedCount - 1 do begin
