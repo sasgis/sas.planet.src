@@ -53,19 +53,24 @@ begin
   VExt := UpperCase(ExtractFileExt(AIdent));
   if (VExt = '.INI') or (VExt = '.TXT') then begin
     VIniFile := TMemIniFile.Create('');
-    VIniStream := TMemoryStream.Create;
     try
-      VIniStream.LoadFromFile(IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent);
-      VIniStream.Position := 0;
-      VIniStrings := TStringList.Create;
+      VIniStream := TMemoryStream.Create;
       try
-        VIniStrings.LoadFromStream(VIniStream);
-        VIniFile.SetStrings(VIniStrings);
+        VIniStream.LoadFromFile(IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent);
+        VIniStream.Position := 0;
+        VIniStrings := TStringList.Create;
+        try
+          VIniStrings.LoadFromStream(VIniStream);
+          VIniFile.SetStrings(VIniStrings);
+        finally
+          VIniStrings.Free;
+        end;
       finally
-        VIniStrings.Free;
+        VIniStream.Free;
       end;
-    finally
-      VIniStream.Free;
+    except
+      VIniFile.Free;
+      raise;
     end;
     Result := TConfigDataProviderByIniFile.Create(VIniFile);
   end;
