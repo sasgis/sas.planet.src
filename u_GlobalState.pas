@@ -110,9 +110,6 @@ type
 
     GPSpar: TGPSpar;
 
-    LastSelectionColor: TColor;
-    LastSelectionAlfa: Byte;
-
     BorderColor: TColor;
     BorderAlpha: byte;
 
@@ -588,9 +585,6 @@ begin
   MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
   MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
 
-  LastSelectionColor:=MainIni.Readinteger('VIEW','LastSelectionColor',clBlack);
-  LastSelectionAlfa:=MainIni.Readinteger('VIEW','LastSelectionAlpha',210);
-
   CacheElemensMaxCnt:=MainIni.ReadInteger('VIEW','TilesOCache',150);
   ShowHintOnMarks:=MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
   SrchType:=TSrchType(MainIni.ReadInteger('VIEW','SearchType',0));
@@ -782,8 +776,6 @@ begin
   MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
   MainIni.WriteInteger('VIEW','TilesOCache', CacheElemensMaxCnt);
   MainIni.WriteBool('VIEW','ShowHintOnMarks', ShowHintOnMarks);
-  MainIni.Writeinteger('VIEW','LastSelectionColor',LastSelectionColor);
-  MainIni.Writeinteger('VIEW','LastSelectionAlfa',LastSelectionAlfa);
   MainIni.WriteInteger('VIEW','SearchType',integer(SrchType));
   MainIni.WriteInteger('VIEW','Background',BGround);
   MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
