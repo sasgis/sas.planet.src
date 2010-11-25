@@ -1011,6 +1011,7 @@ begin
       VBmp.Canvas.Pen.Color := clBlack;
       VText := 'z' + IntToStr(i);
       VTextSize := VBmp.Canvas.TextExtent(VText);
+      VBmp.Canvas.Font := Self.Font;
       VBmp.Canvas.TextOut((VBmpSize.X div 2) - (VTextSize.cx div 2), (VBmpSize.Y div 2) - (VTextSize.cy div 2), VText);
       TBImageList1_24.ReplaceMasked(i, VBmp, VMaskColor);
     end;
