@@ -1005,13 +1005,15 @@ begin
     VBmpSize := Point(TBImageList1_24.Width, TBImageList1_24.Height);
     VBmp.SetSize(VBmpSize.X, VBmpSize.Y);
     VMaskColor := TBImageList1_24.ImagesBitmapMaskColor;
+    VBmp.Canvas.Brush.Color := VMaskColor;
+    VBmp.Canvas.Pen.Color := clBlack;
+    VBmp.Canvas.Font.Color := Self.Font.Color;
+    VBmp.Canvas.Font.Name := Self.Font.Name;
+    VBmp.Canvas.Font.Size := 8;
     for i := 1 to TBImageList1_24.Count - 1 do begin
-      VBmp.Canvas.Brush.Color := VMaskColor;
       VBmp.Canvas.FillRect(MakeRect(0,0,VBmpSize.X, VBmpSize.Y));
-      VBmp.Canvas.Pen.Color := clBlack;
       VText := 'z' + IntToStr(i);
       VTextSize := VBmp.Canvas.TextExtent(VText);
-      VBmp.Canvas.Font := Self.Font;
       VBmp.Canvas.TextOut((VBmpSize.X div 2) - (VTextSize.cx div 2), (VBmpSize.Y div 2) - (VTextSize.cy div 2), VText);
       TBImageList1_24.ReplaceMasked(i, VBmp, VMaskColor);
     end;
