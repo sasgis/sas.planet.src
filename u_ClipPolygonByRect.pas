@@ -214,7 +214,7 @@ begin
           VOutPointsCapacity := 1;
           SetLength(AResultPoints, VOutPointsCapacity);
         end;
-        AResultPoints[Result] := VIntersectPoint;
+        AResultPoints[Result] := VCurrPoint;
         Inc(Result);
       end;
     end;
