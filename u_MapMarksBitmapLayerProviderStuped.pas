@@ -33,6 +33,7 @@ uses
   t_CommonTypes,
   u_GlobalState,
   Ugeofun,
+  u_ClipPolygonByRect,
   u_MarksSimple,
   u_MarksReadWriteSimple;
 
@@ -44,6 +45,10 @@ const
 type
   TMapMarksBitmapLayerProviderStupedThreaded = class
   private
+    FBitmapClip: IPolyClip;
+    FPathPointsOnBitmap: TExtendedPointArray;
+    FPathPointsOnBitmapPrepared: TExtendedPointArray;
+    FPathFixedPoints: TArrayOfFixedPoint;
     FDeltaSizeInPixel: TPoint;
     FTargetBmp: TCustomBitmap32;
     FGeoConvert: ICoordConverter;
@@ -54,7 +59,7 @@ type
     FBitmapWithText: TBitmap32;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
-    procedure drawPath(pathll: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
+    procedure drawPath(APointsLonLat: TExtendedPointArray; color1, color2: TColor32; linew: integer; poly: boolean);
     procedure DrawPoint(ALL: TDoublePoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
   public
     constructor Create(
@@ -96,6 +101,7 @@ begin
   FBitmapWithText.CombineMode := cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
   FBitmapWithText.Resampler := TLinearResampler.Create;
+  FBitmapClip := TPolyClipByRect.Create(MakeRect(-10, -10, FTargetBmp.Width + 10, FTargetBmp.Height + 10));
 end;
 
 function TMapMarksBitmapLayerProviderStupedThreaded.MapPixel2BitmapPixel(
@@ -120,47 +126,56 @@ begin
 end;
 
 procedure TMapMarksBitmapLayerProviderStupedThreaded.drawPath(
-  pathll: TDoublePointArray; color1, color2: TColor32; linew: integer;
+  APointsLonLat: TExtendedPointArray; color1, color2: TColor32; linew: integer;
   poly: boolean);
 var
   polygon: TPolygon32;
   i: Integer;
-  VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TDoublePoint;
+  VPointsProcessedCount: Integer;
+  VLonLat: TExtendedPoint;
 begin
-  VPointsCount := Length(pathll);
+  VPointsCount := Length(APointsLonLat);
   if VPointsCount > 0 then begin
-    SetLength(VPointsOnBitmap, VPointsCount);
+    if Length(FPathPointsOnBitmap) < VPointsCount then begin
+      SetLength(FPathPointsOnBitmap, VPointsCount);
+    end;
     for i := 0 to VPointsCount - 1 do begin
-      VLonLat := pathll[i];
+      VLonLat := APointsLonLat[i];
       FGeoConvert.CheckLonLatPos(VLonLat);
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+      FPathPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
     try
-      polygon := TPolygon32.Create;
-      try
-        polygon.Antialiased := true;
-        polygon.AntialiasMode := am4times;
-        polygon.Closed := poly;
-        if length(pathll) > 0 then begin
-          PrepareGR32Polygon(VPointsOnBitmap, polygon);
-          if poly then begin
-            Polygon.DrawFill(FTargetBmp, color2);
-          end;
-          with Polygon.Outline do try
-            with Grow(GR32.Fixed(linew / 2), 0.5) do try
-              FillMode := pfWinding;
-              DrawFill(FTargetBmp, color1);
+      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap, VPointsCount, FPathPointsOnBitmapPrepared);
+      if VPointsProcessedCount > 0 then begin
+        polygon := TPolygon32.Create;
+        try
+          polygon.Antialiased := true;
+          polygon.AntialiasMode := am4times;
+          polygon.Closed := poly;
+            if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+              SetLength(FPathFixedPoints, VPointsProcessedCount);
+            end;
+            for i := 0 to VPointsProcessedCount - 1 do begin
+              FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
+            end;
+            polygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
+            if poly then begin
+              Polygon.DrawFill(FTargetBmp, color2);
+            end;
+            with Polygon.Outline do try
+              with Grow(GR32.Fixed(linew / 2), 0.5) do try
+                FillMode := pfWinding;
+                DrawFill(FTargetBmp, color1);
+              finally
+                free;
+              end;
             finally
               free;
             end;
-          finally
-            free;
-          end;
+        finally
+          polygon.Free;
         end;
-      finally
-        polygon.Free;
       end;
     except
     end;

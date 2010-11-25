@@ -305,6 +305,7 @@
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
+    <DCCReference Include="u_ClipPolygonByRect.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_ConfigDataProviderByFolder.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />

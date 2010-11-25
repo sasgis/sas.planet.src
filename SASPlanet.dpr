@@ -175,6 +175,7 @@ uses
   u_MarksReadWriteSimple in 'u_MarksReadWriteSimple.pas',
   i_IBitmapLayerProvider in 'i_IBitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
+  u_ClipPolygonByRect in 'u_ClipPolygonByRect.pas',
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',
   u_WindowLayerBasicList in 'u_WindowLayerBasicList.pas',
   u_MiniMapLayer in 'MapLayers\u_MiniMapLayer.pas',

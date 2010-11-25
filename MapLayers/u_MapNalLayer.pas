@@ -11,6 +11,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_MapViewPortState,
+  u_ClipPolygonByRect,
   u_MapLayerBasic;
 
 type
@@ -18,6 +19,7 @@ type
 
   TMapNalLayer = class(TMapLayerBasic)
   private
+    FBitmapClip: IPolyClip;
     FDrawType: TMapNalDrawType;
     FPath: TDoublePointArray;
     FSelectedLonLat: TDoubleRect;
@@ -66,6 +68,7 @@ type
     procedure DoDrawNewPath(AIsPoly: Boolean);
   protected
     procedure DoRedraw; override;
+    procedure DoResizeBitmap; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -142,10 +145,13 @@ var
   len: real;
   text: string;
   polygon: TPolygon32;
+  VLonLat: TExtendedPoint;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TDoublePoint;
+  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsProcessedCount: Integer;
+  VPathFixedPoints: TArrayOfFixedPoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
@@ -156,84 +162,88 @@ begin
       VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
 
-    polygon := TPolygon32.Create;
-    try
-      polygon.Antialiased := true;
-      polygon.AntialiasMode := am4times;
-      polygon.Closed := false;
-      PrepareGR32Polygon(VPointsOnBitmap, polygon);
-      with Polygon.Outline do try
-         with Grow(Fixed(FCalcLineWidth / 2), 0.5) do try
-           FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, FCalcLineColor);
-         finally
-           free;
-         end;
-      finally
-        free;
+    VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
+    if VPointsProcessedCount > 0 then begin
+      if VPointsProcessedCount > 1 then begin
+        SetLength(VPathFixedPoints, VPointsProcessedCount);
+        for i := 0 to VPointsProcessedCount - 1 do begin
+          VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+        end;
+        polygon := TPolygon32.Create;
+        try
+          polygon.Antialiased := true;
+          polygon.AntialiasMode := am4times;
+          polygon.Closed := false;
+          polygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
+          with Polygon.Outline do try
+             with Grow(Fixed(FCalcLineWidth / 2), 0.5) do try
+               FillMode := pfWinding;
+               DrawFill(FLayer.Bitmap, FCalcLineColor);
+             finally
+               free;
+             end;
+          finally
+            free;
+          end;
+        finally
+          polygon.Free;
+        end;
       end;
-    finally
-      polygon.Free;
     end;
-
     VBitmapSize := GetBitmapSizeInPixel;
-    try
-      for i := 0 to VPointsCount - 2 do begin
-        k1 := VPointsOnBitmap[i + 1];
-        if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
-          if i = VPointsCount - 2 then begin
-            len := 0;
-            for j := 0 to i do begin
-              len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
-            end;
-            text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
-            FLayer.Bitmap.Font.Size := 9;
+    for i := 0 to VPointsCount - 2 do begin
+      k1 := VPointsOnBitmap[i + 1];
+      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
+        if i = VPointsCount - 2 then begin
+          len := 0;
+          for j := 0 to i do begin
+            len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
+          end;
+          text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
+          FLayer.Bitmap.Font.Size := 9;
+          textW := FLayer.Bitmap.TextWidth(text) + 11;
+          FLayer.Bitmap.FillRectS(
+            Trunc(k1.x + 12),
+            Trunc(k1.y),
+            Trunc(k1.X + textW),
+            Trunc(k1.y + 15),
+            FCalcTextBGColor
+          );
+          FLayer.Bitmap.RenderText(
+            Trunc(k1.X + 15),
+            Trunc(k1.y),
+            text,
+            3,
+            FCalcTextColor
+          );
+        end else begin
+          if FLenShow then begin
+            text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
+            FLayer.Bitmap.Font.Size := 7;
             textW := FLayer.Bitmap.TextWidth(text) + 11;
             FLayer.Bitmap.FillRectS(
-              Trunc(k1.x + 12),
-              Trunc(k1.y),
+              Trunc(k1.x + 5),
+              Trunc(k1.y + 5),
               Trunc(k1.X + textW),
-              Trunc(k1.y + 15),
+              Trunc(k1.y + 16),
               FCalcTextBGColor
             );
             FLayer.Bitmap.RenderText(
-              Trunc(k1.X + 15),
-              Trunc(k1.y),
+              Trunc(k1.X + 8),
+              Trunc(k1.y + 5),
               text,
-              3,
+              0,
               FCalcTextColor
             );
-          end else begin
-            if FLenShow then begin
-              text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
-              FLayer.Bitmap.Font.Size := 7;
-              textW := FLayer.Bitmap.TextWidth(text) + 11;
-              FLayer.Bitmap.FillRectS(
-                Trunc(k1.x + 5),
-                Trunc(k1.y + 5),
-                Trunc(k1.X + textW),
-                Trunc(k1.y + 16),
-                FCalcTextBGColor
-              );
-              FLayer.Bitmap.RenderText(
-                Trunc(k1.X + 8),
-                Trunc(k1.y + 5),
-                text,
-                0,
-                FCalcTextColor
-              );
-            end;
           end;
-          DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFillColor, FCalcPointRectColor);
         end;
+        DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFillColor, FCalcPointRectColor);
       end;
-      k1 := VPointsOnBitmap[0];
-      DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFirstColor, FCalcPointFirstColor);
-      k1 := VPointsOnBitmap[FPolyActivePointIndex];
-      DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointActiveColor, FCalcPointActiveColor);
-    finally
-      VPointsOnBitmap := nil;
     end;
+    k1 := VPointsOnBitmap[0];
+    DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointFirstColor, FCalcPointFirstColor);
+    k1 := VPointsOnBitmap[FPolyActivePointIndex];
+    DrawPolyPoint(VBitmapSize, k1, FCalcPointSize, FCalcPointActiveColor, FCalcPointActiveColor);
   end;
 end;
 
@@ -242,54 +252,67 @@ var
   i: integer;
   k1: TDoublePoint;
   polygon: TPolygon32;
+  VLonLat: TExtendedPoint;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TDoublePoint;
+  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsProcessedCount: Integer;
+  VPathFixedPoints: TArrayOfFixedPoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
-    SetLength(VPointsOnBitmap, VPointsCount);
+    SetLength(VPointsOnBitmap, VPointsCount + 1);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
       FGeoConvert.CheckLonLatPos(VLonLat);
       VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
-    polygon := TPolygon32.Create;
-    try
-      polygon.Antialiased := true;
-      polygon.AntialiasMode := am4times;
-      polygon.Closed := AIsPoly;
-      PrepareGR32Polygon(VPointsOnBitmap, polygon);
-      if AIsPoly then begin
-        Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
+    if AIsPoly then begin
+      if not compare2EP(VPointsOnBitmap[0], VPointsOnBitmap[VPointsCount - 1]) then begin
+        VPointsOnBitmap[VPointsCount] := VPointsOnBitmap[0];
+        Inc(VPointsCount);
       end;
-      with Polygon.Outline do try
-         with Grow(Fixed(FEditMarkLineWidth / 2), 0.5) do try
-           FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, FEditMarkLineColor);
-         finally
-           free;
-         end;
-      finally
-        free;
-      end;
-    finally
-      polygon.Free;
     end;
-
-    VBitmapSize := GetBitmapSizeInPixel;
-    try
-      for i := 1 to VPointsCount - 1 do begin
-        k1 := VPointsOnBitmap[i];
+    VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
+    if VPointsProcessedCount > 0 then begin
+      if VPointsProcessedCount > 1 then begin
+        SetLength(VPathFixedPoints, VPointsProcessedCount);
+        for i := 0 to VPointsProcessedCount - 1 do begin
+          VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+        end;
+        polygon := TPolygon32.Create;
+        try
+          polygon.Antialiased := true;
+          polygon.AntialiasMode := am4times;
+          polygon.Closed := AIsPoly;
+          polygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
+          if AIsPoly then begin
+            Polygon.DrawFill(FLayer.Bitmap, FEditMarkFillColor);
+          end;
+          with Polygon.Outline do try
+             with Grow(Fixed(FEditMarkLineWidth / 2), 0.5) do try
+               FillMode := pfWinding;
+               DrawFill(FLayer.Bitmap, FEditMarkLineColor);
+             finally
+               free;
+             end;
+          finally
+            free;
+          end;
+        finally
+          polygon.Free;
+        end;
+      end;
+      VBitmapSize := GetBitmapSizeInPixel;
+      for i := 1 to VPointsProcessedCount - 1 do begin
+        k1 := VPointsOnBitmapPrepared[i];
         DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
       end;
       k1 := VPointsOnBitmap[0];
       DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkFirstPointColor, FEditMarkFirstPointColor);
       k1 := VPointsOnBitmap[FPolyActivePointIndex];
       DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkActivePointColor, FEditMarkActivePointColor);
-    finally
-      VPointsOnBitmap := nil;
     end;
   end;
 end;
@@ -299,10 +322,13 @@ var
   i: integer;
   k1: TDoublePoint;
   Polygon: TPolygon32;
+  VLonLat: TExtendedPoint;
   VBitmapSize: TPoint;
   VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VLonLat: TDoublePoint;
+  VPointsOnBitmapPrepared: TExtendedPointArray;
+  VPointsProcessedCount: Integer;
+  VPathFixedPoints: TArrayOfFixedPoint;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
@@ -312,37 +338,41 @@ begin
       FGeoConvert.CheckLonLatPos(VLonLat);
       VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
     end;
-    polygon := TPolygon32.Create;
-    try
-      polygon.Antialiased := true;
-      polygon.AntialiasMode := am4times;
-      polygon.Closed := true;
-      PrepareGR32Polygon(VPointsOnBitmap, polygon);
-      Polygon.DrawFill(FLayer.Bitmap, FSelectionPolyFillColor);
-      with Polygon.Outline do try
-         with Grow(Fixed(FSelectionPolyLineWidth / 2), 0.5) do try
-           FillMode := pfWinding;
-           DrawFill(FLayer.Bitmap, FSelectionPolyLineColor);
-         finally
-           free;
-         end;
-      finally
-        free;
+    VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
+    if VPointsProcessedCount > 0 then begin
+      if VPointsProcessedCount > 1 then begin
+        SetLength(VPathFixedPoints, VPointsProcessedCount);
+        for i := 0 to VPointsProcessedCount - 1 do begin
+          VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+        end;
+        polygon := TPolygon32.Create;
+        try
+          polygon.Antialiased := true;
+          polygon.AntialiasMode := am4times;
+          polygon.Closed := true;
+          polygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
+          Polygon.DrawFill(FLayer.Bitmap, FSelectionPolyFillColor);
+          with Polygon.Outline do try
+             with Grow(Fixed(FSelectionPolyLineWidth / 2), 0.5) do try
+               FillMode := pfWinding;
+               DrawFill(FLayer.Bitmap, FSelectionPolyLineColor);
+             finally
+               free;
+             end;
+          finally
+            free;
+          end;
+        finally
+          polygon.Free;
+        end;
       end;
-    finally
-      polygon.Free;
-    end;
-
-    VBitmapSize := GetBitmapSizeInPixel;
-    try
+      VBitmapSize := GetBitmapSizeInPixel;
       k1 := VPointsOnBitmap[0];
       DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointFirstColor, FSelectionPolyPointFirstColor);
       if VPointsCount > 1 then begin
         k1 := VPointsOnBitmap[VPointsCount - 1];
         DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointLastColor, FSelectionPolyPointLastColor);
       end;
-    finally
-      VPointsOnBitmap := nil;
     end;
   end;
 end;
@@ -416,6 +446,15 @@ begin
     mndtNewPath: DoDrawNewPath(False);
     mndtNewPoly: DoDrawNewPath(True);
   end;
+end;
+
+procedure TMapNalLayer.DoResizeBitmap;
+var
+  VSize: TPoint;
+begin
+  inherited;
+  VSize := GetBitmapSizeInPixel;
+  FBitmapClip := TPolyClipByRect.Create(MakeRect(0, 0, VSize.X, VSize.Y));
 end;
 
 procedure TMapNalLayer.DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);
