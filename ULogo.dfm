@@ -23,7 +23,7 @@ object FLogo: TFLogo
     Bitmap.ResamplerClassName = 'TNearestResampler'
     BitmapAlign = baTopLeft
     Scale = 1.000000000000000000
-    ScaleMode = smNormal
+    ScaleMode = smResize
     TabOrder = 0
     OnClick = Image321Click
     object Label1: TLabel
