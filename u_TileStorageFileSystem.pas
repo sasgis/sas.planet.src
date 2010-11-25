@@ -188,14 +188,22 @@ begin
   if FileExists(VPath) then begin
     if AStream is TMemoryStream then begin
       VMemStream := TMemoryStream(AStream);
-      VMemStream.LoadFromFile(VPath);
-      Result := True;
+      try
+        VMemStream.LoadFromFile(VPath);
+        Result := True;
+      except
+        Result := False;
+      end;
     end else begin
       VMemStream := TMemoryStream.Create;
       try
-        VMemStream.LoadFromFile(VPath);
-        VMemStream.SaveToStream(AStream);
-        Result := True;
+        try
+          VMemStream.LoadFromFile(VPath);
+          VMemStream.SaveToStream(AStream);
+          Result := True;
+        except
+          Result := False;
+        end;
       finally
         VMemStream.Free;
       end;
