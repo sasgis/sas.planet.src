@@ -16,7 +16,9 @@ uses
 type
   TSelectionLayer = class(TMapLayerScaledBase)
   protected
-    FColor: TColor32;
+    FBitmapClip: IPolyClip;
+    FLineColor: TColor32;
+    FLineWidth: Integer;
     FPolygon: TDoublePointArray;
     FSelectionChangeListener: IJclListener;
     procedure DoRedraw; override;
@@ -127,7 +129,7 @@ begin
     for i := 0 to VPointCount - 1 do begin
       VFloatPoints[i] := FloatPoint(VVisualPolygon[i].X, VVisualPolygon[i].Y);
     end;
-    PolylineFS(Buffer, VFloatPoints, FColor, True, 2, jsBevel);
+    PolylineFS(Buffer, VFloatPoints, FLineColor, True, FLineWidth, jsBevel);
   end;
 end;
 
