@@ -875,10 +875,9 @@ object FSettings: TFSettings
               ItemHeight = 13
               ItemIndex = 0
               TabOrder = 0
-              Text = '12 '#1082#1084'. 423 '#1084'.'
               Items.Strings = (
-                '12 '#1082#1084'. 423 '#1084'.'
-                '23,4 '#1082#1084'.')
+                '12 '#1082#1084' 423 '#1084
+                '23,4 '#1082#1084)
             end
           end
           object pnlLonLatFormat: TPanel
