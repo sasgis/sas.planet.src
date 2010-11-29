@@ -712,7 +712,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:1000000 (10 '#1082#1084')'
+            Caption = '1:1 000 000 (10 '#1082#1084')'
             Hint = ''
           end
           object NGShScale500000: TTBXItem
@@ -730,7 +730,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:200000 (2 '#1082#1084')'
+            Caption = '1:200 000 (2 '#1082#1084')'
             Hint = ''
           end
           object NGShScale100000: TTBXItem
@@ -739,7 +739,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:100000 (1 '#1082#1084')'
+            Caption = '1:100 000 (1 '#1082#1084')'
             Hint = ''
           end
           object NGShScale50000: TTBXItem
@@ -748,7 +748,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:50000 (500 '#1084')'
+            Caption = '1:50 000 (500 '#1084')'
             Hint = ''
           end
           object NGShScale25000: TTBXItem
@@ -757,7 +757,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:25000 (250 '#1084')'
+            Caption = '1:25 000 (250 '#1084')'
             Hint = ''
           end
           object NGShScale10000: TTBXItem
@@ -766,7 +766,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:10000 (100 '#1084')'
+            Caption = '1:10 000 (100 '#1084')'
             Hint = ''
           end
         end
