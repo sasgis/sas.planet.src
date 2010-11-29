@@ -398,6 +398,7 @@ type
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
     tmrMapUpdate: TTimer;
+    tbtmHelpBugTrack: TTBItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -528,6 +529,7 @@ type
     procedure TBXItem9Click(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tmrMapUpdateTimer(Sender: TObject);
+    procedure tbtmHelpBugTrackClick(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -2504,6 +2506,11 @@ begin
   if frmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
+end;
+
+procedure TFmain.tbtmHelpBugTrackClick(Sender: TObject);
+begin
+  OpenUrlInBrowser('http://sasgis.ru/mantis/');
 end;
 
 procedure TFmain.TBMainToolBarClose(Sender: TObject);

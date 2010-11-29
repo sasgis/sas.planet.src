@@ -1058,6 +1058,11 @@ object Fmain: TFmain
           Caption = #1057#1072#1081#1090' '#1087#1088#1086#1075#1088#1072#1084#1084#1099' (http://sasgis.ru)'
           Hint = ''
         end
+        object tbtmHelpBugTrack: TTBItem
+          OnClick = tbtmHelpBugTrackClick
+          Caption = #1041#1072#1075#1090#1088#1077#1082#1077#1088' http://sasgis.ru/mantis/'
+          Hint = ''
+        end
         object NGoToForum: TTBXItem
           OnClick = NGoToForumClick
           Caption = #1054#1073#1089#1091#1078#1076#1077#1085#1080#1077' (http://sasgis.ru/forum)'
