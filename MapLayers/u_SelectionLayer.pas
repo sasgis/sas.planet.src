@@ -44,6 +44,7 @@ uses
   GR32_VectorUtils,
   u_JclNotify,
   i_ICoordConverter,
+  u_ConfigProviderHelpers,
   u_NotifyEventListener,
   u_GlobalState,
   Ugeofun;
