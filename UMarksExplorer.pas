@@ -439,10 +439,12 @@ begin
   if MarksListBox.ItemIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
     VMark := GState.MarksDb.GetMarkByID(VId);
-    try
-      Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
-    finally
-      VMark.Free
+    if VMark <> nil then begin
+      try
+        Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
+      finally
+        VMark.Free
+      end;
     end;
   end;
 end;
@@ -580,11 +582,13 @@ var
 begin
   if TreeView1.Selected <> nil then begin
     VCategory := TCategoryId(TreeView1.Selected.data);
-    if FaddCategory.EditCategory(VCategory) then begin
-      GState.MarksDb.WriteCategory(VCategory);
+    if VCategory <> nil then begin
+      if FaddCategory.EditCategory(VCategory) then begin
+        GState.MarksDb.WriteCategory(VCategory);
 
-      GState.MarksDb.Kategory2StringsWithObjects(katitems);
-      DrawTreeCategory(TreeView1,katitems);
+        GState.MarksDb.Kategory2StringsWithObjects(katitems);
+        DrawTreeCategory(TreeView1,katitems);
+      end;
     end;
   end;
 end;
@@ -679,11 +683,13 @@ begin
     if (VIndex >= 0) then begin
       VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
       VMark := GState.MarksDb.GetMarkByID(VId);
-      try
-        LL := VMark.GetGoToLonLat;
-        FMain.LayerMapNavToMark.StartNav(LL, VId);
-      finally
-        VMark.Free;
+      if VMark <> nil then begin
+        try
+          LL := VMark.GetGoToLonLat;
+          FMain.LayerMapNavToMark.StartNav(LL, VId);
+        finally
+          VMark.Free;
+        end;
       end;
     end else begin
       SBNavOnMark.Down:=not SBNavOnMark.Down

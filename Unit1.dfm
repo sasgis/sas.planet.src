@@ -711,7 +711,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:1000000 (10 '#1082#1084')'
+            Caption = '1:1 000 000 (10 '#1082#1084')'
             Hint = ''
           end
           object NGShScale500000: TTBXItem
@@ -720,7 +720,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:500000 (5 '#1082#1084')'
+            Caption = '1:500 000 (5 '#1082#1084')'
             Hint = ''
           end
           object NGShScale200000: TTBXItem
@@ -729,7 +729,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:200000 (2 '#1082#1084')'
+            Caption = '1:200 000 (2 '#1082#1084')'
             Hint = ''
           end
           object NGShScale100000: TTBXItem
@@ -738,7 +738,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:100000 (1 '#1082#1084')'
+            Caption = '1:100 000 (1 '#1082#1084')'
             Hint = ''
           end
           object NGShScale50000: TTBXItem
@@ -747,7 +747,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:50000 (500 '#1084')'
+            Caption = '1:50 000 (500 '#1084')'
             Hint = ''
           end
           object NGShScale25000: TTBXItem
@@ -756,7 +756,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:25000 (250 '#1084')'
+            Caption = '1:25 000 (250 '#1084')'
             Hint = ''
           end
           object NGShScale10000: TTBXItem
@@ -765,7 +765,7 @@ object Fmain: TFmain
             GroupIndex = 1
             RadioItem = True
             OnClick = NGShScale01Click
-            Caption = '1:10000 (100 '#1084')'
+            Caption = '1:10 000 (100 '#1084')'
             Hint = ''
           end
         end
@@ -865,7 +865,7 @@ object Fmain: TFmain
           RadioItem = True
           ShortCut = 32834
           OnClick = NSRCinetClick
-          Caption = #1048#1085#1090#1077#1088#1085#1077#1090' '#1080' '#1082#1077#1096
+          Caption = #1048#1085#1090#1077#1088#1085#1077#1090' '#1080' '#1082#1101#1096
           Hint = ''
         end
       end
@@ -1055,6 +1055,11 @@ object Fmain: TFmain
         object NGoToSite: TTBXItem
           OnClick = NGoToSiteClick
           Caption = #1057#1072#1081#1090' '#1087#1088#1086#1075#1088#1072#1084#1084#1099' (http://sasgis.ru)'
+          Hint = ''
+        end
+        object tbtmHelpBugTrack: TTBItem
+          OnClick = tbtmHelpBugTrackClick
+          Caption = #1041#1072#1075#1090#1088#1077#1082#1077#1088' http://sasgis.ru/mantis/'
           Hint = ''
         end
         object NGoToForum: TTBXItem
