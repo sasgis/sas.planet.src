@@ -607,11 +607,13 @@ var
 begin
   if TreeView1.Selected <> nil then begin
     VCategory := TCategoryId(TreeView1.Selected.data);
-    if FaddCategory.EditCategory(VCategory) then begin
-      GState.MarksDb.WriteCategory(VCategory);
+    if VCategory <> nil then begin
+      if FaddCategory.EditCategory(VCategory) then begin
+        GState.MarksDb.WriteCategory(VCategory);
 
-      GState.MarksDb.Kategory2StringsWithObjects(katitems);
-      DrawTreeCategory(TreeView1,katitems);
+        GState.MarksDb.Kategory2StringsWithObjects(katitems);
+        DrawTreeCategory(TreeView1,katitems);
+      end;
     end;
   end;
 end;
