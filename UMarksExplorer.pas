@@ -466,10 +466,12 @@ begin
   if MarksListBox.ItemIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
     VMark := GState.MarksDb.GetMarkByID(VId);
-    try
-      Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
-    finally
-      VMark.Free
+    if VMark <> nil then begin
+      try
+        Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
+      finally
+        VMark.Free
+      end;
     end;
   end;
 end;
@@ -708,11 +710,13 @@ begin
     if (VIndex >= 0) then begin
       VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
       VMark := GState.MarksDb.GetMarkByID(VId);
-      try
-        LL := VMark.GetGoToLonLat;
-        FMain.LayerMapNavToMark.StartNav(LL, VId);
-      finally
-        VMark.Free;
+      if VMark <> nil then begin
+        try
+          LL := VMark.GetGoToLonLat;
+          FMain.LayerMapNavToMark.StartNav(LL, VId);
+        finally
+          VMark.Free;
+        end;
       end;
     end else begin
       SBNavOnMark.Down:=not SBNavOnMark.Down
