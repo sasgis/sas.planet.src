@@ -5,20 +5,15 @@ interface
 uses
   GR32,
   GR32_Image,
-  
-  t_GeoTypes,
   u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TMapMarksLayer = class(TMapLayerBasic)
   protected
-    FLLRect: TDoubleRect;
-    FTempBmp: TCustomBitmap32;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-    destructor Destroy; override;
   end;
 
 implementation
@@ -28,7 +23,6 @@ uses
   Graphics,
   Classes,
   SysUtils,
-  GR32_Resamplers,
   t_CommonTypes,
   u_GlobalState,
   i_IBitmapLayerProvider,
@@ -41,15 +35,6 @@ begin
   inherited;
   FLayer.Bitmap.Font.Name := 'Tahoma';
   FLayer.Bitmap.Font.Style := [];
-  FTempBmp := TCustomBitmap32.Create;
-  FTempBmp.DrawMode := dmBlend;
-  FTempBmp.Resampler := TLinearResampler.Create;
-end;
-
-destructor TMapMarksLayer.Destroy;
-begin
-  FreeAndNil(FTempBmp);
-  inherited;
 end;
 
 procedure TMapMarksLayer.DoRedraw;
