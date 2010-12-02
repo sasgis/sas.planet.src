@@ -21,13 +21,15 @@ type
     procedure SetChanged;
     function CheckIsChangedAndReset: Boolean;
     procedure DoChangeNotify;
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); virtual; abstract;
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
-    procedure ReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
-    procedure WriteConfig(AConfigData: IConfigDataWriteProvider); virtual; abstract;
+    procedure ReadConfig(AConfigData: IConfigDataProvider); virtual;
+    procedure WriteConfig(AConfigData: IConfigDataWriteProvider); virtual;
     procedure StopNotify; virtual;
     procedure StartNotify; virtual;
     function GetChangeNotifier: IJclNotifier; virtual;
@@ -83,6 +85,16 @@ begin
   FLock.BeginWrite;
 end;
 
+procedure TConfigDataElementBase.ReadConfig(AConfigData: IConfigDataProvider);
+begin
+  LockWrite;
+  try
+    DoReadConfig(AConfigData);
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TConfigDataElementBase.SetChanged;
 begin
   InterlockedIncrement(FNeedNotify);
@@ -114,6 +126,17 @@ procedure TConfigDataElementBase.UnlockWrite;
 begin
   FLock.EndWrite;
   StartNotify;
+end;
+
+procedure TConfigDataElementBase.WriteConfig(
+  AConfigData: IConfigDataWriteProvider);
+begin
+  LockRead;
+  try
+    DoWriteConfig(AConfigData);
+  finally
+    UnlockRead;
+  end;
 end;
 
 end.

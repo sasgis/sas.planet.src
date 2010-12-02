@@ -58,6 +58,7 @@ uses
   u_ConfigProviderHelpers in 'u_ConfigProviderHelpers.pas',
   i_IConfigDataElement in 'i_IConfigDataElement.pas',
   u_ConfigDataElementBase in 'u_ConfigDataElementBase.pas',
+  u_ConfigDataElementComplexBase in 'u_ConfigDataElementComplexBase.pas',
   i_ILogSimple in 'i_ILogSimple.pas',
   i_ILogForTaskThread in 'i_ILogForTaskThread.pas',
   i_ITileDownlodSession in 'i_ITileDownlodSession.pas',

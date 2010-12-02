@@ -309,6 +309,7 @@
     <DCCReference Include="u_ClipPolygonByRect.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_ConfigDataElementBase.pas" />
+    <DCCReference Include="u_ConfigDataElementComplexBase.pas" />
     <DCCReference Include="u_ConfigDataProviderByFolder.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
