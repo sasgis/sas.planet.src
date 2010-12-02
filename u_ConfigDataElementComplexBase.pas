@@ -18,8 +18,6 @@ type
   protected
     procedure OnItemChange(Sender: TObject);
     procedure Add(AItem: IConfigDataElement);
-//    function Count: Integer;
-//    function Get(i: Integer): IConfigDataElement;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -63,33 +61,51 @@ end;
 
 procedure TConfigDataElementComplexBase.DoReadConfig(
   AConfigData: IConfigDataProvider);
+var
+  i: Integer;
 begin
   inherited;
-
+  for i := 0 to FList.Count - 1 do begin
+    IConfigDataElement(FList.Items[i]).ReadConfig(AConfigData);
+  end;
 end;
 
 procedure TConfigDataElementComplexBase.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
+var
+  i: Integer;
 begin
   inherited;
-
+  for i := 0 to FList.Count - 1 do begin
+    IConfigDataElement(FList.Items[i]).WriteConfig(AConfigData);
+  end;
 end;
 
 procedure TConfigDataElementComplexBase.OnItemChange;
 begin
-
+  inherited StopNotify;
+  SetChanged;
+  inherited StartNotify;
 end;
 
 procedure TConfigDataElementComplexBase.StartNotify;
+var
+  i: Integer;
 begin
+  for i := 0 to FList.Count - 1 do begin
+    IConfigDataElement(FList.Items[i]).StartNotify;
+  end;
   inherited;
-
 end;
 
 procedure TConfigDataElementComplexBase.StopNotify;
+var
+  i: Integer;
 begin
   inherited;
-
+  for i := 0 to FList.Count - 1 do begin
+    IConfigDataElement(FList.Items[i]).StopNotify;
+  end;
 end;
 
 end.
