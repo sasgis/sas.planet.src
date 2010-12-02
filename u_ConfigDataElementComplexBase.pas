@@ -35,12 +35,6 @@ uses
 
 { TConfigDataElementComplexBase }
 
-procedure TConfigDataElementComplexBase.Add(AItem: IConfigDataElement);
-begin
-  FList.Add(AItem);
-  AItem.GetChangeNotifier.Add(FItemChangeListener);
-end;
-
 constructor TConfigDataElementComplexBase.Create;
 begin
   FList := TInterfaceList.Create;
@@ -57,6 +51,12 @@ begin
   FItemChangeListener := nil;
   FList := nil;
   inherited;
+end;
+
+procedure TConfigDataElementComplexBase.Add(AItem: IConfigDataElement);
+begin
+  FList.Add(AItem);
+  AItem.GetChangeNotifier.Add(FItemChangeListener);
 end;
 
 procedure TConfigDataElementComplexBase.DoReadConfig(

@@ -45,11 +45,6 @@ uses
 
 { TConfigDataElementBase }
 
-function TConfigDataElementBase.CheckIsChangedAndReset: Boolean;
-begin
-  Result := InterlockedExchange(FNeedNotify, 0) <> 0;
-end;
-
 constructor TConfigDataElementBase.Create;
 begin
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
@@ -62,6 +57,11 @@ begin
   FreeAndNil(FLock);
   FChangeNotifier := nil;
   inherited;
+end;
+
+function TConfigDataElementBase.CheckIsChangedAndReset: Boolean;
+begin
+  Result := InterlockedExchange(FNeedNotify, 0) <> 0;
 end;
 
 procedure TConfigDataElementBase.DoChangeNotify;
