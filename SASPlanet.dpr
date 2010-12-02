@@ -56,6 +56,8 @@ uses
   u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
   u_SaveLoadTBConfigByConfigProvider in 'u_SaveLoadTBConfigByConfigProvider.pas',
   u_ConfigProviderHelpers in 'u_ConfigProviderHelpers.pas',
+  i_IConfigDataElement in 'i_IConfigDataElement.pas',
+  u_ConfigDataElementBase in 'u_ConfigDataElementBase.pas',
   i_ILogSimple in 'i_ILogSimple.pas',
   i_ILogForTaskThread in 'i_ILogForTaskThread.pas',
   i_ITileDownlodSession in 'i_ITileDownlodSession.pas',

@@ -82,6 +82,7 @@
     <DCCReference Include="i_IAntiBan.pas" />
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
+    <DCCReference Include="i_IConfigDataElement.pas" />
     <DCCReference Include="i_IConfigDataProvider.pas" />
     <DCCReference Include="i_IConfigDataWriteProvider.pas" />
     <DCCReference Include="i_IContentConverter.pas" />
@@ -307,6 +308,7 @@
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
+    <DCCReference Include="u_ConfigDataElementBase.pas" />
     <DCCReference Include="u_ConfigDataProviderByFolder.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
