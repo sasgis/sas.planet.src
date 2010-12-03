@@ -8,20 +8,21 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IConfigDataElement,
+  i_IConfigSaveLoadStrategy,
   u_ConfigDataElementBase;
 
 type
   TConfigDataElementComplexBase = class(TConfigDataElementBase)
   private
     FList: IInterfaceList;
-    FNamesList: TStringList;
+    FStrategyList: IInterfaceList;
     FItemChangeListener: IJclListener;
   protected
     procedure OnItemChange(Sender: TObject);
-    procedure Add(AItem: IConfigDataElement; AConfigSubItemName: string);
+    procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy);
     function GetItemsCount: Integer;
     function GetItem(AIndex: Integer): IConfigDataElement;
-    function GetConfigSubItemName(AIndex: Integer): string;
+    function GetSaveLoadStrategy(AIndex: Integer): IConfigSaveLoadStrategy;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -43,8 +44,8 @@ uses
 constructor TConfigDataElementComplexBase.Create;
 begin
   FList := TInterfaceList.Create;
+  FStrategyList := TInterfaceList.Create;
   FItemChangeListener := TNotifyEventListener.Create(Self.OnItemChange);
-  FNamesList := TStringList.Create;
 end;
 
 destructor TConfigDataElementComplexBase.Destroy;
@@ -56,16 +57,16 @@ begin
   end;
   FItemChangeListener := nil;
   FList := nil;
-  FreeAndNil(FNamesList);
+  FStrategyList := nil;
   inherited;
 end;
 
 procedure TConfigDataElementComplexBase.Add(
   AItem: IConfigDataElement;
-  AConfigSubItemName: string
+  ASaveLoadStrategy: IConfigSaveLoadStrategy
 );
 begin
-  FNamesList.Add(AConfigSubItemName);
+  FStrategyList.Add(ASaveLoadStrategy);
   FList.Add(AItem);
   AItem.GetChangeNotifier.Add(FItemChangeListener);
 end;
@@ -74,22 +75,14 @@ procedure TConfigDataElementComplexBase.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   i: Integer;
-  VConfigSubItemName: string;
-  VConfigData: IConfigDataProvider;
+  VStrategy: IConfigSaveLoadStrategy;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VConfigSubItemName := GetConfigSubItemName(i);
-    if VConfigSubItemName = '' then begin
-      VConfigData := AConfigData;
-    end else begin
-      if AConfigData = nil then begin
-        VConfigData := nil;
-      end else begin
-        VConfigData := AConfigData.GetSubItem(VConfigSubItemName);
-      end;
+    VStrategy := GetSaveLoadStrategy(i);
+    if VStrategy <> nil then begin
+      VStrategy.ReadConfig(AConfigData, GetItem(i));
     end;
-    GetItem(i).ReadConfig(VConfigData);
   end;
 end;
 
@@ -97,25 +90,21 @@ procedure TConfigDataElementComplexBase.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
   i: Integer;
-  VConfigSubItemName: string;
-  VConfigData: IConfigDataWriteProvider;
+  VStrategy: IConfigSaveLoadStrategy;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VConfigSubItemName := GetConfigSubItemName(i);
-    if VConfigSubItemName = '' then begin
-      VConfigData := AConfigData;
-    end else begin
-      VConfigData := AConfigData.GetOrCreateSubItem(VConfigSubItemName);
+    VStrategy := GetSaveLoadStrategy(i);
+    if VStrategy <> nil then begin
+      VStrategy.WriteConfig(AConfigData, GetItem(i));
     end;
-    GetItem(i).WriteConfig(VConfigData);
   end;
 end;
 
-function TConfigDataElementComplexBase.GetConfigSubItemName(
-  AIndex: Integer): string;
+function TConfigDataElementComplexBase.GetSaveLoadStrategy(
+  AIndex: Integer): IConfigSaveLoadStrategy;
 begin
-  Result := FNamesList.Strings[AIndex];
+  Result := IConfigSaveLoadStrategy(FStrategyList.Items[AIndex]);
 end;
 
 function TConfigDataElementComplexBase.GetItem(
