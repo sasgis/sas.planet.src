@@ -97,6 +97,7 @@
     <DCCReference Include="i_ILanguageManager.pas" />
     <DCCReference Include="i_IListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_ILocalCoordConverter.pas" />
+    <DCCReference Include="i_ILocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="i_ILogForTaskThread.pas" />
     <DCCReference Include="i_ILogSimple.pas" />
     <DCCReference Include="i_IMapCalibration.pas" />
@@ -372,6 +373,7 @@
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
+    <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
     <DCCReference Include="u_MapCalibrationKml.pas" />

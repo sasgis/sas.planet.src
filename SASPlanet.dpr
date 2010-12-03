@@ -125,6 +125,8 @@ uses
   UGSM in 'UGSM.pas',
   i_ILocalCoordConverter in 'i_ILocalCoordConverter.pas',
   u_LocalCoordConverter in 'u_LocalCoordConverter.pas',
+  i_ILocalCoordConverterFactorySimpe in 'i_ILocalCoordConverterFactorySimpe.pas',
+  u_LocalCoordConverterFactorySimpe in 'u_LocalCoordConverterFactorySimpe.pas',
   u_UrlGenerator in 'u_UrlGenerator.pas',
   i_ICoordConverter in 'i_ICoordConverter.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
