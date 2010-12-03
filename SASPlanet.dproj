@@ -85,6 +85,7 @@
     <DCCReference Include="i_IConfigDataElement.pas" />
     <DCCReference Include="i_IConfigDataProvider.pas" />
     <DCCReference Include="i_IConfigDataWriteProvider.pas" />
+    <DCCReference Include="i_IConfigSaveLoadStrategy.pas" />
     <DCCReference Include="i_IContentConverter.pas" />
     <DCCReference Include="i_IContentTypeManager.pas" />
     <DCCReference Include="i_ICoordConverter.pas" />
@@ -324,6 +325,8 @@
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
     <DCCReference Include="u_ConfigProviderHelpers.pas" />
+    <DCCReference Include="u_ConfigSaveLoadStrategyBasicProviderSubItem.pas" />
+    <DCCReference Include="u_ConfigSaveLoadStrategyBasicUseProvider.pas" />
     <DCCReference Include="u_ContentConverterBase.pas" />
     <DCCReference Include="u_ContentConverterBitmap.pas" />
     <DCCReference Include="u_ContentConverterKml2Kmz.pas" />
