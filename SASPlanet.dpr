@@ -123,6 +123,8 @@ uses
   u_MemFileCache in 'u_MemFileCache.pas',
   UYaMobile in 'UYaMobile.pas',
   UGSM in 'UGSM.pas',
+  i_ILocalCoordConverter in 'i_ILocalCoordConverter.pas',
+  u_LocalCoordConverter in 'u_LocalCoordConverter.pas',
   u_UrlGenerator in 'u_UrlGenerator.pas',
   i_ICoordConverter in 'i_ICoordConverter.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
