@@ -4,7 +4,8 @@ interface
 
 uses
   i_JclNotify,
-  i_MapTypes;
+  i_MapTypes,
+  i_IConfigDataElement;
 
 type
   IActiveMapConfig = interface
@@ -29,6 +30,27 @@ type
 
     property HybrList: IMapTypeList read GetHybrList;
     property HybrChangeNotifier: IJclNotifier read GetHybrChangeNotifier;
+  end;
+
+  IActiveMap = interface(IConfigDataElement)
+    ['{6BAD8743-D50B-4342-9A68-DA5FBDDFDB04}']
+    procedure SelectByGUID(AMapGUID: TGUID);
+    function GetSelectedGUID: TGUID;
+    function GetMapsList: IMapTypeList;
+
+    property SelectedMapGUID: TGUID read GetSelectedGUID;
+    property MapsList: IMapTypeList read GetMapsList;
+  end;
+
+  IActiveMapsSet = interface(IConfigDataElement)
+    ['{09F8FEE4-984C-4D1F-A240-BD8FF3333F85}']
+    procedure SelectByGUID(AMapGUID: TGUID);
+    procedure UnSelectByGUID(AMapGUID: TGUID);
+    function IsGUIDSelected(AMapGUID: TGUID): Boolean;
+    function GetSelectedMapsList: IMapTypeList;
+    function GetMapsList: IMapTypeList;
+
+    property MapsList: IMapTypeList read GetMapsList;
   end;
 
 const
