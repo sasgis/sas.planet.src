@@ -1,5 +1,7 @@
 unit u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
+interface
+
 uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -22,8 +24,6 @@ type
   public
     constructor Create(ASubItemName: string);
   end;
-
-interface
 
 implementation
 
