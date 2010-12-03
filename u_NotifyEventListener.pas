@@ -11,10 +11,11 @@ type
   TNotifyEventListenerBase = class(TJclBaseListener)
   private
     FEvent: TNotifyEvent;
+    FSender: TObject;
   protected
     procedure DoEvent; virtual;
   public
-    constructor Create(AEvent: TNotifyEvent);
+    constructor Create(AEvent: TNotifyEvent; ASender: TObject = nil);
   end;
 
   TNotifyEventListener = class(TNotifyEventListenerBase)
@@ -31,15 +32,16 @@ implementation
 
 { TSimpleEventListenerBase }
 
-constructor TNotifyEventListenerBase.Create(AEvent: TNotifyEvent);
+constructor TNotifyEventListenerBase.Create(AEvent: TNotifyEvent; ASender: TObject);
 begin
+  FSender := ASender;
   FEvent := AEvent;
 end;
 
 procedure TNotifyEventListenerBase.DoEvent;
 begin
   if Assigned(FEvent) then begin
-    FEvent(nil);
+    FEvent(FSender);
   end;
 end;
 
