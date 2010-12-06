@@ -42,6 +42,13 @@ type
     property MapsList: IMapTypeList read GetMapsList;
   end;
 
+  IActiveMapSingle = interface(IConfigDataElement)
+    ['{12F47503-E574-4F4F-A30C-7304D38410C7}']
+    function GetMapType: IMapType;
+    function GetIsActive: Boolean;
+    procedure SetIsActive(AValue: Boolean);
+  end;
+
   IActiveMapsSet = interface(IConfigDataElement)
     ['{09F8FEE4-984C-4D1F-A240-BD8FF3333F85}']
     procedure SelectByGUID(AMapGUID: TGUID);
