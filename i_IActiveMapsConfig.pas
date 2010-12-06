@@ -34,7 +34,6 @@ type
 
   IActiveMap = interface(IConfigDataElement)
     ['{6BAD8743-D50B-4342-9A68-DA5FBDDFDB04}']
-    procedure SelectByGUID(AMapGUID: TGUID);
     function GetSelectedGUID: TGUID;
     function GetMapsList: IMapTypeList;
 
@@ -46,18 +45,24 @@ type
     ['{12F47503-E574-4F4F-A30C-7304D38410C7}']
     function GetMapType: IMapType;
     function GetIsActive: Boolean;
-    procedure SetIsActive(AValue: Boolean);
   end;
 
   IActiveMapsSet = interface(IConfigDataElement)
     ['{09F8FEE4-984C-4D1F-A240-BD8FF3333F85}']
-    procedure SelectByGUID(AMapGUID: TGUID);
-    procedure UnSelectByGUID(AMapGUID: TGUID);
     function IsGUIDSelected(AMapGUID: TGUID): Boolean;
     function GetSelectedMapsList: IMapTypeList;
     function GetMapsList: IMapTypeList;
 
     property MapsList: IMapTypeList read GetMapsList;
+  end;
+
+  IActivMapWithLayers = interface(IConfigDataElement)
+    ['{92B95280-7FD6-402A-8260-3FD83ED6BE36}']
+    function GetActiveMap: IActiveMap;
+    procedure SelectMainByGUID(AMapGUID: TGUID);
+
+    procedure SelectLayerByGUID(AMapGUID: TGUID);
+    procedure UnSelectLayerByGUID(AMapGUID: TGUID);
   end;
 
 const
