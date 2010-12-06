@@ -28,6 +28,10 @@ type
   protected
     procedure StopNotify; override;
     procedure StartNotify; override;
+    procedure LockWrite; override;
+    procedure UnlockWrite; override;
+    procedure LockRead; override;
+    procedure UnlockRead; override;
   public
     constructor Create();
     destructor Destroy; override;
@@ -107,6 +111,26 @@ begin
   Result := IConfigSaveLoadStrategy(FStrategyList.Items[AIndex]);
 end;
 
+procedure TConfigDataElementComplexBase.LockRead;
+var
+  i: Integer;
+begin
+  inherited;
+  for i := 0 to GetItemsCount - 1 do begin
+    GetItem(i).LockRead;
+  end;
+end;
+
+procedure TConfigDataElementComplexBase.LockWrite;
+var
+  i: Integer;
+begin
+  inherited;
+  for i := 0 to GetItemsCount - 1 do begin
+    GetItem(i).LockWrite;
+  end;
+end;
+
 function TConfigDataElementComplexBase.GetItem(
   AIndex: Integer): IConfigDataElement;
 begin
@@ -143,6 +167,26 @@ begin
   for i := 0 to GetItemsCount - 1 do begin
     GetItem(i).StopNotify;
   end;
+end;
+
+procedure TConfigDataElementComplexBase.UnlockRead;
+var
+  i: Integer;
+begin
+  for i := 0 to GetItemsCount - 1 do begin
+    GetItem(i).UnlockRead;
+  end;
+  inherited;
+end;
+
+procedure TConfigDataElementComplexBase.UnlockWrite;
+var
+  i: Integer;
+begin
+  for i := 0 to GetItemsCount - 1 do begin
+    GetItem(i).UnlockWrite;
+  end;
+  inherited;
 end;
 
 end.
