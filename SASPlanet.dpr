@@ -259,6 +259,7 @@ uses
   i_IHybrChangeMessage in 'i_IHybrChangeMessage.pas',
   u_ActiveMapConfig in 'u_ActiveMapConfig.pas',
   u_ActiveMapWithHybrConfig in 'u_ActiveMapWithHybrConfig.pas',
+  u_ActiveMapSingleAbstract in 'u_ActiveMapSingleAbstract.pas',
   i_IActiveMapsConfig in 'i_IActiveMapsConfig.pas',
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigByConfigDataProvider in 'u_MapsConfigByConfigDataProvider.pas',
