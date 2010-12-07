@@ -38,6 +38,13 @@ type
     destructor Destroy; override;
   end;
 
+type
+  TConfigDataElementBaseEmptySaveLoad = class(TConfigDataElementBase)
+  protected
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+  end;
+
 implementation
 
 uses
@@ -137,6 +144,18 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+{ TConfigDataElementBaseEmptySaveLoad }
+
+procedure TConfigDataElementBaseEmptySaveLoad.DoReadConfig(
+  AConfigData: IConfigDataProvider);
+begin
+end;
+
+procedure TConfigDataElementBaseEmptySaveLoad.DoWriteConfig(
+  AConfigData: IConfigDataWriteProvider);
+begin
 end;
 
 end.
