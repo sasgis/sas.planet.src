@@ -6,8 +6,10 @@ uses
   Windows,
   SysUtils,
   i_JclNotify,
+  i_IGUIDList,
   i_MapTypes,
   i_IActiveMapsConfig,
+  u_ConfigDataElementBase,
   UMapType;
 
 type
@@ -24,6 +26,24 @@ type
     function GetSelectedMapGUID: TGUID;
     function GetMapsList: IMapTypeList;
     function GetMapChangeNotifier: IJclNotifier;
+  end;
+
+  TActiveMapConfigNew = class(TConfigDataElementBase, IActiveMap)
+  private
+    FSelectedGUID: TGUID;
+    FMapsList: IMapTypeList;
+    FSingeMapsList: IGUIDInterfaceList;
+  protected
+    FMainMapChangeNotyfier: IJclNotifier;
+    FMainMapListener: IJclListener;
+    procedure OnMainMapChange(AGUID: TGUID);
+  protected
+    function GetSelectedGUID: TGUID;
+    function GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+    function GetMapsList: IMapTypeList;
+  public
+    constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -119,6 +139,40 @@ end;
 function TActiveMapConfig.GetMapsList: IMapTypeList;
 begin
   Result := FMapsList;
+end;
+
+{ TActiveMapConfigNew }
+
+constructor TActiveMapConfigNew.Create(AMainMapChangeNotyfier: IJclNotifier;
+  ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
+begin
+
+end;
+
+destructor TActiveMapConfigNew.Destroy;
+begin
+
+  inherited;
+end;
+
+function TActiveMapConfigNew.GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+begin
+
+end;
+
+function TActiveMapConfigNew.GetMapsList: IMapTypeList;
+begin
+
+end;
+
+function TActiveMapConfigNew.GetSelectedGUID: TGUID;
+begin
+
+end;
+
+procedure TActiveMapConfigNew.OnMainMapChange(AGUID: TGUID);
+begin
+
 end;
 
 end.

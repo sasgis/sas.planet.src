@@ -53,17 +53,19 @@ type
     function GetMapsList: IMapTypeList;
   end;
 
-  IActivMapWithLayers = interface(IConfigDataElement)
-    ['{92B95280-7FD6-402A-8260-3FD83ED6BE36}']
+  IMainActiveMap = interface(IConfigDataElement)
     procedure SelectMainByGUID(AMapGUID: TGUID);
+    function GetActiveMap: IActiveMap;
+  end;
 
+  IActivMapWithLayers = interface(IMainActiveMap)
+    ['{92B95280-7FD6-402A-8260-3FD83ED6BE36}']
     procedure SelectLayerByGUID(AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(AMapGUID: TGUID);
 
     function GetActiveMap: IActiveMap;
     function GetLayers: IActiveMapsSet;
     function GetAllActiveMapsSet: IActiveMapsSet;
-    function GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
   end;
 
   IMainMapsConfig = interface(IActivMapWithLayers)
