@@ -94,6 +94,7 @@ uses
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
+  u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
   u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
   UPLT in 'UPLT.pas',
   Ugeofun in 'Ugeofun.pas',
