@@ -262,6 +262,7 @@ uses
   u_ActiveMapConfig in 'u_ActiveMapConfig.pas',
   u_ActiveMapWithHybrConfig in 'u_ActiveMapWithHybrConfig.pas',
   u_ActiveMapSingleAbstract in 'u_ActiveMapSingleAbstract.pas',
+  u_ActiveMapsSet in 'u_ActiveMapsSet.pas',
   i_IActiveMapsConfig in 'i_IActiveMapsConfig.pas',
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigByConfigDataProvider in 'u_MapsConfigByConfigDataProvider.pas',

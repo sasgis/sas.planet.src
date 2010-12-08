@@ -307,6 +307,7 @@
     <DCCReference Include="UYaMobile.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
+    <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
