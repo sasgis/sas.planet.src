@@ -44,6 +44,7 @@ uses
   StrUtils,
   SysUtils,
   u_GUIDInterfaceList,
+  c_ZeroGUID,
   i_MapTypes;
 
 const

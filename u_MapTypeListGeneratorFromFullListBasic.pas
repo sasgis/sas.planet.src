@@ -49,7 +49,7 @@ var
   VMapType: TMapType;
   VList: TMapTypeList;
 begin
-  VList := TMapTypeList.Create;
+  VList := TMapTypeList.Create(False);
   Result := VList;
   for i := 0 to GState.MapType.Count - 1 do begin
     VMapType := GState.MapType[i];

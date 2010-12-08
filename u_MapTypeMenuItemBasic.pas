@@ -32,7 +32,8 @@ type
 implementation
 
 uses
-  u_JclNotify;
+  u_JclNotify,
+  c_ZeroGUID;
 
 type
   TMapTypeMenuItemListener = class(TJclBaseListener)

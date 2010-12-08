@@ -118,6 +118,7 @@ uses
   Types,
   GR32_Polygons,
   u_JclNotify,
+  c_ZeroGUID,
   i_ICoordConverter,
   Uimgfun,
   UResStrings,

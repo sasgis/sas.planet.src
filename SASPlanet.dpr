@@ -15,6 +15,7 @@ uses
   gnugettext in 'src\gnugettext.pas',
   Langs in 'src\Langs.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
+  c_ZeroGUID in 'src\c_ZeroGUID.pas',
   cUnicode in 'src\cUnicode.pas',
   cUnicodeChar in 'src\cUnicodeChar.pas',
   CPDrv in 'src\CPDrv.pas',

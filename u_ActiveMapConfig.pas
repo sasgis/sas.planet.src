@@ -51,6 +51,8 @@ implementation
 uses
   ActiveX,
   u_JclNotify,
+  c_ZeroGUID,
+  u_NotifyWithGUIDEvent,
   u_MapChangeMessage;
 
 { TActiveMapConfig }

@@ -35,6 +35,7 @@ implementation
 
 uses
   u_JclNotify,
+  c_ZeroGUID,
   i_IHybrChangeMessage,
   u_HybrChangeMessage;
 

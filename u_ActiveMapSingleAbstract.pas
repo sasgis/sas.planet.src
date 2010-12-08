@@ -62,6 +62,7 @@ implementation
 
 uses
   SysUtils,
+  c_ZeroGUID,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapSingleAbstract }
@@ -69,7 +70,11 @@ uses
 constructor TActiveMapSingleAbstract.Create(AMapType: IMapType);
 begin
   FMapType := AMapType;
-  FMapGUID := FMapType.MapType.GUID;
+  if FMapType <> nil then begin
+    FMapGUID := FMapType.MapType.GUID;
+  end else begin
+    FMapGUID := CGUID_Zero;
+  end;
 end;
 
 destructor TActiveMapSingleAbstract.Destroy;

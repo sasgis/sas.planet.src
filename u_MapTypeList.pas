@@ -15,25 +15,33 @@ type
     function GetIterator: IEnumGUID;
   public
     procedure Add(AMap: IMapType);
-    constructor Create;
+    constructor Create(AAllowNil: Boolean);
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  u_GUIDInterfaceList;
+  u_GUIDInterfaceList,
+  c_ZeroGUID;
 
 { TMapTypeList }
 
 procedure TMapTypeList.Add(AMap: IMapType);
+var
+  VGUID: TGUID;
 begin
+  if AMap <> nil then begin
+    VGUID := AMap.GetMapType.GUID;
+  end else begin
+    VGUID := CGUID_Zero;
+  end;
   FList.Add(AMap.GetMapType.GUID, AMap);
 end;
 
-constructor TMapTypeList.Create;
+constructor TMapTypeList.Create(AAllowNil: Boolean);
 begin
-  FList := TGUIDInterfaceList.Create(False);
+  FList := TGUIDInterfaceList.Create(AAllowNil);
 end;
 
 destructor TMapTypeList.Destroy;
