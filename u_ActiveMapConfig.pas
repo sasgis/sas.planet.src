@@ -28,7 +28,7 @@ type
     function GetMapChangeNotifier: IJclNotifier;
   end;
 
-  TActiveMapConfigNew = class(TConfigDataElementBase, IActiveMap)
+  TActiveMapConfigNew = class(TConfigDataElementBaseEmptySaveLoad, IActiveMap)
   private
     FSelectedGUID: TGUID;
     FMapsList: IMapTypeList;
@@ -147,12 +147,17 @@ end;
 
 constructor TActiveMapConfigNew.Create(AMainMapChangeNotyfier: IJclNotifier;
   ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
+var
+  i: Cardinal;
 begin
   FMapsList := AMapsList;
   FSingeMapsList := ASingeMapsList;
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
   FMainMapChangeNotyfier.Add(FMainMapListener);
+  if FMapsList.GetIterator.Next(1, FSelectedGUID, i) <> S_OK then begin
+    raise Exception.Create('Empty maps list');
+  end;
 end;
 
 destructor TActiveMapConfigNew.Destroy;
