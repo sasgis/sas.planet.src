@@ -35,6 +35,17 @@ type
     constructor Create(AEvent: TNotifyWithGUIDEvent);
   end;
 
+type
+  INotifierWithGUID = interface(IJclNotifier)
+    ['{7160ECC8-5A85-445C-8655-5E5574E60C88}']
+    procedure NotifyByGUID(AGUID: TGUID); stdcall;
+  end;
+
+type
+  TNotifierWithGUID = class (TJclBaseNotifier, INotifierWithGUID)
+  protected
+    procedure NotifyByGUID(AGUID: TGUID); stdcall;
+  end;
 
 implementation
 
@@ -61,6 +72,16 @@ procedure TNotifyWithGUIDEventListener.Notification(
   msg: IJclNotificationMessage);
 begin
   FEvent(INotificationMessageWithGUID(msg).GetGUID);
+end;
+
+{ TNotifierWithGUID }
+
+procedure TNotifierWithGUID.NotifyByGUID(AGUID: TGUID);
+var
+  msg: INotificationMessageWithGUID;
+begin
+  msg := TNotificationMessageWithGUID.Create(AGUID);
+  Notify(msg);
 end;
 
 end.

@@ -10,7 +10,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TActiveMapsSet = class(TConfigDataElementBase, IActiveMapsSet)
+  TActiveMapsSet = class(TConfigDataElementBaseEmptySaveLoad, IActiveMapsSet)
   private
     FMapsList: IMapTypeList;
 
