@@ -309,6 +309,7 @@
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
+    <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
@@ -380,6 +381,7 @@
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
+    <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
     <DCCReference Include="u_MapCalibrationKml.pas" />
     <DCCReference Include="u_MapCalibrationListBasic.pas" />
