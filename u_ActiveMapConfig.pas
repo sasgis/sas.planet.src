@@ -148,33 +148,56 @@ end;
 constructor TActiveMapConfigNew.Create(AMainMapChangeNotyfier: IJclNotifier;
   ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
 begin
-
+  FMapsList := AMapsList;
+  FSingeMapsList := ASingeMapsList;
+  FMainMapChangeNotyfier := AMainMapChangeNotyfier;
+  FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
+  FMainMapChangeNotyfier.Add(FMainMapListener);
 end;
 
 destructor TActiveMapConfigNew.Destroy;
 begin
-
+  FMainMapChangeNotyfier.Remove(FMainMapListener);
+  FMainMapListener := nil;
+  FMainMapChangeNotyfier := nil;
+  FMapsList := nil;
+  FSingeMapsList := nil;
   inherited;
 end;
 
 function TActiveMapConfigNew.GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
 begin
-
+  if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
+    Result := IActiveMapSingle(FSingeMapsList.GetByGUID(AMapGUID));
+  end;
 end;
 
 function TActiveMapConfigNew.GetMapsList: IMapTypeList;
 begin
-
+  Result := FMapsList;
 end;
 
 function TActiveMapConfigNew.GetSelectedGUID: TGUID;
 begin
-
+  LockRead;
+  try
+    Result := FSelectedGUID;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TActiveMapConfigNew.OnMainMapChange(AGUID: TGUID);
 begin
-
+  LockWrite;
+  try
+    if not IsEqualGUID(FSelectedGUID, AGUID) then begin
+      FSelectedGUID := AGUID;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 end.
