@@ -138,10 +138,10 @@ begin
   inherited Create(AMapType);
   FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;
   FLayerSetSelectListener := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetSelectChange);
-  FLayerSetSelectNotyfier.Add(FLayerSetSelectNotyfier);
+  FLayerSetSelectNotyfier.Add(FLayerSetSelectListener);
 
   FLayerSetUnselectNotyfier := ALayerSetUnselectNotyfier;
-  FLayerSetUnselectNotyfier := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetUnselectChange);
+  FLayerSetUnselectListener := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetUnselectChange);
   FLayerSetUnselectNotyfier.Add(FLayerSetUnselectListener);
 end;
 
