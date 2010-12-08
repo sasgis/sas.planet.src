@@ -63,7 +63,6 @@ type
     procedure SelectLayerByGUID(AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(AMapGUID: TGUID);
 
-    function GetActiveMap: IActiveMap;
     function GetLayers: IActiveMapsSet;
     function GetAllActiveMapsSet: IActiveMapsSet;
   end;
