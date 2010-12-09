@@ -5,16 +5,15 @@ interface
 uses
   Windows,
   Classes,
-  IniFiles,
-  i_JclNotify,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   i_ILanguageManager,
+  u_ConfigDataElementBase,
   u_LanguagesEx;
 
 type
-  TLanguageManager = class(TInterfacedObject, ILanguageManager)
+  TLanguageManager = class(TConfigDataElementBase, ILanguageManager)
   private
-    FNotifier: IJclNotifier;
-    FIniFile: TCustomIniFile;
     FDefaultLangCode: string;
     FLanguagesEx: TLanguagesEx;
     FNames : TStringList;
@@ -23,13 +22,15 @@ type
     function GetIndexByCode(ACode: string): Integer;
     procedure LoadLangs;
     procedure SetTranslateIgnore;
-    procedure AfterLangChange;
+  protected
+    procedure DoChangeNotify; override;
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguage(ACode: string);
     procedure GetInstalledLanguageCodes(AList: TStrings);
     function GetLanguageNameByCode(ACode: string): WideString;
-    function GetLangSelectNotifier: IJclNotifier;
     procedure GetLangNames(AList: TStrings);
     function GetCount: Integer;
     function GetCurrentLangIndex: Integer;
@@ -38,7 +39,7 @@ type
     function GetLangCodeByIndex(AIndex: Integer): string;
     function GetLangNameByIndex(AIndex: Integer): string;
   public
-    constructor Create(AIni: TCustomIniFile);
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -67,10 +68,8 @@ begin
   FCodes.Add(ACode);
 end;
 
-constructor TLanguageManager.Create(AIni: TCustomIniFile);
+constructor TLanguageManager.Create;
 begin
-  FIniFile := AIni;
-  FNotifier := TJclBaseNotifier.Create;
   FCodes := TStringList.Create;
   FNames := TStringList.Create;
   FDefaultLangCode := 'ru';
@@ -79,21 +78,43 @@ begin
   SetTranslateIgnore;
 
   LoadLangs;
-  if FIniFile <> nil then begin
-    SetCurrentLanguage(FIniFile.ReadString('VIEW', 'Lang', ''));
-  end;
 end;
 
 destructor TLanguageManager.Destroy;
 begin
-  if FIniFile <> nil then begin
-    FIniFile.WriteString('VIEW', 'Lang', GetCurrentLanguageCode);
-  end;
-  FNotifier := nil;
   FreeAndNil(FNames);
   FreeAndNil(FCodes);
   FreeAndNil(FLanguagesEx);
   inherited;
+end;
+
+procedure TLanguageManager.DoChangeNotify;
+var
+  i: Integer;
+begin
+  // force reloading forms with new selection
+  for i := 0 to application.ComponentCount - 1 do begin
+    if application.Components[i] is TCommonFormParent then begin
+      TCommonFormParent(application.Components[i]).RefreshTranslation;
+    end else if application.Components[i] is TCommonFrameParent then begin
+      TCommonFrameParent(application.Components[i]).RefreshTranslation;
+    end;
+  end;
+  inherited;
+end;
+
+procedure TLanguageManager.DoReadConfig(AConfigData: IConfigDataProvider);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    SetCurrentLanguage(AConfigData.ReadString('Lang', ''));
+  end;
+end;
+
+procedure TLanguageManager.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+begin
+  inherited;
+  AConfigData.WriteString('Lang', GetCurrentLanguageCode);
 end;
 
 function TLanguageManager.GetCount: Integer;
@@ -161,11 +182,6 @@ begin
   AList.Assign(FNames);
 end;
 
-function TLanguageManager.GetLangSelectNotifier: IJclNotifier;
-begin
-  Result := FNotifier;
-end;
-
 function TLanguageManager.GetLanguageNameByCode(ACode: string): WideString;
 var codeIndex : integer;
 begin
@@ -212,33 +228,25 @@ begin
   end;
 end;
 
-procedure TLanguageManager.AfterLangChange;
-var
-  i: Integer;
-begin
-  // force reloading forms with new selection
-  for i := 0 to application.ComponentCount - 1 do begin
-    if application.Components[i] is TCommonFormParent then begin
-      TCommonFormParent(application.Components[i]).RefreshTranslation;
-    end else if application.Components[i] is TCommonFrameParent then begin
-      TCommonFrameParent(application.Components[i]).RefreshTranslation;
-    end;
-  end;
-  FNotifier.Notify(nil);
-end;
-
 procedure TLanguageManager.SetCurrentLangIndex(AValue: Integer);
 var
   VLastUsedCode: string;
+  VCurrCode: string;
 begin
-  VLastUsedCode := GetCurrentLanguage;
-  if AValue >= 0 then begin
-    UseLanguage(FCodes[AValue]);
-  end else begin
-    UseLanguage(FDefaultLangCode);
+  LockWrite;
+  try
+    VLastUsedCode := GetCurrentLanguage;
+    if AValue >= 0 then begin
+      UseLanguage(FCodes[AValue]);
+    end else begin
+      UseLanguage(FDefaultLangCode);
+    end;
+    VCurrCode := GetCurrentLanguage;
+  finally
+    UnlockWrite;
   end;
-  if VLastUsedCode <> GetCurrentLanguage then begin
-    AfterLangChange;
+  if VLastUsedCode <> VCurrCode then begin
+    SetChanged;
   end;
 end;
 

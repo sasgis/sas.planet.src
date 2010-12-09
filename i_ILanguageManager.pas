@@ -4,16 +4,15 @@ interface
 
 uses
   Classes,
-  i_JclNotify;
+  i_IConfigDataElement;
 
 type
-  ILanguageManager = interface
+  ILanguageManager = interface(IConfigDataElement)
   ['{F8D76CED-2681-4DD4-AB24-4C6ECE89CE4D}']
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguage(ACode: string);
     procedure GetInstalledLanguageCodes(list: TStrings);
     function GetLanguageNameByCode(ACode: string): WideString;
-    function GetLangSelectNotifier: IJclNotifier;
     procedure GetLangNames(AList: TStrings);
     function GetCount: Integer;
     function GetCurrentLangIndex: Integer;

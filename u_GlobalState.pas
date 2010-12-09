@@ -282,7 +282,8 @@ begin
   MainIni := TMeminifile.Create(MainConfigFileName);
   Show_logo := MainIni.ReadBool('VIEW','Show_logo',true);
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
-  FLanguageManager := TLanguageManager.Create(MainIni);
+  FLanguageManager := TLanguageManager.Create;
+  FLanguageManager.ReadConfig(FMainConfigProvider.GetSubItem('VIEW'));
 
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMemFileCache := TMemFileCache.Create;
@@ -673,6 +674,7 @@ begin
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
   GPSpar.SaveConfig(MainConfigProvider);
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
+  FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
 end;
 
 procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);

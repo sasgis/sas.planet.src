@@ -20,7 +20,7 @@ type
   protected
     procedure SetChanged;
     function CheckIsChangedAndReset: Boolean;
-    procedure DoChangeNotify;
+    procedure DoChangeNotify; virtual;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); virtual; abstract;
   protected
