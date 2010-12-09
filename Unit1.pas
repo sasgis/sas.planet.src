@@ -1551,7 +1551,7 @@ begin
     FNDwnItemList := TGUIDObjectList.Create(False);
     FNDelItemList := TGUIDObjectList.Create(False);
 
-    RectWindow := MakeRect(
+    RectWindow := Bounds(
       GState.MainIni.ReadInteger('VIEW','FLeft',Left),
       GState.MainIni.ReadInteger('VIEW','FTop',Top),
       GState.MainIni.ReadInteger('VIEW','FWidth',Width),
@@ -4030,19 +4030,22 @@ end;
 procedure TFmain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
 var
   lock_tb_b:boolean;
+  VProvider: IConfigDataWriteProvider;
 begin
-  GState.MainIni.Writebool('VIEW','Maximized',WindowState=wsMaximized);
-  GState.MainIni.WriteInteger('VIEW','FLeft',Left);
-  GState.MainIni.WriteInteger('VIEW','FTop',Top);
-  GState.MainIni.WriteInteger('VIEW','FWidth',Width);
-  GState.MainIni.WriteInteger('VIEW','FHeight',Height);
+  VProvider := AProvider.GetOrCreateSubItem('VIEW');
+  VProvider.WriteBool('Maximized',WindowState=wsMaximized);
+  VProvider.WriteInteger('FLeft',Left);
+  VProvider.WriteInteger('FTop',Top);
+  VProvider.WriteInteger('FWidth',Width);
+  VProvider.WriteInteger('FHeight',Height);
 
   FLayersList.SaveConfig(AProvider);
 
-  GState.MainIni.WriteBool('PANEL','lock_toolbars',lock_toolbars);
+  VProvider := AProvider.GetOrCreateSubItem('PANEL');
+  VProvider.WriteBool('lock_toolbars',lock_toolbars);
   lock_tb_b:=lock_toolbars;
   lock_toolbars:=false;
-  TBConfigProviderSavePositions(Self, GState.MainConfigProvider.GetOrCreateSubItem('PANEL'));
+  TBConfigProviderSavePositions(Self, VProvider);
   lock_toolbars:=lock_tb_b;
 end;
 
