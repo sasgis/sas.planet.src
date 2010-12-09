@@ -22,6 +22,10 @@ type
     FLayersSet: IActiveMapsSet;
     FAllMapsSet: IActiveMapsSet;
   protected
+    property LayerSetSelectNotyfier: INotifierWithGUID read FLayerSetSelectNotyfier;
+    property LayerSetUnselectNotyfier: INotifierWithGUID read FLayerSetUnselectNotyfier;
+    property AllMapsSingleList: IGUIDInterfaceList read FAllMapsSingleList;
+  protected
     procedure SelectLayerByGUID(AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(AMapGUID: TGUID);
 

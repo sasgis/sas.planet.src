@@ -382,6 +382,7 @@
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
+    <DCCReference Include="u_MainMapsConfig.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
     <DCCReference Include="u_MapCalibrationKml.pas" />
     <DCCReference Include="u_MapCalibrationListBasic.pas" />

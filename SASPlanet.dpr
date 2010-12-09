@@ -265,6 +265,7 @@ uses
   u_ActiveMapsSet in 'u_ActiveMapsSet.pas',
   u_MainActiveMap in 'u_MainActiveMap.pas',
   u_ActivMapWithLayers in 'u_ActivMapWithLayers.pas',
+  u_MainMapsConfig in 'u_MainMapsConfig.pas',
   i_IActiveMapsConfig in 'i_IActiveMapsConfig.pas',
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigByConfigDataProvider in 'u_MapsConfigByConfigDataProvider.pas',
