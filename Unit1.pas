@@ -1517,32 +1517,21 @@ end;
 
 procedure TFmain.FormActivate(Sender: TObject);
 var
-  i:integer;
   param:string;
   MainWindowMaximized: Boolean;
   VGUID: TGUID;
-  VGUIDString: string;
   VScreenCenterPos: TPoint;
   VZoom: Byte;
   VLonLat: TDoublePoint;
-  VConverter: ICoordConverter;
   VMapType: TMapType;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
   BuildImageListMapZapSelect;
-  VConverter := GState.MapType[0].GeoConvert;
-  VZoom := GState.MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
-  VConverter.CheckZoom(VZoom);
-  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2;
-  VScreenCenterPos.Y := VScreenCenterPos.X;
-  VScreenCenterPos := Point(
-    GState.MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
-    GState.MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
-  );
 
-  GState.InitViewState(GState.MapType[0], VZoom - 1, VScreenCenterPos, Point(map.Width, map.Height));
-
+  GState.InitViewState(Point(map.Width, map.Height));
+  VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
+  VZoom := GState.ViewState.GetCurrentZoom;
   Enabled:=false;
   try
     TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
@@ -1562,7 +1551,14 @@ begin
     FNDwnItemList := TGUIDObjectList.Create(False);
     FNDelItemList := TGUIDObjectList.Create(False);
 
-    RectWindow := Types.Rect(0, 0, 0, 0);
+    RectWindow := MakeRect(
+      GState.MainIni.ReadInteger('VIEW','FLeft',Left),
+      GState.MainIni.ReadInteger('VIEW','FTop',Top),
+      GState.MainIni.ReadInteger('VIEW','FWidth',Width),
+      GState.MainIni.ReadInteger('VIEW','FHeight',Height)
+    );
+    Self.BoundsRect:=RectWindow;
+
     FdWhenMovingButton := 5;
     MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
     TBFullSize.Checked:=GState.FullScrean;
@@ -1570,13 +1566,6 @@ begin
       TBFullSizeClick(TBFullSize);
     end else if MainWindowMaximized then begin
       WindowState:=wsMaximized
-    end else begin
-      Self.SetBounds(
-      GState.MainIni.ReadInteger('VIEW','FLeft',Left),
-      GState.MainIni.ReadInteger('VIEW','FTop',Top),
-      GState.MainIni.ReadInteger('VIEW','FWidth',Width),
-      GState.MainIni.ReadInteger('VIEW','FHeight',Height)
-      )
     end;
 
     movepoint:=false;
@@ -1947,25 +1936,32 @@ begin
 end;
 
 procedure TFmain.TBFullSizeClick(Sender:TObject);
+var
+  VIsFullScreen: Boolean;
 begin
- NFoolSize.Checked:=TBFullSize.Checked;
- TBexit.Visible:=TBFullSize.Checked;
- GState.FullScrean:=TBFullSize.Checked;
- TBDock.Parent:=Self;
- TBDockLeft.Parent:=Self;
- TBDockBottom.Parent:=Self;
- TBDockRight.Parent:=Self;
- TBDock.Visible:=not(TBFullSize.Checked);
- TBDockLeft.Visible:=not(TBFullSize.Checked);
- TBDockBottom.Visible:=not(TBFullSize.Checked);
- TBDockRight.Visible:=not(TBFullSize.Checked);
- if TBFullSize.Checked then
-  begin
-   RectWindow:=Self.BoundsRect;
-   SetBounds(Left-ClientOrigin.X,Top-ClientOrigin.Y,GetDeviceCaps(Canvas.handle,
-   HORZRES)+(Width-ClientWidth),GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight));
-  end
-  else Self.BoundsRect:=RectWindow;
+  VIsFullScreen := TBFullSize.Checked;
+  NFoolSize.Checked:=VIsFullScreen;
+  TBexit.Visible:=VIsFullScreen;
+  GState.FullScrean:=VIsFullScreen;
+  TBDock.Parent:=Self;
+  TBDockLeft.Parent:=Self;
+  TBDockBottom.Parent:=Self;
+  TBDockRight.Parent:=Self;
+  TBDock.Visible:=not(VIsFullScreen);
+  TBDockLeft.Visible:=not(VIsFullScreen);
+  TBDockBottom.Visible:=not(VIsFullScreen);
+  TBDockRight.Visible:=not(VIsFullScreen);
+  if VIsFullScreen then begin
+    RectWindow:=Self.BoundsRect;
+    SetBounds(
+      Left-ClientOrigin.X,
+      Top-ClientOrigin.Y,
+      GetDeviceCaps(Canvas.handle, HORZRES)+ (Width-ClientWidth),
+      GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight)
+    );
+  end else begin
+    Self.BoundsRect:=RectWindow;
+  end;
 end;
 
 procedure TextToWebBrowser(Text: string; var WB: TEmbeddedWB);

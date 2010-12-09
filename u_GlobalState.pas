@@ -235,7 +235,7 @@ type
     procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    procedure InitViewState(AMainMap: TMapType; AZoom: Byte; ACenterPos: TPoint; AScreenSize: TPoint);
+    procedure InitViewState(AScreenSize: TPoint);
     procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
     procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
@@ -248,6 +248,7 @@ implementation
 uses
   SysUtils,
   i_BitmapTileSaveLoad,
+  i_ICoordConverter,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_IListOfObjectsWithTTL,
@@ -261,6 +262,7 @@ uses
   u_MapTypeIconsList,
   u_CoordConverterFactorySimple,
   u_LanguageManager,
+  i_MapTypes,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -686,16 +688,37 @@ begin
   FGCThread.Terminate;
 end;
 
-procedure TGlobalState.InitViewState(AMainMap: TMapType; AZoom: Byte;
-  ACenterPos, AScreenSize: TPoint);
+procedure TGlobalState.InitViewState(AScreenSize: TPoint);
+var
+  VScreenCenterPos: TPoint;
+  VZoom: Byte;
+  VConverter: ICoordConverter;
+  VMapType: TMapType;
+  VList: IMapTypeList;
+  VGUID: TGUID;
+  i: Cardinal;
 begin
+  VList := MapType.MapsList;
+  if VList.GetIterator.Next(1, VGUID, i) = S_OK then begin
+    VMapType := VList.GetMapTypeByGUID(VGUID).MapType;
+  end;
+  VConverter := VMapType.GeoConvert;
+  VZoom := MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
+  VConverter.CheckZoom(VZoom);
+  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2;
+  VScreenCenterPos.Y := VScreenCenterPos.X;
+  VScreenCenterPos := Point(
+    MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
+    MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
+  );
+
   if FViewState = nil then begin
     FViewState := TMapViewPortState.Create(
       FMainMapsList.MapsList,
       FMainMapsList.LayersList,
-      AMainMap,
-      AZoom,
-      ACenterPos,
+      VMapType,
+      VZoom,
+      VScreenCenterPos,
       AScreenSize
     );
   end else begin
