@@ -397,7 +397,6 @@
     <DCCReference Include="u_MapTypeIconsList.pas" />
     <DCCReference Include="u_MapTypeList.pas" />
     <DCCReference Include="u_MapTypeListGeneratorFromFullListBasic.pas" />
-    <DCCReference Include="u_MapTypeListGeneratorFromFullListForMiniMap.pas" />
     <DCCReference Include="u_MapTypeMenuItemBasic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeMenuItmesList.pas" />

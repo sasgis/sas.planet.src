@@ -247,12 +247,9 @@ implementation
 
 uses
   SysUtils,
-  i_MapTypes,
   i_BitmapTileSaveLoad,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
-  u_MapTypeBasic,
-  u_MapTypeListGeneratorFromFullListBasic,
   i_IListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
   u_BitmapTypeExtManagerSimple,
@@ -691,22 +688,16 @@ end;
 
 procedure TGlobalState.InitViewState(AMainMap: TMapType; AZoom: Byte;
   ACenterPos, AScreenSize: TPoint);
-var
-  VMapsList: IMapTypeList;
-  VLayersList: IMapTypeList;
-  VListFactory: IMapTypeListFactory;
-  VItemFactory: IMapTypeFactory;
 begin
   if FViewState = nil then begin
-    VItemFactory := TMapTypeBasicFactory.Create;
-
-    VListFactory := TMapTypeListGeneratorFromFullListBasic.Create(True, VItemFactory);
-    VMapsList := VListFactory.CreateList;
-
-    VListFactory := TMapTypeListGeneratorFromFullListBasic.Create(False, VItemFactory);
-    VLayersList := VListFactory.CreateList;
-
-    FViewState := TMapViewPortState.Create(VMapsList, VLayersList, AMainMap, AZoom, ACenterPos, AScreenSize);
+    FViewState := TMapViewPortState.Create(
+      FMainMapsList.MapsList,
+      FMainMapsList.LayersList,
+      AMainMap,
+      AZoom,
+      ACenterPos,
+      AScreenSize
+    );
   end else begin
     raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
   end;

@@ -245,7 +245,6 @@ uses
   u_MapTypeBasic in 'u_MapTypeBasic.pas',
   u_MapTypeList in 'u_MapTypeList.pas',
   u_MapTypeListGeneratorFromFullListBasic in 'u_MapTypeListGeneratorFromFullListBasic.pas',
-  u_MapTypeListGeneratorFromFullListForMiniMap in 'u_MapTypeListGeneratorFromFullListForMiniMap.pas',
   i_IMapTypeMenuItem in 'i_IMapTypeMenuItem.pas',
   i_IMapTypeMenuItmesList in 'i_IMapTypeMenuItmesList.pas',
   u_MapTypeMenuItemBasic in 'u_MapTypeMenuItemBasic.pas',

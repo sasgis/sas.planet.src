@@ -12,20 +12,26 @@ type
   TMapTypesMainList = class
   private
     FMapType: array of TMapType;
+    FFullMapsList: IMapTypeList;
     FMapsList: IMapTypeList;
+    FLayersList: IMapTypeList;
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
+    procedure BuildMapsLists;
   public
     destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
     property Count: Integer read GetCount;
+    property FullMapsList: IMapTypeList read FFullMapsList;
     property MapsList: IMapTypeList read FMapsList;
+    property LayersList: IMapTypeList read FLayersList;
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(ALocalMapsConfig: IConfigDataProvider; AMapsPath: string);
     function GetMapFromID(id: TGUID): TMapType;
     procedure SortList;
   end;
+
 implementation
 
 uses
@@ -36,6 +42,8 @@ uses
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderZmpComplex,
+  u_MapTypeBasic,
+  u_MapTypeList,
   UResStrings;
 
 { TMapTypesMainList }
@@ -100,6 +108,33 @@ begin
     end;
   end else begin
     raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
+  end;
+end;
+
+procedure TMapTypesMainList.BuildMapsLists;
+var
+  i: Integer;
+  VMap: TMapType;
+  VMapType: IMapType;
+  VFullMapsList: TMapTypeList;
+  VMapsList: TMapTypeList;
+  VLayersList: TMapTypeList;
+begin
+  VFullMapsList := TMapTypeList.Create(False);
+  FFullMapsList := VFullMapsList;
+  VMapsList := TMapTypeList.Create(False);
+  FMapsList := VMapsList;
+  VLayersList := TMapTypeList.Create(False);
+  FLayersList := VLayersList;
+  for i := 0 to Length(FMapType) - 1 do begin
+    VMap := FMapType[i];
+    VMapType := TMapTypeBasic.Create(VMap);
+    VFullMapsList.Add(VMapType);
+    if VMap.asLayer then begin
+      VLayersList.Add(VMapType);
+    end else begin
+      VMapsList.Add(VMapType);
+    end;
   end;
 end;
 
@@ -170,6 +205,7 @@ begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
   SortList;
+  BuildMapsLists;
 end;
 
 procedure TMapTypesMainList.SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);

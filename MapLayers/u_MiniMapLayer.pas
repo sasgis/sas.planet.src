@@ -101,6 +101,7 @@ type
     procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
     procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
     procedure SetMasterAlpha(value:integer);
+    procedure BuildMapsLists;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -124,10 +125,9 @@ uses
   UResStrings,
   i_ActiveMapsConfigSaveLoad,
   u_GlobalState,
+  u_MapTypeList,
   u_WindowLayerBasic,
   u_MapTypeMenuItemsGeneratorBasic,
-  u_MapTypeListGeneratorFromFullListForMiniMap,
-  u_MapTypeBasic,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigByConfigDataProvider,
   u_MiniMapMenuItemsFactory;
@@ -202,13 +202,7 @@ begin
 
   FViewRectMoveDelta := Point(0, 0);
 
-  VFactory := TMapTypeListGeneratorFromFullListForMiniMap.Create(True, TMapTypeBasicFactory.Create);
-  FMapsList := VFactory.CreateList;
-  VFactory := nil;
-
-  VFactory := TMapTypeListGeneratorFromFullListForMiniMap.Create(False, TMapTypeBasicFactory.Create);
-  FLayersList := VFactory.CreateList;
-  VFactory := nil;
+  BuildMapsLists;
 
   FMapsActive := TActiveMapWithHybrConfig.Create(True, CGUID_Zero, FMapsList, FLayersList);
 
@@ -242,6 +236,41 @@ begin
   FLayersList := nil;
   FMapsActive := nil;
   inherited;
+end;
+
+procedure TMiniMapLayer.BuildMapsLists;
+var
+  VSourceList: IMapTypeList;
+  VList: TMapTypeList;
+  VGUID: TGUID;
+  VEnum: IEnumGUID;
+  i: Cardinal;
+  VMapType: IMapType;
+  VMap: TMapType;
+begin
+  VList := TMapTypeList.Create(True);
+  FMapsList := VList;
+  VSourceList := GState.MapType.MapsList;
+  VEnum := VSourceList.GetIterator;
+  while VEnum.Next(1, VGUID, i) = S_OK do begin
+    VMapType := VSourceList.GetMapTypeByGUID(VGUID);
+    VMap := VMapType.MapType;
+    if VMap.IsBitmapTiles and VMap.IsCanShowOnSmMap then begin
+      VList.Add(VMapType);
+    end;
+  end;
+
+  VList := TMapTypeList.Create(False);
+  FLayersList := VList;
+  VSourceList := GState.MapType.LayersList;
+  VEnum := VSourceList.GetIterator;
+  while VEnum.Next(1, VGUID, i) = S_OK do begin
+    VMapType := VSourceList.GetMapTypeByGUID(VGUID);
+    VMap := VMapType.MapType;
+    if VMap.IsBitmapTiles and VMap.IsCanShowOnSmMap then begin
+      VList.Add(VMapType);
+    end;
+  end;
 end;
 
 procedure TMiniMapLayer.CreateLayers;
