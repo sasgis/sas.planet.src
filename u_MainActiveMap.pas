@@ -3,7 +3,6 @@ unit u_MainActiveMap;
 interface
 
 uses
-  i_JclNotify,
   i_IGUIDList,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,

@@ -57,7 +57,6 @@ uses
   GR32,
   EmbeddedWB,
   gnugettext,
-  u_JclNotify,
   u_CommonFormAndFrameParents;
 
 { TLanguageManager }

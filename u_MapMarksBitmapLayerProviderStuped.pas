@@ -32,7 +32,6 @@ uses
   t_GeoTypes,
   t_CommonTypes,
   u_GlobalState,
-  Ugeofun,
   u_ClipPolygonByRect,
   u_MarksSimple,
   u_MarksReadWriteSimple;

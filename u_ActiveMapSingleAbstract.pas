@@ -6,7 +6,6 @@ uses
   Windows,
   i_JclNotify,
   i_MapTypes,
-  i_IConfigDataElement,
   i_IActiveMapsConfig,
   u_ConfigDataElementBase;
 
@@ -55,8 +54,6 @@ type
     );
     destructor Destroy; override;
   end;
-
-
 
 implementation
 

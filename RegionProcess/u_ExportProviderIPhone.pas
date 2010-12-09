@@ -31,7 +31,6 @@ implementation
 
 uses
   SysUtils,
-  gnugettext,
   u_ThreadExportIPhone,
   UResStrings,
   UMapType;

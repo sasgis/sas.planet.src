@@ -29,7 +29,6 @@ implementation
 uses
   Classes,
   SysUtils,
-  gnugettext,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,

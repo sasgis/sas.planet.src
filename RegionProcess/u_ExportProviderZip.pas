@@ -27,7 +27,6 @@ implementation
 
 uses
   SysUtils,
-  gnugettext,
   i_ITileFileNameGenerator,
   u_GlobalState,
   u_ThreadExportToZip,

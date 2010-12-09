@@ -27,7 +27,6 @@ implementation
 
 uses
   SysUtils,
-  gnugettext,
   u_ThreadExportYaMaps,
   UResStrings,
   UMapType;

@@ -37,7 +37,6 @@ implementation
 
 uses
   Menus,
-  gnugettext,
   UResStrings,
   UShortcutEditor;
 

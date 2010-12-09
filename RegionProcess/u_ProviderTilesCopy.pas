@@ -28,7 +28,6 @@ implementation
 
 uses
   SysUtils,
-  gnugettext,
   u_GlobalState,
   u_ThreadExportToFileSystem,
   UResStrings,

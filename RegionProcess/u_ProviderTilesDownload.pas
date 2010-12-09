@@ -28,7 +28,6 @@ implementation
 
 uses
   SysUtils,
-  gnugettext,
   i_ILogSimple,
   i_ILogForTaskThread,
   u_LogForTaskThread,

@@ -29,7 +29,6 @@ implementation
 uses
   SysUtils,
   GR32,
-  gnugettext,
   u_ThreadGenPrevZoom,
   Uimgfun,
   UResStrings,
