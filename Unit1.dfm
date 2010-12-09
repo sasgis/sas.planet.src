@@ -14,6 +14,7 @@ object Fmain: TFmain
   OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
+  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object WebBrowser1: TEmbeddedWB
@@ -22,6 +23,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -37,10 +39,8 @@ object Fmain: TFmain
     PrintOptions.Margins.Right = 19.050000000000000000
     PrintOptions.Margins.Top = 19.050000000000000000
     PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.Header = '&w&bPage &p of &P'
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
-    PrintOptions.Footer = '&u&b&d'
     PrintOptions.Orientation = poPortrait
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
@@ -54,9 +54,9 @@ object Fmain: TFmain
   end
   object map: TImage32
     Left = 36
-    Top = 59
+    Top = 61
     Width = 642
-    Height = 467
+    Height = 465
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -78,10 +78,10 @@ object Fmain: TFmain
     Left = 0
     Top = 0
     Width = 842
-    Height = 59
+    Height = 61
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 25
+      Top = 27
       DockPos = 0
       DockRow = 1
       Images = TBImageList2
@@ -169,8 +169,8 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
-      Top = 25
+      Left = 230
+      Top = 27
       DockPos = 224
       DockRow = 1
       Images = ImagesSrc24
@@ -200,8 +200,8 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
-      Top = 25
+      Left = 357
+      Top = 27
       DockPos = 352
       DockRow = 1
       Images = TBImageList2
@@ -212,8 +212,8 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 505
-      Top = 25
+      Left = 504
+      Top = 27
       DockPos = 504
       DockRow = 1
       Images = TBImageList2
@@ -290,7 +290,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 115
+        Left = 107
         Top = 8
         Width = 31
         Height = 13
@@ -300,7 +300,7 @@ object Fmain: TFmain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 25
+      Top = 27
       DockPos = 807
       DockRow = 1
       TabOrder = 4
@@ -1084,7 +1084,7 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 430
+      Left = 462
       Top = 0
       DockPos = 430
       Stretch = True
@@ -1131,9 +1131,9 @@ object Fmain: TFmain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 59
+    Top = 61
     Width = 36
-    Height = 467
+    Height = 465
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -2023,14 +2023,14 @@ object Fmain: TFmain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 59
+    Top = 61
     Width = 164
-    Height = 467
+    Height = 465
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 457
+      ClientAreaHeight = 455
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors
@@ -2256,8 +2256,6 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 3
             OnVisibleChanged = TBXSensorsBarVisibleChanged
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -2592,8 +2590,6 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 8
             OnVisibleChanged = TBXSensorsBarVisibleChanged
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -2638,8 +2634,6 @@ object Fmain: TFmain
             Stretch = True
             TabOrder = 9
             OnVisibleChanged = TBXSensorsBarVisibleChanged
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -3027,7 +3021,7 @@ object Fmain: TFmain
     Left = 16
     Top = 136
     Bitmap = {
-      494C010115001700040012001200E0DFE300FF10FFFFFFFFFFFFFFFF424D3600
+      494C010115001700080012001200E0DFE300FF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000480000006C00000001002000000000008079
       0000000000000000000000000000000000008C46009C8B4500B28D4802B38F4B
       06B48E4A06B48C4701B38B4500B28C4600B38C4600B38C4600B38C4600B38C46
@@ -4052,7 +4046,7 @@ object Fmain: TFmain
     Left = 16
     Top = 168
     Bitmap = {
-      494C01010F001100040018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F001100080018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5265,7 +5259,7 @@ object Fmain: TFmain
     Left = 12
     Top = 233
     Bitmap = {
-      494C010119001B00040011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010119001B00080011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000044000000770000000100200000000000707E
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6341,7 +6335,7 @@ object Fmain: TFmain
     Left = 12
     Top = 201
     Bitmap = {
-      494C010104000600040018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000600080018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6946,7 +6940,7 @@ object Fmain: TFmain
     Left = 16
     Top = 108
     Bitmap = {
-      494C010109000B00040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010109000B00080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -7346,7 +7340,8 @@ object Fmain: TFmain
       FFFFFFFFE00FFFFFFFFFFFFFFFFFC007F00F81FFF83FFFFFF8C7E3FFF39FC03F
       F8C7F1FFF39FFFFFF8C7F8FFF39FC007F80FFC7FF39FFFFFF8C7FE3FF39FC03F
       F8C7FF1FF39FFFFFF8C7FF8FF39FC007F00FFF03E10FFFFFFFFFFFFFFFFFC03F
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000
+      000000000000}
   end
   object OpenPictureDialog: TOpenPictureDialog
     Left = 244

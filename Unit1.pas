@@ -50,12 +50,14 @@ uses
   i_IHybrChangeMessage,
   i_IPosChangeMessage,
   t_LoadEvent,
+  i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_GeoToStr,
   t_CommonTypes,
   i_IGPSRecorder,
   i_GeoCoder,
   i_ISearchResultPresenter,
+  i_IMainWindowPosition,
   u_WindowLayerBasicList,
   u_MarksSimple,
   Ugeofun,
@@ -531,6 +533,7 @@ type
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tmrMapUpdateTimer(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     FnilLastLoad: TLastLoad;
     FShowActivHint: boolean;
@@ -544,7 +547,6 @@ type
     FWikiLayer: TWikiLayer;
     FdWhenMovingButton: integer;
     FLenShow: boolean;
-    RectWindow: TRect;
     FMarshrutComment: string;
     movepoint: boolean;
     Flastpoint: integer;
@@ -592,7 +594,10 @@ type
     FMapZoomAnimtion: Boolean;
     FEditMarkId:integer;
     FCurrentOper: TAOperation;
+    FWinPosition: IMainWindowPosition;
+    FWinPositionListener: IJclListener;
 
+    procedure OnWinPositionChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
@@ -660,7 +665,7 @@ uses
   Ubrowser,
   UMarksExplorer,
   UFDGAvailablePic,
-  c_SasVersion,  
+  c_SasVersion,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
@@ -670,6 +675,7 @@ uses
   i_ILogForTaskThread,
   i_ICoordConverter,
   u_KmlInfoSimple,
+  u_MainWindowPositionConfig,
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
   frm_SearchResults,
@@ -1031,6 +1037,45 @@ begin
    FLayerMapMarks.Redraw;
  end;
  FCurrentOper:=newop;
+end;
+
+procedure TFmain.OnWinPositionChange(Sender: TObject);
+var
+  VIsFullScreen: Boolean;
+begin
+  FWinPosition.LockRead;
+  try
+    VIsFullScreen := FWinPosition.GetIsFullScreen;
+    TBFullSize.Checked := VIsFullScreen;
+    NFoolSize.Checked:=VIsFullScreen;
+    TBexit.Visible:=VIsFullScreen;
+    TBDock.Parent:=Self;
+    TBDockLeft.Parent:=Self;
+    TBDockBottom.Parent:=Self;
+    TBDockRight.Parent:=Self;
+    TBDock.Visible:=not(VIsFullScreen);
+    TBDockLeft.Visible:=not(VIsFullScreen);
+    TBDockBottom.Visible:=not(VIsFullScreen);
+    TBDockRight.Visible:=not(VIsFullScreen);
+    if VIsFullScreen then begin
+      SetBounds(
+        Left-ClientOrigin.X,
+        Top-ClientOrigin.Y,
+        GetDeviceCaps(Canvas.handle, HORZRES) + (Width - ClientWidth),
+        GetDeviceCaps(Canvas.handle, VERTRES) + (Height - ClientHeight)
+      );
+    end else begin
+      if FWinPosition.GetIsMaximized then begin
+        Self.BoundsRect:= FWinPosition.GetBoundsRect;
+        Self.WindowState := wsMaximized;
+      end else begin
+        Self.WindowState := wsNormal;
+        Self.BoundsRect:= FWinPosition.GetBoundsRect;
+      end;
+    end;
+  finally
+    FWinPosition.UnlockRead;
+  end;
 end;
 
 procedure TFmain.OpenUrlInBrowser(URL: string);
@@ -1518,12 +1563,12 @@ end;
 procedure TFmain.FormActivate(Sender: TObject);
 var
   param:string;
-  MainWindowMaximized: Boolean;
   VGUID: TGUID;
   VScreenCenterPos: TPoint;
   VZoom: Byte;
   VLonLat: TDoublePoint;
   VMapType: TMapType;
+  VProvider: IConfigDataProvider;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
@@ -1534,6 +1579,12 @@ begin
   VZoom := GState.ViewState.GetCurrentZoom;
   Enabled:=false;
   try
+    FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
+    VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
+    FWinPosition.ReadConfig(VProvider);
+    FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
+    FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
+    OnWinPositionChange(nil);
     TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
     TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
     TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
@@ -1551,22 +1602,7 @@ begin
     FNDwnItemList := TGUIDObjectList.Create(False);
     FNDelItemList := TGUIDObjectList.Create(False);
 
-    RectWindow := Bounds(
-      GState.MainIni.ReadInteger('VIEW','FLeft',Left),
-      GState.MainIni.ReadInteger('VIEW','FTop',Top),
-      GState.MainIni.ReadInteger('VIEW','FWidth',Width),
-      GState.MainIni.ReadInteger('VIEW','FHeight',Height)
-    );
-    Self.BoundsRect:=RectWindow;
-
     FdWhenMovingButton := 5;
-    MainWindowMaximized:=GState.MainIni.Readbool('VIEW','Maximized',true);
-    TBFullSize.Checked:=GState.FullScrean;
-    if GState.FullScrean then begin
-      TBFullSizeClick(TBFullSize);
-    end else if MainWindowMaximized then begin
-      WindowState:=wsMaximized
-    end;
 
     movepoint:=false;
 
@@ -1663,8 +1699,6 @@ begin
     NsrcToolBarShow.Checked:=SrcToolbar.Visible;
     NGPSToolBarShow.Checked:=GPSToolBar.Visible;
     NMarksBarShow.Checked:=TBMarksToolBar.Visible;
-
-    TBFullSize.Checked:=GState.FullScrean;
 
     map.Color:=GState.BGround;
 
@@ -1862,12 +1896,25 @@ begin
  ProgramStart:=true;
 end;
 
+procedure TFmain.FormResize(Sender: TObject);
+begin
+  if not FWinPosition.GetIsFullScreen then begin
+    if Self.WindowState = wsMaximized then begin
+      FWinPosition.SetMaximized;
+    end else if Self.WindowState = wsNormal then begin
+      FWinPosition.SetWindowPosition(Self.BoundsRect);
+    end;
+  end;
+end;
+
 procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   i:integer;
 begin
   ProgramClose:=true;
   tmrMapUpdate.Enabled := false;
+  FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
+  FWinPositionListener := nil;
   GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
   GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
   GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
@@ -1894,6 +1941,7 @@ begin
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
   if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
+  FWinPosition := nil;
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;
@@ -1936,31 +1984,11 @@ begin
 end;
 
 procedure TFmain.TBFullSizeClick(Sender:TObject);
-var
-  VIsFullScreen: Boolean;
 begin
-  VIsFullScreen := TBFullSize.Checked;
-  NFoolSize.Checked:=VIsFullScreen;
-  TBexit.Visible:=VIsFullScreen;
-  GState.FullScrean:=VIsFullScreen;
-  TBDock.Parent:=Self;
-  TBDockLeft.Parent:=Self;
-  TBDockBottom.Parent:=Self;
-  TBDockRight.Parent:=Self;
-  TBDock.Visible:=not(VIsFullScreen);
-  TBDockLeft.Visible:=not(VIsFullScreen);
-  TBDockBottom.Visible:=not(VIsFullScreen);
-  TBDockRight.Visible:=not(VIsFullScreen);
-  if VIsFullScreen then begin
-    RectWindow:=Self.BoundsRect;
-    SetBounds(
-      Left-ClientOrigin.X,
-      Top-ClientOrigin.Y,
-      GetDeviceCaps(Canvas.handle, HORZRES)+ (Width-ClientWidth),
-      GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight)
-    );
+  if TBFullSize.Checked then begin
+    FWinPosition.SetFullScreen;
   end else begin
-    Self.BoundsRect:=RectWindow;
+    FWinPosition.SetNoFullScreen;
   end;
 end;
 
@@ -3449,7 +3477,7 @@ begin
                PrepareSelectionRect(Shift,VSelectionRect);
                FLayerMapNal.DrawSelectionRect(VSelectionRect);
               end;
- if GState.FullScrean then begin
+ if FWinPosition.GetIsFullScreen then begin
                        if y<10 then begin
                                      TBDock.Parent:=map;
                                      TBDock.Visible:=true;
@@ -4032,13 +4060,8 @@ var
   lock_tb_b:boolean;
   VProvider: IConfigDataWriteProvider;
 begin
-  VProvider := AProvider.GetOrCreateSubItem('VIEW');
-  VProvider.WriteBool('Maximized',WindowState=wsMaximized);
-  VProvider.WriteInteger('FLeft',Left);
-  VProvider.WriteInteger('FTop',Top);
-  VProvider.WriteInteger('FWidth',Width);
-  VProvider.WriteInteger('FHeight',Height);
-
+  VProvider := AProvider.GetOrCreateSubItem('MainForm');
+  FWinPosition.WriteConfig(VProvider);
   FLayersList.SaveConfig(AProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');

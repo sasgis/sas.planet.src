@@ -163,8 +163,6 @@ type
 
     // Параетры касающиеся именно главного окна
 
-    FullScrean: Boolean;
-
     // Отображать сетку тайлов для заданного зума
     TileGridZoom: byte;
 
@@ -496,7 +494,6 @@ end;
 procedure TGlobalState.LoadMainParams;
 begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
-  FullScrean:= MainIni.Readbool('VIEW','FullScreen',false);
   TilesOut:=MainIni.readInteger('VIEW','TilesOut',0);
   InetConnect.userwinset:=MainIni.Readbool('INTERNET','userwinset',true);
   InetConnect.uselogin:=MainIni.Readbool('INTERNET','uselogin',false);
@@ -623,7 +620,6 @@ begin
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
   MainIni.Writebool('VIEW','animate',AnimateZoom);
-  MainIni.Writebool('VIEW','FullScreen',FullScrean);
   MainIni.WriteInteger('VIEW','ShowPointType',Byte(show_point));
   MainIni.Writeinteger('VIEW','NumberFormat',byte(num_format));
   MainIni.Writeinteger('VIEW','ResamlingType',byte(resampling));
