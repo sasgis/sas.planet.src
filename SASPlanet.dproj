@@ -101,6 +101,7 @@
     <DCCReference Include="i_ILocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="i_ILogForTaskThread.pas" />
     <DCCReference Include="i_ILogSimple.pas" />
+    <DCCReference Include="i_IMainWindowPosition.pas" />
     <DCCReference Include="i_IMapCalibration.pas" />
     <DCCReference Include="i_IMapChangeMessage.pas" />
     <DCCReference Include="i_IMapTypeMenuItem.pas" />
@@ -383,6 +384,7 @@
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainMapsConfig.pas" />
+    <DCCReference Include="u_MainWindowPositionConfig.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
     <DCCReference Include="u_MapCalibrationKml.pas" />
     <DCCReference Include="u_MapCalibrationListBasic.pas" />

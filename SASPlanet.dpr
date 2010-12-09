@@ -272,6 +272,8 @@ uses
   i_ILanguageManager in 'i_ILanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
+  i_IMainWindowPosition in 'i_IMainWindowPosition.pas',
+  u_MainWindowPositionConfig in 'u_MainWindowPositionConfig.pas',
   i_IGPSRecorder in 'i_IGPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
