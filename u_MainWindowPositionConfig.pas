@@ -11,7 +11,7 @@ uses
   i_IMainWindowPosition;
 
 type
-  TMainWindowPositionConfig = class(TConfigDataElementBase ,IMainWindowPosition)
+  TMainWindowPositionConfig = class(TConfigDataElementBase, IMainWindowPosition)
   private
     FIsFullScreen: Boolean;
     FIsMaximized: Boolean;
@@ -24,6 +24,7 @@ type
     function GetIsMaximized: Boolean;
     function GetBoundsRect: TRect;
     procedure SetFullScreen;
+    procedure SetNoFullScreen;
     procedure SetMaximized;
     procedure SetNormalWindow;
     procedure SetWindowPosition(ARect: TRect);
@@ -37,6 +38,7 @@ implementation
 
 constructor TMainWindowPositionConfig.Create(AStartRect: TRect);
 begin
+  inherited Create;
   FBoundsRect := AStartRect;
   FIsFullScreen := False;
   FIsMaximized := False;
@@ -54,6 +56,7 @@ begin
     );
     FIsMaximized := AConfigData.ReadBool('Maximized', FIsMaximized);
     FIsFullScreen := AConfigData.ReadBool('FullScreen', FIsFullScreen);
+    SetChanged;
   end;
 end;
 
@@ -103,7 +106,10 @@ procedure TMainWindowPositionConfig.SetFullScreen;
 begin
   LockWrite;
   try
-    FIsFullScreen := True;
+    if not FIsFullScreen then begin
+      FIsFullScreen := True;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;
@@ -113,8 +119,24 @@ procedure TMainWindowPositionConfig.SetMaximized;
 begin
   LockWrite;
   try
-    FIsFullScreen := False;
-    FIsMaximized := True;
+    if FIsFullScreen or not FIsMaximized then begin
+      FIsFullScreen := False;
+      FIsMaximized := True;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainWindowPositionConfig.SetNoFullScreen;
+begin
+  LockWrite;
+  try
+    if FIsFullScreen then begin
+      FIsFullScreen := False;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;
@@ -124,8 +146,11 @@ procedure TMainWindowPositionConfig.SetNormalWindow;
 begin
   LockWrite;
   try
-    FIsFullScreen := False;
-    FIsMaximized := False;
+    if FIsFullScreen or FIsMaximized then begin
+      FIsFullScreen := False;
+      FIsMaximized := False;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;
@@ -135,9 +160,15 @@ procedure TMainWindowPositionConfig.SetWindowPosition(ARect: TRect);
 begin
   LockWrite;
   try
-    FIsFullScreen := False;
-    FIsMaximized := False;
-    FBoundsRect := ARect;
+    if FIsFullScreen or FIsMaximized then begin
+      FIsFullScreen := False;
+      FIsMaximized := False;
+      SetChanged;
+    end;
+    if not EqualRect(FBoundsRect, ARect) then begin
+      FBoundsRect := ARect;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;

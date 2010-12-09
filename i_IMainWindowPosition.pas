@@ -13,6 +13,7 @@ type
     function GetIsMaximized: Boolean;
     function GetBoundsRect: TRect;
     procedure SetFullScreen;
+    procedure SetNoFullScreen;
     procedure SetMaximized;
     procedure SetNormalWindow;
     procedure SetWindowPosition(ARect: TRect);
