@@ -69,6 +69,7 @@ end;
 
 constructor TLanguageManager.Create;
 begin
+  inherited;
   FCodes := TStringList.Create;
   FNames := TStringList.Create;
   FDefaultLangCode := 'ru';
