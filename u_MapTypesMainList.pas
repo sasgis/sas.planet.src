@@ -4,12 +4,15 @@ interface
 
 uses
   i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
+  i_MapTypes,
   UMapType;
 
 type
   TMapTypesMainList = class
   private
     FMapType: array of TMapType;
+    FMapsList: IMapTypeList;
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
@@ -17,8 +20,9 @@ type
     destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
     property Count: Integer read GetCount;
-    procedure SaveMaps;
-    procedure LoadMaps;
+    property MapsList: IMapTypeList read FMapsList;
+    procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
+    procedure LoadMaps(ALocalMapsConfig: IConfigDataProvider; AMapsPath: string);
     function GetMapFromID(id: TGUID): TMapType;
     procedure SortList;
   end;
@@ -26,15 +30,12 @@ implementation
 
 uses
   SysUtils,
-  IniFiles,
   Dialogs,
   i_IFileNameIterator,
   u_ZmpFileNamesIteratorFactory,
-  u_ConfigDataProviderByIniFile,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderZmpComplex,
-  u_GlobalState,
   UResStrings;
 
 { TMapTypesMainList }
@@ -102,13 +103,11 @@ begin
   end;
 end;
 
-procedure TMapTypesMainList.LoadMaps;
+procedure TMapTypesMainList.LoadMaps(ALocalMapsConfig: IConfigDataProvider; AMapsPath: string);
 var
-  Ini: TMeminifile;
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
-  VLocalMapsConfig: IConfigDataProvider;
 
   VZmpMapConfig: IConfigDataProvider;
   VLocalMapConfig: IConfigDataProvider;
@@ -121,13 +120,10 @@ var
   VGUID: TGUID;
 begin
   SetLength(FMapType, 0);
-  CreateDir(GState.MapsPath);
-  Ini := TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
-  VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   VMapOnlyCount := 0;
   VMapTypeCount := 0;
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
-  VFilesIterator := VFilesIteratorFactory.CreateIterator(GState.MapsPath, '');
+  VFilesIterator := VFilesIteratorFactory.CreateIterator(AMapsPath, '');
   while VFilesIterator.Next(VFileName) do begin
     VFullFileName := VFilesIterator.GetRootFolderName + VFileName;
     try
@@ -148,7 +144,7 @@ begin
         raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
       end;
 
-      VLocalMapConfig := VLocalMapsConfig.GetSubItem(GUIDToString(VGUID));
+      VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VGUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
       VMapType := TMapType.Create(VGUID, VMapConfig, VMapTypeCount);
     except
@@ -176,66 +172,61 @@ begin
   SortList;
 end;
 
-procedure TMapTypesMainList.SaveMaps;
+procedure TMapTypesMainList.SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
 var
-  Ini: TMeminifile;
   i: integer;
   VGUIDString: string;
   VMapType: TMapType;
+  VSubItem: IConfigDataWriteProvider;
 begin
-  Ini := TMeminiFile.Create(GState.MapsPath + 'Maps.ini');
-  try
-    for i := 0 to length(FMapType) - 1 do begin
-      VMapType := FMapType[i];
-      VGUIDString := VMapType.GUIDString;
-      ini.WriteInteger(VGUIDString, 'pnum', VMapType.FSortIndex);
+  for i := 0 to length(FMapType) - 1 do begin
+    VMapType := FMapType[i];
+    VGUIDString := VMapType.GUIDString;
+    VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
+    VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
 
 
-      if VMapType.UrlGenerator.URLBase <> VMapType.UrlGenerator.DefURLBase then begin
-        ini.WriteString(VGUIDString, 'URLBase', VMapType.UrlGenerator.URLBase);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'URLBase');
-      end;
-
-      if VMapType.HotKey <> VMapType.DefHotKey then begin
-        ini.WriteInteger(VGUIDString, 'HotKey', VMapType.HotKey);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'HotKey');
-      end;
-
-      if VMapType.TileStorage.CacheConfig.cachetype <> VMapType.TileStorage.CacheConfig.defcachetype then begin
-        ini.WriteInteger(VGUIDString, 'CacheType', VMapType.TileStorage.CacheConfig.CacheType);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'CacheType');
-      end;
-
-      if VMapType.separator <> VMapType.Defseparator then begin
-        ini.WriteBool(VGUIDString, 'separator', VMapType.separator);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'separator');
-      end;
-
-      if VMapType.TileStorage.CacheConfig.NameInCache <> VMapType.TileStorage.CacheConfig.DefNameInCache then begin
-        ini.WriteString(VGUIDString, 'NameInCache', VMapType.TileStorage.CacheConfig.NameInCache);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'NameInCache');
-      end;
-
-      if VMapType.DownloaderFactory.WaitInterval <> VMapType.DefSleep then begin
-        ini.WriteInteger(VGUIDString, 'Sleep', VMapType.DownloaderFactory.WaitInterval);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'Sleep');
-      end;
-
-      if VMapType.ParentSubMenu <> VMapType.DefParentSubMenu then begin
-        ini.WriteString(VGUIDString, 'ParentSubMenu', VMapType.ParentSubMenu);
-      end else begin
-        Ini.DeleteKey(VGUIDString, 'ParentSubMenu');
-      end;
+    if VMapType.UrlGenerator.URLBase <> VMapType.UrlGenerator.DefURLBase then begin
+      VSubItem.WriteString('URLBase', VMapType.UrlGenerator.URLBase);
+    end else begin
+      VSubItem.DeleteValue('URLBase');
     end;
-    Ini.UpdateFile;
-  finally
-    ini.Free;
+
+    if VMapType.HotKey <> VMapType.DefHotKey then begin
+      VSubItem.WriteInteger('HotKey', VMapType.HotKey);
+    end else begin
+      VSubItem.DeleteValue('HotKey');
+    end;
+
+    if VMapType.TileStorage.CacheConfig.cachetype <> VMapType.TileStorage.CacheConfig.defcachetype then begin
+      VSubItem.WriteInteger('CacheType', VMapType.TileStorage.CacheConfig.CacheType);
+    end else begin
+      VSubItem.DeleteValue('CacheType');
+    end;
+
+    if VMapType.separator <> VMapType.Defseparator then begin
+      VSubItem.WriteBool('separator', VMapType.separator);
+    end else begin
+      VSubItem.DeleteValue('separator');
+    end;
+
+    if VMapType.TileStorage.CacheConfig.NameInCache <> VMapType.TileStorage.CacheConfig.DefNameInCache then begin
+      VSubItem.WriteString('NameInCache', VMapType.TileStorage.CacheConfig.NameInCache);
+    end else begin
+      VSubItem.DeleteValue('NameInCache');
+    end;
+
+    if VMapType.DownloaderFactory.WaitInterval <> VMapType.DefSleep then begin
+      VSubItem.WriteInteger('Sleep', VMapType.DownloaderFactory.WaitInterval);
+    end else begin
+      VSubItem.DeleteValue('Sleep');
+    end;
+
+    if VMapType.ParentSubMenu <> VMapType.DefParentSubMenu then begin
+      VSubItem.WriteString('ParentSubMenu', VMapType.ParentSubMenu);
+    end else begin
+      VSubItem.DeleteValue('ParentSubMenu');
+    end;
   end;
 end;
 

@@ -460,10 +460,16 @@ begin
 end;
 
 procedure TGlobalState.LoadConfig;
+var
+  VLocalMapsConfig: IConfigDataProvider;
+  Ini: TMeminifile;
 begin
   LoadMainParams;
   LoadMarkIcons;
-  FMainMapsList.LoadMaps;
+  CreateDir(MapsPath);
+  Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
+  VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
+  FMainMapsList.LoadMaps(VLocalMapsConfig, MapsPath);
   LoadCacheConfig;
   LoadMapIconsList;
   GPSpar.LoadConfig(MainConfigProvider);
@@ -592,8 +598,12 @@ procedure TGlobalState.SaveMainParams;
 var
   VZoom: Byte;
   VScreenCenterPos: TPoint;
+  Ini: TMeminifile;
+  VLocalMapsConfig: IConfigDataWriteProvider;
 begin
-  FMainMapsList.SaveMaps;
+  Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
+  VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
+  FMainMapsList.SaveMaps(VLocalMapsConfig);
   ViewState.LockRead;
   try
     VZoom := ViewState.GetCurrentZoom;
