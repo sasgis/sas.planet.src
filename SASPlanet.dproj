@@ -58,6 +58,9 @@
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
+    <DCCReference Include="frm_InvisibleBrowser.pas">
+      <Form>frmInvisibleBrowser</Form>
+    </DCCReference>
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>

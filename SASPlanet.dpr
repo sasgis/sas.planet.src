@@ -317,6 +317,7 @@ uses
   USaveas in 'USaveas.pas' {Fsaveas},
   UProgress in 'UProgress.pas' {FProgress},
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
+  frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
   UaddPoint in 'UaddPoint.pas' {FaddPoint},
   Unit4 in 'Unit4.pas' {Fprogress2},
   ULogo in 'ULogo.pas' {FLogo},
@@ -371,6 +372,8 @@ begin
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
+  Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
+  frmInvisibleBrowser.NavigateAndWait('about:blank');
   Fmain.WebBrowser1.Navigate('about:blank');
     Fbrowser.EmbeddedWB1.Navigate('about:blank');
     Application.Run;
