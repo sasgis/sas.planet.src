@@ -3762,7 +3762,12 @@ begin
   ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute; 
   ms := 0; 
   Result := dd + EncodeTime(hh, mm, ss, ms); 
-end; 
+end;
+
+function BuildMarshrByMailRu(ABaseUrl: string; ASourcePath: TDoublePointArray): TDoublePointArray;
+begin
+
+end;
 
 procedure TFmain.TBEditPathMarshClick(Sender: TObject);
 var ms:TMemoryStream;
@@ -3773,23 +3778,21 @@ var ms:TMemoryStream;
     BufferLen:LongWord;
     dateT1:TDateTime;
 begin
- ms:=TMemoryStream.Create;
  case TTBXItem(Sender).tag of
   1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
   2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
   3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
  end;
- for i:=0 to length(Fadd_line_arr)-1 do
+ for i:=0 to length(Fadd_line_arr)-1 do begin
   url:=url+'&x'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].y);
+ end;
+ ms:=TMemoryStream.Create;
+ try
  if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then
   begin
    ms.Position:=0;
-   pathstr:='';
-   repeat
-    BufferLen:=ms.Read(Buffer,SizeOf(Buffer));
-    pathstr:=pathstr+Buffer;
-   until (BufferLen=0)or(BufferLen<SizeOf(Buffer));
-
+   SetLength(pathstr, ms.Size);
+   ms.ReadBuffer(pathstr[1], ms.Size);
    SetLength(Fadd_line_arr,0);
    meters:=0;
    seconds:=0;
@@ -3837,6 +3840,9 @@ begin
    FMarshrutComment:=FMarshrutComment+#13#10+SAS_STR_Marshtime+timeT1;
   end
  else ShowMessage('Connect error!');
+ finally
+   ms.Free;
+ end;
  TBEditPath.Visible:=(length(Fadd_line_arr)>1);
  FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
 end;
