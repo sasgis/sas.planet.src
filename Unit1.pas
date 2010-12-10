@@ -3778,73 +3778,78 @@ var ms:TMemoryStream;
     BufferLen:LongWord;
     dateT1:TDateTime;
 begin
- case TTBXItem(Sender).tag of
-  1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
-  2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
-  3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
- end;
- for i:=0 to length(Fadd_line_arr)-1 do begin
-  url:=url+'&x'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].y);
- end;
- ms:=TMemoryStream.Create;
- try
- if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then
-  begin
-   ms.Position:=0;
-   SetLength(pathstr, ms.Size);
-   ms.ReadBuffer(pathstr[1], ms.Size);
-   SetLength(Fadd_line_arr,0);
-   meters:=0;
-   seconds:=0;
+  case TTBXItem(Sender).tag of
+    1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
+    2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
+    3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
+  end;
+  for i:=0 to length(Fadd_line_arr)-1 do begin
+    url:=url+'&x'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].y);
+  end;
+  ms:=TMemoryStream.Create;
+  try
+    if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then begin
+      ms.Position:=0;
+      SetLength(pathstr, ms.Size);
+      ms.ReadBuffer(pathstr[1], ms.Size);
+      SetLength(Fadd_line_arr,0);
+      meters:=0;
+      seconds:=0;
 
-   try
-   posit:=PosEx('"totalLength"',pathstr,1);
-   While (posit>0) do
-    begin
-     try
-      posit2:=PosEx('"',pathstr,posit+17);
-      meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
-      posit:=PosEx('"totalTime"',pathstr,posit);
-      posit2:=PosEx('"',pathstr,posit+15);
-      seconds:=seconds+strtoint(copy(pathstr,posit+15,posit2-(posit+15)));
-     except
-     end;
-     posit:=PosEx('"points"',pathstr,posit);
-     endpos:=PosEx(']',pathstr,posit);
-      while (posit>0)and(posit<endpos) do
-       try
-        SetLength(Fadd_line_arr,length(Fadd_line_arr)+1);
-        posit:=PosEx('"x" : "',pathstr,posit);
-        posit2:=PosEx('", "y" : "',pathstr,posit);
-        Fadd_line_arr[length(Fadd_line_arr)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
-        posit:=PosEx('"',pathstr,posit2+10);
-        Fadd_line_arr[length(Fadd_line_arr)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
-        posit:=PosEx('{',pathstr,posit);
-       except
-        SetLength(Fadd_line_arr,length(Fadd_line_arr)-1);
-        dec(Flastpoint);
-       end;
-     posit:=PosEx('"totalLength"',pathstr,posit);
+      try
+        posit:=PosEx('"totalLength"',pathstr,1);
+        While (posit>0) do begin
+          try
+            posit2:=PosEx('"',pathstr,posit+17);
+            meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
+            posit:=PosEx('"totalTime"',pathstr,posit);
+            posit2:=PosEx('"',pathstr,posit+15);
+            seconds:=seconds+strtoint(copy(pathstr,posit+15,posit2-(posit+15)));
+          except
+          end;
+          posit:=PosEx('"points"',pathstr,posit);
+          endpos:=PosEx(']',pathstr,posit);
+          while (posit>0)and(posit<endpos) do begin
+            try
+              SetLength(Fadd_line_arr,length(Fadd_line_arr)+1);
+              posit:=PosEx('"x" : "',pathstr,posit);
+              posit2:=PosEx('", "y" : "',pathstr,posit);
+              Fadd_line_arr[length(Fadd_line_arr)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
+              posit:=PosEx('"',pathstr,posit2+10);
+              Fadd_line_arr[length(Fadd_line_arr)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
+              posit:=PosEx('{',pathstr,posit);
+            except
+              SetLength(Fadd_line_arr,length(Fadd_line_arr)-1);
+              dec(Flastpoint);
+            end;
+          end;
+          posit:=PosEx('"totalLength"',pathstr,posit);
+        end;
+      except
+      end;
+
+      Flastpoint:=length(Fadd_line_arr)-1;
+      if meters>1000 then begin
+        FMarshrutComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
+      end else begin
+        FMarshrutComment:=SAS_STR_MarshLen+inttostr(meters)+' '+SAS_UNITS_m;
+      end;
+      DateT1:=SecondToTime(seconds);
+      dd:=DaysBetween(0,DateT1);
+      timeT1:='';
+      if dd>0 then begin
+        timeT1:=inttostr(dd)+' дней, ';
+      end;
+      timeT1:=timeT1+TimeToStr(DateT1);
+      FMarshrutComment:=FMarshrutComment+#13#10+SAS_STR_Marshtime+timeT1;
+    end else begin
+      ShowMessage('Connect error!');
     end;
-   except
-   end;
-
-   Flastpoint:=length(Fadd_line_arr)-1;
-   if meters>1000 then FMarshrutComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km
-                  else FMarshrutComment:=SAS_STR_MarshLen+inttostr(meters)+' '+SAS_UNITS_m;
-   DateT1:=SecondToTime(seconds);
-   dd:=DaysBetween(0,DateT1);
-   timeT1:='';
-   if dd>0 then timeT1:=inttostr(dd)+' дней, ';
-   timeT1:=timeT1+TimeToStr(DateT1);
-   FMarshrutComment:=FMarshrutComment+#13#10+SAS_STR_Marshtime+timeT1;
-  end
- else ShowMessage('Connect error!');
- finally
-   ms.Free;
- end;
- TBEditPath.Visible:=(length(Fadd_line_arr)>1);
- FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
+  finally
+    ms.Free;
+  end;
+  TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+  FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
 end;
 
 procedure TFmain.AdjustFont(Item: TTBCustomItem;
