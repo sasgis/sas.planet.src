@@ -1058,6 +1058,7 @@ begin
     TBDockBottom.Visible:=not(VIsFullScreen);
     TBDockRight.Visible:=not(VIsFullScreen);
     if VIsFullScreen then begin
+      Self.WindowState := wsMaximized;
       SetBounds(
         Left-ClientOrigin.X,
         Top-ClientOrigin.Y,
@@ -1066,8 +1067,13 @@ begin
       );
     end else begin
       if FWinPosition.GetIsMaximized then begin
-        Self.BoundsRect:= FWinPosition.GetBoundsRect;
         Self.WindowState := wsMaximized;
+        SetBounds(
+          0,
+          0,
+          GetDeviceCaps(Canvas.handle, HORZRES),
+          GetDeviceCaps(Canvas.handle, VERTRES)
+        );
       end else begin
         Self.WindowState := wsNormal;
         Self.BoundsRect:= FWinPosition.GetBoundsRect;
