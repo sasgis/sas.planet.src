@@ -748,12 +748,18 @@ begin
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
+var
+  VProvider: IConfigDataProvider;
 begin
- Application.Title:=Caption;
- TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
- TBEditPath.Visible:=false;
- Caption:=Caption+' '+SASVersion;
- ProgramStart:=true;
+  ProgramStart:=true;
+  Application.Title:=Caption;
+  TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
+  TBEditPath.Visible:=false;
+  Caption:=Caption+' '+SASVersion;
+  FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
+  VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
+  FWinPosition.ReadConfig(VProvider);
+  OnWinPositionChange(nil);
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
@@ -764,7 +770,6 @@ var
   VZoom: Byte;
   VLonLat: TDoublePoint;
   VMapType: TMapType;
-  VProvider: IConfigDataProvider;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
@@ -775,9 +780,6 @@ begin
   VZoom := GState.ViewState.GetCurrentZoom;
   Enabled:=false;
   try
-    FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
-    VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
-    FWinPosition.ReadConfig(VProvider);
     FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
     FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
     OnWinPositionChange(nil);
