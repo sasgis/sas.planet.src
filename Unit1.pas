@@ -4104,49 +4104,58 @@ begin
 end;
 
 procedure TFmain.TBXItem1Click(Sender: TObject);
-var ms:TMemoryStream;
-    url:string;
-    i:integer;
-    kml:TKmlInfoSimple;
-    s,l:integer;
-    conerr:boolean;
-    add_line_arr_b:TDoublePointArray;
+var
+  ms:TMemoryStream;
+  url:string;
+  i:integer;
+  kml:TKmlInfoSimple;
+  s,l:integer;
+  conerr:boolean;
+  add_line_arr_b:TDoublePointArray;
 begin
- ms:=TMemoryStream.Create;
- case TTBXItem(sender).Tag of
-    1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
-   11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
-    2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
-   22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
- end;
- conerr:=false;
- for i:=0 to length(Fadd_line_arr)-2 do begin
- if conerr then Continue;
- url:=url+'&flat='+R2StrPoint(Fadd_line_arr[i].y)+'&flon='+R2StrPoint(Fadd_line_arr[i].x)+
+  ms:=TMemoryStream.Create;
+  try
+    case TTBXItem(sender).Tag of
+      1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
+      11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
+      2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
+      22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
+    end;
+    conerr:=false;
+    for i:= 0 to length(Fadd_line_arr)-2 do begin
+      if conerr then Continue;
+      url:=url+'&flat='+R2StrPoint(Fadd_line_arr[i].y)+'&flon='+R2StrPoint(Fadd_line_arr[i].x)+
           '&tlat='+R2StrPoint(Fadd_line_arr[i+1].y)+'&tlon='+R2StrPoint(Fadd_line_arr[i+1].x);
- if GetStreamFromURL(ms,url,'text/xml')>0 then
-  begin
-   kml:=TKmlInfoSimple.Create;
-   GState.KmlLoader.LoadFromStream(ms, kml);
-   ms.SetSize(0);
-   if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
-     s:=length(add_line_arr_b);
-     l:=length(kml.Data[0].coordinates);
-     SetLength(add_line_arr_b,(s+l));
-     Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TDoublePoint));
-   end;
-   kml.Free;
-  end
- else conerr:=true;
- end;
- ms.Free;
- if conerr then ShowMessage('Connect error!');
- if (not conerr)and(length(add_line_arr_b)>0) then begin
-   Fadd_line_arr:=add_line_arr_b;
-   SetLength(add_line_arr_b,0);
-   Flastpoint:=length(Fadd_line_arr)-1;
- end;
- TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+      if GetStreamFromURL(ms,url,'text/xml')>0 then begin
+        kml:=TKmlInfoSimple.Create;
+        try
+          GState.KmlLoader.LoadFromStream(ms, kml);
+          ms.SetSize(0);
+          if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
+            s:=length(add_line_arr_b);
+            l:=length(kml.Data[0].coordinates);
+            SetLength(add_line_arr_b,(s+l));
+            Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TDoublePoint));
+          end;
+        finally
+          kml.Free;
+        end;
+      end else begin
+        conerr:=true;
+      end;
+    end;
+  finally
+    ms.Free;
+  end;
+  if conerr then begin
+    ShowMessage('Connect error!');
+  end;
+  if (not conerr)and(length(add_line_arr_b)>0) then begin
+    Fadd_line_arr:=add_line_arr_b;
+    SetLength(add_line_arr_b,0);
+    Flastpoint:=length(Fadd_line_arr)-1;
+  end;
+  TBEditPath.Visible:=(length(Fadd_line_arr)>1);
   FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
 end;
 
