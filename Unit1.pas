@@ -1964,11 +1964,13 @@ end;
 
 procedure TFmain.FormResize(Sender: TObject);
 begin
-  if not FWinPosition.GetIsFullScreen then begin
-    if Self.WindowState = wsMaximized then begin
-      FWinPosition.SetMaximized;
-    end else if Self.WindowState = wsNormal then begin
-      FWinPosition.SetWindowPosition(Self.BoundsRect);
+  if FWinPosition <> nil then begin
+    if not FWinPosition.GetIsFullScreen then begin
+      if Self.WindowState = wsMaximized then begin
+        FWinPosition.SetMaximized;
+      end else if Self.WindowState = wsNormal then begin
+        FWinPosition.SetWindowPosition(Self.BoundsRect);
+      end;
     end;
   end;
 end;
