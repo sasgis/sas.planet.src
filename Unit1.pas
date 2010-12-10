@@ -629,6 +629,7 @@ type
     property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
 
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
@@ -744,7 +745,31 @@ end;
 constructor TFmain.Create(AOwner: TComponent);
 begin
   inherited;
+
+  FnilLastLoad.use:=false;
+  FdWhenMovingButton := 5;
+
+  TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
+  TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+
+  FMainToolbarItemList := TGUIDObjectList.Create(False);
+  FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
+  FTBFillingItemList := TGUIDObjectList.Create(False);
+  FNLayerParamsItemList := TGUIDObjectList.Create(False);
+  FNDwnItemList := TGUIDObjectList.Create(False);
+  FNDelItemList := TGUIDObjectList.Create(False);
+
   FLayersList := TWindowLayerBasicList.Create;
+  FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
+  FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
+
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -756,8 +781,8 @@ begin
   TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
   TBEditPath.Visible:=false;
   Caption:=Caption+' '+SASVersion;
-  FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
+  FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
   FWinPosition.ReadConfig(VProvider);
   OnWinPositionChange(nil);
 end;
@@ -780,34 +805,13 @@ begin
   VZoom := GState.ViewState.GetCurrentZoom;
   Enabled:=false;
   try
-    FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
-    FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
     OnWinPositionChange(nil);
-    TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
-    TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-
-    FMainToolbarItemList := TGUIDObjectList.Create(False);
-    FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
-    FTBFillingItemList := TGUIDObjectList.Create(False);
-    FNLayerParamsItemList := TGUIDObjectList.Create(False);
-    FNDwnItemList := TGUIDObjectList.Create(False);
-    FNDelItemList := TGUIDObjectList.Create(False);
-
-    FdWhenMovingButton := 5;
 
     movepoint:=false;
 
     GState.MarksDb.LoadMarksFromFile;
     GState.MarksDb.LoadCategoriesFromFile;
     Enabled:=true;
-    FnilLastLoad.use:=false;
     Application.OnMessage := DoMessageEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
     FLenShow:=true;
@@ -874,8 +878,7 @@ begin
     NGShScale0.Checked := GState.GShScale = 0;
 
     Ninvertcolor.Checked:=GState.InvertColor;
-//    TBGPSconn.Checked := GState.GPSpar.GPS_enab;
-//    if GState.GPSpar.GPS_enab then TBGPSconnClick(TBGPSconn);
+
     TBGPSPath.Checked:=GState.GPSpar.GPS_ShowPath;
     tbitmGPSTrackShow.Checked:=GState.GPSpar.GPS_ShowPath;
     TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
@@ -997,7 +1000,6 @@ begin
   ProgramClose:=true;
   tmrMapUpdate.Enabled := false;
   FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
-  FWinPositionListener := nil;
   GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
   GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
   GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
@@ -1013,7 +1015,6 @@ begin
   FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FMapLayersVsibleChangeListener := nil;
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1024,6 +1025,15 @@ begin
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
   if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
+  Application.ProcessMessages;
+  FreeAndNil(FLayersList);
+  FreeAndNil(FShortCutManager);
+end;
+
+destructor TFmain.Destroy;
+begin
+  FWinPositionListener := nil;
+  FMapLayersVsibleChangeListener := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
@@ -1031,15 +1041,13 @@ begin
   FMapPosChangeListener := nil;
   FMainMapChangeListener := nil;
   FHybrChangeListener := nil;
-  Application.ProcessMessages;
-  FreeAndNil(FLayersList);
-  FreeAndNil(FShortCutManager);
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;
   FNLayerParamsItemList := nil;
   FNDwnItemList := nil;
   FNDelItemList := nil;
+  inherited;
 end;
 
 procedure TFmain.MapLayersVisibleChange(Sender: TObject);
