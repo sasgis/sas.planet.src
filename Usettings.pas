@@ -275,28 +275,25 @@ begin
 end;
 
 procedure SetProxy;
-var PIInfo : PInternetProxyInfo;
+var
+  PIInfo : PInternetProxyInfo;
 begin
- New (PIInfo) ;
- if not(GState.InetConnect.userwinset) then
-  begin
-   if GState.InetConnect.proxyused then
-    begin
-     PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
-     PIInfo^.lpszProxy := PChar(GState.InetConnect.proxystr);
-     PIInfo^.lpszProxyBypass := nil;
-     UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
-    end
-   else
-    begin
-     PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
-     PIInfo^.lpszProxy := nil;
-     PIInfo^.lpszProxyBypass := nil;
-     UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+  New (PIInfo) ;
+  if not(GState.InetConnect.userwinset) then begin
+    if GState.InetConnect.proxyused then begin
+      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
+      PIInfo^.lpszProxy := PChar(GState.InetConnect.proxystr);
+      PIInfo^.lpszProxyBypass := nil;
+      UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    end else  begin
+      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
+      PIInfo^.lpszProxy := nil;
+      PIInfo^.lpszProxyBypass := nil;
+      UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     end;
-   UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
- Dispose (PIInfo) ;
+  Dispose (PIInfo) ;
 end;
 
 procedure TFSettings.btnApplyClick(Sender: TObject);
