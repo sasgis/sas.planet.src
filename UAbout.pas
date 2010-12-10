@@ -46,8 +46,7 @@ implementation
 
 uses
   c_SasVersion,
-  frm_InvisibleBrowser,
-  Unit1;
+  frm_InvisibleBrowser;
 
 {$R *.dfm}
 
