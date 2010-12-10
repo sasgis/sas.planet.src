@@ -19,6 +19,12 @@ type
     procedure SetWindowPosition(ARect: TRect);
   end;
 
+  IMainWindowToolbarsLock = interface(IConfigDataElement)
+    ['{CA2386E9-10BE-4A7C-AE42-3E771BD390BA}']
+    function GetIsLock: Boolean;
+    procedure SetLock(AValue: Boolean);
+  end;
+
 implementation
 
 end.
