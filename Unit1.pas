@@ -4103,7 +4103,7 @@ begin
   TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
-procedure TFmain.TBXItem1Click(Sender: TObject);
+function CreatePathByYournavigation(ABaseUrl: string; ASourcePath: TDoublePointArray): TDoublePointArray;
 var
   ms:TMemoryStream;
   url:string;
@@ -4115,18 +4115,13 @@ var
 begin
   ms:=TMemoryStream.Create;
   try
-    case TTBXItem(sender).Tag of
-      1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
-      11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
-      2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
-      22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
-    end;
+    url := ABaseUrl;
     conerr:=false;
-    for i:= 0 to length(Fadd_line_arr)-2 do begin
+    for i:= 0 to length(ASourcePath)-2 do begin
       if conerr then Continue;
-      url:=url+'&flat='+R2StrPoint(Fadd_line_arr[i].y)+'&flon='+R2StrPoint(Fadd_line_arr[i].x)+
-          '&tlat='+R2StrPoint(Fadd_line_arr[i+1].y)+'&tlon='+R2StrPoint(Fadd_line_arr[i+1].x);
-      if GetStreamFromURL(ms,url,'text/xml')>0 then begin
+      url:=url+'&flat='+R2StrPoint(ASourcePath[i].y)+'&flon='+R2StrPoint(ASourcePath[i].x)+
+          '&tlat='+R2StrPoint(ASourcePath[i+1].y)+'&tlon='+R2StrPoint(ASourcePath[i+1].x);
+      if Fmain.GetStreamFromURL(ms, url, 'text/xml')>0 then begin
         kml:=TKmlInfoSimple.Create;
         try
           GState.KmlLoader.LoadFromStream(ms, kml);
@@ -4147,13 +4142,30 @@ begin
   finally
     ms.Free;
   end;
-  if conerr then begin
-    ShowMessage('Connect error!');
+  if not conerr then begin
+    Result := add_line_arr_b;
   end;
-  if (not conerr)and(length(add_line_arr_b)>0) then begin
+end;
+
+
+procedure TFmain.TBXItem1Click(Sender: TObject);
+var
+  url:string;
+  add_line_arr_b:TDoublePointArray;
+begin
+  case TTBXItem(sender).Tag of
+    1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
+    11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
+    2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
+    22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
+  end;
+  add_line_arr_b := CreatePathByYournavigation(url, Fadd_line_arr);
+  if (length(add_line_arr_b)>0) then begin
     Fadd_line_arr:=add_line_arr_b;
     SetLength(add_line_arr_b,0);
     Flastpoint:=length(Fadd_line_arr)-1;
+  end else begin
+    ShowMessage('Connect error!');
   end;
   TBEditPath.Visible:=(length(Fadd_line_arr)>1);
   FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
