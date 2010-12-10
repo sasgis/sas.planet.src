@@ -533,7 +533,6 @@ type
     FnilLastLoad: TLastLoad;
     FShowActivHint: boolean;
     FHintWindow: THintWindow;
-    Flock_toolbars: boolean;
     Frect_dwn: Boolean;
     Frect_p2: boolean;
     FMainLayer: TMapMainLayer;
@@ -589,13 +588,17 @@ type
     FMapZoomAnimtion: Boolean;
     FEditMarkId:integer;
     FCurrentOper: TAOperation;
+
     FWinPosition: IMainWindowPosition;
     FWinPositionListener: IJclListener;
 
+    FToolbarsLock: IMainWindowToolbarsLock;
+    FToolbarsLockListener: IJclListener;
+
     procedure OnWinPositionChange(Sender: TObject);
+    procedure OnToolbarsLockChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure Set_lock_toolbars(const Value: boolean);
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
@@ -618,9 +621,9 @@ type
     FYandexGeoCoder: IGeoCoder;
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
-    property lock_toolbars: boolean read Flock_toolbars write Set_lock_toolbars;
     property ShortCutManager: TShortcutManager read FShortCutManager;
     property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
+    property ToolbarsLock: IMainWindowToolbarsLock read FToolbarsLock;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -670,6 +673,7 @@ uses
   i_ICoordConverter,
   u_KmlInfoSimple,
   u_MainWindowPositionConfig,
+  u_MainWindowToolbarsLock,
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
   frm_SearchResults,
@@ -764,6 +768,8 @@ begin
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
 
+  FToolbarsLock := TMainWindowToolbarsLock.Create;
+  FToolbarsLockListener := TNotifyEventListener.Create(Self.OnToolbarsLockChange);
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -772,13 +778,23 @@ var
 begin
   ProgramStart:=true;
   Application.Title:=Caption;
-  TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
-  TBEditPath.Visible:=false;
   Caption:=Caption+' '+SASVersion;
+
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
   FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
   FWinPosition.ReadConfig(VProvider);
-  OnWinPositionChange(nil);
+
+  VProvider := GState.MainConfigProvider.GetSubItem('PANEL');
+
+  TBEditPath.Floating:=true;
+  TBEditPath.MoveOnScreen(true);
+  TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
+  TBConfigProviderLoadPositions(Self, VProvider);
+
+  FToolbarsLock.GetChangeNotifier.Add(FToolbarsLockListener);
+  FToolbarsLock.ReadConfig(VProvider);
+
+  TBEditPath.Visible:=false;
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
@@ -822,8 +838,6 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
-    lock_toolbars:=GState.MainIni.ReadBool('PANEL','lock_toolbars',false);
-
     Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
 
 
@@ -882,12 +896,6 @@ begin
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
     Nanimate.Checked:=GState.AnimateZoom;
-
-    if not(FileExists(GState.MainConfigFileName)) then begin
-      TBEditPath.Floating:=true;
-      TBEditPath.MoveOnScreen(true);
-      TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
-    end;
 
     NMainToolBarShow.Checked:=TBMainToolBar.Visible;
     NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
@@ -994,6 +1002,7 @@ begin
   ProgramClose:=true;
   tmrMapUpdate.Enabled := false;
   FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
+  FToolbarsLock.GetChangeNotifier.Remove(FToolbarsLockListener);
   GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
   GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
   GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
@@ -1027,8 +1036,10 @@ end;
 destructor TFmain.Destroy;
 begin
   FWinPositionListener := nil;
+  FToolbarsLockListener := nil;
   FMapLayersVsibleChangeListener := nil;
   FWinPosition := nil;
+  FToolbarsLock := nil;
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;
@@ -1192,15 +1203,6 @@ begin
   end;
 end;
 
-procedure TFMain.Set_lock_toolbars(const Value: boolean);
-begin
- TBDock.AllowDrag:=not value;
- TBDockLeft.AllowDrag:=not value;
- TBDockRight.AllowDrag:=not value;
- TBDockBottom.AllowDrag:=not value;
- Flock_toolbars:=value;
-end;
-
 procedure TFmain.BuildImageListMapZapSelect;
 var
   i: Integer;
@@ -1340,6 +1342,17 @@ begin
    FLayerMapMarks.Redraw;
  end;
  FCurrentOper:=newop;
+end;
+
+procedure TFmain.OnToolbarsLockChange(Sender: TObject);
+var
+  VValue: Boolean;
+begin
+  VValue := FToolbarsLock.GetIsLock;
+  TBDock.AllowDrag:=not VValue;
+  TBDockLeft.AllowDrag:=not VValue;
+  TBDockRight.AllowDrag:=not VValue;
+  TBDockBottom.AllowDrag:=not VValue;
 end;
 
 procedure TFmain.OnWinPositionChange(Sender: TObject);
@@ -4053,11 +4066,16 @@ begin
   FLayersList.SaveConfig(AProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');
-  VProvider.WriteBool('lock_toolbars',lock_toolbars);
-  lock_tb_b:=lock_toolbars;
-  lock_toolbars:=false;
+  FToolbarsLock.LockWrite;
+  try
+    FToolbarsLock.WriteConfig(VProvider);
+    lock_tb_b:=FToolbarsLock.GetIsLock;
+    FToolbarsLock.SetLock(False);
+  finally
+    FToolbarsLock.UnlockWrite;
+  end;
   TBConfigProviderSavePositions(Self, VProvider);
-  lock_toolbars:=lock_tb_b;
+  FToolbarsLock.SetLock(lock_tb_b);
 end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
