@@ -12,7 +12,6 @@ uses
   ShellApi,
   Classes,
   Menus,
-  MSHTML,
   Variants,
   ActiveX,
   ShlObj,
@@ -23,7 +22,6 @@ uses
   Controls,
   ExtCtrls,
   Buttons,
-  WinInet,
   Dialogs,
   ExtDlgs,
   ImgList,
@@ -608,7 +606,6 @@ type
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
     procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
     procedure CopyBtmToClipboard(btm: TBitmap);
-    function GetStreamFromURL(var ms: TMemoryStream; url: string; conttype: string): integer;
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange(Sender: TObject);
     procedure CopyStringToClipboard(s: Widestring);
@@ -2739,62 +2736,6 @@ begin
   end
 end;
 
-function TFmain.GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
-var par,ty:string;
-    err:boolean;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwtype: array [1..20] of char;
-    dwindex, dwcodelen,dwReserv: dword;
-begin
- hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- if Assigned(hSession)
-  then begin
-        hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        if Assigned(hFile)then
-         begin
-          dwcodelen:=150; dwReserv:=0; dwindex:=0;
-          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-           then dwindex:=strtoint(pchar(@dwtype));
-          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
-             begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
-              HttpSendRequest(hFile, nil, 0,Nil, 0);
-             end;
-            dwcodelen:=150; dwReserv:=0; dwindex:=0;
-            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-             then dwindex:=strtoint(pchar(@dwtype));
-            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-             begin
-            	result:=-3;
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit
-             end;
-           end;
-          result:=0;
-          dwindex:=0; dwcodelen:=150; ty:='';
-          fillchar(dwtype,sizeof(dwtype),0);
-          if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
-           then ty:=PChar(@dwtype);
-          if (PosEx(conttype,ty,1)>0) then
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           ms.Write(Buffer,BufferLen);
-           inc(result,BufferLen)
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
-          else result:=-1;
-         end
-        else result:=0;
-       end
-  else result:=0;
-  ms.Position:=0;
-end;
-
 procedure TFmain.PopupMenu1Popup(Sender: TObject);
 var
   i:Integer;
@@ -4121,7 +4062,7 @@ begin
       if conerr then Continue;
       url:=url+'&flat='+R2StrPoint(ASourcePath[i].y)+'&flon='+R2StrPoint(ASourcePath[i].x)+
           '&tlat='+R2StrPoint(ASourcePath[i+1].y)+'&tlon='+R2StrPoint(ASourcePath[i+1].x);
-      if Fmain.GetStreamFromURL(ms, url, 'text/xml')>0 then begin
+      if GetStreamFromURL(ms, url, 'text/xml')>0 then begin
         kml:=TKmlInfoSimple.Create;
         try
           GState.KmlLoader.LoadFromStream(ms, kml);
