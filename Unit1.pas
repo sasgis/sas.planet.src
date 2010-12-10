@@ -741,6 +741,305 @@ begin
   FMainForm.ProcessHybrChangeMessage(VMessage);
 end;
 
+constructor TFmain.Create(AOwner: TComponent);
+begin
+  inherited;
+  FLayersList := TWindowLayerBasicList.Create;
+end;
+
+procedure TFmain.FormCreate(Sender: TObject);
+begin
+ Application.Title:=Caption;
+ TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
+ TBEditPath.Visible:=false;
+ Caption:=Caption+' '+SASVersion;
+ ProgramStart:=true;
+end;
+
+procedure TFmain.FormActivate(Sender: TObject);
+var
+  param:string;
+  VGUID: TGUID;
+  VScreenCenterPos: TPoint;
+  VZoom: Byte;
+  VLonLat: TDoublePoint;
+  VMapType: TMapType;
+  VProvider: IConfigDataProvider;
+begin
+  GState.ScreenSize := Point(Screen.Width, Screen.Height);
+  if not ProgramStart then exit;
+  BuildImageListMapZapSelect;
+
+  GState.InitViewState(Point(map.Width, map.Height));
+  VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
+  VZoom := GState.ViewState.GetCurrentZoom;
+  Enabled:=false;
+  try
+    FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
+    VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
+    FWinPosition.ReadConfig(VProvider);
+    FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
+    FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
+    OnWinPositionChange(nil);
+    TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
+    TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+    dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+
+    FMainToolbarItemList := TGUIDObjectList.Create(False);
+    FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
+    FTBFillingItemList := TGUIDObjectList.Create(False);
+    FNLayerParamsItemList := TGUIDObjectList.Create(False);
+    FNDwnItemList := TGUIDObjectList.Create(False);
+    FNDelItemList := TGUIDObjectList.Create(False);
+
+    FdWhenMovingButton := 5;
+
+    movepoint:=false;
+
+    GState.MarksDb.LoadMarksFromFile;
+    GState.MarksDb.LoadCategoriesFromFile;
+    Enabled:=true;
+    FnilLastLoad.use:=false;
+    Application.OnMessage := DoMessageEvent;
+    Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
+    FLenShow:=true;
+    Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
+    Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
+    Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
+    Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
+    Map.Cursor:=crDefault;
+
+    FMouseDownPoint := point(0,0);
+    FMouseUpPoint := point(0,0);
+    FMapZoomAnimtion:=False;
+    FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
+    FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
+
+    NGoToCur.Checked := GState.ZoomingAtMousePos;
+    lock_toolbars:=GState.MainIni.ReadBool('PANEL','lock_toolbars',false);
+
+    Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
+
+
+    FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FMainLayer);
+    FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FWikiLayer);
+    FLayerFillingMap:=TMapFillingLayer.create(map, GState.ViewState);
+    FLayersList.Add(FLayerFillingMap);
+    FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapMarks);
+    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapGPS);
+    FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerSelection);
+    FLayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapNal);
+    FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerGoto);
+    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState);
+    FLayersList.Add(LayerMapNavToMark);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FShowErrorLayer);
+    FLayerMapScale := TCenterScale.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapScale);
+    FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerScaleLine);
+    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerStatBar);
+    FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMiniMap);
+
+    FMainLayer.ErrorShowLayer := FShowErrorLayer;
+    FMainLayer.KmlLayer := FWikiLayer;
+
+    CreateMapUI;
+    FSettings.InitMapsList;
+
+    NGShScale10000.Checked := GState.GShScale = 10000;
+    NGShScale25000.Checked := GState.GShScale = 25000;
+    NGShScale50000.Checked := GState.GShScale = 50000;
+    NGShScale100000.Checked := GState.GShScale = 100000;
+    NGShScale200000.Checked := GState.GShScale = 200000;
+    NGShScale500000.Checked := GState.GShScale = 500000;
+    NGShScale1000000.Checked := GState.GShScale = 1000000;
+    NGShScale0.Checked := GState.GShScale = 0;
+
+    Ninvertcolor.Checked:=GState.InvertColor;
+//    TBGPSconn.Checked := GState.GPSpar.GPS_enab;
+//    if GState.GPSpar.GPS_enab then TBGPSconnClick(TBGPSconn);
+    TBGPSPath.Checked:=GState.GPSpar.GPS_ShowPath;
+    tbitmGPSTrackShow.Checked:=GState.GPSpar.GPS_ShowPath;
+    TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
+    tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
+    TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
+    tbitmGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
+    Nbackload.Checked:=GState.UsePrevZoom;
+    NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
+    Nanimate.Checked:=GState.AnimateZoom;
+
+    if not(FileExists(GState.MainConfigFileName)) then begin
+      TBEditPath.Floating:=true;
+      TBEditPath.MoveOnScreen(true);
+      TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
+    end;
+
+    NMainToolBarShow.Checked:=TBMainToolBar.Visible;
+    NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
+    NsrcToolBarShow.Checked:=SrcToolbar.Visible;
+    NGPSToolBarShow.Checked:=GPSToolBar.Visible;
+    NMarksBarShow.Checked:=TBMarksToolBar.Visible;
+
+    map.Color:=GState.BGround;
+
+    FMapPosChangeListener := TPosChangeListener.Create(Self.ProcessPosChangeMessage);
+    GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
+
+    FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
+    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
+
+    FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
+    GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
+
+    FMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
+    FLayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
+
+    FGPSConntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnect);
+    GState.GPSpar.GPSModele.ConnectNotifier.Add(FGPSConntectListener);
+    FGPSDisconntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect);
+    GState.GPSpar.GPSModele.DisconnectNotifier.Add(FGPSDisconntectListener);
+    FGPSConntectErrorListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError);
+    GState.GPSpar.GPSModele.ConnectErrorNotifier.Add(FGPSConntectErrorListener);
+    FGPSTimeOutListener := TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout);
+    GState.GPSpar.GPSModele.TimeOutNotifier.Add(FGPSTimeOutListener);
+    FGPSReceiveListener := TNotifyEventListenerSync.Create(Self.GPSReceiverReceive);
+    GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
+
+    GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
+
+    FLayersList.LoadConfig(GState.MainConfigProvider);
+    ProgramStart:=false;
+
+    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
+    GState.ViewState.LockWrite;
+    GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
+
+    if ParamCount > 1 then begin
+      try
+        param:=paramstr(1);
+        if param<>'' then begin
+          VGUID := StringToGUID(param);
+          VMapType := GState.MapType.GetMapFromID(VGUID);
+          if VMapType <> nil then begin
+            GState.ViewState.ChangeMainMapAtCurrentPoint(VMapType);
+          end;
+        end;
+        if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+          GState.ViewState.LockWrite;
+          VZoom := strtoint(paramstr(2)) - 1;
+          GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
+          VLonLat.X := str2r(paramstr(3));
+          VLonLat.Y := str2r(paramstr(4));
+          GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
+          GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
+        end else if paramstr(2)<>'' then begin
+          VZoom := strtoint(paramstr(2)) - 1;
+          GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
+        end;
+      except
+      end;
+    end;
+    InitSearchers;
+    FMapMoving:=false;
+
+    SetProxy;
+
+
+    case GState.SrchType of
+      stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
+      stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
+    end;
+
+    if GState.WebReportToAuthor then begin
+      WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
+    end;
+
+
+    FLayersList.StartThreads;
+    GState.StartThreads;
+    FMainLayer.Visible := True;
+    FLayerMapMarks.Visible := GState.show_point <> mshNone;
+    tmrMapUpdate.Enabled := True;
+  finally
+    Enabled:=true;
+    map.SetFocus;
+    if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
+  end;
+  TBXMainMenu.ProcessShortCuts:=true;
+end;
+
+procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  i:integer;
+begin
+  ProgramClose:=true;
+  tmrMapUpdate.Enabled := false;
+  FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
+  FWinPositionListener := nil;
+  GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
+  GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
+  GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
+  GState.GPSpar.GPSModele.TimeOutNotifier.Remove(FGPSTimeOutListener);
+  GState.GPSpar.GPSModele.DataReciveNotifier.Remove(FGPSReceiveListener);
+  if GState.ViewState <> nil then begin
+    GState.ViewState.PosChangeNotifier.Remove(FMapPosChangeListener);
+    GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
+    GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
+  end;
+  FLayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerMiniMap.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FMapLayersVsibleChangeListener := nil;
+  //останавливаем GPS
+  GState.SendTerminateToThreads;
+  for i := 0 to Screen.FormCount - 1 do begin
+    if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
+      Screen.Forms[i].Close;
+    end;
+  end;
+  FLayersList.SendTerminateToThreads;
+  Application.ProcessMessages;
+  if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
+  FWinPosition := nil;
+  FSearchPresenter := nil;
+  FGoogleGeoCoder := nil;
+  FYandexGeoCoder := nil;
+  FMapPosChangeListener := nil;
+  FMainMapChangeListener := nil;
+  FHybrChangeListener := nil;
+  Application.ProcessMessages;
+  FreeAndNil(FLayersList);
+  FreeAndNil(FShortCutManager);
+  FMainToolbarItemList := nil;
+  FMainToolbarSubMenuItemList := nil;
+  FTBFillingItemList := nil;
+  FNLayerParamsItemList := nil;
+  FNDwnItemList := nil;
+  FNDelItemList := nil;
+end;
+
 procedure TFmain.MapLayersVisibleChange(Sender: TObject);
 var
   VGUID: TGUID;
@@ -1414,12 +1713,6 @@ begin
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
-constructor TFmain.Create(AOwner: TComponent);
-begin
-  inherited;
-  FLayersList := TWindowLayerBasicList.Create;
-end;
-
 procedure TFmain.CreateMapUI;
 var
   i,j: integer;
@@ -1575,239 +1868,6 @@ begin
   Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
 end;
 
-procedure TFmain.FormActivate(Sender: TObject);
-var
-  param:string;
-  VGUID: TGUID;
-  VScreenCenterPos: TPoint;
-  VZoom: Byte;
-  VLonLat: TDoublePoint;
-  VMapType: TMapType;
-  VProvider: IConfigDataProvider;
-begin
-  GState.ScreenSize := Point(Screen.Width, Screen.Height);
-  if not ProgramStart then exit;
-  BuildImageListMapZapSelect;
-
-  GState.InitViewState(Point(map.Width, map.Height));
-  VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
-  VZoom := GState.ViewState.GetCurrentZoom;
-  Enabled:=false;
-  try
-    FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
-    VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
-    FWinPosition.ReadConfig(VProvider);
-    FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
-    FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
-    OnWinPositionChange(nil);
-    TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
-    TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-    dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-
-    FMainToolbarItemList := TGUIDObjectList.Create(False);
-    FMainToolbarSubMenuItemList := TGUIDObjectList.Create(False);
-    FTBFillingItemList := TGUIDObjectList.Create(False);
-    FNLayerParamsItemList := TGUIDObjectList.Create(False);
-    FNDwnItemList := TGUIDObjectList.Create(False);
-    FNDelItemList := TGUIDObjectList.Create(False);
-
-    FdWhenMovingButton := 5;
-
-    movepoint:=false;
-
-    GState.MarksDb.LoadMarksFromFile;
-    GState.MarksDb.LoadCategoriesFromFile;
-    Enabled:=true;
-    FnilLastLoad.use:=false;
-    Application.OnMessage := DoMessageEvent;
-    Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
-    FLenShow:=true;
-    Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
-    Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
-    Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
-    Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
-    Map.Cursor:=crDefault;
-
-    FMouseDownPoint := point(0,0);
-    FMouseUpPoint := point(0,0);
-    FMapZoomAnimtion:=False;
-    FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
-    FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
-
-    NGoToCur.Checked := GState.ZoomingAtMousePos;
-    lock_toolbars:=GState.MainIni.ReadBool('PANEL','lock_toolbars',false);
-
-    Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
-
-
-    FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FMainLayer);
-    FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapFillingLayer.create(map, GState.ViewState);
-    FLayersList.Add(FLayerFillingMap);
-    FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerMapGPS);
-    FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerSelection);
-    FLayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerMapNal);
-    FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState);
-    FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FShowErrorLayer);
-    FLayerMapScale := TCenterScale.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerMapScale);
-    FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerMiniMap);
-
-    FMainLayer.ErrorShowLayer := FShowErrorLayer;
-    FMainLayer.KmlLayer := FWikiLayer;
-
-    CreateMapUI;
-    FSettings.InitMapsList;
-
-    NGShScale10000.Checked := GState.GShScale = 10000;
-    NGShScale25000.Checked := GState.GShScale = 25000;
-    NGShScale50000.Checked := GState.GShScale = 50000;
-    NGShScale100000.Checked := GState.GShScale = 100000;
-    NGShScale200000.Checked := GState.GShScale = 200000;
-    NGShScale500000.Checked := GState.GShScale = 500000;
-    NGShScale1000000.Checked := GState.GShScale = 1000000;
-    NGShScale0.Checked := GState.GShScale = 0;
-
-    Ninvertcolor.Checked:=GState.InvertColor;
-//    TBGPSconn.Checked := GState.GPSpar.GPS_enab;
-//    if GState.GPSpar.GPS_enab then TBGPSconnClick(TBGPSconn);
-    TBGPSPath.Checked:=GState.GPSpar.GPS_ShowPath;
-    tbitmGPSTrackShow.Checked:=GState.GPSpar.GPS_ShowPath;
-    TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
-    tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
-    TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
-    tbitmGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
-    Nbackload.Checked:=GState.UsePrevZoom;
-    NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
-    Nanimate.Checked:=GState.AnimateZoom;
-
-    if not(FileExists(GState.MainConfigFileName)) then begin
-      TBEditPath.Floating:=true;
-      TBEditPath.MoveOnScreen(true);
-      TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
-    end;
-
-    NMainToolBarShow.Checked:=TBMainToolBar.Visible;
-    NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
-    NsrcToolBarShow.Checked:=SrcToolbar.Visible;
-    NGPSToolBarShow.Checked:=GPSToolBar.Visible;
-    NMarksBarShow.Checked:=TBMarksToolBar.Visible;
-
-    map.Color:=GState.BGround;
-
-    FMapPosChangeListener := TPosChangeListener.Create(Self.ProcessPosChangeMessage);
-    GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
-
-    FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
-    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
-
-    FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
-    GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
-
-    FMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
-    FLayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
-
-    FGPSConntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnect);
-    GState.GPSpar.GPSModele.ConnectNotifier.Add(FGPSConntectListener);
-    FGPSDisconntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect);
-    GState.GPSpar.GPSModele.DisconnectNotifier.Add(FGPSDisconntectListener);
-    FGPSConntectErrorListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError);
-    GState.GPSpar.GPSModele.ConnectErrorNotifier.Add(FGPSConntectErrorListener);
-    FGPSTimeOutListener := TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout);
-    GState.GPSpar.GPSModele.TimeOutNotifier.Add(FGPSTimeOutListener);
-    FGPSReceiveListener := TNotifyEventListenerSync.Create(Self.GPSReceiverReceive);
-    GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
-
-    GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
-
-    FLayersList.LoadConfig(GState.MainConfigProvider);
-    ProgramStart:=false;
-
-    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
-    GState.ViewState.LockWrite;
-    GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
-
-    if ParamCount > 1 then begin
-      try
-        param:=paramstr(1);
-        if param<>'' then begin
-          VGUID := StringToGUID(param);
-          VMapType := GState.MapType.GetMapFromID(VGUID);
-          if VMapType <> nil then begin
-            GState.ViewState.ChangeMainMapAtCurrentPoint(VMapType);
-          end;
-        end;
-        if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
-          GState.ViewState.LockWrite;
-          VZoom := strtoint(paramstr(2)) - 1;
-          GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
-          VLonLat.X := str2r(paramstr(3));
-          VLonLat.Y := str2r(paramstr(4));
-          GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
-          GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
-        end else if paramstr(2)<>'' then begin
-          VZoom := strtoint(paramstr(2)) - 1;
-          GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
-        end;
-      except
-      end;
-    end;
-    InitSearchers;
-    FMapMoving:=false;
-
-    SetProxy;
-
-
-    case GState.SrchType of
-      stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
-      stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
-    end;
-
-    if GState.WebReportToAuthor then begin
-      WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
-    end;
-
-
-    FLayersList.StartThreads;
-    GState.StartThreads;
-    FMainLayer.Visible := True;
-    FLayerMapMarks.Visible := GState.show_point <> mshNone;
-    tmrMapUpdate.Enabled := True;
-  finally
-    Enabled:=true;
-    map.SetFocus;
-    if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
-  end;
-  TBXMainMenu.ProcessShortCuts:=true;
-end;
-
-
 procedure TFmain.zooming(ANewZoom:byte;move:boolean);
   procedure usleep(mils:integer);
   var startTS,endTS,freqTS:int64;
@@ -1902,15 +1962,6 @@ begin
  zooming(GState.ViewState.GetCurrentZoom - 1, false);
 end;
 
-procedure TFmain.FormCreate(Sender: TObject);
-begin
- Application.Title:=Caption;
- TBConfigProviderLoadPositions(Self, GState.MainConfigProvider.GetSubItem('PANEL'));
- TBEditPath.Visible:=false;
- Caption:=Caption+' '+SASVersion;
- ProgramStart:=true;
-end;
-
 procedure TFmain.FormResize(Sender: TObject);
 begin
   if not FWinPosition.GetIsFullScreen then begin
@@ -1920,58 +1971,6 @@ begin
       FWinPosition.SetWindowPosition(Self.BoundsRect);
     end;
   end;
-end;
-
-procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
-var
-  i:integer;
-begin
-  ProgramClose:=true;
-  tmrMapUpdate.Enabled := false;
-  FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
-  FWinPositionListener := nil;
-  GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
-  GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
-  GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
-  GState.GPSpar.GPSModele.TimeOutNotifier.Remove(FGPSTimeOutListener);
-  GState.GPSpar.GPSModele.DataReciveNotifier.Remove(FGPSReceiveListener);
-  if GState.ViewState <> nil then begin
-    GState.ViewState.PosChangeNotifier.Remove(FMapPosChangeListener);
-    GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
-    GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
-  end;
-  FLayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerMiniMap.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FMapLayersVsibleChangeListener := nil;
-  //останавливаем GPS
-  GState.SendTerminateToThreads;
-  for i := 0 to Screen.FormCount - 1 do begin
-    if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
-      Screen.Forms[i].Close;
-    end;
-  end;
-  FLayersList.SendTerminateToThreads;
-  Application.ProcessMessages;
-  if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
-  FWinPosition := nil;
-  FSearchPresenter := nil;
-  FGoogleGeoCoder := nil;
-  FYandexGeoCoder := nil;
-  FMapPosChangeListener := nil;
-  FMainMapChangeListener := nil;
-  FHybrChangeListener := nil;
-  Application.ProcessMessages;
-  FreeAndNil(FLayersList);
-  FreeAndNil(FShortCutManager);
-  FMainToolbarItemList := nil;
-  FMainToolbarSubMenuItemList := nil;
-  FTBFillingItemList := nil;
-  FNLayerParamsItemList := nil;
-  FNDwnItemList := nil;
-  FNDelItemList := nil;
 end;
 
 procedure TFmain.TBmoveClick(Sender: TObject);
