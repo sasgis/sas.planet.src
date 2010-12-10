@@ -242,11 +242,11 @@ begin
       UseLanguage(FDefaultLangCode);
     end;
     VCurrCode := GetCurrentLanguage;
+    if VLastUsedCode <> VCurrCode then begin
+      SetChanged;
+    end;
   finally
     UnlockWrite;
-  end;
-  if VLastUsedCode <> VCurrCode then begin
-    SetChanged;
   end;
 end;
 
