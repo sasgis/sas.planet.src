@@ -1042,45 +1042,54 @@ end;
 procedure TFmain.OnWinPositionChange(Sender: TObject);
 var
   VIsFullScreen: Boolean;
+  VIsMaximized: Boolean;
+  VRect: TRect;
 begin
   FWinPosition.LockRead;
   try
     VIsFullScreen := FWinPosition.GetIsFullScreen;
-    TBFullSize.Checked := VIsFullScreen;
-    NFoolSize.Checked:=VIsFullScreen;
-    TBexit.Visible:=VIsFullScreen;
-    TBDock.Parent:=Self;
-    TBDockLeft.Parent:=Self;
-    TBDockBottom.Parent:=Self;
-    TBDockRight.Parent:=Self;
-    TBDock.Visible:=not(VIsFullScreen);
-    TBDockLeft.Visible:=not(VIsFullScreen);
-    TBDockBottom.Visible:=not(VIsFullScreen);
-    TBDockRight.Visible:=not(VIsFullScreen);
-    if VIsFullScreen then begin
-      Self.WindowState := wsMaximized;
-      SetBounds(
-        Left-ClientOrigin.X,
-        Top-ClientOrigin.Y,
-        GetDeviceCaps(Canvas.handle, HORZRES) + (Width - ClientWidth),
-        GetDeviceCaps(Canvas.handle, VERTRES) + (Height - ClientHeight)
-      );
-    end else begin
-      if FWinPosition.GetIsMaximized then begin
-        Self.WindowState := wsMaximized;
-        SetBounds(
-          0,
-          0,
-          GetDeviceCaps(Canvas.handle, HORZRES),
-          GetDeviceCaps(Canvas.handle, VERTRES)
-        );
-      end else begin
-        Self.WindowState := wsNormal;
-        Self.BoundsRect:= FWinPosition.GetBoundsRect;
-      end;
-    end;
+    VIsMaximized := FWinPosition.GetIsMaximized;
+    VRect := FWinPosition.GetBoundsRect;
   finally
     FWinPosition.UnlockRead;
+  end;
+  TBFullSize.Checked := VIsFullScreen;
+  NFoolSize.Checked:=VIsFullScreen;
+  TBexit.Visible:=VIsFullScreen;
+  TBDock.Parent:=Self;
+  TBDockLeft.Parent:=Self;
+  TBDockBottom.Parent:=Self;
+  TBDockRight.Parent:=Self;
+  TBDock.Visible:=not(VIsFullScreen);
+  TBDockLeft.Visible:=not(VIsFullScreen);
+  TBDockBottom.Visible:=not(VIsFullScreen);
+  TBDockRight.Visible:=not(VIsFullScreen);
+  if VIsFullScreen then begin
+    Self.WindowState := wsMaximized;
+    SetBounds(
+      Left-ClientOrigin.X,
+      Top-ClientOrigin.Y,
+      GetDeviceCaps(Canvas.handle, HORZRES) + (Width - ClientWidth),
+      GetDeviceCaps(Canvas.handle, VERTRES) + (Height - ClientHeight)
+    );
+  end else begin
+    if VIsMaximized then begin
+      if Self.WindowState <> wsMaximized then begin
+        if not EqualRect(BoundsRect, VRect) then begin
+          Self.BoundsRect:= VRect;
+        end;
+      end;
+      Self.WindowState := wsMaximized;
+      SetBounds(
+        0,
+        0,
+        GetDeviceCaps(Canvas.handle, HORZRES),
+        GetDeviceCaps(Canvas.handle, VERTRES)
+      );
+    end else begin
+      Self.WindowState := wsNormal;
+      Self.BoundsRect:= VRect;
+    end;
   end;
 end;
 
