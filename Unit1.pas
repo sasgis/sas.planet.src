@@ -3757,34 +3757,23 @@ var
   ms, ss, mm, hh, dd: Cardinal; 
 begin 
   dd := Seconds div SecPerDay;
-  hh := (Seconds mod SecPerDay) div SecPerHour; 
-  mm := ((Seconds mod SecPerDay) mod SecPerHour) div SecPerMinute; 
-  ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute; 
-  ms := 0; 
-  Result := dd + EncodeTime(hh, mm, ss, ms); 
+  hh := (Seconds mod SecPerDay) div SecPerHour;
+  mm := ((Seconds mod SecPerDay) mod SecPerHour) div SecPerMinute;
+  ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute;
+  ms := 0;
+  Result := dd + EncodeTime(hh, mm, ss, ms);
 end;
 
-function BuildMarshrByMailRu(ABaseUrl: string; ASourcePath: TDoublePointArray): TDoublePointArray;
-begin
-
-end;
-
-procedure TFmain.TBEditPathMarshClick(Sender: TObject);
+function BuildMarshrByMailRu(ABaseUrl: string; ASourcePath: TDoublePointArray; var AComment: string): TDoublePointArray;
 var ms:TMemoryStream;
     pathstr,timeT1:string;
     url:string;
     i,posit,posit2,endpos,dd,seconds,meters:integer;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
     dateT1:TDateTime;
 begin
-  case TTBXItem(Sender).tag of
-    1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
-    2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
-    3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
-  end;
-  for i:=0 to length(Fadd_line_arr)-1 do begin
-    url:=url+'&x'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(Fadd_line_arr[i].y);
+  url := ABaseUrl;
+  for i:=0 to length(ASourcePath)-1 do begin
+    url:=url+'&x'+inttostr(i)+'='+R2StrPoint(ASourcePath[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(ASourcePath[i].y);
   end;
   ms:=TMemoryStream.Create;
   try
@@ -3792,7 +3781,7 @@ begin
       ms.Position:=0;
       SetLength(pathstr, ms.Size);
       ms.ReadBuffer(pathstr[1], ms.Size);
-      SetLength(Fadd_line_arr,0);
+      SetLength(Result,0);
       meters:=0;
       seconds:=0;
 
@@ -3811,16 +3800,15 @@ begin
           endpos:=PosEx(']',pathstr,posit);
           while (posit>0)and(posit<endpos) do begin
             try
-              SetLength(Fadd_line_arr,length(Fadd_line_arr)+1);
+              SetLength(Result,length(Result)+1);
               posit:=PosEx('"x" : "',pathstr,posit);
               posit2:=PosEx('", "y" : "',pathstr,posit);
-              Fadd_line_arr[length(Fadd_line_arr)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
+              Result[length(Result)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
               posit:=PosEx('"',pathstr,posit2+10);
-              Fadd_line_arr[length(Fadd_line_arr)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
+              Result[length(Result)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
               posit:=PosEx('{',pathstr,posit);
             except
-              SetLength(Fadd_line_arr,length(Fadd_line_arr)-1);
-              dec(Flastpoint);
+              SetLength(Result,length(Result)-1);
             end;
           end;
           posit:=PosEx('"totalLength"',pathstr,posit);
@@ -3828,11 +3816,10 @@ begin
       except
       end;
 
-      Flastpoint:=length(Fadd_line_arr)-1;
       if meters>1000 then begin
-        FMarshrutComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
+        AComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
       end else begin
-        FMarshrutComment:=SAS_STR_MarshLen+inttostr(meters)+' '+SAS_UNITS_m;
+        AComment:=SAS_STR_MarshLen+inttostr(meters)+' '+SAS_UNITS_m;
       end;
       DateT1:=SecondToTime(seconds);
       dd:=DaysBetween(0,DateT1);
@@ -3841,15 +3828,35 @@ begin
         timeT1:=inttostr(dd)+' дней, ';
       end;
       timeT1:=timeT1+TimeToStr(DateT1);
-      FMarshrutComment:=FMarshrutComment+#13#10+SAS_STR_Marshtime+timeT1;
+      AComment:=AComment+#13#10+SAS_STR_Marshtime+timeT1;
     end else begin
       ShowMessage('Connect error!');
     end;
   finally
     ms.Free;
   end;
-  TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-  FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
+end;
+
+procedure TFmain.TBEditPathMarshClick(Sender: TObject);
+var
+  url: string;
+  VResult: TDoublePointArray;
+begin
+  case TTBXItem(Sender).tag of
+    1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
+    2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
+    3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
+  end;
+  VResult := BuildMarshrByMailRu(url, Fadd_line_arr, FMarshrutComment);
+  if Length(VResult) > 0 then begin
+    Fadd_line_arr := VResult;
+    Flastpoint:=length(Fadd_line_arr)-1;
+    TBEditPath.Visible:=(length(Fadd_line_arr)>1);
+    FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
+  end else begin
+    FMarshrutComment := '';
+    ShowMessage('Connect error!');
+  end;
 end;
 
 procedure TFmain.AdjustFont(Item: TTBCustomItem;
