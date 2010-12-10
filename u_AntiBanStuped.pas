@@ -83,7 +83,7 @@ end;
 
 procedure TExecOnBan.ExecOnBan;
 begin
-  ShellExecute(0, nil, PChar(FLastUrl), nil, nil, SW_RESTORE);
+  OpenUrlInBrowser(FLastUrl);
 end;
 
 { TAntiBanStuped }

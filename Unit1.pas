@@ -596,7 +596,6 @@ type
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure Set_lock_toolbars(const Value: boolean);
-    procedure MouseOnMyReg(var APWL:TResObj;xy:TPoint);
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
@@ -628,7 +627,6 @@ type
     procedure generate_im(lastload: TLastLoad; err: string); overload;
     procedure generate_im; overload;
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
-    procedure OpenUrlInBrowser(URL: string);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
@@ -1396,11 +1394,6 @@ begin
       Self.BoundsRect:= VRect;
     end;
   end;
-end;
-
-procedure TFmain.OpenUrlInBrowser(URL: string);
-begin
- ShellExecute(Handle, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
 //Обработка нажатий кнопоки и калесика
@@ -2860,7 +2853,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     FEditMarkId:=strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
@@ -2892,7 +2885,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     if DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
       generate_im;
@@ -2912,7 +2905,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -3195,7 +3188,7 @@ begin
     VPWL.find:=false;
     VPWL.S:=0;
     if FLayerMapMarks.Visible then begin
-      MouseOnMyReg(VPWL,Point(x,y));
+      FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
     end;  
     NMarkEdit.Visible:=VPWL.find;
     NMarkDel.Visible:=VPWL.find;
@@ -3330,7 +3323,7 @@ begin
     if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(VPWL, Point(x,y));
     if (FLayerMapMarks.Visible) then
-     MouseOnMyReg(VPWL,Point(x,y));
+     FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
     if VPWL.find then
      begin
       stw:='<HTML><BODY>';
@@ -3553,7 +3546,7 @@ begin
    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(VPWL,Point(x,y));
    if (FLayerMapMarks.Visible) then
-     MouseOnMyReg(VPWL,Point(x,y));
+     FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
    if (VPWL.find) then
     begin
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
@@ -3783,7 +3776,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     if (not NMarkNav.Checked) then begin
       id:=strtoint(VPWL.numid);
@@ -3944,7 +3937,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -3970,7 +3963,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -4000,7 +3993,7 @@ var
 begin
   VPWL.S:=0;
   VPWL.find:=false;
-  MouseOnMyReg(VPWL, FmoveTrue);
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
     VMark := GState.MarksDb.GetMarkByID(VId);
@@ -4214,89 +4207,6 @@ end;
 procedure TFmain.NShowSelectionClick(Sender: TObject);
 begin
   FLayerSelection.Visible := TTBXItem(sender).Checked;
-end;
-
-procedure TFmain.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
-var
-  j:integer;
-  arLL: TPointArray;
-  poly:TDoublePointArray;
-  VLonLatRect: TDoubleRect;
-  VRect: TRect;
-  VConverter: ICoordConverter;
-  VMarkLonLatRect: TDoubleRect;
-  VPixelPos: TPoint;
-  VZoom: Byte;
-  VMarksIterator: TMarksIteratorBase;
-  VMark: TMarkFull;
-begin
-  if GState.show_point = mshNone then exit;
-
-  VRect.Left := xy.X - 8;
-  VRect.Top := xy.Y - 16;
-  VRect.Right := xy.X + 8;
-  VRect.Bottom := xy.Y + 16;
-
-  GState.ViewState.LockRead;
-  try
-    VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
-    VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    VZoom := GState.ViewState.GetCurrentZoom;
-    VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  VMarksIterator := GetMarksIterator(VZoom, VLonLatRect, GState.show_point);
-  try
-    While VMarksIterator.Next do begin
-      VMark := VMarksIterator.Current;
-      VMarkLonLatRect := VMark.LLRect;
-
-      if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
-      (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-        if VMark.IsPoint then begin
-          APWL.name:=VMark.name;
-          APWL.descr:=VMark.Desc;
-          APWL.numid:=IntToStr(VMark.id);
-          APWL.find:=true;
-          APWL.type_:=ROTpoint;
-          exit;
-        end else begin
-          poly := VMark.Points;
-          arLL := VConverter.LonLatArray2PixelArray(poly, VZoom);
-          if VMark.IsLine then begin
-            j:=1;
-            while (j<length(poly)) do begin
-              if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(VMark.Scale1 div 2)+1)
-              then begin
-                APWL.name:=VMark.name;
-                APWL.descr:=VMark.Desc;
-                APWL.numid:=IntToStr(VMark.id);
-                APWL.find:=true;
-                APWL.type_:=ROTline;
-                exit;
-              end;
-              inc(j);
-            end
-          end else begin
-            if (PtInRgn(arLL,VPixelPos)) then begin
-              if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then begin
-                APWL.S:=PolygonSquare(arLL);
-                APWL.name:=VMark.name;
-                APWL.descr:=VMark.Desc;
-                APWL.numid:=IntToStr(VMark.id);
-                APWL.find:=true;
-                APWL.type_:=ROTPoly;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-  finally
-    VMarksIterator.Free;
- end;
 end;
 
 procedure TFmain.NGoToCurClick(Sender: TObject);

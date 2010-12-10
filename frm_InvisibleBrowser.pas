@@ -30,11 +30,14 @@ type
 var
   frmInvisibleBrowser: TfrmInvisibleBrowser;
 
+procedure OpenUrlInBrowser(URL: string);
+
 implementation
 
 {$R *.dfm}
 
 uses
+  ShellAPI,
   u_GlobalState;
 
 { TfrmInvisibleBrowser }
@@ -53,6 +56,11 @@ begin
    szUserName:=GState.InetConnect.loginstr;
    szPassWord:=GState.InetConnect.passstr;
   end;
+end;
+
+procedure OpenUrlInBrowser(URL: string);
+begin
+  ShellExecute(0, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
 end.

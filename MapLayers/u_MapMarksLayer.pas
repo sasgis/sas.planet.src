@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   GR32_Image,
+  Ugeofun,
   u_MapViewPortState,
   u_MapLayerBasic;
 
@@ -14,6 +15,7 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    procedure MouseOnMyReg(var APWL: TResObj; xy: TPoint);
   end;
 
 implementation
@@ -23,9 +25,13 @@ uses
   Graphics,
   Classes,
   SysUtils,
+  t_GeoTypes,
   t_CommonTypes,
   u_GlobalState,
+  i_ICoordConverter,
   i_IBitmapLayerProvider,
+  u_MarksSimple,
+  Unit1,
   u_WindowLayerBasic;
 
 { TMapMarksLayer }
@@ -54,6 +60,89 @@ begin
     VRect.BottomRight := BitmapPixel2MapPixel(VBitmapSize);
     VProv.GetBitmapRect(FLayer.Bitmap, FGeoConvert, VRect, FZoom);
   end;
+end;
+
+procedure TMapMarksLayer.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
+var
+  j:integer;
+  arLL: TPointArray;
+  poly: TDoublePointArray;
+  VLonLatRect: TDoubleRect;
+  VRect: TRect;
+  VConverter: ICoordConverter;
+  VMarkLonLatRect: TDoubleRect;
+  VPixelPos: TPoint;
+  VZoom: Byte;
+  VMarksIterator: TMarksIteratorBase;
+  VMark: TMarkFull;
+begin
+  if GState.show_point = mshNone then exit;
+
+  VRect.Left := xy.X - 8;
+  VRect.Top := xy.Y - 16;
+  VRect.Right := xy.X + 8;
+  VRect.Bottom := xy.Y + 16;
+
+  GState.ViewState.LockRead;
+  try
+    VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
+    VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
+    VConverter := GState.ViewState.GetCurrentCoordConverter;
+    VZoom := GState.ViewState.GetCurrentZoom;
+    VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  VMarksIterator := FMain.GetMarksIterator(VZoom, VLonLatRect, GState.show_point);
+  try
+    While VMarksIterator.Next do begin
+      VMark := VMarksIterator.Current;
+      VMarkLonLatRect := VMark.LLRect;
+
+      if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
+      (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
+        if VMark.IsPoint then begin
+          APWL.name:=VMark.name;
+          APWL.descr:=VMark.Desc;
+          APWL.numid:=IntToStr(VMark.id);
+          APWL.find:=true;
+          APWL.type_:=ROTpoint;
+          exit;
+        end else begin
+          poly := VMark.Points;
+          arLL := VConverter.LonLatArray2PixelArray(poly, VZoom);
+          if VMark.IsLine then begin
+            j:=1;
+            while (j<length(poly)) do begin
+              if CursorOnLinie(VPixelPos.x,VPixelPos.Y,arLL[j-1].x,arLL[j-1].y,arLL[j].x,arLL[j].y,(VMark.Scale1 div 2)+1)
+              then begin
+                APWL.name:=VMark.name;
+                APWL.descr:=VMark.Desc;
+                APWL.numid:=IntToStr(VMark.id);
+                APWL.find:=true;
+                APWL.type_:=ROTline;
+                exit;
+              end;
+              inc(j);
+            end
+          end else begin
+            if (PtInRgn(arLL,VPixelPos)) then begin
+              if ((not(APWL.find))or((PolygonSquare(arLL)<APWL.S)and(APWL.S <> 0))) then begin
+                APWL.S:=PolygonSquare(arLL);
+                APWL.name:=VMark.name;
+                APWL.descr:=VMark.Desc;
+                APWL.numid:=IntToStr(VMark.id);
+                APWL.find:=true;
+                APWL.type_:=ROTPoly;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    VMarksIterator.Free;
+ end;
 end;
 
 end.

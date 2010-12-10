@@ -46,6 +46,7 @@ implementation
 
 uses
   c_SasVersion,
+  frm_InvisibleBrowser,
   Unit1;
 
 {$R *.dfm}
@@ -62,12 +63,12 @@ end;
 
 procedure TFabout.Label10Click(Sender: TObject);
 begin
- Fmain.OpenUrlInBrowser('http://sasgis.ru');
+  OpenUrlInBrowser('http://sasgis.ru');
 end;
 
 procedure TFabout.Label8Click(Sender: TObject);
 begin
- Fmain.OpenUrlInBrowser('mailto:'+Label8.Caption);
+  OpenUrlInBrowser('mailto:'+Label8.Caption);
 end;
 
 end.
