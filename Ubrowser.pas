@@ -25,7 +25,8 @@ type
   private
   protected
   public
-    { Public declarations }
+    procedure TextToWebBrowser(Text: string);
+    procedure Navigate(AUrl: string);
   end;
 
 var
@@ -35,6 +36,9 @@ implementation
 
 uses
   SysUtils,
+  Variants,
+  ActiveX,
+  MSHTML,
   u_GlobalState;
 
 {$R *.dfm}
@@ -51,6 +55,29 @@ end;
 procedure TFbrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  EmbeddedWB1.Stop;
+end;
+
+procedure TFbrowser.Navigate(AUrl: string);
+begin
+  EmbeddedWB1.Navigate(AUrl);
+end;
+
+procedure TFbrowser.TextToWebBrowser(Text: string);
+var
+  Document: IHTMLDocument2;
+  V: OleVariant;
+begin
+  if EmbeddedWB1.Document = nil then EmbeddedWB1.Navigate('about:blank');
+  while EmbeddedWB1.Document = nil do
+    Application.ProcessMessages;
+  Document := EmbeddedWB1.Document as IHtmlDocument2;
+  try
+   V:=VarArrayCreate([0, 0], varVariant);
+   V[0]:=Text;
+   Document.Write(PSafeArray(TVarData(v).VArray));
+  finally
+   Document.Close;
+  end;
 end;
 
 procedure TFbrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;

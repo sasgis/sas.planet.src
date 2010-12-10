@@ -35,11 +35,8 @@ uses
   TB2Toolbar,
   TB2ExtItems,
   RXSlider,
-  EmbeddedWB,
-  SHDocVw_EWB,
   TB2ToolWindow,
   TBXToolPals,
-  EwbCore,
   TBX,
   TBXControls,
   TBXExtItems,
@@ -194,7 +191,6 @@ type
     NMarksCalcsLen: TMenuItem;
     NMarksCalcsSq: TMenuItem;
     NMarksCalcsPer: TMenuItem;
-    WebBrowser1: TEmbeddedWB;
     N1: TMenuItem;
     NMapInfo: TMenuItem;
     TBImageList1_24: TTBImageList;
@@ -513,7 +509,6 @@ type
     procedure TBItem1Click(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
-    procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
     procedure NanimateClick(Sender: TObject);
     procedure NbackloadLayerClick(Sender: TObject);
     procedure SBClearSensorClick(Sender: TObject);
@@ -680,6 +675,7 @@ uses
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
   frm_SearchResults,
+  frm_InvisibleBrowser,
   i_IProxySettings,
   u_ProxySettingsFromTInetConnect,
   u_GeoCoderByGoogle,
@@ -976,7 +972,7 @@ begin
     end;
 
     if GState.WebReportToAuthor then begin
-      WebBrowser1.Navigate('http://sasgis.ru/stat/index.html');
+      frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
     end;
 
 
@@ -2015,24 +2011,6 @@ begin
     FWinPosition.SetFullScreen;
   end else begin
     FWinPosition.SetNoFullScreen;
-  end;
-end;
-
-procedure TextToWebBrowser(Text: string; var WB: TEmbeddedWB);
-var
-  Document: IHTMLDocument2;
-  V: OleVariant;
-begin
-  if WB.Document = nil then WB.Navigate('about:blank');
-  while WB.Document = nil do
-    Application.ProcessMessages;
-  Document := WB.Document as IHtmlDocument2;
-  try
-   V:=VarArrayCreate([0, 0], varVariant);
-   V[0]:=Text;
-   Document.Write(PSafeArray(TVarData(v).VArray));
-  finally
-   Document.Close;
   end;
 end;
 
@@ -3358,7 +3336,7 @@ begin
       stw:='<HTML><BODY>';
       stw:=VPWL.descr;
       stw:=stw+'</BODY></HTML>';
-      TextToWebBrowser(stw,Fbrowser.EmbeddedWB1);
+      Fbrowser.TextToWebBrowser(stw);
       Fbrowser.Visible:=true;
      end;
     exit;
@@ -3781,9 +3759,9 @@ var
   VLonLat:TDoublePoint;
 begin
   VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
-  TextToWebBrowser(SAS_STR_WiteLoad, Fbrowser.EmbeddedWB1);
+  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
   Fbrowser.Visible := true;
-  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  Fbrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NGTOPO30Click(Sender: TObject);
@@ -3791,9 +3769,9 @@ var
   VLonLat:TDoublePoint;
 begin
   VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
-  TextToWebBrowser(SAS_STR_WiteLoad,Fbrowser.EmbeddedWB1);
+  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
   Fbrowser.Visible:=true;
-  Fbrowser.EmbeddedWB1.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  Fbrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);
@@ -4065,15 +4043,6 @@ var
 begin
  VMap := GState.ViewState.GetCurrentMap;
  ShowMessageFmt(SAS_MSG_MapInfoShow,[VMap.zmpfilename, VMap.MapInfo]);
-end;
-
-procedure TFmain.WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
-begin
- if GState.InetConnect.uselogin then
-  begin
-   szUserName:=GState.InetConnect.loginstr;
-   szPassWord:=GState.InetConnect.passstr;
-  end;
 end;
 
 procedure TFmain.NanimateClick(Sender: TObject);

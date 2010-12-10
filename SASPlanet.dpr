@@ -373,9 +373,8 @@ begin
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-  frmInvisibleBrowser.NavigateAndWait('about:blank');
-  Fmain.WebBrowser1.Navigate('about:blank');
-    Fbrowser.EmbeddedWB1.Navigate('about:blank');
+    frmInvisibleBrowser.NavigateAndWait('about:blank');
+    Fbrowser.Navigate('about:blank');
     Application.Run;
   finally
     GState.Free;

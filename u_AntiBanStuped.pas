@@ -7,8 +7,7 @@ uses
   SyncObjs,
   i_IConfigDataProvider,
   i_IAntiBan,
-  i_ITileDownlodSession,
-  Unit1;
+  i_ITileDownlodSession;
 
 type
   TAntiBanStuped = class(TInterfacedObject, IAntiBan)
@@ -63,8 +62,7 @@ uses
   ShellAPI,
   Classes,
   SysUtils,
-  Forms,
-  SHDocVw;
+  frm_InvisibleBrowser;
 
 type
   TExecOnBan = class
@@ -85,7 +83,7 @@ end;
 
 procedure TExecOnBan.ExecOnBan;
 begin
-  ShellExecute(Fmain.Handle, nil, PChar(FLastUrl), nil, nil, SW_RESTORE);
+  ShellExecute(0, nil, PChar(FLastUrl), nil, nil, SW_RESTORE);
 end;
 
 { TAntiBanStuped }
@@ -93,12 +91,9 @@ end;
 procedure TAntiBanStuped.addDwnforban;
 begin
   if FPreloadPage = '' then begin
-    FMain.WebBrowser1.Navigate('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8');
+    frmInvisibleBrowser.NavigateAndWait('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8');
   end else begin
-    FMain.WebBrowser1.NavigateWait(FPreloadPage);
-  end;
-  while (FMain.WebBrowser1.ReadyState <> READYSTATE_COMPLETE) do begin
-    Application.ProcessMessages;
+    frmInvisibleBrowser.NavigateAndWait(FPreloadPage);
   end;
 end;
 

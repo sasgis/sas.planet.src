@@ -17,46 +17,11 @@ object Fmain: TFmain
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
-  object WebBrowser1: TEmbeddedWB
-    Left = 0
-    Top = 0
-    Width = 850
-    Height = 562
-    TabOrder = 5
-    Silent = False
-    DisableCtrlShortcuts = 'N'
-    DownloadOptions = [DownloadImages, DownloadVideos]
-    UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
-    OnAuthenticate = WebBrowser1Authenticate
-    About = ' EmbeddedWB http://bsalsa.com/'
-    EnableMessageHandler = False
-    DisableErrors.EnableDDE = False
-    DisableErrors.fpExceptions = False
-    DisableErrors.ScriptErrorsSuppressed = False
-    DialogBoxes.ReplaceCaption = False
-    DialogBoxes.ReplaceIcon = False
-    PrintOptions.Margins.Left = 19.050000000000000000
-    PrintOptions.Margins.Right = 19.050000000000000000
-    PrintOptions.Margins.Top = 19.050000000000000000
-    PrintOptions.Margins.Bottom = 19.050000000000000000
-    PrintOptions.HTMLHeader.Strings = (
-      '<HTML></HTML>')
-    PrintOptions.Orientation = poPortrait
-    UserAgent = 
-      'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
-      '50727)'
-    ControlData = {
-      4C000000A4100000550D00000000000000000000000000000000000000000000
-      000000004C000000000000000000000001000000E0D057007335CF11AE690800
-      2B2E126208000000000000004C0000000114020000000000C000000000000046
-      8000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000100000000000000000000000000000000000000}
-  end
   object map: TImage32
     Left = 36
-    Top = 61
+    Top = 59
     Width = 642
-    Height = 465
+    Height = 467
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -78,10 +43,10 @@ object Fmain: TFmain
     Left = 0
     Top = 0
     Width = 842
-    Height = 61
+    Height = 59
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 27
+      Top = 25
       DockPos = 0
       DockRow = 1
       Images = TBImageList2
@@ -169,8 +134,8 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 230
-      Top = 27
+      Left = 238
+      Top = 25
       DockPos = 224
       DockRow = 1
       Images = ImagesSrc24
@@ -200,8 +165,8 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 357
-      Top = 27
+      Left = 365
+      Top = 25
       DockPos = 352
       DockRow = 1
       Images = TBImageList2
@@ -212,8 +177,8 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 504
-      Top = 27
+      Left = 505
+      Top = 25
       DockPos = 504
       DockRow = 1
       Images = TBImageList2
@@ -290,7 +255,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 107
+        Left = 115
         Top = 8
         Width = 31
         Height = 13
@@ -300,7 +265,7 @@ object Fmain: TFmain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 27
+      Top = 25
       DockPos = 807
       DockRow = 1
       TabOrder = 4
@@ -1084,7 +1049,7 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 462
+      Left = 430
       Top = 0
       DockPos = 430
       Stretch = True
@@ -1131,9 +1096,9 @@ object Fmain: TFmain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 61
+    Top = 59
     Width = 36
-    Height = 465
+    Height = 467
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -2023,14 +1988,14 @@ object Fmain: TFmain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 61
+    Top = 59
     Width = 164
-    Height = 465
+    Height = 467
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 455
+      ClientAreaHeight = 457
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors
