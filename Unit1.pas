@@ -1288,9 +1288,7 @@ end;
 procedure TFmain.setalloperationfalse(newop: TAOperation);
 begin
  if FCurrentOper=newop then newop:=ao_movemap;
- FLayerMapNal.DrawNothing;
  FMarshrutComment:='';
- FLayerMapNal.Visible:=newop<>ao_movemap;
  TBmove.Checked:=newop=ao_movemap;
  TBCalcRas.Checked:=newop=ao_calc_line;
  TBRectSave.Checked:=(newop=ao_select_poly)or(newop=ao_select_rect);
@@ -1323,33 +1321,37 @@ begin
   FLineOnMapEdit.LockRead;
   try
     TBEditPath.Visible:=(FLineOnMapEdit.GetCount > 1);
-    case FCurrentOper of
-      ao_calc_line: begin
-        FLayerMapNal.DrawLineCalc(
-          FLineOnMapEdit.GetPoints,
-          FLenShow,
-          FLineOnMapEdit.GetActiveIndex
-        );
+    if FLineOnMapEdit.GetCount > 0 then begin
+      case FCurrentOper of
+        ao_calc_line: begin
+          FLayerMapNal.DrawLineCalc(
+            FLineOnMapEdit.GetPoints,
+            FLenShow,
+            FLineOnMapEdit.GetActiveIndex
+          );
+        end;
+        ao_edit_line,
+        ao_add_line: begin
+          FLayerMapNal.DrawNewPath(
+            FLineOnMapEdit.GetPoints,
+            false,
+            FLineOnMapEdit.GetActiveIndex
+          );
+        end;
+        ao_edit_poly,
+        ao_add_poly: begin
+          FLayerMapNal.DrawNewPath(
+            FLineOnMapEdit.GetPoints,
+            True,
+            FLineOnMapEdit.GetActiveIndex
+          );
+        end;
+        ao_select_poly: begin
+          FLayerMapNal.DrawReg(FLineOnMapEdit.GetPoints);
+        end;
       end;
-      ao_edit_line,
-      ao_add_line: begin
-        FLayerMapNal.DrawNewPath(
-          FLineOnMapEdit.GetPoints,
-          false,
-          FLineOnMapEdit.GetActiveIndex
-        );
-      end;
-      ao_edit_poly,
-      ao_add_poly: begin
-        FLayerMapNal.DrawNewPath(
-          FLineOnMapEdit.GetPoints,
-          True,
-          FLineOnMapEdit.GetActiveIndex
-        );
-      end;
-      ao_select_poly: begin
-        FLayerMapNal.DrawReg(FLineOnMapEdit.GetPoints);
-      end;
+    end else begin
+      FLayerMapNal.DrawNothing;
     end;
   finally
     FLineOnMapEdit.UnlockRead;
@@ -3904,7 +3906,6 @@ begin
   case FCurrentOper of
    ao_select_poly: begin
          Fsaveas.Show_(GState.ViewState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
-         FLayerMapNal.DrawNothing;
          setalloperationfalse(ao_movemap);
         end;
   end;
