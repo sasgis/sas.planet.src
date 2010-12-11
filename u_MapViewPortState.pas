@@ -827,6 +827,9 @@ begin
     if FZoom <> VZoom then begin
       VChanged := True;
       VZoomOld := FZoom;
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      FMapScale := FBaseScale;
       VRelativePoint := VConverter.PixelPos2Relative(FCenterPos, VZoomOld);
       FCenterPos := VConverter.Relative2Pixel(VRelativePoint, VZoom);
       FZoom := VZoom;
