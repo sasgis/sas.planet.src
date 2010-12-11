@@ -209,6 +209,7 @@ begin
       FCount := VNewCount;
       FActiveIndex := FCount - 1;
       Move(AValue[0], FPoints[0], FCount * SizeOf(FPoints[0]));
+      SetChanged;
     end;
   finally
     UnlockWrite;
