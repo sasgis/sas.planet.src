@@ -2884,19 +2884,19 @@ end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
 var
-  VPos: TDoublePoint;
+  VLonLat: TDoublePoint;
   VZoomCurr: Byte;
 begin
   GState.ViewState.LockRead;
   try
     VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VPos:=GState.ViewState.GetCenterLonLat;
+    VLonLat:=GState.ViewState.GetCenterLonLat;
   finally
     GState.ViewState.UnLockRead;
   end;
   CopyStringToClipboard(
     'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
-    R2StrPoint(VPos.y)+'&lon='+R2StrPoint(VPos.x)+
+    R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+
     '&zoom='+inttostr(VZoomCurr)
   );
 end;
