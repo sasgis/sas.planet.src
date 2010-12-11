@@ -1656,7 +1656,6 @@ end;
 procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
   ts2,ts3,fr:int64;
-  VSelectionRect: TDoubleRect;
 begin
   if not Enabled then Exit;
   if FMapMoving then Exit;
@@ -2039,8 +2038,11 @@ end;
 
 procedure TFmain.NFoolSizeClick(Sender: TObject);
 begin
- TBFullSize.Checked:=NFoolSize.Checked;
- TBFullSizeClick(Sender);
+  if NFoolSize.Checked then begin
+    FWinPosition.SetFullScreen;
+  end else begin
+    FWinPosition.SetNoFullScreen;
+  end;
 end;
 
 procedure TFmain.N6Click(Sender: TObject);
@@ -2072,20 +2074,20 @@ end;
 procedure TFmain.NbackloadClick(Sender: TObject);
 begin
  GState.UsePrevZoom := Nbackload.Checked;
- generate_im;
+ FMainLayer.Redraw;
 end;
 
 procedure TFmain.NbackloadLayerClick(Sender: TObject);
 begin
  GState.UsePrevZoomLayer := NbackloadLayer.Checked;
- generate_im;
+ FMainLayer.Redraw;
 end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
   if AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(FMouseUpPoint)) then begin
     setalloperationfalse(ao_movemap);
-    generate_im;
+    FLayerMapMarks.Redraw;
   end;
 end;
 
