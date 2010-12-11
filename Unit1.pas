@@ -54,6 +54,7 @@ uses
   i_ISearchResultPresenter,
   i_IMainWindowPosition,
   i_ILineOnMapEdit,
+  i_IPathDetalizeProvider,
   u_WindowLayerBasicList,
   u_MarksSimple,
   Ugeofun,
@@ -682,6 +683,8 @@ uses
   u_GeoCoderByYandex,
   u_MarksReadWriteSimple,
   u_ThreadDownloadTiles,
+  u_PathDetalizeProviderMailRu,
+  u_PathDetalizeProviderYourNavigation,
   u_SaveLoadTBConfigByConfigProvider,
   UGSM,
   UImport,
@@ -3658,111 +3661,34 @@ begin
   end;
 end;
 
-function SecondToTime(const Seconds: Cardinal): Double;
-const
-  SecPerDay = 86400;
-  SecPerHour = 3600;
-  SecPerMinute = 60;
-var
-  ms, ss, mm, hh, dd: Cardinal; 
-begin 
-  dd := Seconds div SecPerDay;
-  hh := (Seconds mod SecPerDay) div SecPerHour;
-  mm := ((Seconds mod SecPerDay) mod SecPerHour) div SecPerMinute;
-  ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute;
-  ms := 0;
-  Result := dd + EncodeTime(hh, mm, ss, ms);
-end;
-
-function BuildMarshrByMailRu(ABaseUrl: string; ASourcePath: TDoublePointArray; var AComment: string): TDoublePointArray;
-var ms:TMemoryStream;
-    pathstr,timeT1:string;
-    url:string;
-    i,posit,posit2,endpos,dd,seconds,meters:integer;
-    dateT1:TDateTime;
-begin
-  url := ABaseUrl;
-  for i:=0 to length(ASourcePath)-1 do begin
-    url:=url+'&x'+inttostr(i)+'='+R2StrPoint(ASourcePath[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(ASourcePath[i].y);
-  end;
-  ms:=TMemoryStream.Create;
-  try
-    if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then begin
-      ms.Position:=0;
-      SetLength(pathstr, ms.Size);
-      ms.ReadBuffer(pathstr[1], ms.Size);
-      SetLength(Result,0);
-      meters:=0;
-      seconds:=0;
-
-      try
-        posit:=PosEx('"totalLength"',pathstr,1);
-        While (posit>0) do begin
-          try
-            posit2:=PosEx('"',pathstr,posit+17);
-            meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
-            posit:=PosEx('"totalTime"',pathstr,posit);
-            posit2:=PosEx('"',pathstr,posit+15);
-            seconds:=seconds+strtoint(copy(pathstr,posit+15,posit2-(posit+15)));
-          except
-          end;
-          posit:=PosEx('"points"',pathstr,posit);
-          endpos:=PosEx(']',pathstr,posit);
-          while (posit>0)and(posit<endpos) do begin
-            try
-              SetLength(Result,length(Result)+1);
-              posit:=PosEx('"x" : "',pathstr,posit);
-              posit2:=PosEx('", "y" : "',pathstr,posit);
-              Result[length(Result)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
-              posit:=PosEx('"',pathstr,posit2+10);
-              Result[length(Result)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
-              posit:=PosEx('{',pathstr,posit);
-            except
-              SetLength(Result,length(Result)-1);
-            end;
-          end;
-          posit:=PosEx('"totalLength"',pathstr,posit);
-        end;
-      except
-      end;
-
-      if meters>1000 then begin
-        AComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
-      end else begin
-        AComment:=SAS_STR_MarshLen+inttostr(meters)+' '+SAS_UNITS_m;
-      end;
-      DateT1:=SecondToTime(seconds);
-      dd:=DaysBetween(0,DateT1);
-      timeT1:='';
-      if dd>0 then begin
-        timeT1:=inttostr(dd)+' дней, ';
-      end;
-      timeT1:=timeT1+TimeToStr(DateT1);
-      AComment:=AComment+#13#10+SAS_STR_Marshtime+timeT1;
-    end else begin
-      ShowMessage('Connect error!');
-    end;
-  finally
-    ms.Free;
-  end;
-end;
-
 procedure TFmain.TBEditPathMarshClick(Sender: TObject);
 var
-  url: string;
   VResult: TDoublePointArray;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=distance';
-    2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
-    3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
+    1:VProvider := TPathDetalizeProviderMailRu1.Create;
+    2:VProvider := TPathDetalizeProviderMailRu2.Create;
+    3:VProvider := TPathDetalizeProviderMailRu3.Create;
   end;
-  VResult := BuildMarshrByMailRu(url, FLineOnMapEdit.GetPoints, FMarshrutComment);
-  if Length(VResult) > 0 then begin
-    FLineOnMapEdit.SetPoints(VResult);
-  end else begin
-    FMarshrutComment := '';
-    ShowMessage('Connect error!');
+  if VProvider <> nil then begin
+    VIsError := True;
+    try
+      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+      VIsError := False;
+    except
+      on E: Exception do begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    if not VIsError then begin
+      if Length(VResult) > 0 then begin
+        FLineOnMapEdit.SetPoints(VResult);
+      end;
+    end else begin
+      FMarshrutComment := '';
+    end;
   end;
 end;
 
@@ -3966,67 +3892,35 @@ begin
   TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
-function CreatePathByYournavigation(ABaseUrl: string; ASourcePath: TDoublePointArray): TDoublePointArray;
-var
-  ms:TMemoryStream;
-  url:string;
-  i:integer;
-  kml:TKmlInfoSimple;
-  s,l:integer;
-  conerr:boolean;
-  add_line_arr_b:TDoublePointArray;
-begin
-  ms:=TMemoryStream.Create;
-  try
-    url := ABaseUrl;
-    conerr:=false;
-    for i:= 0 to length(ASourcePath)-2 do begin
-      if conerr then Continue;
-      url:=url+'&flat='+R2StrPoint(ASourcePath[i].y)+'&flon='+R2StrPoint(ASourcePath[i].x)+
-          '&tlat='+R2StrPoint(ASourcePath[i+1].y)+'&tlon='+R2StrPoint(ASourcePath[i+1].x);
-      if GetStreamFromURL(ms, url, 'text/xml')>0 then begin
-        kml:=TKmlInfoSimple.Create;
-        try
-          GState.KmlLoader.LoadFromStream(ms, kml);
-          ms.SetSize(0);
-          if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
-            s:=length(add_line_arr_b);
-            l:=length(kml.Data[0].coordinates);
-            SetLength(add_line_arr_b,(s+l));
-            Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TDoublePoint));
-          end;
-        finally
-          kml.Free;
-        end;
-      end else begin
-        conerr:=true;
-      end;
-    end;
-  finally
-    ms.Free;
-  end;
-  if not conerr then begin
-    Result := add_line_arr_b;
-  end;
-end;
-
-
 procedure TFmain.TBXItem1Click(Sender: TObject);
 var
-  url:string;
-  add_line_arr_b:TDoublePointArray;
+  VResult: TDoublePointArray;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
 begin
-  case TTBXItem(sender).Tag of
-    1: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik';
-    11: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik';
-    2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
-    22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
+  case TTBXItem(Sender).tag of
+    1:VProvider := TPathDetalizeProviderYourNavigation1.Create;
+    11:VProvider := TPathDetalizeProviderYourNavigation11.Create;
+    2:VProvider := TPathDetalizeProviderYourNavigation2.Create;
+    22:VProvider := TPathDetalizeProviderYourNavigation22.Create;
   end;
-  add_line_arr_b := CreatePathByYournavigation(url, FLineOnMapEdit.GetPoints);
-  if (length(add_line_arr_b)>0) then begin
-    FLineOnMapEdit.SetPoints(add_line_arr_b);
-  end else begin
-    ShowMessage('Connect error!');
+  if VProvider <> nil then begin
+    VIsError := True;
+    try
+      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+      VIsError := False;
+    except
+      on E: Exception do begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    if not VIsError then begin
+      if Length(VResult) > 0 then begin
+        FLineOnMapEdit.SetPoints(VResult);
+      end;
+    end else begin
+      FMarshrutComment := '';
+    end;
   end;
 end;
 
