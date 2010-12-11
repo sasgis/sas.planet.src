@@ -3211,8 +3211,16 @@ begin
  map.Enabled:=true;
  if button=mbMiddle then
    begin
-    TBFullSize.Checked:=not(TBFullSize.Checked);
-    TBFullSizeClick(Sender);
+    FWinPosition.LockWrite;
+    try
+      if FWinPosition.GetIsFullScreen then begin
+        FWinPosition.SetNoFullScreen;
+      end else begin
+        FWinPosition.SetFullScreen;
+      end;
+    finally
+      FWinPosition.UnlockWrite;
+    end;
     exit;
    end;
 
