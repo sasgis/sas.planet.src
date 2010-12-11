@@ -275,6 +275,8 @@ uses
   i_IMainWindowPosition in 'i_IMainWindowPosition.pas',
   u_MainWindowPositionConfig in 'u_MainWindowPositionConfig.pas',
   u_MainWindowToolbarsLock in 'u_MainWindowToolbarsLock.pas',
+  i_ILineOnMapEdit in 'i_ILineOnMapEdit.pas',
+  u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
   i_IGPSRecorder in 'i_IGPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',

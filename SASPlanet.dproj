@@ -99,6 +99,7 @@
     <DCCReference Include="i_IHybrChangeMessage.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_ILanguageManager.pas" />
+    <DCCReference Include="i_ILineOnMapEdit.pas" />
     <DCCReference Include="i_IListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_ILocalCoordConverter.pas" />
     <DCCReference Include="i_ILocalCoordConverterFactorySimpe.pas" />
@@ -382,6 +383,7 @@
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
+    <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
