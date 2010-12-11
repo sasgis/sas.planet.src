@@ -2823,7 +2823,6 @@ begin
       finally
         VMark.Free;
       end;
-      generate_im;
     end;
   end;
 end;
@@ -2837,7 +2836,7 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     if DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
-      generate_im;
+      FLayerMapMarks.Redraw;
   end;
 end;
 
