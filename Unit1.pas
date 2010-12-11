@@ -1354,8 +1354,6 @@ begin
   finally
     FLineOnMapEdit.UnlockRead;
   end;
-
-
 end;
 
 procedure TFmain.OnToolbarsLockChange(Sender: TObject);
@@ -1456,22 +1454,9 @@ begin
                 end;
    WM_KEYUP: begin
              FdWhenMovingButton:=5;
-             if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_calc_line) then begin
+             if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
                FLineOnMapEdit.DeleteActivePoint;
              end;
-             if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_select_poly) then
-               begin
-                 FLineOnMapEdit.DeleteActivePoint;
-               end;
-             if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
-               FLineOnMapEdit.DeleteActivePoint;
-             end;
-             if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_poly) then
-              if FLineOnMapEdit.GetCount=0 then begin
-                setalloperationfalse(ao_movemap);
-              end else begin
-                FLineOnMapEdit.Empty;
-              end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_rect) then
               begin
                if Frect_dwn then begin
@@ -1481,7 +1466,7 @@ begin
                            else setalloperationfalse(ao_movemap);
               end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_Add_Point) then setalloperationfalse(ao_movemap);
-             if (Msg.wParam=VK_ESCAPE)and(FCurrentOper in [ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
+             if (Msg.wParam=VK_ESCAPE)and(FCurrentOper in [ao_select_poly, ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
                if (FLineOnMapEdit.GetCount>0) then begin
                 FLineOnMapEdit.Empty;
                end else begin
@@ -3078,12 +3063,7 @@ begin
       PrepareSelectionRect(Shift, VSelectionRect);
       FLayerMapNal.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
-        SetLength(VPoly, 5);
-        VPoly[0] := VSelectionRect.TopLeft;
-        VPoly[1] := DoublePoint(VSelectionRect.Right, VSelectionRect.Top);
-        VPoly[2] := VSelectionRect.BottomRight;
-        VPoly[3] := DoublePoint(VSelectionRect.Left, VSelectionRect.Bottom);
-        VPoly[4] := VSelectionRect.TopLeft;
+        VPoly := PolygonFromRect(VSelectionRect);
         fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
         FLayerMapNal.DrawNothing;
         VPoly := nil;
