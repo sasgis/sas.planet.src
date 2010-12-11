@@ -5,6 +5,7 @@ interface
 Uses
   Windows,
   SysUtils,
+  SyncObjs,
   DateUtils,
   uPSC_dll,
   uPSR_dll,
@@ -37,7 +38,7 @@ type
     FCoordConverter: ICoordConverterSimple;
     FGetURLScript: string;
 
-    FCS: TRTLCriticalSection;
+    FCS: TCriticalSection;
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
@@ -126,7 +127,7 @@ begin
       aType := t;
     end;
 
-    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverter, 'ICoordConverter') do begin
+    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverterSimple, 'ICoordConverter') do begin
       RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TDoublePoint', cdStdCall);
       RegisterMethod('function LonLat2Pos(Ll : TDoublePoint; Azoom : byte) : Tpoint', cdStdCall);
       RegisterMethod('function LonLat2Metr(Ll : TDoublePoint) : TDoublePoint', cdStdCall);
@@ -197,17 +198,20 @@ begin
   FGetURLScript := AConfig.ReadString('GetUrlScript.txt', '');
 
   VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
-  VCompiler.OnExternalProc := DllExternalProc; // Добавляем стандартный обработчик внешних DLL(находится в модуле uPSC_dll)
-  VCompiler.OnUses := ScriptOnUses;            // assign the OnUses event.
-  if not VCompiler.Compile(FGetURLScript) then begin  // Compile the Pascal script into bytecode.
-    Msg := '';
-    For i := 0 to VCompiler.MsgCount - 1 do begin
-      MSG := Msg + VCompiler.Msg[i].MessageToString + #13#10;
+  try
+    VCompiler.OnExternalProc := DllExternalProc; // Добавляем стандартный обработчик внешних DLL(находится в модуле uPSC_dll)
+    VCompiler.OnUses := ScriptOnUses;            // assign the OnUses event.
+    if not VCompiler.Compile(FGetURLScript) then begin  // Compile the Pascal script into bytecode.
+      Msg := '';
+      For i := 0 to VCompiler.MsgCount - 1 do begin
+        MSG := Msg + VCompiler.Msg[i].MessageToString + #13#10;
+      end;
+      raise EUrlGeneratorScriptCompileError.CreateFmt(SAS_ERR_UrlScriptCompileError, [Msg]);
     end;
-    raise EUrlGeneratorScriptCompileError.CreateFmt(SAS_ERR_UrlScriptCompileError, [Msg]);
+    VCompiler.GetOutput(VData); // Save the output of the compiler in the string Data.
+  finally
+    VCompiler.Free;          // After compiling the script, there is no further need for the compiler.
   end;
-  VCompiler.GetOutput(VData); // Save the output of the compiler in the string Data.
-  VCompiler.Free;            // After compiling the script, there is no further need for the compiler.
   FExec := TPSExec.Create;   // Create an instance of the executer.
   RegisterDLLRuntime(FExec);
 
@@ -234,12 +238,12 @@ begin
   FpGetBmetr := PPSVariantDouble(FExec.GetVar2('GetBmetr'));
   FpGetRmetr := PPSVariantDouble(FExec.GetVar2('GetRmetr'));
   FpConverter := PPSVariantInterface(FExec.GetVar2('Converter'));
-  InitializeCriticalSection(FCS);
+  FCS := TCriticalSection.Create;
 end;
 
 destructor TUrlGenerator.Destroy;
 begin
-  DeleteCriticalSection(FCS);
+  FreeAndNil(FCS);
   FreeAndNil(FExec);
   FCoordConverter := nil;
   inherited;
@@ -274,7 +278,7 @@ end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
 begin
-  EnterCriticalSection(FCS);
+  FCS.Acquire;
   try
     FpResultUrl.Data := '';
     SetVar(Point(Ax, Ay), Azoom);
@@ -287,7 +291,7 @@ begin
     end;
     Result := FpResultUrl.Data;
   finally
-    LeaveCriticalSection(FCS);
+    FCS.Release;
   end;
 end;
 
