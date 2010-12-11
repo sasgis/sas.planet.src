@@ -3040,6 +3040,7 @@ var
   VClickLonLatRect: TDoubleRect;
   VPoly:  TDoublePointArray;
   VPWL: TResObj;
+  Vlastpoint: Integer;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -3066,11 +3067,11 @@ begin
   if (Button=mbLeft)and(FCurrentOper<>ao_movemap) then begin
     if (FCurrentOper in [ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
       movepoint:=true;
-      Flastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
-      if Flastpoint < 0 then begin
+      Vlastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
+      if Vlastpoint < 0 then begin
         FLineOnMapEdit.InsertPoint(VClickLonLat);
       end else begin
-        FLineOnMapEdit.SetActiveIndex(Flastpoint);
+        FLineOnMapEdit.SetActiveIndex(Vlastpoint);
       end;
     end;
     if (FCurrentOper=ao_select_poly) then begin
