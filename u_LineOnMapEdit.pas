@@ -64,6 +64,11 @@ begin
           FActiveIndex := 0;
         end;
         Move(FPoints[FActiveIndex + 1], FPoints[FActiveIndex], (FCount - FActiveIndex - 1) * SizeOf(FPoints[0]));
+        Dec(FCount);
+        Dec(FActiveIndex);
+        if FActiveIndex < 0 then begin
+          FActiveIndex := 0;
+        end;
       end;
       SetChanged;
     end;
