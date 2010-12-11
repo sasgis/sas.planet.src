@@ -114,6 +114,7 @@
     <DCCReference Include="i_IMarkPicture.pas" />
     <DCCReference Include="i_IMemObjCache.pas" />
     <DCCReference Include="i_IObjectWithTTL.pas" />
+    <DCCReference Include="i_IPathDetalizeProvider.pas" />
     <DCCReference Include="i_IPoolElement.pas" />
     <DCCReference Include="i_IPosChangeMessage.pas" />
     <DCCReference Include="i_IProxySettings.pas" />
@@ -128,6 +129,7 @@
     <DCCReference Include="i_ITileStorage.pas" />
     <DCCReference Include="i_ITileStorageType.pas" />
     <DCCReference Include="i_ITileStorageTypeInfo.pas" />
+    <DCCReference Include="i_IUrlByCoordProvider.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_Marks.pas" />
@@ -420,6 +422,8 @@
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
+    <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
+    <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeListener.pas" />
