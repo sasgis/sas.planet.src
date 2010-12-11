@@ -460,12 +460,12 @@ end;
 
 procedure TMapNalLayer.DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);
 begin
-
   FDrawType := mndtCalcLen;
   FPath := Copy(APathLonLat);
 
   FPolyActivePointIndex := AActiveIndex;
   FLenShow := ALenShow;
+  Visible := True;
   Redraw;
 end;
 
@@ -482,6 +482,7 @@ begin
   if (FPolyActivePointIndex < 0) or (FPolyActivePointIndex >= length(FPath)) then begin
     FPolyActivePointIndex := length(FPath) - 1;
   end;
+  Visible := True;
   Redraw;
 end;
 
@@ -489,6 +490,7 @@ procedure TMapNalLayer.DrawNothing;
 begin
   FDrawType := mndtNothing;
   FPath := nil;
+  Visible := False;
   Redraw;
 end;
 
@@ -530,6 +532,7 @@ procedure TMapNalLayer.DrawReg(ASelectedLonLatPoly: TDoublePointArray);
 begin
   FDrawType := mndtSelectPoly;
   FPath := Copy(ASelectedLonLatPoly);
+  Visible := True;
   Redraw;
 end;
 
@@ -538,6 +541,7 @@ begin
   FDrawType := mndtSelectRect;
   FPath := nil;
   FSelectedLonLat := ASelectedLonLat;
+  Visible := True;
   Redraw;
 end;
 
