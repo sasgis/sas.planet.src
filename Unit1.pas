@@ -542,7 +542,6 @@ type
     FLenShow: boolean;
     FMarshrutComment: string;
     movepoint: boolean;
-    Flastpoint: integer;
     FSelectionRect: TDoubleRect;
     Freg_arr: TDoublePointArray;
 
@@ -1308,7 +1307,6 @@ begin
  FLineOnMapEdit.Empty;
  setlength(Freg_arr,0);
  Frect_p2:=false;
- Flastpoint:=-1;
  case newop of
   ao_movemap:  map.Cursor:=crDefault;
   ao_calc_line:     map.Cursor:=2;
