@@ -543,7 +543,6 @@ type
     FMarshrutComment: string;
     movepoint: boolean;
     FSelectionRect: TDoubleRect;
-    Freg_arr: TDoublePointArray;
 
     FLayerScaleLine: TLayerScaleLine;
     FLayerMapNal: TMapNalLayer;
@@ -1305,7 +1304,6 @@ begin
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
  Frect_dwn:=false;
  FLineOnMapEdit.Empty;
- setlength(Freg_arr,0);
  Frect_p2:=false;
  case newop of
   ao_movemap:  map.Cursor:=crDefault;
@@ -1348,6 +1346,9 @@ begin
           True,
           FLineOnMapEdit.GetActiveIndex
         );
+      end;
+      ao_select_poly: begin
+        FLayerMapNal.DrawReg(FLineOnMapEdit.GetPoints);
       end;
     end;
   finally
@@ -1460,20 +1461,17 @@ begin
              end;
              if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_select_poly) then
                begin
-                if length(Freg_arr)>0 then setlength(Freg_arr,length(Freg_arr)-1);
-                TBEditPath.Visible:=(length(Freg_arr)>1);
-                FLayerMapNal.DrawReg(Freg_arr);
+                 FLineOnMapEdit.DeleteActivePoint;
                end;
              if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
                FLineOnMapEdit.DeleteActivePoint;
              end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_poly) then
-              if length(Freg_arr)=0 then TBmoveClick(self)
-                                   else begin
-                                         setlength(Freg_arr,0);
-                                         TBEditPath.Visible:=(length(Freg_arr)>1);
-                                         FLayerMapNal.DrawReg(Freg_arr);
-                                        end;
+              if FLineOnMapEdit.GetCount=0 then begin
+                setalloperationfalse(ao_movemap);
+              end else begin
+                FLineOnMapEdit.Empty;
+              end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_rect) then
               begin
                if Frect_dwn then begin
@@ -1689,10 +1687,6 @@ begin
 
   if not(lastload.use) then begin
     case FCurrentOper of
-      ao_select_poly: begin
-        TBEditPath.Visible:=(length(Freg_arr)>1);
-        FLayerMapNal.DrawReg(Freg_arr);
-      end;
       ao_select_rect: begin
         VSelectionRect := FSelectionRect;
         PrepareSelectionRect([], VSelectionRect);
@@ -3062,7 +3056,7 @@ begin
     GState.ViewState.UnLockRead;
   end;
   if (Button=mbLeft)and(FCurrentOper<>ao_movemap) then begin
-    if (FCurrentOper in [ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
+    if (FCurrentOper in [ao_select_poly, ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
       movepoint:=true;
       Vlastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
       if Vlastpoint < 0 then begin
@@ -3070,12 +3064,6 @@ begin
       end else begin
         FLineOnMapEdit.SetActiveIndex(Vlastpoint);
       end;
-    end;
-    if (FCurrentOper=ao_select_poly) then begin
-      setlength(Freg_arr,length(Freg_arr)+1);
-      Freg_arr[length(Freg_arr)-1]:= VClickLonLat;
-      TBEditPath.Visible:=(length(Freg_arr)>1);
-      FLayerMapNal.DrawReg(Freg_arr);
     end;
     if (FCurrentOper=ao_select_rect)then begin
       if Frect_dwn then begin
@@ -3231,10 +3219,6 @@ begin
   begin
    FLayerStatBar.Redraw;
    FLayerScaleLine.Redraw;
-   if FCurrentOper=ao_select_poly then begin
-    TBEditPath.Visible:=(length(Freg_arr)>1);
-    FLayerMapNal.DrawReg(Freg_arr);
-   end;
    if FCurrentOper=ao_select_rect then begin
      VSelectionRect := FSelectionRect;
      PrepareSelectionRect(Shift, VSelectionRect);
@@ -3595,14 +3579,12 @@ end;
 procedure TFmain.TBEditPathDelClick(Sender: TObject);
 begin
  case FCurrentOper of
-  ao_calc_line:
-    FLineOnMapEdit.DeleteActivePoint;
-  ao_select_poly : begin
-         if length(Freg_arr)>0 then setlength(Freg_arr,length(Freg_arr)-1);
-         TBEditPath.Visible:=(length(Freg_arr)>1);
-         FLayerMapNal.DrawReg(Freg_arr);
-        end;
-  ao_add_poly,ao_add_line,ao_edit_line,ao_edit_poly:
+  ao_select_poly,
+  ao_calc_line,
+  ao_add_poly,
+  ao_add_line,
+  ao_edit_line,
+  ao_edit_poly:
     FLineOnMapEdit.DeleteActivePoint;
  end;
 end;
@@ -3941,10 +3923,8 @@ procedure TFmain.TBEditPathOkClick(Sender: TObject);
 begin
   case FCurrentOper of
    ao_select_poly: begin
-         SetLength(Freg_arr,length(Freg_arr)+1);
-         Freg_arr[length(Freg_arr)-1]:=Freg_arr[0];
+         Fsaveas.Show_(GState.ViewState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
          FLayerMapNal.DrawNothing;
-         Fsaveas.Show_(GState.ViewState.GetCurrentZoom,Freg_arr);
          setalloperationfalse(ao_movemap);
         end;
   end;
