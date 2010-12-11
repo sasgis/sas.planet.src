@@ -101,7 +101,6 @@ type
     N21: TMenuItem;
     N22: TMenuItem;
     N23: TMenuItem;
-    N11: TMenuItem;
     N24: TMenuItem;
     Nopendir: TMenuItem;
     N25: TMenuItem;
@@ -419,7 +418,6 @@ type
     procedure N20Click(Sender: TObject);
     procedure N15Click(Sender: TObject);
     procedure N21Click(Sender: TObject);
-    procedure N11Click(Sender: TObject);
     procedure NopendirClick(Sender: TObject);
     procedure N25Click(Sender: TObject);
     procedure NDelClick(Sender: TObject);
@@ -2202,32 +2200,6 @@ begin
   then begin
     TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr, VMapType);
   end;
-end;
-
-procedure TFmain.N11Click(Sender: TObject);
-//var
-//  WindirP: PChar;
-//  btm_ex:TBitmap;
-//  path: string;
-begin
-  ShowMessage('Временно не работает');
-//  WinDirP:=StrAlloc(MAX_PATH);
-//  GetWindowsDirectory(WinDirP, MAX_PATH);
-//  path := IncludeTrailingPathDelimiter(StrPas(WinDirP))+'SASwallpaper.bmp';
-//  btm_ex:=TBitmap.Create;
-//  try
-//    btm_ex.Assign(MainLayerMap.bitmap);
-//    btm_ex.SaveToFile(path);
-//  finally
-//    btm_ex.Free;
-//  end;
-//  with TRegIniFile.Create('Control Panel') do
-//   begin
-//    WriteString('desktop', 'Wallpaper', IncludeTrailingPathDelimiter(StrPas(WinDirP))+'SASwallpaper.bmp');
-//    WriteString('desktop', 'TileWallpaper', '0');
-//    free;
-//   end;
-//  SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, nil, SPIF_SENDWININICHANGE);
 end;
 
 procedure TFmain.NopendirClick(Sender: TObject);

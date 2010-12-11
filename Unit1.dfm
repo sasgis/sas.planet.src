@@ -2942,11 +2942,6 @@ object Fmain: TFmain
       object N27: TMenuItem
         Caption = '-'
       end
-      object N11: TMenuItem
-        Caption = #1057#1076#1077#1083#1072#1090#1100' '#1088#1080#1089#1091#1085#1082#1086#1084' '#1088#1072#1073#1086#1095#1077#1075#1086' '#1089#1090#1086#1083#1072
-        ImageIndex = 9
-        OnClick = N11Click
-      end
     end
     object N24: TMenuItem
       Caption = '-'
