@@ -53,6 +53,7 @@ uses
   i_GeoCoder,
   i_ISearchResultPresenter,
   i_IMainWindowPosition,
+  i_ILineOnMapEdit,
   u_WindowLayerBasicList,
   u_MarksSimple,
   Ugeofun,
@@ -543,7 +544,6 @@ type
     movepoint: boolean;
     Flastpoint: integer;
     FSelectionRect: TDoubleRect;
-    Fadd_line_arr: TDoublePointArray;
     Freg_arr: TDoublePointArray;
 
     FLayerScaleLine: TLayerScaleLine;
@@ -593,15 +593,17 @@ type
     FToolbarsLock: IMainWindowToolbarsLock;
     FToolbarsLockListener: IJclListener;
 
+    FLineOnMapEdit: ILineOnMapEdit;
+    FLineOnMapEditListener: IJclListener;
+
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
+    procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
-    procedure insertinpath(pos: integer; APoint: TDoublePoint; var add_line_arr:TDoublePointArray);
-    procedure delfrompath(pos: integer);
     procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
     procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
@@ -671,6 +673,7 @@ uses
   u_KmlInfoSimple,
   u_MainWindowPositionConfig,
   u_MainWindowToolbarsLock,
+  u_LineOnMapEdit,
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
   frm_SearchResults,
@@ -767,6 +770,9 @@ begin
 
   FToolbarsLock := TMainWindowToolbarsLock.Create;
   FToolbarsLockListener := TNotifyEventListener.Create(Self.OnToolbarsLockChange);
+
+  FLineOnMapEdit := TLineOnMapEdit.Create;
+  FLineOnMapEditListener := TNotifyEventListener.Create(Self.OnLineOnMapEditChange);
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -790,6 +796,8 @@ begin
 
   FToolbarsLock.GetChangeNotifier.Add(FToolbarsLockListener);
   FToolbarsLock.ReadConfig(VProvider);
+
+  FLineOnMapEdit.GetChangeNotifier.Add(FLineOnMapEditListener);
 
   TBEditPath.Visible:=false;
 end;
@@ -1000,6 +1008,7 @@ begin
   tmrMapUpdate.Enabled := false;
   FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
   FToolbarsLock.GetChangeNotifier.Remove(FToolbarsLockListener);
+  FLineOnMapEdit.GetChangeNotifier.Remove(FLineOnMapEditListener);
   GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
   GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
   GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
@@ -1035,6 +1044,8 @@ begin
   FWinPositionListener := nil;
   FToolbarsLockListener := nil;
   FMapLayersVsibleChangeListener := nil;
+  FLineOnMapEditListener := nil;
+  FLineOnMapEdit := nil;
   FWinPosition := nil;
   FToolbarsLock := nil;
   FSearchPresenter := nil;
@@ -1276,36 +1287,6 @@ begin
   end
 end;
 
-procedure TFmain.insertinpath(pos: integer; APoint: TDoublePoint; var add_line_arr:TDoublePointArray);
-var
-  VCount: Integer;
-begin
-  VCount := Length(Fadd_line_arr);
-  if (pos >=0) and (pos <= VCount)  then begin
-    SetLength(Fadd_line_arr, VCount + 1);
-    if pos < VCount then begin
-      CopyMemory(@Fadd_line_arr[pos + 1], @Fadd_line_arr[pos], (VCount-pos)*sizeOf(TDoublePoint));
-    end;
-    Fadd_line_arr[pos] := APoint;
-  end;
-end;
-
-procedure TFmain.delfrompath(pos: integer);
-var
-  VCount: Integer;
-begin
-  VCount := Length(Fadd_line_arr);
-  if (pos >=0) and (pos < VCount)  then begin
-    if pos < VCount - 1 then begin
-      CopyMemory(@Fadd_line_arr[pos], @Fadd_line_arr[pos+1], (VCount-pos-1)*sizeOf(TDoublePoint));
-    end;
-    SetLength(Fadd_line_arr, VCount - 1);
-    if Flastpoint > 0 then begin
-      Dec(Flastpoint);
-    end;
-  end;
-end;
-
 procedure TFmain.setalloperationfalse(newop: TAOperation);
 begin
  if FCurrentOper=newop then newop:=ao_movemap;
@@ -1324,7 +1305,7 @@ begin
  TBEditPathLabel.Visible:=(newop=ao_calc_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
  Frect_dwn:=false;
- setlength(Fadd_line_arr,0);
+ FLineOnMapEdit.Empty;
  setlength(Freg_arr,0);
  Frect_p2:=false;
  Flastpoint:=-1;
@@ -1339,6 +1320,43 @@ begin
    FLayerMapMarks.Redraw;
  end;
  FCurrentOper:=newop;
+end;
+
+procedure TFmain.OnLineOnMapEditChange(Sender: TObject);
+begin
+  FLineOnMapEdit.LockRead;
+  try
+    TBEditPath.Visible:=(FLineOnMapEdit.GetCount > 1);
+    case FCurrentOper of
+      ao_calc_line: begin
+        FLayerMapNal.DrawLineCalc(
+          FLineOnMapEdit.GetPoints,
+          FLenShow,
+          FLineOnMapEdit.GetActiveIndex
+        );
+      end;
+      ao_edit_line,
+      ao_add_line: begin
+        FLayerMapNal.DrawNewPath(
+          FLineOnMapEdit.GetPoints,
+          false,
+          FLineOnMapEdit.GetActiveIndex
+        );
+      end;
+      ao_edit_poly,
+      ao_add_poly: begin
+        FLayerMapNal.DrawNewPath(
+          FLineOnMapEdit.GetPoints,
+          True,
+          FLineOnMapEdit.GetActiveIndex
+        );
+      end;
+    end;
+  finally
+    FLineOnMapEdit.UnlockRead;
+  end;
+
+
 end;
 
 procedure TFmain.OnToolbarsLockChange(Sender: TObject);
@@ -1413,7 +1431,6 @@ var
   dWMB: integer;
   VZoom: Byte;
   VNewZoom: integer;
-  bkAO:TAOperation;
 begin
 
  if Active then
@@ -1441,13 +1458,7 @@ begin
    WM_KEYUP: begin
              FdWhenMovingButton:=5;
              if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_calc_line) then begin
-               if length(Fadd_line_arr)>0 then begin
-                 delfrompath(Flastpoint);
-                 TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-                 FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
-               end else begin
-                 Flastpoint:=-1;
-               end;
+               FLineOnMapEdit.DeleteActivePoint;
              end;
              if (Msg.wParam=VK_Delete)and(FCurrentOper=ao_select_poly) then
                begin
@@ -1455,15 +1466,9 @@ begin
                 TBEditPath.Visible:=(length(Freg_arr)>1);
                 FLayerMapNal.DrawReg(Freg_arr);
                end;
-             if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then
-              if length(Fadd_line_arr)>0 then
-               begin
-                delfrompath(Flastpoint);
-                TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-                FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
-               end else begin
-                 Flastpoint:=-1;
-               end;
+             if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
+               FLineOnMapEdit.DeleteActivePoint;
+             end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_poly) then
               if length(Freg_arr)=0 then TBmoveClick(self)
                                    else begin
@@ -1481,15 +1486,13 @@ begin
               end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_Add_Point) then setalloperationfalse(ao_movemap);
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper in [ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
-               if (Flastpoint>=0) then begin
-                 bkAO:=FCurrentOper;
-                 setalloperationfalse(ao_movemap);
-                 setalloperationfalse(bkAO);
+               if (FLineOnMapEdit.GetCount>0) then begin
+                FLineOnMapEdit.Empty;
                end else begin
-                 setalloperationfalse(ao_movemap);
+                setalloperationfalse(ao_movemap);
                end;
              end;
-             if (Msg.wParam=13)and(FCurrentOper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(length(Fadd_line_arr)>1) then begin
+             if (Msg.wParam=13)and(FCurrentOper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(FLineOnMapEdit.GetCount>1) then begin
                TBEditPathSaveClick(Self);
              end;
             end;
@@ -1688,10 +1691,6 @@ begin
 
   if not(lastload.use) then begin
     case FCurrentOper of
-      ao_calc_line: begin
-        TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-        FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
-      end;
       ao_select_poly: begin
         TBEditPath.Visible:=(length(Freg_arr)>1);
         FLayerMapNal.DrawReg(Freg_arr);
@@ -1700,10 +1699,6 @@ begin
         VSelectionRect := FSelectionRect;
         PrepareSelectionRect([], VSelectionRect);
         FLayerMapNal.DrawSelectionRect(VSelectionRect);
-      end;
-      ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly: begin
-        TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-        FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
       end;
     end;
 
@@ -2820,10 +2815,10 @@ begin
           end;
         end else if VMark.IsPoly then begin
           setalloperationfalse(ao_edit_poly);
-          Fadd_line_arr:= Copy(VMark.Points);
+          FLineOnMapEdit.SetPoints(VMark.Points);
         end else if VMark.IsLine then begin
           setalloperationfalse(ao_edit_line);
-          Fadd_line_arr:= Copy(VMark.Points);
+          FLineOnMapEdit.SetPoints(VMark.Points);
         end;
       finally
         VMark.Free;
@@ -3039,13 +3034,11 @@ end;
 procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
-  i:integer;
   VSelectionRect: TDoubleRect;
   VClickLonLat: TDoublePoint;
   VClickRect: TRect;
   VClickLonLatRect: TDoubleRect;
   VPoly:  TDoublePointArray;
-  SelPointOnLine:boolean;
   VPWL: TResObj;
 begin
   if (FHintWindow<>nil) then begin
@@ -3073,28 +3066,11 @@ begin
   if (Button=mbLeft)and(FCurrentOper<>ao_movemap) then begin
     if (FCurrentOper in [ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
       movepoint:=true;
-      SelPointOnLine:=false;
-      for i:=0 to length(Fadd_line_arr)-1 do begin
-        if (VClickLonLatRect.Left < Fadd_line_arr[i].X) and
-           (VClickLonLatRect.Top > Fadd_line_arr[i].Y) and
-           (VClickLonLatRect.Right > Fadd_line_arr[i].X) and
-           (VClickLonLatRect.Bottom < Fadd_line_arr[i].Y)
-        then begin
-          Flastpoint:=i;
-          SelPointOnLine:=true;
-          Break;
-        end;
-      end;
-      if not(SelPointOnLine) then begin
-        inc(Flastpoint);
-        insertinpath(Flastpoint, VClickLonLat,Fadd_line_arr);
-      end;
-      TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-      case FCurrentOper of
-        ao_calc_line:
-          FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
-        ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly:
-          FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
+      Flastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
+      if Flastpoint < 0 then begin
+        FLineOnMapEdit.InsertPoint(VClickLonLat);
+      end else begin
+        FLineOnMapEdit.SetActiveIndex(Flastpoint);
       end;
     end;
     if (FCurrentOper=ao_select_poly) then begin
@@ -3249,10 +3225,6 @@ begin
   begin
    FLayerStatBar.Redraw;
    FLayerScaleLine.Redraw;
-   if FCurrentOper=ao_calc_line then begin
-    TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-    FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
-   end;
    if FCurrentOper=ao_select_poly then begin
     TBEditPath.Visible:=(length(Freg_arr)>1);
     FLayerMapNal.DrawReg(Freg_arr);
@@ -3264,10 +3236,6 @@ begin
    end;
    if GState.GPSpar.GPSModele.IsConnected then begin
      UpdateGPSsensors;
-   end;
-   if FCurrentOper in [ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-    TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-    FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
    end;
   end;
  if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x)and(FCurrentOper=ao_movemap)and(button=mbLeft) then
@@ -3412,13 +3380,7 @@ begin
  VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
  if (movepoint) then
   begin
-   Fadd_line_arr[Flastpoint]:=VLonLat;
-   TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-   if (FCurrentOper=ao_calc_line) then begin
-     FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
-   end else begin
-     FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
-   end;
+    FLineOnMapEdit.MoveActivePoint(VLonLat);
    exit;
   end;
  if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift))
@@ -3628,23 +3590,14 @@ procedure TFmain.TBEditPathDelClick(Sender: TObject);
 begin
  case FCurrentOper of
   ao_calc_line:
-        if Flastpoint>0 then begin
-         if length(Fadd_line_arr)>0 then delfrompath(Flastpoint);
-         TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-         FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
-        end;
+    FLineOnMapEdit.DeleteActivePoint;
   ao_select_poly : begin
          if length(Freg_arr)>0 then setlength(Freg_arr,length(Freg_arr)-1);
          TBEditPath.Visible:=(length(Freg_arr)>1);
          FLayerMapNal.DrawReg(Freg_arr);
         end;
   ao_add_poly,ao_add_line,ao_edit_line,ao_edit_poly:
-        if Flastpoint>0 then
-        begin
-         if length(Fadd_line_arr)>0 then delfrompath(Flastpoint);
-         TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-         FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
-        end;
+    FLineOnMapEdit.DeleteActivePoint;
  end;
 end;
 
@@ -3652,7 +3605,7 @@ procedure TFmain.TBEditPathLabelClick(Sender: TObject);
 begin
   if FCurrentOper = ao_calc_line then begin
     FLenShow:=not(FLenShow);
-    FLayerMapNal.DrawLineCalc(Fadd_line_arr, FLenShow, Flastpoint);
+    FLayerMapNal.DrawLineCalc(FLineOnMapEdit.GetPoints, FLenShow, FLineOnMapEdit.GetActiveIndex);
   end;
 end;
 
@@ -3662,16 +3615,16 @@ begin
   result := false;
   case FCurrentOper of
     ao_add_Poly: begin
-      result:=SavePolyModal(-1, Fadd_line_arr);
+      result:=SavePolyModal(-1, FLineOnMapEdit.GetPoints);
     end;
     ao_edit_poly: begin
-      result:=SavePolyModal(FEditMarkId, Fadd_line_arr);
+      result:=SavePolyModal(FEditMarkId, FLineOnMapEdit.GetPoints);
     end;
     ao_add_Line: begin
-      result:=SaveLineModal(-1, Fadd_line_arr, FMarshrutComment);
+      result:=SaveLineModal(-1, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
     ao_edit_line: begin
-      result:=SaveLineModal(FEditMarkId, Fadd_line_arr, '');
+      result:=SaveLineModal(FEditMarkId, FLineOnMapEdit.GetPoints, '');
     end;
   end;
   if result then begin
@@ -3847,12 +3800,9 @@ begin
     2:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=time';
     3:url:='http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime';
   end;
-  VResult := BuildMarshrByMailRu(url, Fadd_line_arr, FMarshrutComment);
+  VResult := BuildMarshrByMailRu(url, FLineOnMapEdit.GetPoints, FMarshrutComment);
   if Length(VResult) > 0 then begin
-    Fadd_line_arr := VResult;
-    Flastpoint:=length(Fadd_line_arr)-1;
-    TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-    FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
+    FLineOnMapEdit.SetPoints(VResult);
   end else begin
     FMarshrutComment := '';
     ShowMessage('Connect error!');
@@ -4118,16 +4068,12 @@ begin
     2: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik';
     22: url:='http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik';
   end;
-  add_line_arr_b := CreatePathByYournavigation(url, Fadd_line_arr);
+  add_line_arr_b := CreatePathByYournavigation(url, FLineOnMapEdit.GetPoints);
   if (length(add_line_arr_b)>0) then begin
-    Fadd_line_arr:=add_line_arr_b;
-    SetLength(add_line_arr_b,0);
-    Flastpoint:=length(Fadd_line_arr)-1;
+    FLineOnMapEdit.SetPoints(add_line_arr_b);
   end else begin
     ShowMessage('Connect error!');
   end;
-  TBEditPath.Visible:=(length(Fadd_line_arr)>1);
-  FLayerMapNal.DrawNewPath(Fadd_line_arr, (FCurrentOper=ao_add_poly)or(FCurrentOper=ao_edit_poly), Flastpoint);
 end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
