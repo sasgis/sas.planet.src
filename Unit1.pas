@@ -1459,14 +1459,14 @@ begin
              if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
                FLineOnMapEdit.DeleteActivePoint;
              end;
-             if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_rect) then
-              begin
-               if Frect_dwn then begin
-                                 setalloperationfalse(ao_movemap);
-                                 setalloperationfalse(ao_select_rect);
-                                end
-                           else setalloperationfalse(ao_movemap);
+             if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_rect) then begin
+              if Frect_dwn then begin
+                setalloperationfalse(ao_movemap);
+                setalloperationfalse(ao_select_rect);
+              end else begin
+                setalloperationfalse(ao_movemap);
               end;
+             end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_Add_Point) then setalloperationfalse(ao_movemap);
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper in [ao_select_poly, ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
                if (FLineOnMapEdit.GetCount>0) then begin
@@ -1673,14 +1673,6 @@ begin
   FWikiLayer.Redraw;
 
   if not(lastload.use) then begin
-    case FCurrentOper of
-      ao_select_rect: begin
-        VSelectionRect := FSelectionRect;
-        PrepareSelectionRect([], VSelectionRect);
-        FLayerMapNal.DrawSelectionRect(VSelectionRect);
-      end;
-    end;
-
     if GState.GPSpar.GPSModele.IsConnected then begin
        FLayerMapGPS.Redraw;
        UpdateGPSsensors;
@@ -1993,17 +1985,15 @@ end;
 
 procedure TFmain.ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
 begin
- if (DockingTo=TBDockLeft)or(DockingTo=TBDockRight)
-   then begin
-         RxSlider1.Orientation:=RxSlider.soVertical;
-         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),4);
-         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),0);
-        end
-   else begin
-         RxSlider1.Orientation:=RxSlider.soHorizontal;
-         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),0);
-         TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),4);
-        end
+  if (DockingTo=TBDockLeft)or(DockingTo=TBDockRight) then begin
+    RxSlider1.Orientation:=RxSlider.soVertical;
+    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),4);
+    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),0);
+  end else begin
+    RxSlider1.Orientation:=RxSlider.soHorizontal;
+    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),0);
+    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),4);
+  end;
 end;
 
 
@@ -2139,8 +2129,11 @@ var
   ll:TDoublePoint;
 begin
   ll := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
-  if GState.FirstLat then CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType))
-             else CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
+  if GState.FirstLat then begin
+    CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType));
+  end else begin
+    CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
+  end;
 end;
 
 procedure TFmain.N15Click(Sender: TObject);
@@ -2463,19 +2456,28 @@ var
   i:integer;
   VZoom: Byte;
 begin
- if GState.TileGridZoom=0 then NShowGran.Items[0].Checked:=true;
- if GState.TileGridZoom=99 then NShowGran.Items[1].Checked:=true;
- VZoom := GState.ViewState.GetCurrentZoom;
- NShowGran.Items[1].Caption:=SAS_STR_activescale+' (z'+inttostr(VZoom + 1)+')';
- for i:=2 to 7 do
-  if VZoom+i-1<24 then begin
-                            NShowGran.Items[i].Caption:=SAS_STR_for+' z'+inttostr(VZoom+i-1);
-                            NShowGran.Items[i].Visible:=true;
-                            NShowGran.Items[i].Tag:=VZoom+i-1;
-                            if NShowGran.Items[i].Tag=GState.TileGridZoom then NShowGran.Items[i].Checked:=true
-                                                                else NShowGran.Items[i].Checked:=false;
-                           end
-                      else NShowGran.Items[i].Visible:=false;
+  if GState.TileGridZoom=0 then begin
+    NShowGran.Items[0].Checked:=true;
+  end;
+  if GState.TileGridZoom=99 then begin
+    NShowGran.Items[1].Checked:=true;
+  end;
+  VZoom := GState.ViewState.GetCurrentZoom;
+  NShowGran.Items[1].Caption:=SAS_STR_activescale+' (z'+inttostr(VZoom + 1)+')';
+  for i:=2 to 7 do begin
+    if VZoom+i-1<24 then begin
+      NShowGran.Items[i].Caption:=SAS_STR_for+' z'+inttostr(VZoom+i-1);
+      NShowGran.Items[i].Visible:=true;
+      NShowGran.Items[i].Tag:=VZoom+i-1;
+      if NShowGran.Items[i].Tag=GState.TileGridZoom then begin
+        NShowGran.Items[i].Checked:=true
+      end else begin
+        NShowGran.Items[i].Checked:=false;
+      end;
+    end else begin
+      NShowGran.Items[i].Visible:=false;
+    end;
+  end;
 end;
 
 procedure TFmain.TBItem2Click(Sender: TObject);
@@ -3087,7 +3089,7 @@ begin
     VPWL.S:=0;
     if FLayerMapMarks.Visible then begin
       FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
-    end;  
+    end;
     NMarkEdit.Visible:=VPWL.find;
     NMarkDel.Visible:=VPWL.find;
     NMarkSep.Visible:=VPWL.find;
@@ -3164,9 +3166,8 @@ begin
   end;
   exit;
  end;
- if HiWord(GetKeyState(VK_F6))<>0 then
-  begin
-    FDGAvailablePic.setup(VLonLat, VVisibleSizeInPixel);
+ if HiWord(GetKeyState(VK_F6))<>0 then begin
+   FDGAvailablePic.setup(VLonLat, VVisibleSizeInPixel);
    exit;
   end;
 
@@ -3177,8 +3178,7 @@ begin
  if (FMapZoomAnimtion) then exit;
  map.Enabled:=false;
  map.Enabled:=true;
- if button=mbMiddle then
-   begin
+ if button=mbMiddle then begin
     FWinPosition.LockWrite;
     try
       if FWinPosition.GetIsFullScreen then begin
@@ -3190,15 +3190,14 @@ begin
       FWinPosition.UnlockWrite;
     end;
     exit;
-   end;
+ end;
 
  if VMapMoving then begin
    GState.ViewState.ChangeMapPixelByDelta(Point(FMouseDownPoint.x-x, FMouseDownPoint.y-y));
  end;
 
  FMouseUpPoint:=Point(x,y);
- if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x) then
-  begin
+ if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x) then begin
    FLayerStatBar.Redraw;
    FLayerScaleLine.Redraw;
    if FCurrentOper=ao_select_rect then begin
@@ -3210,22 +3209,20 @@ begin
      UpdateGPSsensors;
    end;
   end;
- if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x)and(FCurrentOper=ao_movemap)and(button=mbLeft) then
-  begin
+ if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x)and(FCurrentOper=ao_movemap)and(button=mbLeft) then begin
     VPWL.S:=0;
     VPWL.find:=false;
     if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(VPWL, Point(x,y));
     if (FLayerMapMarks.Visible) then
      FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
-    if VPWL.find then
-     begin
+    if VPWL.find then begin
       stw:='<HTML><BODY>';
       stw:=VPWL.descr;
       stw:=stw+'</BODY></HTML>';
       Fbrowser.TextToWebBrowser(stw);
       Fbrowser.Visible:=true;
-     end;
+    end;
     exit;
   end;
 end;
@@ -3328,13 +3325,13 @@ begin
     FmoveTrue:=point(x,y);
     exit;
   end;
- if (FMapZoomAnimtion)or(
+  if (FMapZoomAnimtion)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
-   then begin
-         FmoveTrue:=point(x,y);
-         exit;
-        end;
+  then begin
+    FmoveTrue:=point(x,y);
+    exit;
+  end;
  CState:=ShowCursor(True);
  while CState < 0 do begin
   CState:= ShowCursor(true);
@@ -3350,18 +3347,16 @@ begin
   GState.ViewState.UnLockRead;
  end;
  VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
- if (movepoint) then
-  begin
-    FLineOnMapEdit.MoveActivePoint(VLonLat);
-   exit;
-  end;
- if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift))
-         then begin
-               FSelectionRect.BottomRight:=VLonLat;
-               VSelectionRect := FSelectionRect;
-               PrepareSelectionRect(Shift,VSelectionRect);
-               FLayerMapNal.DrawSelectionRect(VSelectionRect);
-              end;
+ if (movepoint) then begin
+  FLineOnMapEdit.MoveActivePoint(VLonLat);
+  exit;
+ end;
+ if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
+   FSelectionRect.BottomRight:=VLonLat;
+   VSelectionRect := FSelectionRect;
+   PrepareSelectionRect(Shift,VSelectionRect);
+   FLayerMapNal.DrawSelectionRect(VSelectionRect);
+ end;
  if FWinPosition.GetIsFullScreen then begin
                        if y<10 then begin
                                      TBDock.Parent:=map;
@@ -3395,7 +3390,7 @@ begin
                                      TBDockRight.Visible:=false;
                                      TBDockRight.Parent:=Self;
                                     end;
-                      end;
+ end;
  if FMapZoomAnimtion then exit;
  if FMapMoving then begin
               map.BeginUpdate;
@@ -3414,8 +3409,9 @@ begin
                 map.EndUpdate;
                 map.Invalidate;
               end;
-             end
-        else MouseCursorPos:=point(x,y);
+ end else begin
+  MouseCursorPos:=point(x,y);
+ end;
  if not(FMapMoving) then begin
     FLayerStatBar.Redraw;
  end;
@@ -3425,59 +3421,50 @@ begin
      FHintWindow.ReleaseHandle;
      FreeAndNil(FHintWindow);
     end;
-  end;
+ end;
  FShowActivHint:=false;
- if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(GState.ShowHintOnMarks) then
-  begin
+ if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(GState.ShowHintOnMarks) then begin
    VPWL.S:=0;
    VPWL.find:=false;
    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(VPWL,Point(x,y));
    if (FLayerMapMarks.Visible) then
      FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
-   if (VPWL.find) then
-    begin
+   if (VPWL.find) then begin
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
-     if (length(VPWL.name)>0) then
-      begin
+     if (length(VPWL.name)>0) then begin
        if System.Pos('<',VPWL.name)>0 then nms:=HTML2Txt(VPWL.name)
                                      else nms:=VPWL.name;
-      end;
-     if (length(VPWL.descr)>0) then
-      begin
+     end;
+     if (length(VPWL.descr)>0) then begin
        if length(nms)>0 then nms:=nms+#13#10;
        if System.Pos('<',VPWL.descr)>0 then nms:=nms+HTML2Txt(VPWL.descr)
                                       else nms:=nms+VPWL.descr;
-      end;
+     end;
      i:=1;
      j:=0;
-     while (i<length(nms))and(i<>0) do
-      begin
+     while (i<length(nms))and(i<>0) do begin
        inc(j);
        if (nms[i]=#13)or(nms[i]=#10) then j:=0;
-       if (j>40)and(nms[i]=' ')and(length(nms)-i>5)then
-        begin
-         if i>500 then
-          begin
+       if (j>40)and(nms[i]=' ')and(length(nms)-i>5)then begin
+         if i>500 then begin
            Insert('...',nms,i);
            Delete(nms,i+3,length(nms)-i+3);
            i:=0;
            continue;
-          end;
+         end;
          Delete(nms,i,1);
          Insert(#13#10,nms,i);
          j:=0;
         end;
        inc(i);
       end;
-     if nms<>'' then
-     begin
-      if FHintWindow=nil then
-       begin
+     if nms<>'' then begin
+      if FHintWindow=nil then begin
         FHintWindow:=THintWindow.Create(Self);
         FHintWindow.Brush.Color:=clInfoBk;
         FHintWindow.Font.Charset:=RUSSIAN_CHARSET;
-       end;
+      end;
       hintrect:=FHintWindow.CalcHintRect(Screen.Width, nms, nil);
       FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
       FHintWindow.Repaint;
