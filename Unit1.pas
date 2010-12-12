@@ -2382,32 +2382,6 @@ begin
   ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
 end;
 
-procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var
-  VResult: IGeoCodeResult;
-begin
-  VResult := FGoogleGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
-  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
-end;
-
-procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var
-  VResult: IGeoCodeResult;
-begin
-  VResult := FYandexGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
-  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
-end;
-
-procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
-var
-  VResult: IGeoCodeResult;
-  VZoom: Byte;
-begin
-  if frmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
-    FSearchPresenter.ShowSearchResults(VResult, VZoom);
-  end;
-end;
-
 procedure TFmain.TBMainToolBarClose(Sender: TObject);
 begin
  if sender=TBMainToolBar then NMainToolBarShow.Checked:=false;
@@ -3429,7 +3403,7 @@ begin
   GState.GShScale := 0;
  end;
 
- generate_im;
+ FMainLayer.Redraw;
 end;
 
 procedure TFmain.TBEditPathDelClick(Sender: TObject);
@@ -3485,7 +3459,7 @@ end;
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
  FMarksExplorer.ShowModal;
- generate_im;
+ FLayerMapMarks.Redraw;
 end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
@@ -3745,22 +3719,6 @@ begin
   end;
 end;
 
-procedure TFmain.TBXSelectYandexSrchClick(Sender: TObject);
-begin
- TTBXItem(Sender).Checked:=true;
- GState.SrchType:=TSrchType(TTBXItem(Sender).tag);
- TBXSelectSrchType.Caption:=TTBXItem(Sender).Caption;
-end;
-
-procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
-  var NewText: String; var Accept: Boolean);
-begin
- case GState.SrchType of
-  stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
-  stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
- end;
-end;
-
 procedure TFmain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGPS:TPosFromGPS;
@@ -3827,6 +3785,48 @@ begin
   VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
   FGoogleGeoCoder := TGeoCoderByGoogle.Create(VProxy);
   FYandexGeoCoder := TGeoCoderByYandex.Create(VProxy);
+end;
+
+procedure TFmain.TBXSelectYandexSrchClick(Sender: TObject);
+begin
+ TTBXItem(Sender).Checked:=true;
+ GState.SrchType:=TSrchType(TTBXItem(Sender).tag);
+ TBXSelectSrchType.Caption:=TTBXItem(Sender).Caption;
+end;
+
+procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
+  var NewText: String; var Accept: Boolean);
+begin
+ case GState.SrchType of
+  stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
+  stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
+ end;
+end;
+
+procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+var
+  VResult: IGeoCodeResult;
+begin
+  VResult := FGoogleGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+end;
+
+procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+var
+  VResult: IGeoCodeResult;
+begin
+  VResult := FYandexGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+end;
+
+procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
+var
+  VResult: IGeoCodeResult;
+  VZoom: Byte;
+begin
+  if frmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
+    FSearchPresenter.ShowSearchResults(VResult, VZoom);
+  end;
 end;
 
 procedure TFmain.Google1Click(Sender: TObject);
