@@ -2408,11 +2408,6 @@ begin
   end;
 end;
 
-procedure TFmain.tbtmHelpBugTrackClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.ru/mantis/');
-end;
-
 procedure TFmain.TBMainToolBarClose(Sender: TObject);
 begin
  if sender=TBMainToolBar then NMainToolBarShow.Checked:=false;
@@ -2603,7 +2598,7 @@ begin
   if length(VAllPoints)>1 then begin
     if SaveLineModal(-1, VAllPoints, '') then begin
       setalloperationfalse(ao_movemap);
-      generate_im;
+      FLayerMapMarks.Redraw;
     end;
   end else begin
     ShowMessage(SAS_ERR_Nopoints);
@@ -2714,7 +2709,7 @@ end;
 procedure TFmain.NinvertcolorClick(Sender: TObject);
 begin
  GState.InvertColor:=Ninvertcolor.Checked;
- generate_im;
+ FMainLayer.Redraw;
 end;
 
 procedure TFmain.mapDblClick(Sender: TObject);
@@ -3572,16 +3567,6 @@ begin
  setalloperationfalse(ao_movemap);
 end;
 
-procedure TFmain.NGoToForumClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.ru/forum');
-end;
-
-procedure TFmain.NGoToSiteClick(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://sasgis.ru/');
-end;
-
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
  FMarksExplorer.ShowModal;
@@ -3631,37 +3616,6 @@ begin
       end;
     end else  begin
       LayerMapNavToMark.Visible := false;
-    end;
-  end;
-end;
-
-procedure TFmain.TBEditPathMarshClick(Sender: TObject);
-var
-  VResult: TDoublePointArray;
-  VProvider: IPathDetalizeProvider;
-  VIsError: Boolean;
-begin
-  case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderMailRu1.Create;
-    2:VProvider := TPathDetalizeProviderMailRu2.Create;
-    3:VProvider := TPathDetalizeProviderMailRu3.Create;
-  end;
-  if VProvider <> nil then begin
-    VIsError := True;
-    try
-      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
-      VIsError := False;
-    except
-      on E: Exception do begin
-        ShowMessage(E.Message);
-      end;
-    end;
-    if not VIsError then begin
-      if Length(VResult) > 0 then begin
-        FLineOnMapEdit.SetPoints(VResult);
-      end;
-    end else begin
-      FMarshrutComment := '';
     end;
   end;
 end;
@@ -3866,38 +3820,6 @@ begin
   TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
-procedure TFmain.TBXItem1Click(Sender: TObject);
-var
-  VResult: TDoublePointArray;
-  VProvider: IPathDetalizeProvider;
-  VIsError: Boolean;
-begin
-  case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderYourNavigation1.Create;
-    11:VProvider := TPathDetalizeProviderYourNavigation11.Create;
-    2:VProvider := TPathDetalizeProviderYourNavigation2.Create;
-    22:VProvider := TPathDetalizeProviderYourNavigation22.Create;
-  end;
-  if VProvider <> nil then begin
-    VIsError := True;
-    try
-      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
-      VIsError := False;
-    except
-      on E: Exception do begin
-        ShowMessage(E.Message);
-      end;
-    end;
-    if not VIsError then begin
-      if Length(VResult) > 0 then begin
-        FLineOnMapEdit.SetPoints(VResult);
-      end;
-    end else begin
-      FMarshrutComment := '';
-    end;
-  end;
-end;
-
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
   if GState.GPSpar.GPSModele.IsConnected then begin
@@ -3992,6 +3914,21 @@ begin
   FYandexGeoCoder := TGeoCoderByYandex.Create(VProxy);
 end;
 
+procedure TFmain.NGoToForumClick(Sender: TObject);
+begin
+  OpenUrlInBrowser('http://sasgis.ru/forum');
+end;
+
+procedure TFmain.NGoToSiteClick(Sender: TObject);
+begin
+  OpenUrlInBrowser('http://sasgis.ru/');
+end;
+
+procedure TFmain.tbtmHelpBugTrackClick(Sender: TObject);
+begin
+  OpenUrlInBrowser('http://sasgis.ru/mantis/');
+end;
+
 procedure TFmain.TBXItem8Click(Sender: TObject);
 begin
   OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/sas.zmp');
@@ -4000,6 +3937,69 @@ end;
 procedure TFmain.TBXItem9Click(Sender: TObject);
 begin
   OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/plus.zmp');
+end;
+
+procedure TFmain.TBEditPathMarshClick(Sender: TObject);
+var
+  VResult: TDoublePointArray;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
+begin
+  case TTBXItem(Sender).tag of
+    1:VProvider := TPathDetalizeProviderMailRu1.Create;
+    2:VProvider := TPathDetalizeProviderMailRu2.Create;
+    3:VProvider := TPathDetalizeProviderMailRu3.Create;
+  end;
+  if VProvider <> nil then begin
+    VIsError := True;
+    try
+      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+      VIsError := False;
+    except
+      on E: Exception do begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    if not VIsError then begin
+      if Length(VResult) > 0 then begin
+        FLineOnMapEdit.SetPoints(VResult);
+      end;
+    end else begin
+      FMarshrutComment := '';
+    end;
+  end;
+end;
+
+procedure TFmain.TBXItem1Click(Sender: TObject);
+var
+  VResult: TDoublePointArray;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
+begin
+  case TTBXItem(Sender).tag of
+    1:VProvider := TPathDetalizeProviderYourNavigation1.Create;
+    11:VProvider := TPathDetalizeProviderYourNavigation11.Create;
+    2:VProvider := TPathDetalizeProviderYourNavigation2.Create;
+    22:VProvider := TPathDetalizeProviderYourNavigation22.Create;
+  end;
+  if VProvider <> nil then begin
+    VIsError := True;
+    try
+      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+      VIsError := False;
+    except
+      on E: Exception do begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    if not VIsError then begin
+      if Length(VResult) > 0 then begin
+        FLineOnMapEdit.SetPoints(VResult);
+      end;
+    end else begin
+      FMarshrutComment := '';
+    end;
+  end;
 end;
 
 end.
