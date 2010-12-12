@@ -2605,57 +2605,6 @@ begin
   end;
 end;
 
-procedure TFmain.Google1Click(Sender: TObject);
-var
-  VLonLat:TDoublePoint;
-  VZoomCurr: Byte;
-begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat := GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoomCurr));
-end;
-
-procedure TFmain.YaLinkClick(Sender: TObject);
-var
-  Vpos:TDoublePoint;
-  VExtRect: TDoubleRect;
-begin
-  GState.ViewState.LockRead;
-  try
-    Vpos := GState.ViewState.GetCenterLonLat;
-    VExtRect := GState.ViewState.GetViewLonLatRect;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard(
-    'http://beta-maps.yandex.ru/?ll='+
-    R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+
-    R2StrPoint(round(Vpos.y*100000)/100000)+
-    '&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+
-    R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat'
-  );
-end;
-
-procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
-var
-  VLonLat:TDoublePoint;
-  VZoomCurr: Byte;
-begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat := GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoomCurr)+'&fullscreen=false&mode=satellite');
-end;
-
 procedure TFmain.mapResize(Sender: TObject);
 begin
   if (not ProgramClose)and(not ProgramStart)then begin
@@ -2820,21 +2769,6 @@ begin
   end;
 end;
 
-procedure TFmain.livecom1Click(Sender: TObject);
-var
-  VLonLat:TDoublePoint;
-  VZoomCurr: Byte;
-begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat := GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoomCurr));
-end;
-
 procedure TFmain.N13Click(Sender: TObject);
 var
   VPoint: TPoint;
@@ -2852,25 +2786,6 @@ begin
   VMap.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
   VPoint := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
   CopyStringToClipboard(VMap.GetLink(VPoint, VZoomCurr));
-end;
-
-procedure TFmain.ImageAtlas1Click(Sender: TObject);
-var
-  VLonLat: TDoublePoint;
-  VZoomCurr: Byte;
-begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat:=GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard(
-    'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
-    R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+
-    '&zoom='+inttostr(VZoomCurr)
-  );
 end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
@@ -3912,6 +3827,91 @@ begin
   VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
   FGoogleGeoCoder := TGeoCoderByGoogle.Create(VProxy);
   FYandexGeoCoder := TGeoCoderByYandex.Create(VProxy);
+end;
+
+procedure TFmain.Google1Click(Sender: TObject);
+var
+  VLonLat:TDoublePoint;
+  VZoomCurr: Byte;
+begin
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoomCurr));
+end;
+
+procedure TFmain.YaLinkClick(Sender: TObject);
+var
+  Vpos:TDoublePoint;
+  VExtRect: TDoubleRect;
+begin
+  GState.ViewState.LockRead;
+  try
+    Vpos := GState.ViewState.GetCenterLonLat;
+    VExtRect := GState.ViewState.GetViewLonLatRect;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard(
+    'http://beta-maps.yandex.ru/?ll='+
+    R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+
+    R2StrPoint(round(Vpos.y*100000)/100000)+
+    '&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+
+    R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat'
+  );
+end;
+
+procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
+var
+  VLonLat:TDoublePoint;
+  VZoomCurr: Byte;
+begin
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoomCurr)+'&fullscreen=false&mode=satellite');
+end;
+
+procedure TFmain.livecom1Click(Sender: TObject);
+var
+  VLonLat:TDoublePoint;
+  VZoomCurr: Byte;
+begin
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat := GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoomCurr));
+end;
+
+procedure TFmain.ImageAtlas1Click(Sender: TObject);
+var
+  VLonLat: TDoublePoint;
+  VZoomCurr: Byte;
+begin
+  GState.ViewState.LockRead;
+  try
+    VZoomCurr := GState.ViewState.GetCurrentZoom;
+    VLonLat:=GState.ViewState.GetCenterLonLat;
+  finally
+    GState.ViewState.UnLockRead;
+  end;
+  CopyStringToClipboard(
+    'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
+    R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+
+    '&zoom='+inttostr(VZoomCurr)
+  );
 end;
 
 procedure TFmain.NGoToForumClick(Sender: TObject);
