@@ -193,8 +193,6 @@ end;
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-var
-  VFactory: IMapTypeListFactory;
 begin
   inherited;
 
@@ -204,7 +202,7 @@ begin
 
   BuildMapsLists;
 
-  FMapsActive := TActiveMapWithHybrConfig.Create(True, CGUID_Zero, FMapsList, FLayersList);
+  FMapsActive := TActiveMapWithHybrConfig.Create(True, FMapsList, FLayersList);
 
   FZoomDelta := 4;
   FBitmapSize.X := 256;

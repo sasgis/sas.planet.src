@@ -20,7 +20,7 @@ type
     FSelectedMap: TMapType;
     FMapChangeNotifier: IJclNotifier;
   public
-    constructor Create(AAllowNil: Boolean; AMapGUID: TGUID; AMapsList: IMapTypeList);
+    constructor Create(AAllowNil: Boolean; AMapsList: IMapTypeList);
     destructor Destroy; override;
     procedure SelectMapByGUID(AMapGUID: TGUID);
     function GetSelectedMapGUID: TGUID;
@@ -57,7 +57,7 @@ uses
 
 { TActiveMapConfig }
 
-constructor TActiveMapConfig.Create(AAllowNil: Boolean; AMapGUID: TGUID; AMapsList: IMapTypeList);
+constructor TActiveMapConfig.Create(AAllowNil: Boolean; AMapsList: IMapTypeList);
 var
   VMap: IMapType;
   VGUID: TGUID;
@@ -66,20 +66,19 @@ var
 begin
   FAllowNil := AAllowNil;
   FMapsList := AMapsList;
-  FSelectedMap := nil;
-  if not IsEqualGUID(AMapGUID, CGUID_Zero) then begin
-    VMap := FMapsList.GetMapTypeByGUID(AMapGUID);
-    if VMap <> nil then begin
-      FSelectedMap := VMap.MapType;
-    end;
-  end;
-  if (FSelectedMap = nil) and not FAllowNil then begin
+  if FAllowNil then begin
+    FSelectedMap := nil;
+  end else begin
     VEnum := FMapsList.GetIterator;
     if VEnum.Next(1, VGUID, i) = S_OK then begin
       VMap := FMapsList.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
         FSelectedMap := VMap.MapType;
+      end else begin
+        raise Exception.Create('Strange error');
       end;
+    end else begin
+      raise Exception.Create('No maps in list');
     end;
   end;
   FMapChangeNotifier := TJclBaseNotifier.Create;

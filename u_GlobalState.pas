@@ -694,11 +694,17 @@ var
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := MapType.MapsList;
-  if VList.GetIterator.Next(1, VGUID, i) = S_OK then begin
-    VMapType := VList.GetMapTypeByGUID(VGUID).MapType;
+  if FViewState = nil then begin
+    FViewState := TMapViewPortState.Create(
+      FMainMapsList.MapsList,
+      FMainMapsList.LayersList,
+      AScreenSize
+    );
+  end else begin
+    raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
   end;
-  VConverter := VMapType.GeoConvert;
+  FViewState.LockWrite;
+  VConverter := FViewState.GetCurrentCoordConverter;
   VZoom := MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
   VConverter.CheckZoom(VZoom);
   VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2;
@@ -707,19 +713,8 @@ begin
     MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
     MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
   );
-
-  if FViewState = nil then begin
-    FViewState := TMapViewPortState.Create(
-      FMainMapsList.MapsList,
-      FMainMapsList.LayersList,
-      VMapType,
-      VZoom,
-      VScreenCenterPos,
-      AScreenSize
-    );
-  end else begin
-    raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
-  end;
+  VConverter.CheckPixelPosStrict(VScreenCenterPos, VZoom, True);
+  FViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 end;
 
 end.

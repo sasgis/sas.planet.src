@@ -27,15 +27,19 @@ type
     FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
 
+    FViewSizeChangeListener: IJclListener;
+
     FLayerPositioned: TPositionedLayer;
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
+    procedure OnViewSizeChange(Sender: TObject); virtual;
     function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; virtual;
     procedure DoShow; virtual;
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
     procedure IncRedrawCounter(ATime: TDateTime);
+    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -80,7 +84,7 @@ type
     function VisiblePixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
 
     // Переводит координаты прямоугольника битмапки в координаты VisualPixel
-    function GetMapLayerLocationRect: TRect; virtual;
+    function GetMapLayerLocationRect: TFloatRect; override;
 
     procedure DoRedraw; override;
     procedure DoResizeBitmap; virtual;
@@ -106,6 +110,7 @@ uses
   SysUtils,
   Forms,
   Types,
+  u_NotifyEventListener,
   u_JclNotify;
 
 { TWindowLayerBasic }
@@ -125,22 +130,26 @@ begin
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
   FRedrawCounter := 0;
   FRedrawTime  := 0;
+  FViewSizeChangeListener := TNotifyEventListener.Create(Self.OnViewSizeChange);
+  FViewPortState.ViewSizeChangeNotifier.Add(FViewSizeChangeListener);
+end;
+
+destructor TWindowLayerBasic.Destroy;
+begin
+  FreeAndNil(FCS);
+  FViewPortState.ViewSizeChangeNotifier.Remove(FViewSizeChangeListener);
+  FViewSizeChangeListener := nil;
+  FViewPortState := nil;
+  FParentMap := nil;
+  FLayerPositioned := nil;
+  FVisibleChangeNotifier := nil;
+  inherited;
 end;
 
 function TWindowLayerBasic.CreateLayer(
   ALayerCollection: TLayerCollection): TPositionedLayer;
 begin
   Result := TPositionedLayer.Create(ALayerCollection);
-end;
-
-destructor TWindowLayerBasic.Destroy;
-begin
-  FreeAndNil(FCS);
-  FViewPortState := nil;
-  FParentMap := nil;
-  FLayerPositioned := nil;
-  FVisibleChangeNotifier := nil;
-  inherited;
 end;
 
 procedure TWindowLayerBasic.DoHide;
@@ -182,6 +191,11 @@ end;
 procedure TWindowLayerBasic.LoadConfig(AConfigProvider: IConfigDataProvider);
 begin
   // По умолчанию ничего не делаем
+end;
+
+procedure TWindowLayerBasic.OnViewSizeChange(Sender: TObject);
+begin
+  FLayerPositioned.Location := GetMapLayerLocationRect;
 end;
 
 procedure TWindowLayerBasic.Redraw;
@@ -270,7 +284,7 @@ end;
 
 procedure TWindowLayerBasicOld.DoResize;
 begin
-  FLayerPositioned.Location := floatrect(GetMapLayerLocationRect);
+  FLayerPositioned.Location := GetMapLayerLocationRect;
 end;
 
 function TWindowLayerBasicOld.GetVisibleSizeInPixel: TPoint;
@@ -279,13 +293,15 @@ begin
   Result.Y := FParentMap.Height;
 end;
 
-function TWindowLayerBasicOld.GetMapLayerLocationRect: TRect;
+function TWindowLayerBasicOld.GetMapLayerLocationRect: TFloatRect;
 var
   VBitmapSize: TPoint;
+  VResult: TRect;
 begin
   VBitmapSize := GetBitmapSizeInPixel;
-  Result.TopLeft := BitmapPixel2VisiblePixel(Point(0, 0));
-  Result.BottomRight := BitmapPixel2VisiblePixel(VBitmapSize);
+  VResult.TopLeft := BitmapPixel2VisiblePixel(Point(0, 0));
+  VResult.BottomRight := BitmapPixel2VisiblePixel(VBitmapSize);
+  Result := FloatRect(VResult);
 end;
 
 function TWindowLayerBasicOld.VisiblePixel2BitmapPixel(

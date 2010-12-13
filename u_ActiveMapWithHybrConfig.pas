@@ -21,7 +21,7 @@ type
     function _IsHybrSelected(AMap: TMapType): Boolean; overload;
     function _IsHybrSelected(AMapGUID: TGUID): Boolean; overload;
   public
-    constructor Create(AAllowNil: Boolean; AMapGUID: TGUID; AMapsList: IMapTypeList;
+    constructor Create(AAllowNil: Boolean; AMapsList: IMapTypeList;
       ALayersList: IMapTypeList);
     destructor Destroy; override;
     procedure SelectHybrByGUID(AMapGUID: TGUID);
@@ -41,10 +41,10 @@ uses
 
 { TActiveMapWithHybrConfig }
 
-constructor TActiveMapWithHybrConfig.Create(AAllowNil: Boolean; AMapGUID: TGUID; AMapsList: IMapTypeList;
+constructor TActiveMapWithHybrConfig.Create(AAllowNil: Boolean; AMapsList: IMapTypeList;
   ALayersList: IMapTypeList);
 begin
-  inherited Create(AAllowNil, AMapGUID, AMapsList);
+  inherited Create(AAllowNil, AMapsList);
   FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
   FLayersList := ALayersList;
   FSelectedHybr := nil;

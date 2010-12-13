@@ -52,9 +52,6 @@ type
     constructor Create(
       AMapsList: IMapTypeList;
       ALayersList: IMapTypeList;
-      AMainMap: TMapType;
-      AZoom: Byte;
-      ACenterPos: TPoint;
       AScreenSize: TPoint
     );
     destructor Destroy; override;
@@ -139,31 +136,20 @@ uses
 constructor TMapViewPortState.Create(
   AMapsList: IMapTypeList;
   ALayersList: IMapTypeList;
-  AMainMap: TMapType;
-  AZoom: Byte;
-  ACenterPos: TPoint;
   AScreenSize: TPoint
 );
 var
   VConverter: ICoordConverter;
 begin
-  if AMainMap = nil then begin
-    raise Exception.Create('Ќужно об€зательно указывать активную карту');
-  end;
   FVisibleCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 
-  FActiveMaps := TActiveMapWithHybrConfig.Create(False, AMainMap.GUID, AMapsList, ALayersList);
+  FActiveMaps := TActiveMapWithHybrConfig.Create(False, AMapsList, ALayersList);
 
   FPosChangeNotifier := TJclBaseNotifier.Create;
   FScaleChangeNotifier := TJclBaseNotifier.Create;
   FViewSizeChangeNotifier := TJclBaseNotifier.Create;
 
   VConverter := InternalGetCurrentCoordConverter;
-  FZoom := AZoom;
-  VConverter.CheckZoom(FZoom);
-  FCenterPos := ACenterPos;
-  VConverter.CheckPixelPosStrict(FCenterPos, FZoom, True);
-  FViewSize := AScreenSize;
   if FViewSize.X <= 0 then begin
     FViewSize.X := 1024;
   end;
