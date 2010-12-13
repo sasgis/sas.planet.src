@@ -13,11 +13,16 @@ uses
   i_IConfigDataWriteProvider,
   i_ActiveMapsConfigSaveLoad,
   i_MapTypes,
+  i_ILocalCoordConverter,
+  i_ILocalCoordConverterFactorySimpe,
   UMapType;
 
 type
   TMapViewPortState = class
   private
+    FVisibleCoordConverter: ILocalCoordConverter;
+    FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
+
     FActiveMaps: IActiveMapWithHybrConfig;
     FCenterPos: TPoint;
     FZoom: Byte;
@@ -42,6 +47,7 @@ type
     function GetMapChangeNotifier: IJclNotifier;
     function InternalGetCurrentMap: TMapType;
     function InternalGetCurrentCoordConverter: ICoordConverter;
+    procedure CreateVisibleCoordConverter;
   public
     constructor Create(
       AMapsList: IMapTypeList;
@@ -85,6 +91,7 @@ type
     function GetViewLonLatRect: TDoubleRect;
     function GetViewCenterInVisualPixel: TPoint;
     function GetViewTopLeftInMapPixel: TPoint;
+    function GetVisualCoordConverter: ILocalCoordConverter;
 
     function VisiblePixel2MapPixel(Pnt: TPoint): TPoint; overload;
     function VisiblePixel2MapPixel(Pnt: TDoublePoint): TDoublePoint; overload;
@@ -123,6 +130,8 @@ uses
   u_JclNotify,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigByConfigDataProvider,
+  u_LocalCoordConverterFactorySimpe,
+  Ugeofun,
   u_PosChangeMessage;
 
 { TMapViewPortState }
@@ -141,6 +150,8 @@ begin
   if AMainMap = nil then begin
     raise Exception.Create('Ќужно об€зательно указывать активную карту');
   end;
+  FVisibleCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+
   FActiveMaps := TActiveMapWithHybrConfig.Create(False, AMainMap.GUID, AMapsList, ALayersList);
 
   FPosChangeNotifier := TJclBaseNotifier.Create;
@@ -172,7 +183,25 @@ begin
   FBaseScale.Y := 1;
   FMapScale := FBaseScale;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
+  CreateVisibleCoordConverter;
   FWriteLocked := False;
+end;
+
+procedure TMapViewPortState.CreateVisibleCoordConverter;
+var
+  VViewCenter: TPoint;
+  VLocalTopLeftAtMap: TDoublePoint;
+begin
+  VViewCenter := GetViewCenterInVisualPixel;
+  VLocalTopLeftAtMap.X := (-VViewCenter.X + FVisibleMove.X) / FMapScale.X + FCenterPos.X;
+  VLocalTopLeftAtMap.Y := (-VViewCenter.Y + FVisibleMove.Y) / FMapScale.Y + FCenterPos.Y;
+
+  FVisibleCoordConverter := FVisibleCoordConverterFactory.CreateConverter(
+    FZoom,
+    InternalGetCurrentCoordConverter,
+    FMapScale,
+    VLocalTopLeftAtMap
+  );
 end;
 
 destructor TMapViewPortState.Destroy;
@@ -183,6 +212,8 @@ begin
   FPosChangeNotifier := nil;
   FScaleChangeNotifier := nil;
   FViewSizeChangeNotifier := nil;
+  FVisibleCoordConverter := nil;
+  FVisibleCoordConverterFactory := nil;
   inherited;
 end;
 
@@ -204,6 +235,9 @@ begin
         VPixelPos := VConverter.LonLat2PixelPos(VLonLat, FZoom);
         VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
         FCenterPos := VPixelPos;
+        if VPosChanged then begin
+          CreateVisibleCoordConverter;
+        end;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -241,6 +275,9 @@ begin
       VNewPos := VConverterNew.LonLat2PixelPos(VLonLat, FZoom);
       FCenterPos := VNewPos;
     end;
+    if VPosChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
   end;
@@ -266,6 +303,9 @@ begin
         VConverter.CheckPixelPosStrict(VPixelPos, FZoom, True);
         VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
         FCenterPos := VPixelPos;
+        if VPosChanged then begin
+          CreateVisibleCoordConverter;
+        end;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -301,6 +341,9 @@ begin
   try
     VChanged := (FViewSize.X <> ANewSize.X) or (FViewSize.Y <> ANewSize.Y);
     FViewSize := ANewSize;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
   end;
@@ -331,6 +374,9 @@ begin
         VChanged := (FZoom <> VZoom) or (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
         FZoom := VZoom;
         FCenterPos := VNewPos;
+        if VChanged then begin
+          CreateVisibleCoordConverter;
+        end;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -369,6 +415,9 @@ begin
         VChanged := (FZoom <> VZoom) or (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
         FZoom := VZoom;
         FCenterPos := VPixelPos;
+        if VChanged then begin
+          CreateVisibleCoordConverter;
+        end;
       finally
         FWriteLocked := False;
         FSync.EndWrite;
@@ -512,6 +561,16 @@ begin
   Result := VisiblePixel2MapPixel(Point(0,0));
 end;
 
+function TMapViewPortState.GetVisualCoordConverter: ILocalCoordConverter;
+begin
+  FSync.BeginRead;
+  try
+    Result := FVisibleCoordConverter;
+  finally
+    FSync.EndRead;
+  end;
+end;
+
 procedure TMapViewPortState.LockRead;
 begin
   FSync.BeginRead;
@@ -552,8 +611,8 @@ begin
   FSync.BeginRead;
   try
     VViewCenter := GetViewCenterInVisualPixel;
-    Result.X := (Pnt.X - FCenterPos.X) * FMapScale.X + VViewCenter.X + FVisibleMove.X;
-    Result.Y := (Pnt.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y + FVisibleMove.Y;
+    Result.X := (Pnt.X - FCenterPos.X) * FMapScale.X + VViewCenter.X - FVisibleMove.X;
+    Result.Y := (Pnt.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y - FVisibleMove.Y;
   finally
     FSync.EndRead;
   end;
@@ -601,8 +660,8 @@ begin
   FSync.BeginRead;
   try
     VViewCenter := GetViewCenterInVisualPixel;
-    Result.X := (Pnt.X - VViewCenter.X - FVisibleMove.X) / FMapScale.X + FCenterPos.X;
-    Result.Y := (Pnt.Y - VViewCenter.Y - FVisibleMove.Y) / FMapScale.Y + FCenterPos.Y;
+    Result.X := (Pnt.X - VViewCenter.X + FVisibleMove.X) / FMapScale.X + FCenterPos.X;
+    Result.Y := (Pnt.Y - VViewCenter.Y + FVisibleMove.Y) / FMapScale.Y + FCenterPos.Y;
   finally
     FSync.EndRead;
   end;
@@ -720,6 +779,9 @@ begin
       VConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
       VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
       FCenterPos := VNewPos;
+      if VChanged then begin
+        CreateVisibleCoordConverter;
+      end;
     finally
       FSync.EndWrite;
     end;
@@ -748,6 +810,9 @@ begin
     FVisibleMove.Y := 0;
     FMapScale := FBaseScale;
     FCenterPos := VNewPos;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
   end;
@@ -802,6 +867,9 @@ begin
       VConverter.CheckPixelPosStrict(VNewCenterPos, VZoom, False);
       FCenterPos := VNewCenterPos;
     end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
   end;
@@ -833,6 +901,9 @@ begin
       VRelativePoint := VConverter.PixelPos2Relative(FCenterPos, VZoomOld);
       FCenterPos := VConverter.Relative2Pixel(VRelativePoint, VZoom);
       FZoom := VZoom;
+    end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
     end;
   finally
     FSync.EndWrite;
@@ -950,15 +1021,32 @@ begin
 end;
 
 procedure TMapViewPortState.MoveTo(Pnt: TPoint);
+var
+  VChanged: Boolean;
+  VVisibleMove: TDoublePoint;
 begin
+  VChanged := False;
   FSync.BeginWrite;
   try
-    FMapScale := FBaseScale;
-    FVisibleMove.X := - Pnt.X;
-    FVisibleMove.Y := - Pnt.Y;
-    NotifyChangeScale;
+    if not compare2EP(FMapScale, FBaseScale) then begin
+      FMapScale := FBaseScale;
+      VChanged := True;
+    end;
+    VVisibleMove.X := Pnt.X;
+    VVisibleMove.Y := Pnt.Y;
+    if not compare2EP(FVisibleMove, VVisibleMove) then begin
+      FVisibleMove := VVisibleMove;
+      VChanged := True;
+    end;
+
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangeScale;
   end;
 end;
 
@@ -967,22 +1055,43 @@ var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
   VNewVisualPoint: TDoublePoint;
+  VNewMapScale: TDoublePoint;
+  VNewVisibleMove: TDoublePoint;
+  VChanged: Boolean;
 begin
+  VChanged := False;
   VVisiblePointFixed.X := ACenterPoint.X;
   VVisiblePointFixed.Y := ACenterPoint.Y;
   FSync.BeginWrite;
   try
     VMapPointFixed := VisiblePixel2MapPixel(VVisiblePointFixed);
-    FVisibleMove.X := 0;
-    FVisibleMove.Y := 0;
-    FMapScale.X := FBaseScale.X * AScale;
-    FMapScale.Y := FBaseScale.X * AScale;
+    if not compare2EP(FVisibleMove, DoublePoint(0,0)) then begin
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      VChanged := True;
+    end;
+
+    VNewMapScale.X := FBaseScale.X * AScale;
+    VNewMapScale.Y := FBaseScale.X * AScale;
+    if not compare2EP(FMapScale, VNewMapScale) then begin
+      FMapScale := VNewMapScale;
+      VChanged := True;
+    end;
     VNewVisualPoint := MapPixel2VisiblePixel(VMapPointFixed);
-    FVisibleMove.X := VVisiblePointFixed.X - VNewVisualPoint.X;
-    FVisibleMove.Y := VVisiblePointFixed.Y - VNewVisualPoint.Y;
-    NotifyChangeScale;
+    VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
+    VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
+    if not compare2EP(FVisibleMove, VNewVisibleMove) then begin
+      FVisibleMove := VNewVisibleMove;
+      VChanged := True;
+    end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangeScale;
   end;
 end;
 
@@ -992,23 +1101,45 @@ var
   VMapPointFixed: TDoublePoint;
   VNewVisualPoint: TDoublePoint;
   VViewCenter: TPoint;
+  VNewMapScale: TDoublePoint;
+  VNewVisibleMove: TDoublePoint;
+  VChanged: Boolean;
 begin
+  VChanged := False;
   FSync.BeginWrite;
   try
     VViewCenter := GetViewCenterInVisualPixel;
     VVisiblePointFixed.X := VViewCenter.X;
     VVisiblePointFixed.Y := VViewCenter.Y;
     VMapPointFixed := VisiblePixel2MapPixel(VVisiblePointFixed);
-    FVisibleMove.X := 0;
-    FVisibleMove.Y := 0;
-    FMapScale.X := FBaseScale.X * AScale;
-    FMapScale.Y := FBaseScale.X * AScale;
+    if not compare2EP(FVisibleMove, DoublePoint(0,0)) then begin
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      VChanged := True;
+    end;
+
+    VNewMapScale.X := FBaseScale.X * AScale;
+    VNewMapScale.Y := FBaseScale.X * AScale;
+    if not compare2EP(FMapScale, VNewMapScale) then begin
+      FMapScale := VNewMapScale;
+      VChanged := True;
+    end;
+
     VNewVisualPoint := MapPixel2VisiblePixel(VMapPointFixed);
-    FVisibleMove.X := VVisiblePointFixed.X - VNewVisualPoint.X;
-    FVisibleMove.Y := VVisiblePointFixed.Y - VNewVisualPoint.Y;
-    NotifyChangeScale;
+    VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
+    VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
+    if not compare2EP(FVisibleMove, VNewVisibleMove) then begin
+      FVisibleMove := VNewVisibleMove;
+      VChanged := True;
+    end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
   finally
     FSync.EndWrite;
+  end;
+  if VChanged then begin
+    NotifyChangeScale;
   end;
 end;
 
