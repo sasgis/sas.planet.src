@@ -26,8 +26,6 @@ type
     function MapRect2LocalRectFloat(const ARect: TRect): TDoubleRect;
     function MapRectFloat2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
 
-    function LocalPixel2LonLat(const APoint: TPoint): TDoublePoint;
-    function LocalPixelFloat2LonLat(const APoint: TDoublePoint): TDoublePoint;
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
   end;

@@ -32,8 +32,6 @@ type
     function MapRect2LocalRectFloat(const ARect: TRect): TDoubleRect;
     function MapRectFloat2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
 
-    function LocalPixel2LonLat(const APoint: TPoint): TDoublePoint;
-    function LocalPixelFloat2LonLat(const APoint: TDoublePoint): TDoublePoint;
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
   public
@@ -93,26 +91,6 @@ begin
   VSourcePoint.X := APoint.X;
   VSourcePoint.Y := APoint.Y;
   Result := LocalPixelFloat2MapPixelFloat(VSourcePoint);
-end;
-
-function TLocalCoordConverter.LocalPixel2LonLat(
-  const APoint: TPoint): TDoublePoint;
-begin
-  Result :=
-    FGeoConverter.PixelPosFloat2LonLat(
-      LocalPixel2MapPixelFloat(APoint),
-      FZoom
-    );
-end;
-
-function TLocalCoordConverter.LocalPixelFloat2LonLat(
-  const APoint: TDoublePoint): TDoublePoint;
-begin
-  Result :=
-    FGeoConverter.PixelPosFloat2LonLat(
-      LocalPixelFloat2MapPixelFloat(APoint),
-      FZoom
-    );
 end;
 
 function TLocalCoordConverter.LocalPixelFloat2MapPixelFloat(
