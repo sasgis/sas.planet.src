@@ -139,12 +139,9 @@
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
     <DCCReference Include="MapLayers\u_MapFillingLayer.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
-    <DCCReference Include="MapLayers\u_MapLayerBase.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
-    <DCCReference Include="MapLayers\u_MapLayerFixedBase.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
-    <DCCReference Include="MapLayers\u_MapLayerScaledBase.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
