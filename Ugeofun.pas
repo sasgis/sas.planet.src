@@ -35,16 +35,21 @@ type
   function DoubleRect(ARect: TRect): TDoubleRect; overload;
   function DoubleRect(ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
   function DoubleRect(ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
+  function RectCenter(ARect: TRect): TDoublePoint; overload;
+  function RectCenter(ARect: TDoubleRect): TDoublePoint; overload;
+
 
   function compare2P(p1,p2:TPoint):boolean;
-  function PtInRgn(Polyg:TPointArray; P:TPoint):boolean;
+  function PtInRgn(Polyg:TPointArray; P:TPoint):boolean; overload;
+  function PtInRgn(Polyg:TDoublePointArray; P:TDoublePoint):boolean; overload;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
   function PointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
   function compare2EP(p1,p2:TDoublePoint):boolean;
-  function PolygonSquare(Poly:TPointArray): Double;
+  function PolygonSquare(Poly:TPointArray): Double; overload;
+  function PolygonSquare(Poly:TDoublePointArray): Double; overload;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
@@ -386,6 +391,22 @@ begin
   Result := Abs(Result) / 2;
 end;
 
+function PolygonSquare(Poly:TDoublePointArray): Double; overload;
+var
+  I, J, HP: Integer;
+begin
+  Result := 0;
+  HP := High(Poly);
+  for I := Low(Poly) to HP do begin
+    if I = HP then
+      J := 0
+    else
+      J := I + 1;
+    Result := Result + (Poly[I].X + Poly[J].X) * (Poly[I].Y - Poly[J].Y);
+  end;
+  Result := Abs(Result) / 2;
+end;
+
 function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
 var I:Integer;
     iPt,jPt:PPoint;
@@ -403,6 +424,23 @@ begin
 end;
 
 function PtInRgn(Polyg:TPointArray;P:TPoint):boolean;
+var i,j:integer;
+begin
+  result:=false;
+  j:=High(Polyg);
+  if ((((Polyg[0].y<=P.y)and(P.y<Polyg[j].y))or((Polyg[j].y<=P.y)and(P.y<Polyg[0].y)))and
+     (P.x>(Polyg[j].x-Polyg[0].x)*(P.y-Polyg[0].y)/(Polyg[j].y-Polyg[0].y)+Polyg[0].x))
+     then result:=not(result);
+  for i:=1 to High(Polyg) do
+   begin
+    j:=i-1;
+    if ((((Polyg[i].y<=P.y)and(P.y<Polyg[j].y))or((Polyg[j].y<=P.y)and(P.y<Polyg[i].y)))and
+       (P.x>(Polyg[j].x-Polyg[i].x)*(P.y-Polyg[i].y)/(Polyg[j].y-Polyg[i].y)+Polyg[i].x))
+       then result:=not(result);
+   end;
+end;
+
+function PtInRgn(Polyg:TDoublePointArray; P:TDoublePoint):boolean; overload;
 var i,j:integer;
 begin
   result:=false;
@@ -535,6 +573,18 @@ begin
   Result.Top := ATop;
   Result.Right := ARight;
   Result.Bottom := ABottom;
+end;
+
+function RectCenter(ARect: TRect): TDoublePoint; overload;
+begin
+  Result.X := (ARect.Left + ARect.Right) / 2;
+  Result.Y := (ARect.Top + ARect.Bottom) / 2;
+end;
+
+function RectCenter(ARect: TDoubleRect): TDoublePoint; overload;
+begin
+  Result.X := (ARect.Left + ARect.Right) / 2;
+  Result.Y := (ARect.Top + ARect.Bottom) / 2;
 end;
 
 function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
