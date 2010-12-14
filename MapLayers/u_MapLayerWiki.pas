@@ -81,12 +81,8 @@ end;
 
 procedure TWikiLayer.AddFromLayer(Alayer: TMapType);
 var
-  i, j, ii: integer;
-  VCenterTile: TPoint;
-  VPos: TPoint;
+  ii: integer;
   kml: TKmlInfoSimple;
-  VSizeInTile: TPoint;
-
   VTileIterator: ITileIterator;
   VZoom: Byte;
   VSourceGeoConvert: ICoordConverter;
@@ -132,13 +128,10 @@ var
   VConverter: ICoordConverter;
   VLocalConverter: ILocalCoordConverter;
   VSize: TPoint;
-  VRect: TRect;
   VElement: TWikiLayerElement;
-  VZoom: Byte;
 begin
   VSize := FMapViewSize;
   VLocalConverter := FBitmapCoordConverter;
-  VZoom := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
   Delete(AData.description, posEx('#ge', AData.description, 1), 1);
   VElement := TWikiLayerElement.Create;
