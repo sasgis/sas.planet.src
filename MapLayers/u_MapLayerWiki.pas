@@ -21,8 +21,8 @@ type
     name_blok: string;
     num_blok: string;
     description: string;
-    LT, RD: Tpoint;
-    FPolygonOnBitmap: TPointArray;
+    FBounds: TDoubleRect;
+    FPolygonOnBitmap: TDoublePointArray;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -51,8 +51,11 @@ uses
   Graphics,
   GR32_Polygons,
   i_ICoordConverter,
+  i_ITileIterator,
+  i_ILocalCoordConverter,
   i_MapTypes,
   u_GlobalState,
+  u_TileIteratorByRect,
   u_WindowLayerBasic;
 
 { TWikiLayerElement }
@@ -79,40 +82,92 @@ end;
 procedure TWikiLayer.AddFromLayer(Alayer: TMapType);
 var
   i, j, ii: integer;
-  Vzoom: byte;
-  VTile: TPoint;
   VCenterTile: TPoint;
   VPos: TPoint;
   kml: TKmlInfoSimple;
   VSizeInTile: TPoint;
+
+  VTileIterator: ITileIterator;
+  VZoom: Byte;
+  VSourceGeoConvert: ICoordConverter;
+  VGeoConvert: ICoordConverter;
+  VBitmapRect: TDoubleRect;
+  VBitmapOnMapPixelRect: TDoubleRect;
+  VSourceLonLatRect: TDoubleRect;
+  VTileSourceRect: TRect;
+  VTile: TPoint;
 begin
-  VSizeInTile := GetBitmapSizeInPixel;
-  VSizeInTile.X := VSizeInTile.X div 256;
-  VSizeInTile.Y := VSizeInTile.Y div 256;
-  FLayer.Bitmap.BeginUpdate;
-  try
-    Vzoom := FZoom;
-    VPos := FGeoConvert.PixelPos2OtherMap(FScreenCenterPos, Vzoom, Alayer.GeoConvert);
-    VCenterTile := Alayer.GeoConvert.PixelPos2TilePos(VPos, Vzoom);
-    for i := 0 to VSizeInTile.X do begin
-      for j := 0 to VSizeInTile.Y do begin
-        VTile.X := VCenterTile.X - (VSizeInTile.X div 2) + i;
-        VTile.Y := VCenterTile.Y - (VSizeInTile.Y div 2) + j;
-        Alayer.GeoConvert.CheckTilePosStrict(VTile, Vzoom, False);
-        KML := TKmlInfoSimple.Create;
-        try
-          if Alayer.LoadTile(kml, VTile, Vzoom, true) then begin
-            for ii := 0 to length(KML.Data) - 1 do begin
-              addWL(KML.Data[ii]);
-            end;
-          end;
-        finally
-          KML.Free;
+
+
+  VZoom := FVisualCoordConverter.GetZoom;
+  VSourceGeoConvert := Alayer.GeoConvert;
+  VGeoConvert := FVisualCoordConverter.GetGeoConverter;
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+
+  VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
+  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
+
+  VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+  VTileSourceRect := VSourceGeoConvert.LonLatRect2TileRect(VSourceLonLatRect, VZoom);
+  VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
+
+  while VTileIterator.Next(VTile) do begin
+    KML := TKmlInfoSimple.Create;
+    try
+      if Alayer.LoadTile(kml, VTile, Vzoom, true) then begin
+        for ii := 0 to length(KML.Data) - 1 do begin
+          addWL(KML.Data[ii]);
         end;
       end;
+    finally
+      KML.Free;
     end;
-  finally
-    FLayer.Bitmap.EndUpdate;
+  end;
+end;
+
+procedure TWikiLayer.addWL(var AData: TKMLData);
+var
+  i, lenLay: integer;
+  VConverter: ICoordConverter;
+  VLocalConverter: ILocalCoordConverter;
+  VSize: TPoint;
+  VRect: TRect;
+  VElement: TWikiLayerElement;
+  VZoom: Byte;
+begin
+  VSize := FMapViewSize;
+  VLocalConverter := FBitmapCoordConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VConverter := VLocalConverter.GetGeoConverter;
+  Delete(AData.description, posEx('#ge', AData.description, 1), 1);
+  VElement := TWikiLayerElement.Create;
+  With VElement do begin
+    VConverter.CheckLonLatRect(AData.Bounds);
+    FBounds := VLocalConverter.LonLatRect2LocalRectFloat(AData.Bounds);
+    if AData.Bounds.Left = AData.Bounds.Right then begin
+      FBounds.Left := FBounds.Left - 3;
+      FBounds.Right := FBounds.Right + 3;
+    end;
+    if AData.Bounds.Top = AData.Bounds.Bottom then begin
+      FBounds.Top := FBounds.Top - 3;
+      FBounds.Bottom := FBounds.Bottom + 3;
+    end;
+    if (((FBounds.Right - FBounds.Left) <= 1) or ((FBounds.Bottom - FBounds.Top) <= 1) or
+      ((FBounds.Top > VSize.Y) or (FBounds.Bottom < 0) or (FBounds.Left > VSize.X) or (FBounds.Right < 0))) then begin
+      exit;
+    end;
+    name_blok := AData.name;
+    num_blok := AData.PlacemarkID;
+    description := AData.description;
+    setLength(FPolygonOnBitmap, length(AData.coordinates));
+    for i := 0 to length(AData.coordinates) - 1 do begin
+      VConverter.CheckLonLatPos(AData.coordinates[i]);
+      FPolygonOnBitmap[i] := VLocalConverter.LonLat2LocalPixelFloat(AData.coordinates[i]);
+    end;
+    setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
+    lenLay := length(FWikiLayerElments);
+    FWikiLayerElments[lenLay - 1] := VElement;
   end;
 end;
 
@@ -149,11 +204,12 @@ procedure TWikiLayer.MouseOnReg(var APWL: TResObj; xy: TPoint);
 var
   i, j: integer;
   VLen: integer;
+  VXY: TDoublePoint;
 begin
-  xy := VisiblePixel2BitmapPixel(xy);
+  VXY := FBitmapCoordConverter.MapPixelFloat2LocalPixelFloat(FVisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
   for i := 0 to length(FWikiLayerElments) - 1 do begin
-    if (xy.x > FWikiLayerElments[i].lt.X - 5) and (xy.x < FWikiLayerElments[i].rd.X + 5) and
-      (xy.y > FWikiLayerElments[i].lt.Y - 5) and (xy.y < FWikiLayerElments[i].rd.Y + 5) then begin
+    if (VXY.x > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.x < FWikiLayerElments[i].FBounds.Right + 5) and
+      (VXY.y > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin
       VLen := length(FWikiLayerElments[i].FPolygonOnBitmap);
       if VLen > 0 then begin
         if VLen = 1 then begin
@@ -167,8 +223,13 @@ begin
           if (FWikiLayerElments[i].FPolygonOnBitmap[0].X <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].x) or
             (FWikiLayerElments[i].FPolygonOnBitmap[0].y <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].y) then begin
             while (j < length(FWikiLayerElments[i].FPolygonOnBitmap)) do begin
-              if CursorOnLinie(xy.x, xy.Y, FWikiLayerElments[i].FPolygonOnBitmap[j - 1].x, FWikiLayerElments[i].FPolygonOnBitmap[j - 1].y,
-                FWikiLayerElments[i].FPolygonOnBitmap[j].x, FWikiLayerElments[i].FPolygonOnBitmap[j].y, 3) then begin
+              if CursorOnLinie(
+                Trunc(VXY.x), Trunc(VXY.Y),
+                trunc(FWikiLayerElments[i].FPolygonOnBitmap[j - 1].x), trunc(FWikiLayerElments[i].FPolygonOnBitmap[j - 1].y),
+                trunc(FWikiLayerElments[i].FPolygonOnBitmap[j].x), trunc(FWikiLayerElments[i].FPolygonOnBitmap[j].y),
+                3
+                )
+              then begin
                 APWL.name := FWikiLayerElments[i].name_blok;
                 APWL.descr := FWikiLayerElments[i].description;
                 APWL.numid := FWikiLayerElments[i].num_blok;
@@ -177,7 +238,7 @@ begin
               end;
               inc(j);
             end;
-          end else if PtInRgn(FWikiLayerElments[i].FPolygonOnBitmap, xy) then begin
+          end else if PtInRgn(FWikiLayerElments[i].FPolygonOnBitmap, VXY) then begin
             if (PolygonSquare(FWikiLayerElments[i].FPolygonOnBitmap) > APWL.S) and (APWL.S <> 0) then begin
               continue;
             end;
@@ -191,56 +252,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TWikiLayer.addWL(var AData: TKMLData);
-var
-  i, lenLay: integer;
-  VConverter: ICoordConverter;
-  VSize: TPoint;
-  VRect: TRect;
-begin
-  VSize := GetBitmapSizeInPixel;
-  VConverter := FGeoConvert;
-  Delete(AData.description, posEx('#ge', AData.description, 1), 1);
-  setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
-  lenLay := length(FWikiLayerElments);
-  FWikiLayerElments[lenLay - 1] := TWikiLayerElement.Create;
-  With FWikiLayerElments[lenLay - 1] do begin
-    VConverter.CheckLonLatRect(AData.Bounds);
-    VRect := VConverter.LonLatRect2PixelRect(AData.Bounds, FZoom);
-    LT := MapPixel2BitmapPixel(VRect.TopLeft);
-    RD := MapPixel2BitmapPixel(VRect.BottomRight);
-    if AData.Bounds.Left = AData.Bounds.Right then begin
-      LT.X := LT.X - 3;
-      RD.x := RD.x + 3;
-    end;
-    if AData.Bounds.Top = AData.Bounds.Bottom then begin
-      LT.Y := LT.Y - 3;
-      RD.Y := RD.Y + 3;
-    end;
-    if (((RD.x - LT.x) <= 1) or ((RD.y - LT.y) <= 1) or
-      ((LT.y > VSize.Y) or (RD.y < 0) or (LT.x > VSize.X) or (RD.x < 0))) then begin
-      exit;
-    end;
-    name_blok := AData.name;
-    num_blok := AData.PlacemarkID;
-    description := AData.description;
-    setLength(FPolygonOnBitmap, length(AData.coordinates));
-    if length(AData.coordinates) = 1 then begin
-      setLength(FPolygonOnBitmap, 1);
-      VConverter.CheckLonLatPos(AData.coordinates[0]);
-      FPolygonOnBitmap[0] := VConverter.LonLat2PixelPos(AData.coordinates[0], FZoom);
-      FPolygonOnBitmap[0] := MapPixel2BitmapPixel(FPolygonOnBitmap[0]);
-    end else begin
-      for i := 0 to length(AData.coordinates) - 1 do begin
-        VConverter.CheckLonLatPos(AData.coordinates[i]);
-        FPolygonOnBitmap[i] := VConverter.LonLat2PixelPos(AData.coordinates[i], FZoom);
-        FPolygonOnBitmap[i] := MapPixel2BitmapPixel(FPolygonOnBitmap[i]);
-      end;
-    end;
-  end;
-  DrawWikiElement(FWikiLayerElments[lenLay - 1]);
 end;
 
 procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement);
@@ -265,7 +276,7 @@ begin
         SetLength(FFixedPointArray, VLen);
       end;
       for i := 0 to VLen - 1 do begin
-        FFixedPointArray[i] := FixedPoint(AData.FPolygonOnBitmap[i]);
+        FFixedPointArray[i] := FixedPoint(AData.FPolygonOnBitmap[i].X, AData.FPolygonOnBitmap[i].Y);
       end;
       VPolygon.AddPoints(FFixedPointArray[0], VLen);
       VPolygon.DrawEdge(FLayer.Bitmap, VColorBG);
@@ -292,10 +303,11 @@ var
   VItem: IMapType;
   VEnum: IEnumGUID;
   VHybrList: IMapTypeList;
+  ii: Integer;
 begin
   inherited;
   Clear;
-  VHybrList := GState.ViewState.HybrList;
+  VHybrList := FViewPortState.HybrList;
   VEnum := VHybrList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
@@ -305,6 +317,14 @@ begin
         AddFromLayer(VMapType);
       end;
     end;
+  end;
+  FLayer.Bitmap.BeginUpdate;
+  try
+    for ii := 0 to Length(FWikiLayerElments) - 1 do begin
+      DrawWikiElement(FWikiLayerElments[ii]);
+    end;
+  finally
+    FLayer.Bitmap.EndUpdate;
   end;
 end;
 
