@@ -26,6 +26,7 @@ uses
   SysUtils,
   GR32_Polygons,
   i_IGPSRecorder,
+  i_ILocalCoordConverter,
   u_GlobalState;
 
 { TMapGPSLayer }
@@ -37,20 +38,20 @@ var
   VArrowSize: integer;
   Angle, D, R: Extended;
   TanOfAngle: Extended;
-  k1: TPoint;
+  k1: TDoublePoint;
   SizeTrackd2: integer;
   VLastPoint: TDoublePoint;
   VPreLastPoint: TDoublePoint;
   VIsArrow: Boolean;
   VMarkRect: TRect;
+  VLocalConverter: ILocalCoordConverter;
 begin
   VIsArrow := False;
+  VLocalConverter := FBitmapCoordConverter;
   if GState.GPSpar.GPSRecorder.GetTwoLastPoints(VLastPoint, VPreLastPoint) then begin
     try
-      ke := FGeoConvert.LonLat2PixelPosFloat(VLastPoint, FZoom);
-      ke := MapPixel2BitmapPixel(ke);
-      ks := FGeoConvert.LonLat2PixelPosFloat(VPreLastPoint, FZoom);
-      ks := MapPixel2BitmapPixel(ks);
+      ke := VLocalConverter.LonLat2LocalPixelFloat(VLastPoint);
+      ks := VLocalConverter.LonLat2LocalPixelFloat(VPreLastPoint);
       VArrowSize := GState.GPSpar.GPS_ArrowSize;
       D := Sqrt(Sqr(ks.X - ke.X) + Sqr(ks.Y - ke.Y));
       if D > 0.01 then begin
@@ -93,10 +94,9 @@ begin
     except
     end;
     if not VIsArrow then begin
-      k1 := FGeoConvert.LonLat2PixelPos(VLastPoint, FZoom);
-      k1 := MapPixel2BitmapPixel(k1);
+      k1 := VLocalConverter.LonLat2LocalPixelFloat(VLastPoint);
       SizeTrackd2 := GState.GPSpar.GPS_ArrowSize div 6;
-      VMarkRect := Bounds(k1.x - SizeTrackd2, k1.y - SizeTrackd2, SizeTrackd2, SizeTrackd2);
+      VMarkRect := Bounds(Trunc(k1.x - SizeTrackd2), Trunc(k1.y - SizeTrackd2), SizeTrackd2, SizeTrackd2);
       FLayer.Bitmap.FillRectS(VMarkRect, SetAlpha(clRed32, 200));
     end;
   end;
@@ -112,9 +112,10 @@ var
   VSpeed: Extended;
   VMaxSpeed: Extended;
   VPoints: TGPSTrackPointArray;
+  VLocalConverter: ILocalCoordConverter;
 begin
   VPoints := GState.GPSpar.GPSRecorder.LastVisiblePoints;
-  
+  VLocalConverter := FBitmapCoordConverter;
   VPointsCount := length(VPoints);
   with FLayer.Bitmap do begin
     if (VPointsCount > 1) then begin
@@ -123,12 +124,10 @@ begin
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
-        VPointPrev := FGeoConvert.LonLat2PixelPosFloat(VPoints[0].Point, FZoom);
-        VPointPrev := MapPixel2BitmapPixel(VPointPrev);
+        VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VPoints[0].Point);
         VMaxSpeed := GState.GPSpar.maxspeed;
         for j := 1 to VPointsCount - 1 do begin
-          VPointCurr := FGeoConvert.LonLat2PixelPosFloat(VPoints[j].Point, FZoom);
-          VPointCurr := MapPixel2BitmapPixel(VPointCurr);
+          VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VPoints[j].Point);
           VSpeed := VPoints[j - 1].Speed;
           if (VMaxSpeed > 0) then begin
             speed := round((255 * VSpeed) / VMaxSpeed);

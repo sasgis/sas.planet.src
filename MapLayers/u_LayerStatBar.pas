@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Types,
+  GR32,
   GR32_Image,
   t_GeoTypes,
   i_IConfigDataProvider,
@@ -16,13 +17,14 @@ type
   TLayerStatBar = class(TWindowLayerBasicWithBitmap)
   protected
     FHeight: Integer;
+    FWidth: Integer;
     FMinUpdateTickCount: Cardinal;
     FLastUpdateTick: DWORD;
     function GetBitmapSizeInPixel: TPoint; override;
-    function GetFreezePointInVisualPixel: TPoint; override;
-    function GetFreezePointInBitmapPixel: TPoint; override;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
+    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
     procedure DoRedraw; override;
+    procedure DoUpdateLayerSize; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
@@ -34,7 +36,6 @@ implementation
 
 uses
   SysUtils,
-  GR32,
   u_GeoToStr,
   i_ICoordConverter,
   UResStrings,
@@ -60,24 +61,8 @@ end;
 
 function TLayerStatBar.GetBitmapSizeInPixel: TPoint;
 begin
-  Result.X := FParentMap.Width;
+  Result.X := FWidth;
   Result.Y := FHeight;
-end;
-
-function TLayerStatBar.GetFreezePointInBitmapPixel: TPoint;
-var
-  VBitmapSize: TPoint;
-begin
-  VBitmapSize := GetBitmapSizeInPixel;
-  Result := Point(0, VBitmapSize.Y);
-end;
-
-function TLayerStatBar.GetFreezePointInVisualPixel: TPoint;
-var
-  VVisibleSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result := Point(0, VVisibleSize.Y);
 end;
 
 function TLayerStatBar.GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
@@ -170,6 +155,13 @@ begin
     FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, clBlack32);
     FLastUpdateTick := GetTickCount;
   end;
+end;
+
+procedure TLayerStatBar.DoUpdateLayerSize;
+begin
+  fwi
+  inherited;
+
 end;
 
 end.

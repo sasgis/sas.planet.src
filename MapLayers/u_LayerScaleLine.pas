@@ -11,12 +11,10 @@ uses
   u_WindowLayerBasic;
 
 type
-  TLayerScaleLine = class(TWindowLayerBasicWithBitmap)
+  TLayerScaleLine = class(TWindowLayerBasicFixedSizeWithBitmap)
   protected
     FBottomMargin: Integer;
     function GetBitmapSizeInPixel: TPoint; override;
-    function GetFreezePointInVisualPixel: TPoint; override;
-    function GetFreezePointInBitmapPixel: TPoint; override;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -61,7 +59,6 @@ var
   VZoom: Byte;
 begin
   inherited;
-  Resize;
   VBitmapSize := GetBitmapSizeInPixel;
   GState.ViewState.LockRead;
   try
@@ -115,23 +112,6 @@ function TLayerScaleLine.GetBitmapSizeInPixel: TPoint;
 begin
   Result.X := 128;
   Result.Y := 15;
-end;
-
-function TLayerScaleLine.GetFreezePointInBitmapPixel: TPoint;
-var
-  VBitmapSize: TPoint;
-begin
-  VBitmapSize := GetBitmapSizeInPixel;
-  Result := Point(0, VBitmapSize.Y);
-end;
-
-function TLayerScaleLine.GetFreezePointInVisualPixel: TPoint;
-var
-  VVisibleSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result := Point(6, VVisibleSize.Y - 6);
-  Result.Y := Result.Y - FBottomMargin;
 end;
 
 procedure TLayerScaleLine.LoadConfig(AConfigProvider: IConfigDataProvider);

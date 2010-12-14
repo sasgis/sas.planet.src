@@ -56,9 +56,11 @@ uses
   SysUtils,
   i_ICoordConverter,
   i_ILocalCoordConverter,
+  i_ITileIterator,
   i_MapTypes,
   Ugeofun,
   Uimgfun,
+  u_TileIteratorByRect,
   u_GeoToStr,
   u_GlobalState,
   u_WindowLayerBasic;
@@ -280,7 +282,7 @@ var
   {
     Прямоугольник пикселей растра в координатах текущей основной карты
   }
-  VBitmapOnMapPixelRect: TRect;
+  VBitmapOnMapPixelRect: TDoubleRect;
 
   {
     Географические координаты растра
@@ -331,6 +333,8 @@ var
   i, j: integer;
   VUsePre: Boolean;
   VLocalConverter: ILocalCoordConverter;
+  VTileIterator: ITileIterator;
+  VBitmapRect: TDoubleRect;
 begin
   if AMapType.asLayer then begin
     VUsePre := GState.UsePrevZoomLayer;
@@ -344,19 +348,20 @@ begin
   VSourceMapType := AMapType;
   VSourceGeoConvert := VSourceMapType.GeoConvert;
 
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+  VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
+  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
+
+  VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+  VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
+  VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
+
+  VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
+
   VBmp := TCustomBitmap32.Create;
   try
-    VBitmapOnMapPixelRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
-    VBitmapOnMapPixelRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
-    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
-    VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
-    VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
-    VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
-
-    for i := VTileSourceRect.Left to VTileSourceRect.Right - 1 do begin
-      VTile.X := i;
-      for j := VTileSourceRect.Top to VTileSourceRect.Bottom - 1 do begin
-        VTile.Y := j;
+    while VTileIterator.Next(VTile) do begin
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
         VTilePixelsToDraw.TopLeft := Point(0, 0);
         VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left;
@@ -385,8 +390,8 @@ begin
         VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
         VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-        VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
-        VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+        VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+        VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
           Gamma(VBmp);
         end;
@@ -397,7 +402,6 @@ begin
         finally
           FLayer.Bitmap.UnLock;
         end;
-      end;
     end;
   finally
     VBmp.Free;
@@ -410,7 +414,7 @@ var
   drawcolor: TColor32;
   textoutx, textouty: string;
   Sz1, Sz2: TSize;
-  VLoadedRect: TRect;
+  VLoadedRect: TDoubleRect;
   VLoadedRelativeRect: TDoubleRect;
   VCurrentZoom: Byte;
   VTilesRect: TRect;
@@ -422,8 +426,13 @@ var
   VTileSize: TPoint;
   VGridZoom: Byte;
   VTilesLineRect: TRect;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
+  VBitmapRect: TDoubleRect;
 begin
-  VCurrentZoom := FZoom;
+  VLocalConverter := FBitmapCoordConverter;
+  VGeoConvert := VLocalConverter.GetGeoConverter;
+  VCurrentZoom := VLocalConverter.GetZoom;
   if GState.TileGridZoom = 99 then begin
     VGridZoom := VCurrentZoom;
   end else begin
@@ -433,12 +442,13 @@ begin
     exit;
   end;
 
-  VLoadedRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
-  VLoadedRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+  VLoadedRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+  VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VCurrentZoom, False);
+  VGeoConvert.CheckPixelPosFloat(VLoadedRect.BottomRight, VCurrentZoom, False);
 
-  FGeoConvert.CheckPixelRect(VLoadedRect, VCurrentZoom);
-  VLoadedRelativeRect := FGeoConvert.PixelRect2RelativeRect(VLoadedRect, VCurrentZoom);
-  VTilesRect := FGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+  VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
+  VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
 
   drawcolor := SetAlpha(Color32(GState.BorderColor), GState.BorderAlpha);
 
@@ -448,10 +458,10 @@ begin
     VTilesLineRect.Top := i;
     VTilesLineRect.Bottom := i + 1;
 
-    VTileRelativeRect := FGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := FGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
+    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+    VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+    VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
     FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
       VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
   end;
@@ -462,10 +472,10 @@ begin
     VTilesLineRect.Left := j;
     VTilesLineRect.Right := j + 1;
 
-    VTileRelativeRect := FGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := FGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
+    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+    VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+    VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
     FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
       VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
   end;
@@ -481,10 +491,10 @@ begin
     VTileIndex.Y := i;
     for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
       VTileIndex.X := j;
-      VTileRelativeRect := FGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-      VTileRect := FGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := MapPixel2BitmapPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := MapPixel2BitmapPixel(VTileRect.BottomRight);
+      VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
+      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+      VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
 
       VTileSize.X := VTileRect.Right - VTileRect.Left;
       VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
