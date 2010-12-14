@@ -28,6 +28,7 @@ type
 
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
+    function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
   end;
 
 implementation

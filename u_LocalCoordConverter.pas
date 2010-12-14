@@ -34,6 +34,7 @@ type
 
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
+    function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
   public
     constructor Create(
       AZoom: Byte;
@@ -135,6 +136,15 @@ begin
   Result :=
     MapPixelFloat2LocalPixelFloat(
       FGeoConverter.LonLat2PixelPosFloat(APoint, FZoom)
+    );
+end;
+
+function TLocalCoordConverter.LonLatRect2LocalRectFloat(
+  const ARect: TDoubleRect): TDoubleRect;
+begin
+  Result :=
+    MapRectFloat2LocalRectFloat(
+      FGeoConverter.LonLatRect2PixelRectFloat(ARect, FZoom)
     );
 end;
 
