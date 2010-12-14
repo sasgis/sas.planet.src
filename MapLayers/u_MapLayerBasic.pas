@@ -23,9 +23,10 @@ type
     FPosChangeListener: IJclListener;
     FScaleChangeListener: IJclListener;
 
+    procedure DoUpdatelLayerSize; override;
     procedure OnScaleChange(Sender: TObject);
     procedure OnPosChange(Sender: TObject); virtual;
-    procedure OnViewSizeChange(Sender: TObject); override;
+    procedure DoUpdatelLayerLocation; override;
     function GetMapLayerLocationRect: TFloatRect; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -54,6 +55,7 @@ uses
   Forms,
   Graphics,
   u_NotifyEventListener,
+  Ugeofun,
   u_GlobalState;
 
 { TGPSTrackLayer }
@@ -94,13 +96,19 @@ end;
 
 procedure TMapLayerBasicNoBitmap.OnScaleChange(Sender: TObject);
 begin
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
   FLayerPositioned.Location := GetMapLayerLocationRect;
 end;
 
-procedure TMapLayerBasicNoBitmap.OnViewSizeChange(Sender: TObject);
+procedure TMapLayerBasicNoBitmap.DoUpdatelLayerLocation;
 begin
-  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
   inherited;
+end;
+
+procedure TMapLayerBasicNoBitmap.DoUpdatelLayerSize;
+begin
+  inherited;
+  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
 end;
 
 procedure TMapLayerBasicNoBitmap.Redraw;
@@ -130,8 +138,15 @@ begin
 end;
 
 function TMapLayerBasic.GetMapLayerLocationRect: TFloatRect;
+var
+  VBitmapRect: TDoubleRect;
+  VBitmapOnMapRect: TDoubleRect;
+  VBitmapOnVisualRect: TDoubleRect;
 begin
-
+  VBitmapRect := DoubleRect(0, 0, FMapViewSize.X, FMapViewSize.Y);
+  VBitmapOnMapRect := FBitmapCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+  VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
+  Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
 end;
 
 //procedure TMapLayerBasic.DoResizeBitmap;

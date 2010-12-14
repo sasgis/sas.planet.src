@@ -33,7 +33,11 @@ type
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
-    procedure OnViewSizeChange(Sender: TObject); virtual;
+    procedure OnViewSizeChabge(Sender: TObject); virtual;
+    procedure UpdatelLayerSize; virtual;
+    procedure DoUpdatelLayerSize; virtual;
+    procedure UpdatelLayerLocation; virtual;
+    procedure DoUpdatelLayerLocation; virtual;
     function CreateLayer(ALayerCollection: TLayerCollection): TPositionedLayer; virtual;
     procedure DoShow; virtual;
     procedure DoHide; virtual;
@@ -130,7 +134,7 @@ begin
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
   FRedrawCounter := 0;
   FRedrawTime  := 0;
-  FViewSizeChangeListener := TNotifyEventListener.Create(Self.OnViewSizeChange);
+  FViewSizeChangeListener := TNotifyEventListener.Create(Self.OnViewSizeChabge);
   FViewPortState.ViewSizeChangeNotifier.Add(FViewSizeChangeListener);
 end;
 
@@ -164,6 +168,16 @@ begin
   FLayerPositioned.Visible := True;
 end;
 
+procedure TWindowLayerBasic.DoUpdatelLayerLocation;
+begin
+  FLayerPositioned.Location := GetMapLayerLocationRect;
+end;
+
+procedure TWindowLayerBasic.DoUpdatelLayerSize;
+begin
+
+end;
+
 function TWindowLayerBasic.GetVisible: Boolean;
 begin
   Result := FVisible;
@@ -193,9 +207,24 @@ begin
   // По умолчанию ничего не делаем
 end;
 
-procedure TWindowLayerBasic.OnViewSizeChange(Sender: TObject);
+procedure TWindowLayerBasic.OnViewSizeChabge(Sender: TObject);
 begin
-  FLayerPositioned.Location := GetMapLayerLocationRect;
+  UpdatelLayerSize;
+  UpdatelLayerLocation;
+end;
+
+procedure TWindowLayerBasic.UpdatelLayerLocation;
+begin
+  if Visible then begin
+    DoUpdatelLayerLocation;
+  end;
+end;
+
+procedure TWindowLayerBasic.UpdatelLayerSize;
+begin
+  if Visible then begin
+    DoUpdatelLayerSize;
+  end;
 end;
 
 procedure TWindowLayerBasic.Redraw;

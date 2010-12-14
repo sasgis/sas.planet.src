@@ -16,11 +16,8 @@ uses
 type
   TMapLayerBase = class(TWindowLayerBasic)
   protected
-    FScreenCenterPos: TPoint;
-    FZoom: Byte;
-    FGeoConvert: ICoordConverter;
-    FMapType: TMapType;
-    FViewSize: TPoint;
+    FMapViewSize: TPoint;
+    FVisualCoordConverter: ILocalCoordConverter;
 
     FMapPosChangeListener: IJclListener;
     FViewScaleChangeListener: IJclListener;
