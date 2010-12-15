@@ -10,6 +10,7 @@ uses
   GR32_Layers,
   i_ILocalCoordConverter,
   u_ThreadDrawMapLayer,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
@@ -34,7 +35,9 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  t_GeoTypes,
+  Ugeofun;
 
 { TMapLayerWithThreadDraw }
 
@@ -45,7 +48,6 @@ begin
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
   FThread := AThread;
 end;
 

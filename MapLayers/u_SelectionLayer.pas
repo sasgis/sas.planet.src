@@ -12,10 +12,10 @@ uses
   i_IConfigDataWriteProvider,
   u_ClipPolygonByRect,
   u_MapViewPortState,
-  u_MapLayerScaledBase;
+  u_MapLayerBasic;
 
 type
-  TSelectionLayer = class(TMapLayerScaledBase)
+  TSelectionLayer = class(TMapLayerBasicNoBitmap)
   protected
     FBitmapClip: IPolyClip;
     FLineColor: TColor32;
@@ -23,7 +23,6 @@ type
     FPolygon: TDoublePointArray;
     FSelectionChangeListener: IJclListener;
     procedure DoRedraw; override;
-    function GetVisibleRectInMapPixels: TRect; override;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
     procedure ChangeSelection(Sender: TObject);
@@ -41,6 +40,7 @@ uses
   Classes,
   Graphics,
   GR32_PolygonsEx,
+  GR32_Layers,
   GR32_VectorUtils,
   u_ConfigProviderHelpers,
   u_NotifyEventListener,
@@ -58,7 +58,7 @@ end;
 constructor TSelectionLayer.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
 begin
-  inherited;
+  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FLineColor := SetAlpha(Color32(clBlack), 210);
   FLineWidth := 2;
   FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
@@ -79,11 +79,6 @@ procedure TSelectionLayer.DoRedraw;
 begin
   inherited;
   FPolygon := Copy(GState.LastSelectionInfo.Polygon);
-end;
-
-function TSelectionLayer.GetVisibleRectInMapPixels: TRect;
-begin
-  Result := MakeRect(0, 0, FViewSize.X, FViewSize.Y);
 end;
 
 function TSelectionLayer.LonLatArrayToVisualFloatArray(

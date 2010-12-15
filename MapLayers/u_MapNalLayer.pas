@@ -68,7 +68,6 @@ type
     procedure DoDrawNewPath(AIsPoly: Boolean);
   protected
     procedure DoRedraw; override;
-    procedure DoResizeBitmap; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -89,6 +88,8 @@ uses
   SysUtils,
   Ugeofun,
   u_GeoToStr,
+  i_ICoordConverter,
+  i_ILocalCoordConverter,
   u_ConfigProviderHelpers,
   UResStrings,
   u_GlobalState,
@@ -153,14 +154,18 @@ var
   VPointsOnBitmapPrepared: TDoublePointArray;
   VPointsProcessedCount: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
+    VLocalConverter := FBitmapCoordConverter;
+    VGeoConvert := VLocalConverter.GetGeoConverter;
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
     end;
 
     VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
@@ -191,14 +196,14 @@ begin
         end;
       end;
     end;
-    VBitmapSize := GetBitmapSizeInPixel;
+    VBitmapSize := FMapViewSize;
     for i := 0 to VPointsCount - 2 do begin
       k1 := VPointsOnBitmap[i + 1];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
         if i = VPointsCount - 2 then begin
           len := 0;
           for j := 0 to i do begin
-            len := len + FGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
+            len := len + VGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
           end;
           text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
           FLayer.Bitmap.Font.Size := 9;
@@ -219,7 +224,7 @@ begin
           );
         end else begin
           if FLenShow then begin
-            text := DistToStrWithUnits(FGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
+            text := DistToStrWithUnits(VGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
             FLayer.Bitmap.Font.Size := 7;
             textW := FLayer.Bitmap.TextWidth(text) + 11;
             FLayer.Bitmap.FillRectS(
@@ -260,14 +265,18 @@ var
   VPointsOnBitmapPrepared: TDoublePointArray;
   VPointsProcessedCount: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
+    VLocalConverter := FBitmapCoordConverter;
+    VGeoConvert := VLocalConverter.GetGeoConverter;
     SetLength(VPointsOnBitmap, VPointsCount + 1);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
     end;
     if AIsPoly then begin
       if not compare2EP(VPointsOnBitmap[0], VPointsOnBitmap[VPointsCount - 1]) then begin
@@ -305,7 +314,7 @@ begin
           polygon.Free;
         end;
       end;
-      VBitmapSize := GetBitmapSizeInPixel;
+      VBitmapSize := FMapViewSize;
       for i := 1 to VPointsProcessedCount - 1 do begin
         k1 := VPointsOnBitmapPrepared[i];
         DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
@@ -330,14 +339,18 @@ var
   VPointsOnBitmapPrepared: TDoublePointArray;
   VPointsProcessedCount: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
+    VLocalConverter := FBitmapCoordConverter;
+    VGeoConvert := VLocalConverter.GetGeoConverter;
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
-      FGeoConvert.CheckLonLatPos(VLonLat);
-      VPointsOnBitmap[i] := MapPixel2BitmapPixel(FGeoConvert.LonLat2PixelPosFloat(VLonLat, FZoom));
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      VPointsOnBitmap[i] := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
     end;
     VPointsProcessedCount := FBitmapClip.Clip(VPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
@@ -367,7 +380,7 @@ begin
           polygon.Free;
         end;
       end;
-      VBitmapSize := GetBitmapSizeInPixel;
+      VBitmapSize := FMapViewSize;
       k1 := VPointsOnBitmap[0];
       DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointFirstColor, FSelectionPolyPointFirstColor);
       if VPointsCount > 1 then begin
@@ -388,33 +401,35 @@ var
   VSelectedRelative: TDoubleRect;
   VSelectedTiles: TRect;
   VMaxZoomDelta: Integer;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
+  VZoom: Byte;
 begin
-  VSelectedPixels := FGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, FZoom);
+  VLocalConverter := FBitmapCoordConverter;
+  VGeoConvert := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VSelectedPixels := VGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, VZoom);
 
-  xy1 := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
-  xy1.x := xy1.x;
-  xy1.y := xy1.y;
-  xy2 := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
-  xy2.x := xy2.x;
-  xy2.y := xy2.y;
+  xy1 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.TopLeft);
+  xy2 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.BottomRight);
 
   FLayer.Bitmap.FillRectS(xy1.x, xy1.y, xy2.x, xy2.y, FSelectionRectFillColor);
   FLayer.Bitmap.FrameRectS(xy1.x, xy1.y, xy2.x, xy2.y, FSelectionRectBorderColor);
   FLayer.Bitmap.FrameRectS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FSelectionRectBorderColor);
 
-  VSelectedRelative := FGeoConvert.PixelRect2RelativeRect(VSelectedPixels, FZoom);
+  VSelectedRelative := VGeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoom);
 
-  jj := FZoom;
+  jj := VZoom;
   VZoomDelta := 0;
   VMaxZoomDelta := Length(FSelectionRectZoomDeltaColor) - 1;
   while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
-    VSelectedTiles := FGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
-    VSelectedPixels := FGeoConvert.RelativeRect2PixelRect(
-      FGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), FZoom
+    VSelectedTiles := VGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
+    VSelectedPixels := VGeoConvert.RelativeRect2PixelRect(
+      VGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), VZoom
     );
 
-    xy1 := MapPixel2BitmapPixel(VSelectedPixels.TopLeft);
-    xy2 := MapPixel2BitmapPixel(VSelectedPixels.BottomRight);
+    xy1 := VLocalConverter.MapPixel2LocalPixel(VSelectedPixels.TopLeft);
+    xy2 := VLocalConverter.MapPixel2LocalPixel(VSelectedPixels.BottomRight);
 
     VColor := FSelectionRectZoomDeltaColor[VZoomDelta];
 
@@ -447,15 +462,6 @@ begin
     mndtNewPath: DoDrawNewPath(False);
     mndtNewPoly: DoDrawNewPath(True);
   end;
-end;
-
-procedure TMapNalLayer.DoResizeBitmap;
-var
-  VSize: TPoint;
-begin
-  inherited;
-  VSize := GetBitmapSizeInPixel;
-  FBitmapClip := TPolyClipByRect.Create(MakeRect(0, 0, VSize.X, VSize.Y));
 end;
 
 procedure TMapNalLayer.DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);

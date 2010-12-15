@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   Types,
+  Windows,
   SyncObjs,
   GR32,
   i_ILocalCoordConverter;

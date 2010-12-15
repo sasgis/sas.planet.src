@@ -121,6 +121,7 @@ uses
   c_ZeroGUID,
   i_ICoordConverter,
   Uimgfun,
+  Ugeofun,
   UResStrings,
   i_ActiveMapsConfigSaveLoad,
   u_GlobalState,
@@ -482,7 +483,7 @@ var
   {
     Прямоугольник пикселей растра в координатах текущей основной карты
   }
-  VBitmapOnMapPixelRect: TRect;
+  VLoadedRect: TDoubleRect;
   VViewSize: TPoint;
   VZoomSource: Byte;
   VZoom: Byte;
@@ -492,25 +493,26 @@ var
   VPolygon: TPolygon32;
   VBitmapSize: TPoint;
   VVisualCoordConverter: ILocalCoordConverter;
+  VBitmapCoordConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
+  VSourceViewRect: TDoubleRect;
 begin
   FViewRectDrawLayer.Bitmap.Clear(clBlack);
   VVisualCoordConverter := FVisualCoordConverter;
+  VBitmapCoordConverter := FBitmapCoordConverter;
   VGeoConvert := VVisualCoordConverter.GetGeoConverter;
   if VGeoConvert <> nil then begin
     if FZoomDelta > 0 then begin
-      VViewSize := FMapViewSize;
-      VBitmapOnMapPixelRect.Left := FScreenCenterPos.X - VViewSize.X div 2;
-      VBitmapOnMapPixelRect.Top := FScreenCenterPos.Y - VViewSize.Y div 2;
-      VBitmapOnMapPixelRect.Right := VBitmapOnMapPixelRect.Left + VViewSize.X;
-      VBitmapOnMapPixelRect.Bottom := VBitmapOnMapPixelRect.Top + VViewSize.Y;
-      VZoomSource := FZoom;
-      VZoom := GetActualZoom;
-      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoomSource);
-      VRelRect := VGeoConvert.PixelRect2RelativeRect(VBitmapOnMapPixelRect, VZoomSource);
+      VSourceViewRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+      VLoadedRect := VVisualCoordConverter.LocalRectFloat2MapRectFloat(VSourceViewRect);
+
+      VZoomSource := VBitmapCoordConverter.GetZoom;
+      VZoom := VVisualCoordConverter.GetZoom;
+      VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VZoom, False);
+      VGeoConvert.CheckPixelPosFloat(VLoadedRect.BottomRight, VZoom, False);
+      VRelRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VZoomSource);
       VMiniMapRect := VGeoConvert.RelativeRect2PixelRect(VRelRect, VZoom);
-      VBitmapRect.TopLeft := MapPixel2BitmapPixel(VMiniMapRect.TopLeft);
-      VBitmapRect.BottomRight := MapPixel2BitmapPixel(VMiniMapRect.BottomRight);
+      VBitmapRect := VBitmapCoordConverter.MapRect2LocalRect(VMiniMapRect);
       Inc(VBitmapRect.Left, FViewRectMoveDelta.X);
       Inc(VBitmapRect.Top, FViewRectMoveDelta.Y);
       Inc(VBitmapRect.Right, FViewRectMoveDelta.X);
@@ -556,7 +558,7 @@ var
   {
     Прямоугольник пикселей растра в координатах текущей основной карты
   }
-  VBitmapOnMapPixelRect: TRect;
+  VBitmapOnMapPixelRect: TDoubleRect;
 
   {
     Географические координаты растра
@@ -606,6 +608,9 @@ var
   VGeoConvert: ICoordConverter;
   i, j: integer;
   VUsePre: Boolean;
+  VVisualConverter: ILocalCoordConverter;
+  VBitmapConverter: ILocalCoordConverter;
+  VBitmapRect: TDoubleRect;
 begin
   if AMapType.asLayer then begin
     VUsePre := GState.UsePrevZoomLayer;
@@ -614,15 +619,19 @@ begin
   end;
   VBmp := TCustomBitmap32.Create;
   try
+    VVisualConverter := FBitmapCoordConverter;
+    VBitmapConverter := FBitmapCoordConverter;
+    VGeoConvert := VVisualConverter.GetGeoConverter;
     VZoom := GetActualZoom;
     VSourceMapType := AMapType;
     VSourceGeoConvert := VSourceMapType.GeoConvert;
-    VGeoConvert := FGeoConvert;
-    VBitmapOnMapPixelRect.TopLeft := BitmapPixel2MapPixel(Point(0, 0));
-    VBitmapOnMapPixelRect.BottomRight := BitmapPixel2MapPixel(GetBitmapSizeInPixel);
-    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
 
-    VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+    VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+    VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+    VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
+    VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
+
+    VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
     VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
     VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
 
@@ -658,8 +667,7 @@ begin
         VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
         VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-        VCurrTilePixelRectAtBitmap.TopLeft := MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
-        VCurrTilePixelRectAtBitmap.BottomRight := MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+        VCurrTilePixelRectAtBitmap := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
         if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
           Gamma(VBmp);
         end;
@@ -678,40 +686,29 @@ begin
 end;
 
 function TMiniMapLayer.GetActualZoom: Byte;
+var
+  VZoom: Byte;
+  VGeoConvert: ICoordConverter;
 begin
+  VZoom := FVisualCoordConverter.GetZoom;
+  VGeoConvert := FVisualCoordConverter.GetGeoConverter;
   if FZoomDelta = 0 then begin
-    Result := FZoom;
+    Result := VZoom;
   end else if FZoomDelta > 0 then begin
-    if FZoom > FZoomDelta then begin
-      Result := FZoom - FZoomDelta;
+    if VZoom > FZoomDelta then begin
+      Result := VZoom - FZoomDelta;
     end else begin
       Result := 0;
     end;
   end else begin
-    Result := FZoom - FZoomDelta;
-    FGeoConvert.CheckZoom(Result);
+    Result := VZoom - FZoomDelta;
+    VGeoConvert.CheckZoom(Result);
   end;
 end;
 
 function TMiniMapLayer.GetBitmapSizeInPixel: TPoint;
 begin
   Result := FBitmapSize;
-end;
-
-function TMiniMapLayer.GetFreezePointInBitmapPixel: TPoint;
-var
-  VBitmapSize: TPoint;
-begin
-  VBitmapSize := GetBitmapSizeInPixel;
-  Result := Point(VBitmapSize.X, VBitmapSize.Y);
-end;
-
-function TMiniMapLayer.GetFreezePointInVisualPixel: TPoint;
-var
-  VVisibleSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result := Point(VVisibleSize.X, VVisibleSize.Y - FBottomMargin);
 end;
 
 procedure TMiniMapLayer.DoHide;
@@ -742,12 +739,12 @@ begin
   case button of
     mbRight: FParentMap.PopupMenu := FPopup;
     mbLeft: begin
-      VBitmapCenter := GetBitmapSizeInPixel;
-      VBitmapCenter := Point(VBitmapCenter.X div 2, VBitmapCenter.Y div 2);
-      VVisibleCenter := BitmapPixel2VisiblePixel(VBitmapCenter);
-      FPosMoved := True;
-      FViewRectMoveDelta := Point(X - VVisibleCenter.X, Y - VVisibleCenter.Y);
-      DrawMainViewRect;
+//      VBitmapCenter := GetBitmapSizeInPixel;
+//      VBitmapCenter := Point(VBitmapCenter.X div 2, VBitmapCenter.Y div 2);
+//      VVisibleCenter := BitmapPixel2VisiblePixel(VBitmapCenter);
+//      FPosMoved := True;
+//      FViewRectMoveDelta := Point(X - VVisibleCenter.X, Y - VVisibleCenter.Y);
+//      DrawMainViewRect;
     end;
   end;
 end;
@@ -761,29 +758,29 @@ var
   VVisibleRect: TRect;
 begin
   if FPosMoved then begin
-    VBitmapSize := GetBitmapSizeInPixel;
-    VBitmapCenter := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
-    VVisibleCenter := BitmapPixel2VisiblePixel(VBitmapCenter);
-
-    VVisibleRect.TopLeft := BitmapPixel2VisiblePixel(Point(0, 0));
-    VVisibleRect.BottomRight := BitmapPixel2VisiblePixel(VBitmapSize);
-
-    if X < VVisibleRect.Left then begin
-      FViewRectMoveDelta.X := VVisibleRect.Left - VVisibleCenter.X;
-    end else if X > VVisibleRect.Right then begin
-      FViewRectMoveDelta.X := VVisibleRect.Right - VVisibleCenter.X;
-    end else begin
-      FViewRectMoveDelta.X := X - VVisibleCenter.X;
-    end;
-    if Y < VVisibleRect.Top then begin
-      FViewRectMoveDelta.Y := VVisibleRect.Top - VVisibleCenter.Y;
-    end else if Y > VVisibleRect.Bottom then begin
-      FViewRectMoveDelta.Y := VVisibleRect.Bottom - VVisibleCenter.Y;
-    end else begin
-      FViewRectMoveDelta.Y := Y - VVisibleCenter.Y;
-    end;
-
-    DrawMainViewRect;
+//    VBitmapSize := GetBitmapSizeInPixel;
+//    VBitmapCenter := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
+//    VVisibleCenter := BitmapPixel2VisiblePixel(VBitmapCenter);
+//
+//    VVisibleRect.TopLeft := BitmapPixel2VisiblePixel(Point(0, 0));
+//    VVisibleRect.BottomRight := BitmapPixel2VisiblePixel(VBitmapSize);
+//
+//    if X < VVisibleRect.Left then begin
+//      FViewRectMoveDelta.X := VVisibleRect.Left - VVisibleCenter.X;
+//    end else if X > VVisibleRect.Right then begin
+//      FViewRectMoveDelta.X := VVisibleRect.Right - VVisibleCenter.X;
+//    end else begin
+//      FViewRectMoveDelta.X := X - VVisibleCenter.X;
+//    end;
+//    if Y < VVisibleRect.Top then begin
+//      FViewRectMoveDelta.Y := VVisibleRect.Top - VVisibleCenter.Y;
+//    end else if Y > VVisibleRect.Bottom then begin
+//      FViewRectMoveDelta.Y := VVisibleRect.Bottom - VVisibleCenter.Y;
+//    end else begin
+//      FViewRectMoveDelta.Y := Y - VVisibleCenter.Y;
+//    end;
+//
+//    DrawMainViewRect;
   end;
 end;
 
@@ -795,13 +792,13 @@ var
 begin
   if FPosMoved then begin
     if FLayer.HitTest(X, Y) then begin
-      GState.ViewState.LockWrite;
-      VNewPos := VisiblePixel2MapPixel(Point(X, Y));
-      VActualZoom := GetActualZoom;
-      GeoConvert.CheckPixelPosStrict(VNewPos, VActualZoom, False);
-      VNewPos := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(VNewPos, VActualZoom), FZoom);
-      FViewRectMoveDelta := Point(0, 0);
-      GState.ViewState.ChangeMapPixelPosAndUnlock(VNewPos);
+//      GState.ViewState.LockWrite;
+//      VNewPos := VisiblePixel2MapPixel(Point(X, Y));
+//      VActualZoom := GetActualZoom;
+//      GeoConvert.CheckPixelPosStrict(VNewPos, VActualZoom, False);
+//      VNewPos := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(VNewPos, VActualZoom), FZoom);
+//      FViewRectMoveDelta := Point(0, 0);
+//      GState.ViewState.ChangeMapPixelPosAndUnlock(VNewPos);
     end else begin
       FViewRectMoveDelta := Point(0, 0);
       DrawMainViewRect;
@@ -826,24 +823,24 @@ var
   VVisibleSize: TPoint;
 begin
   if FLeftBorderMoved then begin
-    VVisibleSize := GetVisibleSizeInPixel;
+//    VVisibleSize := GetVisibleSizeInPixel;
 
-    VBitmapPos := VisiblePixel2BitmapPixel(Point(X, Y));
-    VNewWidth := FBitmapSize.X - VBitmapPos.X;
-    if VNewWidth < 40 then begin
-      VNewWidth := 40;
-    end;
-    if VNewWidth > VVisibleSize.X then begin
-      VNewWidth := VVisibleSize.X;
-    end;
-    if VNewWidth > VVisibleSize.Y then begin
-      VNewWidth := VVisibleSize.Y;
-    end;
-    FBitmapSize.X := VNewWidth;
-    FBitmapSize.Y := VNewWidth;
-    DoResizeBitmap;
-    DoRedraw;
-    Resize;
+//    VBitmapPos := VisiblePixel2BitmapPixel(Point(X, Y));
+//    VNewWidth := FBitmapSize.X - VBitmapPos.X;
+//    if VNewWidth < 40 then begin
+//      VNewWidth := 40;
+//    end;
+//    if VNewWidth > VVisibleSize.X then begin
+//      VNewWidth := VVisibleSize.X;
+//    end;
+//    if VNewWidth > VVisibleSize.Y then begin
+//      VNewWidth := VVisibleSize.Y;
+//    end;
+//    FBitmapSize.X := VNewWidth;
+//    FBitmapSize.Y := VNewWidth;
+//    DoResizeBitmap;
+//    DoRedraw;
+//    Resize;
   end;
 end;
 
@@ -922,32 +919,32 @@ begin
   FMinusButton.MouseEvents := True;
 end;
 
-procedure TMiniMapLayer.DoResize;
-var
-  VBitmapSize: TPoint;
-  VRect: TRect;
-begin
-  inherited;
-  FViewRectDrawLayer.Location := FloatRect(GetMapLayerLocationRect);
-
-  VBitmapSize := GetBitmapSizeInPixel;
-  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(-5, -5));
-  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(0, VBitmapSize.Y));
-  FLeftBorder.Location := FloatRect(VRect);
-  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(0, -5));
-  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(VBitmapSize.X, 0));
-  FTopBorder.Location := FloatRect(VRect);
-
-  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(6, 6));
-  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(6 + FPlusButton.Bitmap.Width, 6 + FPlusButton.Bitmap.Height));
-  FPlusButton.Location := FloatRect(VRect);
-
-  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(19, 6));
-  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(19 + FMinusButton.Bitmap.Width, 6 + FMinusButton.Bitmap.Height));
-  FMinusButton.Location := FloatRect(VRect);
-
-  DrawMainViewRect;
-end;
+//procedure TMiniMapLayer.DoResize;
+//var
+//  VBitmapSize: TPoint;
+//  VRect: TRect;
+//begin
+//  inherited;
+//  FViewRectDrawLayer.Location := FloatRect(GetMapLayerLocationRect);
+//
+//  VBitmapSize := GetBitmapSizeInPixel;
+//  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(-5, -5));
+//  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(0, VBitmapSize.Y));
+//  FLeftBorder.Location := FloatRect(VRect);
+//  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(0, -5));
+//  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(VBitmapSize.X, 0));
+//  FTopBorder.Location := FloatRect(VRect);
+//
+//  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(6, 6));
+//  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(6 + FPlusButton.Bitmap.Width, 6 + FPlusButton.Bitmap.Height));
+//  FPlusButton.Location := FloatRect(VRect);
+//
+//  VRect.TopLeft := BitmapPixel2VisiblePixel(Point(19, 6));
+//  VRect.BottomRight := BitmapPixel2VisiblePixel(Point(19 + FMinusButton.Bitmap.Width, 6 + FMinusButton.Bitmap.Height));
+//  FMinusButton.Location := FloatRect(VRect);
+//
+//  DrawMainViewRect;
+//end;
 
 procedure TMiniMapLayer.DoResizeBitmap;
 var

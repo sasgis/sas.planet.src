@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  GR32,
   GR32_Image,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -11,16 +12,17 @@ uses
   u_WindowLayerBasic;
 
 type
-  TCenterScale = class(TWindowLayerBasicWithBitmap)
+  TCenterScale = class(TWindowLayerBasicFixedSizeWithBitmap)
   protected
     FRadius: Integer;
     FFontSize: Integer;
     FDigitsOffset: Integer;
     FSize: TPoint;
+    FMapViewSize: TPoint;
     function GetBitmapSizeInPixel: TPoint; override;
-    function GetFreezePointInVisualPixel: TPoint; override;
-    function GetFreezePointInBitmapPixel: TPoint; override;
-    procedure DoRedraw; override;
+    procedure DrawScale;
+    function GetMapLayerLocationRect: TFloatRect; override;
+    procedure OnViewSizeChange(Sender: TObject); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
@@ -31,7 +33,6 @@ implementation
 
 uses
   Graphics,
-  GR32,
   SysUtils;
 
 { TCenterScale }
@@ -46,6 +47,8 @@ begin
   FFontSize := 12;
   textWdth := FLayer.Bitmap.TextWidth('270°');
   FSize := Point((FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2), (FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2));
+  FLayer.Bitmap.SetSize(FSize.X, FSize.Y);
+  DrawScale;
 end;
 
 function TCenterScale.GetBitmapSizeInPixel: TPoint;
@@ -53,21 +56,12 @@ begin
   Result := FSize;
 end;
 
-
-function TCenterScale.GetFreezePointInBitmapPixel: TPoint;
-var
-  VBitmapSize: TPoint;
+function TCenterScale.GetMapLayerLocationRect: TFloatRect;
 begin
-  VBitmapSize := GetBitmapSizeInPixel;
-  Result := Point(VBitmapSize.X div 2, VBitmapSize.Y div 2);
-end;
-
-function TCenterScale.GetFreezePointInVisualPixel: TPoint;
-var
-  VVisibleSize: TPoint;
-begin
-  VVisibleSize := GetVisibleSizeInPixel;
-  Result := Point(VVisibleSize.X div 2, VVisibleSize.Y div 2);
+  Result.Left := FMapViewSize.X / 2 - FSize.X / 2;
+  Result.Top := FMapViewSize.Y / 2 - FSize.Y / 2;
+  Result.Right := Result.Left + FSize.X;
+  Result.Bottom := Result.Top + FSize.Y;
 end;
 
 procedure TCenterScale.LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -81,6 +75,12 @@ begin
   end;
 end;
 
+procedure TCenterScale.OnViewSizeChange(Sender: TObject);
+begin
+  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
+  inherited;
+end;
+
 procedure TCenterScale.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
 var
   VConfigProvider: IConfigDataWriteProvider;
@@ -90,7 +90,7 @@ begin
   VConfigProvider.WriteBool('showscale', Visible);
 end;
 
-procedure TCenterScale.DoRedraw;
+procedure TCenterScale.DrawScale;
 var
   VHalfSize: TPoint;
   i: integer;

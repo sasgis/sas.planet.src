@@ -1187,18 +1187,6 @@ begin
     labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
     map.BeginUpdate;
     try
-      FLayerStatBar.Redraw;
-      FLayerScaleLine.Redraw;
-      FMainLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FLayerFillingMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FLayerMapMarks.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FLayerMapNal.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FWikiLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FLayerMapGPS.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FLayerGoto.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      LayerMapNavToMark.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FShowErrorLayer.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
-      FLayerMiniMap.SetScreenCenterPos(VPoint, VZoomCurr, VConverter);
     finally
       map.EndUpdate;
       map.Changed;
@@ -1884,26 +1872,8 @@ begin
       try
       if move then begin
         GState.ViewState.ScaleTo(Scale, MouseCursorPos);
-        FMainLayer.ScaleTo(Scale, MouseCursorPos);
-        FLayerMapMarks.ScaleTo(Scale, MouseCursorPos);
-        FLayerMapGPS.ScaleTo(Scale, MouseCursorPos);
-        FWikiLayer.ScaleTo(Scale, MouseCursorPos);
-        FLayerFillingMap.ScaleTo(Scale, MouseCursorPos);
-        FLayerMapNal.ScaleTo(Scale, MouseCursorPos);
-        FLayerGoto.ScaleTo(Scale, MouseCursorPos);
-        FShowErrorLayer.ScaleTo(Scale, MouseCursorPos);
-        LayerMapNavToMark.ScaleTo(Scale, MouseCursorPos);
       end else begin
         GState.ViewState.ScaleTo(Scale);
-        FMainLayer.ScaleTo(Scale);
-        FLayerMapMarks.ScaleTo(Scale);
-        FLayerMapGPS.ScaleTo(Scale);
-        FWikiLayer.ScaleTo(Scale);
-        FLayerFillingMap.ScaleTo(Scale);
-        FLayerMapNal.ScaleTo(Scale);
-        FLayerGoto.ScaleTo(Scale);
-        FShowErrorLayer.ScaleTo(Scale);
-        LayerMapNavToMark.ScaleTo(Scale);
       end;
       finally
         map.EndUpdate;
@@ -2583,20 +2553,6 @@ procedure TFmain.mapResize(Sender: TObject);
 begin
   if (not ProgramClose)and(not ProgramStart)then begin
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
-    FMainLayer.Resize;
-    FLayerStatBar.Resize;
-    FLayerScaleLine.Resize;
-    FLayerMapNal.Resize;
-    FLayerMapMarks.Resize;
-    FLayerMapGPS.Resize;
-    FLayerMapScale.Resize;
-    FWikiLayer.Resize;
-    FLayerFillingMap.Resize;
-    FLayerGoto.Resize;
-    FShowErrorLayer.Resize;
-    LayerMapNavToMark.Resize;
-    FLayerMiniMap.Resize;
-    FLayerStatBar.Redraw;
   end;
 end;
 
@@ -3257,15 +3213,6 @@ begin
               map.BeginUpdate;
               try
               GState.ViewState.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FMainLayer.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FLayerMapNal.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FLayerMapMarks.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FWikiLayer.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FLayerMapGPS.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FLayerFillingMap.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FLayerGoto.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              FShowErrorLayer.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              LayerMapNavToMark.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
               finally
                 map.EndUpdate;
                 map.Invalidate;

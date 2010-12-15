@@ -65,6 +65,11 @@ begin
   Result.Y := FHeight;
 end;
 
+function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
+begin
+
+end;
+
 function TLayerStatBar.GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
 var
   prH, prM: integer;
@@ -159,7 +164,6 @@ end;
 
 procedure TLayerStatBar.DoUpdateLayerSize;
 begin
-  fwi
   inherited;
 
 end;

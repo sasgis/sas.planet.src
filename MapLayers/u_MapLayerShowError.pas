@@ -148,6 +148,7 @@ begin
   FFixedLonLat := RectCenter(FVisualCoordConverter.GetGeoConverter.TilePos2PixelRect(ATile, AZoom));
   RenderText(AMapType, AText);
   Visible := true;
+  UpdateLayerLocation;
 end;
 
 end.

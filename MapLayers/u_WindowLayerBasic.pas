@@ -83,7 +83,7 @@ type
     procedure DoUpdateLayerSize; virtual; abstract;
   end;
 
-  TWindowLayerBasicFixedSizeWithBitmap = class(TWindowLayerBasic)
+  TWindowLayerBasicFixedSizeWithBitmap = class(TWindowLayerBasicFixedSize)
   protected
     FParentMap: TImage32;
     FLayer: TBitmapLayer;
