@@ -40,7 +40,6 @@ type
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
-    procedure SetScreenCenterPos(const AScreenCenterPos: TPoint; const AZoom: byte; AGeoConvert: ICoordConverter); override;
     procedure Redraw; override;
     property SourceSelected: TMapType read FSourceSelected;
     property SourceZoom: integer read FSourceZoom;

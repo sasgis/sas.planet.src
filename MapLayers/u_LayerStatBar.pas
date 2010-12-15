@@ -22,7 +22,7 @@ type
     FLastUpdateTick: DWORD;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
-    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
+    function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
     procedure DoUpdateLayerSize; override;
   public
