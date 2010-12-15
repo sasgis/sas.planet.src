@@ -148,7 +148,6 @@
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayer.pas" />
     <DCCReference Include="MapLayers\u_MapNalLayer.pas" />
-    <DCCReference Include="MapLayers\u_MapTileLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
     <DCCReference Include="MapLayers\u_ThreadDrawMapLayer.pas" />
