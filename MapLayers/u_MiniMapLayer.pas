@@ -22,13 +22,19 @@ uses
   i_IHybrChangeMessage,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  i_ILocalCoordConverter,
   u_MapViewPortState,
   UMapType,
-  u_MapLayerBasic;
+  u_WindowLayerBasic;
 
 type
-  TMiniMapLayer = class(TMapLayerBasic)
+  TMiniMapLayer = class(TWindowLayerBasicFixedSizeWithBitmap)
   protected
+    FVisualCoordConverter: ILocalCoordConverter;
+    FBitmapCoordConverter: ILocalCoordConverter;
+    FLayer: TBitmapLayer;
+    FMapViewSize: TPoint;
+
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -77,21 +83,14 @@ type
     procedure LayerMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
     function GetBitmapSizeInPixel: TPoint; override;
-    function GetFreezePointInVisualPixel: TPoint; override;
-    function GetFreezePointInBitmapPixel: TPoint; override;
-    function GetActualZoom: Byte;
 
-    function BitmapPixel2MapPixel(Pnt: TPoint): TPoint; overload; override;
-    function BitmapPixel2MapPixel(Pnt: TDoublePoint): TDoublePoint; overload; override;
-    function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; override;
-    function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; override;
+    function GetActualZoom: Byte;
 
     procedure LoadBitmaps;
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
     procedure CreateLayers;
-    procedure DoResize; override;
-    procedure DoResizeBitmap; override;
+    procedure DoResizeBitmap;
     procedure DoShow; override;
     procedure DoHide; override;
     procedure AdjustFont(Item: TTBCustomItem;
@@ -126,7 +125,6 @@ uses
   i_ActiveMapsConfigSaveLoad,
   u_GlobalState,
   u_MapTypeList,
-  u_WindowLayerBasic,
   u_MapTypeMenuItemsGeneratorBasic,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigByConfigDataProvider,
@@ -449,52 +447,6 @@ begin
   end;
 end;
 
-function TMiniMapLayer.BitmapPixel2MapPixel(
-  Pnt: TDoublePoint): TDoublePoint;
-var
-  VScreenCenterInBitmap: TPoint;
-  VMapCenter: TDoublePoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  VMapCenter := FGeoConvert.Relative2PixelPosFloat(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
-  Result.X := VMapCenter.X - VScreenCenterInBitmap.X + Pnt.X;
-  Result.Y := VMapCenter.Y - VScreenCenterInBitmap.Y + Pnt.y;
-end;
-
-function TMiniMapLayer.BitmapPixel2MapPixel(Pnt: TPoint): TPoint;
-var
-  VScreenCenterInBitmap: TPoint;
-  VMapCenter: TPoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  VMapCenter := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
-  Result.X := VMapCenter.X - VScreenCenterInBitmap.X + Pnt.X;
-  Result.Y := VMapCenter.Y - VScreenCenterInBitmap.Y + Pnt.y;
-end;
-
-function TMiniMapLayer.MapPixel2BitmapPixel(
-  Pnt: TDoublePoint): TDoublePoint;
-var
-  VScreenCenterInBitmap: TPoint;
-  VMapCenter: TDoublePoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  VMapCenter := FGeoConvert.Relative2PixelPosFloat(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
-  Result.X := Pnt.X - VMapCenter.X + VScreenCenterInBitmap.X;
-  Result.Y := Pnt.Y - VMapCenter.Y + VScreenCenterInBitmap.Y;
-end;
-
-function TMiniMapLayer.MapPixel2BitmapPixel(Pnt: TPoint): TPoint;
-var
-  VScreenCenterInBitmap: TPoint;
-  VMapCenter: TPoint;
-begin
-  VScreenCenterInBitmap := GetScreenCenterInBitmapPixels;
-  VMapCenter := FGeoConvert.Relative2Pixel(FGeoConvert.PixelPos2Relative(ScreenCenterPos, FZoom), GetActualZoom);
-  Result.X := Pnt.X - VMapCenter.X + VScreenCenterInBitmap.X;
-  Result.Y := Pnt.Y - VMapCenter.Y + VScreenCenterInBitmap.Y;
-end;
-
 procedure TMiniMapLayer.DoRedraw;
 var
   i: Cardinal;
@@ -539,20 +491,24 @@ var
   VRelRect: TDoubleRect;
   VPolygon: TPolygon32;
   VBitmapSize: TPoint;
+  VVisualCoordConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
 begin
   FViewRectDrawLayer.Bitmap.Clear(clBlack);
-  if FGeoConvert <> nil then begin
+  VVisualCoordConverter := FVisualCoordConverter;
+  VGeoConvert := VVisualCoordConverter.GetGeoConverter;
+  if VGeoConvert <> nil then begin
     if FZoomDelta > 0 then begin
-      VViewSize := Point(FParentMap.Width, FParentMap.Height);
+      VViewSize := FMapViewSize;
       VBitmapOnMapPixelRect.Left := FScreenCenterPos.X - VViewSize.X div 2;
       VBitmapOnMapPixelRect.Top := FScreenCenterPos.Y - VViewSize.Y div 2;
       VBitmapOnMapPixelRect.Right := VBitmapOnMapPixelRect.Left + VViewSize.X;
       VBitmapOnMapPixelRect.Bottom := VBitmapOnMapPixelRect.Top + VViewSize.Y;
       VZoomSource := FZoom;
       VZoom := GetActualZoom;
-      FGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoomSource);
-      VRelRect := FGeoConvert.PixelRect2RelativeRect(VBitmapOnMapPixelRect, VZoomSource);
-      VMiniMapRect := FGeoConvert.RelativeRect2PixelRect(VRelRect, VZoom);
+      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoomSource);
+      VRelRect := VGeoConvert.PixelRect2RelativeRect(VBitmapOnMapPixelRect, VZoomSource);
+      VMiniMapRect := VGeoConvert.RelativeRect2PixelRect(VRelRect, VZoom);
       VBitmapRect.TopLeft := MapPixel2BitmapPixel(VMiniMapRect.TopLeft);
       VBitmapRect.BottomRight := MapPixel2BitmapPixel(VMiniMapRect.BottomRight);
       Inc(VBitmapRect.Left, FViewRectMoveDelta.X);

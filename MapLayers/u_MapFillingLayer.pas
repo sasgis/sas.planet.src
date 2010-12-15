@@ -16,13 +16,16 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_JclNotify,
+  i_ILocalCoordConverter,
   u_MapViewPortState,
   u_MapLayerBasic,
   uMapType;
 
 type
-  TMapFillingLayer = class(TMapLayerBasic)
+  TMapFillingLayer = class(TMapLayerBasicNoBitmap)
   protected
+    FBitmapCoordConverter: ILocalCoordConverter;
+    FLayer: TBitmapLayer;
     FThread: TThread;
     FSourceMapType: TMapType;
     FSourceSelected: TMapType;
@@ -82,7 +85,8 @@ type
 
 constructor TMapFillingLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
-  inherited;
+  FLayer := TBitmapLayer.Create(AParentMap.Layers);
+  inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
   FThread := TMapFillingThread.Create(Self);
   FMainMapChangeListener := TNotifyEventListener.Create(OnMainMapchange);
@@ -100,7 +104,7 @@ end;
 
 procedure TMapFillingLayer.DoRedraw;
 begin
-  if (FSourceMapType <> nil) and (FZoom <= FSourceZoom) and (FGeoConvert <> nil) then begin
+//  if (FSourceMapType <> nil) and (FZoom <= FSourceZoom) and (FGeoConvert <> nil) then begin
     inherited;
     TMapFillingThread(FThread).PrepareToChangeScene;
     if FSourceSelected = nil then begin
@@ -108,7 +112,7 @@ begin
     end;
     FLayer.Bitmap.Clear(clBlack);
     TMapFillingThread(FThread).ChangeScene;
-  end;
+//  end;
 end;
 
 procedure TMapFillingLayer.DoHide;
@@ -154,13 +158,13 @@ end;
 
 procedure TMapFillingLayer.Redraw;
 begin
-  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom <= FSourceZoom) then begin
-    if not Visible then begin
-      Visible := true;
-    end;
-  end else begin
-    Visible := false;
-  end;
+//  if (FSourceMapType <> nil) and (FGeoConvert <> nil) and (FZoom <= FSourceZoom) then begin
+//    if not Visible then begin
+//      Visible := true;
+//    end;
+//  end else begin
+//    Visible := false;
+//  end;
   inherited;
 
 end;
@@ -187,49 +191,49 @@ begin
   FThread.Terminate;
 end;
 
-procedure TMapFillingLayer.SetScreenCenterPos(
-  const AScreenCenterPos: TPoint; const AZoom: byte;
-  AGeoConvert: ICoordConverter);
-var
-  VFullRedraw: Boolean;
-begin
-  VFullRedraw := False;
-  if (FGeoConvert = nil) or ((FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG)) then begin
-    VFullRedraw := True;
-  end;
-  if FZoom <> AZoom then begin
-    VFullRedraw := True;
-  end;
-  if (FScreenCenterPos.X <> AScreenCenterPos.X) or (FScreenCenterPos.Y <> AScreenCenterPos.Y) then begin
-    if not VFullRedraw then begin
-      if IsNeedFullRedraw(AScreenCenterPos) then begin
-        VFullRedraw := True;
-      end else begin
-        FScreenCenterPos := AScreenCenterPos;
-      end;
-    end;
-  end;
-
-  FScale := 1;
-  FCenterMove := Point(0, 0);
-  FFreezeInCenter := True;
-
-  if VFullRedraw then begin
-    TMapFillingThread(FThread).PrepareToChangeScene;
-    FGeoConvert := AGeoConvert;
-    FZoom := AZoom;
-    FScreenCenterPos := AScreenCenterPos;
-    if FSourceSelected = nil then begin
-      FSourceMapType := GState.ViewState.GetCurrentMap;
-    end;
-    Redraw;
-  end else begin
-    RedrawPartial(AScreenCenterPos);
-    FScreenCenterPos := AScreenCenterPos;
-  end;
-  Resize;
-end;
-
+//procedure TMapFillingLayer.SetScreenCenterPos(
+//  const AScreenCenterPos: TPoint; const AZoom: byte;
+//  AGeoConvert: ICoordConverter);
+//var
+//  VFullRedraw: Boolean;
+//begin
+//  VFullRedraw := False;
+//  if (FGeoConvert = nil) or ((FGeoConvert.GetProjectionEPSG() <> 0) and (FGeoConvert.GetProjectionEPSG <> AGeoConvert.GetProjectionEPSG)) then begin
+//    VFullRedraw := True;
+//  end;
+//  if FZoom <> AZoom then begin
+//    VFullRedraw := True;
+//  end;
+//  if (FScreenCenterPos.X <> AScreenCenterPos.X) or (FScreenCenterPos.Y <> AScreenCenterPos.Y) then begin
+//    if not VFullRedraw then begin
+//      if IsNeedFullRedraw(AScreenCenterPos) then begin
+//        VFullRedraw := True;
+//      end else begin
+//        FScreenCenterPos := AScreenCenterPos;
+//      end;
+//    end;
+//  end;
+//
+//  FScale := 1;
+//  FCenterMove := Point(0, 0);
+//  FFreezeInCenter := True;
+//
+//  if VFullRedraw then begin
+//    TMapFillingThread(FThread).PrepareToChangeScene;
+//    FGeoConvert := AGeoConvert;
+//    FZoom := AZoom;
+//    FScreenCenterPos := AScreenCenterPos;
+//    if FSourceSelected = nil then begin
+//      FSourceMapType := GState.ViewState.GetCurrentMap;
+//    end;
+//    Redraw;
+//  end else begin
+//    RedrawPartial(AScreenCenterPos);
+//    FScreenCenterPos := AScreenCenterPos;
+//  end;
+//  Resize;
+//end;
+//
 procedure TMapFillingLayer.SetSourceMap(AMapType: TMapType; AZoom: integer);
 var
   VFullRedraw: Boolean;
@@ -261,7 +265,7 @@ begin
     Redraw;
     FSourceMapChangeNotifier.Notify(nil);
   end;
-  Resize;
+//  Resize;
 end;
 
 procedure TMapFillingLayer.StartThreads;
@@ -330,72 +334,72 @@ var
 begin
   VBmp := TCustomBitmap32.Create;
   try
-    VZoom := FLayer.Zoom;
-    VZoomSource := FLayer.FSourceZoom;
-    VSourceMapType := FLayer.FSourceMapType;
-    VSourceGeoConvert := VSourceMapType.GeoConvert;
-    VGeoConvert := FLayer.GeoConvert;
-    VBitmapOnMapPixelRect.TopLeft := FLayer.BitmapPixel2MapPixel(Point(0, 0));
-    VBitmapOnMapPixelRect.BottomRight := FLayer.BitmapPixel2MapPixel(FLayer.GetBitmapSizeInPixel);
-    if not FNeedRedrow then begin
-      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
-      VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
-      VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
-      VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
-      VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
-      while VTileIterator.Next(VTile) do begin
-        if FNeedRedrow then begin
-          break;
-        end;
-        VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
-        VTilePixelsToDraw.TopLeft := Point(0, 0);
-        VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left;
-        VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top;
-
-        if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
-          VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
-          VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
-        end;
-
-        if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
-          VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
-          VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
-        end;
-
-        if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
-          VTilePixelsToDraw.Right := VPixelSourceRect.Right - VCurrTilePixelRectSource.Left;
-          VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
-        end;
-
-        if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
-          VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top;
-          VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
-        end;
-
-        VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
-        VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
-
-        if FNeedRedrow then begin
-          break;
-        end;
-        VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
-        VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
-        if FNeedRedrow then begin
-          break;
-        end;
-        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
-          FLayer.FLayer.Bitmap.Lock;
-          try
-            FLayer.FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
-          finally
-            FLayer.FLayer.Bitmap.UnLock;
-          end;
-        end;
-      end;
-    end;
-    if not FNeedRedrow then begin
-      Synchronize(UpdateLayer);
-    end;
+//    VZoom := FLayer.Zoom;
+//    VZoomSource := FLayer.FSourceZoom;
+//    VSourceMapType := FLayer.FSourceMapType;
+//    VSourceGeoConvert := VSourceMapType.GeoConvert;
+//    VGeoConvert := FLayer.GeoConvert;
+//    VBitmapOnMapPixelRect.TopLeft := FLayer.BitmapPixel2MapPixel(Point(0, 0));
+//    VBitmapOnMapPixelRect.BottomRight := FLayer.BitmapPixel2MapPixel(FLayer.GetBitmapSizeInPixel);
+//    if not FNeedRedrow then begin
+//      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
+//      VSourceLonLatRect := VGeoConvert.PixelRect2LonLatRect(VBitmapOnMapPixelRect, VZoom);
+//      VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
+//      VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
+//      VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
+//      while VTileIterator.Next(VTile) do begin
+//        if FNeedRedrow then begin
+//          break;
+//        end;
+//        VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
+//        VTilePixelsToDraw.TopLeft := Point(0, 0);
+//        VTilePixelsToDraw.Right := VCurrTilePixelRectSource.Right - VCurrTilePixelRectSource.Left;
+//        VTilePixelsToDraw.Bottom := VCurrTilePixelRectSource.Bottom - VCurrTilePixelRectSource.Top;
+//
+//        if VCurrTilePixelRectSource.Left < VPixelSourceRect.Left then begin
+//          VTilePixelsToDraw.Left := VPixelSourceRect.Left - VCurrTilePixelRectSource.Left;
+//          VCurrTilePixelRectSource.Left := VPixelSourceRect.Left;
+//        end;
+//
+//        if VCurrTilePixelRectSource.Top < VPixelSourceRect.Top then begin
+//          VTilePixelsToDraw.Top := VPixelSourceRect.Top - VCurrTilePixelRectSource.Top;
+//          VCurrTilePixelRectSource.Top := VPixelSourceRect.Top;
+//        end;
+//
+//        if VCurrTilePixelRectSource.Right > VPixelSourceRect.Right then begin
+//          VTilePixelsToDraw.Right := VPixelSourceRect.Right - VCurrTilePixelRectSource.Left;
+//          VCurrTilePixelRectSource.Right := VPixelSourceRect.Right;
+//        end;
+//
+//        if VCurrTilePixelRectSource.Bottom > VPixelSourceRect.Bottom then begin
+//          VTilePixelsToDraw.Bottom := VPixelSourceRect.Bottom - VCurrTilePixelRectSource.Top;
+//          VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
+//        end;
+//
+//        VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
+//        VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
+//
+//        if FNeedRedrow then begin
+//          break;
+//        end;
+//        VCurrTilePixelRectAtBitmap.TopLeft := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.TopLeft);
+//        VCurrTilePixelRectAtBitmap.BottomRight := FLayer.MapPixel2BitmapPixel(VCurrTilePixelRect.BottomRight);
+//        if FNeedRedrow then begin
+//          break;
+//        end;
+//        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedRedrow) then begin
+//          FLayer.FLayer.Bitmap.Lock;
+//          try
+//            FLayer.FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+//          finally
+//            FLayer.FLayer.Bitmap.UnLock;
+//          end;
+//        end;
+//      end;
+//    end;
+//    if not FNeedRedrow then begin
+//      Synchronize(UpdateLayer);
+//    end;
   finally
     VTileIterator := nil;
     VBmp.Free;
