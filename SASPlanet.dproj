@@ -144,12 +144,14 @@
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayer.pas" />
     <DCCReference Include="MapLayers\u_MapNalLayer.pas" />
     <DCCReference Include="MapLayers\u_MapTileLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
+    <DCCReference Include="MapLayers\u_ThreadDrawMapLayer.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
