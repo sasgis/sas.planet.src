@@ -26,7 +26,7 @@ type
     procedure DoUpdateLayerSize; override;
     procedure OnPosChange(Sender: TObject); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AThread: TThreadDrawMapLayer);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AThreadFactory: TThreadDrawMapLayerFactory);
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
@@ -42,13 +42,13 @@ uses
 { TMapLayerWithThreadDraw }
 
 constructor TMapLayerWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState; AThread: TThreadDrawMapLayer);
+  AViewPortState: TMapViewPortState; AThreadFactory: TThreadDrawMapLayerFactory);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
-  FThread := AThread;
+  FThread := AThreadFactory.CreateThread(FLayer.Bitmap);
 end;
 
 destructor TMapLayerWithThreadDraw.Destroy;

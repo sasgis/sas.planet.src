@@ -34,6 +34,11 @@ type
     procedure StopDraw;
   end;
 
+  TThreadDrawMapLayerFactory = class
+  public
+    function CreateThread(ABitmap: TCustomBitmap32): TThreadDrawMapLayer; virtual; abstract;
+  end;
+
 implementation
 
 { TThreadDrawMapLayer }
