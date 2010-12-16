@@ -7,9 +7,11 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  i_ILocalCoordConverter,
   u_MapViewPortState,
   u_WindowLayerBasic;
 
@@ -19,13 +21,16 @@ type
     FHeight: Integer;
     FMinUpdateTickCount: Cardinal;
     FLastUpdateTick: DWORD;
+    FPosChangeListener: IJclListener;
+    FVisualCoordConverter: ILocalCoordConverter;
+    procedure OnPosChange(Sender: TObject); virtual;
     function GetBitmapSizeInPixel: TPoint; override;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
-    procedure DoUpdateLayerSize; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property Height: Integer read FHeight;
@@ -37,6 +42,7 @@ uses
   SysUtils,
   u_GeoToStr,
   i_ICoordConverter,
+  u_NotifyEventListener,
   UResStrings,
   UTimeZones,
   Unit1,
@@ -56,6 +62,9 @@ begin
   FHeight := 17;
   FLastUpdateTick := 0;
   FMinUpdateTickCount := 100;
+  FPosChangeListener := TNotifyEventListener.Create(Self.OnPosChange);
+  FViewPortState.PosChangeNotifier.Add(FPosChangeListener);
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
 end;
 
 function TLayerStatBar.GetBitmapSizeInPixel: TPoint;
@@ -98,6 +107,12 @@ begin
   end;
 end;
 
+procedure TLayerStatBar.OnPosChange(Sender: TObject);
+begin
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
+  Redraw;
+end;
+
 procedure TLayerStatBar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
 var
   VSubItem: IConfigDataWriteProvider;
@@ -107,13 +122,20 @@ begin
   VSubItem.WriteBool('StatusBar', Visible);
 end;
 
+destructor TLayerStatBar.Destroy;
+begin
+  FViewPortState.PosChangeNotifier.Remove(FPosChangeListener);
+  FPosChangeListener := nil;
+  inherited;
+end;
+
 procedure TLayerStatBar.DoRedraw;
 var
   ll: TDoublePoint;
   subs2: string;
   posnext: integer;
   TameTZ: TDateTime;
-  VPoint: TPoint;
+  VMapPoint: TDoublePoint;
   VZoomCurr: Byte;
   VLonLatStr: String;
   VSize: TPoint;
@@ -123,23 +145,27 @@ var
   VConverter: ICoordConverter;
   VPixelsAtZoom: Double;
   VCurrentTick: DWORD;
+  VMousePos: TPoint;
+  VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + 100) then begin
-    GState.ViewState.LockRead;
-    try
-      VMap := GState.ViewState.GetCurrentMap;
-      ll := GState.ViewState.VisiblePixel2LonLat(Fmain.MouseCursorPos);
-      VPoint := GState.ViewState.VisiblePixel2MapPixel(Fmain.MouseCursorPos);
-      VZoomCurr := GState.ViewState.GetCurrentZoom;
-      VSize := GState.ViewState.GetViewSizeInVisiblePixel;
-      VConverter := GState.ViewState.GetCurrentCoordConverter;
-    finally
-      GState.ViewState.UnLockRead;
-    end;
-    VMap.GeoConvert.CheckPixelPos(VPoint, VZoomCurr, True);
-    VTile := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+    VVisualCoordConverter := FVisualCoordConverter;
+    VMousePos := Fmain.MouseCursorPos;
+    VZoomCurr := VVisualCoordConverter.GetZoom;
+    VConverter := VVisualCoordConverter.GetGeoConverter;
+    VSize := GetBitmapSizeInPixel;
+    VMap := GState.ViewState.GetCurrentMap;
+
+    VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
+    VTile := VMap.GeoConvert.PixelPosFloat2TilePos(VMapPoint, VZoomCurr);
+    VMap.GeoConvert.CheckTilePosStrict(VTile, VZoomCurr, True);
+
+    VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
+    VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
+    ll := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoomCurr);
+
     if GState.FirstLat then begin
       VLonLatStr := lat2str(ll.y, GState.llStrType) + ' ' + lon2str(ll.x, GState.llStrType);
     end else begin
@@ -162,12 +188,6 @@ begin
     FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, clBlack32);
     FLastUpdateTick := GetTickCount;
   end;
-end;
-
-procedure TLayerStatBar.DoUpdateLayerSize;
-begin
-  inherited;
-
 end;
 
 end.

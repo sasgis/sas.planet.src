@@ -16,8 +16,8 @@ uses
 type
   TLayerScaleLine = class(TWindowLayerBasicFixedSizeWithBitmap)
   protected
-    FPosChangeListener: IJclListener;
     FBottomMargin: Integer;
+    FPosChangeListener: IJclListener;
     FVisualCoordConverter: ILocalCoordConverter;
     procedure OnPosChange(Sender: TObject); virtual;
     function GetBitmapSizeInPixel: TPoint; override;
@@ -59,6 +59,7 @@ begin
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   FPosChangeListener := TNotifyEventListener.Create(Self.OnPosChange);
   FViewPortState.PosChangeNotifier.Add(FPosChangeListener);
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
 end;
 
 destructor TLayerScaleLine.Destroy;
