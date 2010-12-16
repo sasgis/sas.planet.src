@@ -183,6 +183,7 @@ procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayerPositioned.Visible := True;
+  UpdateLayerLocation;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation;
