@@ -143,6 +143,7 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+  FBitmapCoordConverter := FVisualCoordConverter;
 end;
 
 procedure TMapLayerBasic.DoUpdateLayerSize;
