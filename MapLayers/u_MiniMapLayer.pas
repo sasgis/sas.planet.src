@@ -32,7 +32,6 @@ type
   protected
     FVisualCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverter: ILocalCoordConverter;
-    FLayer: TBitmapLayer;
     FMapViewSize: TPoint;
 
     FMapsActive: IActiveMapWithHybrConfig;

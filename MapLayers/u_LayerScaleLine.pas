@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  GR32,
   GR32_Image,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -16,6 +17,7 @@ type
     FBottomMargin: Integer;
     function GetBitmapSizeInPixel: TPoint; override;
     procedure DoRedraw; override;
+    function GetMapLayerLocationRect: TFloatRect; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
@@ -28,7 +30,6 @@ implementation
 uses
   Math,
   SysUtils,
-  GR32,
   i_ICoordConverter,
   UResStrings,
   t_GeoTypes,
@@ -112,6 +113,17 @@ function TLayerScaleLine.GetBitmapSizeInPixel: TPoint;
 begin
   Result.X := 128;
   Result.Y := 15;
+end;
+
+function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
+var
+  VSize: TPoint;
+begin
+  VSize := GetBitmapSizeInPixel;
+  Result.Left := 6;
+  Result.Bottom := FMapViewSize.Y - 6 - FBottomMargin;
+  Result.Right := Result.Left + VSize.X;
+  Result.Top := Result.Bottom - VSize.Y;
 end;
 
 procedure TLayerScaleLine.LoadConfig(AConfigProvider: IConfigDataProvider);
