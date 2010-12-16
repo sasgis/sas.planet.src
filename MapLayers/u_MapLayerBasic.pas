@@ -189,6 +189,7 @@ end;
 constructor TMapLayerFixedWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
 begin
+  inherited;
   FPosChangeListener := TNotifyEventListener.Create(Self.OnPosChange);
   FViewPortState.PosChangeNotifier.Add(FPosChangeListener);
   FScaleChangeListener := TNotifyEventListener.Create(Self.OnScaleChange);

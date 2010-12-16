@@ -73,6 +73,7 @@ type
 
   TWindowLayerBasicFixedSize = class(TWindowLayerBasic)
   protected
+    FMapViewSize: TPoint;
     procedure OnViewSizeChange(Sender: TObject); override;
   end;
 
@@ -88,6 +89,7 @@ type
     FParentMap: TImage32;
     FLayer: TBitmapLayer;
     function GetBitmapSizeInPixel: TPoint; virtual; abstract;
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
@@ -329,6 +331,7 @@ end;
 
 procedure TWindowLayerBasicFixedSize.OnViewSizeChange(Sender: TObject);
 begin
+  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
   UpdateLayerLocation;
 end;
 
@@ -344,6 +347,10 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+end;
+
+procedure TWindowLayerBasicFixedSizeWithBitmap.DoRedraw;
+begin
 end;
 
 end.
