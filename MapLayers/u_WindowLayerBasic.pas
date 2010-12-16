@@ -274,6 +274,7 @@ procedure TWindowLayerBasicScaledSize.OnViewSizeChange(Sender: TObject);
 begin
   UpdateLayerSize;
   UpdateLayerLocation;
+  Redraw;
 end;
 
 procedure TWindowLayerBasicScaledSize.UpdateLayerSize;
