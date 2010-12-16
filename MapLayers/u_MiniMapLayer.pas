@@ -82,6 +82,7 @@ type
     procedure LayerMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
     function GetBitmapSizeInPixel: TPoint; override;
+    function GetMapLayerLocationRect: TFloatRect; override;
 
     function GetActualZoom: Byte;
 
@@ -708,6 +709,17 @@ end;
 function TMiniMapLayer.GetBitmapSizeInPixel: TPoint;
 begin
   Result := FBitmapSize;
+end;
+
+function TMiniMapLayer.GetMapLayerLocationRect: TFloatRect;
+var
+  VSize: TPoint;
+begin
+  VSize := GetBitmapSizeInPixel;
+  Result.Right := FMapViewSize.X;
+  Result.Bottom := FMapViewSize.Y - FBottomMargin;
+  Result.Left := Result.Right - VSize.X;
+  Result.Top := Result.Bottom - VSize.Y;
 end;
 
 procedure TMiniMapLayer.DoHide;
