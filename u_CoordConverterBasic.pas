@@ -1621,7 +1621,7 @@ begin
     if (XY.X >= VPixelsAtZoom) then begin
       Result := False;
       if ACicleMap then begin
-        XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom + VPixelsAtZoom;
+        XY.X := XY.X - Int(XY.X / VPixelsAtZoom) * VPixelsAtZoom;
       end else begin
         XY.X := VPixelsAtZoom;
       end;
