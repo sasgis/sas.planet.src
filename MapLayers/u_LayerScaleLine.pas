@@ -6,20 +6,26 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  i_ILocalCoordConverter,
   u_MapViewPortState,
   u_WindowLayerBasic;
 
 type
   TLayerScaleLine = class(TWindowLayerBasicFixedSizeWithBitmap)
   protected
+    FPosChangeListener: IJclListener;
     FBottomMargin: Integer;
+    FVisualCoordConverter: ILocalCoordConverter;
+    procedure OnPosChange(Sender: TObject); virtual;
     function GetBitmapSizeInPixel: TPoint; override;
     procedure DoRedraw; override;
     function GetMapLayerLocationRect: TFloatRect; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
@@ -33,6 +39,8 @@ uses
   i_ICoordConverter,
   UResStrings,
   t_GeoTypes,
+  Ugeofun,
+  u_NotifyEventListener,
   u_GlobalState;
 
 const
@@ -41,10 +49,23 @@ const
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+var
+  VSize: TPoint;
 begin
   inherited;
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
+  VSize := GetBitmapSizeInPixel;
+  FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
+  FPosChangeListener := TNotifyEventListener.Create(Self.OnPosChange);
+  FViewPortState.PosChangeNotifier.Add(FPosChangeListener);
+end;
+
+destructor TLayerScaleLine.Destroy;
+begin
+  FViewPortState.PosChangeNotifier.Remove(FPosChangeListener);
+  FPosChangeListener := nil;
+  inherited;
 end;
 
 procedure TLayerScaleLine.DoRedraw;
@@ -58,17 +79,20 @@ var
   VConverter: ICoordConverter;
   VPixelsAtZoom: Double;
   VZoom: Byte;
+  VScreenCenterVisual: TDoublePoint;
+  VScreenCenterMap: TDoublePoint;
+  VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
+  VVisualCoordConverter := FVisualCoordConverter;
   VBitmapSize := GetBitmapSizeInPixel;
-  GState.ViewState.LockRead;
-  try
-    LL := GState.ViewState.GetCenterLonLat;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    VZoom := GState.ViewState.GetCurrentZoom;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VScreenCenterVisual := DoublePoint(FMapViewSize.X div 2, FMapViewSize.Y div 2);
+  VScreenCenterMap := VVisualCoordConverter.LocalPixelFloat2MapPixelFloat(VScreenCenterVisual);
+  VConverter := VVisualCoordConverter.GetGeoConverter;
+  VZoom := VVisualCoordConverter.GetZoom;
+  VConverter.CheckPixelPosFloatStrict(VScreenCenterMap, VZoom, True);
+  LL := VConverter.PixelPosFloat2LonLat(VScreenCenterMap, VZoom);
+
   VRad := VConverter.GetSpheroidRadius;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
   num := 106 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(LL.y * D2R)));
@@ -137,6 +161,12 @@ begin
   end else begin
     Visible := True;
   end;
+end;
+
+procedure TLayerScaleLine.OnPosChange(Sender: TObject);
+begin
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
+  Redraw;
 end;
 
 procedure TLayerScaleLine.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
