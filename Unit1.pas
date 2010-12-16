@@ -1665,10 +1665,6 @@ begin
        FLayerMapGPS.Redraw;
        UpdateGPSsensors;
     end;
-    try
-      FLayerMapMarks.Visible := GState.show_point <> mshNone;
-    except
-    end;
   end;
   FLayerStatBar.Redraw;
   QueryPerformanceCounter(ts3);
@@ -3406,8 +3402,8 @@ end;
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
  FMarksExplorer.ShowModal;
- FLayerMapMarks.Visible := GState.show_point <> mshNone;
  FLayerMapMarks.Redraw;
+ FLayerMapMarks.Visible := GState.show_point <> mshNone;
 end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
