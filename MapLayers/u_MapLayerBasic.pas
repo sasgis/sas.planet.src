@@ -26,6 +26,7 @@ type
     procedure OnScaleChange(Sender: TObject);
     procedure OnPosChange(Sender: TObject); virtual;
     procedure DoUpdateLayerSize; override;
+    procedure DoShow; override;
     function GetMapLayerLocationRect: TFloatRect; override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
@@ -80,7 +81,8 @@ begin
   FViewPortState.PosChangeNotifier.Add(FPosChangeListener);
   FScaleChangeListener := TNotifyEventListener.Create(Self.OnScaleChange);
   FViewPortState.ScaleChangeNotifier.Add(FScaleChangeListener);
-  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
+  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
 end;
 
 destructor TMapLayerBasicNoBitmap.Destroy;
@@ -109,6 +111,12 @@ begin
   if FVisualCoordConverter <> nil then begin
     inherited;
   end;
+end;
+
+procedure TMapLayerBasicNoBitmap.DoShow;
+begin
+  inherited;
+  OnViewSizeChange(nil);
 end;
 
 procedure TMapLayerBasicNoBitmap.DoUpdateLayerSize;

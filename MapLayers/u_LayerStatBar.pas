@@ -17,7 +17,6 @@ type
   TLayerStatBar = class(TWindowLayerBasicWithBitmap)
   protected
     FHeight: Integer;
-    FWidth: Integer;
     FMinUpdateTickCount: Cardinal;
     FLastUpdateTick: DWORD;
     function GetBitmapSizeInPixel: TPoint; override;
@@ -61,13 +60,16 @@ end;
 
 function TLayerStatBar.GetBitmapSizeInPixel: TPoint;
 begin
-  Result.X := FWidth;
+  Result.X := FMapViewSize.X;
   Result.Y := FHeight;
 end;
 
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
-
+  Result.Left := 0;
+  Result.Bottom := FMapViewSize.Y;
+  Result.Right := FMapViewSize.X;
+  Result.Top := Result.Bottom - FHeight;
 end;
 
 function TLayerStatBar.GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
