@@ -30,6 +30,7 @@ uses
   u_GlobalState,
   i_ICoordConverter,
   i_IBitmapLayerProvider,
+  i_ILocalCoordConverter,
   u_MarksSimple,
   Unit1,
   u_WindowLayerBasic;
@@ -76,6 +77,8 @@ var
   VZoom: Byte;
   VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
+  VMapRect: TDoubleRect;
+  VLocalConverter: ILocalCoordConverter;
 begin
   if GState.show_point = mshNone then exit;
 
@@ -84,16 +87,16 @@ begin
   VRect.Right := xy.X + 8;
   VRect.Bottom := xy.Y + 16;
 
-  GState.ViewState.LockRead;
-  try
-    VLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VRect.TopLeft);
-    VLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VRect.BottomRight);
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    VZoom := GState.ViewState.GetCurrentZoom;
-    VPixelPos := GState.ViewState.VisiblePixel2MapPixel(xy);
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VLocalConverter := FVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+
+  VMapRect := FVisualCoordConverter.LocalRect2MapRectFloat(VRect);
+  VConverter.CheckPixelPosFloatStrict(VMapRect.TopLeft, VZoom, False);
+  VConverter.CheckPixelPosFloatStrict(VMapRect.BottomRight, VZoom, False);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VPixelPos := FVisualCoordConverter.LocalPixel2MapPixel(xy);
+
   VMarksIterator := FMain.GetMarksIterator(VZoom, VLonLatRect, GState.show_point);
   try
     While VMarksIterator.Next do begin

@@ -3406,6 +3406,7 @@ end;
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
  FMarksExplorer.ShowModal;
+ FLayerMapMarks.Visible := GState.show_point <> mshNone;
  FLayerMapMarks.Redraw;
 end;
 
