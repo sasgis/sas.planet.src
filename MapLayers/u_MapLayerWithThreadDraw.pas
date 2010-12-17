@@ -9,16 +9,17 @@ uses
   GR32_Image,
   GR32_Layers,
   i_ILocalCoordConverter,
-  u_ThreadDrawMapLayer,
+  i_IBackgroundTaskLayerDraw,
   u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TMapLayerWithThreadDraw = class(TMapLayerBasicNoBitmap)
   protected
-    FThread: TThreadDrawMapLayer;
+    FDrawTask: IBackgroundTaskLayerDraw;
     FBitmapCoordConverter: ILocalCoordConverter;
     FLayer: TBitmapLayer;
+    property DrawTask: IBackgroundTaskLayerDraw read FDrawTask;
     procedure DoRedraw; override;
     procedure DoHide; override;
     procedure DoShow; override;
@@ -26,7 +27,7 @@ type
     procedure DoUpdateLayerSize; override;
     procedure OnPosChange(Sender: TObject); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AThreadFactory: TThreadDrawMapLayerFactory);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
@@ -42,44 +43,50 @@ uses
 { TMapLayerWithThreadDraw }
 
 constructor TMapLayerWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState; AThreadFactory: TThreadDrawMapLayerFactory);
+  AViewPortState: TMapViewPortState;  ATaskFactory: IBackgroundTaskLayerDrawFactory);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
-  FThread := AThreadFactory.CreateThread(FLayer.Bitmap);
+  FDrawTask := ATaskFactory.GetTask(FLayer.Bitmap);
 end;
 
 destructor TMapLayerWithThreadDraw.Destroy;
 begin
-  FreeAndNil(FThread);
+  FDrawTask := nil;
   inherited;
 end;
 
 procedure TMapLayerWithThreadDraw.DoHide;
 begin
   inherited;
-  FThread.StopDraw;
+  FDrawTask.StopExecute;
 end;
 
 procedure TMapLayerWithThreadDraw.DoRedraw;
 begin
   inherited;
-  FThread.StopDraw;
-  FThread.StartDraw;
+  FDrawTask.StopExecute;
+  FDrawTask.StartExecute;
 end;
 
 procedure TMapLayerWithThreadDraw.DoShow;
 begin
   inherited;
-  FThread.StartDraw;
+  FDrawTask.StartExecute;
 end;
 
 procedure TMapLayerWithThreadDraw.DoUpdateLayerSize;
 begin
   inherited;
-  FThread.ChangePosOrSize(FMapViewSize, FBitmapCoordConverter);
+  FDrawTask.StopExecute;
+  try
+    FDrawTask.ChangeSize(FMapViewSize);
+    FDrawTask.ChangePos(FBitmapCoordConverter);
+  finally
+    FDrawTask.StartExecute;
+  end;
 end;
 
 function TMapLayerWithThreadDraw.GetMapLayerLocationRect: TFloatRect;
@@ -98,20 +105,21 @@ procedure TMapLayerWithThreadDraw.OnPosChange(Sender: TObject);
 begin
   inherited;
   FBitmapCoordConverter :=  FVisualCoordConverter;
-  FThread.ChangePosOrSize(FMapViewSize, FBitmapCoordConverter);
+  FDrawTask.ChangePos(FBitmapCoordConverter);
   UpdateLayerLocation;
 end;
 
 procedure TMapLayerWithThreadDraw.SendTerminateToThreads;
 begin
   inherited;
-  FThread.Terminate;
+  FDrawTask.Terminate;
 end;
 
 procedure TMapLayerWithThreadDraw.StartThreads;
 begin
   inherited;
-  FThread.Resume;
+  FDrawTask.Start;
+  FDrawTask.ChangePos(FBitmapCoordConverter);
 end;
 
 end.

@@ -83,6 +83,8 @@
     <DCCReference Include="i_GPS.pas" />
     <DCCReference Include="i_IActiveMapsConfig.pas" />
     <DCCReference Include="i_IAntiBan.pas" />
+    <DCCReference Include="i_IBackgroundTask.pas" />
+    <DCCReference Include="i_IBackgroundTaskLayerDraw.pas" />
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
     <DCCReference Include="i_IConfigDataElement.pas" />
@@ -120,6 +122,7 @@
     <DCCReference Include="i_IProxySettings.pas" />
     <DCCReference Include="i_ISearchResultPresenter.pas" />
     <DCCReference Include="i_ISimpleFactory.pas" />
+    <DCCReference Include="i_IThread.pas" />
     <DCCReference Include="i_ITileDownlodSession.pas" />
     <DCCReference Include="i_ITileFileNameGenerator.pas" />
     <DCCReference Include="i_ITileFileNameGeneratorsList.pas" />
@@ -140,6 +143,7 @@
     <DCCReference Include="MapLayers\u_MapFillingLayer.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
@@ -150,7 +154,6 @@
     <DCCReference Include="MapLayers\u_MapNalLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
-    <DCCReference Include="MapLayers\u_ThreadDrawMapLayer.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
@@ -317,6 +320,8 @@
     <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
+    <DCCReference Include="u_BackgroundTask.pas" />
+    <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
@@ -377,6 +382,7 @@
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
+    <DCCReference Include="u_InterfacedThread.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
