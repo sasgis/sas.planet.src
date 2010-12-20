@@ -3406,26 +3406,6 @@ begin
  FLayerMapMarks.Visible := GState.show_point <> mshNone;
 end;
 
-procedure TFmain.NSRTM3Click(Sender: TObject);
-var
-  VLonLat:TDoublePoint;
-begin
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
-  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
-  Fbrowser.Visible := true;
-  Fbrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
-end;
-
-procedure TFmain.NGTOPO30Click(Sender: TObject);
-var
-  VLonLat:TDoublePoint;
-begin
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
-  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
-  Fbrowser.Visible:=true;
-  Fbrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
-end;
-
 procedure TFmain.NMarkNavClick(Sender: TObject);
 var
   LL:TDoublePoint;
@@ -3771,6 +3751,26 @@ begin
   if frmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
+end;
+
+procedure TFmain.NSRTM3Click(Sender: TObject);
+var
+  VLonLat:TDoublePoint;
+begin
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
+  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
+  Fbrowser.Visible := true;
+  Fbrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+end;
+
+procedure TFmain.NGTOPO30Click(Sender: TObject);
+var
+  VLonLat:TDoublePoint;
+begin
+  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
+  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
+  Fbrowser.Visible:=true;
+  Fbrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.Google1Click(Sender: TObject);
