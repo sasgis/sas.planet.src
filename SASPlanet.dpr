@@ -191,6 +191,7 @@ uses
   u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
   u_ClipPolygonByRect in 'u_ClipPolygonByRect.pas',
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',
+  u_WindowLayerWithPos in 'MapLayers\u_WindowLayerWithPos.pas',
   u_WindowLayerBasicList in 'u_WindowLayerBasicList.pas',
   u_MiniMapLayer in 'MapLayers\u_MiniMapLayer.pas',
   u_CenterScale in 'MapLayers\u_CenterScale.pas',

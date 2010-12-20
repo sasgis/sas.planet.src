@@ -18,7 +18,7 @@ type
     FZoom: Byte;
     function GetBitmapSizeInPixel: TPoint; override;
     procedure RenderText(AMapType: TMapType; AText: string);
-    procedure DoUpdateLayerLocation; override;
+    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure ShowError(ATile: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
@@ -75,7 +75,7 @@ end;
 //  end;
 //end;
 //
-procedure TTileErrorInfoLayer.DoUpdateLayerLocation;
+procedure TTileErrorInfoLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
 var
   VCurrTime: Cardinal;
 begin
@@ -148,7 +148,7 @@ begin
   FFixedLonLat := RectCenter(FVisualCoordConverter.GetGeoConverter.TilePos2PixelRect(ATile, AZoom));
   RenderText(AMapType, AText);
   Visible := true;
-  UpdateLayerLocation;
+  UpdateLayerLocation(GetMapLayerLocationRect);
 end;
 
 end.

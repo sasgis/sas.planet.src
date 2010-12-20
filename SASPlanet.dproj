@@ -155,6 +155,7 @@
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
+    <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
       <DesignClass>TFrame</DesignClass>

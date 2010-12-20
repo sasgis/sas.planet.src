@@ -17,7 +17,7 @@ type
     FHideAfterTime: Cardinal;
     FBitmapSize: TPoint;
     FGoToSelIcon: TCustomBitmap32;
-    procedure DoUpdateLayerLocation; override;
+    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
     function GetBitmapSizeInPixel: TPoint; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -55,7 +55,7 @@ begin
   inherited;
 end;
 
-procedure TGotoLayer.DoUpdateLayerLocation;
+procedure TGotoLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
 var
   VCurrTime: Cardinal;
 begin
@@ -85,7 +85,7 @@ begin
   FFixedLonLat := APoint;
   FHideAfterTime := GetTickCount + 100000;
   Visible := True;
-  UpdateLayerLocation;
+  UpdateLayerLocation(GetMapLayerLocationRect);
 end;
 
 end.

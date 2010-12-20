@@ -32,7 +32,6 @@ type
   protected
     FVisualCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverter: ILocalCoordConverter;
-    FMapViewSize: TPoint;
 
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;

@@ -18,11 +18,9 @@ type
     FFontSize: Integer;
     FDigitsOffset: Integer;
     FSize: TPoint;
-    FMapViewSize: TPoint;
     function GetBitmapSizeInPixel: TPoint; override;
     procedure DrawScale;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure OnViewSizeChange(Sender: TObject); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
@@ -73,12 +71,6 @@ begin
   if VConfigProvider <> nil then begin
     Visible := VConfigProvider.ReadBool('showscale',false);
   end;
-end;
-
-procedure TCenterScale.OnViewSizeChange(Sender: TObject);
-begin
-  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
-  inherited;
 end;
 
 procedure TCenterScale.SaveConfig(AConfigProvider: IConfigDataWriteProvider);

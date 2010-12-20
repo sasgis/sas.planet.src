@@ -24,8 +24,8 @@ type
     procedure DoHide; override;
     procedure DoShow; override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure DoUpdateLayerSize; override;
-    procedure OnPosChange(Sender: TObject); override;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
     destructor Destroy; override;
@@ -64,6 +64,15 @@ begin
   FDrawTask.StopExecute;
 end;
 
+procedure TMapLayerWithThreadDraw.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
+  FBitmapCoordConverter :=  FVisualCoordConverter;
+  FDrawTask.ChangePos(FBitmapCoordConverter);
+  UpdateLayerLocation(GetMapLayerLocationRect);
+end;
+
 procedure TMapLayerWithThreadDraw.DoRedraw;
 begin
   inherited;
@@ -77,7 +86,7 @@ begin
   FDrawTask.StartExecute;
 end;
 
-procedure TMapLayerWithThreadDraw.DoUpdateLayerSize;
+procedure TMapLayerWithThreadDraw.DoUpdateLayerSize(ANewSize: TPoint);
 begin
   inherited;
   FDrawTask.StopExecute;
@@ -99,14 +108,6 @@ begin
   VBitmapOnMapRect := FBitmapCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
   VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
   Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
-end;
-
-procedure TMapLayerWithThreadDraw.OnPosChange(Sender: TObject);
-begin
-  inherited;
-  FBitmapCoordConverter :=  FVisualCoordConverter;
-  FDrawTask.ChangePos(FBitmapCoordConverter);
-  UpdateLayerLocation;
 end;
 
 procedure TMapLayerWithThreadDraw.SendTerminateToThreads;
