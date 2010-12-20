@@ -25,6 +25,8 @@ type
 
     procedure OnScaleChange(Sender: TObject);
     procedure OnPosChange(Sender: TObject); virtual;
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoUpdateLayerSize; override;
     procedure DoShow; override;
     function GetMapLayerLocationRect: TFloatRect; override;

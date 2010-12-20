@@ -252,8 +252,16 @@ begin
 end;
 
 procedure TMapLayerFillingMap.OnMainMapchange(Sender: TObject);
+var
+  VMapType: TMapType;
 begin
-
+  if FSourceSelected = nil then begin
+    VMapType := FViewPortState.GetCurrentMap;
+    if FSourceMapType <> VMapType then begin
+      FSourceMapType := VMapType;
+      FDrawTask.ChangeSoureMap(FSourceMapType);
+    end;
+  end;
 end;
 
 procedure TMapLayerFillingMap.SetSourceMap(AMapType: TMapType; AZoom: integer);

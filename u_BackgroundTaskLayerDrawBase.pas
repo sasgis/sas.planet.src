@@ -65,7 +65,9 @@ begin
   if FConverter <> nil then begin
     inherited;
     ResizeBitmap;
-    DrawBitmap;
+    if (FBitmapSize.X <> 0) and (FBitmapSize.Y <> 0) then begin
+      DrawBitmap;
+    end;
   end;
 end;
 
