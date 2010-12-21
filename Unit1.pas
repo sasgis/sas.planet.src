@@ -1873,7 +1873,7 @@ begin
       end;
       finally
         map.EndUpdate;
-        map.Invalidate;
+        map.Changed;
       end;
      application.ProcessMessages;
      QueryPerformanceCounter(ts2);
@@ -3211,7 +3211,7 @@ begin
               GState.ViewState.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
               finally
                 map.EndUpdate;
-                map.Invalidate;
+                map.Changed;
               end;
  end else begin
   MouseCursorPos:=point(x,y);
