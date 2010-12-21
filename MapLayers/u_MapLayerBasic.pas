@@ -159,17 +159,21 @@ var
   VBitmapSize: TPoint;
 begin
   VBitmapSize := LayerSize;
-  VFixedVisualPixel := FVisualCoordConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-  if (Abs(VFixedVisualPixel.X) < (1 shl 15)) and (Abs(VFixedVisualPixel.Y) < (1 shl 15)) then begin
-    Result.Left := VFixedVisualPixel.X - FFixedOnBitmap.X;
-    Result.Top := VFixedVisualPixel.Y - FFixedOnBitmap.Y;
-    Result.Right := Result.Left + VBitmapSize.X;
-    Result.Bottom := Result.Top + VBitmapSize.Y;
+  if FVisualCoordConverter <> nil then begin
+    VFixedVisualPixel := FVisualCoordConverter.LonLat2LocalPixelFloat(FFixedLonLat);
+    if (Abs(VFixedVisualPixel.X) < (1 shl 15)) and (Abs(VFixedVisualPixel.Y) < (1 shl 15)) then begin
+      Result.Left := VFixedVisualPixel.X - FFixedOnBitmap.X;
+      Result.Top := VFixedVisualPixel.Y - FFixedOnBitmap.Y;
+      Result.Right := Result.Left + VBitmapSize.X;
+      Result.Bottom := Result.Top + VBitmapSize.Y;
+    end else begin
+      Result.Left := - VBitmapSize.X;
+      Result.Top := - VBitmapSize.Y;
+      Result.Right := 0;
+      Result.Bottom := 0;
+    end;
   end else begin
-    Result.Left := - VBitmapSize.X;
-    Result.Top := - VBitmapSize.Y;
-    Result.Right := 0;
-    Result.Bottom := 0;
+    Result := FloatRect(0, 0, 0, 0);
   end;
 end;
 
@@ -208,10 +212,14 @@ var
   VBitmapOnMapRect: TDoubleRect;
   VBitmapOnVisualRect: TDoubleRect;
 begin
-  VBitmapRect := DoubleRect(0, 0, LayerSize.X, LayerSize.Y);
-  VBitmapOnMapRect := FBitmapCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
-  VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
-  Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
+  if (FBitmapCoordConverter <> nil) and (FVisualCoordConverter <> nil) then begin
+    VBitmapRect := DoubleRect(0, 0, LayerSize.X, LayerSize.Y);
+    VBitmapOnMapRect := FBitmapCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+    VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
+    Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
+  end;
 end;
 
 procedure TMapLayerBasic.DoHide;

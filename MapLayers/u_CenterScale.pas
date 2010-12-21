@@ -45,6 +45,7 @@ begin
   textWdth := FLayer.Bitmap.TextWidth('270°');
   VSize := Point((FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2), (FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2));
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
+  DoUpdateLayerSize(VSize);
   DrawScale;
 end;
 

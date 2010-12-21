@@ -163,7 +163,7 @@ procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
-  UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
+  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
@@ -202,6 +202,7 @@ begin
   if (VNewSize.X <> FMapViewSize.X) or (VNewSize.Y <> FMapViewSize.Y) then begin
     FMapViewSize := VNewSize;
     UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
+    UpdateLayerLocation(GetMapLayerLocationRect);
   end;
 end;
 
@@ -217,6 +218,7 @@ begin
   if FVisible then begin
     if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
       DoUpdateLayerSize(ANewSize);
+      UpdateLayerLocation(GetMapLayerLocationRect);
     end;
   end;
 end;
@@ -265,6 +267,9 @@ procedure TWindowLayerBasic.Show;
 begin
   if not Visible then begin
     DoShow;
+    UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
+    UpdateLayerLocation(GetMapLayerLocationRect);
+    Redraw;
     FVisibleChangeNotifier.Notify(nil);
   end;
 end;
