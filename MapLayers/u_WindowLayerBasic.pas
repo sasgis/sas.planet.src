@@ -48,6 +48,7 @@ type
 
     FViewSizeChangeListener: IJclListener;
     FMapViewSize: TPoint;
+    FLayerSize: TPoint;
 
     function GetVisible: Boolean; override;
     procedure SetVisible(const Value: Boolean); virtual;
@@ -218,8 +219,10 @@ end;
 procedure TWindowLayerBasic.UpdateLayerSize(ANewSize: TPoint);
 begin
   if FVisible then begin
-    DoUpdateLayerSize(ANewSize);
-    UpdateLayerLocation(GetMapLayerLocationRect);
+    if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
+      DoUpdateLayerSize(ANewSize);
+      UpdateLayerLocation(GetMapLayerLocationRect);
+    end;
   end;
 end;
 
