@@ -68,6 +68,7 @@ type
     procedure DoDrawNewPath(AIsPoly: Boolean);
   protected
     procedure DoRedraw; override;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -462,6 +463,12 @@ begin
     mndtNewPath: DoDrawNewPath(False);
     mndtNewPoly: DoDrawNewPath(True);
   end;
+end;
+
+procedure TMapNalLayer.DoUpdateLayerSize(ANewSize: TPoint);
+begin
+  inherited;
+  FBitmapClip := TPolyClipByRect.Create(MakeRect(-10, -10, LayerSize.X + 10, LayerSize.Y + 10));
 end;
 
 procedure TMapNalLayer.DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);
