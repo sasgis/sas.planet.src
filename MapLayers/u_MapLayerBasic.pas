@@ -23,7 +23,6 @@ type
   protected
     procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure DoShow; override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -92,12 +91,6 @@ procedure TMapLayerBase.DoScaleChange(
 begin
   FVisualCoordConverter := ANewVisualCoordConverter;
   UpdateLayerLocation(GetMapLayerLocationRect);
-end;
-
-procedure TMapLayerBase.DoShow;
-begin
-  inherited;
-  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter
 end;
 
 procedure TMapLayerBase.OnScaleChange(Sender: TObject);
@@ -225,12 +218,7 @@ end;
 procedure TMapLayerBasic.DoHide;
 begin
   inherited;
-  FLayer.Bitmap.Lock;
-  try
-    FLayer.Bitmap.SetSize(0, 0);
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
+  UpdateLayerSize(Point(0, 0));
 end;
 
 procedure TMapLayerBasic.DoPosChange(
