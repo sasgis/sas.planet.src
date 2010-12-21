@@ -87,7 +87,7 @@ begin
   inherited;
   VVisualCoordConverter := FVisualCoordConverter;
   VBitmapSize := GetBitmapSizeInPixel;
-  VScreenCenterVisual := DoublePoint(FMapViewSize.X div 2, FMapViewSize.Y div 2);
+  VScreenCenterVisual := DoublePoint(MapViewSize.X div 2, MapViewSize.Y div 2);
   VScreenCenterMap := VVisualCoordConverter.LocalPixelFloat2MapPixelFloat(VScreenCenterVisual);
   VConverter := VVisualCoordConverter.GetGeoConverter;
   VZoom := VVisualCoordConverter.GetZoom;
@@ -146,7 +146,7 @@ var
 begin
   VSize := GetBitmapSizeInPixel;
   Result.Left := 6;
-  Result.Bottom := FMapViewSize.Y - 6 - FBottomMargin;
+  Result.Bottom := MapViewSize.Y - 6 - FBottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;

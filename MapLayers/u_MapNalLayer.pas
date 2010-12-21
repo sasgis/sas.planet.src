@@ -196,7 +196,7 @@ begin
         end;
       end;
     end;
-    VBitmapSize := FMapViewSize;
+    VBitmapSize := MapViewSize;
     for i := 0 to VPointsCount - 2 do begin
       k1 := VPointsOnBitmap[i + 1];
       if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
@@ -314,7 +314,7 @@ begin
           polygon.Free;
         end;
       end;
-      VBitmapSize := FMapViewSize;
+      VBitmapSize := MapViewSize;
       for i := 1 to VPointsProcessedCount - 1 do begin
         k1 := VPointsOnBitmapPrepared[i];
         DrawPolyPoint(VBitmapSize, k1, FEditMarkPointSize, FEditMarkPointColor, FEditMarkPointColor);
@@ -380,7 +380,7 @@ begin
           polygon.Free;
         end;
       end;
-      VBitmapSize := FMapViewSize;
+      VBitmapSize := MapViewSize;
       k1 := VPointsOnBitmap[0];
       DrawPolyPoint(VBitmapSize, k1, FSelectionPolyPointSize, FSelectionPolyPointFirstColor, FSelectionPolyPointFirstColor);
       if VPointsCount > 1 then begin

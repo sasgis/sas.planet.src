@@ -100,8 +100,8 @@ function TMapLayerBasicNoBitmap.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
   Result.Top := 0;
-  Result.Right := FMapViewSize.X;
-  Result.Bottom := FMapViewSize.Y;
+  Result.Right := MapViewSize.X;
+  Result.Bottom := MapViewSize.Y;
 end;
 
 { TMapLayerBasic }
@@ -122,7 +122,7 @@ var
   VBitmapSizeInPixel: TPoint;
 begin
   inherited;
-  VBitmapSizeInPixel := FMapViewSize;
+  VBitmapSizeInPixel := MapViewSize;
   FLayer.Bitmap.Lock;
   try
     if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
@@ -139,7 +139,7 @@ var
   VBitmapOnMapRect: TDoubleRect;
   VBitmapOnVisualRect: TDoubleRect;
 begin
-  VBitmapRect := DoubleRect(0, 0, FMapViewSize.X, FMapViewSize.Y);
+  VBitmapRect := DoubleRect(0, 0, MapViewSize.X, MapViewSize.Y);
   VBitmapOnMapRect := FBitmapCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
   VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
   Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
@@ -229,7 +229,7 @@ end;
 procedure TMapLayerFixedWithBitmap.PosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  if FVisible then begin
+  if Visible then begin
     DoPosChange(ANewVisualCoordConverter);
   end;
 end;

@@ -56,7 +56,7 @@ begin
     FLayer.Bitmap.DrawMode:=dmBlend;
     FLayer.Bitmap.CombineMode:=cmMerge;
     FLayer.Bitmap.Clear(clBlack);
-    VBitmapSize := FMapViewSize;
+    VBitmapSize := MapViewSize;
 
     VRect.TopLeft := FBitmapCoordConverter.LocalPixel2MapPixel(Point(0, 0));
     VRect.BottomRight := FBitmapCoordConverter.LocalPixel2MapPixel(VBitmapSize);

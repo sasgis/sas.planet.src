@@ -98,7 +98,7 @@ begin
   VZoom := FVisualCoordConverter.GetZoom;
   VSourceGeoConvert := Alayer.GeoConvert;
   VGeoConvert := FVisualCoordConverter.GetGeoConverter;
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
 
   VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
   VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
@@ -130,7 +130,7 @@ var
   VSize: TPoint;
   VElement: TWikiLayerElement;
 begin
-  VSize := FMapViewSize;
+  VSize := MapViewSize;
   VLocalConverter := FBitmapCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   Delete(AData.description, posEx('#ge', AData.description, 1), 1);

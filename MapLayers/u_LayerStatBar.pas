@@ -69,15 +69,15 @@ end;
 
 function TLayerStatBar.GetBitmapSizeInPixel: TPoint;
 begin
-  Result.X := FMapViewSize.X;
+  Result.X := MapViewSize.X;
   Result.Y := FHeight;
 end;
 
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
-  Result.Bottom := FMapViewSize.Y;
-  Result.Right := FMapViewSize.X;
+  Result.Bottom := MapViewSize.Y;
+  Result.Right := MapViewSize.X;
   Result.Top := Result.Bottom - FHeight;
 end;
 

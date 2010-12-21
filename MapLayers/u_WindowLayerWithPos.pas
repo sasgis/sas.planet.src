@@ -91,7 +91,7 @@ end;
 procedure TWindowLayerWithPos.PosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  if FVisible then begin
+  if Visible then begin
     DoPosChange(ANewVisualCoordConverter);
     UpdateLayerLocation(GetMapLayerLocationRect);
   end;

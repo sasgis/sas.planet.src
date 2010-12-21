@@ -52,7 +52,7 @@ uses
 procedure TSelectionLayer.ChangeSelection(Sender: TObject);
 begin
   FPolygon := GState.LastSelectionInfo.Polygon;
-  FLayerPositioned.Changed;
+  LayerPositioned.Changed;
 end;
 
 constructor TSelectionLayer.Create(AParentMap: TImage32;
@@ -62,7 +62,7 @@ begin
   FLineColor := SetAlpha(Color32(clBlack), 210);
   FLineWidth := 2;
   FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
-  FLayerPositioned.OnPaint := PaintLayer;
+  LayerPositioned.OnPaint := PaintLayer;
   FSelectionChangeListener := TNotifyEventListener.Create(ChangeSelection);
   GState.LastSelectionInfo.ChangeNotifier.Add(FSelectionChangeListener);
 end;

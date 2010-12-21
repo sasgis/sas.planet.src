@@ -502,7 +502,7 @@ begin
   VGeoConvert := VVisualCoordConverter.GetGeoConverter;
   if VGeoConvert <> nil then begin
     if FZoomDelta > 0 then begin
-      VSourceViewRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+      VSourceViewRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
       VLoadedRect := VVisualCoordConverter.LocalRectFloat2MapRectFloat(VSourceViewRect);
 
       VZoomSource := VBitmapCoordConverter.GetZoom;
@@ -625,7 +625,7 @@ begin
     VSourceMapType := AMapType;
     VSourceGeoConvert := VSourceMapType.GeoConvert;
 
-    VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+    VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
     VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
     VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
     VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
@@ -715,8 +715,8 @@ var
   VSize: TPoint;
 begin
   VSize := GetBitmapSizeInPixel;
-  Result.Right := FMapViewSize.X;
-  Result.Bottom := FMapViewSize.Y - FBottomMargin;
+  Result.Right := MapViewSize.X;
+  Result.Bottom := MapViewSize.Y - FBottomMargin;
   Result.Left := Result.Right - VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;

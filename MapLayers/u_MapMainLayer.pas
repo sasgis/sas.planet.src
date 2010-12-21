@@ -163,7 +163,7 @@ begin
   VLocalConverter := FBitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
   VLoadedRect := VLocalConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
 
   VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VZoom, False);
@@ -348,7 +348,7 @@ begin
   VSourceMapType := AMapType;
   VSourceGeoConvert := VSourceMapType.GeoConvert;
 
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
   VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
   VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
   VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
@@ -442,7 +442,7 @@ begin
     exit;
   end;
 
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(FMapViewSize));
+  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
   VLoadedRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
   VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VCurrentZoom, False);
   VGeoConvert.CheckPixelPosFloat(VLoadedRect.BottomRight, VCurrentZoom, False);

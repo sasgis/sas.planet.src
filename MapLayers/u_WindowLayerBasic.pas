@@ -39,16 +39,16 @@ type
 
 
   TWindowLayerBasic = class(TWindowLayerAbstract)
-  protected
-    FLayerPositioned: TPositionedLayer;
-    FViewPortState: TMapViewPortState;
-
+  private
     FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
-
     FViewSizeChangeListener: IJclListener;
     FMapViewSize: TPoint;
     FLayerSize: TPoint;
+    FLayer: TPositionedLayer;
+  protected
+    FViewPortState: TMapViewPortState;
+
 
     function GetVisible: Boolean; override;
     procedure SetVisible(const Value: Boolean); virtual;
@@ -64,6 +64,10 @@ type
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
     function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
+
+    property LayerPositioned: TPositionedLayer read FLayer;
+    property MapViewSize: TPoint read FMapViewSize;
+    property LayerSize: TPoint read FLayerSize;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -142,10 +146,10 @@ begin
   inherited Create;
   FViewPortState := AViewPortState;
 
-  FLayerPositioned := ALayer;
+  FLayer := ALayer;
 
-  FLayerPositioned.MouseEvents := false;
-  FLayerPositioned.Visible := false;
+  FLayer.MouseEvents := false;
+  FLayer.Visible := false;
   FVisible := False;
 
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
@@ -158,7 +162,7 @@ begin
   FViewPortState.ViewSizeChangeNotifier.Remove(FViewSizeChangeListener);
   FViewSizeChangeListener := nil;
   FViewPortState := nil;
-  FLayerPositioned := nil;
+  FLayer := nil;
   FVisibleChangeNotifier := nil;
   inherited;
 end;
@@ -166,18 +170,18 @@ end;
 procedure TWindowLayerBasic.DoHide;
 begin
   FVisible := False;
-  FLayerPositioned.Visible := False;
+  FLayer.Visible := False;
 end;
 
 procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
-  FLayerPositioned.Visible := True;
+  FLayer.Visible := True;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
 begin
-  FLayerPositioned.Location := ANewLocation;
+  FLayer.Location := ANewLocation;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;

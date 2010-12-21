@@ -91,7 +91,7 @@ begin
   inherited;
   FDrawTask.StopExecute;
   try
-    FDrawTask.ChangeSize(FMapViewSize);
+    FDrawTask.ChangeSize(MapViewSize);
     FDrawTask.ChangePos(FBitmapCoordConverter);
   finally
     FDrawTask.StartExecute;
@@ -104,7 +104,7 @@ var
   VBitmapOnMapRect: TDoubleRect;
   VBitmapOnVisualRect: TDoubleRect;
 begin
-  VBitmapRect := DoubleRect(0, 0, FMapViewSize.X, FMapViewSize.Y);
+  VBitmapRect := DoubleRect(0, 0, MapViewSize.X, MapViewSize.Y);
   VBitmapOnMapRect := FBitmapCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
   VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
   Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);

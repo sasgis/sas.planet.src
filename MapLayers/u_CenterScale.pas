@@ -56,8 +56,8 @@ end;
 
 function TCenterScale.GetMapLayerLocationRect: TFloatRect;
 begin
-  Result.Left := FMapViewSize.X / 2 - FSize.X / 2;
-  Result.Top := FMapViewSize.Y / 2 - FSize.Y / 2;
+  Result.Left := MapViewSize.X / 2 - FSize.X / 2;
+  Result.Top := MapViewSize.Y / 2 - FSize.Y / 2;
   Result.Right := Result.Left + FSize.X;
   Result.Bottom := Result.Top + FSize.Y;
 end;
