@@ -1166,36 +1166,17 @@ end;
 
 procedure TFmain.ProcessPosChangeMessage(AMessage: IPosChangeMessage);
 var
-  VPoint: TPoint;
   VZoomCurr: Byte;
-  ts2,ts3,fr:int64;
-  VConverter: ICoordConverter;
 begin
-  QueryPerformanceCounter(ts2);
-  try
-    VPoint := AMessage.GetMapPixel;
-    VZoomCurr := AMessage.GetZoom;
-    VConverter := AMessage.GetMap.GeoConvert;
-
-    if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
-          else TBZoom_Out.Enabled:=true;
-    if VZoomCurr>=23 then TBZoomIn.Enabled:=false
-          else TBZoomIn.Enabled:=true;
-    NZoomIn.Enabled:=TBZoomIn.Enabled;
-    NZoomOut.Enabled:=TBZoom_Out.Enabled;
-    RxSlider1.Value:=VZoomCurr;
-    labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
-    map.BeginUpdate;
-    try
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
-  finally
-    QueryPerformanceCounter(ts3);
-    QueryPerformanceFrequency(fr);
-    Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
-  end;
+  VZoomCurr := AMessage.GetZoom;
+  if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
+        else TBZoom_Out.Enabled:=true;
+  if VZoomCurr>=23 then TBZoomIn.Enabled:=false
+        else TBZoomIn.Enabled:=true;
+  NZoomIn.Enabled:=TBZoomIn.Enabled;
+  NZoomOut.Enabled:=TBZoom_Out.Enabled;
+  RxSlider1.Value:=VZoomCurr;
+  labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
 end;
 
 procedure TFmain.BuildImageListMapZapSelect;
