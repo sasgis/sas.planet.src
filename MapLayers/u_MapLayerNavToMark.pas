@@ -14,11 +14,9 @@ uses
 type
   TNavToMarkLayer = class(TMapLayerFixedWithBitmap)
   protected
-    FMarkSize: Integer;
     FMarkPoint: TDoublePoint;
     FId: integer;
     FArrowBitmap: TCustomBitmap32;
-    function GetBitmapSizeInPixel: TPoint; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -44,39 +42,36 @@ constructor TNavToMarkLayer.Create(AParentMap: TImage32; AViewPortState: TMapVie
 var
   VSize: TPoint;
   Polygon: TPolygon32;
-  FMarkSize: integer;
+  VMarkSize: integer;
 begin
   inherited;
   FArrowBitmap := TCustomBitmap32.Create;
   FArrowBitmap.DrawMode:=dmBlend;
   FArrowBitmap.CombineMode:=cmMerge;
-  FMarkSize := 20;
-  FArrowBitmap.SetSize(FMarkSize * 2, FMarkSize * 2);
+  VMarkSize := 20;
+  VSize := Point(VMarkSize * 2, VMarkSize * 2);
+  FArrowBitmap.SetSize(VSize.Y, VSize.Y);
   FArrowBitmap.Clear(clBlack);
   Polygon := TPolygon32.Create;
   try
     Polygon.Antialiased := true;
     Polygon.AntialiasMode := am32times;
-    Polygon.Add(FixedPoint(FMarkSize, FMarkSize div 3));
-    Polygon.Add(FixedPoint(FMarkSize - FMarkSize div 5, FMarkSize + FMarkSize div 3));
-    Polygon.Add(FixedPoint(FMarkSize + FMarkSize div 5, FMarkSize + FMarkSize div 3));
+    Polygon.Add(FixedPoint(VMarkSize, VMarkSize div 3));
+    Polygon.Add(FixedPoint(VMarkSize - VMarkSize div 5, VMarkSize + VMarkSize div 3));
+    Polygon.Add(FixedPoint(VMarkSize + VMarkSize div 5, VMarkSize + VMarkSize div 3));
     Polygon.DrawFill(FArrowBitmap, SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 150))
   finally
     FreeAndNil(Polygon);
   end;
-  FLayer.Bitmap.SetSize(FMarkSize * 2, FMarkSize * 2);
+  FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   FLayer.Bitmap.Clear(clBlack32);
+  DoUpdateLayerSize(VSize);
 end;
 
 destructor TNavToMarkLayer.Destroy;
 begin
   FreeAndNil(FArrowBitmap);
   inherited;
-end;
-
-function TNavToMarkLayer.GetBitmapSizeInPixel: TPoint;
-begin
-  Result := Point(FMarkSize * 2, FMarkSize * 2);
 end;
 
 function TNavToMarkLayer.GetMarkLonLat: TDoublePoint;

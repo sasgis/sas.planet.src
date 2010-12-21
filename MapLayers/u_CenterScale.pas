@@ -12,13 +12,11 @@ uses
   u_WindowLayerBasic;
 
 type
-  TCenterScale = class(TWindowLayerBasicFixedSizeWithBitmap)
+  TCenterScale = class(TWindowLayerFixedSizeWithBitmap)
   protected
     FRadius: Integer;
     FFontSize: Integer;
     FDigitsOffset: Integer;
-    FSize: TPoint;
-    function GetBitmapSizeInPixel: TPoint; override;
     procedure DrawScale;
     function GetMapLayerLocationRect: TFloatRect; override;
   public
@@ -37,29 +35,25 @@ uses
 
 constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 var
-	 textWdth: integer;
+ textWdth: integer;
+ VSize: TPoint;
 begin
   inherited;
   FRadius := 115;
   FDigitsOffset := 20;
   FFontSize := 12;
   textWdth := FLayer.Bitmap.TextWidth('270°');
-  FSize := Point((FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2), (FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2));
-  FLayer.Bitmap.SetSize(FSize.X, FSize.Y);
+  VSize := Point((FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2), (FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2));
+  FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   DrawScale;
-end;
-
-function TCenterScale.GetBitmapSizeInPixel: TPoint;
-begin
-  Result := FSize;
 end;
 
 function TCenterScale.GetMapLayerLocationRect: TFloatRect;
 begin
-  Result.Left := MapViewSize.X / 2 - FSize.X / 2;
-  Result.Top := MapViewSize.Y / 2 - FSize.Y / 2;
-  Result.Right := Result.Left + FSize.X;
-  Result.Bottom := Result.Top + FSize.Y;
+  Result.Left := MapViewSize.X / 2 - LayerSize.X / 2;
+  Result.Top := MapViewSize.Y / 2 - LayerSize.Y / 2;
+  Result.Right := Result.Left + LayerSize.X;
+  Result.Bottom := Result.Top + LayerSize.Y;
 end;
 
 procedure TCenterScale.LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -91,7 +85,7 @@ var
   VSize: TPoint;
 begin
   inherited;
-  VSize := GetBitmapSizeInPixel;
+  VSize := LayerSize;
   VHalfSize := Point(VSize.X div 2, VSize.Y div 2);
 
   i := 0;

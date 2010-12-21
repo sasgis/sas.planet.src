@@ -25,11 +25,12 @@ uses
   i_ILocalCoordConverter,
   u_MapViewPortState,
   UMapType,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TMiniMapLayer = class(TWindowLayerBasicFixedSizeWithBitmap)
+  TMiniMapLayer = class(TWindowLayerFixedSizeWithPosWithBitmap)
   protected
+    FParentMap: TImage32;
     FVisualCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverter: ILocalCoordConverter;
 
@@ -80,7 +81,6 @@ type
     procedure LayerMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
-    function GetBitmapSizeInPixel: TPoint; override;
     function GetMapLayerLocationRect: TFloatRect; override;
 
     function GetActualZoom: Byte;
@@ -88,7 +88,7 @@ type
     procedure LoadBitmaps;
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
-    procedure CreateLayers;
+    procedure CreateLayers(AParentMap: TImage32);
     procedure DoResizeBitmap;
     procedure DoShow; override;
     procedure DoHide; override;
@@ -193,7 +193,7 @@ end;
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   inherited;
-
+  FParentMap := AParentMap;
   FIconsList := GState.MapTypeIcons18List;
 
   FViewRectMoveDelta := Point(0, 0);
@@ -210,7 +210,7 @@ begin
   FPopup.Name := 'PopupMiniMap';
   FPopup.Images := FIconsList.GetImageList;
 
-  CreateLayers;
+  CreateLayers(AParentMap);
   MasterAlpha := 150;
 
   LoadBitmaps;
@@ -269,9 +269,9 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.CreateLayers;
+procedure TMiniMapLayer.CreateLayers(AParentMap: TImage32);
 begin
-  FLeftBorder := TBitmapLayer.Create(FParentMap.Layers);
+  FLeftBorder := TBitmapLayer.Create(AParentMap.Layers);
   FLeftBorder.Visible := False;
   FLeftBorder.MouseEvents := false;
   FLeftBorder.Cursor := crSizeNWSE;
@@ -282,13 +282,13 @@ begin
   FLeftBorder.OnMouseMove := LeftBorderMouseMove;
   FLeftBorderMoved := False;
 
-  FTopBorder := TBitmapLayer.Create(FParentMap.Layers);
+  FTopBorder := TBitmapLayer.Create(AParentMap.Layers);
   FTopBorder.Visible := False;
   FTopBorder.MouseEvents := false;
   FTopBorder.Bitmap.DrawMode := dmBlend;
   FTopBorder.Bitmap.CombineMode := cmMerge;
 
-  FViewRectDrawLayer := TBitmapLayer.Create(FParentMap.Layers);
+  FViewRectDrawLayer := TBitmapLayer.Create(AParentMap.Layers);
   FViewRectDrawLayer.Visible := False;
   FViewRectDrawLayer.MouseEvents := false;
   FViewRectDrawLayer.Bitmap.DrawMode := dmBlend;
@@ -297,7 +297,7 @@ begin
   FViewRectDrawLayer.OnMouseUp := LayerMouseUP;
   FViewRectDrawLayer.OnMouseMove := LayerMouseMove;
 
-  FPlusButton := TBitmapLayer.Create(FParentMap.Layers);
+  FPlusButton := TBitmapLayer.Create(AParentMap.Layers);
   FPlusButton.Visible := False;
   FPlusButton.MouseEvents := false;
   FPlusButton.Bitmap.DrawMode := dmBlend;
@@ -307,7 +307,7 @@ begin
   FPlusButton.Cursor := crHandPoint;
   FPlusButtonPressed := False;
 
-  FMinusButton := TBitmapLayer.Create(FParentMap.Layers);
+  FMinusButton := TBitmapLayer.Create(AParentMap.Layers);
   FMinusButton.Visible := False;
   FMinusButton.MouseEvents := false;
   FMinusButton.Bitmap.DrawMode := dmBlend;
@@ -517,7 +517,7 @@ begin
       Inc(VBitmapRect.Right, FViewRectMoveDelta.X);
       Inc(VBitmapRect.Bottom, FViewRectMoveDelta.Y);
 
-      VBitmapSize := GetBitmapSizeInPixel;
+      VBitmapSize := LayerSize;
       if (VBitmapRect.Left >= 0) or (VBitmapRect.Top >= 0)
         or (VBitmapRect.Right <= VBitmapSize.X)
         or (VBitmapRect.Bottom <= VBitmapSize.Y)
@@ -705,16 +705,11 @@ begin
   end;
 end;
 
-function TMiniMapLayer.GetBitmapSizeInPixel: TPoint;
-begin
-  Result := FBitmapSize;
-end;
-
 function TMiniMapLayer.GetMapLayerLocationRect: TFloatRect;
 var
   VSize: TPoint;
 begin
-  VSize := GetBitmapSizeInPixel;
+  VSize := LayerSize;
   Result.Right := MapViewSize.X;
   Result.Bottom := MapViewSize.Y - FBottomMargin;
   Result.Left := Result.Right - VSize.X;
@@ -962,7 +957,7 @@ var
   Polygon: TPolygon32;
 begin
   inherited;
-  VBitmapSizeInPixel := GetBitmapSizeInPixel;
+  VBitmapSizeInPixel := LayerSize;
   FViewRectDrawLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
   if (FLeftBorder.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
     FLeftBorder.Bitmap.Lock;

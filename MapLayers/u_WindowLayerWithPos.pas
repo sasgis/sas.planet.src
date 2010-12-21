@@ -16,9 +16,10 @@ uses
 
 type
   TWindowLayerWithPos = class(TWindowLayerBasic)
+  private
+    FPosChangeListener: IJclListener;
   protected
     FVisualCoordConverter: ILocalCoordConverter;
-    FPosChangeListener: IJclListener;
     procedure OnPosChange(Sender: TObject); virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
@@ -30,15 +31,15 @@ type
 
   TWindowLayerWithPosWithBitmap = class(TWindowLayerWithPos)
   protected
-    FParentMap: TImage32;
     FLayer: TBitmapLayer;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
-    procedure DoHide; override;
-    procedure DoShow; override;
-    function GetBitmapSizeInPixel: TPoint; virtual; abstract;
-    procedure OnViewSizeChange(Sender: TObject); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+  end;
+
+  TWindowLayerFixedSizeWithPosWithBitmap = class(TWindowLayerWithPosWithBitmap)
+  protected
+    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
+    procedure DoRedraw; override;
   end;
 
 
@@ -80,7 +81,7 @@ end;
 procedure TWindowLayerWithPos.DoShow;
 begin
   inherited;
-  DoPosChange(FViewPortState.GetVisualCoordConverter);
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
 end;
 
 procedure TWindowLayerWithPos.OnPosChange(Sender: TObject);
@@ -102,8 +103,7 @@ end;
 constructor TWindowLayerWithPosWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
 begin
-  FParentMap := AParentMap;
-  FLayer := TBitmapLayer.Create(FParentMap.Layers);
+  FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
 
   FLayer.Bitmap.DrawMode := dmBlend;
@@ -111,28 +111,17 @@ begin
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 end;
 
-procedure TWindowLayerWithPosWithBitmap.DoHide;
+{ TWindowLayerFixedSizeWithPosWithBitmap }
+
+procedure TWindowLayerFixedSizeWithPosWithBitmap.DoRedraw;
 begin
   inherited;
-
 end;
 
-procedure TWindowLayerWithPosWithBitmap.DoShow;
+function TWindowLayerFixedSizeWithPosWithBitmap.GetLayerSizeForViewSize(
+  AViewSize: TPoint): TPoint;
 begin
-  inherited;
-
-end;
-
-procedure TWindowLayerWithPosWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
-begin
-  inherited;
-
-end;
-
-procedure TWindowLayerWithPosWithBitmap.OnViewSizeChange(Sender: TObject);
-begin
-  inherited;
-
+  Result := LayerSize;
 end;
 
 end.

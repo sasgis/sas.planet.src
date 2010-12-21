@@ -15,10 +15,8 @@ type
   TGotoLayer = class(TMapLayerFixedWithBitmap)
   protected
     FHideAfterTime: Cardinal;
-    FBitmapSize: TPoint;
     FGoToSelIcon: TCustomBitmap32;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
-    function GetBitmapSizeInPixel: TPoint; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -37,16 +35,19 @@ uses
 { TGotoLayer }
 
 constructor TGotoLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+var
+  VBitmapSize: TPoint;
 begin
   inherited;
   FGoToSelIcon := TCustomBitmap32.Create;
   FGoToSelIcon.DrawMode := dmBlend;
   GState.LoadBitmapFromRes('ICONIII', FGoToSelIcon);
-  FBitmapSize.X := FGoToSelIcon.Width;
-  FBitmapSize.Y := FGoToSelIcon.Height;
+  VBitmapSize.X := FGoToSelIcon.Width;
+  VBitmapSize.Y := FGoToSelIcon.Height;
   FLayer.Bitmap.Assign(FGoToSelIcon);
   FFixedOnBitmap.X := 7;
   FFixedOnBitmap.Y := 6;
+  DoUpdateLayerSize(VBitmapSize);
 end;
 
 destructor TGotoLayer.Destroy;
@@ -73,11 +74,6 @@ begin
   end else begin
     Visible := False;
   end;
-end;
-
-function TGotoLayer.GetBitmapSizeInPixel: TPoint;
-begin
-  Result := FBitmapSize;
 end;
 
 procedure TGotoLayer.ShowGotoIcon(APoint: TDoublePoint);

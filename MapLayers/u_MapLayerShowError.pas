@@ -14,9 +14,7 @@ type
   TTileErrorInfoLayer = class(TMapLayerFixedWithBitmap)
   protected
     FHideAfterTime: Cardinal;
-    FBitmapSize: TPoint;
     FZoom: Byte;
-    function GetBitmapSizeInPixel: TPoint; override;
     procedure RenderText(AMapType: TMapType; AText: string);
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
@@ -37,12 +35,16 @@ uses
 
 constructor TTileErrorInfoLayer.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
+var
+  VBitmapSize: TPoint;
 begin
   inherited;
-  FBitmapSize.X := 256;
-  FBitmapSize.Y := 100;
-  FFixedOnBitmap.X := FBitmapSize.X / 2;
-  FFixedOnBitmap.Y := FBitmapSize.Y / 2;
+  VBitmapSize.X := 256;
+  VBitmapSize.Y := 100;
+  FFixedOnBitmap.X := VBitmapSize.X / 2;
+  FFixedOnBitmap.Y := VBitmapSize.Y / 2;
+  FLayer.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
+  DoUpdateLayerSize(VBitmapSize);
 end;
 
 //procedure TTileErrorInfoLayer.DoRedraw;
@@ -99,11 +101,6 @@ begin
   end;
 end;
 
-function TTileErrorInfoLayer.GetBitmapSizeInPixel: TPoint;
-begin
-  Result := FBitmapSize;
-end;
-
 //function TTileErrorInfoLayer.GetScreenCenterInBitmapPixels: TPoint;
 //var
 //  VTileRect: TRect;
@@ -127,7 +124,7 @@ var
   VTextWidth: integer;
   VSize: TPoint;
 begin
-  VSize := GetBitmapSizeInPixel;
+  VSize := LayerSize;
   FLayer.Bitmap.Clear(clBlack);
   if AMapType <> nil then begin
     VTextWidth := FLayer.Bitmap.TextWidth(AMapType.name);

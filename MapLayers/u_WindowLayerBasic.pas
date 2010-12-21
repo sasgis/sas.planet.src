@@ -49,13 +49,12 @@ type
   protected
     FViewPortState: TMapViewPortState;
 
-
     function GetVisible: Boolean; override;
     procedure SetVisible(const Value: Boolean); virtual;
 
     procedure OnViewSizeChange(Sender: TObject); virtual;
     procedure UpdateLayerSize(ANewSize: TPoint); virtual;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual; abstract;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
     function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; virtual; abstract;
 
     procedure UpdateLayerLocation(ANewLocation: TFloatRect); virtual;
@@ -82,24 +81,11 @@ type
     property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
   end;
 
-  TWindowLayerBasicFixedSizeWithBitmap = class(TWindowLayerBasic)
+  TWindowLayerFixedSizeWithBitmap = class(TWindowLayerBasic)
   protected
-    FParentMap: TImage32;
     FLayer: TBitmapLayer;
-    function GetBitmapSizeInPixel: TPoint; virtual; abstract;
+    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
     procedure DoRedraw; override;
-  public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-  end;
-
-  TWindowLayerBasicWithBitmap = class(TWindowLayerBasic)
-  protected
-    FParentMap: TImage32;
-    FLayer: TBitmapLayer;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
-    procedure DoHide; override;
-    procedure DoShow; override;
-    function GetBitmapSizeInPixel: TPoint; virtual; abstract;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
@@ -177,11 +163,17 @@ procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
+  UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
 begin
   FLayer.Location := ANewLocation;
+end;
+
+procedure TWindowLayerBasic.DoUpdateLayerSize(ANewSize: TPoint);
+begin
+  FLayerSize := ANewSize;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;
@@ -225,7 +217,6 @@ begin
   if FVisible then begin
     if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
       DoUpdateLayerSize(ANewSize);
-      UpdateLayerLocation(GetMapLayerLocationRect);
     end;
   end;
 end;
@@ -283,62 +274,12 @@ begin
   // По умолчанию ничего не делаем
 end;
 
-{ TWindowLayerBasicWithBitmap }
-
-constructor TWindowLayerBasicWithBitmap.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
-begin
-  FParentMap := AParentMap;
-  FLayer := TBitmapLayer.Create(FParentMap.Layers);
-  inherited Create(FLayer, AViewPortState);
-
-  FLayer.Bitmap.DrawMode := dmBlend;
-  FLayer.Bitmap.CombineMode := cmMerge;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
-end;
-
-procedure TWindowLayerBasicWithBitmap.DoHide;
-begin
-  inherited;
-  FLayer.Bitmap.Lock;
-  try
-    FLayer.Bitmap.SetSize(0, 0);
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
-end;
-
-procedure TWindowLayerBasicWithBitmap.DoShow;
-begin
-  inherited;
-  UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
-  UpdateLayerLocation(GetMapLayerLocationRect);
-  Redraw;
-end;
-
-procedure TWindowLayerBasicWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
-var
-  VBitmapSizeInPixel: TPoint;
-begin
-  inherited;
-  VBitmapSizeInPixel := GetBitmapSizeInPixel;
-  FLayer.Bitmap.Lock;
-  try
-    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-    end;
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
-end;
-
 { TWindowLayerBasicFixedSizeWithBitmap }
 
-constructor TWindowLayerBasicFixedSizeWithBitmap.Create(AParentMap: TImage32;
+constructor TWindowLayerFixedSizeWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
 begin
-  FParentMap := AParentMap;
-  FLayer := TBitmapLayer.Create(FParentMap.Layers);
+  FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
 
   FLayer.Bitmap.DrawMode := dmBlend;
@@ -346,8 +287,14 @@ begin
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 end;
 
-procedure TWindowLayerBasicFixedSizeWithBitmap.DoRedraw;
+procedure TWindowLayerFixedSizeWithBitmap.DoRedraw;
 begin
+end;
+
+function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForViewSize(
+  AViewSize: TPoint): TPoint;
+begin
+  Result := FLayerSize;
 end;
 
 end.
