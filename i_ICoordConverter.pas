@@ -149,6 +149,7 @@ type
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
     function CheckPixelPosFloatStrict(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
     function CheckPixelRect(var XY: TRect; var Azoom: byte): boolean; stdcall;
+    function CheckPixelRectFloat(var XY: TDoubleRect; var Azoom: byte): boolean; stdcall;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; stdcall;
     function CheckRelativeRect(var XY: TDoubleRect): boolean; stdcall;

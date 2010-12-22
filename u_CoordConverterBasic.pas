@@ -118,6 +118,7 @@ type
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelPosFloatStrict(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; override;
     function CheckPixelRect(var XY: TRect; var Azoom: byte): boolean; override;
+    function CheckPixelRectFloat(var XY: TDoubleRect; var Azoom: byte): boolean; override;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; override;
     function CheckRelativeRect(var XY: TDoubleRect): boolean; override;
@@ -1554,6 +1555,58 @@ begin
     XY.Bottom := 0;
   end else begin
     if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+      Result := False;
+      XY.Bottom := VPixelsAtZoom;
+    end;
+  end;
+end;
+
+function TCoordConverterBasic.CheckPixelRectFloat(var XY: TDoubleRect; var azoom: byte): boolean;
+var
+  VPixelsAtZoom: Double;
+begin
+  Result := True;
+  if AZoom > 23 then begin
+    Result := False;
+    AZoom := 23;
+  end;
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+
+  if XY.Left < 0 then begin
+    Result := False;
+    XY.Left := 0;
+  end else begin
+    if XY.Left > VPixelsAtZoom then begin
+      Result := False;
+      XY.Left := VPixelsAtZoom;
+    end;
+  end;
+
+  if XY.Top < 0 then begin
+    Result := False;
+    XY.Top := 0;
+  end else begin
+    if XY.Top > VPixelsAtZoom then begin
+      Result := False;
+      XY.Top := VPixelsAtZoom;
+    end;
+  end;
+
+  if XY.Right < 0 then begin
+    Result := False;
+    XY.Right := 0;
+  end else begin
+    if XY.Right > VPixelsAtZoom then begin
+      Result := False;
+      XY.Right := VPixelsAtZoom;
+    end;
+  end;
+
+  if XY.Bottom < 0 then begin
+    Result := False;
+    XY.Bottom := 0;
+  end else begin
+    if XY.Bottom > VPixelsAtZoom then begin
       Result := False;
       XY.Bottom := VPixelsAtZoom;
     end;

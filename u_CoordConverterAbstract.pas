@@ -207,6 +207,7 @@ type
     function CheckPixelPosStrict(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelPosFloatStrict(var XY: TDoublePoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
     function CheckPixelRect(var XY: TRect; var Azoom: byte): boolean; virtual; stdcall; abstract;
+    function CheckPixelRectFloat(var XY: TDoubleRect; var Azoom: byte): boolean; virtual; stdcall; abstract;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function CheckRelativeRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
