@@ -37,8 +37,6 @@ type
     property RedrawTime: TDateTime read FRedrawTime;
   end;
 
-
-
   TWindowLayerBasic = class(TWindowLayerAbstract)
   private
     FVisible: Boolean;

@@ -19,7 +19,6 @@ type
   private
     FPosChangeListener: IJclListener;
   protected
-    FVisualCoordConverter: ILocalCoordConverter;
     procedure OnPosChange(Sender: TObject); virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;

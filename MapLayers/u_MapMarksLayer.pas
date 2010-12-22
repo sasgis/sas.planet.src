@@ -89,13 +89,12 @@ begin
   VRect.Right := xy.X + 8;
   VRect.Bottom := xy.Y + 16;
 
-  VLocalConverter := FVisualCoordConverter;
+  VLocalConverter := FBitmapCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
 
   VMapRect := FVisualCoordConverter.LocalRect2MapRectFloat(VRect);
-  VConverter.CheckPixelPosFloatStrict(VMapRect.TopLeft, VZoom, False);
-  VConverter.CheckPixelPosFloatStrict(VMapRect.BottomRight, VZoom, False);
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   VPixelPos := FVisualCoordConverter.LocalPixel2MapPixel(xy);
 
