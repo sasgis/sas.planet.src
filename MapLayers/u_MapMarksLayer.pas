@@ -46,21 +46,23 @@ end;
 
 procedure TMapMarksLayer.DoRedraw;
 var
-  VBitmapSize: TPoint;
   VRect: TRect;
   VProv: IBitmapLayerProvider;
 begin
   inherited;
   if (GState.show_point <> mshNone) then begin
     VProv := GState.MarksBitmapProvider;
-    FLayer.Bitmap.DrawMode:=dmBlend;
-    FLayer.Bitmap.CombineMode:=cmMerge;
-    FLayer.Bitmap.Clear(clBlack);
-    VBitmapSize := MapViewSize;
-
-    VRect.TopLeft := FBitmapCoordConverter.LocalPixel2MapPixel(Point(0, 0));
-    VRect.BottomRight := FBitmapCoordConverter.LocalPixel2MapPixel(VBitmapSize);
-    VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter.GetGeoConverter, VRect, FBitmapCoordConverter.GetZoom);
+    VRect := FBitmapCoordConverter.GetRectInMapPixel;
+    FLayer.BeginUpdate;
+    try
+      FLayer.Bitmap.DrawMode:=dmBlend;
+      FLayer.Bitmap.CombineMode:=cmMerge;
+      FLayer.Bitmap.Clear(clBlack);
+      VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter.GetGeoConverter, VRect, FBitmapCoordConverter.GetZoom);
+    finally
+      FLayer.EndUpdate;
+      FLayer.Changed;
+    end;
   end;
 end;
 

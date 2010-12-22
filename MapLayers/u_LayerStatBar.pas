@@ -24,7 +24,7 @@ type
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
-    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoHide; override;
   public
@@ -62,16 +62,16 @@ begin
   FMinUpdateTickCount := 100;
 end;
 
-function TLayerStatBar.GetLayerSizeForViewSize(AViewSize: TPoint): TPoint;
+function TLayerStatBar.GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result.X := AViewSize.X;
+  Result.X := ANewVisualCoordConverter.GetLocalRectSize.X;
   Result.Y := FHeight;
 end;
 
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
-  Result.Bottom := MapViewSize.Y;
+  Result.Bottom := FVisualCoordConverter.GetLocalRectSize.Y;
   Result.Right := Result.Left + LayerSize.X;
   Result.Top := Result.Bottom - LayerSize.Y;
 end;

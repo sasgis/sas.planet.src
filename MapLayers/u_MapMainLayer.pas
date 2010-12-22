@@ -153,7 +153,6 @@ var
   VDrawScreenRect: TRect;
   VShowText: Boolean;
   VLocalConverter: ILocalCoordConverter;
-  VBitmapRect: TDoubleRect;
   VGeoConvert: ICoordConverter;
 begin
   if GState.GShScale = 0 then begin
@@ -163,11 +162,9 @@ begin
   VLocalConverter := FBitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
-  VLoadedRect := VLocalConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
+  VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
 
-  VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VZoom, False);
-  VGeoConvert.CheckPixelPosFloat(VLoadedRect.BottomRight, VZoom, False);
+  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
 
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
 
@@ -334,7 +331,6 @@ var
   VUsePre: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VTileIterator: ITileIterator;
-  VBitmapRect: TDoubleRect;
 begin
   if AMapType.asLayer then begin
     VUsePre := GState.UsePrevZoomLayer;
@@ -348,10 +344,8 @@ begin
   VSourceMapType := AMapType;
   VSourceGeoConvert := VSourceMapType.GeoConvert;
 
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
-  VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
-  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
-  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
+  VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
 
   VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
   VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
@@ -442,10 +436,8 @@ begin
     exit;
   end;
 
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
-  VLoadedRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
-  VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VCurrentZoom, False);
-  VGeoConvert.CheckPixelPosFloat(VLoadedRect.BottomRight, VCurrentZoom, False);
+  VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
 
   VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
   VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);

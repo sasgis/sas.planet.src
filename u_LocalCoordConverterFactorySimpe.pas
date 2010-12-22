@@ -3,6 +3,7 @@ unit u_LocalCoordConverterFactorySimpe;
 interface
 
 uses
+  Types,
   t_GeoTypes,
   i_ICoordConverter,
   i_ILocalCoordConverter,
@@ -12,6 +13,7 @@ type
   TLocalCoordConverterFactorySimpe = class(TInterfacedObject, ILocalCoordConverterFactorySimpe)
   protected
     function CreateConverter(
+      ALocalRect: TRect;
       AZoom: Byte;
       AGeoConverter: ICoordConverter;
       AMapScale: TDoublePoint;
@@ -28,13 +30,14 @@ uses
 { TLocalCoordConverterFactorySimpe }
 
 function TLocalCoordConverterFactorySimpe.CreateConverter(
+  ALocalRect: TRect;
   AZoom: Byte;
   AGeoConverter: ICoordConverter;
   AMapScale,
   ALocalTopLeftAtMap: TDoublePoint
 ): ILocalCoordConverter;
 begin
-  Result := TLocalCoordConverter.Create(AZoom, AGeoConverter, AMapScale, ALocalTopLeftAtMap);
+  Result := TLocalCoordConverter.Create(ALocalRect, AZoom, AGeoConverter, AMapScale, ALocalTopLeftAtMap);
 end;
 
 end.

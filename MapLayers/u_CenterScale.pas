@@ -50,11 +50,16 @@ begin
 end;
 
 function TCenterScale.GetMapLayerLocationRect: TFloatRect;
+var
+  VSize: TPoint;
+  VViewSize: TPoint;
 begin
-  Result.Left := MapViewSize.X / 2 - LayerSize.X / 2;
-  Result.Top := MapViewSize.Y / 2 - LayerSize.Y / 2;
-  Result.Right := Result.Left + LayerSize.X;
-  Result.Bottom := Result.Top + LayerSize.Y;
+  VSize := LayerSize;
+  VViewSize := FVisualCoordConverter.GetLocalRectSize;
+  Result.Left := VViewSize.X / 2 - VSize.X / 2;
+  Result.Top := VViewSize.Y / 2 - VSize.Y / 2;
+  Result.Right := Result.Left + VSize.X;
+  Result.Bottom := Result.Top + VSize.Y;
 end;
 
 procedure TCenterScale.LoadConfig(AConfigProvider: IConfigDataProvider);

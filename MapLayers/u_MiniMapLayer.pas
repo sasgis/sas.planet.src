@@ -31,7 +31,7 @@ type
   TMiniMapLayer = class(TWindowLayerFixedSizeWithPosWithBitmap)
   protected
     FParentMap: TImage32;
-    FVisualCoordConverter: ILocalCoordConverter;
+    FLocalVisualCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverter: ILocalCoordConverter;
 
     FMapsActive: IActiveMapWithHybrConfig;
@@ -51,7 +51,6 @@ type
     FViewRectMoveDelta: TPoint;
 
     FDefoultMap: TCustomBitmap32;
-    FBitmapSize: TPoint;
     FMiniMapSameAsMain: TTBXItem;
     FMapsList: IMapTypeList;
     FLayersList: IMapTypeList;
@@ -65,7 +64,6 @@ type
 
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DrawMainViewRect;
-    procedure DoRedraw; override;
 
     procedure PlusButtonMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure PlusButtonMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -81,7 +79,6 @@ type
     procedure LayerMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure LayerMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
-    function GetMapLayerLocationRect: TFloatRect; override;
 
     function GetActualZoom: Byte;
 
@@ -90,8 +87,6 @@ type
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
     procedure CreateLayers(AParentMap: TImage32);
     procedure DoResizeBitmap;
-    procedure DoShow; override;
-    procedure DoHide; override;
     procedure AdjustFont(Item: TTBCustomItem;
       Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
     procedure SameAsMainClick(Sender: TObject);
@@ -100,6 +95,12 @@ type
     procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
     procedure SetMasterAlpha(value:integer);
     procedure BuildMapsLists;
+  protected
+    function GetMapLayerLocationRect: TFloatRect; override;
+    procedure DoShow; override;
+    procedure DoHide; override;
+    procedure DoRedraw; override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -191,6 +192,8 @@ end;
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+var
+  VBitmapSize: TPoint;
 begin
   inherited;
   FParentMap := AParentMap;
@@ -203,8 +206,6 @@ begin
   FMapsActive := TActiveMapWithHybrConfig.Create(True, FMapsList, FLayersList);
 
   FZoomDelta := 4;
-  FBitmapSize.X := 256;
-  FBitmapSize.Y := 256;
 
   FPopup := TTBXPopupMenu.Create(AParentMap);
   FPopup.Name := 'PopupMiniMap';
@@ -215,6 +216,7 @@ begin
 
   LoadBitmaps;
   BuildPopUpMenu;
+  DoUpdateLayerSize(VBitmapSize);
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -332,12 +334,14 @@ procedure TMiniMapLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
   VMapConfigLoader: IActiveMapsConfigLoader;
+  VBitmapSize: TPoint;
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetSubItem('MINIMAP');
   if VConfigProvider <> nil then begin
-    FBitmapSize.X := VConfigProvider.ReadInteger('Width', FBitmapSize.X);
-    FBitmapSize.Y := VConfigProvider.ReadInteger('Height', FBitmapSize.Y);
+    VBitmapSize := LayerSize;
+    VBitmapSize.X := VConfigProvider.ReadInteger('Width', VBitmapSize.X);
+    VBitmapSize.Y := VConfigProvider.ReadInteger('Height', VBitmapSize.Y);
     FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
     MasterAlpha := VConfigProvider.ReadInteger('Alpha', 150);
     VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
@@ -346,6 +350,7 @@ begin
     finally
       VMapConfigLoader := nil;
     end;
+    DoUpdateLayerSize(VBitmapSize);
     Visible := VConfigProvider.ReadBool('Visible', True);
   end else begin
     Visible := True;
@@ -433,8 +438,8 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('MINIMAP');
-  VConfigProvider.WriteInteger('Width', FBitmapSize.X);
-  VConfigProvider.WriteInteger('Height', FBitmapSize.Y);
+  VConfigProvider.WriteInteger('Width', LayerSize.X);
+  VConfigProvider.WriteInteger('Height', LayerSize.Y);
   VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
   VConfigProvider.WriteInteger('Alpha', MasterAlpha);
   VConfigProvider.WriteBool('Visible', Visible);
@@ -494,7 +499,6 @@ var
   VVisualCoordConverter: ILocalCoordConverter;
   VBitmapCoordConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
-  VSourceViewRect: TDoubleRect;
 begin
   FViewRectDrawLayer.Bitmap.Clear(clBlack);
   VVisualCoordConverter := FVisualCoordConverter;
@@ -502,13 +506,10 @@ begin
   VGeoConvert := VVisualCoordConverter.GetGeoConverter;
   if VGeoConvert <> nil then begin
     if FZoomDelta > 0 then begin
-      VSourceViewRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
-      VLoadedRect := VVisualCoordConverter.LocalRectFloat2MapRectFloat(VSourceViewRect);
-
+      VLoadedRect := VVisualCoordConverter.GetRectInMapPixelFloat;
       VZoomSource := VBitmapCoordConverter.GetZoom;
       VZoom := VVisualCoordConverter.GetZoom;
-      VGeoConvert.CheckPixelPosFloat(VLoadedRect.TopLeft, VZoom, False);
-      VGeoConvert.CheckPixelPosFloat(VLoadedRect.BottomRight, VZoom, False);
+      VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
       VRelRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VZoomSource);
       VMiniMapRect := VGeoConvert.RelativeRect2PixelRect(VRelRect, VZoom);
       VBitmapRect := VBitmapCoordConverter.MapRect2LocalRect(VMiniMapRect);
@@ -609,7 +610,6 @@ var
   VUsePre: Boolean;
   VVisualConverter: ILocalCoordConverter;
   VBitmapConverter: ILocalCoordConverter;
-  VBitmapRect: TDoubleRect;
 begin
   if AMapType.asLayer then begin
     VUsePre := GState.UsePrevZoomLayer;
@@ -625,10 +625,8 @@ begin
     VSourceMapType := AMapType;
     VSourceGeoConvert := VSourceMapType.GeoConvert;
 
-    VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
-    VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
-    VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
-    VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
+    VBitmapOnMapPixelRect := VVisualConverter.GetRectInMapPixelFloat;
+    VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
 
     VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
     VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
@@ -708,10 +706,12 @@ end;
 function TMiniMapLayer.GetMapLayerLocationRect: TFloatRect;
 var
   VSize: TPoint;
+  VViewSize: TPoint;
 begin
   VSize := LayerSize;
-  Result.Right := MapViewSize.X;
-  Result.Bottom := MapViewSize.Y - FBottomMargin;
+  VViewSize := FVisualCoordConverter.GetLocalRectSize;
+  Result.Right := VViewSize.X;
+  Result.Bottom := VViewSize.Y - FBottomMargin;
   Result.Left := Result.Right - VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
@@ -732,6 +732,12 @@ begin
 
   FMinusButton.Visible := False;
   FMinusButton.MouseEvents := false;
+end;
+
+procedure TMiniMapLayer.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
 end;
 
 procedure TMiniMapLayer.LayerMouseDown(Sender: TObject;

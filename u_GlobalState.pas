@@ -244,6 +244,7 @@ var
 implementation
 
 uses
+  Types,
   SysUtils,
   i_BitmapTileSaveLoad,
   i_ICoordConverter,

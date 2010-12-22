@@ -31,7 +31,7 @@ type
   TMapLayerBasicNoBitmap = class(TMapLayerBase)
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
-    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
   end;
 
   TMapLayerFixedWithBitmap = class(TMapLayerBase)
@@ -40,7 +40,7 @@ type
     FFixedLonLat: TDoublePoint;
     FFixedOnBitmap: TDoublePoint;
     function GetMapLayerLocationRect: TFloatRect; override;
-    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -109,17 +109,17 @@ end;
 { TMapLayerBasicNoBitmap }
 
 function TMapLayerBasicNoBitmap.GetLayerSizeForViewSize(
-  AViewSize: TPoint): TPoint;
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := AViewSize;
+  Result := ANewVisualCoordConverter.GetLocalRectSize;
 end;
 
 function TMapLayerBasicNoBitmap.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
   Result.Top := 0;
-  Result.Right := MapViewSize.X;
-  Result.Bottom := MapViewSize.Y;
+  Result.Right := LayerSize.X;
+  Result.Bottom := LayerSize.Y;
 end;
 
 { TMapLayerFixedWithBitmap }
@@ -141,9 +141,9 @@ begin
 end;
 
 function TMapLayerFixedWithBitmap.GetLayerSizeForViewSize(
-  AViewSize: TPoint): TPoint;
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := LayerSize;
+  Result := ANewVisualCoordConverter.GetLocalRectSize;
 end;
 
 function TMapLayerFixedWithBitmap.GetMapLayerLocationRect: TFloatRect;

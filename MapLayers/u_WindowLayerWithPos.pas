@@ -38,7 +38,7 @@ type
 
   TWindowLayerFixedSizeWithPosWithBitmap = class(TWindowLayerWithPosWithBitmap)
   protected
-    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     procedure DoRedraw; override;
   end;
 
@@ -119,7 +119,7 @@ begin
 end;
 
 function TWindowLayerFixedSizeWithPosWithBitmap.GetLayerSizeForViewSize(
-  AViewSize: TPoint): TPoint;
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result := LayerSize;
 end;

@@ -12,6 +12,7 @@ uses
   UMapType,
   u_MapLayerBasic,
   t_GeoTypes,
+  i_ILocalCoordConverter,
   u_MapViewPortState,
   u_KmlInfoSimple;
 
@@ -31,11 +32,11 @@ type
   protected
     FFixedPointArray: TArrayOfFixedPoint;
     FWikiLayerElments: array of TWikiLayerElement;
-    procedure addWL(var AData: TKMLData);
-    procedure DrawWikiElement(var AData: TWikiLayerElement);
+    procedure addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
+    procedure DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
     procedure DoRedraw; override;
     procedure Clear;
-    procedure AddFromLayer(Alayer: TMapType);
+    procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -52,7 +53,6 @@ uses
   GR32_Polygons,
   i_ICoordConverter,
   i_ITileIterator,
-  i_ILocalCoordConverter,
   i_MapTypes,
   u_GlobalState,
   u_TileIteratorByRect,
@@ -79,7 +79,25 @@ end;
 
 { TWikiLayer }
 
-procedure TWikiLayer.AddFromLayer(Alayer: TMapType);
+constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+begin
+  inherited;
+  FLayer.Bitmap.DrawMode := dmTransparent;
+  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+
+  FWikiLayerElments := nil;
+  SetLength(FFixedPointArray, 256);
+end;
+
+destructor TWikiLayer.Destroy;
+begin
+  Clear;
+  FWikiLayerElments := nil;
+  FFixedPointArray := nil;
+  inherited;
+end;
+
+procedure TWikiLayer.AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
 var
   ii: integer;
   kml: TKmlInfoSimple;
@@ -93,16 +111,12 @@ var
   VTileSourceRect: TRect;
   VTile: TPoint;
 begin
-
-
-  VZoom := FVisualCoordConverter.GetZoom;
+  VZoom := ALocalConverter.GetZoom;
   VSourceGeoConvert := Alayer.GeoConvert;
-  VGeoConvert := FVisualCoordConverter.GetGeoConverter;
-  VBitmapRect := DoubleRect(DoublePoint(0, 0), DoublePoint(MapViewSize));
+  VGeoConvert := ALocalConverter.GetGeoConverter;
 
-  VBitmapOnMapPixelRect := FVisualCoordConverter.LocalRectFloat2MapRectFloat(VBitmapRect);
-  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.TopLeft, VZoom, False);
-  VGeoConvert.CheckPixelPosFloat(VBitmapOnMapPixelRect.BottomRight, VZoom, False);
+  VBitmapOnMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
 
   VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
   VTileSourceRect := VSourceGeoConvert.LonLatRect2TileRect(VSourceLonLatRect, VZoom);
@@ -113,7 +127,7 @@ begin
     try
       if Alayer.LoadTile(kml, VTile, Vzoom, true) then begin
         for ii := 0 to length(KML.Data) - 1 do begin
-          addWL(KML.Data[ii]);
+          addWL(KML.Data[ii], ALocalConverter);
         end;
       end;
     finally
@@ -122,22 +136,20 @@ begin
   end;
 end;
 
-procedure TWikiLayer.addWL(var AData: TKMLData);
+procedure TWikiLayer.addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
 var
   i, lenLay: integer;
   VConverter: ICoordConverter;
-  VLocalConverter: ILocalCoordConverter;
   VSize: TPoint;
   VElement: TWikiLayerElement;
 begin
-  VSize := MapViewSize;
-  VLocalConverter := FBitmapCoordConverter;
-  VConverter := VLocalConverter.GetGeoConverter;
+  VSize := ALocalConverter.GetLocalRectSize;
+  VConverter := ALocalConverter.GetGeoConverter;
   Delete(AData.description, posEx('#ge', AData.description, 1), 1);
   VElement := TWikiLayerElement.Create;
   With VElement do begin
     VConverter.CheckLonLatRect(AData.Bounds);
-    FBounds := VLocalConverter.LonLatRect2LocalRectFloat(AData.Bounds);
+    FBounds := ALocalConverter.LonLatRect2LocalRectFloat(AData.Bounds);
     if AData.Bounds.Left = AData.Bounds.Right then begin
       FBounds.Left := FBounds.Left - 3;
       FBounds.Right := FBounds.Right + 3;
@@ -156,7 +168,7 @@ begin
     setLength(FPolygonOnBitmap, length(AData.coordinates));
     for i := 0 to length(AData.coordinates) - 1 do begin
       VConverter.CheckLonLatPos(AData.coordinates[i]);
-      FPolygonOnBitmap[i] := VLocalConverter.LonLat2LocalPixelFloat(AData.coordinates[i]);
+      FPolygonOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(AData.coordinates[i]);
     end;
     setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
     lenLay := length(FWikiLayerElments);
@@ -173,24 +185,6 @@ begin
     FreeAndNil(FWikiLayerElments[i]);
   end;
   FWikiLayerElments := nil;
-end;
-
-constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-begin
-  inherited;
-  FLayer.Bitmap.DrawMode := dmTransparent;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
-
-  FWikiLayerElments := nil;
-  SetLength(FFixedPointArray, 256);
-end;
-
-destructor TWikiLayer.Destroy;
-begin
-  Clear;
-  FWikiLayerElments := nil;
-  FFixedPointArray := nil;
-  inherited;
 end;
 
 procedure TWikiLayer.MouseOnReg(var APWL: TResObj; xy: TPoint);
@@ -247,7 +241,7 @@ begin
   end;
 end;
 
-procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement);
+procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
 var
   VPolygon: TPolygon32;
   VLen: integer;
@@ -297,9 +291,11 @@ var
   VEnum: IEnumGUID;
   VHybrList: IMapTypeList;
   ii: Integer;
+  VLocalConverter: ILocalCoordConverter;
 begin
   inherited;
   Clear;
+  VLocalConverter := FBitmapCoordConverter;
   VHybrList := FViewPortState.HybrList;
   VEnum := VHybrList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
@@ -307,14 +303,14 @@ begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
-        AddFromLayer(VMapType);
+        AddFromLayer(VMapType, VLocalConverter);
       end;
     end;
   end;
   FLayer.Bitmap.BeginUpdate;
   try
     for ii := 0 to Length(FWikiLayerElments) - 1 do begin
-      DrawWikiElement(FWikiLayerElments[ii]);
+      DrawWikiElement(FWikiLayerElments[ii], VLocalConverter);
     end;
   finally
     FLayer.Bitmap.EndUpdate;

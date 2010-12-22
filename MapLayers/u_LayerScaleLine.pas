@@ -82,12 +82,9 @@ begin
   inherited;
   VVisualCoordConverter := FVisualCoordConverter;
   VBitmapSize := LayerSize;
-  VScreenCenterVisual := DoublePoint(MapViewSize.X div 2, MapViewSize.Y div 2);
-  VScreenCenterMap := VVisualCoordConverter.LocalPixelFloat2MapPixelFloat(VScreenCenterVisual);
   VConverter := VVisualCoordConverter.GetGeoConverter;
   VZoom := VVisualCoordConverter.GetZoom;
-  VConverter.CheckPixelPosFloatStrict(VScreenCenterMap, VZoom, True);
-  LL := VConverter.PixelPosFloat2LonLat(VScreenCenterMap, VZoom);
+  LL := VVisualCoordConverter.GetCenterLonLat;
 
   VRad := VConverter.GetSpheroidRadius;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
@@ -135,7 +132,7 @@ var
 begin
   VSize := LayerSize;
   Result.Left := 6;
-  Result.Bottom := MapViewSize.Y - 6 - FBottomMargin;
+  Result.Bottom := FVisualCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;

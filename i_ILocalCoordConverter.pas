@@ -10,8 +10,13 @@ uses
 type
   ILocalCoordConverter = interface
     ['{48CD8E96-6EB3-4162-B321-B8B64D71B0AB}']
+    function GetLocalRect: TRect;
+    function GetLocalRectSize: TPoint;
+    function GetLocalRectCenter: TDoublePoint;
+
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
+
     function LocalPixel2MapPixel(const APoint: TPoint): TPoint;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint;
     function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint;
@@ -29,6 +34,11 @@ type
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
     function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
+
+    function GetCenterMapPixelFloat: TDoublePoint;
+    function GetCenterLonLat: TDoublePoint;
+    function GetRectInMapPixel: TRect;
+    function GetRectInMapPixelFloat: TDoubleRect;
   end;
 
 implementation

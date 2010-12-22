@@ -12,6 +12,7 @@ uses
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  i_ILocalCoordConverter,
   u_MapViewPortState;
 
 type
@@ -43,10 +44,10 @@ type
     FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
     FViewSizeChangeListener: IJclListener;
-    FMapViewSize: TPoint;
     FLayerSize: TPoint;
     FLayer: TPositionedLayer;
   protected
+    FVisualCoordConverter: ILocalCoordConverter;
     FViewPortState: TMapViewPortState;
 
     function GetVisible: Boolean; override;
@@ -55,7 +56,7 @@ type
     procedure OnViewSizeChange(Sender: TObject); virtual;
     procedure UpdateLayerSize(ANewSize: TPoint); virtual;
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
-    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; virtual; abstract;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
 
     procedure UpdateLayerLocation(ANewLocation: TFloatRect); virtual;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
@@ -65,7 +66,6 @@ type
     function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
 
     property LayerPositioned: TPositionedLayer read FLayer;
-    property MapViewSize: TPoint read FMapViewSize;
     property LayerSize: TPoint read FLayerSize;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
@@ -84,7 +84,7 @@ type
   TWindowLayerFixedSizeWithBitmap = class(TWindowLayerBasic)
   protected
     FLayer: TBitmapLayer;
-    function GetLayerSizeForViewSize(AViewSize: TPoint): TPoint; override;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -163,7 +163,7 @@ procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
-  FMapViewSize := FViewPortState.GetViewSizeInVisiblePixel;
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
@@ -196,14 +196,11 @@ end;
 
 procedure TWindowLayerBasic.OnViewSizeChange(Sender: TObject);
 var
-  VNewSize: TPoint;
+  VNewConverter: ILocalCoordConverter;
 begin
-  VNewSize := FViewPortState.GetViewSizeInVisiblePixel;
-  if (VNewSize.X <> FMapViewSize.X) or (VNewSize.Y <> FMapViewSize.Y) then begin
-    FMapViewSize := VNewSize;
-    UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
-    UpdateLayerLocation(GetMapLayerLocationRect);
-  end;
+  VNewConverter := FViewPortState.GetVisualCoordConverter;
+  UpdateLayerSize(GetLayerSizeForViewSize(VNewConverter));
+  UpdateLayerLocation(GetMapLayerLocationRect);
 end;
 
 procedure TWindowLayerBasic.UpdateLayerLocation(ANewLocation: TFloatRect);
@@ -267,7 +264,7 @@ procedure TWindowLayerBasic.Show;
 begin
   if not Visible then begin
     DoShow;
-    UpdateLayerSize(GetLayerSizeForViewSize(FMapViewSize));
+    UpdateLayerSize(GetLayerSizeForViewSize(FVisualCoordConverter));
     UpdateLayerLocation(GetMapLayerLocationRect);
     Redraw;
     FVisibleChangeNotifier.Notify(nil);
@@ -297,7 +294,7 @@ begin
 end;
 
 function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForViewSize(
-  AViewSize: TPoint): TPoint;
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result := FLayerSize;
 end;

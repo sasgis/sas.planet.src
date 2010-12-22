@@ -183,6 +183,7 @@ begin
   VLocalTopLeftAtMap.Y := (-VViewCenter.Y + FVisibleMove.Y) / FMapScale.Y + FCenterPos.Y;
 
   FVisibleCoordConverter := FVisibleCoordConverterFactory.CreateConverter(
+    Rect(0, 0, FViewSize.X, FViewSize.Y),
     FZoom,
     InternalGetCurrentCoordConverter,
     FMapScale,
