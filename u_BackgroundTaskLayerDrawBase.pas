@@ -23,12 +23,14 @@ type
     property Bitmap: TCustomBitmap32 read FBitmap;
   protected
     procedure ChangePos(AConverter: ILocalCoordConverter);
-    procedure ChangeSize(ANewSize: TPoint);
   public
     constructor Create(ABitmap: TCustomBitmap32);
   end;
-  
+
 implementation
+
+uses
+  Types;
 
 { TBackgroundTaskLayerDrawBase }
 
@@ -45,16 +47,7 @@ begin
   StopExecute;
   try
     FConverter := AConverter;
-  finally
-    StartExecute;
-  end;
-end;
-
-procedure TBackgroundTaskLayerDrawBase.ChangeSize(ANewSize: TPoint);
-begin
-  StopExecute;
-  try
-    FBitmapSize := ANewSize;
+    FBitmapSize := AConverter.GetLocalRectSize;
   finally
     StartExecute;
   end;

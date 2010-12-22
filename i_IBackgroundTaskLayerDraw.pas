@@ -12,7 +12,6 @@ type
   IBackgroundTaskLayerDraw = interface(IBackgroundTask)
     ['{DFC6C5B8-C3A1-4463-9B88-D7C89E031077}']
     procedure ChangePos(AConverter: ILocalCoordConverter);
-    procedure ChangeSize(ANewSize: TPoint);
   end;
 
   IBackgroundTaskLayerDrawFactory = interface

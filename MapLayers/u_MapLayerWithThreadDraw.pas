@@ -91,7 +91,6 @@ begin
   inherited;
   FDrawTask.StopExecute;
   try
-    FDrawTask.ChangeSize(FBitmapCoordConverter.GetLocalRectSize);
     FDrawTask.ChangePos(FBitmapCoordConverter);
   finally
     FDrawTask.StartExecute;
