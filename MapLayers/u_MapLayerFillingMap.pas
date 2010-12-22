@@ -155,8 +155,7 @@ begin
     VSourceGeoConvert := VSourceMapType.GeoConvert;
     VGeoConvert := VLocalConverter.GetGeoConverter;
 
-    VBitmapOnMapPixelRect.TopLeft := VLocalConverter.LocalPixel2MapPixelFloat(Point(0, 0));
-    VBitmapOnMapPixelRect.BottomRight := VLocalConverter.LocalPixel2MapPixelFloat(BitmapSize);
+    VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
     if not FNeedStopExecute then begin
       VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
       VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
