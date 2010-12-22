@@ -1629,25 +1629,28 @@ begin
   if FMapZoomAnimtion then Exit;
 
   QueryPerformanceCounter(ts2);
-
-  if (lastload.use)and(err<>'') then begin
-    FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
-  end else begin
-    FShowErrorLayer.Visible := False;
-  end;
-
-  FMainLayer.Redraw;
-  FLayerScaleLine.Redraw;
-  FLayerMapMarks.Redraw;
-  FWikiLayer.Redraw;
-
-  if not(lastload.use) then begin
-    if GState.GPSpar.GPSModele.IsConnected then begin
-       FLayerMapGPS.Redraw;
-       UpdateGPSsensors;
+  map.BeginUpdate;
+  try
+    if (lastload.use)and(err<>'') then begin
+      FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
     end;
+
+    FMainLayer.Redraw;
+    FLayerScaleLine.Redraw;
+    FLayerMapMarks.Redraw;
+    FWikiLayer.Redraw;
+
+    if not(lastload.use) then begin
+      if GState.GPSpar.GPSModele.IsConnected then begin
+         FLayerMapGPS.Redraw;
+         UpdateGPSsensors;
+      end;
+    end;
+    FLayerStatBar.Redraw;
+  finally
+    map.EndUpdate;
+    map.Changed;
   end;
-  FLayerStatBar.Redraw;
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
   Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
