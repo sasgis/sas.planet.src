@@ -9,6 +9,7 @@ uses
   GR32_Image,
   GR32_Layers,
   i_ILocalCoordConverter,
+  i_ILocalCoordConverterFactorySimpe,
   i_IBackgroundTaskLayerDraw,
   u_MapViewPortState,
   u_MapLayerBasic;
@@ -18,8 +19,11 @@ type
   protected
     FDrawTask: IBackgroundTaskLayerDraw;
     FBitmapCoordConverter: ILocalCoordConverter;
+    FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FLayer: TBitmapLayer;
     property DrawTask: IBackgroundTaskLayerDraw read FDrawTask;
+    function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
+
     procedure DoRedraw; override;
     procedure DoHide; override;
     procedure DoShow; override;
@@ -36,11 +40,30 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   t_GeoTypes,
+  u_LocalCoordConverterFactorySimpe,
   Ugeofun;
 
 { TMapLayerWithThreadDraw }
+
+function TMapLayerWithThreadDraw.BuildBitmapCoordConverter(
+  ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+begin
+  if Visible then begin
+    Result := ANewVisualCoordConverter;
+  end else begin
+    Result :=
+      FBitmapCoordConverterFactory.CreateConverter(
+        Rect(0, 0, 0, 0),
+        0,
+        nil,
+        DoublePoint(1, 1),
+        DoublePoint(0, 0)
+      );
+  end;
+end;
 
 constructor TMapLayerWithThreadDraw.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState;  ATaskFactory: IBackgroundTaskLayerDrawFactory);
@@ -50,25 +73,27 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FDrawTask := ATaskFactory.GetTask(FLayer.Bitmap);
+  FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 end;
 
 destructor TMapLayerWithThreadDraw.Destroy;
 begin
   FDrawTask := nil;
+  FBitmapCoordConverterFactory := nil;
   inherited;
 end;
 
 procedure TMapLayerWithThreadDraw.DoHide;
 begin
   inherited;
-  FDrawTask.StopExecute;
+  DoUpdateLayerSize(Point(0, 0));
 end;
 
 procedure TMapLayerWithThreadDraw.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
   inherited;
-  FBitmapCoordConverter :=  FVisualCoordConverter;
+  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
   FDrawTask.ChangePos(FBitmapCoordConverter);
   UpdateLayerLocation(GetMapLayerLocationRect);
 end;
@@ -83,12 +108,13 @@ end;
 procedure TMapLayerWithThreadDraw.DoShow;
 begin
   inherited;
-  FDrawTask.StartExecute;
+  DoUpdateLayerSize(FBitmapCoordConverter.GetLocalRectSize);
 end;
 
 procedure TMapLayerWithThreadDraw.DoUpdateLayerSize(ANewSize: TPoint);
 begin
   inherited;
+  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
   FDrawTask.StopExecute;
   try
     FDrawTask.ChangePos(FBitmapCoordConverter);
