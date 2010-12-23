@@ -55,8 +55,7 @@ uses
   i_ITileIterator,
   i_MapTypes,
   u_GlobalState,
-  u_TileIteratorByRect,
-  u_WindowLayerBasic;
+  u_TileIteratorByRect;
 
 { TWikiLayerElement }
 

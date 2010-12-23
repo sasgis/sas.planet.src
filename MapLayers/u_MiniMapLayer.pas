@@ -199,8 +199,6 @@ end;
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-var
-  VBitmapSize: TPoint;
 begin
   inherited;
   FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
