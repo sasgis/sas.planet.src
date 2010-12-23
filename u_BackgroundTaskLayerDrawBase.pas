@@ -12,14 +12,12 @@ type
   TBackgroundTaskLayerDrawBase = class(TBackgroundTask, IBackgroundTaskLayerDraw)
   private
     FBitmap: TCustomBitmap32;
-    FBitmapSize: TPoint;
     FConverter: ILocalCoordConverter;
   protected
     procedure DrawBitmap; virtual; abstract;
-    procedure ResizeBitmap;
+    procedure ResizeBitmap(ABitmapSize: TPoint);
     procedure ExecuteTask; override;
     property Converter: ILocalCoordConverter read FConverter;
-    property BitmapSize: TPoint read FBitmapSize;
     property Bitmap: TCustomBitmap32 read FBitmap;
   protected
     procedure ChangePos(AConverter: ILocalCoordConverter);
@@ -38,7 +36,6 @@ constructor TBackgroundTaskLayerDrawBase.Create(ABitmap: TCustomBitmap32);
 begin
   inherited Create;
   FBitmap := ABitmap;
-  FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
 end;
 
 procedure TBackgroundTaskLayerDrawBase.ChangePos(
@@ -47,29 +44,31 @@ begin
   StopExecute;
   try
     FConverter := AConverter;
-    FBitmapSize := AConverter.GetLocalRectSize;
   finally
     StartExecute;
   end;
 end;
 
 procedure TBackgroundTaskLayerDrawBase.ExecuteTask;
+var
+  VBitmapSize: TPoint;
 begin
   if FConverter <> nil then begin
     inherited;
-    ResizeBitmap;
-    if (FBitmapSize.X <> 0) and (FBitmapSize.Y <> 0) then begin
+    VBitmapSize := FConverter.GetLocalRectSize;
+    ResizeBitmap(VBitmapSize);
+    if (VBitmapSize.X <> 0) and (VBitmapSize.Y <> 0) then begin
       DrawBitmap;
     end;
   end;
 end;
 
-procedure TBackgroundTaskLayerDrawBase.ResizeBitmap;
+procedure TBackgroundTaskLayerDrawBase.ResizeBitmap(ABitmapSize: TPoint);
 begin
   FBitmap.Lock;
   try
-    if (FBitmap.Width <> FBitmapSize.X) or (FBitmap.Height <> FBitmapSize.Y) then begin
-      FBitmap.SetSize(FBitmapSize.X, FBitmapSize.Y);
+    if (FBitmap.Width <> ABitmapSize.X) or (FBitmap.Height <> ABitmapSize.Y) then begin
+      FBitmap.SetSize(ABitmapSize.X, ABitmapSize.Y);
     end;
   finally
     FBitmap.Unlock;
