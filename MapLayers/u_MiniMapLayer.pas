@@ -35,6 +35,8 @@ type
     FBitmapCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
 
+    FWidth: Integer;
+
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -222,7 +224,8 @@ begin
 
   LoadBitmaps;
   BuildPopUpMenu;
-  DoUpdateLayerSize(VBitmapSize);
+  FWidth := 100;
+  UpdateLayerSize(Point(FWidth, FWidth));
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -1014,8 +1017,6 @@ begin
   VRect.Right := VRect.Left + FMinusButton.Bitmap.Width;
   VRect.Bottom := VRect.Top + FMinusButton.Bitmap.Height;
   FMinusButton.Location := VRect;
-
-  DrawMainViewRect;
 end;
 
 procedure TMiniMapLayer.DoUpdateLayerSize(ANewSize: TPoint);
