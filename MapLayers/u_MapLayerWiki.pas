@@ -141,33 +141,35 @@ var
   VConverter: ICoordConverter;
   VSize: TPoint;
   VElement: TWikiLayerElement;
+  VBounds: TDoubleRect;
 begin
   VSize := ALocalConverter.GetLocalRectSize;
   VConverter := ALocalConverter.GetGeoConverter;
   Delete(AData.description, posEx('#ge', AData.description, 1), 1);
-  VElement := TWikiLayerElement.Create;
-  With VElement do begin
-    VConverter.CheckLonLatRect(AData.Bounds);
-    FBounds := ALocalConverter.LonLatRect2LocalRectFloat(AData.Bounds);
-    if AData.Bounds.Left = AData.Bounds.Right then begin
-      FBounds.Left := FBounds.Left - 3;
-      FBounds.Right := FBounds.Right + 3;
-    end;
-    if AData.Bounds.Top = AData.Bounds.Bottom then begin
-      FBounds.Top := FBounds.Top - 3;
-      FBounds.Bottom := FBounds.Bottom + 3;
-    end;
-    if (((FBounds.Right - FBounds.Left) <= 1) or ((FBounds.Bottom - FBounds.Top) <= 1) or
-      ((FBounds.Top > VSize.Y) or (FBounds.Bottom < 0) or (FBounds.Left > VSize.X) or (FBounds.Right < 0))) then begin
-      exit;
-    end;
-    name_blok := AData.name;
-    num_blok := AData.PlacemarkID;
-    description := AData.description;
-    setLength(FPolygonOnBitmap, length(AData.coordinates));
-    for i := 0 to length(AData.coordinates) - 1 do begin
-      VConverter.CheckLonLatPos(AData.coordinates[i]);
-      FPolygonOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(AData.coordinates[i]);
+  VConverter.CheckLonLatRect(AData.Bounds);
+  VBounds := ALocalConverter.LonLatRect2LocalRectFloat(AData.Bounds);
+  if AData.Bounds.Left = AData.Bounds.Right then begin
+    VBounds.Left := VBounds.Left - 3;
+    VBounds.Right := VBounds.Right + 3;
+  end;
+  if AData.Bounds.Top = AData.Bounds.Bottom then begin
+    VBounds.Top := VBounds.Top - 3;
+    VBounds.Bottom := VBounds.Bottom + 3;
+  end;
+  if (((VBounds.Right - VBounds.Left) <= 1) or ((VBounds.Bottom - VBounds.Top) <= 1) or
+    ((VBounds.Top > VSize.Y) or (VBounds.Bottom < 0) or (VBounds.Left > VSize.X) or (VBounds.Right < 0))) then begin
+  end else begin
+    VElement := TWikiLayerElement.Create;
+    With VElement do begin
+      FBounds := VBounds;
+      name_blok := AData.name;
+      num_blok := AData.PlacemarkID;
+      description := AData.description;
+      setLength(FPolygonOnBitmap, length(AData.coordinates));
+      for i := 0 to length(AData.coordinates) - 1 do begin
+        VConverter.CheckLonLatPos(AData.coordinates[i]);
+        FPolygonOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(AData.coordinates[i]);
+      end;
     end;
     setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
     lenLay := length(FWikiLayerElments);
