@@ -1168,7 +1168,7 @@ procedure TFmain.ProcessPosChangeMessage(AMessage: IPosChangeMessage);
 var
   VZoomCurr: Byte;
 begin
-  VZoomCurr := AMessage.GetZoom;
+  VZoomCurr := AMessage.GetVisualCoordConverter.GetZoom;
   if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
         else TBZoom_Out.Enabled:=true;
   if VZoomCurr>=23 then TBZoomIn.Enabled:=false

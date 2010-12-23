@@ -14,7 +14,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TLayerScaleLine = class(TWindowLayerFixedSizeWithPosWithBitmap)
+  TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
   protected
     FBottomMargin: Integer;
     procedure DoRedraw; override;

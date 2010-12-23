@@ -125,6 +125,7 @@ implementation
 
 uses
   u_JclNotify,
+  i_IPosChangeMessage,
   u_ActiveMapWithHybrConfig,
   u_MapsConfigByConfigDataProvider,
   u_LocalCoordConverterFactorySimpe,
@@ -902,17 +903,11 @@ end;
 
 procedure TMapViewPortState.NotifyChangePos;
 var
-  VMessage: IJclNotificationMessage;
+  VMessage: IPosChangeMessage;
 begin
   FSync.BeginRead;
   try
-    VMessage := TPosChangeMessage.Create(
-      FViewSize,
-      InternalGetCurrentCoordConverter,
-      InternalGetCurrentMap,
-      FZoom,
-      FCenterPos
-    );
+    VMessage := TPosChangeMessage.Create(FVisibleCoordConverter);
   finally
     FSync.EndRead;
   end;

@@ -9,7 +9,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_MapViewPortState,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
   TCenterScale = class(TWindowLayerFixedSizeWithBitmap)

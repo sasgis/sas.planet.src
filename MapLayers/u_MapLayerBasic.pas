@@ -16,7 +16,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TMapLayerBase = class(TWindowLayerWithPos)
+  TMapLayerBase = class(TWindowLayerBasic)
   private
     FScaleChangeListener: IJclListener;
     procedure OnScaleChange(Sender: TObject);

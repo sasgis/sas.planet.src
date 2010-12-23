@@ -13,16 +13,16 @@ type
   private
     FList: TList;
   protected
-    function Get(AIndex: Integer): TWindowLayerBasic;
+    function Get(AIndex: Integer): TWindowLayerAbstract;
   public
     constructor Create;
     destructor Destroy; override;
-    function Add(AItem: TWindowLayerBasic): Integer;
+    function Add(AItem: TWindowLayerAbstract): Integer;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider);
     procedure StartThreads;
     procedure SendTerminateToThreads;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-    property Items[Index: Integer]: TWindowLayerBasic read Get; default;
+    property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
   end;
 
 implementation
@@ -32,7 +32,7 @@ uses
 
 { TWindowLayerBasicList }
 
-function TWindowLayerBasicList.Add(AItem: TWindowLayerBasic): Integer;
+function TWindowLayerBasicList.Add(AItem: TWindowLayerAbstract): Integer;
 begin
   Result := FList.Add(AItem);
 end;
@@ -53,9 +53,9 @@ begin
   inherited;
 end;
 
-function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerBasic;
+function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerAbstract;
 begin
-  Result := TWindowLayerBasic(FList.Items[AIndex]);
+  Result := TWindowLayerAbstract(FList.Items[AIndex]);
 end;
 
 procedure TWindowLayerBasicList.LoadConfig(AConfigProvider: IConfigDataProvider);

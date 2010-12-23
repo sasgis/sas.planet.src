@@ -426,6 +426,7 @@
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
+    <DCCReference Include="u_NotifyEventPosChangeListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />

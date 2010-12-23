@@ -96,6 +96,7 @@ uses
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
+  u_NotifyEventPosChangeListener in 'u_NotifyEventPosChangeListener.pas',
   u_MapLayerWithThreadDraw in 'MapLayers\u_MapLayerWithThreadDraw.pas',
   u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
   UPLT in 'UPLT.pas',

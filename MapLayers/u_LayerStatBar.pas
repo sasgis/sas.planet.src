@@ -16,7 +16,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TLayerStatBar = class(TWindowLayerWithPosWithBitmap)
+  TLayerStatBar = class(TWindowLayerWithBitmap)
   protected
     FHeight: Integer;
     FMinUpdateTickCount: Cardinal;

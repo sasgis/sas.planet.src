@@ -28,7 +28,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TMiniMapLayer = class(TWindowLayerFixedSizeWithPosWithBitmap)
+  TMiniMapLayer = class(TWindowLayerFixedSizeWithBitmap)
   protected
     FParentMap: TImage32;
     FLocalVisualCoordConverter: ILocalCoordConverter;

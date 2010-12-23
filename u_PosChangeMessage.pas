@@ -5,30 +5,17 @@ interface
 uses
   Types,
   u_JclNotify,
-  i_ICoordConverter,
-  UMapType,
+  i_ILocalCoordConverter,
   i_IPosChangeMessage;
 
 type
   TPosChangeMessage = class(TJclBaseNotificationMessage, IPosChangeMessage)
   private
-    FMap: TMapType;
-    FZoom: Byte;
-    FMapPixel: TPoint;
-    FViewSize: TPoint;
-    FCoordConverter: ICoordConverter;
-    function GetMap: TMapType; stdcall;
-    function GetZoom: Byte; stdcall;
-    function GetMapPixel: TPoint; stdcall;
-    function GetViewSize: TPoint; stdcall;
-    function GetCoordConverter: ICoordConverter; stdcall;
+    FVisualCoordConverter: ILocalCoordConverter;
+    function GetVisualCoordConverter: ILocalCoordConverter; stdcall;
   public
     constructor Create(
-      AViewSize: TPoint;
-      ACoordConverter: ICoordConverter;
-      AMap: TMapType;
-      AZoom: Byte;
-      AMapPixel: TPoint
+      AVisuzlCoordConverter: ILocalCoordConverter
     );
   end;
 
@@ -37,41 +24,15 @@ implementation
 { TPosChangeMessage }
 
 constructor TPosChangeMessage.Create(
-  AViewSize: TPoint;
-  ACoordConverter: ICoordConverter;
-  AMap: TMapType; AZoom: Byte;
-  AMapPixel: TPoint);
+  AVisuzlCoordConverter: ILocalCoordConverter
+);
 begin
-  FViewSize := AViewSize;
-  FCoordConverter := ACoordConverter;
-  FMap := AMap;
-  FZoom := AZoom;
-  FMapPixel := AMapPixel;
+  FVisualCoordConverter := AVisuzlCoordConverter;
 end;
 
-function TPosChangeMessage.GetCoordConverter: ICoordConverter;
+function TPosChangeMessage.GetVisualCoordConverter: ILocalCoordConverter;
 begin
-  Result := FCoordConverter;
-end;
-
-function TPosChangeMessage.GetMap: TMapType;
-begin
-  Result := FMap;
-end;
-
-function TPosChangeMessage.GetMapPixel: TPoint;
-begin
-  Result := FMapPixel;
-end;
-
-function TPosChangeMessage.GetViewSize: TPoint;
-begin
-  Result := FViewSize;
-end;
-
-function TPosChangeMessage.GetZoom: Byte;
-begin
-  Result := FZoom;
+  Result := FVisualCoordConverter;
 end;
 
 end.
