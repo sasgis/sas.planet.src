@@ -105,7 +105,6 @@ var
   VZoom: Byte;
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
-  VBitmapRect: TDoubleRect;
   VBitmapOnMapPixelRect: TDoubleRect;
   VSourceLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;

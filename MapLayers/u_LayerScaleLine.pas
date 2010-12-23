@@ -71,8 +71,6 @@ var
   VConverter: ICoordConverter;
   VPixelsAtZoom: Double;
   VZoom: Byte;
-  VScreenCenterVisual: TDoublePoint;
-  VScreenCenterMap: TDoublePoint;
   VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;

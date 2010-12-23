@@ -327,7 +327,6 @@ var
 
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
-  i, j: integer;
   VUsePre: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VTileIterator: ITileIterator;

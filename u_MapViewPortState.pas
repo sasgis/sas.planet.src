@@ -35,10 +35,8 @@ type
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FWriteLocked: Boolean;
     FPosChangeNotifier: IJclNotifier;
-    FViewSizeChangeNotifier: IJclNotifier;
     FScaleChangeNotifier: IJclNotifier;
     procedure NotifyChangePos;
-    procedure NotifyChangeViewSize;
     procedure NotifyChangeScale;
     function GetHybrChangeNotifier: IJclNotifier;
     function GetHybrList: IMapTypeList;
@@ -112,7 +110,6 @@ type
     property MapChangeNotifier: IJclNotifier read GetMapChangeNotifier;
     property PosChangeNotifier: IJclNotifier read FPosChangeNotifier;
     property ScaleChangeNotifier: IJclNotifier read FScaleChangeNotifier;
-    property ViewSizeChangeNotifier: IJclNotifier read FViewSizeChangeNotifier;
     property MapsList: IMapTypeList read GetMapsList;
     property HybrList: IMapTypeList read GetHybrList;
     property HybrChangeNotifier: IJclNotifier read GetHybrChangeNotifier;
@@ -148,7 +145,6 @@ begin
 
   FPosChangeNotifier := TJclBaseNotifier.Create;
   FScaleChangeNotifier := TJclBaseNotifier.Create;
-  FViewSizeChangeNotifier := TJclBaseNotifier.Create;
 
   VConverter := InternalGetCurrentCoordConverter;
   if FViewSize.X <= 0 then begin
@@ -199,7 +195,6 @@ begin
   FActiveMaps := nil;
   FPosChangeNotifier := nil;
   FScaleChangeNotifier := nil;
-  FViewSizeChangeNotifier := nil;
   FVisibleCoordConverter := nil;
   FVisibleCoordConverterFactory := nil;
   inherited;
@@ -337,7 +332,6 @@ begin
   end;
   if VChanged then begin
     NotifyChangePos;
-    NotifyChangeViewSize;
   end;
 end;
 
@@ -917,11 +911,6 @@ end;
 procedure TMapViewPortState.NotifyChangeScale;
 begin
   FScaleChangeNotifier.Notify(nil);
-end;
-
-procedure TMapViewPortState.NotifyChangeViewSize;
-begin
-  FViewSizeChangeNotifier.Notify(nil);
 end;
 
 function TMapViewPortState.GetMapChangeNotifier: IJclNotifier;

@@ -690,10 +690,6 @@ var
   VScreenCenterPos: TPoint;
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VMapType: TMapType;
-  VList: IMapTypeList;
-  VGUID: TGUID;
-  i: Cardinal;
 begin
   if FViewState = nil then begin
     FViewState := TMapViewPortState.Create(
