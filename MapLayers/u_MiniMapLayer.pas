@@ -552,8 +552,8 @@ begin
       VZoomSource := VBitmapCoordConverter.GetZoom;
       VZoom := VVisualCoordConverter.GetZoom;
       VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
-      VRelRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VZoomSource);
-      VMiniMapRect := VGeoConvert.RelativeRect2PixelRectFloat(VRelRect, VZoom);
+      VRelRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VZoom);
+      VMiniMapRect := VGeoConvert.RelativeRect2PixelRectFloat(VRelRect, VZoomSource);
       VBitmapRect := VBitmapCoordConverter.MapRectFloat2LocalRectFloat(VMiniMapRect);
       VBitmapRect.Left := VBitmapRect.Left + FViewRectMoveDelta.X;
       VBitmapRect.Top := VBitmapRect.Top + FViewRectMoveDelta.Y;
