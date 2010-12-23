@@ -10,11 +10,9 @@ uses
   i_JclNotify,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  i_ICoordConverter,
   i_ILocalCoordConverter,
   u_MapViewPortState,
-  u_WindowLayerBasic,
-  t_GeoTypes;
+  u_WindowLayerBasic;
 
 type
   TWindowLayerBasic = class(TWindowLayerAbstract)
@@ -81,10 +79,7 @@ uses
   Forms,
   Graphics,
   u_JclNotify,
-  u_NotifyEventListener,
-  u_NotifyEventPosChangeListener,
-  Ugeofun,
-  u_GlobalState;
+  u_NotifyEventPosChangeListener;
 
 { TWindowLayerBasic }
 

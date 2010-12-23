@@ -6,14 +6,8 @@ uses
   Windows,
   SyncObjs,
   GR32,
-  GR32_Image,
-  GR32_Layers,
-  i_JclNotify,
-  t_GeoTypes,
   i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
-  i_ILocalCoordConverter,
-  u_MapViewPortState;
+  i_IConfigDataWriteProvider;
 
 type
   TWindowLayerAbstract = class
@@ -42,10 +36,7 @@ implementation
 uses
   SysUtils,
   Forms,
-  Types,
-  u_NotifyEventListener,
-  u_NotifyEventPosChangeListener,
-  u_JclNotify;
+  Types;
 
 { TWindowLayerAbstract }
 

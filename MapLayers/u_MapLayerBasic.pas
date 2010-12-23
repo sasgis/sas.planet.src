@@ -9,10 +9,8 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  i_ICoordConverter,
   i_ILocalCoordConverter,
   u_MapViewPortState,
-  u_WindowLayerBasic,
   u_WindowLayerWithPos;
 
 type
@@ -66,8 +64,7 @@ uses
   Forms,
   Graphics,
   u_NotifyEventListener,
-  Ugeofun,
-  u_GlobalState;
+  Ugeofun;
 
 { TMapLayerBase }
 

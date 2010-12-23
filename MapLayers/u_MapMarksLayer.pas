@@ -32,8 +32,7 @@ uses
   i_IBitmapLayerProvider,
   i_ILocalCoordConverter,
   u_MarksSimple,
-  Unit1,
-  u_WindowLayerBasic;
+  Unit1;
 
 { TMapMarksLayer }
 

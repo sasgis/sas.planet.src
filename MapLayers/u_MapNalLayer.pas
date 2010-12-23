@@ -93,8 +93,7 @@ uses
   i_ILocalCoordConverter,
   u_ConfigProviderHelpers,
   UResStrings,
-  u_GlobalState,
-  u_WindowLayerBasic;
+  u_GlobalState;
 
 { TMapNalLayer }
 

@@ -121,7 +121,6 @@ uses
   c_ZeroGUID,
   i_ICoordConverter,
   Uimgfun,
-  Ugeofun,
   UResStrings,
   i_ActiveMapsConfigSaveLoad,
   u_GlobalState,

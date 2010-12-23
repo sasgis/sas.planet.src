@@ -6,7 +6,6 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_JclNotify,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
@@ -34,10 +33,7 @@ uses
   SysUtils,
   i_ICoordConverter,
   UResStrings,
-  t_GeoTypes,
-  Ugeofun,
-  u_NotifyEventListener,
-  u_GlobalState;
+  t_GeoTypes;
 
 const
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
