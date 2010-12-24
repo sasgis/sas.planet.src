@@ -108,6 +108,7 @@ end;
 procedure TMapLayerWithThreadDraw.DoShow;
 begin
   inherited;
+  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
   DoUpdateLayerSize(FBitmapCoordConverter.GetLocalRectSize);
 end;
 

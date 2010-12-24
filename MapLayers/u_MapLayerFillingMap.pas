@@ -23,7 +23,7 @@ type
     procedure ChangeSoureZoom(AZoom: Byte);
   end;
 
-  TBackgroundTaskFillingMap = class(TBackgroundTaskLayerDrawBase)
+  TBackgroundTaskFillingMap = class(TBackgroundTaskLayerDrawBase, IBackgroundTaskFillingMap)
   private
     FSourceMap: TMapType;
     FSourceZoom: Byte;
@@ -66,6 +66,7 @@ type
 implementation
 
 uses
+  Graphics,
   SysUtils,
   u_JclNotify,
   t_GeoTypes,
@@ -154,6 +155,13 @@ var
   VTileIterator: ITileIterator;
 begin
   inherited;
+  Bitmap.Lock;
+  try
+    Bitmap.Clear(clBlack);
+  finally
+    Bitmap.UnLock;
+  end;
+
   VBmp := TCustomBitmap32.Create;
   try
     VLocalConverter := Converter;
@@ -290,9 +298,10 @@ begin
   if FSourceZoom < 0 then begin
     Hide;
   end else begin
-    if ANewVisualCoordConverter.GetZoom <= FSourceZoom then begin
+    if ANewVisualCoordConverter.GetZoom > FSourceZoom then begin
       Hide;
     end else begin
+      Show;
       inherited;
     end;
   end;
@@ -348,12 +357,23 @@ begin
     FSourceSelected := AMapType;
     FSourceMapType := VNewSource;
     FSourceZoom := AZoom;
-    FDrawTask.StopExecute;
-    try
-      FDrawTask.ChangeSoureMap(VNewSource);
-      FDrawTask.ChangeSoureZoom(FSourceZoom);
-    finally
-      FDrawTask.StartExecute;
+
+    if FSourceZoom < 0 then begin
+      Hide;
+    end else begin
+      PosChange(FViewPortState.GetVisualCoordConverter);
+      if FVisualCoordConverter.GetZoom > FSourceZoom then begin
+        Hide;
+      end else begin
+        FDrawTask.StopExecute;
+        try
+          Show;
+          FDrawTask.ChangeSoureMap(VNewSource);
+          FDrawTask.ChangeSoureZoom(FSourceZoom);
+        finally
+          FDrawTask.StartExecute;
+        end;
+      end;
     end;
     FSourceMapChangeNotifier.Notify(nil);
   end;
