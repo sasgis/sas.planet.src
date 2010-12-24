@@ -2214,7 +2214,14 @@ begin
   if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
       (MessageBox(handle,pchar(Format(SAS_MSG_FileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
   then begin
-    TTileDownloaderUIOneTile.Create(VLoadPoint, VZoomCurr, VMapType);
+    TTileDownloaderUIOneTile.Create(
+      VLoadPoint,
+      VZoomCurr,
+      VMapType,
+      FMainLayer,
+      FWikiLayer,
+      FShowErrorLayer
+    );
   end;
 end;
 
@@ -2988,7 +2995,14 @@ begin
  end;
  if HiWord(GetKeyState(VK_INSERT))<>0 then begin
   if VValidPoint then begin
-    TTileDownloaderUIOneTile.Create(VTile, VZoomCurr, VMap);
+    TTileDownloaderUIOneTile.Create(
+      VTile,
+      VZoomCurr,
+      VMap,
+      FMainLayer,
+      FWikiLayer,
+      FShowErrorLayer
+    );
   end;
   exit;
  end;

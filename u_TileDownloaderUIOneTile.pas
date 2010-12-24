@@ -8,6 +8,8 @@ uses
   Types,
   t_LoadEvent,
   u_TileDownloaderThreadBase,
+  u_MapLayerShowError,
+  u_MapLayerBasic,
   UMapType;
 
 type
@@ -15,11 +17,23 @@ type
   private
     FLastLoad: TlastLoad;
     FErrorString: string;
+
+    FMainLayer: TMapLayerBasic;
+    FKmlLayer: TMapLayerBasic;
+    FErrorShowLayer: TTileErrorInfoLayer;
+
     procedure AfterWriteToFile;
   protected
     procedure Execute; override;
   public
-    constructor Create(AXY: TPoint; AZoom: byte; AMapType: TMapType); overload;
+    constructor Create(
+      AXY: TPoint;
+      AZoom: byte;
+      AMapType: TMapType;
+      AMainLayer: TMapLayerBasic;
+      AKmlLayer: TMapLayerBasic;
+      AErrorShowLayer: TTileErrorInfoLayer
+    ); overload;
   end;
 
 implementation
@@ -28,12 +42,21 @@ uses
   SysUtils,
   u_GlobalState,
   i_ITileDownlodSession,
-  UResStrings,
-  Unit1;
+  UResStrings;
 
-constructor TTileDownloaderUIOneTile.Create(AXY: TPoint; AZoom: byte; AMapType: TMapType);
+constructor TTileDownloaderUIOneTile.Create(
+  AXY: TPoint;
+  AZoom: byte;
+  AMapType: TMapType;
+  AMainLayer: TMapLayerBasic;
+  AKmlLayer: TMapLayerBasic;
+  AErrorShowLayer: TTileErrorInfoLayer
+);
 begin
   inherited Create(False);
+  FMainLayer := AMainLayer;
+  FKmlLayer := AKmlLayer;
+  FErrorShowLayer := AErrorShowLayer;
   FLoadXY := AXY;
   FZoom := AZoom;
   FMapType := AMapType;
@@ -45,7 +68,24 @@ end;
 
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
-  Fmain.generate_im(FLastLoad, FErrorString);
+  if FErrorString <> '' then begin
+    if FErrorShowLayer <> nil then begin
+      FErrorShowLayer.ShowError(FLoadXY, FZoom, FMapType, FErrorString);
+    end;
+  end else begin
+    if FErrorShowLayer <> nil then begin
+      FErrorShowLayer.Visible := False;
+    end;
+    if FMapType.IsBitmapTiles then begin
+      if FMainLayer <> nil then begin
+        FMainLayer.Redraw;
+      end;
+    end else if FMapType.IsKmlTiles then begin
+      if FKmlLayer <> nil then begin
+        FKmlLayer.Redraw;
+      end;
+    end;
+  end;
 end;
 
 procedure TTileDownloaderUIOneTile.Execute;
