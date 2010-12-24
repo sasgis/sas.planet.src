@@ -21,13 +21,19 @@ type
     procedure GPSReceiverReceive(Sender: TObject);
     procedure GPSReceiverDisconnect(Sender: TObject);
   protected
-    FMarker: TCustomBitmap32;
-    FMarkerSize: Integer;
-    FMarkerColor: TColor32;
-    FMarkerAngle: Double;
+    FMarkerMoved: TCustomBitmap32;
+    FMarkerMovedSize: Integer;
+    FMarkerMovedColor: TColor32;
+    FMarkerStoped: TCustomBitmap32;
+    FMarkerStopedColor: TColor32;
+    FMarkerStopedSize: Integer;
+    FAngle: Double;
+    FSpeed: Double;
+    FMinMoveSpeed: Double;
     procedure PrepareMarker;
   protected
     procedure DoRedraw; override;
+  public
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
   public
@@ -52,13 +58,24 @@ constructor TMapLayerGPSMarker.Create(AParentMap: TImage32;
 var
   VSize: TPoint;
 begin
-  FMarkerSize := 25;
-  FMarkerColor := SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 150);
-  FMarker := TCustomBitmap32.Create;
-  FMarker.DrawMode:=dmBlend;
-  FMarker.CombineMode:=cmMerge;
+  inherited;
+  FMarkerMovedSize := 25;
+  FMarkerMovedColor := SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 150);
+
+  FMarkerStopedSize := FMarkerMovedSize div 3;
+  FMarkerStopedColor := SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 200);
+  FMinMoveSpeed := 1;
+
+  FMarkerMoved := TCustomBitmap32.Create;
+  FMarkerMoved.DrawMode:=dmBlend;
+  FMarkerMoved.CombineMode:=cmMerge;
+
+  FMarkerStoped := TCustomBitmap32.Create;
+  FMarkerStoped.DrawMode:=dmBlend;
+  FMarkerStoped.CombineMode:=cmMerge;
+
   PrepareMarker;
-  VSize := Point(FMarker.Width, FMarker.Height);
+  VSize := Point(FMarkerMoved.Width, FMarkerMoved.Height);
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   FLayer.Bitmap.Clear(0);
   DoUpdateLayerSize(VSize);
@@ -68,16 +85,47 @@ end;
 
 destructor TMapLayerGPSMarker.Destroy;
 begin
-  FreeAndNil(FMarker);
+  FreeAndNil(FMarkerMoved);
+  FreeAndNil(FMarkerStoped);
   FGPSDisconntectListener := nil;
   FGPSReceiveListener := nil;
   inherited;
 end;
 
 procedure TMapLayerGPSMarker.DoRedraw;
+var
+  T: TAffineTransformation;
+  VSize: TPoint;
 begin
   inherited;
-  FMarker.DrawTo(FLayer.Bitmap);
+  VSize := LayerSize;
+  if FSpeed > FMinMoveSpeed then begin
+    T := TAffineTransformation.Create;
+    try
+      T.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
+      T.Clear;
+
+      T.Translate(-VSize.X / 2, -VSize.Y / 2);
+      T.Rotate(0, 0, -FAngle);
+      T.Translate(VSize.X / 2, VSize.Y / 2);
+      FLayer.Bitmap.Lock;
+      try
+        FLayer.Bitmap.Clear(0);
+        Transform(FLayer.Bitmap, FMarkerMoved, T);
+      finally
+        FLayer.Bitmap.Unlock;
+      end;
+    finally
+      FreeAndNil(T);
+    end;
+  end else begin
+    FLayer.Bitmap.Lock;
+    try
+      FMarkerStoped.DrawTo(FLayer.Bitmap);
+    finally
+      FLayer.Bitmap.Unlock;
+    end;
+  end;
 end;
 
 procedure TMapLayerGPSMarker.GPSReceiverDisconnect(Sender: TObject);
@@ -94,8 +142,10 @@ begin
     Hide;
   end else begin
     FFixedLonLat := VGPSPosition.Position;
-    FMarkerAngle := VGPSPosition.Heading;
+    FAngle := VGPSPosition.Heading;
+    FSpeed := VGPSPosition.Speed_KMH;
     Redraw;
+    UpdateLayerLocation(GetMapLayerLocationRect);
     Show;
   end;
 end;
@@ -104,25 +154,38 @@ procedure TMapLayerGPSMarker.PrepareMarker;
 var
   VSize: TPoint;
   VPolygon: TPolygon32;
+  VPointHalfSize: Double;
+  VMarkRect: TRect;
 begin
-  VSize := Point(FMarkerSize * 2, FMarkerSize * 2);
+  VSize := Point(FMarkerMovedSize * 2, FMarkerMovedSize * 2);
 
   FFixedOnBitmap.X := VSize.X / 2;
-  FFixedOnBitmap.Y := VSize.Y / 2 - FMarkerSize / 2;
+  FFixedOnBitmap.Y := VSize.Y / 2;
 
-  FMarker.SetSize(VSize.Y, VSize.Y);
-  FMarker.Clear(0);
+  FMarkerMoved.SetSize(VSize.Y, VSize.Y);
+  FMarkerMoved.Clear(0);
   VPolygon := TPolygon32.Create;
   try
     VPolygon.Antialiased := true;
     VPolygon.AntialiasMode := am32times;
-    VPolygon.Add(FixedPoint(FFixedOnBitmap.X, FFixedOnBitmap.Y));
-    VPolygon.Add(FixedPoint(FFixedOnBitmap.X - FMarkerSize / 5, FFixedOnBitmap.Y + FMarkerSize / 2));
-    VPolygon.Add(FixedPoint(FFixedOnBitmap.X + FMarkerSize / 5, FFixedOnBitmap.Y + FMarkerSize / 2));
-    VPolygon.DrawFill(FMarker, FMarkerColor);
+    VPolygon.Add(FixedPoint(FFixedOnBitmap.X, FFixedOnBitmap.Y - FMarkerMovedSize));
+    VPolygon.Add(FixedPoint(FFixedOnBitmap.X - FMarkerMovedSize / 3, FFixedOnBitmap.Y));
+    VPolygon.Add(FixedPoint(FFixedOnBitmap.X + FMarkerMovedSize / 3, FFixedOnBitmap.Y));
+    VPolygon.DrawFill(FMarkerMoved, FMarkerMovedColor);
   finally
     FreeAndNil(VPolygon);
   end;
+
+  VPointHalfSize := FMarkerStopedSize / 2;
+  FMarkerStoped.SetSize(VSize.Y, VSize.Y);
+  FMarkerStoped.Clear(0);
+  VMarkRect := Bounds(
+    Trunc(FFixedOnBitmap.X - VPointHalfSize),
+    Trunc(FFixedOnBitmap.y - VPointHalfSize),
+    FMarkerStopedSize,
+    FMarkerStopedSize
+  );
+  FMarkerStoped.FillRectS(VMarkRect, FMarkerStopedColor);
 end;
 
 procedure TMapLayerGPSMarker.SendTerminateToThreads;
