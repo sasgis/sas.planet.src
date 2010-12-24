@@ -272,7 +272,7 @@ begin
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
         if IsStop^ then break;
-        VFileName := FCacheConfig.GetTileFileName(AXY, Azoom);
+        VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
         VFolderName := ExtractFilePath(VFileName);
         if VFolderName = VPrevFolderName then begin
           VFolderExists := VPrevFolderExist;
