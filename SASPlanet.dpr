@@ -201,7 +201,6 @@ uses
   u_MapMainLayer in 'MapLayers\u_MapMainLayer.pas',
   u_MapMarksLayer in 'MapLayers\u_MapMarksLayer.pas',
   u_MapLayerNavToMark in 'MapLayers\u_MapLayerNavToMark.pas',
-  u_MapFillingLayer in 'MapLayers\u_MapFillingLayer.pas',
   u_SelectionLayer in 'MapLayers\u_SelectionLayer.pas',
   u_LayerScaleLine in 'MapLayers\u_LayerScaleLine.pas',
   u_MapGPSLayer in 'MapLayers\u_MapGPSLayer.pas',

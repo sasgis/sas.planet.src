@@ -140,7 +140,6 @@
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
-    <DCCReference Include="MapLayers\u_MapFillingLayer.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />

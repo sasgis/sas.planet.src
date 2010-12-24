@@ -69,7 +69,7 @@ uses
   u_MapMarksLayer,
   u_MapGPSLayer,
   u_MapLayerNavToMark,
-  u_MapFillingLayer,
+  u_MapLayerFillingMap,
   u_MiniMapLayer,
   u_MapNalLayer,
   u_MapLayerGoto,
@@ -547,7 +547,7 @@ type
     FLayerMapNal: TMapNalLayer;
     FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
-    FLayerFillingMap: TMapFillingLayer;
+    FLayerFillingMap: TMapLayerFillingMap;
     FLayerMapMarks: TMapMarksLayer;
     FLayerMapScale: TCenterScale;
     FLayerMiniMap: TMiniMapLayer;
@@ -849,7 +849,7 @@ begin
     FLayersList.Add(FMainLayer);
     FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapFillingLayer.create(map, GState.ViewState);
+    FLayerFillingMap:=TMapLayerFillingMap.create(map, GState.ViewState);
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapMarks);
