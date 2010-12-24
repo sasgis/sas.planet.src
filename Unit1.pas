@@ -76,6 +76,7 @@ uses
   u_MapLayerShowError,
   u_CenterScale,
   u_SelectionLayer,
+  u_MapLayerGPSMarker,
   t_GeoTypes;
 
 type
@@ -552,6 +553,7 @@ type
     FLayerMapScale: TCenterScale;
     FLayerMiniMap: TMiniMapLayer;
     FLayerSelection: TSelectionLayer;
+    FLayerGPSMarker: TMapLayerGPSMarker;
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
@@ -855,6 +857,8 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapGPS);
+    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerGPSMarker);
     FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerSelection);
     FLayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
@@ -891,8 +895,6 @@ begin
 
     Ninvertcolor.Checked:=GState.InvertColor;
 
-    TBGPSPath.Checked:=GState.GPSpar.GPS_ShowPath;
-    tbitmGPSTrackShow.Checked:=GState.GPSpar.GPS_ShowPath;
     TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
     tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
     TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
@@ -924,6 +926,7 @@ begin
     FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FLayerMapGPS.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
 
     FGPSConntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnect);
     GState.GPSpar.GPSModele.ConnectNotifier.Add(FGPSConntectListener);
@@ -1023,6 +1026,7 @@ begin
   FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FLayerMapGPS.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1081,6 +1085,9 @@ begin
   ShowLine.Checked := FLayerScaleLine.Visible;
   NShowSelection.Checked := FLayerSelection.Visible;
   N32.Checked:=FLayerMapScale.Visible;
+
+  TBGPSPath.Checked := FLayerMapGPS.Visible;
+  tbitmGPSTrackShow.Checked := FLayerMapGPS.Visible;
 
   TBSrc.ImageIndex := integer(FMainLayer.UseDownload);
   case FMainLayer.UseDownload of
@@ -2394,9 +2401,7 @@ end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
- tbitmGPSTrackShow.Checked:=TTBXitem(sender).Checked;
- TBGPSPath.Checked:=TTBXitem(sender).Checked;
- GState.GPSpar.GPS_ShowPath:=TBGPSPath.Checked;
+  FLayerMapGPS.Visible := TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
@@ -2728,7 +2733,6 @@ begin
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
-  FLayerMapGPS.Visible:=false;
   tbitmGPSConnect.Checked:=false;
   TBGPSconn.Checked:=false;
 end;
@@ -2775,7 +2779,6 @@ procedure TFmain.GPSReceiverConnect(Sender: TObject);
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
-  FLayerMapGPS.Visible:=True;
   tbitmGPSConnect.Checked:=True;
   TBGPSconn.Checked:=True;
   if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
