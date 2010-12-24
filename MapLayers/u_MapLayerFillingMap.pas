@@ -340,6 +340,7 @@ procedure TMapLayerFillingMap.SetSourceMap(AMapType: TMapType; AZoom: integer);
 var
   VFullRedraw: Boolean;
   VNewSource: TMapType;
+  VVisualConverter: ILocalCoordConverter;
 begin
   VFullRedraw := false;
   if (AMapType <> nil) then begin
@@ -361,8 +362,8 @@ begin
     if FSourceZoom < 0 then begin
       Hide;
     end else begin
-      PosChange(FViewPortState.GetVisualCoordConverter);
-      if FVisualCoordConverter.GetZoom > FSourceZoom then begin
+      VVisualConverter := FViewPortState.GetVisualCoordConverter;
+      if VVisualConverter.GetZoom > FSourceZoom then begin
         Hide;
       end else begin
         FDrawTask.StopExecute;
