@@ -207,6 +207,7 @@ uses
   u_MapLayerShowError in 'MapLayers\u_MapLayerShowError.pas',
   u_MapNalLayer in 'MapLayers\u_MapNalLayer.pas',
   u_MapLayerGoto in 'MapLayers\u_MapLayerGoto.pas',
+  u_MapLayerGPSMarker in 'MapLayers\u_MapLayerGPSMarker.pas',
   i_IThread in 'i_IThread.pas',
   u_InterfacedThread in 'u_InterfacedThread.pas',
   i_IBackgroundTask in 'i_IBackgroundTask.pas',

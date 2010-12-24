@@ -144,6 +144,7 @@
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerGPSMarker.pas" />
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
