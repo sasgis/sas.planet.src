@@ -140,7 +140,7 @@ end;
 function TMapLayerFixedWithBitmap.GetLayerSizeForViewSize(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := ANewVisualCoordConverter.GetLocalRectSize;
+  Result := LayerSize;
 end;
 
 function TMapLayerFixedWithBitmap.GetMapLayerLocationRect: TFloatRect;
