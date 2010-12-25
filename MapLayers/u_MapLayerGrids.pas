@@ -7,6 +7,7 @@ uses
   Types,
   GR32,
   t_GeoTypes,
+  i_ILocalCoordConverter,
   u_MapLayerBasic;
 
 type
@@ -16,6 +17,7 @@ type
     procedure DrawGenShBorders;
   protected
     procedure DoRedraw; override;
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   end;
 
 implementation
@@ -23,7 +25,6 @@ implementation
 uses
   SysUtils,
   i_ICoordConverter,
-  i_ILocalCoordConverter,
   Ugeofun,
   u_GeoToStr,
   u_GlobalState;
@@ -36,6 +37,7 @@ const
 procedure TMapLayerGrids.DoRedraw;
 begin
   inherited;
+  FLayer.Bitmap.Clear(0);
   generate_granica;
   DrawGenShBorders;
 end;
@@ -293,6 +295,26 @@ begin
         FLayer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, drawcolor);
       end;
     end;
+  end;
+end;
+
+procedure TMapLayerGrids.PosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+var
+  VCurrentZoom: Byte;
+  VGridZoom: Integer;
+begin
+  VCurrentZoom := ANewVisualCoordConverter.GetZoom;
+  if GState.TileGridZoom = 99 then begin
+    VGridZoom := VCurrentZoom;
+  end else begin
+    VGridZoom := GState.TileGridZoom - 1;
+  end;
+  if (GState.GShScale > 0) or ((VGridZoom >= VCurrentZoom) and (VGridZoom - VCurrentZoom <= 5)) then begin
+    Show;
+    inherited;
+  end else begin
+    Hide;
   end;
 end;
 
