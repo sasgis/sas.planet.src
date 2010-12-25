@@ -43,6 +43,7 @@ uses
   GR32_Transforms,
   GR32_Polygons,
   u_GlobalState,
+  i_ICoordConverter,
   Ugeofun,
   u_WindowLayerBasic;
 
@@ -51,8 +52,6 @@ uses
 constructor TNavToMarkLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 var
   VSize: TPoint;
-  Polygon: TPolygon32;
-  VMarkSize: integer;
 begin
   inherited;
   FArrowBitmap := TCustomBitmap32.Create;
@@ -65,7 +64,7 @@ begin
   FCrossDist := 100;
   VSize := Point(FArrowBitmap.Width, FArrowBitmap.Height);
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
-  FLayer.Bitmap.Clear(clBlack32);
+  FLayer.Bitmap.Clear(0);
   DoUpdateLayerSize(VSize);
 end;
 
@@ -82,28 +81,70 @@ var
   VMarkMapPos: TDoublePoint;
   VScreenCenterMapPos: TDoublePoint;
   VDelta: TDoublePoint;
+  VDeltaNormed: TDoublePoint;
+  VZoom: Byte;
+  VConverter: ICoordConverter;
 begin
+  VConverter := ANewVisualCoordConverter.GetGeoConverter;
+  VZoom := ANewVisualCoordConverter.GetZoom;
   VScreenCenterMapPos := ANewVisualCoordConverter.GetCenterMapPixelFloat;
-  VMarkMapPos := ANewVisualCoordConverter.LonLat2LocalPixelFloat(FMarkPoint);
-  VDelta.X := VScreenCenterMapPos.X - VMarkMapPos.X;
-  VDelta.Y := VScreenCenterMapPos.Y - VMarkMapPos.Y;
+  VMarkMapPos := VConverter.LonLat2PixelPosFloat(FMarkPoint, VZoom);
+  VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
+  VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
   FCurrDist := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
   if FCurrDist < FCrossDist then begin
     FFixedLonLat := FMarkPoint;
+    FCurrAngle := 0;
   end else begin
-    VDelta.X := VDelta.X / FCurrDist * FCrossDist;
-    VDelta.Y := VDelta.Y / FCurrDist * FCrossDist;
-    VMarkMapPos.X := VScreenCenterMapPos.X - VDelta.X;
-    VMarkMapPos.Y := VScreenCenterMapPos.Y - VDelta.Y;
-    FFixedLonLat := ANewVisualCoordConverter.GetGeoConverter.pixe
+    VDeltaNormed.X := VDelta.X / FCurrDist * FCrossDist;
+    VDeltaNormed.Y := VDelta.Y / FCurrDist * FCrossDist;
+    VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
+    VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
+    FFixedLonLat := VConverter.PixelPosFloat2LonLat(VMarkMapPos, VZoom);
+    FCurrAngle := ArcSin(VDelta.X/FCurrDist) / Pi * 180;
+    if VDelta.Y < 0 then begin
+      FCurrAngle := 180 - FCurrAngle;
+    end;
   end;
   inherited;
+  Redraw;
 end;
 
 procedure TNavToMarkLayer.DoRedraw;
+var
+  T: TAffineTransformation;
+  VSize: TPoint;
 begin
   inherited;
+  VSize := LayerSize;
+  if FCurrDist > FCrossDist then begin
+    T := TAffineTransformation.Create;
+    try
+      T.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
+      T.Clear;
 
+      T.Translate(-VSize.X / 2, -VSize.Y / 2);
+      T.Rotate(0, 0, FCurrAngle);
+      T.Translate(VSize.X / 2, VSize.Y / 2);
+      FLayer.Bitmap.Lock;
+      try
+        FLayer.Bitmap.Clear(0);
+        Transform(FLayer.Bitmap, FArrowBitmap, T);
+      finally
+        FLayer.Bitmap.Unlock;
+      end;
+    finally
+      FreeAndNil(T);
+    end;
+  end else begin
+    FLayer.Bitmap.Lock;
+    try
+      FLayer.Bitmap.Clear(0);
+      FCrossBitmap.DrawTo(FLayer.Bitmap);
+    finally
+      FLayer.Bitmap.Unlock;
+    end;
+  end;
 end;
 
 function TNavToMarkLayer.GetMarkLonLat: TDoublePoint;
@@ -130,8 +171,8 @@ begin
     Polygon.Antialiased := true;
     Polygon.AntialiasMode := am32times;
     Polygon.Add(FixedPoint(FFixedOnBitmap.X, FFixedOnBitmap.Y));
-    Polygon.Add(FixedPoint(FFixedOnBitmap.X - VMarkSize / 5, FFixedOnBitmap.Y + VMarkSize));
-    Polygon.Add(FixedPoint(FFixedOnBitmap.X + VMarkSize / 5, FFixedOnBitmap.Y + VMarkSize));
+    Polygon.Add(FixedPoint(FFixedOnBitmap.X - VMarkSize / 5, FFixedOnBitmap.Y - VMarkSize));
+    Polygon.Add(FixedPoint(FFixedOnBitmap.X + VMarkSize / 5, FFixedOnBitmap.Y - VMarkSize));
     Polygon.DrawFill(FArrowBitmap, VColor)
   finally
     FreeAndNil(Polygon);
@@ -149,29 +190,6 @@ begin
   VRect.Bottom := Trunc(FFixedOnBitmap.Y + VMarkSize /10);
   FCrossBitmap.FillRectS(VRect, VColor);
 end;
-
-//function TNavToMarkLayer.GetScreenCenterInBitmapPixels: TPoint;
-//var
-//  VMarkPoint: TDoublePoint;
-//  VSize: TPoint;
-//  D: Extended;
-//begin
-//  VSize := GetBitmapSizeInPixel;
-//  Result.X := VSize.X div 2;
-//  Result.Y := VSize.Y div 2;
-//  VMarkPoint := FGeoConvert.LonLat2PixelPosFloat(FMarkPoint, FZoom);
-//  D := Sqrt(Sqr(VMarkPoint.X - FScreenCenterPos.X) + Sqr(VMarkPoint.Y - FScreenCenterPos.Y));
-//  if D < GState.GPSpar.GPS_ArrowSize * 2 then begin
-//    Result.X := Result.X + Trunc(FScreenCenterPos.X - VMarkPoint.X);
-//    Result.Y := Result.Y + Trunc(FScreenCenterPos.Y - VMarkPoint.Y);
-//  end else if D > GState.GPSpar.GPS_ArrowSize * 14 then begin
-//    Result.X := Result.X + Trunc(GState.GPSpar.GPS_ArrowSize * 7 / D * (FScreenCenterPos.X - VMarkPoint.X));
-//    Result.Y := Result.Y + Trunc(GState.GPSpar.GPS_ArrowSize * 7 / D * (FScreenCenterPos.Y - VMarkPoint.Y));
-//  end else begin
-//    Result.X := Result.X + Trunc((FScreenCenterPos.X - VMarkPoint.X) / 2);
-//    Result.Y := Result.Y + Trunc((FScreenCenterPos.Y - VMarkPoint.Y) / 2);
-//  end;
-//end;
 
 procedure TNavToMarkLayer.StartNav(APoint: TDoublePoint; Aid: integer);
 begin
