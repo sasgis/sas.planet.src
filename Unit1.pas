@@ -2910,7 +2910,7 @@ begin
     if (FCurrentOper=ao_add_point) then begin
       if(AddNewPointModal(VClickLonLat)) then begin
         setalloperationfalse(ao_movemap);
-        generate_im;
+        FLayerMapMarks.Redraw;
       end;
     end;
     exit;
@@ -3417,7 +3417,7 @@ begin
   end;
   if result then begin
     setalloperationfalse(ao_movemap);
-    generate_im;
+    FLayerMapMarks.Redraw;
   end;
 end;
 
@@ -3665,7 +3665,7 @@ begin
   if GState.GPSpar.GPSModele.IsConnected then begin
     if AddNewPointModal(GState.GPSpar.GPSRecorder.GetLastPoint) then begin
       setalloperationfalse(ao_movemap);
-      generate_im;
+      FLayerMapMarks.Redraw;
     end;
   end;
 end;
