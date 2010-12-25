@@ -6,7 +6,6 @@ uses
   Windows,
   Classes,
   Types,
-  t_LoadEvent,
   u_TileDownloaderThreadBase,
   u_MapLayerShowError,
   u_MapLayerBasic,
@@ -15,7 +14,6 @@ uses
 type
   TTileDownloaderUIOneTile = class(TTileDownloaderThreadBase)
   private
-    FLastLoad: TlastLoad;
     FErrorString: string;
 
     FMainLayer: TMapLayerBasic;
@@ -94,11 +92,6 @@ var
   fileBuf: TMemoryStream;
   res: TDownloadTileResult;
 begin
-  Flastload.TilePos.X := FLoadXY.X;
-  Flastload.TilePos.Y := FLoadXY.Y;
-  Flastload.Zoom := Fzoom;
-  FlastLoad.mt := FMapType;
-  FlastLoad.use := true;
   if FMapType.UseDwn then begin
     FileBuf := TMemoryStream.Create;
     try

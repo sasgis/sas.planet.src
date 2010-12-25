@@ -251,7 +251,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="t_LoadEvent.pas" />
     <DCCReference Include="UAbout.pas">
       <Form>Fabout</Form>
     </DCCReference>

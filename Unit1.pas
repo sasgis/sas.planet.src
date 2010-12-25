@@ -44,7 +44,6 @@ uses
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
   i_IPosChangeMessage,
-  t_LoadEvent,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_GeoToStr,
@@ -531,7 +530,6 @@ type
   private
     FIsGPSPosChanged: Boolean;
     FCenterToGPSDelta: TDoublePoint;
-    FnilLastLoad: TLastLoad;
     FShowActivHint: boolean;
     FHintWindow: THintWindow;
     Frect_dwn: Boolean;
@@ -627,8 +625,7 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure generate_im(lastload: TLastLoad; err: string); overload;
-    procedure generate_im; overload;
+    procedure generate_im;
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -647,7 +644,6 @@ implementation
 
 uses
   StrUtils,
-  DateUtils,
   u_JclNotify,
   u_GUIDObjectList,
   u_GlobalState,
@@ -672,7 +668,6 @@ uses
   i_ILogForTaskThread,
   i_ICoordConverter,
   i_ILocalCoordConverter,
-  u_KmlInfoSimple,
   u_MainWindowPositionConfig,
   u_MainWindowToolbarsLock,
   u_LineOnMapEdit,
@@ -748,7 +743,6 @@ constructor TFmain.Create(AOwner: TComponent);
 begin
   inherited;
   FIsGPSPosChanged := False;
-  FnilLastLoad.use:=false;
   FdWhenMovingButton := 5;
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
@@ -1682,11 +1676,6 @@ begin
 end;
 
 procedure TFmain.generate_im;
-begin
-  generate_im(FnilLastLoad, '');
-end;
-
-procedure TFmain.generate_im(LastLoad:TLastLoad;err:string);
 var
   ts2,ts3,fr:int64;
 begin
@@ -1697,20 +1686,13 @@ begin
   QueryPerformanceCounter(ts2);
   map.BeginUpdate;
   try
-    if (lastload.use)and(err<>'') then begin
-      FShowErrorLayer.ShowError(lastload.TilePos, lastload.Zoom, lastload.mt, err);
-    end;
-
     FMainLayer.Redraw;
     FLayerScaleLine.Redraw;
     FLayerMapMarks.Redraw;
     FWikiLayer.Redraw;
-
-    if not(lastload.use) then begin
-      if GState.GPSpar.GPSModele.IsConnected then begin
-         FLayerMapGPS.Redraw;
-         UpdateGPSsensors;
-      end;
+    if GState.GPSpar.GPSModele.IsConnected then begin
+       FLayerMapGPS.Redraw;
+       UpdateGPSsensors;
     end;
     FLayerStatBar.Redraw;
   finally

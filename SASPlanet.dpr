@@ -38,7 +38,6 @@ uses
   c_CoordConverter in 'c_CoordConverter.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
-  t_LoadEvent in 't_LoadEvent.pas',
   UTimeZones in 'UTimeZones.pas',
   UResStrings in 'UResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
