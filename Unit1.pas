@@ -70,6 +70,7 @@ uses
   u_MapLayerNavToMark,
   u_MapLayerFillingMap,
   u_MiniMapLayer,
+  u_MapLayerGrids,
   u_MapNalLayer,
   u_MapLayerGoto,
   u_MapLayerShowError,
@@ -554,6 +555,7 @@ type
     FLayerMiniMap: TMiniMapLayer;
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
+    FLayerGrids: TMapLayerGrids;
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
@@ -846,6 +848,8 @@ begin
 
     FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
     FLayersList.Add(FMainLayer);
+    FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerGrids);
     FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap:=TMapLayerFillingMap.create(map, GState.ViewState);
