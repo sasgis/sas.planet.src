@@ -706,7 +706,7 @@ begin
 
         VCurrTilePixelRectAtBitmap := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
         if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
-          Gamma(VBmp);
+          Gamma(VBmp, GState.ContrastN, GState.GammaN, GState.InvertColor);
         end;
         FLayer.Bitmap.Lock;
         try

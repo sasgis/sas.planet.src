@@ -28,14 +28,13 @@ type
   );
 
   function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
-  procedure Gamma(Bitmap: TCustomBitmap32);
+  procedure Gamma(Bitmap: TCustomBitmap32; ContrastN: Integer; GammaN: Integer; InvertColor: Boolean);
 
 implementation
 
 uses
   GR32_Resamplers,
-  GR32_Filters,
-  u_GlobalState;
+  GR32_Filters;
 
 function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
 begin
@@ -108,12 +107,7 @@ begin
    end;
 end;
 
-procedure InvertBitmap(Bitmap: TCustomBitmap32);
-begin
- if GState.InvertColor then InvertRGB(Bitmap,Bitmap);
-end;
-
-procedure Gamma(Bitmap: TCustomBitmap32);
+procedure Gamma(Bitmap: TCustomBitmap32; ContrastN: Integer; GammaN: Integer; InvertColor: Boolean);
   function Power(Base, Exponent: Extended): Extended;
   begin
     Result := Exp(Exponent * Ln(Base));
@@ -123,12 +117,12 @@ var Dest: PColor32;
     GammaTable:array[0..255] of byte;
     L:Double;
 begin
-  Contrast(Bitmap, GState.ContrastN);
-  InvertBitmap(Bitmap);
-  if GState.GammaN<>50 then
+  Contrast(Bitmap, ContrastN);
+  if InvertColor then InvertRGB(Bitmap,Bitmap);;
+  if GammaN<>50 then
    begin
-    if GState.GammaN<50 then L:=1/((GState.GammaN*2)/100)
-                 else L:=1/((GState.GammaN-40)/10);
+    if GammaN<50 then L:=1/((GammaN*2)/100)
+                 else L:=1/((GammaN-40)/10);
     GammaTable[0]:=0;
     for X := 1 to 255 do GammaTable[X]:=round(255*Power(X/255,L));
     Dest:=@Bitmap.Bits[0];

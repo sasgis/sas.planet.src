@@ -91,7 +91,7 @@ begin
         end;
       end;
       if FUsedReColor then begin
-        Gamma(btmm);
+        Gamma(btmm, GState.ContrastN, GState.GammaN, GState.InvertColor);
       end;
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
