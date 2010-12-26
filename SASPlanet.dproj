@@ -121,6 +121,7 @@
     <DCCReference Include="i_IPosChangeMessage.pas" />
     <DCCReference Include="i_IProxySettings.pas" />
     <DCCReference Include="i_ISearchResultPresenter.pas" />
+    <DCCReference Include="i_ISensor.pas" />
     <DCCReference Include="i_ISimpleFactory.pas" />
     <DCCReference Include="i_IThread.pas" />
     <DCCReference Include="i_ITileDownlodSession.pas" />

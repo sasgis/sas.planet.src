@@ -249,6 +249,7 @@ uses
   i_IPathDetalizeProvider in 'i_IPathDetalizeProvider.pas',
   u_PathDetalizeProviderYourNavigation in 'u_PathDetalizeProviderYourNavigation.pas',
   u_PathDetalizeProviderMailRu in 'u_PathDetalizeProviderMailRu.pas',
+  i_ISensor in 'i_ISensor.pas',
   i_IAntiBan in 'i_IAntiBan.pas',
   u_AntiBanStuped in 'u_AntiBanStuped.pas',
   i_MapTypes in 'i_MapTypes.pas',
