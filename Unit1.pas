@@ -195,8 +195,6 @@ type
     N1: TMenuItem;
     NMapInfo: TMenuItem;
     TBImageList1_24: TTBImageList;
-    PMNRObject: TPopupMenu;
-    NGoHim: TMenuItem;
     NSRCic: TTBXItem;
     NSRCinet: TTBXItem;
     NSRCesh: TTBXItem;

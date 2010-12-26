@@ -19,9 +19,9 @@ object Fmain: TFmain
   TextHeight = 13
   object map: TImage32
     Left = 36
-    Top = 59
+    Top = 61
     Width = 642
-    Height = 467
+    Height = 465
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -43,10 +43,10 @@ object Fmain: TFmain
     Left = 0
     Top = 0
     Width = 842
-    Height = 59
+    Height = 61
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 25
+      Top = 27
       DockPos = 0
       DockRow = 1
       Images = TBImageList2
@@ -134,8 +134,8 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
-      Top = 25
+      Left = 230
+      Top = 27
       DockPos = 224
       DockRow = 1
       Images = ImagesSrc24
@@ -165,8 +165,8 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
-      Top = 25
+      Left = 357
+      Top = 27
       DockPos = 352
       DockRow = 1
       Images = TBImageList2
@@ -177,8 +177,8 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 505
-      Top = 25
+      Left = 504
+      Top = 27
       DockPos = 504
       DockRow = 1
       Images = TBImageList2
@@ -255,7 +255,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 115
+        Left = 107
         Top = 8
         Width = 31
         Height = 13
@@ -265,7 +265,7 @@ object Fmain: TFmain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 25
+      Top = 27
       DockPos = 807
       DockRow = 1
       TabOrder = 4
@@ -1049,7 +1049,7 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 430
+      Left = 462
       Top = 0
       DockPos = 430
       Stretch = True
@@ -1096,9 +1096,9 @@ object Fmain: TFmain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 59
+    Top = 61
     Width = 36
-    Height = 467
+    Height = 465
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1988,14 +1988,14 @@ object Fmain: TFmain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 59
+    Top = 61
     Width = 164
-    Height = 467
+    Height = 465
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 457
+      ClientAreaHeight = 455
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors
@@ -2981,7 +2981,7 @@ object Fmain: TFmain
     Left = 16
     Top = 136
     Bitmap = {
-      494C010115001700080012001200E0DFE300FF10FFFFFFFFFFFFFFFF424D3600
+      494C010115001700200012001200E0DFE300FF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000480000006C00000001002000000000008079
       0000000000000000000000000000000000008C46009C8B4500B28D4802B38F4B
       06B48E4A06B48C4701B38B4500B28C4600B38C4600B38C4600B38C4600B38C46
@@ -4006,7 +4006,7 @@ object Fmain: TFmain
     Left = 16
     Top = 168
     Bitmap = {
-      494C01010F001100080018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F001100200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5219,7 +5219,7 @@ object Fmain: TFmain
     Left = 12
     Top = 233
     Bitmap = {
-      494C010119001B00080011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010119001B00200011001100FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000044000000770000000100200000000000707E
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6282,20 +6282,13 @@ object Fmain: TFmain
       FFFFFFFFF0000000FFFFFFFFFFFFFFFFF0000000000000000000000000000000
       00000000000000000000}
   end
-  object PMNRObject: TPopupMenu
-    Left = 749
-    Top = 225
-    object NGoHim: TMenuItem
-      Caption = #1054#1090#1089#1083#1077#1078#1080#1074#1072#1090#1100
-    end
-  end
   object ImagesSrc24: TTBImageList
     Height = 24
     Width = 24
     Left = 12
     Top = 201
     Bitmap = {
-      494C010104000600080018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000600200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6900,7 +6893,7 @@ object Fmain: TFmain
     Left = 16
     Top = 108
     Bitmap = {
-      494C010109000B00080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010109000B00200010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
