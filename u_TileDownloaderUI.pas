@@ -8,6 +8,8 @@ uses
   Types,
   i_JclNotify,
   t_CommonTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   i_ICoordConverter,
   i_ITileDownlodSession,
   u_MapViewPortState,
@@ -50,6 +52,10 @@ type
   public
     constructor Create(AViewPortState: TMapViewPortState); overload;
     destructor Destroy; override;
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider);
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+    procedure StartThreads;
+    procedure SendTerminateToThreads;
     property TileMaxAgeInInternet: TDateTime read FTileMaxAgeInInternet;
     property MainLayer: TMapLayerBasic read FMainLayer write FMainLayer;
     property KmlLayer: TMapLayerBasic read FKmlLayer write FKmlLayer;
@@ -85,11 +91,17 @@ begin
 end;
 
 destructor TTileDownloaderUI.Destroy;
+var
+  VWaitResult: DWORD;
 begin
   FViewPortState.PosChangeNotifier.Remove(FChangePosListener);
   FViewPortState.MapChangeNotifier.Remove(FChangePosListener);
   FViewPortState.HybrChangeNotifier.Remove(FChangePosListener);
   FChangePosListener := nil;
+  VWaitResult := WaitForSingleObject(Handle, 10000);
+  if VWaitResult = WAIT_TIMEOUT then begin
+    TerminateThread(Handle, 0);
+  end;
   FUseDownloadChangeNotifier := nil;
   inherited;
 end;
@@ -152,6 +164,44 @@ begin
   Result := FUseDownload;
 end;
 
+procedure TTileDownloaderUI.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VConfigProvider: IConfigDataProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
+  if VConfigProvider <> nil then begin
+    case VConfigProvider.ReadInteger('TileSource',1) of
+      0: UseDownload := tsInternet;
+      2: UseDownload := tsCacheInternet;
+    else
+      UseDownload := tsCache;
+    end;
+  end else begin
+    UseDownload := tsCache;
+  end;
+end;
+
+procedure TTileDownloaderUI.SaveConfig(
+  AConfigProvider: IConfigDataWriteProvider);
+var
+  VConfigProvider: IConfigDataWriteProvider;
+begin
+  inherited;
+  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
+  case UseDownload of
+    tsInternet: VConfigProvider.WriteInteger('TileSource', 0);
+    tsCache: VConfigProvider.WriteInteger('TileSource', 1);
+    tsCacheInternet: VConfigProvider.WriteInteger('TileSource', 2);
+  end;
+end;
+
+procedure TTileDownloaderUI.SendTerminateToThreads;
+begin
+  inherited;
+  Terminate;
+end;
+
 procedure TTileDownloaderUI.SetUseDownload(const Value: TTileSource);
 begin
   if FUseDownload <> Value then begin
@@ -159,6 +209,12 @@ begin
     change_scene := True;
     FUseDownloadChangeNotifier.Notify(nil);
   end;
+end;
+
+procedure TTileDownloaderUI.StartThreads;
+begin
+  inherited;
+  Resume;
 end;
 
 procedure TTileDownloaderUI.AfterWriteToFile;

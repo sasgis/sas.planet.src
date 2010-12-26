@@ -77,6 +77,7 @@ uses
   u_CenterScale,
   u_SelectionLayer,
   u_MapLayerGPSMarker,
+  u_TileDownloaderUI,
   t_GeoTypes;
 
 type
@@ -556,6 +557,7 @@ type
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
     FLayerGrids: TMapLayerGrids;
+    FUIDownLoader: TTileDownloaderUI;
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
@@ -879,8 +881,10 @@ begin
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
 
-    FMainLayer.ErrorShowLayer := FShowErrorLayer;
-    FMainLayer.KmlLayer := FWikiLayer;
+    FUIDownLoader := TTileDownloaderUI.Create(GState.ViewState);
+    FUIDownLoader.MainLayer := FMainLayer;
+    FUIDownLoader.ErrorShowLayer := FShowErrorLayer;
+    FUIDownLoader.KmlLayer := FWikiLayer;
 
     CreateMapUI;
     FSettings.InitMapsList;
@@ -925,7 +929,7 @@ begin
     FLayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FMainLayer.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    FUIDownLoader.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
     FLayerMapGPS.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
 
@@ -943,6 +947,7 @@ begin
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
+    FUIDownLoader.LoadConfig(GState.MainConfigProvider);
     ProgramStart:=false;
 
     GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
@@ -992,6 +997,7 @@ begin
 
     FLayersList.StartThreads;
     GState.StartThreads;
+    FUIDownLoader.StartThreads;
     FMainLayer.Visible := True;
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
     tmrMapUpdate.Enabled := True;
@@ -1025,7 +1031,7 @@ begin
   FLayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerMiniMap.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FMainLayer.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FUIDownLoader.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerMapGPS.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   //останавливаем GPS
@@ -1035,11 +1041,13 @@ begin
       Screen.Forms[i].Close;
     end;
   end;
+  FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
   if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
+  FreeAndNil(FUIDownLoader);
   FreeAndNil(FShortCutManager);
 end;
 
@@ -1090,8 +1098,8 @@ begin
   TBGPSPath.Checked := FLayerMapGPS.Visible;
   tbitmGPSTrackShow.Checked := FLayerMapGPS.Visible;
 
-  TBSrc.ImageIndex := integer(FMainLayer.UseDownload);
-  case FMainLayer.UseDownload of
+  TBSrc.ImageIndex := integer(FUIDownLoader.UseDownload);
+  case FUIDownLoader.UseDownload of
     tsInternet: NSRCinet.Checked:=true;
     tsCache: NSRCesh.Checked:=true;
     tsCacheInternet: NSRCic.Checked:=true;
@@ -2304,7 +2312,7 @@ end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
 begin
-  FMainLayer.UseDownload := TTileSource(TTBXItem(Sender).Tag);
+  FUIDownLoader.UseDownload := TTileSource(TTBXItem(Sender).Tag);
 end;
 
 procedure TFmain.N16Click(Sender: TObject);
@@ -3607,6 +3615,7 @@ begin
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
   FLayersList.SaveConfig(AProvider);
+  FUIDownLoader.SaveConfig(AProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');
   FToolbarsLock.LockWrite;

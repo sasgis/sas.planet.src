@@ -13,20 +13,12 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_MapViewPortState,
-  u_TileDownloaderUI,
   u_MapLayerShowError,
   UMapType,
   u_MapLayerBasic;
 
 type
   TMapMainLayer = class(TMapLayerBasic)
-  private
-    FUIDownLoader: TTileDownloaderUI;
-    function GetUseDownload: TTileSource;
-    procedure SetUseDownload(const Value: TTileSource);
-    procedure SetErrorShowLayer(const Value: TTileErrorInfoLayer);
-    function GetUseDownloadChangeNotifier: IJclNotifier;
-    procedure SetKmlLayer(const Value: TMapLayerBasic);
   protected
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
@@ -37,10 +29,6 @@ type
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
-    property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
-    property UseDownloadChangeNotifier: IJclNotifier read GetUseDownloadChangeNotifier;
-    property ErrorShowLayer: TTileErrorInfoLayer write SetErrorShowLayer;
-    property KmlLayer: TMapLayerBasic write SetKmlLayer;
   end;
 
 implementation
@@ -67,19 +55,10 @@ constructor TMapMainLayer.Create(
 );
 begin
   inherited;
-  FUIDownLoader := TTileDownloaderUI.Create(AViewPortState);
-  FUIDownLoader.MainLayer := Self;
 end;
 
 destructor TMapMainLayer.Destroy;
-var
-  VWaitResult: DWORD;
 begin
-  VWaitResult := WaitForSingleObject(FUIDownLoader.Handle, 10000);
-  if VWaitResult = WAIT_TIMEOUT then begin
-    TerminateThread(FUIDownLoader.Handle, 0);
-  end;
-  FreeAndNil(FUIDownLoader);
   inherited;
 end;
 
@@ -240,32 +219,11 @@ begin
   end;
 end;
 
-function TMapMainLayer.GetUseDownload: TTileSource;
-begin
-  Result := FUIDownLoader.UseDownload;
-end;
-
-function TMapMainLayer.GetUseDownloadChangeNotifier: IJclNotifier;
-begin
-  Result := FUIDownLoader.UseDownloadChangeNotifier;
-end;
-
 procedure TMapMainLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
 begin
   inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    case VConfigProvider.ReadInteger('TileSource',1) of
-      0: UseDownload := tsInternet;
-      2: UseDownload := tsCacheInternet;
-    else
-      UseDownload := tsCache;
-    end;
-  end else begin
-    UseDownload := tsCache;
-  end;
 end;
 
 procedure TMapMainLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
@@ -273,39 +231,16 @@ var
   VConfigProvider: IConfigDataWriteProvider;
 begin
   inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  case UseDownload of
-    tsInternet: VConfigProvider.WriteInteger('TileSource', 0);
-    tsCache: VConfigProvider.WriteInteger('TileSource', 1);
-    tsCacheInternet: VConfigProvider.WriteInteger('TileSource', 2);
-  end;
 end;
 
 procedure TMapMainLayer.SendTerminateToThreads;
 begin
   inherited;
-  FUIDownLoader.Terminate;
-end;
-
-procedure TMapMainLayer.SetErrorShowLayer(const Value: TTileErrorInfoLayer);
-begin
-  FUIDownLoader.ErrorShowLayer := Value;
-end;
-
-procedure TMapMainLayer.SetKmlLayer(const Value: TMapLayerBasic);
-begin
-  FUIDownLoader.KmlLayer := Value;
-end;
-
-procedure TMapMainLayer.SetUseDownload(const Value: TTileSource);
-begin
-  FUIDownLoader.UseDownload := Value;
 end;
 
 procedure TMapMainLayer.StartThreads;
 begin
   inherited;
-  FUIDownLoader.Resume;
 end;
 
 end.
