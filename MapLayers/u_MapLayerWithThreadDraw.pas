@@ -14,7 +14,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TMapLayerWithThreadDraw = class(TMapLayerBasicNoBitmap)
+  TMapLayerWithThreadDraw = class(TMapLayerBasicFullView)
   protected
     FDrawTask: IBackgroundTaskLayerDraw;
     FBitmapCoordConverter: ILocalCoordConverter;

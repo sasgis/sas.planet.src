@@ -26,7 +26,7 @@ type
     destructor Destroy; override;
   end;
 
-  TMapLayerBasicNoBitmap = class(TMapLayerBase)
+  TMapLayerBasicFullView = class(TMapLayerBase)
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
@@ -44,7 +44,7 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
 
-  TMapLayerBasic = class(TMapLayerBasicNoBitmap)
+  TMapLayerBasic = class(TMapLayerBasicFullView)
   protected
     FBitmapCoordConverter: ILocalCoordConverter;
     FLayer: TBitmapLayer;
@@ -105,13 +105,13 @@ end;
 
 { TMapLayerBasicNoBitmap }
 
-function TMapLayerBasicNoBitmap.GetLayerSizeForViewSize(
+function TMapLayerBasicFullView.GetLayerSizeForViewSize(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result := ANewVisualCoordConverter.GetLocalRectSize;
 end;
 
-function TMapLayerBasicNoBitmap.GetMapLayerLocationRect: TFloatRect;
+function TMapLayerBasicFullView.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
   Result.Top := 0;

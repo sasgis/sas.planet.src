@@ -15,7 +15,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TSelectionLayer = class(TMapLayerBasicNoBitmap)
+  TSelectionLayer = class(TMapLayerBasicFullView)
   protected
     FBitmapClip: IPolyClip;
     FLineColor: TColor32;
