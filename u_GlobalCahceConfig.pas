@@ -3,7 +3,9 @@ unit u_GlobalCahceConfig;
 interface
 
 uses
-  i_JclNotify;
+  i_JclNotify,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider;
 
 type
   TGlobalCahceConfig = class
@@ -29,6 +31,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure LoadConfig(AConfigProvider: IConfigDataProvider);
+    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+
     //Способ храения кеша по-умолчанию.
     property DefCache: byte read FDefCache write SetDefCache;
 
@@ -45,6 +50,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_JclNotify;
 
 { TGlobalCahceConfig }
@@ -53,12 +59,54 @@ constructor TGlobalCahceConfig.Create;
 begin
   FDefCache := 2;
   FCacheChangeNotifier := TJclBaseNotifier.Create;
+  FOldCpath := 'cache_old' + PathDelim;
+  FNewCpath := 'cache' + PathDelim;
+  FESCpath := 'cache_ES' + PathDelim;
+  FGMTilesPath := 'cache_gmt' + PathDelim;
+  FGECachePath := 'cache_GE' + PathDelim;
 end;
 
 destructor TGlobalCahceConfig.Destroy;
 begin
   FCacheChangeNotifier := nil;
   inherited;
+end;
+
+procedure TGlobalCahceConfig.LoadConfig(AConfigProvider: IConfigDataProvider);
+var
+  VViewConfig: IConfigDataProvider;
+  VPathConfig: IConfigDataProvider;
+begin
+  VViewConfig := AConfigProvider.GetSubItem('VIEW');
+  if VViewConfig <> nil then begin
+    DefCache := VViewConfig.ReadInteger('DefCache', FDefCache);
+  end;
+
+  VPathConfig := AConfigProvider.GetSubItem('PATHtoCACHE');
+  if VPathConfig <> nil then begin
+    OldCpath := VPathConfig.ReadString('GMVC', OldCpath);
+    NewCpath := VPathConfig.ReadString('SASC', NewCpath);
+    ESCpath := VPathConfig.ReadString('ESC', ESCpath);
+    GMTilesPath := VPathConfig.ReadString('GMTiles', GMTilesPath);
+    GECachePath := VPathConfig.ReadString('GECache', GECachePath);
+  end;
+end;
+
+procedure TGlobalCahceConfig.SaveConfig(
+  AConfigProvider: IConfigDataWriteProvider);
+var
+  VViewConfig: IConfigDataWriteProvider;
+  VPathConfig: IConfigDataWriteProvider;
+begin
+  VViewConfig := AConfigProvider.GetOrCreateSubItem('VIEW');
+  VPathConfig := AConfigProvider.GetOrCreateSubItem('PATHtoCACHE');
+  VViewConfig.WriteInteger('DefCache', FDefCache);
+
+  VPathConfig.WriteString('GMVC', OldCpath);
+  VPathConfig.WriteString('SASC', NewCpath);
+  VPathConfig.WriteString('ESC', ESCpath);
+  VPathConfig.WriteString('GMTiles', GMTilesPath);
+  VPathConfig.WriteString('GECache', GECachePath);
 end;
 
 procedure TGlobalCahceConfig.SetDefCache(const Value: byte);

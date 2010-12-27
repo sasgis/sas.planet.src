@@ -74,7 +74,6 @@ type
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
     procedure SetCacheElemensMaxCnt(const Value: integer);
-    procedure LoadCacheConfig;
     procedure LoadMapIconsList;
   public
 
@@ -457,16 +456,6 @@ begin
   end;
 end;
 
-procedure TGlobalState.LoadCacheConfig;
-begin
-  CacheConfig.DefCache:=MainIni.readinteger('VIEW','DefCache',2);
-  CacheConfig.OldCpath:=MainIni.Readstring('PATHtoCACHE','GMVC','cache_old' + PathDelim);
-  CacheConfig.NewCpath:=MainIni.Readstring('PATHtoCACHE','SASC','cache' + PathDelim);
-  CacheConfig.ESCpath:=MainIni.Readstring('PATHtoCACHE','ESC','cache_ES' + PathDelim);
-  CacheConfig.GMTilesPath:=MainIni.Readstring('PATHtoCACHE','GMTiles','cache_gmt' + PathDelim);
-  CacheConfig.GECachePath:=MainIni.Readstring('PATHtoCACHE','GECache','cache_GE' + PathDelim);
-end;
-
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
@@ -478,7 +467,7 @@ begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   FMainMapsList.LoadMaps(VLocalMapsConfig, MapsPath);
-  LoadCacheConfig;
+  FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
   GPSpar.LoadConfig(MainConfigProvider);
   FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
@@ -623,7 +612,6 @@ begin
   MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
   MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
   MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
-  MainIni.Writeinteger('VIEW','DefCache',CacheConfig.DefCache);
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
   MainIni.Writeinteger('VIEW','grid', TileGridZoom);
   MainIni.Writebool('VIEW','invert_mouse',MouseWheelInv);
@@ -659,11 +647,6 @@ begin
   MainIni.WriteBool('GSM','Auto',GSMpar.auto);
   MainIni.WriteInteger('GSM','WaitingAnswer',GSMpar.WaitingAnswer);
 
-  MainIni.Writestring('PATHtoCACHE','GMVC',CacheConfig.OldCpath);
-  MainIni.Writestring('PATHtoCACHE','SASC',CacheConfig.NewCpath);
-  MainIni.Writestring('PATHtoCACHE','ESC',CacheConfig.ESCpath);
-  MainIni.Writestring('PATHtoCACHE','GMTiles',CacheConfig.GMTilesPath);
-  MainIni.Writestring('PATHtoCACHE','GECache',CacheConfig.GECachePath);
   MainIni.Writebool('INTERNET','userwinset',InetConnect.userwinset);
   MainIni.Writebool('INTERNET','uselogin',InetConnect.uselogin);
   MainIni.Writebool('INTERNET','used_proxy',InetConnect.Proxyused);
@@ -680,6 +663,7 @@ begin
   GPSpar.SaveConfig(MainConfigProvider);
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FCacheConfig.SaveConfig(FMainConfigProvider);
 end;
 
 procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
