@@ -25,7 +25,6 @@ implementation
 
 uses
   Graphics,
-  Math,
   SysUtils,
   GR32_Polygons,
   i_IGPSRecorder,

@@ -59,7 +59,6 @@ type
 implementation
 
 uses
-  ShellAPI,
   Classes,
   SysUtils,
   frm_InvisibleBrowser;

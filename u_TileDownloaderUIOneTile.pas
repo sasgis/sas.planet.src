@@ -8,7 +8,6 @@ uses
   Types,
   u_TileDownloaderThreadBase,
   u_MapLayerShowError,
-  u_MapLayerBasic,
   UMapType;
 
 type

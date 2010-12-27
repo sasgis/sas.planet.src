@@ -5,7 +5,6 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_IConfigDataElement,
   u_ConfigDataElementBase,
   i_ILineOnMapEdit;
 

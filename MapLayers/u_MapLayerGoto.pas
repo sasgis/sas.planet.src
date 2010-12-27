@@ -29,8 +29,7 @@ implementation
 
 uses
   SysUtils,
-  u_GlobalState,
-  u_WindowLayerBasic;
+  u_GlobalState;
 
 { TGotoLayer }
 

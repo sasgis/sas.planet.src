@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_ConfigDataElementBase,

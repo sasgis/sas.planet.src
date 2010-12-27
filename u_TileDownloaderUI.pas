@@ -14,7 +14,6 @@ uses
   i_ITileDownlodSession,
   u_MapViewPortState,
   u_MapLayerShowError,
-  u_MapLayerBasic,
   UMapType;
 
 type

@@ -7,13 +7,10 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_JclNotify,
   t_GeoTypes,
-  t_CommonTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_MapViewPortState,
-  u_MapLayerShowError,
   UMapType,
   u_MapLayerBasic;
 
@@ -40,12 +37,10 @@ uses
   i_ILocalCoordConverter,
   i_ITileIterator,
   i_MapTypes,
-  Ugeofun,
   Uimgfun,
   u_TileIteratorByRect,
   u_GeoToStr,
-  u_GlobalState,
-  u_WindowLayerBasic;
+  u_GlobalState;
 
 { TMapMainLayer }
 

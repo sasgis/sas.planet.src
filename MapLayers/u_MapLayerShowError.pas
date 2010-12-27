@@ -27,8 +27,7 @@ implementation
 uses
   Graphics,
   Types,
-  Ugeofun,
-  u_WindowLayerBasic;
+  Ugeofun;
 
 
 { TTileErrorInfoLayer }

@@ -8,7 +8,6 @@ uses
   GR32,
   GR32_Image,
   i_JclNotify,
-  t_GeoTypes,
   u_MapViewPortState,
   u_MapLayerBasic;
 

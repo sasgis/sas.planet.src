@@ -44,8 +44,7 @@ uses
   GR32_Polygons,
   u_GlobalState,
   i_ICoordConverter,
-  Ugeofun,
-  u_WindowLayerBasic;
+  Ugeofun;
 
 { TNavToMarkLayer }
 

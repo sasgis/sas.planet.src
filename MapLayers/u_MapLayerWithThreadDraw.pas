@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  SyncObjs,
   GR32,
   GR32_Image,
   GR32_Layers,

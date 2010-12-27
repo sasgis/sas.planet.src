@@ -42,8 +42,6 @@ uses
   StrUtils,
   DateUtils,
   u_GeoToStr,
-  u_KmlInfoSimple,
-  u_GlobalState,
   UResStrings,
   frm_InvisibleBrowser;
 
