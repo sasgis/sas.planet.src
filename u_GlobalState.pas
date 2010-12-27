@@ -38,6 +38,8 @@ type
 
   TGlobalState = class
   private
+    // Ini-файл с основными настройками
+    MainIni: TMeminifile;
     FViewState: TMapViewPortState;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
@@ -78,8 +80,6 @@ type
   public
 
     MainFileCache: IMemObjCache;
-    // Ini-файл с основными настройками
-    MainIni: TMeminifile;
     // Параметры программы
     ProgramPath: string;
     // Иконки для меток
