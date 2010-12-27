@@ -51,7 +51,6 @@ type
 implementation
 
 uses
-  u_GlobalState,
   SysUtils;
 
 { TTileDownloaderBase }
@@ -226,7 +225,7 @@ begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
-    VTimeOut := GState.InetConnect.TimeOut;
+    VTimeOut := FConnectionSettings.TimeOut;
     if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
       FSessionOpenError := GetLastError;
     end;
