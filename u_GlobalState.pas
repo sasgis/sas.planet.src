@@ -90,6 +90,8 @@ type
     Show_logo: Boolean;
     // Заходить на сайт автора при старте программы
     WebReportToAuthor: Boolean;
+    // Выводить отладочную инфромацию о производительности
+    ShowDebugInfo: Boolean;
 
     // Способ отображения расстояний, и в частности масштаба
     num_format: TDistStrFormat;
@@ -269,7 +271,10 @@ uses
 constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
+  VViewCnonfig: IConfigDataProvider;
 begin
+  Show_logo := True;
+  ShowDebugInfo := False;
   FDwnCS := TCriticalSection.Create;
   FCacheConfig := TGlobalCahceConfig.Create;
   All_Dwn_Kb := 0;
@@ -278,10 +283,14 @@ begin
   InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
-  Show_logo := MainIni.ReadBool('VIEW','Show_logo',true);
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
+  VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create;
-  FLanguageManager.ReadConfig(FMainConfigProvider.GetSubItem('VIEW'));
+  FLanguageManager.ReadConfig(VViewCnonfig);
+  if VViewCnonfig <> nil then begin
+    Show_logo := VViewCnonfig.ReadBool('Show_logo', Show_logo);
+    ShowDebugInfo := VViewCnonfig.ReadBool('time_rendering', ShowDebugInfo);
+  end;
 
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMemFileCache := TMemFileCache.Create;

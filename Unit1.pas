@@ -845,7 +845,7 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     NGoToCur.Checked := GState.ZoomingAtMousePos;
-    Label1.Visible:=GState.MainIni.ReadBool('VIEW','time_rendering',false);
+    Label1.Visible := GState.ShowDebugInfo;
 
 
     FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
