@@ -30,8 +30,7 @@ type
 
     FErrorString: string;
     FTileMaxAgeInInternet: TDateTime;
-    FMainLayer: TMapLayerBasic;
-    FKmlLayer: TMapLayerBasic;
+    FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
     FViewPortState: TMapViewPortState;
     FUseDownloadChangeNotifier: IJclNotifier;
@@ -50,16 +49,17 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(AViewPortState: TMapViewPortState); overload;
+    constructor Create(
+      AViewPortState: TMapViewPortState;
+      AMapTileUpdateEvent: TMapTileUpdateEvent;
+      AErrorShowLayer: TTileErrorInfoLayer
+    ); overload;
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider);
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
     procedure StartThreads;
     procedure SendTerminateToThreads;
     property TileMaxAgeInInternet: TDateTime read FTileMaxAgeInInternet;
-    property MainLayer: TMapLayerBasic read FMainLayer write FMainLayer;
-    property KmlLayer: TMapLayerBasic read FKmlLayer write FKmlLayer;
-    property ErrorShowLayer: TTileErrorInfoLayer read FErrorShowLayer write FErrorShowLayer;
     property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
     property UseDownloadChangeNotifier: IJclNotifier read FUseDownloadChangeNotifier;
   end;
@@ -75,9 +75,15 @@ uses
   u_TileIteratorSpiralByRect,
   UResStrings;
 
-constructor TTileDownloaderUI.Create(AViewPortState: TMapViewPortState);
+constructor TTileDownloaderUI.Create(
+  AViewPortState: TMapViewPortState;
+  AMapTileUpdateEvent: TMapTileUpdateEvent;
+  AErrorShowLayer: TTileErrorInfoLayer
+);
 begin
   inherited Create(True);
+  FMapTileUpdateEvent := AMapTileUpdateEvent;
+  FErrorShowLayer := AErrorShowLayer;
   FViewPortState := AViewPortState;
   Priority := tpLower;
   FUseDownload := tsCache;
@@ -227,14 +233,8 @@ begin
     if FErrorShowLayer <> nil then begin
       FErrorShowLayer.Visible := False;
     end;
-    if FMapType.IsBitmapTiles then begin
-      if FMainLayer <> nil then begin
-        FMainLayer.Redraw;
-      end;
-    end else if FMapType.IsKmlTiles then begin
-      if FKmlLayer <> nil then begin
-        FKmlLayer.Redraw;
-      end;
+    if Addr(FMapTileUpdateEvent) <> nil then begin
+      FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
     end;
   end;
 end;

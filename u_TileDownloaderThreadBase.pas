@@ -17,6 +17,8 @@ type
     FZoom: byte;
     FLoadUrl: string;
     class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
+  public
+    property MapType: TMapType read FMapType;
   end;
 
 implementation

@@ -32,6 +32,7 @@ uses
   i_ILogForTaskThread,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
+  Unit1,
   UProgress,
   UResStrings,
   UMapType;
@@ -112,7 +113,7 @@ begin
     smb,
     FFrame.dtpReplaceOlderDate.DateTime
   );
-  TFProgress.Create(Application, VThread, VThreadLog);
+  TFProgress.Create(Application, VThread, VThreadLog, Fmain.OnMapUpdate);
 end;
 
 end.

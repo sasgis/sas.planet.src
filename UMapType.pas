@@ -158,6 +158,11 @@ type
     destructor Destroy; override;
  end;
 
+type
+  TMapUpdateEvent = procedure(AMapType: TMapType) of object;
+  TMapTileUpdateEvent = procedure(AMapType: TMapType; AZoom: Byte;
+    ATile: TPoint) of object;
+
 implementation
 
 uses

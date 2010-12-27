@@ -631,6 +631,8 @@ type
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
+    procedure OnMapUpdate(AMapType: TMapType);
     function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
       AShowType: TMarksShowType): TMarksIteratorBase;
   end;
@@ -879,10 +881,7 @@ begin
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
 
-    FUIDownLoader := TTileDownloaderUI.Create(GState.ViewState);
-    FUIDownLoader.MainLayer := FMainLayer;
-    FUIDownLoader.ErrorShowLayer := FShowErrorLayer;
-    FUIDownLoader.KmlLayer := FWikiLayer;
+    FUIDownLoader := TTileDownloaderUI.Create(GState.ViewState, Self.OnMapTileUpdate, FShowErrorLayer);
 
     CreateMapUI;
     FSettings.InitMapsList;
@@ -1351,6 +1350,39 @@ begin
     end;
   finally
     FLineOnMapEdit.UnlockRead;
+  end;
+end;
+
+procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
+  ATile: TPoint);
+begin
+  if AMapType <> nil then begin
+    AMapType.Cache.DeleteTileFromCache(ATile, AZoom);
+    if AMapType.IsBitmapTiles then begin
+      if FMainLayer <> nil then begin
+        FMainLayer.Redraw;
+      end;
+    end else if AMapType.IsKmlTiles then begin
+      if FWikiLayer <> nil then begin
+        FWikiLayer.Redraw;
+      end;
+    end;
+  end;
+end;
+
+procedure TFmain.OnMapUpdate(AMapType: TMapType);
+begin
+  if AMapType <> nil then begin
+    AMapType.Cache.Clear;
+    if AMapType.IsBitmapTiles then begin
+      if FMainLayer <> nil then begin
+        FMainLayer.Redraw;
+      end;
+    end else if AMapType.IsKmlTiles then begin
+      if FWikiLayer <> nil then begin
+        FWikiLayer.Redraw;
+      end;
+    end;
   end;
 end;
 
@@ -2210,8 +2242,7 @@ begin
       VLoadPoint,
       VZoomCurr,
       VMapType,
-      FMainLayer,
-      FWikiLayer,
+      Self.OnMapTileUpdate,
       FShowErrorLayer
     );
   end;
@@ -2409,7 +2440,7 @@ end;
 procedure TFmain.N000Click(Sender: TObject);
 begin
  GState.TileGridZoom:=TMenuItem(Sender).Tag;
- generate_im;
+ FLayerGrids.Redraw;
 end;
 
 procedure TFmain.NShowGranClick(Sender: TObject);
@@ -2991,8 +3022,7 @@ begin
       VTile,
       VZoomCurr,
       VMap,
-      FMainLayer,
-      FWikiLayer,
+      Self.OnMapTileUpdate,
       FShowErrorLayer
     );
   end;
@@ -3687,7 +3717,7 @@ begin
       VSimpleLog := VLog;
       VThreadLog := VLog;
       VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
-      TFProgress.Create(Application, VThread, VThreadLog);
+      TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
     end else begin
       if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
          (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or

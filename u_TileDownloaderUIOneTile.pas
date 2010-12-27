@@ -16,8 +16,7 @@ type
   private
     FErrorString: string;
 
-    FMainLayer: TMapLayerBasic;
-    FKmlLayer: TMapLayerBasic;
+    FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
 
     procedure AfterWriteToFile;
@@ -28,8 +27,7 @@ type
       AXY: TPoint;
       AZoom: byte;
       AMapType: TMapType;
-      AMainLayer: TMapLayerBasic;
-      AKmlLayer: TMapLayerBasic;
+      AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorShowLayer: TTileErrorInfoLayer
     ); overload;
   end;
@@ -46,14 +44,12 @@ constructor TTileDownloaderUIOneTile.Create(
   AXY: TPoint;
   AZoom: byte;
   AMapType: TMapType;
-  AMainLayer: TMapLayerBasic;
-  AKmlLayer: TMapLayerBasic;
+  AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorShowLayer: TTileErrorInfoLayer
 );
 begin
   inherited Create(False);
-  FMainLayer := AMainLayer;
-  FKmlLayer := AKmlLayer;
+  FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorShowLayer := AErrorShowLayer;
   FLoadXY := AXY;
   FZoom := AZoom;
@@ -74,14 +70,8 @@ begin
     if FErrorShowLayer <> nil then begin
       FErrorShowLayer.Visible := False;
     end;
-    if FMapType.IsBitmapTiles then begin
-      if FMainLayer <> nil then begin
-        FMainLayer.Redraw;
-      end;
-    end else if FMapType.IsKmlTiles then begin
-      if FKmlLayer <> nil then begin
-        FKmlLayer.Redraw;
-      end;
+    if Addr(FMapTileUpdateEvent) <> nil then begin
+      FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
     end;
   end;
 end;

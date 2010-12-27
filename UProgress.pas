@@ -15,6 +15,7 @@ uses
   RarProgress,
   u_CommonFormAndFrameParents,
   i_ILogForTaskThread,
+  UMapType,
   UResStrings,
   u_ThreadDownloadTiles;
 
@@ -52,6 +53,7 @@ type
     FLastLogID: Cardinal;
     FStoped: boolean;
     FFinished: Boolean;
+    FMapUpdateEvent: TMapUpdateEvent;
     procedure InitProgressForm;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
@@ -60,7 +62,12 @@ type
     procedure ThreadFinish;
     procedure StopThread;
   public
-    constructor Create(AOwner: TComponent; ADownloadThread: TThreadDownloadTiles; ALog: ILogForTaskThread); reintroduce; virtual;
+    constructor Create(
+      AOwner: TComponent;
+      ADownloadThread: TThreadDownloadTiles;
+      ALog: ILogForTaskThread;
+      AMapUpdateEvent: TMapUpdateEvent
+    ); reintroduce; virtual;
     destructor Destroy; override;
 
     property DownloadThread: TThreadDownloadTiles read FDownloadThread;
@@ -71,8 +78,6 @@ implementation
 
 uses
   SysUtils,
-  Unit1,
-  u_GlobalState,
   u_GeoToStr;
 
 {$R *.dfm}
@@ -109,10 +114,15 @@ begin
   FFinished := False;
 end;
 
-constructor TFProgress.Create(AOwner: TComponent;
-  ADownloadThread: TThreadDownloadTiles; ALog: ILogForTaskThread);
+constructor TFProgress.Create(
+  AOwner: TComponent;
+  ADownloadThread: TThreadDownloadTiles;
+  ALog: ILogForTaskThread;
+  AMapUpdateEvent: TMapUpdateEvent
+);
 begin
   inherited Create(AOwner);
+  FMapUpdateEvent := AMapUpdateEvent;
   FDownloadThread := ADownloadThread;
   FLog := ALog;
   InitProgressForm;
@@ -237,8 +247,9 @@ end;
 
 procedure TFProgress.ThreadFinish;
 begin
-  GState.MainFileCache.Clear;
-  FMain.generate_im;
+  if Addr(FMapUpdateEvent) <> nil then begin
+    FMapUpdateEvent(FDownloadThread.MapType);
+  end;
 end;
 
 procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);
