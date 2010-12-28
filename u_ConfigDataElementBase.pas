@@ -18,7 +18,7 @@ type
     FStopNotifyCounter: Longint;
     FNeedNotify: Longint;
   protected
-    procedure SetChanged;
+    procedure SetChanged; virtual;
     function CheckIsChangedAndReset: Boolean;
     procedure DoChangeNotify; virtual;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
