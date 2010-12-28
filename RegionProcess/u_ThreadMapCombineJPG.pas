@@ -10,10 +10,10 @@ uses
   GR32,
   ijl,
   UMapType,
-  UImgFun,
   UGeoFun,
   bmpUtil,
   t_GeoTypes,
+  i_IBitmapPostProcessingConfig,
   UResStrings,
   u_ThreadMapCombineBase;
 
@@ -44,7 +44,8 @@ type
       Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
-      AusedReColor,
+      AusedReColor: Boolean;
+      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AusedMarks: boolean;
       AQuality: Integer
     );
@@ -63,12 +64,14 @@ constructor TThreadMapCombineJPG.Create(
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap, AHtypemap: TMapType;
-  AusedReColor, AusedMarks: boolean;
+  AusedReColor: Boolean;
+  ARecolorConfig: IBitmapPostProcessingConfigStatic;
+  AusedMarks: boolean;
   AQuality: Integer
 );
 begin
   inherited Create(AMapCalibrationList, AFileName, APolygon, ASplitCount,
-    Azoom, Atypemap, AHtypemap, AusedReColor, AusedMarks);
+    Azoom, Atypemap, AHtypemap, AusedReColor, ARecolorConfig, AusedMarks);
   FQuality := AQuality;
 end;
 
@@ -122,9 +125,7 @@ begin
           GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
         end;
       end;
-      if FUsedReColor then begin
-        Gamma(btmm, GState.ContrastN, GState.GammaN, GState.InvertColor);
-      end;
+      ProcessRecolor(btmm);
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
       end;

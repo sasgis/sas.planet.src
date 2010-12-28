@@ -90,9 +90,7 @@ begin
           GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
         end;
       end;
-      if FUsedReColor then begin
-        Gamma(btmm, GState.ContrastN, GState.GammaN, GState.InvertColor);
-      end;
+      ProcessRecolor(btmm);
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
       end;

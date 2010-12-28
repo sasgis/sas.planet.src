@@ -29,6 +29,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
@@ -117,6 +118,7 @@ begin
       FFrame.cbbZoom.ItemIndex+1,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
+      GState.BitmapPostProcessingConfig.GetStatic,
       FFrame.chkUseMapMarks.Checked,
       FFrame.seJpgQuality.Value
     );
@@ -129,6 +131,7 @@ begin
       FFrame.cbbZoom.ItemIndex+1,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
+      GState.BitmapPostProcessingConfig.GetStatic,
       FFrame.chkUseMapMarks.Checked
     );
   end else if (VFileExt='.KMZ') then begin
@@ -140,6 +143,7 @@ begin
       FFrame.cbbZoom.ItemIndex+1,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
+      GState.BitmapPostProcessingConfig.GetStatic,
       FFrame.chkUseMapMarks.Checked,
       FFrame.seJpgQuality.Value
     );
@@ -152,6 +156,7 @@ begin
       FFrame.cbbZoom.ItemIndex+1,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
+      GState.BitmapPostProcessingConfig.GetStatic,
       FFrame.chkUseMapMarks.Checked,
       FFrame.seJpgQuality.Value
     );

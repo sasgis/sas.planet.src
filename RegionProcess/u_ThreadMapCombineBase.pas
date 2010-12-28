@@ -5,12 +5,17 @@ interface
 uses
   Classes,
   Types,
+  GR32,
   t_GeoTypes,
+  i_IBitmapPostProcessingConfig,
   UMapType,
   u_ThreadRegionProcessAbstract;
 
 type
   TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
+  private
+    FUsedReColor: boolean;
+    FRecolorConfig: IBitmapPostProcessingConfigStatic;
   protected
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
@@ -18,7 +23,6 @@ type
     FPoly: TPointArray;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
-    FUsedReColor: boolean;
     FUsedMarks: boolean;
 
     FFileName: string;
@@ -39,6 +43,7 @@ type
     procedure saveRECT; virtual; abstract;
 
     procedure ProcessRegion; override;
+    procedure ProcessRecolor(Bitmap: TCustomBitmap32);
   public
     constructor Create(
       AMapCalibrationList: IInterfaceList;
@@ -48,7 +53,8 @@ type
       Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
-      AusedReColor,
+      AusedReColor: Boolean;
+      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AusedMarks: boolean
     );
   end;
@@ -59,6 +65,7 @@ uses
   SysUtils,
   i_IMapCalibration,
   UResStrings,
+  Uimgfun,
   Ugeofun;
 
 { TMapCombineThreadBase }
@@ -71,7 +78,8 @@ constructor TThreadMapCombineBase.Create(
   Azoom: byte;
   Atypemap: TMapType;
   AHtypemap: TMapType;
-  AusedReColor,
+  AusedReColor: Boolean;
+  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AusedMarks: boolean
 );
 begin
@@ -84,6 +92,7 @@ begin
   FTypeMap := Atypemap;
   FHTypeMap := AHtypemap;
   FUsedReColor := AusedReColor;
+  FRecolorConfig := ARecolorConfig;
   FUsedMarks := AusedMarks;
   FMapCalibrationList := AMapCalibrationList;
 end;
@@ -99,6 +108,13 @@ begin
   );
 end;
 
+
+procedure TThreadMapCombineBase.ProcessRecolor(Bitmap: TCustomBitmap32);
+begin
+  if FUsedReColor then begin
+    Gamma(Bitmap, FRecolorConfig.ContrastN, FRecolorConfig.GammaN, FRecolorConfig.InvertColor);
+  end;
+end;
 
 procedure TThreadMapCombineBase.ProcessRegion;
 var
