@@ -98,6 +98,7 @@
     <DCCReference Include="i_IGPSModule.pas" />
     <DCCReference Include="i_IGPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="i_IGPSRecorder.pas" />
+    <DCCReference Include="i_IGSMGeoCodeConfig.pas" />
     <DCCReference Include="i_IHybrChangeMessage.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_ILanguageManager.pas" />
@@ -383,6 +384,7 @@
     <DCCReference Include="u_GPSSatelliteInfo.pas" />
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
+    <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />

@@ -201,19 +201,33 @@ end;
 
 
 function TPosFromGPS.GetPos:boolean;
-var paramss:string;
-    LL:TDoublePoint;
+var
+  paramss:string;
+  LL:TDoublePoint;
+  VUseGSM: Boolean;
+  VPort: string;
+  VRate: Cardinal;
+  VWait: Cardinal;
 begin
- if GState.GSMpar.auto then begin
+  GState.GSMpar.LockRead;
+  try
+    VUseGSM := GState.GSMpar.GetUseGSMByCOM;
+    VPort := GState.GSMpar.GetPortName;
+    VRate := GState.GSMpar.GetBaudRate;
+    VWait := GState.GSMpar.GetWaitTime;
+  finally
+    GState.GSMpar.UnlockRead;
+  end;
+ if VUseGSM then begin
    CommPortDriver:=TCommPortDriver.Create(nil);
-   CommPortDriver.PortName:='\\.\'+GState.GSMpar.Port;
-   CommPortDriver.BaudRateValue:=GState.GSMpar.BaudRate;
+   CommPortDriver.PortName:='\\.\'+VPort;
+   CommPortDriver.BaudRateValue:=VRate;
    CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
    CommPortDriver.Connect;
    if CommPortDriver.Connected then begin
      if (CommPortDriver.SendString('AT+CREG=2'+#13))and
         (CommPortDriver.SendString('AT+COPS=0,2'+#13)) then begin
-       sleep(GState.GSMpar.WaitingAnswer);
+       sleep(VWait);
        CommPortDriver.SendString('AT+CREG?'+#13);
        CommPortDriver.SendString('AT+COPS?'+#13);
        Result:=true;

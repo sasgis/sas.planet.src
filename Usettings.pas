@@ -327,10 +327,16 @@ begin
  GState.SessionLastSuccess:=CBLastSuccess.Checked;
  GState.BGround:=ColorBoxBackGround.Selected;
  FMain.map.Color:=GState.BGround;
- GState.GSMpar.BaudRate:=strtoint(CBGSMBaundRate.text);
- GState.GSMpar.Port:=CBGSMComPort.Text;
- GState.GSMpar.auto:=chkPosFromGSM.Checked;
- GState.GSMpar.WaitingAnswer:=SEWaitingAnswer.Value;
+ GState.GSMpar.LockWrite;
+ try
+   GState.GSMpar.SetUseGSMByCOM(chkPosFromGSM.Checked);
+   GState.GSMpar.SetBaudRate(strtoint(CBGSMBaundRate.text));
+   GState.GSMpar.SetPortName(CBGSMComPort.Text);
+   GState.GSMpar.SetWaitTime(SEWaitingAnswer.Value);
+ finally
+   GState.GSMpar.UnlockWrite;
+ end;
+
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
  GState.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
@@ -503,10 +509,15 @@ begin
 
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;
- CBGSMBaundRate.text:=inttostr(GState.GSMpar.BaudRate);
- CBGSMComPort.Text:=GState.GSMpar.Port;
- chkPosFromGSM.Checked:=GState.GSMpar.auto;
- SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
+  GState.GSMpar.LockRead;
+  try
+    chkPosFromGSM.Checked := GState.GSMpar.GetUseGSMByCOM;
+    CBGSMComPort.Text := GState.GSMpar.GetPortName;
+    CBGSMBaundRate.text := inttostr(GState.GSMpar.GetBaudRate);
+    SEWaitingAnswer.Value := GState.GSMpar.GetWaitTime;
+  finally
+    GState.GSMpar.UnlockRead;
+  end;
   VInetConfig := GState.InetConfig;
   VInetConfig.LockRead;
   try

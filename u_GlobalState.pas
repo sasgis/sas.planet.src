@@ -22,6 +22,7 @@ uses
   i_MapTypeIconsList,
   i_ICoordConverterFactory,
   i_IProxySettings,
+  i_IGSMGeoCodeConfig,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -65,6 +66,7 @@ type
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
     FProxySettings: IProxySettings;
+    FGSMpar: IGSMGeoCodeConfig;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -172,9 +174,6 @@ type
     //Способ поиска
     SrchType: TSrchType;
 
-    //параметры определения позиции по GSM
-    GSMpar: TGSMpar;
-
     //Цвет фона
     BGround: TColor;
 
@@ -230,6 +229,7 @@ type
     property MarksDB: TMarksDB read FMarksDB;
     property InetConfig: IInetConfig read FInetConfig;
     property ProxySettings: IProxySettings read FProxySettings;
+    property GSMpar: IGSMGeoCodeConfig read FGSMpar;
 
     constructor Create;
     destructor Destroy; override;
@@ -268,6 +268,7 @@ uses
   u_LanguageManager,
   i_MapTypes,
   u_InetConfig,
+  u_GSMGeoCodeConfig,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -296,6 +297,7 @@ begin
   end;
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
+  FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMemFileCache := TMemFileCache.Create;
   MainFileCache := FMemFileCache;
@@ -344,6 +346,7 @@ begin
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FProxySettings := nil;
+  FGSMpar := nil;
   FInetConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
@@ -477,6 +480,7 @@ begin
   LoadMapIconsList;
   GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
+  FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
 end;
 
@@ -558,11 +562,6 @@ begin
   GammaN:=MainIni.Readinteger('COLOR_LEVELS','gamma',50);
   ContrastN:=MainIni.Readinteger('COLOR_LEVELS','contrast',0);
   InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
-
-  GSMpar.Port:=MainIni.ReadString('GSM','port','COM1');
-  GSMpar.BaudRate:=MainIni.ReadInteger('GSM','BaudRate',4800);
-  GSMpar.auto:=MainIni.ReadBool('GSM','Auto',true);
-  GSMpar.WaitingAnswer:=MainIni.ReadInteger('GSM','WaitingAnswer',200);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -642,11 +641,6 @@ begin
   MainIni.Writeinteger('COLOR_LEVELS','contrast',ContrastN);
   MainIni.WriteBool('COLOR_LEVELS','InvertColor',InvertColor);
 
-  MainIni.WriteString('GSM','port',GSMpar.Port);
-  MainIni.WriteInteger('GSM','BaudRate',GSMpar.BaudRate);
-  MainIni.WriteBool('GSM','Auto',GSMpar.auto);
-  MainIni.WriteInteger('GSM','WaitingAnswer',GSMpar.WaitingAnswer);
-
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
@@ -655,6 +649,7 @@ begin
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
   GPSpar.SaveConfig(MainConfigProvider);
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
+  FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FCacheConfig.SaveConfig(FMainConfigProvider);

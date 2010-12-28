@@ -129,6 +129,8 @@ uses
   u_MemFileCache in 'u_MemFileCache.pas',
   u_ProxyConfig in 'u_ProxyConfig.pas',
   u_InetConfig in 'u_InetConfig.pas',
+  i_IGSMGeoCodeConfig in 'i_IGSMGeoCodeConfig.pas',
+  u_GSMGeoCodeConfig in 'u_GSMGeoCodeConfig.pas',
   UYaMobile in 'UYaMobile.pas',
   UGSM in 'UGSM.pas',
   i_ILocalCoordConverter in 'i_ILocalCoordConverter.pas',
