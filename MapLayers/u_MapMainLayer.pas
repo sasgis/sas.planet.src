@@ -68,12 +68,12 @@ var
 begin
   inherited;
   FLayer.Bitmap.Clear(Color32(GState.BGround));
-  DrawMap(GState.ViewState.GetCurrentMap, dmOpaque);
+  DrawMap(FViewPortState.GetCurrentMap, dmOpaque);
 
-  VHybrList := GState.ViewState.HybrList;
+  VHybrList := FViewPortState.HybrList;
   VEnum := VHybrList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
+    if FViewPortState.IsHybrGUIDSelected(VGUID) then begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsBitmapTiles then begin
