@@ -137,6 +137,7 @@
     <DCCReference Include="i_ITileStorageType.pas" />
     <DCCReference Include="i_ITileStorageTypeInfo.pas" />
     <DCCReference Include="i_IUrlByCoordProvider.pas" />
+    <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_Marks.pas" />
@@ -327,6 +328,7 @@
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
+    <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
@@ -459,6 +461,7 @@
     <DCCReference Include="u_TileFileNameGM2.pas" />
     <DCCReference Include="u_TileFileNameGMV.pas" />
     <DCCReference Include="u_TileFileNameSAS.pas" />
+    <DCCReference Include="u_TileGridConfig.pas" />
     <DCCReference Include="u_TileInfoBasic.pas" />
     <DCCReference Include="u_TileIteratorAbstract.pas" />
     <DCCReference Include="u_TileIteratorByRect.pas" />
