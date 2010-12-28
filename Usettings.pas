@@ -345,7 +345,14 @@ begin
  GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
  GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
  GState.GPSpar.GPS_ArrowColor:=ColorBoxGPSstr.selected;
- GState.InvertColor:=CBinvertcolor.Checked;
+ GState.BitmapPostProcessingConfig.LockWrite;
+ try
+   GState.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
+   GState.BitmapPostProcessingConfig.GammaN:=TrBarGamma.Position;
+   GState.BitmapPostProcessingConfig.ContrastN:=TrBarContrast.Position;
+ finally
+   GState.BitmapPostProcessingConfig.UnlockWrite;
+ end;
  GState.BorderColor:=ColorBoxBorder.Selected;
  GState.BorderAlpha:=SpinEditBorderAlpha.Value;
  GState.ShowBorderText:=CBBorderText.Checked;
@@ -391,8 +398,6 @@ begin
  GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(EScPath.Text);
  GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
- GState.GammaN:=TrBarGamma.Position;
- GState.ContrastN:=TrBarContrast.Position;
  GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
  GState.WikiMapMainColor:=CBWMainColor.Selected;
  GState.WikiMapFonColor:=CBWFonColor.Selected;
@@ -542,7 +547,21 @@ begin
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
  ColorBoxGPSstr.Selected:=GState.GPSpar.GPS_ArrowColor;
- CBinvertcolor.Checked:=GState.InvertColor;
+  GState.BitmapPostProcessingConfig.LockRead;
+  try
+    CBinvertcolor.Checked := GState.BitmapPostProcessingConfig.InvertColor;
+    TrBarGamma.Position:=GState.BitmapPostProcessingConfig.GammaN;
+    TrBarcontrast.Position:=GState.BitmapPostProcessingConfig.ContrastN;
+  finally
+    GState.BitmapPostProcessingConfig.UnlockRead;
+  end;
+  if TrBarGamma.Position < 50 then begin
+    LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')';
+  end else begin
+    LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
+  end;
+  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
+
  ColorBoxBorder.Selected:=GState.BorderColor;
  SpinEditBorderAlpha.Value:=GState.BorderAlpha;
  CBBorderText.Checked:=GState.ShowBorderText;
@@ -566,11 +585,6 @@ begin
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
  ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
- TrBarGamma.Position:=GState.GammaN;
- if GState.GammaN<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((GState.GammaN*2)/100)+')'
-              else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((GState.GammaN-40)/10)+')';
- TrBarcontrast.Position:=GState.ContrastN;
- LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(GState.ContrastN)+')';
  ComboBox1.ItemIndex := byte(GState.num_format);
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;

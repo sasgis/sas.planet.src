@@ -899,8 +899,6 @@ begin
     NGShScale1000000.Checked := GState.GShScale = 1000000;
     NGShScale0.Checked := GState.GShScale = 0;
 
-    Ninvertcolor.Checked:=GState.InvertColor;
-
     TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
     tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
     TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
@@ -948,7 +946,7 @@ begin
 
     FMainMapChangeListener := TNotifyEventListenerSync.Create(Self.OnMainFormMainConfigChange);
     FConfig.MainConfig.GetChangeNotifier.Add(FMainFormMainConfigChangeListener);
-
+    GState.BitmapPostProcessingConfig.GetChangeNotifier.Add(FMainFormMainConfigChangeListener);
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
@@ -1004,6 +1002,7 @@ begin
     GState.StartThreads;
     FUIDownLoader.StartThreads;
     FMainLayer.Visible := True;
+    OnMainFormMainConfigChange(nil);
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
     tmrMapUpdate.Enabled := True;
   finally
@@ -1040,6 +1039,7 @@ begin
   FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerMapGPS.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FConfig.MainConfig.GetChangeNotifier.Remove(FMainFormMainConfigChangeListener);
+  GState.BitmapPostProcessingConfig.GetChangeNotifier.Remove(FMainFormMainConfigChangeListener);
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1366,6 +1366,7 @@ end;
 procedure TFmain.OnMainFormMainConfigChange(Sender: TObject);
 begin
   NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
+  Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
 end;
 
 procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
@@ -2675,8 +2676,7 @@ end;
 
 procedure TFmain.NinvertcolorClick(Sender: TObject);
 begin
- GState.InvertColor:=Ninvertcolor.Checked;
- FMainLayer.Redraw;
+ GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
 end;
 
 procedure TFmain.mapDblClick(Sender: TObject);

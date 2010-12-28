@@ -137,12 +137,6 @@ type
     WikiMapMainColor: TColor;
     WikiMapFonColor: TColor;
 
-    InvertColor: boolean;
-    // Число для гамма преобразования тайлов перед отображением
-    GammaN: Integer;
-    // Число для изменения контрастности тайлов перед отображением
-    ContrastN: Integer;
-
     show_point: TMarksShowType;
     FirstLat: Boolean;
     ShowMapName: Boolean;
@@ -568,10 +562,6 @@ begin
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
   WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
   WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
-
-  GammaN:=MainIni.Readinteger('COLOR_LEVELS','gamma',50);
-  ContrastN:=MainIni.Readinteger('COLOR_LEVELS','contrast',0);
-  InvertColor:=MainIni.ReadBool('COLOR_LEVELS','InvertColor',false);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -645,10 +635,6 @@ begin
   MainIni.WriteInteger('VIEW','Background',BGround);
   MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
   MainIni.Writeinteger('Wikimapia','FonColor',WikiMapFonColor);
-
-  MainIni.Writeinteger('COLOR_LEVELS','gamma', GammaN);
-  MainIni.Writeinteger('COLOR_LEVELS','contrast',ContrastN);
-  MainIni.WriteBool('COLOR_LEVELS','InvertColor',InvertColor);
 
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);

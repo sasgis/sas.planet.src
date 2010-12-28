@@ -36,6 +36,7 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_ITileIterator,
+  i_IBitmapPostProcessingConfig,
   i_MapTypes,
   Uimgfun,
   u_TileIteratorByRect,
@@ -143,12 +144,14 @@ var
   VUsePre: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VTileIterator: ITileIterator;
+  VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
   if AMapType.asLayer then begin
     VUsePre := GState.UsePrevZoomLayer;
   end else begin
     VUsePre := GState.UsePrevZoom;
   end;
+  VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
   VLocalConverter := FBitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
@@ -199,7 +202,7 @@ begin
         VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
-          Gamma(VBmp, GState.ContrastN, GState.GammaN, GState.InvertColor);
+          Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
         end;
         FLayer.Bitmap.Lock;
         try

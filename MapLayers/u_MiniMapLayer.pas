@@ -130,6 +130,7 @@ uses
   Ugeofun,
   UResStrings,
   i_ActiveMapsConfigSaveLoad,
+  i_IBitmapPostProcessingConfig,
   u_GlobalState,
   u_LocalCoordConverterFactorySimpe,
   u_MapTypeList,
@@ -650,12 +651,14 @@ var
   VUsePre: Boolean;
   VVisualConverter: ILocalCoordConverter;
   VBitmapConverter: ILocalCoordConverter;
+  VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
   if AMapType.asLayer then begin
     VUsePre := GState.UsePrevZoomLayer;
   end else begin
     VUsePre := GState.UsePrevZoom;
   end;
+  VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
   VBmp := TCustomBitmap32.Create;
   try
     VVisualConverter := FBitmapCoordConverter;
@@ -706,7 +709,7 @@ begin
 
         VCurrTilePixelRectAtBitmap := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
         if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
-          Gamma(VBmp, GState.ContrastN, GState.GammaN, GState.InvertColor);
+          Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
         end;
         FLayer.Bitmap.Lock;
         try
