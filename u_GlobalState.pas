@@ -24,6 +24,7 @@ uses
   i_IProxySettings,
   i_IGSMGeoCodeConfig,
   i_ConfigMain,
+  i_IBitmapPostProcessingConfig,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -69,6 +70,7 @@ type
     FProxySettings: IProxySettings;
     FGSMpar: IGSMGeoCodeConfig;
     FMainFormConfig: IMainFormConfig;
+    FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -230,6 +232,7 @@ type
     property ProxySettings: IProxySettings read FProxySettings;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
+    property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -269,6 +272,7 @@ uses
   i_MapTypes,
   u_InetConfig,
   u_GSMGeoCodeConfig,
+  u_BitmapPostProcessingConfig,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -312,9 +316,10 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FMarksDB := TMarksDB.Create;
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
+  FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   GPSpar := TGPSpar.Create;
-  FMainFormConfig := TMainFormConfig.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
+  FMainFormConfig := TMainFormConfig.Create;
 end;
 
 destructor TGlobalState.Destroy;
@@ -351,6 +356,7 @@ begin
   FGSMpar := nil;
   FInetConfig := nil;
   FMainFormConfig := nil;
+  FBitmapPostProcessingConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -484,6 +490,7 @@ begin
   GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
+  FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FMainFormConfig.ReadConfig(MainConfigProvider);
   FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
 end;
@@ -654,6 +661,7 @@ begin
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
 end;
