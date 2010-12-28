@@ -22,21 +22,26 @@ uses
 type
   TToPos = procedure (LL:TDoublePoint;zoom_:byte;draw:boolean) of object;
   TPosFromGPS = class
+  private
     FToPos:TToPos;
     CommPortDriver:TCommPortDriver;
     LAC:string;
     CellID:string;
     CC:string;
     NC:string;
-    BaundRate:integer;
-    Port:string;
-    function GetPos:boolean;
     procedure CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
     function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
-    property OnToPos:TToPos read FToPos write FToPos;
+  public
+    constructor Create(AOnToPos: TToPos);
+    function GetPos:boolean;
   end;
 
 implementation
+
+constructor TPosFromGPS.Create(AOnToPos: TToPos);
+begin
+  FToPos := AOnToPos;
+end;
 
 function TPosFromGPS.GetCoordFromGoogle(var LL:TDoublePoint): boolean;
 var
@@ -169,7 +174,7 @@ begin
  CommPortDriver.SendString('AT+CREG=1'+#13);
  CommPortDriver.Disconnect;
  if GetCoordFromGoogle(LL) then begin
-    OnToPos(LL, GState.ViewState.GetCurrentZoom, true);
+    FToPos(LL, GState.ViewState.GetCurrentZoom, true);
  end;
 end;
 
@@ -201,8 +206,8 @@ var paramss:string;
 begin
  if GState.GSMpar.auto then begin
    CommPortDriver:=TCommPortDriver.Create(nil);
-   CommPortDriver.PortName:=Port;
-   CommPortDriver.BaudRateValue:=BaundRate;
+   CommPortDriver.PortName:='\\.\'+GState.GSMpar.Port;
+   CommPortDriver.BaudRateValue:=GState.GSMpar.BaudRate;
    CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
    CommPortDriver.Connect;
    if CommPortDriver.Connected then begin
@@ -225,7 +230,7 @@ begin
      LAC:= IntToHex(strtoint(GetWord(paramss,',',3)),4);
      CellID:= IntToHex(strtoint(GetWord(paramss,',',4)),4);
      if GetCoordFromGoogle(LL) then begin
-        OnToPos(LL,GState.ViewState.GetCurrentZoom,true);
+        FToPos(LL,GState.ViewState.GetCurrentZoom,true);
         Result:=true;
      end else begin
         Result:=false;

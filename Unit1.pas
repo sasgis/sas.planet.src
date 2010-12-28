@@ -3692,13 +3692,14 @@ end;
 
 procedure TFmain.tbitmPositionByGSMClick(Sender: TObject);
 var
-  PosFromGPS:TPosFromGPS;
+  PosFromGSM:TPosFromGPS;
 begin
- PosFromGPS:=TPosFromGPS.Create;
- PosFromGPS.Port:='\\.\'+GState.GSMpar.Port;
- PosFromGPS.BaundRate:=GState.GSMpar.BaudRate;
- PosFromGPS.OnToPos:=topos;
- PosFromGPS.GetPos;
+ PosFromGSM:=TPosFromGPS.Create(Self.topos);
+ try
+   PosFromGSM.GetPos;
+ finally
+   PosFromGSM.Free;
+ end;
 end;
 
 procedure TFmain.TBXItem6Click(Sender: TObject);
