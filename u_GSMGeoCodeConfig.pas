@@ -38,6 +38,7 @@ implementation
 
 constructor TGSMGeoCodeConfig.Create;
 begin
+  inherited;
   FUseGSMByCOM := True;
   FPortName := 'COM1';
   FBaudRate := 4800;
