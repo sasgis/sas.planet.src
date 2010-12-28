@@ -50,6 +50,7 @@ uses
   t_CommonTypes,
   i_IGPSRecorder,
   i_GeoCoder,
+  i_ConfigMain,
   i_ISearchResultPresenter,
   i_IMainWindowPosition,
   i_ILineOnMapEdit,
@@ -528,6 +529,7 @@ type
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
   private
+    FConfig: IMainFormConfig;
     FIsGPSPosChanged: Boolean;
     FCenterToGPSDelta: TDoublePoint;
     FShowActivHint: boolean;
@@ -568,6 +570,7 @@ type
     FGPSConntectErrorListener: IJclListener;
     FGPSTimeOutListener: IJclListener;
     FGPSReceiveListener: IJclListener;
+    FMainFormMainConfigChangeListener: IJclListener;
 
     FMainToolbarItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
     FMainToolbarSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
@@ -611,6 +614,8 @@ type
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange(Sender: TObject);
+    procedure OnMainFormMainConfigChange(Sender: TObject);
+
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
     procedure setalloperationfalse(newop: TAOperation);
@@ -745,6 +750,7 @@ end;
 constructor TFmain.Create(AOwner: TComponent);
 begin
   inherited;
+  FConfig := GState.MainFormConfig;
   FIsGPSPosChanged := False;
   FdWhenMovingButton := 5;
 
@@ -843,7 +849,6 @@ begin
     FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
-    NGoToCur.Checked := GState.ZoomingAtMousePos;
     Label1.Visible := GState.ShowDebugInfo;
 
 
@@ -910,6 +915,7 @@ begin
     NGPSToolBarShow.Checked:=GPSToolBar.Visible;
     NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
+
     map.Color:=GState.BGround;
 
     FMapPosChangeListener := TPosChangeListener.Create(Self.ProcessPosChangeMessage);
@@ -939,6 +945,9 @@ begin
     GState.GPSpar.GPSModele.TimeOutNotifier.Add(FGPSTimeOutListener);
     FGPSReceiveListener := TNotifyEventListenerSync.Create(Self.GPSReceiverReceive);
     GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
+
+    FMainMapChangeListener := TNotifyEventListenerSync.Create(Self.OnMainFormMainConfigChange);
+    FConfig.MainConfig.GetChangeNotifier.Add(FMainFormMainConfigChangeListener);
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
@@ -1030,6 +1039,7 @@ begin
   FUIDownLoader.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
   FLayerMapGPS.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
+  FConfig.MainConfig.GetChangeNotifier.Remove(FMainFormMainConfigChangeListener);
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1068,6 +1078,7 @@ begin
   FNLayerParamsItemList := nil;
   FNDwnItemList := nil;
   FNDelItemList := nil;
+  FMainFormMainConfigChangeListener := nil;
   inherited;
 end;
 
@@ -1352,6 +1363,11 @@ begin
   end;
 end;
 
+procedure TFmain.OnMainFormMainConfigChange(Sender: TObject);
+begin
+  NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
+end;
+
 procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
   ATile: TPoint);
 begin
@@ -1469,7 +1485,7 @@ begin
                   if Msg.wParam<0 then VNewZoom := VZoom-(1*z)
                                   else VNewZoom := VZoom+(1*z);
                   if VNewZoom < 0 then VNewZoom := 0;
-                  zooming(VNewZoom, GState.ZoomingAtMousePos);
+                  zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
                  if (FdWhenMovingButton<35) then begin
@@ -3744,7 +3760,7 @@ end;
 
 procedure TFmain.NGoToCurClick(Sender: TObject);
 begin
-  GState.ZoomingAtMousePos := (Sender as TTBXItem).Checked
+  FConfig.MainConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
 end;
 
 procedure TFmain.InitSearchers;

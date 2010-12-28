@@ -23,6 +23,7 @@ uses
   i_ICoordConverterFactory,
   i_IProxySettings,
   i_IGSMGeoCodeConfig,
+  i_ConfigMain,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -67,6 +68,7 @@ type
     FInetConfig: IInetConfig;
     FProxySettings: IProxySettings;
     FGSMpar: IGSMGeoCodeConfig;
+    FMainFormConfig: IMainFormConfig;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -138,9 +140,6 @@ type
     GammaN: Integer;
     // Число для изменения контрастности тайлов перед отображением
     ContrastN: Integer;
-
-    // Фиксировать центр изменения масштаба под курсором мыши
-    ZoomingAtMousePos: Boolean;
 
     show_point: TMarksShowType;
     FirstLat: Boolean;
@@ -230,6 +229,7 @@ type
     property InetConfig: IInetConfig read FInetConfig;
     property ProxySettings: IProxySettings read FProxySettings;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
+    property MainFormConfig: IMainFormConfig read FMainFormConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -269,6 +269,7 @@ uses
   i_MapTypes,
   u_InetConfig,
   u_GSMGeoCodeConfig,
+  u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -312,6 +313,7 @@ begin
   FMarksDB := TMarksDB.Create;
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   GPSpar := TGPSpar.Create;
+  FMainFormConfig := TMainFormConfig.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
 end;
 
@@ -348,6 +350,7 @@ begin
   FProxySettings := nil;
   FGSMpar := nil;
   FInetConfig := nil;
+  FMainFormConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -481,6 +484,7 @@ begin
   GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
+  FMainFormConfig.ReadConfig(MainConfigProvider);
   FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
 end;
 
@@ -512,7 +516,6 @@ begin
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
   ShowMapName:=MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
-  ZoomingAtMousePos:=MainIni.readBool('VIEW','ZoomingAtMousePos',true);
 
   show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
   TileGridZoom:=MainIni.readinteger('VIEW','grid',0);
@@ -607,7 +610,6 @@ begin
     ViewState.UnLockRead;
   end;
   MainIni.WriteBool('VIEW','ShowMapNameOnPanel',ShowMapName);
-  MainIni.WriteBool('VIEW','ZoomingAtMousePos',ZoomingAtMousePos);
   MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
   MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
   MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
@@ -652,6 +654,7 @@ begin
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
 end;
 
