@@ -87,6 +87,7 @@
     <DCCReference Include="i_IBackgroundTask.pas" />
     <DCCReference Include="i_IBackgroundTaskLayerDraw.pas" />
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
+    <DCCReference Include="i_IBitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
     <DCCReference Include="i_IConfigDataElement.pas" />
     <DCCReference Include="i_IConfigDataProvider.pas" />
@@ -326,6 +327,7 @@
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
+    <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />

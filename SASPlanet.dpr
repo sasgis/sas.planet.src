@@ -286,6 +286,8 @@ uses
   i_ILanguageManager in 'i_ILanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
+  i_IBitmapPostProcessingConfig in 'i_IBitmapPostProcessingConfig.pas',
+  u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_ConfigMain in 'i_ConfigMain.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',
   u_MainFormConfig in 'u_MainFormConfig.pas',
