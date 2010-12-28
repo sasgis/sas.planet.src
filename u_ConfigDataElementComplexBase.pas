@@ -47,6 +47,7 @@ uses
 
 constructor TConfigDataElementComplexBase.Create;
 begin
+  inherited;
   FList := TInterfaceList.Create;
   FStrategyList := TInterfaceList.Create;
   FItemChangeListener := TNotifyEventListener.Create(Self.OnItemChange);
