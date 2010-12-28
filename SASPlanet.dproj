@@ -384,6 +384,7 @@
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
+    <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
@@ -435,7 +436,7 @@
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeListener.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
-    <DCCReference Include="u_ProxySettingsFromTInetConnect.pas" />
+    <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />

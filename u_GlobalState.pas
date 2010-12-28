@@ -21,6 +21,7 @@ uses
   i_IBitmapLayerProvider,
   i_MapTypeIconsList,
   i_ICoordConverterFactory,
+  i_IProxySettings,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -62,6 +63,8 @@ type
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
     FMainMapsList: TMapTypesMainList;
+    FInetConfig: IInetConfig;
+    FProxySettings: IProxySettings;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -101,7 +104,6 @@ type
     // Количество скачанных тайлов
     All_Dwn_Tiles: Cardinal;
 
-    InetConnect: TInetConnect;
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
     // Делать вторую попытку скачать файл при ошибке скачивания
@@ -226,6 +228,8 @@ type
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property LastSelectionInfo: TLastSelectionInfo read FLastSelectionInfo;
     property MarksDB: TMarksDB read FMarksDB;
+    property InetConfig: IInetConfig read FInetConfig;
+    property ProxySettings: IProxySettings read FProxySettings;
 
     constructor Create;
     destructor Destroy; override;
@@ -263,6 +267,7 @@ uses
   u_CoordConverterFactorySimple,
   u_LanguageManager,
   i_MapTypes,
+  u_InetConfig,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -279,7 +284,6 @@ begin
   All_Dwn_Kb := 0;
   All_Dwn_Tiles := 0;
   FMainMapsList := TMapTypesMainList.Create;
-  InetConnect := TInetConnect.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
@@ -290,7 +294,8 @@ begin
     Show_logo := VViewCnonfig.ReadBool('Show_logo', Show_logo);
     ShowDebugInfo := VViewCnonfig.ReadBool('time_rendering', ShowDebugInfo);
   end;
-
+  FInetConfig := TInetConfig.Create;
+  FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMemFileCache := TMemFileCache.Create;
   MainFileCache := FMemFileCache;
@@ -321,7 +326,6 @@ begin
   end;
   FMainConfigProvider := nil;
   FreeMarkIcons;
-  FreeAndNil(InetConnect);
   FMemFileCache := nil;
   MainFileCache := nil;
   FTileNameGenerator := nil;
@@ -339,6 +343,8 @@ begin
   FreeAndNil(FViewState);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
+  FProxySettings := nil;
+  FInetConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -470,6 +476,7 @@ begin
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
   GPSpar.LoadConfig(MainConfigProvider);
+  FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
 end;
 
@@ -494,17 +501,10 @@ procedure TGlobalState.LoadMainParams;
 begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
   TilesOut:=MainIni.readInteger('VIEW','TilesOut',0);
-  InetConnect.userwinset:=MainIni.Readbool('INTERNET','userwinset',true);
-  InetConnect.uselogin:=MainIni.Readbool('INTERNET','uselogin',false);
-  InetConnect.Proxyused:=MainIni.Readbool('INTERNET','used_proxy',false);
-  InetConnect.proxystr:=MainIni.Readstring('INTERNET','proxy','');
-  InetConnect.loginstr:=MainIni.Readstring('INTERNET','login','');
-  InetConnect.passstr:=MainIni.Readstring('INTERNET','password','');
   SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
 
   TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
-  InetConnect.TimeOut:=MainIni.ReadInteger('INTERNET','TimeOut',40000);
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
   ShowMapName:=MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
@@ -647,20 +647,14 @@ begin
   MainIni.WriteBool('GSM','Auto',GSMpar.auto);
   MainIni.WriteInteger('GSM','WaitingAnswer',GSMpar.WaitingAnswer);
 
-  MainIni.Writebool('INTERNET','userwinset',InetConnect.userwinset);
-  MainIni.Writebool('INTERNET','uselogin',InetConnect.uselogin);
-  MainIni.Writebool('INTERNET','used_proxy',InetConnect.Proxyused);
-  MainIni.Writestring('INTERNET','proxy',InetConnect.proxystr);
-  MainIni.Writestring('INTERNET','login',InetConnect.loginstr);
-  MainIni.Writestring('INTERNET','password',InetConnect.passstr);
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
-  MainIni.WriteInteger('INTERNET','TimeOut',InetConnect.TimeOut);
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
   GPSpar.SaveConfig(MainConfigProvider);
+  FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FCacheConfig.SaveConfig(FMainConfigProvider);

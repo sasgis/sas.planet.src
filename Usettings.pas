@@ -249,6 +249,7 @@ implementation
 uses
   Types,
   Menus,
+  i_IProxySettings,
   i_GPS,
   u_GlobalState,
   u_GeoToStr,
@@ -277,12 +278,25 @@ end;
 procedure SetProxy;
 var
   PIInfo : PInternetProxyInfo;
+  VProxyConfig: IProxyConfig;
+  VUseIEProxy: Boolean;
+  VUseProxy: Boolean;
+  VHost: string;
 begin
-  New (PIInfo) ;
-  if not(GState.InetConnect.userwinset) then begin
-    if GState.InetConnect.proxyused then begin
+  VProxyConfig := GState.InetConfig.ProxyConfig;
+  VProxyConfig.LockRead;
+  try
+    VUseIEProxy := VProxyConfig.GetUseIESettings;
+    VUseProxy := VProxyConfig.GetUseProxy;
+    VHost := VProxyConfig.GetHost;
+  finally
+    VProxyConfig.UnlockRead;
+  end;
+  New (PIInfo);
+  if not(VUseIEProxy) then begin
+    if VUseProxy then begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
-      PIInfo^.lpszProxy := PChar(GState.InetConnect.proxystr);
+      PIInfo^.lpszProxy := PChar(VHost);
       PIInfo^.lpszProxyBypass := nil;
       UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     end else  begin
@@ -299,6 +313,8 @@ end;
 procedure TFSettings.btnApplyClick(Sender: TObject);
 var
   i: integer;
+  VProxyConfig: IProxyConfig;
+  VInetConfig: IInetConfig;
 begin
  For i:=0 to MapList.Items.Count-1 do
   begin
@@ -347,15 +363,20 @@ begin
  GState.GPSpar.GPSSettings.BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPSpar.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
  GState.GPSpar.GPS_NumTrackPoints:=SE_NumTrackPoints.Value;
- if (chkUseIEProxy.Checked)and(not GState.InetConnect.userwinset) then ShowMessage(SAS_MSG_need_reload_application_curln);
- GState.InetConnect.userwinset:=chkUseIEProxy.Checked;
- GState.InetConnect.proxyused:=CBProxyused.Checked;
- GState.InetConnect.uselogin:=CBLogin.Checked;
- GState.InetConnect.proxystr:=EditIP.Text;
- GState.InetConnect.loginstr:=EditLogin.Text;
- GState.InetConnect.passstr:=EditPass.Text;
- if (GState.InetConnect.TimeOut<>SETimeOut.Value) then ShowMessage(SAS_MSG_need_reload_application_curln);
- GState.InetConnect.TimeOut:=SETimeOut.Value;
+  VInetConfig :=GState.InetConfig;
+  VInetConfig.LockWrite;
+  try
+    VProxyConfig := VInetConfig.ProxyConfig;
+    VProxyConfig.SetUseIESettings(chkUseIEProxy.Checked);
+    VProxyConfig.SetUseProxy(CBProxyused.Checked);
+    VProxyConfig.SetHost(EditIP.Text);
+    VProxyConfig.SetUseLogin(CBLogin.Checked);
+    VProxyConfig.SetLogin(EditLogin.Text);
+    VProxyConfig.SetPassword(EditPass.Text);
+    VInetConfig.SetTimeOut(SETimeOut.Value);
+  finally
+    VInetConfig.UnlockWrite;
+  end;
 
  GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
  GState.MouseWheelInv:=ScrolInvert.Checked;
@@ -380,6 +401,7 @@ begin
  if FMapsEdit then begin
    Fmain.CreateMapUI;
  end;
+ ShowMessage(SAS_MSG_need_reload_application_curln);
 end;
 
 procedure TFSettings.Button4Click(Sender: TObject);
@@ -467,6 +489,9 @@ begin
 end;
 
 procedure TFSettings.FormShow(Sender: TObject);
+var
+  VProxyConfig: IProxyConfig;
+  VInetConfig: IInetConfig;
 begin
  FMapsEdit:=false;
  CBoxLocal.Clear;
@@ -482,7 +507,20 @@ begin
  CBGSMComPort.Text:=GState.GSMpar.Port;
  chkPosFromGSM.Checked:=GState.GSMpar.auto;
  SEWaitingAnswer.Value:=GState.GSMpar.WaitingAnswer;
- SETimeOut.Value:=GState.InetConnect.TimeOut;
+  VInetConfig := GState.InetConfig;
+  VInetConfig.LockRead;
+  try
+    SETimeOut.Value := VInetConfig.GetTimeOut;
+    VProxyConfig := VInetConfig.ProxyConfig;
+    chkUseIEProxy.Checked := VProxyConfig.GetUseIESettings;
+    CBProxyused.Checked := VProxyConfig.GetUseProxy;
+    CBLogin.Checked := VProxyConfig.GetUseLogin;
+    EditIP.Text := VProxyConfig.GetHost;
+    EditLogin.Text := VProxyConfig.GetLogin;
+    EditPass.Text := VProxyConfig.GetPassword;
+  finally
+    VInetConfig.UnlockRead;
+  end;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
  SETilesOCache.Value:=GState.CacheElemensMaxCnt;
  MapZapColorBox.Selected:=GState.MapZapColor;
@@ -491,13 +529,7 @@ begin
  ChBoxFirstLat.Checked:=GState.FirstLat;
  CBlock_toolbars.Checked:=Fmain.ToolbarsLock.GetIsLock;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
- chkUseIEProxy.Checked:=GState.InetConnect.userwinset;
- CBProxyused.Checked:=GState.InetConnect.proxyused;
- CBLogin.Checked:=GState.InetConnect.uselogin;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
- EditIP.Text:=GState.InetConnect.proxystr;
- EditLogin.Text:=GState.InetConnect.loginstr;
- EditPass.Text:=GState.InetConnect.passstr;
  ColorBoxGPSstr.Selected:=GState.GPSpar.GPS_ArrowColor;
  CBinvertcolor.Checked:=GState.InvertColor;
  ColorBoxBorder.Selected:=GState.BorderColor;

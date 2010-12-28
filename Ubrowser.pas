@@ -39,16 +39,26 @@ uses
   Variants,
   ActiveX,
   MSHTML,
+  i_IProxySettings,
   u_GlobalState;
 
 {$R *.dfm}
 
 procedure TFbrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
+var
+  VProxyConfig: IProxyConfig;
+  VUseLogin: Boolean;
 begin
- if GState.InetConnect.uselogin then
-  begin
-   szUserName:=GState.InetConnect.loginstr;
-   szPassWord:=GState.InetConnect.passstr;
+  VProxyConfig := GState.InetConfig.ProxyConfig;
+  VProxyConfig.LockRead;
+  try
+    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
+    if VUselogin then begin
+      szUserName := VProxyConfig.GetLogin;
+      szPassWord := VProxyConfig.GetPassword;
+    end;
+  finally
+    VProxyConfig.UnlockRead;
   end;
 end;
 

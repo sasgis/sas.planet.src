@@ -8,6 +8,7 @@ uses
   SyncObjs,
   Classes,
   t_CommonTypes,
+  i_IProxySettings,
   i_ITileDownlodSession;
 
 type
@@ -17,7 +18,7 @@ type
     FDefaultMIMEType: string;
     FIgnoreMIMEType: Boolean;
     FDownloadTryCount: Integer;
-    FConnectionSettings: TInetConnect;
+    FConnectionSettings: IInetConfig;
     FSleepOnResetConnection: Cardinal;
     FWaitInterval: Cardinal;
     FUserAgentString: string;
@@ -40,7 +41,7 @@ type
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
-    constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
+    constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
     destructor Destroy; override;
     function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
@@ -69,7 +70,7 @@ end;
 
 constructor TTileDownloaderBase.Create(AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
-  ADownloadTryCount: Integer; AConnectionSettings: TInetConnect);
+  ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
 begin
   FIgnoreMIMEType := AIgnoreMIMEType;
   FDefaultMIMEType := ADefaultMIMEType;
@@ -225,7 +226,7 @@ begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
-    VTimeOut := FConnectionSettings.TimeOut;
+    VTimeOut := FConnectionSettings.GetTimeOut;
     if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
       FSessionOpenError := GetLastError;
     end;
@@ -343,7 +344,20 @@ var
   VLastError: Cardinal;
   ci: INTERNET_CONNECTED_INFO;
   VNow: Cardinal;
+  VProxyConfig: IProxyConfig;
+  VUselogin: Boolean;
+  VLogin: string;
+  VPassword: string;
 begin
+  VProxyConfig := FConnectionSettings.ProxyConfig;
+  VProxyConfig.LockRead;
+  try
+    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
+    VLogin := VProxyConfig.GetLogin;
+    VPassword := VProxyConfig.GetPassword;
+  finally
+    VProxyConfig.UnlockRead;
+  end;
   VHeader := BuildHeader(AUrl);
   if IsGlobalOffline then begin
     ci.dwConnectedState := INTERNET_STATE_CONNECTED;
@@ -387,9 +401,9 @@ begin
       Exit;
     end;
     if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-      if (not FConnectionSettings.userwinset) and (FConnectionSettings.uselogin) then begin
-        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(FConnectionSettings.loginstr), length(FConnectionSettings.loginstr));
-        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(FConnectionSettings.passstr), length(FConnectionSettings.Passstr));
+      if VUselogin then begin
+        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
+        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
         HttpSendRequest(VFileHandle, nil, 0, Nil, 0);
 
         dwIndex := 0;

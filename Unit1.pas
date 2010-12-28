@@ -680,7 +680,6 @@ uses
   frm_SearchResults,
   frm_InvisibleBrowser,
   i_IProxySettings,
-  u_ProxySettingsFromTInetConnect,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
   u_MarksReadWriteSimple,
@@ -3754,7 +3753,7 @@ var
 begin
   VGoto := TMapViewGotoOnFMain.Create;
   FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
-  VProxy := TProxySettingsFromTInetConnect.Create(GState.InetConnect);
+  VProxy := GState.ProxySettings;
   FGoogleGeoCoder := TGeoCoderByGoogle.Create(VProxy);
   FYandexGeoCoder := TGeoCoderByYandex.Create(VProxy);
 end;

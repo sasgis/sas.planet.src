@@ -121,6 +121,7 @@ implementation
 
 uses
   i_ICoordConverter,
+  i_IProxySettings,
   u_GlobalState,
   u_GeoToStr;
 function EncodeDG(S: string): string;
@@ -235,7 +236,20 @@ var par,ty:string;
     hSession,hFile:Pointer;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
+  VProxyConfig: IProxyConfig;
+  VUselogin: Boolean;
+  VLogin: string;
+  VPassword: string;
 begin
+  VProxyConfig := GState.InetConfig.ProxyConfig;
+  VProxyConfig.LockRead;
+  try
+    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
+    VLogin := VProxyConfig.GetLogin;
+    VPassword := VProxyConfig.GetPassword;
+  finally
+    VProxyConfig.UnlockRead;
+  end;
   hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  if Assigned(hSession)
   then begin
@@ -247,10 +261,10 @@ begin
            then dwindex:=strtoint(pchar(@dwtype));
           if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
            begin
-            if (not GState.InetConnect.userwinset)and(GState.InetConnect.uselogin) then
+            if VUselogin then
              begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(GState.InetConnect.loginstr), length(GState.InetConnect.loginstr));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(GState.InetConnect.passstr), length(GState.InetConnect.Passstr));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(VLogin), length(VLogin));
+              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(VPassword), length(VPassword));
               HttpSendRequest(hFile, nil, 0,Nil, 0);
              end;
             dwcodelen:=150; dwReserv:=0; dwindex:=0;

@@ -66,7 +66,7 @@ begin
     VTryCount := 1;
   end;
   VDownloader := TTileDownloaderBase.Create(FIgnoreContent_Type,
-    FContent_Type, FDefaultContent_Type, VTryCount, GState.InetConnect);
+    FContent_Type, FDefaultContent_Type, VTryCount, GState.InetConfig);
   VDownloader.SleepOnResetConnection := FSlepOnResetConnection;
   VDownloader.WaitInterval := FWaitInterval;
   Result := VDownloader;
