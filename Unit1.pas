@@ -665,7 +665,6 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   u_MainWindowPositionConfig,
-  u_MainWindowToolbarsLock,
   u_LineOnMapEdit,
   i_IMapViewGoto,
   u_MapViewGotoOnFMain,
