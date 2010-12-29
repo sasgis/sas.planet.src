@@ -6,7 +6,7 @@ uses
   i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  i_ConfigMain,
+  i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
 type

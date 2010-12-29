@@ -78,7 +78,6 @@
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
-    <DCCReference Include="i_ConfigMain.pas" />
     <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GPS.pas" />
@@ -138,6 +137,7 @@
     <DCCReference Include="i_ITileStorageType.pas" />
     <DCCReference Include="i_ITileStorageTypeInfo.pas" />
     <DCCReference Include="i_IUrlByCoordProvider.pas" />
+    <DCCReference Include="i_MainFormConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />

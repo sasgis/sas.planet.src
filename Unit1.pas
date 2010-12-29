@@ -51,7 +51,7 @@ uses
   t_CommonTypes,
   i_IGPSRecorder,
   i_GeoCoder,
-  i_ConfigMain,
+  i_MainFormConfig,
   i_ISearchResultPresenter,
   i_IMainWindowPosition,
   i_ILineOnMapEdit,

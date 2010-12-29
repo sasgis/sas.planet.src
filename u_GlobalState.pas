@@ -23,7 +23,7 @@ uses
   i_ICoordConverterFactory,
   i_IProxySettings,
   i_IGSMGeoCodeConfig,
-  i_ConfigMain,
+  i_MainFormConfig,
   i_IBitmapPostProcessingConfig,
   u_GarbageCollectorThread,
   u_GeoToStr,

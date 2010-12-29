@@ -295,7 +295,7 @@ uses
   u_MapLayerGridsConfig in 'u_MapLayerGridsConfig.pas',
   i_IBitmapPostProcessingConfig in 'i_IBitmapPostProcessingConfig.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
-  i_ConfigMain in 'i_ConfigMain.pas',
+  i_MainFormConfig in 'i_MainFormConfig.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',
   u_MainFormConfig in 'u_MainFormConfig.pas',
   i_IMainWindowPosition in 'i_IMainWindowPosition.pas',

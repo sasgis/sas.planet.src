@@ -1,4 +1,4 @@
-unit i_ConfigMain;
+unit i_MainFormConfig;
 
 interface
 
