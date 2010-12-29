@@ -585,8 +585,6 @@ type
 
     FWinPosition: IMainWindowPosition;
 
-    FToolbarsLock: IMainWindowToolbarsLock;
-
     FLineOnMapEdit: ILineOnMapEdit;
 
     procedure OnWinPositionChange(Sender: TObject);
@@ -617,7 +615,6 @@ type
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
     property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
-    property ToolbarsLock: IMainWindowToolbarsLock read FToolbarsLock;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -769,10 +766,9 @@ begin
     FWinPosition.GetChangeNotifier
   );
 
-  FToolbarsLock := TMainWindowToolbarsLock.Create;
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnToolbarsLockChange),
-    FToolbarsLock.GetChangeNotifier
+    FConfig.ToolbarsLock.GetChangeNotifier
   );
 
   FLineOnMapEdit := TLineOnMapEdit.Create;
@@ -799,9 +795,7 @@ begin
   TBEditPath.MoveOnScreen(true);
   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
   TBConfigProviderLoadPositions(Self, VProvider);
-
-  FToolbarsLock.ReadConfig(VProvider);
-
+  OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
 end;
 
@@ -1078,7 +1072,6 @@ destructor TFmain.Destroy;
 begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
-  FToolbarsLock := nil;
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;
@@ -1416,7 +1409,7 @@ procedure TFmain.OnToolbarsLockChange(Sender: TObject);
 var
   VValue: Boolean;
 begin
-  VValue := FToolbarsLock.GetIsLock;
+  VValue := FConfig.ToolbarsLock.GetIsLock;
   TBDock.AllowDrag:=not VValue;
   TBDockLeft.AllowDrag:=not VValue;
   TBDockRight.AllowDrag:=not VValue;
@@ -3669,16 +3662,15 @@ begin
   FUIDownLoader.SaveConfig(AProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');
-  FToolbarsLock.LockWrite;
+  FConfig.ToolbarsLock.LockWrite;
   try
-    FToolbarsLock.WriteConfig(VProvider);
-    lock_tb_b:=FToolbarsLock.GetIsLock;
-    FToolbarsLock.SetLock(False);
+    lock_tb_b:=FConfig.ToolbarsLock.GetIsLock;
+    FConfig.ToolbarsLock.SetLock(False);
   finally
-    FToolbarsLock.UnlockWrite;
+    FConfig.ToolbarsLock.UnlockWrite;
   end;
   TBConfigProviderSavePositions(Self, VProvider);
-  FToolbarsLock.SetLock(lock_tb_b);
+  FConfig.ToolbarsLock.SetLock(lock_tb_b);
 end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);

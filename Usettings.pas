@@ -371,7 +371,7 @@ begin
  GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
  GState.GPSpar.GPSSettings.NMEALog:=CB_GPSlogNmea.Checked;
  GState.GPSpar.GPSSettings.Delay:=SpinEdit1.Value;
- Fmain.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
+ GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
  GState.GPSpar.GPSSettings.Port := StrToInt(Copy(ComboBoxCOM.Text, 4, 2));
  GState.GPSpar.GPSSettings.BaudRate:=StrToint(ComboBoxBoudRate.Text);
  GState.GPSpar.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
@@ -543,7 +543,7 @@ begin
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=GState.TwoDownloadAttempt;
  ChBoxFirstLat.Checked:=GState.FirstLat;
- CBlock_toolbars.Checked:=Fmain.ToolbarsLock.GetIsLock;
+ CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
  ColorBoxGPSstr.Selected:=GState.GPSpar.GPS_ArrowColor;

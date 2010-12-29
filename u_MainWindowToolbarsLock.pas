@@ -7,7 +7,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_ConfigDataElementBase,
-  i_IMainWindowPosition;
+  i_MainFormConfig;
 
 type
   TMainWindowToolbarsLock = class(TConfigDataElementBase, IMainWindowToolbarsLock)

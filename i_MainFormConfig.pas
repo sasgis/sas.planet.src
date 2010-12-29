@@ -14,11 +14,19 @@ type
     property ZoomingAtMousePos: Boolean read GetZoomingAtMousePos write SetZoomingAtMousePos;    
   end;
 
+  IMainWindowToolbarsLock = interface(IConfigDataElement)
+    ['{CA2386E9-10BE-4A7C-AE42-3E771BD390BA}']
+    function GetIsLock: Boolean;
+    procedure SetLock(AValue: Boolean);
+  end;
+
   IMainFormConfig = interface(IConfigDataElement)
     ['{87184149-7B22-4184-A0BF-703C0C89B3AB}']
     function GetMainConfig: IMainFormMainConfig;
-
     property MainConfig: IMainFormMainConfig read GetMainConfig;
+
+    function GetToolbarsLock: IMainWindowToolbarsLock;
+    property ToolbarsLock: IMainWindowToolbarsLock read GetToolbarsLock;
   end;
 
 implementation
