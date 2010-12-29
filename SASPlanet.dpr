@@ -289,6 +289,8 @@ uses
   i_MapLayerGridsConfig in 'i_MapLayerGridsConfig.pas',
   u_BaseGridConfig in 'u_BaseGridConfig.pas',
   u_TileGridConfig in 'u_TileGridConfig.pas',
+  u_GenShtabGridConfig in 'u_GenShtabGridConfig.pas',
+  u_MapLayerGridsConfig in 'u_MapLayerGridsConfig.pas',
   i_IBitmapPostProcessingConfig in 'i_IBitmapPostProcessingConfig.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_ConfigMain in 'i_ConfigMain.pas',

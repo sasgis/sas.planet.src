@@ -371,6 +371,7 @@
     <DCCReference Include="u_GECache.pas" />
     <DCCReference Include="u_GECrypt.pas" />
     <DCCReference Include="u_GEIndexFile.pas" />
+    <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePalcemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
@@ -417,6 +418,7 @@
     <DCCReference Include="u_MapCalibrationTab.pas" />
     <DCCReference Include="u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapChangeMessage.pas" />
+    <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderStuped.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
