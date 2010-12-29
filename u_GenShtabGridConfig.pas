@@ -30,6 +30,7 @@ implementation
 
 constructor TGenShtabGridConfig.Create;
 begin
+  inherited;
   FScale := 0;
 end;
 
