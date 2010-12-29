@@ -20,6 +20,7 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure ShowError(ATile: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
