@@ -4,6 +4,7 @@ interface
 
 uses
   i_IConfigDataElement,
+  i_INavigationToPoint,
   i_MapLayerGridsConfig;
 
 type
@@ -31,6 +32,9 @@ type
 
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     property MapLayerGridsConfig: IMapLayerGridsConfig read GetMapLayerGridsConfig;
+
+    function GetNavToPoint: INavigationToPoint;
+    property NavToPoint: INavigationToPoint read GetNavToPoint;
   end;
 
 implementation
