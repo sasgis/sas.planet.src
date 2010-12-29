@@ -584,10 +584,8 @@ type
     FCurrentOper: TAOperation;
 
     FWinPosition: IMainWindowPosition;
-    FWinPositionListener: IJclListener;
 
     FToolbarsLock: IMainWindowToolbarsLock;
-    FToolbarsLockListener: IJclListener;
 
     FLineOnMapEdit: ILineOnMapEdit;
 
@@ -766,10 +764,16 @@ begin
 
   FLayersList := TWindowLayerBasicList.Create;
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
-  FWinPositionListener := TNotifyEventListener.Create(Self.OnWinPositionChange);
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnWinPositionChange),
+    FWinPosition.GetChangeNotifier
+  );
 
   FToolbarsLock := TMainWindowToolbarsLock.Create;
-  FToolbarsLockListener := TNotifyEventListener.Create(Self.OnToolbarsLockChange);
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnToolbarsLockChange),
+    FToolbarsLock.GetChangeNotifier
+  );
 
   FLineOnMapEdit := TLineOnMapEdit.Create;
   FLinksList.Add(
@@ -787,7 +791,6 @@ begin
   Caption:=Caption+' '+SASVersion;
 
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
-  FWinPosition.GetChangeNotifier.Add(FWinPositionListener);
   FWinPosition.ReadConfig(VProvider);
 
   VProvider := GState.MainConfigProvider.GetSubItem('PANEL');
@@ -797,7 +800,6 @@ begin
   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
   TBConfigProviderLoadPositions(Self, VProvider);
 
-  FToolbarsLock.GetChangeNotifier.Add(FToolbarsLockListener);
   FToolbarsLock.ReadConfig(VProvider);
 
   TBEditPath.Visible:=false;
@@ -1055,8 +1057,6 @@ begin
   ProgramClose:=true;
   FLinksList.DeactivateLinks;
   tmrMapUpdate.Enabled := false;
-  FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
-  FToolbarsLock.GetChangeNotifier.Remove(FToolbarsLockListener);
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1076,8 +1076,6 @@ end;
 
 destructor TFmain.Destroy;
 begin
-  FWinPositionListener := nil;
-  FToolbarsLockListener := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FToolbarsLock := nil;
