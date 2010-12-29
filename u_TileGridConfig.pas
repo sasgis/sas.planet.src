@@ -70,7 +70,7 @@ var
 begin
   LockRead;
   try
-    VZoom := VZoom;
+    VZoom := FZoom;
     VRelative := FUseRelativeZoom;
   finally
     UnlockRead;
