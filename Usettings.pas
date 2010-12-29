@@ -353,9 +353,13 @@ begin
  finally
    GState.BitmapPostProcessingConfig.UnlockWrite;
  end;
- GState.BorderColor:=ColorBoxBorder.Selected;
- GState.BorderAlpha:=SpinEditBorderAlpha.Value;
- GState.ShowBorderText:=CBBorderText.Checked;
+  GState.MainFormConfig.MapLayerGridsConfig.LockWrite;
+  try
+    GState.MainFormConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
+    GState.MainFormConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
+  finally
+    GState.MainFormConfig.MapLayerGridsConfig.UnlockWrite;
+  end;
  if CBCacheType.ItemIndex >= 0 then begin
   GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
  end else begin
@@ -562,9 +566,15 @@ begin
   end;
   LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
 
- ColorBoxBorder.Selected:=GState.BorderColor;
- SpinEditBorderAlpha.Value:=GState.BorderAlpha;
- CBBorderText.Checked:=GState.ShowBorderText;
+  GState.MainFormConfig.MapLayerGridsConfig.LockRead;
+  try
+    ColorBoxBorder.Selected:=WinColor(GState.MainFormConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    SpinEditBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    CBBorderText.Checked:=GState.MainFormConfig.MapLayerGridsConfig.TileGrid.ShowText;
+  finally
+    GState.MainFormConfig.MapLayerGridsConfig.UnlockRead;
+  end;
+
  CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
  CB_llstrType.ItemIndex:=byte(GState.llStrType);

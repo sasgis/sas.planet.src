@@ -628,10 +628,6 @@ type
       AShowType: TMarksShowType): TMarksIteratorBase;
   end;
 
-
-const
-  GSHprec=100000000;
-
 var
   Fmain: TFmain;
 
@@ -808,6 +804,7 @@ var
   VMapType: TMapType;
   VMapLayersVsibleChangeListener: IJclListener;
   VMainFormMainConfigChangeListener: IJclListener;
+  VScale: Integer;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
@@ -845,7 +842,7 @@ begin
 
     FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
     FLayersList.Add(FMainLayer);
-    FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState);
+    FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState, FConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
     FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
     FLayersList.Add(FWikiLayer);
@@ -881,14 +878,15 @@ begin
     CreateMapUI;
     FSettings.InitMapsList;
 
-    NGShScale10000.Checked := GState.GShScale = 10000;
-    NGShScale25000.Checked := GState.GShScale = 25000;
-    NGShScale50000.Checked := GState.GShScale = 50000;
-    NGShScale100000.Checked := GState.GShScale = 100000;
-    NGShScale200000.Checked := GState.GShScale = 200000;
-    NGShScale500000.Checked := GState.GShScale = 500000;
-    NGShScale1000000.Checked := GState.GShScale = 1000000;
-    NGShScale0.Checked := GState.GShScale = 0;
+    VScale := FConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
+    NGShScale10000.Checked := VScale = 10000;
+    NGShScale25000.Checked := VScale = 25000;
+    NGShScale50000.Checked := VScale = 50000;
+    NGShScale100000.Checked := VScale = 100000;
+    NGShScale200000.Checked := VScale = 200000;
+    NGShScale500000.Checked := VScale = 500000;
+    NGShScale1000000.Checked := VScale = 1000000;
+    NGShScale0.Checked := VScale = 0;
 
     TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
     tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
@@ -1531,66 +1529,29 @@ end;
 procedure TFmain.PrepareSelectionRect(Shift: TShiftState;
   var ASelectedLonLat: TDoubleRect);
 var
-  VZoomCurr: Byte;
-  VSelectedPixels: TRect;
-  bxy: Integer;
-  VSelectedTiles: TRect;
-  VTileGridZoom: byte;
-  VSelectedRelative: TDoubleRect;
-  z: TDoublePoint;
   VConverter: ICoordConverter;
+  VTemp: Double;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VLocalConverter := GState.ViewState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+
   VConverter.CheckLonLatRect(ASelectedLonLat);
-  VSelectedPixels := VConverter.LonLatRect2PixelRect(ASelectedLonLat, VZoomCurr);
-
-  if VSelectedPixels.Left > VSelectedPixels.Right then begin
-    bxy := VSelectedPixels.Left;
-    VSelectedPixels.Left := VSelectedPixels.Right;
-    VSelectedPixels.Right := bxy;
+  if ASelectedLonLat.Left > ASelectedLonLat.Right then begin
+    VTemp := ASelectedLonLat.Left;
+    ASelectedLonLat.Left := ASelectedLonLat.Right;
+    ASelectedLonLat.Right := VTemp;
   end;
-
-  if VSelectedPixels.Top > VSelectedPixels.Bottom then begin
-    bxy := VSelectedPixels.Top;
-    VSelectedPixels.Top := VSelectedPixels.Bottom;
-    VSelectedPixels.Bottom := bxy;
+  if ASelectedLonLat.Top < ASelectedLonLat.Bottom then begin
+    VTemp := ASelectedLonLat.Top;
+    ASelectedLonLat.Top := ASelectedLonLat.Bottom;
+    ASelectedLonLat.Bottom := VTemp;
   end;
-
   if (ssCtrl in Shift) then begin
-    if (GState.TileGridZoom = 0) or (GState.TileGridZoom = 99) then begin
-      VSelectedTiles := VConverter.PixelRect2TileRect(VSelectedPixels, VZoomCurr);
-      VSelectedPixels := VConverter.TileRect2PixelRect(VSelectedTiles, VZoomCurr);
-    end else begin
-      VTileGridZoom := GState.TileGridZoom - 1;
-      VConverter.CheckZoom(VTileGridZoom);
-      VSelectedRelative := VConverter.PixelRect2RelativeRect(VSelectedPixels, VZoomCurr);
-      VSelectedTiles := VConverter.RelativeRect2TileRect(VSelectedRelative, VTileGridZoom);
-      VSelectedRelative := VConverter.TileRect2RelativeRect(VSelectedTiles, VTileGridZoom);
-      VSelectedPixels := VConverter.RelativeRect2PixelRect(VSelectedRelative, VZoomCurr);
-    end;
+    ASelectedLonLat := FConfig.MapLayerGridsConfig.TileGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
   end;
-  ASelectedLonLat := VConverter.PixelRect2LonLatRect(VSelectedPixels, VZoomCurr);
-
-  if (ssShift in Shift)and(GState.GShScale>0) then begin
-    z := GetGhBordersStepByScale(GState.GShScale);
-
-    ASelectedLonLat.Left := ASelectedLonLat.Left-(round(ASelectedLonLat.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
-    if ASelectedLonLat.Left < 0 then ASelectedLonLat.Left := ASelectedLonLat.Left-z.X;
-
-    ASelectedLonLat.Top := ASelectedLonLat.Top-(round(ASelectedLonLat.Top*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
-    if ASelectedLonLat.Top > 0 then ASelectedLonLat.Top := ASelectedLonLat.Top+z.Y;
-
-    ASelectedLonLat.Right := ASelectedLonLat.Right-(round(ASelectedLonLat.Right*GSHprec) mod round(z.X*GSHprec))/GSHprec;
-    if ASelectedLonLat.Right >= 0 then ASelectedLonLat.Right := ASelectedLonLat.Right+z.X;
-
-    ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-(round(ASelectedLonLat.Bottom*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
-    if ASelectedLonLat.Bottom <= 0 then ASelectedLonLat.Bottom := ASelectedLonLat.Bottom-z.Y;
+  if (ssShift in Shift) then begin
+    ASelectedLonLat := FConfig.MapLayerGridsConfig.GenShtabGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
   end;
 end;
 
@@ -2455,30 +2416,63 @@ begin
 end;
 
 procedure TFmain.N000Click(Sender: TObject);
+var
+  VTag: Integer;
 begin
- GState.TileGridZoom:=TMenuItem(Sender).Tag;
- FLayerGrids.Redraw;
+  VTag := TMenuItem(Sender).Tag;
+  if VTag = 0 then begin
+    FConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+  end else begin
+    FConfig.MapLayerGridsConfig.TileGrid.LockWrite;
+    try
+      FConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+      if VTag = 99 then begin
+        FConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
+        FConfig.MapLayerGridsConfig.TileGrid.Zoom := 0;
+      end else begin
+        FConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
+        FConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
+      end;
+    finally
+      FConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
+    end;
+  end;
 end;
 
 procedure TFmain.NShowGranClick(Sender: TObject);
 var
   i:integer;
   VZoom: Byte;
+  VGridVisible: Boolean;
+  VRelativeZoom: Boolean;
+  VGridZoom: Byte;
+  VZoomCurr: Byte;
 begin
-  if GState.TileGridZoom=0 then begin
+  FConfig.MapLayerGridsConfig.TileGrid.LockRead;
+  try
+    VGridVisible := FConfig.MapLayerGridsConfig.TileGrid.Visible;
+    VRelativeZoom := FConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom;
+    VGridZoom := FConfig.MapLayerGridsConfig.TileGrid.Zoom;
+  finally
+    FConfig.MapLayerGridsConfig.TileGrid.UnlockRead;
+  end;
+
+  if not VGridVisible then begin
     NShowGran.Items[0].Checked:=true;
+  end else begin
+    if VRelativeZoom then begin
+      NShowGran.Items[1].Checked:=true;
+    end;
   end;
-  if GState.TileGridZoom=99 then begin
-    NShowGran.Items[1].Checked:=true;
-  end;
-  VZoom := GState.ViewState.GetCurrentZoom;
-  NShowGran.Items[1].Caption:=SAS_STR_activescale+' (z'+inttostr(VZoom + 1)+')';
+  VZoomCurr := GState.ViewState.GetCurrentZoom;
+  NShowGran.Items[1].Caption:=SAS_STR_activescale+' (z'+inttostr(VZoomCurr + 1)+')';
   for i:=2 to 7 do begin
-    if VZoom+i-1<24 then begin
-      NShowGran.Items[i].Caption:=SAS_STR_for+' z'+inttostr(VZoom+i-1);
+    VZoom := VZoomCurr + i - 2;
+    if VZoom < 24 then begin
+      NShowGran.Items[i].Caption:=SAS_STR_for+' z'+inttostr(VZoom+1);
       NShowGran.Items[i].Visible:=true;
-      NShowGran.Items[i].Tag:=VZoom+i-1;
-      if NShowGran.Items[i].Tag=GState.TileGridZoom then begin
+      NShowGran.Items[i].Tag:=VZoom+1;
+      if VGridVisible and not VRelativeZoom and (VZoom = VGridZoom) then begin
         NShowGran.Items[i].Checked:=true
       end else begin
         NShowGran.Items[i].Checked:=false;
@@ -3389,28 +3383,21 @@ begin
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
+var
+  VTag: Integer;
 begin
- GState.GShScale:=TTBXItem(sender).Tag;
-
- if GState.GShScale >= 1000000 then begin
-  GState.GShScale := 1000000;
- end else if GState.GShScale >= 500000 then begin
-  GState.GShScale := 500000;
- end else if GState.GShScale >= 200000 then begin
-  GState.GShScale := 200000;
- end else if GState.GShScale >= 100000 then begin
-  GState.GShScale := 100000;
- end else if GState.GShScale >= 50000 then begin
-  GState.GShScale := 50000;
- end else if GState.GShScale >= 25000 then begin
-  GState.GShScale := 25000;
- end else if GState.GShScale >= 10000 then begin
-  GState.GShScale := 10000;
- end else begin
-  GState.GShScale := 0;
- end;
-
- FMainLayer.Redraw;
+  VTag := TTBXItem(sender).Tag;
+  FConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
+    end else begin
+      FConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
+      FConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
+    end;
+  finally
+    FConfig.MapLayerGridsConfig.GenShtabGrid.UnlockWrite;
+  end;
 end;
 
 procedure TFmain.TBEditPathDelClick(Sender: TObject);

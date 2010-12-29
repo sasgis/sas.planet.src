@@ -122,9 +122,6 @@ type
 
     GPSpar: TGPSpar;
 
-    BorderColor: TColor;
-    BorderAlpha: byte;
-
     // Цвет для отсутствующих тайлов в слое заполнения карты
     MapZapColor: TColor;
     // Показывать tne на слое заполнения карты
@@ -152,19 +149,12 @@ type
     MouseWheelInv: Boolean;
     //Анимированный зум
     AnimateZoom: Boolean;
-    //При отображении сетки тайлов выводить подписи
-    ShowBorderText: Boolean;
-    // Масштаб отображаемой сетки генштаба
-    GShScale: integer;
 
 
     // Показывать хинты при нахождении мыши над меткой
     ShowHintOnMarks: Boolean;
 
     // Параетры касающиеся именно главного окна
-
-    // Отображать сетку тайлов для заданного зума
-    TileGridZoom: byte;
 
     //Способ поиска
     SrchType: TSrchType;
@@ -519,38 +509,15 @@ begin
   ShowMapName:=MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
 
   show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
-  TileGridZoom:=MainIni.readinteger('VIEW','grid',0);
   MouseWheelInv:=MainIni.readbool('VIEW','invert_mouse',false);
 
   num_format:= TDistStrFormat(MainIni.Readinteger('VIEW','NumberFormat',0));
   Resampling := TTileResamplingType(MainIni.Readinteger('VIEW','ResamlingType',1));
   llStrType:=TDegrShowFormat(MainIni.Readinteger('VIEW','llStrType',0));
   FirstLat:=MainIni.ReadBool('VIEW','FirstLat',false);
-  BorderAlpha:=MainIni.Readinteger('VIEW','BorderAlpha',150);
-  BorderColor:=MainIni.Readinteger('VIEW','BorderColor',$FFFFFF);
-  ShowBorderText:=MainIni.ReadBool('VIEW','BorderText',true);
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
   UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
   AnimateZoom:=MainIni.Readbool('VIEW','animate',true);
-  GShScale:=MainIni.Readinteger('VIEW','GShScale',0);
-  if GShScale >= 1000000 then begin
-    GShScale := 1000000;
-  end else if GShScale >= 500000 then begin
-    GShScale := 500000;
-  end else if GShScale >= 200000 then begin
-    GShScale := 200000;
-  end else if GShScale >= 100000 then begin
-    GShScale := 100000;
-  end else if GShScale >= 50000 then begin
-    GShScale := 50000;
-  end else if GShScale >= 25000 then begin
-    GShScale := 25000;
-  end else if GShScale >= 10000 then begin
-    GShScale := 10000;
-  end else begin
-    GShScale := 0;
-  end;
-
   MapZapColor:=MainIni.Readinteger('VIEW','MapZapColor',clBlack);
   MapZapShowTNE:=MainIni.ReadBool('VIEW','MapZapShowTNE', True);
   MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
@@ -611,7 +578,6 @@ begin
   MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
   MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
-  MainIni.Writeinteger('VIEW','grid', TileGridZoom);
   MainIni.Writebool('VIEW','invert_mouse',MouseWheelInv);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
@@ -621,10 +587,6 @@ begin
   MainIni.Writeinteger('VIEW','ResamlingType',byte(resampling));
   MainIni.Writeinteger('VIEW','llStrType',byte(llStrType));
   MainIni.WriteBool('VIEW','FirstLat',FirstLat);
-  MainIni.Writeinteger('VIEW','BorderAlpha',BorderAlpha);
-  MainIni.Writeinteger('VIEW','BorderColor',BorderColor);
-  MainIni.WriteBool('VIEW','BorderText',ShowBorderText);
-  MainIni.Writeinteger('VIEW','GShScale',GShScale);
   MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);
   MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);

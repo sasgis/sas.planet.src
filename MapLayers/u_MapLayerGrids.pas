@@ -6,18 +6,30 @@ uses
   Windows,
   Types,
   GR32,
+  GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_ILocalCoordConverter,
+  i_MapLayerGridsConfig,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TMapLayerGrids = class(TMapLayerBasic)
   private
+    FConfig: IMapLayerGridsConfig;
+    FConfigListener: IJclListener;
     procedure generate_granica;
     procedure DrawGenShBorders;
+    function CheckVisible(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IMapLayerGridsConfig);
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
   end;
 
 implementation
@@ -26,6 +38,7 @@ uses
   SysUtils,
   i_ICoordConverter,
   Ugeofun,
+  u_NotifyEventListener,
   u_GeoToStr,
   u_GlobalState;
 
@@ -34,12 +47,24 @@ const
 
 { TMapLayerGrids }
 
+constructor TMapLayerGrids.Create(AParentMap: TImage32;
+  AViewPortState: TMapViewPortState; AConfig: IMapLayerGridsConfig);
+begin
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
+  FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
+end;
+
 procedure TMapLayerGrids.DoRedraw;
 begin
   inherited;
   FLayer.Bitmap.Clear(0);
-  generate_granica;
-  DrawGenShBorders;
+  if FConfig.TileGrid.Visible then begin
+    generate_granica;
+  end;
+  if FConfig.GenShtabGrid.Visible then begin
+    DrawGenShBorders;
+  end;
 end;
 
 function FloatPoint2RectWihtClip(ASource: TDoublePoint): TPoint;
@@ -75,16 +100,26 @@ var
   VGridRect: TRect;
   VDrawLonLatRect: TDoubleRect;
   VDrawRectFloat: TDoubleRect;
-  VColor: TColor32;
   VDrawScreenRect: TRect;
-  VShowText: Boolean;
+  VCanShowText: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
+  VScale: Integer;
+  VShowText: Boolean;
+  VColor: TColor32;
 begin
-  if GState.GShScale = 0 then begin
+  FConfig.GenShtabGrid.LockRead;
+  try
+    VScale := FConfig.GenShtabGrid.Scale;
+    VShowText := FConfig.GenShtabGrid.ShowText;
+    VColor := FConfig.GenShtabGrid.GridColor;
+  finally
+    FConfig.GenShtabGrid.UnlockRead;
+  end;
+  if VScale = 0 then begin
     exit;
   end;
-  z := GetGhBordersStepByScale(GState.GShScale);
+  z := GetGhBordersStepByScale(VScale);
   VLocalConverter := FBitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
@@ -114,13 +149,11 @@ begin
     exit;
   end;
 
-  if (abs(VDrawRectFloat.Right - VDrawRectFloat.Left) > 30) and (GState.ShowBorderText) then begin
-    VShowText := true;
+  if (abs(VDrawRectFloat.Right - VDrawRectFloat.Left) > 30) and (VShowText) then begin
+    VCanShowText := true;
   end else begin
-    VShowText := false;
+    VCanShowText := false;
   end;
-
-  VColor := SetAlpha(Color32(GState.BorderColor), GState.BorderAlpha);
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
   VDrawLonLatRect.Right := VGridLonLatRect.Left;
@@ -160,7 +193,7 @@ begin
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
   end;
 
-  if not VShowText then begin
+  if not VCanShowText then begin
     exit;
   end;
 
@@ -172,7 +205,7 @@ begin
       VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
       ListName := LonLat2GShListName(
         DoublePoint(VDrawLonLatRect.Left + z.X / 2, VDrawLonLatRect.Top - z.Y / 2),
-        GState.GShScale, GSHprec
+        VScale, GSHprec
       );
       twidth := FLayer.bitmap.TextWidth(ListName);
       theight := FLayer.bitmap.TextHeight(ListName);
@@ -199,7 +232,7 @@ end;
 procedure TMapLayerGrids.generate_granica;
 var
   i, j: integer;
-  drawcolor: TColor32;
+  VColor: TColor32;
   textoutx, textouty: string;
   Sz1, Sz2: TSize;
   VLoadedRect: TDoubleRect;
@@ -217,17 +250,23 @@ var
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
   VBitmapRect: TDoubleRect;
+  VShowText: Boolean;
 begin
   VLocalConverter := FBitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VCurrentZoom := VLocalConverter.GetZoom;
-  if GState.TileGridZoom = 99 then begin
-    VGridZoom := VCurrentZoom;
-  end else begin
-    VGridZoom := GState.TileGridZoom - 1;
-  end;
-  if (VGridZoom < VCurrentZoom) or (VGridZoom - VCurrentZoom > 5) then begin
-    exit;
+
+  FConfig.TileGrid.LockRead;
+  try
+    VColor := FConfig.TileGrid.GridColor;
+    VShowText := FConfig.TileGrid.ShowText;
+    if FConfig.TileGrid.UseRelativeZoom then begin
+      VGridZoom := VCurrentZoom + FConfig.TileGrid.Zoom;
+    end else begin
+      VGridZoom := FConfig.TileGrid.Zoom;
+    end;
+  finally
+    FConfig.TileGrid.UnlockRead;
   end;
 
   VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
@@ -235,8 +274,6 @@ begin
 
   VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
   VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
-
-  drawcolor := SetAlpha(Color32(GState.BorderColor), GState.BorderAlpha);
 
   VTilesLineRect.Left := VTilesRect.Left;
   VTilesLineRect.Right := VTilesRect.Right;
@@ -249,7 +286,7 @@ begin
     VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
     VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
     FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Right, VTileScreenRect.Top, drawcolor);
+      VTileScreenRect.Right, VTileScreenRect.Top, VColor);
   end;
 
   VTilesLineRect.Top := VTilesRect.Top;
@@ -263,10 +300,10 @@ begin
     VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
     VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
     FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Left, VTileScreenRect.Bottom, drawcolor);
+      VTileScreenRect.Left, VTileScreenRect.Bottom, VColor);
   end;
 
-  if not (GState.ShowBorderText) then begin
+  if not (VShowText) then begin
     exit;
   end;
   if VGridZoom - VCurrentZoom > 2 then begin
@@ -291,31 +328,86 @@ begin
       Sz1 := FLayer.bitmap.TextExtent(textoutx);
       Sz2 := FLayer.bitmap.TextExtent(textouty);
       if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        FLayer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, drawcolor);
-        FLayer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, drawcolor);
+        FLayer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, VColor);
+        FLayer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, VColor);
       end;
     end;
+  end;
+end;
+
+function TMapLayerGrids.CheckVisible(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+var
+  VConverter: ILocalCoordConverter;
+  VGeoConverter: ICoordConverter;
+  VZoom: Byte;
+  VTileGridZoom: Byte;
+begin
+  Result := false;
+  VConverter := ANewVisualCoordConverter;
+  if VConverter <> nil then begin
+    VGeoConverter := VConverter.GetGeoConverter;
+    VZoom := VConverter.GetZoom;
+    FConfig.LockRead;
+    try
+      if FConfig.TileGrid.Visible then begin
+        if FConfig.TileGrid.UseRelativeZoom then begin
+          VTileGridZoom := VZoom + FConfig.TileGrid.Zoom;
+        end else begin
+          VTileGridZoom := FConfig.TileGrid.Zoom;
+        end;
+        if VGeoConverter.CheckZoom(VTileGridZoom) then begin
+          Result := (VTileGridZoom >= VZoom - 2) and (VTileGridZoom <= VZoom + 5);
+        end;
+      end;
+      if FConfig.GenShtabGrid.Visible then begin
+        if FConfig.GenShtabGrid.Scale > 0 then begin
+          Result := True;
+        end;
+      end;
+    finally
+      FConfig.UnlockRead;
+    end;
+  end;
+end;
+
+procedure TMapLayerGrids.OnConfigChange(Sender: TObject);
+var
+  VVisible: Boolean;
+begin
+  VVisible := CheckVisible(FViewPortState.GetVisualCoordConverter);
+  if VVisible then begin
+    Redraw;
+    Show;
+  end else begin
+    Hide;
   end;
 end;
 
 procedure TMapLayerGrids.PosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 var
-  VCurrentZoom: Byte;
-  VGridZoom: Integer;
+  VVisible: Boolean;
 begin
-  VCurrentZoom := ANewVisualCoordConverter.GetZoom;
-  if GState.TileGridZoom = 99 then begin
-    VGridZoom := VCurrentZoom;
-  end else begin
-    VGridZoom := GState.TileGridZoom - 1;
-  end;
-  if (GState.GShScale > 0) or ((VGridZoom >= VCurrentZoom) and (VGridZoom - VCurrentZoom <= 5)) then begin
+  VVisible := CheckVisible(ANewVisualCoordConverter);
+  if VVisible then begin
     Show;
     inherited;
   end else begin
     Hide;
+    inherited;
   end;
+end;
+
+procedure TMapLayerGrids.SendTerminateToThreads;
+begin
+  inherited;
+  FConfig.GetChangeNotifier.Remove(FConfigListener);
+end;
+
+procedure TMapLayerGrids.StartThreads;
+begin
+  inherited;
+  FConfig.GetChangeNotifier.Add(FConfigListener);
 end;
 
 end.
