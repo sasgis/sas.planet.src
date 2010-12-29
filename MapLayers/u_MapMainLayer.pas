@@ -26,6 +26,7 @@ type
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

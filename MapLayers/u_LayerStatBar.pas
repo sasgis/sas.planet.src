@@ -31,6 +31,7 @@ type
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property Height: Integer read FHeight;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

@@ -31,6 +31,7 @@ type
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 

@@ -41,6 +41,7 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

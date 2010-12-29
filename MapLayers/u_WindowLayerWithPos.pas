@@ -45,6 +45,7 @@ type
 
     property LayerPositioned: TPositionedLayer read FLayer;
     property LayerSize: TPoint read FLayerSize;
+    property Visible: Boolean read GetVisible write SetVisible;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -55,7 +56,6 @@ type
     procedure Show; virtual;
     procedure Hide; virtual;
     procedure Redraw; override;
-    property Visible: Boolean read GetVisible write SetVisible;
     property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
   end;
 

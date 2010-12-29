@@ -23,6 +23,7 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

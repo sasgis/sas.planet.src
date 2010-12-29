@@ -32,6 +32,7 @@ type
     procedure StartNav(APoint: TDoublePoint; Aid: integer);
     function GetMarkLonLat: TDoublePoint;
     property ID: Integer read FId;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

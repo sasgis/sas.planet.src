@@ -24,6 +24,7 @@ type
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

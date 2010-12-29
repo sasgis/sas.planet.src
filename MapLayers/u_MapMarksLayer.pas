@@ -16,6 +16,7 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     procedure MouseOnMyReg(var APWL: TResObj; xy: TPoint);
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation

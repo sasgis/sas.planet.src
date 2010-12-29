@@ -114,6 +114,7 @@ type
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
     property MasterAlpha: integer read FMasterAlpha write SetMasterAlpha;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
