@@ -4,6 +4,8 @@ interface
 
 uses
   GR32,
+  t_GeoTypes,
+  i_ILocalCoordConverter,
   i_IConfigDataElement;
 
 type
@@ -31,6 +33,9 @@ type
     function GetZoom: Integer;
     procedure SetZoom(AValue: Integer);
     property Zoom: Integer read GetZoom write SetZoom;
+
+    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   end;
 
   IGenShtabGridConfig = interface(IBaseGridConfig)
@@ -38,6 +43,8 @@ type
     function GetScale: Integer;
     procedure SetScale(AValue: Integer);
     property Scale: Integer read GetScale write SetScale;
+
+    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   end;
 
   IMapLayerGridsConfig = interface(IConfigDataElement)

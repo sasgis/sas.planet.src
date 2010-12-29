@@ -4,6 +4,8 @@ interface
 
 uses
   GR32,
+  t_GeoTypes,
+  i_ILocalCoordConverter,
   i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -24,12 +26,17 @@ type
 
     function GetZoom: Integer;
     procedure SetZoom(AValue: Integer);
+
+    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   public
     constructor Create;
   end;
 
 implementation
 
+uses
+  i_ICoordConverter;
 { TTileGridConfig }
 
 constructor TTileGridConfig.Create;
@@ -53,6 +60,54 @@ begin
   inherited;
   AConfigData.WriteBool('UseRelativeZoom', FUseRelativeZoom);
   AConfigData.WriteInteger('Zoom', FZoom);
+end;
+
+function TTileGridConfig.GetActualZoom(
+  ALocalConverter: ILocalCoordConverter): Byte;
+var
+  VZoom: Integer;
+  VRelative: Boolean;
+begin
+  LockRead;
+  try
+    VZoom := VZoom;
+    VRelative := FUseRelativeZoom;
+  finally
+    UnlockRead;
+  end;
+  if VRelative then begin
+    VZoom := VZoom + ALocalConverter.GetZoom;
+  end;
+  if VZoom < 0 then begin
+    Result := 0;
+  end else begin
+    Result := VZoom;
+    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+  end;
+end;
+
+function TTileGridConfig.GetRectStickToGrid(
+  ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+var
+  VZoom: Byte;
+  VZoomCurr: Byte;
+  VSelectedTiles: TRect;
+  VConverter: ICoordConverter;
+begin
+  VZoomCurr := ALocalConverter.GetZoom;
+  VConverter := ALocalConverter.GetGeoConverter;
+  LockRead;
+  try
+    if GetVisible  then begin
+      VZoom := GetActualZoom(ALocalConverter);
+    end else begin
+      VZoom := VZoomCurr;
+    end;
+  finally
+    UnlockRead;
+  end;
+  VSelectedTiles := VConverter.LonLatRect2TileRect(ASourceRect, VZoom);
+  Result := VConverter.TileRect2LonLatRect(VSelectedTiles, VZoom);
 end;
 
 function TTileGridConfig.GetUseRelativeZoom: Boolean;

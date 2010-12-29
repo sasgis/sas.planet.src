@@ -4,6 +4,8 @@ interface
 
 uses
   GR32,
+  t_GeoTypes,
+  i_ILocalCoordConverter,
   i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -20,11 +22,18 @@ type
   protected
     function GetScale: Integer;
     procedure SetScale(AValue: Integer);
+    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   public
     constructor Create;
   end;
 
 implementation
+
+uses
+  Ugeofun;
+
+const
+  GSHprec=100000000;
 
 { TGenShtabGridConfig }
 
@@ -47,6 +56,38 @@ procedure TGenShtabGridConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteInteger('Scale', FScale);
+end;
+
+function TGenShtabGridConfig.GetRectStickToGrid(
+  ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+var
+  VScale: Integer;
+  VVisible: Boolean;
+  z: TDoublePoint;
+begin
+  LockRead;
+  try
+    VVisible := GetVisible;
+    VScale := FScale;
+  finally
+    UnlockRead;
+  end;
+  Result := ASourceRect;
+  if VVisible and (VScale > 0)  then begin
+    z := GetGhBordersStepByScale(VScale);
+
+    Result.Left := Result.Left-(round(Result.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
+    if Result.Left < 0 then Result.Left := Result.Left-z.X;
+
+    Result.Top := Result.Top-(round(Result.Top*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
+    if Result.Top > 0 then Result.Top := Result.Top+z.Y;
+
+    Result.Right := Result.Right-(round(Result.Right*GSHprec) mod round(z.X*GSHprec))/GSHprec;
+    if Result.Right >= 0 then Result.Right := Result.Right+z.X;
+
+    Result.Bottom := Result.Bottom-(round(Result.Bottom*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
+    if Result.Bottom <= 0 then Result.Bottom := Result.Bottom-z.Y;
+  end;
 end;
 
 function TGenShtabGridConfig.GetScale: Integer;
