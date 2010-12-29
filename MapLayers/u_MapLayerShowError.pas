@@ -46,36 +46,6 @@ begin
   DoUpdateLayerSize(VBitmapSize);
 end;
 
-//procedure TTileErrorInfoLayer.DoRedraw;
-//var
-//  VCurrTime: Cardinal;
-//  VTilePixel: TPoint;
-//begin
-//  if FHideAfterTime <> 0 then begin
-//    VCurrTime := GetTickCount;
-//    if (VCurrTime < FHideAfterTime) then begin
-//      if FZoom = FTileZoom then begin
-//        VTilePixel := FMapType.GeoConvert.TilePos2PixelPos(FTilePos, FZoom);
-//        VTilePixel := FMapType.GeoConvert.PixelPos2OtherMap(VTilePixel, FZoom, FGeoConvert);
-//        if (abs(VTilePixel.X - FScreenCenterPos.X) < (1 shl 15)) and
-//          (abs(VTilePixel.Y - FScreenCenterPos.Y) < (1 shl 15)) then
-//        begin
-//          inherited;
-//          RenderText;
-//        end else begin
-//          Visible := False;
-//        end;
-//      end else begin
-//        Visible := False;
-//      end;
-//    end else begin
-//      Visible := False;
-//    end;
-//  end else begin
-//    Visible := False;
-//  end;
-//end;
-//
 procedure TTileErrorInfoLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
 var
   VCurrTime: Cardinal;
@@ -100,24 +70,6 @@ begin
   end;
 end;
 
-//function TTileErrorInfoLayer.GetScreenCenterInBitmapPixels: TPoint;
-//var
-//  VTileRect: TRect;
-//  VTileCenter: TPoint;
-//begin
-//  if FTileZoom = FZoom then begin
-//    VTileRect := FMapType.GeoConvert.TilePos2PixelRect(FTilePos, FZoom);
-//    VTileCenter.X := VTileRect.Left + (VTileRect.Right - VTileRect.Left) div 2;
-//    VTileCenter.Y := VTileRect.Top + (VTileRect.Bottom - VTileRect.Top) div 2;
-//    VTileCenter := FMapType.GeoConvert.PixelPos2OtherMap(VTileCenter, FZoom, FGeoConvert);
-//    Result := GetBitmapSizeInPixel;
-//    Result.X := Result.X div 2 + (FScreenCenterPos.X - VTileCenter.X);
-//    Result.Y := Result.Y div 2 + (FScreenCenterPos.Y - VTileCenter.Y);
-//  end else begin
-//    Result := Point(10000, 10000);
-//  end;
-//end;
-//
 procedure TTileErrorInfoLayer.RenderText(AMapType: TMapType; AText: string);
 var
   VTextWidth: integer;
