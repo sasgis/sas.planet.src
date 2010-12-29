@@ -3,7 +3,8 @@ unit i_MainFormConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_IConfigDataElement,
+  i_MapLayerGridsConfig;
 
 type
   IMainFormMainConfig = interface(IConfigDataElement)
@@ -11,7 +12,7 @@ type
     // Фиксировать центр изменения масштаба под курсором мыши
     function GetZoomingAtMousePos: Boolean;
     procedure SetZoomingAtMousePos(AValue: Boolean);
-    property ZoomingAtMousePos: Boolean read GetZoomingAtMousePos write SetZoomingAtMousePos;    
+    property ZoomingAtMousePos: Boolean read GetZoomingAtMousePos write SetZoomingAtMousePos;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)
@@ -27,6 +28,9 @@ type
 
     function GetToolbarsLock: IMainWindowToolbarsLock;
     property ToolbarsLock: IMainWindowToolbarsLock read GetToolbarsLock;
+
+    function GetMapLayerGridsConfig: IMapLayerGridsConfig;
+    property MapLayerGridsConfig: IMapLayerGridsConfig read GetMapLayerGridsConfig;
   end;
 
 implementation
