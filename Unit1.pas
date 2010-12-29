@@ -41,6 +41,7 @@ uses
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_IGUIDList,
+  i_IJclListenerNotifierLinksList,
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
   i_IPosChangeMessage,
@@ -529,6 +530,7 @@ type
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
   private
+    FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
     FIsGPSPosChanged: Boolean;
     FCenterToGPSDelta: TDoublePoint;
@@ -561,16 +563,6 @@ type
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
-    FMapPosChangeListener: IJclListener;
-    FMainMapChangeListener: IJclListener;
-    FHybrChangeListener: IJclListener;
-    FMapLayersVsibleChangeListener: IJclListener;
-    FGPSConntectListener: IJclListener;
-    FGPSDisconntectListener: IJclListener;
-    FGPSConntectErrorListener: IJclListener;
-    FGPSTimeOutListener: IJclListener;
-    FGPSReceiveListener: IJclListener;
-    FMainFormMainConfigChangeListener: IJclListener;
 
     FMainToolbarItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
     FMainToolbarSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
@@ -598,7 +590,6 @@ type
     FToolbarsLockListener: IJclListener;
 
     FLineOnMapEdit: ILineOnMapEdit;
-    FLineOnMapEditListener: IJclListener;
 
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
@@ -668,6 +659,7 @@ uses
   UMarksExplorer,
   UFDGAvailablePic,
   c_SasVersion,
+  u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
@@ -750,6 +742,7 @@ end;
 constructor TFmain.Create(AOwner: TComponent);
 begin
   inherited;
+  FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
   FIsGPSPosChanged := False;
   FdWhenMovingButton := 5;
@@ -779,7 +772,10 @@ begin
   FToolbarsLockListener := TNotifyEventListener.Create(Self.OnToolbarsLockChange);
 
   FLineOnMapEdit := TLineOnMapEdit.Create;
-  FLineOnMapEditListener := TNotifyEventListener.Create(Self.OnLineOnMapEditChange);
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnLineOnMapEditChange),
+    FLineOnMapEdit.GetChangeNotifier
+  );
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -804,8 +800,6 @@ begin
   FToolbarsLock.GetChangeNotifier.Add(FToolbarsLockListener);
   FToolbarsLock.ReadConfig(VProvider);
 
-  FLineOnMapEdit.GetChangeNotifier.Add(FLineOnMapEditListener);
-
   TBEditPath.Visible:=false;
 end;
 
@@ -817,6 +811,8 @@ var
   VZoom: Byte;
   VLonLat: TDoublePoint;
   VMapType: TMapType;
+  VMapLayersVsibleChangeListener: IJclListener;
+  VMainFormMainConfigChangeListener: IJclListener;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
@@ -915,38 +911,77 @@ begin
 
 
     map.Color:=GState.BGround;
+    FLinksList.Add(
+      TPosChangeListener.Create(Self.ProcessPosChangeMessage),
+      GState.ViewState.PosChangeNotifier
+    );
 
-    FMapPosChangeListener := TPosChangeListener.Create(Self.ProcessPosChangeMessage);
-    GState.ViewState.PosChangeNotifier.Add(FMapPosChangeListener);
+    FLinksList.Add(
+      TMainMapChangeListenerOfMainForm.Create(Self),
+      GState.ViewState.MapChangeNotifier
+    );
 
-    FMainMapChangeListener := TMainMapChangeListenerOfMainForm.Create(Self);
-    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
+    FLinksList.Add(
+      THybrChangeListenerOfMainForm.Create(Self),
+      GState.ViewState.HybrChangeNotifier
+    );
 
-    FHybrChangeListener := THybrChangeListenerOfMainForm.Create(Self);
-    GState.ViewState.HybrChangeNotifier.Add(FHybrChangeListener);
+    VMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FLayerStatBar.VisibleChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FLayerMiniMap.VisibleChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FLayerScaleLine.VisibleChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FUIDownLoader.UseDownloadChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FLayerFillingMap.SourceMapChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
+      FLayerMapGPS.VisibleChangeNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListenerSync.Create(Self.GPSReceiverConnect),
+      GState.GPSpar.GPSModele.ConnectNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect),
+      GState.GPSpar.GPSModele.DisconnectNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError),
+      GState.GPSpar.GPSModele.ConnectErrorNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout),
+      GState.GPSpar.GPSModele.TimeOutNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListenerSync.Create(Self.GPSReceiverReceive),
+      GState.GPSpar.GPSModele.DataReciveNotifier
+    );
 
-    FMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
-    FLayerStatBar.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerMiniMap.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerScaleLine.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FUIDownLoader.UseDownloadChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerFillingMap.SourceMapChangeNotifier.Add(FMapLayersVsibleChangeListener);
-    FLayerMapGPS.VisibleChangeNotifier.Add(FMapLayersVsibleChangeListener);
+    VMainFormMainConfigChangeListener := TNotifyEventListenerSync.Create(Self.OnMainFormMainConfigChange);
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.MainConfig.GetChangeNotifier
+    );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      GState.BitmapPostProcessingConfig.GetChangeNotifier
+    );
 
-    FGPSConntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnect);
-    GState.GPSpar.GPSModele.ConnectNotifier.Add(FGPSConntectListener);
-    FGPSDisconntectListener := TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect);
-    GState.GPSpar.GPSModele.DisconnectNotifier.Add(FGPSDisconntectListener);
-    FGPSConntectErrorListener := TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError);
-    GState.GPSpar.GPSModele.ConnectErrorNotifier.Add(FGPSConntectErrorListener);
-    FGPSTimeOutListener := TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout);
-    GState.GPSpar.GPSModele.TimeOutNotifier.Add(FGPSTimeOutListener);
-    FGPSReceiveListener := TNotifyEventListenerSync.Create(Self.GPSReceiverReceive);
-    GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
-
-    FMainMapChangeListener := TNotifyEventListenerSync.Create(Self.OnMainFormMainConfigChange);
-    FConfig.MainConfig.GetChangeNotifier.Add(FMainFormMainConfigChangeListener);
-    GState.BitmapPostProcessingConfig.GetChangeNotifier.Add(FMainFormMainConfigChangeListener);
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
@@ -997,13 +1032,13 @@ begin
       frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
     end;
 
-
     FLayersList.StartThreads;
     GState.StartThreads;
     FUIDownLoader.StartThreads;
     FMainLayer.Visible := True;
     OnMainFormMainConfigChange(nil);
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
+    FLinksList.ActivateLinks;
     tmrMapUpdate.Enabled := True;
   finally
     Enabled:=true;
@@ -1018,28 +1053,10 @@ var
   i:integer;
 begin
   ProgramClose:=true;
+  FLinksList.DeactivateLinks;
   tmrMapUpdate.Enabled := false;
   FWinPosition.GetChangeNotifier.Remove(FWinPositionListener);
   FToolbarsLock.GetChangeNotifier.Remove(FToolbarsLockListener);
-  FLineOnMapEdit.GetChangeNotifier.Remove(FLineOnMapEditListener);
-  GState.GPSpar.GPSModele.ConnectNotifier.Remove(FGPSConntectListener);
-  GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
-  GState.GPSpar.GPSModele.ConnectErrorNotifier.Remove(FGPSConntectErrorListener);
-  GState.GPSpar.GPSModele.TimeOutNotifier.Remove(FGPSTimeOutListener);
-  GState.GPSpar.GPSModele.DataReciveNotifier.Remove(FGPSReceiveListener);
-  if GState.ViewState <> nil then begin
-    GState.ViewState.PosChangeNotifier.Remove(FMapPosChangeListener);
-    GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
-    GState.ViewState.HybrChangeNotifier.Remove(FHybrChangeListener);
-  end;
-  FLayerStatBar.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerMiniMap.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerScaleLine.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FUIDownLoader.UseDownloadChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerFillingMap.SourceMapChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FLayerMapGPS.VisibleChangeNotifier.Remove(FMapLayersVsibleChangeListener);
-  FConfig.MainConfig.GetChangeNotifier.Remove(FMainFormMainConfigChangeListener);
-  GState.BitmapPostProcessingConfig.GetChangeNotifier.Remove(FMainFormMainConfigChangeListener);
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1061,24 +1078,19 @@ destructor TFmain.Destroy;
 begin
   FWinPositionListener := nil;
   FToolbarsLockListener := nil;
-  FMapLayersVsibleChangeListener := nil;
-  FLineOnMapEditListener := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FToolbarsLock := nil;
   FSearchPresenter := nil;
   FGoogleGeoCoder := nil;
   FYandexGeoCoder := nil;
-  FMapPosChangeListener := nil;
-  FMainMapChangeListener := nil;
-  FHybrChangeListener := nil;
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;
   FNLayerParamsItemList := nil;
   FNDwnItemList := nil;
   FNDelItemList := nil;
-  FMainFormMainConfigChangeListener := nil;
+  FLinksList := nil;
   inherited;
 end;
 
