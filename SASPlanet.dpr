@@ -34,6 +34,8 @@ uses
   u_FoldersIteratorRecursiveByLevels in 'src\u_FoldersIteratorRecursiveByLevels.pas',
   u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders in 'src\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas',
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
+  i_IJclListenerNotifierLinksList in 'i_IJclListenerNotifierLinksList.pas',
+  u_JclListenerNotifierLinksList in 'u_JclListenerNotifierLinksList.pas',
   c_SasVersion in 'c_SasVersion.pas',
   c_CoordConverter in 'c_CoordConverter.pas',
   t_GeoTypes in 't_GeoTypes.pas',
