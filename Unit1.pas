@@ -860,7 +860,7 @@ begin
     FLayersList.Add(FLayerMapNal);
     FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState);
+    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState, FConfig.NavToPoint);
     FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
     FLayersList.Add(FShowErrorLayer);
@@ -1575,9 +1575,9 @@ begin
    s_len := DistToStrWithUnits(GState.GPSpar.len, GState.num_format);
    TBXOdometrNow.Caption:=s_len;
    //расстояние до метки
-   if (LayerMapNavToMark<>nil)and(LayerMapNavToMark.Visible) then begin
+   if (FConfig.NavToPoint.IsActive) then begin
      VPoint := GState.ViewState.GetCenterLonLat;
-     VDist := GState.ViewState.GetCurrentCoordConverter.CalcDist(LayerMapNavToMark.GetMarkLonLat, VPoint);
+     VDist := GState.ViewState.GetCurrentCoordConverter.CalcDist(FConfig.NavToPoint.LonLat, VPoint);
      n_len:=DistToStrWithUnits(VDist, GState.num_format);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin
@@ -2969,7 +2969,7 @@ begin
     end else begin
       NMarksCalcs.Visible:=false;
     end;
-    if (LayerMapNavToMark.Visible)and(inttostr(LayerMapNavToMark.id)=VPWL.numid) then begin
+    if (FConfig.NavToPoint.IsActive)and(inttostr(FConfig.NavToPoint.Id)=VPWL.numid) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3474,12 +3474,12 @@ begin
       if VMark = nil then Exit;
       try
         LL := VMark.GetGoToLonLat;
-        LayerMapNavToMark.StartNav(LL, Id);
+        FConfig.NavToPoint.StartNavToMark(id, ll);
       finally
         VMark.Free;
       end;
-    end else  begin
-      LayerMapNavToMark.Visible := false;
+    end else begin
+      FConfig.NavToPoint.StopNav;
     end;
   end;
 end;

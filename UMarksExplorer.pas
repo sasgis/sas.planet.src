@@ -318,7 +318,7 @@ begin
  katitems:=TStringList.create;
  GState.MarksDb.Kategory2StringsWithObjects(katitems);
  DrawTreeCategory(TreeView1,katitems);
- SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
+ SBNavOnMark.Down:= GState.MainFormConfig.NavToPoint.IsActive;
 end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
@@ -686,7 +686,7 @@ begin
       if VMark <> nil then begin
         try
           LL := VMark.GetGoToLonLat;
-          FMain.LayerMapNavToMark.StartNav(LL, VId);
+          GState.MainFormConfig.NavToPoint.StartNavToMark(VId, LL);
         finally
           VMark.Free;
         end;
@@ -695,7 +695,7 @@ begin
       SBNavOnMark.Down:=not SBNavOnMark.Down
     end;
   end else begin
-    FMain.LayerMapNavToMark.Visible := False;
+    GState.MainFormConfig.NavToPoint.StopNav;
   end;
 end;
 

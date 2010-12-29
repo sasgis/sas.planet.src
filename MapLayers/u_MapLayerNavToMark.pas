@@ -7,32 +7,32 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_ILocalCoordConverter,
+  i_INavigationToPoint,
   u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TNavToMarkLayer = class(TMapLayerFixedWithBitmap)
-  protected
+  private
+    FNavToPoint:  INavigationToPoint;
+    FNavToPointListener: IJclListener;
     FMarkPoint: TDoublePoint;
-    FId: integer;
     FCrossDist: Double;
     FArrowBitmap: TCustomBitmap32;
     FCrossBitmap: TCustomBitmap32;
     FCurrDist: Double;
     FCurrAngle: Double;
     procedure PrepareMarker;
+    procedure OnNavToPointChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ANavToPoint: INavigationToPoint);
     destructor Destroy; override;
-    procedure StartNav(APoint: TDoublePoint; Aid: integer);
-    function GetMarkLonLat: TDoublePoint;
-    property ID: Integer read FId;
-    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
@@ -45,15 +45,19 @@ uses
   GR32_Polygons,
   u_GlobalState,
   i_ICoordConverter,
+  u_NotifyEventListener,
   Ugeofun;
 
 { TNavToMarkLayer }
 
-constructor TNavToMarkLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TNavToMarkLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ANavToPoint: INavigationToPoint);
 var
   VSize: TPoint;
 begin
-  inherited;
+  inherited Create(AParentMap, AViewPortState);
+  FNavToPoint := ANavToPoint;
+  FNavToPointListener := TNotifyEventListener.Create(Self.OnNavToPointChange);
+  FNavToPoint.GetChangeNotifier.Add(FNavToPointListener);
   FArrowBitmap := TCustomBitmap32.Create;
   FArrowBitmap.DrawMode:=dmBlend;
   FArrowBitmap.CombineMode:=cmMerge;
@@ -70,6 +74,7 @@ end;
 
 destructor TNavToMarkLayer.Destroy;
 begin
+  FNavToPoint.GetChangeNotifier.Remove(FNavToPointListener);
   FreeAndNil(FArrowBitmap);
   FreeAndNil(FCrossBitmap);
   inherited;
@@ -147,9 +152,15 @@ begin
   end;
 end;
 
-function TNavToMarkLayer.GetMarkLonLat: TDoublePoint;
+procedure TNavToMarkLayer.OnNavToPointChange(Sender: TObject);
 begin
-  Result := FMarkPoint;
+  if FNavToPoint.IsActive then begin
+    FMarkPoint := FNavToPoint.LonLat;
+    Redraw;
+    Show;
+  end else begin
+    Hide;
+  end;
 end;
 
 procedure TNavToMarkLayer.PrepareMarker;
@@ -189,14 +200,6 @@ begin
   VRect.Right := VRect.Left + VMarkSize;
   VRect.Bottom := Trunc(FFixedOnBitmap.Y + VMarkSize /10);
   FCrossBitmap.FillRectS(VRect, VColor);
-end;
-
-procedure TNavToMarkLayer.StartNav(APoint: TDoublePoint; Aid: integer);
-begin
-  FMarkPoint := APoint;
-  FId := Aid;
-  Redraw;
-  Show;
 end;
 
 end.
