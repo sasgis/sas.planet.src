@@ -554,7 +554,7 @@ type
     FLayerGoto: TGotoLayer;
     FLayerFillingMap: TMapLayerFillingMap;
     FLayerMapMarks: TMapMarksLayer;
-    FLayerMapScale: TCenterScale;
+    FLayerMapCenterScale: TCenterScale;
     FLayerMiniMap: TMiniMapLayer;
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
@@ -867,8 +867,8 @@ begin
     FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
     FLayersList.Add(FShowErrorLayer);
-    FLayerMapScale := TCenterScale.Create(map, GState.ViewState);
-    FLayersList.Add(FLayerMapScale);
+    FLayerMapCenterScale := TCenterScale.Create(map, GState.ViewState);
+    FLayersList.Add(FLayerMapCenterScale);
     FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
@@ -1102,7 +1102,7 @@ begin
   ShowMiniMap.Checked := FLayerMiniMap.Visible;
   ShowLine.Checked := FLayerScaleLine.Visible;
   NShowSelection.Checked := FLayerSelection.Visible;
-  N32.Checked:=FLayerMapScale.Visible;
+  N32.Checked:=FLayerMapCenterScale.Visible;
 
   TBGPSPath.Checked := FLayerMapGPS.Visible;
   tbitmGPSTrackShow.Checked := FLayerMapGPS.Visible;
@@ -2555,7 +2555,7 @@ end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- FLayerMapScale.Visible := TTBXItem(Sender).Checked;
+ FLayerMapCenterScale.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);
