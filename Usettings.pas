@@ -249,6 +249,7 @@ implementation
 uses
   Types,
   Menus,
+  t_CommonTypes,
   i_IProxySettings,
   i_GPS,
   u_GlobalState,

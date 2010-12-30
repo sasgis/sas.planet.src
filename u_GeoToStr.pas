@@ -3,16 +3,8 @@ unit u_GeoToStr;
 interface
 
 uses
-  t_GeoTypes;
-
-type
-  { Способ отображения расстояний
-  dsfKmAndM - в виде 12 км 299 м
-  dsfSimpleKM - в виед 12.299 км
-  }
-  TDistStrFormat = (dsfKmAndM = 0, dsfSimpleKM = 1);
-
-  TDegrShowFormat = (dshCharDegrMinSec = 0, dshCharDegrMin = 1, dshCharDegr = 2, dshSignDegrMinSec = 3, dshSignDegrMin = 4, dshSignDegr = 5);
+  t_GeoTypes,
+  t_CommonTypes;
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 function R2StrPoint(r: Double): string;
