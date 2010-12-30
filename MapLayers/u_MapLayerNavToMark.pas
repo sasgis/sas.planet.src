@@ -70,6 +70,7 @@ begin
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   FLayer.Bitmap.Clear(0);
   DoUpdateLayerSize(VSize);
+  OnNavToPointChange(nil);
 end;
 
 destructor TNavToMarkLayer.Destroy;
