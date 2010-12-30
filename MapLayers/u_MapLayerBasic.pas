@@ -7,7 +7,6 @@ uses
   GR32,
   GR32_Layers,
   GR32_Image,
-  i_JclNotify,
   t_GeoTypes,
   i_ILocalCoordConverter,
   u_MapViewPortState,
@@ -16,14 +15,12 @@ uses
 type
   TMapLayerBase = class(TWindowLayerBasic)
   private
-    FScaleChangeListener: IJclListener;
     procedure OnScaleChange(Sender: TObject);
   protected
     procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
-    destructor Destroy; override;
   end;
 
   TMapLayerBasicFullView = class(TMapLayerBase)
@@ -61,7 +58,6 @@ implementation
 
 uses
   Types,
-  Forms,
   Graphics,
   u_NotifyEventListener,
   Ugeofun;
@@ -72,15 +68,10 @@ constructor TMapLayerBase.Create(ALayer: TPositionedLayer;
   AViewPortState: TMapViewPortState);
 begin
   inherited;
-  FScaleChangeListener := TNotifyEventListener.Create(Self.OnScaleChange);
-  FViewPortState.ScaleChangeNotifier.Add(FScaleChangeListener);
-end;
-
-destructor TMapLayerBase.Destroy;
-begin
-  FViewPortState.ScaleChangeNotifier.Remove(FScaleChangeListener);
-  FScaleChangeListener := nil;
-  inherited;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnScaleChange),
+    FViewPortState.ScaleChangeNotifier
+  );
 end;
 
 procedure TMapLayerBase.DoScaleChange(

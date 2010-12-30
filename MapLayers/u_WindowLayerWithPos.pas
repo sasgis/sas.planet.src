@@ -19,7 +19,6 @@ type
   private
     FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
-    FPosChangeListener: IJclListener;
     FLayerSize: TPoint;
     FLayer: TPositionedLayer;
   protected
@@ -50,8 +49,6 @@ type
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure Show; virtual;
     procedure Hide; virtual;
@@ -76,7 +73,6 @@ implementation
 
 uses
   Types,
-  Forms,
   Graphics,
   u_JclNotify,
   u_NotifyEventPosChangeListener;
@@ -95,14 +91,15 @@ begin
   FVisible := False;
 
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
-  FPosChangeListener := TPosChangeNotifyEventListener.Create(Self.OnPosChange);
-  FViewPortState.PosChangeNotifier.Add(FPosChangeListener);
+
+  LinksList.Add(
+    TPosChangeNotifyEventListener.Create(Self.OnPosChange),
+    FViewPortState.PosChangeNotifier
+  );
 end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
-  FViewPortState.PosChangeNotifier.Remove(FPosChangeListener);
-  FPosChangeListener := nil;
   FViewPortState := nil;
   FLayer := nil;
   FVisibleChangeNotifier := nil;
@@ -214,11 +211,6 @@ begin
   // По умолчанию ничего не делаем
 end;
 
-procedure TWindowLayerBasic.SendTerminateToThreads;
-begin
-  // По умолчанию ничего не делаем
-end;
-
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);
 begin
   if Value then begin
@@ -237,11 +229,6 @@ begin
     Redraw;
     FVisibleChangeNotifier.Notify(nil);
   end;
-end;
-
-procedure TWindowLayerBasic.StartThreads;
-begin
-  // По умолчанию ничего не делаем
 end;
 
 { TWindowLayerWithBitmap }

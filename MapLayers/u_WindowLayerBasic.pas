@@ -6,6 +6,7 @@ uses
   Windows,
   SyncObjs,
   GR32,
+  i_IJclListenerNotifierLinksList,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider;
 
@@ -15,15 +16,18 @@ type
     FCS: TCriticalSection;
     FRedrawCounter: Cardinal;
     FRedrawTime: TDateTime;
+  private
+    FLinksList: IJclListenerNotifierLinksList;
   protected
     procedure IncRedrawCounter(ATime: TDateTime);
     function GetVisible: Boolean; virtual; abstract;
+    property LinksList: IJclListenerNotifierLinksList read FLinksList;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual; abstract;
-    procedure StartThreads; virtual; abstract;
-    procedure SendTerminateToThreads; virtual; abstract;
+    procedure StartThreads; virtual;
+    procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual; abstract;
     procedure Redraw; virtual; abstract;
     property Visible: Boolean read GetVisible;
@@ -36,7 +40,8 @@ implementation
 uses
   SysUtils,
   Forms,
-  Types;
+  Types,
+  u_JclListenerNotifierLinksList;
 
 { TWindowLayerAbstract }
 
@@ -45,10 +50,13 @@ begin
   FCS := TCriticalSection.Create;
   FRedrawCounter := 0;
   FRedrawTime  := 0;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.ActivateLinks;
 end;
 
 destructor TWindowLayerAbstract.Destroy;
 begin
+  FLinksList := nil;
   FreeAndNil(FCS);
   inherited;
 end;
@@ -62,6 +70,15 @@ begin
   finally
     FCS.Release;
   end;
+end;
+
+procedure TWindowLayerAbstract.SendTerminateToThreads;
+begin
+end;
+
+procedure TWindowLayerAbstract.StartThreads;
+begin
+  FLinksList.ActivateLinks;
 end;
 
 end.
