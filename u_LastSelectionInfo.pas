@@ -8,34 +8,28 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_IConfigDataWriteProvider,
+  i_ILastSelectionInfo,
+  u_ConfigDataElementBase;
 
 type
-  TLastSelectionInfo = class
+  TLastSelectionInfo = class(TConfigDataElementBase, ILastSelectionInfo)
   private
-    FColor: TColor;
-    FAlfa: Byte;
-    FColor32: TColor32;
-    FChangeNotifier: IJclNotifier;
     // Полигон последнего выделения при операциях с областью.
     FPolygon: TDoublePointArray;
     // Масштаб, на котором было последнее выделение
     FZoom: Byte;
+  protected
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+  protected
+    function GetZoom: Byte;
+    function GetPolygon: TDoublePointArray;
+    procedure SetPolygon(ALonLatPolygon: TDoublePointArray; AZoom: Byte);
   public
     constructor Create();
-    destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
-    procedure SetColor(AColor: TColor; AAlfa: Byte);
-    procedure SetPolygon(APolygon: TDoublePointArray; AZoom: Byte);
-
-    property Zoom: Byte read FZoom;
-    property Polygon: TDoublePointArray read FPolygon;
-    property Color: TColor read FColor;
-    property Alfa: Byte read FAlfa;
-    property Color32: TColor32 read FColor32;
-    property ChangeNotifier: IJclNotifier read FChangeNotifier;
   end;
+
 implementation
 
 uses
@@ -46,31 +40,24 @@ uses
 
 constructor TLastSelectionInfo.Create;
 begin
-  FChangeNotifier := TJclBaseNotifier.Create;
+  inherited;
+
   FPolygon := nil;
   FZoom := 0;
-  FColor := clBlack;
-  FAlfa := 210;
-  FColor32 := SetAlpha(FColor, FAlfa);
 end;
 
-destructor TLastSelectionInfo.Destroy;
-begin
-  FChangeNotifier := nil;
-  inherited;
-end;
-
-procedure TLastSelectionInfo.LoadConfig(AConfigProvider: IConfigDataProvider);
+procedure TLastSelectionInfo.DoReadConfig(AConfigData: IConfigDataProvider);
 var
   i: Integer;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
 begin
-  if AConfigProvider <> nil then begin
+  inherited;
+  if AConfigData <> nil then begin
     i:=1;
     repeat
-      VPoint.X := AConfigProvider.ReadFloat('PointX_'+inttostr(i), 1000000);
-      VPoint.Y := AConfigProvider.ReadFloat('PointY_'+inttostr(i), 1000000);
+      VPoint.X := AConfigData.ReadFloat('PointX_'+inttostr(i), 1000000);
+      VPoint.Y := AConfigData.ReadFloat('PointY_'+inttostr(i), 1000000);
       VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
       if VValidPoint then begin
         SetLength(FPolygon, i);
@@ -79,47 +66,59 @@ begin
       end;
     until not VValidPoint;
     if length(FPolygon)>0 then begin
-      FZoom := AConfigProvider.Readinteger('Zoom', FZoom);
+      FZoom := AConfigData.Readinteger('Zoom', FZoom);
     end;
-
-    FColor := AConfigProvider.ReadInteger('Color', clBlack);
-    FAlfa := AConfigProvider.ReadInteger('Alpha', 210);
-    FColor32 := SetAlpha(FColor, FAlfa);
-    FChangeNotifier.Notify(nil);
+    SetChanged;
   end;
 end;
 
-procedure TLastSelectionInfo.SaveConfig(
-  AConfigProvider: IConfigDataWriteProvider);
+procedure TLastSelectionInfo.DoWriteConfig(
+  AConfigData: IConfigDataWriteProvider);
 var
   i: Integer;
 begin
-  AConfigProvider.DeleteValues;
-  AConfigProvider.WriteInteger('Color', FColor);
-  AConfigProvider.WriteInteger('Alfa', FAlfa);
+  inherited;
+  AConfigData.DeleteValues;
   if Length(FPolygon)>0 then begin
-    AConfigProvider.WriteInteger('Zoom', FZoom);
+    AConfigData.WriteInteger('Zoom', FZoom);
     for i := 0 to length(FPolygon) - 1 do begin
-      AConfigProvider.WriteFloat('PointX_'+inttostr(i+1), FPolygon[i].x);
-      AConfigProvider.WriteFloat('PointY_'+inttostr(i+1), FPolygon[i].y);
+      AConfigData.WriteFloat('PointX_'+inttostr(i+1), FPolygon[i].x);
+      AConfigData.WriteFloat('PointY_'+inttostr(i+1), FPolygon[i].y);
     end;
   end;
 end;
 
-procedure TLastSelectionInfo.SetColor(AColor: TColor; AAlfa: Byte);
+function TLastSelectionInfo.GetPolygon: TDoublePointArray;
 begin
-  FColor := AColor;
-  FAlfa := AAlfa;
-  FColor32 := SetAlpha(FColor, FAlfa);
-  FChangeNotifier.Notify(nil);
+  LockRead;
+  try
+    Result := Copy(FPolygon);
+  finally
+    UnlockRead;
+  end;
 end;
 
-procedure TLastSelectionInfo.SetPolygon(APolygon: TDoublePointArray;
+function TLastSelectionInfo.GetZoom: Byte;
+begin
+  LockRead;
+  try
+    Result := FZoom;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TLastSelectionInfo.SetPolygon(ALonLatPolygon: TDoublePointArray;
   AZoom: Byte);
 begin
-  FPolygon := copy(APolygon);
-  FZoom := AZoom;
-  FChangeNotifier.Notify(nil);
+  LockWrite;
+  try
+    FPolygon := copy(ALonLatPolygon);
+    FZoom := AZoom;
+    SetChanged;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 end.

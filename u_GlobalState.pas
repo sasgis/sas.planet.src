@@ -29,6 +29,7 @@ uses
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
+  i_ILastSelectionInfo,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
   Uimgfun,
@@ -63,7 +64,7 @@ type
     FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
     FMainConfigProvider: IConfigDataWriteProvider;
-    FLastSelectionInfo: TLastSelectionInfo;
+    FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
     FMainMapsList: TMapTypesMainList;
@@ -207,7 +208,7 @@ type
     property ViewState: TMapViewPortState read FViewState;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
-    property LastSelectionInfo: TLastSelectionInfo read FLastSelectionInfo;
+    property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
     property MarksDB: TMarksDB read FMarksDB;
     property InetConfig: IInetConfig read FInetConfig;
     property ProxySettings: IProxySettings read FProxySettings;
@@ -478,7 +479,7 @@ begin
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
   FMainFormConfig.ReadConfig(MainConfigProvider);
-  FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
+  FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
 end;
 
 procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
@@ -603,7 +604,7 @@ begin
   GPSpar.SaveConfig(MainConfigProvider);
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
-  FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
+  FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));

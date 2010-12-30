@@ -104,6 +104,7 @@
     <DCCReference Include="i_IJclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_ILanguageManager.pas" />
+    <DCCReference Include="i_ILastSelectionInfo.pas" />
     <DCCReference Include="i_ILineOnMapEdit.pas" />
     <DCCReference Include="i_IListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_ILocalCoordConverter.pas" />

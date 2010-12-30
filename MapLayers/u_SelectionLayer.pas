@@ -66,12 +66,12 @@ begin
   FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
   LayerPositioned.OnPaint := PaintLayer;
   FSelectionChangeListener := TNotifyEventListener.Create(ChangeSelection);
-  GState.LastSelectionInfo.ChangeNotifier.Add(FSelectionChangeListener);
+  GState.LastSelectionInfo.GetChangeNotifier.Add(FSelectionChangeListener);
 end;
 
 destructor TSelectionLayer.Destroy;
 begin
-  GState.LastSelectionInfo.ChangeNotifier.Remove(FSelectionChangeListener);
+  GState.LastSelectionInfo.GetChangeNotifier.Remove(FSelectionChangeListener);
   FSelectionChangeListener := nil;
   FBitmapClip := nil;
   inherited;
