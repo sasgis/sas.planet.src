@@ -868,7 +868,7 @@ begin
     FLayersList.Add(FLayerMapCenterScale);
     FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
     FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState);
+    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState, FConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
@@ -922,7 +922,7 @@ begin
     VMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FLayerStatBar.VisibleChangeNotifier
+      FConfig.StatBar.GetChangeNotifier
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
@@ -1030,6 +1030,7 @@ begin
     FUIDownLoader.StartThreads;
     FMainLayer.Visible := True;
     OnMainFormMainConfigChange(nil);
+    MapLayersVisibleChange(nil);
     FLayerMapMarks.Visible := GState.show_point <> mshNone;
     FLinksList.ActivateLinks;
     tmrMapUpdate.Enabled := True;
@@ -1089,10 +1090,10 @@ var
   i: Cardinal;
   VMapType: TMapType;
 begin
-  Showstatus.Checked := FLayerStatBar.Visible;
-  if FLayerStatBar.Visible then begin
-    FLayerScaleLine.BottomMargin := FLayerStatBar.Height;
-    FLayerMiniMap.BottomMargin := FLayerStatBar.Height;
+  Showstatus.Checked := FConfig.StatBar.Visible;
+  if Showstatus.Checked then begin
+    FLayerScaleLine.BottomMargin := FConfig.StatBar.Height;
+    FLayerMiniMap.BottomMargin := FConfig.StatBar.Height;
   end else begin
     FLayerScaleLine.BottomMargin := 0;
     FLayerMiniMap.BottomMargin := 0;
@@ -2534,7 +2535,7 @@ end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
-  FLayerStatBar.Visible := TTBXItem(Sender).Checked;
+  FConfig.StatBar.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);

@@ -11,16 +11,17 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
+  i_IStatBarConfig,
   u_MapViewPortState,
   u_WindowLayerWithPos;
 
 type
   TLayerStatBar = class(TWindowLayerWithBitmap)
   private
-    FHeight: Integer;
-    FMinUpdateTickCount: Cardinal;
+    FConfig: IStatBarConfig;
     FLastUpdateTick: DWORD;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
+    procedure OnConfigChange(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
@@ -28,11 +29,7 @@ type
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoHide; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
-    property Height: Integer read FHeight;
-    property Visible: Boolean read GetVisible write SetVisible;
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IStatBarConfig);
   end;
 
 implementation
@@ -41,6 +38,7 @@ uses
   SysUtils,
   u_GeoToStr,
   i_ICoordConverter,
+  u_NotifyEventListener,
   UResStrings,
   UTimeZones,
   Unit1,
@@ -52,20 +50,22 @@ const
 
 { TLayerStatBar }
 
-constructor TLayerStatBar.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TLayerStatBar.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IStatBarConfig);
 begin
-  inherited;
-  FLayer.Bitmap.Font.Name := 'arial';
-  FLayer.Bitmap.Font.Size := 10;
-  FHeight := 17;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
   FLastUpdateTick := 0;
-  FMinUpdateTickCount := 100;
+  OnConfigChange(nil);
 end;
 
 function TLayerStatBar.GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result.X := ANewVisualCoordConverter.GetLocalRectSize.X;
-  Result.Y := FHeight;
+  Result.Y := FConfig.Height;
 end;
 
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
@@ -89,26 +89,16 @@ begin
   result := EncodeTime(abs(st.wHour + prH + 24) mod 24, abs(st.wMinute + prM + 60) mod 60, 0, 0);
 end;
 
-procedure TLayerStatBar.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
+procedure TLayerStatBar.OnConfigChange(Sender: TObject);
 begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('StatusBar', True);
+  FLayer.Bitmap.Font.Name := FConfig.FontName;
+  FLayer.Bitmap.Font.Size := FConfig.FontSize;
+  if FConfig.Visible then begin
+    Redraw;
+    Show;
   end else begin
-    Visible := True;
+    Hide;
   end;
-end;
-
-procedure TLayerStatBar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VSubItem: IConfigDataWriteProvider;
-begin
-  inherited;
-  VSubItem := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VSubItem.WriteBool('StatusBar', Visible);
 end;
 
 procedure TLayerStatBar.DoHide;
@@ -135,10 +125,21 @@ var
   VCurrentTick: DWORD;
   VMousePos: TPoint;
   VVisualCoordConverter: ILocalCoordConverter;
+  VMinUpdate: Cardinal;
+  VBgColor: TColor32;
+  VTextColor: TColor32;
 begin
   inherited;
+  FConfig.LockRead;
+  try
+    VMinUpdate := FConfig.MinUpdateTickCount;
+    VBgColor := FConfig.BgColor;
+    VTextColor := FConfig.TextColor;
+  finally
+    FConfig.UnlockRead;
+  end;
   VCurrentTick := GetTickCount;
-  if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + 100) then begin
+  if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + VMinUpdate) then begin
     VVisualCoordConverter := FVisualCoordConverter;
     VMousePos := Fmain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
@@ -159,21 +160,21 @@ begin
     end else begin
       VLonLatStr := lon2str(ll.x, GState.llStrType) + ' ' + lat2str(ll.y, GState.llStrType);
     end;
-    FLayer.Bitmap.Clear(SetAlpha(clWhite32, 160));
+    FLayer.Bitmap.Clear(VBgColor);
     FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 256));
-    FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), 0, clBlack32);
-    FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, clBlack32);
+    FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), 0, VTextColor);
+    FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, VTextColor);
 
     VRad := VConverter.GetSpheroidRadius;
     VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
     subs2 := DistToStrWithUnits(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R))), GState.num_format) + SAS_UNITS_mperp;
-    FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, clBlack32);
+    FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, VTextColor);
     posnext := 273 + FLayer.Bitmap.TextWidth(subs2) + 70;
     TameTZ := GetTimeInLonLat(ll);
-    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, clBlack32);
+    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, VTextColor);
     posnext := posnext + FLayer.Bitmap.TextWidth(SAS_STR_time + ' ' + TimeToStr(TameTZ)) + 10;
     subs2 := VMap.GetTileShowName(VTile, VZoomCurr);
-    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, clBlack32);
+    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, VTextColor);
     FLastUpdateTick := GetTickCount;
   end;
 end;
