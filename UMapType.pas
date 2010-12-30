@@ -295,11 +295,9 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
-  projection:=VParams.ReadInteger('projection',1);
-  bfloat:=VParams.ReadString('sradiusa','6378137');
-  VRadiusA:=str2r(bfloat);
-  bfloat:=VParams.ReadString('sradiusb',FloatToStr(VRadiusA));
-  VRadiusB:=str2r(bfloat);
+  projection:= VParams.ReadInteger('projection',1);
+  VRadiusA := VParams.ReadFloat('sradiusa',6378137);
+  VRadiusB := VParams.ReadFloat('sradiusb',VRadiusA);
   case projection of
     1: VConverter := TCoordConverterMercatorOnSphere.Create(VRadiusA);
     2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
