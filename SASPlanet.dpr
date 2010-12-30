@@ -136,6 +136,8 @@ uses
   u_GSMGeoCodeConfig in 'u_GSMGeoCodeConfig.pas',
   UYaMobile in 'UYaMobile.pas',
   UGSM in 'UGSM.pas',
+  i_IDownloadInfoSimple in 'i_IDownloadInfoSimple.pas',
+  u_DownloadInfoSimple in 'u_DownloadInfoSimple.pas',
   i_ILocalCoordConverter in 'i_ILocalCoordConverter.pas',
   u_LocalCoordConverter in 'u_LocalCoordConverter.pas',
   i_ILocalCoordConverterFactorySimpe in 'i_ILocalCoordConverterFactorySimpe.pas',
