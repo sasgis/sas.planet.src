@@ -1,6 +1,7 @@
 unit i_ILastSelectionInfo;
 
 interface
+
 uses
   t_GeoTypes,
   i_IConfigDataElement;
