@@ -8,6 +8,7 @@ uses
   i_IConfigDataWriteProvider,
   i_MapLayerGridsConfig,
   i_INavigationToPoint,
+  i_IStatBarConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -18,11 +19,13 @@ type
     FToolbarsLock: IMainWindowToolbarsLock;
     FMapLayerGridsConfig: IMapLayerGridsConfig;
     FNavToPoint: INavigationToPoint;
+    FStatBar: IStatBarConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetNavToPoint: INavigationToPoint;
+    function GetStatBar: IStatBarConfig;
   public
     constructor Create;
   end;
@@ -35,6 +38,7 @@ uses
   u_MainWindowToolbarsLock,
   u_MapLayerGridsConfig,
   u_NavigationToPoint,
+  u_StatBarConfig,
   u_MainFormMainConfig;
 
 { TMainFormConfig }
@@ -50,6 +54,8 @@ begin
   Add(FMapLayerGridsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FNavToPoint := TNavigationToPoint.Create;
   Add(FNavToPoint, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPoint'));
+  FStatBar := TStatBarConfig.Create;
+  Add(FStatBar, TConfigSaveLoadStrategyBasicProviderSubItem.Create('StatusBar'));
 end;
 
 function TMainFormConfig.GetMainConfig: IMainFormMainConfig;
@@ -65,6 +71,11 @@ end;
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;
 begin
   Result := FNavToPoint;
+end;
+
+function TMainFormConfig.GetStatBar: IStatBarConfig;
+begin
+  Result := FStatBar;
 end;
 
 function TMainFormConfig.GetToolbarsLock: IMainWindowToolbarsLock;

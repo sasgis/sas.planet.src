@@ -5,6 +5,7 @@ interface
 uses
   i_IConfigDataElement,
   i_INavigationToPoint,
+  i_IStatBarConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -35,6 +36,9 @@ type
 
     function GetNavToPoint: INavigationToPoint;
     property NavToPoint: INavigationToPoint read GetNavToPoint;
+
+    function GetStatBar: IStatBarConfig;
+    property StatBar: IStatBarConfig read GetStatBar;
   end;
 
 implementation

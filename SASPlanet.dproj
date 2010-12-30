@@ -127,6 +127,7 @@
     <DCCReference Include="i_ISearchResultPresenter.pas" />
     <DCCReference Include="i_ISensor.pas" />
     <DCCReference Include="i_ISimpleFactory.pas" />
+    <DCCReference Include="i_IStatBarConfig.pas" />
     <DCCReference Include="i_IThread.pas" />
     <DCCReference Include="i_ITileDownlodSession.pas" />
     <DCCReference Include="i_ITileFileNameGenerator.pas" />
@@ -455,6 +456,7 @@
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
+    <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
     <DCCReference Include="u_TileDownloaderBaseFactory.pas" />

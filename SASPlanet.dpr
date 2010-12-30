@@ -288,6 +288,8 @@ uses
   i_ILanguageManager in 'i_ILanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
+  i_IStatBarConfig in 'i_IStatBarConfig.pas',
+  u_StatBarConfig in 'u_StatBarConfig.pas',
   i_INavigationToPoint in 'i_INavigationToPoint.pas',
   u_NavigationToPoint in 'u_NavigationToPoint.pas',
   i_MapLayerGridsConfig in 'i_MapLayerGridsConfig.pas',
