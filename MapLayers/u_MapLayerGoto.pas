@@ -13,9 +13,10 @@ uses
 
 type
   TGotoLayer = class(TMapLayerFixedWithBitmap)
-  protected
+  private
     FHideAfterTime: Cardinal;
     FGoToSelIcon: TCustomBitmap32;
+  protected
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);

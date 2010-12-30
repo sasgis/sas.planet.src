@@ -13,11 +13,12 @@ uses
 
 type
   TCenterScale = class(TWindowLayerFixedSizeWithBitmap)
-  protected
+  private
     FRadius: Integer;
     FFontSize: Integer;
     FDigitsOffset: Integer;
     procedure DrawScale;
+  protected
     function GetMapLayerLocationRect: TFloatRect; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);

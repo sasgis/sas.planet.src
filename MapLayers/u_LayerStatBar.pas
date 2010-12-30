@@ -16,11 +16,12 @@ uses
 
 type
   TLayerStatBar = class(TWindowLayerWithBitmap)
-  protected
+  private
     FHeight: Integer;
     FMinUpdateTickCount: Cardinal;
     FLastUpdateTick: DWORD;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
+  protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;

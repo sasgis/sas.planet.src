@@ -12,10 +12,11 @@ uses
 
 type
   TTileErrorInfoLayer = class(TMapLayerFixedWithBitmap)
-  protected
+  private
     FHideAfterTime: Cardinal;
     FZoom: Byte;
     procedure RenderText(AMapType: TMapType; AText: string);
+  protected
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);

@@ -14,8 +14,9 @@ uses
 
 type
   TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
-  protected
+  private
     FBottomMargin: Integer;
+  protected
     procedure DoRedraw; override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;

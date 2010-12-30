@@ -17,9 +17,6 @@ type
   private
     FGPSDisconntectListener: IJclListener;
     FGPSReceiveListener: IJclListener;
-    procedure GPSReceiverReceive(Sender: TObject);
-    procedure GPSReceiverDisconnect(Sender: TObject);
-  protected
     FMarkerMoved: TCustomBitmap32;
     FMarkerMovedSize: Integer;
     FMarkerMovedColor: TColor32;
@@ -30,6 +27,8 @@ type
     FSpeed: Double;
     FMinMoveSpeed: Double;
     procedure PrepareMarker;
+    procedure GPSReceiverReceive(Sender: TObject);
+    procedure GPSReceiverDisconnect(Sender: TObject);
   protected
     procedure DoRedraw; override;
   public

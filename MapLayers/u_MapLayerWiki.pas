@@ -29,14 +29,15 @@ type
   end;
 
   TWikiLayer = class(TMapLayerBasic)
-  protected
+  private
     FFixedPointArray: TArrayOfFixedPoint;
     FWikiLayerElments: array of TWikiLayerElement;
     procedure addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
     procedure DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
-    procedure DoRedraw; override;
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
+  protected
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;

@@ -16,16 +16,17 @@ uses
 
 type
   TSelectionLayer = class(TMapLayerBasicFullView)
-  protected
+  private
     FBitmapClip: IPolyClip;
     FLineColor: TColor32;
     FLineWidth: Integer;
     FPolygon: TDoublePointArray;
     FSelectionChangeListener: IJclListener;
-    procedure DoRedraw; override;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
     procedure ChangeSelection(Sender: TObject);
+  protected
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
