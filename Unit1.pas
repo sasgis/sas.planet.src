@@ -660,6 +660,7 @@ uses
   i_ILogForTaskThread,
   i_ICoordConverter,
   i_ILocalCoordConverter,
+  i_IValueToStringConverter,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_IMapViewGoto,
@@ -1562,8 +1563,10 @@ var
   sps: _SYSTEM_POWER_STATUS;
   VPoint: TDoublePoint;
   VDist: Double;
+  VValueConverter: IValueToStringConverter;
 begin
  try
+   VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
    //скорость
    TBXSensorSpeed.Caption:=RoundEx(GState.GPSpar.speed,2);
    //средняя скорость
@@ -1573,20 +1576,19 @@ begin
    //высота
    TBXSensorAltitude.Caption:=RoundEx(GState.GPSpar.altitude,2);
    //пройденный путь
-   s_len := DistToStrWithUnits(GState.GPSpar.len, GState.num_format);
-   TBXOdometrNow.Caption:=s_len;
+   TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSpar.len);
    //расстояние до метки
    if (FConfig.NavToPoint.IsActive) then begin
      VPoint := GState.ViewState.GetCenterLonLat;
      VDist := GState.ViewState.GetCurrentCoordConverter.CalcDist(FConfig.NavToPoint.LonLat, VPoint);
-     n_len:=DistToStrWithUnits(VDist, GState.num_format);
+     n_len:=VValueConverter.DistConvert(VDist);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin
      TBXSensorLenToMark.Caption:='-';
    end;
    //одометр
-   TBXSensorOdometr.Caption:=DistToStrWithUnits(GState.GPSpar.Odometr, GState.num_format);
-   TBXSensorOdometr2.Caption:=DistToStrWithUnits(GState.GPSpar.Odometr2, GState.num_format);
+   TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSpar.Odometr);
+   TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSpar.Odometr2);
    //батарея
    GetSystemPowerStatus(sps);
    if sps.ACLineStatus=0 then begin
@@ -2150,13 +2152,11 @@ end;
 procedure TFmain.N30Click(Sender: TObject);
 var
   ll:TDoublePoint;
+  VStr: string;
 begin
   ll := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
-  if GState.FirstLat then begin
-    CopyStringToClipboard(lat2str(ll.y, GState.llStrType)+' '+lon2str(ll.x, GState.llStrType));
-  end else begin
-    CopyStringToClipboard(lon2str(ll.x, GState.llStrType)+' '+lat2str(ll.y, GState.llStrType));
-  end;
+  VStr := GState.ValueToStringConverterConfig.GetStaticConverter.LonLatConvert(ll);
+  CopyStringToClipboard(VStr);
 end;
 
 procedure TFmain.N15Click(Sender: TObject);
@@ -3542,7 +3542,8 @@ begin
     if VMark <> nil then begin
       try
         VLen := GetMarkLength(VMark);
-        VMessage := SAS_STR_L+' - '+DistToStrWithUnits(VLen, GState.num_format);
+        VMessage := SAS_STR_L+' - '+
+        GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
         MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
       finally
         VMark.Free;
@@ -3568,11 +3569,8 @@ begin
     if VMark <> nil then begin
       try
         VArea := GetMarkSq(VMark);
-        if VArea < 0.1 then begin
-          VMessage := SAS_STR_S+' - '+RoundEx(VArea * 1000000,2)+' '+SAS_UNITS_m2;
-        end else begin
-          VMessage := SAS_STR_S+' - '+RoundEx(VArea,2)+' '+SAS_UNITS_km2;
-        end;
+        VMessage := SAS_STR_S+' - '+GState.ValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
+
         MessageBox(Handle,pchar(VMessage),pchar(VPWL.name),0);
       finally
         VMark.Free;
@@ -3598,7 +3596,8 @@ begin
     if VMark <> nil then begin
       try
         VLen := GetMarkLength(VMark);
-        VMessage := SAS_STR_P+' - '+DistToStrWithUnits(VLen, GState.num_format);
+        VMessage := SAS_STR_P+' - '+
+          GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
         MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
       finally
         VMark.Free;

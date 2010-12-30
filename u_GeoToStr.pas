@@ -3,23 +3,17 @@ unit u_GeoToStr;
 interface
 
 uses
-  t_GeoTypes,
-  t_CommonTypes;
+  t_GeoTypes;
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 function R2StrPoint(r: Double): string;
 function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer):string;
-function kb2KbMbGb(kb: Double): string;
-function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
-function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
-function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
 function str2r(inp:string):Double;
 
 implementation
 
 uses
-  SysUtils,
-  UResStrings;
+  SysUtils;
 
 var
   GFormatSettings : TFormatSettings;
@@ -69,111 +63,6 @@ begin
  if Scale<=50000  then result:=result+'-'+chr(192+GetNameAtom(24,2));
  if Scale<=25000  then result:=result+'-'+chr(224+GetNameAtom(48,2));
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
-end;
-
-function kb2KbMbGb(kb: Double): string;
-begin
-  if kb > 1048576 then begin
-    result := RoundEx(kb/1048576, 1) + ' ' + SAS_UNITS_gb;
-  end else begin
-    if kb > 1024 then begin
-      result := RoundEx(kb/1024, 1) + ' ' + SAS_UNITS_mb;
-    end else begin
-      result := RoundEx(kb, 1) + ' ' + SAS_UNITS_kb;
-    end;
-  end;
-end;
-
-
-function DistToStrWithUnits(r: Real; AFormat: TDistStrFormat): string;
-var
-  VKmDist: Real;
-begin
-  Result := '';
-  case AFormat of
-    dsfKmAndM: begin
-      if r > 1000 then begin
-        VKmDist :=r/1000;
-        Result := IntToStr(Trunc(VKmDist)) + ' ' + SAS_UNITS_km + ' ';
-        Result := Result + RoundEx(frac(VKmDist)*1000, 2) + ' ' + SAS_UNITS_m
-      end else begin
-        Result := RoundEx(r, 2) + ' ' + SAS_UNITS_m;
-      end;
-    end;
-    dsfSimpleKM: begin
-      if r<10000 then begin
-        Result := RoundEx(r, 2) + ' ' + SAS_UNITS_m;
-      end else begin
-        Result := RoundEx(r/1000, 2) + ' ' + SAS_UNITS_km;
-      end;
-    end;
-  end;
-end;
-
-function Degris2str(Alon: real; AFormatType: TDegrShowFormat): string;
-var
-  num: real;
-begin
-  Alon := abs(Alon);
-  case AFormatType of
-    dshCharDegrMinSec, dshSignDegrMinSec: begin
-      result := result + IntToStr(trunc(ALon)) + '°';
-      num := Frac(ALon) * 60;
-      result := result + IntToStr(trunc(num)) + '''';
-      num := Frac(num) * 60;
-      Result := Result + RoundEx(Num, 2) + '"';
-    end;
-    dshCharDegrMin, dshSignDegrMin: begin
-      result := result + IntToStr(trunc(ALon))+'°';
-      num := Frac(ALon) * 60;
-      result := result + RoundEx(num, 4) + '''';
-    end;
-    dshCharDegr, dshSignDegr: begin
-      result := result + RoundEx(ALon, 6) + '°';
-    end;
-  end;
-end;
-
-function lon2str(Alon: real; AFormatType: TDegrShowFormat): string;
-begin
-  case AFormatType of
-    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
-      if ALon > 0 then begin
-        result := 'E';
-      end else begin
-        result := 'W';
-      end;
-    end;
-    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
-      if ALon > 0 then begin
-        result := '';
-      end else begin
-        result := '-';
-      end;
-    end;
-  end;
-  Result := Result + Degris2str(Alon, AFormatType);
-end;
-
-function lat2str(Alat: real; AFormatType: TDegrShowFormat): string;
-begin
-  case AFormatType of
-    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
-      if ALat > 0 then begin
-        result := 'N';
-      end else begin
-        result := 'S';
-      end;
-    end;
-    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
-      if ALat > 0 then begin
-        result := '';
-      end else begin
-        result := '-';
-      end;
-    end;
-  end;
-  Result := Result + Degris2str(Alat, AFormatType);
 end;
 
 initialization

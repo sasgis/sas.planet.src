@@ -139,6 +139,7 @@
     <DCCReference Include="i_ITileStorageType.pas" />
     <DCCReference Include="i_ITileStorageTypeInfo.pas" />
     <DCCReference Include="i_IUrlByCoordProvider.pas" />
+    <DCCReference Include="i_IValueToStringConverter.pas" />
     <DCCReference Include="i_MainFormConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
@@ -481,6 +482,8 @@
     <DCCReference Include="u_TileStorageGEStuped.pas" />
     <DCCReference Include="u_TileStorageTypeInfo.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
+    <DCCReference Include="u_ValueToStringConverter.pas" />
+    <DCCReference Include="u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
   </ItemGroup>

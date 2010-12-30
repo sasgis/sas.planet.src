@@ -91,6 +91,7 @@ uses
   u_GeoToStr,
   i_ICoordConverter,
   i_ILocalCoordConverter,
+  i_IValueToStringConverter,
   u_ConfigProviderHelpers,
   UResStrings,
   u_GlobalState;
@@ -144,7 +145,7 @@ procedure TMapNalLayer.DoDrawCalcLine;
 var
   i, j, textW: integer;
   k1: TDoublePoint;
-  len: real;
+  len: Double;
   text: string;
   polygon: TPolygon32;
   VLonLat: TDoublePoint;
@@ -156,9 +157,11 @@ var
   VPathFixedPoints: TArrayOfFixedPoint;
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
+  VValueConverter: IValueToStringConverter;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
+    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
     VLocalConverter := FBitmapCoordConverter;
     VGeoConvert := VLocalConverter.GetGeoConverter;
     SetLength(VPointsOnBitmap, VPointsCount);
@@ -205,7 +208,7 @@ begin
           for j := 0 to i do begin
             len := len + VGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
           end;
-          text := SAS_STR_Whole + ': ' + DistToStrWithUnits(len, GState.num_format);
+          text := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(len);
           FLayer.Bitmap.Font.Size := 9;
           textW := FLayer.Bitmap.TextWidth(text) + 11;
           FLayer.Bitmap.FillRectS(
@@ -224,7 +227,7 @@ begin
           );
         end else begin
           if FLenShow then begin
-            text := DistToStrWithUnits(VGeoConvert.CalcDist(FPath[i], FPath[i + 1]), GState.num_format);
+            text := VValueConverter.DistConvert(VGeoConvert.CalcDist(FPath[i], FPath[i + 1]));
             FLayer.Bitmap.Font.Size := 7;
             textW := FLayer.Bitmap.TextWidth(text) + 11;
             FLayer.Bitmap.FillRectS(

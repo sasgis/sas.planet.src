@@ -78,6 +78,8 @@ implementation
 
 uses
   SysUtils,
+  i_IValueToStringConverter,
+  u_GlobalState,
   u_GeoToStr;
 
 {$R *.dfm}
@@ -151,12 +153,14 @@ end;
 procedure TFProgress.UpdateProgressForm;
 var
   VComplete: string;
+  VValueConverter: IValueToStringConverter;
 begin
   if FDownloadThread.TotalInRegion > 0 then begin
     VComplete := inttostr(round(FDownloadThread.Processed/FDownloadThread.TotalInRegion*100))+'%';
   end else begin
     VComplete := '~%';
   end;
+  VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
   if FDownloadThread.Finished then begin
     if not FFinished then begin
       FFinished := True;
@@ -165,7 +169,7 @@ begin
       Caption := SAS_MSG_LoadComplete+' ('+VComplete+')';
       LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       LabelValue1.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
-      LabelValue2.Caption := inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
+      LabelValue2.Caption := inttostr(FDownloadThread.Downloaded)+' ('+ VValueConverter.DataSizeConvert(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       LabelValue4.Caption := GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
       RProgr.Max := FDownloadThread.TotalInRegion;
@@ -183,7 +187,7 @@ begin
       Application.ProcessMessages;
       LabelValue0.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       LabelValue1.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
-      LabelValue2.Caption:=inttostr(FDownloadThread.Downloaded)+' ('+kb2KbMbGb(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
+      LabelValue2.Caption:=inttostr(FDownloadThread.Downloaded)+' ('+VValueConverter.DataSizeConvert(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       LabelValue4.Caption:=GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
       UpdateMemoProgressForm;
@@ -209,11 +213,14 @@ begin
 end;
 
 function TFProgress.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
+var
+  VValueConverter: IValueToStringConverter;
 begin
   if loaded=0 then begin
     result:='~ Κα';
   end else begin
-    Result:=kb2KbMbGb((len/loaded)*(loadAll-obrab));
+    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+    Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
   end;
 end;
 

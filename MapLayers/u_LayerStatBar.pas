@@ -38,6 +38,7 @@ uses
   SysUtils,
   u_GeoToStr,
   i_ICoordConverter,
+  i_IValueToStringConverter,
   u_NotifyEventListener,
   UResStrings,
   UTimeZones,
@@ -128,6 +129,7 @@ var
   VMinUpdate: Cardinal;
   VBgColor: TColor32;
   VTextColor: TColor32;
+  VValueConverter: IValueToStringConverter;
 begin
   inherited;
   FConfig.LockRead;
@@ -140,6 +142,7 @@ begin
   end;
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + VMinUpdate) then begin
+    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
     VVisualCoordConverter := FVisualCoordConverter;
     VMousePos := Fmain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
@@ -154,12 +157,8 @@ begin
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
     ll := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoomCurr);
+    VLonLatStr:= VValueConverter.LonLatConvert(ll);
 
-    if GState.FirstLat then begin
-      VLonLatStr := lat2str(ll.y, GState.llStrType) + ' ' + lon2str(ll.x, GState.llStrType);
-    end else begin
-      VLonLatStr := lon2str(ll.x, GState.llStrType) + ' ' + lat2str(ll.y, GState.llStrType);
-    end;
     FLayer.Bitmap.Clear(VBgColor);
     FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 256));
     FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), 0, VTextColor);
@@ -167,14 +166,14 @@ begin
 
     VRad := VConverter.GetSpheroidRadius;
     VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
-    subs2 := DistToStrWithUnits(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R))), GState.num_format) + SAS_UNITS_mperp;
+    subs2 := VValueConverter.DistConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R)))) + SAS_UNITS_mperp;
     FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, VTextColor);
     posnext := 273 + FLayer.Bitmap.TextWidth(subs2) + 70;
     TameTZ := GetTimeInLonLat(ll);
     FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, VTextColor);
     posnext := posnext + FLayer.Bitmap.TextWidth(SAS_STR_time + ' ' + TimeToStr(TameTZ)) + 10;
     subs2 := VMap.GetTileShowName(VTile, VZoomCurr);
-    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + kb2KbMbGb(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, VTextColor);
+    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + VValueConverter.DataSizeConvert(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, VTextColor);
     FLastUpdateTick := GetTickCount;
   end;
 end;

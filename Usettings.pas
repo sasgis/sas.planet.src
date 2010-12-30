@@ -342,7 +342,6 @@ begin
  GState.CacheElemensMaxCnt:=SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
- GState.FirstLat:=ChBoxFirstLat.Checked;
  GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
  GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
  GState.GPSpar.GPS_ArrowColor:=ColorBoxGPSstr.selected;
@@ -367,7 +366,14 @@ begin
   GState.CacheConfig.DefCache := 2;
  end;
  GState.ShowMapName:=CBShowmapname.Checked;
- GState.llStrType:=TDegrShowFormat(CB_llstrType.ItemIndex);
+  GState.ValueToStringConverterConfig.LockWrite;
+  try
+    GState.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
+    GState.ValueToStringConverterConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
+    GState.ValueToStringConverterConfig.DistStrFormat := TDistStrFormat(ComboBox1.ItemIndex);
+  finally
+    GState.ValueToStringConverterConfig.UnlockWrite;
+  end;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
  GState.GPSpar.GPS_ArrowSize:=SESizeStr.Value;
@@ -403,7 +409,6 @@ begin
  GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(EScPath.Text);
  GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
- GState.num_format := TDistStrFormat(ComboBox1.ItemIndex);
  GState.WikiMapMainColor:=CBWMainColor.Selected;
  GState.WikiMapFonColor:=CBWFonColor.Selected;
 
@@ -547,7 +552,6 @@ begin
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=GState.TwoDownloadAttempt;
- ChBoxFirstLat.Checked:=GState.FirstLat;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
@@ -578,7 +582,6 @@ begin
 
  CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
  CBShowmapname.Checked:=GState.ShowMapName;
- CB_llstrType.ItemIndex:=byte(GState.llStrType);
  OldCPath.text:=GState.CacheConfig.OldCPath;
  NewCPath.text:=GState.CacheConfig.NewCPath;
  ESCPath.text:=GState.CacheConfig.ESCPath;
@@ -596,7 +599,14 @@ begin
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
  ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
- ComboBox1.ItemIndex := byte(GState.num_format);
+  GState.ValueToStringConverterConfig.LockRead;
+  try
+    ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;
+    CB_llstrType.ItemIndex:=byte(GState.ValueToStringConverterConfig.DegrShowFormat);
+    ComboBox1.ItemIndex := byte(GState.ValueToStringConverterConfig.DistStrFormat);
+  finally
+    GState.ValueToStringConverterConfig.UnlockRead;
+  end;
  CBWMainColor.Selected:=GState.WikiMapMainColor;
  CBWFonColor.Selected:=GState.WikiMapFonColor;
 

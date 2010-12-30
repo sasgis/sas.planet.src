@@ -25,6 +25,7 @@ uses
   i_IGSMGeoCodeConfig,
   i_MainFormConfig,
   i_IBitmapPostProcessingConfig,
+  i_IValueToStringConverter,
   u_GarbageCollectorThread,
   u_GeoToStr,
   u_MapViewPortState,
@@ -71,6 +72,7 @@ type
     FGSMpar: IGSMGeoCodeConfig;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -101,10 +103,6 @@ type
     // Выводить отладочную инфромацию о производительности
     ShowDebugInfo: Boolean;
 
-    // Способ отображения расстояний, и в частности масштаба
-    num_format: TDistStrFormat;
-    // Способ отображения координат в градусах
-    llStrType: TDegrShowFormat;
     // Количество скачаных данных в килобайтах
     All_Dwn_Kb: Currency;
     // Количество скачанных тайлов
@@ -135,7 +133,6 @@ type
     WikiMapFonColor: TColor;
 
     show_point: TMarksShowType;
-    FirstLat: Boolean;
     ShowMapName: Boolean;
 
     // Количество тайлов отображаемых за границей экрана
@@ -217,6 +214,7 @@ type
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
+    property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -257,6 +255,7 @@ uses
   u_InetConfig,
   u_GSMGeoCodeConfig,
   u_BitmapPostProcessingConfig,
+  u_ValueToStringConverterConfig,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -301,6 +300,7 @@ begin
   FMarksDB := TMarksDB.Create;
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
+  FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   GPSpar := TGPSpar.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FMainFormConfig := TMainFormConfig.Create;
@@ -341,6 +341,7 @@ begin
   FInetConfig := nil;
   FMainFormConfig := nil;
   FBitmapPostProcessingConfig := nil;
+  FValueToStringConverterConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -475,6 +476,7 @@ begin
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
+  FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
   FMainFormConfig.ReadConfig(MainConfigProvider);
   FLastSelectionInfo.LoadConfig(MainConfigProvider.GetSubItem('LastSelection'));
 end;
@@ -511,10 +513,7 @@ begin
   show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
   MouseWheelInv:=MainIni.readbool('VIEW','invert_mouse',false);
 
-  num_format:= TDistStrFormat(MainIni.Readinteger('VIEW','NumberFormat',0));
   Resampling := TTileResamplingType(MainIni.Readinteger('VIEW','ResamlingType',1));
-  llStrType:=TDegrShowFormat(MainIni.Readinteger('VIEW','llStrType',0));
-  FirstLat:=MainIni.ReadBool('VIEW','FirstLat',false);
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
   UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
   AnimateZoom:=MainIni.Readbool('VIEW','animate',true);
@@ -583,10 +582,7 @@ begin
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
   MainIni.Writebool('VIEW','animate',AnimateZoom);
   MainIni.WriteInteger('VIEW','ShowPointType',Byte(show_point));
-  MainIni.Writeinteger('VIEW','NumberFormat',byte(num_format));
   MainIni.Writeinteger('VIEW','ResamlingType',byte(resampling));
-  MainIni.Writeinteger('VIEW','llStrType',byte(llStrType));
-  MainIni.WriteBool('VIEW','FirstLat',FirstLat);
   MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);
   MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);
@@ -610,6 +606,7 @@ begin
   FLastSelectionInfo.SaveConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
+  FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
 end;
