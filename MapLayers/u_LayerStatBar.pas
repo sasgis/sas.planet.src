@@ -113,12 +113,7 @@ end;
 procedure TLayerStatBar.DoHide;
 begin
   inherited;
-  FLayer.Bitmap.Lock;
-  try
-    FLayer.Bitmap.SetSize(0, 0);
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
+  UpdateLayerSize(Point(0,0));
 end;
 
 procedure TLayerStatBar.DoRedraw;
