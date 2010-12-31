@@ -20,7 +20,11 @@ type
     procedure Reset;
     procedure Add(ACount: UInt64; ASize: UInt64);
   public
-    constructor Create(AParent: IDownloadInfoSimple);
+    constructor Create(
+      AParent: IDownloadInfoSimple;
+      ATileCount: UInt64 = 0;
+      ASize: UInt64 = 0
+    );
     destructor Destroy; override;
   end;
 
@@ -31,13 +35,17 @@ uses
 
 { TDownloadInfoSimple }
 
-constructor TDownloadInfoSimple.Create(AParent: IDownloadInfoSimple);
+constructor TDownloadInfoSimple.Create(
+  AParent: IDownloadInfoSimple;
+  ATileCount: UInt64;
+  ASize: UInt64
+);
 begin
   inherited Create;
   FParentInfo := AParent;
   FCS := TCriticalSection.Create;
-  FTileCount := 0;
-  FSize := 0;
+  FTileCount := ATileCount;
+  FSize := ASize;
 end;
 
 destructor TDownloadInfoSimple.Destroy;
