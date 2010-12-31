@@ -173,7 +173,14 @@ begin
     FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, VTextColor);
     posnext := posnext + FLayer.Bitmap.TextWidth(SAS_STR_time + ' ' + TimeToStr(TameTZ)) + 10;
     subs2 := VMap.GetTileShowName(VTile, VZoomCurr);
-    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_load + ' ' + inttostr(GState.All_Dwn_Tiles) + ' (' + VValueConverter.DataSizeConvert(GState.All_Dwn_Kb) + ') | ' + SAS_STR_file + ' ' + subs2, 0, VTextColor);
+    FLayer.Bitmap.RenderText(
+      posnext, 1,
+      ' | ' + SAS_STR_load + ' ' +
+      inttostr(GState.DownloadInfo.TileCount) + ' (' +
+      VValueConverter.DataSizeConvert(GState.DownloadInfo.Size/1024) +
+      ') | ' + SAS_STR_file + ' ' + subs2,
+       0, VTextColor
+    );
     FLastUpdateTick := GetTickCount;
   end;
 end;

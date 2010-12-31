@@ -328,7 +328,7 @@ begin
                           res := FMapType.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
                           FErrorString := GetErrStr(res);
                           if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                            GState.IncrementDownloaded(fileBuf.Size / 1024, 1);
+                            GState.DownloadInfo.Add(1, fileBuf.Size);
                           end;
                         except
                           on E: Exception do begin

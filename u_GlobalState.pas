@@ -30,6 +30,7 @@ uses
   u_GeoToStr,
   u_MapViewPortState,
   i_ILastSelectionInfo,
+  i_IDownloadInfoSimple,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
   Uimgfun,
@@ -49,7 +50,6 @@ type
     FViewState: TMapViewPortState;
     FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
-    FDwnCS: TCriticalSection;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
@@ -74,6 +74,7 @@ type
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FDownloadInfo: IDownloadInfoSimple;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -103,11 +104,6 @@ type
     WebReportToAuthor: Boolean;
     // Выводить отладочную инфромацию о производительности
     ShowDebugInfo: Boolean;
-
-    // Количество скачаных данных в килобайтах
-    All_Dwn_Kb: Currency;
-    // Количество скачанных тайлов
-    All_Dwn_Tiles: Cardinal;
 
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
@@ -216,12 +212,12 @@ type
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
+    property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
 
     constructor Create;
     destructor Destroy; override;
     procedure LoadConfig;
     procedure SaveMainParams;
-    procedure IncrementDownloaded(ADwnSize: Currency; ADwnCnt: Cardinal);
     procedure StartThreads;
     procedure SendTerminateToThreads;
     procedure InitViewState(AScreenSize: TPoint);
@@ -253,6 +249,7 @@ uses
   u_CoordConverterFactorySimple,
   u_LanguageManager,
   i_MapTypes,
+  u_DownloadInfoSimple,
   u_InetConfig,
   u_GSMGeoCodeConfig,
   u_BitmapPostProcessingConfig,
@@ -269,10 +266,8 @@ var
 begin
   Show_logo := True;
   ShowDebugInfo := False;
-  FDwnCS := TCriticalSection.Create;
   FCacheConfig := TGlobalCahceConfig.Create;
-  All_Dwn_Kb := 0;
-  All_Dwn_Tiles := 0;
+  FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(MainConfigFileName);
@@ -312,7 +307,6 @@ begin
   FGCThread.Terminate;
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
-  FreeAndNil(FDwnCS);
   FLanguageManager := nil;
   try
     MainIni.UpdateFile;
@@ -418,18 +412,6 @@ begin
     finally
       FindClose(SearchRec);
     end;
-  end;
-end;
-
-procedure TGlobalState.IncrementDownloaded(ADwnSize: Currency;
-  ADwnCnt: Cardinal);
-begin
-  FDwnCS.Acquire;
-  try
-    All_Dwn_Kb := All_Dwn_Kb + ADwnSize;
-    All_Dwn_Tiles := All_Dwn_Tiles + ADwnCnt;
-  finally
-    FDwnCS.Release;
   end;
 end;
 

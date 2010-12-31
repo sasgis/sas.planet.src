@@ -6,6 +6,7 @@ uses
   Classes,
   i_ILogSimple,
   t_GeoTypes,
+  i_IDownloadInfoSimple,
   UMapType,
   u_TileDownloaderThreadBase;
 
@@ -22,8 +23,7 @@ type
     FLastSuccessfulPoint: TPoint;
 
     FTotalInRegion: Int64;
-    FDownloaded: Int64;
-    FDownloadSize: Double;
+    FDownloadInfo: IDownloadInfoSimple;
     FProcessed: Int64;
 
     FElapsedTime: TDateTime;
@@ -32,7 +32,10 @@ type
     FLog: ILogSimple;
     FDownloadPause: Boolean;
     FFinished: Boolean;
+    FZoom: Byte;
     function GetElapsedTime: TDateTime;
+    function GetDownloaded: Int64;
+    function GetDownloadSize: Double;
 
   protected
     procedure Execute; override;
@@ -56,9 +59,9 @@ type
     procedure DownloadResume;
 
     property TotalInRegion: Int64 read FTotalInRegion;
-    property Downloaded: Int64 read FDownloaded;
+    property Downloaded: Int64 read GetDownloaded;
     property Processed: Int64 read FProcessed;
-    property DownloadSize: Double read FDownloadSize;
+    property DownloadSize: Double read GetDownloadSize;
     property ElapsedTime: TDateTime read GetElapsedTime;
     property StartTime: TDateTime read FStartTime;
     property Zoom: Byte read FZoom;
@@ -73,6 +76,7 @@ uses
   i_ITileDownlodSession,
   u_GlobalState,
   i_ITileIterator,
+  u_DownloadInfoSimple,
   u_TileIteratorStuped,
   UResStrings;
 
@@ -86,6 +90,7 @@ constructor TThreadDownloadTiles.Create(
 );
 begin
   inherited Create(false);
+  FDownloadInfo := TDownloadInfoSimple.Create(GState.DownloadInfo);
   FLog := ALog;
   Priority := tpLower;
   FReplaceExistTiles:=Azamena;
@@ -96,9 +101,7 @@ begin
   FCheckExistTileDate := AzDate;
   FSecondLoadTNE := ASecondLoadTNE;
   FPolygLL := copy(APolygon);
-  FDownloaded := 0;
   FProcessed := 0;
-  FDownloadSize := 0;
   FElapsedTime := 0;
   FLastProcessedPoint := Point(-1,-1);
   randomize;
@@ -123,9 +126,13 @@ begin
     FCheckExistTileSize := Ini.ReadBool('Session','raz', false);
     FCheckExistTileDate := Ini.ReadBool('Session','zdate', false);
     FCheckTileDate := Ini.ReadDate('Session', 'FDate', now);
-    FDownloaded := Ini.ReadInteger('Session', 'scachano', 0);
+    FDownloadInfo :=
+      TDownloadInfoSimple.Create(
+        GState.DownloadInfo,
+        Ini.ReadInteger('Session', 'scachano', 0),
+        trunc(Ini.ReadFloat('Session','dwnb', 0)*1024)
+      );
     FProcessed := Ini.ReadInteger('Session', 'obrab', 0);
-    FDownloadSize := Ini.ReadFloat('Session','dwnb', 0);
     FSecondLoadTNE:=Ini.ReadBool('Session', 'SecondLoadTNE', false);
     if LastSuccessful then begin
       FLastProcessedPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
@@ -176,9 +183,9 @@ begin
     Ini.WriteBool('Session', 'zdate', FCheckExistTileDate);
     Ini.WriteDate('Session', 'FDate', FCheckTileDate);
     Ini.WriteBool('Session', 'SecondLoadTNE', FSecondLoadTNE);
-    Ini.WriteInteger('Session', 'scachano', FDownloaded);
+    Ini.WriteInteger('Session', 'scachano', FDownloadInfo.TileCount);
     Ini.WriteInteger('Session', 'obrab', FProcessed);
-    Ini.WriteFloat('Session', 'dwnb', FDownloadSize);
+    Ini.WriteFloat('Session', 'dwnb', FDownloadInfo.Size / 1024);
     Ini.WriteInteger('Session', 'StartX', FLastProcessedPoint.X);
     Ini.WriteInteger('Session', 'StartY', FLastProcessedPoint.Y);
     Ini.WriteInteger('Session', 'LastSuccessfulStartX', FLastSuccessfulPoint.X);
@@ -270,17 +277,13 @@ begin
                   case res of
                     dtrOK : begin
                       FLastSuccessfulPoint := FLoadXY;
-                      GState.IncrementDownloaded(fileBuf.Size/1024, 1);
-                      FDownloadSize := FDownloadSize + (fileBuf.Size / 1024);
-                      inc(FDownloaded);
+                      FDownloadInfo.Add(1, fileBuf.Size);
                       FLog.WriteText('(Ok!)', 0);
                       VGotoNextTile := True;
                     end;
                     dtrSameTileSize: begin
                       FLastSuccessfulPoint := FLoadXY;
-                      GState.IncrementDownloaded(razlen/1024, 1);
-                      FDownloadSize := FDownloadSize + (razlen / 1024);
-                      inc(FDownloaded);
+                      FDownloadInfo.Add(1, fileBuf.Size);
                       FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
                       VGotoNextTile := True;
                     end;
@@ -360,6 +363,16 @@ end;
 procedure TThreadDownloadTiles.DownloadResume;
 begin
   FDownloadPause := False;
+end;
+
+function TThreadDownloadTiles.GetDownloaded: Int64;
+begin
+  Result := FDownloadInfo.TileCount;
+end;
+
+function TThreadDownloadTiles.GetDownloadSize: Double;
+begin
+  Result := FDownloadInfo.Size / 1024;
 end;
 
 function TThreadDownloadTiles.GetElapsedTime: TDateTime;
