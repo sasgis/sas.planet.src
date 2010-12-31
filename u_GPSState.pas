@@ -43,7 +43,6 @@ type
     azimut: Double;
     Odometr: Double;
     Odometr2: Double;
-    SignalStrength: Double;
 
     //–азмер указател€ направлени€ при GPS-навигации
     GPS_ArrowSize: Integer;
