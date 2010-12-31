@@ -187,8 +187,6 @@ type
     property TrackLogPath: string read GetTrackLogPath;
     // Имя файла со справкой по программе
     property HelpFileName: string read GetHelpFileName;
-    // Имя основного файла конфигурации
-    property MainConfigFileName: string read GetMainConfigFileName;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
@@ -270,7 +268,7 @@ begin
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
   ProgramPath := ExtractFilePath(ParamStr(0));
-  MainIni := TMeminifile.Create(MainConfigFileName);
+  MainIni := TMeminifile.Create(GetMainConfigFileName);
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create;
