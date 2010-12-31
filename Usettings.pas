@@ -727,7 +727,7 @@ begin
     Canvas.LineTo(Ellipse_XY1.x,Ellipse_XY1.y);
   end;
 
-  VPosition := GState.GPSpar.GPSModele.Position;
+  VPosition := GState.GPSpar.GPSModule.Position;
 
   for I := 0 to VPosition.Satellites.Count-1 do begin
     VSattelite := VPosition.Satellites.Item[i];

@@ -135,7 +135,7 @@ procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
 var
   VGPSPosition: IGPSPosition;
 begin
-  VGPSPosition := GState.GPSpar.GPSModele.Position;
+  VGPSPosition := GState.GPSpar.GPSModule.Position;
   if VGPSPosition.IsFix = 0 then begin
     Hide;
   end else begin
@@ -189,15 +189,15 @@ end;
 procedure TMapLayerGPSMarker.SendTerminateToThreads;
 begin
   inherited;
-  GState.GPSpar.GPSModele.DisconnectNotifier.Remove(FGPSDisconntectListener);
-  GState.GPSpar.GPSModele.DataReciveNotifier.Remove(FGPSReceiveListener);
+  GState.GPSpar.GPSModule.DisconnectNotifier.Remove(FGPSDisconntectListener);
+  GState.GPSpar.GPSModule.DataReciveNotifier.Remove(FGPSReceiveListener);
 end;
 
 procedure TMapLayerGPSMarker.StartThreads;
 begin
   inherited;
-  GState.GPSpar.GPSModele.DisconnectNotifier.Add(FGPSDisconntectListener);
-  GState.GPSpar.GPSModele.DataReciveNotifier.Add(FGPSReceiveListener);
+  GState.GPSpar.GPSModule.DisconnectNotifier.Add(FGPSDisconntectListener);
+  GState.GPSpar.GPSModule.DataReciveNotifier.Add(FGPSReceiveListener);
 end;
 
 end.

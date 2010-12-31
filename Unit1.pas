@@ -947,23 +947,23 @@ begin
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverConnect),
-      GState.GPSpar.GPSModele.ConnectNotifier
+      GState.GPSpar.GPSModule.ConnectNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect),
-      GState.GPSpar.GPSModele.DisconnectNotifier
+      GState.GPSpar.GPSModule.DisconnectNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError),
-      GState.GPSpar.GPSModele.ConnectErrorNotifier
+      GState.GPSpar.GPSModule.ConnectErrorNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout),
-      GState.GPSpar.GPSModele.TimeOutNotifier
+      GState.GPSpar.GPSModule.TimeOutNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverReceive),
-      GState.GPSpar.GPSModele.DataReciveNotifier
+      GState.GPSpar.GPSModule.DataReciveNotifier
     );
 
     VMainFormMainConfigChangeListener := TNotifyEventListenerSync.Create(Self.OnMainFormMainConfigChange);
@@ -1616,7 +1616,7 @@ var
   VSattelite: IGPSSatelliteInfo;
 begin
    TBXSignalStrengthBar.Repaint;
-   VPosition := GState.GPSpar.GPSModele.Position;
+   VPosition := GState.GPSpar.GPSModule.Position;
    if VPosition.Satellites.FixCount > 0 then begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
@@ -1653,7 +1653,7 @@ var
 begin
   if FIsGPSPosChanged then begin
     FIsGPSPosChanged := False;
-    VPosition := GState.GPSpar.GPSModele.Position;
+    VPosition := GState.GPSpar.GPSModule.Position;
     if FSettings.Visible then FSettings.SatellitePaint;
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
     if (VPosition.IsFix=0) then exit;
@@ -1714,7 +1714,7 @@ begin
     FLayerScaleLine.Redraw;
     FLayerMapMarks.Redraw;
     FWikiLayer.Redraw;
-    if GState.GPSpar.GPSModele.IsConnected then begin
+    if GState.GPSpar.GPSModule.IsConnected then begin
        FLayerMapGPS.Redraw;
        UpdateGPSsensors;
     end;
@@ -2492,11 +2492,11 @@ end;
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
   TTBXitem(sender).Enabled := False;
-  TTBXitem(sender).Checked := GState.GPSpar.GPSModele.IsConnected;
+  TTBXitem(sender).Checked := GState.GPSpar.GPSModule.IsConnected;
   if TTBXitem(sender).Checked then begin
-    GState.GPSpar.GPSModele.Disconnect;
+    GState.GPSpar.GPSModule.Disconnect;
   end else begin
-    GState.GPSpar.GPSModele.Connect;
+    GState.GPSpar.GPSModule.Connect;
   end;
 end;
 
@@ -3077,7 +3077,7 @@ begin
      PrepareSelectionRect(Shift, VSelectionRect);
      FLayerMapNal.DrawSelectionRect(VSelectionRect);
    end;
-   if GState.GPSpar.GPSModele.IsConnected then begin
+   if GState.GPSpar.GPSModule.IsConnected then begin
      UpdateGPSsensors;
    end;
   end;
@@ -3686,7 +3686,7 @@ end;
 
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
-  if GState.GPSpar.GPSModele.IsConnected then begin
+  if GState.GPSpar.GPSModule.IsConnected then begin
     if AddNewPointModal(GState.GPSpar.GPSRecorder.GetLastPoint) then begin
       setalloperationfalse(ao_movemap);
       FLayerMapMarks.Redraw;

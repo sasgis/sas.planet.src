@@ -20,7 +20,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FSettings: IGPSModuleByCOMPortSettings;
     FSettingsObj: TGPSModuleByCOMPortSettings;
-    FGPSModele: IGPSModule;
+    FGPSModule: IGPSModule;
     GPS_enab: Boolean;
 
     FGpsConnectListener: IJclListener;
@@ -69,7 +69,7 @@ type
 
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GPSSettings: TGPSModuleByCOMPortSettings read FSettingsObj;
-    property GPSModele: IGPSModule read FGPSModele;
+    property GPSModule: IGPSModule read FGPSModule;
   end;
 
 implementation
@@ -88,14 +88,14 @@ begin
   FGPSRecorder := TGPSRecorderStuped.Create;
   FSettingsObj := TGPSModuleByCOMPortSettings.Create;
   FSettings := FSettingsObj;
-  FGPSModele := TGPSModuleByZylGPS.Create(FSettings);
+  FGPSModule := TGPSModuleByZylGPS.Create(FSettings);
 
   FGpsConnectListener := TNotifyEventListener.Create(OnGpsConnect);
-  FGPSModele.ConnectNotifier.Add(FGpsConnectListener);
+  FGPSModule.ConnectNotifier.Add(FGpsConnectListener);
   FGpsDataReceiveListener := TNotifyEventListener.Create(OnGpsDataReceive);
-  FGPSModele.DataReciveNotifier.Add(FGpsDataReceiveListener);
+  FGPSModule.DataReciveNotifier.Add(FGpsDataReceiveListener);
   FGpsDisconnectListener := TNotifyEventListener.Create(OnGpsDisconnect);
-  FGPSModele.DisconnectNotifier.Add(FGpsDisconnectListener);
+  FGPSModule.DisconnectNotifier.Add(FGpsDisconnectListener);
 end;
 
 destructor TGPSpar.Destroy;
@@ -103,13 +103,13 @@ begin
   FGPSRecorder := nil;
   FSettingsObj := nil;
   FSettings := nil;
-  FGPSModele.ConnectNotifier.Remove(FGpsConnectListener);
-  FGPSModele.DataReciveNotifier.Remove(FGpsDataReceiveListener);
-  FGPSModele.DisconnectNotifier.Remove(FGpsDisconnectListener);
+  FGPSModule.ConnectNotifier.Remove(FGpsConnectListener);
+  FGPSModule.DataReciveNotifier.Remove(FGpsDataReceiveListener);
+  FGPSModule.DisconnectNotifier.Remove(FGpsDisconnectListener);
   FGpsConnectListener := nil;
   FGpsDataReceiveListener := nil;
   FGpsDisconnectListener := nil;
-  FGPSModele := nil;
+  FGPSModule := nil;
   FreeAndNil(FLogWriter);
   inherited;
 end;
@@ -182,7 +182,7 @@ var
   VDistToPrev: Double;
   VConverter: ICoordConverter;
 begin
-  VPosition := GPSModele.Position;
+  VPosition := FGPSModule.Position;
   if (VPosition.IsFix=0) then exit;
   VPointCurr := VPosition.Position;
   if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
@@ -249,9 +249,9 @@ end;
 
 procedure TGPSpar.SendTerminateToThreads;
 begin
-  if FGPSModele.IsConnected then begin
+  if FGPSModule.IsConnected then begin
     GPS_enab := True;
-    FGPSModele.Disconnect;
+    FGPSModule.Disconnect;
   end else begin
     GPS_enab := False;
   end;
@@ -260,7 +260,7 @@ end;
 procedure TGPSpar.StartThreads;
 begin
   if GPS_enab then begin
-    FGPSModele.Connect;
+    FGPSModule.Connect;
   end;
 end;
 
