@@ -18,8 +18,7 @@ type
   TGPSpar = class
   private
     FGPSRecorder: IGPSRecorder;
-    FSettings: IGPSModuleByCOMPortSettings;
-    FSettingsObj: TGPSModuleByCOMPortSettings;
+    FSettings: IGPSModuleByCOMPortConfig;
     FGPSModule: IGPSModule;
     GPS_enab: Boolean;
 
@@ -44,8 +43,6 @@ type
     Odometr: Double;
     Odometr2: Double;
 
-    //Размер указателя направления при GPS-навигации
-    GPS_ArrowSize: Integer;
     //Цвет указателя направления при навигацци
     GPS_ArrowColor: TColor;
     // Толщина отображемого GPS трека
@@ -67,7 +64,7 @@ type
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
 
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
-    property GPSSettings: TGPSModuleByCOMPortSettings read FSettingsObj;
+    property GPSSettings: IGPSModuleByCOMPortConfig read FSettings;
     property GPSModule: IGPSModule read FGPSModule;
   end;
 
@@ -85,9 +82,8 @@ uses
 constructor TGPSpar.Create;
 begin
   FGPSRecorder := TGPSRecorderStuped.Create;
-  FSettingsObj := TGPSModuleByCOMPortSettings.Create;
-  FSettings := FSettingsObj;
-  FGPSModule := TGPSModuleByZylGPS.Create(FSettings);
+  FSettings := TGPSModuleByCOMPortSettings.Create;
+  FGPSModule := TGPSModuleByZylGPS.Create(FSettings.GetStatic);
 
   FGpsConnectListener := TNotifyEventListener.Create(OnGpsConnect);
   FGPSModule.ConnectNotifier.Add(FGpsConnectListener);
@@ -100,7 +96,6 @@ end;
 destructor TGPSpar.Destroy;
 begin
   FGPSRecorder := nil;
-  FSettingsObj := nil;
   FSettings := nil;
   FGPSModule.ConnectNotifier.Remove(FGpsConnectListener);
   FGPSModule.DataReciveNotifier.Remove(FGpsDataReceiveListener);
@@ -117,19 +112,11 @@ procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
 begin
-  FSettingsObj.LogPath := GState.TrackLogPath;
   FLogWriter := TPltLogWriter.Create(GState.TrackLogPath);
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
 
-    FSettingsObj.Port := VConfigProvider.ReadInteger('COM', FSettings.Port);
-    FSettingsObj.BaudRate := VConfigProvider.ReadInteger('BaudRate', FSettings.BaudRate);
-    FSettingsObj.ConnectionTimeout := VConfigProvider.ReadInteger('timeout', FSettings.ConnectionTimeout);
-    FSettingsObj.Delay := VConfigProvider.ReadInteger('update', FSettings.Delay);
-    FSettingsObj.NMEALog := VConfigProvider.ReadBool('NMEAlog', FSettings.NMEALog);
-
-    GPS_ArrowSize := VConfigProvider.ReadInteger('SizeStr', 25);
     GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr', clRed);
     GPS_TrackWidth := VConfigProvider.ReadInteger('SizeTrack', 5);
     GPS_NumTrackPoints := VConfigProvider.ReadInteger('NumShowTrackPoints', 5000);
@@ -142,7 +129,6 @@ begin
     Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
   end else begin
     GPS_enab := False;
-    GPS_ArrowSize := 25;
     GPS_ArrowColor := clRed;
     GPS_TrackWidth := 5;
     GPS_NumTrackPoints := 5000;
@@ -227,13 +213,6 @@ begin
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
   VConfigProvider.WriteBool('enbl', GPS_enab);
 
-  VConfigProvider.WriteInteger('COM', FSettings.Port);
-  VConfigProvider.WriteInteger('BaudRate',FSettings.BaudRate);
-  VConfigProvider.WriteInteger('timeout',FSettings.ConnectionTimeout);
-  VConfigProvider.WriteInteger('update',FSettings.Delay);
-  VConfigProvider.WriteBool('NMEALog',FSettings.NMEALog);
-
-  VConfigProvider.WriteInteger('SizeStr',GPS_ArrowSize);
   VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
   VConfigProvider.WriteInteger('SizeTrack',GPS_TrackWidth);
   VConfigProvider.WriteInteger('NumShowTrackPoints',GPS_NumTrackPoints);

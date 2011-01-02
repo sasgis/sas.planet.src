@@ -376,7 +376,7 @@ begin
   end;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
- GState.GPSpar.GPS_ArrowSize:=SESizeStr.Value;
+ GState.MainFormConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
  GState.GPSpar.GPS_TrackWidth:=SESizeTrack.Value;
  GState.GPSpar.GPSSettings.ConnectionTimeout:=SpinEdit2.Value;
  GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
@@ -591,7 +591,7 @@ begin
  CB_GPSlog.Checked:=GState.GPSpar.GPS_WriteLog;
  CB_GPSlogNmea.Checked:=GState.GPSpar.GPSSettings.NMEALog;
  SpinEdit1.Value:=GState.GPSpar.GPSSettings.Delay;
- SESizeStr.Value:=GState.GPSpar.GPS_ArrowSize;
+ SESizeStr.Value:=GState.MainFormConfig.GPSMarker.MarkerMovedSize;
  SESizeTrack.Value:=GState.GPSpar.GPS_TrackWidth;
  SE_NumTrackPoints.Value:=GState.GPSpar.GPS_NumTrackPoints;
  CBSensorsBarAutoShow.Checked:=GState.GPSpar.GPS_SensorsAutoShow;

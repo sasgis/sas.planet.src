@@ -4,10 +4,13 @@ interface
 
 uses
   i_JclNotify,
-  i_IGPSModuleByCOMPortSettings;
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
+  i_IGPSModuleByCOMPortSettings,
+  u_ConfigDataElementBase;
 
 type
-  TGPSModuleByCOMPortSettings = class(TInterfacedObject, IGPSModuleByCOMPortSettings)
+  TGPSModuleByCOMPortSettings = class(TConfigDataElementBase, IGPSModuleByCOMPortConfig)
   private
     FPort: Integer;
     FBaudRate: Integer;
@@ -15,44 +18,43 @@ type
     FDelay: Integer;
     FNMEALog: Boolean;
     FLogPath: WideString;
-    FConfigChangeNotifier: IJclNotifier;
   protected
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure SetChanged; override;
+  protected
+    function GetPort: Integer;
     procedure SetPort(AValue: Integer);
-    procedure SetBaudRate(AValue: Integer);
-    procedure SetConnectionTimeout(AValue: Integer);
-    procedure SetDelay(AValue: Integer);
-    procedure SetNMEALog(AValue: Boolean);
-    procedure SetLogPath(AValue: WideString);
-  protected
-    function GetPort: Integer; safecall;
-    function GetBaudRate: Integer; safecall;
-    function GetConnectionTimeout: Integer; safecall;
-    function GetDelay: Integer; safecall;
-    function GetNMEALog: Boolean; safecall;
-    function GetLogPath: WideString; safecall;
 
-    function GetConfigChangeNotifier: IJclNotifier; safecall;
+    function GetBaudRate: Integer;
+    procedure SetBaudRate(AValue: Integer);
+
+    function GetConnectionTimeout: Integer;
+    procedure SetConnectionTimeout(AValue: Integer);
+
+    function GetDelay: Integer;
+    procedure SetDelay(AValue: Integer);
+
+    function GetNMEALog: Boolean;
+    procedure SetNMEALog(AValue: Boolean);
+
+    function GetLogPath: WideString;
+
+    function GetStatic: IGPSModuleByCOMPortConfigSatic;
   public
     constructor Create;
-    destructor Destroy; override;
-    property Port: Integer read GetPort write SetPort;
-    property BaudRate: Integer read GetBaudRate write SetBaudRate;
-    property ConnectionTimeout: Integer read GetConnectionTimeout write SetConnectionTimeout;
-    property Delay: Integer read GetDelay write SetDelay;
-    property NMEALog: Boolean read GetNMEALog write SetNMEALog;
-    property LogPath: WideString read GetLogPath write SetLogPath;
   end;
 
 implementation
 
 uses
-  u_JclNotify;
+  u_JclNotify,
+  u_GlobalState;
 
 { TGPSModuleByCOMPortSettings }
 
 constructor TGPSModuleByCOMPortSettings.Create;
 begin
-  FConfigChangeNotifier := TJclBaseNotifier.Create;
   FPort := 0;
   FBaudRate := 4800;
   FConnectionTimeout := 300;
@@ -60,21 +62,34 @@ begin
   FNMEALog := False;
 end;
 
-destructor TGPSModuleByCOMPortSettings.Destroy;
+procedure TGPSModuleByCOMPortSettings.DoReadConfig(
+  AConfigData: IConfigDataProvider);
 begin
-  FConfigChangeNotifier := nil;
-  FLogPath := '';
   inherited;
+  FLogPath := GState.TrackLogPath;
+  if AConfigData <> nil then begin
+    FPort := AConfigData.ReadInteger('COM', FPort);
+    FBaudRate := AConfigData.ReadInteger('BaudRate', FBaudRate);
+    FConnectionTimeout := AConfigData.ReadInteger('timeout', FConnectionTimeout);
+    FDelay := AConfigData.ReadInteger('update', FDelay);
+    FNMEALog := AConfigData.ReadBool('NMEAlog', FNMEALog);
+  end;
+end;
+
+procedure TGPSModuleByCOMPortSettings.DoWriteConfig(
+  AConfigData: IConfigDataWriteProvider);
+begin
+  inherited;
+  AConfigData.WriteInteger('COM', FPort);
+  AConfigData.WriteInteger('BaudRate', FBaudRate);
+  AConfigData.WriteInteger('timeout', FConnectionTimeout);
+  AConfigData.WriteInteger('update', FDelay);
+  AConfigData.WriteBool('NMEAlog', FNMEALog);
 end;
 
 function TGPSModuleByCOMPortSettings.GetBaudRate: Integer;
 begin
   Result := FBaudRate;
-end;
-
-function TGPSModuleByCOMPortSettings.GetConfigChangeNotifier: IJclNotifier;
-begin
-  Result := FConfigChangeNotifier;
 end;
 
 function TGPSModuleByCOMPortSettings.GetConnectionTimeout: Integer;
@@ -102,19 +117,28 @@ begin
   Result := FPort;
 end;
 
+function TGPSModuleByCOMPortSettings.GetStatic: IGPSModuleByCOMPortConfigSatic;
+begin
+
+end;
+
 procedure TGPSModuleByCOMPortSettings.SetBaudRate(AValue: Integer);
 begin
   if FBaudRate <> AValue then begin
     FBaudRate := AValue;
-    FConfigChangeNotifier.Notify(nil);
   end;
+end;
+
+procedure TGPSModuleByCOMPortSettings.SetChanged;
+begin
+  inherited;
+
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetConnectionTimeout(AValue: Integer);
 begin
   if FConnectionTimeout <> AValue then begin
     FConnectionTimeout := AValue;
-    FConfigChangeNotifier.Notify(nil);
   end;
 end;
 
@@ -122,15 +146,6 @@ procedure TGPSModuleByCOMPortSettings.SetDelay(AValue: Integer);
 begin
   if FDelay <> AValue then begin
     FDelay := AValue;
-    FConfigChangeNotifier.Notify(nil);
-  end;
-end;
-
-procedure TGPSModuleByCOMPortSettings.SetLogPath(AValue: WideString);
-begin
-  if FLogPath <> AValue then begin
-    FLogPath := AValue;
-    FConfigChangeNotifier.Notify(nil);
   end;
 end;
 
@@ -138,7 +153,6 @@ procedure TGPSModuleByCOMPortSettings.SetNMEALog(AValue: Boolean);
 begin
   if FNMEALog <> AValue then begin
     FNMEALog := AValue;
-    FConfigChangeNotifier.Notify(nil);
   end;
 end;
 
@@ -146,7 +160,6 @@ procedure TGPSModuleByCOMPortSettings.SetPort(AValue: Integer);
 begin
   if FPort <> AValue then begin
     FPort := AValue;
-    FConfigChangeNotifier.Notify(nil);
   end;
 end;
 

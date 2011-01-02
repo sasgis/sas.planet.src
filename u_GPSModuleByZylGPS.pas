@@ -15,7 +15,7 @@ type
   protected
     FGPSReceiver: TZylGPSReceiver;
     FConnectState: TConnectState;
-    FSettings: IGPSModuleByCOMPortSettings;
+    FSettings: IGPSModuleByCOMPortConfigSatic;
     FFormatSettings: TFormatSettings;
     procedure GPSReceiver1SatellitesReceive(Sender: TObject);
     procedure GPSReceiverReceive(Sender: TObject; Buffer: string);
@@ -30,7 +30,7 @@ type
     procedure Disconnect; override;
     function GetIsConnected: Boolean; override;
   public
-    constructor Create(ASettings: IGPSModuleByCOMPortSettings);
+    constructor Create(ASettings: IGPSModuleByCOMPortConfigSatic);
     destructor Destroy; override;
   end;
 implementation
@@ -45,7 +45,7 @@ uses
 const
   CMaxSatCount = 32;
 
-constructor TGPSModuleByZylGPS.Create(ASettings: IGPSModuleByCOMPortSettings);
+constructor TGPSModuleByZylGPS.Create(ASettings: IGPSModuleByCOMPortConfigSatic);
 begin
   inherited Create;
   FSettings := ASettings;
