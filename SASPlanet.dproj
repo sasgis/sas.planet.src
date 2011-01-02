@@ -116,6 +116,7 @@
     <DCCReference Include="i_IMapCalibration.pas" />
     <DCCReference Include="i_IMapChangeMessage.pas" />
     <DCCReference Include="i_IMapLayerGPSMarkerConfig.pas" />
+    <DCCReference Include="i_IMapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_IMapTypeMenuItem.pas" />
     <DCCReference Include="i_IMapTypeMenuItmesList.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
