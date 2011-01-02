@@ -1559,7 +1559,7 @@ end;
 
 procedure TFmain.UpdateGPSsensors;
 var
-  s_len,n_len: string;
+  n_len: string;
   sps: _SYSTEM_POWER_STATUS;
   VPoint: TDoublePoint;
   VDist: Double;
