@@ -6,6 +6,7 @@ uses
   Windows,
   Types,
   GR32,
+  GR32_Transforms,
   GR32_Image,
   i_JclNotify,
   u_MapViewPortState,
@@ -15,6 +16,7 @@ uses
 type
   TMapLayerGPSMarker = class(TMapLayerFixedWithBitmap)
   private
+    FTransform: TAffineTransformation;
     FGPSDisconntectListener: IJclListener;
     FGPSReceiveListener: IJclListener;
     FMarkerMoved: TCustomBitmap32;
@@ -43,7 +45,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Transforms,
   GR32_Polygons,
   i_GPS,
   u_GlobalState,
@@ -57,6 +58,8 @@ var
   VSize: TPoint;
 begin
   inherited;
+  FTransform := TAffineTransformation.Create;
+
   FMarkerMovedSize := 25;
   FMarkerMovedColor := SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 150);
 
@@ -83,6 +86,7 @@ end;
 
 destructor TMapLayerGPSMarker.Destroy;
 begin
+  FreeAndNil(FTransform);
   FreeAndNil(FMarkerMoved);
   FreeAndNil(FMarkerStoped);
   FGPSDisconntectListener := nil;
@@ -92,29 +96,23 @@ end;
 
 procedure TMapLayerGPSMarker.DoRedraw;
 var
-  T: TAffineTransformation;
   VSize: TPoint;
 begin
   inherited;
   VSize := LayerSize;
   if FSpeed > FMinMoveSpeed then begin
-    T := TAffineTransformation.Create;
-    try
-      T.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
-      T.Clear;
+    FTransform.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
+    FTransform.Clear;
 
-      T.Translate(-VSize.X / 2, -VSize.Y / 2);
-      T.Rotate(0, 0, -FAngle);
-      T.Translate(VSize.X / 2, VSize.Y / 2);
-      FLayer.Bitmap.Lock;
-      try
-        FLayer.Bitmap.Clear(0);
-        Transform(FLayer.Bitmap, FMarkerMoved, T);
-      finally
-        FLayer.Bitmap.Unlock;
-      end;
+    FTransform.Translate(-VSize.X / 2, -VSize.Y / 2);
+    FTransform.Rotate(0, 0, -FAngle);
+    FTransform.Translate(VSize.X / 2, VSize.Y / 2);
+    FLayer.Bitmap.Lock;
+    try
+      FLayer.Bitmap.Clear(0);
+      Transform(FLayer.Bitmap, FMarkerMoved, FTransform);
     finally
-      FreeAndNil(T);
+      FLayer.Bitmap.Unlock;
     end;
   end else begin
     FLayer.Bitmap.Lock;
