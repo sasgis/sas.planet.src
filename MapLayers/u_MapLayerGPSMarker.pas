@@ -8,7 +8,6 @@ uses
   GR32,
   GR32_Transforms,
   GR32_Image,
-  i_JclNotify,
   i_IMapLayerGPSMarkerConfig,
   i_IGPSModule,
   u_MapViewPortState,
@@ -42,9 +41,7 @@ implementation
 
 uses
   SysUtils,
-  GR32_Polygons,
   i_GPS,
-  u_GlobalState,
   u_NotifyEventListener;
 
 { TMapLayerGPSMarker }
