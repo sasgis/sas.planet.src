@@ -853,7 +853,7 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapGPS);
-    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState);
+    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState, FConfig.GPSMarker, GState.GPSpar.GPSModule);
     FLayersList.Add(FLayerGPSMarker);
     FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerSelection);
