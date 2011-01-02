@@ -115,6 +115,7 @@
     <DCCReference Include="i_IMainWindowPosition.pas" />
     <DCCReference Include="i_IMapCalibration.pas" />
     <DCCReference Include="i_IMapChangeMessage.pas" />
+    <DCCReference Include="i_IMapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="i_IMapTypeMenuItem.pas" />
     <DCCReference Include="i_IMapTypeMenuItmesList.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
@@ -426,6 +427,7 @@
     <DCCReference Include="u_MapCalibrationTab.pas" />
     <DCCReference Include="u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapChangeMessage.pas" />
+    <DCCReference Include="u_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderStuped.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />

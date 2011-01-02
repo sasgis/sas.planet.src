@@ -303,6 +303,8 @@ uses
   u_TileGridConfig in 'u_TileGridConfig.pas',
   u_GenShtabGridConfig in 'u_GenShtabGridConfig.pas',
   u_MapLayerGridsConfig in 'u_MapLayerGridsConfig.pas',
+  i_IMapLayerGPSMarkerConfig in 'i_IMapLayerGPSMarkerConfig.pas',
+  u_MapLayerGPSMarkerConfig in 'u_MapLayerGPSMarkerConfig.pas',
   i_IBitmapPostProcessingConfig in 'i_IBitmapPostProcessingConfig.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_MainFormConfig in 'i_MainFormConfig.pas',
