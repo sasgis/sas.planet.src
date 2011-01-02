@@ -20,7 +20,7 @@ type
     function IsEmpty: Boolean;
     function GetLastPoint: TDoublePoint;
     function GetTwoLastPoints(var APointLast, APointPrev: TDoublePoint): Boolean;
-    function LastVisiblePoints: TGPSTrackPointArray;
+    function LastPoints(ACount: Integer): TGPSTrackPointArray;
     function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
   end;

@@ -46,7 +46,7 @@ var
   VPoints: TGPSTrackPointArray;
   VLocalConverter: ILocalCoordConverter;
 begin
-  VPoints := GState.GPSpar.GPSRecorder.LastVisiblePoints;
+  VPoints := GState.GPSpar.GPSRecorder.LastPoints(GState.GPSpar.GPS_NumTrackPoints);
   VLocalConverter := FBitmapCoordConverter;
   VPointsCount := length(VPoints);
   with FLayer.Bitmap do begin

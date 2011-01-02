@@ -20,7 +20,7 @@ type
     function IsEmpty: Boolean;
     function GetLastPoint: TDoublePoint;
     function GetTwoLastPoints(var APointLast, APointPrev: TDoublePoint): Boolean;
-    function LastVisiblePoints: TGPSTrackPointArray;
+    function LastPoints(ACount: Integer): TGPSTrackPointArray;
     function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
   public
@@ -151,14 +151,14 @@ begin
   end;
 end;
 
-function TGPSRecorderStuped.LastVisiblePoints: TGPSTrackPointArray;
+function TGPSRecorderStuped.LastPoints(ACount: Integer): TGPSTrackPointArray;
 var
   VPointsToCopyCount: Integer;
   VStartIndex: Integer;
 begin
   FLock.BeginRead;
   try
-    VPointsToCopyCount := GState.GPSpar.GPS_NumTrackPoints;
+    VPointsToCopyCount := ACount;
     if FPointsCount <= VPointsToCopyCount then begin
       VPointsToCopyCount := FPointsCount;
       VStartIndex := 0;
