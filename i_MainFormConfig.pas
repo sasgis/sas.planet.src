@@ -6,6 +6,7 @@ uses
   i_IConfigDataElement,
   i_INavigationToPoint,
   i_IStatBarConfig,
+  i_IMapLayerGPSMarkerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -39,6 +40,9 @@ type
 
     function GetStatBar: IStatBarConfig;
     property StatBar: IStatBarConfig read GetStatBar;
+
+    function GetGPSMarker: IMapLayerGPSMarkerConfig;
+    property GPSMarker: IMapLayerGPSMarkerConfig read GetGPSMarker;
   end;
 
 implementation

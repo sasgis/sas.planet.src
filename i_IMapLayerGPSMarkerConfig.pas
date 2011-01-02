@@ -7,7 +7,7 @@ uses
   i_IConfigDataElement;
 
 type
-  IMapLayerGPSMarkerConfig = interface
+  IMapLayerGPSMarkerConfig = interface(IConfigDataElement)
     ['{A8E08D39-7805-4A4C-AD78-F8CAD66919C7}']
     function GetMinMoveSpeed: Double;
     procedure SetMinMoveSpeed(AValue: Double);

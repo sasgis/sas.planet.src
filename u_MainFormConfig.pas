@@ -9,6 +9,7 @@ uses
   i_MapLayerGridsConfig,
   i_INavigationToPoint,
   i_IStatBarConfig,
+  i_IMapLayerGPSMarkerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -20,12 +21,14 @@ type
     FMapLayerGridsConfig: IMapLayerGridsConfig;
     FNavToPoint: INavigationToPoint;
     FStatBar: IStatBarConfig;
+    FGPSMarker: IMapLayerGPSMarkerConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetNavToPoint: INavigationToPoint;
     function GetStatBar: IStatBarConfig;
+    function GetGPSMarker: IMapLayerGPSMarkerConfig;
   public
     constructor Create;
   end;
@@ -39,6 +42,7 @@ uses
   u_MapLayerGridsConfig,
   u_NavigationToPoint,
   u_StatBarConfig,
+  u_MapLayerGPSMarkerConfig,
   u_MainFormMainConfig;
 
 { TMainFormConfig }
@@ -56,6 +60,13 @@ begin
   Add(FNavToPoint, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPoint'));
   FStatBar := TStatBarConfig.Create;
   Add(FStatBar, TConfigSaveLoadStrategyBasicProviderSubItem.Create('StatusBar'));
+  FGPSMarker := TMapLayerGPSMarkerConfig.Create;
+  Add(FGPSMarker, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPSMarker'));
+end;
+
+function TMainFormConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
+begin
+  Result := FGPSMarker;
 end;
 
 function TMainFormConfig.GetMainConfig: IMainFormMainConfig;
