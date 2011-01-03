@@ -10,6 +10,7 @@ uses
   i_INavigationToPoint,
   i_IStatBarConfig,
   i_IMapLayerGPSMarkerConfig,
+  i_IMapLayerGPSTrackConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -22,6 +23,7 @@ type
     FNavToPoint: INavigationToPoint;
     FStatBar: IStatBarConfig;
     FGPSMarker: IMapLayerGPSMarkerConfig;
+    FGPSTrackConfig: IMapLayerGPSTrackConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;
@@ -29,6 +31,7 @@ type
     function GetNavToPoint: INavigationToPoint;
     function GetStatBar: IStatBarConfig;
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
+    function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
   public
     constructor Create;
   end;
@@ -67,6 +70,11 @@ end;
 function TMainFormConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
 begin
   Result := FGPSMarker;
+end;
+
+function TMainFormConfig.GetGPSTrackConfig: IMapLayerGPSTrackConfig;
+begin
+  Result := FGPSTrackConfig;
 end;
 
 function TMainFormConfig.GetMainConfig: IMainFormMainConfig;

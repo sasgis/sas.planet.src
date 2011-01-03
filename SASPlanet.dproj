@@ -429,6 +429,7 @@
     <DCCReference Include="u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapChangeMessage.pas" />
     <DCCReference Include="u_MapLayerGPSMarkerConfig.pas" />
+    <DCCReference Include="u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderStuped.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />

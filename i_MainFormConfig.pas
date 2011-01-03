@@ -7,6 +7,7 @@ uses
   i_INavigationToPoint,
   i_IStatBarConfig,
   i_IMapLayerGPSMarkerConfig,
+  i_IMapLayerGPSTrackConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -43,6 +44,9 @@ type
 
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
     property GPSMarker: IMapLayerGPSMarkerConfig read GetGPSMarker;
+
+    function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
+    property GPSTrackConfig: IMapLayerGPSTrackConfig read GetGPSTrackConfig;
   end;
 
 implementation

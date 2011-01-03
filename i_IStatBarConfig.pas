@@ -40,6 +40,7 @@ type
     procedure SetFontSize(AValue: Integer);
     property FontSize: Integer read GetFontSize write SetFontSize;
   end;
+  
 implementation
 
 end.

@@ -2,8 +2,11 @@ unit i_IMapLayerGPSTrackConfig;
 
 interface
 
+uses
+  i_IConfigDataElement;
+
 type
-  IMapLayerGPSTrackConfig = interface
+  IMapLayerGPSTrackConfig = interface(IConfigDataElement)
     ['{5F9D5FD1-B40B-451A-B544-11C93A2B6532}']
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
