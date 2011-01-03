@@ -49,12 +49,14 @@ implementation
 
 uses
   u_JclNotify,
-  u_GlobalState;
+  u_GlobalState,
+  u_GPSModuleByCOMPortConfigSatic;
 
 { TGPSModuleByCOMPortSettings }
 
 constructor TGPSModuleByCOMPortSettings.Create;
 begin
+  inherited;
   FPort := 0;
   FBaudRate := 4800;
   FConnectionTimeout := 300;
@@ -119,7 +121,20 @@ end;
 
 function TGPSModuleByCOMPortSettings.GetStatic: IGPSModuleByCOMPortConfigSatic;
 begin
-
+  LockRead;
+  try
+    Result :=
+    TGPSModuleByCOMPortConfigSatic.Create(
+      FPort,
+      FBaudRate,
+      FConnectionTimeout,
+      FDelay,
+      FNMEALog,
+      FLogPath
+    );
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetBaudRate(AValue: Integer);
