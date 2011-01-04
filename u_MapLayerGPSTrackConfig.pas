@@ -52,6 +52,7 @@ begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
     FLineWidth := AConfigData.ReadFloat('LineWidth', FLineWidth);
     FLastPointCount := AConfigData.ReadInteger('LastPointsCount', FLastPointCount);
+    SetChanged;
   end;
 end;
 

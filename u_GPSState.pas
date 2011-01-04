@@ -201,7 +201,6 @@ begin
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
   VConfigProvider.WriteBool('enbl', GPS_enab);
 
-  VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
   VConfigProvider.WriteBool('go',GPS_MapMove);
   VConfigProvider.WriteBool('goCentered',GPS_MapMoveCentered);
   VConfigProvider.WriteBool('log',GPS_WriteLog);
