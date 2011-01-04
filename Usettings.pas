@@ -353,12 +353,12 @@ begin
  finally
    GState.BitmapPostProcessingConfig.UnlockWrite;
  end;
-  GState.MainFormConfig.MapLayerGridsConfig.LockWrite;
+  GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.LockWrite;
   try
-    GState.MainFormConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
-    GState.MainFormConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
   finally
-    GState.MainFormConfig.MapLayerGridsConfig.UnlockWrite;
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
  if CBCacheType.ItemIndex >= 0 then begin
   GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
@@ -376,13 +376,13 @@ begin
   end;
  GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
 
- GState.MainFormConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
-  GState.MainFormConfig.GPSTrackConfig.LockWrite;
+  GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
+  GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockWrite;
   try
-    GState.MainFormConfig.GPSTrackConfig.LineWidth := SESizeTrack.Value;
-    GState.MainFormConfig.GPSTrackConfig.LastPointCount := SE_NumTrackPoints.Value;
+    GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth := SESizeTrack.Value;
+    GState.MainFormConfig.LayersConfig.GPSTrackConfig.LastPointCount := SE_NumTrackPoints.Value;
   finally
-    GState.MainFormConfig.GPSTrackConfig.UnlockWrite;
+    GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockWrite;
   end;
  GState.GPSpar.GPSSettings.ConnectionTimeout:=SpinEdit2.Value;
  GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
@@ -576,13 +576,13 @@ begin
   end;
   LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
 
-  GState.MainFormConfig.MapLayerGridsConfig.LockRead;
+  GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.LockRead;
   try
-    ColorBoxBorder.Selected:=WinColor(GState.MainFormConfig.MapLayerGridsConfig.TileGrid.GridColor);
-    SpinEditBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.MapLayerGridsConfig.TileGrid.GridColor);
-    CBBorderText.Checked:=GState.MainFormConfig.MapLayerGridsConfig.TileGrid.ShowText;
+    ColorBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    SpinEditBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    CBBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
   finally
-    GState.MainFormConfig.MapLayerGridsConfig.UnlockRead;
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
 
  CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
@@ -596,13 +596,13 @@ begin
  CB_GPSlog.Checked:=GState.GPSpar.GPS_WriteLog;
  CB_GPSlogNmea.Checked:=GState.GPSpar.GPSSettings.NMEALog;
  SpinEdit1.Value:=GState.GPSpar.GPSSettings.Delay;
- SESizeStr.Value:=GState.MainFormConfig.GPSMarker.MarkerMovedSize;
-  GState.MainFormConfig.GPSTrackConfig.LockRead;
+  SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize;
+  GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockRead;
   try
-    SESizeTrack.Value := Trunc(GState.MainFormConfig.GPSTrackConfig.LineWidth);
-    SE_NumTrackPoints.Value := GState.MainFormConfig.GPSTrackConfig.LastPointCount;
+    SESizeTrack.Value := Trunc(GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth);
+    SE_NumTrackPoints.Value := GState.MainFormConfig.LayersConfig.GPSTrackConfig.LastPointCount;
   finally
-    GState.MainFormConfig.GPSTrackConfig.UnlockRead;
+    GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
   end;
  CBSensorsBarAutoShow.Checked:=GState.GPSpar.GPS_SensorsAutoShow;
  ScrolInvert.Checked:=GState.MouseWheelInv;

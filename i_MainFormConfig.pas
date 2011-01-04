@@ -8,6 +8,7 @@ uses
   i_IStatBarConfig,
   i_IMapLayerGPSMarkerConfig,
   i_IMapLayerGPSTrackConfig,
+  i_IMapLayerNavToPointMarkerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -25,19 +26,10 @@ type
     procedure SetLock(AValue: Boolean);
   end;
 
-  IMainFormConfig = interface(IConfigDataElement)
-    ['{87184149-7B22-4184-A0BF-703C0C89B3AB}']
-    function GetMainConfig: IMainFormMainConfig;
-    property MainConfig: IMainFormMainConfig read GetMainConfig;
-
-    function GetToolbarsLock: IMainWindowToolbarsLock;
-    property ToolbarsLock: IMainWindowToolbarsLock read GetToolbarsLock;
-
+  IMainFormLayersConfig = interface(IConfigDataElement)
+    ['{02A323E8-25E4-43E5-BE24-AABDF9B331EC}']
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     property MapLayerGridsConfig: IMapLayerGridsConfig read GetMapLayerGridsConfig;
-
-    function GetNavToPoint: INavigationToPoint;
-    property NavToPoint: INavigationToPoint read GetNavToPoint;
 
     function GetStatBar: IStatBarConfig;
     property StatBar: IStatBarConfig read GetStatBar;
@@ -47,6 +39,24 @@ type
 
     function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
     property GPSTrackConfig: IMapLayerGPSTrackConfig read GetGPSTrackConfig;
+
+    function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
+    property NavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig read GetNavToPointMarkerConfig;
+  end;
+
+  IMainFormConfig = interface(IConfigDataElement)
+    ['{87184149-7B22-4184-A0BF-703C0C89B3AB}']
+    function GetMainConfig: IMainFormMainConfig;
+    property MainConfig: IMainFormMainConfig read GetMainConfig;
+
+    function GetLayersConfig: IMainFormLayersConfig;
+    property LayersConfig: IMainFormLayersConfig read GetLayersConfig;
+
+    function GetToolbarsLock: IMainWindowToolbarsLock;
+    property ToolbarsLock: IMainWindowToolbarsLock read GetToolbarsLock;
+
+    function GetNavToPoint: INavigationToPoint;
+    property NavToPoint: INavigationToPoint read GetNavToPoint;
   end;
 
 implementation

@@ -843,7 +843,7 @@ begin
 
     FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
     FLayersList.Add(FMainLayer);
-    FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState, FConfig.MapLayerGridsConfig);
+    FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
     FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
     FLayersList.Add(FWikiLayer);
@@ -851,9 +851,9 @@ begin
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState, FConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
+    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
     FLayersList.Add(FLayerMapGPS);
-    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState, FConfig.GPSMarker, GState.GPSpar.GPSModule);
+    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState, FConfig.LayersConfig.GPSMarker, GState.GPSpar.GPSModule);
     FLayersList.Add(FLayerGPSMarker);
     FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerSelection);
@@ -869,7 +869,7 @@ begin
     FLayersList.Add(FLayerMapCenterScale);
     FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
     FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState, FConfig.StatBar);
+    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
@@ -879,7 +879,7 @@ begin
     CreateMapUI;
     FSettings.InitMapsList;
 
-    VScale := FConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
+    VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
     NGShScale10000.Checked := VScale = 10000;
     NGShScale25000.Checked := VScale = 25000;
     NGShScale50000.Checked := VScale = 50000;
@@ -923,7 +923,7 @@ begin
     VMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FConfig.StatBar.GetChangeNotifier
+      FConfig.LayersConfig.StatBar.GetChangeNotifier
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
@@ -943,7 +943,7 @@ begin
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FConfig.GPSTrackConfig.GetChangeNotifier
+      FConfig.LayersConfig.GPSTrackConfig.GetChangeNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverConnect),
@@ -1091,10 +1091,10 @@ var
   i: Cardinal;
   VMapType: TMapType;
 begin
-  Showstatus.Checked := FConfig.StatBar.Visible;
+  Showstatus.Checked := FConfig.LayersConfig.StatBar.Visible;
   if Showstatus.Checked then begin
-    FLayerScaleLine.BottomMargin := FConfig.StatBar.Height;
-    FLayerMiniMap.BottomMargin := FConfig.StatBar.Height;
+    FLayerScaleLine.BottomMargin := FConfig.LayersConfig.StatBar.Height;
+    FLayerMiniMap.BottomMargin := FConfig.LayersConfig.StatBar.Height;
   end else begin
     FLayerScaleLine.BottomMargin := 0;
     FLayerMiniMap.BottomMargin := 0;
@@ -1104,7 +1104,7 @@ begin
   NShowSelection.Checked := FLayerSelection.Visible;
   N32.Checked:=FLayerMapCenterScale.Visible;
 
-  TBGPSPath.Checked := FConfig.GPSTrackConfig.Visible;
+  TBGPSPath.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
   tbitmGPSTrackShow.Checked := TBGPSPath.Checked;
 
   TBSrc.ImageIndex := integer(FUIDownLoader.UseDownload);
@@ -1550,10 +1550,10 @@ begin
     ASelectedLonLat.Bottom := VTemp;
   end;
   if (ssCtrl in Shift) then begin
-    ASelectedLonLat := FConfig.MapLayerGridsConfig.TileGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
+    ASelectedLonLat := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
   end;
   if (ssShift in Shift) then begin
-    ASelectedLonLat := FConfig.MapLayerGridsConfig.GenShtabGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
+    ASelectedLonLat := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
   end;
 end;
 
@@ -2422,20 +2422,20 @@ var
 begin
   VTag := TMenuItem(Sender).Tag;
   if VTag = 0 then begin
-    FConfig.MapLayerGridsConfig.TileGrid.Visible := False;
+    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := False;
   end else begin
-    FConfig.MapLayerGridsConfig.TileGrid.LockWrite;
+    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
     try
-      FConfig.MapLayerGridsConfig.TileGrid.Visible := True;
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
       if VTag = 99 then begin
-        FConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
-        FConfig.MapLayerGridsConfig.TileGrid.Zoom := 0;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := 0;
       end else begin
-        FConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
-        FConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
       end;
     finally
-      FConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockWrite;
     end;
   end;
 end;
@@ -2449,13 +2449,13 @@ var
   VGridZoom: Byte;
   VZoomCurr: Byte;
 begin
-  FConfig.MapLayerGridsConfig.TileGrid.LockRead;
+  FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockRead;
   try
-    VGridVisible := FConfig.MapLayerGridsConfig.TileGrid.Visible;
-    VRelativeZoom := FConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom;
-    VGridZoom := FConfig.MapLayerGridsConfig.TileGrid.Zoom;
+    VGridVisible := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible;
+    VRelativeZoom := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom;
+    VGridZoom := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom;
   finally
-    FConfig.MapLayerGridsConfig.TileGrid.UnlockRead;
+    FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UnlockRead;
   end;
 
   if not VGridVisible then begin
@@ -2502,7 +2502,7 @@ end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
-  FConfig.GPSTrackConfig.Visible := TTBXitem(sender).Checked;
+  FConfig.LayersConfig.GPSTrackConfig.Visible := TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
@@ -2535,7 +2535,7 @@ end;
 
 procedure TFmain.ShowstatusClick(Sender: TObject);
 begin
-  FConfig.StatBar.Visible := TTBXItem(Sender).Checked;
+  FConfig.LayersConfig.StatBar.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
@@ -3388,16 +3388,16 @@ var
   VTag: Integer;
 begin
   VTag := TTBXItem(sender).Tag;
-  FConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
+  FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
   try
     if VTag = 0 then begin
-      FConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
     end else begin
-      FConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
-      FConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
     end;
   finally
-    FConfig.MapLayerGridsConfig.GenShtabGrid.UnlockWrite;
+    FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.UnlockWrite;
   end;
 end;
 
