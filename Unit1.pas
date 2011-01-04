@@ -889,10 +889,6 @@ begin
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
 
-    TBGPSToPoint.Checked:=GState.GPSpar.GPS_MapMove;
-    tbitmGPSCenterMap.Checked:=GState.GPSpar.GPS_MapMove;
-    TBGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
-    tbitmGPSToPointCenter.Checked:=GState.GPSpar.GPS_MapMoveCentered;
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
     Nanimate.Checked:=GState.AnimateZoom;
@@ -974,6 +970,10 @@ begin
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
       GState.BitmapPostProcessingConfig.GetChangeNotifier
+    );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.GPSBehaviour.GetChangeNotifier
     );
 
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
@@ -1369,6 +1369,10 @@ procedure TFmain.OnMainFormMainConfigChange(Sender: TObject);
 begin
   NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
   Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
+  TBGPSToPoint.Checked:=FConfig.GPSBehaviour.MapMove;
+  tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
+  TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
+  tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
 end;
 
 procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
@@ -1672,7 +1676,7 @@ begin
       end;
       if (VMapMove) then begin
         VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPoint;
-        if VMapMoveCentered then begin
+        if VMapMoveCentred then begin
           GState.ViewState.LockWrite;
           VConverter := GState.ViewState.GetVisualCoordConverter;
           VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -2534,9 +2538,7 @@ end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
 begin
- tbitmGPSCenterMap.Checked:=TTBXitem(sender).Checked;
- TBGPSToPoint.Checked:=TTBXitem(sender).Checked;
- GState.GPSpar.GPS_MapMove:=TBGPSToPoint.Checked;
+  FConfig.GPSBehaviour.MapMove := TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
@@ -3763,9 +3765,7 @@ end;
 
 procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);
 begin
- tbitmGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
- TBGPSToPointCenter.Checked:=TTBXitem(sender).Checked;
- GState.GPSpar.GPS_MapMoveCentered:=TTBXitem(sender).Checked;
+  FConfig.GPSBehaviour.MapMoveCentered := TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);

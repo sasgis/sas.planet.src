@@ -43,9 +43,6 @@ type
     Odometr: Double;
     Odometr2: Double;
 
-    //Центрировать карту на GPS позиции
-    GPS_MapMove: Boolean;
-    GPS_MapMoveCentered: Boolean;
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
     constructor Create();
@@ -110,15 +107,11 @@ begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
 
     GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
-    GPS_MapMove:=VConfigProvider.ReadBool('go',true);
-    GPS_MapMoveCentered:=VConfigProvider.ReadBool('goCentered',false);
     Odometr:=VConfigProvider.ReadFloat('Odometr',0);
     Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
   end else begin
     GPS_enab := False;
     GPS_WriteLog:=true;
-    GPS_MapMove:=true;
-    GPS_MapMoveCentered:=false;
     Odometr:=0;
     Odometr2:=0;
   end;
@@ -196,8 +189,6 @@ begin
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
   VConfigProvider.WriteBool('enbl', GPS_enab);
 
-  VConfigProvider.WriteBool('go',GPS_MapMove);
-  VConfigProvider.WriteBool('goCentered',GPS_MapMoveCentered);
   VConfigProvider.WriteBool('log',GPS_WriteLog);
 
   VConfigProvider.WriteFloat('Odometr', Odometr);
