@@ -36,6 +36,7 @@ type
     FFixedOnBitmap: TDoublePoint;
     function GetMapLayerLocationRect: TFloatRect; override;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
@@ -126,6 +127,22 @@ end;
 procedure TMapLayerFixedWithBitmap.DoRedraw;
 begin
   inherited;
+end;
+
+procedure TMapLayerFixedWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
+var
+  VBitmapSizeInPixel: TPoint;
+begin
+  inherited;
+  VBitmapSizeInPixel := LayerSize;
+  FLayer.Bitmap.Lock;
+  try
+    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
+      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
+    end;
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
 end;
 
 function TMapLayerFixedWithBitmap.GetLayerSizeForViewSize(
