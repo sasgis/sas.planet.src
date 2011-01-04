@@ -5,21 +5,31 @@ interface
 uses
   Types,
   GR32,
+  GR32_Image,
   t_GeoTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_IGPSRecorder,
+  
+  
+  i_IMapLayerGPSTrackConfig,
+  u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TMapGPSLayer = class(TMapLayerBasic)
   private
+    FConfig: IMapLayerGPSTrackConfig;
+    FGPSRecorder: IGPSRecorder;
     procedure DrawPath;
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
   public
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
-    property Visible: Boolean read GetVisible write SetVisible;
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: TMapViewPortState;
+      AConfig: IMapLayerGPSTrackConfig;
+      AGPSRecorder: IGPSRecorder
+    );
   end;
 
 implementation
@@ -28,11 +38,26 @@ uses
   Graphics,
   SysUtils,
   GR32_Polygons,
-  i_IGPSRecorder,
   i_ILocalCoordConverter,
-  u_GlobalState;
+  u_NotifyEventListener;
 
 { TMapGPSLayer }
+
+constructor TMapGPSLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: TMapViewPortState;
+  AConfig: IMapLayerGPSTrackConfig;
+  AGPSRecorder: IGPSRecorder
+);
+begin
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
+  FGPSRecorder := AGPSRecorder;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+end;
 
 procedure TMapGPSLayer.DrawPath;
 var
@@ -45,19 +70,33 @@ var
   VMaxSpeed: Extended;
   VPoints: TGPSTrackPointArray;
   VLocalConverter: ILocalCoordConverter;
+  VLineWidth: Double;
 begin
-  VPoints := GState.GPSpar.GPSRecorder.LastPoints(GState.GPSpar.GPS_NumTrackPoints);
+  FConfig.LockRead;
+  try
+    VPointsCount := FConfig.LastPointCount;
+    VLineWidth := FConfig.LineWidth;
+  finally
+    FConfig.UnlockRead
+  end;
+  VPoints := FGPSRecorder.LastPoints(VPointsCount);
   VLocalConverter := FBitmapCoordConverter;
   VPointsCount := length(VPoints);
   with FLayer.Bitmap do begin
     if (VPointsCount > 1) then begin
+      VMaxSpeed := VPoints[0].Speed;
+      for j := 1 to VPointsCount - 1 do begin
+        if VMaxSpeed < VPoints[j].Speed then begin
+          VMaxSpeed := VPoints[j].Speed;
+        end;
+      end;
+
       VPolygon := TPolygon32.Create;
       try
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
         VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VPoints[0].Point);
-        VMaxSpeed := GState.GPSpar.maxspeed;
         for j := 1 to VPointsCount - 1 do begin
           VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VPoints[j].Point);
           VSpeed := VPoints[j - 1].Speed;
@@ -72,7 +111,7 @@ begin
               VPolygon.Add(FixedPoint(VPointPrev.X, VPointPrev.Y));
               VPolygon.Add(FixedPoint(VPointCurr.X, VPointCurr.Y));
               with VPolygon.Outline do try
-                with Grow(Fixed(GState.GPSpar.GPS_TrackWidth / 2), 0.5) do try
+                with Grow(Fixed(VLineWidth / 2), 0.5) do try
                   DrawFill(FLayer.Bitmap, VSegmentColor);
                 finally
                   free;
@@ -92,26 +131,14 @@ begin
   end;
 end;
 
-procedure TMapGPSLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
+procedure TMapGPSLayer.OnConfigChange(Sender: TObject);
 begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('GPSTrack', True);
+  if FConfig.Visible then begin
+    Redraw;
+    Show;
   end else begin
-    Visible := True;
+    Hide;
   end;
-end;
-
-procedure TMapGPSLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VSubItem: IConfigDataWriteProvider;
-begin
-  inherited;
-  VSubItem := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VSubItem.WriteBool('GPSTrack', Visible);
 end;
 
 procedure TMapGPSLayer.DoRedraw;

@@ -851,7 +851,7 @@ begin
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState);
+    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState, FConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
     FLayersList.Add(FLayerMapGPS);
     FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState, FConfig.GPSMarker, GState.GPSpar.GPSModule);
     FLayersList.Add(FLayerGPSMarker);
@@ -943,7 +943,7 @@ begin
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FLayerMapGPS.VisibleChangeNotifier
+      FConfig.GPSTrackConfig.GetChangeNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverConnect),
@@ -1104,8 +1104,8 @@ begin
   NShowSelection.Checked := FLayerSelection.Visible;
   N32.Checked:=FLayerMapCenterScale.Visible;
 
-  TBGPSPath.Checked := FLayerMapGPS.Visible;
-  tbitmGPSTrackShow.Checked := FLayerMapGPS.Visible;
+  TBGPSPath.Checked := FConfig.GPSTrackConfig.Visible;
+  tbitmGPSTrackShow.Checked := TBGPSPath.Checked;
 
   TBSrc.ImageIndex := integer(FUIDownLoader.UseDownload);
   case FUIDownLoader.UseDownload of
@@ -2502,7 +2502,7 @@ end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
 begin
-  FLayerMapGPS.Visible := TTBXitem(sender).Checked;
+  FConfig.GPSTrackConfig.Visible := TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
