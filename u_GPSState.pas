@@ -45,10 +45,6 @@ type
 
     //Цвет указателя направления при навигацци
     GPS_ArrowColor: TColor;
-    // Толщина отображемого GPS трека
-    GPS_TrackWidth: Integer;
-    //Максимальное количество оотображаемых точек трека
-    GPS_NumTrackPoints: integer;
     //Центрировать карту на GPS позиции
     GPS_MapMove: Boolean;
     GPS_MapMoveCentered: Boolean;
@@ -118,8 +114,6 @@ begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
 
     GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr', clRed);
-    GPS_TrackWidth := VConfigProvider.ReadInteger('SizeTrack', 5);
-    GPS_NumTrackPoints := VConfigProvider.ReadInteger('NumShowTrackPoints', 5000);
     GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
     GPS_MapMove:=VConfigProvider.ReadBool('go',true);
     GPS_MapMoveCentered:=VConfigProvider.ReadBool('goCentered',false);
@@ -130,8 +124,6 @@ begin
   end else begin
     GPS_enab := False;
     GPS_ArrowColor := clRed;
-    GPS_TrackWidth := 5;
-    GPS_NumTrackPoints := 5000;
     GPS_WriteLog:=true;
     GPS_MapMove:=true;
     GPS_MapMoveCentered:=false;
@@ -214,8 +206,6 @@ begin
   VConfigProvider.WriteBool('enbl', GPS_enab);
 
   VConfigProvider.WriteInteger('ColorStr',GPS_ArrowColor);
-  VConfigProvider.WriteInteger('SizeTrack',GPS_TrackWidth);
-  VConfigProvider.WriteInteger('NumShowTrackPoints',GPS_NumTrackPoints);
   VConfigProvider.WriteBool('go',GPS_MapMove);
   VConfigProvider.WriteBool('goCentered',GPS_MapMoveCentered);
   VConfigProvider.WriteBool('log',GPS_WriteLog);
