@@ -1650,6 +1650,10 @@ var
   VGPSMapPoint: TDoublePoint;
   VPosition: IGPSPosition;
   VConverter: ILocalCoordConverter;
+  VMapMove: Boolean;
+  VMapMoveCentred: Boolean;
+  VMinDelta: Double;
+  VDelta: Double;
 begin
   if FIsGPSPosChanged then begin
     FIsGPSPosChanged := False;
@@ -1658,11 +1662,29 @@ begin
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
     if (VPosition.IsFix=0) then exit;
     if not((FMapMoving)or(FMapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
-      if (GState.GPSpar.GPS_MapMove) then begin
+      FConfig.GPSBehaviour.LockRead;
+      try
+        VMapMove := FConfig.GPSBehaviour.MapMove;
+        VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
+        VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
+      finally
+        FConfig.GPSBehaviour.UnlockRead;
+      end;
+      if (VMapMove) then begin
         VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPoint;
-        if GState.GPSpar.GPS_MapMoveCentered then begin
+        if VMapMoveCentered then begin
           GState.ViewState.LockWrite;
-          GState.ViewState.ChangeLonLatAndUnlock(VGPSNewPos);
+          VConverter := GState.ViewState.GetVisualCoordConverter;
+          VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+          VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
+          VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
+          VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
+          VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+          if VDelta > VMinDelta then begin
+            GState.ViewState.ChangeLonLatAndUnlock(VGPSNewPos);
+          end else begin
+            GState.ViewState.UnLockWrite;
+          end;
         end else begin
           GState.ViewState.LockWrite;
           try
@@ -1675,7 +1697,12 @@ begin
               VPointDelta := FCenterToGPSDelta;
               VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
               VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
-              GState.ViewState.ChangeMapPixelByDelta(Point(Trunc(VPointDelta.X), Trunc(VPointDelta.Y)));
+              VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+              if VDelta > VMinDelta then begin
+                GState.ViewState.ChangeMapPixelByDelta(Point(Trunc(VPointDelta.X), Trunc(VPointDelta.Y)));
+              end else begin
+                GState.ViewState.UnLockWrite;
+              end;
             end;
           finally
             GState.ViewState.UnLockWrite;
