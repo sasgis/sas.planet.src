@@ -344,7 +344,7 @@ begin
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
  GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
- GState.GPSpar.GPS_ArrowColor:=ColorBoxGPSstr.selected;
+ GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
  GState.BitmapPostProcessingConfig.LockWrite;
  try
    GState.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
@@ -560,7 +560,7 @@ begin
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
- ColorBoxGPSstr.Selected:=GState.GPSpar.GPS_ArrowColor;
+  ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor);
   GState.BitmapPostProcessingConfig.LockRead;
   try
     CBinvertcolor.Checked := GState.BitmapPostProcessingConfig.InvertColor;

@@ -861,7 +861,7 @@ begin
     FLayersList.Add(FLayerMapNal);
     FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState, FConfig.NavToPoint);
+    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
     FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
     FLayersList.Add(FShowErrorLayer);

@@ -6,32 +6,37 @@ uses
   Windows,
   Types,
   GR32,
+  GR32_Transforms,
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
   i_ILocalCoordConverter,
   i_INavigationToPoint,
+  i_IMapLayerNavToPointMarkerConfig,
   u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TNavToMarkLayer = class(TMapLayerFixedWithBitmap)
   private
+    FConfig: IMapLayerNavToPointMarkerConfig;
+    FTransform: TAffineTransformation;
     FNavToPoint:  INavigationToPoint;
-    FNavToPointListener: IJclListener;
     FMarkPoint: TDoublePoint;
-    FCrossDist: Double;
-    FArrowBitmap: TCustomBitmap32;
-    FCrossBitmap: TCustomBitmap32;
-    FCurrDist: Double;
-    FCurrAngle: Double;
-    procedure PrepareMarker;
+    FDistInPixel: Double;
+    FAngle: Double;
     procedure OnNavToPointChange(Sender: TObject);
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ANavToPoint: INavigationToPoint);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: TMapViewPortState;
+      ANavToPoint: INavigationToPoint;
+      AConfig: IMapLayerNavToPointMarkerConfig
+    );
     destructor Destroy; override;
   end;
 
@@ -41,7 +46,6 @@ uses
   Graphics,
   SysUtils,
   Math,
-  GR32_Transforms,
   GR32_Polygons,
   u_GlobalState,
   i_ICoordConverter,
@@ -50,34 +54,34 @@ uses
 
 { TNavToMarkLayer }
 
-constructor TNavToMarkLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ANavToPoint: INavigationToPoint);
+constructor TNavToMarkLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: TMapViewPortState;
+  ANavToPoint: INavigationToPoint;
+  AConfig: IMapLayerNavToPointMarkerConfig
+);
 var
   VSize: TPoint;
 begin
   inherited Create(AParentMap, AViewPortState);
   FNavToPoint := ANavToPoint;
-  FNavToPointListener := TNotifyEventListener.Create(Self.OnNavToPointChange);
-  FNavToPoint.GetChangeNotifier.Add(FNavToPointListener);
-  FArrowBitmap := TCustomBitmap32.Create;
-  FArrowBitmap.DrawMode:=dmBlend;
-  FArrowBitmap.CombineMode:=cmMerge;
-  FCrossBitmap := TCustomBitmap32.Create;
-  FCrossBitmap.DrawMode:=dmBlend;
-  FCrossBitmap.CombineMode:=cmMerge;
-  PrepareMarker;
-  FCrossDist := 100;
-  VSize := Point(FArrowBitmap.Width, FArrowBitmap.Height);
-  FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
-  FLayer.Bitmap.Clear(0);
-  DoUpdateLayerSize(VSize);
+  FConfig := AConfig;
+  FTransform := TAffineTransformation.Create;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnNavToPointChange),
+    FNavToPoint.GetChangeNotifier
+  );
   OnNavToPointChange(nil);
+  OnConfigChange(nil);
 end;
 
 destructor TNavToMarkLayer.Destroy;
 begin
-  FNavToPoint.GetChangeNotifier.Remove(FNavToPointListener);
-  FreeAndNil(FArrowBitmap);
-  FreeAndNil(FCrossBitmap);
+  FreeAndNil(FTransform);
   inherited;
 end;
 
@@ -90,6 +94,7 @@ var
   VDeltaNormed: TDoublePoint;
   VZoom: Byte;
   VConverter: ICoordConverter;
+  VCrossDist: Double;
 begin
   VConverter := ANewVisualCoordConverter.GetGeoConverter;
   VZoom := ANewVisualCoordConverter.GetZoom;
@@ -97,19 +102,20 @@ begin
   VMarkMapPos := VConverter.LonLat2PixelPosFloat(FMarkPoint, VZoom);
   VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
   VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
-  FCurrDist := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
-  if FCurrDist < FCrossDist then begin
+  FDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
+  VCrossDist := FConfig.CrossDistInPixels;
+  if FDistInPixel < VCrossDist then begin
     FFixedLonLat := FMarkPoint;
-    FCurrAngle := 0;
+    FAngle := 0;
   end else begin
-    VDeltaNormed.X := VDelta.X / FCurrDist * FCrossDist;
-    VDeltaNormed.Y := VDelta.Y / FCurrDist * FCrossDist;
+    VDeltaNormed.X := VDelta.X / FDistInPixel * VCrossDist;
+    VDeltaNormed.Y := VDelta.Y / FDistInPixel * VCrossDist;
     VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
     VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
     FFixedLonLat := VConverter.PixelPosFloat2LonLat(VMarkMapPos, VZoom);
-    FCurrAngle := ArcSin(VDelta.X/FCurrDist) / Pi * 180;
+    FAngle := ArcSin(VDelta.X/FDistInPixel) / Pi * 180;
     if VDelta.Y < 0 then begin
-      FCurrAngle := 180 - FCurrAngle;
+      FAngle := 180 - FAngle;
     end;
   end;
   inherited;
@@ -118,39 +124,72 @@ end;
 
 procedure TNavToMarkLayer.DoRedraw;
 var
-  T: TAffineTransformation;
   VSize: TPoint;
+  VMarker: TCustomBitmap32;
 begin
   inherited;
   VSize := LayerSize;
-  if FCurrDist > FCrossDist then begin
-    T := TAffineTransformation.Create;
+  if FDistInPixel > FConfig.CrossDistInPixels then begin
+    FTransform.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
+    FTransform.Clear;
+    FConfig.LockRead;
     try
-      T.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
-      T.Clear;
-
-      T.Translate(-VSize.X / 2, -VSize.Y / 2);
-      T.Rotate(0, 0, FCurrAngle);
-      T.Translate(VSize.X / 2, VSize.Y / 2);
+      VMarker := FConfig.GetMarkerArrow;
+      FTransform.Translate(-VSize.X / 2, -VSize.Y / 2);
+      FTransform.Rotate(0, 0, FAngle);
+      FTransform.Translate(VSize.X / 2, VSize.Y / 2);
       FLayer.Bitmap.Lock;
       try
         FLayer.Bitmap.Clear(0);
-        Transform(FLayer.Bitmap, FArrowBitmap, T);
+        Transform(FLayer.Bitmap, VMarker, FTransform);
       finally
         FLayer.Bitmap.Unlock;
       end;
     finally
-      FreeAndNil(T);
+      FConfig.UnlockRead;
     end;
   end else begin
     FLayer.Bitmap.Lock;
     try
-      FLayer.Bitmap.Clear(0);
-      FCrossBitmap.DrawTo(FLayer.Bitmap);
+      FConfig.LockRead;
+      try
+        VMarker := FConfig.GetMarkerCross;
+        FLayer.Bitmap.Clear(0);
+        VMarker.DrawTo(
+          FLayer.Bitmap,
+          trunc(VSize.X / 2 - VMarker.Width / 2),
+          trunc(VSize.Y / 2 - VMarker.Height / 2)
+        );
+      finally
+        FConfig.UnlockRead;
+      end;
     finally
       FLayer.Bitmap.Unlock;
     end;
   end;
+end;
+
+procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
+var
+  VSize: TPoint;
+  VMarker: TCustomBitmap32;
+begin
+  FConfig.LockRead;
+  try
+    VMarker := FConfig.GetMarkerArrow;
+    VSize := Point(VMarker.Width, VMarker.Height);
+    VMarker := FConfig.GetMarkerCross;
+    if VSize.X < VMarker.Width then begin
+      VSize.X := VMarker.Width;
+    end;
+    if VSize.Y < VMarker.Height then begin
+      VSize.Y := VMarker.Height;
+    end;
+  finally
+    FConfig.UnlockRead;
+  end;
+  DoUpdateLayerSize(VSize);
+  Redraw;
 end;
 
 procedure TNavToMarkLayer.OnNavToPointChange(Sender: TObject);
@@ -162,45 +201,6 @@ begin
   end else begin
     Hide;
   end;
-end;
-
-procedure TNavToMarkLayer.PrepareMarker;
-var
-  VSize: TPoint;
-  Polygon: TPolygon32;
-  VMarkSize: integer;
-  VColor: TColor32;
-  VRect: TRect;
-begin
-  VMarkSize := 20;
-  VSize := Point(VMarkSize * 2, VMarkSize * 2);
-  FFixedOnBitmap := DoublePoint(VMarkSize, VMarkSize);
-  VColor := SetAlpha(Color32(GState.GPSpar.GPS_ArrowColor), 150);
-  FArrowBitmap.SetSize(VSize.Y, VSize.Y);
-  FArrowBitmap.Clear(0);
-  Polygon := TPolygon32.Create;
-  try
-    Polygon.Antialiased := true;
-    Polygon.AntialiasMode := am32times;
-    Polygon.Add(FixedPoint(FFixedOnBitmap.X, FFixedOnBitmap.Y));
-    Polygon.Add(FixedPoint(FFixedOnBitmap.X - VMarkSize / 5, FFixedOnBitmap.Y - VMarkSize));
-    Polygon.Add(FixedPoint(FFixedOnBitmap.X + VMarkSize / 5, FFixedOnBitmap.Y - VMarkSize));
-    Polygon.DrawFill(FArrowBitmap, VColor)
-  finally
-    FreeAndNil(Polygon);
-  end;
-  FCrossBitmap.SetSize(VSize.Y, VSize.Y);
-  FCrossBitmap.Clear(0);
-  VRect.Left := Trunc(FFixedOnBitmap.X - VMarkSize /10);
-  VRect.Top := Trunc(FFixedOnBitmap.Y - VMarkSize /2);
-  VRect.Right := Trunc(FFixedOnBitmap.X + VMarkSize /10);
-  VRect.Bottom := VRect.Top + VMarkSize;
-  FCrossBitmap.FillRectS(VRect, VColor);
-  VRect.Left := Trunc(FFixedOnBitmap.X - VMarkSize /2);
-  VRect.Top := Trunc(FFixedOnBitmap.Y - VMarkSize /10);
-  VRect.Right := VRect.Left + VMarkSize;
-  VRect.Bottom := Trunc(FFixedOnBitmap.Y + VMarkSize /10);
-  FCrossBitmap.FillRectS(VRect, VColor);
 end;
 
 end.

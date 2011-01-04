@@ -43,8 +43,6 @@ type
     Odometr: Double;
     Odometr2: Double;
 
-    //Цвет указателя направления при навигацци
-    GPS_ArrowColor: TColor;
     //Центрировать карту на GPS позиции
     GPS_MapMove: Boolean;
     GPS_MapMoveCentered: Boolean;
@@ -113,7 +111,6 @@ begin
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);
 
-    GPS_ArrowColor := VConfigProvider.ReadInteger('ColorStr', clRed);
     GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
     GPS_MapMove:=VConfigProvider.ReadBool('go',true);
     GPS_MapMoveCentered:=VConfigProvider.ReadBool('goCentered',false);
@@ -123,7 +120,6 @@ begin
     Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
   end else begin
     GPS_enab := False;
-    GPS_ArrowColor := clRed;
     GPS_WriteLog:=true;
     GPS_MapMove:=true;
     GPS_MapMoveCentered:=false;
