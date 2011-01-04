@@ -2829,7 +2829,7 @@ end;
 
 procedure TFmain.GPSReceiverDisconnect(Sender: TObject);
 begin
-  if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=false;
+  if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=false;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
@@ -2848,7 +2848,7 @@ begin
   TBGPSconn.Enabled := True;
   tbitmGPSConnect.Checked:=True;
   TBGPSconn.Checked:=True;
-  if GState.GPSpar.GPS_SensorsAutoShow then TBXSensorsBar.Visible:=true;
+  if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=true;
 end;
 
 procedure TFmain.GPSReceiverConnectError(Sender: TObject);

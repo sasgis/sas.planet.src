@@ -48,8 +48,6 @@ type
     GPS_MapMoveCentered: Boolean;
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
-    //Скрывать/показывать панель датчиков при подключении/отключении GPS
-    GPS_SensorsAutoShow: boolean;
     constructor Create();
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
@@ -114,8 +112,6 @@ begin
     GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
     GPS_MapMove:=VConfigProvider.ReadBool('go',true);
     GPS_MapMoveCentered:=VConfigProvider.ReadBool('goCentered',false);
-    GPS_SensorsAutoShow:=VConfigProvider.ReadBool('SensorsAutoShow',true);
-
     Odometr:=VConfigProvider.ReadFloat('Odometr',0);
     Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
   end else begin
@@ -123,7 +119,6 @@ begin
     GPS_WriteLog:=true;
     GPS_MapMove:=true;
     GPS_MapMoveCentered:=false;
-    GPS_SensorsAutoShow:=true;
     Odometr:=0;
     Odometr2:=0;
   end;
@@ -204,7 +199,6 @@ begin
   VConfigProvider.WriteBool('go',GPS_MapMove);
   VConfigProvider.WriteBool('goCentered',GPS_MapMoveCentered);
   VConfigProvider.WriteBool('log',GPS_WriteLog);
-  VConfigProvider.WriteBool('SensorsAutoShow',GPS_SensorsAutoShow);
 
   VConfigProvider.WriteFloat('Odometr', Odometr);
   VConfigProvider.WriteFloat('Odometr2', Odometr2);

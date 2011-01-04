@@ -391,7 +391,7 @@ begin
  GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
  GState.GPSpar.GPSSettings.Port := StrToInt(Copy(ComboBoxCOM.Text, 4, 2));
  GState.GPSpar.GPSSettings.BaudRate:=StrToint(ComboBoxBoudRate.Text);
- GState.GPSpar.GPS_SensorsAutoShow:=CBSensorsBarAutoShow.Checked;
+  GState.MainFormConfig.GPSBehaviour.SensorsAutoShow := CBSensorsBarAutoShow.Checked;
   VInetConfig :=GState.InetConfig;
   VInetConfig.LockWrite;
   try
@@ -604,7 +604,7 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
   end;
- CBSensorsBarAutoShow.Checked:=GState.GPSpar.GPS_SensorsAutoShow;
+  CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
  ScrolInvert.Checked:=GState.MouseWheelInv;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
