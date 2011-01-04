@@ -5,6 +5,7 @@ interface
 uses
   i_INavigationToPoint,
   i_MainFormConfig,
+  i_IMainFormBehaviourByGPSConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -14,11 +15,13 @@ type
     FLayersConfig: IMainFormLayersConfig;
     FToolbarsLock: IMainWindowToolbarsLock;
     FNavToPoint: INavigationToPoint;
+    FGPSBehaviour: IMainFormBehaviourByGPSConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;
     function GetNavToPoint: INavigationToPoint;
+    function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
   public
     constructor Create;
   end;
@@ -31,6 +34,7 @@ uses
   u_MainWindowToolbarsLock,
   u_NavigationToPoint,
   u_MainFormLayersConfig,
+  u_MainFormBehaviourByGPSConfig,
   u_MainFormMainConfig;
 
 { TMainFormConfig }
@@ -46,6 +50,13 @@ begin
   Add(FToolbarsLock, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PANEL'));
   FNavToPoint := TNavigationToPoint.Create;
   Add(FNavToPoint, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPoint'));
+  FGPSBehaviour := TMainFormBehaviourByGPSConfig.Create;
+  Add(FGPSBehaviour, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainFormGPSEvents'));
+end;
+
+function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
+begin
+  Result := FGPSBehaviour;
 end;
 
 function TMainFormConfig.GetLayersConfig: IMainFormLayersConfig;

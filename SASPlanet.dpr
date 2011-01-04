@@ -291,6 +291,8 @@ uses
   i_ILanguageManager in 'i_ILanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
+  i_IMainFormBehaviourByGPSConfig in 'i_IMainFormBehaviourByGPSConfig.pas',
+  u_MainFormBehaviourByGPSConfig in 'u_MainFormBehaviourByGPSConfig.pas',
   i_IValueToStringConverter in 'i_IValueToStringConverter.pas',
   u_ValueToStringConverter in 'u_ValueToStringConverter.pas',
   u_ValueToStringConverterConfig in 'u_ValueToStringConverterConfig.pas',

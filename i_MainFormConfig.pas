@@ -9,6 +9,7 @@ uses
   i_IMapLayerGPSMarkerConfig,
   i_IMapLayerGPSTrackConfig,
   i_IMapLayerNavToPointMarkerConfig,
+  i_IMainFormBehaviourByGPSConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -57,6 +58,9 @@ type
 
     function GetNavToPoint: INavigationToPoint;
     property NavToPoint: INavigationToPoint read GetNavToPoint;
+
+    function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
+    property GPSBehaviour: IMainFormBehaviourByGPSConfig read GetGPSBehaviour;
   end;
 
 implementation
