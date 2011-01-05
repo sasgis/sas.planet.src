@@ -10,71 +10,12 @@ uses
   Types,
   GR32;
 
-type
-  TTileResamplingType = (
-    trtBox = 0,
-    trtLinear = 1,
-    trtCosine = 2,
-    trtSpline = 3,
-    trtMitchell = 4,
-    trtCubic = 5,
-    trtHermite = 6,
-    trtLanczos = 7,
-    trtGaussian = 8,
-    trtBlackman = 9,
-    trtHannKernel = 10,
-    trtHamming = 11,
-    trtSinsh = 12
-  );
-
-  function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
   procedure Gamma(Bitmap: TCustomBitmap32; ContrastN: Integer; GammaN: Integer; InvertColor: Boolean);
 
 implementation
 
 uses
-  GR32_Resamplers,
   GR32_Filters;
-
-function CreateResampler(AResampling: TTileResamplingType): TCustomResampler;
-begin
-  if AResampling = trtLinear then begin
-    Result := TLinearResampler.Create;
-  end else begin
-    Result:=TKernelResampler.Create;
-    case AResampling of
-      trtBox:
-        result:=nil;
-      trtCosine:
-        TKernelResampler(Result).Kernel:=TCosineKernel.Create;
-      trtSpline:
-        TKernelResampler(Result).Kernel:=TSplineKernel.Create;
-      trtMitchell:
-        TKernelResampler(Result).Kernel:=TMitchellKernel.Create;
-      trtCubic:
-        TKernelResampler(Result).Kernel:=TCubicKernel.Create;
-      trtHermite:
-        TKernelResampler(Result).Kernel:=THermiteKernel.Create;
-      trtLanczos:
-        TKernelResampler(Result).Kernel:=TLanczosKernel.Create;
-      trtGaussian:
-        TKernelResampler(Result).Kernel:=TGaussianKernel.Create;
-      trtBlackman:
-        TKernelResampler(Result).Kernel:=TBlackmanKernel.Create;
-      trtHannKernel:
-        TKernelResampler(Result).Kernel:=THannKernel.Create;
-      trtHamming:
-        TKernelResampler(Result).Kernel:=THammingKernel.Create;
-      trtSinsh:
-        TKernelResampler(Result).Kernel:=TSinshKernel.Create;
-    end;
-  end;
-end;
-
-
-
-
-
 
 procedure Contrast(Bitmap: TCustomBitmap32; Value: double);
  function BLimit(B:Integer):Byte;

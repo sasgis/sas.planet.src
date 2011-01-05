@@ -29,8 +29,9 @@ implementation
 uses
   SysUtils,
   GR32,
+  i_IImageResamplerFactory,
   u_ThreadGenPrevZoom,
-  Uimgfun,
+  u_GlobalState,
   UResStrings,
   UMapType;
 
@@ -92,7 +93,7 @@ var
   VMapType: TMapType;
   VZoomsCount: Integer;
   VFromZoom: Byte;
-
+  VResampler: IImageResamplerFactory;
 begin
   inherited;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -105,6 +106,11 @@ begin
       Inc(VZoomsCount);
     end;
   end;
+  try
+    VResampler := GState.ImageResamplerConfig.GetList.Items[FFrame.cbbResampler.ItemIndex];
+  except
+    VResampler := GState.ImageResamplerConfig.GetActiveFactory;
+  end;
 
   TThreadGenPrevZoom.Create(
     VFromZoom,
@@ -114,7 +120,7 @@ begin
     FFrame.chkReplace.Checked,
     FFrame.chkSaveFullOnly.Checked,
     FFrame.chkFromPrevZoom.Checked,
-    TTileResamplingType(FFrame.cbbResampler.ItemIndex)
+    VResampler
   );
 end;
 

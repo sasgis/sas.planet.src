@@ -26,14 +26,12 @@ uses
   i_IBitmapPostProcessingConfig,
   i_IValueToStringConverter,
   u_GarbageCollectorThread,
-  u_GeoToStr,
   u_MapViewPortState,
   i_ILastSelectionInfo,
   i_IDownloadInfoSimple,
   i_IImageResamplerConfig,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
-  Uimgfun,
   UMapType,
   u_MapTypesMainList,
   u_MemFileCache,
@@ -111,9 +109,6 @@ type
     TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
     GoNextTileIfDownloadError: Boolean;
-
-    // Способ ресамплинга картинки
-    Resampling: TTileResamplingType;
 
     GPSpar: TGPSpar;
 
@@ -494,7 +489,6 @@ begin
 
   show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
 
-  Resampling := TTileResamplingType(MainIni.Readinteger('VIEW','ResamlingType',1));
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
   UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
   MapZapColor:=MainIni.Readinteger('VIEW','MapZapColor',clBlack);
@@ -559,7 +553,6 @@ begin
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
   MainIni.WriteInteger('VIEW','ShowPointType',Byte(show_point));
-  MainIni.Writeinteger('VIEW','ResamlingType',byte(resampling));
   MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);
   MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);

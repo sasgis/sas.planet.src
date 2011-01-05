@@ -170,8 +170,6 @@ uses
   GR32_Resamplers,
   KAZip,
   u_GlobalState,
-  u_GeoToStr,
-  UIMGFun,
   i_IObjectWithTTL,
   i_IPoolElement,
   i_ITileInfoBasic,
@@ -917,7 +915,7 @@ begin
           if asLayer then spr.Clear(SetAlpha(Color32(GState.BGround),0))
                      else spr.Clear(Color32(GState.BGround));
         end else begin
-          VBmp.Resampler := CreateResampler(GState.Resampling);
+          VBmp.Resampler := GState.ImageResamplerConfig.GetActiveFactory.CreateResampler;
           VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
           VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
           VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;

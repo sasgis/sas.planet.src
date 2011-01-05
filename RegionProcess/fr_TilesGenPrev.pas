@@ -15,6 +15,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_IImageResamplerFactory,
   u_CommonFormAndFrameParents;
 
 type
@@ -40,6 +41,7 @@ type
     procedure cbbFromZoomChange(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
   private
+    procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
   public
     constructor Create(AOwner: TComponent); override;
     procedure Init(AZoom: Byte);
@@ -116,6 +118,19 @@ begin
   end;
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
+  end;
+  InitResamplersList(GState.ImageResamplerConfig.GetList, cbbResampler);
+  cbbResampler.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
+end;
+
+procedure TfrTilesGenPrev.InitResamplersList(AList: IImageResamplerFactoryList;
+  ABox: TComboBox);
+var
+  i: Integer;
+begin
+  ABox.Items.Clear;
+  for i := 0 to AList.Count - 1 do begin
+    ABox.Items.Add(AList.Captions[i]);
   end;
 end;
 

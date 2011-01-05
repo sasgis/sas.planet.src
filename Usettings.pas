@@ -25,6 +25,7 @@ uses
   ZylGPSReceiver,
   u_CommonFormAndFrameParents,
   i_IConfigDataWriteProvider,
+  i_IImageResamplerFactory,
   fr_ShortCutList,
   UMapType,
   UResStrings;
@@ -231,6 +232,7 @@ type
   private
     FMapsEdit: boolean;
     frShortCutList: TfrShortCutList;
+    procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -253,7 +255,6 @@ uses
   i_IProxySettings,
   i_GPS,
   u_GlobalState,
-  Uimgfun,
   Unit1,
   UEditMap;
 
@@ -372,7 +373,9 @@ begin
   finally
     GState.ValueToStringConverterConfig.UnlockWrite;
   end;
- GState.Resampling:= TTileResamplingType(ComboBox2.ItemIndex);
+  if ComboBox2.ItemIndex > 0 then begin
+    GState.ImageResamplerConfig.ActiveIndex := ComboBox2.ItemIndex;
+  end;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockWrite;
@@ -616,7 +619,8 @@ begin
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
   end;
   CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
- ComboBox2.ItemIndex:=byte(GState.Resampling);
+  InitResamplersList(GState.ImageResamplerConfig.GetList, ComboBox2);
+  ComboBox2.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
  ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
   GState.ValueToStringConverterConfig.LockRead;
@@ -856,6 +860,16 @@ begin
   end;
   if MapList.Items.Count>0 then begin
     MapList.Items.Item[0].Selected:=true;
+  end;
+end;
+
+procedure TFSettings.InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+var
+  i: Integer;
+begin
+  ABox.Items.Clear;
+  for i := 0 to AList.Count - 1 do begin
+    ABox.Items.Add(AList.Captions[i]);
   end;
 end;
 

@@ -8,11 +8,10 @@ uses
   SysUtils,
   Classes,
   GR32,
-  GR32_Resamplers,
   UMapType,
   u_ThreadRegionProcessAbstract,
+  i_IImageResamplerFactory,
   UResStrings,
-  Uimgfun,
   t_GeoTypes;
 
 type
@@ -24,8 +23,8 @@ type
     FSourceZoom: byte;
     FZooms: TArrayOfByte;
     FMapType: TMapType;
+    FResamplerFactory: IImageResamplerFactory;
 
-    FResamplerType: TTileResamplingType;
     FTileInProc: integer;
   protected
     procedure ProcessRegion; override;
@@ -39,7 +38,7 @@ type
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormPrev: boolean;
-      AResampler: TTileResamplingType
+      AResamplerFactory: IImageResamplerFactory
     );
   end;
 
@@ -52,7 +51,16 @@ uses
   u_TileIteratorByRect,
   u_GlobalState;
 
-constructor TThreadGenPrevZoom.Create(Azoom: byte; AInZooms: TArrayOfByte; APolygLL: TDoublePointArray; Atypemap: TMapType; AReplace: boolean; Asavefull: boolean; AGenFormPrev: boolean; AResampler: TTileResamplingType);
+constructor TThreadGenPrevZoom.Create(
+  Azoom: byte;
+  AInZooms: TArrayOfByte;
+  APolygLL: TDoublePointArray;
+  Atypemap: TMapType;
+  AReplace: boolean;
+  Asavefull: boolean;
+  AGenFormPrev: boolean;
+  AResamplerFactory: IImageResamplerFactory
+);
 begin
   inherited Create(APolygLL);
   FIsReplace := AReplace;
@@ -63,7 +71,7 @@ begin
   FTileInProc := 0;
   FSourceZoom := Azoom;
   FMapType := Atypemap;
-  FResamplerType := AResampler;
+  FResamplerFactory := AResamplerFactory;
 end;
 
 procedure TThreadGenPrevZoom.ProcessRegion;
@@ -110,7 +118,7 @@ begin
     bmp_ex := TCustomBitmap32.Create;
     bmp := TCustomBitmap32.Create;
     try
-      bmp.Resampler := CreateResampler(FResamplerType);
+      bmp.Resampler := FResamplerFactory.CreateResampler;
 
       FTileInProc := 0;
       FTilesProcessed := 0;
