@@ -30,6 +30,7 @@ uses
   u_MapViewPortState,
   i_ILastSelectionInfo,
   i_IDownloadInfoSimple,
+  i_IImageResamplerConfig,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
   Uimgfun,
@@ -75,6 +76,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FProgramPath: string;
+    FImageResamplerConfig: IImageResamplerConfig;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -204,6 +206,7 @@ type
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property ProgramPath: string read FProgramPath;
+    property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -244,6 +247,8 @@ uses
   u_GSMGeoCodeConfig,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
+  u_ImageResamplerConfig,
+  u_ImageResamplerFactoryListStaticSimple,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -269,6 +274,10 @@ begin
     Show_logo := VViewCnonfig.ReadBool('Show_logo', Show_logo);
     ShowDebugInfo := VViewCnonfig.ReadBool('time_rendering', ShowDebugInfo);
   end;
+  FImageResamplerConfig :=
+    TImageResamplerConfig.Create(
+      TImageResamplerFactoryListStaticSimple.Create
+    );
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGSMpar := TGSMGeoCodeConfig.Create;
@@ -324,6 +333,7 @@ begin
   FProxySettings := nil;
   FGSMpar := nil;
   FInetConfig := nil;
+  FImageResamplerConfig := nil;
   FMainFormConfig := nil;
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
@@ -452,6 +462,7 @@ begin
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
   FMainFormConfig.ReadConfig(MainConfigProvider);
   FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
+  FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
 end;
 
 procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
@@ -575,6 +586,7 @@ begin
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
+  FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
 end;
 
 procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);

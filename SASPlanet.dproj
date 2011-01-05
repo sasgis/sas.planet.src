@@ -102,6 +102,8 @@
     <DCCReference Include="i_IGPSRecorder.pas" />
     <DCCReference Include="i_IGSMGeoCodeConfig.pas" />
     <DCCReference Include="i_IHybrChangeMessage.pas" />
+    <DCCReference Include="i_IImageResamplerConfig.pas" />
+    <DCCReference Include="i_IImageResamplerFactory.pas" />
     <DCCReference Include="i_IJclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_ILanguageManager.pas" />
@@ -404,6 +406,10 @@
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
+    <DCCReference Include="u_ImageResamplerConfig.pas" />
+    <DCCReference Include="u_ImageResamplerFactory.pas" />
+    <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
+    <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
