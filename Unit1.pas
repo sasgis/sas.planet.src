@@ -891,7 +891,6 @@ begin
 
     Nbackload.Checked:=GState.UsePrevZoom;
     NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
-    Nanimate.Checked:=GState.AnimateZoom;
 
     NMainToolBarShow.Checked:=TBMainToolBar.Visible;
     NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
@@ -1379,6 +1378,8 @@ begin
   end else begin
     TBSMB.Caption:='';
   end;
+
+  Nanimate.Checked := FConfig.MainConfig.AnimateZoom;
 end;
 
 procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
@@ -1946,7 +1947,7 @@ begin
   if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
   FMapZoomAnimtion:=True;
 
-  if (abs(ANewZoom-VZoom)=1)and(GState.AnimateZoom) then begin
+  if (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom) then begin
    steps:=11;
    for i:=0 to steps-1 do begin
      QueryPerformanceCounter(ts1);
@@ -3669,7 +3670,7 @@ end;
 
 procedure TFmain.NanimateClick(Sender: TObject);
 begin
-  GState.AnimateZoom := Nanimate.Checked;
+  FConfig.MainConfig.AnimateZoom := Nanimate.Checked;
 end;
 
 procedure TFmain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);

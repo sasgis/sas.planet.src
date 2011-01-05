@@ -136,9 +136,6 @@ type
     UsePrevZoom: Boolean;
     //Использовать тайлы предыдущих уровней для отображения (для слоев)
     UsePrevZoomLayer: Boolean;
-    //Анимированный зум
-    AnimateZoom: Boolean;
-
 
     // Показывать хинты при нахождении мыши над меткой
     ShowHintOnMarks: Boolean;
@@ -489,7 +486,6 @@ begin
   Resampling := TTileResamplingType(MainIni.Readinteger('VIEW','ResamlingType',1));
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
   UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
-  AnimateZoom:=MainIni.Readbool('VIEW','animate',true);
   MapZapColor:=MainIni.Readinteger('VIEW','MapZapColor',clBlack);
   MapZapShowTNE:=MainIni.ReadBool('VIEW','MapZapShowTNE', True);
   MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
@@ -551,7 +547,6 @@ begin
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
-  MainIni.Writebool('VIEW','animate',AnimateZoom);
   MainIni.WriteInteger('VIEW','ShowPointType',Byte(show_point));
   MainIni.Writeinteger('VIEW','ResamlingType',byte(resampling));
   MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);

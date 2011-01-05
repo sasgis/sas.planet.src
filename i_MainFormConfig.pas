@@ -28,6 +28,11 @@ type
     function GetMouseScrollInvert: Boolean;
     procedure SetMouseScrollInvert(AValue: Boolean);
     property MouseScrollInvert: Boolean read GetMouseScrollInvert write SetMouseScrollInvert;
+
+    //Анимированный зум
+    function GetAnimateZoom: Boolean;
+    procedure SetAnimateZoom(AValue: Boolean);
+    property AnimateZoom: Boolean read GetAnimateZoom write SetAnimateZoom;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)

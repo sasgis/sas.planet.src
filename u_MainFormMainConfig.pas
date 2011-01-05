@@ -14,6 +14,7 @@ type
     FZoomingAtMousePos: Boolean;
     FShowMapName: Boolean;
     FMouseScrollInvert: Boolean;
+    FAnimateZoom: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -26,6 +27,9 @@ type
 
     function GetMouseScrollInvert: Boolean;
     procedure SetMouseScrollInvert(AValue: Boolean);
+
+    function GetAnimateZoom: Boolean;
+    procedure SetAnimateZoom(AValue: Boolean);
   public
     constructor Create;
   end;
@@ -40,6 +44,7 @@ begin
   FZoomingAtMousePos := True;
   FShowMapName := True;
   FMouseScrollInvert := False;
+  FAnimateZoom := True;
 end;
 
 procedure TMainFormMainConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -49,6 +54,7 @@ begin
     FZoomingAtMousePos := AConfigData.ReadBool('ZoomingAtMousePos', FZoomingAtMousePos);
     FShowMapName := AConfigData.ReadBool('ShowMapNameOnPanel', FShowMapName);
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
+    FAnimateZoom := AConfigData.ReadBool('AnimateZoom', FAnimateZoom);
     SetChanged;
   end;
 end;
@@ -60,6 +66,17 @@ begin
   AConfigData.WriteBool('ZoomingAtMousePos', FZoomingAtMousePos);
   AConfigData.WriteBool('ShowMapNameOnPanel', FShowMapName);
   AConfigData.WriteBool('MouseScrollInvert', FMouseScrollInvert);
+  AConfigData.WriteBool('AnimateZoom', FAnimateZoom);
+end;
+
+function TMainFormMainConfig.GetAnimateZoom: Boolean;
+begin
+  LockRead;
+  try
+    Result := FAnimateZoom;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMainFormMainConfig.GetMouseScrollInvert: Boolean;
@@ -89,6 +106,19 @@ begin
     Result := FZoomingAtMousePos;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetAnimateZoom(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FAnimateZoom <> AValue then begin
+      FAnimateZoom := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
