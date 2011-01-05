@@ -4,7 +4,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_INavigationToPoint,

@@ -39,8 +39,7 @@ uses
   i_ICoordConverter,
   Ugeofun,
   u_NotifyEventListener,
-  u_GeoToStr,
-  u_GlobalState;
+  u_GeoToStr;
 
 const
   GSHprec = 100000000;

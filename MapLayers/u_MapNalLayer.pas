@@ -88,7 +88,6 @@ uses
   Graphics,
   SysUtils,
   Ugeofun,
-  u_GeoToStr,
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_IValueToStringConverter,

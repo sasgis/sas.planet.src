@@ -7,7 +7,6 @@ uses
   GR32,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  i_IConfigDataElement,
   i_IMapLayerNavToPointMarkerConfig,
   u_ConfigDataElementBase;
 
@@ -83,7 +82,6 @@ destructor TMapLayerNavToPointMarkerConfig.Destroy;
 begin
   FreeAndNil(FMarkerArrow);
   FreeAndNil(FMarkerCross);
-
   inherited;
 end;
 

@@ -5,7 +5,6 @@ interface
 uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  i_IConfigDataElement,
   i_IBitmapPostProcessingConfig,
   u_ConfigDataElementBase;
 

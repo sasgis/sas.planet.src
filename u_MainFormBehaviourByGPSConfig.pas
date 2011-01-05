@@ -3,7 +3,6 @@ unit u_MainFormBehaviourByGPSConfig;
 interface
 
 uses
-  i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IMainFormBehaviourByGPSConfig,

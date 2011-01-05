@@ -3,9 +3,6 @@ unit u_MapLayerGridsConfig;
 interface
 
 uses
-  i_IConfigDataElement,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_MapLayerGridsConfig,
   u_ConfigDataElementComplexBase;
 

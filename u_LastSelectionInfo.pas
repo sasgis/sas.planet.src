@@ -3,9 +3,6 @@ unit u_LastSelectionInfo;
 interface
 
 uses
-  Graphics,
-  GR32,
-  i_JclNotify,
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -33,8 +30,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_JclNotify;
+  SysUtils;
 
 { TLastSelectionInfo }
 

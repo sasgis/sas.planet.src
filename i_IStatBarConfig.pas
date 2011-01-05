@@ -3,10 +3,7 @@ unit i_IStatBarConfig;
 interface
 
 uses
-  Graphics,
   GR32,
-  t_GeoTypes,
-  i_ILocalCoordConverter,
   i_IConfigDataElement;
 
 type

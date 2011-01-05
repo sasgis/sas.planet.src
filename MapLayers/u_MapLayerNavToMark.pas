@@ -43,14 +43,10 @@ type
 implementation
 
 uses
-  Graphics,
   SysUtils,
   Math,
-  GR32_Polygons,
-  u_GlobalState,
   i_ICoordConverter,
-  u_NotifyEventListener,
-  Ugeofun;
+  u_NotifyEventListener;
 
 { TNavToMarkLayer }
 

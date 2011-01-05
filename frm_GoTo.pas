@@ -53,14 +53,12 @@ type
     procedure RefreshTranslation; override;
   end;
 
-
 var
   frmGoTo: TfrmGoTo;
 
 implementation
 
 uses
-  u_GeoToStr,
   u_GlobalState,
   u_GeoCodeResult,
   u_GeoCodePalcemark,

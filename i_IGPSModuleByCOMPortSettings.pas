@@ -3,7 +3,6 @@ unit i_IGPSModuleByCOMPortSettings;
 interface
 
 uses
-  i_JclNotify,
   i_IConfigDataElement;
 
 type

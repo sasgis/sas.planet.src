@@ -3,8 +3,6 @@ unit u_MapLayerGPSTrackConfig;
 interface
 
 uses
-  i_ILocalCoordConverter,
-  i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IMapLayerGPSTrackConfig,

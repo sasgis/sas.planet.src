@@ -4,7 +4,6 @@ interface
 
 uses
   SysUtils,
-  Graphics,
   i_JclNotify,
   i_IGPSRecorder,
   i_IConfigDataProvider,

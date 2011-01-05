@@ -79,8 +79,7 @@ implementation
 uses
   SysUtils,
   i_IValueToStringConverter,
-  u_GlobalState,
-  u_GeoToStr;
+  u_GlobalState;
 
 {$R *.dfm}
 

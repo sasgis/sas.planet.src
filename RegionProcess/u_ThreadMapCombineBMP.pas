@@ -9,7 +9,6 @@ uses
   Classes,
   GR32,
   UMapType,
-  UImgFun,
   UGeoFun,
   bmpUtil,
   u_ThreadMapCombineBase;

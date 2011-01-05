@@ -41,7 +41,6 @@ uses
   i_MapTypes,
   Uimgfun,
   u_TileIteratorByRect,
-  u_GeoToStr,
   u_GlobalState;
 
 { TMapMainLayer }

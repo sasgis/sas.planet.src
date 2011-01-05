@@ -4,7 +4,6 @@ interface
 
 uses
   GR32,
-  i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_MapLayerGridsConfig,

@@ -30,9 +30,6 @@ type
 
 implementation
 
-uses
-  u_GlobalState;
-
 { TGPSRecorderStuped }
 
 procedure TGPSRecorderStuped.AddPoint(APoint: TGPSTrackPoint);

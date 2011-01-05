@@ -3,7 +3,6 @@ unit u_GPSModuleByCOMPortSettings;
 interface
 
 uses
-  i_JclNotify,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IGPSModuleByCOMPortSettings,
@@ -48,7 +47,6 @@ type
 implementation
 
 uses
-  u_JclNotify,
   u_GlobalState,
   u_GPSModuleByCOMPortConfigSatic;
 

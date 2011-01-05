@@ -253,7 +253,6 @@ uses
   i_IProxySettings,
   i_GPS,
   u_GlobalState,
-  u_GeoToStr,
   Uimgfun,
   Unit1,
   UEditMap;

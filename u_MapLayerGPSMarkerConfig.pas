@@ -7,7 +7,6 @@ uses
   GR32,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  i_IConfigDataElement,
   i_IMapLayerGPSMarkerConfig,
   u_ConfigDataElementBase;
 

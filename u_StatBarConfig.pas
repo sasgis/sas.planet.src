@@ -4,9 +4,6 @@ interface
 
 uses
   GR32,
-  t_GeoTypes,
-  i_ILocalCoordConverter,
-  i_IConfigDataElement,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IStatBarConfig,

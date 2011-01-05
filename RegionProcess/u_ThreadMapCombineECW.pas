@@ -9,7 +9,6 @@ uses
   GR32,
   UECWWrite,
   UMapType,
-  UImgFun,
   UGeoFun,
   bmpUtil,
   t_GeoTypes,

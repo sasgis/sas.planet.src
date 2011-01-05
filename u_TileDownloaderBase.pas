@@ -7,7 +7,6 @@ uses
   WinInet,
   SyncObjs,
   Classes,
-  t_CommonTypes,
   i_IProxySettings,
   i_ITileDownlodSession;
 

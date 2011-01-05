@@ -8,8 +8,6 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
   i_IStatBarConfig,
   u_MapViewPortState,
