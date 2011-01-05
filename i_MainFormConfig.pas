@@ -23,6 +23,11 @@ type
     function GetShowMapName: Boolean;
     procedure SetShowMapName(AValue: Boolean);
     property ShowMapName: Boolean read GetShowMapName write SetShowMapName;
+
+    //Инвертировать направление при зуме колесом мышки
+    function GetMouseScrollInvert: Boolean;
+    procedure SetMouseScrollInvert(AValue: Boolean);
+    property MouseScrollInvert: Boolean read GetMouseScrollInvert write SetMouseScrollInvert;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)

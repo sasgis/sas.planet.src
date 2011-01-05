@@ -136,8 +136,6 @@ type
     UsePrevZoom: Boolean;
     //Использовать тайлы предыдущих уровней для отображения (для слоев)
     UsePrevZoomLayer: Boolean;
-    //Инвертировать направление при зуме колесом мышки
-    MouseWheelInv: Boolean;
     //Анимированный зум
     AnimateZoom: Boolean;
 
@@ -487,7 +485,6 @@ begin
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
   show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
-  MouseWheelInv:=MainIni.readbool('VIEW','invert_mouse',false);
 
   Resampling := TTileResamplingType(MainIni.Readinteger('VIEW','ResamlingType',1));
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
@@ -552,7 +549,6 @@ begin
   MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
   MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
-  MainIni.Writebool('VIEW','invert_mouse',MouseWheelInv);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
   MainIni.Writebool('VIEW','animate',AnimateZoom);

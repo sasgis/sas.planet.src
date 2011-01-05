@@ -1493,7 +1493,7 @@ begin
    WM_MOUSEWHEEL: if not FMapZoomAnimtion then
                  begin
                   MouseCursorPos:=FmoveTrue;
-                  if GState.MouseWheelInv then z:=-1 else z:=1;
+                  if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
                   VZoom := GState.ViewState.GetCurrentZoom;
                   if Msg.wParam<0 then VNewZoom := VZoom-(1*z)
                                   else VNewZoom := VZoom+(1*z);

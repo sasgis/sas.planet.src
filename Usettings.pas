@@ -364,7 +364,6 @@ begin
  end else begin
   GState.CacheConfig.DefCache := 2;
  end;
-  GState.MainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
   GState.ValueToStringConverterConfig.LockWrite;
   try
     GState.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
@@ -407,7 +406,13 @@ begin
   end;
 
  GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
- GState.MouseWheelInv:=ScrolInvert.Checked;
+  GState.MainFormConfig.MainConfig.LockWrite;
+  try
+    GState.MainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
+    GState.MainFormConfig.MainConfig.MouseScrollInvert := ScrolInvert.Checked;
+  finally
+    GState.MainFormConfig.MainConfig.UnlockWrite;
+  end;
  GState.CacheConfig.NewCPath:=IncludeTrailingPathDelimiter(NewCPath.Text);
  GState.CacheConfig.OldCPath:=IncludeTrailingPathDelimiter(OldCPath.Text);
  GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(EScPath.Text);
@@ -584,7 +589,13 @@ begin
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
 
-  CBShowmapname.Checked:=GState.MainFormConfig.MainConfig.ShowMapName;
+  GState.MainFormConfig.MainConfig.LockRead;
+  try
+    CBShowmapname.Checked := GState.MainFormConfig.MainConfig.ShowMapName;
+    ScrolInvert.Checked := GState.MainFormConfig.MainConfig.MouseScrollInvert;
+  finally
+    GState.MainFormConfig.MainConfig.UnlockRead;
+  end;
 
  CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
  OldCPath.text:=GState.CacheConfig.OldCPath;
@@ -605,7 +616,6 @@ begin
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
   end;
   CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
- ScrolInvert.Checked:=GState.MouseWheelInv;
  ComboBox2.ItemIndex:=byte(GState.Resampling);
  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
  ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
