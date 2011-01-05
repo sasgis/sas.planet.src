@@ -74,6 +74,7 @@ type
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FProgramPath: string;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -92,8 +93,6 @@ type
   public
 
     MainFileCache: IMemObjCache;
-    // Параметры программы
-    ProgramPath: string;
     // Иконки для меток
     MarkIcons: TStringList;
 
@@ -210,6 +209,7 @@ type
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
+    property ProgramPath: string read FProgramPath;
 
     constructor Create;
     destructor Destroy; override;
@@ -265,7 +265,7 @@ begin
   FCacheConfig := TGlobalCahceConfig.Create;
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
-  ProgramPath := ExtractFilePath(ParamStr(0));
+  FProgramPath := ExtractFilePath(ParamStr(0));
   MainIni := TMeminifile.Create(GetMainConfigFileName);
   FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
@@ -344,43 +344,43 @@ end;
 
 function TGlobalState.GetMarkIconsPath: string;
 begin
-  Result := ProgramPath + 'marksicons' + PathDelim;
+  Result := FProgramPath + 'marksicons' + PathDelim;
 end;
 
 function TGlobalState.GetMarksBackUpFileName: string;
 begin
-  Result := ProgramPath + 'marks.~sml';
+  Result := FProgramPath + 'marks.~sml';
 end;
 
 function TGlobalState.GetMarksFileName: string;
 begin
-  Result := ProgramPath + 'marks.sml';
+  Result := FProgramPath + 'marks.sml';
 end;
 
 
 function TGlobalState.GetMarksCategoryBackUpFileName: string;
 begin
-  Result := ProgramPath + 'Categorymarks.~sml';
+  Result := FProgramPath + 'Categorymarks.~sml';
 end;
 
 function TGlobalState.GetMarksCategoryFileName: string;
 begin
-  Result := ProgramPath + 'Categorymarks.sml';
+  Result := FProgramPath + 'Categorymarks.sml';
 end;
 
 function TGlobalState.GetMapsPath: string;
 begin
-  Result := ProgramPath + 'Maps' + PathDelim;
+  Result := FProgramPath + 'Maps' + PathDelim;
 end;
 
 function TGlobalState.GetTrackLogPath: string;
 begin
-  Result := ProgramPath + 'TrackLog' + PathDelim;
+  Result := FProgramPath + 'TrackLog' + PathDelim;
 end;
 
 function TGlobalState.GetHelpFileName: string;
 begin
-  Result := ProgramPath + 'help.chm';
+  Result := FProgramPath + 'help.chm';
 end;
 
 function TGlobalState.GetMainConfigFileName: string;
