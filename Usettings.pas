@@ -364,7 +364,7 @@ begin
  end else begin
   GState.CacheConfig.DefCache := 2;
  end;
- GState.ShowMapName:=CBShowmapname.Checked;
+  GState.MainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
   GState.ValueToStringConverterConfig.LockWrite;
   try
     GState.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
@@ -584,8 +584,9 @@ begin
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
 
+  CBShowmapname.Checked:=GState.MainFormConfig.MainConfig.ShowMapName;
+
  CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
- CBShowmapname.Checked:=GState.ShowMapName;
  OldCPath.text:=GState.CacheConfig.OldCPath;
  NewCPath.text:=GState.CacheConfig.NewCPath;
  ESCPath.text:=GState.CacheConfig.ESCPath;

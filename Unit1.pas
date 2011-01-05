@@ -1181,7 +1181,7 @@ begin
   VMainToolbarItem := TTBXItem(FMainToolbarItemList.GetByGUID(VMainMapNew.GUID));
   VMainToolbarItem.Checked:=true;
   TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMainMapNew.GUID);
-  if GState.Showmapname then begin
+  if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption:=VMainMapNew.name;
   end else begin
     TBSMB.Caption:='';
@@ -1373,6 +1373,12 @@ begin
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
+
+  if FConfig.MainConfig.ShowMapName then begin
+    TBSMB.Caption:= GState.ViewState.GetCurrentMap.Name;
+  end else begin
+    TBSMB.Caption:='';
+  end;
 end;
 
 procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
@@ -1877,7 +1883,7 @@ begin
   MainToolbarItem.Checked:=true;
 
   TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMapType.GUID);
-  if GState.Showmapname then begin
+  if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption:= VMapType.Name;
   end else begin
     TBSMB.Caption:='';

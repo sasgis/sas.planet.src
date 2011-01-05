@@ -128,7 +128,6 @@ type
     WikiMapFonColor: TColor;
 
     show_point: TMarksShowType;
-    ShowMapName: Boolean;
 
     // Количество тайлов отображаемых за границей экрана
     TilesOut: Integer;
@@ -487,8 +486,6 @@ begin
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
-  ShowMapName:=MainIni.readBool('VIEW','ShowMapNameOnPanel',true);
-
   show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
   MouseWheelInv:=MainIni.readbool('VIEW','invert_mouse',false);
 
@@ -551,7 +548,6 @@ begin
   finally
     ViewState.UnLockRead;
   end;
-  MainIni.WriteBool('VIEW','ShowMapNameOnPanel',ShowMapName);
   MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
   MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
   MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);

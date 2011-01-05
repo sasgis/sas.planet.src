@@ -19,6 +19,10 @@ type
     function GetZoomingAtMousePos: Boolean;
     procedure SetZoomingAtMousePos(AValue: Boolean);
     property ZoomingAtMousePos: Boolean read GetZoomingAtMousePos write SetZoomingAtMousePos;
+
+    function GetShowMapName: Boolean;
+    procedure SetShowMapName(AValue: Boolean);
+    property ShowMapName: Boolean read GetShowMapName write SetShowMapName;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)
