@@ -97,6 +97,7 @@
     <DCCReference Include="i_ICoordConverter.pas" />
     <DCCReference Include="i_ICoordConverterFactory.pas" />
     <DCCReference Include="i_IDownloadInfoSimple.pas" />
+    <DCCReference Include="i_IGeoCoderList.pas" />
     <DCCReference Include="i_IGPSModule.pas" />
     <DCCReference Include="i_IGPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="i_IGPSRecorder.pas" />
@@ -115,6 +116,7 @@
     <DCCReference Include="i_ILogForTaskThread.pas" />
     <DCCReference Include="i_ILogSimple.pas" />
     <DCCReference Include="i_IMainFormBehaviourByGPSConfig.pas" />
+    <DCCReference Include="i_IMainGeoCoderConfig.pas" />
     <DCCReference Include="i_IMainWindowPosition.pas" />
     <DCCReference Include="i_IMapCalibration.pas" />
     <DCCReference Include="i_IMapChangeMessage.pas" />
@@ -390,6 +392,9 @@
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
     <DCCReference Include="u_GeoCodeResult.pas" />
+    <DCCReference Include="u_GeoCoderListBase.pas" />
+    <DCCReference Include="u_GeoCoderListEntity.pas" />
+    <DCCReference Include="u_GeoCoderListSimple.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
     <DCCReference Include="u_GETexture.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
@@ -429,6 +434,7 @@
     <DCCReference Include="u_MainFormConfig.pas" />
     <DCCReference Include="u_MainFormLayersConfig.pas" />
     <DCCReference Include="u_MainFormMainConfig.pas" />
+    <DCCReference Include="u_MainGeoCoderConfig.pas" />
     <DCCReference Include="u_MainMapsConfig.pas" />
     <DCCReference Include="u_MainWindowPositionConfig.pas" />
     <DCCReference Include="u_MainWindowToolbarsLock.pas" />

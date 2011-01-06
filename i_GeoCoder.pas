@@ -28,18 +28,6 @@ type
     function GetLocations(ASearch: WideString; ACurrentPos: TDoublePoint): IGeoCodeResult; safecall;
   end;
 
-  IGeoCoderListStatic = interface
-    ['{34A0BB9F-8C6B-4664-B299-4F78710E0996}']
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function Get(AIndex: Integer): IGeoCoder;
-    property Items[Index: Integer]: IGeoCoder read Get; default;
-
-    function GetCaption(AIndex: Integer): string;
-    property Captions[Index: Integer]: string read GetCaption;
-  end;
-
 implementation
 
 end.
