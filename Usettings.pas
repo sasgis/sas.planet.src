@@ -339,7 +339,7 @@ begin
  end;
 
  GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
- GState.CacheElemensMaxCnt:=SETilesOCache.value;
+  GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
  GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
@@ -560,7 +560,7 @@ begin
     VInetConfig.UnlockRead;
   end;
  CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
- SETilesOCache.Value:=GState.CacheElemensMaxCnt;
+  SETilesOCache.Value := GState.MainMemCacheConfig.MaxSize;
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
  CBDblDwnl.Checked:=GState.TwoDownloadAttempt;

@@ -46,7 +46,6 @@ type
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
     FViewState: TMapViewPortState;
-    FMemFileCache: TMemFileCache;
     FScreenSize: TPoint;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
@@ -55,7 +54,6 @@ type
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
-    FCacheElemensMaxCnt: integer;
     FCacheConfig: TGlobalCahceConfig;
     FMarksBitmapProvider: IBitmapLayerProvider;
     FMapTypeIcons18List: IMapTypeIconsList;
@@ -91,7 +89,6 @@ type
     procedure LoadMainParams;
     procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
-    procedure SetCacheElemensMaxCnt(const Value: integer);
     procedure LoadMapIconsList;
   public
     // Иконки для меток
@@ -149,8 +146,6 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
 
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
-    // Количество элементов в кэше в памяти
-    property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
 
     // Размеры экрана, что бы не дергать каждый раз объект TScreen
     property ScreenSize: TPoint read FScreenSize write SetScreenSize;
@@ -281,8 +276,7 @@ begin
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
 
-  FMemFileCache := TMemFileCache.Create;
-  FMainMemCache := FMemFileCache;
+  FMainMemCache := TMemFileCache.Create(FMainMemCacheConfig);
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FContentTypeManager := TContentTypeManagerSimple.Create;
@@ -313,7 +307,6 @@ begin
   end;
   FMainConfigProvider := nil;
   FreeMarkIcons;
-  FMemFileCache := nil;
   FMainMemCache := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
@@ -503,7 +496,6 @@ begin
   MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
   MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
 
-  CacheElemensMaxCnt:=MainIni.ReadInteger('VIEW','TilesOCache',150);
   ShowHintOnMarks:=MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
   WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
@@ -563,7 +555,6 @@ begin
   MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);
   MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
-  MainIni.WriteInteger('VIEW','TilesOCache', CacheElemensMaxCnt);
   MainIni.WriteBool('VIEW','ShowHintOnMarks', ShowHintOnMarks);
   MainIni.WriteInteger('VIEW','Background',BGround);
   MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
@@ -586,12 +577,6 @@ begin
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
-end;
-
-procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
-begin
-  FCacheElemensMaxCnt := Value;
-  FMemFileCache.CacheElemensMaxCnt := FCacheElemensMaxCnt;
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

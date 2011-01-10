@@ -7,19 +7,23 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_JclNotify,
   i_IMemObjCache,
+  i_IMainMemCacheConfig,
   u_KmlInfoSimple;
 
 type
   TMemFileCache = class(TInterfacedObject, IMemObjCache)
   private
-    FCacheElemensMaxCnt: integer;
+    FConfig: IMainMemCacheConfig;
+    FConfigListener: IJclListener;
+
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
-    procedure SetCacheElemensMaxCnt(const Value: integer);
     procedure AddToCache(btm: TObject; APath: string);
+    procedure OnChangeConfig(Sender: TObject);
   public
-    constructor Create();
+    constructor Create(AConfig: IMainMemCacheConfig);
     destructor Destroy; override;
     procedure Clear;
     procedure DeleteFileFromCache(path: string);
@@ -27,27 +31,58 @@ type
     procedure AddTileToCache(btm: TKmlInfoSimple; APath: string); overload;
     function TryLoadFileFromCache(btm: TCustomBitmap32; APath: string): boolean; overload;
     function TryLoadFileFromCache(btm: TKmlInfoSimple; APath: string): boolean; overload;
-
-    property CacheElemensMaxCnt: integer read FCacheElemensMaxCnt write SetCacheElemensMaxCnt;
   end;
 
 implementation
 
+uses
+  u_NotifyEventListener;
+
 { TMemFileCache }
 
-constructor TMemFileCache.Create;
+constructor TMemFileCache.Create(AConfig: IMainMemCacheConfig);
 begin
-  FCacheElemensMaxCnt := 100;
+  FConfig := AConfig;
+  FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
+  FConfig.GetChangeNotifier.Add(FConfigListener);
+
   FCacheList := TStringList.Create;
+  FCacheList.Capacity := FConfig.MaxSize;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 destructor TMemFileCache.Destroy;
 begin
+  FConfig.GetChangeNotifier.Remove(FConfigListener);
+  FConfigListener := nil;
+  FConfig := nil;
+
   Clear;
   FreeAndNil(FSync);
   FreeAndNil(FCacheList);
   inherited;
+end;
+
+procedure TMemFileCache.OnChangeConfig(Sender: TObject);
+var
+  VNewSize: Integer;
+  i: Integer;
+begin
+  VNewSize := FConfig.MaxSize;
+  FSync.BeginWrite;
+  try
+    if VNewSize <> FCacheList.Capacity then begin
+      if VNewSize < FCacheList.Count then begin
+        for i := 0 to (FCacheList.Count - VNewSize) - 1 do begin
+          FCacheList.Objects[0].Free;
+          FCacheList.Delete(0);
+        end;
+      end;
+      FCacheList.Capacity := VNewSize;
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 procedure TMemFileCache.Clear;
@@ -63,19 +98,6 @@ begin
   finally
     FSync.EndWrite;
   end;
-end;
-
-procedure TMemFileCache.SetCacheElemensMaxCnt(const Value: integer);
-var
-  i: integer;
-begin
-  if Value < FCacheList.Count then begin
-    for i := 0 to (FCacheList.Count - Value) - 1 do begin
-      FCacheList.Objects[0].Free;
-      FCacheList.Delete(0);
-    end;
-  end;
-  FCacheElemensMaxCnt := Value;
 end;
 
 procedure TMemFileCache.DeleteFileFromCache(path: string);
@@ -102,11 +124,11 @@ begin
   try
     i := FCacheList.IndexOf(APath);
     if i < 0 then begin
-      FCacheList.AddObject(APath, btm);
-      if FCacheList.Count > FCacheElemensMaxCnt then begin
+      if FCacheList.Count >= FCacheList.Capacity then begin
         FCacheList.Objects[0].Free;
         FCacheList.Delete(0);
       end;
+      FCacheList.AddObject(APath, btm);
     end else begin
       FreeAndNil(btm);
     end;
