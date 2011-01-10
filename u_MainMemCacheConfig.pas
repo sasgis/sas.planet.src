@@ -28,6 +28,7 @@ implementation
 
 constructor TMainMemCacheConfig.Create;
 begin
+  inherited;
   FMaxSize := 150;
 end;
 

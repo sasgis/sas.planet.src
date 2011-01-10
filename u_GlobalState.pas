@@ -31,6 +31,7 @@ uses
   i_IDownloadInfoSimple,
   i_IImageResamplerConfig,
   i_IGeoCoderList,
+  i_IMainMemCacheConfig,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
   UMapType,
@@ -76,6 +77,7 @@ type
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
     FMainMemCache: IMemObjCache;
+    FMainMemCacheConfig: IMainMemCacheConfig;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -199,6 +201,7 @@ type
     property ProgramPath: string read FProgramPath;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
     property MainMemCache: IMemObjCache read FMainMemCache;
+    property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -240,6 +243,7 @@ uses
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
+  u_MainMemCacheConfig,
   u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_MainFormConfig,
@@ -275,6 +279,8 @@ begin
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
+  FMainMemCacheConfig := TMainMemCacheConfig.Create;
+
   FMemFileCache := TMemFileCache.Create;
   FMainMemCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
@@ -331,6 +337,7 @@ begin
   FMainFormConfig := nil;
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
+  FMainMemCacheConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -457,6 +464,7 @@ begin
   FMainFormConfig.ReadConfig(MainConfigProvider);
   FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
   FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+  FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
 end;
 
 procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
@@ -577,6 +585,7 @@ begin
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
+  FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
 end;
 
 procedure TGlobalState.SetCacheElemensMaxCnt(const Value: integer);
