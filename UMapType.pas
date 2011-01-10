@@ -267,7 +267,7 @@ begin
     FStorage := TTileStorageFileSystem.Create(AConfig);
   end;
 
-  FCache := TTileCacheSimpleGlobal.Create(Self);
+  FCache := TTileCacheSimpleGlobal.Create(Self, GState.MainFileCache);
   FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(TileStorage.TileFileExt);
   if FBitmapLoaderFromStorage <> nil then begin
     if FStorage.GetUseSave then begin

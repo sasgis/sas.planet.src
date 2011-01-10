@@ -23,7 +23,7 @@ type
     function TryLoadTileFromCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte): boolean; overload;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
   public
-    constructor Create(AMapType: TMapType);
+    constructor Create(AMapType: TMapType; AMemCache: IMemObjCache);
   end;
 
 
@@ -31,8 +31,7 @@ implementation
 
 uses
   SysUtils,
-  ComObj,
-  u_GlobalState;
+  ComObj;
 
 { TTileCacheSimpleGlobal }
 
@@ -53,11 +52,11 @@ begin
   FMemCache.Clear;
 end;
 
-constructor TTileCacheSimpleGlobal.Create(AMapType: TMapType);
+constructor TTileCacheSimpleGlobal.Create(AMapType: TMapType; AMemCache: IMemObjCache);
 begin
   FGUID := AMapType.GUID;
   FGUIDString := GUIDToString(FGUID);
-  FMemCache := GState.MainFileCache;
+  FMemCache := AMemCache;
 end;
 
 procedure TTileCacheSimpleGlobal.DeleteTileFromCache(AXY: TPoint;
