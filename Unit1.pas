@@ -3723,7 +3723,6 @@ end;
 
 procedure TFmain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
-  UpdateGPSsensors;
   TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
 end;
 
