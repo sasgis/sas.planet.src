@@ -40,8 +40,6 @@ uses
   u_GlobalCahceConfig;
 
 type
-  TSrchType = (stGoogle, stYandex);
-
   TGlobalState = class
   private
     // Ini-файл с основными настройками
@@ -140,9 +138,6 @@ type
     ShowHintOnMarks: Boolean;
 
     // Параетры касающиеся именно главного окна
-
-    //Способ поиска
-    SrchType: TSrchType;
 
     //Цвет фона
     BGround: TColor;
@@ -502,7 +497,6 @@ begin
 
   CacheElemensMaxCnt:=MainIni.ReadInteger('VIEW','TilesOCache',150);
   ShowHintOnMarks:=MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
-  SrchType:=TSrchType(MainIni.ReadInteger('VIEW','SearchType',0));
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
   WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
   WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
@@ -563,7 +557,6 @@ begin
   MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
   MainIni.WriteInteger('VIEW','TilesOCache', CacheElemensMaxCnt);
   MainIni.WriteBool('VIEW','ShowHintOnMarks', ShowHintOnMarks);
-  MainIni.WriteInteger('VIEW','SearchType',integer(SrchType));
   MainIni.WriteInteger('VIEW','Background',BGround);
   MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
   MainIni.Writeinteger('Wikimapia','FonColor',WikiMapFonColor);

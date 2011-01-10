@@ -19,9 +19,9 @@ object Fmain: TFmain
   TextHeight = 13
   object map: TImage32
     Left = 36
-    Top = 61
+    Top = 59
     Width = 642
-    Height = 465
+    Height = 467
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -43,10 +43,10 @@ object Fmain: TFmain
     Left = 0
     Top = 0
     Width = 842
-    Height = 61
+    Height = 59
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 27
+      Top = 25
       DockPos = 0
       DockRow = 1
       Images = TBImageList2
@@ -98,24 +98,15 @@ object Fmain: TFmain
         OnClick = TBSubmenuItem1Click
         Caption = ''
         Hint = #1055#1077#1088#1077#1081#1090#1080' '#1082' '#1085#1077#1082#1086#1090#1086#1088#1086#1084#1091' '#1084#1077#1089#1090#1091
-        object TBEditItem2: TTBEditItem
-          EditCaption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
-          Visible = False
-          Caption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
-          Hint = ''
-          EditCaption = #1051#1086#1082#1072#1083#1100#1085#1099#1081
-        end
-        object TBEditItem1: TTBEditItem
+        object tbiEditYandexSrch: TTBEditItem
           EditCaption = #1071#1085#1076#1077#1082#1089
-          OnAcceptText = TBEditItem1AcceptText
           Caption = #1071#1085#1076#1077#1082#1089
           Hint = ''
           EditCaption = #1071#1085#1076#1077#1082#1089
         end
-        object EditGoogleSrch: TTBEditItem
+        object tbiEditGoogleSrch: TTBEditItem
           EditCaption = 'Google!'
           EditWidth = 150
-          OnAcceptText = EditGoogleSrchAcceptText
           Caption = 'Google!'
           Hint = ''
           EditCaption = 'Google!'
@@ -134,8 +125,8 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 230
-      Top = 27
+      Left = 238
+      Top = 25
       DockPos = 224
       DockRow = 1
       Images = ImagesSrc24
@@ -165,8 +156,8 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 357
-      Top = 27
+      Left = 365
+      Top = 25
       DockPos = 352
       DockRow = 1
       Images = TBImageList2
@@ -177,8 +168,8 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 504
-      Top = 27
+      Left = 505
+      Top = 25
       DockPos = 504
       DockRow = 1
       Images = TBImageList2
@@ -255,7 +246,7 @@ object Fmain: TFmain
         Hint = ''
       end
       object Label1: TLabel
-        Left = 107
+        Left = 115
         Top = 8
         Width = 31
         Height = 13
@@ -265,7 +256,7 @@ object Fmain: TFmain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 27
+      Top = 25
       DockPos = 807
       DockRow = 1
       TabOrder = 4
@@ -1049,7 +1040,7 @@ object Fmain: TFmain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 462
+      Left = 430
       Top = 0
       DockPos = 430
       Stretch = True
@@ -1062,17 +1053,14 @@ object Fmain: TFmain
         Caption = 'Google'
         Hint = ''
         object TBXSelectYandexSrch: TTBXItem
-          Tag = 1
           GroupIndex = 1
           RadioItem = True
-          OnClick = TBXSelectYandexSrchClick
           Caption = #1071#1085#1076#1077#1082#1089
           Hint = ''
         end
         object TBXSelectGoogleSrch: TTBXItem
           GroupIndex = 1
           RadioItem = True
-          OnClick = TBXSelectYandexSrchClick
           Caption = 'Google'
           Hint = ''
         end
@@ -1096,9 +1084,9 @@ object Fmain: TFmain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 61
+    Top = 59
     Width = 36
-    Height = 465
+    Height = 467
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1988,14 +1976,14 @@ object Fmain: TFmain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 61
+    Top = 59
     Width = 164
-    Height = 465
+    Height = 467
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 455
+      ClientAreaHeight = 457
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors

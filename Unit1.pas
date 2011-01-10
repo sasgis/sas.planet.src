@@ -216,9 +216,8 @@ type
     TBRectSave: TTBXSubmenuItem;
     TBMapZap: TTBXSubmenuItem;
     TBGoTo: TTBXSubmenuItem;
-    TBEditItem2: TTBEditItem;
-    TBEditItem1: TTBEditItem;
-    EditGoogleSrch: TTBEditItem;
+    tbiEditYandexSrch: TTBEditItem;
+    tbiEditGoogleSrch: TTBEditItem;
     TBZoomIn: TTBXItem;
     TBZoom_out: TTBXItem;
     N35: TTBXItem;
@@ -437,7 +436,7 @@ type
     procedure NMainToolBarShowClick(Sender: TObject);
     procedure NZoomToolBarShowClick(Sender: TObject);
     procedure NsrcToolBarShowClick(Sender: TObject);
-    procedure EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+    procedure tbiEditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBSubmenuItem1Click(Sender: TObject);
     procedure TBMainToolBarClose(Sender: TObject);
     procedure N000Click(Sender: TObject);
@@ -456,7 +455,7 @@ type
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure TBLoadSelFromFileClick(Sender: TObject);
-    procedure TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+    procedure tbiEditYandexSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
@@ -609,8 +608,6 @@ type
     procedure BuildImageListMapZapSelect;
     procedure UpdateGPSSatellites;
   public
-    FGoogleGeoCoder: IGeoCoder;
-    FYandexGeoCoder: IGeoCoder;
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
@@ -650,12 +647,14 @@ uses
   UMarksExplorer,
   UFDGAvailablePic,
   c_SasVersion,
+  c_GeoCoderGUIDSimple,
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
   u_PosChangeListener,
   i_GPS,
+  i_IGeoCoderList,
   i_ILogSimple,
   i_ILogForTaskThread,
   i_ICoordConverter,
@@ -975,6 +974,11 @@ begin
       FConfig.GPSBehaviour.GetChangeNotifier
     );
 
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.MainGeoCoderConfig.GetChangeNotifier
+    );
+
     GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
@@ -1014,12 +1018,6 @@ begin
     FMapMoving:=false;
 
     SetProxy;
-
-
-    case GState.SrchType of
-      stGoogle:  TBXSelectYandexSrchClick(TBXSelectGoogleSrch);
-      stYandex: TBXSelectYandexSrchClick(TBXSelectYandexSrch);
-    end;
 
     if GState.WebReportToAuthor then begin
       frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
@@ -1071,8 +1069,6 @@ begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
-  FGoogleGeoCoder := nil;
-  FYandexGeoCoder := nil;
   FMainToolbarItemList := nil;
   FMainToolbarSubMenuItemList := nil;
   FTBFillingItemList := nil;
@@ -1365,6 +1361,11 @@ begin
 end;
 
 procedure TFmain.OnMainFormMainConfigChange(Sender: TObject);
+var
+  VGUID: TGUID;
+  i: Integer;
+  VToolbarItem: TTBCustomItem;
+  VItem: IGeoCoderListEntity;
 begin
   NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
   Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
@@ -1380,6 +1381,18 @@ begin
   end;
 
   Nanimate.Checked := FConfig.MainConfig.AnimateZoom;
+
+  VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
+  for i := 0 to TBXSelectSrchType.Count - 1 do begin
+    VToolbarItem := TBXSelectSrchType.Items[i];
+    VItem := IGeoCoderListEntity(VToolbarItem.Tag);
+    if VItem <> nil then begin
+      if IsEqualGUID(VGUID, VItem.GetGUID) then begin
+        VToolbarItem.Checked := True;
+        TBXSelectSrchType.Caption := VToolbarItem.Caption;
+      end;
+    end;
+  end;
 end;
 
 procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
@@ -3788,45 +3801,92 @@ end;
 procedure TFmain.InitSearchers;
 var
   VGoto: IMapViewGoto;
-  VProxy: IProxySettings;
+  VItem: IGeoCoderListEntity;
+  VTBXItem: TTBXItem;
+  VTBEditItem: TTBEditItem;
 begin
   VGoto := TMapViewGotoOnFMain.Create;
   FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
-  VProxy := GState.ProxySettings;
-  FGoogleGeoCoder := TGeoCoderByGoogle.Create(VProxy);
-  FYandexGeoCoder := TGeoCoderByYandex.Create(VProxy);
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
+  VTBXItem := TBXSelectGoogleSrch;
+  VTBEditItem := tbiEditGoogleSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditGoogleSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectYandexSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
+  VTBXItem := TBXSelectYandexSrch;
+  VTBEditItem := tbiEditYandexSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditGoogleSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectYandexSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
 end;
 
 procedure TFmain.TBXSelectYandexSrchClick(Sender: TObject);
+var
+  VToolbarItem: TTBXItem;
+  VItem: IGeoCoderListEntity;
 begin
- TTBXItem(Sender).Checked:=true;
- GState.SrchType:=TSrchType(TTBXItem(Sender).tag);
- TBXSelectSrchType.Caption:=TTBXItem(Sender).Caption;
+  if Sender is TTBXItem then begin
+    VToolbarItem := TTBXItem(Sender);
+    VItem := IGeoCoderListEntity(VToolbarItem.tag);
+    if VItem <> nil then begin
+      FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
+    end;
+  end;
 end;
 
 procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
   var NewText: String; var Accept: Boolean);
-begin
- case GState.SrchType of
-  stGoogle: EditGoogleSrchAcceptText(Sender,NewText, Accept);
-  stYandex: TBEditItem1AcceptText(Sender,NewText, Accept);
- end;
-end;
-
-procedure TFmain.EditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
+  VItem: IGeoCoderListEntity;
   VResult: IGeoCodeResult;
 begin
-  VResult := FGoogleGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+  VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
+  VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
   FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
 end;
 
-procedure TFmain.TBEditItem1AcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+procedure TFmain.tbiEditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
   VResult: IGeoCodeResult;
+  VToolbarItem: TTBCustomItem;
+  VItem: IGeoCoderListEntity;
 begin
-  VResult := FYandexGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
-  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+  if Sender is TTBCustomItem then begin
+    VToolbarItem := TTBCustomItem(Sender);
+    VItem := IGeoCoderListEntity(VToolbarItem.Tag);
+    if VItem <> nil then begin
+      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+      FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+    end;
+  end;
+end;
+
+procedure TFmain.tbiEditYandexSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+var
+  VResult: IGeoCodeResult;
+  VToolbarItem: TTBCustomItem;
+  VItem: IGeoCoderListEntity;
+begin
+  if Sender is TTBCustomItem then begin
+    VToolbarItem := TTBCustomItem(Sender);
+    VItem := IGeoCoderListEntity(VToolbarItem.Tag);
+    if VItem <> nil then begin
+      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
+      FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+    end;
+  end;
 end;
 
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);

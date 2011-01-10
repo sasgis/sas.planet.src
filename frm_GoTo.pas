@@ -59,6 +59,8 @@ var
 implementation
 
 uses
+  c_GeoCoderGUIDSimple,
+  i_IGeoCoderList,
   u_GlobalState,
   u_GeoCodeResult,
   u_GeoCodePalcemark,
@@ -106,6 +108,7 @@ var
   VId: Integer;
   VMark: TMarkFull;
   VLonLat: TDoublePoint;
+  VGeoCoderItem: IGeoCoderListEntity;
 begin
   FZoom := CBzoom.ItemIndex;
   if RB3.Checked then begin
@@ -129,12 +132,22 @@ begin
     ModalResult := mrOk;
   end else if RB2.Checked then begin
     textsrch:= Trim(EditGF.Text);
-    FResult := Fmain.FGoogleGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
-    ModalResult := mrOk;
+    VGeoCoderItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
+    if VGeoCoderItem <> nil then begin
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
+      ModalResult := mrOk;
+    end else begin
+      ModalResult := mrCancel;
+    end;
   end else if RB4.Checked then begin
     textsrch:= Trim(EditGF.Text);
-    FResult := Fmain.FYandexGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
-    ModalResult := mrOk;
+    VGeoCoderItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
+    if VGeoCoderItem <> nil then begin
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
+      ModalResult := mrOk;
+    end else begin
+      ModalResult := mrCancel;
+    end;
   end;
 end;
 
