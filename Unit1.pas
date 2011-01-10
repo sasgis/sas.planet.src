@@ -436,7 +436,7 @@ type
     procedure NMainToolBarShowClick(Sender: TObject);
     procedure NZoomToolBarShowClick(Sender: TObject);
     procedure NsrcToolBarShowClick(Sender: TObject);
-    procedure tbiEditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+    procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBSubmenuItem1Click(Sender: TObject);
     procedure TBMainToolBarClose(Sender: TObject);
     procedure N000Click(Sender: TObject);
@@ -455,7 +455,6 @@ type
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure TBLoadSelFromFileClick(Sender: TObject);
-    procedure tbiEditYandexSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
@@ -515,7 +514,7 @@ type
     procedure NSensorsBarClick(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
-    procedure TBXSelectYandexSrchClick(Sender: TObject);
+    procedure TBXSelectSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
     procedure tbitmPositionByGSMClick(Sender: TObject);
@@ -3812,11 +3811,11 @@ begin
   VTBEditItem := tbiEditGoogleSrch;
 
   VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditGoogleSrchAcceptText;
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
   VTBEditItem.EditCaption := VItem.GetCaption;
   VTBEditItem.Caption := VItem.GetCaption;
   VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectYandexSrchClick;
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
   VTBXItem.Caption := VItem.GetCaption;
 
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
@@ -3824,15 +3823,15 @@ begin
   VTBEditItem := tbiEditYandexSrch;
 
   VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditGoogleSrchAcceptText;
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
   VTBEditItem.EditCaption := VItem.GetCaption;
   VTBEditItem.Caption := VItem.GetCaption;
   VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectYandexSrchClick;
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
   VTBXItem.Caption := VItem.GetCaption;
 end;
 
-procedure TFmain.TBXSelectYandexSrchClick(Sender: TObject);
+procedure TFmain.TBXSelectSrchClick(Sender: TObject);
 var
   VToolbarItem: TTBXItem;
   VItem: IGeoCoderListEntity;
@@ -3857,23 +3856,7 @@ begin
   FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
 end;
 
-procedure TFmain.tbiEditGoogleSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
-var
-  VResult: IGeoCodeResult;
-  VToolbarItem: TTBCustomItem;
-  VItem: IGeoCoderListEntity;
-begin
-  if Sender is TTBCustomItem then begin
-    VToolbarItem := TTBCustomItem(Sender);
-    VItem := IGeoCoderListEntity(VToolbarItem.Tag);
-    if VItem <> nil then begin
-      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
-      FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
-    end;
-  end;
-end;
-
-procedure TFmain.tbiEditYandexSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+procedure TFmain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
   VResult: IGeoCodeResult;
   VToolbarItem: TTBCustomItem;
