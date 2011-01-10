@@ -30,6 +30,7 @@ uses
   i_ILastSelectionInfo,
   i_IDownloadInfoSimple,
   i_IImageResamplerConfig,
+  i_IGeoCoderList,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
   UMapType,
@@ -75,6 +76,7 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
+    FGeoCoderList: IGeoCoderList;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -240,6 +242,7 @@ uses
   u_DownloadInfoSimple,
   u_InetConfig,
   u_GSMGeoCodeConfig,
+  u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
   u_ImageResamplerConfig,
@@ -293,7 +296,8 @@ begin
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   GPSpar := TGPSpar.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
-  FMainFormConfig := TMainFormConfig.Create;
+  FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
+  FMainFormConfig := TMainFormConfig.Create(FGeoCoderList);
 end;
 
 destructor TGlobalState.Destroy;

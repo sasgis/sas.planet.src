@@ -6,6 +6,8 @@ uses
   i_INavigationToPoint,
   i_MainFormConfig,
   i_IMainFormBehaviourByGPSConfig,
+  i_IMainGeoCoderConfig,
+  i_IGeoCoderList,
   u_ConfigDataElementComplexBase;
 
 type
@@ -16,14 +18,16 @@ type
     FToolbarsLock: IMainWindowToolbarsLock;
     FNavToPoint: INavigationToPoint;
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
+    FMainGeoCoderConfig: IMainGeoCoderConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;
     function GetNavToPoint: INavigationToPoint;
     function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
+    function GetMainGeoCoderConfig: IMainGeoCoderConfig;
   public
-    constructor Create;
+    constructor Create(AList: IGeoCoderList);
   end;
 
 implementation
@@ -35,13 +39,14 @@ uses
   u_NavigationToPoint,
   u_MainFormLayersConfig,
   u_MainFormBehaviourByGPSConfig,
+  u_MainGeoCoderConfig,
   u_MainFormMainConfig;
 
 { TMainFormConfig }
 
-constructor TMainFormConfig.Create;
+constructor TMainFormConfig.Create(AList: IGeoCoderList);
 begin
-  inherited;
+  inherited Create;
   FMainConfig := TMainFormMainConfig.Create;
   Add(FMainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
   FLayersConfig := TMainFormLayersConfig.Create;
@@ -52,6 +57,8 @@ begin
   Add(FNavToPoint, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPoint'));
   FGPSBehaviour := TMainFormBehaviourByGPSConfig.Create;
   Add(FGPSBehaviour, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainFormGPSEvents'));
+  FMainGeoCoderConfig := TMainGeoCoderConfig.Create(AList);
+  Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
 end;
 
 function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
@@ -67,6 +74,11 @@ end;
 function TMainFormConfig.GetMainConfig: IMainFormMainConfig;
 begin
   Result := FMainConfig;
+end;
+
+function TMainFormConfig.GetMainGeoCoderConfig: IMainGeoCoderConfig;
+begin
+  Result := FMainGeoCoderConfig;
 end;
 
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;

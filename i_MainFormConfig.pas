@@ -10,6 +10,7 @@ uses
   i_IMapLayerGPSTrackConfig,
   i_IMapLayerNavToPointMarkerConfig,
   i_IMainFormBehaviourByGPSConfig,
+  i_IMainGeoCoderConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -75,6 +76,9 @@ type
 
     function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
     property GPSBehaviour: IMainFormBehaviourByGPSConfig read GetGPSBehaviour;
+
+    function GetMainGeoCoderConfig: IMainGeoCoderConfig;
+    property MainGeoCoderConfig: IMainGeoCoderConfig read GetMainGeoCoderConfig;
   end;
 
 implementation
