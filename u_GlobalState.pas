@@ -324,7 +324,7 @@ begin
   FreeAndNil(FMarksDB);
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;
-  FreeAndNil(FLastSelectionInfo);
+  FLastSelectionInfo := nil;
   FreeAndNil(GPSpar);
   FreeAndNil(FViewState);
   FreeAndNil(FMainMapsList);
