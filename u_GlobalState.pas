@@ -75,6 +75,7 @@ type
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
+    FMainMemCache: IMemObjCache;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -91,8 +92,6 @@ type
     procedure SetCacheElemensMaxCnt(const Value: integer);
     procedure LoadMapIconsList;
   public
-
-    MainFileCache: IMemObjCache;
     // »конки дл€ меток
     MarkIcons: TStringList;
 
@@ -199,6 +198,7 @@ type
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property ProgramPath: string read FProgramPath;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
+    property MainMemCache: IMemObjCache read FMainMemCache;
 
     constructor Create;
     destructor Destroy; override;
@@ -276,7 +276,7 @@ begin
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMemFileCache := TMemFileCache.Create;
-  MainFileCache := FMemFileCache;
+  FMainMemCache := FMemFileCache;
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FContentTypeManager := TContentTypeManagerSimple.Create;
@@ -308,7 +308,7 @@ begin
   FMainConfigProvider := nil;
   FreeMarkIcons;
   FMemFileCache := nil;
-  MainFileCache := nil;
+  FMainMemCache := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
   FContentTypeManager := nil;
