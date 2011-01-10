@@ -118,6 +118,7 @@
     <DCCReference Include="i_ILogSimple.pas" />
     <DCCReference Include="i_IMainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="i_IMainGeoCoderConfig.pas" />
+    <DCCReference Include="i_IMainMemCacheConfig.pas" />
     <DCCReference Include="i_IMainWindowPosition.pas" />
     <DCCReference Include="i_IMapCalibration.pas" />
     <DCCReference Include="i_IMapChangeMessage.pas" />
@@ -437,6 +438,7 @@
     <DCCReference Include="u_MainFormMainConfig.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
     <DCCReference Include="u_MainMapsConfig.pas" />
+    <DCCReference Include="u_MainMemCacheConfig.pas" />
     <DCCReference Include="u_MainWindowPositionConfig.pas" />
     <DCCReference Include="u_MainWindowToolbarsLock.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />

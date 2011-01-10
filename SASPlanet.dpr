@@ -298,6 +298,8 @@ uses
   u_ImageResamplerFactoryListStaticSimple in 'u_ImageResamplerFactoryListStaticSimple.pas',
   i_IImageResamplerConfig in 'i_IImageResamplerConfig.pas',
   u_ImageResamplerConfig in 'u_ImageResamplerConfig.pas',
+  i_IMainMemCacheConfig in 'i_IMainMemCacheConfig.pas',
+  u_MainMemCacheConfig in 'u_MainMemCacheConfig.pas',
   i_IGeoCoderList in 'i_IGeoCoderList.pas',
   u_GeoCoderListEntity in 'u_GeoCoderListEntity.pas',
   u_GeoCoderListBase in 'u_GeoCoderListBase.pas',
