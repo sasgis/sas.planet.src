@@ -38,6 +38,7 @@ uses
   u_JclListenerNotifierLinksList in 'u_JclListenerNotifierLinksList.pas',
   c_SasVersion in 'c_SasVersion.pas',
   c_CoordConverter in 'c_CoordConverter.pas',
+  c_GeoCoderGUIDSimple in 'c_GeoCoderGUIDSimple.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   UTimeZones in 'UTimeZones.pas',

@@ -16,6 +16,7 @@ implementation
 
 uses
   SysUtils,
+  c_GeoCoderGUIDSimple,
   u_GeoCoderListEntity,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex;
@@ -27,14 +28,14 @@ begin
   inherited Create;
   Add(
     TGeoCoderListEntity.Create(
-      StringToGUID('{012C3CBF-9EDF-44F1-B728-346C9585A95C}'),
+      CGeoCoderGoogleGUID,
       'Google',
       TGeoCoderByGoogle.Create(AProxy)
     )
   );
   Add(
     TGeoCoderListEntity.Create(
-      StringToGUID('{67496A88-0531-4C1D-9FF1-81F20683B38B}'),
+      CGeoCoderYandexGUID,
       'Yandex',
       TGeoCoderByYandex.Create(AProxy)
     )

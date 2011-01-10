@@ -50,6 +50,7 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="bmpUtil.pas" />
     <DCCReference Include="c_CoordConverter.pas" />
+    <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="dm_MarksDb.pas">
       <Form>DMMarksDb</Form>
