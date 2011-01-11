@@ -7,6 +7,7 @@ uses
   GR32,
   graphics,
   i_ICoordConverter,
+  i_IMarkPicture,
   i_IBitmapLayerProvider,
   WinTypes;
 
@@ -59,7 +60,7 @@ type
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
     procedure drawPath(APointsLonLat: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
-    procedure DrawPoint(ALL: TDoublePoint; AName: string; APicName: string; AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
+    procedure DrawPoint(ALL: TDoublePoint; AName: string; APic: IMarkPicture; AMarkSize, AFontSize: integer; AColor1, AColor2: TColor32);
   public
     constructor Create(
       ATargetBmp: TCustomBitmap32;
@@ -182,7 +183,7 @@ begin
 end;
 
 procedure TMapMarksBitmapLayerProviderStupedThreaded.DrawPoint(
-  ALL: TDoublePoint; AName, APicName: string; AMarkSize, AFontSize: integer;
+  ALL: TDoublePoint; AName: string; APic: IMarkPicture; AMarkSize, AFontSize: integer;
   AColor1, AColor2: TColor32);
 var
   xy: Tpoint;
@@ -194,14 +195,8 @@ var
 begin
   xy := FGeoConvert.LonLat2PixelPos(ALL, FZoom);
   xy := MapPixel2BitmapPixel(xy);
-  indexmi := GState.MarkIcons.IndexOf(APicName);
-  if (indexmi = -1) and (GState.MarkIcons.Count > 0) then begin
-    indexmi := 0;
-  end;
-  if (indexmi > -1) then begin
-    VIconSource := TCustomBitmap32(GState.MarkIcons.Objects[indexmi]);
-    FTempBmp.SetSize(VIconSource.Width, VIconSource.Height);
-    FTempBmp.Draw(0, 0, VIconSource);
+  if (APic <> nil) then begin
+    APic.LoadBitmap(FTempBmp);
     VDstRect := bounds(xy.x - (AMarkSize div 2), xy.y - AMarkSize, AMarkSize, AMarkSize);
     VSrcRect := bounds(0, 0, FTempBmp.Width, FTempBmp.Height);
     FTargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
@@ -257,7 +252,7 @@ begin
         DrawPoint(
           VMark.Points[0],
           VMark.name,
-          VMark.PicName,
+          VMark.Pic,
           VMark.Scale2,
           VMark.Scale1,
           VMark.Color1,

@@ -4,7 +4,8 @@ interface
 
 uses
   GR32,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_IMarkPicture;
 
 type
   TCategoryId = class
@@ -22,11 +23,14 @@ type
   end;
 
   TMarkFull = class(TMarkId)
+  private
+    FPicName: string;
+    FPic: IMarkPicture;
+  public
     CategoryId: Integer;
     Desc: string;
     LLRect: TDoubleRect;
     Points: TDoublePointArray;
-    PicName: string;
     Color1: TColor32;
     Color2: TColor32;
     Scale1: Integer;
@@ -38,6 +42,9 @@ type
     procedure ClosePoly;
     function GetGoToLonLat: TDoublePoint;
     procedure Assign(ASource: TMarkFull);
+    procedure SetPic(const APic: IMarkPicture; const APicName: string);
+    property PicName: string read FPicName;
+    property Pic: IMarkPicture read FPic;
   end;
 
   TMarksIteratorBase = class
@@ -66,7 +73,8 @@ begin
   Self.Desc := ASource.Desc;
   Self.LLRect := ASource.LLRect;
   Self.Points := Copy(ASource.Points);
-  Self.PicName := ASource.PicName;
+  Self.FPicName := ASource.FPicName;
+  Self.FPic := ASource.FPic;
   Self.Color1 := ASource.Color1;
   Self.Color2 := ASource.Color2;
   Self.Scale1 := ASource.Scale1;
@@ -135,6 +143,12 @@ begin
   end else begin
     Result := False;
   end;
+end;
+
+procedure TMarkFull.SetPic(const APic: IMarkPicture; const APicName: string);
+begin
+  FPic := APic;
+  FPicName := APicName;
 end;
 
 { TMarksIteratorBase }

@@ -20,6 +20,7 @@ uses
   u_CommonFormAndFrameParents,
   UResStrings,
   UMarksExplorer,
+  i_IMarkPicture,
   u_MarksSimple,
   fr_MarkDescription,
   fr_LonLat,
@@ -81,7 +82,7 @@ type
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
-    procedure DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
+    procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -107,6 +108,9 @@ var
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
+  VPicCount: Integer;
+  VColCount: Integer;
+  VRowCount: Integer;
 begin
   FMark := AMark;
   frMarkDescription.Description:='';
@@ -115,15 +119,21 @@ begin
   GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
   CBKateg.Sorted:=true;
   CBKateg.Text:=VLastUsedCategoryName;
-  DrawGrid1.RowCount:=(GState.MarkIcons.Count div DrawGrid1.ColCount);
-  if (GState.MarkIcons.Count mod DrawGrid1.ColCount)>0 then begin
-  DrawGrid1.RowCount:=DrawGrid1.RowCount+1;
+  VPicCount := GState.MarkPictureList.Count;
+  VColCount := DrawGrid1.ColCount;
+  VRowCount := VPicCount div VColCount;
+  if (VPicCount mod VColCount) > 0 then begin
+    Inc(VRowCount);
   end;
+  DrawGrid1.RowCount := VRowCount;
   DrawGrid1.Repaint;
   if FMark.id < 0 then begin
-    if GState.MarkIcons.Count>0 then begin
-      DrawFromMarkIcons(Image1.canvas,0,bounds(4,4,36,36));
+    if FMark.Pic = nil then begin
+      if VPicCount > 0 then begin
+        FMark.SetPic(GState.MarkPictureList.Get(0), GState.MarkPictureList.GetName(0));
+      end;
     end;
+    DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
     Caption:=SAS_STR_AddNewMark;
     Badd.Caption:=SAS_STR_Add;
     CheckBox2.Checked:=true;
@@ -139,7 +149,7 @@ begin
     ColorBox2.Selected:=WinColor(FMark.Color2);
     CheckBox2.Checked:=FMark.visible;
 
-    DrawFromMarkIcons(Image1.canvas,GState.MarkIcons.IndexOf(FMark.PicName),bounds(4,4,36,36));
+    DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
     VId := FMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := TCategoryId(CBKateg.Items.Objects[i]);
@@ -250,29 +260,34 @@ begin
   inherited;
 end;
 
-procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas;index:integer;bound:TRect);
+procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
 var
   Bitmap: TCustomBitmap32;
   Bitmap2: TBitmap32;
   wdth:integer;
 begin
-  if index<0 then index:=0;
   canvas.FillRect(bound);
-  wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
-  Bitmap:=TCustomBitmap32.Create;
-  Bitmap2:=TBitmap32.Create;
-  try
-   Bitmap.Assign(TCustomBitmap32(GState.MarkIcons.Objects[index]));
-   Bitmap.DrawMode:=dmBlend;
-   Bitmap.Resampler:=TKernelResampler.Create;
-   TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;
-   Bitmap2.SetSize(wdth,wdth);
-   Bitmap2.Clear(clWhite32);
-   Bitmap2.Draw(Bounds(0, 0, wdth,wdth), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
-   Bitmap2.DrawTo(canvas.Handle, bound, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
-  finally
-   Bitmap.Free;
-   Bitmap2.Free;
+  if APic <> nil then begin
+    wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
+    Bitmap:=TCustomBitmap32.Create;
+    try
+      APic.LoadBitmap(Bitmap);
+      Bitmap.DrawMode:=dmBlend;
+      Bitmap.Resampler:=TKernelResampler.Create;
+      TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;
+
+      Bitmap2:=TBitmap32.Create;
+      try
+        Bitmap2.SetSize(wdth,wdth);
+        Bitmap2.Clear(clWhite32);
+        Bitmap2.Draw(Bounds(0, 0, wdth,wdth), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
+        Bitmap2.DrawTo(canvas.Handle, bound, Bounds(0, 0, Bitmap2.Width,Bitmap2.Height));
+      finally
+        Bitmap2.Free;
+      end;
+    finally
+      Bitmap.Free;
+    end;
   end;
 end;
 
@@ -281,8 +296,8 @@ procedure TFaddPoint.DrawGrid1DrawCell(Sender: TObject; ACol,
 var i:Integer;
 begin
    i:=(Arow*DrawGrid1.ColCount)+ACol;
-   if i<GState.MarkIcons.Count then
-    DrawFromMarkIcons(DrawGrid1.Canvas,i,DrawGrid1.CellRect(ACol,ARow));
+   if i < GState.MarkPictureList.Count then
+    DrawFromMarkIcons(DrawGrid1.Canvas, GState.MarkPictureList.Get(i), DrawGrid1.CellRect(ACol,ARow));
 end;
 
 procedure TFaddPoint.Image1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -306,10 +321,10 @@ var i:integer;
 begin
  DrawGrid1.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*DrawGrid1.ColCount)+ACol;
- if (ARow>-1)and(ACol>-1)and(i<GState.MarkIcons.Count) then begin
-   FMark.PicName:=GState.MarkIcons.Strings[i];
+ if (ARow>-1)and(ACol>-1) and (i < GState.MarkPictureList.Count) then begin
+   FMark.SetPic(GState.MarkPictureList.Get(i), GState.MarkPictureList.GetName(i));
    image1.Canvas.FillRect(image1.Canvas.ClipRect);
-   DrawFromMarkIcons(image1.Canvas,i,bounds(5,5,36,36));
+   DrawFromMarkIcons(image1.Canvas, FMark.Pic, bounds(5,5,36,36));
    DrawGrid1.Visible:=false;
  end;
 end;

@@ -93,6 +93,7 @@ implementation
 
 uses
   u_GlobalState,
+  i_IMarkPicture,
   u_KmlInfoSimple,
   u_MarksSimple,
   u_MarksReadWriteSimple,
@@ -162,12 +163,14 @@ procedure TFImport.ComboBox1DrawItem(Control: TWinControl; Index: Integer;
 var
   Bitmap: TCustomBitmap32;
   Bitmap2: TBitmap32;
+  VPic: IMarkPicture;
 begin
   ComboBox1.Canvas.FillRect(Rect);
 
   Bitmap:=TCustomBitmap32.Create;
   try
-    Bitmap.Assign(TCustomBitmap32(ComboBox1.Items.Objects[Index]));
+    VPic := IMarkPicture(Pointer(ComboBox1.Items.Objects[Index]));
+    VPic.LoadBitmap(Bitmap);
     Bitmap.DrawMode:=dmBlend;
     Bitmap.Resampler:=TKernelResampler.Create;
     TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;
@@ -191,10 +194,15 @@ begin
 end;
 
 procedure TFImport.FormActivate(Sender: TObject);
+var
+  i: Integer;
 begin
- ComboBox1.Items.Assign(GState.MarkIcons);
- ComboBox1.Repaint;
- ComboBox1.ItemIndex:=0;
+  ComboBox1.Items.Clear;
+  for i := 0 to GState.MarkPictureList.Count - 1 do begin
+    ComboBox1.Items.AddObject(GState.MarkPictureList.GetName(i), Pointer(GState.MarkPictureList.Get(i)));
+  end;
+  ComboBox1.Repaint;
+  ComboBox1.ItemIndex:=0;
 end;
 
 procedure TFImport.SpeedButton3Click(Sender: TObject);
@@ -277,7 +285,12 @@ begin
       VMarkTemplatePoint.Scale2:=SpinEdit2.Value;
       VMarkTemplatePoint.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
       VMarkTemplatePoint.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
-      VMarkTemplatePoint.PicName:=ComboBox1.Text;
+      VIndex := ComboBox1.ItemIndex;
+      if VIndex < 0 then begin
+        VMarkTemplatePoint.SetPic(nil, '');
+      end else begin
+        VMarkTemplatePoint.SetPic(IMarkPicture(Pointer(ComboBox1.Items.Objects[VIndex])), ColorBox1.Items.Strings[VIndex]);
+      end;
       VMarkTemplatePoint.CategoryId:=VId;
     end;
     if VMarkTemplateLine <> nil then begin

@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   t_CommonTypes,
   dm_MarksDb,
+  i_IMarkPicture,
   u_MarksSimple,
   UResStrings;
 
@@ -329,6 +330,10 @@ begin
 end;
 
 procedure TMarksDB.ReadCurrentMark(AMark: TMarkFull);
+var
+  VPicName: string;
+  VPicIndex: Integer;
+  VPic: IMarkPicture;
 begin
   ReadCurrentMarkId(AMark);
   Blob2ExtArr(FDMMarksDb.CDSmarks.FieldByName('LonLatArr'), AMark.Points);
@@ -338,7 +343,14 @@ begin
   AMark.LLRect.Top := FDMMarksDb.CDSmarks.FieldByName('LatT').AsFloat;
   AMark.LLRect.Right := FDMMarksDb.CDSmarks.FieldByName('LonR').AsFloat;
   AMark.LLRect.Bottom := FDMMarksDb.CDSmarks.FieldByName('LatB').AsFloat;
-  AMark.PicName := FDMMarksDb.CDSmarks.FieldByName('PicName').AsString;
+  VPicName := FDMMarksDb.CDSmarks.FieldByName('PicName').AsString;
+  VPicIndex := GState.MarkPictureList.GetIndexByName(VPicName);
+  if VPicIndex < 0 then begin
+    VPic := nil;
+  end else begin
+    VPic := GState.MarkPictureList.Get(VPicIndex);
+  end;
+  AMark.SetPic(VPic, VPicName);
   AMark.Color1 := TColor32(FDMMarksDb.CDSmarks.FieldByName('Color1').AsInteger);
   AMark.Color2 := TColor32(FDMMarksDb.CDSmarks.FieldByName('Color2').AsInteger);
   AMark.Scale1 := FDMMarksDb.CDSmarks.FieldByName('Scale1').AsInteger;

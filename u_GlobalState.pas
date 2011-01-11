@@ -87,15 +87,10 @@ type
     function GetTrackLogPath: string;
     function GetHelpFileName: string;
     function GetMainConfigFileName: string;
-    procedure LoadMarkIcons;
     procedure LoadMainParams;
-    procedure FreeMarkIcons;
     procedure SetScreenSize(const Value: TPoint);
     procedure LoadMapIconsList;
   public
-    // Иконки для меток
-    MarkIcons: TStringList;
-
     // Отображать окошко с логотипом при запуске
     Show_logo: Boolean;
     // Заходить на сайт автора при старте программы
@@ -311,7 +306,6 @@ begin
   except
   end;
   FMainConfigProvider := nil;
-  FreeMarkIcons;
   FMainMemCache := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
@@ -392,39 +386,6 @@ begin
   Result := ChangeFileExt(ParamStr(0), '.ini');
 end;
 
-procedure TGlobalState.LoadMarkIcons;
-var
-  SearchRec: TSearchRec;
-  Vbmp: TCustomBitmap32;
-  VLoader: IBitmapTileLoader;
-begin
-  MarkIcons := TStringList.Create;
-  VLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
-  if FindFirst(MarkIconsPath + '*.png', faAnyFile, SearchRec) = 0 then begin
-    try
-      repeat
-        if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-          Vbmp := TCustomBitmap32.Create;
-          VLoader.LoadFromFile(MarkIconsPath + SearchRec.Name, Vbmp);
-          MarkIcons.AddObject(SearchRec.Name, Vbmp);
-        end;
-      until FindNext(SearchRec) <> 0;
-    finally
-      FindClose(SearchRec);
-    end;
-  end;
-end;
-
-procedure TGlobalState.FreeMarkIcons;
-var
-  i: integer;
-begin
-  for i := 0 to MarkIcons.Count - 1 do begin
-    MarkIcons.Objects[i].Free;
-  end;
-  FreeAndNil(MarkIcons);
-end;
-
 procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
 var
   ResStream: TResourceStream;
@@ -448,7 +409,6 @@ var
   Ini: TMeminifile;
 begin
   LoadMainParams;
-  LoadMarkIcons;
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
