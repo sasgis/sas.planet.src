@@ -55,7 +55,7 @@ end;
 
 function TMarkPictureSimple.GetTextVerticalAlignment: TVerticalAlignment;
 begin
-  Result := taAlignBottom;
+  Result := taVerticalCenter;
 end;
 
 procedure TMarkPictureSimple.LoadBitmap(ABmp: TCustomBitmap32);

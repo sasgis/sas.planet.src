@@ -32,6 +32,7 @@ uses
   i_IImageResamplerConfig,
   i_IGeoCoderList,
   i_IMainMemCacheConfig,
+  i_IMarkPicture,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
   UMapType,
@@ -76,6 +77,7 @@ type
     FGeoCoderList: IGeoCoderList;
     FMainMemCache: IMemObjCache;
     FMainMemCacheConfig: IMainMemCacheConfig;
+    FMarkPictureList: IMarkPictureList;
     function GetMarkIconsPath: string;
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -197,6 +199,7 @@ type
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
     property MainMemCache: IMemObjCache read FMainMemCache;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
+    property MarkPictureList: IMarkPictureList read FMarkPictureList;
 
     constructor Create;
     destructor Destroy; override;
@@ -239,6 +242,7 @@ uses
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
   u_MainMemCacheConfig,
+  u_MarkPictureListSimple,
   u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_MainFormConfig,
@@ -285,7 +289,6 @@ begin
   FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
-  FMarksDB := TMarksDB.Create;
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
@@ -293,6 +296,8 @@ begin
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMainFormConfig := TMainFormConfig.Create(FGeoCoderList);
+  FMarkPictureList := TMarkPictureListSimple.Create(MarkIconsPath, FBitmapTypeManager);
+  FMarksDB := TMarksDB.Create;
 end;
 
 destructor TGlobalState.Destroy;
@@ -331,6 +336,7 @@ begin
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
   FMainMemCacheConfig := nil;
+  FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -458,6 +464,7 @@ begin
   FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
   FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+  FMarkPictureList.ReadConfig(MainConfigProvider);
 end;
 
 procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
@@ -577,6 +584,7 @@ begin
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
+  FMarkPictureList.WriteConfig(MainConfigProvider);
 end;
 
 procedure TGlobalState.SendTerminateToThreads;
