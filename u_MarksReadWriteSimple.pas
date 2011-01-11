@@ -16,6 +16,8 @@ uses
 type
   TMarksDB = class
   private
+    FBasePath: string;
+    FMarkPictureList: IMarkPictureList;
     FDMMarksDb: TDMMarksDb;
     procedure ReadCurrentMark(AMark: TMarkFull);
     procedure ReadCurrentMarkId(AMark: TMarkId);
@@ -24,8 +26,23 @@ type
     procedure ReadCurrentCategory(ACategory: TCategoryId);
     procedure WriteCurrentCategory(ACategory: TCategoryId);
     function GetMarksFileterByCategories(AZoom: Byte; AShowType: TMarksShowType): string;
+
+    function GetMarksFileName: string;
+    function GetMarksBackUpFileName: string;
+    function GetMarksCategoryBackUpFileName: string;
+    function GetMarksCategoryFileName: string;
+
+    // Имя файла с метками
+    property MarksFileName: string read GetMarksFileName;
+    // Име резервной копии файла с метками
+    property MarksBackUpFileName: string read GetMarksBackUpFileName;
+
+    // Имя файла с категориями меток
+    property MarksCategoryFileName: string read GetMarksCategoryFileName;
+    // Име резервной копии файла с категориями меток
+    property MarksCategoryBackUpFileName: string read GetMarksCategoryBackUpFileName;
   public
-    constructor Create;
+    constructor Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
     destructor Destroy; override;
     function GetMarkByID(id: integer): TMarkFull;
     function GetMarkIdByID(id: integer): TMarkId;
@@ -45,6 +62,7 @@ type
     function SaveCategory2File: boolean;
     function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType): TMarksIteratorBase;
     function GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
+    property MarkPictureList: IMarkPictureList read FMarkPictureList;
   end;
 
 
@@ -53,8 +71,7 @@ implementation
 uses
   DB,
   SysUtils,
-  GR32,
-  u_GlobalState;
+  GR32;
 
 type
   TMarksIteratorVisibleInRect = class(TMarksIteratorBase)
@@ -261,13 +278,16 @@ begin
     SaveCategory2File;
 end;
 
-constructor TMarksDB.Create;
+constructor TMarksDB.Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
 begin
+  FBasePath := ABasePath;
+  FMarkPictureList := AMarkPictureList;
   FDMMarksDb := TDMMarksDb.Create(nil);
 end;
 
 destructor TMarksDB.Destroy;
 begin
+  FMarkPictureList := nil;
   FreeAndNil(FDMMarksDb);
   inherited;
 end;
@@ -344,11 +364,11 @@ begin
   AMark.LLRect.Right := FDMMarksDb.CDSmarks.FieldByName('LonR').AsFloat;
   AMark.LLRect.Bottom := FDMMarksDb.CDSmarks.FieldByName('LatB').AsFloat;
   VPicName := FDMMarksDb.CDSmarks.FieldByName('PicName').AsString;
-  VPicIndex := GState.MarkPictureList.GetIndexByName(VPicName);
+  VPicIndex := FMarkPictureList.GetIndexByName(VPicName);
   if VPicIndex < 0 then begin
     VPic := nil;
   end else begin
-    VPic := GState.MarkPictureList.Get(VPicIndex);
+    VPic := FMarkPictureList.Get(VPicIndex);
   end;
   AMark.SetPic(VPic, VPicName);
   AMark.Color1 := TColor32(FDMMarksDb.CDSmarks.FieldByName('Color1').AsInteger);
@@ -518,7 +538,7 @@ begin
       FDMMarksDb.CDSmarks.MergeChangeLog;
       XML := FDMMarksDb.CDSmarks.XMLData;
       ms.Write(XML[1], length(XML));
-      ms.SaveToFile(GState.MarksFileName);
+      ms.SaveToFile(MarksFileName);
     except
       result := false;
     end;
@@ -539,7 +559,7 @@ begin
       FDMMarksDb.CDSKategory.MergeChangeLog;
       XML := FDMMarksDb.CDSKategory.XMLData;
       ms.Write(XML[1], length(XML));
-      ms.SaveToFile(GState.MarksCategoryFileName);
+      ms.SaveToFile(MarksCategoryFileName);
     except
       result := false;
     end;
@@ -550,20 +570,20 @@ end;
 
 procedure TMarksDB.LoadMarksFromFile;
 begin
-  if FileExists(GState.MarksFileName) then begin
-    FDMMarksDb.CDSMarks.LoadFromFile(GState.MarksFileName);
+  if FileExists(MarksFileName) then begin
+    FDMMarksDb.CDSMarks.LoadFromFile(MarksFileName);
     if FDMMarksDb.CDSMarks.RecordCount > 0 then begin
-      CopyFile(PChar(GState.MarksFileName), PChar(GState.MarksBackUpFileName), false);
+      CopyFile(PChar(MarksFileName), PChar(MarksBackUpFileName), false);
     end;
   end;
 end;
 
 procedure TMarksDB.LoadCategoriesFromFile;
 begin
-  if FileExists(GState.MarksCategoryFileName) then begin
-    FDMMarksDb.CDSKategory.LoadFromFile(GState.MarksCategoryFileName);
+  if FileExists(MarksCategoryFileName) then begin
+    FDMMarksDb.CDSKategory.LoadFromFile(MarksCategoryFileName);
     if FDMMarksDb.CDSKategory.RecordCount > 0 then begin
-      CopyFile(PChar(GState.MarksCategoryFileName), PChar(GState.MarksCategoryBackUpFileName), false);
+      CopyFile(PChar(MarksCategoryFileName), PChar(MarksCategoryBackUpFileName), false);
     end;
   end;
 end;
@@ -586,6 +606,28 @@ begin
     FDMMarksDb.CDSKategory.Next;
   end;
 end;
+
+function TMarksDB.GetMarksBackUpFileName: string;
+begin
+  Result := FBasePath + 'marks.~sml';
+end;
+
+function TMarksDB.GetMarksFileName: string;
+begin
+  Result := FBasePath + 'marks.sml';
+end;
+
+
+function TMarksDB.GetMarksCategoryBackUpFileName: string;
+begin
+  Result := FBasePath + 'Categorymarks.~sml';
+end;
+
+function TMarksDB.GetMarksCategoryFileName: string;
+begin
+  Result := FBasePath + 'Categorymarks.sml';
+end;
+
 
 end.
 
