@@ -36,11 +36,7 @@ procedure TMainMemCacheConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FMaxSize := AConfigData.ReadInteger('MainMemCacheSize', FMaxSize);
-    if FMaxSize < 0 then begin
-      FMaxSize := 0;
-    end;
-    SetChanged;
+    SetMaxSize(AConfigData.ReadInteger('MainMemCacheSize', FMaxSize));
   end;
 end;
 
@@ -65,12 +61,12 @@ procedure TMainMemCacheConfig.SetMaxSize(AValue: Integer);
 var
   VMaxSize: Integer;
 begin
+  VMaxSize := AValue;
+  if VMaxSize < 0 then begin
+    VMaxSize := 0;
+  end;
   LockWrite;
   try
-    VMaxSize := AValue;
-    if VMaxSize < 0 then begin
-      VMaxSize := 0;
-    end;
     if FMaxSize <> VMaxSize then begin
       FMaxSize := VMaxSize;
       SetChanged;
