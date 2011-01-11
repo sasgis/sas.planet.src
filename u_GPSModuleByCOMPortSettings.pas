@@ -17,6 +17,8 @@ type
     FDelay: Integer;
     FNMEALog: Boolean;
     FLogPath: WideString;
+    FStatic: IGPSModuleByCOMPortConfigSatic;
+    function CreateStatic: IGPSModuleByCOMPortConfigSatic;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -41,7 +43,7 @@ type
 
     function GetStatic: IGPSModuleByCOMPortConfigSatic;
   public
-    constructor Create;
+    constructor Create(ALogPath: string);
   end;
 
 implementation
@@ -52,27 +54,41 @@ uses
 
 { TGPSModuleByCOMPortSettings }
 
-constructor TGPSModuleByCOMPortSettings.Create;
+constructor TGPSModuleByCOMPortSettings.Create(ALogPath: string);
 begin
-  inherited;
-  FPort := 0;
+  inherited Create;
+  FLogPath := ALogPath;
+  FPort := 1;
   FBaudRate := 4800;
   FConnectionTimeout := 300;
   FDelay := 1000;
   FNMEALog := False;
+  FStatic := CreateStatic;
+end;
+
+function TGPSModuleByCOMPortSettings.CreateStatic: IGPSModuleByCOMPortConfigSatic;
+begin
+  Result :=
+    TGPSModuleByCOMPortConfigSatic.Create(
+      FPort,
+      FBaudRate,
+      FConnectionTimeout,
+      FDelay,
+      FNMEALog,
+      FLogPath
+    );
 end;
 
 procedure TGPSModuleByCOMPortSettings.DoReadConfig(
   AConfigData: IConfigDataProvider);
 begin
   inherited;
-  FLogPath := GState.TrackLogPath;
   if AConfigData <> nil then begin
-    FPort := AConfigData.ReadInteger('COM', FPort);
-    FBaudRate := AConfigData.ReadInteger('BaudRate', FBaudRate);
-    FConnectionTimeout := AConfigData.ReadInteger('timeout', FConnectionTimeout);
-    FDelay := AConfigData.ReadInteger('update', FDelay);
-    FNMEALog := AConfigData.ReadBool('NMEAlog', FNMEALog);
+    SetPort(AConfigData.ReadInteger('COM', FPort));
+    SetBaudRate(AConfigData.ReadInteger('BaudRate', FBaudRate));
+    SetConnectionTimeout(AConfigData.ReadInteger('timeout', FConnectionTimeout));
+    SetDelay(AConfigData.ReadInteger('update', FDelay));
+    SetNMEALog(AConfigData.ReadBool('NMEAlog', FNMEALog));
   end;
 end;
 
@@ -89,47 +105,69 @@ end;
 
 function TGPSModuleByCOMPortSettings.GetBaudRate: Integer;
 begin
-  Result := FBaudRate;
+  LockRead;
+  try
+    Result := FBaudRate;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetConnectionTimeout: Integer;
 begin
-  Result := FConnectionTimeout;
+  LockRead;
+  try
+    Result := FConnectionTimeout;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetDelay: Integer;
 begin
-  Result := FDelay;
+  LockRead;
+  try
+    Result := FDelay;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetLogPath: WideString;
 begin
-  Result := FLogPath;
+  LockRead;
+  try
+    Result := FLogPath;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetNMEALog: Boolean;
 begin
-  Result := FNMEALog;
+  LockRead;
+  try
+    Result := FNMEALog;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetPort: Integer;
 begin
-  Result := FPort;
+  LockRead;
+  try
+    Result := FPort;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetStatic: IGPSModuleByCOMPortConfigSatic;
 begin
   LockRead;
   try
-    Result :=
-    TGPSModuleByCOMPortConfigSatic.Create(
-      FPort,
-      FBaudRate,
-      FConnectionTimeout,
-      FDelay,
-      FNMEALog,
-      FLogPath
-    );
+    Result := FStatic;
   finally
     UnlockRead;
   end;
@@ -137,42 +175,85 @@ end;
 
 procedure TGPSModuleByCOMPortSettings.SetBaudRate(AValue: Integer);
 begin
-  if FBaudRate <> AValue then begin
-    FBaudRate := AValue;
+  if (AValue > 0) and (AValue <= 1000000) then begin
+    LockWrite;
+    try
+      if FBaudRate <> AValue then begin
+        FBaudRate := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetChanged;
 begin
   inherited;
-
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetConnectionTimeout(AValue: Integer);
 begin
-  if FConnectionTimeout <> AValue then begin
-    FConnectionTimeout := AValue;
+  if (AValue >= 0) and (AValue <= 600) then begin
+    LockWrite;
+    try
+      if FConnectionTimeout <> AValue then begin
+        FConnectionTimeout := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetDelay(AValue: Integer);
 begin
-  if FDelay <> AValue then begin
-    FDelay := AValue;
+  if (AValue >= 0) and (AValue <= 300000) then begin
+    LockWrite;
+    try
+      if FDelay <> AValue then begin
+        FDelay := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetNMEALog(AValue: Boolean);
 begin
-  if FNMEALog <> AValue then begin
-    FNMEALog := AValue;
+  LockWrite;
+  try
+    if FNMEALog <> AValue then begin
+      FNMEALog := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
 procedure TGPSModuleByCOMPortSettings.SetPort(AValue: Integer);
 begin
-  if FPort <> AValue then begin
-    FPort := AValue;
+  if (AValue >= 1) and (AValue <= 255) then begin
+    LockWrite;
+    try
+      if FPort <> AValue then begin
+        FPort := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 

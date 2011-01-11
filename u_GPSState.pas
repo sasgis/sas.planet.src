@@ -16,6 +16,7 @@ uses
 type
   TGPSpar = class
   private
+    FLogPath: string;
     FGPSRecorder: IGPSRecorder;
     FSettings: IGPSModuleByCOMPortConfig;
     FGPSModule: IGPSModule;
@@ -44,7 +45,7 @@ type
 
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
-    constructor Create();
+    constructor Create(ALogPath: string);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
@@ -67,10 +68,11 @@ uses
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
 
-constructor TGPSpar.Create;
+constructor TGPSpar.Create(ALogPath: string);
 begin
+  FLogPath := ALogPath;
   FGPSRecorder := TGPSRecorderStuped.Create;
-  FSettings := TGPSModuleByCOMPortSettings.Create;
+  FSettings := TGPSModuleByCOMPortSettings.Create(FLogPath);
   FGPSModule := TGPSModuleByZylGPS.Create(FSettings.GetStatic);
 
   FGpsConnectListener := TNotifyEventListener.Create(OnGpsConnect);
@@ -100,7 +102,7 @@ procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
 begin
-  FLogWriter := TPltLogWriter.Create(GState.TrackLogPath);
+  FLogWriter := TPltLogWriter.Create(FLogPath);
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
     GPS_enab := VConfigProvider.ReadBool('enbl', false);

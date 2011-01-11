@@ -289,7 +289,7 @@ begin
   FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  GPSpar := TGPSpar.Create;
+  GPSpar := TGPSpar.Create(TrackLogPath);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMainFormConfig := TMainFormConfig.Create(FGeoCoderList);
