@@ -3,6 +3,7 @@ unit u_MarkPictureSimple;
 interface
 
 uses
+  Types,
   Classes,
   GR32,
   i_IMarkPicture;
@@ -49,17 +50,17 @@ end;
 
 function TMarkPictureSimple.GetTextAlignment: TAlignment;
 begin
-
+  Result := taRightJustify;
 end;
 
 function TMarkPictureSimple.GetTextVerticalAlignment: TVerticalAlignment;
 begin
-
+  Result := taAlignBottom;
 end;
 
 procedure TMarkPictureSimple.LoadBitmap(ABmp: TCustomBitmap32);
 begin
-
+  ABmp.Assign(FBitmap);
 end;
 
 end.

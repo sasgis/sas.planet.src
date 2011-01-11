@@ -167,6 +167,7 @@ uses
   u_ContentConverterMatrix in 'u_ContentConverterMatrix.pas',
   i_IMarkPicture in 'i_IMarkPicture.pas',
   u_MarkPictureSimple in 'u_MarkPictureSimple.pas',
+  u_MarkPictureListSimple in 'u_MarkPictureListSimple.pas',
   i_ITileInfoBasic in 'i_ITileInfoBasic.pas',
   u_TileInfoBasic in 'u_TileInfoBasic.pas',
   i_ITileIterator in 'i_ITileIterator.pas',
