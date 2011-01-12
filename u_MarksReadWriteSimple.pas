@@ -16,6 +16,7 @@ uses
   UResStrings;
 
 type
+
   TMarksDB = class
   private
     FBasePath: string;
@@ -45,19 +46,24 @@ type
     procedure ReadConfig(AConfigData: IConfigDataProvider);
     procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
 
+    function GetCategoryByID(id: integer): TCategoryId;
+    procedure WriteCategory(ACategory: TCategoryId);
+    procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
+
     function GetMarkByID(id: integer): TMarkFull;
     function GetMarkIdByID(id: integer): TMarkId;
     function DeleteMark(AMarkId: TMarkId): Boolean;
-    procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
-    procedure WriteCategory(ACategory: TCategoryId);
     procedure WriteMark(AMark: TMarkFull);
     procedure WriteMarkId(AMark: TMarkId);
 
-    procedure WriteCategoriesList(AStrings: TStrings);
-    procedure WriteMarkIdList(AStrings: TStrings);
     procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
-    procedure Kategory2StringsWithObjects(AStrings: TStrings);
     procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
+    procedure Kategory2StringsWithObjects(AStrings: TStrings);
+
+    procedure WriteCategoriesList(AStrings: TStrings);
+    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
+    procedure WriteMarkIdList(AStrings: TStrings);
+    procedure SetAllMarksInCategoryVisible(ACategoryId: TCategoryId; ANewVisible: Boolean);
 
     function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType): TMarksIteratorBase;
     function GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
@@ -263,25 +269,15 @@ end;
 
 procedure TMarksDB.WriteCategory(ACategory: TCategoryId);
 begin
-    if ACategory.id < 0 then begin
-      if FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[]) then begin
-        showmessage(SAS_ERR_CategoryNameDoubling);
-        exit;
-      end;
-      FDMMarksDb.CDSKategory.Insert;
-    end else begin
-      if (FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[])and(ACategory.id<>FDMMarksDb.CDSKategory.FieldByName('id').AsInteger))or
-         (FDMMarksDb.CDSKategory.Locate('name',ACategory.name,[])and(ACategory.id<>FDMMarksDb.CDSKategory.FieldByName('id').AsInteger)) then begin
-        showmessage(SAS_ERR_CategoryNameDoubling);
-        exit;
-      end;
-      FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
-      FDMMarksDb.CDSKategory.Edit;
-    end;
-    WriteCurrentCategory(ACategory);
-    FDMMarksDb.CDSKategory.post;
-    ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
-    SaveCategory2File;
+  if ACategory.id < 0 then begin
+    FDMMarksDb.CDSKategory.Insert;
+  end else begin
+    FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
+    FDMMarksDb.CDSKategory.Edit;
+  end;
+  WriteCurrentCategory(ACategory);
+  FDMMarksDb.CDSKategory.post;
+  ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
 end;
 
 procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
@@ -413,6 +409,15 @@ begin
   FDMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
 end;
 
+function TMarksDB.GetCategoryByID(id: integer): TCategoryId;
+begin
+  Result := nil;
+  if FDMMarksDb.CDSKategory.Locate('id', id, []) then begin
+    Result := TCategoryId.Create;
+    ReadCurrentCategory(Result);
+  end;
+end;
+
 function TMarksDB.GetMarkByID(id: integer): TMarkFull;
 begin
   Result := nil;
@@ -474,6 +479,56 @@ begin
     SaveMarks2File;
     result := true;
   end;
+end;
+
+procedure TMarksDB.SetAllCategoriesVisible(ANewVisible: Boolean);
+var
+  VKategoryId: TCategoryId;
+begin
+  FDMMarksDb.CDSKategory.Filtered := false;
+  FDMMarksDb.CDSKategory.First;
+  VKategoryId := TCategoryId.Create;
+  try
+    while not (FDMMarksDb.CDSKategory.Eof) do begin
+      ReadCurrentCategory(VKategoryId);
+      if VKategoryId.visible <> ANewVisible then begin
+        VKategoryId.visible := ANewVisible;
+        FDMMarksDb.CDSKategory.Edit;
+        WriteCurrentCategory(VKategoryId);
+        FDMMarksDb.CDSKategory.post;
+      end;
+      FDMMarksDb.CDSKategory.Next;
+    end;
+  finally
+    VKategoryId.Free;
+  end;
+end;
+
+procedure TMarksDB.SetAllMarksInCategoryVisible(ACategoryId: TCategoryId;
+  ANewVisible: Boolean);
+var
+  VMarkId: TMarkId;
+begin
+  FDMMarksDb.CDSmarks.Filtered := false;
+  FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
+  FDMMarksDb.CDSmarks.Filtered := true;
+  FDMMarksDb.CDSmarks.First;
+  VMarkId := TMarkId.Create;
+  try
+    while not (FDMMarksDb.CDSmarks.Eof) do begin
+      ReadCurrentMarkId(VMarkId);
+      if VMarkId.visible <> ANewVisible then begin
+        VMarkId.visible := ANewVisible;
+        FDMMarksDb.CDSmarks.Edit;
+        WriteCurrentMarkId(VMarkId);
+        FDMMarksDb.CDSmarks.Post;
+      end;
+      FDMMarksDb.CDSmarks.Next;
+    end;
+  finally
+    VMarkId.Free;
+  end;
+  SaveMarks2File;
 end;
 
 procedure TMarksDB.WriteCategoriesList(AStrings: TStrings);
