@@ -549,14 +549,16 @@ var
 begin
   if htOnStateIcon in TreeView1.GetHitTestInfoAt(X,Y) then begin
     VCategory := TCategoryId(TreeView1.GetNodeAt(X,Y).Data);
-    if TreeView1.GetNodeAt(X,Y).StateIndex=1 then begin
-      VCategory.visible := false;
-      TreeView1.GetNodeAt(X,Y).StateIndex:=2;
-    end else begin
-      VCategory.visible := true;
-      TreeView1.GetNodeAt(X,Y).StateIndex:=1;
+    if VCategory <> nil then begin
+      if TreeView1.GetNodeAt(X,Y).StateIndex=1 then begin
+        VCategory.visible := false;
+        TreeView1.GetNodeAt(X,Y).StateIndex:=2;
+      end else begin
+        VCategory.visible := true;
+        TreeView1.GetNodeAt(X,Y).StateIndex:=1;
+      end;
+      GState.MarksDb.WriteCategory(VCategory);
     end;
-    GState.MarksDb.WriteCategory(VCategory);
   end;
 end;
 
@@ -609,21 +611,22 @@ procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
 var
   i:integer;
   VNewVisible: Boolean;
+  VCategory: TCategoryId;
 begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
     for i:=0 to TreeView1.Items.Count-1 do begin
-      if TreeView1.Items.Item[i].Data<>nil then begin
+      VCategory := TCategoryId(TreeView1.Items.Item[i].Data);
+      if VCategory <> nil then begin
         if VNewVisible then begin
           TreeView1.Items.Item[i].StateIndex := 1;
         end else begin
           TreeView1.Items.Item[i].StateIndex := 2;
         end;
-        TCategoryId(TreeView1.Items.Item[i].Data).visible := VNewVisible;
-        GState.MarksDb.WriteCategory(TreeView1.Items.Item[i].Data);
+        VCategory.visible := VNewVisible;
+        GState.MarksDb.WriteCategory(VCategory);
       end;
     end;
-    //WriteCategoriesList(TreeView1.Items.Items);
   end;
 end;
 
