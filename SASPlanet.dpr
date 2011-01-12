@@ -197,6 +197,7 @@ uses
   u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
   u_MarksSimple in 'u_MarksSimple.pas',
   u_MarksReadWriteSimple in 'u_MarksReadWriteSimple.pas',
+  u_MarksDbGUIHelper in 'u_MarksDbGUIHelper.pas',
   i_IBitmapLayerProvider in 'i_IBitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderStuped in 'u_MapMarksBitmapLayerProviderStuped.pas',
   u_ClipPolygonByRect in 'u_ClipPolygonByRect.pas',

@@ -468,6 +468,7 @@
     <DCCReference Include="u_MarkCategory.pas" />
     <DCCReference Include="u_MarkPictureListSimple.pas" />
     <DCCReference Include="u_MarkPictureSimple.pas" />
+    <DCCReference Include="u_MarksDbGUIHelper.pas" />
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
