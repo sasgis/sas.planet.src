@@ -8,6 +8,8 @@ uses
   Dialogs,
   t_GeoTypes,
   t_CommonTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   dm_MarksDb,
   i_IMarkPicture,
   u_MarksSimple,
@@ -31,6 +33,10 @@ type
     function GetMarksBackUpFileName: string;
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
+    function SaveMarks2File: boolean;
+    function SaveCategory2File: boolean;
+    procedure LoadMarksFromFile;
+    procedure LoadCategoriesFromFile;
 
     // Имя файла с метками
     property MarksFileName: string read GetMarksFileName;
@@ -44,6 +50,10 @@ type
   public
     constructor Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
     destructor Destroy; override;
+
+    procedure ReadConfig(AConfigData: IConfigDataProvider);
+    procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
+
     function GetMarkByID(id: integer): TMarkFull;
     function GetMarkIdByID(id: integer): TMarkId;
     function DeleteMark(AMarkId: TMarkId): Boolean;
@@ -53,15 +63,14 @@ type
     procedure WriteMark(AMark: TMarkFull);
     procedure WriteMarkId(AMark: TMarkId);
     procedure WriteMarkIdList(AStrings: TStrings);
+
     procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
     procedure Kategory2StringsWithObjects(AStrings: TStrings);
     procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
-    procedure LoadMarksFromFile;
-    procedure LoadCategoriesFromFile;
-    function SaveMarks2File: boolean;
-    function SaveCategory2File: boolean;
+
     function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType): TMarksIteratorBase;
     function GetMarksIteratorWithIgnore(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType; AIgnoredID: Integer): TMarksIteratorBase;
+
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
   end;
 
@@ -238,6 +247,12 @@ begin
   end;
 end;
 
+procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
+begin
+  LoadMarksFromFile;
+  LoadCategoriesFromFile;
+end;
+
 procedure TMarksDB.ReadCurrentCategory(ACategory: TCategoryId);
 begin
   ACategory.name := FDMMarksDb.CDSKategory.fieldbyname('name').AsString;
@@ -278,6 +293,12 @@ begin
     SaveCategory2File;
 end;
 
+procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
+begin
+  SaveCategory2File;
+  SaveMarks2File;
+end;
+
 constructor TMarksDB.Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
 begin
   FBasePath := ABasePath;
@@ -302,6 +323,7 @@ begin
     while not (FDMMarksDb.CDSmarks.Eof) do begin
       FDMMarksDb.CDSmarks.Delete;
     end;
+    SaveMarks2File;
     if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
       FDMMarksDb.CDSKategory.Delete;
     end;
@@ -440,6 +462,7 @@ begin
   end;
   WriteCurrentMark(AMark);
   FDMMarksDb.CDSmarks.Post;
+  SaveMarks2File;
 end;
 
 procedure TMarksDB.WriteMarkId(AMark: TMarkId);
@@ -523,7 +546,7 @@ begin
     VMarkId := TMarkId(AStrings.Objects[i]);
     WriteMarkId(VMarkId);
   end;
-  SaveCategory2File;
+  SaveMarks2File;
 end;
 
 function TMarksDB.SaveMarks2File: boolean;

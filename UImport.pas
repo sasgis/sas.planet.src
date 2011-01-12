@@ -196,10 +196,12 @@ end;
 procedure TFImport.FormActivate(Sender: TObject);
 var
   i: Integer;
+  VPictureList: IMarkPictureList;
 begin
+  VPictureList := GState.MarksDB.MarkPictureList;
   ComboBox1.Items.Clear;
-  for i := 0 to GState.MarkPictureList.Count - 1 do begin
-    ComboBox1.Items.AddObject(GState.MarkPictureList.GetName(i), Pointer(GState.MarkPictureList.Get(i)));
+  for i := 0 to VPictureList.Count - 1 do begin
+    ComboBox1.Items.AddObject(VPictureList.GetName(i), Pointer(VPictureList.Get(i)));
   end;
   ComboBox1.Repaint;
   ComboBox1.ItemIndex:=0;
@@ -386,7 +388,6 @@ begin
        plt.Free;
      end;
     end;
-    GState.MarksDb.SaveMarks2File;
   finally
     VMarkTemplatePoint.Free;
     VMarkTemplateLine.Free;

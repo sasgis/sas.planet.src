@@ -111,6 +111,7 @@ var
   VPicCount: Integer;
   VColCount: Integer;
   VRowCount: Integer;
+  VPictureList: IMarkPictureList;
 begin
   FMark := AMark;
   frMarkDescription.Description:='';
@@ -119,7 +120,8 @@ begin
   GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
   CBKateg.Sorted:=true;
   CBKateg.Text:=VLastUsedCategoryName;
-  VPicCount := GState.MarkPictureList.Count;
+  VPictureList := GState.MarksDB.MarkPictureList;
+  VPicCount := VPictureList.Count;
   VColCount := DrawGrid1.ColCount;
   VRowCount := VPicCount div VColCount;
   if (VPicCount mod VColCount) > 0 then begin
@@ -130,7 +132,7 @@ begin
   if FMark.id < 0 then begin
     if FMark.Pic = nil then begin
       if VPicCount > 0 then begin
-        FMark.SetPic(GState.MarkPictureList.Get(0), GState.MarkPictureList.GetName(0));
+        FMark.SetPic(VPictureList.Get(0), VPictureList.GetName(0));
       end;
     end;
     DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
@@ -293,11 +295,14 @@ end;
 
 procedure TFaddPoint.DrawGrid1DrawCell(Sender: TObject; ACol,
   ARow: Integer; Rect: TRect; State: TGridDrawState);
-var i:Integer;
+var
+  i:Integer;
+  VPictureList: IMarkPictureList;
 begin
    i:=(Arow*DrawGrid1.ColCount)+ACol;
-   if i < GState.MarkPictureList.Count then
-    DrawFromMarkIcons(DrawGrid1.Canvas, GState.MarkPictureList.Get(i), DrawGrid1.CellRect(ACol,ARow));
+   VPictureList := GState.MarksDB.MarkPictureList;
+   if i < VPictureList.Count then
+    DrawFromMarkIcons(DrawGrid1.Canvas, VPictureList.Get(i), DrawGrid1.CellRect(ACol,ARow));
 end;
 
 procedure TFaddPoint.Image1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -316,13 +321,16 @@ end;
 
 procedure TFaddPoint.DrawGrid1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var i:integer;
-    ACol,ARow: Integer;
+var
+  i:integer;
+  ACol,ARow: Integer;
+  VPictureList: IMarkPictureList;
 begin
  DrawGrid1.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*DrawGrid1.ColCount)+ACol;
- if (ARow>-1)and(ACol>-1) and (i < GState.MarkPictureList.Count) then begin
-   FMark.SetPic(GState.MarkPictureList.Get(i), GState.MarkPictureList.GetName(i));
+ VPictureList := GState.MarksDB.MarkPictureList;
+ if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
+   FMark.SetPic(VPictureList.Get(i), VPictureList.GetName(i));
    image1.Canvas.FillRect(image1.Canvas.ClipRect);
    DrawFromMarkIcons(image1.Canvas, FMark.Pic, bounds(5,5,36,36));
    DrawGrid1.Visible:=false;

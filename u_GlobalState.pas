@@ -181,7 +181,6 @@ type
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
     property MainMemCache: IMemObjCache read FMainMemCache;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
-    property MarkPictureList: IMarkPictureList read FMarkPictureList;
 
     constructor Create;
     destructor Destroy; override;
@@ -391,6 +390,7 @@ begin
   FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMarkPictureList.ReadConfig(MainConfigProvider);
+  FMarksDb.ReadConfig(MainConfigProvider);
 end;
 
 procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
@@ -511,6 +511,7 @@ begin
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
+  FMarksDb.WriteConfig(MainConfigProvider);
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

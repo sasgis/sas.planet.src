@@ -818,8 +818,6 @@ begin
 
     movepoint:=false;
 
-    GState.MarksDb.LoadMarksFromFile;
-    GState.MarksDb.LoadCategoriesFromFile;
     Enabled:=true;
     Application.OnMessage := DoMessageEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
@@ -2776,7 +2774,7 @@ begin
         if VMark.IsPoint then begin
           if EditMarkModal(VMark) then begin
             GState.MarksDb.WriteMark(VMark);
-            GState.MarksDb.SaveMarks2File;
+            FLayerMapMarks.Redraw;
           end;
         end else if VMark.IsPoly then begin
           setalloperationfalse(ao_edit_poly);

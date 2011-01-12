@@ -137,7 +137,6 @@ begin
     Result := FaddPoint.EditMark(VMark);
     if Result then begin
       GState.MarksDb.WriteMark(VMark);
-      GState.MarksDb.SaveMarks2File;
     end;
   finally
     VMark.Free;
@@ -162,7 +161,6 @@ begin
       Result := FaddPoly.EditMark(VMark);
       if Result then begin
         GState.MarksDb.WriteMark(VMark);
-        GState.MarksDb.SaveMarks2File;
       end;
     finally
       VMark.Free;
@@ -190,7 +188,6 @@ begin
       Result := FaddLine.EditMark(VMark);
       if Result then begin
         GState.MarksDb.WriteMark(VMark);
-        GState.MarksDb.SaveMarks2File;
       end;
     finally
       VMark.Free;
@@ -323,7 +320,6 @@ end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
- GState.MarksDb.SaveMarks2File;
  if RBall.Checked then GState.show_point := mshAll;
  if RBchecked.Checked then GState.show_point := mshChecked;
  if RBnot.Checked then GState.show_point := mshNone;
@@ -408,7 +404,6 @@ begin
   VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
   VMark.visible := MarksListBox.Checked[VIndex];
   GState.MarksDb.WriteMarkId(VMark);
-  GState.MarksDb.SaveMarks2File;
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -483,7 +478,6 @@ begin
       try
         if EditMarkModal(VMark) then begin
           GState.MarksDb.WriteMark(VMark);
-          GState.MarksDb.SaveMarks2File;
           if VMark.CategoryId<>TCategoryId(TreeView1.Selected.Data).id then begin
             MarksListBox.Items.Objects[VIndex].Free;
             MarksListBox.DeleteSelected;
@@ -645,13 +639,11 @@ begin
       TMarkId(MarksListBox.Items.Objects[i]).visible := VNewVisible;
     end;
     GState.MarksDb.WriteMarkIdList(MarksListBox.Items);
-    GState.MarksDb.SaveMarks2File;
   end;
 end;
 
 procedure TFMarksExplorer.Button3Click(Sender: TObject);
 begin
-  GState.MarksDb.SaveMarks2File;
   fmain.generate_im;
 end;
 
