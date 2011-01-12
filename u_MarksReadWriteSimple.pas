@@ -61,7 +61,6 @@ type
     procedure Kategory2StringsWithObjects(AStrings: TStrings);
 
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-    procedure WriteMarkIdList(AStrings: TStrings);
     procedure SetAllMarksInCategoryVisible(ACategoryId: TCategoryId; ANewVisible: Boolean);
 
     function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect; AShowType: TMarksShowType): TMarksIteratorBase;
@@ -558,18 +557,6 @@ begin
     AStrings.AddObject(VMarkId.name, VMarkId);
     FDMMarksDb.CDSmarks.Next;
   end;
-end;
-
-procedure TMarksDB.WriteMarkIdList(AStrings: TStrings);
-var
-  VMarkId: TMarkId;
-  i: Integer;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    VMarkId := TMarkId(AStrings.Objects[i]);
-    WriteMarkId(VMarkId);
-  end;
-  SaveMarks2File;
 end;
 
 procedure TMarksDB.Kategory2StringsWithObjects(AStrings: TStrings);

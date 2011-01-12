@@ -218,7 +218,6 @@ var
       fStr: string;
       tmpNode: TTreeNode;
     begin
-      if TCategoryId(Data).id<>123123123 then
       Result := nil;
       fStr := S + IntToStr(Integer(AParent));
       K := CachedStrs.IndexOf(fStr);
@@ -401,9 +400,13 @@ var
   VMark: TMarkId;
 begin
   VIndex := MarksListBox.ItemIndex;
-  VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
-  VMark.visible := MarksListBox.Checked[VIndex];
-  GState.MarksDb.WriteMarkId(VMark);
+  if VIndex >= 0 then begin
+    VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
+    if VMark <> nil then begin
+      VMark.visible := MarksListBox.Checked[VIndex];
+      GState.MarksDb.WriteMarkId(VMark);
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
@@ -507,6 +510,9 @@ begin
       MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
     end;
   end else begin
+    for i:=0 to MarksListBox.Count-1 do begin
+      MarksListBox.Items.Objects[i].Free;
+    end;
     MarksListBox.Clear;
   end;
 end;
@@ -545,7 +551,6 @@ end;
 procedure TFMarksExplorer.TreeView1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  i:integer;
   VCategory: TCategoryId;
 begin
   if htOnStateIcon in TreeView1.GetHitTestInfoAt(X,Y) then begin
@@ -610,9 +615,7 @@ end;
 
 procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
 var
-  i:integer;
   VNewVisible: Boolean;
-  VCategory: TCategoryId;
 begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
@@ -626,14 +629,19 @@ procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
 var
   i:integer;
   VNewVisible: Boolean;
+  VCategory: TCategoryId;
 begin
-  if MarksListBox.Count>0 then begin
-    VNewVisible := CheckBox1.Checked;
-    for i:=0 to MarksListBox.Count-1 do begin
-      MarksListBox.Checked[i]:=VNewVisible;
-      TMarkId(MarksListBox.Items.Objects[i]).visible := VNewVisible;
+  if TreeView1.Selected <> nil then begin
+    VCategory := TCategoryId(TreeView1.Selected.data);
+    if VCategory <> nil then begin
+      VNewVisible := CheckBox1.Checked;
+      GState.MarksDB.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
+
+      GState.MarksDb.Marsk2StringsWithMarkId(VCategory, MarksListBox.Items);
+      for i:=0 to MarksListBox.Count-1 do begin
+        MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
+      end;
     end;
-    GState.MarksDb.WriteMarkIdList(MarksListBox.Items);
   end;
 end;
 
@@ -645,7 +653,6 @@ end;
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);
 var
   VCategory: TCategoryId;
-  VIndex: Integer;
 begin
   VCategory := TCategoryId.Create;
   VCategory.id := -1;
@@ -691,7 +698,7 @@ procedure TFMarksExplorer.FormClose(Sender: TObject;
 var
   i: integer;
 begin
- for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
+ for i:=0 to MarksListBox.items.Count - 1 do MarksListBox.Items.Objects[i].Free;
  MarksListBox.Clear;
  for i:=0 to katitems.Count-1 do katitems.Objects[i].Free;
  TreeView1.OnChange:=nil;
