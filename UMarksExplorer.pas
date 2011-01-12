@@ -453,8 +453,8 @@ begin
       VCategory := TCategoryId(TreeView1.Selected.Data);
       if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
         GState.MarksDb.DeleteCategoryWithMarks(VCategory);
-        katitems.Delete(katitems.IndexOfObject(VCategory));
-        VCategory.Free;
+
+        GState.MarksDb.Kategory2StringsWithObjects(katitems);
         DrawTreeCategory(TreeView1,katitems);
       end;
     end else begin
@@ -501,7 +501,8 @@ var
   VCategory: TCategoryId;
 begin
   if (node<>nil)and(node.Data<>nil) then begin
-    GState.MarksDb.Marsk2StringsWithMarkId(TCategoryId(node.Data), MarksListBox.Items);
+    VCategory := TCategoryId(node.Data);
+    GState.MarksDb.Marsk2StringsWithMarkId(VCategory, MarksListBox.Items);
     for i:=0 to MarksListBox.Count-1 do begin
       MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
     end;
@@ -615,18 +616,9 @@ var
 begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
-    for i:=0 to TreeView1.Items.Count-1 do begin
-      VCategory := TCategoryId(TreeView1.Items.Item[i].Data);
-      if VCategory <> nil then begin
-        if VNewVisible then begin
-          TreeView1.Items.Item[i].StateIndex := 1;
-        end else begin
-          TreeView1.Items.Item[i].StateIndex := 2;
-        end;
-        VCategory.visible := VNewVisible;
-        GState.MarksDb.WriteCategory(VCategory);
-      end;
-    end;
+    GState.MarksDB.SetAllCategoriesVisible(VNewVisible);
+    GState.MarksDb.Kategory2StringsWithObjects(katitems);
+    DrawTreeCategory(TreeView1,katitems);
   end;
 end;
 
@@ -659,7 +651,7 @@ begin
   VCategory.id := -1;
   if FaddCategory.EditCategory(VCategory) then begin
     GState.MarksDb.WriteCategory(VCategory);
-    katitems.AddObject(VCategory.name, VCategory);
+    GState.MarksDb.Kategory2StringsWithObjects(katitems);
     DrawTreeCategory(TreeView1,katitems);
   end else begin
     VCategory.Free;

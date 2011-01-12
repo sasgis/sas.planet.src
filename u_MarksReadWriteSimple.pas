@@ -60,7 +60,6 @@ type
     procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
     procedure Kategory2StringsWithObjects(AStrings: TStrings);
 
-    procedure WriteCategoriesList(AStrings: TStrings);
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
     procedure WriteMarkIdList(AStrings: TStrings);
     procedure SetAllMarksInCategoryVisible(ACategoryId: TCategoryId; ANewVisible: Boolean);
@@ -519,18 +518,6 @@ begin
     VMarkId.Free;
   end;
   SaveMarks2File;
-end;
-
-procedure TMarksDB.WriteCategoriesList(AStrings: TStrings);
-var
-  VCategoryId: TCategoryId;
-  i: Integer;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    VCategoryId := TCategoryId(AStrings.Objects[i]);
-    WriteCategory(VCategoryId);
-  end;
-  SaveCategory2File;
 end;
 
 procedure TMarksDB.Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
