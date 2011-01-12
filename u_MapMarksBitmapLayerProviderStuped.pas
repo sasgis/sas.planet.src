@@ -57,6 +57,7 @@ type
     FLLRect: TDoubleRect;
     FTempBmp: TCustomBitmap32;
     FBitmapWithText: TBitmap32;
+    FShowType: TMarksShowType;
     function MapPixel2BitmapPixel(Pnt: TPoint): TPoint; overload; virtual;
     function MapPixel2BitmapPixel(Pnt: TDoublePoint): TDoublePoint; overload; virtual;
     procedure drawPath(APointsLonLat: TDoublePointArray; color1, color2: TColor32; linew: integer; poly: boolean);
@@ -66,7 +67,8 @@ type
       ATargetBmp: TCustomBitmap32;
       AConverter: ICoordConverter;
       ATargetRect: TRect;
-      ATargetZoom: Byte
+      ATargetZoom: Byte;
+      AShowType: TMarksShowType
     );
     destructor Destroy; override;
     procedure SyncGetBitmap;
@@ -74,7 +76,7 @@ type
 
 constructor TMapMarksBitmapLayerProviderStupedThreaded.Create(
   ATargetBmp: TCustomBitmap32; AConverter: ICoordConverter;
-  ATargetRect: TRect; ATargetZoom: Byte);
+  ATargetRect: TRect; ATargetZoom: Byte; AShowType: TMarksShowType);
 var
   VRectWithDelta: TRect;
 begin
@@ -83,6 +85,7 @@ begin
   FGeoConvert := AConverter;
   FTargetRect := ATargetRect;
   FZoom := ATargetZoom;
+  FShowType := AShowType;
   VRectWithDelta.Left := FTargetRect.Left - FDeltaSizeInPixel.X;
   VRectWithDelta.Top := FTargetRect.Top - FDeltaSizeInPixel.Y;
   VRectWithDelta.Right := FTargetRect.Right + FDeltaSizeInPixel.X;
@@ -187,8 +190,6 @@ procedure TMapMarksBitmapLayerProviderStupedThreaded.DrawPoint(
   AColor1, AColor2: TColor32);
 var
   xy: Tpoint;
-  indexmi: integer;
-  VIconSource: TCustomBitmap32;
   VDstRect: TRect;
   VSrcRect: TRect;
   VTextSize: TSize;
@@ -229,7 +230,7 @@ var
   VMarksIterator: TMarksIteratorBase;
   VMark: TMarkFull;
 begin
-  VMarksIterator := GState.MarksDb.GetMarksIterator(FZoom, FLLRect, GState.show_point);
+  VMarksIterator := GState.MarksDb.GetMarksIterator(FZoom, FLLRect, FShowType);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;
@@ -275,7 +276,7 @@ var
 begin
   if (GState.show_point <> mshNone) then begin
     VWorker := TMapMarksBitmapLayerProviderStupedThreaded.Create(
-      ATargetBmp, AConverter, ATargetRect, ATargetZoom);
+      ATargetBmp, AConverter, ATargetRect, ATargetZoom, GState.show_point);
     try
       TThread.Synchronize(nil, VWorker.SyncGetBitmap);
     finally
