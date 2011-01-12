@@ -166,19 +166,18 @@ begin
   FMark.visible:=CheckBox2.Checked;
   FMark.LLRect.TopLeft := alltl;
   FMark.LLRect.BottomRight := allbr;
+  VCategory := nil;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
     VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
   end;
-  if VIndex < 0 then begin
-    VId := AddKategory(CBKateg.Text);
-  end else begin
+  if VIndex >= 0 then begin
     VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
-    if VCategory <> nil then begin
-      VId := VCategory.id;
-    end else begin
-      VId := AddKategory(CBKateg.Text);
-    end;
+  end;
+  if VCategory <> nil then begin
+    VId := VCategory.id;
+  end else begin
+    VId := AddKategory(CBKateg.Text);
   end;
   FMark.CategoryId := VId;
   ModalResult:=mrOk;

@@ -75,11 +75,11 @@ type
       Shift: TShiftState);
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
   private
+    katitems:TStrings;
   public
   end;
 
 var
-  katitems:TStrings;
   FMarksExplorer: TFMarksExplorer;
   function DeleteMarkModal(id:integer;handle:THandle):boolean;
   function OperationMark(AMark: TMarkFull):boolean;

@@ -59,11 +59,11 @@ type
     function DeleteMark(AMarkId: TMarkId): Boolean;
     procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
     procedure WriteCategory(ACategory: TCategoryId);
-    procedure WriteCategoriesList(AStrings: TStrings);
     procedure WriteMark(AMark: TMarkFull);
     procedure WriteMarkId(AMark: TMarkId);
-    procedure WriteMarkIdList(AStrings: TStrings);
 
+    procedure WriteCategoriesList(AStrings: TStrings);
+    procedure WriteMarkIdList(AStrings: TStrings);
     procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
     procedure Kategory2StringsWithObjects(AStrings: TStrings);
     procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
