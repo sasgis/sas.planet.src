@@ -244,10 +244,20 @@ begin
   end;
 end;
 
-procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
+{ TMarksDB }
+
+constructor TMarksDB.Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
 begin
-  LoadMarksFromFile;
-  LoadCategoriesFromFile;
+  FBasePath := ABasePath;
+  FMarkPictureList := AMarkPictureList;
+  FDMMarksDb := TDMMarksDb.Create(nil);
+end;
+
+destructor TMarksDB.Destroy;
+begin
+  FMarkPictureList := nil;
+  FreeAndNil(FDMMarksDb);
+  inherited;
 end;
 
 procedure TMarksDB.ReadCurrentCategory(ACategory: TCategoryId);
@@ -278,26 +288,6 @@ begin
   WriteCurrentCategory(ACategory);
   FDMMarksDb.CDSKategory.post;
   ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
-end;
-
-procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
-begin
-  SaveCategory2File;
-  SaveMarks2File;
-end;
-
-constructor TMarksDB.Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
-begin
-  FBasePath := ABasePath;
-  FMarkPictureList := AMarkPictureList;
-  FDMMarksDb := TDMMarksDb.Create(nil);
-end;
-
-destructor TMarksDB.Destroy;
-begin
-  FMarkPictureList := nil;
-  FreeAndNil(FDMMarksDb);
-  inherited;
 end;
 
 procedure TMarksDB.DeleteCategoryWithMarks(ACategory: TCategoryId);
@@ -595,6 +585,72 @@ begin
   SaveMarks2File;
 end;
 
+procedure TMarksDB.Kategory2StringsWithObjects(AStrings: TStrings);
+var
+  KategoryId: TCategoryId;
+  i: Integer;
+begin
+  for i := 0 to AStrings.Count - 1 do begin
+    AStrings.Objects[i].Free;
+  end;
+  AStrings.Clear;
+  FDMMarksDb.CDSKategory.Filtered := false;
+  FDMMarksDb.CDSKategory.First;
+  while not (FDMMarksDb.CDSKategory.Eof) do begin
+    KategoryId := TCategoryId.Create;
+    ReadCurrentCategory(KategoryId);
+    AStrings.AddObject(KategoryId.name, KategoryId);
+    FDMMarksDb.CDSKategory.Next;
+  end;
+end;
+
+function TMarksDB.GetMarksBackUpFileName: string;
+begin
+  Result := FBasePath + 'marks.~sml';
+end;
+
+function TMarksDB.GetMarksFileName: string;
+begin
+  Result := FBasePath + 'marks.sml';
+end;
+
+
+function TMarksDB.GetMarksCategoryBackUpFileName: string;
+begin
+  Result := FBasePath + 'Categorymarks.~sml';
+end;
+
+function TMarksDB.GetMarksCategoryFileName: string;
+begin
+  Result := FBasePath + 'Categorymarks.sml';
+end;
+
+procedure TMarksDB.LoadMarksFromFile;
+var
+  VFileName: string;
+begin
+  VFileName := GetMarksFileName;
+  if FileExists(VFileName) then begin
+    FDMMarksDb.CDSMarks.LoadFromFile(VFileName);
+    if FDMMarksDb.CDSMarks.RecordCount > 0 then begin
+      CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
+    end;
+  end;
+end;
+
+procedure TMarksDB.LoadCategoriesFromFile;
+var
+  VFileName: string;
+begin
+  VFileName := GetMarksCategoryFileName;
+  if FileExists(VFileName) then begin
+    FDMMarksDb.CDSKategory.LoadFromFile(VFileName);
+    if FDMMarksDb.CDSKategory.RecordCount > 0 then begin
+      CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
+    end;
+  end;
+end;
+
 function TMarksDB.SaveMarks2File: boolean;
 var
   ms: TMemoryStream;
@@ -637,70 +693,16 @@ begin
   end;
 end;
 
-procedure TMarksDB.LoadMarksFromFile;
-var
-  VFileName: string;
+procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
 begin
-  VFileName := GetMarksFileName;
-  if FileExists(VFileName) then begin
-    FDMMarksDb.CDSMarks.LoadFromFile(VFileName);
-    if FDMMarksDb.CDSMarks.RecordCount > 0 then begin
-      CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
-    end;
-  end;
+  LoadMarksFromFile;
+  LoadCategoriesFromFile;
 end;
 
-procedure TMarksDB.LoadCategoriesFromFile;
-var
-  VFileName: string;
+procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
-  VFileName := GetMarksCategoryFileName;
-  if FileExists(VFileName) then begin
-    FDMMarksDb.CDSKategory.LoadFromFile(VFileName);
-    if FDMMarksDb.CDSKategory.RecordCount > 0 then begin
-      CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
-    end;
-  end;
-end;
-
-procedure TMarksDB.Kategory2StringsWithObjects(AStrings: TStrings);
-var
-  KategoryId: TCategoryId;
-  i: Integer;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    AStrings.Objects[i].Free;
-  end;
-  AStrings.Clear;
-  FDMMarksDb.CDSKategory.Filtered := false;
-  FDMMarksDb.CDSKategory.First;
-  while not (FDMMarksDb.CDSKategory.Eof) do begin
-    KategoryId := TCategoryId.Create;
-    ReadCurrentCategory(KategoryId);
-    AStrings.AddObject(KategoryId.name, KategoryId);
-    FDMMarksDb.CDSKategory.Next;
-  end;
-end;
-
-function TMarksDB.GetMarksBackUpFileName: string;
-begin
-  Result := FBasePath + 'marks.~sml';
-end;
-
-function TMarksDB.GetMarksFileName: string;
-begin
-  Result := FBasePath + 'marks.sml';
-end;
-
-
-function TMarksDB.GetMarksCategoryBackUpFileName: string;
-begin
-  Result := FBasePath + 'Categorymarks.~sml';
-end;
-
-function TMarksDB.GetMarksCategoryFileName: string;
-begin
-  Result := FBasePath + 'Categorymarks.sml';
+  SaveCategory2File;
+  SaveMarks2File;
 end;
 
 
