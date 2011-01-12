@@ -284,7 +284,6 @@ end;
 
 procedure TMapType.LoadProjectionInfo(AConfig: IConfigDataProvider);
 var
-  bfloat:string;
   projection: byte;
   VConverter: TCoordConverterBasic;
   VParams: IConfigDataProvider;

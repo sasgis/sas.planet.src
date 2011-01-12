@@ -33,20 +33,11 @@ type
     function GetMarksBackUpFileName: string;
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
+
     function SaveMarks2File: boolean;
     function SaveCategory2File: boolean;
     procedure LoadMarksFromFile;
     procedure LoadCategoriesFromFile;
-
-    // Имя файла с метками
-    property MarksFileName: string read GetMarksFileName;
-    // Име резервной копии файла с метками
-    property MarksBackUpFileName: string read GetMarksBackUpFileName;
-
-    // Имя файла с категориями меток
-    property MarksCategoryFileName: string read GetMarksCategoryFileName;
-    // Име резервной копии файла с категориями меток
-    property MarksCategoryBackUpFileName: string read GetMarksCategoryBackUpFileName;
   public
     constructor Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
     destructor Destroy; override;
@@ -561,7 +552,7 @@ begin
       FDMMarksDb.CDSmarks.MergeChangeLog;
       XML := FDMMarksDb.CDSmarks.XMLData;
       ms.Write(XML[1], length(XML));
-      ms.SaveToFile(MarksFileName);
+      ms.SaveToFile(GetMarksFileName);
     except
       result := false;
     end;
@@ -582,7 +573,7 @@ begin
       FDMMarksDb.CDSKategory.MergeChangeLog;
       XML := FDMMarksDb.CDSKategory.XMLData;
       ms.Write(XML[1], length(XML));
-      ms.SaveToFile(MarksCategoryFileName);
+      ms.SaveToFile(GetMarksCategoryFileName);
     except
       result := false;
     end;
@@ -592,21 +583,27 @@ begin
 end;
 
 procedure TMarksDB.LoadMarksFromFile;
+var
+  VFileName: string;
 begin
-  if FileExists(MarksFileName) then begin
-    FDMMarksDb.CDSMarks.LoadFromFile(MarksFileName);
+  VFileName := GetMarksFileName;
+  if FileExists(VFileName) then begin
+    FDMMarksDb.CDSMarks.LoadFromFile(VFileName);
     if FDMMarksDb.CDSMarks.RecordCount > 0 then begin
-      CopyFile(PChar(MarksFileName), PChar(MarksBackUpFileName), false);
+      CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
     end;
   end;
 end;
 
 procedure TMarksDB.LoadCategoriesFromFile;
+var
+  VFileName: string;
 begin
-  if FileExists(MarksCategoryFileName) then begin
-    FDMMarksDb.CDSKategory.LoadFromFile(MarksCategoryFileName);
+  VFileName := GetMarksCategoryFileName;
+  if FileExists(VFileName) then begin
+    FDMMarksDb.CDSKategory.LoadFromFile(VFileName);
     if FDMMarksDb.CDSKategory.RecordCount > 0 then begin
-      CopyFile(PChar(MarksCategoryFileName), PChar(MarksCategoryBackUpFileName), false);
+      CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
     end;
   end;
 end;

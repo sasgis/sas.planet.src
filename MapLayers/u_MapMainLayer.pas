@@ -6,10 +6,7 @@ uses
   Windows,
   Types,
   GR32,
-  GR32_Image,
   t_GeoTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   u_MapViewPortState,
   UMapType,
   u_MapLayerBasic;
@@ -20,12 +17,6 @@ type
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
-    destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
     property Visible: Boolean read GetVisible write SetVisible;
   end;
 
@@ -44,19 +35,6 @@ uses
   u_GlobalState;
 
 { TMapMainLayer }
-
-constructor TMapMainLayer.Create(
-  AParentMap: TImage32;
-  AViewPortState: TMapViewPortState
-);
-begin
-  inherited;
-end;
-
-destructor TMapMainLayer.Destroy;
-begin
-  inherited;
-end;
 
 procedure TMapMainLayer.DoRedraw;
 var
@@ -215,30 +193,6 @@ begin
   finally
     VBmp.Free;
   end;
-end;
-
-procedure TMapMainLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
-begin
-  inherited;
-end;
-
-procedure TMapMainLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
-begin
-  inherited;
-end;
-
-procedure TMapMainLayer.SendTerminateToThreads;
-begin
-  inherited;
-end;
-
-procedure TMapMainLayer.StartThreads;
-begin
-  inherited;
 end;
 
 end.
