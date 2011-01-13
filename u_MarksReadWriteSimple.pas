@@ -289,19 +289,29 @@ end;
 
 procedure TMarksDB.DeleteCategoryWithMarks(ACategory: TCategoryId);
 begin
-  if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-    FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
-    FDMMarksDb.CDSmarks.Filtered := true;
-    FDMMarksDb.CDSmarks.First;
-    while not (FDMMarksDb.CDSmarks.Eof) do begin
-      FDMMarksDb.CDSmarks.Delete;
-    end;
-    SaveMarks2File;
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
     if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-      FDMMarksDb.CDSKategory.Delete;
+      FDMMarksDb.CDSmarks.Filtered := false;
+      FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
+      FDMMarksDb.CDSmarks.Filtered := true;
+      FDMMarksDb.CDSmarks.First;
+      while not (FDMMarksDb.CDSmarks.Eof) do begin
+        FDMMarksDb.CDSmarks.Delete;
+      end;
+      SaveMarks2File;
+      FDMMarksDb.CDSKategory.DisableControls;
+      try
+        if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
+          FDMMarksDb.CDSKategory.Delete;
+        end;
+      finally
+        FDMMarksDb.CDSKategory.EnableControls;
+      end;
+      SaveCategory2File;
     end;
-    SaveCategory2File;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
 end;
 
@@ -472,22 +482,27 @@ procedure TMarksDB.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VKategoryId: TCategoryId;
 begin
-  FDMMarksDb.CDSKategory.Filtered := false;
-  FDMMarksDb.CDSKategory.First;
-  VKategoryId := TCategoryId.Create;
+  FDMMarksDb.CDSKategory.DisableControls;
   try
-    while not (FDMMarksDb.CDSKategory.Eof) do begin
-      ReadCurrentCategory(VKategoryId);
-      if VKategoryId.visible <> ANewVisible then begin
-        VKategoryId.visible := ANewVisible;
-        FDMMarksDb.CDSKategory.Edit;
-        WriteCurrentCategory(VKategoryId);
-        FDMMarksDb.CDSKategory.post;
+    FDMMarksDb.CDSKategory.Filtered := false;
+    FDMMarksDb.CDSKategory.First;
+    VKategoryId := TCategoryId.Create;
+    try
+      while not (FDMMarksDb.CDSKategory.Eof) do begin
+        ReadCurrentCategory(VKategoryId);
+        if VKategoryId.visible <> ANewVisible then begin
+          VKategoryId.visible := ANewVisible;
+          FDMMarksDb.CDSKategory.Edit;
+          WriteCurrentCategory(VKategoryId);
+          FDMMarksDb.CDSKategory.post;
+        end;
+        FDMMarksDb.CDSKategory.Next;
       end;
-      FDMMarksDb.CDSKategory.Next;
+    finally
+      VKategoryId.Free;
     end;
   finally
-    VKategoryId.Free;
+    FDMMarksDb.CDSKategory.EnableControls;
   end;
 end;
 
@@ -496,26 +511,30 @@ procedure TMarksDB.SetAllMarksInCategoryVisible(ACategoryId: TCategoryId;
 var
   VMarkId: TMarkId;
 begin
-  FDMMarksDb.CDSmarks.Filtered := false;
-  FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
-  FDMMarksDb.CDSmarks.Filtered := true;
-  FDMMarksDb.CDSmarks.First;
-  VMarkId := TMarkId.Create;
+  FDMMarksDb.CDSmarks.DisableControls;
   try
-    while not (FDMMarksDb.CDSmarks.Eof) do begin
-      ReadCurrentMarkId(VMarkId);
-      if VMarkId.visible <> ANewVisible then begin
-        VMarkId.visible := ANewVisible;
-        FDMMarksDb.CDSmarks.Edit;
-        WriteCurrentMarkId(VMarkId);
-        FDMMarksDb.CDSmarks.Post;
+    FDMMarksDb.CDSmarks.Filtered := false;
+    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
+    FDMMarksDb.CDSmarks.Filtered := true;
+    FDMMarksDb.CDSmarks.First;
+    VMarkId := TMarkId.Create;
+    try
+      while not (FDMMarksDb.CDSmarks.Eof) do begin
+        ReadCurrentMarkId(VMarkId);
+        if VMarkId.visible <> ANewVisible then begin
+          VMarkId.visible := ANewVisible;
+          FDMMarksDb.CDSmarks.Edit;
+          WriteCurrentMarkId(VMarkId);
+          FDMMarksDb.CDSmarks.Post;
+        end;
+        FDMMarksDb.CDSmarks.Next;
       end;
-      FDMMarksDb.CDSmarks.Next;
+    finally
+      VMarkId.Free;
     end;
   finally
-    VMarkId.Free;
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
-  SaveMarks2File;
 end;
 
 function TMarksDB.GetAllMarskIdList: TList;
@@ -523,13 +542,18 @@ var
   VMarkId: TMarkId;
 begin
   Result := TObjectList.Create(True);
-  FDMMarksDb.CDSmarks.Filtered := false;
-  FDMMarksDb.CDSmarks.First;
-  while not (FDMMarksDb.CDSmarks.Eof) do begin
-    VMarkId := TMarkId.Create;
-    ReadCurrentMarkId(VMarkId);
-    Result.Add(VMarkId);
-    FDMMarksDb.CDSmarks.Next;
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    FDMMarksDb.CDSmarks.First;
+    while not (FDMMarksDb.CDSmarks.Eof) do begin
+      VMarkId := TMarkId.Create;
+      ReadCurrentMarkId(VMarkId);
+      Result.Add(VMarkId);
+      FDMMarksDb.CDSmarks.Next;
+    end;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
 end;
 
@@ -538,15 +562,20 @@ var
   VMarkId: TMarkId;
 begin
   Result := TObjectList.Create(True);
-  FDMMarksDb.CDSmarks.Filtered := false;
-  FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(AId);
-  FDMMarksDb.CDSmarks.Filtered := true;
-  FDMMarksDb.CDSmarks.First;
-  while not (FDMMarksDb.CDSmarks.Eof) do begin
-    VMarkId := TMarkId.Create;
-    ReadCurrentMarkId(VMarkId);
-    Result.Add(VMarkId);
-    FDMMarksDb.CDSmarks.Next;
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(AId);
+    FDMMarksDb.CDSmarks.Filtered := true;
+    FDMMarksDb.CDSmarks.First;
+    while not (FDMMarksDb.CDSmarks.Eof) do begin
+      VMarkId := TMarkId.Create;
+      ReadCurrentMarkId(VMarkId);
+      Result.Add(VMarkId);
+      FDMMarksDb.CDSmarks.Next;
+    end;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
 end;
 
@@ -555,13 +584,18 @@ var
   VKategory: TCategoryId;
 begin
   Result := TObjectList.Create(True);
-  FDMMarksDb.CDSKategory.Filtered := false;
-  FDMMarksDb.CDSKategory.First;
-  while not (FDMMarksDb.CDSKategory.Eof) do begin
-    VKategory := TCategoryId.Create;
-    ReadCurrentCategory(VKategory);
-    Result.Add(VKategory);
-    FDMMarksDb.CDSKategory.Next;
+  FDMMarksDb.CDSKategory.DisableControls;
+  try
+    FDMMarksDb.CDSKategory.Filtered := false;
+    FDMMarksDb.CDSKategory.First;
+    while not (FDMMarksDb.CDSKategory.Eof) do begin
+      VKategory := TCategoryId.Create;
+      ReadCurrentCategory(VKategory);
+      Result.Add(VKategory);
+      FDMMarksDb.CDSKategory.Next;
+    end;
+  finally
+    FDMMarksDb.CDSKategory.EnableControls;
   end;
 end;
 
