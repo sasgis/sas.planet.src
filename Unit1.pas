@@ -3878,7 +3878,8 @@ var
   VResult: IGeoCodeResult;
   VZoom: Byte;
 begin
-  if frmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
+  VZoom := GState.ViewState.GetCurrentZoom;
+  if frmGoTo.ShowGeocodeModal(VResult, VZoom, FMarkDBGUI) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
 end;

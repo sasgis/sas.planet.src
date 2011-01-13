@@ -60,9 +60,6 @@ type
     function GetAllMarskIdList: TList;
     function GetMarskIdListByCategory(AId: Integer): TList;
 
-    procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
-    procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
-
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
     procedure SetAllMarksInCategoryVisible(ACategoryId: TCategoryId; ANewVisible: Boolean);
 
@@ -521,46 +518,6 @@ begin
     VMarkId.Free;
   end;
   SaveMarks2File;
-end;
-
-procedure TMarksDB.Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
-var
-  i: Integer;
-  VMarkId: TMarkId;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    AStrings.Objects[i].Free;
-  end;
-  AStrings.Clear;
-  FDMMarksDb.CDSmarks.Filtered := false;
-  FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
-  FDMMarksDb.CDSmarks.Filtered := true;
-  FDMMarksDb.CDSmarks.First;
-  while not (FDMMarksDb.CDSmarks.Eof) do begin
-    VMarkId := TMarkId.Create;
-    ReadCurrentMarkId(VMarkId);
-    AStrings.AddObject(VMarkId.name, VMarkId);
-    FDMMarksDb.CDSmarks.Next;
-  end;
-end;
-
-procedure TMarksDB.AllMarsk2StringsWhitMarkId(AStrings: TStrings);
-var
-  i: Integer;
-  VMarkId: TMarkId;
-begin
-  for i := 0 to AStrings.Count - 1 do begin
-    AStrings.Objects[i].Free;
-  end;
-  AStrings.Clear;
-  FDMMarksDb.CDSmarks.Filtered := false;
-  FDMMarksDb.CDSmarks.First;
-  while not (FDMMarksDb.CDSmarks.Eof) do begin
-    VMarkId := TMarkId.Create;
-    ReadCurrentMarkId(VMarkId);
-    AStrings.AddObject(VMarkId.name, VMarkId);
-    FDMMarksDb.CDSmarks.Next;
-  end;
 end;
 
 function TMarksDB.GetAllMarskIdList: TList;

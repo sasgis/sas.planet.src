@@ -16,12 +16,9 @@ object frmGoTo: TfrmGoTo
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  OnActivate = FormActivate
-  OnClose = FormClose
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object GroupBox2: TGroupBox
+  object grpMarks: TGroupBox
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -29,7 +26,7 @@ object frmGoTo: TfrmGoTo
     Height = 45
     Align = alTop
     TabOrder = 1
-    object ComboBox1: TComboBox
+    object cbbAllMarks: TComboBox
       AlignWithMargins = True
       Left = 5
       Top = 18
@@ -38,7 +35,7 @@ object frmGoTo: TfrmGoTo
       Align = alClient
       ItemHeight = 13
       TabOrder = 0
-      OnEnter = ComboBox1Enter
+      OnEnter = cbbAllMarksEnter
     end
   end
   object RB3: TRadioButton
@@ -49,7 +46,7 @@ object frmGoTo: TfrmGoTo
     Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
     TabOrder = 0
   end
-  object GroupBox3: TGroupBox
+  object grpGeoCode: TGroupBox
     AlignWithMargins = True
     Left = 3
     Top = 54
@@ -57,7 +54,7 @@ object frmGoTo: TfrmGoTo
     Height = 49
     Align = alTop
     TabOrder = 4
-    object EditGF: TEdit
+    object edtGeoCode: TEdit
       AlignWithMargins = True
       Left = 7
       Top = 18
@@ -68,7 +65,7 @@ object frmGoTo: TfrmGoTo
       Margins.Bottom = 5
       Align = alClient
       TabOrder = 0
-      OnClick = EditGFClick
+      OnClick = edtGeoCodeClick
       ExplicitHeight = 21
     end
   end
@@ -82,7 +79,7 @@ object frmGoTo: TfrmGoTo
     TabOrder = 2
     TabStop = True
   end
-  object GroupBox1: TGroupBox
+  object grpLonLat: TGroupBox
     AlignWithMargins = True
     Left = 3
     Top = 109
@@ -125,7 +122,7 @@ object frmGoTo: TfrmGoTo
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 7
-    object Label9: TLabel
+    object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -135,10 +132,9 @@ object frmGoTo: TfrmGoTo
       Alignment = taRightJustify
       Caption = #1052#1072#1089#1096#1090#1072#1073': x'
       Layout = tlCenter
-      ExplicitLeft = 2
       ExplicitHeight = 13
     end
-    object CBzoom: TComboBox
+    object cbbZoom: TComboBox
       AlignWithMargins = True
       Left = 67
       Top = 3
@@ -187,7 +183,7 @@ object frmGoTo: TfrmGoTo
       ModalResult = 2
       TabOrder = 1
     end
-    object BGo: TButton
+    object btnGoTo: TButton
       AlignWithMargins = True
       Left = 117
       Top = 3
@@ -200,7 +196,7 @@ object frmGoTo: TfrmGoTo
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
-      OnClick = BGoClick
+      OnClick = btnGoToClick
     end
   end
 end

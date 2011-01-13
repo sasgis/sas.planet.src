@@ -13,43 +13,41 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
+  u_MarksDbGUIHelper,
   fr_LonLat;
 
 type
 
   TfrmGoTo = class(TCommonFormParent)
     RB1: TRadioButton;
-    GroupBox2: TGroupBox;
+    grpMarks: TGroupBox;
     RB3: TRadioButton;
-    Label9: TLabel;
-    BGo: TButton;
-    GroupBox3: TGroupBox;
+    lblZoom: TLabel;
+    btnGoTo: TButton;
+    grpGeoCode: TGroupBox;
     RB2: TRadioButton;
-    EditGF: TEdit;
-    GroupBox1: TGroupBox;
-    CBzoom: TComboBox;
+    edtGeoCode: TEdit;
+    grpLonLat: TGroupBox;
+    cbbZoom: TComboBox;
     RB4: TRadioButton;
-    ComboBox1: TComboBox;
+    cbbAllMarks: TComboBox;
     btnCancel: TButton;
     pnlBottomButtons: TPanel;
     pnlLonLat: TPanel;
-    procedure FormActivate(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure BGoClick(Sender: TObject);
+    procedure btnGoToClick(Sender: TObject);
     procedure lat_nsClick(Sender: TObject);
-    procedure EditGFClick(Sender: TObject);
+    procedure edtGeoCodeClick(Sender: TObject);
     procedure Lat1Click(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure ComboBox1Enter(Sender: TObject);
+    procedure cbbAllMarksEnter(Sender: TObject);
   private
     FResult: IGeoCodeResult;
-    Fzoom: Byte;
     frLonLatPoint: TfrLonLat;
+    FMarkDBGUI: TMarksDbGUIHelper;
     function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
+    function ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte; AMarkDBGUI: TMarksDbGUIHelper): Boolean;
     procedure RefreshTranslation; override;
   end;
 
@@ -70,19 +68,6 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmGoTo.FormActivate(Sender: TObject);
-begin
-  if not(sender is TForm) then exit;
-  CBzoom.ItemIndex:=GState.ViewState.GetCurrentZoom;
-  frLonLatPoint.LonLat := GState.ViewState.GetCenterLonLat;
-end;
-
-procedure TfrmGoTo.FormShow(Sender: TObject);
-begin
-  frLonLatPoint.Parent := pnlLonLat;
-  GState.MarksDb.AllMarsk2StringsWhitMarkId(ComboBox1.Items);
-end;
-
 function TfrmGoTo.GeocodeResultFromLonLat(ASearch: WideString;
   ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
 var
@@ -95,14 +80,7 @@ begin
   Result := TGeoCodeResult.Create(ASearch, 203, '', VList);
 end;
 
-procedure TfrmGoTo.FormClose(Sender: TObject; var Action: TCloseAction);
-var i:integer;
-begin
-  for i:=1 to ComboBox1.items.Count do ComboBox1.Items.Objects[i-1].Free;
-  ComboBox1.Clear;
-end;
-
-procedure TfrmGoTo.BGoClick(Sender: TObject);
+procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
   textsrch:String;
   VId: Integer;
@@ -110,14 +88,13 @@ var
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
 begin
-  FZoom := CBzoom.ItemIndex;
   if RB3.Checked then begin
-    if ComboBox1.ItemIndex>-1 then begin
-      VId := TMarkId(ComboBox1.Items.Objects[ComboBox1.ItemIndex]).id;
+    if cbbAllMarks.ItemIndex>-1 then begin
+      VId := TMarkId(cbbAllMarks.Items.Objects[cbbAllMarks.ItemIndex]).id;
       VMark := GState.MarksDb.GetMarkByID(VId);
       try
         VLonLat := VMark.GetGoToLonLat;
-        FResult := GeocodeResultFromLonLat(ComboBox1.Text, VLonLat, VMark.name);
+        FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
       finally
         VMark.Free
       end;
@@ -131,7 +108,7 @@ begin
     FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
     ModalResult := mrOk;
   end else if RB2.Checked then begin
-    textsrch:= Trim(EditGF.Text);
+    textsrch:= Trim(edtGeoCode.Text);
     VGeoCoderItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
     if VGeoCoderItem <> nil then begin
       FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
@@ -140,7 +117,7 @@ begin
       ModalResult := mrCancel;
     end;
   end else if RB4.Checked then begin
-    textsrch:= Trim(EditGF.Text);
+    textsrch:= Trim(edtGeoCode.Text);
     VGeoCoderItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
     if VGeoCoderItem <> nil then begin
       FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
@@ -162,20 +139,37 @@ begin
   frLonLatPoint.RefreshTranslation;
 end;
 
-function TfrmGoTo.ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte): Boolean;
+function TfrmGoTo.ShowGeocodeModal(
+  var AResult: IGeoCodeResult;
+  var AZoom: Byte;
+  AMarkDBGUI: TMarksDbGUIHelper
+): Boolean;
+var
+  VMarksList: TList;
 begin
-  if ShowModal = mrOk then begin
-    Result := true;
-    AResult := FResult;
-    AZoom := FZoom;
-  end else begin
-    Result := False;
-    AResult := nil;
-    AZoom := 0;
+  FMarkDBGUI := AMarkDBGUI;
+  frLonLatPoint.Parent := pnlLonLat;
+  cbbZoom.ItemIndex := Azoom;
+  frLonLatPoint.LonLat := GState.ViewState.GetCenterLonLat;
+  VMarksList := FMarkDBGUI.MarksDB.GetAllMarskIdList;
+  try
+    FMarkDBGUI.MarksListToStrings(VMarksList, cbbAllMarks.Items);
+    if ShowModal = mrOk then begin
+      Result := true;
+      AResult := FResult;
+      AZoom := cbbZoom.ItemIndex;
+    end else begin
+      Result := False;
+      AResult := nil;
+      AZoom := 0;
+    end;
+    cbbAllMarks.Clear;
+  finally
+    FreeAndNil(VMarksList);
   end;
 end;
 
-procedure TfrmGoTo.EditGFClick(Sender: TObject);
+procedure TfrmGoTo.edtGeoCodeClick(Sender: TObject);
 begin
  if (not(RB2.Checked))and(not(RB4.Checked)) then RB2.Checked:=true;
 end;
@@ -185,7 +179,7 @@ begin
  if (not(RB1.Checked)) then RB1.Checked:=true;
 end;
 
-procedure TfrmGoTo.ComboBox1Enter(Sender: TObject);
+procedure TfrmGoTo.cbbAllMarksEnter(Sender: TObject);
 begin
  if (not(RB3.Checked)) then RB3.Checked:=true;
 end;
