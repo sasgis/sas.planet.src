@@ -22,6 +22,7 @@ uses
   UMarksExplorer,
   i_IMarkPicture,
   u_MarksSimple,
+  u_MarksDbGUIHelper,
   fr_MarkDescription,
   fr_LonLat,
   t_GeoTypes;
@@ -82,11 +83,12 @@ type
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
+    FMarkDBGUI: TMarksDbGUIHelper;
     procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function EditMark(AMark: TMarkFull):boolean;
+    function EditMark(AMark: TMarkFull; AMarkDBGUI: TMarksDbGUIHelper):boolean;
     procedure RefreshTranslation; override;
   end;
 
@@ -102,7 +104,7 @@ uses
 
 {$R *.dfm}
 
-function TFaddPoint.EditMark(AMark: TMarkFull): boolean;
+function TFaddPoint.EditMark(AMark: TMarkFull; AMarkDBGUI: TMarksDbGUIHelper): boolean;
 var
   VLastUsedCategoryName:string;
   i: Integer;
@@ -112,59 +114,66 @@ var
   VColCount: Integer;
   VRowCount: Integer;
   VPictureList: IMarkPictureList;
+  VCategoryList: TList;
 begin
   FMark := AMark;
+  FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewMark;
   VLastUsedCategoryName:=CBKateg.Text;
-  GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
-  CBKateg.Sorted:=true;
-  CBKateg.Text:=VLastUsedCategoryName;
-  VPictureList := GState.MarksDB.MarkPictureList;
-  VPicCount := VPictureList.Count;
-  VColCount := DrawGrid1.ColCount;
-  VRowCount := VPicCount div VColCount;
-  if (VPicCount mod VColCount) > 0 then begin
-    Inc(VRowCount);
-  end;
-  DrawGrid1.RowCount := VRowCount;
-  DrawGrid1.Repaint;
-  if FMark.id < 0 then begin
-    if FMark.Pic = nil then begin
-      if VPicCount > 0 then begin
-        FMark.SetPic(VPictureList.Get(0), VPictureList.GetName(0));
-      end;
+  VCategoryList := FMarkDBGUI.MarksDB.GetCategoriesList;
+  try
+    FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
+    CBKateg.Sorted:=true;
+    CBKateg.Text:=VLastUsedCategoryName;
+    VPictureList := FMarkDBGUI.MarksDB.MarkPictureList;
+    VPicCount := VPictureList.Count;
+    VColCount := DrawGrid1.ColCount;
+    VRowCount := VPicCount div VColCount;
+    if (VPicCount mod VColCount) > 0 then begin
+      Inc(VRowCount);
     end;
-    DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
-    Caption:=SAS_STR_AddNewMark;
-    Badd.Caption:=SAS_STR_Add;
-    CheckBox2.Checked:=true;
-  end else begin
-    Caption:=SAS_STR_EditMark;
-    Badd.Caption:=SAS_STR_Edit;
-    EditName.Text:=FMark.name;
-    frMarkDescription.Description:=FMark.Desc;
-    SpinEdit1.Value:=FMark.Scale1;
-    SpinEdit2.Value:=FMark.Scale2;
-    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
-    ColorBox1.Selected:=WinColor(FMark.Color1);
-    ColorBox2.Selected:=WinColor(FMark.Color2);
-    CheckBox2.Checked:=FMark.visible;
+    DrawGrid1.RowCount := VRowCount;
+    DrawGrid1.Repaint;
+    if FMark.id < 0 then begin
+      if FMark.Pic = nil then begin
+        if VPicCount > 0 then begin
+          FMark.SetPic(VPictureList.Get(0), VPictureList.GetName(0));
+        end;
+      end;
+      DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
+      Caption:=SAS_STR_AddNewMark;
+      Badd.Caption:=SAS_STR_Add;
+      CheckBox2.Checked:=true;
+    end else begin
+      Caption:=SAS_STR_EditMark;
+      Badd.Caption:=SAS_STR_Edit;
+      EditName.Text:=FMark.name;
+      frMarkDescription.Description:=FMark.Desc;
+      SpinEdit1.Value:=FMark.Scale1;
+      SpinEdit2.Value:=FMark.Scale2;
+      SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
+      ColorBox1.Selected:=WinColor(FMark.Color1);
+      ColorBox2.Selected:=WinColor(FMark.Color2);
+      CheckBox2.Checked:=FMark.visible;
 
-    DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
-    VId := FMark.CategoryId;
-    for i := 0 to CBKateg.Items.Count - 1 do begin
-      VCategory := TCategoryId(CBKateg.Items.Objects[i]);
-      if VCategory <> nil then begin
-        if VCategory.id = VId then begin
-          CBKateg.ItemIndex := i;
-          Break;
+      DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
+      VId := FMark.CategoryId;
+      for i := 0 to CBKateg.Items.Count - 1 do begin
+        VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+        if VCategory <> nil then begin
+          if VCategory.id = VId then begin
+            CBKateg.ItemIndex := i;
+            Break;
+          end;
         end;
       end;
     end;
+    frLonLatPoint.LonLat := FMark.Points[0];
+    result := ShowModal=mrOk;
+  finally
+    FreeAndNil(VCategoryList);
   end;
-  frLonLatPoint.LonLat := FMark.Points[0];
-  result := ShowModal=mrOk;
 end;
 procedure TFaddPoint.BaddClick(Sender: TObject);
 var
@@ -197,7 +206,7 @@ begin
   if VCategory <> nil then begin
     VId := VCategory.id;
   end else begin
-    VId := AddKategory(CBKateg.Text);
+    VId := FMarkDBGUI.AddKategory(CBKateg.Text);
   end;
   FMark.CategoryId:= VId;
   ModalResult := mrOk;
@@ -249,13 +258,7 @@ begin
 end;
 
 destructor TFaddPoint.Destroy;
-var
-  i: Integer;
 begin
-  for i := 0 to CBKateg.Items.Count - 1 do begin
-    CBKateg.Items.Objects[i].Free;
-  end;
-  CBKateg.Items.Clear;
   FreeAndNil(frMarkDescription);
   FreeAndNil(frLonLatPoint);
   inherited;
@@ -299,7 +302,7 @@ var
   VPictureList: IMarkPictureList;
 begin
    i:=(Arow*DrawGrid1.ColCount)+ACol;
-   VPictureList := GState.MarksDB.MarkPictureList;
+   VPictureList := FMarkDBGUI.MarksDB.MarkPictureList;
    if i < VPictureList.Count then
     DrawFromMarkIcons(DrawGrid1.Canvas, VPictureList.Get(i), DrawGrid1.CellRect(ACol,ARow));
 end;
@@ -327,7 +330,7 @@ var
 begin
  DrawGrid1.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*DrawGrid1.ColCount)+ACol;
- VPictureList := GState.MarksDB.MarkPictureList;
+ VPictureList := FMarkDBGUI.MarksDB.MarkPictureList;
  if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
    FMark.SetPic(VPictureList.Get(i), VPictureList.GetName(i));
    image1.Canvas.FillRect(image1.Canvas.ClipRect);

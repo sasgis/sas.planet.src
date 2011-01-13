@@ -18,6 +18,7 @@ uses
   UResStrings,
   UMarksExplorer,
   u_MarksSimple,
+  u_MarksDbGUIHelper,
   fr_MarkDescription,
   t_GeoTypes;
 
@@ -62,10 +63,11 @@ type
   private
     FMark: TMarkFull;
     frMarkDescription: TfrMarkDescription;
+    FMarkDBGUI: TMarksDbGUIHelper;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function EditMark(AMark: TMarkFull):boolean;
+    function EditMark(AMark: TMarkFull; AMarkDBGUI: TMarksDbGUIHelper):boolean;
     procedure RefreshTranslation; override;
   end;
 
@@ -80,47 +82,54 @@ uses
 
 {$R *.dfm}
 
-function TFAddPoly.EditMark(AMark: TMarkFull): boolean;
+function TFAddPoly.EditMark(AMark: TMarkFull; AMarkDBGUI: TMarksDbGUIHelper): boolean;
 var
   namecatbuf:string;
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
+  VCategoryList: TList;
 begin
   FMark := AMark;
+  FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewPoly;
   namecatbuf:=CBKateg.Text;
-  GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
-  CBKateg.Sorted:=true;
-  CBKateg.Text:=namecatbuf;
-  if FMark.id < 0 then begin
-    Caption:=SAS_STR_AddNewPoly;
-    Badd.Caption:=SAS_STR_Add;
-    CheckBox2.Checked:=true;
-  end else begin
-    Caption:=SAS_STR_EditPoly;
-    Badd.Caption:=SAS_STR_Edit;
-    EditName.Text:=FMark.name;
-    frMarkDescription.Description:=FMark.Desc;
-    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
-    SEtransp2.Value:=100-round(AlphaComponent(FMark.Color2)/255*100);
-    SpinEdit1.Value:=FMark.Scale1;
-    ColorBox1.Selected:=WinColor(FMark.Color1);
-    ColorBox2.Selected:=WinColor(FMark.Color2);
-    CheckBox2.Checked:=FMark.visible;
-    VId := FMark.CategoryId;
-    for i := 0 to CBKateg.Items.Count - 1 do begin
-      VCategory := TCategoryId(CBKateg.Items.Objects[i]);
-      if VCategory <> nil then begin
-        if VCategory.id = VId then begin
-          CBKateg.ItemIndex := i;
-          Break;
+  VCategoryList := FMarkDBGUI.MarksDB.GetCategoriesList;
+  try
+    FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
+    CBKateg.Sorted:=true;
+    CBKateg.Text:=namecatbuf;
+    if FMark.id < 0 then begin
+      Caption:=SAS_STR_AddNewPoly;
+      Badd.Caption:=SAS_STR_Add;
+      CheckBox2.Checked:=true;
+    end else begin
+      Caption:=SAS_STR_EditPoly;
+      Badd.Caption:=SAS_STR_Edit;
+      EditName.Text:=FMark.name;
+      frMarkDescription.Description:=FMark.Desc;
+      SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
+      SEtransp2.Value:=100-round(AlphaComponent(FMark.Color2)/255*100);
+      SpinEdit1.Value:=FMark.Scale1;
+      ColorBox1.Selected:=WinColor(FMark.Color1);
+      ColorBox2.Selected:=WinColor(FMark.Color2);
+      CheckBox2.Checked:=FMark.visible;
+      VId := FMark.CategoryId;
+      for i := 0 to CBKateg.Items.Count - 1 do begin
+        VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+        if VCategory <> nil then begin
+          if VCategory.id = VId then begin
+            CBKateg.ItemIndex := i;
+            Break;
+          end;
         end;
       end;
     end;
+    result:= ShowModal=mrOk;
+  finally
+    FreeAndNil(VCategoryList);
   end;
-  result:= ShowModal=mrOk;
 end;
 
 procedure TFAddPoly.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -177,7 +186,7 @@ begin
   if VCategory <> nil then begin
     VId := VCategory.id;
   end else begin
-    VId := AddKategory(CBKateg.Text);
+    VId := FMarkDBGUI.AddKategory(CBKateg.Text);
   end;
   FMark.CategoryId := VId;
   ModalResult:=mrOk;
@@ -190,13 +199,7 @@ begin
 end;
 
 destructor TFAddPoly.Destroy;
-var
-  i: Integer;
 begin
-  for i := 0 to CBKateg.Items.Count - 1 do begin
-    CBKateg.Items.Objects[i].Free;
-  end;
-  CBKateg.Items.Clear;
   FreeAndNil(frMarkDescription);
   inherited;
 end;

@@ -17,6 +17,7 @@ uses
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   u_MarksSimple,
+  u_MarksDbGUIHelper,
   Unit1, ComCtrls, ImgList;
 
 type
@@ -75,21 +76,16 @@ type
       Shift: TShiftState);
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
   private
-    katitems:TStrings;
+    FCategoryList: TList;
+    FMarkDBGUI: TMarksDbGUIHelper;
+    procedure UpdateCategoryTree;
+    function GetSelectedCategory: TCategoryId;
   public
+    procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
   end;
 
 var
   FMarksExplorer: TFMarksExplorer;
-  function DeleteMarkModal(id:integer;handle:THandle):boolean;
-  function OperationMark(AMark: TMarkFull):boolean;
-  function AddKategory(name:string): integer;
-  function GetMarkLength(AMark: TMarkFull):Double;
-  function GetMarkSq(AMark: TMarkFull):Double;
-  function EditMarkModal(AMark: TMarkFull):boolean;
-  function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
-  function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
-  function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
 
 implementation
 
@@ -107,196 +103,22 @@ uses
 
 {$R *.dfm}
 
-function AddKategory(name:string): Integer;
-var
-  VCategory: TCategoryId;
+procedure TFMarksExplorer.UpdateCategoryTree;
 begin
-  VCategory := TCategoryId.Create;
+  TreeView1.OnChange:=nil;
   try
-    VCategory.id := -1;
-    VCategory.name := name;
-    VCategory.visible := True;
-    VCategory.AfterScale := 3;
-    VCategory.BeforeScale := 19;
-    GState.MarksDb.WriteCategory(VCategory);
-    Result := VCategory.id;
-  finally
-    VCategory.Free;
-  end;
-end;
-
-function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
-var
-  VMark: TMarkFull;
-begin
-  VMark := TMarkFull.Create;
-  try
-    VMark.id := -1;
-    SetLength(VMark.Points, 1);
-    VMark.Points[0] := ALonLat;
-    Result := FaddPoint.EditMark(VMark);
-    if Result then begin
-      GState.MarksDb.WriteMark(VMark);
-    end;
-  finally
-    VMark.Free;
-  end;
-end;
-
-function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
-var
-  VMark: TMarkFull;
-begin
-  Result := False;
-  if AID < 0 then begin
-    VMark := TMarkFull.Create;
-  end else begin
-    VMark := GState.MarksDb.GetMarkByID(AID)
-  end;
-  if VMark <> nil then begin
-    try
-      VMark.id := AID;
-      VMark.Points := Copy(ANewArrLL);
-      VMark.ClosePoly;
-      Result := FaddPoly.EditMark(VMark);
-      if Result then begin
-        GState.MarksDb.WriteMark(VMark);
-      end;
-    finally
-      VMark.Free;
-    end;
-  end;
-end;
-
-function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
-var
-  VMark: TMarkFull;
-begin
-  Result := False;
-  if AID < 0 then begin
-    VMark := TMarkFull.Create;
-  end else begin
-    VMark := GState.MarksDb.GetMarkByID(AID)
-  end;
-  if VMark <> nil then begin
-    try
-      VMark.id := AID;
-      if VMark.id < 0 then begin
-        VMark.Desc := ADescription;
-      end;
-      VMark.Points := Copy(ANewArrLL);
-      Result := FaddLine.EditMark(VMark);
-      if Result then begin
-        GState.MarksDb.WriteMark(VMark);
-      end;
-    finally
-      VMark.Free;
-    end;
-  end;
-end;
-
-function EditMarkModal(AMark: TMarkFull):boolean;
-begin
-  Result := false;
-  if AMark.IsPoint then begin
-    result:=FaddPoint.EditMark(AMark);
-  end else if AMark.IsPoly then begin
-    result:=FaddPoly.EditMark(AMark);
-  end else if AMark.IsLine then begin
-    result:=FaddLine.EditMark(AMark);
-  end;
-end;
-
-procedure DrawTreeCategory(TreeView1: TTreeView; Strs: TStrings);
-var
-  CachedStrs: TStringList;
-
-  procedure AddItem(Lev: Integer; ParentNode: TTreeNode; S: string; Data:TObject);
-    function FindNodeWithText(AParent: TTreeNode; const S: string): TTreeNode;
-    var
-      K: Integer;
-      fStr: string;
-      tmpNode: TTreeNode;
-    begin
-      Result := nil;
-      fStr := S + IntToStr(Integer(AParent));
-      K := CachedStrs.IndexOf(fStr);
-      if K > -1 then
-        Result := Pointer(CachedStrs.Objects[K])
-      else
-      begin
-        if AParent <> nil then
-          tmpNode := AParent.getFirstChild
-        else
-          tmpNode := TreeView1.Items.GetFirstNode;
-        while tmpNode <> nil do
-        begin
-          if tmpNode.Text = S then
-          begin
-            Result := tmpNode;
-            CachedStrs.AddObject(fStr, Pointer(tmpNode));
-            break;
-          end;
-          tmpNode := tmpNode.getNextSibling;
-        end;
-      end
-    end;
-
-  var
-    prefix: string;
-    ID: Integer;
-    aNode: TTreeNode;
-  begin
-    if S='' then begin
-      Exit;
-    end;
-    ID:=Pos('\', S);
-    prefix:='';
-    if ID > 0 then begin
-      prefix:=Copy(S, 1, ID - 1)
-    end else begin
-      prefix:=S;
-      S := '';
-    end;
-    aNode := FindNodeWithText(ParentNode, prefix);
-    if aNode = nil then
-    begin
-      if ID>0 then begin
-        aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, nil);
-        aNode.StateIndex:=0;
-      end else begin
-        aNode := TreeView1.Items.AddChildObject(ParentNode, prefix, Data);
-        aNode.StateIndex :=2;
-        if TCategoryId(Data).visible then begin
-          aNode.StateIndex :=1
-        end;
-      end;
-    end else begin
-      if ID=0 then begin
-        aNode.Data:=Data;
-      end;
-    end;
-    AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data);
-  end;
-
-var
-  K: Integer;
-begin
-  CachedStrs := TStringList.Create;
-  CachedStrs.Duplicates := dupIgnore;
-  CachedStrs.Sorted := True;
-  try
-    TreeView1.OnChange:=nil;
-    TreeView1.Items.Clear;
     TreeView1.Items.BeginUpdate;
-    TreeView1.SortType := stNone;
-    for K := 0 to Strs.Count - 1 do
-      AddItem(0, nil, Strs[K], Strs.Objects[K]);
-    TreeView1.SortType:=stText;
+    try
+      TreeView1.SortType := stNone;
+      FreeAndNil(FCategoryList);
+      FCategoryList := FMarkDBGUI.MarksDB.GetCategoriesList;
+      FMarkDBGUI.CategoryListToTree(FCategoryList, TreeView1.Items);
+      TreeView1.SortType:=stText;
+    finally
+      TreeView1.Items.EndUpdate;
+    end;
   finally
-    TreeView1.Items.EndUpdate;
-    CachedStrs.Free;
-    TreeView1.OnChange:=fMarksExplorer.TreeView1Change;
+    TreeView1.OnChange := Self.TreeView1Change;
   end;
 end;
 
@@ -311,10 +133,16 @@ begin
  end;
  for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
  MarksListBox.Clear;
- katitems:=TStringList.create;
- GState.MarksDb.Kategory2StringsWithObjects(katitems);
- DrawTreeCategory(TreeView1,katitems);
+ UpdateCategoryTree;
  SBNavOnMark.Down:= GState.MainFormConfig.NavToPoint.IsActive;
+end;
+
+function TFMarksExplorer.GetSelectedCategory: TCategoryId;
+begin
+  Result := nil;
+  if TreeView1.Selected <> nil then begin
+    Result := TCategoryId(TreeView1.Selected.Data);
+  end;
 end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
@@ -325,60 +153,6 @@ begin
  close;
 end;
 
-function DeleteMarkModal(id:integer;handle:THandle):boolean;
-var
-  VMarkId: TMarkId;
-begin
-  result:=false;
-  VMarkId := GState.MarksDb.GetMarkIdByID(id);
-  if VMarkId <> nil then begin
-    try
-      if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMarkId.name+'"'),pchar(SAS_MSG_coution),36)=IDNO then exit;
-      result:=GState.MarksDb.DeleteMark(VMarkId);
-    finally
-      VMarkId.Free;
-    end;
-  end;
-end;
-
-function GetMarkLength(AMark: TMarkFull):Double;
-var
-  i:integer;
-  VConverter: ICoordConverter;
-  VPointCount: Integer;
-begin
-  Result:=0;
-  VConverter := GState.ViewState.GetCurrentCoordConverter;
-  VPointCount := Length(AMark.Points);
-  if (VPointCount > 1) then begin
-    for i:=0 to VPointCount-2 do begin
-      Result:=Result+ VConverter.CalcDist(AMark.Points[i], AMark.Points[i+1]);
-    end;
-  end;
-end;
-
-function GetMarkSq(AMark: TMarkFull):Double;
-var
-  VConverter: ICoordConverter;
-begin
-  Result:=0;
-  VConverter := GState.ViewState.GetCurrentCoordConverter;
-  if (Length(AMark.Points) > 1) then begin
-    result:= VConverter.CalcPoligonArea(AMark.Points);
-  end;
-end;
-
-function OperationMark(AMark: TMarkFull):boolean;
-begin
-  Result:=false;
-  if AMark.IsPoly then begin
-    Fsaveas.Show_(GState.ViewState.GetCurrentZoom, AMark.Points);
-    Result:=true;
-  end else begin
-    ShowMessage(SAS_MSG_FunExForPoly);
-  end;
-end;
-
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
 var
   VIndex: Integer;
@@ -387,7 +161,7 @@ begin
   VIndex := MarksListBox.ItemIndex;
   if VIndex>=0 then begin
     VId := TMarkId(MarksListBox.Items.Objects[VIndex]).id;
-    if DeleteMarkModal(VId,Self.Handle) then begin
+    if FMarkDBGUI.DeleteMarkModal(VId, Self.Handle) then begin
       MarksListBox.Items.Objects[VIndex].Free;
       MarksListBox.DeleteSelected;
     end;
@@ -419,7 +193,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        if OperationMark(VMark) then begin
+        if FMarkDBGUI.OperationMark(VMark) then begin
           close;
         end;
       finally
@@ -451,17 +225,11 @@ procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
 var
   VCategory: TCategoryId;
 begin
-  if TreeView1.Selected <> nil then begin
-    if not TreeView1.Selected.HasChildren then begin
-      VCategory := TCategoryId(TreeView1.Selected.Data);
-      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-        GState.MarksDb.DeleteCategoryWithMarks(VCategory);
-
-        GState.MarksDb.Kategory2StringsWithObjects(katitems);
-        DrawTreeCategory(TreeView1,katitems);
-      end;
-    end else begin
-      ShowMessage(SAS_MSG_NotDelWhereHasChildren);
+  VCategory := GetSelectedCategory;
+  if VCategory <> nil then begin
+    if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+      GState.MarksDb.DeleteCategoryWithMarks(VCategory);
+      UpdateCategoryTree;
     end;
   end;
 end;
@@ -471,7 +239,7 @@ var
   VIndex: Integer;
   VMarkId: TMarkId;
   VMark: TMarkFull;
-
+  VCategory: TCategoryId;
 begin
   VIndex := MarksListBox.ItemIndex;
   if VIndex >= 0 then begin
@@ -479,9 +247,10 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VMarkId.id);
     if VMark <> nil then begin
       try
-        if EditMarkModal(VMark) then begin
+        if FMarkDBGUI.EditMarkModal(VMark) then begin
           GState.MarksDb.WriteMark(VMark);
-          if VMark.CategoryId<>TCategoryId(TreeView1.Selected.Data).id then begin
+          VCategory := GetSelectedCategory;
+          if VMark.CategoryId<>VCategory.id then begin
             MarksListBox.Items.Objects[VIndex].Free;
             MarksListBox.DeleteSelected;
           end else begin
@@ -523,12 +292,11 @@ var
   VCategory: TCategoryId;
 begin
   If key=VK_DELETE then begin
-    if TreeView1.Selected <> nil then begin
-      VCategory := TCategoryId(TreeView1.Selected.Data);
-      if MessageBox(Self.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+    VCategory := GetSelectedCategory;
+    if VCategory <> nil then begin
+      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
         GState.MarksDb.DeleteCategoryWithMarks(VCategory);
-        VCategory.Free;
-        //KategoryListBox.DeleteSelected;
+        UpdateCategoryTree;
       end;
     end;
   end;
@@ -573,7 +341,7 @@ begin
  If (OpenDialog1.Execute) then
   if (FileExists(OpenDialog1.FileName)) then
    begin
-    FImport.ImportFile(OpenDialog1.FileName);
+    FImport.ImportFile(OpenDialog1.FileName, FMarkDBGUI);
     Self.FormShow(sender);
    end;
 end;
@@ -582,15 +350,11 @@ procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
 var
   VCategory: TCategoryId;
 begin
-  if TreeView1.Selected <> nil then begin
-    VCategory := TCategoryId(TreeView1.Selected.data);
-    if VCategory <> nil then begin
-      if FaddCategory.EditCategory(VCategory) then begin
-        GState.MarksDb.WriteCategory(VCategory);
-
-        GState.MarksDb.Kategory2StringsWithObjects(katitems);
-        DrawTreeCategory(TreeView1,katitems);
-      end;
+  VCategory := GetSelectedCategory;
+  if VCategory <> nil then begin
+    if FaddCategory.EditCategory(VCategory) then begin
+      GState.MarksDb.WriteCategory(VCategory);
+      UpdateCategoryTree;
     end;
   end;
 end;
@@ -605,7 +369,7 @@ begin
     VIndex := MarksListBox.ItemIndex;
     if VIndex >= 0 then begin
       VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
-      if DeleteMarkModal(VMarkId.id, Self.Handle) then begin
+      if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
         VMarkId.Free;
         MarksListBox.DeleteSelected;
       end;
@@ -620,9 +384,14 @@ begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
     GState.MarksDB.SetAllCategoriesVisible(VNewVisible);
-    GState.MarksDb.Kategory2StringsWithObjects(katitems);
-    DrawTreeCategory(TreeView1,katitems);
+    UpdateCategoryTree;
   end;
+end;
+
+procedure TFMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
+begin
+  FMarkDBGUI := AMarkDBGUI;
+  ShowModal;
 end;
 
 procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
@@ -631,16 +400,14 @@ var
   VNewVisible: Boolean;
   VCategory: TCategoryId;
 begin
-  if TreeView1.Selected <> nil then begin
-    VCategory := TCategoryId(TreeView1.Selected.data);
-    if VCategory <> nil then begin
-      VNewVisible := CheckBox1.Checked;
-      GState.MarksDB.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
+  VCategory := GetSelectedCategory;
+  if VCategory <> nil then begin
+    VNewVisible := CheckBox1.Checked;
+    GState.MarksDB.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
 
-      GState.MarksDb.Marsk2StringsWithMarkId(VCategory, MarksListBox.Items);
-      for i:=0 to MarksListBox.Count-1 do begin
-        MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
-      end;
+    GState.MarksDb.Marsk2StringsWithMarkId(VCategory, MarksListBox.Items);
+    for i:=0 to MarksListBox.Count-1 do begin
+      MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
     end;
   end;
 end;
@@ -658,8 +425,7 @@ begin
   VCategory.id := -1;
   if FaddCategory.EditCategory(VCategory) then begin
     GState.MarksDb.WriteCategory(VCategory);
-    GState.MarksDb.Kategory2StringsWithObjects(katitems);
-    DrawTreeCategory(TreeView1,katitems);
+    UpdateCategoryTree;
   end else begin
     VCategory.Free;
   end;
@@ -700,10 +466,9 @@ var
 begin
  for i:=0 to MarksListBox.items.Count - 1 do MarksListBox.Items.Objects[i].Free;
  MarksListBox.Clear;
- for i:=0 to katitems.Count-1 do katitems.Objects[i].Free;
  TreeView1.OnChange:=nil;
  TreeView1.Items.Clear;
- katitems.free;
+  FreeAndNil(FCategoryList);
 end;
 
 end.

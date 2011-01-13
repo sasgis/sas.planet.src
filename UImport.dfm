@@ -11,7 +11,6 @@ object FImport: TFImport
   Position = poScreenCenter
   ShowHint = True
   OnActivate = FormActivate
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Label8: TLabel

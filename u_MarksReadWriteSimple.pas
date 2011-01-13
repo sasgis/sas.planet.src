@@ -56,9 +56,12 @@ type
     procedure WriteMark(AMark: TMarkFull);
     procedure WriteMarkId(AMark: TMarkId);
 
+    function GetCategoriesList: TList;
+    function GetAllMarskIdList: TList;
+    function GetMarskIdListByCategory(AId: Integer): TList;
+
     procedure Marsk2StringsWithMarkId(ACategoryId: TCategoryId; AStrings: TStrings);
     procedure AllMarsk2StringsWhitMarkId(AStrings: TStrings);
-    procedure Kategory2StringsWithObjects(AStrings: TStrings);
 
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
     procedure SetAllMarksInCategoryVisible(ACategoryId: TCategoryId; ANewVisible: Boolean);
@@ -75,6 +78,7 @@ implementation
 uses
   DB,
   SysUtils,
+  Contnrs,
   GR32;
 
 type
@@ -559,21 +563,49 @@ begin
   end;
 end;
 
-procedure TMarksDB.Kategory2StringsWithObjects(AStrings: TStrings);
+function TMarksDB.GetAllMarskIdList: TList;
 var
-  KategoryId: TCategoryId;
-  i: Integer;
+  VMarkId: TMarkId;
 begin
-  for i := 0 to AStrings.Count - 1 do begin
-    AStrings.Objects[i].Free;
+  Result := TObjectList.Create(True);
+  FDMMarksDb.CDSmarks.Filtered := false;
+  FDMMarksDb.CDSmarks.First;
+  while not (FDMMarksDb.CDSmarks.Eof) do begin
+    VMarkId := TMarkId.Create;
+    ReadCurrentMarkId(VMarkId);
+    Result.Add(VMarkId);
+    FDMMarksDb.CDSmarks.Next;
   end;
-  AStrings.Clear;
+end;
+
+function TMarksDB.GetMarskIdListByCategory(AId: Integer): TList;
+var
+  VMarkId: TMarkId;
+begin
+  Result := TObjectList.Create(True);
+  FDMMarksDb.CDSmarks.Filtered := false;
+  FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(AId);
+  FDMMarksDb.CDSmarks.Filtered := true;
+  FDMMarksDb.CDSmarks.First;
+  while not (FDMMarksDb.CDSmarks.Eof) do begin
+    VMarkId := TMarkId.Create;
+    ReadCurrentMarkId(VMarkId);
+    Result.Add(VMarkId);
+    FDMMarksDb.CDSmarks.Next;
+  end;
+end;
+
+function TMarksDB.GetCategoriesList: TList;
+var
+  VKategory: TCategoryId;
+begin
+  Result := TObjectList.Create(True);
   FDMMarksDb.CDSKategory.Filtered := false;
   FDMMarksDb.CDSKategory.First;
   while not (FDMMarksDb.CDSKategory.Eof) do begin
-    KategoryId := TCategoryId.Create;
-    ReadCurrentCategory(KategoryId);
-    AStrings.AddObject(KategoryId.name, KategoryId);
+    VKategory := TCategoryId.Create;
+    ReadCurrentCategory(VKategory);
+    Result.Add(VKategory);
     FDMMarksDb.CDSKategory.Next;
   end;
 end;

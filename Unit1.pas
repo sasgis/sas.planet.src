@@ -79,6 +79,7 @@ uses
   u_CenterScale,
   u_SelectionLayer,
   u_MapLayerGPSMarker,
+  u_MarksDbGUIHelper,
   u_TileDownloaderUI,
   t_GeoTypes;
 
@@ -584,6 +585,7 @@ type
     FWinPosition: IMainWindowPosition;
 
     FLineOnMapEdit: ILineOnMapEdit;
+    FMarkDBGUI: TMarksDbGUIHelper;
 
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
@@ -791,6 +793,7 @@ begin
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
+  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB);
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
@@ -1059,6 +1062,7 @@ begin
   FreeAndNil(FLayersList);
   FreeAndNil(FUIDownLoader);
   FreeAndNil(FShortCutManager);
+  FreeAndNil(FMarkDBGUI);
 end;
 
 destructor TFmain.Destroy;
@@ -2153,7 +2157,7 @@ end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);
 begin
-  if AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(FMouseUpPoint)) then begin
+  if FMarkDBGUI.AddNewPointModal(GState.ViewState.VisiblePixel2LonLat(FMouseUpPoint)) then begin
     setalloperationfalse(ao_movemap);
     FLayerMapMarks.Redraw;
   end;
@@ -2672,7 +2676,7 @@ var
 begin
   VAllPoints := GState.GPSpar.GPSRecorder.GetAllPoints;
   if length(VAllPoints)>1 then begin
-    if SaveLineModal(-1, VAllPoints, '') then begin
+    if FMarkDBGUI.SaveLineModal(-1, VAllPoints, '') then begin
       setalloperationfalse(ao_movemap);
       FLayerMapMarks.Redraw;
     end;
@@ -2772,7 +2776,7 @@ begin
     if VMark <> nil then begin
       try
         if VMark.IsPoint then begin
-          if EditMarkModal(VMark) then begin
+          if FMarkDBGUI.EditMarkModal(VMark) then begin
             GState.MarksDb.WriteMark(VMark);
             FLayerMapMarks.Redraw;
           end;
@@ -2798,7 +2802,7 @@ begin
   VPWL.find:=false;
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
-    if DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
+    if FMarkDBGUI.DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
       FLayerMapMarks.Redraw;
   end;
 end;
@@ -2822,7 +2826,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        OperationMark(VMark);
+        FMarkDBGUI.OperationMark(VMark);
       finally
         VMark.Free;
       end;
@@ -2988,7 +2992,7 @@ begin
       end;
     end;
     if (FCurrentOper=ao_add_point) then begin
-      if(AddNewPointModal(VClickLonLat)) then begin
+      if(FMarkDBGUI.AddNewPointModal(VClickLonLat)) then begin
         setalloperationfalse(ao_movemap);
         FLayerMapMarks.Redraw;
       end;
@@ -3474,16 +3478,16 @@ begin
   result := false;
   case FCurrentOper of
     ao_add_Poly: begin
-      result:=SavePolyModal(-1, FLineOnMapEdit.GetPoints);
+      result:=FMarkDBGUI.SavePolyModal(-1, FLineOnMapEdit.GetPoints);
     end;
     ao_edit_poly: begin
-      result:=SavePolyModal(FEditMarkId, FLineOnMapEdit.GetPoints);
+      result:=FMarkDBGUI.SavePolyModal(FEditMarkId, FLineOnMapEdit.GetPoints);
     end;
     ao_add_Line: begin
-      result:=SaveLineModal(-1, FLineOnMapEdit.GetPoints, FMarshrutComment);
+      result:=FMarkDBGUI.SaveLineModal(-1, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
     ao_edit_line: begin
-      result:=SaveLineModal(FEditMarkId, FLineOnMapEdit.GetPoints, '');
+      result:=FMarkDBGUI.SaveLineModal(FEditMarkId, FLineOnMapEdit.GetPoints, '');
     end;
   end;
   if result then begin
@@ -3499,7 +3503,7 @@ end;
 
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
- FMarksExplorer.ShowModal;
+ FMarksExplorer.EditMarks(FMarkDBGUI);
  FLayerMapMarks.Redraw;
  FLayerMapMarks.Visible := GState.show_point <> mshNone;
 end;
@@ -3587,7 +3591,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        VLen := GetMarkLength(VMark);
+        VLen := FMarkDBGUI.GetMarkLength(VMark);
         VMessage := SAS_STR_L+' - '+
         GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
         MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
@@ -3614,7 +3618,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        VArea := GetMarkSq(VMark);
+        VArea := FMarkDBGUI.GetMarkSq(VMark);
         VMessage := SAS_STR_S+' - '+GState.ValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
 
         MessageBox(Handle,pchar(VMessage),pchar(VPWL.name),0);
@@ -3641,7 +3645,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        VLen := GetMarkLength(VMark);
+        VLen := FMarkDBGUI.GetMarkLength(VMark);
         VMessage := SAS_STR_P+' - '+
           GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
         MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
@@ -3732,7 +3736,7 @@ end;
 procedure TFmain.TBXItem5Click(Sender: TObject);
 begin
   if GState.GPSpar.GPSModule.IsConnected then begin
-    if AddNewPointModal(GState.GPSpar.GPSRecorder.GetLastPoint) then begin
+    if FMarkDBGUI.AddNewPointModal(GState.GPSpar.GPSRecorder.GetLastPoint) then begin
       setalloperationfalse(ao_movemap);
       FLayerMapMarks.Redraw;
     end;
@@ -3769,7 +3773,7 @@ begin
       if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
          (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
          (ExtractFileExt(OpenSessionDialog.FileName)='.plt') then begin
-        FImport.ImportFile(OpenSessionDialog.FileName);
+        FImport.ImportFile(OpenSessionDialog.FileName, FMarkDBGUI);
       end else begin
         if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
           Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);

@@ -17,6 +17,7 @@ uses
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
+  u_MarksDbGUIHelper,
   UMarksExplorer,
   UPLT;
 
@@ -74,7 +75,6 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormActivate(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
@@ -82,8 +82,9 @@ type
   private
     { Private declarations }
     FileName:string;
+    FMarkDBGUI: TMarksDbGUIHelper;
   public
-    function ImportFile(AFileName: string): Boolean;
+    function ImportFile(AFileName: string; AMarkDBGUI: TMarksDbGUIHelper): Boolean;
   end;
 
 var
@@ -222,15 +223,19 @@ begin
  if ColorDialog1.Execute then ColorBox5.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFImport.FormShow(Sender: TObject);
-begin
-  GState.MarksDb.Kategory2StringsWithObjects(CBKateg.Items);
-end;
-
-function TFImport.ImportFile(AFileName: string): Boolean;
+function TFImport.ImportFile(AFileName: string; AMarkDBGUI: TMarksDbGUIHelper): Boolean;
+var
+  VCategoryList: TList;
 begin
   FileName := AFileName;
-  Result := ShowModal = mrOk;
+  FMarkDBGUI := AMarkDBGUI;
+  VCategoryList := FMarkDBGUI.MarksDB.GetCategoriesList;
+  try
+    FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
+    Result := ShowModal = mrOk;
+  finally
+    FreeAndNil(VCategoryList);
+  end;
 end;
 
 procedure TFImport.Button1Click(Sender: TObject);
@@ -277,7 +282,7 @@ begin
     if VCategory <> nil then begin
       VId := VCategory.id;
     end else begin
-      VId := AddKategory(CBKateg.Text);
+      VId := FMarkDBGUI.AddKategory(CBKateg.Text);
     end;
     if VMarkTemplatePoint <> nil then begin
       VMarkTemplatePoint.id := -1;
