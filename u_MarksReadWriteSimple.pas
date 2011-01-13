@@ -5,15 +5,13 @@ interface
 uses
   Windows,
   Classes,
-  Dialogs,
   t_GeoTypes,
   t_CommonTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   dm_MarksDb,
   i_IMarkPicture,
-  u_MarksSimple,
-  UResStrings;
+  u_MarksSimple;
 
 type
 
