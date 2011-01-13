@@ -2826,7 +2826,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        FMarkDBGUI.OperationMark(VMark);
+        FMarkDBGUI.OperationMark(VMark, GState.ViewState.GetCurrentZoom);
       finally
         VMark.Free;
       end;
@@ -3591,7 +3591,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        VLen := FMarkDBGUI.GetMarkLength(VMark);
+        VLen := FMarkDBGUI.GetMarkLength(VMark, GState.ViewState.GetCurrentCoordConverter);
         VMessage := SAS_STR_L+' - '+
         GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
         MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
@@ -3618,7 +3618,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        VArea := FMarkDBGUI.GetMarkSq(VMark);
+        VArea := FMarkDBGUI.GetMarkSq(VMark, GState.ViewState.GetCurrentCoordConverter);
         VMessage := SAS_STR_S+' - '+GState.ValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
 
         MessageBox(Handle,pchar(VMessage),pchar(VPWL.name),0);
@@ -3645,7 +3645,7 @@ begin
     VMark := GState.MarksDb.GetMarkByID(VId);
     if VMark <> nil then begin
       try
-        VLen := FMarkDBGUI.GetMarkLength(VMark);
+        VLen := FMarkDBGUI.GetMarkLength(VMark, GState.ViewState.GetCurrentCoordConverter);
         VMessage := SAS_STR_P+' - '+
           GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
         MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);

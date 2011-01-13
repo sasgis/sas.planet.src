@@ -11,8 +11,6 @@ object FMarksExplorer: TFMarksExplorer
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  OnClose = FormClose
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pnlBottom: TPanel
@@ -71,10 +69,6 @@ object FMarksExplorer: TFMarksExplorer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 68
-    ExplicitTop = 375
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 494
@@ -130,10 +124,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 140
-      ExplicitTop = 375
-      ExplicitWidth = 185
-      ExplicitHeight = 41
       object splCatMarks: TSplitter
         Left = 178
         Top = 0
@@ -150,10 +140,6 @@ object FMarksExplorer: TFMarksExplorer
         Align = alClient
         Caption = #1052#1077#1090#1082#1080
         TabOrder = 0
-        ExplicitLeft = 216
-        ExplicitTop = 8
-        ExplicitWidth = 273
-        ExplicitHeight = 345
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
@@ -166,10 +152,6 @@ object FMarksExplorer: TFMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitLeft = 6
-          ExplicitTop = 56
-          ExplicitWidth = 257
-          ExplicitHeight = 265
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
@@ -542,10 +524,6 @@ object FMarksExplorer: TFMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
-          ExplicitLeft = 8
-          ExplicitTop = 51
-          ExplicitWidth = 185
-          ExplicitHeight = 263
         end
         object pnlCategoriesTop: TPanel
           AlignWithMargins = True

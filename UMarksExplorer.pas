@@ -53,7 +53,6 @@ type
     splCatMarks: TSplitter;
     pnlMarksTop: TPanel;
     pnlCategoriesTop: TPanel;
-    procedure FormShow(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
@@ -69,7 +68,6 @@ type
     procedure Button3Click(Sender: TObject);
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure SBNavOnMarkClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure TreeView1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
@@ -77,9 +75,13 @@ type
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
   private
     FCategoryList: TList;
+    FMarksList: TList;
     FMarkDBGUI: TMarksDbGUIHelper;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: TCategoryId;
+    procedure UpdateMarksList;
+    function GetSelectedMarkId: TMarkId;
+    function GetSelectedMarkFull: TMarkFull;
   public
     procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
   end;
@@ -122,19 +124,26 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.FormShow(Sender: TObject);
+procedure TFMarksExplorer.UpdateMarksList;
 var
-    i:integer;
+  VCategory: TCategoryId;
+  i: Integer;
 begin
- case GState.show_point of
-  mshAll: RBall.Checked:=true;
-  mshChecked: RBchecked.Checked:=true;
-  mshNone: RBnot.Checked:=true;
- end;
- for i:=1 to MarksListBox.items.Count do MarksListBox.Items.Objects[i-1].Free;
- MarksListBox.Clear;
- UpdateCategoryTree;
- SBNavOnMark.Down:= GState.MainFormConfig.NavToPoint.IsActive;
+  MarksListBox.Clear;
+  FreeAndNil(FMarksList);
+  VCategory := GetSelectedCategory;
+  if (VCategory <> nil) then begin
+    FMarksList := FMarkDBGUI.MarksDb.GetMarskIdListByCategory(VCategory.id);
+    MarksListBox.Items.BeginUpdate;
+    try
+      FMarkDBGUI.MarksListToStrings(FMarksList, MarksListBox.Items);
+      for i:=0 to MarksListBox.Count-1 do begin
+        MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
+      end;
+    finally
+      MarksListBox.Items.EndUpdate;
+    end;
+  end;
 end;
 
 function TFMarksExplorer.GetSelectedCategory: TCategoryId;
@@ -142,6 +151,28 @@ begin
   Result := nil;
   if TreeView1.Selected <> nil then begin
     Result := TCategoryId(TreeView1.Selected.Data);
+  end;
+end;
+
+function TFMarksExplorer.GetSelectedMarkFull: TMarkFull;
+var
+  VMarkId: TMarkId;
+begin
+  Result := nil;
+  VMarkId := GetSelectedMarkId;
+  if VMarkId <> nil then begin
+    Result := FMarkDBGUI.MarksDb.GetMarkByID(VMarkId.id);
+  end;
+end;
+
+function TFMarksExplorer.GetSelectedMarkId: TMarkId;
+var
+  VIndex: Integer;
+begin
+  Result := nil;
+  VIndex := MarksListBox.ItemIndex;
+  if VIndex>=0 then begin
+    Result := TMarkId(MarksListBox.Items.Objects[VIndex]);
   end;
 end;
 
@@ -155,68 +186,53 @@ end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
 var
-  VIndex: Integer;
-  VId: integer;
+  VMarkId: TMarkId;
 begin
-  VIndex := MarksListBox.ItemIndex;
-  if VIndex>=0 then begin
-    VId := TMarkId(MarksListBox.Items.Objects[VIndex]).id;
-    if FMarkDBGUI.DeleteMarkModal(VId, Self.Handle) then begin
-      MarksListBox.Items.Objects[VIndex].Free;
-      MarksListBox.DeleteSelected;
+  VMarkId := GetSelectedMarkId;
+  if VMarkId <> nil then begin
+    if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
+      UpdateMarksList;
     end;
   end;
 end;
 
 procedure TFMarksExplorer.MarksListBoxClickCheck(Sender: TObject);
 var
-  VIndex: integer;
   VMark: TMarkId;
 begin
-  VIndex := MarksListBox.ItemIndex;
-  if VIndex >= 0 then begin
-    VMark := TMarkId(MarksListBox.Items.Objects[VIndex]);
-    if VMark <> nil then begin
-      VMark.visible := MarksListBox.Checked[VIndex];
-      GState.MarksDb.WriteMarkId(VMark);
-    end;
+  VMark := GetSelectedMarkId;
+  if VMark <> nil then begin
+    VMark.visible := MarksListBox.Checked[MarksListBox.ItemIndex];
+    FMarkDBGUI.MarksDb.WriteMarkId(VMark);
   end;
 end;
 
 procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
 var
-  VId: Integer;
   VMark: TMarkFull;
 begin
-  if MarksListBox.ItemIndex>=0 then begin
-    VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
-    VMark := GState.MarksDb.GetMarkByID(VId);
-    if VMark <> nil then begin
-      try
-        if FMarkDBGUI.OperationMark(VMark) then begin
-          close;
-        end;
-      finally
-        VMark.Free;
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    try
+      if FMarkDBGUI.OperationMark(VMark, GState.ViewState.GetCurrentZoom) then begin
+        close;
       end;
+    finally
+      VMark.Free;
     end;
   end;
 end;
 
 procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
 var
-  VId: Integer;
   VMark: TMarkFull;
 begin
-  if MarksListBox.ItemIndex>=0 then begin
-    VId := TMarkId(MarksListBox.Items.Objects[MarksListBox.ItemIndex]).id;
-    VMark := GState.MarksDb.GetMarkByID(VId);
-    if VMark <> nil then begin
-      try
-        Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
-      finally
-        VMark.Free
-      end;
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    try
+      Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
+    finally
+      VMark.Free
     end;
   end;
 end;
@@ -228,62 +244,33 @@ begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-      GState.MarksDb.DeleteCategoryWithMarks(VCategory);
+      FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
       UpdateCategoryTree;
+      UpdateMarksList;
     end;
   end;
 end;
 
 procedure TFMarksExplorer.SpeedButton1Click(Sender: TObject);
 var
-  VIndex: Integer;
-  VMarkId: TMarkId;
   VMark: TMarkFull;
-  VCategory: TCategoryId;
 begin
-  VIndex := MarksListBox.ItemIndex;
-  if VIndex >= 0 then begin
-    VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
-    VMark := GState.MarksDb.GetMarkByID(VMarkId.id);
-    if VMark <> nil then begin
-      try
-        if FMarkDBGUI.EditMarkModal(VMark) then begin
-          GState.MarksDb.WriteMark(VMark);
-          VCategory := GetSelectedCategory;
-          if VMark.CategoryId<>VCategory.id then begin
-            MarksListBox.Items.Objects[VIndex].Free;
-            MarksListBox.DeleteSelected;
-          end else begin
-            VMarkId.name := VMark.name;
-            VMarkId.visible := VMark.visible;
-            MarksListBox.Items.Strings[VIndex]:=VMarkId.name;
-            MarksListBox.Checked[VIndex]:=VMarkId.visible;
-          end;
-        end;
-      finally
-        VMark.Free;
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    try
+      if FMarkDBGUI.EditMarkModal(VMark) then begin
+        FMarkDBGUI.MarksDb.WriteMark(VMark);
+        UpdateMarksList;
       end;
+    finally
+      VMark.Free;
     end;
   end;
 end;
 
 procedure TFMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
-var
-  i:integer;
-  VCategory: TCategoryId;
 begin
-  if (node<>nil)and(node.Data<>nil) then begin
-    VCategory := TCategoryId(node.Data);
-    GState.MarksDb.Marsk2StringsWithMarkId(VCategory, MarksListBox.Items);
-    for i:=0 to MarksListBox.Count-1 do begin
-      MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
-    end;
-  end else begin
-    for i:=0 to MarksListBox.Count-1 do begin
-      MarksListBox.Items.Objects[i].Free;
-    end;
-    MarksListBox.Clear;
-  end;
+  UpdateMarksList;
 end;
 
 procedure TFMarksExplorer.TreeView1KeyUp(Sender: TObject; var Key: Word;
@@ -295,8 +282,9 @@ begin
     VCategory := GetSelectedCategory;
     if VCategory <> nil then begin
       if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-        GState.MarksDb.DeleteCategoryWithMarks(VCategory);
+        FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
         UpdateCategoryTree;
+        UpdateMarksList;
       end;
     end;
   end;
@@ -311,7 +299,7 @@ begin
         VCategory.visible := true;
         TreeView1.Selected.StateIndex:=1;
       end;
-      GState.MarksDb.WriteCategory(VCategory);
+      FMarkDBGUI.MarksDb.WriteCategory(VCategory);
     end;
   end;
 end;
@@ -331,19 +319,20 @@ begin
         VCategory.visible := true;
         TreeView1.GetNodeAt(X,Y).StateIndex:=1;
       end;
-      GState.MarksDb.WriteCategory(VCategory);
+      FMarkDBGUI.MarksDb.WriteCategory(VCategory);
     end;
   end;
 end;
 
 procedure TFMarksExplorer.Button1Click(Sender: TObject);
 begin
- If (OpenDialog1.Execute) then
-  if (FileExists(OpenDialog1.FileName)) then
-   begin
-    FImport.ImportFile(OpenDialog1.FileName, FMarkDBGUI);
-    Self.FormShow(sender);
-   end;
+  If (OpenDialog1.Execute) then begin
+    if (FileExists(OpenDialog1.FileName)) then begin
+      FImport.ImportFile(OpenDialog1.FileName, FMarkDBGUI);
+      UpdateCategoryTree;
+      UpdateMarksList;
+    end;
+  end;
 end;
 
 procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
@@ -353,7 +342,7 @@ begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
     if FaddCategory.EditCategory(VCategory) then begin
-      GState.MarksDb.WriteCategory(VCategory);
+      FMarkDBGUI.MarksDb.WriteCategory(VCategory);
       UpdateCategoryTree;
     end;
   end;
@@ -362,16 +351,13 @@ end;
 procedure TFMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  VIndex: Integer;
   VMarkId: TMarkId;
 begin
   If key=VK_DELETE then begin
-    VIndex := MarksListBox.ItemIndex;
-    if VIndex >= 0 then begin
-      VMarkId := TMarkId(MarksListBox.Items.Objects[VIndex]);
+    VMarkId := GetSelectedMarkId;
+    if VMarkId <> nil then begin
       if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
-        VMarkId.Free;
-        MarksListBox.DeleteSelected;
+        UpdateMarksList;
       end;
     end;
   end;
@@ -383,7 +369,7 @@ var
 begin
   if TreeView1.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
-    GState.MarksDB.SetAllCategoriesVisible(VNewVisible);
+    FMarkDBGUI.MarksDB.SetAllCategoriesVisible(VNewVisible);
     UpdateCategoryTree;
   end;
 end;
@@ -391,24 +377,35 @@ end;
 procedure TFMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
 begin
   FMarkDBGUI := AMarkDBGUI;
-  ShowModal;
+  case GState.show_point of
+    mshAll: RBall.Checked:=true;
+    mshChecked: RBchecked.Checked:=true;
+    mshNone: RBnot.Checked:=true;
+  end;
+  UpdateCategoryTree;
+  UpdateMarksList;
+  SBNavOnMark.Down:= GState.MainFormConfig.NavToPoint.IsActive;
+  try
+    ShowModal;
+  finally
+    TreeView1.OnChange:=nil;
+    TreeView1.Items.Clear;
+    MarksListBox.Clear;
+    FreeAndNil(FCategoryList);
+    FreeAndNil(FMarksList);
+  end;
 end;
 
 procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
 var
-  i:integer;
   VNewVisible: Boolean;
   VCategory: TCategoryId;
 begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
     VNewVisible := CheckBox1.Checked;
-    GState.MarksDB.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
-
-    GState.MarksDb.Marsk2StringsWithMarkId(VCategory, MarksListBox.Items);
-    for i:=0 to MarksListBox.Count-1 do begin
-      MarksListBox.Checked[i]:=TMarkId(MarksListBox.Items.Objects[i]).visible;
-    end;
+    FMarkDBGUI.MarksDB.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
+    UpdateMarksList;
   end;
 end;
 
@@ -424,7 +421,7 @@ begin
   VCategory := TCategoryId.Create;
   VCategory.id := -1;
   if FaddCategory.EditCategory(VCategory) then begin
-    GState.MarksDb.WriteCategory(VCategory);
+    FMarkDBGUI.MarksDb.WriteCategory(VCategory);
     UpdateCategoryTree;
   end else begin
     VCategory.Free;
@@ -433,23 +430,17 @@ end;
 
 procedure TFMarksExplorer.SBNavOnMarkClick(Sender: TObject);
 var
-  VIndex: Integer;
-  VId:integer;
   VMark: TMarkFull;
-  LL:TDoublePoint;
+  LL: TDoublePoint;
 begin
   if (SBNavOnMark.Down) then begin
-    VIndex := MarksListBox.ItemIndex;
-    if (VIndex >= 0) then begin
-      VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
-      VMark := GState.MarksDb.GetMarkByID(VId);
-      if VMark <> nil then begin
-        try
-          LL := VMark.GetGoToLonLat;
-          GState.MainFormConfig.NavToPoint.StartNavToMark(VId, LL);
-        finally
-          VMark.Free;
-        end;
+    VMark := GetSelectedMarkFull;
+    if VMark <> nil then begin
+      try
+        LL := VMark.GetGoToLonLat;
+        GState.MainFormConfig.NavToPoint.StartNavToMark(VMark.id, LL);
+      finally
+        VMark.Free;
       end;
     end else begin
       SBNavOnMark.Down:=not SBNavOnMark.Down
@@ -457,18 +448,6 @@ begin
   end else begin
     GState.MainFormConfig.NavToPoint.StopNav;
   end;
-end;
-
-procedure TFMarksExplorer.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-var
-  i: integer;
-begin
- for i:=0 to MarksListBox.items.Count - 1 do MarksListBox.Items.Objects[i].Free;
- MarksListBox.Clear;
- TreeView1.OnChange:=nil;
- TreeView1.Items.Clear;
-  FreeAndNil(FCategoryList);
 end;
 
 end.

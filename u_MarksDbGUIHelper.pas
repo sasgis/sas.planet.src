@@ -7,6 +7,7 @@ uses
   Classes,
   ComCtrls,
   t_GeoTypes,
+  i_ICoordConverter,
   u_MarksSimple,
   u_MarksReadWriteSimple;
 
@@ -20,10 +21,10 @@ type
     procedure MarksListToStrings(AList: TList; AStrings: TStrings);
 
     function DeleteMarkModal(id:integer;handle:THandle):boolean;
-    function OperationMark(AMark: TMarkFull):boolean;
+    function OperationMark(AMark: TMarkFull; AZoom: Byte):boolean;
     function AddKategory(name:string): integer;
-    function GetMarkLength(AMark: TMarkFull):Double;
-    function GetMarkSq(AMark: TMarkFull):Double;
+    function GetMarkLength(AMark: TMarkFull; AConverter: ICoordConverter):Double;
+    function GetMarkSq(AMark: TMarkFull; AConverter: ICoordConverter):Double;
     function EditMarkModal(AMark: TMarkFull):boolean;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
@@ -38,8 +39,6 @@ implementation
 uses
   SysUtils,
   Dialogs,
-  i_ICoordConverter,
-  u_GlobalState,
   UResStrings,
   USaveas,
   UaddPoint,
@@ -216,38 +215,33 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.GetMarkLength(AMark: TMarkFull): Double;
+function TMarksDbGUIHelper.GetMarkLength(AMark: TMarkFull; AConverter: ICoordConverter): Double;
 var
   i:integer;
-  VConverter: ICoordConverter;
   VPointCount: Integer;
 begin
   Result:=0;
-  VConverter := GState.ViewState.GetCurrentCoordConverter;
   VPointCount := Length(AMark.Points);
   if (VPointCount > 1) then begin
     for i:=0 to VPointCount-2 do begin
-      Result:=Result+ VConverter.CalcDist(AMark.Points[i], AMark.Points[i+1]);
+      Result:=Result+ AConverter.CalcDist(AMark.Points[i], AMark.Points[i+1]);
     end;
   end;
 end;
 
-function TMarksDbGUIHelper.GetMarkSq(AMark: TMarkFull): Double;
-var
-  VConverter: ICoordConverter;
+function TMarksDbGUIHelper.GetMarkSq(AMark: TMarkFull; AConverter: ICoordConverter): Double;
 begin
   Result:=0;
-  VConverter := GState.ViewState.GetCurrentCoordConverter;
   if (Length(AMark.Points) > 1) then begin
-    result:= VConverter.CalcPoligonArea(AMark.Points);
+    result:= AConverter.CalcPoligonArea(AMark.Points);
   end;
 end;
 
-function TMarksDbGUIHelper.OperationMark(AMark: TMarkFull): boolean;
+function TMarksDbGUIHelper.OperationMark(AMark: TMarkFull; AZoom: Byte): boolean;
 begin
   Result:=false;
   if AMark.IsPoly then begin
-    Fsaveas.Show_(GState.ViewState.GetCurrentZoom, AMark.Points);
+    Fsaveas.Show_(AZoom, AMark.Points);
     Result:=true;
   end else begin
     ShowMessage(SAS_MSG_FunExForPoly);
