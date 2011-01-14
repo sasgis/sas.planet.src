@@ -228,7 +228,7 @@ var
   VScale1: Integer;
   VPointCount: Integer;
   VMarksIterator: TMarksIteratorBase;
-  VMark: TMarkFull;
+  VMark: IMarkFull;
 begin
   VMarksIterator := GState.MarksDb.GetMarksIterator(FZoom, FLLRect, FShowType);
   try

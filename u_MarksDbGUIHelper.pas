@@ -29,6 +29,9 @@ type
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
     function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
+    function GetVisibleCateroriesIDList(AZoom: Byte): TList;
+    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
+
     property MarksDB: TMarksDB read FMarksDB;
   public
     constructor Create(AMarksDB: TMarksDB);
@@ -229,11 +232,47 @@ begin
   end;
 end;
 
+function TMarksDbGUIHelper.GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible,
+  AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
+var
+  VList: TList;
+begin
+  VList := nil;
+  if not AIgnoreCategoriesVisible then begin
+    VList := GetVisibleCateroriesIDList(AZoom);
+  end;
+  Result := FMarksDB.GetMarksIteratorByCategoryIdList(ARect, VList, AIgnoreMarksVisible, True);
+end;
+
 function TMarksDbGUIHelper.GetMarkSq(AMark: TMarkFull; AConverter: ICoordConverter): Double;
 begin
   Result:=0;
   if (Length(AMark.Points) > 1) then begin
     result:= AConverter.CalcPoligonArea(AMark.Points);
+  end;
+end;
+
+function TMarksDbGUIHelper.GetVisibleCateroriesIDList(AZoom: Byte): TList;
+var
+  VList: TList;
+  VCategory: TCategoryId;
+  i: Integer;
+begin
+  Result := TList.Create;
+  VList := FMarksDB.GetCategoriesList;
+  try
+    for i := 0 to VList.Count - 1 do begin
+      VCategory := TCategoryId(VList[i]);
+      if
+        (VCategory.visible) and
+        (VCategory.AfterScale <= AZoom + 1) and
+        (VCategory.BeforeScale >= AZoom + 1)
+      then begin
+        Result.Add(Pointer(VCategory.id));
+      end;
+    end;
+  finally
+    VList.Free;
   end;
 end;
 

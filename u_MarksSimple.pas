@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_MarksSimple,
   i_IMarkPicture;
 
 type
@@ -16,45 +17,14 @@ type
     visible: boolean;
   end;
 
-  TMarkId = class
-    name: string;
-    id: integer;
-    visible: boolean;
-  end;
-
-  TMarkFull = class(TMarkId)
-  private
-    FPicName: string;
-    FPic: IMarkPicture;
-  public
-    CategoryId: Integer;
-    Desc: string;
-    LLRect: TDoubleRect;
-    Points: TDoublePointArray;
-    Color1: TColor32;
-    Color2: TColor32;
-    Scale1: Integer;
-    Scale2: Integer;
-    function IsEmpty: Boolean;
-    function IsPoint: Boolean;
-    function IsLine: Boolean;
-    function IsPoly: Boolean;
-    procedure ClosePoly;
-    function GetGoToLonLat: TDoublePoint;
-    procedure Assign(ASource: TMarkFull);
-    procedure SetPic(const APic: IMarkPicture; const APicName: string);
-    property PicName: string read FPicName;
-    property Pic: IMarkPicture read FPic;
-  end;
-
   TMarksIteratorBase = class
   protected
-    FCurrentMark: TMarkFull;
+    FCurrentMark: IMarkFull;
   public
     constructor Create;
     destructor Destroy; override;
     function Next: Boolean; virtual; abstract;
-    property Current: TMarkFull read FCurrentMark;
+    property Current: IMarkFull read FCurrentMark;
   end;
 
 implementation
@@ -64,103 +34,38 @@ uses
 
 { TMarkFull }
 
-procedure TMarkFull.Assign(ASource: TMarkFull);
-begin
-  Self.name := ASource.name;
-  Self.id := ASource.id;
-  Self.visible := ASource.visible;
-  Self.CategoryId := ASource.CategoryId;
-  Self.Desc := ASource.Desc;
-  Self.LLRect := ASource.LLRect;
-  Self.Points := Copy(ASource.Points);
-  Self.FPicName := ASource.FPicName;
-  Self.FPic := ASource.FPic;
-  Self.Color1 := ASource.Color1;
-  Self.Color2 := ASource.Color2;
-  Self.Scale1 := ASource.Scale1;
-  Self.Scale2 := ASource.Scale2;
-end;
+//procedure TMarkFull.ClosePoly;
+//var
+//  VPointCount: Integer;
+//begin
+//  VPointCount := Length(Points);
+//  if VPointCount > 1 then begin
+//    if (Points[0].X <> Points[VPointCount - 1].X) or
+//      (Points[0].Y <> Points[VPointCount - 1].Y) then begin
+//      SetLength(Points, VPointCount + 1);
+//      Points[VPointCount] := Points[0];
+//    end;
+//  end;
+//end;
+//
 
-procedure TMarkFull.ClosePoly;
-var
-  VPointCount: Integer;
-begin
-  VPointCount := Length(Points);
-  if VPointCount > 1 then begin
-    if (Points[0].X <> Points[VPointCount - 1].X) or
-      (Points[0].Y <> Points[VPointCount - 1].Y) then begin
-      SetLength(Points, VPointCount + 1);
-      Points[VPointCount] := Points[0];
-    end;
-  end;
-end;
-
-function TMarkFull.GetGoToLonLat: TDoublePoint;
-begin
-  Result.X := 0;
-  Result.Y := 0;
-  if IsPoint then begin
-    Result := Points[0];
-  end else if IsPoly then begin
-    Result.X := (LLRect.Left + LLRect.Right) / 2;
-    Result.Y := (LLRect.Top + LLRect.Bottom) / 2;
-  end else if IsLine then begin
-    Result := Points[0];
-  end;
-end;
-
-function TMarkFull.IsEmpty: Boolean;
-begin
-  Result := Length(Points) = 0;
-end;
-
-function TMarkFull.IsLine: Boolean;
-var
-  VPointCount: Integer;
-begin
-  VPointCount := Length(Points);
-  if VPointCount > 1 then begin
-    Result := (Points[0].X <> Points[VPointCount - 1].X) or
-      (Points[0].Y <> Points[VPointCount - 1].Y);
-  end else begin
-    Result := False;
-  end;
-end;
-
-function TMarkFull.IsPoint: Boolean;
-begin
-  Result := Length(Points) = 1;
-end;
-
-function TMarkFull.IsPoly: Boolean;
-var
-  VPointCount: Integer;
-begin
-  VPointCount := Length(Points);
-  if VPointCount > 1 then begin
-    Result := (Points[0].X = Points[VPointCount - 1].X) and
-      (Points[0].Y = Points[VPointCount - 1].Y);
-  end else begin
-    Result := False;
-  end;
-end;
-
-procedure TMarkFull.SetPic(const APic: IMarkPicture; const APicName: string);
-begin
-  FPic := APic;
-  FPicName := APicName;
-end;
+//
+//procedure TMarkFull.SetPic(const APic: IMarkPicture; const APicName: string);
+//begin
+//  FPic := APic;
+//  FPicName := APicName;
+//end;
 
 { TMarksIteratorBase }
 
 constructor TMarksIteratorBase.Create;
 begin
-  FCurrentMark := TMarkFull.Create;
+//  FCurrentMark := TMarkFull.Create;
 end;
 
 destructor TMarksIteratorBase.Destroy;
 begin
-  FreeAndNil(FCurrentMark);
+//  FreeAndNil(FCurrentMark);
   inherited;
 end;
 
