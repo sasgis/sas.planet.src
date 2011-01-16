@@ -101,6 +101,7 @@ uses
   i_IMarkPicture,
   u_MarksSimple,
   u_MarksReadWriteSimple,
+  Ugeofun,
   t_GeoTypes;
 
 {$R *.dfm}
@@ -240,6 +241,8 @@ var
   VMarkTemplateLine: IMarkFull;
   VMarkTemplatePoly: IMarkFull;
   VMark: IMarkFull;
+  VPic: IMarkPicture;
+  VPicName: string;
 begin
   VCategory := nil;
   VIndex := CBKateg.ItemIndex;
@@ -257,24 +260,45 @@ begin
   VMarkTemplatePoint := nil;
   markignor:=CBMarkIgnor.Checked;
   if not markignor then begin
-    VMarkTemplatePoint := TMarkFull.Create;
-    VMarkTemplatePoint.id := -1;
-    VMarkTemplatePoint.visible := True;
-    VMarkTemplatePoint.Scale1:=SpinEdit1.Value;
-    VMarkTemplatePoint.Scale2:=SpinEdit2.Value;
-    VMarkTemplatePoint.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
-    VMarkTemplatePoint.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
     VIndex := ComboBox1.ItemIndex;
     if VIndex < 0 then begin
-      VMarkTemplatePoint.SetPic(nil, '');
+      VPic := nil;
+      VPicName := '';
     end else begin
-      VMarkTemplatePoint.SetPic(IMarkPicture(Pointer(ComboBox1.Items.Objects[VIndex])), ColorBox1.Items.Strings[VIndex]);
+      VPic := IMarkPicture(Pointer(ComboBox1.Items.Objects[VIndex]));
+      VPicName := ColorBox1.Items.Strings[VIndex];
     end;
-    VMarkTemplatePoint.CategoryId:=VId;
+    VMarkTemplatePoint :=
+      FMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoint(
+        '',
+        True,
+        VPicName,
+        VPic,
+        VId,
+        '',
+        DoublePoint(0, 0),
+        SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
+        SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
+        SpinEdit1.Value,
+        SpinEdit2.Value
+      );
   end;
   VMarkTemplateLine := nil;
   pathignor:=CBPathIgnor.Checked;
   if not pathignor then begin
+      FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
+        '',
+        True,
+        VPicName,
+        VPic,
+        VId,
+        '',
+        DoublePoint(0, 0),
+        SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
+        SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
+        SpinEdit1.Value,
+        SpinEdit2.Value
+      );
     VMarkTemplateLine := TMarkFull.Create;
     VMarkTemplateLine.id := -1;
     VMarkTemplateLine.visible:=true;
