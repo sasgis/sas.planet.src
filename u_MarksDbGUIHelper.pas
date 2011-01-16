@@ -8,6 +8,7 @@ uses
   ComCtrls,
   t_GeoTypes,
   i_ICoordConverter,
+  i_MarksSimple,
   u_MarksSimple,
   u_MarksReadWriteSimple;
 
@@ -18,14 +19,14 @@ type
   public
     procedure CategoryListToStrings(AList: TList; AStrings: TStrings);
     procedure CategoryListToTree(AList: TList; ATreeItems: TTreeNodes);
-    procedure MarksListToStrings(AList: TList; AStrings: TStrings);
+    procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(id:integer;handle:THandle):boolean;
-    function OperationMark(AMark: TMarkFull; AZoom: Byte):boolean;
+    function OperationMark(AMark: IMarkFull; AZoom: Byte):boolean;
     function AddKategory(name:string): integer;
-    function GetMarkLength(AMark: TMarkFull; AConverter: ICoordConverter):Double;
-    function GetMarkSq(AMark: TMarkFull; AConverter: ICoordConverter):Double;
-    function EditMarkModal(AMark: TMarkFull):boolean;
+    function GetMarkLength(AMark: IMarkFull; AConverter: ICoordConverter):Double;
+    function GetMarkSq(AMark: IMarkFull; AConverter: ICoordConverter):Double;
+    function EditMarkModal(AMark: IMarkFull):boolean;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
     function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
@@ -86,16 +87,16 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.MarksListToStrings(AList: TList;
+procedure TMarksDbGUIHelper.MarksListToStrings(AList: IInterfaceList;
   AStrings: TStrings);
 var
   i: Integer;
-  VMarkId: TMarkId;
+  VMarkId: IMarkId;
 begin
   AStrings.Clear;
   for i := 0 to AList.Count - 1 do begin
-    VMarkId := TMarkId(AList[i]);
-    AStrings.AddObject(VMarkId.name, VMarkId);
+    VMarkId := IMarkId(AList[i]);
+    AStrings.AddObject(VMarkId.name, Pointer(VMarkId));
   end;
 end;
 

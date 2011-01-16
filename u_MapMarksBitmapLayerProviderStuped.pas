@@ -8,6 +8,7 @@ uses
   graphics,
   i_ICoordConverter,
   i_IMarkPicture,
+  i_MarksSimple,
   i_IBitmapLayerProvider,
   WinTypes;
 
@@ -230,7 +231,7 @@ var
   VMarksIterator: TMarksIteratorBase;
   VMark: IMarkFull;
 begin
-  VMarksIterator := GState.MarksDb.GetMarksIterator(FZoom, FLLRect, FShowType);
+  VMarksIterator := GState.MarksDb.MarksDb.GetMarksIteratorByCategoryIdList(FLLRect, nil, True, False);
   try
     While VMarksIterator.Next do begin
       VMark := VMarksIterator.Current;

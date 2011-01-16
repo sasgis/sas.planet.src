@@ -12,6 +12,7 @@ uses
   dm_MarksDb,
   i_IMarkPicture,
   i_MarksSimple,
+  u_MarkFactory,
   u_MarksSimple;
 
 type
@@ -20,6 +21,7 @@ type
     FBasePath: string;
     FMarkPictureList: IMarkPictureList;
     FDMMarksDb: TDMMarksDb;
+    FFactory: TMarkFactory;
     function ReadCurrentMark: IMarkFull;
     function ReadCurrentMarkId: IMarkId;
     procedure WriteCurrentMarkId(AMark: IMarkId);
@@ -40,6 +42,7 @@ type
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
+    property Factory: TMarkFactory read FFactory;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(AId: Integer): IInterfaceList;
 

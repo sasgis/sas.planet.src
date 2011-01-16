@@ -469,6 +469,7 @@
     <DCCReference Include="u_MarkBasic.pas" />
     <DCCReference Include="u_MarkCategory.pas" />
     <DCCReference Include="u_MarkCategoryDB.pas" />
+    <DCCReference Include="u_MarkFactory.pas" />
     <DCCReference Include="u_MarkPictureListSimple.pas" />
     <DCCReference Include="u_MarkPictureSimple.pas" />
     <DCCReference Include="u_MarksDbGUIHelper.pas" />

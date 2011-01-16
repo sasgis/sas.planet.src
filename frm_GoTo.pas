@@ -59,6 +59,7 @@ implementation
 uses
   c_GeoCoderGUIDSimple,
   i_IGeoCoderList,
+  i_MarksSimple,
   u_GlobalState,
   u_GeoCodeResult,
   u_GeoCodePalcemark,
@@ -84,20 +85,16 @@ procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
   textsrch:String;
   VId: Integer;
-  VMark: TMarkFull;
+  VMark: IMarkFull;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
 begin
   if RB3.Checked then begin
     if cbbAllMarks.ItemIndex>-1 then begin
-      VId := TMarkId(cbbAllMarks.Items.Objects[cbbAllMarks.ItemIndex]).id;
-      VMark := GState.MarksDb.GetMarkByID(VId);
-      try
+      VId := IMarkId(Pointer(cbbAllMarks.Items.Objects[cbbAllMarks.ItemIndex])).id;
+      VMark := GState.MarksDb.MarksDb.GetMarkByID(VId);
         VLonLat := VMark.GetGoToLonLat;
         FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
-      finally
-        VMark.Free
-      end;
       ModalResult := mrOk;
     end else begin
       ModalResult := mrCancel;
@@ -145,13 +142,13 @@ function TfrmGoTo.ShowGeocodeModal(
   AMarkDBGUI: TMarksDbGUIHelper
 ): Boolean;
 var
-  VMarksList: TList;
+  VMarksList: IInterfaceList;
 begin
   FMarkDBGUI := AMarkDBGUI;
   frLonLatPoint.Parent := pnlLonLat;
   cbbZoom.ItemIndex := Azoom;
   frLonLatPoint.LonLat := GState.ViewState.GetCenterLonLat;
-  VMarksList := FMarkDBGUI.MarksDB.GetAllMarskIdList;
+  VMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
   try
     FMarkDBGUI.MarksListToStrings(VMarksList, cbbAllMarks.Items);
     if ShowModal = mrOk then begin

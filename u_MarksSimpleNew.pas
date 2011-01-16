@@ -142,22 +142,22 @@ end;
 
 function TMarkFull.GetCategoryId: Integer;
 begin
-
+  Result := FCategoryId;
 end;
 
 function TMarkFull.GetColor1: TColor32;
 begin
-
+  Result := FColor1;
 end;
 
 function TMarkFull.GetColor2: TColor32;
 begin
-
+  Result := FColor2;
 end;
 
 function TMarkFull.GetDesc: string;
 begin
-
+  Result := FDesc;
 end;
 
 function TMarkFull.GetGoToLonLat: TDoublePoint;
@@ -176,32 +176,32 @@ end;
 
 function TMarkFull.GetLLRect: TDoubleRect;
 begin
-
+  Result := FLLRect;
 end;
 
 function TMarkFull.GetPic: IMarkPicture;
 begin
-
+  Result := FPic;
 end;
 
 function TMarkFull.GetPicName: string;
 begin
-
+  Result := FPicName;
 end;
 
 function TMarkFull.GetPoints: TDoublePointArray;
 begin
-
+  Result := FPoints;
 end;
 
 function TMarkFull.GetScale1: Integer;
 begin
-
+  Result := FScale1;
 end;
 
 function TMarkFull.GetScale2: Integer;
 begin
-
+  Result := FScale2;
 end;
 
 function TMarkFull.IsEmpty: Boolean;

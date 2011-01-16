@@ -201,6 +201,7 @@ uses
   i_MarksSimple in 'i_MarksSimple.pas',
   u_MarksSimpleNew in 'u_MarksSimpleNew.pas',
   u_MarksOnlyDb in 'u_MarksOnlyDb.pas',
+  u_MarkFactory in 'u_MarkFactory.pas',
   u_MarkCategoryDB in 'u_MarkCategoryDB.pas',
   u_MarksSimple in 'u_MarksSimple.pas',
   u_MarksReadWriteSimple in 'u_MarksReadWriteSimple.pas',

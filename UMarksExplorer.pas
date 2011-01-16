@@ -16,6 +16,7 @@ uses
   UResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
+  i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
   Unit1, ComCtrls, ImgList;
@@ -80,8 +81,8 @@ type
     procedure UpdateCategoryTree;
     function GetSelectedCategory: TCategoryId;
     procedure UpdateMarksList;
-    function GetSelectedMarkId: TMarkId;
-    function GetSelectedMarkFull: TMarkFull;
+    function GetSelectedMarkId: IMarkId;
+    function GetSelectedMarkFull: IMarkFull;
   public
     procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
   end;

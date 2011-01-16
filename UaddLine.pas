@@ -17,6 +17,7 @@ uses
   u_CommonFormAndFrameParents,
   UResStrings,
   UMarksExplorer,
+  i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
   fr_MarkDescription,
@@ -50,13 +51,13 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FMark: TMarkFull;
+    FMark: IMarkFull;
     frMarkDescription: TfrMarkDescription;
     FMarkDBGUI: TMarksDbGUIHelper;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function EditMark(AMark: TMarkFull; AMarkDBGUI: TMarksDbGUIHelper):boolean;
+    function EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
     procedure RefreshTranslation; override;
   end;
 
@@ -71,50 +72,74 @@ uses
 
 {$R *.dfm}
 
-function TFaddLine.EditMark(AMark: TMarkFull; AMarkDBGUI: TMarksDbGUIHelper): boolean;
+function TFaddLine.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
 var
   namecatbuf:string;
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
   VCategoryList: TList;
+  VIndex: Integer;
 begin
   FMark := AMark;
   FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description := '';
   EditName.Text:=SAS_STR_NewPath;
   namecatbuf:=CBKateg.Text;
-  VCategoryList := FMarkDBGUI.MarksDB.GetCategoriesList;
+  VCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try
     FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
     CBKateg.Sorted:=true;
     CBKateg.Text:=namecatbuf;
-    if FMark.id < 0 then begin
-      Caption:=SAS_STR_AddNewPath;
-      Badd.Caption:=SAS_STR_Add;
-      CheckBox2.Checked:=true;
-      if FMark.Desc<>'' then frMarkDescription.Description := FMark.Desc;
-    end else begin
-      Caption:=SAS_STR_EditPath;
-      Badd.Caption:=SAS_STR_Edit;
-      EditName.Text:=FMark.name;
-      frMarkDescription.Description := FMark.Desc;
-      SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
-      SpinEdit1.Value:=FMark.Scale1;
-      ColorBox1.Selected:=WinColor(FMark.Color1);
-      CheckBox2.Checked:=FMark.visible;
-      VId := FMark.CategoryId;
-      for i := 0 to CBKateg.Items.Count - 1 do begin
-        VCategory := TCategoryId(CBKateg.Items.Objects[i]);
-        if VCategory <> nil then begin
-          if VCategory.id = VId then begin
-            CBKateg.ItemIndex := i;
-            Break;
-          end;
+    EditName.Text:=FMark.name;
+    frMarkDescription.Description := FMark.Desc;
+    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
+    SpinEdit1.Value:=FMark.Scale1;
+    ColorBox1.Selected:=WinColor(FMark.Color1);
+    CheckBox2.Checked:=(FMark as IMarkVisible).visible;
+    VId := FMark.CategoryId;
+    for i := 0 to CBKateg.Items.Count - 1 do begin
+      VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+      if VCategory <> nil then begin
+        if VCategory.id = VId then begin
+          CBKateg.ItemIndex := i;
+          Break;
         end;
       end;
     end;
-    result:= ShowModal=mrOk;
+    if FMark.id < 0 then begin
+      Caption:=SAS_STR_AddNewPath;
+      Badd.Caption:=SAS_STR_Add;
+    end else begin
+      Caption:=SAS_STR_EditPath;
+      Badd.Caption:=SAS_STR_Edit;
+    end;
+    if ShowModal=mrOk then begin
+      VCategory := nil;
+      VIndex := CBKateg.ItemIndex;
+      if VIndex < 0 then begin
+        VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
+      end;
+      if VIndex >= 0 then begin
+        VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
+      end;
+      if VCategory <> nil then begin
+        VId := VCategory.id;
+      end else begin
+        VId := -1;
+      end;
+      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
+        EditName.Text,
+        CheckBox2.Checked,
+        VId,
+        frMarkDescription.Description,
+        FMark.Points,
+        SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
+        SpinEdit1.Value
+      );
+    end else begin
+      Result := nil;
+    end;
   finally
     FreeAndNil(VCategoryList);
   end;
@@ -145,23 +170,6 @@ var i:integer;
     VIndex: Integer;
     VId: Integer;
 begin
- alltl:=FMark.Points[0];
- allbr:=FMark.Points[0];
- VPointCount := Length(FMark.Points);
- for i:=1 to VPointCount-1 do
-  begin
-   if alltl.x>FMark.Points[i].x then alltl.x:=FMark.Points[i].x;
-   if alltl.y<FMark.Points[i].y then alltl.y:=FMark.Points[i].y;
-   if allbr.x<FMark.Points[i].x then allbr.x:=FMark.Points[i].x;
-   if allbr.y>FMark.Points[i].y then allbr.y:=FMark.Points[i].y;
-  end;
-  FMark.name:=EditName.Text;
-  FMark.Desc:=frMarkDescription.Description;
-  FMark.Scale1:=SpinEdit1.Value;
-  FMark.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
-  FMark.visible:=CheckBox2.Checked;
-  FMark.LLRect.TopLeft := alltl;
-  FMark.LLRect.BottomRight := allbr;
 
   VCategory := nil;
   VIndex := CBKateg.ItemIndex;
@@ -176,8 +184,6 @@ begin
   end else begin
     VId := FMarkDBGUI.AddKategory(CBKateg.Text);
   end;
-
-  FMark.CategoryId := VId;
   ModalResult:=mrOk;
 end;
 
