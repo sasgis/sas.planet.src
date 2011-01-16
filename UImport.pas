@@ -17,6 +17,8 @@ uses
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
+  u_KmlInfoSimple,
+  i_MarksSimple,
   u_MarksDbGUIHelper,
   UMarksExplorer,
   UPLT;
@@ -83,6 +85,8 @@ type
     { Private declarations }
     FileName:string;
     FMarkDBGUI: TMarksDbGUIHelper;
+    function KMLDataToMark(ASource: TKMLData; ATemplate: IMarkFull): IMarkFull;
+    function PLTDataToMark(ASource: TPLTData; ATemplate: IMarkFull): IMarkFull;
   public
     function ImportFile(AFileName: string; AMarkDBGUI: TMarksDbGUIHelper): Boolean;
   end;
@@ -95,54 +99,37 @@ implementation
 uses
   u_GlobalState,
   i_IMarkPicture,
-  u_KmlInfoSimple,
   u_MarksSimple,
   u_MarksReadWriteSimple,
   t_GeoTypes;
 
-procedure KMLDataToMark(ASource: TKMLData; ATarget: TMarkFull);
-var
-  alltl,allbr:TDoublePoint;
-  j: Integer;
-begin
-  ATarget.name := ASource.Name;
-  ATarget.Desc := ASource.description;
-  ATarget.Points := Copy(ASource.coordinates);
-
-  alltl:=ATarget.Points[0];
-  allbr:=ATarget.Points[0];
-  for j:=1 to Length(ATarget.Points)-1 do begin
-    if alltl.x>ATarget.Points[j].x then alltl.x:=ATarget.Points[j].x;
-    if alltl.y<ATarget.Points[j].y then alltl.y:=ATarget.Points[j].y;
-    if allbr.x<ATarget.Points[j].x then allbr.x:=ATarget.Points[j].x;
-    if allbr.y>ATarget.Points[j].y then allbr.y:=ATarget.Points[j].y;
-  end;
-  ATarget.LLRect.TopLeft := alltl;
-  ATarget.LLRect.BottomRight := allbr;
-end;
-
-procedure PLTDataToMark(ASource: TPLTData; ATarget: TMarkFull);
-var
-  alltl,allbr:TDoublePoint;
-  j: Integer;
-begin
-  ATarget.name := ASource.Name;
-  ATarget.Desc := ASource.description;
-  ATarget.Points := Copy(ASource.coordinates);
-
-  alltl:=ATarget.Points[0];
-  allbr:=ATarget.Points[0];
-  for j:=1 to Length(ATarget.Points)-1 do begin
-    if alltl.x>ATarget.Points[j].x then alltl.x:=ATarget.Points[j].x;
-    if alltl.y<ATarget.Points[j].y then alltl.y:=ATarget.Points[j].y;
-    if allbr.x<ATarget.Points[j].x then allbr.x:=ATarget.Points[j].x;
-    if allbr.y>ATarget.Points[j].y then allbr.y:=ATarget.Points[j].y;
-  end;
-  ATarget.LLRect.TopLeft := alltl;
-  ATarget.LLRect.BottomRight := allbr;
-end;
-
 {$R *.dfm}
+
+function TFImport.KMLDataToMark(ASource: TKMLData; ATemplate: IMarkFull): IMarkFull;
+begin
+  Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
+    ASource.Name,
+    (ATemplate as IMarkVisible).Visible,
+    ATemplate.CategoryId,
+    ASource.description,
+    ASource.coordinates,
+    ATemplate.Color1,
+    ATemplate.Scale1
+  );
+end;
+
+function TFImport.PLTDataToMark(ASource: TPLTData; ATemplate: IMarkFull): IMarkFull;
+begin
+  Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
+    ASource.Name,
+    (ATemplate as IMarkVisible).Visible,
+    ATemplate.CategoryId,
+    ASource.description,
+    ASource.coordinates,
+    ATemplate.Color1,
+    ATemplate.Scale1
+  );
+end;
 
 procedure TFImport.SpeedButton1Click(Sender: TObject);
 begin
@@ -199,7 +186,7 @@ var
   i: Integer;
   VPictureList: IMarkPictureList;
 begin
-  VPictureList := GState.MarksDB.MarkPictureList;
+  VPictureList := GState.MarksDB.MarksDb.MarkPictureList;
   ComboBox1.Items.Clear;
   for i := 0 to VPictureList.Count - 1 do begin
     ComboBox1.Items.AddObject(VPictureList.GetName(i), Pointer(VPictureList.Get(i)));
@@ -229,7 +216,7 @@ var
 begin
   FileName := AFileName;
   FMarkDBGUI := AMarkDBGUI;
-  VCategoryList := FMarkDBGUI.MarksDB.GetCategoriesList;
+  VCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try
     FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
     Result := ShowModal = mrOk;
@@ -249,71 +236,64 @@ var
   VCategory: TCategoryId;
   VIndex: Integer;
   VId: Integer;
-  VMarkTemplatePoint: TMarkFull;
-  VMarkTemplateLine: TMarkFull;
-  VMarkTemplatePoly: TMarkFull;
-  VMark: TMarkFull;
+  VMarkTemplatePoint: IMarkFull;
+  VMarkTemplateLine: IMarkFull;
+  VMarkTemplatePoly: IMarkFull;
+  VMark: IMarkFull;
 begin
- VMarkTemplatePoint := nil;
- markignor:=CBMarkIgnor.Checked;
- if not markignor then begin
-  VMarkTemplatePoint := TMarkFull.Create;
- end;
-  VMarkTemplateLine := nil;
- pathignor:=CBPathIgnor.Checked;
- if not pathignor then begin
-  VMarkTemplateLine := TMarkFull.Create;
- end;
-  VMarkTemplatePoly := nil;
- polyignor:=CBPolyIgnor.Checked;
- if not polyignor then begin
-  VMarkTemplatePoly := TMarkFull.Create;
- end;
-
- try
-    VCategory := nil;
-    VIndex := CBKateg.ItemIndex;
+  VCategory := nil;
+  VIndex := CBKateg.ItemIndex;
+  if VIndex < 0 then begin
+    VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
+  end;
+  if VIndex >= 0 then begin
+    VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
+  end;
+  if VCategory <> nil then begin
+    VId := VCategory.id;
+  end else begin
+    VId := FMarkDBGUI.AddKategory(CBKateg.Text);
+  end;
+  VMarkTemplatePoint := nil;
+  markignor:=CBMarkIgnor.Checked;
+  if not markignor then begin
+    VMarkTemplatePoint := TMarkFull.Create;
+    VMarkTemplatePoint.id := -1;
+    VMarkTemplatePoint.visible := True;
+    VMarkTemplatePoint.Scale1:=SpinEdit1.Value;
+    VMarkTemplatePoint.Scale2:=SpinEdit2.Value;
+    VMarkTemplatePoint.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
+    VMarkTemplatePoint.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
+    VIndex := ComboBox1.ItemIndex;
     if VIndex < 0 then begin
-      VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
-    end;
-    if VIndex >= 0 then begin
-      VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
-    end;
-    if VCategory <> nil then begin
-      VId := VCategory.id;
+      VMarkTemplatePoint.SetPic(nil, '');
     end else begin
-      VId := FMarkDBGUI.AddKategory(CBKateg.Text);
+      VMarkTemplatePoint.SetPic(IMarkPicture(Pointer(ComboBox1.Items.Objects[VIndex])), ColorBox1.Items.Strings[VIndex]);
     end;
-    if VMarkTemplatePoint <> nil then begin
-      VMarkTemplatePoint.id := -1;
-      VMarkTemplatePoint.visible := True;
-      VMarkTemplatePoint.Scale1:=SpinEdit1.Value;
-      VMarkTemplatePoint.Scale2:=SpinEdit2.Value;
-      VMarkTemplatePoint.Color1:=SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256));
-      VMarkTemplatePoint.Color2:=SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256));
-      VIndex := ComboBox1.ItemIndex;
-      if VIndex < 0 then begin
-        VMarkTemplatePoint.SetPic(nil, '');
-      end else begin
-        VMarkTemplatePoint.SetPic(IMarkPicture(Pointer(ComboBox1.Items.Objects[VIndex])), ColorBox1.Items.Strings[VIndex]);
-      end;
-      VMarkTemplatePoint.CategoryId:=VId;
-    end;
-    if VMarkTemplateLine <> nil then begin
-      VMarkTemplateLine.id := -1;
-      VMarkTemplateLine.visible:=true;
-      VMarkTemplateLine.Scale1:=SpinEdit3.Value;
-      VMarkTemplateLine.Color1:=SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256));
-      VMarkTemplateLine.CategoryId:=VId;
-    end;
-    if VMarkTemplatePoly <> nil then begin
-      VMarkTemplatePoly.id := -1;
-      VMarkTemplatePoly.visible:=true;
-      VMarkTemplatePoly.Scale1:=SpinEdit5.Value;
-      VMarkTemplatePoly.Color1:=SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256));
-      VMarkTemplatePoly.Color2:=SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256));
-      VMarkTemplatePoly.CategoryId:=VId;
-    end;
+    VMarkTemplatePoint.CategoryId:=VId;
+  end;
+  VMarkTemplateLine := nil;
+  pathignor:=CBPathIgnor.Checked;
+  if not pathignor then begin
+    VMarkTemplateLine := TMarkFull.Create;
+    VMarkTemplateLine.id := -1;
+    VMarkTemplateLine.visible:=true;
+    VMarkTemplateLine.Scale1:=SpinEdit3.Value;
+    VMarkTemplateLine.Color1:=SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256));
+    VMarkTemplateLine.CategoryId:=VId;
+  end;
+  VMarkTemplatePoly := nil;
+  polyignor:=CBPolyIgnor.Checked;
+  if not polyignor then begin
+    VMarkTemplatePoly := TMarkFull.Create;
+    VMarkTemplatePoly.id := -1;
+    VMarkTemplatePoly.visible:=true;
+    VMarkTemplatePoly.Scale1:=SpinEdit5.Value;
+    VMarkTemplatePoly.Color1:=SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256));
+    VMarkTemplatePoly.Color2:=SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256));
+    VMarkTemplatePoly.CategoryId:=VId;
+  end;
+
    if (LowerCase(ExtractFileExt(FileName))='.kml') or (LowerCase(ExtractFileExt(FileName))='.kmz') then
     begin
      KML:=TKmlInfoSimple.Create;
@@ -329,27 +309,20 @@ begin
         VMark := nil;
         if KML.Data[i].IsPoint then begin
           if VMarkTemplatePoint <> nil then begin
-            VMark := TMarkFull.Create;
-            VMark.Assign(VMarkTemplatePoint);
+            VMark := VMarkTemplatePoint;
           end;
         end else if KML.Data[i].IsPoly then begin
           if VMarkTemplatePoly <> nil then begin
-            VMark := TMarkFull.Create;
-            VMark.Assign(VMarkTemplatePoly);
+            VMark := VMarkTemplatePoly;
           end;
         end else if KML.Data[i].IsLine then begin
           if VMarkTemplateLine <> nil then begin
-            VMark := TMarkFull.Create;
-            VMark.Assign(VMarkTemplateLine);
+            VMark := VMarkTemplateLine);
           end;
         end;
         if VMark <> nil then begin
-          try
-            KMLDataToMark(KML.Data[i], VMark);
-            GState.MarksDb.WriteMark(VMark);
-          finally
-            VMark.Free;
-          end;
+          VMark := KMLDataToMark(KML.Data[i], VMark);
+          GState.MarksDb.WriteMark(VMark);
         end;
       end;
      finally
@@ -365,38 +338,26 @@ begin
         VMark := nil;
         if PLT.Data[i].IsPoint then begin
           if VMarkTemplatePoint <> nil then begin
-            VMark := TMarkFull.Create;
-            VMark.Assign(VMarkTemplatePoint);
+            VMark := VMarkTemplatePoint;
           end;
         end else if PLT.Data[i].IsPoly then begin
           if VMarkTemplatePoly <> nil then begin
-            VMark := TMarkFull.Create;
-            VMark.Assign(VMarkTemplatePoly);
+            VMark := VMarkTemplatePoly;
           end;
         end else if PLT.Data[i].IsLine then begin
           if VMarkTemplateLine <> nil then begin
-            VMark := TMarkFull.Create;
-            VMark.Assign(VMarkTemplateLine);
+            VMark := VMarkTemplateLine;
           end;
         end;
         if VMark <> nil then begin
-          try
-            PLTDataToMark(PLT.Data[i], VMark);
-            GState.MarksDb.WriteMark(VMark);
-          finally
-            VMark.Free;
-          end;
+          VMark := PLTDataToMark(PLT.Data[i], VMark);
+          GState.MarksDb.WriteMark(VMark);
         end;
       end;
      finally
        plt.Free;
      end;
     end;
-  finally
-    VMarkTemplatePoint.Free;
-    VMarkTemplateLine.Free;
-    VMarkTemplatePoly.Free;
-  end;
   ModalResult := mrOk;
 end;
 

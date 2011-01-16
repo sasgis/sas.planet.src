@@ -163,12 +163,11 @@ begin
 end;
 
 procedure TFaddLine.BaddClick(Sender: TObject);
-var i:integer;
-    alltl,allbr:TDoublePoint;
-    VPointCount: integer;
-    VCategory: TCategoryId;
-    VIndex: Integer;
-    VId: Integer;
+var
+  VPointCount: integer;
+  VCategory: TCategoryId;
+  VIndex: Integer;
+  VId: Integer;
 begin
 
   VCategory := nil;
