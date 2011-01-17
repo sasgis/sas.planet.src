@@ -75,10 +75,12 @@ function TMarksDbGUIHelper.AddNewPointModal(ALonLat: TDoublePoint): Boolean;
 var
   VMark: IMarkFull;
 begin
+  Result := False;
   VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
   VMark := FaddPoint.EditMark(VMark, Self);
   if VMark <> nil then begin
     FMarksDb.MarksDb.WriteMark(VMark);
+    Result := True;
   end;
 end;
 
@@ -316,16 +318,14 @@ begin
   Result := False;
   if AID >= 0 then begin
     VMark := FMarksDb.MarksDb.GetMarkByID(AID)
+  end else begin
+    VMark := FMarksDB.MarksDb.Factory.TemplateNewLine;
   end;
   if VMark <> nil then begin
-    VMark.id := AID;
-    if VMark.id < 0 then begin
-      VMark.Desc := ADescription;
-    end;
-    VMark.Points := Copy(ANewArrLL);
-    Result := FaddLine.EditMark(VMark, Self);
-    if Result then begin
-      FMarksDb.WriteMark(VMark);
+    VMark := FMarksDB.MarksDb.Factory.CreateModifedLine(ANewArrLL, ADescription, VMark);
+    VMark := FaddLine.EditMark(VMark, Self);
+    if VMark <> nil then begin
+      FMarksDb.MarksDb.WriteMark(VMark);
     end;
   end;
 end;
@@ -333,25 +333,19 @@ end;
 function TMarksDbGUIHelper.SavePolyModal(AID: Integer;
   ANewArrLL: TDoublePointArray): Boolean;
 var
-  VMark: TMarkFull;
+  VMark: IMarkFull;
 begin
   Result := False;
-  if AID < 0 then begin
-    VMark := TMarkFull.Create;
+  if AID >= 0 then begin
+    VMark := FMarksDb.MarksDb.GetMarkByID(AID)
   end else begin
-    VMark := FMarksDb.GetMarkByID(AID)
+    VMark := FMarksDB.MarksDb.Factory.TemplateNewPoly;
   end;
   if VMark <> nil then begin
-    try
-      VMark.id := AID;
-      VMark.Points := Copy(ANewArrLL);
-      VMark.ClosePoly;
-      Result := FaddPoly.EditMark(VMark, Self);
-      if Result then begin
-        FMarksDb.WriteMark(VMark);
-      end;
-    finally
-      VMark.Free;
+    VMark := FMarksDB.MarksDb.Factory.CreateModifedPoly(ANewArrLL, VMark);
+    VMark := FaddPoly.EditMark(VMark, Self);
+    if VMark <> nil then begin
+      FMarksDb.MarksDb.WriteMark(VMark);
     end;
   end;
 end;

@@ -81,7 +81,6 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
   private
-    FMark: IMarkFull;
     FPicName: string;
     FPic: IMarkPicture;
     frMarkDescription: TfrMarkDescription;
@@ -121,7 +120,6 @@ var
   VIndex: Integer;
   VLonLat:TDoublePoint;
 begin
-  FMark := AMark;
   FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewMark;
@@ -140,17 +138,17 @@ begin
     end;
     DrawGrid1.RowCount := VRowCount;
     DrawGrid1.Repaint;
-    FPicName := FMark.PicName;
-    FPic := FMark.Pic;
-    EditName.Text:=FMark.name;
-    frMarkDescription.Description:=FMark.Desc;
-    SpinEdit1.Value:=FMark.Scale1;
-    SpinEdit2.Value:=FMark.Scale2;
-    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
-    ColorBox1.Selected:=WinColor(FMark.Color1);
-    ColorBox2.Selected:=WinColor(FMark.Color2);
-    CheckBox2.Checked:=(FMark as IMarkVisible).visible;
-    VId := FMark.CategoryId;
+    FPicName := AMark.PicName;
+    FPic := AMark.Pic;
+    EditName.Text:=AMark.name;
+    frMarkDescription.Description:=AMark.Desc;
+    SpinEdit1.Value:=AMark.Scale1;
+    SpinEdit2.Value:=AMark.Scale2;
+    SEtransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
+    ColorBox1.Selected:=WinColor(AMark.Color1);
+    ColorBox2.Selected:=WinColor(AMark.Color2);
+    CheckBox2.Checked:=(AMark as IMarkVisible).visible;
+    VId := AMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := TCategoryId(CBKateg.Items.Objects[i]);
       if VCategory <> nil then begin
@@ -160,7 +158,7 @@ begin
         end;
       end;
     end;
-    if FMark.id < 0 then begin
+    if AMark.id < 0 then begin
       if FPic = nil then begin
         if VPicCount > 0 then begin
           FPic := VPictureList.Get(0);
@@ -173,8 +171,8 @@ begin
       Caption:=SAS_STR_EditMark;
       Badd.Caption:=SAS_STR_Edit;
     end;
-    DrawFromMarkIcons(Image1.canvas, FMark.Pic, bounds(4,4,36,36));
-    frLonLatPoint.LonLat := FMark.Points[0];
+    DrawFromMarkIcons(Image1.canvas, AMark.Pic, bounds(4,4,36,36));
+    frLonLatPoint.LonLat := AMark.Points[0];
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
       VCategory := nil;
@@ -202,7 +200,7 @@ begin
         SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
         SpinEdit1.Value,
         SpinEdit2.Value,
-        FMark
+        AMark
       );
     end else begin
       Result := nil;
@@ -236,7 +234,6 @@ end;
 
 procedure TFaddPoint.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FMark := nil;
 end;
 
 //procedure TFaddPoint.EditCommentKeyPress(Sender: TObject; var Key: Char);

@@ -110,6 +110,17 @@ type
       ASource: IMarkFull
     ): IMarkFull;
 
+    function CreateModifedLine(
+      APoints: TDoublePointArray;
+      ADesc: string;
+      ASource: IMarkFull
+    ): IMarkFull;
+    function CreateModifedPoly(
+      APoints: TDoublePointArray;
+      ASource: IMarkFull
+    ): IMarkFull;
+
+
     property TemplateNewPoint: IMarkFull read FTemplateNewPoint write FTemplateNewPoint;
     property TemplateNewLine: IMarkFull read FTemplateNewLine write FTemplateNewLine;
     property TemplateNewPoly: IMarkFull read FTemplateNewPoly write FTemplateNewPoly;
@@ -373,6 +384,56 @@ begin
     VTemplate.Color2,
     VTemplate.Scale1,
     nil
+  );
+end;
+
+function TMarkFactory.CreateModifedLine(APoints: TDoublePointArray;
+  ADesc: string; ASource: IMarkFull): IMarkFull;
+var
+  VDesc: string;
+  VVisible: Boolean;
+  VMarkVisible: IMarkVisible;
+begin
+  VVisible := True;
+  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
+    VVisible := VMarkVisible.Visible;
+  end;
+  VDesc := ADesc;
+  if ADesc = '' then begin
+    VDesc := ASource.Desc;
+  end;
+  Result := CreateLine(
+    ASource.Name,
+    VVisible,
+    ASource.CategoryId,
+    VDesc,
+    APoints,
+    ASource.Color1,
+    ASource.Scale1,
+    ASource
+  );
+end;
+
+function TMarkFactory.CreateModifedPoly(APoints: TDoublePointArray;
+  ASource: IMarkFull): IMarkFull;
+var
+  VVisible: Boolean;
+  VMarkVisible: IMarkVisible;
+begin
+  VVisible := True;
+  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
+    VVisible := VMarkVisible.Visible;
+  end;
+  Result := CreatePoly(
+    ASource.Name,
+    VVisible,
+    ASource.CategoryId,
+    ASource.Desc,
+    APoints,
+    ASource.Color1,
+    ASource.Color2,
+    ASource.Scale1,
+    ASource
   );
 end;
 
