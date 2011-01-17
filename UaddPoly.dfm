@@ -12,7 +12,6 @@ object FAddPoly: TFAddPoly
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -288,7 +287,7 @@ object FAddPoly: TFAddPoly
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    object Label1: TLabel
+    object lblName: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -298,7 +297,7 @@ object FAddPoly: TFAddPoly
       Caption = #1048#1084#1103':'
       ExplicitHeight = 13
     end
-    object EditName: TEdit
+    object edtName: TEdit
       AlignWithMargins = True
       Left = 32
       Top = 3

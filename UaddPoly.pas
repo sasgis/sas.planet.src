@@ -25,8 +25,8 @@ uses
 
 type
   TFAddPoly = class(TCommonFormParent)
-    Label1: TLabel;
-    EditName: TEdit;
+    lblName: TLabel;
+    edtName: TEdit;
     Badd: TButton;
     Button2: TButton;
     CheckBox2: TCheckBox;
@@ -56,13 +56,11 @@ type
     pnlDescription: TPanel;
     pnlCategory: TPanel;
     pnlName: TPanel;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BaddClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FMark: IMarkFull;
     frMarkDescription: TfrMarkDescription;
     FMarkDBGUI: TMarksDbGUIHelper;
     FCategoryList: TList;
@@ -86,31 +84,28 @@ uses
 
 function TFAddPoly.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
 var
-  namecatbuf:string;
+  VLastUsedCategoryName: string;
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
   VIndex: Integer;
 begin
-  FMark := AMark;
   FMarkDBGUI := AMarkDBGUI;
-  frMarkDescription.Description:='';
-  EditName.Text:=SAS_STR_NewPoly;
-  namecatbuf:=CBKateg.Text;
+  VLastUsedCategoryName:=CBKateg.Text;
   FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try
     FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
     CBKateg.Sorted:=true;
-    CBKateg.Text:=namecatbuf;
-    EditName.Text:=FMark.name;
-    frMarkDescription.Description:=FMark.Desc;
-    SEtransp.Value:=100-round(AlphaComponent(FMark.Color1)/255*100);
-    SEtransp2.Value:=100-round(AlphaComponent(FMark.Color2)/255*100);
-    SpinEdit1.Value:=FMark.Scale1;
-    ColorBox1.Selected:=WinColor(FMark.Color1);
-    ColorBox2.Selected:=WinColor(FMark.Color2);
-    CheckBox2.Checked:=(FMark as IMarkVisible).visible;
-    VId := FMark.CategoryId;
+    CBKateg.Text:=VLastUsedCategoryName;
+    edtName.Text:=AMark.name;
+    frMarkDescription.Description:=AMark.Desc;
+    SEtransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
+    SEtransp2.Value:=100-round(AlphaComponent(AMark.Color2)/255*100);
+    SpinEdit1.Value:=AMark.Scale1;
+    ColorBox1.Selected:=WinColor(AMark.Color1);
+    ColorBox2.Selected:=WinColor(AMark.Color2);
+    CheckBox2.Checked:=(AMark as IMarkVisible).visible;
+    VId := AMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := TCategoryId(CBKateg.Items.Objects[i]);
       if VCategory <> nil then begin
@@ -120,7 +115,7 @@ begin
         end;
       end;
     end;
-    if FMark.id < 0 then begin
+    if AMark.id < 0 then begin
       Caption:=SAS_STR_AddNewPoly;
       Badd.Caption:=SAS_STR_Add;
       CheckBox2.Checked:=true;
@@ -143,15 +138,15 @@ begin
         VId := -1;
       end;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoly(
-        EditName.Text,
+        edtName.Text,
         CheckBox2.Checked,
         VId,
         frMarkDescription.Description,
-        FMark.Points,
+        AMark.Points,
         SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
         SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp2.Value)/100)*256)),
         SpinEdit1.Value,
-        FMark
+        AMark
       )
     end else begin
       Result := nil;
@@ -161,15 +156,10 @@ begin
   end;
 end;
 
-procedure TFAddPoly.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  FMark := nil;
-end;
-
 procedure TFAddPoly.FormShow(Sender: TObject);
 begin
   frMarkDescription.Parent := pnlDescription;
-  EditName.SetFocus;
+  edtName.SetFocus;
 end;
 
 procedure TFAddPoly.RefreshTranslation;
