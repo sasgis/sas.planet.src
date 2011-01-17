@@ -201,7 +201,8 @@ begin
         SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
         SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
         SpinEdit1.Value,
-        SpinEdit2.Value
+        SpinEdit2.Value,
+        FMark
       );
     end else begin
       Result := nil;

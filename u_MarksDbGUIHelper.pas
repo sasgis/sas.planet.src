@@ -8,6 +8,7 @@ uses
   ComCtrls,
   t_GeoTypes,
   i_ICoordConverter,
+  i_IValueToStringConverter,
   i_MarksSimple,
   u_MarksSimple,
   u_MarksReadWriteSimple;
@@ -16,17 +17,18 @@ type
   TMarksDbGUIHelper = class
   private
     FMarksDB: TMarksDB;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
   public
     procedure CategoryListToStrings(AList: TList; AStrings: TStrings);
     procedure CategoryListToTree(AList: TList; ATreeItems: TTreeNodes);
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(id:integer;handle:THandle):boolean;
-    function OperationMark(AMark: IMarkFull; AZoom: Byte):boolean;
+    function OperationMark(AID: Integer; AZoom: Byte):boolean;
     function AddKategory(name:string): integer;
-    function GetMarkLength(AMark: IMarkFull; AConverter: ICoordConverter):Double;
-    function GetMarkSq(AMark: IMarkFull; AConverter: ICoordConverter):Double;
-    function EditMarkModal(AMark: IMarkFull):boolean;
+    procedure ShowMarkLength(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
+    procedure ShowMarkSq(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
+    function EditMarkModal(AMark: IMarkFull): IMarkFull;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
     function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
@@ -35,7 +37,7 @@ type
 
     property MarksDB: TMarksDB read FMarksDB;
   public
-    constructor Create(AMarksDB: TMarksDB);
+    constructor Create(AMarksDB: TMarksDB; AValueToStringConverterConfig: IValueToStringConverterConfig);
   end;
 
 implementation
@@ -62,7 +64,7 @@ begin
     VCategory.visible := True;
     VCategory.AfterScale := 3;
     VCategory.BeforeScale := 19;
-    FMarksDb.WriteCategory(VCategory);
+    FMarksDb.CategoryDB.WriteCategory(VCategory);
     Result := VCategory.id;
   finally
     VCategory.Free;
@@ -71,19 +73,12 @@ end;
 
 function TMarksDbGUIHelper.AddNewPointModal(ALonLat: TDoublePoint): Boolean;
 var
-  VMark: TMarkFull;
+  VMark: IMarkFull;
 begin
-  VMark := TMarkFull.Create;
-  try
-    VMark.id := -1;
-    SetLength(VMark.Points, 1);
-    VMark.Points[0] := ALonLat;
-    Result := FaddPoint.EditMark(VMark, Self);
-    if Result then begin
-      FMarksDb.WriteMark(VMark);
-    end;
-  finally
-    VMark.Free;
+  VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
+  VMark := FaddPoint.EditMark(VMark, Self);
+  if VMark <> nil then begin
+    FMarksDb.MarksDb.WriteMark(VMark);
   end;
 end;
 
@@ -185,31 +180,29 @@ begin
   end;
 end;
 
-constructor TMarksDbGUIHelper.Create(AMarksDB: TMarksDB);
+constructor TMarksDbGUIHelper.Create(AMarksDB: TMarksDB; AValueToStringConverterConfig: IValueToStringConverterConfig);
 begin
   FMarksDB := AMarksDB;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
 function TMarksDbGUIHelper.DeleteMarkModal(id: integer;
   handle: THandle): boolean;
 var
-  VMarkId: TMarkId;
+  VMarkId: IMarkId;
 begin
-  result:=false;
-  VMarkId := FMarksDb.GetMarkIdByID(id);
+  Result := false;
+  VMarkId := FMarksDb.MarksDb.GetMarkIdByID(id);
   if VMarkId <> nil then begin
-    try
-      if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMarkId.name+'"'),pchar(SAS_MSG_coution),36)=IDNO then exit;
-      result:=FMarksDb.DeleteMark(VMarkId);
-    finally
-      VMarkId.Free;
+    if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMarkId.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+      result := FMarksDb.MarksDb.DeleteMark(VMarkId);
     end;
   end;
 end;
 
-function TMarksDbGUIHelper.EditMarkModal(AMark: TMarkFull): boolean;
+function TMarksDbGUIHelper.EditMarkModal(AMark: IMarkFull): IMarkFull;
 begin
-  Result := false;
+  Result := nil;
   if AMark.IsPoint then begin
     result:=FaddPoint.EditMark(AMark, Self);
   end else if AMark.IsPoly then begin
@@ -219,16 +212,30 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.GetMarkLength(AMark: TMarkFull; AConverter: ICoordConverter): Double;
+procedure TMarksDbGUIHelper.ShowMarkLength(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
 var
   i:integer;
   VPointCount: Integer;
+  VMark: IMarkFull;
+  VLen: Double;
+  VMessage: string;
 begin
-  Result:=0;
-  VPointCount := Length(AMark.Points);
-  if (VPointCount > 1) then begin
-    for i:=0 to VPointCount-2 do begin
-      Result:=Result+ AConverter.CalcDist(AMark.Points[i], AMark.Points[i+1]);
+  VMark := FMarksDb.MarksDb.GetMarkByID(AId);
+  if VMark <> nil then begin
+    VPointCount := Length(VMark.Points);
+    if (VPointCount > 1) then begin
+      VLen:=0;
+      for i:=0 to VPointCount-2 do begin
+        VLen:=VLen+ AConverter.CalcDist(VMark.Points[i], VMark.Points[i+1]);
+      end;
+      if VMark.IsPoly then begin
+        VMessage := SAS_STR_P+' - '+
+          FValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
+      end else begin
+        VMessage := SAS_STR_L+' - '+
+          FValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
+      end;
+      MessageBox(AHandle, pchar(VMessage), pchar(VMark.name),0);
     end;
   end;
 end;
@@ -242,14 +249,22 @@ begin
   if not AIgnoreCategoriesVisible then begin
     VList := GetVisibleCateroriesIDList(AZoom);
   end;
-  Result := FMarksDB.GetMarksIteratorByCategoryIdList(ARect, VList, AIgnoreMarksVisible, True);
+  Result := FMarksDB.MarksDb.GetMarksIteratorByCategoryIdList(ARect, VList, AIgnoreMarksVisible, True);
 end;
 
-function TMarksDbGUIHelper.GetMarkSq(AMark: TMarkFull; AConverter: ICoordConverter): Double;
+procedure TMarksDbGUIHelper.ShowMarkSq(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
+var
+  VMark: IMarkFull;
+  VArea: Double;
+  VMessage: string;
 begin
-  Result:=0;
-  if (Length(AMark.Points) > 1) then begin
-    result:= AConverter.CalcPoligonArea(AMark.Points);
+  VMark := FMarksDb.MarksDb.GetMarkByID(AId);
+  if VMark <> nil then begin
+    if (Length(VMark.Points) > 1) then begin
+      VArea:= AConverter.CalcPoligonArea(VMark.Points);
+      VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
+      MessageBox(AHandle,pchar(VMessage),pchar(VMark.name),0);
+    end;
   end;
 end;
 
@@ -260,7 +275,7 @@ var
   i: Integer;
 begin
   Result := TList.Create;
-  VList := FMarksDB.GetCategoriesList;
+  VList := FMarksDB.CategoryDB.GetCategoriesList;
   try
     for i := 0 to VList.Count - 1 do begin
       VCategory := TCategoryId(VList[i]);
@@ -277,41 +292,40 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.OperationMark(AMark: TMarkFull; AZoom: Byte): boolean;
+function TMarksDbGUIHelper.OperationMark(AID: Integer; AZoom: Byte): boolean;
+var
+  VMark: IMarkFull;
 begin
   Result:=false;
-  if AMark.IsPoly then begin
-    Fsaveas.Show_(AZoom, AMark.Points);
-    Result:=true;
-  end else begin
-    ShowMessage(SAS_MSG_FunExForPoly);
+  VMark := FMarksDb.MarksDb.GetMarkByID(AID);
+  if VMark <> nil then begin
+    if VMark.IsPoly then begin
+      Fsaveas.Show_(AZoom, VMark.Points);
+      Result:=true;
+    end else begin
+      ShowMessage(SAS_MSG_FunExForPoly);
+    end;
   end;
 end;
 
 function TMarksDbGUIHelper.SaveLineModal(AID: Integer;
   ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
 var
-  VMark: TMarkFull;
+  VMark: IMarkFull;
 begin
   Result := False;
-  if AID < 0 then begin
-    VMark := TMarkFull.Create;
-  end else begin
-    VMark := FMarksDb.GetMarkByID(AID)
+  if AID >= 0 then begin
+    VMark := FMarksDb.MarksDb.GetMarkByID(AID)
   end;
   if VMark <> nil then begin
-    try
-      VMark.id := AID;
-      if VMark.id < 0 then begin
-        VMark.Desc := ADescription;
-      end;
-      VMark.Points := Copy(ANewArrLL);
-      Result := FaddLine.EditMark(VMark, Self);
-      if Result then begin
-        FMarksDb.WriteMark(VMark);
-      end;
-    finally
-      VMark.Free;
+    VMark.id := AID;
+    if VMark.id < 0 then begin
+      VMark.Desc := ADescription;
+    end;
+    VMark.Points := Copy(ANewArrLL);
+    Result := FaddLine.EditMark(VMark, Self);
+    if Result then begin
+      FMarksDb.WriteMark(VMark);
     end;
   end;
 end;

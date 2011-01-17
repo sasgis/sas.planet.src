@@ -108,28 +108,58 @@ uses
 
 function TFImport.KMLDataToMark(ASource: TKMLData; ATemplate: IMarkFull): IMarkFull;
 begin
-  Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
-    ASource.Name,
-    (ATemplate as IMarkVisible).Visible,
-    ATemplate.CategoryId,
-    ASource.description,
-    ASource.coordinates,
-    ATemplate.Color1,
-    ATemplate.Scale1
-  );
+  if ASource.IsPoint then begin
+    Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(
+      ASource.coordinates[0],
+      ASource.Name,
+      ASource.description,
+      ATemplate
+    );
+  end else if ASource.IsLine then begin
+    Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewLine(
+      ASource.coordinates,
+      ASource.Name,
+      ASource.description,
+      ATemplate
+    );
+  end else if ASource.IsPoly then begin
+    Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoly(
+      ASource.coordinates,
+      ASource.Name,
+      ASource.description,
+      ATemplate
+    );
+  end else begin
+    Result := nil;
+  end;
 end;
 
 function TFImport.PLTDataToMark(ASource: TPLTData; ATemplate: IMarkFull): IMarkFull;
 begin
-  Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
-    ASource.Name,
-    (ATemplate as IMarkVisible).Visible,
-    ATemplate.CategoryId,
-    ASource.description,
-    ASource.coordinates,
-    ATemplate.Color1,
-    ATemplate.Scale1
-  );
+  if ASource.IsPoint then begin
+    Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(
+      ASource.coordinates[0],
+      ASource.Name,
+      ASource.description,
+      ATemplate
+    );
+  end else if ASource.IsLine then begin
+    Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewLine(
+      ASource.coordinates,
+      ASource.Name,
+      ASource.description,
+      ATemplate
+    );
+  end else if ASource.IsPoly then begin
+    Result := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoly(
+      ASource.coordinates,
+      ASource.Name,
+      ASource.description,
+      ATemplate
+    );
+  end else begin
+    Result := nil;
+  end;
 end;
 
 procedure TFImport.SpeedButton1Click(Sender: TObject);
@@ -269,14 +299,11 @@ begin
       VPicName := ColorBox1.Items.Strings[VIndex];
     end;
     VMarkTemplatePoint :=
-      FMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoint(
-        '',
+      FMarkDBGUI.MarksDB.MarksDb.Factory.CreatePointTemplate(
         True,
         VPicName,
         VPic,
         VId,
-        '',
-        DoublePoint(0, 0),
         SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
         SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
         SpinEdit1.Value,
@@ -286,36 +313,25 @@ begin
   VMarkTemplateLine := nil;
   pathignor:=CBPathIgnor.Checked;
   if not pathignor then begin
-      FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
-        '',
+    VMarkTemplateLine :=
+      FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLineTemplate(
         True,
-        VPicName,
-        VPic,
         VId,
-        '',
-        DoublePoint(0, 0),
-        SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
-        SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
-        SpinEdit1.Value,
-        SpinEdit2.Value
+        SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256)),
+        SpinEdit3.Value
       );
-    VMarkTemplateLine := TMarkFull.Create;
-    VMarkTemplateLine.id := -1;
-    VMarkTemplateLine.visible:=true;
-    VMarkTemplateLine.Scale1:=SpinEdit3.Value;
-    VMarkTemplateLine.Color1:=SetAlpha(Color32(ColorBox3.Selected),round(((100-SpinEdit4.Value)/100)*256));
-    VMarkTemplateLine.CategoryId:=VId;
   end;
   VMarkTemplatePoly := nil;
   polyignor:=CBPolyIgnor.Checked;
   if not polyignor then begin
-    VMarkTemplatePoly := TMarkFull.Create;
-    VMarkTemplatePoly.id := -1;
-    VMarkTemplatePoly.visible:=true;
-    VMarkTemplatePoly.Scale1:=SpinEdit5.Value;
-    VMarkTemplatePoly.Color1:=SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256));
-    VMarkTemplatePoly.Color2:=SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256));
-    VMarkTemplatePoly.CategoryId:=VId;
+    VMarkTemplatePoly :=
+      FMarkDBGUI.MarksDB.MarksDb.Factory.CreatePolyTemplate(
+        True,
+        VId,
+        SetAlpha(Color32(ColorBox4.Selected),round(((100-SpinEdit6.Value)/100)*256)),
+        SetAlpha(Color32(ColorBox5.Selected),round(((100-SEtransp2.Value)/100)*256)),
+        SpinEdit5.Value
+      );
   end;
 
    if (LowerCase(ExtractFileExt(FileName))='.kml') or (LowerCase(ExtractFileExt(FileName))='.kmz') then
@@ -341,12 +357,12 @@ begin
           end;
         end else if KML.Data[i].IsLine then begin
           if VMarkTemplateLine <> nil then begin
-            VMark := VMarkTemplateLine);
+            VMark := VMarkTemplateLine;
           end;
         end;
         if VMark <> nil then begin
           VMark := KMLDataToMark(KML.Data[i], VMark);
-          GState.MarksDb.WriteMark(VMark);
+          GState.MarksDb.MarksDb.WriteMark(VMark);
         end;
       end;
      finally
@@ -375,7 +391,7 @@ begin
         end;
         if VMark <> nil then begin
           VMark := PLTDataToMark(PLT.Data[i], VMark);
-          GState.MarksDb.WriteMark(VMark);
+          GState.MarksDb.MarksDb.WriteMark(VMark);
         end;
       end;
      finally

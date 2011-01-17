@@ -32,6 +32,7 @@ uses
   i_ICoordConverter,
   i_IBitmapLayerProvider,
   i_ILocalCoordConverter,
+  i_MarksSimple,
   u_MarksSimple,
   Unit1;
 
@@ -78,7 +79,7 @@ var
   VPixelPos: TPoint;
   VZoom: Byte;
   VMarksIterator: TMarksIteratorBase;
-  VMark: TMarkFull;
+  VMark: IMarkFull;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
 begin

@@ -661,6 +661,7 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_IValueToStringConverter,
+  i_MarksSimple,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_IMapViewGoto,
@@ -793,7 +794,7 @@ begin
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
-  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB);
+  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig);
 end;
 
 procedure TFmain.FormActivate(Sender: TObject);
@@ -1932,7 +1933,7 @@ begin
   end else begin
     VIgnoredID := -1;
   end;
-  Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
+//  Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
 end;
 
 procedure TFmain.zooming(ANewZoom:byte;move:boolean);
@@ -2764,7 +2765,7 @@ end;
 
 procedure TFmain.NMarkEditClick(Sender: TObject);
 var
-  VMark: TMarkFull;
+  VMark: IMarkFull;
   VPWL: TResObj;
 begin
   VPWL.S:=0;
@@ -2772,23 +2773,20 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     FEditMarkId:=strtoint(VPWL.numid);
-    VMark := GState.MarksDb.GetMarkByID(FEditMarkId);
+    VMark := GState.MarksDb.MarksDb.GetMarkByID(FEditMarkId);
     if VMark <> nil then begin
-      try
-        if VMark.IsPoint then begin
-          if FMarkDBGUI.EditMarkModal(VMark) then begin
-            GState.MarksDb.WriteMark(VMark);
-            FLayerMapMarks.Redraw;
-          end;
-        end else if VMark.IsPoly then begin
-          setalloperationfalse(ao_edit_poly);
-          FLineOnMapEdit.SetPoints(VMark.Points);
-        end else if VMark.IsLine then begin
-          setalloperationfalse(ao_edit_line);
-          FLineOnMapEdit.SetPoints(VMark.Points);
+      if VMark.IsPoint then begin
+        VMark := FMarkDBGUI.EditMarkModal(VMark);
+        if VMark <> nil then begin
+          GState.MarksDB.MarksDb.WriteMark(VMark);
+          FLayerMapMarks.Redraw;
         end;
-      finally
-        VMark.Free;
+      end else if VMark.IsPoly then begin
+        setalloperationfalse(ao_edit_poly);
+        FLineOnMapEdit.SetPoints(VMark.Points);
+      end else if VMark.IsLine then begin
+        setalloperationfalse(ao_edit_line);
+        FLineOnMapEdit.SetPoints(VMark.Points);
       end;
     end;
   end;
@@ -2815,7 +2813,6 @@ end;
 procedure TFmain.NMarkOperClick(Sender: TObject);
 var
   VId: Integer;
-  VMark: TMarkFull;
   VPWL: TResObj;
 begin
   VPWL.S:=0;
@@ -2823,14 +2820,7 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    VMark := GState.MarksDb.GetMarkByID(VId);
-    if VMark <> nil then begin
-      try
-        FMarkDBGUI.OperationMark(VMark, GState.ViewState.GetCurrentZoom);
-      finally
-        VMark.Free;
-      end;
-    end;
+    FMarkDBGUI.OperationMark(VId, GState.ViewState.GetCurrentZoom);
   end;
 end;
 
@@ -3512,7 +3502,7 @@ procedure TFmain.NMarkNavClick(Sender: TObject);
 var
   LL:TDoublePoint;
   id:integer;
-  VMark: TMarkFull;
+  VMark: IMarkFull;
   VPWL: TResObj;
 begin
   VPWL.S:=0;
@@ -3521,13 +3511,10 @@ begin
   if VPWL.find then begin
     if (not NMarkNav.Checked) then begin
       id:=strtoint(VPWL.numid);
-      VMark := GState.MarksDb.GetMarkByID(id);
-      if VMark = nil then Exit;
-      try
+      VMark := GState.MarksDb.MarksDb.GetMarkByID(id);
+      if VMark <> nil then begin
         LL := VMark.GetGoToLonLat;
         FConfig.NavToPoint.StartNavToMark(id, ll);
-      finally
-        VMark.Free;
       end;
     end else begin
       FConfig.NavToPoint.StopNav;
@@ -3578,9 +3565,6 @@ end;
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 var
   VId: Integer;
-  VMark: TMarkFull;
-  VLen: Double;
-  VMessage: string;
   VPWL: TResObj;
 begin
   VPWL.S:=0;
@@ -3588,26 +3572,13 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    VMark := GState.MarksDb.GetMarkByID(VId);
-    if VMark <> nil then begin
-      try
-        VLen := FMarkDBGUI.GetMarkLength(VMark, GState.ViewState.GetCurrentCoordConverter);
-        VMessage := SAS_STR_L+' - '+
-        GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
-        MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
-      finally
-        VMark.Free;
-      end;
-    end;
+    FMarkDBGUI.ShowMarkLength(VId, GState.ViewState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
 var
   VId: Integer;
-  VMark: TMarkFull;
-  VArea: Double;
-  VMessage: string;
   VPWL: TResObj;
 begin
   VPWL.S:=0;
@@ -3615,26 +3586,13 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    VMark := GState.MarksDb.GetMarkByID(VId);
-    if VMark <> nil then begin
-      try
-        VArea := FMarkDBGUI.GetMarkSq(VMark, GState.ViewState.GetCurrentCoordConverter);
-        VMessage := SAS_STR_S+' - '+GState.ValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
-
-        MessageBox(Handle,pchar(VMessage),pchar(VPWL.name),0);
-      finally
-        VMark.Free;
-      end;
-    end;
+    FMarkDBGUI.ShowMarkSq(VId, GState.ViewState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 var
   VId: Integer;
-  VMark: TMarkFull;
-  VLen: Double;
-  VMessage: string;
   VPWL: TResObj;
 begin
   VPWL.S:=0;
@@ -3642,17 +3600,7 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    VMark := GState.MarksDb.GetMarkByID(VId);
-    if VMark <> nil then begin
-      try
-        VLen := FMarkDBGUI.GetMarkLength(VMark, GState.ViewState.GetCurrentCoordConverter);
-        VMessage := SAS_STR_P+' - '+
-          GState.ValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
-        MessageBox(Self.Handle, pchar(VMessage), pchar(VPWL.name),0);
-      finally
-        VMark.Free;
-      end;
-    end;
+    FMarkDBGUI.ShowMarkLength(VId, GState.ViewState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 

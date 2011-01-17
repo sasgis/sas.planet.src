@@ -56,7 +56,6 @@ type
     function IsPoly: Boolean;
     function GetGoToLonLat: TDoublePoint;
   public
-    constructor Create(ASource: IMarkFull); overload;
     constructor Create(
       AName: string;
       AId: Integer;
@@ -71,7 +70,7 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ); overload;
+    );
   end;
 
 implementation
@@ -107,21 +106,6 @@ end;
 
 { TMarkFull }
 
-constructor TMarkFull.Create(ASource: IMarkFull);
-begin
-  inherited Create(ASource.Name, ASource.Id, False);
-  FPicName := ASource.PicName;
-  FPic := ASource.Pic;
-  FCategoryId := ASource.CategoryId;
-  FDesc := ASource.Desc;
-  FLLRect := ASource.LLRect;
-  FPoints := Copy(ASource.Points);
-  FColor1 := ASource.Color1;
-  FColor2 := ASource.Color2;
-  FScale1 := ASource.Scale1;
-  FScale2 := ASource.Scale2;
-end;
-
 constructor TMarkFull.Create(AName: string; AId: Integer; AVisible: Boolean;
   APicName: string; APic: IMarkPicture; ACategoryId: Integer; ADesc: string;
   ALLRect: TDoubleRect; APoints: TDoublePointArray; AColor1, AColor2: TColor32;
@@ -133,7 +117,7 @@ begin
   FCategoryId := ACategoryId;
   FDesc := ADesc;
   FLLRect := ALLRect;
-  FPoints := Copy(APoints);
+  FPoints := APoints;
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;
