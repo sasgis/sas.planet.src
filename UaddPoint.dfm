@@ -28,7 +28,7 @@ object FaddPoint: TFaddPoint
     ExplicitTop = 96
     ExplicitWidth = 329
   end
-  object CheckBox2: TCheckBox
+  object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
     Top = 353
@@ -48,7 +48,7 @@ object FaddPoint: TFaddPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
-    object Button2: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 238
       Top = 3
@@ -61,7 +61,7 @@ object FaddPoint: TFaddPoint
       ModalResult = 2
       TabOrder = 1
     end
-    object Badd: TButton
+    object btnOk: TButton
       AlignWithMargins = True
       Left = 159
       Top = 3
@@ -71,7 +71,7 @@ object FaddPoint: TFaddPoint
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Default = True
       TabOrder = 0
-      OnClick = BaddClick
+      OnClick = btnOkClick
     end
   end
   object grdpnlStyleRows: TGridPanel
@@ -164,7 +164,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        object Label3: TLabel
+        object lblTextColor: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -173,7 +173,7 @@ object FaddPoint: TFaddPoint
           Alignment = taRightJustify
           Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
         end
-        object ColorBox1: TColorBox
+        object clrbxTextColor: TColorBox
           Left = 70
           Top = 0
           Width = 38
@@ -183,13 +183,13 @@ object FaddPoint: TFaddPoint
           ItemHeight = 16
           TabOrder = 0
         end
-        object SpeedButton1: TSpeedButton
+        object btnTextColor: TSpeedButton
           Left = 108
           Top = 0
           Width = 17
           Height = 22
           Caption = '...'
-          OnClick = SpeedButton1Click
+          OnClick = btnTextColorClick
         end
       end
       object flwpnlFontSize: TFlowPanel
@@ -202,7 +202,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        object Label5: TLabel
+        object lblFontSize: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -211,7 +211,7 @@ object FaddPoint: TFaddPoint
           Alignment = taRightJustify
           Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
         end
-        object SpinEdit1: TSpinEdit
+        object seFontSize: TSpinEdit
           Left = 84
           Top = 0
           Width = 41
@@ -267,7 +267,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        object Label4: TLabel
+        object lblShadowColor: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -276,7 +276,7 @@ object FaddPoint: TFaddPoint
           Alignment = taRightJustify
           Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
         end
-        object ColorBox2: TColorBox
+        object clrbxShadowColor: TColorBox
           Left = 59
           Top = 0
           Width = 38
@@ -285,13 +285,13 @@ object FaddPoint: TFaddPoint
           ItemHeight = 16
           TabOrder = 0
         end
-        object SpeedButton2: TSpeedButton
+        object btnShadowColor: TSpeedButton
           Left = 97
           Top = 0
           Width = 17
           Height = 22
           Caption = '...'
-          OnClick = SpeedButton2Click
+          OnClick = btnShadowColorClick
         end
       end
       object flwpnlIconSize: TFlowPanel
@@ -304,7 +304,7 @@ object FaddPoint: TFaddPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        object Label6: TLabel
+        object lblIconSize: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -313,7 +313,7 @@ object FaddPoint: TFaddPoint
           Alignment = taRightJustify
           Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
         end
-        object SpinEdit2: TSpinEdit
+        object seIconSize: TSpinEdit
           Left = 80
           Top = 0
           Width = 41
@@ -335,7 +335,7 @@ object FaddPoint: TFaddPoint
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
-      object Label7: TLabel
+      object lblTransp: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -344,7 +344,7 @@ object FaddPoint: TFaddPoint
         Alignment = taRightJustify
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
       end
-      object SEtransp: TSpinEdit
+      object seTransp: TSpinEdit
         Left = 91
         Top = 0
         Width = 41
@@ -393,7 +393,7 @@ object FaddPoint: TFaddPoint
       Align = alLeft
       BevelOuter = bvLowered
       TabOrder = 1
-      object Image1: TImage
+      object imgIcon: TImage
         AlignWithMargins = True
         Left = 4
         Top = 4
@@ -401,7 +401,7 @@ object FaddPoint: TFaddPoint
         Height = 45
         Cursor = crHandPoint
         Align = alClient
-        OnMouseDown = Image1MouseDown
+        OnMouseDown = imgIconMouseDown
         ExplicitLeft = 10
         ExplicitTop = 14
       end
@@ -476,7 +476,7 @@ object FaddPoint: TFaddPoint
       end
     end
   end
-  object DrawGrid1: TDrawGrid
+  object drwgrdIcons: TDrawGrid
     Left = 3
     Top = 58
     Width = 310
@@ -492,8 +492,8 @@ object FaddPoint: TFaddPoint
     ParentCtl3D = False
     TabOrder = 1
     Visible = False
-    OnDrawCell = DrawGrid1DrawCell
-    OnMouseUp = DrawGrid1MouseUp
+    OnDrawCell = drwgrdIconsDrawCell
+    OnMouseUp = drwgrdIconsMouseUp
   end
   object ColorDialog1: TColorDialog
     Left = 56

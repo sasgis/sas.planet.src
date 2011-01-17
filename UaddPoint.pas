@@ -32,27 +32,27 @@ type
   TFaddPoint = class(TCommonFormParent)
     EditName: TEdit;
     Label1: TLabel;
-    Badd: TButton;
-    Button2: TButton;
+    btnOk: TButton;
+    btnCancel: TButton;
     Bevel1: TBevel;
-    CheckBox2: TCheckBox;
-    ColorBox1: TColorBox;
-    Label3: TLabel;
-    Label4: TLabel;
-    SpinEdit1: TSpinEdit;
-    Label5: TLabel;
-    ColorBox2: TColorBox;
-    Label6: TLabel;
-    SpinEdit2: TSpinEdit;
-    SEtransp: TSpinEdit;
-    Label7: TLabel;
-    SpeedButton1: TSpeedButton;
-    SpeedButton2: TSpeedButton;
+    chkVisible: TCheckBox;
+    clrbxTextColor: TColorBox;
+    lblTextColor: TLabel;
+    lblShadowColor: TLabel;
+    seFontSize: TSpinEdit;
+    lblFontSize: TLabel;
+    clrbxShadowColor: TColorBox;
+    lblIconSize: TLabel;
+    seIconSize: TSpinEdit;
+    seTransp: TSpinEdit;
+    lblTransp: TLabel;
+    btnTextColor: TSpeedButton;
+    btnShadowColor: TSpeedButton;
     ColorDialog1: TColorDialog;
     Label8: TLabel;
     CBKateg: TComboBox;
-    DrawGrid1: TDrawGrid;
-    Image1: TImage;
+    drwgrdIcons: TDrawGrid;
+    imgIcon: TImage;
     pnlBottomButtons: TPanel;
     flwpnlTrahsparent: TFlowPanel;
     flwpnlTextColor: TFlowPanel;
@@ -69,15 +69,15 @@ type
     pnlTopMain: TPanel;
     pnlCategory: TPanel;
     pnlName: TPanel;
-    procedure BaddClick(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
-    procedure DrawGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
+    procedure btnTextColorClick(Sender: TObject);
+    procedure btnShadowColorClick(Sender: TObject);
+    procedure drwgrdIconsDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
-    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
+    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure DrawGrid1MouseUp(Sender: TObject; Button: TMouseButton;
+    procedure drwgrdIconsMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
   private
@@ -131,23 +131,23 @@ begin
     CBKateg.Text:=VLastUsedCategoryName;
     VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
     VPicCount := VPictureList.Count;
-    VColCount := DrawGrid1.ColCount;
+    VColCount := drwgrdIcons.ColCount;
     VRowCount := VPicCount div VColCount;
     if (VPicCount mod VColCount) > 0 then begin
       Inc(VRowCount);
     end;
-    DrawGrid1.RowCount := VRowCount;
-    DrawGrid1.Repaint;
+    drwgrdIcons.RowCount := VRowCount;
+    drwgrdIcons.Repaint;
     FPicName := AMark.PicName;
     FPic := AMark.Pic;
     EditName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
-    SpinEdit1.Value:=AMark.Scale1;
-    SpinEdit2.Value:=AMark.Scale2;
-    SEtransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
-    ColorBox1.Selected:=WinColor(AMark.Color1);
-    ColorBox2.Selected:=WinColor(AMark.Color2);
-    CheckBox2.Checked:=(AMark as IMarkVisible).visible;
+    seFontSize.Value:=AMark.Scale1;
+    seIconSize.Value:=AMark.Scale2;
+    seTransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
+    clrbxTextColor.Selected:=WinColor(AMark.Color1);
+    clrbxShadowColor.Selected:=WinColor(AMark.Color2);
+    chkVisible.Checked:=(AMark as IMarkVisible).visible;
     VId := AMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := TCategoryId(CBKateg.Items.Objects[i]);
@@ -166,12 +166,12 @@ begin
         end;
       end;
       Caption:=SAS_STR_AddNewMark;
-      Badd.Caption:=SAS_STR_Add;
+      btnOk.Caption:=SAS_STR_Add;
     end else begin
       Caption:=SAS_STR_EditMark;
-      Badd.Caption:=SAS_STR_Edit;
+      btnOk.Caption:=SAS_STR_Edit;
     end;
-    DrawFromMarkIcons(Image1.canvas, AMark.Pic, bounds(4,4,36,36));
+    DrawFromMarkIcons(imgIcon.canvas, AMark.Pic, bounds(4,4,36,36));
     frLonLatPoint.LonLat := AMark.Points[0];
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
@@ -190,16 +190,16 @@ begin
       end;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoint(
         EditName.Text,
-        CheckBox2.Checked,
+        chkVisible.Checked,
         FPicName,
         FPic,
         VId,
         frMarkDescription.Description,
         VLonLat,
-        SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
-        SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp.Value)/100)*256)),
-        SpinEdit1.Value,
-        SpinEdit2.Value,
+        SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
+        seFontSize.Value,
+        seIconSize.Value,
         AMark
       );
     end else begin
@@ -209,9 +209,8 @@ begin
     FreeAndNil(VCategoryList);
   end;
 end;
-procedure TFaddPoint.BaddClick(Sender: TObject);
+procedure TFaddPoint.btnOkClick(Sender: TObject);
 var
-  VLonLat:TDoublePoint;
   VCategory: TCategoryId;
   VIndex: Integer;
   VId: Integer;
@@ -256,17 +255,17 @@ begin
   frLonLatPoint.Parent := pnlLonLat;
   frMarkDescription.Parent := pnlDescription;
   EditName.SetFocus;
-  DrawGrid1.Visible:=false;
+  drwgrdIcons.Visible:=false;
 end;
 
-procedure TFaddPoint.SpeedButton1Click(Sender: TObject);
+procedure TFaddPoint.btnTextColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then ColorBox1.Selected:=ColorDialog1.Color;
+ if ColorDialog1.Execute then clrbxTextColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFaddPoint.SpeedButton2Click(Sender: TObject);
+procedure TFaddPoint.btnShadowColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
+ if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
 end;
 
 constructor TFaddPoint.Create(AOwner: TComponent);
@@ -314,23 +313,23 @@ begin
   end;
 end;
 
-procedure TFaddPoint.DrawGrid1DrawCell(Sender: TObject; ACol,
+procedure TFaddPoint.drwgrdIconsDrawCell(Sender: TObject; ACol,
   ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
   i:Integer;
   VPictureList: IMarkPictureList;
 begin
-   i:=(Arow*DrawGrid1.ColCount)+ACol;
+   i:=(Arow*drwgrdIcons.ColCount)+ACol;
    VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
    if i < VPictureList.Count then
-    DrawFromMarkIcons(DrawGrid1.Canvas, VPictureList.Get(i), DrawGrid1.CellRect(ACol,ARow));
+    DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
 end;
 
-procedure TFaddPoint.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+procedure TFaddPoint.imgIconMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
- DrawGrid1.Visible:=not(DrawGrid1.Visible);
- if DrawGrid1.Visible then DrawGrid1.SetFocus;
+ drwgrdIcons.Visible:=not(drwgrdIcons.Visible);
+ if drwgrdIcons.Visible then drwgrdIcons.SetFocus;
 end;
 
 procedure TFaddPoint.RefreshTranslation;
@@ -340,22 +339,22 @@ begin
   frMarkDescription.RefreshTranslation;
 end;
 
-procedure TFaddPoint.DrawGrid1MouseUp(Sender: TObject;
+procedure TFaddPoint.drwgrdIconsMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   i:integer;
   ACol,ARow: Integer;
   VPictureList: IMarkPictureList;
 begin
- DrawGrid1.MouseToCell(X,Y,ACol,ARow);
- i:=(ARow*DrawGrid1.ColCount)+ACol;
+ drwgrdIcons.MouseToCell(X,Y,ACol,ARow);
+ i:=(ARow*drwgrdIcons.ColCount)+ACol;
  VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
  if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
    FPic := VPictureList.Get(i);
    FPicName := VPictureList.GetName(i);
-   image1.Canvas.FillRect(image1.Canvas.ClipRect);
-   DrawFromMarkIcons(image1.Canvas, FPic, bounds(5,5,36,36));
-   DrawGrid1.Visible:=false;
+   imgIcon.Canvas.FillRect(imgIcon.Canvas.ClipRect);
+   DrawFromMarkIcons(imgIcon.Canvas, FPic, bounds(5,5,36,36));
+   drwgrdIcons.Visible:=false;
  end;
 end;
 
