@@ -85,6 +85,7 @@ type
     { Private declarations }
     FileName:string;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FCategoryList: TList;
     function KMLDataToMark(ASource: TKMLData; ATemplate: IMarkFull): IMarkFull;
     function PLTDataToMark(ASource: TPLTData; ATemplate: IMarkFull): IMarkFull;
   public
@@ -282,10 +283,12 @@ begin
   if VIndex >= 0 then begin
     VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
   end;
-  if VCategory <> nil then begin
-    VId := VCategory.id;
-  end else begin
-    VId := FMarkDBGUI.AddKategory(CBKateg.Text);
+  if VCategory = nil then begin
+    VCategory := FMarkDBGUI.AddKategory(CBKateg.Text);
+    if VCategory <> nil then begin
+      FCategoryList.Add(VCategory);
+      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
+    end;
   end;
   VMarkTemplatePoint := nil;
   markignor:=CBMarkIgnor.Checked;

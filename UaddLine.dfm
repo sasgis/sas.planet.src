@@ -12,11 +12,10 @@ object FaddLine: TFaddLine
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object CheckBox2: TCheckBox
+  object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
     Top = 249
@@ -34,7 +33,7 @@ object FaddLine: TFaddLine
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    object Label7: TLabel
+    object lblCategory: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -65,7 +64,7 @@ object FaddLine: TFaddLine
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    object Label1: TLabel
+    object lblName: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -76,7 +75,7 @@ object FaddLine: TFaddLine
       Layout = tlCenter
       ExplicitHeight = 13
     end
-    object EditName: TEdit
+    object edtName: TEdit
       AlignWithMargins = True
       Left = 32
       Top = 3
@@ -109,7 +108,7 @@ object FaddLine: TFaddLine
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    object Label3: TLabel
+    object lblLineColor: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -119,7 +118,7 @@ object FaddLine: TFaddLine
       Caption = #1062#1074#1077#1090
       Layout = tlCenter
     end
-    object ColorBox1: TColorBox
+    object clrbxLineColor: TColorBox
       AlignWithMargins = True
       Left = 35
       Top = 3
@@ -130,16 +129,16 @@ object FaddLine: TFaddLine
       ItemHeight = 16
       TabOrder = 0
     end
-    object SpeedButton1: TSpeedButton
+    object btnLineColor: TSpeedButton
       AlignWithMargins = True
       Left = 79
       Top = 3
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton1Click
+      OnClick = btnLineColorClick
     end
-    object Label5: TLabel
+    object lblWidth: TLabel
       AlignWithMargins = True
       Left = 102
       Top = 3
@@ -148,7 +147,7 @@ object FaddLine: TFaddLine
       Caption = #1064#1080#1088#1080#1085#1072
       Layout = tlCenter
     end
-    object SpinEdit1: TSpinEdit
+    object seWidth: TSpinEdit
       AlignWithMargins = True
       Left = 148
       Top = 3
@@ -159,7 +158,7 @@ object FaddLine: TFaddLine
       TabOrder = 1
       Value = 2
     end
-    object Label4: TLabel
+    object lblTransp: TLabel
       AlignWithMargins = True
       Left = 195
       Top = 3
@@ -190,7 +189,7 @@ object FaddLine: TFaddLine
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
-    object Badd: TButton
+    object btnOk: TButton
       AlignWithMargins = True
       Left = 173
       Top = 3
@@ -200,9 +199,9 @@ object FaddLine: TFaddLine
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Default = True
       TabOrder = 0
-      OnClick = BaddClick
+      OnClick = btnOkClick
     end
-    object Button2: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 252
       Top = 3

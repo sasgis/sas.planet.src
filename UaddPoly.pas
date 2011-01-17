@@ -65,6 +65,7 @@ type
     FMark: IMarkFull;
     frMarkDescription: TfrMarkDescription;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FCategoryList: TList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -89,7 +90,6 @@ var
   i: Integer;
   VCategory: TCategoryId;
   VId: integer;
-  VCategoryList: TList;
   VIndex: Integer;
 begin
   FMark := AMark;
@@ -97,9 +97,9 @@ begin
   frMarkDescription.Description:='';
   EditName.Text:=SAS_STR_NewPoly;
   namecatbuf:=CBKateg.Text;
-  VCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try
-    FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
+    FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
     CBKateg.Sorted:=true;
     CBKateg.Text:=namecatbuf;
     EditName.Text:=FMark.name;
@@ -157,7 +157,7 @@ begin
       Result := nil;
     end;
   finally
-    FreeAndNil(VCategoryList);
+    FreeAndNil(FCategoryList);
   end;
 end;
 
@@ -194,10 +194,12 @@ begin
   if VIndex >= 0 then begin
     VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
   end;
-  if VCategory <> nil then begin
-    VId := VCategory.id;
-  end else begin
-    VId := FMarkDBGUI.AddKategory(CBKateg.Text);
+  if VCategory = nil then begin
+    VCategory := FMarkDBGUI.AddKategory(CBKateg.Text);
+    if VCategory <> nil then begin
+      FCategoryList.Add(VCategory);
+      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
+    end;
   end;
   ModalResult:=mrOk;
 end;
