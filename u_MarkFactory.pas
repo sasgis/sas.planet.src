@@ -133,6 +133,7 @@ implementation
 
 uses
   Graphics,
+  UResStrings,
   Ugeofun,
   u_MarksSimpleNew;
 
@@ -301,6 +302,7 @@ var
   VTemplate: IMarkFull;
   VVisible: Boolean;
   VMarkVisible: IMarkVisible;
+  VName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -312,8 +314,13 @@ begin
     VVisible := VMarkVisible.Visible;
   end;
 
+  VName := AName;
+  if VName = '' then begin
+    VName := SAS_STR_NewPath;
+  end;
+
   Result := CreateLine(
-    AName,
+    VName,
     VVisible,
     VTemplate.CategoryId,
     ADesc,
@@ -330,6 +337,7 @@ var
   VTemplate: IMarkFull;
   VVisible: Boolean;
   VMarkVisible: IMarkVisible;
+  VName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -341,8 +349,13 @@ begin
     VVisible := VMarkVisible.Visible;
   end;
 
+  VName := AName;
+  if VName = '' then begin
+    VName := SAS_STR_NewMark;
+  end;
+
   Result := CreatePoint(
-    AName,
+    VName,
     VVisible,
     VTemplate.PicName,
     VTemplate.Pic,
@@ -363,6 +376,7 @@ var
   VTemplate: IMarkFull;
   VVisible: Boolean;
   VMarkVisible: IMarkVisible;
+  VName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -374,8 +388,13 @@ begin
     VVisible := VMarkVisible.Visible;
   end;
 
+  VName := AName;
+  if VName = '' then begin
+    VName := SAS_STR_NewPoly;
+  end;
+
   Result := CreatePoly(
-    AName,
+    VName,
     VVisible,
     VTemplate.CategoryId,
     ADesc,
