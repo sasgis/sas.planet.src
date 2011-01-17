@@ -85,6 +85,7 @@ type
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FCategoryList: TList;
     procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
     constructor Create(AOwner: TComponent); override;
@@ -115,16 +116,15 @@ var
   VColCount: Integer;
   VRowCount: Integer;
   VPictureList: IMarkPictureList;
-  VCategoryList: TList;
   VIndex: Integer;
   VLonLat:TDoublePoint;
 begin
   FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description:='';
   VLastUsedCategoryName:=CBKateg.Text;
-  VCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try
-    FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
+    FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
     CBKateg.Sorted:=true;
     CBKateg.Text:=VLastUsedCategoryName;
     VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
@@ -198,7 +198,7 @@ begin
       Result := nil;
     end;
   finally
-    FreeAndNil(VCategoryList);
+    FreeAndNil(FCategoryList);
   end;
 end;
 procedure TFaddPoint.btnOkClick(Sender: TObject);
@@ -215,10 +215,12 @@ begin
   if VIndex >= 0 then begin
     VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
   end;
-  if VCategory <> nil then begin
-    VId := VCategory.id;
-  end else begin
-    VId := FMarkDBGUI.AddKategory(CBKateg.Text);
+  if VCategory = nil then begin
+    VCategory := FMarkDBGUI.AddKategory(CBKateg.Text);
+    if VCategory <> nil then begin
+      FCategoryList.Add(VCategory);
+      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
+    end;
   end;
   ModalResult := mrOk;
 end;
@@ -292,9 +294,9 @@ var
   i:Integer;
   VPictureList: IMarkPictureList;
 begin
-   i:=(Arow*drwgrdIcons.ColCount)+ACol;
-   VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
-   if i < VPictureList.Count then
+  i:=(Arow*drwgrdIcons.ColCount)+ACol;
+  VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
+  if i < VPictureList.Count then
     DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
 end;
 

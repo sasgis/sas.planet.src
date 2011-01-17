@@ -25,7 +25,7 @@ type
 
     function DeleteMarkModal(id:integer;handle:THandle):boolean;
     function OperationMark(AID: Integer; AZoom: Byte):boolean;
-    function AddKategory(name:string): integer;
+    function AddKategory(name:string): TCategoryId;
     procedure ShowMarkLength(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
     procedure ShowMarkSq(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
     function EditMarkModal(AMark: IMarkFull): IMarkFull;
@@ -53,22 +53,18 @@ uses
 
 { TMarksDbGUIHelper }
 
-function TMarksDbGUIHelper.AddKategory(name: string): integer;
+function TMarksDbGUIHelper.AddKategory(name: string): TCategoryId;
 var
   VCategory: TCategoryId;
 begin
   VCategory := TCategoryId.Create;
-  try
-    VCategory.id := -1;
-    VCategory.name := name;
-    VCategory.visible := True;
-    VCategory.AfterScale := 3;
-    VCategory.BeforeScale := 19;
-    FMarksDb.CategoryDB.WriteCategory(VCategory);
-    Result := VCategory.id;
-  finally
-    VCategory.Free;
-  end;
+  VCategory.id := -1;
+  VCategory.name := name;
+  VCategory.visible := True;
+  VCategory.AfterScale := 3;
+  VCategory.BeforeScale := 19;
+  FMarksDb.CategoryDB.WriteCategory(VCategory);
+  Result := VCategory;
 end;
 
 function TMarksDbGUIHelper.AddNewPointModal(ALonLat: TDoublePoint): Boolean;
