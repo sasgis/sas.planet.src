@@ -13,7 +13,6 @@ object FaddPoint: TFaddPoint
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -422,7 +421,7 @@ object FaddPoint: TFaddPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        object Label8: TLabel
+        object lblCategory: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -453,7 +452,7 @@ object FaddPoint: TFaddPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        object Label1: TLabel
+        object lblName: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -464,7 +463,7 @@ object FaddPoint: TFaddPoint
           Layout = tlCenter
           ExplicitHeight = 13
         end
-        object EditName: TEdit
+        object edtName: TEdit
           AlignWithMargins = True
           Left = 32
           Top = 3

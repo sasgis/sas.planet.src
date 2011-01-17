@@ -30,8 +30,8 @@ uses
 
 type
   TFaddPoint = class(TCommonFormParent)
-    EditName: TEdit;
-    Label1: TLabel;
+    edtName: TEdit;
+    lblName: TLabel;
     btnOk: TButton;
     btnCancel: TButton;
     Bevel1: TBevel;
@@ -49,7 +49,7 @@ type
     btnTextColor: TSpeedButton;
     btnShadowColor: TSpeedButton;
     ColorDialog1: TColorDialog;
-    Label8: TLabel;
+    lblCategory: TLabel;
     CBKateg: TComboBox;
     drwgrdIcons: TDrawGrid;
     imgIcon: TImage;
@@ -70,7 +70,6 @@ type
     pnlCategory: TPanel;
     pnlName: TPanel;
     procedure btnOkClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnTextColorClick(Sender: TObject);
     procedure btnShadowColorClick(Sender: TObject);
     procedure drwgrdIconsDrawCell(Sender: TObject; ACol, ARow: Integer;
@@ -122,7 +121,6 @@ var
 begin
   FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description:='';
-  EditName.Text:=SAS_STR_NewMark;
   VLastUsedCategoryName:=CBKateg.Text;
   VCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try
@@ -140,7 +138,7 @@ begin
     drwgrdIcons.Repaint;
     FPicName := AMark.PicName;
     FPic := AMark.Pic;
-    EditName.Text:=AMark.name;
+    edtName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
     seFontSize.Value:=AMark.Scale1;
     seIconSize.Value:=AMark.Scale2;
@@ -159,12 +157,6 @@ begin
       end;
     end;
     if AMark.id < 0 then begin
-      if FPic = nil then begin
-        if VPicCount > 0 then begin
-          FPic := VPictureList.Get(0);
-          FPicName := VPictureList.GetName(0);
-        end;
-      end;
       Caption:=SAS_STR_AddNewMark;
       btnOk.Caption:=SAS_STR_Add;
     end else begin
@@ -189,7 +181,7 @@ begin
         VId := -1;
       end;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoint(
-        EditName.Text,
+        edtName.Text,
         chkVisible.Checked,
         FPicName,
         FPic,
@@ -231,30 +223,11 @@ begin
   ModalResult := mrOk;
 end;
 
-procedure TFaddPoint.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-end;
-
-//procedure TFaddPoint.EditCommentKeyPress(Sender: TObject; var Key: Char);
-//begin
-// if key='$' then
-//  begin
-//   if (sender is TEdit) then key:=' ';
-//   if (sender is TMemo) then key:=' ';
-//  end;
-//end;
-//
-//procedure TFaddPoint.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-//begin
-// if Key=VK_ESCAPE then close;
-// if Key=VK_RETURN then BaddClick(Sender);
-//end;
-
 procedure TFaddPoint.FormShow(Sender: TObject);
 begin
   frLonLatPoint.Parent := pnlLonLat;
   frMarkDescription.Parent := pnlDescription;
-  EditName.SetFocus;
+  edtName.SetFocus;
   drwgrdIcons.Visible:=false;
 end;
 
