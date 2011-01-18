@@ -16,7 +16,6 @@ uses
   GR32,
   u_CommonFormAndFrameParents,
   UResStrings,
-  UMarksExplorer,
   i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
@@ -65,10 +64,6 @@ var
 
 implementation
 
-uses
-  u_GlobalState,
-  u_MarksReadWriteSimple;
-
 {$R *.dfm}
 
 function TFaddLine.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
@@ -80,7 +75,6 @@ var
   VIndex: Integer;
 begin
   FMarkDBGUI := AMarkDBGUI;
-  frMarkDescription.Description := '';
   VLastUsedCategoryName:=CBKateg.Text;
   FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   try

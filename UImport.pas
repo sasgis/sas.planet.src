@@ -17,12 +17,9 @@ uses
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
-  u_KmlInfoSimple,
   i_MarksSimple,
   i_IImportConfig,
-  u_MarksDbGUIHelper,
-  UMarksExplorer,
-  UPLT;
+  u_MarksDbGUIHelper;
 
 type
   TFImport = class(TCommonFormParent)
@@ -94,13 +91,9 @@ var
 implementation
 
 uses
-  u_GlobalState,
   i_IMarkPicture,
   u_MarksSimple,
-  u_MarksReadWriteSimple,
-  u_ImportConfig,
-  Ugeofun,
-  t_GeoTypes;
+  u_ImportConfig;
 
 {$R *.dfm}
 

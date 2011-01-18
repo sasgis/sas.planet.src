@@ -16,7 +16,6 @@ uses
   GR32,
   u_CommonFormAndFrameParents,
   UResStrings,
-  UMarksExplorer,
   i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
@@ -75,10 +74,6 @@ var
   FAddPoly: TFAddPoly;
 
 implementation
-
-uses
-  u_GlobalState,
-  u_MarksReadWriteSimple;
 
 {$R *.dfm}
 

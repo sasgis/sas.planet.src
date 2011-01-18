@@ -19,7 +19,6 @@ uses
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
   UResStrings,
-  UMarksExplorer,
   i_IMarkPicture,
   i_MarksSimple,
   u_MarksSimple,
@@ -100,9 +99,7 @@ var
 implementation
 
 uses
-  Math,
-  u_GlobalState,
-  u_MarksReadWriteSimple;
+  Math;
 
 {$R *.dfm}
 
@@ -201,6 +198,7 @@ begin
     FreeAndNil(FCategoryList);
   end;
 end;
+
 procedure TFaddPoint.btnOkClick(Sender: TObject);
 var
   VCategory: TCategoryId;
