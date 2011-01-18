@@ -16,8 +16,52 @@ type
     property Name: string read GetName;
   end;
 
-  IMarkFull = interface(IMarkID)
+  IMarkTemplatePoint = interface
+    ['{6D769EB1-7D5C-4652-8DC7-BF07166EAB21}']
+    function GetCategoryId: Integer;
+    property CategoryId: Integer read GetCategoryId;
+    function GetColor1: TColor32;
+    property Color1: TColor32 read GetColor1;
+    function GetColor2: TColor32;
+    property Color2: TColor32 read GetColor2;
+    function GetScale1: Integer;
+    property Scale1: Integer read GetScale1;
+    function GetScale2: Integer;
+    property Scale2: Integer read GetScale2;
+    function GetPicName: string;
+    property PicName: string read GetPicName;
+    function GetPic: IMarkPicture;
+    property Pic: IMarkPicture read GetPic;
+  end;
+
+  IMarkTemplateLine = interface
+    ['{99D4D68F-B3E5-4A5D-8E3B-F27D8C44C013}']
+    function GetCategoryId: Integer;
+    property CategoryId: Integer read GetCategoryId;
+    function GetColor1: TColor32;
+    property Color1: TColor32 read GetColor1;
+    function GetScale1: Integer;
+    property Scale1: Integer read GetScale1;
+  end;
+
+  IMarkTemplatePoly = interface
+    function GetCategoryId: Integer;
+    property CategoryId: Integer read GetCategoryId;
+    function GetColor1: TColor32;
+    property Color1: TColor32 read GetColor1;
+    function GetColor2: TColor32;
+    property Color2: TColor32 read GetColor2;
+    function GetScale1: Integer;
+    property Scale1: Integer read GetScale1;
+  end;
+
+
+  IMarkFull = interface
     ['{3502C7E6-F974-4F73-B458-F9C3E979F554}']
+    function GetId: Integer;
+    property Id: Integer read GetId;
+    function GetName: string;
+    property Name: string read GetName;
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
     function GetDesc: string;

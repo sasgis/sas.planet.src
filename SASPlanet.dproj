@@ -106,6 +106,8 @@
     <DCCReference Include="i_IHybrChangeMessage.pas" />
     <DCCReference Include="i_IImageResamplerConfig.pas" />
     <DCCReference Include="i_IImageResamplerFactory.pas" />
+    <DCCReference Include="i_IImportConfig.pas" />
+    <DCCReference Include="i_IImportFile.pas" />
     <DCCReference Include="i_IJclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_IKmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_ILanguageManager.pas" />
@@ -419,6 +421,10 @@
     <DCCReference Include="u_ImageResamplerFactory.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
+    <DCCReference Include="u_ImportByFileExt.pas" />
+    <DCCReference Include="u_ImportConfig.pas" />
+    <DCCReference Include="u_ImportKML.pas" />
+    <DCCReference Include="u_ImportPLT.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
@@ -477,6 +483,7 @@
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MarksSimpleNew.pas" />
+    <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />

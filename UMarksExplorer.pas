@@ -96,6 +96,7 @@ uses
   t_CommonTypes,
   u_GlobalState,
   i_ICoordConverter,
+  i_IImportConfig,
   u_MarksReadWriteSimple,
   USaveas,
   UaddPoint,
@@ -317,10 +318,17 @@ begin
 end;
 
 procedure TFMarksExplorer.Button1Click(Sender: TObject);
+var
+  VImportConfig: IImportConfig;
+  VFileName: string;
 begin
   If (OpenDialog1.Execute) then begin
-    if (FileExists(OpenDialog1.FileName)) then begin
-      FImport.ImportFile(OpenDialog1.FileName, FMarkDBGUI);
+    VFileName := OpenDialog1.FileName;
+    if (FileExists(VFileName)) then begin
+      VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
+      if VImportConfig <> nil then begin
+        //Todo Доделать
+      end;
       UpdateCategoryTree;
       UpdateMarksList;
     end;

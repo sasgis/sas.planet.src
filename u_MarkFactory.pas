@@ -3,18 +3,23 @@ unit u_MarkFactory;
 interface
 
 uses
+  Windows,
   GR32,
   t_GeoTypes,
   i_IMarkPicture,
   i_MarksSimple;
 
 type
+
   TMarkFactory =  class
   private
+    FNewPointCounter: Integer;
+    FNewLineCounter: Integer;
+    FNewPolyCounter: Integer;
     FMarkPictureList: IMarkPictureList;
-    FTemplateNewPoint: IMarkFull;
-    FTemplateNewLine: IMarkFull;
-    FTemplateNewPoly: IMarkFull;
+    FTemplateNewPoint: IMarkTemplatePoint;
+    FTemplateNewLine: IMarkTemplateLine;
+    FTemplateNewPoly: IMarkTemplatePoly;
     function GetLLRectFromPoints(APoints: TDoublePointArray): TDoubleRect;
     function GetLLRectFromPoint(APoint: TDoublePoint): TDoubleRect;
     function GetArrayFromPoint(APoint: TDoublePoint): TDoublePointArray;
@@ -24,23 +29,22 @@ type
       APoint: TDoublePoint;
       AName: string;
       ADesc: string;
-      ATemplate:IMarkFull = nil
+      ATemplate: IMarkTemplatePoint = nil
     ): IMarkFull;
     function CreateNewLine(
       APoints: TDoublePointArray;
       AName: string;
       ADesc: string;
-      ATemplate:IMarkFull = nil
+      ATemplate: IMarkTemplateLine = nil
     ): IMarkFull;
     function CreateNewPoly(
       APoints: TDoublePointArray;
       AName: string;
       ADesc: string;
-      ATemplate:IMarkFull = nil
+      ATemplate: IMarkTemplatePoly = nil
     ): IMarkFull;
 
     function CreatePointTemplate(
-      AVisible: Boolean;
       APicName: string;
       APic: IMarkPicture;
       ACategoryId: Integer;
@@ -48,31 +52,29 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMarkFull; overload;
+    ): IMarkTemplatePoint; overload;
     function CreatePointTemplate(
       ASource: IMarkFull
-    ): IMarkFull; overload;
+    ): IMarkTemplatePoint; overload;
 
     function CreateLineTemplate(
-      AVisible: Boolean;
       ACategoryId: Integer;
       AColor1: TColor32;
       AScale1: Integer
-    ): IMarkFull; overload;
+    ): IMarkTemplateLine; overload;
     function CreateLineTemplate(
       ASource: IMarkFull
-    ): IMarkFull; overload;
+    ): IMarkTemplateLine; overload;
 
     function CreatePolyTemplate(
-      AVisible: Boolean;
       ACategoryId: Integer;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
-    ): IMarkFull; overload;
+    ): IMarkTemplatePoly; overload;
     function CreatePolyTemplate(
       ASource: IMarkFull
-    ): IMarkFull; overload;
+    ): IMarkTemplatePoly; overload;
 
     function CreatePoint(
       AName: string;
@@ -121,9 +123,9 @@ type
     ): IMarkFull;
 
 
-    property TemplateNewPoint: IMarkFull read FTemplateNewPoint write FTemplateNewPoint;
-    property TemplateNewLine: IMarkFull read FTemplateNewLine write FTemplateNewLine;
-    property TemplateNewPoly: IMarkFull read FTemplateNewPoly write FTemplateNewPoly;
+    property TemplateNewPoint: IMarkTemplatePoint read FTemplateNewPoint write FTemplateNewPoint;
+    property TemplateNewLine: IMarkTemplateLine read FTemplateNewLine write FTemplateNewLine;
+    property TemplateNewPoly: IMarkTemplatePoly read FTemplateNewPoly write FTemplateNewPoly;
 
   public
     constructor Create(AMarkPictureList: IMarkPictureList);
@@ -133,8 +135,10 @@ implementation
 
 uses
   Graphics,
+  SysUtils,
   UResStrings,
   Ugeofun,
+  u_MarkTemplates,
   u_MarksSimpleNew;
 
 { TMarkFactory }
@@ -146,6 +150,11 @@ var
 begin
   FMarkPictureList := AMarkPictureList;
 
+  FNewPointCounter := 0;
+  FNewLineCounter := 0;
+  FNewPolyCounter := 0;
+
+
   if FMarkPictureList.Count > 0 then begin
     VPicName := FMarkPictureList.GetName(0);
     VPic := FMarkPictureList.Get(0);
@@ -154,7 +163,6 @@ begin
     VPic := nil;
   end;
   FTemplateNewPoint := CreatePointTemplate(
-    True,
     VPicName,
     VPic,
     -1,
@@ -164,13 +172,11 @@ begin
     32
   );
   FTemplateNewLine := CreateLineTemplate(
-    True,
     -1,
     SetAlpha(Color32(clRed), 166),
     2
   );
   FTemplateNewPoly := CreatePolyTemplate(
-    True,
     -1,
     SetAlpha(Color32(clBlack), 166),
     SetAlpha(Color32(clWhite), 51),
@@ -178,54 +184,28 @@ begin
   );
 end;
 
-function TMarkFactory.CreateLineTemplate(ASource: IMarkFull): IMarkFull;
-var
-  VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+function TMarkFactory.CreateLineTemplate(ASource: IMarkFull): IMarkTemplateLine;
 begin
-  VVisible := True;
-  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
-    VVisible := VMarkVisible.Visible;
-  end;
   Result := CreateLineTemplate(
-    VVisible,
     ASource.CategoryId,
     ASource.Color1,
     ASource.Scale1
   );
 end;
 
-function TMarkFactory.CreateLineTemplate(AVisible: Boolean;
-  ACategoryId: Integer; AColor1: TColor32; AScale1: Integer): IMarkFull;
+function TMarkFactory.CreateLineTemplate(
+  ACategoryId: Integer; AColor1: TColor32; AScale1: Integer): IMarkTemplateLine;
 begin
-  Result := TMarkFull.Create(
-    '',
-    -1,
-    AVisible,
-    '',
-    nil,
+  Result := TMarkTemplateLine.Create(
     ACategoryId,
-    '',
-    DoubleRect(0, 0, 0, 0),
-    nil,
     AColor1,
-    clBlack32,
-    AScale1,
-    0
+    AScale1
   );
 end;
 
-function TMarkFactory.CreatePointTemplate(ASource: IMarkFull): IMarkFull;
-var
-  VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+function TMarkFactory.CreatePointTemplate(ASource: IMarkFull): IMarkTemplatePoint;
 begin
-  VVisible := True;
-  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
-    VVisible := VMarkVisible.Visible;
-  end;
   Result := CreatePointTemplate(
-    VVisible,
     ASource.PicName,
     ASource.Pic,
     ASource.CategoryId,
@@ -236,38 +216,24 @@ begin
   );
 end;
 
-function TMarkFactory.CreatePointTemplate(AVisible: Boolean; APicName: string;
+function TMarkFactory.CreatePointTemplate(APicName: string;
   APic: IMarkPicture; ACategoryId: Integer; AColor1, AColor2: TColor32; AScale1,
-  AScale2: Integer): IMarkFull;
+  AScale2: Integer): IMarkTemplatePoint;
 begin
-  Result := TMarkFull.Create(
-    '',
-    -1,
-    AVisible,
-    APicName,
-    APic,
+  Result := TMarkTemplatePoint.Create(
     ACategoryId,
-    '',
-    DoubleRect(0, 0, 0, 0),
-    nil,
     AColor1,
     AColor2,
     AScale1,
-    AScale2
+    AScale2,
+    APicName,
+    APic
   );
 end;
 
-function TMarkFactory.CreatePolyTemplate(ASource: IMarkFull): IMarkFull;
-var
-  VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+function TMarkFactory.CreatePolyTemplate(ASource: IMarkFull): IMarkTemplatePoly;
 begin
-  VVisible := True;
-  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
-    VVisible := VMarkVisible.Visible;
-  end;
   Result := CreatePolyTemplate(
-    VVisible,
     ASource.CategoryId,
     ASource.Color1,
     ASource.Color2,
@@ -275,53 +241,39 @@ begin
   );
 end;
 
-function TMarkFactory.CreatePolyTemplate(AVisible: Boolean;
+function TMarkFactory.CreatePolyTemplate(
   ACategoryId: Integer; AColor1, AColor2: TColor32;
-  AScale1: Integer): IMarkFull;
+  AScale1: Integer): IMarkTemplatePoly;
 begin
-  Result := TMarkFull.Create(
-    '',
-    -1,
-    AVisible,
-    '',
-    nil,
+  Result := TMarkTemplatePoly.Create(
     ACategoryId,
-    '',
-    DoubleRect(0, 0, 0, 0),
-    nil,
     AColor1,
     AColor2,
-    AScale1,
-    0
+    AScale1
   );
 end;
 
 function TMarkFactory.CreateNewLine(APoints: TDoublePointArray; AName,
-  ADesc: string; ATemplate: IMarkFull): IMarkFull;
+  ADesc: string; ATemplate: IMarkTemplateLine): IMarkFull;
 var
-  VTemplate: IMarkFull;
-  VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VTemplate: IMarkTemplateLine;
   VName: string;
+  VCounter: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
     VTemplate := FTemplateNewLine;
   end;
 
-  VVisible := True;
-  if VTemplate.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
-    VVisible := VMarkVisible.Visible;
-  end;
-
   VName := AName;
   if VName = '' then begin
-    VName := SAS_STR_NewPath;
+    VCounter := InterlockedIncrement(FNewLineCounter);
+    VName := Format('%0:s %.2d', [SAS_STR_NewPath, VCounter]);
   end;
 
   Result := CreateLine(
     VName,
-    VVisible,
+    True,
     VTemplate.CategoryId,
     ADesc,
     APoints,
@@ -332,21 +284,14 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoint(APoint: TDoublePoint; AName, ADesc: string;
-  ATemplate: IMarkFull): IMarkFull;
+  ATemplate: IMarkTemplatePoint): IMarkFull;
 var
-  VTemplate: IMarkFull;
-  VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VTemplate: IMarkTemplatePoint;
   VName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
     VTemplate := FTemplateNewPoint;
-  end;
-
-  VVisible := True;
-  if VTemplate.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
-    VVisible := VMarkVisible.Visible;
   end;
 
   VName := AName;
@@ -356,7 +301,7 @@ begin
 
   Result := CreatePoint(
     VName,
-    VVisible,
+    True,
     VTemplate.PicName,
     VTemplate.Pic,
     VTemplate.CategoryId,
@@ -371,21 +316,14 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoly(APoints: TDoublePointArray; AName,
-  ADesc: string; ATemplate: IMarkFull): IMarkFull;
+  ADesc: string; ATemplate: IMarkTemplatePoly): IMarkFull;
 var
-  VTemplate: IMarkFull;
-  VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VTemplate: IMarkTemplatePoly;
   VName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
     VTemplate := FTemplateNewPoly;
-  end;
-
-  VVisible := True;
-  if VTemplate.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
-    VVisible := VMarkVisible.Visible;
   end;
 
   VName := AName;
@@ -395,7 +333,7 @@ begin
 
   Result := CreatePoly(
     VName,
-    VVisible,
+    True,
     VTemplate.CategoryId,
     ADesc,
     APoints,

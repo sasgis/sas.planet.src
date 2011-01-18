@@ -320,7 +320,8 @@ end;
 
 procedure TMarksOnlyDb.WriteCurrentMark(AMark: IMarkFull);
 begin
-  WriteCurrentMarkId(AMark);
+  FDMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
+  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := False;
   BlobFromExtArr(AMark.Points, FDMMarksDb.CDSmarks.FieldByName('LonLatArr'));
   FDMMarksDb.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
   FDMMarksDb.CDSmarks.FieldByName('descr').AsString := AMark.Desc;

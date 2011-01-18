@@ -313,12 +313,14 @@ var
 begin
   Result := False;
   if AID >= 0 then begin
-    VMark := FMarksDb.MarksDb.GetMarkByID(AID)
+    VMark := FMarksDb.MarksDb.GetMarkByID(AID);
+    if VMark <> nil then begin
+      VMark := FMarksDB.MarksDb.Factory.CreateModifedLine(ANewArrLL, ADescription, VMark);
+    end;
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.TemplateNewLine;
+    VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ANewArrLL, '', ADescription);
   end;
   if VMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.CreateModifedLine(ANewArrLL, ADescription, VMark);
     VMark := FaddLine.EditMark(VMark, Self);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);
@@ -333,12 +335,14 @@ var
 begin
   Result := False;
   if AID >= 0 then begin
-    VMark := FMarksDb.MarksDb.GetMarkByID(AID)
+    VMark := FMarksDb.MarksDb.GetMarkByID(AID);
+    if VMark <> nil then begin
+      VMark := FMarksDB.MarksDb.Factory.CreateModifedPoly(ANewArrLL, VMark);
+    end;
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.TemplateNewPoly;
+    VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ANewArrLL, '', '');
   end;
   if VMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.CreateModifedPoly(ANewArrLL, VMark);
     VMark := FaddPoly.EditMark(VMark, Self);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);

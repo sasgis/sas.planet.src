@@ -669,6 +669,7 @@ uses
   frm_SearchResults,
   frm_InvisibleBrowser,
   i_IProxySettings,
+  i_IImportConfig,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
   u_MarksReadWriteSimple,
@@ -3709,22 +3710,29 @@ var
   VSimpleLog: ILogSimple;
   VThreadLog:ILogForTaskThread;
   VThread: TThreadDownloadTiles;
+  VFileName: string;
+  VImportConfig: IImportConfig;
 begin
-  if (OpenSessionDialog.Execute)and(FileExists(OpenSessionDialog.FileName)) then begin
-    if ExtractFileExt(OpenSessionDialog.FileName)='.sls' then begin
-      VLog := TLogForTaskThread.Create(5000, 0);
-      VSimpleLog := VLog;
-      VThreadLog := VLog;
-      VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
-      TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
-    end else begin
-      if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
-         (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
-         (ExtractFileExt(OpenSessionDialog.FileName)='.plt') then begin
-        FImport.ImportFile(OpenSessionDialog.FileName, FMarkDBGUI);
+  if (OpenSessionDialog.Execute) then begin
+    VFileName := OpenSessionDialog.FileName;
+    if FileExists(VFileName) then begin
+      if ExtractFileExt(VFileName)='.sls' then begin
+        VLog := TLogForTaskThread.Create(5000, 0);
+        VSimpleLog := VLog;
+        VThreadLog := VLog;
+        VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
+        TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
+      end else if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
+        Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);
       end else begin
-        if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
-          Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);
+        if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
+           (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
+           (ExtractFileExt(OpenSessionDialog.FileName)='.plt')
+        then begin
+          VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
+          if VImportConfig <> nil then begin
+            //Todo Доделать
+          end;
         end;
       end;
     end;

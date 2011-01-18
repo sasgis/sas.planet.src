@@ -205,7 +205,6 @@ procedure TFaddPoint.btnOkClick(Sender: TObject);
 var
   VCategory: TCategoryId;
   VIndex: Integer;
-  VId: Integer;
 begin
   VCategory := nil;
   VIndex := CBKateg.ItemIndex;

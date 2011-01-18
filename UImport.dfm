@@ -13,7 +13,7 @@ object FImport: TFImport
   OnActivate = FormActivate
   PixelsPerInch = 96
   TextHeight = 13
-  object Label8: TLabel
+  object lblCategory: TLabel
     Left = 8
     Top = 10
     Width = 58
@@ -354,14 +354,15 @@ object FImport: TFImport
     TabOrder = 4
     OnClick = Button1Click
   end
-  object Button2: TButton
+  object btnCancel: TButton
     Left = 344
     Top = 352
     Width = 75
     Height = 25
+    Cancel = True
     Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+    ModalResult = 2
     TabOrder = 5
-    OnClick = Button2Click
   end
   object CBMarkIgnor: TCheckBox
     Left = 8
