@@ -26,7 +26,7 @@ type
     FCancelDelegate: TEcwCancel;
     FStatusDelegate: TEcwStatus;
   public
-    constructor Create();
+    constructor Create(ALibPath: string);
     function Encode(
       FileName:string;
       Width,Height:cardinal;
@@ -46,11 +46,11 @@ implementation
 uses
   u_GlobalState;
 
-constructor TECWWrite.Create;
+constructor TECWWrite.Create(ALibPath: string);
 var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
 begin
   inherited create;
-  FDllHandle := LoadLibrary(PAnsiChar(GState.ProgramPath + 'NCSEcwC.dll'));
+  FDllHandle := LoadLibrary(PChar(ALibPath + 'NCSEcwC.dll'));
   if FDllHandle = 0 then begin
     ShowMessage('Ошибка при загрузке библиотеки NCSEcwC.dll');
     Halt

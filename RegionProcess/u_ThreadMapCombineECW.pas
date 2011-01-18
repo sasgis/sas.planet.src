@@ -178,7 +178,7 @@ begin
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
   try
-    FECWWriter := TECWWrite.Create;
+    FECWWriter := TECWWrite.Create(GState.ProgramPath);
     btmm := TCustomBitmap32.Create;
     btmh := TCustomBitmap32.Create;
     btmm.Width := 256;
