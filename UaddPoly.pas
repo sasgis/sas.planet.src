@@ -27,26 +27,26 @@ type
   TFAddPoly = class(TCommonFormParent)
     lblName: TLabel;
     edtName: TEdit;
-    Badd: TButton;
-    Button2: TButton;
-    CheckBox2: TCheckBox;
+    btnOk: TButton;
+    btnCancel: TButton;
+    chkVisible: TCheckBox;
     OpenDialog1: TOpenDialog;
-    Label3: TLabel;
-    Label5: TLabel;
-    ColorBox1: TColorBox;
-    SpinEdit1: TSpinEdit;
-    SEtransp: TSpinEdit;
-    Label4: TLabel;
-    SpeedButton1: TSpeedButton;
-    Label6: TLabel;
-    ColorBox2: TColorBox;
-    SEtransp2: TSpinEdit;
-    Label8: TLabel;
-    SpeedButton2: TSpeedButton;
-    Label9: TLabel;
-    Label10: TLabel;
+    lblLineColor: TLabel;
+    lblLineWidth: TLabel;
+    clrbxLineColor: TColorBox;
+    seLineWidth: TSpinEdit;
+    seLineTransp: TSpinEdit;
+    lblLineTransp: TLabel;
+    btnLineColor: TSpeedButton;
+    lblFillColor: TLabel;
+    clrbxFillColor: TColorBox;
+    seFillTransp: TSpinEdit;
+    lblFillTransp: TLabel;
+    btnFillColor: TSpeedButton;
+    lblLine: TLabel;
+    lblFill: TLabel;
     ColorDialog1: TColorDialog;
-    Label7: TLabel;
+    lblCategory: TLabel;
     CBKateg: TComboBox;
     pnlBottomButtons: TPanel;
     flwpnlFill: TFlowPanel;
@@ -56,9 +56,9 @@ type
     pnlDescription: TPanel;
     pnlCategory: TPanel;
     pnlName: TPanel;
-    procedure BaddClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
+    procedure btnLineColorClick(Sender: TObject);
+    procedure btnFillColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
     frMarkDescription: TfrMarkDescription;
@@ -99,12 +99,12 @@ begin
     CBKateg.Text:=VLastUsedCategoryName;
     edtName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
-    SEtransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
-    SEtransp2.Value:=100-round(AlphaComponent(AMark.Color2)/255*100);
-    SpinEdit1.Value:=AMark.Scale1;
-    ColorBox1.Selected:=WinColor(AMark.Color1);
-    ColorBox2.Selected:=WinColor(AMark.Color2);
-    CheckBox2.Checked:=(AMark as IMarkVisible).visible;
+    seLineTransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
+    seFillTransp.Value:=100-round(AlphaComponent(AMark.Color2)/255*100);
+    seLineWidth.Value:=AMark.Scale1;
+    clrbxLineColor.Selected:=WinColor(AMark.Color1);
+    clrbxFillColor.Selected:=WinColor(AMark.Color2);
+    chkVisible.Checked:=(AMark as IMarkVisible).visible;
     VId := AMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := TCategoryId(CBKateg.Items.Objects[i]);
@@ -117,11 +117,10 @@ begin
     end;
     if AMark.id < 0 then begin
       Caption:=SAS_STR_AddNewPoly;
-      Badd.Caption:=SAS_STR_Add;
-      CheckBox2.Checked:=true;
+      btnOk.Caption:=SAS_STR_Add;
     end else begin
       Caption:=SAS_STR_EditPoly;
-      Badd.Caption:=SAS_STR_Edit;
+      btnOk.Caption:=SAS_STR_Edit;
     end;
     if ShowModal=mrOk then begin
       VCategory := nil;
@@ -139,13 +138,13 @@ begin
       end;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoly(
         edtName.Text,
-        CheckBox2.Checked,
+        chkVisible.Checked,
         VId,
         frMarkDescription.Description,
         AMark.Points,
-        SetAlpha(Color32(ColorBox1.Selected),round(((100-SEtransp.Value)/100)*256)),
-        SetAlpha(Color32(ColorBox2.Selected),round(((100-SEtransp2.Value)/100)*256)),
-        SpinEdit1.Value,
+        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256)),
+        seLineWidth.Value,
         AMark
       )
     end else begin
@@ -168,13 +167,10 @@ begin
   frMarkDescription.RefreshTranslation;
 end;
 
-procedure TFAddPoly.BaddClick(Sender: TObject);
-var i:integer;
-    alltl,allbr:TDoublePoint;
-    VPointCount: integer;
-    VCategory: TCategoryId;
-    VIndex: Integer;
-    VId: Integer;
+procedure TFAddPoly.btnOkClick(Sender: TObject);
+var
+  VCategory: TCategoryId;
+  VIndex: Integer;
 begin
   VCategory := nil;
   VIndex := CBKateg.ItemIndex;
@@ -206,14 +202,14 @@ begin
   inherited;
 end;
 
-procedure TFAddPoly.SpeedButton1Click(Sender: TObject);
+procedure TFAddPoly.btnLineColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then ColorBox1.Selected:=ColorDialog1.Color;
+ if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFAddPoly.SpeedButton2Click(Sender: TObject);
+procedure TFAddPoly.btnFillColorClick(Sender: TObject);
 begin
- if ColorDialog1.Execute then ColorBox2.Selected:=ColorDialog1.Color;
+ if ColorDialog1.Execute then clrbxFillColor.Selected:=ColorDialog1.Color;
 end;
 
 end.

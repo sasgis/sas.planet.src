@@ -15,7 +15,7 @@ object FAddPoly: TFAddPoly
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object CheckBox2: TCheckBox
+  object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
     Top = 300
@@ -35,7 +35,7 @@ object FAddPoly: TFAddPoly
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
-    object Badd: TButton
+    object btnOk: TButton
       AlignWithMargins = True
       Left = 172
       Top = 3
@@ -46,9 +46,9 @@ object FAddPoly: TFAddPoly
       Default = True
       ModalResult = 1
       TabOrder = 0
-      OnClick = BaddClick
+      OnClick = btnOkClick
     end
-    object Button2: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 251
       Top = 3
@@ -71,7 +71,7 @@ object FAddPoly: TFAddPoly
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 4
-    object Label10: TLabel
+    object lblFill: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -93,7 +93,7 @@ object FAddPoly: TFAddPoly
       BevelKind = bkTile
       BevelOuter = bvNone
       TabOrder = 0
-      object Label6: TLabel
+      object lblFillColor: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -101,7 +101,7 @@ object FAddPoly: TFAddPoly
         Height = 13
         Caption = #1062#1074#1077#1090
       end
-      object ColorBox2: TColorBox
+      object clrbxFillColor: TColorBox
         AlignWithMargins = True
         Left = 35
         Top = 3
@@ -112,16 +112,16 @@ object FAddPoly: TFAddPoly
         ItemHeight = 16
         TabOrder = 0
       end
-      object SpeedButton2: TSpeedButton
+      object btnFillColor: TSpeedButton
         AlignWithMargins = True
         Left = 79
         Top = 3
         Width = 17
         Height = 22
         Caption = '...'
-        OnClick = SpeedButton2Click
+        OnClick = btnFillColorClick
       end
-      object Label8: TLabel
+      object lblFillTransp: TLabel
         AlignWithMargins = True
         Left = 102
         Top = 3
@@ -129,7 +129,7 @@ object FAddPoly: TFAddPoly
         Height = 13
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
       end
-      object SEtransp2: TSpinEdit
+      object seFillTransp: TSpinEdit
         AlignWithMargins = True
         Left = 193
         Top = 3
@@ -151,7 +151,7 @@ object FAddPoly: TFAddPoly
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
-    object Label9: TLabel
+    object lblLine: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -171,7 +171,7 @@ object FAddPoly: TFAddPoly
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 0
-      object Label3: TLabel
+      object lblLineColor: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -179,7 +179,7 @@ object FAddPoly: TFAddPoly
         Height = 13
         Caption = #1062#1074#1077#1090
       end
-      object ColorBox1: TColorBox
+      object clrbxLineColor: TColorBox
         AlignWithMargins = True
         Left = 35
         Top = 3
@@ -189,16 +189,16 @@ object FAddPoly: TFAddPoly
         ItemHeight = 16
         TabOrder = 0
       end
-      object SpeedButton1: TSpeedButton
+      object btnLineColor: TSpeedButton
         AlignWithMargins = True
         Left = 79
         Top = 3
         Width = 17
         Height = 22
         Caption = '...'
-        OnClick = SpeedButton1Click
+        OnClick = btnLineColorClick
       end
-      object Label5: TLabel
+      object lblLineWidth: TLabel
         AlignWithMargins = True
         Left = 102
         Top = 3
@@ -206,7 +206,7 @@ object FAddPoly: TFAddPoly
         Height = 13
         Caption = #1064#1080#1088#1080#1085#1072
       end
-      object SpinEdit1: TSpinEdit
+      object seLineWidth: TSpinEdit
         AlignWithMargins = True
         Left = 148
         Top = 3
@@ -217,7 +217,7 @@ object FAddPoly: TFAddPoly
         TabOrder = 1
         Value = 2
       end
-      object Label4: TLabel
+      object lblLineTransp: TLabel
         AlignWithMargins = True
         Left = 195
         Top = 3
@@ -225,7 +225,7 @@ object FAddPoly: TFAddPoly
         Height = 13
         Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
       end
-      object SEtransp: TSpinEdit
+      object seLineTransp: TSpinEdit
         AlignWithMargins = True
         Left = 286
         Top = 3
@@ -257,7 +257,7 @@ object FAddPoly: TFAddPoly
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    object Label7: TLabel
+    object lblCategory: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
