@@ -92,7 +92,7 @@ begin
     SEtransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
     seWidth.Value:=AMark.Scale1;
     clrbxLineColor.Selected:=WinColor(AMark.Color1);
-    chkVisible.Checked:=(AMark as IMarkVisible).visible;
+    chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     VId := AMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := TCategoryId(CBKateg.Items.Objects[i]);

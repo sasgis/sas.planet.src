@@ -10,7 +10,6 @@ object FImport: TFImport
   OldCreateOrder = False
   Position = poScreenCenter
   ShowHint = True
-  OnActivate = FormActivate
   PixelsPerInch = 96
   TextHeight = 13
   object lblCategory: TLabel
@@ -28,72 +27,72 @@ object FImport: TFImport
     ItemHeight = 13
     TabOrder = 0
   end
-  object GroupBox1: TGroupBox
+  object grpPoint: TGroupBox
     Left = 8
     Top = 64
     Width = 489
     Height = 81
     Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1084#1077#1090#1086#1082
     TabOrder = 1
-    object Label3: TLabel
+    object lblPointTextColor: TLabel
       Left = 128
       Top = 24
       Width = 64
       Height = 13
       Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
     end
-    object Label4: TLabel
+    object lblPointShadowColor: TLabel
       Left = 128
       Top = 48
       Width = 53
       Height = 13
       Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
     end
-    object Label5: TLabel
+    object lblPointFontSize: TLabel
       Left = 256
       Top = 24
       Width = 78
       Height = 13
       Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
     end
-    object Label6: TLabel
+    object lblPointIconSize: TLabel
       Left = 256
       Top = 48
       Width = 74
       Height = 13
       Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
     end
-    object Label7: TLabel
+    object lblPointTextTransp: TLabel
       Left = 392
       Top = 24
       Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
-    object SpeedButton1: TSpeedButton
+    object btnPointTextColor: TSpeedButton
       Left = 230
       Top = 21
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton1Click
+      OnClick = btnPointTextColorClick
     end
-    object SpeedButton2: TSpeedButton
+    object btnPointShadowColor: TSpeedButton
       Left = 230
       Top = 45
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton2Click
+      OnClick = btnPointShadowColorClick
     end
-    object Label17: TLabel
+    object lblPointIcon: TLabel
       Left = 16
       Top = 32
       Width = 37
       Height = 13
       Caption = #1048#1082#1086#1085#1082#1072
     end
-    object ColorBox1: TColorBox
+    object clrbxPointTextColor: TColorBox
       Left = 192
       Top = 21
       Width = 38
@@ -103,7 +102,7 @@ object FImport: TFImport
       ItemHeight = 16
       TabOrder = 0
     end
-    object SpinEdit1: TSpinEdit
+    object sePointFontSize: TSpinEdit
       Left = 344
       Top = 21
       Width = 41
@@ -113,7 +112,7 @@ object FImport: TFImport
       TabOrder = 1
       Value = 11
     end
-    object ColorBox2: TColorBox
+    object clrbxPointShadowColor: TColorBox
       Left = 192
       Top = 45
       Width = 38
@@ -122,7 +121,7 @@ object FImport: TFImport
       ItemHeight = 16
       TabOrder = 2
     end
-    object SpinEdit2: TSpinEdit
+    object sePointIconSize: TSpinEdit
       Left = 344
       Top = 45
       Width = 41
@@ -132,7 +131,7 @@ object FImport: TFImport
       TabOrder = 3
       Value = 32
     end
-    object SEtransp: TSpinEdit
+    object sePointTextTransp: TSpinEdit
       Left = 432
       Top = 43
       Width = 41
@@ -142,7 +141,7 @@ object FImport: TFImport
       TabOrder = 4
       Value = 35
     end
-    object ComboBox1: TComboBox
+    object cbbPointIcon: TComboBox
       Left = 64
       Top = 21
       Width = 57
@@ -153,46 +152,46 @@ object FImport: TFImport
       ParentShowHint = False
       ShowHint = False
       TabOrder = 5
-      OnDrawItem = ComboBox1DrawItem
+      OnDrawItem = cbbPointIconDrawItem
     end
   end
-  object GroupBox2: TGroupBox
+  object grpLine: TGroupBox
     Left = 8
     Top = 176
     Width = 489
     Height = 57
     Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1091#1090#1077#1081
     TabOrder = 2
-    object Label1: TLabel
+    object lblLineColor: TLabel
       Left = 88
       Top = 24
       Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
-    object Label2: TLabel
+    object lblLineWidth: TLabel
       Left = 194
       Top = 24
       Width = 40
       Height = 13
       Caption = #1064#1080#1088#1080#1085#1072
     end
-    object Label9: TLabel
+    object lblLineTransp: TLabel
       Left = 298
       Top = 24
       Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
-    object SpeedButton3: TSpeedButton
+    object btnLineColor: TSpeedButton
       Left = 155
       Top = 21
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton3Click
+      OnClick = btnLineColorClick
     end
-    object ColorBox3: TColorBox
+    object clrbxLineColor: TColorBox
       Left = 117
       Top = 21
       Width = 38
@@ -202,7 +201,7 @@ object FImport: TFImport
       ItemHeight = 16
       TabOrder = 0
     end
-    object SpinEdit3: TSpinEdit
+    object seLineWidth: TSpinEdit
       Left = 237
       Top = 21
       Width = 41
@@ -212,7 +211,7 @@ object FImport: TFImport
       TabOrder = 1
       Value = 2
     end
-    object SpinEdit4: TSpinEdit
+    object seLineTransp: TSpinEdit
       Left = 384
       Top = 21
       Width = 41
@@ -223,79 +222,79 @@ object FImport: TFImport
       Value = 35
     end
   end
-  object GroupBox3: TGroupBox
+  object grpPoly: TGroupBox
     Left = 8
     Top = 264
     Width = 489
     Height = 81
     Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1086#1083#1080#1075#1086#1085#1086#1074
     TabOrder = 3
-    object Label10: TLabel
+    object lblPolyLineColor: TLabel
       Left = 88
       Top = 24
       Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
-    object Label11: TLabel
+    object lblPolyLineWidth: TLabel
       Left = 194
       Top = 24
       Width = 40
       Height = 13
       Caption = #1064#1080#1088#1080#1085#1072
     end
-    object Label12: TLabel
+    object lblPolyLineTransp: TLabel
       Left = 298
       Top = 24
       Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
-    object SpeedButton4: TSpeedButton
+    object btnPolyLineColor: TSpeedButton
       Left = 155
       Top = 21
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton4Click
+      OnClick = btnPolyLineColorClick
     end
-    object Label13: TLabel
+    object lblPolyFillColor: TLabel
       Left = 88
       Top = 48
       Width = 26
       Height = 13
       Caption = #1062#1074#1077#1090
     end
-    object Label14: TLabel
+    object lblPolyFillTransp: TLabel
       Left = 194
       Top = 48
       Width = 85
       Height = 13
       Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
     end
-    object SpeedButton5: TSpeedButton
+    object btnPolyFillColor: TSpeedButton
       Left = 155
       Top = 45
       Width = 17
       Height = 22
       Caption = '...'
-      OnClick = SpeedButton5Click
+      OnClick = btnPolyFillColorClick
     end
-    object Label15: TLabel
+    object lblPolyLine: TLabel
       Left = 8
       Top = 22
       Width = 35
       Height = 13
       Caption = #1051#1080#1085#1080#1103':'
     end
-    object Label16: TLabel
+    object lblPolyFill: TLabel
       Left = 8
       Top = 46
       Width = 64
       Height = 13
       Caption = #1047#1072#1087#1086#1083#1085#1077#1085#1080#1077':'
     end
-    object ColorBox4: TColorBox
+    object clrbxPolyLineColor: TColorBox
       Left = 117
       Top = 21
       Width = 38
@@ -304,7 +303,7 @@ object FImport: TFImport
       ItemHeight = 16
       TabOrder = 0
     end
-    object SpinEdit5: TSpinEdit
+    object sePolyLineWidth: TSpinEdit
       Left = 237
       Top = 21
       Width = 41
@@ -314,7 +313,7 @@ object FImport: TFImport
       TabOrder = 1
       Value = 2
     end
-    object SpinEdit6: TSpinEdit
+    object sePolyLineTransp: TSpinEdit
       Left = 384
       Top = 21
       Width = 41
@@ -324,7 +323,7 @@ object FImport: TFImport
       TabOrder = 2
       Value = 35
     end
-    object ColorBox5: TColorBox
+    object clrbxPolyFillColor: TColorBox
       Left = 117
       Top = 45
       Width = 38
@@ -334,7 +333,7 @@ object FImport: TFImport
       ItemHeight = 16
       TabOrder = 3
     end
-    object SEtransp2: TSpinEdit
+    object sePolyFillTransp: TSpinEdit
       Left = 280
       Top = 45
       Width = 41
@@ -345,14 +344,14 @@ object FImport: TFImport
       Value = 80
     end
   end
-  object Button1: TButton
+  object btnOk: TButton
     Left = 424
     Top = 352
     Width = 75
     Height = 25
     Caption = #1053#1072#1095#1072#1090#1100
     TabOrder = 4
-    OnClick = Button1Click
+    OnClick = btnOkClick
   end
   object btnCancel: TButton
     Left = 344
@@ -364,7 +363,7 @@ object FImport: TFImport
     ModalResult = 2
     TabOrder = 5
   end
-  object CBMarkIgnor: TCheckBox
+  object chkPointIgnore: TCheckBox
     Left = 8
     Top = 40
     Width = 129
@@ -372,7 +371,7 @@ object FImport: TFImport
     Caption = #1048#1075#1085#1086#1088#1080#1088#1086#1074#1072#1090#1100' '#1084#1077#1090#1082#1080
     TabOrder = 6
   end
-  object CBPathIgnor: TCheckBox
+  object chkLineIgnore: TCheckBox
     Left = 8
     Top = 152
     Width = 129
@@ -380,7 +379,7 @@ object FImport: TFImport
     Caption = #1048#1075#1085#1086#1088#1080#1088#1086#1074#1072#1090#1100' '#1087#1091#1090#1080
     TabOrder = 7
   end
-  object CBPolyIgnor: TCheckBox
+  object chkPolyIgnore: TCheckBox
     Left = 8
     Top = 240
     Width = 153

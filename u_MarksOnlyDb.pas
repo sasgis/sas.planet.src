@@ -40,7 +40,8 @@ type
     procedure WriteMark(AMark: IMarkFull);
     procedure WriteMarkId(AMark: IMarkId);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
-    function GetMarkVisible(AMark: IMarkId): Boolean;
+    function GetMarkVisible(AMark: IMarkId): Boolean; overload;
+    function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
     property Factory: TMarkFactory read FFactory;
     function GetAllMarskIdList: IInterfaceList;
@@ -358,9 +359,28 @@ begin
   Result := TMarksIteratorVisibleInRectByCategoryList.Create(Self, ARect, ACategoryIDList, AIgnoreVisible, AOwnList);
 end;
 
-function TMarksOnlyDb.GetMarkVisible(AMark: IMarkId): Boolean;
+function TMarksOnlyDb.GetMarkVisible(AMark: IMarkFull): Boolean;
+var
+  VMarkVisible: IMarkVisible;
 begin
-  Result := (AMark as IMarkVisible).Visible;
+  Result := True;
+  if AMark <> nil then begin
+    if Supports(AMark, IMarkVisible, VMarkVisible) then begin
+      Result := VMarkVisible.Visible;
+    end;
+  end;
+end;
+
+function TMarksOnlyDb.GetMarkVisible(AMark: IMarkId): Boolean;
+var
+  VMarkVisible: IMarkVisible;
+begin
+  Result := True;
+  if AMark <> nil then begin
+    if Supports(AMark, IMarkVisible, VMarkVisible) then begin
+      Result := VMarkVisible.Visible;
+    end;
+  end;
 end;
 
 procedure TMarksOnlyDb.WriteMark(AMark: IMarkFull);

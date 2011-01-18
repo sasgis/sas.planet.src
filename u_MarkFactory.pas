@@ -352,7 +352,7 @@ var
   VMarkVisible: IMarkVisible;
 begin
   VVisible := True;
-  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
+  if Supports(ASource, IMarkVisible, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
   end;
   VDesc := ADesc;
@@ -378,7 +378,7 @@ var
   VMarkVisible: IMarkVisible;
 begin
   VVisible := True;
-  if ASource.QueryInterface(IMarkVisible, VMarkVisible) = S_OK then begin
+  if Supports(ASource, IMarkVisible, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
   end;
   Result := CreatePoly(
