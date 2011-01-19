@@ -228,13 +228,13 @@ var
   TestArrLenPixelRect: TDoubleRect;
   VScale1: Integer;
   VPointCount: Integer;
-  VMarksIterator: TMarksIteratorBase;
+//  VMarksIterator: TMarksIteratorBase;
   VMark: IMarkFull;
 begin
-  VMarksIterator := GState.MarksDb.MarksDb.GetMarksIteratorByCategoryIdList(FLLRect, nil, True, False);
+//  VMarksIterator := GState.MarksDb.MarksDb.GetMarksIteratorByCategoryIdList(FLLRect, nil, True, False);
   try
-    While VMarksIterator.Next do begin
-      VMark := VMarksIterator.Current;
+//    While VMarksIterator.Next do begin
+//      VMark := VMarksIterator.Current;
       VScale1 := VMark.Scale1;
       VPointCount := length(VMark.Points);
       if VPointCount > 1 then begin
@@ -261,9 +261,9 @@ begin
           VMark.Color2
           );
       end;
-    end;
+//    end;
   finally
-    VMarksIterator.Free;
+//    VMarksIterator.Free;
   end;
 end;
 

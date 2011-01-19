@@ -11,6 +11,7 @@ uses
   i_IMapLayerNavToPointMarkerConfig,
   i_IMainFormBehaviourByGPSConfig,
   i_IMainGeoCoderConfig,
+  i_IUsedMarksConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -58,6 +59,9 @@ type
 
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
     property NavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig read GetNavToPointMarkerConfig;
+
+    function GetMarksShowConfig: IUsedMarksConfig;
+    property MarksShowConfig: IUsedMarksConfig read GetMarksShowConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)

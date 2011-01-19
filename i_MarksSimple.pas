@@ -3,11 +3,19 @@ unit i_MarksSimple;
 interface
 
 uses
+  ActiveX,
   GR32,
   t_GeoTypes,
   i_IMarkPicture;
 
 type
+  IMarkVisible = interface
+  ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
+    function GetVisible: Boolean;
+    procedure SetVisible(AValue: Boolean);
+    property Visible: Boolean read GetVisible write SetVisible;
+  end;
+
   IMarkID = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
     function GetId: Integer;
@@ -90,13 +98,11 @@ type
     function GetGoToLonLat: TDoublePoint;
   end;
 
-  IMarkVisible = interface
-  ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
-    function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
-    property Visible: Boolean read GetVisible write SetVisible;
+  IMarksSubset = interface
+    ['{D2DBC018-AAF5-44CB-A2B1-B5AC1C3341C5}']
+    function GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
+    function GetEnum: IEnumUnknown;
   end;
-
 
 implementation
 

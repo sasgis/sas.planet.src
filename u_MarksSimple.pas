@@ -17,16 +17,6 @@ type
     visible: boolean;
   end;
 
-  TMarksIteratorBase = class
-  protected
-    FCurrentMark: IMarkFull;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    function Next: Boolean; virtual; abstract;
-    property Current: IMarkFull read FCurrentMark;
-  end;
-
 implementation
 
 uses
@@ -48,25 +38,5 @@ uses
 //  end;
 //end;
 //
-
-//
-//procedure TMarkFull.SetPic(const APic: IMarkPicture; const APicName: string);
-//begin
-//  FPic := APic;
-//  FPicName := APicName;
-//end;
-
-{ TMarksIteratorBase }
-
-constructor TMarksIteratorBase.Create;
-begin
-//  FCurrentMark := TMarkFull.Create;
-end;
-
-destructor TMarksIteratorBase.Destroy;
-begin
-//  FreeAndNil(FCurrentMark);
-  inherited;
-end;
 
 end.

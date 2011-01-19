@@ -622,8 +622,8 @@ type
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
     procedure OnMapUpdate(AMapType: TMapType);
-    function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
-      AShowType: TMarksShowType): TMarksIteratorBase;
+//    function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
+//      AShowType: TMarksShowType): TMarksIteratorBase;
   end;
 
 var
@@ -1924,18 +1924,18 @@ begin
   Result.Add(NFillMap);
 end;
 
-function TFmain.GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
-  AShowType: TMarksShowType): TMarksIteratorBase;
-var
-  VIgnoredID: Integer;
-begin
-  if (FCurrentOper = ao_edit_line) or (FCurrentOper = ao_edit_poly) then begin
-    VIgnoredID := FEditMarkId;
-  end else begin
-    VIgnoredID := -1;
-  end;
-//  Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
-end;
+//function TFmain.GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
+//  AShowType: TMarksShowType): TMarksIteratorBase;
+//var
+//  VIgnoredID: Integer;
+//begin
+//  if (FCurrentOper = ao_edit_line) or (FCurrentOper = ao_edit_poly) then begin
+//    VIgnoredID := FEditMarkId;
+//  end else begin
+//    VIgnoredID := -1;
+//  end;
+////  Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
+//end;
 
 procedure TFmain.zooming(ANewZoom:byte;move:boolean);
   procedure usleep(mils:integer);

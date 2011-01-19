@@ -33,7 +33,7 @@ type
     function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
     function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
     function GetVisibleCateroriesIDList(AZoom: Byte): TList;
-    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
+//    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
 
     property MarksDB: TMarksDB read FMarksDB;
   public
@@ -238,17 +238,17 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible,
-  AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
-var
-  VList: TList;
-begin
-  VList := nil;
-  if not AIgnoreCategoriesVisible then begin
-    VList := GetVisibleCateroriesIDList(AZoom);
-  end;
-  Result := FMarksDB.MarksDb.GetMarksIteratorByCategoryIdList(ARect, VList, AIgnoreMarksVisible, True);
-end;
+//function TMarksDbGUIHelper.GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible,
+//  AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
+//var
+//  VList: TList;
+//begin
+//  VList := nil;
+//  if not AIgnoreCategoriesVisible then begin
+//    VList := GetVisibleCateroriesIDList(AZoom);
+//  end;
+//  Result := FMarksDB.MarksDb.GetMarksIteratorByCategoryIdList(ARect, VList, AIgnoreMarksVisible, True);
+//end;
 
 procedure TMarksDbGUIHelper.ShowMarkSq(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
 var

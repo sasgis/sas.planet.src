@@ -460,6 +460,7 @@
     <DCCReference Include="u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
+    <DCCReference Include="u_MapMarksBitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderStuped.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
@@ -483,6 +484,7 @@
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />
     <DCCReference Include="u_MarksSimpleNew.pas" />
+    <DCCReference Include="u_MarksSubset.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />

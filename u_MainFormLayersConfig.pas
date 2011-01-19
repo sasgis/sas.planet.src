@@ -8,6 +8,7 @@ uses
   i_IMapLayerGPSMarkerConfig,
   i_IMapLayerGPSTrackConfig,
   i_IMapLayerNavToPointMarkerConfig,
+  i_IUsedMarksConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -19,12 +20,14 @@ type
     FGPSMarker: IMapLayerGPSMarkerConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
+    FMarksShowConfig: IUsedMarksConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
     function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
+    function GetMarksShowConfig: IUsedMarksConfig;
   public
     constructor Create;
   end;
@@ -38,6 +41,7 @@ uses
   u_StatBarConfig,
   u_MapLayerGPSMarkerConfig,
   u_MapLayerGPSTrackConfig,
+  u_UsedMarksConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -55,6 +59,8 @@ begin
   Add(FGPSTrackConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPSTrack'));
   FNavToPointMarkerConfig := TMapLayerNavToPointMarkerConfig.Create;
   Add(FNavToPointMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPointMarker'));
+  FMarksShowConfig := TUsedMarksConfig.Create;
+  Add(FMarksShowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
 end;
 
 function TMainFormLayersConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
@@ -70,6 +76,11 @@ end;
 function TMainFormLayersConfig.GetMapLayerGridsConfig: IMapLayerGridsConfig;
 begin
   Result := FMapLayerGridsConfig;
+end;
+
+function TMainFormLayersConfig.GetMarksShowConfig: IUsedMarksConfig;
+begin
+  Result := FMarksShowConfig;
 end;
 
 function TMainFormLayersConfig.GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;

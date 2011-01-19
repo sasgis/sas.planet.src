@@ -5,12 +5,15 @@ interface
 uses
   GR32,
   GR32_Image,
+  i_IUsedMarksConfig,
   Ugeofun,
   u_MapViewPortState,
   u_MapLayerBasic;
 
 type
   TMapMarksLayer = class(TMapLayerBasic)
+  private
+    FConfig: IUsedMarksConfig;
   protected
     procedure DoRedraw; override;
   public
@@ -41,8 +44,6 @@ uses
 constructor TMapMarksLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
 begin
   inherited;
-  FLayer.Bitmap.Font.Name := 'Tahoma';
-  FLayer.Bitmap.Font.Style := [];
 end;
 
 procedure TMapMarksLayer.DoRedraw;
@@ -78,7 +79,7 @@ var
   VMarkLonLatRect: TDoubleRect;
   VPixelPos: TPoint;
   VZoom: Byte;
-  VMarksIterator: TMarksIteratorBase;
+//  VMarksIterator: TMarksIteratorBase;
   VMark: IMarkFull;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
@@ -98,11 +99,11 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   VPixelPos := FVisualCoordConverter.LocalPixel2MapPixel(xy);
-
-  VMarksIterator := FMain.GetMarksIterator(VZoom, VLonLatRect, GState.show_point);
-  try
-    While VMarksIterator.Next do begin
-      VMark := VMarksIterator.Current;
+//
+//  VMarksIterator := FMain.GetMarksIterator(VZoom, VLonLatRect, GState.show_point);
+//  try
+//    While VMarksIterator.Next do begin
+//      VMark := VMarksIterator.Current;
       VMarkLonLatRect := VMark.LLRect;
 
       if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
@@ -145,10 +146,10 @@ begin
           end;
         end;
       end;
-    end;
-  finally
-    VMarksIterator.Free;
- end;
+//    end;
+//  finally
+//    VMarksIterator.Free;
+// end;
 end;
 
 end.
