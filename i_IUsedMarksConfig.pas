@@ -9,8 +9,11 @@ type
   IUsedMarksConfigStatic = interface
   ['{77A54AD4-2B5B-48CE-BD5F-1F4B89763FF2}']
     function GetIsUseMarks: Boolean;
+    property IsUseMarks: Boolean read GetIsUseMarks;
     function GetIgnoreCategoriesVisible: Boolean;
+    property IgnoreCategoriesVisible: Boolean read GetIgnoreCategoriesVisible;
     function GetIgnoreMarksVisible: Boolean;
+    property IgnoreMarksVisible: Boolean read GetIgnoreMarksVisible;
   end;
 
   IUsedMarksConfig = interface(IConfigDataElement)

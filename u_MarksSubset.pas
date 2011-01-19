@@ -15,6 +15,7 @@ type
   protected
     function GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
     function GetEnum: IEnumUnknown;
+    function IsEmpty: Boolean;
   public
     constructor Create(AList: IInterfaceList);
   end;
@@ -62,6 +63,11 @@ begin
     VNewList.Unlock;
   end;
   Result := TMarksSubset.Create(VNewList);
+end;
+
+function TMarksSubset.IsEmpty: Boolean;
+begin
+  Result := FList.Count = 0;
 end;
 
 end.

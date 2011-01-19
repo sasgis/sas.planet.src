@@ -6,18 +6,30 @@ uses
   GR32,
   GR32_Image,
   i_IUsedMarksConfig,
+  i_MarksSimple,
   Ugeofun,
   u_MapViewPortState,
+  u_MarksDbGUIHelper,
   u_MapLayerBasic;
 
 type
   TMapMarksLayer = class(TMapLayerBasic)
   private
     FConfig: IUsedMarksConfig;
+    FConfigStatic: IUsedMarksConfigStatic;
+    FMarkDBGUI: TMarksDbGUIHelper;
+    FMarksSubset: IMarksSubset;
+    procedure OnConfigChange(Sender: TObject);
+    function GetMarksSubset: IMarksSubset;
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: TMapViewPortState;
+      AConfig: IUsedMarksConfig;
+      AMarkDBGUI: TMarksDbGUIHelper
+    );
     procedure MouseOnMyReg(var APWL: TResObj; xy: TPoint);
     property Visible: Boolean read GetVisible write SetVisible;
   end;
@@ -35,15 +47,26 @@ uses
   i_ICoordConverter,
   i_IBitmapLayerProvider,
   i_ILocalCoordConverter,
-  i_MarksSimple,
   u_MarksSimple,
-  Unit1;
+  u_NotifyEventListener;
 
 { TMapMarksLayer }
 
-constructor TMapMarksLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TMapMarksLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: TMapViewPortState;
+  AConfig: IUsedMarksConfig;
+  AMarkDBGUI: TMarksDbGUIHelper
+);
 begin
-  inherited;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
+  FMarkDBGUI := AMarkDBGUI;
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
 end;
 
 procedure TMapMarksLayer.DoRedraw;
@@ -52,6 +75,8 @@ var
   VProv: IBitmapLayerProvider;
 begin
   inherited;
+
+
   if (GState.show_point <> mshNone) then begin
     VProv := GState.MarksBitmapProvider;
     VRect := FBitmapCoordConverter.GetRectInMapPixel;
@@ -150,6 +175,57 @@ begin
 //  finally
 //    VMarksIterator.Free;
 // end;
+end;
+function TMapMarksLayer.GetMarksSubset: IMarksSubset;
+var
+  VList: TList;
+  VConverter: ILocalCoordConverter;
+  VZoom: Byte;
+  VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VGeoConverter: ICoordConverter;
+begin
+  VList := nil;
+  if FConfigStatic.IsUseMarks then begin
+    VConverter := FBitmapCoordConverter;
+    if VConverter <> nil then begin
+      VZoom := VConverter.GetZoom;
+      if not FConfigStatic.IgnoreCategoriesVisible then begin
+        VList := FMarkDBGUI.GetVisibleCateroriesIDList(VZoom);
+      end;
+      try
+        if (VList <> nil) and (VList.Count = 0) then begin
+          Result := nil;
+        end else begin
+          VGeoConverter := VConverter.GetGeoConverter;
+          VMapPixelRect := VConverter.GetRectInMapPixelFloat;
+          VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+          VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+          Result := FMarkDBGUI.MarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
+        end;
+      finally
+        VList.Free;
+      end;
+    end;
+  end else begin
+    Result := nil;
+  end;
+end;
+
+procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
+begin
+  FConfigStatic := FConfig.GetStatic;
+  FMarksSubset := GetMarksSubset;
+  if FMarksSubset <> nil then begin
+    if not FMarksSubset.IsEmpty then begin
+      Redraw;
+      Show
+    end else begin
+      Hide;
+    end;
+  end else begin
+    Hide
+  end;
 end;
 
 end.

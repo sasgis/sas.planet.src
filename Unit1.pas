@@ -850,7 +850,7 @@ begin
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap:=TMapLayerFillingMap.create(map, GState.ViewState);
     FLayersList.Add(FLayerFillingMap);
-    FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState);
+    FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
     FLayersList.Add(FLayerMapGPS);
