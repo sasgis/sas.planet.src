@@ -119,6 +119,7 @@ begin
   FDefCacheType := FCacheType;
   FNameInCache := VParams.ReadString('NameInCache', 'Sat');
   FDefNameInCache := FNameInCache;
+  OnSettingsEdit(nil);
 end;
 
 destructor TMapTypeCacheConfig.Destroy;

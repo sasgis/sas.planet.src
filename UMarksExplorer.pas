@@ -392,7 +392,7 @@ begin
     TreeView1.Items.Clear;
     MarksListBox.Clear;
     FreeAndNil(FCategoryList);
-    FreeAndNil(FMarksList);
+    FMarksList := nil;
   end;
 end;
 
