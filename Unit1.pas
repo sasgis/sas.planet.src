@@ -1031,7 +1031,6 @@ begin
     FMainLayer.Visible := True;
     OnMainFormMainConfigChange(nil);
     MapLayersVisibleChange(nil);
-    FLayerMapMarks.Visible := GState.show_point <> mshNone;
     FLinksList.ActivateLinks;
     tmrMapUpdate.Enabled := True;
   finally
@@ -3496,7 +3495,6 @@ procedure TFmain.TBItem6Click(Sender: TObject);
 begin
  FMarksExplorer.EditMarks(FMarkDBGUI);
  FLayerMapMarks.Redraw;
- FLayerMapMarks.Visible := GState.show_point <> mshNone;
 end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);

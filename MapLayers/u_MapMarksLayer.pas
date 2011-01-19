@@ -9,6 +9,7 @@ uses
   i_MarksSimple,
   Ugeofun,
   u_MapViewPortState,
+  i_ILocalCoordConverter,
   u_MarksDbGUIHelper,
   u_MapLayerBasic;
 
@@ -20,9 +21,10 @@ type
     FMarkDBGUI: TMarksDbGUIHelper;
     FMarksSubset: IMarksSubset;
     procedure OnConfigChange(Sender: TObject);
-    function GetMarksSubset: IMarksSubset;
+    function GetMarksSubset(ANewVisualCoordConverter: ILocalCoordConverter; AConfigStatic: IUsedMarksConfigStatic): IMarksSubset;
   protected
     procedure DoRedraw; override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -31,7 +33,6 @@ type
       AMarkDBGUI: TMarksDbGUIHelper
     );
     procedure MouseOnMyReg(var APWL: TResObj; xy: TPoint);
-    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
@@ -46,7 +47,7 @@ uses
   u_GlobalState,
   i_ICoordConverter,
   i_IBitmapLayerProvider,
-  i_ILocalCoordConverter,
+  u_MapMarksBitmapLayerProviderByMarksSubset,
   u_MarksSimple,
   u_NotifyEventListener;
 
@@ -69,26 +70,42 @@ begin
   );
 end;
 
+procedure TMapMarksLayer.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  FMarksSubset := GetMarksSubset(ANewVisualCoordConverter, FConfigStatic);
+  if FMarksSubset <> nil then begin
+    if not FMarksSubset.IsEmpty then begin
+      inherited;
+      Show
+    end else begin
+      Hide;
+    end;
+  end else begin
+    Hide
+  end;
+end;
+
 procedure TMapMarksLayer.DoRedraw;
 var
-  VRect: TRect;
-  VProv: IBitmapLayerProvider;
+  VProv: IBitmapLayerProviderNew;
+  VMarksSubset: IMarksSubset;
 begin
   inherited;
-
-
-  if (GState.show_point <> mshNone) then begin
-    VProv := GState.MarksBitmapProvider;
-    VRect := FBitmapCoordConverter.GetRectInMapPixel;
-    FLayer.BeginUpdate;
-    try
-      FLayer.Bitmap.DrawMode:=dmBlend;
-      FLayer.Bitmap.CombineMode:=cmMerge;
-      FLayer.Bitmap.Clear(clBlack);
-      VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter.GetGeoConverter, VRect, FBitmapCoordConverter.GetZoom);
-    finally
-      FLayer.EndUpdate;
-      FLayer.Changed;
+  VMarksSubset := FMarksSubset;
+  if VMarksSubset <> nil then begin
+    if not VMarksSubset.IsEmpty then begin
+      VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
+      FLayer.BeginUpdate;
+      try
+        FLayer.Bitmap.DrawMode:=dmBlend;
+        FLayer.Bitmap.CombineMode:=cmMerge;
+        FLayer.Bitmap.Clear(clBlack);
+        VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter);
+      finally
+        FLayer.EndUpdate;
+        FLayer.Changed;
+      end;
     end;
   end;
 end;
@@ -176,7 +193,7 @@ begin
 //    VMarksIterator.Free;
 // end;
 end;
-function TMapMarksLayer.GetMarksSubset: IMarksSubset;
+function TMapMarksLayer.GetMarksSubset(ANewVisualCoordConverter: ILocalCoordConverter; AConfigStatic: IUsedMarksConfigStatic): IMarksSubset;
 var
   VList: TList;
   VConverter: ILocalCoordConverter;
@@ -186,11 +203,11 @@ var
   VGeoConverter: ICoordConverter;
 begin
   VList := nil;
-  if FConfigStatic.IsUseMarks then begin
-    VConverter := FBitmapCoordConverter;
+  if AConfigStatic.IsUseMarks then begin
+    VConverter := ANewVisualCoordConverter;
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
-      if not FConfigStatic.IgnoreCategoriesVisible then begin
+      if not AConfigStatic.IgnoreCategoriesVisible then begin
         VList := FMarkDBGUI.GetVisibleCateroriesIDList(VZoom);
       end;
       try
@@ -201,7 +218,7 @@ begin
           VMapPixelRect := VConverter.GetRectInMapPixelFloat;
           VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
           VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-          Result := FMarkDBGUI.MarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
+          Result := FMarkDBGUI.MarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, AConfigStatic.IgnoreMarksVisible);
         end;
       finally
         VList.Free;
@@ -215,7 +232,7 @@ end;
 procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
 begin
   FConfigStatic := FConfig.GetStatic;
-  FMarksSubset := GetMarksSubset;
+  FMarksSubset := GetMarksSubset(FBitmapCoordConverter, FConfigStatic);
   if FMarksSubset <> nil then begin
     if not FMarksSubset.IsEmpty then begin
       Redraw;
