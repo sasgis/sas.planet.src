@@ -12,6 +12,7 @@ uses
   UGeoFun,
   bmpUtil,
   t_GeoTypes,
+  i_MarksSimple,
   i_IBitmapPostProcessingConfig,
   UResStrings,
   u_ThreadMapCombineBase;
@@ -54,7 +55,7 @@ type
       AHtypemap: TMapType;
       AusedReColor: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
-      AusedMarks: boolean;
+      AMarksSubset: IMarksSubset;
       AQuality: Integer
     );
   end;
@@ -64,6 +65,7 @@ implementation
 uses
   ECWWriter,
   i_ICoordConverter,
+  i_ILocalCoordConverter,
   u_GlobalState;
 
 constructor TThreadMapCombineECW.Create(
@@ -75,12 +77,12 @@ constructor TThreadMapCombineECW.Create(
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
-  AusedMarks: boolean;
+  AMarksSubset: IMarksSubset;
   AQuality: Integer
 );
 begin
   inherited Create(AMapCalibrationList, AFileName, APolygon, ASplitCount,
-    Azoom, Atypemap, AHtypemap, AusedReColor, ARecolorConfig, AusedMarks);
+    Azoom, Atypemap, AHtypemap, AusedReColor, ARecolorConfig, AMarksSubset);
   FQuality := AQuality;
 end;
 
@@ -91,6 +93,7 @@ var
   p_h: TPoint;
   p: PColor32array;
   VTileRect: TRect;
+  VConverter: ILocalCoordConverter;
 begin
   Result := True;
   if line < (256 - sy) then begin
@@ -123,21 +126,10 @@ begin
       if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
         btmm.Clear(Color32(GState.BGround));
       end else begin
-        btmm.Clear(Color32(GState.BGround));
-        VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
-        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, true, GState.UsePrevZoom);
-        if FHTypeMap <> nil then begin
-          btmh.Clear($FF000000);
-          FHTypeMap.LoadTileUni(btmh, FLastTile, FZoom, False, FTypeMap.GeoConvert, True, True, True);
-          btmh.DrawMode := dmBlend;
-          btmm.Draw(0, 0, btmh);
-        end;
         FLastTile := Point(p_x shr 8, p_y shr 8);
-        if FUsedMarks then begin
-          GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
-        end;
+        VConverter := CreateConverterForTileImage(FLastTile);
+        PrepareTileBitmap(btmm, VConverter);
       end;
-      ProcessRecolor(btmm);
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
       end;

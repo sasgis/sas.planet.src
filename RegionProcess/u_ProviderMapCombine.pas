@@ -29,6 +29,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  i_MarksSimple,
   u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
@@ -96,6 +97,7 @@ var
   VFileName: string;
   VSplitCount: TPoint;
   VFileExt: string;
+  VMarksSubset: IMarksSubset;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -109,6 +111,10 @@ begin
   VSplitCount.X := FFrame.seSplitHor.Value;
   VSplitCount.Y := FFrame.seSplitVert.Value;
   VFileExt := UpperCase(ExtractFileExt(VFileName));
+  VMarksSubset := nil;
+  if FFrame.chkUseMapMarks.Checked then begin
+//    VMarksSubset :=
+  end;
   if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
     TThreadMapCombineECW.Create(
       VPrTypes,
@@ -119,7 +125,7 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      FFrame.chkUseMapMarks.Checked,
+      VMarksSubset,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.BMP') then begin
@@ -132,7 +138,7 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      FFrame.chkUseMapMarks.Checked
+      VMarksSubset
     );
   end else if (VFileExt='.KMZ') then begin
     TThreadMapCombineKMZ.Create(
@@ -144,7 +150,7 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      FFrame.chkUseMapMarks.Checked,
+      VMarksSubset,
       FFrame.seJpgQuality.Value
     );
   end else begin
@@ -157,7 +163,7 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      FFrame.chkUseMapMarks.Checked,
+      VMarksSubset,
       FFrame.seJpgQuality.Value
     );
   end;

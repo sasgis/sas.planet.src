@@ -16,7 +16,7 @@ uses
   u_ClipPolygonByRect;
 
 type
-  TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProviderNew)
+  TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
   private
     FMarksSubset: IMarksSubset;
     FDeltaSizeInPixel: TPoint;

@@ -37,6 +37,7 @@ implementation
 
 uses
   i_ICoordConverter,
+  i_ILocalCoordConverter,
   u_GlobalState;
 
 procedure TThreadMapCombineBMP.ReadLineBMP(Line: cardinal;
@@ -46,6 +47,7 @@ var
   p_h: TPoint;
   p: PColor32array;
   VTileRect: TRect;
+  VConverter: ILocalCoordConverter;
 begin
   if line < (256 - sy) then begin
     starttile := sy + line;
@@ -75,21 +77,10 @@ begin
       if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
         btmm.Clear(Color32(GState.BGround));
       end else begin
-        btmm.Clear(Color32(GState.BGround));
         FLastTile := Point(p_x shr 8, p_y shr 8);
-        VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(FLastTile, FZoom);
-        FTypeMap.LoadTileOrPreZ(btmm, FLastTile, FZoom, false, True, GState.UsePrevZoom);
-        if FHTypeMap <> nil then begin
-          btmh.Clear($FF000000);
-          FHTypeMap.LoadTileUni(btmh, FLastTile, FZoom, False, FTypeMap.GeoConvert, True, True, True);
-          btmh.DrawMode := dmBlend;
-          btmm.Draw(0, 0, btmh);
-        end;
-        if FUsedMarks then begin
-          GState.MarksBitmapProvider.GetBitmapRect(btmm, FTypeMap.GeoConvert, VTileRect, FZoom);
-        end;
+        VConverter := CreateConverterForTileImage(FLastTile);
+        PrepareTileBitmap(btmm, VConverter);
       end;
-      ProcessRecolor(btmm);
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
       end;

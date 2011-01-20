@@ -74,7 +74,7 @@ end;
 
 procedure TMapMarksLayer.DoRedraw;
 var
-  VProv: IBitmapLayerProviderNew;
+  VProv: IBitmapLayerProvider;
   VMarksSubset: IMarksSubset;
 begin
   inherited;

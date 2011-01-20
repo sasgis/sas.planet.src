@@ -56,7 +56,6 @@ type
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
     FCacheConfig: TGlobalCahceConfig;
-    FMarksBitmapProvider: IBitmapLayerProvider;
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
@@ -158,7 +157,6 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
-    property MarksBitmapProvider: IBitmapLayerProvider read FMarksBitmapProvider;
     property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
     property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
@@ -210,7 +208,6 @@ uses
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
-  u_MapMarksBitmapLayerProviderStuped,
   u_MapTypeIconsList,
   u_CoordConverterFactorySimple,
   u_LanguageManager,
@@ -268,7 +265,6 @@ begin
   FKmzLoader := TKmzInfoSimpleParser.Create;
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
-  FMarksBitmapProvider := TMapMarksBitmapLayerProviderStuped.Create;
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   GPSpar := TGPSpar.Create(TrackLogPath);
@@ -297,7 +293,6 @@ begin
   FMapCalibrationList := nil;
   FKmlLoader := nil;
   FKmzLoader := nil;
-  FMarksBitmapProvider := nil;
   FreeAndNil(FMarksDB);
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;

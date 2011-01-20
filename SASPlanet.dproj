@@ -461,7 +461,6 @@
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderByMarksSubset.pas" />
-    <DCCReference Include="u_MapMarksBitmapLayerProviderStuped.pas" />
     <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
