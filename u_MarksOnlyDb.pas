@@ -59,6 +59,59 @@ uses
   u_MarksSubset,
   u_MarksSimpleNew;
 
+type
+  TExtendedPoint = record
+    X, Y: Extended;
+  end;
+
+
+procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TDoublePointArray);
+var
+  VSize: Integer;
+  VPointsCount: Integer;
+  VField: TBlobfield;
+  VStream: TStream;
+  i: Integer;
+  VPoint: TExtendedPoint;
+begin
+  VField := TBlobfield(BlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
+  try
+    VSize := VStream.Size;
+    VPointsCount := VSize div SizeOf(TExtendedPoint);
+    SetLength(APoints, VPointsCount);
+    for i := 0 to VPointsCount - 1 do begin
+      VStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
+      APoints[i].X := VPoint.X;
+      APoints[i].Y := VPoint.Y;
+    end;
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure BlobFromExtArr(AArr: TDoublePointArray; Blobfield: Tfield);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+  VPointsCount: Integer;
+  i: Integer;
+  VPoint: TExtendedPoint;
+begin
+  VField := TBlobfield(BlobField);
+  VPointsCount := Length(AArr);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    for i := 0 to VPointsCount - 1 do begin
+      VPoint.X := AArr[i].X;
+      VPoint.Y := AArr[i].Y;
+      VStream.Write(VPoint, SizeOf(VPoint));
+    end;
+  finally
+    VStream.Free;
+  end;
+end;
+
 function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
   ACategoryIDList: TList; AIgnoreVisible: Boolean): IMarksSubset;
 
@@ -118,60 +171,6 @@ begin
     VList.Unlock;
   end;
 end;
-
-type
-  TExtendedPoint = record
-    X, Y: Extended;
-  end;
-
-
-procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TDoublePointArray);
-var
-  VSize: Integer;
-  VPointsCount: Integer;
-  VField: TBlobfield;
-  VStream: TStream;
-  i: Integer;
-  VPoint: TExtendedPoint;
-begin
-  VField := TBlobfield(BlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
-  try
-    VSize := VStream.Size;
-    VPointsCount := VSize div SizeOf(TExtendedPoint);
-    SetLength(APoints, VPointsCount);
-    for i := 0 to VPointsCount - 1 do begin
-      VStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
-      APoints[i].X := VPoint.X;
-      APoints[i].Y := VPoint.Y;
-    end;
-  finally
-    VStream.Free;
-  end;
-end;
-
-procedure BlobFromExtArr(AArr: TDoublePointArray; Blobfield: Tfield);
-var
-  VField: TBlobfield;
-  VStream: TStream;
-  VPointsCount: Integer;
-  i: Integer;
-  VPoint: TExtendedPoint;
-begin
-  VField := TBlobfield(BlobField);
-  VPointsCount := Length(AArr);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
-  try
-    for i := 0 to VPointsCount - 1 do begin
-      VPoint.X := AArr[i].X;
-      VPoint.Y := AArr[i].Y;
-      VStream.Write(VPoint, SizeOf(VPoint));
-    end;
-  finally
-    VStream.Free;
-  end;
-end;
-
 
 function TMarksOnlyDb.ReadCurrentMarkId: IMarkId;
 var
