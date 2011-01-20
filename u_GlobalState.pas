@@ -115,8 +115,6 @@ type
     WikiMapMainColor: TColor;
     WikiMapFonColor: TColor;
 
-    show_point: TMarksShowType;
-
     // Количество тайлов отображаемых за границей экрана
     TilesOut: Integer;
 
@@ -420,8 +418,6 @@ begin
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 
-  show_point := TMarksShowType(MainIni.readinteger('VIEW','ShowPointType',2));
-
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
   UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
   MapZapColor:=MainIni.Readinteger('VIEW','MapZapColor',clBlack);
@@ -483,7 +479,6 @@ begin
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
-  MainIni.WriteInteger('VIEW','ShowPointType',Byte(show_point));
   MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);
   MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);

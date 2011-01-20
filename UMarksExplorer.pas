@@ -97,6 +97,7 @@ uses
   u_GlobalState,
   i_ICoordConverter,
   i_IImportConfig,
+  i_IUsedMarksConfig,
   u_MarksReadWriteSimple,
   USaveas,
   UaddPoint,
@@ -180,10 +181,24 @@ end;
 
 procedure TFMarksExplorer.Button2Click(Sender: TObject);
 begin
- if RBall.Checked then GState.show_point := mshAll;
- if RBchecked.Checked then GState.show_point := mshChecked;
- if RBnot.Checked then GState.show_point := mshNone;
- close;
+  GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
+  try
+    if RBnot.Checked then begin
+      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := False;
+    end else begin
+      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
+      if RBall.Checked then begin
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := True;
+      end else begin
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := False;
+      end;
+    end;
+  finally
+    GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
+  end;
+  close;
 end;
 
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
@@ -375,12 +390,19 @@ begin
 end;
 
 procedure TFMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
+var
+  VMarksConfig: IUsedMarksConfigStatic;
 begin
   FMarkDBGUI := AMarkDBGUI;
-  case GState.show_point of
-    mshAll: RBall.Checked:=true;
-    mshChecked: RBchecked.Checked:=true;
-    mshNone: RBnot.Checked:=true;
+  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksShowConfig.GetStatic;
+  if VMarksConfig.IsUseMarks then begin
+    if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
+      RBall.Checked := true;
+    end else begin
+      RBchecked.Checked := true;
+    end;
+  end else begin
+    RBnot.Checked := true;
   end;
   UpdateCategoryTree;
   UpdateMarksList;

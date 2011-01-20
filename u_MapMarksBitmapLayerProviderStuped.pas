@@ -275,15 +275,15 @@ procedure TMapMarksBitmapLayerProviderStuped.GetBitmapRect(
 var
   VWorker: TMapMarksBitmapLayerProviderStupedThreaded;
 begin
-  if (GState.show_point <> mshNone) then begin
-    VWorker := TMapMarksBitmapLayerProviderStupedThreaded.Create(
-      ATargetBmp, AConverter, ATargetRect, ATargetZoom, GState.show_point);
-    try
-      TThread.Synchronize(nil, VWorker.SyncGetBitmap);
-    finally
-      VWorker.Free;
-    end;
-  end;
+//  if (GState.show_point <> mshNone) then begin
+//    VWorker := TMapMarksBitmapLayerProviderStupedThreaded.Create(
+//      ATargetBmp, AConverter, ATargetRect, ATargetZoom, GState.show_point);
+//    try
+//      TThread.Synchronize(nil, VWorker.SyncGetBitmap);
+//    finally
+//      VWorker.Free;
+//    end;
+//  end;
 end;
 
 end.
