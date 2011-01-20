@@ -26,7 +26,6 @@ type
 
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
-    procedure WriteMarkId(AMark: IMarkId);
   public
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
@@ -158,7 +157,6 @@ begin
       FDMMarksDb.CDSmarks.Filter := GetFilterText(ARect, ACategoryIDList, AIgnoreVisible);
       FDMMarksDb.CDSmarks.Filtered := true;
       FDMMarksDb.CDSmarks.First;
-      FDMMarksDb.CDSmarks.First;
       while not (FDMMarksDb.CDSmarks.Eof) do begin
         VMark := ReadCurrentMark;
         VList.Add(VMark);
@@ -252,16 +250,28 @@ end;
 function TMarksOnlyDb.GetMarkByID(id: integer): IMarkFull;
 begin
   Result := nil;
-  if FDMMarksDb.CDSmarks.Locate('id', id, []) then begin
-    Result := ReadCurrentMark;
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    if FDMMarksDb.CDSmarks.Locate('id', id, []) then begin
+      Result := ReadCurrentMark;
+    end;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
 end;
 
 function TMarksOnlyDb.GetMarkIdByID(id: integer): IMarkId;
 begin
   Result := nil;
-  if FDMMarksDb.CDSmarks.Locate('id', id, []) then begin
-    Result := ReadCurrentMarkId;
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    if FDMMarksDb.CDSmarks.Locate('id', id, []) then begin
+      Result := ReadCurrentMarkId;
+    end;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
 end;
 
@@ -291,25 +301,24 @@ end;
 
 procedure TMarksOnlyDb.WriteMark(AMark: IMarkFull);
 begin
-  if AMark.id >= 0 then begin
-    FDMMarksDb.CDSmarks.Locate('id', AMark.id, []);
-    FDMMarksDb.CDSmarks.Edit;
-  end else begin
-    FDMMarksDb.CDSmarks.Insert;
-  end;
-  WriteCurrentMark(AMark);
-  FDMMarksDb.CDSmarks.Post;
-  SaveMarks2File;
-end;
-
-procedure TMarksOnlyDb.WriteMarkId(AMark: IMarkId);
-begin
-  if AMark.id >= 0 then begin
-    FDMMarksDb.CDSmarks.Locate('id', AMark.id, []);
-    FDMMarksDb.CDSmarks.Edit;
-    WriteCurrentMarkId(AMark);
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    if AMark.id >= 0 then begin
+      if FDMMarksDb.CDSmarks.Locate('id', AMark.id, []) then begin
+        FDMMarksDb.CDSmarks.Edit;
+      end else begin
+        FDMMarksDb.CDSmarks.Insert;
+      end;
+    end else begin
+      FDMMarksDb.CDSmarks.Insert;
+    end;
+    WriteCurrentMark(AMark);
     FDMMarksDb.CDSmarks.Post;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
+  SaveMarks2File;
 end;
 
 constructor TMarksOnlyDb.Create(ABasePath: string;
@@ -323,10 +332,18 @@ end;
 function TMarksOnlyDb.DeleteMark(AMarkId: IMarkId): Boolean;
 begin
   result := false;
-  if FDMMarksDb.CDSmarks.Locate('id', AMarkId.id, []) then begin
-    FDMMarksDb.CDSmarks.Delete;
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    if FDMMarksDb.CDSmarks.Locate('id', AMarkId.id, []) then begin
+      FDMMarksDb.CDSmarks.Delete;
+      result := true;
+    end;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
+  end;
+  if Result then begin
     SaveMarks2File;
-    result := true;
   end;
 end;
 
@@ -341,10 +358,10 @@ begin
     while not (FDMMarksDb.CDSmarks.Eof) do begin
       FDMMarksDb.CDSmarks.Delete;
     end;
-    SaveMarks2File;
   finally
     FDMMarksDb.CDSmarks.EnableControls;
   end;
+  SaveMarks2File;
 end;
 
 procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategoryId: TCategoryId;
@@ -375,7 +392,19 @@ end;
 procedure TMarksOnlyDb.SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
 begin
   (AMark as IMarkVisible).Visible := AVisible;
-  WriteMarkId(AMark);
+  if AMark.id >= 0 then begin
+    FDMMarksDb.CDSmarks.DisableControls;
+    try
+      FDMMarksDb.CDSmarks.Filtered := false;
+      if FDMMarksDb.CDSmarks.Locate('id', AMark.id, []) then begin
+        FDMMarksDb.CDSmarks.Edit;
+        WriteCurrentMarkId(AMark);
+        FDMMarksDb.CDSmarks.Post;
+      end;
+    finally
+      FDMMarksDb.CDSmarks.EnableControls;
+    end;
+  end;
 end;
 
 function TMarksOnlyDb.GetAllMarskIdList: IInterfaceList;
