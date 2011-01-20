@@ -89,29 +89,17 @@ end;
 
 procedure TMarkCategoryDB.DeleteCategoryWithMarks(ACategory: TCategoryId);
 begin
-  FDMMarksDb.CDSmarks.DisableControls;
-  try
-    if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-      FDMMarksDb.CDSmarks.Filtered := false;
-      FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
-      FDMMarksDb.CDSmarks.Filtered := true;
-      FDMMarksDb.CDSmarks.First;
-      while not (FDMMarksDb.CDSmarks.Eof) do begin
-        FDMMarksDb.CDSmarks.Delete;
+  if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
+    FMarksDb.DeleteMarksByCategoryID(ACategory.id);
+    FDMMarksDb.CDSKategory.DisableControls;
+    try
+      if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
+        FDMMarksDb.CDSKategory.Delete;
       end;
-      FMarksDb.SaveMarks2File;
-      FDMMarksDb.CDSKategory.DisableControls;
-      try
-        if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-          FDMMarksDb.CDSKategory.Delete;
-        end;
-      finally
-        FDMMarksDb.CDSKategory.EnableControls;
-      end;
-      SaveCategory2File;
+    finally
+      FDMMarksDb.CDSKategory.EnableControls;
     end;
-  finally
-    FDMMarksDb.CDSmarks.EnableControls;
+    SaveCategory2File;
   end;
 end;
 

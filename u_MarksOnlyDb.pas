@@ -35,6 +35,7 @@ type
     function GetMarkByID(id: integer): IMarkFull;
     function GetMarkIdByID(id: integer): IMarkId;
     function DeleteMark(AMarkId: IMarkId): Boolean;
+    procedure DeleteMarksByCategoryID(ACategoryID: integer);
     procedure WriteMark(AMark: IMarkFull);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
@@ -58,151 +59,6 @@ uses
   u_MarksSubset,
   u_MarksSimpleNew;
 
-//type
-//  TMarksIteratorVisibleInRectBase = class(TMarksIteratorBase)
-//  private
-//    FMarksDb: TMarksOnlyDb;
-//    FFinished: Boolean;
-//    FRect: TDoubleRect;
-//  protected
-//    procedure FinishIterate;
-//  public
-//    constructor Create(AMarksDb: TMarksOnlyDb; ARect: TDoubleRect);
-//    destructor Destroy; override;
-//    function Next: Boolean; override;
-//  end;
-//
-//  TMarksIteratorVisibleInRectByCategoryList = class(TMarksIteratorVisibleInRectBase)
-//  private
-//    FCategoryIDList: TList;
-//    FOwnList: Boolean;
-//    FIgnoreVisible: Boolean;
-//  protected
-//    function GetFilterText: string; virtual;
-//  public
-//    constructor Create(AMarksDb: TMarksOnlyDb; ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible: Boolean; AOwnList: Boolean);
-//    destructor Destroy; override;
-//  end;
-//
-//  TMarksIteratorVisibleInRectWithIgnore = class(TMarksIteratorVisibleInRectByCategoryList)
-//  private
-//    FIgnoredID: Integer;
-//  protected
-//    function GetFilterText: string; override;
-//  public
-//    constructor Create(AMarksDb: TMarksOnlyDb; ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible: Boolean; AOwnList: Boolean; AIgnoredID: Integer);
-//  end;
-//
-//{ TMarksIteratorVisibleInRectBase }
-//
-//constructor TMarksIteratorVisibleInRectBase.Create(AMarksDb: TMarksOnlyDb;
-//  ARect: TDoubleRect);
-//begin
-//  inherited Create;
-//  FMarksDb := AMarksDb;
-//  FRect := ARect;
-//  FMarksDb.FDMMarksDb.CDSmarks.DisableControls;
-//  FFinished := False;
-//end;
-//
-//destructor TMarksIteratorVisibleInRectBase.Destroy;
-//begin
-//  if not FFinished then begin
-//    FinishIterate;
-//  end;
-//  inherited;
-//end;
-//
-//procedure TMarksIteratorVisibleInRectBase.FinishIterate;
-//begin
-//  FFinished := True;
-//  FMarksDb.FDMMarksDb.CDSmarks.Filtered := false;
-//  FMarksDb.FDMMarksDb.CDSmarks.EnableControls;
-//end;
-//
-//function TMarksIteratorVisibleInRectBase.Next: Boolean;
-//begin
-//  if not FFinished then begin
-//    FCurrentMark := FMarksDb.ReadCurrentMark;
-//    FMarksDb.FDMMarksDb.CDSmarks.Next;
-//    if FMarksDb.FDMMarksDb.CDSmarks.Eof then begin
-//      FinishIterate;
-//    end;
-//    Result := True;
-//  end else begin
-//    Result := False;
-//  end;
-//end;
-//
-//{ TMarksIteratorVisibleInRectByCategoryList }
-//
-//constructor TMarksIteratorVisibleInRectByCategoryList.Create(AMarksDb: TMarksOnlyDb;
-//  ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible: Boolean; AOwnList: Boolean);
-//begin
-//  inherited Create(AMarksDb, ARect);
-//  FCategoryIDList := ACategoryIDList;
-//  FOwnList := AOwnList;
-//  FIgnoreVisible := AIgnoreVisible;
-//  FMarksDb.FDMMarksDb.CDSmarks.Filter := GetFilterText;
-//  FMarksDb.FDMMarksDb.CDSmarks.Filtered := true;
-//  FMarksDb.FDMMarksDb.CDSmarks.First;
-//  if FMarksDb.FDMMarksDb.CDSmarks.Eof then begin
-//    FinishIterate;
-//  end;
-//end;
-//
-//destructor TMarksIteratorVisibleInRectByCategoryList.Destroy;
-//begin
-//  if FOwnList then begin
-//    FreeAndNil(FCategoryIDList);
-//  end;
-//  inherited;
-//end;
-//
-//function TMarksIteratorVisibleInRectByCategoryList.GetFilterText: string;
-//var
-//  VCategoryFilter: string;
-//  i: Integer;
-//begin
-//  Result := '';
-//  if not FIgnoreVisible then begin
-//    Result := Result + '(visible=1)';
-//    Result := Result + ' and ';
-//  end;
-//  if (FCategoryIDList <> nil) and (FCategoryIDList.Count > 0) then begin
-//    VCategoryFilter := IntToStr(integer(FCategoryIDList[0]));
-//    for i :=  1 to FCategoryIDList.Count - 1 do begin
-//      VCategoryFilter := VCategoryFilter + ',' + IntToStr(integer(FCategoryIDList[i]));
-//    end;
-//    VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
-//    Result := Result + VCategoryFilter;
-//  end;
-//  Result := Result + '(' +
-//    ' LonR>' + floattostr(FRect.Left) + ' and' +
-//    ' LonL<' + floattostr(FRect.Right) + ' and' +
-//    ' LatB<' + floattostr(FRect.Top) + ' and' +
-//    ' LatT>' + floattostr(FRect.Bottom) +
-//    ')';
-//end;
-//
-//{ TMarksIteratorVisibleInRectWithIgnore }
-//
-//constructor TMarksIteratorVisibleInRectWithIgnore.Create(AMarksDb: TMarksOnlyDb;
-//  ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible, AOwnList: Boolean;
-//  AIgnoredID: Integer);
-//begin
-//  FIgnoredID := AIgnoredID;
-//  inherited Create(AMarksDb, ARect, ACategoryIDList, AIgnoreVisible, AOwnList);
-//end;
-//
-//function TMarksIteratorVisibleInRectWithIgnore.GetFilterText: string;
-//begin
-//  Result := inherited GetFilterText;
-//  if FIgnoredID >= 0 then begin
-//    Result := '(id <> '+ IntToStr(FIgnoredID) + ') and ' + Result;
-//  end;
-//end;
-//
 function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
   ACategoryIDList: TList; AIgnoreVisible: Boolean): IMarksSubset;
 
@@ -472,6 +328,23 @@ begin
     FDMMarksDb.CDSmarks.Delete;
     SaveMarks2File;
     result := true;
+  end;
+end;
+
+procedure TMarksOnlyDb.DeleteMarksByCategoryID(ACategoryID: integer);
+begin
+  FDMMarksDb.CDSmarks.DisableControls;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryID);
+    FDMMarksDb.CDSmarks.Filtered := true;
+    FDMMarksDb.CDSmarks.First;
+    while not (FDMMarksDb.CDSmarks.Eof) do begin
+      FDMMarksDb.CDSmarks.Delete;
+    end;
+    SaveMarks2File;
+  finally
+    FDMMarksDb.CDSmarks.EnableControls;
   end;
 end;
 
