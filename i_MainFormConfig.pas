@@ -35,6 +35,11 @@ type
     function GetAnimateZoom: Boolean;
     procedure SetAnimateZoom(AValue: Boolean);
     property AnimateZoom: Boolean read GetAnimateZoom write SetAnimateZoom;
+
+    // ѕоказывать хинты при нахождении мыши над меткой
+    function GetShowHintOnMarks: Boolean;
+    procedure SetShowHintOnMarks(AValue: Boolean);
+    property ShowHintOnMarks: Boolean read GetShowHintOnMarks write SetShowHintOnMarks;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)

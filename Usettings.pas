@@ -338,7 +338,6 @@ begin
    GState.GSMpar.UnlockWrite;
  end;
 
- GState.ShowHintOnMarks:=CBShowHintOnMarks.checked;
   GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
  GState.MapZapColor:=MapZapColorBox.Selected;
  GState.MapZapAlpha:=MapZapAlphaEdit.Value;
@@ -413,6 +412,7 @@ begin
   try
     GState.MainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
     GState.MainFormConfig.MainConfig.MouseScrollInvert := ScrolInvert.Checked;
+    GState.MainFormConfig.MainConfig.ShowHintOnMarks := CBShowHintOnMarks.checked;
   finally
     GState.MainFormConfig.MainConfig.UnlockWrite;
   end;
@@ -559,7 +559,6 @@ begin
   finally
     VInetConfig.UnlockRead;
   end;
- CBShowHintOnMarks.Checked:=GState.ShowHintOnMarks;
   SETilesOCache.Value := GState.MainMemCacheConfig.MaxSize;
  MapZapColorBox.Selected:=GState.MapZapColor;
  MapZapAlphaEdit.Value:=GState.MapZapAlpha;
@@ -596,6 +595,7 @@ begin
   try
     CBShowmapname.Checked := GState.MainFormConfig.MainConfig.ShowMapName;
     ScrolInvert.Checked := GState.MainFormConfig.MainConfig.MouseScrollInvert;
+    CBShowHintOnMarks.checked := GState.MainFormConfig.MainConfig.ShowHintOnMarks;
   finally
     GState.MainFormConfig.MainConfig.UnlockRead;
   end;

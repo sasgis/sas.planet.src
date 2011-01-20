@@ -15,6 +15,7 @@ type
     FShowMapName: Boolean;
     FMouseScrollInvert: Boolean;
     FAnimateZoom: Boolean;
+    FShowHintOnMarks: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -30,6 +31,9 @@ type
 
     function GetAnimateZoom: Boolean;
     procedure SetAnimateZoom(AValue: Boolean);
+
+    function GetShowHintOnMarks: Boolean;
+    procedure SetShowHintOnMarks(AValue: Boolean);
   public
     constructor Create;
   end;
@@ -45,6 +49,7 @@ begin
   FShowMapName := True;
   FMouseScrollInvert := False;
   FAnimateZoom := True;
+  FShowHintOnMarks := True;
 end;
 
 procedure TMainFormMainConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -55,6 +60,7 @@ begin
     FShowMapName := AConfigData.ReadBool('ShowMapNameOnPanel', FShowMapName);
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FAnimateZoom := AConfigData.ReadBool('AnimateZoom', FAnimateZoom);
+    FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     SetChanged;
   end;
 end;
@@ -67,6 +73,7 @@ begin
   AConfigData.WriteBool('ShowMapNameOnPanel', FShowMapName);
   AConfigData.WriteBool('MouseScrollInvert', FMouseScrollInvert);
   AConfigData.WriteBool('AnimateZoom', FAnimateZoom);
+  AConfigData.WriteBool('ShowHintOnMarks', FShowHintOnMarks);
 end;
 
 function TMainFormMainConfig.GetAnimateZoom: Boolean;
@@ -84,6 +91,16 @@ begin
   LockRead;
   try
     Result := FMouseScrollInvert;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormMainConfig.GetShowHintOnMarks: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowHintOnMarks;
   finally
     UnlockRead;
   end;
@@ -128,6 +145,19 @@ begin
   try
     if FMouseScrollInvert <> AValue then begin
       FMouseScrollInvert := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetShowHintOnMarks(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowHintOnMarks <> AValue then begin
+      FShowHintOnMarks := AValue;
       SetChanged;
     end;
   finally

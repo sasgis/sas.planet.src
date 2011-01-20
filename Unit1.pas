@@ -3326,7 +3326,7 @@ begin
     end;
  end;
  FShowActivHint:=false;
- if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(GState.ShowHintOnMarks) then begin
+ if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
    VPWL.S:=0;
    VPWL.find:=false;
    if (FWikiLayer.Visible) then

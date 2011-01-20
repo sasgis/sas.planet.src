@@ -122,11 +122,6 @@ type
     //Использовать тайлы предыдущих уровней для отображения (для слоев)
     UsePrevZoomLayer: Boolean;
 
-    // Показывать хинты при нахождении мыши над меткой
-    ShowHintOnMarks: Boolean;
-
-    // Параетры касающиеся именно главного окна
-
     //Цвет фона
     BGround: TColor;
 
@@ -420,7 +415,6 @@ begin
   MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
   MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
 
-  ShowHintOnMarks:=MainIni.ReadBool('VIEW','ShowHintOnMarks',true);
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
   WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
   WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
@@ -478,7 +472,6 @@ begin
   MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);
   MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
-  MainIni.WriteBool('VIEW','ShowHintOnMarks', ShowHintOnMarks);
   MainIni.WriteInteger('VIEW','Background',BGround);
   MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
   MainIni.Writeinteger('Wikimapia','FonColor',WikiMapFonColor);
