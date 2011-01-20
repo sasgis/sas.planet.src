@@ -91,7 +91,6 @@ var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
   p_h: TPoint;
   p: PColor32array;
-  VTileRect: TRect;
   VConverter: ILocalCoordConverter;
 begin
   Result := True;

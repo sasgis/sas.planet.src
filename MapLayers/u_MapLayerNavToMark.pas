@@ -56,8 +56,6 @@ constructor TNavToMarkLayer.Create(
   ANavToPoint: INavigationToPoint;
   AConfig: IMapLayerNavToPointMarkerConfig
 );
-var
-  VSize: TPoint;
 begin
   inherited Create(AParentMap, AViewPortState);
   FNavToPoint := ANavToPoint;
