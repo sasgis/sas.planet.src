@@ -32,7 +32,6 @@ type
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
     function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
-    function GetVisibleCateroriesIDList(AZoom: Byte): TList;
 //    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
 
     property MarksDB: TMarksDB read FMarksDB;
@@ -263,30 +262,6 @@ begin
       VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
       MessageBox(AHandle,pchar(VMessage),pchar(VMark.name),0);
     end;
-  end;
-end;
-
-function TMarksDbGUIHelper.GetVisibleCateroriesIDList(AZoom: Byte): TList;
-var
-  VList: TList;
-  VCategory: TCategoryId;
-  i: Integer;
-begin
-  Result := TList.Create;
-  VList := FMarksDB.CategoryDB.GetCategoriesList;
-  try
-    for i := 0 to VList.Count - 1 do begin
-      VCategory := TCategoryId(VList[i]);
-      if
-        (VCategory.visible) and
-        (VCategory.AfterScale <= AZoom + 1) and
-        (VCategory.BeforeScale >= AZoom + 1)
-      then begin
-        Result.Add(Pointer(VCategory.id));
-      end;
-    end;
-  finally
-    VList.Free;
   end;
 end;
 

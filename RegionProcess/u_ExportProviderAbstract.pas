@@ -21,6 +21,7 @@ type
     procedure RefreshTranslation; virtual; abstract;
     procedure StartProcess(APolygon: TDoublePointArray); virtual; abstract;
   end;
+
 implementation
 
 { TExportProviderAbstract }

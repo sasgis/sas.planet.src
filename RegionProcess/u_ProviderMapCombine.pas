@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Controls,
   Forms,
   t_GeoTypes,
   u_ExportProviderAbstract,
@@ -30,6 +31,8 @@ uses
   Classes,
   SysUtils,
   i_MarksSimple,
+  i_IUsedMarksConfig,
+  u_MarksReadWriteSimple,
   u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
@@ -98,6 +101,11 @@ var
   VSplitCount: TPoint;
   VFileExt: string;
   VMarksSubset: IMarksSubset;
+  VLonLatRect: TDoubleRect;
+  VMarksConfigStatic: IUsedMarksConfigStatic;
+  VZoom: Byte;
+  VList: TList;
+  VMarkDB: TMarksDb;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -111,9 +119,44 @@ begin
   VSplitCount.X := FFrame.seSplitHor.Value;
   VSplitCount.Y := FFrame.seSplitVert.Value;
   VFileExt := UpperCase(ExtractFileExt(VFileName));
+  VZoom := FFrame.cbbZoom.ItemIndex+1;
   VMarksSubset := nil;
   if FFrame.chkUseMapMarks.Checked then begin
-//    VMarksSubset :=
+    VMarkDB := GState.MarksDB;
+    VMarksConfigStatic := GState.MainFormConfig.LayersConfig.MarksShowConfig.GetStatic;
+    if VMarksConfigStatic.IsUseMarks then begin
+      VList := nil;
+      if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
+        VList := VMarkDB.GetVisibleCateroriesIDList(VZoom);
+      end;
+      try
+        if (VList <> nil) and (VList.Count = 0) then begin
+          VMarksSubset := nil;
+        end else begin
+          VLonLatRect.TopLeft := APolygon[0];
+          VLonLatRect.BottomRight := APolygon[0];
+          for i := 1 to Length(APolygon) - 1 do begin
+            if VLonLatRect.Left > APolygon[i].X then begin
+              VLonLatRect.Left := APolygon[i].X;
+            end;
+            if VLonLatRect.Top < APolygon[i].Y then begin
+              VLonLatRect.Top := APolygon[i].Y;
+            end;
+            if VLonLatRect.Right < APolygon[i].X then begin
+              VLonLatRect.Right := APolygon[i].X;
+            end;
+            if VLonLatRect.Bottom > APolygon[i].Y then begin
+              VLonLatRect.Bottom := APolygon[i].Y;
+            end;
+          end;
+          VMarksSubset := VMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, VMarksConfigStatic.IgnoreMarksVisible);
+        end;
+      finally
+        VList.Free;
+      end;
+    end;
+  end else begin
+    VMarksSubset := nil;
   end;
   if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
     TThreadMapCombineECW.Create(
@@ -121,7 +164,7 @@ begin
       VFileName,
       APolygon,
       VSplitCount,
-      FFrame.cbbZoom.ItemIndex+1,
+      VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
@@ -134,7 +177,7 @@ begin
       VFileName,
       APolygon,
       VSplitCount,
-      FFrame.cbbZoom.ItemIndex+1,
+      VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
@@ -146,7 +189,7 @@ begin
       VFileName,
       APolygon,
       VSplitCount,
-      FFrame.cbbZoom.ItemIndex+1,
+      VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
@@ -159,7 +202,7 @@ begin
       VFileName,
       APolygon,
       VSplitCount,
-      FFrame.cbbZoom.ItemIndex+1,
+      VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,

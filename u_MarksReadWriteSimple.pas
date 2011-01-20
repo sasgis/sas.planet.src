@@ -33,6 +33,7 @@ type
 
     property MarksDb: TMarksOnlyDb read FMarksDb;
     property CategoryDB: TMarkCategoryDB read FCategoryDB;
+    function GetVisibleCateroriesIDList(AZoom: Byte): TList;
   end;
 
 
@@ -61,6 +62,30 @@ begin
   FreeAndNil(FCategoryDB);
   FreeAndNil(FDMMarksDb);
   inherited;
+end;
+
+function TMarksDB.GetVisibleCateroriesIDList(AZoom: Byte): TList;
+var
+  VList: TList;
+  VCategory: TCategoryId;
+  i: Integer;
+begin
+  Result := TList.Create;
+  VList := FCategoryDB.GetCategoriesList;
+  try
+    for i := 0 to VList.Count - 1 do begin
+      VCategory := TCategoryId(VList[i]);
+      if
+        (VCategory.visible) and
+        (VCategory.AfterScale <= AZoom + 1) and
+        (VCategory.BeforeScale >= AZoom + 1)
+      then begin
+        Result.Add(Pointer(VCategory.id));
+      end;
+    end;
+  finally
+    VList.Free;
+  end;
 end;
 
 procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
