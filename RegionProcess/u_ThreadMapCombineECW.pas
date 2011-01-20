@@ -38,7 +38,6 @@ type
     Barr: P256rgb;
     FECWWriter: TECWWrite;
     btmm: TCustomBitmap32;
-    btmh: TCustomBitmap32;
     FQuality: Integer;
 
     function ReadLineECW(Line: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
@@ -172,11 +171,8 @@ begin
   try
     FECWWriter := TECWWrite.Create(GState.ProgramPath);
     btmm := TCustomBitmap32.Create;
-    btmh := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;
-    btmh.Width := 256;
-    btmh.Height := 256;
     getmem(Rarr, 256 * sizeof(PRow));
     for k := 0 to 255 do begin
       getmem(Rarr[k], (FMapSize.X + 1) * sizeof(byte));
@@ -233,7 +229,6 @@ begin
     FreeMem(Barr);
     {$ENDIF}
     btmm.Free;
-    btmh.Free;
     FECWWriter.Free;
   end;
 end;

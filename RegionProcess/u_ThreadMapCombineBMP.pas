@@ -25,7 +25,6 @@ type
     FArray256BGR: P256ArrayBGR;
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
-    btmh: TCustomBitmap32;
 
     procedure ReadLineBMP(Line: cardinal; LineRGB: PLineRGBb);
   protected
@@ -111,11 +110,8 @@ begin
   ey := (FCurrentPieceRect.Bottom mod 256);
   try
     btmm := TCustomBitmap32.Create;
-    btmh := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;
-    btmh.Width := 256;
-    btmh.Height := 256;
     getmem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
     for k := 0 to 255 do begin
       getmem(FArray256BGR[k], (FMapPieceSize.X + 1) * 3);
@@ -134,7 +130,6 @@ begin
     FreeMem(FArray256BGR);
     {$ENDIF}
     btmm.Free;
-    btmh.Free;
   end;
 end;
 

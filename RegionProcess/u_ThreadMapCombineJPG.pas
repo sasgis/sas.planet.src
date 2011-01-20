@@ -30,7 +30,6 @@ type
     FArray256BGR: P256ArrayBGR;
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
-    btmh: TCustomBitmap32;
     FQuality: Integer;
 
     procedure ReadLineBMP(Line: cardinal; LineRGB: PLineRGBb);
@@ -156,11 +155,8 @@ begin
       getmem(FArray256BGR[k], (iWidth + 1) * 3);
     end;
     btmm := TCustomBitmap32.Create;
-    btmh := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;
-    btmh.Width := 256;
-    btmh.Height := 256;
     ijlInit(@jcprops);
     iNChannels := 3;
     jcprops.DIBWidth := iWidth;
@@ -195,7 +191,6 @@ begin
     freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
     ijlFree(@jcprops);
     btmm.Free;
-    btmh.Free;
   end;
 end;
 
