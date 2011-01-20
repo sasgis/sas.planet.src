@@ -56,6 +56,7 @@ type
     );
   public
     constructor Create(AMarksSubset: IMarksSubset);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -93,6 +94,13 @@ begin
   FBitmapWithText.CombineMode := cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
   FBitmapWithText.Resampler := TLinearResampler.Create;
+end;
+
+destructor TMapMarksBitmapLayerProviderByMarksSubset.Destroy;
+begin
+  FreeAndNil(FTempBmp);
+  FreeAndNil(FBitmapWithText);
+  inherited;
 end;
 
 procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPath(

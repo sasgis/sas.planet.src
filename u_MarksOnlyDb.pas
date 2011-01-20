@@ -223,7 +223,7 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
     if (ACategoryIDList <> nil) and (ACategoryIDList.Count > 0) then begin
       VCategoryFilter := IntToStr(integer(ACategoryIDList[0]));
       for i :=  1 to ACategoryIDList.Count - 1 do begin
-        VCategoryFilter := VCategoryFilter + ',' + IntToStr(integer(ACategoryIDList[i]));
+        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(integer(ACategoryIDList[i]));
       end;
       VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
       Result := Result + VCategoryFilter;

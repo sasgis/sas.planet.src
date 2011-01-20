@@ -48,6 +48,7 @@ begin
   FIsUseMarks := True;
   FIgnoreMarksVisible := False;
   FIgnoreCategoriesVisible := False;
+  SetChanged;
 end;
 
 function TUsedMarksConfig.CreateStatic: IUsedMarksConfigStatic;
@@ -111,7 +112,12 @@ end;
 
 function TUsedMarksConfig.GetStatic: IUsedMarksConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TUsedMarksConfig.SetChanged;
