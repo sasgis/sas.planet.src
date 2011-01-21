@@ -709,15 +709,15 @@ begin
         VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
         VCurrTilePixelRectAtBitmap := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
-        if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
+        if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, True, VUsePre) then begin
           Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
-        end;
-        FLayer.Bitmap.Lock;
-        try
-          VBmp.DrawMode := ADrawMode;
-          FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
-        finally
-          FLayer.Bitmap.UnLock;
+          FLayer.Bitmap.Lock;
+          try
+            VBmp.DrawMode := ADrawMode;
+            FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+          finally
+            FLayer.Bitmap.UnLock;
+          end;
         end;
       end;
     end;
