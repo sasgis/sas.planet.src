@@ -421,8 +421,26 @@ begin
  GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(EScPath.Text);
  GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
- GState.WikiMapMainColor:=CBWMainColor.Selected;
- GState.WikiMapFonColor:=CBWFonColor.Selected;
+  GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockWrite;
+  try
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor :=
+      SetAlpha(
+        Color32(CBWMainColor.Selected),
+        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor)
+      );
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.ShadowColor :=
+      SetAlpha(
+        Color32(CBWFonColor.Selected),
+        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.ShadowColor)
+      );
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.PointColor :=
+      SetAlpha(
+        Color32(CBWMainColor.Selected),
+        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.PointColor)
+      );
+  finally
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockWrite;
+  end;
 
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
@@ -621,8 +639,8 @@ begin
   CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
   InitResamplersList(GState.ImageResamplerConfig.GetList, ComboBox2);
   ComboBox2.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
- ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
- ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
+  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
+  ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
   GState.ValueToStringConverterConfig.LockRead;
   try
     ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;
@@ -631,8 +649,13 @@ begin
   finally
     GState.ValueToStringConverterConfig.UnlockRead;
   end;
- CBWMainColor.Selected:=GState.WikiMapMainColor;
- CBWFonColor.Selected:=GState.WikiMapFonColor;
+  GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockRead;
+  try
+    CBWMainColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor);
+    CBWFonColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.ShadowColor);
+  finally
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockRead;
+  end;
 
  TilesOverScreenEdit.Value:=GState.TilesOut;
  chkPosFromGSMClick(chkPosFromGSM);

@@ -12,6 +12,7 @@ uses
   i_IMainFormBehaviourByGPSConfig,
   i_IMainGeoCoderConfig,
   i_IUsedMarksConfig,
+  i_IKmlLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -67,6 +68,9 @@ type
 
     function GetMarksShowConfig: IUsedMarksConfig;
     property MarksShowConfig: IUsedMarksConfig read GetMarksShowConfig;
+
+    function GetKmlLayerConfig: IKmlLayerConfig;
+    property KmlLayerConfig: IKmlLayerConfig read GetKmlLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)

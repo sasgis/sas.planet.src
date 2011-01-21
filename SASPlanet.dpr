@@ -101,6 +101,7 @@ uses
   u_NotifyEventPosChangeListener in 'u_NotifyEventPosChangeListener.pas',
   u_MapLayerWithThreadDraw in 'MapLayers\u_MapLayerWithThreadDraw.pas',
   i_IKmlLayerConfig in 'i_IKmlLayerConfig.pas',
+  u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
   UPLT in 'UPLT.pas',
   Ugeofun in 'Ugeofun.pas',

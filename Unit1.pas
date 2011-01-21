@@ -846,7 +846,7 @@ begin
     FLayersList.Add(FMainLayer);
     FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
-    FWikiLayer := TWikiLayer.Create(map, GState.ViewState);
+    FWikiLayer := TWikiLayer.Create(map, GState.ViewState, FConfig.LayersConfig.KmlLayerConfig);
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap:=TMapLayerFillingMap.create(map, GState.ViewState);
     FLayersList.Add(FLayerFillingMap);

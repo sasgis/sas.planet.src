@@ -12,6 +12,7 @@ uses
   UMapType,
   u_MapLayerBasic,
   t_GeoTypes,
+  i_IKmlLayerConfig,
   i_ILocalCoordConverter,
   u_MapViewPortState,
   u_KmlInfoSimple;
@@ -30,16 +31,18 @@ type
 
   TWikiLayer = class(TMapLayerBasic)
   private
+    FConfig: IKmlLayerConfig;
     FFixedPointArray: TArrayOfFixedPoint;
     FWikiLayerElments: array of TWikiLayerElement;
     procedure addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
     procedure DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IKmlLayerConfig);
     destructor Destroy; override;
     procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
     property Visible: Boolean read GetVisible write SetVisible;
@@ -57,6 +60,7 @@ uses
   i_ITileIterator,
   i_MapTypes,
   u_GlobalState,
+  u_NotifyEventListener,
   u_TileIteratorByRect;
 
 { TWikiLayerElement }
@@ -80,9 +84,15 @@ end;
 
 { TWikiLayer }
 
-constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IKmlLayerConfig);
 begin
-  inherited;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+
   FLayer.Bitmap.DrawMode := dmTransparent;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 
@@ -243,6 +253,11 @@ begin
   end;
 end;
 
+procedure TWikiLayer.OnConfigChange(Sender: TObject);
+begin
+  Redraw;
+end;
+
 procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
 var
   VPolygon: TPolygon32;
@@ -252,9 +267,14 @@ var
   VColorBG: TColor32;
   VPointColor: TColor32;
 begin
-  VColorMain := Color32(GState.WikiMapMainColor);
-  VColorBG := Color32(GState.WikiMapFonColor);
-  VPointColor := SetAlpha(VColorMain, 170);
+  FConfig.LockRead;
+  try
+    VColorMain := FConfig.MainColor;
+    VColorBG := FConfig.ShadowColor;
+    VPointColor := FConfig.PointColor;
+  finally
+    FConfig.UnlockRead;
+  end;
   VPolygon := TPolygon32.Create;
   VPolygon.Antialiased := true;
   VPolygon.AntialiasMode := am4times;
@@ -301,7 +321,7 @@ begin
   VHybrList := FViewPortState.HybrList;
   VEnum := VHybrList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if GState.ViewState.IsHybrGUIDSelected(VGUID) then begin
+    if FViewPortState.IsHybrGUIDSelected(VGUID) then begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin

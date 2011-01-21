@@ -111,9 +111,6 @@ type
     // Прозрачность слоя заполнения карты
     MapZapAlpha: byte;
 
-    WikiMapMainColor: TColor;
-    WikiMapFonColor: TColor;
-
     // Количество тайлов отображаемых за границей экрана
     TilesOut: Integer;
 
@@ -416,8 +413,6 @@ begin
   MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
 
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
-  WikiMapMainColor:=MainIni.Readinteger('Wikimapia','MainColor',$FFFFFF);
-  WikiMapFonColor:=MainIni.Readinteger('Wikimapia','FonColor',$000001);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -473,8 +468,6 @@ begin
   MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);
   MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
   MainIni.WriteInteger('VIEW','Background',BGround);
-  MainIni.Writeinteger('Wikimapia','MainColor',WikiMapMainColor);
-  MainIni.Writeinteger('Wikimapia','FonColor',WikiMapFonColor);
 
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
