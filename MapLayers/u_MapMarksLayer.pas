@@ -80,19 +80,25 @@ begin
   inherited;
   FMarksSubset := GetMarksSubset;
   VMarksSubset := FMarksSubset;
-  if VMarksSubset <> nil then begin
-    if not VMarksSubset.IsEmpty then begin
-      VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
-      FLayer.BeginUpdate;
-      try
-        FLayer.Bitmap.DrawMode:=dmBlend;
-        FLayer.Bitmap.CombineMode:=cmMerge;
-        FLayer.Bitmap.Clear(clBlack);
-        VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter);
-      finally
-        FLayer.EndUpdate;
-        FLayer.Changed;
-      end;
+  if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
+    VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
+    FLayer.BeginUpdate;
+    try
+      FLayer.Bitmap.DrawMode:=dmBlend;
+      FLayer.Bitmap.CombineMode:=cmMerge;
+      FLayer.Bitmap.Clear(0);
+      VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter);
+    finally
+      FLayer.EndUpdate;
+      FLayer.Changed;
+    end;
+  end else begin
+    FLayer.BeginUpdate;
+    try
+      FLayer.Bitmap.Clear(0);
+    finally
+      FLayer.EndUpdate;
+      FLayer.Changed;
     end;
   end;
 end;
