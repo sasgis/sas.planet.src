@@ -149,8 +149,8 @@ begin
     VMap := GState.ViewState.GetCurrentMap;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
+    VMap.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
     VTile := VMap.GeoConvert.PixelPosFloat2TilePos(VMapPoint, VZoomCurr);
-    VMap.GeoConvert.CheckTilePosStrict(VTile, VZoomCurr, True);
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
