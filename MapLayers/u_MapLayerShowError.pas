@@ -29,6 +29,7 @@ implementation
 uses
   Graphics,
   Types,
+  i_ICoordConverter,
   Ugeofun;
 
 
@@ -92,10 +93,13 @@ begin
 end;
 
 procedure TTileErrorInfoLayer.ShowError(ATile: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
+var
+  VConverter: ICoordConverter;
 begin
+  VConverter := AMapType.GeoConvert;
   FHideAfterTime := GetTickCount + 10000;
   FZoom := AZoom;
-  FFixedLonLat := RectCenter(FVisualCoordConverter.GetGeoConverter.TilePos2PixelRect(ATile, AZoom));
+  FFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(ATile, AZoom)), AZoom);
   RenderText(AMapType, AText);
   Visible := true;
   UpdateLayerLocation(GetMapLayerLocationRect);
