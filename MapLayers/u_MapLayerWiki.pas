@@ -135,7 +135,7 @@ begin
   while VTileIterator.Next(VTile) do begin
     KML := TKmlInfoSimple.Create;
     try
-      if Alayer.LoadTile(kml, VTile, Vzoom, true) then begin
+      if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
         for ii := 0 to length(KML.Data) - 1 do begin
           addWL(KML.Data[ii], ALocalConverter);
         end;

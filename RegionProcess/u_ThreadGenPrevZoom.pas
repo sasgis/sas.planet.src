@@ -139,7 +139,7 @@ begin
             if not (FIsReplace) then begin
               continue;
             end;
-            FMapType.LoadTile(bmp_Ex, VTile, VZoom, false);
+            FMapType.LoadTile(bmp_Ex, VTile, VZoom, false, True);
           end else begin
             bmp_ex.SetSize(
               VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
@@ -155,7 +155,7 @@ begin
             VSubTilesSavedCount := 0;
             while VSubTileIterator.Next(VSubTile) do begin
               if FMapType.TileExists(VSubTile, VZoomPrev) then begin
-                if (FMapType.LoadTile(bmp, VSubTile, VZoomPrev, false)) then begin
+                if (FMapType.LoadTile(bmp, VSubTile, VZoomPrev, false, True)) then begin
                   VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
                   VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
                   VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;

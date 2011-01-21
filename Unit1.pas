@@ -875,6 +875,8 @@ begin
     FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
     FLayersList.Add(FLayerMiniMap);
 
+    FMainLayer.ErrorShowLayer := FShowErrorLayer;
+
     FUIDownLoader := TTileDownloaderUI.Create(GState.ViewState, Self.OnMapTileUpdate, FShowErrorLayer);
 
     CreateMapUI;
@@ -1028,7 +1030,6 @@ begin
     FLayersList.StartThreads;
     GState.StartThreads;
     FUIDownLoader.StartThreads;
-    FMainLayer.Visible := True;
     OnMainFormMainConfigChange(nil);
     MapLayersVisibleChange(nil);
     FLinksList.ActivateLinks;
@@ -2186,7 +2187,7 @@ begin
   VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
   btm:=TBitmap32.Create;
   try
-    if VMap.LoadTile(btm, VPoint, VZoomCurr, false) then begin
+    if VMap.LoadTile(btm, VPoint, VZoomCurr, false, False) then begin
       btm1:=TBitmap.Create;
       try
         btm1.Width:=btm.Width;

@@ -354,22 +354,14 @@ begin
   if VTileInfo.GetIsExists then begin
     if AStream is TMemoryStream then begin
       VMemStream := TMemoryStream(AStream);
-      try
-        VMemStream.LoadFromFile(VPath);
-        Result := True;
-      except
-        Result := False;
-      end;
+      VMemStream.LoadFromFile(VPath);
+      Result := True;
     end else begin
       VMemStream := TMemoryStream.Create;
       try
-        try
-          VMemStream.LoadFromFile(VPath);
-          VMemStream.SaveToStream(AStream);
-          Result := True;
-        except
-          Result := False;
-        end;
+        VMemStream.LoadFromFile(VPath);
+        VMemStream.SaveToStream(AStream);
+        Result := True;
       finally
         VMemStream.Free;
       end;

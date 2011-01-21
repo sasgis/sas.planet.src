@@ -6,18 +6,23 @@ uses
   Windows,
   Types,
   GR32,
+  GR32_Image,
   t_GeoTypes,
   u_MapViewPortState,
+  u_MapLayerShowError,
   UMapType,
   u_MapLayerBasic;
 
 type
   TMapMainLayer = class(TMapLayerBasic)
+  private
+    FErrorShowLayer: TTileErrorInfoLayer;
   protected
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
   public
-    property Visible: Boolean read GetVisible write SetVisible;
+    procedure StartThreads; override;
+    property ErrorShowLayer: TTileErrorInfoLayer read FErrorShowLayer write FErrorShowLayer;
   end;
 
 implementation
@@ -31,6 +36,7 @@ uses
   i_IBitmapPostProcessingConfig,
   i_MapTypes,
   Uimgfun,
+  UResStrings,
   u_TileIteratorByRect,
   u_GlobalState;
 
@@ -179,20 +185,30 @@ begin
 
         VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-        if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
-          Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
-        end;
-        FLayer.Bitmap.Lock;
         try
-          VBmp.DrawMode := ADrawMode;
-          FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
-        finally
-          FLayer.Bitmap.UnLock;
+          if VSourceMapType.LoadTileOrPreZ(VBmp, VTile, VZoom, true, False, VUsePre) then begin
+            Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
+            FLayer.Bitmap.Lock;
+            try
+              VBmp.DrawMode := ADrawMode;
+              FLayer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+            finally
+              FLayer.Bitmap.UnLock;
+            end;
+          end;
+        except
+          FErrorShowLayer.ShowError(VTile, VZoom, VSourceMapType, SAS_ERR_BadFile);
         end;
     end;
   finally
     VBmp.Free;
   end;
+end;
+
+procedure TMapMainLayer.StartThreads;
+begin
+  inherited;
+  Visible := True;
 end;
 
 end.
